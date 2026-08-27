@@ -1,0 +1,17 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+*.sqlite
+*.sqlite-*
+*.egg-info/
+
+# Local acceptance/report outputs and private historical backfills.
+e2e_output.txt
+jm_output.txt
+recent.txt
+*_backfill_*.jsonl
+*_seed_*.jsonl
+*_evidence_*.jsonl
+*_alias_*.jsonl
+test-results/
