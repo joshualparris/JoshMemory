@@ -11,6 +11,7 @@ from .github_evidence import github_evidence, import_github_evidence
 from .paths import default_db_path, default_sessions_dir
 from .seed import import_seed_file
 from .chatgpt import import_chatgpt_export
+from .historical import earliest_activity, historical_search
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -54,6 +55,13 @@ def main(argv: list[str] | None = None) -> int:
     p_github_query.add_argument("--project")
     p_github_query.add_argument("--limit", type=int, default=100)
 
+    p_historical = sub.add_parser("historical-search")
+    p_historical.add_argument("query")
+    p_historical.add_argument("--limit", type=int, default=20)
+
+    p_earliest = sub.add_parser("earliest-activity")
+    p_earliest.add_argument("activity", nargs="?", default="coding")
+
     args = parser.parse_args(argv)
     if args.cmd == "index":
         return print_json(index_all(args.db, args.sessions_dir, force=args.force))
@@ -76,6 +84,10 @@ def main(argv: list[str] | None = None) -> int:
         return print_json(import_github_evidence(args.path, db_path=args.db))
     if args.cmd == "github-evidence":
         return print_json(github_evidence(project=args.project, limit=args.limit, db_path=args.db))
+    if args.cmd == "historical-search":
+        return print_json(historical_search(args.query, limit=args.limit, db_path=args.db))
+    if args.cmd == "earliest-activity":
+        return print_json(earliest_activity(args.activity, db_path=args.db))
     parser.error("unreachable")
     return 2
 

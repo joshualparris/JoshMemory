@@ -7,6 +7,7 @@ from typing import Any, Callable
 from .github_evidence import github_evidence
 from .github_evidence import github_evidence
 from .index import get_session, index_all, project_history, recent_work, search_sessions, project_status
+from .historical import earliest_activity, historical_search, historical_timeline
 
 
 TOOLS: dict[str, dict[str, Any]] = {
@@ -70,6 +71,37 @@ TOOLS: dict[str, dict[str, Any]] = {
                 "project": {"type": "string"}
             },
             "required": ["project"],
+        },
+    },
+    "historical_search": {
+        "description": "Search historical evidence using deterministic activity and date intent parsing.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string"},
+                "limit": {"type": "integer", "default": 20, "minimum": 1, "maximum": 100},
+            },
+            "required": ["query"],
+        },
+    },
+    "earliest_activity": {
+        "description": "Find the earliest qualifying activity in the currently available evidence corpus.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "activity": {"type": "string", "default": "coding"},
+            },
+        },
+    },
+    "historical_timeline": {
+        "description": "Group date-scoped historical evidence by source without flattening facts into one narrative.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string"},
+                "limit": {"type": "integer", "default": 50, "minimum": 1, "maximum": 100},
+            },
+            "required": ["query"],
         },
     },
 }
@@ -136,6 +168,9 @@ def call_tool(name: str, arguments: dict[str, Any]) -> str:
         "recent_work": lambda a: recent_work(limit=int(a.get("limit", 10))),
         "github_evidence": lambda a: github_evidence(project=a.get("project"), limit=int(a.get("limit", 100))),
         "project_status": lambda a: project_status(str(a["project"])),
+        "historical_search": lambda a: historical_search(str(a["query"]), limit=int(a.get("limit", 20))),
+        "earliest_activity": lambda a: earliest_activity(str(a.get("activity", "coding"))),
+        "historical_timeline": lambda a: historical_timeline(str(a["query"]), limit=int(a.get("limit", 50))),
     }
     if name not in dispatch:
         raise ValueError(f"Unknown tool: {name}")

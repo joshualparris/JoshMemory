@@ -21,6 +21,8 @@ python3 -m joshmemory.cli import-github-evidence joshmemory_github_evidence_ledg
 python3 -m joshmemory.cli github-evidence --project FedoraCrashDoctor
 python3 -m joshmemory.cli import-chatgpt /path/to/chatgpt-export --dry-run
 python3 -m joshmemory.cli import-chatgpt /path/to/chatgpt-export
+python3 -m joshmemory.cli historical-search "what were we coding in March 2023?"
+python3 -m joshmemory.cli earliest-activity coding
 ```
 
 ## MCP
@@ -36,6 +38,9 @@ Tools:
 - `project_history`
 - `recent_work`
 - `github_evidence`
+- `historical_search`
+- `earliest_activity`
+- `historical_timeline`
 
 GitHub evidence is indexed separately from Codex transcripts. The ledger JSONL
 remains the source of truth, while SQLite stores redacted searchable text and
@@ -49,4 +54,10 @@ active branch is reconstructed by following `current_node` parents; other
 messages remain searchable with `branch_status=alternate` rather than being
 presented as part of the active linear transcript. Imports are repeatable by
 conversation/message IDs and do not delete existing seed/backfill evidence.
+
+Historical retrieval is deterministic and offline. It parses date ranges,
+chronological intent, and activity concepts such as coding and diagnostics,
+then returns evidence, coverage metadata, provenance, and caveats. Earliest
+activity means earliest qualifying evidence in the available corpus, not first
+activity ever.
 
