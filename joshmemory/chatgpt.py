@@ -50,6 +50,18 @@ def import_chatgpt_export(path: Path, *, db_path: Path | None = None, dry_run: b
             if not conversation_id:
                 stats["malformed_records_skipped"] += 1
                 continue
+            if not dry_run:
+                assert con is not None
+                existing_hash = con.execute(
+                    "SELECT source_hash FROM chatgpt_conversations WHERE conversation_id = ?",
+                    (conversation_id,),
+                ).fetchone()
+                if existing_hash and existing_hash[0] == source_hash:
+                    stats["duplicates_skipped"] += con.execute(
+                        "SELECT COUNT(*) FROM chatgpt_messages WHERE conversation_id = ?",
+                        (conversation_id,),
+                    ).fetchone()[0]
+                    continue
             try:
                 messages = list(parse_conversation(item, stats))
             except (TypeError, ValueError, KeyError):
