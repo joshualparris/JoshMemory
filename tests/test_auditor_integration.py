@@ -17,7 +17,7 @@ FAKE_AUDITOR_JSON = {
             "name": "FedoraCrashDoctor",
             "path": "/home/josh/dev/FedoraCrashDoctor",
             "git": {
-                "head": "main",
+                "head": "main", "branch": "main",
                 "modified": 2,
                 "untracked": 1,
                 "ahead": 0,
@@ -28,7 +28,7 @@ FAKE_AUDITOR_JSON = {
             "name": "ForgeGrid",
             "path": "/home/josh/dev/6 Laptops/ForgeGrid",
             "git": {
-                "head": "forgegrid-upgrade",
+                "head": "forgegrid-upgrade", "branch": "forgegrid-upgrade",
                 "modified": 0,
                 "untracked": 0,
                 "ahead": 1,
@@ -39,7 +39,7 @@ FAKE_AUDITOR_JSON = {
             "name": "CleanRepo",
             "path": "/home/josh/dev/Clean",
             "git": {
-                "head": "main",
+                "head": "main", "branch": "main",
                 "modified": 0,
                 "untracked": 0,
                 "ahead": 0,
@@ -147,3 +147,31 @@ def test_malformed_json_run_auditor():
             with mock.patch("joshmemory.auditor.scan_built_in", return_value={}):
                 result = joshmemory.auditor.run_auditor()
                 assert result == {}
+
+@mock.patch("joshmemory.auditor.run_auditor")
+def test_recent_work_branch_scoring(mock_run, tmp_path):
+    mock_run.return_value = {
+        "projects": [
+            {
+                "name": "FeatureRepo",
+                "git": {"branch": "feature/test", "head": "feature/test", "modified": 0, "untracked": 0, "latest_commit_date": "2026-08-28T10:00:00Z"}
+            },
+            {
+                "name": "MainRepo",
+                "git": {"branch": "main", "head": "main", "branch": "main", "modified": 0, "untracked": 0, "latest_commit_date": "2026-08-28T10:00:00Z"}
+            },
+            {
+                "name": "DetachedRepo",
+                "git": {"branch": None, "head": "abc1234", "modified": 0, "untracked": 0, "latest_commit_date": "2026-08-28T10:00:00Z"}
+            }
+        ]
+    }
+    db_path = tmp_path / "test.db"
+    ranked = recent_work(limit=10, db_path=db_path)
+    # FeatureRepo should score higher because of branch bonus
+    assert ranked[0]["project"] == "FeatureRepo"
+    # MainRepo and DetachedRepo should have the same lower score
+    score_main = next(r for r in ranked if r["project"] == "MainRepo")["activity_score"]
+    score_detached = next(r for r in ranked if r["project"] == "DetachedRepo")["activity_score"]
+    assert score_main == score_detached
+

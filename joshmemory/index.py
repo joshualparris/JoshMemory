@@ -236,7 +236,7 @@ def recent_work(*, limit: int = 10, db_path: Path | None = None) -> list[dict[st
         if git:
             if git.get("modified", 0) > 0 or git.get("untracked", 0) > 0:
                 score += 50
-            if git.get("head") not in ("main", "master", None):
+            if git.get("branch") not in ("main", "master", None):
                 score += 30
             commit_date = git.get("latest_commit_date")
             if commit_date:
