@@ -54,14 +54,20 @@ def test_scan_built_in(tmp_path):
     not_repo = base_dir / "NotARepo"
     not_repo.mkdir()
     
+    nested_repo = base_dir / "group" / "NestedRepo"
+    setup_git_repo(nested_repo, clean=True, branch="main")
+    
     result = scan_built_in(base_dir)
     assert result["version"] == "1.0"
     projects = result["projects"]
-    assert len(projects) == 2
+    assert len(projects) == 3
     
     clean_proj = next(p for p in projects if p["name"] == "CleanRepo")
     assert clean_proj["path"] == str(clean_repo.absolute())
     assert clean_proj["git"]["head"] == "main"
+    assert clean_proj["git"]["branch"] == "main"
+    assert clean_proj["git"]["head_sha"] is not None
+    assert clean_proj["git"]["origin_url"] is None
     assert clean_proj["git"]["modified"] == 0
     assert clean_proj["git"]["untracked"] == 0
     assert "latest_commit_date" in clean_proj["git"]
@@ -69,8 +75,13 @@ def test_scan_built_in(tmp_path):
     dirty_proj = next(p for p in projects if p["name"] == "DirtyRepo")
     assert dirty_proj["path"] == str(dirty_repo.absolute())
     assert dirty_proj["git"]["head"] == "feature-branch"
+    assert dirty_proj["git"]["branch"] == "feature-branch"
     assert dirty_proj["git"]["modified"] == 1
     assert dirty_proj["git"]["untracked"] == 1
+
+    nested_proj = next(p for p in projects if p["name"] == "NestedRepo")
+    assert nested_proj["path"] == str(nested_repo.absolute())
+    assert nested_proj["git"]["branch"] == "main"
 
 def test_missing_fedora_auditor(tmp_path, monkeypatch):
     monkeypatch.setenv("JOSHMEMORY_PROJECTS_DIR", str(tmp_path))
@@ -81,28 +92,17 @@ def test_missing_fedora_auditor(tmp_path, monkeypatch):
     assert len(result["projects"]) == 1
     assert result["projects"][0]["name"] == "MyRepo"
 
-@mock.patch("joshmemory.auditor.run_auditor")
-def test_recent_work_with_live_windows_repos(mock_run_auditor, tmp_path):
-    # This simulates recent_work() returning projects when live repos exist
+def test_real_recent_work_integration(tmp_path, monkeypatch):
     db_path = tmp_path / "test.db"
+    base_dir = tmp_path / "dev"
+    base_dir.mkdir()
+    monkeypatch.setenv("JOSHMEMORY_PROJECTS_DIR", str(base_dir))
     
-    mock_run_auditor.return_value = {
-        "projects": [
-            {
-                "name": "LiveWindowsRepo",
-                "path": "C:/dev/LiveWindowsRepo",
-                "git": {
-                    "head": "main",
-                    "modified": 2,
-                    "untracked": 0,
-                    "ahead": 0,
-                    "latest_commit_date": "2026-08-28T10:00:00Z"
-                }
-            }
-        ]
-    }
+    # We DO NOT mock run_auditor here
+    setup_git_repo(base_dir / "LiveIntegrationRepo", clean=False)
     
     ranked = recent_work(limit=10, db_path=db_path)
     assert len(ranked) >= 1
-    assert ranked[0]["project"] == "LiveWindowsRepo"
+    names = [r["project"] for r in ranked]
+    assert "LiveIntegrationRepo" in names
 

@@ -35,52 +35,67 @@ def scan_built_in(base_dir: Path) -> dict[str, Any]:
     if not base_dir.exists() or not base_dir.is_dir():
         return {"version": "1.0", "projects": projects}
         
-    for p in base_dir.iterdir():
-        if not p.is_dir():
-            continue
-            
+    ignore_dirs = {".git", "node_modules", ".venv", "venv", "dist", "build", "target", "__pycache__"}
+    
+    for root, dirs, files in os.walk(str(base_dir)):
+        dirs[:] = [d for d in dirs if d not in ignore_dirs]
+        
+        p = Path(root)
         git_dir = p / ".git"
-        if not git_dir.exists():
-            continue
+        if git_dir.exists() and git_dir.is_dir():
+            # It's a repo, stop descending
+            dirs[:] = []
             
-        head = run_git_command(p, ["rev-parse", "--abbrev-ref", "HEAD"])
-        if head == "HEAD" or not head:
-            head = run_git_command(p, ["rev-parse", "--short", "HEAD"])
+            branch_output = run_git_command(p, ["rev-parse", "--abbrev-ref", "HEAD"])
+            branch = branch_output if branch_output and branch_output != "HEAD" else None
             
-        status_output = run_git_command(p, ["status", "--porcelain"])
-        modified = 0
-        untracked = 0
-        for line in status_output.splitlines():
-            if line.startswith("??"):
-                untracked += 1
-            elif line.strip():
-                modified += 1
+            head_sha = run_git_command(p, ["rev-parse", "HEAD"])
+            
+            head = branch_output
+            if head == "HEAD" or not head:
+                head = run_git_command(p, ["rev-parse", "--short", "HEAD"])
                 
-        ahead = 0
-        if head:
-            try:
-                upstream = run_git_command(p, ["rev-parse", "--abbrev-ref", "@{u}"])
-                if upstream:
-                    ahead_str = run_git_command(p, ["rev-list", "--count", f"@{{u}}..HEAD"])
-                    if ahead_str.isdigit():
-                        ahead = int(ahead_str)
-            except Exception:
-                pass
+            origin_url = run_git_command(p, ["config", "--get", "remote.origin.url"])
+            if not origin_url:
+                origin_url = None
                 
-        latest_date = run_git_command(p, ["log", "-1", "--format=%cI"])
-        
-        projects.append({
-            "name": p.name,
-            "path": str(p.absolute()),
-            "git": {
-                "head": head,
-                "modified": modified,
-                "untracked": untracked,
-                "ahead": ahead,
-                "latest_commit_date": latest_date
-            }
-        })
-        
+            status_output = run_git_command(p, ["status", "--porcelain"])
+            modified = 0
+            untracked = 0
+            for line in status_output.splitlines():
+                if line.startswith("??"):
+                    untracked += 1
+                elif line.strip():
+                    modified += 1
+                    
+            ahead = 0
+            if branch:
+                try:
+                    upstream = run_git_command(p, ["rev-parse", "--abbrev-ref", "@{u}"])
+                    if upstream:
+                        ahead_str = run_git_command(p, ["rev-list", "--count", f"@{{u}}..HEAD"])
+                        if ahead_str.isdigit():
+                            ahead = int(ahead_str)
+                except Exception:
+                    pass
+                    
+            latest_date = run_git_command(p, ["log", "-1", "--format=%cI"])
+            
+            projects.append({
+                "name": p.name,
+                "path": str(p.absolute()),
+                "git": {
+                    "head": head,
+                    "branch": branch,
+                    "head_sha": head_sha,
+                    "origin_url": origin_url,
+                    "modified": modified,
+                    "untracked": untracked,
+                    "ahead": ahead,
+                    "latest_commit_date": latest_date
+                }
+            })
+            
     return {"version": "1.0", "projects": projects}
 
 def run_auditor() -> dict[str, Any]:
