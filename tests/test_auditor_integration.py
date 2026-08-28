@@ -144,5 +144,6 @@ def test_malformed_json_run_auditor():
         
         # Must patch path exists to bypass early return
         with mock.patch("pathlib.Path.exists", return_value=True):
-            result = joshmemory.auditor.run_auditor()
-            assert result == {}
+            with mock.patch("joshmemory.auditor.scan_built_in", return_value={}):
+                result = joshmemory.auditor.run_auditor()
+                assert result == {}

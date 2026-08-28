@@ -1,26 +1,105 @@
+import os
+import sys
 import json
 import subprocess
 from pathlib import Path
 from typing import Any
 
-# Hardcode path for now per instructions
-AUDITOR_SCRIPT = Path.home() / "dev" / "tools" / "fedora_project_audit.py"
-BASE_DIR = Path.home() / "dev"
-
-def run_auditor() -> dict[str, Any]:
-    if not AUDITOR_SCRIPT.exists():
-        return {}
+def get_base_dir() -> Path:
+    if "JOSHMEMORY_PROJECTS_DIR" in os.environ:
+        return Path(os.environ["JOSHMEMORY_PROJECTS_DIR"])
     
+    if sys.platform == "win32":
+        c_dev = Path("C:/dev")
+        if c_dev.exists() and c_dev.is_dir():
+            return c_dev
+            
+    return Path.home() / "dev"
+
+def run_git_command(cwd: Path, args: list[str]) -> str:
     try:
         result = subprocess.run(
-            ["python3", str(AUDITOR_SCRIPT), "--base", str(BASE_DIR), "--include-non-git", "--json"],
+            ["git", "--no-pager"] + args,
+            cwd=cwd,
             capture_output=True,
             text=True,
-            check=True
+            check=True,
+            creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
         )
-        return json.loads(result.stdout)
-    except (subprocess.CalledProcessError, json.JSONDecodeError):
-        return {}
+        return result.stdout.strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return ""
+
+def scan_built_in(base_dir: Path) -> dict[str, Any]:
+    projects = []
+    if not base_dir.exists() or not base_dir.is_dir():
+        return {"version": "1.0", "projects": projects}
+        
+    for p in base_dir.iterdir():
+        if not p.is_dir():
+            continue
+            
+        git_dir = p / ".git"
+        if not git_dir.exists():
+            continue
+            
+        head = run_git_command(p, ["rev-parse", "--abbrev-ref", "HEAD"])
+        if head == "HEAD" or not head:
+            head = run_git_command(p, ["rev-parse", "--short", "HEAD"])
+            
+        status_output = run_git_command(p, ["status", "--porcelain"])
+        modified = 0
+        untracked = 0
+        for line in status_output.splitlines():
+            if line.startswith("??"):
+                untracked += 1
+            elif line.strip():
+                modified += 1
+                
+        ahead = 0
+        if head:
+            try:
+                upstream = run_git_command(p, ["rev-parse", "--abbrev-ref", "@{u}"])
+                if upstream:
+                    ahead_str = run_git_command(p, ["rev-list", "--count", f"@{{u}}..HEAD"])
+                    if ahead_str.isdigit():
+                        ahead = int(ahead_str)
+            except Exception:
+                pass
+                
+        latest_date = run_git_command(p, ["log", "-1", "--format=%cI"])
+        
+        projects.append({
+            "name": p.name,
+            "path": str(p.absolute()),
+            "git": {
+                "head": head,
+                "modified": modified,
+                "untracked": untracked,
+                "ahead": ahead,
+                "latest_commit_date": latest_date
+            }
+        })
+        
+    return {"version": "1.0", "projects": projects}
+
+def run_auditor() -> dict[str, Any]:
+    base_dir = get_base_dir()
+    
+    auditor_script = Path.home() / "dev" / "tools" / "fedora_project_audit.py"
+    if auditor_script.exists():
+        try:
+            result = subprocess.run(
+                [sys.executable, str(auditor_script), "--base", str(base_dir), "--include-non-git", "--json"],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            return json.loads(result.stdout)
+        except (subprocess.CalledProcessError, json.JSONDecodeError):
+            pass
+            
+    return scan_built_in(base_dir)
 
 def normalize_name(name: str) -> str:
     return name.lower().replace(" ", "").replace("-", "").replace("_", "")
@@ -33,12 +112,10 @@ def get_project_state(project_name: str, auditor_data: dict[str, Any] | None = N
             
     projects = auditor_data.get("projects", [])
     
-    # Try exact match first
     for p in projects:
         if p.get("name") == project_name:
             return p
             
-    # Try fuzzy match
     query_norm = normalize_name(project_name)
     for p in projects:
         p_name = p.get("name", "")
