@@ -72,7 +72,8 @@ def parse_rollout(path: Path) -> ParsedSession:
                 session.created_at = payload.get("timestamp") or timestamp
                 session.cwd = payload.get("cwd")
                 session.originator = payload.get("originator")
-                session.source = payload.get("source")
+                source_val = payload.get("source")
+                session.source = source_val if isinstance(source_val, str) else (json.dumps(source_val) if source_val is not None else None)
                 session.cli_version = payload.get("cli_version")
                 session.model = payload.get("model")
                 session.git_origin_url = payload.get("git_origin_url")
