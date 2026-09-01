@@ -14,4 +14,4 @@ recent.txt
 *_seed_*.jsonl
 *_evidence_*.jsonl
 *_alias_*.jsonl
-test-results/
+test-results/.agentwitness/
