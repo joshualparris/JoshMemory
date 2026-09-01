@@ -8,6 +8,8 @@ from .github_evidence import github_evidence
 from .github_evidence import github_evidence
 from .index import get_session, index_all, project_history, recent_work, search_sessions, project_status
 from .historical import earliest_activity, historical_search, historical_timeline
+from .facts import project_fact_add, project_fact_search, accountability_reference_add, accountability_reference_search
+from .paths import default_db_path
 
 
 TOOLS: dict[str, dict[str, Any]] = {
@@ -104,6 +106,28 @@ TOOLS: dict[str, dict[str, Any]] = {
             "required": ["query"],
         },
     },
+    "project_fact_search": {
+        "description": "Search for durable project facts.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string"},
+                "project": {"type": "string"}
+            },
+            "required": ["query", "project"],
+        },
+    },
+    "accountability_search": {
+        "description": "Search accountability claims.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string"},
+                "project": {"type": "string"}
+            },
+            "required": ["query", "project"],
+        },
+    },
 }
 
 
@@ -171,11 +195,19 @@ def call_tool(name: str, arguments: dict[str, Any]) -> str:
         "historical_search": lambda a: historical_search(str(a["query"]), limit=int(a.get("limit", 20))),
         "earliest_activity": lambda a: earliest_activity(str(a.get("activity", "coding"))),
         "historical_timeline": lambda a: historical_timeline(str(a["query"]), limit=int(a.get("limit", 50))),
+        "project_fact_search": lambda a: project_fact_search(
+            db_path=default_db_path(), query=str(a["query"]), project=str(a["project"]), active_only=True
+        ),
+        "accountability_search": lambda a: accountability_reference_search(
+            db_path=default_db_path(), query=str(a["query"]), project=str(a["project"]), active_only=True
+        ),
     }
     if name not in dispatch:
         raise ValueError(f"Unknown tool: {name}")
     # Keep the index fresh; unchanged rollout files are skipped cheaply.
-    index_all()
+    # We omit this for new read-only fact tables because they don't depend on parsing rollout files.
+    if name not in ("project_fact_search", "accountability_search"):
+        index_all()
     return json.dumps(dispatch[name](arguments), indent=2, ensure_ascii=False)
 
 

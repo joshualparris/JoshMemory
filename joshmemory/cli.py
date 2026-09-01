@@ -12,6 +12,7 @@ from .paths import default_db_path, default_sessions_dir
 from .seed import import_seed_file
 from .chatgpt import import_chatgpt_export
 from .historical import earliest_activity, historical_search
+from .facts import project_fact_add, project_fact_search, accountability_reference_add, accountability_reference_search
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -62,6 +63,40 @@ def main(argv: list[str] | None = None) -> int:
     p_earliest = sub.add_parser("earliest-activity")
     p_earliest.add_argument("activity", nargs="?", default="coding")
 
+    p_add_fact = sub.add_parser("add-fact")
+    p_add_fact.add_argument("--project", required=True)
+    p_add_fact.add_argument("--machine")
+    p_add_fact.add_argument("--subject", required=True)
+    p_add_fact.add_argument("--fact", required=True)
+    p_add_fact.add_argument("--status", required=True)
+    p_add_fact.add_argument("--confidence", type=float)
+    p_add_fact.add_argument("--observed-at")
+    p_add_fact.add_argument("--source-type", required=True)
+    p_add_fact.add_argument("--source-ref")
+    p_add_fact.add_argument("--supersedes")
+    
+    p_search_fact = sub.add_parser("search-facts")
+    p_search_fact.add_argument("query")
+    p_search_fact.add_argument("--project")
+    p_search_fact.add_argument("--all", action="store_true", help="Include inactive facts")
+
+    p_add_acc = sub.add_parser("add-accountability")
+    p_add_acc.add_argument("--project", required=True)
+    p_add_acc.add_argument("--claim-summary", required=True)
+    p_add_acc.add_argument("--source-system", required=True)
+    p_add_acc.add_argument("--source-id", required=True)
+    p_add_acc.add_argument("--requirement-id")
+    p_add_acc.add_argument("--source-ref")
+    p_add_acc.add_argument("--reviewer")
+    p_add_acc.add_argument("--verdict")
+    p_add_acc.add_argument("--commit-sha")
+    p_add_acc.add_argument("--supersedes")
+
+    p_search_acc = sub.add_parser("search-accountability")
+    p_search_acc.add_argument("query")
+    p_search_acc.add_argument("--project")
+    p_search_acc.add_argument("--all", action="store_true", help="Include inactive claims")
+
     args = parser.parse_args(argv)
     if args.cmd == "index":
         return print_json(index_all(args.db, args.sessions_dir, force=args.force))
@@ -88,6 +123,17 @@ def main(argv: list[str] | None = None) -> int:
         return print_json(historical_search(args.query, limit=args.limit, db_path=args.db))
     if args.cmd == "earliest-activity":
         return print_json(earliest_activity(args.activity, db_path=args.db))
+    if args.cmd == "add-fact":
+        return print_json(project_fact_add(args.db, args.project, args.subject, args.fact, args.status, args.confidence, args.observed_at, args.source_type, args.source_ref, args.machine, args.supersedes))
+    if args.cmd == "search-facts":
+        return print_json(project_fact_search(args.db, args.query, args.project, active_only=not args.all))
+    if args.cmd == "add-accountability":
+        return print_json(accountability_reference_add(
+            args.db, args.project, args.claim_summary, args.source_system, args.source_id,
+            args.requirement_id, args.source_ref, args.reviewer, args.verdict, args.commit_sha, args.supersedes
+        ))
+    if args.cmd == "search-accountability":
+        return print_json(accountability_reference_search(args.db, args.query, args.project, active_only=not args.all))
     parser.error("unreachable")
     return 2
 
