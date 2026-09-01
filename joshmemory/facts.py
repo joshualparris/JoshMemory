@@ -44,15 +44,20 @@ def project_fact_add(
             con.execute("BEGIN IMMEDIATE")
             
             cur = con.execute(
-                "SELECT id, supersedes FROM project_facts WHERE project = ? AND subject = ? AND fact = ? AND status = ? AND machine = ?",
+                "SELECT id, supersedes, source_type, source_ref, confidence, observed_at FROM project_facts WHERE project = ? AND subject = ? AND fact = ? AND status = ? AND machine = ?",
                 (project, subject, fact, status, _machine)
             )
             row = cur.fetchone()
             
             if row:
                 fact_id = row["id"]
-                if supersedes and row["supersedes"] != supersedes:
+                if row["supersedes"] != supersedes:
                     raise ValueError(f"Fact already exists but with a different supersedes target ({row['supersedes']})")
+                if (source_type is not None and row["source_type"] != source_type) or \
+                   (source_ref is not None and row["source_ref"] != source_ref) or \
+                   (confidence is not None and row["confidence"] != confidence) or \
+                   (observed_at is not None and row["observed_at"] != observed_at):
+                    raise ValueError("Duplicate operation has conflicting provenance/history fields")
                 return {"id": fact_id, "project": project, "fact": fact, "duplicate": True}
                 
             if supersedes:
@@ -138,15 +143,20 @@ def accountability_reference_add(
             con.execute("BEGIN IMMEDIATE")
             
             cur = con.execute(
-                "SELECT id, supersedes FROM accountability_references WHERE project = ? AND claim_summary = ? AND source_system = ? AND source_id = ? AND requirement_id = ?",
+                "SELECT id, supersedes, source_ref, reviewer, verdict, commit_sha FROM accountability_references WHERE project = ? AND claim_summary = ? AND source_system = ? AND source_id = ? AND requirement_id = ?",
                 (project, claim_summary, source_system, source_id, _req)
             )
             row = cur.fetchone()
             
             if row:
                 ref_id = row["id"]
-                if supersedes and row["supersedes"] != supersedes:
+                if row["supersedes"] != supersedes:
                     raise ValueError(f"Reference already exists but with a different supersedes target ({row['supersedes']})")
+                if (source_ref is not None and row["source_ref"] != source_ref) or \
+                   (reviewer is not None and row["reviewer"] != reviewer) or \
+                   (verdict is not None and row["verdict"] != verdict) or \
+                   (commit_sha is not None and row["commit_sha"] != commit_sha):
+                    raise ValueError("Duplicate operation has conflicting provenance/history fields")
                 return {"id": ref_id, "project": project, "source_system": source_system, "duplicate": True}
                 
             if supersedes:
