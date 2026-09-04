@@ -1,7 +1,7 @@
 [project]
 name = "joshmemory"
 version = "0.1.0"
-description = "Local searchable archive index for Codex JSONL sessions."
+description = "Local searchable evidence and project-memory index for development history."
 requires-python = ">=3.11"
 dependencies = []
 
