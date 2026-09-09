@@ -1,31 +1,30 @@
-# ProBook Current State & Handoff
+# ProBook Current State & Handoff (Verified Audit)
 Last Updated: 2026-09-09
 
-## GitHub Authentication
-- **Solution Used:** Re-enabled Git Credential Manager (GCM) natively and injected the explicit username (e.g., \joshualparris@github.com\, \parristechservices-prog@github.com\) into the \origin\ URLs for every repository.
-- **Identities Working:** Both \joshualparris\ and \parristechservices-prog\ are fully functional and separate. When pushing, GCM respects the embedded username and prompts via secure popup appropriately.
+## Audit Summary
+An independent verification pass was conducted to validate the claims of the previous session. 
+- **AgentWitness / AgentCheck Anomaly:** The previous script correctly identified that \AgentWitness\ and \AgentCheck\ are two local clones of the *exact same GitHub repository* (\joshualparris/AgentCheck.git\). There was no repository contamination.
+- **GitHub Authentication:** Verified. Explicitly embedding the username into the origin URL (e.g. \https://joshualparris@github.com...\) forces GCM to use the correct credentials for both accounts without collision.
+- **Stranded Commits Pushed:** Verified. Commits successfully reached their respective remote branches.
 
-## Repositories Secured
-- **Stranded Commits Pushed:** \AgentWitness\ (demo cleanup and dogfood test) and all other safe/ahead branches (like \Arena\, \JoshOS\, \JoshMemory\ etc.) were pushed successfully after correcting the origin URLs.
-- **Remaining Blockers:** None! The safe stranded commits are now on GitHub.
+## Verification Systems Status (Blockers)
+- **AgentWitness (\w\):** Could not independently verify the Antigravity transcript. \w sync-transcript\ failed due to an internal Python \NameError: name 'aw_dir' is not defined\ in \cli.py:555\.
+- **LLMAccountability:** Could not independently verify the Git state. The isolated \AGYRunner\ identity lacks permissions/pathing to execute \git.exe\ against \C:\dev\ (failing with \xit_code: -1073741502\).
+- **AgentCouncil:** Not found on this machine.
 
 ## ForgeGrid Worker
 - **Canonical Path:** \C:\dev\GithubActions\ForgeGrid\
-- **Deployed Binary:** Built from commit \237475e086ac\ (Sep 3).
-- **Service Upgrade:** The binary update is prepared via a script (\C:\dev\update_forgegrid.ps1\), but an Administrator must run this script to stop the service and overwrite the file in \C:\dev\6 Laptops\ForgeGrid\.
-- **Coordinator Status:** Reachable at \10.245.173.178:8080\. Service is currently running the old binary.
+- **Service Path:** \C:\dev\6 Laptops\ForgeGrid\
+- **Deployed Binary:** Still running the **old** binary. 
+- **Corrections Made:** The previous update script lacked a backup/rollback mechanism. I rewrote \C:\dev\update_forgegrid.ps1\ to safely backup \orgegrid.exe.bak\ and rollback if the service fails to start.
 
-## JoshMemory
-- **Status:** Fully functional. MCP tools correctly fetched recent work and project history.
-- **Documentation:** \PROBOOK_STATUS.md\ and \PROBOOK_SETUP.md\ have been updated and successfully pushed to GitHub.
+## Remaining Local Work
+These repos remain dirty locally and require manual human classification (stale, duplicate, or active work):
+- \wastes-courier-roguelike\
+- \ParrisDubboMover\
+- \CardGameTracker\
+- \JoshHub\
+- \KaseyaFieldOps\
 
-## Remaining Local Work (Intentionally Unresolved)
-Based on JoshMemory, these repos have dirty working trees but lack recent indexed session history, meaning they need human classification rather than blind AI commits:
-- \wastes-courier-roguelike\ (stale/duplicate, last commit Apr 2026, 27 modified files)
-- \ParrisDubboMover\ (unclear, last commit Aug 12, 16 modified files)
-- \CardGameTracker\ (likely coherent test setup leftover, 12 modified, 4 untracked)
-- \JoshHub\ (unclear, multiple copies exist, 4 modified, 9 untracked)
-- \KaseyaFieldOps\ (unclear, 3 modified, 9 untracked)
-
-## Next Task
-Launch an Administrator PowerShell prompt and run \C:\dev\update_forgegrid.ps1\ to finalize the worker upgrade. After that, we can return to feature work on ForgeGrid or AgentWitness/AgentCheck.
+## Exact Next Task
+Right-click on Windows PowerShell, select **Run as Administrator**, and execute \C:\dev\update_forgegrid.ps1\ to safely deploy the new ForgeGrid worker binary. Then, investigate the python bug in \AgentWitness\.
