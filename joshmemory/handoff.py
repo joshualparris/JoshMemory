@@ -29,6 +29,18 @@ def _redact_value(value: Any) -> Any:
     return value
 
 
+def commits_match(a: Optional[str], b: Optional[str]) -> bool:
+    """True if two commit references identify the same commit, tolerating a
+    short SHA on either side (git/Action1 commonly report abbreviated SHAs).
+    Empty/None never matches, so a missing recorded commit is never silently
+    treated as current."""
+    if not a or not b:
+        return False
+    a, b = a.lower(), b.lower()
+    shorter, longer = (a, b) if len(a) <= len(b) else (b, a)
+    return longer.startswith(shorter)
+
+
 def _normalize_git(git: dict[str, Any]) -> dict[str, Any]:
     """Normalize the two known auditor backends (scan_built_in vs.
     fedora_project_audit.py) to a single shape. They disagree on field
@@ -165,7 +177,7 @@ def get_project_context(
 
         recorded_head = recorded.get("head_commit")
         live_head = live_git.get("head_sha")
-        if recorded_head and live_head and recorded_head != live_head:
+        if recorded_head and live_head and not commits_match(recorded_head, live_head):
             discrepancies.append(
                 {
                     "field": "head_commit",

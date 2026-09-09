@@ -136,6 +136,24 @@ def test_matching_handoff_and_live_state_no_discrepancy(db_path: str):
     assert ctx["discrepancies"] == []
 
 
+def test_short_sha_in_handoff_not_flagged_as_discrepancy(db_path: str):
+    """Regression: recording a short SHA in a handoff must not falsely
+    trigger a stale-handoff discrepancy against the full live SHA."""
+    save_handoff(
+        db_path, "TestProj",
+        {"objective": "x", "head_commit": "4c71dd0", "branch": "main"},
+        machine="ws1",
+    )
+    live_state = {
+        "name": "TestProj",
+        "path": "/p",
+        "git": {"head": "main", "oid": "4c71dd004a231b483349cd3783a1e796bbdfabe7"},
+    }
+    with patch("joshmemory.handoff.get_project_state", return_value=live_state):
+        ctx = get_project_context(db_path, "TestProj", machine="ws1")
+    assert ctx["discrepancies"] == []
+
+
 def test_normalizes_both_auditor_schemas(db_path: str):
     """scan_built_in uses branch/head_sha; fedora_project_audit.py uses head/oid.
     get_project_context must handle either without crashing or missing the

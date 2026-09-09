@@ -90,6 +90,16 @@ def test_stop_nudge_silent_when_no_new_commit(tmp_path, db_path):
     assert stop_nudge(repo, db_path=db_path, machine="ws1") == {}
 
 
+def test_stop_nudge_silent_when_handoff_uses_short_sha(tmp_path, db_path):
+    """Regression: a handoff recorded with a short/abbreviated SHA (as an
+    agent might write by hand) must not look stale forever just because it
+    doesn't string-match the full SHA git reports."""
+    repo = tmp_path / "ProjShortSha"
+    head = make_repo(repo)
+    save_handoff(db_path, "ProjShortSha", {"objective": "x", "head_commit": head[:7]}, machine="ws1")
+    assert stop_nudge(repo, db_path=db_path, machine="ws1") == {}
+
+
 def test_stop_nudge_fires_once_then_never_loops(tmp_path, db_path, monkeypatch):
     monkeypatch.setenv("JOSHMEMORY_HOME", str(tmp_path / "state"))
     repo = tmp_path / "ProjZ"

@@ -6,7 +6,7 @@ import subprocess
 from pathlib import Path
 from typing import Any, Optional
 
-from .handoff import get_project_context, get_latest_handoff
+from .handoff import get_project_context, get_latest_handoff, commits_match
 from .paths import default_data_dir
 
 
@@ -128,7 +128,7 @@ def stop_nudge(
     if handoff_row and handoff_row.get("handoff"):
         recorded_head = handoff_row["handoff"].get("head_commit")
 
-    if recorded_head == live_head:
+    if commits_match(recorded_head, live_head):
         return {}
 
     state = _load_state()
