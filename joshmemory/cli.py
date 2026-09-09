@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -13,6 +14,8 @@ from .seed import import_seed_file
 from .chatgpt import import_chatgpt_export
 from .historical import earliest_activity, historical_search
 from .facts import project_fact_add, project_fact_search, accountability_reference_add, accountability_reference_search
+from .handoff import save_handoff, get_project_context, list_handoffs
+from .hooks import session_start_context, stop_nudge
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -97,6 +100,31 @@ def main(argv: list[str] | None = None) -> int:
     p_search_acc.add_argument("--project")
     p_search_acc.add_argument("--all", action="store_true", help="Include inactive claims")
 
+    p_save_handoff = sub.add_parser("save-handoff", help="Save a structured end-of-session handoff (reads JSON from --data or stdin)")
+    p_save_handoff.add_argument("--project", required=True)
+    p_save_handoff.add_argument("--machine")
+    p_save_handoff.add_argument("--agent")
+    p_save_handoff.add_argument("--source-ref")
+    p_save_handoff.add_argument("--data", help="Handoff JSON object. If omitted, read from stdin.")
+
+    p_get_context = sub.add_parser("get-context", help="Compact startup context: latest handoff + live evidence")
+    p_get_context.add_argument("--project", required=True)
+    p_get_context.add_argument("--machine")
+
+    p_list_handoffs = sub.add_parser("list-handoffs")
+    p_list_handoffs.add_argument("--project", required=True)
+    p_list_handoffs.add_argument("--machine")
+    p_list_handoffs.add_argument("--limit", type=int, default=10)
+    p_list_handoffs.add_argument("--all", action="store_true", help="Include superseded handoffs")
+
+    p_session_start = sub.add_parser("claude-session-start-hook", help="Claude Code SessionStart hook body")
+    p_session_start.add_argument("--cwd", type=Path, default=Path.cwd())
+    p_session_start.add_argument("--machine")
+
+    p_stop_nudge = sub.add_parser("claude-stop-hook", help="Claude Code Stop hook body")
+    p_stop_nudge.add_argument("--cwd", type=Path, default=Path.cwd())
+    p_stop_nudge.add_argument("--machine")
+
     args = parser.parse_args(argv)
     if args.cmd == "index":
         return print_json(index_all(args.db, args.sessions_dir, force=args.force))
@@ -134,6 +162,30 @@ def main(argv: list[str] | None = None) -> int:
         ))
     if args.cmd == "search-accountability":
         return print_json(accountability_reference_search(args.db, args.query, args.project, active_only=not args.all))
+    if args.cmd == "save-handoff":
+        raw = args.data if args.data is not None else sys.stdin.read()
+        handoff = json.loads(raw)
+        return print_json(save_handoff(
+            str(args.db), args.project, handoff,
+            machine=args.machine, agent=args.agent, source_ref=args.source_ref,
+        ))
+    if args.cmd == "get-context":
+        return print_json(get_project_context(str(args.db), args.project, machine=args.machine))
+    if args.cmd == "list-handoffs":
+        return print_json(list_handoffs(
+            str(args.db), args.project, machine=args.machine, limit=args.limit, active_only=not args.all,
+        ))
+    if args.cmd == "claude-session-start-hook":
+        try:
+            return print_json(session_start_context(args.cwd, db_path=str(args.db), machine=args.machine))
+        except Exception:
+            # A hook must never break session startup for the user.
+            return print_json({})
+    if args.cmd == "claude-stop-hook":
+        try:
+            return print_json(stop_nudge(args.cwd, db_path=str(args.db), machine=args.machine))
+        except Exception:
+            return print_json({})
     parser.error("unreachable")
     return 2
 

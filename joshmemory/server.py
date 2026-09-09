@@ -9,6 +9,7 @@ from .github_evidence import github_evidence
 from .index import get_session, index_all, project_history, recent_work, search_sessions, project_status
 from .historical import earliest_activity, historical_search, historical_timeline
 from .facts import project_fact_add, project_fact_search, accountability_reference_add, accountability_reference_search
+from .handoff import save_handoff, get_project_context, list_handoffs
 from .paths import default_db_path
 
 
@@ -128,6 +129,68 @@ TOOLS: dict[str, dict[str, Any]] = {
             "required": ["query", "project"],
         },
     },
+    "save_handoff": {
+        "description": (
+            "Save a structured end-of-session handoff for a project so a future agent "
+            "session (Claude Code, Codex, Antigravity) can resume without a pasted "
+            "transcript. Supersedes this project/machine's previous handoff rather than "
+            "erasing it. Never pass raw secrets/tokens/passwords in any field; redaction "
+            "is applied as defense-in-depth but is not a substitute for not sending them."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "project": {"type": "string"},
+                "objective": {"type": "string", "description": "Current goal, required."},
+                "completed": {"type": "array", "items": {"type": "string"}},
+                "in_progress": {"type": "array", "items": {"type": "string"}},
+                "blockers": {"type": "array", "items": {"type": "string"}},
+                "next_action": {"type": "string"},
+                "decisions": {"type": "array", "items": {"type": "string"}},
+                "bugs_found": {"type": "array", "items": {"type": "string"}},
+                "bugs_fixed": {"type": "array", "items": {"type": "string"}},
+                "tests_run": {"type": "array", "items": {"type": "string"}},
+                "builds_run": {"type": "array", "items": {"type": "string"}},
+                "commits": {"type": "array", "items": {"type": "string"}},
+                "machines_affected": {"type": "array", "items": {"type": "string"}},
+                "branch": {"type": "string"},
+                "head_commit": {"type": "string"},
+                "agent": {"type": "string", "description": "e.g. claude-code, codex, antigravity"},
+                "machine": {"type": "string", "description": "defaults to hostname"},
+                "source_ref": {"type": "string", "description": "e.g. a session/thread id"},
+            },
+            "required": ["project", "objective"],
+        },
+    },
+    "get_project_context": {
+        "description": (
+            "Compact startup context for a project: latest handoff plus freshly-checked "
+            "live git evidence, with any discrepancy between them called out explicitly. "
+            "Live evidence always outranks the handoff. Call this at the start of work on "
+            "a known project instead of asking the user to paste prior context."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "project": {"type": "string"},
+                "machine": {"type": "string"},
+            },
+            "required": ["project"],
+        },
+    },
+    "list_handoffs": {
+        "description": "List recent handoffs for a project, most recent first, including superseded ones.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "project": {"type": "string"},
+                "machine": {"type": "string"},
+                "limit": {"type": "integer", "default": 10, "minimum": 1, "maximum": 100},
+                "active_only": {"type": "boolean", "default": False},
+            },
+            "required": ["project"],
+        },
+    },
 }
 
 
@@ -201,12 +264,31 @@ def call_tool(name: str, arguments: dict[str, Any]) -> str:
         "accountability_search": lambda a: accountability_reference_search(
             db_path=default_db_path(), query=str(a["query"]), project=str(a["project"]), active_only=True
         ),
+        "save_handoff": lambda a: save_handoff(
+            str(default_db_path()),
+            str(a["project"]),
+            {k: v for k, v in a.items() if k not in ("project", "machine", "agent", "source_ref")},
+            machine=a.get("machine"),
+            agent=a.get("agent"),
+            source_ref=a.get("source_ref"),
+        ),
+        "get_project_context": lambda a: get_project_context(
+            str(default_db_path()), str(a["project"]), machine=a.get("machine")
+        ),
+        "list_handoffs": lambda a: list_handoffs(
+            str(default_db_path()),
+            str(a["project"]),
+            machine=a.get("machine"),
+            limit=int(a.get("limit", 10)),
+            active_only=bool(a.get("active_only", False)),
+        ),
     }
     if name not in dispatch:
         raise ValueError(f"Unknown tool: {name}")
     # Keep the index fresh; unchanged rollout files are skipped cheaply.
-    # We omit this for new read-only fact tables because they don't depend on parsing rollout files.
-    if name not in ("project_fact_search", "accountability_search"):
+    # We omit this for tools that only touch the fact/handoff tables because
+    # those don't depend on parsing Codex rollout files.
+    if name not in ("project_fact_search", "accountability_search", "save_handoff", "get_project_context", "list_handoffs"):
         index_all()
     return json.dumps(dispatch[name](arguments), indent=2, ensure_ascii=False)
 

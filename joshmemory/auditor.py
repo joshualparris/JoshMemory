@@ -84,6 +84,7 @@ def scan_built_in(base_dir: Path) -> dict[str, Any]:
             projects.append({
                 "name": p.name,
                 "path": str(p.absolute()),
+                "is_git": True,
                 "git": {
                     "head": head,
                     "branch": branch,

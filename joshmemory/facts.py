@@ -6,6 +6,7 @@ from typing import Any, Optional
 from datetime import datetime, timezone
 
 from .schema import connect
+from .redact import redact
 
 def project_fact_add(
     db_path: str,
@@ -32,7 +33,10 @@ def project_fact_add(
         raise ValueError("Confidence must be between 0.0 and 1.0")
     if not source_type:
         raise ValueError("source_type is required")
-        
+
+    subject = redact(subject)
+    fact = redact(fact)
+
     con = connect(db_path)
     try:
         recorded_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
@@ -133,6 +137,8 @@ def accountability_reference_add(
             
     if commit_sha and not re.match(r"^[0-9a-f]{7,40}$", commit_sha):
         raise ValueError("commit_sha must be a valid hex hash")
+
+    claim_summary = redact(claim_summary)
 
     con = connect(db_path)
     try:
