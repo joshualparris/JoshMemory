@@ -27,7 +27,7 @@ def project_fact_add(
     status = status.upper()
     if status not in valid_statuses:
         raise ValueError(f"Invalid status {status}")
-        
+
     if status == "VERIFIED" and not source_ref:
         raise ValueError("VERIFIED status requires source_ref")
 
@@ -42,19 +42,19 @@ def project_fact_add(
     con = connect(db_path)
     try:
         recorded_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
-        
+
         _machine = machine or ""
         status = status.upper()
-        
+
         with con:
             con.execute("BEGIN IMMEDIATE")
-            
+
             cur = con.execute(
-                "SELECT id, supersedes, source_type, source_ref, confidence, observed_at FROM project_facts WHERE project = ? AND subject = ? AND fact = ? AND status = ? AND machine = ?",
-                (project, subject, fact, status, _machine)
+                "SELECT id, supersedes, source_type, source_ref, confidence, observed_at FROM project_facts WHERE project = ? AND canonical_repo = ? AND checkout_path = ? AND subject = ? AND fact = ? AND status = ? AND machine = ?",
+                (project, canonical_repo or "", checkout_path or "", subject, fact, status, _machine)
             )
             row = cur.fetchone()
-            
+
             if row:
                 fact_id = row["id"]
                 if row["supersedes"] != supersedes:
@@ -65,7 +65,7 @@ def project_fact_add(
                    (observed_at is not None and row["observed_at"] != observed_at):
                     raise ValueError("Duplicate operation has conflicting provenance/history fields")
                 return {"id": fact_id, "project": project, "fact": fact, "duplicate": True}
-                
+
             if supersedes:
                 cur = con.execute("SELECT id, active, project, subject, machine FROM project_facts WHERE id = ?", (supersedes,))
                 row = cur.fetchone()
@@ -75,22 +75,18 @@ def project_fact_add(
                     raise ValueError(f"Superseded fact {supersedes} is already inactive")
                 if row["project"] != project or row["subject"] != subject or row["machine"] != _machine:
                     raise ValueError(f"Superseded fact {supersedes} does not match project/subject/machine")
-                    
+
             fact_id = str(uuid.uuid4())
             con.execute(
                 """
-                INSERT INTO project_facts (
-                    id, project, machine, subject, fact, status, confidence, 
-                    observed_at, recorded_at, source_type, source_ref, supersedes, active
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
+                INSERT INTO project_facts (id, project, machine, subject, fact, status, confidence, observed_at, recorded_at, source_type, source_ref, supersedes, active, canonical_repo, checkout_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)
                 """,
-                (fact_id, project, _machine, subject, fact, status, confidence,
-                 observed_at, recorded_at, source_type, source_ref, supersedes)
+                (fact_id, project, _machine, subject, fact, status, confidence, observed_at, recorded_at, source_type, source_ref, supersedes, canonical_repo or "", checkout_path or "")
             )
-            
+
             if supersedes:
                 con.execute("UPDATE project_facts SET active = 0 WHERE id = ?", (supersedes,))
-                
+
         return {"id": fact_id, "project": project, "fact": fact, "duplicate": False}
     finally:
         con.close()
@@ -105,13 +101,13 @@ def project_fact_search(
     try:
         sql = "SELECT * FROM project_facts WHERE (subject LIKE ? OR fact LIKE ?)"
         params: list[Any] = [f"%{query}%", f"%{query}%"]
-        
+
         if project:
             sql += " AND project = ?"
             params.append(project)
         if active_only:
             sql += " AND active = 1"
-            
+
         cur = con.execute(sql, params)
         return [dict(row) for row in cur.fetchall()]
     finally:
@@ -136,7 +132,7 @@ def accountability_reference_add(
         valid_verdicts = {"SATISFIED", "REJECTED", "EVIDENCED"}
         if verdict not in valid_verdicts:
             raise ValueError(f"Invalid verdict {verdict}")
-            
+
     if commit_sha and not re.match(r"^[0-9a-f]{7,40}$", commit_sha):
         raise ValueError("commit_sha must be a valid hex hash")
 
@@ -146,16 +142,16 @@ def accountability_reference_add(
     try:
         observed_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
         _req = requirement_id or ""
-        
+
         with con:
             con.execute("BEGIN IMMEDIATE")
-            
+
             cur = con.execute(
                 "SELECT id, supersedes, source_ref, reviewer, verdict, commit_sha FROM accountability_references WHERE project = ? AND claim_summary = ? AND source_system = ? AND source_id = ? AND requirement_id = ?",
                 (project, claim_summary, source_system, source_id, _req)
             )
             row = cur.fetchone()
-            
+
             if row:
                 ref_id = row["id"]
                 if row["supersedes"] != supersedes:
@@ -166,7 +162,7 @@ def accountability_reference_add(
                    (commit_sha is not None and row["commit_sha"] != commit_sha):
                     raise ValueError("Duplicate operation has conflicting provenance/history fields")
                 return {"id": ref_id, "project": project, "source_system": source_system, "duplicate": True}
-                
+
             if supersedes:
                 cur = con.execute("SELECT id, active, project, requirement_id FROM accountability_references WHERE id = ?", (supersedes,))
                 row = cur.fetchone()
@@ -176,7 +172,7 @@ def accountability_reference_add(
                     raise ValueError(f"Superseded reference {supersedes} is already inactive")
                 if row["project"] != project or row["requirement_id"] != _req:
                     raise ValueError(f"Superseded reference {supersedes} does not match project/requirement_id")
-                    
+
             ref_id = str(uuid.uuid4())
             con.execute(
                 """
@@ -188,10 +184,10 @@ def accountability_reference_add(
                 (ref_id, project, _req, claim_summary, source_system, source_id,
                  source_ref, reviewer, verdict, commit_sha, observed_at, supersedes)
             )
-                
+
             if supersedes:
                 con.execute("UPDATE accountability_references SET active = 0 WHERE id = ?", (supersedes,))
-                
+
         return {"id": ref_id, "project": project, "source_system": source_system, "duplicate": False}
     finally:
         con.close()
@@ -206,14 +202,14 @@ def accountability_reference_search(
     try:
         sql = "SELECT * FROM accountability_references WHERE (claim_summary LIKE ? OR source_id LIKE ?)"
         params: list[Any] = [f"%{query}%", f"%{query}%"]
-        
+
         if project:
             sql += " AND project = ?"
             params.append(project)
-            
+
         if active_only:
             sql += " AND active = 1"
-            
+
         cur = con.execute(sql, params)
         return [dict(row) for row in cur.fetchall()]
     finally:

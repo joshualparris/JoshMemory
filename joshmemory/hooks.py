@@ -161,7 +161,7 @@ def fast_git_details(cwd: Path) -> dict:
     upstream = _git(cwd, ["rev-parse", "--abbrev-ref", "@{u}"])
     status = _git(cwd, ["status", "--porcelain"])
     origin = _git(cwd, ["config", "--get", "remote.origin.url"])
-    
+
     # Import locally to avoid circular dependency
     from .auditor import normalize_git_url
     return {
@@ -179,7 +179,7 @@ def extract_transcript_info(path: str) -> tuple[str, str]:
         import json
         p = Path(path)
         if not p.exists(): return "", ""
-        
+
         lines = p.read_text(encoding="utf-8", errors="ignore").splitlines()
         last_user = ""
         last_asst = ""
@@ -190,7 +190,7 @@ def extract_transcript_info(path: str) -> tuple[str, str]:
                 if msg.get("type") == "last-prompt":
                     val = msg.get("lastPrompt")
                     if val: last_user = val
-                
+
                 if msg.get("type") == "message" or msg.get("type") == "assistant":
                     inner = msg.get("message") if "message" in msg else msg
                     if inner.get("role") == "assistant":
@@ -199,7 +199,7 @@ def extract_transcript_info(path: str) -> tuple[str, str]:
                         if text: last_asst = text
             except Exception:
                 pass
-                
+
         return last_user, last_asst
     except Exception:
         return "", ""
@@ -220,21 +220,21 @@ def session_end_context(
     from .handoff import save_handoff, get_latest_handoff
     project = detect_project(cwd)
     _machine = machine or default_machine()
-    
+
     # Extract transcript info
     transcript_path = payload.get("transcript_path", "")
     session_id = payload.get("session_id", "")
     last_user, last_asst = extract_transcript_info(transcript_path)
-    
+
     # Git details
     git_info = fast_git_details(cwd)
-    
+
     # Check precedence: did the agent already save an explicit handoff recently?
     # Or specifically, in this session?
     latest = get_latest_handoff(db_path, project, machine=_machine, canonical_repo=git_info["canonical_repo"], checkout_path=str(cwd))
     explicit_exists = False
     old_handoff = None
-    
+
     if latest and latest.get("source_type") == "agent_handoff":
         if session_id and latest.get("source_ref") == session_id:
             explicit_exists = True
@@ -242,37 +242,37 @@ def session_end_context(
         else:
             explicit_exists = False
             old_handoff = None
-            
+
     # Build fallback handoff
     handoff_data = dict(old_handoff) if old_handoff else {}
-    
+
     if not explicit_exists:
         # Lower quality fallback
         handoff_data["objective"] = last_user if last_user else f"Automatic session end fallback (reason: {payload.get('reason')})"
-        
+
         # Summarize last assistant text safely (first 200 chars)
         asst_sum = (last_asst[:200] + "...") if len(last_asst) > 200 else last_asst
-        
+
         handoff_data["completed"] = [f"Session ended automatically.", f"Last interaction: {asst_sum}"]
         handoff_data["next_action"] = "Review automatic fallback state and resume."
-    
+
     # ALWAYS supplement with deterministic fields
     handoff_data["head_commit"] = git_info["head_commit"]
     handoff_data["branch"] = git_info["branch"]
     handoff_data["canonical_repo"] = git_info["canonical_repo"]
     handoff_data["dirty"] = git_info["dirty"]
-    
+
     # Save it
     save_handoff(
-        db_path, 
-        project, 
-        handoff_data, 
-        machine=_machine, 
-        agent="claude-code-fallback", 
+        db_path,
+        project,
+        handoff_data,
+        machine=_machine,
+        agent="claude-code-fallback",
         source_ref=session_id,
         source_type="automatic_fallback" if not explicit_exists else "agent_handoff",
         canonical_repo=git_info["canonical_repo"],
         checkout_path=str(cwd)
     )
-    
+
     return {}

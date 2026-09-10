@@ -77,7 +77,7 @@ def main(argv: list[str] | None = None) -> int:
     p_add_fact.add_argument("--source-type", required=True)
     p_add_fact.add_argument("--source-ref")
     p_add_fact.add_argument("--supersedes")
-    
+
     p_search_fact = sub.add_parser("search-facts")
     p_search_fact.add_argument("query")
     p_search_fact.add_argument("--project")

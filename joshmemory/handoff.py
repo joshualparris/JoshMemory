@@ -103,6 +103,8 @@ def save_handoff(
         source_ref=source_ref,
         machine=_machine,
         supersedes=supersedes,
+        canonical_repo=canonical_repo,
+        checkout_path=checkout_path
     )
     result["machine"] = _machine
     return result
@@ -130,15 +132,22 @@ def get_latest_handoff(
         if machine:
             sql += " AND machine = ?"
             params.append(machine)
-        
-        if checkout_path:
-            # Match specific checkout path, or fallback to older rows that don't have it
-            sql += " AND (checkout_path = ? OR checkout_path = '' OR checkout_path IS NULL)"
+
+        if checkout_path and canonical_repo:
+            sql += " AND ( (canonical_repo = ? AND checkout_path = ?) OR (canonical_repo = '' AND checkout_path = '') )"
+            params.extend([canonical_repo, checkout_path])
+            sql += " ORDER BY (canonical_repo = ? AND checkout_path = ?) DESC, recorded_at DESC LIMIT 1"
+            params.extend([canonical_repo, checkout_path])
+        elif checkout_path:
+            sql += " AND (checkout_path = ? OR checkout_path = '')"
             params.append(checkout_path)
-            
-            # Prioritize the exact checkout_path match, then most recent
             sql += " ORDER BY (checkout_path = ?) DESC, recorded_at DESC LIMIT 1"
             params.append(checkout_path)
+        elif canonical_repo:
+            sql += " AND (canonical_repo = ? OR canonical_repo = '')"
+            params.append(canonical_repo)
+            sql += " ORDER BY (canonical_repo = ?) DESC, recorded_at DESC LIMIT 1"
+            params.append(canonical_repo)
         else:
             sql += " ORDER BY recorded_at DESC LIMIT 1"
 
@@ -240,19 +249,41 @@ def get_project_context(
     if state and state.get("canonical_repo"):
         canonical = state["canonical_repo"]
         all_projs = get_all_projects()
+        from pathlib import Path
+        try:
+            current_path = Path(checkout_path).resolve() if checkout_path else None
+        except Exception:
+            current_path = None
+
         for p in all_projs:
             p_name = p.get("name")
-            if p_name and p_name != project and p.get("canonical_repo") == canonical:
-                rel_handoff = get_latest_handoff(db_path, p_name, machine=_machine)
+            p_path_str = p.get("path")
+            try:
+                p_path = Path(p_path_str).resolve() if p_path_str else None
+            except Exception:
+                p_path = None
+
+            if not p_name or not canonical: continue
+            if p.get("canonical_repo") != canonical: continue
+
+            is_self = False
+            if current_path and p_path:
+                is_self = (current_path == p_path)
+            else:
+                is_self = (p_name == project)
+
+            if not is_self:
+                rel_handoff = get_latest_handoff(db_path, p_name, machine=_machine, canonical_repo=canonical, checkout_path=p_path_str)
                 rel_info = {
                     "project": p_name,
-                    "path": p.get("path"),
+                    "path": p_path_str,
                     "branch": p.get("git", {}).get("branch") if p.get("git") else None
                 }
                 if rel_handoff and rel_handoff.get("handoff"):
                     h = rel_handoff["handoff"]
                     rel_info["objective"] = h.get("objective")
                     rel_info["next_action"] = h.get("next_action")
+
                 related_workstreams.append(rel_info)
 
     return {

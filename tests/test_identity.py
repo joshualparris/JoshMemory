@@ -49,7 +49,7 @@ def test_related_workstreams(mock_latest, mock_all_projects, mock_state):
     ]
     
     # Mock handoffs: give AgentCheck a handoff
-    def side_effect(db, proj, machine=None):
+    def side_effect(db, proj, machine=None, **kwargs):
         if proj == "AgentCheck":
             return {"handoff": {"objective": "Test Integration", "next_action": "Merge"}}
         return None
@@ -155,7 +155,7 @@ def test_cross_machine_identity(mock_latest, mock_all_projects, mock_state):
     mock_all_projects.return_value = projects
     mock_state.return_value = projects[0]
     
-    def side_effect(db, proj, machine=None):
+    def side_effect(db, proj, machine=None, **kwargs):
         if proj == "ProjB":
             if machine == "THINKPAD":
                 return {"handoff": {"objective": "Thinkpad work", "next_action": "Thinkpad next"}}

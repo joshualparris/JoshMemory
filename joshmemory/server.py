@@ -12,18 +12,28 @@ from .facts import project_fact_add, project_fact_search, accountability_referen
 from .handoff import save_handoff, get_project_context, list_handoffs
 from .paths import default_db_path
 
-def get_identity_kwargs():
-    from pathlib import Path
-    try:
-        from .hooks import fast_git_details
-        cwd = Path.cwd()
-        git_info = fast_git_details(cwd)
-        return {
-            "canonical_repo": git_info.get("canonical_repo", ""),
-            "checkout_path": str(cwd)
-        }
-    except Exception:
-        return {"canonical_repo": "", "checkout_path": ""}
+def get_identity_kwargs(a: dict):
+    # If the agent explicitly provided them, trust the agent
+    res = {}
+    if a.get("canonical_repo"): res["canonical_repo"] = a["canonical_repo"]
+    if a.get("checkout_path"): res["checkout_path"] = a["checkout_path"]
+
+    # Otherwise fallback to inferring from MCP server cwd
+    if "canonical_repo" not in res or "checkout_path" not in res:
+        from pathlib import Path
+        try:
+            from .hooks import fast_git_details
+            cwd = Path.cwd()
+            git_info = fast_git_details(cwd)
+            if "canonical_repo" not in res:
+                res["canonical_repo"] = git_info.get("canonical_repo", "")
+            if "checkout_path" not in res:
+                res["checkout_path"] = str(cwd)
+        except Exception:
+            pass
+
+    return res
+
 
 def get_inferred_source_ref(a: dict) -> str:
     if a.get("source_ref"): return a["source_ref"]
@@ -48,7 +58,7 @@ def _save_handoff_wrapper(a):
         machine=a.get("machine"),
         agent=a.get("agent"),
         source_ref=get_inferred_source_ref(a),
-        **get_identity_kwargs()
+        **get_identity_kwargs(a)
     )
 
 
@@ -81,7 +91,7 @@ TOOLS: dict[str, dict[str, Any]] = {
         "inputSchema": {
             "type": "object",
             "properties": {
-                "project": {"type": "string"},
+                "project": {"type": "string"}, "checkout_path": {"type": "string", "description": "Absolute path to the repository clone/workstream"}, "canonical_repo": {"type": "string", "description": "Canonical Git remote URL (e.g. github.com/org/repo)"},
                 "limit": {"type": "integer", "default": 30, "minimum": 1, "maximum": 100},
             },
             "required": ["project"],
@@ -101,7 +111,7 @@ TOOLS: dict[str, dict[str, Any]] = {
         "inputSchema": {
             "type": "object",
             "properties": {
-                "project": {"type": "string"},
+                "project": {"type": "string"}, "checkout_path": {"type": "string", "description": "Absolute path to the repository clone/workstream"}, "canonical_repo": {"type": "string", "description": "Canonical Git remote URL (e.g. github.com/org/repo)"},
                 "limit": {"type": "integer", "default": 100, "minimum": 1, "maximum": 1000},
             },
         },
@@ -180,7 +190,7 @@ TOOLS: dict[str, dict[str, Any]] = {
         "inputSchema": {
             "type": "object",
             "properties": {
-                "project": {"type": "string"},
+                "project": {"type": "string"}, "checkout_path": {"type": "string", "description": "Absolute path to the repository clone/workstream"}, "canonical_repo": {"type": "string", "description": "Canonical Git remote URL (e.g. github.com/org/repo)"},
                 "objective": {"type": "string", "description": "Current goal, required."},
                 "completed": {"type": "array", "items": {"type": "string"}},
                 "in_progress": {"type": "array", "items": {"type": "string"}},
@@ -212,7 +222,7 @@ TOOLS: dict[str, dict[str, Any]] = {
         "inputSchema": {
             "type": "object",
             "properties": {
-                "project": {"type": "string"},
+                "project": {"type": "string"}, "checkout_path": {"type": "string", "description": "Absolute path to the repository clone/workstream"}, "canonical_repo": {"type": "string", "description": "Canonical Git remote URL (e.g. github.com/org/repo)"},
                 "machine": {"type": "string"},
             },
             "required": ["project"],
@@ -223,7 +233,7 @@ TOOLS: dict[str, dict[str, Any]] = {
         "inputSchema": {
             "type": "object",
             "properties": {
-                "project": {"type": "string"},
+                "project": {"type": "string"}, "checkout_path": {"type": "string", "description": "Absolute path to the repository clone/workstream"}, "canonical_repo": {"type": "string", "description": "Canonical Git remote URL (e.g. github.com/org/repo)"},
                 "machine": {"type": "string"},
                 "limit": {"type": "integer", "default": 10, "minimum": 1, "maximum": 100},
                 "active_only": {"type": "boolean", "default": False},

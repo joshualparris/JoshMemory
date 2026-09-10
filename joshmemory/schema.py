@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS project_facts (
   source_ref TEXT,
   supersedes TEXT,
   active BOOLEAN NOT NULL DEFAULT 1,
-  UNIQUE(project, subject, fact, status, machine),
+  UNIQUE(project, canonical_repo, checkout_path, subject, fact, status, machine),
   FOREIGN KEY(supersedes) REFERENCES project_facts(id),
   CHECK(status IN ('VERIFIED', 'OBSERVED', 'HISTORICAL', 'INFERRED', 'STALE', 'DISPROVEN', 'UNKNOWN', 'CURRENT')),
   CHECK(confidence IS NULL OR (confidence >= 0.0 AND confidence <= 1.0)),
@@ -169,6 +169,55 @@ def _migrate(con: sqlite3.Connection) -> None:
     except sqlite3.OperationalError as e:
         if "duplicate column name" not in str(e):
             raise
-            
-    # Migration of accountability_ledger removed to prevent destructive auto-drops.
 
+    # Safely migrate project_facts
+    pf_columns = {row[1] for row in con.execute("PRAGMA table_info(project_facts)")}
+    if "canonical_repo" not in pf_columns:
+        con.execute("BEGIN IMMEDIATE")
+
+        # 1. Add columns to existing table so we can copy data
+        con.execute("ALTER TABLE project_facts ADD COLUMN canonical_repo TEXT DEFAULT ''")
+        con.execute("ALTER TABLE project_facts ADD COLUMN checkout_path TEXT DEFAULT ''")
+
+        # 2. Rename old table
+        con.execute("ALTER TABLE project_facts RENAME TO project_facts_old")
+
+        # 3. Create new table with updated UNIQUE constraint
+        con.execute("""
+        CREATE TABLE project_facts (
+            id TEXT PRIMARY KEY,
+            project TEXT NOT NULL,
+            machine TEXT NOT NULL DEFAULT '',
+            subject TEXT NOT NULL,
+            fact TEXT NOT NULL,
+            status TEXT NOT NULL,
+            confidence REAL,
+            observed_at TEXT,
+            recorded_at TEXT NOT NULL,
+            source_type TEXT NOT NULL,
+            source_ref TEXT,
+            canonical_repo TEXT DEFAULT '',
+            checkout_path TEXT DEFAULT '',
+            supersedes TEXT,
+            active BOOLEAN NOT NULL DEFAULT 1,
+            UNIQUE(project, canonical_repo, checkout_path, subject, fact, status, machine),
+            FOREIGN KEY(supersedes) REFERENCES project_facts(id),
+            CHECK(status IN ('VERIFIED', 'OBSERVED', 'HISTORICAL', 'INFERRED', 'STALE', 'DISPROVEN', 'UNKNOWN', 'CURRENT')),
+            CHECK(confidence IS NULL OR (confidence >= 0.0 AND confidence <= 1.0)),
+            CHECK(supersedes != id),
+            CHECK(active IN (0, 1))
+        )
+        """)
+
+        # 4. Copy data
+        con.execute("""
+        INSERT INTO project_facts
+        SELECT id, project, machine, subject, fact, status, confidence, observed_at, recorded_at, source_type, source_ref, canonical_repo, checkout_path, supersedes, active
+        FROM project_facts_old
+        """)
+
+        # 5. Drop old table
+        con.execute("DROP TABLE project_facts_old")
+        con.commit()
+
+    # Migration of accountability_ledger removed to prevent destructive auto-drops.

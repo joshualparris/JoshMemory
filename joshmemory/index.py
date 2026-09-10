@@ -164,7 +164,7 @@ def project_history(project: str, *, limit: int = 30, db_path: Path | None = Non
     if state is None:
         state = get_project_state(project)
     search_term = state.get("name") if state else project
-    
+
     con = open_index(db_path)
     like = f"%{search_term}%"
     rows = con.execute(
@@ -195,14 +195,14 @@ def project_history(project: str, *, limit: int = 30, db_path: Path | None = Non
         (like, like, like, like, make_fts_query(search_term), f"seed://{search_term}", like, like, limit),
     ).fetchall()
     con.close()
-    
+
     # Also fetch github evidence related to this project
     try:
         from .github_evidence import github_evidence
         ev = github_evidence(project=search_term, limit=limit, db_path=db_path)
     except Exception:
         ev = []
-        
+
     return {
         "live_state": state,
         "history": [dict(row) for row in rows],
@@ -223,10 +223,10 @@ def recent_work(*, limit: int = 10, db_path: Path | None = None) -> list[dict[st
         (limit * 3,),
     ).fetchall()
     con.close()
-    
+
     db_recent = [dict(row) for row in rows]
     all_projects = get_all_projects()
-    
+
     scored_projects = {}
     for p in all_projects:
         name = p.get("name")
@@ -249,7 +249,7 @@ def recent_work(*, limit: int = 10, db_path: Path | None = None) -> list[dict[st
                 except ValueError:
                     pass
         scored_projects[name] = {"project": p, "score": score, "recent_sessions": []}
-        
+
     for r in db_recent:
         cwd = r.get("cwd", "")
         for name, data in scored_projects.items():
@@ -258,9 +258,9 @@ def recent_work(*, limit: int = 10, db_path: Path | None = None) -> list[dict[st
                 if len(data["recent_sessions"]) < 3:
                     data["recent_sessions"].append(r)
                 break
-                
+
     ranked = sorted(scored_projects.values(), key=lambda x: x["score"], reverse=True)
-    
+
     result = []
     for item in ranked:
         if item["score"] > 0:
@@ -272,7 +272,7 @@ def recent_work(*, limit: int = 10, db_path: Path | None = None) -> list[dict[st
                 reasons.append(f"{git['untracked']} untracked files")
             for sess in item["recent_sessions"]:
                 reasons.append(f"recent historical session on {sess.get('created_at', 'unknown date')}")
-            
+
             result.append({
                 "project": item["project"]["name"],
                 "activity_score": item["score"],
@@ -282,21 +282,21 @@ def recent_work(*, limit: int = 10, db_path: Path | None = None) -> list[dict[st
             })
             if len(result) >= limit:
                 break
-                
+
     return result
 
 
 def project_status(project: str, *, db_path: Path | None = None) -> dict[str, Any]:
     state = get_project_state(project)
     search_term = state.get("name") if state else project
-    
+
     # 2. recent Codex/session work & GitHub evidence via project_history
     hist = project_history(search_term, limit=10, db_path=db_path, state=state)
-    
-    
+
+
     from .classification import classify_evidence
     classified = classify_evidence(state, hist.get("history", []), hist.get("github_evidence", []))
-    
+
     return {
         "project_query": project,
         "live_auditor_state": state,

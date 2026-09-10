@@ -48,7 +48,7 @@ def classify_evidence(state: Optional[Dict[str, Any]], history: List[Dict[str, A
                     "timestamp": git.get("latest_commit_date") or dt.datetime.now(dt.timezone.utc).isoformat()
                 })
                 result["evidence_summary"]["facts"].append(f"On branch {head}")
-            
+
             git_tags = git.get("tags", [])
             if git_tags:
                 latest_tag = git_tags[-1]
@@ -93,7 +93,7 @@ def classify_evidence(state: Optional[Dict[str, Any]], history: List[Dict[str, A
         title = session.get("title", "")
         thread_id = session.get("thread_id", "")
         created_at = session.get("created_at")
-        
+
         # Soften overstatements
         lower_title = title.lower()
         if any(w in lower_title for w in ["completed", "finished", "finalized", "deployed", "production-ready", "fully integrated", "entirely"]):
