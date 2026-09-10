@@ -259,3 +259,63 @@ def test_supersedes_validation_cross_identity(tmp_path):
         assert False, "Should have thrown ValueError"
     except ValueError as e:
         assert "different canonical repo" in str(e)
+
+def test_migration_supersedes_chain(tmp_path):
+    db = str(tmp_path / "chain.sqlite")
+    create_db_with_facts_schema(db, '''
+    CREATE TABLE project_facts (
+        id TEXT PRIMARY KEY,
+        project TEXT NOT NULL,
+        machine TEXT NOT NULL DEFAULT '',
+        subject TEXT NOT NULL,
+        fact TEXT NOT NULL,
+        status TEXT NOT NULL,
+        confidence REAL,
+        observed_at TEXT,
+        recorded_at TEXT NOT NULL,
+        source_type TEXT NOT NULL,
+        source_ref TEXT,
+        supersedes TEXT,
+        active BOOLEAN NOT NULL DEFAULT 1,
+        canonical_repo TEXT DEFAULT '',
+        checkout_path TEXT DEFAULT '',
+        UNIQUE(project, subject, fact, status, machine),
+        FOREIGN KEY(supersedes) REFERENCES project_facts(id)
+    );
+    ''', 1)
+    
+    con = sqlite3.connect(db)
+    con.execute("PRAGMA foreign_keys = ON")
+    
+    # Handoff A (active=0, supersedes=None)
+    con.execute("INSERT INTO project_facts (id, project, subject, fact, status, recorded_at, source_type, active) VALUES ('A', 'App', 'S', 'F1', 'CURRENT', '1', 'test', 0)")
+    
+    # Handoff B (active=0, supersedes='A')
+    con.execute("INSERT INTO project_facts (id, project, subject, fact, status, recorded_at, source_type, supersedes, active) VALUES ('B', 'App', 'S', 'F2', 'CURRENT', '2', 'test', 'A', 0)")
+    
+    # Handoff C (active=1, supersedes='B')
+    con.execute("INSERT INTO project_facts (id, project, subject, fact, status, recorded_at, source_type, supersedes, active) VALUES ('C', 'App', 'S', 'F3', 'CURRENT', '3', 'test', 'B', 1)")
+    
+    con.commit()
+    con.close()
+    
+    # Open to trigger migration
+    connect(db).close()
+    
+    # Verify State
+    verify_migration_state(db)
+    
+    con = sqlite3.connect(db)
+    con.row_factory = sqlite3.Row
+    rows = {r[0]: dict(r) for r in con.execute("SELECT id, supersedes, active FROM project_facts")}
+    
+    assert len(rows) == 3
+    assert rows['A']['supersedes'] is None
+    assert rows['A']['active'] == 0
+    
+    assert rows['B']['supersedes'] == 'A'
+    assert rows['B']['active'] == 0
+    
+    assert rows['C']['supersedes'] == 'B'
+    assert rows['C']['active'] == 1
+    con.close()

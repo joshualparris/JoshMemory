@@ -2,32 +2,22 @@ import pytest
 import json
 import subprocess
 import os
+import sys
 
 def test_mcp_server_subprocess(tmp_path):
-    db_path = str(tmp_path / "sub_rpc.sqlite")
-    env = os.environ.copy()
+    isolated_home = tmp_path / "isolated_home"
+    isolated_home.mkdir(exist_ok=True)
     
-    wrapper = str(tmp_path / "run_server.py")
-    with open(wrapper, "w") as f:
-        f.write(f'''
-import sys
-sys.path.insert(0, "C:/dev/JoshMemory")
-from unittest.mock import patch
-from joshmemory.server import main
-
-with patch("joshmemory.server.default_db_path", return_value="{db_path.replace(chr(92), '/')}"), \
-     patch("joshmemory.paths.default_db_path", return_value="{db_path.replace(chr(92), '/')}"), \
-     patch("joshmemory.auditor.run_auditor", return_value={{"projects": []}}):
-    main()
-''')
-
+    env = os.environ.copy()
+    env["JOSHMEMORY_HOME"] = str(isolated_home)
+    
     proc = subprocess.Popen(
-        ["C:/dev/JoshMemory/.venv/Scripts/python.exe", wrapper],
+        [sys.executable, "-m", "joshmemory.server"],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
-        cwd="C:/dev/JoshMemory"
+        env=env
     )
     
     req = {
