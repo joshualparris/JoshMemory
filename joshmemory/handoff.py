@@ -89,10 +89,11 @@ def save_handoff(
 
     previous = get_latest_handoff(db_path, project, machine=_machine, canonical_repo=canonical_repo, checkout_path=checkout_path)
     fact_text = json.dumps(payload, ensure_ascii=False, sort_keys=True)
-    # Only supersede when the content actually changed. A byte-identical
-    # handoff is a no-op duplicate, and project_fact_add's own dedup check
-    # requires supersedes to match the existing row's (None in that case).
-    supersedes = previous["id"] if previous and previous["fact"] != fact_text else None
+    if previous and previous["fact"] == fact_text:
+        result = dict(previous)
+        result["duplicate"] = True
+        return result
+    supersedes = previous["id"] if previous else None
     result = project_fact_add(
         db_path,
         project=project,
@@ -164,6 +165,8 @@ def list_handoffs(
     machine: Optional[str] = None,
     limit: int = 10,
     active_only: bool = False,
+    canonical_repo: Optional[str] = None,
+    checkout_path: Optional[str] = None
 ) -> list[dict[str, Any]]:
     con = connect(db_path)
     try:
@@ -172,14 +175,38 @@ def list_handoffs(
         if machine:
             sql += " AND machine = ?"
             params.append(machine)
+            
+        if checkout_path and canonical_repo:
+            sql += " AND ( (canonical_repo = ? AND checkout_path = ?) OR (canonical_repo = '' AND checkout_path = '') )"
+            params.extend([canonical_repo, checkout_path])
+        elif checkout_path:
+            sql += " AND (checkout_path = ? OR checkout_path = '')"
+            params.append(checkout_path)
+        elif canonical_repo:
+            sql += " AND (canonical_repo = ? OR canonical_repo = '')"
+            params.append(canonical_repo)
+            
         if active_only:
             sql += " AND active = 1"
-        sql += " ORDER BY recorded_at DESC LIMIT ?"
-        params.append(limit)
-        rows = con.execute(sql, params).fetchall()
-        return [_row_to_handoff(dict(row)) for row in rows]
+            
+        if checkout_path and canonical_repo:
+            sql += " ORDER BY (canonical_repo = ? AND checkout_path = ?) DESC, recorded_at DESC LIMIT ?"
+            params.extend([canonical_repo, checkout_path, limit])
+        elif checkout_path:
+            sql += " ORDER BY (checkout_path = ?) DESC, recorded_at DESC LIMIT ?"
+            params.extend([checkout_path, limit])
+        elif canonical_repo:
+            sql += " ORDER BY (canonical_repo = ?) DESC, recorded_at DESC LIMIT ?"
+            params.extend([canonical_repo, limit])
+        else:
+            sql += " ORDER BY recorded_at DESC LIMIT ?"
+            params.append(limit)
+        
+        cur = con.execute(sql, params)
+        return [_row_to_handoff(dict(row)) for row in cur.fetchall()]
     finally:
         con.close()
+
 
 
 def get_project_context(
@@ -192,9 +219,9 @@ def get_project_context(
     evidence always outranks the handoff when they disagree; neither this
     function nor its caller should overwrite the handoff to "fix" a
     discrepancy — a new handoff, once actually verified, does that."""
-    handoff_row = get_latest_handoff(db_path, project, machine=machine)
+    handoff_row = get_latest_handoff(db_path, project, machine=machine, canonical_repo=canonical_repo, checkout_path=checkout_path)
     _machine = machine or default_machine()
-    state = get_project_state(project)
+    state = get_project_state(project, canonical_repo=canonical_repo, checkout_path=checkout_path)
 
     discrepancies: list[dict[str, Any]] = []
     if handoff_row and handoff_row.get("handoff") and state and state.get("git"):

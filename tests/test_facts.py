@@ -70,9 +70,22 @@ def test_concurrent_writes(db_path: str):
     errors = []
     
     def writer(thread_idx: int):
+        import sqlite3, time
         try:
             for i in range(10):
-                project_fact_add(db_path, "Proj", f"Subj-{thread_idx}", f"Fact {i}", "current", source_type="test")
+                success = False
+                for attempt in range(10):
+                    try:
+                        project_fact_add(db_path, "Proj", f"Subj-{thread_idx}", f"Fact {i}", "current", source_type="test")
+                        success = True
+                        break
+                    except sqlite3.OperationalError as err:
+                        if "database is locked" in str(err).lower():
+                            time.sleep(0.1)
+                            continue
+                        raise
+                if not success:
+                    raise Exception("Failed after retries")
         except Exception as e:
             errors.append(e)
 

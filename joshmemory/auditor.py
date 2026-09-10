@@ -134,6 +134,47 @@ def get_project_state(project_name: str, auditor_data: dict[str, Any] | None = N
         auditor_data = run_auditor()
         if not auditor_data:
             return None
+            
+    projects = auditor_data.get("projects", [])
+    from pathlib import Path
+    
+    # 1. Exact checkout path
+    if checkout_path:
+        cp = Path(checkout_path).resolve()
+        for p in projects:
+            path_val = p.get("path")
+            if path_val and Path(path_val).resolve() == cp:
+                return p
+                
+    # 2. Canonical repo match when sufficiently unique
+    if canonical_repo:
+        matches = [p for p in projects if p.get("canonical_repo") == canonical_repo]
+        if len(matches) == 1:
+            return matches[0]
+            
+    # 3. Exact display name only when unique
+    exact_matches = [p for p in projects if p.get("name") == project_name]
+    if len(exact_matches) == 1:
+        return exact_matches[0]
+    if len(exact_matches) > 1:
+        return {"error": "ambiguous", "reason": f"Multiple repositories found with exact name '{project_name}'."}
+        
+    # 4. Fuzzy name only when unambiguous
+    query_norm = normalize_name(project_name)
+    fuzzy_matches = []
+    for p in projects:
+        p_name = p.get("name", "")
+        p_norm = normalize_name(p_name)
+        if query_norm in p_norm or p_norm in query_norm:
+            fuzzy_matches.append(p)
+            
+    if len(fuzzy_matches) == 1:
+        return fuzzy_matches[0]
+    elif len(fuzzy_matches) > 1:
+        return {"error": "ambiguous", "reason": f"Multiple repositories found matching fuzzy name '{project_name}'."}
+        
+    return None
+
 
     projects = auditor_data.get("projects", [])
 

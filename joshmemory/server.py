@@ -317,18 +317,21 @@ def call_tool(name: str, arguments: dict[str, Any]) -> str:
         "save_handoff": lambda a: save_handoff(
             str(default_db_path()),
             str(a["project"]),
-            {k: v for k, v in a.items() if k not in ("project", "machine", "agent", "source_ref")},
+            {k: v for k, v in a.items() if k not in ("project", "machine", "agent", "source_ref", "canonical_repo", "checkout_path")},
             machine=a.get("machine"),
             agent=a.get("agent"),
-            source_ref=a.get("source_ref"),
+            source_ref=a.get("source_ref") or get_inferred_source_ref(a),
+            **get_identity_kwargs(a)
         ),
         "get_project_context": lambda a: get_project_context(
-            str(default_db_path()), str(a["project"]), machine=a.get("machine")
+            str(default_db_path()), str(a["project"]), machine=a.get("machine"), **get_identity_kwargs(a)
         ),
         "list_handoffs": lambda a: list_handoffs(
             str(default_db_path()),
             str(a["project"]),
             machine=a.get("machine"),
+            canonical_repo=get_identity_kwargs(a).get("canonical_repo", ""),
+            checkout_path=get_identity_kwargs(a).get("checkout_path", ""),
             limit=int(a.get("limit", 10)),
             active_only=bool(a.get("active_only", False)),
         ),

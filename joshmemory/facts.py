@@ -67,7 +67,7 @@ def project_fact_add(
                 return {"id": fact_id, "project": project, "fact": fact, "duplicate": True}
 
             if supersedes:
-                cur = con.execute("SELECT id, active, project, subject, machine FROM project_facts WHERE id = ?", (supersedes,))
+                cur = con.execute("SELECT id, active, project, subject, machine, canonical_repo, checkout_path FROM project_facts WHERE id = ?", (supersedes,))
                 row = cur.fetchone()
                 if not row:
                     raise ValueError(f"Superseded fact {supersedes} not found")
@@ -75,6 +75,14 @@ def project_fact_add(
                     raise ValueError(f"Superseded fact {supersedes} is already inactive")
                 if row["project"] != project or row["subject"] != subject or row["machine"] != _machine:
                     raise ValueError(f"Superseded fact {supersedes} does not match project/subject/machine")
+                
+                # Verify identity compatibility
+                old_canon = row["canonical_repo"]
+                old_path = row["checkout_path"]
+                if canonical_repo and old_canon and canonical_repo != old_canon:
+                    raise ValueError(f"Superseded fact {supersedes} belongs to a different canonical repo")
+                if checkout_path and old_path and checkout_path != old_path:
+                    raise ValueError(f"Superseded fact {supersedes} belongs to a different checkout path")
 
             fact_id = str(uuid.uuid4())
             con.execute(

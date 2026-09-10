@@ -144,45 +144,60 @@ END;
 
 
 def connect(path: str) -> sqlite3.Connection:
-    con = sqlite3.connect(path)
+    import sqlite3
+    con = sqlite3.connect(path, timeout=30.0)
     con.row_factory = sqlite3.Row
     con.execute("PRAGMA busy_timeout = 10000")
-    con.execute("PRAGMA foreign_keys = ON")
+    
+    # Do not set foreign_keys = ON until AFTER migration, 
+    # because table rebuilding requires it to be OFF.
+    con.execute("PRAGMA foreign_keys = OFF")
+    
     try:
-        tables = {row[0] for row in con.execute("SELECT name FROM sqlite_master WHERE type='table'")}
-        if "events" not in tables or "project_facts" not in tables or "accountability_references" not in tables:
-            con.execute("PRAGMA journal_mode = WAL")
-            con.executescript(SCHEMA)
+        con.execute("PRAGMA journal_mode = WAL")
+        con.executescript(SCHEMA)
+        
+        # ALWAYS evaluate safe idempotent migrations using user_version
+        with con:
             _migrate(con)
-    except sqlite3.OperationalError:
-        pass
+    except sqlite3.OperationalError as e:
+        # Don't swallow migration errors silently
+        if "duplicate column" not in str(e).lower() and "no such table" not in str(e).lower():
+            raise
+    
+    con.execute("PRAGMA foreign_keys = ON")
     return con
 
 
 def _migrate(con: sqlite3.Connection) -> None:
-    columns = {row[1] for row in con.execute("PRAGMA table_info(events)")}
-    try:
-        if "provenance" not in columns:
-            con.execute("ALTER TABLE events ADD COLUMN provenance TEXT")
-        if "source_id" not in columns:
-            con.execute("ALTER TABLE events ADD COLUMN source_id TEXT")
-    except sqlite3.OperationalError as e:
-        if "duplicate column name" not in str(e):
-            raise
+    version = con.execute("PRAGMA user_version").fetchone()[0]
+    
+    if version < 1:
+        columns = {row[1] for row in con.execute("PRAGMA table_info(events)")}
+        try:
+            if "provenance" not in columns:
+                con.execute("ALTER TABLE events ADD COLUMN provenance TEXT")
+            if "source_id" not in columns:
+                con.execute("ALTER TABLE events ADD COLUMN source_id TEXT")
+        except sqlite3.OperationalError as e:
+            if "duplicate column name" not in str(e): raise
+        con.execute("PRAGMA user_version = 1")
+        version = 1
 
-    # Safely migrate project_facts
-    pf_columns = {row[1] for row in con.execute("PRAGMA table_info(project_facts)")}
-    if "canonical_repo" not in pf_columns:
-        con.execute("BEGIN IMMEDIATE")
-
-        # 1. Add columns to existing table so we can copy data
-        con.execute("ALTER TABLE project_facts ADD COLUMN canonical_repo TEXT DEFAULT ''")
-        con.execute("ALTER TABLE project_facts ADD COLUMN checkout_path TEXT DEFAULT ''")
-
-        # 2. Rename old table
+    if version < 2:
+        # V2: Migrate project_facts to have canonical_repo, checkout_path and the new UNIQUE constraint.
+        # This safely handles V0 (no columns), V1 (columns but old constraint), by checking columns first.
+        pf_columns = {row[1] for row in con.execute("PRAGMA table_info(project_facts)")}
+        
+        # We must commit current transaction before DDL if any
+        
+        if "canonical_repo" not in pf_columns:
+            con.execute("ALTER TABLE project_facts ADD COLUMN canonical_repo TEXT DEFAULT ''")
+        if "checkout_path" not in pf_columns:
+            con.execute("ALTER TABLE project_facts ADD COLUMN checkout_path TEXT DEFAULT ''")
+            
         con.execute("ALTER TABLE project_facts RENAME TO project_facts_old")
-
-        # 3. Create new table with updated UNIQUE constraint
+        
         con.execute("""
         CREATE TABLE project_facts (
             id TEXT PRIMARY KEY,
@@ -208,16 +223,14 @@ def _migrate(con: sqlite3.Connection) -> None:
             CHECK(active IN (0, 1))
         )
         """)
-
-        # 4. Copy data
+        
         con.execute("""
-        INSERT INTO project_facts
-        SELECT id, project, machine, subject, fact, status, confidence, observed_at, recorded_at, source_type, source_ref, canonical_repo, checkout_path, supersedes, active
+        INSERT INTO project_facts 
+        SELECT id, project, machine, subject, fact, status, confidence, observed_at, recorded_at, source_type, source_ref, canonical_repo, checkout_path, supersedes, active 
         FROM project_facts_old
         """)
-
-        # 5. Drop old table
+        
         con.execute("DROP TABLE project_facts_old")
-        con.commit()
+        con.execute("PRAGMA user_version = 2")
+        version = 2
 
-    # Migration of accountability_ledger removed to prevent destructive auto-drops.
