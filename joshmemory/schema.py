@@ -71,6 +71,8 @@ CREATE TABLE IF NOT EXISTS chatgpt_messages (
 CREATE TABLE IF NOT EXISTS project_facts (
   id TEXT PRIMARY KEY,
   project TEXT NOT NULL,
+    canonical_repo TEXT DEFAULT '',
+    checkout_path TEXT DEFAULT '',
   machine TEXT NOT NULL DEFAULT '',
   subject TEXT NOT NULL,
   fact TEXT NOT NULL,
@@ -93,6 +95,8 @@ CREATE TABLE IF NOT EXISTS project_facts (
 CREATE TABLE IF NOT EXISTS accountability_references (
   id TEXT PRIMARY KEY,
   project TEXT NOT NULL,
+    canonical_repo TEXT DEFAULT '',
+    checkout_path TEXT DEFAULT '',
   requirement_id TEXT NOT NULL DEFAULT '',
   claim_summary TEXT NOT NULL,
   source_system TEXT NOT NULL,

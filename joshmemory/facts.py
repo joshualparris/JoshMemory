@@ -19,7 +19,9 @@ def project_fact_add(
     source_type: Optional[str] = None,
     source_ref: Optional[str] = None,
     machine: Optional[str] = None,
-    supersedes: Optional[str] = None
+    supersedes: Optional[str] = None,
+    canonical_repo: Optional[str] = "",
+    checkout_path: Optional[str] = ""
 ) -> dict[str, Any]:
     valid_statuses = {"VERIFIED", "OBSERVED", "HISTORICAL", "INFERRED", "STALE", "DISPROVEN", "UNKNOWN", "CURRENT"}
     status = status.upper()

@@ -193,3 +193,4 @@ def test_get_project_context_precedence_note_present(db_path: str):
     with patch("joshmemory.handoff.get_project_state", return_value=None):
         ctx = get_project_context(db_path, "AnyProject")
     assert "Live" in ctx["precedence_note"]
+

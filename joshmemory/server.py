@@ -12,6 +12,46 @@ from .facts import project_fact_add, project_fact_search, accountability_referen
 from .handoff import save_handoff, get_project_context, list_handoffs
 from .paths import default_db_path
 
+def get_identity_kwargs():
+    from pathlib import Path
+    try:
+        from .hooks import fast_git_details
+        cwd = Path.cwd()
+        git_info = fast_git_details(cwd)
+        return {
+            "canonical_repo": git_info.get("canonical_repo", ""),
+            "checkout_path": str(cwd)
+        }
+    except Exception:
+        return {"canonical_repo": "", "checkout_path": ""}
+
+def get_inferred_source_ref(a: dict) -> str:
+    if a.get("source_ref"): return a["source_ref"]
+    import os
+    if "CLAUDE_SESSION_ID" in os.environ: return os.environ["CLAUDE_SESSION_ID"]
+    from pathlib import Path
+    try:
+        from .hooks import infer_claude_session_id
+        res = infer_claude_session_id(Path.cwd())
+        if res: return res
+    except Exception:
+        pass
+    return ""
+
+def _save_handoff_wrapper(a):
+    from .handoff import save_handoff
+    from .paths import default_db_path
+    return save_handoff(
+        str(default_db_path()),
+        str(a["project"]),
+        {k: v for k, v in a.items() if k not in ("project", "machine", "agent", "source_ref")},
+        machine=a.get("machine"),
+        agent=a.get("agent"),
+        source_ref=get_inferred_source_ref(a),
+        **get_identity_kwargs()
+    )
+
+
 
 TOOLS: dict[str, dict[str, Any]] = {
     "search_sessions": {

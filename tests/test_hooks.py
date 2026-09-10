@@ -147,3 +147,19 @@ def test_stop_nudge_non_git_dir_is_silent(tmp_path, db_path):
     plain = tmp_path / "NotGit"
     plain.mkdir()
     assert stop_nudge(plain, db_path=db_path, machine="ws1") == {}
+
+def test_extract_transcript_info(tmp_path):
+    from joshmemory.hooks import extract_transcript_info
+    import json
+    log = tmp_path / "test.jsonl"
+    log.write_text('\n'.join([
+        json.dumps({"type": "last-prompt", "lastPrompt": "first task"}),
+        json.dumps({"type": "message", "message": {"role": "assistant", "content": [{"type": "text", "text": "first answer"}]}}),
+        json.dumps({"type": "last-prompt", "lastPrompt": "second task"}),
+        json.dumps({"type": "assistant", "message": {"role": "assistant", "content": [{"type": "text", "text": "second answer"}]}}),
+        json.dumps({"type": "message", "message": {"role": "assistant", "content": [{"type": "tool_use"}]}}),
+    ]))
+    user, asst = extract_transcript_info(str(log))
+    assert user == "second task"
+    assert asst == "second answer"
+

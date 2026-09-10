@@ -55,33 +55,36 @@ def session_start_context(
     empty envelope (no additionalContext) when JoshMemory has no handoff
     for this project, so unrelated projects see no injected noise."""
     project = detect_project(cwd)
-    ctx = get_project_context(db_path, project, machine=machine)
+    git_info = fast_git_details(cwd)
+    ctx = get_project_context(db_path, project, machine=machine, canonical_repo=git_info["canonical_repo"], checkout_path=str(cwd))
     handoff_row = ctx.get("handoff")
-    if not handoff_row or not handoff_row.get("handoff"):
+    related = ctx.get("related_workstreams", [])
+    if (not handoff_row or not handoff_row.get("handoff")) and not related:
         return {}
 
-    h = handoff_row["handoff"]
-    lines = [
-        f'JoshMemory has a prior handoff for project "{project}" '
-        f'(recorded {handoff_row.get("recorded_at", "an earlier time")} by '
-        f'{h.get("agent", "an earlier agent")} on '
-        f'{handoff_row.get("machine", "an earlier machine")}):'
-    ]
-    if h.get("objective"):
-        lines.append(f"- Objective: {h['objective']}")
-    if h.get("completed"):
-        lines.append("- Completed: " + "; ".join(h["completed"][:5]))
-    if h.get("in_progress"):
-        lines.append("- In progress: " + "; ".join(h["in_progress"][:5]))
-    if h.get("blockers"):
-        lines.append("- Blockers: " + "; ".join(h["blockers"][:5]))
-    if h.get("next_action"):
-        lines.append(f"- Suggested next action: {h['next_action']}")
-    for disc in ctx.get("discrepancies", []):
-        lines.append(f"- STALE: {disc['message']}")
-    note = ctx.get("precedence_note")
-    if note:
-        lines.append(note)
+    lines = []
+    if handoff_row and handoff_row.get("handoff"):
+        h = handoff_row["handoff"]
+        lines.append(f'JoshMemory has a prior handoff for project "{project}" (recorded {handoff_row.get("recorded_at", "an earlier time")} by {h.get("agent", "an earlier agent")} on {handoff_row.get("machine", "an earlier machine")}):')
+        if h.get("objective"): lines.append(f"- Objective: {h['objective']}")
+        if h.get("completed"): lines.append("- Completed: " + "; ".join(h["completed"][:5]))
+        if h.get("in_progress"): lines.append("- In progress: " + "; ".join(h["in_progress"][:5]))
+        if h.get("blockers"): lines.append("- Blockers: " + "; ".join(h["blockers"][:5]))
+        if h.get("next_action"): lines.append(f"- Suggested next action: {h['next_action']}")
+        for disc in ctx.get("discrepancies", []):
+            lines.append(f"- STALE: {disc['message']}")
+        note = ctx.get("precedence_note")
+        if note: lines.append(note)
+
+    if related:
+        lines.append("")
+        lines.append("Related workstreams for the same repository:")
+        for r in related:
+            r_proj = r.get("project", "")
+            r_branch = r.get("branch", "unknown-branch")
+            r_obj = r.get("objective", "No objective")
+            r_next = r.get("next_action", "No next action")
+            lines.append(f"{r_proj} - {r_branch} - objective: {r_obj} - next: {r_next}")
 
     return {
         "hookSpecificOutput": {
@@ -184,30 +187,32 @@ def extract_transcript_info(path: str) -> tuple[str, str]:
             if not line.strip(): continue
             try:
                 msg = json.loads(line)
-                if msg.get("type") == "message":
-                    content = msg.get("content", [])
-                    text = "".join(c.get("text", "") for c in content if c.get("type") == "text")
-                    role = msg.get("message", {}).get("role", "")
-                    if role == "user" or msg.get("userType"):
-                        # Sometimes user message is just 'text' in the wrapper, or inside 'message'
-                        # Actually Claude Code jsonl is a bit nested. Let's just grab the most recent user prompt from "type":"last-prompt" or "type":"message".
-                        pass
-                
-                # A safer heuristic for Claude Code transcripts:
                 if msg.get("type") == "last-prompt":
-                    last_user = msg.get("lastPrompt", last_user)
+                    val = msg.get("lastPrompt")
+                    if val: last_user = val
                 
-                # Assistant messages usually have "type": "assistant" and nested "message": {"content": [...]}
-                if msg.get("type") == "assistant":
-                    content = msg.get("message", {}).get("content", [])
-                    text = "".join(c.get("text", "") for c in content if c.get("type") == "text")
-                    if text: last_asst = text
+                if msg.get("type") == "message" or msg.get("type") == "assistant":
+                    inner = msg.get("message") if "message" in msg else msg
+                    if inner.get("role") == "assistant":
+                        content = inner.get("content", [])
+                        text = "".join(c.get("text", "") for c in content if c.get("type") == "text")
+                        if text: last_asst = text
             except Exception:
                 pass
                 
         return last_user, last_asst
     except Exception:
         return "", ""
+
+
+def infer_claude_session_id(cwd: Path) -> str:
+    escaped = str(cwd).replace(":", "-").replace("\\", "-").replace("/", "-")
+    path = Path.home() / ".claude" / "projects" / escaped
+    if not path.exists(): return ""
+    jsonls = list(path.glob("*.jsonl"))
+    if not jsonls: return ""
+    latest = max(jsonls, key=lambda p: p.stat().st_mtime)
+    return latest.stem
 
 def session_end_context(
     cwd: Path, *, payload: dict, db_path: str, machine: Optional[str] = None
@@ -226,7 +231,7 @@ def session_end_context(
     
     # Check precedence: did the agent already save an explicit handoff recently?
     # Or specifically, in this session?
-    latest = get_latest_handoff(db_path, project, machine=_machine)
+    latest = get_latest_handoff(db_path, project, machine=_machine, canonical_repo=git_info["canonical_repo"], checkout_path=str(cwd))
     explicit_exists = False
     old_handoff = None
     
@@ -235,10 +240,8 @@ def session_end_context(
             explicit_exists = True
             old_handoff = latest.get("handoff", {})
         else:
-            # If no session_id matching, check if it was very recent (we could check recorded_at, but we'll assume matching source_ref is safest).
-            # To be robust, if it's the CURRENT handoff and it's agent_handoff, we supplement it rather than replacing it with a lower-quality fallback.
-            explicit_exists = True
-            old_handoff = latest.get("handoff", {})
+            explicit_exists = False
+            old_handoff = None
             
     # Build fallback handoff
     handoff_data = dict(old_handoff) if old_handoff else {}
@@ -267,8 +270,9 @@ def session_end_context(
         machine=_machine, 
         agent="claude-code-fallback", 
         source_ref=session_id,
-        source_type="automatic_fallback" if not explicit_exists else "agent_handoff" 
-        # keep it as agent_handoff if we are just supplementing the explicit one
+        source_type="automatic_fallback" if not explicit_exists else "agent_handoff",
+        canonical_repo=git_info["canonical_repo"],
+        checkout_path=str(cwd)
     )
     
     return {}

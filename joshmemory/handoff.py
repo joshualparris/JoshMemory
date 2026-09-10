@@ -64,6 +64,8 @@ def save_handoff(
     agent: Optional[str] = None,
     source_type: str = 'agent_handoff',
     source_ref: Optional[str] = None,
+    canonical_repo: Optional[str] = "",
+    checkout_path: Optional[str] = ""
 ) -> dict[str, Any]:
     """Persist a structured session handoff for `project`.
 
@@ -85,7 +87,7 @@ def save_handoff(
         payload.setdefault("agent", agent)
     payload = _redact_value(payload)
 
-    previous = get_latest_handoff(db_path, project, machine=_machine)
+    previous = get_latest_handoff(db_path, project, machine=_machine, canonical_repo=canonical_repo, checkout_path=checkout_path)
     fact_text = json.dumps(payload, ensure_ascii=False, sort_keys=True)
     # Only supersede when the content actually changed. A byte-identical
     # handoff is a no-op duplicate, and project_fact_add's own dedup check
@@ -116,7 +118,8 @@ def _row_to_handoff(row: dict[str, Any]) -> dict[str, Any]:
 
 
 def get_latest_handoff(
-    db_path: str, project: str, *, machine: Optional[str] = None
+    db_path: str, project: str, *, machine: Optional[str] = None,
+    canonical_repo: Optional[str] = None, checkout_path: Optional[str] = None
 ) -> Optional[dict[str, Any]]:
     """Latest active handoff for a project. Without `machine`, returns the
     most recently recorded handoff across all machines that worked on it."""
@@ -127,7 +130,18 @@ def get_latest_handoff(
         if machine:
             sql += " AND machine = ?"
             params.append(machine)
-        sql += " ORDER BY recorded_at DESC LIMIT 1"
+        
+        if checkout_path:
+            # Match specific checkout path, or fallback to older rows that don't have it
+            sql += " AND (checkout_path = ? OR checkout_path = '' OR checkout_path IS NULL)"
+            params.append(checkout_path)
+            
+            # Prioritize the exact checkout_path match, then most recent
+            sql += " ORDER BY (checkout_path = ?) DESC, recorded_at DESC LIMIT 1"
+            params.append(checkout_path)
+        else:
+            sql += " ORDER BY recorded_at DESC LIMIT 1"
+
         row = con.execute(sql, params).fetchone()
         return _row_to_handoff(dict(row)) if row else None
     finally:
@@ -160,7 +174,8 @@ def list_handoffs(
 
 
 def get_project_context(
-    db_path: str, project: str, *, machine: Optional[str] = None
+    db_path: str, project: str, *, machine: Optional[str] = None,
+    canonical_repo: Optional[str] = None, checkout_path: Optional[str] = None
 ) -> dict[str, Any]:
     """Compact startup context for a fresh agent session: the latest
     handoff plus freshly-checked live evidence, with discrepancies called
