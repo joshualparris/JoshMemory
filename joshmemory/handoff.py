@@ -4,7 +4,7 @@ import json
 import socket
 from typing import Any, Optional
 
-from .auditor import get_project_state
+from .auditor import get_project_state, get_all_projects
 from .facts import project_fact_add
 from .redact import redact
 from .schema import connect
@@ -219,11 +219,31 @@ def get_project_context(
             }
         )
 
+    related_workstreams = []
+    if state and state.get("canonical_repo"):
+        canonical = state["canonical_repo"]
+        all_projs = get_all_projects()
+        for p in all_projs:
+            p_name = p.get("name")
+            if p_name and p_name != project and p.get("canonical_repo") == canonical:
+                rel_handoff = get_latest_handoff(db_path, p_name)
+                rel_info = {
+                    "project": p_name,
+                    "path": p.get("path"),
+                    "branch": p.get("git", {}).get("branch") if p.get("git") else None
+                }
+                if rel_handoff and rel_handoff.get("handoff"):
+                    h = rel_handoff["handoff"]
+                    rel_info["objective"] = h.get("objective")
+                    rel_info["next_action"] = h.get("next_action")
+                related_workstreams.append(rel_info)
+
     return {
         "project": project,
         "handoff": handoff_row,
         "live_state": state,
         "discrepancies": discrepancies,
+        "related_workstreams": related_workstreams,
         "precedence_note": (
             "Live repository/API/machine evidence outranks this handoff whenever "
             "they conflict. Treat the handoff as historical context to verify, "

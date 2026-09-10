@@ -94,7 +94,8 @@ def scan_built_in(base_dir: Path) -> dict[str, Any]:
                     "untracked": untracked,
                     "ahead": ahead,
                     "latest_commit_date": latest_date
-                }
+                },
+                "canonical_repo": normalize_git_url(origin_url)
             })
             
     return {"version": "1.0", "projects": projects}
@@ -103,6 +104,7 @@ def run_auditor() -> dict[str, Any]:
     base_dir = get_base_dir()
     
     auditor_script = Path.home() / "dev" / "tools" / "fedora_project_audit.py"
+    data = None
     if auditor_script.exists():
         try:
             result = subprocess.run(
@@ -111,11 +113,18 @@ def run_auditor() -> dict[str, Any]:
                 text=True,
                 check=True
             )
-            return json.loads(result.stdout)
+            data = json.loads(result.stdout)
         except (subprocess.CalledProcessError, json.JSONDecodeError):
             pass
             
-    return scan_built_in(base_dir)
+    if not data:
+        data = scan_built_in(base_dir)
+        
+    for p in data.get("projects", []):
+        if p.get("is_git") and "git" in p:
+            p["canonical_repo"] = normalize_git_url(p["git"].get("origin_url"))
+            
+    return data
 
 def normalize_name(name: str) -> str:
     return name.lower().replace(" ", "").replace("-", "").replace("_", "")
@@ -145,3 +154,23 @@ def get_all_projects(auditor_data: dict[str, Any] | None = None) -> list[dict[st
     if auditor_data is None:
         auditor_data = run_auditor()
     return auditor_data.get("projects", [])
+import re
+
+def normalize_git_url(url: str | None) -> str | None:
+    if not url:
+        return None
+    url = url.strip().lower()
+    if url.endswith('.git'):
+        url = url[:-4]
+    for prefix in ['https://', 'http://', 'ssh://']:
+        if url.startswith(prefix):
+            url = url[len(prefix):]
+            break
+    if url.startswith('git@'):
+        url = url[4:]
+        url = url.replace(':', '/', 1)
+    if '@' in url:
+        parts = url.split('@', 1)
+        if len(parts) == 2:
+            url = parts[1]
+    return url
