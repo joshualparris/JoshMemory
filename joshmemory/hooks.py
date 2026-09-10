@@ -150,3 +150,125 @@ def stop_nudge(
             "for this commit."
         ),
     }
+
+def fast_git_details(cwd: Path) -> dict:
+    head = _git(cwd, ["rev-parse", "HEAD"])
+    branch = _git(cwd, ["rev-parse", "--abbrev-ref", "HEAD"])
+    if branch == "HEAD": branch = ""
+    upstream = _git(cwd, ["rev-parse", "--abbrev-ref", "@{u}"])
+    status = _git(cwd, ["status", "--porcelain"])
+    origin = _git(cwd, ["config", "--get", "remote.origin.url"])
+    
+    # Import locally to avoid circular dependency
+    from .auditor import normalize_git_url
+    return {
+        "head_commit": head or None,
+        "branch": branch or None,
+        "upstream": upstream or None,
+        "dirty": bool(status),
+        "canonical_repo": normalize_git_url(origin)
+    }
+
+def extract_transcript_info(path: str) -> tuple[str, str]:
+    if not path:
+        return "", ""
+    try:
+        import json
+        p = Path(path)
+        if not p.exists(): return "", ""
+        
+        lines = p.read_text(encoding="utf-8", errors="ignore").splitlines()
+        last_user = ""
+        last_asst = ""
+        for line in lines:
+            if not line.strip(): continue
+            try:
+                msg = json.loads(line)
+                if msg.get("type") == "message":
+                    content = msg.get("content", [])
+                    text = "".join(c.get("text", "") for c in content if c.get("type") == "text")
+                    role = msg.get("message", {}).get("role", "")
+                    if role == "user" or msg.get("userType"):
+                        # Sometimes user message is just 'text' in the wrapper, or inside 'message'
+                        # Actually Claude Code jsonl is a bit nested. Let's just grab the most recent user prompt from "type":"last-prompt" or "type":"message".
+                        pass
+                
+                # A safer heuristic for Claude Code transcripts:
+                if msg.get("type") == "last-prompt":
+                    last_user = msg.get("lastPrompt", last_user)
+                
+                # Assistant messages usually have "type": "assistant" and nested "message": {"content": [...]}
+                if msg.get("type") == "assistant":
+                    content = msg.get("message", {}).get("content", [])
+                    text = "".join(c.get("text", "") for c in content if c.get("type") == "text")
+                    if text: last_asst = text
+            except Exception:
+                pass
+                
+        return last_user, last_asst
+    except Exception:
+        return "", ""
+
+def session_end_context(
+    cwd: Path, *, payload: dict, db_path: str, machine: Optional[str] = None
+) -> dict:
+    from .handoff import save_handoff, get_latest_handoff
+    project = detect_project(cwd)
+    _machine = machine or default_machine()
+    
+    # Extract transcript info
+    transcript_path = payload.get("transcript_path", "")
+    session_id = payload.get("session_id", "")
+    last_user, last_asst = extract_transcript_info(transcript_path)
+    
+    # Git details
+    git_info = fast_git_details(cwd)
+    
+    # Check precedence: did the agent already save an explicit handoff recently?
+    # Or specifically, in this session?
+    latest = get_latest_handoff(db_path, project, machine=_machine)
+    explicit_exists = False
+    old_handoff = None
+    
+    if latest and latest.get("source_type") == "agent_handoff":
+        if session_id and latest.get("source_ref") == session_id:
+            explicit_exists = True
+            old_handoff = latest.get("handoff", {})
+        else:
+            # If no session_id matching, check if it was very recent (we could check recorded_at, but we'll assume matching source_ref is safest).
+            # To be robust, if it's the CURRENT handoff and it's agent_handoff, we supplement it rather than replacing it with a lower-quality fallback.
+            explicit_exists = True
+            old_handoff = latest.get("handoff", {})
+            
+    # Build fallback handoff
+    handoff_data = dict(old_handoff) if old_handoff else {}
+    
+    if not explicit_exists:
+        # Lower quality fallback
+        handoff_data["objective"] = last_user if last_user else f"Automatic session end fallback (reason: {payload.get('reason')})"
+        
+        # Summarize last assistant text safely (first 200 chars)
+        asst_sum = (last_asst[:200] + "...") if len(last_asst) > 200 else last_asst
+        
+        handoff_data["completed"] = [f"Session ended automatically.", f"Last interaction: {asst_sum}"]
+        handoff_data["next_action"] = "Review automatic fallback state and resume."
+    
+    # ALWAYS supplement with deterministic fields
+    handoff_data["head_commit"] = git_info["head_commit"]
+    handoff_data["branch"] = git_info["branch"]
+    handoff_data["canonical_repo"] = git_info["canonical_repo"]
+    handoff_data["dirty"] = git_info["dirty"]
+    
+    # Save it
+    save_handoff(
+        db_path, 
+        project, 
+        handoff_data, 
+        machine=_machine, 
+        agent="claude-code-fallback", 
+        source_ref=session_id,
+        source_type="automatic_fallback" if not explicit_exists else "agent_handoff" 
+        # keep it as agent_handoff if we are just supplementing the explicit one
+    )
+    
+    return {}

@@ -62,6 +62,7 @@ def save_handoff(
     *,
     machine: Optional[str] = None,
     agent: Optional[str] = None,
+    source_type: str = 'agent_handoff',
     source_ref: Optional[str] = None,
 ) -> dict[str, Any]:
     """Persist a structured session handoff for `project`.
@@ -96,7 +97,7 @@ def save_handoff(
         subject=HANDOFF_SUBJECT,
         fact=fact_text,
         status=HANDOFF_STATUS,
-        source_type="agent_handoff",
+        source_type=source_type,
         source_ref=source_ref,
         machine=_machine,
         supersedes=supersedes,
@@ -168,6 +169,7 @@ def get_project_context(
     function nor its caller should overwrite the handoff to "fix" a
     discrepancy — a new handoff, once actually verified, does that."""
     handoff_row = get_latest_handoff(db_path, project, machine=machine)
+    _machine = machine or default_machine()
     state = get_project_state(project)
 
     discrepancies: list[dict[str, Any]] = []
@@ -226,7 +228,7 @@ def get_project_context(
         for p in all_projs:
             p_name = p.get("name")
             if p_name and p_name != project and p.get("canonical_repo") == canonical:
-                rel_handoff = get_latest_handoff(db_path, p_name)
+                rel_handoff = get_latest_handoff(db_path, p_name, machine=_machine)
                 rel_info = {
                     "project": p_name,
                     "path": p.get("path"),

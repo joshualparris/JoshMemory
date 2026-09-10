@@ -3,6 +3,13 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
+import os
+from unittest.mock import patch
+
+@pytest.fixture(autouse=True)
+def mock_auditor():
+    with patch("joshmemory.handoff.get_all_projects", return_value=[]):
+        yield
 
 from joshmemory.handoff import save_handoff
 from joshmemory.hooks import (

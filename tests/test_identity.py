@@ -131,3 +131,57 @@ def test_complex_identity_scenarios(mock_latest, mock_all_projects, mock_state):
     mock_state.return_value = projects[3]
     ctx = get_project_context(":memory:", "NonGit", machine="M1")
     assert len(ctx.get("related_workstreams", [])) == 0
+from joshmemory.handoff import get_project_context
+from unittest.mock import patch
+
+@patch('joshmemory.handoff.get_project_state')
+@patch('joshmemory.handoff.get_all_projects')
+@patch('joshmemory.handoff.get_latest_handoff')
+def test_cross_machine_identity(mock_latest, mock_all_projects, mock_state):
+    projects = [
+        {
+            "name": "ProjA",
+            "path": "C:/1/ProjA",
+            "canonical_repo": "github.com/user/repo",
+            "git": {"branch": "feat/1"}
+        },
+        {
+            "name": "ProjB",
+            "path": "C:/2/ProjB",
+            "canonical_repo": "github.com/user/repo",
+            "git": {"branch": "integration"}
+        }
+    ]
+    mock_all_projects.return_value = projects
+    mock_state.return_value = projects[0]
+    
+    def side_effect(db, proj, machine=None):
+        if proj == "ProjB":
+            if machine == "THINKPAD":
+                return {"handoff": {"objective": "Thinkpad work", "next_action": "Thinkpad next"}}
+            else:
+                # ProjB has no handoff on PROBOOK
+                return None
+        return None
+        
+    mock_latest.side_effect = side_effect
+    
+    # Run context for ProjA on PROBOOK
+    ctx = get_project_context(":memory:", "ProjA", machine="PROBOOK")
+    
+    assert ctx["project"] == "ProjA"
+    rel = ctx.get("related_workstreams", [])
+    
+    # ProjB is on the same machine but has NO handoff on PROBOOK, so it shouldn't leak THINKPAD's handoff
+    assert len(rel) == 1
+    assert rel[0]["project"] == "ProjB"
+    assert rel[0]["branch"] == "integration"
+    assert "objective" not in rel[0]  # Because no handoff exists on PROBOOK for ProjB!
+    
+    # If we run context for ProjA on THINKPAD
+    ctx_think = get_project_context(":memory:", "ProjA", machine="THINKPAD")
+    rel_think = ctx_think.get("related_workstreams", [])
+    assert len(rel_think) == 1
+    assert rel_think[0]["project"] == "ProjB"
+    assert rel_think[0]["objective"] == "Thinkpad work"
+
