@@ -4,9 +4,6 @@ import sqlite3
 
 
 SCHEMA = """
-PRAGMA journal_mode=WAL;
-PRAGMA foreign_keys=ON;
-
 CREATE TABLE IF NOT EXISTS sessions (
   thread_id TEXT PRIMARY KEY,
   rollout_path TEXT NOT NULL UNIQUE,
@@ -38,6 +35,8 @@ CREATE TABLE IF NOT EXISTS events (
   role TEXT,
   text TEXT NOT NULL,
   text_hash TEXT NOT NULL,
+  provenance TEXT,
+  source_id TEXT,
   UNIQUE(thread_id, source_line, event_kind, role, text_hash)
 );
 
@@ -149,48 +148,46 @@ def connect(path: str) -> sqlite3.Connection:
     con.row_factory = sqlite3.Row
     con.execute("PRAGMA busy_timeout = 10000")
     
-    # Do not set foreign_keys = ON until AFTER migration, 
-    # because table rebuilding requires it to be OFF.
-    con.execute("PRAGMA foreign_keys = OFF")
-    
     try:
         con.execute("PRAGMA journal_mode = WAL")
-        con.executescript(SCHEMA)
+    except sqlite3.OperationalError:
+        pass
         
-        # ALWAYS evaluate safe idempotent migrations using user_version
-        with con:
-            _migrate(con)
-    except sqlite3.OperationalError as e:
-        # Don't swallow migration errors silently
-        if "duplicate column" not in str(e).lower() and "no such table" not in str(e).lower():
-            raise
+    version = con.execute("PRAGMA user_version").fetchone()[0]
+    tables = con.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='project_facts'").fetchall()
+    is_fresh = len(tables) == 0
     
+    if is_fresh:
+        con.execute("PRAGMA foreign_keys = ON")
+        with con:
+            con.executescript(SCHEMA)
+            con.execute("PRAGMA user_version = 2")
+        return con
+        
+    if version < 2:
+        con.execute("PRAGMA foreign_keys = OFF")
+        with con:
+            con.executescript(SCHEMA)
+            _migrate(con, version)
+            con.execute("PRAGMA user_version = 2")
+        
+        violations = con.execute("PRAGMA foreign_key_check").fetchall()
+        if violations:
+            raise sqlite3.IntegrityError(f"Foreign key violations after migration: {violations}")
+            
     con.execute("PRAGMA foreign_keys = ON")
     return con
 
-
-def _migrate(con: sqlite3.Connection) -> None:
-    version = con.execute("PRAGMA user_version").fetchone()[0]
-    
+def _migrate(con: sqlite3.Connection, version: int) -> None:
     if version < 1:
         columns = {row[1] for row in con.execute("PRAGMA table_info(events)")}
-        try:
-            if "provenance" not in columns:
-                con.execute("ALTER TABLE events ADD COLUMN provenance TEXT")
-            if "source_id" not in columns:
-                con.execute("ALTER TABLE events ADD COLUMN source_id TEXT")
-        except sqlite3.OperationalError as e:
-            if "duplicate column name" not in str(e): raise
-        con.execute("PRAGMA user_version = 1")
-        version = 1
-
+        if "provenance" not in columns:
+            con.execute("ALTER TABLE events ADD COLUMN provenance TEXT")
+        if "source_id" not in columns:
+            con.execute("ALTER TABLE events ADD COLUMN source_id TEXT")
+            
     if version < 2:
-        # V2: Migrate project_facts to have canonical_repo, checkout_path and the new UNIQUE constraint.
-        # This safely handles V0 (no columns), V1 (columns but old constraint), by checking columns first.
         pf_columns = {row[1] for row in con.execute("PRAGMA table_info(project_facts)")}
-        
-        # We must commit current transaction before DDL if any
-        
         if "canonical_repo" not in pf_columns:
             con.execute("ALTER TABLE project_facts ADD COLUMN canonical_repo TEXT DEFAULT ''")
         if "checkout_path" not in pf_columns:
@@ -225,12 +222,9 @@ def _migrate(con: sqlite3.Connection) -> None:
         """)
         
         con.execute("""
-        INSERT INTO project_facts 
-        SELECT id, project, machine, subject, fact, status, confidence, observed_at, recorded_at, source_type, source_ref, canonical_repo, checkout_path, supersedes, active 
+        INSERT INTO project_facts (id, project, machine, subject, fact, status, confidence, observed_at, recorded_at, source_type, source_ref, canonical_repo, checkout_path, supersedes, active)
+        SELECT id, project, machine, subject, fact, status, confidence, observed_at, recorded_at, source_type, source_ref, canonical_repo, checkout_path, supersedes, active
         FROM project_facts_old
         """)
         
         con.execute("DROP TABLE project_facts_old")
-        con.execute("PRAGMA user_version = 2")
-        version = 2
-

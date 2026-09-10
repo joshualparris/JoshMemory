@@ -175,35 +175,6 @@ def get_project_state(project_name: str, auditor_data: dict[str, Any] | None = N
         
     return None
 
-
-    projects = auditor_data.get("projects", [])
-
-    from pathlib import Path
-
-    # 1. Exact checkout path
-    if checkout_path:
-        cp = Path(checkout_path).resolve()
-        for p in projects:
-            path_val = p.get("path")
-            if path_val and Path(path_val).resolve() == cp:
-                return p
-
-    # 2. Canonical repo + expected checkout/workstream logic (optional, but exact path handles it mostly)
-
-    # 3. Exact name fallback (if not ambiguous? Or just first match if no checkout path provided)
-    for p in projects:
-        if p.get("name") == project_name:
-            return p
-
-    query_norm = normalize_name(project_name)
-    for p in projects:
-        p_name = p.get("name", "")
-        p_norm = normalize_name(p_name)
-        if query_norm in p_norm or p_norm in query_norm:
-            return p
-
-    return None
-
 def get_all_projects(auditor_data: dict[str, Any] | None = None) -> list[dict[str, Any]]:
     if auditor_data is None:
         auditor_data = run_auditor()
