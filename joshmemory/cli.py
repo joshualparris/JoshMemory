@@ -187,8 +187,13 @@ def main(argv: list[str] | None = None) -> int:
             return print_json({})
     if args.cmd == "claude-session-end-hook":
         try:
-            import sys
-            import json
+            # NOTE (fixed 2026-09-10): these were re-imported locally here,
+            # which makes `json`/`sys` local to the whole main() function in
+            # Python's static scoping -- breaking the `save-handoff` branch
+            # above (json.loads(raw)) with UnboundLocalError, since that
+            # branch runs before this line but the name was no longer bound
+            # to the module-level import. Both are already imported at the
+            # top of this module; no need to shadow them here.
             payload_str = sys.stdin.read().strip()
             payload = json.loads(payload_str) if payload_str else {}
             from joshmemory.hooks import session_end_context
