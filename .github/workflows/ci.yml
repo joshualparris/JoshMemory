@@ -19,5 +19,9 @@ jobs:
           cache: pip
       - name: Install
         run: python -m pip install -e '.[dev]'
+      - name: Compile
+        run: python -m compileall -q joshmemory
+      - name: Validate shell deploy scripts
+        run: bash -n deploy/*.sh
       - name: Test
         run: pytest -q
