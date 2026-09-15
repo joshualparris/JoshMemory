@@ -1,199 +1,184 @@
 # JoshMemory
 
-JoshMemory is an evidence and project-memory index for development history. It keeps searchable, redacted representations of development history in SQLite while preserving the original source material as the authority.
+JoshMemory is an evidence-aware project continuity system for AI-assisted software development. It helps Claude Code, Codex, Antigravity and other coding workflows resume a project from durable, redacted context while keeping **live Git/API/machine evidence authoritative**.
 
-It can run fully local/offline, or use one authenticated central shared-memory database so Claude Code, Codex and Antigravity sessions on different computers can pause and resume the same GitHub project while sharing handoffs, durable project facts and accountability references.
+The default shared-memory design no longer depends on AVANCE-WS7, a home PC or any other workstation remaining powered on. When an existing GitHub credential is available, JoshMemory automatically uses a private GitHub repository as the always-available backing store for handoffs, durable project facts and accountability references.
 
-For multi-machine use, the recommended topology is now **cloud-hosted JoshMemory**: run the central service on Railway (or another persistent cloud host) and let every workstation connect to its HTTPS URL. No workstation, including AVANCE-WS7, needs to stay powered on.
+## Current architecture
 
-It currently works with:
+```text
+Claude / Codex / Antigravity / JoshMemory MCP
+             on any development computer
+                         |
+                         | existing GitHub authentication
+                         v
+            private GitHub cloud store
+        joshualparris/JoshDashboard4 / main
+             joshmemory-cloud/v1/
+                         |
+             append-only JSON records
 
-- Codex rollout JSONL sessions
-- ChatGPT `conversations.json` exports
-- GitHub evidence JSONL imports
-- seed and app-link imports
-- durable project facts with provenance and supersession
-- accountability references to external verification systems
-- live local Git project state via a cross-platform auditor
-- structured session handoffs/bookmarks
-- authenticated central shared-memory storage across machines
+Canonical GitHub project + live checkout
+             = current code truth
+```
 
-Raw transcripts and imported evidence remain the source of truth; JoshMemory stores searchable text, metadata, provenance, relationships, and references back to those sources.
+The public `joshualparris/JoshMemory` repository contains the software. Shared memory payloads live in the existing **private** `joshualparris/JoshDashboard4` repository and are not exposed through this public source repository.
 
-## Requirements and install
+## What JoshMemory stores
+
+JoshMemory can work with:
+
+- Codex rollout JSONL sessions;
+- ChatGPT `conversations.json` exports;
+- GitHub evidence JSONL imports;
+- seed and app-link imports;
+- durable project facts with provenance and supersession;
+- accountability references to external verification systems;
+- live local Git project state through a cross-platform auditor;
+- structured session handoffs/bookmarks;
+- shared handoffs/facts/accountability records through private GitHub storage;
+- an optional authenticated central HTTP service for environments that prefer a conventional server.
+
+Raw transcripts and imported evidence remain source material. JoshMemory stores searchable text, metadata, provenance, relationships and references back to those sources. It does not turn an assertion into truth merely because it was remembered.
+
+## The authority rule
+
+A stored handoff is historical context to verify, not current truth.
+
+When sources disagree, prefer:
+
+1. live repository/API/machine evidence;
+2. independently generated verification evidence;
+3. durable JoshMemory facts and handoffs;
+4. older transcripts or inferred context.
+
+For example, if a handoff records one HEAD commit but the checked-out repository now has another, the live repository wins and the discrepancy is reported.
+
+## Requirements
 
 - Python 3.11+
+- GitHub authentication if you want the zero-touch shared cloud store
+
+Install:
 
 ```bash
 pip install -e .
 ```
 
-This installs the `joshmemory` and `joshmemory-central` commands. You can also run the CLI as `python -m joshmemory.cli`.
+This installs `joshmemory` and `joshmemory-central`. The CLI can also be run with:
 
-## Default paths
+```bash
+python -m joshmemory.cli
+```
+
+## Zero-touch cloud shared memory
+
+If the development computer already has GitHub access, JoshMemory looks for a usable credential in this order:
+
+1. `JOSHMEMORY_GITHUB_TOKEN`
+2. `GH_TOKEN`
+3. `GITHUB_TOKEN`
+4. `gh auth token`
+5. the configured Git credential helper for `github.com`
+
+It never stores the discovered credential in JoshMemory or commits it to GitHub.
+
+Built-in backing-store defaults for this deployment are:
+
+```text
+repository: joshualparris/JoshDashboard4   # private
+branch:     main
+root:       joshmemory-cloud/v1
+```
+
+No AVANCE process, NAS share or always-on local service is required for that mode.
+
+Optional overrides:
+
+```bash
+export JOSHMEMORY_GITHUB_STORE_REPO="owner/private-memory-repo"
+export JOSHMEMORY_GITHUB_STORE_BRANCH="main"
+export JOSHMEMORY_GITHUB_STORE_ROOT="joshmemory-cloud/v1"
+```
+
+To deliberately disable automatic GitHub storage and keep the shared operations local:
+
+```bash
+export JOSHMEMORY_GITHUB_STORE_AUTO=0
+```
+
+### What is shared
+
+The GitHub cloud store centralises the state needed for development pause/resume:
+
+- structured handoffs/bookmarks;
+- durable project facts;
+- accountability references;
+- provenance and supersession for those records.
+
+Writes are append-only UUID-named JSON records. Previous records remain available as history; active state is derived from supersession references.
+
+### What is not silently uploaded
+
+Cloud mode does **not** automatically upload:
+
+- the complete historical SQLite database;
+- raw Codex session files;
+- complete ChatGPT exports;
+- local machine observations;
+- other repositories' source code.
+
+This solves shared project continuity without turning the backing repository into an unfiltered transcript dump.
+
+## Cross-machine handoffs
+
+Canonical Git repository identity is the main cross-machine key. A handoff saved from:
+
+```text
+~/dev/MyApp
+```
+
+can be resumed from:
+
+```text
+C:\dev\MyApp
+```
+
+when both clones correspond to the same canonical repository. The local checkout path is a ranking preference rather than a global identity barrier.
+
+A typical startup flow is:
+
+1. identify the local project and canonical repository;
+2. load the latest relevant handoff;
+3. audit live branch/HEAD/dirty state;
+4. surface discrepancies;
+5. continue from the first still-valid next action;
+6. save a new handoff at a meaningful checkpoint, blocker or session end.
+
+## Default local paths
 
 - Codex sessions: `~/.codex/sessions/**/*.jsonl`
-- SQLite index: `~/.local/share/joshmemory/memory.sqlite`
-- Local projects: `JOSHMEMORY_PROJECTS_DIR` when set; otherwise `C:\dev` on Windows when available, or `~/dev`
+- local SQLite index: `~/.local/share/joshmemory/memory.sqlite`
+- projects: `JOSHMEMORY_PROJECTS_DIR` when set; otherwise `C:\dev` on Windows when available, or `~/dev`
 
-## Central shared-memory database
+The local SQLite index remains useful for historical/offline search. It is not the cross-machine merge object.
 
-JoshMemory's shared durable state can be centralised without putting a live SQLite file on SMB/NFS or committing private session state to GitHub.
+## Optional HTTP central service
 
-The central service owns the SQLite database and exposes a small authenticated HTTP API. Every development machine keeps doing live Git checks locally, while handoffs/bookmarks, durable project facts and accountability references are read from and written to the central service.
+JoshMemory still supports the authenticated HTTP service added for traditional central-server deployments.
 
-Raw Codex/ChatGPT source history and machine-local Git observations can remain local. They are not silently uploaded merely because central shared memory is enabled.
-
-This means a handoff saved from `~/dev/MyApp` on Linux can be resumed from `C:\dev\MyApp` on Windows when both clones have the same canonical Git remote. Checkout paths are used as a preference, not as a cross-machine identity barrier.
-
-### Recommended: cloud-hosted central service
-
-For Josh's fleet, the preferred production topology is a small Railway service with a persistent volume mounted at `/data`. The included `Dockerfile` starts the authenticated API on Railway's `$PORT` and stores the database at `/data/memory.sqlite`.
-
-This makes JoshMemory reachable from anywhere over HTTPS and removes AVANCE-WS7, the ProBook, DadLAN machines and home PCs from the uptime dependency chain.
-
-See [`CLOUD_DEPLOYMENT.md`](CLOUD_DEPLOYMENT.md) for the complete setup and migration procedure.
-
-Required cloud secret:
-
-```text
-JOSHMEMORY_TOKEN=<long random secret>
-```
-
-Persistent volume mount:
-
-```text
-/data
-```
-
-Optional explicit database path:
-
-```text
-JOSHMEMORY_DB_PATH=/data/memory.sqlite
-```
-
-The service refuses a non-loopback bind without `JOSHMEMORY_TOKEN`. The root URL and `/health` expose only non-sensitive status. Shared-memory operations use authenticated `POST /v1/call` requests.
-
-### Optional: self-hosted central service
-
-A workstation-hosted service remains supported for offline/private-LAN deployments. For Fedora/Linux, the repository includes an installer that creates/updates the venv, generates a private token, binds to the Tailscale IPv4 address when available, installs a systemd user service, starts it, and verifies `/health`:
+If `JOSHMEMORY_REMOTE_URL` is configured, it takes precedence over automatic GitHub storage:
 
 ```bash
-cd ~/dev/JoshMemory
-bash deploy/install-central-fedora.sh
+export JOSHMEMORY_REMOTE_URL="https://your-joshmemory-service"
+export JOSHMEMORY_TOKEN="your-private-bearer-token"
 ```
 
-This is no longer the recommended topology when JoshMemory must be reachable while that workstation is powered off.
+Once an explicit HTTP remote is selected, failures are surfaced rather than silently falling back to a local database and creating split-brain shared memory.
 
-Manual launch remains available:
+The included Dockerfile and Fedora deployment helpers remain available. They are optional; AVANCE-WS7 is not required for cloud continuity.
 
-```bash
-cd ~/dev/JoshMemory
-python -m venv .venv
-source .venv/bin/activate
-pip install -e .
-
-export JOSHMEMORY_BIND="127.0.0.1"
-export JOSHMEMORY_PORT="8765"
-export JOSHMEMORY_TOKEN="replace-with-a-long-random-secret"
-joshmemory-central
-```
-
-### Every development machine
-
-The deployment helpers verify the health endpoint and persist the URL/token for future agent processes.
-
-PowerShell:
-
-```powershell
-.\deploy\configure-client.ps1 -ServerUrl "https://<joshmemory-cloud-domain>" -Token "<central token>"
-```
-
-Linux/macOS:
-
-```bash
-bash deploy/configure-client.sh "https://<joshmemory-cloud-domain>" "<central token>"
-```
-
-Equivalent environment variables are:
-
-```bash
-export JOSHMEMORY_REMOTE_URL="https://<joshmemory-cloud-domain>"
-export JOSHMEMORY_TOKEN="replace-with-the-same-secret"
-```
-
-Once `JOSHMEMORY_REMOTE_URL` is configured, shared-memory operations do **not** silently fall back to local storage. A central outage is surfaced as an error so the fleet cannot accidentally split into divergent bookmark/fact databases.
-
-Existing Claude SessionStart/SessionEnd hooks and MCP `save_handoff`, `get_project_context`, `list_handoffs`, `project_fact_search` and `accountability_search` calls automatically use the central shared store through the same storage layer.
-
-## CLI
-
-### Index and session history
-
-```bash
-joshmemory index
-joshmemory search FedoraCrashDoctor
-joshmemory get-session 01a03ba2-4826-79a2-af44-443795b01b31
-joshmemory project-history FedoraCrashDoctor
-joshmemory recent-work
-```
-
-### Import evidence
-
-```bash
-joshmemory import-seed /path/to/seed.json
-joshmemory import-app-links /path/to/app-links.json
-joshmemory import-github-evidence joshmemory_github_evidence_ledger_2026-08-27.jsonl
-joshmemory github-evidence --project FedoraCrashDoctor
-joshmemory import-chatgpt /path/to/chatgpt-export --dry-run
-joshmemory import-chatgpt /path/to/chatgpt-export
-```
-
-ChatGPT imports preserve original message IDs, parent links, timestamps, roles, model metadata, source filenames, and provenance. The active branch is reconstructed by following `current_node`; alternate-branch messages remain searchable but are not presented as part of the active linear transcript. Re-importing the same conversation/message IDs is repeatable and does not delete existing evidence.
-
-### Historical retrieval
-
-```bash
-joshmemory historical-search "what were we coding in March 2023?"
-joshmemory earliest-activity coding
-```
-
-Historical retrieval is deterministic and offline. It parses date ranges, chronological intent, and activity concepts, then returns evidence with coverage, provenance, and caveats. “Earliest activity” means the earliest qualifying evidence in the available corpus, not the first activity ever.
-
-### Durable project facts
-
-```bash
-joshmemory add-fact \
-  --project AgentWitness \
-  --subject deployment \
-  --fact "Windows verifier installed" \
-  --status VERIFIED \
-  --source-type receipt \
-  --source-ref AGY-20260827-example
-
-joshmemory search-facts verifier --project AgentWitness
-joshmemory search-facts verifier --project AgentWitness --all
-```
-
-Fact statuses are `VERIFIED`, `OBSERVED`, `HISTORICAL`, `INFERRED`, `STALE`, `DISPROVEN`, `UNKNOWN`, and `CURRENT`. `VERIFIED` facts require a `source_ref`. Searches return active facts by default; `--all` also includes superseded records.
-
-A newer fact can explicitly supersede an older fact. Supersession is validated to stay within the same project, subject, machine and repository identity, and the older record is retained as inactive history rather than deleted.
-
-### Accountability references
-
-```bash
-joshmemory add-accountability \
-  --project AgentWitness \
-  --claim-summary "Windows verification requirement" \
-  --source-system AgentWitness \
-  --source-id receipt-123 \
-  --verdict EVIDENCED
-
-joshmemory search-accountability verification --project AgentWitness
-joshmemory search-accountability verification --project AgentWitness --all
-```
-
-Accountability verdicts are `SATISFIED`, `REJECTED`, or `EVIDENCED`. These records point to external verification evidence; JoshMemory does not manufacture verification by storing a claim. Superseded references remain available as inactive history.
+See [`CLOUD_DEPLOYMENT.md`](CLOUD_DEPLOYMENT.md) for details.
 
 ## MCP server
 
@@ -220,17 +205,95 @@ Current tools include:
 - `get_project_context`
 - `list_handoffs`
 
-`project_status` combines current local project-auditor state with recent indexed Codex work and GitHub evidence. The built-in auditor scans local Git repositories cross-platform and can fall back to `C:\dev` or `~/dev`; `JOSHMEMORY_PROJECTS_DIR` can override the project root.
+Existing Claude SessionStart/SessionEnd/Stop integration uses the same storage layer, so it benefits automatically from whichever backend is selected.
 
-## Provenance model
+## CLI examples
 
-JoshMemory is an index and evidence-organising layer, not an authority that turns assertions into facts. Keep these distinctions intact:
+Index and search local historical material:
 
-- original transcripts/evidence remain canonical
-- redacted index text is for retrieval
-- live auditor state is current observation, not historical proof
-- imported GitHub records keep source references and URL provenance
-- `VERIFIED` project facts require an external/source reference
-- accountability records reference another system’s result rather than replacing that system
-- a session handoff is resume context, not proof that the repository still matches it
-- live local Git state still outranks a stored handoff when they disagree
+```bash
+joshmemory index
+joshmemory search FedoraCrashDoctor
+joshmemory project-history FedoraCrashDoctor
+joshmemory recent-work
+```
+
+Import evidence:
+
+```bash
+joshmemory import-seed /path/to/seed.json
+joshmemory import-app-links /path/to/app-links.json
+joshmemory import-github-evidence evidence.jsonl
+joshmemory import-chatgpt /path/to/chatgpt-export --dry-run
+joshmemory import-chatgpt /path/to/chatgpt-export
+```
+
+Historical retrieval:
+
+```bash
+joshmemory historical-search "what were we coding in March 2023?"
+joshmemory earliest-activity coding
+```
+
+Add/search durable facts:
+
+```bash
+joshmemory add-fact \
+  --project AgentWitness \
+  --subject deployment \
+  --fact "Windows verifier installed" \
+  --status VERIFIED \
+  --source-type receipt \
+  --source-ref AGY-20260827-example
+
+joshmemory search-facts verifier --project AgentWitness
+```
+
+Fact statuses are `VERIFIED`, `OBSERVED`, `HISTORICAL`, `INFERRED`, `STALE`, `DISPROVEN`, `UNKNOWN`, and `CURRENT`. `VERIFIED` requires an external/source reference.
+
+Accountability references:
+
+```bash
+joshmemory add-accountability \
+  --project AgentWitness \
+  --claim-summary "Windows verification requirement" \
+  --source-system AgentWitness \
+  --source-id receipt-123 \
+  --verdict EVIDENCED
+
+joshmemory search-accountability verification --project AgentWitness
+```
+
+Accountability verdicts are `SATISFIED`, `REJECTED`, or `EVIDENCED`. JoshMemory points to external verification; it does not replace it.
+
+## Fleet/system boundaries
+
+For the wider development stack:
+
+- GitHub = durable code truth;
+- JoshMemory = shared context/continuity/provenance;
+- ForgeGrid = fleet execution/orchestration;
+- AVANCE-WS7 / DadLAN = optional local control plane;
+- Action1 = bootstrap/recovery/admin side channel;
+- AgentCheck / AgentWitness = verification evidence;
+- LLMAccountability = accountability/policy evidence;
+- AgentCouncil = reasoning/review coordination where used.
+
+None of those roles allows stale memory to overrule live repository or machine state.
+
+## Safety and provenance rules
+
+- Never commit GitHub tokens, bearer tokens, passwords, cookies or other secrets.
+- Keep the backing memory repository private.
+- Redact before persistence.
+- Do not put a live writable SQLite file on SMB/NFS.
+- Preserve provenance and superseded history rather than silently rewriting it.
+- Keep unknown facts unknown.
+- A session handoff is a bookmark, not proof that the repository still matches it.
+- `VERIFIED` claims require a source reference.
+
+## History and roadmap
+
+The architecture did not start in the cloud. It evolved through local SQLite portability, cross-platform auditing, verification/accountability separation, AVANCE-hosted centralisation and finally the requirement that no particular PC be an uptime dependency.
+
+See [`docs/CLOUD_CONTINUITY_HISTORY.md`](docs/CLOUD_CONTINUITY_HISTORY.md) for the consolidated history of those decisions and the remaining roadmap, including real multi-machine proof, leases/current-work coordination, canonical-repo identity improvements, cloud-store indexing/caching and selective migration of useful historical records.
