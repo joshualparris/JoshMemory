@@ -29,6 +29,12 @@ def _redact_value(value: Any) -> Any:
     return value
 
 
+def _remote_enabled() -> bool:
+    from .central import remote_enabled
+
+    return remote_enabled()
+
+
 def commits_match(a: Optional[str], b: Optional[str]) -> bool:
     """True if two commit references identify the same commit, tolerating a
     short SHA on either side (git/Action1 commonly report abbreviated SHAs).
@@ -62,20 +68,22 @@ def save_handoff(
     *,
     machine: Optional[str] = None,
     agent: Optional[str] = None,
-    source_type: str = 'agent_handoff',
+    source_type: str = "agent_handoff",
     source_ref: Optional[str] = None,
     canonical_repo: Optional[str] = "",
-    checkout_path: Optional[str] = ""
+    checkout_path: Optional[str] = "",
 ) -> dict[str, Any]:
     """Persist a structured session handoff for `project`.
 
-    Reuses the existing project_facts table/precedence model rather than a
-    parallel schema: subject='session_handoff', status='CURRENT'. The
-    previous CURRENT handoff for (project, machine) is superseded (kept,
-    marked inactive), never overwritten in place, so history survives.
-    Every string value is passed through the existing redact() filter
-    before storage as defense-in-depth against accidental secrets, but
-    callers must never pass raw credentials/tokens into a handoff field.
+    When JOSHMEMORY_REMOTE_URL is configured, the redacted handoff is written
+    to the central JoshMemory service instead of the machine-local SQLite file.
+    There is intentionally no silent local fallback: a central outage must be
+    visible rather than creating divergent bookmark databases.
+
+    Locally, the existing project_facts precedence model is reused rather than
+    adding a parallel schema. The previous CURRENT handoff for the same
+    project/machine/worktree is superseded (kept, marked inactive), never
+    overwritten in place, so history survives.
     """
     missing = [f for f in REQUIRED_HANDOFF_FIELDS if not handoff.get(f)]
     if missing:
@@ -87,7 +95,31 @@ def save_handoff(
         payload.setdefault("agent", agent)
     payload = _redact_value(payload)
 
-    previous = get_latest_handoff(db_path, project, machine=_machine, canonical_repo=canonical_repo, checkout_path=checkout_path)
+    if _remote_enabled():
+        from .central import remote_call
+
+        return remote_call(
+            "save_handoff",
+            {
+                "project": project,
+                "handoff": payload,
+                "machine": _machine,
+                "agent": agent,
+                "source_type": source_type,
+                "source_ref": source_ref,
+                "canonical_repo": canonical_repo or "",
+                "checkout_path": checkout_path or "",
+            },
+        )
+
+    previous = get_latest_handoff(
+        db_path,
+        project,
+        machine=_machine,
+        canonical_repo=canonical_repo,
+        checkout_path=checkout_path,
+        strict_checkout=True,
+    )
     fact_text = json.dumps(payload, ensure_ascii=False, sort_keys=True)
     if previous and previous["fact"] == fact_text:
         result = dict(previous)
@@ -105,7 +137,7 @@ def save_handoff(
         machine=_machine,
         supersedes=supersedes,
         canonical_repo=canonical_repo,
-        checkout_path=checkout_path
+        checkout_path=checkout_path,
     )
     result["machine"] = _machine
     return result
@@ -121,11 +153,36 @@ def _row_to_handoff(row: dict[str, Any]) -> dict[str, Any]:
 
 
 def get_latest_handoff(
-    db_path: str, project: str, *, machine: Optional[str] = None,
-    canonical_repo: Optional[str] = None, checkout_path: Optional[str] = None
+    db_path: str,
+    project: str,
+    *,
+    machine: Optional[str] = None,
+    canonical_repo: Optional[str] = None,
+    checkout_path: Optional[str] = None,
+    strict_checkout: bool = False,
 ) -> Optional[dict[str, Any]]:
-    """Latest active handoff for a project. Without `machine`, returns the
-    most recently recorded handoff across all machines that worked on it."""
+    """Return the latest active handoff for a project.
+
+    `canonical_repo` is the cross-machine identity. When it is supplied,
+    checkout_path is used as a ranking preference rather than a hard filter,
+    so a clone at C:\\dev\\App can resume a bookmark written from ~/dev/App.
+    `strict_checkout=True` is used internally while saving so sibling worktrees
+    on the same machine do not supersede each other.
+    """
+    if _remote_enabled():
+        from .central import remote_call
+
+        return remote_call(
+            "get_latest_handoff",
+            {
+                "project": project,
+                "machine": machine,
+                "canonical_repo": canonical_repo,
+                "checkout_path": checkout_path,
+                "strict_checkout": strict_checkout,
+            },
+        )
+
     con = connect(db_path)
     try:
         sql = "SELECT * FROM project_facts WHERE project = ? AND subject = ? AND status = ? AND active = 1"
@@ -134,21 +191,25 @@ def get_latest_handoff(
             sql += " AND machine = ?"
             params.append(machine)
 
-        if checkout_path and canonical_repo:
-            sql += " AND ( (canonical_repo = ? AND checkout_path = ?) OR (canonical_repo = '' AND checkout_path = '') )"
-            params.extend([canonical_repo, checkout_path])
-            sql += " ORDER BY (canonical_repo = ? AND checkout_path = ?) DESC, recorded_at DESC LIMIT 1"
-            params.extend([canonical_repo, checkout_path])
+        if canonical_repo:
+            sql += " AND (canonical_repo = ? OR canonical_repo = '')"
+            params.append(canonical_repo)
+            if strict_checkout and checkout_path:
+                sql += " AND (checkout_path = ? OR checkout_path = '')"
+                params.append(checkout_path)
+
+            order = ["(canonical_repo = ?) DESC"]
+            params.append(canonical_repo)
+            if checkout_path:
+                order.append("(checkout_path = ?) DESC")
+                params.append(checkout_path)
+            order.append("recorded_at DESC")
+            sql += " ORDER BY " + ", ".join(order) + " LIMIT 1"
         elif checkout_path:
             sql += " AND (checkout_path = ? OR checkout_path = '')"
             params.append(checkout_path)
             sql += " ORDER BY (checkout_path = ?) DESC, recorded_at DESC LIMIT 1"
             params.append(checkout_path)
-        elif canonical_repo:
-            sql += " AND (canonical_repo = ? OR canonical_repo = '')"
-            params.append(canonical_repo)
-            sql += " ORDER BY (canonical_repo = ?) DESC, recorded_at DESC LIMIT 1"
-            params.append(canonical_repo)
         else:
             sql += " ORDER BY recorded_at DESC LIMIT 1"
 
@@ -166,8 +227,23 @@ def list_handoffs(
     limit: int = 10,
     active_only: bool = False,
     canonical_repo: Optional[str] = None,
-    checkout_path: Optional[str] = None
+    checkout_path: Optional[str] = None,
 ) -> list[dict[str, Any]]:
+    if _remote_enabled():
+        from .central import remote_call
+
+        return remote_call(
+            "list_handoffs",
+            {
+                "project": project,
+                "machine": machine,
+                "limit": limit,
+                "active_only": active_only,
+                "canonical_repo": canonical_repo,
+                "checkout_path": checkout_path,
+            },
+        )
+
     con = connect(db_path)
     try:
         sql = "SELECT * FROM project_facts WHERE project = ? AND subject = ?"
@@ -175,43 +251,41 @@ def list_handoffs(
         if machine:
             sql += " AND machine = ?"
             params.append(machine)
-            
-        if checkout_path and canonical_repo:
-            sql += " AND ( (canonical_repo = ? AND checkout_path = ?) OR (canonical_repo = '' AND checkout_path = '') )"
-            params.extend([canonical_repo, checkout_path])
+
+        if canonical_repo:
+            sql += " AND (canonical_repo = ? OR canonical_repo = '')"
+            params.append(canonical_repo)
         elif checkout_path:
             sql += " AND (checkout_path = ? OR checkout_path = '')"
             params.append(checkout_path)
-        elif canonical_repo:
-            sql += " AND (canonical_repo = ? OR canonical_repo = '')"
-            params.append(canonical_repo)
-            
+
         if active_only:
             sql += " AND active = 1"
-            
-        if checkout_path and canonical_repo:
-            sql += " ORDER BY (canonical_repo = ? AND checkout_path = ?) DESC, recorded_at DESC LIMIT ?"
-            params.extend([canonical_repo, checkout_path, limit])
-        elif checkout_path:
-            sql += " ORDER BY (checkout_path = ?) DESC, recorded_at DESC LIMIT ?"
-            params.extend([checkout_path, limit])
-        elif canonical_repo:
-            sql += " ORDER BY (canonical_repo = ?) DESC, recorded_at DESC LIMIT ?"
-            params.extend([canonical_repo, limit])
-        else:
-            sql += " ORDER BY recorded_at DESC LIMIT ?"
-            params.append(limit)
-        
+
+        order: list[str] = []
+        if canonical_repo:
+            order.append("(canonical_repo = ?) DESC")
+            params.append(canonical_repo)
+        if checkout_path:
+            order.append("(checkout_path = ?) DESC")
+            params.append(checkout_path)
+        order.append("recorded_at DESC")
+        sql += " ORDER BY " + ", ".join(order) + " LIMIT ?"
+        params.append(limit)
+
         cur = con.execute(sql, params)
         return [_row_to_handoff(dict(row)) for row in cur.fetchall()]
     finally:
         con.close()
 
 
-
 def get_project_context(
-    db_path: str, project: str, *, machine: Optional[str] = None,
-    canonical_repo: Optional[str] = None, checkout_path: Optional[str] = None
+    db_path: str,
+    project: str,
+    *,
+    machine: Optional[str] = None,
+    canonical_repo: Optional[str] = None,
+    checkout_path: Optional[str] = None,
 ) -> dict[str, Any]:
     """Compact startup context for a fresh agent session: the latest
     handoff plus freshly-checked live evidence, with discrepancies called
@@ -219,7 +293,13 @@ def get_project_context(
     evidence always outranks the handoff when they disagree; neither this
     function nor its caller should overwrite the handoff to "fix" a
     discrepancy — a new handoff, once actually verified, does that."""
-    handoff_row = get_latest_handoff(db_path, project, machine=machine, canonical_repo=canonical_repo, checkout_path=checkout_path)
+    handoff_row = get_latest_handoff(
+        db_path,
+        project,
+        machine=machine,
+        canonical_repo=canonical_repo,
+        checkout_path=checkout_path,
+    )
     _machine = machine or default_machine()
     state = get_project_state(project, canonical_repo=canonical_repo, checkout_path=checkout_path)
 
@@ -277,6 +357,7 @@ def get_project_context(
         canonical = state["canonical_repo"]
         all_projs = get_all_projects()
         from pathlib import Path
+
         try:
             current_path = Path(checkout_path).resolve() if checkout_path else None
         except Exception:
@@ -290,21 +371,28 @@ def get_project_context(
             except Exception:
                 p_path = None
 
-            if not p_name or not canonical: continue
-            if p.get("canonical_repo") != canonical: continue
+            if not p_name or not canonical:
+                continue
+            if p.get("canonical_repo") != canonical:
+                continue
 
-            is_self = False
             if current_path and p_path:
-                is_self = (current_path == p_path)
+                is_self = current_path == p_path
             else:
-                is_self = (p_name == project)
+                is_self = p_name == project
 
             if not is_self:
-                rel_handoff = get_latest_handoff(db_path, p_name, machine=_machine, canonical_repo=canonical, checkout_path=p_path_str)
+                rel_handoff = get_latest_handoff(
+                    db_path,
+                    p_name,
+                    machine=_machine,
+                    canonical_repo=canonical,
+                    checkout_path=p_path_str,
+                )
                 rel_info = {
                     "project": p_name,
                     "path": p_path_str,
-                    "branch": p.get("git", {}).get("branch") if p.get("git") else None
+                    "branch": p.get("git", {}).get("branch") if p.get("git") else None,
                 }
                 if rel_handoff and rel_handoff.get("handoff"):
                     h = rel_handoff["handoff"]
