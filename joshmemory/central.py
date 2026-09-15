@@ -55,7 +55,7 @@ def remote_call(operation: str, arguments: dict[str, Any], *, timeout: float | N
         headers["Authorization"] = f"Bearer {token}"
 
     req = request.Request(f"{base}/v1/call", data=body, headers=headers, method="POST")
-    timeout_value = timeout if timeout is not None else float(os.environ.get("JOSHMEMORY_REMOTE_TIMEOUT", "5"))
+    timeout_value = timeout if timeout is not None else float(os.environ.get("JOSHMEMORY_REMOTE_TIMEOUT", "10"))
     try:
         with request.urlopen(req, timeout=timeout_value) as response:
             payload = json.loads(response.read().decode("utf-8"))
@@ -190,6 +190,17 @@ class JoshMemoryHandler(BaseHTTPRequestHandler):
         self.wfile.write(encoded)
 
     def do_GET(self) -> None:
+        if self.path == "/":
+            self._send(
+                200,
+                {
+                    "ok": True,
+                    "service": "JoshMemory",
+                    "mode": "central-shared-memory",
+                    "message": "Shared project memory is online. API operations require authentication.",
+                },
+            )
+            return
         if self.path == "/health":
             self._send(200, {"ok": True, "service": "joshmemory-central"})
             return
@@ -235,7 +246,7 @@ class JoshMemoryHandler(BaseHTTPRequestHandler):
 
 
 def create_server(host: str, port: int, *, db_path: str | None = None, token: str | None = None) -> JoshMemoryHTTPServer:
-    resolved_db = str(Path(db_path or default_db_path()).expanduser())
+    resolved_db = str(Path(db_path or os.environ.get("JOSHMEMORY_DB_PATH") or default_db_path()).expanduser())
     Path(resolved_db).parent.mkdir(parents=True, exist_ok=True)
     resolved_token = _token() if token is None else token
 
@@ -249,8 +260,15 @@ def create_server(host: str, port: int, *, db_path: str | None = None, token: st
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run the central JoshMemory shared-memory database service")
     parser.add_argument("--host", default=os.environ.get("JOSHMEMORY_BIND", "127.0.0.1"))
-    parser.add_argument("--port", type=int, default=int(os.environ.get("JOSHMEMORY_PORT", "8765")))
-    parser.add_argument("--db", default=str(default_db_path()))
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=int(os.environ.get("PORT") or os.environ.get("JOSHMEMORY_PORT", "8765")),
+    )
+    parser.add_argument(
+        "--db",
+        default=os.environ.get("JOSHMEMORY_DB_PATH") or str(default_db_path()),
+    )
     args = parser.parse_args()
 
     server = create_server(args.host, args.port, db_path=args.db)
