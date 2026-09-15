@@ -4,6 +4,8 @@ JoshMemory is an evidence and project-memory index for development history. It k
 
 It can run fully local/offline, or use one authenticated central shared-memory database so Claude Code, Codex and Antigravity sessions on different computers can pause and resume the same GitHub project while sharing handoffs, durable project facts and accountability references.
 
+For multi-machine use, the recommended topology is now **cloud-hosted JoshMemory**: run the central service on Railway (or another persistent cloud host) and let every workstation connect to its HTTPS URL. No workstation, including AVANCE-WS7, needs to stay powered on.
+
 It currently works with:
 
 - Codex rollout JSONL sessions
@@ -38,24 +40,50 @@ This installs the `joshmemory` and `joshmemory-central` commands. You can also r
 
 JoshMemory's shared durable state can be centralised without putting a live SQLite file on SMB/NFS or committing private session state to GitHub.
 
-The central machine owns the SQLite database on its local disk and exposes a small authenticated HTTP API. Every other machine keeps doing live Git checks locally, while handoffs/bookmarks, durable project facts and accountability references are read from and written to the central service.
+The central service owns the SQLite database and exposes a small authenticated HTTP API. Every development machine keeps doing live Git checks locally, while handoffs/bookmarks, durable project facts and accountability references are read from and written to the central service.
 
 Raw Codex/ChatGPT source history and machine-local Git observations can remain local. They are not silently uploaded merely because central shared memory is enabled.
 
 This means a handoff saved from `~/dev/MyApp` on Linux can be resumed from `C:\dev\MyApp` on Windows when both clones have the same canonical Git remote. Checkout paths are used as a preference, not as a cross-machine identity barrier.
 
-### Central machine
+### Recommended: cloud-hosted central service
 
-Use a machine reachable only over a trusted network such as Tailscale. Do not expose this HTTP service directly to the public internet.
+For Josh's fleet, the preferred production topology is a small Railway service with a persistent volume mounted at `/data`. The included `Dockerfile` starts the authenticated API on Railway's `$PORT` and stores the database at `/data/memory.sqlite`.
 
-For Fedora/Linux, the repository includes an installer that creates/updates the venv, generates a private token, binds to the Tailscale IPv4 address when available, installs a systemd user service, starts it, and verifies `/health`:
+This makes JoshMemory reachable from anywhere over HTTPS and removes AVANCE-WS7, the ProBook, DadLAN machines and home PCs from the uptime dependency chain.
+
+See [`CLOUD_DEPLOYMENT.md`](CLOUD_DEPLOYMENT.md) for the complete setup and migration procedure.
+
+Required cloud secret:
+
+```text
+JOSHMEMORY_TOKEN=<long random secret>
+```
+
+Persistent volume mount:
+
+```text
+/data
+```
+
+Optional explicit database path:
+
+```text
+JOSHMEMORY_DB_PATH=/data/memory.sqlite
+```
+
+The service refuses a non-loopback bind without `JOSHMEMORY_TOKEN`. The root URL and `/health` expose only non-sensitive status. Shared-memory operations use authenticated `POST /v1/call` requests.
+
+### Optional: self-hosted central service
+
+A workstation-hosted service remains supported for offline/private-LAN deployments. For Fedora/Linux, the repository includes an installer that creates/updates the venv, generates a private token, binds to the Tailscale IPv4 address when available, installs a systemd user service, starts it, and verifies `/health`:
 
 ```bash
 cd ~/dev/JoshMemory
 bash deploy/install-central-fedora.sh
 ```
 
-The generated token is stored with mode `0600` in `~/.config/joshmemory/central.env`. If Tailscale is unavailable the installer falls back to loopback and warns that other machines cannot yet connect.
+This is no longer the recommended topology when JoshMemory must be reachable while that workstation is powered off.
 
 Manual launch remains available:
 
@@ -65,18 +93,10 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -e .
 
-export JOSHMEMORY_BIND="127.0.0.1"   # or the machine's Tailscale IPv4 address
+export JOSHMEMORY_BIND="127.0.0.1"
 export JOSHMEMORY_PORT="8765"
 export JOSHMEMORY_TOKEN="replace-with-a-long-random-secret"
 joshmemory-central
-```
-
-If the service binds to anything other than loopback, `JOSHMEMORY_TOKEN` is mandatory. The central SQLite file remains at `~/.local/share/joshmemory/memory.sqlite` unless `JOSHMEMORY_HOME` or `--db` changes it.
-
-Health check:
-
-```bash
-curl http://127.0.0.1:8765/health
 ```
 
 ### Every development machine
@@ -86,19 +106,19 @@ The deployment helpers verify the health endpoint and persist the URL/token for 
 PowerShell:
 
 ```powershell
-.\deploy\configure-client.ps1 -ServerUrl "http://100.x.y.z:8765" -Token "<central token>"
+.\deploy\configure-client.ps1 -ServerUrl "https://<joshmemory-cloud-domain>" -Token "<central token>"
 ```
 
 Linux/macOS:
 
 ```bash
-bash deploy/configure-client.sh "http://100.x.y.z:8765" "<central token>"
+bash deploy/configure-client.sh "https://<joshmemory-cloud-domain>" "<central token>"
 ```
 
 Equivalent environment variables are:
 
 ```bash
-export JOSHMEMORY_REMOTE_URL="http://100.x.y.z:8765"
+export JOSHMEMORY_REMOTE_URL="https://<joshmemory-cloud-domain>"
 export JOSHMEMORY_TOKEN="replace-with-the-same-secret"
 ```
 
