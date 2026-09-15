@@ -74,6 +74,12 @@ def remote_call(operation: str, arguments: dict[str, Any], *, timeout: float | N
 
 
 def _dispatch_local(operation: str, arguments: dict[str, Any], db_path: str) -> Any:
+    from .facts import (
+        accountability_reference_add,
+        accountability_reference_search,
+        project_fact_add,
+        project_fact_search,
+    )
     from .handoff import get_latest_handoff, list_handoffs, save_handoff
 
     marker = _SERVER_CALL.set(True)
@@ -108,6 +114,50 @@ def _dispatch_local(operation: str, arguments: dict[str, Any], db_path: str) -> 
                 active_only=bool(arguments.get("active_only", False)),
                 canonical_repo=arguments.get("canonical_repo"),
                 checkout_path=arguments.get("checkout_path"),
+            )
+        if operation == "project_fact_add":
+            return project_fact_add(
+                db_path,
+                project=str(arguments["project"]),
+                subject=str(arguments["subject"]),
+                fact=str(arguments["fact"]),
+                status=str(arguments["status"]),
+                confidence=arguments.get("confidence"),
+                observed_at=arguments.get("observed_at"),
+                source_type=arguments.get("source_type"),
+                source_ref=arguments.get("source_ref"),
+                machine=arguments.get("machine"),
+                supersedes=arguments.get("supersedes"),
+                canonical_repo=arguments.get("canonical_repo") or "",
+                checkout_path=arguments.get("checkout_path") or "",
+            )
+        if operation == "project_fact_search":
+            return project_fact_search(
+                db_path,
+                query=str(arguments["query"]),
+                project=arguments.get("project"),
+                active_only=bool(arguments.get("active_only", True)),
+            )
+        if operation == "accountability_reference_add":
+            return accountability_reference_add(
+                db_path,
+                project=str(arguments["project"]),
+                claim_summary=str(arguments["claim_summary"]),
+                source_system=str(arguments["source_system"]),
+                source_id=str(arguments["source_id"]),
+                requirement_id=arguments.get("requirement_id"),
+                source_ref=arguments.get("source_ref"),
+                reviewer=arguments.get("reviewer"),
+                verdict=arguments.get("verdict"),
+                commit_sha=arguments.get("commit_sha"),
+                supersedes=arguments.get("supersedes"),
+            )
+        if operation == "accountability_reference_search":
+            return accountability_reference_search(
+                db_path,
+                query=str(arguments["query"]),
+                project=arguments.get("project"),
+                active_only=bool(arguments.get("active_only", True)),
             )
         raise ValueError(f"unsupported central operation: {operation}")
     finally:
@@ -197,7 +247,7 @@ def create_server(host: str, port: int, *, db_path: str | None = None, token: st
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Run the central JoshMemory handoff database service")
+    parser = argparse.ArgumentParser(description="Run the central JoshMemory shared-memory database service")
     parser.add_argument("--host", default=os.environ.get("JOSHMEMORY_BIND", "127.0.0.1"))
     parser.add_argument("--port", type=int, default=int(os.environ.get("JOSHMEMORY_PORT", "8765")))
     parser.add_argument("--db", default=str(default_db_path()))
