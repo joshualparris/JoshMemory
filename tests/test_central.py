@@ -6,6 +6,7 @@ from pathlib import Path
 import pytest
 
 from joshmemory.central import CentralMemoryError, create_server
+from joshmemory.facts import project_fact_add, project_fact_search
 from joshmemory.handoff import get_latest_handoff, list_handoffs, save_handoff
 
 
@@ -67,6 +68,35 @@ def test_remote_handoff_is_central_and_resumes_from_different_checkout(tmp_path,
             active_only=True,
         )
         assert {row["machine"] for row in rows} == {"fedora-controller", "probook"}
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=2)
+
+
+def test_durable_facts_use_central_store(tmp_path, monkeypatch):
+    server, thread, central_db = _start_server(tmp_path)
+    try:
+        monkeypatch.setenv("JOSHMEMORY_REMOTE_URL", f"http://127.0.0.1:{server.server_address[1]}")
+        monkeypatch.setenv("JOSHMEMORY_TOKEN", "test-secret")
+        local_db = tmp_path / "client-facts.sqlite"
+
+        result = project_fact_add(
+            str(local_db),
+            project="example",
+            subject="deployment",
+            fact="central service enabled",
+            status="OBSERVED",
+            source_type="test",
+            machine="fedora-controller",
+        )
+        assert result["duplicate"] is False
+        assert central_db.exists()
+        assert not local_db.exists()
+
+        rows = project_fact_search(str(local_db), "central service", project="example")
+        assert len(rows) == 1
+        assert rows[0]["machine"] == "fedora-controller"
     finally:
         server.shutdown()
         server.server_close()
