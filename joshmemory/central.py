@@ -29,8 +29,28 @@ def remote_url() -> str:
     return os.environ.get("JOSHMEMORY_REMOTE_URL", "").strip().rstrip("/")
 
 
+def github_store_enabled() -> bool:
+    if in_server_call():
+        return False
+    from .github_store import enabled
+
+    return enabled()
+
+
 def remote_enabled() -> bool:
-    return bool(remote_url()) and not in_server_call()
+    if in_server_call():
+        return False
+    return bool(remote_url()) or github_store_enabled()
+
+
+def storage_mode() -> str:
+    if in_server_call():
+        return "local"
+    if remote_url():
+        return "http"
+    if github_store_enabled():
+        return "github"
+    return "local"
 
 
 def _token() -> str:
@@ -38,15 +58,24 @@ def _token() -> str:
 
 
 def remote_call(operation: str, arguments: dict[str, Any], *, timeout: float | None = None) -> Any:
-    """Call the central memory service.
+    """Call the configured shared-memory backend.
 
-    There is deliberately no silent local fallback. Once a client is configured for
-    central memory, a failed remote write/read is surfaced so the fleet cannot split
-    into divergent local databases without anyone noticing.
+    HTTP central service remains highest priority when JOSHMEMORY_REMOTE_URL is
+    configured. Otherwise, an already-authenticated GitHub client automatically
+    uses the private GitHub cloud store. There is deliberately no silent fallback
+    after a shared backend has been selected: failed writes/reads are surfaced so
+    the fleet cannot split into divergent memory stores unnoticed.
     """
     base = remote_url()
     if not base:
-        raise CentralMemoryError("JOSHMEMORY_REMOTE_URL is not configured")
+        from .github_store import GitHubStoreError, cloud_call, enabled
+
+        if not enabled():
+            raise CentralMemoryError("No shared JoshMemory backend is available")
+        try:
+            return cloud_call(operation, arguments)
+        except GitHubStoreError as exc:
+            raise CentralMemoryError(str(exc)) from exc
 
     body = json.dumps({"operation": operation, "arguments": arguments}, ensure_ascii=False).encode("utf-8")
     headers = {"Content-Type": "application/json", "Accept": "application/json"}
