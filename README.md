@@ -1,6 +1,8 @@
 # JoshMemory
 
-JoshMemory is a local, offline evidence and project-memory index. It keeps searchable, redacted representations of development history in SQLite while preserving the original source material as the authority.
+JoshMemory is an evidence and project-memory index for development history. It keeps searchable, redacted representations of development history in SQLite while preserving the original source material as the authority.
+
+It can run fully local/offline, or use one authenticated central handoff database so Claude Code, Codex and Antigravity sessions on different computers can pause and resume the same GitHub project.
 
 It currently works with:
 
@@ -11,6 +13,8 @@ It currently works with:
 - durable project facts with provenance and supersession
 - accountability references to external verification systems
 - live local Git project state via a cross-platform auditor
+- structured session handoffs/bookmarks
+- authenticated central handoff storage across machines
 
 Raw transcripts and imported evidence remain the source of truth; JoshMemory stores searchable text, metadata, provenance, relationships, and references back to those sources.
 
@@ -22,13 +26,67 @@ Raw transcripts and imported evidence remain the source of truth; JoshMemory sto
 pip install -e .
 ```
 
-This installs the `joshmemory` command. You can also run the CLI as `python -m joshmemory.cli`.
+This installs the `joshmemory` and `joshmemory-central` commands. You can also run the CLI as `python -m joshmemory.cli`.
 
 ## Default paths
 
 - Codex sessions: `~/.codex/sessions/**/*.jsonl`
 - SQLite index: `~/.local/share/joshmemory/memory.sqlite`
 - Local projects: `JOSHMEMORY_PROJECTS_DIR` when set; otherwise `C:\dev` on Windows when available, or `~/dev`
+
+## Central pause/resume database
+
+JoshMemory handoffs can be centralised without putting a live SQLite file on SMB/NFS or committing private session state to GitHub.
+
+The central machine owns the SQLite database on its local disk and exposes a small authenticated HTTP API. Every other machine keeps doing its live Git checks locally, but handoff reads/writes go to the central service.
+
+This means a handoff saved from `~/dev/MyApp` on Linux can be resumed from `C:\dev\MyApp` on Windows when both clones have the same canonical Git remote. Checkout paths are used as a preference, not as a cross-machine identity barrier.
+
+### Central machine
+
+Use a machine reachable only over a trusted network such as Tailscale. Do not expose this HTTP service directly to the public internet.
+
+```bash
+cd ~/dev/JoshMemory
+python -m venv .venv
+source .venv/bin/activate
+pip install -e .
+
+export JOSHMEMORY_BIND="127.0.0.1"   # or the machine's Tailscale IPv4 address
+export JOSHMEMORY_PORT="8765"
+export JOSHMEMORY_TOKEN="replace-with-a-long-random-secret"
+joshmemory-central
+```
+
+If the service binds to anything other than loopback, `JOSHMEMORY_TOKEN` is mandatory. The central SQLite file remains at `~/.local/share/joshmemory/memory.sqlite` unless `JOSHMEMORY_HOME` or `--db` changes it.
+
+Health check:
+
+```bash
+curl http://127.0.0.1:8765/health
+```
+
+### Every development machine
+
+Set the same service URL/token before starting Claude Code, Codex, Antigravity or the JoshMemory MCP server:
+
+Linux/macOS:
+
+```bash
+export JOSHMEMORY_REMOTE_URL="http://100.x.y.z:8765"
+export JOSHMEMORY_TOKEN="replace-with-the-same-secret"
+```
+
+PowerShell:
+
+```powershell
+$env:JOSHMEMORY_REMOTE_URL = "http://100.x.y.z:8765"
+$env:JOSHMEMORY_TOKEN = "replace-with-the-same-secret"
+```
+
+Once `JOSHMEMORY_REMOTE_URL` is configured, handoff operations do **not** silently fall back to local storage. A central outage is surfaced as an error so the fleet cannot accidentally split into divergent bookmark databases.
+
+Existing Claude SessionStart/SessionEnd hooks and MCP `save_handoff`, `get_project_context` and `list_handoffs` calls automatically use the central handoff store because they all go through the same handoff layer.
 
 ## CLI
 
@@ -81,7 +139,7 @@ joshmemory search-facts verifier --project AgentWitness --all
 
 Fact statuses are `VERIFIED`, `OBSERVED`, `HISTORICAL`, `INFERRED`, `STALE`, `DISPROVEN`, `UNKNOWN`, and `CURRENT`. `VERIFIED` facts require a `source_ref`. Searches return active facts by default; `--all` also includes superseded records.
 
-A newer fact can explicitly supersede an older fact. Supersession is validated to stay within the same project, subject, and machine, and the older record is retained as inactive history rather than deleted.
+A newer fact can explicitly supersede an older fact. Supersession is validated to stay within the same project, subject, machine and repository identity, and the older record is retained as inactive history rather than deleted.
 
 ### Accountability references
 
@@ -107,7 +165,7 @@ Start the stdio MCP server with:
 python -m joshmemory.server
 ```
 
-Current read tools:
+Current tools include:
 
 - `search_sessions`
 - `get_session`
@@ -120,6 +178,9 @@ Current read tools:
 - `historical_timeline`
 - `project_fact_search`
 - `accountability_search`
+- `save_handoff`
+- `get_project_context`
+- `list_handoffs`
 
 `project_status` combines current local project-auditor state with recent indexed Codex work and GitHub evidence. The built-in auditor scans local Git repositories cross-platform and can fall back to `C:\dev` or `~/dev`; `JOSHMEMORY_PROJECTS_DIR` can override the project root.
 
@@ -133,3 +194,5 @@ JoshMemory is an index and evidence-organising layer, not an authority that turn
 - imported GitHub records keep source references and URL provenance
 - `VERIFIED` project facts require an external/source reference
 - accountability records reference another system’s result rather than replacing that system
+- a session handoff is resume context, not proof that the repository still matches it
+- live local Git state still outranks a stored handoff when they disagree
