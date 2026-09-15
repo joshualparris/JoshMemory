@@ -1,103 +1,152 @@
 # JoshMemory cloud deployment
 
-## Goal
+## Current default: private GitHub cloud store
 
-Run JoshMemory somewhere that is reachable from every development machine without depending on AVANCE-WS7, a home PC, or any other client machine being powered on.
+JoshMemory's shared pause/resume state does **not** require AVANCE-WS7, a home PC, a NAS or another always-on workstation.
 
-The recommended deployment is a small Railway web service with one persistent volume. The service exposes JoshMemory over HTTPS; the SQLite database lives on the Railway volume rather than on a workstation.
-
-## Architecture
+The zero-extra-account default is an append-only private GitHub store:
 
 ```text
-Claude Code / Codex / Antigravity
-        on any computer
-              |
-              | HTTPS + bearer token
-              v
-      JoshMemory cloud service
-           (Railway)
-              |
-              v
-      /data/memory.sqlite
-      persistent Railway volume
+Claude Code / Codex / Antigravity / JoshMemory MCP
+                    |
+                    | existing GitHub auth
+                    v
+       joshualparris/JoshDashboard4 (private)
+                    |
+          joshmemory-cloud/v1/
+                    |
+      handoffs + facts + evidence refs
 ```
 
-GitHub remains authoritative for code state. JoshMemory remains historical/project continuity. A resumed session must still reconcile the handoff with live Git before continuing.
+GitHub remains authoritative for code state. JoshMemory is historical/project continuity. Every resumed session must reconcile the saved handoff with live Git before continuing.
 
-## Railway service
+## Why this is the default
 
-Deploy this repository as a Railway service. The included `Dockerfile` starts:
+The earlier AVANCE-WS7 central-service design worked technically but made shared memory unavailable whenever that machine was off. A hosted container such as Railway also works, but introducing a new provider requires account/connection setup.
+
+The GitHub-backed mode uses infrastructure the development workflow already depends on, stays reachable independently of any workstation and keeps shared memory in an existing private repository rather than the public JoshMemory source repository.
+
+## Automatic authentication
+
+No JoshMemory-specific login flow is required when a development machine already has a usable GitHub credential.
+
+JoshMemory checks, in order:
+
+1. `JOSHMEMORY_GITHUB_TOKEN`
+2. `GH_TOKEN`
+3. `GITHUB_TOKEN`
+4. `gh auth token`
+5. the configured Git credential helper for `github.com`
+
+Credential-helper access is non-interactive (`GIT_TERMINAL_PROMPT=0`). Credentials are used in memory only; JoshMemory does not write them into its database or repositories.
+
+The private backing repository defaults are:
+
+```text
+JOSHMEMORY_GITHUB_STORE_REPO=joshualparris/JoshDashboard4
+JOSHMEMORY_GITHUB_STORE_BRANCH=main
+JOSHMEMORY_GITHUB_STORE_ROOT=joshmemory-cloud/v1
+```
+
+Those variables are optional overrides; the values above are built in for this deployment.
+
+To deliberately disable automatic GitHub shared storage and stay local:
+
+```text
+JOSHMEMORY_GITHUB_STORE_AUTO=0
+```
+
+## Stored data
+
+The cloud store currently centralises the durable state needed to pause and resume development work:
+
+- structured handoffs/bookmarks;
+- durable project facts;
+- accountability references;
+- provenance and supersession for those record types.
+
+Each write is a new UUID-named JSON file. Older records are retained. Supersession is represented by references rather than destructive in-place edits.
+
+The following are **not** silently uploaded just because cloud mode is available:
+
+- raw Codex JSONL session corpora;
+- full ChatGPT exports;
+- local machine observations;
+- the complete historical SQLite index;
+- repository source code (which remains in its own canonical repo).
+
+## Cross-machine resume
+
+Canonical Git repository identity is the cross-machine key. A handoff written from:
+
+```text
+/home/josh/dev/MyApp
+```
+
+can be resumed from:
+
+```text
+C:\dev\MyApp
+```
+
+when both checkouts identify the same canonical repository. Checkout paths are ranking preferences, not a global identity barrier.
+
+When a handoff's branch or HEAD disagrees with the live repository, the live state wins and the discrepancy must be surfaced.
+
+## Existing HTTP central service
+
+The authenticated HTTP service remains supported. If `JOSHMEMORY_REMOTE_URL` is explicitly configured, it takes precedence over the automatic GitHub backend.
+
+Clients use:
+
+```text
+JOSHMEMORY_REMOTE_URL=https://<central-service>
+JOSHMEMORY_TOKEN=<shared bearer token>
+```
+
+There is intentionally no silent local fallback after an explicit HTTP backend has been selected: an outage is reported instead of splitting the fleet into divergent stores.
+
+## Optional container/Railway deployment
+
+The repository still includes a `Dockerfile` and the `joshmemory-central` HTTP service for environments where a conventional web service plus persistent volume is preferred.
+
+For that mode:
 
 ```text
 joshmemory-central --host 0.0.0.0 --port $PORT --db /data/memory.sqlite
 ```
 
-Create a persistent volume mounted at:
+Mount persistent storage at `/data` and set `JOSHMEMORY_TOKEN`. Do not place the live SQLite database on ephemeral container storage.
 
-```text
-/data
-```
+This mode is optional. It is no longer required for the user's normal cross-machine continuity path.
 
-Set this secret environment variable on the service:
+## Optional self-hosted Fedora/AVANCE mode
 
-```text
-JOSHMEMORY_TOKEN=<long random secret>
-```
-
-Optional explicit database path:
-
-```text
-JOSHMEMORY_DB_PATH=/data/memory.sqlite
-```
-
-The service refuses a non-loopback bind without `JOSHMEMORY_TOKEN`.
-
-Generate a public Railway domain for the service. The root URL and `/health` are intentionally non-sensitive status endpoints. All memory operations use `POST /v1/call` and require the bearer token.
-
-## Client machines
-
-On every computer that runs Claude Code, Codex, Antigravity or the JoshMemory MCP server, set:
-
-```text
-JOSHMEMORY_REMOTE_URL=https://<your-railway-domain>
-JOSHMEMORY_TOKEN=<same secret>
-```
-
-Linux/macOS example:
+The previous Fedora installer also remains available:
 
 ```bash
-export JOSHMEMORY_REMOTE_URL="https://<your-railway-domain>"
-export JOSHMEMORY_TOKEN="<same secret>"
+cd ~/dev/JoshMemory
+bash deploy/install-central-fedora.sh
 ```
 
-PowerShell example:
+That topology can be useful on a trusted local network, but AVANCE-WS7 is now only an optional client/coordinator. Turning it off must not take the GitHub-backed shared memory offline.
 
-```powershell
-$env:JOSHMEMORY_REMOTE_URL = "https://<your-railway-domain>"
-$env:JOSHMEMORY_TOKEN = "<same secret>"
-```
+## Security
 
-The existing MCP server and Claude hooks automatically use the remote store once `JOSHMEMORY_REMOTE_URL` is present.
+- Keep `joshualparris/JoshDashboard4` private.
+- Never commit credentials or tokens.
+- Keep redaction enabled before persistence.
+- Do not use SMB/NFS-shared writable SQLite as the central store.
+- Treat handoffs as context, never as authority over live Git/API/machine state.
+- `VERIFIED` project facts still require a source reference.
+- Verification systems such as AgentCheck/AgentWitness/LLMAccountability remain external evidence producers; JoshMemory stores references to their evidence rather than inventing it.
 
-## Availability and cost
+## Historical data migration
 
-Railway can run the service continuously, or Serverless mode can put it to sleep after inactivity and wake it on the next request. Continuous mode gives the lowest resume latency. Serverless mode reduces idle compute cost but the first request after sleep may have cold-start delay.
+Existing per-machine SQLite databases are **not automatically merged** into the GitHub store. This is deliberate to avoid silently uploading an old private corpus.
 
-A persistent Railway volume keeps `memory.sqlite` across deploys and restarts. Do not run the database on the container's ephemeral filesystem.
+A future explicit migration/import command should select only the handoffs/facts worth making shared, preserve provenance and redact them before upload. Until then, the old local databases remain historical/local sources.
 
-## Backups
+## More context
 
-Use Railway volume backups in addition to JoshMemory's provenance model. A backup protects the database file; GitHub and the original evidence sources remain the authority for code/history claims.
-
-## Migration from a workstation database
-
-If the existing AVANCE-WS7 database contains handoffs/facts that should become the initial shared state:
-
-1. Stop writes to the old central service.
-2. Copy `memory.sqlite` from the old JoshMemory data directory.
-3. Upload it to the Railway volume as `/data/memory.sqlite`.
-4. Start/restart the Railway service.
-5. Point every client at the Railway HTTPS URL.
-6. Verify a known project with `get_project_context` before retiring the workstation-hosted service.
-
-Do not keep two writable central databases after cutover.
+See `docs/CLOUD_CONTINUITY_HISTORY.md` for the full decision history covering local SQLite, cross-platform auditing, AVANCE/ForgeGrid/Action1 boundaries, the HTTP central service, the cloud requirement and the final zero-touch GitHub-backed design.
