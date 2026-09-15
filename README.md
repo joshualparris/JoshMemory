@@ -2,7 +2,7 @@
 
 JoshMemory is an evidence and project-memory index for development history. It keeps searchable, redacted representations of development history in SQLite while preserving the original source material as the authority.
 
-It can run fully local/offline, or use one authenticated central handoff database so Claude Code, Codex and Antigravity sessions on different computers can pause and resume the same GitHub project.
+It can run fully local/offline, or use one authenticated central shared-memory database so Claude Code, Codex and Antigravity sessions on different computers can pause and resume the same GitHub project while sharing handoffs, durable project facts and accountability references.
 
 It currently works with:
 
@@ -14,7 +14,7 @@ It currently works with:
 - accountability references to external verification systems
 - live local Git project state via a cross-platform auditor
 - structured session handoffs/bookmarks
-- authenticated central handoff storage across machines
+- authenticated central shared-memory storage across machines
 
 Raw transcripts and imported evidence remain the source of truth; JoshMemory stores searchable text, metadata, provenance, relationships, and references back to those sources.
 
@@ -34,17 +34,30 @@ This installs the `joshmemory` and `joshmemory-central` commands. You can also r
 - SQLite index: `~/.local/share/joshmemory/memory.sqlite`
 - Local projects: `JOSHMEMORY_PROJECTS_DIR` when set; otherwise `C:\dev` on Windows when available, or `~/dev`
 
-## Central pause/resume database
+## Central shared-memory database
 
-JoshMemory handoffs can be centralised without putting a live SQLite file on SMB/NFS or committing private session state to GitHub.
+JoshMemory's shared durable state can be centralised without putting a live SQLite file on SMB/NFS or committing private session state to GitHub.
 
-The central machine owns the SQLite database on its local disk and exposes a small authenticated HTTP API. Every other machine keeps doing its live Git checks locally, but handoff reads/writes go to the central service.
+The central machine owns the SQLite database on its local disk and exposes a small authenticated HTTP API. Every other machine keeps doing live Git checks locally, while handoffs/bookmarks, durable project facts and accountability references are read from and written to the central service.
+
+Raw Codex/ChatGPT source history and machine-local Git observations can remain local. They are not silently uploaded merely because central shared memory is enabled.
 
 This means a handoff saved from `~/dev/MyApp` on Linux can be resumed from `C:\dev\MyApp` on Windows when both clones have the same canonical Git remote. Checkout paths are used as a preference, not as a cross-machine identity barrier.
 
 ### Central machine
 
 Use a machine reachable only over a trusted network such as Tailscale. Do not expose this HTTP service directly to the public internet.
+
+For Fedora/Linux, the repository includes an installer that creates/updates the venv, generates a private token, binds to the Tailscale IPv4 address when available, installs a systemd user service, starts it, and verifies `/health`:
+
+```bash
+cd ~/dev/JoshMemory
+bash deploy/install-central-fedora.sh
+```
+
+The generated token is stored with mode `0600` in `~/.config/joshmemory/central.env`. If Tailscale is unavailable the installer falls back to loopback and warns that other machines cannot yet connect.
+
+Manual launch remains available:
 
 ```bash
 cd ~/dev/JoshMemory
@@ -68,25 +81,30 @@ curl http://127.0.0.1:8765/health
 
 ### Every development machine
 
-Set the same service URL/token before starting Claude Code, Codex, Antigravity or the JoshMemory MCP server:
+The deployment helpers verify the health endpoint and persist the URL/token for future agent processes.
+
+PowerShell:
+
+```powershell
+.\deploy\configure-client.ps1 -ServerUrl "http://100.x.y.z:8765" -Token "<central token>"
+```
 
 Linux/macOS:
+
+```bash
+bash deploy/configure-client.sh "http://100.x.y.z:8765" "<central token>"
+```
+
+Equivalent environment variables are:
 
 ```bash
 export JOSHMEMORY_REMOTE_URL="http://100.x.y.z:8765"
 export JOSHMEMORY_TOKEN="replace-with-the-same-secret"
 ```
 
-PowerShell:
+Once `JOSHMEMORY_REMOTE_URL` is configured, shared-memory operations do **not** silently fall back to local storage. A central outage is surfaced as an error so the fleet cannot accidentally split into divergent bookmark/fact databases.
 
-```powershell
-$env:JOSHMEMORY_REMOTE_URL = "http://100.x.y.z:8765"
-$env:JOSHMEMORY_TOKEN = "replace-with-the-same-secret"
-```
-
-Once `JOSHMEMORY_REMOTE_URL` is configured, handoff operations do **not** silently fall back to local storage. A central outage is surfaced as an error so the fleet cannot accidentally split into divergent bookmark databases.
-
-Existing Claude SessionStart/SessionEnd hooks and MCP `save_handoff`, `get_project_context` and `list_handoffs` calls automatically use the central handoff store because they all go through the same handoff layer.
+Existing Claude SessionStart/SessionEnd hooks and MCP `save_handoff`, `get_project_context`, `list_handoffs`, `project_fact_search` and `accountability_search` calls automatically use the central shared store through the same storage layer.
 
 ## CLI
 
