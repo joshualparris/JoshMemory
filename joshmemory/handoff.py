@@ -1,4 +1,5 @@
 from __future__ import annotations
+from .checkpoint import get_latest_checkpoint
 
 import json
 import socket
@@ -219,8 +220,24 @@ def get_project_context(
     evidence always outranks the handoff when they disagree; neither this
     function nor its caller should overwrite the handoff to "fix" a
     discrepancy — a new handoff, once actually verified, does that."""
-    handoff_row = get_latest_handoff(db_path, project, machine=machine, canonical_repo=canonical_repo, checkout_path=checkout_path)
+
     _machine = machine or default_machine()
+    handoff_row = get_latest_handoff(db_path, project, machine=machine, canonical_repo=canonical_repo, checkout_path=checkout_path)
+    checkpoint_row = get_latest_checkpoint(db_path, canonical_repo=canonical_repo or "", checkout_path=checkout_path or "", machine=_machine)
+    
+    # Intelligently compare explicit handoff vs deterministic checkpoint
+    active_context = {}
+    if handoff_row:
+        active_context["explicit_handoff"] = handoff_row
+    if checkpoint_row:
+        active_context["deterministic_checkpoint"] = checkpoint_row
+        
+        if handoff_row:
+            h_time = handoff_row.get("recorded_at", "")
+            c_time = checkpoint_row.get("updated_at", "")
+            if c_time > h_time:
+                active_context["note"] = "A deterministic Antigravity checkpoint exists that is NEWER than the last explicit handoff."
+
     state = get_project_state(project, canonical_repo=canonical_repo, checkout_path=checkout_path)
 
     discrepancies: list[dict[str, Any]] = []
@@ -316,6 +333,8 @@ def get_project_context(
     return {
         "project": project,
         "handoff": handoff_row,
+        "checkpoint": checkpoint_row,
+        "context_note": active_context.get("note"),
         "live_state": state,
         "discrepancies": discrepancies,
         "related_workstreams": related_workstreams,

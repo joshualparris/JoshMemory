@@ -4,6 +4,26 @@ import sqlite3
 
 
 SCHEMA = """
+
+CREATE TABLE IF NOT EXISTS session_checkpoints (
+    conversation_id TEXT PRIMARY KEY,
+    canonical_repo TEXT NOT NULL,
+    checkout_path TEXT NOT NULL,
+    machine TEXT NOT NULL,
+    project TEXT NOT NULL,
+    objective TEXT,
+    completed TEXT,
+    in_progress TEXT,
+    blockers TEXT,
+    next_action TEXT,
+    branch TEXT,
+    head TEXT,
+    dirty BOOLEAN,
+    transcript_path TEXT,
+    termination_reason TEXT,
+    fully_idle BOOLEAN,
+    updated_at TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS sessions (
   thread_id TEXT PRIMARY KEY,
   rollout_path TEXT NOT NULL UNIQUE,
@@ -161,15 +181,15 @@ def connect(path: str) -> sqlite3.Connection:
         con.execute("PRAGMA foreign_keys = ON")
         with con:
             con.executescript(SCHEMA)
-            con.execute("PRAGMA user_version = 2")
+            con.execute("PRAGMA user_version = 3")
         return con
         
-    if version < 2:
+    if version < 3:
         con.execute("PRAGMA foreign_keys = OFF")
         with con:
             con.executescript(SCHEMA)
             _migrate(con, version)
-            con.execute("PRAGMA user_version = 2")
+            con.execute("PRAGMA user_version = 3")
         
         violations = con.execute("PRAGMA foreign_key_check").fetchall()
         if violations:
@@ -186,7 +206,7 @@ def _migrate(con: sqlite3.Connection, version: int) -> None:
         if "source_id" not in columns:
             con.execute("ALTER TABLE events ADD COLUMN source_id TEXT")
             
-    if version < 2:
+    if version < 3:
         pf_columns = {row[1] for row in con.execute("PRAGMA table_info(project_facts)")}
         if "canonical_repo" not in pf_columns:
             con.execute("ALTER TABLE project_facts ADD COLUMN canonical_repo TEXT DEFAULT ''")
@@ -228,3 +248,25 @@ def _migrate(con: sqlite3.Connection, version: int) -> None:
         """)
         
         con.execute("DROP TABLE project_facts_old")
+    if version < 3:
+        con.execute("""
+        CREATE TABLE IF NOT EXISTS session_checkpoints (
+            conversation_id TEXT PRIMARY KEY,
+            canonical_repo TEXT NOT NULL,
+            checkout_path TEXT NOT NULL,
+            machine TEXT NOT NULL,
+            project TEXT NOT NULL,
+            objective TEXT,
+            completed TEXT,
+            in_progress TEXT,
+            blockers TEXT,
+            next_action TEXT,
+            branch TEXT,
+            head TEXT,
+            dirty BOOLEAN,
+            transcript_path TEXT,
+            termination_reason TEXT,
+            fully_idle BOOLEAN,
+            updated_at TEXT NOT NULL
+        )
+        """)

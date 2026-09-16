@@ -1,4 +1,5 @@
 from __future__ import annotations
+from .checkpoint import save_checkpoint
 
 import json
 import sys
@@ -64,6 +65,26 @@ def _save_handoff_wrapper(a):
 
 
 TOOLS: dict[str, dict[str, Any]] = {
+    "save_checkpoint": {
+        "description": "Deterministically save the current Antigravity session checkpoint on Stop event.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "conversation_id": {"type": "string"},
+                "project": {"type": "string"},
+                "canonical_repo": {"type": "string"},
+                "checkout_path": {"type": "string"},
+                "machine": {"type": "string"},
+                "branch": {"type": "string"},
+                "head": {"type": "string"},
+                "dirty": {"type": "boolean"},
+                "transcript_path": {"type": "string"},
+                "termination_reason": {"type": "string"},
+                "fully_idle": {"type": "boolean"}
+            },
+            "required": ["conversation_id", "project", "canonical_repo", "checkout_path", "machine", "transcript_path"]
+        }
+    },
     "search_sessions": {
         "description": "Search indexed Codex sessions without scanning project files.",
         "inputSchema": {
@@ -299,6 +320,20 @@ def result(request_id: Any, value: Any) -> dict[str, Any]:
 
 def call_tool(name: str, arguments: dict[str, Any]) -> str:
     dispatch: dict[str, Callable[[dict[str, Any]], Any]] = {
+        "save_checkpoint": lambda a: save_checkpoint(
+            db_path=str(default_db_path()),
+            conversation_id=a.get("conversation_id", ""),
+            project=a.get("project", ""),
+            canonical_repo=a.get("canonical_repo", ""),
+            checkout_path=a.get("checkout_path", ""),
+            machine=a.get("machine", ""),
+            branch=a.get("branch", ""),
+            head=a.get("head", ""),
+            dirty=a.get("dirty", False),
+            transcript_path=a.get("transcript_path", ""),
+            termination_reason=a.get("termination_reason", ""),
+            fully_idle=a.get("fully_idle", True)
+        ),
         "search_sessions": lambda a: search_sessions(str(a["query"]), limit=int(a.get("limit", 10))),
         "get_session": lambda a: get_session(str(a["thread_id"]), limit_events=int(a.get("limit_events", 120))) or {"error": "not_found"},
         "project_history": lambda a: project_history(str(a["project"]), limit=int(a.get("limit", 30))),
@@ -341,7 +376,7 @@ def call_tool(name: str, arguments: dict[str, Any]) -> str:
     # Keep the index fresh; unchanged rollout files are skipped cheaply.
     # We omit this for tools that only touch the fact/handoff tables because
     # those don't depend on parsing Codex rollout files.
-    if name not in ("project_fact_search", "accountability_search", "save_handoff", "get_project_context", "list_handoffs"):
+    if name not in ("project_fact_search", "accountability_search", "save_handoff", "get_project_context", "list_handoffs", "save_checkpoint"):
         index_all()
     return json.dumps(dispatch[name](arguments), indent=2, ensure_ascii=False)
 

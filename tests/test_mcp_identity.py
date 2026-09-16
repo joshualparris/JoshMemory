@@ -144,7 +144,7 @@ def verify_migration_state(db_path):
     assert "canonical_repo" in cols
     assert "checkout_path" in cols
     uv = con.execute("PRAGMA user_version").fetchone()[0]
-    assert uv == 2
+    assert uv == 3
     
     res = con.execute("SELECT sql FROM sqlite_master WHERE name='project_facts'").fetchone()[0]
     assert "UNIQUE(project, canonical_repo, checkout_path, subject, fact, status, machine)" in res

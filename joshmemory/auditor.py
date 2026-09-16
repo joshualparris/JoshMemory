@@ -130,6 +130,25 @@ def normalize_name(name: str) -> str:
     return name.lower().replace(" ", "").replace("-", "").replace("_", "")
 
 def get_project_state(project_name: str, auditor_data: dict[str, Any] | None = None, checkout_path: str | None = None, canonical_repo: str | None = None) -> dict[str, Any] | None:
+    if checkout_path and auditor_data is None:
+        from pathlib import Path
+        cp = Path(checkout_path).resolve()
+        if cp.exists() and (cp / ".git").exists():
+            branch = run_git_command(cp, ["branch", "--show-current"])
+            head = run_git_command(cp, ["log", "-1", "--format=%H"])
+            dirty = bool(run_git_command(cp, ["status", "--porcelain"]))
+            
+            # Simple mock of the auditor project dict
+            return {
+                "name": project_name,
+                "path": str(cp),
+                "canonical_repo": canonical_repo,
+                "git": {
+                    "branch": branch,
+                    "head_sha": head,
+                    "dirty": dirty
+                }
+            }
     if auditor_data is None:
         auditor_data = run_auditor()
         if not auditor_data:
