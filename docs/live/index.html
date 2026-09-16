@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>JoshMemory Cloud Continuity</title>
+  <style>
+    :root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#172033;background:#eef3f8}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(circle at top left,#dff4ff 0,transparent 34rem),radial-gradient(circle at bottom right,#e4f7ea 0,transparent 32rem),#eef3f8}.wrap{width:min(1040px,calc(100% - 28px));margin:0 auto;padding:38px 0 60px}.hero,.card{background:rgba(255,255,255,.9);border:1px solid rgba(148,163,184,.34);box-shadow:0 20px 55px rgba(15,23,42,.08);border-radius:24px}.hero{padding:30px}.eyebrow{font-size:.78rem;font-weight:800;letter-spacing:.13em;text-transform:uppercase;color:#2563eb}.title{font-size:clamp(2rem,7vw,4.7rem);letter-spacing:-.055em;line-height:.95;margin:.5rem 0 1rem}.lede{font-size:1.05rem;line-height:1.65;color:#475569;max-width:760px}.badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}.badge{border:1px solid #cbd5e1;border-radius:999px;padding:7px 11px;font-size:.78rem;font-weight:700;background:#fff}.ok{border-color:#86efac;background:#f0fdf4;color:#166534}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:16px}.card{padding:22px}.card h2{font-size:1.05rem;margin:0 0 10px}.card p,.card li{color:#475569;line-height:1.55}.flow{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#0f172a;color:#e2e8f0;border-radius:18px;padding:20px;line-height:1.8;overflow:auto;white-space:pre-wrap}.status{margin-top:16px}.status-row{display:flex;justify-content:space-between;gap:16px;border-top:1px solid #e2e8f0;padding:12px 0}.status-row:first-child{border-top:0}.label{color:#64748b}.value{font-weight:800;text-align:right;word-break:break-word}.links{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}.btn{display:inline-flex;align-items:center;text-decoration:none;border-radius:12px;padding:10px 13px;font-weight:800;font-size:.88rem;border:1px solid #cbd5e1;background:#fff;color:#172033}.btn.primary{background:#172033;color:#fff;border-color:#172033}.foot{color:#64748b;font-size:.82rem;margin-top:16px;line-height:1.5}@media(max-width:700px){.grid{grid-template-columns:1fr}.wrap{padding-top:18px}.hero,.card{border-radius:18px}.hero{padding:22px}}@media(prefers-color-scheme:dark){:root{color:#e5e7eb;background:#07111f}body{background:radial-gradient(circle at top left,#102a43 0,transparent 32rem),radial-gradient(circle at bottom right,#13301f 0,transparent 30rem),#07111f}.hero,.card{background:rgba(15,23,42,.93);border-color:#334155}.lede,.card p,.card li,.label,.foot{color:#94a3b8}.badge,.btn{background:#111c2e;border-color:#475569;color:#e5e7eb}.status-row{border-color:#334155}.ok{background:#12351f;border-color:#166534;color:#bbf7d0}.btn.primary{background:#e5e7eb;color:#0f172a;border-color:#e5e7eb}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">AI development continuity</div>
+      <h1 class="title">JoshMemory</h1>
+      <p class="lede">Pause work on one development computer and resume from durable project context on another without relying on AVANCE-WS7, a home PC, or any other workstation staying powered on.</p>
+      <div class="badges">
+        <span class="badge ok">Cloud backing store seeded</span>
+        <span class="badge">No always-on workstation</span>
+        <span class="badge">Private shared memory</span>
+        <span class="badge">Live Git stays authoritative</span>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Current architecture</h2>
+        <div class="flow">Claude / Codex / Antigravity
+        ↓ existing GitHub authentication
+JoshMemory storage router
+        ↓
+Private GitHub append-only store
+        ↓
+Handoffs + project facts + evidence references</div>
+      </article>
+      <article class="card">
+        <h2>Authority rule</h2>
+        <p>JoshMemory is continuity and provenance, not code truth. A resumed agent must check the live repository, branch, HEAD, dirty state and relevant machine/API evidence before acting.</p>
+        <p><strong>When memory and live evidence disagree, live evidence wins.</strong></p>
+      </article>
+      <article class="card">
+        <h2>Shared from anywhere</h2>
+        <ul>
+          <li>Session handoffs and pause/resume bookmarks</li>
+          <li>Durable project facts with provenance</li>
+          <li>Accountability references and supersession history</li>
+          <li>Canonical-repository continuity across checkout paths</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h2>Not silently uploaded</h2>
+        <ul>
+          <li>Complete ChatGPT exports and raw Codex JSONL</li>
+          <li>The old full per-machine SQLite corpus</li>
+          <li>Live machine observations</li>
+          <li>Original external verification artefacts</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="card status">
+      <h2>Live source check</h2>
+      <div class="status-row"><span class="label">JoshMemory main</span><span class="value" id="source-status">Checking GitHub…</span></div>
+      <div class="status-row"><span class="label">Latest main commit</span><span class="value" id="source-sha">—</span></div>
+      <div class="status-row"><span class="label">Shared storage</span><span class="value">Private GitHub / append-only JSON</span></div>
+      <div class="status-row"><span class="label">AVANCE required for uptime</span><span class="value">No</span></div>
+      <div class="links">
+        <a class="btn primary" href="https://github.com/joshualparris/JoshMemory" target="_blank" rel="noreferrer">Open JoshMemory source</a>
+        <a class="btn" href="https://github.com/joshualparris/JoshMemory/blob/main/docs/CLOUD_CONTINUITY_HISTORY.md" target="_blank" rel="noreferrer">Architecture history</a>
+        <a class="btn" href="https://github.com/joshualparris/JoshDashboard4" target="_blank" rel="noreferrer">Private backing store</a>
+      </div>
+      <p class="foot">This public status page deliberately exposes no private memory payloads or credentials. The private backing repository remains accessible only through GitHub permissions.</p>
+    </section>
+  </main>
+  <script>
+    const status = document.getElementById('source-status');
+    const sha = document.getElementById('source-sha');
+    fetch('https://api.github.com/repos/joshualparris/JoshMemory/commits/main', {headers:{Accept:'application/vnd.github+json'}})
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(data => { status.textContent = 'Online'; sha.textContent = String(data.sha || '').slice(0,12) || 'Unknown'; })
+      .catch(err => { status.textContent = 'Source check unavailable'; sha.textContent = err.message; });
+  </script>
+</body>
+</html>

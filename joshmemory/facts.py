@@ -8,6 +8,13 @@ from datetime import datetime, timezone
 from .schema import connect
 from .redact import redact
 
+
+def _remote_enabled() -> bool:
+    from .central import remote_enabled
+
+    return remote_enabled()
+
+
 def project_fact_add(
     db_path: str,
     project: str,
@@ -21,7 +28,7 @@ def project_fact_add(
     machine: Optional[str] = None,
     supersedes: Optional[str] = None,
     canonical_repo: Optional[str] = "",
-    checkout_path: Optional[str] = ""
+    checkout_path: Optional[str] = "",
 ) -> dict[str, Any]:
     valid_statuses = {"VERIFIED", "OBSERVED", "HISTORICAL", "INFERRED", "STALE", "DISPROVEN", "UNKNOWN", "CURRENT"}
     status = status.upper()
@@ -39,6 +46,27 @@ def project_fact_add(
     subject = redact(subject)
     fact = redact(fact)
 
+    if _remote_enabled():
+        from .central import remote_call
+
+        return remote_call(
+            "project_fact_add",
+            {
+                "project": project,
+                "subject": subject,
+                "fact": fact,
+                "status": status,
+                "confidence": confidence,
+                "observed_at": observed_at,
+                "source_type": source_type,
+                "source_ref": source_ref,
+                "machine": machine,
+                "supersedes": supersedes,
+                "canonical_repo": canonical_repo or "",
+                "checkout_path": checkout_path or "",
+            },
+        )
+
     con = connect(db_path)
     try:
         recorded_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
@@ -51,7 +79,7 @@ def project_fact_add(
 
             cur = con.execute(
                 "SELECT id, supersedes, source_type, source_ref, confidence, observed_at FROM project_facts WHERE project = ? AND canonical_repo = ? AND checkout_path = ? AND subject = ? AND fact = ? AND status = ? AND machine = ?",
-                (project, canonical_repo or "", checkout_path or "", subject, fact, status, _machine)
+                (project, canonical_repo or "", checkout_path or "", subject, fact, status, _machine),
             )
             row = cur.fetchone()
 
@@ -59,15 +87,20 @@ def project_fact_add(
                 fact_id = row["id"]
                 if row["supersedes"] != supersedes:
                     raise ValueError(f"Fact already exists but with a different supersedes target ({row['supersedes']})")
-                if (source_type is not None and row["source_type"] != source_type) or \
-                   (source_ref is not None and row["source_ref"] != source_ref) or \
-                   (confidence is not None and row["confidence"] != confidence) or \
-                   (observed_at is not None and row["observed_at"] != observed_at):
+                if (
+                    (source_type is not None and row["source_type"] != source_type)
+                    or (source_ref is not None and row["source_ref"] != source_ref)
+                    or (confidence is not None and row["confidence"] != confidence)
+                    or (observed_at is not None and row["observed_at"] != observed_at)
+                ):
                     raise ValueError("Duplicate operation has conflicting provenance/history fields")
                 return {"id": fact_id, "project": project, "fact": fact, "duplicate": True}
 
             if supersedes:
-                cur = con.execute("SELECT id, active, project, subject, machine, canonical_repo, checkout_path FROM project_facts WHERE id = ?", (supersedes,))
+                cur = con.execute(
+                    "SELECT id, active, project, subject, machine, canonical_repo, checkout_path FROM project_facts WHERE id = ?",
+                    (supersedes,),
+                )
                 row = cur.fetchone()
                 if not row:
                     raise ValueError(f"Superseded fact {supersedes} not found")
@@ -75,8 +108,7 @@ def project_fact_add(
                     raise ValueError(f"Superseded fact {supersedes} is already inactive")
                 if row["project"] != project or row["subject"] != subject or row["machine"] != _machine:
                     raise ValueError(f"Superseded fact {supersedes} does not match project/subject/machine")
-                
-                # Verify identity compatibility
+
                 old_canon = row["canonical_repo"]
                 old_path = row["checkout_path"]
                 if canonical_repo and old_canon and canonical_repo != old_canon:
@@ -89,7 +121,22 @@ def project_fact_add(
                 """
                 INSERT INTO project_facts (id, project, machine, subject, fact, status, confidence, observed_at, recorded_at, source_type, source_ref, supersedes, active, canonical_repo, checkout_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?)
                 """,
-                (fact_id, project, _machine, subject, fact, status, confidence, observed_at, recorded_at, source_type, source_ref, supersedes, canonical_repo or "", checkout_path or "")
+                (
+                    fact_id,
+                    project,
+                    _machine,
+                    subject,
+                    fact,
+                    status,
+                    confidence,
+                    observed_at,
+                    recorded_at,
+                    source_type,
+                    source_ref,
+                    supersedes,
+                    canonical_repo or "",
+                    checkout_path or "",
+                ),
             )
 
             if supersedes:
@@ -99,12 +146,21 @@ def project_fact_add(
     finally:
         con.close()
 
+
 def project_fact_search(
     db_path: str,
     query: str,
     project: Optional[str] = None,
-    active_only: bool = True
+    active_only: bool = True,
 ) -> list[dict[str, Any]]:
+    if _remote_enabled():
+        from .central import remote_call
+
+        return remote_call(
+            "project_fact_search",
+            {"query": query, "project": project, "active_only": active_only},
+        )
+
     con = connect(db_path)
     try:
         sql = "SELECT * FROM project_facts WHERE (subject LIKE ? OR fact LIKE ?)"
@@ -121,6 +177,7 @@ def project_fact_search(
     finally:
         con.close()
 
+
 def accountability_reference_add(
     db_path: str,
     project: str,
@@ -132,9 +189,10 @@ def accountability_reference_add(
     reviewer: Optional[str] = None,
     verdict: Optional[str] = None,
     commit_sha: Optional[str] = None,
-    supersedes: Optional[str] = None
+    supersedes: Optional[str] = None,
 ) -> dict[str, Any]:
     import re
+
     if verdict:
         verdict = verdict.upper()
         valid_verdicts = {"SATISFIED", "REJECTED", "EVIDENCED"}
@@ -146,6 +204,25 @@ def accountability_reference_add(
 
     claim_summary = redact(claim_summary)
 
+    if _remote_enabled():
+        from .central import remote_call
+
+        return remote_call(
+            "accountability_reference_add",
+            {
+                "project": project,
+                "claim_summary": claim_summary,
+                "source_system": source_system,
+                "source_id": source_id,
+                "requirement_id": requirement_id,
+                "source_ref": source_ref,
+                "reviewer": reviewer,
+                "verdict": verdict,
+                "commit_sha": commit_sha,
+                "supersedes": supersedes,
+            },
+        )
+
     con = connect(db_path)
     try:
         observed_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
@@ -156,7 +233,7 @@ def accountability_reference_add(
 
             cur = con.execute(
                 "SELECT id, supersedes, source_ref, reviewer, verdict, commit_sha FROM accountability_references WHERE project = ? AND claim_summary = ? AND source_system = ? AND source_id = ? AND requirement_id = ?",
-                (project, claim_summary, source_system, source_id, _req)
+                (project, claim_summary, source_system, source_id, _req),
             )
             row = cur.fetchone()
 
@@ -164,15 +241,20 @@ def accountability_reference_add(
                 ref_id = row["id"]
                 if row["supersedes"] != supersedes:
                     raise ValueError(f"Reference already exists but with a different supersedes target ({row['supersedes']})")
-                if (source_ref is not None and row["source_ref"] != source_ref) or \
-                   (reviewer is not None and row["reviewer"] != reviewer) or \
-                   (verdict is not None and row["verdict"] != verdict) or \
-                   (commit_sha is not None and row["commit_sha"] != commit_sha):
+                if (
+                    (source_ref is not None and row["source_ref"] != source_ref)
+                    or (reviewer is not None and row["reviewer"] != reviewer)
+                    or (verdict is not None and row["verdict"] != verdict)
+                    or (commit_sha is not None and row["commit_sha"] != commit_sha)
+                ):
                     raise ValueError("Duplicate operation has conflicting provenance/history fields")
                 return {"id": ref_id, "project": project, "source_system": source_system, "duplicate": True}
 
             if supersedes:
-                cur = con.execute("SELECT id, active, project, requirement_id FROM accountability_references WHERE id = ?", (supersedes,))
+                cur = con.execute(
+                    "SELECT id, active, project, requirement_id FROM accountability_references WHERE id = ?",
+                    (supersedes,),
+                )
                 row = cur.fetchone()
                 if not row:
                     raise ValueError(f"Superseded reference {supersedes} not found")
@@ -189,8 +271,20 @@ def accountability_reference_add(
                     source_ref, reviewer, verdict, commit_sha, observed_at, supersedes, active
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)
                 """,
-                (ref_id, project, _req, claim_summary, source_system, source_id,
-                 source_ref, reviewer, verdict, commit_sha, observed_at, supersedes)
+                (
+                    ref_id,
+                    project,
+                    _req,
+                    claim_summary,
+                    source_system,
+                    source_id,
+                    source_ref,
+                    reviewer,
+                    verdict,
+                    commit_sha,
+                    observed_at,
+                    supersedes,
+                ),
             )
 
             if supersedes:
@@ -200,12 +294,21 @@ def accountability_reference_add(
     finally:
         con.close()
 
+
 def accountability_reference_search(
     db_path: str,
     query: str,
     project: Optional[str] = None,
-    active_only: bool = True
+    active_only: bool = True,
 ) -> list[dict[str, Any]]:
+    if _remote_enabled():
+        from .central import remote_call
+
+        return remote_call(
+            "accountability_reference_search",
+            {"query": query, "project": project, "active_only": active_only},
+        )
+
     con = connect(db_path)
     try:
         sql = "SELECT * FROM accountability_references WHERE (claim_summary LIKE ? OR source_id LIKE ?)"

@@ -1,6 +1,15 @@
 from __future__ import annotations
 
 import sqlite3
+import threading
+
+
+# The central service is threaded. A brand-new database must not let one
+# connection observe a partially-created schema while another connection is
+# still running SCHEMA/migrations. SQLite serialises writes, but our old
+# application-level "is this fresh?" check could race before those writes were
+# complete. Keep schema setup/migration single-threaded within this process.
+_SCHEMA_LOCK = threading.RLock()
 
 
 SCHEMA = """
@@ -90,8 +99,8 @@ CREATE TABLE IF NOT EXISTS chatgpt_messages (
 CREATE TABLE IF NOT EXISTS project_facts (
   id TEXT PRIMARY KEY,
   project TEXT NOT NULL,
-    canonical_repo TEXT DEFAULT '',
-    checkout_path TEXT DEFAULT '',
+  canonical_repo TEXT DEFAULT '',
+  checkout_path TEXT DEFAULT '',
   machine TEXT NOT NULL DEFAULT '',
   subject TEXT NOT NULL,
   fact TEXT NOT NULL,
@@ -114,8 +123,8 @@ CREATE TABLE IF NOT EXISTS project_facts (
 CREATE TABLE IF NOT EXISTS accountability_references (
   id TEXT PRIMARY KEY,
   project TEXT NOT NULL,
-    canonical_repo TEXT DEFAULT '',
-    checkout_path TEXT DEFAULT '',
+  canonical_repo TEXT DEFAULT '',
+  checkout_path TEXT DEFAULT '',
   requirement_id TEXT NOT NULL DEFAULT '',
   claim_summary TEXT NOT NULL,
   source_system TEXT NOT NULL,
@@ -163,40 +172,45 @@ END;
 
 
 def connect(path: str) -> sqlite3.Connection:
-    import sqlite3
     con = sqlite3.connect(path, timeout=30.0)
     con.row_factory = sqlite3.Row
     con.execute("PRAGMA busy_timeout = 10000")
-    
-    try:
-        con.execute("PRAGMA journal_mode = WAL")
-    except sqlite3.OperationalError:
-        pass
-        
-    version = con.execute("PRAGMA user_version").fetchone()[0]
-    tables = con.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='project_facts'").fetchall()
-    is_fresh = len(tables) == 0
-    
-    if is_fresh:
+
+    with _SCHEMA_LOCK:
+        try:
+            con.execute("PRAGMA journal_mode = WAL")
+        except sqlite3.OperationalError:
+            pass
+
+        version = con.execute("PRAGMA user_version").fetchone()[0]
+        tables = con.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='project_facts'"
+        ).fetchall()
+        is_fresh = len(tables) == 0
+
+        if is_fresh:
+            con.execute("PRAGMA foreign_keys = ON")
+            with con:
+                con.executescript(SCHEMA)
+                con.execute("PRAGMA user_version = 3")
+            return con
+
+        if version < 3:
+            con.execute("PRAGMA foreign_keys = OFF")
+            with con:
+                con.executescript(SCHEMA)
+                _migrate(con, version)
+                con.execute("PRAGMA user_version = 3")
+
+            violations = con.execute("PRAGMA foreign_key_check").fetchall()
+            if violations:
+                raise sqlite3.IntegrityError(
+                    f"Foreign key violations after migration: {violations}"
+                )
+
         con.execute("PRAGMA foreign_keys = ON")
-        with con:
-            con.executescript(SCHEMA)
-            con.execute("PRAGMA user_version = 3")
-        return con
-        
-    if version < 3:
-        con.execute("PRAGMA foreign_keys = OFF")
-        with con:
-            con.executescript(SCHEMA)
-            _migrate(con, version)
-            con.execute("PRAGMA user_version = 3")
-        
-        violations = con.execute("PRAGMA foreign_key_check").fetchall()
-        if violations:
-            raise sqlite3.IntegrityError(f"Foreign key violations after migration: {violations}")
-            
-    con.execute("PRAGMA foreign_keys = ON")
     return con
+
 
 def _migrate(con: sqlite3.Connection, version: int) -> None:
     if version < 1:
@@ -205,17 +219,18 @@ def _migrate(con: sqlite3.Connection, version: int) -> None:
             con.execute("ALTER TABLE events ADD COLUMN provenance TEXT")
         if "source_id" not in columns:
             con.execute("ALTER TABLE events ADD COLUMN source_id TEXT")
-            
-    if version < 3:
+
+    if version < 2:
         pf_columns = {row[1] for row in con.execute("PRAGMA table_info(project_facts)")}
         if "canonical_repo" not in pf_columns:
             con.execute("ALTER TABLE project_facts ADD COLUMN canonical_repo TEXT DEFAULT ''")
         if "checkout_path" not in pf_columns:
             con.execute("ALTER TABLE project_facts ADD COLUMN checkout_path TEXT DEFAULT ''")
-            
+
         con.execute("ALTER TABLE project_facts RENAME TO project_facts_old")
-        
-        con.execute("""
+
+        con.execute(
+            """
         CREATE TABLE project_facts (
             id TEXT PRIMARY KEY,
             project TEXT NOT NULL,
@@ -239,15 +254,19 @@ def _migrate(con: sqlite3.Connection, version: int) -> None:
             CHECK(supersedes != id),
             CHECK(active IN (0, 1))
         )
-        """)
-        
-        con.execute("""
+        """
+        )
+
+        con.execute(
+            """
         INSERT INTO project_facts (id, project, machine, subject, fact, status, confidence, observed_at, recorded_at, source_type, source_ref, canonical_repo, checkout_path, supersedes, active)
         SELECT id, project, machine, subject, fact, status, confidence, observed_at, recorded_at, source_type, source_ref, canonical_repo, checkout_path, supersedes, active
         FROM project_facts_old
-        """)
-        
+        """
+        )
+
         con.execute("DROP TABLE project_facts_old")
+
     if version < 3:
         con.execute("""
         CREATE TABLE IF NOT EXISTS session_checkpoints (
