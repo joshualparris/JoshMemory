@@ -1,13 +1,15 @@
 [project]
 name = "joshmemory"
-version = "0.2.0"
-description = "Searchable evidence and project-memory index with local and central handoff storage."
+version = "0.3.0"
+description = "Evidence-aware project continuity, coordination and memory governance for coding agents."
 requires-python = ">=3.11"
 dependencies = []
 
 [project.scripts]
 joshmemory = "joshmemory.cli:main"
 joshmemory-central = "joshmemory.central:main"
+joshmemory-continuity = "joshmemory.continuity_cli:main"
+joshmemory-continuity-mcp = "joshmemory.continuity_mcp:main"
 
 [build-system]
 requires = ["setuptools>=68"]
