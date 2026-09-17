@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>JoshMemory Browser</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div id="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">◈</span>
+      <span class="brand-name">JoshMemory</span>
+    </div>
+    <div class="topbar-search">
+      <svg class="icon-search" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <circle cx="9" cy="9" r="6.5" stroke="currentColor" stroke-width="1.6"/>
+        <path d="M14 14L18 18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+      <input id="search" type="text" placeholder="Search titles, previews, projects…" autocomplete="off" />
+      <kbd>/</kbd>
+    </div>
+    <div class="topbar-stats" id="topbar-stats" aria-live="polite"></div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="filter-row">
+        <select id="project-filter" aria-label="Filter by project">
+          <option value="">All projects</option>
+        </select>
+        <select id="source-filter" aria-label="Filter by source">
+          <option value="">All sources</option>
+        </select>
+      </div>
+      <div class="session-count" id="session-count"></div>
+      <ul class="session-list" id="session-list" role="listbox" aria-label="Sessions"></ul>
+    </aside>
+
+    <main class="content" id="content">
+      <div class="empty-state" id="empty-state">
+        <span class="empty-mark">◈</span>
+        <h2>Pick a session</h2>
+        <p>Browse the archive on the left, or search across titles and previews above.</p>
+      </div>
+
+      <div class="session-view" id="session-view" hidden>
+        <div class="session-header">
+          <div class="session-header-main">
+            <h1 id="sv-title"></h1>
+            <div class="session-meta" id="sv-meta"></div>
+          </div>
+          <div class="session-search">
+            <input id="event-search" type="text" placeholder="Find in this session…" autocomplete="off" />
+            <span id="event-search-count" class="event-search-count"></span>
+          </div>
+        </div>
+        <div class="transcript" id="transcript"></div>
+      </div>
+
+      <div class="loading" id="loading" hidden>Loading…</div>
+    </main>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
