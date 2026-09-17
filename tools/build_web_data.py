@@ -11,6 +11,7 @@ import sqlite3
 from pathlib import Path
 
 from joshmemory.paths import default_db_path
+from joshmemory.redact import redact
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT_DIR = ROOT / "docs" / "data"
@@ -61,7 +62,10 @@ def main() -> None:
                 "role": e["role"],
                 "kind": e["event_kind"],
                 "timestamp": e["timestamp"],
-                "text": e["text"],
+                # Defense in depth: re-redact at export time even though the indexer
+                # already redacts on ingest, since the sqlite index can carry text
+                # indexed before a given secret pattern existed.
+                "text": redact(e["text"]),
             }
             for e in events
             if e["text"]
