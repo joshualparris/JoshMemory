@@ -9,6 +9,8 @@ from .github_evidence import github_evidence
 from .github_evidence import github_evidence
 from .index import get_session, index_all, project_history, recent_work, search_sessions, project_status
 from .historical import earliest_activity, historical_search, historical_timeline
+from .coding_chats import local_coding_chat_search, coding_chat_records, sync_coding_chat_archive_to_github
+from .central import remote_call, remote_enabled, storage_mode
 from .facts import project_fact_add, project_fact_search, accountability_reference_add, accountability_reference_search
 from .handoff import save_handoff, get_project_context, list_handoffs
 from .paths import default_db_path
@@ -48,6 +50,47 @@ def get_inferred_source_ref(a: dict) -> str:
     except Exception:
         pass
     return ""
+
+def _coding_chat_search_wrapper(a: dict[str, Any]):
+    arguments = {
+        "query": str(a.get("query") or ""),
+        "start_date": a.get("start_date"),
+        "end_date": a.get("end_date"),
+        "limit": int(a.get("limit", 100)),
+    }
+    if remote_enabled():
+        return remote_call("coding_chat_search", arguments)
+    return local_coding_chat_search(
+        arguments["query"],
+        db_path=default_db_path(),
+        start_date=arguments["start_date"],
+        end_date=arguments["end_date"],
+        limit=arguments["limit"],
+    )
+
+
+def _coding_chat_coverage_wrapper(a: dict[str, Any]):
+    if remote_enabled():
+        return remote_call("coding_chat_coverage", {})
+    rows = coding_chat_records(db_path=default_db_path())
+    dates = [str(row.get("created_at") or "") for row in rows if row.get("created_at")]
+    return {
+        "coding_chats": len(rows),
+        "earliest": min(dates) if dates else None,
+        "latest": max(dates) if dates else None,
+        "sources": {"historical_chatgpt_export": len(rows)} if rows else {},
+        "backend": "local",
+    }
+
+
+def _sync_coding_chat_archive_wrapper(a: dict[str, Any]):
+    if storage_mode() != "github":
+        raise ValueError("sync_coding_chat_archive requires the private GitHub JoshMemory backend")
+    return sync_coding_chat_archive_to_github(
+        db_path=default_db_path(),
+        batch_size=int(a.get("batch_size", 150)),
+    )
+
 
 def _save_handoff_wrapper(a):
     from .handoff import save_handoff
@@ -176,6 +219,31 @@ TOOLS: dict[str, dict[str, Any]] = {
                 "limit": {"type": "integer", "default": 50, "minimum": 1, "maximum": 100},
             },
             "required": ["query"],
+        },
+    },
+    "coding_chat_search": {
+        "description": "Search the dated chat-level coding archive by title/topic and optional exact date range.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "default": ""},
+                "start_date": {"type": "string", "description": "Inclusive YYYY-MM-DD"},
+                "end_date": {"type": "string", "description": "Inclusive YYYY-MM-DD"},
+                "limit": {"type": "integer", "default": 100, "minimum": 1, "maximum": 5000},
+            },
+        },
+    },
+    "coding_chat_coverage": {
+        "description": "Report how many dated coding chats are archived and their earliest/latest dates.",
+        "inputSchema": {"type": "object", "properties": {}},
+    },
+    "sync_coding_chat_archive": {
+        "description": "Classify the locally imported raw ChatGPT archive and sync redacted dated coding-chat records to private GitHub JoshMemory in deterministic batches.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "batch_size": {"type": "integer", "default": 150, "minimum": 1, "maximum": 250}
+            },
         },
     },
     "project_fact_search": {
@@ -343,6 +411,9 @@ def call_tool(name: str, arguments: dict[str, Any]) -> str:
         "historical_search": lambda a: historical_search(str(a["query"]), limit=int(a.get("limit", 20))),
         "earliest_activity": lambda a: earliest_activity(str(a.get("activity", "coding"))),
         "historical_timeline": lambda a: historical_timeline(str(a["query"]), limit=int(a.get("limit", 50))),
+        "coding_chat_search": _coding_chat_search_wrapper,
+        "coding_chat_coverage": _coding_chat_coverage_wrapper,
+        "sync_coding_chat_archive": _sync_coding_chat_archive_wrapper,
         "project_fact_search": lambda a: project_fact_search(
             db_path=default_db_path(), query=str(a["query"]), project=str(a["project"]), active_only=True
         ),
@@ -376,7 +447,7 @@ def call_tool(name: str, arguments: dict[str, Any]) -> str:
     # Keep the index fresh; unchanged rollout files are skipped cheaply.
     # We omit this for tools that only touch the fact/handoff tables because
     # those don't depend on parsing Codex rollout files.
-    if name not in ("project_fact_search", "accountability_search", "save_handoff", "get_project_context", "list_handoffs", "save_checkpoint"):
+    if name not in ("project_fact_search", "accountability_search", "save_handoff", "get_project_context", "list_handoffs", "save_checkpoint", "coding_chat_search", "coding_chat_coverage", "sync_coding_chat_archive"):
         index_all()
     return json.dumps(dispatch[name](arguments), indent=2, ensure_ascii=False)
 
