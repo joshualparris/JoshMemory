@@ -129,7 +129,20 @@ def run_auditor() -> dict[str, Any]:
 def normalize_name(name: str) -> str:
     return name.lower().replace(" ", "").replace("-", "").replace("_", "")
 
-def get_project_state(project_name: str, auditor_data: dict[str, Any] | None = None, checkout_path: str | None = None, canonical_repo: str | None = None) -> dict[str, Any] | None:
+def get_project_state(
+    project_name: str,
+    auditor_data: dict[str, Any] | None = None,
+    checkout_path: str | None = None,
+    canonical_repo: str | None = None,
+    repository: str | None = None,
+    canonical_branch: str | None = None,
+) -> dict[str, Any] | None:
+    # Keep the earlier repository/branch spelling compatible with callers
+    # while using the canonical identity fields used by the current API.
+    if repository and not canonical_repo:
+        canonical_repo = normalize_git_url(repository)
+        if canonical_repo and not canonical_repo.startswith("github.com/"):
+            canonical_repo = f"github.com/{canonical_repo}"
     if checkout_path and auditor_data is None:
         from pathlib import Path
         cp = Path(checkout_path).resolve()
@@ -167,7 +180,19 @@ def get_project_state(project_name: str, auditor_data: dict[str, Any] | None = N
                 
     # 2. Canonical repo match when sufficiently unique
     if canonical_repo:
-        matches = [p for p in projects if p.get("canonical_repo") == canonical_repo]
+        matches = [
+            p for p in projects
+            if (p.get("canonical_repo") or normalize_git_url((p.get("git") or {}).get("origin_url")))
+            == canonical_repo
+        ]
+        if canonical_branch:
+            branch_matches = [
+                p for p in matches
+                if ((p.get("git") or {}).get("branch") or (p.get("git") or {}).get("head"))
+                == canonical_branch
+            ]
+            if len(branch_matches) == 1:
+                return branch_matches[0]
         if len(matches) == 1:
             return matches[0]
             

@@ -28,14 +28,14 @@ TECH_TERMS = (
 )
 
 STRONG_ACTION = re.compile(
-    r"\\b(build|create|write|implement|fix|debug|refactor|deploy|test|code|program|"
-    r"push|commit|merge|clone|install|configure|integrate|migrate|audit)\\b",
+    r"\b(build|create|write|implement|fix|debug|refactor|deploy|test|code|program|"
+    r"push|commit|merge|clone|install|configure|integrate|migrate|audit)\b",
     re.IGNORECASE,
 )
 CODE_MARKERS = re.compile(
-    r"\\x60\\x60\\x60|<!doctype\\s+html|<html\\b|\\bdef\\s+\\w+\\s*\\(|"
-    r"\\bfunction\\s+\\w+\\s*\\(|\\bconst\\s+\\w+\\s*=|\\bclass\\s+\\w+|"
-    r"\\bimport\\s+[\\w{*]|\\bnpm\\s+(?:run|install)|\\bgit\\s+(?:commit|push|pull|clone)",
+    r"\x60\x60\x60|<!doctype\s+html|<html\b|\bdef\s+\w+\s*\(|"
+    r"\bfunction\s+\w+\s*\(|\bconst\s+\w+\s*=|\bclass\s+\w+|"
+    r"\bimport\s+[\w{*]|\bnpm\s+(?:run|install)|\bgit\s+(?:commit|push|pull|clone)",
     re.IGNORECASE,
 )
 
@@ -64,10 +64,10 @@ def _term_hits(text: str) -> list[str]:
 
 def classify_coding_conversation(title: str, messages: list[dict[str, Any]]) -> tuple[bool, list[str]]:
     title = title or ""
-    user_text = "\\n".join(
+    user_text = "\n".join(
         str(row.get("text") or "") for row in messages if str(row.get("author_role") or "") == "user"
     )
-    all_text = "\\n".join(str(row.get("text") or "") for row in messages)
+    all_text = "\n".join(str(row.get("text") or "") for row in messages)
     title_hits = _term_hits(title)
     user_hits = _term_hits(user_text)
     all_hits = _term_hits(all_text)
