@@ -34,10 +34,12 @@ Status values:
 | Fedora/Windows installation paths and migration history | QUEUED | Paths, local SQLite, `.venv`, MCP config, migration specifics. |
 | Antigravity/Codex/Claude integration chronology | QUEUED | Separate actually-working integrations from planned/blocked ones. |
 | No-paid-OpenAI-API / existing-subscription constraint | QUEUED | Persist as tooling/workflow preference, not credential detail. |
-| `resume_work` one-call startup | QUEUED | Roadmap P0. |
+| `resume_work` one-call startup | MIGRATED | Implemented as `joshmemory-continuity resume` / MCP `resume_brief`: handoff + live discrepancies + active lease + recent work journal + next action. |
 | Canonical project/alias registry | QUEUED | Roadmap P0. |
-| Current-work leases | QUEUED | Roadmap P0. |
-| Resume regression tests | QUEUED | Roadmap P3. |
+| Current-work leases | MIGRATED | Bounded claim/heartbeat/release/reclaim model added in 0.3; local SQLite claims serialize transactionally and GitHub cloud uses append/re-read election semantics. |
+| Append-only work journal | MIGRATED | Concise redacted commit/test/build/deploy/blocker/decision/bug milestones can be shared without transcript dumps. |
+| Trust overlay separate from fact status | MIGRATED | `UNTRUSTED`, `VERIFIED`, `APPROVED`, `SYSTEM`; agent-facing MCP cannot promote trust and `VERIFIED` requires evidence. |
+| Resume regression tests | PARTIAL | Unit/CI coverage exists for collision warnings, leases, journal and trust; real two-machine resume/lease proof remains outstanding. |
 
 ## DadLAN / fleet / machines
 
