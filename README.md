@@ -386,3 +386,9 @@ None of those roles allows stale memory to overrule live repository or machine s
 The architecture did not start in the cloud. It evolved through local SQLite portability, cross-platform auditing, verification/accountability separation, AVANCE-hosted centralisation and finally the requirement that no particular PC be an uptime dependency.
 
 See [`docs/CLOUD_CONTINUITY_HISTORY.md`](docs/CLOUD_CONTINUITY_HISTORY.md) for the consolidated history. Major remaining work includes a real multi-machine save/resume/lease proof, canonical project-alias improvements, cloud-store indexing/caching, selective migration of useful historical records, and extending the optional HTTP backend to the new coordination record families.
+
+## Engineering standard
+
+Engineering principles: v5.1
+Assurance tier: 2
+Canonical repository: https://github.com/joshualparris/JoshMemory
