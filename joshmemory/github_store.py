@@ -600,6 +600,8 @@ def _coding_chat_search(arguments: dict[str, Any]) -> list[dict[str, Any]]:
             [
                 str(row.get("title") or ""),
                 str(row.get("first_user_message") or ""),
+                str(row.get("summary") or ""),
+                " ".join(row.get("projects") or []),
                 " ".join(row.get("matched_terms") or []),
                 str(row.get("source") or ""),
             ]
