@@ -12,6 +12,7 @@ from .github_evidence import github_evidence, import_github_evidence
 from .paths import default_db_path, default_sessions_dir
 from .seed import import_seed_file
 from .chatgpt import import_chatgpt_export
+from .coding_chats import local_coding_chat_search, sync_coding_chat_archive_to_github
 from .historical import earliest_activity, historical_search
 from .facts import project_fact_add, project_fact_search, accountability_reference_add, accountability_reference_search
 from .handoff import save_handoff, get_project_context, list_handoffs
@@ -48,6 +49,15 @@ def main(argv: list[str] | None = None) -> int:
     p_chatgpt = sub.add_parser("import-chatgpt")
     p_chatgpt.add_argument("path", type=Path, help="ChatGPT export directory or conversations.json")
     p_chatgpt.add_argument("--dry-run", action="store_true")
+
+    p_coding_chats = sub.add_parser("coding-chats", help="Search the dated chat-level coding archive")
+    p_coding_chats.add_argument("query", nargs="?", default="")
+    p_coding_chats.add_argument("--start-date")
+    p_coding_chats.add_argument("--end-date")
+    p_coding_chats.add_argument("--limit", type=int, default=100)
+
+    p_sync_coding = sub.add_parser("sync-coding-chats", help="Sync locally imported coding chats to private GitHub JoshMemory")
+    p_sync_coding.add_argument("--batch-size", type=int, default=150)
 
     p_links = sub.add_parser("import-app-links")
     p_links.add_argument("path", type=Path)
@@ -145,6 +155,12 @@ def main(argv: list[str] | None = None) -> int:
         return print_json(import_seed_file(args.path, db_path=args.db))
     if args.cmd == "import-chatgpt":
         return print_json(import_chatgpt_export(args.path, db_path=args.db, dry_run=args.dry_run))
+    if args.cmd == "coding-chats":
+        return print_json(local_coding_chat_search(
+            args.query, db_path=args.db, start_date=args.start_date, end_date=args.end_date, limit=args.limit
+        ))
+    if args.cmd == "sync-coding-chats":
+        return print_json(sync_coding_chat_archive_to_github(db_path=args.db, batch_size=args.batch_size))
     if args.cmd == "import-app-links":
         return print_json(import_app_links(args.path, db_path=args.db))
     if args.cmd == "import-github-evidence":
