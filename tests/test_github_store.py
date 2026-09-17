@@ -148,3 +148,52 @@ def test_github_store_can_be_disabled(monkeypatch):
     monkeypatch.setenv("JOSHMEMORY_GITHUB_STORE_AUTO", "0")
     assert remote_enabled() is False
     assert storage_mode() == "local"
+
+
+
+def test_cloud_coding_chat_search_filters_date_and_deduplicates(monkeypatch):
+    records = [
+        {
+            "id": "chatgpt:c1",
+            "conversation_id": "c1",
+            "title": "Website HTML Code Structure",
+            "created_at": "2023-03-02T10:04:20Z",
+            "source": "historical_chatgpt_export",
+            "matched_terms": ["html", "code"],
+        },
+        {
+            "id": "chatgpt:c1-new",
+            "conversation_id": "c1",
+            "title": "Website HTML Code Structure",
+            "created_at": "2023-03-02T10:04:20Z",
+            "updated_at": "2026-01-01T00:00:00Z",
+            "source": "historical_chatgpt_export",
+            "matched_terms": ["html", "code"],
+        },
+        {
+            "id": "chatgpt:c2",
+            "conversation_id": "c2",
+            "title": "ForgeGrid worker repair",
+            "created_at": "2026-08-20T00:00:00Z",
+            "source": "reconstructed_post_export_history",
+            "matched_terms": ["forgegrid"],
+        },
+    ]
+
+    monkeypatch.setattr(
+        github_store,
+        "_load_records",
+        lambda kind: [dict(row) for row in records] if kind == "coding_chats" else [],
+    )
+
+    march = github_store.cloud_call(
+        "coding_chat_search",
+        {"query": "html", "start_date": "2023-03-01", "end_date": "2023-03-31", "limit": 20},
+    )
+    assert len(march) == 1
+    assert march[0]["conversation_id"] == "c1"
+
+    coverage = github_store.cloud_call("coding_chat_coverage", {})
+    assert coverage["coding_chats"] == 2
+    assert coverage["earliest"].startswith("2023-03-02")
+    assert coverage["latest"].startswith("2026-08-20")
