@@ -180,6 +180,8 @@ def _load_records(kind: str) -> list[dict[str, Any]]:
             raise GitHubStoreError(f"Invalid JoshMemory cloud record at {path}: {exc}") from exc
         if isinstance(record, dict):
             records.append(record)
+        elif isinstance(record, list):
+            records.extend(item for item in record if isinstance(item, dict))
     return records
 
 
@@ -513,6 +515,118 @@ def _accountability_reference_search(arguments: dict[str, Any]) -> list[dict[str
     return rows
 
 
+def _coding_chats() -> list[dict[str, Any]]:
+    rows = _load_records("coding_chats")
+    by_id: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        key = str(row.get("conversation_id") or row.get("id") or "")
+        if not key:
+            continue
+        existing = by_id.get(key)
+        if not existing or str(row.get("recorded_at") or row.get("updated_at") or "") >= str(existing.get("recorded_at") or existing.get("updated_at") or ""):
+            by_id[key] = row
+    return sorted(
+        by_id.values(),
+        key=lambda row: (str(row.get("created_at") or ""), str(row.get("conversation_id") or row.get("id") or "")),
+    )
+
+
+def _coding_chat_sync(arguments: dict[str, Any]) -> dict[str, Any]:
+    batch_id = str(arguments.get("batch_id") or "").strip()
+    records = arguments.get("records")
+    if not batch_id or not re.fullmatch(r"[A-Za-z0-9._-]{1,160}", batch_id):
+        raise ValueError("coding chat batch_id is required and must be filename-safe")
+    if not isinstance(records, list) or not records or len(records) > 250:
+        raise ValueError("coding chat records must contain 1..250 objects")
+    normalized: list[dict[str, Any]] = []
+    for item in records:
+        if not isinstance(item, dict):
+            raise ValueError("coding chat record must be an object")
+        conversation_id = str(item.get("conversation_id") or "").strip()
+        created_at = str(item.get("created_at") or "").strip()
+        if not conversation_id or not created_at:
+            raise ValueError("coding chat record requires conversation_id and created_at")
+        row = dict(item)
+        row.setdefault("id", f"chatgpt:{conversation_id}")
+        row.setdefault("recorded_at", _now())
+        normalized.append(row)
+
+    path = f"{_record_prefix('coding_chats')}{batch_id}.json"
+    encoded_path = parse.quote(path, safe="/")
+    ref = parse.quote(_branch(), safe="")
+    try:
+        existing = _api_request("GET", f"/contents/{encoded_path}?ref={ref}") or {}
+    except GitHubStoreError as exc:
+        if "HTTP 404" not in str(exc):
+            raise
+        existing = {}
+
+    content = json.dumps(normalized, ensure_ascii=False, sort_keys=True, indent=2).encode("utf-8")
+    encoded = base64.b64encode(content).decode("ascii")
+    if existing:
+        current = str(existing.get("content") or "").replace("\n", "")
+        if current and base64.b64decode(current).decode("utf-8") == content.decode("utf-8"):
+            return {"batch_id": batch_id, "records": len(normalized), "duplicate": True}
+        payload = {
+            "message": f"JoshMemory: update coding chat batch {batch_id}",
+            "content": encoded,
+            "branch": _branch(),
+            "sha": existing.get("sha"),
+        }
+    else:
+        payload = {
+            "message": f"JoshMemory: add coding chat batch {batch_id}",
+            "content": encoded,
+            "branch": _branch(),
+        }
+    _api_request("PUT", f"/contents/{encoded_path}", payload)
+    return {"batch_id": batch_id, "records": len(normalized), "duplicate": False}
+
+
+def _coding_chat_search(arguments: dict[str, Any]) -> list[dict[str, Any]]:
+    query = str(arguments.get("query") or "").lower().strip()
+    start_date = str(arguments.get("start_date") or "").strip()
+    end_date = str(arguments.get("end_date") or "").strip()
+    limit = max(1, min(int(arguments.get("limit", 100)), 5000))
+    result: list[dict[str, Any]] = []
+    for row in _coding_chats():
+        created = str(row.get("created_at") or "")
+        day = created[:10]
+        if start_date and day and day < start_date:
+            continue
+        if end_date and day and day > end_date:
+            continue
+        searchable = " ".join(
+            [
+                str(row.get("title") or ""),
+                str(row.get("first_user_message") or ""),
+                " ".join(row.get("matched_terms") or []),
+                str(row.get("source") or ""),
+            ]
+        ).lower()
+        if query and query not in searchable:
+            continue
+        result.append(row)
+        if len(result) >= limit:
+            break
+    return result
+
+
+def _coding_chat_coverage(arguments: dict[str, Any]) -> dict[str, Any]:
+    rows = _coding_chats()
+    dates = [str(row.get("created_at") or "") for row in rows if row.get("created_at")]
+    sources: dict[str, int] = {}
+    for row in rows:
+        source = str(row.get("source") or "unknown")
+        sources[source] = sources.get(source, 0) + 1
+    return {
+        "coding_chats": len(rows),
+        "earliest": min(dates) if dates else None,
+        "latest": max(dates) if dates else None,
+        "sources": sources,
+    }
+
+
 def cloud_call(operation: str, arguments: dict[str, Any]) -> Any:
     """Execute one JoshMemory shared-state operation against private GitHub storage."""
     if operation == "save_handoff":
@@ -529,4 +643,10 @@ def cloud_call(operation: str, arguments: dict[str, Any]) -> Any:
         return _accountability_reference_add(arguments)
     if operation == "accountability_reference_search":
         return _accountability_reference_search(arguments)
+    if operation == "coding_chat_sync":
+        return _coding_chat_sync(arguments)
+    if operation == "coding_chat_search":
+        return _coding_chat_search(arguments)
+    if operation == "coding_chat_coverage":
+        return _coding_chat_coverage(arguments)
     raise ValueError(f"unsupported GitHub shared-memory operation: {operation}")
