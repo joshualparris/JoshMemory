@@ -77,7 +77,7 @@ def main(argv: list[str] | None = None) -> int:
     p_add_fact.add_argument("--source-type", required=True)
     p_add_fact.add_argument("--source-ref")
     p_add_fact.add_argument("--supersedes")
-    
+
     p_search_fact = sub.add_parser("search-facts")
     p_search_fact.add_argument("query")
     p_search_fact.add_argument("--project")
@@ -120,6 +120,10 @@ def main(argv: list[str] | None = None) -> int:
     p_session_start = sub.add_parser("claude-session-start-hook", help="Claude Code SessionStart hook body")
     p_session_start.add_argument("--cwd", type=Path, default=Path.cwd())
     p_session_start.add_argument("--machine")
+
+    p_session_end = sub.add_parser("claude-session-end-hook", help="Claude Code SessionEnd hook body")
+    p_session_end.add_argument("--cwd", type=Path, default=Path.cwd())
+    p_session_end.add_argument("--machine")
 
     p_stop_nudge = sub.add_parser("claude-stop-hook", help="Claude Code Stop hook body")
     p_stop_nudge.add_argument("--cwd", type=Path, default=Path.cwd())
@@ -181,6 +185,22 @@ def main(argv: list[str] | None = None) -> int:
         except Exception:
             # A hook must never break session startup for the user.
             return print_json({})
+    if args.cmd == "claude-session-end-hook":
+        try:
+            # NOTE (fixed 2026-09-10): these were re-imported locally here,
+            # which makes `json`/`sys` local to the whole main() function in
+            # Python's static scoping -- breaking the `save-handoff` branch
+            # above (json.loads(raw)) with UnboundLocalError, since that
+            # branch runs before this line but the name was no longer bound
+            # to the module-level import. Both are already imported at the
+            # top of this module; no need to shadow them here.
+            payload_str = sys.stdin.read().strip()
+            payload = json.loads(payload_str) if payload_str else {}
+            from joshmemory.hooks import session_end_context
+            return print_json(session_end_context(args.cwd, payload=payload, db_path=str(args.db), machine=args.machine))
+        except Exception as e:
+            return print_json({"error": str(e)})
+
     if args.cmd == "claude-stop-hook":
         try:
             return print_json(stop_nudge(args.cwd, db_path=str(args.db), machine=args.machine))

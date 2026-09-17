@@ -1,12 +1,38 @@
 from __future__ import annotations
 
 import sqlite3
+import threading
+
+
+# The central service is threaded. A brand-new database must not let one
+# connection observe a partially-created schema while another connection is
+# still running SCHEMA/migrations. SQLite serialises writes, but our old
+# application-level "is this fresh?" check could race before those writes were
+# complete. Keep schema setup/migration single-threaded within this process.
+_SCHEMA_LOCK = threading.RLock()
 
 
 SCHEMA = """
-PRAGMA journal_mode=WAL;
-PRAGMA foreign_keys=ON;
 
+CREATE TABLE IF NOT EXISTS session_checkpoints (
+    conversation_id TEXT PRIMARY KEY,
+    canonical_repo TEXT NOT NULL,
+    checkout_path TEXT NOT NULL,
+    machine TEXT NOT NULL,
+    project TEXT NOT NULL,
+    objective TEXT,
+    completed TEXT,
+    in_progress TEXT,
+    blockers TEXT,
+    next_action TEXT,
+    branch TEXT,
+    head TEXT,
+    dirty BOOLEAN,
+    transcript_path TEXT,
+    termination_reason TEXT,
+    fully_idle BOOLEAN,
+    updated_at TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS sessions (
   thread_id TEXT PRIMARY KEY,
   rollout_path TEXT NOT NULL UNIQUE,
@@ -38,6 +64,8 @@ CREATE TABLE IF NOT EXISTS events (
   role TEXT,
   text TEXT NOT NULL,
   text_hash TEXT NOT NULL,
+  provenance TEXT,
+  source_id TEXT,
   UNIQUE(thread_id, source_line, event_kind, role, text_hash)
 );
 
@@ -71,6 +99,8 @@ CREATE TABLE IF NOT EXISTS chatgpt_messages (
 CREATE TABLE IF NOT EXISTS project_facts (
   id TEXT PRIMARY KEY,
   project TEXT NOT NULL,
+  canonical_repo TEXT DEFAULT '',
+  checkout_path TEXT DEFAULT '',
   machine TEXT NOT NULL DEFAULT '',
   subject TEXT NOT NULL,
   fact TEXT NOT NULL,
@@ -82,7 +112,7 @@ CREATE TABLE IF NOT EXISTS project_facts (
   source_ref TEXT,
   supersedes TEXT,
   active BOOLEAN NOT NULL DEFAULT 1,
-  UNIQUE(project, subject, fact, status, machine),
+  UNIQUE(project, canonical_repo, checkout_path, subject, fact, status, machine),
   FOREIGN KEY(supersedes) REFERENCES project_facts(id),
   CHECK(status IN ('VERIFIED', 'OBSERVED', 'HISTORICAL', 'INFERRED', 'STALE', 'DISPROVEN', 'UNKNOWN', 'CURRENT')),
   CHECK(confidence IS NULL OR (confidence >= 0.0 AND confidence <= 1.0)),
@@ -93,6 +123,8 @@ CREATE TABLE IF NOT EXISTS project_facts (
 CREATE TABLE IF NOT EXISTS accountability_references (
   id TEXT PRIMARY KEY,
   project TEXT NOT NULL,
+  canonical_repo TEXT DEFAULT '',
+  checkout_path TEXT DEFAULT '',
   requirement_id TEXT NOT NULL DEFAULT '',
   claim_summary TEXT NOT NULL,
   source_system TEXT NOT NULL,
@@ -140,31 +172,120 @@ END;
 
 
 def connect(path: str) -> sqlite3.Connection:
-    con = sqlite3.connect(path)
+    con = sqlite3.connect(path, timeout=30.0)
     con.row_factory = sqlite3.Row
     con.execute("PRAGMA busy_timeout = 10000")
-    con.execute("PRAGMA foreign_keys = ON")
-    try:
-        tables = {row[0] for row in con.execute("SELECT name FROM sqlite_master WHERE type='table'")}
-        if "events" not in tables or "project_facts" not in tables or "accountability_references" not in tables:
+
+    with _SCHEMA_LOCK:
+        try:
             con.execute("PRAGMA journal_mode = WAL")
-            con.executescript(SCHEMA)
-            _migrate(con)
-    except sqlite3.OperationalError:
-        pass
+        except sqlite3.OperationalError:
+            pass
+
+        version = con.execute("PRAGMA user_version").fetchone()[0]
+        tables = con.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='project_facts'"
+        ).fetchall()
+        is_fresh = len(tables) == 0
+
+        if is_fresh:
+            con.execute("PRAGMA foreign_keys = ON")
+            with con:
+                con.executescript(SCHEMA)
+                con.execute("PRAGMA user_version = 3")
+            return con
+
+        if version < 3:
+            con.execute("PRAGMA foreign_keys = OFF")
+            with con:
+                con.executescript(SCHEMA)
+                _migrate(con, version)
+                con.execute("PRAGMA user_version = 3")
+
+            violations = con.execute("PRAGMA foreign_key_check").fetchall()
+            if violations:
+                raise sqlite3.IntegrityError(
+                    f"Foreign key violations after migration: {violations}"
+                )
+
+        con.execute("PRAGMA foreign_keys = ON")
     return con
 
 
-def _migrate(con: sqlite3.Connection) -> None:
-    columns = {row[1] for row in con.execute("PRAGMA table_info(events)")}
-    try:
+def _migrate(con: sqlite3.Connection, version: int) -> None:
+    if version < 1:
+        columns = {row[1] for row in con.execute("PRAGMA table_info(events)")}
         if "provenance" not in columns:
             con.execute("ALTER TABLE events ADD COLUMN provenance TEXT")
         if "source_id" not in columns:
             con.execute("ALTER TABLE events ADD COLUMN source_id TEXT")
-    except sqlite3.OperationalError as e:
-        if "duplicate column name" not in str(e):
-            raise
-            
-    # Migration of accountability_ledger removed to prevent destructive auto-drops.
 
+    if version < 2:
+        pf_columns = {row[1] for row in con.execute("PRAGMA table_info(project_facts)")}
+        if "canonical_repo" not in pf_columns:
+            con.execute("ALTER TABLE project_facts ADD COLUMN canonical_repo TEXT DEFAULT ''")
+        if "checkout_path" not in pf_columns:
+            con.execute("ALTER TABLE project_facts ADD COLUMN checkout_path TEXT DEFAULT ''")
+
+        con.execute("ALTER TABLE project_facts RENAME TO project_facts_old")
+
+        con.execute(
+            """
+        CREATE TABLE project_facts (
+            id TEXT PRIMARY KEY,
+            project TEXT NOT NULL,
+            machine TEXT NOT NULL DEFAULT '',
+            subject TEXT NOT NULL,
+            fact TEXT NOT NULL,
+            status TEXT NOT NULL,
+            confidence REAL,
+            observed_at TEXT,
+            recorded_at TEXT NOT NULL,
+            source_type TEXT NOT NULL,
+            source_ref TEXT,
+            canonical_repo TEXT DEFAULT '',
+            checkout_path TEXT DEFAULT '',
+            supersedes TEXT,
+            active BOOLEAN NOT NULL DEFAULT 1,
+            UNIQUE(project, canonical_repo, checkout_path, subject, fact, status, machine),
+            FOREIGN KEY(supersedes) REFERENCES project_facts(id),
+            CHECK(status IN ('VERIFIED', 'OBSERVED', 'HISTORICAL', 'INFERRED', 'STALE', 'DISPROVEN', 'UNKNOWN', 'CURRENT')),
+            CHECK(confidence IS NULL OR (confidence >= 0.0 AND confidence <= 1.0)),
+            CHECK(supersedes != id),
+            CHECK(active IN (0, 1))
+        )
+        """
+        )
+
+        con.execute(
+            """
+        INSERT INTO project_facts (id, project, machine, subject, fact, status, confidence, observed_at, recorded_at, source_type, source_ref, canonical_repo, checkout_path, supersedes, active)
+        SELECT id, project, machine, subject, fact, status, confidence, observed_at, recorded_at, source_type, source_ref, canonical_repo, checkout_path, supersedes, active
+        FROM project_facts_old
+        """
+        )
+
+        con.execute("DROP TABLE project_facts_old")
+
+    if version < 3:
+        con.execute("""
+        CREATE TABLE IF NOT EXISTS session_checkpoints (
+            conversation_id TEXT PRIMARY KEY,
+            canonical_repo TEXT NOT NULL,
+            checkout_path TEXT NOT NULL,
+            machine TEXT NOT NULL,
+            project TEXT NOT NULL,
+            objective TEXT,
+            completed TEXT,
+            in_progress TEXT,
+            blockers TEXT,
+            next_action TEXT,
+            branch TEXT,
+            head TEXT,
+            dirty BOOLEAN,
+            transcript_path TEXT,
+            termination_reason TEXT,
+            fully_idle BOOLEAN,
+            updated_at TEXT NOT NULL
+        )
+        """)
