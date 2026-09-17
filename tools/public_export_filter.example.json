@@ -1,0 +1,12 @@
+{
+  "_comment": "Copy this file to public_export_filter.local.json (gitignored) and fill in real values. build_web_data.py reads that file to decide what NOT to publish. Keep real names/emails/addresses/phone numbers out of any file that gets committed -- including this one.",
+  "excluded_thread_ids": [
+    "example-thread-id-to-drop-entirely"
+  ],
+  "scrub_values": [
+    {"pattern": "examplechildname", "replacement": "[REDACTED_NAME]", "ignore_case": true},
+    {"pattern": "example@personalemail\\.com", "replacement": "[REDACTED_EMAIL]", "ignore_case": true},
+    {"pattern": "123\\s+Example\\s+Street", "replacement": "[REDACTED_ADDRESS]", "ignore_case": true},
+    {"pattern": "0400\\s?000\\s?000", "replacement": "[REDACTED_PHONE]", "ignore_case": false}
+  ]
+}
