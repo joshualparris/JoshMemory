@@ -54,6 +54,12 @@ When sources disagree, prefer:
 
 For example, if a handoff records one HEAD commit but the checked-out repository now has another, the live repository wins and the discrepancy is reported.
 
+## 2026 portfolio onboarding
+
+For work anywhere in Josh's 2026 coding ecosystem, first read [`docs/CODING_2026_MASTER_HANDOFF.md`](docs/CODING_2026_MASTER_HANDOFF.md) and load/search the shared JoshMemory project **`JoshCoding2026`**. The master handoff reconciles the major 2026 projects, DadLAN/ForgeGrid/local-LLM architecture, engineering-quality model, CRAP4All work, podcast rollout, security/remediation work, CI/deployment lessons, current permission caveats and explicit do-not-redo guidance.
+
+It is deliberately a continuity map rather than a substitute for observation: after reading it, verify the target repository's live Git/CI/deployment/machine state before changing anything.
+
 ## Requirements
 
 - Python 3.11+
