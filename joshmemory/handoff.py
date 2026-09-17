@@ -168,7 +168,12 @@ def get_project_context(
     function nor its caller should overwrite the handoff to "fix" a
     discrepancy — a new handoff, once actually verified, does that."""
     handoff_row = get_latest_handoff(db_path, project, machine=machine)
-    state = get_project_state(project)
+    recorded = (handoff_row or {}).get("handoff") or {}
+    state = get_project_state(
+        project,
+        repository=recorded.get("repository"),
+        canonical_branch=recorded.get("canonical_branch") or recorded.get("branch"),
+    )
 
     discrepancies: list[dict[str, Any]] = []
     if handoff_row and handoff_row.get("handoff") and state and state.get("git"):

@@ -80,6 +80,26 @@ def test_fuzzy_project_matching(mock_run):
     assert state is not None
     assert state["name"] == "ForgeGrid"
 
+
+@mock.patch("joshmemory.auditor.run_auditor")
+def test_repository_identity_beats_duplicate_checkout_name(mock_run):
+    mock_run.return_value = {
+        "projects": [
+            {
+                "name": "ForgeGrid",
+                "path": "/old/ForgeGrid",
+                "git": {"origin_url": "https://github.com/joshualparris/ForgeGrid.git", "branch": "feature/old"},
+            },
+            {
+                "name": "ForgeGrid",
+                "path": "/canonical/ForgeGrid-integration",
+                "git": {"origin_url": "https://github.com/joshualparris/ForgeGrid.git", "branch": "integration/next"},
+            },
+        ]
+    }
+    state = get_project_state("ForgeGrid", repository="joshualparris/ForgeGrid", canonical_branch="integration/next")
+    assert state["path"] == "/canonical/ForgeGrid-integration"
+
 @mock.patch("joshmemory.auditor.run_auditor")
 def test_combining_live_and_historical(mock_run, tmp_path):
     mock_run.return_value = FAKE_AUDITOR_JSON
@@ -174,4 +194,3 @@ def test_recent_work_branch_scoring(mock_run, tmp_path):
     score_main = next(r for r in ranked if r["project"] == "MainRepo")["activity_score"]
     score_detached = next(r for r in ranked if r["project"] == "DetachedRepo")["activity_score"]
     assert score_main == score_detached
-

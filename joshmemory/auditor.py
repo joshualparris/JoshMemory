@@ -120,7 +120,32 @@ def run_auditor() -> dict[str, Any]:
 def normalize_name(name: str) -> str:
     return name.lower().replace(" ", "").replace("-", "").replace("_", "")
 
-def get_project_state(project_name: str, auditor_data: dict[str, Any] | None = None) -> dict[str, Any] | None:
+def normalize_repository_identity(value: str | None) -> str:
+    """Normalize a Git remote or owner/repository identity for comparison."""
+    if not value:
+        return ""
+    value = value.strip().lower().rstrip("/")
+    if value.endswith(".git"):
+        value = value[:-4]
+    if "github.com/" in value:
+        value = value.split("github.com/", 1)[1]
+    elif value.startswith("git@") and ":" in value:
+        value = value.split(":", 1)[1]
+    return value.rstrip("/")
+
+
+def get_project_state(
+    project_name: str,
+    auditor_data: dict[str, Any] | None = None,
+    repository: str | None = None,
+    canonical_branch: str | None = None,
+) -> dict[str, Any] | None:
+    """Return live state, preferring durable repository identity over paths.
+
+    Multiple checkouts can share a directory name. When a handoff supplies a
+    remote identity or canonical branch, those are stronger selectors than
+    the first matching filesystem path.
+    """
     if auditor_data is None:
         auditor_data = run_auditor()
         if not auditor_data:
@@ -128,18 +153,38 @@ def get_project_state(project_name: str, auditor_data: dict[str, Any] | None = N
             
     projects = auditor_data.get("projects", [])
     
-    for p in projects:
-        if p.get("name") == project_name:
-            return p
-            
+    exact = [p for p in projects if p.get("name") == project_name]
     query_norm = normalize_name(project_name)
-    for p in projects:
-        p_name = p.get("name", "")
-        p_norm = normalize_name(p_name)
-        if query_norm in p_norm or p_norm in query_norm:
-            return p
-            
-    return None
+    fuzzy = [
+        p for p in projects
+        if query_norm in normalize_name(p.get("name", ""))
+        or normalize_name(p.get("name", "")) in query_norm
+    ]
+    candidates = exact + [p for p in fuzzy if p not in exact]
+
+    if not candidates:
+        return None
+
+    wanted_repo = normalize_repository_identity(repository)
+    if wanted_repo:
+        repo_candidates = []
+        for p in candidates:
+            live_repo = normalize_repository_identity(
+                (p.get("git") or {}).get("origin_url")
+                or (p.get("git") or {}).get("upstream")
+            )
+            if live_repo and live_repo == wanted_repo:
+                repo_candidates.append(p)
+        if repo_candidates:
+            candidates = repo_candidates
+
+    if canonical_branch:
+        for p in candidates:
+            git = p.get("git") or {}
+            if (git.get("branch") or git.get("head")) == canonical_branch:
+                return p
+
+    return candidates[0]
 
 def get_all_projects(auditor_data: dict[str, Any] | None = None) -> list[dict[str, Any]]:
     if auditor_data is None:
