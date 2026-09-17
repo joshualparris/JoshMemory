@@ -318,3 +318,50 @@ def make_fts_query(query: str) -> str:
     if not terms:
         return '""'
     return " OR ".join(f'"{term}"' for term in terms)
+
+
+def last_work(*, limit: int = 5, db_path: Path | None = None) -> list[dict[str, Any]]:
+    con = open_index(db_path)
+    rows = con.execute(
+        """
+        SELECT thread_id, title, cwd, created_at, updated_at, rollout_path,
+          git_origin_url, git_branch, git_sha, source, first_user_message
+        FROM sessions
+        WHERE source IN ('vscode', 'chatgpt_export')
+        ORDER BY COALESCE(updated_at, created_at) DESC
+        LIMIT ?
+        """,
+        (limit,),
+    ).fetchall()
+    
+    results = []
+    for row in rows:
+        thread_id = row["thread_id"]
+        events = con.execute(
+            """
+            SELECT text
+            FROM events
+            WHERE thread_id = ? AND role IN ('user', 'assistant')
+            ORDER BY source_line
+            """,
+            (thread_id,)
+        ).fetchall()
+        
+        texts = [e["text"] for e in events if e["text"]]
+        summary = row["title"] or row["first_user_message"] or ""
+        where_we_left_off = texts[-1][:500] if texts else ""
+        
+        project = Path(row["cwd"]).name if row["cwd"] else "Unknown"
+        
+        results.append({
+            "project": project,
+            "timestamp": row["updated_at"] or row["created_at"],
+            "thread_id": thread_id,
+            "summary": summary,
+            "where_we_left_off": where_we_left_off,
+            "cwd": row["cwd"],
+        })
+        
+    con.close()
+    return results
+

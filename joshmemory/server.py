@@ -7,7 +7,7 @@ from typing import Any, Callable
 
 from .github_evidence import github_evidence
 from .github_evidence import github_evidence
-from .index import get_session, index_all, project_history, recent_work, search_sessions, project_status
+from .index import get_session, index_all, project_history, recent_work, search_sessions, project_status, last_work
 from .historical import earliest_activity, historical_search, historical_timeline
 from .coding_chats import local_coding_chat_search, coding_chat_records, sync_coding_chat_archive_to_github
 from .central import remote_call, remote_enabled, storage_mode
@@ -221,6 +221,15 @@ TOOLS: dict[str, dict[str, Any]] = {
             "required": ["query"],
         },
     },
+    "last_work": {
+        "description": "Get chronological history of actual sessions, excluding evidence-only records. Answers 'what did we last work on'.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "limit": {"type": "integer", "default": 5, "minimum": 1, "maximum": 20},
+            },
+        },
+    },
     "coding_chat_search": {
         "description": "Search the dated chat-level coding archive by title/topic and optional exact date range.",
         "inputSchema": {
@@ -411,6 +420,7 @@ def call_tool(name: str, arguments: dict[str, Any]) -> str:
         "historical_search": lambda a: historical_search(str(a["query"]), limit=int(a.get("limit", 20))),
         "earliest_activity": lambda a: earliest_activity(str(a.get("activity", "coding"))),
         "historical_timeline": lambda a: historical_timeline(str(a["query"]), limit=int(a.get("limit", 50))),
+        "last_work": lambda a: last_work(limit=int(a.get("limit", 5))),
         "coding_chat_search": _coding_chat_search_wrapper,
         "coding_chat_coverage": _coding_chat_coverage_wrapper,
         "sync_coding_chat_archive": _sync_coding_chat_archive_wrapper,
