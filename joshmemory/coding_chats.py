@@ -28,14 +28,14 @@ TECH_TERMS = (
 )
 
 STRONG_ACTION = re.compile(
-    r"\\b(build|create|write|implement|fix|debug|refactor|deploy|test|code|program|"
-    r"push|commit|merge|clone|install|configure|integrate|migrate|audit)\\b",
+    r"\b(build|create|write|implement|fix|debug|refactor|deploy|test|code|program|"
+    r"push|commit|merge|clone|install|configure|integrate|migrate|audit)\b",
     re.IGNORECASE,
 )
 CODE_MARKERS = re.compile(
-    r"\\x60\\x60\\x60|<!doctype\\s+html|<html\\b|\\bdef\\s+\\w+\\s*\\(|"
-    r"\\bfunction\\s+\\w+\\s*\\(|\\bconst\\s+\\w+\\s*=|\\bclass\\s+\\w+|"
-    r"\\bimport\\s+[\\w{*]|\\bnpm\\s+(?:run|install)|\\bgit\\s+(?:commit|push|pull|clone)",
+    r"\x60\x60\x60|<!doctype\s+html|<html\b|\bdef\s+\w+\s*\(|"
+    r"\bfunction\s+\w+\s*\(|\bconst\s+\w+\s*=|\bclass\s+\w+|"
+    r"\bimport\s+[\w{*]|\bnpm\s+(?:run|install)|\bgit\s+(?:commit|push|pull|clone)",
     re.IGNORECASE,
 )
 
