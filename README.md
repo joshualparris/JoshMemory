@@ -2,7 +2,7 @@
 
 JoshMemory is an evidence-aware project continuity system for AI-assisted software development. It helps Claude Code, Codex, Antigravity and other coding workflows resume a project from durable, redacted context while keeping **live Git/API/machine evidence authoritative**.
 
-The default shared-memory design no longer depends on AVANCE-WS7, a home PC or any other workstation remaining powered on. When an existing GitHub credential is available, JoshMemory automatically uses a private GitHub repository as the always-available backing store for handoffs, durable project facts and accountability references.
+The default shared-memory design no longer depends on AVANCE-WS7, a home PC or any other workstation remaining powered on. When an existing GitHub credential is available, JoshMemory automatically uses a private GitHub repository as the always-available backing store for handoffs, durable project facts, accountability references, bounded work leases, concise work journals and trust decisions.
 
 ## Current architecture
 
@@ -36,8 +36,11 @@ JoshMemory can work with:
 - accountability references to external verification systems;
 - live local Git project state through a cross-platform auditor;
 - structured session handoffs/bookmarks;
-- shared handoffs/facts/accountability records through private GitHub storage;
-- an optional authenticated central HTTP service for environments that prefer a conventional server.
+- bounded current-work leases with heartbeats and expiry;
+- concise append-only work-journal events;
+- trust decisions kept separate from a fact's factual/status label;
+- shared handoffs/facts/accountability/coordination records through private GitHub storage;
+- an optional authenticated central HTTP service for the original facts/handoffs API.
 
 Raw transcripts and imported evidence remain source material. JoshMemory stores searchable text, metadata, provenance, relationships and references back to those sources. It does not turn an assertion into truth merely because it was remembered.
 
@@ -49,8 +52,9 @@ When sources disagree, prefer:
 
 1. live repository/API/machine evidence;
 2. independently generated verification evidence;
-3. durable JoshMemory facts and handoffs;
-4. older transcripts or inferred context.
+3. explicitly trusted JoshMemory records;
+4. ordinary JoshMemory facts, handoffs and journals;
+5. older transcripts or inferred context.
 
 For example, if a handoff records one HEAD commit but the checked-out repository now has another, the live repository wins and the discrepancy is reported.
 
@@ -71,7 +75,7 @@ Install:
 pip install -e .
 ```
 
-This installs `joshmemory` and `joshmemory-central`. The CLI can also be run with:
+This installs `joshmemory`, `joshmemory-central`, `joshmemory-continuity` and `joshmemory-continuity-mcp`. The original CLI can also be run with:
 
 ```bash
 python -m joshmemory.cli
@@ -120,9 +124,12 @@ The GitHub cloud store centralises the state needed for development pause/resume
 - structured handoffs/bookmarks;
 - durable project facts;
 - accountability references;
-- provenance and supersession for those records.
+- work-lease events;
+- concise work-journal events;
+- trust-overlay decisions;
+- provenance and supersession for relevant records.
 
-Writes are append-only UUID-named JSON records. Previous records remain available as history; active state is derived from supersession references.
+Writes are append-only UUID-named JSON records. Previous records remain available as history; active state is derived rather than rewritten in place.
 
 ### What is not silently uploaded
 
@@ -158,8 +165,60 @@ A typical startup flow is:
 2. load the latest relevant handoff;
 3. audit live branch/HEAD/dirty state;
 4. surface discrepancies;
-5. continue from the first still-valid next action;
-6. save a new handoff at a meaningful checkpoint, blocker or session end.
+5. check whether another agent already owns the work item;
+6. continue from the first still-valid next action;
+7. save a new handoff at a meaningful checkpoint, blocker or session end.
+
+## Coordination and memory governance
+
+JoshMemory 0.3 adds the strongest compatible ideas from open-source coding-agent memory systems without copying their implementation code. See [`docs/CONTINUITY_COORDINATION.md`](docs/CONTINUITY_COORDINATION.md) and [`docs/OPEN_SOURCE_MEMORY_BORROWING_PLAN.md`](docs/OPEN_SOURCE_MEMORY_BORROWING_PLAN.md) for design rationale and provenance.
+
+### One-command resume brief
+
+A fresh agent can ask for the latest handoff, live-state discrepancies, active lease, recent journal entries and next action in one result:
+
+```bash
+joshmemory-continuity resume DCSPD \
+  --canonical-repo github.com/joshualparris/DCSPD \
+  --agent codex \
+  --work-key ci
+```
+
+If another agent currently owns the same work key, the resume result includes an explicit collision warning rather than encouraging duplicate work.
+
+### Work leases
+
+Claims are bounded by a TTL and can be heartbeated or released:
+
+```bash
+joshmemory-continuity claim DCSPD --owner codex --work-key ci --ttl 900
+joshmemory-continuity heartbeat DCSPD --owner codex --work-key ci
+joshmemory-continuity release DCSPD --owner codex --work-key ci
+```
+
+Local SQLite claims use transactional serialization. The GitHub cloud store is append-only and therefore uses truthful optimistic claim/election semantics rather than pretending GitHub provides database row locks.
+
+### Append-only work journal
+
+Store short redacted milestones instead of transcript dumps:
+
+```bash
+joshmemory-continuity journal-add DCSPD TEST "Playwright smoke passed" \
+  --details-json '{"run":"35277769767"}'
+
+joshmemory-continuity journal DCSPD
+```
+
+### Trust is separate from status
+
+A fact being `CURRENT` or `OBSERVED` does not mean a human approved it. The separate trust overlay is:
+
+- `UNTRUSTED` — agent/import context, useful but not endorsed;
+- `VERIFIED` — checked against cited evidence;
+- `APPROVED` — explicitly accepted by an operator/reviewer;
+- `SYSTEM` — deterministic system-produced state.
+
+Agents cannot self-promote memory above `UNTRUSTED` through the continuity API. Trust promotion is an operator action and `VERIFIED` requires a source reference. This is governance, not an authentication substitute: live evidence still wins.
 
 ## Default local paths
 
@@ -182,19 +241,21 @@ export JOSHMEMORY_TOKEN="your-private-bearer-token"
 
 Once an explicit HTTP remote is selected, failures are surfaced rather than silently falling back to a local database and creating split-brain shared memory.
 
+The original HTTP service currently covers the facts/handoffs/accountability API. The 0.3 coordination record families intentionally fail explicitly if that legacy HTTP backend is selected; use local storage or the default GitHub-backed store for leases, journals and trust until the HTTP protocol is extended.
+
 The included Dockerfile and Fedora deployment helpers remain available. They are optional; AVANCE-WS7 is not required for cloud continuity.
 
 See [`CLOUD_DEPLOYMENT.md`](CLOUD_DEPLOYMENT.md) for details.
 
-## MCP server
+## MCP servers
 
-Start the stdio MCP server with:
+Start the original stdio MCP server with:
 
 ```bash
 python -m joshmemory.server
 ```
 
-Current tools include:
+Current original-server tools include:
 
 - `search_sessions`
 - `get_session`
@@ -211,7 +272,28 @@ Current tools include:
 - `get_project_context`
 - `list_handoffs`
 
-Existing Claude SessionStart/SessionEnd/Stop integration uses the same storage layer, so it benefits automatically from whichever backend is selected.
+For coordination-aware coding agents, start the companion MCP server:
+
+```bash
+joshmemory-continuity-mcp
+```
+
+It exposes:
+
+- `resume_brief`
+- `claim_work`
+- `heartbeat_work`
+- `release_work`
+- `active_lease`
+- `list_leases`
+- `append_work_event`
+- `recent_work_events`
+- `memory_trust`
+- `trusted_fact_search`
+
+There is deliberately no agent-facing trust-promotion tool.
+
+Existing Claude SessionStart/SessionEnd/Stop integration continues to use the handoff storage layer and live-Git reconciliation.
 
 ## CLI examples
 
@@ -255,7 +337,7 @@ joshmemory add-fact \
 joshmemory search-facts verifier --project AgentWitness
 ```
 
-Fact statuses are `VERIFIED`, `OBSERVED`, `HISTORICAL`, `INFERRED`, `STALE`, `DISPROVEN`, `UNKNOWN`, and `CURRENT`. `VERIFIED` requires an external/source reference.
+Fact statuses are `VERIFIED`, `OBSERVED`, `HISTORICAL`, `INFERRED`, `STALE`, `DISPROVEN`, `UNKNOWN`, and `CURRENT`. The legacy `VERIFIED` fact status requires an external/source reference. The 0.3 trust overlay is separate from these factual/status labels.
 
 Accountability references:
 
@@ -277,7 +359,7 @@ Accountability verdicts are `SATISFIED`, `REJECTED`, or `EVIDENCED`. JoshMemory 
 For the wider development stack:
 
 - GitHub = durable code truth;
-- JoshMemory = shared context/continuity/provenance;
+- JoshMemory = shared context/continuity/provenance/coordination;
 - ForgeGrid = fleet execution/orchestration;
 - AVANCE-WS7 / DadLAN = optional local control plane;
 - Action1 = bootstrap/recovery/admin side channel;
@@ -296,10 +378,11 @@ None of those roles allows stale memory to overrule live repository or machine s
 - Preserve provenance and superseded history rather than silently rewriting it.
 - Keep unknown facts unknown.
 - A session handoff is a bookmark, not proof that the repository still matches it.
-- `VERIFIED` claims require a source reference.
+- A work lease coordinates agents; it does not grant truth or authority.
+- `VERIFIED` trust requires cited evidence, and agent-facing tools cannot self-promote trust.
 
 ## History and roadmap
 
 The architecture did not start in the cloud. It evolved through local SQLite portability, cross-platform auditing, verification/accountability separation, AVANCE-hosted centralisation and finally the requirement that no particular PC be an uptime dependency.
 
-See [`docs/CLOUD_CONTINUITY_HISTORY.md`](docs/CLOUD_CONTINUITY_HISTORY.md) for the consolidated history of those decisions and the remaining roadmap, including real multi-machine proof, leases/current-work coordination, canonical-repo identity improvements, cloud-store indexing/caching and selective migration of useful historical records.
+See [`docs/CLOUD_CONTINUITY_HISTORY.md`](docs/CLOUD_CONTINUITY_HISTORY.md) for the consolidated history. Major remaining work includes a real multi-machine save/resume/lease proof, canonical project-alias improvements, cloud-store indexing/caching, selective migration of useful historical records, and extending the optional HTTP backend to the new coordination record families.
