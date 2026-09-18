@@ -1,4 +1,5 @@
 from __future__ import annotations
+from .checkpoint import save_checkpoint
 
 import json
 import sys
@@ -7,9 +8,83 @@ from typing import Any, Callable
 from .github_evidence import github_evidence
 from .github_evidence import github_evidence
 from .index import get_session, index_all, project_history, recent_work, search_sessions, project_status
+from .historical import earliest_activity, historical_search, historical_timeline
+from .facts import project_fact_add, project_fact_search, accountability_reference_add, accountability_reference_search
+from .handoff import save_handoff, get_project_context, list_handoffs
+from .paths import default_db_path
+
+def get_identity_kwargs(a: dict):
+    # If the agent explicitly provided them, trust the agent
+    res = {}
+    if a.get("canonical_repo"): res["canonical_repo"] = a["canonical_repo"]
+    if a.get("checkout_path"): res["checkout_path"] = a["checkout_path"]
+
+    # Otherwise fallback to inferring from MCP server cwd
+    if "canonical_repo" not in res or "checkout_path" not in res:
+        from pathlib import Path
+        try:
+            from .hooks import fast_git_details
+            cwd = Path.cwd()
+            git_info = fast_git_details(cwd)
+            if "canonical_repo" not in res:
+                res["canonical_repo"] = git_info.get("canonical_repo", "")
+            if "checkout_path" not in res:
+                res["checkout_path"] = str(cwd)
+        except Exception:
+            pass
+
+    return res
+
+
+def get_inferred_source_ref(a: dict) -> str:
+    if a.get("source_ref"): return a["source_ref"]
+    import os
+    if "CLAUDE_SESSION_ID" in os.environ: return os.environ["CLAUDE_SESSION_ID"]
+    from pathlib import Path
+    try:
+        from .hooks import infer_claude_session_id
+        res = infer_claude_session_id(Path.cwd())
+        if res: return res
+    except Exception:
+        pass
+    return ""
+
+def _save_handoff_wrapper(a):
+    from .handoff import save_handoff
+    from .paths import default_db_path
+    return save_handoff(
+        str(default_db_path()),
+        str(a["project"]),
+        {k: v for k, v in a.items() if k not in ("project", "machine", "agent", "source_ref")},
+        machine=a.get("machine"),
+        agent=a.get("agent"),
+        source_ref=get_inferred_source_ref(a),
+        **get_identity_kwargs(a)
+    )
+
 
 
 TOOLS: dict[str, dict[str, Any]] = {
+    "save_checkpoint": {
+        "description": "Deterministically save the current Antigravity session checkpoint on Stop event.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "conversation_id": {"type": "string"},
+                "project": {"type": "string"},
+                "canonical_repo": {"type": "string"},
+                "checkout_path": {"type": "string"},
+                "machine": {"type": "string"},
+                "branch": {"type": "string"},
+                "head": {"type": "string"},
+                "dirty": {"type": "boolean"},
+                "transcript_path": {"type": "string"},
+                "termination_reason": {"type": "string"},
+                "fully_idle": {"type": "boolean"}
+            },
+            "required": ["conversation_id", "project", "canonical_repo", "checkout_path", "machine", "transcript_path"]
+        }
+    },
     "search_sessions": {
         "description": "Search indexed Codex sessions without scanning project files.",
         "inputSchema": {
@@ -37,7 +112,7 @@ TOOLS: dict[str, dict[str, Any]] = {
         "inputSchema": {
             "type": "object",
             "properties": {
-                "project": {"type": "string"},
+                "project": {"type": "string"}, "checkout_path": {"type": "string", "description": "Absolute path to the repository clone/workstream"}, "canonical_repo": {"type": "string", "description": "Canonical Git remote URL (e.g. github.com/org/repo)"},
                 "limit": {"type": "integer", "default": 30, "minimum": 1, "maximum": 100},
             },
             "required": ["project"],
@@ -57,7 +132,7 @@ TOOLS: dict[str, dict[str, Any]] = {
         "inputSchema": {
             "type": "object",
             "properties": {
-                "project": {"type": "string"},
+                "project": {"type": "string"}, "checkout_path": {"type": "string", "description": "Absolute path to the repository clone/workstream"}, "canonical_repo": {"type": "string", "description": "Canonical Git remote URL (e.g. github.com/org/repo)"},
                 "limit": {"type": "integer", "default": 100, "minimum": 1, "maximum": 1000},
             },
         },
@@ -68,6 +143,121 @@ TOOLS: dict[str, dict[str, Any]] = {
             "type": "object",
             "properties": {
                 "project": {"type": "string"}
+            },
+            "required": ["project"],
+        },
+    },
+    "historical_search": {
+        "description": "Search historical evidence using deterministic activity and date intent parsing.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string"},
+                "limit": {"type": "integer", "default": 20, "minimum": 1, "maximum": 100},
+            },
+            "required": ["query"],
+        },
+    },
+    "earliest_activity": {
+        "description": "Find the earliest qualifying activity in the currently available evidence corpus.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "activity": {"type": "string", "default": "coding"},
+            },
+        },
+    },
+    "historical_timeline": {
+        "description": "Group date-scoped historical evidence by source without flattening facts into one narrative.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string"},
+                "limit": {"type": "integer", "default": 50, "minimum": 1, "maximum": 100},
+            },
+            "required": ["query"],
+        },
+    },
+    "project_fact_search": {
+        "description": "Search for durable project facts.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string"},
+                "project": {"type": "string"}
+            },
+            "required": ["query", "project"],
+        },
+    },
+    "accountability_search": {
+        "description": "Search accountability claims.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string"},
+                "project": {"type": "string"}
+            },
+            "required": ["query", "project"],
+        },
+    },
+    "save_handoff": {
+        "description": (
+            "Save a structured end-of-session handoff for a project so a future agent "
+            "session (Claude Code, Codex, Antigravity) can resume without a pasted "
+            "transcript. Supersedes this project/machine's previous handoff rather than "
+            "erasing it. Never pass raw secrets/tokens/passwords in any field; redaction "
+            "is applied as defense-in-depth but is not a substitute for not sending them."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "project": {"type": "string"}, "checkout_path": {"type": "string", "description": "Absolute path to the repository clone/workstream"}, "canonical_repo": {"type": "string", "description": "Canonical Git remote URL (e.g. github.com/org/repo)"},
+                "objective": {"type": "string", "description": "Current goal, required."},
+                "completed": {"type": "array", "items": {"type": "string"}},
+                "in_progress": {"type": "array", "items": {"type": "string"}},
+                "blockers": {"type": "array", "items": {"type": "string"}},
+                "next_action": {"type": "string"},
+                "decisions": {"type": "array", "items": {"type": "string"}},
+                "bugs_found": {"type": "array", "items": {"type": "string"}},
+                "bugs_fixed": {"type": "array", "items": {"type": "string"}},
+                "tests_run": {"type": "array", "items": {"type": "string"}},
+                "builds_run": {"type": "array", "items": {"type": "string"}},
+                "commits": {"type": "array", "items": {"type": "string"}},
+                "machines_affected": {"type": "array", "items": {"type": "string"}},
+                "branch": {"type": "string"},
+                "head_commit": {"type": "string"},
+                "agent": {"type": "string", "description": "e.g. claude-code, codex, antigravity"},
+                "machine": {"type": "string", "description": "defaults to hostname"},
+                "source_ref": {"type": "string", "description": "e.g. a session/thread id"},
+            },
+            "required": ["project", "objective"],
+        },
+    },
+    "get_project_context": {
+        "description": (
+            "Compact startup context for a project: latest handoff plus freshly-checked "
+            "live git evidence, with any discrepancy between them called out explicitly. "
+            "Live evidence always outranks the handoff. Call this at the start of work on "
+            "a known project instead of asking the user to paste prior context."
+        ),
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "project": {"type": "string"}, "checkout_path": {"type": "string", "description": "Absolute path to the repository clone/workstream"}, "canonical_repo": {"type": "string", "description": "Canonical Git remote URL (e.g. github.com/org/repo)"},
+                "machine": {"type": "string"},
+            },
+            "required": ["project"],
+        },
+    },
+    "list_handoffs": {
+        "description": "List recent handoffs for a project, most recent first, including superseded ones.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "project": {"type": "string"}, "checkout_path": {"type": "string", "description": "Absolute path to the repository clone/workstream"}, "canonical_repo": {"type": "string", "description": "Canonical Git remote URL (e.g. github.com/org/repo)"},
+                "machine": {"type": "string"},
+                "limit": {"type": "integer", "default": 10, "minimum": 1, "maximum": 100},
+                "active_only": {"type": "boolean", "default": False},
             },
             "required": ["project"],
         },
@@ -130,17 +320,64 @@ def result(request_id: Any, value: Any) -> dict[str, Any]:
 
 def call_tool(name: str, arguments: dict[str, Any]) -> str:
     dispatch: dict[str, Callable[[dict[str, Any]], Any]] = {
+        "save_checkpoint": lambda a: save_checkpoint(
+            db_path=str(default_db_path()),
+            conversation_id=a.get("conversation_id", ""),
+            project=a.get("project", ""),
+            canonical_repo=a.get("canonical_repo", ""),
+            checkout_path=a.get("checkout_path", ""),
+            machine=a.get("machine", ""),
+            branch=a.get("branch", ""),
+            head=a.get("head", ""),
+            dirty=a.get("dirty", False),
+            transcript_path=a.get("transcript_path", ""),
+            termination_reason=a.get("termination_reason", ""),
+            fully_idle=a.get("fully_idle", True)
+        ),
         "search_sessions": lambda a: search_sessions(str(a["query"]), limit=int(a.get("limit", 10))),
         "get_session": lambda a: get_session(str(a["thread_id"]), limit_events=int(a.get("limit_events", 120))) or {"error": "not_found"},
         "project_history": lambda a: project_history(str(a["project"]), limit=int(a.get("limit", 30))),
         "recent_work": lambda a: recent_work(limit=int(a.get("limit", 10))),
         "github_evidence": lambda a: github_evidence(project=a.get("project"), limit=int(a.get("limit", 100))),
         "project_status": lambda a: project_status(str(a["project"])),
+        "historical_search": lambda a: historical_search(str(a["query"]), limit=int(a.get("limit", 20))),
+        "earliest_activity": lambda a: earliest_activity(str(a.get("activity", "coding"))),
+        "historical_timeline": lambda a: historical_timeline(str(a["query"]), limit=int(a.get("limit", 50))),
+        "project_fact_search": lambda a: project_fact_search(
+            db_path=default_db_path(), query=str(a["query"]), project=str(a["project"]), active_only=True
+        ),
+        "accountability_search": lambda a: accountability_reference_search(
+            db_path=default_db_path(), query=str(a["query"]), project=str(a["project"]), active_only=True
+        ),
+        "save_handoff": lambda a: save_handoff(
+            str(default_db_path()),
+            str(a["project"]),
+            {k: v for k, v in a.items() if k not in ("project", "machine", "agent", "source_ref", "canonical_repo", "checkout_path")},
+            machine=a.get("machine"),
+            agent=a.get("agent"),
+            source_ref=a.get("source_ref") or get_inferred_source_ref(a),
+            **get_identity_kwargs(a)
+        ),
+        "get_project_context": lambda a: get_project_context(
+            str(default_db_path()), str(a["project"]), machine=a.get("machine"), **get_identity_kwargs(a)
+        ),
+        "list_handoffs": lambda a: list_handoffs(
+            str(default_db_path()),
+            str(a["project"]),
+            machine=a.get("machine"),
+            canonical_repo=get_identity_kwargs(a).get("canonical_repo", ""),
+            checkout_path=get_identity_kwargs(a).get("checkout_path", ""),
+            limit=int(a.get("limit", 10)),
+            active_only=bool(a.get("active_only", False)),
+        ),
     }
     if name not in dispatch:
         raise ValueError(f"Unknown tool: {name}")
     # Keep the index fresh; unchanged rollout files are skipped cheaply.
-    index_all()
+    # We omit this for tools that only touch the fact/handoff tables because
+    # those don't depend on parsing Codex rollout files.
+    if name not in ("project_fact_search", "accountability_search", "save_handoff", "get_project_context", "list_handoffs", "save_checkpoint"):
+        index_all()
     return json.dumps(dispatch[name](arguments), indent=2, ensure_ascii=False)
 
 

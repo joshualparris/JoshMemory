@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -11,6 +12,10 @@ from .github_evidence import github_evidence, import_github_evidence
 from .paths import default_db_path, default_sessions_dir
 from .seed import import_seed_file
 from .chatgpt import import_chatgpt_export
+from .historical import earliest_activity, historical_search
+from .facts import project_fact_add, project_fact_search, accountability_reference_add, accountability_reference_search
+from .handoff import save_handoff, get_project_context, list_handoffs
+from .hooks import session_start_context, stop_nudge
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -54,6 +59,76 @@ def main(argv: list[str] | None = None) -> int:
     p_github_query.add_argument("--project")
     p_github_query.add_argument("--limit", type=int, default=100)
 
+    p_historical = sub.add_parser("historical-search")
+    p_historical.add_argument("query")
+    p_historical.add_argument("--limit", type=int, default=20)
+
+    p_earliest = sub.add_parser("earliest-activity")
+    p_earliest.add_argument("activity", nargs="?", default="coding")
+
+    p_add_fact = sub.add_parser("add-fact")
+    p_add_fact.add_argument("--project", required=True)
+    p_add_fact.add_argument("--machine")
+    p_add_fact.add_argument("--subject", required=True)
+    p_add_fact.add_argument("--fact", required=True)
+    p_add_fact.add_argument("--status", required=True)
+    p_add_fact.add_argument("--confidence", type=float)
+    p_add_fact.add_argument("--observed-at")
+    p_add_fact.add_argument("--source-type", required=True)
+    p_add_fact.add_argument("--source-ref")
+    p_add_fact.add_argument("--supersedes")
+
+    p_search_fact = sub.add_parser("search-facts")
+    p_search_fact.add_argument("query")
+    p_search_fact.add_argument("--project")
+    p_search_fact.add_argument("--all", action="store_true", help="Include inactive facts")
+
+    p_add_acc = sub.add_parser("add-accountability")
+    p_add_acc.add_argument("--project", required=True)
+    p_add_acc.add_argument("--claim-summary", required=True)
+    p_add_acc.add_argument("--source-system", required=True)
+    p_add_acc.add_argument("--source-id", required=True)
+    p_add_acc.add_argument("--requirement-id")
+    p_add_acc.add_argument("--source-ref")
+    p_add_acc.add_argument("--reviewer")
+    p_add_acc.add_argument("--verdict")
+    p_add_acc.add_argument("--commit-sha")
+    p_add_acc.add_argument("--supersedes")
+
+    p_search_acc = sub.add_parser("search-accountability")
+    p_search_acc.add_argument("query")
+    p_search_acc.add_argument("--project")
+    p_search_acc.add_argument("--all", action="store_true", help="Include inactive claims")
+
+    p_save_handoff = sub.add_parser("save-handoff", help="Save a structured end-of-session handoff (reads JSON from --data or stdin)")
+    p_save_handoff.add_argument("--project", required=True)
+    p_save_handoff.add_argument("--machine")
+    p_save_handoff.add_argument("--agent")
+    p_save_handoff.add_argument("--source-ref")
+    p_save_handoff.add_argument("--data", help="Handoff JSON object. If omitted, read from stdin.")
+
+    p_get_context = sub.add_parser("get-context", help="Compact startup context: latest handoff + live evidence")
+    p_get_context.add_argument("--project", required=True)
+    p_get_context.add_argument("--machine")
+
+    p_list_handoffs = sub.add_parser("list-handoffs")
+    p_list_handoffs.add_argument("--project", required=True)
+    p_list_handoffs.add_argument("--machine")
+    p_list_handoffs.add_argument("--limit", type=int, default=10)
+    p_list_handoffs.add_argument("--all", action="store_true", help="Include superseded handoffs")
+
+    p_session_start = sub.add_parser("claude-session-start-hook", help="Claude Code SessionStart hook body")
+    p_session_start.add_argument("--cwd", type=Path, default=Path.cwd())
+    p_session_start.add_argument("--machine")
+
+    p_session_end = sub.add_parser("claude-session-end-hook", help="Claude Code SessionEnd hook body")
+    p_session_end.add_argument("--cwd", type=Path, default=Path.cwd())
+    p_session_end.add_argument("--machine")
+
+    p_stop_nudge = sub.add_parser("claude-stop-hook", help="Claude Code Stop hook body")
+    p_stop_nudge.add_argument("--cwd", type=Path, default=Path.cwd())
+    p_stop_nudge.add_argument("--machine")
+
     args = parser.parse_args(argv)
     if args.cmd == "index":
         return print_json(index_all(args.db, args.sessions_dir, force=args.force))
@@ -76,6 +151,61 @@ def main(argv: list[str] | None = None) -> int:
         return print_json(import_github_evidence(args.path, db_path=args.db))
     if args.cmd == "github-evidence":
         return print_json(github_evidence(project=args.project, limit=args.limit, db_path=args.db))
+    if args.cmd == "historical-search":
+        return print_json(historical_search(args.query, limit=args.limit, db_path=args.db))
+    if args.cmd == "earliest-activity":
+        return print_json(earliest_activity(args.activity, db_path=args.db))
+    if args.cmd == "add-fact":
+        return print_json(project_fact_add(args.db, args.project, args.subject, args.fact, args.status, args.confidence, args.observed_at, args.source_type, args.source_ref, args.machine, args.supersedes))
+    if args.cmd == "search-facts":
+        return print_json(project_fact_search(args.db, args.query, args.project, active_only=not args.all))
+    if args.cmd == "add-accountability":
+        return print_json(accountability_reference_add(
+            args.db, args.project, args.claim_summary, args.source_system, args.source_id,
+            args.requirement_id, args.source_ref, args.reviewer, args.verdict, args.commit_sha, args.supersedes
+        ))
+    if args.cmd == "search-accountability":
+        return print_json(accountability_reference_search(args.db, args.query, args.project, active_only=not args.all))
+    if args.cmd == "save-handoff":
+        raw = args.data if args.data is not None else sys.stdin.read()
+        handoff = json.loads(raw)
+        return print_json(save_handoff(
+            str(args.db), args.project, handoff,
+            machine=args.machine, agent=args.agent, source_ref=args.source_ref,
+        ))
+    if args.cmd == "get-context":
+        return print_json(get_project_context(str(args.db), args.project, machine=args.machine))
+    if args.cmd == "list-handoffs":
+        return print_json(list_handoffs(
+            str(args.db), args.project, machine=args.machine, limit=args.limit, active_only=not args.all,
+        ))
+    if args.cmd == "claude-session-start-hook":
+        try:
+            return print_json(session_start_context(args.cwd, db_path=str(args.db), machine=args.machine))
+        except Exception:
+            # A hook must never break session startup for the user.
+            return print_json({})
+    if args.cmd == "claude-session-end-hook":
+        try:
+            # NOTE (fixed 2026-09-10): these were re-imported locally here,
+            # which makes `json`/`sys` local to the whole main() function in
+            # Python's static scoping -- breaking the `save-handoff` branch
+            # above (json.loads(raw)) with UnboundLocalError, since that
+            # branch runs before this line but the name was no longer bound
+            # to the module-level import. Both are already imported at the
+            # top of this module; no need to shadow them here.
+            payload_str = sys.stdin.read().strip()
+            payload = json.loads(payload_str) if payload_str else {}
+            from joshmemory.hooks import session_end_context
+            return print_json(session_end_context(args.cwd, payload=payload, db_path=str(args.db), machine=args.machine))
+        except Exception as e:
+            return print_json({"error": str(e)})
+
+    if args.cmd == "claude-stop-hook":
+        try:
+            return print_json(stop_nudge(args.cwd, db_path=str(args.db), machine=args.machine))
+        except Exception:
+            return print_json({})
     parser.error("unreachable")
     return 2
 
