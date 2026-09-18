@@ -159,3 +159,41 @@ Before saying a repo is fixed/green/done:
 7. record the handoff if work is non-trivial or blocked.
 
 A historical red X is not proof the current HEAD is red. A green deployment is not proof the app works. A metric improvement is not proof the code is better.
+
+
+## Josh OS bootstrap — `joshuaparris-max/AshFallen`
+
+Josh asked for an empty repository to become the beginning of a standalone graphical desktop operating system and to push directly to `main`. `joshuaparris-max/AshFallen` was empty and writable (`push: true`, `admin: false`), so it was repurposed as Josh OS. The repository itself was not renamed because the current GitHub connection does not expose/administer repository rename.
+
+Verified current main HEAD at handoff: `422e9c92385587cca7683e4f3ecfd4210021118b`.
+
+Implemented:
+- x86-64 freestanding C kernel using Limine v12.9.0 for boot handoff;
+- hybrid BIOS/UEFI ISO build named `JoshOS-0.1-x86_64.iso`;
+- graphical framebuffer desktop with gradient background, top bar, system panel, styled terminal window and dock;
+- built-in 5x7 bitmap font;
+- PS/2 polling keyboard input;
+- graphical shell commands: `help`, `about`, `mem`, `clear`, `echo`, `reboot`;
+- Limine memory-map query;
+- COM1 serial diagnostics;
+- `JOSHOS_BOOT_OK` serial marker for an automated QEMU boot smoke test;
+- architecture documentation and roadmap;
+- GitHub Actions build that creates the ISO, boots it in QEMU, verifies the boot marker, records a checksum and uploads the ISO artifact.
+
+Final verified GitHub Actions run: `35329186622`, conclusion `success`. Build ISO, QEMU boot smoke test, checksum and artifact upload all passed.
+
+Artifact:
+- name: `JoshOS-0.1-x86_64`
+- artifact ID: `10540412344`
+- size: 1,504,434 bytes
+- digest: `sha256:f0de15d7e3de4462344739709d535624bd1767636ee7f2db90ca41687a5c16f0`
+
+Important limitations:
+- the current desktop/window is direct framebuffer rendering, not yet a compositor/window manager;
+- keyboard support is currently PS/2/QEMU-oriented; no USB HID stack yet;
+- no interrupt-driven input/timer, allocator/paging/heap, mouse, processes/userspace, filesystem, networking, audio or GPU acceleration yet;
+- Limine is bootloader only; there is no Linux kernel underneath Josh OS.
+
+Next major technical milestone: IDT/exceptions + timer + physical page allocator + virtual memory + heap, then mouse support and a real movable/resizable window manager.
+
+A build issue was already found and fixed: `-no-pie` under Clang combined with `-Werror` caused a link failure. It was removed, and final CI is green. Do not re-diagnose historical intermediate red runs from the file-by-file repository assembly as current failures.
