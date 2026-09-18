@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 from joshmemory.chatgpt import import_chatgpt_export
+from joshmemory.coding_chats import coding_chat_records, local_coding_chat_search
 from joshmemory.index import open_index, search_sessions
 
 
@@ -107,3 +108,41 @@ def test_old_date_metadata_is_searchable(tmp_path: Path) -> None:
     results = search_sessions("18 March 2023", db_path=db)
     assert results
     assert results[0]["created_at"] == "1679097600"
+
+
+def test_coding_chat_archive_preserves_exact_chat_date_and_id(tmp_path: Path) -> None:
+    export = tmp_path / "conversations.json"
+    db = tmp_path / "memory.sqlite"
+    write_export(export, [conversation("dated-coding", "Website HTML Code Structure")])
+    import_chatgpt_export(export, db_path=db)
+
+    rows = coding_chat_records(db_path=db)
+    assert len(rows) == 1
+    assert rows[0]["conversation_id"] == "dated-coding"
+    assert rows[0]["created_at"] == "2023-03-18T00:00:00Z"
+    assert rows[0]["source"] == "historical_chatgpt_export"
+    assert "javascript" in rows[0]["matched_terms"]
+
+
+def test_coding_chat_archive_excludes_non_coding_chat(tmp_path: Path) -> None:
+    export = tmp_path / "conversations.json"
+    db = tmp_path / "memory.sqlite"
+    noncoding = conversation(
+        "family",
+        "Weekend ideas",
+        [("u-family", None, "user", 1679097600, ["What should we do at the park this weekend?"])],
+    )
+    write_export(export, [noncoding])
+    import_chatgpt_export(export, db_path=db)
+
+    assert coding_chat_records(db_path=db) == []
+
+
+def test_local_coding_chat_search_supports_exact_date_range(tmp_path: Path) -> None:
+    export = tmp_path / "conversations.json"
+    db = tmp_path / "memory.sqlite"
+    write_export(export, [conversation("conv-date", "XAMPP Start Guide")])
+    import_chatgpt_export(export, db_path=db)
+
+    assert local_coding_chat_search("xampp", db_path=db, start_date="2023-03-18", end_date="2023-03-18")
+    assert not local_coding_chat_search("xampp", db_path=db, start_date="2023-03-19", end_date="2023-03-20")
