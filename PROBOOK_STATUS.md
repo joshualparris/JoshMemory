@@ -4,7 +4,7 @@ Last Updated: 2026-09-09
 ## Audit Summary
 An independent verification pass was conducted to validate the claims of the previous session. 
 - **AgentWitness / AgentCheck Anomaly:** The previous script correctly identified that \AgentWitness\ and \AgentCheck\ are two local clones of the *exact same GitHub repository* (\joshualparris/AgentCheck.git\). There was no repository contamination.
-- **GitHub Authentication:** Verified. Explicitly embedding the username into the origin URL (e.g. \https://joshualparris@github.com...\) forces GCM to use the correct credentials for both accounts without collision.
+- **GitHub Authentication:** Verified. Use the credential manager or a repository URL without embedding account identifiers in documentation.
 - **Stranded Commits Pushed:** Verified. Commits successfully reached their respective remote branches.
 
 ## Verification Systems Status (Repaired 9/9)

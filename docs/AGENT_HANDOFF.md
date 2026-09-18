@@ -47,8 +47,8 @@ specific helper scripts are deliberately absent from public `main`.
 
 The Vercel connector available to the agent is read-only. Check and manually
 disable or protect public deployments that contain private/family/business
-content, including the known Elias, Sylvie, HugCoach, and Parris Tech Services
-URLs. Wix publishing access was not available; unpublish or edit the obsolete
+content, including child-named, coaching, and business-service URLs. Wix
+publishing access was not available; unpublish or edit the obsolete
 Parris Tech Services site at its source. GitHub profile metadata requires the
 `user` OAuth scope before it can be edited safely.
 
