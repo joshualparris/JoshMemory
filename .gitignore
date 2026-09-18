@@ -15,3 +15,8 @@ recent.txt
 *_evidence_*.jsonl
 *_alias_*.jsonl
 test-results/
+.agentwitness/
+
+# Real names/emails/addresses used to filter the public docs/data export.
+# Never commit this -- see tools/public_export_filter.example.json.
+tools/public_export_filter.local.json
