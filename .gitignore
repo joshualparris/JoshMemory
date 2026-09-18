@@ -5,6 +5,15 @@ __pycache__/
 *.sqlite
 *.sqlite-*
 *.egg-info/
+
+# Never publish local transcripts, session exports, or generated session data.
+session.json
+user_msgs.txt
+*_transcript*.json
+*_conversations*.json
+docs/data/
+tools/public_export_filter.local.json
+
 # Local acceptance/report outputs and private historical backfills.
 e2e_output.txt
 jm_output.txt
@@ -15,7 +24,3 @@ recent.txt
 *_alias_*.jsonl
 test-results/
 .agentwitness/
-# Real names/emails/addresses used to filter the public docs/data export.
-# Never commit this -- see tools/public_export_filter.example.json.
-tools/public_export_filter.local.json
-docs/data/sessions/
