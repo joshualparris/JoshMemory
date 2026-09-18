@@ -147,7 +147,7 @@ def verify_migration_state(db_path):
     assert uv == 3
     
     res = con.execute("SELECT sql FROM sqlite_master WHERE name='project_facts'").fetchone()[0]
-    assert "UNIQUE(project, canonical_repo, checkout_path, subject, fact, status, machine)" in res
+    assert "UNIQUE(project, canonical_repo, checkout_path, subject, fact, status, machine, recorded_at)" in res
     
     assert con.execute("PRAGMA integrity_check").fetchall()[0][0] == "ok"
     assert len(con.execute("PRAGMA foreign_key_check").fetchall()) == 0
@@ -319,3 +319,86 @@ def test_migration_supersedes_chain(tmp_path):
     assert rows['C']['supersedes'] == 'B'
     assert rows['C']['active'] == 1
     con.close()
+
+
+def test_migration_recovers_partial_realistic_v0_state(tmp_path):
+    """Recover the shape left by the failed production migration."""
+    db = str(tmp_path / "partial-v0.sqlite")
+    con = sqlite3.connect(db)
+    con.executescript(SCHEMA)
+    con.execute(
+        """
+        CREATE TABLE project_facts_old (
+            id TEXT PRIMARY KEY,
+            project TEXT NOT NULL,
+            machine TEXT,
+            subject TEXT NOT NULL,
+            fact TEXT NOT NULL,
+            status TEXT NOT NULL,
+            confidence REAL,
+            observed_at TEXT,
+            recorded_at TEXT NOT NULL,
+            source_type TEXT,
+            source_ref TEXT,
+            supersedes TEXT,
+            active BOOLEAN NOT NULL DEFAULT 1,
+            canonical_repo TEXT DEFAULT '',
+            checkout_path TEXT DEFAULT ''
+        )
+        """
+    )
+    rows = []
+    for index in range(94):
+        rows.append(
+            (
+                f"legacy-{index}",
+                "Project",
+                "machine",
+                f"Subject {index}",
+                f"Fact {index}",
+                "current" if index == 0 else "CURRENT",
+                None,
+                "",
+                f"2026-09-18T00:00:{index:02d}Z",
+                "legacy",
+                None,
+                None,
+                1,
+                "",
+                "",
+            )
+        )
+    duplicate = rows[0]
+
+    def duplicate_row(identifier, recorded_at):
+        return (identifier, *duplicate[1:8], recorded_at, *duplicate[9:])
+
+    rows.extend(
+        [
+            duplicate_row("legacy-duplicate-a", "2026-09-18T01:00:00Z"),
+            duplicate_row("legacy-duplicate-b", "2026-09-18T02:00:00Z"),
+            duplicate_row("legacy-duplicate-c", "2026-09-18T03:00:00Z"),
+        ]
+    )
+    con.executemany(
+        "INSERT INTO project_facts_old VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        rows,
+    )
+    con.execute("PRAGMA user_version = 0")
+    con.commit()
+    con.close()
+
+    migrated = connect(db)
+    assert migrated.execute("PRAGMA user_version").fetchone()[0] == 3
+    assert migrated.execute("SELECT count(*) FROM project_facts").fetchone()[0] == 97
+    assert migrated.execute("SELECT count(*) FROM project_facts_old").fetchone()[0] == 97
+    assert migrated.execute("SELECT count(*) FROM project_facts WHERE status = 'CURRENT'").fetchone()[0] == 97
+    assert migrated.execute("SELECT count(DISTINCT id) FROM project_facts").fetchone()[0] == 97
+    assert migrated.execute("PRAGMA integrity_check").fetchone()[0] == "ok"
+    assert not migrated.execute("PRAGMA foreign_key_check").fetchall()
+    migrated.close()
+
+    reopened = connect(db)
+    assert reopened.execute("SELECT count(*) FROM project_facts").fetchone()[0] == 97
+    assert reopened.execute("SELECT count(*) FROM project_facts_old").fetchone()[0] == 97
+    reopened.close()

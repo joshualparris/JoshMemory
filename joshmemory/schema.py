@@ -112,7 +112,9 @@ CREATE TABLE IF NOT EXISTS project_facts (
   source_ref TEXT,
   supersedes TEXT,
   active BOOLEAN NOT NULL DEFAULT 1,
-  UNIQUE(project, canonical_repo, checkout_path, subject, fact, status, machine),
+  -- The application-level idempotency key omits recorded_at. Keeping it in
+  -- the database constraint preserves repeated observations from old imports.
+  UNIQUE(project, canonical_repo, checkout_path, subject, fact, status, machine, recorded_at),
   FOREIGN KEY(supersedes) REFERENCES project_facts(id),
   CHECK(status IN ('VERIFIED', 'OBSERVED', 'HISTORICAL', 'INFERRED', 'STALE', 'DISPROVEN', 'UNKNOWN', 'CURRENT')),
   CHECK(confidence IS NULL OR (confidence >= 0.0 AND confidence <= 1.0)),
@@ -186,7 +188,10 @@ def connect(path: str) -> sqlite3.Connection:
         tables = con.execute(
             "SELECT name FROM sqlite_master WHERE type='table' AND name='project_facts'"
         ).fetchall()
-        is_fresh = len(tables) == 0
+        old_fact_table = con.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='project_facts_old'"
+        ).fetchone()
+        is_fresh = len(tables) == 0 and old_fact_table is None
 
         if is_fresh:
             con.execute("PRAGMA foreign_keys = ON")
@@ -221,51 +226,7 @@ def _migrate(con: sqlite3.Connection, version: int) -> None:
             con.execute("ALTER TABLE events ADD COLUMN source_id TEXT")
 
     if version < 2:
-        pf_columns = {row[1] for row in con.execute("PRAGMA table_info(project_facts)")}
-        if "canonical_repo" not in pf_columns:
-            con.execute("ALTER TABLE project_facts ADD COLUMN canonical_repo TEXT DEFAULT ''")
-        if "checkout_path" not in pf_columns:
-            con.execute("ALTER TABLE project_facts ADD COLUMN checkout_path TEXT DEFAULT ''")
-
-        con.execute("ALTER TABLE project_facts RENAME TO project_facts_old")
-
-        con.execute(
-            """
-        CREATE TABLE project_facts (
-            id TEXT PRIMARY KEY,
-            project TEXT NOT NULL,
-            machine TEXT NOT NULL DEFAULT '',
-            subject TEXT NOT NULL,
-            fact TEXT NOT NULL,
-            status TEXT NOT NULL,
-            confidence REAL,
-            observed_at TEXT,
-            recorded_at TEXT NOT NULL,
-            source_type TEXT NOT NULL,
-            source_ref TEXT,
-            canonical_repo TEXT DEFAULT '',
-            checkout_path TEXT DEFAULT '',
-            supersedes TEXT,
-            active BOOLEAN NOT NULL DEFAULT 1,
-            UNIQUE(project, canonical_repo, checkout_path, subject, fact, status, machine),
-            FOREIGN KEY(supersedes) REFERENCES project_facts(id),
-            CHECK(status IN ('VERIFIED', 'OBSERVED', 'HISTORICAL', 'INFERRED', 'STALE', 'DISPROVEN', 'UNKNOWN', 'CURRENT')),
-            CHECK(confidence IS NULL OR (confidence >= 0.0 AND confidence <= 1.0)),
-            CHECK(supersedes != id),
-            CHECK(active IN (0, 1))
-        )
-        """
-        )
-
-        con.execute(
-            """
-        INSERT INTO project_facts (id, project, machine, subject, fact, status, confidence, observed_at, recorded_at, source_type, source_ref, canonical_repo, checkout_path, supersedes, active)
-        SELECT id, project, machine, subject, fact, status, confidence, observed_at, recorded_at, source_type, source_ref, canonical_repo, checkout_path, supersedes, active
-        FROM project_facts_old
-        """
-        )
-
-        con.execute("DROP TABLE project_facts_old")
+        _migrate_project_facts(con)
 
     if version < 3:
         con.execute("""
@@ -289,3 +250,141 @@ def _migrate(con: sqlite3.Connection, version: int) -> None:
             updated_at TEXT NOT NULL
         )
         """)
+
+
+_FACT_STATUSES = {
+    "VERIFIED",
+    "OBSERVED",
+    "HISTORICAL",
+    "INFERRED",
+    "STALE",
+    "DISPROVEN",
+    "UNKNOWN",
+    "CURRENT",
+}
+
+
+def _create_project_facts_table(con: sqlite3.Connection, table_name: str) -> None:
+    if not table_name.replace("_", "").isalnum():
+        raise ValueError("Unsafe project facts table name")
+    con.execute(
+        f"""
+        CREATE TABLE {table_name} (
+            id TEXT PRIMARY KEY,
+            project TEXT NOT NULL,
+            machine TEXT NOT NULL DEFAULT '',
+            subject TEXT NOT NULL,
+            fact TEXT NOT NULL,
+            status TEXT NOT NULL,
+            confidence REAL,
+            observed_at TEXT,
+            recorded_at TEXT NOT NULL,
+            source_type TEXT NOT NULL,
+            source_ref TEXT,
+            canonical_repo TEXT DEFAULT '',
+            checkout_path TEXT DEFAULT '',
+            supersedes TEXT,
+            active BOOLEAN NOT NULL DEFAULT 1,
+            UNIQUE(project, canonical_repo, checkout_path, subject, fact, status, machine, recorded_at),
+            FOREIGN KEY(supersedes) REFERENCES {table_name}(id),
+            CHECK(status IN ('VERIFIED', 'OBSERVED', 'HISTORICAL', 'INFERRED', 'STALE', 'DISPROVEN', 'UNKNOWN', 'CURRENT')),
+            CHECK(confidence IS NULL OR (confidence >= 0.0 AND confidence <= 1.0)),
+            CHECK(supersedes != id),
+            CHECK(active IN (0, 1))
+        )
+        """
+    )
+
+
+def _validate_legacy_fact_statuses(con: sqlite3.Connection, table_name: str) -> None:
+    placeholders = ",".join("?" for _ in _FACT_STATUSES)
+    invalid = [
+        row[0]
+        for row in con.execute(
+            f"SELECT DISTINCT status FROM {table_name} "
+            f"WHERE upper(trim(status)) NOT IN ({placeholders})",
+            tuple(sorted(_FACT_STATUSES)),
+        )
+    ]
+    if invalid:
+        raise sqlite3.IntegrityError(
+            f"Unsupported project fact statuses in {table_name}: {invalid}"
+        )
+
+
+def _insert_project_facts(
+    con: sqlite3.Connection,
+    source_table: str,
+    destination_table: str,
+    *,
+    exclude_existing_ids: bool = False,
+) -> None:
+    _validate_legacy_fact_statuses(con, source_table)
+    id_filter = (
+        f"AND NOT EXISTS (SELECT 1 FROM {destination_table} current WHERE current.id = source.id)"
+        if exclude_existing_ids
+        else ""
+    )
+    con.execute(
+        f"""
+        INSERT INTO {destination_table} (
+            id, project, machine, subject, fact, status, confidence,
+            observed_at, recorded_at, source_type, source_ref,
+            canonical_repo, checkout_path, supersedes, active
+        )
+        SELECT
+            source.id,
+            source.project,
+            coalesce(source.machine, ''),
+            source.subject,
+            source.fact,
+            upper(trim(source.status)),
+            source.confidence,
+            source.observed_at,
+            source.recorded_at,
+            coalesce(source.source_type, 'legacy'),
+            source.source_ref,
+            coalesce(source.canonical_repo, ''),
+            coalesce(source.checkout_path, ''),
+            source.supersedes,
+            coalesce(source.active, 1)
+        FROM {source_table} source
+        WHERE 1=1 {id_filter}
+        """
+    )
+
+
+def _migrate_project_facts(con: sqlite3.Connection) -> None:
+    """Migrate facts and recover a database left mid-migration.
+
+    A prior migration could leave both tables after the copy failed. The old
+    table is retained as the recovery source; all rebuild work is transactional
+    and the old table is never dropped automatically.
+    """
+    old_exists = con.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name='project_facts_old'"
+    ).fetchone()
+    if old_exists:
+        con.execute("DROP TABLE IF EXISTS project_facts_repaired")
+        _create_project_facts_table(con, "project_facts_repaired")
+        if con.execute("SELECT count(*) FROM project_facts").fetchone()[0]:
+            _insert_project_facts(con, "project_facts", "project_facts_repaired")
+        _insert_project_facts(
+            con,
+            "project_facts_old",
+            "project_facts_repaired",
+            exclude_existing_ids=True,
+        )
+        con.execute("DROP TABLE project_facts")
+        con.execute("ALTER TABLE project_facts_repaired RENAME TO project_facts")
+        return
+
+    pf_columns = {row[1] for row in con.execute("PRAGMA table_info(project_facts)")}
+    if "canonical_repo" not in pf_columns:
+        con.execute("ALTER TABLE project_facts ADD COLUMN canonical_repo TEXT DEFAULT ''")
+    if "checkout_path" not in pf_columns:
+        con.execute("ALTER TABLE project_facts ADD COLUMN checkout_path TEXT DEFAULT ''")
+
+    con.execute("ALTER TABLE project_facts RENAME TO project_facts_old")
+    _create_project_facts_table(con, "project_facts")
+    _insert_project_facts(con, "project_facts_old", "project_facts")
