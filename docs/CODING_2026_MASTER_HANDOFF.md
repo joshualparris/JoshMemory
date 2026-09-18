@@ -368,3 +368,11 @@ Live investigation found several distinct Vercel failure causes; do not treat th
 
 ### Preventive rule
 Never run broad personal-data string substitution across dependency lockfiles, hashes, generated assets, vendored code, binaries or package names. Privacy scrubbing should target human-authored/public-facing text and structured known fields, with lockfiles explicitly excluded.
+
+
+## 18 Sep 2026 — Parris-Tech-Services Vercel cleanup
+
+- Fixed current red Vercel statuses on `Parris-Tech-Services/JoshCoach` and `Parris-Tech-Services/CanonRPG` by explicitly disabling obsolete Vercel Git deployments at repo level.
+- JoshCoach commit: `767e941` — added `vercel.json` with `git.deploymentEnabled=false`.
+- CanonRPG commit: `d1675b5` — retained `git.deploymentEnabled=false` and added `ignoreCommand: "exit 0"` as a second skip safeguard.
+- Fresh commit-status verification showed no Vercel failure context on either new commit. Do not re-enable Vercel unless there is a deliberate migration back from the current deployment path.
