@@ -3,11 +3,9 @@
 Run after re-indexing to refresh the browsable site:
     python tools/build_web_data.py
 
-Privacy config lives in tools/public_export_filter.local.json (gitignored,
-never committed -- see tools/public_export_filter.example.json for the
-shape). That file is where thread IDs get excluded and personal values get
-listed for scrubbing, specifically so the actual names/emails/addresses
-never end up in a comment or pattern inside this committed script.
+The local public-export filter is required and gitignored. The exporter fails
+closed when it is absent, so private session data cannot be published by
+accident.
 """
 from __future__ import annotations
 
@@ -27,13 +25,13 @@ FILTER_CONFIG_PATH = Path(__file__).resolve().parent / "public_export_filter.loc
 
 def load_filter_config() -> dict:
     if not FILTER_CONFIG_PATH.exists():
-        print(
-            f"WARNING: {FILTER_CONFIG_PATH.name} not found -- publishing with no "
-            "manual exclusions or personal-value scrubbing beyond redact(). "
-            "See tools/public_export_filter.example.json."
+        raise RuntimeError(
+            f"{FILTER_CONFIG_PATH} is required; refusing to publish private session data"
         )
-        return {"excluded_thread_ids": [], "scrub_values": []}
-    return json.loads(FILTER_CONFIG_PATH.read_text(encoding="utf-8"))
+    config = json.loads(FILTER_CONFIG_PATH.read_text(encoding="utf-8"))
+    if not isinstance(config, dict):
+        raise ValueError("public export filter must be a JSON object")
+    return config
 
 
 def compile_scrub_patterns(scrub_values: list[dict]) -> list[tuple[re.Pattern[str], str]]:
@@ -101,27 +99,23 @@ def main() -> None:
                 "role": e["role"],
                 "kind": e["event_kind"],
                 "timestamp": e["timestamp"],
-                # Defense in depth: re-redact at export time even though the indexer
-                # already redacts on ingest, since the sqlite index can carry text
-                # indexed before a given secret pattern existed.
                 "text": scrub_personal(redact(e["text"])),
             }
             for e in events
             if e["text"]
         ]
 
-        project = project_name(s["cwd"])
-        title = scrub_personal(redact(s["title"] or s["first_user_message"] or "(untitled session)"))
+        project = scrub_personal(project_name(s["cwd"]))
 
         session_doc = {
             "thread_id": thread_id,
-            "title": title,
+            "title": scrub_personal(redact(s["title"] or s["first_user_message"] or "(untitled session)")),
             "project": project,
-            "cwd": s["cwd"],
+            "cwd": scrub_personal(s["cwd"] or ""),
             "source": s["source"],
             "model": s["model"],
             "branch": s["git_branch"],
-            "repo": s["git_origin_url"],
+            "repo": scrub_personal(s["git_origin_url"] or ""),
             "created_at": s["created_at"],
             "updated_at": s["updated_at"],
             "events": event_list,
