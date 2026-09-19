@@ -161,9 +161,9 @@ Before saying a repo is fixed/green/done:
 A historical red X is not proof the current HEAD is red. A green deployment is not proof the app works. A metric improvement is not proof the code is better.
 
 
-## Josh OS bootstrap — `joshuaparris-max/AshFallen`
+## Josh OS bootstrap — `joshuaparris-max/JoshOS`
 
-Josh asked for an empty repository to become the beginning of a standalone graphical desktop operating system and to push directly to `main`. `joshuaparris-max/AshFallen` was empty and writable (`push: true`, `admin: false`), so it was repurposed as Josh OS. The repository itself was not renamed because the current GitHub connection does not expose/administer repository rename.
+Josh asked for an empty repository to become the beginning of a standalone graphical desktop operating system and to push directly to `main`. `joshuaparris-max/JoshOS` was empty and writable (`push: true`, `admin: false`), so it was repurposed as Josh OS. The repository itself was not renamed because the current GitHub connection does not expose/administer repository rename.
 
 Verified current main HEAD at handoff: `422e9c92385587cca7683e4f3ecfd4210021118b`.
 
