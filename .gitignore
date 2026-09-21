@@ -24,3 +24,9 @@ recent.txt
 *_alias_*.jsonl
 test-results/
 .agentwitness/
+
+# Local Private Storage
+.josh_private_memories/
+local_memories/
+private/
+
