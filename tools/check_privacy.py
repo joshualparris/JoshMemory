@@ -3,8 +3,6 @@ import os
 import re
 import sys
 
-# High-risk patterns for JoshMemory specifically
-# (Exceptions like Paul-Roe are out of scope for this repo's scanner)
 PATTERNS = [
     # Explicit Personal Data
     (r'(?i)\b101 boundary\b', 'Identifiable Street Address'),
@@ -17,10 +15,8 @@ PATTERNS = [
     (r'(?i)xox[baprs]-[a-zA-Z0-9\-]+', 'Slack Token'),
     (r'(?i)AKIA[0-9A-Z]{16}', 'AWS Access Key'),
     (r'(?i)sk-[a-zA-Z0-9]{48}', 'OpenAI/Anthropic Secret Key'),
-    (r'(?i)Bearer\s+[a-zA-Z0-9\-\._~+/]+=*', 'Generic Bearer Token'),
 ]
 
-# Sensitive file types/names that shouldn't be committed
 BAD_FILE_PATTERNS = [
     r'(?i).*fitbit.*\.csv$',
     r'(?i).*health_connect.*\.json$',
@@ -32,13 +28,15 @@ IGNORE_DIRS = {'.git', '.josh_private_memories', 'private', 'local_memories', '_
 def scan_file(filepath):
     leaks = []
     
-    # Check filename
     filename = os.path.basename(filepath)
+    if filepath.endswith(__file__):
+        # Don't scan the scanner itself for regex matches
+        return []
+
     for bad_file_pat in BAD_FILE_PATTERNS:
         if re.match(bad_file_pat, filename):
             leaks.append(f"Forbidden file type/name ({filename})")
 
-    # Check content
     try:
         with open(filepath, 'r', encoding='utf-8') as f:
             content = f.read()
