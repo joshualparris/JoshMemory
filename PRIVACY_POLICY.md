@@ -2,6 +2,9 @@
 
 **Never push personal, family, household, health, tenancy, employment-client, credential, or identifying private information to a PUBLIC repository unless explicitly approved by Josh.**
 
+**APPROVED EXCEPTIONS:**
+* **`joshualparris/Paul-Roe`**: A deliberately curated family memorial. Do not edit, change, delete, or modify this repository at all. It is explicitly approved to contain historical personal/family material.
+
 ### What is PRIVATE by default:
 * Home or previous residential addresses
 * Phone numbers and personal email addresses
