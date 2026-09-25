@@ -3818,6 +3818,132 @@
           "text": "Recovered project-history fact.\nProject: PodcastRollout\nStatus: HISTORICAL\nSeptember 2026 podcast rollout history: JoshHub was the source-of-truth catalogue/QA surface with 9 topic banks x 25 Spotify episodes, repeat avoidance, persistence, embeds/deep links and focus/quiet modes. Shared dock work was wired across JoshHub, DCSProfessionalDevelopment, DCSPD, AppFactory, KaseyaFieldOps, FieldNotes, DCSPrep, JoshBooksOnline, DCSCompanion (Onboarding only), AIDungeonMaster (/play hidden), 3layers, SwordCoast, Eleven-Realms, campaign-copilot, CanonRPG, realms-atlas, NebulaDice, WhirringWilderness and others; Whispering-Wilds is terminal-only and was represented by the WhirringWilderness browser family. Later rollout reached 28 app repos. Durable UI rules: player defaults OFF, X closes, Settings reopens, safe-area bottom spacing, route restrictions, mobile usability and host-app non-freezing. Shared launcher/jsDelivr dependency caused `Loading podcasts` freezes, so reliable apps migrated toward self-contained local episode data + direct Spotify embeds. FaithHub was specifically repaired with a native bottom-center Podcasts button and 25-episode searchable library after its raw Pages deployment omitted the launcher. Dated unresolved states included Nebula Pages rejection, CanonRPG deployment unverified, some production deploys unverified and Vercel build-rate limits. Verify current app/deployment state live."
         }
       ]
+    },
+    {
+      "thread_id": "project-fact-0b3cc7b4-64a0-4e79-b5b3-d2cd4bc7d886",
+      "title": "FedoraCrashDoctor: 2026 history",
+      "project": "FedoraCrashDoctor",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-01T22:40:00Z",
+      "updated_at": "2026-09-17T22:03:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:03:00Z",
+          "text": "Recovered project-history fact.\nProject: FedoraCrashDoctor\nStatus: HISTORICAL\nFedoraCrashDoctor 2026 work included Stability Guard/reliability diagnostics, historical versions around v3.2.0/v3.2.1, staged hardening and independent verification. A 1 Sep checkpoint recorded commit 607b765 with 166 tests and a clean remote/local state; an earlier stage-2 closeout was associated with commit 07628c7. At that point JoshMemory retrieval/AgentWitness evidence and pstore/ThinkPad-AgentBridge auth still had unresolved verification work. Treat all SHAs/test counts/stages as historical evidence only; inspect the current repository and verification receipts before resuming."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-f2f3f816-0ed6-4e75-a27e-1e2b3358240c",
+      "title": "LLMAccountability: 2026 verification history",
+      "project": "LLMAccountability",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-04T08:40:00Z",
+      "updated_at": "2026-09-17T21:59:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T21:59:00Z",
+          "text": "Recovered project-history fact.\nProject: LLMAccountability\nStatus: HISTORICAL\nLLMAccountability is the accountability/policy evidence layer in the 2026 stack and should remain distinct from AgentWitness/AgentCheck and JoshMemory. Historical September work included Windows SYSTEM notary/Broker/Runner components, AGY worker environment hardening/rebuild, OS-level ACL/isolation blockers, and a 4 Sep note that V2 still used `sha256:dummy`, meaning attestations were not yet bound to exact report contents. Treat these as dated findings: inspect current code/receipts before assuming the dummy digest or ACL blocker remains unresolved."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-76f36cf8-e64c-41eb-b4c5-5c563a080a63",
+      "title": "AgentWitness: 2026 repair history",
+      "project": "AgentWitness",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-10T02:43:00Z",
+      "updated_at": "2026-09-17T21:59:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T21:59:00Z",
+          "text": "Recovered project-history fact.\nProject: AgentWitness\nStatus: HISTORICAL\nAgentWitness is software inside canonical repo joshualparris/AgentCheck; local AgentWitness and AgentCheck checkouts can be different clones/branches of the same repository. 2026 repair history includes an AgentWitness CLI crash around `aw_dir`/transcript-sync path handling, embedded-username Git URL parsing, and follow-up regression/verification work. By 10 Sep the transcript-sync `w_dir`/path issue and Git URL parsing had been repaired, but historical independent review also caught an idempotency/supersession concern and a .gitignore regression, so self-reported SATISFIED was not enough. Fresh agents must inspect current tests/receipts rather than assuming either the old crash or the old success state still applies."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-1f33db19-b2ae-47b6-96fb-09a0de29c7a7",
+      "title": "JoshCoding2026: portfolio history",
+      "project": "JoshCoding2026",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-17T21:46:00Z",
+      "updated_at": "2026-09-17T21:46:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T21:46:00Z",
+          "text": "Recovered project-history fact.\nProject: JoshCoding2026\nStatus: HISTORICAL\nDated portfolio snapshots: 12 Aug 2026 local inventory covered 69 repositories under [local path], 69 scored and 7 N/A. The old local JoshMemory coding backfill had imported 279/279 items and indexed hundreds of sessions, over ten thousand events, and a GitHub evidence ledger with hundreds of records across many repos/namespaces. Exact repo count changes over time; discover live rather than treating these numbers as permanent."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-6ba08231-f8fe-4655-a29b-1b35aec756f1",
+      "title": "JoshCoding2026: engineering principles",
+      "project": "JoshCoding2026",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-17T21:46:00Z",
+      "updated_at": "2026-09-17T21:46:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T21:46:00Z",
+          "text": "Recovered project-history fact.\nProject: JoshCoding2026\nStatus: CURRENT\n2026 quality model: Principles -> Gates -> Ratchets -> Signals -> Outcomes. Engineering principles are normative; metrics are diagnostic evidence. Correct behaviour and truthful tests come first. Key signals/gates include test pass rate, mutation testing, CRAP (normally <30 where applicable), cyclomatic complexity, branch/test coverage, static analysis/type/lint/security, duplication, churn+complexity hotspots, defect/regression rate, CI reliability and real deployment smoke tests. Distinguish measured 0% coverage from unknown/unmatched coverage and exclude generated/minified bundles from source-quality scoring. Never game a metric to hide broken behaviour."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-ed31bdaf-c80f-49c1-91e3-fcb4fa7582f9",
+      "title": "CRAP4All: 2026 context",
+      "project": "CRAP4All",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-17T21:46:00Z",
+      "updated_at": "2026-09-17T21:46:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T21:46:00Z",
+          "text": "Recovered project-history fact.\nProject: CRAP4All\nStatus: CURRENT\nCRAP4All is the universal CRAP CLI project. At reconciliation time the GitHub repository was still joshualparris/last-light although the intended repo name is crap4all; verify whether the rename has since landed. It combines cyclomatic complexity with per-function coverage, supports Lizard plus LCOV/Cobertura/JaCoCo and terminal/JSON/HTML outputs. September work reduced self-CRAP from roughly 306 to 17.13 using real tests/refactoring, added a permanent <30 gate, fixed generated/minified-output exclusions, distinguishes unknown coverage from measured 0%, and added a truthful mutation-testing ratchet. Durable rule: engineering principles trump metrics; metrics diagnose risk and must not be gamed."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-62453fb1-44d5-4931-b568-f89e13721603",
+      "title": "PodcastRollout: 2026 context",
+      "project": "PodcastRollout",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-17T21:46:00Z",
+      "updated_at": "2026-09-17T21:46:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T21:46:00Z",
+          "text": "Recovered project-history fact.\nProject: PodcastRollout\nStatus: CURRENT\nSeptember podcast rollout covered JoshHub plus many apps including DCSPrep, UpskillApp, FaithHub, Sword Coast, WorkApp, HugCoach and JoshHorses. Durable requirements: player defaults OFF; X closes it; settings can reopen it; safe-area/mobile controls must not cover app content; loading failures must not freeze the app. The shared JoshHub/jsDelivr launcher caused Loading podcasts freezes, so the working JoshHorses pattern became self-contained local episode data plus direct Spotify embeds. UpskillApp also proved Pages must serve a compiled Vite build and that competing Pages publishers can overwrite correct output. Verify rendered production content, assets, mobile controls, Spotify links and persistence rather than trusting a green badge/HTTP 200."
+        }
+      ]
     }
   ]
 }
