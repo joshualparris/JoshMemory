@@ -515,3 +515,8 @@ Push this whole conversation to our most relevant GitHub repo
 ## Archive note
 
 This conversation is specifically about cross-project development continuity, Antigravity/Fedora work and `~/dev` verification, so it was archived in **joshualparris/JoshMemory** under `docs/conversations/`, matching the repository's existing conversation-archive convention.
+
+
+## Companion source trace
+
+The user-supplied Antigravity command/output trace is preserved separately at `docs/conversations/2026-09-25-antigravity-fedora-ecosystem-chat-source-trace.md`.
