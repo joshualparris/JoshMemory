@@ -77,19 +77,54 @@
 
   async function loadIndex() {
     const res = await fetch("data/index.json");
-    state.index = await res.json();
+    const baseIndex = await res.json();
+    state.index = [...baseIndex];
 
     const metaRes = await fetch("data/meta.json");
     const meta = await metaRes.json();
-    el.topbarStats.textContent = `${meta.session_count} sessions · ${meta.event_count.toLocaleString()} messages`;
 
-    for (const p of meta.projects) {
+    try {
+      const derivedRes = await fetch("data/derived_sessions.json");
+      if (derivedRes.ok) {
+        const payload = await derivedRes.json();
+        const known = new Set(state.index.map((s) => s.thread_id));
+        for (const session of (payload.sessions || [])) {
+          state.sessionCache.set(session.thread_id, session);
+          if (known.has(session.thread_id)) continue;
+          known.add(session.thread_id);
+          state.index.push({
+            thread_id: session.thread_id,
+            title: session.title,
+            preview: session.events && session.events[0] ? session.events[0].text.replace(/\\s+/g, " ").slice(0, 220) : "",
+            project: session.project || "Unknown",
+            source: session.source || "public-doc-derived",
+            created_at: session.created_at || "",
+            updated_at: session.updated_at || session.created_at || "",
+            event_count: Array.isArray(session.events) ? session.events.length : 0
+          });
+        }
+      }
+    } catch (err) {
+      console.warn("Derived public memories unavailable", err);
+    }
+
+    state.index.sort((a, b) =>
+      String(b.updated_at || b.created_at || "").localeCompare(String(a.updated_at || a.created_at || ""))
+    );
+
+    const eventCount = state.index.reduce((sum, s) => sum + (Number(s.event_count) || 1), 0);
+    el.topbarStats.textContent = `${state.index.length} sessions · ${eventCount.toLocaleString()} messages`;
+
+    const projects = [...new Set(state.index.map((s) => s.project).filter(Boolean))].sort();
+    const sources = [...new Set(state.index.map((s) => s.source).filter(Boolean))].sort();
+
+    for (const p of projects) {
       const opt = document.createElement("option");
       opt.value = p;
       opt.textContent = p;
       el.projectFilter.appendChild(opt);
     }
-    for (const s of meta.sources) {
+    for (const s of sources) {
       const opt = document.createElement("option");
       opt.value = s;
       opt.textContent = s;
