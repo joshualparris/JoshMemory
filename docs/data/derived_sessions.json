@@ -3530,6 +3530,150 @@
           "text": "Recovered project-history fact.\nProject: FieldNotesWaypoint\nStatus: HISTORICAL\nFieldNotes and Waypoint were separate 2026 app identities. Waypoint was assessed in the May portfolio audit as a coherent Next 14 app using Drizzle, better-sqlite and date-fns; recommendation was selective maintenance without duplicating JoshHub. September deployment catalogue treated Waypoint as live. FieldNotes later participated in the shared podcast rollout; source fixes were committed but one 16 Sep checkpoint said production update remained unverified. CRAP4All diagnostics later measured roughly FieldNotes CRAP 4032 / CC63 and Waypoint CRAP 110 / CC10 with unavailable coverage treated as 0%, useful as risk prioritization only. No stronger commit-level chronology was recovered, so preserve these as evidence-limited histories and verify live repos/deployments before changes."
         }
       ]
+    },
+    {
+      "thread_id": "project-fact-d8231db8-31d6-4f73-a2b1-681e91f659a5",
+      "title": "PersonalOSFamily: 2026 portfolio history",
+      "project": "PersonalOSFamily",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-15T01:53:50Z",
+      "updated_at": "2026-09-17T22:20:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:20:00Z",
+          "text": "Recovered project-history fact.\nProject: PersonalOSFamily\nStatus: HISTORICAL\nPersonal-OS/dashboard family in 2026 included JoshHub, LifeHub/lifehubdashboard, ClearCore, HugCoach, Waypoint and JoshDashboard2/3/4, with substantial overlap. January/May/July audits consistently recommended one canonical source/live deployment per family and intentional consolidation rather than maintaining duplicate half-working hubs. Historical portfolio characterization: LifeHub ambitious but needing UX consolidation; lifehubdashboard later received PRs fixing generate_directory_indexes.py missing `re`, regression tests, deterministic dashboard/Welltory/recent-file/index tests and Python compile/test CI; mobile drawer was later fixed to 82% width with close/backdrop/Esc/menu behavior. HugCoach was structurally sound but content-light and had readable deployment; Waypoint was a coherent Next 14 app using Drizzle/better-sqlite/date-fns and worth selective maintenance without duplicating JoshHub; ClearCore was an undocumented/dependency-heavy Replit-style/rest-express scaffold and its public deployment was observed blank/broken; JoshDashboard2/3/4 were legacy/parallel dashboards generally recommended for consolidation/archive after backup. July audit preferred JoshHub as canonical personal-platform candidate. Do not archive or merge any family member without first checking for unique data/features and live canonical status."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-f3a026b4-f936-4109-8806-c94cc9065ec0",
+      "title": "JoshFireAwareness: 2026 history",
+      "project": "JoshFireAwareness",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-17T11:33:35Z",
+      "updated_at": "2026-09-17T22:19:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:19:00Z",
+          "text": "Recovered project-history fact.\nProject: JoshFireAwareness\nStatus: CURRENT\nJoshFireAwareness 2026 work included QA/CI hardening and later Beautiful Code refactoring. Historical Vercel/main deployment failures occurred in January and June. By 15 Sep, PR #3 had merged static-build QA, Playwright desktop/mobile smoke and accessibility checks; PR #4 removed an unused invalid 1,922-line script3.js and a live Pages URL was documented. CRAP4All/Beautiful Code work then reduced the relevant score from roughly 56/CC7 to about 12/CC3 and added a CRAP>=30 CI gate. Treat the old deployment failures as superseded history unless live Actions regress; preserve meaningful smoke/accessibility coverage and avoid reintroducing dead generated/unused code."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-4e0c8c46-3ee6-4771-999b-10e8760c0c5c",
+      "title": "ResearchFamily: 2026 history",
+      "project": "ResearchFamily",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-17T11:01:01Z",
+      "updated_at": "2026-09-17T22:19:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:19:00Z",
+          "text": "Recovered project-history fact.\nProject: ResearchFamily\nStatus: HISTORICAL\nResearch repositories are distinct canonical GitHub repos joshualparris/ResearchAtlas and joshualparris/ResearchGems. ResearchGems was used as a private source-first curriculum bank; an 82-subject numbered curriculum list was created and AB401A Genesis was banked first, then pushed into DCSPrep, DCSPD, ResearchAtlas, FaithHub and ResearchGems. Four Outdoor Education modules were also added across DCSPrep/DCSPD/ResearchAtlas: Environmental Interpretation; Leadership, Groups & Safety; Ecologies, Place & Programme Design; Teaching in Bush & River Environments. ResearchAtlas production deployment and FaithHub exposure were reported successful for AB401A; ResearchGems was private with Pages disabled/invalid, so no public Pages success should be inferred. Drive files linked from ResearchAtlas/ResearchGems were checked as restricted to two accounts; public risk was metadata/links rather than document contents. September CRAP diagnostics measured ResearchAtlas ~2070 and ResearchGems ~272 with unavailable coverage treated as 0%, useful for prioritization but not proof of defects. Preserve private source material and do not make ResearchGems public merely to satisfy deployment tooling."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-cc7dfe14-b151-40e0-bfee-8c2c12d28bce",
+      "title": "RagTime: 2026 history",
+      "project": "RagTime",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-08-12T00:37:29Z",
+      "updated_at": "2026-09-17T22:19:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:19:00Z",
+          "text": "Recovered project-history fact.\nProject: RagTime\nStatus: HISTORICAL\nRagTime 2026 work focused on security plugins/curriculum, repository integrity and deployment/privacy QA. An August follow-up found RagTime's security-plugin/curriculum work unfinished and flagged that an automated agent may have run `git init` at an outer RagTime root, creating an accidental nested/outer Git-boundary problem. Durable rule: before changing RagTime, identify the genuine canonical repository root/remotes and remove or quarantine accidental outer Git metadata only after proving it is not authoritative. Historical audit also noted Antigravity had verified only a subset of projects and must not be treated as proof of RagTime completion. Specific later commits/deployments were not recovered, so preserve this as a truthful evidence-limited history rather than inventing success."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-504d33f8-31ec-424b-93fc-bc1ec912caa4",
+      "title": "carl: 2026 history",
+      "project": "carl",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-17T21:39:19Z",
+      "updated_at": "2026-09-17T22:18:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:18:00Z",
+          "text": "Recovered project-history fact.\nProject: carl\nStatus: HISTORICAL\ncarl canonical repo observed in September: joshuaparris-max/carl. September CRAP audit measured roughly CRAP 342 / CC 18 with unavailable coverage treated as 0%, so it is a diagnostic risk signal only. A concrete CI root cause identified on 17 Sep was YAML parsing unquoted Python `3.10` as numeric `3.1`; intended matrix values should be quoted strings such as '3.10', '3.11', '3.12'. The current GitHub integration had read but no push access, so the fix could not be landed through this connector at that checkpoint. Do not claim the issue is repaired until live CI shows it; re-check write permission and workflow contents first."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-23e7ca9a-f705-4a64-93d3-7bffbfca551a",
+      "title": "Arena: 2026 history",
+      "project": "Arena",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-17T21:39:00Z",
+      "updated_at": "2026-09-17T22:18:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:18:00Z",
+          "text": "Recovered project-history fact.\nProject: Arena\nStatus: HISTORICAL\nArena canonical repo observed in September CI sweep: joshuaparris-max/Arena. Historical CI failure: main commit 566cfb0 on 10 Jul 2026 failed all jobs including verify. September CRAP audit measured roughly CRAP 930 / CC 30 with unavailable coverage treated as 0%, so that score is a risk signal rather than proof of broken behaviour. Deployment catalogue had no recorded deployment and still referenced a July version. During 18 Sep connector reconciliation the active GitHub integration could read Arena but not push. Treat all CI/deployment/access state as dated; verify live permissions and Actions before attempting repair."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-c0e2018e-d70a-48f2-a436-4ae0d0e03862",
+      "title": "openclaw: 2026 history",
+      "project": "openclaw",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-17T21:39:00Z",
+      "updated_at": "2026-09-17T22:18:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:18:00Z",
+          "text": "Recovered project-history fact.\nProject: openclaw\nStatus: CURRENT\njoshualparris/openclaw is Josh's fork, not the upstream project's official main. Pushing to its `main` affects the fork only unless a PR/upstream sync action is performed. September quality work included CRAP/complexity auditing; generated/minified output exclusions reduced a false raw maximum from roughly 60,762 to 42,230 but the remaining score still reflected substantial untested/complex code. During the 18 Sep CI reconciliation the inspected current HEAD had no known failing checks; latest workflows were green with some intentionally skipped jobs. Because this is a large upstream-derived codebase, fresh agents should verify fork/upstream divergence, preserve intentional local changes, and avoid broad refactors or syncs merely to lower metrics."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-b5086e7e-e846-4b2d-807b-dcdf793833cb",
+      "title": "JoshSupervisor: 2026 history",
+      "project": "JoshSupervisor",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-10T05:21:18Z",
+      "updated_at": "2026-09-17T22:16:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:16:00Z",
+          "text": "Recovered project-history fact.\nProject: JoshSupervisor\nStatus: HISTORICAL\nJoshSupervisor/Mission Supervisor local project identity is [local path]; mission persistence uses JSON under ~/.gemini/missions. The mission model stores status, current plan, completed/pending/blocked steps, evidence, reviewer verdicts, last_trustworthy_checkpoint, next_recommended_action, unresolved questions, completion criteria and timestamps. Startup should reconstruct active mission state, inspect the real repo/system against the checkpoint, and resume from the first trustworthy pending action. Bounded-loop protocol: one discrete action -> verify/evidence -> josh_reviewer checkpoint (max 2 rounds) -> persist update; repeated failure becomes BLOCKED; destructive/credential-changing/ambiguous decisions become ASK_JOSH; COMPLETED requires explicit evidence, not prose. Historical harmless hasher test only reached RUNNING, so restart/resume proof was still pending then. Security-audit mission `41724c32-a2a1-426d-a9eb-d3408d736d59` later tracked portfolio-wide security/privacy/data-loss work in [local path]; 34 raw scanner reports, 33 parsed, 275 findings and 213 canonical risks were recorded, with a first remediation wave including Avance 72b39c2, ashfaller 97d779e and AIDungeonMaster merged main 75ed1f91. At one checkpoint ~189 validations remained. Preserve the distinction CLAIMED != SATISFIED and do not allow a supervisor's own status flag to override direct evidence/reviewer state."
+        }
+      ]
     }
   ]
 }
