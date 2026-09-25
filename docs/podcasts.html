@@ -34,6 +34,10 @@ const podcasts=[
  {n:"2.5 Admins · Hybrid Admins Show",by:"2.5 Admins",episode:"4IDtzSGXL5rFRoY8omZTWO",t:["Avance","Servers"],d:"Servers, geo-redundancy and Windows backup: useful for moving from single-PC thinking into reliable systems."},
  {n:"2.5 Admins · UPS for LiFePO4",by:"2.5 Admins",episode:"2WpilgezThnnatjJqLPmZl",t:["DadLAN","Networking"],d:"UPS choices, storage filesystems and restricting IoT network access. Useful event-infrastructure and homelab crossover."},
  {n:"Game & Gadget Podcast",by:"Game & Gadget",id:"62kjQPnE8CGAlbpCNI1WJi",t:["DadLAN","Retro"],d:"Selected episodes dig into old PC hardware, repair and maintaining vintage systems, matching DadLAN's mixed-age machines and retro LAN games."},
+ {n:"RGN #41 – Plug & Play: The LAN Party Days",by:"Retro Game Night Podcast",id:"7K3kaLw7VgqWxZQonv322O",t:["DadLAN","LAN Parties","Retro"],d:"Directly about classic LAN-party culture: hauling PCs together, cables, Counter-Strike, Quake, Diablo II and local multiplayer nights. Spotify search currently exposes the episode through the show rather than a stable episode ID."},
+ {n:"CP 13 – SNAPL Lan Party",by:"Control Point – A TF2 Podcast",id:"13h8164IZ8yhpwqMa29e29",t:["DadLAN","LAN Parties"],d:"Recorded around an actual LAN party and follows what happened through the evening and into the morning. Spotify search currently exposes it through the show listing."},
+ {n:"Unreal Tournament 2004 and Fun in Games",by:"RetroXP",episode:"1fhN8E2EwEYXmZruexMz8N",t:["DadLAN","DadLAN Games","Retro"],d:"A 2026 RetroXP episode discussing Unreal Tournament 2004, one of the games directly relevant to DadLAN Bendigo's LAN library."},
+ {n:"Quake",by:"They Create Worlds · Episode 238",episode:"7mDdqx55hoiSyyIxwFRODS",t:["DadLAN","DadLAN Games","Networking"],d:"Deep history of Quake, including its client-server multiplayer technology and deathmatch culture. Highly relevant to DadLAN's Quake LAN play."},
  {n:"PC Building Advice for the Holidays",by:"Broken Silicon · with Dawid Does Tech Stuff",episode:"6dK1BxqddahuM71tb0o65S",t:["Build","CCC"],d:"A dedicated PC-building discussion about choosing parts around performance targets, price/performance and sensible purchasing decisions."},
  {n:"Why it’s smart to build a custom gaming PC",by:"Tech It Out · Quoted Tech interview",episode:"5xYNF8XslDDEbdphi6EPOS",t:["Build","CCC"],d:"Directly about the custom-PC route versus buying an off-the-shelf gaming PC, including the value of having experts specify and build the machine."},
  {n:"DIY Steam Machine Build",by:"Zac Builds",episode:"2HBBFkhYDRqKR4Wu2IfaQj",t:["Build","Hardware"],d:"A concrete small-form-factor build using Ryzen 5 5600X, Radeon graphics, Mini-ITX motherboard, NVMe, DDR4, SFX PSU and low-profile cooling."},
@@ -44,7 +48,7 @@ const podcasts=[
  {n:"Best X870E Motherboard + Lian Li Case",by:"ThinkComputers · Podcast #469",episode:"3JIDauyAGyhOEdRrt5OdlQ",t:["Build","Hardware"],d:"Motherboard and case evaluation, useful for learning how reviewers assess core custom-build components."},
  {n:"CPU Cooler, Airflow Case + Benchtable",by:"ThinkComputers · Podcast #459",episode:"27Vd9EHs8t3ZLv5W9joBm6",t:["Build","Hardware"],d:"Case airflow, CPU cooling, benchtables and M.2 cooling: practical physical-build and thermal-management topics."}
 ];
-const cats=["All","DadLAN","CCC","Avance","Refurb","Build","Hardware","Networking","Servers","Retro"];
+const cats=["All","DadLAN","LAN Parties","DadLAN Games","CCC","Avance","Refurb","Build","Hardware","Networking","Servers","Retro"];
 let active="All", controller;
 const filters=document.getElementById("filters"),grid=document.getElementById("grid"),now=document.getElementById("now");
 function drawFilters(){filters.innerHTML=cats.map(x=>'<button class="filter '+(x===active?'on':'')+'" data-c="'+x+'">'+x+'</button>').join("");filters.querySelectorAll("button").forEach(b=>b.onclick=()=>{active=b.dataset.c;drawFilters();draw()})}
