@@ -1,0 +1,29 @@
+[
+  {
+    "thread_id": "public-timeline-2026-09-08-to-21",
+    "title": "Public continuity timeline: 8–21 September 2026",
+    "preview": "This record integrates cross-machine work, cloud deployments, hardware troubleshooting, and general research. * **Tuesday 8 September**: Decade-by-decade dance/music rankings. Investigated unavailable MP3 links for podca",
+    "project": "JoshCoding2026",
+    "source": "public-doc",
+    "created_at": "2026-09-08T00:00:00+10:00",
+    "updated_at": "2026-09-21T23:59:00+10:00"
+  },
+  {
+    "thread_id": "cloud-continuity-history",
+    "title": "JoshMemory cloud continuity history",
+    "preview": "Last updated: 15 September 2026 This document is the durable architecture record for the conversations and implementation work that led to JoshMemory's cross-machine continuity design. It intentionally captures decisions",
+    "project": "JoshMemory",
+    "source": "public-doc",
+    "created_at": "2026-09-15T00:00:00+10:00",
+    "updated_at": "2026-09-15T00:00:00+10:00"
+  },
+  {
+    "thread_id": "coding-2026-master-handoff",
+    "title": "Josh coding 2026 master continuity handoff",
+    "preview": "Last reconciled: 18 September 2026 (Australia/Sydney) ## Purpose This is the portfolio-level continuity document for Josh's 2026 software-development work. It exists so a fresh Claude Code, Codex, Antigravity or other co",
+    "project": "JoshCoding2026",
+    "source": "public-doc",
+    "created_at": "2026-09-18T00:00:00+10:00",
+    "updated_at": "2026-09-18T00:00:00+10:00"
+  }
+]
