@@ -26,6 +26,7 @@
     transcript: document.getElementById("transcript"),
     eventSearch: document.getElementById("event-search"),
     eventSearchCount: document.getElementById("event-search-count"),
+    mobileBack: document.getElementById("mobile-back"),
   };
 
   function fmtDate(iso) {
@@ -76,15 +77,15 @@
   }
 
   async function loadIndex() {
-    const res = await fetch("data/index.json");
+    const res = await fetch("data/index.json", { cache: "no-store" });
     const baseIndex = await res.json();
     state.index = [...baseIndex];
 
-    const metaRes = await fetch("data/meta.json");
+    const metaRes = await fetch("data/meta.json", { cache: "no-store" });
     const meta = await metaRes.json();
 
     try {
-      const derivedRes = await fetch("data/derived_sessions.json");
+      const derivedRes = await fetch("data/derived_sessions.json", { cache: "no-store" });
       if (derivedRes.ok) {
         const payload = await derivedRes.json();
         const known = new Set(state.index.map((s) => s.thread_id));
@@ -183,8 +184,20 @@
     el.sessionList.appendChild(frag);
   }
 
-  async function selectSession(threadId) {
+  function isMobile() {
+    return window.matchMedia("(max-width: 760px)").matches;
+  }
+
+  function showMobileList({ clearHash = false } = {}) {
+    document.body.classList.remove("mobile-detail");
+    if (clearHash && history.replaceState) {
+      history.replaceState(null, "", location.pathname + location.search);
+    }
+  }
+
+  async function selectSession(threadId, { fromHistory = false } = {}) {
     state.activeThreadId = threadId;
+    if (isMobile()) document.body.classList.add("mobile-detail");
     renderSessionList();
 
     el.emptyState.hidden = true;
@@ -194,7 +207,7 @@
 
     let session = state.sessionCache.get(threadId);
     if (!session) {
-      const res = await fetch(`data/sessions/${threadId}.json`);
+      const res = await fetch(`data/sessions/${threadId}.json`, { cache: "no-store" });
       session = await res.json();
       state.sessionCache.set(threadId, session);
     }
@@ -203,8 +216,12 @@
     el.loading.hidden = true;
     el.sessionView.hidden = false;
 
-    if (history.replaceState) {
-      history.replaceState(null, "", `#${threadId}`);
+    if (!fromHistory) {
+      if (isMobile() && history.pushState) {
+        history.pushState({ threadId }, "", `#${threadId}`);
+      } else if (history.replaceState) {
+        history.replaceState(null, "", `#${threadId}`);
+      }
     }
   }
 
@@ -273,6 +290,22 @@
       applyFilters();
     });
     el.eventSearch.addEventListener("input", filterEventsInSession);
+    el.mobileBack.addEventListener("click", () => {
+      if (history.state && history.state.threadId) {
+        history.back();
+      } else {
+        showMobileList({ clearHash: true });
+      }
+    });
+
+    window.addEventListener("popstate", () => {
+      const hash = location.hash.replace("#", "");
+      if (hash && state.index.some((s) => s.thread_id === hash)) {
+        selectSession(hash, { fromHistory: true });
+      } else {
+        showMobileList();
+      }
+    });
 
     document.addEventListener("keydown", (e) => {
       if (e.key === "/" && document.activeElement !== el.search && document.activeElement !== el.eventSearch) {
@@ -287,7 +320,9 @@
     loadIndex().then(() => {
       const hash = location.hash.replace("#", "");
       if (hash && state.index.some((s) => s.thread_id === hash)) {
-        selectSession(hash);
+        selectSession(hash, { fromHistory: true });
+      } else if (isMobile()) {
+        showMobileList();
       }
     });
   }
