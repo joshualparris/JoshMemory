@@ -144,3 +144,128 @@ Then sections for Fully working, Fixed during this run, Dependency upgrades, Rem
 The job is complete only after a serious effort to leave **every application under `~/dev` upgraded, repaired, tested and working**, rather than merely audited.
 
 The assistant added that the prompt deliberately allowed Antigravity to commit/push only after verification while forbidding force-pushes, discarded work or upload of private Health/ChatGPT data.
+
+
+---
+
+## User — 2026-08-12T00:37:26Z
+
+fedora antigravity said this
+
+### Antigravity run transcript supplied by the user
+
+Antigravity scanned Git repositories under `~/dev`, reporting project path, branch, dirty/clean state and detected package types.
+
+It then worked through these projects:
+
+### AvancePD
+- inspected Git status and `package.json`
+- searched TODOs and viewed `qa.js`
+- installed dependencies
+- ran the build
+- started preview/dev servers and ran the QA script
+- committed dependency/QA changes with message: `chore: Upgrade dependencies and add QA smoke test`
+
+### JoshHealth
+- inspected Git status and `package.json`
+- installed dependencies and ran tests
+- inspected `healthConnectAnalyzer.test.js` and `health-connect-analyzer.js`
+- edited the analyser
+- reran tests
+- edited `healthconnect-ingest.js`
+- ran production build and browser tests
+- committed with message: `fix: Fix Health Connect analyzer test output and add ingest API validation`
+
+### Whispering-Wilds
+- inspected Git status and requirements
+- inspected E2E tests
+- created a Python venv, installed requirements and ran unit tests
+- later reran tests with `PYTHONPATH=src`
+- committed E2E/CI/status-effects/TUI verification work with message: `test: Add and update E2E tests and CI for status effects and TUI verification`
+
+### FedoraCrashDoctor
+- inspected Git status and repository files
+- ran unit tests
+- viewed `patch_readiness.py`
+- executed readiness/test commands
+- committed `collector.py` hardening with message: `fix: Harden crash capture readiness verification and prevent false positives`
+
+### ChatGPTBrowser / JoshProfile-ChatGPT-Recovery
+- inspected repository files
+- viewed `hybrid_search.py`, `database.py` and `engine.py`
+- edited `hybrid_search.py`
+- created a venv and installed requirements
+- ran unit tests
+- inspected and edited `test_analytics_regression.py`
+- reran tests several times
+- committed with message: `feat: Implement hybrid search with FTS5 and RRF`
+
+### RagTime
+- inspected `/home/josh/dev/RagTime`, `RagTime/app` and `RagTime/RAG`
+- initialised Git at `/home/josh/dev/RagTime` and made an initial commit
+- viewed `defence_plugins.py`, `default.yaml`, `api.py`, `education.py` and `rag_target.py`
+- searched configuration for possible credential patterns; no credential value is reproduced in this archive
+- created a Python venv and ran pytest
+
+Antigravity then created `~/dev/ecosystem_status_report.md` with the following conclusions:
+
+### 1. AvancePD
+**Status:** Healthy & Verified 🟢
+
+Actions reported:
+- updated package dependencies
+- produced a production build
+- implemented and ran `qa.js` Playwright smoke testing over primary routes
+- left the repository in a clean committed state
+
+### 2. JoshHealth
+**Status:** Healthy & Verified 🟢
+
+Actions reported:
+- fixed a regression in `health-connect-analyzer.js` where `sample_columns` was missing from `analyzeHeartRate`
+- added payload validation for `date`, `summary` and `source` in `src/apiHandlers/healthconnect-ingest.js`
+- built the Vite app successfully
+- reported 34/34 tests passing plus Playwright UI smoke tests
+- committed previously untracked analysis methodology docs and fixes
+
+### 3. Whispering-Wilds
+**Status:** Healthy & Verified 🟢
+
+Actions reported:
+- validated the Textual TUI environment
+- fixed `PYTHONPATH` resolution for E2E tests
+- reported 27/27 transcript tests passing across combat, quests, economy, death, save/load and status effects
+- committed verification scripts, tests and TUI implementations
+
+### 4. FedoraCrashDoctor
+**Status:** Healthy & Verified 🟢
+
+Actions reported:
+- replaced speculative string checks in `collector.py` with stricter evidence-based readiness logic for kdump, pstore, journald and panic settings
+- reported 44/44 tests passing
+- committed the readiness hardening
+
+### 5. ChatGPTBrowser (JoshProfile-ChatGPT-Recovery)
+**Status:** Healthy & Verified 🟢
+
+Actions reported:
+- implemented unfinished exact search in `analysis/hybrid_search.py`
+- added SQLite FTS5 exact searching
+- added Reciprocal Rank Fusion combining semantic and exact ranking
+- changed regression-test expected embedded-document counts
+- reported the Python unittest suite passing
+- committed search and test changes
+
+### 6. RagTime
+**Status:** Healthy & Verified 🟢
+
+Actions reported:
+- verified `DefenceComposer` / `DefencePlugin`
+- confirmed API configuration can use environment-backed providers or local Ollama without hard-coded credentials
+- verified education/security plugin mappings
+- initialised a Git repository and committed the state
+- reported 36/36 pytest tests passing
+
+Antigravity's report concluded that the six “core ecosystem applications” had been stabilised, verified and left in clean version-control states.
+
+Its final user-facing summary repeated the JoshHealth, Whispering-Wilds, FedoraCrashDoctor, ChatGPTBrowser and RagTime fixes, and ended by pointing to `~/dev/ecosystem_status_report.md` and asking whether the user wanted particular CI/CD pipelines or deployments validated next.
