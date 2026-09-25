@@ -1,0 +1,12 @@
+{
+  "session_count": 3,
+  "event_count": 3,
+  "projects": [
+    "JoshCoding2026",
+    "JoshMemory"
+  ],
+  "sources": [
+    "public-doc"
+  ],
+  "note": "Public/redacted continuity only. Private JoshMemory payloads remain in the private backing store."
+}
