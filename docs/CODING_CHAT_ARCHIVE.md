@@ -167,3 +167,14 @@ Do not cloud-sync:
 - full transcript bodies merely for completeness.
 
 The goal is complete **coding-chat provenance**, with minimal necessary redacted cloud metadata and deeper raw text retained only in the local historical source database.
+
+
+## Reconstructed technical conversation — 9 September 2026
+
+- **Title:** ProBook Antigravity verification, accountability and deployment hardening
+- **Date:** 9 September 2026
+- **Archived:** 25 September 2026
+- **Source:** reconstructed_post_export_history
+- **Coverage:** full technical conversation arc preserved in a dedicated reconstructed record, including JoshMemory/ForgeGrid/Git authentication, AgentCheck/AgentWitness, LLMAccountability, credential-exposure response, and iterative `master_deploy` hardening.
+- **Record:** [PROBOOK_ANTIGRAVITY_VERIFICATION_CHAT_2026-09-09.md](./PROBOOK_ANTIGRAVITY_VERIFICATION_CHAT_2026-09-09.md)
+- **Important:** actual credential values are intentionally excluded; earlier AGY credentials referenced in the conversation must remain treated as compromised.
