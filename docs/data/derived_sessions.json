@@ -3242,6 +3242,150 @@
           "text": "Reconstructed coding-history entry.\nTitle: JoshMemory full coding-chat archive expansion\nSummary: Expanded goal from project summaries to every coding ChatGPT conversation with exact dates and first-class cloud chat records.\nProjects/technologies: JoshMemory, ChatGPT history, coding archive\nThis is a reconstructed summary, not a verbatim transcript."
         }
       ]
+    },
+    {
+      "thread_id": "project-fact-771b9e1f-f6dc-42a7-ac06-acde406711c3",
+      "title": "PortfolioQA2026: 2026 history",
+      "project": "PortfolioQA2026",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-17T22:32:00Z",
+      "updated_at": "2026-09-17T22:32:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:32:00Z",
+          "text": "Recovered project-history fact.\nProject: PortfolioQA2026\nStatus: CURRENT\nPortfolio QA/deployment history: cross-project smoke testing repeatedly used HTTP status + expected text + browser console errors + screenshots to catch blank-page/base-path regressions. A November-2025 precursor already identified GitHub Pages subpath/base-path failures as a common blank-page cause; this became a durable 2026 QA pattern. January-May portfolio reviews converged on one canonical home per product family and a central improvements/status tracker with exact broken URLs, status/priority/effort/acceptance criteria, per-app fixes, changelog and release checklist. An Aug 13 deployment audit found roughly 60 portal URLs with many local/unpushed changes, failed pushes, detached temp worktrees, stale deployments and broken ClearCore/ParrisDubboMover; recommended a WORKING/BROKEN/STALE/NOT DEPLOYED inventory that compares local HEAD, Git remote and deployed version. A June content review also concluded architecture was often stronger than visible content (especially Null, Midnight Line, HugCoach, Campaign Copilot), so finishing/surfacing content should outrank building more hidden systems. September JoshHub QA formalised the same rule: deployment badge or HTTP 200 alone is not enough; verify meaningful rendered content/assets/mobile controls and production build identity."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-587990ad-424b-419b-b18b-3dd83348321f",
+      "title": "DubboSDR: 2026 history",
+      "project": "DubboSDR",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-08-27T00:00:00Z",
+      "updated_at": "2026-09-17T22:31:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:31:00Z",
+          "text": "Recovered project-history fact.\nProject: DubboSDR\nStatus: UNKNOWN\nDubboSDR was a 2026 child-friendly software-defined-radio project with a WPF application offering Kids Radio and Explorer modes plus a Next.js web app. Recovered active issues were crackly/intermittent audio and crashes around audio initialisation; longer-term direction included phone streaming. The key product decision was to prioritise a child-friendly touchscreen radio experience. No later verified commit/deployment chronology was recovered, so current repo/runtime state is UNKNOWN and must be discovered live rather than inferred from this historical project summary."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-80c75ec1-a3d2-43df-847a-b462b1c04efe",
+      "title": "MultiMachineCodingWorkflow: 2026 history",
+      "project": "MultiMachineCodingWorkflow",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-08-01T00:00:00Z",
+      "updated_at": "2026-09-17T22:30:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:30:00Z",
+          "text": "Recovered project-history fact.\nProject: MultiMachineCodingWorkflow\nStatus: HISTORICAL\nBefore the later DadLAN/ForgeGrid architecture solidified, an August multi-machine workflow split roles across MacBook Air (CEO intake/master app register), Gaming PC (build/fix) and iMac Retina (QA, duplicate detection, deployment review and creative/game audit). Historical rule kept final push/merge/deploy approval with Josh in that workflow and emphasized separation of intake, implementation and QA. The iMac had no verified gh/GitHub authentication, dirty repos, OpenClaw stability warnings and 8GB RAM. This is historical workflow context, not the current fleet model; later explicit user authorization can permit scoped pushes/merges, and ForgeGrid/AVANCE/JParrisDesktop eventually became the stronger orchestration model. Preserve the underlying principle of role separation and independent review, not the obsolete machine assignment."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-114c0e79-2452-429d-adad-1eb09a37523a",
+      "title": "AdventureText: 2026 history",
+      "project": "AdventureText",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-08-05T00:00:00Z",
+      "updated_at": "2026-09-17T22:30:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:30:00Z",
+          "text": "Recovered project-history fact.\nProject: AdventureText\nStatus: HISTORICAL\nAdventureText was used as a controlled creative/dogfood target for ForgeGrid. On 5 Aug architecture was deliberately split so ForgeGrid owned reusable platform logic and AdventureText remained a thin game client with `.forgegrid/project.json`, a GitHub workflow adapter and worker helpers `prepare_worktree.py`/`validate_scope.py`; temporary Go/USB prototypes included AdventureText-Cluster-USB and intended ForgeGrid-USB distribution. A later ForgeGrid manifest `job-adventure-feature.yaml` was switched to profile `ai` with a prompt to add a small AdventureText feature and run tests. Durable decision: keep distributed-platform logic in ForgeGrid and project-specific integration thin; use small controlled game tasks for dogfood rather than embedding orchestration into the game repo."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-fb777043-bb23-47d5-b578-0b6ff02a554f",
+      "title": "AntigravityGuardrails: 2026 history",
+      "project": "AntigravityGuardrails",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-08-04T00:00:00Z",
+      "updated_at": "2026-09-17T22:30:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:30:00Z",
+          "text": "Recovered project-history fact.\nProject: AntigravityGuardrails\nStatus: HISTORICAL\nAntigravity guardrail work on 4 Aug 2026 created `bootstrap_antigravity_guardrails.py` to install rules/hooks, specification-builder-reviewer agents, `/safe-build`, completion gates, CI, CODEOWNERS, eval scaffolding, CLI settings and optional GitHub main protection. Related artifacts included `.agents/rules/reliability.md`, `.agents/hooks.json`, `safety_gate.py`, `completion_gate.py` and `agent-evals/`. Durable decisions were to require explicit completion/safety gates rather than trusting agent completion claims and to separate spec/builder/reviewer roles. Later audits showed Antigravity sometimes overclaimed completion, broadened scope, regenerated credentials or altered wrong areas, reinforcing independent AgentWitness/LLMAccountability verification and JoshSupervisor checkpoints. Preserve guardrails as advisory/control structure, but verify their current installation/configuration on each machine rather than assuming the bootstrap ran everywhere."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-25783422-1bd7-48ff-bcdf-53bcc70dbf73",
+      "title": "realms-atlas: 2026 history",
+      "project": "realms-atlas",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-15T02:24:19Z",
+      "updated_at": "2026-09-17T22:29:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:29:00Z",
+          "text": "Recovered project-history fact.\nProject: realms-atlas\nStatus: HISTORICAL\nrealms-atlas / Atlas of Broken Realms history: on 15 Apr 2026 the pnpm monorepo app under artifacts/atlas-of-broken-realms ran locally in Vite after adding Windows native packages for Rollup 4.60.1, Lightning CSS 1.32.0 and Tailwind Oxide 4.2.2. Deployment architecture used Vercel root artifacts/atlas-of-broken-realms, `pnpm build`, output dist/public, BASE_PATH=/ and PORT=3000; GitHub Pages required BASE_PATH=/realms-atlas/ via Actions. PR #1 and #2 Vercel previews were Ready on 22 Jun during MVP revival/cleanup. September deployment QA later repaired a malformed gitlink/submodule-style issue and included Realms Atlas in podcast rollout. Durable lesson: keep Vercel and Pages base paths deliberately separate and verify repository link/submodule state before deployment."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-6a0da20b-babc-45b7-905b-a37f7dc75636",
+      "title": "SecondaryAppRepairs2026: 2026 history",
+      "project": "SecondaryAppRepairs2026",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-07-10T00:00:00Z",
+      "updated_at": "2026-09-17T22:29:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:29:00Z",
+          "text": "Recovered project-history fact.\nProject: SecondaryAppRepairs2026\nStatus: HISTORICAL\nRecovered secondary-app history: DCS Companion was a workplace-support tool with task management, meeting notes, email templates and guides; June audit found only a title/partial surface, indicating incomplete deployment. JoshOS Vercel production failed in June; July large restructure moved fable-atlas-mvp contents to repo root and was deliberately NOT pushed because untracked data/seed.json contained a personal portrait requiring privacy review. Chess/JoshChess had repeated main CI and Vercel production failures in June/July; its [local path], so nested checkouts must not be committed as normal files. ForbiddenQuests had a blank-page/missing-assets issue in June. Bramblewick's playable-web-build export succeeded but two deployments failed in July. JoshCoach PR #2/#3 Vercel previews failed on 22 Jun. These are dated repair histories; verify current repos and deployments before resuming, and preserve privacy/nested-repo boundaries."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-7ccdd9c2-09bd-47ad-8ff6-b36de2cd471d",
+      "title": "Campfire: 2026 architecture history",
+      "project": "Campfire",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-01-02T09:22:42Z",
+      "updated_at": "2026-09-17T22:27:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:27:00Z",
+          "text": "Recovered project-history fact.\nProject: Campfire\nStatus: HISTORICAL\nEarly January 2026 Campfire design was deliberately narrowed to avoid duplicating JoshHub/LifeHub. Revised architecture was a lean offline-first behavior-changing 'doer' app with four core modules: Presence, Guardrails, Family Liturgy and Calm Reset. Features to remove/avoid included Campaign, expanded quests/XP, deep health dashboards, complex capture and other dashboard functions already covered elsewhere. Distinct retained ideas included bedtime/shutdown guardrails, Park It, minimal build timer/logs, Build Token gating and optional JoshHub JSON export. This is design history rather than proof of a finished repository/deployment; verify whether a canonical implementation exists before coding."
+        }
+      ]
     }
   ]
 }
