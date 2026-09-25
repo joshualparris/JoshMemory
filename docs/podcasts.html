@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Podcasts · JoshMemory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f7f6f3;--card:#fff;--sunken:#efede8;--border:#e3e0d9;--text:#23211d;--muted:#6f6a60;--accent:#a6572e;--soft:#f1e2d6}
+@media(prefers-color-scheme:dark){:root{--bg:#171613;--card:#1f1e1a;--sunken:#131210;--border:#322f29;--text:#ece8e0;--muted:#a39c8d;--accent:#e0925f;--soft:#3a2a1f}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;line-height:1.55}.top{position:sticky;top:0;z-index:5;background:var(--card);border-bottom:1px solid var(--border);padding:12px 18px}.bar{max-width:1050px;margin:auto;display:flex;align-items:center;gap:12px}.brand{font-weight:700}.brand span{color:var(--accent)}nav{margin-left:auto;display:flex;gap:6px}nav a{color:var(--muted);text-decoration:none;padding:8px 11px;border-radius:999px}nav a.active{background:var(--soft);color:var(--accent);font-weight:700}.wrap{max-width:1050px;margin:auto;padding:28px 18px 80px}.hero{max-width:760px;margin-bottom:24px}.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);font-weight:700}.hero h1{font-size:clamp(28px,5vw,46px);line-height:1.08;margin:7px 0 12px;letter-spacing:-.035em}.hero p{color:var(--muted);font-size:16px}.filters{display:flex;gap:8px;overflow:auto;padding:4px 0 18px}.filter{white-space:nowrap;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:999px;padding:9px 13px;font:inherit;cursor:pointer}.filter.on{background:var(--soft);border-color:var(--accent);color:var(--accent);font-weight:700}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:14px}.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:10px}.card h2{font-size:17px;margin:0}.card p{margin:0;color:var(--muted);font-size:13.5px}.tags{display:flex;gap:6px;flex-wrap:wrap}.tag{font-size:11px;padding:3px 7px;border-radius:999px;background:var(--sunken);color:var(--muted)}.play{margin-top:auto;border:0;background:var(--accent);color:white;border-radius:10px;padding:10px 12px;font:inherit;font-weight:700;cursor:pointer}.player-shell{position:sticky;bottom:0;z-index:6;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(12px);border-top:1px solid var(--border);padding:10px 18px}.player-inner{max-width:1050px;margin:auto}.player-label{font-size:11px;color:var(--muted);margin-bottom:5px}.note{margin-top:24px;padding:15px;border:1px solid var(--border);background:var(--card);border-radius:14px;color:var(--muted);font-size:13px}@media(max-width:600px){.top{padding:9px 12px}.brand{font-size:14px}nav a{padding:7px 9px;font-size:13px}.wrap{padding:22px 12px 180px}.grid{grid-template-columns:1fr}.player-shell{padding:8px 10px}}
+</style>
+</head>
+<body>
+<header class="top"><div class="bar"><div class="brand"><span>◈</span> JoshMemory</div><nav><a href="./">Memories</a><a class="active" href="podcasts.html">Podcasts</a></nav></div></header>
+<main class="wrap">
+<section class="hero"><div class="eyebrow">DadLAN × CCC × Avance × Josh</div><h1>Podcasts for practical, human-centred IT</h1><p>A listening bank built around the real intersection: DadLAN community LAN infrastructure, old-PC reuse, custom builds and repair, customer handover, networking, sysadmin and MSP work. Tap any card and it loads into the persistent Spotify player below.</p></section>
+<div class="filters" id="filters"></div>
+<section class="grid" id="grid"></section>
+<div class="note"><strong>Why these?</strong> DadLAN is not a refurbishment project. It is a social-connection charity where technology removes barriers to participation. The hardware, networking and server recommendations here are selected because they help make that mission work, while also overlapping with Brett-style PC projects, Custom Computer Creations-style repair/build work and Avance managed IT.</div>
+</main>
+<div class="player-shell"><div class="player-inner"><div class="player-label" id="now">Choose a podcast above · playback stays in this page while you browse</div><div id="embed-iframe"></div></div></div>
+<script>
+const podcasts=[
+ {n:"Tech Talk – Tech Business Show",by:"Tech For Techs",id:"7L1wWW7dEcWFZmXcepwaJo",t:["CCC","Avance"],d:"The closest fit for the computer-shop/MSP intersection: repair shops, MSPs, vendors, hardware, tools and the business of technical support."},
+ {n:"Profit or Loss",by:"Joey Does Tech",id:"033Tk9GjGbPG3A2Jqf1gg7",t:["CCC","Refurb"],d:"Broken and written-off electronics, diagnosis, parts hunting, repair cost and whether a fix is economically worthwhile. Strong fit for the reuse/repair mindset."},
+ {n:"Custom PCs Australia",by:"Custom PCs Australia",id:"5e08XXa65VpTmME4ctjBwO",t:["CCC","Build"],d:"Australian custom-PC perspective covering building, tips, how-tos, reviews, gaming and PC technology."},
+ {n:"PC Perspective Podcast",by:"PC Perspective",id:"6kR1QYEG7R3Vop9gVWK6OS",t:["Build","Hardware"],d:"Broad PC hardware literacy: CPUs, GPUs, storage, thermals, benchmarking and the component knowledge behind sensible builds and upgrades."},
+ {n:"ThinkComputers Weekly Tech Podcast",by:"ThinkComputers",id:"41t4T6eriGDzkselwN4Jur",t:["Build","Hardware"],d:"Ongoing enthusiast hardware coverage across motherboards, storage, cooling, cases and graphics."},
+ {n:"2.5 Admins · Even more free consulting",by:"2.5 Admins",episode:"14M832Gts9VL8DXOZrEfGZ",t:["Avance","DadLAN"],d:"A particularly relevant episode: hard drives, USB-C robustness, storage, learning IT knowledge, disk enclosures and Windows server monitoring."},
+ {n:"2.5 Admins · NVMe Surprise",by:"2.5 Admins",episode:"48aynWaCfcf9kqUJkTPmGm",t:["Refurb","Hardware"],d:"Refurbished hard drives, drive longevity and an NVMe failure: useful crossover between old-hardware economics and storage reliability."},
+ {n:"2.5 Admins · Hybrid Admins Show",by:"2.5 Admins",episode:"4IDtzSGXL5rFRoY8omZTWO",t:["Avance","Servers"],d:"Servers, geo-redundancy and Windows backup: useful for moving from single-PC thinking into reliable systems."},
+ {n:"2.5 Admins · UPS for LiFePO4",by:"2.5 Admins",episode:"2WpilgezThnnatjJqLPmZl",t:["DadLAN","Networking"],d:"UPS choices, storage filesystems and restricting IoT network access. Useful event-infrastructure and homelab crossover."},
+ {n:"Game & Gadget Podcast",by:"Game & Gadget",id:"62kjQPnE8CGAlbpCNI1WJi",t:["DadLAN","Retro"],d:"Selected episodes dig into old PC hardware, repair and maintaining vintage systems, matching DadLAN's mixed-age machines and retro LAN games."}
+];
+const cats=["All","DadLAN","CCC","Avance","Refurb","Build","Hardware","Networking","Servers","Retro"];
+let active="All", controller;
+const filters=document.getElementById("filters"),grid=document.getElementById("grid"),now=document.getElementById("now");
+function drawFilters(){filters.innerHTML=cats.map(x=>'<button class="filter '+(x===active?'on':'')+'" data-c="'+x+'">'+x+'</button>').join("");filters.querySelectorAll("button").forEach(b=>b.onclick=()=>{active=b.dataset.c;drawFilters();draw()})}
+function draw(){const rows=podcasts.filter(p=>active==="All"||p.t.includes(active));grid.innerHTML=rows.map((p,i)=>'<article class="card"><div class="tags">'+p.t.map(t=>'<span class="tag">'+t+'</span>').join("")+'</div><h2>'+p.n+'</h2><p><strong>'+p.by+'</strong></p><p>'+p.d+'</p><button class="play" data-key="'+podcasts.indexOf(p)+'">▶ Play here</button></article>').join("");grid.querySelectorAll(".play").forEach(b=>b.onclick=()=>play(podcasts[+b.dataset.key]))}
+function play(p){const uri=p.episode?'spotify:episode:'+p.episode:'spotify:show:'+p.id;now.textContent='Now loaded: '+p.n+' · '+p.by;if(controller)controller.loadEntity(uri)}
+window.onSpotifyIframeApiReady=(IFrameAPI)=>{const p=podcasts[0];IFrameAPI.createController(document.getElementById("embed-iframe"),{width:"100%",height:"152",uri:"spotify:show:"+p.id},c=>{controller=c;now.textContent="Ready: "+p.n+" · choose any recommendation above"})};
+drawFilters();draw();
+</script>
+<script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
+</body>
+</html>
