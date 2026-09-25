@@ -75,6 +75,7 @@ body {
 
 #app {
   height: 100vh;
+  height: 100dvh;
   display: flex;
   flex-direction: column;
   padding-top: env(safe-area-inset-top, 0px);
@@ -315,6 +316,18 @@ body {
   gap: 16px;
   flex-wrap: wrap;
 }
+.mobile-back {
+  display: none;
+  border: 1px solid var(--border);
+  background: var(--bg-sunken);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 8px 12px;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .session-header-main { min-width: 0; flex: 1; }
 #sv-title {
   font-size: 16.5px;
@@ -439,16 +452,222 @@ body {
 }
 
 @media (max-width: 760px) {
-  .layout { flex-direction: column; }
+  body {
+    font-size: 16px;
+    overflow: hidden;
+  }
+
+  #app {
+    min-height: 100dvh;
+  }
+
+  .topbar {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 14px;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+
+  .brand {
+    width: 100%;
+  }
+
+  .brand-name {
+    font-size: 17px;
+  }
+
+  .topbar-search {
+    order: 2;
+    max-width: none;
+    width: 100%;
+    padding: 10px 12px;
+  }
+
+  .topbar-search input {
+    font-size: 16px;
+  }
+
+  .topbar-search kbd,
+  .topbar-stats {
+    display: none;
+  }
+
+  .layout {
+    display: block;
+    min-height: 0;
+    overflow: hidden;
+  }
+
   .sidebar {
     width: 100%;
     max-width: 100%;
-    max-height: 42vh;
-    border-right: none;
-    border-bottom: 1px solid var(--border);
+    height: calc(100dvh - 118px);
+    max-height: none;
+    border: 0;
+    display: flex;
   }
-  .bubble.role-user, .bubble.role-assistant { max-width: 100%; }
-  .topbar { flex-wrap: wrap; gap: 10px; }
-  .topbar-stats { display: none; }
-  .session-search input { width: 140px; }
+
+  .filter-row {
+    padding: 10px 14px;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: var(--bg-elevated);
+  }
+
+  .filter-row select {
+    font-size: 15px;
+    padding: 10px 9px;
+    min-height: 44px;
+  }
+
+  .session-count {
+    padding: 12px 18px 6px;
+    font-size: 12px;
+  }
+
+  .session-list {
+    padding: 4px 10px 32px;
+    overscroll-behavior: contain;
+  }
+
+  .session-item {
+    padding: 13px 12px;
+    margin-bottom: 5px;
+    min-height: 68px;
+  }
+
+  .session-item-title {
+    font-size: 16px;
+    line-height: 1.35;
+    margin-bottom: 7px;
+  }
+
+  .session-item-meta {
+    font-size: 12.5px;
+  }
+
+  .tag {
+    font-size: 10.5px;
+    padding: 2px 7px;
+  }
+
+  .content {
+    display: none;
+  }
+
+  body.mobile-detail .topbar,
+  body.mobile-detail .sidebar {
+    display: none;
+  }
+
+  body.mobile-detail .layout {
+    height: 100dvh;
+  }
+
+  body.mobile-detail .content {
+    display: flex;
+    width: 100%;
+    height: 100dvh;
+    min-height: 100dvh;
+    background: var(--bg);
+  }
+
+  .mobile-back {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    min-height: 44px;
+    font-size: 15px;
+    padding: 8px 14px;
+    margin-bottom: 2px;
+  }
+
+  .session-view {
+    height: 100dvh;
+  }
+
+  .session-header {
+    padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 14px;
+    display: block;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    box-shadow: 0 1px 8px rgba(0,0,0,.12);
+  }
+
+  #sv-title {
+    font-size: 22px;
+    line-height: 1.25;
+    margin: 8px 0 8px;
+  }
+
+  .session-meta {
+    font-size: 13px;
+    gap: 5px 7px;
+  }
+
+  .session-meta .dot {
+    display: none;
+  }
+
+  .session-search {
+    margin-top: 12px;
+    width: 100%;
+  }
+
+  .session-search input {
+    width: 100%;
+    min-height: 44px;
+    font-size: 16px;
+    padding: 10px 12px;
+  }
+
+  .transcript {
+    padding: 18px 14px calc(44px + env(safe-area-inset-bottom, 0px));
+    gap: 16px;
+    max-width: none;
+    overscroll-behavior: contain;
+  }
+
+  .bubble,
+  .bubble.role-user,
+  .bubble.role-assistant,
+  .bubble.role-other {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .bubble {
+    padding: 15px 14px;
+    border-radius: 12px;
+  }
+
+  .bubble.role-other {
+    align-self: stretch;
+    color: var(--text);
+    font-size: 14px;
+    background: var(--bg-elevated);
+    border-style: solid;
+  }
+
+  .bubble-role,
+  .bubble-time {
+    font-size: 11px;
+  }
+
+  .bubble-text {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--text);
+    word-break: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .empty-state {
+    display: none;
+  }
 }
