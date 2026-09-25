@@ -1,7 +1,7 @@
 {
   "version": 1,
   "generated_at": "2026-09-25T19:58:00+10:00",
-  "note": "Public-safe recovery catalogue. Includes existing public continuity records plus high-confidence historical coding-chat titles. Raw private transcript text is never published.",
+  "note": "Public-safe recovery catalogue combining public continuity, high-confidence historical coding-chat titles, and privacy-filtered reconstructed coding summaries. Raw private transcript text is never published.",
   "sessions": [
     {
       "thread_id": "01a08a0a-d45f-72f2-9231-76da5043ca58",
@@ -8298,6 +8298,1590 @@
           "kind": "historical_chat_index",
           "timestamp": "2025-09-21T23:51:40.396411Z",
           "text": "Historical ChatGPT coding archive entry.\nTitle: Job application advice\nDate: 2025-09-21T23:51:40.396411Z\nArchived message count: 156\nCoding classifier terms: code, coding, programming, developer, python, api, json, powershell, bash, test, llm, agent, software, express\nRaw first-message/transcript text is intentionally not published here."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2025-001",
+      "title": "Minecraft Redstone, datapacks, Linux and Scratch/Python basics",
+      "project": "Minecraft",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2025-09-24T10:38:51Z",
+      "updated_at": "2025-09-24T10:38:51Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2025-09-24T10:38:51Z",
+          "text": "Reconstructed coding-history entry.\nTitle: Minecraft Redstone, datapacks, Linux and Scratch/Python basics\nSummary: Coding activity with Archie and Chase covering Redstone, datapacks, Linux exploration, Scratch and Python basics.\nProjects/technologies: Minecraft, Python, Linux\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2025-003",
+      "title": "Best free Windows coding environment",
+      "project": "VS Code",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2025-10-06T00:11:30Z",
+      "updated_at": "2025-10-06T00:11:30Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2025-10-06T00:11:30Z",
+          "text": "Reconstructed coding-history entry.\nTitle: Best free Windows coding environment\nSummary: Windows coding tooling discussion: VS Code, Python, OpenJDK, language extensions and optional WSL.\nProjects/technologies: VS Code, Python, Java, WSL\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2025-004",
+      "title": "Node.js, npm and JavaScript tooling",
+      "project": "Node.js",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2025-10-06T09:23:45Z",
+      "updated_at": "2025-10-06T09:23:45Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2025-10-06T09:23:45Z",
+          "text": "Reconstructed coding-history entry.\nTitle: Node.js, npm and JavaScript tooling\nSummary: Technical discussion about Node.js, npm, JavaScript tooling/backends and technology podcasts.\nProjects/technologies: Node.js, npm, JavaScript\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2025-005",
+      "title": "Cheap prompt-based auto-coder alternatives",
+      "project": "AI coding",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2025-11-11T10:20:26Z",
+      "updated_at": "2025-11-11T10:20:26Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2025-11-11T10:20:26Z",
+          "text": "Reconstructed coding-history entry.\nTitle: Cheap prompt-based auto-coder alternatives\nSummary: Compared low-cost/free auto-coding approaches for fast game creation and vibe coding.\nProjects/technologies: AI coding, games\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2025-006",
+      "title": "Playtest and review five itch.io games",
+      "project": "games",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2025-11-12T01:09:45Z",
+      "updated_at": "2025-11-12T01:09:45Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2025-11-12T01:09:45Z",
+          "text": "Reconstructed coding-history entry.\nTitle: Playtest and review five itch.io games\nSummary: Requested actual testing/review of five itch.io games, surfacing bugs and fixes.\nProjects/technologies: games, QA, debugging\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2025-007",
+      "title": "AAGAMEADVENTURE built-in AI coding console",
+      "project": "AAGAMEADVENTURE",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2025-11-19T01:14:27Z",
+      "updated_at": "2025-11-19T01:14:27Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2025-11-19T01:14:27Z",
+          "text": "Reconstructed coding-history entry.\nTitle: AAGAMEADVENTURE built-in AI coding console\nSummary: Designed a dev-only AI coding console for the TypeScript/Vite AAGAMEADVENTURE engine with repo context, diff proposals and manual apply.\nProjects/technologies: AAGAMEADVENTURE, TypeScript, Vite, AI coding\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2025-008",
+      "title": "AAGAMEADVENTURE improvement prompt set",
+      "project": "AAGAMEADVENTURE",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2025-11-19T01:52:44Z",
+      "updated_at": "2025-11-19T01:52:44Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2025-11-19T01:52:44Z",
+          "text": "Reconstructed coding-history entry.\nTitle: AAGAMEADVENTURE improvement prompt set\nSummary: Fifteen AI-coder prompts covering camera, HUD, mobile touch, lighting, animations, accessibility, pause/title, sharing and challenge mode.\nProjects/technologies: AAGAMEADVENTURE, game dev\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2025-009",
+      "title": "3D identity-house app architecture",
+      "project": "3D app",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2025-11-28T11:50:25Z",
+      "updated_at": "2025-11-28T11:50:25Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2025-11-28T11:50:25Z",
+          "text": "Reconstructed coding-history entry.\nTitle: 3D identity-house app architecture\nSummary: Designed a non-kiddy 3D walkable house app with customizable rooms, objects, persistence and possible multiplayer; compared Godot/Unity/Unreal.\nProjects/technologies: 3D app, Godot, Unity, Unreal\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2025-010",
+      "title": "Master Codex AGENTS.md for coding portfolio",
+      "project": "Codex",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2025-12-01T08:11:37Z",
+      "updated_at": "2025-12-01T08:11:37Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2025-12-01T08:11:37Z",
+          "text": "Reconstructed coding-history entry.\nTitle: Master Codex AGENTS.md for coding portfolio\nSummary: Built a reusable Codex playbook spanning JoshTapApp, DCS Companion, DCS Prep, ParrisDubboMover, Campaign Copilot and game prototypes.\nProjects/technologies: Codex, AGENTS.md, portfolio\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2025-011",
+      "title": "The Wastes Courier architecture and Codex workflow",
+      "project": "Wastes Courier",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2025-12-09T09:07:01Z",
+      "updated_at": "2025-12-09T09:07:01Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2025-12-09T09:07:01Z",
+          "text": "Reconstructed coding-history entry.\nTitle: The Wastes Courier architecture and Codex workflow\nSummary: Designed The Wastes Courier roguelike using TypeScript/Vite/Phaser 3 and a staged VS Code+WSL+Codex workflow without paid API usage.\nProjects/technologies: Wastes Courier, TypeScript, Vite, Phaser, Codex\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2025-012",
+      "title": "OmniCode: The Polyglot Data Pipeline",
+      "project": "OmniCode",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2025-12-12T02:36:41Z",
+      "updated_at": "2025-12-12T02:36:41Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2025-12-12T02:36:41Z",
+          "text": "Reconstructed coding-history entry.\nTitle: OmniCode: The Polyglot Data Pipeline\nSummary: Specified a VS Code/WSL polyglot app with React/TypeScript/SASS, Go, Flask, Spring, GraphQL, PostgreSQL, Redis, Docker/Kubernetes, COBOL and Terraform.\nProjects/technologies: OmniCode, React, Go, Python, Java, Docker, Kubernetes, Terraform\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2025-013",
+      "title": "JoshHub/HugCoach sync and PR conflict resolution",
+      "project": "JoshHub",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2025-12-18T14:38:00+11:00",
+      "updated_at": "2025-12-18T14:38:00+11:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2025-12-18T14:38:00+11:00",
+          "text": "Reconstructed coding-history entry.\nTitle: JoshHub/HugCoach sync and PR conflict resolution\nSummary: JoshHub PR #3 work added HugCoach placeholder and resolved app-card/apps.ts/OrgScape redirect conflicts; later merged.\nProjects/technologies: JoshHub, HugCoach, GitHub, Vercel\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2025-014",
+      "title": "JoshPlatform app architecture",
+      "project": "JoshPlatform",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2025-12-19T00:00:00Z",
+      "updated_at": "2025-12-19T00:00:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2025-12-19T00:00:00Z",
+          "text": "Reconstructed coding-history entry.\nTitle: JoshPlatform app architecture\nSummary: Designed Everything Map, Opportunity Pipeline, Decision Engine, Weekly Review and MoveOps using Next.js/Supabase and AI coding tools.\nProjects/technologies: JoshPlatform, Next.js, Supabase\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2025-015",
+      "title": "JoshHub deployment repair and PR #4",
+      "project": "JoshHub",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2025-12-22T22:13:00Z",
+      "updated_at": "2025-12-22T22:13:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2025-12-22T22:13:00Z",
+          "text": "Reconstructed coding-history entry.\nTitle: JoshHub deployment repair and PR #4\nSummary: JoshHub PR/deployment work around Fix/apps todo and repeated Vercel preview/production outcomes.\nProjects/technologies: JoshHub, Vercel, GitHub\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2025-016",
+      "title": "ISO LifeOS for DCS",
+      "project": "DCS",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2025-12-26T05:04:10Z",
+      "updated_at": "2025-12-26T05:04:10Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2025-12-26T05:04:10Z",
+          "text": "Reconstructed coding-history entry.\nTitle: ISO LifeOS for DCS\nSummary: Designed DCS LifeOS as Next/TypeScript/Tailwind + Dexie/IndexedDB app for tickets, walkups, SOP/KB, assets and weekly review.\nProjects/technologies: DCS, Next.js, TypeScript, Dexie\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2025-017",
+      "title": "School ICT/library micro-SaaS validation",
+      "project": "micro-SaaS",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2025-12-27T11:51:38Z",
+      "updated_at": "2025-12-27T11:51:38Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2025-12-27T11:51:38Z",
+          "text": "Reconstructed coding-history entry.\nTitle: School ICT/library micro-SaaS validation\nSummary: Product/coding validation for a low-support micro-SaaS around device loans, helpdesk triage or inventory scanning.\nProjects/technologies: micro-SaaS, school ICT\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2025-018",
+      "title": "JoshHub app/game playability audit",
+      "project": "JoshHub",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2025-12-28T01:39:42Z",
+      "updated_at": "2025-12-28T01:39:42Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2025-12-28T01:39:42Z",
+          "text": "Reconstructed coding-history entry.\nTitle: JoshHub app/game playability audit\nSummary: Actual playability testing of JoshHub apps/games, including Buckland Blocks issues.\nProjects/technologies: JoshHub, QA, games\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2025-019",
+      "title": "JoshHub Studio/ideas expansion PR #5",
+      "project": "JoshHub",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2025-12-31T22:04:00+11:00",
+      "updated_at": "2025-12-31T22:04:00+11:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2025-12-31T22:04:00+11:00",
+          "text": "Reconstructed coding-history entry.\nTitle: JoshHub Studio/ideas expansion PR #5\nSummary: JoshHub Studio/ideas expansion and failing Vercel preview deployments on PR #5.\nProjects/technologies: JoshHub, Vercel, GitHub\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q1-001",
+      "title": "ParrisTechServicesApp and ParrisTechApp browser apps",
+      "project": "ParrisTechServicesApp",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-01-02T02:55:13Z",
+      "updated_at": "2026-01-02T02:55:13Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-01-02T02:55:13Z",
+          "text": "Reconstructed coding-history entry.\nTitle: ParrisTechServicesApp and ParrisTechApp browser apps\nSummary: Two vanilla browser apps: business hub and guided appointment checklist.\nProjects/technologies: ParrisTechServicesApp, ParrisTechApp, HTML, JavaScript\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q1-002",
+      "title": "Parallel GitHub Copilot prompt for ParrisTechApp",
+      "project": "ParrisTechApp",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-01-02T03:14:18Z",
+      "updated_at": "2026-01-02T03:14:18Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-01-02T03:14:18Z",
+          "text": "Reconstructed coding-history entry.\nTitle: Parallel GitHub Copilot prompt for ParrisTechApp\nSummary: Incremental vanilla HTML/CSS/JS work designed not to interfere with Codex; localStorage rules/checklist/session/export/accessibility.\nProjects/technologies: ParrisTechApp, GitHub Copilot, HTML, JavaScript\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q1-005",
+      "title": "JoshHub and published app ecosystem",
+      "project": "JoshHub",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-01-02T11:25:00Z",
+      "updated_at": "2026-01-02T11:25:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-01-02T11:25:00Z",
+          "text": "Reconstructed coding-history entry.\nTitle: JoshHub and published app ecosystem\nSummary: JoshHub/personal Vercel hub and published Next.js/Vite/Three.js/Unity prototypes discussed as coding ecosystem context.\nProjects/technologies: JoshHub, Next.js, Vite, Three.js, Unity\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q1-006",
+      "title": "DrunkJosh offline-first React/TypeScript app",
+      "project": "DrunkJosh",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-01-06T13:45:19Z",
+      "updated_at": "2026-01-06T13:45:19Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-01-06T13:45:19Z",
+          "text": "Reconstructed coding-history entry.\nTitle: DrunkJosh offline-first React/TypeScript app\nSummary: Specified a local-only React/TypeScript mobile web app with no backend/accounts/external APIs.\nProjects/technologies: DrunkJosh, React, TypeScript\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q1-007",
+      "title": "JoshFireAwareness static fire map",
+      "project": "JoshFireAwareness",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-01-09T06:42:31Z",
+      "updated_at": "2026-01-09T06:42:31Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-01-09T06:42:31Z",
+          "text": "Reconstructed coding-history entry.\nTitle: JoshFireAwareness static fire map\nSummary: Built/reviewed static HTML fire-awareness app with Leaflet, ArcGIS, OSRM, geocoding, deployment and repo cleanup.\nProjects/technologies: JoshFireAwareness, Leaflet, ArcGIS, GitHub\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q1-008",
+      "title": "Offline Wikipedia-style ChatGPT catalogue",
+      "project": "ChatGPT catalogue",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-01-16T11:20:08Z",
+      "updated_at": "2026-01-16T11:20:08Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-01-16T11:20:08Z",
+          "text": "Reconstructed coding-history entry.\nTitle: Offline Wikipedia-style ChatGPT catalogue\nSummary: Codex generator plus parallel GitHub Copilot Astro UI for a local ChatGPT catalogue.\nProjects/technologies: ChatGPT catalogue, Codex, GitHub Copilot, Astro\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q1-009",
+      "title": "DadLAN as DCS professional development",
+      "project": "DadLAN",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-02-10T01:16:42Z",
+      "updated_at": "2026-02-10T01:16:42Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-02-10T01:16:42Z",
+          "text": "Reconstructed coding-history entry.\nTitle: DadLAN as DCS professional development\nSummary: Technical framing of DadLAN work as ICT professional-development deliverables.\nProjects/technologies: DadLAN, DCS\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q1-010",
+      "title": "Nebula Dice terminal RPG and browser evolution",
+      "project": "NebulaDice",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-02-13T10:38:07Z",
+      "updated_at": "2026-02-13T10:38:07Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-02-13T10:38:07Z",
+          "text": "Reconstructed coding-history entry.\nTitle: Nebula Dice terminal RPG and browser evolution\nSummary: Python/Rich terminal RPG evolving toward FastAPI/WebSockets + React/TypeScript browser version and asset factory.\nProjects/technologies: NebulaDice, Python, FastAPI, WebSockets, React, TypeScript\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q1-011",
+      "title": "IgniteApp local couples app",
+      "project": "IgniteApp",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-02-14T10:18:10Z",
+      "updated_at": "2026-02-14T10:18:10Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-02-14T10:18:10Z",
+          "text": "Reconstructed coding-history entry.\nTitle: IgniteApp local couples app\nSummary: Node/Express + React app prompts including Story Weaver, read-aloud and soundscapes.\nProjects/technologies: IgniteApp, Node.js, Express, React\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q1-012",
+      "title": "Parris Tech RPG mystery adventure implementation",
+      "project": "Parris Tech",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-03-06T08:22:05Z",
+      "updated_at": "2026-03-06T08:22:05Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-03-06T08:22:05Z",
+          "text": "Reconstructed coding-history entry.\nTitle: Parris Tech RPG mystery adventure implementation\nSummary: Transformed React/Vite site into branching mystery RPG with corruption/truth state, localStorage, lore and endings.\nProjects/technologies: Parris Tech, React, Vite, localStorage\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q1-013",
+      "title": "Codex RPG custom instructions",
+      "project": "Codex",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-03-06T09:58:33Z",
+      "updated_at": "2026-03-06T09:58:33Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-03-06T09:58:33Z",
+          "text": "Reconstructed coding-history entry.\nTitle: Codex RPG custom instructions\nSummary: Custom Codex instructions for D&D-inspired systems, quests, lore, modular technical structure and vertical slices.\nProjects/technologies: Codex, RPG\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q1-014",
+      "title": "Aetheria: Whispering Woods RPG",
+      "project": "Aetheria",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-03-07T13:27:51Z",
+      "updated_at": "2026-03-07T13:27:51Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-03-07T13:27:51Z",
+          "text": "Reconstructed coding-history entry.\nTitle: Aetheria: Whispering Woods RPG\nSummary: React/Zustand full-stack 2D grid RPG with combat, dialogue, quests, inventory, maps, NPCs and enemies.\nProjects/technologies: Aetheria, React, Zustand\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q1-015",
+      "title": "Aetheria GitHub repo bootstrap and nested-repo debugging",
+      "project": "Aetheria",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-03-07T13:31:11Z",
+      "updated_at": "2026-03-07T13:31:11Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-03-07T13:31:11Z",
+          "text": "Reconstructed coding-history entry.\nTitle: Aetheria GitHub repo bootstrap and nested-repo debugging\nSummary: GitHub CLI initialization/push work; nested repository, Git identity, .local ignore and untracked-change fixes.\nProjects/technologies: Aetheria, GitHub, Git\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q1-016",
+      "title": "DCS IT and infrastructure deep research",
+      "project": "DCS",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-03-10T03:39:39Z",
+      "updated_at": "2026-03-10T03:39:39Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-03-10T03:39:39Z",
+          "text": "Reconstructed coding-history entry.\nTitle: DCS IT and infrastructure deep research\nSummary: Technical DCS infrastructure research covering AD/Entra, DNS, GPO, networking, Microsoft 365 and architecture.\nProjects/technologies: DCS, infrastructure\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q1-017",
+      "title": "DCS cyber-literacy program architecture",
+      "project": "DCS",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-03-10T04:18:54Z",
+      "updated_at": "2026-03-10T04:18:54Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-03-10T04:18:54Z",
+          "text": "Reconstructed coding-history entry.\nTitle: DCS cyber-literacy program architecture\nSummary: Technical/security program design including MFA, reporting flows and guardrails.\nProjects/technologies: DCS, security, MFA\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q1-018",
+      "title": "DCS Library Resource Centre App",
+      "project": "DCS Library",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-03-12T01:29:00Z",
+      "updated_at": "2026-03-12T01:29:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-03-12T01:29:00Z",
+          "text": "Reconstructed coding-history entry.\nTitle: DCS Library Resource Centre App\nSummary: Next/TypeScript/Tailwind/Supabase school library app prompt-driven build.\nProjects/technologies: DCS Library, Next.js, TypeScript, Supabase\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q2-001",
+      "title": "Wastes Courier Vercel blank-page debugging",
+      "project": "Wastes Courier",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-04-12T10:11:56Z",
+      "updated_at": "2026-04-12T10:11:56Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-04-12T10:11:56Z",
+          "text": "Reconstructed coding-history entry.\nTitle: Wastes Courier Vercel blank-page debugging\nSummary: Diagnosed incorrect Vite project-base path causing blank Vercel page for joshualparris/wastes-courier-roguelike.\nProjects/technologies: Wastes Courier, Vite, Vercel\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q2-002",
+      "title": "Coding portfolio repair audit",
+      "project": "portfolio",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-04-13T10:49:24Z",
+      "updated_at": "2026-04-13T10:49:24Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-04-13T10:49:24Z",
+          "text": "Reconstructed coding-history entry.\nTitle: Coding portfolio repair audit\nSummary: Portfolio repair discussion covering JoshHub, DCS apps, Campaign Copilot, games, ClearCore, LifeHub, ParrisTech and ParrisDubboMover.\nProjects/technologies: portfolio, JoshHub, ParrisDubboMover\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q2-003",
+      "title": "ElodinDeepLore project inside RothfussGame",
+      "project": "ElodinDeepLore",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-04-14T08:38:23Z",
+      "updated_at": "2026-04-14T08:38:23Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-04-14T08:38:23Z",
+          "text": "Reconstructed coding-history entry.\nTitle: ElodinDeepLore project inside RothfussGame\nSummary: Technical/project discussion of ElodinDeepLore dossier/app inside RothfussGame.\nProjects/technologies: ElodinDeepLore, RothfussGame\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q2-004",
+      "title": "ElodinDeepLore package repair",
+      "project": "ElodinDeepLore",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-04-14T09:04:20Z",
+      "updated_at": "2026-04-14T09:04:20Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-04-14T09:04:20Z",
+          "text": "Reconstructed coding-history entry.\nTitle: ElodinDeepLore package repair\nSummary: Repaired ZIP/HTML/atlas/searchable package for ElodinDeepLore.\nProjects/technologies: ElodinDeepLore, HTML\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q2-005",
+      "title": "AshFaller playtest and improvement implementation",
+      "project": "AshFaller",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-04-15T04:10:02Z",
+      "updated_at": "2026-04-15T04:10:02Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-04-15T04:10:02Z",
+          "text": "Reconstructed coding-history entry.\nTitle: AshFaller playtest and improvement implementation\nSummary: Vite+React+TypeScript+Tailwind+Zustand game review, mechanics improvements, successful build and GitHub Pages workflow.\nProjects/technologies: AshFaller, React, TypeScript, Zustand, GitHub Pages\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q2-006",
+      "title": "Atlas of Broken Realms monorepo Windows/deployment debugging",
+      "project": "realms-atlas",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-04-15T05:03:50Z",
+      "updated_at": "2026-04-15T05:03:50Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-04-15T05:03:50Z",
+          "text": "Reconstructed coding-history entry.\nTitle: Atlas of Broken Realms monorepo Windows/deployment debugging\nSummary: pnpm monorepo; fixed Windows native Rollup/LightningCSS/Tailwind binaries and GitHub Pages base path.\nProjects/technologies: realms-atlas, pnpm, GitHub Pages, Vercel\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q2-007",
+      "title": "Realms Atlas static game crash fixes",
+      "project": "Realms Atlas",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-04-15T05:11:18Z",
+      "updated_at": "2026-04-15T05:11:18Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-04-15T05:11:18Z",
+          "text": "Reconstructed coding-history entry.\nTitle: Realms Atlas static game crash fixes\nSummary: Fixed initialization-order crashes, atlas-button mismatch and save initialization in static HTML/CSS/JS version.\nProjects/technologies: Realms Atlas, JavaScript\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q2-008",
+      "title": "Breach Command AI coding stress test",
+      "project": "Breach Command",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-04-18T04:18:34Z",
+      "updated_at": "2026-04-18T04:18:34Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-04-18T04:18:34Z",
+          "text": "Reconstructed coding-history entry.\nTitle: Breach Command AI coding stress test\nSummary: Built/modularized a mobile/static browser strategy game, packaged repo/tests and GitHub Pages publishing; found touch/pathfinding bug.\nProjects/technologies: Breach Command, GitHub Pages, QA\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q2-009",
+      "title": "AI one-shot game creation deep research",
+      "project": "AI coding",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-04-18T05:31:12Z",
+      "updated_at": "2026-04-18T05:31:12Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-04-18T05:31:12Z",
+          "text": "Reconstructed coding-history entry.\nTitle: AI one-shot game creation deep research\nSummary: Deep technical research into prompts/repos/harnesses/QA/deployment for one-shot AI game creation.\nProjects/technologies: AI coding, game dev, QA\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q2-010",
+      "title": "Lantern Road GitHub Pages project",
+      "project": "Lantern Road",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-04-18T09:38:43Z",
+      "updated_at": "2026-04-18T09:38:43Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-04-18T09:38:43Z",
+          "text": "Reconstructed coding-history entry.\nTitle: Lantern Road GitHub Pages project\nSummary: Lantern Road local/GitHub project publishing via GitHub Pages.\nProjects/technologies: Lantern Road, GitHub Pages\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q2-011",
+      "title": "Combined Lantern Road / Whispering Wilds / Sigil Delve integration",
+      "project": "Lantern Road",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-04-18T09:45:10Z",
+      "updated_at": "2026-04-18T09:45:10Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-04-18T09:45:10Z",
+          "text": "Reconstructed coding-history entry.\nTitle: Combined Lantern Road / Whispering Wilds / Sigil Delve integration\nSummary: Requested actual codebase integration of hexcrawl, town map and combat systems.\nProjects/technologies: Lantern Road, Whispering Wilds, Sigil Delve\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q2-012",
+      "title": "RothfussGame repository workflow",
+      "project": "RothfussGame",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-04-22T00:57:59Z",
+      "updated_at": "2026-04-22T00:57:59Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-04-22T00:57:59Z",
+          "text": "Reconstructed coding-history entry.\nTitle: RothfussGame repository workflow\nSummary: RothfussGame / RothfussMaps project and Git workflow.\nProjects/technologies: RothfussGame, RothfussMaps, Git\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q2-013",
+      "title": "RothfussGame bootstrap and nested Git debugging",
+      "project": "RothfussGame",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-04-22T01:41:43Z",
+      "updated_at": "2026-04-22T01:41:43Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-04-22T01:41:43Z",
+          "text": "Reconstructed coding-history entry.\nTitle: RothfussGame bootstrap and nested Git debugging\nSummary: Debugged repo bootstrap, nested repositories and Windows path-length issues.\nProjects/technologies: RothfussGame, Git, Windows\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q2-014",
+      "title": "DCSPrep five-feature implementation",
+      "project": "DCSPrep",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-04-30T02:23:46Z",
+      "updated_at": "2026-04-30T02:23:46Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-04-30T02:23:46Z",
+          "text": "Reconstructed coding-history entry.\nTitle: DCSPrep five-feature implementation\nSummary: Implemented weak-area engine, error-log coaching, ownership map, privacy wording and workflow trees in Next.js.\nProjects/technologies: DCSPrep, Next.js\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q2-015",
+      "title": "JoshHub local dev coordination",
+      "project": "JoshHub",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-05-01T12:05:17Z",
+      "updated_at": "2026-05-01T12:05:17Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-05-01T12:05:17Z",
+          "text": "Reconstructed coding-history entry.\nTitle: JoshHub local dev coordination\nSummary: Coordinated Codex/Copilot/Cursor work with C:\\\\JoshHub-run as source checkout.\nProjects/technologies: JoshHub, Codex, Copilot, Cursor\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q2-016",
+      "title": "JoshHub source-only build diagnosis",
+      "project": "JoshHub",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-05-01T12:16:52Z",
+      "updated_at": "2026-05-01T12:16:52Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-05-01T12:16:52Z",
+          "text": "Reconstructed coding-history entry.\nTitle: JoshHub source-only build diagnosis\nSummary: Inspected Next config/App Router/compile risks without installs/edits; recommended fresh clone after OneDrive/dependency issues.\nProjects/technologies: JoshHub, Next.js, debugging\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q2-019",
+      "title": "DCSPrep Academic PD Track architecture",
+      "project": "DCSPrep",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-05-06T23:03:40Z",
+      "updated_at": "2026-05-06T23:03:40Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-05-06T23:03:40Z",
+          "text": "Reconstructed coding-history entry.\nTitle: DCSPrep Academic PD Track architecture\nSummary: Designed Academic PD Track routes/data model for RBC/SMITB/SILO/DCS bridge without turning it into a full LMS.\nProjects/technologies: DCSPrep, Next.js\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q2-020",
+      "title": "DCS PD apps QA/SWOT audit",
+      "project": "DCSPrep",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-05-07T02:38:16Z",
+      "updated_at": "2026-05-07T02:38:16Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-05-07T02:38:16Z",
+          "text": "Reconstructed coding-history entry.\nTitle: DCS PD apps QA/SWOT audit\nSummary: Thorough QA/SWOT audit of two deployed DCS professional-development apps.\nProjects/technologies: DCSPrep, DCSPD, QA\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q2-021",
+      "title": "Additional Windows Tools TrainingModule",
+      "project": "DCS",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-05-08T00:06:02Z",
+      "updated_at": "2026-05-08T00:06:02Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-05-08T00:06:02Z",
+          "text": "Reconstructed coding-history entry.\nTitle: Additional Windows Tools TrainingModule\nSummary: Generated exact-schema DCS training module for Windows tools with assessments/scenarios/practical outputs.\nProjects/technologies: DCS, TrainingModule, Windows\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q2-023",
+      "title": "JoshBooksOnline reader and audiobook feature review",
+      "project": "JoshBooksOnline",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-06-27T03:18:41Z",
+      "updated_at": "2026-06-27T03:18:41Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-06-27T03:18:41Z",
+          "text": "Reconstructed coding-history entry.\nTitle: JoshBooksOnline reader and audiobook feature review\nSummary: Kindle-style reader gap review, Claude Code implementation prompt and offline/Audible-style audiobook features.\nProjects/technologies: JoshBooksOnline, Next.js, Claude Code\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q2-024",
+      "title": "JoshBooksOnline rollback after catalogue regression",
+      "project": "JoshBooksOnline",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-06-27T03:35:45Z",
+      "updated_at": "2026-06-27T03:35:45Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-06-27T03:35:45Z",
+          "text": "Reconstructed coding-history entry.\nTitle: JoshBooksOnline rollback after catalogue regression\nSummary: Diagnosed commit 5bcb32a, suspected filtering/hydration rather than deletion, and prepared git revert/push workflow.\nProjects/technologies: JoshBooksOnline, Git, Vercel, debugging\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q2-025",
+      "title": "JoshBooksOnline audiobook regression cleanup",
+      "project": "JoshBooksOnline",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-06-29T06:39:45Z",
+      "updated_at": "2026-06-29T06:39:45Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-06-29T06:39:45Z",
+          "text": "Reconstructed coding-history entry.\nTitle: JoshBooksOnline audiobook regression cleanup\nSummary: Commit 2e662b1; docs/Drive audiobook regression and Part_1 cleanup with lint/typecheck/44 tests/catalogue/build passing.\nProjects/technologies: JoshBooksOnline, tests, build\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-001",
+      "title": "Dreadnought Drifters CRPG vertical slice",
+      "project": "drifter",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-07-01T04:23:46Z",
+      "updated_at": "2026-07-01T04:23:46Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-07-01T04:23:46Z",
+          "text": "Reconstructed coding-history entry.\nTitle: Dreadnought Drifters CRPG vertical slice\nSummary: React 18/Vite/TypeScript/Zustand/R3F CRPG vertical-slice implementation.\nProjects/technologies: drifter, React, Vite, TypeScript, Zustand, R3F\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-002",
+      "title": "Dreadnought Drifters Playwright QA",
+      "project": "drifter",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-07-01T04:37:11Z",
+      "updated_at": "2026-07-01T04:37:11Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-07-01T04:37:11Z",
+          "text": "Reconstructed coding-history entry.\nTitle: Dreadnought Drifters Playwright QA\nSummary: Playwright browser QA reached 8/8.\nProjects/technologies: drifter, Playwright, QA\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-003",
+      "title": "Dreadnought Drifters GitHub repo",
+      "project": "drifter",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-07-01T05:00:39Z",
+      "updated_at": "2026-07-01T05:00:39Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-07-01T05:00:39Z",
+          "text": "Reconstructed coding-history entry.\nTitle: Dreadnought Drifters GitHub repo\nSummary: Repository work for joshuaparris-max/drifter.\nProjects/technologies: drifter, GitHub\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-006",
+      "title": "ForgeGrid GitHub Actions CI PR #5",
+      "project": "ForgeGrid",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-08-04T04:43:55Z",
+      "updated_at": "2026-08-04T04:43:55Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-08-04T04:43:55Z",
+          "text": "Reconstructed coding-history entry.\nTitle: ForgeGrid GitHub Actions CI PR #5\nSummary: Created ForgeGrid CI branch chore/github-actions-ci at e120dd07 and PR #5.\nProjects/technologies: ForgeGrid, GitHub Actions, CI\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-007",
+      "title": "AgentBridge replay-store and Windows receiver work",
+      "project": "AgentBridge",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-08-04T04:53:32Z",
+      "updated_at": "2026-08-04T04:53:32Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-08-04T04:53:32Z",
+          "text": "Reconstructed coding-history entry.\nTitle: AgentBridge replay-store and Windows receiver work\nSummary: Transactional replay store and persistent Windows AgentBridge receiver state; commit 5cc2f92f.\nProjects/technologies: AgentBridge, ForgeGrid, Windows\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-008",
+      "title": "ForgeGrid PR #6 validation",
+      "project": "ForgeGrid",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-08-05T00:00:00Z",
+      "updated_at": "2026-08-05T00:00:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-08-05T00:00:00Z",
+          "text": "Reconstructed coding-history entry.\nTitle: ForgeGrid PR #6 validation\nSummary: Disposable-worktree review of SHA d48f5fc0 with Windows build/verifier failure and cleanup cases.\nProjects/technologies: ForgeGrid, PR, Windows, QA\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-009",
+      "title": "ForgeGrid AgentBridge messaging and GUI",
+      "project": "ForgeGrid",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-08-07T00:00:00Z",
+      "updated_at": "2026-08-07T00:00:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-08-07T00:00:00Z",
+          "text": "Reconstructed coding-history entry.\nTitle: ForgeGrid AgentBridge messaging and GUI\nSummary: Registered Antigravity/ProBookAgent/FedoraAgent, relay work and GUI messaging/inbox request.\nProjects/technologies: ForgeGrid, AgentBridge, GUI\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-010",
+      "title": "69-repository coding portfolio audit",
+      "project": "portfolio",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-08-11T23:38:09Z",
+      "updated_at": "2026-08-11T23:38:09Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-08-11T23:38:09Z",
+          "text": "Reconstructed coding-history entry.\nTitle: 69-repository coding portfolio audit\nSummary: Repository cleanup/consolidation across 69 C:\\\\dev repos and deployment/CI repair backlog.\nProjects/technologies: portfolio, GitHub, CI\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-011",
+      "title": "Portfolio deployment and CI engineering",
+      "project": "HealthLens",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-08-12T00:30:49Z",
+      "updated_at": "2026-08-12T00:30:49Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-08-12T00:30:49Z",
+          "text": "Reconstructed coding-history entry.\nTitle: Portfolio deployment and CI engineering\nSummary: HealthLens proxy/retry, ParrisBudgetApp safe CI, AppFactory Vercel, DCS fixes, JoshHub deployment and recursive repo verification.\nProjects/technologies: HealthLens, ParrisBudgetApp, AppFactory, DCS, JoshHub\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-012",
+      "title": "ForgeGrid worker diagnostics and startup automation",
+      "project": "ForgeGrid",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-08-13T00:00:00Z",
+      "updated_at": "2026-08-13T00:00:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-08-13T00:00:00Z",
+          "text": "Reconstructed coding-history entry.\nTitle: ForgeGrid worker diagnostics and startup automation\nSummary: Dist binary reconnected worker; startup automation/desktop shortcut commit 1418093; agent-execution debugging.\nProjects/technologies: ForgeGrid, AgentBridge, Windows\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-013",
+      "title": "DadLAN Control Centre architecture",
+      "project": "DadLAN",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-08-20T04:44:49Z",
+      "updated_at": "2026-08-20T04:44:49Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-08-20T04:44:49Z",
+          "text": "Reconstructed coding-history entry.\nTitle: DadLAN Control Centre architecture\nSummary: Designed unified control centre integrating Action1, MeshCentral, SMB, ForgeGrid, Jenkins and LANCommander.\nProjects/technologies: DadLAN, DadlanControlCentre, Action1, MeshCentral, ForgeGrid\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-014",
+      "title": "DadLAN engineering audit and Jenkins architecture",
+      "project": "DadLAN",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-08-20T23:03:27Z",
+      "updated_at": "2026-08-20T23:03:27Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-08-20T23:03:27Z",
+          "text": "Reconstructed coding-history entry.\nTitle: DadLAN engineering audit and Jenkins architecture\nSummary: Audited /home/josh/dev/6 Laptops projects; chose one Jenkins controller with compatible agents.\nProjects/technologies: DadLAN, ForgeGrid, Jenkins\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-015",
+      "title": "ForgeGrid ProBook worker update/rollback",
+      "project": "ForgeGrid",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-08-20T00:00:00Z",
+      "updated_at": "2026-08-20T00:00:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-08-20T00:00:00Z",
+          "text": "Reconstructed coding-history entry.\nTitle: ForgeGrid ProBook worker update/rollback\nSummary: Update to e57bd45 halted/preserved around dirty repo, corrupted Go toolchain, prebuilt binary SHA/rollback and heartbeat validation.\nProjects/technologies: ForgeGrid, Go, ProBook\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-016",
+      "title": "First real ForgeGrid distributed coding test",
+      "project": "ForgeGrid",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-08-21T01:33:02Z",
+      "updated_at": "2026-08-21T01:33:02Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-08-21T01:33:02Z",
+          "text": "Reconstructed coding-history entry.\nTitle: First real ForgeGrid distributed coding test\nSummary: Fedora coordinator → ThinkPad worker → coding agent → isolated AdventureText change/tests/commit/report.\nProjects/technologies: ForgeGrid, AdventureText, ThinkPad\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-017",
+      "title": "KaseyaFieldOps QuickReference implementation",
+      "project": "KaseyaFieldOps",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-08-22T00:00:00Z",
+      "updated_at": "2026-08-22T00:00:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-08-22T00:00:00Z",
+          "text": "Reconstructed coding-history entry.\nTitle: KaseyaFieldOps QuickReference implementation\nSummary: Security-identity decision layer committed/pushed to feature/security-identity.\nProjects/technologies: KaseyaFieldOps, TypeScript, Git\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-018",
+      "title": "JoshMemory dated coding-history backfill",
+      "project": "JoshMemory",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-08-26T23:23:53Z",
+      "updated_at": "2026-08-26T23:23:53Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-08-26T23:23:53Z",
+          "text": "Reconstructed coding-history entry.\nTitle: JoshMemory dated coding-history backfill\nSummary: Defined archive scope and deep episodic backfill across July–August coding projects.\nProjects/technologies: JoshMemory, history, migration\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-019",
+      "title": "JoshMemory raw ChatGPT export importer",
+      "project": "JoshMemory",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-08-27T00:00:00Z",
+      "updated_at": "2026-08-27T00:00:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-08-27T00:00:00Z",
+          "text": "Reconstructed coding-history entry.\nTitle: JoshMemory raw ChatGPT export importer\nSummary: Implemented/imported 4,660-conversation / 118,433-message raw ChatGPT archive with provenance, FTS and idempotence.\nProjects/technologies: JoshMemory, ChatGPT export, SQLite, FTS5\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-020",
+      "title": "ExamsApp mobile PWA",
+      "project": "ExamsApp",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-08-27T00:00:00Z",
+      "updated_at": "2026-08-27T00:00:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-08-27T00:00:00Z",
+          "text": "Reconstructed coding-history entry.\nTitle: ExamsApp mobile PWA\nSummary: CSU Exam Supervisor PWA; local commit 4c50f4, lint/tests/build passing, push/deploy blocked by auth.\nProjects/technologies: ExamsApp, PWA, GitHub\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-021",
+      "title": "DadLAN Superlab comprehensive status",
+      "project": "DadLAN",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-08-31T03:27:25Z",
+      "updated_at": "2026-08-31T03:27:25Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-08-31T03:27:25Z",
+          "text": "Reconstructed coding-history entry.\nTitle: DadLAN Superlab comprehensive status\nSummary: Audited Fedora + Windows fleet and Control Centre/ForgeGrid/Action1/SMB/MeshCentral/CI gaps.\nProjects/technologies: DadLAN, ForgeGrid, Action1, MeshCentral\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-022",
+      "title": "DadLAN persistent mission supervisor architecture",
+      "project": "DadLAN",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-08-31T04:08:31Z",
+      "updated_at": "2026-08-31T04:08:31Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-08-31T04:08:31Z",
+          "text": "Reconstructed coding-history entry.\nTitle: DadLAN persistent mission supervisor architecture\nSummary: Designed JoshMemory + AgentWitness + LLMAccountability + checkpoints/resume mission supervision.\nProjects/technologies: DadLAN, JoshMemory, AgentWitness, LLMAccountability\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-024",
+      "title": "AgentCouncil, ForgeGrid and DadLAN orchestration",
+      "project": "AgentCouncil",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-04T02:17:34Z",
+      "updated_at": "2026-09-04T02:17:34Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-09-04T02:17:34Z",
+          "text": "Reconstructed coding-history entry.\nTitle: AgentCouncil, ForgeGrid and DadLAN orchestration\nSummary: AI-supervised distributed coding architecture across Fedora coordinator and Windows workers.\nProjects/technologies: AgentCouncil, ForgeGrid, DadLAN\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-025",
+      "title": "ForgeGrid Laptop03 end-to-end deployment validation",
+      "project": "ForgeGrid",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-04T05:12:27Z",
+      "updated_at": "2026-09-04T05:12:27Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-09-04T05:12:27Z",
+          "text": "Reconstructed coding-history entry.\nTitle: ForgeGrid Laptop03 end-to-end deployment validation\nSummary: Verified build 0640a22, worker heartbeat/authenticated job, startup-ordering/Wi-Fi isolation findings.\nProjects/technologies: ForgeGrid, Laptop03, Windows\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-026",
+      "title": "FedoraCrashDoctor 3.2.1 RPM validation",
+      "project": "FedoraCrashDoctor",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-10T00:39:21Z",
+      "updated_at": "2026-09-10T00:39:21Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-09-10T00:39:21Z",
+          "text": "Reconstructed coding-history entry.\nTitle: FedoraCrashDoctor 3.2.1 RPM validation\nSummary: RPM/CLI/imports/PolicyKit/desktop validation; remaining service/stability/symbolication/GUI acceptance.\nProjects/technologies: FedoraCrashDoctor, Fedora, RPM\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-027",
+      "title": "ForgeGrid consolidation branch and CI",
+      "project": "ForgeGrid",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-10T00:43:27Z",
+      "updated_at": "2026-09-10T00:43:27Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-09-10T00:43:27Z",
+          "text": "Reconstructed coding-history entry.\nTitle: ForgeGrid consolidation branch and CI\nSummary: forgegrid-consolidation e5ac2ce/7bebb14; Go build/vet/tests/race, PR #18 and Windows CI blockers.\nProjects/technologies: ForgeGrid, Go, CI\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-028",
+      "title": "Local Qwen/Ollama DadLAN setup",
+      "project": "Qwen",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-12T00:00:00Z",
+      "updated_at": "2026-09-12T00:00:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-09-12T00:00:00Z",
+          "text": "Reconstructed coding-history entry.\nTitle: Local Qwen/Ollama DadLAN setup\nSummary: Ollama/Qwen local-model deployment, GPU benchmarking, ForgeGrid integration and secure AVANCE coordination.\nProjects/technologies: Qwen, Ollama, ForgeGrid, DadLAN\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-029",
+      "title": "AI workstation and automation hardware architecture",
+      "project": "AI workstation",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-14T02:40:02Z",
+      "updated_at": "2026-09-14T02:40:02Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-09-14T02:40:02Z",
+          "text": "Reconstructed coding-history entry.\nTitle: AI workstation and automation hardware architecture\nSummary: Minisforum MS-A2 / Ryzen 9 9955HX / 64GB workstation discussion for local AI/browser automation/coding agents.\nProjects/technologies: AI workstation, automation\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-030",
+      "title": "DadLAN unattended Windows optimisation/testing",
+      "project": "DadLAN",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-14T05:22:42Z",
+      "updated_at": "2026-09-14T05:22:42Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-09-14T05:22:42Z",
+          "text": "Reconstructed coding-history entry.\nTitle: DadLAN unattended Windows optimisation/testing\nSummary: 12-computer Windows optimisation/testing and Teeworlds/interactive-launch investigation.\nProjects/technologies: DadLAN, Windows, testing\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-031",
+      "title": "Consolidate technical chats into GitHub repos",
+      "project": "GitHub",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-15T02:15:32Z",
+      "updated_at": "2026-09-15T02:15:32Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-09-15T02:15:32Z",
+          "text": "Reconstructed coding-history entry.\nTitle: Consolidate technical chats into GitHub repos\nSummary: Requested relevant technical chats be consolidated into repos, pushed to main and exposed via live deployments.\nProjects/technologies: GitHub, documentation, deployment\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-032",
+      "title": "JParrisDesktop Qwen transfer and ForgeGrid version audit",
+      "project": "Qwen",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-16T00:00:43Z",
+      "updated_at": "2026-09-16T00:00:43Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-09-16T00:00:43Z",
+          "text": "Reconstructed coding-history entry.\nTitle: JParrisDesktop Qwen transfer and ForgeGrid version audit\nSummary: Ollama 0.34.1/Qwen3.5:4b transfer/benchmark workflow; found ForgeGrid v0.8.0 discrepancy on Laptop01/Laptop10.\nProjects/technologies: Qwen, Ollama, ForgeGrid\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-033",
+      "title": "DadLAN Qwen/ForgeGrid continuation",
+      "project": "Qwen",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-16T06:53:46Z",
+      "updated_at": "2026-09-16T06:53:46Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-09-16T06:53:46Z",
+          "text": "Reconstructed coding-history entry.\nTitle: DadLAN Qwen/ForgeGrid continuation\nSummary: Persistent Qwen backend/GUI/updater/history work; commits 735fede, ee801e0, 33c767e, f6c9914 and local-only 973c048 context.\nProjects/technologies: Qwen, ForgeGrid, DadLAN\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-034",
+      "title": "Top-priorities technical execution archive",
+      "project": "ForgeGrid",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-17T04:18:16Z",
+      "updated_at": "2026-09-17T04:18:16Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-09-17T04:18:16Z",
+          "text": "Reconstructed coding-history entry.\nTitle: Top-priorities technical execution archive\nSummary: Comprehensive project execution scope for ForgeGrid/Qwen, JoshMemory, DadLAN security, Eleven-Realms, LANCommander, Laptop08 and FedoraCrashDoctor.\nProjects/technologies: ForgeGrid, JoshMemory, DadLAN, Eleven-Realms, LANCommander\nThis is a reconstructed summary, not a verbatim transcript."
+        }
+      ]
+    },
+    {
+      "thread_id": "reconstructed-recovered-post-export-2026q3-035",
+      "title": "JoshMemory full coding-chat archive expansion",
+      "project": "JoshMemory",
+      "source": "reconstructed-coding-chat",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-17T22:37:17Z",
+      "updated_at": "2026-09-17T22:37:17Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "reconstructed_coding_chat",
+          "timestamp": "2026-09-17T22:37:17Z",
+          "text": "Reconstructed coding-history entry.\nTitle: JoshMemory full coding-chat archive expansion\nSummary: Expanded goal from project summaries to every coding ChatGPT conversation with exact dates and first-class cloud chat records.\nProjects/technologies: JoshMemory, ChatGPT history, coding archive\nThis is a reconstructed summary, not a verbatim transcript."
         }
       ]
     }
