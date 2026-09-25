@@ -70,7 +70,6 @@ const podcasts=[
  {n:"CPU Cooler, Airflow Case + Benchtable",by:"ThinkComputers · Podcast #459",episode:"27Vd9EHs8t3ZLv5W9joBm6",t:["Build","Hardware"],d:"Case airflow, CPU cooling, benchtables and M.2 cooling: practical physical-build and thermal-management topics."}
 ];
 const cats=["All","DadLAN","LAN Parties","DadLAN Games","Community","LAN Tech","CCC","Avance","Refurb","Build","Hardware","Networking","Servers","Retro"];
-let active="All", controller;
 const filters=document.getElementById("filters"),grid=document.getElementById("grid"),now=document.getElementById("now"),count=document.getElementById("count"),resumeBtn=document.getElementById("resumeBtn"),fallback=document.getElementById("fallback");
 let active="All", controller, apiReady=false, lastWrite=0;
 const SAVE_KEY="joshmemory-podcast-v2";
