@@ -3386,6 +3386,150 @@
           "text": "Recovered project-history fact.\nProject: Campfire\nStatus: HISTORICAL\nEarly January 2026 Campfire design was deliberately narrowed to avoid duplicating JoshHub/LifeHub. Revised architecture was a lean offline-first behavior-changing 'doer' app with four core modules: Presence, Guardrails, Family Liturgy and Calm Reset. Features to remove/avoid included Campaign, expanded quests/XP, deep health dashboards, complex capture and other dashboard functions already covered elsewhere. Distinct retained ideas included bedtime/shutdown guardrails, Park It, minimal build timer/logs, Build Token gating and optional JoshHub JSON export. This is design history rather than proof of a finished repository/deployment; verify whether a canonical implementation exists before coding."
         }
       ]
+    },
+    {
+      "thread_id": "project-fact-51647ac7-aaea-4fb2-a083-1c47a0f6222e",
+      "title": "GamePortfolio2026: early 2026 identity and consolidation",
+      "project": "GamePortfolio2026",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-04-13T11:00:33Z",
+      "updated_at": "2026-09-17T22:26:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:26:00Z",
+          "text": "Recovered project-history fact.\nProject: GamePortfolio2026\nStatus: HISTORICAL\nEarly-2026 game/prototype portfolio included Whispering Wilds/WhirringWilderness/Wild2, Mystery Depths, Simple RPG/LetsPlayDnd, Infinite Office/OrgScape, Null, BucklandBlocks, Energy Quest, wastes-courier-roguelike, Midnight-Line, StarHaven, ForbiddenQuests, random-play and other small game hosts/builds across GitHub Pages/itch/JoshHub. January-April audits identified heavy fragmentation/duplicate repo lines and recommended one canonical source repo + one live deploy per game family, archiving static/older exports only after backup. Concrete April issues included JoshHub `/games/midnight-line/` returning 404 and Forbidden Quests effectively blank; later history provides more detail for Whispering/OrgScape/Buckland families but not every older prototype. Treat the remaining named games as preserved project identities with evidence-limited chronology; do not invent current deployment status or delete older builds until unique assets/history are checked."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-517730ad-cb84-4f8b-90fe-e3afe76f25c8",
+      "title": "SecurityAudit: 2026 programme history",
+      "project": "SecurityAudit",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-10T06:47:16Z",
+      "updated_at": "2026-09-17T22:24:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:24:00Z",
+          "text": "Recovered project-history fact.\nProject: SecurityAudit\nStatus: HISTORICAL\nPortfolio-wide security/privacy/data-loss programme lived under [local path], 33 parsed, 275 findings and 213 canonical risks; an earlier synthesized/mock risk register was explicitly rejected in favour of genuine evidence. First remediation wave included Avance main 72b39c2, ashfaller 97d779e and AIDungeonMaster merged main 75ed1f91; later history referenced AIDungeonMaster Actions PR #9 clean/green and DCSPD remediation streams. At one checkpoint roughly 189 pending validations/dependency exposures remained. Durable workflow: advisory-by-advisory remediation, avoid unrelated dependency upgrades, preserve useful work when a PR/branch is contaminated, classify claim evidence independently, and do not rescan completed scopes merely because a new agent starts. Current open-risk count must be recomputed from live reports/register before acting."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-fca66f74-0c2b-445d-b455-0050317be90c",
+      "title": "CrossAppRepairs2026: september repairs",
+      "project": "CrossAppRepairs2026",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-16T11:09:24Z",
+      "updated_at": "2026-09-17T22:24:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:24:00Z",
+          "text": "Recovered project-history fact.\nProject: CrossAppRepairs2026\nStatus: HISTORICAL\nSeptember cross-app repair history includes several small but important deployment lessons. DCS Companion was an incubating work tool whose deployment initially returned mostly title-only/incomplete JS-rendered content; podcast dock was intentionally limited to Onboarding. UpskillApp blank-screen root cause was GitHub Pages serving Vite source (`/src/main.tsx`) instead of a compiled build; a proper Vite→Pages workflow fixed it, and competing Pages publishers were recognized as a risk. Realms Atlas had a malformed gitlink/submodule-style repository issue that was repaired during deployment QA. FaithHub raw-static Pages omitted the shared launcher, so it moved to a native bottom-fixed Podcasts button with deployment presence checks and a 25-episode searchable Spotify-linked library. LifeHub/lifehubdashboard got mobile-drawer fixes plus podcast integration. TextGame was rescued into playable `Signal at Black Ridge` with engine/mobile-keyboard UI/items/hazards/health-stamina/autosave/undo/a11y/offline cache/tests; PR #1 was green but Pages was blocked by `Resource not accessible by integration`. WorkPlanner PR #1 added podcast persistence/avoid-repeat/mobile/a11y/tests/CI with live Vercel deployment. Durable lesson: distinguish source repair, CI success and genuinely working production deployment; always browser/smoke-test rendered content."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-8806554d-7f3e-47dd-a250-431681da092c",
+      "title": "CanonRPG: 2026 history",
+      "project": "CanonRPG",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-17T21:25:03Z",
+      "updated_at": "2026-09-17T22:22:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:22:00Z",
+          "text": "Recovered project-history fact.\nProject: CanonRPG\nStatus: CURRENT\njoshuaparris-max/CanonRPG participated in the September podcast rollout and GitHub Pages repair sweep. Earlier workflow `Deploy Canon Table Engine to GitHub Pages` failed at commit 66b0eb6; later repair handled Pages-unavailable behaviour and the inspected latest workflow `Build Canon Table Engine` succeeded at commit d4320ec on 17 Sep. During reconciliation the current integration had push access. The podcast/deployment audit had previously treated CanonRPG as unverified/broken, so the successful build superseded that old red status but does not by itself prove all user-facing routes. Verify live rendered Pages content and current Actions before further work."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-f83bd42f-dc43-41a0-b977-f083a14dc46f",
+      "title": "WorkApp: 2026 history",
+      "project": "WorkApp",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-17T21:39:00Z",
+      "updated_at": "2026-09-17T22:22:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:22:00Z",
+          "text": "Recovered project-history fact.\nProject: WorkApp\nStatus: CURRENT\njoshualparris/WorkApp participated in the September shared podcast rollout and later CI/Pages repair sweep. An earlier status table showed `Deploy to GitHub Pages` red at commit bc936697, but by the 18 Sep reconciliation the connected GitHub integration had write access and the inspected latest Pages workflow was green. Preserve that earlier red state only as superseded history. Any future resume should verify live Pages output, podcast controls and meaningful rendered content rather than trusting the old green snapshot."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-279cc75d-15b1-4c6c-a86d-58a96d80e31d",
+      "title": "Eleven-Realms: 2026 history",
+      "project": "Eleven-Realms",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-17T04:50:40Z",
+      "updated_at": "2026-09-17T22:21:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:21:00Z",
+          "text": "Recovered project-history fact.\nProject: Eleven-Realms\nStatus: HISTORICAL\njoshualparris/Eleven-Realms was created in 2026 as an 11-machine ForgeGrid creative dogfood/game experiment. Initial scaffold used TypeScript/Vite/Canvas/Vitest, modular contracts, FORGEGRID.md, 11 missions, a cross-review manifest and CI; initial tests/typecheck/build passed. At that checkpoint workers had not yet been dispatched. September podcast rollout later added the shared/player integration and visible launcher. A 17 Sep priority context referenced a ForgeGrid-Control -> Eleven-Realms dispatch path and a provider 401 blocker, but the retrieved history does not prove final distributed execution. Resume by verifying live repo/CI/provider credentials and whether worker dispatch ever completed; do not claim the original scaffold proved 11-machine concurrency."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-04f2e0cb-4566-4506-b69b-b9ac1b834bdb",
+      "title": "OrgScapeBuckland: 2026 history",
+      "project": "OrgScapeBuckland",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-17T11:26:48Z",
+      "updated_at": "2026-09-17T22:21:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:21:00Z",
+          "text": "Recovered project-history fact.\nProject: OrgScapeBuckland\nStatus: HISTORICAL\nOrgScape/Infinite Office and BucklandBlocks/BucklandGame were distinct 2026 project families with limited recovered commit-level chronology. Portfolio review characterized OrgScape as structurally sound but content-light (historical score ~7.2/10) and September deployment catalogue treated it as live; CRAP4All later measured a high risk signal around CRAP 20,022 / CC141 with unavailable coverage treated as 0%. BucklandBlocks appeared in the consolidation/archive cluster, with BucklandBlocks1 considered obsolete/scaffold-like; CRAP diagnostics measured BucklandBlocks around 756 in one audit and BucklandGame around 56/CC7 in another repo snapshot. Treat these values as dated prioritization signals, not defect proof. Preserve potentially unique game/content assets before any archive/consolidation action and verify live canonical repos first."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-fb0f2f0b-0ad3-4066-af86-b3576c8c0ca0",
+      "title": "FieldNotesWaypoint: 2026 history",
+      "project": "FieldNotesWaypoint",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-16T10:54:41Z",
+      "updated_at": "2026-09-17T22:20:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:20:00Z",
+          "text": "Recovered project-history fact.\nProject: FieldNotesWaypoint\nStatus: HISTORICAL\nFieldNotes and Waypoint were separate 2026 app identities. Waypoint was assessed in the May portfolio audit as a coherent Next 14 app using Drizzle, better-sqlite and date-fns; recommendation was selective maintenance without duplicating JoshHub. September deployment catalogue treated Waypoint as live. FieldNotes later participated in the shared podcast rollout; source fixes were committed but one 16 Sep checkpoint said production update remained unverified. CRAP4All diagnostics later measured roughly FieldNotes CRAP 4032 / CC63 and Waypoint CRAP 110 / CC10 with unavailable coverage treated as 0%, useful as risk prioritization only. No stronger commit-level chronology was recovered, so preserve these as evidence-limited histories and verify live repos/deployments before changes."
+        }
+      ]
     }
   ]
 }
