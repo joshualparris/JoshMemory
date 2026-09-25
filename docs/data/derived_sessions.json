@@ -3674,6 +3674,150 @@
           "text": "Recovered project-history fact.\nProject: JoshSupervisor\nStatus: HISTORICAL\nJoshSupervisor/Mission Supervisor local project identity is [local path]; mission persistence uses JSON under ~/.gemini/missions. The mission model stores status, current plan, completed/pending/blocked steps, evidence, reviewer verdicts, last_trustworthy_checkpoint, next_recommended_action, unresolved questions, completion criteria and timestamps. Startup should reconstruct active mission state, inspect the real repo/system against the checkpoint, and resume from the first trustworthy pending action. Bounded-loop protocol: one discrete action -> verify/evidence -> josh_reviewer checkpoint (max 2 rounds) -> persist update; repeated failure becomes BLOCKED; destructive/credential-changing/ambiguous decisions become ASK_JOSH; COMPLETED requires explicit evidence, not prose. Historical harmless hasher test only reached RUNNING, so restart/resume proof was still pending then. Security-audit mission `41724c32-a2a1-426d-a9eb-d3408d736d59` later tracked portfolio-wide security/privacy/data-loss work in [local path]; 34 raw scanner reports, 33 parsed, 275 findings and 213 canonical risks were recorded, with a first remediation wave including Avance 72b39c2, ashfaller 97d779e and AIDungeonMaster merged main 75ed1f91. At one checkpoint ~189 validations remained. Preserve the distinction CLAIMED != SATISFIED and do not allow a supervisor's own status flag to override direct evidence/reviewer state."
         }
       ]
+    },
+    {
+      "thread_id": "project-fact-73b93952-a377-4c9a-b254-503b133c8dcc",
+      "title": "AgentCouncil: 2026 history",
+      "project": "AgentCouncil",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-04T05:34:15Z",
+      "updated_at": "2026-09-17T22:16:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:16:00Z",
+          "text": "Recovered project-history fact.\nProject: AgentCouncil\nStatus: HISTORICAL\nAgentCouncil evolved from an initially absent/unverified concept into a local implementation under ~/dev/AgentCouncil. Early audit found no local implementation/GitHub repo and explicitly warned not to invent a large new system; later work created the project as thin orchestration glue around existing AgentWitness/AgentCheck evidence, JoshMemory context, Mission Supervisor durable state, ForgeGrid transport/execution and LLMAccountability trust boundaries. A 4 Sep checkpoint recorded commit b77056f before due diligence; subsequent local repo state reached commit f91def1a5c1ef72dc615fae05e51fd66e38e8fa2 with 44 tests, then Go-test parsing fix c11506e with 47 tests. Real Claude→Codex revision and Claude→Codex+Antigravity approval flows were reportedly completed, including rejection→repair→re-review. Remaining historical gaps included real workload breadth, restart/recovery, bounded retries, usage-limit handling and machine-readable PASS/NEEDS_JOSH/BLOCKED gating; 12-computer concurrent execution remained ForgeGrid's job, not AgentCouncil's. Verify current repo/remotes live because canonical GitHub publication was historically uncertain."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-2e34609e-c92f-4a83-81a5-b534b22c787e",
+      "title": "BeautifulCodeRollout: 2026 portfolio quality history",
+      "project": "BeautifulCodeRollout",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-17T12:27:14Z",
+      "updated_at": "2026-09-17T22:14:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:14:00Z",
+          "text": "Recovered project-history fact.\nProject: BeautifulCodeRollout\nStatus: HISTORICAL\nSeptember 2026 Beautiful Code/quality rollout applied a shared hierarchy across many repos: Principles -> Gates -> Ratchets -> Signals -> Outcomes. Gates protect correctness, tests, build, types, security and meaningful deployment smoke behaviour; ratchets/signals cover coverage, mutation, CRAP, complexity, duplication and churn x complexity hotspots. Metrics are evidence, never the goal. The rollout included broad repo audits, per-repo test/static-analysis/CI fixes, generated-output exclusions and selected complexity refactors. Documented examples include DadlanControlCentre CRAP ~42 -> ~20 with MeshCentral regression coverage and permanent CRAP<30 CI gate; JoshFireAwareness ~56/CC7 -> ~12/CC3 with a CRAP>=30 CI gate; CRAP4All self-score ~306 -> ~17.13; and portfolio ranking docs in JoshDashboard (`CRAP4ALL-RANKINGS.md`, commit 3f0ec83c35686b88e85373ede593d2e0fa750f1b). A missing-repo audit covered 96 repos with zero audit-tool failures after excluding generated/minified bundles. Do not add duplicate quality tooling blindly: inspect repo-specific tests/build/lint/type/security conventions first, preserve useful local standards, and improve behaviour rather than only lowering scores."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-3b7dc6f4-9e3f-4646-b4e9-e4a82d36f480",
+      "title": "WhisperingWildsFamily: 2026 history",
+      "project": "WhisperingWildsFamily",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-17T21:37:31Z",
+      "updated_at": "2026-09-17T22:13:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:13:00Z",
+          "text": "Recovered project-history fact.\nProject: WhisperingWildsFamily\nStatus: HISTORICAL\nWhispering Wilds/WhirringWilderness is a related game family but not one canonical repo/version. Historical audit distinguishes active Python terminal `whispering-wilds`, a stronger PyScript/browser Whispering Wilds v2, and older Twine/browser Whirring Wilderness builds worth preserving for history. September podcast integration applied to browser WhirringWilderness; terminal Whispering-Wilds was intentionally not given the browser dock. The DadLAN-owned repo `joshuaparrisdadlan-stack/WhirringWilderness` later had a red Pages deployment and no write permission through the connected integration; Pages also reported disabled during repair attempts. Do not collapse the terminal/browser variants or assume the old Pages failure remains current. Preserve historical game/UI/TUI/E2E differences and verify live repo/version/deployment before changes."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-0be07298-dd3e-4dc8-a125-005073544574",
+      "title": "GroqAppFamily: 2026 history",
+      "project": "GroqAppFamily",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-08-26T06:05:16Z",
+      "updated_at": "2026-09-17T22:13:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:13:00Z",
+          "text": "Recovered project-history fact.\nProject: GroqAppFamily\nStatus: HISTORICAL\n2026 Groq-related app family includes GroqChat, AI Dungeon Master/PartyQuest, Campaign Copilot, Avance and LifeHub text-game AI. GroqChat canonical repo is joshuaparris/groqchat; historical transcripts referenced llama-3.3-70b-versatile. AIDungeonMaster historically used Groq with that model as an environment default and had a deployed URL ai-dungeon-master-azure.vercel.app at one August checkpoint; audit described PartyQuest v0 with manual browser QA still needed and canonical-repo-versus-PartyAI ambiguity. Campaign Copilot (`joshuaparris-max/campaign-copilot`) used a real Groq client/model and GitHub Pages on main pushes; one portfolio review rated it 6.0/10. DCSPD later migrated its Groq model path to openai/gpt-oss-120b with fallback openai/gpt-oss-20b. Preserve app identities separately, avoid assuming a shared implementation, and verify current model/provider/deployment live because model availability and app state are time-sensitive."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-0d8de9db-b1b7-446e-815d-e66d5f9990ab",
+      "title": "ChatGPTBrowser: 2026 history",
+      "project": "ChatGPTBrowser",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-08-12T00:00:00Z",
+      "updated_at": "2026-09-17T22:09:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:09:00Z",
+          "text": "Recovered project-history fact.\nProject: ChatGPTBrowser\nStatus: HISTORICAL\nChatGPTBrowser canonical GitHub identity is joshuaparris-max/ChatGPT-History-Browser. August work added an SQLite/FTS5-backed ChatGPT recovery/search backend with graph/tree importing, hybrid search and BERTopic/semantic work; one housekeeping checkpoint described FTS5/BERTopic hybrid search as stabilizing around reciprocal-rank-fusion-style ranking. A recovered JoshDashboard2/ChatGPT recovery backend had synthetic validation only (3 conversations, 8 nodes, 7 messages, 1 structural node, 1 branched conversation) and still needed real-export validation plus fixes around composite node identity, explicit message IDs, excluding structural nodes from FTS, branch-stat terminology, migrations and importer accounting. Preserve privacy: imported ChatGPT exports remain local/private source material and should not be dumped into public repos or cloud memory."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-6fa65738-4060-4569-9050-52c1a30f1294",
+      "title": "JoshBooks: 2026 history",
+      "project": "JoshBooks",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-16T10:54:41Z",
+      "updated_at": "2026-09-17T22:09:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:09:00Z",
+          "text": "Recovered project-history fact.\nProject: JoshBooks\nStatus: HISTORICAL\nJoshBooks/JoshBooksOnline 2026 history: JoshBooks had CI workflows/QA and was described as released by the 12 Aug housekeeping checkpoint, with podcast-catalog expansion parked. Separate deployment history recorded repeated Vercel preview/production failures from 17 Jun; PR #1 preview was Ready on 25 Jun while production still failed. A 13 Aug audit said only package-lock.json had been pushed and the deployed version might therefore be stale. September podcast source changes were committed to JoshBooksOnline, but at one checkpoint production update remained unverified. Treat JoshBooks and JoshBooksOnline identity/remotes live rather than assuming equivalence from folder names; verify production content before claiming deployment success."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-1e2ea4da-9be9-46d4-859c-6e35c79ed751",
+      "title": "AppFactory: 2026 history",
+      "project": "AppFactory",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-08-13T00:00:00Z",
+      "updated_at": "2026-09-17T22:08:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:08:00Z",
+          "text": "Recovered project-history fact.\nProject: AppFactory\nStatus: HISTORICAL\nAppFactory 2026 history includes app scaffolding/generation, JSON import work, Git/CI/Vercel deployment experiments, and participation in the podcast rollout. Multiple August audits found AppFactory as a local Git repository without a trustworthy online remote main/master branch or reliable production URL; user explicitly did not want a duplicate repository created merely to fix that. Historical deployment/CI failures and stale deployment identity must not be treated as current. Before changing AppFactory, inspect live remotes/branches/deployments first, preserve local/private content, and avoid destructive dependency churn or broad sync operations simply to make CI green."
+        }
+      ]
+    },
+    {
+      "thread_id": "project-fact-9c9cc327-f2ea-4ab4-97c8-6f458eb15b38",
+      "title": "PodcastRollout: 2026 app by app history",
+      "project": "PodcastRollout",
+      "source": "project-fact-recovery",
+      "model": "",
+      "branch": "",
+      "created_at": "2026-09-16T11:09:24Z",
+      "updated_at": "2026-09-17T22:07:00Z",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "project_fact",
+          "timestamp": "2026-09-17T22:07:00Z",
+          "text": "Recovered project-history fact.\nProject: PodcastRollout\nStatus: HISTORICAL\nSeptember 2026 podcast rollout history: JoshHub was the source-of-truth catalogue/QA surface with 9 topic banks x 25 Spotify episodes, repeat avoidance, persistence, embeds/deep links and focus/quiet modes. Shared dock work was wired across JoshHub, DCSProfessionalDevelopment, DCSPD, AppFactory, KaseyaFieldOps, FieldNotes, DCSPrep, JoshBooksOnline, DCSCompanion (Onboarding only), AIDungeonMaster (/play hidden), 3layers, SwordCoast, Eleven-Realms, campaign-copilot, CanonRPG, realms-atlas, NebulaDice, WhirringWilderness and others; Whispering-Wilds is terminal-only and was represented by the WhirringWilderness browser family. Later rollout reached 28 app repos. Durable UI rules: player defaults OFF, X closes, Settings reopens, safe-area bottom spacing, route restrictions, mobile usability and host-app non-freezing. Shared launcher/jsDelivr dependency caused `Loading podcasts` freezes, so reliable apps migrated toward self-contained local episode data + direct Spotify embeds. FaithHub was specifically repaired with a native bottom-center Podcasts button and 25-episode searchable library after its raw Pages deployment omitted the launcher. Dated unresolved states included Nebula Pages rejection, CanonRPG deployment unverified, some production deploys unverified and Vercel build-rate limits. Verify current app/deployment state live."
+        }
+      ]
     }
   ]
 }
