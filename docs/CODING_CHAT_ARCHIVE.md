@@ -189,3 +189,14 @@ The goal is complete **coding-chat provenance**, with minimal necessary redacted
 - **Coverage:** Jenkins controller/agent topology, Java 21, Fedora service setup, Windows agent preparation, WebSocket agent design, automatic startup, and parallel pipeline verification.
 - **Record:** [2026-08-06-jenkins-fedora-two-windows-pcs.md](./conversations/2026-08-06-jenkins-fedora-two-windows-pcs.md)
 - **Public-repo note:** private network details and Jenkins enrolment material are security-sanitised in the public copy.
+
+
+## Reconstructed technical conversation — 10 July 2026
+
+- **Title:** DCS laptop repository preservation and encrypted off-device rescue
+- **Date:** 10 July 2026
+- **Archived:** 25 September 2026
+- **Source:** reconstructed_post_export_history
+- **Coverage:** emergency Git preservation before losing access to an old DCS computer; 88-repo audit; no safe quarantine candidates; verified bundles, patches, stash exports, detached HEAD rescue branches, failed-bundle follow-up, LFS warnings, and encrypted Google Drive backup guidance.
+- **Record:** [2026-07-10-dcs-laptop-repo-preservation.md](./conversations/2026-07-10-dcs-laptop-repo-preservation.md)
+- **Public-repo note:** raw audit output, full local Windows paths, source bundles, patches, stash contents and any possible school/client/personal data are intentionally excluded from the public copy.
