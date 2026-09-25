@@ -1,6 +1,6 @@
 # Dated coding-chat archive
 
-Last updated: 18 September 2026 (Australia/Sydney)
+Last updated: 25 September 2026 (Australia/Sydney)
 
 ## Goal
 
@@ -178,3 +178,14 @@ The goal is complete **coding-chat provenance**, with minimal necessary redacted
 - **Coverage:** full technical conversation arc preserved in a dedicated reconstructed record, including JoshMemory/ForgeGrid/Git authentication, AgentCheck/AgentWitness, LLMAccountability, credential-exposure response, and iterative `master_deploy` hardening.
 - **Record:** [PROBOOK_ANTIGRAVITY_VERIFICATION_CHAT_2026-09-09.md](./PROBOOK_ANTIGRAVITY_VERIFICATION_CHAT_2026-09-09.md)
 - **Important:** actual credential values are intentionally excluded; earlier AGY credentials referenced in the conversation must remain treated as compromised.
+
+
+## Reconstructed technical conversation — 6 August 2026
+
+- **Title:** Jenkins setup on Fedora and two Windows PCs
+- **Date:** 6 August 2026
+- **Archived:** 25 September 2026
+- **Source:** reconstructed_post_export_history
+- **Coverage:** Jenkins controller/agent topology, Java 21, Fedora service setup, Windows agent preparation, WebSocket agent design, automatic startup, and parallel pipeline verification.
+- **Record:** [2026-08-06-jenkins-fedora-two-windows-pcs.md](./conversations/2026-08-06-jenkins-fedora-two-windows-pcs.md)
+- **Public-repo note:** private network details and Jenkins enrolment material are security-sanitised in the public copy.
