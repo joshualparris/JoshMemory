@@ -1,0 +1,1105 @@
+{
+  "version": 1,
+  "generated_at": "2026-09-25T19:45:00+10:00",
+  "note": "Derived only from files already public in joshualparris/JoshMemory. Private cloud payloads are not exposed.",
+  "sessions": [
+    {
+      "thread_id": "01a08a0a-d45f-72f2-9231-76da5043ca58",
+      "title": "Restored JoshMemory public memory index",
+      "project": "JoshMemory",
+      "source": "recovery-note",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-25T19:45:00+10:00",
+      "updated_at": "2026-09-25T19:45:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "recovery_note",
+          "timestamp": "2026-09-25T19:45:00+10:00",
+          "text": "The original public session content for this UUID was not present in the surviving public Pages dataset, the private project-fact filenames, or the archived coding-chat chunks checked during recovery on 25 September 2026. This UUID is retained as a recovery alias so the old link no longer opens blank. The public browser has been rebuilt from the existing public JoshMemory master handoff and continuity logs, restoring dozens of project-by-project memories without publishing the private JoshMemory cloud payloads."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-02-authority-order",
+      "title": "Authority order",
+      "project": "JoshCoding2026",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "## Authority order\n\nWhen sources disagree, use this order:\n\n1. live Git/GitHub/API/machine evidence;\n2. independent verification evidence from AgentCheck / AgentWitness / LLMAccountability or equivalent;\n3. active JoshMemory cloud facts and handoffs;\n4. this master handoff and project documentation;\n5. older chat transcripts or inferred history.\n\nNever keep an old red/green CI status, deployment status, commit SHA or machine state merely because it appears here. Re-check it."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-03-fresh-agent-startup-contract",
+      "title": "Fresh-agent startup contract",
+      "project": "JoshCoding2026",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "## Fresh-agent startup contract\n\nFor any Josh coding task in 2026:\n\n1. Load/search JoshMemory for the project and `JoshCoding2026`.\n2. Identify the canonical GitHub repository and current checkout.\n3. Inspect live branch, HEAD, dirty state, Actions/checks and deployment before acting.\n4. Compare live state with remembered context and surface discrepancies.\n5. Continue from the first still-valid next action; do not repeat already-completed migrations or repairs.\n6. Save a new handoff at a meaningful checkpoint or blocker."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-04-portfolio-scale-and-history-coverage",
+      "title": "Portfolio scale and history coverage",
+      "project": "JoshCoding2026",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "## Portfolio scale and history coverage\n\nThe portfolio is broad and the exact repo count changes over time. A verified local inventory on 12 August 2026 covered 69 repositories under `C:\\dev`. A later CRAP4All audit on 17 September covered 76 repositories, with 69 scored and 7 not applicable. Treat both as dated snapshots, not a permanent total.\n\nThe older local JoshMemory corpus was substantially populated before cloud continuity was introduced: 279/279 coding backfill items were imported, the local index held hundreds of sessions and more than ten thousand events, and a GitHub Evidence Ledger held hundreds of records across many repositories/namespaces. The 15 September move to the GitHub-backed cloud store did **not** automatically copy that full corpus, which is why this reconciliation exists.\n\nDo not upload raw ChatGPT exports, health data, private conversation material, secrets or whole SQLite databases to the cloud store. Persist compact redacted project facts, handoffs and source references."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-05-engineering-model-used-across-repositories",
+      "title": "Engineering model used across repositories",
+      "project": "JoshCoding2026",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "## Engineering model used across repositories\n\nThe durable model is:\n\n**Principles -> Gates -> Ratchets -> Signals -> Outcomes**\n\nEngineering principles are normative; metrics are diagnostic evidence. A metric never overrides correct behaviour, truthful tests, user requirements or maintainability.\n\nCore quality signals used across the 2026 work:\n\n- test pass rate / behavioural correctness first;\n- mutation testing quality;\n- CRAP score (complexity plus coverage), normally targeting/gating individual functions below 30 where the tool applies;\n- cyclomatic complexity;\n- branch/test coverage, while distinguishing genuinely measured 0% from unknown/unmatched coverage;\n- static analysis/type checking/linting/security checks;\n- duplication;\n- code churn plus complexity hotspots;\n- defect/regression rate;\n- build/CI reliability;\n- deployment smoke tests and meaningful rendered-content checks, not merely HTTP 200 or a green badge.\n\nAnti-gaming rule: improve behaviour and maintainability, not merely the number. Keep thresholds/ratchets truthful and explain exceptions."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-07-joshmemory",
+      "title": "JoshMemory",
+      "project": "JoshMemory",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### JoshMemory\n\nCanonical source: `joshualparris/JoshMemory`.\n\nPurpose: evidence-aware project continuity for AI-assisted development. Supports Codex/ChatGPT historical indexing, GitHub evidence, durable facts, structured handoffs and accountability references.\n\nCurrent architecture: the public JoshMemory repo contains implementation; shared pause/resume state uses the private `joshualparris/JoshDashboard4` repository under `joshmemory-cloud/v1`. Records are append-only JSON with supersession. Existing GitHub authentication is reused. AVANCE-WS7 is no longer required for memory uptime.\n\nImportant boundary: JoshMemory provides context/provenance, not current code truth or independent verification.\n\nRemaining architectural work includes a real two-machine save/resume proof, leases/current-work coordination, stronger canonical-repo identity, cloud indexing/caching and deliberate migration of useful old local history."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-08-forgegrid-dadlan-execution-architecture",
+      "title": "ForgeGrid / DadLAN execution architecture",
+      "project": "ForgeGrid / DadLAN execution architecture",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### ForgeGrid / DadLAN execution architecture\n\nForgeGrid is the distributed execution/orchestration layer, not the memory store. AVANCE-WS7 is/was the coordinator in the DadLAN design; workers execute isolated jobs and return evidence.\n\nBy 17 September the restored fleet had six confirmed ForgeGrid workers online and successful smoke jobs, while 11/12 Action1 endpoints were connected. A dated integration baseline mentioned `integration/next @ 4b7bed8`; always verify current HEAD before using it.\n\nLong-running design rule: **model thinks -> coordinator decides -> ForgeGrid executes -> workers return evidence**. Local models do not receive unrestricted administrator authority.\n\nImportant historical ForgeGrid constraints/fixes included TLS identity, restricted workspaces, hardware-aware scheduling, Windows JSON escaping, provider-capability detection, rollback-race concerns, artifact-size enforcement, durable reporting/queueing and heartbeat/retry coupling."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-09-dadlan-dadlancontrolcentre",
+      "title": "DadLAN / DadlanControlCentre",
+      "project": "DadLAN / DadlanControlCentre",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### DadLAN / DadlanControlCentre\n\nCanonical dashboard/control-plane project: `joshualparris/DadlanControlCentre`.\n\nDadLAN evolved to a 12-machine target: Fedora control plane plus JParrisDesktop and Laptop01-10. The system integrates rather than replaces Action1, MeshCentral, SMB, ForgeGrid, Jenkins/LAN gaming tooling and LANCommander.\n\nDashboard/control-plane rules: server-side adapters, normalised observations, failure isolation, no exposed secrets, no arbitrary destructive actions, and truthfully distinguish mock-tested from live-tested integrations.\n\nA Fedora SMB usability workaround used `bindfs --no-allow-other` over `/mnt/dadlan` at `~/DadLAN`.\n\nOn 17 September, CRAP4All-driven refactoring reduced DadlanControlCentre's relevant CRAP hotspot from about 42 to about 20, added MeshCentral regression coverage and a permanent CRAP<30 CI gate."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-10-local-qwen-ollama-production-inference-worker",
+      "title": "Local Qwen/Ollama production inference worker",
+      "project": "Local Qwen/Ollama production inference worker",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### Local Qwen/Ollama production inference worker\n\nJParrisDesktop is the main local-model worker. Known hardware baseline: Windows 11, i5-9400, 16 GB RAM, GTX 1660 6 GB.\n\nProduction chain verified in September:\n\n`Fedora/AVANCE client -> 10.245.173.58:11435 gateway -> Ollama 127.0.0.1:11434 -> qwen3.5:4b`\n\nThe gateway is intentionally advisory/read-only: schema validated, fail-closed, no direct worker execution. Production files included `service.py`, `schema_validator.py`, `config.json`, `service_control.ps1`, `test_suite.py`, `pilot_tasks.py` and documentation. A 17/17 test run and advisory pilots were previously recorded; warm model speed was roughly 40-47 tok/s on the GTX 1660. Verify current values live.\n\nA local ChatGPT-style web UI on port 8080 and persistent local chat history were also developed. Controlled web lookup/mobile improvements were future work."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-11-action1-endpoint-administration",
+      "title": "Action1 / endpoint administration",
+      "project": "Action1 / endpoint administration",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### Action1 / endpoint administration\n\nAction1 is a bootstrap/recovery/admin side channel, not the normal code-execution plane and not code truth.\n\nDadLAN v0.3 work required documented Action1 APIs only: no private PSAction1 authentication, arbitrary command execution or arbitrary PowerShell. The design used predefined read-only diagnostics and protected Laptop #01 from experimental changes. OAuth2 tokens should remain volatile and never be persisted into repositories/memory."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-12-agentcheck-agentwitness-llmaccountability-joshsupervisor-agentcouncil",
+      "title": "AgentCheck / AgentWitness / LLMAccountability / JoshSupervisor / AgentCouncil",
+      "project": "AgentCheck / AgentWitness / LLMAccountability / JoshSupervisor / AgentCouncil",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### AgentCheck / AgentWitness / LLMAccountability / JoshSupervisor / AgentCouncil\n\nThese projects form the verification/accountability/supervision side of the ecosystem.\n\n- AgentCheck / AgentWitness: independent evidence and verification.\n- LLMAccountability: accountability/policy evidence; JoshMemory references it rather than self-certifying claims.\n- JoshSupervisor: durable mission/checkpoint supervision and resume behaviour.\n- AgentCouncil: reasoning/review coordination where used.\n\nA recurring completion model is **CLAIMED != SATISFIED** until evidence supports it. Direct live evidence outranks an agent's own assertion."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-13-crap4all",
+      "title": "CRAP4All",
+      "project": "CRAP4All",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### CRAP4All\n\nCurrent GitHub repository at reconciliation time: `joshualparris/last-light`, product/project name **crap4all**. Josh wanted the repository itself renamed to `crap4all`; verify whether that rename has occurred before using either URL.\n\nPurpose: universal CLI for CRAP analysis across languages by combining cyclomatic complexity with per-function coverage. It supports multi-language Lizard complexity input, LCOV/Cobertura/JaCoCo coverage, terminal/JSON/HTML output and CI threshold gating.\n\nMajor September work:\n\n- self-CRAP reduced from roughly 306 to 17.13 through real behavioural tests/refactoring;\n- 14+ behavioural tests were added during the initial improvement; later test counts increased;\n- permanent CRAP<30 self-gate;\n- generated/minified build output exclusions fixed so `dist`, build, `.next`, node_modules and bundles do not inflate results;\n- explicit distinction between unknown/unmatched coverage and measured 0%;\n- `QUALITY_MODEL.md` and code-quality audit documentation added;\n- mutation testing added with a truthful ratchet (recorded around 71.1% with a 71.0 blocking baseline and 80% target at one point);\n- wider gates/signals include coverage, CRAP, CC, mutation, Ruff, mypy, Bandit/dependency security, duplication and churn.\n\nDurable principle: **engineering principles trump metrics**. CRAP4All should expose diagnostic evidence and enforce agreed gates without encouraging metric gaming.\n\nA 17 September portfolio audit covered 76 repos. Some huge scores were traced to generated bundles rather than source quality and were corrected by better exclusions. Treat historical rankings as dated diagnostics, not permanent quality judgments."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-14-beautiful-code-portfolio-quality-rollout",
+      "title": "Beautiful Code / portfolio quality rollout",
+      "project": "Beautiful Code / portfolio quality rollout",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### Beautiful Code / portfolio quality rollout\n\nA large September effort applied a shared engineering-quality model across many repositories. Work included tests, lint/type/static analysis, complexity/coverage/CRAP review, mutation where practical, duplication/churn review, CI repair and repo-specific audit docs.\n\nWhen continuing this work, inspect what each repository already has before adding duplicate tooling. Preserve useful repo-specific conventions. Do not replace correctness with a dashboard score."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-15-joshhub",
+      "title": "JoshHub",
+      "project": "JoshHub",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### JoshHub\n\nJoshHub became both a portfolio hub and a deployment/QA status surface. It has been used to track cross-app rollouts and distinguish source fixes from genuinely working production deployments.\n\nImportant lesson from 2026: a deployment badge or HTTP 200 is insufficient. Verify meaningful content renders, compiled assets load, intended controls appear, mobile layouts remain usable and the production URL serves the expected build."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-16-podcast-dock-cross-app-audio-rollout",
+      "title": "Podcast dock / cross-app audio rollout",
+      "project": "Podcast dock / cross-app audio rollout",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### Podcast dock / cross-app audio rollout\n\nJoshHub was initially used as the source-of-truth launcher/catalogue for a shared podcast dock. At one stage the rollout covered roughly 16 repos and 9 topic banks x 25 Spotify episodes.\n\nDurable user requirements:\n\n- podcast player defaults **OFF** in settings;\n- X closes the dock;\n- settings can reopen it;\n- the UI must respect safe areas/immersive routes and not cover app content;\n- direct Spotify links/player controls must remain usable on mobile;\n- loading/failure states must not freeze the host app.\n\nCritical architectural correction: the shared JoshHub/jsDelivr launcher caused `Loading podcasts` freezes in some apps. The working JoshHorses pattern was self-contained/local episode data plus direct Spotify embeds. Multiple apps, including DCSPrep, UpskillApp, FaithHub, Sword Coast, WorkApp and HugCoach, were moved toward independent local players.\n\nUpskillApp exposed a separate deployment lesson: GitHub Pages had been serving Vite source instead of a compiled production build, and competing Pages publishers could overwrite the correct output. Production verification must inspect rendered content/assets, not merely workflow success."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-17-healthlens-joshhealth",
+      "title": "HealthLens / JoshHealth",
+      "project": "HealthLens / JoshHealth",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### HealthLens / JoshHealth\n\nHealth work included large-export ingestion, SQLite-backed processing, persistence/authentication, Android SyncWorker work and AI-assisted analysis/deduplication. HealthLens specifically moved Groq calls server-side, added 429 retry/backoff/fallback handling and synthetic fixtures.\n\nPrivacy constraint: never expose private health exports or personal health data in public repositories, public JoshMemory docs or fixtures.\n\nAs of the live Git check on 18 September 2026, the latest HealthLens CI run inspected during reconciliation was green. Re-check before acting."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-18-dcspd-dcs-prep-dcs-applications",
+      "title": "DCSPD / DCS Prep / DCS applications",
+      "project": "DCSPD / DCS Prep / DCS applications",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### DCSPD / DCS Prep / DCS applications\n\nDCS/Avance professional-development and school-support apps have received build fixes, deployment work, podcast-player integration and security/quality improvements.\n\nA September security mission included a DCSPD PR contaminated by unrelated dependency/environment changes; the correct pattern was to preserve useful work and create a workflow-only replacement rather than silently mixing concerns.\n\nAt reconciliation time, DCSPD had write access through the current GitHub integration. Its newest CI was queued while a separate dependency-audit repair workflow on the same new HEAD had failed. This is a highly time-sensitive snapshot; verify current Actions before touching it."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-19-appfactory-deployment-tooling",
+      "title": "AppFactory / deployment tooling",
+      "project": "AppFactory / deployment tooling",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### AppFactory / deployment tooling\n\nAppFactory has repeatedly surfaced deployment/repository-automation lessons. Historical states included CI/Vercel failures. Verify current live status rather than assuming those remain unresolved.\n\nThe broader rule from AppFactory and the portfolio sweeps is that repo automation must preserve existing work, avoid destructive dependency churn, and distinguish source success from real deployment success."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-20-parrisbudgetapp",
+      "title": "ParrisBudgetApp",
+      "project": "ParrisBudgetApp",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### ParrisBudgetApp\n\nA 2026 repair removed a destructive Prisma workflow. Preserve data-safe migration/deployment behaviour; never reintroduce destructive schema steps merely to make CI green."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-21-fedoracrashdoctor",
+      "title": "FedoraCrashDoctor",
+      "project": "FedoraCrashDoctor",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### FedoraCrashDoctor\n\nFedoraCrashDoctor is part of the resilience/diagnostic tooling. Stage 2 was previously recorded closed around commit `07628c7`; treat that SHA as historical evidence only and verify live Git."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-22-chatgptbrowser",
+      "title": "ChatGPTBrowser",
+      "project": "ChatGPTBrowser",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### ChatGPTBrowser\n\nWork included FTS5 plus semantic retrieval/ranking (including reciprocal-rank-fusion style combining). Historical notes also mention assertion/test changes that required later audit. Preserve privacy of imported chat data."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-23-ragtime",
+      "title": "RagTime",
+      "project": "RagTime",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### RagTime\n\nWork included security plugins/curriculum and repository-integrity cleanup. A prior accidental outer Git root was identified as something to audit/avoid."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-24-avancepd-professional-development-tooling",
+      "title": "AvancePD / professional-development tooling",
+      "project": "AvancePD / professional-development tooling",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### AvancePD / professional-development tooling\n\nAvancePD work focused on guardrails, learning workflows and AI/privacy considerations. Related DCS/Avance repos also participated in broader CI, security-action-pinning and deployment work."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-25-kaseyafieldops-agentbridge",
+      "title": "KaseyaFieldOps / AgentBridge",
+      "project": "KaseyaFieldOps / AgentBridge",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### KaseyaFieldOps / AgentBridge\n\nKaseyaFieldOps work included security-identity quick-reference layers and metadata for SaaS Protection, INKY, DarkWeb ID and BullPhish ID, plus planned/implemented backup-family and scenario-lab branches. A pre-existing TypeScript confidence-enum mismatch (`highly` vs `highly_confident`) caused one deployment failure and was repaired.\n\nAgentBridge had a ThinkPad identity/authentication 401 investigation where the constraint was to inspect Fedora-side identity/process state rather than regenerating tokens or changing the ThinkPad first."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-26-eleven-realms",
+      "title": "Eleven-Realms",
+      "project": "Eleven-Realms",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### Eleven-Realms\n\n`joshualparris/Eleven-Realms` was created as an 11-machine ForgeGrid game experiment. Initial scaffold used TypeScript/Vite/Canvas/Vitest, modular contracts, `FORGEGRID.md`, 11 missions, cross-review manifest and CI. Initial tests/typecheck/build passed; workers were not yet dispatched at that checkpoint."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-27-whispering-wilds-whirringwilderness",
+      "title": "Whispering Wilds / WhirringWilderness",
+      "project": "Whispering Wilds / WhirringWilderness",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### Whispering Wilds / WhirringWilderness\n\nWhispering Wilds/WhirringWilderness work includes game UI/TUI/E2E history and GitHub Pages deployment.\n\nCurrent repository from the September CI sweep: `joshuaparrisdadlan-stack/WhirringWilderness`. The connected GitHub integration had pull but **not push** access during the 18 September reconciliation. Its old Pages workflow was red and the repository reported Pages disabled; workflow patch/re-run attempts were rejected with 403. Do not claim this is fixed until account/repo permissions and Pages are rechecked."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-28-nebuladice-browser",
+      "title": "NebulaDice-Browser",
+      "project": "NebulaDice-Browser",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### NebulaDice-Browser\n\nAt reconciliation time, `joshualparris/NebulaDice-Browser` had write access and its latest GitHub Pages workflow inspected was green after a Pages deployment repair. Earlier red status in portfolio tables is stale."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-29-workapp",
+      "title": "WorkApp",
+      "project": "WorkApp",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### WorkApp\n\nAt reconciliation time, `joshualparris/WorkApp` had write access and the inspected GitHub Pages deployment was green. Earlier red status is stale."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-30-canonrpg",
+      "title": "CanonRPG",
+      "project": "CanonRPG",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### CanonRPG\n\nAt reconciliation time, `joshuaparris-max/CanonRPG` had push access through the current integration and the inspected build/Pages workflow was green after a repair for Pages-unavailable behaviour. Earlier red status is stale."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-31-openclaw",
+      "title": "openclaw",
+      "project": "openclaw",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### openclaw\n\n`joshualparris/openclaw` is a fork that participated in the 2026 quality/CI work. At reconciliation time the current inspected HEAD had successful workflow checks (with some intentionally skipped jobs) and no known current red CI from the old table. Verify live status before modifying such a large upstream-derived codebase."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-32-arena-carl",
+      "title": "Arena / carl",
+      "project": "Arena / carl",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### Arena / carl\n\nThe current GitHub integration could read but not push to `joshuaparris-max/Arena` and `joshuaparris-max/carl` at reconciliation time.\n\nA known carl CI issue from 17 September was YAML interpreting unquoted `3.10` as numeric `3.1`; the intended matrix form is quoted Python versions such as `'3.10'`, `'3.11'`, `'3.12'`. Because write access was denied, do not assume that repair landed."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-33-other-2026-repos-streams-known-from-the-historical-corpus",
+      "title": "Other 2026 repos/streams known from the historical corpus",
+      "project": "Other 2026 repos/streams known from the historical corpus",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### Other 2026 repos/streams known from the historical corpus\n\nThe broader coding history also includes or references projects such as DCS, DCSPrep, UpskillApp, JoshHorses, FaithHub, Sword Coast, HugCoach/hugCoach, cornerstone-lifeboat, JoshBooks, JoshFireAwareness, IncreaseHRV, ResearchAtlas, ResearchGems, BucklandBlocks, JoshDashboard2/3/4, LifeHub, JoshPlatform, FieldNotes, Waypoint, AIDungeonMaster/GroqChat and additional games/dashboards/tools.\n\nThis list is intentionally a project map rather than a claim that every repo is currently active. Use the historical JoshMemory search/evidence index plus live GitHub discovery to retrieve repository-specific detail."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-34-security-remediation-stream",
+      "title": "Security-remediation stream",
+      "project": "JoshCoding2026",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "## Security-remediation stream\n\nA September ForgeGrid security mission used JoshMemory/JoshSupervisor for durable handoffs and a canonical SecurityAudit register/parser. Early remediation included action pinning and AIDungeonMaster fixes, while many findings remained. The rule was to work advisory-by-advisory, avoid unrelated dependency upgrades, and preserve contaminated-but-useful commits rather than discarding work.\n\nWhen reviewing Next.js/security findings, distinguish concrete exploit surface from generic advisory presence; do not mass-upgrade blindly."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-35-deployment-and-ci-lessons-that-should-not-be-relearned",
+      "title": "Deployment and CI lessons that should not be relearned",
+      "project": "JoshCoding2026",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "## Deployment and CI lessons that should not be relearned\n\n- A green GitHub Action is not proof the user-facing app works.\n- An HTTP 200 is not proof a Vite/React app was compiled correctly.\n- GitHub Pages may be disabled even when a deploy workflow exists.\n- Multiple Pages publishers can overwrite one another.\n- Generated/minified bundles must not contaminate source-quality metrics.\n- Lockfiles and dependency-repair workflows can fail independently of application correctness; inspect the exact failing job/log.\n- Preserve existing work before cleanup, especially when a branch/PR is contaminated by unrelated changes.\n- Verify write permission before promising a direct repair.\n- Do not treat old portfolio status tables as current truth."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-36-repo-write-access-snapshot-from-18-september-2026",
+      "title": "Repo/write-access snapshot from 18 September 2026",
+      "project": "JoshCoding2026",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "## Repo/write-access snapshot from 18 September 2026\n\nThis is a dated connector snapshot only:\n\n- push/admin available: `joshualparris/DCSPD`, `joshualparris/HealthLens`, `joshualparris/NebulaDice-Browser`, `joshualparris/openclaw`, `joshualparris/WorkApp`;\n- push available: `joshuaparris-max/CanonRPG`;\n- read/no-push through this connection: `joshuaparris-max/Arena`, `joshuaparris-max/carl`, `joshuaparrisdadlan-stack/WhirringWilderness`.\n\nPermissions can change. Always query them live before writing."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-37-do-not-redo-guidance",
+      "title": "Do-not-redo guidance",
+      "project": "JoshCoding2026",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "## Do-not-redo guidance\n\nUnless live evidence says the work regressed or was reverted, do not blindly repeat these completed themes:\n\n- rebuilding JoshMemory around an always-on AVANCE/PC dependency;\n- exposing a local model directly as an unrestricted fleet administrator;\n- replacing Action1/MeshCentral/SMB/ForgeGrid when integrating DadLAN tooling;\n- treating unknown coverage as 0% in CRAP4All;\n- counting generated bundles as normal source complexity;\n- using a shared remote podcast launcher as the only playback path when local self-contained players are required for reliability;\n- trusting deployment badges without rendered-content verification;\n- reintroducing destructive database workflows simply to satisfy CI;\n- using memory assertions as verification evidence."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-38-highest-value-outstanding-continuity-work",
+      "title": "Highest-value outstanding continuity work",
+      "project": "JoshCoding2026",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "## Highest-value outstanding continuity work\n\n1. Keep this master handoff and cloud facts updated as new work lands.\n2. Migrate/selectively summarise more high-value facts from the old local JoshMemory corpus rather than uploading raw transcripts.\n3. Add project-specific active handoffs for the most frequently edited repositories.\n4. Prove JoshMemory cloud save/resume from two real development machines.\n5. Add lease/current-work coordination to avoid two agents unknowingly resuming the same task.\n6. Continue live CI/deployment reconciliation so stale red/green tables are explicitly superseded."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-39-final-rule-for-a-new-agent",
+      "title": "Final rule for a new agent",
+      "project": "JoshCoding2026",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "## Final rule for a new agent\n\nUse this document to know **what happened and where to look**. Use live GitHub, deployment URLs, CI logs and machine evidence to decide **what is true now**."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-40-18-sep-2026-vercel-failure-cleanup",
+      "title": "18 Sep 2026 — Vercel failure cleanup",
+      "project": "JoshCoding2026",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "## 18 Sep 2026 — Vercel failure cleanup\n\nLive investigation found several distinct Vercel failure causes; do not treat them as one broken-code incident.\n\n### JoshHub\n- Canonical repo: `joshualparris/JoshHub`.\n- Canonical Vercel project observed READY: `josh-hub` (`prj_4dF21nt8YrcxB3MLsJuZrlzxrUqD`).\n- Duplicate Vercel project also exists: `josh-hub-96no` (`prj_ydbKTTjAKs8PqEf8XtFNnCHiq42g`).\n- Old archival/import branches at commit family `b6c3a3c` had a corrupted `package-lock.json`: a privacy scrub had replaced literal `ms` substrings with `care2`, corrupting dependency names and integrity hashes (for example `string.prototype.trimstart` -> `string.prototype.tricare2tart` and `*-msvc` -> `*-care2vc`). The corresponding `package.json` was not corrupted.\n- Repaired lockfiles on the six affected backup/import branches and verified `care2` / `tricare2tart` are absent afterwards:\n  - `local-import-20260703-141717-JoshHub`\n  - `local-import-20260703-141717-JoshHub-OneDrive`\n  - `codex/local-backup-20260703-090048-joshhub`\n  - `codex/local-backup-20260703-090048-joshhub-onedrive`\n  - `rescue/pre-reset-20260610-JoshHub`\n  - `rescue/pre-reset-20260610-JoshHub-OneDrive`\n- Added `vercel.json` with `git.deploymentEnabled=false` on archival/stale branches that were producing blocked/queued previews, including the six above plus:\n  - `audit/conformance-catalogue-assets-rebase-20260909`\n  - `trae/joshhub-inventory-sync-qa`\n  - `feat/improve-app-links`\n  - `main-TAB378`\n  - `backup-before-handback-JoshHub`\n  - `sandbox/hugcoach`\n  - `sync/hugcoach`\n  - `agent/conformance-format`\n  - `audit/conformance-18-final-20260909`\n  - `agent/conformance-format-2`\n  - `game-lab-dashboard-bot-b`\n  - `antigravity-push`\n- Main now has `vercel.json` that permits Git deployments only from `main` and attempts to ignore the duplicate project by its Vercel project ID. Commit recorded during this cleanup: `72b3279` (preceded by `dc1f4b2`).\n- The existing canonical production deployment was READY during verification. Historical BLOCKED/QUEUED records remain visible in Vercel history; they are not evidence that current main is broken.\n- Hobby-team blocked-deployment emails were caused by stale commit author identities (for example old local/work/GitHub accounts) on historical branches, not by current application code.\n\n### CRAP4All\n- Repo remains `joshualparris/last-light`, product name `crap4all`.\n- It is a Python CLI, not a Vercel web application.\n- Vercel had previously failed with \"No python entrypoint found\".\n- `vercel.json` was changed to disable Git deployments entirely. Commit: `99a514d`.\n- Future agents should not reintroduce a fake web entrypoint merely to make Vercel green.\n\n### CanonRPG\n- Repo: `joshuaparris-max/CanonRPG`.\n- The repo already has a GitHub Pages deployment workflow for Canon Table Engine.\n- Root `vercel.json` initially contained obsolete/invalid legacy settings; these were cleaned, then Vercel was explicitly disabled in favour of the GitHub Pages path. Final cleanup commit: `7aa024d`.\n- Important remaining account-level blocker: the legacy Vercel project `canon-rpg-api-server` belongs to a different Vercel scope/team (`joshs-projects-a85abb0a`, team id observed as `team_4DEFMuI5CHFZ16yfKvB3Xo5z`) that the currently connected Vercel account is not authorised to manage. Vercel continues to emit a project-configuration failure before repo config is applied. Fix requires access to that Vercel scope and disconnecting/deleting the obsolete Git-linked project. Do not keep changing CanonRPG source code to chase that account-level error.\n\n### Preventive rule\nNever run broad personal-data string substitution across dependency lockfiles, hashes, generated assets, vendored code, binaries or package names. Privacy scrubbing should target human-authored/public-facing text and structured known fields, with lockfiles explicitly excluded."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-41-joshhub",
+      "title": "JoshHub",
+      "project": "JoshHub",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### JoshHub\n- Canonical repo: `joshualparris/JoshHub`.\n- Canonical Vercel project observed READY: `josh-hub` (`prj_4dF21nt8YrcxB3MLsJuZrlzxrUqD`).\n- Duplicate Vercel project also exists: `josh-hub-96no` (`prj_ydbKTTjAKs8PqEf8XtFNnCHiq42g`).\n- Old archival/import branches at commit family `b6c3a3c` had a corrupted `package-lock.json`: a privacy scrub had replaced literal `ms` substrings with `care2`, corrupting dependency names and integrity hashes (for example `string.prototype.trimstart` -> `string.prototype.tricare2tart` and `*-msvc` -> `*-care2vc`). The corresponding `package.json` was not corrupted.\n- Repaired lockfiles on the six affected backup/import branches and verified `care2` / `tricare2tart` are absent afterwards:\n  - `local-import-20260703-141717-JoshHub`\n  - `local-import-20260703-141717-JoshHub-OneDrive`\n  - `codex/local-backup-20260703-090048-joshhub`\n  - `codex/local-backup-20260703-090048-joshhub-onedrive`\n  - `rescue/pre-reset-20260610-JoshHub`\n  - `rescue/pre-reset-20260610-JoshHub-OneDrive`\n- Added `vercel.json` with `git.deploymentEnabled=false` on archival/stale branches that were producing blocked/queued previews, including the six above plus:\n  - `audit/conformance-catalogue-assets-rebase-20260909`\n  - `trae/joshhub-inventory-sync-qa`\n  - `feat/improve-app-links`\n  - `main-TAB378`\n  - `backup-before-handback-JoshHub`\n  - `sandbox/hugcoach`\n  - `sync/hugcoach`\n  - `agent/conformance-format`\n  - `audit/conformance-18-final-20260909`\n  - `agent/conformance-format-2`\n  - `game-lab-dashboard-bot-b`\n  - `antigravity-push`\n- Main now has `vercel.json` that permits Git deployments only from `main` and attempts to ignore the duplicate project by its Vercel project ID. Commit recorded during this cleanup: `72b3279` (preceded by `dc1f4b2`).\n- The existing canonical production deployment was READY during verification. Historical BLOCKED/QUEUED records remain visible in Vercel history; they are not evidence that current main is broken.\n- Hobby-team blocked-deployment emails were caused by stale commit author identities (for example old local/work/GitHub accounts) on historical branches, not by current application code."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-42-crap4all",
+      "title": "CRAP4All",
+      "project": "CRAP4All",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### CRAP4All\n- Repo remains `joshualparris/last-light`, product name `crap4all`.\n- It is a Python CLI, not a Vercel web application.\n- Vercel had previously failed with \"No python entrypoint found\".\n- `vercel.json` was changed to disable Git deployments entirely. Commit: `99a514d`.\n- Future agents should not reintroduce a fake web entrypoint merely to make Vercel green."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-43-canonrpg",
+      "title": "CanonRPG",
+      "project": "CanonRPG",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### CanonRPG\n- Repo: `joshuaparris-max/CanonRPG`.\n- The repo already has a GitHub Pages deployment workflow for Canon Table Engine.\n- Root `vercel.json` initially contained obsolete/invalid legacy settings; these were cleaned, then Vercel was explicitly disabled in favour of the GitHub Pages path. Final cleanup commit: `7aa024d`.\n- Important remaining account-level blocker: the legacy Vercel project `canon-rpg-api-server` belongs to a different Vercel scope/team (`joshs-projects-a85abb0a`, team id observed as `team_4DEFMuI5CHFZ16yfKvB3Xo5z`) that the currently connected Vercel account is not authorised to manage. Vercel continues to emit a project-configuration failure before repo config is applied. Fix requires access to that Vercel scope and disconnecting/deleting the obsolete Git-linked project. Do not keep changing CanonRPG source code to chase that account-level error."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-44-preventive-rule",
+      "title": "Preventive rule",
+      "project": "Preventive rule",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### Preventive rule\nNever run broad personal-data string substitution across dependency lockfiles, hashes, generated assets, vendored code, binaries or package names. Privacy scrubbing should target human-authored/public-facing text and structured known fields, with lockfiles explicitly excluded."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-master-45-18-sep-2026-parris-tech-services-vercel-cleanup",
+      "title": "18 Sep 2026 — Parris-Tech-Services Vercel cleanup",
+      "project": "JoshCoding2026",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "## 18 Sep 2026 — Parris-Tech-Services Vercel cleanup\n\n- Fixed current red Vercel statuses on `Parris-Tech-Services/JoshCoach` and `Parris-Tech-Services/CanonRPG` by explicitly disabling obsolete Vercel Git deployments at repo level.\n- JoshCoach commit: `767e941` — added `vercel.json` with `git.deploymentEnabled=false`.\n- CanonRPG commit: `d1675b5` — retained `git.deploymentEnabled=false` and added `ignoreCommand: \"exit 0\"` as a second skip safeguard.\n- Fresh commit-status verification showed no Vercel failure context on either new commit. Do not re-enable Vercel unless there is a deliberate migration back from the current deployment path."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-continuity-01-standing-coding-continuity-rule",
+      "title": "Standing coding continuity rule",
+      "project": "JoshCoding2026",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "## Standing coding continuity rule\n\nAfter substantive coding work, record enough durable context for the next agent to resume safely. At minimum capture: repository, branch/HEAD where useful, what changed, why, evidence/tests/CI, blockers, unresolved next action, and explicit \"do not redo\" guidance when prior work already settled something.\n\nPrefer repo-local documentation for repo-specific facts and JoshMemory for cross-repo continuity. Never claim a fix is complete from code inspection alone; verify the relevant behaviour and CI/deployment evidence."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-continuity-02-beautiful-code-standard-work",
+      "title": "Beautiful Code Standard work",
+      "project": "JoshCoding2026",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "## Beautiful Code Standard work\n\nJosh defined a portfolio-wide Beautiful Code Standard. Its central rule is: correct first, clear second, simple always, measure what helps, prove what matters, leave the code better than you found it.\n\nImportant hierarchy:\n1. Principles\n2. Gates\n3. Ratchets\n4. Signals\n5. Outcomes\n\nMetrics such as CRAP, cyclomatic complexity, coverage, duplication and mutation score are evidence/signals/ratchets, not definitions of good code and not universal absolute gates. Do not worsen code to improve a score.\n\nA repo-specific audit was added to `joshualparris/last-light` (product/repo concept: crap4all) at `audit/BEAUTIFUL_CODE_STANDARD_AUDIT.md`.\n\nPortfolio audit work then added `audit/BEAUTIFUL_CODE_STANDARD_AUDIT.md` to 61 repositories. These were intentionally repo-specific rather than boilerplate and were weighted by repo tier and consequence. Recurrent findings across the portfolio:\n\n- behavioural proof often lags behind CRAP/quality tooling; user-flow smoke tests should outrank metric dashboards;\n- generated/IDE/build artefacts, backup ZIPs, `.bak` files and prompt dumps recur as unnecessary repository clutter;\n- several predecessor/duplicate repos should likely be archived rather than all maintained indefinitely;\n- some public repos contain school/business/personal documents and need deliberate privacy/repository-boundary review;\n- large files are investigation signals, not automatic refactor mandates;\n- remote-management/data-sensitive tools need safe failure handling and truthfulness more than cosmetic metric optimisation.\n\nNotable repo findings already established:\n\n- `DCSPD`: relatively strong CI/build/smoke/accessibility baseline; main architectural concern is keeping executable app truth distinct from a large document/research archive.\n- `JoshHub`: relatively strong alignment with clean install, formatting, lint, tests, build and architecture/truthfulness checks.\n- `DadlanControlCentre`: fleet truth must outrank CRAP/metric optimisation.\n- `HealthLens`: health/data truthfulness and privacy matter more than generic complexity scores.\n- `JoshTapApp`: real instrumentation tests exist, but CI had been skipping them.\n- `breach-command`: integration/domain tests exist; priority is making them normal CI evidence rather than inventing more metrics.\n- `ResearchAtlas`: data/privacy consequences matter.\n- `Ideas` vs `Ideas2`, older Elodin/AshFallen/JoshDashboard variants: likely canonical/predecessor cleanup candidates.\n- `ParrisTechServicesApp`: public repo contained business/ASIC/ABN documents; repository-boundary/privacy concern.\n- `kkc-adventure`: large ZIPs, `__pycache__`, duplicate documents and research/book PDFs in Git; repository-boundary cleanup concern.\n- `energyquest`: large Unity/binary footprint including roughly 98 MB ZIP; evaluate binary/source boundary rather than metric score.\n- `newfileqqqwertuhvgjkk.py`: essentially IDE/project artefact with no meaningful Python source despite name; likely experimental/cleanup candidate.\n- `Whispering-Wilds`: comparatively strong CI/Dependabot/security docs/tests.\n- `ForgeGrid`: direct push of the audit to `main` was correctly blocked by required status checks. Do not bypass that. Its audit should be proposed via branch/PR and allowed to pass required checks.\n\nDo not repeat the same portfolio inventory/audit from scratch unless asked to refresh it. First inspect existing `audit/BEAUTIFUL_CODE_STANDARD_AUDIT.md` files and only re-audit where live code materially changed or the user explicitly requests a refresh."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-continuity-03-crap4all-joshualparris-last-light",
+      "title": "crap4all / joshualparris/last-light",
+      "project": "JoshCoding2026",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "## crap4all / `joshualparris/last-light`\n\nProduct/package is `crap4all`; repository was still named `joshualparris/last-light` when last checked. Repo rename to `crap4all` remains desirable if platform capability permits.\n\nLatest previously inspected main before later work:\n- commit `5e079983ff32a0e5ef9a111c2dd16bac516f8efd`\n- message `docs: record measured mutation baseline ratchet`\n- CI run 41 was green.\n\nKey audit findings already established:\n\n1. `src/crap4all/core.py::_analyze_file()` catches broad `Exception` and returns `[]`, silently omitting analyser failures while files can still be counted as scanned. This violates the standard's reality/failure-visibility rules. Fix should fail explicitly or report a partial/unavailable analysis state.\n2. Coverage model internally distinguishes measured/uncovered/ambiguous/unavailable, but terminal/HTML presentation can still show unknown/unavailable coverage numerically as `0.0%`. Missing evidence should remain visibly unknown unless an explicit policy says to treat it as zero.\n3. Coverage matching on main still had a risky same-basename fallback when last inspected; PR #2 claimed to remove it.\n4. `QUALITY_MODEL.md` had an older three-layer model and should be aligned to Principles → Gates → Ratchets → Signals → Outcomes.\n5. CI treated CRAP <30, CC <=15 and duplication as hard gates, which conflicts with Josh's newer standard. These should normally be ratchets/signals unless there is a specific repo reason to hard-gate them.\n6. Add package-build/installed-CLI smoke, secret scanning and human review checklist as higher-value release evidence.\n7. Roadmap is very large. Treat roadmap entries as possibilities, not commitments; YAGNI applies.\n\nOpen PR state previously established:\n- PR #2 `Rebuild reviewed crap4all 0.2.0 fixes on latest main`, branch `review-fixes-v2`, head then `2088206552d3177ca01339b2a75ac8f8e344ae75`, CI success on its then-base but base was older than later main. Rebase/rebuild on current main before merge.\n- PR #1 likely superseded by #2.\n\nDo not re-report those findings as new discoveries without checking whether they were already fixed."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-continuity-04-ci-repair-work-from-the-red-repo-list",
+      "title": "CI repair work from the red-repo list",
+      "project": "JoshCoding2026",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "## CI repair work from the red-repo list\n\nOriginal user-provided failing list included:\n- `joshualparris/DCSPD`\n- `joshualparris/HealthLens`\n- `joshualparris/NebulaDice-Browser`\n- `joshualparris/openclaw`\n- `joshualparris/WorkApp`\n- `joshuaparris-max/Arena`\n- `joshuaparris-max/CanonRPG`\n- `joshuaparris-max/carl`\n- `joshuaparrisdadlan-stack/WhirringWilderness`\n\nImportant: that table became stale during the investigation. Always check latest HEAD/latest run rather than treating those old red runs as current.\n\n### `joshuaparris-max/carl`\n\nExact CI failure was diagnosed.\n\nWorkflow matrix contained:\n\n```yaml\npython-version: [3.10, 3.11, 3.12]\n```\n\nYAML interpreted unquoted `3.10` as numeric `3.1`. GitHub Actions therefore created a `Run tests (3.1)` job and failed during `actions/setup-python`; Python 3.11 and 3.12 jobs passed.\n\nSmallest correct fix:\n\n```yaml\npython-version: ['3.10', '3.11', '3.12']\n```\n\nUpdating `actions/setup-python` from v4 to a current major was also considered reasonable while touching the workflow, but the quoted matrix is the actual bug fix.\n\nThe connected GitHub integration for `joshuaparris-max/carl` had `pull: true`, `push: false`. A direct write was attempted and GitHub returned `403 Resource not accessible by integration`. Main was still `74a2147fe8c2a9212d78bfe70e6a66afd3a0c4f4` at that point.\n\nDo not waste time re-diagnosing Carl: the root cause is known. Next action is simply apply the quoted-version patch once write access to `joshuaparris-max` is available, then verify the replacement CI run is green.\n\n### Repos from that list with write access\n\nThe connected GitHub installation showed push/admin access for these `joshualparris` repos:\n- `DCSPD`\n- `HealthLens`\n- `NebulaDice-Browser`\n- `openclaw`\n- `WorkApp`\n\nNo push access was available for `joshuaparris-max/carl` or `joshuaparrisdadlan-stack/WhirringWilderness` at the time checked.\n\n### Latest statuses observed during the 18 Sep check\n\nThese superseded the older red table:\n\n- `HealthLens`: latest CI run observed was green, on commit `44de54adde3a051152adda8abbb549c0a60f918c` (`Generate Health Connect fixture during browser smoke test`).\n- `NebulaDice-Browser`: latest Pages deployment observed was green, on commit `821574e597a517291b58b91be593601ebb1f61e6` (`Fix GitHub Pages deployment via gh-pages branch`).\n- `WorkApp`: latest Pages deployment observed was green, on commit `ee3fff1fdde5c894b656ed3354419e2be09ca111` (`Remove one-off lockfile repair workflow`).\n- `openclaw`: current checked head was `187bfe845847227b8aaf4d1bcac52299002163cf` (`Document post-sync fork baseline`). The checks inspected on that head were success/skipped; no current failing check was established. The old red CI entry from the user's table was therefore stale.\n- `DCSPD`: connected repo permissions included push/admin. During the final refresh, main had advanced to `f95da0e205730ae2ad445ae8fc1bef2b832a3be4` (`Use current npm for dependency security repair`). Main CI run `35277769767` was still pending at the instant checked. A separate helper workflow `Fix dependency audit findings` run `35277769769` was failing. Therefore DCSPD was the only repo from the original list that still visibly had something red while also being writable at that instant. Re-check current state before acting, because CI was still moving.\n\nDo not state that DCSPD main CI is failing unless the current run actually finishes red; at the recorded moment it was pending. The red helper workflow is distinct from the main CI."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-continuity-05-joshuaparris-max-carl",
+      "title": "joshuaparris-max/carl",
+      "project": "joshuaparris-max/carl",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### `joshuaparris-max/carl`\n\nExact CI failure was diagnosed.\n\nWorkflow matrix contained:\n\n```yaml\npython-version: [3.10, 3.11, 3.12]\n```\n\nYAML interpreted unquoted `3.10` as numeric `3.1`. GitHub Actions therefore created a `Run tests (3.1)` job and failed during `actions/setup-python`; Python 3.11 and 3.12 jobs passed.\n\nSmallest correct fix:\n\n```yaml\npython-version: ['3.10', '3.11', '3.12']\n```\n\nUpdating `actions/setup-python` from v4 to a current major was also considered reasonable while touching the workflow, but the quoted matrix is the actual bug fix.\n\nThe connected GitHub integration for `joshuaparris-max/carl` had `pull: true`, `push: false`. A direct write was attempted and GitHub returned `403 Resource not accessible by integration`. Main was still `74a2147fe8c2a9212d78bfe70e6a66afd3a0c4f4` at that point.\n\nDo not waste time re-diagnosing Carl: the root cause is known. Next action is simply apply the quoted-version patch once write access to `joshuaparris-max` is available, then verify the replacement CI run is green."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-continuity-06-repos-from-that-list-with-write-access",
+      "title": "Repos from that list with write access",
+      "project": "Repos from that list with write access",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### Repos from that list with write access\n\nThe connected GitHub installation showed push/admin access for these `joshualparris` repos:\n- `DCSPD`\n- `HealthLens`\n- `NebulaDice-Browser`\n- `openclaw`\n- `WorkApp`\n\nNo push access was available for `joshuaparris-max/carl` or `joshuaparrisdadlan-stack/WhirringWilderness` at the time checked."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-continuity-07-latest-statuses-observed-during-the-18-sep-check",
+      "title": "Latest statuses observed during the 18 Sep check",
+      "project": "Latest statuses observed during the 18 Sep check",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "### Latest statuses observed during the 18 Sep check\n\nThese superseded the older red table:\n\n- `HealthLens`: latest CI run observed was green, on commit `44de54adde3a051152adda8abbb549c0a60f918c` (`Generate Health Connect fixture during browser smoke test`).\n- `NebulaDice-Browser`: latest Pages deployment observed was green, on commit `821574e597a517291b58b91be593601ebb1f61e6` (`Fix GitHub Pages deployment via gh-pages branch`).\n- `WorkApp`: latest Pages deployment observed was green, on commit `ee3fff1fdde5c894b656ed3354419e2be09ca111` (`Remove one-off lockfile repair workflow`).\n- `openclaw`: current checked head was `187bfe845847227b8aaf4d1bcac52299002163cf` (`Document post-sync fork baseline`). The checks inspected on that head were success/skipped; no current failing check was established. The old red CI entry from the user's table was therefore stale.\n- `DCSPD`: connected repo permissions included push/admin. During the final refresh, main had advanced to `f95da0e205730ae2ad445ae8fc1bef2b832a3be4` (`Use current npm for dependency security repair`). Main CI run `35277769767` was still pending at the instant checked. A separate helper workflow `Fix dependency audit findings` run `35277769769` was failing. Therefore DCSPD was the only repo from the original list that still visibly had something red while also being writable at that instant. Re-check current state before acting, because CI was still moving.\n\nDo not state that DCSPD main CI is failing unless the current run actually finishes red; at the recorded moment it was pending. The red helper workflow is distinct from the main CI."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-continuity-08-github-access-account-boundary-lesson",
+      "title": "GitHub access / account boundary lesson",
+      "project": "JoshCoding2026",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "## GitHub access / account boundary lesson\n\nDo not assume all repositories across Josh's GitHub accounts are writable through one connection. The connected integration had full write/admin for many `joshualparris/*` repos but only read access for at least some `joshuaparris-max/*` and `joshuaparrisdadlan-stack/*` repos.\n\nBefore promising to fix a repo on another owner account, check `permissions.push`. If false, diagnose fully and prepare the exact patch, but do not claim it was applied."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-continuity-09-evidence-discipline-for-future-coding-agents",
+      "title": "Evidence discipline for future coding agents",
+      "project": "JoshCoding2026",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "## Evidence discipline for future coding agents\n\nBefore saying a repo is fixed/green/done:\n\n1. verify live HEAD;\n2. inspect the relevant latest workflow run, not a historical one;\n3. confirm the failing step/root cause;\n4. make the smallest coherent change;\n5. verify tests/build/smoke/security checks appropriate to the repo;\n6. confirm the new workflow/deployment result;\n7. record the handoff if work is non-trivial or blocked.\n\nA historical red X is not proof the current HEAD is red. A green deployment is not proof the app works. A metric improvement is not proof the code is better."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-continuity-10-josh-os-bootstrap-joshuaparris-max-joshos",
+      "title": "Josh OS bootstrap — joshuaparris-max/JoshOS",
+      "project": "JoshCoding2026",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "## Josh OS bootstrap — `joshuaparris-max/JoshOS`\n\nJosh asked for an empty repository to become the beginning of a standalone graphical desktop operating system and to push directly to `main`. `joshuaparris-max/JoshOS` was empty and writable (`push: true`, `admin: false`), so it was repurposed as Josh OS. The repository itself was not renamed because the current GitHub connection does not expose/administer repository rename.\n\nVerified current main HEAD at handoff: `422e9c92385587cca7683e4f3ecfd4210021118b`.\n\nImplemented:\n- x86-64 freestanding C kernel using Limine v12.9.0 for boot handoff;\n- hybrid BIOS/UEFI ISO build named `JoshOS-0.1-x86_64.iso`;\n- graphical framebuffer desktop with gradient background, top bar, system panel, styled terminal window and dock;\n- built-in 5x7 bitmap font;\n- PS/2 polling keyboard input;\n- graphical shell commands: `help`, `about`, `mem`, `clear`, `echo`, `reboot`;\n- Limine memory-map query;\n- COM1 serial diagnostics;\n- `JOSHOS_BOOT_OK` serial marker for an automated QEMU boot smoke test;\n- architecture documentation and roadmap;\n- GitHub Actions build that creates the ISO, boots it in QEMU, verifies the boot marker, records a checksum and uploads the ISO artifact.\n\nFinal verified GitHub Actions run: `35329186622`, conclusion `success`. Build ISO, QEMU boot smoke test, checksum and artifact upload all passed.\n\nArtifact:\n- name: `JoshOS-0.1-x86_64`\n- artifact ID: `10540412344`\n- size: 1,504,434 bytes\n- digest: `sha256:f0de15d7e3de4462344739709d535624bd1767636ee7f2db90ca41687a5c16f0`\n\nImportant limitations:\n- the current desktop/window is direct framebuffer rendering, not yet a compositor/window manager;\n- keyboard support is currently PS/2/QEMU-oriented; no USB HID stack yet;\n- no interrupt-driven input/timer, allocator/paging/heap, mouse, processes/userspace, filesystem, networking, audio or GPU acceleration yet;\n- Limine is bootloader only; there is no Linux kernel underneath Josh OS.\n\nNext major technical milestone: IDT/exceptions + timer + physical page allocator + virtual memory + heap, then mouse support and a real movable/resizable window manager.\n\nA build issue was already found and fixed: `-no-pie` under Clang combined with `-Werror` caused a link failure. It was removed, and final CI is green. Do not re-diagnose historical intermediate red runs from the file-by-file repository assembly as current failures."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-upgrades-01-objective-completed",
+      "title": "Objective completed",
+      "project": "JoshCoding2026",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "## Objective completed\n\nJosh asked to find open-source coding-agent memory systems similar to JoshMemory and import their best ideas into JoshMemory.\n\nDesigns reviewed included:\n\n- `Threesided-Studios/Agent-Memory` — cross-agent memory, session capture, provenance and coordination;\n- `vartiainen1/agent-memory` — explicit trust/promotion and immutable provenance;\n- `rosehgal/handoff` — concise resumable handoffs and append-only work history;\n- `gastownhall/beads` — leases, heartbeats, ownership and abandoned-work recovery.\n\nNo third-party implementation code was copied. The useful concepts were independently implemented around JoshMemory's existing architecture. Design provenance and rejected ideas are recorded in `docs/OPEN_SOURCE_MEMORY_BORROWING_PLAN.md`."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-upgrades-02-existing-joshmemory-features-deliberately-retained",
+      "title": "Existing JoshMemory features deliberately retained",
+      "project": "JoshCoding2026",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "## Existing JoshMemory features deliberately retained\n\nDo not rebuild these merely because another memory project has them. JoshMemory already had:\n\n- structured handoffs with supersession;\n- automatic Claude SessionStart/Stop/SessionEnd continuity hooks;\n- Git snapshots and live-state discrepancy detection;\n- secret redaction;\n- provenance and accountability references;\n- private GitHub append-only cloud storage;\n- the rule that live Git/API/machine evidence outranks remembered context.\n\nThe new work builds around those features instead of replacing them."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-upgrades-03-new-features-merged",
+      "title": "New features merged",
+      "project": "JoshCoding2026",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "## New features merged\n\nPR: `https://github.com/joshualparris/JoshMemory/pull/1`\n\nMerged implementation commit:\n\n`f215dc902d919eafa9cc62210c70126d31a3d0b3`\n\nMain additions:\n\n1. **Bounded work leases** — claim, heartbeat, release and reclaim work keys so multiple coding agents can see when work is already owned.\n2. **Append-only work journal** — concise redacted events for commits, tests, builds, deployments, blockers, decisions and bugs instead of transcript dumps.\n3. **Trust overlay separate from fact status** — `UNTRUSTED`, `VERIFIED`, `APPROVED`, `SYSTEM`. Agent-facing APIs do not expose trust promotion, and `VERIFIED` requires a source reference.\n4. **One-call resume brief** — combines latest handoff, live-state discrepancies, current lease, recent work journal and the next action; warns when another agent owns the work key.\n5. **Continuity CLI** — `joshmemory-continuity`.\n6. **Agent-facing continuity MCP server** — `joshmemory-continuity-mcp` with resume, lease, journal and trusted-search tools, but intentionally no trust-promotion tool.\n7. **Local/cloud storage behavior** — local SQLite claims use `BEGIN IMMEDIATE`; the private GitHub append-only store uses truthful optimistic append/re-read election rather than pretending to provide database row locking.\n8. **Explicit HTTP limitation** — the legacy optional HTTP central backend has not yet been extended to the new lease/journal/trust record families. The code fails explicitly rather than silently creating split-brain state.\n\nPrimary implementation/documentation files:\n\n- `joshmemory/continuity.py`\n- `joshmemory/continuity_cli.py`\n- `joshmemory/continuity_mcp.py`\n- `tests/test_continuity.py`\n- `tests/test_continuity_mcp.py`\n- `docs/CONTINUITY_COORDINATION.md`\n- `docs/OPEN_SOURCE_MEMORY_BORROWING_PLAN.md`\n- `README.md`\n\nPackage version was raised to `0.3.0`."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-upgrades-04-evidence",
+      "title": "Evidence",
+      "project": "JoshCoding2026",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "## Evidence\n\nPR head before merge: `b026d68e8c61f079c63988f6c6dd97c605d9b983`.\n\nPR CI run `35279962665` succeeded. Evidence included:\n\n- Python 3.11 test job: success;\n- Python 3.12 test job: success;\n- Python 3.13 test job: success;\n- Docker/cloud-container build: success.\n\nAfter squash merge, main commit `f215dc902d919eafa9cc62210c70126d31a3d0b3` triggered CI run `35280101273`; it also completed successfully.\n\nThe tests specifically cover duplicate claim blocking, release/reclaim behavior, owner-only heartbeat/release, expiry, secret redaction in journal events, prevention of agent self-promotion, evidence requirement for verified trust, trust/status separation, resume collision warnings and the safe MCP surface."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-upgrades-05-follow-up-documentation",
+      "title": "Follow-up documentation",
+      "project": "JoshCoding2026",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "## Follow-up documentation\n\nAfter the merge:\n\n- README was updated to expose the new CLI/MCP workflows and accurately describe cloud/HTTP behavior.\n- `docs/CODING_MEMORY_MIGRATION_BACKLOG.md` was updated so one-call resume, current-work leases, work journal and trust overlay are no longer falsely listed as queued.\n\nThese documentation commits come after `f215dc9`; therefore always inspect live `main` for the newest HEAD rather than treating the merge SHA as permanent HEAD."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-upgrades-06-do-not-redo",
+      "title": "Do not redo",
+      "project": "JoshCoding2026",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "## Do not redo\n\nA fresh agent should **not**:\n\n- repeat the external memory-tool comparison from scratch unless Josh asks for a refresh;\n- reimplement leases, work journals or the trust overlay as a parallel system;\n- replace the existing handoff subsystem merely to put handoffs under a differently named storage directory;\n- add a vector database/graph stack simply because another memory tool has one;\n- allow an agent to mark its own memory `VERIFIED` or `APPROVED`;\n- claim GitHub-backed leases are strongly atomic database locks;\n- silently fall back to local coordination state when an explicitly selected shared backend cannot serve it."
+        }
+      ]
+    },
+    {
+      "thread_id": "public-upgrades-07-still-open",
+      "title": "Still open",
+      "project": "JoshCoding2026",
+      "source": "public-doc-derived",
+      "model": "",
+      "branch": "main",
+      "created_at": "2026-09-18T23:59:00+10:00",
+      "updated_at": "2026-09-18T23:59:00+10:00",
+      "events": [
+        {
+          "role": "memory",
+          "kind": "public_continuity",
+          "timestamp": "2026-09-18T23:59:00+10:00",
+          "text": "## Still open\n\nThe highest-value next steps are:\n\n1. prove save/resume/lease behavior from two real development machines against the same canonical repository;\n2. decide whether the continuity tools should also be folded into the original `joshmemory.server` MCP surface, or whether the companion server remains the cleaner boundary;\n3. extend the optional HTTP central protocol to lease/journal/trust records if that deployment mode remains important;\n4. implement a first-class canonical project/alias registry;\n5. consider cloud-store indexes/caching only when record volume demonstrates the need.\n\nThe current implementation is intentionally smaller than the external projects: JoshMemory keeps the features that improve continuity and coordination while retaining its stronger rule that memory is context to verify, not a substitute for reality."
+        }
+      ]
+    }
+  ]
+}
