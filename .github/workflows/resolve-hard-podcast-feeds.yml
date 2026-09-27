@@ -1,0 +1,60 @@
+name: Resolve hard podcast feeds
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/resolve-hard-podcast-feeds.yml'
+permissions:
+  contents: read
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve Apple show feeds and exact enclosures
+        run: |
+          python3 - <<'PY'
+          import urllib.request, urllib.parse, json, xml.etree.ElementTree as ET, re, time
+          ua={'User-Agent':'JoshMemory-offline-source-audit/1.0'}
+          known=[
+            ('Between Two Techies','1891527844',['Episode 6']),
+            ('Sunday Celebration With Alex Milne','1874748692',['Shed Happens With Vern Wilson']),
+            ('Win Conditions','1781641256',['Tom & Tony Cannon']),
+          ]
+          searchShows=[
+            ('First Person Origins',['Dennis','Thresh','Fong']),
+            ('Control Point A TF2 Podcast',['CP 13','SNAPL']),
+            ('RigBay The Art of the Build',['RTX 5090','RTX 3080']),
+            ('Zac Builds',['DIY Steam Machine']),
+          ]
+          def get(url):
+            return urllib.request.urlopen(urllib.request.Request(url,headers=ua),timeout=30).read()
+          def parsefeed(label,feed,needles):
+            print('\nFEED',label,feed)
+            try:
+              root=ET.fromstring(get(feed))
+              for it in root.findall('.//item'):
+                title=(it.findtext('title') or '').strip()
+                low=title.lower()
+                if all(n.lower() in low for n in needles):
+                  enc=it.find('enclosure')
+                  print('MATCH',json.dumps({'title':title,'url':enc.attrib.get('url') if enc is not None else None,'length':enc.attrib.get('length') if enc is not None else None,'type':enc.attrib.get('type') if enc is not None else None,'guid':(it.findtext('guid') or '').strip(),'link':(it.findtext('link') or '').strip()},ensure_ascii=False))
+            except Exception as e: print('FEED_ERROR',repr(e))
+          for label,id,needles in known:
+            data=json.loads(get('https://itunes.apple.com/lookup?id='+id+'&entity=podcast').decode())
+            for x in data.get('results',[]):
+              if x.get('wrapperType')=='track' and x.get('kind')=='podcast' and x.get('feedUrl'):
+                print('SHOW',label,'feed=',x['feedUrl'])
+                parsefeed(label,x['feedUrl'],needles)
+                break
+            time.sleep(1)
+          for label,needles in searchShows:
+            q=urllib.parse.quote(label)
+            data=json.loads(get(f'https://itunes.apple.com/search?term={q}&media=podcast&entity=podcast&limit=20&country=US').decode())
+            print('\nSHOW_SEARCH',label)
+            for x in data.get('results',[])[:10]:
+              print('SHOW_CANDIDATE',json.dumps({'name':x.get('collectionName'),'artist':x.get('artistName'),'feed':x.get('feedUrl'),'id':x.get('collectionId')},ensure_ascii=False))
+              name=(x.get('collectionName') or '').lower()
+              if x.get('feedUrl') and any(word.lower() in name for word in label.split()[:2]):
+                parsefeed(label,x['feedUrl'],needles)
+            time.sleep(2)
+          PY
