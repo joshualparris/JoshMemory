@@ -1,0 +1,87 @@
+name: Discover remaining podcast sources
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/discover-remaining-podcast-sources.yml'
+permissions:
+  contents: read
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Search known official feeds and Apple metadata
+        run: |
+          python3 - <<'PY'
+          import urllib.request, urllib.parse, json, time, xml.etree.ElementTree as ET, re
+
+          ua={'User-Agent':'JoshMemory-offline-source-audit/1.0'}
+
+          feeds=[
+            ('Packet Pushers','https://feeds.packetpushers.net/packetpushersfullfeed/',
+             ['N4N025: DHCP - Someone Get Me an Address!','N4N008: What Is a Default Gateway?',"N4N003: What's a VLAN?"]),
+            ('Full Nerd','https://feeds.megaphone.fm/IDG8935300959',
+             ['PC Hardware: Buy Now Or Wait?']),
+            ('PC Perspective','https://feeds.transistor.fm/pc-perspective-podcast',
+             ['AM5 Budget Build Sadness']),
+            ('ThinkComputers','https://audioboom.com/channels/4983334.rss',
+             ['Best X870E Motherboard + Lian Li Case','CPU Cooler, Airflow Case + Benchtable']),
+          ]
+
+          def norm(s):
+            return re.sub(r'[^a-z0-9]+',' ',s.lower()).strip()
+          def toks(s):
+            return set(norm(s).split())
+          def sim(a,b):
+            A,B=toks(a),toks(b)
+            return len(A&B)/max(1,max(len(A),len(B)))
+
+          for label,url,targets in feeds:
+            print('\n### FEED',label,url)
+            try:
+              data=urllib.request.urlopen(urllib.request.Request(url,headers=ua),timeout=30).read()
+              root=ET.fromstring(data)
+              items=[]
+              for it in root.findall('.//item'):
+                title=(it.findtext('title') or '').strip()
+                enc=it.find('enclosure')
+                if enc is not None and enc.attrib.get('url'):
+                  items.append((title,enc.attrib.get('url'),enc.attrib.get('length'),enc.attrib.get('type')))
+              for target in targets:
+                ranked=sorted(items,key=lambda x:sim(target,x[0]),reverse=True)[:3]
+                print('TARGET=',target)
+                for row in ranked: print('  CANDIDATE=',json.dumps({'title':row[0],'url':row[1],'length':row[2],'type':row[3],'score':round(sim(target,row[0]),3)}))
+            except Exception as e: print('FEED_ERROR=',repr(e))
+
+          searches=[
+            ('Episode 6 — Regional cyber, practical IT and keeping systems secure','Between Two Techies'),
+            ('RTX 5090 vs. RTX 3080 10GB: The Ultimate Leap in 4K Gaming Performance','RigBay'),
+            ('Shed Happens: Building Connections and Support for Men','Rise 96.5'),
+            ('CP 13 – SNAPL Lan Party','Control Point'),
+            ('Dennis “Thresh” Fong – The First Esports Pro Gamer','First Person Origins'),
+            ('Tom & Tony Cannon – Birth of the FGC, Founding EVO','Win Conditions'),
+            ('PC Building Advice for the Holidays','Broken Silicon'),
+            ("Why it’s smart to build a custom gaming PC",'Tech It Out'),
+            ('DIY Steam Machine Build','Zac Builds'),
+          ]
+          for title,show in searches:
+            time.sleep(2.0)
+            q=urllib.parse.quote(title+' '+show)
+            url=f'https://itunes.apple.com/search?term={q}&media=podcast&entity=podcastEpisode&limit=25&country=US'
+            print('\n### APPLE',title,'|',show)
+            try:
+              req=urllib.request.Request(url,headers=ua)
+              data=json.load(urllib.request.urlopen(req,timeout=30))
+              rows=[]
+              for x in data.get('results',[]):
+                if x.get('episodeUrl'):
+                  rows.append({
+                    'title':x.get('trackName'),'show':x.get('collectionName') or x.get('artistName'),
+                    'url':x.get('episodeUrl'),'feed':x.get('feedUrl'),'view':x.get('trackViewUrl'),
+                    'titleScore':round(sim(title,x.get('trackName','')),3),
+                    'showScore':round(sim(show,(x.get('collectionName') or x.get('artistName') or '')),3)
+                  })
+              rows.sort(key=lambda x:(x['titleScore']*.8+x['showScore']*.2),reverse=True)
+              for row in rows[:5]: print('  CANDIDATE=',json.dumps(row,ensure_ascii=False))
+            except Exception as e: print('APPLE_ERROR=',repr(e))
+          PY
