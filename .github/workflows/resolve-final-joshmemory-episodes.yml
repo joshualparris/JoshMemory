@@ -1,0 +1,82 @@
+name: Resolve final JoshMemory episodes
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/resolve-final-joshmemory-episodes.yml'
+permissions:
+  contents: read
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Search Apple show feeds for exact episodes
+        run: |
+          python3 - <<'PY'
+          import urllib.request, urllib.parse, json, xml.etree.ElementTree as ET, re, time
+          UA={'User-Agent':'JoshMemory-offline-source-audit/1.0'}
+          targets=[
+            ("RTX 5090 vs. RTX 3080 10GB: The Ultimate Leap in 4K Gaming Performance","RigBay: The Art of the Build"),
+            ("CP 13: SNAPL Lan Party","Control Point - A TF2 Podcast"),
+            ('Dennis "Thresh" Fong - The First Esports Pro Gamer',"First Person Origins"),
+            ("Tom & Tony Cannon: The Birth of the FGC, Founding EVO, Riot Games, and 2XKO","Win Conditions"),
+            ("I can't believe I beat Valve to it","Zac Builds"),
+          ]
+          def get(url):
+            return urllib.request.urlopen(urllib.request.Request(url,headers=UA),timeout=35).read()
+          def norm(s):
+            return re.sub(r'[^a-z0-9]+',' ',(s or '').lower()).strip()
+          def score(a,b):
+            A=set(norm(a).split()); B=set(norm(b).split())
+            return len(A&B)/max(1,max(len(A),len(B)))
+          def parsefeed(feed,title):
+            try:
+              root=ET.fromstring(get(feed))
+              rows=[]
+              for it in root.findall('.//item'):
+                t=(it.findtext('title') or '').strip()
+                enc=it.find('enclosure')
+                if enc is not None and enc.attrib.get('url'):
+                  rows.append((score(title,t),t,enc.attrib.get('url'),enc.attrib.get('length'),enc.attrib.get('type')))
+              rows.sort(reverse=True,key=lambda x:x[0])
+              return rows[:5]
+            except Exception as e:
+              return [('ERR',repr(e),None,None,None)]
+          for title,show in targets:
+            print('\n### TARGET',title,'|',show)
+            for country in ['AU','US','GB']:
+              term=urllib.parse.quote(show)
+              surl=f'https://itunes.apple.com/search?term={term}&media=podcast&entity=podcast&limit=25&country={country}'
+              try:
+                data=json.loads(get(surl).decode())
+              except Exception as e:
+                print('SHOW_SEARCH_ERROR',country,repr(e)); continue
+              seen=set()
+              for x in data.get('results',[]):
+                feed=x.get('feedUrl')
+                if not feed or feed in seen: continue
+                seen.add(feed)
+                ss=score(show,x.get('collectionName') or x.get('trackName') or '')
+                if ss < .25: continue
+                print('SHOW',country,json.dumps({'name':x.get('collectionName') or x.get('trackName'),'artist':x.get('artistName'),'id':x.get('collectionId'),'feed':feed,'showScore':round(ss,3)},ensure_ascii=False))
+                for row in parsefeed(feed,title):
+                  print('  FEED_CANDIDATE',json.dumps({'score':row[0],'title':row[1],'url':row[2],'length':row[3],'type':row[4]},ensure_ascii=False))
+              time.sleep(1)
+            for country in ['AU','US']:
+              term=urllib.parse.quote(title+' '+show)
+              eurl=f'https://itunes.apple.com/search?term={term}&media=podcast&entity=podcastEpisode&limit=50&country={country}'
+              try:
+                data=json.loads(get(eurl).decode())
+                rows=[]
+                for x in data.get('results',[]):
+                  if not x.get('episodeUrl'): continue
+                  ts=score(title,x.get('trackName',''))
+                  ss=score(show,x.get('collectionName') or x.get('artistName') or '')
+                  rows.append((ts*.8+ss*.2,ts,ss,x))
+                rows.sort(reverse=True,key=lambda x:x[0])
+                for total,ts,ss,x in rows[:5]:
+                  print('APPLE_EP',country,json.dumps({'score':round(total,3),'titleScore':round(ts,3),'showScore':round(ss,3),'title':x.get('trackName'),'show':x.get('collectionName') or x.get('artistName'),'url':x.get('episodeUrl'),'feed':x.get('feedUrl')},ensure_ascii=False))
+              except Exception as e: print('EP_SEARCH_ERROR',country,repr(e))
+              time.sleep(1)
+          PY
