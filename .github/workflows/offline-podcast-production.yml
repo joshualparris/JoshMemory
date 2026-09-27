@@ -9,6 +9,9 @@ on:
       - 'docs/podcasts*'
 permissions:
   contents: read
+concurrency:
+  group: offline-podcast-production
+  cancel-in-progress: true
 
 jobs:
   prepare:
