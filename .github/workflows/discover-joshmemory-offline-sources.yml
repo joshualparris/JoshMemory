@@ -19,7 +19,7 @@ jobs:
         run: node tools/discover-joshmemory-offline-sources.mjs
       - name: Commit discovery report
         run: |
-          if git diff --quiet -- docs/research/offline-podcast-source-candidates.json; then
+          if [ -z "$(git status --porcelain -- docs/research/offline-podcast-source-candidates.json)" ]; then
             echo "No report changes"
             exit 0
           fi
