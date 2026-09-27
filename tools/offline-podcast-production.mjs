@@ -4,6 +4,9 @@ import { mkdir, writeFile, mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import assert from 'node:assert/strict';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+const execute = promisify(execFile);
 
 const url = 'https://joshualparris.github.io/JoshMemory/podcasts.html';
 const titles = [
@@ -20,6 +23,7 @@ const results = [];
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 const options = {
   headless: true,
+  ignoreDefaultArgs: ['--mute-audio'],
   viewport: { width: 412, height: 915 }, deviceScaleFactor: 2.625,
   isMobile: true, hasTouch: true,
   userAgent: 'Mozilla/5.0 (Linux; Android 16; Pixel 9) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Mobile Safari/537.36',
@@ -80,6 +84,12 @@ async function playback(page, title, evidence, label) {
   });
   evidence.push({step:label+' decoded signal',signal});
   if(resumed.src.startsWith('blob:')) assert(signal.peak>0.00001,'Local Blob produced no decoded audio signal');
+  const recording=join(output,label.replaceAll(' ','-')+'.wav');
+  await execute('ffmpeg',['-y','-f','pulse','-i','offline_test.monitor','-t','5',recording]);
+  const {stderr}=await execute('ffmpeg',['-i',recording,'-af','volumedetect','-f','null','-']);
+  const peak=stderr.match(/max_volume: ([-\d.]+) dB/);
+  assert(peak && Number(peak[1])>-85,'No non-silent system audio captured offline');
+  evidence.push({step:label+' system audio',recording,maxDb:Number(peak[1])});
   await page.screenshot({path:join(output,label.replaceAll(' ','-')+'.png')});
 }
 for(const [index,title] of selected.entries()) {
@@ -119,8 +129,21 @@ for(const [index,title] of selected.entries()) {
     await isolation(context,page,'restart remains offline',evidence);
     await card(page,title).getByRole('button',{name:/Offline saved|Available offline|Remove download/}).waitFor();
     await playback(page,title,evidence,`episode-${index} restarted`);
-    assert(storage.size>100000 && storage.type!=='opaque','Complete readable stored file not verified');
-    if(storage.contentLength)assert.equal(storage.size,Number(storage.contentLength),'Stored length mismatch');
+    if(storage.type==='opaque') {
+      // JS cannot inspect an opaque body. Decode the ENTIRE episode offline
+      // after restarting, rather than pretending a byte-size/hash is available.
+      const audio=page.locator('audio');
+      await audio.evaluate(a=>{a.pause();a.currentTime=0;a.playbackRate=16;});
+      await audio.evaluate(a=>a.play());
+      const duration=(await state(page)).duration;
+      await page.waitForFunction(()=>document.querySelector('audio').ended,{},{timeout:duration/16*1000+60000});
+      const end=await state(page);
+      assert(Math.abs(end.time-duration)<1 && !end.error,'Full offline decode did not reach the end');
+      evidence.push({step:'complete opaque episode decoded offline after restart',duration,end,hashUnavailable:true});
+    } else {
+      assert(storage.size>100000,'Complete readable stored file not verified');
+      if(storage.contentLength)assert.equal(storage.size,Number(storage.contentLength),'Stored length mismatch');
+    }
     result.status='PASS';
   } catch(e) { result.error=e.stack; console.error(title,e); }
   finally { if(context)await context.close(); await writeFile(join(output,'results.json'),JSON.stringify(results,null,2)); }
