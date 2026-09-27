@@ -1,0 +1,32 @@
+name: Production offline podcast playback
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/offline-podcast-production.mjs'
+      - '.github/workflows/offline-podcast-production.yml'
+      - 'docs/podcasts*'
+permissions:
+  contents: read
+jobs:
+  production-offline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install test browser
+        run: |
+          npm install --no-save --package-lock=false playwright@1.58.2
+          npx playwright install --with-deps chromium
+      - name: Test production offline media and browser restart
+        run: node tools/offline-podcast-production.mjs
+      - name: Preserve detailed evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: offline-podcast-evidence
+          path: offline-evidence/
