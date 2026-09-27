@@ -1,22 +1,23 @@
 // Run in GitHub Actions against production, never a substituted localhost page.
 import { chromium } from 'playwright';
-import { mkdir, writeFile, mkdtemp } from 'node:fs/promises';
+import { mkdir, writeFile, mkdtemp, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
+import vm from 'node:vm';
 const execute = promisify(execFile);
 
 const url = 'https://joshualparris.github.io/JoshMemory/podcasts.html';
-const titles = [
-  'Restart Radio: Hackney Fixers’ laptop repair and reuse project',
-  'Chasing That Old Gaming Feeling',
-  'CTS 384: Wi-Fi for Live Events: Lessons from the Real-World',
-  'CTS 383: Deep Dive - Wi-Fi Troubleshooting at the Frame Level',
-  'CTS 385: Building Your Own Wi-Fi Dashboard Using APIs and Grafana',
-];
-const selected = process.env.ALL_EPISODES === '1' ? titles : titles.slice(0, 1);
+const sourceHtml = await readFile('docs/podcasts.html', 'utf8');
+const catalogueMatch = sourceHtml.match(/const podcasts=(\\[[\\s\\S]*?\\]);\\nconst cats=/);
+if (!catalogueMatch) throw new Error('Could not read local podcast catalogue');
+const localCatalogue = vm.runInNewContext(catalogueMatch[1], Object.create(null));
+const titles = localCatalogue.filter((episode) => episode && episode.audio).map((episode) => episode.n);
+const requestedTitle = process.env.EPISODE_TITLE || '';
+const selected = requestedTitle ? titles.filter((title) => title === requestedTitle) : (process.env.ALL_EPISODES === '1' ? titles : titles.slice(0, 1));
+if (!selected.length) throw new Error(requestedTitle ? 'Requested direct-audio episode not found: ' + requestedTitle : 'No direct-audio episodes found');
 const output = 'offline-evidence';
 await mkdir(output, { recursive: true });
 const results = [];
