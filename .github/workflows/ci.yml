@@ -22,6 +22,8 @@ jobs:
       - name: Compile
         run: python -m compileall -q joshmemory
       - name: Check Privacy
+        env:
+          JOSHMEMORY_PRIVATE_TERMS: ${{ secrets.JOSHMEMORY_PRIVATE_TERMS }}
         run: python tools/check_privacy.py
       - name: Validate shell deploy scripts
         run: bash -n deploy/*.sh
