@@ -1,0 +1,36 @@
+name: Discover Dual Comm enclosure
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/discover-dualcomm.yml'
+permissions:
+  contents: read
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch publisher RSS and print matching enclosure
+        run: |
+          python3 - <<'PY'
+          import urllib.request, xml.etree.ElementTree as ET
+          url='https://feed.podbean.com/dualcomm/feed.xml'
+          data=urllib.request.urlopen(url, timeout=30).read()
+          print('feed_bytes', len(data))
+          root=ET.fromstring(data)
+          found=False
+          for item in root.findall('.//item'):
+              title=(item.findtext('title') or '').strip()
+              if title == 'Chasing That Old Gaming Feeling':
+                  enc=item.find('enclosure')
+                  print('TITLE=', title)
+                  print('GUID=', (item.findtext('guid') or '').strip())
+                  print('LINK=', (item.findtext('link') or '').strip())
+                  if enc is not None:
+                      print('ENCLOSURE_URL=', enc.attrib.get('url'))
+                      print('ENCLOSURE_LENGTH=', enc.attrib.get('length'))
+                      print('ENCLOSURE_TYPE=', enc.attrib.get('type'))
+                  found=True
+          if not found:
+              raise SystemExit('Matching episode not found in feed')
+          PY
