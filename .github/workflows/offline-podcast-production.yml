@@ -9,10 +9,41 @@ on:
       - 'docs/podcasts*'
 permissions:
   contents: read
+
 jobs:
-  production-offline:
+  prepare:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    outputs:
+      titles: ${{ steps.catalogue.outputs.titles }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: catalogue
+        name: Build direct-audio test matrix
+        shell: bash
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const vm = require('vm');
+          const html = fs.readFileSync('docs/podcasts.html','utf8');
+          const m = html.match(/const podcasts=(\[[\s\S]*?\]);\nconst cats=/);
+          if (!m) throw new Error('Podcast catalogue not found');
+          const podcasts = vm.runInNewContext(m[1], Object.create(null));
+          const titles = podcasts.filter(p => p && p.audio).map(p => p.n);
+          if (!titles.length) throw new Error('No direct-audio episodes');
+          fs.appendFileSync(process.env.GITHUB_OUTPUT, 'titles=' + JSON.stringify(titles) + '\n');
+          console.log('Direct-audio episodes:', titles.length);
+          for (const title of titles) console.log('-', title);
+          NODE
+
+  production-offline:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        title: ${{ fromJSON(needs.prepare.outputs.titles) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -26,14 +57,14 @@ jobs:
           pulseaudio --start --exit-idle-time=-1
           pactl load-module module-null-sink sink_name=offline_test
           pactl set-default-sink offline_test
-      - name: Test production offline media and browser restart
+      - name: Test one production episode offline
         run: node tools/offline-podcast-production.mjs
         env:
-          ALL_EPISODES: '1'
+          EPISODE_TITLE: ${{ matrix.title }}
           PULSE_SINK: offline_test
       - name: Preserve detailed evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: offline-podcast-evidence
+          name: offline-podcast-evidence-${{ strategy.job-index }}
           path: offline-evidence/
