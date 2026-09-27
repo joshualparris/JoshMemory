@@ -11,7 +11,7 @@ const execute = promisify(execFile);
 
 const url = 'https://joshualparris.github.io/JoshMemory/podcasts.html';
 const sourceHtml = await readFile('docs/podcasts.html', 'utf8');
-const catalogueMatch = sourceHtml.match(/const podcasts=(\\[[\\s\\S]*?\\]);\\nconst cats=/);
+const catalogueMatch = sourceHtml.match(/const podcasts=(\[[\s\S]*?\]);\nconst cats=/);
 if (!catalogueMatch) throw new Error('Could not read local podcast catalogue');
 const localCatalogue = vm.runInNewContext(catalogueMatch[1], Object.create(null));
 const titles = localCatalogue.filter((episode) => episode && episode.audio).map((episode) => episode.n);
