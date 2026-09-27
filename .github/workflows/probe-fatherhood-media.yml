@@ -1,0 +1,29 @@
+name: Probe fatherhood podcast media
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/probe-fatherhood-media.yml'
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Probe current media URL
+        run: |
+          set -euxo pipefail
+          URL='https://api.substack.com/feed/podcast/187541988/8aab45874335015aec4e61da426ef074.mp3'
+          echo 'HEAD'
+          curl -IL --max-time 60 "$URL" || true
+          echo 'RANGE'
+          curl -L --max-time 60 -r 0-1048575 -o /tmp/range.bin -D /tmp/range.headers -w 'http=%{http_code} size=%{size_download} speed=%{speed_download} time=%{time_total} final=%{url_effective}\n' "$URL" || true
+          cat /tmp/range.headers || true
+          ls -l /tmp/range.bin || true
+          echo 'FULL'
+          curl -L --max-time 600 -o /tmp/full.mp3 -D /tmp/full.headers -w 'http=%{http_code} size=%{size_download} speed=%{speed_download} time=%{time_total} final=%{url_effective}\n' "$URL"
+          tail -n 30 /tmp/full.headers
+          ls -l /tmp/full.mp3
+          sha256sum /tmp/full.mp3
+          ffprobe -v error -show_entries format=duration,size,format_name -of json /tmp/full.mp3
