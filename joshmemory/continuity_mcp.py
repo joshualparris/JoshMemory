@@ -275,6 +275,14 @@ def handle(request: dict[str, Any]) -> dict[str, Any] | None:
                 "protocolVersion": "2024-11-05",
                 "capabilities": {"tools": {}},
                 "serverInfo": {"name": "joshmemory-continuity", "version": "0.3.0"},
+                "instructions": (
+                    "Coordination companion to the joshmemory server. When starting work in a "
+                    "known Git checkout, call resume_brief for a compact packet: latest handoff, "
+                    "live-state discrepancies, active work leases and next action. Check "
+                    "active_lease before starting substantial work so you don't duplicate another "
+                    "agent's session, and claim_work/heartbeat_work/release_work around it. "
+                    "Live Git/CI/deployment evidence always outranks anything resume_brief reports."
+                ),
             },
         )
     if method == "tools/list":

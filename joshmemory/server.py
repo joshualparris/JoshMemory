@@ -375,6 +375,16 @@ def handle(request: dict[str, Any]) -> dict[str, Any] | None:
                 "protocolVersion": "2024-11-05",
                 "capabilities": {"tools": {}},
                 "serverInfo": {"name": "joshmemory", "version": "0.1.0"},
+                "instructions": (
+                    "JoshMemory: Josh's cross-session project continuity store. "
+                    "When Josh asks something like 'where are we up to', 'what's the status', "
+                    "or otherwise expects you to already know prior context, and you don't have it "
+                    "in this conversation, call recent_work or project_status (if you know the "
+                    "project name) before asking Josh to repeat himself. get_project_context and "
+                    "list_handoffs give a fuller resume packet for a named project. "
+                    "Remembered context is historical, not current truth: always verify against "
+                    "live Git/repo state before acting on it, and say so if they conflict."
+                ),
             },
         )
     if method == "tools/list":
