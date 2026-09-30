@@ -327,7 +327,7 @@ def last_work(*, limit: int = 5, db_path: Path | None = None) -> list[dict[str, 
         SELECT thread_id, title, cwd, created_at, updated_at, rollout_path,
           git_origin_url, git_branch, git_sha, source, first_user_message
         FROM sessions
-        WHERE source IN ('vscode', 'chatgpt_export')
+        WHERE source IN ('vscode', 'chatgpt_export', 'cli', 'exec')
         ORDER BY COALESCE(updated_at, created_at) DESC
         LIMIT ?
         """,
