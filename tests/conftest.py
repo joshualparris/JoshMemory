@@ -10,4 +10,9 @@ def prevent_production_db_pollution(tmp_path, monkeypatch):
     isolated_home = tmp_path / "isolated_joshmemory_home"
     isolated_home.mkdir(exist_ok=True)
     monkeypatch.setenv("JOSHMEMORY_HOME", str(isolated_home))
+    # The GitHub store auto-enables whenever any GitHub credential exists, which
+    # made tests write to the real shared memory repo and stall on API limits.
+    # Tests that exercise a shared backend opt back in explicitly.
+    monkeypatch.setenv("JOSHMEMORY_GITHUB_STORE_AUTO", "0")
+    monkeypatch.delenv("JOSHMEMORY_REMOTE_URL", raising=False)
     yield
