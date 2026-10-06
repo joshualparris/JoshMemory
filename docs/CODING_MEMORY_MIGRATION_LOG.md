@@ -2,7 +2,7 @@
 
 ## 18 September 2026 — completed migration
 
-Systematic migration of the recoverable 2026 coding and technical history into JoshMemory is complete.
+Systematic migration of the recoverable 2026 coding and technical history available at the 18 September checkpoint into JoshMemory is complete.
 
 ### Source corpus reconciled
 
@@ -100,3 +100,14 @@ The reconstructed JSONLs remain historical source material. JoshMemory cloud con
 `docs/CODING_MEMORY_MIGRATION_BACKLOG.md` has been converted into a closed migration manifest. Any remaining items in that document are **future JoshMemory product/verification work or deliberately UNKNOWN facts**, not forgotten 2026 coding-history migration tasks.
 
 A fresh agent should not repeat this migration. It should use `resume`/`resume_brief`, the `JoshCoding2026` facts/catalogue, the master handoff and live Git/API/machine evidence.
+
+
+## 7 October 2026 — incremental post-migration reconciliation
+
+The original migration was not restarted. Instead, newer coding history was appended as a dated continuity catch-up:
+
+- `docs/CODING_CONTINUITY_CATCHUP_2026-09-19_TO_2026-10-07.md`
+
+This reconciles substantial post-18-September work including DubboEwaste/AssetFlow, Lantern Road, Paul-Roe, Familytree/AIGenealogy, Cheappcslaptops, carGame, UpskillApp canonicalisation, JoshOS/AshFallen, JoshHub, Dewey converter status, Windows Doctor/network tooling and JoshMemory's own October CI repair.
+
+From this point onward, “migration complete” means the historical migration checkpoint is closed; new coding work must be appended incrementally.
