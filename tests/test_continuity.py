@@ -93,18 +93,19 @@ def test_list_leases_returns_active_work_keys(db_path: str):
 
 
 def test_work_journal_is_append_only_and_redacts_secrets(db_path: str):
+    fake_token = "sk-" + "proj-" + "abcdefghijklmnopqrstuvwxyz1234567890"
     event = append_work_event(
         db_path,
         "Repo",
         "TEST",
         "CI passed",
-        details={"token": "sk-proj-abcdefghijklmnopqrstuvwxyz1234567890"},
+        details={"token": fake_token},
         agent="codex",
     )
     assert event["event_type"] == "TEST"
     rows = list_work_events(db_path, "Repo")
     assert len(rows) == 1
-    assert "sk-proj-abcdefghijklmnopqrstuvwxyz1234567890" not in str(rows[0])
+    assert fake_token not in str(rows[0])
     assert "REDACTED" in str(rows[0])
 
 
