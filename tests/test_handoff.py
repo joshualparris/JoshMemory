@@ -82,17 +82,18 @@ def test_multiple_machines_tracked_separately(db_path: str):
 
 
 def test_secret_redacted_before_storage(db_path: str):
+    fake_token = "sk-" + "proj-" + "abcdefghijklmnopqrstuvwxyz1234567890"
     save_handoff(
         db_path, "TestProj",
         {
             "objective": "Deploy with token",
-            "blockers": ["ACTION1_TOKEN=sk-proj-abcdefghijklmnopqrstuvwxyz1234567890"],
+            "blockers": [f"ACTION1_TOKEN={fake_token}"],
         },
         machine="ws1",
     )
     latest = get_latest_handoff(db_path, "TestProj", machine="ws1")
     stored_text = json.dumps(latest["handoff"])
-    assert "sk-proj-abcdefghijklmnopqrstuvwxyz1234567890" not in stored_text
+    assert fake_token not in stored_text
     assert "REDACTED" in stored_text
 
 
