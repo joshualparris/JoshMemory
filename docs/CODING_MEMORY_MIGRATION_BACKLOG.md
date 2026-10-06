@@ -4,7 +4,7 @@ Last reconciled: 18 September 2026 (Australia/Sydney)
 
 ## Status: recovered migration complete
 
-The recoverable 2026 coding/technical history available to this reconciliation has been migrated into durable JoshMemory continuity.
+The recoverable 2026 coding/technical history available to the 18 September reconciliation was migrated into durable JoshMemory continuity. Newer work is appended incrementally rather than reopening that migration.
 
 The source corpus contained **376 reconstructed coding records across 282 historical project/folder/family labels**:
 
@@ -158,4 +158,4 @@ Start with:
 4. live Git/CI/deployment/machine inspection for present truth;
 5. historical search/source material only when compact memory is insufficient.
 
-The recovered 2026 coding-memory migration is considered **complete as of 18 September 2026**.
+The recovered historical coding-memory migration is considered **complete as of 18 September 2026**. Post-18-September coding history is tracked incrementally; see `docs/CODING_CONTINUITY_CATCHUP_2026-09-19_TO_2026-10-07.md`.
