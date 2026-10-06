@@ -1,6 +1,6 @@
 # Josh coding 2026 — master continuity handoff
 
-Last reconciled: 18 September 2026 (Australia/Sydney)
+Last reconciled: 7 October 2026 (Australia/Sydney)
 
 ## Purpose
 
@@ -376,3 +376,16 @@ Never run broad personal-data string substitution across dependency lockfiles, h
 - JoshCoach commit: `767e941` — added `vercel.json` with `git.deploymentEnabled=false`.
 - CanonRPG commit: `d1675b5` — retained `git.deploymentEnabled=false` and added `ignoreCommand: "exit 0"` as a second skip safeguard.
 - Fresh commit-status verification showed no Vercel failure context on either new commit. Do not re-enable Vercel unless there is a deliberate migration back from the current deployment path.
+
+
+## 7 October 2026 — post-migration continuity catch-up
+
+The 18 September migration was complete for the recoverable corpus available at that checkpoint, but substantial coding work continued afterwards.
+
+A dedicated catch-up now records recovered work from 19 September through 7 October:
+
+- `docs/CODING_CONTINUITY_CATCHUP_2026-09-19_TO_2026-10-07.md`
+
+It covers, among other streams, DubboEwaste/AssetFlow, Lantern Road, Paul-Roe, Familytree/AIGenealogy, Cheappcslaptops, carGame, UpskillApp canonical-repo correction, JoshOS/AshFallen, JoshHub, Dewey converter status, Windows Doctor/network-diagnostics consolidation and the 7 October JoshMemory CI repair.
+
+Important wording correction: JoshMemory is **recovered and reconciled through available evidence**. Do not describe it as literally containing every coding action ever unless a full ChatGPT/Codex export plus every GitHub identity and local-only repository have been exhaustively reconciled.
