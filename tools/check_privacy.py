@@ -22,7 +22,7 @@ PATTERNS = [
     (r'\bAIza[0-9A-Za-z_-]{25,}\b', 'Google API Key'),
     (
         r'(?i)(api[_-]?key|client[_-]?secret|access[_-]?token|refresh[_-]?token|password|passwd)'
-        r'\s*[:=]\s*[\'\"][^\'\"]{8,}[\'\"]',
+        r'\s*[:=]\s*[\'\"][^\n\r\'\"]{8,}[\'\"]',
         'Hard-coded credential',
     ),
 ]
