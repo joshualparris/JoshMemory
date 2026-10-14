@@ -58,6 +58,10 @@ When sources disagree, prefer:
 
 For example, if a handoff records one HEAD commit but the checked-out repository now has another, the live repository wins and the discrepancy is reported.
 
+## USB fleet continuity (public-safe)
+
+The 2026 collection includes **22 numbered USB devices**. For device roles, completed preservation versus outstanding verification, the USB #6 Ventoy/ShredOS update, and the corrected **#20 Rufus Windows 11** / **#21 Clonezilla backup** status, see [USB fleet public continuity handoff](docs/USB_FLEET_CONTINUITY_PUBLIC_2026-10-15.md). This is deliberately redacted for a public repo. The restricted canonical USB inventory and live evidence outrank this snapshot. **Do not publish private images, recovered files, medical/personal content, device serials or credentials.**
+
 ## 2026 portfolio onboarding
 
 For work anywhere in Josh's 2026 coding ecosystem, first read [`docs/CODING_2026_MASTER_HANDOFF.md`](docs/CODING_2026_MASTER_HANDOFF.md) and load/search the shared JoshMemory project **`JoshCoding2026`**. The master handoff reconciles the major 2026 projects, DadLAN/ForgeGrid/local-LLM architecture, engineering-quality model, CRAP4All work, podcast rollout, security/remediation work, CI/deployment lessons, current permission caveats and explicit do-not-redo guidance.
