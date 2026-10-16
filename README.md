@@ -60,7 +60,7 @@ For example, if a handoff records one HEAD commit but the checked-out repository
 
 ## USB fleet continuity (public-safe)
 
-The 2026 collection includes **22 numbered USB devices**. For device roles, completed preservation versus outstanding verification, the USB #6 Ventoy/ShredOS update, and the corrected **#20 Rufus Windows 11** / **#21 Clonezilla backup** status, see [USB fleet public continuity handoff](docs/USB_FLEET_CONTINUITY_PUBLIC_2026-10-15.md). This is deliberately redacted for a public repo. The restricted canonical USB inventory and live evidence outrank this snapshot. **Do not publish private images, recovered files, medical/personal content, device serials or credentials.**
+The 2026 collection includes **22 numbered USB devices**. For device roles, completed preservation versus outstanding verification, the USB #6 Ventoy/ShredOS update, and the corrected **#20 Rufus Windows 11** / **#21 retired after silent corruption** status, see [USB fleet public continuity handoff](docs/USB_FLEET_CONTINUITY_PUBLIC_2026-10-15.md). This is deliberately redacted for a public repo. The restricted canonical USB inventory and live evidence outrank this snapshot. **Do not publish private images, recovered files, medical/personal content, device serials or credentials.**
 
 ## 2026 portfolio onboarding
 
