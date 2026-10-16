@@ -170,19 +170,22 @@ def test_malformed_json_run_auditor():
 
 @mock.patch("joshmemory.auditor.run_auditor")
 def test_recent_work_branch_scoring(mock_run, tmp_path):
+    # Use a fresh commit date: recency scoring expires after 40 days.
+    # This test isolates the branch bonus rather than relying on calendar age.
+    recent_commit = dt.datetime.now(dt.timezone.utc).isoformat()
     mock_run.return_value = {
         "projects": [
             {
                 "name": "FeatureRepo",
-                "git": {"branch": "feature/test", "head": "feature/test", "modified": 0, "untracked": 0, "latest_commit_date": "2026-08-28T10:00:00Z"}
+                "git": {"branch": "feature/test", "head": "feature/test", "modified": 0, "untracked": 0, "latest_commit_date": recent_commit}
             },
             {
                 "name": "MainRepo",
-                "git": {"branch": "main", "head": "main", "branch": "main", "modified": 0, "untracked": 0, "latest_commit_date": "2026-08-28T10:00:00Z"}
+                "git": {"branch": "main", "head": "main", "branch": "main", "modified": 0, "untracked": 0, "latest_commit_date": recent_commit}
             },
             {
                 "name": "DetachedRepo",
-                "git": {"branch": None, "head": "abc1234", "modified": 0, "untracked": 0, "latest_commit_date": "2026-08-28T10:00:00Z"}
+                "git": {"branch": None, "head": "abc1234", "modified": 0, "untracked": 0, "latest_commit_date": recent_commit}
             }
         ]
     }
