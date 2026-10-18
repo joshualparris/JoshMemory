@@ -94,7 +94,7 @@ export const STYLES = {
     const w = 10, d = 9, h = 3.2; b.box(s.walls, w, 0.9, d, 0, 0.45, 0); for (const x of [-w / 2, -w / 4, 0, w / 4, w / 2]) for (const z of [-d / 2, d / 2]) b.box(s.trim, 0.12, h, 0.12, x, h / 2, z);
     b.box(GLASS, w - 0.2, h - 0.9, 0.06, 0, (h + 0.9) / 2, -d / 2); for (const x of [-w / 2 + 1.7, w / 2 - 1.7]) b.box(GLASS, w / 2 - 2.5, h - 0.9, 0.06, x, (h + 0.9) / 2, d / 2);
     for (const x of [-w / 2, w / 2]) b.box(GLASS, 0.06, h - 0.9, d, x, (h + 0.9) / 2, 0);
-    b.add('cyl', s.roof, 4, w, d, 0, h, 0, 0, 0, Math.PI / 2); b.box(0x1e1a17, 1.6, 2.5, 0.05, 0, 1.25, d / 2 + 0.02);
+    gable(b, w, d, h, s.roof, 0.35); b.box(0x1e1a17, 1.6, 2.5, 0.05, 0, 1.25, d / 2 + 0.02);
     for (let i = 0; i < 6; i++) b.ball(0x5a9a50, 0.5, -3.6 + i * 1.45, 1.4, -3);
     return { w, d, h: h + 4.5, door: door() };
   },
@@ -148,7 +148,7 @@ export const STYLES = {
     return { w: 8, d: 7.4, h: 16, door: door(0), front: 3.5 };
   },
   bunker(b, s) {
-    b.add('box', s.walls, 12, 3, 9, 0, 1.5, 0); b.add('cyl', s.roof, 3, 12, 9, 0, 3, 0, 0, 0, Math.PI / 2);
+    b.add('box', s.walls, 12, 3, 9, 0, 1.5, 0); gable(b, 12, 9, 3, s.roof, 0.2);
     b.box(s.trim, 3.4, 3.2, 1.2, 0, 1.6, 5.0); b.box(0x1e1a17, 1.8, 2.5, 0.05, 0, 1.25, 5.62); for (let i = 0; i < 4; i++) b.box(0xe8c23a, 0.4, 0.2, 0.05, -1.2 + i * 0.8, 3.0, 5.62);
     b.cyl(DARK, 0.3, 2, 4, 4.8, -1); b.cyl(DARK, 0.3, 1.5, -4, 4.5, 1);
     return { w: 12, d: 10.2, h: 6, door: door(0, 1.8), front: 5.6 };
