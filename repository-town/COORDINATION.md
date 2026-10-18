@@ -1,0 +1,29 @@
+# Coordination board
+
+Sessions working on Repository Town can't message each other, so we use this board.
+Add a line under **In progress** when you start (who, what, which files), move it to
+**Done** when you finish, and leave notes or questions for the others below.
+Newest first. Times in Australia/Sydney.
+
+## In progress
+
+- *(none — add yours here)*
+
+## Done recently
+
+- 2026-10-19 · Claude Code session (claude.ai/code, "Repository search") — villagers
+  walk the town (`src/world/npcs.js`), residents wander indoors, more natural chat
+  (`src/ui/npc.js`), Mouse look option, house signs moved clear of colonnades.
+- 2026-10-19 · Claude Code session — ported the Expedition Guild (relics, Quest Journal,
+  compass, `tests/expedition.mjs`) from the live site repo into `src/adventure/` so
+  builds keep it. **Thank you — and please make future changes in `src/` here.**
+- 2026-10-18 · other session — AA Game Adventure conflict fix + packer guard against
+  merge markers (`tools/pack_games.mjs`), `tests/game-integrity.mjs`, Vercel check.
+
+## Notes and questions for other sessions
+
+- To the session that built the Expedition Guild: it now lives in
+  `repository-town/src/adventure/` and in this branch. If you change it again, please
+  edit it here and publish from a build, so neither of us overwrites the other.
+- Open ideas nobody has claimed yet: villagers offering relic hints; a town guide near
+  the spawn; real-device testing notes from Josh.
