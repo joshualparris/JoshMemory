@@ -10,7 +10,7 @@ const arg = (k, d) => { const i = process.argv.indexOf(k); return i > 0 ? proces
 const URL = arg('--url', 'http://localhost:8091/');
 const ONLY = arg('--only', '')?.split(',').filter(Boolean);
 const SHOTS = arg('--shots', '');
-const OUT = arg('--out', 'private/test-results/e2e.json');
+const OUT = arg('--out', 'test-results/e2e.json');
 const MOBILE = !process.argv.includes('--skip-mobile');
 const GL = ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'];
 

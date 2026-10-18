@@ -19,7 +19,7 @@ export function loadInventory() {
 }
 
 export function loadBriefs() {
-  const dir = path.join(TOWN, 'private', 'briefs');
+  const dir = path.join(TOWN, 'briefs');
   const out = new Map();
   for (const f of fs.readdirSync(dir).filter((f) => f.endsWith('.json')).sort()) {
     for (const b of JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'))) {
