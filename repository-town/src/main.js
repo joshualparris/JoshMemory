@@ -143,6 +143,16 @@ async function start() {
     if (h) { travel(h.coordinate); $('search').blur(); } else status(`No house matches "${$('search').value}".`);
   });
   $('btn-map').onclick = () => setOverview(!overview);
+  const syncMouseLook = () => { $('btn-mouse').setAttribute('aria-pressed', String(input.mouseLook)); $('btn-mouse').textContent = input.mouseLook ? 'Mouse look: on' : 'Mouse look'; };
+  $('btn-mouse').hidden = input.touch;
+  $('btn-mouse').onclick = () => { input.setMouseLook(!input.mouseLook); syncMouseLook(); status(input.mouseLook ? 'Mouse look on — click the view to capture the mouse, Esc to release it.' : 'Mouse look off — drag to look around.'); };
+  syncMouseLook();
+  // In bird's-eye view a click picks a house to travel to, so it never captures the mouse.
+  input.canCapture = () => !overview;
+  document.addEventListener('pointerlockchange', () => {
+    if (document.pointerLockElement) status('Mouse captured — move it to look around. Esc releases it.');
+    else if (input.mouseLook && !panelOpen && !playing) status('Mouse released — click the view to capture it again.');
+  });
   $('btn-help').onclick = () => { $('help').hidden = !$('help').hidden; };
   $('help-close').onclick = () => { $('help').hidden = true; };
   $('btn-exit').onclick = () => { stopGame(); if (mode === 'house') { closePanel(); leave(); save(); status('Exited safely.'); } };
@@ -157,6 +167,8 @@ async function start() {
   }
   function openPanel(content, thing) {
     panelOpen = { content, thing };
+    // Panels have buttons and text boxes: give the mouse pointer back.
+    if (document.pointerLockElement) document.exitPointerLock();
     $('panel').classList.toggle('wide', !!content.wide);
     $('panel-body').scrollTop = 0; $('panel').scrollTop = 0;
     $('panel-title').textContent = content.title;
@@ -237,6 +249,7 @@ async function start() {
   } else { spawn(); status('Welcome! Walk up to any front door to go inside.'); }
   // The link can also arrive while the town is already open (same page, new #fragment).
   addEventListener('hashchange', () => { const n = takeKeysFromHash(); if (n) status(`Saved ${n} Groq key${n > 1 ? 's' : ''} on this device — residents can now chat.`); });
+  if (input.mouseLook && !input.touch) status('Mouse look is on — click the view once to capture the mouse (Esc releases it).');
   if (keysAdded) status(`Saved ${keysAdded} Groq key${keysAdded > 1 ? 's' : ''} on this device — residents can now chat.`);
   let saveTimer = 0;
   const save = () => writeSave({ pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, inside: inside?.house.coordinate || null, visited: [...visited] });
@@ -281,6 +294,7 @@ async function start() {
       return;
     }
     if (input.consume('map')) setOverview(!overview);
+    if (input.consume('mouselook')) { input.setMouseLook(!input.mouseLook); syncMouseLook(); status(input.mouseLook ? 'Mouse look on — Esc releases the mouse.' : 'Mouse look off — drag to look around.'); }
     if (input.consume('back')) { if (panelOpen) closePanel(); else if (!$('help').hidden) $('help').hidden = true; else setOverview(false); }
     if (overview) {
       camera.position.set(player.pos.x, 150, player.pos.z + 95); camera.lookAt(player.pos.x, 0, player.pos.z);

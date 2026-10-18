@@ -24,6 +24,7 @@ export class Input {
         if (k === 'c') this.crouch = !this.crouch;
         if (k === 'escape') this.pressed.add('back');
         if (k === 'm') this.pressed.add('map');
+        if (k === 'l') this.pressed.add('mouselook');
       }
       this.keys.add(k);
       if ([' ', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) e.preventDefault();
@@ -42,7 +43,21 @@ export class Input {
       this.look.dx += e.clientX - drag.x; this.look.dy += e.clientY - drag.y;
       drag = { x: e.clientX, y: e.clientY };
     });
-    canvas.addEventListener('dblclick', () => canvas.requestPointerLock?.());
+    // Mouse look: when on, a click on the view captures the mouse (Esc releases it — a
+    // browser rule). Double-click captures it either way.
+    this.canvas = canvas;
+    try { this.mouseLook = localStorage.getItem('repository-town.mouse-look') === '1'; } catch { this.mouseLook = false; }
+    canvas.addEventListener('click', () => { if (this.mouseLook && this.canCapture()) this.capture(); });
+    this.canCapture = () => true;
+    canvas.addEventListener('dblclick', () => this.capture());
+  }
+
+  capture() { if (document.pointerLockElement !== this.canvas) this.canvas.requestPointerLock?.()?.catch?.(() => {}); }
+
+  setMouseLook(on) {
+    this.mouseLook = on;
+    try { localStorage.setItem('repository-town.mouse-look', on ? '1' : '0'); } catch { /* private mode */ }
+    if (on) this.capture(); else if (document.pointerLockElement) document.exitPointerLock();
   }
 
   // Left half of the screen is a floating joystick; right half drags the view.
