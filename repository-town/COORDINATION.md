@@ -7,7 +7,13 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
-- *(none — add yours here)*
+- 2026-10-19 · Claude Code session ("Repository search") — upgrade round: research the 17
+  name-only houses; fix broken games in their own repos (on branch `ccr-846db548-0l5zmu`
+  there, not main); villagers give relic hints/gossip/errands; day–night, window lights,
+  sound, town guide; residents move between rooms; phone performance; data refresh
+  command; full 188-house re-test. Files: `src/world/npcs.js`, `src/ui/npc.js`,
+  `src/main.js`, `src/world/town.js`, `src/adventure/` (read-only use of relic data),
+  `tools/`, `briefs/`. Ping here before editing those.
 
 ## Done recently
 
