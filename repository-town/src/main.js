@@ -337,7 +337,7 @@ async function start() {
     else player.update(dt, input, world);
 
     if (mode === 'town') {
-      nearNPC=pickNPC(streetNPCs); animateNPCs(streetNPCs,t,player.pos,dt,npcChat.isOpen()?npcChat.active():null);
+      nearNPC=pickNPC(streetNPCs); animateNPCs(streetNPCs,t,player.pos,dt,npcChat.isOpen()?npcChat.active():null,townWorld);
       nearHouse = null; let best = 6;
       for (const l of town.lots.values()) { const d = Math.hypot(l.doorPos.x - player.pos.x, l.doorPos.z - player.pos.z); if (d < best) { best = d; nearHouse = l; } }
       for (const d of town.doors) {
