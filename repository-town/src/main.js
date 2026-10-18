@@ -3,13 +3,14 @@ import { CollisionWorld } from './engine/collision.js';
 import { Input } from './engine/input.js';
 import { Player } from './engine/player.js';
 import { loadSave, writeSave, clearSave } from './engine/save.js';
-import { buildTown, streetSigns, lotPosition } from './world/town.js';
+import { buildTown, streetSigns, lotPosition, LOT_Z } from './world/town.js';
 import { buildInterior } from './world/interior.js';
 import { animate } from './world/builder.js';
 import { makeLabel, disposeLabel } from './ui/labels.js';
 import { runInteraction, esc } from './ui/interactions.js';
 import { setArchiveLoader } from './ui/archive.js';
-import { takeKeysFromHash } from './ui/npc.js';
+import { takeKeysFromHash, npcBehaviour, villagerName } from './ui/npc.js';
+import { makePerson, Walker, roomWander, townRoutes, freeSpot } from './world/npcs.js';
 
 const $ = (id) => document.getElementById(id);
 const status = (t) => { $('status').textContent = t; };
@@ -49,6 +50,19 @@ async function start() {
   scene.add(sky);
 
   const town = buildTown(scene, houses, data.streets);
+  // Villagers: one resident from every eighth house walks the town between neighbours' doors.
+  const routes = townRoutes(town.lots, LOT_Z);
+  const villagers = houses.filter((_, i) => i % 8 === 3).map((h, i) => {
+    const l = town.lots.get(h.coordinate);
+    const name = villagerName(i);
+    const pos = new THREE.Vector3(l.doorPos.x + (i % 2 ? 0.8 : -0.8), 0, l.doorPos.z + 2.2);
+    const w = new Walker(makePerson(i * 13 + 5, h.ext.walls, h.ext.roof), pos, { speed: 1.25 + (i % 5) * 0.08, name });
+    w.row = l.lot.row; w.at = h.coordinate; w.wait = Math.random() * 6;
+    const s = makeLabel(name, 'interactive'); s.position.set(0, 2.25, 0); w.group.add(s); w.tag = s;
+    town.group.add(w.group);
+    return { walker: w, key: `villager:${h.coordinate}`, house: h, pos, label: `Talk to ${name} (${h.coordinate} · ${h.name})`, act: { do: 'npc', name, title: name, role: 'villager' } };
+  });
+  let nearPerson = null;
   streetSigns(town.group, data.streets, makeLabel);
   const half = { x: town.bounds.width / 2, z: town.bounds.depth / 2 };
   const edges = [
@@ -91,6 +105,16 @@ async function start() {
     town.group.visible = false;
     scene.background.set(INDOOR); scene.fog = null;
     world = new CollisionWorld(built.colliders);
+    // Residents get a body that wanders their room; the interactable shares its position.
+    inside.people = built.walkers.map((w, i) => {
+      freeSpot(w.pos, world);
+      const walker = new Walker(makePerson(coord.charCodeAt(0) + i * 7, w.act.c ?? 0x3f6fb5, w.act.a ?? 0x2f3440), w.pos, { speed: 0.9, name: w.act.name });
+      if (w.label) { const s = makeLabel(w.act.name || w.label, 'interactive'); s.position.set(0, 2.25, 0); s.userData.labelKind = 'interactive'; walker.group.add(s); walker.tag = s; }
+      walker.plan = roomWander(built.rooms[w.room], world);
+      walker.key = w.key;
+      built.group.add(walker.group);
+      return walker;
+    });
     player.place(built.spawn.x, built.spawn.z, 0);
     mode = 'house';
     $('btn-exit').hidden = false;
@@ -206,7 +230,11 @@ async function start() {
   }
   $('game-exit').onclick = () => stopGame();
 
-  function closePanel() { panelOpen = null; $('panel').hidden = true; }
+  function closePanel() {
+    if (panelOpen?.thing?.walker) panelOpen.thing.walker.talking = false;
+    if (inside?.people) for (const p of inside.people) p.talking = false;
+    panelOpen = null; $('panel').hidden = true;
+  }
 
   const ctx = {
     get house() { return inside?.house; },
@@ -230,10 +258,13 @@ async function start() {
   function use() {
     if (mode === 'house' && nearThing) {
       const thing = nearThing;
+      const person = thing.person && inside.people?.find((p) => p.key === thing.key);
+      if (person) person.talking = true;
       Promise.resolve(runInteraction(thing, ctx)).then((content) => { if (mode === 'house' && inside) openPanel(content, thing); })
         .catch((e) => openPanel({ title: thing.label, body: `<p>Couldn't open this exhibit: ${esc(e.message)}</p>` }, thing));
       return;
     }
+    if (mode === 'town' && nearPerson) { const p = nearPerson; p.walker.talking = true; openPanel(npcBehaviour(p, { house: p.house }), p); return; }
     if (mode === 'town' && nearHouse) showCard(nearHouse.house);
   }
 
@@ -302,6 +333,19 @@ async function start() {
     } else player.update(dt, input, world);
 
     if (mode === 'town') {
+      // Villagers walk everywhere; only nearby ones are drawn.
+      nearPerson = null; let bestP = Infinity;
+      for (const v of villagers) {
+        v.walker.update(dt, t, player, routes);
+        const d = Math.hypot(v.pos.x - player.pos.x, v.pos.z - player.pos.z);
+        v.walker.group.visible = d < 90 && !overview;
+        if (d < 2.6) {
+          tmp.copy(v.pos).sub(player.pos); tmp.y = 0;
+          const facing = d < 0.01 ? 1 : tmp.normalize().dot(player.forward());
+          const score = d - 1.6 * facing;
+          if ((facing > 0.2 || d < 1.2) && score < bestP) { bestP = score; nearPerson = v; }
+        }
+      }
       nearHouse = null; let best = 6;
       for (const l of town.lots.values()) { const d = Math.hypot(l.doorPos.x - player.pos.x, l.doorPos.z - player.pos.z); if (d < best) { best = d; nearHouse = l; } }
       for (const d of town.doors) {
@@ -322,7 +366,9 @@ async function start() {
         if (d < 55 && !has) { const s = makeLabel(`${c} · ${l.house.name}`, 'house'); s.position.set(l.doorPos.x, 3.4, l.doorPos.z + 3); /* clear of colonnades and pagoda eaves */ town.group.add(s); houseLabels.set(c, s); }
         else if (d > 70 && has) { town.group.remove(has); disposeLabel(has); houseLabels.delete(c); }
       }
-      $('prompt').hidden = !nearHouse || panelOpen; if (nearHouse) $('prompt').textContent = `${nearHouse.house.coordinate} · ${nearHouse.house.name} — walk through the door to enter`;
+      $('prompt').hidden = !(nearPerson || nearHouse) || !!panelOpen;
+      if (nearPerson) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — ${nearPerson.label}`;
+      else if (nearHouse) $('prompt').textContent = `${nearHouse.house.coordinate} · ${nearHouse.house.name} — walk through the door to enter`;
       if (input.consume('use')) use();
     } else {
       for (const d of inside.doors) {
@@ -338,6 +384,7 @@ async function start() {
         if (nearThing) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — ${nearThing.label}`;
         if (input.consume('use')) use();
         animate(inside.dynamics, t, active);
+        for (const p of inside.people || []) p.update(dt, t, player, p.plan);
         if (cardTimer > 0 && (cardTimer -= dt) <= 0) $('card').hidden = true;
         // Labels hide when the player is right on top of them so they never fill the screen.
         for (const s of inside.group.children) if (s.isSprite) s.visible = Math.hypot(s.position.x - player.pos.x, s.position.z - player.pos.z) > (s.userData.labelKind === 'room' ? 2.6 : 1.3);
@@ -362,6 +409,8 @@ async function start() {
       interactables: inside ? inside.interactables.map((x) => ({ key: x.key, label: x.label, title: x.act.title || x.label, do: x.act.do, room: x.roomName })) : [],
       near: nearThing?.key || null, nearHouse: nearHouse?.house.coordinate || null,
       panel: panelOpen ? { title: $('panel-title').textContent, text: $('panel-body').textContent, links: [...$('panel-actions').querySelectorAll('a')].map((a) => a.href), buttons: [...$('panel-actions').querySelectorAll('button')].map((b) => b.textContent) } : null,
+      people: (mode === 'town' ? villagers.map((v) => ({ key: v.key, name: v.walker.name, x: v.pos.x, z: v.pos.z, visible: v.walker.group.visible })) : (inside?.people || []).map((p) => ({ key: p.key, name: p.name, x: p.pos.x, z: p.pos.z }))),
+      nearPerson: nearPerson?.key || null,
       active: [...active], playing: playing?.id || null, gameSrc: playing ? $('game-frame').getAttribute('src') : null, calls: renderer.info.render.calls, triangles: renderer.info.render.triangles,
     }),
     // Stands the player 1.6 m in front of an exhibit, facing it, so the test then presses Use.
@@ -384,6 +433,8 @@ async function start() {
     toExit() { if (!inside) return false; player.place(inside.spawn.x, inside.spawn.z, Math.PI); return true; },
     place(x, z, yaw) { player.place(x, z, yaw); },
     probe(x, z) { return world.hits(x, z, player.radius); },
+    // Stands next to the nearest villager, facing them (tests and the town guide).
+    meetVillager(i = 0) { const v = villagers[i]; if (!v) return null; player.place(v.pos.x + 1.4, v.pos.z, Math.PI / 2); return v.key; },
     play() { const b = $('panel-actions').querySelector('button.play'); if (b) b.click(); return !!b; },
     stopGame: () => stopGame(),
     answer(i) { const b = $('panel-actions').querySelectorAll('button')[i]; if (b) b.click(); return !!b; },

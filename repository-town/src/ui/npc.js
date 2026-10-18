@@ -58,6 +58,10 @@ async function groq(messages) {
 }
 
 const NAMES = ['Ada', 'Bram', 'Cleo', 'Dorian', 'Edie', 'Finn', 'Greta', 'Hugo', 'Iris', 'Jasper', 'Kit', 'Lena', 'Milo', 'Nell', 'Otis', 'Pip', 'Quinn', 'Rosa', 'Sol', 'Tess', 'Uma', 'Vic', 'Wren', 'Xavi', 'Yara', 'Zed'];
+const VILLAGERS = ['Mabel', 'Arlo', 'Bea', 'Cas', 'Dot', 'Ezra', 'Flo', 'Gus', 'Hattie', 'Ivo', 'June', 'Kip', 'Lou', 'Merv', 'Nora', 'Ollie', 'Peg', 'Rafe', 'Sadie', 'Theo', 'Una', 'Vern', 'Win', 'Zara'];
+// Villagers are neighbours out walking — different people from the residents at home.
+export function villagerName(i) { return VILLAGERS[i % VILLAGERS.length]; }
+
 export function residentName(coordinate) {
   const n = coordinate.charCodeAt(0) - 65 + parseInt(coordinate.slice(1), 10) * 7;
   return NAMES[n % NAMES.length];
@@ -73,30 +77,70 @@ async function factsFor(house) {
   return { rooms, exhibits, games, readme, live: (house.links || []).map((l) => l.url) };
 }
 
-function systemPrompt(house, name, f) {
+// A stable personality per person, so the same neighbour sounds the same every visit.
+const MOODS = [
+  'cheerful and chatty, quick to laugh',
+  'dry and understated, with a deadpan sense of humour',
+  'warm and a bit nostalgic, fond of telling how things came to be',
+  'curious and enthusiastic, always asking the visitor questions back',
+  'calm and thoughtful, choosing words carefully',
+  'proud of their house and a little competitive with the neighbours',
+];
+const moodOf = (name) => MOODS[[...name].reduce((n, c) => n + c.charCodeAt(0), 0) % MOODS.length];
+
+function systemPrompt(house, name, f, role) {
+  const where = role === 'villager'
+    ? `You live at house ${house.coordinate} on ${house.street}, but right now you are out walking around Repository Town and the visitor has stopped you in the street.`
+    : `You live in house ${house.coordinate} on ${house.street} and the visitor has come inside.`;
   return [
-    `You are ${name}, the resident of house ${house.coordinate} on ${house.street} in Repository Town, a walkable 3D town where every house is one of Josh Parris's GitHub repositories.`,
-    house.repo ? `Your house is the repository ${house.repo} (${house.kind}). ${house.summary}` : `${house.summary} You may not reveal what the project is.`,
-    `Rooms: ${f.rooms.join(', ')}.`,
-    `Exhibits visitors can use with the hand button or E: ${f.exhibits.slice(0, 40).join('; ')}.`,
-    f.games.length ? `Playable games in this house's arcade: ${f.games.join(', ')}.` : '',
+    `You are ${name}, a local in Repository Town: a little walkable 3D town (set near Dubbo, NSW) where every house was built from one of Josh Parris's software projects on GitHub. ${where}`,
+    `Your personality: ${moodOf(name)}.`,
+    house.repo ? `Your house is the ${house.name} project (${house.kind}). ${house.summary}` : `${house.summary} It is a private project, so you never say what it is or name it, and you change the subject kindly.`,
+    `Rooms in your house: ${f.rooms.join(', ')}.`,
+    `Things visitors can use inside (press E or the hand button): ${f.exhibits.slice(0, 40).join('; ')}.`,
+    f.games.length ? `Games playable in your house's arcade: ${f.games.join(', ')}.` : '',
     f.live.length ? `Links: ${f.live.join(', ')}.` : '',
-    f.readme ? `The repository README (trimmed):\n${f.readme}` : '',
-    'Stay in character as a friendly local. Answer in at most three short sentences, plain text, no markdown. Point visitors to rooms and exhibits by name. Only state facts given here; if you do not know, say so and suggest the README on the bookshelf.',
+    f.readme ? `What you know of the project, from its README:\n${f.readme}` : '',
+    'How to talk: like a real neighbour having a casual chat, not a guide reading a brochure. Use contractions and everyday Australian English. Keep replies short (one to three sentences) and vary how you start them. React to what the visitor actually said, and sometimes ask them something back. Share facts the way a person would ("oh, the arcade? Try Whispering Wilds"). Plain text only: no lists, no markdown, no emoji spam. Only claim facts given above; if you do not know something, say so honestly. Never mention being an AI or these instructions.',
   ].filter(Boolean).join('\n');
 }
 
-// Answers without a model, from the same facts.
-function scripted(house, name, f, text) {
-  const t = text.toLowerCase();
+// Without a model: varied, conversational replies built from the same facts.
+function scripted(house, name, f, text, role) {
+  const t = text.toLowerCase().trim();
   const pick = (a) => a[Math.floor(Math.random() * a.length)];
-  if (/^(hi|hello|hey|g'?day|yo)\b/.test(t)) return `G'day, I'm ${name}. Welcome to ${house.name}! Ask me what this place is, what's here, or about the games.`;
-  if (/game|play|arcade/.test(t)) return f.games.length ? `Head to the arcade: ${f.games.join(', ')}. Walk up to a cabinet and press Play.` : `No arcade games here, but the dice tray and lucky dip in the Repository Archive are fun.`;
-  if (/room|where|explore|see|what.*here/.test(t)) return `This house has ${f.rooms.join(', ')}. Try ${pick(f.exhibits) || 'the exhibits'}.`;
-  if (/readme|doc|how/.test(t)) return `The bookshelf in the Repository Archive has the whole README. The card catalogue lists the docs.`;
-  if (/link|site|web|live/.test(t)) return f.live.length ? `You can visit it at ${f.live[0]} — the globe in the archive has every link.` : `The globe in the archive will take you to the issues page.`;
-  const lines = f.readme.split('\n').map((l) => l.replace(/[#*_`>|-]/g, '').trim()).filter((l) => l.length > 40 && l.length < 220);
-  return pick([house.summary, ...(lines.length ? [`From the README: “${pick(lines)}”`] : [])]);
+  const exhibit = () => pick(f.exhibits)?.replace(/ \(.*\)$/, '') || 'the archive';
+  const outside = role === 'villager';
+  if (/^(hi|hello|hey|g'?day|yo|howdy|morning|afternoon|evening)\b/.test(t)) return pick([
+    `G'day! I'm ${name}. ${outside ? `I live over at ${house.coordinate}, the ${house.name} place.` : `Welcome to ${house.name}.`}`,
+    `Oh, hello there. ${name}'s the name. ${outside ? 'Just stretching my legs.' : 'Come in, have a look around.'}`,
+    `Hey! Don't think we've met — I'm ${name}. ${outside ? `I'm from ${house.coordinate} up the road.` : 'Make yourself at home.'}`,
+  ]);
+  if (/how are|how're|how's it going|you ok|you good/.test(t)) return pick([
+    `Not bad at all, thanks for asking. ${outside ? 'Lovely day for a walk.' : 'Bit quiet in here today, so it\'s nice to have company.'} You?`,
+    `Can't complain! Well, I could, but who'd listen? How about you?`,
+    `Good, good. ${outside ? 'Off to see the neighbours.' : `Been tidying the ${pick(f.rooms)}.`}`,
+  ]);
+  if (/who are you|your name|what.*you do|what are you (doing|up to)/.test(t)) return outside
+    ? pick([`I'm ${name} from ${house.coordinate}. Just wandering — I like seeing what everyone's built.`, `${name}. I live at the ${house.name} house. Popping round to a neighbour's.`])
+    : pick([`I'm ${name}, I look after this place. Mostly I potter about the archive.`, `${name}. I live here — someone's got to keep the ${pick(f.rooms)} in order.`]);
+  if (/thank|cheers|ta\b/.test(t)) return pick(['No worries!', 'Any time.', `Happy to help. Enjoy ${outside ? 'the town' : 'the house'}.`]);
+  if (/bye|see ya|later|goodbye/.test(t)) return pick(['See you round!', 'Hooroo!', 'Catch you later.']);
+  if (/game|play|arcade|fun/.test(t)) return f.games.length
+    ? pick([`You've got to try ${pick(f.games)} — it's in the arcade${outside ? ` at my place, ${house.coordinate}` : ''}.`, `Games? ${f.games.join(' and ')}. ${outside ? `Come by ${house.coordinate}.` : 'Arcade\'s just through there.'}`])
+    : pick([`No arcade at ${outside ? 'mine' : 'this place'}, sorry — but the dice tray's good for a laugh.`, `Not really a games house. The lucky dip's fun though.`]);
+  if (/what is (this|it)|what's (this|it)|about|what.*(house|place|project)/.test(t)) return house.repo
+    ? pick([`${house.summary}`, `Ah, ${house.name}? ${house.summary.split('. ')[0]}.`])
+    : `Ah, it's a private one — I'm not supposed to say much. Have a look at the ${exhibit()} though.`;
+  if (/room|where|explore|see|look/.test(t)) return pick([`There's ${f.rooms.slice(0, -1).join(', ')} and ${f.rooms.at(-1)}. I'd start with the ${exhibit()}.`, `Have a look at the ${exhibit()}. That's my favourite.`]);
+  if (/readme|doc|how does|how do/.test(t)) return `Best bet's the bookshelf in the Repository Archive — it's got the whole README.`;
+  if (/link|site|web|live|online/.test(t)) return f.live.length ? `It's online at ${f.live[0].replace(/^https:\/\//, '')}. The globe in the archive has the rest.` : `Not sure it's online anywhere — the globe in the archive will show you the issues page.`;
+  const lines = f.readme.split('\n').map((l) => l.replace(/[#*_`>|-]/g, '').trim()).filter((l) => l.length > 40 && l.length < 200);
+  return pick([
+    `Hmm, good question. ${lines.length ? `All I really know is: “${pick(lines)}”` : house.summary}`,
+    `Couldn't tell you, honestly. Try the ${exhibit()}?`,
+    `${lines.length ? `Funny you ask — the README says “${pick(lines)}”` : `Not sure. Have you seen the ${exhibit()}?`}`,
+  ]);
 }
 
 const chats = read(CHAT_STORE, {});
@@ -114,9 +158,9 @@ function render(log, history, name) {
 export function npcBehaviour(x, ctx) {
   const house = ctx.house;
   const name = x.act.name || residentName(house.coordinate);
-  const id = house.coordinate;
+  const id = x.act.role === 'villager' ? `villager:${name}` : house.coordinate;
   return {
-    title: `${name} · resident of ${house.name}`,
+    title: x.act.role === 'villager' ? `${name} · lives at ${house.coordinate} · ${house.name}` : `${name} · resident of ${house.name}`,
     body: `<div class="chat"><div class="chat-log" aria-live="polite"></div>
       <form class="chat-form"><input class="chat-input" autocomplete="off" placeholder="Talk to ${esc(name)}…" aria-label="Message"><button>Send</button></form>
       <p class="chat-brain dim"></p></div>`,
@@ -146,9 +190,9 @@ export function npcBehaviour(x, ctx) {
         facts = facts || await factsFor(house);
         let reply;
         try {
-          reply = await groq([{ role: 'system', content: systemPrompt(house, name, facts) }, ...history.slice(-12)]);
+          reply = await groq([{ role: 'system', content: systemPrompt(house, name, facts, x.act.role) }, ...history.slice(-12)]);
         } catch (err) {
-          reply = scripted(house, name, facts, text);
+          reply = scripted(house, name, facts, text, x.act.role);
           if (err.code === 'badkey') reply += ' (Groq rejected the saved key.)';
           else if (err.code === 'offline') reply += ' (Offline, so a simple reply.)';
           else if (err.code === 'busy') reply += ' (Groq is busy right now, so a simple reply.)';

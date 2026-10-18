@@ -164,7 +164,7 @@ def('resident', 'Resident', 0.8, 0.6, (b, o) => {
   b.ball(skin, 0.17, 0, 1.68, 0);
   b.ball(0x3b2a1e, 0.175, 0, 1.75, -0.03, 0.55);
   for (const x of [-0.06, 0.06]) b.ball(0x1d1d1d, 0.025, x, 1.7, 0.155);
-});
+}, { solid: false, walker: true });
 def('statue', 'Statue', 1.0, 1.0, (b, o) => { const c = o.c || 0xbab6ae; b.block(c, 0.9, 0.6, 0.9, 0, 0, 0); b.block(c, 0.4, 0.9, 0.3, 0, 0.6, 0); b.ball(c, 0.18, 0, 1.68, 0); for (const x of [-0.27, 0.27]) b.block(c, 0.12, 0.7, 0.12, x, 0.8, 0); });
 def('runeStone', 'Rune stone', 0.9, 0.6, (b, o) => { b.add('box', o.c || 0x787880, 0.8, 1.8, 0.4, 0, 0.9, 0, 0, 0, 0.05); for (let i = 0; i < 4; i++) dyn(b, o, 'box', o.a || SCREEN, [0.3, 0.06, 0.02], [0, 0.6 + i * 0.3, 0.21], 'glow', { emissive: true }); });
 def('armorStand', 'Armour stand', 0.7, 0.6, (b, o) => { b.cyl(WOOD, 0.3, 0.06, 0, 0.03, 0); b.cyl(WOOD, 0.04, 1.2, 0, 0.6, 0); b.block(o.c || 0x9aa3ad, 0.6, 0.7, 0.35, 0, 1.0, 0); b.ball(o.c || 0x9aa3ad, 0.17, 0, 1.92, 0); });
