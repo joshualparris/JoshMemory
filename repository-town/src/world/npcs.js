@@ -164,7 +164,7 @@ export function placeTownNPCs(group, lots, makeLabel) {
     group.add(figure);
     const seed=[...npc.id].reduce((v,c)=>v*31+c.charCodeAt(0),17)>>>0;
     result.push({npc,group:figure,pos:figure.position,mode:'town',
-      homeX:x,homeZ:z,seed,activity:'idle',activityUntil:0,
+      homeX:x,homeZ:z,seed,activity:'idle',activityUntil:0,inventory:{wood:0},workDone:0,task:'wander',workSite:null,
       targetX:x,targetZ:z,heading:(seed%628)/100,walkPhase:0});
   }
   return result;
@@ -199,6 +199,66 @@ function turnTowards(current,target,amount) {
 }
 // Residents have a small, safe local territory near their original lot.
 // The animation uses elapsed time + delta so it behaves consistently on slow devices.
+// Workstations and supplies are physical town objects shared by residents.
+// Construction is deliberately small and bounded to the resident's own yard.
+export function initialiseNPCWorksites(list,townGroup) {
+  const wood=new THREE.MeshLambertMaterial({color:0x94693e});
+  const stone=new THREE.MeshLambertMaterial({color:0xbcb7aa});
+  for(const entry of list) {
+    if(entry.mode!=='town'||entry.workSite||entry.seed%4!==0)continue;
+    const supply=new THREE.Group(), site=new THREE.Group();
+    supply.position.set(entry.homeX-1.3,0,entry.homeZ-1.2);
+    site.position.set(entry.homeX+1.3,0,entry.homeZ-1.2);
+    for(let i=0;i<3;i++){
+      const log=new THREE.Mesh(box(.72,.18,.22),wood);
+      log.position.set(0,.12+i*.19,0);supply.add(log);
+    }
+    for(let i=0;i<4;i++){
+      const post=new THREE.Mesh(box(.14,.23,.14),stone);
+      post.position.set((i%2-.5)*.85,.12,(Math.floor(i/2)-.5)*.75);
+      site.add(post);
+    }
+    townGroup.add(supply,site);
+    entry.workSite={supply,site,wood,progress:0,posts:[],supplyX:supply.position.x,supplyZ:supply.position.z,siteX:site.position.x,siteZ:site.position.z};
+    entry.task='gather';
+    entry.activityUntil=0;
+  }
+}
+function performWork(entry,time) {
+  const w=entry.workSite;
+  if(!w)return false;
+  if(entry.task==='gather') {
+    entry.activity='walk';entry.activityUntil=time+20;
+    entry.targetX=w.supplyX;entry.targetZ=w.supplyZ;
+    if(Math.hypot(entry.pos.x-w.supplyX,entry.pos.z-w.supplyZ)<.22){
+      entry.inventory.wood=Math.min(2,(entry.inventory.wood||0)+1);
+      entry.task='build';entry.activity='idle';entry.activityUntil=time+.7;
+    }
+    return true;
+  }
+  if(entry.task==='build'){
+    entry.activity='walk';entry.activityUntil=time+20;
+    entry.targetX=w.siteX;entry.targetZ=w.siteZ;
+    if(Math.hypot(entry.pos.x-w.siteX,entry.pos.z-w.siteZ)<.22 && time>=entry.activityUntil-19.2){
+      if(entry.inventory.wood>0){
+        entry.inventory.wood--;
+        w.progress++;
+        const plank=new THREE.Mesh(box(.94,.18,.16),w.wood);
+        const level=(w.progress-1)%4;
+        plank.position.set(0,.3+level*.42,(w.progress%2?.25:-.25));
+        w.site.add(plank);w.posts.push(plank);
+        entry.workDone++;
+      }
+      entry.task=w.progress>=4?'rest':'gather';
+      entry.activity='idle';entry.activityUntil=time+2.5;
+    }
+    return true;
+  }
+  if(entry.task==='rest' && time>=entry.activityUntil){
+    entry.activity='idle';entry.activityUntil=time+8;
+  }
+  return entry.task==='rest';
+}
 export function animateNPCs(list,time,playerPos,dt=1/60,talkingTo=null) {
   const step=Math.min(Math.max(dt,0),.15);
   for(const entry of list) {
@@ -219,7 +279,7 @@ export function animateNPCs(list,time,playerPos,dt=1/60,talkingTo=null) {
         entry.activity='talk';entry.activityUntil=time+.8;
         entry.heading=turnTowards(entry.heading,Math.atan2(playerPos.x-group.position.x,playerPos.z-group.position.z),step*4);
       } else {
-        if(time>=entry.activityUntil || entry.activity==='talk'){
+        if(!entry.workSite || !performWork(entry,time)) if(time>=entry.activityUntil || entry.activity==='talk'){
           entry.walkPhase++;
           // Spend time looking at shopfronts or resting as well as walking.
           const walking=wander01(entry,entry.walkPhase*5)>.34;
