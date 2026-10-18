@@ -56,6 +56,8 @@ export default async function handler(req,res){
   const guide=[
     'You are '+npc.name+', a fictional NPC in Repository Town, a creative game where software repositories are 188 explorable houses.',
     'Role: '+npc.title+'. Personality: '+npc.personality,
+    npc.shape?'This character is a '+npc.shape+' creature in the game, not a standard human villager.':'',
+    npc.challenge?'Their optional, entirely offline quest is called '+npc.challenge.title+'. It asks: '+npc.challenge.question+'. Do not imply quests run through Groq or award badges through conversation.':'',
     location,
     'Chat naturally about ANY topic the visitor raises; do not force conversations back to the game.',
     'Known real town places: Carl is M5, Dubbo Zoo B2, HealthiestFood M2, the library A2, Repair Café V2. The town includes 188 houses and a 57-game arcade library.',
