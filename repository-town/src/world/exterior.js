@@ -66,7 +66,7 @@ export const STYLES = {
     return { w: r * 2, d: r * 2, h: 6.2, door: door(0), front: r + 0.6 };
   },
   warehouse(b, s) {
-    const w = 13, d = 10, h = 5.5; shell(b, w, d, h, s.walls, -3.5); b.add('cyl', s.roof, 5, w, d, 0, h, 0, 0, 0, Math.PI / 2);
+    const w = 13, d = 10, h = 5.5; shell(b, w, d, h, s.walls, -3.5); gable(b, w, d, h, s.roof, 0.35);
     b.box(s.trim, 4.5, 4.2, 0.12, 2.5, 2.1, d / 2 + 0.05); for (let i = 0; i < 9; i++) b.box(0x6d737a, 4.4, 0.06, 0.14, 2.5, 0.3 + i * 0.45, d / 2 + 0.1);
     b.box(s.trim, 2.4, 0.2, 1.2, -3.5, 2.8, d / 2 + 0.6);
     return { w, d, h: h + 2.5, door: door(-3.5) };
