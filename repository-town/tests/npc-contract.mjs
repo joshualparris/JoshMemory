@@ -10,7 +10,10 @@ assert.equal(newNPCs.length,20);
 assert.equal(new Set(newNPCs.map(n=>n.shape)).size,20);
 assert(newNPCs.every(n=>n.challenge && n.challenge.choices.length===3 && Number.isInteger(n.challenge.answer) && n.challenge.answer>=0 && n.challenge.answer<3 && n.challenge.reward));
 assert(newNPCs.every(n=>n.prompts && n.prompts.length>=3));
-assert.equal(new Set(NPCS.map(n=>n.id)).size,12);
+assert.equal(new Set(NPCS.map(n=>n.id)).size,32);
+const inventory=JSON.parse(fs.readFileSync(new URL('../../docs/repository-town.json',import.meta.url),'utf8'));
+const occupied=new Set(inventory.projects.map(p=>p.coordinate));
+assert(NPCS.every(n=>occupied.has(n.coordinate)),'Every NPC needs an occupied town lot');
 assert(NPCS.every(n=>n.name && n.title && n.personality && n.coordinate));
 assert.equal(getNPC('curator'),HOUSE_GUIDE);
 const fakeLots=new Map(NPCS.map((npc,i)=>[npc.coordinate,{
