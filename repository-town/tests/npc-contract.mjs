@@ -1,11 +1,29 @@
 import assert from 'node:assert/strict';
 import {NPCS,getNPC,HOUSE_GUIDE} from '../src/ui/npc-data.js';
 import handler from '../api/npc-chat.js';
+import * as THREE from 'three';
+import {placeTownNPCs,placeHouseGuide,animateNPCs} from '../src/world/npcs.js';
 import fs from 'node:fs';
 assert.equal(NPCS.length,12);
 assert.equal(new Set(NPCS.map(n=>n.id)).size,12);
 assert(NPCS.every(n=>n.name && n.title && n.personality && n.coordinate));
 assert.equal(getNPC('curator'),HOUSE_GUIDE);
+const fakeLots=new Map(NPCS.map((npc,i)=>[npc.coordinate,{
+  lot:{z:i*30},doorPos:new THREE.Vector3(i*22,0,i*30+10)
+}]));
+const npcGroup=new THREE.Group();
+const placed=placeTownNPCs(npcGroup,fakeLots,()=>new THREE.Object3D());
+assert.equal(placed.length,12);
+assert.equal(npcGroup.children.length,12);
+const rowan=placed.find(n=>n.npc.id==='rowan');
+assert(Math.hypot(rowan.pos.x,rowan.pos.z-(fakeLots.get('M4').lot.z+16))<3.5,'Rowan must greet the spawn');
+animateNPCs(placed,1,new THREE.Vector3(rowan.pos.x,0,rowan.pos.z));
+assert(rowan.group.visible);
+const interior={house:{name:'Test House',kind:'Workshop',coordinate:'C1'},
+  spawn:new THREE.Vector3(0,0,-3),rooms:[{x0:-5,x1:5,z0:-10,z1:0}],
+  colliders:[],group:new THREE.Group()};
+assert(placeHouseGuide(interior,()=>new THREE.Object3D()));
+
 const main=fs.readFileSync(new URL('../src/main.js',import.meta.url),'utf8');
 assert(main.includes('placeTownNPCs') && main.includes('placeHouseGuide'));
 assert(fs.readFileSync(new URL('../src/index.html',import.meta.url),'utf8').includes('id="npc-chat"'));
