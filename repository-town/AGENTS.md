@@ -34,9 +34,9 @@ same sitting and say so in `COORDINATION.md`.
    - `node tests/streetwalk.mjs` — walk every street and avenue on foot.
    - `src/tests/expedition.mjs` — Expedition Guild relics (run from `dist/public`).
 5. Commit with a clear message, push to `ccr-846db548-0l5zmu`.
-6. Publish: copy `dist/public/` over the site repo's files (keep its `README.md`,
-   `AGENTS.md`, `.nojekyll`), commit, push `main`. If the push is rejected, someone else
-   published: fetch, port their changes into `src/`, rebuild, publish again.
+6. Publish with `tools/publish_pages.sh <site-repo-checkout> "message"`. It rebuilds, runs the
+   privacy check, keeps the site repo's own files, and refuses to publish if the live site has
+   files that are not in the build (someone's hand edits — port them into `src/` first).
 
 ## Rules that protect Josh
 
