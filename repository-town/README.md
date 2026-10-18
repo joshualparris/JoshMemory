@@ -94,7 +94,7 @@ The build runs the leak check and fails the deployment if private data would be 
 
 ## Talking to town residents (Groq AI)
 
-Repository Town includes twelve animated street NPCs with distinct personalities, plus a
+Repository Town includes 32 animated street NPCs with distinct personalities, plus a
 House Curator where there is room inside an interior. Walk near a resident and use E/✋,
 or choose a character with the **💬 NPCs** button. The **NPC Lounge** at `people.html`
 runs without WebGL, which is useful on Android devices where the 3D renderer struggles.
