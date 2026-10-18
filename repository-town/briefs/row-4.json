@@ -1,0 +1,27 @@
+[
+  {
+    "repo": "Parris-Tech-Services/Trace",
+    "summary": "A private personal-history app on web and Android: an encrypted vault of places, activity and health timelines, a GPS + dashcam atlas, a unified JoshProfile summary and a native collector with signed APK updates.",
+    "evidence": ["README.md", "app/src/main/java/au/parristech/trace/MainActivity.kt", "PlacesActivity.kt", "AnalyticsActivity.kt", "assets/app.mjs", "dashcam-atlas/index.html", "native-collector/"],
+    "kind": "Timeline Observatory",
+    "links": [{ "label": "Web app", "url": "https://trace-personal-history.vercel.app/" }],
+    "ext": { "style": "observatory", "walls": "#2f4a63", "roof": "#7fc4d8", "trim": "#e8eef2", "door": "#1d3142", "features": ["dish", "antenna", "telescope", "lanterns"] },
+    "int": {
+      "layout": "L", "floor": "#27313c", "walls": "#d9e4ec", "light": "#d8f0ff",
+      "rooms": [
+        { "name": "Timeline Gallery", "w": 12, "d": 8, "props": [
+          ["timelineWall", "Personal history timeline", { "do": "steps", "title": "Track controls", "steps": ["Show or hide each track.", "Solo one track to read it alone.", "Select a range to zoom in on a period.", "Tracks combine places, activity and health summaries."] }],
+          ["monitorWall", "Analytics studio"], ["sofa", "Review bench"], ["lamp", "Reading light"]
+        ] },
+        { "name": "Atlas Room", "w": 10, "d": 9, "props": [
+          ["mapTable", "GPS + dashcam atlas", { "do": "toggle", "title": "Dashcam atlas", "on": "Playback route lit: GPS tracks are drawn alongside dashcam footage on the atlas.", "off": "Atlas paused." }],
+          ["pinMap", "Places visited"], ["camera", "Dashcam rig"], ["globe", "Location vault"]
+        ] },
+        { "name": "Vault & Workshop", "w": 9, "d": 9, "props": [
+          ["safe", "Encrypted vault", { "do": "info", "text": "Profile snapshots are encrypted inside the vault and included in vault backups; raw sources stay private and untouched." }],
+          ["phoneStand", "Android companion"], ["serverRack", "Native collector"], ["filingCabinet", "ZIP backups"]
+        ] }
+      ]
+    }
+  }
+]

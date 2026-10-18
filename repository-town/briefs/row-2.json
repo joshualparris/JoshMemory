@@ -1,0 +1,3037 @@
+[
+ {
+  "repo": "joshualparris/dewey-converter-for-librarything",
+  "summary": "Dewey Helper for LibraryThing: a free browser tool for small libraries that reads your own catalogue export, extracts ISBNs locally and looks up Dewey numbers in batches from Open Library — the 2026 successor to an OCLC Classify workflow discontinued in 2024, with no scraping or automated logins.",
+  "evidence": [
+   "README.md",
+   "app.js",
+   "index.html",
+   "sample-librarything-export.tsv"
+  ],
+  "kind": "Branch Library",
+  "links": [
+   {
+    "label": "Dewey Helper",
+    "url": "https://dewey-helper.vercel.app"
+   }
+  ],
+  "ext": {
+   "style": "shopfront",
+   "walls": "#3a5a7a",
+   "roof": "#e8e0d0",
+   "trim": "#c8a050",
+   "door": "#2a3a4a",
+   "features": [
+    "bench",
+    "bicycle",
+    "garden",
+    "noticeBoard"
+   ]
+  },
+  "int": {
+   "layout": "L",
+   "floor": "#8a6a4a",
+   "walls": "#efe6d4",
+   "light": "#fff2d8",
+   "rooms": [
+    {
+     "name": "Catalogue Intake",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "filingCabinet",
+       "LibraryThing export",
+       {
+        "do": "steps",
+        "title": "How it works",
+        "steps": [
+         "Export your LibraryThing catalogue as XLSX, TSV, CSV or JSON.",
+         "Open Dewey Helper and choose the file.",
+         "ISBNs are extracted locally in your browser.",
+         "Press Find Dewey numbers to send batched ISBN lookups to Open Library."
+        ]
+       }
+      ],
+      [
+       "cardCatalog",
+       "ISBN extraction"
+      ],
+      [
+       "desk",
+       "Librarian's desk"
+      ]
+     ]
+    },
+    {
+     "name": "Lookup Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "computer",
+       "Open Library lookups",
+       {
+        "do": "link",
+        "title": "Dewey Helper",
+        "text": "The exact ISBN edition is checked first before falling back to related editions.",
+        "url": "https://dewey-helper.vercel.app",
+        "button": "Use it now ↗"
+       }
+      ],
+      [
+       "chartBoard",
+       "Completed rows highlighted"
+      ],
+      [
+       "lamp",
+       "Reading lamp"
+      ]
+     ]
+    },
+    {
+     "name": "Dewey Stacks",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "bookshelf",
+       "000–900 shelves"
+      ],
+      [
+       "bookStack",
+       "Books awaiting numbers"
+      ],
+      [
+       "globe",
+       "900 History & geography"
+      ],
+      [
+       "lectern",
+       "Why a successor?",
+       {
+        "do": "quiz",
+        "title": "Why rebuild it?",
+        "q": "Why did the original converter workflow stop working?",
+        "options": [
+         "LibraryThing closed",
+         "OCLC Classify was discontinued in 2024",
+         "Dewey numbers changed"
+        ],
+        "answer": 1,
+        "explain": "OCLC Classify shut down in 2024, so the new tool uses Open Library and avoids automating LibraryThing edits."
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/Dubbozoo",
+  "summary": "An evidence-led wildlife field journal for Taronga Western Plains Zoo in Dubbo: 89 evidence-graded historical animal profiles, a 622-question research explorer and a deployed research portal.",
+  "evidence": [
+   "README.md",
+   "index.html",
+   "assets/site.js",
+   "scripts/check-question-ledger.mjs",
+   "observations/",
+   "data/"
+  ],
+  "kind": "Wildlife Research Station",
+  "links": [
+   {
+    "label": "Dubbozoo Research Portal",
+    "url": "https://dubbozoo-research.vercel.app/"
+   }
+  ],
+  "ext": {
+   "style": "cabin",
+   "walls": "#8a6a44",
+   "roof": "#4f6b3a",
+   "trim": "#d9c27a",
+   "door": "#5a3e22",
+   "features": [
+    "giraffe",
+    "fence",
+    "trees",
+    "signpost"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#c8a86a",
+   "walls": "#efe4c8",
+   "light": "#fff1cf",
+   "rooms": [
+    {
+     "name": "Savannah Hall",
+     "w": 11,
+     "d": 10,
+     "props": [
+      [
+       "giraffe",
+       "Giraffe — photographed",
+       {
+        "do": "info",
+        "text": "Giraffes are one of the photographed subjects in the journal. Photo dates and named individuals are still marked unverified — Dubbozoo keeps evidence grades separate from guesses."
+       }
+      ],
+      [
+       "tree",
+       "Acacia browse tree"
+      ],
+      [
+       "rock",
+       "Kopje boulders"
+      ],
+      "fence",
+      [
+       "signpost",
+       "Evidence grades",
+       {
+        "do": "steps",
+        "title": "How Dubbozoo grades evidence",
+        "steps": [
+         "Personal-photo observation: an animal Josh photographed at the zoo.",
+         "Visitor-derived candidate: reported by visitors, not yet confirmed.",
+         "Government-confirmed sanctuary holding: backed by an official record.",
+         "Every profile carries its grade so readers can tell receipts from rumours."
+        ]
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Primate Canopy",
+     "w": 8,
+     "d": 9,
+     "props": [
+      [
+       "monkey",
+       "Siamang climbing frame",
+       {
+        "do": "play",
+        "title": "Siamang call",
+        "text": "Siamangs are photographed subjects too — gibbons famous for loud, booming duets. The canopy plays a rising call.",
+        "notes": [
+         220,
+         277,
+         330,
+         440,
+         554,
+         660
+        ]
+       }
+      ],
+      [
+       "tree",
+       "Canopy tree"
+      ],
+      [
+       "plant",
+       "Understorey"
+      ],
+      [
+       "bird",
+       "Visiting parrot"
+      ]
+     ]
+    },
+    {
+     "name": "Evidence Library",
+     "w": 8,
+     "d": 9,
+     "props": [
+      [
+       "bookshelf",
+       "89 animal profiles"
+      ],
+      [
+       "cardCatalog",
+       "Historical animal catalogue",
+       {
+        "do": "count",
+        "unit": "Profiles opened",
+        "text": "The catalogue holds 89 evidence-labelled, linked historical animal profiles with conservation and history filters."
+       }
+      ],
+      [
+       "desk",
+       "Field journal desk"
+      ],
+      [
+       "specimenJars",
+       "Observation notes"
+      ]
+     ]
+    },
+    {
+     "name": "Question Explorer",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "terminal",
+       "622-question explorer",
+       {
+        "do": "quiz",
+        "title": "Dubbozoo quiz",
+        "q": "How many research questions does the on-demand explorer load?",
+        "options": [
+         "89",
+         "622",
+         "15"
+        ],
+        "answer": 1,
+        "explain": "622 questions — loaded only after you interact, to keep the portal light. 89 is the number of animal profiles; 15 is the count of verified GitHub research links."
+       }
+      ],
+      [
+       "globe",
+       "Species ranges"
+      ],
+      [
+       "corkboard",
+       "Photo wall: wild dogs, elephants, tortoises",
+       {
+        "do": "link",
+        "title": "Research portal",
+        "text": "The responsive research portal is deployed on Vercel with searchable guide cards and evidence filters.",
+        "url": "https://dubbozoo-research.vercel.app/",
+        "button": "Open the portal ↗"
+       }
+      ],
+      [
+       "smallCreature",
+       "Galápagos tortoise",
+       {
+        "c": "#5b5a3a",
+        "a": "#4a4a30"
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/Paul-Roe-Private-Archive",
+  "summary": "Private repository this session's GitHub access could not open; from its name it is a private family archive companion to the public Paul-Roe memorial, so this quiet archive house is a respectful name-based placeholder with no contents represented.",
+  "evidence": [
+   "unreachable: inventory name only (no GitHub access)"
+  ],
+  "kind": "Private Archive (name-based)",
+  "ext": {
+   "style": "cottage",
+   "walls": "#d8d0c8",
+   "roof": "#5a6a5a",
+   "trim": "#f2efe6",
+   "door": "#4a4a3a",
+   "features": [
+    "garden",
+    "bench",
+    "trees",
+    "lanterns"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#8a7a6a",
+   "walls": "#efeae2",
+   "light": "#fff4e0",
+   "rooms": [
+    {
+     "name": "Quiet Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "candles",
+       "Remembrance candles",
+       {
+        "do": "info",
+        "text": "This private archive could not be opened from this session; nothing from it is shown here."
+       }
+      ],
+      [
+       "bench",
+       "Reflection bench"
+      ],
+      [
+       "flowerBed",
+       "Garden flowers"
+      ],
+      [
+       "lamp",
+       "Soft lamp"
+      ]
+     ]
+    },
+    {
+     "name": "Archive Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "archiveBoxes",
+       "Archive boxes"
+      ],
+      [
+       "bookshelf",
+       "Albums"
+      ],
+      [
+       "lectern",
+       "Guest book",
+       {
+        "do": "steps",
+        "title": "About this house",
+        "steps": [
+         "Designed from the repository name only.",
+         "No private material is represented.",
+         "Grant access to replace this with a reviewed design."
+        ]
+       }
+      ],
+      [
+       "easel",
+       "Portrait easel"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/ResearchLibrary",
+  "summary": "Private repository this session's GitHub access could not open; Dubbozoo's README describes it as a private, Dewey-indexed research library that reciprocally indexes Dubbozoo under 590, so its rooms are navigable Dewey classes — the shelf contents themselves are unverified.",
+  "evidence": [
+   "unreachable: described in joshualparris/Dubbozoo README (Dewey 590 reciprocal index) and JoshMemory PROJECT_NETWORK.md"
+  ],
+  "kind": "Dewey Archive",
+  "ext": {
+   "style": "library",
+   "walls": "#c8b89a",
+   "roof": "#3a3a5a",
+   "trim": "#e8dcc0",
+   "door": "#3a2a1a",
+   "features": [
+    "statue",
+    "lanterns",
+    "bench",
+    "flag"
+   ]
+  },
+  "int": {
+   "layout": "grid",
+   "floor": "#6a4a32",
+   "walls": "#ece2cc",
+   "light": "#fff0d2",
+   "rooms": [
+    {
+     "name": "000–100 Information & Philosophy",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "bookshelf",
+       "000 Computing & information"
+      ],
+      [
+       "bookshelf",
+       "100 Philosophy & psychology"
+      ],
+      [
+       "cardCatalog",
+       "Dewey catalogue",
+       {
+        "do": "steps",
+        "title": "Dewey classes",
+        "steps": [
+         "000 Computer science, information & general works",
+         "100 Philosophy & psychology",
+         "200 Religion",
+         "300 Social sciences",
+         "400 Language",
+         "500 Science",
+         "600 Technology",
+         "700 Arts & recreation",
+         "800 Literature",
+         "900 History & geography"
+        ]
+       }
+      ]
+     ]
+    },
+    {
+     "name": "200–300 Religion & Society",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "bookshelf",
+       "200 Religion"
+      ],
+      [
+       "bookshelf",
+       "300 Social sciences"
+      ]
+     ]
+    },
+    {
+     "name": "400–500 Language & Science",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "bookshelf",
+       "400 Language"
+      ],
+      [
+       "specimenJars",
+       "590 Animals — see Dubbozoo",
+       {
+        "do": "quiz",
+        "title": "Shelve it",
+        "q": "Under which Dewey number does this library index the Dubbozoo wildlife journal?",
+        "options": [
+         "590",
+         "790",
+         "910"
+        ],
+        "answer": 0,
+        "explain": "590 covers animals (zoology); Dubbozoo links back to this shelf."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "600–700 Technology & Arts",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "bookshelf",
+       "600 Technology"
+      ],
+      [
+       "easel",
+       "700 Arts"
+      ]
+     ]
+    },
+    {
+     "name": "800–900 Literature & History",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "bookshelf",
+       "800 Literature"
+      ],
+      [
+       "globe",
+       "900 History & geography"
+      ],
+      [
+       "lectern",
+       "Reading desk"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/AIGenealogy",
+  "summary": "famhist: a private family-history research system for working with an AI agent — every person attached by a record, every conclusion backed by a citation or a bounded negative, GEDCOM edit queues and evidence reports checked by scripts, a handbook of standards, and strict handling of living people.",
+  "evidence": [
+   "README.md",
+   "CLAUDE.md",
+   "tools/ged/queue.py",
+   "tools/ged/evidence.py",
+   "tools/ged/report.py",
+   "handbook/",
+   "standards/"
+  ],
+  "kind": "Family History Vault",
+  "ext": {
+   "style": "terrace",
+   "walls": "#b8a08a",
+   "roof": "#4a3a3a",
+   "trim": "#e8e0d0",
+   "door": "#3a2a2a",
+   "features": [
+    "trees",
+    "garden",
+    "mailbox",
+    "bench"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#7a5a42",
+   "walls": "#efe4d0",
+   "light": "#fff0d4",
+   "rooms": [
+    {
+     "name": "Tree Hall",
+     "w": 10,
+     "d": 9,
+     "props": [
+      [
+       "familyTree",
+       "Family tree",
+       {
+        "do": "toggle",
+        "title": "The tree",
+        "on": "Every person shown is attached by a record — no record, no branch.",
+        "off": "Tree dimmed."
+       }
+      ],
+      [
+       "roundTable",
+       "Research table"
+      ],
+      [
+       "lamp",
+       "Reading lamp"
+      ]
+     ]
+    },
+    {
+     "name": "Evidence Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "archiveBoxes",
+       "Records & sources"
+      ],
+      [
+       "filingCabinet",
+       "Citations",
+       {
+        "do": "quiz",
+        "title": "Rule of evidence",
+        "q": "What must stand behind every conclusion in the tree?",
+        "options": [
+         "A hunch",
+         "A citation or a bounded negative",
+         "An AI guess"
+        ],
+        "answer": 1,
+        "explain": "Conclusions need a citation, or a bounded negative search showing what was checked and not found."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Edit Queue",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "computer",
+       "GEDCOM edit queue",
+       {
+        "do": "count",
+        "unit": "Edits reviewed",
+        "text": "Changes to the tree are queued as scripted edits and checked by tools, not remembered by hand."
+       }
+      ],
+      [
+       "desk",
+       "Review desk"
+      ]
+     ]
+    },
+    {
+     "name": "Handbook Library",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "bookshelf",
+       "Handbook & standards"
+      ],
+      [
+       "safe",
+       "Living-person protection"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/ChatGPT-History-Browser",
+  "summary": "A local-first archive for ChatGPT data exports: it imports the official ZIP, keeps the full conversation node graph — regenerations, edited and abandoned branches — reconstructs the current transcript, and stores everything in SQLite with FTS5 search, never uploading anything.",
+  "evidence": [
+   "README.md",
+   "importers/chatgpt.py",
+   "database.py",
+   "history_service.py",
+   "engine.py",
+   "tests/test_chatgpt_importer.py"
+  ],
+  "kind": "Conversation Archive",
+  "ext": {
+   "style": "lab",
+   "walls": "#5a7a6a",
+   "roof": "#2a3a34",
+   "trim": "#d8e8e0",
+   "door": "#2a3a30",
+   "features": [
+    "solar",
+    "trees",
+    "bench",
+    "crates"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#4a5450",
+   "walls": "#d4e0da",
+   "light": "#e8fff4",
+   "rooms": [
+    {
+     "name": "Import Dock",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "crates",
+       "conversations.json ZIP"
+      ],
+      [
+       "trolley",
+       "Export unpacker"
+      ],
+      [
+       "terminal",
+       "Importer",
+       {
+        "do": "steps",
+        "title": "Import",
+        "steps": [
+         "Drop in the official ChatGPT export ZIP.",
+         "Every node keeps its parent-child pointer.",
+         "Regenerations and edited branches are preserved.",
+         "The current transcript follows the true current_node lineage."
+        ]
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Branch Garden",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "tree",
+       "Conversation node graph",
+       {
+        "do": "info",
+        "text": "Alternative branches are kept, not flattened — you can walk back to a regenerated reply."
+       }
+      ],
+      [
+       "pottedTree",
+       "Abandoned branch"
+      ],
+      [
+       "bench",
+       "Garden bench"
+      ]
+     ]
+    },
+    {
+     "name": "Search Vault",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "cardCatalog",
+       "FTS5 full-text search",
+       {
+        "do": "quiz",
+        "title": "Privacy",
+        "q": "Where does your conversation history go?",
+        "options": [
+         "Uploaded for indexing",
+         "Nowhere — it stays in a local SQLite file",
+         "To a shared drive"
+        ],
+        "answer": 1,
+        "explain": "Everything is stored and searched locally."
+       }
+      ],
+      [
+       "serverRack",
+       "Local SQLite"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/pdfresearch",
+  "summary": "pdfresearch: local-first processing for huge merged research PDFs — page-level deduplication with a provenance map, document-boundary detection from running headers and page-number resets, splitting, privacy flagging, and an evaluation harness. Code only; personal documents never enter the repo.",
+  "evidence": [
+   "README.md",
+   "src/pdfresearch/pipeline.py",
+   "src/pdfresearch/segment_first.py",
+   "src/pdfresearch/eval.py",
+   "tests/eval_harness/"
+  ],
+  "kind": "PDF Mill",
+  "ext": {
+   "style": "mill",
+   "walls": "#a89a84",
+   "roof": "#5a3a2a",
+   "trim": "#e8e0c8",
+   "door": "#4a3a2a",
+   "features": [
+    "crates",
+    "wagon",
+    "trees",
+    "signpost"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#7a6e60",
+   "walls": "#e4dccc",
+   "light": "#fff4dc",
+   "rooms": [
+    {
+     "name": "Intake",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "archiveBoxes",
+       "One giant merged PDF"
+      ],
+      [
+       "printer3d",
+       "Page splitter"
+      ],
+      [
+       "trolley",
+       "Page cart"
+      ],
+      [
+       "clock",
+       "Batch timer"
+      ]
+     ]
+    },
+    {
+     "name": "Dedup & Boundaries",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "partsBins",
+       "Normalised page text",
+       {
+        "do": "quiz",
+        "title": "Duplicates",
+        "q": "What happens to a duplicate page?",
+        "options": [
+         "It is deleted and forgotten",
+         "It is recorded in the provenance map against its canonical page",
+         "It is kept twice"
+        ],
+        "answer": 1,
+        "explain": "Every original page maps to a canonical page, so nothing is silently lost."
+       }
+      ],
+      [
+       "chalkboard",
+       "Running headers & page resets"
+      ]
+     ]
+    },
+    {
+     "name": "Privacy & Provenance",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "safe",
+       "Privacy flags",
+       {
+        "do": "info",
+        "text": "Pages that look like health, NDIS or banking material are flagged; the repository is code-only."
+       }
+      ],
+      [
+       "pinMap",
+       "Provenance map"
+      ],
+      [
+       "computer",
+       "Eval harness",
+       {
+        "do": "steps",
+        "title": "Pipeline",
+        "steps": [
+         "Deduplicate pages.",
+         "Detect document boundaries.",
+         "Split into documents.",
+         "Flag private content.",
+         "Map provenance and evaluate against fixtures."
+        ]
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/ResearchAtlas",
+  "summary": "Research Atlas: a game-like library for deep-research PDFs and Docs — walk a top-down fantasy map, discover document objects and open their summaries — backed by a Dewey-style catalogue of 311 topics across 889 documents and an Evidence Engine.",
+  "evidence": [
+   "README.md",
+   "src/data/researchManifest.ts",
+   "src/App.tsx",
+   "catalogue/drive-documents.json",
+   "public/evidence-engine.html"
+  ],
+  "kind": "Atlas Pagoda",
+  "links": [
+   {
+    "label": "Evidence Engine",
+    "url": "https://research-atlas-evidence.vercel.app/"
+   }
+  ],
+  "ext": {
+   "style": "pagoda",
+   "walls": "#8a3a2a",
+   "roof": "#2a3a2a",
+   "trim": "#e8c860",
+   "door": "#3a1a1a",
+   "features": [
+    "lanterns",
+    "pond",
+    "trees",
+    "statue"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#6a4a3a",
+   "walls": "#efe2c8",
+   "light": "#ffe8c0",
+   "rooms": [
+    {
+     "name": "Fantasy Map Hall",
+     "w": 10,
+     "d": 9,
+     "props": [
+      [
+       "mapTable",
+       "Top-down fantasy map",
+       {
+        "do": "toggle",
+        "title": "Explore",
+        "on": "The map is live: walk to document objects to read their summaries.",
+        "off": "Map rolled."
+       }
+      ],
+      [
+       "treasureChest",
+       "Document object"
+      ],
+      [
+       "torch",
+       "Map torch"
+      ]
+     ]
+    },
+    {
+     "name": "Dewey Catalogue",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "cardCatalog",
+       "311 topics · 889 documents",
+       {
+        "do": "quiz",
+        "title": "Catalogue",
+        "q": "How many research documents does the Dewey audit cover?",
+        "options": [
+         "311",
+         "889",
+         "84"
+        ],
+        "answer": 1,
+        "explain": "889 documents grouped into 311 provisional topics, with 84 recorded classification decisions."
+       }
+      ],
+      [
+       "bookshelf",
+       "Topic groups"
+      ]
+     ]
+    },
+    {
+     "name": "Evidence Engine",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "consolePanel",
+       "Evidence Engine"
+      ],
+      [
+       "filingCabinet",
+       "Classification decisions"
+      ]
+     ]
+    },
+    {
+     "name": "Drive Portal",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "portal",
+       "Open the document",
+       {
+        "do": "info",
+        "text": "Each document object opens its Drive or Docs link in a new tab."
+       }
+      ],
+      [
+       "signpost",
+       "Wayfinding"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/ResearchGems",
+  "summary": "ResearchGems: a local-first React app that helps rediscover and apply the best ideas from deep research docs using active recall, spaced repetition, reflections and practical action prompts, with a gem extractor and a curriculum bank.",
+  "evidence": [
+   "README.md",
+   "src/data/researchGems.ts",
+   "src/components/GemExtractor.tsx",
+   "src/components/Dashboard.tsx",
+   "curriculum-bank/"
+  ],
+  "kind": "Gem Mine",
+  "ext": {
+   "style": "cave",
+   "walls": "#6a6a8a",
+   "roof": "#3a3a5a",
+   "trim": "#9d7ae8",
+   "door": "#2a2a3a",
+   "features": [
+    "crystal",
+    "rocks",
+    "lanterns",
+    "wagon"
+   ]
+  },
+  "int": {
+   "layout": "L",
+   "floor": "#4a4a5a",
+   "walls": "#8a88a8",
+   "light": "#e8d8ff",
+   "ceiling": "#2a2a3a",
+   "rooms": [
+    {
+     "name": "Gem Seam",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "crystal",
+       "Gem extractor",
+       {
+        "do": "count",
+        "unit": "Gems extracted",
+        "text": "The extractor pulls memorable ideas — gems — out of research documents."
+       }
+      ],
+      [
+       "rock",
+       "Research ore"
+      ],
+      [
+       "wagon",
+       "Ore cart"
+      ],
+      [
+       "lantern",
+       "Miner's lamp"
+      ]
+     ]
+    },
+    {
+     "name": "Recall Chamber",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "cardTable",
+       "Active recall cards",
+       {
+        "do": "quiz",
+        "title": "Learning method",
+        "q": "Which technique schedules a gem to come back just before you'd forget it?",
+        "options": [
+         "Spaced repetition",
+         "Cramming",
+         "Highlighting"
+        ],
+        "answer": 0,
+        "explain": "Spaced repetition plus active recall, reflections and action prompts."
+       }
+      ],
+      [
+       "clock",
+       "Review schedule"
+      ]
+     ]
+    },
+    {
+     "name": "Reflection Nook",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "lectern",
+       "Reflections"
+      ],
+      [
+       "corkboard",
+       "Action prompts",
+       {
+        "do": "steps",
+        "title": "Using a gem",
+        "steps": [
+         "Recall it without looking.",
+         "Reflect on where it applies.",
+         "Turn it into one practical action."
+        ]
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/WhirringWilderness",
+  "summary": "A React text-first wildlands RPG prototype (package name whispering-wilds) with branching quests, tactical encounters, local autosaves, an audio manager and portable journey backups you can download and restore in another browser.",
+  "evidence": [
+   "README.md",
+   "src/engine/actions.ts",
+   "src/engine/text.ts",
+   "src/ui/GameScreen.tsx",
+   "src/audio/audioManager.ts"
+  ],
+  "kind": "Overgrown Wilds Temple",
+  "ext": {
+   "style": "temple",
+   "walls": "#7a8a6a",
+   "roof": "#3a5a3a",
+   "trim": "#c8c0a0",
+   "door": "#3a3a2a",
+   "features": [
+    "trees",
+    "mushrooms",
+    "rocks",
+    "bird"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#6a7a5a",
+   "walls": "#c8d4b8",
+   "light": "#f0ffd8",
+   "rooms": [
+    {
+     "name": "Wildland Trail",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "tree",
+       "Old growth"
+      ],
+      [
+       "rock",
+       "Mossy stones"
+      ],
+      [
+       "signpost",
+       "Branching quests",
+       {
+        "do": "steps",
+        "title": "Branching quests",
+        "steps": [
+         "Quests fork on your choices.",
+         "Encounters can be fought tactically.",
+         "Progress autosaves locally."
+        ]
+       }
+      ],
+      [
+       "mushroom",
+       "Glowcap"
+      ]
+     ]
+    },
+    {
+     "name": "Encounter Glade",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "diceTable",
+       "Tactical encounter",
+       {
+        "do": "dice",
+        "sides": 12,
+        "title": "Encounter",
+        "text": "Tactical encounters resolve turn by turn in the glade."
+       }
+      ],
+      [
+       "campfire",
+       "Camp"
+      ]
+     ]
+    },
+    {
+     "name": "Journey Office",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "safe",
+       "Download journey",
+       {
+        "do": "quiz",
+        "title": "Backups",
+        "q": "How do you continue a journey in another browser?",
+        "options": [
+         "You can't",
+         "Download the journey JSON and restore it there",
+         "Email it to yourself"
+        ],
+        "answer": 1,
+        "explain": "Download journey makes a portable JSON backup; Restore journey loads it anywhere."
+       }
+      ],
+      [
+       "speaker",
+       "Audio manager",
+       {
+        "do": "play",
+        "title": "Wilds ambience",
+        "text": "The audio manager layers ambience and cues.",
+        "notes": [
+         392,
+         440,
+         494,
+         523,
+         494,
+         440
+        ]
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/whispering-wilds",
+  "summary": "The shipped single-file Whispering Wilds build, playable from a local static server in VS Code: type look, take rust_key, unlock the gate, check inv and stats, walk command history with the arrow keys, and run the built-in test harness from Dev Mode.",
+  "evidence": [
+   "README.md",
+   "index.html",
+   "FIXES_APPLIED.md",
+   "serve.ps1"
+  ],
+  "kind": "Gate Cottage",
+  "ext": {
+   "style": "cottage",
+   "walls": "#9aa880",
+   "roof": "#5a4a3a",
+   "trim": "#e8e0c0",
+   "door": "#4a3a1a",
+   "features": [
+    "fence",
+    "signpost",
+    "garden",
+    "well"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#7a6a50",
+   "walls": "#e0e4cc",
+   "light": "#fff8d8",
+   "rooms": [
+    {
+     "name": "Gate Puzzle",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "dungeonDoor",
+       "The locked gate"
+      ],
+      [
+       "treasureChest",
+       "rust_key",
+       {
+        "do": "steps",
+        "title": "Try it",
+        "steps": [
+         "look",
+         "take rust_key",
+         "e",
+         "unlock (or use rust_key at the gate)",
+         "inv · stats · help"
+        ]
+       }
+      ],
+      [
+       "fence",
+       "Old fence"
+      ]
+     ]
+    },
+    {
+     "name": "Console Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "computer",
+       "Command input",
+       {
+        "do": "info",
+        "text": "Press Enter to send a command; Up and Down walk the command history. The map now shows in the console when the sidebar is hidden."
+       }
+      ],
+      [
+       "chair",
+       "Player's chair"
+      ]
+     ]
+    },
+    {
+     "name": "Dev Mode Lab",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "oscilloscope",
+       "Run Tests harness",
+       {
+        "do": "toggle",
+        "title": "Dev Mode",
+        "on": "Dev Mode on: Run Tests exercises the in-page test harness.",
+        "off": "Dev Mode off."
+       }
+      ],
+      [
+       "bookStack",
+       "FIXES_APPLIED notes"
+      ],
+      [
+       "lamp",
+       "Desk lamp"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/Wild2",
+  "summary": "DOVAHKIIN — The Last Dragonborn: a self-contained Skyrim-themed browser text adventure. Choose Nord, Dunmer or Khajiit, rise from the executioner's block at Helgen through Bleak Falls Barrow and High Hrothgar to Alduin, and reach one of several endings.",
+  "evidence": [
+   "README.md",
+   "index.html"
+  ],
+  "kind": "Nordic Longhouse",
+  "ext": {
+   "style": "cabin",
+   "walls": "#5a4a3a",
+   "roof": "#6a6a6a",
+   "trim": "#c8b48a",
+   "door": "#2a1a10",
+   "features": [
+    "torches",
+    "rocks",
+    "hay",
+    "campfire"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#5a4a3a",
+   "walls": "#8a7a68",
+   "light": "#ffc890",
+   "rooms": [
+    {
+     "name": "Helgen",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "statue",
+       "Executioner's block"
+      ],
+      [
+       "armorStand",
+       "Choose your race",
+       {
+        "do": "quiz",
+        "title": "Race",
+        "q": "Which of these races can you choose?",
+        "options": [
+         "Dunmer",
+         "Argonian",
+         "Altmer"
+        ],
+        "answer": 0,
+        "explain": "Nord, Dunmer or Khajiit — each with different stat bonuses."
+       }
+      ],
+      [
+       "barrel",
+       "Helgen stores"
+      ]
+     ]
+    },
+    {
+     "name": "Bleak Falls Barrow",
+     "w": 9,
+     "d": 8,
+     "floor": "#4a4a4a",
+     "props": [
+      [
+       "dungeonDoor",
+       "Barrow gate"
+      ],
+      [
+       "treasureChest",
+       "Dragonstone"
+      ],
+      [
+       "torch",
+       "Barrow torch"
+      ]
+     ]
+    },
+    {
+     "name": "High Hrothgar",
+     "w": 9,
+     "d": 8,
+     "floor": "#c8ccd0",
+     "props": [
+      [
+       "runeStone",
+       "Learn a Shout",
+       {
+        "do": "play",
+        "title": "Your first Shout",
+        "text": "Shouts known is one of your three stats, beside HP and Stamina.",
+        "notes": [
+         196,
+         196,
+         262,
+         196,
+         330
+        ]
+       }
+      ],
+      [
+       "throne",
+       "Alduin's reckoning",
+       {
+        "do": "steps",
+        "title": "Endings",
+        "steps": [
+         "Triumph over Alduin.",
+         "A merciful ending.",
+         "A darker vampire path."
+        ]
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/HealthiestFood",
+  "summary": "An evidence-checked longevity cooking site: recipes and lunches with nutrient models, a guided-cooking food-safety temperature log, a dated pantry manager and dinner ideas ranked by fewest missing ingredients.",
+  "evidence": [
+   "README.md",
+   "app.js",
+   "site-data.js",
+   "cooking-methods-data.js",
+   "longevity.html",
+   "NUTRITION_AUDIT_2026-10-16.md",
+   "OPTIMISED_20_LUNCHES_2026-10-16.md"
+  ],
+  "kind": "Longevity Kitchen",
+  "links": [
+   {
+    "label": "Live site",
+    "url": "https://healthiest-food.vercel.app/"
+   },
+   {
+    "label": "Cooking methods",
+    "url": "https://joshualparris.github.io/HealthiestFood/cooking-methods.html"
+   }
+  ],
+  "ext": {
+   "style": "cafe",
+   "walls": "#f1e6cf",
+   "roof": "#6f8f4e",
+   "trim": "#c0533f",
+   "door": "#4e6a35",
+   "features": [
+    "herbs",
+    "cafeTables",
+    "beehives",
+    "chimney"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#d8c7a6",
+   "walls": "#fbf6ea",
+   "light": "#fff4dc",
+   "rooms": [
+    {
+     "name": "Test Kitchen",
+     "w": 11,
+     "d": 9,
+     "props": [
+      [
+       "stove",
+       "Guided cooking hob",
+       {
+        "do": "steps",
+        "title": "Food-safety log (5–60 °C)",
+        "steps": [
+         "Start a guided cook: the log records time the batch spends between 5 and 60 °C.",
+         "It corrects for earlier time already spent in the danger zone.",
+         "Same-batch entries persist so leftovers keep their history.",
+         "Status turns amber at 2 hours and red at 4 hours — storage completion is blocked until it is safe."
+        ]
+       }
+      ],
+      [
+       "counter",
+       "Prep bench"
+      ],
+      [
+       "fridge",
+       "Cold store"
+      ],
+      [
+       "fruitBowl",
+       "Mediterranean produce"
+      ],
+      [
+       "herbGarden",
+       "Herb planter"
+      ]
+     ]
+    },
+    {
+     "name": "Pantry",
+     "w": 8,
+     "d": 9,
+     "props": [
+      [
+       "pantry",
+       "Dated pantry packs",
+       {
+        "do": "count",
+        "unit": "Packs checked",
+        "text": "Each pack records opened or unopened, its location and use-by/best-before date, and consumption is reversible."
+       }
+      ],
+      [
+       "pantry",
+       "Shared shopping quantities"
+      ],
+      [
+       "scale",
+       "Weighed yields"
+      ],
+      [
+       "crates",
+       "Bulk legumes"
+      ]
+     ]
+    },
+    {
+     "name": "Longevity Library",
+     "w": 8,
+     "d": 9,
+     "props": [
+      [
+       "bookshelf",
+       "Recipe archive"
+      ],
+      [
+       "chartBoard",
+       "Full-day nutrient model",
+       {
+        "do": "info",
+        "text": "The nutrient model reconciles label data with recipe yields; the README is candid that weighed yields and real checkout prices are still being gathered."
+       }
+      ],
+      [
+       "laptop",
+       "Dinner ideas",
+       {
+        "do": "quiz",
+        "title": "Dinner ideas",
+        "q": "How does HealthiestFood rank dinner ideas?",
+        "options": [
+         "By calories",
+         "By fewest missing recorded ingredients",
+         "Alphabetically"
+        ],
+        "answer": 1,
+        "explain": "Dinner ideas are ranked by how few ingredients you are missing from the pantry you recorded.",
+        "url": "https://healthiest-food.vercel.app/"
+       }
+      ],
+      [
+       "sofa",
+       "Podcast corner"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/HealthiestPeople",
+  "summary": "Private repository this session's GitHub access could not open; JoshMemory's work log describes it as a research website of profiles, country research, charts and fact-check pages with source and provenance auditing, so this house reflects those notes; its real pages are unverified.",
+  "evidence": [
+   "unreachable: JoshMemory continuity log (20–21 September 2026 entries)"
+  ],
+  "kind": "Longevity Research Observatory",
+  "ext": {
+   "style": "observatory",
+   "walls": "#e8e0d0",
+   "roof": "#4a8a6a",
+   "trim": "#2a5a4a",
+   "door": "#2a4a3a",
+   "features": [
+    "garden",
+    "flag",
+    "telescope",
+    "bench"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#a89a80",
+   "walls": "#f2eee4",
+   "light": "#f8fff0",
+   "rooms": [
+    {
+     "name": "Profiles Gallery",
+     "w": 10,
+     "d": 8,
+     "props": [
+      [
+       "easel",
+       "Profiles"
+      ],
+      [
+       "statue",
+       "Exemplar"
+      ],
+      [
+       "globe",
+       "Country research",
+       {
+        "do": "info",
+        "text": "Based on JoshMemory notes only: country research and profiles were built in September 2026."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Fact-check Desk",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "desk",
+       "Fact-check pages"
+      ],
+      [
+       "filingCabinet",
+       "Source provenance",
+       {
+        "do": "steps",
+        "title": "From the work log",
+        "steps": [
+         "Source and provenance auditing.",
+         "Fact-check pages.",
+         "Charts and graphs.",
+         "Mobile navigation fixes."
+        ]
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Charts Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "chartBoard",
+       "Charts & graphs"
+      ],
+      [
+       "bookshelf",
+       "Research notes"
+      ],
+      [
+       "lamp",
+       "Reading lamp"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/HealthLens",
+  "summary": "HealthLens (this copy) frames itself as the private personal-data part of a wider health toolkit: upload wearable exports, pathology PDFs and CSVs for evidence-grounded AI analysis, while public education lives in Health Reference and in-the-moment support in HeartCalm. Not medical advice.",
+  "evidence": [
+   "README.md",
+   "src/App.jsx",
+   "src/lib/fileParser.js",
+   "api/",
+   "docs/"
+  ],
+  "kind": "Personal Data Clinic",
+  "links": [
+   {
+    "label": "HeartCalm",
+    "url": "https://heart-calm-vert.vercel.app"
+   }
+  ],
+  "ext": {
+   "style": "lab",
+   "walls": "#e8f0f2",
+   "roof": "#3a7a8a",
+   "trim": "#c84a4a",
+   "door": "#2a4a5a",
+   "features": [
+    "signpost",
+    "garden",
+    "bench",
+    "flag"
+   ]
+  },
+  "int": {
+   "layout": "L",
+   "floor": "#c8d4d8",
+   "walls": "#f4f8fa",
+   "light": "#f0fbff",
+   "rooms": [
+    {
+     "name": "Upload Bay",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "crates",
+       "Wearable exports & PDFs"
+      ],
+      [
+       "scale",
+       "Measurements"
+      ],
+      [
+       "computer",
+       "Analyser",
+       {
+        "do": "steps",
+        "title": "What you can upload",
+        "steps": [
+         "CSV, PDF, JSON and ZIP exports.",
+         "Health Connect SQLite databases.",
+         "Plain-text notes.",
+         "Results download as Markdown, JSON evidence bundles or PDF."
+        ]
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Boundary Corridor",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "signpost",
+       "Health Reference · HeartCalm",
+       {
+        "do": "link",
+        "title": "Related apps",
+        "text": "Public education belongs in Health Reference; calm-in-the-moment support is HeartCalm. Personal records stay here.",
+        "url": "https://heart-calm-vert.vercel.app",
+        "button": "Open HeartCalm ↗"
+       }
+      ],
+      [
+       "noticeBoard",
+       "Keep the boundary clear"
+      ]
+     ]
+    },
+    {
+     "name": "Consult Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "medicineCabinet",
+       "Not medical advice",
+       {
+        "do": "info",
+        "text": "HealthLens is for personal reflection, not diagnosis."
+       }
+      ],
+      [
+       "chair",
+       "Patient chair"
+      ],
+      [
+       "heartMonitor",
+       "Vitals display"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/Sleepy",
+  "summary": "A private static bedtime video shelf: 34 parent-curated calm story and music videos with search, tag filters, favourites and recents in localStorage, and a simple kid mode, so bedtime favourites are found without a recommendation feed.",
+  "evidence": [
+   "README.md",
+   "index.html",
+   "library.json",
+   "docs/content-and-safety.md",
+   "tests/e2e/app.spec.js"
+  ],
+  "kind": "Bedtime Cottage",
+  "ext": {
+   "style": "cottage",
+   "walls": "#c8c0e8",
+   "roof": "#5a5a8a",
+   "trim": "#f2e8ff",
+   "door": "#4a4a6a",
+   "features": [
+    "lanterns",
+    "garden",
+    "balloons",
+    "bench"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#a89ac8",
+   "walls": "#ece8f8",
+   "light": "#e8e0ff",
+   "rooms": [
+    {
+     "name": "Bedtime Shelf",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "bookshelf",
+       "34 curated videos",
+       {
+        "do": "count",
+        "unit": "Stories picked",
+        "text": "Every video on the shelf was chosen by a parent — no algorithmic feed."
+       }
+      ],
+      [
+       "tv",
+       "Story screen"
+      ],
+      [
+       "rug",
+       "Story rug"
+      ],
+      [
+       "lamp",
+       "Night light"
+      ]
+     ]
+    },
+    {
+     "name": "Kid Mode Nursery",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "crib",
+       "Cot"
+      ],
+      [
+       "rockingHorse",
+       "Rocking horse"
+      ],
+      [
+       "toyBlocks",
+       "Blocks"
+      ],
+      [
+       "nfcReader",
+       "Kid mode switch",
+       {
+        "do": "toggle",
+        "title": "Kid mode",
+        "on": "Kid mode on — a simpler shelf for small hands.",
+        "off": "Parent mode."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Favourites Corner",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "corkboard",
+       "Favourites & recents"
+      ],
+      [
+       "sofa",
+       "Cuddle couch"
+      ],
+      [
+       "vinyl",
+       "Lullaby player",
+       {
+        "do": "play",
+        "title": "Lullaby",
+        "text": "Calm music links sit beside the stories.",
+        "notes": [
+         523,
+         392,
+         440,
+         349,
+         392,
+         262
+        ]
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/Health-Data-Manager",
+  "summary": "A Replit full-stack (Express, React, Drizzle) health data app with Dashboard, Import, Trends and Settings pages and user accounts; it has no README, so this design is drawn from its pages and schema. Last commit: a backup before a work laptop was handed back.",
+  "evidence": [
+   "client/src/pages/Dashboard.tsx",
+   "client/src/pages/Import.tsx",
+   "client/src/pages/Trends.tsx",
+   "shared/schema.ts",
+   "git log"
+  ],
+  "kind": "Health Records Garage",
+  "ext": {
+   "style": "garage",
+   "walls": "#8aa0a8",
+   "roof": "#3a4a52",
+   "trim": "#e8f0f2",
+   "door": "#2a3a42",
+   "features": [
+    "van",
+    "crates",
+    "signpost",
+    "trees"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#7a8488",
+   "walls": "#e2eaec",
+   "light": "#f2faff",
+   "rooms": [
+    {
+     "name": "Import Dock",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "crates",
+       "Health files to import"
+      ],
+      [
+       "trolley",
+       "Import trolley"
+      ],
+      [
+       "terminal",
+       "Import page",
+       {
+        "do": "info",
+        "text": "The Import page brings health files into the database; there is no README describing formats."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Trends Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "chartBoard",
+       "Trends",
+       {
+        "do": "toggle",
+        "title": "Trends",
+        "on": "Trend lines drawn from imported data.",
+        "off": "Chart cleared."
+       }
+      ],
+      [
+       "monitorWall",
+       "Dashboard"
+      ],
+      [
+       "sofa",
+       "Review sofa"
+      ]
+     ]
+    },
+    {
+     "name": "Settings Closet",
+     "w": 7,
+     "d": 8,
+     "props": [
+      [
+       "cabinet",
+       "Settings"
+      ],
+      [
+       "safe",
+       "User accounts",
+       {
+        "do": "quiz",
+        "title": "What's missing?",
+        "q": "What would most help a new developer here?",
+        "options": [
+         "A README",
+         "More UI components",
+         "Another backup commit"
+        ],
+        "answer": 0,
+        "explain": "The repo has pages and a schema but no README to explain them."
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/HealthLens",
+  "summary": "The Parris-Tech-Services copy of HealthLens, centred on its integrations: Strava exercise sync by OAuth with webhook storage and backfill, a Supabase dashboard, nine AI analysis modes and follow-up chat about your own uploaded data.",
+  "evidence": [
+   "README.md",
+   "src/apiLib/stravaClient.js",
+   "src/components/SupabaseDashboard.jsx",
+   "supabase/",
+   "api/"
+  ],
+  "kind": "Integration Dome",
+  "ext": {
+   "style": "dome",
+   "walls": "#e8ecee",
+   "roof": "#e86a3a",
+   "trim": "#3a6a8a",
+   "door": "#2a3a4a",
+   "features": [
+    "bicycle",
+    "antenna",
+    "garden",
+    "bench"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#cfd6d8",
+   "walls": "#f6f8f8",
+   "light": "#fff8f0",
+   "rooms": [
+    {
+     "name": "Analysis Hall",
+     "w": 10,
+     "d": 9,
+     "props": [
+      [
+       "hologram",
+       "Nine analysis modes",
+       {
+        "do": "steps",
+        "title": "Analysis modes",
+        "steps": [
+         "Quick summary",
+         "Deep patterns",
+         "Clinical review",
+         "Sleep",
+         "Movement",
+         "HRV / recovery",
+         "Nutrition",
+         "90-day action plan",
+         "Period comparison"
+        ]
+       }
+      ],
+      [
+       "roundTable",
+       "Results table"
+      ]
+     ]
+    },
+    {
+     "name": "Strava Bay",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "bicycle",
+       "Strava OAuth sync",
+       {
+        "do": "toggle",
+        "title": "Strava",
+        "on": "Activities sync by OAuth; webhook events are stored and older activities can be backfilled.",
+        "off": "Sync paused."
+       }
+      ],
+      [
+       "treadmill",
+       "Activities"
+      ]
+     ]
+    },
+    {
+     "name": "Supabase Dashboard",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "monitorWall",
+       "Supabase dashboard"
+      ],
+      [
+       "serverRack",
+       "Webhook store"
+      ]
+     ]
+    },
+    {
+     "name": "Chat Lounge",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "sofa",
+       "Follow-up chat"
+      ],
+      [
+       "microphone",
+       "Ask about your data",
+       {
+        "do": "quiz",
+        "title": "Keys",
+        "q": "Where is your AI API key kept?",
+        "options": [
+         "On a shared server",
+         "Locally in your browser",
+         "In the repository"
+        ],
+        "answer": 1,
+        "explain": "The API key is stored locally and never leaves the browser."
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/JoshHealth",
+  "summary": "JoshHealth is the canonical, Tier-3 assured home of HealthLens: personal health analysis with a Health Connect SQLite analyser, an Android companion, nine analysis modes and the strictest engineering rules of the health apps, because it handles personal records.",
+  "evidence": [
+   "README.md",
+   "AGENTS.md",
+   "public/health-connect-analyzer.js",
+   "public/sqlite-worker.js",
+   "android/",
+   "e2e/"
+  ],
+  "kind": "Health Records Mansion",
+  "ext": {
+   "style": "mansion",
+   "walls": "#d8e4dc",
+   "roof": "#2a5a4a",
+   "trim": "#f2f6f4",
+   "door": "#2a3a32",
+   "features": [
+    "garden",
+    "trees",
+    "fence",
+    "lanterns"
+   ]
+  },
+  "int": {
+   "layout": "grid",
+   "floor": "#9aa8a0",
+   "walls": "#eef4f0",
+   "light": "#f2fff8",
+   "rooms": [
+    {
+     "name": "Health Connect Archive",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "serverRack",
+       "Health Connect SQLite",
+       {
+        "do": "info",
+        "text": "A worker parses Health Connect .db exports in the browser."
+       }
+      ],
+      [
+       "filingCabinet",
+       "Pathology reports"
+      ]
+     ]
+    },
+    {
+     "name": "Sleep & Recovery",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "sleepPod",
+       "Sleep analysis"
+      ],
+      [
+       "heartMonitor",
+       "HRV & recovery",
+       {
+        "do": "toggle",
+        "title": "Recovery",
+        "on": "Heart-rate variability trend shown.",
+        "off": "Monitor idle."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Android Bay",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "phoneStand",
+       "Android companion"
+      ],
+      [
+       "battery",
+       "Charging dock"
+      ]
+     ]
+    },
+    {
+     "name": "Governance Office",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "desk",
+       "Assurance tier 3",
+       {
+        "do": "quiz",
+        "title": "Why Tier 3?",
+        "q": "Why does this repository use the strictest assurance tier?",
+        "options": [
+         "It is a game",
+         "It handles personal health records",
+         "It has the most stars"
+        ],
+        "answer": 1,
+        "explain": "Personal health data raises the bar for testing and review."
+       }
+      ],
+      [
+       "bookshelf",
+       "Engineering principles v5.1"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/BrackenHouse",
+  "summary": "Private repository this session's GitHub access could not open; only its name is known, so this fern-garden house is a name-based placeholder awaiting access to the real project.",
+  "evidence": [
+   "unreachable: inventory name only (no GitHub access)"
+  ],
+  "kind": "Bracken Cottage (name-based)",
+  "ext": {
+   "style": "cabin",
+   "walls": "#7a8a5a",
+   "roof": "#4a3a2a",
+   "trim": "#d8d0a8",
+   "door": "#3a3a1a",
+   "features": [
+    "herbs",
+    "trees",
+    "fence",
+    "bird"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#6a5a40",
+   "walls": "#dcd8c0",
+   "light": "#fff4d0",
+   "rooms": [
+    {
+     "name": "Fern Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "plant",
+       "Bracken fern",
+       {
+        "do": "info",
+        "text": "Placeholder: the BrackenHouse repository could not be opened from this session."
+       }
+      ],
+      [
+       "pottedTree",
+       "Garden tree"
+      ],
+      [
+       "bench",
+       "Window seat"
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ]
+     ]
+    },
+    {
+     "name": "Study",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "desk",
+       "Writing desk"
+      ],
+      [
+       "bookshelf",
+       "Shelves"
+      ],
+      [
+       "clock",
+       "Hall clock",
+       {
+        "do": "steps",
+        "title": "Next step",
+        "steps": [
+         "Grant this session access to the repository.",
+         "Re-run the evidence harvest.",
+         "Redesign the house from the real code."
+        ]
+       }
+      ],
+      [
+       "rug",
+       "Rug"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/Cheappcslaptops",
+  "summary": "Cheap PCs & Laptops: an evidence-labelled Australian bargain board asking how powerful a complete PC $100 AUD can buy delivered to Dubbo — listings normalised to real delivered cost, capability estimates, misleading-bargain filters, a deal hunter and data validation.",
+  "evidence": [
+   "README.md",
+   "ROADMAP.md",
+   "docs/app.js",
+   "docs/data/listings.json",
+   "scripts/deal_hunter.py",
+   "scripts/validate_data.py"
+  ],
+  "kind": "$100 PC Bargain Shop",
+  "links": [
+   {
+    "label": "Bargain board",
+    "url": "https://joshualparris.github.io/Cheappcslaptops/"
+   }
+  ],
+  "ext": {
+   "style": "shopfront",
+   "walls": "#e8c84a",
+   "roof": "#2a2a2a",
+   "trim": "#c83a3a",
+   "door": "#2a2a2a",
+   "features": [
+    "van",
+    "crates",
+    "signpost",
+    "balloons"
+   ]
+  },
+  "int": {
+   "layout": "grid",
+   "floor": "#9a9488",
+   "walls": "#f4f0e2",
+   "light": "#fffbe0",
+   "rooms": [
+    {
+     "name": "Bargain Board",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "noticeBoard",
+       "The $100 challenge",
+       {
+        "do": "quiz",
+        "title": "The challenge",
+        "q": "What budget does the challenge set for a complete PC delivered to Dubbo?",
+        "options": [
+         "$100 AUD",
+         "$500 AUD",
+         "$1,000 AUD"
+        ],
+        "answer": 0,
+        "explain": "$100 all-in, delivered to or collected around Dubbo NSW 2830."
+       }
+      ],
+      [
+       "cashRegister",
+       "Delivered cost to Dubbo 2830"
+      ]
+     ]
+    },
+    {
+     "name": "Test Bench",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "workbench",
+       "Capability estimates"
+      ],
+      [
+       "computer",
+       "Budget build"
+      ]
+     ]
+    },
+    {
+     "name": "Deal Hunter",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "terminal",
+       "deal_hunter.py",
+       {
+        "do": "count",
+        "unit": "Listings checked",
+        "text": "The hunter discovers listings; validation rejects incompatible or misleading bargains."
+       }
+      ],
+      [
+       "partsBins",
+       "Spare parts"
+      ]
+     ]
+    },
+    {
+     "name": "Evidence Desk",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "filingCabinet",
+       "Evidence labels"
+      ],
+      [
+       "laptop",
+       "Ex-lease laptop",
+       {
+        "do": "link",
+        "title": "Bargain board",
+        "text": "See the current researched listings on the live board.",
+        "url": "https://joshualparris.github.io/Cheappcslaptops/",
+        "button": "Open the board ↗"
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/CircularEconomyDubbo",
+  "summary": "Dubbo Circular Economy: a Next.js public site and protected volunteer/staff workspace — resident guidance on what to do before recycling, a Repair Café Dubbo concept, a proposed Library of Things, and research on the local e-waste chain, partners and venues.",
+  "evidence": [
+   "README.md",
+   "app/internal/",
+   "lib/public-resource-directory.js",
+   "lib/research.js",
+   "research/"
+  ],
+  "kind": "Repair Café",
+  "ext": {
+   "style": "cafe",
+   "walls": "#d8e8c8",
+   "roof": "#4a7a3a",
+   "trim": "#f2c84a",
+   "door": "#3a5a2a",
+   "features": [
+    "bicycle",
+    "cafeTables",
+    "noticeBoard",
+    "herbs"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#a89a7a",
+   "walls": "#f2f4e8",
+   "light": "#fff8e0",
+   "rooms": [
+    {
+     "name": "Repair Café",
+     "w": 12,
+     "d": 10,
+     "props": [
+      [
+       "workbench",
+       "Fix-it bench"
+      ],
+      [
+       "cafeTable",
+       "Café tables"
+      ],
+      [
+       "coffeeMachine",
+       "Coffee while you wait",
+       {
+        "do": "steps",
+        "title": "Before you recycle",
+        "steps": [
+         "Can it be repaired?",
+         "Can someone else reuse it?",
+         "Could it go to a Library of Things?",
+         "Only then: follow authoritative disposal guidance."
+        ]
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Library of Things",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "shelf",
+       "Borrowable tools"
+      ],
+      [
+       "toolWall",
+       "Lending tools",
+       {
+        "do": "count",
+        "unit": "Items borrowed",
+        "text": "A proposed lending library so residents borrow rather than buy rarely used items."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Staff Workspace",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "safe",
+       "Signed session access",
+       {
+        "do": "quiz",
+        "title": "Protected routes",
+        "q": "How are /internal pages protected?",
+        "options": [
+         "A password in the code",
+         "A server-validated signed HttpOnly session cookie",
+         "They aren't"
+        ],
+        "answer": 1,
+        "explain": "Access codes and the signing secret live in deployment settings, never in the repo."
+       }
+      ],
+      [
+       "corkboard",
+       "Venue & partner planning"
+      ]
+     ]
+    },
+    {
+     "name": "Research Room",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "chartBoard",
+       "E-waste chain research"
+      ],
+      [
+       "filingCabinet",
+       "Field validation"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/Coffeezilla",
+  "summary": "Private repository this session's GitHub access could not open; its name refers to the investigative journalist known for exposing scams, so this investigation room is a name-based placeholder; the repository's actual content is unverified.",
+  "evidence": [
+   "unreachable: inventory name only (no GitHub access)"
+  ],
+  "kind": "Investigation Room (name-based)",
+  "ext": {
+   "style": "townhouse",
+   "walls": "#3a2a22",
+   "roof": "#1a1a1a",
+   "trim": "#c8843a",
+   "door": "#1a1210",
+   "features": [
+    "lanterns",
+    "mailbox",
+    "bench",
+    "antenna"
+   ]
+  },
+  "int": {
+   "layout": "L",
+   "floor": "#3a3028",
+   "walls": "#6a5a4e",
+   "light": "#ffd8a0",
+   "rooms": [
+    {
+     "name": "Evidence Wall",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "corkboard",
+       "Red-string board",
+       {
+        "do": "info",
+        "text": "Placeholder: this private repository could not be opened, so the case files are imaginary."
+       }
+      ],
+      [
+       "filingCabinet",
+       "Case files"
+      ],
+      [
+       "coffeeMachine",
+       "Coffee"
+      ],
+      [
+       "desk",
+       "Research desk"
+      ]
+     ]
+    },
+    {
+     "name": "Studio",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "camera",
+       "Camera"
+      ],
+      [
+       "microphone",
+       "Mic",
+       {
+        "do": "steps",
+        "title": "Name-based design",
+        "steps": [
+         "Theme taken from the repository name.",
+         "Real exhibits need repository access.",
+         "Nothing here describes actual content."
+        ]
+       }
+      ],
+      [
+       "lamp",
+       "Key light"
+      ],
+      [
+       "sofa",
+       "Interview couch"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/ColinBuchanan",
+  "summary": "Private repository this session's GitHub access could not open; only its name — a person's name — is known, so this plain study is a neutral placeholder that represents no personal information.",
+  "evidence": [
+   "unreachable: inventory name only (no GitHub access)"
+  ],
+  "kind": "Private Study (name-based)",
+  "ext": {
+   "style": "cottage",
+   "walls": "#b8a890",
+   "roof": "#3a4a5a",
+   "trim": "#e8e0d0",
+   "door": "#3a3a3a",
+   "features": [
+    "trees",
+    "bench",
+    "mailbox",
+    "chimney"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#7a6a58",
+   "walls": "#e8e2d8",
+   "light": "#fff2dc",
+   "rooms": [
+    {
+     "name": "Front Study",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "desk",
+       "Desk",
+       {
+        "do": "info",
+        "text": "Placeholder: no content from this private repository is represented."
+       }
+      ],
+      [
+       "bookshelf",
+       "Bookshelf"
+      ],
+      [
+       "chair",
+       "Chair"
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ]
+     ]
+    },
+    {
+     "name": "Back Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "archiveBoxes",
+       "Boxes"
+      ],
+      [
+       "clock",
+       "Clock",
+       {
+        "do": "steps",
+        "title": "Next step",
+        "steps": [
+         "Grant repository access.",
+         "Harvest evidence.",
+         "Design from the real project."
+        ]
+       }
+      ],
+      [
+       "plant",
+       "Plant"
+      ],
+      [
+       "rug",
+       "Rug"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/DubboEwaste",
+  "summary": "DubboEwaste: research, operating design and software for a reuse-first e-waste and IT-asset-disposition pilot in Dubbo — a Repair Café event desk, volunteer QR check-in, live queue and station dispatch, a repair knowledge base, offline capture, safety operations and reports.",
+  "evidence": [
+   "README.md",
+   "EwasteApp/lib/operational-documents.ts",
+   "EwasteApp/lib/repair-cafe/local-repairers.ts",
+   "EwasteApp/lib/learning/catalog.ts",
+   "docs/LIVE-FEATURES-AND-VERIFICATION-2026-10-09.md"
+  ],
+  "kind": "Reuse-First Depot",
+  "links": [
+   {
+    "label": "Operations desk",
+    "url": "https://dubbo-ewaste-app.vercel.app/"
+   }
+  ],
+  "ext": {
+   "style": "factory",
+   "walls": "#5a7a5a",
+   "roof": "#2a3a2a",
+   "trim": "#f2c14e",
+   "door": "#2a3a2a",
+   "features": [
+    "truck",
+    "crates",
+    "solarField",
+    "signpost"
+   ]
+  },
+  "int": {
+   "layout": "grid",
+   "floor": "#6a7068",
+   "walls": "#e0e8dc",
+   "light": "#f4fff0",
+   "rooms": [
+    {
+     "name": "Event Desk",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "nfcReader",
+       "Volunteer QR check-in",
+       {
+        "do": "count",
+        "unit": "Volunteers checked in",
+        "text": "Volunteers check in by QR at the Repair Café event desk."
+       }
+      ],
+      [
+       "cashRegister",
+       "Live queue"
+      ]
+     ]
+    },
+    {
+     "name": "Repair Stations",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "workbench",
+       "Station dispatch",
+       {
+        "do": "quiz",
+        "title": "Motto",
+        "q": "What is the depot's order of priority?",
+        "options": [
+         "Recycle first",
+         "Reuse first, recycle second",
+         "Landfill first"
+        ],
+        "answer": 1,
+        "explain": "Reuse first. Recycle second."
+       }
+      ],
+      [
+       "oscilloscope",
+       "Diagnostics bench"
+      ]
+     ]
+    },
+    {
+     "name": "Data Sanitisation",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "serverRack",
+       "Drive wiping"
+      ],
+      [
+       "safe",
+       "Chain of custody"
+      ]
+     ]
+    },
+    {
+     "name": "Knowledge & Reports",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "bookshelf",
+       "Repair knowledge base"
+      ],
+      [
+       "chartBoard",
+       "Pilot reports",
+       {
+        "do": "info",
+        "text": "The README is explicit: code presence does not prove field readiness, venue bookings or delivered messages."
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/EliasApp",
+  "summary": "Private repository this session's GitHub access could not open; only its name is known, so this small app studio is a neutral name-based placeholder awaiting access.",
+  "evidence": [
+   "unreachable: inventory name only (no GitHub access)"
+  ],
+  "kind": "App Studio (name-based)",
+  "ext": {
+   "style": "modern",
+   "walls": "#e0e4e8",
+   "roof": "#4a6a9a",
+   "trim": "#f2a03a",
+   "door": "#3a4a6a",
+   "features": [
+    "trees",
+    "bicycle",
+    "bench",
+    "garden"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#b8bcc0",
+   "walls": "#f2f4f6",
+   "light": "#f4f8ff",
+   "rooms": [
+    {
+     "name": "Studio",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "laptop",
+       "Prototype",
+       {
+        "do": "info",
+        "text": "Placeholder: the EliasApp repository could not be opened from this session."
+       }
+      ],
+      [
+       "easel",
+       "Sketches"
+      ],
+      [
+       "plant",
+       "Plant"
+      ],
+      [
+       "stool",
+       "Stool"
+      ]
+     ]
+    },
+    {
+     "name": "Test Corner",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "phoneStand",
+       "Device"
+      ],
+      [
+       "toyBlocks",
+       "Building blocks",
+       {
+        "do": "steps",
+        "title": "Next step",
+        "steps": [
+         "Grant access to the repository.",
+         "Harvest its evidence.",
+         "Replace this placeholder with a real design."
+        ]
+       }
+      ],
+      [
+       "sofa",
+       "Sofa"
+      ],
+      [
+       "rug",
+       "Rug"
+      ]
+     ]
+    }
+   ]
+  }
+ }
+]
