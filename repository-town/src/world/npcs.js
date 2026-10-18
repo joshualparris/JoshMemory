@@ -162,7 +162,10 @@ export function placeTownNPCs(group, lots, makeLabel) {
     const z=npc.id==='rowan'?lot.lot.z+15.1:lot.doorPos.z+6;
     figure.position.set(x,0,z);
     group.add(figure);
-    result.push({npc,group:figure,pos:new THREE.Vector3(x,0,z),mode:'town'});
+    const seed=[...npc.id].reduce((v,c)=>v*31+c.charCodeAt(0),17)>>>0;
+    result.push({npc,group:figure,pos:figure.position,mode:'town',
+      homeX:x,homeZ:z,seed,activity:'idle',activityUntil:0,
+      targetX:x,targetZ:z,heading:(seed%628)/100,walkPhase:0});
   }
   return result;
 }
@@ -184,16 +187,74 @@ export function placeHouseGuide(inside, makeLabel) {
   figure.position.set(point[0],0,point[1]);inside.group.add(figure);
   return {npc:HOUSE_GUIDE,group:figure,pos:figure.position,mode:'house',house:{name:inside.house.name,kind:inside.house.kind,coordinate:inside.house.coordinate}};
 }
-export function animateNPCs(list,time,playerPos) {
+// Deterministic per-resident pseudo-randomness; no frame-to-frame shared RNG state.
+function wander01(entry, step) {
+  let n=(entry.seed ^ Math.imul(step+1, 0x9e3779b1))>>>0;
+  n^=n>>>16;n=Math.imul(n,0x7feb352d);n^=n>>>15;
+  return (n>>>0)/4294967296;
+}
+function turnTowards(current,target,amount) {
+  const delta=Math.atan2(Math.sin(target-current),Math.cos(target-current));
+  return current+delta*Math.min(1,amount);
+}
+// Residents have a small, safe local territory near their original lot.
+// The animation uses elapsed time + delta so it behaves consistently on slow devices.
+export function animateNPCs(list,time,playerPos,dt=1/60,talkingTo=null) {
+  const step=Math.min(Math.max(dt,0),.15);
   for(const entry of list) {
-    const d=Math.hypot(entry.pos.x-playerPos.x,entry.pos.z-playerPos.z);
-    const visible=d<65;entry.group.visible=visible;
-    if(!visible)continue;
-    const model=entry.group.userData.body;
-    model.position.y=Math.sin(time*1.7+entry.pos.x*.15)*.07;
-    // Face the visitor within conversation distance, without constantly rotating at range.
-    if(d<7)model.rotation.y=Math.atan2(playerPos.x-entry.pos.x,playerPos.z-entry.pos.z);
-    const lbl=entry.group.userData.label;
-    if(lbl)lbl.visible=d>1.4;
+    const group=entry.group, model=group.userData.body;
+    const dist=Math.hypot(group.position.x-playerPos.x,group.position.z-playerPos.z);
+    group.visible=dist<65;
+    if(!group.visible)continue;
+    const chatting=talkingTo===entry.npc.id;
+    if(entry.mode==='town') {
+      // Initialise lazily for old saves and test fixtures.
+      if(entry.homeX===undefined){
+        entry.homeX=group.position.x;entry.homeZ=group.position.z;
+        entry.seed=[...entry.npc.id].reduce((v,c)=>v*31+c.charCodeAt(0),17)>>>0;
+        entry.activity='idle';entry.activityUntil=0;entry.targetX=entry.homeX;
+        entry.targetZ=entry.homeZ;entry.heading=group.rotation.y;entry.walkPhase=0;
+      }
+      if(chatting){
+        entry.activity='talk';entry.activityUntil=time+.8;
+        entry.heading=turnTowards(entry.heading,Math.atan2(playerPos.x-group.position.x,playerPos.z-group.position.z),step*4);
+      } else {
+        if(time>=entry.activityUntil || entry.activity==='talk'){
+          entry.walkPhase++;
+          // Spend time looking at shopfronts or resting as well as walking.
+          const walking=wander01(entry,entry.walkPhase*5)>.34;
+          entry.activity=walking?'walk':'idle';
+          entry.activityUntil=time+(walking?2.5:1.8)+wander01(entry,entry.walkPhase*5+1)*(walking?3:4);
+          if(walking){
+            const angle=wander01(entry,entry.walkPhase*5+2)*Math.PI*2;
+            const radius=.5+wander01(entry,entry.walkPhase*5+3)*1.15;
+            entry.targetX=entry.homeX+Math.cos(angle)*radius;
+            entry.targetZ=entry.homeZ+Math.sin(angle)*radius;
+          }else{
+            entry.heading+= (wander01(entry,entry.walkPhase*5+4)-.5)*1.35;
+          }
+        }
+        if(entry.activity==='walk'){
+          const dx=entry.targetX-group.position.x,dz=entry.targetZ-group.position.z;
+          const distance=Math.hypot(dx,dz);
+          if(distance>.09){
+            const speed=Math.min(distance,.65*step);
+            group.position.x+=dx/distance*speed;
+            group.position.z+=dz/distance*speed;
+            entry.heading=turnTowards(entry.heading,Math.atan2(dx,dz),step*3.2);
+          }else{entry.activity='idle';entry.activityUntil=time+1.5;}
+        }
+      }
+      group.rotation.y=entry.heading;
+      model.position.y=entry.activity==='walk' && !chatting
+        ? Math.sin(time*10+entry.seed)*.065 : Math.sin(time*1.2+entry.seed)*.018;
+    } else {
+      // Indoor guides stay at their post and look ahead except during conversation.
+      const target=chatting?Math.atan2(playerPos.x-group.position.x,playerPos.z-group.position.z):0;
+      group.rotation.y=turnTowards(group.rotation.y,target,step*3);
+      model.position.y=Math.sin(time*1.1)*.018;
+    }
+    const label=group.userData.label;
+    if(label)label.visible=dist>1.4;
   }
 }
