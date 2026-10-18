@@ -58,6 +58,20 @@ async function start() {
   const townWorld = new CollisionWorld([...town.colliders, ...edges]);
 
   const input = new Input(renderer.domElement, $('touch'));
+  const captureButton = $('btn-capture');
+  captureButton.hidden = input.touch || typeof renderer.domElement.requestPointerLock !== 'function';
+  const syncMouseCapture = (captured) => {
+    captureButton.setAttribute('aria-pressed', String(captured));
+    captureButton.textContent = captured ? '🔓 Mouse captured (Esc)' : '🎯 Capture mouse';
+    captureButton.title = captured ? 'Press Esc or L to release the mouse' : 'Capture the mouse to look without holding the button (L)';
+  };
+  input.onCaptureChange = (captured) => {
+    syncMouseCapture(captured);
+    status(captured ? 'Mouse captured — move to look freely. Esc or L releases it.' : 'Mouse released — select Capture mouse or press L to resume.');
+  };
+  input.onCaptureError = () => status('Browser could not capture the mouse. Try clicking Capture mouse again.');
+  captureButton.onclick = () => { captureButton.blur(); input.toggleMouseCapture(); };
+  syncMouseCapture(false);
   if (input.touch) $('touch').hidden = false;
   const player = new Player(camera);
   const npcChat = mountNPCChat(document);
@@ -121,6 +135,7 @@ async function start() {
 
   // ── Overview (bird's-eye) ────────────────────────────────────────────────
   function setOverview(on) {
+    if (on) input.releaseMouse();
     overview = on && mode === 'town';
     $('btn-map').setAttribute('aria-pressed', String(overview));
     scene.fog = overview || mode === 'house' ? null : fog;
@@ -148,7 +163,7 @@ async function start() {
     if (h) { travel(h.coordinate); $('search').blur(); } else status(`No house matches "${$('search').value}".`);
   });
   $('btn-map').onclick = () => setOverview(!overview);
-  $('btn-help').onclick = () => { $('help').hidden = !$('help').hidden; };
+  $('btn-help').onclick = () => { input.releaseMouse(); $('help').hidden = !$('help').hidden; };
   $('btn-npcs').onclick = () => { $('npc-roster').hidden = !$('npc-roster').hidden; input.reset(); };
   $('npc-roster-close').onclick = () => { $('npc-roster').hidden = true; };
   $('help-close').onclick = () => { $('help').hidden = true; };
@@ -163,6 +178,7 @@ async function start() {
     $('card').hidden = false;
   }
   function openPanel(content, thing) {
+    input.releaseMouse();
     panelOpen = { content, thing };
     $('panel').classList.toggle('wide', !!content.wide);
     $('panel-body').scrollTop = 0; $('panel').scrollTop = 0;
@@ -224,7 +240,7 @@ async function start() {
     return pick;
   }
   function use() {
-    if (nearNPC) { closePanel(); $('npc-roster').hidden=true; npcChat.show(nearNPC.npc, nearNPC.house || null); input.reset(); return; }
+    if (nearNPC) { input.releaseMouse(); closePanel(); $('npc-roster').hidden=true; npcChat.show(nearNPC.npc, nearNPC.house || null); input.reset(); return; }
     if (mode === 'house' && nearThing) {
       const thing = nearThing, request = ++interactionRequest, house = inside;
       Promise.resolve(runInteraction(thing, ctx)).then((content) => { if (request === interactionRequest && inside === house && mode === 'house') openPanel(content, thing); })
