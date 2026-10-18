@@ -18,7 +18,8 @@ addEventListener('unhandledrejection', (e) => fail(e.reason));
 const SKY = 0x96c9f0, INDOOR = 0x1a1612;
 
 async function start() {
-  const data = await (await fetch('houses.json')).json();
+  // The standalone single-file build embeds the data so it runs from file:// with no server.
+  const data = window.__HOUSES__ || await (await fetch('houses.json')).json();
   const houses = data.houses;
   const byCoord = new Map(houses.map((h) => [h.coordinate, h]));
 
