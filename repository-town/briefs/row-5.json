@@ -1,0 +1,2841 @@
+[
+ {
+  "repo": "Parris-Tech-Services/alfie",
+  "summary": "An empty starter repository: its README says only 'Initial repository setup', alongside the shared coding principles and an audit folder — there is no project here yet, so this house is an honest empty plot.",
+  "evidence": [
+   "README.md",
+   "codingprinciples.md",
+   "audit/"
+  ],
+  "kind": "Empty Plot",
+  "ext": {
+   "style": "cottage",
+   "walls": "#d8d4cc",
+   "roof": "#8a8a8a",
+   "trim": "#f2f2f2",
+   "door": "#6a6a6a",
+   "features": [
+    "fence",
+    "signpost",
+    "crates",
+    "trees"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#b4aea4",
+   "walls": "#efedea",
+   "light": "#fffaf0",
+   "rooms": [
+    {
+     "name": "Bare Room",
+     "w": 7,
+     "d": 7,
+     "props": [
+      [
+       "crates",
+       "Unpacked boxes"
+      ],
+      [
+       "ladder",
+       "Ladder"
+      ],
+      [
+       "chair",
+       "Folding chair"
+      ],
+      [
+       "signpost",
+       "Initial setup",
+       {
+        "do": "info",
+        "title": "Not started",
+        "text": "The README reads 'Initial repository setup' — there is no source code yet."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Audit Corner",
+     "w": 7,
+     "d": 7,
+     "props": [
+      [
+       "filingCabinet",
+       "codingprinciples.md"
+      ],
+      [
+       "desk",
+       "Audit notes",
+       {
+        "do": "quiz",
+        "title": "What is Alfie?",
+        "q": "What does the alfie repository contain?",
+        "options": [
+         "A finished app",
+         "Only setup files — no project yet",
+         "A game"
+        ],
+        "answer": 1,
+        "explain": "Just a README, coding principles and an audit folder."
+       }
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ],
+      [
+       "rug",
+       "Rug"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/analog",
+  "summary": "Node 04 — Lore Archive: a lore codex for The Analog Schism, a cyberpunk world — React codex builds, a standalone viewer, a setup script, world maps through four revisions, the story document and an ElevenLabs-voiced first episode.",
+  "evidence": [
+   "node04-codex.jsx",
+   "node04-codex/src/App.jsx",
+   "The Analog Schism.pdf",
+   "Maps/",
+   "lore-codex-build-prompt.md",
+   "Episode 1 (mp3)"
+  ],
+  "kind": "Lore Archive Node",
+  "ext": {
+   "style": "bunker",
+   "walls": "#2a2a3a",
+   "roof": "#1a1a24",
+   "trim": "#ff4fd8",
+   "door": "#1a1a24",
+   "features": [
+    "antenna",
+    "dish",
+    "beacon",
+    "crates"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#22222c",
+   "walls": "#4a4a5e",
+   "light": "#ffb0f0",
+   "ceiling": "#18181e",
+   "rooms": [
+    {
+     "name": "Node 04 Terminal",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "terminal",
+       "Lore codex",
+       {
+        "do": "steps",
+        "title": "Codex builds",
+        "steps": [
+         "node04-codex.jsx — the React codex.",
+         "A standalone single-file version.",
+         "A setup script that scaffolds it.",
+         "A build prompt describing the lore codex."
+        ]
+       }
+      ],
+      [
+       "monitorWall",
+       "Schism feeds"
+      ],
+      [
+       "chair",
+       "Netrunner chair"
+      ]
+     ]
+    },
+    {
+     "name": "Map Vault",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "pinMap",
+       "World map v4 (96%)",
+       {
+        "do": "count",
+        "unit": "Map revisions",
+        "text": "The map went through Map, v2, v3 and the 96 percent v4."
+       }
+      ],
+      [
+       "mapTable",
+       "The Analog Schism"
+      ],
+      [
+       "archiveBoxes",
+       "Story drafts"
+      ]
+     ]
+    },
+    {
+     "name": "Broadcast Booth",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "microphone",
+       "Episode 1",
+       {
+        "do": "play",
+        "title": "Episode 1",
+        "text": "The first episode is voiced with ElevenLabs.",
+        "notes": [
+         110,
+         165,
+         220,
+         330,
+         440
+        ]
+       }
+      ],
+      [
+       "speaker",
+       "Monitor"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/AnchorFlow",
+  "summary": "An empty placeholder for an idea named AnchorFlow: its README says there is no source code and recommends archiving the repository until real development starts — so this house is a vacant mooring with a sign.",
+  "evidence": [
+   "README.md (only file)"
+  ],
+  "kind": "Vacant Mooring",
+  "ext": {
+   "style": "ship",
+   "walls": "#8a9aa8",
+   "roof": "#d8dce0",
+   "trim": "#3a5a7a",
+   "door": "#3a4a5a",
+   "features": [
+    "signpost",
+    "barrels",
+    "rocks",
+    "lanterns"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#8a8478",
+   "walls": "#e6eaec",
+   "light": "#f8fbff",
+   "rooms": [
+    {
+     "name": "Empty Cabin",
+     "w": 7,
+     "d": 7,
+     "props": [
+      [
+       "crates",
+       "Nothing aboard"
+      ],
+      [
+       "barrel",
+       "Ballast"
+      ],
+      [
+       "lantern",
+       "Mooring light"
+      ],
+      [
+       "signpost",
+       "Recommended: archive",
+       {
+        "do": "info",
+        "title": "Placeholder",
+        "text": "AnchorFlow was created for an idea and holds no code; the README recommends archiving it."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Chart Room",
+     "w": 7,
+     "d": 7,
+     "props": [
+      [
+       "mapTable",
+       "Unplotted course",
+       {
+        "do": "quiz",
+        "title": "Status",
+        "q": "What should happen to AnchorFlow until real code exists?",
+        "options": [
+         "Ship it",
+         "Archive it",
+         "Delete the README"
+        ],
+        "answer": 1,
+        "explain": "Archive it, or redirect it if development lives elsewhere."
+       }
+      ],
+      [
+       "chair",
+       "Captain's chair"
+      ],
+      [
+       "globe",
+       "Globe"
+      ],
+      [
+       "rug",
+       "Deck rug"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/AppFactory",
+  "summary": "AppFactory: a local-first Next.js command centre that turns a rough app idea into a structured build plan multiple agents can work from — clarifying questions, an app spec, a tech and scaffold plan, a four-agent prompt pack and a review checklist before any code is generated.",
+  "evidence": [
+   "README.md",
+   "lib/generator/spec.ts",
+   "lib/generator/planning.ts",
+   "lib/generator/templates.ts",
+   "src/app/new/page.tsx",
+   "src/app/projects/[projectId]/page.tsx"
+  ],
+  "kind": "App Factory",
+  "ext": {
+   "style": "factory",
+   "walls": "#e8e0d0",
+   "roof": "#3a6a9a",
+   "trim": "#f2a03a",
+   "door": "#2a3a4a",
+   "features": [
+    "robot",
+    "crates",
+    "antenna",
+    "truck"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#7a7a80",
+   "walls": "#eef0f4",
+   "light": "#f4f8ff",
+   "rooms": [
+    {
+     "name": "Idea Intake",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "desk",
+       "/new — capture an idea"
+      ],
+      [
+       "chalkboard",
+       "Clarifying questions"
+      ],
+      [
+       "corkboard",
+       "Saved projects"
+      ]
+     ]
+    },
+    {
+     "name": "Spec Line",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "robotArm",
+       "Spec generator",
+       {
+        "do": "steps",
+        "title": "Factory line",
+        "steps": [
+         "Capture the idea.",
+         "Answer clarifying questions.",
+         "Generate the app spec.",
+         "Plan the tech and scaffold.",
+         "Copy the four-agent prompt pack.",
+         "Review the checklist before building."
+        ]
+       }
+      ],
+      [
+       "printer3d",
+       "Scaffold plan"
+      ],
+      [
+       "partsBins",
+       "Templates"
+      ]
+     ]
+    },
+    {
+     "name": "Review Bay",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "filingCabinet",
+       "Risk register"
+      ],
+      [
+       "robot",
+       "Four agents",
+       {
+        "do": "quiz",
+        "title": "Before building",
+        "q": "What must happen before any scaffold or deployment work?",
+        "options": [
+         "Nothing",
+         "A review checklist",
+         "A deploy"
+        ],
+        "answer": 1,
+        "explain": "The checklist gates scaffold and deployment work."
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/Apple",
+  "summary": "Apple Headquarters Research: deep, source-driven private research on Apple Park's Main Ring and the Apple industrial design team under Jony Ive (2017–2019), and the later LoveFrom work, chosen because public evidence from planning drawings and authorised press visits overlaps unusually well.",
+  "evidence": [
+   "README.md",
+   "AGENTS.md",
+   "docs/",
+   "data/",
+   "reference/"
+  ],
+  "kind": "Ring Research Pavilion",
+  "ext": {
+   "style": "dome",
+   "walls": "#f2f2f0",
+   "roof": "#c8d4dc",
+   "trim": "#a8b4bc",
+   "door": "#3a3a3a",
+   "features": [
+    "trees",
+    "pond",
+    "solar",
+    "bench"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#d8d4cc",
+   "walls": "#fafaf8",
+   "light": "#ffffff",
+   "rooms": [
+    {
+     "name": "Ring Model",
+     "w": 11,
+     "d": 10,
+     "props": [
+      [
+       "planetModel",
+       "Apple Park Main Ring"
+      ],
+      [
+       "pottedTree",
+       "Campus orchard"
+      ],
+      [
+       "bench",
+       "Oak bench"
+      ]
+     ]
+    },
+    {
+     "name": "Planning Drawings",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "pinMap",
+       "Cupertino planning drawings",
+       {
+        "do": "steps",
+        "title": "Evidence chain",
+        "steps": [
+         "Apple and Foster + Partners documented design goals.",
+         "Cupertino published planning drawings for the Ring.",
+         "Authorised press visits described the interiors.",
+         "Together they make a well-evidenced case study."
+        ]
+       }
+      ],
+      [
+       "desk",
+       "Research desk"
+      ]
+     ]
+    },
+    {
+     "name": "Design Studio",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "easel",
+       "Industrial design"
+      ],
+      [
+       "table",
+       "Prototype table"
+      ],
+      [
+       "laptop",
+       "Design archive"
+      ]
+     ]
+    },
+    {
+     "name": "Reference Shelf",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "bookshelf",
+       "Sources"
+      ],
+      [
+       "archiveBoxes",
+       "Images & data",
+       {
+        "do": "quiz",
+        "title": "Case period",
+        "q": "Which period does the selected design-team case study cover?",
+        "options": [
+         "1997–2001",
+         "2017–2019",
+         "2024–2026"
+        ],
+        "answer": 1,
+        "explain": "The historical 2017–2019 industrial design team case."
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/Arena",
+  "summary": "LLM Gladiator Arena: a deterministic turn-planning duel game — two language models submit JSON battle plans, a simulator resolves up to twelve ticks on a 7×7 grid, the browser replays the fight and produces logs and prompts for the next round, with a headless CLI and tournament runner.",
+  "evidence": [
+   "CLAUDE.md",
+   "README.md",
+   "src/engine/simulate.ts",
+   "docs/RULES.md",
+   "schemas/",
+   "tests/engine/matrix.test.ts"
+  ],
+  "kind": "Gladiator Arena",
+  "ext": {
+   "style": "temple",
+   "walls": "#d8c8a8",
+   "roof": "#8a3a2a",
+   "trim": "#e8c84a",
+   "door": "#4a2a1a",
+   "features": [
+    "torches",
+    "statue",
+    "flag",
+    "trophy"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#c8a878",
+   "walls": "#efe2c8",
+   "light": "#fff0d0",
+   "rooms": [
+    {
+     "name": "The Sand",
+     "w": 11,
+     "d": 11,
+     "props": [
+      [
+       "boardGame",
+       "7×7 grid"
+      ],
+      [
+       "robot",
+       "Gladiator A"
+      ],
+      [
+       "robot",
+       "Gladiator B",
+       {
+        "do": "dice",
+        "sides": 12,
+        "title": "Tick",
+        "text": "A match runs up to twelve ticks; identical plans and state always produce identical results.",
+        "c": "#c84a4a"
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Plan Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "scrollRack",
+       "JSON battle plans",
+       {
+        "do": "quiz",
+        "title": "Malformed plans",
+        "q": "A model sends a malformed action. What happens?",
+        "options": [
+         "The whole plan is rejected",
+         "It degrades to idle with a warning",
+         "The match crashes"
+        ],
+        "answer": 1,
+        "explain": "Validation is forgiving by design."
+       }
+      ],
+      [
+       "desk",
+       "Prompt builder"
+      ]
+     ]
+    },
+    {
+     "name": "Replay Booth",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "tv",
+       "Tick-by-tick replay"
+      ],
+      [
+       "timelineWall",
+       "Structured combat events"
+      ]
+     ]
+    },
+    {
+     "name": "Tournament Hall",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "trophyCase",
+       "Tournament runner"
+      ],
+      [
+       "terminal",
+       "Headless CLI",
+       {
+        "do": "steps",
+        "title": "Rules of the engine",
+        "steps": [
+         "No randomness without a seed.",
+         "Structured events are the replay API.",
+         "Contracts are versioned.",
+         "Prompts and rules must never drift."
+        ]
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/ashfaller",
+  "summary": "The Stage 1 ASHFALLER build with a scene system and journal: as a lone Ashfaller beneath Dubbo you run 8–15 minute expeditions into the Red Waste, pushing deeper for better relics while your lantern fades, your strength wanes and the Veil threatens to close.",
+  "evidence": [
+   "README.md",
+   "STAGE2_NEXT_STEPS.md",
+   "src/data/scenes.ts",
+   "src/store/gameStore.ts",
+   "src/components/ui/Journal.tsx"
+  ],
+  "kind": "Expedition Outpost",
+  "ext": {
+   "style": "tower",
+   "walls": "#8a4a32",
+   "roof": "#2a1a18",
+   "trim": "#f2a03a",
+   "door": "#3a1a10",
+   "features": [
+    "torches",
+    "rocks",
+    "portal",
+    "campfire"
+   ]
+  },
+  "int": {
+   "layout": "L",
+   "floor": "#6a3a2a",
+   "walls": "#b88a6a",
+   "light": "#ffa070",
+   "rooms": [
+    {
+     "name": "Expedition Prep",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "lantern",
+       "Fading lantern",
+       {
+        "do": "count",
+        "unit": "Minutes into the run",
+        "text": "Each expedition lasts 8–15 minutes of tense decisions."
+       }
+      ],
+      [
+       "armorStand",
+       "Ranger's kit"
+      ],
+      [
+       "swordRack",
+       "Gear"
+      ]
+     ]
+    },
+    {
+     "name": "Red Waste Edge",
+     "w": 9,
+     "d": 8,
+     "floor": "#8a3a22",
+     "props": [
+      [
+       "portal",
+       "The gate beneath Dubbo",
+       {
+        "do": "quiz",
+        "title": "Push deeper?",
+        "q": "What's the trade-off of travelling deeper?",
+        "options": [
+         "No risk",
+         "Better loot, but the lantern fades and the Veil may close",
+         "Less loot"
+        ],
+        "answer": 1,
+        "explain": "Deeper means better relics and greater danger."
+       }
+      ],
+      [
+       "crystal",
+       "Relic"
+      ],
+      [
+       "rock",
+       "Fractured ground"
+      ]
+     ]
+    },
+    {
+     "name": "Journal Tent",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "lectern",
+       "Expedition journal",
+       {
+        "do": "steps",
+        "title": "Stage 2 next steps",
+        "steps": [
+         "Extend the scene system.",
+         "Deepen the journal.",
+         "Balance risk and reward per zone."
+        ]
+       }
+      ],
+      [
+       "campfire",
+       "Camp"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/AvancePD",
+  "summary": "Avance Work Companion with Avance PD: private, local-first tools for MSP shift work — shift prep, quick capture, follow-ups, playbooks and work logs — combined with professional development: an MSP skills matrix, scenario trainer, ticket-notes trainer, evidence pack and a learning cockpit.",
+  "evidence": [
+   "README.md",
+   "VISION.md",
+   "app/src/data/mspSkills.ts",
+   "app/src/data/mspScenarios.ts",
+   "app/src/app/evidence-pack/page.tsx",
+   "app/src/app/learning-cockpit/page.tsx"
+  ],
+  "kind": "MSP Shift Office",
+  "ext": {
+   "style": "modern",
+   "walls": "#2a4a7a",
+   "roof": "#1a2a44",
+   "trim": "#4ff0c8",
+   "door": "#1a2a44",
+   "features": [
+    "antenna",
+    "bench",
+    "van",
+    "flag"
+   ]
+  },
+  "int": {
+   "layout": "grid",
+   "floor": "#4a5260",
+   "walls": "#dce4f0",
+   "light": "#eef6ff",
+   "rooms": [
+    {
+     "name": "Shift Prep",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "desk",
+       "Pre-shift checklist",
+       {
+        "do": "steps",
+        "title": "A shift",
+        "steps": [
+         "Prep the shift.",
+         "Quick-capture during calls.",
+         "Track follow-ups.",
+         "Use playbooks.",
+         "Write the work log."
+        ]
+       }
+      ],
+      [
+       "clock",
+       "Shift clock"
+      ]
+     ]
+    },
+    {
+     "name": "Skills Matrix",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "chartBoard",
+       "MSP skills matrix"
+      ],
+      [
+       "bookshelf",
+       "Playbooks"
+      ]
+     ]
+    },
+    {
+     "name": "Scenario Trainer",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "computer",
+       "Ticket-notes trainer",
+       {
+        "do": "quiz",
+        "title": "Ticket notes",
+        "q": "What makes a good ticket note?",
+        "options": [
+         "Just 'fixed'",
+         "What was wrong, what you did and how you verified it",
+         "A screenshot only"
+        ],
+        "answer": 1,
+        "explain": "The trainer practises clear, verifiable notes."
+       }
+      ],
+      [
+       "phoneStand",
+       "Client call"
+      ]
+     ]
+    },
+    {
+     "name": "Evidence Pack",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "filingCabinet",
+       "Evidence pack"
+      ],
+      [
+       "consolePanel",
+       "Learning cockpit"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/AvanceProfessionalDevelopment",
+  "summary": "The Avance Professional Development app on its own: private MSP career training for helpdesk support, endpoint management, Microsoft 365, networking, cybersecurity and client communication — a daily briefing dashboard, shift logs, scenario practice and progress tracking.",
+  "evidence": [
+   "README.md",
+   "app/src/data/mspLearningActivities.ts",
+   "app/src/app/kb-learning-machine/page.tsx",
+   "AvanceWorkCompanion/",
+   "_currentState.md"
+  ],
+  "kind": "MSP Training Academy",
+  "ext": {
+   "style": "library",
+   "walls": "#d0d8e8",
+   "roof": "#2a3a6a",
+   "trim": "#f2c14e",
+   "door": "#2a2a4a",
+   "features": [
+    "flag",
+    "bench",
+    "noticeBoard",
+    "trees"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#6a7088",
+   "walls": "#eef2f8",
+   "light": "#f2f6ff",
+   "rooms": [
+    {
+     "name": "Daily Briefing",
+     "w": 11,
+     "d": 9,
+     "props": [
+      [
+       "podium",
+       "Daily briefing",
+       {
+        "do": "steps",
+        "title": "Training areas",
+        "steps": [
+         "Helpdesk support",
+         "Endpoint management",
+         "Microsoft 365 administration",
+         "Networking",
+         "Cybersecurity",
+         "Client communication"
+        ]
+       }
+      ],
+      [
+       "pews",
+       "Training seats"
+      ]
+     ]
+    },
+    {
+     "name": "KB Learning Machine",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "cardCatalog",
+       "Knowledge base"
+      ],
+      [
+       "computer",
+       "Learning machine",
+       {
+        "do": "count",
+        "unit": "Activities done",
+        "text": "Learning activities are audited against skills and scenarios."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Endpoint Lab",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "laptop",
+       "Managed endpoint"
+      ],
+      [
+       "serverRack",
+       "M365 tenant"
+      ]
+     ]
+    },
+    {
+     "name": "Security Room",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "safe",
+       "Cybersecurity drills",
+       {
+        "do": "quiz",
+        "title": "Phish check",
+        "q": "A user reports a suspicious invoice email. First step?",
+        "options": [
+         "Open the attachment",
+         "Don't click; report and verify through a known channel",
+         "Forward it to everyone"
+        ],
+        "answer": 1,
+        "explain": "Verify out of band and report it."
+       }
+      ],
+      [
+       "router",
+       "Network fundamentals"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/awdagaer",
+  "summary": "SIGNAL BENEATH — The Parris Quilt: a browser text RPG that stitches Josh's games, apps, infrastructure experiments, archives and real troubleshooting stories into one universe, with traits such as Watchful, Integrity and Family Connection, a Tech Debt meter, and locations like DadLAN, NeathBound and DBO1-SIM.",
+  "evidence": [
+   "README.md",
+   "index.html",
+   "awdagaer.cwp"
+  ],
+  "kind": "Patchwork Quilt House",
+  "links": [
+   {
+    "label": "Play",
+    "url": "https://parris-tech-services.github.io/awdagaer/"
+   }
+  ],
+  "ext": {
+   "style": "terrace",
+   "walls": "#c87a5a",
+   "roof": "#4a6a8a",
+   "trim": "#f2d06a",
+   "door": "#3a2a3a",
+   "features": [
+    "flag",
+    "bench",
+    "garden",
+    "antenna"
+   ]
+  },
+  "int": {
+   "layout": "grid",
+   "floor": "#8a6a58",
+   "walls": "#f2e2d4",
+   "light": "#fff0dc",
+   "rooms": [
+    {
+     "name": "Quilt Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "loom",
+       "The Parris Quilt",
+       {
+        "do": "steps",
+        "title": "Stitched locations",
+        "steps": [
+         "DadLAN",
+         "The Archive",
+         "NeathBound",
+         "DBO1-SIM",
+         "Home",
+         "Chemist",
+         "Workbench"
+        ]
+       }
+      ],
+      [
+       "sofa",
+       "Quilted sofa"
+      ]
+     ]
+    },
+    {
+     "name": "Trait Board",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "chartBoard",
+       "Watchful · Practical · Steady · Curious"
+      ],
+      [
+       "gearWall",
+       "Tech Debt meter",
+       {
+        "do": "count",
+        "unit": "Tech debt",
+        "text": "Tech Debt is a tracked system alongside Integrity, Stability and Family Connection."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Workbench",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "workbench",
+       "Real troubleshooting stories"
+      ],
+      [
+       "laptop",
+       "DadLAN laptop"
+      ]
+     ]
+    },
+    {
+     "name": "Signal Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "radio",
+       "Signal beneath",
+       {
+        "do": "link",
+        "title": "Play SIGNAL BENEATH",
+        "text": "A branching opening, an Act I finale and a persistent local save.",
+        "url": "https://parris-tech-services.github.io/awdagaer/",
+        "button": "Play ↗"
+       }
+      ],
+      [
+       "archiveBoxes",
+       "The Archive"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/bramblewick",
+  "summary": "Shadow Over Bramblewick: a Godot 4 data-driven, D&D-flavoured RPG vertical slice — explore Bramblewick, accept The Silent Mine from the Elder, descend the Old Bramble Mine and defeat the Pale Matron, with combat, dialogue and a scripted playthrough test.",
+  "evidence": [
+   "README.md",
+   "ARCHITECTURE.md",
+   "scripts/combat/combat_scene.gd",
+   "scripts/dialogue/dialogue_ui.gd",
+   "scripts/core/game_state.gd",
+   "tests/test_playthrough.gd"
+  ],
+  "kind": "Bramblewick Village Hall",
+  "ext": {
+   "style": "mill",
+   "walls": "#9a8a6a",
+   "roof": "#4a3a2a",
+   "trim": "#c8b06a",
+   "door": "#3a2a1a",
+   "features": [
+    "well",
+    "trees",
+    "wagon",
+    "lanterns"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#6a5a40",
+   "walls": "#c8b898",
+   "light": "#ffd8a0",
+   "rooms": [
+    {
+     "name": "Village Square",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "noticeBoard",
+       "The Silent Mine",
+       {
+        "do": "steps",
+        "title": "The vertical slice",
+        "steps": [
+         "Explore Bramblewick.",
+         "Speak to the Elder.",
+         "Accept The Silent Mine.",
+         "Descend the Old Bramble Mine.",
+         "Defeat the Pale Matron."
+        ]
+       }
+      ],
+      [
+       "statue",
+       "The Elder"
+      ],
+      [
+       "well",
+       "Village well"
+      ]
+     ]
+    },
+    {
+     "name": "Old Bramble Mine",
+     "w": 9,
+     "d": 8,
+     "floor": "#3a3430",
+     "props": [
+      [
+       "wagon",
+       "Mine cart"
+      ],
+      [
+       "lantern",
+       "Mine lamp"
+      ],
+      [
+       "rock",
+       "Collapsed tunnel"
+      ]
+     ]
+    },
+    {
+     "name": "The Matron's Lair",
+     "w": 9,
+     "d": 8,
+     "floor": "#2a2428",
+     "props": [
+      [
+       "smallCreature",
+       "The Pale Matron",
+       {
+        "do": "dice",
+        "sides": 20,
+        "title": "Boss fight",
+        "text": "The combat scene resolves the spider boss fight.",
+        "c": "#e8e4f0",
+        "a": "#3a3a3a"
+       }
+      ],
+      [
+       "treasureChest",
+       "Matron's hoard"
+      ],
+      [
+       "torch",
+       "Last torch"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/breach-command",
+  "summary": "Breach Command: a browser tactical turn-based roguelike PWA whose content is pure data — units, enemies, abilities such as Shield Bash, Brace, Pulse Shot, Grapple and Arc Welder, hazards like pits, spikes and vents, and relics — with integration and passive-battle tests.",
+  "evidence": [
+   "README.md",
+   "content.js",
+   "game.js",
+   "tests/integration-smoke.test.js",
+   "tests/passive-battles.test.js"
+  ],
+  "kind": "Breach Command Post",
+  "ext": {
+   "style": "bunker",
+   "walls": "#5a6a5a",
+   "roof": "#2a3a2a",
+   "trim": "#e8c83a",
+   "door": "#1a2a1a",
+   "features": [
+    "robot",
+    "crates",
+    "flag",
+    "spaceship"
+   ]
+  },
+  "int": {
+   "layout": "grid",
+   "floor": "#3a443a",
+   "walls": "#7a887a",
+   "light": "#e8ffd8",
+   "rooms": [
+    {
+     "name": "Tactical Grid",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "boardGame",
+       "Turn-based grid",
+       {
+        "do": "quiz",
+        "title": "Hazards",
+        "q": "Which of these is a hazard tile in Breach Command?",
+        "options": [
+         "Spikes",
+         "Lava lake",
+         "Quicksand"
+        ],
+        "answer": 0,
+        "explain": "Floors, walls, pits, spikes and vents are defined in content.js."
+       }
+      ],
+      [
+       "consolePanel",
+       "Command console"
+      ]
+     ]
+    },
+    {
+     "name": "Squad Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "armorStand",
+       "Shield Bash & Brace"
+      ],
+      [
+       "swordRack",
+       "Arc Welder & Grapple"
+      ]
+     ]
+    },
+    {
+     "name": "Relic Vault",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "trophyCase",
+       "Relics"
+      ],
+      [
+       "crystal",
+       "Pulse Shot core",
+       {
+        "do": "toggle",
+        "title": "Charge",
+        "on": "Pulse Shot charged — abilities are data entries with an effect function.",
+        "off": "Discharged."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Content Office",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "filingCabinet",
+       "content.js data tables",
+       {
+        "do": "info",
+        "text": "New units, enemies, abilities, hazards or relics are table entries — game.js should not change."
+       }
+      ],
+      [
+       "terminal",
+       "Passive battle tests"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/carl",
+  "summary": "A Dungeon Crawler Carl game prototype in two forms — a data-driven Python terminal crawler that tests the systems and a single-file browser prototype that proves the visual direction — with a build plan, a Tutorial Guild page and a Phaser 3 web build as the next target.",
+  "evidence": [
+   "README.md",
+   "crawler.py",
+   "src/engine/actions.py",
+   "src/world.py",
+   "Dungeon_Crawler_Carl_Game_Build_Plan.md",
+   "claudev2/index.html"
+  ],
+  "kind": "Dungeon Crawl Entrance",
+  "links": [
+   {
+    "label": "Browser prototype",
+    "url": "https://carl-opal.vercel.app/"
+   }
+  ],
+  "ext": {
+   "style": "cave",
+   "walls": "#5a4a4a",
+   "roof": "#3a2a2a",
+   "trim": "#e85a3a",
+   "door": "#2a1a1a",
+   "features": [
+    "torches",
+    "crates",
+    "signpost",
+    "barrels"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#3a3030",
+   "walls": "#6a5a58",
+   "light": "#ffb090",
+   "ceiling": "#2a2222",
+   "rooms": [
+    {
+     "name": "Tutorial Guild",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "noticeBoard",
+       "Tutorial Guild",
+       {
+        "do": "steps",
+        "title": "Controls",
+        "steps": [
+         "W/A/S/D: move Carl.",
+         "X: attack.",
+         "Explore floor by floor.",
+         "The Python build tests systems; the browser build tests the look."
+        ]
+       }
+      ],
+      [
+       "lectern",
+       "Build plan"
+      ],
+      [
+       "chair",
+       "Recruit chair"
+      ]
+     ]
+    },
+    {
+     "name": "Floor One",
+     "w": 10,
+     "d": 8,
+     "props": [
+      [
+       "dungeonDoor",
+       "Stairwell"
+      ],
+      [
+       "smallCreature",
+       "Mob",
+       {
+        "do": "dice",
+        "sides": 20,
+        "title": "Attack (X)",
+        "text": "Swing at whatever crawls out of the dark.",
+        "c": "#6a8a3a"
+       }
+      ],
+      [
+       "treasureChest",
+       "Loot box"
+      ]
+     ]
+    },
+    {
+     "name": "Dev Room",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "terminal",
+       "crawler.py"
+      ],
+      [
+       "computer",
+       "Phaser 3 next"
+      ],
+      [
+       "barrel",
+       "Supplies"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/Chess",
+  "summary": "Grandmaster Path: a private beginner-first chess trainer in Next.js — play either colour against practice bots with untimed, 10- and 5-minute games, hints and legal-move highlighting, browser Stockfish, a puzzle trainer, PGN import/export, opening recognition and an optional AI post-game coach.",
+  "evidence": [
+   "README.md",
+   "components/PlayTrainer.tsx",
+   "components/PuzzleTrainer.tsx",
+   "lib/puzzles/adultPuzzles.ts",
+   "scripts/generate-adult-puzzles.mjs"
+  ],
+  "kind": "Chess Club",
+  "ext": {
+   "style": "townhouse",
+   "walls": "#e8e4dc",
+   "roof": "#1a1a1a",
+   "trim": "#c8a050",
+   "door": "#1a1a1a",
+   "features": [
+    "bench",
+    "lanterns",
+    "statue",
+    "garden"
+   ]
+  },
+  "int": {
+   "layout": "grid",
+   "floor": "#7a5a3a",
+   "walls": "#f2ece0",
+   "light": "#fff4e0",
+   "rooms": [
+    {
+     "name": "Play Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "chessboard",
+       "Play as White or Black",
+       {
+        "do": "steps",
+        "title": "Time controls",
+        "steps": [
+         "Untimed",
+         "10 minutes",
+         "5 minutes",
+         "Hints, legal-move highlighting and promotion choice are available."
+        ]
+       }
+      ],
+      [
+       "clock",
+       "Chess clock"
+      ]
+     ]
+    },
+    {
+     "name": "Puzzle Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "chessboard",
+       "Puzzle trainer",
+       {
+        "do": "quiz",
+        "title": "Puzzle",
+        "q": "Which engine runs in the browser to analyse games?",
+        "options": [
+         "Stockfish",
+         "AlphaZero",
+         "Deep Blue"
+        ],
+        "answer": 0,
+        "explain": "Browser Stockfish, with a lightweight local fallback."
+       }
+      ],
+      [
+       "bookStack",
+       "Puzzle sets"
+      ]
+     ]
+    },
+    {
+     "name": "Archive",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "filingCabinet",
+       "Last 20 games · PGN"
+      ],
+      [
+       "scrollRack",
+       "Opening book"
+      ]
+     ]
+    },
+    {
+     "name": "Coach's Corner",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "sofa",
+       "Post-game review"
+      ],
+      [
+       "microphone",
+       "AI coach"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/chronos",
+  "summary": "Chronos: a scheduler with a React front end and a Node back end that installs systemd services — build schedules every day at a time, on specific days or at intervals within a time range — plus a movement log where each entry records a reason.",
+  "evidence": [
+   "frontend/src/components/ScheduleBuilder.jsx",
+   "frontend/src/components/MovementLogPanel.jsx",
+   "backend/src/services/systemdService.js",
+   "backend/src/services/movementLogService.js",
+   "launch-chronos.sh"
+  ],
+  "kind": "Clockmaker's Tower",
+  "ext": {
+   "style": "clocktower",
+   "walls": "#a89070",
+   "roof": "#3a3a4a",
+   "trim": "#e8d8a8",
+   "door": "#3a2a1a",
+   "features": [
+    "bell",
+    "weathervane",
+    "bench",
+    "trees"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#7a6448",
+   "walls": "#ece0c8",
+   "light": "#fff0d0",
+   "rooms": [
+    {
+     "name": "Schedule Builder",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "gearWall",
+       "Schedule builder",
+       {
+        "do": "steps",
+        "title": "Schedule types",
+        "steps": [
+         "Every day at a time.",
+         "Specific days at a time.",
+         "An interval within a time range."
+        ]
+       }
+      ],
+      [
+       "desk",
+       "Workbench desk"
+      ],
+      [
+       "clock",
+       "Master clock"
+      ],
+      [
+       "lamp",
+       "Bench lamp"
+      ]
+     ]
+    },
+    {
+     "name": "Movement Log",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "ledgerDesk",
+       "Log with reason",
+       {
+        "do": "count",
+        "unit": "Movements logged",
+        "text": "Each movement log entry records why."
+       }
+      ],
+      [
+       "treadmill",
+       "Movement break"
+      ],
+      [
+       "serverRack",
+       "systemd services"
+      ],
+      [
+       "bench",
+       "Rest bench"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/ClearCore",
+  "summary": "ClearCore: a full-stack wellbeing app built around small resets — micro-celebrations, gratitude pings, movement breaks, worship bursts and nature glances — with a HALT check-in, an SOS page of grounding actions, progress tracking and settings.",
+  "evidence": [
+   "client/src/pages/Home.tsx",
+   "client/src/pages/SOS.tsx",
+   "client/src/pages/Progress.tsx",
+   "client/src/pages/Settings.tsx",
+   "shared/"
+  ],
+  "kind": "Clear Spring Chapel",
+  "ext": {
+   "style": "chapel",
+   "walls": "#e8f0f2",
+   "roof": "#5a8aa8",
+   "trim": "#f2e8c8",
+   "door": "#3a5a6a",
+   "features": [
+    "pond",
+    "garden",
+    "bench",
+    "trees"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#c8d4d8",
+   "walls": "#f8fbfc",
+   "light": "#f4fbff",
+   "rooms": [
+    {
+     "name": "Reset Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "candles",
+       "Worship burst"
+      ],
+      [
+       "pottedTree",
+       "Nature glance"
+      ],
+      [
+       "yogaMat",
+       "Movement break"
+      ],
+      [
+       "trophy",
+       "Micro-celebration",
+       {
+        "do": "count",
+        "unit": "Small wins",
+        "text": "Micro-celebrations and gratitude pings mark small wins through the day."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "HALT Check-in",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "bench",
+       "Check-in bench",
+       {
+        "do": "quiz",
+        "title": "HALT",
+        "q": "What does a HALT check-in ask?",
+        "options": [
+         "Hungry, Angry, Lonely, Tired?",
+         "Hot, Ambient, Light, Temperature?",
+         "Nothing"
+        ],
+        "answer": 0,
+        "explain": "Am I Hungry, Angry, Lonely or Tired?"
+       }
+      ],
+      [
+       "chartBoard",
+       "Progress"
+      ]
+     ]
+    },
+    {
+     "name": "SOS Room",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "phoneStand",
+       "Call or text a friend",
+       {
+        "do": "steps",
+        "title": "SOS",
+        "steps": [
+         "Take a short walk outside.",
+         "Call or text a friend.",
+         "Tidy one small area."
+        ]
+       }
+      ],
+      [
+       "plant",
+       "Fresh air"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/code-cleaner",
+  "summary": "crap4all: a small language-agnostic CLI for the CRAP (Change Risk Analysis and Predictions) metric, with coverage readers, reporters and a quality model whose first rule is that engineering principles outrank metrics.",
+  "evidence": [
+   "README.md",
+   "QUALITY_MODEL.md",
+   "src/crap4all/core.py",
+   "src/crap4all/coverage.py",
+   "src/crap4all/cli.py",
+   "tests/test_quality_boundaries.py"
+  ],
+  "kind": "Metric Workshop",
+  "ext": {
+   "style": "lab",
+   "walls": "#d8e0c8",
+   "roof": "#4a5a3a",
+   "trim": "#c83a3a",
+   "door": "#3a4a2a",
+   "features": [
+    "crates",
+    "flag",
+    "bench",
+    "solar"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#8a907a",
+   "walls": "#f0f4e8",
+   "light": "#f8fff0",
+   "rooms": [
+    {
+     "name": "Measuring Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "oscilloscope",
+       "Complexity meter"
+      ],
+      [
+       "terminal",
+       "crap4all CLI",
+       {
+        "do": "steps",
+        "title": "How it scores",
+        "steps": [
+         "Find functions and their cyclomatic complexity.",
+         "Read coverage reports when present.",
+         "Compute CRAP per function.",
+         "Report the headline score and rankings."
+        ]
+       }
+      ],
+      [
+       "scale",
+       "Coverage scale"
+      ],
+      [
+       "desk",
+       "Analyst desk"
+      ]
+     ]
+    },
+    {
+     "name": "Quality Model Hall",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "lectern",
+       "Principles → metrics → CI gates",
+       {
+        "do": "quiz",
+        "title": "Which wins?",
+        "q": "If chasing a better CRAP score would make the code less clear or safe, what wins?",
+        "options": [
+         "The score",
+         "The engineering principle",
+         "A coin toss"
+        ],
+        "answer": 1,
+        "explain": "Metrics are diagnostic evidence, not the definition of good engineering."
+       }
+      ],
+      [
+       "chartBoard",
+       "Rankings"
+      ],
+      [
+       "filingCabinet",
+       "Transferred audits"
+      ],
+      [
+       "bookStack",
+       "QUALITY_MODEL.md"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/ColdFluApp",
+  "summary": "Health Reference Research Base: an evidence-led, Australian-first public health knowledge base that began with cold and flu home care and is growing into reference material for households, carers, first aiders and health workers — clearly marked as pre-publication and not clinically reviewed.",
+  "evidence": [
+   "README.md",
+   "AGENTS.md",
+   "content/",
+   "scripts/validate-content.mjs",
+   "src/app/health-reference/workplace-whs/page.tsx"
+  ],
+  "kind": "Health Reference Library",
+  "ext": {
+   "style": "library",
+   "walls": "#e8f2f0",
+   "roof": "#3a7a6a",
+   "trim": "#c84a4a",
+   "door": "#2a4a42",
+   "features": [
+    "garden",
+    "bench",
+    "flag",
+    "noticeBoard"
+   ]
+  },
+  "int": {
+   "layout": "grid",
+   "floor": "#b8ccc4",
+   "walls": "#f6fbf8",
+   "light": "#f4fff8",
+   "rooms": [
+    {
+     "name": "Cold & Flu Wing",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "bookshelf",
+       "Respiratory self-care"
+      ],
+      [
+       "medicineCabinet",
+       "Home care",
+       {
+        "do": "quiz",
+        "title": "Status",
+        "q": "Can the current research drafts be presented as medical advice?",
+        "options": [
+         "Yes",
+         "No — they are pre-publication and not clinically reviewed",
+         "Only the flu pages"
+        ],
+        "answer": 1,
+        "explain": "The cold and flu collection is the first controlled set; broader topics are roadmap only."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "First Aid Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "bed",
+       "Recovery bed"
+      ],
+      [
+       "waterCooler",
+       "Fluids"
+      ]
+     ]
+    },
+    {
+     "name": "Carers' Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "sofa",
+       "Carers' corner"
+      ],
+      [
+       "noticeBoard",
+       "Household guides"
+      ]
+     ]
+    },
+    {
+     "name": "Editorial Office",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "terminal",
+       "validate-content.mjs",
+       {
+        "do": "steps",
+        "title": "Expanding safely",
+        "steps": [
+         "Start from the controlled cold/flu collection.",
+         "Add broader topics as roadmap items.",
+         "Validate content with scripts.",
+         "Clinical review before publication."
+        ]
+       }
+      ],
+      [
+       "filingCabinet",
+       "Evidence sources"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/DCSCompanion",
+  "summary": "DCS Companion: a personal helper app for school IT and library support staff — a home dashboard with focus and scripture, pinned quick links, a campus map, ICT snapshot and daily priorities, a searchable knowledge base, an LLM 'Ask DCS' chat and Firebase sign-in.",
+  "evidence": [
+   "README.md",
+   "src/pages/HomeDashboard.tsx",
+   "src/pages/DcsKnowledgeBase.tsx",
+   "src/services/userProfileService.ts",
+   "firestore.rules"
+  ],
+  "kind": "School IT Help Desk",
+  "ext": {
+   "style": "gatehouse",
+   "walls": "#c8b88a",
+   "roof": "#2a4a6a",
+   "trim": "#f2efe6",
+   "door": "#2a3a4a",
+   "features": [
+    "flag",
+    "bicycle",
+    "bench",
+    "noticeBoard"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#8a8070",
+   "walls": "#f2eee4",
+   "light": "#fff8e8",
+   "rooms": [
+    {
+     "name": "Help Desk",
+     "w": 10,
+     "d": 9,
+     "props": [
+      [
+       "desk",
+       "Daily priorities"
+      ],
+      [
+       "monitorWall",
+       "ICT snapshot"
+      ],
+      [
+       "lectern",
+       "Focus & Scripture",
+       {
+        "do": "info",
+        "text": "The home dashboard opens with an editable focus and scripture panel."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Knowledge Base",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "cardCatalog",
+       "Searchable KB",
+       {
+        "do": "count",
+        "unit": "Articles pinned",
+        "text": "Pin and favourite articles; export or import favourites."
+       }
+      ],
+      [
+       "bookshelf",
+       "Library support"
+      ]
+     ]
+    },
+    {
+     "name": "Ask DCS",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "computer",
+       "Ask DCS (LLM)",
+       {
+        "do": "steps",
+        "title": "Asking",
+        "steps": [
+         "Type a question.",
+         "The model answers with knowledge-base context.",
+         "Answers render as markdown.",
+         "Recent questions are kept."
+        ]
+       }
+      ],
+      [
+       "chair",
+       "Desk chair"
+      ]
+     ]
+    },
+    {
+     "name": "Campus Map Room",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "pinMap",
+       "Campus map"
+      ],
+      [
+       "laptop",
+       "Loan laptops"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/DCSPD",
+  "summary": "DCSPrep (DCSPD): a local-first Next.js training and portfolio tool for school IT support growth — retrieval-first flashcards, multiple-choice and short-answer practice, A+ and operations modules, scenarios and a scheduler — explicitly not a production helpdesk.",
+  "evidence": [
+   "README.md",
+   "src/data/modules/aplus.ts",
+   "src/data/modules/operations.ts",
+   "src/data/scenarios.ts",
+   "src/hooks/useScheduler.ts",
+   "e2e/"
+  ],
+  "kind": "Training Annex",
+  "ext": {
+   "style": "warehouse",
+   "walls": "#3a6a5a",
+   "roof": "#1a3a2a",
+   "trim": "#f2c14e",
+   "door": "#1a3a2a",
+   "features": [
+    "flag",
+    "bench",
+    "bicycle",
+    "crates"
+   ]
+  },
+  "int": {
+   "layout": "grid",
+   "floor": "#5a6a62",
+   "walls": "#e4efe8",
+   "light": "#f0fff6",
+   "rooms": [
+    {
+     "name": "Flashcard Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "cardTable",
+       "Retrieval flashcards",
+       {
+        "do": "count",
+        "unit": "Cards recalled",
+        "text": "Retrieval-first: test yourself before rereading."
+       }
+      ],
+      [
+       "chair",
+       "Study chair"
+      ]
+     ]
+    },
+    {
+     "name": "A+ Lab",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "workbench",
+       "A+ module"
+      ],
+      [
+       "partsBins",
+       "PC parts"
+      ]
+     ]
+    },
+    {
+     "name": "Scenario Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "phoneStand",
+       "Level 1 scenarios",
+       {
+        "do": "quiz",
+        "title": "Status",
+        "q": "Is DCSPrep a production helpdesk system?",
+        "options": [
+         "Yes",
+         "No — it's a training and portfolio environment",
+         "Only for printers"
+        ],
+        "answer": 1,
+        "explain": "It is not a replacement for school-owned systems."
+       }
+      ],
+      [
+       "desk",
+       "Ticket desk"
+      ]
+     ]
+    },
+    {
+     "name": "Scheduler",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "clock",
+       "Study scheduler"
+      ],
+      [
+       "chartBoard",
+       "Portfolio evidence"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/DCSPrep",
+  "summary": "DCSPrep — Foundations: the original seed of the onboarding app — a minimal Next.js and Tailwind scaffold with module 1 (Foundations) sections, flashcards, a quiz engine, completion maths and local progress, plus Genesis and outdoor-education modules and a podcast player.",
+  "evidence": [
+   "README.md",
+   "src/data/modules.ts",
+   "src/data/genesisModule.ts",
+   "src/data/outdoorEducationModules.ts",
+   "src/components/modules/ModuleDetail.tsx",
+   "src/components/PodcastPlayer.tsx"
+  ],
+  "kind": "Foundations Schoolroom",
+  "ext": {
+   "style": "cottage",
+   "walls": "#e8d8a8",
+   "roof": "#6a3a2a",
+   "trim": "#f2efe6",
+   "door": "#4a2a1a",
+   "features": [
+    "flag",
+    "garden",
+    "bench",
+    "trees"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#a88a64",
+   "walls": "#f6eedc",
+   "light": "#fff4d8",
+   "rooms": [
+    {
+     "name": "Foundations",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "chalkboard",
+       "Module 1: Foundations",
+       {
+        "do": "steps",
+        "title": "Seeded module",
+        "steps": [
+         "Read the sections.",
+         "Practise with flashcards.",
+         "Take the quiz.",
+         "Completion maths updates progress."
+        ]
+       }
+      ],
+      [
+       "bench",
+       "School bench"
+      ],
+      [
+       "lectern",
+       "Section reader"
+      ]
+     ]
+    },
+    {
+     "name": "Outdoor Ed",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "tent",
+       "Outdoor education module"
+      ],
+      [
+       "campfire",
+       "Camp"
+      ]
+     ]
+    },
+    {
+     "name": "Genesis Study",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "bookStack",
+       "Genesis module"
+      ],
+      [
+       "speaker",
+       "Podcast player",
+       {
+        "do": "play",
+        "title": "Podcast",
+        "text": "A podcast player sits beside the modules.",
+        "notes": [
+         330,
+         392,
+         330,
+         262
+        ]
+       }
+      ],
+      [
+       "desk",
+       "Study desk"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/DCSProfessionalDevelopment",
+  "summary": "SupportOps Career Lab: a local-first IT career dashboard for building Level 1/2 support skills — MSP workflows, Microsoft 365, networking and security triage — through flashcards, diagnostic practice, scenario missions, ticket-note writing and focused study blocks, with a known-issues log.",
+  "evidence": [
+   "README.md",
+   "KNOWN_ISSUES.md",
+   "src/data/dcsWorkflowModules.ts",
+   "src/data/messerCore2Modules.ts",
+   "src/data/scenarios.ts",
+   "research/"
+  ],
+  "kind": "Career Lab",
+  "ext": {
+   "style": "lab",
+   "walls": "#5a4a8a",
+   "roof": "#2a2244",
+   "trim": "#f2c14e",
+   "door": "#2a2244",
+   "features": [
+    "antenna",
+    "bench",
+    "flag",
+    "van"
+   ]
+  },
+  "int": {
+   "layout": "L",
+   "floor": "#4a4458",
+   "walls": "#e8e4f4",
+   "light": "#f4f0ff",
+   "rooms": [
+    {
+     "name": "Training Cockpit",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "consolePanel",
+       "Guided cockpit",
+       {
+        "do": "steps",
+        "title": "Practice modes",
+        "steps": [
+         "Flashcards and retrieval checks.",
+         "Multiple-choice and diagnostic practice.",
+         "Scenario troubleshooting missions.",
+         "Ticket-note writing.",
+         "Focused study blocks."
+        ]
+       }
+      ],
+      [
+       "monitorWall",
+       "Skill progress"
+      ],
+      [
+       "chair",
+       "Pilot seat"
+      ]
+     ]
+    },
+    {
+     "name": "Mission Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "router",
+       "Networking fundamentals"
+      ],
+      [
+       "laptop",
+       "Scenario mission",
+       {
+        "do": "dice",
+        "sides": 6,
+        "title": "Random ticket",
+        "text": "Roll for the next practice ticket type."
+       }
+      ],
+      [
+       "filingCabinet",
+       "Known issues"
+      ]
+     ]
+    },
+    {
+     "name": "Study Room",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "bookshelf",
+       "Core 2 modules"
+      ],
+      [
+       "clock",
+       "Study block timer"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/delve",
+  "summary": "Sigil Delve: a static-browser tactical dungeon crawler built as a tight vertical slice — a four-hero party, a short branching run, real tactical fights with reactions, concentration and conditions, deterministic RNG, a combat log, local save/load and a final boss.",
+  "evidence": [
+   "README.md",
+   "game.js",
+   "content.js",
+   "progress.md",
+   "sw.js"
+  ],
+  "kind": "Sigil Delve Gate",
+  "ext": {
+   "style": "temple",
+   "walls": "#5a5a6a",
+   "roof": "#2a2a3a",
+   "trim": "#9d7ae8",
+   "door": "#1a1a2a",
+   "features": [
+    "runeStone",
+    "torches",
+    "rocks",
+    "statue"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#3a3a46",
+   "walls": "#6a6a80",
+   "light": "#d8c8ff",
+   "ceiling": "#22222c",
+   "rooms": [
+    {
+     "name": "Party Muster",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "armorStand",
+       "Four heroes",
+       {
+        "do": "quiz",
+        "title": "Party size",
+        "q": "How many heroes are in your Sigil Delve party?",
+        "options": [
+         "Two",
+         "Four",
+         "Six"
+        ],
+        "answer": 1,
+        "explain": "A four-hero party on a short branching run."
+       }
+      ],
+      [
+       "swordRack",
+       "Kit"
+      ],
+      [
+       "potionShelf",
+       "Supplies"
+      ]
+     ]
+    },
+    {
+     "name": "Sigil Hall",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "runeStone",
+       "Sigils"
+      ],
+      [
+       "diceTable",
+       "Deterministic RNG",
+       {
+        "do": "dice",
+        "sides": 20,
+        "title": "Reaction",
+        "text": "Reactions, concentration and conditions shape each tactical fight."
+       }
+      ],
+      [
+       "torch",
+       "Hall torch"
+      ]
+     ]
+    },
+    {
+     "name": "Boss Chamber",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "throne",
+       "Final boss"
+      ],
+      [
+       "scrollRack",
+       "Combat log"
+      ],
+      [
+       "treasureChest",
+       "Delve reward"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/demo-repository",
+  "summary": "GitHub's organisation demo repository: a sample index.html, two example Actions workflows and a Primer CSS dependency, created to show GitHub features with minimal noise — an untouched template rather than a Parris project.",
+  "evidence": [
+   "README.md",
+   "index.html",
+   "package.json (@primer/css)",
+   ".github/workflows/"
+  ],
+  "kind": "Show Home",
+  "ext": {
+   "style": "modern",
+   "walls": "#f6f8fa",
+   "roof": "#24292f",
+   "trim": "#2da44e",
+   "door": "#24292f",
+   "features": [
+    "flag",
+    "garden",
+    "bench",
+    "signpost"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#d0d7de",
+   "walls": "#ffffff",
+   "light": "#ffffff",
+   "rooms": [
+    {
+     "name": "Show Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "sofa",
+       "Sample sofa"
+      ],
+      [
+       "tv",
+       "index.html preview",
+       {
+        "do": "info",
+        "title": "A template",
+        "text": "This is GitHub's demo repo for organisations, not a Parris project."
+       }
+      ],
+      [
+       "plant",
+       "Display plant"
+      ],
+      [
+       "rug",
+       "Primer rug"
+      ]
+     ]
+    },
+    {
+     "name": "Workflow Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "gearWall",
+       "Two Actions workflows",
+       {
+        "do": "toggle",
+        "title": "Workflows",
+        "on": "Example workflows running — they're manual-only now.",
+        "off": "Workflows idle."
+       }
+      ],
+      [
+       "bookStack",
+       "Primer CSS"
+      ],
+      [
+       "desk",
+       "Demo desk"
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/Dinner-Decider",
+  "summary": "Dinner Decider: a Replit full-stack takeaway decision app — add takeaway options through a form, then let the app help the household pick tonight's dinner — with a Drizzle database behind it.",
+  "evidence": [
+   "client/src/pages/Home.tsx",
+   "client/src/pages/OptionForm.tsx",
+   "shared/",
+   "server/",
+   "git log: Add core features for takeaway decision app"
+  ],
+  "kind": "Takeaway Diner",
+  "ext": {
+   "style": "cafe",
+   "walls": "#e84a3a",
+   "roof": "#2a2a2a",
+   "trim": "#f2d84a",
+   "door": "#2a2a2a",
+   "features": [
+    "cafeTables",
+    "van",
+    "signpost",
+    "balloons"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#c8b8a0",
+   "walls": "#fff4e8",
+   "light": "#fff0d8",
+   "rooms": [
+    {
+     "name": "Menu Wall",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "noticeBoard",
+       "Takeaway options"
+      ],
+      [
+       "counter",
+       "Order counter"
+      ],
+      [
+       "desk",
+       "Add an option",
+       {
+        "do": "count",
+        "unit": "Options added",
+        "text": "Options are added through a form and saved to the database."
+       }
+      ],
+      [
+       "fridge",
+       "Leftovers check"
+      ]
+     ]
+    },
+    {
+     "name": "Decision Table",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "diceTable",
+       "What's for dinner?",
+       {
+        "do": "dice",
+        "sides": 6,
+        "title": "Decide",
+        "text": "Can't agree? Let the decider pick."
+       }
+      ],
+      [
+       "cafeTable",
+       "Family table"
+      ],
+      [
+       "fruitBowl",
+       "Side salad"
+      ],
+      [
+       "chair",
+       "Family chair"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/DiskCleanupAudit",
+  "summary": "A non-destructive disk-usage audit for a C: drive: large files and folders listed as CSV, delete and uninstall candidates, a generator script and a safe-cleanup script meant for dry runs first — with the rule that nothing is deleted until Josh approves.",
+  "evidence": [
+   "README.md",
+   "generate-audit.ps1",
+   "run-safe-cleanup.ps1",
+   "large-files.csv",
+   "delete-candidates.md",
+   "safe-cleanup-log.md"
+  ],
+  "kind": "Clearing House",
+  "ext": {
+   "style": "garage",
+   "walls": "#a8a8a0",
+   "roof": "#4a4a4a",
+   "trim": "#e8a03a",
+   "door": "#3a3a3a",
+   "features": [
+    "crates",
+    "truck",
+    "signpost",
+    "barrels"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#8a8880",
+   "walls": "#eceae4",
+   "light": "#fffaf0",
+   "rooms": [
+    {
+     "name": "Survey Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "archiveBoxes",
+       "Large folders"
+      ],
+      [
+       "crates",
+       "Large files"
+      ],
+      [
+       "scale",
+       "Disk usage"
+      ],
+      [
+       "terminal",
+       "generate-audit.ps1",
+       {
+        "do": "count",
+        "unit": "Gigabytes surveyed",
+        "text": "The audit lists the biggest files and folders as CSV."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Approval Desk",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "desk",
+       "Delete candidates",
+       {
+        "do": "quiz",
+        "title": "Cleanup rule",
+        "q": "When may anything be deleted?",
+        "options": [
+         "Straight away",
+         "Only after a dry run and Josh's approval",
+         "Never"
+        ],
+        "answer": 1,
+        "explain": "Run the safe-cleanup script in dry-run mode first; nothing is deleted without approval."
+       }
+      ],
+      [
+       "filingCabinet",
+       "Uninstall candidates"
+      ],
+      [
+       "trolley",
+       "Waiting trolley"
+      ],
+      [
+       "lamp",
+       "Desk lamp"
+      ]
+     ]
+    }
+   ]
+  }
+ }
+]
