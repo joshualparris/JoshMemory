@@ -3,6 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { TOWN, loadBriefs, loadInventory } from './lib.mjs';
+import { PROP_TYPES } from '../src/world/props.js';
 
 const dir = path.join(TOWN, process.argv[2] || 'dist/public');
 const files = [];
@@ -12,6 +13,17 @@ const corpus = files.map((f) => [f, fs.readFileSync(f, 'utf8').toLowerCase()]);
 const inventory = loadInventory();
 const briefs = loadBriefs();
 const publicNames = new Set(inventory.projects.filter((p) => p.visibility === 'public').map((p) => p.repo.split('/')[1].toLowerCase()));
+// Strings a public brief also uses are already public; prop-type identifiers are engine vocabulary.
+const briefStrings = (b) => {
+  const out = [b.summary, b.kind, ...(b.links || []).map((l) => l.url)];
+  for (const r of b.int.rooms) {
+    out.push(r.name);
+    for (const pr of r.props) if (Array.isArray(pr)) { out.push(pr[1]); const a = pr[2] || {}; out.push(a.title, a.text, a.on, a.q, a.url, a.explain, ...(a.steps || []), ...(a.options || [])); }
+  }
+  return out.filter((s) => typeof s === 'string').map((s) => s.trim().toLowerCase());
+};
+const publicText = inventory.projects.filter((p) => p.visibility === 'public' && briefs.get(p.repo)).flatMap((p) => briefStrings(briefs.get(p.repo))).join('\n');
+const vocabulary = new Set(PROP_TYPES.map((t) => t.toLowerCase()));
 const needles = [];
 for (const p of inventory.projects.filter((p) => p.visibility === 'private')) {
   const name = p.repo.split('/')[1];
@@ -19,15 +31,11 @@ for (const p of inventory.projects.filter((p) => p.visibility === 'private')) {
   needles.push({ text: `github.com/${p.repo}`.toLowerCase(), why: 'repository URL' });
   // Bare names are only distinctive when they are not ordinary words or public repo names.
   const distinctive = name.length >= 4 && (/[A-Z].*[A-Z]|\d|-/.test(name) || name.length >= 9) && !publicNames.has(name.toLowerCase());
-  if (distinctive) needles.push({ text: name.toLowerCase(), why: 'repository name', word: true });
+  if (distinctive && !vocabulary.has(name.toLowerCase())) needles.push({ text: name.toLowerCase(), why: 'repository name', word: true });
   const b = briefs.get(p.repo);
   if (!b) continue;
-  const strings = [b.summary, b.kind, ...(b.links || []).map((l) => l.url)];
-  for (const r of b.int.rooms) {
-    strings.push(r.name);
-    for (const pr of r.props) if (Array.isArray(pr)) { strings.push(pr[1]); const a = pr[2] || {}; strings.push(a.title, a.text, a.on, a.q, a.url, a.explain, ...(a.steps || []), ...(a.options || [])); }
-  }
-  for (const s of strings) if (typeof s === 'string' && s.trim().length >= 14) needles.push({ text: s.trim().toLowerCase(), why: `private brief text (${p.repo.split('/')[1]})` });
+  const strings = briefStrings(b).filter((t) => !publicText.includes(t));
+  for (const s of strings) if (s.length >= 14) needles.push({ text: s, why: `private brief text (${p.repo.split('/')[1]})` });
 }
 
 const leaks = [];

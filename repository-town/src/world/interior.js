@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import { Builder } from './builder.js';
 import { PROPS } from './props.js';
 
-const WALL_T = 0.2, DOOR_W = 1.6, DOOR_H = 2.5;
+const WALL_T = 0.2, DOOR_W = 1.6, DOOR_H = 2.5, ROOM_SCALE = 0.82;
+const ART = [0xc8553d, 0x2e86ab, 0xf2a541, 0x5b8e7d, 0x8e5572, 0x3d5a80, 0xe0a458, 0x6b8f71];
 // Props that read best in open floor space rather than against a wall.
 const CENTRE = new Set(['table', 'roundTable', 'rug', 'chessboard', 'mapTable', 'diceTable', 'hologram', 'cafeTable', 'pond', 'sandpit',
   'campfire', 'fruitBowl', 'boardGame', 'cardTable', 'planetModel', 'reactor', 'cauldron', 'giraffe', 'horse', 'globe', 'tree', 'statue',
@@ -12,7 +13,8 @@ const CENTRE = new Set(['table', 'roundTable', 'rug', 'chessboard', 'mapTable', 
 
 // Rooms are placed as rectangles; `parent` is the room each one opens into.
 function placeRooms(rooms, layout) {
-  const R = rooms.map((r) => ({ ...r, w: r.w || 8, d: r.d || 8 }));
+  // Briefs give generous sizes; rooms are built at 82% so props fill the space without crowding.
+  const R = rooms.map((r) => ({ ...r, w: Math.max(6, (r.w || 8) * ROOM_SCALE), d: Math.max(6, (r.d || 8) * ROOM_SCALE) }));
   const put = (r, x0, z0) => { r.x0 = x0; r.z0 = z0; r.x1 = x0 + r.w; r.z1 = z0 + r.d; };
   const r0 = R[0];
   put(r0, -r0.w / 2, -r0.d); r0.parent = -1;
@@ -83,14 +85,15 @@ function sharedOpening(a, b) {
 }
 
 // Wall along one edge of a room with doorway gaps. Collision gets the solid pieces only.
+const SKIRT = 0x5a4a3c;
 function wall(b, colliders, axis, at, from, to, h, color, openings) {
   const cuts = openings.filter((o) => o.axis === axis && Math.abs(o.at - at) < 0.01 && o.c - DOOR_W / 2 > from && o.c + DOOR_W / 2 < to).map((o) => [o.c - DOOR_W / 2, o.c + DOOR_W / 2]).sort((p, q) => p[0] - q[0]);
   let cursor = from;
   const seg = (s, e, y0, y1) => {
     if (e - s < 0.01) return;
     const len = e - s, mid = (s + e) / 2, hh = y1 - y0;
-    if (axis === 'z') { b.box(color, len, hh, WALL_T, mid, y0 + hh / 2, at); if (y0 === 0) colliders.push({ x0: s, x1: e, z0: at - WALL_T, z1: at + WALL_T }); }
-    else { b.box(color, WALL_T, hh, len, at, y0 + hh / 2, mid); if (y0 === 0) colliders.push({ x0: at - WALL_T, x1: at + WALL_T, z0: s, z1: e }); }
+    if (axis === 'z') { b.box(color, len, hh, WALL_T, mid, y0 + hh / 2, at); if (y0 === 0) { colliders.push({ x0: s, x1: e, z0: at - WALL_T, z1: at + WALL_T }); b.box(SKIRT, len, 0.14, WALL_T + 0.06, mid, 0.07, at); } }
+    else { b.box(color, WALL_T, hh, len, at, y0 + hh / 2, mid); if (y0 === 0) { colliders.push({ x0: at - WALL_T, x1: at + WALL_T, z0: s, z1: e }); b.box(SKIRT, WALL_T + 0.06, 0.14, len, at, 0.07, mid); } }
   };
   for (const [s, e] of cuts) { seg(cursor, s, 0, h); seg(s, e, DOOR_H, h); cursor = e; }
   seg(cursor, to, 0, h);
@@ -167,6 +170,7 @@ export function buildInterior(house, makeLabel) {
     const floor = r.floor || spec.floor, walls = r.walls || spec.walls;
     b.box(floor, r.w, 0.1, r.d, (r.x0 + r.x1) / 2, -0.05, (r.z0 + r.z1) / 2);
     b.box(spec.ceiling || 0xf2efe8, r.w, 0.1, r.d, (r.x0 + r.x1) / 2, h + 0.05, (r.z0 + r.z1) / 2);
+    b.cyl(0xfff4d8, 0.35, 0.06, (r.x0 + r.x1) / 2, h - 0.03, (r.z0 + r.z1) / 2);
     const inset = (axis, edge, to) => openings.map((o) => (o.axis === axis && Math.abs(o.at - edge) < 0.01 ? { ...o, at: to } : o));
     wall(b, colliders, 'z', r.z0 + WALL_T / 2, r.x0, r.x1, h, walls, inset('z', r.z0, r.z0 + WALL_T / 2));
     wall(b, colliders, 'z', r.z1 - WALL_T / 2, r.x0, r.x1, h, walls, inset('z', r.z1, r.z1 - WALL_T / 2));
@@ -210,6 +214,16 @@ export function buildInterior(house, makeLabel) {
       if (label) labels.push({ text: label, pos: new THREE.Vector3(spot.x, Math.min(h - 0.35, Math.max(propTop(type) + 0.4, 2.35)), spot.z), room: ri, kind: key ? 'interactive' : 'prop' });
       if (key) interactables.push({ key, type, label: label || prop.label, act, room: ri, pos, roomName: r.name });
     });
+    // Decoration only: a rug where the floor would otherwise be empty, and framed
+    // pictures on leftover wall space. Repository-specific content comes from the brief.
+    if (!(r.props || []).some((p) => CENTRE.has(typeof p === 'string' ? p : p[0])) && cells.length) {
+      const c = cells.shift(); b.at(c.x, 0, c.z, 0, () => PROPS.rug.build(b, { c: ART[(ri * 3 + r.w) % ART.length], a: 0xe8dcc0 }));
+    }
+    for (let k = 0; k < 3; k++) {
+      const spot = slots.wall(1.1); if (!spot) break;
+      const col = ART[(ri + k * 5 + Math.round(r.d)) % ART.length];
+      b.at(spot.x, 0, spot.z, spot.rot, () => { b.box(0x3a2a1e, 1.0, 0.75, 0.05, 0, 1.75, -0.02); b.box(col, 0.84, 0.59, 0.03, 0, 1.75, 0.01); b.box(0xf2efe6, 0.3, 0.2, 0.031, -0.18, 1.85, 0.012); });
+    }
   });
 
   // Lights: one warm fill per room plus a hemisphere for the whole interior.
