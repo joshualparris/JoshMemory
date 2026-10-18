@@ -259,7 +259,7 @@ function performWork(entry,time) {
   }
   return entry.task==='rest';
 }
-export function animateNPCs(list,time,playerPos,dt=1/60,talkingTo=null) {
+export function animateNPCs(list,time,playerPos,dt=1/60,talkingTo=null,collisionWorld=null) {
   const step=Math.min(Math.max(dt,0),.15);
   for(const entry of list) {
     const group=entry.group, model=group.userData.body;
@@ -299,8 +299,20 @@ export function animateNPCs(list,time,playerPos,dt=1/60,talkingTo=null) {
           const distance=Math.hypot(dx,dz);
           if(distance>.09){
             const speed=Math.min(distance,.65*step);
-            group.position.x+=dx/distance*speed;
-            group.position.z+=dz/distance*speed;
+            // Use the same collision grid as the player; do not walk through houses.
+            const prevX=group.position.x, prevZ=group.position.z;
+            if(collisionWorld) collisionWorld.move(group.position,dx/distance*speed,dz/distance*speed,.34);
+            else {group.position.x+=dx/distance*speed;group.position.z+=dz/distance*speed;}
+            if(Math.hypot(group.position.x-prevX,group.position.z-prevZ)<.002){
+              // A blocked target should not leave a resident marching against a wall.
+              entry.blockedTime=(entry.blockedTime||0)+step;
+              if(entry.blockedTime>.7){
+                entry.blockedTime=0;
+                if(entry.workSite && (entry.task==='gather'||entry.task==='build')) {
+                  entry.task='rest';entry.activity='idle';entry.activityUntil=time+5;
+                } else {entry.activity='idle';entry.activityUntil=time+1.5;}
+              }
+            }else entry.blockedTime=0;
             entry.heading=turnTowards(entry.heading,Math.atan2(dx,dz),step*3.2);
           }else{entry.activity='idle';entry.activityUntil=time+1.5;}
         }
