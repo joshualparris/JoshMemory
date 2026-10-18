@@ -328,7 +328,8 @@ async function start() {
       for (const l of town.lots.values()) { const d = Math.hypot(l.doorPos.x - player.pos.x, l.doorPos.z - player.pos.z); if (d < best) { best = d; nearHouse = l; } }
       for (const d of town.doors) {
         const dist = Math.hypot(d.userData.centre.x - player.pos.x, d.userData.centre.z - player.pos.z);
-        const target = dist < 3.2 ? 1 : 0; d.userData.open += (target - d.userData.open) * Math.min(1, dt * 5); d.rotation.y = d.userData.open * 1.55;
+        const residentNearby=streetNPCs.some(n=>n.npc.coordinate===d.userData.coordinate && Math.hypot(n.pos.x-d.userData.centre.x,n.pos.z-d.userData.centre.z)<2.8);
+        const target = dist < 3.2 || residentNearby ? 1 : 0; d.userData.open += (target - d.userData.open) * Math.min(1, dt * 5); d.rotation.y = d.userData.open * 1.55;
       }
       for (const z of town.doorZones) {
         if (player.pos.x > z.x0 && player.pos.x < z.x1 && player.pos.z > z.z0 && player.pos.z < z.z1) {
