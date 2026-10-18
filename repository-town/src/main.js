@@ -76,6 +76,8 @@ async function start() {
     closePanel();
     const f = frontOf(coord);
     player.place(f.x, f.z, f.yaw);
+    // Clear any M key queued during a slow frame so search cannot reopen overview.
+    input.pressed.delete('map');
     setOverview(false);
     status(`Standing outside ${coord}.`);
     return true;
