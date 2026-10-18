@@ -50,3 +50,23 @@ body.npc-lounge #npc-chat{position:relative;top:auto;bottom:auto;left:auto;right
 .npc-lounge-layout{display:grid;grid-template-columns:minmax(250px,360px) minmax(330px,700px);gap:18px;align-items:start;max-width:1150px;margin:0 auto;padding:0 24px}
 body.npc-lounge #npc-roster-close,body.npc-lounge #npc-close{display:none}
 @media(max-width:730px){.npc-lounge-layout{display:flex;flex-direction:column;gap:0;padding:0 10px}.npc-lounge-intro{padding:16px}.npc-lounge-header{padding:12px 14px}body.npc-lounge #npc-roster{margin:12px 0 0;max-height:none}body.npc-lounge #npc-roster-items{grid-template-columns:repeat(2,minmax(0,1fr))}body.npc-lounge #npc-chat{margin:12px 0 20px;height:70dvh;min-height:450px}body.npc-lounge .npc-roster-item{font-size:12px;padding:8px}}
+
+
+/* The expanded cast comes with its own no-API quests and conversation prompts. */
+#npc-roster-search{width:100%;margin:4px 0 6px;padding:10px 12px;color:#102034;background:#f6fbff;border:1px solid #6ca1b6;border-radius:10px;font:inherit;min-height:42px}
+#npc-quest-count{color:#f5d38c!important;font-size:12px;font-weight:600}
+.npc-activities{border-top:1px solid #38516b;padding:7px 12px 8px;max-height:210px;overflow-y:auto;overscroll-behavior:contain}
+.npc-activity-label{font-size:11px;color:#aec6da;display:block;margin-bottom:5px}
+.npc-prompt-row{display:flex;flex-wrap:wrap;gap:6px}
+.npc-suggestion{border:1px solid #486f83;background:#233c58;border-radius:16px;padding:5px 9px;min-height:32px;font-size:12px;text-align:left;color:#e9fcff;cursor:pointer}
+.npc-suggestion:hover{background:#375b7b}
+.npc-quest-area{margin-top:8px}
+.npc-quest-toggle{width:100%;border:1px solid #8aab75;border-radius:9px;padding:9px 11px;background:#284f38;color:#faffef;font-weight:600;text-align:left;cursor:pointer}
+.npc-quest{border:1px solid #577788;background:#192c41;border-radius:12px;padding:10px;margin-top:7px}
+.npc-quest p{margin:0 0 7px}
+.npc-quest-choices{display:flex;gap:6px;flex-wrap:wrap}
+.npc-quest-choices button,.npc-quest-retry{min-height:36px;border-radius:9px;border:1px solid #779bb1;background:#315171;color:#fff;padding:7px 10px;cursor:pointer}
+.npc-quest-choices button:disabled{opacity:.5;cursor:default}
+.npc-quest-result{color:#cfeebb;margin-top:9px!important;font-size:13px}
+.npc-quest-retry{margin-top:5px}
+@media(max-width:700px){.npc-activities{max-height:23dvh}.npc-prompt-row{flex-wrap:nowrap;overflow-x:auto}.npc-suggestion{flex:0 0 auto;max-width:190px;white-space:normal}}
