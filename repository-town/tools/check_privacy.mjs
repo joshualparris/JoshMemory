@@ -1,0 +1,44 @@
+// Scans the public build for anything from a private repository: slugs, URLs,
+// distinctive names, and every free-text string written in a private brief.
+import fs from 'node:fs';
+import path from 'node:path';
+import { TOWN, loadBriefs, loadInventory } from './lib.mjs';
+
+const dir = path.join(TOWN, process.argv[2] || 'dist/public');
+const files = [];
+(function walk(d) { for (const f of fs.readdirSync(d)) { const p = path.join(d, f); if (fs.statSync(p).isDirectory()) walk(p); else if (/\.(html|js|json|css|txt|md)$/.test(f)) files.push(p); } })(dir);
+const corpus = files.map((f) => [f, fs.readFileSync(f, 'utf8').toLowerCase()]);
+
+const inventory = loadInventory();
+const briefs = loadBriefs();
+const publicNames = new Set(inventory.projects.filter((p) => p.visibility === 'public').map((p) => p.repo.split('/')[1].toLowerCase()));
+const needles = [];
+for (const p of inventory.projects.filter((p) => p.visibility === 'private')) {
+  const name = p.repo.split('/')[1];
+  needles.push({ text: p.repo.toLowerCase(), why: 'repository slug' });
+  needles.push({ text: `github.com/${p.repo}`.toLowerCase(), why: 'repository URL' });
+  // Bare names are only distinctive when they are not ordinary words or public repo names.
+  const distinctive = name.length >= 4 && (/[A-Z].*[A-Z]|\d|-/.test(name) || name.length >= 9) && !publicNames.has(name.toLowerCase());
+  if (distinctive) needles.push({ text: name.toLowerCase(), why: 'repository name', word: true });
+  const b = briefs.get(p.repo);
+  if (!b) continue;
+  const strings = [b.summary, b.kind, ...(b.links || []).map((l) => l.url)];
+  for (const r of b.int.rooms) {
+    strings.push(r.name);
+    for (const pr of r.props) if (Array.isArray(pr)) { strings.push(pr[1]); const a = pr[2] || {}; strings.push(a.title, a.text, a.on, a.q, a.url, a.explain, ...(a.steps || []), ...(a.options || [])); }
+  }
+  for (const s of strings) if (typeof s === 'string' && s.trim().length >= 14) needles.push({ text: s.trim().toLowerCase(), why: `private brief text (${p.repo.split('/')[1]})` });
+}
+
+const leaks = [];
+for (const n of needles) {
+  for (const [f, body] of corpus) {
+    // Bare names are checked in content files only; engine source uses generic identifiers.
+    if (n.word && !/(houses\.json|\.html)$/.test(f)) continue;
+    const hit = n.word ? new RegExp(`(^|[^a-z0-9])${n.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([^a-z0-9]|$)`).test(body) : body.includes(n.text);
+    if (hit) leaks.push(`${path.relative(TOWN, f)}: ${n.why} → "${n.text.slice(0, 60)}"`);
+  }
+}
+console.log(`Scanned ${files.length} files in ${path.relative(TOWN, dir)} for ${needles.length} private markers.`);
+if (leaks.length) { console.error(`LEAKS (${leaks.length}):\n` + [...new Set(leaks)].join('\n')); process.exit(1); }
+console.log('No private repository data found in the public build.');

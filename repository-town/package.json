@@ -1,0 +1,17 @@
+{
+  "name": "repository-town",
+  "private": true,
+  "type": "module",
+  "description": "Walkable 3D town of Josh's repositories; each house designed from its repository.",
+  "scripts": {
+    "build": "node tools/build.mjs",
+    "check": "node tools/check.mjs",
+    "check:privacy": "node tools/check_privacy.mjs",
+    "test:e2e": "node tests/e2e.mjs",
+    "serve": "node tools/serve.mjs dist/public 8080"
+  },
+  "devDependencies": {
+    "playwright": "1.56.1",
+    "three": "0.160.1"
+  }
+}

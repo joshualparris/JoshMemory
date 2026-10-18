@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Repository Town 3D</title>
+<meta name="description" content="Walk a town of 188 houses, each designed from a real GitHub repository.">
+<link rel="stylesheet" href="styles.css">
+<script type="importmap">{"imports":{"three":"./vendor/three.module.min.js","three/addons/utils/BufferGeometryUtils.js":"./vendor/BufferGeometryUtils.js"}}</script>
+</head>
+<body>
+<div id="loading" role="status"><h1>Repository Town</h1><p id="loading-text">Loading the town…</p></div>
+<header id="hud">
+  <h1>🏘 Repository Town</h1>
+  <form id="search-form" role="search">
+    <input id="search" list="house-list" placeholder="Repo name or A1" aria-label="Find a house" autocomplete="off">
+    <datalist id="house-list"></datalist>
+    <button type="submit">Go</button>
+  </form>
+  <div class="row">
+    <button id="btn-map" aria-pressed="false">Bird's-eye</button>
+    <button id="btn-help">Help</button>
+    <button id="btn-reset">Reset</button>
+  </div>
+  <p id="status" aria-live="polite"></p>
+</header>
+<aside id="card" hidden aria-live="polite"></aside>
+<div id="prompt" hidden></div>
+<section id="panel" role="dialog" aria-modal="false" aria-labelledby="panel-title" hidden>
+  <button id="panel-close" aria-label="Close">✕</button>
+  <h2 id="panel-title"></h2>
+  <div id="panel-body"></div>
+  <div id="panel-actions"></div>
+</section>
+<section id="help" role="dialog" aria-labelledby="help-title" hidden>
+  <button id="help-close" aria-label="Close">✕</button>
+  <h2 id="help-title">How to play</h2>
+  <p><b>Desktop:</b> WASD or arrows move · drag the mouse to look (double-click locks the pointer) · Shift runs · C crouches · Space jumps · E uses an exhibit · M toggles the bird's-eye map · Esc closes panels.</p>
+  <p><b>Phone:</b> left thumb drags the joystick · right thumb drags to look · ⤒ jumps · ✋ uses · 🏃 and 🧎 toggle run and crouch.</p>
+  <p>Walk up to a front door and it opens; keep walking to go inside. Walk back out through the door you came in by. Your position saves automatically.</p>
+</section>
+<canvas id="minimap" width="260" height="110" aria-label="Town map"></canvas>
+<div id="touch" hidden>
+  <div id="stick"><div id="knob"></div></div>
+  <div id="actions">
+    <button id="t-use" aria-label="Use">✋</button>
+    <button id="t-jump" aria-label="Jump">⤒</button>
+    <button id="t-run" aria-label="Run" aria-pressed="false">🏃</button>
+    <button id="t-crouch" aria-label="Crouch" aria-pressed="false">🧎</button>
+  </div>
+</div>
+<div id="crosshair" aria-hidden="true"></div>
+<script type="module" src="main.js"></script>
+</body>
+</html>
