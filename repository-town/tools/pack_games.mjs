@@ -114,6 +114,10 @@ async function makePlayable(dir, entry = 'index.html', opts = {}) {
   const htmlDir = path.dirname(htmlPath);
   // Commented-out markup (old <script type="module"> blocks) must not be treated as live.
   let html = fs.readFileSync(htmlPath, 'utf8').replace(/<!--(?!\[if)[\s\S]*?-->/g, '');
+  // Do not quietly pack two HTML pages glued together by a failed merge.
+  if (/^<<<<<<< /m.test(html) || /^>>>>>>> /m.test(html)) {
+    throw new Error(`Game source contains unresolved Git merge markers: ${htmlPath}`);
+  }
   html = html.replace(/<script\b[^>]*\bsrc=["'][^"']*["'][^>]*>\s*<\/script>/gi, (tag) => (WIDGET.test(tag) ? '' : tag));
   // Scripts that use import/export but are loaded as classic scripts (opts.moduleScripts).
   for (const src of opts.moduleScripts || []) html = html.replace(new RegExp(`<script\\s+src=["']${src.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}["']`), `<script type="module" src="${src}"`);
