@@ -53,6 +53,31 @@ Plain furniture that suits play also becomes a toy, built from the house's own c
 its exhibits, map tables spin its rooms, radios play a per-house tune, arcade cabinets keep a best score
 (`addToys`, up to six per house).
 
+## Playable games
+
+`data/games.json` lists every repository game that runs in a browser (59 so far). `tools/pack_games.mjs`
+packs each into `games/<id>/` from local clones, and the house gets an Arcade with one cabinet per game:
+✋ then ▶ Play opens it full-screen over the paused town, and "✕ Back to town" returns.
+
+- **static**: the game folder is copied, then made to run from a folder and from `file://`. Module
+  scripts are bundled inline, network widgets are stripped, and `tools/game_runtime.js` is injected
+  first. The runtime serves the game's text files to `fetch`/XHR, stubs `PortalAdapter`, and guards
+  `history`. Games marked `inlineImages` get their images as data URIs so WebGL can use them.
+- **vite**: built from source in a scratch copy (`npm ci`, `vite build --base ./`), then packed as
+  static. `hashRouter` swaps React Router's BrowserRouter for HashRouter in that copy only.
+- **python**: terminal adventures run in Brython (`games/_python`, offline) behind
+  `tools/python_terminal.html`. `input()` cannot block in a browser, so every command replays the
+  game from the start with the same random seed, which also makes saving automatic. Data files are
+  packed in and `open`/`pathlib` read them.
+
+```
+GAME_SOURCES=/home/user,<clone dir> node tools/pack_games.mjs [--only id,id]
+node tests/games.mjs [--only id,id] [--shots dir]   # loads every game from file://
+```
+
+Games marked `online` load libraries from a CDN and need a connection. Repositories that are not
+playable yet are listed in the `note` field of `data/games.json`, each with the reason.
+
 ## Privacy
 
 `dist/public` is the only deployable build. Private repositories keep their architecture but lose their

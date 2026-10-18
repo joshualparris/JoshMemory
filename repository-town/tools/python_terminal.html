@@ -153,6 +153,12 @@ class TownPath:
         return hash(self.p)
     def resolve(self, *a, **k):
         return self
+    @classmethod
+    def home(cls):
+        return cls('home')
+    @classmethod
+    def cwd(cls):
+        return cls('.')
     absolute = expanduser = resolve
     @property
     def parent(self):

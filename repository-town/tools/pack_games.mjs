@@ -26,7 +26,7 @@ const manifest = JSON.parse(fs.readFileSync(path.join(TOWN, 'data', 'games.json'
 const WIDGET = /(parris-network|portal-adapter|podcast-launcher|podcast-player|podcast-controls|offline-podcast-launcher)[^"']*/i;
 const SKIP_DIRS = new Set(['node_modules', '.git', '.github', '.vscode', '.idea', '__pycache__', 'coverage', '.next', 'test-results']);
 const TEXT_EXT = new Set(['.json', '.txt', '.md', '.csv', '.yaml', '.yml', '.tsv', '.xml', '.svg', '.glsl', '.ink', '.js', '.mjs', '.html']);
-const MAX_FILE = 12 * 1024 * 1024, MAX_SHIM = 4 * 1024 * 1024;
+const MAX_FILE = 12 * 1024 * 1024, MAX_SHIM = 8 * 1024 * 1024;
 
 function findClone(repo) {
   const [owner, name] = repo.split('/');
@@ -62,30 +62,29 @@ function copyTree(from, to, filter = () => true) {
   return bytes;
 }
 
-// In-page fetch shim: relative requests for small text files are answered from memory,
-// because browsers refuse fetch() on file:// pages.
-function shimFor(dir) {
-  const files = {};
-  let total = 0;
+// The game runtime (tools/game_runtime.js) goes first in every packed page. It carries the
+// game's small text files, because browsers refuse fetch() on file:// pages, and for games
+// marked inlineImages, their images as data URIs (file:// images cannot become WebGL textures).
+const RUNTIME_SRC = fs.readFileSync(path.join(TOWN, 'tools', 'game_runtime.js'), 'utf8');
+const IMAGE_EXT = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.gif': 'image/gif' };
+function runtimeFor(dir, { inlineImages = false } = {}) {
+  const files = {}, images = {};
+  let total = 0, imageTotal = 0;
   (function walk(rel) {
     for (const e of fs.readdirSync(path.join(dir, rel), { withFileTypes: true })) {
       const r = path.posix.join(rel, e.name);
       if (e.isDirectory()) { if (!SKIP_DIRS.has(e.name)) walk(r); continue; }
-      if (!TEXT_EXT.has(path.extname(e.name).toLowerCase()) || /\.(js|mjs|html)$/i.test(e.name) && !/(content|data|story|levels?|scenes?)/i.test(r)) continue;
+      const ext = path.extname(e.name).toLowerCase();
       const size = fs.statSync(path.join(dir, r)).size;
+      if (inlineImages && IMAGE_EXT[ext] && size <= 2e6 && imageTotal + size <= 16e6) { images[r] = `data:${IMAGE_EXT[ext]};base64,${fs.readFileSync(path.join(dir, r)).toString('base64')}`; imageTotal += size; continue; }
+      if (!TEXT_EXT.has(ext) || /\.(js|mjs|html)$/i.test(e.name) && !/(content|data|story|levels?|scenes?|seed)/i.test(r)) continue;
       if (total + size > MAX_SHIM) continue;
       files[r] = fs.readFileSync(path.join(dir, r), 'utf8');
       total += size;
     }
   })('');
-  if (!Object.keys(files).length) return '';
-  const json = JSON.stringify(files).replace(/</g, '\\u003c');
-  return `<script>(function(){var F=${json};var real=window.fetch&&window.fetch.bind(window);
-function key(u){try{var url=new URL(u,location.href);var base=new URL('.',location.href);if(url.href.indexOf(base.href)!==0)return null;return decodeURIComponent(url.pathname.slice(new URL('.',location.href).pathname.length));}catch(e){return null;}}
-function type(k){return /\\.json$/i.test(k)?'application/json':/\\.svg$/i.test(k)?'image/svg+xml':'text/plain';}
-window.fetch=function(input,init){var u=typeof input==='string'?input:input&&input.url;var k=u&&key(u);
-if(k!=null&&Object.prototype.hasOwnProperty.call(F,k)&&(location.protocol==='file:'||!real))return Promise.resolve(new Response(F[k],{status:200,headers:{'content-type':type(k)}}));
-return real?real(input,init):Promise.reject(new TypeError('fetch unavailable'));};})();</script>`;
+  const json = (o) => JSON.stringify(o).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
+  return `<script>${RUNTIME_SRC.replace('var F = __FILES__;', () => `var F = ${json(files)};`).replace('var IMG = __IMAGES__;', () => `var IMG = ${json(images)};`)}</script>`;
 }
 
 // Finds a root-absolute URL inside a folder by dropping leading segments until a file matches.
@@ -110,11 +109,14 @@ async function bundle(entry, dir) {
 }
 
 // Makes a copied static game folder file://-safe in place.
-async function makePlayable(dir, entry = 'index.html') {
+async function makePlayable(dir, entry = 'index.html', opts = {}) {
   const htmlPath = path.join(dir, entry);
   const htmlDir = path.dirname(htmlPath);
-  let html = fs.readFileSync(htmlPath, 'utf8');
+  // Commented-out markup (old <script type="module"> blocks) must not be treated as live.
+  let html = fs.readFileSync(htmlPath, 'utf8').replace(/<!--(?!\[if)[\s\S]*?-->/g, '');
   html = html.replace(/<script\b[^>]*\bsrc=["'][^"']*["'][^>]*>\s*<\/script>/gi, (tag) => (WIDGET.test(tag) ? '' : tag));
+  // Scripts that use import/export but are loaded as classic scripts (opts.moduleScripts).
+  for (const src of opts.moduleScripts || []) html = html.replace(new RegExp(`<script\\s+src=["']${src.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}["']`), `<script type="module" src="${src}"`);
   html = html.replace(/<link\b[^>]*href=["'][^"']*(parris-network|portal-adapter)[^"']*["'][^>]*>/gi, '');
   // file:// pages have an opaque origin, so CORS-mode (crossorigin) loads of local files fail.
   html = html.replace(/(<(?:link|script)\b[^>]*?)\s+crossorigin(=["'][^"']*["'])?/gi, '$1');
@@ -146,7 +148,7 @@ async function makePlayable(dir, entry = 'index.html') {
     html = html.replace(m[0], () => `${css ? `<style>${css}</style>` : ''}<script type="module">${escScript(js)}</script>`);
   }
   for (const f of fs.readdirSync(htmlDir).filter((f) => f.startsWith('__inline_module_'))) fs.rmSync(path.join(htmlDir, f));
-  const shim = shimFor(htmlDir);
+  const shim = runtimeFor(htmlDir, opts);
   html = /<head[^>]*>/i.test(html) ? html.replace(/<head[^>]*>/i, (h) => h + shim) : shim + html;
   fs.writeFileSync(htmlPath, html);
 }
@@ -161,8 +163,25 @@ async function packVite(g, clone, out) {
   copyTree(clone, work);
   const pkgDir = path.join(work, g.pkg || '');
   const lock = fs.existsSync(path.join(pkgDir, 'package-lock.json'));
-  run('npm', [lock ? 'ci' : 'install', '--no-audit', '--no-fund', '--ignore-scripts', '--loglevel=error'], pkgDir);
-  const root = path.join(work, g.root || g.pkg || '');
+  const install = (cmd) => run('npm', [cmd, '--no-audit', '--no-fund', '--ignore-scripts', '--loglevel=error'], pkgDir);
+  // A lockfile that has drifted from package.json makes `npm ci` refuse; install resolves it.
+  try { install(lock ? 'ci' : 'install'); } catch (e) { if (!lock) throw e; install('install'); }
+  // Projects whose vite.config sets `root` (client/ apps) build from the package folder so
+  // their PostCSS/Tailwind config at the package root still applies.
+  const root = g.configRoot ? pkgDir : path.join(work, g.root || g.pkg || '');
+  // Path-based routers cannot match a page opened from a folder; hash routing can.
+  if (g.hashRouter) {
+    (function walk(d) {
+      for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+        const p = path.join(d, e.name);
+        if (e.isDirectory()) { if (!SKIP_DIRS.has(e.name)) walk(p); continue; }
+        if (!/\.(jsx|tsx|js|ts)$/.test(e.name)) continue;
+        const src = fs.readFileSync(p, 'utf8');
+        if (!src.includes('BrowserRouter')) continue;
+        fs.writeFileSync(p, src.replace(/\bBrowserRouter\b/g, 'HashRouter').replace(/(<HashRouter\b[^>]*?)\s+basename=(\{[^}]*\}|"[^"]*"|'[^']*')/g, '$1'));
+      }
+    })(path.join(root, 'src'));
+  }
   const dist = path.join(work, '__town_dist');
   // Relative base so the build works from any folder; the project's own config still applies.
   run(path.join(pkgDir, 'node_modules', '.bin', 'vite'), ['build', '--base', './', '--outDir', dist, '--emptyOutDir', ...(g.config ? ['--config', path.join(work, g.config)] : [])], root);
@@ -217,10 +236,11 @@ for (const g of manifest.games) {
     if (g.kind === 'static') {
       const src = path.join(clone, g.dir || '');
       copyTree(src, out, (r, isDir) => !(isDir && (g.exclude || []).includes(r)));
-      await makePlayable(out, g.entry || 'index.html');
+      for (const [from, to] of Object.entries(g.extra || {})) copyTree(path.join(clone, from), path.join(out, to));
+      await makePlayable(out, g.entry || 'index.html', g);
     } else if (g.kind === 'vite') {
       await packVite(g, clone, out);
-      await makePlayable(out, 'index.html');
+      await makePlayable(out, 'index.html', g);
     } else if (g.kind === 'python') packPython(g, clone, out);
     else throw new Error('unknown kind ' + g.kind);
     let size = 0; (function walk(d) { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) walk(p); else size += fs.statSync(p).size; } })(out);

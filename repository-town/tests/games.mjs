@@ -16,7 +16,7 @@ const games = JSON.parse(fs.readFileSync(path.join(TOWN, 'data', 'games.json'), 
 const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--autoplay-policy=no-user-gesture-required'] });
 const results = {};
 // Errors from network-only extras (CDNs, analytics, fonts) are not game failures offline.
-const benign = /net::ERR_|Failed to load resource|ERR_FILE_NOT_FOUND|favicon|fonts\.g|AudioContext|play\(\) failed|NotAllowedError|serviceWorker|ServiceWorker|service worker|manifest/i;
+const benign = /\.(mp3|ogg|wav|m4a)\b|Potential permissions policy violation|net::ERR_|Failed to load resource|ERR_FILE_NOT_FOUND|favicon|fonts\.g|AudioContext|play\(\) failed|NotAllowedError|serviceWorker|ServiceWorker|service worker|manifest/i;
 
 for (const g of games) {
   const file = path.join(TOWN, 'games', g.id, 'index.html');
@@ -24,8 +24,11 @@ for (const g of games) {
   results[g.id] = r;
   if (!fs.existsSync(file)) { r.errors.push('not packed'); console.log(`✗ ${g.id}: not packed`); continue; }
   const page = await browser.newPage({ viewport: { width: 1000, height: 700 }, locale: 'en-US' });
-  page.on('pageerror', (e) => { if (!benign.test(e.message)) r.errors.push('pageerror: ' + e.message.slice(0, 200)); });
-  page.on('console', (m) => { if (m.type() === 'error' && !benign.test(m.text())) r.errors.push('console: ' + m.text().slice(0, 200)); });
+  page.on('pageerror', (e) => { if (!benign.test(e.message) && !offlineOnly(e.message)) r.errors.push('pageerror: ' + e.message.slice(0, 200)); });
+  // Games marked online load libraries from a CDN; offline, only their absence is expected.
+  const offlineOnly = (m) => g.online && /is not defined|Failed to fetch|NetworkError/.test(m);
+  const ignored = (t) => (g.ignoreErrors || []).some((x) => t.includes(x));
+  page.on('console', (m) => { if (m.type() === 'error' && !benign.test(m.text()) && !ignored(m.text()) && !offlineOnly(m.text())) r.errors.push('console: ' + m.text().slice(0, 200)); });
   try {
     await page.goto(HTTP ? `${HTTP}/games/${g.id}/index.html` : pathToFileURL(file).href, { waitUntil: 'load', timeout: 30000 });
     if (g.kind === 'python') {

@@ -1,0 +1,13 @@
+{
+  "name": "sword-chronicles",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Browser-based D&D-style RPG",
+  "type": "module",
+  "scripts": {
+    "test": "node test_chronicles.mjs"
+  },
+  "devDependencies": {
+    "jsdom": "^29.1.1"
+  }
+}

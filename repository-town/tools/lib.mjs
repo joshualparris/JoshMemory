@@ -135,7 +135,7 @@ export function arcadeRoom(games) {
   const side = Math.min(16, Math.max(8, 6 + games.length * 0.75));
   return {
     name: games.length > 1 ? 'Arcade' : 'Game Room', archive: true, w: side, d: side, floor: 0x2a2440, walls: 0x3b3366,
-    props: games.map((g) => ['arcadeCabinet', `▶ ${g.title}`, { do: 'game', title: g.title, game: g.id, text: g.about || PLAY_TEXT[g.kind], c: 0x2b2b6e, a: 0x7fe0ff, at: 'wall' }]),
+    props: games.map((g) => ['arcadeCabinet', `▶ ${g.title}`, { do: 'game', title: g.title, game: g.id, text: (g.about || PLAY_TEXT[g.kind]) + (g.online && !g.about ? ' It loads parts from the internet, so it needs a connection.' : ''), c: 0x2b2b6e, a: 0x7fe0ff, at: 'wall' }]),
   };
 }
 

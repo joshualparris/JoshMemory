@@ -127,6 +127,87 @@ def module_name(path):
 
 OVERRIDES = {}
 
+class TownPath:
+    # Small pathlib stand-in: game files live in the page, not on a disk.
+    def __init__(self, *parts):
+        p = '/'.join(str(x) for x in parts if str(x) != '')
+        bits = []
+        for b in p.split('/'):
+            if b in ('', '.'):
+                continue
+            if b == '..' and bits:
+                bits.pop()
+            else:
+                bits.append(b)
+        self.p = '/'.join(bits) or '.'
+    def __truediv__(self, other):
+        return TownPath(self.p, other)
+    def __str__(self):
+        return self.p
+    __fspath__ = __str__
+    def __repr__(self):
+        return 'Path(%r)' % self.p
+    def __eq__(self, other):
+        return str(self) == str(other)
+    def __hash__(self):
+        return hash(self.p)
+    def resolve(self, *a, **k):
+        return self
+    @classmethod
+    def home(cls):
+        return cls('home')
+    @classmethod
+    def cwd(cls):
+        return cls('.')
+    absolute = expanduser = resolve
+    @property
+    def parent(self):
+        return TownPath(self.p.rpartition('/')[0] if '/' in self.p else '.')
+    @property
+    def parents(self):
+        out, cur = [], self
+        while str(cur) != '.':
+            cur = cur.parent
+            out.append(cur)
+        return out
+    @property
+    def name(self):
+        return self.p.rpartition('/')[2]
+    @property
+    def suffix(self):
+        n = self.name
+        return n[n.rfind('.'):] if '.' in n else ''
+    @property
+    def stem(self):
+        n = self.name
+        return n[:n.rfind('.')] if '.' in n else n
+    def exists(self):
+        return data_key(self.p) is not None or any(k.startswith(self.p + '/') for k in DATA)
+    is_file = exists
+    def is_dir(self):
+        return any(k.startswith(self.p + '/') for k in DATA)
+    def mkdir(self, *a, **k):
+        pass
+    def unlink(self, *a, **k):
+        DATA.pop(data_key(self.p) or '', None)
+    def open(self, mode='r', *a, **k):
+        return town_open(self.p, mode)
+    def read_text(self, *a, **k):
+        f = town_open(self.p)
+        return f.read()
+    def write_text(self, text, *a, **k):
+        DATA[data_key(self.p) or self.p] = text
+        return len(text)
+    def glob(self, pattern):
+        suffix = pattern.replace('*', '')
+        return [TownPath(k) for k in DATA if k.startswith(self.p + '/') and k.endswith(suffix)]
+    def iterdir(self):
+        return [TownPath(self.p, k[len(self.p) + 1:].split('/')[0]) for k in DATA if k.startswith(self.p + '/')]
+
+_pathlib = types.ModuleType('pathlib')
+_pathlib.Path = _pathlib.PurePath = _pathlib.PosixPath = _pathlib.WindowsPath = TownPath
+sys.modules['pathlib'] = _pathlib
+
 def load_modules():
     # Executes the game's own modules into sys.modules; a module whose import fails
     # because a sibling has not loaded yet is retried after the others.

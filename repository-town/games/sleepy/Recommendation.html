@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShelterStream • Your Meaning-Shelter Recommender</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+        body { font-family: 'Inter', system_ui, sans-serif; }
+        .pole-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .pole-card:hover { transform: translateY(-2px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
+    </style>
+</head>
+<body class="bg-neutral-950 text-neutral-100 min-h-screen">
+    <div class="max-w-6xl mx-auto p-8">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-10">
+            <div>
+                <h1 class="text-4xl font-semibold tracking-tight">ShelterStream</h1>
+                <p class="text-neutral-400 text-lg">Personalized YouTube curator for Joshua • Sydney, NSW</p>
+            </div>
+            <div class="flex items-center gap-3 text-sm">
+                <div class="px-4 py-2 bg-emerald-600 rounded-2xl flex items-center gap-2">
+                    <span class="relative flex h-3 w-3">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-400"></span>
+                    </span>
+                    Balanced Today
+                </div>
+                <button onclick="generateDailyFeed()" class="px-6 py-3 bg-white text-neutral-950 rounded-2xl font-medium hover:bg-neutral-100 transition-colors">
+                    Generate New Daily Feed
+                </button>
+            </div>
+        </div>
+
+        <!-- Profile Summary -->
+        <div class="bg-neutral-900 rounded-3xl p-8 mb-12">
+            <h2 class="text-xl font-medium mb-4">Your Media Profile (Derived from 2022 Watch History)</h2>
+            <div class="grid grid-cols-4 gap-6 text-sm">
+                <div>📍 AEST timezone • Sydney, Australia</div>
+                <div>👨‍👧 Parent / caregiver to young child</div>
+                <div>💻 Tech professional (web dev, AI awareness)</div>
+                <div>🧘 Bio-optimisation & existential balance seeker</div>
+            </div>
+            <p class="text-neutral-400 mt-6 text-sm">ShelterStream maintains equilibrium across your four poles to reduce anxiety while preserving intellectual depth and family comfort.</p>
+        </div>
+
+        <!-- Poles -->
+        <div class="grid grid-cols-4 gap-6 mb-12">
+            <!-- Pole 1 -->
+            <div class="pole-card bg-neutral-900 rounded-3xl p-6 cursor-pointer" onclick="filterByPole(0)">
+                <div class="text-amber-400 text-xs font-medium tracking-widest mb-1">POLE 1</div>
+                <h3 class="text-2xl font-semibold mb-2">Technological Acceleration</h3>
+                <p class="text-neutral-400 text-sm">AI, web development roadmaps, future-proofing skills</p>
+            </div>
+            <!-- Pole 2 -->
+            <div class="pole-card bg-neutral-900 rounded-3xl p-6 cursor-pointer" onclick="filterByPole(1)">
+                <div class="text-sky-400 text-xs font-medium tracking-widest mb-1">POLE 2</div>
+                <h3 class="text-2xl font-semibold mb-2">Existential & Cosmic</h3>
+                <p class="text-neutral-400 text-sm">Astrophysics, universe scale, Neil deGrasse Tyson</p>
+            </div>
+            <!-- Pole 3 -->
+            <div class="pole-card bg-neutral-900 rounded-3xl p-6 cursor-pointer" onclick="filterByPole(2)">
+                <div class="text-rose-400 text-xs font-medium tracking-widest mb-1">POLE 3</div>
+                <h3 class="text-2xl font-semibold mb-2">Somatic Control</h3>
+                <p class="text-neutral-400 text-sm">Longevity, sleep optimisation, Bryan Johnson Blueprint</p>
+            </div>
+            <!-- Pole 4 -->
+            <div class="pole-card bg-neutral-900 rounded-3xl p-6 cursor-pointer" onclick="filterByPole(3)">
+                <div class="text-violet-400 text-xs font-medium tracking-widest mb-1">POLE 4</div>
+                <h3 class="text-2xl font-semibold mb-2">Transcendent & Innocent</h3>
+                <p class="text-neutral-400 text-sm">Acoustic music, worship, toddler sensory, dark humour</p>
+            </div>
+        </div>
+
+        <!-- Daily Balanced Feed -->
+        <h2 class="text-2xl font-medium mb-6 flex items-center gap-3">
+            Today's Balanced Feed
+            <span id="feed-date" class="text-neutral-400 text-sm font-normal"></span>
+        </h2>
+        <div id="recommendations" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+
+        <!-- Footer -->
+        <div class="mt-16 text-center text-neutral-500 text-xs">
+            ShelterStream v1.0 • Client-side only • Curated exclusively from your documented consumption patterns.<br>
+            Refresh the page or click “Generate New Daily Feed” for updated selections.
+        </div>
+    </div>
+
+    <script>
+        const videos = [
+            // Pole 0: Tech / AI
+            { pole: 0, title: "Fullstack + AI Web Development Roadmap 2026", url: "https://www.youtube.com/watch?v=uB6orI_RpmY", duration: "18:42" },
+            { pole: 0, title: "Web Developer Roadmap 2026 – Action Plan to Profitability", url: "https://www.youtube.com/watch?v=rYCx9EHiprA", duration: "22:15" },
+            { pole: 0, title: "Fullstack + AI Web Development Roadmap 2026 (No BS Guide)", url: "https://www.youtube.com/watch?v=nwbgM2vMiGM", duration: "24:10" },
+            { pole: 0, title: "If I Had to Start Over in 2026 – 5-Level AI Roadmap", url: "https://www.youtube.com/watch?v=btLZQzynfoA", duration: "15:33" },
+            
+            // Pole 1: Existential / Cosmic
+            { pole: 1, title: "Scientists Search for Hidden Holes in Hyperspace", url: "https://www.youtube.com/watch?v=xP6vRZHTJ2g", duration: "45:12" },
+            { pole: 1, title: "Neil deGrasse Tyson Confronts Andy Weir on Project Hail Mary", url: "https://www.youtube.com/watch?v=IsoTRExywcM", duration: "1:12:45" },
+            { pole: 1, title: "Our Galaxy Is Acting Strange… And The Truth Is Terrifying", url: "https://www.youtube.com/watch?v=E6yqgvK6sks", duration: "28:19" },
+            { pole: 1, title: "Are We Close to the Final Theory? – Neil deGrasse Tyson", url: "https://www.youtube.com/watch?v=2q2us_pw7Pc", duration: "52:08" },
+            
+            // Pole 2: Longevity / Biohacking
+            { pole: 2, title: "Bryan Johnson’s Blueprint for Breaking Sh*tty Habits", url: "https://www.youtube.com/watch?v=nBaam7WwoFQ", duration: "1:08:55" },
+            { pole: 2, title: "Human Biology is About to Change Forever – Bryan Johnson", url: "https://www.youtube.com/watch?v=NgazxADZdhQ", duration: "2:07:42" },
+            { pole: 2, title: "Bryan Johnson – Official Blueprint Channel", url: "https://www.youtube.com/BryanJohnson", duration: "Ongoing" },
+            
+            // Pole 3: Transcendent / Innocent
+            { pole: 3, title: "Pat Barrett – Build My Life (Live) feat. Chris Tomlin", url: "https://www.youtube.com/watch?v=Z32HiCoFzlU", duration: "6:12" },
+            { pole: 3, title: "Jack Johnson – Better Together (Official Video)", url: "https://www.youtube.com/watch?v=seZMOTGCDag", duration: "3:32" },
+            { pole: 3, title: "Hey Bear Sensory – Official Channel (Toddler Sensory)", url: "https://www.youtube.com/channel/UCtf9cFBJkHVAf2qMqF01xYg", duration: "Live" },
+            { pole: 3, title: "The Wiggles – Rock-a-Bye Your Bear", url: "https://www.youtube.com/watch?v=Su25P4XXPSM", duration: "3:23" },
+            { pole: 3, title: "The Onion – Breaking News: Some Bullshit Happening Somewhere", url: "https://www.youtube.com/watch?v=9U4Ha9HQvMo", duration: "2:41" }
+        ];
+
+        function renderRecommendations(filteredVideos) {
+            const container = document.getElementById('recommendations');
+            container.innerHTML = '';
+            
+            if (filteredVideos.length === 0) {
+                container.innerHTML = `<p class="col-span-full text-neutral-400 text-center py-12">No videos in this category yet. Try generating a new daily feed.</p>`;
+                return;
+            }
+            
+            filteredVideos.forEach(video => {
+                const card = document.createElement('a');
+                card.href = video.url;
+                card.target = "_blank";
+                card.className = "block bg-neutral-900 rounded-3xl overflow-hidden hover:ring-2 hover:ring-white/30 transition-all";
+                card.innerHTML = `
+                    <div class="aspect-video bg-neutral-800 flex items-center justify-center text-neutral-400 text-xs font-medium">
+                        ${video.duration}
+                    </div>
+                    <div class="p-6">
+                        <p class="font-medium leading-tight line-clamp-2">${video.title}</p>
+                        <div class="mt-4 text-[10px] text-neutral-500">Watch on YouTube →</div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function generateDailyFeed() {
+            // Shuffle and take balanced selection (≈1–2 per pole)
+            const shuffled = [...videos].sort(() => 0.5 - Math.random());
+            const balanced = [];
+            const poles = {0: 2, 1: 2, 2: 2, 3: 3}; // slight emphasis on comfort pole
+            
+            shuffled.forEach(v => {
+                if (balanced.filter(b => b.pole === v.pole).length < (poles[v.pole] || 1)) {
+                    balanced.push(v);
+                }
+            });
+            
+            // Update date
+            const dateEl = document.getElementById('feed-date');
+            const now = new Date();
+            dateEl.textContent = `• ${now.toLocaleDateString('en-AU', {weekday:'short', month:'short', day:'numeric'})}`;
+            
+            renderRecommendations(balanced.slice(0, 8));
+        }
+
+        function filterByPole(poleIndex) {
+            const filtered = videos.filter(v => v.pole === poleIndex);
+            renderRecommendations(filtered);
+            // Scroll to feed
+            document.getElementById('recommendations').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Initial load
+        window.onload = () => {
+            generateDailyFeed();
+        };
+    </script>
+</body>
+</html>

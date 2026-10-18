@@ -1,11 +1,88 @@
 <!doctype html>
 <html lang="en">
-<head><script>(function(){var F={"README.md":"# TextGame\n\nA zero-dependency browser text-adventure engine with a complete playable demo: **Signal at Black Ridge**.\n\n## What works\n\n- deterministic command parser with aliases (`n`, `e`, `look`, `take`, `use`, `rest`, etc.)\n- immutable game-state transitions that are easy to test\n- autosave to browser `localStorage`\n- one-step undo for state-changing actions\n- keyboard-first terminal plus large phone-friendly quick commands\n- health, stamina, inventory, discovered locations and a real win condition\n- offline app shell through a service worker\n- Node regression tests and GitHub Actions CI\n- static-hosting ready with relative asset paths\n\n## Deployment\n\nThe app can be hosted on any static host. GitHub Pages is not enabled on this repository yet; the connected GitHub integration can update code and Actions but does not have repository-administration permission to create the Pages site. Enable **Settings → Pages → Source: GitHub Actions** once, then a Pages deployment workflow can be added safely.\n\n## Run locally\n\nAny static server works. For example:\n\n```bash\npython -m http.server 8080\n```\n\nThen open `http://localhost:8080`.\n\n## Test\n\n```bash\nnpm test\n```\n\nThe engine lives in `src/engine.mjs`; the DOM adapter lives in `src/app.mjs`. Keeping those separate lets game rules stay deterministic and testable.\n","audit/BEAUTIFUL_CODE_STANDARD_AUDIT.md":"# TextGame — Beautiful Code Standard Audit\n\n**Audit date:** 17 September 2026  \n**Repository tier:** Active / normal game  \n**Standard:** The Beautiful Code Standard\n\n## Overall finding\n\nTextGame is a good proportional design: the browser app and game engine are separate, the engine has tests, CI exists, and the implementation is small enough to understand locally. This is closer to the Beautiful Code ideal than many larger repos.\n\n## Priorities\n\n1. Keep engine tests as a hard gate and add regression tests for each gameplay bug.\n2. Add a tiny browser smoke test so CI proves `index.html` + app + engine actually work together, not just the engine module.\n3. Test PWA/service-worker update behaviour if offline use matters.\n4. Add dependency/security checks if dependencies grow; do not add a large toolchain merely for appearances.\n5. Preserve the current app/engine separation unless a real new concept requires another module.\n\n## Bottom line\n\n**TextGame is already pleasantly boring. Add one real browser check and resist unnecessary architecture.**\n","package.json":"{\"name\":\"textgame\",\"private\":true,\"type\":\"module\",\"scripts\":{\"check\":\"node --check src/engine.mjs && node --check src/app.mjs && node --check service-worker.js\",\"test\":\"npm run check && node --test tests/*.test.mjs\"}}\n"};var real=window.fetch&&window.fetch.bind(window);
-function key(u){try{var url=new URL(u,location.href);var base=new URL('.',location.href);if(url.href.indexOf(base.href)!==0)return null;return decodeURIComponent(url.pathname.slice(new URL('.',location.href).pathname.length));}catch(e){return null;}}
-function type(k){return /\.json$/i.test(k)?'application/json':/\.svg$/i.test(k)?'image/svg+xml':'text/plain';}
-window.fetch=function(input,init){var u=typeof input==='string'?input:input&&input.url;var k=u&&key(u);
-if(k!=null&&Object.prototype.hasOwnProperty.call(F,k)&&(location.protocol==='file:'||!real))return Promise.resolve(new Response(F[k],{status:200,headers:{'content-type':type(k)}}));
-return real?real(input,init):Promise.reject(new TypeError('fetch unavailable'));};})();</script>
+<head><script>// Injected first into every packed game (tools/pack_games.mjs). Lets games built for a
+// web server run from a folder, including from file:// in the offline zip.
+// The packer fills in the game's small text files (F) and optional images as data URIs (IMG).
+(function () {
+  var F = {"README.md":"# TextGame\n\nA zero-dependency browser text-adventure engine with a complete playable demo: **Signal at Black Ridge**.\n\n## What works\n\n- deterministic command parser with aliases (`n`, `e`, `look`, `take`, `use`, `rest`, etc.)\n- immutable game-state transitions that are easy to test\n- autosave to browser `localStorage`\n- one-step undo for state-changing actions\n- keyboard-first terminal plus large phone-friendly quick commands\n- health, stamina, inventory, discovered locations and a real win condition\n- offline app shell through a service worker\n- Node regression tests and GitHub Actions CI\n- static-hosting ready with relative asset paths\n\n## Deployment\n\nThe app can be hosted on any static host. GitHub Pages is not enabled on this repository yet; the connected GitHub integration can update code and Actions but does not have repository-administration permission to create the Pages site. Enable **Settings → Pages → Source: GitHub Actions** once, then a Pages deployment workflow can be added safely.\n\n## Run locally\n\nAny static server works. For example:\n\n```bash\npython -m http.server 8080\n```\n\nThen open `http://localhost:8080`.\n\n## Test\n\n```bash\nnpm test\n```\n\nThe engine lives in `src/engine.mjs`; the DOM adapter lives in `src/app.mjs`. Keeping those separate lets game rules stay deterministic and testable.\n","audit/BEAUTIFUL_CODE_STANDARD_AUDIT.md":"# TextGame — Beautiful Code Standard Audit\n\n**Audit date:** 17 September 2026  \n**Repository tier:** Active / normal game  \n**Standard:** The Beautiful Code Standard\n\n## Overall finding\n\nTextGame is a good proportional design: the browser app and game engine are separate, the engine has tests, CI exists, and the implementation is small enough to understand locally. This is closer to the Beautiful Code ideal than many larger repos.\n\n## Priorities\n\n1. Keep engine tests as a hard gate and add regression tests for each gameplay bug.\n2. Add a tiny browser smoke test so CI proves `index.html` + app + engine actually work together, not just the engine module.\n3. Test PWA/service-worker update behaviour if offline use matters.\n4. Add dependency/security checks if dependencies grow; do not add a large toolchain merely for appearances.\n5. Preserve the current app/engine separation unless a real new concept requires another module.\n\n## Bottom line\n\n**TextGame is already pleasantly boring. Add one real browser check and resist unnecessary architecture.**\n","package.json":"{\"name\":\"textgame\",\"private\":true,\"type\":\"module\",\"scripts\":{\"check\":\"node --check src/engine.mjs && node --check src/app.mjs && node --check service-worker.js\",\"test\":\"npm run check && node --test tests/*.test.mjs\"}}\n"};
+  var IMG = {};
+  var fileMode = location.protocol === 'file:';
+  var has = function (o, k) { return Object.prototype.hasOwnProperty.call(o, k); };
+
+  // Cross-app integration widgets are stripped; games that call them get a silent stand-in.
+  var noop = function () { return undefined; };
+  var adapter = { init: noop, trigger: noop, getRoutes: function () { return []; }, on: noop, emit: noop, track: noop };
+  if (!window.PortalAdapter) window.PortalAdapter = typeof Proxy === 'function' ? new Proxy(adapter, { get: function (t, k) { return k in t ? t[k] : noop; } }) : adapter;
+
+  // Maps a request URL to a packed file: first relative to the game folder, then, for
+  // root-absolute paths ("/seed/x.md", "/src/data/map.json"), by its longest matching tail.
+  function lookup(map, u) {
+    try {
+      var url = new URL(u, location.href);
+      if (!fileMode && url.origin !== location.origin) return null;
+      var base = new URL('.', location.href).pathname;
+      var p = decodeURIComponent(url.pathname);
+      if (p.indexOf(base) === 0 && has(map, p.slice(base.length))) return p.slice(base.length);
+      var parts = p.split('/').filter(Boolean);
+      for (var i = 0; i < parts.length; i++) { var k = parts.slice(i).join('/'); if (has(map, k)) return k; }
+    } catch (e) { /* not a URL */ }
+    return null;
+  }
+  var typeOf = function (k) { return /\.json$/i.test(k) ? 'application/json' : /\.svg$/i.test(k) ? 'image/svg+xml' : /\.html?$/i.test(k) ? 'text/html' : 'text/plain'; };
+
+  var realFetch = window.fetch && window.fetch.bind(window);
+  window.fetch = function (input, init) {
+    var u = typeof input === 'string' ? input : input && input.url;
+    var k = u && lookup(F, u);
+    // Online the real server answers relative requests; packed copies cover file:// and
+    // root-absolute paths that no longer exist on the host.
+    if (k !== null && k !== undefined && (fileMode || /^\//.test(u) || !realFetch)) return Promise.resolve(new Response(F[k], { status: 200, headers: { 'content-type': typeOf(k) } }));
+    return realFetch ? realFetch(input, init) : Promise.reject(new TypeError('fetch unavailable'));
+  };
+
+  // XMLHttpRequest for packed text files (older games, some loaders).
+  var RealXHR = window.XMLHttpRequest;
+  if (RealXHR) {
+    var open = RealXHR.prototype.open, send = RealXHR.prototype.send;
+    RealXHR.prototype.open = function (method, u) { this.__town = (fileMode || /^\//.test(u)) ? lookup(F, u) : null; return open.apply(this, arguments); };
+    RealXHR.prototype.send = function () {
+      var k = this.__town;
+      if (k === null || k === undefined) return send.apply(this, arguments);
+      var xhr = this, text = F[k];
+      var define = function (n, v) { try { Object.defineProperty(xhr, n, { configurable: true, value: v }); } catch (e) { /* read-only */ } };
+      define('readyState', 4); define('status', 200); define('statusText', 'OK'); define('responseURL', k);
+      define('responseText', text); define('response', xhr.responseType === 'json' ? JSON.parse(text) : text);
+      setTimeout(function () {
+        if (typeof xhr.onreadystatechange === 'function') xhr.onreadystatechange();
+        xhr.dispatchEvent(new Event('readystatechange'));
+        if (typeof xhr.onload === 'function') xhr.onload(new ProgressEvent('load'));
+        xhr.dispatchEvent(new ProgressEvent('load'));
+        if (typeof xhr.onloadend === 'function') xhr.onloadend(new ProgressEvent('loadend'));
+      }, 0);
+    };
+  }
+
+  // file:// images are cross-origin to the page, so WebGL cannot use them as textures.
+  // Games that need that ship their images as data URIs, swapped in on assignment.
+  if (fileMode && Object.keys(IMG).length) {
+    var desc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
+    Object.defineProperty(HTMLImageElement.prototype, 'src', {
+      configurable: true, enumerable: true, get: function () { return desc.get.call(this); },
+      set: function (v) { var k = typeof v === 'string' && !/^(data|blob):/.test(v) ? lookup(IMG, v) : null; desc.set.call(this, k ? IMG[k] : v); },
+    });
+    var co = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'crossOrigin');
+    Object.defineProperty(HTMLImageElement.prototype, 'crossOrigin', { configurable: true, get: function () { return co.get.call(this); }, set: function (v) { if (!fileMode) co.set.call(this, v); } });
+  }
+
+  // A page opened from a file cannot rewrite its URL; routers that try would crash.
+  if (fileMode) {
+    ['pushState', 'replaceState'].forEach(function (m) {
+      var real = history[m];
+      history[m] = function () { try { return real.apply(history, arguments); } catch (e) { return undefined; } };
+    });
+  }
+})();
+</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#111827">

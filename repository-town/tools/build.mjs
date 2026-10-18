@@ -26,7 +26,20 @@ for (const target of ['public', 'private']) {
   fs.writeFileSync(path.join(out, 'repo-data.json'), archiveText);
   // Packed games travel with the build; the public build carries public repositories' games only.
   const playable = new Set(list.flatMap((h) => h.int.rooms.flatMap((r) => r.props.filter((p) => p[2]?.do === 'game').map((p) => p[2].game))));
-  for (const id of playable) fs.cpSync(path.join(TOWN, 'games', id), path.join(out, 'games', id), { recursive: true });
+  for (const id of playable) {
+    const dest = path.join(out, 'games', id);
+    fs.cpSync(path.join(TOWN, 'games', id), dest, { recursive: true });
+    // Public games can list sibling repositories (network menus, deployment maps): redact private ones.
+    if (target === 'public') (function walk(d) {
+      for (const e of fs.readdirSync(d, { withFileTypes: true })) {
+        const f = path.join(d, e.name);
+        if (e.isDirectory()) { walk(f); continue; }
+        if (!/\.(html|js|mjs|json|md|txt|css)$/i.test(e.name)) continue;
+        const text = fs.readFileSync(f, 'utf8'), clean = redactPrivate(text, inventory);
+        if (clean !== text) fs.writeFileSync(f, clean);
+      }
+    })(dest);
+  }
   if (fs.existsSync(path.join(TOWN, 'games', '_python'))) fs.cpSync(path.join(TOWN, 'games', '_python'), path.join(out, 'games', '_python'), { recursive: true });
   fs.writeFileSync(path.join(out, 'houses.json'), JSON.stringify({ version: 2, generated: inventory.generated, streets: inventory.grid.streetNames, houses: list }));
 }
