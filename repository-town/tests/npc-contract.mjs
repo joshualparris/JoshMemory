@@ -4,7 +4,12 @@ import handler from '../api/npc-chat.js';
 import * as THREE from 'three';
 import {placeTownNPCs,placeHouseGuide,animateNPCs} from '../src/world/npcs.js';
 import fs from 'node:fs';
-assert.equal(NPCS.length,12);
+assert.equal(NPCS.length,32);
+const newNPCs=NPCS.filter(n=>n.shape);
+assert.equal(newNPCs.length,20);
+assert.equal(new Set(newNPCs.map(n=>n.shape)).size,20);
+assert(newNPCs.every(n=>n.challenge && n.challenge.choices.length===3 && Number.isInteger(n.challenge.answer) && n.challenge.answer>=0 && n.challenge.answer<3 && n.challenge.reward));
+assert(newNPCs.every(n=>n.prompts && n.prompts.length>=3));
 assert.equal(new Set(NPCS.map(n=>n.id)).size,12);
 assert(NPCS.every(n=>n.name && n.title && n.personality && n.coordinate));
 assert.equal(getNPC('curator'),HOUSE_GUIDE);
@@ -13,12 +18,19 @@ const fakeLots=new Map(NPCS.map((npc,i)=>[npc.coordinate,{
 }]));
 const npcGroup=new THREE.Group();
 const placed=placeTownNPCs(npcGroup,fakeLots,()=>new THREE.Object3D());
-assert.equal(placed.length,12);
-assert.equal(npcGroup.children.length,12);
+assert.equal(placed.length,32);
+assert.equal(npcGroup.children.length,32);
 const rowan=placed.find(n=>n.npc.id==='rowan');
 assert(Math.hypot(rowan.pos.x,rowan.pos.z-(fakeLots.get('M4').lot.z+16))<3.5,'Rowan must greet the spawn');
 animateNPCs(placed,1,new THREE.Vector3(rowan.pos.x,0,rowan.pos.z));
 assert(rowan.group.visible);
+for(const e of placed){
+  assert(e.group.userData.body,'NPC model missing for '+e.npc.id);
+  assert(e.group.userData.body.children.length>=3,'NPC silhouette incomplete: '+e.npc.id);
+  assert.equal(e.group.userData.npc.id,e.npc.id);
+  assert(Number.isFinite(e.pos.x)&&Number.isFinite(e.pos.z));
+}
+assert(new Set(placed.map(e=>e.npc.coordinate)).size===NPCS.length,'NPCs must occupy unique house coordinates');
 const interior={house:{name:'Test House',kind:'Workshop',coordinate:'C1'},
   spawn:new THREE.Vector3(0,0,-3),rooms:[{x0:-5,x1:5,z0:-10,z1:0}],
   colliders:[],group:new THREE.Group()};
@@ -40,4 +52,4 @@ assert.equal(denied.statusCode,401);assert.equal(upstream,0);
 const allowed=await respond(req('fake-code-for-test'));
 assert.equal(allowed.statusCode,200);assert.equal(allowed.data.reply,'NPC reply');assert.equal(upstream,1);
 globalThis.fetch=oldFetch;
-console.log('PASS: 12 NPCs, rendered integration, WebGL-free lounge, guarded mocked Groq API');
+console.log('PASS: 32 NPCs, 20 distinct creature models and quests, 3D placement, guarded mocked Groq API');
