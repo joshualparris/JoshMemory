@@ -22,9 +22,9 @@ export class Input {
         if (k === ' ') this.pressed.add('jump');
         if (k === 'e' || k === 'f' || k === 'enter') this.pressed.add('use');
         if (k === 'c') this.crouch = !this.crouch;
-        if (k === 'escape') this.pressed.add('back');
+        if (k === 'escape' && document.pointerLockElement !== this.canvas) this.pressed.add('back');
         if (k === 'm') this.pressed.add('map');
-        if (k === 'l') this.pressed.add('mouselook');
+        if (k === 'l' && !this.touch) { this.setMouseLook(!this.mouseLook); this.onMouseLookChange?.(); }
       }
       this.keys.add(k);
       if ([' ', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) e.preventDefault();
@@ -52,7 +52,11 @@ export class Input {
     canvas.addEventListener('dblclick', () => this.capture());
   }
 
-  capture() { if (document.pointerLockElement !== this.canvas) this.canvas.requestPointerLock?.()?.catch?.(() => {}); }
+  capture() {
+    if (this.touch || !this.canCapture?.() || document.pointerLockElement === this.canvas) return;
+    try { this.canvas.requestPointerLock?.()?.catch?.(() => {}); }
+    catch { /* Browser may deny pointer lock; drag-to-look remains available. */ }
+  }
 
   setMouseLook(on) {
     this.mouseLook = on;

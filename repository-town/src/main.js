@@ -11,6 +11,7 @@ import { runInteraction, esc } from './ui/interactions.js';
 import { setArchiveLoader } from './ui/archive.js';
 import { takeKeysFromHash, npcBehaviour, villagerName } from './ui/npc.js';
 import { makePerson, Walker, roomWander, townRoutes, freeSpot } from './world/npcs.js';
+import { createExpedition } from './adventure/expedition.js';
 
 const $ = (id) => document.getElementById(id);
 const status = (t) => { $('status').textContent = t; };
@@ -80,6 +81,8 @@ async function start() {
   const visited = new Set();
   const houseLabels = new Map();
   let nearHouse = null, nearThing = null, panelOpen = null, cardTimer = 0;
+  const expedition = createExpedition({town,makeLabel,openPanel,travel,
+    releaseMouse:()=>{if(document.pointerLockElement)document.exitPointerLock();}});
 
   // ── Movement between town and houses ─────────────────────────────────────
   function frontOf(coord) {
@@ -119,6 +122,7 @@ async function start() {
     mode = 'house';
     $('btn-exit').hidden = false;
     visited.add(coord);
+    expedition.noteVisit(coord);
     closePanel();
     status(`Inside ${h.coordinate} · ${h.name}. Walk back through the front door to leave.`);
     showCard(h, true);
@@ -140,6 +144,8 @@ async function start() {
 
   // ── Overview (bird's-eye) ────────────────────────────────────────────────
   function setOverview(on) {
+    if (on) expedition.dismiss();
+    if (on && document.pointerLockElement) document.exitPointerLock();
     overview = on && mode === 'town';
     $('btn-map').setAttribute('aria-pressed', String(overview));
     scene.fog = overview || mode === 'house' ? null : fog;
@@ -171,13 +177,14 @@ async function start() {
   $('btn-mouse').hidden = input.touch;
   $('btn-mouse').onclick = () => { input.setMouseLook(!input.mouseLook); syncMouseLook(); status(input.mouseLook ? 'Mouse look on — click the view to capture the mouse, Esc to release it.' : 'Mouse look off — drag to look around.'); };
   syncMouseLook();
+  input.onMouseLookChange = () => { syncMouseLook(); status(input.mouseLook ? 'Mouse look on — Esc releases the mouse.' : 'Mouse look off — drag to look around.'); };
   // In bird's-eye view a click picks a house to travel to, so it never captures the mouse.
   input.canCapture = () => !overview;
   document.addEventListener('pointerlockchange', () => {
     if (document.pointerLockElement) status('Mouse captured — move it to look around. Esc releases it.');
     else if (input.mouseLook && !panelOpen && !playing) status('Mouse released — click the view to capture it again.');
   });
-  $('btn-help').onclick = () => { $('help').hidden = !$('help').hidden; };
+  $('btn-help').onclick = () => { if (document.pointerLockElement) document.exitPointerLock(); $('help').hidden = !$('help').hidden; };
   $('help-close').onclick = () => { $('help').hidden = true; };
   $('btn-exit').onclick = () => { stopGame(); if (mode === 'house') { closePanel(); leave(); save(); status('Exited safely.'); } };
   $('btn-unstuck').onclick = () => { closePanel(); if (mode === 'house' && inside) { leave(); } else { spawn(); } save(); status('Moved to safety. Your progress is preserved.'); };
@@ -190,6 +197,7 @@ async function start() {
     $('card').hidden = false;
   }
   function openPanel(content, thing) {
+    if (document.pointerLockElement) document.exitPointerLock();
     panelOpen = { content, thing };
     // Panels have buttons and text boxes: give the mouse pointer back.
     if (document.pointerLockElement) document.exitPointerLock();
@@ -210,6 +218,7 @@ async function start() {
   // Games run full-screen in an iframe from games/<id>/; the town pauses underneath.
   let playing = null;
   function startGame(g) {
+    expedition.dismiss();
     closePanel();
     playing = g;
     if (document.pointerLockElement) document.exitPointerLock();
@@ -256,6 +265,7 @@ async function start() {
     return pick;
   }
   function use() {
+    if (mode === 'town' && expedition.use(player.pos))return;
     if (mode === 'house' && nearThing) {
       const thing = nearThing;
       const person = thing.person && inside.people?.find((p) => p.key === thing.key);
@@ -302,6 +312,7 @@ async function start() {
     }
     const sx = (W - 10) / town.bounds.width, sz = (H - 10) / town.bounds.depth;
     for (const [c, l] of town.lots) { mctx.fillStyle = visited.has(c) ? '#7fe0ff' : `hsl(${l.lot.row * 45},45%,62%)`; mctx.fillRect(5 + (l.lot.x + town.bounds.width / 2) * sx - 3, 5 + (l.lot.z + town.bounds.depth / 2) * sz - 2, 6, 4); }
+    expedition.drawMap(mctx,W,H,town.bounds);
     drawArrow(5 + (player.pos.x + town.bounds.width / 2) * sx, 5 + (player.pos.z + town.bounds.depth / 2) * sz);
   }
   function drawArrow(x, y) {
@@ -325,8 +336,9 @@ async function start() {
       return;
     }
     if (input.consume('map')) setOverview(!overview);
-    if (input.consume('mouselook')) { input.setMouseLook(!input.mouseLook); syncMouseLook(); status(input.mouseLook ? 'Mouse look on — Esc releases the mouse.' : 'Mouse look off — drag to look around.'); }
-    if (input.consume('back')) { if (panelOpen) closePanel(); else if (!$('help').hidden) $('help').hidden = true; else setOverview(false); }
+    // Key L toggles inside the trusted keydown event, where browsers permit pointer lock.
+    if (input.consume('back')) { if (expedition.isOpen()) expedition.dismiss(); else if (panelOpen) closePanel(); else if (!$('help').hidden) $('help').hidden = true; else setOverview(false); }
+    if(expedition.isOpen()){input.keys.clear();input.takeLook();input.pressed.delete('use');}
     if (overview) {
       camera.position.set(player.pos.x, 150, player.pos.z + 95); camera.lookAt(player.pos.x, 0, player.pos.z);
       input.takeLook(); input.consume('jump');
@@ -366,7 +378,9 @@ async function start() {
         if (d < 55 && !has) { const s = makeLabel(`${c} · ${l.house.name}`, 'house'); s.position.set(l.doorPos.x, 3.4, l.doorPos.z + 3); /* clear of colonnades and pagoda eaves */ town.group.add(s); houseLabels.set(c, s); }
         else if (d > 70 && has) { town.group.remove(has); disposeLabel(has); houseLabels.delete(c); }
       }
-      $('prompt').hidden = !(nearPerson || nearHouse) || !!panelOpen;
+      // Relics show their own hint (src/adventure/expedition.js), so the prompt steps aside for them.
+      const nearRelic = expedition.nearby(player.pos);
+      $('prompt').hidden = !(nearPerson || nearHouse) || !!panelOpen || !!nearRelic || expedition.isOpen();
       if (nearPerson) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — ${nearPerson.label}`;
       else if (nearHouse) $('prompt').textContent = `${nearHouse.house.coordinate} · ${nearHouse.house.name} — walk through the door to enter`;
       if (input.consume('use')) use();
@@ -391,6 +405,7 @@ async function start() {
       }
     }
     if (mode === 'town') input.consume('use');
+    expedition.update(t,player,mode);
     mapTimer += dt; if (mapTimer > 0.2) { drawMap(); mapTimer = 0; }
     saveTimer += dt; if (saveTimer > 3) { save(); saveTimer = 0; }
     renderer.render(scene, camera);
