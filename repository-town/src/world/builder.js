@@ -8,11 +8,12 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 const tmpColor = new THREE.Color();
 const shared = {
   box: new THREE.BoxGeometry(1, 1, 1),
-  cyl: new THREE.CylinderGeometry(0.5, 0.5, 1, 14),
-  cone: new THREE.ConeGeometry(0.5, 1, 14),
-  sphere: new THREE.SphereGeometry(0.5, 14, 10),
+  // Low segment counts: the town draws thousands of these, and phones pay per vertex.
+  cyl: new THREE.CylinderGeometry(0.5, 0.5, 1, 10),
+  cone: new THREE.ConeGeometry(0.5, 1, 10),
+  sphere: new THREE.SphereGeometry(0.5, 10, 7),
   pyramid: new THREE.ConeGeometry(0.71, 1, 4),
-  torus: new THREE.TorusGeometry(0.5, 0.12, 8, 20),
+  torus: new THREE.TorusGeometry(0.5, 0.12, 6, 14),
 };
 shared.pyramid.rotateY(Math.PI / 4);
 

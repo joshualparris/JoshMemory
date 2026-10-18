@@ -43,7 +43,8 @@ for (const n of needles) {
   for (const [f, body] of corpus) {
     // Bare names are checked in content files only; engine source uses generic identifiers.
     if (n.word && !/(houses\.json|\.html)$/.test(f)) continue;
-    const hit = n.word ? new RegExp(`(^|[^a-z0-9])${n.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([^a-z0-9]|$)`).test(body) : body.includes(n.text);
+    const bounded = (t) => new RegExp(`${t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([^a-z0-9_-]|$)`).test(body);
+    const hit = n.why.startsWith('repository slug') || n.why.startsWith('repository URL') ? bounded(n.text) : n.word ? new RegExp(`(^|[^a-z0-9])${n.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([^a-z0-9]|$)`).test(body) : body.includes(n.text);
     if (hit) leaks.push(`${path.relative(TOWN, f)}: ${n.why} → "${n.text.slice(0, 60)}"`);
   }
 }

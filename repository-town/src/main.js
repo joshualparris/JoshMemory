@@ -32,9 +32,9 @@ async function start() {
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(SKY);
-  const fog = new THREE.Fog(SKY, 70, 230);
+  const fog = new THREE.Fog(SKY, 60, 170);
   scene.fog = fog;
-  const camera = new THREE.PerspectiveCamera(72, innerWidth / innerHeight, 0.15, 900);
+  const camera = new THREE.PerspectiveCamera(72, innerWidth / innerHeight, 0.15, 185);
   const sky = new THREE.Group();
   sky.add(new THREE.HemisphereLight(0xffffff, 0x6e856e, 2.1));
   const sun = new THREE.DirectionalLight(0xffe7bf, 2.0); sun.position.set(-70, 110, 55); sky.add(sun);
@@ -107,6 +107,7 @@ async function start() {
     overview = on && mode === 'town';
     $('btn-map').setAttribute('aria-pressed', String(overview));
     scene.fog = overview || mode === 'house' ? null : fog;
+    camera.far = overview ? 600 : 185; camera.updateProjectionMatrix();
     if (overview) status('Tap or click a house to travel there.');
   }
   renderer.domElement.addEventListener('click', (e) => {
@@ -219,8 +220,9 @@ async function start() {
   let mapTimer = 0, frames = 0, fpsTimer = 0, fps = 0;
   const tmp = new THREE.Vector3();
   function frame() {
-    const dt = Math.min(clock.getDelta(), 0.05), t = clock.elapsedTime;
-    frames++; fpsTimer += dt; if (fpsTimer > 1) { fps = frames / fpsTimer; frames = 0; fpsTimer = 0; }
+    // Up to 0.15 s per frame keeps walking real-time on slow phones; collision subdivides the step.
+    const raw = clock.getDelta(), dt = Math.min(raw, 0.15), t = clock.elapsedTime;
+    frames++; fpsTimer += raw; if (fpsTimer > 1) { fps = frames / fpsTimer; frames = 0; fpsTimer = 0; }
     if (input.consume('map')) setOverview(!overview);
     if (input.consume('back')) { if (panelOpen) closePanel(); else if (!$('help').hidden) $('help').hidden = true; else setOverview(false); }
     if (overview) {
@@ -309,6 +311,7 @@ async function start() {
     // Stands just inside the entrance facing the exit door.
     toExit() { if (!inside) return false; player.place(inside.spawn.x, inside.spawn.z, Math.PI); return true; },
     place(x, z, yaw) { player.place(x, z, yaw); },
+    probe(x, z) { return world.hits(x, z, player.radius); },
     answer(i) { const b = $('panel-actions').querySelectorAll('button')[i]; if (b) b.click(); return !!b; },
     closePanel,
   };

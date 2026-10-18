@@ -39,18 +39,20 @@ export function buildTown(scene, houses, streets) {
   }
   group.add(deco.build());
 
-  const rows = Array.from({ length: 8 }, () => new Builder());
+  // One mesh per house: frustum culling then skips houses behind or beyond the fog.
   const lots = new Map();
   for (const h of houses) {
     const lot = lotPosition(h.coordinate);
-    let fp;
-    rows[lot.row].at(lot.x, 0, lot.z, 0, () => { fp = buildExterior(rows[lot.row], h.ext, h.ext); });
+    const hb = new Builder();
+    const fp = buildExterior(hb, h.ext, h.ext);
+    const mesh = hb.build();
+    mesh.position.set(lot.x, 0, lot.z);
+    group.add(mesh);
     colliders.push({ x0: lot.x - fp.w / 2, x1: lot.x + fp.w / 2, z0: lot.z - fp.d / 2, z1: lot.z + fp.front - 0.05 });
     for (const y of fp.yard) colliders.push({ x0: lot.x + y.x0, x1: lot.x + y.x1, z0: lot.z + y.z0, z1: lot.z + y.z1 });
     const doorPos = new THREE.Vector3(lot.x + fp.door.x, 0, lot.z + fp.front);
     lots.set(h.coordinate, { house: h, lot, fp, doorPos });
   }
-  for (const r of rows) group.add(r.build());
 
   // Front doors are individual hinged leaves so they can swing open on approach.
   const doors = [];
