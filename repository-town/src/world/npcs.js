@@ -46,8 +46,9 @@ export function placeTownNPCs(group, lots, makeLabel) {
     const lot=lots.get(npc.coordinate);
     if(!lot)continue;
     const figure=makeNPC(npc,makeLabel);
-    const x=npc.id==='rowan'?3.2:lot.doorPos.x+3.1;
-    const z=npc.id==='rowan'?lot.doorPos.z+6.8:lot.doorPos.z+6;
+    // Rowan greets new players immediately, directly ahead of the default spawn.
+    const x=npc.id==='rowan'?-2.4:lot.doorPos.x+3.1;
+    const z=npc.id==='rowan'?lot.lot.z+15.1:lot.doorPos.z+6;
     figure.position.set(x,0,z);
     group.add(figure);
     result.push({npc,group:figure,pos:new THREE.Vector3(x,0,z),mode:'town'});
