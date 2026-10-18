@@ -13,6 +13,12 @@ Double-click an HTML file to play in your browser. No internet, server or Claude
                                     names or README text. Only this one is safe to put on a
                                     public website.
 
+Games
+  Houses of repositories that are games have an Arcade (or Game Room). Walk up to a
+  cabinet, press ✋ / E, then ▶ Play. The real game opens full-screen; "✕ Back to town"
+  returns you to the house. Python text adventures run in a built-in terminal and save
+  your progress automatically. Keep the games folder next to the HTML file.
+
 Controls
   Computer: WASD/arrows move, drag mouse to look (double-click locks the pointer),
             Shift run, C crouch, Space jump, E use an exhibit, M bird's-eye map.

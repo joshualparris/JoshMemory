@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Python game</title>
+<style>
+  :root { color-scheme: dark; }
+  html, body { margin: 0; height: 100%; background: #0b0f0c; color: #b8f5c0; font: 15px/1.45 ui-monospace, "Cascadia Mono", Menlo, Consolas, monospace; }
+  body { display: flex; flex-direction: column; }
+  header { display: flex; gap: 8px; align-items: center; padding: 8px 12px; background: #111a14; border-bottom: 1px solid #234; }
+  header h1 { font-size: 15px; margin: 0; flex: 1; color: #e7ffe9; }
+  button { font: inherit; background: #1d3324; color: #dfffe3; border: 1px solid #3c6b49; border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+  #screen { flex: 1; overflow: auto; padding: 12px; white-space: pre-wrap; overflow-wrap: anywhere; }
+  #screen .you { color: #ffe08a; }
+  #screen .err { color: #ff9c9c; }
+  form { display: flex; gap: 8px; padding: 8px 12px calc(8px + env(safe-area-inset-bottom)); background: #111a14; border-top: 1px solid #234; }
+  input { flex: 1; font: inherit; background: #050805; color: #e7ffe9; border: 1px solid #3c6b49; border-radius: 8px; padding: 8px 10px; min-width: 0; }
+  #status { color: #8fb79a; font-size: 12px; }
+</style>
+</head>
+<body>
+<header><h1 id="title">Python game</h1><span id="status">Loading Python…</span><button id="restart" type="button">New game</button></header>
+<div id="screen" role="log" aria-live="polite"></div>
+<form id="form"><input id="cmd" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type a command and press Enter" aria-label="Command"><button>Enter</button></form>
+<script>
+  // The game, its sources and the save are filled in by tools/pack_games.mjs.
+  window.GAME = {"title":"AdventureText","main":"__town_main__.py","module":null,"path":["src"],"sources":{"src/adventure_text/__init__.py":"\"\"\"AdventureText proof scaffold.\"\"\"\n\n","src/adventure_text/actions.py":"\"\"\"Deterministic player actions for the storm beacon quest.\"\"\"\n\nfrom dataclasses import dataclass\n\nfrom adventure_text.content import (\n    ENDING,\n    MIRA_FIRST_DIALOGUE,\n    MIRA_REPEAT_DIALOGUE,\n    item_name,\n    item_text,\n    location_text,\n)\nfrom adventure_text.state import GameState\nfrom adventure_text.world import get_exit, get_location\n\n\n@dataclass(frozen=True)\nclass ActionResult:\n    text: str\n    state_changed: bool = False\n\n\nITEM_ALIASES = {\n    \"lantern\": \"lantern\",\n    \"sealed lantern\": \"lantern\",\n    \"lit lantern\": \"lantern\",\n    \"map\": \"weathered-map\",\n    \"weathered map\": \"weathered-map\",\n    \"key\": \"spark-key\",\n    \"spark key\": \"spark-key\",\n}\n\n\ndef _item_id(argument: str) -> str | None:\n    value = argument.removeprefix(\"the \").strip()\n    if \" on \" in value:\n        value = value.split(\" on \", maxsplit=1)[0]\n    return ITEM_ALIASES.get(value)\n\n\ndef _accessible(state: GameState, item_id: str) -> bool:\n    return item_id in state.inventory or state.item_locations.get(item_id) == state.location_id\n\n\ndef look(state: GameState) -> ActionResult:\n    location = get_location(state.location_id)\n    if location is None:\n        return ActionResult(\"You are nowhere.\")\n    visible = sorted(\n        (\n            item_name(item, \"lantern-lit\" in state.flags)\n            for item, location_id in state.item_locations.items()\n            if location_id == state.location_id\n        )\n    )\n    text = location_text(location.location_id)\n    if visible:\n        text += f\" You see {', '.join(visible)} here.\"\n    return ActionResult(text)\n\n\ndef inventory(state: GameState) -> ActionResult:\n    if not state.inventory:\n        return ActionResult(\"You are carrying nothing.\")\n    names = sorted(item_name(item, \"lantern-lit\" in state.flags) for item in state.inventory)\n    return ActionResult(f\"You are carrying: {', '.join(names)}.\")\n\n\ndef move(state: GameState, direction: str) -> ActionResult:\n    route = get_exit(state.location_id, direction)\n    if route is None:\n        return ActionResult(\"You cannot go that way.\")\n    if route.requires_flag and route.requires_flag not in state.flags:\n        return ActionResult(\"The north door stays sealed. The lantern must be lit.\")\n    state.location_id = route.destination_id\n    return ActionResult(look(state).text, state_changed=True)\n\n\ndef take(state: GameState, argument: str) -> ActionResult:\n    item = _item_id(argument)\n    if item is None:\n        return ActionResult(\"Take what?\")\n    if item in state.inventory:\n        return ActionResult(f\"You already have the {item_name(item, 'lantern-lit' in state.flags)}.\")\n    if state.item_locations.get(item) != state.location_id:\n        return ActionResult(\"You cannot see that here.\")\n    state.item_locations.pop(item)\n    state.inventory.append(item)\n    return ActionResult(f\"You take the {item_name(item, 'lantern-lit' in state.flags)}.\", True)\n\n\ndef drop(state: GameState, argument: str) -> ActionResult:\n    item = _item_id(argument)\n    if item is None or item not in state.inventory:\n        return ActionResult(\"You are not carrying that.\")\n    state.inventory.remove(item)\n    state.item_locations[item] = state.location_id\n    return ActionResult(f\"You drop the {item_name(item, 'lantern-lit' in state.flags)}.\", True)\n\n\ndef examine(state: GameState, argument: str) -> ActionResult:\n    if argument in {\"\", \"around\", \"surroundings\"}:\n        return look(state)\n    item = _item_id(argument)\n    if item is None or not _accessible(state, item):\n        return ActionResult(\"You cannot examine that here.\")\n    return ActionResult(item_text(item, \"lantern-lit\" in state.flags))\n\n\ndef talk(state: GameState, argument: str) -> ActionResult:\n    if argument.removeprefix(\"to \").strip() != \"mira\" or state.location_id != \"chart-room\":\n        return ActionResult(\"There is no one here by that name.\")\n    if \"mira-spoke\" in state.flags:\n        return ActionResult(MIRA_REPEAT_DIALOGUE)\n    state.flags.add(\"mira-spoke\")\n    if \"spark-key\" not in state.inventory:\n        state.item_locations.pop(\"spark-key\", None)\n        state.inventory.append(\"spark-key\")\n    return ActionResult(MIRA_FIRST_DIALOGUE, True)\n\n\ndef use(state: GameState, argument: str) -> ActionResult:\n    item = _item_id(argument)\n    if item == \"spark-key\":\n        if \"spark-key\" not in state.inventory:\n            return ActionResult(\"You do not have the spark key.\")\n        if \"lantern\" not in state.inventory:\n            return ActionResult(\"You need to be carrying the lantern.\")\n        if \"lantern-lit\" in state.flags:\n            return ActionResult(\"The lantern is already lit.\")\n        state.flags.add(\"lantern-lit\")\n        return ActionResult(\"The spark key turns. Blue fire wakes inside the lantern.\", True)\n    if item == \"lantern\":\n        if \"lantern\" not in state.inventory:\n            return ActionResult(\"You are not carrying the lantern.\")\n        if \"lantern-lit\" not in state.flags:\n            return ActionResult(\"The sealed lantern needs a spark key.\")\n        if state.location_id != \"beacon-landing\":\n            return ActionResult(\"The lit lantern points north, toward the storm beacon.\")\n        state.flags.add(\"route-restored\")\n        state.ended = True\n        return ActionResult(ENDING, True)\n    return ActionResult(\"Use what?\")\n","src/adventure_text/commands.py":"\"\"\"Deterministic parsing for AdventureText command words.\"\"\"\n\nfrom dataclasses import dataclass\n\n\nALIASES = {\n    \"i\": \"inventory\",\n    \"l\": \"look\",\n    \"x\": \"examine\",\n    \"inspect\": \"examine\",\n    \"n\": \"north\",\n    \"s\": \"south\",\n    \"e\": \"east\",\n    \"w\": \"west\",\n}\n\n\n@dataclass(frozen=True)\nclass ParsedCommand:\n    \"\"\"A normalized command word and the text that followed it.\"\"\"\n\n    name: str\n    argument: str = \"\"\n\n\ndef parse_command(text: str) -> ParsedCommand:\n    \"\"\"Normalize a command while preserving its optional argument text.\"\"\"\n\n    parts = text.strip().lower().split(maxsplit=1)\n    if not parts:\n        return ParsedCommand(\"\")\n\n    name = ALIASES.get(parts[0], parts[0])\n    argument = parts[1] if len(parts) == 2 else \"\"\n    return ParsedCommand(name=name, argument=argument)\n","src/adventure_text/content.py":"\"\"\"Deterministic prose for the AdventureText route quest.\"\"\"\n\nOPENING = (\n    \"Rain whispers against the brass roof of the Wayfinder Station. \"\n    \"A sealed lantern waits beside the north door. Restore its light, \"\n    \"then carry it to the storm beacon.\"\n)\n\nLOCATION_TEXT = {\n    \"wayfinder-station\": (\n        \"The station's east arch leads to the chart room. Its north door \"\n        \"hums softly in the storm.\"\n    ),\n    \"chart-room\": (\n        \"Silver route lines tremble across the Chart Room walls. Mira, the \"\n        \"routekeeper, watches them beside the west arch.\"\n    ),\n    \"lantern-walk\": (\n        \"Blue lamps wake along the Lantern Walk. The station lies south and \"\n        \"the storm beacon rises to the north.\"\n    ),\n    \"beacon-landing\": (\n        \"Wind circles the Beacon Landing. Its dark lens waits for the \"\n        \"station lantern's restored flame.\"\n    ),\n}\n\n# Compatibility name retained until the live action layer uses location_text.\nSTATION_LOOK = LOCATION_TEXT[\"wayfinder-station\"]\n\nITEM_NAMES = {\n    \"lantern\": \"sealed lantern\",\n    \"weathered-map\": \"weathered map\",\n    \"spark-key\": \"spark key\",\n}\n\nITEM_TEXT = {\n    \"lantern\": (\n        \"The brass lantern is sealed around a cold blue wick. A key-shaped \"\n        \"socket sits beneath its handle.\"\n    ),\n    \"weathered-map\": (\n        \"The map marks a route from the station through the Lantern Walk to \"\n        \"the storm beacon.\"\n    ),\n    \"spark-key\": (\n        \"Mira's copper spark key carries a single charge for the station \"\n        \"lantern.\"\n    ),\n}\n\nMIRA_FIRST_DIALOGUE = (\n    'Mira says, \"The north route needs the station lantern. Take it, then '\n    'use this spark key to wake its flame.\" She gives you the spark key.'\n)\nMIRA_REPEAT_DIALOGUE = (\n    'Mira says, \"Light the lantern, follow the north route, and wake the beacon.\"'\n)\n\nENDING = (\n    \"You raise the lit lantern to the beacon lens. Blue fire races along the \"\n    \"impossible route, joining the isolated lights beyond the storm. The \"\n    \"Wayfinder Station is a wayfinder once more. The End.\"\n)\n\n\ndef location_text(location_id: str) -> str:\n    return LOCATION_TEXT[location_id]\n\n\ndef item_name(item_id: str, lantern_lit: bool = False) -> str:\n    if item_id == \"lantern\" and lantern_lit:\n        return \"lit lantern\"\n    return ITEM_NAMES[item_id]\n\n\ndef item_text(item_id: str, lantern_lit: bool = False) -> str:\n    if item_id == \"lantern\" and lantern_lit:\n        return \"Blue fire turns inside the lantern, steady enough to guide a route.\"\n    return ITEM_TEXT[item_id]\n","src/adventure_text/game.py":"\"\"\"Terminal composition layer for AdventureText.\"\"\"\n\nimport os\nfrom pathlib import Path\n\nfrom adventure_text.actions import (\n    ActionResult,\n    drop,\n    examine,\n    inventory,\n    look,\n    move,\n    take,\n    talk,\n    use,\n)\nfrom adventure_text.commands import parse_command\nfrom adventure_text.content import OPENING\nfrom adventure_text.state import GameState\nfrom adventure_text.storage import StorageError, load_game, restore_state, save_game\n\n\nHELP = (\n    \"Commands: look, help, inventory (i), north/south/east/west (n/s/e/w), \"\n    \"go, take, drop, examine (x), talk, use, save, load, quit.\"\n)\nUNKNOWN = \"Try 'look'.\"\nDIRECTIONS = {\"north\", \"south\", \"east\", \"west\"}\n\n\ndef perform(\n    command: str,\n    state: GameState,\n    save_path: Path | None = None,\n) -> ActionResult:\n    parsed = parse_command(command)\n    if parsed.name == \"look\":\n        return look(state)\n    if parsed.name == \"inventory\":\n        return inventory(state)\n    if parsed.name == \"help\":\n        return ActionResult(HELP)\n    if parsed.name in DIRECTIONS:\n        return move(state, parsed.name)\n    if parsed.name == \"go\":\n        return move(state, parsed.argument)\n    if parsed.name == \"take\":\n        return take(state, parsed.argument)\n    if parsed.name == \"drop\":\n        return drop(state, parsed.argument)\n    if parsed.name == \"examine\":\n        return examine(state, parsed.argument)\n    if parsed.name == \"talk\":\n        return talk(state, parsed.argument)\n    if parsed.name == \"use\":\n        return use(state, parsed.argument)\n    if parsed.name == \"save\":\n        if save_path is None:\n            return ActionResult(\"Saving is unavailable in this session.\")\n        try:\n            save_game(save_path, state)\n        except StorageError as error:\n            return ActionResult(str(error))\n        return ActionResult(\"Game saved.\")\n    if parsed.name == \"load\":\n        if save_path is None:\n            return ActionResult(\"Loading is unavailable in this session.\")\n        try:\n            restore_state(state, load_game(save_path))\n        except StorageError as error:\n            return ActionResult(str(error))\n        return ActionResult(\"Game loaded.\", state_changed=True)\n    return ActionResult(UNKNOWN)\n\n\ndef respond(command: str, state: GameState | None = None) -> str:\n    return perform(command, state or GameState()).text\n\n\ndef main() -> None:\n    state = GameState()\n    save_path = Path(\n        os.environ.get(\n            \"ADVENTURETEXT_SAVE_PATH\",\n            Path.home() / \".adventuretext-save.json\",\n        )\n    )\n    print(OPENING)\n    while True:\n        try:\n            command = input(\"> \")\n        except EOFError:\n            break\n        if command.lower() in {\"quit\", \"exit\"}:\n            break\n        result = perform(command, state, save_path)\n        print(result.text)\n        if state.ended:\n            break\n\n\nif __name__ == \"__main__\":\n    main()\n","src/adventure_text/persistence.py":"\"\"\"Strict, versioned save-data codec for AdventureText state.\"\"\"\n\nimport json\nfrom typing import Any\n\nfrom adventure_text.state import GameState, STARTING_ITEM_LOCATIONS\n\n\nSCHEMA_VERSION = 2\nV1_KEYS = {\"schema_version\", \"location_id\", \"inventory\"}\nV2_KEYS = V1_KEYS | {\"item_locations\", \"flags\", \"ended\"}\n\n\nclass SaveDataError(ValueError):\n    \"\"\"Raised when save data is malformed or unsupported.\"\"\"\n\n\ndef encode_state(state: GameState) -> dict[str, object]:\n    \"\"\"Encode state as detached JSON-compatible versioned data.\"\"\"\n\n    return {\"schema_version\": SCHEMA_VERSION, **state.to_data()}\n\n\ndef _identifier(value: Any, field_name: str) -> str:\n    if not isinstance(value, str) or not value:\n        raise SaveDataError(f\"Save {field_name} must be a non-empty identifier.\")\n    return value\n\n\ndef _identifiers(value: Any, field_name: str) -> list[str]:\n    if not isinstance(value, list):\n        raise SaveDataError(f\"Save {field_name} must contain item identifiers.\")\n    identifiers = [_identifier(item, field_name) for item in value]\n    if len(set(identifiers)) != len(identifiers):\n        raise SaveDataError(f\"Save {field_name} contains duplicate identifiers.\")\n    return identifiers\n\n\ndef _decode_v1(data: dict[str, Any]) -> GameState:\n    inventory = _identifiers(data[\"inventory\"], \"inventory\")\n    item_locations = {\n        item: location\n        for item, location in STARTING_ITEM_LOCATIONS.items()\n        if item not in inventory\n    }\n    return GameState(\n        location_id=_identifier(data[\"location_id\"], \"location\"),\n        inventory=inventory,\n        item_locations=item_locations,\n    )\n\n\ndef _decode_v2(data: dict[str, Any]) -> GameState:\n    inventory = _identifiers(data[\"inventory\"], \"inventory\")\n    item_locations_data = data[\"item_locations\"]\n    if not isinstance(item_locations_data, dict):\n        raise SaveDataError(\"Save item locations must be an object.\")\n    item_locations = {\n        _identifier(item, \"item\"): _identifier(location, \"item location\")\n        for item, location in item_locations_data.items()\n    }\n    if set(inventory) & set(item_locations):\n        raise SaveDataError(\"Save items cannot be carried and placed in the world.\")\n    flags = set(_identifiers(data[\"flags\"], \"flags\"))\n    if type(data[\"ended\"]) is not bool:\n        raise SaveDataError(\"Save ending status must be true or false.\")\n    return GameState(\n        location_id=_identifier(data[\"location_id\"], \"location\"),\n        inventory=inventory,\n        item_locations=item_locations,\n        flags=flags,\n        ended=data[\"ended\"],\n    )\n\n\ndef decode_state(data: Any) -> GameState:\n    \"\"\"Validate supported versioned data and return a new game state.\"\"\"\n\n    if not isinstance(data, dict) or type(data.get(\"schema_version\")) is not int:\n        raise SaveDataError(\"Save data has an invalid structure.\")\n    if data[\"schema_version\"] == 1 and set(data) == V1_KEYS:\n        return _decode_v1(data)\n    if data[\"schema_version\"] == SCHEMA_VERSION and set(data) == V2_KEYS:\n        return _decode_v2(data)\n    if data[\"schema_version\"] not in {1, SCHEMA_VERSION}:\n        raise SaveDataError(\"Save data uses an unsupported schema version.\")\n    raise SaveDataError(\"Save data has an invalid structure.\")\n\n\ndef dumps(state: GameState) -> str:\n    \"\"\"Serialize state deterministically for a storage adapter.\"\"\"\n\n    return json.dumps(encode_state(state), sort_keys=True, separators=(\",\", \":\"))\n\n\ndef loads(payload: str) -> GameState:\n    \"\"\"Parse and validate serialized state without performing file I/O.\"\"\"\n\n    try:\n        data = json.loads(payload)\n    except (json.JSONDecodeError, TypeError) as error:\n        raise SaveDataError(\"Save data is not valid JSON.\") from error\n    return decode_state(data)\n","src/adventure_text/state.py":"\"\"\"Deterministic game state shared by AdventureText actions.\"\"\"\n\nfrom dataclasses import dataclass, field\n\n\nSTARTING_LOCATION_ID = \"wayfinder-station\"\nSTARTING_ITEM_LOCATIONS = {\n    \"lantern\": STARTING_LOCATION_ID,\n    \"weathered-map\": STARTING_LOCATION_ID,\n}\n\n\n@dataclass\nclass GameState:\n    \"\"\"Mutable state needed to play, save, and finish the game.\"\"\"\n\n    location_id: str = STARTING_LOCATION_ID\n    inventory: list[str] = field(default_factory=list)\n    item_locations: dict[str, str] = field(\n        default_factory=lambda: dict(STARTING_ITEM_LOCATIONS)\n    )\n    flags: set[str] = field(default_factory=set)\n    ended: bool = False\n\n    def to_data(self) -> dict[str, object]:\n        \"\"\"Return detached plain data suitable for the versioned save codec.\"\"\"\n\n        return {\n            \"location_id\": self.location_id,\n            \"inventory\": list(self.inventory),\n            \"item_locations\": dict(self.item_locations),\n            \"flags\": sorted(self.flags),\n            \"ended\": self.ended,\n        }\n","src/adventure_text/storage.py":"\"\"\"Local filesystem adapter for AdventureText save data.\"\"\"\n\nimport os\nimport tempfile\nfrom pathlib import Path\n\nfrom adventure_text.persistence import SaveDataError, dumps, loads\nfrom adventure_text.state import GameState\n\n\nMAX_SAVE_BYTES = 1_000_000\n\n\nclass StorageError(RuntimeError):\n    \"\"\"Raised when a local save cannot be read or written safely.\"\"\"\n\n\ndef save_game(path: Path, state: GameState) -> None:\n    \"\"\"Atomically replace a save file in an existing directory.\"\"\"\n\n    path = Path(path)\n    if not path.parent.is_dir():\n        raise StorageError(\"The save directory does not exist.\")\n    descriptor, temporary_name = tempfile.mkstemp(\n        dir=path.parent,\n        prefix=f\".{path.name}.\",\n        suffix=\".tmp\",\n        text=True,\n    )\n    temporary = Path(temporary_name)\n    try:\n        with os.fdopen(descriptor, \"w\", encoding=\"utf-8\", newline=\"\\n\") as handle:\n            handle.write(dumps(state))\n            handle.write(\"\\n\")\n            handle.flush()\n            os.fsync(handle.fileno())\n        os.replace(temporary, path)\n    except OSError as error:\n        temporary.unlink(missing_ok=True)\n        raise StorageError(\"The save file could not be written.\") from error\n\n\ndef load_game(path: Path) -> GameState:\n    \"\"\"Read a bounded UTF-8 save and validate it through the codec.\"\"\"\n\n    path = Path(path)\n    try:\n        if path.stat().st_size > MAX_SAVE_BYTES:\n            raise StorageError(\"The save file is too large.\")\n        payload = path.read_text(encoding=\"utf-8\")\n    except FileNotFoundError as error:\n        raise StorageError(\"No saved game was found.\") from error\n    except UnicodeError as error:\n        raise StorageError(\"The save file is invalid.\") from error\n    except OSError as error:\n        raise StorageError(\"The save file could not be read.\") from error\n    try:\n        return loads(payload)\n    except SaveDataError as error:\n        raise StorageError(\"The save file is invalid.\") from error\n\n\ndef restore_state(target: GameState, restored: GameState) -> None:\n    \"\"\"Replace an active state without changing its object identity.\"\"\"\n\n    target.location_id = restored.location_id\n    target.inventory = list(restored.inventory)\n    target.item_locations = dict(restored.item_locations)\n    target.flags = set(restored.flags)\n    target.ended = restored.ended\n","src/adventure_text/world.py":"\"\"\"Stable world structures for the AdventureText route quest.\"\"\"\n\nfrom dataclasses import dataclass\n\nfrom adventure_text.state import STARTING_LOCATION_ID\n\n\n@dataclass(frozen=True)\nclass Exit:\n    direction: str\n    destination_id: str\n    requires_flag: str | None = None\n\n\n@dataclass(frozen=True)\nclass Location:\n    location_id: str\n    name: str\n    exits: tuple[Exit, ...] = ()\n    npc_ids: tuple[str, ...] = ()\n\n\nWAYFINDER_STATION = Location(\n    location_id=STARTING_LOCATION_ID,\n    name=\"Wayfinder Station\",\n    exits=(\n        Exit(\"north\", \"lantern-walk\", requires_flag=\"lantern-lit\"),\n        Exit(\"east\", \"chart-room\"),\n    ),\n)\nCHART_ROOM = Location(\n    location_id=\"chart-room\",\n    name=\"Chart Room\",\n    exits=(Exit(\"west\", STARTING_LOCATION_ID),),\n    npc_ids=(\"mira\",),\n)\nLANTERN_WALK = Location(\n    location_id=\"lantern-walk\",\n    name=\"Lantern Walk\",\n    exits=(\n        Exit(\"south\", STARTING_LOCATION_ID),\n        Exit(\"north\", \"beacon-landing\"),\n    ),\n)\nBEACON_LANDING = Location(\n    location_id=\"beacon-landing\",\n    name=\"Beacon Landing\",\n    exits=(Exit(\"south\", \"lantern-walk\"),),\n)\n\nLOCATIONS = {\n    location.location_id: location\n    for location in (\n        WAYFINDER_STATION,\n        CHART_ROOM,\n        LANTERN_WALK,\n        BEACON_LANDING,\n    )\n}\n\n\ndef get_location(location_id: str) -> Location | None:\n    return LOCATIONS.get(location_id)\n\n\ndef get_exit(location_id: str, direction: str) -> Exit | None:\n    location = get_location(location_id)\n    if location is None:\n        return None\n    return next((route for route in location.exits if route.direction == direction), None)\n","__town_main__.py":"from adventure_text.game import main\nmain()\n"},"data":{}};
+  // input() cannot block in a browser, so each command replays the game from the start
+  // with the same random seed and every earlier answer. That also makes saving free.
+  const KEY = 'town-python:' + GAME.title;
+  let save; try { save = JSON.parse(localStorage.getItem(KEY)); } catch { save = null; }
+  if (!save || !Array.isArray(save.inputs)) save = { seed: Math.floor(Math.random() * 1e9), inputs: [] };
+  const store = () => { try { localStorage.setItem(KEY, JSON.stringify(save)); } catch {} };
+  document.getElementById('title').textContent = GAME.title;
+  document.title = GAME.title;
+  const screen = document.getElementById('screen');
+  let buffer = [];
+  window.townEmit = (s, cls) => buffer.push([String(s), cls || '']);
+  window.townState = (s) => { window.townEnded = s; };
+  function render() {
+    screen.textContent = '';
+    for (const [t, c] of buffer) { if (c) { const span = document.createElement('span'); span.className = c; span.textContent = t; screen.append(span); } else screen.append(t); }
+    screen.scrollTop = screen.scrollHeight;
+  }
+  function play() {
+    buffer = []; window.townEnded = null;
+    window.townInputs = JSON.stringify(save.inputs); window.townSeed = save.seed;
+    const t0 = performance.now();
+    try { window.run_game(); } catch (e) { buffer.push(['\n[' + (e.message || e) + ']\n', 'err']); }
+    render();
+    const ended = window.townEnded === 'ended';
+    document.getElementById('status').textContent = ended ? 'Game over — press New game' : `${save.inputs.length} moves · saved`;
+    document.getElementById('cmd').disabled = ended;
+    if (!ended) document.getElementById('cmd').focus({ preventScroll: true });
+    console.debug('replay', Math.round(performance.now() - t0), 'ms');
+  }
+  document.getElementById('form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const box = document.getElementById('cmd');
+    save.inputs.push(box.value); box.value = ''; store(); play();
+  });
+  document.getElementById('restart').onclick = () => { save = { seed: Math.floor(Math.random() * 1e9), inputs: [] }; store(); play(); };
+  window.townReady = () => { play(); };
+</script>
+<script src="../_python/brython.min.js"></script>
+<script src="../_python/brython_stdlib.js"></script>
+<script type="text/python">
+import sys, builtins, json, random, time, types
+from browser import window
+
+GAME = json.loads(window.JSON.stringify(window.GAME))
+SOURCES = dict(GAME['sources'])
+DATA = dict(GAME.get('data') or {})
+import io
+
+def data_key(path):
+    p = str(path).replace('\\', '/')
+    while p.startswith('./'):
+        p = p[2:]
+    if p in DATA:
+        return p
+    for k in DATA:
+        if k.endswith('/' + p) or p.endswith('/' + k):
+            return k
+    return None
+
+class SavedFile(io.StringIO):
+    def __init__(self, key, text=''):
+        super().__init__(text)
+        self.key = key
+    def close(self):
+        DATA[self.key] = self.getvalue()
+        super().close()
+    def __exit__(self, *a):
+        self.close()
+
+_real_open = builtins.open
+def town_open(path, mode='r', *a, **k):
+    # Game data files are packed into the page; writes (saves) live for this session.
+    key = data_key(path)
+    if 'w' in mode or 'a' in mode:
+        return SavedFile(key or str(path), DATA.get(key, '') if 'a' in mode else '')
+    if key is None:
+        raise FileNotFoundError(2, 'No such file', str(path))
+    return io.StringIO(DATA[key])
+
+class Out:
+    def __init__(self, cls=''):
+        self.cls = cls
+    def write(self, s):
+        window.townEmit(s, self.cls)
+        return len(s)
+    def flush(self):
+        pass
+
+class NeedInput(BaseException):
+    pass
+
+def module_name(path):
+    p = path[:-3] if path.endswith('.py') else path
+    for root in GAME['path']:
+        if p.startswith(root + '/'):
+            p = p[len(root) + 1:]
+    p = p.replace('/', '.')
+    return p[:-9] if p.endswith('.__init__') else p
+
+OVERRIDES = {}
+
+def load_modules():
+    # Executes the game's own modules into sys.modules; a module whose import fails
+    # because a sibling has not loaded yet is retried after the others.
+    pending = [f for f in SOURCES if f != GAME['main']]
+    for f in pending:
+        name = module_name(f)
+        for part in range(1, name.count('.') + 1):
+            pkg = '.'.join(name.split('.')[:part])
+            if pkg not in sys.modules:
+                m = types.ModuleType(pkg); m.__path__ = []; m.__package__ = pkg; sys.modules[pkg] = m
+    for _ in range(len(pending) + 1):
+        if not pending:
+            return
+        left = []
+        for f in pending:
+            name = module_name(f)
+            is_pkg = f.endswith('__init__.py')
+            m = types.ModuleType(name)
+            m.__file__ = f
+            m.__package__ = name if is_pkg else name.rpartition('.')[0]
+            if is_pkg:
+                m.__path__ = []
+            sys.modules[name] = m
+            m.__dict__.update(OVERRIDES)
+            try:
+                exec(compile(SOURCES[f], f, 'exec'), m.__dict__)
+                parent, _, child = name.rpartition('.')
+                if parent in sys.modules:
+                    setattr(sys.modules[parent], child, m)
+            except (ImportError, NameError, AttributeError):
+                del sys.modules[name]
+                left.append(f)
+        if len(left) == len(pending):
+            return
+        pending = left
+
+def run_game():
+    inputs = json.loads(window.townInputs)
+    random.seed(int(window.townSeed))
+    out = Out()
+    sys.stdout = out
+    sys.stderr = Out('err')
+    queue = list(inputs)
+    def fake_input(prompt=''):
+        if prompt:
+            out.write(str(prompt))
+        if not queue:
+            raise NeedInput()
+        v = queue.pop(0)
+        window.townEmit(v + '\n', 'you')
+        return v
+    # Brython resolves builtins internally, so the game's globals get the replacements.
+    builtins.input = fake_input
+    builtins.open = town_open
+    OVERRIDES.update({'input': fake_input, 'open': town_open})
+    time.sleep = lambda s=0: None
+    try:
+        import os, os.path
+        os.system = lambda *a, **k: 0
+        os.path.exists = lambda p: data_key(p) is not None
+        os.path.isfile = os.path.exists
+        os.makedirs = lambda *a, **k: None
+        os.remove = lambda p: DATA.pop(data_key(p) or '', None)
+    except Exception:
+        pass
+    for name in list(sys.modules):
+        if name in [module_name(f) for f in SOURCES]:
+            del sys.modules[name]
+    try:
+        load_modules()
+        g = {'__name__': '__main__', '__file__': GAME['main'], **OVERRIDES}
+        exec(compile(SOURCES[GAME['main']], GAME['main'], 'exec'), g)
+        window.townState('ended')
+    except NeedInput:
+        window.townState('input')
+    except SystemExit:
+        window.townState('ended')
+    except Exception as e:
+        import traceback
+        sys.stderr.write('\n' + traceback.format_exc())
+        window.townState('ended')
+
+window.run_game = run_game
+window.townReady()
+</script>
+<script>brython({ debug: 1 });</script>
+</body>
+</html>

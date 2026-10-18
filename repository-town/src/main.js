@@ -155,11 +155,35 @@ async function start() {
     const actions = $('panel-actions'); actions.innerHTML = '';
     for (const a of content.actions || []) {
       if (a.url) { const el = document.createElement('a'); el.href = a.url; el.target = '_blank'; el.rel = 'noopener'; el.textContent = a.label; el.className = 'btn-link'; actions.append(el); }
-      else { const el = document.createElement('button'); el.textContent = a.label; el.onclick = () => openPanel(a.run ? a.run() : content.onAnswer(a.answer), thing); actions.append(el); }
+      else { const el = document.createElement('button'); el.textContent = a.label; el.onclick = () => (a.play ? startGame(a.play) : openPanel(a.run ? a.run() : content.onAnswer(a.answer), thing));
+        if (a.play) el.className = 'play'; actions.append(el); }
     }
     $('panel').hidden = false;
     $('card').hidden = true;
   }
+  // Games run full-screen in an iframe from games/<id>/; the town pauses underneath.
+  let playing = null;
+  function startGame(g) {
+    closePanel();
+    playing = g;
+    if (document.pointerLockElement) document.exitPointerLock();
+    $('game-title').textContent = g.title;
+    $('game-frame').src = `games/${encodeURIComponent(g.id)}/index.html`;
+    $('game').hidden = false;
+    document.body.classList.add('playing');
+    $('game-frame').focus();
+    status(`Playing ${g.title}.`);
+  }
+  function stopGame() {
+    if (!playing) return;
+    $('game-frame').src = 'about:blank';
+    $('game').hidden = true;
+    document.body.classList.remove('playing');
+    status(`Back from ${playing.title}.`);
+    playing = null;
+  }
+  $('game-exit').onclick = () => stopGame();
+
   function closePanel() { panelOpen = null; $('panel').hidden = true; }
 
   const ctx = {
@@ -235,6 +259,13 @@ async function start() {
     // Up to 0.15 s per frame keeps walking real-time on slow phones; collision subdivides the step.
     const raw = clock.getDelta(), dt = Math.min(raw, 0.15), t = clock.elapsedTime;
     frames++; fpsTimer += raw; if (fpsTimer > 1) { fps = frames / fpsTimer; frames = 0; fpsTimer = 0; }
+    // While a game is open the town neither renders nor reacts, so the game gets the whole device.
+    if (playing) {
+      if (input.consume('back')) stopGame();
+      input.takeLook(); for (const k of ['use', 'jump', 'map']) input.consume(k);
+      requestAnimationFrame(frame);
+      return;
+    }
     if (input.consume('map')) setOverview(!overview);
     if (input.consume('back')) { if (panelOpen) closePanel(); else if (!$('help').hidden) $('help').hidden = true; else setOverview(false); }
     if (overview) {
@@ -302,7 +333,7 @@ async function start() {
       interactables: inside ? inside.interactables.map((x) => ({ key: x.key, label: x.label, title: x.act.title || x.label, do: x.act.do, room: x.roomName })) : [],
       near: nearThing?.key || null, nearHouse: nearHouse?.house.coordinate || null,
       panel: panelOpen ? { title: $('panel-title').textContent, text: $('panel-body').textContent, links: [...$('panel-actions').querySelectorAll('a')].map((a) => a.href), buttons: [...$('panel-actions').querySelectorAll('button')].map((b) => b.textContent) } : null,
-      active: [...active], calls: renderer.info.render.calls, triangles: renderer.info.render.triangles,
+      active: [...active], playing: playing?.id || null, gameSrc: playing ? $('game-frame').getAttribute('src') : null, calls: renderer.info.render.calls, triangles: renderer.info.render.triangles,
     }),
     // Stands the player 1.6 m in front of an exhibit, facing it, so the test then presses Use.
     approach(key) {
@@ -324,6 +355,8 @@ async function start() {
     toExit() { if (!inside) return false; player.place(inside.spawn.x, inside.spawn.z, Math.PI); return true; },
     place(x, z, yaw) { player.place(x, z, yaw); },
     probe(x, z) { return world.hits(x, z, player.radius); },
+    play() { const b = $('panel-actions').querySelector('button.play'); if (b) b.click(); return !!b; },
+    stopGame: () => stopGame(),
     answer(i) { const b = $('panel-actions').querySelectorAll('button')[i]; if (b) b.click(); return !!b; },
     closePanel,
   };

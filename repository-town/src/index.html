@@ -49,6 +49,10 @@
     <button id="t-crouch" aria-label="Crouch" aria-pressed="false">🧎</button>
   </div>
 </div>
+<section id="game" role="dialog" aria-labelledby="game-title" hidden>
+  <div id="game-bar"><span id="game-title"></span><button id="game-exit">✕ Back to town</button></div>
+  <iframe id="game-frame" title="Game" allow="autoplay; fullscreen; gamepad; clipboard-write" allowfullscreen></iframe>
+</section>
 <div id="crosshair" aria-hidden="true"></div>
 <script type="module" src="main.js"></script>
 </body>

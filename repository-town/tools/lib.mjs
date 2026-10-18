@@ -111,10 +111,38 @@ function addToys(rooms, repo, name) {
   }));
 }
 
+// Games that tools/pack_games.mjs packed into games/<id>/, by repository.
+export function loadGames() {
+  const f = path.join(TOWN, 'data', 'games.json');
+  if (!fs.existsSync(f)) return new Map();
+  const byRepo = new Map();
+  for (const g of JSON.parse(fs.readFileSync(f, 'utf8')).games) {
+    if (!fs.existsSync(path.join(TOWN, 'games', g.id, 'index.html'))) continue;
+    if (!byRepo.has(g.repo)) byRepo.set(g.repo, []);
+    byRepo.get(g.repo).push(g);
+  }
+  return byRepo;
+}
+
+const PLAY_TEXT = {
+  python: 'A text adventure running real Python. Type commands at the prompt; your progress saves automatically.',
+  static: 'The real game, running inside Repository Town.',
+  vite: 'The real game, built from its repository and running inside Repository Town.',
+};
+
+// Houses with playable games get an Arcade: one cabinet per game. Generated like the archive.
+export function arcadeRoom(games) {
+  const side = Math.min(16, Math.max(8, 6 + games.length * 0.75));
+  return {
+    name: games.length > 1 ? 'Arcade' : 'Game Room', archive: true, w: side, d: side, floor: 0x2a2440, walls: 0x3b3366,
+    props: games.map((g) => ['arcadeCabinet', `▶ ${g.title}`, { do: 'game', title: g.title, game: g.id, text: g.about || PLAY_TEXT[g.kind], c: 0x2b2b6e, a: 0x7fe0ff, at: 'wall' }]),
+  };
+}
+
 // Converts a brief plus its inventory row into the runtime house shape.
-export function toHouse(brief, row, streets, repoData = {}) {
+export function toHouse(brief, row, streets, repoData = {}, games = new Map()) {
   const e = brief.ext, i = brief.int;
-  const rooms = [...addToys(i.rooms, row.repo, row.repo.split('/')[1]), archiveRoom(row.repo, repoData[row.repo], brief.links || [])];
+  const rooms = [...addToys(i.rooms, row.repo, row.repo.split('/')[1]), archiveRoom(row.repo, repoData[row.repo], brief.links || []), ...(games.has(row.repo) ? [arcadeRoom(games.get(row.repo))] : [])];
   return {
     coordinate: row.coordinate,
     repo: row.repo,
@@ -179,7 +207,7 @@ const propTypes = (h) => designed(h).flatMap((r) => r.props.map((p) => p[0]));
 const jaccard = (a, b) => { const A = new Set(a), B = new Set(b); let n = 0; for (const x of A) if (B.has(x)) n++; return n / (A.size + B.size - n); };
 
 // Validates every brief and the uniqueness gate. Returns {errors, report}.
-export function validate(briefs, inventory, repoData = loadRepoData()) {
+export function validate(briefs, inventory, repoData = loadRepoData(), games = loadGames()) {
   const errors = [];
   const houses = [];
   const err = (repo, msg) => errors.push(`${repo}: ${msg}`);
@@ -219,7 +247,7 @@ export function validate(briefs, inventory, repoData = loadRepoData()) {
     if (acts < 2) err(tag, `only ${acts} interactions (need ≥ 2)`);
     for (const l of b.links || []) if (!/^https:\/\//.test(l.url)) err(tag, `link must be https: ${l.url}`);
     if (errors.some((e) => e.startsWith(tag + ':'))) continue;
-    const house = toHouse(b, row, inventory.grid.streetNames, repoData);
+    const house = toHouse(b, row, inventory.grid.streetNames, repoData, games);
     // Dry-run construction catches room adjacency and "no space for prop" failures before the browser.
     try {
       buildInterior(house, () => new THREE.Object3D());

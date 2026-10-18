@@ -91,6 +91,11 @@ export const BEHAVIOURS = {
     };
     return again();
   },
+  game: (x) => ({
+    title: x.act.title,
+    body: `<p class="big">🕹 ${esc(x.act.title)}</p><p>${esc(x.act.text)}</p><p class="dim">Use ✕ Back to town (top right) to return to this room.</p>`,
+    actions: [{ label: '▶ Play', play: { id: x.act.game, title: x.act.title } }],
+  }),
   count: (x) => {
     const n = (state.get(x.key) || 0) + 1; state.set(x.key, n);
     return { title: x.act.title || x.label, body: `<p class="big">${esc(x.act.unit || 'Count')}: <strong data-result="${n}">${n}</strong></p><p>${esc(x.act.text)}</p>`, actions: linkButton(x.act.url) };
