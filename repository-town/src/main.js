@@ -323,7 +323,7 @@ async function start() {
     else player.update(dt, input, world);
 
     if (mode === 'town') {
-      nearNPC=pickNPC(streetNPCs); animateNPCs(streetNPCs,t,player.pos);
+      nearNPC=pickNPC(streetNPCs); animateNPCs(streetNPCs,t,player.pos,dt,npcChat.isOpen()?npcChat.active():null);
       nearHouse = null; let best = 6;
       for (const l of town.lots.values()) { const d = Math.hypot(l.doorPos.x - player.pos.x, l.doorPos.z - player.pos.z); if (d < best) { best = d; nearHouse = l; } }
       for (const d of town.doors) {
@@ -360,7 +360,7 @@ async function start() {
         nearThing = pickNear();
         nearNPC=houseGuide?pickNPC([houseGuide],2.75):null;
         if(nearNPC && nearThing && Math.hypot(nearNPC.pos.x-player.pos.x,nearNPC.pos.z-player.pos.z)>1.9)nearNPC=null;
-        if(houseGuide)animateNPCs([houseGuide],t,player.pos);
+        if(houseGuide)animateNPCs([houseGuide],t,player.pos,dt,npcChat.isOpen()?npcChat.active():null);
         $('prompt').hidden = (!nearNPC && !nearThing) || !!panelOpen || npcChat.isOpen() || !$('npc-roster').hidden;
         if (nearNPC) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — 💬 Talk to ${nearNPC.npc.name}`;
         else if (nearThing) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — ${nearThing.label}`;
