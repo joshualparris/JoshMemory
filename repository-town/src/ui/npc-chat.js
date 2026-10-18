@@ -101,12 +101,12 @@ export function mountNPCChat(root=document) {
       input.disabled=false;send.disabled=false;busy=false;input.focus();
     }
   });
-  const list=root.getElementById('npc-roster');
+  const list=root.getElementById('npc-roster-items');
   if(list){
     for(const npc of NPCS){
       const button=root.createElement('button');button.className='npc-roster-item';
       button.textContent=npc.emoji+' '+npc.name+' · '+npc.title;
-      button.addEventListener('click',()=>show(npc));
+      button.addEventListener('click',()=>{show(npc);if(!root.body.classList.contains('npc-lounge'))root.getElementById('npc-roster').hidden=true;});
       list.appendChild(button);
     }
   }
