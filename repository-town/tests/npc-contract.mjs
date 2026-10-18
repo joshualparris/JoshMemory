@@ -1,4 +1,25 @@
 import assert from 'node:assert/strict';
-import { NPCS } from '../src/ui/npc-data.js';
+import {NPCS,getNPC,HOUSE_GUIDE} from '../src/ui/npc-data.js';
+import handler from '../api/npc-chat.js';
+import fs from 'node:fs';
 assert.equal(NPCS.length,12);
-console.log('NPC personalities verified');
+assert.equal(new Set(NPCS.map(n=>n.id)).size,12);
+assert(NPCS.every(n=>n.name && n.title && n.personality && n.coordinate));
+assert.equal(getNPC('curator'),HOUSE_GUIDE);
+const main=fs.readFileSync(new URL('../src/main.js',import.meta.url),'utf8');
+assert(main.includes('placeTownNPCs') && main.includes('placeHouseGuide'));
+assert(fs.readFileSync(new URL('../src/index.html',import.meta.url),'utf8').includes('id="npc-chat"'));
+assert(fs.readFileSync(new URL('../src/people.html',import.meta.url),'utf8').includes('people.js'));
+process.env.GROQ_API_KEY='fake-for-test-only';
+process.env.TOWN_NPC_PIN='fake-code-for-test';
+let upstream=0;
+const oldFetch=globalThis.fetch;
+globalThis.fetch=async()=>{upstream++;return {ok:true,json:async()=>({choices:[{message:{content:'NPC reply'}}]})};};
+const req=(code)=>({method:'POST',headers:{origin:'https://town.test',host:'town.test','x-npc-code':code,'x-forwarded-for':'npc-test'},body:{npcId:'rowan',messages:[{role:'user',content:'Hello!'}]}});
+async function respond(request){const res={statusCode:200,setHeader(){},end(x){this.data=JSON.parse(x);}};await handler(request,res);return res;}
+const denied=await respond(req('wrong'));
+assert.equal(denied.statusCode,401);assert.equal(upstream,0);
+const allowed=await respond(req('fake-code-for-test'));
+assert.equal(allowed.statusCode,200);assert.equal(allowed.data.reply,'NPC reply');assert.equal(upstream,1);
+globalThis.fetch=oldFetch;
+console.log('PASS: 12 NPCs, rendered integration, WebGL-free lounge, guarded mocked Groq API');
