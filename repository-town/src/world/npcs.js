@@ -228,7 +228,7 @@ function performWork(entry,time) {
   const w=entry.workSite;
   if(!w)return false;
   if(entry.task==='gather') {
-    entry.activity='walk';entry.activityUntil=time+20;
+    entry.activity='walk';
     entry.targetX=w.supplyX;entry.targetZ=w.supplyZ;
     if(Math.hypot(entry.pos.x-w.supplyX,entry.pos.z-w.supplyZ)<.22){
       entry.inventory.wood=Math.min(2,(entry.inventory.wood||0)+1);
@@ -237,9 +237,9 @@ function performWork(entry,time) {
     return true;
   }
   if(entry.task==='build'){
-    entry.activity='walk';entry.activityUntil=time+20;
+    entry.activity='walk';
     entry.targetX=w.siteX;entry.targetZ=w.siteZ;
-    if(Math.hypot(entry.pos.x-w.siteX,entry.pos.z-w.siteZ)<.22 && time>=entry.activityUntil-19.2){
+    if(Math.hypot(entry.pos.x-w.siteX,entry.pos.z-w.siteZ)<.22){
       if(entry.inventory.wood>0){
         entry.inventory.wood--;
         w.progress++;
