@@ -8,7 +8,118 @@ const skin = colour(0xf1c8a1), dark = colour(0x293043), black = colour(0x161b28)
 const box = (w,h,d) => new THREE.BoxGeometry(w,h,d);
 const ball = (r) => new THREE.SphereGeometry(r,10,7);
 
+
+// Deliberately different silhouettes, not recoloured humans: every new resident
+// has a small, purpose-built low-poly model made from local procedural geometry.
+function creature(npc, makeLabel) {
+  const root=new THREE.Group(), model=new THREE.Group();root.add(model);
+  const main=colour(npc.color), muted=colour(0x28354c), light=colour(0xffeccb),
+        white=colour(0xf7f8ef), ink=colour(0x152331), gold=colour(0xf6cc64);
+  const add=(geometry,mat,x,y,z,rx=0,ry=0,rz=0)=>{
+    const obj=new THREE.Mesh(geometry,mat);obj.position.set(x,y,z);obj.rotation.set(rx,ry,rz);model.add(obj);return obj;
+  };
+  const B=(w,h,d,mat,x,y,z)=>add(box(w,h,d),mat,x,y,z);
+  const S=(radius,mat,x,y,z)=>add(ball(radius),mat,x,y,z);
+  const C=(top,bottom,height,mat,x,y,z)=>add(new THREE.CylinderGeometry(top,bottom,height,9),mat,x,y,z);
+  const cone=(r,h,mat,x,y,z,rot=0)=>add(new THREE.ConeGeometry(r,h,9),mat,x,y,z,rot);
+  const eyes=(x=.2,y=1.8,z=.35,spacing=.18)=>{for(const k of [-1,1])S(.06,ink,x+k*spacing,y,z);};
+  switch(npc.shape){
+  case 'tree':
+    C(.29,.43,1.6,colour(0x775339),0,1,0);S(.7,main,0,2.15,0);S(.48,main,-.45,2.05,.05);S(.48,main,.46,2.02,.05);
+    for(const k of [-1,1])C(.12,.15,.8,colour(0x775339),k*.56,1.43,0).rotation.z=k*.75;
+    eyes(0,1.75,.36);break;
+  case 'ghost':
+    S(.54,colour(0xdedaff),0,1.77,0);cone(.56,1.4,colour(0xdedaff),0,.9,0,Math.PI);
+    S(.22,colour(0xffffff),-.34,.75,0);S(.2,white,.35,.8,0);eyes(0,1.8,.49);break;
+  case 'mushroom':
+    C(.3,.41,1.3,light,0,1,0);S(.3,light,0,1.94,0);
+    cone(.9,.85,main,0,2.22,0);for(const [x,z] of [[-.34,.4],[.2,.49],[.38,-.2]])S(.13,white,x,2.1,z);
+    eyes(0,1.38,.37);break;
+  case 'glitch':
+    for(let i=0;i<7;i++)B(.3+(i%2)*.2,.28,.32,i%2?main:muted,Math.sin(i*2)*.35,.7+i*.27,Math.cos(i*3)*.2);
+    B(.8,.54,.3,main,0,1.7,0);eyes(0,1.72,.2);break;
+  case 'clock':
+    C(.13,.18,1.1,muted,0,.59,0);S(.77,gold,0,1.72,0);S(.65,white,0,1.72,.18);
+    B(.045,.5,.045,ink,.07,1.85,.23);B(.38,.045,.04,ink,.17,1.71,.24);S(.075,ink,0,1.72,.26);break;
+  case 'cloud':
+    for(const [x,y,r] of [[0,1.85,.55],[-.48,1.8,.35],[.49,1.82,.38],[.13,2.24,.34]])S(r,white,x,y,0);
+    for(const x of [-.42,0,.42])cone(.11,.35,main,x,1.08,0,Math.PI);
+    eyes(0,1.83,.51);break;
+  case 'slime':
+    S(.74,main,0,.9,0);S(.42,main,0,1.38,0);S(.27,light,.1,.77,.63);
+    eyes(0,1.12,.69);for(const x of [-.5,.55])S(.14,main,x,.37,.23);break;
+  case 'dragon':
+    S(.48,main,0,1.38,0);S(.37,main,0,1.99,.1);
+    for(const k of [-1,1]){
+      cone(.16,.44,gold,k*.28,2.41,-.1);
+      add(new THREE.TetrahedronGeometry(.58),main,k*.62,1.57,-.35,0,0,k*.18);
+    }
+    cone(.24,.46,main,0,1.85,.43,Math.PI/2);eyes(0,2.07,.4,.17);break;
+  case 'raven':
+    S(.57,muted,0,1.2,0);S(.37,muted,0,1.9,.2);
+    for(const k of [-1,1]){add(new THREE.ConeGeometry(.35,.9,4),main,k*.48,1.23,-.15,0,0,k*.5);}
+    cone(.18,.5,gold,0,1.82,.63,Math.PI/2);eyes(0,2,.5);break;
+  case 'alien':
+    C(.28,.48,.85,main,0,.8,0);S(.6,main,0,1.75,0);
+    for(const k of [-1,1]){const eye=S(.17,ink,k*.25,1.82,.49);eye.scale.set(.8,1.5,.5);}
+    for(const k of [-1,1]){C(.025,.025,.4,main,k*.3,2.35,0);S(.09,gold,k*.3,2.55,0);}break;
+  case 'fox':
+    S(.5,main,0,1.17,0);S(.4,main,0,1.95,.1);
+    for(const k of [-1,1])cone(.24,.57,main,k*.28,2.41,0);
+    S(.23,white,0,1.77,.39);eyes(0,2.03,.43);
+    const tail=S(.35,main,.58,.81,-.44);tail.scale.set(1.6,.68,.82);break;
+  case 'witch':
+    C(.29,.44,1.35,main,0,.96,0);S(.36,light,0,1.83,0);C(.58,.58,.08,muted,0,2.14,0);
+    cone(.48,.86,muted,0,2.58,0);eyes(0,1.85,.34);B(.3,.2,.2,gold,.54,.7,.3);break;
+  case 'golem':
+    B(1.02,1.2,.62,main,0,1.23,0);B(.75,.7,.65,main,0,2.13,0);
+    for(const k of [-1,1]){B(.39,.9,.42,main,k*.77,1.2,0);B(.36,.65,.42,muted,k*.25,.34,0);}
+    eyes(0,2.17,.34,.2);break;
+  case 'dog':
+    B(1.05,.65,.53,main,0,.75,0);S(.35,main,0,1.15,.43);
+    for(const [x,z] of [[-.35,-.19],[.35,-.19],[-.35,.2],[.35,.2]])B(.19,.55,.19,muted,x,.29,z);
+    for(const k of [-1,1])cone(.17,.45,main,k*.22,1.5,.36);
+    S(.1,ink,0,1.05,.76);eyes(0,1.22,.68,.15);
+    B(.14,.6,.14,main,0,1.11,-.67).rotation.x=.8;break;
+  case 'bee':
+    S(.53,gold,0,1.35,0);S(.4,gold,0,1.98,.14);
+    for(const z of [-.32,0,.32])B(.09,.82,.7,ink,z,1.35,0);
+    for(const k of [-1,1]){const wing=S(.35,white,k*.55,1.86,-.17);wing.scale.set(1,.25,1.5);C(.028,.028,.25,ink,k*.18,2.36,.1);}
+    eyes(0,2,.48);break;
+  case 'lantern':
+    C(.25,.35,.22,muted,0,.31,0);B(.68,.9,.52,gold,0,1.17,0);
+    B(.75,.12,.61,muted,0,1.69,0);B(.8,.14,.65,muted,0,.69,0);
+    C(.24,.24,.15,muted,0,1.82,0);add(new THREE.TorusGeometry(.29,.05,7,12),muted,0,2.11,0);eyes(0,1.25,.3);break;
+  case 'owl':
+    S(.65,main,0,1.27,0);S(.51,main,0,2.01,0);
+    for(const k of [-1,1]){const wing=S(.29,main,k*.56,1.31,0);wing.scale.set(.6,1.3,.75);S(.23,white,k*.23,2.05,.43);S(.11,ink,k*.23,2.05,.61);cone(.16,.28,main,k*.34,2.5,-.04);}
+    cone(.16,.28,gold,0,1.79,.49,Math.PI/2);break;
+  case 'pirate':
+    C(.36,.46,1.25,main,0,1.01,0);S(.34,light,0,1.9,0);eyes(0,1.96,.29);
+    B(1.1,.17,.65,muted,0,2.22,0);B(.67,.35,.53,muted,0,2.41,0);
+    C(.065,.065,.7,gold,.57,1.37,.2).rotation.z=.8;break;
+  case 'astronaut':
+    B(.9,1.05,.65,white,0,1.05,0);S(.58,muted,0,2.01,0);S(.45,colour(0x77c7d4),0,2.03,.22);
+    B(.78,.78,.28,main,0,1.07,-.43);
+    for(const k of [-1,1]){B(.26,.52,.28,white,k*.57,1.12,0);B(.29,.6,.3,muted,k*.21,.31,0);}
+    break;
+  case 'octopus':
+    S(.53,main,0,1.72,0);S(.35,main,0,2.12,.08);eyes(0,1.94,.51);
+    for(let i=0;i<8;i++){const a=i*Math.PI/4;C(.08,.17,.95,main,Math.cos(a)*.7,.7,Math.sin(a)*.7).rotation.z=Math.cos(a)*.4;}
+    break;
+  default: return null;
+  }
+  if(makeLabel){
+    const label=makeLabel(npc.emoji+' '+npc.name,'interactive');
+    label.position.set(0,3.16,0);root.add(label);root.userData.label=label;
+  }
+  root.userData.body=model;root.userData.npc=npc;
+  root.userData.baseY=0;
+  return root;
+}
+
 export function makeNPC(npc, makeLabel) {
+  if(npc.shape){const special=creature(npc,makeLabel);if(special)return special;}
   const root = new THREE.Group();
   const body = new THREE.Group(); root.add(body);
   const tunic = colour(npc.color);
