@@ -158,6 +158,20 @@ async function start() {
     activate: (k) => active.add(k),
     toggle: (k) => { if (active.has(k)) { active.delete(k); return false; } active.add(k); return true; },
   };
+  // Chooses the exhibit the player is looking at, not merely the closest one,
+  // so neighbouring exhibits can each be selected by facing them.
+  function pickNear(at = player.pos, fwd = player.forward()) {
+    let pick = null, best = Infinity;
+    for (const x of inside.interactables) {
+      tmp.copy(x.pos).sub(at); tmp.y = 0; const d = tmp.length();
+      if (d > 2.6) continue;
+      const dot = d < 0.01 ? 1 : tmp.normalize().dot(fwd);
+      if (dot < 0.2 && d > 1.2) continue;
+      const score = d - 1.6 * dot;
+      if (score < best) { best = score; pick = x; }
+    }
+    return pick;
+  }
   function use() {
     if (mode === 'house' && nearThing) { openPanel(runInteraction(nearThing, ctx), nearThing); return; }
     if (mode === 'town' && nearHouse) showCard(nearHouse.house);
@@ -245,11 +259,7 @@ async function start() {
       const ex = inside.exitZone;
       if (player.pos.x > ex.x0 && player.pos.x < ex.x1 && player.pos.z > ex.z0 && player.pos.z < ex.z1) leave();
       else {
-        nearThing = null; let best = 2.6; const fwd = player.forward();
-        for (const x of inside.interactables) {
-          tmp.copy(x.pos).sub(player.pos); tmp.y = 0; const d = tmp.length();
-          if (d < best && (d < 1.2 || tmp.normalize().dot(fwd) > 0.2)) { best = d; nearThing = x; }
-        }
+        nearThing = pickNear();
         $('prompt').hidden = !nearThing || !!panelOpen;
         if (nearThing) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — ${nearThing.label}`;
         if (input.consume('use')) use();
@@ -275,7 +285,7 @@ async function start() {
     state: () => ({
       mode, coordinate: inside?.house.coordinate || null, pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, eye: player.eye, y: player.y, fps,
       rooms: inside?.rooms.length || 0, props: inside?.placedProps.length || 0,
-      interactables: inside ? inside.interactables.map((x) => ({ key: x.key, label: x.label, do: x.act.do, room: x.roomName })) : [],
+      interactables: inside ? inside.interactables.map((x) => ({ key: x.key, label: x.label, title: x.act.title || x.label, do: x.act.do, room: x.roomName })) : [],
       near: nearThing?.key || null, nearHouse: nearHouse?.house.coordinate || null,
       panel: panelOpen ? { title: $('panel-title').textContent, text: $('panel-body').textContent, links: [...$('panel-actions').querySelectorAll('a')].map((a) => a.href), buttons: [...$('panel-actions').querySelectorAll('button')].map((b) => b.textContent) } : null,
       active: [...active], calls: renderer.info.render.calls, triangles: renderer.info.render.triangles,
@@ -289,11 +299,16 @@ async function start() {
         for (const turn of [0, 0.5, -0.5, 1, -1]) {
           const v = dir.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), turn);
           const p = x.pos.clone().addScaledVector(v, dist);
-          if (!world.hits(p.x, p.z, player.radius + 0.05)) { player.place(p.x, p.z, Math.atan2(-(x.pos.x - p.x), -(x.pos.z - p.z))); return true; }
+          const yaw = Math.atan2(-(x.pos.x - p.x), -(x.pos.z - p.z));
+          const fwd = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
+          if (!world.hits(p.x, p.z, player.radius + 0.05) && pickNear(p, fwd) === x) { player.place(p.x, p.z, yaw); return true; }
         }
       }
       return false;
     },
+    // Stands just inside the entrance facing the exit door.
+    toExit() { if (!inside) return false; player.place(inside.spawn.x, inside.spawn.z, Math.PI); return true; },
+    place(x, z, yaw) { player.place(x, z, yaw); },
     answer(i) { const b = $('panel-actions').querySelectorAll('button')[i]; if (b) b.click(); return !!b; },
     closePanel,
   };
