@@ -9,6 +9,9 @@ export class Input {
     this.run = false;
     this.crouch = false;
     this.touch = matchMedia('(pointer: coarse)').matches;
+    this.canvas = canvas;
+    this.onCaptureChange = null;
+    this.onCaptureError = null;
     this.bindKeyboard();
     this.bindMouse(canvas);
     this.bindTouch(canvas, touchRoot);
@@ -27,7 +30,9 @@ export class Input {
         if (k === ' ') this.pressed.add('jump');
         if (k === 'e' || k === 'f' || k === 'enter') this.pressed.add('use');
         if (k === 'c') this.crouch = !this.crouch;
-        if (k === 'escape') this.pressed.add('back');
+        // Escape releases the browser's pointer lock; it must not also close the game UI.
+        if (k === 'escape' && document.pointerLockElement !== this.canvas) this.pressed.add('back');
+        if (k === 'l' && !this.touch) this.toggleMouseCapture();
         if (k === 'm') this.pressed.add('map');
       }
       this.keys.add(k);
@@ -47,7 +52,37 @@ export class Input {
       this.look.dx += e.clientX - drag.x; this.look.dy += e.clientY - drag.y;
       drag = { x: e.clientX, y: e.clientY };
     });
-    canvas.addEventListener('dblclick', () => canvas.requestPointerLock?.());
+    canvas.addEventListener('dblclick', () => this.captureMouse());
+    document.addEventListener('pointerlockchange', () => {
+      drag = null;
+      this.look.dx = 0; this.look.dy = 0;
+      this.onCaptureChange?.(document.pointerLockElement === canvas);
+    });
+    document.addEventListener('pointerlockerror', () => this.onCaptureError?.());
+  }
+
+  get mouseCaptured() { return document.pointerLockElement === this.canvas; }
+
+  captureMouse() {
+    if (this.touch || typeof this.canvas.requestPointerLock !== 'function') return false;
+    try {
+      // Must run synchronously inside a user gesture (button, L or double-click).
+      const request = this.canvas.requestPointerLock();
+      request?.catch?.(() => this.onCaptureError?.());
+      return true;
+    } catch {
+      this.onCaptureError?.();
+      return false;
+    }
+  }
+
+  releaseMouse() {
+    if (this.mouseCaptured) document.exitPointerLock?.();
+  }
+
+  toggleMouseCapture() {
+    if (this.mouseCaptured) this.releaseMouse();
+    else this.captureMouse();
   }
 
   // Left half of the screen is a floating joystick; right half drags the view.
