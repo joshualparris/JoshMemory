@@ -8,6 +8,7 @@ import { buildInterior } from './world/interior.js';
 import { animate } from './world/builder.js';
 import { makeLabel, disposeLabel } from './ui/labels.js';
 import { runInteraction, esc } from './ui/interactions.js';
+import { setArchiveLoader } from './ui/archive.js';
 
 const $ = (id) => document.getElementById(id);
 const status = (t) => { $('status').textContent = t; };
@@ -20,6 +21,9 @@ const SKY = 0x96c9f0, INDOOR = 0x1a1612;
 async function start() {
   // The standalone single-file build embeds the data so it runs from file:// with no server.
   const data = window.__HOUSES__ || await (await fetch('houses.json')).json();
+  // Archive contents (READMEs, file lists) are large, so they load on first use.
+  let archive = null;
+  setArchiveLoader(() => (archive = archive || (window.__REPO_DATA__ ? Promise.resolve(window.__REPO_DATA__) : fetch('repo-data.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({})))));
   const houses = data.houses;
   const byCoord = new Map(houses.map((h) => [h.coordinate, h]));
 
@@ -144,12 +148,14 @@ async function start() {
   }
   function openPanel(content, thing) {
     panelOpen = { content, thing };
+    $('panel').classList.toggle('wide', !!content.wide);
+    $('panel-body').scrollTop = 0; $('panel').scrollTop = 0;
     $('panel-title').textContent = content.title;
     $('panel-body').innerHTML = content.body;
     const actions = $('panel-actions'); actions.innerHTML = '';
     for (const a of content.actions || []) {
       if (a.url) { const el = document.createElement('a'); el.href = a.url; el.target = '_blank'; el.rel = 'noopener'; el.textContent = a.label; el.className = 'btn-link'; actions.append(el); }
-      else { const el = document.createElement('button'); el.textContent = a.label; el.onclick = () => openPanel(content.onAnswer(a.answer), thing); actions.append(el); }
+      else { const el = document.createElement('button'); el.textContent = a.label; el.onclick = () => openPanel(a.run ? a.run() : content.onAnswer(a.answer), thing); actions.append(el); }
     }
     $('panel').hidden = false;
     $('card').hidden = true;
@@ -175,7 +181,12 @@ async function start() {
     return pick;
   }
   function use() {
-    if (mode === 'house' && nearThing) { openPanel(runInteraction(nearThing, ctx), nearThing); return; }
+    if (mode === 'house' && nearThing) {
+      const thing = nearThing;
+      Promise.resolve(runInteraction(thing, ctx)).then((content) => { if (mode === 'house' && inside) openPanel(content, thing); })
+        .catch((e) => openPanel({ title: thing.label, body: `<p>Couldn't open this exhibit: ${esc(e.message)}</p>` }, thing));
+      return;
+    }
     if (mode === 'town' && nearHouse) showCard(nearHouse.house);
   }
 

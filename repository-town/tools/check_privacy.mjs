@@ -2,7 +2,7 @@
 // distinctive names, and every free-text string written in a private brief.
 import fs from 'node:fs';
 import path from 'node:path';
-import { TOWN, loadBriefs, loadInventory } from './lib.mjs';
+import { TOWN, loadBriefs, loadInventory, loadRepoData, isDistinctiveName } from './lib.mjs';
 import { PROP_TYPES } from '../src/world/props.js';
 
 const dir = path.join(TOWN, process.argv[2] || 'dist/public');
@@ -22,7 +22,10 @@ const briefStrings = (b) => {
   }
   return out.filter((s) => typeof s === 'string').map((s) => s.trim().toLowerCase());
 };
-const publicText = inventory.projects.filter((p) => p.visibility === 'public' && briefs.get(p.repo)).flatMap((p) => briefStrings(briefs.get(p.repo))).join('\n');
+// Public READMEs are already public, so phrases they contain are not leaks.
+const repoData = loadRepoData();
+const publicArchive = inventory.projects.filter((p) => p.visibility === 'public').map((p) => JSON.stringify(repoData[p.repo] || '')).join('\n').toLowerCase();
+const publicText = publicArchive + '\n' + inventory.projects.filter((p) => p.visibility === 'public' && briefs.get(p.repo)).flatMap((p) => briefStrings(briefs.get(p.repo))).join('\n');
 const vocabulary = new Set(PROP_TYPES.map((t) => t.toLowerCase()));
 const needles = [];
 for (const p of inventory.projects.filter((p) => p.visibility === 'private')) {
@@ -30,7 +33,7 @@ for (const p of inventory.projects.filter((p) => p.visibility === 'private')) {
   needles.push({ text: p.repo.toLowerCase(), why: 'repository slug' });
   needles.push({ text: `github.com/${p.repo}`.toLowerCase(), why: 'repository URL' });
   // Bare names are only distinctive when they are not ordinary words or public repo names.
-  const distinctive = name.length >= 4 && (/[A-Z].*[A-Z]|\d|-/.test(name) || name.length >= 9) && !publicNames.has(name.toLowerCase());
+  const distinctive = isDistinctiveName(name, publicNames);
   if (distinctive && !vocabulary.has(name.toLowerCase())) needles.push({ text: name.toLowerCase(), why: 'repository name', word: true });
   const b = briefs.get(p.repo);
   if (!b) continue;
@@ -42,7 +45,7 @@ const leaks = [];
 for (const n of needles) {
   for (const [f, body] of corpus) {
     // Bare names are checked in content files only; engine source uses generic identifiers.
-    if (n.word && !/(houses\.json|\.html)$/.test(f)) continue;
+    if (n.word && !/(houses\.json|repo-data\.json|\.html)$/.test(f)) continue;
     const bounded = (t) => new RegExp(`${t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([^a-z0-9_-]|$)`).test(body);
     const hit = n.why.startsWith('repository slug') || n.why.startsWith('repository URL') ? bounded(n.text) : n.word ? new RegExp(`(^|[^a-z0-9])${n.text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}([^a-z0-9]|$)`).test(body) : body.includes(n.text);
     if (hit) leaks.push(`${path.relative(TOWN, f)}: ${n.why} → "${n.text.slice(0, 60)}"`);

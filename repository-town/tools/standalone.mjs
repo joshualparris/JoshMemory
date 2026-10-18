@@ -13,8 +13,9 @@ const bundle = execFileSync(esbuild, [path.join(dir, 'main.js'), '--bundle', '--
 let html = fs.readFileSync(path.join(dir, 'index.html'), 'utf8');
 const css = fs.readFileSync(path.join(dir, 'styles.css'), 'utf8');
 const data = fs.readFileSync(path.join(dir, 'houses.json'), 'utf8');
+const archive = fs.readFileSync(path.join(dir, 'repo-data.json'), 'utf8');
 html = html.replace(/<link rel="stylesheet" href="styles.css">/, `<style>${css}</style>`)
   .replace(/<script type="importmap">[\s\S]*?<\/script>/, '')
-  .replace(/<script type="module" src="main.js"><\/script>/, () => `<script>window.__HOUSES__=${data.replace(/</g, '\\u003c')};</script>\n<script>${bundle.replace(/<\/script/gi, '<\\/script')}</script>`);
+  .replace(/<script type="module" src="main.js"><\/script>/, () => `<script>window.__HOUSES__=${data.replace(/</g, '\\u003c')};window.__REPO_DATA__=${archive.replace(/</g, '\\u003c')};</script>\n<script>${bundle.replace(/<\/script/gi, '<\\/script')}</script>`);
 fs.writeFileSync(out, html);
 console.log(`${out} (${(fs.statSync(out).size / 1e6).toFixed(1)} MB)`);

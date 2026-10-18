@@ -41,3 +41,14 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
   #card { bottom: auto; top: 150px; font-size: 12px; max-width: 260px; }
   #panel, #help { bottom: 160px; max-height: 40dvh; }
 }
+#panel.wide { width: min(760px, calc(100vw - 20px)); max-height: 70dvh; }
+#panel h3, #panel h4, #panel h5, #panel h6 { margin: 12px 0 4px; font-size: 15px; }
+#panel h3 { font-size: 17px; }
+#panel pre { background: #0007; padding: 8px; border-radius: 8px; overflow-x: auto; font-size: 12px; white-space: pre; }
+#panel code { background: #0005; padding: 0 4px; border-radius: 4px; font-size: 12px; }
+#panel blockquote { border-left: 3px solid var(--line); margin: 6px 0; padding-left: 10px; opacity: .85; }
+#panel ul, #panel ol { padding-left: 20px; margin: 4px 0; }
+#panel ul.files { list-style: none; padding-left: 8px; font-family: ui-monospace, monospace; font-size: 12px; overflow-wrap: anywhere; }
+#panel details summary { cursor: pointer; padding: 3px 0; }
+#panel .row { font-size: 13px; margin: 2px 0; }
+#panel .crit { color: #ffd166; font-weight: bold; }

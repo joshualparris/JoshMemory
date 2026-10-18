@@ -86,8 +86,13 @@ def collect(path):
     src = sorted(((p.stat().st_size, str(r)) for p, r in zip(files, rel) if r.suffix.lower() in SOURCE_EXT - {".json", ".md"}), reverse=True)[:12]
     urls = sorted(set(URL_RE.findall(readme_text + " " + read(path / "package.json", 20000) + " " + read(path / "vercel.json", 5000))))[:8]
     top = sorted(e.name + ("/" if e.is_dir() else "") for e in path.iterdir() if e.name != ".git")[:40]
+    files_all = sorted(str(r).replace(os.sep, "/") for r in rel)
     return {
         "readme": readme_text[:3000],
+        "readmeFull": readme_text[:16000],
+        "readmeTruncated": len(readme_text) > 16000,
+        "files": files_all[:600],
+        "fileTotal": len(files_all),
         "readmeLength": len(readme_text),
         "topLevel": top,
         "fileCount": len(rel),

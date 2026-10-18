@@ -12,9 +12,11 @@ const CENTRE = new Set(['table', 'roundTable', 'rug', 'chessboard', 'mapTable', 
   'rock', 'hay', 'mushroom', 'truck', 'van', 'bicycle', 'trolley', 'toyBlocks', 'rockingHorse', 'balloons', 'anvil', 'sofa', 'pinball', 'laptop', 'stool', 'chair', 'bench', 'drone']);
 
 // Rooms are placed as rectangles; `parent` is the room each one opens into.
-function placeRooms(rooms, layout) {
+function placeRooms(rooms, layout, skip = 0) {
   // Briefs give generous sizes; rooms are built at 82% so props fill the space without crowding.
-  const R = rooms.map((r) => ({ ...r, w: Math.max(6, (r.w || 8) * ROOM_SCALE), d: Math.max(6, (r.d || 8) * ROOM_SCALE) }));
+  // Generated rooms (the Repository Archive) come last and are attached after the layout.
+  const all = rooms.map((r) => ({ ...r, w: Math.max(6, (r.w || 8) * ROOM_SCALE), d: Math.max(6, (r.d || 8) * ROOM_SCALE) }));
+  const R = all.filter((r) => !r.archive);
   const put = (r, x0, z0) => { r.x0 = x0; r.z0 = z0; r.x1 = x0 + r.w; r.z1 = z0 + r.d; };
   const r0 = R[0];
   put(r0, -r0.w / 2, -r0.d); r0.parent = -1;
@@ -66,7 +68,24 @@ function placeRooms(rooms, layout) {
     const need = Math.min(zl, zr);
     if (need < r0.z0) { r0.z0 = need; r0.d = r0.z1 - r0.z0; }
   } else throw new Error('Unknown layout ' + layout);
-  return R;
+  for (const r of all.filter((x) => x.archive)) attachRoom(R, r, put, skip);
+  return all;
+}
+
+// Finds a free wall on any placed room (entrance room first) where `r` fits without
+// overlapping another room, staying behind the front of the house.
+function attachRoom(R, r, put, skip) {
+  const front = R[0].z1;
+  const overlaps = (a) => R.some((b) => a.x0 < b.x1 - 0.01 && a.x1 > b.x0 + 0.01 && a.z0 < b.z1 - 0.01 && a.z1 > b.z0 + 0.01);
+  for (const [pi, p] of R.entries()) {
+    const cz = p.z0 + (p.d - r.d) / 2, cx = p.x0 + (p.w - r.w) / 2;
+    const tries = [[p.x1, cz], [p.x0 - r.w, cz], [cx, p.z0 - r.d], [p.x1, p.z1 - r.d], [p.x0 - r.w, p.z1 - r.d], [p.x1, p.z0], [p.x0 - r.w, p.z0], [p.x0, p.z0 - r.d], [p.x1 - r.w, p.z0 - r.d]];
+    for (const [x, z] of tries) {
+      put(r, x, z);
+      if (r.z1 <= front + 0.01 && !overlaps(r) && sharedOpening(p, r) && skip-- <= 0) { r.parent = pi; R.push(r); return; }
+    }
+  }
+  throw new Error(`no free wall for ${r.name}`);
 }
 
 // Finds the shared wall between two rooms and returns a doorway centre on it.
@@ -149,11 +168,21 @@ function centreGrid(r) {
   return cells.sort((a, b) => Math.hypot(a.x - cx, a.z - cz) - Math.hypot(b.x - cx, b.z - cz));
 }
 
+// The archive's doorway can take wall space a designed room needs, so placement
+// retries the next free wall until every prop fits.
 export function buildInterior(house, makeLabel) {
+  for (let attempt = 0; ; attempt++) {
+    try { return buildOnce(house, makeLabel, attempt); } catch (e) {
+      if (!e.crowded || attempt > 40) throw e;
+    }
+  }
+}
+
+function buildOnce(house, makeLabel, attempt) {
   const spec = house.int;
   const b = new Builder();
   const colliders = [];
-  const rooms = placeRooms(spec.rooms, spec.layout);
+  const rooms = placeRooms(spec.rooms, spec.layout, attempt);
   const h = spec.height || 3.6;
   const openings = [];
   rooms.forEach((r, i) => { if (r.parent >= 0) { const o = sharedOpening(rooms[r.parent], r); if (!o) throw new Error(`${house.repo}: room ${i} not adjacent to parent`); openings.push({ ...o, rooms: [r.parent, i] }); } });
@@ -203,7 +232,7 @@ export function buildInterior(house, makeLabel) {
         while (cells.length && !spot) { const c = cells.shift(); if (doorZones.every((dz) => Math.hypot(dz.x - c.x, dz.z - c.z) > 3.2)) spot = { ...c, rot: 0 }; }
       }
       if (!spot) spot = slots.wall(Math.max(prop.w, 0.6)) || (cells.length ? { ...cells.shift(), rot: 0 } : null);
-      if (!spot) throw new Error(`${house.repo}: no room for ${type} in "${r.name}" — enlarge the room`);
+      if (!spot) throw Object.assign(new Error(`${house.repo}: no room for ${type} in "${r.name}" — enlarge the room`), { crowded: spec.rooms.some((x) => x.archive) });
       const key = act && act.do ? `${house.coordinate}:${ri}:${pi}` : null;
       b.at(spot.x, 0, spot.z, spot.rot, () => prop.build(b, { c: act?.c, a: act?.a, key }));
       const sideways = Math.abs(Math.sin(spot.rot)) > 0.5;
