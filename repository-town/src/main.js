@@ -74,6 +74,8 @@ async function start() {
     if (mode === 'house') leave(false);
     const f = frontOf(coord);
     player.place(f.x, f.z, f.yaw);
+    // A map toggle still queued from a slow bird's-eye frame must not reopen the map.
+    input.pressed.delete('map');
     setOverview(false);
     status(`Standing outside ${coord}.`);
     return true;
