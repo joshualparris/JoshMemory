@@ -105,8 +105,8 @@ export const ARCHIVE = {
     const urls = x.act.urls || [];
     const body = urls.length
       ? `<p>Where <b>${esc(x.act.repo)}</b> runs on the web:</p><ul>${urls.map((u) => `<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(u.replace(/^https:\/\//, ''))}</a></li>`).join('')}</ul>`
-      : `<p>No live website is recorded for <b>${esc(x.act.repo)}</b>. Its issues and pull requests show what is being worked on.</p>`;
-    return { title: x.act.title, body, actions: [...urls.slice(0, 3).map((u, i) => ({ label: i ? `Site ${i + 1} ↗` : 'Open live site ↗', url: u })), { label: 'Issues ↗', url: gh(x.act.repo, '/issues') }, { label: 'Pull requests ↗', url: gh(x.act.repo, '/pulls') }] };
+      : `<p>No live website is recorded for <b>${esc(x.act.repo)}</b>. Open its project guide to explore the documentation.</p>`;
+    return { title: x.act.title, body, actions: [...urls.slice(0, 3).map((u, i) => ({ label: i ? `Site ${i + 1} ↗` : 'Open live site ↗', url: u })), { label: 'Project guide ↗', url: gh(x.act.repo, '#readme') }] };
   },
   commits: async (x) => {
     const d = await repoInfo(x.act.repo);
@@ -139,3 +139,4 @@ export const ARCHIVE = {
     return again();
   },
 };
+

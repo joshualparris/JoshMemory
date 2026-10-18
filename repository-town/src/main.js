@@ -58,6 +58,7 @@ async function start() {
   if (input.touch) $('touch').hidden = false;
   const player = new Player(camera);
 
+  let interactionRequest = 0;
   let mode = 'town', inside = null, world = townWorld, overview = false;
   const active = new Set();
   const visited = new Set();
@@ -72,6 +73,7 @@ async function start() {
   function travel(coord) {
     if (!town.lots.has(coord)) return false;
     if (mode === 'house') leave(false);
+    closePanel();
     const f = frontOf(coord);
     player.place(f.x, f.z, f.yaw);
     setOverview(false);
@@ -97,6 +99,7 @@ async function start() {
   }
   function leave(placeOutside = true) {
     if (!inside) return;
+    closePanel();
     const coord = inside.house.coordinate;
     scene.remove(inside.group);
     inside.group.traverse((o) => { if (o.isSprite) disposeLabel(o); else if (o.geometry && o.geometry.type !== 'BoxGeometry') o.geometry.dispose(); });
@@ -169,6 +172,7 @@ async function start() {
   let playing = null;
   function startGame(g) {
     closePanel();
+    input.reset();
     playing = g;
     if (document.pointerLockElement) document.exitPointerLock();
     $('game-title').textContent = g.title;
@@ -185,10 +189,12 @@ async function start() {
     document.body.classList.remove('playing');
     status(`Back from ${playing.title}.`);
     playing = null;
+    input.reset();
+    $('game-exit').blur();
   }
   $('game-exit').onclick = () => stopGame();
 
-  function closePanel() { panelOpen = null; $('panel').hidden = true; }
+  function closePanel() { interactionRequest++; input.reset(); panelOpen = null; $('panel').hidden = true; }
 
   const ctx = {
     activate: (k) => active.add(k),
@@ -210,9 +216,9 @@ async function start() {
   }
   function use() {
     if (mode === 'house' && nearThing) {
-      const thing = nearThing;
-      Promise.resolve(runInteraction(thing, ctx)).then((content) => { if (mode === 'house' && inside) openPanel(content, thing); })
-        .catch((e) => openPanel({ title: thing.label, body: `<p>Couldn't open this exhibit: ${esc(e.message)}</p>` }, thing));
+      const thing = nearThing, request = ++interactionRequest, house = inside;
+      Promise.resolve(runInteraction(thing, ctx)).then((content) => { if (request === interactionRequest && inside === house && mode === 'house') openPanel(content, thing); })
+        .catch((e) => { if (request === interactionRequest && inside === house) openPanel({ title: thing.label, body: `<p>Couldn't open this exhibit: ${esc(e.message)}</p>` }, thing); });
       return;
     }
     if (mode === 'town' && nearHouse) showCard(nearHouse.house);
@@ -275,7 +281,8 @@ async function start() {
     if (overview) {
       camera.position.set(player.pos.x, 150, player.pos.z + 95); camera.lookAt(player.pos.x, 0, player.pos.z);
       input.takeLook(); input.consume('jump');
-    } else player.update(dt, input, world);
+    } else if (panelOpen || !$('help').hidden) { input.reset(); }
+    else player.update(dt, input, world);
 
     if (mode === 'town') {
       nearHouse = null; let best = 6;
@@ -371,3 +378,4 @@ async function start() {
 }
 
 start().catch(fail);
+

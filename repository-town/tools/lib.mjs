@@ -49,7 +49,7 @@ export function archiveRoom(repo, data, briefLinks) {
       ['computer', 'Source code', act('source', 'Source code')],
       ['bookshelf', 'README', act('readme', 'README')],
       ['terminal', 'File browser', act('files', 'Files')],
-      ['globe', live.length ? 'Live site' : 'Issues', act('live', live.length ? 'Live site' : 'Issues and activity')],
+      ['globe', live.length ? 'Live site' : 'Project guide', act('live', live.length ? 'Live site' : 'Project guide')],
       ['noticeBoard', 'Latest commit', act('commits', 'Latest commit')],
       ['cardCatalog', 'Documentation', act('docs', 'Documentation')],
       ['treasureChest', 'Lucky dip', act('lucky', 'Lucky dip')],
@@ -277,3 +277,4 @@ export function validate(briefs, inventory, repoData = loadRepoData(), games = l
   const styles = new Set(houses.map((h) => h.ext.style)).size;
   return { errors, houses, report: { briefed: briefs.size, valid: houses.length, styles, worstOverlap: worst } };
 }
+

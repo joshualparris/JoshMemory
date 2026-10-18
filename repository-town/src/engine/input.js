@@ -14,9 +14,14 @@ export class Input {
     this.bindTouch(canvas, touchRoot);
   }
 
+  reset() {
+    this.keys.clear(); this.pressed.clear(); this.stick.x = 0; this.stick.y = 0;
+    this.takeLook();
+  }
+
   bindKeyboard() {
     addEventListener('keydown', (e) => {
-      if (e.target instanceof HTMLInputElement) return;
+      if (e.target.closest?.('input, textarea, select, button, a, [contenteditable]')) return;
       const k = e.key.toLowerCase();
       if (!this.keys.has(k)) {
         if (k === ' ') this.pressed.add('jump');
@@ -29,7 +34,7 @@ export class Input {
       if ([' ', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) e.preventDefault();
     });
     addEventListener('keyup', (e) => this.keys.delete(e.key.toLowerCase()));
-    addEventListener('blur', () => this.keys.clear());
+    addEventListener('blur', () => this.reset());
   }
 
   bindMouse(canvas) {
@@ -105,3 +110,4 @@ export class Input {
   consume(name) { const had = this.pressed.has(name); this.pressed.delete(name); return had; }
   takeLook() { const l = { ...this.look }; this.look.dx = 0; this.look.dy = 0; return l; }
 }
+
