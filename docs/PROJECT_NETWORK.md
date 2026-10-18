@@ -1,5 +1,12 @@
 # Connected project network
 
+## Repository Town
+
+- [Interactive grid map](./repository-town.html) — 188 clickable houses with coordinates A–Z / 1–8 (download HTML to view in a browser).
+- [Street addresses and neighbour directory](./REPOSITORY_TOWN.md)
+- [Machine-readable coordinates and relationships](./repository-town.json)
+
+
 Generated: 2026-10-18. Source: GitHub repository search for the two owners. This is a **navigation inventory**, not merged source code, a verified dependency graph, or proof of deployed/working apps. Private repository links remain in this private repository.
 
 Total unique repositories: **188**.
