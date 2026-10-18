@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script>// Injected first into every packed game (tools/pack_games.mjs). Lets games built for a
+// web server run from a folder, including from file:// in the offline zip.
+// The packer fills in the game's small text files (F) and optional images as data URIs (IMG).
+(function () {
+  var F = {"MISC.md":"# Miscellaneous notes\n\n## GitHub commit ranking snapshot — 13 September 2026\n\nThis is a cross-repository snapshot recorded while reviewing Josh's GitHub projects.\n\n**Method:** unique public repositories, ranked by default-branch commit history; forked duplicates excluded. Counts are a point-in-time snapshot and will change as work continues.\n\n| Rank | Repository | Commits |\n|---:|---|---:|\n| 1 | `parristechservices-prog/AIDungeonMaster` | 146 |\n| 2 | `joshualparris/JoshHub` | 143 |\n| 3 | `joshuaparris-max/JoshBooksOnline` | 139 |\n| 4 | `joshparri/AvancePD` | 138 |\n| 5 | `joshualparris/hprobooktroubleshoot` | 130 |\n| 6 | `joshuaparris-max/Chess` | 113 |\n| =7 | `joshparri/AvanceProfessionalDevelopment` | 97 |\n| =7 | `joshualparris/DCSPD` | 97 |\n| 9 | `joshualparris/ColdFluApp` | 73 |\n| 10 | `joshualparris/AstraDndGame` | 68 |\n| 11 | `joshualparris/LLMAccountability` | 61 |\n| 12 | `joshuaparris-max/JoshHealth` | 56 |\n| 13 | `joshualparris/HealthLens` | 53 |\n| 14 | `joshuaparris-max/MSPQuest-JoshHub` | 52 |\n| =15 | `joshuaparris-max/JoshCards` | 47 |\n| =15 | `joshuaparris-max/WhirringWilderness` | 47 |\n| =17 | `joshuaparris-max/DCSProfessionalDevelopment` | 37 |\n| =17 | `joshualparris/AgentCheck` | 37 |\n| 19 | `joshualparris/JoshTapApp` | 36 |\n| =20 | `joshuaparris-max/EliasApp2` | 33 |\n| =20 | `joshualparris/JoshMemory` | 33 |\n\nThere are 21 repositories occupying the top 20 ranks because of the tie at 33 commits.\n\n### Notable movement from the earlier snapshot\n\n- `JoshHub`: 79 → 143 commits.\n- `JoshBooksOnline`: 62 → 139 commits.\n- `hprobooktroubleshoot`: new and already 130 commits.\n- `DCSPD`: 61 → 97 commits.\n- `ColdFluApp` (73), `AstraDndGame` (68), and `LLMAccountability` (61) entered the upper half of the ranking.\n","podcasttodo.md":"# Podcast Integration TODO\n\n**Decision:** Add.\n**Topic bank:** RPG quests, dungeon mastering, fantasy storytelling, encounter design, worldbuilding, narrative game design.\n\n## TODO\n- [ ] Curate about 25 Spotify episodes across RPG/fantasy topics.\n- [ ] Add a collapsed bottom dock: **🎧 Listen to a different RPG/fantasy podcast**.\n- [ ] One tap selects/loads another episode; persist recent choices and avoid immediate repeats.\n- [ ] Use Spotify embed/deep links without assuming autoplay.\n- [ ] Hide/pause whenever narration, TTS, music or important game audio is active.\n- [ ] Tag episodes by quests, encounters, story craft, DM advice and worldbuilding.\n- [ ] Keep gameplay primary.\n- [ ] Add mobile/a11y and audio-conflict/persistence tests.\n\n## Shared direction\nUse the reusable **Josh Podcast Dock** and shared RPG catalogue conventions.\n"};
+  var IMG = {};
+  var fileMode = location.protocol === 'file:';
+  var has = function (o, k) { return Object.prototype.hasOwnProperty.call(o, k); };
+
+  // Cross-app integration widgets are stripped; games that call them get a silent stand-in.
+  var noop = function () { return undefined; };
+  var adapter = { init: noop, trigger: noop, getRoutes: function () { return []; }, on: noop, emit: noop, track: noop };
+  if (!window.PortalAdapter) window.PortalAdapter = typeof Proxy === 'function' ? new Proxy(adapter, { get: function (t, k) { return k in t ? t[k] : noop; } }) : adapter;
+
+  // Maps a request URL to a packed file: first relative to the game folder, then, for
+  // root-absolute paths ("/seed/x.md", "/src/data/map.json"), by its longest matching tail.
+  function lookup(map, u) {
+    try {
+      var url = new URL(u, location.href);
+      if (!fileMode && url.origin !== location.origin) return null;
+      var base = new URL('.', location.href).pathname;
+      var p = decodeURIComponent(url.pathname);
+      if (p.indexOf(base) === 0 && has(map, p.slice(base.length))) return p.slice(base.length);
+      var parts = p.split('/').filter(Boolean);
+      for (var i = 0; i < parts.length; i++) { var k = parts.slice(i).join('/'); if (has(map, k)) return k; }
+    } catch (e) { /* not a URL */ }
+    return null;
+  }
+  var typeOf = function (k) { return /\.json$/i.test(k) ? 'application/json' : /\.svg$/i.test(k) ? 'image/svg+xml' : /\.html?$/i.test(k) ? 'text/html' : 'text/plain'; };
+
+  var realFetch = window.fetch && window.fetch.bind(window);
+  window.fetch = function (input, init) {
+    var u = typeof input === 'string' ? input : input && input.url;
+    var k = u && lookup(F, u);
+    // Online the real server answers relative requests; packed copies cover file:// and
+    // root-absolute paths that no longer exist on the host.
+    if (k !== null && k !== undefined && (fileMode || /^\//.test(u) || !realFetch)) return Promise.resolve(new Response(F[k], { status: 200, headers: { 'content-type': typeOf(k) } }));
+    return realFetch ? realFetch(input, init) : Promise.reject(new TypeError('fetch unavailable'));
+  };
+
+  // XMLHttpRequest for packed text files (older games, some loaders).
+  var RealXHR = window.XMLHttpRequest;
+  if (RealXHR) {
+    var open = RealXHR.prototype.open, send = RealXHR.prototype.send;
+    RealXHR.prototype.open = function (method, u) { this.__town = (fileMode || /^\//.test(u)) ? lookup(F, u) : null; return open.apply(this, arguments); };
+    RealXHR.prototype.send = function () {
+      var k = this.__town;
+      if (k === null || k === undefined) return send.apply(this, arguments);
+      var xhr = this, text = F[k];
+      var define = function (n, v) { try { Object.defineProperty(xhr, n, { configurable: true, value: v }); } catch (e) { /* read-only */ } };
+      define('readyState', 4); define('status', 200); define('statusText', 'OK'); define('responseURL', k);
+      define('responseText', text); define('response', xhr.responseType === 'json' ? JSON.parse(text) : text);
+      setTimeout(function () {
+        if (typeof xhr.onreadystatechange === 'function') xhr.onreadystatechange();
+        xhr.dispatchEvent(new Event('readystatechange'));
+        if (typeof xhr.onload === 'function') xhr.onload(new ProgressEvent('load'));
+        xhr.dispatchEvent(new ProgressEvent('load'));
+        if (typeof xhr.onloadend === 'function') xhr.onloadend(new ProgressEvent('loadend'));
+      }, 0);
+    };
+  }
+
+  // file:// images are cross-origin to the page, so WebGL cannot use them as textures.
+  // Games that need that ship their images as data URIs, swapped in on assignment.
+  if (fileMode && Object.keys(IMG).length) {
+    var desc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
+    Object.defineProperty(HTMLImageElement.prototype, 'src', {
+      configurable: true, enumerable: true, get: function () { return desc.get.call(this); },
+      set: function (v) { var k = typeof v === 'string' && !/^(data|blob):/.test(v) ? lookup(IMG, v) : null; desc.set.call(this, k ? IMG[k] : v); },
+    });
+    var co = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'crossOrigin');
+    Object.defineProperty(HTMLImageElement.prototype, 'crossOrigin', { configurable: true, get: function () { return co.get.call(this); }, set: function (v) { if (!fileMode) co.set.call(this, v); } });
+  }
+
+  // A page opened from a file cannot rewrite its URL; routers that try would crash.
+  if (fileMode) {
+    ['pushState', 'replaceState'].forEach(function (m) {
+      var real = history[m];
+      history[m] = function () { try { return real.apply(history, arguments); } catch (e) { return undefined; } };
+    });
+  }
+})();
+</script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ForbiddenQuests — A D&D Text RPG</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0800;
+    color: #ffb300;
+    font-family: 'Courier New', Courier, monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+  #game-container {
+    max-width: 780px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  #title-bar {
+    text-align: center;
+    padding: 18px 0 8px;
+  }
+  #title-bar h1 {
+    font-size: 2.2rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #ffb300;
+    text-shadow: 0 0 14px #ff8800, 0 0 32px #ff4400;
+    animation: flicker 5s infinite;
+  }
+  #title-bar p {
+    font-size: 0.75rem;
+    color: #6b4400;
+    letter-spacing: 0.3em;
+    margin-top: 6px;
+  }
+  @keyframes flicker {
+    0%,93%,100% { opacity: 1; }
+    94% { opacity: 0.75; }
+    95% { opacity: 1; }
+    97% { opacity: 0.5; }
+    98% { opacity: 1; }
+  }
+  #stats-bar {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    background: #080600;
+    border: 1px solid #5c3800;
+    padding: 10px 16px;
+    border-radius: 3px;
+    font-size: 0.82rem;
+  }
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 70px;
+  }
+  .stat-label { color: #6b4400; font-size: 0.68rem; letter-spacing: 0.1em; }
+  .stat-value { color: #ffb300; font-weight: bold; }
+  .stat-bar-outer {
+    width: 70px;
+    height: 6px;
+    background: #1a0e00;
+    border: 1px solid #5c3800;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .stat-bar-inner {
+    height: 100%;
+    background: #ffb300;
+    transition: width 0.4s ease;
+  }
+  #story-box {
+    background: #080600;
+    border: 1px solid #5c3800;
+    border-radius: 3px;
+    padding: 22px;
+    min-height: 200px;
+    font-size: 0.95rem;
+    line-height: 1.78;
+    color: #ffa500;
+    position: relative;
+  }
+  #story-text { white-space: pre-wrap; }
+  #cursor {
+    display: inline-block;
+    width: 9px;
+    height: 1.1em;
+    background: #ffb300;
+    vertical-align: text-bottom;
+    animation: blink 0.75s step-end infinite;
+    margin-left: 2px;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+  #choices {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .choice-btn {
+    background: #080600;
+    border: 1px solid #ffb300;
+    color: #ffb300;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.9rem;
+    padding: 12px 18px;
+    cursor: pointer;
+    text-align: left;
+    border-radius: 3px;
+    transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+    line-height: 1.4;
+  }
+  .choice-btn:hover {
+    background: #ffb300;
+    color: #0a0800;
+    box-shadow: 0 0 14px #ff8800;
+  }
+  .choice-btn:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+  #message-log {
+    font-size: 0.75rem;
+    color: #5c3800;
+    border-top: 1px solid #3a2200;
+    padding-top: 8px;
+    min-height: 20px;
+  }
+  .roll-good { color: #44ff88; }
+  .roll-bad { color: #ff4444; }
+  .roll-neutral { color: #ffdd44; }
+  @media (max-width: 500px) {
+    #title-bar h1 { font-size: 1.5rem; }
+    #story-box { font-size: 0.85rem; padding: 14px; }
+    .choice-btn { font-size: 0.82rem; padding: 10px 14px; }
+  }
+</style>
+</head>
+<body>
+<div id="game-container">
+  <div id="title-bar">
+    <h1>⚔ ForbiddenQuests ⚔</h1>
+    <p>A DUNGEONS &amp; DRAGONS TEXT RPG &nbsp;|&nbsp; THE DUNGEON BELOW ASHENVEIL</p>
+  </div>
+  <div id="stats-bar">
+    <div class="stat">
+      <span class="stat-label">HERO</span>
+      <span class="stat-value" id="stat-name">—</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">CLASS</span>
+      <span class="stat-value" id="stat-class">—</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">HP</span>
+      <span class="stat-value" id="stat-hp">—</span>
+      <div class="stat-bar-outer"><div class="stat-bar-inner" id="bar-hp" style="width:100%"></div></div>
+    </div>
+    <div class="stat">
+      <span class="stat-label">POWER</span>
+      <span class="stat-value" id="stat-power">—</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">CUNNING</span>
+      <span class="stat-value" id="stat-cunning">—</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">MAGIC</span>
+      <span class="stat-value" id="stat-magic">—</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">GOLD</span>
+      <span class="stat-value" id="stat-gold">—</span>
+    </div>
+    <div class="stat">
+      <span class="stat-label">DEPTH</span>
+      <span class="stat-value" id="stat-depth">Surface</span>
+    </div>
+  </div>
+  <div id="story-box">
+    <span id="story-text"></span><span id="cursor"></span>
+  </div>
+  <div id="choices"></div>
+  <div id="message-log"></div>
+</div>
+
+<script>
+// ─── STATE ────────────────────────────────────────────────────────────────────
+const state = {
+  name: "Hero",
+  cls: "",
+  hp: 100,
+  maxHp: 100,
+  power: 0,
+  cunning: 0,
+  magic: 0,
+  gold: 10,
+  depth: "Surface",
+  flags: {}
+};
+
+const CLASS_STATS = {
+  Warrior: { hp: 130, power: 8, cunning: 3, magic: 1, gold: 15 },
+  Rogue:   { hp: 90,  power: 4, cunning: 9, magic: 2, gold: 25 },
+  Mage:    { hp: 75,  power: 2, cunning: 4, magic: 10, gold: 10 },
+  Cleric:  { hp: 105, power: 5, cunning: 3, magic: 7, gold: 12 },
+};
+
+let typingTimer = null;
+
+function roll(sides) { return Math.floor(Math.random() * sides) + 1; }
+
+function check(stat, dc) {
+  const base = state[stat] || 0;
+  const d20 = roll(20);
+  const total = d20 + base;
+  log(`Rolled d20: ${d20} + ${stat}(${base}) = ${total} vs DC ${dc} — ${total >= dc ? 'SUCCESS' : 'FAILURE'}`);
+  return total >= dc;
+}
+
+function updateStats() {
+  document.getElementById('stat-name').textContent = state.name;
+  document.getElementById('stat-class').textContent = state.cls || '—';
+  document.getElementById('stat-hp').textContent = state.hp + '/' + state.maxHp;
+  document.getElementById('bar-hp').style.width = Math.max(0, (state.hp / state.maxHp * 100)) + '%';
+  document.getElementById('stat-power').textContent = state.power;
+  document.getElementById('stat-cunning').textContent = state.cunning;
+  document.getElementById('stat-magic').textContent = state.magic;
+  document.getElementById('stat-gold').textContent = state.gold + 'gp';
+  document.getElementById('stat-depth').textContent = state.depth;
+}
+
+function log(msg) {
+  document.getElementById('message-log').textContent = '⚄ ' + msg;
+}
+
+function typeText(text, callback) {
+  if (typingTimer) clearTimeout(typingTimer);
+  const el = document.getElementById('story-text');
+  el.textContent = '';
+  let i = 0;
+  const speed = 20;
+  function tick() {
+    if (i < text.length) {
+      el.textContent += text[i];
+      i++;
+      typingTimer = setTimeout(tick, speed);
+    } else {
+      if (callback) callback();
+    }
+  }
+  tick();
+}
+
+function showChoices(choices) {
+  const box = document.getElementById('choices');
+  box.innerHTML = '';
+  choices.forEach(c => {
+    if (c.condition && !c.condition()) return;
+    const btn = document.createElement('button');
+    btn.className = 'choice-btn';
+    btn.textContent = c.text;
+    btn.onclick = () => {
+      box.querySelectorAll('button').forEach(b => b.disabled = true);
+      if (c.effect) c.effect();
+      updateStats();
+      if (state.hp <= 0) { goTo('death'); return; }
+      goTo(c.next);
+    };
+    box.appendChild(btn);
+  });
+}
+
+function goTo(nodeId) {
+  // Handle dynamic node resolution for malgrath fight ending
+  if (nodeId === '_dynamic_malgrath_end') {
+    nodeId = state.flags.hasPhylactery ? 'ending_victory_clean' : 'ending_victory_hard';
+  }
+  
+  const node = nodes[nodeId];
+  if (!node) { log('ERROR: missing node — ' + nodeId); return; }
+  document.getElementById('choices').innerHTML = '';
+  if (node.depth) state.depth = node.depth;
+  typeText(node.text, () => {
+    if (node.choices) showChoices(node.choices);
+    if (node.onEnter) node.onEnter();
+    updateStats();
+  });
+}
+
+// ─── NODES ────────────────────────────────────────────────────────────────────
+
+const nodes = {
+
+  start: {
+    text: `The village of Ashenveil cowers beneath a sky the color of old bruises.\n\nFor three generations the dungeon beneath the old Citadel was sealed — warded by the Archmage Korrath before his death, its horrors locked away. Last week the wards shattered. Something broke them from the inside.\n\nNow the village elders have posted a bounty: one thousand gold pieces for whoever descends into the Forbidden Dungeon, slays whatever broke the wards, and returns with proof.\n\nEvery sensible adventurer in the region has declined.\n\nYou are not, apparently, sensible.\n\nBefore you descend, you pause at the dungeon's iron gate and consider what you are.`,
+    choices: [
+      { text: 'I am a Warrior. Strength is my answer to every question.', effect: () => applyClass('Warrior'), next: 'name_warrior' },
+      { text: 'I am a Rogue. I solve problems before they become fights.', effect: () => applyClass('Rogue'), next: 'name_rogue' },
+      { text: 'I am a Mage. Knowledge and power are the same thing.', effect: () => applyClass('Mage'), next: 'name_mage' },
+      { text: 'I am a Cleric. The gods watch, and I am their instrument.', effect: () => applyClass('Cleric'), next: 'name_cleric' },
+    ]
+  },
+
+  name_warrior: {
+    text: `The iron gate groans in the wind. Your hand rests on the hilt of your longsword — worn grip, familiar weight. You've carried that blade through a dozen campaigns. It hasn't failed you yet.\n\nThe Warrior's way: hit first, hit hard, absorb what they throw back and hit again. Simple. Effective. Brutally honest.\n\nYour name, warrior?`,
+    choices: [
+      { text: '[ Aldric Stonearm ]', effect: () => { state.name = 'Aldric Stonearm'; }, next: 'descent' },
+      { text: '[ Brynn Ironsong ]', effect: () => { state.name = 'Brynn Ironsong'; }, next: 'descent' },
+      { text: '[ Gareth of the Scar ]', effect: () => { state.name = 'Gareth of the Scar'; }, next: 'descent' },
+    ]
+  },
+
+  name_rogue: {
+    text: `You study the lock on the gate with a professional's eye. It's already been picked — someone went in before you, or something came out. Either way, your path is clear.\n\nThe Rogue's way: observe, find the angle no one else sees, act decisively in the moment of distraction. Wars are won by armies; dungeons are survived by individuals who are smarter than what's inside.\n\nYour name, rogue?`,
+    choices: [
+      { text: '[ Vesper Nighthollow ]', effect: () => { state.name = 'Vesper Nighthollow'; }, next: 'descent' },
+      { text: '[ Corvin Ashmark ]', effect: () => { state.name = 'Corvin Ashmark'; }, next: 'descent' },
+      { text: '[ Sable of No House ]', effect: () => { state.name = 'Sable of No House'; }, next: 'descent' },
+    ]
+  },
+
+  name_mage: {
+    text: `The runes carved around the gate entrance are old — older than the Archmage's wards. You can still feel the resonance of power that shattered them. Whatever broke those seals is not using ordinary dark magic. It's using something pre-Imperial. Something that shouldn't exist anymore.\n\nYou find this intensely interesting.\n\nThe Mage's way: understand, classify, and then unmake. Every monster is just a problem with a magical solution.\n\nYour name, mage?`,
+    choices: [
+      { text: '[ Lyra of the Silver Hand ]', effect: () => { state.name = 'Lyra of the Silver Hand'; }, next: 'descent' },
+      { text: '[ Theron Vex ]', effect: () => { state.name = 'Theron Vex'; }, next: 'descent' },
+      { text: '[ Mira Dustscribe ]', effect: () => { state.name = 'Mira Dustscribe'; }, next: 'descent' },
+    ]
+  },
+
+  name_cleric: {
+    text: `You lay your hand against the gate and pray. Not for protection — you'll accept whatever your deity sends. You pray for clarity: that whatever evil lurks below will be recognizable when you face it, and that your hands will not shake when the moment comes.\n\nThe prayer settles into you like warm light.\n\nThe Cleric's way: walk with purpose into the dark, because the dark is afraid of those who carry the light willingly.\n\nYour name, cleric?`,
+    choices: [
+      { text: '[ Isolde the Penitent ]', effect: () => { state.name = 'Isolde the Penitent'; }, next: 'descent' },
+      { text: '[ Brother Carn Whitehall ]', effect: () => { state.name = 'Carn Whitehall'; }, next: 'descent' },
+      { text: '[ Avara Dawnbrand ]', effect: () => { state.name = 'Avara Dawnbrand'; }, next: 'descent' },
+    ]
+  },
+
+  descent: {
+    depth: 'Level 1',
+    text: `The gate swings open. The air that breathes out from below is cold and smells of old stone, mold, and something metallic that you don't want to identify.\n\nStone stairs descend in a tight spiral. Your torch throws lurching shadows. The wards that once sealed this place left scorch marks on the walls — long black streaks, as if something burned its way out from the inside.\n\nAt the bottom: a wide corridor, ceiling lost in darkness overhead. Three passages branch from it.\n\nA weathered sign — some previous adventurer's warning — is nailed to the central pillar:\n\n  "LEFT: the Crypt of Echoes. Voices within are not your own.\n   STRAIGHT: the Mirrored Hall. Trust nothing you see.\n   RIGHT: the Flooded Vault. Something old sleeps in the water."\n\nBelow it, in fresher carving: "Do not go straight." No signature.`,
+    choices: [
+      { text: 'Take the left passage — Crypt of Echoes.', next: 'crypt_entrance' },
+      { text: 'Take the center passage — Mirrored Hall. The warning intrigues you.', next: 'mirror_entrance' },
+      { text: 'Take the right passage — Flooded Vault.', next: 'flood_entrance' },
+    ]
+  },
+
+  // ── CRYPT OF ECHOES ───────────────────────────────────────────────────────
+
+  crypt_entrance: {
+    depth: 'Crypt of Echoes',
+    text: `The Crypt of Echoes is well-named.\n\nYour footsteps arrive back to you a half-second late, from directions that don't match your movement. Old sarcophagi line the walls — Korrath's predecessors, the Archmages of the old order. Their stone faces are serene. Their hands, carved in marble, are folded over their chests.\n\nExcept one. One sarcophagus has its carved hands raised, as if in warning or in greeting.\n\nAs you pass it, a voice speaks — from inside the stone, or perhaps from inside your head:\n\n"Child. I have waited long for someone foolish enough to come back down here. There is something you should know about the creature that broke the wards."\n\nThe voice is ancient and neither threatening nor kind. It is simply... waiting for your response.`,
+    choices: [
+      { text: '"Speak. Tell me what I face."', next: 'crypt_listen' },
+      { text: 'Draw your weapon. This could be a trap.', next: 'crypt_weapon' },
+      { text: 'Press your hand to the stone lid and listen more closely.', condition: () => state.cls === 'Cleric' || state.cls === 'Mage', next: 'crypt_attune' },
+    ]
+  },
+
+  crypt_listen: {
+    text: `"The wards were broken by Malgrath the Unbound — a lich we sealed here two hundred years ago. He has grown. We underestimated what two centuries of isolation would do to an already formidable mind."\n\nA pause. Dust filters down from the ceiling.\n\n"He is on the fourth level. Between you and him: the Mirrored Wraith on level two, the Goblin King's horde on level three, and Malgrath himself waiting with patience that only the undead can sustain."\n\n"Why tell me this?" you ask.\n\n"Because someone must stop him. And because I cannot." A sound like stone settling. "One more thing: his phylactery — the vessel that holds his life — is not on his body. Find it before you confront him. Without it, you cannot truly end him."\n\nThe sarcophagus goes silent. The hands lower slightly.`,
+    choices: [
+      { text: 'Thank the voice and continue deeper.', effect: () => { state.flags.knowsPhylactery = true; log('You know about the phylactery.'); }, next: 'crypt_chest' },
+    ]
+  },
+
+  crypt_weapon: {
+    text: `"Weapons are the language of the frightened," the voice says, with something that might be amusement. "But I respect caution. I will be brief."\n\nIt tells you the same things — Malgrath, the phylactery, the levels below. But the tone has shifted. More formal. Less intimate.\n\nWhen it finishes: "You may lower your weapon. I am Archmage Thalos Rendeth. I have been dead for two hundred years. I have no interest in harming you."\n\nA beat.\n\n"The living have enough enemies in this dungeon without adding the long-dead."`,
+    choices: [
+      { text: 'Lower the weapon. Take the information.', effect: () => { state.flags.knowsPhylactery = true; log('You know about the phylactery.'); }, next: 'crypt_chest' },
+    ]
+  },
+
+  crypt_attune: {
+    text: `The stone is warm under your palm. Warmer than it should be.\n\nYou extend your senses — magical or divine, the mechanism differs but the experience is the same — and feel the consciousness within. Ancient. Patient. Fundamentally benevolent, in the way that very old, very tired things sometimes are.\n\nArchmage Thalos Rendeth died two centuries ago and decided to stay, because someone had to watch.\n\nThe information flows without words: Malgrath's name, his position on level four, the phylactery hidden in the flooded vault you passed — the old sleeping thing in the water is not a monster; it is a vessel — and a warning that the Mirrored Hall will show you your worst self.\n\n"Prepare for that," the voice says finally, with something like compassion. "It is harder than anything else down here."`,
+    choices: [
+      { text: 'Thank Archmage Rendeth and move on.', effect: () => { state.flags.knowsPhylactery = true; state.flags.knowsVault = true; log('You know the phylactery is in the Flooded Vault.'); }, next: 'crypt_chest' },
+    ]
+  },
+
+  crypt_chest: {
+    text: `At the far end of the crypt, half-buried under a collapsed pillar, is a chest that looks like it hasn't been opened since the place was sealed.\n\nThe lock is complex — a puzzle mechanism, not a standard keyhole.`,
+    choices: [
+      { text: '[WARRIOR] Force it open. Brute strength.', condition: () => state.cls === 'Warrior', effect: () => { state.gold += 30; log('Forced open. Found 30gp and a greatsword fragment — +2 Power.'); state.power += 2; }, next: 'level2_approach' },
+      { text: '[ROGUE] Pick it. You\'ve cracked worse.', condition: () => state.cls === 'Rogue', effect: () => { state.gold += 50; log('Picked clean. 50gp, gem, and a lockpick set upgrade — +1 Cunning.'); state.cunning += 1; }, next: 'level2_approach' },
+      { text: '[MAGE] Analyze the rune-lock and dispel it.', condition: () => state.cls === 'Mage', effect: () => { state.gold += 20; log('Dispelled. 20gp and a spell scroll — +2 Magic.'); state.magic += 2; }, next: 'level2_approach' },
+      { text: '[CLERIC] Pray over it. If it was meant for you, it opens.', condition: () => state.cls === 'Cleric', effect: () => { state.gold += 25; state.hp = Math.min(state.maxHp, state.hp + 20); log('It opens. 25gp and a vial of holy water. +20 HP healed.'); }, next: 'level2_approach' },
+      { text: 'Leave it. Keep moving.', next: 'level2_approach' },
+    ]
+  },
+
+  // ── MIRRORED HALL ─────────────────────────────────────────────────────────
+
+  mirror_entrance: {
+    depth: 'Mirrored Hall',
+    text: `You ignore the warning and take the center passage.\n\nThe Mirrored Hall lives up to its name. Every surface — floor, ceiling, walls — reflects. But the reflections are wrong. They lag. They move independently. In some panels, your reflection smiles when you don't. In others, it reaches toward you.\n\nHalfway down the hall, the reflections coalesce. They step out of the mirrors.\n\nYour double stands before you — your face, your build, your weapon — but the eyes are empty silver, and it wears your expressions like a mask it hasn't quite learned to fit.\n\n"You came to be a hero," it says. "Let's see what that means."`,
+    choices: [
+      { text: 'Fight it. You know your own weaknesses — use them against it.', next: 'mirror_fight' },
+      { text: 'Speak to it. "What do you want?"', next: 'mirror_talk' },
+      { text: '[MAGE] This is an illusion construct. Dispel it.', condition: () => state.cls === 'Mage', next: 'mirror_dispel' },
+    ]
+  },
+
+  mirror_fight: {
+    text: `The wraith fights like you — because it is you, mirrored. Every move you make, it anticipates.\n\nBut anticipation isn't the same as experience. You've fought through pain, exhaustion, fear. The wraith is a copy without those depths.\n\nYou find the gap. You always find the gap.\n\nIt shatters like a mirror — a thousand silver fragments that dissolve before they hit the floor.`,
+    onEnter: () => {
+      const success = check('power', 10);
+      if (success) {
+        state.hp -= 20;
+        state.gold += 15;
+        log('Victory! Took 20 damage. Found 15gp in the mirror shards.');
+        state.flags.mirrorDefeated = true;
+      } else {
+        state.hp -= 45;
+        log('Brutal fight. Took 45 damage. You barely won.');
+        state.flags.mirrorDefeated = true;
+      }
+    },
+    choices: [
+      { text: 'Press on.', next: 'mirror_passage' },
+    ]
+  },
+
+  mirror_talk: {
+    text: `The wraith tilts its head.\n\n"What do I want?" It considers this, silver eyes flickering. "I want to know why you're here. Truly here. Not the story you tell yourself — the reason underneath it."\n\nYou answer. Whatever you say, it listens with complete attention. Then:\n\n"You believe that," it says slowly. "Most don't. Most who come here are running toward glory or away from something else. You..." It pauses. "You might be telling the truth."\n\nThe silver eyes dim. The wraith steps aside.\n\n"The passage is yours. Know that the lich below will ask you the same question. Your answer then will matter more than your weapons."`,
+    onEnter: () => { state.flags.mirrorAnswered = true; state.flags.mirrorDefeated = true; log('Passed the Mirrored Hall without violence. +1 to all checks.'); },
+    choices: [
+      { text: 'Continue forward.', next: 'mirror_passage' },
+    ]
+  },
+
+  mirror_dispel: {
+    text: `You read the magic of the wraith in seconds. Conjuration layered over illusion — a construct bound to the hall's resonant enchantment, fed by whoever walks through.\n\nThe dispel unravels it thread by thread. It doesn't fight. It can't; without the illusion, there's nothing there to have a will.\n\nIt disappears with a sound like a whispered apology.`,
+    onEnter: () => { state.hp -= 5; state.flags.mirrorDefeated = true; log('Dispelled cleanly. Cost 5 HP in magical feedback.'); },
+    choices: [
+      { text: 'Proceed.', next: 'mirror_passage' },
+    ]
+  },
+
+  mirror_passage: {
+    text: `Past the hall, you find a room with a dying fire and the remains of a camp. Someone else descended before you. Their gear is abandoned — a quality backpack, rations, a journal.\n\nThe journal's last entry: "Level 3 tomorrow. The goblins have a king now. He talks. Be careful."\n\nBelow that, shakily: "The lich knows you're coming. He always knows."`,
+    onEnter: () => { state.hp = Math.min(state.maxHp, state.hp + 15); log('You rest at the abandoned camp. +15 HP restored.'); },
+    choices: [
+      { text: 'Take the rations and the backpack. Head to Level 2.', effect: () => { state.gold += 5; log('+5gp worth of gear found.'); }, next: 'level2_approach' },
+    ]
+  },
+
+  // ── FLOODED VAULT ────────────────────────────────────────────────────────
+
+  flood_entrance: {
+    depth: 'Flooded Vault',
+    text: `The right passage slopes downward until the floor is wet, then ankle-deep in cold black water.\n\nThe Flooded Vault is a vast chamber, ceiling vaulted and dripping. The water is waist-deep in the center and perfectly, unnervingly still.\n\nIn the center, just below the surface, glows something — faint amber, pulsing slowly. Organic. Old.\n\nOn the far shore you can see a dry ledge with a door leading onward. Between you and it: the water, and whatever is in it.\n\nYou watch the surface. Nothing moves. But the glow pulses again, steady as a heartbeat.`,
+    choices: [
+      { text: 'Wade through. Head straight for the glowing object.', next: 'flood_wade' },
+      { text: 'Observe the room carefully before moving.', next: 'flood_observe' },
+      { text: '[CLERIC] Bless the water first. Then cross.', condition: () => state.cls === 'Cleric', next: 'flood_bless' },
+    ]
+  },
+
+  flood_wade: {
+    text: `The water is shockingly cold. Each step sends ripples that echo in the vault above.\n\nYou reach the glowing object: a glass orb, sealed with old wax and enchantment, containing what looks like a chip of yellowed bone and a small dark flame that should not be able to burn underwater.\n\nA phylactery. The lich's phylactery.\n\nYou almost reach for it.`,
+    choices: [
+      { text: 'Grab it. That\'s what you\'re here for.', effect: () => { state.flags.hasPhylactery = true; state.hp -= 30; log('The guardian woke! Took 30 damage escaping. You have the phylactery.'); }, next: 'flood_guardian_fight' },
+      { text: 'Wait. Listen. There\'s something else here.', next: 'flood_listen' },
+    ]
+  },
+
+  flood_observe: {
+    text: `You study the room from the threshold for a full two minutes.\n\nThe glow pulses in the water — regular, rhythmic. Not like an alarm. Like sleep.\n\nYou look at the ceiling: old pulleys and chains, long since rusted. Once, they operated a drainage mechanism. The mechanism still exists, you realize; the lever is on the right wall.\n\nIf you drain the vault, you can walk to the glowing object. But draining the vault will definitely wake whatever is sleeping in it.`,
+    choices: [
+      { text: 'Drain the vault. Wake it on your terms, not its.', next: 'flood_drain' },
+      { text: 'Wade quietly. Don\'t wake the guardian.', next: 'flood_stealth_wade' },
+    ]
+  },
+
+  flood_bless: {
+    text: `You speak the words of warding into the water. The prayer leaves your lips and the water... responds. Not dramatically — no parting of waves. But the cold retreats slightly, and the thing sleeping below stirs, recognizes the prayer, and stills again.\n\nWhatever is in this water is old enough to remember when such prayers were spoken regularly. Old enough, perhaps, to be more than a monster.\n\nYou cross safely. The phylactery glows beneath the surface, pulsing like a trapped heartbeat.`,
+    choices: [
+      { text: 'Take the phylactery.', effect: () => { state.flags.hasPhylactery = true; log('You retrieve the phylactery. The guardian does not stir.'); }, next: 'flood_exit' },
+    ]
+  },
+
+  flood_listen: {
+    text: `You stand very still in the waist-deep water and listen.\n\nBreathing. Slow and vast, somewhere below you.\n\nIt's not aggression. Not hunger. It sounds, impossibly, like deep sleep — the breathing of something that has been in this water for so long that sleeping has become its primary mode of existence.\n\nYou reach for the phylactery slowly, deliberately, keeping your movements calm and smooth.`,
+    onEnter: () => {
+      const success = check('cunning', 8);
+      if (success) {
+        state.flags.hasPhylactery = true;
+        log('Cunning check SUCCESS. Retrieved phylactery without waking the guardian.');
+      } else {
+        state.hp -= 20;
+        state.flags.hasPhylactery = true;
+        log('Cunning check FAILED. Guardian stirred but you grabbed it and ran. -20 HP.');
+      }
+    },
+    choices: [
+      { text: 'Get to the far shore.', next: 'flood_exit' },
+    ]
+  },
+
+  flood_drain: {
+    text: `The lever takes your full weight. The vault groans. Old mechanisms, resisting two centuries of rust, begin to move.\n\nWater drains through the floor in rushing currents. The glow rises above the surface — the phylactery, sitting on a pedestal you couldn't see before.\n\nAnd from the deepest center of the vault, something rises too.\n\nA Water Elemental — ancient, vast, its form the consistent shape of something that has forgotten it was ever meant to be anything else. It regards you without hostility, but without welcome.`,
+    choices: [
+      { text: 'Fight it. You drained the vault — finish what you started.', effect: () => { state.hp -= 35; state.flags.hasPhylactery = true; log('Hard fight. -35 HP. You retrieved the phylactery.'); }, next: 'flood_exit' },
+      { text: '"I mean you no harm. I\'ve come for the orb only."', next: 'flood_elemental_talk' },
+    ]
+  },
+
+  flood_stealth_wade: {
+    text: `You move through the water with exaggerated calm. No splashing. Each step placed with full deliberate intention.\n\nThe glow dims as you approach, then brightens again — the sleeping thing tracking you, perhaps, without fully waking.`,
+    onEnter: () => {
+      const success = check('cunning', 11);
+      if (success) {
+        state.flags.hasPhylactery = true;
+        log('Cunning check SUCCESS. Silent retrieval. Guardian never stirred.');
+      } else {
+        state.hp -= 25;
+        state.flags.hasPhylactery = true;
+        log('Cunning check FAILED. You grabbed it and bolted. -25 HP. You have it.');
+      }
+    },
+    choices: [
+      { text: 'Get to the far shore and through the door.', next: 'flood_exit' },
+    ]
+  },
+
+  flood_guardian_fight: {
+    text: `The Water Elemental rises — a column of black water taller than two men, its core a spinning void. It is very old and very powerful and it has been sleeping for two hundred years.\n\nIt is also disoriented and half-awake.\n\nYou use that. You run more than you fight — diving for the door, the phylactery clutched to your chest, as the elemental crashes and searches behind you.`,
+    choices: [
+      { text: 'You made it through the door. Catch your breath.', next: 'flood_exit' },
+    ]
+  },
+
+  flood_elemental_talk: {
+    text: `The elemental stills.\n\nIt speaks in a voice like water in a deep well: "The orb. You know what it is."\n\n"Yes. It holds the lich's life. I need it to end him."\n\n"...We know of the lich." The words are slow, deliberate. "He sealed us here with the wards. We have been prisoner as long as he has been prisoner." A pause that lasts the length of a held breath. "Take the orb. End him. And open the vault door when you leave. We wish to remember what moving water feels like."`,
+    onEnter: () => { state.flags.hasPhylactery = true; state.flags.elementalFree = true; log('The elemental gifts you the phylactery willingly.'); },
+    choices: [
+      { text: '"The door opens when I leave. You have my word."', next: 'flood_exit' },
+    ]
+  },
+
+  flood_exit: {
+    text: `The far door leads to a stone staircase heading down. Behind you, the vault is still, or draining, or alive with a vast and patient presence — depending on how you handled it.\n\nThe phylactery pulses against your palm if you have it. A chip of bone. A small dark flame. The distilled life-force of something very old and very dangerous.\n\nYou descend.`,
+    choices: [
+      { text: 'Continue to Level 2.', next: 'level2_approach' },
+    ]
+  },
+
+  // ── LEVEL 2 ───────────────────────────────────────────────────────────────
+
+  level2_approach: {
+    depth: 'Level 2',
+    text: `Level Two opens into worked stone halls — more deliberate than the rough tunnels above. Someone designed this space. Alcoves hold old weapon racks, empty. Tapestries hang, too faded to read their designs.\n\nAt the hall's midpoint: a massive chamber lit by bioluminescent fungi that cast everything in blue-white light.\n\nIn the center: a giant spider, the size of a draft horse, tending a web that spans the chamber ceiling. It is aware of you. It turns eight eyes in your direction and makes no move to attack.\n\nOn a plaque beside the chamber entrance:\n\n"ATREVETH'S WARD. She does not hunt. She does not negotiate. She tests. Pass her test, pass through. Fail it, and she will harvest what she can use."`,
+    choices: [
+      { text: 'Step into the chamber and face whatever test she offers.', next: 'spider_test' },
+      { text: 'Look for a way around the chamber.', next: 'spider_bypass' },
+    ]
+  },
+
+  spider_bypass: {
+    text: `There is a service passage — a thin maintenance corridor that runs alongside the main chamber. The builders put it there for repair crews. Atreveth probably knows about it.\n\nYou take it anyway. Halfway through, you realize she absolutely knows about it — because the tunnel is lined with old web strands, sticky and thick. Moving without touching them requires patience and a certain kind of controlled movement.`,
+    onEnter: () => {
+      const success = check('cunning', 9);
+      if (success) {
+        log('Cunning check SUCCESS. Slipped through without triggering the webs.');
+      } else {
+        state.hp -= 20;
+        log('Cunning check FAILED. Atreveth found you mid-tunnel. -20 HP to break free.');
+      }
+    },
+    choices: [
+      { text: 'Emerge on the far side.', next: 'level2_far' },
+    ]
+  },
+
+  spider_test: {
+    text: `Atreveth descends from the ceiling on a thread as thick as rope. Up close, her eyes are complex and intelligent.\n\nShe speaks. The voice comes from her body rather than her mouth — a vibration.\n\n"Every creature that has descended this far has carried one of three things: greed, fear, or purpose. Which are you?"\n\nThe question hangs in the air.`,
+    choices: [
+      { text: '"Greed. The bounty is real and I want it."', next: 'spider_greed' },
+      { text: '"Fear. The village is afraid and I am the only one who came."', next: 'spider_fear' },
+      { text: '"Purpose. The lich needs to be stopped. I am stopping him."', next: 'spider_purpose' },
+    ]
+  },
+
+  spider_greed: {
+    text: `Atreveth considers this for a long moment.\n\n"Honest. Few admit greed openly." Eight eyes regard you. "Greed is a blade that cuts both ways. It has driven heroes to victory and driven them to ruin with equal facility." She shifts. "Pass. I prefer honest greed to noble self-deception."`,
+    onEnter: () => { state.gold += 20; log('Atreveth gifts you 20gp from the remains of less honest adventurers.'); },
+    choices: [
+      { text: 'Accept her judgment and continue.', next: 'level2_far' },
+    ]
+  },
+
+  spider_fear: {
+    text: `Something in Atreveth's posture changes — not threatening. Softer.\n\n"Fear as the engine of action is underestimated." She descends another few inches. "The brave act without fear; that is easy. Acting well despite fear requires more." She nods, if a spider can nod. "Pass. And take this — it will help on the next level."`,
+    onEnter: () => { state.hp = Math.min(state.maxHp, state.hp + 25); state.flags.spiderBlessing = true; log('Atreveth\'s salve restores 25 HP and grants a blessing.'); },
+    choices: [
+      { text: 'Continue down.', next: 'level2_far' },
+    ]
+  },
+
+  spider_purpose: {
+    text: `"Purpose," Atreveth repeats, slowly. "The most dangerous answer, and the rarest honest one." She moves back, ascending her thread. "Purpose can become fanaticism. Purpose can survive every argument that should stop it. Be careful that yours remains yours, and does not become the lich's."\n\nA pause at the ceiling.\n\n"Pass. And think on what I said, below. It will matter."`,
+    onEnter: () => { state.magic += 1; state.power += 1; state.flags.spiderWisdom = true; log('Atreveth\'s warning settles into you. +1 Power, +1 Magic.'); },
+    choices: [
+      { text: 'Proceed to Level 3.', next: 'level2_far' },
+    ]
+  },
+
+  level2_far: {
+    depth: 'Level 3',
+    text: `Past Atreveth's chamber, the dungeon changes character. The worked stone gives way to something older — rougher, wider, the walls carved with crude murals. Goblin-made. The smell of smoke, cookfires, and bodies in close quarters grows stronger.\n\nLevel Three: the Goblin King's domain.\n\nBefore you reach the first goblin, a small figure ducks out from behind a stalagmite. It's wearing a white flag — a scrap of torn shirt tied to a femur bone — and its eyes are wide with either terror or exaggerated diplomacy.\n\n"You! Tall thing! Grukk sends me. Grukk says: come talk before you stab. Grukk has information. Grukk has deal maybe. Grukk not want to fight today. Too many died last week already."`,
+    choices: [
+      { text: 'Follow the emissary. Hear what Grukk has to say.', next: 'goblin_parley' },
+      { text: 'Decline. You fight through to level four.', next: 'goblin_fight' },
+    ]
+  },
+
+  goblin_parley: {
+    text: `Grukk the Goblin King is approximately four feet tall, wearing a crown made from the bones of previous adventurers' helmets and a robe that used to belong to someone much larger. He sits on a throne made of stacked dungeon furniture and regards you with eyes that are sharper than his surroundings suggest.\n\n"Last week," Grukk says, "the lich woke up angry. He sent undead through our warrens. Killed forty of mine. Forty." He holds up fingers to count, runs out of fingers, gives up. "Many. My goblins did not choose to live under a lich. We were here first."\n\nHe leans forward.\n\n"You go down to kill him. Good. Grukk helps. Grukk shows you the safe passage past level three, gives you a map of level four. In return: when the lich is dead, you tell the surface people that Grukk is here. Grukk wants to negotiate. Not to be killed."\n\nHe extends a small clawed hand.`,
+    choices: [
+      { text: 'Shake his hand. The alliance makes sense.', effect: () => { state.flags.goblinAlliance = true; state.gold += 10; log('Alliance with Grukk! You have a map of Level 4. +10gp gift.'); }, next: 'goblin_deal' },
+      { text: 'Agree but make no promises about what happens after.', next: 'goblin_deal_cautious' },
+    ]
+  },
+
+  goblin_deal: {
+    text: `Grukk beams. It is an unsettling expression on a goblin face.\n\n"Grukk knew you were smart. Not like the last three. The last three stabbed first." He shakes his head. "Very rude. Very dead now."\n\nHe hands you a map — crude but accurate, drawn in what you try not to think too hard about — and walks you personally to a concealed passage in the south wall.\n\n"This brings you to level four. Malgrath's antechamber. He will be expecting you." He pauses. "Grukk cannot help below. The lich has power over goblins in his domain. But you have the map, and you have our prayers. Such as they are."\n\nHe pats you on the arm.\n\n"Don't die."`,
+    choices: [
+      { text: 'Descend the concealed passage.', next: 'level4' },
+    ]
+  },
+
+  goblin_deal_cautious: {
+    text: `Grukk studies you. He reads the hesitation.\n\n"You cannot promise," he says. It is not quite an accusation. "Fair enough. Grukk appreciates honesty more than promises that mean nothing." He hands over the map anyway. "The information is still good. What the surface people do with Grukk afterward — Grukk will manage that himself. He has been managing things himself for a long time."`,
+    onEnter: () => { state.flags.goblinAlliance = true; log('Grukk gives you the map anyway. You have a map of Level 4.'); },
+    choices: [
+      { text: 'Take the map and the passage.', next: 'level4' },
+    ]
+  },
+
+  goblin_fight: {
+    text: `You fight through Level Three the hard way.\n\nGoblins in a dungeon they know well are not easy opponents. They set traps, lure you into corridors, attack from above. You take wounds. You give worse.`,
+    onEnter: () => {
+      const success = check('power', 12);
+      if (success) {
+        state.hp -= 30;
+        state.gold += 40;
+        log('Power check SUCCESS. You fought through. -30 HP, +40gp looted.');
+      } else {
+        state.hp -= 55;
+        state.gold += 15;
+        log('Power check FAILED. Brutal going. -55 HP, +15gp barely looted.');
+      }
+    },
+    choices: [
+      { text: 'Continue to Level 4.', next: 'level4' },
+    ]
+  },
+
+  // ── LEVEL 4 — MALGRATH ───────────────────────────────────────────────────
+
+  level4: {
+    depth: 'Level 4 — The Sanctum',
+    text: `Level Four is cold in a way that has nothing to do with temperature.\n\nThe air itself feels wrong — thin, as though some vital quality has been removed from it. The walls are covered in runes that Malgrath has been carving for two centuries. Not decorations. Research notes. The ongoing work of a mind that has had nothing to do but think.\n\nAt the sanctum's center, he waits.\n\nMalgrath the Unbound is not what you expected. Two hundred years alone have stripped everything theatrical from him. He is a lich — robed skeleton, twin lights in the eye sockets — but he sits in a chair like someone who is tired. Not of you. Of everything.\n\n"At last," he says. His voice is dust and old parchment. "I wondered how long before they sent someone competent."`,
+    choices: [
+      { text: '"I\'m not here to talk. This ends now."', next: 'malgrath_fight' },
+      { text: '"Why did you break the wards? You could have stayed hidden."', next: 'malgrath_talk' },
+      { text: '[Has Phylactery] Hold up the orb. "Tell me what you want before I decide what to do with this."', condition: () => state.flags.hasPhylactery, next: 'malgrath_leverage' },
+    ]
+  },
+
+  malgrath_fight: {
+    text: `Malgrath stands. Two centuries of magical study rise with him.\n\nThe fight is everything you feared — and everything you trained for. He is immensely powerful. He is also alone, untested against a living opponent for two hundred years, and the isolation has cost him something.\n\nYou press every advantage. Your class, your choices, your scars. Every moment of this dungeon has prepared you.`,
+    onEnter: () => {
+      const primaryStat = state.cls === 'Warrior' ? 'power' : state.cls === 'Rogue' ? 'cunning' : 'magic';
+      const success = check(primaryStat, 13);
+      const phylBonus = state.flags.hasPhylactery;
+      if (success || phylBonus) {
+        state.hp -= 30;
+        if (phylBonus) { log('CRITICAL: You shatter the phylactery mid-fight! Malgrath cannot reform. -30 HP. VICTORY.'); }
+        else { log('Skill check SUCCESS. You overwhelm him. -30 HP taken in the process.'); }
+        state.flags.malgrath = 'defeated';
+      } else {
+        state.hp -= 60;
+        log('Skill check FAILED. He was stronger than expected. -60 HP. But you kept fighting.');
+        state.flags.malgrath = 'defeated_costly';
+      }
+    },
+    choices: [
+      { text: 'Finish it.', next: state.flags && state.flags.hasPhylactery ? 'ending_victory_clean' : 'ending_victory_hard' },
+    ]
+  },
+
+  malgrath_talk: {
+    text: `Malgrath is still for a moment.\n\n"Why," he repeats. "An interesting question. No one asks it. They assume the answer is power, or malice, or madness." He settles back in the chair. "Two centuries alone, and no one has asked why."\n\nHe looks at his hands — bone and remnant ligament.\n\n"The wards were failing. Korrath's enchantments decay; he knew they would. In forty years they would have collapsed on their own — badly, dangerously. I broke them cleanly, in a controlled way, to prevent worse.\n\nHe pauses.\n\n"I also..." The twin lights dim slightly. "I wanted to end this. I have lived past every reason to continue. The seal was the only thing keeping me here. I broke it because I am... tired. I hoped someone would come down and finish it properly."`,
+    choices: [
+      { text: '"You\'re asking me to kill you."', next: 'malgrath_mercy' },
+      { text: '"This could be a manipulation. I don\'t trust this."', next: 'malgrath_fight' },
+    ]
+  },
+
+  malgrath_leverage: {
+    text: `The phylactery glows in your hand. Malgrath's twin eye-lights fix on it with an expression you didn't expect.\n\nNot rage. Not desperation.\n\nRelief.\n\n"You found it," he says quietly. "In the vault. The elemental kept it safe." He folds his bone hands in his lap. "Then you know, when that breaks, I cannot reform. Truly gone." He looks at you. "I will tell you the truth, since you have the only card that matters."\n\nHe tells you what he told you if you talked. The failing wards. The deliberate break. The exhaustion of two centuries.\n\n"I want this to end. I am asking you to end it."`,
+    choices: [
+      { text: 'Hear him out fully.', next: 'malgrath_mercy_phylactery' },
+      { text: 'Break the phylactery now and fight.', next: 'ending_victory_clean' },
+    ]
+  },
+
+  malgrath_mercy: {
+    text: `"Yes," Malgrath says simply. "I am."\n\nYou stand in the cold sanctum with the weight of two hundred years in the air between you.\n\nThe lich does not threaten. Does not bargain. Waits.`,
+    choices: [
+      { text: 'Grant it. This is mercy, not murder.', condition: () => state.flags.hasPhylactery, effect: () => { state.flags.malgrath = 'mercy'; }, next: 'ending_mercy' },
+      { text: 'Grant it. Fight him and let it be a clean end.', condition: () => !state.flags.hasPhylactery, effect: () => { state.hp -= 20; state.flags.malgrath = 'mercy'; log('-20 HP in the final clash, but he falls without fighting back.'); }, next: 'ending_mercy' },
+      { text: 'No. I cannot take the word of a lich. I fight.', next: 'malgrath_fight' },
+    ]
+  },
+
+  malgrath_mercy_phylactery: {
+    text: `Malgrath looks at the orb in your hand. The small dark flame inside pulses.\n\n"Break it," he says. "And then... let me fall. I will not fight. I am done fighting."\n\nThe sanctum is very quiet.`,
+    choices: [
+      { text: 'Break the phylactery. Honor his request.', effect: () => { state.flags.malgrath = 'mercy'; }, next: 'ending_mercy' },
+      { text: 'Keep the phylactery intact. Bind him instead of killing him.', effect: () => { state.flags.malgrath = 'bound'; }, next: 'ending_bind' },
+    ]
+  },
+
+  death: {
+    depth: 'The Dungeon',
+    text: `Your HP has reached zero.\n\nThe dungeon is dark and cold and patient. It has outlasted everything that has entered it. It will outlast you too.\n\nFor a moment, everything is still.\n\nThen the darkness takes you.\n\n══════════════════════════════\nENDING: The Dungeon Claims Another\nYou fell to the darkness beneath Ashenveil.\nBetter luck next descent.\n══════════════════════════════`,
+    choices: [{ text: '[ Try Again ]', effect: () => resetGame(), next: 'start' }]
+  },
+
+  // ── ENDINGS ───────────────────────────────────────────────────────────────
+
+  ending_victory_clean: {
+    text: `The phylactery shatters.\n\nThe flame inside goes out — and with it, Malgrath the Unbound. Not a dramatic death. The twin lights in his eye sockets dim. The robes collapse. Two centuries of accumulated magical tension release in a soundless exhale, like the dungeon itself sighing.\n\nThe runes on the walls go dark, one by one.\n\nYou climb back through the levels — past Grukk's domain (he waves), past Atreveth's chamber (she nods from the ceiling), back through whatever remains of the passages that brought you here.\n\nThe surface air hits you like cold water. The village elders are waiting.\n\nYou hold up the shattered orb. The dark flame is gone.\n\nThey pay you. They cheer. The dungeon is silent for the first time in two hundred years.\n\nYou sit down in the village square and eat an entire meal without checking anything for traps.\n\nIt is, you decide, enough.\n\n══════════════════════════════\nENDING: The Clean Kill\nMission Complete — Full Victory\nAshenveil is safe. The lich is ended.\n══════════════════════════════`,
+    choices: [{ text: '[ Play Again ]', effect: () => resetGame(), next: 'start' }]
+  },
+
+  ending_victory_hard: {
+    text: `Malgrath falls. Not cleanly — he takes more from you than you wanted to give, and he won't stop reforming, rebuilding himself from death magic, until there's nothing left to fight with.\n\nIn the end you find the answer: you pull the fight into the heart of his own rune-work, and the feedback loop destroys both his body and his means of return. Inelegant. Costly.\n\nDone.\n\nYou limp out of the dungeon covered in magical burns and carrying the proof they asked for: his ritual crown, unmistakable.\n\nThe village healer fixes what can be fixed. The elders pay the bounty. The dungeon is quiet.\n\nYou count your wounds and your gold and decide that next time someone says a dungeon is forbidden, you'll ask more questions before you descend.\n\n── Probably. ──\n\n══════════════════════════════\nENDING: Hard-Won Victory\nMission Complete — Costly but decisive\nAshenveil is safe. You need a week off.\n══════════════════════════════`,
+    choices: [{ text: '[ Play Again ]', effect: () => resetGame(), next: 'start' }]
+  },
+
+  ending_mercy: {
+    text: `The end of Malgrath the Unbound is quiet.\n\nNo dramatic explosion. No final curse. The phylactery, broken or unfound, releases. The lich's form settles. The twin lights in his eyes extinguish.\n\nHis last words, barely audible:\n\n"...Long enough."\n\nYou sit in the empty sanctum for a while, among two centuries of research notes and the echo of an impossibly long life that simply ran out of reason to continue.\n\nThen you climb.\n\nThe village pays. They ask if you fought him. You say yes, in a way.\n\nFor years afterward, scholars come to Ashenveil to study Malgrath's sanctum — his research, it turns out, contained genuine magical breakthroughs. Things that help people. The irony is not lost on anyone.\n\nYou don't take credit for that part. Some things don't need a hero's name attached.\n\n══════════════════════════════\nENDING: A Merciful End\nMission Complete — The lich is at rest\nSomething that needed ending has ended.\n══════════════════════════════`,
+    choices: [{ text: '[ Play Again ]', effect: () => resetGame(), next: 'start' }]
+  },
+
+  ending_bind: {
+    text: `You don't break the phylactery. You hold it up and speak the binding words — you know them (every adventurer learns them eventually) — and the magic settles over Malgrath like a net.\n\n"This," he says, with something like resignation, "is not what I asked for."\n\n"I know. But your research is valuable. And I don't make decisions about centuries-old liches alone."\n\nYou bring him to the surface — contained, bound, furious in the specifically dignified way of someone who knows they're not getting what they want — and hand him to the Arcane Council.\n\nHe will never thank you. He might eventually forgive you. Both are a long way off.\n\nThe village is safe. The dungeon is cleared. Malgrath's knowledge goes to the scholars, carefully.\n\nYou are paid double. No one is quite sure why.\n\n══════════════════════════════\nENDING: The Living Bargain\nMission Complete — Unconventional Solution\nAshenveil is safe. History will argue about this one.\n══════════════════════════════`,
+    choices: [{ text: '[ Play Again ]', effect: () => resetGame(), next: 'start' }]
+  },
+};
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+
+function applyClass(cls) {
+  const s = CLASS_STATS[cls];
+  state.cls = cls;
+  state.hp = s.hp;
+  state.maxHp = s.hp;
+  state.power = s.power;
+  state.cunning = s.cunning;
+  state.magic = s.magic;
+  state.gold = s.gold;
+}
+
+function resetGame() {
+  state.name = "Hero";
+  state.cls = "";
+  state.hp = 100;
+  state.maxHp = 100;
+  state.power = 0;
+  state.cunning = 0;
+  state.magic = 0;
+  state.gold = 10;
+  state.depth = "Surface";
+  state.flags = {};
+  updateStats();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+updateStats();
+goTo('start');
+</script>
+</body>
+</html>

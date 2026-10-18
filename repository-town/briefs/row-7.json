@@ -1,0 +1,2692 @@
+[
+ {
+  "repo": "Parris-Tech-Services/Midnight-Line",
+  "summary": "The Midnight Line: a Vite and TypeScript vertical slice of a side-scrolling narrative adventure — walk left and right, interact with objects and choose dialogue options with 1/2/3 — with authored dialogue, extended content, Howler audio and a podcast player.",
+  "evidence": [
+   "README.md",
+   "src/data/dialogue.ts",
+   "src/data/extendedContent.ts",
+   "podcast-player.js",
+   "index.html"
+  ],
+  "kind": "Night Train Station",
+  "ext": {
+   "style": "gatehouse",
+   "walls": "#2a2a44",
+   "roof": "#14142a",
+   "trim": "#e8c84a",
+   "door": "#14142a",
+   "features": [
+    "lanterns",
+    "bench",
+    "signpost",
+    "flag"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#3a3448",
+   "walls": "#5a5478",
+   "light": "#ffd890",
+   "ceiling": "#20202e",
+   "rooms": [
+    {
+     "name": "Platform",
+     "w": 10,
+     "d": 8,
+     "props": [
+      [
+       "bench",
+       "Platform bench"
+      ],
+      [
+       "lantern",
+       "Platform lamp"
+      ],
+      [
+       "clock",
+       "Midnight",
+       {
+        "do": "steps",
+        "title": "Controls",
+        "steps": [
+         "A/D or ←/→ to walk.",
+         "Enter, Space or click to interact.",
+         "Press 1, 2 or 3 to choose a dialogue option."
+        ]
+       }
+      ],
+      [
+       "noticeBoard",
+       "Timetable"
+      ]
+     ]
+    },
+    {
+     "name": "Carriage",
+     "w": 10,
+     "d": 7,
+     "props": [
+      [
+       "pews",
+       "Carriage seats"
+      ],
+      [
+       "cardTable",
+       "Stranger's table",
+       {
+        "do": "quiz",
+        "title": "Dialogue",
+        "q": "How do you pick a dialogue option?",
+        "options": [
+         "Shout",
+         "Press 1, 2 or 3 or click it",
+         "Wait"
+        ],
+        "answer": 1,
+        "explain": "Dialogue options take a number key or a click."
+       }
+      ],
+      [
+       "speaker",
+       "Howler audio"
+      ],
+      [
+       "lamp",
+       "Reading light"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/migration",
+  "summary": "An early bundle of Cornerstone Lifeboat: zipped MVP versions, a July backup of the first Electron prototype (main, preload and renderer) and an HTML migration checklist for moving off a work Google Workspace account — the predecessor of the Transfer repository.",
+  "evidence": [
+   "cornerstone_migration_checklist.html",
+   "cornerstone-lifeboat.backup-20260729-old-mvp/main.js",
+   "cornerstone-lifeboat.backup-20260729-old-mvp/renderer.js",
+   "cornerstone-lifeboat-mvp-v2.zip"
+  ],
+  "kind": "Lifeboat Shed",
+  "ext": {
+   "style": "barn",
+   "walls": "#d84a2a",
+   "roof": "#2a3a4a",
+   "trim": "#f2efe6",
+   "door": "#2a2a2a",
+   "features": [
+    "barrels",
+    "crates",
+    "signpost",
+    "flag"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#7a6a5a",
+   "walls": "#efe6dc",
+   "light": "#fff2e0",
+   "rooms": [
+    {
+     "name": "Checklist Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "noticeBoard",
+       "Migration checklist",
+       {
+        "do": "steps",
+        "title": "Before leaving an account",
+        "steps": [
+         "List what lives in the old account.",
+         "Copy mail, files and contacts.",
+         "Verify the copies.",
+         "Only then retire the source."
+        ]
+       }
+      ],
+      [
+       "desk",
+       "Planning desk"
+      ],
+      [
+       "clock",
+       "Deadline"
+      ],
+      [
+       "filingCabinet",
+       "Account inventory"
+      ]
+     ]
+    },
+    {
+     "name": "Boat Shed",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "wagon",
+       "MVP lifeboat v1"
+      ],
+      [
+       "crates",
+       "Zipped MVPs"
+      ],
+      [
+       "archiveBoxes",
+       "July backup",
+       {
+        "do": "info",
+        "text": "The old MVP was kept as a dated backup before the Transfer repository took over."
+       }
+      ],
+      [
+       "lantern",
+       "Shed lamp"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/NebulaDice-Browser",
+  "summary": "NebulaDice Browser Edition: a static React HUD with a browser-native runtime that mirrors the NebulaDice API — quest progression, movement, interaction, combat and resonance, random-seed New runs, fixed-seed Demo runs and reliable autosave loading, with no Python backend.",
+  "evidence": [
+   "README.md",
+   "src/api/browserClient.ts",
+   "src/store/useGameStore.ts",
+   "src/ui/panels/SceneView.tsx",
+   "src/store/useGameStore.test.ts"
+  ],
+  "kind": "Nebula Observatory",
+  "ext": {
+   "style": "observatory",
+   "walls": "#2a2a5a",
+   "roof": "#9d7ae8",
+   "trim": "#4ff0ff",
+   "door": "#1a1a3a",
+   "features": [
+    "telescope",
+    "beacon",
+    "crystal",
+    "dish"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#24244a",
+   "walls": "#4a4a7a",
+   "light": "#e0d8ff",
+   "ceiling": "#18183a",
+   "rooms": [
+    {
+     "name": "Dice Dome",
+     "w": 11,
+     "d": 10,
+     "props": [
+      [
+       "planetModel",
+       "Nebula"
+      ],
+      [
+       "diceTable",
+       "Resonance dice",
+       {
+        "do": "dice",
+        "sides": 20,
+        "title": "Resonance",
+        "text": "Combat and resonance resolve with dice in the browser runtime."
+       }
+      ],
+      [
+       "hologram",
+       "Scene view"
+      ]
+     ]
+    },
+    {
+     "name": "Run Selector",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "consolePanel",
+       "New or Demo run",
+       {
+        "do": "quiz",
+        "title": "Seeds",
+        "q": "What makes a Demo run repeatable?",
+        "options": [
+         "A fixed seed",
+         "Luck",
+         "A server"
+        ],
+        "answer": 0,
+        "explain": "New runs use a random seed; Demo runs use a fixed one."
+       }
+      ],
+      [
+       "chair",
+       "Pilot chair"
+      ]
+     ]
+    },
+    {
+     "name": "Save Vault",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "safe",
+       "Latest autosave"
+      ],
+      [
+       "terminal",
+       "API contract mirror"
+      ],
+      [
+       "lamp",
+       "Vault light"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/newfileqqqwertuhvgjkk.py",
+  "summary": "Despite the keyboard-mash name, this is a Random Link Redirector: one static page that instantly sends visitors to a random link from a list you control — ideal behind an NFC tag or QR code for Spotify or YouTube — plus leftover IDE project files.",
+  "evidence": [
+   "README.md",
+   "index.html",
+   ".idea files (misc.xml, modules.xml)"
+  ],
+  "kind": "Mystery Door",
+  "ext": {
+   "style": "cottage",
+   "walls": "#e84a8a",
+   "roof": "#2a2a3a",
+   "trim": "#f2d84a",
+   "door": "#2a2a3a",
+   "features": [
+    "signpost",
+    "balloons",
+    "mailbox",
+    "fence"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#a88aa0",
+   "walls": "#fbeef4",
+   "light": "#fff0f8",
+   "rooms": [
+    {
+     "name": "Redirect Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "portal",
+       "Random redirect",
+       {
+        "do": "dice",
+        "sides": 6,
+        "title": "Where to?",
+        "text": "On load, the page picks one link at random and redirects with location.replace."
+       }
+      ],
+      [
+       "nfcReader",
+       "NFC tag"
+      ],
+      [
+       "easel",
+       "QR code"
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ]
+     ]
+    },
+    {
+     "name": "Link List",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "noticeBoard",
+       "links array",
+       {
+        "do": "quiz",
+        "title": "Name check",
+        "q": "What does the oddly named newfileqqqwertuhvgjkk.py actually contain?",
+        "options": [
+         "A Python script",
+         "A static random-link redirector page",
+         "Nothing"
+        ],
+        "answer": 1,
+        "explain": "Despite .py in the name, it's an HTML page."
+       }
+      ],
+      [
+       "vinyl",
+       "Spotify picks"
+      ],
+      [
+       "tv",
+       "YouTube picks"
+      ],
+      [
+       "filingCabinet",
+       ".idea files"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/NextJS-Expert",
+  "summary": "Despite its name, a Replit full-stack takeaway decision app (Express, React, Drizzle) — an option form and home page for choosing tonight's takeaway — a sibling of Dinner-Decider with improved navigation.",
+  "evidence": [
+   "client/src/pages/Home.tsx",
+   "client/src/components/OptionForm.tsx",
+   "shared/",
+   "git log: Add takeaway decision-making features and improve app navigation"
+  ],
+  "kind": "Takeaway Counter",
+  "ext": {
+   "style": "shopfront",
+   "walls": "#f2a03a",
+   "roof": "#2a2a2a",
+   "trim": "#c83a3a",
+   "door": "#2a2a2a",
+   "features": [
+    "cafeTables",
+    "van",
+    "signpost",
+    "bench"
+   ]
+  },
+  "int": {
+   "layout": "L",
+   "floor": "#c8a888",
+   "walls": "#fff2e0",
+   "light": "#fff2dc",
+   "rooms": [
+    {
+     "name": "Order Counter",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "cashRegister",
+       "Takeaway options"
+      ],
+      [
+       "noticeBoard",
+       "Menu board"
+      ],
+      [
+       "desk",
+       "Option form",
+       {
+        "do": "count",
+        "unit": "Options saved",
+        "text": "Each takeaway option goes in through a form."
+       }
+      ],
+      [
+       "coffeeMachine",
+       "Drinks"
+      ]
+     ]
+    },
+    {
+     "name": "Waiting Area",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "cafeTable",
+       "Waiting table"
+      ],
+      [
+       "diceTable",
+       "Can't decide?",
+       {
+        "do": "quiz",
+        "title": "Name check",
+        "q": "What is NextJS-Expert actually?",
+        "options": [
+         "A Next.js course",
+         "A takeaway decision app",
+         "A chess engine"
+        ],
+        "answer": 1,
+        "explain": "It's a Replit Express/React app for choosing takeaway."
+       }
+      ],
+      [
+       "fridge",
+       "Drinks fridge"
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/openclaw",
+  "summary": "A private fork of OpenClaw, the open-source multi-channel AI assistant gateway — chat on your own devices and in messaging apps through channel plugins, with a control UI, native iOS/macOS apps and an enormous test suite — with its automatic workflows switched off.",
+  "evidence": [
+   "README.md",
+   "AGENTS.md",
+   "package.json",
+   "apps/shared/OpenClawKit/",
+   "src/cli/",
+   "git log: disable remaining automatic OpenClaw triggers"
+  ],
+  "kind": "Gateway Lighthouse",
+  "ext": {
+   "style": "lighthouse",
+   "walls": "#e84a3a",
+   "roof": "#2a2a2a",
+   "trim": "#f2f2f2",
+   "door": "#2a2a2a",
+   "features": [
+    "dish",
+    "antenna",
+    "rocks",
+    "flag"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#5a4a48",
+   "walls": "#f2e4e0",
+   "light": "#fff0ec",
+   "rooms": [
+    {
+     "name": "Gateway Hall",
+     "w": 11,
+     "d": 10,
+     "props": [
+      [
+       "router",
+       "Multi-channel gateway",
+       {
+        "do": "steps",
+        "title": "How it reaches you",
+        "steps": [
+         "Your assistant runs on your own devices.",
+         "Channel plugins connect it to chat apps.",
+         "A control UI manages the gateway.",
+         "Native apps carry it to phones and Macs."
+        ]
+       }
+      ],
+      [
+       "monitorWall",
+       "Control UI"
+      ]
+     ]
+    },
+    {
+     "name": "Channel Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "phoneStand",
+       "Messaging channels"
+      ],
+      [
+       "mailbox",
+       "Message queue"
+      ]
+     ]
+    },
+    {
+     "name": "Apps Bay",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "laptop",
+       "macOS app"
+      ],
+      [
+       "phoneStand",
+       "iOS app"
+      ]
+     ]
+    },
+    {
+     "name": "QA Lab",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "serverRack",
+       "Test suites",
+       {
+        "do": "count",
+        "unit": "Tests run",
+        "text": "A huge TypeScript and Swift test suite guards the gateway."
+       }
+      ],
+      [
+       "consolePanel",
+       "Automations paused"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/openclaw-workspace",
+  "summary": "An OpenClaw agent workspace — identity, soul, user, tools and heartbeat files that shape an assistant — holding a Multi-Layer Zoom Game built by agents (world map and game state) and an archived three-agent mesh conversation.",
+  "evidence": [
+   "SOUL.md",
+   "IDENTITY.md",
+   "HEARTBEAT.md",
+   "TOOLS.md",
+   "multi-layer-zoom-game/src/components/WorldMap.js",
+   "multi-layer-zoom-game/src/state/gameState.js"
+  ],
+  "kind": "Agent Lodge",
+  "ext": {
+   "style": "treehouse",
+   "walls": "#d84a3a",
+   "roof": "#3a5a3a",
+   "trim": "#f2efe6",
+   "door": "#3a2a1a",
+   "features": [
+    "bird",
+    "lanterns",
+    "signpost",
+    "trees"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#7a5a48",
+   "walls": "#f2e4d8",
+   "light": "#fff0e0",
+   "rooms": [
+    {
+     "name": "Identity Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "mirror",
+       "IDENTITY.md"
+      ],
+      [
+       "heartMonitor",
+       "HEARTBEAT.md",
+       {
+        "do": "steps",
+        "title": "Workspace files",
+        "steps": [
+         "SOUL — values and voice.",
+         "IDENTITY — who the agent is.",
+         "USER — who it serves.",
+         "TOOLS — what it can use.",
+         "HEARTBEAT — what it checks regularly."
+        ]
+       }
+      ],
+      [
+       "sofa",
+       "Reflection sofa"
+      ],
+      [
+       "bookshelf",
+       "TOOLS.md"
+      ]
+     ]
+    },
+    {
+     "name": "Zoom Game Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "mapTable",
+       "World map",
+       {
+        "do": "toggle",
+        "title": "Zoom",
+        "on": "Zoomed in a layer — the multi-layer game was built by agents.",
+        "off": "Zoomed out."
+       }
+      ],
+      [
+       "robot",
+       "Mesh agents"
+      ],
+      [
+       "computer",
+       "setup-and-run.sh"
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/OS",
+  "summary": "An earlier private copy of Fable Atlas, the artifact-reading self-portrait engine, notable for the commit that stopped tracking personal seed and transcript data — so the house is the atlas's quieter, cleaned-out workshop.",
+  "evidence": [
+   "README.md",
+   "app/page.tsx",
+   "fable-atlas-mvp/",
+   "git log: stop tracking personal seed and transcript data"
+  ],
+  "kind": "Cleaned-Out Workshop",
+  "ext": {
+   "style": "modern",
+   "walls": "#d8d0e8",
+   "roof": "#4a3a6a",
+   "trim": "#e8e0f8",
+   "door": "#3a2a4a",
+   "features": [
+    "garden",
+    "bench",
+    "trees",
+    "crates"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#8a80a0",
+   "walls": "#f4f0fa",
+   "light": "#f6f0ff",
+   "rooms": [
+    {
+     "name": "Workshop",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "desk",
+       "Fable Atlas MVP"
+      ],
+      [
+       "mirror",
+       "Early lens"
+      ],
+      [
+       "laptop",
+       "Next.js app"
+      ],
+      [
+       "chair",
+       "Work stool"
+      ]
+     ]
+    },
+    {
+     "name": "Cleared Shelves",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "archiveBoxes",
+       "Removed personal seed data",
+       {
+        "do": "info",
+        "text": "A commit stopped tracking personal seed and transcript data — the repo keeps code, not life records."
+       }
+      ],
+      [
+       "shelf",
+       "Empty shelves"
+      ],
+      [
+       "filingCabinet",
+       "Artifact metadata only",
+       {
+        "do": "quiz",
+        "title": "What changed?",
+        "q": "What did the key cleanup commit remove from tracking?",
+        "options": [
+         "The UI",
+         "Personal seed and transcript data",
+         "Tests"
+        ],
+        "answer": 1,
+        "explain": "Personal data was removed from version control."
+       }
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/ParrisBudgetApp",
+  "summary": "A private two-person household budget keeper on Next.js with Prisma and Postgres: CSV transaction imports, budget rollover, pacing, a dashboard and simple authentication for the two partners.",
+  "evidence": [
+   "README.md",
+   "prisma/",
+   "src/app/(protected)/import/page.tsx",
+   "src/app/(protected)/transactions/actions.ts",
+   "src/app/(protected)/dashboard/page.tsx",
+   "docker-compose.yml"
+  ],
+  "kind": "Household Budget Bank",
+  "ext": {
+   "style": "townhouse",
+   "walls": "#4a7a5a",
+   "roof": "#2a3a2a",
+   "trim": "#e8d8a8",
+   "door": "#2a3a2a",
+   "features": [
+    "mailbox",
+    "garden",
+    "bench",
+    "chimney"
+   ]
+  },
+  "int": {
+   "layout": "grid",
+   "floor": "#7a7a68",
+   "walls": "#eef2e8",
+   "light": "#f8fff0",
+   "rooms": [
+    {
+     "name": "Import Desk",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "crates",
+       "Bank CSV files",
+       {
+        "do": "count",
+        "unit": "Transactions imported",
+        "text": "Statements come in as CSV imports."
+       }
+      ],
+      [
+       "desk",
+       "Import page"
+      ]
+     ]
+    },
+    {
+     "name": "Budget Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "piggyBank",
+       "Rollover",
+       {
+        "do": "steps",
+        "title": "How the budget works",
+        "steps": [
+         "Import transactions.",
+         "Categorise them.",
+         "Unspent budget rolls over.",
+         "Pacing shows if you're ahead or behind."
+        ]
+       }
+      ],
+      [
+       "chartBoard",
+       "Pacing"
+      ]
+     ]
+    },
+    {
+     "name": "Dashboard",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "monitorWall",
+       "Household dashboard"
+      ],
+      [
+       "sofa",
+       "Money-talk sofa"
+      ]
+     ]
+    },
+    {
+     "name": "Vault",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "safe",
+       "Two-user login"
+      ],
+      [
+       "serverRack",
+       "Postgres"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/ParrisPiano",
+  "summary": "Parris Piano Hub: a utility stack for a Yamaha CVP-301 digital piano — USB-MIDI driver, firmware and DAW notes in priority order — plus a browser MIDI keyboard page and a Python CVP tutor with a piano roll and MIDI engine.",
+  "evidence": [
+   "README.md",
+   "index.html",
+   "midi-keyboard.js",
+   "cvp_tutor/midi_engine.py",
+   "cvp_tutor/piano_roll.py",
+   "cvp_tutor/ui_main.py"
+  ],
+  "kind": "Music Room",
+  "ext": {
+   "style": "townhouse",
+   "walls": "#2a2a2a",
+   "roof": "#f2f2f2",
+   "trim": "#c8a050",
+   "door": "#1a1a1a",
+   "features": [
+    "bench",
+    "garden",
+    "lanterns",
+    "trees"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#5a3a28",
+   "walls": "#f4ecdc",
+   "light": "#fff4dc",
+   "rooms": [
+    {
+     "name": "Piano Room",
+     "w": 10,
+     "d": 8,
+     "props": [
+      [
+       "piano",
+       "Yamaha CVP-301",
+       {
+        "do": "play",
+        "title": "Play a scale",
+        "text": "The browser MIDI keyboard and tutor talk to the piano over USB-MIDI.",
+        "notes": [
+         262,
+         294,
+         330,
+         349,
+         392,
+         440,
+         494,
+         523
+        ]
+       }
+      ],
+      [
+       "lamp",
+       "Music lamp"
+      ],
+      [
+       "rug",
+       "Studio rug"
+      ],
+      [
+       "bench",
+       "Piano stool"
+      ]
+     ]
+    },
+    {
+     "name": "Tutor Studio",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "computer",
+       "CVP tutor",
+       {
+        "do": "steps",
+        "title": "Setup order",
+        "steps": [
+         "Install the Yamaha USB-MIDI driver.",
+         "Update the CVP-301 firmware.",
+         "Install a DAW for recording.",
+         "Open the tutor and follow the piano roll."
+        ]
+       }
+      ],
+      [
+       "monitorWall",
+       "Piano roll"
+      ],
+      [
+       "speaker",
+       "Monitors"
+      ],
+      [
+       "shelf",
+       "Driver & firmware"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/ParrisTechServicesApp",
+  "summary": "ParrisTechServicesApp: a private local-first 'business OS and checkup engine' for a tech-services business — session intake, job references and archived job pages, serverless helpers and an app bundle, published as a static site.",
+  "evidence": [
+   "README.md",
+   "Parris Tech Services/app.js",
+   "Parris Tech Services/job-reference.js",
+   "ParrisTechApp/",
+   "serverless/"
+  ],
+  "kind": "Business Headquarters",
+  "ext": {
+   "style": "terrace",
+   "walls": "#2e7cc4",
+   "roof": "#1a2a3a",
+   "trim": "#f2f2f2",
+   "door": "#1a2a3a",
+   "features": [
+    "van",
+    "flag",
+    "mailbox",
+    "signpost"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#5a6670",
+   "walls": "#e8f0f8",
+   "light": "#f2f8ff",
+   "rooms": [
+    {
+     "name": "Reception",
+     "w": 10,
+     "d": 9,
+     "props": [
+      [
+       "desk",
+       "Session intake",
+       {
+        "do": "steps",
+        "title": "A job",
+        "steps": [
+         "Intake the session.",
+         "Run the checkup engine.",
+         "Record the job reference.",
+         "Archive the job page."
+        ]
+       }
+      ],
+      [
+       "chair",
+       "Client chair"
+      ],
+      [
+       "plant",
+       "Lobby plant"
+      ]
+     ]
+    },
+    {
+     "name": "Job Archive",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "filingCabinet",
+       "Job references"
+      ],
+      [
+       "archiveBoxes",
+       "Archived job pages"
+      ]
+     ]
+    },
+    {
+     "name": "Checkup Bench",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "workbench",
+       "Checkup engine"
+      ],
+      [
+       "laptop",
+       "Client device"
+      ]
+     ]
+    },
+    {
+     "name": "Back Office",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "serverRack",
+       "Serverless helpers"
+      ],
+      [
+       "ledgerDesk",
+       "Business OS",
+       {
+        "do": "count",
+        "unit": "Jobs logged",
+        "text": "A local-first business OS for the tech-services work."
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/PowerApp",
+  "summary": "PowerApp: a private, safety-first learning and conversation app for a married couple exploring a sensitive intimacy topic at beginner level — built around consent, communication, preparation, check-ins, aftercare and reflection, with red flags and Australian support resources, stored locally.",
+  "evidence": [
+   "README.md",
+   "src/components/LearnTab.jsx",
+   "src/components/PrepareTab.jsx",
+   "src/components/ConnectTab.jsx",
+   "docs/beginners-guide.html"
+  ],
+  "kind": "Conversation House",
+  "ext": {
+   "style": "cottage",
+   "walls": "#8a3a4a",
+   "roof": "#2a1a22",
+   "trim": "#e8c8a8",
+   "door": "#2a1a22",
+   "features": [
+    "garden",
+    "bench",
+    "lanterns",
+    "fence"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#6a4a4a",
+   "walls": "#f4e8e6",
+   "light": "#ffe8e0",
+   "rooms": [
+    {
+     "name": "Learn & Talk",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "sofa",
+       "Conversation sofa"
+      ],
+      [
+       "bookshelf",
+       "Beginner's guide"
+      ],
+      [
+       "lamp",
+       "Warm lamp"
+      ],
+      [
+       "noticeBoard",
+       "Consent first",
+       {
+        "do": "steps",
+        "title": "The approach",
+        "steps": [
+         "Learn together.",
+         "Talk about limits and consent.",
+         "Prepare and agree check-ins.",
+         "Aftercare and reflection."
+        ]
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Safety Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "phoneStand",
+       "Check-in tool",
+       {
+        "do": "quiz",
+        "title": "Safety",
+        "q": "What does the safety dashboard centre on?",
+        "options": [
+         "Speed",
+         "Safewords, check-ins and aftercare",
+         "Scores"
+        ],
+        "answer": 1,
+        "explain": "It's calm and safety-first, with support resources."
+       }
+      ],
+      [
+       "medicineCabinet",
+       "Support resources"
+      ],
+      [
+       "filingCabinet",
+       "Local-only worksheets"
+      ],
+      [
+       "plant",
+       "Calm plant"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/PrivatePort",
+  "summary": "London Port: a strictly private, local-only learning project that studies a well-known storylet-driven browser game and implements its own engine — rules, state, card decks and content — through autonomous development cycles, the latest adding 'hidden requirements'.",
+  "evidence": [
+   "README.md",
+   "AUTONOMOUS_PORT_DIRECTIVE.md",
+   "src/game/engine.js",
+   "src/game/rules.js",
+   "src/game/decks.js",
+   "src/game/state.js"
+  ],
+  "kind": "Foggy Harbour Office",
+  "ext": {
+   "style": "ship",
+   "walls": "#3a3a44",
+   "roof": "#c8c0b0",
+   "trim": "#c8a050",
+   "door": "#1a1a22",
+   "features": [
+    "lanterns",
+    "barrels",
+    "crates",
+    "bench"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#3a3634",
+   "walls": "#6a645e",
+   "light": "#ffd8a0",
+   "ceiling": "#24221f",
+   "rooms": [
+    {
+     "name": "Harbour Office",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "cardTable",
+       "Storylet decks",
+       {
+        "do": "steps",
+        "title": "Engine parts",
+        "steps": [
+         "state.js — qualities and progress.",
+         "rules.js — what each storylet requires.",
+         "decks.js — opportunity cards.",
+         "engine.js — ties them together."
+        ]
+       }
+      ],
+      [
+       "lantern",
+       "Fog lamp"
+      ],
+      [
+       "ledgerDesk",
+       "Port ledger"
+      ],
+      [
+       "chair",
+       "Clerk's stool"
+      ]
+     ]
+    },
+    {
+     "name": "Hidden Requirements",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "safe",
+       "Cycle 45",
+       {
+        "do": "info",
+        "text": "The latest development cycle adds storylets with requirements the player can't see in advance."
+       }
+      ],
+      [
+       "scrollRack",
+       "Port directive"
+      ],
+      [
+       "barrel",
+       "Cargo"
+      ],
+      [
+       "desk",
+       "Cycle notes"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/Prompt-Linker",
+  "summary": "A Replit pnpm workspace that, despite its name, mostly holds a Kingkiller-inspired adventure — the kkc-adventure engine with its sympathy system and seeded campus — alongside a generated API client and a mockup sandbox.",
+  "evidence": [
+   "kkc-adventure/src/engine/sympathyEngine.ts",
+   "kkc-adventure/src/db/seed.ts",
+   "lib/api-client-react/src/custom-fetch.ts",
+   "artifacts/mockup-sandbox/",
+   "replit.md"
+  ],
+  "kind": "Workspace Annex",
+  "ext": {
+   "style": "stable",
+   "walls": "#7a6a8a",
+   "roof": "#3a2a4a",
+   "trim": "#e8d8a8",
+   "door": "#2a1a3a",
+   "features": [
+    "crates",
+    "signpost",
+    "lanterns",
+    "bench"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#5a5068",
+   "walls": "#e8e2f0",
+   "light": "#f4eeff",
+   "rooms": [
+    {
+     "name": "Workspace Hall",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "partsBins",
+       "pnpm packages"
+      ],
+      [
+       "computer",
+       "Mockup sandbox"
+      ],
+      [
+       "router",
+       "API client"
+      ],
+      [
+       "desk",
+       "replit.md"
+      ]
+     ]
+    },
+    {
+     "name": "Adventure Wing",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "candles",
+       "Sympathy engine",
+       {
+        "do": "quiz",
+        "title": "Name check",
+        "q": "What does Prompt-Linker mostly contain?",
+        "options": [
+         "A prompt manager",
+         "A Kingkiller-inspired adventure engine",
+         "Nothing"
+        ],
+        "answer": 1,
+        "explain": "The kkc-adventure engine is the main content."
+       }
+      ],
+      [
+       "lectern",
+       "Campus seed"
+      ],
+      [
+       "guitar",
+       "Busking lute",
+       {
+        "do": "play",
+        "title": "Lute",
+        "text": "A nod to the campus economy in the adventure engine.",
+        "notes": [
+         330,
+         392,
+         440,
+         392,
+         330
+        ]
+       }
+      ],
+      [
+       "bookStack",
+       "Campus seed data"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/random-play",
+  "summary": "random-play — Serendipity Player: a tiny 'surprise me' launcher — choose a vibe (Music, Focus, Worship/Reflection, Kids/Family or Fun), press Surprise me and get one random pick on a landing card, with no auto-redirect, tracking or data sent anywhere.",
+  "evidence": [
+   "README.md",
+   "STATUS.md",
+   "index.html",
+   "links.json"
+  ],
+  "kind": "Jukebox Corner",
+  "ext": {
+   "style": "cafe",
+   "walls": "#4a8ad8",
+   "roof": "#2a2a4a",
+   "trim": "#f2d84a",
+   "door": "#2a2a4a",
+   "features": [
+    "balloons",
+    "bench",
+    "cafeTables",
+    "signpost"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#6a7aa0",
+   "walls": "#eef2fc",
+   "light": "#f4f6ff",
+   "rooms": [
+    {
+     "name": "Jukebox",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "arcadeCabinet",
+       "Surprise me",
+       {
+        "do": "dice",
+        "sides": 5,
+        "title": "Surprise me",
+        "text": "One random pick from the chosen vibe, shown on a card so you decide whether to open it."
+       }
+      ],
+      [
+       "vinyl",
+       "Music"
+      ],
+      [
+       "sofa",
+       "Listening sofa"
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ]
+     ]
+    },
+    {
+     "name": "Vibe Shelf",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "shelf",
+       "Music · Focus · Worship · Family · Fun",
+       {
+        "do": "quiz",
+        "title": "No surprises",
+        "q": "Does random-play redirect you as soon as the page loads?",
+        "options": [
+         "Yes",
+         "No — it shows a landing card first",
+         "Only on phones"
+        ],
+        "answer": 1,
+        "explain": "No auto-redirect, no tracking."
+       }
+      ],
+      [
+       "candles",
+       "Reflection"
+      ],
+      [
+       "toyBlocks",
+       "Kids picks"
+      ],
+      [
+       "plant",
+       "Plant"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/repoclean",
+  "summary": "repoclean: an auto-backup container with no files of its own — just pinned references to twelve other repositories (among them AnchorFlow, JoshChess, JoshCoach, StarHaven, Waypoint and Wild2, plus two private ones), pushed in one 'antigravity-push' backup commit.",
+  "evidence": [
+   "git tree: 12 gitlink entries",
+   "git log: Auto-backup: antigravity-push"
+  ],
+  "kind": "Storage Unit Row",
+  "ext": {
+   "style": "warehouse",
+   "walls": "#9a9a9a",
+   "roof": "#e86a2a",
+   "trim": "#2a2a2a",
+   "door": "#3a3a3a",
+   "features": [
+    "crates",
+    "truck",
+    "fence",
+    "signpost"
+   ]
+  },
+  "int": {
+   "layout": "gallery",
+   "floor": "#7a7a78",
+   "walls": "#dcdcd8",
+   "light": "#fffaf0",
+   "rooms": [
+    {
+     "name": "Unit Corridor",
+     "w": 6,
+     "d": 12,
+     "props": [
+      [
+       "trolley",
+       "Backup trolley"
+      ],
+      [
+       "clock",
+       "Backup time"
+      ],
+      [
+       "signpost",
+       "Twelve units",
+       {
+        "do": "steps",
+        "title": "What's stored",
+        "steps": [
+         "AnchorFlow, JoshChess, JoshCoach",
+         "JoshFireAwareness, JoshPlatform, StarHaven",
+         "Waypoint, Wild2, random-play, skills",
+         "Two private repositories"
+        ]
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Unit A",
+     "w": 6,
+     "d": 6,
+     "props": [
+      [
+       "crates",
+       "Pinned repo"
+      ],
+      [
+       "archiveBoxes",
+       "Snapshot"
+      ]
+     ]
+    },
+    {
+     "name": "Unit B",
+     "w": 6,
+     "d": 6,
+     "props": [
+      [
+       "crates",
+       "Pinned repo"
+      ],
+      [
+       "safe",
+       "Gitlinks only",
+       {
+        "do": "quiz",
+        "title": "Contents",
+        "q": "How many files does repoclean itself contain?",
+        "options": [
+         "Thousands",
+         "None — only references to other repositories",
+         "One"
+        ],
+        "answer": 1,
+        "explain": "Its tree holds twelve gitlinks, not files."
+       }
+      ],
+      [
+       "lamp",
+       "Unit light"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/RothfussMaps",
+  "summary": "The University Atlas: an evidence-first workflow to reconstruct the University from The Kingkiller Chronicle — lock the evidence, then the map, then each building, then visuals — with fourteen location folders from the Archives to the Underthing, consistency rules and an atlas web page.",
+  "evidence": [
+   "README.md",
+   "CONSISTENCY_RULES.md",
+   "university-atlas/atlas-data.js",
+   "university-atlas/build_atlas.py",
+   "1 Campus Wide/ … 14 location folders"
+  ],
+  "kind": "Cartographers' Guild",
+  "ext": {
+   "style": "library",
+   "walls": "#a89070",
+   "roof": "#3a3a4a",
+   "trim": "#e8dcc0",
+   "door": "#3a2a1a",
+   "features": [
+    "trees",
+    "statue",
+    "flag",
+    "lanterns"
+   ]
+  },
+  "int": {
+   "layout": "grid",
+   "floor": "#6a5a44",
+   "walls": "#efe4cc",
+   "light": "#fff2d4",
+   "rooms": [
+    {
+     "name": "Evidence Ledger",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "archiveBoxes",
+       "Canon evidence"
+      ],
+      [
+       "lectern",
+       "Consistency rules",
+       {
+        "do": "steps",
+        "title": "The workflow",
+        "steps": [
+         "Build an evidence ledger from lawful copies of the books.",
+         "Lock the map.",
+         "Lock each building.",
+         "Only then generate visuals — never let an image model decide layout."
+        ]
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Campus Map",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "mapTable",
+       "The University"
+      ],
+      [
+       "pinMap",
+       "Fourteen locations"
+      ]
+     ]
+    },
+    {
+     "name": "Archives & Mains",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "bookshelf",
+       "The Archives"
+      ],
+      [
+       "chalkboard",
+       "The Mains"
+      ]
+     ]
+    },
+    {
+     "name": "Underthing",
+     "w": 9,
+     "d": 8,
+     "floor": "#3a3430",
+     "props": [
+      [
+       "ladder",
+       "Into the Underthing"
+      ],
+      [
+       "cardCatalog",
+       "Location folders",
+       {
+        "do": "quiz",
+        "title": "Order matters",
+        "q": "What should an image model be allowed to decide?",
+        "options": [
+         "The layout",
+         "Nothing about layout — evidence decides first",
+         "Building names"
+        ],
+        "answer": 1,
+        "explain": "Lock evidence and map before any visuals."
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/schism",
+  "summary": "Schism Codex: a local-first world bible and campaign manager for The Analog Schism — on first launch it seeds an IndexedDB project from World Bible v1.0 with Custodian, the Blight, the Grey Hour, the Concord Five, Node 04, the clean-water crisis, timelines and story hooks, with a rich-text editor and a node map.",
+  "evidence": [
+   "README.md",
+   "SCHEMA.md",
+   "ARCHITECTURE.md",
+   "src/data/seed.ts",
+   "src/data/campaignMapSeed.ts",
+   "src/pages/StoryPage.tsx"
+  ],
+  "kind": "Codex Archive Spire",
+  "ext": {
+   "style": "tower",
+   "walls": "#3a4a5a",
+   "roof": "#1a2430",
+   "trim": "#4ff0c8",
+   "door": "#1a2430",
+   "features": [
+    "antenna",
+    "beacon",
+    "solar",
+    "crates"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#2e3640",
+   "walls": "#5a6878",
+   "light": "#d8fff0",
+   "ceiling": "#1a2028",
+   "rooms": [
+    {
+     "name": "World Bible",
+     "w": 10,
+     "d": 9,
+     "props": [
+      [
+       "lectern",
+       "World Bible v1.0",
+       {
+        "do": "steps",
+        "title": "Seeded on first launch",
+        "steps": [
+         "Custodian and the Blight.",
+         "The Grey Hour.",
+         "The Concord Five.",
+         "Node 04.",
+         "The clean-water crisis."
+        ]
+       }
+      ],
+      [
+       "bookshelf",
+       "City layers"
+      ]
+     ]
+    },
+    {
+     "name": "Node Map",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "hologram",
+       "Campaign node map"
+      ],
+      [
+       "timelineWall",
+       "Timeline events"
+      ]
+     ]
+    },
+    {
+     "name": "Story Desk",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "computer",
+       "Rich-text story editor"
+      ],
+      [
+       "corkboard",
+       "Open questions & hooks",
+       {
+        "do": "count",
+        "unit": "Hooks written",
+        "text": "Story hooks and open questions live alongside the canon."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Water Lab",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "reactor",
+       "Clean-water crisis"
+      ],
+      [
+       "specimenJars",
+       "Samples"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/Serenity-Keep-Flying",
+  "summary": "A Firefly-inspired Replit browser game aboard a Firefly-class ship: move between the cargo bay, engine room, infirmary, galley, bridge, crew bunks, passenger quarters, shuttle and airlock, meeting crew and passengers in dialogue.",
+  "evidence": [
+   "client/src/lib/game-data.ts",
+   "client/src/hooks/use-game.ts",
+   "shared/",
+   "server/",
+   "git log: Fix issues with dialogue and state updates"
+  ],
+  "kind": "Firefly-Class Ship",
+  "ext": {
+   "style": "ship",
+   "walls": "#7a6a50",
+   "roof": "#4a4a40",
+   "trim": "#c86a2a",
+   "door": "#3a2a1a",
+   "features": [
+    "spaceship",
+    "crates",
+    "barrels",
+    "antenna"
+   ]
+  },
+  "int": {
+   "layout": "grid",
+   "floor": "#5a4e40",
+   "walls": "#a89a84",
+   "light": "#ffd8a0",
+   "rooms": [
+    {
+     "name": "Cargo Bay",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "crates",
+       "Cargo"
+      ],
+      [
+       "trolley",
+       "Mule"
+      ],
+      [
+       "airlock",
+       "Airlock",
+       {
+        "do": "toggle",
+        "title": "Airlock",
+        "on": "Airlock cycling — one of the ship spaces you can move between.",
+        "off": "Sealed — keep flying."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Engine Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "reactor",
+       "Engine"
+      ],
+      [
+       "toolWall",
+       "Engine tools"
+      ]
+     ]
+    },
+    {
+     "name": "Galley & Infirmary",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "roundTable",
+       "Galley table",
+       {
+        "do": "steps",
+        "title": "Ship's rooms",
+        "steps": [
+         "Cargo Bay",
+         "Engine Room",
+         "Infirmary",
+         "Galley",
+         "Bridge",
+         "Crew Bunks",
+         "Passenger Quarters",
+         "Shuttle Two"
+        ]
+       }
+      ],
+      [
+       "bed",
+       "Infirmary bed"
+      ]
+     ]
+    },
+    {
+     "name": "Bridge",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "consolePanel",
+       "Helm"
+      ],
+      [
+       "chair",
+       "Pilot's chair",
+       {
+        "do": "quiz",
+        "title": "Name check",
+        "q": "Which space is NOT one of the ship's rooms in the game?",
+        "options": [
+         "Engine Room",
+         "Shuttle Two",
+         "Ballroom"
+        ],
+        "answer": 2,
+        "explain": "No ballroom aboard."
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/skills",
+  "summary": "An empty placeholder: its README suggests it was meant to be a skills matrix or professional-development tracker and recommends archiving it, because that purpose is already covered by the DCS professional-development apps.",
+  "evidence": [
+   "README.md",
+   "podcasttodo.md"
+  ],
+  "kind": "Signposted Plot",
+  "ext": {
+   "style": "cottage",
+   "walls": "#b8c8d8",
+   "roof": "#5a6a7a",
+   "trim": "#f2f2f2",
+   "door": "#4a5a6a",
+   "features": [
+    "signpost",
+    "fence",
+    "crates",
+    "bench"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#a4a8ac",
+   "walls": "#eef2f6",
+   "light": "#f8fbff",
+   "rooms": [
+    {
+     "name": "Empty Office",
+     "w": 7,
+     "d": 7,
+     "props": [
+      [
+       "chalkboard",
+       "Skills matrix?"
+      ],
+      [
+       "chair",
+       "Empty chair"
+      ],
+      [
+       "crates",
+       "Unpacked"
+      ],
+      [
+       "signpost",
+       "See the PD apps",
+       {
+        "do": "info",
+        "title": "Already covered",
+        "text": "The README points to existing professional-development apps that already track skills."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Store Room",
+     "w": 7,
+     "d": 7,
+     "props": [
+      [
+       "archiveBoxes",
+       "Archive box",
+       {
+        "do": "quiz",
+        "title": "Recommendation",
+        "q": "What does the README recommend for this repository?",
+        "options": [
+         "Expand it",
+         "Archive it unless repurposed",
+         "Rename it"
+        ],
+        "answer": 1,
+        "explain": "Its purpose is covered elsewhere."
+       }
+      ],
+      [
+       "ladder",
+       "Ladder"
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ],
+      [
+       "rug",
+       "Rug"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/StarHaven",
+  "summary": "StarHaven: a self-contained Star Wars–themed browser text RPG — arrive at StarHaven Station as a Rebel operative and choose one of three branching missions, including a rescue of a captured Jedi Master from a detention block, each with several paths and endings.",
+  "evidence": [
+   "README.md",
+   "index.html"
+  ],
+  "kind": "StarHaven Station",
+  "ext": {
+   "style": "spaceport",
+   "walls": "#c8ccd0",
+   "roof": "#3a5a8a",
+   "trim": "#e85a3a",
+   "door": "#2a2a3a",
+   "features": [
+    "spaceship",
+    "satellite",
+    "robot",
+    "beacon"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#5a6068",
+   "walls": "#d8dce2",
+   "light": "#e8f2ff",
+   "rooms": [
+    {
+     "name": "Station Concourse",
+     "w": 11,
+     "d": 10,
+     "props": [
+      [
+       "hologram",
+       "Mission briefing",
+       {
+        "do": "steps",
+        "title": "Three missions",
+        "steps": [
+         "Rescue — free a captured Jedi Master from a detention block.",
+         "Two more branching missions.",
+         "Each with several paths, consequences and endings."
+        ]
+       }
+      ],
+      [
+       "robot",
+       "Astromech"
+      ],
+      [
+       "bench",
+       "Concourse bench"
+      ]
+     ]
+    },
+    {
+     "name": "Detention Block",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "dungeonDoor",
+       "Cell door"
+      ],
+      [
+       "consolePanel",
+       "Cell controls"
+      ]
+     ]
+    },
+    {
+     "name": "Hangar",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "spaceship",
+       "Rebel starfighter"
+      ],
+      [
+       "crates",
+       "Supplies",
+       {
+        "do": "quiz",
+        "title": "Your role",
+        "q": "Who do you play in StarHaven?",
+        "options": [
+         "An Imperial officer",
+         "A Rebel operative",
+         "A bounty hunter"
+        ],
+        "answer": 1,
+        "explain": "You arrive at the station as a Rebel operative."
+       }
+      ],
+      [
+       "wagon",
+       "Supply sled"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/SwordChronicles-backup-20260906-204137",
+  "summary": "A private dated backup (6 September 2026) of Chronicles of the Sword Coast with a test script and Mac launcher, frozen alongside the legacy truncated snapshot the game was rebuilt from — a snapshot of the Sword Coast RPG at that moment.",
+  "evidence": [
+   "README.md",
+   "src/main.js",
+   "src/data/npcs.js",
+   "test_chronicles.mjs",
+   "Launch Chronicles.command",
+   "legacy/DNDGAME_snapshot_truncated.html"
+  ],
+  "kind": "Time Capsule Keep",
+  "ext": {
+   "style": "castle",
+   "walls": "#8a8478",
+   "roof": "#3a4a6a",
+   "trim": "#e8d8a8",
+   "door": "#2a2a2a",
+   "features": [
+    "flag",
+    "torches",
+    "rocks",
+    "well"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#6a6458",
+   "walls": "#cfc8bc",
+   "light": "#ffe8c8",
+   "rooms": [
+    {
+     "name": "Snapshot Hall",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "clock",
+       "6 September 2026, 20:41",
+       {
+        "do": "info",
+        "text": "The repository name records the exact moment the backup was taken."
+       }
+      ],
+      [
+       "archiveBoxes",
+       "Frozen code"
+      ],
+      [
+       "throne",
+       "Sword Coast hall"
+      ],
+      [
+       "banner",
+       "Sword Coast banner"
+      ]
+     ]
+    },
+    {
+     "name": "NPC Gallery",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "statue",
+       "Sword Coast NPCs"
+      ],
+      [
+       "terminal",
+       "test_chronicles.mjs",
+       {
+        "do": "quiz",
+        "title": "What is this?",
+        "q": "Is this the live Sword Coast project?",
+        "options": [
+         "Yes",
+         "No — a dated private backup",
+         "It's a different game"
+        ],
+        "answer": 1,
+        "explain": "A frozen copy from 6 September 2026."
+       }
+      ],
+      [
+       "swordRack",
+       "Blades"
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/SwordCoast",
+  "summary": "The public static Sword Coast build: plain HTML, CSS and JS deployable to Vercel as-is, with a podcast page and player, bug and plan notes — the published face of Chronicles of the Sword Coast.",
+  "evidence": [
+   "README.md",
+   "index.html",
+   "podcasts.html",
+   "podcast-player.js",
+   "BUGS.md",
+   "PLAN.md"
+  ],
+  "kind": "Sword Coast Lighthouse",
+  "ext": {
+   "style": "lighthouse",
+   "walls": "#e8e0d0",
+   "roof": "#2a4a6a",
+   "trim": "#c8a050",
+   "door": "#2a2a2a",
+   "features": [
+    "barrels",
+    "rocks",
+    "flag",
+    "lanterns"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#7a6a58",
+   "walls": "#e8e0d0",
+   "light": "#ffefd0",
+   "rooms": [
+    {
+     "name": "Harbour Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "mapTable",
+       "Sword Coast"
+      ],
+      [
+       "barrel",
+       "Harbour stores"
+      ],
+      [
+       "noticeBoard",
+       "BUGS.md",
+       {
+        "do": "count",
+        "unit": "Bugs noted",
+        "text": "Known bugs and the plan sit beside the static build."
+       }
+      ],
+      [
+       "lantern",
+       "Harbour lamp"
+      ]
+     ]
+    },
+    {
+     "name": "Podcast Gallery",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "speaker",
+       "Podcast player",
+       {
+        "do": "play",
+        "title": "Podcast",
+        "text": "A podcasts page ships with the game.",
+        "notes": [
+         392,
+         440,
+         494,
+         440
+        ]
+       }
+      ],
+      [
+       "chair",
+       "Listening chair"
+      ],
+      [
+       "computer",
+       "Static Vercel build",
+       {
+        "do": "quiz",
+        "title": "Deploying",
+        "q": "What build step does this version need for Vercel?",
+        "options": [
+         "A heavy bundler",
+         "None — plain HTML, CSS and JS",
+         "A Python server"
+        ],
+        "answer": 1,
+        "explain": "It deploys as static files."
+       }
+      ],
+      [
+       "bench",
+       "Bench"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/Transfer",
+  "summary": "Cornerstone Lifeboat: a local-first Electron cockpit for migrating out of a work Google Workspace account — resumable Drive backups to local or NAS with rclone, a Drive manifest and shared-with-me audit, Gmail copy and verification, and a strict rule that nothing at the source is deleted.",
+  "evidence": [
+   "README.md",
+   "ARCHITECTURE.md",
+   "electron/main/index.ts",
+   "electron/gmail.ts",
+   "electron/preservation.ts",
+   "MIGRATION_DATA_MODEL.md"
+  ],
+  "kind": "Lifeboat Launch",
+  "ext": {
+   "style": "lighthouse",
+   "walls": "#d84a2a",
+   "roof": "#2a2a2a",
+   "trim": "#f2efe6",
+   "door": "#2a2a2a",
+   "features": [
+    "barrels",
+    "rocks",
+    "flag",
+    "crates"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#6a5a50",
+   "walls": "#f2e8e0",
+   "light": "#fff2e8",
+   "rooms": [
+    {
+     "name": "Cockpit",
+     "w": 11,
+     "d": 9,
+     "props": [
+      [
+       "consolePanel",
+       "Migration cockpit",
+       {
+        "do": "steps",
+        "title": "Phases",
+        "steps": [
+         "Phase 2: managed, resumable Drive → local/NAS backup with rclone copy.",
+         "Non-destructive verification and a persistent Drive manifest.",
+         "A shared-with-me audit.",
+         "Phase 3: Gmail copy and verification."
+        ]
+       }
+      ],
+      [
+       "chair",
+       "Captain's chair"
+      ]
+     ]
+    },
+    {
+     "name": "Drive Hold",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "serverRack",
+       "NAS backup"
+      ],
+      [
+       "archiveBoxes",
+       "Drive manifest"
+      ]
+     ]
+    },
+    {
+     "name": "Mail Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "mailbox",
+       "Gmail copy"
+      ],
+      [
+       "filingCabinet",
+       "Verification"
+      ]
+     ]
+    },
+    {
+     "name": "Preservation Vault",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "safe",
+       "No source deletion",
+       {
+        "do": "quiz",
+        "title": "Golden rule",
+        "q": "Does Lifeboat delete anything from the source account?",
+        "options": [
+         "Yes, after copying",
+         "No — copy and verify only",
+         "Only spam"
+        ],
+        "answer": 1,
+        "explain": "No source deletion and no sending mail."
+       }
+      ],
+      [
+       "lantern",
+       "Lifeboat lamp"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/troubleshoot",
+  "summary": "A troubleshooting workbench for Fedora Crash Doctor: staged versions (v3, a 3.1 fix and a Copilot-built variant), diffs, a repair script, results log and backups — the messy middle of getting the crash doctor working, preserved as-is.",
+  "evidence": [
+   "fedora-crash-doctor/fedora_crash_doctor.py",
+   "fedora-crash-doctor-3.0.0-to-current.diff",
+   "repair-fedora-crash-doctor.sh",
+   "results.log",
+   "v3-staged-*/"
+  ],
+  "kind": "Repair Bay",
+  "ext": {
+   "style": "garage",
+   "walls": "#4a6a9a",
+   "roof": "#2a3a4a",
+   "trim": "#f2a03a",
+   "door": "#2a3a4a",
+   "features": [
+    "crates",
+    "barrels",
+    "signpost",
+    "van"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#5a5e64",
+   "walls": "#e2e6ec",
+   "light": "#f2f6ff",
+   "rooms": [
+    {
+     "name": "Staging Bench",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "workbench",
+       "Staged v3",
+       {
+        "do": "steps",
+        "title": "Versions on the bench",
+        "steps": [
+         "v3 zip with checksum.",
+         "A 3.1 fixed build.",
+         "A Copilot-built 3.1 variant.",
+         "A diff from 3.0.0 to current."
+        ]
+       }
+      ],
+      [
+       "partsBins",
+       "Backups"
+      ],
+      [
+       "toolWall",
+       "Repair script"
+      ],
+      [
+       "chair",
+       "Mechanic's stool"
+      ]
+     ]
+    },
+    {
+     "name": "Results Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "filingCabinet",
+       "results.log",
+       {
+        "do": "count",
+        "unit": "Repairs attempted",
+        "text": "Each repair run logs its result."
+       }
+      ],
+      [
+       "computer",
+       "Fedora desktop"
+      ],
+      [
+       "lamp",
+       "Work lamp"
+      ],
+      [
+       "crates",
+       "Old zips"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/UpskillApp",
+  "summary": "UpskillApp: a private local pathway planner for a household in Dubbo — an employment-agency CRM with priority scoring, training pathways across ICT and health careers, a follow-up tracker with due dates, and practical next actions.",
+  "evidence": [
+   "README.md",
+   "src/data.ts",
+   "src/components/TarongaPathwayPanel.tsx",
+   "src/hooks/useAppState.ts",
+   "api/",
+   "research/"
+  ],
+  "kind": "Pathways Office",
+  "ext": {
+   "style": "gatehouse",
+   "walls": "#4a8a7a",
+   "roof": "#2a3a34",
+   "trim": "#f2e8c8",
+   "door": "#2a3a34",
+   "features": [
+    "signpost",
+    "bench",
+    "flag",
+    "bicycle"
+   ]
+  },
+  "int": {
+   "layout": "grid",
+   "floor": "#7a8a80",
+   "walls": "#eef6f2",
+   "light": "#f4fff8",
+   "rooms": [
+    {
+     "name": "Agency CRM",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "filingCabinet",
+       "Employment agencies"
+      ],
+      [
+       "chartBoard",
+       "Priority scores"
+      ]
+     ]
+    },
+    {
+     "name": "Training Pathways",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "signpost",
+       "ICT · nursing · clinic pathways",
+       {
+        "do": "steps",
+        "title": "Pathway planning",
+        "steps": [
+         "List training options.",
+         "Check funding and support.",
+         "Pick the next practical action.",
+         "Track follow-ups."
+        ]
+       }
+      ],
+      [
+       "bookshelf",
+       "Course guides"
+      ]
+     ]
+    },
+    {
+     "name": "Follow-ups",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "clock",
+       "Due dates",
+       {
+        "do": "count",
+        "unit": "Follow-ups done",
+        "text": "Overdue follow-ups are highlighted."
+       }
+      ],
+      [
+       "phoneStand",
+       "Calls to make"
+      ]
+     ]
+    },
+    {
+     "name": "Next Actions",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "corkboard",
+       "Next steps"
+      ],
+      [
+       "desk",
+       "Planning desk"
+      ]
+     ]
+    }
+   ]
+  }
+ }
+]

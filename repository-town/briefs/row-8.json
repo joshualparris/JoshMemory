@@ -1,0 +1,599 @@
+[
+ {
+  "repo": "Parris-Tech-Services/Virtual-Tabletop",
+  "summary": "Silver Moon Citadel — Battle Map Viewer: a private Replit workspace app for tabletop sessions with a battle map viewer, tokens with detail modals and fog of war, plus a mockup sandbox.",
+  "evidence": [
+   "artifacts/citadel-battlemaps/src/components/BattleMap.tsx",
+   "artifacts/citadel-battlemaps/src/components/TokenModal.tsx",
+   "git log: Build a battle map viewer with token and fog of war"
+  ],
+  "kind": "Silver Moon Citadel",
+  "ext": {
+   "style": "castle",
+   "walls": "#c8ccd8",
+   "roof": "#3a3a6a",
+   "trim": "#e8e8f8",
+   "door": "#2a2a4a",
+   "features": [
+    "flag",
+    "torches",
+    "statue",
+    "well"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#5a5a6a",
+   "walls": "#d8dce8",
+   "light": "#eef0ff",
+   "rooms": [
+    {
+     "name": "War Table",
+     "w": 11,
+     "d": 10,
+     "props": [
+      [
+       "mapTable",
+       "Battle map",
+       {
+        "do": "toggle",
+        "title": "Fog of war",
+        "on": "Fog lifted from explored areas.",
+        "off": "Fog of war restored."
+       }
+      ],
+      [
+       "diceTable",
+       "Initiative"
+      ],
+      [
+       "candles",
+       "Table candles"
+      ]
+     ]
+    },
+    {
+     "name": "Token Armoury",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "armorStand",
+       "Tokens"
+      ],
+      [
+       "cabinet",
+       "Token details",
+       {
+        "do": "info",
+        "text": "Each token opens a detail modal on the map."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Citadel Gallery",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "statue",
+       "Silver Moon"
+      ],
+      [
+       "banner",
+       "Citadel banner"
+      ],
+      [
+       "torch",
+       "Citadel torch"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/Waypoint",
+  "summary": "Waypoint: a small, grounded decision navigator that moves you from overwhelm to one clear next step through five honest questions, then saves the decision as a card to revisit — never deciding for you or pretending certainty.",
+  "evidence": [
+   "README.md",
+   "STATUS.md",
+   "index.html"
+  ],
+  "kind": "Waypoint Shelter",
+  "ext": {
+   "style": "cabin",
+   "walls": "#5a7a6a",
+   "roof": "#2a3a32",
+   "trim": "#e8c86a",
+   "door": "#2a3a32",
+   "features": [
+    "signpost",
+    "bench",
+    "trees",
+    "lanterns"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#6a6a58",
+   "walls": "#eef0e4",
+   "light": "#fffbe8",
+   "rooms": [
+    {
+     "name": "Five Questions",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "signpost",
+       "Which way?",
+       {
+        "do": "steps",
+        "title": "The five steps",
+        "steps": [
+         "What are you deciding or avoiding?",
+         "What matters most here?",
+         "What are the real options?",
+         "What is the smallest reversible next step?",
+         "What would make it worth revisiting?"
+        ]
+       }
+      ],
+      [
+       "bench",
+       "Rest bench"
+      ],
+      [
+       "mapTable",
+       "Trail map"
+      ],
+      [
+       "lantern",
+       "Path lamp"
+      ]
+     ]
+    },
+    {
+     "name": "Decision Cards",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "cardCatalog",
+       "Saved decision cards",
+       {
+        "do": "quiz",
+        "title": "Waypoint's promise",
+        "q": "Does Waypoint make the decision for you?",
+        "options": [
+         "Yes",
+         "No — it helps you find one next step",
+         "Only big ones"
+        ],
+        "answer": 1,
+        "explain": "It never decides for you or pretends certainty."
+       }
+      ],
+      [
+       "lantern",
+       "Trail lantern"
+      ],
+      [
+       "chair",
+       "Thinking chair"
+      ],
+      [
+       "plant",
+       "Plant"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/Work",
+  "summary": "DCS / Census / Avance Work Planner: a Next.js decision app comparing a school job's finish dates, IT-role options, census hours and fallback roles — Plan A and Plan B timelines from June to October 2026, weekly and 12-week income scenarios, and schedule-clash and energy-risk warnings.",
+  "evidence": [
+   "README.md",
+   "app/page.tsx"
+  ],
+  "kind": "Crossroads Planning Office",
+  "ext": {
+   "style": "modern",
+   "walls": "#e8e0d0",
+   "roof": "#3a5a7a",
+   "trim": "#e8a03a",
+   "door": "#2a3a4a",
+   "features": [
+    "signpost",
+    "bench",
+    "bicycle",
+    "flag"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#a49884",
+   "walls": "#f6f2ea",
+   "light": "#fffaf0",
+   "rooms": [
+    {
+     "name": "Plan A / Plan B",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "chartBoard",
+       "Income scenarios",
+       {
+        "do": "steps",
+        "title": "What it compares",
+        "steps": [
+         "Finish dates at the school job.",
+         "IT-role options.",
+         "Census hours.",
+         "Fallback roles.",
+         "Weekly and 12-week income."
+        ]
+       }
+      ],
+      [
+       "timelineWall",
+       "June → October 2026"
+      ],
+      [
+       "desk",
+       "Planner's desk"
+      ],
+      [
+       "chair",
+       "Chair"
+      ]
+     ]
+    },
+    {
+     "name": "Risk Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "heartMonitor",
+       "Energy risk",
+       {
+        "do": "quiz",
+        "title": "Warnings",
+        "q": "Besides schedule clashes, what risk does the planner flag?",
+        "options": [
+         "Weather",
+         "Energy",
+         "Traffic"
+        ],
+        "answer": 1,
+        "explain": "It detects schedule clashes and energy risk."
+       }
+      ],
+      [
+       "clock",
+       "Clash detector"
+      ],
+      [
+       "sofa",
+       "Rest"
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/WorkApp",
+  "summary": "Dubbo Job Radar: a private local-first React app that turns job ads into calmer decisions for a two-person household — import leads, score fit against working patterns, explain concerns, track applications and draft enquiry notes.",
+  "evidence": [
+   "README.md",
+   "src/data/scoring.ts",
+   "src/components/JobForm.tsx",
+   "src/components/JobDetail.tsx",
+   "api/"
+  ],
+  "kind": "Job Radar Station",
+  "ext": {
+   "style": "observatory",
+   "walls": "#4a5a8a",
+   "roof": "#e8a03a",
+   "trim": "#f2f2f2",
+   "door": "#2a3a5a",
+   "features": [
+    "dish",
+    "antenna",
+    "bench",
+    "signpost"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#5a6070",
+   "walls": "#e6eaf4",
+   "light": "#f2f6ff",
+   "rooms": [
+    {
+     "name": "Radar Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "satelliteDish",
+       "Lead scanner"
+      ],
+      [
+       "consolePanel",
+       "Fit scoring",
+       {
+        "do": "steps",
+        "title": "From ad to decision",
+        "steps": [
+         "Import a lead.",
+         "Score the fit.",
+         "Read the concerns explained.",
+         "Track the application.",
+         "Draft an enquiry."
+        ]
+       }
+      ],
+      [
+       "monitorWall",
+       "Leads"
+      ],
+      [
+       "chair",
+       "Operator chair"
+      ]
+     ]
+    },
+    {
+     "name": "Application Desk",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "desk",
+       "Enquiry drafts",
+       {
+        "do": "count",
+        "unit": "Applications tracked",
+        "text": "Applications move from lead to applied to outcome."
+       }
+      ],
+      [
+       "filingCabinet",
+       "Applications"
+      ],
+      [
+       "chair",
+       "Desk chair"
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/WorkPlanner",
+  "summary": "Work Planner: a calm installable reference app for a work transition — pending, Plan A and Plan B scenarios, a next-up summary and milestones, a saved decision checklist, a rolling two-week agenda with workload pulse, calendar notes and a podcast dock.",
+  "evidence": [
+   "README.md",
+   "planner-core.js",
+   "app.js",
+   "podcast-dock.js",
+   "service-worker.js",
+   "tests/podcast-bank.test.mjs"
+  ],
+  "kind": "Transition Planning Lodge",
+  "ext": {
+   "style": "cottage",
+   "walls": "#c8b890",
+   "roof": "#4a5a6a",
+   "trim": "#f2efe6",
+   "door": "#3a3a3a",
+   "features": [
+    "garden",
+    "bench",
+    "signpost",
+    "mailbox"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#8a7c64",
+   "walls": "#f4efe2",
+   "light": "#fff8e4",
+   "rooms": [
+    {
+     "name": "Agenda Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "timelineWall",
+       "Rolling two-week agenda"
+      ],
+      [
+       "clock",
+       "Milestone countdown"
+      ],
+      [
+       "corkboard",
+       "Calendar notes",
+       {
+        "do": "steps",
+        "title": "Scenarios",
+        "steps": [
+         "Pending.",
+         "Plan A.",
+         "Plan B.",
+         "Compare the workload of each."
+        ]
+       }
+      ],
+      [
+       "desk",
+       "Planning desk"
+      ]
+     ]
+    },
+    {
+     "name": "Checklist Nook",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "lectern",
+       "Decision checklist",
+       {
+        "do": "count",
+        "unit": "Items ticked",
+        "text": "The checklist is saved in the browser."
+       }
+      ],
+      [
+       "speaker",
+       "Podcast dock"
+      ],
+      [
+       "sofa",
+       "Calm corner"
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/WPHI",
+  "summary": "WPHI Learn v2: a single-file React prototype of a vocational learning system for a horticulture certificate — all 17 units grouped by term, module completion, accessible quizzes, a practical evidence portfolio, competency tracking, an assessment centre and mobile evidence capture.",
+  "evidence": [
+   "WPHI-Learn-v2-README.md",
+   "wphi-learn-v2.jsx",
+   "wphi-learn-v2-runnable/app.js",
+   "wphi-learn-v2-runnable/qa.mjs"
+  ],
+  "kind": "Horticulture Campus Greenhouse",
+  "ext": {
+   "style": "greenhouse",
+   "walls": "#8aa86a",
+   "roof": "#d8ecd8",
+   "trim": "#3a5a2a",
+   "door": "#2a4a1a",
+   "features": [
+    "herbs",
+    "garden",
+    "trees",
+    "beehives"
+   ]
+  },
+  "int": {
+   "layout": "grid",
+   "floor": "#7a8a5a",
+   "walls": "#eef6e4",
+   "light": "#f6ffe8",
+   "rooms": [
+    {
+     "name": "Student Dashboard",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "monitorWall",
+       "Progress & timetable"
+      ],
+      [
+       "noticeBoard",
+       "Announcements"
+      ]
+     ]
+    },
+    {
+     "name": "Unit Beds",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "herbGarden",
+       "17 units by term",
+       {
+        "do": "quiz",
+        "title": "Course size",
+        "q": "How many units does the certificate prototype list?",
+        "options": [
+         "7",
+         "17",
+         "27"
+        ],
+        "answer": 1,
+        "explain": "All 17 units, grouped by term."
+       }
+      ],
+      [
+       "flowerBed",
+       "Practical plots"
+      ]
+     ]
+    },
+    {
+     "name": "Evidence Shed",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "camera",
+       "Mobile evidence capture"
+      ],
+      [
+       "filingCabinet",
+       "Evidence portfolio",
+       {
+        "do": "steps",
+        "title": "Progress types",
+        "steps": [
+         "Learning progress.",
+         "Knowledge quizzes.",
+         "Practical evidence.",
+         "Competency sign-off."
+        ]
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Assessment Centre",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "desk",
+       "Assessment centre"
+      ],
+      [
+       "chartBoard",
+       "Results"
+      ]
+     ]
+    }
+   ]
+  }
+ }
+]

@@ -1,0 +1,2699 @@
+[
+ {
+  "repo": "Parris-Tech-Services/drifter",
+  "summary": "Dreadnought Drifters (current build): a React Three Fiber game set inside a colossal creature — explore the Dreadnought's cortex, talk to oracles through a dialogue overlay with skill checks, with game state in a Zustand store and Playwright tests of the oracle conversation.",
+  "evidence": [
+   "src/components/DreadnoughtCortex.tsx",
+   "src/components/DialogueOverlay.tsx",
+   "src/store/gameStore.ts",
+   "tests/e2e/oracle-dialogue.spec.ts",
+   "web-dist/"
+  ],
+  "kind": "Creature Hull Outpost",
+  "ext": {
+   "style": "ship",
+   "walls": "#6a4a5a",
+   "roof": "#c8a8b8",
+   "trim": "#4ff0d8",
+   "door": "#3a2a32",
+   "features": [
+    "spaceship",
+    "beacon",
+    "crates",
+    "barrels"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#5a3a44",
+   "walls": "#a87a88",
+   "light": "#ffd0e0",
+   "ceiling": "#4a2a34",
+   "rooms": [
+    {
+     "name": "Drifter Dock",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "wagon",
+       "Drifter skiff"
+      ],
+      [
+       "crates",
+       "Salvage"
+      ],
+      [
+       "lantern",
+       "Dock light"
+      ]
+     ]
+    },
+    {
+     "name": "The Cortex",
+     "w": 10,
+     "d": 9,
+     "floor": "#7a4a5a",
+     "props": [
+      [
+       "hologram",
+       "Dreadnought cortex",
+       {
+        "do": "toggle",
+        "title": "Cortex",
+        "on": "The cortex pulses — the game is set inside a living Dreadnought.",
+        "off": "Dormant."
+       }
+      ],
+      [
+       "crystal",
+       "Nerve node"
+      ],
+      [
+       "mushroom",
+       "Fleshy growth"
+      ]
+     ]
+    },
+    {
+     "name": "Oracle Chamber",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "statue",
+       "Nerve Oracle",
+       {
+        "do": "dice",
+        "sides": 20,
+        "title": "Skill check",
+        "text": "Dialogue choices can call for checks — succeed and the Oracle tells you more."
+       }
+      ],
+      [
+       "lectern",
+       "Dialogue overlay"
+      ],
+      [
+       "terminal",
+       "Playwright oracle test",
+       {
+        "do": "info",
+        "text": "An end-to-end test walks through the oracle dialogue to keep it working."
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/Echo",
+  "summary": "ECHO VAULT: a stylish no-build top-down arena shooter for phones and desktop whose twist is echoes — cast one and a ghost replays your last three seconds of movement and fire, fighting beside you.",
+  "evidence": [
+   "README.md",
+   "game.js",
+   "index.html",
+   "style.css"
+  ],
+  "kind": "Echo Vault Arena",
+  "ext": {
+   "style": "arcade",
+   "walls": "#1a1a3a",
+   "roof": "#0a0a1a",
+   "trim": "#4ff0ff",
+   "door": "#0a0a1a",
+   "features": [
+    "beacon",
+    "robot",
+    "bench",
+    "flag"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#1a1a2e",
+   "walls": "#3a3a6a",
+   "light": "#c8f0ff",
+   "ceiling": "#10101e",
+   "rooms": [
+    {
+     "name": "Arena Floor",
+     "w": 11,
+     "d": 10,
+     "props": [
+      [
+       "robot",
+       "You"
+      ],
+      [
+       "robot",
+       "Your echo",
+       {
+        "do": "quiz",
+        "title": "The twist",
+        "q": "What does casting an echo do?",
+        "options": [
+         "Pauses time",
+         "Replays your last three seconds as an ally",
+         "Heals you"
+        ],
+        "answer": 1,
+        "explain": "Your echo repeats what you just did and fights beside you.",
+        "c": "#6aa8ff"
+       }
+      ],
+      [
+       "reactor",
+       "Spawn core"
+      ]
+     ]
+    },
+    {
+     "name": "Arcade Wall",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "arcadeCabinet",
+       "ECHO VAULT"
+      ],
+      [
+       "arcadeCabinet",
+       "High scores",
+       {
+        "do": "count",
+        "unit": "Echoes cast",
+        "text": "No libraries, no build step, no backend — just three files."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Install Booth",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "phoneStand",
+       "Play on Android",
+       {
+        "do": "steps",
+        "title": "Getting it on your phone",
+        "steps": [
+         "Upload the folder to Google Drive and open index.html.",
+         "Or host it on GitHub Pages.",
+         "Or serve it locally and open it on your phone."
+        ]
+       }
+      ],
+      [
+       "chair",
+       "Player stool"
+      ],
+      [
+       "speaker",
+       "Arena audio"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/elodin-deep-lore",
+  "summary": "Kingkiller Lore Atlas — Elodin module: a deep lore compendium on Elodin, Master Namer and former Chancellor, with the master lore document, raw scene extracts, game hooks and a deep-research prompt, built as one module of a wider lore atlas.",
+  "evidence": [
+   "README.md",
+   "ELODIN_COMPLETE_LORE_V2.md",
+   "ELODIN_PDF_SCENES.md",
+   "ELODIN_GAME_HOOKS.md",
+   "atlas.html",
+   "data.js"
+  ],
+  "kind": "Namer's Atlas Room",
+  "ext": {
+   "style": "tower",
+   "walls": "#4a4a6a",
+   "roof": "#2a2a44",
+   "trim": "#c8b06a",
+   "door": "#2a2a3a",
+   "features": [
+    "runeStone",
+    "trees",
+    "lanterns",
+    "bird"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#4a4458",
+   "walls": "#8a84a0",
+   "light": "#e8e0ff",
+   "rooms": [
+    {
+     "name": "Compendium Hall",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "bookshelf",
+       "Complete lore v2"
+      ],
+      [
+       "scrollRack",
+       "Scene extracts"
+      ],
+      [
+       "lectern",
+       "Master compendium",
+       {
+        "do": "steps",
+        "title": "The module",
+        "steps": [
+         "ELODIN_COMPLETE_LORE — all canon and theory.",
+         "ELODIN_PDF_SCENES — raw scene extracts.",
+         "ELODIN_GAME_HOOKS — how he could appear in play.",
+         "A deep-research prompt for the next pass."
+        ]
+       }
+      ],
+      [
+       "candles",
+       "Namer's candles"
+      ]
+     ]
+    },
+    {
+     "name": "Atlas Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "mapTable",
+       "Lore atlas"
+      ],
+      [
+       "globe",
+       "The Four Corners"
+      ],
+      [
+       "corkboard",
+       "Game hooks",
+       {
+        "do": "quiz",
+        "title": "Who is Elodin?",
+        "q": "Which title does Elodin hold at the University?",
+        "options": [
+         "Master Namer",
+         "Master Archivist",
+         "Master Arithmetician"
+        ],
+        "answer": 0,
+        "explain": "Master Namer — and once Chancellor."
+       }
+      ],
+      [
+       "chair",
+       "Reader's chair"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/ElodinDeepLore",
+  "summary": "ElodinDeepLore: a research-first lore app — curated, filterable research entries on Elodin that keep canon separate from theory, a longform dossier, version history, audited builds and a podcast dialog — the working app beside the Elodin atlas module.",
+  "evidence": [
+   "README.md",
+   "data.js",
+   "app.js",
+   "ElodinDeepLore.html",
+   "versions.html",
+   "research/",
+   "podcast-dialog.js"
+  ],
+  "kind": "Dossier Library",
+  "ext": {
+   "style": "library",
+   "walls": "#6a5a7a",
+   "roof": "#2a2234",
+   "trim": "#e8d8a8",
+   "door": "#2a2234",
+   "features": [
+    "lanterns",
+    "statue",
+    "bench",
+    "bird"
+   ]
+  },
+  "int": {
+   "layout": "L",
+   "floor": "#4a4054",
+   "walls": "#d8d0e4",
+   "light": "#f4ecff",
+   "rooms": [
+    {
+     "name": "Filter Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "cardCatalog",
+       "Research entries",
+       {
+        "do": "quiz",
+        "title": "Research model",
+        "q": "How does the app treat theory compared with canon?",
+        "options": [
+         "Mixes them freely",
+         "Keeps them intentionally separate",
+         "Ignores theory"
+        ],
+        "answer": 1,
+        "explain": "Entries separate what the books say from what readers infer."
+       }
+      ],
+      [
+       "desk",
+       "Filtering desk"
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ]
+     ]
+    },
+    {
+     "name": "Longform Dossier",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "lectern",
+       "Dossier"
+      ],
+      [
+       "bookStack",
+       "Audited builds"
+      ],
+      [
+       "archiveBoxes",
+       "Version history"
+      ]
+     ]
+    },
+    {
+     "name": "Podcast Nook",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "speaker",
+       "Podcast dialog",
+       {
+        "do": "play",
+        "title": "Lore episode",
+        "text": "A podcast dialog plays alongside the dossier.",
+        "notes": [
+         294,
+         349,
+         440,
+         349
+        ]
+       }
+      ],
+      [
+       "sofa",
+       "Listening seat"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/EmailCheck",
+  "summary": "EmailCheck: a private Python toolkit that searches several Gmail accounts at once over the Gmail API with per-account OAuth tokens — a CLI and GUI, a Thunderbird autoconfig helper, an email-address history and account audits.",
+  "evidence": [
+   "README.md",
+   "search_gmail_accounts.py",
+   "gmail_search_gui.py",
+   "thunderbird_autoconfig.py",
+   "audits/"
+  ],
+  "kind": "Post Office",
+  "ext": {
+   "style": "shopfront",
+   "walls": "#c83a3a",
+   "roof": "#2a2a2a",
+   "trim": "#f2e8d0",
+   "door": "#2a1a1a",
+   "features": [
+    "mailbox",
+    "flag",
+    "bicycle",
+    "bench"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#8a7058",
+   "walls": "#f2e6d8",
+   "light": "#fff2e0",
+   "rooms": [
+    {
+     "name": "Sorting Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "mailbox",
+       "One box per account",
+       {
+        "do": "steps",
+        "title": "Search everything",
+        "steps": [
+         "Authorise each Gmail account once (separate token files).",
+         "Type one query.",
+         "Every account is searched.",
+         "Results show sender, subject, snippet and a link."
+        ]
+       }
+      ],
+      [
+       "cashRegister",
+       "Counter"
+      ],
+      [
+       "trolley",
+       "Mail trolley"
+      ],
+      [
+       "noticeBoard",
+       "Accounts list"
+      ]
+     ]
+    },
+    {
+     "name": "Records Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "filingCabinet",
+       "Email-address history"
+      ],
+      [
+       "computer",
+       "Search GUI",
+       {
+        "do": "count",
+        "unit": "Searches run",
+        "text": "One search interface across all configured accounts."
+       }
+      ],
+      [
+       "safe",
+       "OAuth tokens"
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/epubtranslate",
+  "summary": "EPUB Translator: a desktop app that translates legally owned, DRM-free French EPUBs into English fully offline with Argos Translate, chunking text sensibly while preserving chapters, table of contents, formatting, images, links, footnotes, CSS and metadata.",
+  "evidence": [
+   "README.md",
+   "PROJECT_SPEC.md",
+   "epub_translator/translator/argos_provider.py",
+   "epub_translator/epub/reader.py",
+   "epub_translator/epub/writer.py",
+   "epub_translator/gui/main_window.py"
+  ],
+  "kind": "Translator's Cottage",
+  "ext": {
+   "style": "cottage",
+   "walls": "#3a5aa8",
+   "roof": "#e8e0d0",
+   "trim": "#d83a3a",
+   "door": "#2a3a6a",
+   "features": [
+    "flag",
+    "bench",
+    "garden",
+    "bicycle"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#8a7a6a",
+   "walls": "#eef0f6",
+   "light": "#f6f8ff",
+   "rooms": [
+    {
+     "name": "French Shelf",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "bookshelf",
+       "DRM-free French EPUBs"
+      ],
+      [
+       "globe",
+       "Language pairs"
+      ],
+      [
+       "chair",
+       "Reading chair"
+      ]
+     ]
+    },
+    {
+     "name": "Translation Desk",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "computer",
+       "Argos Translate (offline)",
+       {
+        "do": "quiz",
+        "title": "Offline",
+        "q": "Where does the translation happen?",
+        "options": [
+         "In a cloud API",
+         "Entirely on your computer with Argos Translate",
+         "On a phone"
+        ],
+        "answer": 1,
+        "explain": "Fully offline French-to-English translation."
+       }
+      ],
+      [
+       "desk",
+       "Chunking desk"
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ]
+     ]
+    },
+    {
+     "name": "Binding Room",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "printer3d",
+       "EPUB writer",
+       {
+        "do": "steps",
+        "title": "What survives translation",
+        "steps": [
+         "Chapters and table of contents.",
+         "Headings and formatting.",
+         "Images, links and footnotes.",
+         "CSS and metadata."
+        ]
+       }
+      ],
+      [
+       "bookStack",
+       "English editions"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/ExamsApp",
+  "summary": "CSU Exam Supervisor Dubbo — Quick Reference: a personal mobile-first Next.js app for exam-supervision shifts that surfaces common procedures, contacts and emergency guidance fast — clearly not an official university publication.",
+  "evidence": [
+   "README.md",
+   "src/data/procedures.ts",
+   "src/app/procedure/[id]/page.tsx",
+   "src/app/emergency/page.tsx",
+   "e2e/app.spec.ts"
+  ],
+  "kind": "Exam Hall",
+  "ext": {
+   "style": "gatehouse",
+   "walls": "#b8a888",
+   "roof": "#6a2a2a",
+   "trim": "#f2efe6",
+   "door": "#3a2a1a",
+   "features": [
+    "flag",
+    "bench",
+    "noticeBoard",
+    "trees"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#a08a6a",
+   "walls": "#f2ece0",
+   "light": "#fff8ea",
+   "rooms": [
+    {
+     "name": "Exam Hall",
+     "w": 10,
+     "d": 9,
+     "props": [
+      [
+       "pews",
+       "Exam desks"
+      ],
+      [
+       "clock",
+       "Exam clock",
+       {
+        "do": "steps",
+        "title": "Procedures",
+        "steps": [
+         "Check student ID.",
+         "Read the exam-specific instructions.",
+         "Manage time and announcements.",
+         "Collect and reconcile papers."
+        ]
+       }
+      ],
+      [
+       "podium",
+       "Supervisor's desk"
+      ],
+      [
+       "waterCooler",
+       "Water station"
+      ]
+     ]
+    },
+    {
+     "name": "Supervisor's Office",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "phoneStand",
+       "Quick reference",
+       {
+        "do": "quiz",
+        "title": "Which rules win?",
+        "q": "The app and the current exam instructions disagree. What do you follow?",
+        "options": [
+         "The app",
+         "The current exam-specific instructions and the CSU Exams team",
+         "Whatever is faster"
+        ],
+        "answer": 1,
+        "explain": "It's a personal quick-reference tool, not an official publication."
+       }
+      ],
+      [
+       "medicineCabinet",
+       "Emergency guidance"
+      ],
+      [
+       "filingCabinet",
+       "Contacts"
+      ],
+      [
+       "chair",
+       "Supervisor's chair"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/ExchangeLabManager",
+  "summary": "Exchange Lab Manager: a defensive PowerShell lab manager that builds an isolated Active Directory and Exchange sandbox in VirtualBox (DC01, EX01, CLIENT01) to validate Exchange OWA security mitigations — with preflight checks and QA tests, and no exploit content.",
+  "evidence": [
+   "README.md",
+   "ExchangeLabManager.ps1",
+   "exchange-lab-automation.ps1",
+   "preflight-readiness-check.ps1",
+   "qa-full-tests.ps1",
+   "CVE and AD Sandbox/"
+  ],
+  "kind": "Sandbox Lab",
+  "ext": {
+   "style": "bunker",
+   "walls": "#3a5a8a",
+   "roof": "#1a2a44",
+   "trim": "#f2a03a",
+   "door": "#1a2a44",
+   "features": [
+    "antenna",
+    "fence",
+    "solar",
+    "signpost"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#3e4654",
+   "walls": "#c8d4e4",
+   "light": "#e8f2ff",
+   "rooms": [
+    {
+     "name": "Rack Room",
+     "w": 10,
+     "d": 8,
+     "props": [
+      [
+       "serverRack",
+       "DC01 · domain controller"
+      ],
+      [
+       "serverRack",
+       "EX01 · Exchange"
+      ],
+      [
+       "laptop",
+       "CLIENT01"
+      ],
+      [
+       "router",
+       "Isolated network"
+      ]
+     ]
+    },
+    {
+     "name": "Validation Desk",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "consolePanel",
+       "Mitigation checks",
+       {
+        "do": "steps",
+        "title": "What it validates",
+        "steps": [
+         "Set up an isolated AD + Exchange lab.",
+         "Configure DC01, EX01 and CLIENT01.",
+         "Check the Emergency Mitigation service.",
+         "Verify URL Rewrite mitigations."
+        ]
+       }
+      ],
+      [
+       "filingCabinet",
+       "Preflight readiness",
+       {
+        "do": "quiz",
+        "title": "Scope",
+        "q": "Does Exchange Lab Manager include exploit code?",
+        "options": [
+         "Yes",
+         "No — it is defensive validation only",
+         "Only for testing"
+        ],
+        "answer": 1,
+        "explain": "Defensive lab only, no exploit content."
+       }
+      ],
+      [
+       "desk",
+       "Lab notebook"
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/exitbackup",
+  "summary": "A single-file browser RPG titled \"Don't Panic\" — a Hitchhiker's Guide–themed adventure — despite the repository's backup-sounding name; there is nothing else in it.",
+  "evidence": [
+   "index.html (only file; <title>Don't Panic — A Hitchhiker's RPG</title>)"
+  ],
+  "kind": "Improbable Spaceship",
+  "ext": {
+   "style": "spaceport",
+   "walls": "#e8e8e0",
+   "roof": "#4f8af0",
+   "trim": "#f2d84a",
+   "door": "#2a2a3a",
+   "features": [
+    "spaceship",
+    "satellite",
+    "signpost",
+    "beacon"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#c8ccd4",
+   "walls": "#f2f4f8",
+   "light": "#f6faff",
+   "rooms": [
+    {
+     "name": "Galley",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "coffeeMachine",
+       "Nutri-matic drinks"
+      ],
+      [
+       "cafeTable",
+       "Galley table"
+      ],
+      [
+       "crates",
+       "Towel locker",
+       {
+        "do": "quiz",
+        "title": "Essential kit",
+        "q": "What should a hitchhiker always know where to find?",
+        "options": [
+         "Their towel",
+         "A map",
+         "A sandwich"
+        ],
+        "answer": 0,
+        "explain": "Don't panic — and know where your towel is."
+       }
+      ],
+      [
+       "fridge",
+       "Galley fridge"
+      ]
+     ]
+    },
+    {
+     "name": "Bridge",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "consolePanel",
+       "Improbability drive",
+       {
+        "do": "dice",
+        "sides": 42,
+        "title": "Improbability",
+        "text": "Roll the improbability drive and see what happens."
+       }
+      ],
+      [
+       "chair",
+       "Captain's chair"
+      ],
+      [
+       "planetModel",
+       "Destination"
+      ],
+      [
+       "noticeBoard",
+       "DON'T PANIC"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/Fable-Atlas",
+  "summary": "Fable Atlas: a private, local-first 'self-portrait engine' that reads only artifact metadata — repositories, deployments and projects — through eight interpretive lenses to reveal patterns in Josh's work, explicitly excluding child, health, tenancy, school, financial and email content.",
+  "evidence": [
+   "README.md",
+   "SKILL.md",
+   "app/page.tsx",
+   "fable-atlas-mvp/components/FilterableArtifacts.tsx",
+   "types.ts"
+  ],
+  "kind": "Hall of Mirrors",
+  "ext": {
+   "style": "temple",
+   "walls": "#e8e0f0",
+   "roof": "#5a3a8a",
+   "trim": "#c8a0f0",
+   "door": "#3a2a5a",
+   "features": [
+    "statue",
+    "pond",
+    "lanterns",
+    "garden"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#6a5a7a",
+   "walls": "#f4f0fa",
+   "light": "#f8f0ff",
+   "rooms": [
+    {
+     "name": "Mirror Hall",
+     "w": 11,
+     "d": 10,
+     "props": [
+      [
+       "mirror",
+       "Self-portrait"
+      ],
+      [
+       "mirror",
+       "Lens view"
+      ],
+      [
+       "hologram",
+       "Pattern reading",
+       {
+        "do": "steps",
+        "title": "How it reads",
+        "steps": [
+         "Gather artifact metadata only.",
+         "Apply eight interpretive lenses.",
+         "Surface patterns across projects.",
+         "Never read secrets or private content."
+        ]
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Artifact Gallery",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "trophyCase",
+       "Repositories"
+      ],
+      [
+       "easel",
+       "Deployments"
+      ],
+      [
+       "lamp",
+       "Gallery light"
+      ]
+     ]
+    },
+    {
+     "name": "Boundary Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "safe",
+       "Excluded content",
+       {
+        "do": "quiz",
+        "title": "Boundaries",
+        "q": "Which of these does Fable Atlas deliberately NOT read?",
+        "options": [
+         "Repository metadata",
+         "Health or financial content",
+         "Deployment names"
+        ],
+        "answer": 1,
+        "explain": "Child, health, tenancy, school, financial and email content are excluded."
+       }
+      ],
+      [
+       "noticeBoard",
+       "Reads artifacts, not secrets"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/FaithHub",
+  "summary": "FaithHub — Rule of Life Companion: a gentle, non-performance spiritual-formation app with daily Scripture, prayer rhythms, fruits-of-the-Spirit reflection, repentance and gratitude, family prayer prompts, community rhythms and Sabbath rest tracking, plus a Genesis study page and podcasts.",
+  "evidence": [
+   "README.md",
+   "src/App.jsx",
+   "ab401a-genesis.html",
+   "podcasts.html"
+  ],
+  "kind": "Rule of Life Chapel",
+  "ext": {
+   "style": "chapel",
+   "walls": "#f2ece0",
+   "roof": "#4a5a3a",
+   "trim": "#c8a050",
+   "door": "#4a3a2a",
+   "features": [
+    "garden",
+    "bench",
+    "bell",
+    "trees"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#a89474",
+   "walls": "#fbf6ec",
+   "light": "#fff6e0",
+   "rooms": [
+    {
+     "name": "Daily Office",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "lectern",
+       "Daily Scripture",
+       {
+        "do": "steps",
+        "title": "Rhythms",
+        "steps": [
+         "Daily Scripture.",
+         "Prayer rhythms.",
+         "Fruits-of-the-Spirit reflection.",
+         "Repentance and gratitude.",
+         "Family prayer prompts.",
+         "Sabbath rest."
+        ]
+       }
+      ],
+      [
+       "candles",
+       "Prayer candles"
+      ],
+      [
+       "pews",
+       "Pews"
+      ]
+     ]
+    },
+    {
+     "name": "Family Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "roundTable",
+       "Family prayer table"
+      ],
+      [
+       "sofa",
+       "Rest"
+      ],
+      [
+       "noticeBoard",
+       "Community rhythms"
+      ]
+     ]
+    },
+    {
+     "name": "Sabbath Garden",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "bench",
+       "Sabbath bench",
+       {
+        "do": "count",
+        "unit": "Sabbaths kept",
+        "text": "Rest is tracked gently — non-performance-based, no streak pressure."
+       }
+      ],
+      [
+       "flowerBed",
+       "Garden"
+      ],
+      [
+       "bookStack",
+       "Genesis study"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/FedoraCrashDoctor",
+  "summary": "Fedora Crash Doctor 3.2: a local Qt 6 diagnostic app for Fedora desktops that asks what happened closest to a crash, which causes best fit the evidence and what controlled test would confirm or weaken each — with collectors, freeze classifiers, GDB backtraces and a preserved crash history.",
+  "evidence": [
+   "README.md",
+   "HISTORY.md",
+   "fedora_crash_doctor.py",
+   "collector.py",
+   "freeze_classifiers.py",
+   "coredump_adapter.py",
+   "tests/test_analysis.py"
+  ],
+  "kind": "Crash Clinic",
+  "ext": {
+   "style": "lab",
+   "walls": "#3c6eb4",
+   "roof": "#294172",
+   "trim": "#f2f2f2",
+   "door": "#1a2a4a",
+   "features": [
+    "antenna",
+    "bench",
+    "signpost",
+    "solar"
+   ]
+  },
+  "int": {
+   "layout": "L",
+   "floor": "#4a5468",
+   "walls": "#e4ecf6",
+   "light": "#f0f6ff",
+   "rooms": [
+    {
+     "name": "Triage",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "heartMonitor",
+       "Desktop heartbeat"
+      ],
+      [
+       "consolePanel",
+       "Collectors",
+       {
+        "do": "steps",
+        "title": "Three questions",
+        "steps": [
+         "What happened closest to the crash?",
+         "Which causes best fit the collected evidence?",
+         "What controlled test would strengthen or weaken each explanation?"
+        ]
+       }
+      ],
+      [
+       "bed",
+       "Recovering workstation"
+      ]
+     ]
+    },
+    {
+     "name": "Backtrace Lab",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "computer",
+       "GDB symbolic backtraces"
+      ],
+      [
+       "oscilloscope",
+       "Freeze classifiers",
+       {
+        "do": "dice",
+        "sides": 6,
+        "title": "Hypothesis",
+        "text": "Pick a hypothesis to test next — evidence decides, not hunches."
+       }
+      ],
+      [
+       "filingCabinet",
+       "Coredumps"
+      ]
+     ]
+    },
+    {
+     "name": "History Room",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "timelineWall",
+       "Crash/freeze chronology"
+      ],
+      [
+       "bookshelf",
+       "HISTORY.md"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/FieldNotes",
+  "summary": "IT Support Field Notes: a plain static, installable app for structured IT support and incident notes — capture troubleshooting, copy notes into tickets, filter past work and back up locally, with sync and recovery tests and no ticket-system login or cloud backend.",
+  "evidence": [
+   "README.md",
+   "actions.js",
+   "backup.js",
+   "sync.js",
+   "tests/sync.test.js",
+   "tests/recovery.test.js"
+  ],
+  "kind": "Field Notes Hut",
+  "links": [
+   {
+    "label": "Live app",
+    "url": "https://field-notes-two.vercel.app/"
+   }
+  ],
+  "ext": {
+   "style": "cabin",
+   "walls": "#7a8a5a",
+   "roof": "#3a4a2a",
+   "trim": "#e8d8a8",
+   "door": "#3a3a1a",
+   "features": [
+    "van",
+    "signpost",
+    "bench",
+    "trees"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#6a6048",
+   "walls": "#ecead8",
+   "light": "#fffbe8",
+   "rooms": [
+    {
+     "name": "Capture Desk",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "desk",
+       "Structured note",
+       {
+        "do": "steps",
+        "title": "A field note",
+        "steps": [
+         "Capture the symptom.",
+         "Record what you tried.",
+         "Note the fix and how you verified it.",
+         "Copy the note straight into the ticket."
+        ]
+       }
+      ],
+      [
+       "laptop",
+       "Field laptop"
+      ],
+      [
+       "chair",
+       "Stool"
+      ],
+      [
+       "coffeeMachine",
+       "Thermos"
+      ]
+     ]
+    },
+    {
+     "name": "Archive Hut",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "filingCabinet",
+       "Past work, filtered"
+      ],
+      [
+       "safe",
+       "Local backups",
+       {
+        "do": "quiz",
+        "title": "Where are notes kept?",
+        "q": "Does Field Notes need a cloud account?",
+        "options": [
+         "Yes",
+         "No — notes stay local and back up to files",
+         "Only for search"
+        ],
+        "answer": 1,
+        "explain": "No ticket-system login and no cloud backend."
+       }
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ],
+      [
+       "toolWall",
+       "Toolkit"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/ForgeGrid",
+  "summary": "ForgeGrid: a portable local-network development cluster written in Go — a lightweight coordinator and workers that spread independent game-dev jobs (builds, tests, linting, asset processing, game servers, packaging and agent tasks) across Windows and Linux machines.",
+  "evidence": [
+   "README.md",
+   "ARCHITECTURE.md",
+   "main.go",
+   "internal/coordinator/handlers.go",
+   "internal/worker/worker.go",
+   "internal/agentbridge/"
+  ],
+  "kind": "Grid Foundry",
+  "ext": {
+   "style": "factory",
+   "walls": "#4a4a52",
+   "roof": "#2a2a30",
+   "trim": "#f28a3a",
+   "door": "#1a1a20",
+   "features": [
+    "anvil",
+    "crates",
+    "truck",
+    "antenna"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#3a3a40",
+   "walls": "#7a7a84",
+   "light": "#ffe0c8",
+   "rooms": [
+    {
+     "name": "Coordinator Floor",
+     "w": 11,
+     "d": 10,
+     "props": [
+      [
+       "consolePanel",
+       "Coordinator",
+       {
+        "do": "steps",
+        "title": "Jobs it distributes",
+        "steps": [
+         "Game builds and exports.",
+         "Automated tests.",
+         "Linting and type checking.",
+         "Asset processing.",
+         "Dedicated game servers and packaging."
+        ]
+       }
+      ],
+      [
+       "anvil",
+       "Build forge"
+      ],
+      [
+       "monitorWall",
+       "Dashboard"
+      ]
+     ]
+    },
+    {
+     "name": "Worker Bay",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "serverRack",
+       "Linux worker"
+      ],
+      [
+       "laptop",
+       "Windows worker",
+       {
+        "do": "count",
+        "unit": "Jobs completed",
+        "text": "Workers pull independent jobs from the coordinator."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Agent Bridge",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "robot",
+       "AI agent task"
+      ],
+      [
+       "router",
+       "Local network"
+      ],
+      [
+       "desk",
+       "Bridge desk"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/GoldFinder",
+  "summary": "Riverina Gold: an Expo React Native scaffold for a gold-prospecting map around Narrandera, NSW — an offline-first map screen for web and mobile with an offline manager and dummy GeoJSON standing in for NSW MinView mine data.",
+  "evidence": [
+   "README.md",
+   "App.js",
+   "src/screens/MapScreen.js",
+   "src/screens/MapScreen.native.js",
+   "src/components/OfflineManager.js"
+  ],
+  "kind": "Prospector's Shack",
+  "ext": {
+   "style": "cabin",
+   "walls": "#a8784a",
+   "roof": "#5a4a3a",
+   "trim": "#e8c84a",
+   "door": "#4a2a1a",
+   "features": [
+    "rocks",
+    "wagon",
+    "well",
+    "signpost"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#8a6a48",
+   "walls": "#e8d8b8",
+   "light": "#ffe8b8",
+   "rooms": [
+    {
+     "name": "Map Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "mapTable",
+       "Narrandera goldfields",
+       {
+        "do": "toggle",
+        "title": "Offline map",
+        "on": "Map cached for offline use in the field.",
+        "off": "Online only."
+       }
+      ],
+      [
+       "pinMap",
+       "Old mines (dummy GeoJSON)"
+      ],
+      [
+       "lantern",
+       "Lamp"
+      ],
+      [
+       "chair",
+       "Stool"
+      ]
+     ]
+    },
+    {
+     "name": "Prospecting Gear",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "toolWall",
+       "Pan & pick"
+      ],
+      [
+       "coinStack",
+       "Gold flakes",
+       {
+        "do": "steps",
+        "title": "Next steps",
+        "steps": [
+         "Replace the dummy mines with real MinView GeoJSON.",
+         "Add map layers.",
+         "Test offline in the field."
+        ]
+       }
+      ],
+      [
+       "phoneStand",
+       "Expo app"
+      ],
+      [
+       "barrel",
+       "Water"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/hprobooktroubleshoot",
+  "summary": "An evidence-driven investigation of an HP ProBook 11 G2 that hard-freezes, which grew into Windows Doctor — a crash, hang and network triage tool — under one rule: keep observation, telemetry, inherited history, interpretation and causality separate, and change one thing at a time.",
+  "evidence": [
+   "README.md",
+   "evidence/",
+   "analysis/",
+   "windows-crash-doctor/NetworkDoctor.ps1",
+   "desktop/WindowsCrashDoctor.App/MainWindow.xaml.cs",
+   "docs/TOOLKIT_CATALOG.html"
+  ],
+  "kind": "Case File Garage",
+  "ext": {
+   "style": "garage",
+   "walls": "#4a6a8a",
+   "roof": "#2a3a4a",
+   "trim": "#e8e8e8",
+   "door": "#2a3a4a",
+   "features": [
+    "signpost",
+    "crates",
+    "bench",
+    "van"
+   ]
+  },
+  "int": {
+   "layout": "grid",
+   "floor": "#5a6470",
+   "walls": "#e6ecf2",
+   "light": "#f2f8ff",
+   "rooms": [
+    {
+     "name": "The Patient",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "laptop",
+       "HP ProBook 11 G2",
+       {
+        "do": "info",
+        "text": "The laptop hard-freezes; every observation about it is logged before anything changes."
+       }
+      ],
+      [
+       "workbench",
+       "Test bench"
+      ]
+     ]
+    },
+    {
+     "name": "Evidence Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "archiveBoxes",
+       "Raw evidence"
+      ],
+      [
+       "corkboard",
+       "Keep these separate",
+       {
+        "do": "steps",
+        "title": "The core rule",
+        "steps": [
+         "Observation.",
+         "Current-machine telemetry.",
+         "Inherited image history.",
+         "Interpretation.",
+         "Causality — change one thing at a time."
+        ]
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Windows Doctor",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "computer",
+       "Crash & hang triage"
+      ],
+      [
+       "router",
+       "Network Doctor"
+      ]
+     ]
+    },
+    {
+     "name": "Analysis",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "chartBoard",
+       "Toolkit catalogue"
+      ],
+      [
+       "filingCabinet",
+       "Case dashboard",
+       {
+        "do": "quiz",
+        "title": "Method",
+        "q": "How many changes should you make between tests?",
+        "options": [
+         "As many as possible",
+         "One",
+         "None ever"
+        ],
+        "answer": 1,
+        "explain": "Change one thing, then observe."
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/hrv",
+  "summary": "Despite its name, this private repo holds Between Calls: a small app for the gaps between support calls — pick a kind of task, schedule exact tasks from now, load custom JSON task packs, record where you were interrupted, and turn a solved ticket into a reusable checklist — across four versions.",
+  "evidence": [
+   "between-calls/index.html",
+   "4/between-calls-v4/index.html",
+   "3/UPDATE-BETWEEN-CALLS-V4.sh",
+   "between-calls-app-v2-fixed.zip"
+  ],
+  "kind": "Between-Calls Break Room",
+  "ext": {
+   "style": "cafe",
+   "walls": "#5a8a9a",
+   "roof": "#2a4a5a",
+   "trim": "#f2efe6",
+   "door": "#2a3a42",
+   "features": [
+    "cafeTables",
+    "bench",
+    "garden",
+    "signpost"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#8a9094",
+   "walls": "#eef4f6",
+   "light": "#f6fcff",
+   "rooms": [
+    {
+     "name": "Break Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "coffeeMachine",
+       "Between calls"
+      ],
+      [
+       "cafeTable",
+       "Quick task table"
+      ],
+      [
+       "clock",
+       "Exact schedule from now",
+       {
+        "do": "steps",
+        "title": "Using a gap",
+        "steps": [
+         "Choose the kind of task.",
+         "Schedule exact tasks from now.",
+         "Get interrupted? Note where.",
+         "Pick up where you left off."
+        ]
+       }
+      ],
+      [
+       "sofa",
+       "Five-minute sofa"
+      ]
+     ]
+    },
+    {
+     "name": "Checklist Desk",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "desk",
+       "Ticket → checklist",
+       {
+        "do": "count",
+        "unit": "Checklists made",
+        "text": "Turn one solved ticket into a reusable checklist."
+       }
+      ],
+      [
+       "filingCabinet",
+       "Custom JSON packs"
+      ],
+      [
+       "phoneStand",
+       "Next call"
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/Ideas",
+  "summary": "Private repository this session's GitHub access could not open; another repository called ideas is already attached, which blocks attaching this one, so this sketchbook studio is designed from its name only.",
+  "evidence": [
+   "unreachable: name clash with attached joshuaparris-max/ideas; inventory name only"
+  ],
+  "kind": "Sketchbook Studio (name-based)",
+  "ext": {
+   "style": "townhouse",
+   "walls": "#f2d84a",
+   "roof": "#3a3a3a",
+   "trim": "#f2f2f2",
+   "door": "#2a2a2a",
+   "features": [
+    "balloons",
+    "bench",
+    "bicycle",
+    "garden"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#c8b890",
+   "walls": "#fffbe8",
+   "light": "#fffbe0",
+   "rooms": [
+    {
+     "name": "Sketch Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "easel",
+       "Sketch",
+       {
+        "do": "info",
+        "text": "Placeholder: this repository could not be attached because of a name clash."
+       }
+      ],
+      [
+       "stool",
+       "Stool"
+      ],
+      [
+       "corkboard",
+       "Pinned sketches"
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ]
+     ]
+    },
+    {
+     "name": "Idea Shelf",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "shelf",
+       "Notebooks"
+      ],
+      [
+       "bookStack",
+       "Drafts",
+       {
+        "do": "count",
+        "unit": "Ideas noted",
+        "text": "Theme from the name only."
+       }
+      ],
+      [
+       "sofa",
+       "Thinking couch"
+      ],
+      [
+       "plant",
+       "Plant"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/Ideas2",
+  "summary": "A mobile-first family support app of quick sensory, outdoor and routine ideas for two young children — filters, favourites, a routine builder and export/import backup — deliberately keeping private therapy notes and personal details out of the deployed app.",
+  "evidence": [
+   "README.md",
+   "src/data/ideas.ts",
+   "src/components/IdeaCard.tsx",
+   "src/components/RoutineBuilder.tsx",
+   "src/components/ExportImportPanel.tsx"
+  ],
+  "kind": "Family Ideas Playroom",
+  "ext": {
+   "style": "treehouse",
+   "walls": "#7ac8a8",
+   "roof": "#e8a03a",
+   "trim": "#fff4e0",
+   "door": "#3a6a5a",
+   "features": [
+    "sandpit",
+    "balloons",
+    "bird",
+    "garden"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#c8b08a",
+   "walls": "#f4fbf6",
+   "light": "#fffbe8",
+   "rooms": [
+    {
+     "name": "Idea Cards",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "cardTable",
+       "Sensory · outdoor · routine",
+       {
+        "do": "count",
+        "unit": "Ideas favourited",
+        "text": "Filter ideas by type and save favourites."
+       }
+      ],
+      [
+       "toyBlocks",
+       "Sensory play"
+      ],
+      [
+       "rug",
+       "Play rug"
+      ],
+      [
+       "bookStack",
+       "Picture books"
+      ]
+     ]
+    },
+    {
+     "name": "Routine Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "clock",
+       "Routine builder",
+       {
+        "do": "steps",
+        "title": "Build a routine",
+        "steps": [
+         "Pick ideas.",
+         "Order them into a routine.",
+         "Save it.",
+         "Export a backup."
+        ]
+       }
+      ],
+      [
+       "corkboard",
+       "Today's plan"
+      ],
+      [
+       "safe",
+       "Private notes stay out"
+      ],
+      [
+       "sandpit",
+       "Outdoor ideas"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/KaseyaFieldOps",
+  "summary": "Kaseya Field Ops: a hands-on learning tool for MSP technicians — branching ticket scenarios across the Kaseya/Datto stack (RMM, EDR, SaaS Protection, Kaseya 365, INKY) with immediate feedback, spaced-repetition review and a field test simulator.",
+  "evidence": [
+   "README.md",
+   "src/data/products/datto-rmm.ts",
+   "src/data/products/datto-edr.ts",
+   "src/data/products/kaseya-365.ts",
+   "src/pages/FieldTestSimulator.tsx",
+   "tests/"
+  ],
+  "kind": "Field Ops Depot",
+  "ext": {
+   "style": "warehouse",
+   "walls": "#2a6aa8",
+   "roof": "#1a2a44",
+   "trim": "#f2c14e",
+   "door": "#1a2a44",
+   "features": [
+    "van",
+    "antenna",
+    "crates",
+    "flag"
+   ]
+  },
+  "int": {
+   "layout": "grid",
+   "floor": "#4a5464",
+   "walls": "#e2eaf4",
+   "light": "#eef6ff",
+   "rooms": [
+    {
+     "name": "Scenario Drills",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "phoneStand",
+       "Offline endpoint ticket",
+       {
+        "do": "quiz",
+        "title": "BEC triage",
+        "q": "A business-email-compromise ticket arrives. A sensible first action?",
+        "options": [
+         "Reply to the attacker",
+         "Contain the account and check mail rules",
+         "Ignore it"
+        ],
+        "answer": 1,
+        "explain": "Scenario drills give immediate feedback on the next best action."
+       }
+      ],
+      [
+       "desk",
+       "Ticket desk"
+      ]
+     ]
+    },
+    {
+     "name": "Product Shelf",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "serverRack",
+       "Datto RMM"
+      ],
+      [
+       "safe",
+       "Datto EDR"
+      ]
+     ]
+    },
+    {
+     "name": "Review Queue",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "cardTable",
+       "Spaced repetition"
+      ],
+      [
+       "clock",
+       "Daily review"
+      ]
+     ]
+    },
+    {
+     "name": "Field Simulator",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "consolePanel",
+       "Field test simulator",
+       {
+        "do": "steps",
+        "title": "Covered products",
+        "steps": [
+         "Datto RMM",
+         "Datto EDR",
+         "Datto SaaS Protection",
+         "Kaseya 365",
+         "INKY"
+        ]
+       }
+      ],
+      [
+       "laptop",
+       "Practice endpoint"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/lantern-road",
+  "summary": "Lantern Road: a static browser adventure RPG — lead four adventurers across the Grey March on a real hex map, travelling town to town, hearing rumours, taking quests, bargaining with factions, managing supplies and surviving travel events — governed by strict agent rules and map-canon checks.",
+  "evidence": [
+   "README.md",
+   "AGENTS.md",
+   "game.js",
+   "content.js",
+   "save-system.js",
+   "scripts/validate-map-canon.mjs"
+  ],
+  "kind": "Waystation Inn",
+  "ext": {
+   "style": "mill",
+   "walls": "#8a7a5a",
+   "roof": "#4a3a2a",
+   "trim": "#e8c86a",
+   "door": "#3a2a1a",
+   "features": [
+    "lanterns",
+    "wagon",
+    "signpost",
+    "horse"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#6a5840",
+   "walls": "#d8c8a8",
+   "light": "#ffdca0",
+   "rooms": [
+    {
+     "name": "Common Room",
+     "w": 11,
+     "d": 9,
+     "props": [
+      [
+       "cardTable",
+       "Rumours"
+      ],
+      [
+       "fireplace",
+       "Inn hearth"
+      ],
+      [
+       "barrel",
+       "Ale"
+      ]
+     ]
+    },
+    {
+     "name": "Hex Map Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "mapTable",
+       "The Grey March (hex)",
+       {
+        "do": "steps",
+        "title": "Travel",
+        "steps": [
+         "Choose the next hex.",
+         "Spend supplies.",
+         "Survive a travel event.",
+         "Arrive at the next town."
+        ]
+       }
+      ],
+      [
+       "signpost",
+       "Roads"
+      ]
+     ]
+    },
+    {
+     "name": "Quest Board",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "noticeBoard",
+       "Quests & factions",
+       {
+        "do": "quiz",
+        "title": "Your party",
+        "q": "How many adventurers do you lead?",
+        "options": [
+         "One",
+         "Four",
+         "Eight"
+        ],
+        "answer": 1,
+        "explain": "A party of four crosses the Grey March."
+       }
+      ],
+      [
+       "chair",
+       "Bargaining seat"
+      ]
+     ]
+    },
+    {
+     "name": "Supply Store",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "crates",
+       "Supplies",
+       {
+        "do": "count",
+        "unit": "Rations packed",
+        "text": "Supplies run down as you travel."
+       }
+      ],
+      [
+       "lantern",
+       "Road lantern"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/llm",
+  "summary": "The earlier single-page LLM Gladiator Arena: paste two LLM-written fighter plans as JSON, simulate a deterministic round, watch the replay and battle log, then copy each fighter's prompt back to two different chatbots — no install, backend or API key.",
+  "evidence": [
+   "README.md",
+   "llm-gladiator-arena.html",
+   "index.html",
+   "samples/",
+   "qa.mjs"
+  ],
+  "kind": "Practice Ring",
+  "ext": {
+   "style": "stable",
+   "walls": "#c8a878",
+   "roof": "#5a3a2a",
+   "trim": "#e8c84a",
+   "door": "#3a2a1a",
+   "features": [
+    "flag",
+    "torches",
+    "fence",
+    "hay"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#c8a878",
+   "walls": "#f2e4c8",
+   "light": "#fff0d0",
+   "rooms": [
+    {
+     "name": "Ring",
+     "w": 10,
+     "d": 9,
+     "props": [
+      [
+       "boardGame",
+       "Duel grid"
+      ],
+      [
+       "armorStand",
+       "Fighter A"
+      ],
+      [
+       "armorStand",
+       "Fighter B",
+       {
+        "do": "steps",
+        "title": "A round",
+        "steps": [
+         "Paste Fighter A's JSON.",
+         "Paste Fighter B's JSON.",
+         "Simulate the round.",
+         "Watch the replay and read the log.",
+         "Copy each prompt back to a different LLM."
+        ]
+       }
+      ],
+      [
+       "bench",
+       "Spectator bench"
+      ]
+     ]
+    },
+    {
+     "name": "Corner",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "scrollRack",
+       "Sample plans"
+      ],
+      [
+       "stool",
+       "Corner stool",
+       {
+        "do": "quiz",
+        "title": "Requirements",
+        "q": "What does this single-page version need to run?",
+        "options": [
+         "An API key",
+         "A backend",
+         "Just a browser"
+        ],
+        "answer": 2,
+        "explain": "No install, backend, API key or internet."
+       }
+      ],
+      [
+       "waterCooler",
+       "Water"
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/LLMAccountability",
+  "summary": "LLMAccountability: an anti-tampering framework for AI coding-agent claims — a protected Windows execution boundary plus a V2 layer that extracts checkable claims from a completion report, gathers independent evidence and issues signed attestations, with adversarial 'cheating' tests.",
+  "evidence": [
+   "README.md",
+   "agy_verifier.py",
+   "agy_service.py",
+   "agy_worker.py",
+   "tests/test_v2_adversarial.py",
+   "test_cheating.py"
+  ],
+  "kind": "Notary Office",
+  "ext": {
+   "style": "gatehouse",
+   "walls": "#5a5a5a",
+   "roof": "#2a2a2a",
+   "trim": "#c8a050",
+   "door": "#1a1a1a",
+   "features": [
+    "fence",
+    "flag",
+    "statue",
+    "lanterns"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#4a4440",
+   "walls": "#cfc8c0",
+   "light": "#fff2e0",
+   "rooms": [
+    {
+     "name": "Claims Intake",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "lectern",
+       "Completion report"
+      ],
+      [
+       "filingCabinet",
+       "Extracted claims",
+       {
+        "do": "steps",
+        "title": "V2 audit",
+        "steps": [
+         "Read the Markdown completion report.",
+         "Extract supported claim wording deterministically.",
+         "Gather evidence independently.",
+         "Issue a signed attestation."
+        ]
+       }
+      ],
+      [
+       "chair",
+       "Clerk's chair"
+      ],
+      [
+       "desk",
+       "Notary desk"
+      ]
+     ]
+    },
+    {
+     "name": "Protected Boundary",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "safe",
+       "Signed attestations"
+      ],
+      [
+       "serverRack",
+       "Protected Windows service",
+       {
+        "do": "quiz",
+        "title": "Tampering",
+        "q": "An agent edits its test results to look green. What catches it?",
+        "options": [
+         "Nothing",
+         "Independently gathered evidence behind a protected boundary",
+         "A friendly reminder"
+        ],
+        "answer": 1,
+        "explain": "Adversarial tests cover exactly this kind of cheating."
+       }
+      ],
+      [
+       "router",
+       "Execution boundary"
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/lore",
+  "summary": "The original Dreadnought Drifters deployment: a React Three Fiber and drei scene published to GitHub Pages, with the authored oracle and 'Gurgle' dialogue trees and a dialogue overlay tested end to end.",
+  "evidence": [
+   "src/data/oracleDialogue.ts",
+   "src/data/gurgleDialogue.ts",
+   "src/components/DialogueOverlay.tsx",
+   "src/components/DreadnoughtCortex.tsx",
+   "tests/e2e/oracle-dialogue.spec.ts"
+  ],
+  "kind": "Dialogue Grotto",
+  "ext": {
+   "style": "cave",
+   "walls": "#7a5a6a",
+   "roof": "#4a3240",
+   "trim": "#4ff0c8",
+   "door": "#2a1a22",
+   "features": [
+    "mushrooms",
+    "crystal",
+    "beacon",
+    "rocks"
+   ]
+  },
+  "int": {
+   "layout": "L",
+   "floor": "#5a3a48",
+   "walls": "#9a7888",
+   "light": "#ffd8f0",
+   "ceiling": "#3a2230",
+   "rooms": [
+    {
+     "name": "Oracle Grotto",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "statue",
+       "The Left Eye Nerve Oracle",
+       {
+        "do": "steps",
+        "title": "Talking to the Oracle",
+        "steps": [
+         "Ask what this enormous thing is.",
+         "Try to convince the Oracle.",
+         "Pass the check for more answers.",
+         "Close the dialogue."
+        ]
+       }
+      ],
+      [
+       "crystal",
+       "Glowing nerve"
+      ],
+      [
+       "pond",
+       "Fluid pool"
+      ]
+     ]
+    },
+    {
+     "name": "Gurgle's Pool",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "smallCreature",
+       "Gurgle",
+       {
+        "do": "play",
+        "title": "Gurgle",
+        "text": "Gurgle has his own dialogue tree.",
+        "notes": [
+         150,
+         180,
+         150,
+         120
+        ]
+       }
+      ],
+      [
+       "mushroom",
+       "Spongy growth"
+      ],
+      [
+       "barrel",
+       "Washed-up barrel"
+      ]
+     ]
+    },
+    {
+     "name": "Pages Booth",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "computer",
+       "GitHub Pages build"
+      ],
+      [
+       "lectern",
+       "Dialogue data"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/Marsh",
+  "summary": "Grey March: Lanterns of Sanctum — a static browser prototype that combines three zoom levels into one campaign: hex overland travel, ASCII town exploration and tactical encounters with a four-person party, all sharing one set of NPCs.",
+  "evidence": [
+   "README.md",
+   "game.js",
+   "content.js",
+   "grey-march-combined.zip",
+   "index-1.html"
+  ],
+  "kind": "Three-Zoom Watchtower",
+  "ext": {
+   "style": "tower",
+   "walls": "#7a7a6a",
+   "roof": "#3a3a2a",
+   "trim": "#e8c86a",
+   "door": "#2a2a1a",
+   "features": [
+    "lanterns",
+    "rocks",
+    "hay",
+    "signpost"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#5a5a4a",
+   "walls": "#b8b8a0",
+   "light": "#ffe8b0",
+   "rooms": [
+    {
+     "name": "Zoom 1 · Overworld",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "mapTable",
+       "Hex overland",
+       {
+        "do": "steps",
+        "title": "Three zooms",
+        "steps": [
+         "Zoom 1: hex travel across the Grey March.",
+         "Zoom 2: walk a town as an ASCII map.",
+         "Zoom 3: tactical combat with four companions."
+        ]
+       }
+      ],
+      [
+       "globe",
+       "The March"
+      ]
+     ]
+    },
+    {
+     "name": "Zoom 2 · Town",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "terminal",
+       "ASCII town map"
+      ],
+      [
+       "noticeBoard",
+       "Shared NPCs"
+      ],
+      [
+       "cardTable",
+       "Tavern"
+      ]
+     ]
+    },
+    {
+     "name": "Zoom 3 · Encounter",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "boardGame",
+       "Tactical grid"
+      ],
+      [
+       "diceTable",
+       "Party of four",
+       {
+        "do": "dice",
+        "sides": 20,
+        "title": "Encounter",
+        "text": "Tactical encounters use the same NPCs and party as the overworld."
+       }
+      ],
+      [
+       "lantern",
+       "Lantern of Sanctum"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/Max",
+  "summary": "A tiny folder of Python text games: STARHAVEN, a single-file murder mystery on a station where you inspect, talk, accuse and arrest the real killer before bringing them to the command deck, plus a guess-the-number game.",
+  "evidence": [
+   "Strarhaven.py",
+   "guess_the_number.py",
+   "MISC.md"
+  ],
+  "kind": "Station Murder Mystery",
+  "ext": {
+   "style": "spaceport",
+   "walls": "#5a6a7a",
+   "roof": "#e85a3a",
+   "trim": "#e8e8e8",
+   "door": "#2a3a4a",
+   "features": [
+    "satellite",
+    "antenna",
+    "crates",
+    "robot"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#3a4048",
+   "walls": "#8a96a2",
+   "light": "#e0f0ff",
+   "rooms": [
+    {
+     "name": "Crime Scene",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "corkboard",
+       "Suspects",
+       {
+        "do": "quiz",
+        "title": "How do you win?",
+        "q": "How do you win STARHAVEN?",
+        "options": [
+         "Accuse someone at random",
+         "Arrest the real killer and bring them restrained to the command deck",
+         "Leave the station"
+        ],
+        "answer": 1,
+        "explain": "Then 'use console' on the command deck."
+       }
+      ],
+      [
+       "bed",
+       "Victim's bunk"
+      ],
+      [
+       "cryoPod",
+       "Evidence"
+      ],
+      [
+       "filingCabinet",
+       "Station logs"
+      ]
+     ]
+    },
+    {
+     "name": "Command Deck",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "consolePanel",
+       "use console"
+      ],
+      [
+       "chair",
+       "Commander's chair"
+      ],
+      [
+       "diceTable",
+       "Guess the number",
+       {
+        "do": "dice",
+        "sides": 100,
+        "title": "Guess the number",
+        "text": "The folder also has a guess-the-number game."
+       }
+      ],
+      [
+       "crates",
+       "Cargo"
+      ]
+     ]
+    }
+   ]
+  }
+ }
+]

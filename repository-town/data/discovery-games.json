@@ -1,0 +1,2115 @@
+{
+  "A1": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Garden Cottage",
+      {
+        "do": "loot",
+        "title": "Mystery exhibit \u00b7 Garden Cottage",
+        "text": "Mystery exhibit \u00b7 Garden Cottage"
+      }
+    ]
+  ],
+  "B1": [
+    [
+      "runeStone",
+      "Waking sigils",
+      {
+        "do": "vault",
+        "title": "AshFallen \u00b7 Three-digit puzzle",
+        "text": "AshFallen \u00b7 Three-digit puzzle"
+      }
+    ]
+  ],
+  "C1": [
+    [
+      "chartBoard",
+      "CRAP4all < 30 gate",
+      {
+        "do": "trail",
+        "title": "buckland-blocks-demo \u00b7 Choose-your-path adventure",
+        "text": "buckland-blocks-demo \u00b7 Choose-your-path adventure"
+      }
+    ]
+  ],
+  "D1": [
+    [
+      "diceTable",
+      "Mystery exhibit \u00b7 Stone Castle",
+      {
+        "do": "battle",
+        "title": "Mystery exhibit \u00b7 Stone Castle",
+        "text": "Mystery exhibit \u00b7 Stone Castle"
+      }
+    ]
+  ],
+  "E1": [
+    [
+      "diceTable",
+      "Mystery exhibit \u00b7 Stone Castle",
+      {
+        "do": "battle",
+        "title": "Mystery exhibit \u00b7 Stone Castle",
+        "text": "Mystery exhibit \u00b7 Stone Castle"
+      }
+    ]
+  ],
+  "F1": [
+    [
+      "swordRack",
+      "Broken Lanyard & Memo of Binding",
+      {
+        "do": "battle",
+        "title": "the-consultancy-beneath \u00b7 D20 encounter",
+        "text": "the-consultancy-beneath \u00b7 D20 encounter"
+      }
+    ]
+  ],
+  "G1": [
+    [
+      "lantern",
+      "Peculiar lamp fuel",
+      {
+        "do": "signal",
+        "title": "theUndercity \u00b7 Frequency hunt",
+        "text": "theUndercity \u00b7 Frequency hunt"
+      }
+    ]
+  ],
+  "H1": [
+    [
+      "tree",
+      "Clearing oak",
+      {
+        "do": "safari",
+        "title": "Whispering-Wilds \u00b7 Wildlife trail",
+        "text": "Whispering-Wilds \u00b7 Wildlife trail"
+      }
+    ]
+  ],
+  "I1": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Terrace House",
+      {
+        "do": "loot",
+        "title": "Mystery exhibit \u00b7 Terrace House",
+        "text": "Mystery exhibit \u00b7 Terrace House"
+      }
+    ]
+  ],
+  "J1": [
+    [
+      "swordRack",
+      "Rogue's blades",
+      {
+        "do": "battle",
+        "title": "AstraDndGame \u00b7 D20 encounter",
+        "text": "AstraDndGame \u00b7 D20 encounter"
+      }
+    ]
+  ],
+  "K1": [
+    [
+      "workbench",
+      "Block bench",
+      {
+        "do": "battle",
+        "title": "BucklandBlocks \u00b7 D20 encounter",
+        "text": "BucklandBlocks \u00b7 D20 encounter"
+      }
+    ]
+  ],
+  "L1": [
+    [
+      "toyBlocks",
+      "Gated block types",
+      {
+        "do": "repair",
+        "title": "BucklandBlocks1 \u00b7 Diagnostic challenge",
+        "text": "BucklandBlocks1 \u00b7 Diagnostic challenge"
+      }
+    ]
+  ],
+  "M1": [
+    [
+      "diceTable",
+      "Table dice",
+      {
+        "do": "battle",
+        "title": "campaign-copilot \u00b7 D20 encounter",
+        "text": "campaign-copilot \u00b7 D20 encounter"
+      }
+    ]
+  ],
+  "N1": [
+    [
+      "armorStand",
+      "PHB 2014 characters",
+      {
+        "do": "battle",
+        "title": "CanonRPG \u00b7 D20 encounter",
+        "text": "CanonRPG \u00b7 D20 encounter"
+      }
+    ]
+  ],
+  "O1": [
+    [
+      "swordRack",
+      "Armoury",
+      {
+        "do": "battle",
+        "title": "dndgame \u00b7 D20 encounter",
+        "text": "dndgame \u00b7 D20 encounter"
+      }
+    ]
+  ],
+  "P1": [
+    [
+      "archiveBoxes",
+      "Mission schema",
+      {
+        "do": "loot",
+        "title": "Eleven-Realms \u00b7 Surprise collection",
+        "text": "Eleven-Realms \u00b7 Surprise collection"
+      }
+    ]
+  ],
+  "Q1": [
+    [
+      "filingCabinet",
+      "codingprinciples.md",
+      {
+        "do": "battle",
+        "title": "ElevenRealms \u00b7 D20 encounter",
+        "text": "ElevenRealms \u00b7 D20 encounter"
+      }
+    ]
+  ],
+  "R1": [
+    [
+      "rock",
+      "Playground rocks",
+      {
+        "do": "trail",
+        "title": "energyquest \u00b7 Choose-your-path adventure",
+        "text": "energyquest \u00b7 Choose-your-path adventure"
+      }
+    ]
+  ],
+  "S1": [
+    [
+      "diceTable",
+      "Mystery exhibit \u00b7 Stone Castle",
+      {
+        "do": "battle",
+        "title": "Mystery exhibit \u00b7 Stone Castle",
+        "text": "Mystery exhibit \u00b7 Stone Castle"
+      }
+    ]
+  ],
+  "T1": [
+    [
+      "fence",
+      "Gate palisade",
+      {
+        "do": "battle",
+        "title": "Game-Booster \u00b7 D20 encounter",
+        "text": "Game-Booster \u00b7 D20 encounter"
+      }
+    ]
+  ],
+  "U1": [
+    [
+      "pews",
+      "Lecture benches",
+      {
+        "do": "battle",
+        "title": "kkc-adventure \u00b7 D20 encounter",
+        "text": "kkc-adventure \u00b7 D20 encounter"
+      }
+    ]
+  ],
+  "V1": [
+    [
+      "diceTable",
+      "Mystery exhibit \u00b7 Stone Castle",
+      {
+        "do": "battle",
+        "title": "Mystery exhibit \u00b7 Stone Castle",
+        "text": "Mystery exhibit \u00b7 Stone Castle"
+      }
+    ]
+  ],
+  "W1": [
+    [
+      "dungeonDoor",
+      "Way down",
+      {
+        "do": "trail",
+        "title": "NeathBound branching adventure",
+        "text": "NeathBound branching adventure"
+      }
+    ]
+  ],
+  "X1": [
+    [
+      "anvil",
+      "Fishery forge",
+      {
+        "do": "battle",
+        "title": "rothfuss-kkc-adventure \u00b7 D20 encounter",
+        "text": "rothfuss-kkc-adventure \u00b7 D20 encounter"
+      }
+    ]
+  ],
+  "Y1": [
+    [
+      "crates",
+      "Supplies",
+      {
+        "do": "signal",
+        "title": "TextGame \u00b7 Frequency hunt",
+        "text": "TextGame \u00b7 Frequency hunt"
+      }
+    ]
+  ],
+  "Z1": [
+    [
+      "cryoPod",
+      "Empty crew pod",
+      {
+        "do": "battle",
+        "title": "wastes-courier-roguelike \u00b7 D20 encounter",
+        "text": "wastes-courier-roguelike \u00b7 D20 encounter"
+      }
+    ]
+  ],
+  "A2": [
+    [
+      "cardCatalog",
+      "ISBN extraction",
+      {
+        "do": "vault",
+        "title": "dewey-converter-for-librarything \u00b7 Three-digit puzzle",
+        "text": "dewey-converter-for-librarything \u00b7 Three-digit puzzle"
+      }
+    ]
+  ],
+  "B2": [
+    [
+      "tree",
+      "Canopy tree",
+      {
+        "do": "vault",
+        "title": "Research archive lock",
+        "text": "Research archive lock"
+      }
+    ],
+    [
+      "bird",
+      "Visiting parrot",
+      {
+        "do": "safari",
+        "title": "Dubbo Zoo conservation trail",
+        "text": "Dubbo Zoo conservation trail"
+      }
+    ]
+  ],
+  "C2": [
+    [
+      "cardCatalog",
+      "Mystery exhibit \u00b7 Reading Hall",
+      {
+        "do": "vault",
+        "title": "Mystery exhibit \u00b7 Reading Hall",
+        "text": "Mystery exhibit \u00b7 Reading Hall"
+      }
+    ]
+  ],
+  "D2": [
+    [
+      "cardCatalog",
+      "Mystery exhibit \u00b7 Reading Hall",
+      {
+        "do": "vault",
+        "title": "Mystery exhibit \u00b7 Reading Hall",
+        "text": "Mystery exhibit \u00b7 Reading Hall"
+      }
+    ]
+  ],
+  "E2": [
+    [
+      "computer",
+      "Mystery exhibit \u00b7 Science Lab",
+      {
+        "do": "repair",
+        "title": "Mystery exhibit \u00b7 Science Lab",
+        "text": "Mystery exhibit \u00b7 Science Lab"
+      }
+    ]
+  ],
+  "F2": [
+    [
+      "cardCatalog",
+      "Mystery exhibit \u00b7 Reading Hall",
+      {
+        "do": "vault",
+        "title": "Mystery exhibit \u00b7 Reading Hall",
+        "text": "Mystery exhibit \u00b7 Reading Hall"
+      }
+    ]
+  ],
+  "G2": [
+    [
+      "archiveBoxes",
+      "One giant merged PDF",
+      {
+        "do": "vault",
+        "title": "pdfresearch \u00b7 Three-digit puzzle",
+        "text": "pdfresearch \u00b7 Three-digit puzzle"
+      }
+    ]
+  ],
+  "H2": [
+    [
+      "cardCatalog",
+      "Mystery exhibit \u00b7 Reading Hall",
+      {
+        "do": "vault",
+        "title": "Mystery exhibit \u00b7 Reading Hall",
+        "text": "Mystery exhibit \u00b7 Reading Hall"
+      }
+    ]
+  ],
+  "I2": [
+    [
+      "cardCatalog",
+      "Mystery exhibit \u00b7 Reading Hall",
+      {
+        "do": "vault",
+        "title": "Mystery exhibit \u00b7 Reading Hall",
+        "text": "Mystery exhibit \u00b7 Reading Hall"
+      }
+    ]
+  ],
+  "J2": [
+    [
+      "tree",
+      "Old growth",
+      {
+        "do": "safari",
+        "title": "WhirringWilderness \u00b7 Wildlife trail",
+        "text": "WhirringWilderness \u00b7 Wildlife trail"
+      }
+    ]
+  ],
+  "K2": [
+    [
+      "bookStack",
+      "FIXES_APPLIED notes",
+      {
+        "do": "safari",
+        "title": "whispering-wilds \u00b7 Wildlife trail",
+        "text": "whispering-wilds \u00b7 Wildlife trail"
+      }
+    ]
+  ],
+  "L2": [
+    [
+      "dungeonDoor",
+      "Barrow gate",
+      {
+        "do": "repair",
+        "title": "Wild2 \u00b7 Diagnostic challenge",
+        "text": "Wild2 \u00b7 Diagnostic challenge"
+      }
+    ]
+  ],
+  "M2": [
+    [
+      "pantry",
+      "Shared shopping quantities",
+      {
+        "do": "kitchen",
+        "title": "Longevity kitchen challenge",
+        "text": "Longevity kitchen challenge"
+      }
+    ],
+    [
+      "crates",
+      "Bulk legumes",
+      {
+        "do": "loot",
+        "title": "Pantry surprise",
+        "text": "Pantry surprise"
+      }
+    ]
+  ],
+  "N2": [
+    [
+      "fruitBowl",
+      "Mystery exhibit \u00b7 Botanical House",
+      {
+        "do": "safari",
+        "title": "Mystery exhibit \u00b7 Botanical House",
+        "text": "Mystery exhibit \u00b7 Botanical House"
+      }
+    ]
+  ],
+  "O2": [
+    [
+      "noticeBoard",
+      "Keep the boundary clear",
+      {
+        "do": "trail",
+        "title": "HealthLens \u00b7 Choose-your-path adventure",
+        "text": "HealthLens \u00b7 Choose-your-path adventure"
+      }
+    ]
+  ],
+  "P2": [
+    [
+      "fruitBowl",
+      "Mystery exhibit \u00b7 Botanical House",
+      {
+        "do": "safari",
+        "title": "Mystery exhibit \u00b7 Botanical House",
+        "text": "Mystery exhibit \u00b7 Botanical House"
+      }
+    ]
+  ],
+  "Q2": [
+    [
+      "monitorWall",
+      "Dashboard",
+      {
+        "do": "vault",
+        "title": "Health-Data-Manager \u00b7 Three-digit puzzle",
+        "text": "Health-Data-Manager \u00b7 Three-digit puzzle"
+      }
+    ]
+  ],
+  "R2": [
+    [
+      "treadmill",
+      "Activities",
+      {
+        "do": "repair",
+        "title": "HealthLens \u00b7 Diagnostic challenge",
+        "text": "HealthLens \u00b7 Diagnostic challenge"
+      }
+    ]
+  ],
+  "S2": [
+    [
+      "fruitBowl",
+      "Mystery exhibit \u00b7 Botanical House",
+      {
+        "do": "safari",
+        "title": "Mystery exhibit \u00b7 Botanical House",
+        "text": "Mystery exhibit \u00b7 Botanical House"
+      }
+    ]
+  ],
+  "T2": [
+    [
+      "computer",
+      "Mystery exhibit \u00b7 Industrial Warehouse",
+      {
+        "do": "repair",
+        "title": "Mystery exhibit \u00b7 Industrial Warehouse",
+        "text": "Mystery exhibit \u00b7 Industrial Warehouse"
+      }
+    ]
+  ],
+  "U2": [
+    [
+      "workbench",
+      "Capability estimates",
+      {
+        "do": "trail",
+        "title": "Cheappcslaptops \u00b7 Choose-your-path adventure",
+        "text": "Cheappcslaptops \u00b7 Choose-your-path adventure"
+      }
+    ]
+  ],
+  "V2": [
+    [
+      "workbench",
+      "Fix-it bench",
+      {
+        "do": "repair",
+        "title": "Repair Caf\u00e9 diagnostic challenge",
+        "text": "Repair Caf\u00e9 diagnostic challenge"
+      }
+    ]
+  ],
+  "W2": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Terrace House",
+      {
+        "do": "loot",
+        "title": "Mystery exhibit \u00b7 Terrace House",
+        "text": "Mystery exhibit \u00b7 Terrace House"
+      }
+    ]
+  ],
+  "X2": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Glass Dome",
+      {
+        "do": "loot",
+        "title": "Mystery exhibit \u00b7 Glass Dome",
+        "text": "Mystery exhibit \u00b7 Glass Dome"
+      }
+    ]
+  ],
+  "Y2": [
+    [
+      "oscilloscope",
+      "Diagnostics bench",
+      {
+        "do": "repair",
+        "title": "Reuse-first diagnostic bench",
+        "text": "Reuse-first diagnostic bench"
+      }
+    ],
+    [
+      "safe",
+      "Chain of custody",
+      {
+        "do": "vault",
+        "title": "Secure data vault",
+        "text": "Secure data vault"
+      }
+    ]
+  ],
+  "Z2": [
+    [
+      "toyBlocks",
+      "Mystery exhibit \u00b7 Garden Cottage",
+      {
+        "do": "loot",
+        "title": "Mystery exhibit \u00b7 Garden Cottage",
+        "text": "Mystery exhibit \u00b7 Garden Cottage"
+      }
+    ]
+  ],
+  "A3": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Corner Shop",
+      {
+        "do": "kitchen",
+        "title": "Mystery exhibit \u00b7 Corner Shop",
+        "text": "Mystery exhibit \u00b7 Corner Shop"
+      }
+    ]
+  ],
+  "B3": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Modern Studio",
+      {
+        "do": "loot",
+        "title": "Mystery exhibit \u00b7 Modern Studio",
+        "text": "Mystery exhibit \u00b7 Modern Studio"
+      }
+    ]
+  ],
+  "C3": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Lookout Tower",
+      {
+        "do": "signal",
+        "title": "Mystery exhibit \u00b7 Lookout Tower",
+        "text": "Mystery exhibit \u00b7 Lookout Tower"
+      }
+    ]
+  ],
+  "D3": [
+    [
+      "computer",
+      "Mystery exhibit \u00b7 Industrial Warehouse",
+      {
+        "do": "repair",
+        "title": "Mystery exhibit \u00b7 Industrial Warehouse",
+        "text": "Mystery exhibit \u00b7 Industrial Warehouse"
+      }
+    ]
+  ],
+  "E3": [
+    [
+      "terminal",
+      "Mystery exhibit \u00b7 Engine Factory",
+      {
+        "do": "repair",
+        "title": "Mystery exhibit \u00b7 Engine Factory",
+        "text": "Mystery exhibit \u00b7 Engine Factory"
+      }
+    ]
+  ],
+  "F3": [
+    [
+      "chalkboard",
+      "Lessons",
+      {
+        "do": "repair",
+        "title": "JoshHub \u00b7 Diagnostic challenge",
+        "text": "JoshHub \u00b7 Diagnostic challenge"
+      }
+    ]
+  ],
+  "G3": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Terrace House",
+      {
+        "do": "loot",
+        "title": "Mystery exhibit \u00b7 Terrace House",
+        "text": "Mystery exhibit \u00b7 Terrace House"
+      }
+    ]
+  ],
+  "H3": [
+    [
+      "filingCabinet",
+      "Backup manager",
+      {
+        "do": "vault",
+        "title": "JoshTapApp \u00b7 Three-digit puzzle",
+        "text": "JoshTapApp \u00b7 Three-digit puzzle"
+      }
+    ]
+  ],
+  "I3": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Garden Cottage",
+      {
+        "do": "loot",
+        "title": "Mystery exhibit \u00b7 Garden Cottage",
+        "text": "Mystery exhibit \u00b7 Garden Cottage"
+      }
+    ]
+  ],
+  "J3": [
+    [
+      "workbench",
+      "Mystery exhibit \u00b7 Repair Garage",
+      {
+        "do": "repair",
+        "title": "Mystery exhibit \u00b7 Repair Garage",
+        "text": "Mystery exhibit \u00b7 Repair Garage"
+      }
+    ]
+  ],
+  "K3": [
+    [
+      "mapTable",
+      "Outback Australia",
+      {
+        "do": "battle",
+        "title": "Paul-Roe \u00b7 D20 encounter",
+        "text": "Paul-Roe \u00b7 D20 encounter"
+      }
+    ]
+  ],
+  "L3": [
+    [
+      "sofa",
+      "Co-play couch",
+      {
+        "do": "repair",
+        "title": "SylviePhonetics \u00b7 Diagnostic challenge",
+        "text": "SylviePhonetics \u00b7 Diagnostic challenge"
+      }
+    ]
+  ],
+  "M3": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Lookout Tower",
+      {
+        "do": "signal",
+        "title": "Mystery exhibit \u00b7 Lookout Tower",
+        "text": "Mystery exhibit \u00b7 Lookout Tower"
+      }
+    ]
+  ],
+  "N3": [
+    [
+      "toyBlocks",
+      "Mystery exhibit \u00b7 Garden Cottage",
+      {
+        "do": "loot",
+        "title": "Mystery exhibit \u00b7 Garden Cottage",
+        "text": "Mystery exhibit \u00b7 Garden Cottage"
+      }
+    ]
+  ],
+  "O3": [
+    [
+      "oscilloscope",
+      "Hardware probe",
+      {
+        "do": "repair",
+        "title": "JoshBIOS \u00b7 Diagnostic challenge",
+        "text": "JoshBIOS \u00b7 Diagnostic challenge"
+      }
+    ]
+  ],
+  "P3": [
+    [
+      "sofa",
+      "Listening chair",
+      {
+        "do": "vault",
+        "title": "JoshBooksOnline \u00b7 Three-digit puzzle",
+        "text": "JoshBooksOnline \u00b7 Three-digit puzzle"
+      }
+    ]
+  ],
+  "Q3": [
+    [
+      "cabinet",
+      "Family card games",
+      {
+        "do": "loot",
+        "title": "Collectible card pack",
+        "text": "Collectible card pack"
+      }
+    ]
+  ],
+  "R3": [
+    [
+      "crates",
+      "Packed up",
+      {
+        "do": "loot",
+        "title": "JoshChess \u00b7 Surprise collection",
+        "text": "JoshChess \u00b7 Surprise collection"
+      }
+    ]
+  ],
+  "S3": [
+    [
+      "bookStack",
+      "Saved reflections",
+      {
+        "do": "signal",
+        "title": "JoshCoach \u00b7 Frequency hunt",
+        "text": "JoshCoach \u00b7 Frequency hunt"
+      }
+    ]
+  ],
+  "T3": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Brick Townhouse",
+      {
+        "do": "loot",
+        "title": "Mystery exhibit \u00b7 Brick Townhouse",
+        "text": "Mystery exhibit \u00b7 Brick Townhouse"
+      }
+    ]
+  ],
+  "U3": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Corner Shop",
+      {
+        "do": "kitchen",
+        "title": "Mystery exhibit \u00b7 Corner Shop",
+        "text": "Mystery exhibit \u00b7 Corner Shop"
+      }
+    ]
+  ],
+  "V3": [
+    [
+      "telescope",
+      "Fire lookout",
+      {
+        "do": "loot",
+        "title": "JoshFireAwareness \u00b7 Surprise collection",
+        "text": "JoshFireAwareness \u00b7 Surprise collection"
+      }
+    ]
+  ],
+  "W3": [
+    [
+      "shelf",
+      "Worksheets",
+      {
+        "do": "safari",
+        "title": "JoshHorses \u00b7 Wildlife trail",
+        "text": "JoshHorses \u00b7 Wildlife trail"
+      }
+    ]
+  ],
+  "X3": [
+    [
+      "computer",
+      "Mystery exhibit \u00b7 Industrial Warehouse",
+      {
+        "do": "repair",
+        "title": "Mystery exhibit \u00b7 Industrial Warehouse",
+        "text": "Mystery exhibit \u00b7 Industrial Warehouse"
+      }
+    ]
+  ],
+  "Y3": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Corner Caf\u00e9",
+      {
+        "do": "loot",
+        "title": "Mystery exhibit \u00b7 Corner Caf\u00e9",
+        "text": "Mystery exhibit \u00b7 Corner Caf\u00e9"
+      }
+    ]
+  ],
+  "Z3": [
+    [
+      "speaker",
+      "Big-button player",
+      {
+        "do": "signal",
+        "title": "JoshNFCAudio \u00b7 Frequency hunt",
+        "text": "JoshNFCAudio \u00b7 Frequency hunt"
+      }
+    ]
+  ],
+  "A4": [
+    [
+      "crates",
+      "Bootable ISOs",
+      {
+        "do": "signal",
+        "title": "JoshOS-Stage0 \u00b7 Frequency hunt",
+        "text": "JoshOS-Stage0 \u00b7 Frequency hunt"
+      }
+    ]
+  ],
+  "B4": [
+    [
+      "desk",
+      "Platform tasks",
+      {
+        "do": "vault",
+        "title": "JoshPlatform \u00b7 Three-digit puzzle",
+        "text": "JoshPlatform \u00b7 Three-digit puzzle"
+      }
+    ]
+  ],
+  "C4": [
+    [
+      "cardCatalog",
+      "Calibre-style catalogue",
+      {
+        "do": "vault",
+        "title": "joshReading \u00b7 Three-digit puzzle",
+        "text": "joshReading \u00b7 Three-digit puzzle"
+      }
+    ]
+  ],
+  "D4": [
+    [
+      "pantry",
+      "Second breakfast",
+      {
+        "do": "loot",
+        "title": "LifeHub \u00b7 Surprise collection",
+        "text": "LifeHub \u00b7 Surprise collection"
+      }
+    ]
+  ],
+  "E4": [
+    [
+      "filingCabinet",
+      "Work \u00b7 Family \u00b7 Finance",
+      {
+        "do": "vault",
+        "title": "Filing room combination",
+        "text": "Filing room combination"
+      }
+    ]
+  ],
+  "F4": [
+    [
+      "corkboard",
+      "Ideas to build",
+      {
+        "do": "repair",
+        "title": "NedJoshCollab \u00b7 Diagnostic challenge",
+        "text": "NedJoshCollab \u00b7 Diagnostic challenge"
+      }
+    ]
+  ],
+  "G4": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Lookout Tower",
+      {
+        "do": "signal",
+        "title": "Mystery exhibit \u00b7 Lookout Tower",
+        "text": "Mystery exhibit \u00b7 Lookout Tower"
+      }
+    ]
+  ],
+  "H4": [
+    [
+      "toyBlocks",
+      "Mystery exhibit \u00b7 Garden Cottage",
+      {
+        "do": "loot",
+        "title": "Mystery exhibit \u00b7 Garden Cottage",
+        "text": "Mystery exhibit \u00b7 Garden Cottage"
+      }
+    ]
+  ],
+  "I4": [
+    [
+      "pinMap",
+      "Mystery exhibit \u00b7 Star Observatory",
+      {
+        "do": "loot",
+        "title": "Mystery exhibit \u00b7 Star Observatory",
+        "text": "Mystery exhibit \u00b7 Star Observatory"
+      }
+    ]
+  ],
+  "J4": [
+    [
+      "computer",
+      "Mystery exhibit \u00b7 Science Lab",
+      {
+        "do": "repair",
+        "title": "Mystery exhibit \u00b7 Science Lab",
+        "text": "Mystery exhibit \u00b7 Science Lab"
+      }
+    ]
+  ],
+  "K4": [
+    [
+      "terminal",
+      "Mystery exhibit \u00b7 Engine Factory",
+      {
+        "do": "repair",
+        "title": "Mystery exhibit \u00b7 Engine Factory",
+        "text": "Mystery exhibit \u00b7 Engine Factory"
+      }
+    ]
+  ],
+  "L4": [
+    [
+      "antenna",
+      "Roof feed",
+      {
+        "do": "signal",
+        "title": "DubboSDR signal hunt",
+        "text": "DubboSDR signal hunt"
+      }
+    ],
+    [
+      "phoneStand",
+      "Phone streaming",
+      {
+        "do": "vault",
+        "title": "Decode the transmission",
+        "text": "Decode the transmission"
+      }
+    ]
+  ],
+  "M4": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Garden Cottage",
+      {
+        "do": "loot",
+        "title": "Mystery exhibit \u00b7 Garden Cottage",
+        "text": "Mystery exhibit \u00b7 Garden Cottage"
+      }
+    ]
+  ],
+  "N4": [
+    [
+      "terminal",
+      "Mystery exhibit \u00b7 Engine Factory",
+      {
+        "do": "repair",
+        "title": "Mystery exhibit \u00b7 Engine Factory",
+        "text": "Mystery exhibit \u00b7 Engine Factory"
+      }
+    ]
+  ],
+  "O4": [
+    [
+      "computer",
+      "Mystery exhibit \u00b7 Science Lab",
+      {
+        "do": "repair",
+        "title": "Mystery exhibit \u00b7 Science Lab",
+        "text": "Mystery exhibit \u00b7 Science Lab"
+      }
+    ]
+  ],
+  "P4": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Modern Studio",
+      {
+        "do": "loot",
+        "title": "Mystery exhibit \u00b7 Modern Studio",
+        "text": "Mystery exhibit \u00b7 Modern Studio"
+      }
+    ]
+  ],
+  "Q4": [
+    [
+      "workbench",
+      "Mystery exhibit \u00b7 Repair Garage",
+      {
+        "do": "repair",
+        "title": "Mystery exhibit \u00b7 Repair Garage",
+        "text": "Mystery exhibit \u00b7 Repair Garage"
+      }
+    ]
+  ],
+  "R4": [
+    [
+      "laptop",
+      "Laptop #01",
+      {
+        "do": "repair",
+        "title": "DadlanControlCentre \u00b7 Diagnostic challenge",
+        "text": "DadlanControlCentre \u00b7 Diagnostic challenge"
+      }
+    ]
+  ],
+  "S4": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Corner Caf\u00e9",
+      {
+        "do": "loot",
+        "title": "Mystery exhibit \u00b7 Corner Caf\u00e9",
+        "text": "Mystery exhibit \u00b7 Corner Caf\u00e9"
+      }
+    ]
+  ],
+  "T4": [
+    [
+      "safe",
+      "No credentials in logs",
+      {
+        "do": "vault",
+        "title": "HermesControl \u00b7 Three-digit puzzle",
+        "text": "HermesControl \u00b7 Three-digit puzzle"
+      }
+    ]
+  ],
+  "U4": [
+    [
+      "desk",
+      "Trends",
+      {
+        "do": "trail",
+        "title": "HeartCalm \u00b7 Choose-your-path adventure",
+        "text": "HeartCalm \u00b7 Choose-your-path adventure"
+      }
+    ]
+  ],
+  "V4": [
+    [
+      "mapTable",
+      "Saga map",
+      {
+        "do": "vault",
+        "title": "3layers \u00b7 Three-digit puzzle",
+        "text": "3layers \u00b7 Three-digit puzzle"
+      }
+    ]
+  ],
+  "W4": [
+    [
+      "chair",
+      "Engineer's chair",
+      {
+        "do": "vault",
+        "title": "a \u00b7 Three-digit puzzle",
+        "text": "a \u00b7 Three-digit puzzle"
+      }
+    ]
+  ],
+  "X4": [
+    [
+      "computer",
+      "PowerShell + WinForms",
+      {
+        "do": "repair",
+        "title": "Action1 \u00b7 Diagnostic challenge",
+        "text": "Action1 \u00b7 Diagnostic challenge"
+      }
+    ]
+  ],
+  "Y4": [
+    [
+      "cardTable",
+      "NPC data",
+      {
+        "do": "signal",
+        "title": "Aetheria \u00b7 Frequency hunt",
+        "text": "Aetheria \u00b7 Frequency hunt"
+      }
+    ]
+  ],
+  "Z4": [
+    [
+      "safe",
+      "Trust boundaries",
+      {
+        "do": "vault",
+        "title": "AgentCheck \u00b7 Three-digit puzzle",
+        "text": "AgentCheck \u00b7 Three-digit puzzle"
+      }
+    ]
+  ],
+  "A5": [
+    [
+      "filingCabinet",
+      "codingprinciples.md",
+      {
+        "do": "signal",
+        "title": "alfie \u00b7 Frequency hunt",
+        "text": "alfie \u00b7 Frequency hunt"
+      }
+    ]
+  ],
+  "B5": [
+    [
+      "archiveBoxes",
+      "Story drafts",
+      {
+        "do": "vault",
+        "title": "analog \u00b7 Three-digit puzzle",
+        "text": "analog \u00b7 Three-digit puzzle"
+      }
+    ]
+  ],
+  "C5": [
+    [
+      "lantern",
+      "Mooring light",
+      {
+        "do": "trail",
+        "title": "AnchorFlow \u00b7 Choose-your-path adventure",
+        "text": "AnchorFlow \u00b7 Choose-your-path adventure"
+      }
+    ]
+  ],
+  "D5": [
+    [
+      "printer3d",
+      "Scaffold plan",
+      {
+        "do": "loot",
+        "title": "AppFactory \u00b7 Surprise collection",
+        "text": "AppFactory \u00b7 Surprise collection"
+      }
+    ]
+  ],
+  "E5": [
+    [
+      "terminal",
+      "Mystery exhibit \u00b7 Engine Factory",
+      {
+        "do": "repair",
+        "title": "Mystery exhibit \u00b7 Engine Factory",
+        "text": "Mystery exhibit \u00b7 Engine Factory"
+      }
+    ]
+  ],
+  "F5": [
+    [
+      "desk",
+      "Prompt builder",
+      {
+        "do": "battle",
+        "title": "Arena duel",
+        "text": "Arena duel"
+      }
+    ]
+  ],
+  "G5": [
+    [
+      "crystal",
+      "Relic",
+      {
+        "do": "signal",
+        "title": "ashfaller \u00b7 Frequency hunt",
+        "text": "ashfaller \u00b7 Frequency hunt"
+      }
+    ]
+  ],
+  "H5": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Brick Townhouse",
+      {
+        "do": "loot",
+        "title": "Mystery exhibit \u00b7 Brick Townhouse",
+        "text": "Mystery exhibit \u00b7 Brick Townhouse"
+      }
+    ]
+  ],
+  "I5": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Corner Shop",
+      {
+        "do": "kitchen",
+        "title": "Mystery exhibit \u00b7 Corner Shop",
+        "text": "Mystery exhibit \u00b7 Corner Shop"
+      }
+    ]
+  ],
+  "J5": [
+    [
+      "chartBoard",
+      "Watchful \u00b7 Practical \u00b7 Steady \u00b7 Curious",
+      {
+        "do": "loot",
+        "title": "awdagaer \u00b7 Surprise collection",
+        "text": "awdagaer \u00b7 Surprise collection"
+      }
+    ]
+  ],
+  "K5": [
+    [
+      "wagon",
+      "Mine cart",
+      {
+        "do": "battle",
+        "title": "bramblewick \u00b7 D20 encounter",
+        "text": "bramblewick \u00b7 D20 encounter"
+      }
+    ]
+  ],
+  "L5": [
+    [
+      "terminal",
+      "Passive battle tests",
+      {
+        "do": "repair",
+        "title": "breach-command \u00b7 Diagnostic challenge",
+        "text": "breach-command \u00b7 Diagnostic challenge"
+      }
+    ]
+  ],
+  "M5": [
+    [
+      "dungeonDoor",
+      "Stairwell",
+      {
+        "do": "trail",
+        "title": "Floor One secret route",
+        "text": "Floor One secret route"
+      }
+    ],
+    [
+      "treasureChest",
+      "Loot box",
+      {
+        "do": "loot",
+        "title": "Dungeon treasure chest",
+        "text": "Dungeon treasure chest"
+      }
+    ]
+  ],
+  "N5": [
+    [
+      "diceTable",
+      "Mystery exhibit \u00b7 Stone Castle",
+      {
+        "do": "battle",
+        "title": "Mystery exhibit \u00b7 Stone Castle",
+        "text": "Mystery exhibit \u00b7 Stone Castle"
+      }
+    ]
+  ],
+  "O5": [
+    [
+      "treadmill",
+      "Movement break",
+      {
+        "do": "trail",
+        "title": "chronos \u00b7 Choose-your-path adventure",
+        "text": "chronos \u00b7 Choose-your-path adventure"
+      }
+    ]
+  ],
+  "P5": [
+    [
+      "chartBoard",
+      "Progress",
+      {
+        "do": "loot",
+        "title": "ClearCore \u00b7 Surprise collection",
+        "text": "ClearCore \u00b7 Surprise collection"
+      }
+    ]
+  ],
+  "Q5": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Garden Cottage",
+      {
+        "do": "loot",
+        "title": "Mystery exhibit \u00b7 Garden Cottage",
+        "text": "Mystery exhibit \u00b7 Garden Cottage"
+      }
+    ]
+  ],
+  "R5": [
+    [
+      "bed",
+      "Recovery bed",
+      {
+        "do": "kitchen",
+        "title": "ColdFluApp \u00b7 Kitchen challenge",
+        "text": "ColdFluApp \u00b7 Kitchen challenge"
+      }
+    ]
+  ],
+  "S5": [
+    [
+      "pinMap",
+      "Campus map",
+      {
+        "do": "signal",
+        "title": "DCSCompanion \u00b7 Frequency hunt",
+        "text": "DCSCompanion \u00b7 Frequency hunt"
+      }
+    ]
+  ],
+  "T5": [
+    [
+      "workbench",
+      "A+ module",
+      {
+        "do": "vault",
+        "title": "DCSPD \u00b7 Three-digit puzzle",
+        "text": "DCSPD \u00b7 Three-digit puzzle"
+      }
+    ]
+  ],
+  "U5": [
+    [
+      "tent",
+      "Outdoor education module",
+      {
+        "do": "trail",
+        "title": "DCSPrep \u00b7 Choose-your-path adventure",
+        "text": "DCSPrep \u00b7 Choose-your-path adventure"
+      }
+    ]
+  ],
+  "V5": [
+    [
+      "router",
+      "Networking fundamentals",
+      {
+        "do": "loot",
+        "title": "DCSProfessionalDevelopment \u00b7 Surprise collection",
+        "text": "DCSProfessionalDevelopment \u00b7 Surprise collection"
+      }
+    ]
+  ],
+  "W5": [
+    [
+      "swordRack",
+      "Kit",
+      {
+        "do": "battle",
+        "title": "delve \u00b7 D20 encounter",
+        "text": "delve \u00b7 D20 encounter"
+      }
+    ]
+  ],
+  "X5": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Forest Cabin",
+      {
+        "do": "loot",
+        "title": "Mystery exhibit \u00b7 Forest Cabin",
+        "text": "Mystery exhibit \u00b7 Forest Cabin"
+      }
+    ]
+  ],
+  "Y5": [
+    [
+      "fruitBowl",
+      "Side salad",
+      {
+        "do": "kitchen",
+        "title": "Dinner challenge",
+        "text": "Dinner challenge"
+      }
+    ]
+  ],
+  "Z5": [
+    [
+      "filingCabinet",
+      "Uninstall candidates",
+      {
+        "do": "repair",
+        "title": "DiskCleanupAudit \u00b7 Diagnostic challenge",
+        "text": "DiskCleanupAudit \u00b7 Diagnostic challenge"
+      }
+    ]
+  ],
+  "A6": [
+    [
+      "crystal",
+      "Nerve node",
+      {
+        "do": "battle",
+        "title": "drifter \u00b7 D20 encounter",
+        "text": "drifter \u00b7 D20 encounter"
+      }
+    ]
+  ],
+  "B6": [
+    [
+      "arcadeCabinet",
+      "ECHO VAULT",
+      {
+        "do": "battle",
+        "title": "Echo \u00b7 D20 encounter",
+        "text": "Echo \u00b7 D20 encounter"
+      }
+    ]
+  ],
+  "C6": [
+    [
+      "mapTable",
+      "Lore atlas",
+      {
+        "do": "trail",
+        "title": "elodin-deep-lore \u00b7 Choose-your-path adventure",
+        "text": "elodin-deep-lore \u00b7 Choose-your-path adventure"
+      }
+    ]
+  ],
+  "D6": [
+    [
+      "archiveBoxes",
+      "Version history",
+      {
+        "do": "vault",
+        "title": "ElodinDeepLore \u00b7 Three-digit puzzle",
+        "text": "ElodinDeepLore \u00b7 Three-digit puzzle"
+      }
+    ]
+  ],
+  "E6": [
+    [
+      "computer",
+      "Mystery exhibit \u00b7 Science Lab",
+      {
+        "do": "repair",
+        "title": "Mystery exhibit \u00b7 Science Lab",
+        "text": "Mystery exhibit \u00b7 Science Lab"
+      }
+    ]
+  ],
+  "F6": [
+    [
+      "desk",
+      "Chunking desk",
+      {
+        "do": "repair",
+        "title": "epubtranslate \u00b7 Diagnostic challenge",
+        "text": "epubtranslate \u00b7 Diagnostic challenge"
+      }
+    ]
+  ],
+  "G6": [
+    [
+      "medicineCabinet",
+      "Emergency guidance",
+      {
+        "do": "signal",
+        "title": "ExamsApp \u00b7 Frequency hunt",
+        "text": "ExamsApp \u00b7 Frequency hunt"
+      }
+    ]
+  ],
+  "H6": [
+    [
+      "desk",
+      "Lab notebook",
+      {
+        "do": "vault",
+        "title": "ExchangeLabManager \u00b7 Three-digit puzzle",
+        "text": "ExchangeLabManager \u00b7 Three-digit puzzle"
+      }
+    ]
+  ],
+  "I6": [
+    [
+      "planetModel",
+      "Destination",
+      {
+        "do": "trail",
+        "title": "exitbackup \u00b7 Choose-your-path adventure",
+        "text": "exitbackup \u00b7 Choose-your-path adventure"
+      }
+    ]
+  ],
+  "J6": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Glass Dome",
+      {
+        "do": "loot",
+        "title": "Mystery exhibit \u00b7 Glass Dome",
+        "text": "Mystery exhibit \u00b7 Glass Dome"
+      }
+    ]
+  ],
+  "K6": [
+    [
+      "roundTable",
+      "Family prayer table",
+      {
+        "do": "battle",
+        "title": "FaithHub \u00b7 D20 encounter",
+        "text": "FaithHub \u00b7 D20 encounter"
+      }
+    ]
+  ],
+  "L6": [
+    [
+      "computer",
+      "GDB symbolic backtraces",
+      {
+        "do": "repair",
+        "title": "Crash Doctor diagnostics",
+        "text": "Crash Doctor diagnostics"
+      }
+    ]
+  ],
+  "M6": [
+    [
+      "filingCabinet",
+      "Past work, filtered",
+      {
+        "do": "signal",
+        "title": "FieldNotes \u00b7 Frequency hunt",
+        "text": "FieldNotes \u00b7 Frequency hunt"
+      }
+    ]
+  ],
+  "N6": [
+    [
+      "serverRack",
+      "Linux worker",
+      {
+        "do": "vault",
+        "title": "ForgeGrid \u00b7 Three-digit puzzle",
+        "text": "ForgeGrid \u00b7 Three-digit puzzle"
+      }
+    ]
+  ],
+  "O6": [
+    [
+      "toolWall",
+      "Pan & pick",
+      {
+        "do": "loot",
+        "title": "GoldFinder \u00b7 Surprise collection",
+        "text": "GoldFinder \u00b7 Surprise collection"
+      }
+    ]
+  ],
+  "P6": [
+    [
+      "workbench",
+      "Test bench",
+      {
+        "do": "repair",
+        "title": "hprobooktroubleshoot \u00b7 Diagnostic challenge",
+        "text": "hprobooktroubleshoot \u00b7 Diagnostic challenge"
+      }
+    ]
+  ],
+  "Q6": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Corner Caf\u00e9",
+      {
+        "do": "loot",
+        "title": "Mystery exhibit \u00b7 Corner Caf\u00e9",
+        "text": "Mystery exhibit \u00b7 Corner Caf\u00e9"
+      }
+    ]
+  ],
+  "R6": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Forest Cabin",
+      {
+        "do": "loot",
+        "title": "Mystery exhibit \u00b7 Forest Cabin",
+        "text": "Mystery exhibit \u00b7 Forest Cabin"
+      }
+    ]
+  ],
+  "S6": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Terrace House",
+      {
+        "do": "loot",
+        "title": "Mystery exhibit \u00b7 Terrace House",
+        "text": "Mystery exhibit \u00b7 Terrace House"
+      }
+    ]
+  ],
+  "T6": [
+    [
+      "laptop",
+      "Practice endpoint",
+      {
+        "do": "repair",
+        "title": "KaseyaFieldOps \u00b7 Diagnostic challenge",
+        "text": "KaseyaFieldOps \u00b7 Diagnostic challenge"
+      }
+    ]
+  ],
+  "U6": [
+    [
+      "signpost",
+      "Roads",
+      {
+        "do": "trail",
+        "title": "lantern-road \u00b7 Choose-your-path adventure",
+        "text": "lantern-road \u00b7 Choose-your-path adventure"
+      }
+    ]
+  ],
+  "V6": [
+    [
+      "scrollRack",
+      "Sample plans",
+      {
+        "do": "loot",
+        "title": "llm \u00b7 Surprise collection",
+        "text": "llm \u00b7 Surprise collection"
+      }
+    ]
+  ],
+  "W6": [
+    [
+      "safe",
+      "Signed attestations",
+      {
+        "do": "battle",
+        "title": "LLMAccountability \u00b7 D20 encounter",
+        "text": "LLMAccountability \u00b7 D20 encounter"
+      }
+    ]
+  ],
+  "X6": [
+    [
+      "computer",
+      "GitHub Pages build",
+      {
+        "do": "repair",
+        "title": "lore \u00b7 Diagnostic challenge",
+        "text": "lore \u00b7 Diagnostic challenge"
+      }
+    ]
+  ],
+  "Y6": [
+    [
+      "terminal",
+      "ASCII town map",
+      {
+        "do": "signal",
+        "title": "Marsh \u00b7 Frequency hunt",
+        "text": "Marsh \u00b7 Frequency hunt"
+      }
+    ]
+  ],
+  "Z6": [
+    [
+      "filingCabinet",
+      "Station logs",
+      {
+        "do": "vault",
+        "title": "Max \u00b7 Three-digit puzzle",
+        "text": "Max \u00b7 Three-digit puzzle"
+      }
+    ]
+  ],
+  "A7": [
+    [
+      "speaker",
+      "Howler audio",
+      {
+        "do": "signal",
+        "title": "Midnight-Line \u00b7 Frequency hunt",
+        "text": "Midnight-Line \u00b7 Frequency hunt"
+      }
+    ]
+  ],
+  "B7": [
+    [
+      "filingCabinet",
+      "Account inventory",
+      {
+        "do": "vault",
+        "title": "migration \u00b7 Three-digit puzzle",
+        "text": "migration \u00b7 Three-digit puzzle"
+      }
+    ]
+  ],
+  "C7": [
+    [
+      "safe",
+      "Latest autosave",
+      {
+        "do": "loot",
+        "title": "Nebula dice loot",
+        "text": "Nebula dice loot"
+      }
+    ]
+  ],
+  "D7": [
+    [
+      "filingCabinet",
+      ".idea files",
+      {
+        "do": "vault",
+        "title": "newfileqqqwertuhvgjkk.py \u00b7 Three-digit puzzle",
+        "text": "newfileqqqwertuhvgjkk.py \u00b7 Three-digit puzzle"
+      }
+    ]
+  ],
+  "E7": [
+    [
+      "cafeTable",
+      "Waiting table",
+      {
+        "do": "battle",
+        "title": "NextJS-Expert \u00b7 D20 encounter",
+        "text": "NextJS-Expert \u00b7 D20 encounter"
+      }
+    ]
+  ],
+  "F7": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Brick Townhouse",
+      {
+        "do": "loot",
+        "title": "Mystery exhibit \u00b7 Brick Townhouse",
+        "text": "Mystery exhibit \u00b7 Brick Townhouse"
+      }
+    ]
+  ],
+  "G7": [
+    [
+      "robot",
+      "Mesh agents",
+      {
+        "do": "signal",
+        "title": "openclaw-workspace \u00b7 Frequency hunt",
+        "text": "openclaw-workspace \u00b7 Frequency hunt"
+      }
+    ]
+  ],
+  "H7": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Modern Studio",
+      {
+        "do": "loot",
+        "title": "Mystery exhibit \u00b7 Modern Studio",
+        "text": "Mystery exhibit \u00b7 Modern Studio"
+      }
+    ]
+  ],
+  "I7": [
+    [
+      "terminal",
+      "Mystery exhibit \u00b7 Engine Factory",
+      {
+        "do": "repair",
+        "title": "Mystery exhibit \u00b7 Engine Factory",
+        "text": "Mystery exhibit \u00b7 Engine Factory"
+      }
+    ]
+  ],
+  "J7": [
+    [
+      "speaker",
+      "Monitors",
+      {
+        "do": "signal",
+        "title": "Find the melody",
+        "text": "Find the melody"
+      }
+    ]
+  ],
+  "K7": [
+    [
+      "workbench",
+      "Mystery exhibit \u00b7 Repair Garage",
+      {
+        "do": "repair",
+        "title": "Mystery exhibit \u00b7 Repair Garage",
+        "text": "Mystery exhibit \u00b7 Repair Garage"
+      }
+    ]
+  ],
+  "L7": [
+    [
+      "medicineCabinet",
+      "Support resources",
+      {
+        "do": "repair",
+        "title": "PowerApp \u00b7 Diagnostic challenge",
+        "text": "PowerApp \u00b7 Diagnostic challenge"
+      }
+    ]
+  ],
+  "M7": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Terrace House",
+      {
+        "do": "loot",
+        "title": "Mystery exhibit \u00b7 Terrace House",
+        "text": "Mystery exhibit \u00b7 Terrace House"
+      }
+    ]
+  ],
+  "N7": [
+    [
+      "lectern",
+      "Campus seed",
+      {
+        "do": "vault",
+        "title": "Prompt-Linker \u00b7 Three-digit puzzle",
+        "text": "Prompt-Linker \u00b7 Three-digit puzzle"
+      }
+    ]
+  ],
+  "O7": [
+    [
+      "candles",
+      "Reflection",
+      {
+        "do": "trail",
+        "title": "random-play \u00b7 Choose-your-path adventure",
+        "text": "random-play \u00b7 Choose-your-path adventure"
+      }
+    ]
+  ],
+  "P7": [
+    [
+      "crates",
+      "Pinned repo",
+      {
+        "do": "loot",
+        "title": "repoclean \u00b7 Surprise collection",
+        "text": "repoclean \u00b7 Surprise collection"
+      }
+    ]
+  ],
+  "Q7": [
+    [
+      "mapTable",
+      "The University",
+      {
+        "do": "trail",
+        "title": "RothfussMaps \u00b7 Choose-your-path adventure",
+        "text": "RothfussMaps \u00b7 Choose-your-path adventure"
+      }
+    ]
+  ],
+  "R7": [
+    [
+      "hologram",
+      "Campaign node map",
+      {
+        "do": "vault",
+        "title": "schism \u00b7 Three-digit puzzle",
+        "text": "schism \u00b7 Three-digit puzzle"
+      }
+    ]
+  ],
+  "S7": [
+    [
+      "consolePanel",
+      "Helm",
+      {
+        "do": "signal",
+        "title": "Serenity-Keep-Flying \u00b7 Frequency hunt",
+        "text": "Serenity-Keep-Flying \u00b7 Frequency hunt"
+      }
+    ]
+  ],
+  "T7": [
+    [
+      "ladder",
+      "Ladder",
+      {
+        "do": "vault",
+        "title": "skills \u00b7 Three-digit puzzle",
+        "text": "skills \u00b7 Three-digit puzzle"
+      }
+    ]
+  ],
+  "U7": [
+    [
+      "dungeonDoor",
+      "Cell door",
+      {
+        "do": "battle",
+        "title": "StarHaven \u00b7 D20 encounter",
+        "text": "StarHaven \u00b7 D20 encounter"
+      }
+    ]
+  ],
+  "V7": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Forest Cabin",
+      {
+        "do": "loot",
+        "title": "Mystery exhibit \u00b7 Forest Cabin",
+        "text": "Mystery exhibit \u00b7 Forest Cabin"
+      }
+    ]
+  ],
+  "W7": [
+    [
+      "bench",
+      "Bench",
+      {
+        "do": "battle",
+        "title": "SwordCoast \u00b7 D20 encounter",
+        "text": "SwordCoast \u00b7 D20 encounter"
+      }
+    ]
+  ],
+  "X7": [
+    [
+      "serverRack",
+      "NAS backup",
+      {
+        "do": "repair",
+        "title": "Transfer \u00b7 Diagnostic challenge",
+        "text": "Transfer \u00b7 Diagnostic challenge"
+      }
+    ]
+  ],
+  "Y7": [
+    [
+      "toolWall",
+      "Repair script",
+      {
+        "do": "repair",
+        "title": "troubleshoot \u00b7 Diagnostic challenge",
+        "text": "troubleshoot \u00b7 Diagnostic challenge"
+      }
+    ]
+  ],
+  "Z7": [
+    [
+      "terminal",
+      "Mystery exhibit \u00b7 Engine Factory",
+      {
+        "do": "repair",
+        "title": "Mystery exhibit \u00b7 Engine Factory",
+        "text": "Mystery exhibit \u00b7 Engine Factory"
+      }
+    ]
+  ],
+  "A8": [
+    [
+      "desk",
+      "Mystery exhibit \u00b7 Corner Shop",
+      {
+        "do": "kitchen",
+        "title": "Mystery exhibit \u00b7 Corner Shop",
+        "text": "Mystery exhibit \u00b7 Corner Shop"
+      }
+    ]
+  ],
+  "B8": [
+    [
+      "lantern",
+      "Trail lantern",
+      {
+        "do": "trail",
+        "title": "Waypoint \u00b7 Choose-your-path adventure",
+        "text": "Waypoint \u00b7 Choose-your-path adventure"
+      }
+    ]
+  ],
+  "C8": [
+    [
+      "clock",
+      "Clash detector",
+      {
+        "do": "trail",
+        "title": "Work \u00b7 Choose-your-path adventure",
+        "text": "Work \u00b7 Choose-your-path adventure"
+      }
+    ]
+  ],
+  "D8": [
+    [
+      "terminal",
+      "Mystery exhibit \u00b7 Engine Factory",
+      {
+        "do": "repair",
+        "title": "Mystery exhibit \u00b7 Engine Factory",
+        "text": "Mystery exhibit \u00b7 Engine Factory"
+      }
+    ]
+  ],
+  "E8": [
+    [
+      "speaker",
+      "Podcast dock",
+      {
+        "do": "battle",
+        "title": "WorkPlanner \u00b7 D20 encounter",
+        "text": "WorkPlanner \u00b7 D20 encounter"
+      }
+    ]
+  ],
+  "F8": [
+    [
+      "flowerBed",
+      "Practical plots",
+      {
+        "do": "safari",
+        "title": "WPHI \u00b7 Wildlife trail",
+        "text": "WPHI \u00b7 Wildlife trail"
+      }
+    ]
+  ]
+}

@@ -1,0 +1,30 @@
+import { chromium } from 'playwright';
+const [url, coord, shot] = process.argv.slice(2);
+const b = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+const page = await b.newPage({ viewport: { width: 1000, height: 700 }, locale: 'en-US' });
+page.on('pageerror', (e) => console.log('ERR', e.message));
+await page.goto(url);
+await page.waitForFunction(() => window.__town && document.getElementById('loading').hidden);
+await page.evaluate((c) => window.__town.travel(c), coord);
+await page.waitForTimeout(800);
+await page.keyboard.down('w');
+await page.waitForFunction(() => window.__town.state().mode === 'house', null, { timeout: 20000 });
+await page.keyboard.up('w');
+const games = (await page.evaluate(() => window.__town.state())).interactables.filter((i) => i.do === 'game');
+console.log('cabinets:', games.map((g) => g.title).join(', '));
+for (const g of games) {
+  await page.evaluate((k) => window.__town.approach(k), g.key);
+  await page.waitForFunction((k) => window.__town.state().near === k, g.key, { timeout: 5000 });
+  await page.keyboard.press('e');
+  await page.waitForFunction(() => window.__town.state().panel, null, { timeout: 5000 });
+  await page.evaluate(() => window.__town.play());
+  await page.waitForTimeout(4000);
+  const st = await page.evaluate(() => window.__town.state());
+  const frame = page.frames().find((f) => f.url().includes('/games/'));
+  const text = frame ? await frame.evaluate(() => document.body.innerText.slice(0, 120)) : 'NO FRAME';
+  console.log(g.title, '| playing:', st.playing, '|', JSON.stringify(text));
+  if (shot) await page.screenshot({ path: `${shot}-${g.key.replace(/:/g, '_')}.png` });
+  await page.evaluate(() => window.__town.stopGame());
+  console.log('  back in town:', (await page.evaluate(() => window.__town.state())).playing === null);
+}
+await b.close();

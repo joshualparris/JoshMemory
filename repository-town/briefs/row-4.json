@@ -1,0 +1,2790 @@
+[
+ {
+  "repo": "Parris-Tech-Services/JoshOS-Stage0",
+  "summary": "Josh OS Stage 0: the product-track shell and ISO extraction of a desktop operating system built for conceptual integrity — borrowing macOS restraint, Windows window management and Linux openness — with its own shell, compositor work, network control and an ISO build script.",
+  "evidence": [
+   "README.md",
+   "shell/shell.js",
+   "shell/apps.js",
+   "compositor/",
+   "iso/overlay/usr/local/lib/josh-os/network-control.py",
+   "scripts/build-iso.sh"
+  ],
+  "kind": "Operating System Studio",
+  "ext": {
+   "style": "modern",
+   "walls": "#eceff2",
+   "roof": "#2a2e34",
+   "trim": "#5a8ad8",
+   "door": "#2a2e34",
+   "features": [
+    "solar",
+    "bench",
+    "trees",
+    "antenna"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#c8ccd2",
+   "walls": "#f8f9fb",
+   "light": "#f4f8ff",
+   "rooms": [
+    {
+     "name": "Desktop Shell",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "monitorWall",
+       "Shell & app launcher",
+       {
+        "do": "quiz",
+        "title": "Design rule",
+        "q": "What is Josh OS's guiding rule?",
+        "options": [
+         "Add every feature",
+         "It should feel simpler after you understand it",
+         "Look exactly like GNOME"
+        ],
+        "answer": 1,
+        "explain": "Simpler once understood — in the interface and the source code."
+       }
+      ],
+      [
+       "sofa",
+       "Window-management lounge"
+      ],
+      [
+       "plant",
+       "Desk plant"
+      ]
+     ]
+    },
+    {
+     "name": "Compositor Lab",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "computer",
+       "Compositor"
+      ],
+      [
+       "router",
+       "Network control",
+       {
+        "do": "toggle",
+        "title": "Network",
+        "on": "Network control service up.",
+        "off": "Offline."
+       }
+      ],
+      [
+       "chair",
+       "Engineer's chair"
+      ]
+     ]
+    },
+    {
+     "name": "ISO Press",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "printer3d",
+       "build-iso.sh",
+       {
+        "do": "steps",
+        "title": "Borrowed ideas",
+        "steps": [
+         "macOS: visual restraint and consistency.",
+         "Windows: familiar window management.",
+         "Linux: openness and hackability."
+        ]
+       }
+      ],
+      [
+       "crates",
+       "Bootable ISOs"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/JoshPlatform",
+  "summary": "JoshPlatform: a mini-app platform and experiment runtime — one shell where small prototypes and personal tools live as modules with status badges (finished, prototype or idea), plus a live GitHub Pages front door with a podcast player and a ClearCore showcase.",
+  "evidence": [
+   "README.md",
+   "STATUS.md",
+   "client/src/pages/platform/tasks.tsx",
+   "client/src/pages/social/index.tsx",
+   "clearcore/",
+   "showcase.html"
+  ],
+  "kind": "Mini-App Arcade Hall",
+  "links": [
+   {
+    "label": "Live app",
+    "url": "https://joshuaparris-max.github.io/JoshPlatform/"
+   }
+  ],
+  "ext": {
+   "style": "shopfront",
+   "walls": "#5a3a8a",
+   "roof": "#2a1a3a",
+   "trim": "#f2c14e",
+   "door": "#2a1a3a",
+   "features": [
+    "balloons",
+    "flag",
+    "bench",
+    "signpost"
+   ]
+  },
+  "int": {
+   "layout": "gallery",
+   "floor": "#4a3a5a",
+   "walls": "#e8e0f2",
+   "light": "#f4ecff",
+   "rooms": [
+    {
+     "name": "Module Gallery",
+     "w": 6,
+     "d": 12,
+     "props": [
+      [
+       "trophyCase",
+       "Finished modules"
+      ],
+      [
+       "easel",
+       "Prototypes"
+      ],
+      [
+       "corkboard",
+       "Ideas",
+       {
+        "do": "quiz",
+        "title": "Status badges",
+        "q": "What does each mini-app carry so you know how done it is?",
+        "options": [
+         "A price tag",
+         "A status badge",
+         "A version number only"
+        ],
+        "answer": 1,
+        "explain": "Finished, prototype or idea — visible at a glance."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Tasks Module",
+     "w": 7,
+     "d": 7,
+     "props": [
+      [
+       "desk",
+       "Platform tasks"
+      ],
+      [
+       "clock",
+       "Tasks timer"
+      ]
+     ]
+    },
+    {
+     "name": "Podcast Booth",
+     "w": 7,
+     "d": 7,
+     "props": [
+      [
+       "speaker",
+       "Podcast player",
+       {
+        "do": "play",
+        "title": "Podcasts",
+        "text": "The live site has the visible podcast control and Spotify player.",
+        "notes": [
+         440,
+         554,
+         659,
+         554
+        ]
+       }
+      ],
+      [
+       "sofa",
+       "Listening seat"
+      ]
+     ]
+    },
+    {
+     "name": "ClearCore Showcase",
+     "w": 7,
+     "d": 7,
+     "props": [
+      [
+       "projector",
+       "Showcase"
+      ],
+      [
+       "arcadeCabinet",
+       "Social module"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/joshReading",
+  "summary": "JoshReadingOnline: a single-user Next.js ebook reader for PDFs and EPUBs stored in Google Drive, with a Calibre-like library view, pdf.js and epub.js reading, progress synced back to Drive — plus a bundled desktop EPUB translator using Argos offline translation.",
+  "evidence": [
+   "README.md",
+   "app/library/page.tsx",
+   "components/ReaderShell.tsx",
+   "lib/googleDrive.ts",
+   "epub-translator/epub_translator/translator/argos_provider.py"
+  ],
+  "kind": "Reading Room Cottage",
+  "ext": {
+   "style": "cottage",
+   "walls": "#c8b090",
+   "roof": "#3a5a4a",
+   "trim": "#f2e8d0",
+   "door": "#3a2a1a",
+   "features": [
+    "bench",
+    "lanterns",
+    "garden",
+    "bird"
+   ]
+  },
+  "int": {
+   "layout": "L",
+   "floor": "#8a6a4a",
+   "walls": "#f4ead8",
+   "light": "#fff0d4",
+   "rooms": [
+    {
+     "name": "Library View",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "bookshelf",
+       "Drive library"
+      ],
+      [
+       "cardCatalog",
+       "Calibre-style catalogue"
+      ],
+      [
+       "sofa",
+       "Reading sofa"
+      ]
+     ]
+    },
+    {
+     "name": "Reader",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "lectern",
+       "PDF & EPUB reader",
+       {
+        "do": "count",
+        "unit": "Pages read",
+        "text": "Reading progress syncs back to Google Drive via file appProperties."
+       }
+      ],
+      [
+       "lamp",
+       "Reading lamp"
+      ],
+      [
+       "chair",
+       "Armchair"
+      ]
+     ]
+    },
+    {
+     "name": "Translation Desk",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "computer",
+       "EPUB translator",
+       {
+        "do": "steps",
+        "title": "Translate a book",
+        "steps": [
+         "Open an EPUB in the desktop translator.",
+         "Argos translates offline — no cloud service.",
+         "Save the translated EPUB.",
+         "Read it in the library."
+        ]
+       }
+      ],
+      [
+       "globe",
+       "Languages"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/LifeHub",
+  "summary": "Despite its name, this repository is a single-file browser RPG: The Fellowship Quest, a Lord of the Rings–themed adventure, with an archived audit and a podcast to-do — not a life-organisation hub.",
+  "evidence": [
+   "index.html (<title>The Fellowship Quest - A Lord of the Rings RPG</title>)",
+   "MISC.md",
+   "audit/"
+  ],
+  "kind": "Shire Hall",
+  "ext": {
+   "style": "cave",
+   "walls": "#7a9a4a",
+   "roof": "#5a7a3a",
+   "trim": "#e8c84a",
+   "door": "#3a6a2a",
+   "features": [
+    "garden",
+    "pond",
+    "bench",
+    "trees"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#8a6a40",
+   "walls": "#e8d8a8",
+   "light": "#ffe8b0",
+   "ceiling": "#c8a870",
+   "rooms": [
+    {
+     "name": "Round Door Parlour",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "fireplace",
+       "Hearth"
+      ],
+      [
+       "sofa",
+       "Comfortable chair"
+      ],
+      [
+       "mapTable",
+       "Map of the journey",
+       {
+        "do": "steps",
+        "title": "The quest",
+        "steps": [
+         "Gather the fellowship.",
+         "Set out from home.",
+         "Travel the long road.",
+         "See the quest through."
+        ]
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Pantry",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "pantry",
+       "Second breakfast"
+      ],
+      [
+       "barrel",
+       "Ale"
+      ],
+      [
+       "fruitBowl",
+       "Garden produce"
+      ]
+     ]
+    },
+    {
+     "name": "Name Puzzle",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "signpost",
+       "LifeHub?",
+       {
+        "do": "quiz",
+        "title": "Not what it says",
+        "q": "What does the LifeHub repository actually contain?",
+        "options": [
+         "A life dashboard",
+         "A Lord of the Rings–themed RPG",
+         "Tax records"
+        ],
+        "answer": 1,
+        "explain": "Its only page is The Fellowship Quest. The life dashboard is lifehubdashboard next door."
+       }
+      ],
+      [
+       "swordRack",
+       "Fellowship blades"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/lifehubdashboard",
+  "summary": "LifeHub Dashboard: the filing hub for everything outside system folders — numbered Inbox, Work, Family, Finance, Housing and Personal areas — with a generated dashboard, agenda reminders, a downloads feed, backup automation and a little Python text game.",
+  "evidence": [
+   "README.md",
+   "dashboard.js",
+   "automation/",
+   "agenda-reminders.json",
+   "downloads-feed.json",
+   "scripts/fun_text_game_v2.py"
+  ],
+  "kind": "Filing Hall",
+  "ext": {
+   "style": "townhouse",
+   "walls": "#e0d0b0",
+   "roof": "#4a5a6a",
+   "trim": "#f2efe6",
+   "door": "#3a4a5a",
+   "features": [
+    "mailbox",
+    "garden",
+    "bench",
+    "noticeBoard"
+   ]
+  },
+  "int": {
+   "layout": "grid",
+   "floor": "#a08a70",
+   "walls": "#f4efe4",
+   "light": "#fff6e4",
+   "rooms": [
+    {
+     "name": "Inbox",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "crates",
+       "Uncategorised — empty weekly",
+       {
+        "do": "count",
+        "unit": "Items filed",
+        "text": "The Inbox is a temporary landing zone, emptied every week into the numbered areas."
+       }
+      ],
+      [
+       "trolley",
+       "Filing trolley"
+      ]
+     ]
+    },
+    {
+     "name": "Filing Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "filingCabinet",
+       "Work · Family · Finance"
+      ],
+      [
+       "filingCabinet",
+       "Housing · Personal",
+       {
+        "do": "steps",
+        "title": "Where things go",
+        "steps": [
+         "Inbox — not yet categorised.",
+         "Work — employment and professional development.",
+         "Family — school, health and support papers.",
+         "Finance — insurance, statements, invoices, tax.",
+         "Housing — rentals and moving.",
+         "Personal — IDs and planning."
+        ]
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Dashboard Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "monitorWall",
+       "Generated dashboard"
+      ],
+      [
+       "timelineWall",
+       "Agenda reminders"
+      ]
+     ]
+    },
+    {
+     "name": "Automation Closet",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "serverRack",
+       "Backups"
+      ],
+      [
+       "terminal",
+       "Text game",
+       {
+        "do": "info",
+        "text": "A small Python text game lives in scripts/ beside the automation."
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/NedJoshCollab",
+  "summary": "Ned + Josh Collab: a shared workspace README for building together with the Zed editor, AI coding agents and GitHub — install Zed, join Josh's shared project without cloning, set up AI, work independently, and follow the collaboration rules.",
+  "evidence": [
+   "README.md",
+   "AGENTS.md"
+  ],
+  "kind": "Shared Workshop",
+  "ext": {
+   "style": "barn",
+   "walls": "#4a6a8a",
+   "roof": "#e8a03a",
+   "trim": "#f2efe6",
+   "door": "#2a3a4a",
+   "features": [
+    "bicycle",
+    "bench",
+    "signpost",
+    "crates"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#8a7a64",
+   "walls": "#eef0f2",
+   "light": "#fff8ec",
+   "rooms": [
+    {
+     "name": "Pair Desk",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "desk",
+       "Two-seat desk"
+      ],
+      [
+       "computer",
+       "Zed shared project",
+       {
+        "do": "steps",
+        "title": "Quick start",
+        "steps": [
+         "Install Zed.",
+         "Sign in with GitHub.",
+         "Join Josh's shared project — no Git install or clone needed.",
+         "Set up an AI agent."
+        ]
+       }
+      ],
+      [
+       "chair",
+       "Ned's chair"
+      ],
+      [
+       "chair",
+       "Josh's chair"
+      ]
+     ]
+    },
+    {
+     "name": "Rules Wall",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "noticeBoard",
+       "Collaboration rules",
+       {
+        "do": "info",
+        "text": "The README covers live collaboration, working independently on GitHub, and the rules for sharing a repo with agents."
+       }
+      ],
+      [
+       "corkboard",
+       "Ideas to build"
+      ],
+      [
+       "coffeeMachine",
+       "Coffee"
+      ],
+      [
+       "lamp",
+       "Desk lamp"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/Parris-Life-Dashboard",
+  "summary": "A private copy of the JoshHub dashboard focused on unfinished work: it tracks local prototypes and incomplete game builds — Buckland v2, Dinner Decider, Wilds 2 and more — alongside private research folders and road panoramas.",
+  "evidence": [
+   "README.md",
+   "docs/UNFINISHED-GAMES.md",
+   "public/games/",
+   "private-research/"
+  ],
+  "kind": "Workshop of Unfinished Things",
+  "ext": {
+   "style": "barn",
+   "walls": "#a85a3a",
+   "roof": "#3a3a3a",
+   "trim": "#f2e8d0",
+   "door": "#3a1a1a",
+   "features": [
+    "crates",
+    "wagon",
+    "barrels",
+    "signpost"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#7a5a40",
+   "walls": "#f2e4d0",
+   "light": "#fff0d4",
+   "rooms": [
+    {
+     "name": "Unfinished Games Bench",
+     "w": 10,
+     "d": 9,
+     "props": [
+      [
+       "workbench",
+       "Incomplete builds",
+       {
+        "do": "count",
+        "unit": "Prototypes revisited",
+        "text": "docs/UNFINISHED-GAMES.md tracks every local prototype and incomplete build."
+       }
+      ],
+      [
+       "arcadeCabinet",
+       "Buckland v2"
+      ],
+      [
+       "arcadeCabinet",
+       "Dinner Decider"
+      ]
+     ]
+    },
+    {
+     "name": "Wilds Corner",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "tree",
+       "Wilds 2"
+      ],
+      [
+       "campfire",
+       "Sail West"
+      ]
+     ]
+    },
+    {
+     "name": "Private Research",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "safe",
+       "Private research folder"
+      ],
+      [
+       "filingCabinet",
+       "Notes"
+      ]
+     ]
+    },
+    {
+     "name": "Panorama Nook",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "projector",
+       "Boundary Road panoramas",
+       {
+        "do": "toggle",
+        "title": "Panoramas",
+        "on": "Projector on: road panoramas from the dashboard.",
+        "off": "Projector off."
+       }
+      ],
+      [
+       "bench",
+       "Viewing bench"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/SylvieApp",
+  "summary": "SylvieApp: a calm, child-safe React play world with original illustrations — a Fairy Garden with blooming flowers and stars, a Farm Adventure with planting and animal care, dress-up, colouring and puzzles — with parent settings and browser-saved progress.",
+  "evidence": [
+   "README.md",
+   "src/data/content.js",
+   "src/games/ColouringRoom.jsx",
+   "src/games/PuzzlePlay.jsx",
+   "src/pages/ParentSettings.jsx",
+   "tests/"
+  ],
+  "kind": "Play World Castle",
+  "ext": {
+   "style": "castle",
+   "walls": "#f2c8e0",
+   "roof": "#a87ad8",
+   "trim": "#fff2fa",
+   "door": "#7a4a9a",
+   "features": [
+    "balloons",
+    "garden",
+    "sandpit",
+    "horse"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#e8c8dc",
+   "walls": "#fff0f8",
+   "light": "#fff0ff",
+   "rooms": [
+    {
+     "name": "Home Screen Hall",
+     "w": 10,
+     "d": 9,
+     "props": [
+      [
+       "rug",
+       "Big buttons"
+      ],
+      [
+       "rockingHorse",
+       "Pony"
+      ],
+      [
+       "balloons",
+       "Party balloons"
+      ]
+     ]
+    },
+    {
+     "name": "Fairy Garden",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "flowerBed",
+       "Blooming flowers",
+       {
+        "do": "count",
+        "unit": "Stars collected",
+        "text": "Collect stars to unlock garden decorations."
+       }
+      ],
+      [
+       "mushroom",
+       "Fairy toadstool"
+      ]
+     ]
+    },
+    {
+     "name": "Farm Adventure",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "herbGarden",
+       "Plant & water"
+      ],
+      [
+       "hay",
+       "Animal care"
+      ],
+      [
+       "smallCreature",
+       "Farm bunny",
+       {
+        "c": "#e8e0d0"
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Craft Room",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "easel",
+       "Colouring room",
+       {
+        "do": "steps",
+        "title": "Activities",
+        "steps": [
+         "Fairy Garden",
+         "Farm Adventure",
+         "Princess dress-up",
+         "Colouring",
+         "Puzzles"
+        ]
+       }
+      ],
+      [
+       "mirror",
+       "Dress-up mirror"
+      ],
+      [
+       "toyBlocks",
+       "Puzzle blocks"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/Trace",
+  "summary": "A private personal-history app on web and Android: an encrypted vault of places, activity and health timelines, a GPS + dashcam atlas, a unified JoshProfile summary and a native collector with signed APK updates.",
+  "evidence": [
+   "README.md",
+   "app/src/main/java/au/parristech/trace/MainActivity.kt",
+   "PlacesActivity.kt",
+   "AnalyticsActivity.kt",
+   "assets/app.mjs",
+   "dashcam-atlas/index.html",
+   "native-collector/"
+  ],
+  "kind": "Timeline Observatory",
+  "links": [
+   {
+    "label": "Web app",
+    "url": "https://trace-personal-history.vercel.app/"
+   }
+  ],
+  "ext": {
+   "style": "observatory",
+   "walls": "#2f4a63",
+   "roof": "#7fc4d8",
+   "trim": "#e8eef2",
+   "door": "#1d3142",
+   "features": [
+    "dish",
+    "antenna",
+    "telescope",
+    "lanterns"
+   ]
+  },
+  "int": {
+   "layout": "L",
+   "floor": "#27313c",
+   "walls": "#d9e4ec",
+   "light": "#d8f0ff",
+   "rooms": [
+    {
+     "name": "Timeline Gallery",
+     "w": 12,
+     "d": 8,
+     "props": [
+      [
+       "timelineWall",
+       "Personal history timeline",
+       {
+        "do": "steps",
+        "title": "Track controls",
+        "steps": [
+         "Show or hide each track.",
+         "Solo one track to read it alone.",
+         "Select a range to zoom in on a period.",
+         "Tracks combine places, activity and health summaries."
+        ]
+       }
+      ],
+      [
+       "monitorWall",
+       "Analytics studio"
+      ],
+      [
+       "sofa",
+       "Review bench"
+      ],
+      [
+       "lamp",
+       "Reading light"
+      ]
+     ]
+    },
+    {
+     "name": "Atlas Room",
+     "w": 10,
+     "d": 9,
+     "props": [
+      [
+       "mapTable",
+       "GPS + dashcam atlas",
+       {
+        "do": "toggle",
+        "title": "Dashcam atlas",
+        "on": "Playback route lit: GPS tracks are drawn alongside dashcam footage on the atlas.",
+        "off": "Atlas paused."
+       }
+      ],
+      [
+       "pinMap",
+       "Places visited"
+      ],
+      [
+       "camera",
+       "Dashcam rig"
+      ],
+      [
+       "globe",
+       "Location vault"
+      ]
+     ]
+    },
+    {
+     "name": "Vault & Workshop",
+     "w": 9,
+     "d": 9,
+     "props": [
+      [
+       "safe",
+       "Encrypted vault",
+       {
+        "do": "info",
+        "text": "Profile snapshots are encrypted inside the vault and included in vault backups; raw sources stay private and untouched."
+       }
+      ],
+      [
+       "phoneStand",
+       "Android companion"
+      ],
+      [
+       "serverRack",
+       "Native collector"
+      ],
+      [
+       "filingCabinet",
+       "ZIP backups"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/AgentCouncil",
+  "summary": "AgentCouncil: a local orchestrator where Claude Code, Codex CLI and Antigravity CLI implement and adversarially review each other's code on your own subscriptions — no API keys or auto-merge — with verdicts built on test commands the orchestrator runs itself.",
+  "evidence": [
+   "README.md",
+   "agentcouncil/run.py",
+   "agentcouncil/verdict.py",
+   "agentcouncil/ledger.py",
+   "agentcouncil/adapters/base.py",
+   "tests/test_core.py"
+  ],
+  "kind": "Council Chamber",
+  "ext": {
+   "style": "temple",
+   "walls": "#d8d0c0",
+   "roof": "#3a3a4a",
+   "trim": "#c8a050",
+   "door": "#2a2a3a",
+   "features": [
+    "statue",
+    "flag",
+    "lanterns",
+    "bench"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#6a5a4a",
+   "walls": "#efe8dc",
+   "light": "#fff4e0",
+   "rooms": [
+    {
+     "name": "Council Table",
+     "w": 11,
+     "d": 9,
+     "props": [
+      [
+       "roundTable",
+       "Three seats"
+      ],
+      [
+       "robot",
+       "Claude Code"
+      ],
+      [
+       "robot",
+       "Codex CLI"
+      ],
+      [
+       "robot",
+       "Antigravity CLI"
+      ]
+     ]
+    },
+    {
+     "name": "Evidence Bench",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "terminal",
+       "Test command",
+       {
+        "do": "quiz",
+        "title": "Who decides?",
+        "q": "All three agents say it works but the tests fail. What wins?",
+        "options": [
+         "The agents' consensus",
+         "The tests the orchestrator ran",
+         "The most confident agent"
+        ],
+        "answer": 1,
+        "explain": "Reproducible executable evidence beats consensus."
+       }
+      ],
+      [
+       "chair",
+       "Witness chair"
+      ]
+     ]
+    },
+    {
+     "name": "Ledger Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "ledgerDesk",
+       "Review ledger",
+       {
+        "do": "steps",
+        "title": "A round",
+        "steps": [
+         "One agent implements.",
+         "The others review adversarially.",
+         "The orchestrator runs the tests itself.",
+         "A verdict is recorded — nothing auto-merges."
+        ]
+       }
+      ],
+      [
+       "filingCabinet",
+       "Verdicts"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/DubboDataCentre",
+  "summary": "Inside DBO1: a public-source research site on the Dubbo data centre — how the facility is organised and what kinds of data flow through it — grading every claim as confirmed, strongly indicated, possible or unknown, and refusing to probe private payloads. Includes the DBO1-SIM training plugin.",
+  "evidence": [
+   "README.md",
+   "RESEARCH.md",
+   "dbo1-sim/assets/dbo1-sim.js",
+   "security/",
+   "red-team-assignment/"
+  ],
+  "kind": "Data Hall",
+  "ext": {
+   "style": "warehouse",
+   "walls": "#cfd4d8",
+   "roof": "#2e3a46",
+   "trim": "#4ff0a0",
+   "door": "#2a3038",
+   "features": [
+    "solarField",
+    "fence",
+    "antenna",
+    "battery"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#5a6068",
+   "walls": "#d8dee2",
+   "light": "#e8fff4",
+   "rooms": [
+    {
+     "name": "Data Hall",
+     "w": 10,
+     "d": 9,
+     "props": [
+      [
+       "serverRack",
+       "Rack row A"
+      ],
+      [
+       "serverRack",
+       "Rack row B"
+      ],
+      [
+       "serverRack",
+       "Rack row C"
+      ],
+      [
+       "router",
+       "Carrier meet-me"
+      ]
+     ]
+    },
+    {
+     "name": "Research Office",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "corkboard",
+       "Evidence grades",
+       {
+        "do": "quiz",
+        "title": "Research standard",
+        "q": "A fact is technically plausible but not supported by public sources. How is it graded?",
+        "options": [
+         "Confirmed",
+         "Possible",
+         "Unknown"
+        ],
+        "answer": 1,
+        "explain": "Confirmed, strongly indicated, possible or unknown — every material claim is labelled."
+       }
+      ],
+      [
+       "desk",
+       "Public sources"
+      ]
+     ]
+    },
+    {
+     "name": "Sim Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "consolePanel",
+       "DBO1-SIM",
+       {
+        "do": "toggle",
+        "title": "Training sim",
+        "on": "DBO1-SIM running: a training simulation of the facility.",
+        "off": "Sim stopped."
+       }
+      ],
+      [
+       "battery",
+       "UPS"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/DubboSDR",
+  "summary": "DubboSDR: a C# .NET 8 WPF app for exploring Dubbo FM radio with an RTL-SDR dongle — a touch-friendly Kids Radio, a technical Explorer with frequency, signal strength and clipping stats, its own FM demodulator, diagnostics and work-in-progress phone streaming.",
+  "evidence": [
+   "README.md",
+   "DUBBO_SIGNALS.md",
+   "src/DubboSDR.Core/FmDemodulator.cs",
+   "src/DubboSDR.App/RadioDeviceManager.cs",
+   "src/DubboSDR.App/Services/Streaming/RemoteRadioServer.cs"
+  ],
+  "kind": "Radio Shack",
+  "ext": {
+   "style": "bunker",
+   "walls": "#8a7a5a",
+   "roof": "#4a4a3a",
+   "trim": "#e8c84a",
+   "door": "#3a3a2a",
+   "features": [
+    "dish",
+    "antenna",
+    "solar",
+    "bench"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#6a5e4a",
+   "walls": "#e8e0cc",
+   "light": "#fff4d8",
+   "rooms": [
+    {
+     "name": "Kids Radio",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "radio",
+       "Tune a station",
+       {
+        "do": "play",
+        "title": "Kids Radio",
+        "text": "A big, simple dial tunes between preset Dubbo stations.",
+        "notes": [
+         300,
+         450,
+         600,
+         450,
+         300
+        ]
+       }
+      ],
+      [
+       "rug",
+       "Listening rug"
+      ],
+      [
+       "toyBlocks",
+       "Station buttons"
+      ],
+      [
+       "sofa",
+       "Family listening couch"
+      ]
+     ]
+    },
+    {
+     "name": "Explorer Bench",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "oscilloscope",
+       "Signal strength & clipping",
+       {
+        "do": "steps",
+        "title": "Signal chain",
+        "steps": [
+         "RTL-SDR dongle captures raw samples.",
+         "FmDemodulator turns them into audio.",
+         "Explorer shows frequency, offsets and clipping.",
+         "Remote server streams to a phone (work in progress)."
+        ]
+       }
+      ],
+      [
+       "antenna",
+       "Roof feed"
+      ],
+      [
+       "phoneStand",
+       "Phone streaming"
+      ],
+      [
+       "desk",
+       "Diagnostics desk"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/ParrisDubboMover",
+  "summary": "An archived private snapshot of the Parris Dubbo Mover app (a single 'Initial commit' holding a nested copy of the app and installers): move plans, a comparison dashboard, trips, tasks, documents and a timeline for a family relocation.",
+  "evidence": [
+   "client/src/pages/MovePlanPage.tsx",
+   "ComparisonDashboard.tsx",
+   "TasksPage.tsx",
+   "server/src/db/schema.ts",
+   "ParrisDubboMoverApp-main/ (nested copy)",
+   "git log: single initial commit, archived"
+  ],
+  "kind": "Removals Storage Unit",
+  "ext": {
+   "style": "warehouse",
+   "walls": "#7a6a5a",
+   "roof": "#3a3a3a",
+   "trim": "#e8a03a",
+   "door": "#2a2a2a",
+   "features": [
+    "truck",
+    "crates",
+    "fence",
+    "signpost"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#6a6058",
+   "walls": "#d8d0c4",
+   "light": "#fff0dc",
+   "rooms": [
+    {
+     "name": "Storage Bay",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "crates",
+       "Archived snapshot",
+       {
+        "do": "info",
+        "text": "This repo is archived: one initial commit holding a nested copy of the app."
+       }
+      ],
+      [
+       "archiveBoxes",
+       "Nested copy"
+      ],
+      [
+       "trolley",
+       "Hand trolley"
+      ],
+      [
+       "barrel",
+       "Packing materials"
+      ]
+     ]
+    },
+    {
+     "name": "Old Plans",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "mapTable",
+       "Move plan"
+      ],
+      [
+       "filingCabinet",
+       "Documents"
+      ],
+      [
+       "clock",
+       "Timeline",
+       {
+        "do": "quiz",
+        "title": "Which copy?",
+        "q": "Which Parris Dubbo Mover repository should new work go into?",
+        "options": [
+         "This archived snapshot",
+         "A maintained copy, not this archive",
+         "None"
+        ],
+        "answer": 1,
+        "explain": "Archived repositories are read-only history."
+       }
+      ],
+      [
+       "desk",
+       "Old planning desk"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/ParrisDubboMoverApp",
+  "summary": "The first version of the Parris Dubbo Mover app (November 2025): a client/server TypeScript planner for a family relocation with a move plan, comparison dashboard and task list over a small database.",
+  "evidence": [
+   "client/src/pages/MovePlanPage.tsx",
+   "ComparisonDashboard.tsx",
+   "TasksPage.tsx",
+   "server/src/db/schema.ts",
+   "git log: November 2025"
+  ],
+  "kind": "Moving Day Office",
+  "ext": {
+   "style": "garage",
+   "walls": "#3a7aa8",
+   "roof": "#2a3a4a",
+   "trim": "#f2f2f2",
+   "door": "#2a3a4a",
+   "features": [
+    "van",
+    "crates",
+    "mailbox",
+    "bench"
+   ]
+  },
+  "int": {
+   "layout": "L",
+   "floor": "#8a8478",
+   "walls": "#eef2f4",
+   "light": "#f8fbff",
+   "rooms": [
+    {
+     "name": "Move Plan",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "mapTable",
+       "Move plan",
+       {
+        "do": "steps",
+        "title": "Version 1",
+        "steps": [
+         "Plan the move.",
+         "Compare options on the dashboard.",
+         "Track tasks to completion."
+        ]
+       }
+      ],
+      [
+       "crates",
+       "Packed boxes"
+      ],
+      [
+       "trolley",
+       "Trolley"
+      ]
+     ]
+    },
+    {
+     "name": "Comparison Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "chartBoard",
+       "Comparison dashboard",
+       {
+        "do": "toggle",
+        "title": "Compare",
+        "on": "Options compared side by side.",
+        "off": "Dashboard cleared."
+       }
+      ],
+      [
+       "desk",
+       "Planning desk"
+      ]
+     ]
+    },
+    {
+     "name": "Task Board",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "noticeBoard",
+       "Tasks"
+      ],
+      [
+       "clock",
+       "Countdown"
+      ],
+      [
+       "filingCabinet",
+       "Task records"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/ParrisDubboMoverApp-Main",
+  "summary": "The main Parris Dubbo Mover line: the relocation planner extended with a Health & NDIS page, trips, documents and a timeline, plus linting, formatting, an audit folder and a helper script to publish the repo.",
+  "evidence": [
+   "client/src/pages/HealthNdisPage.tsx",
+   "client/src/pages/MovePlanPage.tsx",
+   "ComparisonDashboard.tsx",
+   "TasksPage.tsx",
+   "server/src/db/schema.ts",
+   "scripts/create_and_push_repo.ps1",
+   "audit/"
+  ],
+  "kind": "Relocation Headquarters",
+  "ext": {
+   "style": "terrace",
+   "walls": "#4a8a6a",
+   "roof": "#2a3a32",
+   "trim": "#f2efe6",
+   "door": "#2a3a32",
+   "features": [
+    "van",
+    "garden",
+    "mailbox",
+    "crates"
+   ]
+  },
+  "int": {
+   "layout": "grid",
+   "floor": "#8a8a7a",
+   "walls": "#eef4f0",
+   "light": "#f6fff8",
+   "rooms": [
+    {
+     "name": "Plan Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "mapTable",
+       "Move plan"
+      ],
+      [
+       "timelineWall",
+       "Timeline"
+      ]
+     ]
+    },
+    {
+     "name": "Health & NDIS",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "medicineCabinet",
+       "Health & NDIS page",
+       {
+        "do": "info",
+        "text": "This line adds a page for health and NDIS arrangements that have to move with the family."
+       }
+      ],
+      [
+       "filingCabinet",
+       "Support plans"
+      ]
+     ]
+    },
+    {
+     "name": "Trips Desk",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "van",
+       "Trips",
+       {
+        "do": "count",
+        "unit": "Trips planned",
+        "text": "Trips to and from Dubbo are tracked alongside tasks."
+       }
+      ],
+      [
+       "signpost",
+       "Routes"
+      ]
+     ]
+    },
+    {
+     "name": "Documents",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "archiveBoxes",
+       "Documents"
+      ],
+      [
+       "terminal",
+       "Lint & format",
+       {
+        "do": "steps",
+        "title": "Housekeeping",
+        "steps": [
+         "ESLint and Prettier configs.",
+         "An audit folder.",
+         "A script to create and push the repo."
+        ]
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/pdm-parris-dubbo-mover",
+  "summary": "The security-hardened Parris Dubbo Mover copy: the same relocation planner with its personal-data API bound to loopback by default and a single server.js entry point, so household data is not exposed on the network.",
+  "evidence": [
+   "server.js",
+   "git log: security: bind personal-data API to loopback by default",
+   "client/src/pages/MovePlanPage.tsx",
+   "ComparisonDashboard.tsx",
+   "TasksPage.tsx",
+   "server/src/db/schema.ts",
+   "client/src/pages/HealthNdisPage.tsx"
+  ],
+  "kind": "Secure Moving Vault",
+  "ext": {
+   "style": "bunker",
+   "walls": "#6a7a6a",
+   "roof": "#3a4a3a",
+   "trim": "#e8a03a",
+   "door": "#2a3a2a",
+   "features": [
+    "truck",
+    "fence",
+    "antenna",
+    "crates"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#5a645a",
+   "walls": "#cfd8cc",
+   "light": "#f0fff0",
+   "rooms": [
+    {
+     "name": "Loopback Gate",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "router",
+       "Bound to 127.0.0.1",
+       {
+        "do": "quiz",
+        "title": "Why loopback?",
+        "q": "Who can reach the personal-data API by default?",
+        "options": [
+         "Anyone on the internet",
+         "Only the computer running it",
+         "Everyone on the Wi-Fi"
+        ],
+        "answer": 1,
+        "explain": "The API binds to loopback so household data isn't exposed."
+       }
+      ],
+      [
+       "safe",
+       "Personal data"
+      ],
+      [
+       "chair",
+       "Guard chair"
+      ]
+     ]
+    },
+    {
+     "name": "Planner",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "mapTable",
+       "Move plan"
+      ],
+      [
+       "chartBoard",
+       "Comparison dashboard"
+      ],
+      [
+       "serverRack",
+       "server.js",
+       {
+        "do": "toggle",
+        "title": "Server",
+        "on": "Server running on loopback.",
+        "off": "Server stopped."
+       }
+      ],
+      [
+       "filingCabinet",
+       "Household documents"
+      ],
+      [
+       "desk",
+       "Planning desk"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/RepairCafeInternal",
+  "summary": "Repair Café Dubbo's private organiser knowledge base: research, governance, insurance, funding, meeting and operations notes — including advice gathered from eight other repair cafés — with an explicit warning that notes are not confirmations of venues, insurance or funding.",
+  "evidence": [
+   "README.md",
+   "ACTION-REGISTER.md",
+   "research/outreach/",
+   "governance/",
+   "insurance/",
+   "funding/"
+  ],
+  "kind": "Repair Café Back Office",
+  "ext": {
+   "style": "cafe",
+   "walls": "#e8b85a",
+   "roof": "#5a3a2a",
+   "trim": "#f2efe6",
+   "door": "#4a2a1a",
+   "features": [
+    "bicycle",
+    "noticeBoard",
+    "herbs",
+    "bench"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#9a8064",
+   "walls": "#f6ecd8",
+   "light": "#fff2d8",
+   "rooms": [
+    {
+     "name": "Organisers' Table",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "roundTable",
+       "Meeting table"
+      ],
+      [
+       "noticeBoard",
+       "Action register",
+       {
+        "do": "steps",
+        "title": "Launch actions",
+        "steps": [
+         "Collect advice from other repair cafés.",
+         "Rank it by how often it comes up.",
+         "Check insurance evidence.",
+         "Turn it into Dubbo launch actions."
+        ]
+       }
+      ],
+      [
+       "coffeeMachine",
+       "Urn"
+      ],
+      [
+       "chair",
+       "Organiser's chair"
+      ]
+     ]
+    },
+    {
+     "name": "Research Shelf",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "bookshelf",
+       "Eight cafés' advice"
+      ],
+      [
+       "filingCabinet",
+       "Insurance & governance",
+       {
+        "do": "quiz",
+        "title": "Notes vs facts",
+        "q": "Does a note about a venue mean the venue is booked?",
+        "options": [
+         "Yes",
+         "No — the README says nothing is confirmed by these notes",
+         "Only if it's in governance/"
+        ],
+        "answer": 1,
+        "explain": "Venues, insurance, funding and electricians are unconfirmed until real agreements exist."
+       }
+      ],
+      [
+       "toolWall",
+       "Repair tools"
+      ],
+      [
+       "archiveBoxes",
+       "Meeting minutes"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/DadlanControlCentre",
+  "summary": "DadLAN Control Centre: a Next.js orchestration dashboard over a 12-machine Windows fleet — Laptops #01–#11 and a desktop hosting a LANCommander server — that links out to the tools that own each job: Action1, MeshCentral, SMB and ForgeGrid.",
+  "evidence": [
+   "README.md",
+   "src/app/rollout/page.tsx",
+   "src/app/machines/[id]/page.tsx",
+   "live/index.html"
+  ],
+  "kind": "LAN Party Control Room",
+  "ext": {
+   "style": "factory",
+   "walls": "#3a4a5a",
+   "roof": "#1a2430",
+   "trim": "#4fb0ff",
+   "door": "#1a2430",
+   "features": [
+    "antenna",
+    "dish",
+    "flag",
+    "crates"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#2e3640",
+   "walls": "#6a7888",
+   "light": "#d8ecff",
+   "rooms": [
+    {
+     "name": "Fleet Floor",
+     "w": 11,
+     "d": 10,
+     "props": [
+      [
+       "monitorWall",
+       "12-machine fleet",
+       {
+        "do": "count",
+        "unit": "Machines checked",
+        "text": "Laptop #01–#11 plus the desktop that hosts LANCommander."
+       }
+      ],
+      [
+       "laptop",
+       "Laptop #01"
+      ],
+      [
+       "laptop",
+       "Laptop #11"
+      ]
+     ]
+    },
+    {
+     "name": "Roles Board",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "corkboard",
+       "Who owns what",
+       {
+        "do": "steps",
+        "title": "Roles",
+        "steps": [
+         "Action1: fleet administration and automation.",
+         "MeshCentral: interactive remote control.",
+         "SMB: mounted Windows filesystems.",
+         "ForgeGrid: compute."
+        ]
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Server Closet",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "serverRack",
+       "LANCommander server"
+      ],
+      [
+       "router",
+       "LAN switch"
+      ]
+     ]
+    },
+    {
+     "name": "Rollout Office",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "timelineWall",
+       "September rollout"
+      ],
+      [
+       "desk",
+       "Control-plane workstation"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/ForgeGrid-Control",
+  "summary": "ForgeGrid-Control: an independent session-recovery layer for the ForgeGrid ↔ Eleven-Realms fleet experiment that rebuilds a trustworthy daily brief from Git, GitHub, coordinator state and JoshMemory — because transcripts are not the project database.",
+  "evidence": [
+   "README.md",
+   "scripts/generate_brief.py",
+   "scripts/snapshot.py",
+   "scripts/mission_compiler.py",
+   "scripts/end_day.py",
+   "Startup/"
+  ],
+  "kind": "Morning Briefing Forge",
+  "ext": {
+   "style": "mill",
+   "walls": "#5a5a6a",
+   "roof": "#2a2a3a",
+   "trim": "#e8a03a",
+   "door": "#2a2a3a",
+   "features": [
+    "anvil",
+    "antenna",
+    "crates",
+    "lanterns"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#4a4a54",
+   "walls": "#bcbcc8",
+   "light": "#ffe8c8",
+   "rooms": [
+    {
+     "name": "Start of Day",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "clock",
+       "fgc start",
+       {
+        "do": "steps",
+        "title": "A ForgeGrid day",
+        "steps": [
+         "fgc start — or double-click Start ForgeGrid Day.",
+         "Snapshot Git, GitHub, coordinator disk state and JoshMemory.",
+         "Generate a fresh brief.",
+         "Compile missions.",
+         "End the day with a recorded snapshot."
+        ]
+       }
+      ],
+      [
+       "desk",
+       "Brief desk"
+      ],
+      [
+       "coffeeMachine",
+       "Coffee"
+      ],
+      [
+       "lamp",
+       "Dawn lamp"
+      ]
+     ]
+    },
+    {
+     "name": "Snapshot Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "archiveBoxes",
+       "State snapshots"
+      ],
+      [
+       "consolePanel",
+       "Mission compiler",
+       {
+        "do": "quiz",
+        "title": "Source of truth",
+        "q": "Which of these is NOT treated as the project database?",
+        "options": [
+         "Git",
+         "Conversation transcripts",
+         "JoshMemory"
+        ],
+        "answer": 1,
+        "explain": "Transcripts are not the database; the brief is rebuilt from Git, GitHub, coordinator state and JoshMemory."
+       }
+      ],
+      [
+       "anvil",
+       "Forge"
+      ],
+      [
+       "filingCabinet",
+       "Role definitions"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/HermesControl",
+  "summary": "Hermes Control: a cautious local workspace for evaluating and installing the NousResearch Hermes Agent on one of Josh's computers — status audits, a control app, a WSL runner and a Discord setup plan, governed by strict safety rules and with nothing installed yet.",
+  "evidence": [
+   "README.md",
+   "NEXT-STEPS.md",
+   "hermes-control-app/server.js",
+   "hermes-wsl-runner/",
+   "safe-cleanup-plan.ps1",
+   "verification.md"
+  ],
+  "kind": "Messenger's Post",
+  "ext": {
+   "style": "tower",
+   "walls": "#d8c8a8",
+   "roof": "#4a6a8a",
+   "trim": "#f2c14e",
+   "door": "#3a3a3a",
+   "features": [
+    "bird",
+    "flag",
+    "signpost",
+    "mailbox"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#8a7a64",
+   "walls": "#f2ead8",
+   "light": "#fff4dc",
+   "rooms": [
+    {
+     "name": "Status Board",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "chartBoard",
+       "Install status",
+       {
+        "do": "steps",
+        "title": "Current status",
+        "steps": [
+         "Hermes installed: no.",
+         "CLI verified: no.",
+         "Gateway verified: no.",
+         "Installer downloaded for inspection only."
+        ]
+       }
+      ],
+      [
+       "desk",
+       "Audit desk"
+      ],
+      [
+       "clock",
+       "Waiting for approval"
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ]
+     ]
+    },
+    {
+     "name": "Safety Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "safe",
+       "No credentials in logs"
+      ],
+      [
+       "noticeBoard",
+       "Safety rules",
+       {
+        "do": "quiz",
+        "title": "Before installing",
+        "q": "May the Hermes installer run without Josh's approval?",
+        "options": [
+         "Yes",
+         "No",
+         "Only at night"
+        ],
+        "answer": 1,
+        "explain": "The rules forbid running the installer, deleting personal files or exposing credentials without approval."
+       }
+      ],
+      [
+       "terminal",
+       "WSL runner"
+      ],
+      [
+       "bird",
+       "Messenger bird"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/HeartCalm",
+  "summary": "HeartCalm: a lightweight calming-support PWA for palpitations — a guided 'palpitations now' flow, red-flag escalation prompts, episode timing and logging, breathing guidance, trends and GP-ready summaries — explicitly not a diagnostic tool or medical device.",
+  "evidence": [
+   "README.md",
+   "app.js",
+   "pure.js",
+   "tests/pure.test.mjs",
+   "sw.js"
+  ],
+  "kind": "Calm Pavilion",
+  "links": [
+   {
+    "label": "HeartCalm",
+    "url": "https://heart-calm-vert.vercel.app"
+   }
+  ],
+  "ext": {
+   "style": "dome",
+   "walls": "#e8f2f0",
+   "roof": "#7ac8b8",
+   "trim": "#3a7a6a",
+   "door": "#2a5a4a",
+   "features": [
+    "pond",
+    "garden",
+    "bench",
+    "trees"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#c8dcd6",
+   "walls": "#f4fbf8",
+   "light": "#f0fff8",
+   "rooms": [
+    {
+     "name": "Breathing Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "yogaMat",
+       "Breathing guidance",
+       {
+        "do": "play",
+        "title": "Breathe",
+        "text": "Slow, gentle breathing support — in for four, out for six.",
+        "notes": [
+         262,
+         294,
+         330,
+         349,
+         330,
+         294
+        ]
+       }
+      ],
+      [
+       "plant",
+       "Calm plant"
+      ],
+      [
+       "pond",
+       "Still water"
+      ]
+     ]
+    },
+    {
+     "name": "Episode Log",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "heartMonitor",
+       "Episode timer",
+       {
+        "do": "steps",
+        "title": "Palpitations now",
+        "steps": [
+         "Start the guided flow.",
+         "Check the red-flag prompts — escalate if any apply.",
+         "Time and log the episode.",
+         "Breathe with the guide.",
+         "Save a GP-ready summary."
+        ]
+       }
+      ],
+      [
+       "desk",
+       "Trends"
+      ]
+     ]
+    },
+    {
+     "name": "Safety Desk",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "medicineCabinet",
+       "Escalation prompts",
+       {
+        "do": "quiz",
+        "title": "What HeartCalm is not",
+        "q": "Can HeartCalm tell you an episode is safe?",
+        "options": [
+         "Yes",
+         "No — it never declares an episode benign or replaces urgent assessment",
+         "Only with an ECG"
+        ],
+        "answer": 1,
+        "explain": "It is calming support and logging, not diagnosis."
+       }
+      ],
+      [
+       "phoneStand",
+       "Installable app"
+      ],
+      [
+       "chair",
+       "Quiet chair"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/3layers",
+  "summary": "Three-Layer RPG Continuity: the Epic Quest Saga continuity app — a React dashboard that tracks characters, quests and story state across layers of a long-running RPG campaign, with a one-click launcher and a mockup sandbox.",
+  "evidence": [
+   "Epic-Quest-Saga/artifacts/continuity-app/src/pages/Characters.tsx",
+   "Quests.tsx",
+   "Dashboard.tsx",
+   "src/data/initialState.ts",
+   "serve_epic_quest_saga.py"
+  ],
+  "kind": "Saga Archive Tower",
+  "ext": {
+   "style": "pagoda",
+   "walls": "#4a3a6a",
+   "roof": "#2a1a3a",
+   "trim": "#e8c84a",
+   "door": "#2a1a3a",
+   "features": [
+    "flag",
+    "lanterns",
+    "statue",
+    "runeStone"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#3a3048",
+   "walls": "#8a7aa0",
+   "light": "#e8d8ff",
+   "rooms": [
+    {
+     "name": "Layer One · Characters",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "armorStand",
+       "Character sheets"
+      ],
+      [
+       "mirror",
+       "Portraits"
+      ],
+      [
+       "corkboard",
+       "Relationships"
+      ],
+      [
+       "bookshelf",
+       "Character lore"
+      ]
+     ]
+    },
+    {
+     "name": "Layer Two · Quests",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "noticeBoard",
+       "Quest log",
+       {
+        "do": "count",
+        "unit": "Quests tracked",
+        "text": "Quests are tracked with state so the saga stays consistent across sessions."
+       }
+      ],
+      [
+       "mapTable",
+       "Saga map"
+      ]
+     ]
+    },
+    {
+     "name": "Layer Three · Continuity",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "timelineWall",
+       "Continuity dashboard",
+       {
+        "do": "steps",
+        "title": "Three layers",
+        "steps": [
+         "Characters.",
+         "Quests.",
+         "The continuity layer that keeps them consistent."
+        ]
+       }
+      ],
+      [
+       "computer",
+       "PLAY Epic Quest Saga"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/a",
+  "summary": "A one-file repository: its only content is a.cwp, a Cakewalk music project file — so this house is a tiny recording booth around one session file, with nothing else to show.",
+  "evidence": [
+   "a.cwp (only file)",
+   "git log: initial commit"
+  ],
+  "kind": "One-File Recording Booth",
+  "ext": {
+   "style": "cottage",
+   "walls": "#2a2a2a",
+   "roof": "#c83a3a",
+   "trim": "#f2f2f2",
+   "door": "#1a1a1a",
+   "features": [
+    "fence",
+    "mailbox",
+    "bench",
+    "trees"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#3a3434",
+   "walls": "#5a5050",
+   "light": "#ffd8c8",
+   "rooms": [
+    {
+     "name": "Booth",
+     "w": 7,
+     "d": 7,
+     "props": [
+      [
+       "microphone",
+       "Vocal mic"
+      ],
+      [
+       "speaker",
+       "Monitor"
+      ],
+      [
+       "guitar",
+       "Guitar"
+      ],
+      [
+       "vinyl",
+       "a.cwp",
+       {
+        "do": "play",
+        "title": "a.cwp",
+        "text": "The repository holds a single Cakewalk project file and nothing else.",
+        "notes": [
+         220,
+         277,
+         330,
+         440
+        ]
+       }
+      ],
+      [
+       "rug",
+       "Booth rug"
+      ]
+     ]
+    },
+    {
+     "name": "Control Room",
+     "w": 7,
+     "d": 7,
+     "props": [
+      [
+       "computer",
+       "DAW",
+       {
+        "do": "quiz",
+        "title": "What's in 'a'?",
+        "q": "What does this repository contain?",
+        "options": [
+         "An app",
+         "One Cakewalk project file",
+         "Nothing at all"
+        ],
+        "answer": 1,
+        "explain": "Just a.cwp from the initial commit."
+       }
+      ],
+      [
+       "chair",
+       "Engineer's chair"
+      ],
+      [
+       "lamp",
+       "Desk lamp"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/Action1",
+  "summary": "DadLAN Action1 Command Centre v0.3: a fleet dashboard for Action1-managed lab computers with two front ends — PowerShell/WinForms on Windows and Python/Tkinter on Fedora — covering authentication, endpoint inventory, fleet roles and safe remote diagnostics.",
+  "evidence": [
+   "README.md",
+   "windows/DadLAN-Control.ps1",
+   "windows/DadLAN-Action1Api.ps1",
+   "fedora/dadlan.py",
+   "fedora/action1_client.py",
+   "fedora/test_dadlan.py"
+  ],
+  "kind": "Fleet Command Post",
+  "ext": {
+   "style": "gatehouse",
+   "walls": "#6a7a8a",
+   "roof": "#2a3440",
+   "trim": "#f2a03a",
+   "door": "#2a3440",
+   "features": [
+    "antenna",
+    "flag",
+    "van",
+    "signpost"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#5a626a",
+   "walls": "#dce2e8",
+   "light": "#f0f6ff",
+   "rooms": [
+    {
+     "name": "Windows Console",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "computer",
+       "PowerShell + WinForms"
+      ],
+      [
+       "router",
+       "Endpoint inventory",
+       {
+        "do": "count",
+        "unit": "Endpoints listed",
+        "text": "Inventory shows online, offline and problem machines."
+       }
+      ],
+      [
+       "chair",
+       "Operator chair"
+      ],
+      [
+       "monitorWall",
+       "Fleet filters"
+      ]
+     ]
+    },
+    {
+     "name": "Fedora Console",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "terminal",
+       "Python + Tkinter",
+       {
+        "do": "steps",
+        "title": "v0.3 Safe Remote Diagnostics",
+        "steps": [
+         "Authenticate to Action1 (Australia region).",
+         "Select the organisation.",
+         "See fleet roles: Controller, Worker, Legacy Worker.",
+         "Run safe diagnostics."
+        ]
+       }
+      ],
+      [
+       "filingCabinet",
+       "Protected controller metadata"
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ],
+      [
+       "router",
+       "Action1 REST API"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/Aetheria",
+  "summary": "Aetheria: The Whispering Woods — a full-stack D&D 5e–style browser adventure (Express, React, Drizzle) with its own game engine, NPC data and play screen, last snapshotted before a work laptop was handed back.",
+  "evidence": [
+   "client/src/game/engine.ts",
+   "client/src/game/npc-data.ts",
+   "client/src/pages/Play.tsx",
+   "Improvements.md",
+   "shared/"
+  ],
+  "kind": "Whispering Woods Lodge",
+  "ext": {
+   "style": "treehouse",
+   "walls": "#5a7a4a",
+   "roof": "#3a4a2a",
+   "trim": "#c8b06a",
+   "door": "#3a2a1a",
+   "features": [
+    "mushrooms",
+    "campfire",
+    "runeStone",
+    "trees"
+   ]
+  },
+  "int": {
+   "layout": "L",
+   "floor": "#5a5038",
+   "walls": "#a8b088",
+   "light": "#f0ffc8",
+   "rooms": [
+    {
+     "name": "Woodland Clearing",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "tree",
+       "Whispering tree",
+       {
+        "do": "play",
+        "title": "The woods whisper",
+        "text": "The adventure is set in the Whispering Woods.",
+        "notes": [
+         196,
+         233,
+         262,
+         233,
+         196
+        ]
+       }
+      ],
+      [
+       "mushroom",
+       "Ring of mushrooms"
+      ],
+      [
+       "campfire",
+       "Camp"
+      ]
+     ]
+    },
+    {
+     "name": "NPC Lodge",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "cardTable",
+       "NPC data"
+      ],
+      [
+       "armorStand",
+       "Adventurer"
+      ],
+      [
+       "potionShelf",
+       "Herbalist's stock"
+      ]
+     ]
+    },
+    {
+     "name": "Engine Room",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "diceTable",
+       "5e engine",
+       {
+        "do": "dice",
+        "sides": 20,
+        "title": "Roll",
+        "text": "engine.ts resolves the adventure's checks."
+       }
+      ],
+      [
+       "noticeBoard",
+       "Improvements list"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/AgentCheck",
+  "summary": "AgentWitness: an independent verification layer for autonomous coding agents — it records environmental evidence, applies deterministic rules and lets Definition-of-Done contracts decide completion, because agents don't get to grade their own homework.",
+  "evidence": [
+   "README.md",
+   "src/agentwitness/contracts/evaluator.py",
+   "src/agentwitness/cli.py",
+   "src/agentwitness/adapters/antigravity.py",
+   "v0.2.1-contract.yaml",
+   "tests/test_new_trust_boundaries.py"
+  ],
+  "kind": "Witness Courthouse",
+  "ext": {
+   "style": "library",
+   "walls": "#e0dcd0",
+   "roof": "#2a3a4a",
+   "trim": "#c8a050",
+   "door": "#2a2a2a",
+   "features": [
+    "statue",
+    "flag",
+    "bench",
+    "lanterns"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#6a5a48",
+   "walls": "#f2ece0",
+   "light": "#fff6e4",
+   "rooms": [
+    {
+     "name": "Courtroom",
+     "w": 10,
+     "d": 9,
+     "props": [
+      [
+       "podium",
+       "The witness stand"
+      ],
+      [
+       "pews",
+       "Gallery"
+      ],
+      [
+       "lectern",
+       "Definition of Done",
+       {
+        "do": "quiz",
+        "title": "The rule",
+        "q": "What happens to an agent's claim with no recorded evidence?",
+        "options": [
+         "It is accepted",
+         "No evidence, no credit",
+         "It is rounded up"
+        ],
+        "answer": 1,
+        "explain": "Contracts decide completion from evidence, not from what the agent says."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Evidence Locker",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "archiveBoxes",
+       "Recorded evidence"
+      ],
+      [
+       "filingCabinet",
+       "Provenance labels"
+      ],
+      [
+       "desk",
+       "Clerk's desk"
+      ]
+     ]
+    },
+    {
+     "name": "Rules Chamber",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "consolePanel",
+       "Deterministic rules",
+       {
+        "do": "steps",
+        "title": "How it witnesses",
+        "steps": [
+         "Route actions through AgentWitness.",
+         "Record environmental evidence.",
+         "Apply deterministic rules.",
+         "Let the contract decide — it never silently monitors the whole machine."
+        ]
+       }
+      ],
+      [
+       "safe",
+       "Trust boundaries"
+      ]
+     ]
+    }
+   ]
+  }
+ }
+]

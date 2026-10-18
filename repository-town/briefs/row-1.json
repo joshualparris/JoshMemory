@@ -1,0 +1,2909 @@
+[
+ {
+  "repo": "joshualparris/Aliens",
+  "summary": "Private repository this session's GitHub access could not open; the design is inferred from its name only (an alien-contact theme) and needs verification against the real repository.",
+  "evidence": [
+   "unreachable: inventory name only (no GitHub access)"
+  ],
+  "kind": "Xenobiology Outpost (name-based)",
+  "ext": {
+   "style": "spaceport",
+   "walls": "#6b7f8f",
+   "roof": "#9ad0c2",
+   "trim": "#e0f2ee",
+   "door": "#2c3a44",
+   "features": [
+    "satellite",
+    "spaceship",
+    "rocks",
+    "beacon"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#3a4048",
+   "walls": "#b8c6cc",
+   "light": "#c8fff0",
+   "rooms": [
+    {
+     "name": "Landing Bay",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "airlock",
+       "Outer airlock",
+       {
+        "do": "toggle",
+        "title": "Airlock",
+        "on": "Airlock cycling — this room is themed from the repository name only; contents unverified.",
+        "off": "Airlock sealed."
+       }
+      ],
+      [
+       "spaceship",
+       "Scout craft"
+      ],
+      [
+       "crates",
+       "Sealed cargo"
+      ],
+      [
+       "consolePanel",
+       "Docking console"
+      ]
+     ]
+    },
+    {
+     "name": "Specimen Lab",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "cryoPod",
+       "Specimen pod",
+       {
+        "do": "info",
+        "text": "Placeholder exhibit: GitHub access to this private repository was not available, so this lab reflects the name 'Aliens' rather than its code."
+       }
+      ],
+      [
+       "specimenJars",
+       "Sample shelf"
+      ],
+      [
+       "microscope",
+       "Analysis bench"
+      ],
+      [
+       "hologram",
+       "Star chart"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/AshFallen",
+  "summary": "ASHFALLER: The Veil Between — a React/TypeScript vertical slice of a text-led sci-fantasy extraction RPG beneath Dubbo: leave the Ashfall Archive, cross the Threshold Gate, and recover relics from the Red Waste before your lantern fails.",
+  "evidence": [
+   "README.md",
+   "src/gameData.ts",
+   "src/store.ts",
+   "src/App.tsx"
+  ],
+  "kind": "Extraction Gatehouse",
+  "ext": {
+   "style": "gatehouse",
+   "walls": "#7a5a4a",
+   "roof": "#3a2a28",
+   "trim": "#e07a3a",
+   "door": "#4a2a1e",
+   "features": [
+    "torches",
+    "runeStone",
+    "rocks",
+    "campfire"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#5a4438",
+   "walls": "#a88a74",
+   "light": "#ffb07a",
+   "rooms": [
+    {
+     "name": "Ashfall Archive",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "scrollRack",
+       "Field ledger",
+       {
+        "do": "info",
+        "title": "Review the field ledger",
+        "text": "The run begins in the Ashfall Archive, where the ledger records what earlier expeditions recovered and lost."
+       }
+      ],
+      [
+       "campfire",
+       "Brazier — steady hands"
+      ],
+      [
+       "bookStack",
+       "Archive stacks"
+      ],
+      [
+       "lantern",
+       "Failing lantern",
+       {
+        "do": "count",
+        "unit": "Lantern oil spent",
+        "text": "Your lantern is one of the clocks that ends a run, alongside wounds and the Veil itself."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Threshold Gate",
+     "w": 9,
+     "d": 7,
+     "props": [
+      [
+       "portal",
+       "Threshold Gate",
+       {
+        "do": "toggle",
+        "title": "Threshold Gate",
+        "on": "The gate wakes: commit to the Red Waste code and cross.",
+        "off": "The gate falls dark."
+       }
+      ],
+      [
+       "runeStone",
+       "Waking sigils"
+      ],
+      [
+       "torch",
+       "Gate torch"
+      ]
+     ]
+    },
+    {
+     "name": "Red Waste",
+     "w": 10,
+     "d": 9,
+     "floor": "#8a4a32",
+     "props": [
+      [
+       "crystal",
+       "Dustglass Shard",
+       {
+        "do": "quiz",
+        "title": "Relic hunt",
+        "q": "Which of these is a relic you can recover in the Red Waste?",
+        "options": [
+         "Old Gate Coin",
+         "Iron Crown",
+         "Sunstone"
+        ],
+        "answer": 0,
+        "explain": "Old Gate Coin is one of the slice's relics, alongside Dustglass Shard, Whisper Thread and a Fragment of a True Name."
+       }
+      ],
+      [
+       "treasureChest",
+       "Relic cache"
+      ],
+      [
+       "rock",
+       "Unstable zone"
+      ],
+      [
+       "barrel",
+       "Ashwater flasks"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/buckland-blocks-demo",
+  "summary": "A generated deployment copy of Buckland Blocks: minified bundles, fonts and textures only. Its README forbids hand edits — every change belongs in the canonical repository and must trace to a commit that passed CI and the CRAP4all < 30 gate.",
+  "evidence": [
+   "README.md",
+   "AGENTS.md",
+   "index.html",
+   "assets/"
+  ],
+  "kind": "Distribution Depot",
+  "ext": {
+   "style": "warehouse",
+   "walls": "#9a8f7a",
+   "roof": "#4f6f8f",
+   "trim": "#f2c14e",
+   "door": "#3a4a5a",
+   "features": [
+    "truck",
+    "crates",
+    "fence",
+    "signpost"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#8f8a80",
+   "walls": "#d8d4ca",
+   "light": "#fff0d0",
+   "rooms": [
+    {
+     "name": "Loading Dock",
+     "w": 10,
+     "d": 9,
+     "props": [
+      [
+       "crates",
+       "Minified bundles"
+      ],
+      [
+       "trolley",
+       "Asset trolley"
+      ],
+      [
+       "partsBins",
+       "Fonts & textures"
+      ],
+      [
+       "toyBlocks",
+       "Voxel sample blocks"
+      ],
+      [
+       "filingCabinet",
+       "Generated assets",
+       {
+        "do": "info",
+        "title": "Do not hand-edit",
+        "text": "The minified files under assets/ are build output. Editing them here would drift from the canonical source."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Release Office",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "terminal",
+       "Traceability check",
+       {
+        "do": "quiz",
+        "title": "Where do fixes go?",
+        "q": "A bug is found in the demo. Where should the fix be made?",
+        "options": [
+         "In this demo's minified bundle",
+         "In the canonical BucklandBlocks repository",
+         "Directly on the live site"
+        ],
+        "answer": 1,
+        "explain": "This repo is a distribution copy; source changes belong in the canonical repository."
+       }
+      ],
+      [
+       "chartBoard",
+       "CRAP4all < 30 gate"
+      ],
+      [
+       "desk",
+       "Dispatch desk"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/FailbetterGames",
+  "summary": "Private repository this session's GitHub access could not open; its name points to Failbetter Games, makers of Fallen London, so this candlelit study is a name-based placeholder pending real access.",
+  "evidence": [
+   "unreachable: inventory name only (no GitHub access)"
+  ],
+  "kind": "Storylet Study (name-based)",
+  "ext": {
+   "style": "townhouse",
+   "walls": "#4a3a4a",
+   "roof": "#2a2230",
+   "trim": "#c8a05a",
+   "door": "#2a1a22",
+   "features": [
+    "lanterns",
+    "fence",
+    "bench",
+    "chimney"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#3a2a2a",
+   "walls": "#6a5060",
+   "light": "#ffcf8a",
+   "rooms": [
+    {
+     "name": "Candlelit Study",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "lectern",
+       "Reading stand"
+      ],
+      [
+       "candles",
+       "Candles",
+       {
+        "do": "info",
+        "text": "Placeholder: this private repository could not be opened from this session, so its contents are not represented yet."
+       }
+      ],
+      [
+       "bookshelf",
+       "Collected stories"
+      ],
+      [
+       "clock",
+       "Mantel clock"
+      ]
+     ]
+    },
+    {
+     "name": "Card Parlour",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "cardTable",
+       "Storylet cards",
+       {
+        "do": "steps",
+        "title": "Name-based theme",
+        "steps": [
+         "Failbetter Games is known for storylet-driven narrative.",
+         "This room borrows that idea as a placeholder.",
+         "Grant access to the repository to replace it with real exhibits."
+        ]
+       }
+      ],
+      [
+       "mirror",
+       "Gilded mirror"
+      ],
+      [
+       "sofa",
+       "Velvet settee"
+      ],
+      [
+       "bookStack",
+       "Draft stories"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/realms-atlas",
+  "summary": "Private repository this session's GitHub access could not open; JoshMemory lists it among the fiction/world-building projects, so this cartographer's tower is designed from its name and that mention only.",
+  "evidence": [
+   "unreachable: inventory name; JoshMemory continuity notes mention realms-atlas"
+  ],
+  "kind": "Cartographer's Tower (name-based)",
+  "ext": {
+   "style": "tower",
+   "walls": "#c8b89a",
+   "roof": "#3a5a7a",
+   "trim": "#e8dcb8",
+   "door": "#4a3a2a",
+   "features": [
+    "flag",
+    "signpost",
+    "trees",
+    "antenna"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#a88a64",
+   "walls": "#e8dcc0",
+   "light": "#fff2d0",
+   "rooms": [
+    {
+     "name": "Map Room",
+     "w": 9,
+     "d": 9,
+     "props": [
+      [
+       "mapTable",
+       "Atlas of realms",
+       {
+        "do": "toggle",
+        "title": "Atlas",
+        "on": "The atlas lights up — a name-based placeholder until the repository can be inspected.",
+        "off": "Atlas dimmed."
+       }
+      ],
+      [
+       "globe",
+       "Realm globe"
+      ],
+      [
+       "scrollRack",
+       "Map scrolls"
+      ],
+      [
+       "bookshelf",
+       "Gazetteers"
+      ]
+     ]
+    },
+    {
+     "name": "Survey Loft",
+     "w": 7,
+     "d": 8,
+     "props": [
+      [
+       "telescope",
+       "Survey scope",
+       {
+        "do": "info",
+        "text": "JoshMemory notes mention realms-atlas alongside other world-building projects; its actual features are unverified."
+       }
+      ],
+      [
+       "pinMap",
+       "Pinned regions"
+      ],
+      [
+       "signpost",
+       "Realm markers"
+      ],
+      [
+       "chair",
+       "Surveyor's chair"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/the-consultancy-beneath",
+  "summary": "A satirical React fantasy RPG set in an office: create a character (Wizard, Fighter, Rogue, Cleric, Ranger or Bard), navigate a corporate dungeon, make skill checks, fight, and talk to NPCs such as Gerald the basement sysadmin and HR Director Voss.",
+  "evidence": [
+   "src/components/rpg/",
+   "src/data/npcs.ts",
+   "src/data/classes.ts",
+   "src/data/items.ts",
+   "src/context/GameContext.tsx"
+  ],
+  "kind": "Corporate Dungeon",
+  "ext": {
+   "style": "modern",
+   "walls": "#9aa8b4",
+   "roof": "#2f3a44",
+   "trim": "#c84a4a",
+   "door": "#2a3038",
+   "features": [
+    "flag",
+    "bench",
+    "bicycle",
+    "antenna"
+   ]
+  },
+  "int": {
+   "layout": "L",
+   "floor": "#7f8890",
+   "walls": "#e4e8ea",
+   "light": "#f0f4ff",
+   "rooms": [
+    {
+     "name": "Reception & Onboarding",
+     "w": 10,
+     "d": 8,
+     "props": [
+      [
+       "desk",
+       "Character creation desk",
+       {
+        "do": "quiz",
+        "title": "Pick a class",
+        "q": "How many character classes does onboarding offer?",
+        "options": [
+         "Three",
+         "Six",
+         "Twelve"
+        ],
+        "answer": 1,
+        "explain": "Wizard, Fighter, Rogue, Cleric, Ranger and Bard."
+       }
+      ],
+      [
+       "waterCooler",
+       "Water cooler gossip"
+      ],
+      [
+       "plant",
+       "Lobby fern"
+      ],
+      [
+       "chair",
+       "Waiting chair"
+      ]
+     ]
+    },
+    {
+     "name": "Basement Server Room",
+     "w": 9,
+     "d": 8,
+     "floor": "#3a4048",
+     "props": [
+      [
+       "serverRack",
+       "Gerald's servers",
+       {
+        "do": "info",
+        "title": "Gerald",
+        "text": "Gerald is the Basement Systems Administrator — one of the NPCs you can talk to in the dungeon."
+       }
+      ],
+      [
+       "serverRack",
+       "Legacy racks"
+      ],
+      [
+       "router",
+       "Patch panel"
+      ]
+     ]
+    },
+    {
+     "name": "HR Dungeon",
+     "w": 9,
+     "d": 8,
+     "floor": "#4a3a3a",
+     "props": [
+      [
+       "dungeonDoor",
+       "Director Voss's office"
+      ],
+      [
+       "diceTable",
+       "Skill check",
+       {
+        "do": "dice",
+        "sides": 20,
+        "title": "Skill check",
+        "text": "Skill checks overlay the action: roll, add your modifier and beat the difficulty."
+       }
+      ],
+      [
+       "swordRack",
+       "Broken Lanyard & Memo of Binding"
+      ],
+      [
+       "filingCabinet",
+       "Personnel files"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/theUndercity",
+  "summary": "An original gothic narrative RPG beneath a sealed stone sky: memories are traded, lamps burn on peculiar fuel and official records erase living people. Start in the Bell-Cage, choose your past and faction, escape by one of four approaches. Ships with a QBN Studio CMS.",
+  "evidence": [
+   "README.md",
+   "content/late-ambitions.js",
+   "tools/cms/app.js",
+   "index.html",
+   "tests/"
+  ],
+  "kind": "Bell-Cage Clocktower",
+  "links": [
+   {
+    "label": "Playtest (Cloudflare)",
+    "url": "https://undercity-playtest.parris-neathaustralia.workers.dev/"
+   }
+  ],
+  "ext": {
+   "style": "clocktower",
+   "walls": "#5a5a66",
+   "roof": "#2a2a34",
+   "trim": "#c8b06a",
+   "door": "#2a2228",
+   "features": [
+    "bell",
+    "lanterns",
+    "statue",
+    "fence"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#3a3a44",
+   "walls": "#6a6a78",
+   "light": "#ffd89a",
+   "ceiling": "#24242c",
+   "rooms": [
+    {
+     "name": "The Bell-Cage",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "dungeonDoor",
+       "Bell-Cage bars"
+      ],
+      [
+       "candles",
+       "Vigil candles"
+      ],
+      [
+       "noticeBoard",
+       "Choose your past",
+       {
+        "do": "steps",
+        "title": "Starting out",
+        "steps": [
+         "You wake in the Bell-Cage.",
+         "Choose your past.",
+         "Choose a faction.",
+         "Escape by one of four approaches."
+        ]
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Memory Market",
+     "w": 10,
+     "d": 8,
+     "props": [
+      [
+       "cashRegister",
+       "Memory exchange",
+       {
+        "do": "count",
+        "unit": "Memories traded",
+        "text": "In the Undercity, memories are a currency — and trading them changes who you are."
+       }
+      ],
+      [
+       "lantern",
+       "Peculiar lamp fuel"
+      ],
+      [
+       "barrel",
+       "Fuel casks"
+      ]
+     ]
+    },
+    {
+     "name": "Hall of Records",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "filingCabinet",
+       "Erased citizens"
+      ],
+      [
+       "archiveBoxes",
+       "Official records"
+      ],
+      [
+       "lectern",
+       "Who learns the truth?",
+       {
+        "do": "link",
+        "title": "Play The Undercity",
+        "text": "Saves are local to your browser and device; export a JSON save before switching sites.",
+        "url": "https://undercity-playtest.parris-neathaustralia.workers.dev/",
+        "button": "Play ↗"
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/Whispering-Wilds",
+  "summary": "A tiny, moddable single-file Python text adventure built as seven stacked parts: core rooms and gear slots with an ASCII map, wilds combat and XP, forage/craft/shop, a journal and base64 saves, then encounters and a bestiary.",
+  "evidence": [
+   "README.md",
+   "code.py",
+   "tests/test_core.py"
+  ],
+  "kind": "Woodland Treehouse",
+  "ext": {
+   "style": "treehouse",
+   "walls": "#8a6a3a",
+   "roof": "#4a6a3a",
+   "trim": "#d8c890",
+   "door": "#5a3a1a",
+   "features": [
+    "mushrooms",
+    "signpost",
+    "campfire",
+    "herbs"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#7a5a3a",
+   "walls": "#c8b48a",
+   "light": "#ffe8b0",
+   "rooms": [
+    {
+     "name": "Core Clearing",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "signpost",
+       "ASCII map"
+      ],
+      [
+       "treasureChest",
+       "Gate & rust key",
+       {
+        "do": "steps",
+        "title": "Try these commands",
+        "steps": [
+         "help",
+         "look",
+         "take key",
+         "move e",
+         "use rust_key",
+         "map"
+        ]
+       }
+      ],
+      [
+       "armorStand",
+       "Gear slots: weapon, armour, trinket"
+      ],
+      [
+       "tree",
+       "Clearing oak"
+      ]
+     ]
+    },
+    {
+     "name": "Forage & Craft",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "herbGarden",
+       "Forage: fibre & herbs"
+      ],
+      [
+       "workbench",
+       "Craft bandages",
+       {
+        "do": "count",
+        "unit": "Bandages crafted",
+        "text": "Forage fibre and herbs in the wilds, then craft bandages to heal after fights."
+       }
+      ],
+      [
+       "cashRegister",
+       "Shop — buy & sell"
+      ]
+     ]
+    },
+    {
+     "name": "Journal Nook",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "lectern",
+       "Journal & notes"
+      ],
+      [
+       "bookStack",
+       "Bestiary"
+      ],
+      [
+       "safe",
+       "Base64 save codes",
+       {
+        "do": "quiz",
+        "title": "Saving",
+        "q": "How does Whispering Wilds save your game?",
+        "options": [
+         "To the cloud",
+         "As a base64 code you can load later",
+         "It cannot save"
+        ],
+        "answer": 1,
+        "explain": "Part 4 adds save/load as base64 codes."
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/AdventureText",
+  "summary": "A small original Python command-driven game about relighting a station lantern and restoring an impossible route through a storm; no runtime dependencies, JSON saves in the home directory, and a tested worker lifecycle.",
+  "evidence": [
+   "README.md",
+   "src/adventure_text/actions.py",
+   "src/adventure_text/persistence.py",
+   "tests/test_smoke.py"
+  ],
+  "kind": "Storm Lantern Station",
+  "ext": {
+   "style": "lighthouse",
+   "walls": "#e8e4dc",
+   "roof": "#a83a2a",
+   "trim": "#2a4a6a",
+   "door": "#2a3038",
+   "features": [
+    "rocks",
+    "flag",
+    "barrels",
+    "lanterns"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#6a6a6a",
+   "walls": "#b8c0c8",
+   "light": "#ffe0a0",
+   "rooms": [
+    {
+     "name": "Storm Station",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "radio",
+       "Storm radio"
+      ],
+      [
+       "barrel",
+       "Lamp oil"
+      ],
+      [
+       "terminal",
+       "Command prompt",
+       {
+        "do": "steps",
+        "title": "Commands",
+        "steps": [
+         "look (l) · help · inventory (i)",
+         "north/south/east/west or go <direction>",
+         "take, drop, examine (x), use",
+         "talk to <name> · save · load · quit"
+        ]
+       }
+      ],
+      [
+       "bench",
+       "Keeper's bench"
+      ]
+     ]
+    },
+    {
+     "name": "Lantern Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "lantern",
+       "Station lantern",
+       {
+        "do": "toggle",
+        "title": "Relight the lantern",
+        "on": "The station lantern burns again — the first step to restoring the route through the storm.",
+        "off": "The lantern gutters out."
+       }
+      ],
+      [
+       "ladder",
+       "Lamp ladder"
+      ],
+      [
+       "mapTable",
+       "Impossible route"
+      ],
+      [
+       "filingCabinet",
+       "Save file"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/AstraDndGame",
+  "summary": "The Bell Beneath Blackthorn: a solo fantasy text adventure inspired by fifth-edition play. An AI dungeon master runs an open-world Hollow Marches campaign over deterministic rules and tactical maps; a classic authored adventure needs no API key.",
+  "evidence": [
+   "README.md",
+   "web-dist/engine.js",
+   "web-dist/world.js",
+   "server/",
+   "test.cjs"
+  ],
+  "kind": "Blackthorn Chapel",
+  "ext": {
+   "style": "chapel",
+   "walls": "#7a7266",
+   "roof": "#3a4a3a",
+   "trim": "#c8a050",
+   "door": "#3a2a1a",
+   "features": [
+    "bell",
+    "well",
+    "wagon",
+    "torches"
+   ]
+  },
+  "int": {
+   "layout": "grid",
+   "floor": "#6a5a48",
+   "walls": "#cfc4b0",
+   "light": "#ffdcae",
+   "rooms": [
+    {
+     "name": "Blackthorn Square",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "well",
+       "Village well"
+      ],
+      [
+       "noticeBoard",
+       "Hollow Marches rumours",
+       {
+        "do": "steps",
+        "title": "Open world",
+        "steps": [
+         "Choose a level-2 Fighter, Rogue or Wizard.",
+         "Attempt any plausible action.",
+         "Travel beyond Blackthorn and invent your own goals.",
+         "Keep playing after quests resolve."
+        ]
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Tactical Map Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "mapTable",
+       "Tactical map",
+       {
+        "do": "toggle",
+        "title": "Tactical map",
+        "on": "Tactical grid shown: combat resolves on deterministic rules, not model whims.",
+        "off": "Map rolled up."
+       }
+      ],
+      [
+       "chalkboard",
+       "Initiative"
+      ]
+     ]
+    },
+    {
+     "name": "Dungeon Master's Table",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "diceTable",
+       "Deterministic rules",
+       {
+        "do": "dice",
+        "sides": 20,
+        "title": "d20",
+        "text": "The rules engine resolves rolls deterministically and audits server state; the AI narrates."
+       }
+      ],
+      [
+       "microphone",
+       "AI narrator"
+      ],
+      [
+       "lectern",
+       "Classic adventure"
+      ]
+     ]
+    },
+    {
+     "name": "Armoury",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "armorStand",
+       "Fighter"
+      ],
+      [
+       "swordRack",
+       "Rogue's blades"
+      ],
+      [
+       "potionShelf",
+       "Wizard's reagents"
+      ],
+      [
+       "clock",
+       "Bell tower clock"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/BucklandBlocks",
+  "summary": "Buckland Blocks: a React Three Fiber voxel game with streamed chunks, meshing, mining and placement, inventory and hotbar, a day–night cycle and optional OpenStreetMap terrain, with a roadmap borrowing ideas from Terasology and Luanti.",
+  "evidence": [
+   "README.md",
+   "BUCKLAND_ROADMAP.md",
+   "client/src/engine/chunkStreaming.ts",
+   "client/src/engine/mining.ts",
+   "client/src/engine/hotbar.ts",
+   "client/src/engine/DayNightCycle.tsx"
+  ],
+  "kind": "Voxel Workshop",
+  "ext": {
+   "style": "barn",
+   "walls": "#6a9a4a",
+   "roof": "#7a5a3a",
+   "trim": "#c8c0a0",
+   "door": "#5a3a2a",
+   "features": [
+    "crates",
+    "trees",
+    "rocks",
+    "hay"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#8a6a4a",
+   "walls": "#cfe0c0",
+   "light": "#fff4d8",
+   "rooms": [
+    {
+     "name": "Chunk Field",
+     "w": 10,
+     "d": 9,
+     "props": [
+      [
+       "toyBlocks",
+       "Streamed chunks",
+       {
+        "do": "count",
+        "unit": "Blocks mined",
+        "text": "Chunks stream in around the player; mining removes blocks and drops items."
+       }
+      ],
+      [
+       "crates",
+       "Placed blocks"
+      ],
+      [
+       "rock",
+       "Stone seam"
+      ],
+      [
+       "tree",
+       "Voxel oak"
+      ]
+     ]
+    },
+    {
+     "name": "Crafting & Hotbar",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "partsBins",
+       "Inventory & hotbar",
+       {
+        "do": "steps",
+        "title": "Engine systems",
+        "steps": [
+         "chunkStreaming loads terrain around you.",
+         "mesher turns blocks into geometry.",
+         "mining and placement edit the world.",
+         "hotbar and inventory track what you carry."
+        ]
+       }
+      ],
+      [
+       "workbench",
+       "Block bench"
+      ]
+     ]
+    },
+    {
+     "name": "Sky Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "planetModel",
+       "Day–night cycle",
+       {
+        "do": "toggle",
+        "title": "Day–night",
+        "on": "The sun swings round — DayNightCycle drives sky and light.",
+        "off": "Time paused."
+       }
+      ],
+      [
+       "telescope",
+       "OSM terrain lookout"
+      ]
+     ]
+    },
+    {
+     "name": "Roadmap Wall",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "corkboard",
+       "SSAO, god rays, reflections"
+      ],
+      [
+       "chalkboard",
+       "Terasology & Luanti ideas"
+      ],
+      [
+       "computer",
+       "R3F engine"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/BucklandBlocks1",
+  "summary": "A parallel working copy of Buckland Blocks whose agent rules define the release path: branch, focused regression tests, `npm run verify`, the Game Release Gate check, a Vercel preview Josh approves, and new features shipped off behind `?features=` flags.",
+  "evidence": [
+   "CLAUDE.md",
+   "AGENTS.md",
+   "RELEASE_GATES.md",
+   "client/src/engine/features.ts",
+   "scripts/"
+  ],
+  "kind": "Release Gate Annex",
+  "ext": {
+   "style": "stable",
+   "walls": "#5a8a6a",
+   "roof": "#3a4a5a",
+   "trim": "#e8e0c8",
+   "door": "#3a2a1a",
+   "features": [
+    "flag",
+    "fence",
+    "signpost",
+    "crates"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#7a7064",
+   "walls": "#e0e8dc",
+   "light": "#f2fff0",
+   "rooms": [
+    {
+     "name": "Gate Office",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "consolePanel",
+       "Game Release Gate / verify",
+       {
+        "do": "steps",
+        "title": "Release path",
+        "steps": [
+         "One small branch per change.",
+         "Add focused regression tests.",
+         "npm run verify: typecheck, lint, tests, build, headless smoke.",
+         "Open a PR and wait for the release gate.",
+         "Josh tests the Vercel preview before merge."
+        ]
+       }
+      ],
+      [
+       "filingCabinet",
+       "Evidence reports"
+      ],
+      [
+       "clock",
+       "Wait for CI"
+      ]
+     ]
+    },
+    {
+     "name": "Feature Flag Switchboard",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "router",
+       "?features= switches",
+       {
+        "do": "toggle",
+        "title": "Feature flag",
+        "on": "Flag on for this preview: ?features=name turns a gated feature on; features-save=1 keeps it.",
+        "off": "Flag off — new features start off by default."
+       }
+      ],
+      [
+       "toyBlocks",
+       "Gated block types"
+      ],
+      [
+       "noticeBoard",
+       "FEATURE_DEFAULTS"
+      ]
+     ]
+    },
+    {
+     "name": "Preview Theatre",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "projector",
+       "Vercel preview",
+       {
+        "do": "quiz",
+        "title": "Production rule",
+        "q": "May an agent push straight to main?",
+        "options": [
+         "Yes, if it's urgent",
+         "No — main only moves by a merged, gated PR",
+         "Only with the Vercel CLI"
+        ],
+        "answer": 1,
+        "explain": "Agents must not push or merge main directly; even hotfixes go through the PR gate."
+       }
+      ],
+      [
+       "sofa",
+       "Review couch"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/campaign-copilot",
+  "summary": "Campaign Copilot: a React 19 D&D 5e live-session assistant — a Session Brain that turns what just happened into three next options, a quest and rumour tracker, NPC and business notes, a session timeline and campaign switcher, all saved locally.",
+  "evidence": [
+   "README.md",
+   "src/components/SessionTimeline.tsx",
+   "src/components/QuestTracker.tsx",
+   "src/components/NPCBusinessPanel.tsx",
+   "src/contexts/CampaignContext.tsx",
+   "server/"
+  ],
+  "kind": "Game-Night Townhouse",
+  "ext": {
+   "style": "townhouse",
+   "walls": "#3a3a5a",
+   "roof": "#1f1f2a",
+   "trim": "#9a7ad8",
+   "door": "#2a2a3a",
+   "features": [
+    "lanterns",
+    "mailbox",
+    "bench",
+    "chimney"
+   ]
+  },
+  "int": {
+   "layout": "grid",
+   "floor": "#3a3440",
+   "walls": "#5a5468",
+   "light": "#d8c8ff",
+   "rooms": [
+    {
+     "name": "Session Brain",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "computer",
+       "What just happened?",
+       {
+        "do": "steps",
+        "title": "Session Brain",
+        "steps": [
+         "Type what just happened at the table.",
+         "Get three suggested next options.",
+         "Pick one, play it, and log the result."
+        ]
+       }
+      ],
+      [
+       "diceTable",
+       "Table dice"
+      ]
+     ]
+    },
+    {
+     "name": "Quest & Rumour Board",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "noticeBoard",
+       "Open quests",
+       {
+        "do": "count",
+        "unit": "Quests toggled",
+        "text": "Quests and rumours can be filtered by location and toggled open or done."
+       }
+      ],
+      [
+       "pinMap",
+       "By location"
+      ]
+     ]
+    },
+    {
+     "name": "NPC & Business Ledger",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "ledgerDesk",
+       "Business ventures"
+      ],
+      [
+       "corkboard",
+       "NPC notes"
+      ],
+      [
+       "cashRegister",
+       "Venture takings"
+      ]
+     ]
+    },
+    {
+     "name": "Timeline Alcove",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "timelineWall",
+       "Session timeline"
+      ],
+      [
+       "cabinet",
+       "Campaign switcher",
+       {
+        "do": "quiz",
+        "title": "Where is my data?",
+        "q": "Where does Campaign Copilot keep campaigns?",
+        "options": [
+         "On a public server",
+         "In your browser's localStorage",
+         "In a spreadsheet"
+        ],
+        "answer": 1,
+        "explain": "All data is saved locally in the browser."
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/CanonRPG",
+  "summary": "Canon Table Engine: an unofficial high-contrast DM companion for running official D&D 5e (2014) adventures without copyrighted text — campaign dashboard, node-based DM prep, three-panel run-session view, combat tracker, characters, private sourcebook data and a save manager.",
+  "evidence": [
+   "README.md",
+   "artifacts/canon-table-engine/src/pages/DmPrep.tsx",
+   "RunSession.tsx",
+   "Combat.tsx",
+   "Sourcebook.tsx"
+  ],
+  "kind": "Dungeon Master's Library",
+  "ext": {
+   "style": "library",
+   "walls": "#d8d0c0",
+   "roof": "#5a2a2a",
+   "trim": "#e8e0d0",
+   "door": "#3a2a1a",
+   "features": [
+    "flag",
+    "statue",
+    "lanterns",
+    "bench"
+   ]
+  },
+  "int": {
+   "layout": "grid",
+   "floor": "#5a4030",
+   "walls": "#e4dccc",
+   "light": "#fff0d0",
+   "rooms": [
+    {
+     "name": "Campaign Dashboard",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "monitorWall",
+       "Readiness overview"
+      ],
+      [
+       "filingCabinet",
+       "Save manager backups",
+       {
+        "do": "info",
+        "text": "Exports are timestamped and validated before import so a bad file cannot wipe a campaign."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "DM Prep",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "corkboard",
+       "Node editor",
+       {
+        "do": "steps",
+        "title": "Prep nodes",
+        "steps": [
+         "Create a node per scene or encounter.",
+         "Add private notes and page references.",
+         "Attach mechanical details — DCs, monsters, loot.",
+         "Run the node at the table."
+        ]
+       }
+      ],
+      [
+       "desk",
+       "Page references"
+      ]
+     ]
+    },
+    {
+     "name": "Run Session",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "consolePanel",
+       "Three-panel runner"
+      ],
+      [
+       "diceTable",
+       "Dice tools",
+       {
+        "do": "dice",
+        "sides": 20,
+        "title": "Dice tools",
+        "text": "Run Session pairs party tracking and the node runner with dice tools."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Combat & Sourcebook",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "chartBoard",
+       "Initiative & HP tracker"
+      ],
+      [
+       "bookshelf",
+       "Private sourcebook data"
+      ],
+      [
+       "armorStand",
+       "PHB 2014 characters"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/dndgame",
+  "summary": "Chronicles of the Sword Coast: a modular browser RPG rebuilt from a truncated legacy HTML snapshot, with keyboard play (S save, R rest, 1–9 choices), Playwright smoke tests and a render_game_to_text hook for automated play.",
+  "evidence": [
+   "README.md",
+   "src/main.js",
+   "src/data/exploration.js",
+   "src/ui/render.js",
+   "legacy/DNDGAME_snapshot_truncated.html",
+   "tests/smoke.spec.js"
+  ],
+  "kind": "Sword Coast Harbour",
+  "ext": {
+   "style": "ship",
+   "walls": "#7a5a3a",
+   "roof": "#e8e0c8",
+   "trim": "#2a4a6a",
+   "door": "#3a2a1a",
+   "features": [
+    "barrels",
+    "crates",
+    "lanterns",
+    "flag"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#6a4a30",
+   "walls": "#b89a74",
+   "light": "#ffe0b0",
+   "rooms": [
+    {
+     "name": "Harbour Tavern",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "cardTable",
+       "Tavern table"
+      ],
+      [
+       "barrel",
+       "Ale casks"
+      ],
+      [
+       "campfire",
+       "Rest (press R)",
+       {
+        "do": "steps",
+        "title": "Keyboard play",
+        "steps": [
+         "S saves the game.",
+         "R rests outside combat.",
+         "L loads from the title screen.",
+         "1–9 choose visible actions; F toggles fullscreen."
+        ]
+       }
+      ],
+      [
+       "noticeBoard",
+       "Sword Coast jobs"
+      ]
+     ]
+    },
+    {
+     "name": "Exploration Deck",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "mapTable",
+       "Exploration map"
+      ],
+      [
+       "swordRack",
+       "Armoury"
+      ],
+      [
+       "wagon",
+       "Coast road wagon"
+      ]
+     ]
+    },
+    {
+     "name": "Snapshot Archive",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "scrollRack",
+       "Truncated legacy snapshot",
+       {
+        "do": "info",
+        "text": "The game was rebuilt module by module from a legacy HTML file that had been cut off mid-way."
+       }
+      ],
+      [
+       "terminal",
+       "render_game_to_text()",
+       {
+        "do": "quiz",
+        "title": "Test hook",
+        "q": "What does window.render_game_to_text() return?",
+        "options": [
+         "A screenshot",
+         "A JSON summary of screen, player, world and choices",
+         "Nothing"
+        ],
+        "answer": 1,
+        "explain": "It lets Playwright tests and agents read the game state as text."
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/Eleven-Realms",
+  "summary": "Eleven Realms: the ForgeGrid FLEET experiment — a Vite/TypeScript canvas game built by parallel workers on eleven independent missions, gated by green CI, a deterministic tick and RNG, mission schemas and a writable-path collision report.",
+  "evidence": [
+   "docs/FLEET_EXPERIMENT.md",
+   "FORGEGRID.md",
+   "missions/round-001.json",
+   "missions/collision-report.json",
+   "src/core/world.ts",
+   "src/render/canvasRenderer.ts"
+  ],
+  "kind": "Mission Forge",
+  "ext": {
+   "style": "factory",
+   "walls": "#6a6a7a",
+   "roof": "#3a3a4a",
+   "trim": "#e8a03a",
+   "door": "#2a2a3a",
+   "features": [
+    "antenna",
+    "crates",
+    "flag",
+    "robot"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#4a4a54",
+   "walls": "#c0c4cc",
+   "light": "#e8f0ff",
+   "rooms": [
+    {
+     "name": "Mission Control",
+     "w": 12,
+     "d": 10,
+     "props": [
+      [
+       "consolePanel",
+       "READY_FOR_DISPATCH",
+       {
+        "do": "quiz",
+        "title": "Launch gate",
+        "q": "How many independent missions must be valid before dispatch?",
+        "options": [
+         "3",
+         "11",
+         "100"
+        ],
+        "answer": 1,
+        "explain": "Eleven valid missions, green baseline CI and zero unapproved writable-path collisions."
+       }
+      ],
+      [
+       "monitorWall",
+       "Worker fleet"
+      ]
+     ]
+    },
+    {
+     "name": "Mission Lockers",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "filingCabinet",
+       "round-001 missions",
+       {
+        "do": "count",
+        "unit": "Missions dispatched",
+        "text": "Each worker implements one slice of the shared canvas game from its own mission file."
+       }
+      ],
+      [
+       "archiveBoxes",
+       "Mission schema"
+      ]
+     ]
+    },
+    {
+     "name": "Canvas Grid",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "boardGame",
+       "Playable canvas grid"
+      ],
+      [
+       "clock",
+       "Deterministic tick"
+      ]
+     ]
+    },
+    {
+     "name": "Collision Desk",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "desk",
+       "Collision report",
+       {
+        "do": "info",
+        "text": "The collision report checks that no two missions write the same paths without approval."
+       }
+      ],
+      [
+       "robotArm",
+       "Integrator"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/ElevenRealms",
+  "summary": "An almost empty repository: it holds only the shared coding principles and a GitHub workflow for a non-source CRAP4all audit runner — there is no game code here (the game lives in Eleven-Realms).",
+  "evidence": [
+   "codingprinciples.md",
+   ".github/workflows/",
+   "git log (single audit-runner commit)"
+  ],
+  "kind": "Foundations Plot",
+  "ext": {
+   "style": "cottage",
+   "walls": "#c8c0b0",
+   "roof": "#8a8a8a",
+   "trim": "#e8a03a",
+   "door": "#6a6a6a",
+   "features": [
+    "crates",
+    "signpost",
+    "fence",
+    "trees"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#9a9488",
+   "walls": "#dedad2",
+   "light": "#fffaf0",
+   "rooms": [
+    {
+     "name": "Bare Foundations",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "crates",
+       "Unpacked crates"
+      ],
+      [
+       "ladder",
+       "Builder's ladder"
+      ],
+      [
+       "toolWall",
+       "Unused tools"
+      ],
+      [
+       "signpost",
+       "Game lives next door",
+       {
+        "do": "info",
+        "title": "Nothing to play here",
+        "text": "This repository has no source code — only an audit workflow and principles. The playable experiment is Eleven-Realms on the same street."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Audit Office",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "terminal",
+       "CRAP4all audit runner",
+       {
+        "do": "quiz",
+        "title": "What's inside?",
+        "q": "What does ElevenRealms actually contain?",
+        "options": [
+         "A full game",
+         "Coding principles and an audit workflow",
+         "Art assets"
+        ],
+        "answer": 1,
+        "explain": "Just codingprinciples.md and a workflow that audits private repos."
+       }
+      ],
+      [
+       "filingCabinet",
+       "codingprinciples.md"
+      ],
+      [
+       "chair",
+       "Auditor's chair"
+      ],
+      [
+       "lamp",
+       "Desk lamp"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/energyquest",
+  "summary": "Energy Quest: an early Unity 2021.3 third-person prototype in which the player collects energy items in a forest and turns energy into other things, built on Unity starter assets with a mobile virtual joystick.",
+  "evidence": [
+   "README.md",
+   "Assets/Scripts/ThirdPersonController.cs",
+   "Assets/Mobile/Scripts/VirtualInputs/UIVirtualJoystick.cs",
+   "ProjectSettings/ProjectVersion.txt"
+  ],
+  "kind": "Energy Windmill",
+  "ext": {
+   "style": "windmill",
+   "walls": "#e0d8c0",
+   "roof": "#3a7a4a",
+   "trim": "#f2c14e",
+   "door": "#4a3a2a",
+   "features": [
+    "solarField",
+    "trees",
+    "rocks",
+    "battery"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#6a8a4a",
+   "walls": "#d8e8c8",
+   "light": "#f8ffd8",
+   "rooms": [
+    {
+     "name": "Forest Playground",
+     "w": 10,
+     "d": 9,
+     "props": [
+      [
+       "crystal",
+       "Energy pickup",
+       {
+        "do": "count",
+        "unit": "Energy collected",
+        "text": "The prototype's core loop: run through the forest and collect energy items."
+       }
+      ],
+      [
+       "tree",
+       "Starter forest"
+      ],
+      [
+       "pottedTree",
+       "Sapling"
+      ],
+      [
+       "rock",
+       "Playground rocks"
+      ]
+     ]
+    },
+    {
+     "name": "Converter Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "reactor",
+       "Energy converter",
+       {
+        "do": "toggle",
+        "title": "Convert energy",
+        "on": "Energy flowing — the design goal is turning collected energy into other things.",
+        "off": "Converter idle."
+       }
+      ],
+      [
+       "battery",
+       "Energy store"
+      ],
+      [
+       "gearWall",
+       "Turbine gears"
+      ]
+     ]
+    },
+    {
+     "name": "Unity Desk",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "computer",
+       "Unity 2021.3.20f1",
+       {
+        "do": "info",
+        "text": "Scoring and menus are not implemented yet; the project uses Unity starter assets and a Playground scene."
+       }
+      ],
+      [
+       "phoneStand",
+       "Virtual joystick"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/ForbiddenQuests",
+  "summary": "ForbiddenQuests: a single-file HTML D&D-style text RPG with a hero character, plus a podcast integration to-do — a compact private game prototype.",
+  "evidence": [
+   "index.html",
+   "MISC.md",
+   "podcasttodo.md"
+  ],
+  "kind": "Forbidden Keep",
+  "ext": {
+   "style": "castle",
+   "walls": "#6a6058",
+   "roof": "#4a2a4a",
+   "trim": "#c8a050",
+   "door": "#2a1a1a",
+   "features": [
+    "torches",
+    "flag",
+    "rocks",
+    "well"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#4a4040",
+   "walls": "#7a6e64",
+   "light": "#ffc890",
+   "rooms": [
+    {
+     "name": "Hero's Hall",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "armorStand",
+       "The Hero",
+       {
+        "do": "info",
+        "text": "The whole game lives in one index.html — the hero, the quests and the text interface."
+       }
+      ],
+      [
+       "banner",
+       "Quest banners"
+      ],
+      [
+       "throne",
+       "Keep throne"
+      ]
+     ]
+    },
+    {
+     "name": "Forbidden Vault",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "treasureChest",
+       "Forbidden loot",
+       {
+        "do": "dice",
+        "sides": 20,
+        "title": "Open the vault",
+        "text": "Roll to see whether the forbidden quest pays off."
+       }
+      ],
+      [
+       "dungeonDoor",
+       "Sealed passage"
+      ],
+      [
+       "potionShelf",
+       "Quest potions"
+      ],
+      [
+       "torch",
+       "Vault torch"
+      ],
+      [
+       "barrel",
+       "Vault stores"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/Game-Booster",
+  "summary": "A full-stack fantasy RPG (Express + React + Drizzle) with locations such as Market Row, North Gate, Castle Never and the Beached Leviathan, NPC dialogue with Brann and Rosene, turn combat against goblins, wolves and thugs, equipment, and database-backed save slots.",
+  "evidence": [
+   "client/src/pages/Game.tsx",
+   "client/src/hooks/use-game.ts",
+   "shared/",
+   "server/",
+   "drizzle.config.ts"
+  ],
+  "kind": "Market Row Outfitters",
+  "ext": {
+   "style": "shopfront",
+   "walls": "#8a5a4a",
+   "roof": "#3a2a2a",
+   "trim": "#e0b050",
+   "door": "#4a2a1a",
+   "features": [
+    "wagon",
+    "barrels",
+    "signpost",
+    "lanterns"
+   ]
+  },
+  "int": {
+   "layout": "grid",
+   "floor": "#6a4a38",
+   "walls": "#d8c4a8",
+   "light": "#ffe0b0",
+   "rooms": [
+    {
+     "name": "Market Row",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "cashRegister",
+       "Outfitter's counter"
+      ],
+      [
+       "swordRack",
+       "Scimitar & dagger",
+       {
+        "do": "steps",
+        "title": "Equipment",
+        "steps": [
+         "Buy or find weapons like the scimitar and dagger.",
+         "Equip items to change your attack.",
+         "Use consumables in or out of combat."
+        ]
+       }
+      ]
+     ]
+    },
+    {
+     "name": "North Gate",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "noticeBoard",
+       "Bounties",
+       {
+        "do": "dice",
+        "sides": 20,
+        "title": "Attack or flee",
+        "text": "Combat is turn-based: attack Goblin Scavengers, Hungry Wolves and Street Thugs — or flee."
+       }
+      ],
+      [
+       "fence",
+       "Gate palisade"
+      ]
+     ]
+    },
+    {
+     "name": "Castle Never",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "throne",
+       "Castle Never hall"
+      ],
+      [
+       "statue",
+       "Beached Leviathan"
+      ],
+      [
+       "sofa",
+       "Talk with Brann & Rosene"
+      ]
+     ]
+    },
+    {
+     "name": "Save Vault",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "filingCabinet",
+       "Database save slots",
+       {
+        "do": "count",
+        "unit": "Saves written",
+        "text": "Saves are created, loaded and deleted through the server's database, not just the browser."
+       }
+      ],
+      [
+       "serverRack",
+       "Express + Drizzle"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/kkc-adventure",
+  "summary": "A simulation-first text adventure in the University era of The Kingkiller Chronicle: 18+ campus locations, Simmon, Wilem, Elodin, Kilvin and Dal with skill-based dialogue, busking for tuition money, four day-parts, relationship tracking and class attendance.",
+  "evidence": [
+   "README.md",
+   "index.html",
+   "kkc-adventure/src/engine/actions.ts",
+   "kkc-adventure/src/db/seed.ts",
+   "RothfussGameDocs/"
+  ],
+  "kind": "University Mains",
+  "links": [
+   {
+    "label": "Play",
+    "url": "https://joshualparris.github.io/kkc-adventure/"
+   }
+  ],
+  "ext": {
+   "style": "mansion",
+   "walls": "#b8a88a",
+   "roof": "#4a4a5a",
+   "trim": "#e8e0d0",
+   "door": "#3a2a1a",
+   "features": [
+    "trees",
+    "bench",
+    "lanterns",
+    "statue"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#7a6a54",
+   "walls": "#e0d4bc",
+   "light": "#fff0d0",
+   "rooms": [
+    {
+     "name": "University Courtyard",
+     "w": 10,
+     "d": 9,
+     "props": [
+      [
+       "guitar",
+       "Busk for coin",
+       {
+        "do": "count",
+        "unit": "Jots earned busking",
+        "text": "Busking earns money for tuition in the living economy."
+       }
+      ],
+      [
+       "tree",
+       "Courtyard tree"
+      ],
+      [
+       "bench",
+       "Courtyard bench"
+      ]
+     ]
+    },
+    {
+     "name": "Lecture Hall",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "pews",
+       "Lecture benches"
+      ],
+      [
+       "lectern",
+       "Attend class",
+       {
+        "do": "quiz",
+        "title": "Dialogue skills",
+        "q": "Which of these is one of the four dialogue skills?",
+        "options": [
+         "Sympathy",
+         "Scholarship",
+         "Stealth"
+        ],
+        "answer": 1,
+        "explain": "Wit, Empathy, Authority and Scholarship checks shape conversations."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "The Archives",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "bookshelf",
+       "The Stacks"
+      ],
+      [
+       "cardCatalog",
+       "Archive catalogue"
+      ]
+     ]
+    },
+    {
+     "name": "Day-parts Clock",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "clock",
+       "Four day-parts",
+       {
+        "do": "steps",
+        "title": "Time",
+        "steps": [
+         "Morning",
+         "Afternoon",
+         "Evening",
+         "Night — NPCs move between locations as time passes."
+        ]
+       }
+      ],
+      [
+       "corkboard",
+       "Relationship standing 0–100"
+      ],
+      [
+       "noticeBoard",
+       "Play online"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/MSPQuest-JoshHub",
+  "summary": "A private Next.js personal dashboard that catalogues Josh's apps and games — search and filters, embeds, pinned life areas, project status — and hosts bundled builds of games such as StarHaven, Midnight Line and Buckland Blocks, plus road panoramas.",
+  "evidence": [
+   "README.md",
+   "src/data/apps.ts",
+   "public/games/",
+   "public/panos/"
+  ],
+  "kind": "Launcher Arcade",
+  "ext": {
+   "style": "arcade",
+   "walls": "#2a2a4a",
+   "roof": "#1a1a2a",
+   "trim": "#ff4fd8",
+   "door": "#2a2a3a",
+   "features": [
+    "balloons",
+    "bench",
+    "signpost",
+    "flag"
+   ]
+  },
+  "int": {
+   "layout": "grid",
+   "floor": "#2a2a38",
+   "walls": "#4a4a68",
+   "light": "#e0d0ff",
+   "rooms": [
+    {
+     "name": "Launcher Lobby",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "monitorWall",
+       "App catalogue",
+       {
+        "do": "steps",
+        "title": "Catalogue",
+        "steps": [
+         "Search every app and game.",
+         "Filter by category and status.",
+         "Open a detail page with links, tags and notes.",
+         "Embed an app or open its primary URL."
+        ]
+       }
+      ],
+      [
+       "sofa",
+       "Quick launch couch"
+      ]
+     ]
+    },
+    {
+     "name": "Game Cabinets",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "arcadeCabinet",
+       "StarHaven",
+       {
+        "do": "count",
+        "unit": "Games launched",
+        "text": "Bundled game builds live under public/games and launch from the hub."
+       }
+      ],
+      [
+       "arcadeCabinet",
+       "Midnight Line"
+      ],
+      [
+       "arcadeCabinet",
+       "Buckland Blocks"
+      ]
+     ]
+    },
+    {
+     "name": "Life Areas",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "corkboard",
+       "Pinned life areas"
+      ],
+      [
+       "chartBoard",
+       "Projects by status"
+      ]
+     ]
+    },
+    {
+     "name": "Panorama Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "projector",
+       "Road panoramas",
+       {
+        "do": "toggle",
+        "title": "Panoramas",
+        "on": "Panorama projector on.",
+        "off": "Projector off."
+       }
+      ],
+      [
+       "camera",
+       "360° camera"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/NeathBound",
+  "summary": "An original quality-based narrative browser RPG set in a city beneath the world, with a regenerating action pool, a 30-chapter Gloomwing hunt, and a QBN Studio CMS that drafts, validates and exports branching stories.",
+  "evidence": [
+   "README.md",
+   "package.json",
+   "src/game/content.js",
+   "src/game/gloomwing-content.js",
+   "src/ui/render.js",
+   "tools/cms/",
+   "docs/narrative-studio/README.md"
+  ],
+  "kind": "Underground Story Hall",
+  "links": [
+   {
+    "label": "Playtest",
+    "url": "https://parris-tech-services.github.io/NeathBound/?api=local"
+   },
+   {
+    "label": "QBN Studio",
+    "url": "https://parris-tech-services.github.io/NeathBound/tools/cms/"
+   }
+  ],
+  "ext": {
+   "style": "cave",
+   "walls": "#4a4458",
+   "roof": "#2f2b3a",
+   "trim": "#d8b46a",
+   "door": "#2a2232",
+   "features": [
+    "lanterns",
+    "mushrooms",
+    "runeStone",
+    "barrels"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#3a3540",
+   "walls": "#5b5368",
+   "light": "#ffcf8a",
+   "ceiling": "#2a2632",
+   "rooms": [
+    {
+     "name": "Opening Chamber",
+     "w": 10,
+     "d": 8,
+     "props": [
+      [
+       "lantern",
+       "First lantern"
+      ],
+      [
+       "crates",
+       "Salvage"
+      ],
+      [
+       "cardTable",
+       "Action pool",
+       {
+        "do": "count",
+        "unit": "Actions spent",
+        "text": "NeathBound gives you a regenerating pool of actions — each story card spends one, and the pool refills over time."
+       }
+      ],
+      [
+       "dungeonDoor",
+       "Way down"
+      ]
+     ]
+    },
+    {
+     "name": "Lantern Quay",
+     "w": 12,
+     "d": 9,
+     "props": [
+      [
+       "pond",
+       "Black canal"
+      ],
+      [
+       "lantern",
+       "Quay lamps"
+      ],
+      [
+       "wagon",
+       "Courier cart"
+      ],
+      [
+       "noticeBoard",
+       "The Hunt for the Gloomwing",
+       {
+        "do": "steps",
+        "title": "The Gloomwing arc",
+        "steps": [
+         "Leave the opening chamber and reach Lantern Quay.",
+         "Choose The Hunt for the Gloomwing.",
+         "Thirty chapters of choices, each shaped by your qualities.",
+         "Consequences carry forward — what you learn changes what you can do."
+        ]
+       }
+      ],
+      [
+       "barrel",
+       "Quay stores"
+      ]
+     ]
+    },
+    {
+     "name": "QBN Studio",
+     "w": 10,
+     "d": 8,
+     "props": [
+      [
+       "lectern",
+       "Branching story draft"
+      ],
+      [
+       "computer",
+       "Narrative CMS",
+       {
+        "do": "link",
+        "title": "QBN Studio CMS",
+        "text": "Writers draft branching storylets, export them as JSON and run QA checks before anything becomes playable.",
+        "url": "https://parris-tech-services.github.io/NeathBound/tools/cms/",
+        "button": "Open QBN Studio ↗"
+       }
+      ],
+      [
+       "scrollRack",
+       "Spoiler-aware ledger"
+      ],
+      [
+       "corkboard",
+       "Studio pipeline",
+       {
+        "do": "quiz",
+        "title": "Studio standard",
+        "q": "What must happen before a drafted packet becomes playable?",
+        "options": [
+         "Nothing — drafts ship directly",
+         "Integration, testing and human sign-off",
+         "An AI rewrite"
+        ],
+        "answer": 1,
+        "explain": "The studio pipeline runs pitch → skeleton → prose → QA passes → human sign-off; drafts are not playable until integrated and tested."
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/rothfuss-kkc-adventure",
+  "summary": "A TypeScript Kingkiller-inspired adventure engine: a sympathy system that binds real materials (tallow candles, wicking, iron drab, clay), NPC profiles for Simmon, Wilem, Anker, Kilvin and others, an SQLite-seeded campus from the Mews to the Artificery, and a Gemini narrator.",
+  "evidence": [
+   "src/engine/sympathyEngine.ts",
+   "src/content/npcProfiles.ts",
+   "src/db/seed.ts",
+   "tests/geminiNarrator.test.ts",
+   "api/"
+  ],
+  "kind": "Artificery Workshop",
+  "ext": {
+   "style": "lab",
+   "walls": "#8a7a6a",
+   "roof": "#3a3a3a",
+   "trim": "#c87a3a",
+   "door": "#3a2a1a",
+   "features": [
+    "chimney",
+    "anvil",
+    "barrels",
+    "lanterns"
+   ]
+  },
+  "int": {
+   "layout": "L",
+   "floor": "#5a4a3a",
+   "walls": "#c0b09a",
+   "light": "#ffd8a0",
+   "rooms": [
+    {
+     "name": "Sympathy Bench",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "candles",
+       "Tallow binding",
+       {
+        "do": "quiz",
+        "title": "Sympathy",
+        "q": "Which material does the sympathy engine treat as basic binding material?",
+        "options": [
+         "Tallow candle",
+         "Iron drab",
+         "Pine pitch"
+        ],
+        "answer": 0,
+        "explain": "Tallow candles are the basic sympathetic binding material; wicking, iron drab, clay, pitch and wax are also modelled."
+       }
+      ],
+      [
+       "desk",
+       "Binding notes"
+      ],
+      [
+       "specimenJars",
+       "Pitch & clay"
+      ]
+     ]
+    },
+    {
+     "name": "Artificery Floor",
+     "w": 10,
+     "d": 8,
+     "props": [
+      [
+       "anvil",
+       "Fishery forge"
+      ],
+      [
+       "workbench",
+       "Artificer's bench"
+      ],
+      [
+       "gearWall",
+       "Kilvin's mechanisms",
+       {
+        "do": "toggle",
+        "title": "Artificery",
+        "on": "The shop runs — Kilvin's Artificery is one of the seeded campus locations.",
+        "off": "Shop quiet."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Anker's",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "barrel",
+       "Anker's casks"
+      ],
+      [
+       "cardTable",
+       "Tavern table"
+      ],
+      [
+       "microphone",
+       "Gemini narrator",
+       {
+        "do": "info",
+        "text": "A narrator model writes prose around the deterministic engine; tests cover its boundaries."
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/TextGame",
+  "summary": "TextGame: a zero-dependency browser text-adventure engine and its playable demo, Signal at Black Ridge — deterministic parser with aliases, immutable state, autosave, one-step undo, health and stamina, phone quick commands and an offline service worker.",
+  "evidence": [
+   "README.md",
+   "src/engine.mjs",
+   "src/app.mjs",
+   "service-worker.js",
+   "tests/engine.test.mjs"
+  ],
+  "kind": "Black Ridge Signal Tower",
+  "ext": {
+   "style": "tower",
+   "walls": "#7a8a7a",
+   "roof": "#3a4a3a",
+   "trim": "#e8e0c0",
+   "door": "#2a3a2a",
+   "features": [
+    "dish",
+    "antenna",
+    "rocks",
+    "lanterns"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#5a6050",
+   "walls": "#b8c0b0",
+   "light": "#e8ffd8",
+   "rooms": [
+    {
+     "name": "Radio Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "radio",
+       "The signal",
+       {
+        "do": "play",
+        "title": "Signal at Black Ridge",
+        "text": "The demo is built around tracking down a signal on Black Ridge.",
+        "notes": [
+         880,
+         660,
+         880,
+         990,
+         660
+        ]
+       }
+      ],
+      [
+       "terminal",
+       "Command parser",
+       {
+        "do": "steps",
+        "title": "Parser",
+        "steps": [
+         "Aliases: n, e, s, w, look, take, use, rest.",
+         "Every command produces a new immutable state.",
+         "Undo restores the previous state once.",
+         "Autosave writes to localStorage."
+        ]
+       }
+      ],
+      [
+       "chair",
+       "Operator's chair"
+      ]
+     ]
+    },
+    {
+     "name": "Supply Store",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "crates",
+       "Supplies"
+      ],
+      [
+       "waterCooler",
+       "Stamina"
+      ],
+      [
+       "medicineCabinet",
+       "Health"
+      ],
+      [
+       "clock",
+       "One-step undo"
+      ],
+      [
+       "phoneStand",
+       "Phone quick commands"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/wastes-courier-roguelike",
+  "summary": "Wastes Courier: a Phaser roguelike aboard the dying starship ARGOS — as the last courier you carry a black box to Escape Pod C with thirty seconds of oxygen, where every move costs air, on a seeded grid with turn-based combat and a museum of the lost crew.",
+  "evidence": [
+   "src/game/scenes/TitleScene.ts",
+   "src/game/scenes/RunScene.ts",
+   "src/game/scenes/MuseumScene.ts",
+   "src/game/systems/CombatSystem.ts",
+   "src/game/utils/SeededRNG.ts"
+  ],
+  "kind": "ARGOS Hull Section",
+  "ext": {
+   "style": "bunker",
+   "walls": "#4a5058",
+   "roof": "#2a3038",
+   "trim": "#e85a3a",
+   "door": "#1a2028",
+   "features": [
+    "spaceship",
+    "crates",
+    "beacon",
+    "robot"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#2f343a",
+   "walls": "#6a7078",
+   "light": "#ffb0a0",
+   "ceiling": "#1e2226",
+   "rooms": [
+    {
+     "name": "Cargo Bay",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "trolley",
+       "The black box"
+      ],
+      [
+       "crates",
+       "Cargo"
+      ],
+      [
+       "airlock",
+       "Bulkhead",
+       {
+        "do": "count",
+        "unit": "Seconds of air left",
+        "text": "You start with thirty seconds of oxygen, and every move costs air."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Crew Corridor",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "cryoPod",
+       "Empty crew pod"
+      ],
+      [
+       "consolePanel",
+       "Seeded grid"
+      ],
+      [
+       "robot",
+       "Hostile drone",
+       {
+        "do": "dice",
+        "sides": 6,
+        "title": "Every enemy costs blood",
+        "text": "Combat is turn-based on the grid; the seeded RNG keeps runs reproducible."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Crew Museum",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "trophyCase",
+       "ARGOS manifest",
+       {
+        "do": "quiz",
+        "title": "The manifest",
+        "q": "How many crew does the ARGOS manifest list?",
+        "options": [
+         "12",
+         "47",
+         "300"
+        ],
+        "answer": 1,
+        "explain": "The museum records 47 crew and zero survivors."
+       }
+      ],
+      [
+       "spaceship",
+       "Escape Pod C"
+      ]
+     ]
+    }
+   ]
+  }
+ }
+]

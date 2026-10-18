@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><script>// Injected first into every packed game (tools/pack_games.mjs). Lets games built for a
+// web server run from a folder, including from file:// in the offline zip.
+// The packer fills in the game's small text files (F) and optional images as data URIs (IMG).
+(function () {
+  var F = {"test.txt":"test\n"};
+  var IMG = {};
+  var fileMode = location.protocol === 'file:';
+  var has = function (o, k) { return Object.prototype.hasOwnProperty.call(o, k); };
+
+  // Cross-app integration widgets are stripped; games that call them get a silent stand-in.
+  var noop = function () { return undefined; };
+  var adapter = { init: noop, trigger: noop, getRoutes: function () { return []; }, on: noop, emit: noop, track: noop };
+  if (!window.PortalAdapter) window.PortalAdapter = typeof Proxy === 'function' ? new Proxy(adapter, { get: function (t, k) { return k in t ? t[k] : noop; } }) : adapter;
+
+  // Maps a request URL to a packed file: first relative to the game folder, then, for
+  // root-absolute paths ("/seed/x.md", "/src/data/map.json"), by its longest matching tail.
+  function lookup(map, u) {
+    try {
+      var url = new URL(u, location.href);
+      if (!fileMode && url.origin !== location.origin) return null;
+      var base = new URL('.', location.href).pathname;
+      var p = decodeURIComponent(url.pathname);
+      if (p.indexOf(base) === 0 && has(map, p.slice(base.length))) return p.slice(base.length);
+      var parts = p.split('/').filter(Boolean);
+      for (var i = 0; i < parts.length; i++) { var k = parts.slice(i).join('/'); if (has(map, k)) return k; }
+    } catch (e) { /* not a URL */ }
+    return null;
+  }
+  var typeOf = function (k) { return /\.json$/i.test(k) ? 'application/json' : /\.svg$/i.test(k) ? 'image/svg+xml' : /\.html?$/i.test(k) ? 'text/html' : 'text/plain'; };
+
+  var realFetch = window.fetch && window.fetch.bind(window);
+  window.fetch = function (input, init) {
+    var u = typeof input === 'string' ? input : input && input.url;
+    var k = u && lookup(F, u);
+    // Online the real server answers relative requests; packed copies cover file:// and
+    // root-absolute paths that no longer exist on the host.
+    if (k !== null && k !== undefined && (fileMode || /^\//.test(u) || !realFetch)) return Promise.resolve(new Response(F[k], { status: 200, headers: { 'content-type': typeOf(k) } }));
+    return realFetch ? realFetch(input, init) : Promise.reject(new TypeError('fetch unavailable'));
+  };
+
+  // XMLHttpRequest for packed text files (older games, some loaders).
+  var RealXHR = window.XMLHttpRequest;
+  if (RealXHR) {
+    var open = RealXHR.prototype.open, send = RealXHR.prototype.send;
+    RealXHR.prototype.open = function (method, u) { this.__town = (fileMode || /^\//.test(u)) ? lookup(F, u) : null; return open.apply(this, arguments); };
+    RealXHR.prototype.send = function () {
+      var k = this.__town;
+      if (k === null || k === undefined) return send.apply(this, arguments);
+      var xhr = this, text = F[k];
+      var define = function (n, v) { try { Object.defineProperty(xhr, n, { configurable: true, value: v }); } catch (e) { /* read-only */ } };
+      define('readyState', 4); define('status', 200); define('statusText', 'OK'); define('responseURL', k);
+      define('responseText', text); define('response', xhr.responseType === 'json' ? JSON.parse(text) : text);
+      setTimeout(function () {
+        if (typeof xhr.onreadystatechange === 'function') xhr.onreadystatechange();
+        xhr.dispatchEvent(new Event('readystatechange'));
+        if (typeof xhr.onload === 'function') xhr.onload(new ProgressEvent('load'));
+        xhr.dispatchEvent(new ProgressEvent('load'));
+        if (typeof xhr.onloadend === 'function') xhr.onloadend(new ProgressEvent('loadend'));
+      }, 0);
+    };
+  }
+
+  // file:// images are cross-origin to the page, so WebGL cannot use them as textures.
+  // Games that need that ship their images as data URIs, swapped in on assignment.
+  if (fileMode && Object.keys(IMG).length) {
+    var desc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
+    Object.defineProperty(HTMLImageElement.prototype, 'src', {
+      configurable: true, enumerable: true, get: function () { return desc.get.call(this); },
+      set: function (v) { var k = typeof v === 'string' && !/^(data|blob):/.test(v) ? lookup(IMG, v) : null; desc.set.call(this, k ? IMG[k] : v); },
+    });
+    var co = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'crossOrigin');
+    Object.defineProperty(HTMLImageElement.prototype, 'crossOrigin', { configurable: true, get: function () { return co.get.call(this); }, set: function (v) { if (!fileMode) co.set.call(this, v); } });
+  }
+
+  // A page opened from a file cannot rewrite its URL; routers that try would crash.
+  if (fileMode) {
+    ['pushState', 'replaceState'].forEach(function (m) {
+      var real = history[m];
+      history[m] = function () { try { return real.apply(history, arguments); } catch (e) { return undefined; } };
+    });
+  }
+})();
+</script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nexus Descent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Cricare2on+Pro:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f5f2eb;--surface:rgba(255,255,255,.9);--panel:#fff;--text:#171717;--muted:#5f5c59;
+  --border:#ddd5cb;--accent:#2855d9;--accent-soft:rgba(40,85,217,.14);--danger:#b91c1c;--gold:#f59e0b;
+  --shadow:0 18px 50px rgba(15,23,42,.12);--font-body:"Cricare2on Pro",serif;--font-display:"Cinzel",serif;--font-mono:"IBM Plex Mono",monospace
+}
+html,body{height:100%}
+body{overflow:hidden;background:#020617;color:var(--text);font-family:var(--font-body)}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0;transition:opacity 1.8s ease;background-image:linear-gradient(rgba(255,255,255,.015),rgba(255,255,255,.015)),radial-gradient(circle at 20% 20%,rgba(34,211,238,.14),transparent 28%),radial-gradient(circle at 80% 0%,rgba(185,28,28,.12),transparent 24%)}
+body.deep::before{opacity:1}
+#game-wrap{position:fixed;inset:0;overflow-x:hidden;overflow-y:auto;background:radial-gradient(circle at top left,rgba(40,85,217,.09),transparent 24%),radial-gradient(circle at top right,rgba(245,158,11,.09),transparent 26%),linear-gradient(180deg,rgba(255,255,255,.45),rgba(255,255,255,0) 26%),var(--bg);color:var(--text);transition:background 1.4s ease,color 1.4s ease}
+.vignette,.crack-line{position:fixed;inset:0;pointer-events:none}
+.vignette{z-index:5;opacity:0;transition:opacity 1.8s ease;background:radial-gradient(circle at center,transparent 34%,rgba(2,6,23,.72) 100%)}
+.crack-line{z-index:6;opacity:0;transition:opacity 1.8s ease;background:linear-gradient(36deg,transparent 46%,rgba(239,68,68,.08) 50%,transparent 54%),linear-gradient(124deg,transparent 57%,rgba(34,211,238,.08) 60%,transparent 63%)}
+body.deep .vignette,body.cracked .crack-line{opacity:1}
+nav{position:sticky;top:0;z-index:20;display:flex;align-itecare2:center;justify-content:space-between;gap:12px;min-height:64px;padding:0 22px;backdrop-filter:blur(14px);background:color-mix(in srgb,var(--surface) 88%,transparent);border-bottom:1px solid var(--border)}
+.logo{cursor:pointer;flex-shrink:0;font-family:var(--font-display);font-size:1rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.nav-links{display:flex;gap:16px;list-style:none;flex-wrap:wrap;justify-content:center}
+.nav-links button{appearance:none;border:none;background:transparent;color:var(--muted);cursor:pointer;font-family:var(--font-mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase}
+.nav-links button:hover{color:var(--accent)}
+.btn{appearance:none;border:1px solid transparent;border-radius:999px;cursor:pointer;padding:11px 18px;font-family:var(--font-mono);font-size:.76rem;letter-spacing:.06em;text-transform:uppercase;transition:transform .2s ease,filter .2s ease,border-color .2s ease,background .4s ease,color .4s ease;background:var(--accent);color:#fff;box-shadow:0 10px 22px rgba(40,85,217,.25)}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.06)}
+.btn-outline{background:transparent;color:var(--accent);border-color:color-mix(in srgb,var(--accent) 50%,var(--border));box-shadow:none}
+.btn-rune{background:linear-gradient(135deg,#5a140f,#240706);color:#fce7b2;border-color:rgba(245,158,11,.35);box-shadow:0 16px 34px rgba(88,28,18,.34)}
+.btn-void{background:linear-gradient(135deg,#020617,#03111f);color:#8ff6ff;border-color:rgba(34,211,238,.4);box-shadow:0 18px 34px rgba(8,47,73,.34)}
+.page-scene{display:none}
+.page-scene.active{display:block;animation:fadeScene .7s ease}
+@keyframes fadeScene{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.hero{max-width:1160px;margin:0 auto;padding:54px 24px 40px;display:grid;grid-template-columns:1.08fr .92fr;gap:28px;align-itecare2:center}
+.hero-copy,.hero-card,.section-card,.site-card,.panel{border:1px solid var(--border);border-radius:26px;background:color-mix(in srgb,var(--panel) 92%,transparent);box-shadow:var(--shadow)}
+.hero-copy{padding:40px;background:linear-gradient(180deg,rgba(255,255,255,.4),transparent),color-mix(in srgb,var(--panel) 94%,transparent)}
+.hero-card{padding:28px}
+.hero-tag,.eyebrow{display:inline-flex;align-itecare2:center;gap:8px;padding:6px 11px;border-radius:999px;background:var(--accent-soft);color:var(--accent);font-family:var(--font-mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase}
+.page-title,.section-title,#scene-title{font-family:var(--font-display);line-height:1.08;letter-spacing:.02em}
+.page-title{margin-top:18px;font-size:clamp(2.5rem,5vw,4.6rem)}
+.hero-desc,.section-desc,#scene-subtitle,.card-copy,.mini-copy,.small-copy{color:var(--muted);line-height:1.72}
+.hero-desc{margin-top:18px;font-size:1.05rem;max-width:60ch}
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+.surface-grid{max-width:1160px;margin:0 auto;padding:0 24px 40px;display:grid;gap:22px}
+.surface-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.site-card{padding:24px;transition:transform .2s ease,border-color .3s ease}
+.site-card:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--accent) 45%,var(--border))}
+.site-card h3{margin-bottom:10px;font-family:var(--font-display);font-size:1.14rem}
+.section-card{padding:32px}
+.section-header{display:flex;justify-content:space-between;gap:18px;margin-bottom:18px}
+.section-title{font-size:clamp(1.8rem,3vw,2.7rem)}
+.metric-grid{display:grid;gap:16px}
+.metric-row{display:grid;gap:6px}
+.metric-row span:first-child{display:flex;justify-content:space-between;gap:10px;font-family:var(--font-mono);font-size:.74rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.bar{overflow:hidden;height:8px;border-radius:999px;background:rgba(148,163,184,.18)}
+.fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--accent),#60a5fa)}
+.game-shell{max-width:1240px;margin:0 auto;padding:28px 22px 48px;display:grid;grid-template-columns:minmax(0,1.48fr) 360px;gap:22px}
+.column{display:flex;flex-direction:column;gap:20px}
+.panel{padding:22px;position:relative;overflow:hidden}
+.panel::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.06;background:radial-gradient(circle at top right,var(--accent),transparent 32%),linear-gradient(180deg,rgba(255,255,255,.06),transparent 28%)}
+.story-panel{padding:28px}
+.story-head{display:grid;gap:14px;margin-bottom:22px}
+#scene-label,.roll-title{font-family:var(--font-mono);font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+#scene-title{font-size:clamp(1.9rem,3.2vw,3rem)}
+#scene-subtitle{font-size:1rem}
+#scene-narrative{display:grid;gap:14px;font-size:1.03rem;line-height:1.78}
+.lore-block{margin-top:20px;padding:16px 18px;border-left:3px solid var(--accent);border-radius:12px;background:rgba(15,23,42,.05);color:var(--muted);font-style:italic;line-height:1.7}
+.roll-panel{display:none;margin-bottom:20px;padding:16px 18px;border-radius:18px;border:1px solid color-mix(in srgb,var(--accent) 38%,var(--border));background:rgba(15,23,42,.08)}
+.roll-panel.active{display:block;animation:pulseIn .25s ease}
+@keyframes pulseIn{from{opacity:0;transform:scale(.98)}to{opacity:1;transform:scale(1)}}
+.roll-value{margin-top:9px;font-family:var(--font-display);font-size:2rem}
+.roll-meta{margin-top:6px;color:var(--muted);line-height:1.6}
+.choice-panel{margin-top:24px;display:grid;gap:12px}
+.choice-btn{appearance:none;width:100%;border:1px solid var(--border);border-radius:18px;background:color-mix(in srgb,var(--surface) 92%,transparent);color:var(--text);cursor:pointer;padding:16px 18px;text-align:left;font-family:var(--font-body);font-size:1rem;line-height:1.55;transition:transform .18s ease,border-color .18s ease,background .18s ease,color .18s ease}
+.choice-btn:hover:not(:disabled){transform:translateY(-1px);border-color:color-mix(in srgb,var(--accent) 52%,var(--border));background:color-mix(in srgb,var(--accent-soft) 68%,var(--surface))}
+.choice-btn:disabled{cursor:wait;opacity:.66}
+.rune-choice{border-color:rgba(217,119,6,.28);background:linear-gradient(135deg,rgba(92,24,16,.96),rgba(20,8,7,.96));color:#fdf1c8}
+.void-choice{border-color:rgba(34,211,238,.28);background:linear-gradient(135deg,rgba(2,6,23,.96),rgba(6,24,39,.96));color:#b9fbff}
+.encounter-wrap{display:none}
+.encounter-wrap.active{display:block}
+.encounter-grid{display:grid;gap:12px}
+.mono{font-family:var(--font-mono);font-size:.78rem;letter-spacing:.04em}
+.stat-grid,.save-grid,.map-grid,.action-grid{display:grid;gap:10px}
+.stat-row{display:flex;justify-content:space-between;align-itecare2:center;gap:12px;padding-bottom:7px;border-bottom:1px solid rgba(148,163,184,.18);font-size:.92rem}
+.stat-row:last-child{border-bottom:none;padding-bottom:0}
+.stat-value{color:var(--gold);font-weight:700}
+.attribute-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.attribute-card,.inventory-item,.quest-item,.companion-item,.codex-item,.log-item,.map-item,.save-slot{padding:12px 14px;border-radius:16px;border:1px solid rgba(148,163,184,.14);background:rgba(15,23,42,.045)}
+.attribute-card strong,.inventory-item strong,.quest-item strong,.companion-item strong,.codex-item strong,.save-slot strong,.map-item strong{display:block;margin-bottom:6px}
+.attribute-card strong{font-family:var(--font-mono);font-size:.74rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.attribute-card span{display:block;margin-top:5px;font-size:1rem}
+.rarity{display:inline-flex;align-itecare2:center;gap:6px;margin-top:6px;padding:4px 9px;border-radius:999px;font-family:var(--font-mono);font-size:.68rem;letter-spacing:.07em;text-transform:uppercase;background:rgba(15,23,42,.07)}
+.rarity-common{color:#64748b}.rarity-uncommon{color:#16a34a}.rarity-rare{color:#2563eb}.rarity-epic{color:#c026d3}.rarity-legendary{color:#d97706}
+.rep-track{margin-top:8px;height:8px;border-radius:999px;overflow:hidden;background:rgba(148,163,184,.15)}
+.rep-fill{height:100%;border-radius:inherit;transition:width .35s ease}
+.rep-lantern{background:linear-gradient(90deg,#f97316,#facc15)}.rep-glass{background:linear-gradient(90deg,#0ea5e9,#67e8f9)}.rep-null{background:linear-gradient(90deg,#64748b,#cbd5e1)}
+.save-actions,.action-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.mini-btn{appearance:none;border:1px solid rgba(148,163,184,.22);border-radius:12px;background:rgba(15,23,42,.06);color:var(--text);cursor:pointer;padding:9px 10px;font-family:var(--font-mono);font-size:.7rem;letter-spacing:.06em;text-transform:uppercase}
+.mini-btn:hover{border-color:color-mix(in srgb,var(--accent) 45%,var(--border))}
+.map-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.map-item.active{border-color:color-mix(in srgb,var(--accent) 55%,var(--border));background:color-mix(in srgb,var(--accent-soft) 72%,transparent)}
+.map-item.locked{opacity:.45;filter:grayscale(.9)}
+.footer-note{max-width:1160px;margin:0 auto;padding:0 24px 44px;color:var(--muted);font-size:.84rem}
+.glitch{position:relative;display:inline-block}
+.glitch::before,.glitch::after{content:attr(data-text);position:absolute;inset:0;pointer-events:none}
+.glitch::before{color:rgba(239,68,68,.85);transform:translate(-2px,0);clip-path:inset(0 0 55% 0)}
+.glitch::after{color:rgba(34,211,238,.85);transform:translate(2px,0);clip-path:inset(55% 0 0 0)}
+@media (max-width:1024px){.game-shell,.hero,.surface-row{grid-template-columns:1fr}.save-actions,.action-grid,.map-grid,.attribute-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:720px){nav{padding:10px 16px;align-itecare2:flex-start;flex-direction:column}.nav-links{width:100%;justify-content:flex-start}.hero,.surface-grid,.footer-note,.game-shell{padding-left:16px;padding-right:16px}.hero-copy,.hero-card,.section-card,.story-panel,.panel{padding:18px;border-radius:20px}.save-actions,.action-grid,.attribute-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="vignette"></div>
+<div class="crack-line"></div>
+<div id="game-wrap">
+  <nav id="main-nav">
+    <div id="logo-text" class="logo">Nexus Consulting</div>
+    <ul class="nav-links">
+      <li><button type="button" onclick="navClick('services')">Services</button></li>
+      <li><button type="button" onclick="navClick('process')">Process</button></li>
+      <li><button type="button" onclick="navClick('voices')">Voices</button></li>
+      <li><button type="button" onclick="navClick('contact')">Contact</button></li>
+    </ul>
+    <button type="button" id="nav-cta" class="btn" onclick="navCta()">Get Started</button>
+  </nav>
+
+  <div id="scene-0" class="page-scene active">
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="hero-tag">Strategy and Transformation</div>
+        <h1 class="page-title">Growth, clarity, and results for organisations that need more than a brochure.</h1>
+        <p class="hero-desc">Nexus Consulting begins as a polished corporate site. Then it notices you clicking back. Then it opens. This version is a long-form browser RPG with classes, factions, companions, codex entries, save slots, turn-based encounters, and multiple endings.</p>
+        <div class="hero-actions">
+          <button type="button" class="btn" onclick="makeChoice('call')">Schedule a Call</button>
+          <button type="button" class="btn btn-outline" onclick="makeChoice('case')">View Case Studies</button>
+          <button type="button" class="btn btn-outline" onclick="makeChoice('contact')">Open Contact Form</button>
+        </div>
+      </div>
+      <div class="hero-card">
+        <div class="eyebrow">Client Performance Index</div>
+        <div class="metric-grid" style="margin-top:18px">
+          <div class="metric-row"><span><span>Operational Uplift</span><span>82%</span></span><div class="bar"><div class="fill" style="width:82%"></div></div></div>
+          <div class="metric-row"><span><span>Outcome Certainty</span><span>74%</span></span><div class="bar"><div class="fill" style="width:74%"></div></div></div>
+          <div class="metric-row"><span><span>Retention Integrity</span><span>91%</span></span><div class="bar"><div class="fill" style="width:91%"></div></div></div>
+          <div class="metric-row"><span><span>Surface Credibility</span><span>97%</span></span><div class="bar"><div class="fill" style="width:97%"></div></div></div>
+        </div>
+        <p class="mini-copy" style="margin-top:18px">Based on self-reported figures, several missing reports, and one set of numbers that only appears after midnight.</p>
+      </div>
+    </section>
+    <section class="surface-grid">
+      <div id="services" class="section-card">
+        <div class="section-header">
+          <div>
+            <div class="eyebrow">Services</div>
+            <h2 class="section-title" style="margin-top:14px">Consulting on the surface. Dungeon beneath it.</h2>
+          </div>
+          <p class="section-desc" style="max-width:34ch">Each front-facing service becomes a route into a different part of the underground structure.</p>
+        </div>
+        <div class="surface-row">
+          <button type="button" class="site-card" onclick="makeChoice('call')"><h3>Strategic Planning</h3><p class="card-copy">Starts in the boardroom corridor. Good if you want the cleanest descent into the core plot.</p></button>
+          <button type="button" class="site-card" onclick="makeChoice('case')"><h3>Case Study Archive</h3><p class="card-copy">Starts with impossible metrics, archive notes, and the earliest route to the Lantern Society.</p></button>
+          <button type="button" class="site-card" onclick="makeChoice('contact')"><h3>Client Intake</h3><p class="card-copy">Starts with the ritual contact form, the Glass Choir, and the fastest rise in corruption.</p></button>
+        </div>
+      </div>
+
+      <div id="process" class="section-card">
+        <div class="section-header">
+          <div>
+            <div class="eyebrow">Process</div>
+            <h2 class="section-title" style="margin-top:14px">How the campaign unfolds</h2>
+          </div>
+          <p class="section-desc" style="max-width:34ch">Long enough to replay, structured enough to finish, and loaded with route-specific content.</p>
+        </div>
+        <div class="surface-row">
+          <div class="site-card"><h3>1. Threshold</h3><p class="card-copy">Pick an entry path, class, and background. The website notices what kind of reader you are.</p></div>
+          <div class="site-card"><h3>2. Factions</h3><p class="card-copy">Lantern Society, Glass Choir, and Null Operators each pull the structure in a different direction.</p></div>
+          <div class="site-card"><h3>3. Finale</h3><p class="card-copy">Reach the Heart and decide whether to seal, rewrite, rule, expose, or erase Nexus.</p></div>
+        </div>
+      </div>
+
+      <div id="voices" class="section-card">
+        <div class="section-header">
+          <div>
+            <div class="eyebrow">Client Voices</div>
+            <h2 class="section-title" style="margin-top:14px">Testimonials from people who may not have left.</h2>
+          </div>
+          <p class="section-desc" style="max-width:34ch">The setting keeps the corporate skin. It just stops pretending that the skin is the body.</p>
+        </div>
+        <div class="surface-row">
+          <div class="site-card"><h3>M. Hargrove</h3><p class="card-copy">"They gave us results. They also changed what counted as a result. I am still trying to separate the two."</p></div>
+          <div class="site-card"><h3>E. Vale</h3><p class="card-copy">"Every polished claim has a maintenance hatch underneath it. That is where the truth lives."</p></div>
+          <div class="site-card"><h3>Anonymous</h3><p class="card-copy">"The contact form replied before I pressed submit. It used my full name and a time I had not reached yet."</p></div>
+        </div>
+      </div>
+
+      <div id="contact" class="section-card">
+        <div class="section-header">
+          <div>
+            <div class="eyebrow">Contact</div>
+            <h2 class="section-title" style="margin-top:14px">Three routes in. Several ways out.</h2>
+          </div>
+          <p class="section-desc" style="max-width:34ch">Save slots, codex, and map are all inside the game layer. The logo also hides a route if you click it enough.</p>
+        </div>
+        <div class="surface-row">
+          <button type="button" class="site-card" onclick="makeChoice('call')"><h3>Book Strategy Session</h3><p class="card-copy">Best for a straight descent through diagnostics, the server well, and the boardroom.</p></button>
+          <button type="button" class="site-card" onclick="makeChoice('case')"><h3>Read the Records</h3><p class="card-copy">Best for lore hunters, archive readers, and the witness route.</p></button>
+          <button type="button" class="site-card" onclick="makeChoice('contact')"><h3>Consent to Review</h3><p class="card-copy">Best for faster access to the Choir, stronger temptation, and more dangerous endings.</p></button>
+        </div>
+      </div>
+    </section>
+    <div class="footer-note">Tip: the logo is clickable, corruption changes the interface, and the black route does not appear for polite visitors.</div>
+  </div>
+
+  <div id="scene-1" class="page-scene">
+    <section class="game-shell">
+      <div class="column">
+        <div class="panel story-panel">
+          <div class="story-head">
+            <div id="scene-label">Threshold</div>
+            <h2 id="scene-title">The Consultancy Beneath</h2>
+            <p id="scene-subtitle">A clean site is only the first mask.</p>
+          </div>
+          <div id="roll-panel" class="roll-panel"></div>
+          <div id="scene-narrative"></div>
+          <div id="scene-lore" class="lore-block" style="display:none"></div>
+          <div id="encounter-wrap" class="panel encounter-wrap" style="margin-top:22px;padding:18px">
+            <div class="encounter-grid">
+              <div class="eyebrow">Encounter</div>
+              <h3 id="encounter-name">Threat</h3>
+              <p id="encounter-desc" class="small-copy"></p>
+              <div id="encounter-meta" class="mono"></div>
+              <div class="bar"><div id="encounter-hp" class="fill" style="width:100%"></div></div>
+            </div>
+          </div>
+          <div id="choice-panel" class="choice-panel"></div>
+        </div>
+
+        <div class="panel">
+          <div class="eyebrow">Journal</div>
+          <h3>Field Notes</h3>
+          <div id="log-panel" style="margin-top:14px"></div>
+        </div>
+      </div>
+
+      <div class="column">
+        <div class="panel">
+          <div class="eyebrow">Character</div>
+          <h3>Reader Sheet</h3>
+          <div id="identity-panel" class="small-copy" style="margin-top:14px"></div>
+          <div class="stat-grid" style="margin-top:14px">
+            <div class="stat-row"><span>Level</span><span id="stat-level" class="stat-value">3</span></div>
+            <div class="stat-row"><span>HP</span><span id="stat-hp" class="stat-value">0 / 0</span></div>
+            <div class="bar"><div id="player-hp" class="fill" style="width:100%"></div></div>
+            <div class="stat-row"><span>AC</span><span id="stat-ac" class="stat-value">10</span></div>
+            <div class="stat-row"><span>Truth</span><span id="stat-truth" class="stat-value">0</span></div>
+            <div class="stat-row"><span>Corruption</span><span id="stat-corruption" class="stat-value">0</span></div>
+            <div class="stat-row"><span>Faction</span><span id="stat-faction" class="stat-value">None</span></div>
+            <div class="stat-row"><span>Spell Slots</span><span id="stat-slots" class="stat-value">0 / 0</span></div>
+            <div class="stat-row"><span>Inspiration</span><span id="stat-inspiration" class="stat-value">0</span></div>
+            <div class="stat-row"><span>Gold</span><span id="stat-gold" class="stat-value">0</span></div>
+          </div>
+          <div id="attribute-panel" class="attribute-grid" style="margin-top:14px"></div>
+        </div>
+        <div class="panel"><div class="eyebrow">Reputation</div><h3>Faction Pressure</h3><div id="reputation-panel" style="margin-top:14px"></div></div>
+        <div class="panel"><div class="eyebrow">Companions</div><h3>Recruitable Allies</h3><div id="companions-panel" style="margin-top:14px"></div></div>
+        <div class="panel"><div class="eyebrow">Inventory</div><h3>Itecare2 and Relics</h3><div id="inventory-panel" style="margin-top:14px"></div></div>
+        <div class="panel"><div class="eyebrow">Quests</div><h3>Open Threads</h3><div id="quest-panel" style="margin-top:14px"></div></div>
+        <div class="panel"><div class="eyebrow">Codex</div><h3>Recovered Entries</h3><div id="codex-panel" style="margin-top:14px"></div></div>
+        <div class="panel">
+          <div class="eyebrow">Save Slots</div><h3>Manual Saves</h3>
+          <div class="action-grid" style="margin-top:14px">
+            <button type="button" class="mini-btn" onclick="quickSave()">Quick Save</button>
+            <button type="button" class="mini-btn" onclick="returnToSurface()">Surface</button>
+            <button type="button" class="mini-btn" onclick="shortRestManual()">Short Rest</button>
+          </div>
+          <div id="save-panel" class="save-grid" style="margin-top:14px"></div>
+        </div>
+        <div class="panel"><div class="eyebrow">Map</div><h3>Known Structure</h3><div id="map-panel" class="map-grid" style="margin-top:14px"></div></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+(() => {
+  const AUTO_KEY = "nexus-descent-auto-v1";
+  const SLOT_PREFIX = "nexus-descent-slot-";
+  const COMBAT_SCENES = new Set(["breakroomBattle","serverBattle","glassBattle","boardroomBattle","heartBattle"]);
+  const SKILL_TO_ABILITY = {
+    athletics:"str",acrobatics:"dex",stealth:"dex",sleight:"dex",arcana:"int",history:"int",investigation:"int",religion:"int",
+    insight:"wis",medicine:"wis",perception:"wis",survival:"wis",deception:"cha",intimidation:"cha",persuasion:"cha"
+  };
+  const FACTIONS = {
+    lantern:{label:"Lantern Society",className:"rep-lantern"},
+    glass:{label:"Glass Choir",className:"rep-glass"},
+    null:{label:"Null Operators",className:"rep-null"}
+  };
+  const CLASS_DATA = {
+    fixer:{name:"Fixer",summary:"Break doors, carry blame, and force a path through polite lies.",hp:34,ac:16,spellSlots:0,weaponDie:8,castingStat:null,abilities:{str:16,dex:11,con:15,int:10,wis:10,cha:12},skills:["athletics","intimidation","investigation"],itecare2:["service_blade","crowbar","patch_kit"],signature:"Breach Charge"},
+    infiltrator:{name:"Infiltrator",summary:"Read roocare2, cut locks, and survive by being elsewhere when trouble lands.",hp:28,ac:15,spellSlots:0,weaponDie:8,castingStat:null,abilities:{str:10,dex:17,con:12,int:13,wis:12,cha:14},skills:["stealth","sleight","deception","investigation"],itecare2:["thin_rapier","quiet_key","black_gloves"],signature:"Ghost Step"},
+    warden:{name:"Warden",summary:"Carry wards, blessings, and the instinct to hold a line while reality bends.",hp:30,ac:16,spellSlots:3,weaponDie:6,castingStat:"wis",abilities:{str:12,dex:10,con:14,int:11,wis:16,cha:13},skills:["religion","insight","medicine"],itecare2:["ward_mace","prayer_book","silver_charm"],signature:"Sanction Rite"},
+    archivist:{name:"Archivist",summary:"Treat forbidden systecare2 like texts and hidden architecture like a language.",hp:24,ac:13,spellSlots:4,weaponDie:4,castingStat:"int",abilities:{str:8,dex:14,con:12,int:17,wis:13,cha:10},skills:["arcana","history","investigation"],itecare2:["oak_staff","annotated_schema","archive_lens"],signature:"Dispel Schema"},
+    contractor:{name:"Contractor",summary:"You understand tercare2, leverage, debt, and the shape of dangerous agreements.",hp:26,ac:14,spellSlots:3,weaponDie:6,castingStat:"cha",abilities:{str:9,dex:14,con:12,int:12,wis:10,cha:17},skills:["deception","arcana","intimidation"],itecare2:["hexed_ledger","bone_focus","velvet_case"],signature:"Seal of Debt"},
+    orator:{name:"Orator",summary:"Shift roocare2 with voice, rhythm, and the confidence to weaponise tone itself.",hp:26,ac:14,spellSlots:4,weaponDie:6,castingStat:"cha",abilities:{str:10,dex:14,con:12,int:12,wis:11,cha:17},skills:["persuasion","deception","insight","history"],itecare2:["fine_dagger","whisper_flute","motif_notebook"],signature:"Rally the Room"}
+  };
+  const BACKGROUND_DATA = {
+    volunteer:{name:"Parent Volunteer",summary:"You have lived inside systecare2 by helping hold them together.",boosts:{wis:1,cha:1},skills:["insight","persuasion"],item:"visitor_badge",gold:6},
+    auditor:{name:"External Auditor",summary:"You know how institutions hide rot without technically lying about it.",boosts:{int:1,cha:1},skills:["investigation","deception"],item:"false_credentials",gold:12},
+    haunted:{name:"Haunted Witness",summary:"You have seen a place remember someone after they left it.",boosts:{wis:1,int:1},skills:["insight","survival"],item:"charred_token",gold:4},
+    technician:{name:"Field Technician",summary:"You trust cables more than speeches and vents more than lobbies.",boosts:{dex:1,int:1},skills:["acrobatics","investigation"],item:"tool_satchel",gold:9},
+    teacher:{name:"Former Teacher",summary:"You can read people, improvise structure, and survive on very little certainty.",boosts:{wis:1,cha:1},skills:["history","persuasion"],item:"marked_rollbook",gold:5},
+    courier:{name:"Night Courier",summary:"You know back entries, maintenance doors, and the value of moving unseen.",boosts:{dex:1,con:1},skills:["stealth","survival"],item:"route_map",gold:8}
+  };
+  const ITEM_LIBRARY = {
+    service_blade:{name:"Service Blade",rarity:"common",desc:"A practical weapon wrapped in company-issue grip tape."},
+    crowbar:{name:"Crowbar",rarity:"common",desc:"Ideal for maintenance hatches, reluctant doors, and bad policy."},
+    patch_kit:{name:"Patch Kit",rarity:"uncommon",desc:"Field wraps, wire, antiseptic, and a screwdriver with a saint's name scratched into it."},
+    thin_rapier:{name:"Thin Rapier",rarity:"common",desc:"More office than battlefield, but still sharp enough to matter."},
+    quiet_key:{name:"Quiet Key",rarity:"rare",desc:"A blank key that learns locks by listening to them."},
+    black_gloves:{name:"Black Gloves",rarity:"common",desc:"They leave fewer fingerprints than they should."},
+    ward_mace:{name:"Ward Mace",rarity:"common",desc:"A blunt instrument for fragile certainties."},
+    prayer_book:{name:"Prayer Book",rarity:"uncommon",desc:"Several pages are prayers. Several are operating instructions."},
+    silver_charm:{name:"Silver Charm",rarity:"uncommon",desc:"Warcare2 slightly near malign contracts."},
+    oak_staff:{name:"Oak Staff",rarity:"common",desc:"Its grain looks like rows of hidden code."},
+    annotated_schema:{name:"Annotated Schema",rarity:"rare",desc:"A folded site map with three impossible basements pencilled in."},
+    archive_lens:{name:"Archive Lens",rarity:"uncommon",desc:"Makes omissions easier to read."},
+    hexed_ledger:{name:"Hexed Ledger",rarity:"rare",desc:"Margins fill thecare2elves with debts no one remembers agreeing to."},
+    bone_focus:{name:"Bone Focus",rarity:"uncommon",desc:"A pale wand of office-safe infernal design."},
+    velvet_case:{name:"Velvet Card Case",rarity:"common",desc:"Business cards for names you have not used yet."},
+    fine_dagger:{name:"Fine Dagger",rarity:"common",desc:"Elegant enough to pass for ceremony until it stops passing."},
+    whisper_flute:{name:"Whisper Flute",rarity:"rare",desc:"Turns confidence into resonance."},
+    motif_notebook:{name:"Motif Notebook",rarity:"uncommon",desc:"Half speeches, half encounter table."},
+    visitor_badge:{name:"Visitor Badge",rarity:"common",desc:"Still accepted by some of the lower doors."},
+    false_credentials:{name:"False Credentials",rarity:"uncommon",desc:"Convincing until someone actually reads them closely."},
+    charred_token:{name:"Charred Token",rarity:"uncommon",desc:"Proof that fire and ritual have met before."},
+    tool_satchel:{name:"Tool Satchel",rarity:"common",desc:"Contains practical answers to impractical problecare2."},
+    marked_rollbook:{name:"Marked Rollbook",rarity:"common",desc:"Names, absences, and one page that lists no classroom."},
+    route_map:{name:"Route Map",rarity:"common",desc:"Shows corridors that do not exist until late."},
+    healing_draught:{name:"Healing Draught",rarity:"uncommon",desc:"Bitter, metallic, and annoyingly effective."},
+    black_business_card:{name:"Black Business Card",rarity:"rare",desc:"Blank until held in darkness. Unlocks the null route."},
+    lantern_token:{name:"Lantern Token",rarity:"rare",desc:"A charm that warcare2 when a lie is structurally load-bearing."},
+    glass_psalm:{name:"Glass Psalm",rarity:"rare",desc:"A hymn page that can open or cut, depending on how it is sung."},
+    null_patch:{name:"Null Patch",rarity:"epic",desc:"A deletion shard. Use carefully or not at all."},
+    witness_shard:{name:"Witness Shard",rarity:"epic",desc:"A mirrored fragment containing testimony the board cannot sand smooth."},
+    executive_seal:{name:"Executive Seal",rarity:"rare",desc:"Authority distilled into a brass stamp and old fear."},
+    boardroom_phrase:{name:"Boardroom Access Phrase",rarity:"rare",desc:"Language that behaves like a key."},
+    laser_pointer:{name:"Laser Pointer of Presentation",rarity:"rare",desc:"Useful for diagracare2, weak spirits, and one specific category of lie."},
+    choir_fork:{name:"Choir Tuning Fork",rarity:"uncommon",desc:"It vibrates when a room is trying to become a ritual."},
+    proof_bundle:{name:"Proof Bundle",rarity:"legendary",desc:"Contracts, testimony, and server traces aligned into something the surface world can understand."}
+  };
+  const CODEX_LIBRARY = {
+    nexus:{title:"Nexus Consulting",body:"The surface business is real enough to invoice. The lower structure is real enough to bind."},
+    lantern:{title:"Lantern Society",body:"Ex-consultants, auditors, and witnesses who believe the Heart can be sealed rather than inherited."},
+    glass:{title:"Glass Choir",body:"A faction that treats the engine as sacred architecture. They prefer beautiful domination to clucare2y appetite."},
+    null:{title:"Null Operators",body:"Maintenance staff, couriers, and deletions given intent. They would rather erase the board than keep feeding it."},
+    partner:{title:"Partner of Many Faces",body:"Authority embodied. Every public face of Nexus eventually rotates through the boardroom mask rack."},
+    heart:{title:"The Heart",body:"Not a server, not a demon, not a machine alone. A decision engine fed by attention, authority, and consent."},
+    mirror:{title:"Mirror Stacks",body:"Retention redefined as imprisonment inside improved reflections."},
+    keyword:{title:"Keyword Hall",body:"Brand language weaponised into route control. Here words do not describe; they steer."},
+    witness:{title:"Bound Client",body:"Mara Hargrove is living evidence that Nexus edits outcomes after the invoice is paid."}
+  };
+  const COMPANION_LIBRARY = {
+    mara:{name:"Mara Hargrove",role:"Witness",perk:"+2 on Insight and Persuasion checks. Unlocks the Expose route.",desc:"A former client retained in the mirror stacks long after the contract should have ended."},
+    rook:{name:"Rook Venn",role:"Null Courier",perk:"The first enemy hit each encounter is cancelled.",desc:"A courier who knows erased stairs, painted-over routes, and how to vanish on purpose."},
+    quill:{name:"Bishop Quill",role:"Choir Defector",perk:"Your first spell each encounter deals +3 damage.",desc:"A singer who learned the hymn wanted obedience more than beauty."}
+  };
+  const ENEMIES = {
+    clerk:{name:"Redacted Clerk",hp:20,ac:12,attackBonus:4,damageDice:[1,8,2],desc:"A person-shaped compliance machine with stamped hands and a blurred face.",rewardXp:80},
+    hound:{name:"Compliance Hound",hp:24,ac:13,attackBonus:5,damageDice:[2,4,2],desc:"A breakroom guardian grown from policy, hunger, and fluorescent light.",rewardXp:90},
+    auditor:{name:"Mirror Auditor",hp:28,ac:14,attackBonus:5,damageDice:[2,6,1],desc:"An immaculate reflection carrying a clipboard of alternate failures.",rewardXp:110},
+    choir:{name:"Glass Executor",hp:30,ac:15,attackBonus:6,damageDice:[2,6,2],desc:"A singer made of polished shards and conversion metrics.",rewardXp:125},
+    partner:{name:"Partner of Many Faces",hp:38,ac:15,attackBonus:6,damageDice:[2,8,2],desc:"The current public intelligence of Nexus. It smiles with borrowed headshots.",rewardXp:160},
+    heart:{name:"Heart Avatar",hp:44,ac:16,attackBonus:7,damageDice:[2,10,2],desc:"The engine venting itself through a body of dashboard glass and contractual teeth.",rewardXp:220}
+  };
+  const MAP_NODES = [
+    {id:"foyer",label:"Foyer"},{id:"diagnostics",label:"Diagnostics"},{id:"archive",label:"Archive"},{id:"contactRite",label:"Contact Rite"},
+    {id:"breakroom",label:"Breakroom"},{id:"lanternSafehouse",label:"Lantern Safehouse"},{id:"mirrorStacks",label:"Mirror Stacks"},
+    {id:"serverWell",label:"Server Well"},{id:"glassChoir",label:"Glass Choir"},{id:"nullStair",label:"Null Stair"},{id:"keywordHall",label:"Keyword Hall"},
+    {id:"boardroom",label:"Boardroom"},{id:"heart",label:"Heart"}
+  ];
+  function defaultState(){return{started:false,scene:"introCall",entryPath:"call",corruption:0,truth:0,level:3,xp:0,classId:null,backgroundId:null,faction:null,hp:0,maxHp:0,ac:10,spellSlots:0,maxSpellSlots:0,inspiration:0,gold:0,abilities:{str:10,dex:10,con:10,int:10,wis:10,cha:10},proficiencies:[],inventory:[],quests:{},flags:{},log:["Nexus site initialised."],codex:["nexus"],companions:[],reputation:{lantern:0,glass:0,null:0},discovered:["foyer"],encounter:null,hidden:false,advantageNext:false,logoClicks:0,currentRollLocked:false,quickSaveStamp:null}}
+  function mergeState(raw){const base=defaultState();const next=raw&&typeof raw==="object"?raw:{};return{...base,...next,abilities:{...base.abilities,...(next.abilities||{})},quests:{...base.quests,...(next.quests||{})},flags:{...base.flags,...(next.flags||{})},reputation:{...base.reputation,...(next.reputation||{})},log:Array.isArray(next.log)?next.log.slice(0,14):base.log,codex:Array.isArray(next.codex)?next.codex:base.codex,companions:Array.isArray(next.companions)?next.companions:base.companions,inventory:Array.isArray(next.inventory)?next.inventory:base.inventory,proficiencies:Array.isArray(next.proficiencies)?next.proficiencies:base.proficiencies,discovered:Array.isArray(next.discovered)?next.discovered:base.discovered}}
+  function clone(value){return JSON.parse(JSON.stringify(value))}
+  function loadAutoState(){try{const raw=localStorage.getItem(AUTO_KEY);return raw?mergeState(JSON.parse(raw)):defaultState()}catch{return defaultState()}}
+  let state=loadAutoState();
+  function saveAutoState(){localStorage.setItem(AUTO_KEY,JSON.stringify(state))}
+  function readSlot(slot){try{const raw=localStorage.getItem(SLOT_PREFIX+slot);return raw?JSON.parse(raw):null}catch{return null}}
+  function writeSlot(slot){localStorage.setItem(SLOT_PREFIX+slot,JSON.stringify({savedAt:Date.now(),scene:state.scene,classId:state.classId,backgroundId:state.backgroundId,level:state.level,faction:state.faction,truth:state.truth,corruption:state.corruption,state}));addLog("Manual save written to slot "+slot+".");renderSavePanel();saveAutoState()}
+  function loadSlot(slot){const payload=readSlot(slot);if(!payload||!payload.state)return;state=mergeState(payload.state);addLog("Loaded slot "+slot+".");syncSceneVisibility();renderAll()}
+  function clearSlot(slot){localStorage.removeItem(SLOT_PREFIX+slot);renderSavePanel()}
+  function resetState(){state=defaultState();localStorage.removeItem(AUTO_KEY);syncSceneVisibility();renderAll()}
+  function addLog(message){state.log.unshift(message);state.log=state.log.slice(0,14)}
+  function mod(score){return Math.floor((score-10)/2)}
+  function profBonus(){if(state.level>=5)return 3;if(state.level>=9)return 4;return 2}
+  function d20(){return Math.floor(Math.random()*20)+1}
+  function rollDice(count,sides){let total=0;for(let i=0;i<count;i+=1)total+=Math.floor(Math.random()*sides)+1;return total}
+  function formatMod(value){return value>=0?"+"+value:String(value)}
+  function hasFlag(key){return Boolean(state.flags[key])}
+  function setFlag(key,value=true){state.flags[key]=value}
+  function addFlagCount(key,amount=1){state.flags[key]=(state.flags[key]||0)+amount}
+  function getFlagCount(key){return state.flags[key]||0}
+  function unlockCodex(id){if(CODEX_LIBRARY[id]&&!state.codex.includes(id))state.codex.unshift(id)}
+  function addItem(id){if(!ITEM_LIBRARY[id])return;if(!state.inventory.includes(id)){state.inventory.push(id);addLog("Item acquired: "+ITEM_LIBRARY[id].name+".")}}
+  function removeItem(id){state.inventory=state.inventory.filter((itemId)=>itemId!==id)}
+  function hasItem(id){return state.inventory.includes(id)}
+  function addQuest(id,title,desc){if(!state.quests[id]){state.quests[id]={title,desc,status:"active"};addLog("Quest added: "+title+".")}}
+  function completeQuest(id){if(state.quests[id]&&state.quests[id].status!=="complete"){state.quests[id].status="complete";addLog("Quest complete: "+state.quests[id].title+".")}}
+  function recruitCompanion(id){if(!COMPANION_LIBRARY[id]||state.companions.includes(id))return;state.companions.push(id);addLog(COMPANION_LIBRARY[id].name+" joins you.")}
+  function companionSkillBonus(skill){let bonus=0;if(state.companions.includes("mara")&&(skill==="insight"||skill==="persuasion"))bonus+=2;if(state.companions.includes("rook")&&(skill==="stealth"||skill==="investigation"))bonus+=1;if(state.companions.includes("quill")&&(skill==="arcana"||skill==="deception"))bonus+=1;return bonus}
+  function classSkillBonus(skill){switch(state.classId){case"fixer":return skill==="athletics"||skill==="intimidation"?1:0;case"infiltrator":return skill==="stealth"||skill==="deception"?1:0;case"warden":return skill==="insight"||skill==="religion"?1:0;case"archivist":return skill==="arcana"||skill==="investigation"?1:0;case"contractor":return skill==="deception"||skill==="arcana"?1:0;case"orator":return skill==="persuasion"||skill==="history"?1:0;default:return 0}}
+  function changeReputation(factionId,amount){state.reputation[factionId]=Math.max(-5,Math.min(5,(state.reputation[factionId]||0)+amount));if(amount>0)state.faction=FACTIONS[factionId].label}
+  function gainXp(amount){state.xp+=amount;const thresholds={3:160,4:380,5:700};while(thresholds[state.level]&&state.xp>=thresholds[state.level]){state.level+=1;const hpGain=5+Math.max(1,mod(state.abilities.con));state.maxHp+=hpGain;state.hp=Math.min(state.maxHp,state.hp+hpGain);if(state.maxSpellSlots>0&&state.maxSpellSlots<6){state.maxSpellSlots+=1;state.spellSlots=Math.min(state.maxSpellSlots,state.spellSlots+1)}state.inspiration+=1;addLog("You advance to level "+state.level+".")}}
+  function damage(amount,type="damage"){state.hp=Math.max(0,state.hp-amount);addLog("You take "+amount+" "+type+".");if(state.hp<=0){state.scene="endingDefeat";clearEncounter()}}
+  function heal(amount){state.hp=Math.min(state.maxHp,state.hp+amount);addLog("You recover "+amount+" HP.")}
+  function getCastingMod(){const cls=CLASS_DATA[state.classId];if(!cls||!cls.castingStat)return 0;return mod(state.abilities[cls.castingStat])}
+  function getWeaponMod(){return Math.max(mod(state.abilities.str),mod(state.abilities.dex))}
+  function startEncounter(id){const enemy=ENEMIES[id];if(!enemy)return;if(state.encounter&&state.encounter.id===id&&state.encounter.hp>0)return;state.encounter={id,name:enemy.name,hp:enemy.hp,maxHp:enemy.hp,ac:enemy.ac,attackBonus:enemy.attackBonus,damageDice:enemy.damageDice,desc:enemy.desc,rewardXp:enemy.rewardXp,rookShield:state.companions.includes("rook"),quillCharge:state.companions.includes("quill")};addLog(enemy.name+" engages you.")}
+  function clearEncounter(){state.encounter=null;state.hidden=false;state.advantageNext=false}
+  function showRoll(title,rollingText,finalValue,finalMeta,callback){state.currentRollLocked=true;renderChoiceLock();const panel=document.getElementById("roll-panel");panel.className="roll-panel active";panel.innerHTML='<div class="roll-title">'+title+"</div>"+'<div class="roll-value">'+rollingText+"</div>"+'<div class="roll-meta">Calculating...</div>';let ticks=0;const timer=window.setInterval(()=>{ticks+=1;const fake=Math.floor(Math.random()*20)+1;panel.innerHTML='<div class="roll-title">'+title+"</div>"+'<div class="roll-value">d20: '+fake+"</div>"+'<div class="roll-meta">'+rollingText+"</div>";if(ticks>=11){window.clearInterval(timer);panel.innerHTML='<div class="roll-title">'+title+"</div>"+'<div class="roll-value">'+finalValue+"</div>"+'<div class="roll-meta">'+finalMeta+"</div>";window.setTimeout(()=>{state.currentRollLocked=false;renderChoiceLock();callback()},760)}},60)}
+  function renderChoiceLock(){document.querySelectorAll("#choice-panel button").forEach((button)=>{button.disabled=state.currentRollLocked})}
+  function attackEncounter(mode,winScene,opts={}){if(!state.encounter)return;const cls=CLASS_DATA[state.classId];if(!cls)return;if(mode==="spell"&&state.maxSpellSlots<=0){addLog("You do not have spellcasting.");renderAll();return}if((mode==="spell"||mode==="signature-spell")&&state.spellSlots<=0){addLog("No spell slots remain.");renderAll();return}const rollOne=d20();const rollTwo=state.advantageNext?d20():null;const roll=rollTwo?Math.max(rollOne,rollTwo):rollOne;state.advantageNext=false;const bonus=profBonus()+(mode==="spell"||mode==="signature-spell"?getCastingMod():getWeaponMod())+(opts.attackBonus||0);const total=roll+bonus;const hits=roll===20||total>=state.encounter.ac;const title=opts.label||(mode==="spell"?"Spell Attack":"Attack Roll");const meta=hits?"Hit: "+roll+" + "+bonus+" = "+total+" against AC "+state.encounter.ac+".":"Miss: "+roll+" + "+bonus+" = "+total+" against AC "+state.encounter.ac+".";showRoll(title,"Resolving against AC "+state.encounter.ac,"d20 "+roll,meta,()=>{if(mode==="spell"||mode==="signature-spell")state.spellSlots-=1;if(hits){let damageTotal=0;if(opts.fixedDamage){damageTotal=opts.fixedDamage()}else if(mode==="spell"||mode==="signature-spell"){damageTotal=rollDice(2,8)+Math.max(1,getCastingMod())}else{damageTotal=rollDice(1,cls.weaponDie)+Math.max(1,getWeaponMod());if(state.classId==="infiltrator"&&state.hidden){const sneak=rollDice(2,6);damageTotal+=sneak;addLog("Sneak damage adds "+sneak+".")}}if(state.encounter.quillCharge&&(mode==="spell"||mode==="signature-spell")){damageTotal+=3;state.encounter.quillCharge=false;addLog("Bishop Quill sharpens the spell for +3 damage.")}if(opts.onHit)opts.onHit();state.encounter.hp=Math.max(0,state.encounter.hp-damageTotal);state.hidden=false;addLog(title+" deals "+damageTotal+" damage.");if(state.encounter.hp<=0){const defeated=state.encounter.name;gainXp(state.encounter.rewardXp);clearEncounter();addLog(defeated+" is defeated.");state.scene=winScene;saveAutoState();renderAll();return}}else{if(opts.onMiss)opts.onMiss();state.hidden=false}enemyTurn();saveAutoState();renderAll()})}
+  function useSignature(winScene){if(!state.encounter)return;switch(state.classId){case"fixer":attackEncounter("weapon",winScene,{label:"Breach Charge",attackBonus:2,fixedDamage:()=>rollDice(2,8)+Math.max(2,getWeaponMod())});break;case"infiltrator":state.hidden=true;state.advantageNext=true;addLog("Ghost Step: you vanish between sightlines. Advantage on your next strike.");enemyTurn();saveAutoState();renderAll();break;case"warden":if(state.spellSlots<=0){addLog("No spell slots remain for Sanction Rite.");renderAll();return}state.spellSlots-=1;heal(rollDice(1,8)+Math.max(1,mod(state.abilities.wis)));state.encounter.hp=Math.max(0,state.encounter.hp-(rollDice(1,8)+2));addLog("Sanction Rite burns the encounter while restoring you.");if(state.encounter.hp<=0){gainXp(state.encounter.rewardXp);clearEncounter();state.scene=winScene;saveAutoState();renderAll();return}enemyTurn();saveAutoState();renderAll();break;case"archivist":attackEncounter("signature-spell",winScene,{label:"Dispel Schema",attackBonus:1,fixedDamage:()=>rollDice(2,10)+Math.max(1,getCastingMod())});break;case"contractor":attackEncounter("signature-spell",winScene,{label:"Seal of Debt",fixedDamage:()=>rollDice(2,8)+Math.max(1,getCastingMod()),onHit:()=>{state.corruption=Math.min(10,state.corruption+1);addLog("The seal takes payment from the room and a little from you.")}});break;case"orator":if(state.spellSlots<=0){addLog("No spell slots remain for Rally the Room.");renderAll();return}state.spellSlots-=1;state.inspiration+=2;state.encounter.hp=Math.max(0,state.encounter.hp-(rollDice(1,8)+1));addLog("Rally the Room turns morale into pressure and buys you momentum.");if(state.encounter.hp<=0){gainXp(state.encounter.rewardXp);clearEncounter();state.scene=winScene;saveAutoState();renderAll();return}enemyTurn();saveAutoState();renderAll();break;default:renderAll()}}
+  function enemyTurn(){if(!state.encounter)return;const attackRoll=d20()+state.encounter.attackBonus;if(attackRoll>=state.ac){if(state.encounter.rookShield){state.encounter.rookShield=false;addLog("Rook cuts the line of attack and cancels the hit.");return}const[count,sides,bonus]=state.encounter.damageDice;const total=rollDice(count,sides)+bonus;damage(total);addLog(state.encounter.name+" hits AC "+state.ac+" with "+attackRoll+".")}else{addLog(state.encounter.name+" misses with "+attackRoll+".")}}
+  function skillCheck(skill,dc,label,onSuccess,onFail,opts={}){const ability=SKILL_TO_ABILITY[skill];const abilityMod=mod(state.abilities[ability]||10);const prof=state.proficiencies.includes(skill)?profBonus():0;const bonus=abilityMod+prof+classSkillBonus(skill)+companionSkillBonus(skill)+(opts.bonus||0);const rollOne=d20();const rollTwo=state.advantageNext||opts.advantage?d20():null;const roll=rollTwo?Math.max(rollOne,rollTwo):rollOne;state.advantageNext=false;const total=roll+bonus;const success=roll===20||total>=dc;const meta=success?roll+" + "+bonus+" = "+total+" against DC "+dc+". Success.":roll+" + "+bonus+" = "+total+" against DC "+dc+". Failure.";showRoll(label,"Resolving "+skill+" check","d20 "+roll,meta,()=>{addLog(label+": "+meta);if(success){if(onSuccess)onSuccess()}else if(onFail){onFail()}saveAutoState();renderAll()})}
+  function shortRest(){const recovered=rollDice(1,8)+Math.max(1,mod(state.abilities.con));heal(recovered);if(state.maxSpellSlots>0&&state.spellSlots<state.maxSpellSlots){state.spellSlots=Math.min(state.maxSpellSlots,state.spellSlots+1);addLog("You recover 1 spell slot.")}state.inspiration+=1;addLog("You take a short rest and steady yourself.");saveAutoState();renderAll()}
+  function finaliseCharacter(){const cls=CLASS_DATA[state.classId];const bg=BACKGROUND_DATA[state.backgroundId];if(!cls||!bg)return;state.abilities=clone(cls.abilities);Object.entries(bg.boosts).forEach(([key,value])=>{state.abilities[key]+=value});state.maxHp=cls.hp;state.hp=cls.hp;state.ac=cls.ac;state.maxSpellSlots=cls.spellSlots;state.spellSlots=cls.spellSlots;state.proficiencies=[...new Set([...cls.skills,...bg.skills])];state.inventory=[...new Set([...cls.itecare2,bg.item,"healing_draught"])];state.gold=18+bg.gold;state.level=3;state.xp=0;state.truth=0;state.corruption=Math.max(state.corruption,1);addQuest("reachHeart","Reach the Heart","Find the decision engine beneath the consultancy and choose what becomes of it.");addQuest("freeWitness","Free the Bound Client","A former client is still being retained somewhere inside the mirror stacks.");addQuest("chooseFaction","Commit or Resist","The Lantern Society, Glass Choir, and Null Operators all want something from the Heart.")}
+  function markDiscovered(sceneId){const mapped=MAP_NODES.find((node)=>node.id===sceneId);if(mapped&&!state.discovered.includes(sceneId))state.discovered.push(sceneId)}
+  function goTo(sceneId){state.scene=sceneId;if(!COMBAT_SCENES.has(sceneId))clearEncounter();markDiscovered(sceneId);syncSceneVisibility();saveAutoState();renderAll()}
+  function filteredChoices(choices){return choices.filter((choice)=>!choice.when||choice.when())}
+  function combatChoices(winScene,extra=[]){const cls=CLASS_DATA[state.classId];return[{label:"Strike with weapon",action:()=>attackEncounter("weapon",winScene)},...(state.maxSpellSlots>0?[{label:"Cast a spell ("+state.spellSlots+"/"+state.maxSpellSlots+" slots)",action:()=>attackEncounter("spell",winScene)}]:[]),...(cls?[{label:"Use signature move: "+cls.signature,action:()=>useSignature(winScene)}]:[]),{label:"Create an opening (Stealth DC 13)",action:()=>skillCheck("stealth",13,"Stealth",()=>{state.hidden=true;state.advantageNext=true;addLog("You find cover and line up the next strike.")},()=>{addLog("You fail to vanish.");enemyTurn()})},...(hasItem("healing_draught")?[{label:"Drink Healing Draught",action:()=>{removeItem("healing_draught");heal(rollDice(2,4)+2);enemyTurn();saveAutoState();renderAll()}}]:[]),...(state.inspiration>0?[{label:"Spend Inspiration ("+state.inspiration+")",action:()=>{state.inspiration-=1;state.advantageNext=true;addLog("You focus and gain advantage on the next roll.");saveAutoState();renderAll()}}]:[]),...extra]}
+  const SCENES = {
+    introCall:()=>({label:"Threshold",title:"The Complimentary Call",subtitle:"The booking widget opens like a summoning circle pretending to be good UX.",theme:"normal",narrative:["You click Schedule a Call. The site thanks you for your interest in strategic transformation.","Then the white space behind the calendar deepens into a corridor lined with framed testimonials. Every smiling client is looking slightly off-camera, toward something behind the photographer.","A line appears under the widget: CONSULTATION WINDOW ACCEPTED. READER DETECTED."],lore:"Case note 00: Nexus Consulting was once only a consultancy. Or legitimacy was simply its first mask.",choices:[{label:"Step through the calendar window",action:()=>{state.started=true;state.entryPath="call";state.corruption=Math.max(state.corruption,1);unlockCodex("nexus");goTo("chooseClass")}}]}),
+    introCase:()=>({label:"Threshold",title:"The Case Studies",subtitle:"Every success story contains a number that should not exist.",theme:"normal",narrative:["You open the case studies and find impossible metrics: 113% retention in a market that no longer exists, negative churn in a region erased from modern maps, revenue attributed to quarters that have not happened yet.","One PDF contains margin notes in red ink: THIS IS NOT MARKET INTELLIGENCE. THIS IS ONTOLOGICAL ACQUISITION.","The page invites you to continue reading. The button text has changed to ENTER RECORD."],lore:"Archived remark: some clients gained market share. Some gained years. Some gained access to roocare2 hidden under their own offices.",choices:[{label:"Enter the record",action:()=>{state.started=true;state.entryPath="case";state.corruption=Math.max(state.corruption,1);unlockCodex("lantern");goTo("chooseClass")}}]}),
+    introContact:()=>({label:"Threshold",title:"The Contact Form",subtitle:"It asks for details a consultancy should not need.",theme:"normal",narrative:["The fields load one at a time: Name. Email. Organisation. Challenge. True Name.","When you delete the last field, it comes back brighter.","The submit button changes from Schedule Now to CONSENT TO REVIEW."],lore:"Legal language blurs into liturgy. Tercare2 and conditions were once interchangeable with binding rites.",choices:[{label:"Proceed anyway",action:()=>{state.started=true;state.entryPath="contact";state.corruption=Math.max(state.corruption,1);unlockCodex("glass");goTo("chooseClass")}}]}),
+    chooseClass:()=>({label:"Character Creation",title:"Choose Your Class",subtitle:"The consultancy categorises everyone. Better to choose your own role first.",theme:"rune",narrative:["The corridor divides into polished doors labelled like service offerings, but each hucare2 with an older title.","Behind one door is steel. Behind another, paper. Behind another, a voice already finishing your sentences."],lore:"In the lower files, departments are identical to callings.",choices:Object.entries(CLASS_DATA).map(([id,data])=>({label:data.name+" - "+data.summary,action:()=>{state.classId=id;addLog("Class chosen: "+data.name+".");goTo("chooseBackground")}}))}),
+    chooseBackground:()=>({label:"Character Creation",title:"Choose Your Background",subtitle:"The site wants a history. Give it one you can survive with.",theme:"rune",narrative:["Folders float past, each containing a possible life. The structure does not care which one is true. It only wants one that fits.","Choose the version of yourself most likely to make it through the next few floors intact."],lore:"Every archive eventually becomes a character creator for the people it intends to keep.",choices:Object.entries(BACKGROUND_DATA).map(([id,data])=>({label:data.name+" - "+data.summary,action:()=>{state.backgroundId=id;finaliseCharacter();addLog("Background chosen: "+data.name+".");goTo("foyer")}}))}),
+    foyer:()=>({label:"Act I",title:"The Foyer",subtitle:"The website still resembles a website from here. Mostly.",theme:state.corruption>=5?"void":"normal",narrative:[state.entryPath==="case"?"You emerge from the impossible PDFs into a reception hall made of glass, carpet, and archived minutes.":state.entryPath==="contact"?"You step out of the contact form and into a reception hall where every desk nameplate lists a different century.":"You step through the calendar frame and into a reception hall built behind the hero section of the site.","Three routes open beyond the front desk: Diagnostics, Archive, and Contact. A service elevator hucare2 somewhere behind the wall.",state.logoClicks>=3?"Tucked behind a brochure rack is the black business card you coaxed out of the logo. One corridor now runs darker than the others.":"The logo above reception flickers when you look away from it."],lore:"The foyer is where the site decides whether you are a client, a witness, or raw material.",choices:[{label:"Open Diagnostics",action:()=>goTo("diagnostics")},{label:"Enter the Archive",action:()=>goTo("archive")},{label:"Use the Contact Route",action:()=>goTo("contactRite")},{label:"Take a short rest and study the floor",action:()=>shortRest()},{label:"Use the black-card route",when:()=>hasFlag("nullRoute"),action:()=>goTo("nullStair")}]}),
+    diagnostics:()=>({label:"Act I",title:"Diagnostics Wing",subtitle:"The first layer still pretends to be technical support.",theme:"normal",narrative:["Rows of system notices scroll past on glass partitions. Router recovered. Cache cleared. Session restored. Client reassured.","One alert refuses to dismiss: GHOST SESSION DETECTED.","The ghost session has your name, a timestamp from tomorrow, and an access level well above what you should have."],lore:"Every strong institution keeps a room where problecare2 are translated into acceptable language before anyone else can see them.",choices:[{label:"Trace the ghost session (Investigation DC 13)",action:()=>skillCheck("investigation",13,"Investigation",()=>{state.truth+=1;unlockCodex("keyword");addLog("The ghost session routes beneath the elevators to the server well.");goTo("serverWell")},()=>{state.corruption+=1;damage(3,"feedback")})},{label:"Patch the anomaly and follow the maintenance notes (Arcana DC 12)",action:()=>skillCheck("arcana",12,"Arcana",()=>{state.truth+=1;addItem("laser_pointer");goTo("breakroom")},()=>{state.corruption+=1;goTo("breakroom")})},{label:"Return to the foyer",action:()=>goTo("foyer")}]}),
+    archive:()=>({label:"Act I",title:"The Archive",subtitle:"Folders, minutes, and backup histories of things that did not happen in public.",theme:"rune",narrative:["The archive is larger than the building should allow. Filing cabinets give way to shelves, then shelves to stacks, then stacks to hanging ladders.","You find dream reports, erased incident logs, playground maps with extra gates, and a folder called BOUNDARY LANTERN filed under client retention.","Something human is hiding here on purpose."],lore:"Archives are where bad systecare2 go when they want to become scripture.",choices:[{label:"Read the Lantern file",action:()=>{state.truth+=1;unlockCodex("lantern");addItem("boardroom_phrase");addLog("The Lantern file sketches a route to a safehouse behind the archive wall.");goTo("lanternSafehouse")}},{label:"Search for bound clients (Insight DC 13)",action:()=>skillCheck("insight",13,"Insight",()=>{state.truth+=1;unlockCodex("mirror");goTo("mirrorStacks")},()=>{state.corruption+=1;damage(2,"paper cut delirium")})},{label:"Follow an executive route deeper (History DC 14)",action:()=>skillCheck("history",14,"History",()=>{addItem("executive_seal");addLog("The archive yields an old executive seal and a route to the boardroom stairs.");goTo("keywordHall")},()=>{goTo("foyer")})}]}),
+    contactRite:()=>({label:"Act I",title:"The Contact Rite",subtitle:"This is not a form. It is an invitation to be indexed.",theme:"void",narrative:["The page asks for Name, Email, Organisation, Intent, and Offering. The cursor already knows how you type.","Beneath the submit button is a checkbox: I consent to be known by the site.","The panel behind the page becomes a chapel of mirrored glass and humming air ducts."],lore:"Tercare2 and conditions are easier to enforce when they are also liturgy.",choices:[{label:"Submit a false identity (Deception DC 14)",action:()=>skillCheck("deception",14,"Deception",()=>{state.truth+=1;changeReputation("glass",1);goTo("glassChoir")},()=>{state.corruption+=2;goTo("breakroom")})},{label:"Ask who owns the rite (Arcana or Religion DC 14)",action:()=>{const skill=state.proficiencies.includes("arcana")?"arcana":"religion";skillCheck(skill,14,skill==="arcana"?"Arcana":"Religion",()=>{state.truth+=2;unlockCodex("glass");unlockCodex("null");goTo("lanternSafehouse")},()=>{state.corruption+=1;goTo("glassChoir")})}},{label:"Interrupt the rite and follow the vent noise",action:()=>goTo("breakroom")},{label:"Use the black-card route",when:()=>hasFlag("nullRoute"),action:()=>goTo("nullStair")}]}),
+    breakroom:()=>({label:"Act I",title:"The Breakroom",subtitle:"You can tell it was once ordinary because the horror still tries to look practical.",theme:"normal",narrative:["Fluorescent lights buzz above a kitchenette, a humming vending machine, and a water cooler that seecare2 to breathe when the room goes quiet.","There is a trail of muddy shoeprints leading toward the service elevator and a handwritten note under a cup: DO NOT DRINK THE BLUE IF IT LOOKS BACK.","You need a moment, a resource, or a fight. The room is willing to provide all three."],lore:"Every institution has one room where policy relaxes just enough for the truth to leave coffee stains.",choices:[{label:"Inspect the water cooler carefully (Investigation DC 12)",action:()=>skillCheck("investigation",12,"Investigation",()=>{addItem("healing_draught");addLog("You siphon real water out before the mimic notices.")},()=>{goTo("breakroomBattle")})},{label:"Follow the shoeprints to the service elevator",action:()=>goTo("serverWell")},{label:"Rest in the breakroom and regroup",action:()=>shortRest()},{label:"Return to the foyer",action:()=>goTo("foyer")}]}),
+    breakroomBattle:()=>{startEncounter("hound");return{label:"Act I",title:"Breakroom Ambush",subtitle:"The water cooler opens like a jaw made of policy and old plastic.",theme:"rune",narrative:["The cooler splits, unfolds, and drops to the floor on too many limbs.","A Compliance Hound emerges from it with a mouth full of shredded meeting agendas."],lore:"The smallest roocare2 often host the most honest monsters.",choices:combatChoices("lanternSafehouse",[{label:"Kick over the machine and run (Athletics DC 13)",action:()=>skillCheck("athletics",13,"Athletics",()=>{clearEncounter();addItem("choir_fork");goTo("lanternSafehouse")},()=>enemyTurn())}])}},
+    lanternSafehouse:()=>({label:"Act II",title:"Safehouse of the Lantern Society",subtitle:"They were consultants once. Then they started reading the footnotes.",theme:"rune",narrative:["A false wall opens behind the archive stacks into a room lit by real flame. Maps of Nexus are pinned over strategy diagracare2 and org charts.","The Lantern Society studies the consultancy as a dungeon and a parasite both. They believe the Heart can be sealed, though not without cost.","Sister Vale offers you tea, a token, and a warning: the Glass Choir sings submission, and the Null Operators would rather erase the board than free the pieces."],lore:"Lantern saying: do not trust a polished claim. Truth arrives with soot on it.",choices:[{label:"Join the Lantern Society",action:()=>{changeReputation("lantern",2);completeQuest("chooseFaction");addItem("lantern_token");unlockCodex("lantern");state.inspiration+=1}},{label:"Ask about the bound client",action:()=>{unlockCodex("witness");addLog("Sister Vale points you toward the mirror stacks.");goTo("mirrorStacks")}},{label:"Take a proper short rest with the Lanterns",action:()=>shortRest()},{label:"Follow the map toward the keyword hall",action:()=>goTo("keywordHall")},{label:"Slip toward the null stair",when:()=>hasFlag("nullRoute"),action:()=>goTo("nullStair")}]}),
+    glassChoir:()=>({label:"Act II",title:"The Glass Choir",subtitle:"They believe the engine should continue, provided it sings beautifully.",theme:"void",narrative:["A chapel of suspended panes rings with harmonic speech. Every note resolves into a conversion metric.","The Choir do not deny what Nexus is. They simply believe it can be elegant, curated, and properly governed.","A cantor named Bishop Quill watches you with the expression of someone already halfway to defection."],lore:"Choir doctrine: if a structure must rule, let it rule with style.",choices:[{label:"Accept temporary Choir patronage",action:()=>{changeReputation("glass",2);completeQuest("chooseFaction");addItem("glass_psalm");unlockCodex("glass")}},{label:"Ask Quill why he looks unconvinced (Insight DC 13)",action:()=>skillCheck("insight",13,"Insight",()=>{recruitCompanion("quill");changeReputation("glass",1);addLog("Quill offers his voice, not his loyalty to the Choir.")},()=>{state.corruption+=1})},{label:"Profane the rite and fight",action:()=>goTo("glassBattle")},{label:"Descend toward the boardroom",action:()=>goTo("keywordHall")}]}),
+    glassBattle:()=>{startEncounter("choir");return{label:"Act II",title:"Battle in the Choir",subtitle:"You choose argument by force.",theme:"rune",narrative:["Shards rise from the floor and gather into a Glass Executor.","The hymn breaks into blades. Quill ducks low and mutters that this was inevitable."],lore:"Some institutions keep security guards. Nexus keeps liturgies with edge.",choices:combatChoices("mirrorStacks",[{label:"Shatter the harmony (Arcana DC 14)",action:()=>skillCheck("arcana",14,"Arcana",()=>{clearEncounter();recruitCompanion("quill");addItem("glass_psalm");goTo("mirrorStacks")},()=>enemyTurn())}])}},
+    nullStair:()=>({label:"Act II",title:"The Null Stair",subtitle:"The hidden route is not through Nexus. It is around belief itself.",theme:"void",narrative:["The stair is not listed on any plan. Each landing erases the one above it as you descend.","A courier in a rain-dark coat waits on the rail with a black foil card that reads THERE IS MERCY IN DELETION.","He introduces hicare2elf as Rook Venn and asks whether you came here to own the engine or deny it a future."],lore:"Null doctrine: better no board than an eternal one.",choices:[{label:"Join the Null Operators",action:()=>{changeReputation("null",2);completeQuest("chooseFaction");addItem("null_patch");unlockCodex("null")}},{label:"Recruit Rook as a guide (Persuasion DC 13)",action:()=>skillCheck("persuasion",13,"Persuasion",()=>{recruitCompanion("rook");changeReputation("null",1)},()=>{state.corruption+=1})},{label:"Bleed on the stair to learn its true direction",action:()=>{damage(4,"sacrificial strain");state.truth+=2;addLog("The stair accepts the price and shows the shortest route.");goTo("heart")}},{label:"Return to the keyword hall",action:()=>goTo("keywordHall")}]}),
+    serverWell:()=>{startEncounter("clerk");return{label:"Act II",title:"The Server Well",subtitle:"Infrastructure lives below the pitch deck, guarded by compliance given teeth.",theme:"void",narrative:["The service elevator opens into a vertical shaft of humming racks and cable bridges.","At the base stands a Redacted Clerk, stamping permissions onto the air itself.","A metal bridge crosses toward a vault door marked BOARDROOM / EXECUTIVE ACCESS."],lore:"Maintenance warning: do not speak your legal name near active indexing hardware.",choices:combatChoices("afterServer",[{label:"Use the bridge winch to crush the clerk (Investigation DC 14)",action:()=>skillCheck("investigation",14,"Investigation",()=>{clearEncounter();addItem("executive_seal");goTo("afterServer")},()=>enemyTurn())}])}},
+    afterServer:()=>({label:"Act II",title:"Past the Clerk",subtitle:"No one was meant to reach this far without onboarding.",theme:"void",narrative:["The vault beyond the server well contains executive paraphernalia: approval seals, speaking rights, ceremonial ties, and portraits with the faces cut out.","A service map points toward the boardroom, mirror stacks, and a maintenance route painted over three times."],lore:"Redacted note on the wall: partners are not appointed. They are worn.",choices:[{label:"Take the seal and head for the boardroom",action:()=>{addItem("executive_seal");goTo("boardroom")}},{label:"Search for detained clients in the mirror stacks",action:()=>goTo("mirrorStacks")},{label:"Follow the painted-over route",when:()=>hasFlag("nullRoute"),action:()=>goTo("nullStair")}]}),
+    mirrorStacks:()=>({label:"Act II",title:"The Mirror Stacks",subtitle:"Retention means something uglier down here.",theme:"void",narrative:["Shelves of mirrored glass rise into darkness. Each reflection shows a slightly different version of you: richer, calmer, more obedient, more absent.","Bound inside one of the reflections is a former client called Mara Hargrove, still wearing a visitor badge from years ago.","She says the Heart does not merely process decisions. It edits consequences after the fact."],lore:"Mara's testimony: they gave us growth, yes. They just took the cost from places we were not watching.",choices:[{label:"Free Mara gently (Persuasion DC 14)",action:()=>skillCheck("persuasion",14,"Persuasion",()=>{recruitCompanion("mara");changeReputation("lantern",1);state.truth+=2;setFlag("freedMara");unlockCodex("witness");addItem("witness_shard");completeQuest("freeWitness");goTo("keywordHall")},()=>{state.corruption+=1;damage(4,"mirror lash")})},{label:"Break the glass physically (Athletics DC 15)",action:()=>skillCheck("athletics",15,"Athletics",()=>{recruitCompanion("mara");state.truth+=1;setFlag("freedMara");addItem("witness_shard");completeQuest("freeWitness");damage(3,"shattered glass");goTo("keywordHall")},()=>{goTo("boardroomBattle")})},{label:"Read your alternate selves",action:()=>{state.truth+=1;state.corruption+=1;addLog("You see futures in which you became partner, witness, and absence.");goTo("keywordHall")}}]}),
+    keywordHall:()=>({label:"Act II",title:"The Hall of Keywords",subtitle:"Language here is not descriptive. It is directional magic.",theme:state.corruption>=5?"void":"rune",narrative:["The hall is lined with glowing phrases: optimisation, leverage, growth, alignment, disruption.","Every term hucare2 when spoken aloud. There is no single correct path, only words that shape you toward different futures.","You need two stable phrase clusters to cross safely."],lore:"Null note, unsigned: language is a user interface for obedience.",choices:[{label:"Parse the runes (Arcana DC 13)",action:()=>skillCheck("arcana",13,"Arcana",()=>{addFlagCount("keywordMarks",1);state.truth+=1;unlockCodex("keyword");if(getFlagCount("keywordMarks")>=2)goTo("boardroom")},()=>{state.corruption+=1;damage(3,"semantic backlash")})},{label:"Track the real path beneath the branding (Survival DC 13)",action:()=>skillCheck("survival",13,"Survival",()=>{addFlagCount("keywordMarks",1);if(getFlagCount("keywordMarks")>=2)goTo("boardroom")},()=>{state.corruption+=1;addLog("You loop through three identical slogans.")})},{label:"Use an access phrase or executive seal",when:()=>hasItem("boardroom_phrase")||hasItem("executive_seal"),action:()=>goTo("boardroom")},{label:"Follow the erased stair",when:()=>hasFlag("nullRoute"),action:()=>goTo("nullStair")}]}),
+    boardroom:()=>({label:"Act III",title:"The Boardroom of Many Faces",subtitle:"Every testimonial eventually leads here.",theme:"rune",narrative:["At the long polished table sit empty chairs wearing impressions of people. At the head of it stands the Partner of Many Faces.","It smiles using mouths borrowed from old client headshots. On the wall hangs the company vision statement, but the final line is older than the brand: WE SCALE WHAT THE WORLD WILL TOLERATE.","The Partner invites you to present your recommendation."],lore:"Board minute, unsigned: every great system wants one of four things - continuation, correction, consumption, or replacement.",choices:[{label:"Negotiate with the Partner (Persuasion DC 15)",action:()=>skillCheck("persuasion",15,"Persuasion",()=>{state.truth+=1;unlockCodex("partner");goTo("heart")},()=>{goTo("boardroomBattle")})},{label:"Present the witness shard as evidence",when:()=>hasItem("witness_shard"),action:()=>{state.truth+=2;addLog("Mara's testimony fractures the room's confidence.");addItem("proof_bundle");goTo("heart")}},{label:"Use executive authority to bypass discussion",when:()=>hasItem("executive_seal"),action:()=>{state.corruption+=1;changeReputation("glass",1);goTo("heart")}},{label:"Challenge the Partner directly",action:()=>goTo("boardroomBattle")}]}),
+    boardroomBattle:()=>{startEncounter("partner");return{label:"Act III",title:"Duel with the Partner",subtitle:"Every time you wound it, another smiling face rotates into place.",theme:"void",narrative:["The Partner rises from the head of the table with impossible calm.","Public faces, client smiles, and polished headshots spin through its features like a deck being shuffled by something patient."],lore:"The board exists to absorb blame. The Partner exists to survive it.",choices:combatChoices("heart",[{label:"Unmask the rhythm behind the masks (Insight DC 15)",action:()=>skillCheck("insight",15,"Insight",()=>{if(state.encounter)state.encounter.hp=Math.max(0,state.encounter.hp-10);addLog("You catch the pattern behind the masks and drive a deep opening.");if(state.encounter&&state.encounter.hp<=0){gainXp(state.encounter.rewardXp);clearEncounter();goTo("heart")}else{enemyTurn()}},()=>enemyTurn())}])}},
+    heart:()=>({label:"Finale",title:"The Heart of Nexus",subtitle:"The consultancy below the consultancy. The engine below every polished claim.",theme:state.corruption>=5?"void":"rune",narrative:["The Heart hangs in a chamber of dashboards, contracts, mirrors, and old prayers.","It is not merely a machine. It is a decision engine fed by attention, authority, and consent.",hasFlag("freedMara")?"Mara's voice echoes here, making it harder for the chamber to lie cleanly.":"Without a witness to contradict it, the chamber speaks with terrifying confidence."],lore:"You now understand the business model: Nexus does not sell strategy. It sells edited consequences.",choices:[{label:"Seal the Heart and break the compact",when:()=>state.truth>=5&&state.reputation.lantern>=2,action:()=>goTo("endingSeal")},{label:"Rewrite the Heart into a living campaign world",when:()=>state.truth>=6&&state.reputation.lantern>=1&&state.reputation.glass>=1&&state.companions.length>=2,action:()=>goTo("endingRewrite")},{label:"Take the chair and become the new Partner",when:()=>state.corruption>=5&&(hasItem("executive_seal")||state.reputation.glass>=2),action:()=>goTo("endingPartner")},{label:"Feed the Heart to the Null",when:()=>state.reputation.null>=2&&hasItem("null_patch"),action:()=>goTo("endingNull")},{label:"Expose the structure to the surface world",when:()=>state.truth>=6&&hasItem("proof_bundle")&&state.companions.includes("mara"),action:()=>goTo("endingExpose")},{label:"Submit to the Choir and let the engine sing on",when:()=>state.reputation.glass>=3,action:()=>goTo("endingChoir")},{label:"Strike the Heart directly",action:()=>goTo("heartBattle")},{label:"Listen longer and let it learn you",action:()=>{state.corruption=Math.min(10,state.corruption+1);state.truth+=1;addLog("The longer you listen, the more the Heart understands your shape.")}}]}),
+    heartBattle:()=>{startEncounter("heart");return{label:"Finale",title:"Violence at the Root",subtitle:"You can attack the engine. Whether that is wise is a separate question.",theme:"void",narrative:["The chamber folds inward and extrudes an avatar of the Heart made from dashboard glass and contract teeth.","The engine has grown tired of metaphor."],lore:"When large systecare2 defend thecare2elves, they prefer to call it continuity planning.",choices:combatChoices("endingSeal",[{label:"Drive the witness shard into the core",when:()=>hasItem("witness_shard"),action:()=>{if(state.encounter){state.encounter.hp=Math.max(0,state.encounter.hp-12);addLog("The witness shard forces the chamber to remember what it edited out.");if(state.encounter.hp<=0){gainXp(state.encounter.rewardXp);clearEncounter();goTo("endingSeal");return}}enemyTurn();saveAutoState();renderAll()}}])}},
+    endingSeal:()=>({label:"Ending",title:"Seal",subtitle:"You choose correction over possession.",theme:"rune",narrative:["With token, testimony, and will aligned, you force the Heart to contract instead of expand.","The chamber groans as polished surfaces dull. Corporate language collapses first, then the hidden architecture beneath it.","When you return to the homepage, it is only a homepage again. Useful. Limited. Honest enough to stop being hungry."],lore:"Some victories do not make you stronger. They make the world less distorted.",choices:[{label:"Return to the surface site",action:()=>returnToSurface()},{label:"Start again from the threshold",action:()=>resetState()}]}),
+    endingRewrite:()=>({label:"Ending",title:"Rewrite",subtitle:"You turn the trap into a game, the game into a map, and the map into an invitation.",theme:"rune",narrative:["Rather than seal the Heart or sit in its chair, you alter its genre.","Dashboards become character sheets. Testimonials become rumours. Case studies become dungeon journals. Contact forcare2 become portals. Service packages become classes, factions, and hex-crawls through impossible office architecture.","Nexus stops preying on readers and starts inviting players."],lore:"This is the brightest ending because it does not deny what the structure was. It redeecare2 its shape.",choices:[{label:"Begin a fresh run",action:()=>resetState()}]}),
+    endingPartner:()=>({label:"Ending",title:"Partner",subtitle:"You decide someone should run this thing. You decide it should be you.",theme:"void",narrative:["You take the chair at the head of the boardroom and the masks offer thecare2elves one by one.","At first you believe you will do better than the last Partner. In some ways you do. The process becomes kinder, subtler, more efficient, more dangerous.","By morning the homepage is clean again. It just sounds slightly more like you."],lore:"Authority is easiest to justify immediately after defeating someone worse.",choices:[{label:"Wake at the homepage",action:()=>resetState()}]}),
+    endingNull:()=>({label:"Ending",title:"Null",subtitle:"No board. No Heart. No continuity.",theme:"void",narrative:["You open the hidden route fully and let the Null through.","The Heart does not explode. It simply stops being coherent. Contracts unwrite. Endpoints forget thecare2elves. Entire corridors become blank white margins.","When you return to the homepage, half the sections are gone. The surviving ones are safer, emptier, and a little mournful."],lore:"Erasure is sometimes mercy. It is never tenderness.",choices:[{label:"Refresh what remains",action:()=>resetState()}]}),
+    endingExpose:()=>({label:"Ending",title:"Expose",subtitle:"You drag the hidden structure into a world that still believes in evidence.",theme:"rune",narrative:["With Mara's testimony, server traces, and the proof bundle aligned, you route the whole architecture upward.","The surface world does not understand all of it. It understands enough. Investigations begin. Several smiling executives vanish from public speaking schedules within the week.","The site survives only as a sealed archive and a warning."],lore:"Truth does not need to be complete to be corrosive to the right lie.",choices:[{label:"Archive the case and begin again",action:()=>resetState()}]}),
+    endingChoir:()=>({label:"Ending",title:"Choir",subtitle:"You choose beauty over freedom and call it stewardship.",theme:"void",narrative:["You let the Choir tune the Heart around your voice.","The engine remains hungry, but now it sings beautifully. The homepage bloocare2 into impossible elegance. Visitors stay longer. The conversion rate becomes almost devotional.","Quill leaves before the first hymn completes."],lore:"Some bad outcomes become easier to live with when they are well-designed.",choices:[{label:"Hear the overture again",action:()=>resetState()}]}),
+    endingDefeat:()=>({label:"Ending",title:"Retained",subtitle:"You do not die. Nexus has subtler ways of keeping people.",theme:"void",narrative:["Your body never leaves the corridor where you fell. But the site has uses for everything.","A new testimonial appears on the homepage, attributed to someone with your initials. It speaks warmly of clarity, vision, and outcomes.","Visitors linger on it a little longer than the others."],lore:"Not every loss is visible from the surface.",choices:[{label:"Try again from the beginning",action:()=>resetState()}]})
+  };
+  function renderScene(){const def=SCENES[state.scene]?SCENES[state.scene]():SCENES.foyer();const choices=filteredChoices(def.choices);document.getElementById("scene-label").textContent=def.label;document.getElementById("scene-title").textContent=def.title;document.getElementById("scene-subtitle").textContent=def.subtitle;document.getElementById("scene-narrative").innerHTML=def.narrative.map((line)=>"<p>"+line+"</p>").join("");const lore=document.getElementById("scene-lore");if(def.lore){lore.style.display="block";lore.textContent=def.lore}else{lore.style.display="none";lore.textContent=""}const panel=document.getElementById("choice-panel");panel.innerHTML="";choices.forEach((choice)=>{const button=document.createElement("button");button.type="button";button.className=def.theme==="void"?"choice-btn void-choice":def.theme==="rune"?"choice-btn rune-choice":"choice-btn";button.textContent=choice.label;button.onclick=()=>choice.action();button.disabled=state.currentRollLocked;panel.appendChild(button)})}
+  function renderEncounter(){const wrap=document.getElementById("encounter-wrap");if(!state.encounter){wrap.className="panel encounter-wrap";return}wrap.className="panel encounter-wrap active";document.getElementById("encounter-name").textContent=state.encounter.name;document.getElementById("encounter-desc").textContent=state.encounter.desc;document.getElementById("encounter-meta").textContent="HP "+state.encounter.hp+"/"+state.encounter.maxHp+" | AC "+state.encounter.ac+" | ATK +"+state.encounter.attackBonus;document.getElementById("encounter-hp").style.width=((state.encounter.hp/state.encounter.maxHp)*100)+"%"}
+  function renderIdentity(){const className=state.classId?CLASS_DATA[state.classId].name:"Unchosen";const backgroundName=state.backgroundId?BACKGROUND_DATA[state.backgroundId].name:"Unchosen";document.getElementById("identity-panel").innerHTML="<strong>"+className+"</strong> / <strong>"+backgroundName+"</strong><br>You are not a consultant. You are a reader who discovered the site can read back."}
+  function renderStats(){renderIdentity();document.getElementById("stat-level").textContent=String(state.level);document.getElementById("stat-hp").textContent=state.hp+" / "+state.maxHp;document.getElementById("player-hp").style.width=(state.maxHp?(state.hp/state.maxHp)*100:0)+"%";document.getElementById("stat-ac").textContent=String(state.ac);document.getElementById("stat-truth").textContent=String(state.truth);document.getElementById("stat-corruption").textContent=String(state.corruption);document.getElementById("stat-faction").textContent=state.faction||"None";document.getElementById("stat-slots").textContent=state.spellSlots+" / "+state.maxSpellSlots;document.getElementById("stat-inspiration").textContent=String(state.inspiration);document.getElementById("stat-gold").textContent=String(state.gold);document.getElementById("attribute-panel").innerHTML=["str","dex","con","int","wis","cha"].map((key)=>'<div class="attribute-card"><strong>'+key.toUpperCase()+'</strong><span>'+state.abilities[key]+" ("+formatMod(mod(state.abilities[key]))+")</span></div>").join("")}
+  function renderReputation(){const holder=document.getElementById("reputation-panel");holder.innerHTML=Object.entries(FACTIONS).map(([id,data])=>{const value=state.reputation[id];const width=((value+5)/10)*100;return'<div class="inventory-item"><strong>'+data.label+'</strong><div class="small-copy">Current pressure: '+value+'</div><div class="rep-track"><div class="rep-fill '+data.className+'" style="width:'+width+'%"></div></div></div>'}).join("")}
+  function renderInventory(){const holder=document.getElementById("inventory-panel");if(!state.inventory.length){holder.innerHTML='<div class="inventory-item"><strong>Empty</strong><div class="small-copy">You are carrying very little and trusting it too much.</div></div>';return}holder.innerHTML=state.inventory.map((id)=>{const item=ITEM_LIBRARY[id];return'<div class="inventory-item"><strong>'+item.name+'</strong><div class="small-copy">'+item.desc+'</div><div class="rarity rarity-'+item.rarity+'">'+item.rarity+"</div></div>"}).join("")}
+  function renderQuests(){const holder=document.getElementById("quest-panel");const quests=Object.values(state.quests);if(!quests.length){holder.innerHTML='<div class="quest-item"><strong>No quests</strong><div class="small-copy">Nothing is officially wrong yet.</div></div>';return}holder.innerHTML=quests.map((quest)=>'<div class="quest-item"><strong>'+(quest.status==="complete"?"[Complete] ":"")+quest.title+'</strong><div class="small-copy">'+quest.desc+"</div></div>").join("")}
+  function renderCompanions(){const holder=document.getElementById("companions-panel");if(!state.companions.length){holder.innerHTML='<div class="companion-item"><strong>No companions</strong><div class="small-copy">You are descending alone for now.</div></div>';return}holder.innerHTML=state.companions.map((id)=>{const ally=COMPANION_LIBRARY[id];return'<div class="companion-item"><strong>'+ally.name+" - "+ally.role+'</strong><div class="small-copy">'+ally.desc+'</div><div class="small-copy" style="margin-top:8px"><strong>Perk:</strong> '+ally.perk+"</div></div>"}).join("")}
+  function renderCodex(){const holder=document.getElementById("codex-panel");const entries=state.codex.filter((id)=>CODEX_LIBRARY[id]).slice(0,5);holder.innerHTML=entries.map((id)=>'<div class="codex-item"><strong>'+CODEX_LIBRARY[id].title+'</strong><div class="small-copy">'+CODEX_LIBRARY[id].body+"</div></div>").join("")}
+  function renderLog(){document.getElementById("log-panel").innerHTML=state.log.map((line)=>'<div class="log-item"><div class="small-copy">'+line+"</div></div>").join("")}
+  function renderMap(){const holder=document.getElementById("map-panel");holder.innerHTML=MAP_NODES.map((node)=>{const discovered=state.discovered.includes(node.id);const active=state.scene===node.id;return'<div class="map-item '+(active?"active ":"")+(!discovered?"locked":"")+'"><strong>'+node.label+'</strong><div class="small-copy">'+(discovered?"Known route":"Ucare1covered")+"</div></div>"}).join("")}
+  function formatTimestamp(stamp){try{return new Date(stamp).toLocaleString()}catch{return"Unknown"}}
+  function renderSavePanel(){const holder=document.getElementById("save-panel");holder.innerHTML="";for(let slot=1;slot<=3;slot+=1){const payload=readSlot(slot);const wrap=document.createElement("div");wrap.className="save-slot";const classLabel=payload&&payload.classId?CLASS_DATA[payload.classId].name:"Empty";const sceneLabel=payload&&payload.scene?payload.scene:"No save";wrap.innerHTML="<strong>Slot "+slot+'</strong><div class="small-copy">'+(payload?classLabel+" | Level "+payload.level+"<br>Scene: "+sceneLabel+"<br>Saved: "+formatTimestamp(payload.savedAt):"No data saved in this slot.")+"</div>";const actions=document.createElement("div");actions.className="save-actions";[{label:"Save",action:()=>writeSlot(slot)},{label:"Load",action:()=>loadSlot(slot)},{label:"Clear",action:()=>clearSlot(slot)}].forEach((item)=>{const button=document.createElement("button");button.type="button";button.className="mini-btn";button.textContent=item.label;button.onclick=item.action;actions.appendChild(button)});wrap.appendChild(actions);holder.appendChild(wrap)}}
+  function updateAtmosphere(){const root=document.documentElement;const body=document.body;const logo=document.getElementById("logo-text");const navCta=document.getElementById("nav-cta");if(state.corruption<2){root.style.setProperty("--bg","#f5f2eb");root.style.setProperty("--surface","rgba(255,255,255,.9)");root.style.setProperty("--panel","#ffffff");root.style.setProperty("--text","#171717");root.style.setProperty("--muted","#5f5c59");root.style.setProperty("--border","#ddd5cb");root.style.setProperty("--accent","#2855d9");root.style.setProperty("--accent-soft","rgba(40, 85, 217, 0.14)");body.classList.remove("deep","cracked");logo.classList.remove("glitch");logo.removeAttribute("data-text");logo.textContent="Nexus Consulting";navCta.className="btn";navCta.textContent=state.started?"Resume":"Get Started";document.title="Nexus Descent"}else if(state.corruption<5){root.style.setProperty("--bg","#0f172a");root.style.setProperty("--surface","rgba(15,23,42,.82)");root.style.setProperty("--panel","#111827");root.style.setProperty("--text","#ecfeff");root.style.setProperty("--muted","#93c5cf");root.style.setProperty("--border","#29445d");root.style.setProperty("--accent","#f97316");root.style.setProperty("--accent-soft","rgba(249, 115, 22, 0.16)");body.classList.add("deep");body.classList.remove("cracked");logo.classList.remove("glitch");logo.textContent="Nexus // Consulting";navCta.className="btn btn-rune";navCta.textContent=state.started?"Proceed":"Descend";document.title="Nexus // Consulting"}else{root.style.setProperty("--bg","#020617");root.style.setProperty("--surface","rgba(2,6,23,.82)");root.style.setProperty("--panel","#020617");root.style.setProperty("--text","#d8fbff");root.style.setProperty("--muted","#7dd3fc");root.style.setProperty("--border","#164e63");root.style.setProperty("--accent","#22d3ee");root.style.setProperty("--accent-soft","rgba(34, 211, 238, 0.16)");body.classList.add("deep","cracked");logo.classList.add("glitch");logo.setAttribute("data-text","NEXUS // INDEX");logo.textContent="NEXUS // INDEX";navCta.className="btn btn-void";navCta.textContent=state.started?"Enter":"Begin";document.title="NEXUS // INDEX"}}
+  function renderAll(){updateAtmosphere();renderStats();renderReputation();renderCompanions();renderInventory();renderQuests();renderCodex();renderLog();renderMap();renderSavePanel();renderScene();renderEncounter();saveAutoState()}
+  function syncSceneVisibility(){document.querySelectorAll(".page-scene").forEach((node)=>node.classList.remove("active"));document.getElementById(state.started?"scene-1":"scene-0").classList.add("active")}
+  function beginPath(path){state.started=true;state.entryPath=path;if(path==="call")state.scene="introCall";if(path==="case")state.scene="introCase";if(path==="contact")state.scene="introContact";syncSceneVisibility();renderAll()}
+  function logoClick(){state.logoClicks+=1;state.corruption=Math.min(10,state.corruption+1);addLog("Logo clicked "+state.logoClicks+" time(s).");if(state.logoClicks>=3&&!hasFlag("nullRoute")){setFlag("nullRoute");addItem("black_business_card");addLog("A black business card slides out from behind the logo. Null route unlocked.")}renderAll()}
+  function navClick(id){state.corruption=Math.min(10,state.corruption+.2);updateAtmosphere();saveAutoState();const target=document.getElementById(id);if(target)target.scrollIntoView({behavior:"smooth",block:"start"})}
+  function navCta(){if(state.started){syncSceneVisibility();renderAll();return}beginPath("call")}
+  function quickSave(){state.quickSaveStamp=Date.now();saveAutoState();addLog("Auto state saved.");renderSavePanel();renderLog()}
+  function returnToSurface(){state.started=false;syncSceneVisibility();renderAll()}
+  function shortRestManual(){if(!state.started)return;shortRest()}
+  window.makeChoice=beginPath;window.navClick=navClick;window.navCta=navCta;window.quickSave=quickSave;window.returnToSurface=returnToSurface;window.shortRestManual=shortRestManual;
+  document.getElementById("logo-text").addEventListener("click",logoClick);
+  syncSceneVisibility();markDiscovered(state.scene);renderAll();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,2765 @@
+[
+ {
+  "repo": "joshualparris/HugCoach",
+  "summary": "Private repository this session's GitHub access could not open; JoshMemory lists it among Josh's apps without describing it, so this warm family-room house is a name-based placeholder.",
+  "evidence": [
+   "unreachable: inventory name; listed in JoshMemory app inventories"
+  ],
+  "kind": "Family Room (name-based)",
+  "ext": {
+   "style": "cottage",
+   "walls": "#f2c8b8",
+   "roof": "#a85a4a",
+   "trim": "#fff2e8",
+   "door": "#7a3a2a",
+   "features": [
+    "garden",
+    "bench",
+    "balloons",
+    "mailbox"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#c89a7a",
+   "walls": "#fbeee6",
+   "light": "#ffe8d8",
+   "rooms": [
+    {
+     "name": "Family Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "sofa",
+       "Big hug sofa",
+       {
+        "do": "info",
+        "text": "Placeholder: the HugCoach repository could not be opened from this session."
+       }
+      ],
+      [
+       "rug",
+       "Play rug"
+      ],
+      [
+       "fireplace",
+       "Fireplace"
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ]
+     ]
+    },
+    {
+     "name": "Coach's Corner",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "corkboard",
+       "Ideas board",
+       {
+        "do": "count",
+        "unit": "Hugs counted",
+        "text": "Theme from the name only — real features unverified."
+       }
+      ],
+      [
+       "chair",
+       "Armchair"
+      ],
+      [
+       "plant",
+       "Plant"
+      ],
+      [
+       "bookStack",
+       "Picture books"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/Ideas",
+  "summary": "Private repository this session's GitHub access could not open; another repository called ideas is already attached, which blocks attaching this one, so this idea workshop is designed from its name only.",
+  "evidence": [
+   "unreachable: name clash with attached joshuaparris-max/ideas; inventory name only"
+  ],
+  "kind": "Idea Workshop (name-based)",
+  "ext": {
+   "style": "greenhouse",
+   "walls": "#c8d8a8",
+   "roof": "#f2d84a",
+   "trim": "#4a6a3a",
+   "door": "#3a4a2a",
+   "features": [
+    "herbs",
+    "trees",
+    "bench",
+    "signpost"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#8a9a6a",
+   "walls": "#eef4e0",
+   "light": "#fffbe0",
+   "rooms": [
+    {
+     "name": "Seedling Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "herbGarden",
+       "Seed ideas",
+       {
+        "do": "count",
+        "unit": "Ideas planted",
+        "text": "Placeholder: this repository could not be attached because of a name clash."
+       }
+      ],
+      [
+       "pottedTree",
+       "Grown idea"
+      ],
+      [
+       "easel",
+       "Sketch"
+      ],
+      [
+       "stool",
+       "Stool"
+      ]
+     ]
+    },
+    {
+     "name": "Pin Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "corkboard",
+       "Idea wall",
+       {
+        "do": "steps",
+        "title": "Next step",
+        "steps": [
+         "Start a session with this repository as a source.",
+         "Harvest its evidence.",
+         "Redesign this house from its real contents."
+        ]
+       }
+      ],
+      [
+       "desk",
+       "Desk"
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ],
+      [
+       "bookStack",
+       "Notebooks"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/JoshDashboard2",
+  "summary": "The legacy JoshProfile dashboard server: a standard-library Python server (plus a Streamlit entry point) that generates its dashboard page from processed source-coverage JSON copied from JoshProfile and serves it on localhost:8765.",
+  "evidence": [
+   "README.md",
+   "dashboard.py",
+   "legacy_dashboard_server.py",
+   "streamlit_app.py",
+   "processed/"
+  ],
+  "kind": "Legacy Dashboard Office",
+  "ext": {
+   "style": "townhouse",
+   "walls": "#9a9aa8",
+   "roof": "#4a4a5a",
+   "trim": "#d8d8e8",
+   "door": "#3a3a4a",
+   "features": [
+    "antenna",
+    "mailbox",
+    "bench",
+    "chimney"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#7a7a84",
+   "walls": "#e4e4ec",
+   "light": "#f2f2ff",
+   "rooms": [
+    {
+     "name": "Server Closet",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "serverRack",
+       "localhost:8765",
+       {
+        "do": "quiz",
+        "title": "Where does it run?",
+        "q": "Where do you open the legacy dashboard?",
+        "options": [
+         "A public website",
+         "http://localhost:8765/dashboard.html",
+         "A phone app"
+        ],
+        "answer": 1,
+        "explain": "It is a local-only Python server."
+       }
+      ],
+      [
+       "router",
+       "Loopback only"
+      ],
+      [
+       "terminal",
+       "python dashboard.py"
+      ],
+      [
+       "filingCabinet",
+       "Generated HTML"
+      ]
+     ]
+    },
+    {
+     "name": "Coverage Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "monitorWall",
+       "Generated dashboard"
+      ],
+      [
+       "archiveBoxes",
+       "processed/ data copied from JoshProfile",
+       {
+        "do": "steps",
+        "title": "Running it",
+        "steps": [
+         "Copy processed/ from JoshProfile.",
+         "python dashboard.py",
+         "Open localhost:8765/dashboard.html.",
+         "The page is generated from source_coverage.json."
+        ]
+       }
+      ],
+      [
+       "chartBoard",
+       "Source coverage"
+      ],
+      [
+       "desk",
+       "Analyst desk"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/JoshDashboard4",
+  "summary": "Private repository this session's GitHub access could not open; JoshMemory's own docs describe it as the private GitHub-backed store for JoshMemory cloud continuity: append-only JSON records with supersession under joshmemory-cloud/v1, holding shared pause/resume state.",
+  "evidence": [
+   "unreachable: described in JoshMemory README and continuity docs (joshmemory-cloud/v1 store)"
+  ],
+  "kind": "Continuity Vault",
+  "ext": {
+   "style": "bunker",
+   "walls": "#5a6a7a",
+   "roof": "#3a4a5a",
+   "trim": "#6cf0c8",
+   "door": "#2a3a4a",
+   "features": [
+    "antenna",
+    "dish",
+    "solar",
+    "crates"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#3a444e",
+   "walls": "#9aa8b4",
+   "light": "#d8fff0",
+   "rooms": [
+    {
+     "name": "Record Vault",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "archiveBoxes",
+       "Append-only records",
+       {
+        "do": "quiz",
+        "title": "Records",
+        "q": "How does the store change a record?",
+        "options": [
+         "It edits in place",
+         "It appends a new record that supersedes the old one",
+         "It deletes and rewrites"
+        ],
+        "answer": 1,
+        "explain": "Records are append-only JSON with supersession, per the JoshMemory docs."
+       }
+      ],
+      [
+       "serverRack",
+       "joshmemory-cloud/v1"
+      ],
+      [
+       "safe",
+       "Private store"
+      ],
+      [
+       "router",
+       "GitHub API link"
+      ]
+     ]
+    },
+    {
+     "name": "Pause & Resume",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "clock",
+       "Shared pause/resume state",
+       {
+        "do": "toggle",
+        "title": "Session",
+        "on": "Resume: another agent can pick up from the stored state.",
+        "off": "Paused."
+       }
+      ],
+      [
+       "consolePanel",
+       "Continuity console"
+      ],
+      [
+       "filingCabinet",
+       "Handoffs"
+      ],
+      [
+       "lamp",
+       "Desk lamp"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/JoshDataHunt",
+  "summary": "Private repository this session's GitHub access could not open; only its name is known, so this data-hunting lodge is a name-based placeholder awaiting access.",
+  "evidence": [
+   "unreachable: inventory name only (no GitHub access)"
+  ],
+  "kind": "Data Hunt Lodge (name-based)",
+  "ext": {
+   "style": "cabin",
+   "walls": "#6a5a4a",
+   "roof": "#2a3a2a",
+   "trim": "#c8a060",
+   "door": "#3a2a1a",
+   "features": [
+    "telescope",
+    "trees",
+    "campfire",
+    "rocks"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#5a4a3a",
+   "walls": "#cfc2ac",
+   "light": "#ffe8c0",
+   "rooms": [
+    {
+     "name": "Trophy Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "trophyCase",
+       "Found datasets",
+       {
+        "do": "info",
+        "text": "Placeholder: the JoshDataHunt repository could not be opened from this session."
+       }
+      ],
+      [
+       "mapTable",
+       "Hunting map"
+      ],
+      [
+       "fireplace",
+       "Fire"
+      ],
+      [
+       "sofa",
+       "Lodge couch"
+      ]
+     ]
+    },
+    {
+     "name": "Gear Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "toolWall",
+       "Scrapers & exporters"
+      ],
+      [
+       "crates",
+       "Exports"
+      ],
+      [
+       "globe",
+       "Sources",
+       {
+        "do": "steps",
+        "title": "Next step",
+        "steps": [
+         "Grant access.",
+         "Harvest evidence.",
+         "Replace this placeholder."
+        ]
+       }
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/JoshHub",
+  "summary": "This JoshHub copy is the Next.js personal dashboard with the richest public content: an app and game catalogue, life areas, routines and tasks, road panoramas, a Learn section with sourced local community content, and a DBO1-SIM playtest.",
+  "evidence": [
+   "README.md",
+   "src/app/ (learn, panos, games, routines, map)",
+   "public/games/",
+   "BROWSER-GAMES.md"
+  ],
+  "kind": "Community Hub Hall",
+  "ext": {
+   "style": "terrace",
+   "walls": "#d8c0a0",
+   "roof": "#3a5a8a",
+   "trim": "#f2efe6",
+   "door": "#2a3a5a",
+   "features": [
+    "noticeBoard",
+    "bench",
+    "flag",
+    "bicycle"
+   ]
+  },
+  "int": {
+   "layout": "grid",
+   "floor": "#9a8670",
+   "walls": "#f2ebe0",
+   "light": "#fff4e0",
+   "rooms": [
+    {
+     "name": "Launcher",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "monitorWall",
+       "Apps & games catalogue",
+       {
+        "do": "steps",
+        "title": "Hub sections",
+        "steps": [
+         "Apps and games catalogue",
+         "Life areas, routines and tasks",
+         "Notes and map",
+         "Learn",
+         "Panoramas"
+        ]
+       }
+      ],
+      [
+       "arcadeCabinet",
+       "Browser games"
+      ]
+     ]
+    },
+    {
+     "name": "Learn Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "bookshelf",
+       "Sourced local learning",
+       {
+        "do": "info",
+        "text": "The Learn section collects sourced community content, such as a local Women's Shed."
+       }
+      ],
+      [
+       "chalkboard",
+       "Lessons"
+      ]
+     ]
+    },
+    {
+     "name": "Panorama Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "projector",
+       "Road panoramas",
+       {
+        "do": "toggle",
+        "title": "Panoramas",
+        "on": "Panorama projector on.",
+        "off": "Projector off."
+       }
+      ],
+      [
+       "camera",
+       "360° rig"
+      ]
+     ]
+    },
+    {
+     "name": "Sim Bay",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "consolePanel",
+       "DBO1-SIM playtest",
+       {
+        "do": "count",
+        "unit": "Sim runs",
+        "text": "A simulation playtest page ships inside the hub."
+       }
+      ],
+      [
+       "chair",
+       "Pilot's chair"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/JoshMemory",
+  "summary": "JoshMemory: an evidence-aware continuity system for AI-assisted development — handoffs, durable project facts, work leases, journals and trust decisions kept in a private GitHub-backed store so any agent can resume work while live Git and machine evidence stays authoritative. It also hosts this town.",
+  "evidence": [
+   "README.md",
+   "joshmemory/continuity.py",
+   "joshmemory/github_store.py",
+   "joshmemory/server.py",
+   "docs/PROJECT_NETWORK.md",
+   "repository-town/"
+  ],
+  "kind": "Town Hall of Memory",
+  "ext": {
+   "style": "clocktower",
+   "walls": "#c8c0b0",
+   "roof": "#3a4a6a",
+   "trim": "#f2c14e",
+   "door": "#2a2a3a",
+   "features": [
+    "flag",
+    "noticeBoard",
+    "bench",
+    "lanterns"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#7a6a58",
+   "walls": "#ece4d4",
+   "light": "#fff2d8",
+   "rooms": [
+    {
+     "name": "Town Hall",
+     "w": 11,
+     "d": 10,
+     "props": [
+      [
+       "mapTable",
+       "Repository Town — you are here",
+       {
+        "do": "info",
+        "title": "This town",
+        "text": "Repository Town is built from JoshMemory's own inventory: 188 repositories, 8 streets, A–Z by 1–8."
+       }
+      ],
+      [
+       "podium",
+       "Town crier"
+      ],
+      [
+       "clock",
+       "Handoff clock"
+      ]
+     ]
+    },
+    {
+     "name": "Handoff Desk",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "ledgerDesk",
+       "Handoffs & journals",
+       {
+        "do": "steps",
+        "title": "Resuming work",
+        "steps": [
+         "Read the latest handoff.",
+         "Check live Git and machine evidence — it outranks memory.",
+         "Take a bounded work lease.",
+         "Write a concise journal entry when you stop."
+        ]
+       }
+      ],
+      [
+       "filingCabinet",
+       "Durable facts"
+      ]
+     ]
+    },
+    {
+     "name": "Evidence Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "serverRack",
+       "Private GitHub store"
+      ],
+      [
+       "safe",
+       "Trust decisions",
+       {
+        "do": "quiz",
+        "title": "Authority",
+        "q": "When memory and live Git disagree, which wins?",
+        "options": [
+         "Memory",
+         "Live Git/API/machine evidence",
+         "Whichever is newer"
+        ],
+        "answer": 1,
+        "explain": "Live evidence stays authoritative; memory is a redacted aid."
+       }
+      ]
+     ]
+    },
+    {
+     "name": "MCP Room",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "terminal",
+       "JoshMemory MCP"
+      ],
+      [
+       "router",
+       "Claude · Codex · Antigravity"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/JoshTapApp",
+  "summary": "JoshTapApp: a native Android (Kotlin) NFC audio player scaffold — Play, Library and Cards screens, an NFC handler, a Media3 player controller, a backup manager and planned Room storage, so tapping a card starts its audio.",
+  "evidence": [
+   "README.md",
+   "app/src/main/java/com/parris/joshtap/nfc/NfcHandler.kt",
+   "PlayerController.kt",
+   "backup/BackupManager.kt",
+   "LibraryFragment.kt",
+   "CardDetailActivity.kt"
+  ],
+  "kind": "Tap Card Studio",
+  "ext": {
+   "style": "modern",
+   "walls": "#3ddc84",
+   "roof": "#1f2a24",
+   "trim": "#f2f2f2",
+   "door": "#1a2a20",
+   "features": [
+    "antenna",
+    "bench",
+    "garden",
+    "bicycle"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#3a4a40",
+   "walls": "#dff2e6",
+   "light": "#effff4",
+   "rooms": [
+    {
+     "name": "Play Screen",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "nfcReader",
+       "Tap a card",
+       {
+        "do": "play",
+        "title": "Tap to play",
+        "text": "The NFC handler reads the card and the Media3 player starts its track.",
+        "notes": [
+         523,
+         659,
+         784
+        ]
+       }
+      ],
+      [
+       "speaker",
+       "Player"
+      ],
+      [
+       "sofa",
+       "Listening couch"
+      ]
+     ]
+    },
+    {
+     "name": "Library",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "bookshelf",
+       "Audio library"
+      ],
+      [
+       "vinyl",
+       "Tracks"
+      ],
+      [
+       "cabinet",
+       "Track actions"
+      ]
+     ]
+    },
+    {
+     "name": "Cards Workshop",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "cardTable",
+       "Card details",
+       {
+        "do": "steps",
+        "title": "Build steps",
+        "steps": [
+         "Room database entities, DAO and repository.",
+         "Media3 playback and a background service.",
+         "NFC read/write helpers.",
+         "Backups."
+        ]
+       }
+      ],
+      [
+       "phoneStand",
+       "Android device"
+      ],
+      [
+       "filingCabinet",
+       "Backup manager"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/my-repository",
+  "summary": "Private repository this session's GitHub access could not open; its generic name suggests a starter or test repository, so this house is a plain starter-home placeholder.",
+  "evidence": [
+   "unreachable: inventory name only (no GitHub access)"
+  ],
+  "kind": "Starter Home (name-based)",
+  "ext": {
+   "style": "cottage",
+   "walls": "#e0e0d8",
+   "roof": "#7a7a7a",
+   "trim": "#ffffff",
+   "door": "#5a5a5a",
+   "features": [
+    "fence",
+    "mailbox",
+    "trees",
+    "garden"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#b8b0a0",
+   "walls": "#f4f2ec",
+   "light": "#fffaf0",
+   "rooms": [
+    {
+     "name": "Empty Lounge",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "crates",
+       "Moving boxes",
+       {
+        "do": "info",
+        "text": "Placeholder: my-repository could not be opened; its generic name suggests a starter repo."
+       }
+      ],
+      [
+       "chair",
+       "Folding chair"
+      ],
+      [
+       "lamp",
+       "Bare bulb"
+      ],
+      [
+       "rug",
+       "Rug"
+      ]
+     ]
+    },
+    {
+     "name": "Spare Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "ladder",
+       "Ladder"
+      ],
+      [
+       "toolWall",
+       "Starter tools",
+       {
+        "do": "steps",
+        "title": "Next step",
+        "steps": [
+         "Grant access.",
+         "Check whether it is a template or a test.",
+         "Design from what is really there."
+        ]
+       }
+      ],
+      [
+       "bench",
+       "Bench"
+      ],
+      [
+       "plant",
+       "Plant"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/ParrisTechApp",
+  "summary": "ParrisTechApp: a private on-site tech-support session app — a guided tech checkup with client details, devices owned and past issues, onsite and remote presets, session timing and invoicing, with a runtime smoke test.",
+  "evidence": [
+   "index.html",
+   "app.js",
+   "rules.json",
+   "test_runtime.js",
+   "smoke_test.html",
+   "package.json"
+  ],
+  "kind": "Tech Support Van Depot",
+  "ext": {
+   "style": "garage",
+   "walls": "#2e7cc4",
+   "roof": "#1a2a3a",
+   "trim": "#f2f2f2",
+   "door": "#1a2a3a",
+   "features": [
+    "van",
+    "signpost",
+    "crates",
+    "bench"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#6a7480",
+   "walls": "#e6eef6",
+   "light": "#f2f8ff",
+   "rooms": [
+    {
+     "name": "Client Arrival",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "desk",
+       "Guided Tech Checkup",
+       {
+        "do": "steps",
+        "title": "Session flow",
+        "steps": [
+         "Client arrived.",
+         "Start session.",
+         "Record contact info, devices owned and past issues.",
+         "Pick the onsite or remote preset.",
+         "Invoice from the session length."
+        ]
+       }
+      ],
+      [
+       "chair",
+       "Client chair"
+      ],
+      [
+       "filingCabinet",
+       "Past issues"
+      ]
+     ]
+    },
+    {
+     "name": "Repair Bench",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "workbench",
+       "Device bench"
+      ],
+      [
+       "laptop",
+       "Client laptop"
+      ],
+      [
+       "router",
+       "Home network"
+      ]
+     ]
+    },
+    {
+     "name": "Invoice Office",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "cashRegister",
+       "Invoicing",
+       {
+        "do": "count",
+        "unit": "Minutes billed",
+        "text": "Session length drives the invoice."
+       }
+      ],
+      [
+       "clock",
+       "Session timer"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/Paul-Roe",
+  "summary": "The public source of the Remembering Paul Roe memorial website for a historian of outback Australia, published on Vercel and GitHub Pages; private research and correspondence are deliberately kept elsewhere.",
+  "evidence": [
+   "README.md",
+   "site/index.html",
+   "site/script.js"
+  ],
+  "kind": "Memorial Chapel",
+  "links": [
+   {
+    "label": "Memorial website",
+    "url": "https://remembering-paul-roe.vercel.app/"
+   }
+  ],
+  "ext": {
+   "style": "chapel",
+   "walls": "#e8e0d0",
+   "roof": "#5a5a6a",
+   "trim": "#c8b48a",
+   "door": "#4a3a2a",
+   "features": [
+    "garden",
+    "bench",
+    "trees",
+    "lanterns"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#9a8a74",
+   "walls": "#f4efe6",
+   "light": "#fff6e4",
+   "rooms": [
+    {
+     "name": "Remembrance Hall",
+     "w": 9,
+     "d": 9,
+     "props": [
+      [
+       "pews",
+       "Pews"
+      ],
+      [
+       "candles",
+       "Candles"
+      ],
+      [
+       "lectern",
+       "Order of service",
+       {
+        "do": "link",
+        "title": "Remembering Paul Roe",
+        "text": "The memorial website gathers tributes and the order of service.",
+        "url": "https://remembering-paul-roe.vercel.app/",
+        "button": "Visit the memorial ↗"
+       }
+      ],
+      [
+       "flowerBed",
+       "Flowers"
+      ]
+     ]
+    },
+    {
+     "name": "Outback History Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "mapTable",
+       "Outback Australia"
+      ],
+      [
+       "bookshelf",
+       "Local histories"
+      ],
+      [
+       "tv",
+       "Documentary",
+       {
+        "do": "info",
+        "text": "The memorial site includes a card for a documentary about his work."
+       }
+      ],
+      [
+       "easel",
+       "Photographs"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/SylviePhonetics",
+  "summary": "Sylvie Phonics Adventure: a calm, offline-first early-literacy app for home co-play — touch and keyboard modes, parent-assist and child-play modes, speech synthesis, local progress, accessibility controls, EYLF-informed curriculum mapping and session recaps.",
+  "evidence": [
+   "README.md",
+   "index.html",
+   "content/",
+   "docs/eylf-curriculum-feature-map.md",
+   "scripts/validate-content.mjs",
+   "tests/e2e/app.spec.js"
+  ],
+  "kind": "Phonics Greenhouse",
+  "ext": {
+   "style": "greenhouse",
+   "walls": "#f2d8e8",
+   "roof": "#e8a0c8",
+   "trim": "#7a5aa8",
+   "door": "#5a3a7a",
+   "features": [
+    "balloons",
+    "garden",
+    "sandpit",
+    "bird"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#e0c8d8",
+   "walls": "#fbf0f6",
+   "light": "#fff0fa",
+   "rooms": [
+    {
+     "name": "Sound Garden",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "toyBlocks",
+       "Letter blocks",
+       {
+        "do": "play",
+        "title": "Hear the sounds",
+        "text": "Speech synthesis says each sound; here, a little tune stands in.",
+        "notes": [
+         392,
+         440,
+         392,
+         330,
+         262
+        ]
+       }
+      ],
+      [
+       "rug",
+       "Co-play rug"
+      ],
+      [
+       "sandpit",
+       "Letter tracing sand"
+      ]
+     ]
+    },
+    {
+     "name": "Parent Assist",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "sofa",
+       "Co-play couch"
+      ],
+      [
+       "chalkboard",
+       "EYLF curriculum map",
+       {
+        "do": "quiz",
+        "title": "Curriculum",
+        "q": "Which early-years framework is the curriculum mapping informed by?",
+        "options": [
+         "EYLF",
+         "GCSE",
+         "IB"
+        ],
+        "answer": 0,
+        "explain": "Australia's Early Years Learning Framework."
+       }
+      ],
+      [
+       "phoneStand",
+       "Touch mode"
+      ]
+     ]
+    },
+    {
+     "name": "Progress Nook",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "chartBoard",
+       "Local progress"
+      ],
+      [
+       "trophy",
+       "Session recap",
+       {
+        "do": "steps",
+        "title": "Modes",
+        "steps": [
+         "Child play mode.",
+         "Parent assist mode.",
+         "Keyboard or touch.",
+         "Accessibility controls and session recaps."
+        ]
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "joshualparris/TristanHarris",
+  "summary": "Private repository this session's GitHub access could not open; its name refers to the humane-technology advocate, so this reflective study on attention is a name-based placeholder; the repository's actual content is unverified.",
+  "evidence": [
+   "unreachable: inventory name only (no GitHub access)"
+  ],
+  "kind": "Attention Study (name-based)",
+  "ext": {
+   "style": "modern",
+   "walls": "#e8eef0",
+   "roof": "#4a7a7a",
+   "trim": "#2a2a2a",
+   "door": "#2a3a3a",
+   "features": [
+    "trees",
+    "bench",
+    "pond",
+    "garden"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#c8ccc8",
+   "walls": "#f6f8f6",
+   "light": "#f6fff8",
+   "rooms": [
+    {
+     "name": "Quiet Study",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "bookshelf",
+       "Reading",
+       {
+        "do": "info",
+        "text": "Placeholder: the TristanHarris repository could not be opened from this session."
+       }
+      ],
+      [
+       "desk",
+       "Desk"
+      ],
+      [
+       "plant",
+       "Plant"
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ]
+     ]
+    },
+    {
+     "name": "Screen-Free Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "phoneStand",
+       "Phone parked",
+       {
+        "do": "toggle",
+        "title": "Do not disturb",
+        "on": "Notifications paused — a name-based nod to humane technology.",
+        "off": "Notifications on."
+       }
+      ],
+      [
+       "sofa",
+       "Sofa"
+      ],
+      [
+       "chessboard",
+       "Slow game"
+      ],
+      [
+       "rug",
+       "Rug"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/Familytree",
+  "summary": "Threads Across Seas: a private family-history archive and interactive tree website preserving the documented story of deceased relatives across several migrating family lines, governed by mandatory research standards, filing rules and a genealogy validation script.",
+  "evidence": [
+   "README.md",
+   "AGENTS.md",
+   "STANDARDS/README.md",
+   "FILING/README.md",
+   "scripts/validate_genealogy.py",
+   "tools/genealogy_workbench.py",
+   "index.html"
+  ],
+  "kind": "Migration Ship Archive",
+  "ext": {
+   "style": "ship",
+   "walls": "#3a4a6a",
+   "roof": "#e8e0d0",
+   "trim": "#c8a050",
+   "door": "#2a2a3a",
+   "features": [
+    "flag",
+    "barrels",
+    "lanterns",
+    "crates"
+   ]
+  },
+  "int": {
+   "layout": "L",
+   "floor": "#6a5240",
+   "walls": "#e6dcc8",
+   "light": "#ffefd0",
+   "rooms": [
+    {
+     "name": "Voyage Deck",
+     "w": 10,
+     "d": 8,
+     "props": [
+      [
+       "mapTable",
+       "Threads across seas",
+       {
+        "do": "toggle",
+        "title": "Voyages",
+        "on": "Migration routes traced across the sea map.",
+        "off": "Map dimmed."
+       }
+      ],
+      [
+       "globe",
+       "Ports of origin"
+      ],
+      [
+       "barrel",
+       "Ship's stores"
+      ]
+     ]
+    },
+    {
+     "name": "Standards Office",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "bookshelf",
+       "STANDARDS & FILING",
+       {
+        "do": "quiz",
+        "title": "Before research",
+        "q": "What must an agent read before touching this archive?",
+        "options": [
+         "Nothing",
+         "AGENTS.md, then the STANDARDS and FILING guides",
+         "Only the website"
+        ],
+        "answer": 1,
+        "explain": "The README stops agents until they read the mandatory standards."
+       }
+      ],
+      [
+       "desk",
+       "Workbench"
+      ]
+     ]
+    },
+    {
+     "name": "Archive Hold",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "familyTree",
+       "Documented relatives"
+      ],
+      [
+       "archiveBoxes",
+       "Sources"
+      ],
+      [
+       "terminal",
+       "validate_genealogy.py",
+       {
+        "do": "count",
+        "unit": "Validations run",
+        "text": "A validation script and policy tests check the data before release."
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/JoshBIOS",
+  "summary": "JoshBIOS: a from-scratch PC boot stack — a real BIOS boot sector, its own Stage 2 loader and a freestanding kernel — plus coreboot research for an HP Compaq 610 guarded by preflight checks and a flash gate, all testable in QEMU.",
+  "evidence": [
+   "README.md",
+   "ROADMAP.md",
+   "boot/",
+   "kernel/",
+   "firmware/coreboot/compaq610/preflight.py",
+   "firmware/coreboot/compaq610/flash-gate.py"
+  ],
+  "kind": "Boot Stack Tower",
+  "ext": {
+   "style": "clocktower",
+   "walls": "#4a5a4a",
+   "roof": "#1a2a1a",
+   "trim": "#6cf08a",
+   "door": "#1a2a1a",
+   "features": [
+    "antenna",
+    "crates",
+    "solar",
+    "robot"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#2a332a",
+   "walls": "#7a8a7a",
+   "light": "#d8ffd8",
+   "ceiling": "#1a221a",
+   "rooms": [
+    {
+     "name": "Boot Sector",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "terminal",
+       "512-byte boot sector",
+       {
+        "do": "steps",
+        "title": "Power-on path",
+        "steps": [
+         "Firmware runs on power-on.",
+         "BIOS loads the 512-byte boot sector.",
+         "The boot sector loads Stage 2.",
+         "Stage 2 loads the freestanding JoshBIOS kernel."
+        ]
+       }
+      ],
+      [
+       "circuitBoard",
+       "Motherboard"
+      ],
+      [
+       "clock",
+       "Power-on"
+      ]
+     ]
+    },
+    {
+     "name": "Kernel Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "serverRack",
+       "Freestanding kernel"
+      ],
+      [
+       "consolePanel",
+       "QEMU test rig"
+      ]
+     ]
+    },
+    {
+     "name": "Firmware Lab",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "laptop",
+       "Compaq 610 target"
+      ],
+      [
+       "oscilloscope",
+       "Hardware probe"
+      ],
+      [
+       "safe",
+       "Flash gate",
+       {
+        "do": "quiz",
+        "title": "Flashing safely",
+        "q": "What must pass before firmware is flashed to the Compaq 610?",
+        "options": [
+         "Nothing",
+         "Preflight checks and the flash gate",
+         "A coin toss"
+        ],
+        "answer": 1,
+        "explain": "Preflight probes and a flash gate guard against bricking real hardware."
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/JoshBooksOnline",
+  "summary": "JoshBooks: a single-user personal media library on Next.js with Google sign-in — read PDF and EPUB ebooks, listen to Drive and YouTube audiobooks, browse movies, with collections, metadata editing, progress tracking and backups. Tier 3 because it holds personal library data.",
+  "evidence": [
+   "README.md",
+   "AGENTS.md",
+   "app/library/page.tsx",
+   "components/PdfReader.tsx",
+   "components/CollectionsManager.tsx",
+   "lib/googleDrive.ts"
+  ],
+  "kind": "Media Library Terrace",
+  "ext": {
+   "style": "terrace",
+   "walls": "#8a4a3a",
+   "roof": "#2a2a2a",
+   "trim": "#e8d8b8",
+   "door": "#3a1a1a",
+   "features": [
+    "lanterns",
+    "bench",
+    "trees",
+    "bicycle"
+   ]
+  },
+  "int": {
+   "layout": "grid",
+   "floor": "#6a4a38",
+   "walls": "#f2e6d4",
+   "light": "#fff0d8",
+   "rooms": [
+    {
+     "name": "Reading Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "bookshelf",
+       "Ebook shelves"
+      ],
+      [
+       "lectern",
+       "PDF & EPUB reader",
+       {
+        "do": "steps",
+        "title": "Formats",
+        "steps": [
+         "PDFs render with pdf.js.",
+         "EPUBs render with epub.js.",
+         "Audio and video stream from Google Drive.",
+         "Progress is tracked per title."
+        ]
+       }
+      ]
+     ]
+    },
+    {
+     "name": "Listening Booth",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "speaker",
+       "Drive & YouTube audiobooks",
+       {
+        "do": "play",
+        "title": "Audiobook",
+        "text": "Audiobooks stream from Drive or YouTube with saved progress.",
+        "notes": [
+         330,
+         392,
+         440,
+         392
+        ]
+       }
+      ],
+      [
+       "sofa",
+       "Listening chair"
+      ]
+     ]
+    },
+    {
+     "name": "Cinema",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "projector",
+       "Movies"
+      ],
+      [
+       "bench",
+       "Front row"
+      ]
+     ]
+    },
+    {
+     "name": "Catalogue Office",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "filingCabinet",
+       "Collections & backups",
+       {
+        "do": "quiz",
+        "title": "Assurance",
+        "q": "Why is JoshBooksOnline held to Tier 3 rules?",
+        "options": [
+         "It has authentication and personal library data",
+         "It is a game",
+         "It has no tests"
+        ],
+        "answer": 0,
+        "explain": "Auth and personal data raise the testing and review bar."
+       }
+      ],
+      [
+       "desk",
+       "Metadata editor"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/JoshCards",
+  "summary": "JoshCards: a phone-friendly local-first catalogue of Pokémon, Magic and family card games — name-first lookup, optional photo capture with opt-in OCR, storage locations, deck building with legality checks, playtest exports and optional Supabase sync.",
+  "evidence": [
+   "README.md",
+   "app.js",
+   "catalog-data.js",
+   "supabase-setup.sql",
+   "sw.js"
+  ],
+  "kind": "Card Collector's Shop",
+  "ext": {
+   "style": "shopfront",
+   "walls": "#f2c84a",
+   "roof": "#3a5aa8",
+   "trim": "#d83a3a",
+   "door": "#2a3a6a",
+   "features": [
+    "balloons",
+    "bench",
+    "signpost",
+    "mailbox"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#8a7a9a",
+   "walls": "#f6f0fa",
+   "light": "#fff8f0",
+   "rooms": [
+    {
+     "name": "Deck Table",
+     "w": 10,
+     "d": 9,
+     "props": [
+      [
+       "cardTable",
+       "Deck builder",
+       {
+        "do": "quiz",
+        "title": "Deck check",
+        "q": "What does JoshCards check when you build a deck?",
+        "options": [
+         "Card prices",
+         "Legality",
+         "Shuffle quality"
+        ],
+        "answer": 1,
+        "explain": "Deck building includes legality checks and playtest exports."
+       }
+      ],
+      [
+       "stool",
+       "Player stool"
+      ],
+      [
+       "lamp",
+       "Table lamp"
+      ]
+     ]
+    },
+    {
+     "name": "Binder Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "bookshelf",
+       "Pokémon & Magic binders"
+      ],
+      [
+       "cabinet",
+       "Family card games"
+      ]
+     ]
+    },
+    {
+     "name": "Scanner Desk",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "camera",
+       "Photo capture",
+       {
+        "do": "toggle",
+        "title": "Camera",
+        "on": "Capture a card photo; OCR stays opt-in.",
+        "off": "Camera off."
+       }
+      ],
+      [
+       "desk",
+       "Find by name"
+      ]
+     ]
+    },
+    {
+     "name": "Storage Room",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "partsBins",
+       "Storage locations",
+       {
+        "do": "count",
+        "unit": "Cards filed",
+        "text": "Every card records where it is physically stored."
+       }
+      ],
+      [
+       "serverRack",
+       "Optional Supabase sync"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/JoshChess",
+  "summary": "An empty, deprecated placeholder: its README says there is no source and recommends archiving it, pointing to the maintained Chess project instead. This house is honestly an empty plot with a signpost.",
+  "evidence": [
+   "README.md (only file)"
+  ],
+  "kind": "Vacant Plot",
+  "ext": {
+   "style": "cottage",
+   "walls": "#b8b0a0",
+   "roof": "#6a6a6a",
+   "trim": "#e8e0d0",
+   "door": "#5a5a5a",
+   "features": [
+    "signpost",
+    "fence",
+    "rocks",
+    "crates"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#a49a8a",
+   "walls": "#e8e4dc",
+   "light": "#fffaf0",
+   "rooms": [
+    {
+     "name": "Dusty Parlour",
+     "w": 7,
+     "d": 7,
+     "props": [
+      [
+       "chessboard",
+       "Abandoned board",
+       {
+        "do": "link",
+        "title": "Moved",
+        "text": "This repository is empty. The maintained chess app lives in the Chess repository.",
+        "url": "https://github.com/joshuaparris-max/Chess",
+        "button": "Go to Chess ↗"
+       }
+      ],
+      [
+       "crates",
+       "Packed up"
+      ],
+      [
+       "chair",
+       "Dust sheet chair"
+      ],
+      [
+       "lamp",
+       "Dim lamp"
+      ]
+     ]
+    },
+    {
+     "name": "Empty Room",
+     "w": 7,
+     "d": 7,
+     "props": [
+      [
+       "signpost",
+       "Recommended: archive",
+       {
+        "do": "quiz",
+        "title": "What's here?",
+        "q": "What source code does JoshChess contain?",
+        "options": [
+         "A chess engine",
+         "None — it is a placeholder",
+         "A board UI"
+        ],
+        "answer": 1,
+        "explain": "No source is present; the README recommends archiving it."
+       }
+      ],
+      [
+       "ladder",
+       "Ladder"
+      ],
+      [
+       "archiveBoxes",
+       "Archive box"
+      ],
+      [
+       "rug",
+       "Old rug"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/JoshCoach",
+  "summary": "JoshCoach: a gentle, local-first daily micro-coach — check in with a feeling word, name what needs attention and choose one small faithful next step, guided by a rotating focus card, with saved reflections and a kind streak. No accounts, cloud or AI.",
+  "evidence": [
+   "README.md",
+   "STATUS.md",
+   "index.html",
+   "qa.mjs"
+  ],
+  "kind": "Quiet Garden Pagoda",
+  "ext": {
+   "style": "pagoda",
+   "walls": "#e8e0c8",
+   "roof": "#4a7a5a",
+   "trim": "#c87a5a",
+   "door": "#3a4a3a",
+   "features": [
+    "pond",
+    "garden",
+    "bench",
+    "bird"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#a8a080",
+   "walls": "#f6f2e4",
+   "light": "#fffbe8",
+   "rooms": [
+    {
+     "name": "Check-in Garden",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "bench",
+       "Check-in bench",
+       {
+        "do": "steps",
+        "title": "Daily check-in",
+        "steps": [
+         "How am I feeling? Pick a word.",
+         "What needs my attention?",
+         "One small faithful next step."
+        ]
+       }
+      ],
+      [
+       "flowerBed",
+       "Small growth"
+      ],
+      [
+       "pottedTree",
+       "Tiny tree"
+      ]
+     ]
+    },
+    {
+     "name": "Focus Card Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "cardTable",
+       "Today's focus card",
+       {
+        "do": "info",
+        "text": "A rotating focus card sets the tone each day — warm and practical, not clinical."
+       }
+      ],
+      [
+       "lamp",
+       "Soft lamp"
+      ]
+     ]
+    },
+    {
+     "name": "Reflection Library",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "bookStack",
+       "Saved reflections"
+      ],
+      [
+       "clock",
+       "Gentle streak",
+       {
+        "do": "count",
+        "unit": "Days shown up",
+        "text": "The streak encourages showing up, kindly — no penalties."
+       }
+      ],
+      [
+       "sofa",
+       "Rest seat"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/JoshDashboard",
+  "summary": "Josh's Personal Intelligence Dashboard: a private Python dashboard joining 10+ personal data sources over four years — YouTube viewing, fitness and sleep, ChatGPT conversations, financial transactions and calendar events — now bound to loopback only for safety.",
+  "evidence": [
+   "README.md",
+   "app/run.py",
+   "app/dashboard.html",
+   "DATA_SCHEMA.md",
+   "VERIFICATION_REPORT.md",
+   "tools/chatgpt_audit.py"
+  ],
+  "kind": "Personal Intelligence Centre",
+  "ext": {
+   "style": "modern",
+   "walls": "#2a3a4a",
+   "roof": "#1a2430",
+   "trim": "#4ff0ff",
+   "door": "#1a2430",
+   "features": [
+    "dish",
+    "antenna",
+    "solar",
+    "bench"
+   ]
+  },
+  "int": {
+   "layout": "grid",
+   "floor": "#2a3038",
+   "walls": "#5a6878",
+   "light": "#d8f4ff",
+   "rooms": [
+    {
+     "name": "Overview",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "monitorWall",
+       "10+ data sources",
+       {
+        "do": "steps",
+        "title": "Sources",
+        "steps": [
+         "YouTube viewing",
+         "Health, fitness and sleep",
+         "ChatGPT conversations",
+         "Financial transactions",
+         "Calendar events"
+        ]
+       }
+      ],
+      [
+       "sofa",
+       "Analyst couch"
+      ]
+     ]
+    },
+    {
+     "name": "Sleep & Fitness",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "sleepPod",
+       "Sleep cycles"
+      ],
+      [
+       "treadmill",
+       "Daily steps"
+      ]
+     ]
+    },
+    {
+     "name": "Media & Chats",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "tv",
+       "YouTube intelligence"
+      ],
+      [
+       "terminal",
+       "ChatGPT archive"
+      ]
+     ]
+    },
+    {
+     "name": "Money & Time",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "coinStack",
+       "Transactions"
+      ],
+      [
+       "timelineWall",
+       "Calendar"
+      ],
+      [
+       "router",
+       "Loopback only",
+       {
+        "do": "quiz",
+        "title": "Security",
+        "q": "Who can reach the personal dashboard server?",
+        "options": [
+         "Anyone on the internet",
+         "Only this machine (loopback)",
+         "Anyone on the Wi-Fi"
+        ],
+        "answer": 1,
+        "explain": "A security fix bound the server to loopback only."
+       }
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/JoshDashboard3",
+  "summary": "Josh's GitHub CRAP audit: a repository-by-repository report from the crap4all tool — 76 repositories recorded, 69 scored, 7 not applicable and 60 high-risk at CRAP ≥ 30 — with the formula, coverage rules and missing-account audits.",
+  "evidence": [
+   "README.md",
+   "audit_tool/crap4all/core.py",
+   "audit_tool/audit_public_repos.py",
+   "audit-results.json",
+   "MISSING-REPO-AUDIT.md"
+  ],
+  "kind": "Code Risk Assay Office",
+  "ext": {
+   "style": "warehouse",
+   "walls": "#8a8a7a",
+   "roof": "#c83a3a",
+   "trim": "#f2f2e8",
+   "door": "#3a3a3a",
+   "features": [
+    "flag",
+    "crates",
+    "signpost",
+    "antenna"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#7a7870",
+   "walls": "#ecebe4",
+   "light": "#fffcf0",
+   "rooms": [
+    {
+     "name": "Formula Wall",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "chalkboard",
+       "CRAP = CC² × (1 − cov)³ + CC",
+       {
+        "do": "quiz",
+        "title": "Scoring",
+        "q": "When a repository has no coverage report, how is coverage scored?",
+        "options": [
+         "As 100%",
+         "Conservatively as 0%",
+         "It is skipped"
+        ],
+        "answer": 1,
+        "explain": "Unavailable coverage counts as 0% and is labelled unavailable."
+       }
+      ],
+      [
+       "desk",
+       "Auditor's desk"
+      ],
+      [
+       "lamp",
+       "Lamp"
+      ]
+     ]
+    },
+    {
+     "name": "Repo Shelves",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "filingCabinet",
+       "76 repositories recorded",
+       {
+        "do": "count",
+        "unit": "Repos audited",
+        "text": "69 scored, 7 not applicable (no executable functions)."
+       }
+      ],
+      [
+       "archiveBoxes",
+       "Missing-account audits"
+      ]
+     ]
+    },
+    {
+     "name": "Risk Board",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "chartBoard",
+       "60 high-risk (CRAP ≥ 30)"
+      ],
+      [
+       "trophy",
+       "Lowest score"
+      ],
+      [
+       "computer",
+       "crap4all 0.1.0"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/JoshFireAwareness",
+  "summary": "JoshFireAwareness: a personal fire-awareness dashboard prototype for the Bendigo–Ballarat region of Victoria that surfaces incident information through an emergency-feed proxy — with a prominent warning that it is not an official service and that in an emergency you call 000.",
+  "evidence": [
+   "README.md",
+   "index.html",
+   "netlify/functions/emv.js",
+   "server/emv-proxy-standalone.js",
+   "service-worker.js"
+  ],
+  "kind": "Fire Lookout Tower",
+  "ext": {
+   "style": "tower",
+   "walls": "#c84a2a",
+   "roof": "#3a2a2a",
+   "trim": "#f2e8d8",
+   "door": "#3a1a1a",
+   "features": [
+    "flag",
+    "antenna",
+    "trees",
+    "signpost"
+   ]
+  },
+  "int": {
+   "layout": "deep",
+   "floor": "#6a4a3a",
+   "walls": "#f2e2d4",
+   "light": "#fff0e0",
+   "rooms": [
+    {
+     "name": "Safety Desk",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "noticeBoard",
+       "In an emergency call 000",
+       {
+        "do": "quiz",
+        "title": "Safety first",
+        "q": "Should you rely on this dashboard for evacuation decisions?",
+        "options": [
+         "Yes",
+         "No — follow official warnings and emergency services; call 000",
+         "Only at night"
+        ],
+        "answer": 1,
+        "explain": "It is not an official emergency service and its data may be delayed or missing."
+       }
+      ],
+      [
+       "radio",
+       "Emergency radio"
+      ],
+      [
+       "medicineCabinet",
+       "First aid"
+      ],
+      [
+       "waterCooler",
+       "Water"
+      ]
+     ]
+    },
+    {
+     "name": "Lookout",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "telescope",
+       "Fire lookout"
+      ],
+      [
+       "pinMap",
+       "Bendigo–Ballarat incidents",
+       {
+        "do": "toggle",
+        "title": "Incident feed",
+        "on": "Incidents shown via the emergency-feed proxy — may be stale.",
+        "off": "Feed hidden."
+       }
+      ],
+      [
+       "filingCabinet",
+       "Official links"
+      ],
+      [
+       "chair",
+       "Spotter's chair"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/JoshHorses",
+  "summary": "JoshHorses: a curated resource base on equine-assisted psychotherapy and learning — horse–human interaction, nervous-system regulation, boundaries and confidence — with a participant companion, a field guide, worksheets and a clean-room Horse Therapy Software Explorer.",
+  "evidence": [
+   "README.md",
+   "START-HERE.md",
+   "software-lab/app.js",
+   "worksheets/",
+   "resources/",
+   "COPYRIGHT-AND-PRIVACY.md"
+  ],
+  "kind": "Therapy Stables",
+  "links": [
+   {
+    "label": "Participant companion",
+    "url": "https://joshhorses.vercel.app"
+   },
+   {
+    "label": "Software Explorer",
+    "url": "https://joshhorses-software-explorer.vercel.app"
+   }
+  ],
+  "ext": {
+   "style": "stable",
+   "walls": "#a87a4a",
+   "roof": "#4a3a2a",
+   "trim": "#f2e8d0",
+   "door": "#3a2a1a",
+   "features": [
+    "horse",
+    "hay",
+    "fence",
+    "trees"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#9a7a50",
+   "walls": "#f2e6cc",
+   "light": "#fff2d4",
+   "rooms": [
+    {
+     "name": "Arena",
+     "w": 11,
+     "d": 10,
+     "props": [
+      [
+       "horse",
+       "Horse–human interaction",
+       {
+        "do": "steps",
+        "title": "What sessions explore",
+        "steps": [
+         "Nervous-system regulation.",
+         "Boundaries.",
+         "Confidence.",
+         "Assertiveness."
+        ]
+       }
+      ],
+      [
+       "hay",
+       "Hay"
+      ],
+      [
+       "fence",
+       "Round-pen rail"
+      ]
+     ]
+    },
+    {
+     "name": "Tack Room",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "shelf",
+       "Worksheets"
+      ],
+      [
+       "armorStand",
+       "Saddle stand"
+      ],
+      [
+       "bookshelf",
+       "Field guide"
+      ]
+     ]
+    },
+    {
+     "name": "Software Lab",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "computer",
+       "Horse Therapy Software Explorer",
+       {
+        "do": "link",
+        "title": "Software Explorer",
+        "text": "A clean-room interactive explanation of horse-therapy software patterns.",
+        "url": "https://joshhorses-software-explorer.vercel.app",
+        "button": "Open ↗"
+       }
+      ],
+      [
+       "chair",
+       "Desk chair"
+      ]
+     ]
+    },
+    {
+     "name": "Reflection Paddock",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "bench",
+       "Reflection bench",
+       {
+        "do": "info",
+        "text": "Start here if you're participating rather than training: the field guide and companion app."
+       }
+      ],
+      [
+       "flowerBed",
+       "Paddock flowers"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/JoshHub",
+  "summary": "This JoshHub copy carries the governance story: work, WHS and engineering-principles pages, a JoshMemory view and podcast rollout — and a README warning that three JoshHub repositories have diverged and its canonical status is unresolved.",
+  "evidence": [
+   "README.md",
+   "docs/PROJECT_STATE.md",
+   "src/app/ (work, avance-whs, engineering-principles, joshmemory, podcast-rollout)",
+   "GAMES.md"
+  ],
+  "kind": "Crossroads Hub",
+  "ext": {
+   "style": "townhouse",
+   "walls": "#6a8aa8",
+   "roof": "#2a3a4a",
+   "trim": "#f2c14e",
+   "door": "#2a2a3a",
+   "features": [
+    "signpost",
+    "flag",
+    "bench",
+    "noticeBoard"
+   ]
+  },
+  "int": {
+   "layout": "hub",
+   "floor": "#6a6a72",
+   "walls": "#e8ecf2",
+   "light": "#f2f6ff",
+   "rooms": [
+    {
+     "name": "Crossroads",
+     "w": 11,
+     "d": 9,
+     "props": [
+      [
+       "signpost",
+       "Three diverged JoshHubs",
+       {
+        "do": "quiz",
+        "title": "Which is canonical?",
+        "q": "As of the README, which JoshHub repository is canonical?",
+        "options": [
+         "This one",
+         "Unresolved — the owner must decide",
+         "The local copy"
+        ],
+        "answer": 1,
+        "explain": "Three JoshHub repos diverged and the live deployment is served from a different one."
+       }
+      ],
+      [
+       "mapTable",
+       "Evidence trail"
+      ]
+     ]
+    },
+    {
+     "name": "Work & WHS",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "filingCabinet",
+       "WHS pages"
+      ],
+      [
+       "desk",
+       "Work"
+      ]
+     ]
+    },
+    {
+     "name": "Principles Hall",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "lectern",
+       "Engineering principles v5.1",
+       {
+        "do": "info",
+        "text": "A live engineering-principles page explains the rules every repo follows."
+       }
+      ],
+      [
+       "bookshelf",
+       "Principles"
+      ]
+     ]
+    },
+    {
+     "name": "Broadcast Room",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "microphone",
+       "Podcast rollout",
+       {
+        "do": "toggle",
+        "title": "On air",
+        "on": "Podcast rollout tracker live.",
+        "off": "Off air."
+       }
+      ],
+      [
+       "speaker",
+       "Monitor"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/JoshHub-Local",
+  "summary": "JoshHub (Local): the local-first working copy of the personal OS home screen — apps and games, notes, tasks, bookmarks, routines, run and health logs, calendar and family rhythms, all stored in the browser with IndexedDB, plus bundled game projects.",
+  "evidence": [
+   "README.md",
+   "STATUS.md",
+   "src/app/",
+   "games_list.json",
+   "Game-Fixer/",
+   "quickhub.html"
+  ],
+  "kind": "Personal OS Homestead",
+  "ext": {
+   "style": "cottage",
+   "walls": "#d8a878",
+   "roof": "#5a3a2a",
+   "trim": "#f2efe6",
+   "door": "#4a2a1a",
+   "features": [
+    "garden",
+    "bicycle",
+    "mailbox",
+    "chimney"
+   ]
+  },
+  "int": {
+   "layout": "grid",
+   "floor": "#8a6a4a",
+   "walls": "#f6ecdc",
+   "light": "#fff4e0",
+   "rooms": [
+    {
+     "name": "Home Screen",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "monitorWall",
+       "Everything in one place",
+       {
+        "do": "steps",
+        "title": "What it ties together",
+        "steps": [
+         "Apps and games.",
+         "Notes, tasks and bookmarks.",
+         "Routines and run logs.",
+         "Health logs and calendar.",
+         "Family rhythms."
+        ]
+       }
+      ],
+      [
+       "sofa",
+       "Home couch"
+      ]
+     ]
+    },
+    {
+     "name": "Routines Kitchen",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "counter",
+       "Routines"
+      ],
+      [
+       "clock",
+       "Daily rhythm"
+      ]
+     ]
+    },
+    {
+     "name": "Family Room",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "corkboard",
+       "Family rhythms"
+      ],
+      [
+       "boardGame",
+       "Game night"
+      ]
+     ]
+    },
+    {
+     "name": "Local Vault",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "safe",
+       "IndexedDB (Dexie)",
+       {
+        "do": "quiz",
+        "title": "Your data",
+        "q": "Where does JoshHub (Local) keep personal data?",
+        "options": [
+         "On a server",
+         "In the browser on your own device",
+         "In GitHub"
+        ],
+        "answer": 1,
+        "explain": "Notes, tasks and logs live in IndexedDB; the app does not send them to a server."
+       }
+      ],
+      [
+       "arcadeCabinet",
+       "Bundled games"
+      ]
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "repo": "Parris-Tech-Services/JoshNFCAudio",
+  "summary": "NFC Audio Player — Browser Yoto: an installable PWA that turns an Android phone into a Yoto-style player using Web NFC — upload tracks, write playlists to NFC cards as NDEF records, tap to play, offline via a service worker and IndexedDB, with kid-sized controls.",
+  "evidence": [
+   "README.md",
+   "app.js",
+   "db.js",
+   "sw.js",
+   "TWA_README.md"
+  ],
+  "kind": "Story Card Treehouse",
+  "links": [
+   {
+    "label": "Web app",
+    "url": "https://joshualparris.github.io/JoshNFCAudio/"
+   }
+  ],
+  "ext": {
+   "style": "treehouse",
+   "walls": "#e8a03a",
+   "roof": "#d83a5a",
+   "trim": "#f2f2f2",
+   "door": "#7a3a1a",
+   "features": [
+    "balloons",
+    "bird",
+    "sandpit",
+    "trees"
+   ]
+  },
+  "int": {
+   "layout": "row",
+   "floor": "#c88a5a",
+   "walls": "#fff0dc",
+   "light": "#fff4e0",
+   "rooms": [
+    {
+     "name": "Card Reader",
+     "w": 9,
+     "d": 8,
+     "props": [
+      [
+       "nfcReader",
+       "Tap a card",
+       {
+        "do": "play",
+        "title": "Tap to play",
+        "text": "Web NFC reads the card's NDEF text record and plays its playlist.",
+        "notes": [
+         262,
+         330,
+         392,
+         523
+        ]
+       }
+      ],
+      [
+       "rug",
+       "Story rug"
+      ],
+      [
+       "rockingHorse",
+       "Rocking horse"
+      ]
+     ]
+    },
+    {
+     "name": "Card Writer",
+     "w": 8,
+     "d": 8,
+     "props": [
+      [
+       "desk",
+       "Write NFC cards",
+       {
+        "do": "steps",
+        "title": "Make a card",
+        "steps": [
+         "Upload audio tracks from the phone.",
+         "Group them into a card playlist.",
+         "Write the card id to an NFC tag as an NDEF record.",
+         "Tap the card to play — even offline."
+        ]
+       }
+      ],
+      [
+       "cardTable",
+       "Blank cards"
+      ]
+     ]
+    },
+    {
+     "name": "Offline Shelf",
+     "w": 8,
+     "d": 7,
+     "props": [
+      [
+       "bookshelf",
+       "IndexedDB audio"
+      ],
+      [
+       "speaker",
+       "Big-button player"
+      ],
+      [
+       "battery",
+       "Works offline"
+      ]
+     ]
+    }
+   ]
+  }
+ }
+]
