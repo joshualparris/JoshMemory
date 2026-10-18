@@ -154,6 +154,17 @@ def('crystal', 'Crystal', 0.8, 0.8, (b, o) => { b.cyl(0x6a6a7a, 0.4, 0.3, 0, 0.1
 def('portal', 'Portal', 2.0, 0.6, (b, o) => { for (const x of [-0.9, 0.9]) b.block(0x6a6a7a, 0.4, 2.6, 0.5, x, 0, 0); b.block(0x6a6a7a, 2.2, 0.4, 0.5, 0, 2.6, 0); dyn(b, o, 'box', o.c || 0x7a5ae8, [1.4, 2.5, 0.06], [0, 1.3, 0], 'glow', { emissive: true, always: !o.key }); });
 def('cauldron', 'Cauldron', 1.0, 1.0, (b, o) => { b.ball(0x2a2a2a, 0.5, 0, 0.45, 0, 0.8); dyn(b, o, 'cyl', o.c || 0x6cf08a, [0.75, 0.04, 0.75], [0, 0.8, 0], 'glow', { emissive: true, always: !o.key }); for (let i = 0; i < 3; i++) b.cyl(0x2a2a2a, 0.05, 0.2, Math.cos(i * 2.1) * 0.35, 0.05, Math.sin(i * 2.1) * 0.35); });
 def('torch', 'Wall torch', 0.4, 0.3, (b, o) => { b.block(WOOD, 0.08, 0.6, 0.08, 0, 1.3, 0); dyn(b, o, 'cone', o.c || 0xffa23a, [0.2, 0.35, 0.2], [0, 2.05, 0], 'glow', { emissive: true, always: true }); }, { solid: false });
+// A resident: the person who lives in the house and talks to visitors (src/ui/npc.js).
+def('resident', 'Resident', 0.8, 0.6, (b, o) => {
+  const shirt = o.c || 0x3f6fb5, legs = o.a || 0x2f3440, skin = 0xe2b48c;
+  for (const x of [-0.11, 0.11]) { b.block(legs, 0.16, 0.8, 0.2, x, 0, 0); b.block(0x2a2420, 0.18, 0.08, 0.26, x, 0, 0.03); }
+  b.block(shirt, 0.48, 0.62, 0.26, 0, 0.8, 0);
+  for (const x of [-0.31, 0.31]) { b.block(shirt, 0.12, 0.52, 0.14, x, 0.88, 0); b.ball(skin, 0.07, x, 0.86, 0); }
+  b.cyl(skin, 0.07, 0.1, 0, 1.47, 0);
+  b.ball(skin, 0.17, 0, 1.68, 0);
+  b.ball(0x3b2a1e, 0.175, 0, 1.75, -0.03, 0.55);
+  for (const x of [-0.06, 0.06]) b.ball(0x1d1d1d, 0.025, x, 1.7, 0.155);
+});
 def('statue', 'Statue', 1.0, 1.0, (b, o) => { const c = o.c || 0xbab6ae; b.block(c, 0.9, 0.6, 0.9, 0, 0, 0); b.block(c, 0.4, 0.9, 0.3, 0, 0.6, 0); b.ball(c, 0.18, 0, 1.68, 0); for (const x of [-0.27, 0.27]) b.block(c, 0.12, 0.7, 0.12, x, 0.8, 0); });
 def('runeStone', 'Rune stone', 0.9, 0.6, (b, o) => { b.add('box', o.c || 0x787880, 0.8, 1.8, 0.4, 0, 0.9, 0, 0, 0, 0.05); for (let i = 0; i < 4; i++) dyn(b, o, 'box', o.a || SCREEN, [0.3, 0.06, 0.02], [0, 0.6 + i * 0.3, 0.21], 'glow', { emissive: true }); });
 def('armorStand', 'Armour stand', 0.7, 0.6, (b, o) => { b.cyl(WOOD, 0.3, 0.06, 0, 0.03, 0); b.cyl(WOOD, 0.04, 1.2, 0, 0.6, 0); b.block(o.c || 0x9aa3ad, 0.6, 0.7, 0.35, 0, 1.0, 0); b.ball(o.c || 0x9aa3ad, 0.17, 0, 1.92, 0); });

@@ -9,6 +9,7 @@ import { animate } from './world/builder.js';
 import { makeLabel, disposeLabel } from './ui/labels.js';
 import { runInteraction, esc } from './ui/interactions.js';
 import { setArchiveLoader } from './ui/archive.js';
+import { takeKeysFromHash } from './ui/npc.js';
 
 const $ = (id) => document.getElementById(id);
 const status = (t) => { $('status').textContent = t; };
@@ -20,6 +21,8 @@ const SKY = 0x96c9f0, INDOOR = 0x1a1612;
 
 async function start() {
   // The standalone single-file build embeds the data so it runs from file:// with no server.
+  // A playtest link can carry Groq keys in its #fragment; they move to this browser's storage.
+  const keysAdded = takeKeysFromHash();
   const data = window.__HOUSES__ || await (await fetch('houses.json')).json();
   // Archive contents (READMEs, file lists) are large, so they load on first use.
   let archive = null;
@@ -158,6 +161,7 @@ async function start() {
     $('panel-body').scrollTop = 0; $('panel').scrollTop = 0;
     $('panel-title').textContent = content.title;
     $('panel-body').innerHTML = content.body;
+    content.mount?.($('panel-body'));
     const actions = $('panel-actions'); actions.innerHTML = '';
     for (const a of content.actions || []) {
       if (a.url) { const el = document.createElement('a'); el.href = a.url; el.target = '_blank'; el.rel = 'noopener'; el.textContent = a.label; el.className = 'btn-link'; actions.append(el); }
@@ -193,6 +197,7 @@ async function start() {
   function closePanel() { panelOpen = null; $('panel').hidden = true; }
 
   const ctx = {
+    get house() { return inside?.house; },
     activate: (k) => active.add(k),
     toggle: (k) => { if (active.has(k)) { active.delete(k); return false; } active.add(k); return true; },
   };
@@ -230,6 +235,9 @@ async function start() {
     if (world.hits(player.pos.x, player.pos.z, player.radius)) { if (mode === 'house') leave(false); spawn(); }
     status('Welcome back — your position was restored.');
   } else { spawn(); status('Welcome! Walk up to any front door to go inside.'); }
+  // The link can also arrive while the town is already open (same page, new #fragment).
+  addEventListener('hashchange', () => { const n = takeKeysFromHash(); if (n) status(`Saved ${n} Groq key${n > 1 ? 's' : ''} on this device — residents can now chat.`); });
+  if (keysAdded) status(`Saved ${keysAdded} Groq key${keysAdded > 1 ? 's' : ''} on this device — residents can now chat.`);
   let saveTimer = 0;
   const save = () => writeSave({ pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, inside: inside?.house.coordinate || null, visited: [...visited] });
   addEventListener('visibilitychange', () => { if (document.hidden) save(); });

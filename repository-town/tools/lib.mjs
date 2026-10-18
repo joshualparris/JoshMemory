@@ -9,6 +9,7 @@ import { BEHAVIOUR_NAMES } from '../src/ui/interactions.js';
 import { buildInterior } from '../src/world/interior.js';
 import { Builder } from '../src/world/builder.js';
 import { buildExterior } from '../src/world/exterior.js';
+import { residentName } from '../src/ui/npc.js';
 
 export const TOWN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 export const ROOT = path.resolve(TOWN, '..');
@@ -40,7 +41,7 @@ const hex = (v, fallback) => (typeof v === 'string' ? parseInt(v.replace('#', ''
 
 // Every house ends with the same Repository Archive room: six exhibits that open the
 // repository itself. It is generated, so it is excluded from the uniqueness gate.
-export function archiveRoom(repo, data, briefLinks) {
+export function archiveRoom(repo, data, briefLinks, coordinate = 'A1', colors = {}) {
   const live = [...(data?.live || []), ...briefLinks.map((l) => l.url).filter((u) => !/github\.com\//.test(u))].filter((u, k, a) => a.indexOf(u) === k);
   const act = (kind, title) => ({ do: kind, title, repo, ...(kind === 'live' ? { urls: live } : {}) });
   return {
@@ -54,6 +55,7 @@ export function archiveRoom(repo, data, briefLinks) {
       ['cardCatalog', 'Documentation', act('docs', 'Documentation')],
       ['treasureChest', 'Lucky dip', act('lucky', 'Lucky dip')],
       ['crystal', 'README fortune', act('fortune', 'README fortune')],
+      ['resident', `Talk to ${residentName(coordinate)}`, { do: 'npc', title: residentName(coordinate), name: residentName(coordinate), c: colors.walls, a: colors.roof, at: 'center' }],
       ['diceTable', 'Dice tray', { do: 'dice', title: 'Dice tray', sides: 20, set: true, text: 'Pick any die and roll. Advantage rolls two d20s and keeps the higher.' }],
     ],
   };
@@ -142,7 +144,7 @@ export function arcadeRoom(games) {
 // Converts a brief plus its inventory row into the runtime house shape.
 export function toHouse(brief, row, streets, repoData = {}, games = new Map()) {
   const e = brief.ext, i = brief.int;
-  const rooms = [...addToys(i.rooms, row.repo, row.repo.split('/')[1]), archiveRoom(row.repo, repoData[row.repo], brief.links || []), ...(games.has(row.repo) ? [arcadeRoom(games.get(row.repo))] : [])];
+  const rooms = [...addToys(i.rooms, row.repo, row.repo.split('/')[1]), archiveRoom(row.repo, repoData[row.repo], brief.links || [], row.coordinate, { walls: hex(e.walls, 0x3f6fb5), roof: hex(e.roof, 0x2f3440) }), ...(games.has(row.repo) ? [arcadeRoom(games.get(row.repo))] : [])];
   return {
     coordinate: row.coordinate,
     repo: row.repo,
@@ -194,7 +196,7 @@ export function sanitise(house) {
       rooms: house.int.rooms.map((r, ri) => ({
         ...r,
         name: r.archive ? r.name : `Room ${ri + 1}`,
-        props: r.props.map(([type, , act]) => (act?.do
+        props: r.props.map(([type, label, act]) => (act?.do === 'npc' ? [type, label, act] : act?.do
           ? [type, PROPS[type].label, { do: 'toggle', title: PROPS[type].label, on: generic, off: 'Switched off.', at: act.at, c: act.c, a: act.a }]
           : [type, undefined, act?.at ? { at: act.at, c: act.c, a: act.a } : act?.c ? { c: act.c, a: act.a } : undefined])),
       })),

@@ -3,6 +3,7 @@
 // Archive behaviours are async (they load repo-data.json); callers await the result.
 // `ctx.activate(key)` turns on the exhibit's animation; `ctx.toggle(key)` flips it.
 import { ARCHIVE } from './archive.js';
+import { npcBehaviour } from './npc.js';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const state = new Map();
@@ -113,7 +114,7 @@ export const BEHAVIOURS = {
   }),
 };
 
-Object.assign(BEHAVIOURS, ARCHIVE);
+Object.assign(BEHAVIOURS, ARCHIVE, { npc: npcBehaviour });
 
 export const BEHAVIOUR_NAMES = Object.keys(BEHAVIOURS);
 
