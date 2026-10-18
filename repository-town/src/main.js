@@ -356,7 +356,7 @@ async function start() {
       // House name boards are created only near the player to keep GPU memory low on phones.
       for (const [c, l] of town.lots) {
         const d = Math.hypot(l.doorPos.x - player.pos.x, l.doorPos.z - player.pos.z), has = houseLabels.get(c);
-        if (d < 55 && !has) { const s = makeLabel(`${c} · ${l.house.name}`, 'house'); s.position.set(l.doorPos.x, 3.4, l.doorPos.z + 1.1); town.group.add(s); houseLabels.set(c, s); }
+        if (d < 55 && !has) { const s = makeLabel(`${c} · ${l.house.name}`, 'house'); s.position.set(l.doorPos.x, 3.7, l.doorPos.z + 3.4); town.group.add(s); houseLabels.set(c, s); }
         else if (d > 70 && has) { town.group.remove(has); disposeLabel(has); houseLabels.delete(c); }
       }
       const nearRelic=expedition.nearby(player.pos);
