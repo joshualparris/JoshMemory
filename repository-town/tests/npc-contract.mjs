@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
-import {NPCS,getNPC,HOUSE_GUIDE} from '../src/ui/npc-data.js';
+import {NPCS,getNPC} from '../src/ui/npc-data.js';
 import handler from '../api/npc-chat.js';
 import * as THREE from 'three';
-import {placeTownNPCs,placeHouseGuide,animateNPCs} from '../src/world/npcs.js';
+import {placeTownNPCs,animateNPCs} from '../src/world/npcs.js';
 import fs from 'node:fs';
 assert.equal(NPCS.length,32);
 const newNPCs=NPCS.filter(n=>n.shape);
@@ -15,7 +15,7 @@ const inventory=JSON.parse(fs.readFileSync(new URL('../../docs/repository-town.j
 const occupied=new Set(inventory.projects.map(p=>p.coordinate));
 assert(NPCS.every(n=>occupied.has(n.coordinate)),'Every NPC needs an occupied town lot');
 assert(NPCS.every(n=>n.name && n.title && n.personality && n.coordinate));
-assert.equal(getNPC('curator'),HOUSE_GUIDE);
+assert.equal(getNPC('rowan')?.name,'Rowan');
 const fakeLots=new Map(NPCS.map((npc,i)=>[npc.coordinate,{
   lot:{z:i*30},doorPos:new THREE.Vector3(i*22,0,i*30+10)
 }]));
@@ -34,13 +34,9 @@ for(const e of placed){
   assert(Number.isFinite(e.pos.x)&&Number.isFinite(e.pos.z));
 }
 assert(new Set(placed.map(e=>e.npc.coordinate)).size===NPCS.length,'NPCs must occupy unique house coordinates');
-const interior={house:{name:'Test House',kind:'Workshop',coordinate:'C1'},
-  spawn:new THREE.Vector3(0,0,-3),rooms:[{x0:-5,x1:5,z0:-10,z1:0}],
-  colliders:[],group:new THREE.Group()};
-assert(placeHouseGuide(interior,()=>new THREE.Object3D()));
 
 const main=fs.readFileSync(new URL('../src/main.js',import.meta.url),'utf8');
-assert(main.includes('placeTownNPCs') && main.includes('placeHouseGuide'));
+assert(main.includes('placeTownNPCs') && main.includes('townRoutes'));
 assert(fs.readFileSync(new URL('../src/index.html',import.meta.url),'utf8').includes('id="npc-chat"'));
 assert(fs.readFileSync(new URL('../src/people.html',import.meta.url),'utf8').includes('people.js'));
 process.env.GROQ_API_KEY='fake-for-test-only';

@@ -215,6 +215,7 @@ function buildOnce(house, makeLabel, attempt) {
 
   const interactables = [];
   const placedProps = [];
+  const walkers = [];
   rooms.forEach((r, ri) => {
     const roomGaps = openings.filter((o) => (o.axis === 'z' && (Math.abs(o.at - r.z0) < 0.3 || Math.abs(o.at - r.z1) < 0.3) && o.c > r.x0 && o.c < r.x1) || (o.axis === 'x' && (Math.abs(o.at - r.x0) < 0.3 || Math.abs(o.at - r.x1) < 0.3) && o.c > r.z0 && o.c < r.z1))
       .map((o) => ({ axis: o.axis, at: o.axis === 'z' ? (Math.abs(o.at - r.z0) < 0.3 ? r.z0 + WALL_T : r.z1 - WALL_T) : (Math.abs(o.at - r.x0) < 0.3 ? r.x0 + WALL_T : r.x1 - WALL_T), c: o.c }));
@@ -234,6 +235,14 @@ function buildOnce(house, makeLabel, attempt) {
       if (!spot) spot = slots.wall(Math.max(prop.w, 0.6)) || (cells.length ? { ...cells.shift(), rot: 0 } : null);
       if (!spot) throw Object.assign(new Error(`${house.repo}: no room for ${type} in "${r.name}" — enlarge the room`), { crowded: spec.rooms.some((x) => x.archive) });
       const key = act && act.do ? `${house.coordinate}:${ri}:${pi}` : null;
+      // Residents are people, not furniture: main.js gives them a moving body (src/world/npcs.js).
+      if (prop.walker) {
+        const pos = new THREE.Vector3(spot.x, 0, spot.z);
+        walkers.push({ key, act, room: ri, pos, label });
+        interactables.push({ key, type, label: label || prop.label, act, room: ri, pos, roomName: r.name, person: true });
+        placedProps.push({ type, room: ri });
+        return;
+      }
       b.at(spot.x, 0, spot.z, spot.rot, () => prop.build(b, { c: act?.c, a: act?.a, key }));
       const sideways = Math.abs(Math.sin(spot.rot)) > 0.5;
       const fw = sideways ? prop.d : prop.w, fd = sideways ? prop.w : prop.d;
@@ -265,7 +274,7 @@ function buildOnce(house, makeLabel, attempt) {
   for (const l of labels) { const sprite = makeLabel(l.text, l.kind); sprite.position.copy(l.pos); sprite.userData.labelKind = l.kind; group.add(sprite); }
   const dynamics = built.children.filter((c) => c.userData.anim);
   return {
-    group, colliders, doors, interactables, dynamics, rooms, placedProps,
+    group, colliders, doors, interactables, dynamics, rooms, placedProps, walkers,
     spawn: new THREE.Vector3(ex, 0, rooms[0].z1 - 1.6),
     exitZone: { x0: ex - DOOR_W / 2, x1: ex + DOOR_W / 2, z0: rooms[0].z1 + 0.1, z1: rooms[0].z1 + 1.2 },
     bounds: rooms.reduce((a, r) => ({ x0: Math.min(a.x0, r.x0), x1: Math.max(a.x1, r.x1), z0: Math.min(a.z0, r.z0), z1: Math.max(a.z1, r.z1) }), { x0: Infinity, x1: -Infinity, z0: Infinity, z1: -Infinity }),

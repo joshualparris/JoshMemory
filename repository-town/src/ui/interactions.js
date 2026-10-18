@@ -4,6 +4,7 @@
 // `ctx.activate(key)` turns on the exhibit's animation; `ctx.toggle(key)` flips it.
 import { TOYS } from './toys.js';
 import { ARCHIVE } from './archive.js';
+import { npcBehaviour } from './npc.js';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const state = new Map();
@@ -114,7 +115,7 @@ export const BEHAVIOURS = {
   }),
 };
 
-Object.assign(BEHAVIOURS, ARCHIVE, TOYS);
+Object.assign(BEHAVIOURS, ARCHIVE, TOYS, { npc: npcBehaviour });
 
 export const BEHAVIOUR_NAMES = Object.keys(BEHAVIOURS);
 

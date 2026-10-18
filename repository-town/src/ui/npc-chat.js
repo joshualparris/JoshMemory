@@ -2,6 +2,8 @@
 // Only the visitor's submitted conversation is sent to the server; nothing is stored remotely
 // by Repository Town and no API key is ever sent to the browser.
 import { NPCS, getNPC } from './npc-data.js';
+import { creaturePrompt } from './npc-prompt.js';
+import { groq, getKeys } from './npc.js';
 
 const FALLBACK=[
   'My imagination is working, but the live AI connection is unavailable. Ask me again once your access code is set.',
@@ -123,9 +125,18 @@ export function mountNPCChat(root=document) {
     status.textContent='Thinking…';
     const accessCode=pin.value.trim();
     let reply='',online=false,stale=false;
-    if(!accessCode) {
+    // A Groq key saved on this device (GitHub Pages, offline zip) answers directly;
+    // otherwise the Vercel proxy answers for visitors holding the playtest access code.
+    if(getKeys().length) {
+      try {
+        reply=await groq([{role:'system',content:creaturePrompt(npc)},...history.slice(-8).map(({role,content})=>({role,content}))]);
+        online=true;
+      } catch(err) {
+        reply=FALLBACK[count++%FALLBACK.length]+(err.code==='badkey'?' (Groq rejected the saved key.)':err.code==='busy'?' (Groq is busy right now.)':' (Offline.)');
+      }
+    } else if(!accessCode) {
       reply=FALLBACK[count++%FALLBACK.length];
-      status.textContent='Offline dialogue · enter your private access code to enable Groq';
+      status.textContent='Offline dialogue · save a Groq key in any house resident\'s chat, or enter the playtest access code';
     } else {
       controller=new AbortController();
       const timeout=setTimeout(()=>controller?.abort(),22000);
