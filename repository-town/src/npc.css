@@ -70,3 +70,7 @@ body.npc-lounge #npc-roster-close,body.npc-lounge #npc-close{display:none}
 .npc-quest-result{color:#cfeebb;margin-top:9px!important;font-size:13px}
 .npc-quest-retry{margin-top:5px}
 @media(max-width:700px){.npc-activities{max-height:23dvh}.npc-prompt-row{flex-wrap:nowrap;overflow-x:auto}.npc-suggestion{flex:0 0 auto;max-width:190px;white-space:normal}}
+
+/* Keep the character picker usable alongside chat when the cast grows. */
+body.npc-lounge #npc-roster-items{max-height:min(580px,calc(100dvh - 295px));overflow-y:auto;overscroll-behavior:contain;padding-right:4px}
+@media(max-width:730px){body.npc-lounge #npc-roster-items{max-height:205px}body.npc-lounge #npc-chat{scroll-margin-top:8px}}
