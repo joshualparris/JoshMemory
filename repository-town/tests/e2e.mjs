@@ -114,10 +114,10 @@ async function mechanics(page, coord) {
   await go();
   await sleep(200);
   const z0 = (await st(page)).pos.z;
-  await page.keyboard.down('s'); await sleep(600); await page.keyboard.up('s');
+  await page.keyboard.down('s'); await sleep(1500); await page.keyboard.up('s');
   const walked = Math.abs((await st(page)).pos.z - z0);
   await go(); await sleep(200);
-  await page.keyboard.down('Shift'); await page.keyboard.down('s'); await sleep(600); await page.keyboard.up('s'); await page.keyboard.up('Shift');
+  await page.keyboard.down('Shift'); await page.keyboard.down('s'); await sleep(1500); await page.keyboard.up('s'); await page.keyboard.up('Shift');
   const ran = Math.abs((await st(page)).pos.z - z0);
   out.run = ran > walked * 1.3;
   await page.keyboard.press('c'); await sleep(400);
