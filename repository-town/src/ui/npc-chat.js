@@ -172,7 +172,7 @@ export function mountNPCChat(root=document) {
       const button=root.createElement('button');button.className='npc-roster-item';
       button.dataset.npcId=npc.id;
       button.textContent=(badges.includes(npc.id)?'🏅 ':'')+npc.emoji+' '+npc.name+' · '+npc.title;
-      button.addEventListener('click',()=>{show(npc);if(!root.body.classList.contains('npc-lounge'))root.getElementById('npc-roster').hidden=true;});
+      button.addEventListener('click',()=>{show(npc);if(root.body.classList.contains('npc-lounge'))el.scrollIntoView({behavior:'smooth',block:'start'});else root.getElementById('npc-roster').hidden=true;});
       list.appendChild(button);
     }
     updateQuestCount();
