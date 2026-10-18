@@ -140,7 +140,7 @@ async function start() {
   $('btn-map').onclick = () => setOverview(!overview);
   $('btn-help').onclick = () => { $('help').hidden = !$('help').hidden; };
   $('help-close').onclick = () => { $('help').hidden = true; };
-  $('btn-exit').onclick = () => { if (mode === 'house') { closePanel(); leave(); save(); status('Exited safely.'); } };
+  $('btn-exit').onclick = () => { stopGame(); if (mode === 'house') { closePanel(); leave(); save(); status('Exited safely.'); } };
   $('btn-unstuck').onclick = () => { closePanel(); if (mode === 'house' && inside) { leave(); } else { spawn(); } save(); status('Moved to safety. Your progress is preserved.'); };
   $('btn-reset').onclick = () => { clearSave(); if (mode === 'house') leave(false); spawn(); status('Position reset.'); };
   $('panel-close').onclick = () => closePanel();
@@ -306,7 +306,8 @@ async function start() {
         const target = dist < 2.8 ? 1 : 0; d.userData.open += (target - d.userData.open) * Math.min(1, dt * 5); d.rotation.y = d.userData.baseRot + d.userData.open * 1.5;
       }
       const ex = inside.exitZone;
-      if (Math.abs(player.pos.x) < 1.55 && player.pos.z > inside.rooms[0].z1 - 1.3 && player.pos.z < ex.z1 + 0.5) leave();
+      // Generous exit area: the doorway plus the last 1.3 m inside it, centred on the actual door.
+      if (Math.abs(player.pos.x - (ex.x0 + ex.x1) / 2) < 1.55 && player.pos.z > inside.rooms[0].z1 - 1.3 && player.pos.z < ex.z1 + 0.5) leave();
       else {
         nearThing = pickNear();
         $('prompt').hidden = !nearThing || !!panelOpen;
