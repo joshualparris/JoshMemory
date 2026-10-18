@@ -129,3 +129,7 @@ node tests/npc-contract.mjs
 The Vercel build also runs the 57-game integrity, packed-runtime, geometry and
 privacy tests. A successful build is not a substitute for a real mobile/browser
 gameplay check.
+
+## Adventure Guild exploration mode
+
+Twelve discoverable glowing relics are situated outside public houses, each with a puzzle and collectible reward. Open the Quest Journal with J, earn Compass and Lens milestones, visit houses for badges, and claim the final Guild Vault crown. Local-first: progress is in the user's browser storage and no AI calls are made for quests. See `src/adventure/`. Run `node tests/expedition.mjs` to validate. The Guild Chest starts near M4.
