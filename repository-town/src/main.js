@@ -10,7 +10,7 @@ import { makeLabel, disposeLabel } from './ui/labels.js';
 import { runInteraction, esc } from './ui/interactions.js';
 import { setArchiveLoader } from './ui/archive.js';
 import { mountNPCChat } from './ui/npc-chat.js';
-import { placeTownNPCs, placeHouseGuide, animateNPCs } from './world/npcs.js';
+import { placeTownNPCs, placeHouseGuide, animateNPCs, initialiseNPCWorksites } from './world/npcs.js';
 
 const $ = (id) => document.getElementById(id);
 const status = (t) => { $('status').textContent = t; };
@@ -49,6 +49,7 @@ async function start() {
 
   const town = buildTown(scene, houses, data.streets);
   const streetNPCs = placeTownNPCs(town.group, town.lots, makeLabel);
+  initialiseNPCWorksites(streetNPCs,town.group);
   streetSigns(town.group, data.streets, makeLabel);
   const half = { x: town.bounds.width / 2, z: town.bounds.depth / 2 };
   const edges = [
