@@ -6,6 +6,7 @@
 <title>Repository Town 3D</title>
 <meta name="description" content="Walk a town of 188 houses, each designed from a real GitHub repository.">
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="npc.css">
 <script type="importmap">{"imports":{"three":"./vendor/three.module.min.js","three/addons/utils/BufferGeometryUtils.js":"./vendor/BufferGeometryUtils.js"}}</script>
 </head>
 <body>
@@ -20,6 +21,8 @@
   <div class="row">
     <button id="btn-map" aria-pressed="false">Bird's-eye</button>
     <button id="btn-help">Help</button>
+    <button id="btn-npcs" type="button" title="Meet the AI residents">💬 NPCs</button>
+    <a class="btn-link" href="npcs.html">NPC Lounge</a>
     <a class="btn-link" href="arcade.html">Arcades</a>
     <button id="btn-exit" hidden>Exit house</button>
     <button id="btn-unstuck">Unstuck</button>
@@ -40,7 +43,7 @@
   <h2 id="help-title">How to play</h2>
   <p><b>Desktop:</b> WASD or arrows move · drag the mouse to look (double-click locks the pointer) · Shift runs · C crouches · Space jumps · E uses an exhibit · M toggles the bird's-eye map · Esc closes panels.</p>
   <p><b>Phone:</b> left thumb drags the joystick · right thumb drags to look · ⤒ jumps · ✋ uses · 🏃 and 🧎 toggle run and crouch.</p>
-  <p>Walk up to a front door and it opens; keep walking to go inside. Walk back out through the door you came in by. Your position saves automatically.</p>
+  <p>Walk up to a front door and it opens; keep walking to go inside. Walk back out through the door you came in by. Your position saves automatically.</p><p><b>NPCs:</b> Approach a character and press E or ✋, or tap 💬 NPCs. Characters can chat about any subject using Groq with your private access code. Your messages are sent to Groq when AI chat is enabled.</p>
 </section>
 <canvas id="minimap" width="260" height="110" aria-label="Town map"></canvas>
 <div id="touch" hidden>
@@ -56,6 +59,25 @@
   <div id="game-bar"><span id="game-title"></span><button id="game-exit">✕ Back to town</button></div>
   <iframe id="game-frame" title="Game" allow="autoplay; fullscreen; gamepad; clipboard-write" allowfullscreen></iframe>
 </section>
+
+<aside id="npc-roster" hidden aria-label="Talk to a town resident">
+  <div class="npc-roster-top"><strong>Meet the residents</strong><button type="button" id="npc-roster-close" aria-label="Close character list">✕</button></div>
+  <p>Each character has a different personality. Pick anyone.</p>
+  <div id="npc-roster-items"></div>
+</aside>
+<section id="npc-chat" hidden role="dialog" aria-label="Chat with a Repository Town resident" aria-modal="false">
+  <header class="npc-chat-top">
+    <span id="npc-avatar" aria-hidden="true">💬</span>
+    <div><h2 id="npc-name">Town resident</h2><p id="npc-role"></p></div>
+    <button id="npc-close" type="button" aria-label="End conversation">✕</button>
+  </header>
+  <div id="npc-messages" role="log" aria-live="polite" aria-relevant="additions text"></div>
+  <p id="npc-status" role="status">Live AI requires your private access code.</p>
+  <div class="npc-access"><label for="npc-code">🔑 AI access code</label><input id="npc-code" type="password" autocomplete="off" placeholder="From your playtest instructions"></div>
+  <form id="npc-form"><label class="visually-hidden" for="npc-input">Your message</label><input id="npc-input" maxlength="750" autocomplete="off" placeholder="Ask me anything…" required><button id="npc-send" type="submit">Send ↗</button></form>
+  <small>Fictional AI characters. Chat is sent to Groq when connected; please don't share sensitive information. Chats stay in this tab.</small>
+</section>
+
 <div id="crosshair" aria-hidden="true"></div>
 <script type="module" src="main.js"></script>
 </body>
