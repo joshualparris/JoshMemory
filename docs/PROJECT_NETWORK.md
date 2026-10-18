@@ -2,7 +2,8 @@
 
 ## Repository Town
 
-- [Walkable 3D Repository Town](./repository-town-3d.html) — 188 3D houses, keyboard and touch navigation, address search and GitHub links (download HTML and open in a browser; requires internet for Three.js).
+- [Repository Town (v2)](../repository-town/README.md) — every house designed from its repository's evidence, with explorable multi-room interiors, exhibits, collision, doors and phone controls; see its [acceptance checklist](../repository-town/ACCEPTANCE.md).
+- [Walkable 3D Repository Town v1](./repository-town-3d.html) — the earlier single-file version (themed, hash-varied houses), kept for reference.
 
 - [Interactive grid map](./repository-town.html) — 188 clickable houses with coordinates A–Z / 1–8 (download HTML to view in a browser).
 - [Street addresses and neighbour directory](./REPOSITORY_TOWN.md)

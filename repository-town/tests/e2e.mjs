@@ -12,6 +12,7 @@ const ONLY = arg('--only', '')?.split(',').filter(Boolean);
 const SHOTS = arg('--shots', '');
 const OUT = arg('--out', 'test-results/e2e.json');
 const MOBILE = !process.argv.includes('--skip-mobile');
+const DESKTOP = !process.argv.includes('--skip-desktop');
 const GL = ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'];
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -149,11 +150,14 @@ const results = { url: URL, date: new Date().toISOString(), desktop: {}, mobile:
 const d = await open(browser, { viewport: { width: 1100, height: 700 } });
 results.desktop.loadingHidden = d.loadingHidden;
 const houses = (await d.page.evaluate(() => window.__town.houses)).filter((h) => !ONLY.length || ONLY.includes(h.coordinate));
-results.desktop.mechanics = await mechanics(d.page, houses[0].coordinate);
-for (const h of houses) {
-  const r = await exercise(d.page, h.coordinate, 'keyboard');
-  results.houses[h.coordinate] = { name: h.name, desktop: r };
-  process.stdout.write(`${h.coordinate}${r.problems.length ? '✗' : '✓'} `);
+for (const h of houses) results.houses[h.coordinate] = { name: h.name };
+if (DESKTOP) {
+  results.desktop.mechanics = await mechanics(d.page, houses[0].coordinate);
+  for (const h of houses) {
+    const r = await exercise(d.page, h.coordinate, 'keyboard');
+    results.houses[h.coordinate].desktop = r;
+    process.stdout.write(`${h.coordinate}${r.problems.length ? '✗' : '✓'} `);
+  }
 }
 const s = await st(d.page);
 results.desktop.drawCalls = s.calls;
@@ -185,5 +189,5 @@ fs.writeFileSync(OUT, JSON.stringify(merged, null, 1));
 const bad = Object.entries(results.houses).filter(([, v]) => v.desktop?.problems.length || v.mobile?.problems.length);
 console.log(`Houses: ${Object.keys(results.houses).length} · failing: ${bad.length}`);
 for (const [c, v] of bad) console.log(c, [...(v.desktop?.problems || []), ...(v.mobile?.problems || []).map((p) => 'mobile: ' + p)].join(' | '));
-console.log('mechanics', JSON.stringify(results.desktop.mechanics), 'errors', results.desktop.errors.length + (results.mobile.errors?.length || 0));
-process.exit(bad.length || results.desktop.errors.length || results.mobile.errors?.length ? 1 : 0);
+console.log('mechanics', JSON.stringify(results.desktop.mechanics), 'errors', (results.desktop.errors?.length || 0) + (results.mobile.errors?.length || 0));
+process.exit(bad.length || results.desktop.errors?.length || results.mobile.errors?.length ? 1 : 0);
