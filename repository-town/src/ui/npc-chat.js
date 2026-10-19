@@ -2,6 +2,7 @@
 // Only the visitor's submitted conversation is sent to the server; nothing is stored remotely
 // by Repository Town and no API key is ever sent to the browser.
 import { NPCS, getNPC } from './npc-data.js';
+import { answerSceneQuestion } from './scene-awareness.js';
 
 const FALLBACK=[
   'The live AI is unavailable, but I can still chat with you offline.',
@@ -23,7 +24,7 @@ export function houseAwareReply(npc,house,question) {
     return `Have a look around ${place}! You can explore its rooms and try the interactive exhibits. I wonder which one you'll enjoy most.`;
   return null;
 }
-export function mountNPCChat(root=document) {
+export function mountNPCChat(root=document, { getScene = () => null } = {}) {
   const el=root.getElementById('npc-chat');
   const feed=root.getElementById('npc-messages');
   const title=root.getElementById('npc-name');
@@ -166,25 +167,35 @@ export function mountNPCChat(root=document) {
     // dismisses the Android keyboard and refocusing makes it jump back.
     status.textContent='Thinking…';
     let reply='',online=false,stale=false;
-    controller=new AbortController();
-    const timeout=setTimeout(()=>controller?.abort(),22000);
-    try {
-      const res=await fetch(chatEndpoint,{
-        method:'POST',credentials:'omit',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({npcId:npc.id,house:house?{name:house.name,kind:house.kind,coordinate:house.coordinate}:null,
-          messages:history.slice(-8).map(({role,content})=>({role,content}))}),
-        signal:controller.signal
-      });
-      const payload=await res.json().catch(()=>({}));
-      if(!res.ok)throw Error(payload.error||'AI unavailable ('+res.status+')');
-      reply=String(payload.reply||'').trim();
-      if(!reply)throw Error('Empty AI response');
-      online=true;
-    }catch(err){
-      reply=houseAwareReply(npc,house,question)||FALLBACK[count++%FALLBACK.length];
-      status.textContent='AI unavailable · showing offline dialogue';
-    }finally{clearTimeout(timeout);controller=null;}
+    // Scene questions must use current placed coordinates, never guessed model text.
+    // This intentionally stays local and does not transmit room layouts to the AI API.
+    let scene=null;
+    try { scene=getScene(npc,house); } catch { scene=null; }
+    const grounded=answerSceneQuestion(scene,question,house?'resident':'villager');
+    if(grounded!==null) {
+      reply=grounded;
+      status.textContent='Verified room objects · local answer';
+    } else {
+      controller=new AbortController();
+      const timeout=setTimeout(()=>controller?.abort(),22000);
+      try {
+        const res=await fetch(chatEndpoint,{
+          method:'POST',credentials:'omit',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({npcId:npc.id,house:house?{name:house.name,kind:house.kind,coordinate:house.coordinate}:null,
+            messages:history.slice(-8).map(({role,content})=>({role,content}))}),
+          signal:controller.signal
+        });
+        const payload=await res.json().catch(()=>({}));
+        if(!res.ok)throw Error(payload.error||'AI unavailable ('+res.status+')');
+        reply=String(payload.reply||'').trim();
+        if(!reply)throw Error('Empty AI response');
+        online=true;
+      }catch(err){
+        reply=houseAwareReply(npc,house,question)||FALLBACK[count++%FALLBACK.length];
+        status.textContent='AI unavailable · showing offline dialogue';
+      }finally{clearTimeout(timeout);controller=null;}
+    }
     stale=active!==npc||context!==house;
     if(!stale){
       history.push({role:'assistant',content:reply.slice(0,2000)});
