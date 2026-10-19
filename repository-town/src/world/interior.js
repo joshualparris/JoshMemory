@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { Builder } from './builder.js';
 import { PROPS } from './props.js';
 
-const WALL_T = 0.2, DOOR_W = 1.6, DOOR_H = 2.5, ROOM_SCALE = 0.82;
+const WALL_T = 0.2, DOOR_W = 1.6, DOOR_H = 2.5, ROOM_SCALE = 0.82, LABEL_INSET = 0.6;
 const ART = [0xc8553d, 0x2e86ab, 0xf2a541, 0x5b8e7d, 0x8e5572, 0x3d5a80, 0xe0a458, 0x6b8f71];
 // Props that read best in open floor space rather than against a wall.
 const CENTRE = new Set(['table', 'roundTable', 'rug', 'chessboard', 'mapTable', 'diceTable', 'hologram', 'cafeTable', 'pond', 'sandpit',
@@ -105,12 +105,13 @@ function sharedOpening(a, b) {
 
 // Wall along one edge of a room with doorway gaps. Collision gets the solid pieces only.
 const SKIRT = 0x5a4a3c;
-function wall(b, colliders, axis, at, from, to, h, color, openings) {
+function wall(b, colliders, axis, at, from, to, h, color, openings, sight) {
   const cuts = openings.filter((o) => o.axis === axis && Math.abs(o.at - at) < 0.01 && o.c - DOOR_W / 2 > from && o.c + DOOR_W / 2 < to).map((o) => [o.c - DOOR_W / 2, o.c + DOOR_W / 2]).sort((p, q) => p[0] - q[0]);
   let cursor = from;
   const seg = (s, e, y0, y1) => {
     if (e - s < 0.01) return;
     const len = e - s, mid = (s + e) / 2, hh = y1 - y0;
+    sight.push(axis === 'z' ? { x0:s,x1:e,y0,y1,z0:at-WALL_T/2,z1:at+WALL_T/2 } : { x0:at-WALL_T/2,x1:at+WALL_T/2,y0,y1,z0:s,z1:e });
     if (axis === 'z') { b.box(color, len, hh, WALL_T, mid, y0 + hh / 2, at); if (y0 === 0) { colliders.push({ x0: s, x1: e, z0: at - WALL_T, z1: at + WALL_T }); b.box(SKIRT, len, 0.14, WALL_T + 0.06, mid, 0.07, at); } }
     else { b.box(color, WALL_T, hh, len, at, y0 + hh / 2, mid); if (y0 === 0) { colliders.push({ x0: at - WALL_T, x1: at + WALL_T, z0: s, z1: e }); b.box(SKIRT, WALL_T + 0.06, 0.14, len, at, 0.07, mid); } }
   };
@@ -182,6 +183,7 @@ function buildOnce(house, makeLabel, attempt) {
   const spec = house.int;
   const b = new Builder();
   const colliders = [];
+  const sight = [];
   const rooms = placeRooms(spec.rooms, spec.layout, attempt);
   const h = spec.height || 3.6;
   const openings = [];
@@ -201,14 +203,19 @@ function buildOnce(house, makeLabel, attempt) {
     b.box(spec.ceiling || 0xf2efe8, r.w, 0.1, r.d, (r.x0 + r.x1) / 2, h + 0.05, (r.z0 + r.z1) / 2);
     b.cyl(0xfff4d8, 0.35, 0.06, (r.x0 + r.x1) / 2, h - 0.03, (r.z0 + r.z1) / 2);
     const inset = (axis, edge, to) => openings.map((o) => (o.axis === axis && Math.abs(o.at - edge) < 0.01 ? { ...o, at: to } : o));
-    wall(b, colliders, 'z', r.z0 + WALL_T / 2, r.x0, r.x1, h, walls, inset('z', r.z0, r.z0 + WALL_T / 2));
-    wall(b, colliders, 'z', r.z1 - WALL_T / 2, r.x0, r.x1, h, walls, inset('z', r.z1, r.z1 - WALL_T / 2));
-    wall(b, colliders, 'x', r.x0 + WALL_T / 2, r.z0, r.z1, h, walls, inset('x', r.x0, r.x0 + WALL_T / 2));
-    wall(b, colliders, 'x', r.x1 - WALL_T / 2, r.z0, r.z1, h, walls, inset('x', r.x1, r.x1 - WALL_T / 2));
+    wall(b, colliders, 'z', r.z0 + WALL_T / 2, r.x0, r.x1, h, walls, inset('z', r.z0, r.z0 + WALL_T / 2), sight);
+    wall(b, colliders, 'z', r.z1 - WALL_T / 2, r.x0, r.x1, h, walls, inset('z', r.z1, r.z1 - WALL_T / 2), sight);
+    wall(b, colliders, 'x', r.x0 + WALL_T / 2, r.z0, r.z1, h, walls, inset('x', r.x0, r.x0 + WALL_T / 2), sight);
+    wall(b, colliders, 'x', r.x1 - WALL_T / 2, r.z0, r.z1, h, walls, inset('x', r.x1, r.x1 - WALL_T / 2), sight);
     // z0 walls of rooms whose back opens into another room need the cut too.
-    if (r.name) labels.push({ text: r.name, pos: new THREE.Vector3((r.x0 + r.x1) / 2, h - 0.45, r.z0 + 0.25), room: i, kind: 'room' });
+    if (r.name) labels.push({ text: r.name, pos: new THREE.Vector3((r.x0 + r.x1) / 2, h - 0.45, r.z0 + 0.6), room: i, kind: 'room' });
   });
-  for (const o of openings) if (o !== entrance) doors.push(doorLeaf(group, o.axis, o.at, o.c, spec.doors || 0x7a5a3c));
+  for (const o of openings) if (o !== entrance) {
+    const door = doorLeaf(group, o.axis, o.at, o.c, spec.doors || 0x7a5a3c);
+    doors.push(door);
+    const span = { s:o.c-DOOR_W/2, e:o.c+DOOR_W/2 }, t=WALL_T;
+    sight.push(o.axis==='z' ? {x0:span.s,x1:span.e,y0:0,y1:DOOR_H,z0:o.at-t,z1:o.at+t,door} : {x0:o.at-t,x1:o.at+t,y0:0,y1:DOOR_H,z0:span.s,z1:span.e,door});
+  }
   const exitDoor = doorLeaf(group, 'z', entrance.at, entrance.c, spec.doors || 0x7a5a3c);
   exitDoor.userData.exit = true;
   doors.push(exitDoor);
@@ -232,7 +239,7 @@ function buildOnce(house, makeLabel, attempt) {
       else if (want === 'center') {
         while (cells.length && !spot) { const c = cells.shift(); if (doorZones.every((dz) => Math.hypot(dz.x - c.x, dz.z - c.z) > 3.2)) spot = { ...c, rot: 0 }; }
       }
-      if (!spot) spot = slots.wall(Math.max(prop.w, 0.6)) || (cells.length ? { ...cells.shift(), rot: 0 } : null);
+      if (!spot) { const w = slots.wall(Math.max(prop.w, 0.6)); spot = w ? { ...w, onWall:true } : (cells.length ? { ...cells.shift(), rot:0 } : null); }
       if (!spot) throw Object.assign(new Error(`${house.repo}: no room for ${type} in "${r.name}" — enlarge the room`), { crowded: spec.rooms.some((x) => x.archive) });
       const key = act && act.do ? `${house.coordinate}:${ri}:${pi}` : null;
       b.at(spot.x, 0, spot.z, spot.rot, () => prop.build(b, { c: act?.c, a: act?.a, key }));
@@ -242,7 +249,8 @@ function buildOnce(house, makeLabel, attempt) {
       placedProps.push({ type, room: ri });
       sceneObjects.push({ type, label: label || prop.label, room: ri, pos: { x: spot.x, z: spot.z }, interactive: !!key });
       const pos = new THREE.Vector3(spot.x, 0, spot.z);
-      if (label) labels.push({ text: label, pos: new THREE.Vector3(spot.x, Math.min(h - 0.35, Math.max(propTop(type) + 0.4, 2.35)), spot.z), room: ri, kind: key ? 'interactive' : 'prop' });
+      const out = spot.onWall ? LABEL_INSET : 0;
+      if (label) labels.push({ text: label, pos: new THREE.Vector3(spot.x + Math.sin(spot.rot)*out, Math.min(h-0.35,Math.max(propTop(type)+0.4,2.35)), spot.z + Math.cos(spot.rot)*out), room:ri, kind:key?'interactive':'prop' });
       if (key) interactables.push({ key, type, label: label || prop.label, act, room: ri, pos, roomName: r.name });
     });
     // Decoration only: a rug where the floor would otherwise be empty, and framed
@@ -266,14 +274,39 @@ function buildOnce(house, makeLabel, attempt) {
 
   const built = b.build();
   group.add(built, light);
-  for (const l of labels) { const sprite = makeLabel(l.text, l.kind); sprite.position.copy(l.pos); sprite.userData.labelKind = l.kind; group.add(sprite); }
+  labels.forEach(l => {
+    const r=rooms[l.room],mx=Math.min(0.4,r.w/2),mz=Math.min(0.4,r.d/2);
+    l.pos.x=Math.min(r.x1-mx,Math.max(r.x0+mx,l.pos.x));
+    l.pos.z=Math.min(r.z1-mz,Math.max(r.z0+mz,l.pos.z));
+  });
+  for (const l of labels) {
+    const sprite=makeLabel(l.text,l.kind);sprite.position.copy(l.pos);
+    sprite.userData.labelKind=l.kind;
+    if(sprite.material)sprite.material.depthTest=false;
+    sprite.renderOrder=10;group.add(sprite);
+  }
   const dynamics = built.children.filter((c) => c.userData.anim);
   return {
-    group, colliders, doors, interactables, dynamics, rooms, placedProps, sceneObjects,
+    group, colliders, sight, doors, interactables, dynamics, rooms, placedProps, sceneObjects,
     spawn: new THREE.Vector3(ex, 0, rooms[0].z1 - 1.6),
     exitZone: { x0: ex - DOOR_W / 2, x1: ex + DOOR_W / 2, z0: rooms[0].z1 + 0.1, z1: rooms[0].z1 + 1.2 },
     bounds: rooms.reduce((a, r) => ({ x0: Math.min(a.x0, r.x0), x1: Math.max(a.x1, r.x1), z0: Math.min(a.z0, r.z0), z1: Math.max(a.z1, r.z1) }), { x0: Infinity, x1: -Infinity, z0: Infinity, z1: -Infinity }),
   };
+}
+
+export function labelVisible(eye, at, sight) {
+  const dx = at.x - eye.x, dy = at.y - eye.y, dz = at.z - eye.z;
+  for (const bx of sight) {
+    if (bx.door && bx.door.userData.open > 0.3) continue;
+    let t0 = 0, t1 = 1, hit = true;
+    for (const [o, d, lo, hi] of [[eye.x, dx, bx.x0, bx.x1], [eye.y, dy, bx.y0, bx.y1], [eye.z, dz, bx.z0, bx.z1]]) {
+      if (Math.abs(d) < 1e-9) { if (o < lo || o > hi) { hit = false; break; } continue; }
+      let a = (lo - o) / d, c = (hi - o) / d; if (a > c) [a, c] = [c, a];
+      t0 = Math.max(t0, a); t1 = Math.min(t1, c); if (t0 > t1) { hit = false; break; }
+    }
+    if (hit) return false;
+  }
+  return true;
 }
 
 // Approximate prop heights so labels float just above them.
