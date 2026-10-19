@@ -5,6 +5,7 @@ import { Player } from './engine/player.js';
 import { loadSave, writeSave, clearSave } from './engine/save.js';
 import { buildTown, streetSigns, lotPosition } from './world/town.js';
 import { buildInterior, labelVisible } from './world/interior.js';
+import { createFloorStack, FLOOR_HEIGHT } from './world/multifloor.js';
 import { animate } from './world/builder.js';
 import { makeLabel, disposeLabel } from './ui/labels.js';
 import { runInteraction, esc } from './ui/interactions.js';
@@ -101,6 +102,9 @@ async function start() {
   syncMouseCapture(false);
   if (input.touch) $('touch').hidden = false;
   const player = new Player(camera);
+  const floorBadge = document.createElement('div');
+  floorBadge.id = 'floor-indicator'; floorBadge.hidden = true;
+  document.body.append(floorBadge);
   const npcChat = mountNPCChat(document, { getScene: (npc, house) => {
     // Sample the resident's current actual room every time a message is sent.
     if(mode !== 'house' || !inside || !house || !houseGuide) return null;
@@ -137,16 +141,56 @@ async function start() {
     status(`Standing outside ${coord}.`);
     return true;
   }
+  function updateFloorBadge() {
+    floorBadge.hidden = !inside?.floors;
+    if (inside?.floors) floorBadge.textContent = '🏠 Floor ' + (inside.floorIndex + 1) +
+      ' / ' + inside.floors.levels.length + ' · ' + inside.floors.titles[inside.floorIndex];
+  }
+  function changeFloor(target) {
+    if (!inside?.floors || target < 0 || target >= inside.floors.levels.length) return false;
+    const floors = inside.floors, house = inside.house, current = inside.floorIndex;
+    if (target === current) { closePanel(); return true; }
+    closePanel(); npcChat.close(); nearThing = null; nearNPC = null;
+    scene.remove(inside.group);
+    const next = floors.levels[target];
+    inside = { house, ...next, floorIndex:target, floors };
+    scene.add(next.group);
+    world = new CollisionWorld(next.colliders);
+    player.place(next.landing.x, next.landing.z, Math.PI);
+    player.baseHeight = target * FLOOR_HEIGHT;
+    houseGuide = next.guide || (next.guide = placeHouseGuide(inside, makeLabel));
+    updateFloorBadge();
+    $('card').hidden = true;
+    status('Floor ' + (target+1) + ': ' + floors.titles[target] + '. Use stairs or lift to change floors.');
+    return true;
+  }
+  function openLift() {
+    const floorCount = inside.floors.levels.length;
+    openPanel({ title:'Lift · choose a floor',
+      body:'<p>Select a floor. Lift doors close and reopen at the selected landing.</p>', actions:[] });
+    const buttons = $('panel-actions');
+    for (let i = 0; i < floorCount; i++) {
+      const btn = document.createElement('button');
+      btn.textContent = 'Floor ' + (i+1) + ' · ' + inside.floors.titles[i];
+      btn.disabled = i === inside.floorIndex;
+      btn.onclick = () => changeFloor(i);
+      buttons.append(btn);
+    }
+  }
   function enter(coord) {
     const h = byCoord.get(coord);
-    const built = buildInterior(h, makeLabel);
-    inside = { house: h, ...built };
+    const floors = createFloorStack(h, makeLabel);
+    const built = floors ? floors.levels[0] : buildInterior(h, makeLabel);
+    inside = { house: h, ...built, floorIndex:0, floors };
     scene.add(built.group);
     town.group.visible = false;
     scene.background.set(INDOOR); scene.fog = null;
     world = new CollisionWorld(built.colliders);
     player.place(built.spawn.x, built.spawn.z, 0);
+    player.baseHeight = 0;
     houseGuide = placeHouseGuide(inside, makeLabel);
+    if (floors) built.guide = houseGuide;
+    updateFloorBadge();
     mode = 'house';
     $('btn-exit').hidden = false;
     visited.add(coord);
@@ -161,8 +205,14 @@ async function start() {
     closePanel(); npcChat.close(); houseGuide = null;
     const coord = inside.house.coordinate;
     scene.remove(inside.group);
-    inside.group.traverse((o) => { if (o.isSprite) disposeLabel(o); else if (o.geometry && o.geometry.type !== 'BoxGeometry') o.geometry.dispose(); });
+    const allGroups = inside.floors ? inside.floors.levels.map(level => level.group) : [inside.group];
+    for (const group of allGroups) group.traverse((o) => {
+      if (o.isSprite) disposeLabel(o);
+      else if (o.geometry && o.geometry.type !== 'BoxGeometry') o.geometry.dispose();
+    });
     inside = null; mode = 'town'; world = townWorld;
+    player.baseHeight = 0;
+    updateFloorBadge();
     $('btn-exit').hidden = true;
     town.group.visible = true; scene.background.set(SKY); scene.fog = fog;
     if (placeOutside) { const l = town.lots.get(coord); player.place(l.doorPos.x, l.doorPos.z + 4, Math.PI); }
@@ -289,6 +339,11 @@ async function start() {
     if(treasure && treasureD<=npcD){expedition.use(player.pos);return;}
     const civicD = nearCivic ? Math.hypot(player.pos.x-nearCivic.position.x, player.pos.z-nearCivic.position.z-7) : Infinity;
     if (nearCivic && civicD <= npcD) { input.releaseMouse(); livingLedger.openFor(nearCivic.id); input.reset(); return; }
+    if (mode === 'house' && nearThing?.floorNav) {
+      if (nearThing.floorNav === 'lift') openLift();
+      else changeFloor(nearThing.target);
+      return;
+    }
     if (nearNPC) { input.releaseMouse(); closePanel(); $('npc-roster').hidden=true; npcChat.show(nearNPC.npc, nearNPC.house || null); input.reset(); return; }
     if (mode === 'house' && nearThing) {
       const thing = nearThing, request = ++interactionRequest, house = inside;
@@ -449,7 +504,7 @@ async function start() {
         animate(inside.dynamics, t, active);
         if (cardTimer > 0 && (cardTimer -= dt) <= 0) $('card').hidden = true;
         // Labels hide when the player is right on top of them so they never fill the screen.
-        for (const s of inside.group.children) if (s.isSprite) s.visible = Math.hypot(s.position.x - player.pos.x, s.position.z - player.pos.z) > (s.userData.labelKind === 'room' ? 2.6 : 1.3) && labelVisible(camera.position, s.position, inside.sight);
+        for (const s of inside.group.children) if (s.isSprite) s.visible = Math.hypot(s.position.x - player.pos.x, s.position.z - player.pos.z) > (s.userData.labelKind === 'room' ? 2.6 : 1.3) && labelVisible(new THREE.Vector3(camera.position.x, camera.position.y - (inside.floorIndex || 0) * FLOOR_HEIGHT, camera.position.z), s.position, inside.sight);
       }
     }
     if (mode === 'town') input.consume('use');
@@ -474,7 +529,7 @@ async function start() {
     talkTo: (id) => npcChat.show(id),
     travel,
     state: () => ({
-      mode, coordinate: inside?.house.coordinate || null, pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, eye: player.eye, y: player.y, fps,
+      mode, coordinate: inside?.house.coordinate || null, floor: inside?.floorIndex || 0, floors: inside?.floors?.levels.length || 1, pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, eye: player.eye, y: player.y, fps,
       rooms: inside?.rooms.length || 0, props: inside?.placedProps.length || 0,
       interactables: inside ? inside.interactables.map((x) => ({ key: x.key, label: x.label, title: x.act.title || x.label, do: x.act.do, room: x.roomName })) : [],
       near: nearThing?.key || null, nearNPC: nearNPC?.npc.id || null, nearHouse: nearHouse?.house.coordinate || null,
