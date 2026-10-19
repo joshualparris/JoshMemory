@@ -16,6 +16,11 @@ Newest first. Times in Australia/Sydney.
   command; full 188-house re-test. Files: `src/world/npcs.js`, `src/ui/npc.js`,
   `src/main.js`, `src/world/town.js`, `src/adventure/` (read-only use of relic data),
   `tools/`, `briefs/`. Ping here before editing those.
+- 2026-10-19 · Codex — fixing the live NPC AI connection: connect the static GitHub Pages
+  frontend to the existing Vercel Groq proxy, add exact-origin CORS, validate the API and
+  publish the updated Pages build. Files: `api/npc-chat.js`, `src/ui/npc-api.js`,
+  `src/ui/npc.js`, `src/ui/npc-chat.js`. Local tests pass; Vercel production deployment
+  is currently blocked by the Hobby team's daily deployment quota (`api-deployments-free-per-day`).
 
 ## Done recently
 
@@ -77,6 +82,15 @@ Newest first. Times in Australia/Sydney.
 - 2026-10-19 · ChatGPT (code-free NPC AI) — Cloudflare Worker `repository-town-no-code-ai.parris-neathaustralia.workers.dev` replaces the Vercel AI backend for the *public game*. No player access codes. Worker code in `deploy/cloudflare-ai-worker.js`, uploads `src/ui/npc-data.js` and `src/ui/npc-prompt.js` as modules, and holds existing Groq key as an encrypted Worker secret. Rate-limit bindings IP_LIMIT (5/min/client per edge) and GLOBAL_LIMIT (4/min/edge); daily best-effort isolate cap. GitHub Pages public build hotfixed: `ui/npc-chat.js`, `ui/npc.js`, `index.html`, `people.html`; source changes in PR #18. Existing Vercel backend remains untouched and code-gated but is no longer used by the public site. Important: public `ui/npc.js` has extra social gameplay imports absent from this branch's `src/ui/npc.js`; preserve live functionality in eventual source reconciliation. Local mocked Worker tests pass, live Groq response not independently verified.
 - 2026-10-19 · ChatGPT (GitHub Pages live-AI bridge) — Updated both `src/ui/npc-chat.js` and `src/ui/npc.js` to send PIN-protected AI requests to Cloudflare Worker `repository-town-ai-bridge.parris-neathaustralia.workers.dev/api/npc-chat` from static GitHub Pages. Worker source is `deploy/pages-npc-proxy.js`; it allows the exact Pages origin, supports CORS preflight, rate-limits attempts best-effort, strips cookies/Origin and forwards the existing `x-npc-code` to Vercel where GROQ_API_KEY and TOWN_NPC_PIN remain server-side. Enabled Worker on workers.dev. Vercel `repository-town-claude-playtest` SSO set to `preview` (production endpoint accessible, still requires PIN). Matching public hotfixes applied to `Parris-Tech-Services/Repository-town` generated `ui/npc-chat.js` and `ui/npc.js` (plus prior `npc.css`). Backend `api/npc-chat.js` CORS change committed to hosting branch but **NOT DEPLOYED**: Vercel 402 daily deployment cap, so the Cloudflare bridge targets the existing published backend. Backend isolated-handler mock tests passed for allowed origin, preflight, bad PIN and good PIN; real remote Groq response **not verified**. Preserve this bridge and source changes during next build/publish. Source PR #17.
 ## Done recently
+- 2026-10-19 · Codex — added a local-first village social simulation: seeded friend, enemy and
+  neutral relationships; gossip and friendship UI; persistent player trust; relationship changes
+  from praise, insults and completed errands; and social context for live AI prompts. Tests,
+  build, privacy and 188-house validation passed. Published at Pages commit `e26fbfb`; workflow
+  `39206698049` completed successfully.
+- 2026-10-19 · Codex — expanded all 24 street villagers with distinct offline and live-AI
+  personalities, including Sadie as a curious book-and-building collector. Added the NPC
+  personality contract test; build, privacy and house checks passed. Published to
+  `Parris-Tech-Services/Repository-town` at `5d1f749`; Pages run `39206341200` succeeded.
 - 2026-10-19 · Codex — with Josh's explicit approval, public house labels and search now show
   private repository names while private URLs, READMEs, summaries, room names and exhibit text
   remain redacted. Published to `Parris-Tech-Services/Repository-town` at `fe44bef`; Pages run
