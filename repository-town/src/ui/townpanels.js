@@ -71,11 +71,23 @@ function civicPanel(life, id, again) {
   if (id === 'fire') rows.push(`<h3>Town networks</h3>${Object.entries(c.services).map(([k, v]) => `<p>${esc(k)} ${pct(v)}</p>`).join('')}<p class="dim">Repairs are ordered at the Town Hall.</p>`);
   if (id === 'hotel') rows.push(`<p><b>Railway Hotel:</b> ${life.needsReport().rooms} guest rooms · ${life.needsReport().rate} per night · ${c.player.hotelBooking?'Room '+c.player.hotelBooking.room+' booked':'No room key yet'}.</p><p>To sleep, book here then use the bed in your allocated guest room.</p>`);
   if (id === 'bank') rows.push(`<p><b>Your wallet:</b> ${money(c.player.wallet)} · <b>savings:</b> ${money(c.player.bank)}</p><p class="dim">Town treasury: ${money(c.treasury)}. Villagers' savings: ${money(life.villagers.reduce((a, v) => a + (v.savings || 0), 0))}.</p>`);
+  if (id === 'bank') {
+    const cr = life.creditReport();
+    rows.push(cr.loan
+      ? `<p><b>Your loan:</b> ${money(cr.loan.principal)} principal + ${money(cr.loan.interest)} interest = <b>${money(cr.loan.owed)}</b> · due day ${cr.loan.due}${cr.loan.overdue ? ' · <b>overdue</b>' : ''} · costs about ${money(cr.loan.dailyInterest)} a day</p>`
+      : `<p><b>Credit:</b> no loan. The credit union has ${money(cr.capital)} to lend in $${cr.sizes.join(' / $')} amounts, after you have earned some money in town.</p>`);
+    if (cr.journal.length) rows.push(`<p class="dim"><b>Recent entries:</b></p><ul class="dim">${cr.journal.map((e) => `<li>Day ${e.day} · ${esc(e.text)}</li>`).join('')}</ul>`);
+  }
   rows.push(`<p><b>Hours:</b> ${esc(hours(p))} · <b>Staff:</b> ${staff.map((v) => esc(`${v.name} (${v.job})`)).join(', ') || 'automated'}</p>`);
   const act = (label, fn) => ({ label, run: () => { const msg = fn(); return { ...again(), body: `<p><b>${esc(msg)}</b></p>` + again().body }; } });
   const actions = [];
   if (id === 'hotel') actions.push(act('Book a room ($24)', () => life.bookHotel()));
   if (id === 'bank') actions.push(act('Deposit $20', () => life.bank('deposit', 20)), act('Withdraw $20', () => life.bank('withdraw', 20)));
+  if (id === 'bank') {
+    const loan = life.creditReport().loan;
+    if (loan) actions.push(act('Repay $20', () => life.repay(20)), act('Repay in full', () => life.repay(Math.ceil(loan.owed))));
+    else for (const n of life.creditReport().sizes) actions.push(act(`Borrow $${n}`, () => life.borrow(n)));
+  }
   if (id === 'recycling') actions.push(act('Help sort kerbside recycling', () => life.collectRecycling()));
   return { title: `${p.name}`, body: rows.join('') + bagLine(life), actions, wide: true };
 }

@@ -1,5 +1,6 @@
 import { distributePower, townPowerDemands, POWER_LINE_IDS, GRID_FAULT_COST } from './power-grid.js';
 import { initialisePublicLife, attendPublicForum, updatePublicForum, civicDialogue } from './public-forum.js';
+import { freshCredit, recordEarning, noteBank, creditReport, borrow, repay, accrueInterest } from './credit.js';
 import { startNeeds, advanceNeeds, eatPlayer, hotelCheckIn, sleepPlayer, needsReport } from './needs.js';
 import { MAYOR_CANDIDATES, createGovernment, civicElection, castCivicVote, submitRequest, requestFeeder, proposeMotion, councilMeeting, advanceCivicWork, budgetRevenue, restoreCivic, govSummary, maintainServices } from './government.js';
 // Town life simulation: the clock, farms, the mill and bakery, shops, trucks, the post,
@@ -220,7 +221,7 @@ export class TownLife {
       supply: { power: 0, powerDemand: 0, water: 0, waterDemand: 0, ok: true, waterOk: true },
       powerLines: {}, powerGrid: null,
       indicators: { health: 90, happiness: 78, environment: 82, pollution: 3 },
-      letters: [], player: { wallet: 75, bank: 150, bag: {} },
+      letters: [], player: { wallet: 75, bank: 150, bag: {} }, credit: freshCredit(),
     };
     this.homes = homes;
     // Spread households across town: every step-th house, starting from the third.
@@ -286,6 +287,7 @@ export class TownLife {
     this.stats = this.freshStats();
     for (const v of this.villagers) v.doneToday = {};
     const c = this.civic;
+    accrueInterest(this);
     // Council rates: every household pays $15 a day towards wages and services.
     let rates = 0; for (const v of this.villagers) { const r = Math.min(15, v.wallet); v.wallet -= r; rates += r; }
     c.treasury += rates; this.stats.rates = rates; budgetRevenue(this,rates,'rates');
@@ -429,7 +431,7 @@ export class TownLife {
     const p = this.place(shopId), me = this.civic.player, pay = Math.max(1, Math.floor(GOODS[good].price * 0.6));
     if (!(me.bag[good] > 0)) return `You don't have any ${GOODS[good].name}.`;
     if (p.till < pay) return `The ${p.name} can't afford to buy it back right now.`;
-    me.bag[good]--; this.shelves(p)[good] = (this.shelves(p)[good] || 0) + 1; p.till -= pay; me.wallet += pay;
+    me.bag[good]--; this.shelves(p)[good] = (this.shelves(p)[good] || 0) + 1; p.till -= pay; me.wallet += pay; recordEarning(this, pay);
     return `The ${p.name} buys it back for $${pay}.`;
   }
   eatItem(good) { return eatPlayer(this,good); }
@@ -442,8 +444,12 @@ export class TownLife {
     const m = Math.min(n, me[from]);
     if (m <= 0) return `Nothing to ${op}.`;
     me[from] -= m; me[to] += m;
+    noteBank(this, `${op === 'deposit' ? 'Deposited' : 'Withdrew'} $${m}.`);
     return `${op === 'deposit' ? 'Deposited' : 'Withdrew'} $${m}. Wallet $${me.wallet}, savings $${me.bank}.`;
   }
+  creditReport() { return creditReport(this); }
+  borrow(n) { return borrow(this, n); }
+  repay(n) { return repay(this, n); }
   vote(name) { return castCivicVote(this,name); }
   postLetter(to) {
     const me = this.civic.player;
@@ -456,7 +462,7 @@ export class TownLife {
     const c = this.civic, n = Math.min(5, Math.floor(c.homes.recyclables));
     if (!n) return 'No recycling waiting on the kerbs right now.';
     c.homes.recyclables -= n; this.place('recycling').stock.recyclables += n;
-    const reward = Math.min(c.treasury, n * 2); c.treasury -= reward; c.player.wallet += reward;
+    const reward = Math.min(c.treasury, n * 2); c.treasury -= reward; c.player.wallet += reward; recordEarning(this, reward);
     return `You sort ${n} bags of recycling and the council pays you $${reward}.`;
   }
 

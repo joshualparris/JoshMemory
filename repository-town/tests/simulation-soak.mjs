@@ -22,7 +22,8 @@ const money = (t) => {
   const v = t.villagers.reduce((s, x) => s + x.wallet + (x.savings || 0), 0);
   const p = t.civic.player.wallet + t.civic.player.bank;
   const tills = [...t.places.values()].reduce((s, x) => s + x.till, 0);
-  return { villagers: v, player: p, tills, treasury: t.civic.treasury, total: v + p + tills + t.civic.treasury };
+  const bank = t.civic.credit?.capital || 0; // the credit union's lending pool
+  return { villagers: v, player: p, tills, treasury: t.civic.treasury, bank, total: v + p + tills + t.civic.treasury + bank };
 };
 const negatives = (t) => {
   const bad = [];

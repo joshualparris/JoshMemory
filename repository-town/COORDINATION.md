@@ -215,3 +215,12 @@ Newest first. Times in Australia/Sydney.
 - New `src/world/interior-kit.js`: shared 14×18 m shell + helpers (`createKit`, `ROOM`) for the next
   dedicated shop interiors (café, pub, post office…). The bakery was not migrated to it.
 - `tests/shop-interiors.mjs` has a bank branch (hotspots clear of colliders, staff behind counter, 2 rope colliders).
+
+## 2026-10-20 — bank loans, interest and journal on main's economy (Claude, branch feat/economy-loans-bills-20261020)
+- ChatGPT's live-site economy was never in source; verbatim copy kept on branch `archive/chatgpt-economy-live-20261020` (not built).
+  It is a different money model (TownMoney/TownFinance) and was NOT merged. Josh chose to keep main's economy and port features.
+- Ported so far: Community Bank credit (`src/world/credit.js`): $1,500 lending pool, loans $100/$200/$400 after the visitor has
+  earned money, one loan at a time, 1%/day simple interest (2% overdue, 14-day term), repay (interest first), bank journal.
+  Panel buttons in `ui/townpanels.js`; `tests/credit.mjs` in `npm run test:town`; soak money total now includes the pool.
+- NOT ported (candidates): visitor rent/power bills, business rates/utilities, PAYG income tax and Commonwealth/NSW treasuries,
+  wage arrears, bakery production panel (`ui/bakery-panel.js`, `world/bakery-production.js` in the archive), economy panels.
