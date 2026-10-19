@@ -11,7 +11,8 @@ const InstancedMesh=class extends Mesh{constructor(geo,mat,n){super(geo,mat);thi
 const Matrix4=class{makeScale(x,y,z){this.scale=[x,y,z];return this}setPosition(x,y,z){this.position=[x,y,z];return this}};
 const Three={Group,Mesh,InstancedMesh,Matrix4,Vector3:V,BoxGeometry:class {},CylinderGeometry:class {},SphereGeometry:class {},MeshLambertMaterial:class{constructor(x){this.data=x}},HemisphereLight:class{}};
 const runnable=source.replace(/^import .*?;\s*$/gm,'').replace(/^export\s+/gm,'');
-const make=new Function('THREE',runnable+'\nreturn buildFarmhouseInterior;')(Three);
+const { FLOOR_SURFACE_Y } = await import('../src/world/floor-surfaces.js');
+const make=new Function('THREE','FLOOR_SURFACE_Y',runnable+'\nreturn buildFarmhouseInterior;')(Three,FLOOR_SURFACE_Y);
 assert(shop.includes("if(site.id==='farmhouse')return buildFarmhouseInterior(site,makeLabel)"),'farmhouse must use its own layout');
 const x=make({id:'farmhouse',name:'Farmhouse'},()=>({position:new V(),userData:{}}));
 assert.equal(x.rooms.length,10,'should have 10 distinct areas, not a shop counter');

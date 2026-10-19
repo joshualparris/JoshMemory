@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { FLOOR_SURFACE_Y } from './floor-surfaces.js';
 
 // The High Street bakery, laid out the way a real neighbourhood bakery works:
 //
@@ -77,7 +78,7 @@ export function buildBakeryInterior(site, makeLabel, roomTitle = 'Bakery') {
   for (let ix = 0; ix < 14; ix++) for (let iz = 0; iz < 11; iz++) if ((ix + iz) % 2 === 0) tiles.push([-6.5 + ix, -4.5 + iz]);
   const checker = new THREE.InstancedMesh(new THREE.PlaneGeometry(1, 1), mat(0x3a3632), tiles.length);
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0));
-  tiles.forEach(([x, z], i) => { m4.compose(new THREE.Vector3(x, 0.017, z), q, new THREE.Vector3(1, 1, 1)); checker.setMatrixAt(i, m4); });
+  tiles.forEach(([x, z], i) => { m4.compose(new THREE.Vector3(x, FLOOR_SURFACE_Y.tilePattern, z), q, new THREE.Vector3(1, 1, 1)); checker.setMatrixAt(i, m4); });
   group.add(checker);
   box(W - 0.5, 0.02, 6.4, 0, 0.005, -8.95, TERRA);
   box(2.2, 0.03, 1.2, 0, 0.03, 5.0, RED);                                   // door mat
