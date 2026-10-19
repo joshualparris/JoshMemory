@@ -30,20 +30,37 @@ function serverKeys() {
 }
 export default async function handler(req,res){
   const keys=serverKeys();
-  if(req.method==='GET')return reply(res,200,{available:!!(keys.length&&process.env.TOWN_NPC_PIN),model:process.env.GROQ_MODEL||'openai/gpt-oss-20b'});
-  if(req.method!=='POST'){res.setHeader('Allow','GET, POST');return reply(res,405,{error:'Method not supported.'});}
-  const origin=req.headers.origin;
-  const host=req.headers['x-forwarded-host']||req.headers.host;
-  if(origin) {
-    let same=false;
-    try{same=new URL(origin).host===host;}catch{}
-    if(!same)return reply(res,403,{error:'Use the Repository Town website.'});
+  // Browsers on the public GitHub Pages site must be allowed to reach this
+  // Vercel-hosted function. No other cross-site origin is allowed, and every
+  // POST still requires the private x-npc-code (the Groq key stays server-side).
+  const pagesOrigin='https://parris-tech-services.github.io';
+  const origin=String(req.headers.origin||'');
+  const host=String(req.headers['x-forwarded-host']||req.headers.host||'');
+  let trusted=!origin, fromPages=false;
+  if(origin){
+    try{
+      const url=new URL(origin);
+      fromPages=url.origin===pagesOrigin;
+      trusted=url.protocol==='https:'&&(fromPages||url.host===host);
+    }catch{trusted=false;}
   }
+  res.setHeader('Vary','Origin');
+  if(!trusted)return reply(res,403,{error:'Use the Repository Town website.'});
+  if(fromPages){
+    res.setHeader('Access-Control-Allow-Origin',pagesOrigin);
+    res.setHeader('Access-Control-Allow-Methods','GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers','Content-Type, X-NPC-Code');
+    res.setHeader('Access-Control-Max-Age','600');
+  }
+  if(req.method==='OPTIONS'){res.statusCode=204;res.end();return;}
+  if(req.method==='GET')return reply(res,200,{available:!!(keys.length&&process.env.TOWN_NPC_PIN),model:process.env.GROQ_MODEL||'openai/gpt-oss-20b'});
+  if(req.method!=='POST'){res.setHeader('Allow','GET, POST, OPTIONS');return reply(res,405,{error:'Method not supported.'});}
   if(!keys.length||!process.env.TOWN_NPC_PIN)return reply(res,503,{error:'Live NPC chat is not configured yet. Try offline dialogue.'});
-  if(!equal(req.headers['x-npc-code'],process.env.TOWN_NPC_PIN))return reply(res,401,{error:'Incorrect access code. Check the code supplied with your playtest link.'});
   if(Number(req.headers['content-length']||0)>16000)return reply(res,413,{error:'Conversation too long.'});
+  // Count unsuccessful PIN guesses too, so an invalid-code flood is limited.
   const ip=String(req.headers['x-forwarded-for']||req.socket?.remoteAddress||'unknown').split(',')[0].trim().slice(0,90);
   if(!allow(ip))return reply(res,429,{error:'NPC has chatted a lot this hour. Try again later.'});
+  if(!equal(req.headers['x-npc-code'],process.env.TOWN_NPC_PIN))return reply(res,401,{error:'Incorrect access code. Check the code supplied with your playtest link.'});
   let body;
   try{body=typeof req.body==='string'?JSON.parse(req.body):req.body;}catch{return reply(res,400,{error:'Invalid JSON.'});}
   if(!body||typeof body!=='object')return reply(res,400,{error:'Invalid request.'});
