@@ -74,14 +74,17 @@ export function townPowerDemands(hour, total) {
   if (!Number.isSafeInteger(hour) || hour<0 || hour>23) throw new RangeError('hour');
   // Abstract allocations, NOT kWh or real measured Dubbo power use.
   // Facility demand totals 16 units; household load takes the hourly remainder.
-  const homeLoad=Math.max(0,total-16);
+  let remaining=total;
+  const allot=n=>{const taken=Math.min(remaining,n);remaining-=taken;return taken;};
+  const clinic=allot(2),waterworks=allot(4),sewage=allot(3),bakery=allot(5),industry=allot(2);
+  const homeLoad=remaining;
   return {
-    clinic:{name:'Town Clinic',demand:2,priority:0},
-    waterworks:{name:'Water Works pumps',demand:4,priority:0},
-    sewage:{name:'Wastewater Works',demand:3,priority:0},
-    bakery:{name:'Mill and Bakery',demand:5,priority:1},
+    clinic:{name:'Town Clinic',demand:clinic,priority:0},
+    waterworks:{name:'Water Works pumps',demand:waterworks,priority:0},
+    sewage:{name:'Wastewater Works',demand:sewage,priority:0},
+    bakery:{name:'Mill and Bakery',demand:bakery,priority:1},
     'west-homes':{name:'West neighbourhood',demand:Math.floor(homeLoad/2),priority:1},
     'east-homes':{name:'East neighbourhood',demand:homeLoad-Math.floor(homeLoad/2),priority:1},
-    industry:{name:'Foundry and workshops',demand:2,priority:2},
+    industry:{name:'Foundry and workshops',demand:industry,priority:2},
   };
 }
