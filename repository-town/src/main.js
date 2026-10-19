@@ -73,8 +73,17 @@ async function start() {
   const ambience = createAmbience();
   const wake = () => ambience.start();
   addEventListener('pointerdown', wake); addEventListener('keydown', wake);
-  // Smooth mode draws less of the distance; phones start with it on.
+  // Smooth mode limits GPU resolution as well as draw distance. Keep all simulation ticks intact.
   let lowPerf = touch;
+  const normalPixelRatio = Math.min(devicePixelRatio, touch ? 1 : 1.5);
+  const smoothPixelRatio = Math.min(devicePixelRatio, 1);
+  let currentPixelRatio = normalPixelRatio;
+  function setRenderPixelRatio(next) {
+    const value = Math.max(0.65, Math.min(normalPixelRatio, next));
+    if (Math.abs(value - currentPixelRatio) < 0.04) return;
+    currentPixelRatio = value;
+    renderer.setPixelRatio(value);
+  }
   streetSigns(town.group, data.streets, makeLabel);
   const half = { x: town.bounds.width / 2, z: town.bounds.depth / 2 };
   const edges = [
@@ -332,6 +341,7 @@ async function start() {
     $('btn-perf').setAttribute('aria-pressed', String(lowPerf));
     $('btn-perf').textContent = lowPerf ? '⚡ Smooth: On' : '⚡ Smooth';
     fog.near = lowPerf ? 42 : 60; fog.far = lowPerf ? 120 : 170;
+    setRenderPixelRatio(lowPerf ? smoothPixelRatio : normalPixelRatio);
     if (!overview) { camera.far = lowPerf ? 130 : 185; camera.updateProjectionMatrix(); }
   }
   syncPerfBtn();
@@ -575,12 +585,29 @@ async function start() {
   // ── Frame loop ───────────────────────────────────────────────────────────
   const clock = new THREE.Clock();
   let mapTimer = 0, frames = 0, fpsTimer = 0, fps = 0, prevX = player.pos.x, prevZ = player.pos.z;
+  let slowFrameWindows = 0, fastFrameWindows = 0;
   const tmp = new THREE.Vector3();
   function frame() {
     // Up to 0.15 s per frame keeps walking real-time on slow phones; collision subdivides the step.
     const raw = clock.getDelta(), dt = Math.min(raw, 0.15), t = clock.elapsedTime;
     floorDoorCooldown = Math.max(0, floorDoorCooldown - dt);
-    frames++; fpsTimer += raw; if (fpsTimer > 1) { fps = frames / fpsTimer; frames = 0; fpsTimer = 0; }
+    frames++; fpsTimer += raw;
+    if (fpsTimer > 1) {
+      fps = frames / fpsTimer; frames = 0; fpsTimer = 0;
+      // Smooth mode adapts GPU resolution to sustained load, not single-frame spikes.
+      // Simulation, pedestrian collision and real-world schedules remain unchanged.
+      if (lowPerf && !document.hidden && !playing) {
+        slowFrameWindows = fps < 36 ? slowFrameWindows + 1 : 0;
+        fastFrameWindows = fps > 55 ? fastFrameWindows + 1 : 0;
+        if (slowFrameWindows >= 3) {
+          setRenderPixelRatio(currentPixelRatio - 0.1);
+          slowFrameWindows = 0;
+        } else if (fastFrameWindows >= 7 && currentPixelRatio < smoothPixelRatio - 0.04) {
+          setRenderPixelRatio(Math.min(smoothPixelRatio, currentPixelRatio + 0.05));
+          fastFrameWindows = 0;
+        }
+      } else { slowFrameWindows = 0; fastFrameWindows = 0; }
+    }
     // While a game is open the town neither renders nor reacts, so the game gets the whole device.
     if (playing) {
       if (input.consume('back')) stopGame();
