@@ -296,7 +296,7 @@ export class TownLife {
     // All walkers, shop visitors and on-duty staff retain physical space.
     // Stationary conversations count too; no more two models in one body.
     separatePedestrians(this.villagers.filter(v=>!v.inside).map(v=>({
-      id:v.id,pos:v,radius:v.bike&&v.path.length?.72:.59
+      id:v.id,pos:v,radius:v.bike&&v.path.length?1.16:.59
     })),{gap:1.24,passes:4});
     updatePublicForum(this);
     advanceCivicWork(this, minutes);
@@ -947,6 +947,9 @@ export class TownLife {
     if(v.fatigue>92 && v.step?.kind==='work')v.memory='struggling to stay awake at work';
     if (v.engaged) return;                   // chatting with the player: stands still
     if (v.path.length) {
+      // Dismount before the last metres of a shop visit rather than carrying
+      // a 2.5m bicycle through people at the doorstep or counter.
+      if (v.bike && v.path.length === 1 && Math.hypot(v.path[0].x-v.x,v.path[0].z-v.z)<12) v.bike=false;
       let budget = minutes * SEC_PER_MIN * (v.bike ? BIKE : WALK);
       while (budget > 0 && v.path.length) {
         const p = v.path[0], dx = p.x - v.x, dz = p.z - v.z, d = Math.hypot(dx, dz);
