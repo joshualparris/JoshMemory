@@ -18,6 +18,9 @@ Newest first. Times in Australia/Sydney.
 
 ## Done recently
 
+- 2026-10-19 · ChatGPT (GitHub connector) — Living Town simulation prototype on `feat/living-town-simulation-20261019`: 20 vacant street-8 civic sites, trucks/lamps, 24-minute day/night, deterministic utilities + farm/mill/bakery/market/foundry/recycling/post/economy, visitor trading, council repairs/voting, persistent Ledger. Pure JS parse checks and `tests/town-simulation.mjs` assertions executed in an isolated JS evaluator; 90-town-day stock stress check completed (no negative stocks). **Not yet verified:** full npm build, privacy gate, desktop/Android browser visual playtest or deployed public site. Integrate after PR review and run those gates; do not overwrite other active branches.
+
+
 - 2026-10-19 · Claude Code (local CLI, `~/dev/rt-claude`) — full 188-house playtest of `main`
   headless on the real Intel UHD 630 GPU, desktop + phone. Two real bugs found and fixed, both
   in open PRs: **#14** (arcade discovery + phone house card blocked the joystick at every door)

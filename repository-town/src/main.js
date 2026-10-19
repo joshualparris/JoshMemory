@@ -12,6 +12,9 @@ import { setArchiveLoader } from './ui/archive.js';
 import { createExpedition } from './adventure/expedition.js';
 import { mountNPCChat } from './ui/npc-chat.js';
 import { placeTownNPCs, placeHouseGuide, animateNPCs, initialiseNPCWorksites } from './world/npcs.js';
+import { createTownSimulation } from './simulation/town-system.js';
+import { buildCivicDistrict } from './simulation/civic-world.js';
+import { mountLivingTown } from './simulation/ledger-ui.js';
 
 const $ = (id) => document.getElementById(id);
 const status = (t) => { $('status').textContent = t; };
@@ -20,6 +23,7 @@ addEventListener('error', (e) => fail(e.error || e.message));
 addEventListener('unhandledrejection', (e) => fail(e.reason));
 
 const SKY = 0x96c9f0, INDOOR = 0x1a1612;
+const NIGHT_SKY = new THREE.Color(0x14223b), DAY_SKY = new THREE.Color(SKY);
 
 async function start() {
   // The standalone single-file build embeds the data so it runs from file:// with no server.
@@ -49,6 +53,14 @@ async function start() {
   scene.add(sky);
 
   const town = buildTown(scene, houses, data.streets);
+  const civicDistrict = buildCivicDistrict(town, makeLabel);
+  let townSave = null;
+  try { townSave = JSON.parse(localStorage.getItem('repository-town-living-v1')); } catch { /* Use a new town on corrupt or blocked storage. */ }
+  let simulation;
+  try { simulation = createTownSimulation({ population: 32, restored: townSave }); }
+  catch { simulation = createTownSimulation({ population: 32 }); }
+  let livingView = simulation.snapshot();
+  const livingLedger = mountLivingTown(document, simulation);
   const streetNPCs = placeTownNPCs(town.group, town.lots, makeLabel);
   initialiseNPCWorksites(streetNPCs,town.group);
   streetSigns(town.group, data.streets, makeLabel);
@@ -83,7 +95,7 @@ async function start() {
   const active = new Set();
   const visited = new Set();
   const houseLabels = new Map();
-  let nearHouse = null, nearThing = null, nearNPC = null, houseGuide = null, panelOpen = null, cardTimer = 0;
+  let nearHouse = null, nearThing = null, nearNPC = null, nearCivic = null, houseGuide = null, panelOpen = null, cardTimer = 0;
   const expedition = createExpedition({town,makeLabel,openPanel,travel,
     releaseMouse:()=>input.releaseMouse()});
 
@@ -203,6 +215,7 @@ async function start() {
   let playing = null;
   function startGame(g) {
     expedition.dismiss();
+    livingLedger.close();
     closePanel(); npcChat.close(); $('npc-roster').hidden = true;
     input.reset();
     playing = g;
@@ -253,6 +266,8 @@ async function start() {
     const treasureD=treasure?Math.hypot(player.pos.x-treasure.pos.x,player.pos.z-treasure.pos.z):Infinity;
     const npcD=nearNPC?Math.hypot(player.pos.x-nearNPC.pos.x,player.pos.z-nearNPC.pos.z):Infinity;
     if(treasure && treasureD<=npcD){expedition.use(player.pos);return;}
+    const civicD = nearCivic ? Math.hypot(player.pos.x-nearCivic.position.x, player.pos.z-nearCivic.position.z-7) : Infinity;
+    if (nearCivic && civicD <= npcD) { input.releaseMouse(); livingLedger.openFor(nearCivic.id); input.reset(); return; }
     if (nearNPC) { input.releaseMouse(); closePanel(); $('npc-roster').hidden=true; npcChat.show(nearNPC.npc, nearNPC.house || null); input.reset(); return; }
     if (mode === 'house' && nearThing) {
       const thing = nearThing, request = ++interactionRequest, house = inside;
@@ -286,7 +301,10 @@ async function start() {
     status('Welcome back — your position was restored.');
   } else { spawn(); status('Welcome! Walk up to any front door to go inside.'); }
   let saveTimer = 0;
-  const save = () => writeSave({ pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, inside: inside?.house.coordinate || null, visited: [...visited] });
+  const save = () => {
+    writeSave({ pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, inside: inside?.house.coordinate || null, visited: [...visited] });
+    try { localStorage.setItem('repository-town-living-v1', simulation.serialize()); } catch { /* Private mode and storage quota must not crash play. */ }
+  };
   addEventListener('visibilitychange', () => { if (document.hidden) save(); });
   addEventListener('pagehide', save);
 
@@ -328,16 +346,29 @@ async function start() {
       requestAnimationFrame(frame);
       return;
     }
+    const newMinutes = simulation.advance(dt);
+    if (newMinutes) { livingView = simulation.snapshot(); livingLedger.render(); }
+    const townHour = (livingView.minute % 1440) / 60;
+    const daylight = Math.max(0, Math.sin(Math.PI * (townHour - 6) / 12));
+    sun.intensity = 0.1 + 1.9 * daylight;
+    sky.children[0].intensity = 0.32 + 1.8 * daylight;
+    if (mode === 'town') { scene.background.copy(NIGHT_SKY).lerp(DAY_SKY, daylight); fog.color.copy(scene.background); }
+    civicDistrict.update(t, daylight < 0.25);
     if (input.consume('map')) setOverview(!overview);
-    if (input.consume('back')) { if(expedition.isOpen()) expedition.dismiss(); else if (npcChat.isOpen()) npcChat.close(); else if (!$('npc-roster').hidden) $('npc-roster').hidden=true; else if (panelOpen) closePanel(); else if (!$('help').hidden) $('help').hidden = true; else setOverview(false); }
+    if (input.consume('back')) { if(livingLedger.isOpen()) livingLedger.close(); else if(expedition.isOpen()) expedition.dismiss(); else if (npcChat.isOpen()) npcChat.close(); else if (!$('npc-roster').hidden) $('npc-roster').hidden=true; else if (panelOpen) closePanel(); else if (!$('help').hidden) $('help').hidden = true; else setOverview(false); }
     if (overview) {
       camera.position.set(player.pos.x, 150, player.pos.z + 95); camera.lookAt(player.pos.x, 0, player.pos.z);
       input.takeLook(); input.consume('jump');
-    } else if (expedition.isOpen() || panelOpen || npcChat.isOpen() || !$('npc-roster').hidden || !$('help').hidden) { input.reset(); }
+    } else if (livingLedger.isOpen() || expedition.isOpen() || panelOpen || npcChat.isOpen() || !$('npc-roster').hidden || !$('help').hidden) { input.reset(); }
     else player.update(dt, input, world);
 
     if (mode === 'town') {
       nearNPC=pickNPC(streetNPCs); animateNPCs(streetNPCs,t,player.pos,dt,npcChat.isOpen()?npcChat.active():null,townWorld);
+      nearCivic = null; let civicBest = 6;
+      for (const place of civicDistrict.buildings) {
+        const d = Math.hypot(place.position.x-player.pos.x, place.position.z+7-player.pos.z);
+        if (d < civicBest) { civicBest = d; nearCivic = place; }
+      }
       nearHouse = null; let best = 6;
       for (const l of town.lots.values()) { const d = Math.hypot(l.doorPos.x - player.pos.x, l.doorPos.z - player.pos.z); if (d < best) { best = d; nearHouse = l; } }
       for (const d of town.doors) {
@@ -360,8 +391,9 @@ async function start() {
         else if (d > 70 && has) { town.group.remove(has); disposeLabel(has); houseLabels.delete(c); }
       }
       const nearRelic=expedition.nearby(player.pos);
-      $('prompt').hidden = (!nearNPC && !nearHouse && !nearRelic) || !!panelOpen || expedition.isOpen() || npcChat.isOpen() || !$('npc-roster').hidden;
+      $('prompt').hidden = (!nearNPC && !nearCivic && !nearHouse && !nearRelic) || !!panelOpen || livingLedger.isOpen() || expedition.isOpen() || npcChat.isOpen() || !$('npc-roster').hidden;
       if(nearRelic && (!nearNPC || Math.hypot(player.pos.x-nearRelic.pos.x,player.pos.z-nearRelic.pos.z) <= Math.hypot(player.pos.x-nearNPC.pos.x,player.pos.z-nearNPC.pos.z))) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — ✨ ${nearRelic.id==='guild'?'Guild Chest':nearRelic.name}`;
+      else if (nearCivic && (!nearNPC || civicBest <= Math.hypot(player.pos.x-nearNPC.pos.x, player.pos.z-nearNPC.pos.z))) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — Visit ${nearCivic.name}`;
       else if (nearNPC) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — 💬 Talk to ${nearNPC.npc.name}`;
       else if (nearHouse) $('prompt').textContent = `${nearHouse.house.coordinate} · ${nearHouse.house.name} — walk through the door to enter`;
       if (input.consume('use')) use();
@@ -409,6 +441,10 @@ async function start() {
     houses: houses.map((h) => ({ coordinate: h.coordinate, name: h.name })),
     npcs: streetNPCs.map(x => ({id:x.npc.id,name:x.npc.name,coordinate:x.npc.coordinate})),
     npcChat: () => ({open:npcChat.isOpen(),id:npcChat.active()}),
+    civicSites: civicDistrict.buildings.map(b => ({ id:b.id,name:b.name,coordinate:b.coordinate })),
+    visitCivicSite: (id) => { if (!civicDistrict.buildings.some(b => b.id===id)) return false; livingLedger.openFor(id); return true; },
+    livingTown: () => simulation.snapshot(),
+    openLedger: () => { document.getElementById('btn-living-town').click(); return livingLedger.isOpen(); },
     talkTo: (id) => npcChat.show(id),
     travel,
     state: () => ({
