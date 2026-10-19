@@ -1,0 +1,46 @@
+name: Town walk-in shop QA (one-time)
+on:
+  push:
+    branches:
+      - integration/town-walk-in-shops-20261019
+permissions:
+  contents: read
+jobs:
+  shop-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Build public site and verify privacy
+        run: |
+          node tools/build.mjs
+          node tools/check_privacy.mjs
+      - name: Check civic rooms and prior town simulation
+        run: |
+          node tests/shop-interiors.mjs
+          node tests/town-simulation.mjs
+          node tests/npc-no-pin.mjs
+          node tests/npc-scene-awareness.mjs
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Start local site
+        run: |
+          node tools/serve.mjs dist/public 8091 > /tmp/shopserver.log 2>&1 &
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8091/ -o /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/shopserver.log
+          exit 1
+      - name: Walk through shop entrances on desktop and phone
+        run: node tests/shop-e2e.mjs
