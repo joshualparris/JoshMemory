@@ -43,8 +43,13 @@ assert.throws(() => civicExitPose({door:{x:0,z:NaN}}, []), TypeError);
 // actually facing. The exit button uses the usual outward-facing default,
 // while walking backwards retains the original yaw instead of snapping around.
 const main = read('main.js');
-assert.match(main, /player\.place\(l\.doorPos\.x,\s*l\.doorPos\.z\s*\+\s*4,\s*keepFacing\s*\?\s*yawInside\s*:\s*Math\.PI\)/,
-  'houses must keep walking direction on physical exits and face out on button exits');
+// Two equivalent safe implementations are supported: pass the preserved yaw
+// directly to place(), or place facing outward then restore yaw when needed.
+// The test checks both branches, rather than freezing incidental syntax.
+const housePlace = /player\.place\(l\.doorPos\.x,\s*l\.doorPos\.z\s*\+\s*4,\s*keepFacing\s*\?\s*yawInside\s*:\s*Math\.PI\)/;
+const houseRestore = /player\.place\(l\.doorPos\.x,\s*l\.doorPos\.z\s*\+\s*4,\s*Math\.PI\)\s*;\s*if\s*\(keepFacing\)\s*player\.yaw\s*=\s*yawInside\s*;/;
+assert.ok(housePlace.test(main) || houseRestore.test(main),
+  'houses must face outward on button exits and preserve walking yaw on physical exits');
 assert.match(main, /else leave\(true, true\)/,
   'walking through a physical door must preserve the player facing');
 assert.match(main, /civicExitPose\(shop,/,
