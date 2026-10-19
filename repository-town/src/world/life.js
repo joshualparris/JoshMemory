@@ -555,7 +555,16 @@ export class TownLife {
     };
     return this.obstacles.some(p=>near(p,1.8,8)) ||
       this.villagers.some(v=>!v.inside&&near(v,1.6,8)) ||
-      this.trucks.some(o=>o!==t&&near(o,3.05,9));
+      this.trucks.some(o=>{
+        if(o===t)return false;
+        // Trucks are roughly 6.6m bumper-to-bumper: keep an actual
+        // following gap, not merely non-overlapping centre points. Vehicles
+        // in the opposing Australian left-hand lane are separated laterally.
+        const rx=o.x-t.x,rz=o.z-t.z,ahead=rx*fx+rz*fz;
+        if(ahead<=0.3||ahead>12||Math.abs(rx*fz-rz*fx)>2.65)return false;
+        const at=proposed||t;
+        return Math.hypot(o.x-at.x,o.z-at.z)<6.2;
+      });
   }
 
   // Finds the most useful load: a destination short of a good that a source has spare.
