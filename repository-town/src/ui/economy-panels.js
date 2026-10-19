@@ -54,7 +54,7 @@ export function jobBoardPanel(life, opts = {}) {
   }).join('');
   return {
     title: '💼 Paid jobs', wide: true,
-    body: `<p>Earn real wages by working a shift inside a workplace while its staff are on duty. Up to ${MAX_SHIFTS_PER_DAY} shifts a day, one of each. Wages come out of the employer's till (the council covers the rest) and 10% PAYG goes to the Commonwealth. Shifts count down only while you are inside.</p>
+    body: `<p>Earn real wages by working a shift inside a workplace while its staff are on duty. Up to ${MAX_SHIFTS_PER_DAY} shifts a day, one of each. Wages come out of the employer's till (the council covers the rest) and PAYG income tax goes to the Commonwealth. Shifts count down only while you are inside.</p>
       <table class="ledger"><tr><th>Job</th><th>Where</th><th>Time</th><th>Pay</th><th>Today</th></tr>${rows}</table>
       ${j.active ? `<p><b>Current shift:</b> ${esc(JOB_BOARD.find((x) => x.id === j.active.id).name)} · ${Math.floor(j.active.worked)}/${j.active.required} town minutes</p>` : ''}`,
     actions: [

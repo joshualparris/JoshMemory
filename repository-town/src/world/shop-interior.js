@@ -3,6 +3,9 @@ import { buildFarmhouseInterior } from './farmhouse-interior.js';
 import { buildHotelInterior } from './hotel-interior.js';
 import { buildBakeryInterior } from './bakery-interior.js';
 import { buildBankInterior } from './bank-interior.js';
+import { buildStoreInterior } from './store-interior.js';
+import { buildCafeInterior } from './cafe-interior.js';
+import { buildPubInterior } from './pub-interior.js';
 
 // The twenty high-street services share a safe walkable plan, with different
 // fixtures, colours and exhibits. They are built only while the player is inside.
@@ -55,6 +58,9 @@ export function buildCivicInterior(site,makeLabel) {
   if(site.id==='bakery')return buildBakeryInterior(site,makeLabel,roomTitle);
   // The bank: queue lane, tellers at the back, advice desks, private office, ATMs, vault.
   if(site.id==='bank')return buildBankInterior(site,makeLabel,roomTitle);
+  if(site.id==='store')return buildStoreInterior(site,makeLabel,roomTitle);
+  if(site.id==='cafe')return buildCafeInterior(site,makeLabel,roomTitle);
+  if(site.id==='pub')return buildPubInterior(site,makeLabel,roomTitle);
   const group=new THREE.Group();
   group.name='Inside '+site.name;
   const colliders=[],interactables=[],sceneObjects=[],placedProps=[];
