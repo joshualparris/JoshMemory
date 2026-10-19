@@ -11,6 +11,20 @@ const FALLBACK=[
   'I can still keep you company in offline mode. For an open-ended answer, connect Groq with your private access code.',
   'That sounds interesting! I wish I could give a proper answer right now. My offline dialogue is limited.'
 ];
+// Offline conversations should describe the public-safe house without exposing
+// private repository identifiers or relying on a network request.
+export function houseAwareReply(npc,house,question) {
+  if(!house)return null;
+  const q=String(question||'').toLowerCase();
+  const place=String(house.name||'this building').slice(0,90);
+  const kind=String(house.kind||'project').slice(0,70);
+  const coord=String(house.coordinate||'').slice(0,10);
+  if(/where|live|home|house|building|place|work|project/.test(q))
+    return `I spend time around ${place}${coord?' at '+coord:''}. It's a ${kind.toLowerCase()} in Repository Town. What would you like to explore here?`;
+  if(/game|play|explore|inside|visit/.test(q))
+    return `Have a look around ${place}! You can explore its rooms and try the interactive exhibits. I wonder which one you'll enjoy most.`;
+  return null;
+}
 export function mountNPCChat(root=document) {
   const el=root.getElementById('npc-chat');
   const feed=root.getElementById('npc-messages');
@@ -163,11 +177,11 @@ export function mountNPCChat(root=document) {
         reply=await groq([{role:'system',content:creaturePrompt(npc)},...history.slice(-8).map(({role,content})=>({role,content}))]);
         online=true;
       } catch(err) {
-        reply=FALLBACK[count++%FALLBACK.length]+(err.code==='badkey'?' (Groq rejected the saved key.)':err.code==='busy'?' (Groq is busy right now.)':' (Offline.)');
+        reply=(houseAwareReply(npc,house,question)||FALLBACK[count++%FALLBACK.length])+(err.code==='badkey'?' (Groq rejected the saved key.)':err.code==='busy'?' (Groq is busy right now.)':' (Offline.)');
       }
     } else if(!accessCode) {
-      reply=FALLBACK[count++%FALLBACK.length];
-      status.textContent='Offline dialogue · save a Groq key in any house resident\'s chat, or enter the playtest access code';
+      reply=houseAwareReply(npc,house,question)||FALLBACK[count++%FALLBACK.length];
+      status.textContent='Offline dialogue · save a Groq key in any house resident\'s chat, or enter your private access code to enable Groq';
     } else {
       controller=new AbortController();
       const timeout=setTimeout(()=>controller?.abort(),22000);
