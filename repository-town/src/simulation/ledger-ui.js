@@ -142,6 +142,17 @@ export function mountLivingTown(document, simulation) {
   panel.querySelector("#living-close").addEventListener("click",close);
   const onEscape = e=>{if(e.key==="Escape"&&!panel.hidden){close();e.stopPropagation();}};
   document.addEventListener("keydown",onEscape);
+  function openFor(siteId) {
+    if (["town-hall","council"].includes(siteId)) tab = "Council";
+    else if (["bank","market","bakery","mill","farm","factory","depot","cafe"].includes(siteId)) tab = "Economy";
+    else if (["power","waterworks","sewage","recycling","landfill","fire"].includes(siteId)) tab = "Utilities";
+    else if (["post","school","clinic","park"].includes(siteId)) tab = "Residents";
+    else tab = "Overview";
+    panel.hidden = false;
+    button.setAttribute("aria-expanded", "true");
+    notice.textContent = "";
+    render();
+  }
   render();
-  return { render, close, isOpen:()=>!panel.hidden };
+  return { render, close, openFor, isOpen:()=>!panel.hidden };
 }
