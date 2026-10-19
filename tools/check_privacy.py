@@ -26,23 +26,23 @@ PATTERNS = [
 # README archives and literal \\n sequences inside vendored JS are not mistaken for keys.
 # Known token formats above and private denylist terms are ALWAYS checked.
 CREDENTIAL_ASSIGNMENT = re.compile(
-    r'(?i)\\b(api[_-]?key|client[_-]?secret|access[_-]?token|refresh[_-]?token|password|passwd)'
-    r'\\s*[:=]\\s*([\\\'\\\"])([^\\n\\r\\\'\\\"]{8,})\\2'
+    r"(?i)\b(api[_-]?key|client[_-]?secret|access[_-]?token|refresh[_-]?token|password|passwd)"
+    r"\s*[:=]\s*(['\"])([^\n\r'\"]{8,})\2"
 )
 
 
 def is_documentation_placeholder(value):
-    # HTML/JS release bundles escape angle brackets as \\u003c and \\u003e.
-    normal = re.sub(r'\\\\u003c', '<', value, flags=re.I)
-    normal = re.sub(r'\\\\u003e', '>', normal, flags=re.I)
+    # Release bundles can encode HTML angle brackets as literal \u003c/\u003e.
+    normal = re.sub(r'\\u003c', '<', value, flags=re.I)
+    normal = re.sub(r'\\u003e', '>', normal, flags=re.I)
     return bool(re.fullmatch(r'<your[_a-z0-9-]+>', normal.strip(), re.I))
 
 
 def is_real_credential_assignment(match):
     value = match.group(3)
-    # A minified Python standard-library string can contain literal backslash-n
-    # after a harmless prompt and swallow unrelated code until the next quote.
-    if '\\\\n' in value or '\\\\r' in value:
+    # A vendored library string with escaped line breaks can swallow unrelated
+    # source code across logical lines, creating a false credential assignment.
+    if r'\n' in value or r'\r' in value:
         return False
     return not is_documentation_placeholder(value)
 
