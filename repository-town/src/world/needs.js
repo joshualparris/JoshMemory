@@ -56,13 +56,16 @@ export function hotelCheckIn(t) {
   t.log('The visitor checked into the Railway Hotel, room '+room+'.');
   return 'Room '+room+' booked for $'+HOTEL_RATE+'. Find a guest bed to sleep.';
 }
-export function sleepPlayer(t,site='hotel') {
+export function sleepPlayer(t,site='hotel',room=null) {
   const p=startNeeds(t);
-  if(site!=='hotel'||!p.hotelBooking||p.hotelBooking.day!==t.day)return 'You need to book a hotel room for tonight first.';
+  const valid=p.hotelBooking&&(p.hotelBooking.day===t.day||(t.minute<360&&p.hotelBooking.day===t.day-1));
+  if(site!=='hotel'||!valid)return 'You need to book a hotel room for tonight first.';
+  if(room!==null&&room!==p.hotelBooking.room)return 'Your key is for guest room '+p.hotelBooking.room+'.';
+  if(t.minute>=360&&t.minute<1080)return 'Overnight sleep starts at 18:00. Come back this evening.';
   const start=t.minute,mins=(6*60-start+1440)%1440||480;
   // Sleeping runs the *same* town simulation, including businesses, wages,
   // hunger and neighbours, rather than teleporting the clock or minting money.
-  let n=Math.min(720,Math.max(360,mins));
+  let n=Math.min(480,Math.max(300,mins));
   for(let done=0;done<n;done+=0.5)t.tick(Math.min(0.5,n-done));
   p.fatigue=clamp(p.fatigue-95);
   p.hunger=clamp(p.hunger+7);
