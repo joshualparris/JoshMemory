@@ -50,6 +50,10 @@ for (let d = 0; d < 14; d++) {
   if (t.yesterday) minMeals = Math.min(minMeals, t.yesterday.meals);
   mayors.add(t.civic.mayor);
 }
+if(blackout) {
+  const near=(p,t)=>{const next=t.path.find(k=>Math.hypot(k.x-t.x,k.z-t.z)>.1), dx=next?next.x-t.x:Math.sin(t.heading),dz=next?next.z-t.z:Math.cos(t.heading),d=Math.hypot(dx,dz)||1,fx=dx/d,fz=dz/d,x=p.x-t.x,z=p.z-t.z,ahead=x*fx+z*fz,side=Math.abs(x*fz-z*fx);return {ahead:Math.round(ahead*10)/10,side:Math.round(side*10)/10};};
+  console.log('BLOCKER TRACE',JSON.stringify(t.trucks.map(v=>({id:v.id,blocked:v.braking,point:{x:v.x,z:v.z},next:v.path[0],obstacles:t.obstacles.map(p=>({p,...near(p,v)})),villagers:t.villagers.filter(p=>!p.inside).map(p=>({name:p.name,...near(p,v)})).filter(p=>p.ahead>0&&p.ahead<10&&p.side<3).slice(0,4),otherTrucks:t.trucks.filter(q=>q!==v).map(q=>({id:q.id,...near(q,v),distance:Math.round(Math.hypot(q.x-v.x,q.z-v.z)*10)/10}))}))));
+}
 assert.equal(blackout, 0, 'no blackouts while fuel deliveries keep up');
 assert.ok(minMeals >= 80, `at least 80 meals a day (worst ${minMeals})`);
 assert.ok(t.civic.treasury > 1000, `the council stays solvent ($${Math.round(t.civic.treasury)})`);
