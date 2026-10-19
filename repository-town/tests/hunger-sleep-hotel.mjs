@@ -69,10 +69,12 @@ restored.restore(snap);
 assert.equal(restored.civic.player.hotelBooking.room,booking.room);
 assert.equal(restored.place('hotel').bookings.length,1);
 assert.equal(restored.villagers[0].fatigue,v.fatigue);
-const before=restored.day,spent=restored.civic.player.wallet;
+const before=restored.day,spent=restored.civic.player.wallet+restored.civic.player.bank;
 assert.match(restored.sleepHotel(booking.room),/slept at the hotel/);
 assert(restored.civic.player.fatigue<35,'8 hours sleep restores player');
-assert.equal(restored.civic.player.wallet,spent,'sleep does not charge twice');
+// Sleeping runs the clock into a new day, so the visitor's morning rent and power come out, and nothing else.
+const billed=restored.civic.finance.visitorPaid;
+assert.equal(restored.civic.player.wallet+restored.civic.player.bank+billed,spent,'sleep does not charge twice (only the daily household bills come out)');
 assert.equal(restored.civic.player.hotelBooking,null);
 assert(restored.day>=before);
 assert.equal(restored.needsReport().rooms,4);

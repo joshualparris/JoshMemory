@@ -36,7 +36,8 @@ def('bookshelf', 'Bookshelf', 1.6, 0.45, (b, o) => {
 def('cabinet', 'Cabinet', 1.0, 0.5, (b, o) => { b.block(o.c || 0x7b6a58, 1.0, 1.2, 0.5, 0, 0, 0); b.box(DARK, 0.9, 0.02, 0.02, 0, 0.6, 0.26); b.box(GOLD, 0.06, 0.06, 0.04, 0.1, 0.9, 0.27); });
 def('counter', 'Counter', 2.4, 0.7, (b, o) => { b.block(o.c || 0x9c8062, 2.4, 0.9, 0.7, 0, 0, 0); b.block(o.a || 0xe0d6bd, 2.5, 0.06, 0.75, 0, 0.9, 0); });
 def('bench', 'Bench', 1.8, 0.5, (b, o) => { b.block(o.c || WOOD, 1.8, 0.08, 0.45, 0, 0.42, 0); for (const x of [-0.75, 0.75]) b.block(DARK, 0.08, 0.42, 0.4, x, 0, 0); }, { solid: false });
-def('rug', 'Rug', 2.6, 1.8, (b, o) => { b.block(o.c || 0xa45d4f, 2.6, 0.02, 1.8, 0, 0, 0); b.block(o.a || GOLD, 2.2, 0.025, 1.4, 0, 0, 0); b.block(o.c || 0xa45d4f, 1.8, 0.03, 1.0, 0, 0, 0); }, { solid: false });
+// Three concentric rug fabrics have progressively higher top surfaces so mobile depth buffers never z-fight.
+def('rug', 'Rug', 2.6, 1.8, (b, o) => { b.block(o.c || 0xa45d4f, 2.6, 0.02, 1.8, 0, 0.012, 0); b.block(o.a || GOLD, 2.2, 0.02, 1.4, 0, 0.030, 0); b.block(o.c || 0xa45d4f, 1.8, 0.02, 1.0, 0, 0.048, 0); }, { solid: false });
 def('lamp', 'Lamp', 0.5, 0.5, (b, o) => { b.cyl(DARK, 0.2, 0.04, 0, 0.02, 0); b.cyl(DARK, 0.03, 1.5, 0, 0.75, 0); dyn(b, o, 'cone', o.c || 0xf5dfa0, [0.5, 0.4, 0.5], [0, 1.55, 0], 'glow', { emissive: true, always: !o.key }); }, { solid: false });
 def('plant', 'Plant', 0.6, 0.6, (b, o) => { b.cyl(0xa0624a, 0.22, 0.4, 0, 0.2, 0); for (let i = 0; i < 5; i++) b.ball(o.c || GREEN, 0.22, Math.cos(i * 1.3) * 0.18, 0.6 + (i % 3) * 0.18, Math.sin(i * 1.3) * 0.18); }, { solid: false });
 def('pottedTree', 'Potted tree', 0.9, 0.9, (b, o) => { b.cyl(0x8c5a3c, 0.35, 0.55, 0, 0.27, 0); b.cyl(WOOD, 0.07, 1.4, 0, 1.2, 0); b.ball(o.c || 0x4e8a46, 0.6, 0, 2.1, 0); b.ball(o.c || 0x4e8a46, 0.42, 0.3, 1.8, 0.1); });

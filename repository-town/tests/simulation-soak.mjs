@@ -22,7 +22,9 @@ const money = (t) => {
   const v = t.villagers.reduce((s, x) => s + x.wallet + (x.savings || 0), 0);
   const p = t.civic.player.wallet + t.civic.player.bank;
   const tills = [...t.places.values()].reduce((s, x) => s + x.till, 0);
-  return { villagers: v, player: p, tills, treasury: t.civic.treasury, total: v + p + tills + t.civic.treasury };
+  const bank = t.civic.credit?.capital || 0; // the credit union's lending pool
+  const gov = (t.civic.finance?.federal || 0) + (t.civic.finance?.state || 0); // Commonwealth and NSW treasuries
+  return { villagers: v, player: p, tills, treasury: t.civic.treasury, bank, gov, total: v + p + tills + t.civic.treasury + bank + gov };
 };
 const negatives = (t) => {
   const bad = [];
@@ -42,13 +44,13 @@ const negatives = (t) => {
 const flows = { grant: 0, outside: 0, imports: 0, exports: 0 };
 function instrument(t) {
   const pay = t.pay.bind(t), hour = t.everyHour.bind(t), day = t.newDay.bind(t), log = t.log.bind(t);
-  t.pay = (v) => { if (v.job === 'programmer') { const w = v.wallet, tr = t.civic.treasury; pay(v); flows.outside += (v.wallet - w) + Math.max(0, t.civic.treasury - tr); } else pay(v); };
+  t.pay = (v) => { if (v.job === 'programmer') { const w = v.wallet, tr = t.civic.treasury, fd = t.civic.finance.federal; pay(v); flows.outside += (v.wallet - w) + (t.civic.finance.federal - fd) + Math.max(0, t.civic.treasury - tr); } else pay(v); };
   t.everyHour = () => {
     const d = t.place('depot').out, f = d.fuel || 0, o = d.ore || 0;
     hour();
     if (Math.floor(t.minute / 60) === 7) flows.imports += ((d.fuel || 0) - f) * 1 + ((d.ore || 0) - o) * 2;
   };
-  t.newDay = () => { flows.grant += 900; day(); };
+  t.newDay = () => { day(); };
   t.log = (text) => { const m = /exported \d+ tonnes of metal by rail for \$(\d+)/.exec(text); if (m) flows.exports += +m[1]; log(text); };
 }
 

@@ -224,3 +224,21 @@ Newest first. Times in Australia/Sydney.
 - New `src/world/interior-kit.js`: shared 14×18 m shell + helpers (`createKit`, `ROOM`) for the next
   dedicated shop interiors (café, pub, post office…). The bakery was not migrated to it.
 - `tests/shop-interiors.mjs` has a bank branch (hotspots clear of colliders, staff behind counter, 2 rope colliders).
+
+## 2026-10-20 — bank loans, interest and journal on main's economy (Claude, branch feat/economy-loans-bills-20261020)
+- ChatGPT's live-site economy was never in source; verbatim copy kept on branch `archive/chatgpt-economy-live-20261020` (not built).
+  It is a different money model (TownMoney/TownFinance) and was NOT merged. Josh chose to keep main's economy and port features.
+- Ported so far: Community Bank credit (`src/world/credit.js`): $1,500 lending pool, loans $100/$200/$400 after the visitor has
+  earned money, one loan at a time, 1%/day simple interest (2% overdue, 14-day term), repay (interest first), bank journal.
+  Panel buttons in `ui/townpanels.js`; `tests/credit.mjs` in `npm run test:town`; soak money total now includes the pool.
+- Also ported (same branch family): `src/world/finance.js` — finite Commonwealth ($40k) and NSW ($25k) treasuries, daily grants to council
+  from them (replacing the old free $900), 10% PAYG on wages, NSW pays school/clinic payroll, wage arrears, villager rate arrears,
+  visitor rent $8 + power $2 per day from day 2 (arrears block loans; `life.payBills()`), business utilities $3/day, a bounded journal,
+  `ui/economy-panels.js` Town accounts (Town Ledger and bank counter), bakery supervised batch (`bakery-production.js`,
+  `ui/bakery-panel.js`, hotspot `bakery:kitchen`). Soak money total counts the treasuries and the lending pool. `tests/finance.mjs`.
+- Also ported: paid job board and wallet (`src/world/jobs.js`, `ui/economy-panels.js`, HUD "💳 Wallet"): six shifts, done inside the
+  workplace with staff on duty (`life.playerAt` is set by main.js), duties five minutes apart, till then council pays, 10% PAYG,
+  two shifts a day, receipts, `tests/jobs.mjs`. "Work a shift here" is on each workplace counter panel.
+- Deliberately NOT ported: ChatGPT's cash-vs-card toggle and its three-account player model (main keeps wallet + savings), 3D work
+  stations (duties are panel buttons), and its player energy/food (main already has hunger and sleep in needs.js).
+- The verbatim original stays on branch `archive/chatgpt-economy-live-20261020`.
