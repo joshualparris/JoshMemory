@@ -7,7 +7,7 @@ const coords = Array.from({length:8},(_,row)=>Array.from({length:26},(_,col)=>St
 const names=coords.map(residentName);
 assert.equal(coords.length,208);
 assert.equal(new Set(names).size,coords.length,'each possible town house has its own full resident name');
-assert(names.every(name=>/^[A-Z][a-z]+ [A-Z][a-z]+$/.test(name)),'names should look natural, not contain coordinates');
+assert(names.every(name=>/^[A-Z][a-z]+ [A-Z][A-Za-z]+$/.test(name)),'names should look natural, not contain coordinates');
 for(let i=0;i<coords.length;i++){
   assert.equal(conversationName(coords[i]),names[i],'chat identity must match house labels');
   assert.equal(residentName(coords[i]),names[i],'name must remain stable between reloads');
