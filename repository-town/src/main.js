@@ -15,7 +15,7 @@ import { mountNPCChat } from './ui/npc-chat.js';
 import { makePerson, Walker, houseWander, freeSpot, placeTownNPCs, animateNPCs, initialiseNPCWorksites } from './world/npcs.js';
 import { createTownLife } from './world/townlife.js';
 import { createAmbience } from './ui/ambience.js';
-import { placePanel, buy, ledgerPanel, guidePanel, relicsLeft, townContext } from './ui/townpanels.js';
+import { placePanel, ledgerPanel, guidePanel, relicsLeft, townContext } from './ui/townpanels.js';
 import { createExpedition } from './adventure/expedition.js';
 
 const $ = (id) => document.getElementById(id);
@@ -126,7 +126,7 @@ async function start() {
     closePanel(); npcChat.close();
     if (mode === 'house') leave(false);
     const f = townLife.placeFront(id);
-    player.place(f.x, f.z, 0);
+    player.place(f.x, f.z, f.yaw ?? 0);
     input.pressed.delete('map'); setOverview(false);
     status(`Outside the ${life.place(id).name}.`);
   }
@@ -377,7 +377,7 @@ async function start() {
   }
   function talkTo(p) {
     if (p.guide) { openPanel(guideContent(), p); return; }
-    if (p.spot) { const c = p.spot.id === 'hall' ? ledgerPanel(life) : placePanel(life, p.spot.id, (id, g) => buy(life, id, g)); openPanel(c, p); return; }
+    if (p.spot) { openPanel(placePanel(life, p.spot.id), p); return; }
     const v = p.v, home = byCoord.get(v.home.coordinate);
     p.talking = true;
     openPanel(npcBehaviour({ act: { do: 'npc', name: v.name, role: 'villager' } }, { house: home, houses, town: () => townContext(life, v) }), p);

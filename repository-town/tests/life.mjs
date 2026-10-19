@@ -104,13 +104,16 @@ check(bought && /You buy/.test(s.panel?.text || ''), `bought something: ${s.pane
 await T(() => window.__town.closePanel());
 
 // 5. Town Hall ledger, a farm, the square.
-for (const [id, re] of [['hall', /Town Ledger/], ['silo', /Crop/], ['square', /Town news/], ['depot', /freight train/]]) {
+for (const [id, re] of [['hall', /Council[\s\S]*Networks/], ['silo', /Crop/], ['square', /Town news/], ['depot', /freight train/], ['power', /Supply:/], ['bank', /Your wallet/], ['waterworks', /Reservoir/], ['foundry', /Ore:/]]) {
   await T((x) => window.__town.goPlace(x), id);
   await nearTo(new RegExp(`^place:${id}$`));
   await press('e');
   s = await st();
   check(re.test(s.panel?.title + s.panel?.text), `${id}: ${s.panel?.title}`);
   if (id === 'silo') { await T(() => window.__town.closePanel()); await T(() => { const t = window.__town.state(); window.__town.place(t.pos.x, t.pos.z + 18, Math.PI); }); await page.waitForTimeout(500); await shot('farm-fields'); }
+  if (id === 'power') await shot('civic-power');
+  if (id === 'bank') { const before = (await st()).panel.text; await btn(/Withdraw/); const after = (await st()).panel.text; check(/Withdrew \$20/.test(after), `bank withdrawal works (${after.slice(0, 60)})`); }
+  if (id === 'hall') { await btn(/Vote Sage/); check(/vote for Sage/i.test((await st()).panel?.text || ''), 'can vote for mayor'); }
   await T(() => window.__town.closePanel());
 }
 

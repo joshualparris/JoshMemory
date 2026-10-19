@@ -134,3 +134,34 @@ gameplay check.
 ## Adventure Guild exploration mode
 
 Twelve discoverable glowing relics are situated outside public houses, each with a puzzle and collectible reward. Open the Quest Journal with J, earn Compass and Lens milestones, visit houses for badges, and claim the final Guild Vault crown. Local-first: progress is in the user's browser storage and no AI calls are made for quests. See `src/adventure/`. Run `node tests/expedition.mjs` to validate. The Guild Chest starts near M4.
+
+## Living Town prototype (in review)
+
+The civic simulation is grounded in a single, deterministic, offline-first model:
+a **24-real-minute town day**, 20 reserved empty street-8 lots with civic
+buildings, a Town Ledger, community bank, mayoral voting, the post office,
+basic industry, agriculture, retail supply chains, power, treated water,
+sewage, refuse collection and recycling. Visitor Town Credits and town state
+are stored in your browser (no account required). A service failure affects
+production; the council can spend funds and spare parts to fix it.
+
+Open **🏛️ Town Ledger** from the HUD. You can check the current mayor and
+public budget, trace bread from farm to shop, buy goods, deposit/withdraw
+credits, vote, post a letter, sort recyclables and simulate/repair a water
+main fault. Use it on Android without needing to type access codes.
+
+Test the pure simulation from the repository-town directory:
+
+```bash
+node tests/town-simulation.mjs
+```
+
+**Scope note:** the first release is a systems prototype. Although the
+NPC schedules are visible in the Ledger, existing 3D NPC pathfinding, interior
+civic buildings, exact cargo truck routes and true utility pipe/cable
+networks are **not yet wired into it**. The town log is deterministic and
+the delivery truck models are currently decorative. See
+[docs/LIVING_TOWN_MASTERPLAN.md](docs/LIVING_TOWN_MASTERPLAN.md) for the
+complete buildout and scenario acceptance checks. Continue to run the
+normal build, privacy check and desktop/Android browser suites before public
+deployment.

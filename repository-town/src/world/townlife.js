@@ -161,6 +161,55 @@ const BUILD = {
     return null;
   },
 };
+// Civic sites across the road (authored like the rest: street side +z, front wall at z = +7).
+Object.assign(BUILD, {
+  bank(b) {
+    b.box(0xd8d0c0, 14, 6, 10, 0, 3, 2); b.box(0xa89a80, 15, 0.6, 11, 0, 6.3, 2);
+    for (let i = 0; i < 4; i++) b.cyl(WHITE, 0.3, 5.2, -4.5 + i * 3, 2.6, 7.5);
+    b.box(0x8a7a60, 13, 0.3, 2, 0, 0.15, 7.8); b.box(0x2a1e18, 1.8, 2.8, 0.06, 0, 1.4, 7.05);
+    for (const x of [-5, 5]) b.box(GLASS, 1.4, 2, 0.08, x, 2.2, 7.05);
+    return { w: 14, d: 10 };
+  },
+  power(b) {
+    b.box(0x8a9098, 12, 6, 10, -2, 3, 2); b.cyl(0x6a6a70, 0.7, 14, -6, 7, 0); b.cyl(0xc8c4bc, 2.4, 9, 5, 4.5, 0);
+    for (let i = 0; i < 6; i++) b.add('box', 0x23324a, 2.2, 0.08, 1.4, -6 + i * 2.4, 0.9, -5.5, -0.5, 0, 0);
+    b.box(0x2a2a2a, 2, 2.6, 0.06, -2, 1.3, 7.05); b.box(0xe8c23a, 3, 0.4, 0.06, -2, 3.3, 7.05);
+    return { w: 14, d: 10 };
+  },
+  waterworks(b) {
+    b.cyl(0x8ab0c8, 4, 6, 3, 3, -1); b.cone(0x6a8aa8, 4.3, 1.2, 3, 6.6, -1); b.box(0xc8c0b0, 6, 3.5, 5, -4, 1.75, 3);
+    b.box(0x2a2a2a, 1.4, 2.4, 0.06, -4, 1.2, 5.55); b.cyl(0x5a7a9a, 0.3, 4, -1, 2, 5);
+    return { w: 14, d: 10 };
+  },
+  sewage(b) {
+    for (const [x, z] of [[-3.5, 0], [3.5, 0]]) { b.cyl(0x9a9a92, 3, 1.2, x, 0.6, z); b.cyl(0x5a6a4a, 2.7, 0.05, x, 1.2, z); }
+    b.box(0xb8b0a0, 5, 3, 4, 0, 1.5, 5); b.box(0x2a2a2a, 1.4, 2.2, 0.06, 0, 1.1, 7.05);
+    return { w: 13, d: 8 };
+  },
+  fire(b) {
+    b.box(0xb83a32, 13, 6, 10, 0, 3, 2); b.box(0x7a2a24, 13.6, 0.5, 10.6, 0, 6.25, 2);
+    for (const x of [-3.2, 3.2]) { b.box(0xe8e4dc, 4.6, 4.2, 0.06, x, 2.1, 7.05); for (let i = 1; i < 5; i++) b.box(0xb0aca4, 4.6, 0.06, 0.08, x, i * 0.85, 7.08); }
+    b.cyl(0xb83a32, 1.2, 9, 6.5, 4.5, -2); b.box(0xd0d0d0, 2.6, 0.5, 0.06, 0, 5.3, 7.06);
+    return { w: 14, d: 10 };
+  },
+  recycling(b) {
+    shed(b, 12, 8, 4, 0x6a9a5a, 0x4a5a4a);
+    for (let i = 0; i < 4; i++) b.block([0x3a7ab8, 0xe0b040, 0x5aa040, 0xb8413a][i], 1.4, 1.3, 1.1, -4.5 + i * 3, 0, 8.4);
+    return { w: 12, d: 8 };
+  },
+  landfill(b) {
+    for (const [x, z, r] of [[-3, -1, 3.2], [3, 0, 2.6]]) b.ball(0x7a6a50, r, x, 0, z, 0.45);
+    b.box(0xb8b0a0, 4, 2.6, 3, 0, 1.3, 5.2); fence(b, -6.5, 6.5, -6, 6.6);
+    return { w: 13, d: 12 };
+  },
+  foundry(b) {
+    b.box(0x6a5a50, 14, 7, 10, 0, 3.5, 2); b.box(0x4a4a4a, 14.6, 0.5, 10.6, 0, 7.25, 2);
+    for (const x of [-4, 3]) b.cyl(0x4a4040, 0.6, 12, x, 6, -1);
+    b.box(0x2a2a2a, 4, 4, 0.06, 0, 2, 7.05); b.box(0xff8a3a, 3.6, 0.3, 0.07, 0, 4.3, 7.06);
+    return { w: 14, d: 10 };
+  },
+});
+
 // Farm sheds on the lots, with the paddocks across the road.
 const FARM_SHED = {
   sheep: [16, 9, 4, 0xa8a8a0, 0x7a8590], dairy: [16, 10, 4.2, WHITE, 0x5b6670], coop: [10, 7, 3, 0xd8c8a0, 0x8a5a3a],
@@ -282,7 +331,7 @@ const UNIFORM = { farmer: 0x5b7a3a, 'dairy hand': 0x3a6a8a, 'poultry keeper': 0x
   'station master': 0x2a3a5a, programmer: 0x4a4a5a, retired: 0xa88a6a, student: 0x2f5aa8, artist: 0xd86a8a };
 
 // ── Sky ───────────────────────────────────────────────────────────────────
-const DAY_SKY = new THREE.Color(0x96c9f0), NIGHT_SKY = new THREE.Color(0x0b1430), DUSK = new THREE.Color(0xf0a070);
+const GREY = new THREE.Color(0x9aa3ad), DAY_SKY = new THREE.Color(0x96c9f0), NIGHT_SKY = new THREE.Color(0x0b1430), DUSK = new THREE.Color(0xf0a070);
 function makeStars() {
   const n = 500, pos = new Float32Array(n * 3);
   for (let i = 0; i < n; i++) { const a = Math.random() * Math.PI * 2, e = 0.15 + Math.random() * 1.3, r = 160; pos[i * 3] = Math.cos(a) * Math.cos(e) * r; pos[i * 3 + 1] = Math.sin(e) * r; pos[i * 3 + 2] = Math.sin(a) * Math.cos(e) * r; }
@@ -312,6 +361,14 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     const b = statics;
     const kind = BUILD[p.id] ? p.id : p.kind === 'farm' ? 'farm' : p.kind === 'home' ? 'farmhouse' : p.kind === 'park' ? 'square' : p.id;
     let fp;
+    // South-side civic sites face the street (−z) from across the road.
+    if (p.side === 'south') {
+      b.at(p.x, 0, FIELD_Z0 + 7, Math.PI, () => { fp = BUILD[p.id](b); });
+      colliders.push({ x0: p.x - fp.w / 2, x1: p.x + fp.w / 2, z0: FIELD_Z0, z1: FIELD_Z0 + fp.d });
+      const sign = makeLabel(p.name, 'house'); sign.position.set(p.x, 6.2, FIELD_Z0 - 1); group.add(sign); labels.push(sign);
+      spots.push({ key: `place:${p.id}`, id: p.id, pos: new THREE.Vector3(p.x, 0, FIELD_Z0 - 2.4), label: `${p.name} — ${{ bank: 'your account', fire: 'station board', foundry: 'the works' }[p.id] || 'the plant'}` });
+      continue;
+    }
     b.at(p.x, 0, LOT8_Z, 0, () => {
       if (kind === 'farm') { const [w, d, h, wall, roof] = FARM_SHED[p.id]; shed(b, w, d, h, wall, roof); fp = { w, d }; if (p.id === 'silo') { for (const x of [9, 12]) { b.cyl(0xc8c8c0, 1.4, 9, x, 4.5, -1); b.cone(0xa8a8a0, 1.6, 1.4, x, 9.7, -1); } } }
       else fp = BUILD[kind](b);
@@ -376,6 +433,12 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
 
   // Sky dressing.
   const stars = makeStars(); scene.add(stars);
+  // Rain falls in a box around the player on rainy days.
+  const rainPos = new Float32Array(1500 * 3);
+  for (let i = 0; i < 1500; i++) { rainPos[i * 3] = (Math.random() - 0.5) * 60; rainPos[i * 3 + 1] = Math.random() * 22; rainPos[i * 3 + 2] = (Math.random() - 0.5) * 60; }
+  const rainGeo = new THREE.BufferGeometry(); rainGeo.setAttribute('position', new THREE.BufferAttribute(rainPos, 3));
+  const rain = new THREE.Points(rainGeo, new THREE.PointsMaterial({ color: 0xaac4dd, size: 0.12, transparent: true, opacity: 0.6, depthWrite: false }));
+  rain.visible = false; rain.frustumCulled = false; scene.add(rain);
   const moon = new THREE.Mesh(new THREE.SphereGeometry(5, 16, 12), new THREE.MeshBasicMaterial({ color: 0xf2efe0, fog: false })); scene.add(moon);
   const hemiDay = new THREE.Color(0xffffff), hemiNight = new THREE.Color(0x7a8ac0), bg = new THREE.Color();
 
@@ -421,18 +484,29 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     const day = life.daylight(), dark = THREE.MathUtils.clamp((0.55 - day) / 0.45, 0, 1);
     const dusk = day > 0 && day < 0.6 ? Math.sin((day / 0.6) * Math.PI) * 0.55 : 0;
     bg.copy(NIGHT_SKY).lerp(DAY_SKY, day).lerp(DUSK, dusk);
+    const weather = life.civic.weather, overcast = weather === 'rainy' ? 0.55 : weather === 'cloudy' ? 0.3 : 0;
+    if (overcast) bg.lerp(GREY.clone().multiplyScalar(0.3 + 0.7 * day), overcast);
     if (inTown && !overview) { scene.background.copy(bg); fog.color.copy(bg); }
     else if (inTown) scene.background.copy(bg);
-    hemi.intensity = 0.5 + 1.6 * day; hemi.color.copy(hemiNight).lerp(hemiDay, day);
+    hemi.intensity = (0.5 + 1.6 * day) * (1 - overcast * 0.35); hemi.color.copy(hemiNight).lerp(hemiDay, day);
     const a = ((m / 60 - 6) / 24) * Math.PI * 2;      // sun rises in the east (+x) at 6:00
     sun.position.set(Math.cos(a) * 130, Math.max(8, Math.sin(a) * 140), 50); sun.intensity = 2.0 * day;
     sun.color.setHex(dusk > 0.25 ? 0xffb070 : 0xffe7bf);
-    stars.visible = moon.visible = inTown && dark > 0.2;
+    stars.visible = moon.visible = inTown && dark > 0.2 && !overcast;
+    rain.visible = inTown && !overview && weather === 'rainy';
+    if (rain.visible) {
+      rain.position.set(camera.position.x, 0, camera.position.z);
+      const a2 = rain.geometry.attributes.position;
+      for (let i = 0; i < a2.count; i++) { let y = a2.getY(i) - dt * 14; if (y < 0) y += 22; a2.setY(i, y); }
+      a2.needsUpdate = true;
+    }
     if (stars.visible) { stars.position.copy(camera.position); stars.material.opacity = Math.min(1, dark * 1.2); moon.position.set(camera.position.x - Math.cos(a) * 140, camera.position.y + Math.max(30, -Math.sin(a) * 120), camera.position.z - 60); }
-    town.setNight(dark, m);
+    // A blackout puts out the windows and street lamps (src/world/life.js utilities).
+    const powered = life.civic.supply.ok;
+    town.setNight(powered ? dark : dark * 0.04, m);
     const anyOpenLate = dark > 0.2;
-    shopGlassMat.emissiveIntensity = anyOpenLate ? dark * 0.9 : 0;
-    lightMat.emissiveIntensity = dark > 0.3 ? 1.4 : 0;
+    shopGlassMat.emissiveIntensity = anyOpenLate && powered ? dark * 0.9 : 0;
+    lightMat.emissiveIntensity = dark > 0.3 ? 1.4 : 0;  // vehicle headlights run on their own batteries
     if (!inTown) return;
 
     // Moving things are only updated near the player; far ones are hidden by fog anyway.
@@ -487,7 +561,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     }
   }
 
-  return { life, group, colliders, spots, people, update, save, events, placeFront: (id) => { const p = life.place(id); return { x: p.x, z: LOT8_Z + 12.6 }; } };
+  return { life, group, colliders, spots, people, update, save, events, placeFront: (id) => { const p = life.place(id); return p.side === 'south' ? { x: p.x, z: FIELD_Z0 - 4.4, yaw: Math.PI } : { x: p.x, z: LOT8_Z + 12.6, yaw: 0 }; } };
 }
 
 // What a villager calls out as the player passes, from the time of day and what they're up to.

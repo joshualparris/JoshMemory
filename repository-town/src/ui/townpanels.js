@@ -1,6 +1,6 @@
 // Panels for town life: shop counters, farms, the Town Ledger and the town guide, plus
 // the gossip and Expedition relic hints villagers share in conversation (src/ui/npc.js).
-import { GOODS, amount, timeText } from '../world/life.js';
+import { GOODS, amount, timeText, CANDIDATES } from '../world/life.js';
 import { RELICS, PROGRESS_KEY, cleanProgress } from '../adventure/data.js';
 import { esc } from './interactions.js';
 
@@ -29,10 +29,62 @@ const ABOUT = {
   garden: 'Rows of cabbages, carrots, lettuce, beetroot and pumpkins, watered from the tank by the shed.',
   silo: 'Wheat grows in the paddock across the road; when it turns gold the tractor brings in the harvest and the grain goes to the mill.',
   farmhouse: 'The old homestead where the farm families have Sunday lunch.',
+  bank: 'Keep your money safe between visits. Villagers bank their savings here too.',
+  power: 'Solar panels carry the day; the generators burn fuel (by the drum, delivered from the depot) for the evening peak. If fuel runs out, the town goes dark.',
+  waterworks: 'Pumps creek water through the filters into the reservoir. The pumps need power; without it the taps run dry.',
+  sewage: 'Treats wastewater from every house. If it backs up, the creek gets polluted.',
+  fire: 'Fire & Rescue: the crew checks hydrants, roads and power lines, and reports faults to the council.',
+  recycling: 'Bins from every house are sorted here; the scrap goes to the foundry.',
+  landfill: 'Where the town\'s rubbish ends up. The more people recycle, the slower it fills.',
+  foundry: 'Ore off the train and scrap from recycling become metal and spare parts. Metal is exported by rail; parts keep the town\'s networks repaired.',
 };
+const pct = (n) => `<span class="bar"><span style="width:${Math.round(n)}%"></span></span> ${Math.round(n)}%`;
+const money = (n) => `$${Math.round(n).toLocaleString('en-AU')}`;
+function bagLine(life) { const me = life.civic.player; return `<p class="dim">🎒 Your bag: ${esc(Object.entries(me.bag).filter(([, n]) => n > 0).map(([g, n]) => amount(g, n)).join(', ') || 'empty')} · wallet ${money(me.wallet)} · savings ${money(me.bank)}</p>`; }
 
-export function placePanel(life, id, onBuy) {
+// Utilities, the bank, the fire station and the foundry (south side of street 8).
+function civicPanel(life, id, again) {
+  const p = life.place(id), c = life.civic, u = life.ledger().utilities, rows = [`<p>${esc(ABOUT[id] || '')}</p>`];
+  const staff = life.villagers.filter((v) => v.work === id);
+  if (id === 'power') rows.push(`<p><b>Supply:</b> ${c.supply.power} of ${c.supply.powerDemand} needed · ${c.supply.ok ? '<span class="ok">lights on</span>' : '<b>BLACKOUT</b>'} · weather ${esc(c.weather)}</p><p><b>Fuel:</b> ${u.fuel} drums</p>`);
+  if (id === 'waterworks') rows.push(`<p><b>Reservoir:</b> ${u.reservoir} kL · supplying ${c.supply.water} of ${c.supply.waterDemand} an hour · ${c.supply.waterOk ? '<span class="ok">normal</span>' : '<b>restrictions</b>'}</p>`);
+  if (id === 'sewage') rows.push(`<p><b>Waiting for treatment:</b> ${u.wastewater} kL · pollution ${Math.round(c.indicators.pollution)}%</p>`);
+  if (id === 'recycling') rows.push(`<p><b>Sorting:</b> ${u.recycling} bags · recycled today ${life.stats.recycled}</p><p class="dim">Kerbside recycling waiting: ${Math.floor(c.homes.recyclables)} bags.</p>`);
+  if (id === 'landfill') rows.push(`<p><b>Rubbish buried:</b> ${u.landfill} tonnes · environment ${Math.round(c.indicators.environment)}%</p>`);
+  if (id === 'foundry') rows.push(`<p><b>Ore:</b> ${p.stock.ore || 0} · <b>metal:</b> ${p.stock.metal || 0} · <b>scrap:</b> ${p.stock.scrap || 0} · <b>parts ready:</b> ${p.out.parts || 0}</p>`);
+  if (id === 'fire') rows.push(`<h3>Town networks</h3>${Object.entries(c.services).map(([k, v]) => `<p>${esc(k)} ${pct(v)}</p>`).join('')}<p class="dim">Repairs are ordered at the Town Hall.</p>`);
+  if (id === 'bank') rows.push(`<p><b>Your wallet:</b> ${money(c.player.wallet)} · <b>savings:</b> ${money(c.player.bank)}</p><p class="dim">Town treasury: ${money(c.treasury)}. Villagers' savings: ${money(life.villagers.reduce((a, v) => a + (v.savings || 0), 0))}.</p>`);
+  rows.push(`<p><b>Hours:</b> ${esc(hours(p))} · <b>Staff:</b> ${staff.map((v) => esc(`${v.name} (${v.job})`)).join(', ') || 'automated'}</p>`);
+  const act = (label, fn) => ({ label, run: () => { const msg = fn(); return { ...again(), body: `<p><b>${esc(msg)}</b></p>` + again().body }; } });
+  const actions = [];
+  if (id === 'bank') actions.push(act('Deposit $20', () => life.bank('deposit', 20)), act('Withdraw $20', () => life.bank('withdraw', 20)));
+  if (id === 'recycling') actions.push(act('Help sort kerbside recycling', () => life.collectRecycling()));
+  return { title: `${p.name}`, body: rows.join('') + bagLine(life), actions, wide: true };
+}
+
+// Town Hall council: repairs, the mayoral election and the town books.
+export function hallPanel(life) {
+  const c = life.civic, again = () => hallPanel(life);
+  const act = (label, fn) => ({ label, run: () => { const msg = fn(); const next = again(); return { ...next, body: `<p><b>${esc(msg)}</b></p>` + next.body }; } });
+  const worst = Object.entries(c.services).sort((a, b) => a[1] - b[1])[0];
+  return {
+    title: 'Town Hall · Council', wide: true,
+    body: `<p>Mayor <b>${esc(c.mayor)}</b> · next election day ${c.electionDay} · treasury ${money(c.treasury)} · tax ${Math.round(c.taxRate * 100)}% on sales, $15 a day in rates.</p>
+      <p><b>Health</b> ${pct(c.indicators.health)} <b>Happiness</b> ${pct(c.indicators.happiness)} <b>Environment</b> ${pct(c.indicators.environment)}</p>
+      <h3>Networks</h3>${Object.entries(c.services).map(([k, v]) => `<p>${esc(k)} ${pct(v)}</p>`).join('')}
+      <p class="dim">A repair costs $90 and two boxes of spare parts (in stock: ${life.place('hall').stock.parts || 0}). Most worn: ${esc(worst[0])}.</p>` + bagLine(life),
+    actions: [
+      act(`Repair the ${worst[0]} network`, () => life.repair(worst[0])),
+      ...CANDIDATES.map((n) => act(`Vote ${n}`, () => life.vote(n))),
+      { label: 'Open the Town Ledger', run: () => ledgerPanel(life) },
+    ],
+  };
+}
+
+export function placePanel(life, id) {
   const p = life.place(id);
+  if (p.side === 'south') return civicPanel(life, id, () => placePanel(life, id));
+  if (id === 'hall') return hallPanel(life);
   const open = life.open(p);
   const staff = life.villagers.filter((v) => v.work === id);
   const here = staff.filter((v) => v.step?.kind === 'work' && !v.path.length);
@@ -57,20 +109,13 @@ export function placePanel(life, id, onBuy) {
   if (id === 'square' || id === 'hall') rows.push(`<h3>Town news</h3><ul class="news">${life.news(8).map((e) => `<li><span class="dim">${esc(e.t)}</span> ${esc(e.text)}</li>`).join('')}</ul>`);
   const shelves = id === 'bakery' ? p.out : p.stock;
   const sells = { store: p.sells, bakery: p.sells, greengrocer: p.sells, butcher: p.sells, cafe: ['pie', 'bread'], pub: ['pie'] }[id] || [];
-  const actions = sells.filter((g) => (shelves[g] || 0) > 0).slice(0, 4).map((g) => ({ label: `Buy ${GOODS[g].unit === 'pie' ? 'a pie' : `a ${GOODS[g].unit} of ${GOODS[g].name}`} ($${GOODS[g].price})`, run: () => onBuy(id, g) }));
-  if (id === 'hall') actions.unshift({ label: 'Open the Town Ledger', run: () => ledgerPanel(life) });
-  return { title: `${p.name} · ${p.kind === 'farm' ? 'farm' : p.kind}`, body: rows.join(''), actions, wide: true };
-}
-
-export function buy(life, id, good) {
-  const p = life.place(id), shelves = id === 'bakery' ? p.out : p.stock;
-  if (!life.open(p)) return { title: p.name, body: `<p>The ${esc(p.name)} is closed — it opens at ${esc(timeText(p.opens))}.</p>` };
-  if (!(shelves[good] > 0)) return { title: p.name, body: `<p>Sorry, sold out of ${esc(GOODS[good].name)}. The next truck should bring more.</p>` };
-  shelves[good]--; p.till += GOODS[good].price;
-  life.stats.sold[good] = (life.stats.sold[good] || 0) + 1;
-  const taste = { bread: 'still warm from the oven', pie: 'a proper meat pie, peppery and hot', veg: 'crisp and fresh from the garden', fruit: 'sweet and picked this week', eggs: 'a dozen free-range eggs', milk: 'cold and creamy', lamb: 'wrapped in butcher\'s paper', coffee: 'smells amazing', tea: 'a tin of strong breakfast tea', flour: 'a sack of the mill\'s own flour' }[good] || '';
-  life.log(`A visitor bought ${GOODS[good].name} at the ${p.name}.`);
-  return { title: p.name, body: `<p>You buy ${esc(amount(good, 1))} — ${esc(taste)}. $${GOODS[good].price} goes in the till.</p><p class="dim">Left on the shelves: ${shelves[good]}.</p>` };
+  const me = life.civic.player, again = () => placePanel(life, id);
+  const act = (label, fn) => ({ label, run: () => { const msg = fn(); const next = again(); return { ...next, body: `<p><b>${esc(msg)}</b></p>` + next.body }; } });
+  const actions = sells.filter((g) => (shelves[g] || 0) > 0).slice(0, 4).map((g) => act(`Buy ${GOODS[g].unit === 'pie' ? 'a pie' : `a ${GOODS[g].unit} of ${GOODS[g].name}`} ($${GOODS[g].price})`, () => life.buyItem(id, g)));
+  for (const g of sells.filter((g) => me.bag[g] > 0).slice(0, 2)) actions.push(act(`Sell back ${GOODS[g].name}`, () => life.sellItem(id, g)));
+  for (const g of Object.keys(me.bag).filter((g) => me.bag[g] > 0 && ['bread', 'pie', 'fruit', 'veg'].includes(g)).slice(0, 1)) actions.push(act(`Eat the ${GOODS[g].name}`, () => life.eatItem(g)));
+  if (id === 'post') actions.push(act('Post a letter to Mabel ($2)', () => life.postLetter('Mabel')));
+  return { title: `${p.name} · ${p.kind === 'farm' ? 'farm' : p.kind}`, body: rows.join('') + (sells.length || id === 'post' ? bagLine(life) : ''), actions, wide: true };
 }
 
 export function ledgerPanel(life) {
@@ -87,6 +132,7 @@ export function ledgerPanel(life) {
       ${y ? `<p class="dim">Yesterday: ${y.deliveries} deliveries, ${y.baked} baked, ${y.meals} meals, ${y.parcels} parcels.</p>` : ''}
       <h3>Shops</h3><table class="ledger"><tr><th>Shop</th><th>Stock</th><th>Till</th></tr>${L.shops.map((p) => `<tr><td>${esc(p.name)} ${p.open ? '' : '<span class="dim">(closed)</span>'}</td><td>${esc(list(p.stock))}</td><td>$${p.till}</td></tr>`).join('')}</table>
       <h3>Farms</h3><table class="ledger"><tr><th>Farm</th><th>Crop</th><th>Waiting for pickup</th></tr>${L.farms.map((f) => `<tr><td>${esc(f.name)}</td><td>${Math.round(f.growth * 100)}% grown</td><td>${f.waiting} ${esc(f.makes)}</td></tr>`).join('')}</table>
+      <h3>Council and utilities</h3><p>Mayor ${esc(L.civic.mayor)} · treasury ${money(L.civic.treasury)} · weather ${esc(L.civic.weather)} · power ${L.civic.supply.power}/${L.civic.supply.powerDemand} ${L.civic.supply.ok ? '' : '<b>(blackout)</b>'} · water ${L.civic.supply.water}/${L.civic.supply.waterDemand} · fuel ${L.utilities.fuel} drums · reservoir ${L.utilities.reservoir} kL<br>Taxes today ${money(s.taxes)} · wages ${money(s.wages)} · recycled ${s.recycled} · to landfill ${s.landfill}</p>
       <h3>Trucks</h3><p>${L.trucks.map((t) => esc(`${t.driver || 'Spare'}: ${t.state}`)).join('<br>')}</p>
       <h3>News</h3><ul class="news">${L.news.map((e) => `<li><span class="dim">${esc(e.t)}</span> ${esc(e.text)}</li>`).join('')}</ul>`,
   };

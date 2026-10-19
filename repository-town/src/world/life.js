@@ -10,7 +10,13 @@
 export const LOT_X = 26, LOT_Z = 46;
 export const SEC_PER_MIN = 3;
 export const WALK = 1.5, BIKE = 4.5, DRIVE = 8;               // metres per real second
-const WAGES = { retired: 25, student: 10, mayor: 70, nurse: 60, teacher: 60, programmer: 65 };
+const WAGES = { retired: 40, student: 20, mayor: 95, nurse: 85, teacher: 85, programmer: 95, 'bank teller': 75, 'power operator': 85, firefighter: 85 };
+const BASE_WAGE = 70;
+// Workplaces paid from the town treasury; everyone else is paid from their employer's till.
+const PUBLIC = new Set(['hall', 'school', 'clinic', 'post', 'depot', 'power', 'waterworks', 'sewage', 'recycling', 'landfill', 'fire', 'bank', 'square']);
+const WEATHER = ['sunny', 'sunny', 'cloudy', 'rainy', 'windy', 'sunny', 'cloudy'];
+const SERVICES = ['power', 'water', 'sewage', 'roads', 'waste', 'post'];
+export const CANDIDATES = ['Vern', 'Rowan', 'Sage'];
 const ROAD = (r) => r * LOT_Z - 3.5 * LOT_Z + 16;            // road centre line of street r (0-based)
 const lotX = (col) => (col - 12.5) * LOT_X;
 const LOT8_Z = 7 * LOT_Z - 3.5 * LOT_Z;                       // z of the street-8 lot centres
@@ -30,11 +36,15 @@ export const GOODS = {
   coffee: { name: 'coffee beans', unit: 'bag', price: 9 },
   tea: { name: 'tea', unit: 'tin', price: 6 },
   parcel: { name: 'parcels', unit: 'parcel', price: 0 },
+  fuel: { name: 'fuel', unit: 'drum', price: 3 },
+  ore: { name: 'ore', unit: 'tonne', price: 4 },
+  scrap: { name: 'scrap metal', unit: 'crate', price: 2 },
+  parts: { name: 'spare parts', unit: 'box', price: 12 },
 };
 
 // col letter → place. `sells` are what villagers can buy; `makes` what work produces.
 export const PLACE_DEFS = [
-  { col: 'G', id: 'hall', name: 'Town Hall', kind: 'hall', opens: 9 * 60, closes: 17 * 60 },
+  { col: 'G', id: 'hall', name: 'Town Hall', kind: 'hall', opens: 9 * 60, closes: 17 * 60, target: { parts: 10 } },
   { col: 'H', id: 'store', name: 'General Store', kind: 'shop', sells: ['eggs', 'milk', 'flour', 'tea', 'coffee', 'bread'], opens: 7 * 60, closes: 19 * 60, target: { eggs: 20, milk: 20, flour: 10, tea: 10, coffee: 10, bread: 10 } },
   { col: 'I', id: 'bakery', name: 'Bakery', kind: 'shop', sells: ['bread', 'pie'], opens: 6 * 60, closes: 18 * 60, target: { flour: 12, eggs: 6, milk: 6, lamb: 6, veg: 6 } },
   { col: 'J', id: 'cafe', name: 'Commit Café', kind: 'cafe', opens: 6 * 60 + 30, closes: 16 * 60, target: { bread: 10, eggs: 10, milk: 10, coffee: 6, veg: 6, pie: 6 } },
@@ -54,6 +64,15 @@ export const PLACE_DEFS = [
   { col: 'X', id: 'garden', name: 'Market Garden', kind: 'farm', makes: 'veg', opens: 6 * 60, closes: 15 * 60 },
   { col: 'Y', id: 'silo', name: 'Wheat Farm', kind: 'farm', makes: 'grain', opens: 6 * 60, closes: 16 * 60 },
   { col: 'Z', id: 'farmhouse', name: 'Farmhouse', kind: 'home', opens: 0, closes: 24 * 60 },
+  // Across the road from the high street (south side): finance, utilities and industry.
+  { col: 'G', side: 'south', id: 'bank', name: 'Community Bank', kind: 'bank', opens: 9 * 60, closes: 16 * 60 },
+  { col: 'H', side: 'south', id: 'power', name: 'Power Station', kind: 'utility', opens: 0, closes: 24 * 60, target: { fuel: 160 } },
+  { col: 'J', side: 'south', id: 'waterworks', name: 'Water Works', kind: 'utility', opens: 0, closes: 24 * 60 },
+  { col: 'L', side: 'south', id: 'sewage', name: 'Wastewater Works', kind: 'utility', opens: 0, closes: 24 * 60 },
+  { col: 'N', side: 'south', id: 'fire', name: 'Fire & Rescue', kind: 'fire', opens: 0, closes: 24 * 60 },
+  { col: 'P', side: 'south', id: 'recycling', name: 'Recycling Centre', kind: 'utility', opens: 7 * 60, closes: 16 * 60 },
+  { col: 'Q', side: 'south', id: 'landfill', name: 'Waste Depot', kind: 'utility', opens: 6 * 60, closes: 17 * 60 },
+  { col: 'R', side: 'south', id: 'foundry', name: 'Foundry & Workshop', kind: 'industry', opens: 7 * 60, closes: 16 * 60, target: { ore: 40, scrap: 20 } },
 ];
 
 const JOBS = [
@@ -68,10 +87,13 @@ const JOBS = [
   ['programmer', 'home', 10 * 60, 18 * 60], ['retired', 'square', 9 * 60, 12 * 60], ['student', 'school', 8 * 60 + 30, 15 * 60],
   ['student', 'school', 8 * 60 + 30, 15 * 60], ['artist', 'square', 10 * 60, 15 * 60], ['retired', 'square', 14 * 60, 17 * 60],
   ['farmer', 'silo', 7 * 60, 15 * 60], ['grocer', 'greengrocer', 8 * 60, 16 * 60],
+  ['power operator', 'power', 6 * 60, 18 * 60], ['water operator', 'waterworks', 7 * 60, 15 * 60], ['recycler', 'recycling', 7 * 60, 15 * 60],
+  ['firefighter', 'fire', 8 * 60, 18 * 60], ['bank teller', 'bank', 8 * 60 + 30, 16 * 60 + 30], ['foundry worker', 'foundry', 7 * 60, 15 * 60],
 ];
 // Villager names; src/ui/social.js keeps their friendships and grudges.
 export const VILLAGER_NAMES = ['Mabel', 'Arlo', 'Bea', 'Cas', 'Dot', 'Ezra', 'Flo', 'Gus', 'Hattie', 'Ivo', 'June', 'Kip', 'Lou', 'Merv', 'Nora', 'Ollie',
-  'Peg', 'Rafe', 'Sadie', 'Theo', 'Una', 'Vern', 'Win', 'Zara', 'Bluey', 'Clem', 'Dulcie', 'Errol', 'Fern', 'Gwen', 'Harlan', 'Ida'];
+  'Peg', 'Rafe', 'Sadie', 'Theo', 'Una', 'Vern', 'Win', 'Zara', 'Bluey', 'Clem', 'Dulcie', 'Errol', 'Fern', 'Gwen', 'Harlan', 'Ida',
+  'Archie', 'Bonnie', 'Cooper', 'Daisy', 'Elsie', 'Frankie'];
 
 // Home meals: [name, ingredients]. Villagers cook the first one their pantry can make.
 const MEALS = {
@@ -145,9 +167,9 @@ export class TownLife {
     this.places = new Map();
     for (const d of PLACE_DEFS) {
       const col = d.col.charCodeAt(0) - 65;
-      const x = lotX(col);
+      const x = lotX(col), south = d.side === 'south';
       this.places.set(d.id, {
-        ...d, x, door: { x, z: LOT8_Z + 7.5 }, front: { x, z: LOT8_Z + 9.3 }, curb: { x, z: ROAD(7) - 1.7 },
+        ...d, x, door: { x, z: south ? FIELD_Z0 - 0.5 : LOT8_Z + 7.5 }, front: { x, z: south ? FIELD_Z0 - 2.2 : LOT8_Z + 9.3 }, curb: { x, z: south ? ROAD(7) + 1.7 : ROAD(7) - 1.7 },
         stock: Object.fromEntries(Object.keys(d.target || {}).map((k) => [k, Math.round(d.target[k] * 0.6)])), till: 0, out: {},
       });
     }
@@ -155,9 +177,27 @@ export class TownLife {
     for (const p of this.places.values()) if (p.kind === 'farm') { p.out[p.makes] = 8; p.field = { x0: p.x - 11, x1: p.x + 11, z0: FIELD_Z0, z1: FIELD_Z1 }; p.growth = 0.5; }
     this.place('mill').out.flour = 6;
     this.place('bakery').out = { bread: 8, pie: 4 };
-    this.place('depot').out = { coffee: 12, tea: 10, parcel: 6 };
+    this.place('depot').out = { coffee: 12, tea: 10, parcel: 6, fuel: 30, ore: 10 };
+    Object.assign(this.place('power').stock, { fuel: 120 });
+    this.place('waterworks').stock = { water: 160 };
+    this.place('sewage').stock = { wastewater: 0 };
+    this.place('recycling').stock = { recyclables: 0, scrap: 4 };
+    this.place('landfill').stock = { rubbish: 0 };
+    Object.assign(this.place('foundry').stock, { ore: 20, metal: 4 });
+    this.place('foundry').out = { parts: 6 };
+    this.place('hall').stock = { parts: 6 };
+    // Town finances, utilities and the visitor's own money and bag (from the living-town design).
+    this.civic = {
+      weather: 'sunny', treasury: 4800, taxRate: 0.1, mayor: 'Vern', ballots: {}, voted: false, electionDay: 7,
+      services: Object.fromEntries(SERVICES.map((k) => [k, 100])), homes: { rubbish: 0, recyclables: 0 },
+      supply: { power: 0, powerDemand: 0, water: 0, waterDemand: 0, ok: true, waterOk: true },
+      indicators: { health: 90, happiness: 78, environment: 82, pollution: 3 },
+      letters: [], player: { wallet: 75, bank: 150, bag: {} },
+    };
     this.homes = homes;
-    const picks = homes.filter((_, i) => i % Math.max(1, Math.floor(homes.length / JOBS.length)) === 2).slice(0, JOBS.length);
+    // Spread households across town: every step-th house, starting from the third.
+    const step = Math.max(1, Math.floor(homes.length / JOBS.length));
+    const picks = homes.filter((_, i) => i % step === Math.min(2, step - 1)).slice(0, JOBS.length);
     this.villagers = JOBS.slice(0, picks.length).map(([job, work, start, end], i) => {
       const home = picks[i];
       return {
@@ -175,7 +215,7 @@ export class TownLife {
     this.log(`Day ${this.day} begins. The town wakes up.`);
   }
 
-  freshStats() { return { harvested: {}, milled: 0, baked: 0, deliveries: 0, delivered: {}, sold: {}, meals: 0, mealsOut: 0, parcels: 0 }; }
+  freshStats() { return { harvested: {}, milled: 0, baked: 0, deliveries: 0, delivered: {}, sold: {}, meals: 0, mealsOut: 0, parcels: 0, taxes: 0, wages: 0, recycled: 0, landfill: 0, letters: 0, repairs: 0 }; }
   place(id) { return this.places.get(id); }
   time() { return fmt(this.minute); }
   isDay() { return this.minute >= 6 * 60 && this.minute < 19 * 60; }
@@ -199,7 +239,149 @@ export class TownLife {
     this.yesterday = this.stats;
     this.stats = this.freshStats();
     for (const v of this.villagers) v.doneToday = {};
-    this.log(`Day ${this.day} begins. The 6:40 freight train is due at the Rail Depot.`);
+    const c = this.civic;
+    // Council rates: every household pays $15 a day towards wages and services.
+    let rates = 0; for (const v of this.villagers) { const r = Math.min(15, v.wallet); v.wallet -= r; rates += r; }
+    c.treasury += rates; this.stats.rates = rates;
+    // Like any country town, the council relies on state and federal grants.
+    c.treasury += 900;
+    // Villagers bank anything over $250 (money saved, not spent in town).
+    for (const v of this.villagers) if (v.wallet > 250) { v.savings = (v.savings || 0) + v.wallet - 250; v.wallet = 250; }
+    // End-of-day books: public takings go to the council; a business keeps a $50 float, pays
+    // 35% of the rest in business rates and shares half of what's left with its staff.
+    for (const p of this.places.values()) {
+      if (p.till <= 0) continue;
+      if (PUBLIC.has(p.id) || p.kind === 'utility') { c.treasury += p.till; p.till = 0; continue; }
+      const surplus = p.till - 50; if (surplus <= 0) continue;
+      const rate = surplus * 0.35, staff = this.villagers.filter((v) => v.work === p.id), share = staff.length ? (surplus - rate) * 0.5 : 0;
+      p.till -= rate + share; c.treasury += rate;
+      for (const v of staff) v.wallet += share / staff.length;
+    }
+    c.weather = WEATHER[Math.floor(this.rand() * WEATHER.length)]; c.voted = false;
+    for (const k of SERVICES) c.services[k] = clamp(c.services[k] - (k === 'roads' ? 0.45 : 0.25) - this.rand() * 0.5, 0, 100);
+    c.indicators.environment = clamp(100 - c.indicators.pollution, 0, 100);
+    c.indicators.happiness = clamp(c.indicators.happiness + (c.supply.ok && c.supply.waterOk ? 1 : -3), 0, 100);
+    if (this.day >= c.electionDay) this.election();
+    this.log(`Day ${this.day} begins: ${c.weather} weather. The 6:40 freight train is due at the Rail Depot.`);
+  }
+
+  // ── Town finances and utilities ──
+  // A sale at a till: the town takes its tax, the shop keeps the rest.
+  sale(shop, price) { const tax = Math.round(price * this.civic.taxRate * 100) / 100; shop.till += price - tax; this.civic.treasury += tax; this.stats.taxes += tax; }
+  ok(service) { return this.civic.services[service] >= 35; }
+  rubbish(n) { this.civic.homes.rubbish += n * 0.5; this.civic.homes.recyclables += n * 0.5; }
+
+  // Power, water, wastewater, waste and industry, once an hour.
+  utilitiesHour(h, at) {
+    const c = this.civic, power = this.place('power'), water = this.place('waterworks'), sewage = this.place('sewage');
+    const day = h >= 7 && h <= 18;
+    const solar = day ? ({ sunny: 25, cloudy: 14, windy: 18, rainy: 8 })[c.weather] : 0;
+    const demand = 30 + (day ? 8 : 0) + (h >= 17 && h <= 23 ? 10 : 0);
+    // The generators burn only what the panels can't cover: one drum per 15 units.
+    const fuelNeed = Math.ceil(Math.max(0, demand - solar) / 15);
+    const thermal = (power.stock.fuel || 0) >= fuelNeed && this.ok('power') ? Math.max(0, demand - solar) : 0;
+    if (thermal) power.stock.fuel -= fuelNeed;
+    c.supply.power = this.ok('power') ? solar + thermal : 0; c.supply.powerDemand = demand;
+    const wasOk = c.supply.ok; c.supply.ok = c.supply.power >= demand;
+    if (!c.supply.ok && wasOk) this.log('Blackout! The Power Station cannot meet demand — homes and the bakery are dark.');
+    if (c.supply.ok && !wasOk) this.log('Power is back on across town.');
+    if (c.supply.ok && this.ok('water')) water.stock.water = Math.min(250, (water.stock.water || 0) + 25);
+    const need = 16 + (day ? 4 : 0), got = Math.min(need, water.stock.water || 0);
+    water.stock.water -= got; c.supply.water = got; c.supply.waterDemand = need;
+    const wasWater = c.supply.waterOk; c.supply.waterOk = got >= need;
+    if (!c.supply.waterOk && wasWater) this.log('Water restrictions: the Water Works cannot keep up.');
+    sewage.stock.wastewater = (sewage.stock.wastewater || 0) + Math.floor(got * 0.8);
+    if (c.supply.ok && this.ok('sewage')) { sewage.stock.wastewater = Math.max(0, sewage.stock.wastewater - 22); c.indicators.pollution = clamp(c.indicators.pollution - 0.2, 0, 100); }
+    if (sewage.stock.wastewater > 70) { c.indicators.pollution = clamp(c.indicators.pollution + 2, 0, 100); if (h % 4 === 0) this.log('The Wastewater Works is backed up and polluting the creek.'); }
+    // Bin day twice a day: rubbish to the Waste Depot, recycling to the Recycling Centre.
+    if ((h === 6 || h === 15) && this.ok('waste') && this.ok('roads')) {
+      const r = Math.floor(c.homes.rubbish), y = Math.floor(c.homes.recyclables);
+      c.homes.rubbish -= r; c.homes.recyclables -= y;
+      this.place('landfill').stock.rubbish += r; this.place('recycling').stock.recyclables += y; this.stats.landfill += r;
+    }
+    const rec = this.place('recycling');
+    if (at('recycling').length && rec.stock.recyclables >= 4) { const n = Math.min(14, rec.stock.recyclables); rec.stock.recyclables -= n; rec.stock.scrap += Math.floor(n / 2); this.stats.recycled += n; }
+    if (rec.stock.scrap >= 8) { rec.out.scrap = (rec.out.scrap || 0) + rec.stock.scrap; rec.stock.scrap = 0; }
+    const fo = this.place('foundry');
+    if (at('foundry').length && c.supply.ok) {
+      if ((fo.stock.ore || 0) >= 2) { fo.stock.ore -= 2; fo.stock.metal = (fo.stock.metal || 0) + 1; }
+      if ((fo.stock.scrap || 0) >= 4) { fo.stock.scrap -= 4; fo.out.parts = (fo.out.parts || 0) + 2; }
+    }
+    if (h === 16 && (fo.stock.metal || 0) >= 14) { const n = fo.stock.metal - 4; fo.stock.metal = 4; fo.till += n * 12; this.log(`The foundry exported ${n} tonnes of metal by rail for $${n * 12}.`); }
+    if (h === 8 && (this.place('power').stock.fuel || 0) < 60) this.log('The Power Station is low on fuel; a truck is due from the depot.');
+    // Post: letters the visitor posts arrive the next day with the postie.
+    if (h === 15) { const due = c.letters.filter((l) => l.day < this.day && !l.delivered); for (const l of due) l.delivered = true; if (due.length) { this.stats.letters += due.length; this.log(`The postie delivered ${due.length} letter${due.length > 1 ? 's' : ''} you posted.`); } }
+  }
+
+  election() {
+    const c = this.civic;
+    const votes = CANDIDATES.map((n, i) => (c.ballots[n] || 0) + Math.floor(this.rand() * 9) + 6 + (n === c.mayor ? 2 : 0) + i * 0);
+    const winner = CANDIDATES[votes.indexOf(Math.max(...votes))];
+    this.log(`Election day: ${winner} was elected mayor (${CANDIDATES.map((n, i) => `${n} ${votes[i]}`).join(', ')}).`);
+    c.mayor = winner; c.ballots = {}; c.electionDay = this.day + 7;
+  }
+
+  // ── The visitor (the player): wallet, bank, bag and civic actions. Each returns a message. ──
+  shelves(p) { return p.id === 'bakery' ? p.out : p.stock; }
+  buyItem(shopId, good) {
+    const p = this.place(shopId), me = this.civic.player, price = GOODS[good].price;
+    if (!this.open(p)) return `The ${p.name} is closed — it opens at ${fmt(p.opens)}.`;
+    if (!(this.shelves(p)[good] > 0)) return `Sorry, sold out of ${GOODS[good].name}. The next truck should bring more.`;
+    if (me.wallet < price) return `You need $${price} but only have $${me.wallet} — try the Community Bank.`;
+    this.shelves(p)[good]--; me.wallet -= price; this.sale(p, price);
+    me.bag[good] = (me.bag[good] || 0) + 1; this.stats.sold[good] = (this.stats.sold[good] || 0) + 1;
+    this.log(`A visitor bought ${GOODS[good].name} at the ${p.name}.`);
+    return `You buy ${amount(good, 1)} for $${price}. It's in your bag.`;
+  }
+  sellItem(shopId, good) {
+    const p = this.place(shopId), me = this.civic.player, pay = Math.max(1, Math.floor(GOODS[good].price * 0.6));
+    if (!(me.bag[good] > 0)) return `You don't have any ${GOODS[good].name}.`;
+    if (p.till < pay) return `The ${p.name} can't afford to buy it back right now.`;
+    me.bag[good]--; this.shelves(p)[good] = (this.shelves(p)[good] || 0) + 1; p.till -= pay; me.wallet += pay;
+    return `The ${p.name} buys it back for $${pay}.`;
+  }
+  eatItem(good) {
+    const me = this.civic.player;
+    if (!(me.bag[good] > 0)) return `You don't have any ${GOODS[good].name}.`;
+    me.bag[good]--; this.rubbish(1);
+    return `You eat the ${GOODS[good].unit === 'pie' ? 'pie' : GOODS[good].name} on a bench. Lovely.`;
+  }
+  bank(op, n) {
+    const me = this.civic.player, from = op === 'deposit' ? 'wallet' : 'bank', to = op === 'deposit' ? 'bank' : 'wallet';
+    if (!this.open(this.place('bank'))) return 'The bank is closed (9:00–16:00).';
+    const m = Math.min(n, me[from]);
+    if (m <= 0) return `Nothing to ${op}.`;
+    me[from] -= m; me[to] += m;
+    return `${op === 'deposit' ? 'Deposited' : 'Withdrew'} $${m}. Wallet $${me.wallet}, savings $${me.bank}.`;
+  }
+  vote(name) {
+    const c = this.civic;
+    if (!CANDIDATES.includes(name)) return 'Unknown candidate.';
+    if (c.voted) return "You've already voted today.";
+    c.ballots[name] = (c.ballots[name] || 0) + 1; c.voted = true;
+    return `Your vote for ${name} is in the box. Election day is day ${c.electionDay}.`;
+  }
+  postLetter(to) {
+    const me = this.civic.player;
+    if (me.wallet < 2) return 'Postage is $2.';
+    me.wallet -= 2; this.civic.treasury += 2; this.civic.letters.push({ to, day: this.day, delivered: false });
+    return `Letter to ${to} posted ($2). The postie delivers it tomorrow afternoon.`;
+  }
+  repair(service) {
+    const c = this.civic, hall = this.place('hall');
+    if (!SERVICES.includes(service)) return 'Unknown service.';
+    if (c.services[service] >= 99) return `The ${service} network is already in good shape.`;
+    if (c.treasury < 90 || (hall.stock.parts || 0) < 2) return 'The council needs $90 and two boxes of spare parts from the foundry.';
+    c.treasury -= 90; hall.stock.parts -= 2; c.services[service] = clamp(c.services[service] + 35, 0, 100); this.stats.repairs++;
+    this.log(`The council repaired the ${service} network.`);
+    return `Repair crew sent: ${service} now at ${Math.round(c.services[service])}%.`;
+  }
+  collectRecycling() {
+    const c = this.civic, n = Math.min(5, Math.floor(c.homes.recyclables));
+    if (!n) return 'No recycling waiting on the kerbs right now.';
+    c.homes.recyclables -= n; this.place('recycling').stock.recyclables += n;
+    const reward = Math.min(c.treasury, n * 2); c.treasury -= reward; c.player.wallet += reward;
+    return `You sort ${n} bags of recycling and the council pays you $${reward}.`;
   }
 
   // Production happens on the hour while the right workers are at work.
@@ -207,7 +389,7 @@ export class TownLife {
     const at = (id) => this.villagers.filter((v) => v.work === id && v.step?.kind === 'work');
     for (const p of this.places.values()) {
       if (p.kind === 'farm') {
-        p.growth = clamp(p.growth + (this.isDay() ? 0.04 : 0.01), 0, 1);
+        p.growth = clamp(p.growth + (this.isDay() ? ({ rainy: 0.06, sunny: 0.04, cloudy: 0.035, windy: 0.03 })[this.civic.weather] : 0.01), 0, 1);
         const hands = at(p.id).length;
         if (hands && this.open(p)) {
           const n = Math.round((2 + 3 * p.growth) * hands);
@@ -217,20 +399,25 @@ export class TownLife {
         }
       }
     }
+    const h = Math.floor(this.minute / 60);
+    this.utilitiesHour(h, at);
+    const powered = this.civic.supply.ok;
     const mill = this.place('mill');
     const batch = Math.min(2, Math.floor((mill.stock.grain || 0) / 3));
-    if (at('mill').length && batch) { mill.stock.grain -= 3 * batch; mill.out.flour = (mill.out.flour || 0) + 2 * batch; this.stats.milled += 2 * batch; }
+    if (at('mill').length && batch && powered) { mill.stock.grain -= 3 * batch; mill.out.flour = (mill.out.flour || 0) + 2 * batch; this.stats.milled += 2 * batch; }
     const bakery = this.place('bakery');
-    if (at('bakery').length) {
+    if (at('bakery').length && powered && this.civic.supply.waterOk) {
       const s = bakery.stock;
       if ((s.flour || 0) >= 2) { s.flour -= 2; bakery.out.bread = (bakery.out.bread || 0) + 8; this.stats.baked += 8; if ((bakery.out.bread || 0) > 30) bakery.out.bread = 30; }
       if ((s.flour || 0) >= 1 && (s.lamb || 0) >= 1 && (s.veg || 0) >= 1) { s.flour--; s.lamb--; s.veg--; bakery.out.pie = (bakery.out.pie || 0) + 4; this.stats.baked += 4; }
     }
-    const h = Math.floor(this.minute / 60);
     if (h === 7) {
       const depot = this.place('depot');
       depot.out.coffee = (depot.out.coffee || 0) + 8; depot.out.tea = (depot.out.tea || 0) + 6; depot.out.parcel = (depot.out.parcel || 0) + 6 + Math.round(this.rand() * 6);
-      this.log('The freight train pulled into the Rail Depot with coffee, tea and the mail.');
+      // Fuel and ore are imports the council pays for.
+      const fuel = (depot.out.fuel || 0) < 60 ? 60 : 0, ore = (depot.out.ore || 0) < 20 ? 20 : 0, cost = fuel * 1 + ore * 2;
+      if (cost && this.civic.treasury >= cost) { depot.out.fuel = (depot.out.fuel || 0) + fuel; depot.out.ore = (depot.out.ore || 0) + ore; this.civic.treasury -= cost; }
+      this.log(`The freight train pulled into the Rail Depot with coffee, tea, the mail${cost ? ', fuel and ore' : ''}.`);
     }
     // Parcels left on doorsteps get taken inside by evening.
     if (h === 19 && this.parcels.length) { this.log(`${this.parcels.length} parcel${this.parcels.length > 1 ? 's were' : ' was'} collected from doorsteps.`); this.parcels = []; }
@@ -276,6 +463,7 @@ export class TownLife {
       ['dairy', 'milk', 'store'], ['dairy', 'milk', 'cafe'], ['dairy', 'milk', 'bakery'], ['coop', 'eggs', 'store'], ['coop', 'eggs', 'cafe'], ['coop', 'eggs', 'bakery'],
       ['sheep', 'lamb', 'butcher'], ['sheep', 'lamb', 'pub'], ['sheep', 'lamb', 'bakery'],
       ['depot', 'coffee', 'cafe'], ['depot', 'coffee', 'store'], ['depot', 'tea', 'store'], ['depot', 'parcel', 'post'],
+      ['depot', 'fuel', 'power'], ['depot', 'ore', 'foundry'], ['recycling', 'scrap', 'foundry'], ['foundry', 'parts', 'hall'],
     ];
     let best = null;
     for (const [from, good, to] of routes) {
@@ -302,6 +490,11 @@ export class TownLife {
     } else {
       const n = t.load?.n || 0;
       dst.stock[g] = (dst.stock[g] || 0) + n;
+      // The buyer pays the supplier wholesale (half retail); the council pays for public stores.
+      const cost = n * GOODS[g].price * 0.5, payer = PUBLIC.has(dst.id) || dst.kind === 'utility' ? null : dst;
+      const paid = payer ? Math.min(cost, Math.max(0, payer.till)) : Math.min(cost, this.civic.treasury);
+      if (payer) payer.till -= paid; else this.civic.treasury -= paid;
+      src.till += paid;
       this.stats.deliveries++; this.stats.delivered[g] = (this.stats.delivered[g] || 0) + n;
       if (n >= 8 || this.rand() < 0.3) this.log(`${t.driver?.name || 'A truck'} delivered ${amount(g, n)} to the ${dst.name}.`);
       t.load = null; t.job = null; t.wait = 4; t.state = 'unloaded, looking for the next job';
@@ -425,7 +618,7 @@ export class TownLife {
     for (const [k, n] of Object.entries(need || {})) v.pantry[k] = Math.max(0, (v.pantry[k] || 0) - n);
     v.hunger = 0; v.lastMeal = { name, at: this.minute, day: this.day };
     v.meals.unshift(`${name} (${fmt(this.minute)})`); v.meals.length = Math.min(v.meals.length, 5);
-    this.stats.meals++;
+    this.stats.meals++; this.rubbish(1);
   }
 
   liveVillager(v, minutes) {
@@ -487,7 +680,7 @@ export class TownLife {
     const ok = uses.some((g) => (p.stock[g] || 0) > 0);
     if (!ok || v.wallet < price) { v.activity = `found the ${p.name} out of food`; this.log(`The ${p.name} ran out of food and had to turn ${v.name} away.`); return; }
     for (const g of uses) if ((p.stock[g] || 0) > 0) { p.stock[g]--; break; }
-    v.wallet -= price; p.till += price; this.stats.mealsOut++;
+    v.wallet -= price; this.sale(p, price); this.stats.mealsOut++;
     this.eat(v, dish); v.activity = `${v.step.activity} — ${dish}`;
   }
 
@@ -495,7 +688,7 @@ export class TownLife {
   snack(v, shopId, good) {
     const shop = this.place(shopId), src = shopId === 'bakery' ? shop.out : shop.stock, price = GOODS[good].price;
     if (!this.open(shop) || !(src[good] > 0) || v.wallet < price) { v.memory = `the ${shop.name} had no ${GOODS[good].name} left`; v.activity = `found the ${shop.name} out of ${GOODS[good].name}`; return; }
-    src[good]--; v.wallet -= price; shop.till += price; this.stats.sold[good] = (this.stats.sold[good] || 0) + 1;
+    src[good]--; v.wallet -= price; this.sale(shop, price); this.stats.sold[good] = (this.stats.sold[good] || 0) + 1;
     this.eat(v, good === 'pie' ? 'a meat pie from the Bakery' : 'a fresh bread roll');
   }
 
@@ -507,15 +700,25 @@ export class TownLife {
     for (const g of items) {
       const n = g === 'veg' || g === 'bread' ? 2 : 1;
       const have = src[g] || 0, price = GOODS[g].price * n;
-      if (have >= n && v.wallet >= price) { src[g] -= n; bag[g] = (bag[g] || 0) + n; v.wallet -= price; shop.till += price; this.stats.sold[g] = (this.stats.sold[g] || 0) + n; }
+      if (have >= n && v.wallet >= price) { src[g] -= n; bag[g] = (bag[g] || 0) + n; v.wallet -= price; this.sale(shop, price); this.stats.sold[g] = (this.stats.sold[g] || 0) + n; }
       else missing.push(GOODS[g].name);
     }
     if (Object.keys(bag).length) v.carrying = bag;
     if (missing.length) { v.memory = `the ${shop.name} was out of ${missing.join(' and ')}`; if (this.rand() < 0.5) this.log(`${v.name} found the ${shop.name} out of ${missing.join(' and ')}.`); }
   }
 
-  // Workers are paid at the end of each shift; the money comes back through the shops.
-  pay(v) { v.paidDay = this.day; v.wallet += WAGES[v.job] || 45; }
+  // Workers are paid at the end of each shift by their employer's till, or by the council for
+  // public jobs (and when a business can't cover it). Programmers bring money in from clients
+  // outside town. Money moves, it isn't made.
+  pay(v) {
+    v.paidDay = this.day;
+    const wage = WAGES[v.job] || BASE_WAGE, employer = v.work === 'home' ? null : this.place(v.work);
+    let paid = 0;
+    if (v.job === 'programmer') { paid = wage * 0.8; this.civic.treasury += wage * 0.2; }  // income tax on outside work
+    else if (employer && !PUBLIC.has(employer.id) && employer.till > 0) { paid = Math.min(wage, employer.till); employer.till -= paid; }
+    const rest = Math.min(wage - paid, this.civic.treasury); this.civic.treasury -= rest; paid += rest;
+    v.wallet += paid; this.stats.wages += paid;
+  }
 
   // ── For chat, the guide and the ledger ──
   describe(v) {
@@ -526,17 +729,19 @@ export class TownLife {
   }
   news(n = 6) { return this.events.slice(0, n); }
   ledger() {
-    const shops = [...this.places.values()].filter((p) => p.target).map((p) => ({ name: p.name, stock: p.stock, till: p.till, open: this.open(p) }));
+    const shops = [...this.places.values()].filter((p) => p.target && !['utility', 'industry', 'hall'].includes(p.kind)).map((p) => ({ name: p.name, stock: p.stock, till: Math.round(p.till), open: this.open(p) }));
     const farms = [...this.places.values()].filter((p) => p.kind === 'farm').map((p) => ({ name: p.name, makes: GOODS[p.makes].name, waiting: p.out[p.makes] || 0, growth: p.growth }));
     return { day: this.day, time: fmt(this.minute), stats: this.stats, yesterday: this.yesterday || null, shops, farms, trucks: this.trucks.map((t) => ({ driver: t.driver?.name, state: t.state, load: t.load })), parcels: this.parcels.length, news: this.news(12),
+      civic: this.civic, utilities: { fuel: this.place('power').stock.fuel, reservoir: this.place('waterworks').stock.water, wastewater: this.place('sewage').stock.wastewater, landfill: this.place('landfill').stock.rubbish, recycling: this.place('recycling').stock.recyclables, parts: this.place('hall').stock.parts },
       population: this.villagers.length, atWork: this.villagers.filter((v) => v.step?.kind === 'work').length, asleep: this.villagers.filter((v) => v.step?.kind === 'sleep').length };
   }
 
   // Saves just what matters to resume tomorrow where the town left off.
-  snapshot() { return { day: this.day, minute: this.minute, places: [...this.places.values()].map((p) => [p.id, p.stock, p.out, p.till, p.growth]), villagers: this.villagers.map((v) => [v.id, v.pantry, v.wallet, v.lastMeal, v.meals]) }; }
+  snapshot() { return { day: this.day, minute: this.minute, civic: this.civic, places: [...this.places.values()].map((p) => [p.id, p.stock, p.out, p.till, p.growth]), villagers: this.villagers.map((v) => [v.id, v.pantry, v.wallet, v.lastMeal, v.meals]) }; }
   restore(s) {
     if (!s || typeof s !== 'object') return;
     this.day = s.day || 1; this.minute = s.minute || 7 * 60;
+    if (s.civic && typeof s.civic === 'object') Object.assign(this.civic, s.civic, { player: { ...this.civic.player, ...(s.civic.player || {}) } });
     for (const [id, stock, out, till, growth] of s.places || []) { const p = this.place(id); if (p) Object.assign(p, { stock, out, till, growth: growth ?? p.growth }); }
     for (const [id, pantry, wallet, lastMeal, meals] of s.villagers || []) { const v = this.villagers[id]; if (v) Object.assign(v, { pantry, wallet, lastMeal, meals: meals || [] }); }
   }

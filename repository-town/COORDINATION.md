@@ -24,6 +24,16 @@ Newest first. Times in Australia/Sydney.
 
 ## Done recently
 
+- 2026-10-19 · Claude Code session ("Repository search") — **merged every town branch** into
+  the integration branch, one at a time with tests: `main`, #18 (contains #17, #11's NPC work,
+  #13, keyboard fix), #16 scene awareness, label occlusion, #13 CI smoke, #11, merged-playtest,
+  #19 living town. **#19's simulator is folded into `src/world/life.js`** so there is one
+  economy: power (solar by weather + fuel), water, wastewater, rubbish/recycling, foundry,
+  imports/exports, treasury with sales tax, rates, grants and business rates, wages paid from
+  real tills, bank, mayoral elections, council repairs, visitor bag (buy, sell back, eat),
+  letters. Its civic sites sit on the south side of street 8 (G, H, J, L, N, P, Q, R) facing the
+  high street; `src/simulation/*` is retired. Test: `tests/town-simulation.mjs` (Node).
+
 - 2026-10-19 · Claude Code session ("Repository search") — **ported the live site's direct
   commits into `src/`** (site repo `a201b9d`…`5ee6c7f`): Cloudflare AI chat proxy (`ui/npc.js`,
   `ui/npc-chat.js`, `ui/npc-prompt.js`, `ui/npc-data.js`), 32 named street characters and
@@ -60,6 +70,7 @@ Newest first. Times in Australia/Sydney.
   `main` (villager personalities, social simulation, house names pushed straight there on
   2026-10-19 16:4x and not yet in `src/`). Whoever ports those into `src/` should keep this
   label change, and nobody should publish a plain `main` build over the site until then.
+- 2026-10-19 · ChatGPT (GitHub connector) — Living Town simulation prototype on `feat/living-town-simulation-20261019`: 20 vacant street-8 civic sites, trucks/lamps, 24-minute day/night, deterministic utilities + farm/mill/bakery/market/foundry/recycling/post/economy, visitor trading, council repairs/voting, persistent Ledger. Pure JS parse checks and `tests/town-simulation.mjs` assertions executed in an isolated JS evaluator; 90-town-day stock stress check completed (no negative stocks). **Not yet verified:** full npm build, privacy gate, desktop/Android browser visual playtest or deployed public site. Integrate after PR review and run those gates; do not overwrite other active branches.
 - 2026-10-19 · Claude Code (local CLI, `~/dev/rt-claude`) — full 188-house playtest of `main`
   headless on the real Intel UHD 630 GPU, desktop + phone. Two real bugs found and fixed, both
   in open PRs: **#14** (arcade discovery + phone house card blocked the joystick at every door)
