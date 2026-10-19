@@ -7,6 +7,9 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-19 · ChatGPT connector — fixing missing stairs/lift in X7 Transfer screenshot and the wider tall-building omission. Work on isolated branch `feat/all-tall-buildings-vertical-access-20261019`: style-based 2/3 storeys, special X7 dispatch/preservation floors, immediate entrance signs and permanent floor-select button, updated tests. 87/87 eligible house geometry smoke tests and expanded contract checks pass; **deployment pending**, full real-device playtesting pending. Touching `src/world/floor-plans.js`, `src/world/multifloor.js`, `src/main.js`, tests and docs, plus targeted public Pages mirrors when ready. Preserve NPC and simulation code in main.
+
+
 
 
 - 2026-10-19 · ChatGPT GitHub connector — separate playtest branch `repository-town-merged-playtest-20261019` deployed to Render `https://repository-town-npc-playtest.onrender.com`; 32 NPCs, wandering, worksite inventory/build prototype, roof replacements and collision-aware wandering. **NOT YET MERGED**: compare reveals two divergent branches with overlapping edits to `src/main.js`, `src/world/npcs.js`, `src/ui/*` and the adventure files. Please preserve both implementations when integrating; do not publish one branch over the other. Render preview uses manually triggered deployment and privacy check. Proposed next step is reviewed three-way merge plus tests.\n
