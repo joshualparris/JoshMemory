@@ -7,6 +7,7 @@ import { RELICS, PROGRESS_KEY, cleanProgress } from '../adventure/data.js';
 import { answerSceneQuestion } from './scene-awareness.js';
 import { groundedLocationReply } from './npc-location.js';
 import { villagerProfile } from './villager-profiles.js';
+import { residentName } from './resident-identity.js';
 import { recordPlayerMessage, recordTownAction, socialContext, socialGossip } from './social.js';
 
 const LEGACY_KEY_STORE = 'repository-town.groq-keys';
@@ -82,16 +83,13 @@ async function askResidentProxy(id, house, name, f, role, history, town) {
   return answer;
 }
 
-const NAMES = ['Ada', 'Bram', 'Cleo', 'Dorian', 'Edie', 'Finn', 'Greta', 'Hugo', 'Iris', 'Jasper', 'Kit', 'Lena', 'Milo', 'Nell', 'Otis', 'Pip', 'Quinn', 'Rosa', 'Sol', 'Tess', 'Uma', 'Vic', 'Wren', 'Xavi', 'Yara', 'Zed'];
+// House-resident identity generation lives in its own pure module.
 // Stable public export retained for all existing callers and tests.
 export { villagerProfile };
 // Temperament and interests per name; the town simulation (src/world/life.js) gives the job.
 
 
-export function residentName(coordinate) {
-  const n = coordinate.charCodeAt(0) - 65 + parseInt(coordinate.slice(1), 10) * 7;
-  return NAMES[n % NAMES.length];
-}
+export { residentName };
 
 function coordDist(a, b) {
   const ca = a.charCodeAt(0) - 65, ra = parseInt(a.slice(1), 10);

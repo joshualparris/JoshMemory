@@ -9,8 +9,8 @@
     "check:privacy": "node tools/check_privacy.mjs",
     "test:e2e": "node tests/e2e.mjs",
     "serve": "node tools/serve.mjs dist/public 8080",
-    "test:town": "node tests/town-simulation.mjs && node tests/power-grid.mjs && node tests/shop-interiors.mjs && node tests/traffic-and-shop-exits.mjs && node tests/farmhouse.mjs && node tests/rug-layers.mjs && node tests/truck-collision.mjs --days 4 && node tests/government.mjs && node tests/public-politics.mjs && node tests/exterior-collisions.mjs && node tests/town-exit.mjs && node tests/exit-facing.mjs && node tests/windows.mjs && node tests/hunger-sleep-hotel.mjs && node tests/credit.mjs && node tests/finance.mjs && node tests/jobs.mjs && node tests/simulation-soak.mjs --quiet",
-    "test:integration": "node tests/npc-realism-audit.mjs && node tests/npc-location.mjs && node tests/npc-personality.mjs && node tests/npc-scene-awareness.mjs && npm run test:town"
+    "test:town": "node tests/town-simulation.mjs && node tests/power-grid.mjs && node tests/shop-interiors.mjs && node tests/traffic-and-shop-exits.mjs && node src/tests/building-exits.mjs && node tests/farmhouse.mjs && node tests/rug-layers.mjs && node tests/truck-collision.mjs --days 4 && node tests/government.mjs && node tests/public-politics.mjs && node tests/exterior-collisions.mjs && node tests/town-exit.mjs && node tests/exit-facing.mjs && node tests/windows.mjs && node tests/hunger-sleep-hotel.mjs && node tests/credit.mjs && node tests/finance.mjs && node tests/jobs.mjs && node tests/simulation-soak.mjs --quiet",
+    "test:integration": "node tests/resident-identities.mjs && node tests/npc-realism-audit.mjs && node tests/npc-location.mjs && node tests/npc-personality.mjs && node tests/npc-scene-awareness.mjs && npm run test:town"
   },
   "devDependencies": {
     "brython": "^3.12.4",

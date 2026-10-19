@@ -30,7 +30,6 @@ export function spreadWindows(a, b, w = 1.5, gap = 3.2) {
 export function townView(door, at, turn = 0) {
   const c = Math.cos(turn), s = Math.sin(turn), spin = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), turn);
   return {
-    turn,
     point(x, z) { const dx = x - door.x, dz = z - door.z; return { x: at.x + c * dx + s * dz, z: at.z - s * dx + c * dz }; },
     // Copies an indoor camera to where it would stand in the town.
     place(camera, target) {

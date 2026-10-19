@@ -139,7 +139,16 @@ const clampAbs = (v, m) => Math.max(-m, Math.min(m, v));
 function angleDiff(a, b) { let d = a - b; while (d > Math.PI) d -= Math.PI * 2; while (d < -Math.PI) d += Math.PI * 2; return d; }
 
 // Seeded random so a new town always starts the same way.
-function rng(seed) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
+function rng(seed) {
+  let s = seed >>> 0;
+  const next = () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296);
+  next.getState = () => s;
+  next.setState = (state) => { if (!Number.isInteger(state) || state < 0 || state > 0xffffffff) throw new RangeError('Invalid random-generator state'); s = state >>> 0; };
+  return next;
+}
+// Live simulation state saved so a reload resumes exactly where the town was (positions, routes, trucks, random state).
+const SIM_VILLAGER_FIELDS = ['x', 'z', 'heading', 'inside', 'path', 'step', 'activity', 'hunger', 'fatigue', 'restedMinutes', 'wallet', 'savings', 'pantry', 'carrying', 'lastMeal', 'meals', 'seen', 'doneToday', 'queue', 'paidDay', 'bike', 'memory', 'wageArrears', 'rateArrears', 'housingArrears'];
+const SIM_TRUCK_FIELDS = ['x', 'z', 'heading', 'path', 'job', 'leg', 'load', 'wait', 'state'];
 
 // ── Walking routes ─────────────────────────────────────────────────────────
 const rowOf = (z) => { let best = 0; for (let r = 1; r < 8; r++) if (Math.abs(ROAD(r) - z) < Math.abs(ROAD(best) - z)) best = r; return best; };
@@ -190,7 +199,8 @@ export function trainX(minute, depotX) {
 export class TownLife {
   constructor({ homes, minute = 7 * 60, seed = 20261019 }) {
     // homes: [{ coordinate, name, door: {x,z} }] — the repository houses people live in.
-    this.rand = rng(seed);
+    this.seed = seed >>> 0;
+    this.rand = rng(this.seed);
     this.day = 1; this.minute = minute;
     this.events = []; this.stats = this.freshStats();
     this.powerGridEvents = []; this.powerGridEventSeq = 0;
@@ -1038,9 +1048,29 @@ export class TownLife {
   }
 
   // Saves just what matters to resume tomorrow where the town left off.
-  snapshot() { return { saveVersion:2, day: this.day, minute: this.minute, powerGridEvents:this.powerGridEvents, powerGridEventSeq:this.powerGridEventSeq, civic: this.civic, places: [...this.places.values()].map((p) => [p.id, p.stock, p.out, p.till, p.growth]), villagers: this.villagers.map((v) => [v.id, v.pantry, v.wallet, v.lastMeal, v.meals, v.hunger, v.fatigue, v.restedMinutes, v.wageArrears || 0, v.rateArrears || 0, v.housingArrears || 0]), hotelBookings:this.place('hotel').bookings }; }
+  snapshot() {
+    const pick = (o, keys) => { const r = { id: o.id }; for (const k of keys) if (o[k] !== undefined) r[k] = o[k]; return r; };
+    const state = { saveVersion:2, seed: this.seed, rngState: this.rand.getState(), day: this.day, minute: this.minute, powerGridEvents:this.powerGridEvents, powerGridEventSeq:this.powerGridEventSeq, civic: this.civic, places: [...this.places.values()].map((p) => [p.id, p.stock, p.out, p.till, p.growth]), villagers: this.villagers.map((v) => [v.id, v.pantry, v.wallet, v.lastMeal, v.meals, v.hunger, v.fatigue, v.restedMinutes, v.wageArrears || 0, v.rateArrears || 0, v.housingArrears || 0]), hotelBookings:this.place('hotel').bookings,
+      sim: { events: this.events, stats: this.stats, yesterday: this.yesterday || null, villagers: this.villagers.map((v) => ({ ...pick(v, SIM_VILLAGER_FIELDS), wageArrears: v.wageArrears || 0, rateArrears: v.rateArrears || 0, housingArrears: v.housingArrears || 0 })), trucks: (this.trucks || []).map((t) => pick(t, SIM_TRUCK_FIELDS)), parcels: this.parcels || [] } };
+    return JSON.parse(JSON.stringify(state));
+  }
+  // Returns false (and changes nothing) for a malformed save or one from a newer version.
   restore(s) {
-    if (!s || typeof s !== 'object') return;
+    if (!s || typeof s !== 'object' || Array.isArray(s)) return false;
+    if (s.saveVersion !== undefined && (!Number.isInteger(s.saveVersion) || s.saveVersion < 1 || s.saveVersion > 3)) return false;
+    if (!Number.isFinite(s.day) || s.day < 1 || !Number.isFinite(s.minute) || s.minute < 0 || s.minute >= 1440) return false;
+    if (s.civic !== undefined && (s.civic === null || typeof s.civic !== 'object' || Array.isArray(s.civic))) return false;
+    if (s.places !== undefined && !Array.isArray(s.places)) return false;
+    if (s.villagers !== undefined && !Array.isArray(s.villagers)) return false;
+    let sim = null;
+    if (s.sim !== undefined) {
+      const r = s.sim;
+      const ok = r && typeof r === 'object' && Array.isArray(r.events) && r.stats && typeof r.stats === 'object' && Array.isArray(r.villagers) && Array.isArray(r.trucks) && Array.isArray(r.parcels)
+        && r.villagers.length === this.villagers.length && r.trucks.length === (this.trucks || []).length && Number.isInteger(s.rngState) && s.rngState >= 0 && s.rngState <= 0xffffffff && Number.isInteger(s.seed) && s.seed >= 0 && s.seed <= 0xffffffff
+        && r.villagers.every((v) => v && Number.isInteger(v.id) && this.villagers.some((x) => x.id === v.id)) && r.trucks.every((t) => t && Number.isInteger(t.id) && Array.isArray(t.path) && (this.trucks || []).some((x) => x.id === t.id));
+      if (!ok) return false;
+      sim = JSON.parse(JSON.stringify(r));
+    }
     this.day = Number.isFinite(s.day) && s.day >= 1 ? s.day : 1;
     this.minute = Number.isFinite(s.minute) && s.minute >= 0 && s.minute < 1440 ? s.minute : 7 * 60;
     // v1 saves had no schema tag, event history or feeder faults. They are
@@ -1055,6 +1085,14 @@ export class TownLife {
     for (const [id, stock, out, till, growth] of s.places || []) { const p = this.place(id); if (p) Object.assign(p, { stock, out, till, growth: growth ?? p.growth }); }
     for (const [id, pantry, wallet, lastMeal, meals, hunger, fatigue, restedMinutes, wageArrears, rateArrears, housingArrears] of s.villagers || []) { const v = this.villagers[id]; if (v) Object.assign(v, { pantry, wallet, lastMeal, meals: meals || [], hunger: Number.isFinite(hunger)?hunger:v.hunger, fatigue: Number.isFinite(fatigue)?fatigue:v.fatigue, restedMinutes: Number.isFinite(restedMinutes)?restedMinutes:0, wageArrears: Number.isFinite(wageArrears)?wageArrears:0, rateArrears: Number.isFinite(rateArrears)?rateArrears:0, housingArrears: Number.isFinite(housingArrears)?housingArrears:0 }); }
     this.place('hotel').bookings=Array.isArray(s.hotelBookings)?s.hotelBookings.slice(-12):[];
+    if (sim) {
+      this.seed = s.seed; this.rand.setState(s.rngState);
+      this.events = sim.events; this.stats = sim.stats; this.yesterday = sim.yesterday || undefined;
+      for (const saved of sim.villagers) { const cur = this.villagers.find((x) => x.id === saved.id); for (const k of SIM_VILLAGER_FIELDS) if (Object.prototype.hasOwnProperty.call(saved, k)) cur[k] = saved[k]; }
+      for (const saved of sim.trucks) { const cur = this.trucks.find((x) => x.id === saved.id); for (const k of SIM_TRUCK_FIELDS) if (Object.prototype.hasOwnProperty.call(saved, k)) cur[k] = saved[k]; }
+      this.parcels = sim.parcels;
+    }
     startNeeds(this);
+    return true;
   }
 }
