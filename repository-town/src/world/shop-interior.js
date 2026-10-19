@@ -16,7 +16,7 @@ const FITTINGS = {
   garden:['Market Garden shed','Vegetable stall','Seed and produce boxes',0x87b873,'See the vegetables','Local vegetables are picked for shops and cafés.'],
   silo:['Wheat Farm shed','Grain desk','Grain sacks',0xc9b279,'View this harvest','Grain heads to the flour mill for baking.'],
   farmhouse:['Farmhouse kitchen','Kitchen table','Family photos',0xa59c89,'Visit the farmhouse','Farm families gather here for meals.'],
-  'town-hall':['Council chambers','Public service desk','Town notices',0xbaaa83,'Council decisions, elections and public services','Citizens meet here to discuss the town budget and propose new projects.'],
+  'town-hall':['Public meeting hall','Public service desk','Town notices',0xbaaa83,'Council decisions, elections and public services','Citizens meet here to discuss the town budget and propose new projects.'],
   bank:['Banking hall','Teller counter','Account records',0x6c9fba,'Deposit and withdraw Town Credits','Money, wages and civic spending are recorded by the Community Bank.'],
   post:['Post office','Postal counter','Sorting shelves',0xce8e63,'Send a parcel or check deliveries','Mail is collected, sorted and delivered by the town posties.'],
   market:['Market hall','Fresh produce stall','Produce crates',0x90ad67,'Buy fresh produce','The shelves are stocked by the farm, mill and other local producers.'],
