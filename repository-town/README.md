@@ -6,7 +6,7 @@ inspected, the exterior, the floor plan, the furnishings and the exhibits you ca
 
 ## Multi-floor tall buildings
 
-V7 Private House and W7 SwordCoast lighthouse now have three authored levels, interactable stairs and a lift. Floors 2 and 3 have different rooms and usable exhibits. See [the implementation and playtest guide](docs/MULTI_FLOOR_INTERIORS_2026-10-19.md). Source: `src/world/floor-plans.js` and `src/world/multifloor.js`. Focused test: `node tests/multifloor.mjs`.
+Tall architectural exteriors now have two or three enterable floors, including V7 Private House, W7 SwordCoast and X7 Transfer lighthouses. A visible Floors control and stair/lift signs make upper levels easy to find. Floors 2 and 3 have different rooms and usable exhibits. See [the implementation and playtest guide](docs/MULTI_FLOOR_INTERIORS_2026-10-19.md). Source: `src/world/floor-plans.js` and `src/world/multifloor.js`. Focused test: `node tests/multifloor.mjs`.
 
 ## Layout
 
