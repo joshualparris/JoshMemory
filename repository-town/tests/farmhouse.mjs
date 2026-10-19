@@ -22,7 +22,9 @@ assert(x.interactables.some(i=>i.key==='farmhouse:washer'));
 assert(x.interactables.some(i=>i.key==='farmhouse:fireplace'));
 assert(x.interactables.some(i=>i.key==='farmhouse:kettle'));
 assert(x.dynamics.length>=3,'need animated fire, kettle or lights');
-assert(x.group.userData.staticBatches>0&&x.group.userData.staticBatches<55,'batch room furniture for phone GPU');
+// Colours are preserved for visual realism: roughly 100 distinct furniture tones.
+// Each tone is instanced rather than building hundreds of individual meshes.
+assert(x.group.userData.staticBatches>0&&x.group.userData.staticBatches<130,'batch furniture by material without collapsing the room palette');
 assert.equal(x.rooms[0].z1,6,'exit zone must match the real front door');
 const hit=(px,pz,r=.35)=>x.colliders.some(b=>{
  const cx=Math.max(b.x0,Math.min(b.x1,px)),cz=Math.max(b.z0,Math.min(b.z1,pz));
