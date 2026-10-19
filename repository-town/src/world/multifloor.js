@@ -45,7 +45,7 @@ function decorate(level, floor, count, makeLabel) {
   level.group.add(b.build());
   // The landing is deliberately off the fixture footprints and never on the
   // original ground-floor exit trigger.
-  const landing = new THREE.Vector3(cx,0,cz+2.35);
+  const landing = new THREE.Vector3(cx,0,cz+1.0);
   const blocked = p => level.colliders.some(c => {
     const x = Math.max(c.x0,Math.min(p.x,c.x1)), z = Math.max(c.z0,Math.min(p.z,c.z1));
     return (p.x-x)**2+(p.z-z)**2 < 0.5**2;
