@@ -27,6 +27,7 @@ Newest first. Times in Australia/Sydney.
   is currently blocked by the Hobby team's daily deployment quota (`api-deployments-free-per-day`).
 
 ## Done recently
+- 2026-10-19 · Replit — Phase 1 TownLife save integrity on branch feat/town-snapshot-integrity-20261019; draft PR #33. Added schema-v1 deterministic snapshots and legacy restore, protection for unsupported saves, replay tests, and the corrected 72-real-minute day. Isolated JavaScript evaluator checks passed; full build/privacy gates and desktop/Android playtests remain pending. Not deployed.
 
 - 2026-10-19 · ChatGPT connector — **X7 / 87 tall buildings stair-and-lift upgrade MERGED & DEPLOYED**. Source PR [#32](https://github.com/joshualparris/JoshMemory/pull/32), merge `725bff72`. Public Pages commit [`42b82e9`](https://github.com/Parris-Tech-Services/Repository-town/commit/42b82e9cc356816724eed728dd1f27e92d920893), [successful deployment 39235581217](https://github.com/Parris-Tech-Services/Repository-town/actions/runs/39235581217). 16 styles/87 buildings get architectural upper floors and interactive lifts/stairs. X7 has special transfer and beacon levels; a foyer sign and visible tap-to-open floor selector fix discovery. Static JS checks and 87/87 actual-house geometry builds passed. **Real Android walkthrough still needed**. Do not overwrite these source-first changes in future publishing.
 
