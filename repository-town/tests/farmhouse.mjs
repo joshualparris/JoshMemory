@@ -2,6 +2,8 @@
 // Independent geometry/contents acceptance without a browser or paid API.
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import { CollisionWorld } from '../src/engine/collision.js';
+import { coplanarFloorSurfaces } from '../src/world/floor-surfaces.js';
 const source=readFileSync(new URL('../src/world/farmhouse-interior.js',import.meta.url),'utf8');
 const shop=readFileSync(new URL('../src/world/shop-interior.js',import.meta.url),'utf8');
 const V=class {constructor(x=0,y=0,z=0){Object.assign(this,{x,y,z})}set(x,y,z){Object.assign(this,{x,y,z});return this}};
@@ -57,3 +59,39 @@ for(const e of x.interactables){
 }
 assert(seen.size>1200,'interior is blocked into inaccessible cells');
 console.log('PASS: 10 farmhouse spaces, '+x.interactables.length+' objects, '+seen.size+' reachable floor cells, no inaccessible exhibits');
+
+
+// Inspect every actual instanced farmhouse floor surface, rather than trusting
+// hand-picked coordinates. Coplanar overlapping surfaces flicker on mobile GPUs.
+const floorBoxes=x.group.children.filter(o=>o instanceof InstancedMesh).flatMap(o=>o.items||[])
+  .filter(m=>m&&m.scale[1]<=0.031&&m.scale[0]>.8&&m.scale[2]>.5&&m.position[1]<.15)
+  .map(m=>({x:m.position[0],y:m.position[1],z:m.position[2],
+    w:m.scale[0],h:m.scale[1],d:m.scale[2]}));
+assert(floorBoxes.length>=15,'expected layered floors, rugs and bath tiles');
+for(let i=0;i<floorBoxes.length;i++)for(let j=i+1;j<floorBoxes.length;j++)
+  assert(!coplanarFloorSurfaces(floorBoxes[i],floorBoxes[j]),
+    'coplanar overlapping surfaces '+i+' and '+j+' (z-fighting)');
+assert(FLOOR_SURFACE_Y.finish<FLOOR_SURFACE_Y.wetTile);
+assert(FLOOR_SURFACE_Y.wetTile<FLOOR_SURFACE_Y.rug);
+assert(FLOOR_SURFACE_Y.tilePattern>.021,'bank/bakery floor decals are not coplanar with their slabs');
+const world=new CollisionWorld(x.colliders);
+const hallway={x:x.spawn.x,z:x.spawn.z};
+for(let i=0;i<44;i++){
+  world.move(hallway,0,-.18,.35);
+  assert(!world.hits(hallway.x,hallway.z,.35),'hallway movement must not intersect a wall');
+}
+assert(hallway.z<-4,'hallway is still traversable after floor correction');
+const living={x:0,z:3.3};
+for(let i=0;i<14;i++){
+  world.move(living,.18,0,.35);
+  assert(!world.hits(living.x,living.z,.35),'living-room doorway remains clear');
+}
+assert(living.x>2.2,'walk through living-room door, not blocked by a rug');
+const wall=new CollisionWorld([{x0:-1,x1:1,z0:-.12,z1:.12}]);
+const runner={x:0,z:1.2};wall.move(runner,0,-3,.35);
+assert(runner.z>.45,'collision subdivision prevents wall tunnelling at running speed');
+for(const [place,filename] of [['bakery','bakery-interior.js'],['bank','bank-interior.js']]){
+  const text=readFileSync(new URL('../src/world/'+filename,import.meta.url),'utf8');
+  assert(text.includes('new THREE.Vector3(x, FLOOR_SURFACE_Y.tilePattern, z)'),place+' decals must use the shared safe elevation');
+}
+console.log('PASS: '+floorBoxes.length+' actual floor surfaces without coplanar overlaps, physical farmhouse corridor/door and bank/bakery decal checks');
