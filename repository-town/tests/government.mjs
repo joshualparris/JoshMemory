@@ -57,6 +57,7 @@ assert(w.civic.government.audit.some(e=>e.type==='completion'));
 
 const noBudget=make();
 noBudget.civic.services.roads=40;noBudget.place('hall').stock.parts=0;
+noBudget.civic.government.budget.works=0; // insufficient lawful allocation even if freight replenishes parts
 assert.match(noBudget.repair('roads'),/Request lodged/);
 run(noBudget,200);
 assert.equal(noBudget.civic.services.roads,40,'missing supplies prevent phantom repairs');
