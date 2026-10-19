@@ -86,7 +86,7 @@ export function productionHour(t,h,at){
  const builder=t.villagers.find(v=>v.job==='builder'&&v.work==='buildsite');
  if(builder?.step?.kind==='work'&&!builder.path.length&&t.open(site)&&t.gridPowered('industry')&&s.project.stage<4){
    const [good,n]=MATERIALS[s.project.stage];
-   if((site.stock[good]||0)>=n){
+   if(s.project.progress>0||(site.stock[good]||0)>=n){
      if(s.project.progress===0){site.stock[good]-=n;entry(t,'Builder started '+BUILD_STAGES[s.project.stage]+' using '+n+' '+good+'.');}
      s.project.progress+=60;
      if(s.project.progress>=120){
