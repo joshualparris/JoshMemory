@@ -1,4 +1,5 @@
 import { distributePower, townPowerDemands, POWER_LINE_IDS, GRID_FAULT_COST } from './power-grid.js';
+import { MAYOR_CANDIDATES, createGovernment, civicElection, castCivicVote, submitRequest, requestFeeder, proposeMotion, councilMeeting, advanceCivicWork, budgetRevenue, restoreCivic, govSummary } from './government.js';
 // Town life simulation: the clock, farms, the mill and bakery, shops, trucks, the post,
 // and villagers with jobs, hunger, pantries, wallets and daily routines. Pure logic (no
 // three.js) so it runs and is tested on its own; src/world/townlife.js draws it.
@@ -18,7 +19,7 @@ const BASE_WAGE = 70;
 const PUBLIC = new Set(['hall', 'school', 'clinic', 'post', 'depot', 'power', 'waterworks', 'sewage', 'recycling', 'landfill', 'fire', 'bank', 'square']);
 const WEATHER = ['sunny', 'sunny', 'cloudy', 'rainy', 'windy', 'sunny', 'cloudy'];
 const SERVICES = ['power', 'water', 'sewage', 'roads', 'waste', 'post'];
-export const CANDIDATES = ['Vern', 'Rowan', 'Sage'];
+export const CANDIDATES = MAYOR_CANDIDATES;
 const ROAD = (r) => r * LOT_Z - 3.5 * LOT_Z + 16;            // road centre line of street r (0-based)
 const lotX = (col) => (col - 12.5) * LOT_X;
 const LOT8_Z = 7 * LOT_Z - 3.5 * LOT_Z;                       // z of the street-8 lot centres
@@ -240,6 +241,7 @@ export class TownLife {
     this.parcels = [];   // { coordinate, x, z, from } waiting on doorsteps
     this.obstacles = []; // set by the renderer each frame: [{x, z}] (the player)
     for (const t of this.trucks) t.driver = this.villagers.find((v) => v.job === 'truck driver' && !this.trucks.some((o) => o.driver === v)) || null;
+    createGovernment(this);
     this.log(`Day ${this.day} begins. The town wakes up.`);
   }
 
@@ -260,6 +262,8 @@ export class TownLife {
     const hourly = Math.floor(before / 60) !== Math.floor(this.minute / 60) || this.minute < before;
     if (hourly) this.everyHour();
     for (const v of this.villagers) this.liveVillager(v, minutes);
+    advanceCivicWork(this, minutes);
+    if (hourly && Math.floor(this.minute / 60) === 10 && this.day >= this.civic.government.meetingDay) councilMeeting(this);
     for (const t of this.trucks) this.driveTruck(t, minutes);
     for (const t of this.trucks) if ((t.blockedFor || 0) > 40) this.unjam(t);
   }
@@ -271,9 +275,9 @@ export class TownLife {
     const c = this.civic;
     // Council rates: every household pays $15 a day towards wages and services.
     let rates = 0; for (const v of this.villagers) { const r = Math.min(15, v.wallet); v.wallet -= r; rates += r; }
-    c.treasury += rates; this.stats.rates = rates;
+    c.treasury += rates; this.stats.rates = rates; budgetRevenue(this,rates,'rates');
     // Like any country town, the council relies on state and federal grants.
-    c.treasury += 900;
+    c.treasury += 900; budgetRevenue(this,900,'grant');
     // Villagers bank anything over $250 (money saved, not spent in town).
     for (const v of this.villagers) if (v.wallet > 250) { v.savings = (v.savings || 0) + v.wallet - 250; v.wallet = 250; }
     // End-of-day books: public takings go to the council; a business keeps a $50 float, pays
@@ -286,7 +290,7 @@ export class TownLife {
       p.till -= rate + share; c.treasury += rate;
       for (const v of staff) v.wallet += share / staff.length;
     }
-    c.weather = WEATHER[Math.floor(this.rand() * WEATHER.length)]; c.voted = false;
+    c.weather = WEATHER[Math.floor(this.rand() * WEATHER.length)]; // Ballots stay locked until this election finishes.
     for (const k of SERVICES) c.services[k] = clamp(c.services[k] - (k === 'roads' ? 0.45 : 0.25) - this.rand() * 0.5, 0, 100);
     c.indicators.environment = clamp(100 - c.indicators.pollution, 0, 100);
     c.indicators.happiness = clamp(c.indicators.happiness + (c.supply.ok && c.supply.waterOk ? 1 : -3), 0, 100);
@@ -296,7 +300,7 @@ export class TownLife {
 
   // ── Town finances and utilities ──
   // A sale at a till: the town takes its tax, the shop keeps the rest.
-  sale(shop, price) { const tax = Math.round(price * this.civic.taxRate * 100) / 100; shop.till += price - tax; this.civic.treasury += tax; this.stats.taxes += tax; }
+  sale(shop, price) { const tax = Math.round(price * this.civic.taxRate * 100) / 100; shop.till += price - tax; this.civic.treasury += tax; this.stats.taxes += tax; budgetRevenue(this,tax,'tax'); }
   ok(service) { return this.civic.services[service] >= 35; }
   gridPowered(customerId) {
     const c=this.civic.powerGrid?.customers?.[customerId];
@@ -321,18 +325,8 @@ export class TownLife {
     return 'Fault recorded on '+lineId+'. Check the Town Ledger for affected services.';
   }
   repairPowerLine(lineId) {
-    if(!POWER_LINE_IDS.includes(lineId))return 'Unknown power line.';
-    if(!this.civic.powerLines[lineId])return 'That feeder is already working.';
-    if(this.civic.treasury<GRID_FAULT_COST.credits)return 'The council does not have enough funds.';
-    const hall=this.place('hall');
-    if((hall.stock.parts||0)<GRID_FAULT_COST.parts)return 'The council needs two spare parts boxes.';
-    this.civic.treasury-=GRID_FAULT_COST.credits;hall.stock.parts-=GRID_FAULT_COST.parts;
-    delete this.civic.powerLines[lineId];
-    this.recordPowerEvent('power-line-repaired',lineId,'town-council',
-      'authorised maintenance: $90 and 2 parts boxes');
-    this.log('Council crews repaired '+lineId+' for $90 and two spare parts boxes.');
-    this.updatePowerGrid();
-    return 'Repair completed on '+lineId+'. The distribution model has been updated.';
+    if (!POWER_LINE_IDS.includes(lineId)) return 'Unknown power line.';
+    return requestFeeder(this,lineId);
   }
   updatePowerGrid() {
     const h=Math.floor(this.minute/60), c=this.civic;
@@ -395,14 +389,10 @@ export class TownLife {
     if (h === 15) { const due = c.letters.filter((l) => l.day < this.day && !l.delivered); for (const l of due) l.delivered = true; if (due.length) { this.stats.letters += due.length; this.log(`The postie delivered ${due.length} letter${due.length > 1 ? 's' : ''} you posted.`); } }
   }
 
-  election() {
-    const c = this.civic;
-    const votes = CANDIDATES.map((n, i) => (c.ballots[n] || 0) + Math.floor(this.rand() * 9) + 6 + (n === c.mayor ? 2 : 0) + i * 0);
-    const winner = CANDIDATES[votes.indexOf(Math.max(...votes))];
-    this.log(`Election day: ${winner} was elected mayor (${CANDIDATES.map((n, i) => `${n} ${votes[i]}`).join(', ')}).`);
-    c.mayor = winner; c.ballots = {}; c.electionDay = this.day + 7;
-  }
-
+  election() { return civicElection(this); }
+  holdCouncilMeeting() { return councilMeeting(this); }
+  proposeCouncilMotion(type,value) { return proposeMotion(this,type,value); }
+  governmentReport() { return govSummary(this); }
   // ── The visitor (the player): wallet, bank, bag and civic actions. Each returns a message. ──
   shelves(p) { return p.id === 'bakery' ? p.out : p.stock; }
   buyItem(shopId, good) {
@@ -436,28 +426,14 @@ export class TownLife {
     me[from] -= m; me[to] += m;
     return `${op === 'deposit' ? 'Deposited' : 'Withdrew'} $${m}. Wallet $${me.wallet}, savings $${me.bank}.`;
   }
-  vote(name) {
-    const c = this.civic;
-    if (!CANDIDATES.includes(name)) return 'Unknown candidate.';
-    if (c.voted) return "You've already voted today.";
-    c.ballots[name] = (c.ballots[name] || 0) + 1; c.voted = true;
-    return `Your vote for ${name} is in the box. Election day is day ${c.electionDay}.`;
-  }
+  vote(name) { return castCivicVote(this,name); }
   postLetter(to) {
     const me = this.civic.player;
     if (me.wallet < 2) return 'Postage is $2.';
     me.wallet -= 2; this.civic.treasury += 2; this.civic.letters.push({ to, day: this.day, delivered: false });
     return `Letter to ${to} posted ($2). The postie delivers it tomorrow afternoon.`;
   }
-  repair(service) {
-    const c = this.civic, hall = this.place('hall');
-    if (!SERVICES.includes(service)) return 'Unknown service.';
-    if (c.services[service] >= 99) return `The ${service} network is already in good shape.`;
-    if (c.treasury < 90 || (hall.stock.parts || 0) < 2) return 'The council needs $90 and two boxes of spare parts from the foundry.';
-    c.treasury -= 90; hall.stock.parts -= 2; c.services[service] = clamp(c.services[service] + 35, 0, 100); this.stats.repairs++;
-    this.log(`The council repaired the ${service} network.`);
-    return `Repair crew sent: ${service} now at ${Math.round(c.services[service])}%.`;
-  }
+  repair(service) { return submitRequest(this,service); }
   collectRecycling() {
     const c = this.civic, n = Math.min(5, Math.floor(c.homes.recyclables));
     if (!n) return 'No recycling waiting on the kerbs right now.';
@@ -994,6 +970,7 @@ export class TownLife {
     this.powerGridEvents=Array.isArray(s.powerGridEvents)?s.powerGridEvents.slice(-80):[];
     this.powerGridEventSeq=Number.isSafeInteger(s.powerGridEventSeq)?s.powerGridEventSeq:this.powerGridEvents.length;
     if (s.civic && typeof s.civic === 'object') Object.assign(this.civic, s.civic, { player: { ...this.civic.player, ...(s.civic.player || {}) } });
+    restoreCivic(this,s.civic?.government);
     this.civic.powerLines = this.civic.powerLines && typeof this.civic.powerLines === 'object' ? this.civic.powerLines : {};
     if(this.civic.supply.powerDemand>0)this.updatePowerGrid();
     for (const [id, stock, out, till, growth] of s.places || []) { const p = this.place(id); if (p) Object.assign(p, { stock, out, till, growth: growth ?? p.growth }); }

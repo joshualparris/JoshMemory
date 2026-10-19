@@ -78,24 +78,56 @@ function civicPanel(life, id, again) {
 }
 
 // Town Hall council: repairs, the mayoral election and the town books.
+// Civic chambers: members, elected mandate, accountable orders, motions, public ledger.
 export function hallPanel(life) {
-  const c = life.civic, again = () => hallPanel(life);
-  const act = (label, fn) => ({ label, run: () => { const msg = fn(); const next = again(); return { ...next, body: `<p><b>${esc(msg)}</b></p>` + next.body }; } });
-  const worst = Object.entries(c.services).sort((a, b) => a[1] - b[1])[0];
+  const c=life.civic,g=life.governmentReport(),again=()=>hallPanel(life);
+  const act=(label,fn)=>({label,run:()=>{const msg=fn(),p=again();return {...p,body:'<p><b>'+esc(msg)+'</b></p>'+p.body};}});
+  const pctSafe=v=>Math.round(Math.max(0,v||0));
+  const worst=Object.entries(c.services).sort((a,b)=>a[1]-b[1])[0];
+  const councillors=g.councillors.map(v=>'<tr><td>'+esc(v.name)+'</td><td>'+esc(v.ward)+'</td><td>'+esc(v.portfolio)+'</td><td>'+v.ballots+'</td></tr>').join('');
+  const line=g.orders.map(w=>'<tr><td>'+esc(w.id)+'</td><td>'+esc(w.service)+'</td><td>'+esc(w.status)+'</td><td>'+esc(life.villagers[w.crewId]?.name||'Awaiting crew')+'</td><td>'+pctSafe(w.progress)+' / '+(w.status==='inspecting'?w.inspectionMinutes:w.requiredMinutes)+' min</td></tr>').join('')||'<tr><td colspan="5">No open work orders yet</td></tr>';
+  const minutes=g.minutes.map(m=>'<p>Day '+m.day+': chair '+esc(m.chair)+', '+m.attendees.length+' present, '+m.resolutions.length+' motions. '+m.resolutions.map(v=>esc(v.motionId)+' '+(v.passed?'passed':'lost')+' ('+v.yes+'/'+v.total+')').join('; ')+'</p>').join('')||'<p>No meetings yet.</p>';
+  const proposals=g.motions.map(m=>'<tr><td>'+esc(m.id)+'</td><td>'+esc(m.type)+' / '+esc(String(m.value))+'</td><td>'+esc(m.status)+'</td></tr>').join('')||'<tr><td colspan="3">No proposals</td></tr>';
+  const ledger=g.audit.slice(0,8).map(e=>'<li>Day '+e.day+' '+String(Math.floor(e.minute/60)).padStart(2,'0')+':'+String(e.minute%60).padStart(2,'0')+' — '+esc(e.text)+'</li>').join('');
+  const election=g.elections[0], results=election?Object.entries(election.candidates).map(([n,v])=>esc(n)+' '+v).join(', '):'First election is pending';
   return {
-    title: 'Town Hall · Council', wide: true,
-    body: `<p>Mayor <b>${esc(c.mayor)}</b> · next election day ${c.electionDay} · treasury ${money(c.treasury)} · tax ${Math.round(c.taxRate * 100)}% on sales, $15 a day in rates.</p>
-      <p><b>Health</b> ${pct(c.indicators.health)} <b>Happiness</b> ${pct(c.indicators.happiness)} <b>Environment</b> ${pct(c.indicators.environment)}</p>
-      <h3>Networks</h3>${Object.entries(c.services).map(([k, v]) => `<p>${esc(k)} ${pct(v)}</p>`).join('')}
-      <p class="dim">A repair costs $90 and two boxes of spare parts (in stock: ${life.place('hall').stock.parts || 0}). Most worn: ${esc(worst[0])}.</p>${powerNetworkHTML(c)}` + bagLine(life),
-    actions: [
-      act(`Repair the ${worst[0]} network`, () => life.repair(worst[0])),
+    title:'Town Hall · Elected Council',wide:true,
+    body:'<p><b>Mayor:</b> '+esc(c.mayor)+' · <b>General Manager:</b> '+esc(g.manager)+
+      ' · <b>Next election:</b> day '+c.electionDay+' · <b>Next council meeting:</b> day '+g.meetingDay+'</p>'+
+      '<p><b>Elections:</b> '+results+' · '+(g.playerBallot?'Your ballot: '+esc(g.playerBallot.candidate):'You have not yet voted in this election')+'</p>'+
+      '<h3>Elected council</h3><table class="ledger"><tr><th>Councillor</th><th>Ward</th><th>Portfolio</th><th>Votes</th></tr>'+councillors+'</table>'+
+      '<h3>Adopted policy</h3><p>Priority: '+esc(g.policy.priority)+
+        ' · Tax '+Math.round(c.taxRate*100)+'% · current zoning policy: '+esc(g.policy.zoning)+'</p>'+
+      '<h3>Public money and allocated budgets</h3><p>Treasury '+money(c.treasury)+
+        ' · Roads/works '+money(g.budget.works)+' · Utilities '+money(g.budget.utilities)+
+        ' · Community '+money(g.budget.community)+' · Planning '+money(g.budget.planning)+
+        ' · Approved spending '+money(g.budget.spent)+'</p>'+
+      '<h3>Conditions</h3>'+Object.entries(c.services).map(([k,v])=>'<p>'+esc(k)+' '+pct(v)+'</p>').join('')+
+      '<p class="dim">File a service request below. A real staff member must travel, inspect, receive budget and material authorisation and finish the repair. A $90 job requires two parts from the Town Hall store ('+(life.place('hall').stock.parts||0)+' available).</p>'+
+      '<h3>Requests and work orders</h3><table class="ledger"><tr><th>Ref</th><th>Service</th><th>Stage</th><th>Assigned</th><th>Work</th></tr>'+line+'</table>'+
+      '<h3>Motions and community planning</h3><table class="ledger"><tr><th>Motion</th><th>Proposal</th><th>Outcome</th></tr>'+proposals+'</table>'+
+      '<p>Approved-in-principle permits: '+g.permits.map(x=>esc(x.zone)+' ('+esc(x.id)+')').join(', ').replace(/^$/,'none')+'. Physical building works still require an approved work order.</p>'+
+      '<h3>Recorded council proceedings</h3>'+minutes+
+      '<h3>Register of decisions</h3><ul class="news">'+ledger+'</ul>'+
+      powerNetworkHTML(c)+bagLine(life),
+    actions:[
+      act('Report worn '+worst[0]+' network',()=>life.repair(worst[0])),
+      act('Report water network',()=>life.repair('water')),
+      act('Report roads',()=>life.repair('roads')),
       ...(c.powerLines['west-feeder']
-        ? [act('Repair west feeder ($90 + two parts)', () => life.repairPowerLine('west-feeder'))]
-        : [act('Simulate west feeder fault (training)', () => life.faultPowerLine('west-feeder'))]),
-      ...CANDIDATES.map((n) => act(`Vote ${n}`, () => life.vote(n))),
-      { label: 'Open the Town Ledger', run: () => ledgerPanel(life) },
-    ],
+        ?[act('Report failed west power feeder',()=>life.repairPowerLine('west-feeder'))]
+        :[act('Simulate west feeder fault (training)',()=>life.faultPowerLine('west-feeder'))]),
+      ...CANDIDATES.map(n=>act('Vote for '+n,()=>life.vote(n))),
+      act('Motion: safer roads',()=>life.proposeCouncilMotion('priority','roads')),
+      act('Motion: reliable power',()=>life.proposeCouncilMotion('priority','power')),
+      act('Motion: clean water',()=>life.proposeCouncilMotion('priority','water')),
+      act('Motion: lower sales tax (8%)',()=>life.proposeCouncilMotion('tax',0.08)),
+      act('Motion: increase sales tax (12%)',()=>life.proposeCouncilMotion('tax',0.12)),
+      act('Apply: residential zoning permit',()=>life.proposeCouncilMotion('permit','residential')),
+      act('Apply: commercial zoning permit',()=>life.proposeCouncilMotion('permit','commercial')),
+      act('Convene council meeting',()=>life.holdCouncilMeeting()),
+      {label:'Open the Town Ledger',run:()=>ledgerPanel(life)}
+    ]
   };
 }
 
@@ -140,6 +172,7 @@ export function ledgerPanel(life) {
   const L = life.ledger(), s = L.stats;
   const n = (o) => Object.entries(o).map(([g, k]) => esc(amount(g, k))).join(', ') || 'none yet';
   const y = L.yesterday;
+  const council=life.governmentReport();
   return {
     title: `Town Ledger · Day ${L.day}, ${L.time}`, wide: true,
     body: `<p><b>Population:</b> ${L.population} villagers · ${L.atWork} at work · ${L.asleep} asleep · ${life.homes.length} households.</p>
@@ -150,6 +183,7 @@ export function ledgerPanel(life) {
       ${y ? `<p class="dim">Yesterday: ${y.deliveries} deliveries, ${y.baked} baked, ${y.meals} meals, ${y.parcels} parcels.</p>` : ''}
       <h3>Shops</h3><table class="ledger"><tr><th>Shop</th><th>Stock</th><th>Till</th></tr>${L.shops.map((p) => `<tr><td>${esc(p.name)} ${p.open ? '' : '<span class="dim">(closed)</span>'}</td><td>${esc(list(p.stock))}</td><td>$${p.till}</td></tr>`).join('')}</table>
       <h3>Farms</h3><table class="ledger"><tr><th>Farm</th><th>Crop</th><th>Waiting for pickup</th></tr>${L.farms.map((f) => `<tr><td>${esc(f.name)}</td><td>${Math.round(f.growth * 100)}% grown</td><td>${f.waiting} ${esc(f.makes)}</td></tr>`).join('')}</table>
+      <h3>Government and public works</h3><p>Mayor ${esc(council.mayor)} · GM ${esc(council.manager)} · ${council.councillors.length} elected councillors · ${council.orders.filter(o=>o.status!=='done').length} work orders open · ${council.motions.filter(m=>m.status==='tabled').length} motions pending. Visit Town Hall for decisions and reports.</p>
       <h3>Council and utilities</h3><p>Mayor ${esc(L.civic.mayor)} · treasury ${money(L.civic.treasury)} · weather ${esc(L.civic.weather)} · power ${L.civic.supply.power}/${L.civic.supply.powerDemand} ${L.civic.supply.ok ? '' : '<b>(blackout)</b>'} · water ${L.civic.supply.water}/${L.civic.supply.waterDemand} · fuel ${L.utilities.fuel} drums · reservoir ${L.utilities.reservoir} kL<br>Taxes today ${money(s.taxes)} · wages ${money(s.wages)} · recycled ${s.recycled} · to landfill ${s.landfill}</p>
       ${powerNetworkHTML(L.civic)}<h3>Trucks</h3><p>${L.trucks.map((t) => esc(`${t.driver || 'Spare'}: ${t.state}`)).join('<br>')}</p>
       <h3>News</h3><ul class="news">${L.news.map((e) => `<li><span class="dim">${esc(e.t)}</span> ${esc(e.text)}</li>`).join('')}</ul>`,
