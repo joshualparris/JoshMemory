@@ -95,7 +95,7 @@ async function start() {
   const active = new Set();
   const visited = new Set();
   const houseLabels = new Map();
-  let nearHouse = null, nearThing = null, nearNPC = null, houseGuide = null, panelOpen = null, cardTimer = 0;
+  let nearHouse = null, nearThing = null, nearNPC = null, nearCivic = null, houseGuide = null, panelOpen = null, cardTimer = 0;
   const expedition = createExpedition({town,makeLabel,openPanel,travel,
     releaseMouse:()=>input.releaseMouse()});
 
@@ -266,6 +266,8 @@ async function start() {
     const treasureD=treasure?Math.hypot(player.pos.x-treasure.pos.x,player.pos.z-treasure.pos.z):Infinity;
     const npcD=nearNPC?Math.hypot(player.pos.x-nearNPC.pos.x,player.pos.z-nearNPC.pos.z):Infinity;
     if(treasure && treasureD<=npcD){expedition.use(player.pos);return;}
+    const civicD = nearCivic ? Math.hypot(player.pos.x-nearCivic.position.x, player.pos.z-nearCivic.position.z-7) : Infinity;
+    if (nearCivic && civicD <= npcD) { input.releaseMouse(); livingLedger.openFor(nearCivic.id); input.reset(); return; }
     if (nearNPC) { input.releaseMouse(); closePanel(); $('npc-roster').hidden=true; npcChat.show(nearNPC.npc, nearNPC.house || null); input.reset(); return; }
     if (mode === 'house' && nearThing) {
       const thing = nearThing, request = ++interactionRequest, house = inside;
@@ -362,6 +364,11 @@ async function start() {
 
     if (mode === 'town') {
       nearNPC=pickNPC(streetNPCs); animateNPCs(streetNPCs,t,player.pos,dt,npcChat.isOpen()?npcChat.active():null,townWorld);
+      nearCivic = null; let civicBest = 6;
+      for (const place of civicDistrict.buildings) {
+        const d = Math.hypot(place.position.x-player.pos.x, place.position.z+7-player.pos.z);
+        if (d < civicBest) { civicBest = d; nearCivic = place; }
+      }
       nearHouse = null; let best = 6;
       for (const l of town.lots.values()) { const d = Math.hypot(l.doorPos.x - player.pos.x, l.doorPos.z - player.pos.z); if (d < best) { best = d; nearHouse = l; } }
       for (const d of town.doors) {
@@ -384,8 +391,9 @@ async function start() {
         else if (d > 70 && has) { town.group.remove(has); disposeLabel(has); houseLabels.delete(c); }
       }
       const nearRelic=expedition.nearby(player.pos);
-      $('prompt').hidden = (!nearNPC && !nearHouse && !nearRelic) || !!panelOpen || expedition.isOpen() || npcChat.isOpen() || !$('npc-roster').hidden;
+      $('prompt').hidden = (!nearNPC && !nearCivic && !nearHouse && !nearRelic) || !!panelOpen || livingLedger.isOpen() || expedition.isOpen() || npcChat.isOpen() || !$('npc-roster').hidden;
       if(nearRelic && (!nearNPC || Math.hypot(player.pos.x-nearRelic.pos.x,player.pos.z-nearRelic.pos.z) <= Math.hypot(player.pos.x-nearNPC.pos.x,player.pos.z-nearNPC.pos.z))) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — ✨ ${nearRelic.id==='guild'?'Guild Chest':nearRelic.name}`;
+      else if (nearCivic && (!nearNPC || civicBest <= Math.hypot(player.pos.x-nearNPC.pos.x, player.pos.z-nearNPC.pos.z))) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — Visit ${nearCivic.name}`;
       else if (nearNPC) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — 💬 Talk to ${nearNPC.npc.name}`;
       else if (nearHouse) $('prompt').textContent = `${nearHouse.house.coordinate} · ${nearHouse.house.name} — walk through the door to enter`;
       if (input.consume('use')) use();
@@ -428,6 +436,7 @@ async function start() {
     npcs: streetNPCs.map(x => ({id:x.npc.id,name:x.npc.name,coordinate:x.npc.coordinate})),
     npcChat: () => ({open:npcChat.isOpen(),id:npcChat.active()}),
     civicSites: civicDistrict.buildings.map(b => ({ id:b.id,name:b.name,coordinate:b.coordinate })),
+    visitCivicSite: (id) => { if (!civicDistrict.buildings.some(b => b.id===id)) return false; livingLedger.openFor(id); return true; },
     livingTown: () => simulation.snapshot(),
     openLedger: () => { document.getElementById('btn-living-town').click(); return livingLedger.isOpen(); },
     talkTo: (id) => npcChat.show(id),
