@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { buildFarmhouseInterior } from './farmhouse-interior.js';
+import { glassMesh } from './windows.js';
 
 // The twenty high-street services share a safe walkable plan, with different
 // fixtures, colours and exhibits. They are built only while the player is inside.
@@ -65,10 +66,26 @@ export function buildCivicInterior(site,makeLabel) {
   box(BASE_W,0.24,BASE_D,0,-0.12,-3,0xb9a88f);
   box(BASE_W,0.27,BASE_D,0,4.7,-3,0x615d56);
   solid(BASE_W,4.6,WALL,0,2.3,BACK,0xc3b6a4);
-  solid(WALL,4.6,BASE_D,-EDGE,2.3,-3,0xc3b6a4);
-  solid(WALL,4.6,BASE_D, EDGE,2.3,-3,0xc3b6a4);
-  solid(6,4.6,WALL,-4,2.3,FRONT,0xc3b6a4);
-  solid(6,4.6,WALL,4,2.3,FRONT,0xc3b6a4);
+  // Display windows either side of the door and a window in each side wall: a low solid sill
+  // keeps the player in, and the street is drawn behind the glass (src/world/windows.js).
+  const panes=[],WALLC=0xc3b6a4,SILL_H=0.6,HEAD_H=3.2;
+  for(const x of [-4,4]){
+    solid(6,SILL_H,WALL,x,SILL_H/2,FRONT,WALLC);
+    box(0.7,4.6-SILL_H,WALL,x-2.65,2.3+SILL_H/2,FRONT,WALLC);
+    box(0.7,4.6-SILL_H,WALL,x+2.65,2.3+SILL_H/2,FRONT,WALLC);
+    box(4.6,4.6-HEAD_H,WALL,x,(4.6+HEAD_H)/2,FRONT,WALLC);
+    panes.push({w:4.6,h:HEAD_H-SILL_H,d:0.04,x,y:(SILL_H+HEAD_H)/2,z:FRONT});
+  }
+  const SIDE_SILL=0.9,SIDE_HEAD=2.6,WZ0=-2.5,WZ1=1.5;
+  for(const x of [-EDGE,EDGE]){
+    solid(WALL,SIDE_SILL,BASE_D,x,SIDE_SILL/2,-3,WALLC);
+    box(WALL,4.6-SIDE_SILL,WZ0-BACK,x,2.3+SIDE_SILL/2,(BACK+WZ0)/2,WALLC);
+    box(WALL,4.6-SIDE_SILL,FRONT-WZ1,x,2.3+SIDE_SILL/2,(WZ1+FRONT)/2,WALLC);
+    box(WALL,4.6-SIDE_HEAD,WZ1-WZ0,x,(4.6+SIDE_HEAD)/2,(WZ0+WZ1)/2,WALLC);
+    box(WALL+0.12,0.06,WZ1-WZ0+0.1,x,SIDE_SILL+0.03,(WZ0+WZ1)/2,0x6f5343);
+    panes.push({w:0.04,h:SIDE_HEAD-SIDE_SILL,d:WZ1-WZ0,x,y:(SIDE_SILL+SIDE_HEAD)/2,z:(WZ0+WZ1)/2});
+  }
+  group.add(glassMesh(panes));
   box(2.4,0.2,WALL,0,3.1,FRONT,0x6f5343);
   // Door sill is low and decorative so it never traps the player.
   box(2.15,0.06,0.6,0,0.02,FRONT,0xb9b8ae);
@@ -117,6 +134,7 @@ export function buildCivicInterior(site,makeLabel) {
   const rooms=[{name:roomTitle,x0:-EDGE,x1:EDGE,z0:BACK,z1:FRONT,w:BASE_W,d:BASE_D,parent:-1}];
   return {
     group,colliders,interactables,sceneObjects,placedProps,rooms,
+    windows:[...[-4,4].map(x=>({axis:'z',at:FRONT,s:x-2.3,e:x+2.3,out:1})),...[-EDGE,EDGE].map(x=>({axis:'x',at:x,s:WZ0,e:WZ1,out:Math.sign(x)}))],
     doors:[],dynamics:[],sight:[],
     bounds:{x0:-EDGE,x1:EDGE,z0:BACK,z1:FRONT},
     spawn:new THREE.Vector3(0,0,FRONT-2.25),

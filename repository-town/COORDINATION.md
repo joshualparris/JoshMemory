@@ -199,3 +199,13 @@ Newest first. Times in Australia/Sydney.
   General Manager now lodges work orders (priority service kept above 80%, others above 60%);
   elections returned identical results every week — leanings shift per election and the mayor
   answers for the town's mood and their own priority; egg/veg shortfall and unbounded fruit/flour piles.
+
+## 2026-10-20 — windows onto the living town (Claude, branch ccr-846db548-0l5zmu)
+- Every building has real windows: house rooms on every storey (2,833 across 188 houses and 111 upper
+  floors, placed in outside wall the furniture leaves free), shop display and side windows, farmhouse glass.
+- Indoors, `src/main.js renderFrame` draws the town first from the matching spot in the street
+  (`src/world/windows.js townView`), then the rooms on top, so the street shows through windows and the
+  open front door — only when one is in view. `townLife.update({ view })` keeps villagers, trucks,
+  weather and sky moving around that spot. Civic buildings are now one mesh each (hidden from inside).
+- `tests/windows.mjs`: windows on every X7 floor, villagers moving outside while you're in, day/night
+  through the glass, Bakery windows. Screenshots in `docs/screenshots/window-*.png`.

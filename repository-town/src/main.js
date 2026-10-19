@@ -9,6 +9,7 @@ import { buildCivicInterior } from './world/shop-interior.js';
 import { civicExitPose } from './world/shop-exit.js';
 import { populateShopStaff } from './world/shop-staff.js';
 import { createFloorStack, FLOOR_HEIGHT } from './world/multifloor.js';
+import { townView } from './world/windows.js';
 import { animate } from './world/builder.js';
 import { makeLabel, disposeLabel } from './ui/labels.js';
 import { runInteraction, esc } from './ui/interactions.js';
@@ -58,6 +59,42 @@ async function start() {
   scene.add(sky);
 
   const town = buildTown(scene, houses, data.streets);
+  // Indoors, the town is drawn first from the matching spot in the street, then the rooms on
+  // top; it shows through the windows (and the open front door) and nowhere else.
+  const outdoorCam = camera.clone(), roomBackground = scene.background;
+  const frustum = new THREE.Frustum(), viewProj = new THREE.Matrix4();
+  // Openings that show the town: each window, and the front door on the ground floor.
+  function lookouts(level) {
+    const y = level.group.position.y, boxes = (level.windows || []).map((w) => w.axis === 'z'
+      ? new THREE.Box3(new THREE.Vector3(w.s, y + 0.4, w.at - 0.3), new THREE.Vector3(w.e, y + 3.4, w.at + 0.3))
+      : new THREE.Box3(new THREE.Vector3(w.at - 0.3, y + 0.4, w.s), new THREE.Vector3(w.at + 0.3, y + 3.4, w.e)));
+    const ex = level.exitZone;
+    if (ex && !y) boxes.push(new THREE.Box3(new THREE.Vector3(ex.x0, 0, ex.z0 - 0.4), new THREE.Vector3(ex.x1, 2.6, ex.z0 + 0.4)));
+    return boxes;
+  }
+  function renderFrame() {
+    if (mode !== 'house' || !inside?.view) { renderer.render(scene, camera); return; }
+    camera.updateMatrixWorld();
+    // Drawing the town costs as much as being outdoors, so only when a window is in view.
+    inside.lookouts ||= lookouts(inside);
+    frustum.setFromProjectionMatrix(viewProj.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
+    if (!inside.lookouts.some((b) => frustum.intersectsBox(b))) { renderer.render(scene, camera); return; }
+    inside.view.place(camera, outdoorCam);
+    outdoorCam.projectionMatrix.copy(camera.projectionMatrix); outdoorCam.projectionMatrixInverse.copy(camera.projectionMatrixInverse);
+    // The building's own outside walls and shopfront would block the view from its own windows.
+    const own = inside.ownMeshes || [], ownShown = own.map((m) => m.visible);
+    own.forEach((m) => { m.visible = false; });
+    inside.group.visible = false; town.group.visible = true;
+    scene.background = townLife.skyColour; scene.fog = fog;
+    renderer.render(scene, outdoorCam);
+    inside.group.visible = true; town.group.visible = false;
+    const sky = townLife.skyParts.map((o) => o.visible); townLife.skyParts.forEach((o) => { o.visible = false; });
+    scene.background = null; scene.fog = null;
+    renderer.autoClear = false; renderer.clearDepth(); renderer.render(scene, camera); renderer.autoClear = true;
+    townLife.skyParts.forEach((o, i) => { o.visible = sky[i]; });
+    scene.background = roomBackground;
+    own.forEach((m, i) => { m.visible = ownShown[i]; });
+  }
   // Town life: farms, shops, trucks and 32 villagers with jobs and meals (src/world/life.js).
   const townLife = createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog });
   const life = townLife.life;
@@ -161,7 +198,7 @@ async function start() {
     closePanel(); npcChat.close(); nearThing = null; nearNPC = null;
     scene.remove(inside.group);
     const next = floors.levels[target];
-    inside = { house, ...next, floorIndex:target, floors, people:next.people || [] };
+    inside = { house, ...next, floorIndex:target, floors, people:next.people || [], view:inside.view, ownMeshes:inside.ownMeshes };
     scene.add(next.group);
     world = new CollisionWorld(next.colliders);
     player.place(next.landing.x, next.landing.z, Math.PI);
@@ -187,7 +224,10 @@ async function start() {
     const h = byCoord.get(coord);
     const floors = createFloorStack(h, makeLabel);
     const built = floors ? floors.levels[0] : buildInterior(h, makeLabel);
-    inside = { house: h, ...built, floorIndex:0, floors };
+    // Every storey shares the ground floor's frame: front door at the interior's exit, facing +z
+    // like the house itself, so the windows look out on the real street (src/world/windows.js).
+    const lot = town.lots.get(coord), ex = built.exitZone;
+    inside = { house: h, ...built, floorIndex:0, floors, view: townView({ x:(ex.x0 + ex.x1) / 2, z:ex.z0 - 0.1 }, lot.doorPos), ownMeshes: lot.mesh ? [lot.mesh] : [] };
     scene.add(built.group);
     town.group.visible = false;
     scene.background.set(INDOOR); scene.fog = null;
@@ -232,7 +272,9 @@ async function start() {
     const staff=populateShopStaff(site,life,built,makeLabel);
     const brief={coordinate:site.col+'8',name:site.name,kind:site.kind,
       street:'High Street',summary:'Explore the shop interior and speak to staff.'};
-    inside={house:brief,place:site,...built,people:staff};
+    const ex=built.exitZone;
+    inside={house:brief,place:site,...built,people:staff,
+      view:townView({x:(ex.x0+ex.x1)/2,z:ex.z0+0.1},site.door,site.side==='south'?Math.PI:0),ownMeshes:townLife.building(id)};
     scene.add(built.group);town.group.visible=false;
     scene.background.set(INDOOR);scene.fog=null;
     world=new CollisionWorld(built.colliders);
@@ -568,7 +610,8 @@ async function start() {
 
     // The town keeps living while the player is indoors; the sky follows its clock.
     const talkingTo = panelOpen?.thing?.v ? panelOpen.thing : null;
-    townLife.update(dt, t, { player, mode, overview, camera, talkingTo });
+    const view = mode === 'house' && inside?.view ? inside.view.place(camera, outdoorCam) : null;
+    townLife.update(dt, t, { player, mode, overview, camera, talkingTo, view });
     const clockText = `🕖 ${life.time()} · Day ${life.day}${life.speed > 1 ? ` · ${life.speed}×` : ''}`;
     if ($('clock').textContent !== clockText) $('clock').textContent = clockText;
     syncTimeBtn();
@@ -675,7 +718,7 @@ async function start() {
     expedition.update(t,player,mode);
     mapTimer += dt; if (mapTimer > 0.2) { drawMap(); mapTimer = 0; }
     saveTimer += dt; if (saveTimer > 3) { save(); saveTimer = 0; }
-    renderer.render(scene, camera);
+    renderFrame();
     requestAnimationFrame(frame);
   }
 
@@ -689,7 +732,7 @@ async function start() {
     talkTo: (id) => npcChat.show(id),
     travel,
     state: () => ({
-      mode, coordinate: inside?.house.coordinate || null, floor: inside?.floorIndex || 0, floors: inside?.floors?.levels.length || 1, pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, eye: player.eye, y: player.y, fps,
+      mode, coordinate: inside?.house.coordinate || null, floor: inside?.floorIndex || 0, windows: inside?.windows?.length || 0, floors: inside?.floors?.levels.length || 1, pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, eye: player.eye, y: player.y, fps,
       rooms: inside?.rooms.length || 0, props: inside?.placedProps.length || 0,
       interactables: inside ? inside.interactables.map((x) => ({ key: x.key, label: x.label, title: x.act.title || x.label, do: x.act.do, nav: x.floorNav || null, room: x.roomName })) : [],
       near: nearThing?.key || null, nearNPC: nearNPC?.npc.id || null, nearHouse: nearHouse?.house.coordinate || null,
@@ -735,6 +778,16 @@ async function start() {
     shops:()=>[...life.places.values()].map(p=>({id:p.id,name:p.name,kind:p.kind,side:p.side||'north',door:{x:p.x,z:p.door.z}})),
     enterShop,
     setFloor:(i)=>changeFloor(i),
+    // Where the town's villager figures are drawn (they keep moving while the player is indoors).
+    townFigures:()=>townLife.people.map(p=>({key:p.key,x:p.fig.group.position.x,z:p.fig.group.position.z,visible:p.fig.group.visible})),
+    // Stands 1.3 m inside window i of the current floor, looking out of it.
+    lookOut(i=0){
+      const w=inside?.windows?.[i];if(!w)return false;
+      const c=(w.s+w.e)/2;
+      if(w.axis==='z')player.place(c,w.at-w.out*1.3,w.out<0?0:Math.PI);
+      else player.place(w.at-w.out*1.3,c,w.out<0?Math.PI/2:-Math.PI/2);
+      return true;
+    },
     exitShop:()=>{if(!inside?.place)return false;leave();return true;},
     life: {
       ledger: () => life.ledger(), describe: (i) => life.describe(life.villagers[i]),

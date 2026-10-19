@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { glassMesh } from './windows.js';
 
 // An occupied, working Central-West NSW family farmhouse, not a retail shop.
 // 9 separate zones, a sheltered entrance, flyscreens, kitchen/pantry, mudroom,
@@ -59,6 +60,7 @@ export function buildFarmhouseInterior(site,makeLabel){
     shade.userData.anim={key,type:'glow',always:false,phase:0};
     dynamics.push(shade);
   };
+  const panes=[];   // window glass, see src/world/windows.js
   group.add(new THREE.HemisphereLight(0xf9f7e8,0x675c50,2.25));
   // Shared timber floors; tiled wet rooms and a practical concrete-like boot room.
   box(EDGE*2,.20,FRONT-REAR,0,-.11,(FRONT+REAR)/2,0x8b6e52);
@@ -88,7 +90,7 @@ export function buildFarmhouseInterior(site,makeLabel){
         const seg=(length-paneLen)/2;
         box(.18,1.87,seg,side*EDGE,1.94,center+d*(paneLen+seg)/2,0xeee4d2);
       }
-      box(.035,1.68,paneLen,side*(EDGE+.02),1.91,center,0x9dbab6);
+      panes.push({w:.035,h:1.68,d:paneLen,x:side*(EDGE+.02),y:1.91,z:center});
       box(.10,.10,paneLen+.14,side*(EDGE+.07),1.01,center,0x7f654b);
       box(.10,.10,paneLen+.14,side*(EDGE+.07),2.81,center,0x7f654b);
       box(.11,1.9,.08,side*(EDGE+.08),1.94,center,0x7f654b);
@@ -339,6 +341,7 @@ export function buildFarmhouseInterior(site,makeLabel){
   const rooms=[{name:FARMHOUSE_ROOMS[0],x0:-HALL,x1:HALL,z0:REAR,z1:FRONT},
     ...ZONES.map(q=>({name:q.name,x0:q.side<0?-EDGE:HALL,x1:q.side<0?-HALL:EDGE,z0:q.z0,z1:q.z1})),
     {...pantry,name:'Walk-in pantry'}];
+  group.add(glassMesh(panes));
   return {group,colliders,interactables,sceneObjects,placedProps,rooms,
     doors:[],dynamics,sight:[],people:[],
     bounds:{x0:-EDGE,x1:EDGE,z0:REAR,z1:FRONT},
