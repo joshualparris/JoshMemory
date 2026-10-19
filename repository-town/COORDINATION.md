@@ -168,3 +168,18 @@ Newest first. Times in Australia/Sydney.
   edit it here and publish from a build, so neither of us overwrites the other.
 - Open ideas nobody has claimed yet: villagers offering relic hints; a town guide near
   the spawn; real-device testing notes from Josh.
+
+## 2026-10-19 — merge sweep onto main (Claude, branch ccr-846db548-0l5zmu)
+- Merged into `main` (bdd1047), each with build, privacy check and test suites: walk-in shops and
+  multi-floor houses, farmhouse restoration, power network/traffic, realism truck model, elected
+  council, government audit. Fixed: south-side shop exit, walk-out after changing floors (exit-zone
+  cooldown overshoot), e2e treating stairs/lift as exhibits, shop-e2e expecting a counter in the farmhouse.
+- **Publishing is blocked:** the site repo `Parris-Tech-Services/Repository-town` has a finite-money
+  economy merged straight into the generated output (its PR #1: `world/money.js`, `ui/economy-panels.js`,
+  `world/bakery-interior.js`, `world/bakery-production.js`, `ui/bakery-panel.js`, ~30 commits), built
+  on an older build without the civic wallet/bank in `life.js`. It must be ported into `src/` and
+  reconciled with `life.civic.player` (one money owner) before `publish_pages.sh` will run.
+- Known intermittent: `life.mjs` "no villager inside a building" can catch a villager brushing a
+  newly solid lamp or bench (about 1 run in 5); villager paths don't avoid the realism props yet.
+- Login-gated private layer: plan and prompt in `docs/SUPABASE_PRIVATE_LAYER_PROMPT.md` (needs a
+  new Supabase project; the free plan's two active slots are in use).
