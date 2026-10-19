@@ -16,7 +16,7 @@ failure modes, measurable outcomes and actions the player can take.
 
 ## Implementation reality / safety
 The first slice exists on branch feat/living-town-simulation-20261019:
-- [x] Offline deterministic 24-real-minute town day, clock, daytime lighting
+- [x] Offline 24-hour simulated town day (72 real minutes at 1×, speed adjustable), clock, daytime lighting
 - [x] 20 vacant Street 8 parcels reserved for visibly labelled civic/industrial places
 - [x] Budgeted mayoral elections, council treasury, taxes, repair requests
 - [x] Town Credits visitor wallet + bank deposits/withdrawals; household commerce
