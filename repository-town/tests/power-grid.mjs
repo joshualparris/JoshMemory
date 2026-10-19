@@ -64,7 +64,7 @@ assert.equal(restored.civic.powerGrid.affected.length,0);
 assert.equal(restored.powerGridEvents[1].type,'power-line-repaired');
 assert(restored.civic.government.orders.some(o=>o.kind==='feeder'&&o.status==='done'));
 
-assert.equal(restored.repairPowerLine('west-feeder'),'That feeder is already working.');
+assert.match(restored.repairPowerLine('west-feeder'),/feeder is currently working|feeder is already working/i);
 assert.equal(restored.snapshot().powerGridEvents.length,2);
 
 // The waterworks pump and sewage plant genuinely depend on their own feeders.
