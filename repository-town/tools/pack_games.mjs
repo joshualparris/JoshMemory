@@ -45,7 +45,7 @@ function findClone(repo) {
   return null;
 }
 
-function copyTree(from, to, filter = () => true) {
+function copyTree(from, to, filter = () => true, maxFile = MAX_FILE) {
   let bytes = 0;
   (function walk(rel) {
     for (const e of fs.readdirSync(path.join(from, rel), { withFileTypes: true })) {
@@ -53,7 +53,7 @@ function copyTree(from, to, filter = () => true) {
       if (e.isDirectory()) { if (!SKIP_DIRS.has(e.name) && filter(r, true)) walk(r); continue; }
       if (!e.isFile() || !filter(r, false)) continue;
       const size = fs.statSync(path.join(from, r)).size;
-      if (size > MAX_FILE) continue;
+      if (size > maxFile) continue;
       fs.mkdirSync(path.dirname(path.join(to, r)), { recursive: true });
       fs.copyFileSync(path.join(from, r), path.join(to, r));
       bytes += size;
@@ -67,7 +67,7 @@ function copyTree(from, to, filter = () => true) {
 // marked inlineImages, their images as data URIs (file:// images cannot become WebGL textures).
 const RUNTIME_SRC = fs.readFileSync(path.join(TOWN, 'tools', 'game_runtime.js'), 'utf8');
 const IMAGE_EXT = { '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.gif': 'image/gif' };
-function runtimeFor(dir, { inlineImages = false } = {}) {
+function runtimeFor(dir, { inlineImages = false, localApi = null, localFixed = null, id = '' } = {}) {
   const files = {}, images = {};
   let total = 0, imageTotal = 0;
   (function walk(rel) {
@@ -84,7 +84,7 @@ function runtimeFor(dir, { inlineImages = false } = {}) {
     }
   })('');
   const json = (o) => JSON.stringify(o).replace(/</g, '\\u003c').replace(/\u2028/g, '\\u2028').replace(/\u2029/g, '\\u2029');
-  return `<script>${RUNTIME_SRC.replace('var F = __FILES__;', () => `var F = ${json(files)};`).replace('var IMG = __IMAGES__;', () => `var IMG = ${json(images)};`)}</script>`;
+  return `<script>${RUNTIME_SRC.replace('var F = __FILES__;', () => `var F = ${json(files)};`).replace('var IMG = __IMAGES__;', () => `var IMG = ${json(images)};`).replace('var API = __API__;', () => `var API = ${localApi || localFixed ? json({ game: id, collections: localApi || {}, fixed: localFixed || {} }) : 'null'};`)}</script>`;
 }
 
 // Finds a root-absolute URL inside a folder by dropping leading segments until a file matches.
@@ -96,10 +96,14 @@ function locate(dir, url) {
 
 const escScript = (s) => s.replace(/<\/script/gi, '<\\/script');
 
-async function bundle(entry, dir) {
+async function bundle(entry, dir, opts = {}) {
   const r = await esbuild.build({
     entryPoints: [entry], bundle: true, format: 'esm', write: false, outdir: path.join(os.tmpdir(), 'pack-out'), absWorkingDir: dir, logLevel: 'silent',
-    loader: { '.png': 'dataurl', '.jpg': 'dataurl', '.jpeg': 'dataurl', '.gif': 'dataurl', '.webp': 'dataurl', '.svg': 'dataurl', '.mp3': 'file', '.ogg': 'file', '.wav': 'file', '.woff': 'dataurl', '.woff2': 'dataurl', '.ttf': 'dataurl', '.txt': 'text', '.md': 'text' },
+    // Games with npm dependencies (opts.npm) resolve them from a scratch install; JSX in .js
+    // files (opts.jsx) uses React's automatic runtime, as Parcel and CRA projects expect.
+    nodePaths: opts.nodePaths || [], define: { 'process.env.NODE_ENV': '"production"' },
+    ...(opts.jsx ? { jsx: 'automatic' } : {}),
+    loader: { ...(opts.jsx ? { '.js': 'jsx' } : {}), '.png': 'dataurl', '.jpg': 'dataurl', '.jpeg': 'dataurl', '.gif': 'dataurl', '.webp': 'dataurl', '.svg': 'dataurl', '.mp3': 'file', '.ogg': 'file', '.wav': 'file', '.woff': 'dataurl', '.woff2': 'dataurl', '.ttf': 'dataurl', '.txt': 'text', '.md': 'text' },
     external: ['http:*', 'https:*'], assetNames: 'packed-assets/[name]-[hash]',
   });
   const js = r.outputFiles.filter((f) => f.path.endsWith('.js')).map((f) => f.text).join('\n');
@@ -148,7 +152,7 @@ async function makePlayable(dir, entry = 'index.html', opts = {}) {
       entryFile = path.join(htmlDir, `__inline_module_${n++}.mjs`);
       fs.writeFileSync(entryFile, m[2]);
     }
-    const { js, css } = await bundle(entryFile, htmlDir);
+    const { js, css } = await bundle(entryFile, htmlDir, opts);
     html = html.replace(m[0], () => `${css ? `<style>${css}</style>` : ''}<script type="module">${escScript(js)}</script>`);
   }
   for (const f of fs.readdirSync(htmlDir).filter((f) => f.startsWith('__inline_module_'))) fs.rmSync(path.join(htmlDir, f));
@@ -178,13 +182,22 @@ async function packVite(g, clone, out) {
     (function walk(d) {
       for (const e of fs.readdirSync(d, { withFileTypes: true })) {
         const p = path.join(d, e.name);
-        if (e.isDirectory()) { if (!SKIP_DIRS.has(e.name)) walk(p); continue; }
+        if (e.isDirectory()) { if (!SKIP_DIRS.has(e.name) && e.name !== 'server') walk(p); continue; }
         if (!/\.(jsx|tsx|js|ts)$/.test(e.name)) continue;
-        const src = fs.readFileSync(p, 'utf8');
-        if (!src.includes('BrowserRouter')) continue;
-        fs.writeFileSync(p, src.replace(/\bBrowserRouter\b/g, 'HashRouter').replace(/(<HashRouter\b[^>]*?)\s+basename=(\{[^}]*\}|"[^"]*"|'[^']*')/g, '$1'));
+        let src = fs.readFileSync(p, 'utf8');
+        const before = src;
+        // React Router: BrowserRouter → HashRouter (a basename no longer applies).
+        if (src.includes('BrowserRouter')) src = src.replace(/\bBrowserRouter\b/g, 'HashRouter').replace(/(<HashRouter\b[^>]*?)\s+basename=(\{[^}]*\}|"[^"]*"|'[^']*')/g, '$1');
+        // wouter: wrap the route <Switch> in a hash-location <Router>.
+        if (/from ["']wouter["']/.test(src) && src.includes('<Switch>')) {
+          src = 'import { Router as TownHashRouter } from "wouter";\nimport { useHashLocation as townHashLocation } from "wouter/use-hash-location";\n' + src;
+          src = src.replace('<Switch>', '<TownHashRouter hook={townHashLocation}><Switch>');
+          const i = src.lastIndexOf('</Switch>');
+          src = src.slice(0, i) + '</Switch></TownHashRouter>' + src.slice(i + '</Switch>'.length);
+        }
+        if (src !== before) fs.writeFileSync(p, src);
       }
-    })(path.join(root, 'src'));
+    })(root);
   }
   const dist = path.join(work, '__town_dist');
   // Relative base so the build works from any folder; the project's own config still applies.
@@ -241,10 +254,31 @@ for (const g of manifest.games) {
       const src = path.join(clone, g.dir || '');
       copyTree(src, out, (r, isDir) => !(isDir && (g.exclude || []).includes(r)));
       for (const [from, to] of Object.entries(g.extra || {})) copyTree(path.join(clone, from), path.join(out, to));
-      await makePlayable(out, g.entry || 'index.html', g);
+      let work = null;
+      if (g.npm) {
+        work = path.join(os.tmpdir(), 'town-game-deps', g.id);
+        fs.rmSync(work, { recursive: true, force: true });
+        copyTree(src, work, (r) => /package(-lock)?\.json$/.test(r) && !r.includes('/'));
+        run('npm', [fs.existsSync(path.join(work, 'package-lock.json')) ? 'ci' : 'install', '--no-audit', '--no-fund', '--ignore-scripts', '--loglevel=error'], work);
+      }
+      await makePlayable(out, g.entry || 'index.html', { ...g, nodePaths: work ? [path.join(work, 'node_modules')] : [] });
+      if (work) fs.rmSync(work, { recursive: true, force: true });
     } else if (g.kind === 'vite') {
       await packVite(g, clone, out);
       await makePlayable(out, 'index.html', g);
+    } else if (g.kind === 'godot') {
+      // Godot projects export with the editor in headless mode; GODOT names the editor
+      // binary, and its web export templates must be installed (see README).
+      const godot = process.env.GODOT;
+      if (!godot) throw new Error('set GODOT to a Godot 4 editor binary with web export templates');
+      const work = path.join(os.tmpdir(), 'town-godot', g.id);
+      fs.rmSync(work, { recursive: true, force: true });
+      copyTree(clone, work, () => true, Infinity);
+      fs.mkdirSync(path.join(work, 'build', 'web'), { recursive: true });
+      run(godot, ['--headless', '--path', work, '--import'], work);
+      run(godot, ['--headless', '--path', work, '--export-release', g.preset || 'Web', path.join(work, 'build', 'web', 'index.html')], work);
+      copyTree(path.join(work, 'build', 'web'), out, () => true, 95 * 1024 * 1024);
+      fs.rmSync(work, { recursive: true, force: true });
     } else if (g.kind === 'python') packPython(g, clone, out);
     else throw new Error('unknown kind ' + g.kind);
     let size = 0; (function walk(d) { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) walk(p); else size += fs.statSync(p).size; } })(out);

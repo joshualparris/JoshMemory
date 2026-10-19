@@ -5,7 +5,7 @@ import path from 'node:path';
 
 const root = path.resolve(process.argv[2] || 'dist/public');
 const port = Number(process.argv[3] || 8080);
-const types = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.css': 'text/css', '.png': 'image/png' };
+const types = { '.html': 'text/html', '.js': 'text/javascript', '.json': 'application/json', '.css': 'text/css', '.png': 'image/png', '.wasm': 'application/wasm', '.pck': 'application/octet-stream' };
 http.createServer((req, res) => {
   const url = decodeURIComponent(new URL(req.url, 'http://x').pathname);
   const file = path.join(root, url.endsWith('/') ? url + 'index.html' : url);

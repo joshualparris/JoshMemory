@@ -1,3 +1,6 @@
 node_modules/
 dist/
 
+
+# Godot web export (39 MB engine): regenerate with GODOT=<editor> node tools/pack_games.mjs --only bramblewick
+games/bramblewick/
