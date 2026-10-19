@@ -20,12 +20,32 @@ PATTERNS = [
     (r'\bAKIA[0-9A-Z]{16}\b', 'AWS Access Key'),
     (r'\bsk-(?:proj-)?[A-Za-z0-9_-]{20,}\b', 'OpenAI-style Secret Key'),
     (r'\bAIza[0-9A-Za-z_-]{25,}\b', 'Google API Key'),
-    (
-        r'(?i)(api[_-]?key|client[_-]?secret|access[_-]?token|refresh[_-]?token|password|passwd)'
-        r'\s*[:=]\s*[\'\"][^\n\r\'\"]{8,}[\'\"]',
-        'Hard-coded credential',
-    ),
 ]
+
+# Check assignment-like credentials separately so documented placeholders inside
+# README archives and literal \\n sequences inside vendored JS are not mistaken for keys.
+# Known token formats above and private denylist terms are ALWAYS checked.
+CREDENTIAL_ASSIGNMENT = re.compile(
+    r"(?i)\b(api[_-]?key|client[_-]?secret|access[_-]?token|refresh[_-]?token|password|passwd)"
+    r"\s*[:=]\s*(['\"])([^\n\r'\"]{8,})\2"
+)
+
+
+def is_documentation_placeholder(value):
+    # Release bundles can encode HTML angle brackets as literal \u003c/\u003e.
+    normal = re.sub(r'\\u003c', '<', value, flags=re.I)
+    normal = re.sub(r'\\u003e', '>', normal, flags=re.I)
+    return bool(re.fullmatch(r'<your[_a-z0-9-]+>', normal.strip(), re.I))
+
+
+def is_real_credential_assignment(match):
+    value = match.group(3)
+    # A vendored library string with escaped line breaks can swallow unrelated
+    # source code across logical lines, creating a false credential assignment.
+    if r'\n' in value or r'\r' in value:
+        return False
+    return not is_documentation_placeholder(value)
+
 
 BAD_FILE_PATTERNS = [
     r'(?i).*fitbit.*\.csv$',
@@ -63,6 +83,8 @@ def scan_file(filepath):
             for pattern, desc in [*PATTERNS, *configured_private_patterns()]:
                 if re.search(pattern, content, re.IGNORECASE if desc == 'Private denylist term' else 0):
                     leaks.append(desc)
+            if any(is_real_credential_assignment(m) for m in CREDENTIAL_ASSIGNMENT.finditer(content)):
+                leaks.append('Hard-coded credential')
     except (OSError, UnicodeError):
         pass
 
