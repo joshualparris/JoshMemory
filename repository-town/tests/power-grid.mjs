@@ -11,6 +11,8 @@ const advance=(t,minutes)=>{for(let i=0;i<minutes;i+=0.5)t.tick(0.5);};
 const grid=()=>new TownLife({homes,seed:20261019,minute:420});
 
 assert.equal(POWER_EDGES.length,10);
+assert.equal(Object.values(townPowerDemands(7,0)).reduce((n,p)=>n+p.demand,0),0);
+assert.equal(Object.values(townPowerDemands(7,7)).reduce((n,p)=>n+p.demand,0),7);
 assert.throws(()=>distributePower({generation:-1,demands:townPowerDemands(9,38)}),/generation/);
 assert.throws(()=>distributePower({generation:20,demands:{broken:{demand:-1,priority:0}}}),/demand/);
 const healthy=distributePower({generation:38,demands:townPowerDemands(9,38)});
