@@ -356,8 +356,13 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   const homes = [...town.lots.values()].map((l) => ({ coordinate: l.house.coordinate, name: l.house.name, door: { x: l.doorPos.x, z: l.doorPos.z } }));
   const life = new TownLife({ homes });
   let saved = null; try { saved = JSON.parse(localStorage.getItem(STORE)); } catch { /* blocked storage */ }
-  if (saved?.v === 1) { life.restore(saved.life); life.speed = saved.speed || 1; } else life.speed = 1;
-  const save = () => { try { localStorage.setItem(STORE, JSON.stringify({ v: 1, life: life.snapshot(), speed: life.speed })); } catch { /* storage full or blocked */ } };
+  // A save that is malformed or from a newer version is left untouched in storage rather than overwritten.
+  let saveBlocked = false;
+  if (saved) {
+    if (saved.v === 1 && life.restore(saved.life)) life.speed = saved.speed || 1;
+    else { saveBlocked = true; life.speed = 1; console.warn('[Repository Town] Saved town is unsupported or invalid; keeping it instead of overwriting it.'); }
+  } else life.speed = 1;
+  const save = () => { if (saveBlocked) return false; try { localStorage.setItem(STORE, JSON.stringify({ v: 1, life: life.snapshot(), speed: life.speed })); return true; } catch { return false; /* storage full or blocked */ } };
 
   const group = new THREE.Group(); town.group.add(group);
   const colliders = [], spots = [], displays = [], fields = [], labels = [];

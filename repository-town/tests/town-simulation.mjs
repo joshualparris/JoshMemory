@@ -12,6 +12,25 @@ const run = (t, minutes) => { for (let m = 0; m < minutes; m += 0.5) t.tick(0.5)
 assert.equal(timeText(480), '08:00');
 assert.equal(timeText(1440), '00:00');
 
+// A save resumes the same seeded simulation: random state, positions, routes, trucks and parcels.
+{
+  const a = new TownLife({ homes, minute: 7 * 60, seed: 12345 });
+  run(a, 180);
+  const checkpoint = JSON.parse(JSON.stringify(a.snapshot()));
+  const b = new TownLife({ homes, minute: 7 * 60, seed: 999 });
+  assert.equal(b.restore(checkpoint), true);
+  run(a, 90); run(b, 90);
+  assert.deepEqual(b.snapshot(), a.snapshot(), 'restore must continue deterministically from the checkpoint');
+  // Old saves (no sim block) still load; future or malformed saves are rejected without touching the town.
+  const old = { ...checkpoint }; delete old.sim; 
+  assert.equal(new TownLife({ homes }).restore(JSON.parse(JSON.stringify(old))), true);
+  const before = JSON.stringify(b.snapshot());
+  assert.equal(b.restore({ ...checkpoint, saveVersion: 99 }), false);
+  assert.equal(b.restore({ day: -1, minute: 5 }), false);
+  assert.equal(b.restore({ ...checkpoint, sim: { ...checkpoint.sim, trucks: [] } }), false);
+  assert.equal(JSON.stringify(b.snapshot()), before, 'a rejected save changes nothing');
+}
+
 const t = new TownLife({ homes, minute: 7 * 60 });
 assert.equal(t.villagers.length, 38);
 run(t, 120);
