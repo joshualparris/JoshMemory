@@ -15,8 +15,22 @@ for(const id of CIVIC_INTERIOR_IDS){
     continue;
   }
   assert.equal(room.rooms.length,1,id+' walk-in room');
+  if(id==='bakery'){
+    // Researched bakery: counter, pastry case, kitchen view, bread wall and café corner.
+    for(const k of ['counter','pastries','kitchen','breadwall','cafe'])assert(room.interactables.some(x=>x.key==='bakery:'+k),'bakery '+k);
+    assert.equal(room.sceneObjects.length,room.interactables.length,'bakery scene-aware objects');
+    assert(room.group.children.length>400,'bakery is richly furnished');
+    // Every hotspot must be reachable on foot and clear of furniture.
+    for(const x of room.interactables){const hit=room.colliders.some(c=>x.pos.x>c.x0-0.35&&x.pos.x<c.x1+0.35&&x.pos.z>c.z0-0.35&&x.pos.z<c.z1+0.35);assert.equal(hit,false,'bakery hotspot '+x.key+' is clear');}
+    assert(room.staff.pos.z<room.staff.use.z,'baker stands behind the counter');
+    // Shelves follow the live stock: empty shelves have fewer meshes than full ones.
+    const full=buildCivicInterior({id,name:'Bakery',out:{bread:30,pie:12}},label), bare=buildCivicInterior({id,name:'Bakery',out:{bread:0,pie:0}},label);
+    assert(bare.group.children.length<full.group.children.length-40,'sold-out shelves look empty');
+    assert(bare.interactables.find(x=>x.key==='bakery:breadwall').act.text.includes('0 loaves'),'bread wall reports stock');
+  } else {
   assert.equal(room.interactables.length,3,id+' three interactive features');
   assert.equal(room.sceneObjects.length,3,id+' scene-aware objects');
+  }
   assert(room.colliders.length>=7,id+' walls and counters');
   assert.equal(room.spawn.z,3.75);
   assert(room.exitZone.z1>room.spawn.z);

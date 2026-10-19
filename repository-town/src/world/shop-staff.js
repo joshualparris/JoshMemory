@@ -14,7 +14,7 @@ export function populateShopStaff(site,life,interior,makeLabel){
   const name=worker?.name||HOST_NAMES[site.id]||site.name+' Guide';
   const job=worker?.job||(site.id==='farmhouse'?'farmhouse resident':site.kind==='farm'?'farm guide':'visitor assistant');
   const home=site.id==='farmhouse';
-  const pos=home?new THREE.Vector3(-5.20,0,-3.65):new THREE.Vector3(2.65,0,-8.25);
+  const pos=home?new THREE.Vector3(-5.20,0,-3.65):interior.staff?new THREE.Vector3(interior.staff.pos.x,0,interior.staff.pos.z):new THREE.Vector3(2.65,0,-8.25);
   const seed=[...site.id].reduce((x,ch)=>x+ch.charCodeAt(0),31);
   const model=makePerson(seed,SHIRTS[site.kind]||0x7297aa,0x303e4e);
   const npc=new Walker(model,pos,{name,speed:0.4});
@@ -34,7 +34,7 @@ export function populateShopStaff(site,life,interior,makeLabel){
   npc.group.add(label);
   interior.group.add(npc.group);
   npc.plan=()=>[]; // Stay at the counter instead of walking through furniture.
-  const posUse=home?new THREE.Vector3(-5.10,0,-3.10):new THREE.Vector3(2.6,0,-5.1);
+  const posUse=home?new THREE.Vector3(-5.10,0,-3.10):interior.staff?new THREE.Vector3(interior.staff.use.x,0,interior.staff.use.z):new THREE.Vector3(2.6,0,-5.1);
   interior.interactables.push({
     key:npc.key,label:'Talk to '+name,type:'npc',person:true,room:npc.room,
     roomName:interior.rooms[npc.room].name,pos:posUse,
