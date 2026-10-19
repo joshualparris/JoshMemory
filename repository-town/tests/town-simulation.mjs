@@ -50,7 +50,6 @@ for (let d = 0; d < 14; d++) {
   if (t.yesterday) minMeals = Math.min(minMeals, t.yesterday.meals);
   mayors.add(t.civic.mayor);
 }
-console.log('TEMP TRAFFIC TRACE',JSON.stringify({day:t.day,blackout,fuel:t.place('power').stock.fuel,depotFuel:t.place('depot').out.fuel,trucks:t.trucks.map(({id,x,z,state,braking,job,path,leg,wait})=>({id,x,z,state,braking,job,pathLength:path.length,next:path[0],leg,wait})),power:t.civic.supply}));
 assert.equal(blackout, 0, 'no blackouts while fuel deliveries keep up');
 assert.ok(minMeals >= 80, `at least 80 meals a day (worst ${minMeals})`);
 assert.ok(t.civic.treasury > 1000, `the council stays solvent ($${Math.round(t.civic.treasury)})`);

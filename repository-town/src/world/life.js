@@ -560,7 +560,15 @@ export class TownLife {
         if(o===t||(t.state==='parked'&&!proposed))return false;
         // Full oriented body collision, including a 90-degree turn. Test the
         // proposed position/heading, not just the old truck centre.
-        if(proposed && trucksOverlap({x:proposed.x,z:proposed.z,heading:Math.atan2(dx,dz)},o))return true;
+        if(proposed && trucksOverlap({x:proposed.x,z:proposed.z,heading:Math.atan2(dx,dz)},o)) {
+          // Escape an already-overlapping junction: moving away must be
+          // permitted, otherwise three trucks can deadlock and starve the power
+          // station of fuel for weeks. Still block new overlaps and approaches.
+          const wasOverlapping=trucksOverlap(t,o);
+          const before=Math.hypot(t.x-o.x,t.z-o.z);
+          const after=Math.hypot(proposed.x-o.x,proposed.z-o.z);
+          if(!wasOverlapping || after<=before+0.001)return true;
+        }
         // Trucks are roughly 6.6m bumper-to-bumper: keep an actual
         // following gap, not merely non-overlapping centre points. Vehicles
         // in the opposing Australian left-hand lane are separated laterally.

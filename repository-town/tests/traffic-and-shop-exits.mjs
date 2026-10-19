@@ -38,6 +38,16 @@ pass.trucks[2].x=100;pass.trucks[2].z=lane+3.4;
 pass.driveTruck(pass.trucks[0],0.5);pass.driveTruck(pass.trucks[1],0.5);
 assert(!pass.trucks[0].braking&&!pass.trucks[1].braking,'opposing left-hand traffic should pass');
 assert(pass.trucks[0].x>0&&pass.trucks[1].x<12,'both opposing vehicles should progress');
+// If bodies already touch at a junction, the leading lorry must be able to
+// move AWAY from the overlap; blocking that escape causes a permanent deadlock.
+const recovery=new TownLife({homes,minute:420});
+recovery.villagers=[];recovery.obstacles=[];
+const lead=recovery.trucks[0],behind=recovery.trucks[1],away=recovery.trucks[2];
+lead.x=0;lead.z=0;lead.heading=0;lead.path=[{x:0,z:12}];lead.state='delivering';
+behind.x=0;behind.z=-4.8;behind.heading=0;behind.path=[];behind.state='waiting';
+away.x=100;away.z=100;
+assert.equal(recovery.blocked(lead,{x:0,z:.9}),false,'already overlapping truck must escape by moving away');
+assert.equal(recovery.blocked(behind,{x:0,z:-3.9}),true,'following truck cannot move deeper into overlap');
 // Parking geometry is site-relative and delivery trucks finish off the road.
 for(const v of tr){const drop=life.stopAt(v,'foundry');assert(drop.z>dep.curb.z+3,'Foundry unloading should use south-side shoulder');}
 const foundry=life.place('foundry');
