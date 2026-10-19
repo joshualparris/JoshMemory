@@ -53,7 +53,7 @@
   <p><b>Desktop:</b> WASD or arrows move · drag to look, or select Capture mouse (L) to look around freely without holding a button. Esc releases the mouse; double-click also captures it · Shift runs · C crouches · Space jumps · E uses an exhibit · M toggles the bird's-eye map · Esc closes panels.</p>
   <p><b>Adventure:</b> Press J or open the Quest Journal. Find twelve glowing relics outside public houses, solve the puzzles and return to the Guild Chest near the start.</p>
   <p><b>Phone:</b> left thumb drags the joystick · right thumb drags to look · ⤒ jumps · ✋ uses · 🏃 and 🧎 toggle run and crouch.</p>
-  <p>Walk up to a front door and it opens; keep walking to go inside. Walk back out through the door you came in by. Your position saves automatically.</p><p><b>NPCs:</b> Approach a character and press E or ✋, or tap 💬 NPCs. Characters can chat about any subject using Groq with your private access code. Your messages are sent to Groq when AI chat is enabled.</p>
+  <p>Walk up to a front door and it opens; keep walking to go inside. Walk back out through the door you came in by. Your position saves automatically.</p><p><b>NPCs:</b> Approach a character and press E or ✋, or tap 💬 NPCs. Characters can chat about any subject using the secure Cloudflare AI service, without player access codes. Your messages are sent to Groq when AI chat is enabled.</p>
 </section>
 <canvas id="minimap" width="260" height="110" aria-label="Town map"></canvas>
 <div id="touch" hidden>
@@ -82,8 +82,7 @@
     <button id="npc-close" type="button" aria-label="End conversation">✕</button>
   </header>
   <div id="npc-messages" role="log" aria-live="polite" aria-relevant="additions text"></div>
-  <p id="npc-status" role="status">Live AI requires your private access code.</p>
-  <div class="npc-access"><label for="npc-code">🔑 AI access code</label><input id="npc-code" type="password" autocomplete="off" placeholder="From your playtest instructions"></div>
+  <p id="npc-status" role="status">Chat freely · no access code required.</p>
   <form id="npc-form"><label class="visually-hidden" for="npc-input">Your message</label><input id="npc-input" maxlength="750" autocomplete="off" placeholder="Ask me anything…" required><button id="npc-send" type="submit">Send ↗</button></form>
   <small>Fictional AI characters. Chat is sent to Groq when connected; please don't share sensitive information. Chats stay in this tab.</small>
 </section>
