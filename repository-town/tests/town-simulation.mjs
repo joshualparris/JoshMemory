@@ -61,6 +61,7 @@ assert.ok(t.civic.treasury > 1000, `the council stays solvent ($${Math.round(t.c
 assert.ok(t.villagers.filter((v) => v.wallet < 5).length <= 6, 'most villagers can pay their way');
 assert.ok(t.civic.letters[0].delivered, 'the posted letter was delivered');
 assert.ok(t.civic.government.elections.length>=2, 'two registered resident elections were held');
+assert.ok(t.civic.government.publicLife.contacts.length>0,'public political conversations must happen naturally during the simulated fortnight');
 assert.ok(t.civic.government.elections[0].roll.length>0,'real villagers voted');
 
 // Save and restore keeps the books and the visitor's bag.
