@@ -107,6 +107,7 @@ export function hallPanel(life) {
       '<h3>Requests and work orders</h3><table class="ledger"><tr><th>Ref</th><th>Service</th><th>Stage</th><th>Assigned</th><th>Work</th></tr>'+line+'</table>'+
       '<h3>Motions and community planning</h3><table class="ledger"><tr><th>Motion</th><th>Proposal</th><th>Outcome</th></tr>'+proposals+'</table>'+
       '<p>Approved-in-principle permits: '+g.permits.map(x=>esc(x.zone)+' ('+esc(x.id)+')').join(', ').replace(/^$/,'none')+'. Physical building works still require an approved work order.</p>'+
+      '<h3>Public election forums</h3><p>Candidate and councillor Q&A evenings at Market Square on alternate town days, after work. Residents can attend voluntarily and sometimes decline to discuss politics. Conversations never reveal a private vote.</p>'+g.forums.events.slice(-5).reverse().map(f=>'<p>Day '+f.day+': '+esc(f.speaker)+' discussed '+esc(f.issue)+' in the public square.</p>').join('')+
       '<h3>Recorded council proceedings</h3>'+minutes+
       '<h3>Register of decisions</h3><ul class="news">'+ledger+'</ul>'+
       powerNetworkHTML(c)+bagLine(life),
@@ -241,6 +242,7 @@ export function townContext(life, v, resident) {
   return {
     time: life.time(), day: life.day, daylight: life.isDay(),
     self: v ? life.describe(v) : null,
+    politics: v ? life.civicChat(v) : null,
     resident: resident || null,
     gossip: gossip(life, v),
     relics: left.slice(0, 3).map((r) => ({ name: r.name, clue: r.clue, hint: r.hint })),

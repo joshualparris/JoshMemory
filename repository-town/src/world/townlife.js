@@ -584,6 +584,8 @@ const JOB_LINES = { baker: 'Fresh loaves out the front!', farmer: "Wheat's comin
   nurse: 'Keep your fluids up!', mayor: 'Lovely town, isn\'t it?', 'station master': 'Train was on time!', programmer: 'Just one more bug…', retired: 'In my day…', student: 'Got homework.', artist: 'Look at that light!' };
 function greeting(v, minute) {
   const h = minute / 60, pick = (a) => a[Math.floor(Math.random() * a.length)];
+  if (v.step?.kind==='civic-speaker'&&!v.path.length) return pick(['Happy to answer questions about town services.', 'Council forum at the square today.']);
+  if (v.step?.kind==='civic-audience'&&!v.path.length) return pick(['Just here to listen.', 'I have a few questions about local services.']);
   if (v.bike && v.path.length) return pick(['On your left!', 'Ding ding!', "Mornin'!"]);
   if (v.carrying) return pick(['Got the shopping!', 'Heavy bags, these.']);
   if (v.hunger > 70) return pick(['Starving, me.', "Can't wait for tea."]);
