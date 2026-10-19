@@ -28,6 +28,8 @@ jobs:
       - name: Check civic rooms and prior town simulation
         run: |
           node tests/shop-interiors.mjs
+          node tests/multifloor.mjs
+          node tests/npc-location.mjs
           node tests/town-simulation.mjs
           node tests/npc-no-pin.mjs
           node tests/npc-scene-awareness.mjs
