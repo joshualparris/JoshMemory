@@ -16,7 +16,9 @@ try {
    const state=await page.evaluate(()=>window.__town.state());
    assert.equal(state.mode,'house',site.id+' not indoors');
    assert(state.rooms>=1,site.id+' no room');
-   assert(state.interactables.some(x=>x.do==='civic-ledger'),site.id+' no ledger counter');
+   // The farmhouse is a family home (tests/farmhouse.mjs), not a counter service.
+   if(site.id==='farmhouse')assert(state.rooms>=10,'farmhouse has its ten rooms');
+   else assert(state.interactables.some(x=>x.do==='civic-ledger'),site.id+' no ledger counter');
    const leave=await page.evaluate(()=>window.__town.exitShop());
    assert.equal(leave,true,site.id+' exit failed');
    assert.equal((await page.evaluate(()=>window.__town.state())).mode,'town',site.id+' stuck in shop');

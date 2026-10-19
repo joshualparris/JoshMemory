@@ -74,7 +74,19 @@ async function exercise(page, coord, how, cdp) {
     e.reachable = await page.evaluate((k) => window.__town.approach(k), x.key);
     // Software-rendered frames are slow; wait for the game loop to register the prompt.
     e.prompted = await until(page, `window.__town.state().near === ${JSON.stringify(x.key)}`, 2500);
+    const floor = (await st(page)).floor;
     if (how === 'touch') await page.tap('#t-use'); else await page.keyboard.press('e');
+    // Stairs carry the player to another floor; the lift opens a floor picker.
+    if (x.nav) {
+      if (x.nav === 'lift') e.lift = await until(page, () => /^Lift/.test(window.__town.state().panel?.title || ''), 2500);
+      else e.moved = await until(page, `window.__town.state().floor !== ${floor}`, 2500);
+      await page.evaluate(() => window.__town.closePanel());
+      await page.evaluate((f) => window.__town.setFloor(f), floor);
+      e.ok = e.reachable && e.prompted && (e.lift ?? e.moved);
+      if (!e.ok) fail(`floor control "${x.label}" failed: ${JSON.stringify(e)}`);
+      r.exhibits.push(e);
+      continue;
+    }
     await until(page, () => !!window.__town.state().panel, 2500);
     let p = (await st(page)).panel;
     // Adventure exhibits prefix their panel title with an emoji (🎁, 🔐, 🧭 …).
@@ -104,7 +116,7 @@ async function exercise(page, coord, how, cdp) {
   }
   s = await st(page);
   r.checks.leftByWalking = s.mode === 'town';
-  if (!r.checks.leftByWalking) fail('could not walk back out of the front door');
+  if (!r.checks.leftByWalking) fail(`could not walk back out of the front door (${JSON.stringify({ pos: s.pos, floor: s.floor, panel: s.panel?.title, near: s.near })})`);
   if (SHOTS && how === 'keyboard') { await page.evaluate((c) => window.__town.travel(c), coord); await sleep(300); await page.screenshot({ path: path.join(SHOTS, `${coord}-outside.png`) }); }
   return r;
 }
