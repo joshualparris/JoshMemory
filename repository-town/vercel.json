@@ -1,7 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "installCommand": "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm install --no-audit --no-fund",
-  "buildCommand": "node tests/game-integrity.mjs && node tools/build.mjs && node tools/check_privacy.mjs",
+  "buildCommand": "node tests/expedition.mjs && node tests/npc-contract.mjs && node tests/game-integrity.mjs && node tests/runtime.mjs && node tests/geometry.mjs && node tools/build.mjs && node tools/check_privacy.mjs",
   "outputDirectory": "dist/public",
-  "framework": null
+  "framework": null,
+  "functions": {
+    "api/npc-chat.js": {
+      "maxDuration": 30
+    }
+  }
 }

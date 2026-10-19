@@ -50,7 +50,7 @@ export function archiveRoom(repo, data, briefLinks, coordinate = 'A1', colors = 
       ['computer', 'Source code', act('source', 'Source code')],
       ['bookshelf', 'README', act('readme', 'README')],
       ['terminal', 'File browser', act('files', 'Files')],
-      ['globe', live.length ? 'Live site' : 'Issues', act('live', live.length ? 'Live site' : 'Issues and activity')],
+      ['globe', live.length ? 'Live site' : 'Project guide', act('live', live.length ? 'Live site' : 'Project guide')],
       ['noticeBoard', 'Latest commit', act('commits', 'Latest commit')],
       ['cardCatalog', 'Documentation', act('docs', 'Documentation')],
       ['treasureChest', 'Lucky dip', act('lucky', 'Lucky dip')],
@@ -187,7 +187,13 @@ export function sanitise(house) {
   return {
     ...house,
     repo: null,
-    name: `Private house ${house.coordinate}`,
+    name: (() => {
+      // Fictional, coordinate-derived aliases keep private repository identities secret.
+      const first = ['Amber','Cedar','Copper','Willow','Silver','Moss','Sunlit','Maple','Blue','Golden','Fern','Star'];
+      const second = ['Workshop','Haven','Cottage','Atelier','Lodge','Gallery','Garden','Hall','Outpost','Studio','Nook','House'];
+      const n = (house.coordinate.charCodeAt(0)-65)*8 + Number(house.coordinate.slice(1))-1;
+      return first[n % first.length] + ' ' + second[Math.floor(n/first.length) % second.length];
+    })(),
     kind: 'Private project',
     summary: 'This house belongs to a private repository. Its architecture is real; names and details are withheld from the public town.',
     links: [],
@@ -279,3 +285,4 @@ export function validate(briefs, inventory, repoData = loadRepoData(), games = l
   const styles = new Set(houses.map((h) => h.ext.style)).size;
   return { errors, houses, report: { briefed: briefs.size, valid: houses.length, styles, worstOverlap: worst } };
 }
+
