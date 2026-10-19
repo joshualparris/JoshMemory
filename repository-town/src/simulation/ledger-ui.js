@@ -79,6 +79,9 @@ export function mountLivingTown(document, simulation) {
         "<h3>Community bank</h3><div class=\"living-actions\">" + action("Deposit 20 TC","deposit",20) + action("Withdraw 20 TC","withdraw",20) + "</div>" +
         "<h3>Buy real market stock</h3>" + table(Object.entries({bread:5,vegetables:3,fruit:4,eggs:4,milk:4}).map(([item,price])=>[item + " · "+price+" TC",s.stores.market[item]||0])) +
         '<div class="living-actions">' + ["bread","vegetables","fruit","eggs","milk"].map(item=>action("Buy "+item,"buy",item)).join("") + "</div>" +
+        "<h3>Your shopping bag</h3><p>Items bought are yours to keep or sell back. The shop buys back at a lower price.</p>" +
+        table(Object.entries(s.stores.playerInventory || {}).map(([item,count])=>[item,count])) +
+        '<div class="living-actions">' + ["bread","vegetables","fruit","eggs","milk"].filter(item=>(s.stores.playerInventory?.[item]||0)>0).map(item=>action("Sell "+item,"sell",item)).join("") + "</div>" +
         "<h3>Supply chain inventory</h3>" + table([
           ["Farm wheat",s.stores.farm.wheat],["Mill flour",s.stores.mill.flour],["Bakery bread",s.stores.bakery.bread],
           ["Foundry metal",s.stores.factory.metal],["Workshop parts",s.stores.factory.parts],
@@ -115,7 +118,7 @@ export function mountLivingTown(document, simulation) {
     }
   }
   function invoke(op,arg) {
-    const methods={buy:()=>simulation.buy(arg),recycle:()=>simulation.recycle(Number(arg)),
+    const methods={buy:()=>simulation.buy(arg),sell:()=>simulation.sell(arg),recycle:()=>simulation.recycle(Number(arg)),
       repair:()=>simulation.repair(arg),fault:()=>simulation.reportFault(arg),
       vote:()=>simulation.vote(arg),deposit:()=>simulation.deposit(Number(arg)),
       withdraw:()=>simulation.withdraw(Number(arg)),post:()=>simulation.postLetter(arg)};
