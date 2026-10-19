@@ -2,6 +2,7 @@
 // and may mutate per-exhibit state (counter, step, quiz answer).
 // Archive behaviours are async (they load repo-data.json); callers await the result.
 // `ctx.activate(key)` turns on the exhibit's animation; `ctx.toggle(key)` flips it.
+import { TOYS } from './toys.js';
 import { ARCHIVE } from './archive.js';
 import { npcBehaviour } from './npc.js';
 
@@ -114,7 +115,7 @@ export const BEHAVIOURS = {
   }),
 };
 
-Object.assign(BEHAVIOURS, ARCHIVE, { npc: npcBehaviour });
+Object.assign(BEHAVIOURS, ARCHIVE, TOYS, { npc: npcBehaviour });
 
 export const BEHAVIOUR_NAMES = Object.keys(BEHAVIOURS);
 
@@ -126,3 +127,4 @@ export function runInteraction(x, ctx) {
 }
 
 export { esc };
+

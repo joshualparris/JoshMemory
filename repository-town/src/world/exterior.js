@@ -1,9 +1,10 @@
 import { PROPS } from './props.js';
+import { GLASS } from './builder.js';
 
 // Exterior architecture. Every style builds around the lot origin with the front
 // door facing +z (the street). A style returns the solid footprint used for
 // collision, plus the door position the town uses for the enterable doorway.
-const GLASS = 0x9fd3ea, DARK = 0x3b3f46, STONE = 0x9a958c, WOOD = 0x8a6545;
+const DARK = 0x3b3f46, STONE = 0x9a958c, WOOD = 0x8a6545;
 
 function windows(b, w, d, h, floors, color, opts = {}) {
   const per = Math.max(1, Math.floor(w / 2.6));
@@ -66,7 +67,7 @@ export const STYLES = {
     return { w: r * 2, d: r * 2, h: 6.2, door: door(0), front: r + 0.6 };
   },
   warehouse(b, s) {
-    const w = 13, d = 10, h = 5.5; shell(b, w, d, h, s.walls, -3.5); b.add('cyl', s.roof, 5, w, d, 0, h, 0, 0, 0, Math.PI / 2);
+    const w = 13, d = 10, h = 5.5; shell(b, w, d, h, s.walls, -3.5); gable(b, w, d, h, s.roof, 0.35);
     b.box(s.trim, 4.5, 4.2, 0.12, 2.5, 2.1, d / 2 + 0.05); for (let i = 0; i < 9; i++) b.box(0x6d737a, 4.4, 0.06, 0.14, 2.5, 0.3 + i * 0.45, d / 2 + 0.1);
     b.box(s.trim, 2.4, 0.2, 1.2, -3.5, 2.8, d / 2 + 0.6);
     return { w, d, h: h + 2.5, door: door(-3.5) };
@@ -94,7 +95,7 @@ export const STYLES = {
     const w = 10, d = 9, h = 3.2; b.box(s.walls, w, 0.9, d, 0, 0.45, 0); for (const x of [-w / 2, -w / 4, 0, w / 4, w / 2]) for (const z of [-d / 2, d / 2]) b.box(s.trim, 0.12, h, 0.12, x, h / 2, z);
     b.box(GLASS, w - 0.2, h - 0.9, 0.06, 0, (h + 0.9) / 2, -d / 2); for (const x of [-w / 2 + 1.7, w / 2 - 1.7]) b.box(GLASS, w / 2 - 2.5, h - 0.9, 0.06, x, (h + 0.9) / 2, d / 2);
     for (const x of [-w / 2, w / 2]) b.box(GLASS, 0.06, h - 0.9, d, x, (h + 0.9) / 2, 0);
-    b.add('cyl', s.roof, 4, w, d, 0, h, 0, 0, 0, Math.PI / 2); b.box(0x1e1a17, 1.6, 2.5, 0.05, 0, 1.25, d / 2 + 0.02);
+    gable(b, w, d, h, s.roof, 0.35); b.box(0x1e1a17, 1.6, 2.5, 0.05, 0, 1.25, d / 2 + 0.02);
     for (let i = 0; i < 6; i++) b.ball(0x5a9a50, 0.5, -3.6 + i * 1.45, 1.4, -3);
     return { w, d, h: h + 4.5, door: door() };
   },
@@ -148,7 +149,7 @@ export const STYLES = {
     return { w: 8, d: 7.4, h: 16, door: door(0), front: 3.5 };
   },
   bunker(b, s) {
-    b.add('box', s.walls, 12, 3, 9, 0, 1.5, 0); b.add('cyl', s.roof, 3, 12, 9, 0, 3, 0, 0, 0, Math.PI / 2);
+    b.add('box', s.walls, 12, 3, 9, 0, 1.5, 0); gable(b, 12, 9, 3, s.roof, 0.2);
     b.box(s.trim, 3.4, 3.2, 1.2, 0, 1.6, 5.0); b.box(0x1e1a17, 1.8, 2.5, 0.05, 0, 1.25, 5.62); for (let i = 0; i < 4; i++) b.box(0xe8c23a, 0.4, 0.2, 0.05, -1.2 + i * 0.8, 3.0, 5.62);
     b.cyl(DARK, 0.3, 2, 4, 4.8, -1); b.cyl(DARK, 0.3, 1.5, -4, 4.5, 1);
     return { w: 12, d: 10.2, h: 6, door: door(0, 1.8), front: 5.6 };

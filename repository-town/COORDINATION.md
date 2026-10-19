@@ -18,6 +18,30 @@ Newest first. Times in Australia/Sydney.
 
 ## Done recently
 
+- 2026-10-19 · Claude Code session ("Repository search") — **ported the live site's direct
+  commits into `src/`** (site repo `a201b9d`…`5ee6c7f`): Cloudflare AI chat proxy (`ui/npc.js`,
+  `ui/npc-chat.js`, `ui/npc-prompt.js`, `ui/npc-data.js`), 32 named street characters and
+  worksites (`world/npcs.js` `placeTownNPCs`/`animateNPCs`), social sim (`ui/social.js`, now
+  sharing `VILLAGER_NAMES` with `world/life.js`), toys, HUD collapse, mouse capture, Smooth
+  mode, label occlusion, arcade/NPC lounge pages. One owner per job: sky/day–night, window
+  glow and lamps stay in `townlife.js`/`town.js` (the T key and time button now jump the
+  town clock); sound is `ui/ambience.js` (footsteps/door/relic folded in, `ui/sound.js`
+  retired); the guide kiosk opens the town-life guide panel and Rowan is its chat; residents
+  use `houseWander` (meals) with the room tracking from the site. **Not ported: the commit
+  that showed private repository names on the public site** — the build stays sanitised
+  until Josh confirms; ask him before changing `tools/lib.mjs` `sanitise`.
+
+- 2026-10-19 · Claude Code session ("Repository search") — **town simulator**: `src/world/life.js`
+  (clock: 72-minute days; farms → trucks → mill/bakery/shops → villagers buy, cook, eat; 32
+  villagers with jobs, wallets, pantries and meals; freight train; postie and parcels),
+  `src/world/townlife.js` (high street and farms on the empty lots G8–Z8, fields, livestock,
+  tractor, windmill, trucks that brake for you, bikes, day–night sky, stars, lit windows and
+  street lamps), `src/ui/townpanels.js` (shop counters, farms, Town Ledger, Wren the Town
+  Guide near the start, gossip and relic hints for chat), `src/ui/ambience.js` (sound),
+  residents walk between rooms and cook at mealtimes (`npcs.js` `houseWander`). The old
+  `townRoutes` villagers are gone. Test: `tests/life.mjs`. Sim state saves under
+  `repository-town.life.v1`. **Row 8 lots G–Z are now taken by town buildings.**
+
 - 2026-10-19 · Claude Code session (claude.ai/code, "Repository search") — villagers
   walk the town (`src/world/npcs.js`), residents wander indoors, more natural chat
   (`src/ui/npc.js`), Mouse look option, house signs moved clear of colonnades.

@@ -9,28 +9,37 @@ export class Input {
     this.run = false;
     this.crouch = false;
     this.touch = matchMedia('(pointer: coarse)').matches;
+    this.canvas = canvas;
+    this.onCaptureChange = null;
+    this.onCaptureError = null;
     this.bindKeyboard();
     this.bindMouse(canvas);
     this.bindTouch(canvas, touchRoot);
   }
 
+  reset() {
+    this.keys.clear(); this.pressed.clear(); this.stick.x = 0; this.stick.y = 0;
+    this.takeLook();
+  }
+
   bindKeyboard() {
     addEventListener('keydown', (e) => {
-      if (e.target instanceof HTMLInputElement) return;
+      if (e.target.closest?.('input, textarea, select, button, a, [contenteditable]')) return;
       const k = e.key.toLowerCase();
       if (!this.keys.has(k)) {
         if (k === ' ') this.pressed.add('jump');
         if (k === 'e' || k === 'f' || k === 'enter') this.pressed.add('use');
         if (k === 'c') this.crouch = !this.crouch;
+        // Escape releases the browser's pointer lock; it must not also close the game UI.
         if (k === 'escape' && document.pointerLockElement !== this.canvas) this.pressed.add('back');
+        if (k === 'l' && !this.touch) this.toggleMouseCapture();
         if (k === 'm') this.pressed.add('map');
-        if (k === 'l' && !this.touch) { this.setMouseLook(!this.mouseLook); this.onMouseLookChange?.(); }
       }
       this.keys.add(k);
       if ([' ', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) e.preventDefault();
     });
     addEventListener('keyup', (e) => this.keys.delete(e.key.toLowerCase()));
-    addEventListener('blur', () => this.keys.clear());
+    addEventListener('blur', () => this.reset());
   }
 
   bindMouse(canvas) {
@@ -43,25 +52,37 @@ export class Input {
       this.look.dx += e.clientX - drag.x; this.look.dy += e.clientY - drag.y;
       drag = { x: e.clientX, y: e.clientY };
     });
-    // Mouse look: when on, a click on the view captures the mouse (Esc releases it — a
-    // browser rule). Double-click captures it either way.
-    this.canvas = canvas;
-    try { this.mouseLook = localStorage.getItem('repository-town.mouse-look') === '1'; } catch { this.mouseLook = false; }
-    canvas.addEventListener('click', () => { if (this.mouseLook && this.canCapture()) this.capture(); });
-    this.canCapture = () => true;
-    canvas.addEventListener('dblclick', () => this.capture());
+    canvas.addEventListener('dblclick', () => this.captureMouse());
+    document.addEventListener('pointerlockchange', () => {
+      drag = null;
+      this.look.dx = 0; this.look.dy = 0;
+      this.onCaptureChange?.(document.pointerLockElement === canvas);
+    });
+    document.addEventListener('pointerlockerror', () => this.onCaptureError?.());
   }
 
-  capture() {
-    if (this.touch || !this.canCapture?.() || document.pointerLockElement === this.canvas) return;
-    try { this.canvas.requestPointerLock?.()?.catch?.(() => {}); }
-    catch { /* Browser may deny pointer lock; drag-to-look remains available. */ }
+  get mouseCaptured() { return document.pointerLockElement === this.canvas; }
+
+  captureMouse() {
+    if (this.touch || typeof this.canvas.requestPointerLock !== 'function') return false;
+    try {
+      // Must run synchronously inside a user gesture (button, L or double-click).
+      const request = this.canvas.requestPointerLock();
+      request?.catch?.(() => this.onCaptureError?.());
+      return true;
+    } catch {
+      this.onCaptureError?.();
+      return false;
+    }
   }
 
-  setMouseLook(on) {
-    this.mouseLook = on;
-    try { localStorage.setItem('repository-town.mouse-look', on ? '1' : '0'); } catch { /* private mode */ }
-    if (on) this.capture(); else if (document.pointerLockElement) document.exitPointerLock();
+  releaseMouse() {
+    if (this.mouseCaptured) document.exitPointerLock?.();
+  }
+
+  toggleMouseCapture() {
+    if (this.mouseCaptured) this.releaseMouse();
+    else this.captureMouse();
   }
 
   // Left half of the screen is a floating joystick; right half drags the view.
@@ -124,3 +145,4 @@ export class Input {
   consume(name) { const had = this.pressed.has(name); this.pressed.delete(name); return had; }
   takeLook() { const l = { ...this.look }; this.look.dx = 0; this.look.dy = 0; return l; }
 }
+

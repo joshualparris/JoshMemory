@@ -28,7 +28,10 @@ same sitting and say so in `COORDINATION.md`.
    available):
    - `node tests/e2e.mjs --only A1,M5` — walk into houses, use every exhibit, walk out
      (desktop + emulated phone).
-   - `node tests/people.mjs` — villagers walk, stop, chat; residents wander.
+   - `node tests/life.mjs` — town life: a full day's routine and supply chain, trucks
+     braking, day/night, the guide, shop counters, Town Ledger, gossip and relic hints,
+     residents going to the kitchen at dinner, sound.
+   - `node tests/people.mjs` — villagers walk, stop, chat; residents move about.
    - `node tests/npc.mjs` — resident chat, Groq key handling (Groq stubbed).
    - `node tests/games.mjs` — every packed game loads from file://.
    - `node tests/streetwalk.mjs` — walk every street and avenue on foot.
@@ -52,8 +55,13 @@ same sitting and say so in `COORDINATION.md`.
 ## Map of the code
 
 - `src/main.js` — game loop, town/house modes, panels, test hook `window.__town`.
-- `src/world/` — `town.js` streets and lots, `exterior.js` 34 house styles, `interior.js`
-  rooms and props, `props.js` ~150 props, `npcs.js` villagers and residents.
+- `src/world/` — `town.js` streets, lots, lamps and night windows, `exterior.js` 34 house
+  styles, `interior.js` rooms and props, `props.js` ~150 props, `npcs.js` people figures and
+  the residents' room-to-room planner, `life.js` the town simulation (clock, farms, mill,
+  bakery, shops, trucks, train, 32 villagers' days — pure logic, no three.js),
+  `townlife.js` draws it (high street and farms on G8–Z8, fields, animals, vehicles, sky).
+- `src/ui/townpanels.js` shop/farm counters, Town Ledger, guide, gossip and relic hints;
+  `src/ui/ambience.js` synthesised ambient sound.
 - `src/ui/` — `interactions.js` exhibit behaviours, `archive.js` README/files/docs,
   `npc.js` resident chat (Groq + offline replies).
 - `src/adventure/` — Expedition Guild: 12 relics, puzzles, Quest Journal, compass.

@@ -26,7 +26,7 @@ export function makeLabel(text, kind = 'prop') {
   ctx.fillText(shown, 18, h / 2 + 2);
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
-  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthWrite: false }));
+  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthWrite: false, depthTest: true }));
   sprite.scale.set(w * st.scale, h * st.scale, 1);
   sprite.userData.text = text;
   return sprite;
