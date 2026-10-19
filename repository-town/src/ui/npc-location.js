@@ -35,13 +35,19 @@ export function locateVillager(life,v) {
 }
 export function isLocationQuestion(question) {
  const q=clean(question,300).toLowerCase();
- return /\b(where (?:exactly )?(?:are you|am i|are we|is this|do you live|do you work)|what (?:place|street|area) (?:is this|are we|are you)|are you lost|you(?:'re| are) lost|find your (?:home|way)|know where you are|how (?:do you|get|will you) (?:get )?home)\b/.test(q);
+ return /\b(?:where (?:exactly )?(?:are you|am i|are we|is this|do you live|do you work)|what (?:place|street|area) (?:is this|are we|are you)|what(?:'s| is) your workplace|which house do you live in|are you lost|you(?:'re| are| seem| look| sound) lost|you (?:seem|look|sound) a bit lost|find your (?:home|way)|(?:help|hope) you (?:can )?find (?:your )?(?:home|way)|know where you are|how (?:do you|get|will you) (?:get )?home)\b/.test(q);
 }
 export function groundedLocationReply(location,question) {
  if(!location||!isLocationQuestion(question))return null;
+ const q=clean(question,300).toLowerCase();
+ const isHome=/where do you live|which house do you live in|how (?:do you|get|will you) (?:get )?home/.test(q);
+ const isWork=/where do you work|what(?:'s| is) your workplace/.test(q);
+ const lost=/\blost\b|find (?:your )?(?:home|way)/.test(q);
  const home=location.home?' I live at '+location.home+'.':'';
+ const work=location.workplace?' I work at '+location.workplace+'.':'';
  const place=location.status==='travelling'?'I’m '+location.name+'.':location.status==='unknown'?'I’m '+location.name+'; I can’t name a closer landmark reliably.':'I’m at '+location.name+' right now.';
  const activity=location.activity&&(location.status==='at-place'||location.status==='near-place')?' '+clean(location.activity,120).replace(/^\w/,c=>c.toUpperCase())+'.':'';
- const lost=/lost|find your (?:home|way)/i.test(question);
- return (lost?'Thanks for looking out for me! ':'')+place+home+activity;
+ if(isHome)return (location.home?'I live at '+location.home+'.':'I’m not sure of my home address.')+' '+place;
+ if(isWork)return (location.workplace?'I work at '+location.workplace+'.':'I’m not sure which workplace to name.')+' '+place;
+ return (lost?'Thanks for looking out for me! ':'')+place+home+work+activity;
 }
