@@ -156,12 +156,19 @@ const rowOf = (z) => { let best = 0; for (let r = 1; r < 8; r++) if (Math.abs(RO
 const sideZ = (r, z, off = 5.3) => (z < ROAD(r) ? ROAD(r) - off : ROAD(r) + off);
 // Footpath route: out to the footpath, along it, up an avenue if changing street, back in.
 export function walkRoute(a, b) {
-  const ra = rowOf(a.z), rb = rowOf(b.z), sa = sideZ(ra, a.z), sb = sideZ(rb, b.z);
+  const ra = rowOf(a.z), rb = rowOf(b.z);
+  // Two directions use distinct pavement lanes. Otherwise every commuter and
+  // bicycle follows the identical single-point centreline outside the shops.
+  const eastbound = b.x >= a.x;
+  const setback = eastbound ? 6.6 : 4.5;
+  const sa = sideZ(ra, a.z, setback), sb = sideZ(rb, b.z, setback);
   const pts = [{ x: a.x, z: sa }];
   if (!(ra === rb && sa === sb)) {
     const ave = AVENUES.reduce((p, c) => (Math.abs(a.x - c) + Math.abs(b.x - c) < Math.abs(a.x - p) + Math.abs(b.x - p) ? c : p));
     // Walk up the edge of the avenue, clear of the trucks' lanes and the corner houses.
-    pts.push({ x: ave + 3.2, z: sa }, { x: ave + 3.2, z: sb });
+    // On avenue crossings, keep opposing traffic on separate sidewalk tracks.
+    const avenueTrack = ave + (sb >= sa ? 6.7 : 4.7);
+    pts.push({ x: avenueTrack, z: sa }, { x: avenueTrack, z: sb });
   }
   pts.push({ x: b.x, z: sb }, { x: b.x, z: b.z });
   return pts;
@@ -902,6 +909,21 @@ export class TownLife {
   }
 
   goThen(v, target, step) {
+    // Queue at distinct pavement positions instead of piling every customer
+    // onto the same shopfront coordinate. Retain normal job and home targets.
+    if (['buy','snack','eatout'].includes(step.kind) ||
+        (step.kind === 'idle' && ['pub','square'].includes(step.at))) {
+      const active = new Set(this.villagers.filter(o=>o!==v &&
+        o.step?.at===step.at && o.step?.queueSlot !== undefined &&
+        (o.path?.length || o.step?.dur>0)).map(o=>o.step.queueSlot));
+      // A busy shop can spill its queue *along* the pavement, not onto the road.
+      let slot=0;while(active.has(slot) && slot<64)slot++;
+      const row=Math.floor(slot/11), col=slot%11;
+      const offset=col===0?0:(col%2?1:-1)*Math.ceil(col/2)*2.1;
+      const front=target;
+      target={x:front.x+offset,z:front.z+Math.min(row,1)*1.85};
+      step={...step,queueSlot:slot};
+    }
     v.step = { ...step, target };
     v.path = Math.hypot(target.x - v.x, target.z - v.z) < 1 ? [] : walkRoute(v, target);
     // Long trips are by bike; short ones on foot.
