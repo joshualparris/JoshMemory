@@ -70,11 +70,13 @@ function civicPanel(life, id, again) {
   const staff = life.villagers.filter((v) => v.work === id);
   if(['hardware','vet','brewery','buildsite'].includes(id)){
     const m=life.industryReport();
-    if(id==='hardware')rows.push('<p><b>Trade inventory:</b> '+esc(list(p.stock))+'</p><p><b>Outgoing builder supplies:</b> '+esc(list(p.out))+'</p>');
-    if(id==='vet')rows.push('<p><b>Veterinary kits:</b> '+(p.stock.medkit||0)+'</p><p><b>Animal cases:</b> '+life.industries.vetCases.slice(-8).map(e=>esc(e.animalId+' '+e.status)).join('; ')+'</p>');
-    if(id==='brewery')rows.push('<p><b>Brewing supplies:</b> '+esc(list(p.stock))+'</p><p><b>Conditioned kegs:</b> '+(p.out.beerKeg||0)+'</p><p><b>Batches:</b> '+m.batches.map(b=>esc(b.id+' '+b.status+' (day '+b.readyDay+')')).join('; ')+'</p>');
-    if(id==='buildsite')rows.push('<p><b>Construction stage:</b> '+esc(['Foundation','Framing','Services','Roof','Commissioned'][m.project.stage])+'</p><p><b>Materials delivered:</b> '+esc(list(p.stock))+'</p><p><b>Hours worked:</b> '+m.project.progress+' / 120</p>');
-    rows.push('<p><b>Regional purchase contracts:</b> '+m.imports.filter(x=>x.business===id).map(x=>esc(x.good||x.type)+' `<p><b>Supply:</b> ${c.supply.power} of ${c.supply.powerDemand} needed · ${c.supply.ok ? '<span class="ok">all customers supplied</span>' : '<b>some locations have no power</b>'} · weather ${esc(c.weather)}</p><p><b>Fuel:</b> ${u.fuel} drums</p>${powerNetworkHTML(c)}`);
+    if(id==='hardware')rows.push('<p><b>Trade inventory:</b> '+esc(list(p.stock))+'</p><p><b>Outgoing building supplies:</b> '+esc(list(p.out))+'</p>');
+    if(id==='vet')rows.push('<p><b>Veterinary kits:</b> '+(p.stock.medkit||0)+'</p><p><b>Cases:</b> '+life.industries.vetCases.slice(-8).map(e=>esc(e.animalId+' '+e.status)).join('; ')+'</p>');
+    if(id==='brewery')rows.push('<p><b>Ingredient supply:</b> '+esc(list(p.stock))+'</p><p><b>Kegs:</b> '+(p.out.beerKeg||0)+'</p><p><b>Batches:</b> '+m.batches.map(b=>esc(b.id+' '+b.status+' ready day '+b.readyDay)).join('; ')+'</p>');
+    if(id==='buildsite')rows.push('<p><b>Stage:</b> '+esc(['Foundation','Framing','Services','Roof','Commissioned'][m.project.stage])+'</p><p><b>Materials:</b> '+esc(list(p.stock))+'</p><p><b>Work:</b> '+m.project.progress+' / 120 min</p>');
+    rows.push('<p><b>Supplier invoices:</b> '+m.imports.filter(x=>x.business===id).slice(-5).map(x=>esc(x.good||x.type)+' $'+(x.total||x.amount)).join('; ')+'</p>');
+  }
+  if (id === 'power') rows.push(`<p><b>Supply:</b> ${c.supply.power} of ${c.supply.powerDemand} needed · ${c.supply.ok ? '<span class="ok">all customers supplied</span>' : '<b>some locations have no power</b>'} · weather ${esc(c.weather)}</p><p><b>Fuel:</b> ${u.fuel} drums</p>${powerNetworkHTML(c)}`);
   if (id === 'waterworks') rows.push(`<p><b>Reservoir:</b> ${u.reservoir} kL · supplying ${c.supply.water} of ${c.supply.waterDemand} an hour · ${c.supply.waterOk ? '<span class="ok">normal</span>' : '<b>restrictions</b>'}</p>`);
   if (id === 'sewage') rows.push(`<p><b>Waiting for treatment:</b> ${u.wastewater} kL · pollution ${Math.round(c.indicators.pollution)}%</p>`);
   if (id === 'recycling') rows.push(`<p><b>Sorting:</b> ${u.recycling} bags · recycled today ${life.stats.recycled}</p><p class="dim">Kerbside recycling waiting: ${Math.floor(c.homes.recyclables)} bags.</p>`);
