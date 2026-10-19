@@ -181,7 +181,7 @@ def test_recent_work_branch_scoring(mock_run, tmp_path):
             },
             {
                 "name": "MainRepo",
-                "git": {"branch": "main", "head": "main", "branch": "main", "modified": 0, "untracked": 0, "latest_commit_date": recent_commit}
+                "git": {"branch": "main", "head": "main", "modified": 0, "untracked": 0, "latest_commit_date": recent_commit}
             },
             {
                 "name": "DetachedRepo",

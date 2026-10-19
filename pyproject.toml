@@ -20,3 +20,7 @@ include = ["joshmemory*"]
 
 [project.optional-dependencies]
 dev = ["pytest"]
+
+[tool.pytest.ini_options]
+# Avoid importing root-level live-index scripts during automated test collection.
+testpaths = ["tests"]
