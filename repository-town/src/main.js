@@ -19,7 +19,7 @@ import { mountNPCChat } from './ui/npc-chat.js';
 import { makePerson, Walker, houseWander, freeSpot, placeTownNPCs, animateNPCs, initialiseNPCWorksites } from './world/npcs.js';
 import { createTownLife } from './world/townlife.js';
 import { createAmbience } from './ui/ambience.js';
-import { placePanel, ledgerPanel, guidePanel, relicsLeft, townContext } from './ui/townpanels.js';
+import { placePanel, ledgerPanel, guidePanel, needsPanel, relicsLeft, townContext } from './ui/townpanels.js';
 import { createExpedition } from './adventure/expedition.js';
 
 const $ = (id) => document.getElementById(id);
@@ -105,6 +105,7 @@ async function start() {
   syncMouseCapture(false);
   if (input.touch) $('touch').hidden = false;
   const player = new Player(camera);
+  $('btn-needs').onclick = () => openPanel(needsPanel(life));
   let floorDoorCooldown = 0;
   const floorBadge = document.createElement('button');
   floorBadge.id = 'floor-indicator'; floorBadge.type = 'button';
@@ -431,6 +432,24 @@ async function start() {
         return;
       }
       const thing = nearThing, request = ++interactionRequest, house = inside;
+      if(thing.act?.do==='sleep') {
+        if(inside?.place?.id==='hotel') {
+          const room=Number(thing.act.room)||null;
+          const n=life.needsReport();
+          openPanel({title:'Railway Hotel · '+thing.label,
+            body:'<p>'+esc(n.booking?'You have a booking for room '+n.booking.room+'.':'You need a room key from hotel reception first.')+'</p>'+
+              '<p>Sleep in your allocated room. Time, deliveries, wages and village routines continue overnight.</p>',
+            actions:[{label:'Sleep in this bed',run:()=>{
+              const msg=life.sleepHotel(room),p=needsPanel(life);
+              return {...p,body:'<p><b>'+esc(msg)+'</b></p>'+p.body};
+            }},{label:'Hotel reception',run:()=>placePanel(life,'hotel')}]},thing);
+        } else {
+          openPanel({title:'Someone else’s bed',
+            body:'<p>This is a private home. Its residents need their beds to sleep. To stay overnight, book your own room at the Railway Hotel, I8.</p>',
+            actions:[]},thing);
+        }
+        return;
+      }
       if(inside?.place&&thing.act?.do==='civic-ledger'){
         const p=inside.place;
         openPanel(placePanel(life,p.id),thing);
@@ -562,13 +581,20 @@ async function start() {
       camera.position.set(player.pos.x, 150, player.pos.z + 95); camera.lookAt(player.pos.x, 0, player.pos.z);
       input.takeLook(); input.consume('jump');
     } else if (expedition.isOpen() || panelOpen || npcChat.isOpen() || !$('npc-roster').hidden || !$('help').hidden) input.reset();
-    else player.update(dt, input, world);
+    else {
+      const n=life.needsReport();
+      player.speedFactor=Math.max(0.45,1-(n.hunger>80?0.23:0)-(n.fatigue>75?0.32:0));
+      player.update(dt,input,world);
+    }
     const movedDist = Math.hypot(player.pos.x - prevX, player.pos.z - prevZ);
     prevX = player.pos.x; prevZ = player.pos.z;
 
     // The town keeps living while the player is indoors; the sky follows its clock.
     const talkingTo = panelOpen?.thing?.v ? panelOpen.thing : null;
     townLife.update(dt, t, { player, mode, overview, camera, talkingTo });
+    const n=life.needsReport();
+    const needsText=`🍽 ${Math.round(n.hunger)}% · 💤 ${Math.round(n.fatigue)}%`;
+    if($('needs-status').textContent!==needsText)$('needs-status').textContent=needsText;
     const clockText = `🕖 ${life.time()} · Day ${life.day}${life.speed > 1 ? ` · ${life.speed}×` : ''}`;
     if ($('clock').textContent !== clockText) $('clock').textContent = clockText;
     syncTimeBtn();
@@ -695,7 +721,7 @@ async function start() {
       near: nearThing?.key || null, nearNPC: nearNPC?.npc.id || null, nearHouse: nearHouse?.house.coordinate || null,
       panel: panelOpen ? { title: $('panel-title').textContent, text: $('panel-body').textContent, links: [...$('panel-actions').querySelectorAll('a')].map((a) => a.href), buttons: [...$('panel-actions').querySelectorAll('button')].map((b) => b.textContent) } : null,
       people: (mode === 'town' ? townLife.people.map((p) => ({ key: p.key, name: p.v.name, job: p.v.job, x: p.v.x, z: p.v.z, inside: p.v.inside, activity: p.v.activity, visible: p.fig.group.visible })) : (inside?.people || []).map((p) => ({ key: p.key, name: p.name, x: p.pos.x, z: p.pos.z, room: p.room, activity: p.activity }))),
-      time: life.time(), day: life.day, minute: life.minute, speed: life.speed, daylight: life.daylight(), sound: ambience.on,
+      time: life.time(), day: life.day, minute: life.minute, speed: life.speed, daylight: life.daylight(), sound: ambience.on, needs:life.needsReport(),
       nearPerson: nearPerson?.key || null,
       active: [...active], playing: playing?.id || null, gameSrc: playing ? $('game-frame').getAttribute('src') : null, calls: renderer.info.render.calls, triangles: renderer.info.render.triangles,
     }),

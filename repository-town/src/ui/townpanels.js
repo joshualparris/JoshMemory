@@ -56,7 +56,7 @@ function powerNetworkHTML(c) {
     edges+'</table></details><p class="dim">Fictional hourly power units, not kWh or an AC network safety model.</p>';
 }
 
-function bagLine(life) { const me = life.civic.player; return `<p class="dim">🎒 Your bag: ${esc(Object.entries(me.bag).filter(([, n]) => n > 0).map(([g, n]) => amount(g, n)).join(', ') || 'empty')} · wallet ${money(me.wallet)} · savings ${money(me.bank)}</p>`; }
+function bagLine(life) { const me = life.civic.player; const n=life.needsReport(); return `<p class="dim">🎒 Your bag: ${esc(Object.entries(me.bag).filter(([, n]) => n > 0).map(([g, n]) => amount(g, n)).join(', ') || 'empty')} · wallet ${money(me.wallet)} · savings ${money(me.bank)} · 🍽 Hunger ${Math.round(n.hunger)}% · 💤 Tired ${Math.round(n.fatigue)}%</p>`; }
 
 // Utilities, the bank, the fire station and the foundry (south side of street 8).
 function civicPanel(life, id, again) {
@@ -69,10 +69,12 @@ function civicPanel(life, id, again) {
   if (id === 'landfill') rows.push(`<p><b>Rubbish buried:</b> ${u.landfill} tonnes · environment ${Math.round(c.indicators.environment)}%</p>`);
   if (id === 'foundry') rows.push(`<p><b>Ore:</b> ${p.stock.ore || 0} · <b>metal:</b> ${p.stock.metal || 0} · <b>scrap:</b> ${p.stock.scrap || 0} · <b>parts ready:</b> ${p.out.parts || 0}</p>`);
   if (id === 'fire') rows.push(`<h3>Town networks</h3>${Object.entries(c.services).map(([k, v]) => `<p>${esc(k)} ${pct(v)}</p>`).join('')}<p class="dim">Repairs are ordered at the Town Hall.</p>`);
+  if (id === 'hotel') rows.push(`<p><b>Railway Hotel:</b> ${life.needsReport().rooms} guest rooms · ${life.needsReport().rate} per night · ${c.player.hotelBooking?'Room '+c.player.hotelBooking.room+' booked':'No room key yet'}.</p><p>To sleep, book here then use the bed in your allocated guest room.</p>`);
   if (id === 'bank') rows.push(`<p><b>Your wallet:</b> ${money(c.player.wallet)} · <b>savings:</b> ${money(c.player.bank)}</p><p class="dim">Town treasury: ${money(c.treasury)}. Villagers' savings: ${money(life.villagers.reduce((a, v) => a + (v.savings || 0), 0))}.</p>`);
   rows.push(`<p><b>Hours:</b> ${esc(hours(p))} · <b>Staff:</b> ${staff.map((v) => esc(`${v.name} (${v.job})`)).join(', ') || 'automated'}</p>`);
   const act = (label, fn) => ({ label, run: () => { const msg = fn(); return { ...again(), body: `<p><b>${esc(msg)}</b></p>` + again().body }; } });
   const actions = [];
+  if (id === 'hotel') actions.push(act('Book a room ($24)', () => life.bookHotel()));
   if (id === 'bank') actions.push(act('Deposit $20', () => life.bank('deposit', 20)), act('Withdraw $20', () => life.bank('withdraw', 20)));
   if (id === 'recycling') actions.push(act('Help sort kerbside recycling', () => life.collectRecycling()));
   return { title: `${p.name}`, body: rows.join('') + bagLine(life), actions, wide: true };
@@ -168,6 +170,22 @@ export function placePanel(life, id) {
   for (const g of Object.keys(me.bag).filter((g) => me.bag[g] > 0 && ['bread', 'pie', 'fruit', 'veg'].includes(g)).slice(0, 1)) actions.push(act(`Eat the ${GOODS[g].name}`, () => life.eatItem(g)));
   if (id === 'post') actions.push(act('Post a letter to Mabel ($2)', () => life.postLetter('Mabel')));
   return { title: `${p.name} · ${p.kind === 'farm' ? 'farm' : p.kind}`, body: rows.join('') + (sells.length || id === 'post' ? bagLine(life) : ''), actions, wide: true };
+}
+
+// A real survival loop: food comes out of the visitor's purchased inventory.
+export function needsPanel(life) {
+  const n=life.needsReport(),me=life.civic.player;
+  const edibles=Object.entries(me.bag).filter(([g,q])=>q>0&&['bread','pie','fruit','veg','eggs','milk','lamb'].includes(g));
+  const act=(label,g)=>({label,run:()=>{const msg=life.eatItem(g),p=needsPanel(life);return {...p,body:'<p><b>'+esc(msg)+'</b></p>'+p.body};}});
+  return {title:'Your food and sleep',wide:false,
+    body:'<p>🍽 <b>Hunger:</b> '+Math.round(n.hunger)+'% (100% means very hungry).</p>'+
+      '<p>💤 <b>Fatigue:</b> '+Math.round(n.fatigue)+'% (100% means exhausted).</p>'+
+      '<p><b>Latest food:</b> '+esc(n.lastAte||'Nothing since arrival')+'</p>'+
+      '<p><b>In your bag:</b> '+(edibles.map(([g,q])=>esc(g)+' ×'+q).join(', ')||'No edible supplies')+'</p>'+
+      '<p>Food must be bought at a real shop before you can eat it. To sleep, visit the Railway Hotel opposite High Street at I8, book a room for $24, and use the bed in your allocated room.</p>'+
+      '<p class="dim">Sleep and food change your mobility; the game does not kill you for missing a meal.</p>'+
+      '<p>In the town: '+n.hungry+' hungry villagers, '+n.exhausted+' exhausted, '+n.sleeping+' currently asleep.</p>',
+    actions:edibles.map(([g])=>act('Eat '+g,g))};
 }
 
 export function ledgerPanel(life) {
