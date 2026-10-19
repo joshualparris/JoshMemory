@@ -8,7 +8,7 @@ before changing anything, and update `COORDINATION.md` when you start and finish
 
 | What | Where |
 |---|---|
-| Source code (edit here) | `JoshMemory` repo, branch `ccr-846db548-0l5zmu`, folder `repository-town/src/` |
+| Source code (edit here) | `JoshMemory` repo, branch `main` (use a reviewed integration branch for simultaneous changes), folder `repository-town/src/` |
 | Build + checks | `repository-town/tools/` (`build.mjs`, `check_privacy.mjs`, `pack_games.mjs`) |
 | Packed games | `repository-town/games/` (made by `tools/pack_games.mjs`, from each game's own repo) |
 | Live playtest site | `Parris-Tech-Services/Repository-town` → https://parris-tech-services.github.io/Repository-town/ |
@@ -33,7 +33,7 @@ same sitting and say so in `COORDINATION.md`.
    - `node tests/games.mjs` — every packed game loads from file://.
    - `node tests/streetwalk.mjs` — walk every street and avenue on foot.
    - `src/tests/expedition.mjs` — Expedition Guild relics (run from `dist/public`).
-5. Commit with a clear message, push to `ccr-846db548-0l5zmu`.
+5. Commit with a clear message to a topic branch; merge to `main` after tests and review.
 6. Publish with `tools/publish_pages.sh <site-repo-checkout> "message"`. It rebuilds, runs the
    privacy check, keeps the site repo's own files, and refuses to publish if the live site has
    files that are not in the build (someone's hand edits — port them into `src/` first).

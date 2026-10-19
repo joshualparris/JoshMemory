@@ -10,4 +10,8 @@ def prevent_production_db_pollution(tmp_path, monkeypatch):
     isolated_home = tmp_path / "isolated_joshmemory_home"
     isolated_home.mkdir(exist_ok=True)
     monkeypatch.setenv("JOSHMEMORY_HOME", str(isolated_home))
+    # CI must never discover credentials and write test records to the real
+    # GitHub-backed memory store. Explicit integration tests can opt back in.
+    monkeypatch.setenv("JOSHMEMORY_GITHUB_STORE_AUTO", "0")
+    monkeypatch.delenv("JOSHMEMORY_REMOTE_URL", raising=False)
     yield
