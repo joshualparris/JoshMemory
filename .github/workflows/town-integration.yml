@@ -37,6 +37,8 @@ jobs:
           cache-dependency-path: repository-town/package-lock.json
       - name: Install pinned Node dependencies
         run: npm ci --no-audit --no-fund
+      - name: Validate opt-in merge workflow syntax and safeguards
+        run: node tests/workflow-syntax.mjs
       - name: NPC realism, current place, town economy, collision, politics
         run: npm run test:integration
       - name: Verify house geometry and all declared toy interactions
