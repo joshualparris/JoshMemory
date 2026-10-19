@@ -39,10 +39,14 @@ assert.equal(civicExitPose({ side:'north',door:{x:0,z:0} },
   [{x0:-10,x1:10,z0:-30,z1:30}], radius), null, 'all blocked = no unsafe spawn');
 assert.throws(() => civicExitPose({door:{x:0,z:NaN}}, []), TypeError);
 
-// Ordinary houses already exit in the +z direction: preserve that rule.
+// Walking through a doorway must preserve the direction the player was
+// actually facing. The exit button uses the usual outward-facing default,
+// while walking backwards retains the original yaw instead of snapping around.
 const main = read('main.js');
-assert.match(main, /player\.place\(l\.doorPos\.x,l\.doorPos\.z\+4,Math\.PI\)/,
-  'house exits must keep their outward-facing orientation');
+assert.match(main, /player\.place\(l\.doorPos\.x,\s*l\.doorPos\.z\s*\+\s*4,\s*keepFacing\s*\?\s*yawInside\s*:\s*Math\.PI\)/,
+  'houses must keep walking direction on physical exits and face out on button exits');
+assert.match(main, /else leave\(true, true\)/,
+  'walking through a physical door must preserve the player facing');
 assert.match(main, /civicExitPose\(shop,/,
   'all civic buildings must use the shared safe exit pose');
 console.log('PASS: north/south exits face away, remain collision-free and cannot immediately re-enter');
