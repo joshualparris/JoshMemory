@@ -339,8 +339,8 @@ export class TownLife {
     c.supply.power = this.ok('power') ? solar + thermal : 0; c.supply.powerDemand = demand;
     const wasOk = c.supply.ok;
     this.updatePowerGrid();
-    if (!c.supply.ok && wasOk) this.log('Blackout! The Power Station cannot meet demand — homes and the bakery are dark.');
-    if (c.supply.ok && !wasOk) this.log('Power is back on across town.');
+    if (!c.supply.ok && wasOk) this.log('Electricity shortage: check affected feeders and customers in the Town Ledger.');
+    if (c.supply.ok && !wasOk) this.log('Full electricity supply has been restored to all connected customers.');
     if (this.gridPowered('waterworks') && this.ok('water')) water.stock.water = Math.min(250, (water.stock.water || 0) + 25);
     const need = 16 + (day ? 4 : 0), got = Math.min(need, water.stock.water || 0);
     water.stock.water -= got; c.supply.water = got; c.supply.waterDemand = need;
