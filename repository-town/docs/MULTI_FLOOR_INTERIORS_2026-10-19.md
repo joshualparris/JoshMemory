@@ -53,3 +53,13 @@ Status: source code is committed on a feature branch. Tests and builds have not 
 ## Release instructions
 
 Follow repository-town/AGENTS.md and coordination notes. Merge the source topic branch after tests and review, then build dist/public and use tools/publish_pages.sh to update the Pages repository. Never publish only a manual hotfix to public output.
+
+## Release record (19 October 2026)
+
+- Source implementation merged: [JoshMemory PR #30](https://github.com/joshualparris/JoshMemory/pull/30), commit `14838688e321b66d50fa6425243423f10eff8103`.
+- Mirrored to generated public Pages source without removing the more recent public NPC, arcade, town shop or simulation changes. Public game commit: [2a19860](https://github.com/Parris-Tech-Services/Repository-town/commit/2a19860bf70d5fb8a0160e901ca11c35839fe3c7).
+- Pages deployment completed successfully: [Actions run 39232948450](https://github.com/Parris-Tech-Services/Repository-town/actions/runs/39232948450).
+- Public play URL: https://parris-tech-services.github.io/Repository-town/
+- Validated **the actual published V7 and W7 house data** against the published Three.js/Builder/props/interior/multifloor modules: both generate three floors with the expected unique rooms and stair/lift interactables without a geometry-construction error.
+- Confirmed JavaScript syntax for the published floor modules, game loop and player code, and a focused in-memory contract test.
+- Not independently verified: external HTTP content served by Pages (DNS was unavailable in the testing container), full Node build/privacy gate, headed Chromium and real Android end-to-end gameplay. Pages workflow success confirms publishing, not interactive correctness. Fix any issues found before adding multi-floor support to more buildings.
