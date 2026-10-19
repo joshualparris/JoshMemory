@@ -24,6 +24,10 @@ Newest first. Times in Australia/Sydney.
 
 ## Done recently
 
+- 2026-10-19 · ChatGPT — unified `integration/town-unified-20261019`: richer single-source TownLife and Claude branches #9/#16/#17/#18 reconciled onto latest `main`; Vercel quota exceeded; Cloudflare Pages Git integration unavailable. Full Github Actions Playwright run 39229344740 succeeded: build 188 houses, public privacy, 14 stable days, NPC/utility/merchant/driver checks, desktop/mobile A1/F3/H1/M5/Y5, arcade and 76/76 packed game loads. Temporary QA workflow removed. Exact unified build not yet deployed; preserve published-only NPC location fixes until separately ported and verified.
+
+- 2026-10-19 · ChatGPT — repaired live NPC whereabouts in published Repository-town `ui/npc.js` and `ui/townpanels.js`. Villagers now send an observed `currentLocation` separate from home/work, answer location questions without guessing, and display where they stand in chat. Cloudflare `repository-town-no-code-ai` prompt updated in place with existing key/rate-limit bindings retained; canonical shared helper now at `src/ui/npc-location.js` and deployed prompt at `deploy/npc-prompt.js`. Run `node tests/npc-location.mjs`. **Integration note:** canonical `src/main.js` uses different NPC architecture, so do not overwrite the published `ui/npc.js` without porting this world-state wiring to the Living Town integration.
+
 - 2026-10-19 · Claude Code session ("Repository search") — **merged every town branch** into
   the integration branch, one at a time with tests: `main`, #18 (contains #17, #11's NPC work,
   #13, keyboard fix), #16 scene awareness, label occlusion, #13 CI smoke, #11, merged-playtest,
