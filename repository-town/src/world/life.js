@@ -1,3 +1,4 @@
+import { separatePedestrians } from './pedestrian-spacing.js';
 import { distributePower, townPowerDemands, POWER_LINE_IDS, GRID_FAULT_COST } from './power-grid.js';
 import { initialisePublicLife, attendPublicForum, updatePublicForum, civicDialogue } from './public-forum.js';
 import { freshFinance, noteSale, noteRates, withhold, stateFunded, drawState, noteCouncilWage, dailyGrants, dailyClose as financeDailyClose, payBills, economyReport, bizStats, governmentMoney } from './finance.js';
@@ -285,6 +286,11 @@ export class TownLife {
     if (hourly) this.everyHour();
     advanceNeeds(this,minutes);
     for (const v of this.villagers) this.liveVillager(v, minutes);
+    // All walkers, shop visitors and on-duty staff retain physical space.
+    // Stationary conversations count too; no more two models in one body.
+    separatePedestrians(this.villagers.filter(v=>!v.inside).map(v=>({
+      id:v.id,pos:v,radius:v.bike&&v.path.length?.72:.59
+    })),{gap:1.24,passes:4});
     updatePublicForum(this);
     advanceCivicWork(this, minutes);
     if (hourly && Math.floor(this.minute / 60) === 10 && this.day >= this.civic.government.meetingDay) councilMeeting(this);
