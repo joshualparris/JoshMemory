@@ -20,6 +20,7 @@ import { makePerson, Walker, houseWander, freeSpot, placeTownNPCs, animateNPCs, 
 import { createTownLife } from './world/townlife.js';
 import { createAmbience } from './ui/ambience.js';
 import { bakeryKitchenPanel } from './ui/bakery-panel.js';
+import { walletPanel, jobBoardPanel } from './ui/economy-panels.js';
 import { placePanel, ledgerPanel, guidePanel, needsPanel, relicsLeft, townContext } from './ui/townpanels.js';
 import { createExpedition } from './adventure/expedition.js';
 
@@ -329,6 +330,7 @@ async function start() {
   syncPerfBtn();
   $('btn-perf').onclick = () => { lowPerf = !lowPerf; syncPerfBtn(); status(lowPerf ? 'Smooth mode on: drawing fewer distant objects.' : 'Full draw distance restored.'); };
   $('btn-guide').onclick = () => openPanel(guideContent(), guideSpot);
+  $('btn-wallet').onclick = () => openPanel(walletPanel(life, { go: (id) => { goPlace(id); return null; } }), guideSpot);
   $('btn-help').onclick = () => { input.releaseMouse(); $('help').hidden = !$('help').hidden; };
   $('btn-npcs').onclick = () => { $('npc-roster').hidden = !$('npc-roster').hidden; input.reset(); };
   $('npc-roster-close').onclick = () => { $('npc-roster').hidden = true; };
@@ -596,6 +598,7 @@ async function start() {
 
     // The town keeps living while the player is indoors; the sky follows its clock.
     const talkingTo = panelOpen?.thing?.v ? panelOpen.thing : null;
+    life.playerAt = mode === 'house' && inside?.place ? inside.place.id : null; // shifts count only inside the workplace
     townLife.update(dt, t, { player, mode, overview, camera, talkingTo });
     const n=life.needsReport();
     const needsText=`🍽 ${Math.round(n.hunger)}% · 💤 ${Math.round(n.fatigue)}%`;

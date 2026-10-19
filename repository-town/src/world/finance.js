@@ -71,6 +71,17 @@ export function withhold(life, v, gross) {
   return amount;
 }
 
+// PAYG on the visitor's wages, taken from the wallet that was just paid.
+export function withholdVisitor(life, gross) {
+  const me = life.civic.player, amount = Math.floor(gross * RATES.paygPercent / 100);
+  if (amount <= 0 || me.wallet < amount) return 0;
+  const f = fin(life);
+  me.wallet -= amount; f.federal = r2(f.federal + amount);
+  revenue(life, 'tax', amount);
+  record(life, 'visitor', 'commonwealth', amount, 'PAYG income tax on your wages');
+  return amount;
+}
+
 // Draw a payment from the NSW treasury first for school and clinic jobs, falling back to the council.
 export function stateFunded(site) { return site === 'school' || site === 'clinic'; }
 export function drawState(life, amount) {
