@@ -13,7 +13,7 @@ const objects=[
 const get=(pos={x:0,z:0},ri=0)=>sceneFromRoom({rooms,objects,roomIndex:ri,position:pos});
 const scene=get();
 assert.equal(scene.roomName,'Game Room');
-assert.equal(scene.roomCount,5);
+assert.equal(scene.roomCount,4); // walker is excluded; distant furniture counts toward room total
 assert.equal(scene.nearby.length,3);
 assert.match(answerSceneQuestion(scene,'ok what objects are next to you right now'),/Arcade cabinet/);
 assert.match(answerSceneQuestion(scene,'what objects are next to you right now'),/framed wall picture/);
