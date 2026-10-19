@@ -27,6 +27,11 @@ for(let row=1;row<=8;row++){
       assert(!collisions.hits(doorX,frontZ+d,PLAYER_RADIUS),
         coord+' solid object blocks entrance at offset '+d.toFixed(2));
     }
+    // Test the actual sliding/movement engine, not just static point samples.
+    const player={x:doorX,z:frontZ+2.4};
+    collisions.move(player,0,-3.2,PLAYER_RADIUS);
+    assert(player.z < frontZ-0.62,coord+' player cannot walk through the visible door');
+    assert(!collisions.hits(player.x,player.z,PLAYER_RADIUS),coord+' player becomes stuck in door');
     assert(collisions.hits(lot.x-fp.w/2+0.12,lot.z,PLAYER_RADIUS),
       coord+' wall is not solid');
     const frontClear=doorApproach(fp);
