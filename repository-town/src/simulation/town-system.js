@@ -82,7 +82,7 @@ function seedState(population) {
   return {
     version: 1, minute: 480, day: 1, fractional: 0, population,
     mayor: "Rowan", ballots: {}, electionDay: 7, voted: false,
-    wallet: 75, bankBalance: 150, householdCash: 2000, treasury: 4800, shopBalance: 700,
+    wallet: 75, bankBalance: 150, playerInventory: {}, householdCash: 2000, treasury: 4800, shopBalance: 700,
     taxRate: 0.1, budgets: { utilities: 35, services: 30, environment: 20, transport: 15 },
     stores: clone(initialStores), residents,
     services: { power: 100, water: 100, sewage: 100, roads: 100, waste: 100, post: 100 },
@@ -134,7 +134,7 @@ function runHour(s) {
 
   const capacity = electricityOK && checkService(s, "water") ? 25 : 0;
   // The river is renewable, but purification, pumping and pipes need electricity.
-  if (capacity) add(s, "waterworks", "cleanWater", capacity);
+  if (capacity) add(s, "waterworks", "cleanWater", Math.min(capacity, Math.max(0, 250 - stock(s, "waterworks", "cleanWater"))));
   const needed = 16 + (hour >= 8 && hour <= 19 ? 4 : 0);
   const actualWater = take(s, "waterworks", "cleanWater", needed);
   s.supply.water = actualWater;
@@ -228,6 +228,15 @@ function runHour(s) {
     if (due < s.population * 2) s.indicators.happiness = bounded(s.indicators.happiness - 2, 0, 100);
   }
   if (hour === 0) {
+    // Display-space and perishability constraints: excess fresh food spoils.
+    for (const [item, capacity] of [["bread", 40], ["milk", 24], ["fruit", 32], ["vegetables", 36], ["eggs", 30]]) {
+      const excess = Math.max(0, stock(s, "market", item) - capacity);
+      if (excess) {
+        take(s, "market", item, excess);
+        add(s, "homes", "rubbish", Math.ceil(excess / 2));
+        addLog(s, "Market composted or discarded " + excess + " surplus " + item + ".");
+      }
+    }
     s.day++; s.weather = weatherFor(s.day); s.voted = false;
     for (const key of Object.keys(s.services)) {
       s.services[key] = bounded(s.services[key] - (key === "roads" ? 0.45 : 0.25), 0, 100);
@@ -264,10 +273,21 @@ export function createTownSimulation({ population = 32, restored = null } = {}) 
     if (stock(s, "market", item) < n) return { ok: false, message: "The market is out of stock." };
     const cost = n * price;
     if (s.wallet < cost) return { ok: false, message: "Not enough Town Credits." };
-    take(s, "market", item, n); s.wallet -= cost;
+    transfer(s, "market", "playerInventory", item, n); s.wallet -= cost;
     const tax = Math.floor(cost * s.taxRate); s.treasury += tax; s.shopBalance += cost - tax;
     s.stats.taxes += tax; addLog(s, "Visitor bought " + n + " " + item + " for " + cost + " TC.");
     return { ok: true, message: "Bought " + n + " " + item + " for " + cost + " TC." };
+  }
+  function sell(item, amount = 1) {
+    const n = bounded(Math.floor(amount), 1, 20), price = prices[item];
+    if (!price) return { ok: false, message: "The market does not trade that item." };
+    if (stock(s, "playerInventory", item) < n) return { ok: false, message: "You do not have enough " + item + "." };
+    const payment = n * Math.max(1, Math.floor(price * 0.6));
+    if (s.shopBalance < payment) return { ok: false, message: "The shop cannot afford to buy this." };
+    transfer(s, "playerInventory", "market", item, n);
+    s.shopBalance -= payment; s.wallet += payment;
+    addLog(s, "Visitor sold " + n + " " + item + " for " + payment + " TC.");
+    return { ok: true, message: "Sold " + n + " " + item + " for " + payment + " TC." };
   }
   function recycle(amount = 2) {
     const n = bounded(Math.floor(amount), 1, 10);
@@ -321,5 +341,5 @@ export function createTownSimulation({ population = 32, restored = null } = {}) 
     return { ok: true, message: "Posted a letter. It should arrive next town day." };
   }
   const snapshot = () => clone({ ...s, hour: Math.floor((s.minute % 1440) / 60), time: clockText(s.minute), activities: s.residents.map(r => ({ ...r, activity: residentSchedule(Math.floor((s.minute % 1440) / 60), r.job) })) });
-  return { advance, buy, recycle, repair, reportFault, vote, deposit, withdraw, postLetter, snapshot, serialize: () => JSON.stringify(s) };
+  return { advance, buy, sell, recycle, repair, reportFault, vote, deposit, withdraw, postLetter, snapshot, serialize: () => JSON.stringify(s) };
 }
