@@ -95,8 +95,12 @@ async function start() {
   if (input.touch) $('touch').hidden = false;
   const player = new Player(camera);
   let floorDoorCooldown = 0;
-  const floorBadge = document.createElement('div');
-  floorBadge.id = 'floor-indicator'; floorBadge.hidden = true; document.body.append(floorBadge);
+  const floorBadge = document.createElement('button');
+  floorBadge.id = 'floor-indicator'; floorBadge.type = 'button';
+  floorBadge.title = 'Open the lift floor selector';
+  floorBadge.setAttribute('aria-label', 'Choose a building floor');
+  floorBadge.onclick = () => { if (inside?.floors) openLift(); };
+  floorBadge.hidden = true; document.body.append(floorBadge);
   const npcChat = mountNPCChat(document);
   let interactionRequest = 0;
 
@@ -137,7 +141,7 @@ async function start() {
   function updateFloorBadge() {
     floorBadge.hidden = !inside?.floors;
     if (inside?.floors) floorBadge.textContent = '🏠 Floor ' + (inside.floorIndex + 1) +
-      ' / ' + inside.floors.levels.length + ' · ' + inside.floors.titles[inside.floorIndex];
+      ' / ' + inside.floors.levels.length + ' · ' + inside.floors.titles[inside.floorIndex] + ' · 🛗 Floors';
   }
   function changeFloor(target) {
     if (!inside?.floors || target < 0 || target >= inside.floors.levels.length) return false;
@@ -205,7 +209,7 @@ async function start() {
     expedition.noteVisit(coord);
     ambience.door();
     closePanel();
-    status(`Inside ${h.coordinate} · ${h.name}. Walk back through the front door to leave.`);
+    status(floors ? `Inside ${h.coordinate} · ${h.name}. Tap 🛗 Floors under the town clock to visit the upper storeys, or follow the stairs and lift sign.` : `Inside ${h.coordinate} · ${h.name}. Walk back through the front door to leave.`);
     showCard(h, true);
     cardTimer = 6;
   }
