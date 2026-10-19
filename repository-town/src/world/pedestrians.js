@@ -32,10 +32,11 @@ function clearMove(person, x, z, blockers) {
 // Find a short route around a crowd using a local half-metre grid. All edges
 // are swept-circle checked. If space is unavailable, wait rather than overlap.
 function detour(person, goal, blockers) {
+  if(blockers.some(o=>Math.hypot(o.x-goal.x,o.z-goal.z)<PERSONAL_SPACE-EPS))return [];
   const start={x:person.x,z:person.z,i:0,j:0,g:0,parent:null};
   const side=n=>((n.x-start.x)*(goal.z-start.z)-(n.z-start.z)*(goal.x-start.x))*.0001;
   const open=[start], best=new Map([['0,0',0]]);
-  for(let expanded=0;open.length && expanded<600;expanded++) {
+  for(let expanded=0;open.length && expanded<240;expanded++) {
     open.sort((a,b)=>(a.g+Math.hypot(a.x-goal.x,a.z-goal.z)+side(a))-(b.g+Math.hypot(b.x-goal.x,b.z-goal.z)+side(b)));
     const n=open.shift();
     if(n.parent && clearMove(n,goal.x,goal.z,blockers)) {
@@ -52,7 +53,9 @@ function detour(person, goal, blockers) {
 }
 
 export function movePedestrian(person, distance, people, obstacles = []) {
-  const blockers=[...people.filter(p=>p!==person&&!p.inside),...obstacles];
+  const reach = Math.max(12, distance + PERSONAL_SPACE);
+  const blockers=[...people.filter(p=>p!==person&&!p.inside),...obstacles]
+    .filter(p=>Math.abs(p.x-person.x)<reach && Math.abs(p.z-person.z)<reach);
   if(person.crowdWait>0){person.crowdWait=Math.max(0,person.crowdWait-distance);return;}
   let attempts=Math.ceil(distance/.2)+16;
   while(distance>EPS && person.path.length && attempts-->0) {
