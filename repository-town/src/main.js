@@ -608,7 +608,7 @@ async function start() {
       // Jumps the clock (tests): everyone re-plans their day from scratch.
       setTime(minute) { life.minute = minute; life.stats = life.freshStats(); for (const v of life.villagers) { v.step = null; v.path = []; v.queue = []; v.doneToday = {}; } },
       run(minutes) { for (let m = 0; m < minutes; m += 0.5) life.tick(0.5); },
-      speed(n) { life.speed = n; }, trucks: () => life.trucks.map((t) => ({ x: t.x, z: t.z, state: t.state, braking: !!t.braking, load: t.load })),
+      speed(n) { life.speed = n; }, trucks: () => life.trucks.map((t) => ({ id:t.id, x:t.x, z:t.z, state:t.state, braking:!!t.braking, load:t.load, wait:t.wait, next:t.path.find(p=>Math.hypot(p.x-t.x,p.z-t.z)>0.1)||null })),
       places: () => [...life.places.values()].map((p) => ({ id: p.id, name: p.name, stock: p.stock, out: p.out, growth: p.growth })),
       parcels: () => life.parcels.length,
     },

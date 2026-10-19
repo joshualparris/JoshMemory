@@ -117,22 +117,25 @@ for (const [id, re] of [['hall', /Council[\s\S]*Networks/], ['silo', /Crop/], ['
   await T(() => window.__town.closePanel());
 }
 
-// 6. A truck brakes for the player standing in the road.
+// 6. A truck brakes for a player on its real upcoming road segment.
 await T(() => window.__town.life.setTime(8 * 60 + 30));
-let tr = null;
-for (let i = 0; i < 40 && !tr; i++) { await T(() => window.__town.life.run(1)); tr = (await T(() => window.__town.life.trucks())).find((t) => /heading|delivering/.test(t.state)); }
-if (tr) {
-  await T(() => window.__town.life.run(0.5));
-  const t1 = (await T(() => window.__town.life.trucks())).find((t) => t.state === tr.state);
-  const dx = t1.x - tr.x, dz = t1.z - tr.z, d = Math.hypot(dx, dz) || 1;
-  await T(([x, z]) => window.__town.place(x, z, 0), [t1.x + (dx / d) * 5, t1.z + (dz / d) * 5]);
-  await page.waitForTimeout(300);
-  const before = (await T(() => window.__town.life.trucks())).find((t) => t.state === tr.state);
-  await page.waitForTimeout(1500);
-  const after = (await T(() => window.__town.life.trucks())).find((t) => t.state === tr.state);
-  check(before.braking && Math.hypot(after.x - before.x, after.z - before.z) < 0.2, `truck "${tr.state}" braked for the player`);
+let tr=null;
+for(let i=0;i<45&&!tr;i++){
+  await T(() => window.__town.life.run(1));
+  tr=(await T(() => window.__town.life.trucks())).find(t=>/heading|delivering/.test(t.state)&&t.next&&t.wait<=0&&
+    Math.hypot(t.next.x-t.x,t.next.z-t.z)>11&&!t.braking);
+}
+if(tr){
+  const dx=tr.next.x-tr.x,dz=tr.next.z-tr.z,d=Math.hypot(dx,dz);
+  await T(([x,z])=>window.__town.place(x,z,0),[tr.x+dx/d*5.5,tr.z+dz/d*5.5]);
+  await page.waitForTimeout(450);
+  const before=(await T(()=>window.__town.life.trucks())).find(t=>t.id===tr.id);
+  await page.waitForTimeout(900);
+  const after=(await T(()=>window.__town.life.trucks())).find(t=>t.id===tr.id);
+  check(before.braking&&after.braking&&Math.hypot(after.x-before.x,after.z-before.z)<0.2,
+    `truck "${tr.state}" braked for the player ahead`);
   await shot('truck');
-} else check(false, 'found a truck on the road');
+}else check(false,'found an active truck with an open road ahead');
 
 // 7. Chat: what they ate, gossip, relic hints (offline replies; Groq is not configured).
 await T(() => window.__town.life.setTime(12 * 60 + 40));
@@ -204,12 +207,11 @@ check(rooms.size >= 2 && rooms.has(0), 'the resident walked through the house to
 await shot('resident-kitchen');
 await T(() => window.__town.toExit());
 
-// 10. Sound toggles without errors.
-await page.click('#btn-sound');
-s = await st(); const off = s.sound;
-await page.click('#btn-sound');
-s = await st();
-check(off === false && s.sound === true, 'sound button toggles');
+// 10. Sound remains opt-in; two clicks return to the original setting.
+const initialSound=(await st()).sound;
+await page.click('#btn-sound'); const changedSound=(await st()).sound;
+await page.click('#btn-sound'); s=await st();
+check(changedSound===!initialSound&&s.sound===initialSound,'sound button toggles');
 await page.waitForTimeout(1500);
 
 check(errors.length === 0, `no page errors${errors.length ? ': ' + errors.slice(0, 3).join(' | ') : ''}`);

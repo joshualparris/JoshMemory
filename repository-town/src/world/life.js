@@ -449,9 +449,14 @@ export class TownLife {
   stopAt(t, id) { const c = this.place(id).curb; return { x: c.x + (t.id - 1) * 8, z: c.z }; }
 
   blocked(t) {
-    const fx = Math.sin(t.heading), fz = Math.cos(t.heading);
-    const near = (p) => { const dx = p.x - t.x, dz = p.z - t.z, ahead = dx * fx + dz * fz; return ahead > 1 && ahead < 8 && Math.abs(dx * fz - dz * fx) < 1.3; };
-    return this.obstacles.some(near) || this.villagers.some((v) => !v.inside && near(v));
+    // Measure the real next route segment, which may differ from the last heading
+    // immediately after turning at a junction.
+    const next = t.path.find(p => Math.hypot(p.x - t.x,p.z - t.z)>0.1);
+    const dx = next ? next.x-t.x : Math.sin(t.heading), dz = next ? next.z-t.z : Math.cos(t.heading);
+    const len = Math.hypot(dx,dz)||1, fx=dx/len, fz=dz/len;
+    const near = p => {const x=p.x-t.x,z=p.z-t.z,ahead=x*fx+z*fz;
+      return ahead>1&&ahead<8&&Math.abs(x*fz-z*fx)<1.3;};
+    return this.obstacles.some(near)||this.villagers.some(v=>!v.inside&&near(v));
   }
 
   // Finds the most useful load: a destination short of a good that a source has spare.
