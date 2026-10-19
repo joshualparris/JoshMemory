@@ -47,7 +47,11 @@ function instrument(t) {
   t.pay = (v) => { if (v.job === 'programmer') { const w = v.wallet, tr = t.civic.treasury, fd = t.civic.finance.federal; pay(v); flows.outside += (v.wallet - w) + (t.civic.finance.federal - fd) + Math.max(0, t.civic.treasury - tr); } else pay(v); };
   t.everyHour = () => {
     const d = t.place('depot').out, f = d.fuel || 0, o = d.ore || 0;
+    const invoiceCount=t.industries?.imports?.length||0;
     hour();
+    // Genuine new regional wholesaler invoices remove money from the town.
+    // The baseline fuel/ore importer is counted separately below.
+    flows.imports += (t.industries?.imports||[]).slice(invoiceCount).reduce((n,v)=>n+(v.total||0),0);
     if (Math.floor(t.minute / 60) === 7) flows.imports += ((d.fuel || 0) - f) * 1 + ((d.ore || 0) - o) * 2;
   };
   t.newDay = () => { day(); };

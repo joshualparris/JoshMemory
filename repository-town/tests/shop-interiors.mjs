@@ -14,6 +14,14 @@ for(const id of CIVIC_INTERIOR_IDS){
     room.group.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material?.dispose)o.material.dispose();});
     continue;
   }
+  if(['vet','hardware','brewery','buildsite'].includes(id)){
+    assert.equal(room.rooms.length,3,id+' has three unique working rooms');
+    assert(room.placedProps.length>=7,id+' must have actual trade furnishings');
+    assert(room.interactables.some(x=>x.act?.do==='info'),id+' must expose trade process');
+    assert(room.exitZone.z1>room.spawn.z);
+    room.group.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material?.dispose)o.material.dispose();});
+    continue;
+  }
   if(id==='hotel'){
     assert.equal(room.rooms.length,5,'hotel has reception and four real bedrooms');
     assert.equal(room.interactables.filter(x=>x.type==='bed').length,4);
@@ -46,12 +54,11 @@ for(const id of CIVIC_INTERIOR_IDS){
     assert(room.staff.pos.z<-4&&room.spawn.z>3,'teller line is at the back, far from the entrance');
     assert(room.colliders.filter(c=>Math.abs(Math.abs((c.x0+c.x1)/2)-1.15)<0.01&&(c.z1-c.z0)>3).length===2,'queue lane has two rope sides');
   } else if(id==='store'||id==='cafe'||id==='pub'){
-    // Researched dedicated interiors: full-width counter, staff behind it, hotspots clear of furniture.
-    assert(room.interactables.length>=4,id+' has several interactive features');
-    assert.equal(room.sceneObjects.length,room.interactables.length,id+' scene-aware objects');
-    assert(room.group.children.length>250,id+' is richly furnished');
-    assert(room.staff&&room.staff.pos.z<room.staff.use.z,id+' staff stands behind the counter');
-    for(const x of room.interactables){const hit=room.colliders.some(c=>x.pos.x>c.x0-0.35&&x.pos.x<c.x1+0.35&&x.pos.z>c.z0-0.35&&x.pos.z<c.z1+0.35);assert.equal(hit,false,id+' hotspot '+x.key+' is clear');}
+    assert(room.interactables.length>=4,id+' custom shop exhibits');
+    assert.equal(room.sceneObjects.length,room.interactables.length,id+' scene-aware exhibits');
+    assert(room.group.children.length>250,id+' researched shop must be furnished');
+    assert(room.staff&&room.staff.pos.z<room.staff.use.z,'staff behind counter');
+    for(const x of room.interactables){const hit=room.colliders.some(c=>x.pos.x>c.x0-0.35&&x.pos.x<c.x1+0.35&&x.pos.z>c.z0-0.35&&x.pos.z<c.z1+0.35);assert.equal(hit,false,id+' exhibits are reachable');}
   } else {
   assert.equal(room.interactables.length,3,id+' three interactive features');
   assert.equal(room.sceneObjects.length,3,id+' scene-aware objects');

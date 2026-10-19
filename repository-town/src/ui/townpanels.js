@@ -19,7 +19,11 @@ const ABOUT = {
   greengrocer: 'Vegetables from the Market Garden and fruit from the Orchard, brought in by truck.',
   butcher: 'Lamb from the Sheep Station, cut fresh each morning.',
   square: 'The heart of town: benches, a fountain, market stalls, and the notice board with today\'s news.',
-  pub: 'The Merged Branch opens at 11. Roasts, parmies and pies for dinner; a yarn and a cold drink after work.',
+  pub:'The Merged Branch sells meals, paid draught beer from delivered kegs and non-alcoholic drinks.',
+  vet:'A qualified rural veterinarian travels to livestock case calls. Farm businesses pay for medicine and treatment.',
+  hardware:'Town Hardware & Timber imports invoiced timber, cement, fasteners and steel for paid construction contracts.',
+  brewery:'Branch Brewery conditions malt, hops and yeast into actual kegs after three town days.',
+  buildsite:'Farm Workshop Extension needs real supplies, builder shifts and completed inspections.',
   post: 'The 7:00 freight train brings the mail. Trucks carry it here and the postie walks the parcels to people\'s doorsteps.',
   school: 'Classes from half past eight to three.',
   clinic: 'The town nurse sees patients from eight to five.',
@@ -64,6 +68,14 @@ function bagLine(life) { const me = life.civic.player; const n=life.needsReport(
 function civicPanel(life, id, again) {
   const p = life.place(id), c = life.civic, u = life.ledger().utilities, rows = [`<p>${esc(ABOUT[id] || '')}</p>`];
   const staff = life.villagers.filter((v) => v.work === id);
+  if(['hardware','vet','brewery','buildsite'].includes(id)){
+    const m=life.industryReport();
+    if(id==='hardware')rows.push('<p><b>Trade inventory:</b> '+esc(list(p.stock))+'</p><p><b>Outgoing building supplies:</b> '+esc(list(p.out))+'</p>');
+    if(id==='vet')rows.push('<p><b>Veterinary kits:</b> '+(p.stock.medkit||0)+'</p><p><b>Cases:</b> '+life.industries.vetCases.slice(-8).map(e=>esc(e.animalId+' '+e.status)).join('; ')+'</p>');
+    if(id==='brewery')rows.push('<p><b>Ingredient supply:</b> '+esc(list(p.stock))+'</p><p><b>Kegs:</b> '+(p.out.beerKeg||0)+'</p><p><b>Batches:</b> '+m.batches.map(b=>esc(b.id+' '+b.status+' ready day '+b.readyDay)).join('; ')+'</p>');
+    if(id==='buildsite')rows.push('<p><b>Stage:</b> '+esc(['Foundation','Framing','Services','Roof','Commissioned'][m.project.stage])+'</p><p><b>Materials:</b> '+esc(list(p.stock))+'</p><p><b>Work:</b> '+m.project.progress+' / 120 min</p>');
+    rows.push('<p><b>Supplier invoices:</b> '+m.imports.filter(x=>x.business===id).slice(-5).map(x=>esc(x.good||x.type)+' $'+(x.total||x.amount)).join('; ')+'</p>');
+  }
   if (id === 'power') rows.push(`<p><b>Supply:</b> ${c.supply.power} of ${c.supply.powerDemand} needed · ${c.supply.ok ? '<span class="ok">all customers supplied</span>' : '<b>some locations have no power</b>'} · weather ${esc(c.weather)}</p><p><b>Fuel:</b> ${u.fuel} drums</p>${powerNetworkHTML(c)}`);
   if (id === 'waterworks') rows.push(`<p><b>Reservoir:</b> ${u.reservoir} kL · supplying ${c.supply.water} of ${c.supply.waterDemand} an hour · ${c.supply.waterOk ? '<span class="ok">normal</span>' : '<b>restrictions</b>'}</p>`);
   if (id === 'sewage') rows.push(`<p><b>Waiting for treatment:</b> ${u.wastewater} kL · pollution ${Math.round(c.indicators.pollution)}%</p>`);
@@ -174,6 +186,11 @@ function placePanelBase(life, id) {
     rows.push(`<p><b>Crop:</b> <span class="bar"><span style="width:${Math.round(p.growth * 100)}%"></span></span> ${Math.round(p.growth * 100)}% grown</p>`);
     rows.push(`<p><b>Waiting for the truck:</b> ${esc(amount(p.makes, p.out[p.makes] || 0))}</p>`);
     rows.push(`<p><b>Harvested today:</b> ${esc(amount(p.makes, life.stats.harvested[p.makes] || 0))}</p>`);
+    if(['sheep','dairy','coop'].includes(id)){
+      const animals=life.farmAnimals(id);
+      rows.push('<p><b>Living livestock:</b> '+animals.length+' · '+animals.filter(x=>x.isolated).length+' isolated · '+animals.filter(x=>x.fed).length+' fed</p>');
+      rows.push('<p>'+animals.map(x=>esc(x.id+' '+x.health+'% '+(x.caseId?'case '+x.caseId:''))).join(' · ')+'</p>');
+    }
   } else {
     const shelves = id === 'bakery' ? p.out : p.stock;
     if (p.target) rows.push(`<p><b>${id === 'bakery' ? 'On the shelves' : 'In stock'}:</b> ${esc(list(shelves))}</p>`);
@@ -193,6 +210,15 @@ function placePanelBase(life, id) {
   for (const g of sells.filter((g) => me.bag[g] > 0).slice(0, 2)) actions.push(act(`Sell back ${GOODS[g].name}`, () => life.sellItem(id, g)));
   for (const g of Object.keys(me.bag).filter((g) => me.bag[g] > 0 && ['bread', 'pie', 'fruit', 'veg'].includes(g)).slice(0, 1)) actions.push(act(`Eat the ${GOODS[g].name}`, () => life.eatItem(g)));
   if (id === 'post') actions.push(act('Post a letter to Mabel ($2)', () => life.postLetter('Mabel')));
+  if(id==='pub'){
+    const m=life.industryReport();
+    rows.push('<p><b>Bar:</b> '+m.beerKegs+' sealed kegs, '+m.openKegServes+' serves left on tap, '+(p.stock.soda||0)+' soft drinks.</p>');
+    actions.push(act('Buy beer ($8, adults only)',()=>life.buyPubDrink('beer')),act('Buy soft drink ($4)',()=>life.buyPubDrink('soda')));
+  }
+  if(['sheep','dairy','coop'].includes(id)){
+    const a=life.farmAnimals(id).find(x=>x.health<60&&!x.caseId);
+    if(a)actions.push(act('Call the vet for '+a.id,()=>life.reportAnimalIllness(id,a.id)));
+  }
   return { title: `${p.name} · ${p.kind === 'farm' ? 'farm' : p.kind}`, body: rows.join('') + (sells.length || id === 'post' ? bagLine(life) : ''), actions, wide: true };
 }
 

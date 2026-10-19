@@ -1,3 +1,5 @@
+import { initialiseLivestock,animalCareDay,livestockMinute,animalProductionFactor,herdReport,reportSickAnimal } from './livestock.js';
+import { initialiseIndustries,productionHour,serveDrink,industrySummary } from './linked-industries.js';
 import { distributePower, townPowerDemands, POWER_LINE_IDS, GRID_FAULT_COST } from './power-grid.js';
 import { initialisePublicLife, attendPublicForum, updatePublicForum, civicDialogue } from './public-forum.js';
 import { freshFinance, noteSale, noteRates, withhold, stateFunded, drawState, noteCouncilWage, dailyGrants, dailyClose as financeDailyClose, payBills, economyReport, bizStats, governmentMoney } from './finance.js';
@@ -50,6 +52,17 @@ export const GOODS = {
   ore: { name: 'ore', unit: 'tonne', price: 4 },
   scrap: { name: 'scrap metal', unit: 'crate', price: 2 },
   parts: { name: 'spare parts', unit: 'box', price: 12 },
+  feed:{name:'livestock feed',unit:'bag',price:3},
+  medkit:{name:'veterinary kit',unit:'pack',price:15},
+  timber:{name:'timber',unit:'bundle',price:12},
+  cement:{name:'cement',unit:'bag',price:9},
+  hardware:{name:'building fixings',unit:'box',price:7},
+  metal:{name:'construction steel',unit:'bundle',price:12},
+  malt:{name:'brewing malt',unit:'bag',price:5},
+  hops:{name:'hops',unit:'pack',price:7},
+  yeast:{name:'brewing yeast',unit:'pack',price:6},
+  beerKeg:{name:'beer keg',unit:'keg',price:72},
+  soda:{name:'soft drinks',unit:'bottle',price:4},
 };
 
 // col letter → place. `sells` are what villagers can buy; `makes` what work produces.
@@ -61,7 +74,7 @@ export const PLACE_DEFS = [
   { col: 'K', id: 'greengrocer', name: 'Greengrocer', kind: 'shop', sells: ['veg', 'fruit'], opens: 8 * 60, closes: 18 * 60, target: { veg: 24, fruit: 20 } },
   { col: 'L', id: 'butcher', name: 'Butcher', kind: 'shop', sells: ['lamb'], opens: 8 * 60, closes: 17 * 60 + 30, target: { lamb: 16 } },
   { col: 'M', id: 'square', name: 'Market Square', kind: 'park', opens: 0, closes: 24 * 60 },
-  { col: 'N', id: 'pub', name: 'The Merged Branch', kind: 'pub', opens: 11 * 60, closes: 23 * 60, target: { lamb: 8, veg: 10, pie: 6, bread: 6 } },
+  { col: 'N', id: 'pub', name: 'The Merged Branch', kind: 'pub', opens: 11 * 60, closes: 23 * 60, target: { lamb: 8, veg: 10, pie: 6, bread: 6, beerKeg:5, soda:14 } },
   { col: 'O', id: 'post', name: 'Post Office', kind: 'post', opens: 8 * 60, closes: 17 * 60, target: { parcel: 12 } },
   { col: 'P', id: 'school', name: 'School', kind: 'school', opens: 8 * 60 + 30, closes: 15 * 60 },
   { col: 'Q', id: 'clinic', name: 'Clinic', kind: 'clinic', opens: 8 * 60, closes: 17 * 60 },
@@ -77,6 +90,10 @@ export const PLACE_DEFS = [
   // Across the road from the high street (south side): finance, utilities and industry.
   { col: 'G', side: 'south', id: 'bank', name: 'Community Bank', kind: 'bank', opens: 9 * 60, closes: 16 * 60 },
   { col: 'I', side: 'south', id: 'hotel', name: 'Railway Hotel', kind: 'hotel', opens: 0, closes: 24 * 60 },
+  { col: 'K', side: 'south', id: 'hardware', name: 'Town Hardware & Timber', kind: 'shop', opens: 8 * 60, closes: 17 * 60, sells:['timber','cement','hardware','metal'], target:{timber:12,cement:10,hardware:12,metal:8} },
+  { col: 'M', side: 'south', id: 'vet', name: 'Rural Veterinary Practice', kind: 'clinic', opens: 8 * 60, closes: 17 * 60, target:{medkit:8} },
+  { col: 'O', side: 'south', id: 'brewery', name: 'Branch Brewery', kind: 'industry', opens: 7 * 60, closes: 16 * 60, target:{malt:10,hops:5,yeast:5} },
+  { col: 'S', side: 'south', id: 'buildsite', name: 'Farm Workshop Extension', kind: 'construction', opens: 7 * 60, closes: 17 * 60, target:{timber:6,cement:5,hardware:4,metal:4} },
   { col: 'H', side: 'south', id: 'power', name: 'Power Station', kind: 'utility', opens: 0, closes: 24 * 60, target: { fuel: 160 } },
   { col: 'J', side: 'south', id: 'waterworks', name: 'Water Works', kind: 'utility', opens: 0, closes: 24 * 60 },
   { col: 'L', side: 'south', id: 'sewage', name: 'Wastewater Works', kind: 'utility', opens: 0, closes: 24 * 60 },
@@ -95,8 +112,8 @@ const JOBS = [
   ['postie', 'post', 8 * 60, 14 * 60], ['truck driver', 'depot', 6 * 60, 16 * 60], ['truck driver', 'depot', 7 * 60, 17 * 60],
   ['truck driver', 'depot', 6 * 60 + 30, 15 * 60], ['teacher', 'school', 8 * 60, 15 * 60 + 30], ['nurse', 'clinic', 8 * 60, 17 * 60],
   ['mayor', 'hall', 9 * 60, 16 * 60], ['station master', 'depot', 6 * 60, 15 * 60], ['programmer', 'home', 9 * 60, 17 * 60],
-  ['programmer', 'home', 10 * 60, 18 * 60], ['retired', 'square', 9 * 60, 12 * 60], ['student', 'school', 8 * 60 + 30, 15 * 60],
-  ['student', 'school', 8 * 60 + 30, 15 * 60], ['artist', 'square', 10 * 60, 15 * 60], ['retired', 'square', 14 * 60, 17 * 60],
+  ['builder', 'buildsite', 7 * 60, 16 * 60], ['hardware merchant', 'hardware', 8 * 60, 17 * 60], ['student', 'school', 8 * 60 + 30, 15 * 60],
+  ['student', 'school', 8 * 60 + 30, 15 * 60], ['veterinarian', 'vet', 8 * 60, 17 * 60], ['brewer', 'brewery', 7 * 60, 16 * 60],
   ['farmer', 'silo', 7 * 60, 15 * 60], ['grocer', 'greengrocer', 8 * 60, 16 * 60],
   ['power operator', 'power', 6 * 60, 18 * 60], ['water operator', 'waterworks', 7 * 60, 15 * 60], ['recycler', 'recycling', 7 * 60, 15 * 60],
   ['firefighter', 'fire', 8 * 60, 18 * 60], ['bank teller', 'bank', 8 * 60 + 30, 16 * 60 + 30], ['foundry worker', 'foundry', 7 * 60, 15 * 60],
@@ -253,6 +270,10 @@ export class TownLife {
     initialisePublicLife(this);
     startNeeds(this);
     this.place('hotel').bookings=[];
+    initialiseIndustries(this);
+    initialiseLivestock(this);
+    for(const v of this.villagers){v.age=v.job==='student'?16:23+v.id%43;v.alcoholPreference=v.id%5===0?'none':v.id%4===0?'occasional':'social';}
+    this.civic.player.age=25;
     this.log(`Day ${this.day} begins. The town wakes up.`);
   }
 
@@ -277,6 +298,7 @@ export class TownLife {
     for (const v of this.villagers) this.liveVillager(v, minutes);
     updatePublicForum(this);
     advanceCivicWork(this, minutes);
+    livestockMinute(this,minutes);
     if (hourly && Math.floor(this.minute / 60) === 10 && this.day >= this.civic.government.meetingDay) councilMeeting(this);
     for (const t of this.trucks) this.driveTruck(t, minutes);
     for (const t of this.trucks) {
@@ -318,6 +340,7 @@ export class TownLife {
     const mood = (y.powerCutHours ? -3 : 0) - (y.stockouts > 60 ? 2 : y.stockouts > 35 ? 1 : 0) + (worn ? -2 : 0);
     c.indicators.happiness = clamp(c.indicators.happiness + (mood || 1), 0, 100);
     maintainServices(this);
+    animalCareDay(this);
     if (this.day >= c.electionDay) this.election();
     this.log(`Day ${this.day} begins: ${c.weather} weather. The 6:40 freight train is due at the Rail Depot.`);
   }
@@ -439,6 +462,14 @@ export class TownLife {
     return `The ${p.name} buys it back for $${pay}.`;
   }
   eatItem(good) { return eatPlayer(this,good); }
+  buyPubDrink(kind='soda') {
+    const me=this.civic.player;
+    const buyer={name:'Visitor',job:'visitor',age:me.age,wallet:me.wallet,alcoholPreference:'occasional'};
+    const result=serveDrink(this,buyer,kind);me.wallet=buyer.wallet;return result;
+  }
+  farmAnimals(id){return herdReport(this,id);}
+  reportAnimalIllness(farm,id){return reportSickAnimal(this,farm,id);}
+  industryReport(){return industrySummary(this);}
   bookHotel() { return hotelCheckIn(this); }
   sleepHotel(room=null) { return sleepPlayer(this,'hotel',room); }
   needsReport() { return needsReport(this); }
@@ -487,7 +518,7 @@ export class TownLife {
         const hands = at(p.id).length;
         // Farms stop picking once their shed is full (60), so unsold produce doesn't pile up forever.
         if (hands && this.open(p) && (p.out[p.makes] || 0) < 60) {
-          const n = Math.round((2 + 3 * p.growth) * hands * (FARM_YIELD[p.makes] || 1));
+          const n = Math.round((2 + 3 * p.growth) * hands * (FARM_YIELD[p.makes] || 1) * animalProductionFactor(this,p.id));
           p.out[p.makes] = (p.out[p.makes] || 0) + n;
           this.stats.harvested[p.makes] = (this.stats.harvested[p.makes] || 0) + n;
           if (p.makes === 'grain' && p.growth > 0.9) { p.growth = 0.3; this.log(`The wheat paddock was harvested. ${n} bags of grain went into the silo.`); }
@@ -496,6 +527,7 @@ export class TownLife {
     }
     const h = Math.floor(this.minute / 60);
     this.utilitiesHour(h, at);
+    productionHour(this,h,at);
     const powered = this.gridPowered('bakery');
     const mill = this.place('mill');
     const batch = Math.min(2, Math.floor((mill.stock.grain || 0) / 3));
@@ -737,6 +769,12 @@ export class TownLife {
       ['dairy', 'milk', 'store'], ['dairy', 'milk', 'cafe'], ['dairy', 'milk', 'bakery'], ['coop', 'eggs', 'store'], ['coop', 'eggs', 'cafe'], ['coop', 'eggs', 'bakery'],
       ['sheep', 'lamb', 'butcher'], ['sheep', 'lamb', 'pub'], ['sheep', 'lamb', 'bakery'],
       ['depot', 'coffee', 'cafe'], ['depot', 'coffee', 'store'], ['depot', 'tea', 'store'], ['depot', 'parcel', 'post'],
+      ['depot','feed','sheep'],['depot','feed','dairy'],['depot','feed','coop'],
+      ['depot','medkit','vet'],
+      ['depot','timber','hardware'],['depot','cement','hardware'],['depot','hardware','hardware'],['depot','metal','hardware'],
+      ['hardware','timber','buildsite'],['hardware','cement','buildsite'],['hardware','hardware','buildsite'],['hardware','metal','buildsite'],
+      ['depot','malt','brewery'],['depot','hops','brewery'],['depot','yeast','brewery'],
+      ['depot','beerKeg','pub'],['brewery','beerKeg','pub'],['depot','soda','pub'],
       ['depot', 'fuel', 'power'], ['depot', 'ore', 'foundry'], ['recycling', 'scrap', 'foundry'], ['foundry', 'parts', 'hall'],
     ];
     let best = null;
@@ -744,7 +782,11 @@ export class TownLife {
       const src = this.place(from), dst = this.place(to);
       const have = src.out[good] || 0, need = (dst.target?.[good] || 0) - (dst.stock[good] || 0);
       if (have < 3 || need < 3 || this.trucks.some((o) => o !== t && o.job?.to === to && o.job?.good === good)) continue;
-      const score = need / (dst.target[good] || 1) + this.rand() * 0.1;
+      // Perishable food and animal welfare deliveries outrank discretionary
+      // brewery and building orders when only three trucks are available.
+      const essential = ['butcher','greengrocer','store','bakery','cafe','pub'];
+      const score = need / (dst.target[good] || 1) + this.rand() * 0.1 +
+        (essential.includes(to)&&!['beerKeg','soda'].includes(good)?({greengrocer:0.9,butcher:0.8,store:0.7,bakery:0.5,cafe:0.35,pub:0.25}[to]||0):0) + (good==='feed'?0.25:0);
       if (!best || score > best.score) best = { from, to, good, n: Math.min(20, have, need), score };
     }
     if (!best) { t.state = 'waiting for an order'; return; }
@@ -850,7 +892,7 @@ export class TownLife {
     return this.jitter(p.front, 2);
   }
   workActivity(v) {
-    const a = { farmer: 'working the paddock', 'dairy hand': 'milking the cows', 'poultry keeper': 'collecting eggs', shearer: 'tending the sheep', miller: 'grinding flour', baker: 'baking bread and pies',
+    const a = { builder:'working on an inspected construction project', 'hardware merchant':'selling trade supplies',veterinarian:'caring for farm animals',brewer:'brewing beer and checking fermentation', farmer: 'working the paddock', 'dairy hand': 'milking the cows', 'poultry keeper': 'collecting eggs', shearer: 'tending the sheep', miller: 'grinding flour', baker: 'baking bread and pies',
       barista: 'pulling coffees', cook: 'cooking brekkies', grocer: 'stacking the vegie crates', shopkeeper: 'serving at the counter', butcher: 'cutting lamb', publican: 'pulling beers',
       postie: 'sorting the mail', 'truck driver': 'driving deliveries', teacher: 'teaching a class', nurse: 'seeing patients', mayor: 'running the town', 'station master': 'meeting the train',
       student: 'in class', retired: 'feeding the ducks', artist: 'painting the town' };
@@ -935,6 +977,11 @@ export class TownLife {
     v.activity = s.activity;
     v.inside = s.at === 'home';
     if (s.kind === 'snack') this.snack(v, s.at, s.good);
+    if (s.kind === 'idle'&&s.at==='pub') {
+      const drink=v.alcoholPreference==='none'||v.job==='student'||v.age<18?'soda':this.rand()<0.35?'beer':'soda';
+      const result=serveDrink(this,v,drink);
+      if(!/bought/.test(result))v.memory=result;
+    }
     if (s.kind === 'eatout' || s.kind === 'buy' || s.kind === 'parcel') {
       // These happen on arrival; the step's duration is the time spent there.
       if (s.kind === 'eatout') this.eatOut(v, s.at);
@@ -1038,7 +1085,7 @@ export class TownLife {
   }
 
   // Saves just what matters to resume tomorrow where the town left off.
-  snapshot() { return { saveVersion:2, day: this.day, minute: this.minute, powerGridEvents:this.powerGridEvents, powerGridEventSeq:this.powerGridEventSeq, civic: this.civic, places: [...this.places.values()].map((p) => [p.id, p.stock, p.out, p.till, p.growth]), villagers: this.villagers.map((v) => [v.id, v.pantry, v.wallet, v.lastMeal, v.meals, v.hunger, v.fatigue, v.restedMinutes, v.wageArrears || 0, v.rateArrears || 0, v.housingArrears || 0]), hotelBookings:this.place('hotel').bookings }; }
+  snapshot() { return { saveVersion:2, day: this.day, minute: this.minute, powerGridEvents:this.powerGridEvents, powerGridEventSeq:this.powerGridEventSeq, civic: this.civic, places: [...this.places.values()].map((p) => [p.id, p.stock, p.out, p.till, p.growth]), villagers: this.villagers.map((v) => [v.id, v.pantry, v.wallet, v.lastMeal, v.meals, v.hunger, v.fatigue, v.restedMinutes, v.wageArrears || 0, v.rateArrears || 0, v.housingArrears || 0]), industries:this.industries, beerServes:this.place('pub').openKegServes||0, hotelBookings:this.place('hotel').bookings }; }
   restore(s) {
     if (!s || typeof s !== 'object') return;
     this.day = Number.isFinite(s.day) && s.day >= 1 ? s.day : 1;
@@ -1055,6 +1102,9 @@ export class TownLife {
     for (const [id, stock, out, till, growth] of s.places || []) { const p = this.place(id); if (p) Object.assign(p, { stock, out, till, growth: growth ?? p.growth }); }
     for (const [id, pantry, wallet, lastMeal, meals, hunger, fatigue, restedMinutes, wageArrears, rateArrears, housingArrears] of s.villagers || []) { const v = this.villagers[id]; if (v) Object.assign(v, { pantry, wallet, lastMeal, meals: meals || [], hunger: Number.isFinite(hunger)?hunger:v.hunger, fatigue: Number.isFinite(fatigue)?fatigue:v.fatigue, restedMinutes: Number.isFinite(restedMinutes)?restedMinutes:0, wageArrears: Number.isFinite(wageArrears)?wageArrears:0, rateArrears: Number.isFinite(rateArrears)?rateArrears:0, housingArrears: Number.isFinite(housingArrears)?housingArrears:0 }); }
     this.place('hotel').bookings=Array.isArray(s.hotelBookings)?s.hotelBookings.slice(-12):[];
+    if(s.industries&&typeof s.industries==='object')this.industries=s.industries;
+    initialiseIndustries(this);initialiseLivestock(this);
+    this.place('pub').openKegServes=Number.isFinite(s.beerServes)?Math.max(0,s.beerServes):0;
     startNeeds(this);
   }
 }
