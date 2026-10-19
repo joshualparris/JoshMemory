@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { Builder } from './builder.js';
 import { buildInterior } from './interior.js';
-import { UPPER_FLOOR_PLANS, hasUpperFloors, navigationForFloor } from './floor-plans.js';
+import { upperPlansFor, navigationForFloor } from './floor-plans.js';
 
 export const FLOOR_HEIGHT = 3.8;
 
@@ -58,8 +58,8 @@ function decorate(level, floor, count, makeLabel) {
 }
 
 export function createFloorStack(house, makeLabel) {
-  if (!hasUpperFloors(house.coordinate)) return null;
-  const upper = UPPER_FLOOR_PLANS[house.coordinate];
+  const upper = upperPlansFor(house);
+  if (!upper.length) return null;
   const lobby = { name:'Stairwell and lift lobby', w:10,d:10, archive:true,vertical:true,
     props:[['bench','Waiting bench'],['lamp','Lobby light']] };
   const ground = buildInterior({ ...house, int:{ ...house.int,rooms:[...house.int.rooms,lobby] } },makeLabel);
@@ -68,6 +68,23 @@ export function createFloorStack(house, makeLabel) {
     return buildInterior({ ...house,int:{ ...house.int,layout:plan.layout, height:3.6,
       floor:house.int.floor,rooms } },makeLabel);
   });
+  // A second way to find vertical navigation: place a highly visible sign
+  // inside the front entrance, facing the player, not in a distant archive.
+  const sign = new Builder();
+  const sx = ground.spawn.x + 1.1, sz = ground.spawn.z - 0.85;
+  sign.box(0x216586, 1.65, 1.0, 0.14, sx, 1.75, sz);
+  sign.box(0xf0cb65, 1.45, 0.08, 0.18, sx, 2.16, sz);
+  ground.group.add(sign.build());
+  const signLabel = makeLabel('🛗 STAIRS & LIFT · Choose floor', 'interactive');
+  signLabel.position.set(sx, 2.25, sz - 0.15);
+  signLabel.userData.labelKind = 'interactive';
+  if (signLabel.material) signLabel.material.depthTest = false;
+  signLabel.renderOrder = 10;
+  ground.group.add(signLabel);
+  ground.interactables.push({ key:'vertical:entrance:lift',type:'floorPortal',
+    label:'🛗 Stairs and lift · Choose a floor',floorNav:'lift',target:null,
+    pos:new THREE.Vector3(sx,0,sz),room:0,roomName:ground.rooms[0].name,
+    act:{do:'info',title:'Stairs and lift',text:'Choose a building floor.'} });
   const levels = [ground,...upperLevels];
   for (let i = 0; i < levels.length; i++) {
     levels[i] = decorate(levels[i],i,levels.length,makeLabel);
