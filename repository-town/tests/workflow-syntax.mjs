@@ -17,5 +17,5 @@ assert.match(body,/Town safety gate/,'the town safety check must have passed');
 assert.match(body,/pr\.draft/,'draft PRs must never auto merge');
 assert.match(body,/pr\.base\.ref!=='main'/,'only approved main PRs may merge');
 // Compile without executing; payload can never affect the repository during tests.
-new Function('github','context',\`return (async () => {\n\${body}\n})()\`);
+new Function('github','context', 'return (async () => {\n' + body + '\n})()');
 console.log('PASS: opt-in merge workflow parses and retains safe merge guards');
