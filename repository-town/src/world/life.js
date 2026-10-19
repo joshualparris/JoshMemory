@@ -110,7 +110,16 @@ const fmt = (m) => `${String(Math.floor(m / 60) % 24).padStart(2, '0')}:${String
 export const timeText = fmt;
 
 // Seeded random so a new town always starts the same way.
-function rng(seed) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
+function rng(seed) {
+  let s = seed >>> 0;
+  const next = () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296);
+  next.getState = () => s;
+  next.setState = (state) => {
+    if (!Number.isInteger(state) || state < 0 || state > 0xffffffff) throw new RangeError('Invalid random-generator state');
+    s = state >>> 0;
+  };
+  return next;
+}
 
 // ── Walking routes ─────────────────────────────────────────────────────────
 const rowOf = (z) => { let best = 0; for (let r = 1; r < 8; r++) if (Math.abs(ROAD(r) - z) < Math.abs(ROAD(best) - z)) best = r; return best; };
@@ -161,7 +170,8 @@ export function trainX(minute, depotX) {
 export class TownLife {
   constructor({ homes, minute = 7 * 60, seed = 20261019 }) {
     // homes: [{ coordinate, name, door: {x,z} }] — the repository houses people live in.
-    this.rand = rng(seed);
+    this.seed = seed >>> 0;
+    this.rand = rng(this.seed);
     this.day = 1; this.minute = minute;
     this.events = []; this.stats = this.freshStats();
     this.places = new Map();
@@ -741,13 +751,119 @@ export class TownLife {
       population: this.villagers.length, atWork: this.villagers.filter((v) => v.step?.kind === 'work').length, asleep: this.villagers.filter((v) => v.step?.kind === 'sleep').length };
   }
 
-  // Saves just what matters to resume tomorrow where the town left off.
-  snapshot() { return { day: this.day, minute: this.minute, civic: this.civic, places: [...this.places.values()].map((p) => [p.id, p.stock, p.out, p.till, p.growth]), villagers: this.villagers.map((v) => [v.id, v.pantry, v.wallet, v.lastMeal, v.meals]) }; }
-  restore(s) {
-    if (!s || typeof s !== 'object') return;
-    this.day = s.day || 1; this.minute = s.minute || 7 * 60;
-    if (s.civic && typeof s.civic === 'object') Object.assign(this.civic, s.civic, { player: { ...this.civic.player, ...(s.civic.player || {}) } });
-    for (const [id, stock, out, till, growth] of s.places || []) { const p = this.place(id); if (p) Object.assign(p, { stock, out, till, growth: growth ?? p.growth }); }
-    for (const [id, pantry, wallet, lastMeal, meals] of s.villagers || []) { const v = this.villagers[id]; if (v) Object.assign(v, { pantry, wallet, lastMeal, meals: meals || [] }); }
+  // Snapshot schema v1 captures the simulation state needed for deterministic resume.
+  // Renderer inputs (the player's transient collision position) are deliberately external.
+  snapshot() {
+    const villagerFields = ['x', 'z', 'heading', 'inside', 'path', 'step', 'activity', 'hunger', 'wallet', 'savings', 'pantry', 'carrying', 'lastMeal', 'meals', 'seen', 'doneToday', 'queue', 'paidDay', 'bike', 'memory'];
+    const truckFields = ['x', 'z', 'heading', 'path', 'job', 'leg', 'load', 'wait', 'state'];
+    const state = {
+      schemaVersion: 1,
+      seed: this.seed,
+      rngState: this.rand.getState(),
+      day: this.day,
+      minute: this.minute,
+      civic: this.civic,
+      events: this.events,
+      stats: this.stats,
+      yesterday: this.yesterday || null,
+      places: [...this.places.values()].map((p) => [p.id, p.stock, p.out, p.till, p.growth]),
+      villagers: this.villagers.map((v) => {
+        const saved = { id: v.id };
+        for (const key of villagerFields) if (v[key] !== undefined) saved[key] = v[key];
+        return saved;
+      }),
+      trucks: this.trucks.map((t) => {
+        const saved = { id: t.id };
+        for (const key of truckFields) if (t[key] !== undefined) saved[key] = t[key];
+        return saved;
+      }),
+      parcels: this.parcels,
+    };
+    return JSON.parse(JSON.stringify(state));
+  }
+
+  // Restores legacy unversioned snapshots (schema 0) and current schema 1.
+  // Unknown future versions or malformed data are rejected before any state changes.
+  restore(snapshot) {
+    if (!snapshot || typeof snapshot !== 'object' || Array.isArray(snapshot)) return false;
+    let s;
+    try { s = JSON.parse(JSON.stringify(snapshot)); } catch { return false; }
+    const isRecord = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
+    const version = s.schemaVersion === undefined ? 0 : s.schemaVersion;
+    if (!Number.isInteger(version) || version < 0 || version > 1) return false;
+    if (!Number.isInteger(s.day) || s.day < 1 || !Number.isFinite(s.minute) || s.minute < 0 || s.minute >= 24 * 60) return false;
+    if (!isRecord(s.civic) || !Array.isArray(s.places) || !Array.isArray(s.villagers)) return false;
+
+    const placeIds = new Set();
+    for (const row of s.places) {
+      if (!Array.isArray(row) || typeof row[0] !== 'string' || placeIds.has(row[0]) || !isRecord(row[1]) || !isRecord(row[2]) || !Number.isFinite(row[3])) return false;
+      if (row[4] !== null && row[4] !== undefined && !Number.isFinite(row[4])) return false;
+      placeIds.add(row[0]);
+    }
+
+    let villagers = s.villagers;
+    if (version === 0) {
+      villagers = s.villagers.map((row) => {
+        if (!Array.isArray(row) || !Number.isInteger(row[0]) || !isRecord(row[1]) || !Number.isFinite(row[2]) || !Array.isArray(row[4])) return null;
+        return { id: row[0], pantry: row[1], wallet: row[2], lastMeal: row[3], meals: row[4] };
+      });
+      if (villagers.some((v) => !v)) return false;
+    } else {
+      if (!Number.isInteger(s.seed) || s.seed < 0 || s.seed > 0xffffffff || !Number.isInteger(s.rngState) || s.rngState < 0 || s.rngState > 0xffffffff) return false;
+      if (!Array.isArray(s.events) || !isRecord(s.stats) || !(s.yesterday === null || isRecord(s.yesterday)) || !Array.isArray(s.trucks) || !Array.isArray(s.parcels)) return false;
+      if (villagers.length !== this.villagers.length || s.trucks.length !== this.trucks.length) return false;
+      if (villagers.some((v) => !isRecord(v) || !Number.isInteger(v.id))) return false;
+      if (s.trucks.some((t) => !isRecord(t) || !Number.isInteger(t.id) || !Array.isArray(t.path))) return false;
+    }
+
+    const currentVillagerIds = new Set(this.villagers.map((v) => v.id));
+    const savedVillagerIds = new Set();
+    for (const v of villagers) {
+      if (!currentVillagerIds.has(v.id) || savedVillagerIds.has(v.id)) return false;
+      savedVillagerIds.add(v.id);
+    }
+    if (version === 1) {
+      const truckIds = new Set(this.trucks.map((t) => t.id));
+      const savedTruckIds = new Set();
+      for (const t of s.trucks) {
+        if (!truckIds.has(t.id) || savedTruckIds.has(t.id)) return false;
+        savedTruckIds.add(t.id);
+      }
+    }
+
+    // All input is validated above; apply it only after validation succeeds.
+    this.day = s.day;
+    this.minute = s.minute;
+    Object.assign(this.civic, s.civic, { player: { ...this.civic.player, ...(s.civic.player || {}) } });
+    for (const [id, stock, out, till, growth] of s.places) {
+      const p = this.place(id);
+      if (p) Object.assign(p, { stock, out, till, growth: growth ?? p.growth });
+    }
+    if (version === 0) {
+      for (const v of villagers) {
+        const current = this.villagers.find((item) => item.id === v.id);
+        Object.assign(current, { pantry: v.pantry, wallet: v.wallet, lastMeal: v.lastMeal, meals: v.meals });
+      }
+      // Older snapshots did not store random state; keep this instance's seeded initial state.
+      return true;
+    }
+
+    this.seed = s.seed;
+    this.rand.setState(s.rngState);
+    this.events = s.events;
+    this.stats = s.stats;
+    this.yesterday = s.yesterday || undefined;
+    const villagerFields = ['x', 'z', 'heading', 'inside', 'path', 'step', 'activity', 'hunger', 'wallet', 'savings', 'pantry', 'carrying', 'lastMeal', 'meals', 'seen', 'doneToday', 'queue', 'paidDay', 'bike', 'memory'];
+    for (const saved of villagers) {
+      const current = this.villagers.find((item) => item.id === saved.id);
+      for (const key of villagerFields) if (Object.prototype.hasOwnProperty.call(saved, key)) current[key] = saved[key];
+    }
+    const truckFields = ['x', 'z', 'heading', 'path', 'job', 'leg', 'load', 'wait', 'state'];
+    for (const saved of s.trucks) {
+      const current = this.trucks.find((item) => item.id === saved.id);
+      for (const key of truckFields) if (Object.prototype.hasOwnProperty.call(saved, key)) current[key] = saved[key];
+    }
+    this.parcels = s.parcels;
+    return true;
   }
 }

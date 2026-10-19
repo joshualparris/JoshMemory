@@ -15,16 +15,16 @@ workers, operating hours, input stocks, capacity, outputs, customers, costs,
 failure modes, measurable outcomes and actions the player can take.
 
 ## Implementation reality / safety
-The first slice exists on branch feat/living-town-simulation-20261019:
-- [x] Offline deterministic 24-real-minute town day, clock, daytime lighting
+The canonical main source contains the merged first slice (verify current main before porting any older feature branch):
+- [x] Offline deterministic 24-hour in-world clock; at the default 3 real seconds per simulated minute, one day takes 72 real minutes, with daytime lighting
 - [x] 20 vacant Street 8 parcels reserved for visibly labelled civic/industrial places
 - [x] Budgeted mayoral elections, council treasury, taxes, repair requests
 - [x] Town Credits visitor wallet + bank deposits/withdrawals; household commerce
 - [x] Farm > mill > bakery > freight > market > meals stock-flow prototype
 - [x] Power/fuel, treated water, wastewater, rubbish, recycling, foundry inputs/exports
 - [x] Post letters with delivery windows, incidents and repair costs
-- [x] Interactive Ledger and an event log; save/load state in localStorage
-- [x] Pure-module regression checks for non-negative inventory and deterministic replay
+- [x] Interactive Ledger and an event log; versioned TownLife snapshots in localStorage with legacy unversioned restore and forward-version overwrite protection
+- [x] Pure-module regression checks for non-negative inventory, deterministic seeded replay, versioned snapshot restore and save continuation
 - [ ] A pathfinding NPC that *physically* performs each scheduled job
 - [ ] Interior walk-in civic facilities and shops
 - [ ] Actual pipes/cables/road network topology and vehicle cargo visuals

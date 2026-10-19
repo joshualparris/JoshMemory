@@ -2,7 +2,7 @@
 // bag and money, council actions, elections, and two weeks of a stable economy.
 //   node tests/town-simulation.mjs
 import assert from 'node:assert/strict';
-import { TownLife, timeText, CANDIDATES } from '../src/world/life.js';
+import { TownLife, timeText, CANDIDATES, SEC_PER_MIN } from '../src/world/life.js';
 
 // Synthetic households on rows 1–7 (the real town has 188).
 const homes = [];
@@ -11,6 +11,40 @@ const run = (t, minutes) => { for (let m = 0; m < minutes; m += 0.5) t.tick(0.5)
 
 assert.equal(timeText(480), '08:00');
 assert.equal(timeText(1440), '00:00');
+assert.equal(SEC_PER_MIN, 3);
+assert.equal((24 * 60 * SEC_PER_MIN) / 60, 72, 'the default in-world day is 72 real minutes');
+
+// A save resumes the same seeded simulation, including random state, active work and routes.
+const firstRun = new TownLife({ homes, minute: 7 * 60, seed: 12345 });
+run(firstRun, 180);
+const checkpoint = JSON.parse(JSON.stringify(firstRun.snapshot()));
+assert.equal(checkpoint.schemaVersion, 1);
+const resumedRun = new TownLife({ homes, minute: 7 * 60, seed: 999 });
+assert.equal(resumedRun.restore(checkpoint), true);
+run(firstRun, 90);
+run(resumedRun, 90);
+assert.deepEqual(resumedRun.snapshot(), firstRun.snapshot(), 'restore must continue deterministically from the checkpoint');
+
+// Unversioned snapshots from the previous release remain readable.
+const legacy = {
+  day: checkpoint.day,
+  minute: checkpoint.minute,
+  civic: checkpoint.civic,
+  places: checkpoint.places,
+  villagers: checkpoint.villagers.map((v) => [v.id, v.pantry || {}, v.wallet || 0, v.lastMeal || null, v.meals || []]),
+};
+const legacyTown = new TownLife({ homes });
+assert.equal(legacyTown.restore(JSON.parse(JSON.stringify(legacy))), true);
+assert.equal(legacyTown.day, checkpoint.day);
+assert.equal(legacyTown.civic.player.wallet, checkpoint.civic.player.wallet);
+
+// A future or malformed snapshot is rejected without mutating the live town.
+const beforeRejected = JSON.stringify(resumedRun.snapshot());
+assert.equal(resumedRun.restore({ ...checkpoint, schemaVersion: 99 }), false);
+assert.equal(JSON.stringify(resumedRun.snapshot()), beforeRejected);
+assert.equal(resumedRun.restore({ schemaVersion: 1, day: -1 }), false);
+assert.equal(JSON.stringify(resumedRun.snapshot()), beforeRejected);
+
 
 const t = new TownLife({ homes, minute: 7 * 60 });
 assert.equal(t.villagers.length, 38);

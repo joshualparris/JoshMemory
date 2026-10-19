@@ -142,7 +142,7 @@ Twelve discoverable glowing relics are situated outside public houses, each with
 ## Living Town prototype (in review)
 
 The civic simulation is grounded in a single, deterministic, offline-first model:
-a **24-real-minute town day**, 20 reserved empty street-8 lots with civic
+a **72-real-minute town day** at the default speed (three real seconds per in-world minute), 20 reserved empty street-8 lots with civic
 buildings, a Town Ledger, community bank, mayoral voting, the post office,
 basic industry, agriculture, retail supply chains, power, treated water,
 sewage, refuse collection and recycling. Visitor Town Credits and town state
