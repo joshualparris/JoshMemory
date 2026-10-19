@@ -293,6 +293,9 @@ async function start() {
     closePanel(); npcChat.close();
     const coord = inside.house.coordinate;
     const shop=inside.place||null;
+    // Walking out facing the street keeps that heading (mapped from the interior's frame, whose
+    // street side is +z, i.e. yaw π); any other exit faces the street rather than the door.
+    const outward = Math.cos(player.yaw - Math.PI) > 0.2 ? player.yaw : Math.PI, turn = inside.view?.turn || 0;
     scene.remove(inside.group);
     for (const group of (inside.floors ? inside.floors.levels.map(x => x.group) : [inside.group])) {
       group.traverse((o) => { if (o.isSprite) disposeLabel(o); else if (o.geometry && o.geometry.type !== 'BoxGeometry') o.geometry.dispose(); });
@@ -304,9 +307,9 @@ async function start() {
     if (placeOutside) {
       if (shop) {
         const pose = civicExitPose(shop, [...townWorld.all, ...townWorld.dynamic()], player.radius+0.08);
-        if (pose) player.place(pose.x,pose.z,pose.yaw);
+        if (pose) player.place(pose.x,pose.z,outward+turn);
         else spawn(); // use safe Town Guide location instead of clipping into a wall
-      } else { const l=town.lots.get(coord);player.place(l.doorPos.x,l.doorPos.z+4,Math.PI); }
+      } else { const l=town.lots.get(coord);player.place(l.doorPos.x,l.doorPos.z+4,outward); }
     }
     // Close the door behind the player so the doorway does not re-trigger.
     const d = town.doors.find((d) => d.userData.coordinate === coord); if (d) d.userData.open = 0;

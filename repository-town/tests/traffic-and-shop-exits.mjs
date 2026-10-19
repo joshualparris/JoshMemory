@@ -56,12 +56,15 @@ const exterior=[{x0:foundry.x-7,x1:foundry.x+7,z0:FIELD_Z0,z1:FIELD_Z0+10}];
 const pose=civicExitPose(foundry,exterior);
 assert(pose,'Foundry needs a safe exit');
 assert(pose.z<FIELD_Z0-1,'Foundry exit must be to the street, not into its walls');
-assert.equal(pose.yaw,Math.PI);
+// The player steps out facing the street, not back at the door (forward = (-sin yaw, -cos yaw)).
+const facesAway=(p,site)=>-Math.cos(p.yaw)*Math.sign(p.z-site.door.z)>0.99;
+assert(facesAway(pose,foundry),'Foundry exit faces the street, away from its door');
 assert(!new CollisionWorld(exterior).hits(pose.x,pose.z,0.5),'Foundry exit has collision clearance');
 assert(Math.abs(pose.z-foundry.door.z)>1.5,'exit is outside re-entry trigger');
 const north=life.place('bakery');
 const otherPose=civicExitPose(north,[{x0:north.x-6,x1:north.x+6,z0:north.door.z-9,z1:north.door.z-0.5}]);
 assert(otherPose?.z>north.door.z,'north buildings exit towards positive z');
+assert(facesAway(otherPose,north),'north buildings exit facing the street, away from the door');
 assert.equal(civicExitPose(foundry,[{x0:-1e6,x1:1e6,z0:-1e6,z1:1e6}]),null,'unresolvable exits must fail safe');
 const world=new CollisionWorld([]);
 world.dynamic=()=>[{x0:-1,x1:1,z0:-2,z1:2}];

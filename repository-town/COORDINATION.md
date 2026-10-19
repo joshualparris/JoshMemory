@@ -247,3 +247,7 @@ Newest first. Times in Australia/Sydney.
 - `finance.js`: grants are now needs-based (Commonwealth/NSW top the council up to a $6,000 reserve; GST top-up federal→state), villager households pay rent/power ($10/day) with capped `housingArrears`, PAYG is 15%. Long soak: council ~$6.5k, NSW ~$15k, villager savings no longer grow without bound.
 - New dedicated interiors built on `interior-kit.js`: `store-interior.js` (stock-driven shelves, gondolas, chillers, produce table, full-width counter), `cafe-interior.js` (espresso counter, pastry cabinet, tables, bench), `pub-interior.js` (bar, taps, bistro, lounge, pool). Dispatched in `shop-interior.js`; `tests/shop-interiors.mjs` has a branch for them (hotspots clear, staff behind counter).
 - Verified: `npm run test:town`, `tests/shop-e2e.mjs`, `tests/exit-stuck.mjs --shops` for store/cafe/pub.
+- Exits: leaving a civic building no longer faces you back at its door (`shop-exit.js` yaws were
+  inverted; the old test asserted them). Walking out facing the street keeps your heading; the Exit
+  button faces the street. `tests/exit-facing.mjs` (in `test:town`). `tests/life.mjs` closes a display
+  panel opened near a shop's door before using the counter (new General Store layout).

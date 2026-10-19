@@ -14,7 +14,8 @@ export function civicExitPose(site, colliders, radius = 0.46) {
     const z=site.door.z+side*offset;
     for(const xoff of [0,-1.6,1.6,-3.2,3.2]){
       const x=site.door.x+xoff;
-      if(!collides(x,z))return {x,z,yaw:side<0?Math.PI:0};
+      // Facing away from the door, out over the street (yaw 0 looks towards -z).
+      if(!collides(x,z))return {x,z,yaw:side<0?0:Math.PI};
     }
   }
   // Never return a collision-intersecting point. The caller can use the
