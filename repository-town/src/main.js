@@ -10,6 +10,7 @@ import { makeLabel, disposeLabel } from './ui/labels.js';
 import { runInteraction, esc } from './ui/interactions.js';
 import { setArchiveLoader } from './ui/archive.js';
 import { npcBehaviour } from './ui/npc.js';
+import { sceneFromRoom } from './ui/scene-awareness.js';
 import { mountNPCChat } from './ui/npc-chat.js';
 import { makePerson, Walker, houseWander, freeSpot, placeTownNPCs, animateNPCs, initialiseNPCWorksites } from './world/npcs.js';
 import { createTownLife } from './world/townlife.js';
@@ -340,7 +341,12 @@ async function start() {
     if (nearThing) {
       const thing = nearThing, request = ++interactionRequest, house = inside;
       const person = thing.person && inside.people?.find((p) => p.key === thing.key);
-      if (person) { person.talking = true; openPanel(npcBehaviour(thing, { house: inside.house, houses, town: () => townContext(life, null, person.activity) }), thing); return; }
+      if (person) {
+        person.talking = true;
+        const getNearbyScene = () => (inside ? sceneFromRoom({ rooms: inside.rooms, objects: inside.sceneObjects || [], roomIndex: person.room ?? thing.room, position: person.pos }) : null);
+        openPanel(npcBehaviour(thing, { house: inside.house, houses, getNearbyScene, town: () => townContext(life, null, person.activity) }), thing);
+        return;
+      }
       Promise.resolve(runInteraction(thing, ctx)).then((content) => { if (request === interactionRequest && inside === house && mode === 'house') openPanel(content, thing); })
         .catch((e) => { if (request === interactionRequest && inside === house) openPanel({ title: thing.label, body: `<p>Couldn't open this exhibit: ${esc(e.message)}</p>` }, thing); });
     }

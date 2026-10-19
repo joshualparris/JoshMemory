@@ -4,6 +4,7 @@
 // Groq API keys are NEVER stored in the browser or included in client files.
 import { repoInfo } from './archive.js';
 import { RELICS, PROGRESS_KEY, cleanProgress } from '../adventure/data.js';
+import { answerSceneQuestion } from './scene-awareness.js';
 import { recordPlayerMessage, recordTownAction, socialContext, socialGossip } from './social.js';
 
 const LEGACY_KEY_STORE = 'repository-town.groq-keys';
@@ -35,6 +36,7 @@ async function askResidentProxy(id, house, name, f, role, history, town) {
     summary: house.summary,
     isPublic: Boolean(house.repo),
     rooms: f.rooms.slice(0, 12),
+    scene: f.scene ? { roomName: f.scene.roomName, roomCount: f.scene.roomCount, nearby: f.scene.nearby.slice(0, 12) } : null,
     exhibits: f.exhibits.slice(0, 24),
     games: f.games.slice(0, 12),
     live: f.live.slice(0, 6),
@@ -124,14 +126,14 @@ export function getErrandsSummary() {
 }
 
 // Everything the resident knows: the house's own facts, plus the README when readable.
-async function factsFor(house, name = '', allHouses = []) {
+async function factsFor(house, name = '', allHouses = [], scene = null) {
   const rooms = house.int.rooms.map((r) => r.name).filter(Boolean);
   const exhibits = house.int.rooms.flatMap((r) => r.props.filter((p) => p[1] && p[2]?.do).map((p) => `${p[1]} (${r.name})`));
   const games = house.int.rooms.flatMap((r) => r.props.filter((p) => p[2]?.do === 'game').map((p) => p[2].title));
   const data = house.repo ? await repoInfo(house.repo).catch(() => null) : null;
   const readme = data?.readme ? data.readme.replace(/```[\s\S]*?```/g, '').replace(/<[^>]+>/g, '').replace(/\n{3,}/g, '\n\n').slice(0, 2500) : '';
   const townCtx = townContextFor(house, name, allHouses);
-  return { rooms, exhibits, games, readme, live: (house.links || []).map((l) => l.url), social: socialContext(name), ...townCtx };
+  return { rooms, exhibits, games, readme, scene, live: (house.links || []).map((l) => l.url), social: socialContext(name), ...townCtx };
 }
 
 // Town-life answers (src/world/life.js via townpanels.townContext): meals, work,
@@ -156,6 +158,8 @@ function townReply(t, town, pick) {
 function scripted(house, name, f, text, role, town) {
   const t = text.toLowerCase().trim();
   const pick = (a) => a[Math.floor(Math.random() * a.length)];
+  const sceneReply = answerSceneQuestion(f.scene, text, role);
+  if (sceneReply) return sceneReply;
   const fromTown = townReply(t, town, pick);
   if (fromTown) return fromTown;
   const exhibit = () => pick(f.exhibits)?.replace(/ \(.*\)$/, '') || 'the archive';
@@ -257,6 +261,7 @@ export function npcBehaviour(x, ctx) {
         <button type="button" class="chat-chip" data-ask="Any gossip about the neighbours on this street?">🗣️ Neighbours</button>
         <button type="button" class="chat-chip" data-ask="Who are your friends or enemies in town, and why?">💞 Friendships</button>
         <button type="button" class="chat-chip" data-ask="Do you have a small errand I can help with?">📦 Small errand</button>
+        <button type="button" class="chat-chip" data-ask="What objects are near you right now?">🪑 Nearby objects</button>
         <button type="button" class="chat-chip" data-ask="What did you eat today?">🍞 Meals</button>
         <button type="button" class="chat-chip" data-ask="What's happening in town?">📰 Town news</button>
         <button type="button" class="chat-chip" data-ask="Where are the shops?">🛒 Shops</button>
@@ -312,11 +317,14 @@ export function npcBehaviour(x, ctx) {
         history.push({ role: 'user', content: text });
         render(log, history, name);
         log.insertAdjacentHTML('beforeend', `<p class="npc dim thinking">${esc(name)} is thinking…</p>`);
-        facts = await factsFor(house, name, allHouses);
+        // The scene is sampled per message, so a wandering resident knows the room they are
+        // in right now; spatial questions are answered from it, never from a model's guess.
+        const scene = ctx.getNearbyScene?.(x) || null;
+        facts = await factsFor(house, name, allHouses, scene);
         const town = ctx.town?.() || null;
         let reply;
         try {
-          reply = await askResidentProxy(id, house, name, facts, x.act.role, history, town);
+          reply = answerSceneQuestion(facts.scene, text, x.act.role) || await askResidentProxy(id, house, name, facts, x.act.role, history, town);
         } catch (err) {
           reply = scripted(house, name, facts, text, x.act.role, town);
           if (err.code === 'offline') reply += ' (Offline, so a simple reply.)';

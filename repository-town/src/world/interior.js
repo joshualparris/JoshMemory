@@ -222,6 +222,7 @@ function buildOnce(house, makeLabel, attempt) {
 
   const interactables = [];
   const placedProps = [];
+  const sceneObjects = []; // placed furniture, decor and usable exhibits for resident perception
   const walkers = [];
   rooms.forEach((r, ri) => {
     const roomGaps = openings.filter((o) => (o.axis === 'z' && (Math.abs(o.at - r.z0) < 0.3 || Math.abs(o.at - r.z1) < 0.3) && o.c > r.x0 && o.c < r.x1) || (o.axis === 'x' && (Math.abs(o.at - r.x0) < 0.3 || Math.abs(o.at - r.x1) < 0.3) && o.c > r.z0 && o.c < r.z1))
@@ -255,6 +256,7 @@ function buildOnce(house, makeLabel, attempt) {
       const fw = sideways ? prop.d : prop.w, fd = sideways ? prop.w : prop.d;
       if (prop.solid) colliders.push({ x0: spot.x - fw / 2, x1: spot.x + fw / 2, z0: spot.z - fd / 2, z1: spot.z + fd / 2 });
       placedProps.push({ type, room: ri });
+      sceneObjects.push({ type, label: label || prop.label, room: ri, pos: { x: spot.x, z: spot.z }, interactive: !!key });
       const pos = new THREE.Vector3(spot.x, 0, spot.z);
       // Wall props get their label pushed out into the room so it never sits inside the wall.
       const out = spot.onWall ? LABEL_INSET : 0;
@@ -265,10 +267,12 @@ function buildOnce(house, makeLabel, attempt) {
     // pictures on leftover wall space. Repository-specific content comes from the brief.
     if (!(r.props || []).some((p) => CENTRE.has(typeof p === 'string' ? p : p[0])) && cells.length) {
       const c = cells.shift(); b.at(c.x, 0, c.z, 0, () => PROPS.rug.build(b, { c: ART[(ri * 3 + r.w) % ART.length], a: 0xe8dcc0 }));
+      sceneObjects.push({ type: 'rug', label: 'floor rug', room: ri, pos: { x: c.x, z: c.z }, interactive: false });
     }
     for (let k = 0; k < 3; k++) {
       const spot = slots.wall(1.1); if (!spot) break;
       const col = ART[(ri + k * 5 + Math.round(r.d)) % ART.length];
+      sceneObjects.push({ type: 'picture', label: 'framed wall picture', room: ri, pos: { x: spot.x, z: spot.z }, interactive: false });
       b.at(spot.x, 0, spot.z, spot.rot, () => { b.box(0x3a2a1e, 1.0, 0.75, 0.05, 0, 1.75, -0.02); b.box(col, 0.84, 0.59, 0.03, 0, 1.75, 0.01); b.box(0xf2efe6, 0.3, 0.2, 0.031, -0.18, 1.85, 0.012); });
     }
   });
@@ -291,7 +295,7 @@ function buildOnce(house, makeLabel, attempt) {
   for (const l of labels) { const sprite = makeLabel(l.text, l.kind); sprite.position.copy(l.pos); sprite.userData.labelKind = l.kind; if (sprite.material) sprite.material.depthTest = false; sprite.renderOrder = 10; group.add(sprite); }
   const dynamics = built.children.filter((c) => c.userData.anim);
   return {
-    group, colliders, sight, doors, interactables, dynamics, rooms, placedProps, walkers,
+    group, colliders, sight, doors, interactables, dynamics, rooms, placedProps, sceneObjects, walkers,
     openings: openings.filter((o) => o.rooms),   // internal doorways, for residents moving between rooms
     spawn: new THREE.Vector3(ex, 0, rooms[0].z1 - 1.6),
     exitZone: { x0: ex - DOOR_W / 2, x1: ex + DOOR_W / 2, z0: rooms[0].z1 + 0.1, z1: rooms[0].z1 + 1.2 },

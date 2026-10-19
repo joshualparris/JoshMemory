@@ -1,9 +1,9 @@
 // Scans the public build for anything from a private repository: slugs, URLs,
-// distinctive names, and every free-text string written in a private brief.
+// and every free-text string written in a private brief. Owner-approved private
+// repository names are intentionally allowed in the public house directory.
 import fs from 'node:fs';
 import path from 'node:path';
-import { TOWN, loadBriefs, loadInventory, loadRepoData, isDistinctiveName } from './lib.mjs';
-import { PROP_TYPES } from '../src/world/props.js';
+import { TOWN, loadBriefs, loadInventory, loadRepoData } from './lib.mjs';
 
 const dir = path.join(TOWN, process.argv[2] || 'dist/public');
 const files = [];
@@ -12,7 +12,6 @@ const corpus = files.map((f) => [f, fs.readFileSync(f, 'utf8').toLowerCase()]);
 
 const inventory = loadInventory();
 const briefs = loadBriefs();
-const publicNames = new Set(inventory.projects.filter((p) => p.visibility === 'public').map((p) => p.repo.split('/')[1].toLowerCase()));
 // Strings a public brief also uses are already public; prop-type identifiers are engine vocabulary.
 const briefStrings = (b) => {
   const out = [b.summary, b.kind, ...(b.links || []).map((l) => l.url)];
@@ -26,15 +25,13 @@ const briefStrings = (b) => {
 const repoData = loadRepoData();
 const publicArchive = inventory.projects.filter((p) => p.visibility === 'public').map((p) => JSON.stringify(repoData[p.repo] || '')).join('\n').toLowerCase();
 const publicText = publicArchive + '\n' + inventory.projects.filter((p) => p.visibility === 'public' && briefs.get(p.repo)).flatMap((p) => briefStrings(briefs.get(p.repo))).join('\n');
-const vocabulary = new Set(PROP_TYPES.map((t) => t.toLowerCase()));
 const needles = [];
 for (const p of inventory.projects.filter((p) => p.visibility === 'private')) {
   const name = p.repo.split('/')[1];
   needles.push({ text: p.repo.toLowerCase(), why: 'repository slug' });
   needles.push({ text: `github.com/${p.repo}`.toLowerCase(), why: 'repository URL' });
-  // Bare names are only distinctive when they are not ordinary words or public repo names.
-  const distinctive = isDistinctiveName(name, publicNames);
-  if (distinctive && !vocabulary.has(name.toLowerCase())) needles.push({ text: name.toLowerCase(), why: 'repository name', word: true });
+  // Private repository names are owner-approved public metadata. Slugs and URLs
+  // remain protected, as do all private brief strings below.
   const b = briefs.get(p.repo);
   if (!b) continue;
   const strings = briefStrings(b).filter((t) => !publicText.includes(t));

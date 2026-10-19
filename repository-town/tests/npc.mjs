@@ -72,8 +72,12 @@ console.log('request:', JSON.stringify(last?.resident).length, 'chars');
 await page.click('#panel-close');
 
 // 3. A villager out in town: their job and last meal reach the proxy too.
-await page.evaluate(() => window.__town.meetVillager(0));
-await page.waitForFunction(() => /^villager:/.test(window.__town.state().nearPerson || ''), null, { timeout: 8000 });
+// Pick a villager with no street character close by, so E talks to the villager.
+for (let i = 0; i < 12; i++) {
+  await page.evaluate((i) => window.__town.meetVillager(i), i);
+  const ok = await page.waitForFunction(() => /^villager:/.test(window.__town.state().nearPerson || '') && !window.__town.state().nearNPC, null, { timeout: 3000 }).catch(() => null);
+  if (ok) break;
+}
 await page.keyboard.press('e');
 await page.waitForSelector('#panel .chat-input', { timeout: 8000 });
 await say('hi');
