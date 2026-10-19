@@ -3,6 +3,8 @@
 // money model: every dollar moves between the pool, the visitor's wallet/savings and (for the
 // bank's retained interest) the pool again, so the soak test's conservation check still holds.
 // All figures are fictional Town Dollars for a 24-minute game day, not real lending rates.
+import { overdue } from './finance.js';
+
 export const CREDIT = Object.freeze({
   pool: 1500,            // lending capital the credit union starts with (counted in town money)
   sizes: [100, 200, 400],
@@ -54,6 +56,7 @@ export function borrow(life, amount) {
   const k = credit(life), me = life.civic.player;
   if (!life.open(life.place('bank'))) return 'The bank is closed (9:00–16:00).';
   if (!CREDIT.sizes.includes(amount)) return 'We lend $100, $200 or $400.';
+  if (overdue(life) > 0) return 'Clear your overdue rent and power first.';
   if (k.loan) return `You already owe $${owed(k.loan)}. Repay that first.`;
   if (k.earned < 10) return 'The bank wants to see some income first. Sell something or do a job for the town.';
   if (k.capital < amount) return `The credit union only has $${Math.floor(k.capital)} to lend right now.`;

@@ -32,11 +32,13 @@ assert.match(t.borrow(100), /already owe/, 'one loan at a time');
 assert.equal(total() - 0, start + 0 + (total() - start), 'sanity');
 
 // 3. Interest accrues daily, as a liability only.
-const wallet0 = me.wallet, bank0 = me.bank;
+const billsNow = () => t.civic.finance.visitorPaid;
+const wallet0 = me.wallet, bank0 = me.bank, bills0 = billsNow();
 toDay(t.day + 3);
 const r = t.creditReport();
 assert.ok(r.loan.interest >= 5.9 && r.loan.interest <= 6.1, `3 days at 1% of $200 is about $6, got ${r.loan.interest}`);
-assert.equal(me.wallet + me.bank, wallet0 + bank0 - 0, 'interest does not come out of the account until paid');
+const bills = billsNow() - bills0;
+assert.equal(me.wallet + me.bank + bills, wallet0 + bank0, 'interest does not come out of the account until paid (only rent and power did)');
 
 // 4. Partial then full repayment, interest first.
 const before = total();

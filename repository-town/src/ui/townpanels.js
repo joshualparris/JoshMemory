@@ -4,6 +4,7 @@ import { GOODS, amount, timeText, CANDIDATES } from '../world/life.js';
 import { locateVillager } from './npc-location.js';
 import { RELICS, PROGRESS_KEY, cleanProgress } from '../adventure/data.js';
 import { esc } from './interactions.js';
+import { economyPanel } from './economy-panels.js';
 
 const list = (o) => Object.entries(o || {}).filter(([, n]) => n > 0).map(([g, n]) => amount(g, n)).join(', ') || 'nothing';
 const hours = (p) => (p.opens === 0 && p.closes >= 1440 ? 'open all hours' : `${timeText(p.opens)}–${timeText(p.closes)}`);
@@ -76,6 +77,8 @@ function civicPanel(life, id, again) {
     rows.push(cr.loan
       ? `<p><b>Your loan:</b> ${money(cr.loan.principal)} principal + ${money(cr.loan.interest)} interest = <b>${money(cr.loan.owed)}</b> · due day ${cr.loan.due}${cr.loan.overdue ? ' · <b>overdue</b>' : ''} · costs about ${money(cr.loan.dailyInterest)} a day</p>`
       : `<p><b>Credit:</b> no loan. The credit union has ${money(cr.capital)} to lend in $${cr.sizes.join(' / $')} amounts, after you have earned some money in town.</p>`);
+    const ov = life.economyReport();
+    rows.push(`<p><b>Household bills:</b> rent ${money(ov.rentArrears)} and power ${money(ov.powerArrears)} overdue · rent $8 and power $2 are charged each morning from your wallet, then savings.</p>`);
     if (cr.journal.length) rows.push(`<p class="dim"><b>Recent entries:</b></p><ul class="dim">${cr.journal.map((e) => `<li>Day ${e.day} · ${esc(e.text)}</li>`).join('')}</ul>`);
   }
   rows.push(`<p><b>Hours:</b> ${esc(hours(p))} · <b>Staff:</b> ${staff.map((v) => esc(`${v.name} (${v.job})`)).join(', ') || 'automated'}</p>`);
@@ -85,6 +88,9 @@ function civicPanel(life, id, again) {
   if (id === 'bank') actions.push(act('Deposit $20', () => life.bank('deposit', 20)), act('Withdraw $20', () => life.bank('withdraw', 20)));
   if (id === 'bank') {
     const loan = life.creditReport().loan;
+    const owing = life.economyReport();
+    if (owing.rentArrears + owing.powerArrears > 0) actions.push(act('Pay overdue bills', () => life.payBills()));
+    actions.push({ label: '📊 Town accounts', run: () => economyPanel(life, () => placePanel(life, 'bank')) });
     if (loan) actions.push(act('Repay $20', () => life.repay(20)), act('Repay in full', () => life.repay(Math.ceil(loan.owed))));
     else for (const n of life.creditReport().sizes) actions.push(act(`Borrow $${n}`, () => life.borrow(n)));
   }
@@ -219,6 +225,7 @@ export function ledgerPanel(life) {
       <h3>Council and utilities</h3><p>Mayor ${esc(L.civic.mayor)} · treasury ${money(L.civic.treasury)} · weather ${esc(L.civic.weather)} · power ${L.civic.supply.power}/${L.civic.supply.powerDemand} ${L.civic.supply.ok ? '' : '<b>(blackout)</b>'} · water ${L.civic.supply.water}/${L.civic.supply.waterDemand} · fuel ${L.utilities.fuel} drums · reservoir ${L.utilities.reservoir} kL<br>Taxes today ${money(s.taxes)} · wages ${money(s.wages)} · recycled ${s.recycled} · to landfill ${s.landfill}</p>
       ${powerNetworkHTML(L.civic)}<h3>Trucks</h3><p>${L.trucks.map((t) => esc(`${t.driver || 'Spare'}: ${t.state}`)).join('<br>')}</p>
       <h3>News</h3><ul class="news">${L.news.map((e) => `<li><span class="dim">${esc(e.t)}</span> ${esc(e.text)}</li>`).join('')}</ul>`,
+    actions: [{ label: '📊 Town accounts', run: () => economyPanel(life, () => ledgerPanel(life)) }],
   };
 }
 

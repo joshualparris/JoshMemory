@@ -274,7 +274,7 @@ export function buildBakeryInterior(site, makeLabel, roomTitle = 'Bakery') {
   };
   add('counter', 'Bread counter', 'civic-ledger', 'Buy fresh bread and pies, or open the Town Ledger.', 0.6, -4.2);
   add('pastries', 'Pastry case', 'info', 'The glass case holds cream buns, lamingtons, doughnuts, croissants and meat pies. The pie warmer keeps the day\'s pies hot. Pies are made each day from flour, lamb and vegetables.', -4.6, -4.2);
-  add('kitchen', 'Watch the bakers', 'info', 'Through the counter you can see the deck ovens, spiral mixer, proofer and the cooling racks. Bakers start at half past four: dough is mixed and shaped, proved warm and humid, then baked on the oven decks.', -2.2, -4.2);
+  add('kitchen', 'Bakery kitchen', 'bakery-kitchen', 'Through the counter you can see the deck ovens, spiral mixer, proofer and the cooling racks. Bakers start at half past four: dough is mixed and shaped, proved warm and humid, then baked on the oven decks.', -2.2, -4.2);
   add('breadwall', 'Bread wall', 'info', `Sourdough boules, tin loaves, baguettes and rolls sit in baskets on the bread wall. ${Math.round(breadN)} loaves are out right now. Flour arrives from the Mill, so no flour means no bread.`, 5.4, 2.4);
   add('cafe', 'Café corner', 'info', 'Two small tables and a bench by the window, for a pie and a cuppa while the bread cools.', -3.0, 1.9);
   placedProps.push({ type: 'noticeboard', room: 0 });

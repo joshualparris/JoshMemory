@@ -1,5 +1,6 @@
 import { distributePower, townPowerDemands, POWER_LINE_IDS, GRID_FAULT_COST } from './power-grid.js';
 import { initialisePublicLife, attendPublicForum, updatePublicForum, civicDialogue } from './public-forum.js';
+import { freshFinance, noteSale, noteRates, withhold, stateFunded, drawState, noteCouncilWage, dailyGrants, dailyClose as financeDailyClose, payBills, economyReport, bizStats, governmentMoney } from './finance.js';
 import { freshCredit, recordEarning, noteBank, creditReport, borrow, repay, accrueInterest } from './credit.js';
 import { startNeeds, advanceNeeds, eatPlayer, hotelCheckIn, sleepPlayer, needsReport } from './needs.js';
 import { MAYOR_CANDIDATES, createGovernment, civicElection, castCivicVote, submitRequest, requestFeeder, proposeMotion, councilMeeting, advanceCivicWork, budgetRevenue, restoreCivic, govSummary, maintainServices } from './government.js';
@@ -221,7 +222,7 @@ export class TownLife {
       supply: { power: 0, powerDemand: 0, water: 0, waterDemand: 0, ok: true, waterOk: true },
       powerLines: {}, powerGrid: null,
       indicators: { health: 90, happiness: 78, environment: 82, pollution: 3 },
-      letters: [], player: { wallet: 75, bank: 150, bag: {} }, credit: freshCredit(),
+      letters: [], player: { wallet: 75, bank: 150, bag: {} }, credit: freshCredit(), finance: freshFinance(),
     };
     this.homes = homes;
     // Spread households across town: every step-th house, starting from the third.
@@ -289,10 +290,11 @@ export class TownLife {
     const c = this.civic;
     accrueInterest(this);
     // Council rates: every household pays $15 a day towards wages and services.
-    let rates = 0; for (const v of this.villagers) { const r = Math.min(15, v.wallet); v.wallet -= r; rates += r; }
+    let rates = 0; for (const v of this.villagers) { const due = 15 + (v.rateArrears || 0), r = Math.min(due, Math.max(0, v.wallet)); v.wallet -= r; rates += r; v.rateArrears = Math.min(60, Math.round((due - r) * 100) / 100); }
     c.treasury += rates; this.stats.rates = rates; budgetRevenue(this,rates,'rates');
     // Like any country town, the council relies on state and federal grants.
-    c.treasury += 900; budgetRevenue(this,900,'grant');
+    budgetRevenue(this, dailyGrants(this), 'grant');
+    financeDailyClose(this);
     // Villagers bank anything over $250 (money saved, not spent in town).
     for (const v of this.villagers) if (v.wallet > 250) { v.savings = (v.savings || 0) + v.wallet - 250; v.wallet = 250; }
     // End-of-day books: public takings go to the council; a business keeps a $50 float, pays
@@ -302,7 +304,7 @@ export class TownLife {
       if (PUBLIC.has(p.id) || p.kind === 'utility') { c.treasury += p.till; p.till = 0; continue; }
       const surplus = p.till - 50; if (surplus <= 0) continue;
       const rate = surplus * 0.35, staff = this.villagers.filter((v) => v.work === p.id), share = staff.length ? (surplus - rate) * 0.5 : 0;
-      p.till -= rate + share; c.treasury += rate;
+      p.till -= rate + share; c.treasury += rate; noteRates(this, p, rate);
       for (const v of staff) v.wallet += share / staff.length;
     }
     c.weather = WEATHER[Math.floor(this.rand() * WEATHER.length)]; // Ballots stay locked until this election finishes.
@@ -320,7 +322,7 @@ export class TownLife {
 
   // ── Town finances and utilities ──
   // A sale at a till: the town takes its tax, the shop keeps the rest.
-  sale(shop, price) { const tax = Math.round(price * this.civic.taxRate * 100) / 100; shop.till += price - tax; this.civic.treasury += tax; this.stats.taxes += tax; budgetRevenue(this,tax,'tax'); }
+  sale(shop, price) { const tax = Math.round(price * this.civic.taxRate * 100) / 100; noteSale(this, shop, price); shop.till += price - tax; this.civic.treasury += tax; this.stats.taxes += tax; budgetRevenue(this,tax,'tax'); }
   ok(service) { return this.civic.services[service] >= 35; }
   gridPowered(customerId) {
     const c=this.civic.powerGrid?.customers?.[customerId];
@@ -448,6 +450,8 @@ export class TownLife {
     return `${op === 'deposit' ? 'Deposited' : 'Withdrew'} $${m}. Wallet $${me.wallet}, savings $${me.bank}.`;
   }
   creditReport() { return creditReport(this); }
+  payBills() { return payBills(this); }
+  economyReport() { return economyReport(this); }
   borrow(n) { return borrow(this, n); }
   repay(n) { return repay(this, n); }
   vote(name) { return castCivicVote(this,name); }
@@ -987,12 +991,25 @@ export class TownLife {
   // outside town. Money moves, it isn't made.
   pay(v) {
     v.paidDay = this.day;
-    const wage = WAGES[v.job] || BASE_WAGE, employer = v.work === 'home' ? null : this.place(v.work);
-    let paid = 0;
-    if (v.job === 'programmer') { paid = wage * 0.8; this.civic.treasury += wage * 0.2; }  // income tax on outside work
-    else if (employer && !PUBLIC.has(employer.id) && employer.till > 0) { paid = Math.min(wage, employer.till); employer.till -= paid; }
-    const rest = Math.min(wage - paid, this.civic.treasury); this.civic.treasury -= rest; paid += rest;
+    const base = WAGES[v.job] || BASE_WAGE, employer = v.work === 'home' ? null : this.place(v.work);
+    // Unpaid wages from earlier shifts are owed and paid when there is money to pay them.
+    const wage = v.job === 'programmer' ? base : base + (v.wageArrears || 0);
+    let paid = 0, fromCouncil = 0;
+    if (v.job === 'programmer') paid = base;                          // clients outside town pay; PAYG is withheld below
+    else {
+      if (employer && !PUBLIC.has(employer.id) && employer.till > 0) { paid = Math.min(wage, employer.till); employer.till -= paid; bizStats(this, employer.id).wages += paid; }
+      if (paid < wage && stateFunded(v.work)) paid += drawState(this, wage - paid);
+      const rest = Math.min(wage - paid, this.civic.treasury); this.civic.treasury -= rest; paid += rest; fromCouncil = rest;
+      if (fromCouncil) noteCouncilWage(this, fromCouncil);
+    }
     v.wallet += paid; this.stats.wages += paid;
+    if (v.job !== 'programmer') {
+      const short = Math.max(0, wage - paid);
+      v.wageArrears = Math.min(base * 6, Math.round(short * 100) / 100);
+      if (short > 0) this.log(`${v.name} is owed $${Math.round(short)} in wages.`);
+    }
+    const tax = withhold(this, v, paid);
+    if (tax && this.rand() < 0.1) this.log(`${v.name} paid $${tax} income tax.`);
   }
 
   // ── For chat, the guide and the ledger ──
@@ -1013,7 +1030,7 @@ export class TownLife {
   }
 
   // Saves just what matters to resume tomorrow where the town left off.
-  snapshot() { return { saveVersion:2, day: this.day, minute: this.minute, powerGridEvents:this.powerGridEvents, powerGridEventSeq:this.powerGridEventSeq, civic: this.civic, places: [...this.places.values()].map((p) => [p.id, p.stock, p.out, p.till, p.growth]), villagers: this.villagers.map((v) => [v.id, v.pantry, v.wallet, v.lastMeal, v.meals, v.hunger, v.fatigue, v.restedMinutes]), hotelBookings:this.place('hotel').bookings }; }
+  snapshot() { return { saveVersion:2, day: this.day, minute: this.minute, powerGridEvents:this.powerGridEvents, powerGridEventSeq:this.powerGridEventSeq, civic: this.civic, places: [...this.places.values()].map((p) => [p.id, p.stock, p.out, p.till, p.growth]), villagers: this.villagers.map((v) => [v.id, v.pantry, v.wallet, v.lastMeal, v.meals, v.hunger, v.fatigue, v.restedMinutes, v.wageArrears || 0, v.rateArrears || 0]), hotelBookings:this.place('hotel').bookings }; }
   restore(s) {
     if (!s || typeof s !== 'object') return;
     this.day = Number.isFinite(s.day) && s.day >= 1 ? s.day : 1;
@@ -1028,7 +1045,7 @@ export class TownLife {
     this.civic.powerLines = this.civic.powerLines && typeof this.civic.powerLines === 'object' ? this.civic.powerLines : {};
     if(this.civic.supply.powerDemand>0)this.updatePowerGrid();
     for (const [id, stock, out, till, growth] of s.places || []) { const p = this.place(id); if (p) Object.assign(p, { stock, out, till, growth: growth ?? p.growth }); }
-    for (const [id, pantry, wallet, lastMeal, meals, hunger, fatigue, restedMinutes] of s.villagers || []) { const v = this.villagers[id]; if (v) Object.assign(v, { pantry, wallet, lastMeal, meals: meals || [], hunger: Number.isFinite(hunger)?hunger:v.hunger, fatigue: Number.isFinite(fatigue)?fatigue:v.fatigue, restedMinutes: Number.isFinite(restedMinutes)?restedMinutes:0 }); }
+    for (const [id, pantry, wallet, lastMeal, meals, hunger, fatigue, restedMinutes, wageArrears, rateArrears] of s.villagers || []) { const v = this.villagers[id]; if (v) Object.assign(v, { pantry, wallet, lastMeal, meals: meals || [], hunger: Number.isFinite(hunger)?hunger:v.hunger, fatigue: Number.isFinite(fatigue)?fatigue:v.fatigue, restedMinutes: Number.isFinite(restedMinutes)?restedMinutes:0, wageArrears: Number.isFinite(wageArrears)?wageArrears:0, rateArrears: Number.isFinite(rateArrears)?rateArrears:0 }); }
     this.place('hotel').bookings=Array.isArray(s.hotelBookings)?s.hotelBookings.slice(-12):[];
     startNeeds(this);
   }
