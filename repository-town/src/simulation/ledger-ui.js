@@ -69,7 +69,7 @@ export function mountLivingTown(document, simulation) {
         ["Happiness",number(s.indicators.happiness)+"%"],["Environment",number(s.indicators.environment)+"%"],
         ["Town treasury",money(s.treasury)]
       ]) + "<h3>How the town connects</h3><p>Farm → depot → mill → bakery → market → homes. Homes send rubbish and recyclables to collection, recycling and landfill. The council pays wages and repairs networks using tax revenue.</p>" +
-      "<h3>Today so far</h3>" + table([
+      "<h3>Town totals since founding</h3>" + table([
         ["Harvested",s.stats.harvest+" produce units"],["Bread baked",s.stats.breadBaked+" loaves"],
         ["Truck deliveries",s.stats.deliveries],["Meals prepared",s.stats.meals],
         ["Recyclables recovered",s.stats.recycled],["Postal deliveries",s.stats.letters]
@@ -156,3 +156,4 @@ export function mountLivingTown(document, simulation) {
   render();
   return { render, close, openFor, isOpen:()=>!panel.hidden };
 }
+

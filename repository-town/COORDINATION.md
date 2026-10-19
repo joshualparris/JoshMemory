@@ -18,6 +18,8 @@ Newest first. Times in Australia/Sydney.
 
 ## Done recently
 
+- 2026-10-19 · ChatGPT — focused Living Town repairs on `fix/living-town-playtest-20261019`, reconciled through main `17e20f2`: recycling/wastewater/meal/scrap accounting, invalid amounts, park/farm collisions and cumulative Ledger label. Seven regression groups, original simulation, 752 CPU entries, 88 route checks, 80 civic approaches and 188-house geometry suite pass. Local source build/privacy pass; full packed games and rendered/browser-device tests remain release gates. See `docs/PLAYTEST_REPAIRS_2026-10-19.md`. No live deployment replaced.
+
 - 2026-10-19 · ChatGPT (GitHub connector) — Living Town simulation prototype on `feat/living-town-simulation-20261019`: 20 vacant street-8 civic sites, trucks/lamps, 24-minute day/night, deterministic utilities + farm/mill/bakery/market/foundry/recycling/post/economy, visitor trading, council repairs/voting, persistent Ledger. Pure JS parse checks and `tests/town-simulation.mjs` assertions executed in an isolated JS evaluator; 90-town-day stock stress check completed (no negative stocks). **Not yet verified:** full npm build, privacy gate, desktop/Android browser visual playtest or deployed public site. Integrate after PR review and run those gates; do not overwrite other active branches.
 
 
