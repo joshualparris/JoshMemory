@@ -1,6 +1,7 @@
 // Panels for town life: shop counters, farms, the Town Ledger and the town guide, plus
 // the gossip and Expedition relic hints villagers share in conversation (src/ui/npc.js).
 import { GOODS, amount, timeText, CANDIDATES } from '../world/life.js';
+import { locateVillager } from './npc-location.js';
 import { RELICS, PROGRESS_KEY, cleanProgress } from '../adventure/data.js';
 import { esc } from './interactions.js';
 
@@ -242,6 +243,7 @@ export function townContext(life, v, resident) {
   return {
     time: life.time(), day: life.day, daylight: life.isDay(),
     self: v ? life.describe(v) : null,
+    location: v ? locateVillager(life,v) : null,
     politics: v ? life.civicChat(v) : null,
     resident: resident || null,
     gossip: gossip(life, v),

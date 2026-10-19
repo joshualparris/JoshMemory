@@ -1,0 +1,20 @@
+name: Repository Town Branch Report
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Compare all Repository Town branches without mutating history
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node repository-town/tools/integration-report.mjs >> "$GITHUB_STEP_SUMMARY"

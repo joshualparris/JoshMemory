@@ -1,0 +1,41 @@
+name: Repository Town Opt-in Merge
+
+on:
+  workflow_run:
+    workflows: ["Repository Town Integration", "CI"]
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+
+jobs:
+  merge-approved-town-pr:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Squash merge only explicitly approved clean PRs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const run = context.payload.workflow_run;
+            for (const item of run.pull_requests || []) {
+              const n = item.number;
+              const {data:pr}=await github.rest.pulls.get({...context.repo,pull_number:n});
+              if(pr.state!=='open'||pr.draft||pr.base.ref!=='main') continue;
+              if(pr.head.sha!==run.head_sha) continue; // guard against races
+              if(pr.head.repo?.full_name!==context.repo.owner+'/'+context.repo.repo) continue;
+              if(!pr.labels.some(l=>l.name==='town-automerge-approved')) continue;
+              const files=await github.paginate(github.rest.pulls.listFiles,{...context.repo,pull_number:n,per_page:100});
+              if(files.some(f=>!f.filename.startsWith('repository-town/')&&!f.filename.startsWith('.github/workflows/town-'))) continue;
+              const checks=await github.paginate(github.rest.checks.listForRef,{
+                ...context.repo,ref:pr.head.sha,per_page:100
+              });
+              const relevant=checks.filter(c=>c.name!=='merge-approved-town-pr');
+              if(!relevant.some(c=>c.name==='Town safety gate'&&c.conclusion==='success')) continue;
+              if(relevant.some(c=>c.status!=='completed'||!['success','skipped','neutral'].includes(c.conclusion))) continue;
+              if(pr.mergeable!==true||pr.mergeable_state!=='clean') continue;
+              await github.rest.pulls.merge({
+                ...context.repo,pull_number:n,sha:pr.head.sha,merge_method:'squash'
+              });
