@@ -7,7 +7,7 @@ const KEY = 'repository-town.sound';
 export function createAmbience() {
   let ctx = null, master = null, wind = null, crickets = null, street = null, rumble = null, nextBird = 0, nextCricket = 0;
   let stepTimer = 0;
-  let on = true; try { on = !['off', '0'].includes(localStorage.getItem(KEY)); } catch { /* storage blocked */ }
+  let on = false; try { on = localStorage.getItem(KEY) === 'on'; } catch { /* storage blocked */ }
 
   function noiseBuffer(c, seconds = 2) {
     const b = c.createBuffer(1, c.sampleRate * seconds, c.sampleRate), d = b.getChannelData(0);

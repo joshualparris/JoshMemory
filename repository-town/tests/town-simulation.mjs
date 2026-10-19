@@ -62,3 +62,13 @@ const copy = new TownLife({ homes });
 copy.restore(JSON.parse(JSON.stringify(t.snapshot())));
 assert.equal(copy.day, t.day); assert.equal(copy.civic.player.wallet, t.civic.player.wallet); assert.equal(Math.round(copy.civic.treasury), Math.round(t.civic.treasury));
 console.log(`PASS: town simulation — 38 villagers, utilities, bag and bank, council, elections (mayors ${[...mayors].join(', ')}), 14 stable days (worst ${minMeals} meals), restore`);
+
+// Brakes must look down a new road segment after turning, not behind the vehicle.
+{
+ const turning=new TownLife({homes,minute:480}), truck=turning.trucks[0];
+ turning.villagers=[];truck.path=[{x:truck.x+30,z:truck.z}];truck.heading=0;
+ turning.obstacles=[{x:truck.x+5,z:truck.z}];
+ assert.equal(turning.blocked(truck),true,'brakes after turning');
+ turning.obstacles=[{x:truck.x-5,z:truck.z}];
+ assert.equal(turning.blocked(truck),false,'does not brake for obstacle behind');
+}

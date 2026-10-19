@@ -7,6 +7,10 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+
+
+
+
 - 2026-10-19 · ChatGPT GitHub connector — separate playtest branch `repository-town-merged-playtest-20261019` deployed to Render `https://repository-town-npc-playtest.onrender.com`; 32 NPCs, wandering, worksite inventory/build prototype, roof replacements and collision-aware wandering. **NOT YET MERGED**: compare reveals two divergent branches with overlapping edits to `src/main.js`, `src/world/npcs.js`, `src/ui/*` and the adventure files. Please preserve both implementations when integrating; do not publish one branch over the other. Render preview uses manually triggered deployment and privacy check. Proposed next step is reviewed three-way merge plus tests.\n
 - 2026-10-19 · ChatGPT — reconciling Claude's separate branch via `repository-town-safe-integration-20261019`. `main` already includes Expedition Guild and newer NPC models. Do not blindly copy Claude `src/main.js`, `src/world/npcs.js`, or `src/ui/npc.js` over main; port specific behaviours with tests.\n\n- 2026-10-19 · ChatGPT GitHub connector — separate playtest branch `repository-town-merged-playtest-20261019` deployed to Render `https://repository-town-npc-playtest.onrender.com`; 32 NPCs, wandering, worksite inventory/build prototype, roof replacements and collision-aware wandering. **NOT YET MERGED**: compare reveals two divergent branches with overlapping edits to `src/main.js`, `src/world/npcs.js`, `src/ui/*` and the adventure files. Please preserve both implementations when integrating; do not publish one branch over the other. Render preview uses manually triggered deployment and privacy check. Proposed next step is reviewed three-way merge plus tests.\n
 - 2026-10-19 · Claude Code session ("Repository search") — upgrade round: research the 17
@@ -23,6 +27,17 @@ Newest first. Times in Australia/Sydney.
   is currently blocked by the Hobby team's daily deployment quota (`api-deployments-free-per-day`).
 
 ## Done recently
+
+- 2026-10-19 · ChatGPT connector — **X7 / 87 tall buildings stair-and-lift upgrade MERGED & DEPLOYED**. Source PR [#32](https://github.com/joshualparris/JoshMemory/pull/32), merge `725bff72`. Public Pages commit [`42b82e9`](https://github.com/Parris-Tech-Services/Repository-town/commit/42b82e9cc356816724eed728dd1f27e92d920893), [successful deployment 39235581217](https://github.com/Parris-Tech-Services/Repository-town/actions/runs/39235581217). 16 styles/87 buildings get architectural upper floors and interactive lifts/stairs. X7 has special transfer and beacon levels; a foyer sign and visible tap-to-open floor selector fix discovery. Static JS checks and 87/87 actual-house geometry builds passed. **Real Android walkthrough still needed**. Do not overwrite these source-first changes in future publishing.
+
+- 2026-10-19 · ChatGPT — fixed Living Town NPC present-location awareness on the public-site source (`ui/npc-location.js`, `ui/npc.js`, `ui/townpanels.js`). Arlo's home H1 and Market Garden work location are separately grounded in simulation data; direct questions use deterministic answers. Cloudflare live AI prompt now combines current-location rules with the existing social/personality rules; worker secret and rate limits retained. Regression test `tests/npc-location.mjs` passes. Added the pure location helper, prompt source and ported test to canonical JoshMemory; full Living Town source reconciliation remains separate (do not overwrite current `src/main.js`).
+
+- 2026-10-19 · ChatGPT GitHub connector — **V7/W7 three-storey interiors MERGED and Pages PUBLISHED**. Source PR [#30](https://github.com/joshualparris/JoshMemory/pull/30) merged at `14838688`; public site updated at `2a19860`, with successful Pages deployment run `39232948450`. Unique floors 2/3, spiral stair E/✋ transitions, floor-selectable lifts, height-adjusted camera and floor badge. Public geometry-construction tests of V7 and W7 passed, as did static syntax and contract checks. **Not yet verified:** real-device Android/desktop gameplay, full Town build and privacy CI. See `docs/MULTI_FLOOR_INTERIORS_2026-10-19.md`. Keep future changes mirrored source-first; DO NOT blindly overwrite new Pages work.
+
+
+- 2026-10-19 · ChatGPT — unified `integration/town-unified-20261019`: richer single-source TownLife and Claude branches #9/#16/#17/#18 reconciled onto latest `main`; Vercel quota exceeded; Cloudflare Pages Git integration unavailable. Full Github Actions Playwright run 39229344740 succeeded: build 188 houses, public privacy, 14 stable days, NPC/utility/merchant/driver checks, desktop/mobile A1/F3/H1/M5/Y5, arcade and 76/76 packed game loads. Temporary QA workflow removed. Exact unified build not yet deployed; preserve published-only NPC location fixes until separately ported and verified.
+
+- 2026-10-19 · ChatGPT — repaired live NPC whereabouts in published Repository-town `ui/npc.js` and `ui/townpanels.js`. Villagers now send an observed `currentLocation` separate from home/work, answer location questions without guessing, and display where they stand in chat. Cloudflare `repository-town-no-code-ai` prompt updated in place with existing key/rate-limit bindings retained; canonical shared helper now at `src/ui/npc-location.js` and deployed prompt at `deploy/npc-prompt.js`. Run `node tests/npc-location.mjs`. **Integration note:** canonical `src/main.js` uses different NPC architecture, so do not overwrite the published `ui/npc.js` without porting this world-state wiring to the Living Town integration.
 
 - 2026-10-19 · Claude Code session ("Repository search") — **merged every town branch** into
   the integration branch, one at a time with tests: `main`, #18 (contains #17, #11's NPC work,

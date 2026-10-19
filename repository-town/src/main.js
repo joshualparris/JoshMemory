@@ -5,6 +5,9 @@ import { Player } from './engine/player.js';
 import { loadSave, writeSave, clearSave } from './engine/save.js';
 import { buildTown, streetSigns, lotPosition } from './world/town.js';
 import { buildInterior, labelVisible } from './world/interior.js';
+import { buildCivicInterior } from './world/shop-interior.js';
+import { populateShopStaff } from './world/shop-staff.js';
+import { createFloorStack, FLOOR_HEIGHT } from './world/multifloor.js';
 import { animate } from './world/builder.js';
 import { makeLabel, disposeLabel } from './ui/labels.js';
 import { runInteraction, esc } from './ui/interactions.js';
@@ -93,6 +96,13 @@ async function start() {
   syncMouseCapture(false);
   if (input.touch) $('touch').hidden = false;
   const player = new Player(camera);
+  let floorDoorCooldown = 0;
+  const floorBadge = document.createElement('button');
+  floorBadge.id = 'floor-indicator'; floorBadge.type = 'button';
+  floorBadge.title = 'Open the lift floor selector';
+  floorBadge.setAttribute('aria-label', 'Choose a building floor');
+  floorBadge.onclick = () => { if (inside?.floors) openLift(); };
+  floorBadge.hidden = true; document.body.append(floorBadge);
   const npcChat = mountNPCChat(document);
   let interactionRequest = 0;
 
@@ -130,10 +140,45 @@ async function start() {
     input.pressed.delete('map'); setOverview(false);
     status(`Outside the ${life.place(id).name}.`);
   }
+  function updateFloorBadge() {
+    floorBadge.hidden = !inside?.floors;
+    if (inside?.floors) floorBadge.textContent = '🏠 Floor ' + (inside.floorIndex + 1) +
+      ' / ' + inside.floors.levels.length + ' · ' + inside.floors.titles[inside.floorIndex] + ' · 🛗 Floors';
+  }
+  function changeFloor(target) {
+    if (!inside?.floors || target < 0 || target >= inside.floors.levels.length) return false;
+    const floors = inside.floors, house = inside.house;
+    if (target === inside.floorIndex) { closePanel(); return true; }
+    closePanel(); npcChat.close(); nearThing = null; nearNPC = null;
+    scene.remove(inside.group);
+    const next = floors.levels[target];
+    inside = { house, ...next, floorIndex:target, floors, people:next.people || [] };
+    scene.add(next.group);
+    world = new CollisionWorld(next.colliders);
+    player.place(next.landing.x, next.landing.z, Math.PI);
+    player.baseHeight = target * FLOOR_HEIGHT;
+    floorDoorCooldown = 0.9;
+    updateFloorBadge(); $('card').hidden = true; ambience.door();
+    status('Floor ' + (target+1) + ': ' + floors.titles[target] + '. Use stairs or lift to change floors.');
+    return true;
+  }
+  function openLift() {
+    openPanel({ title:'Lift · choose a floor',
+      body:'<p>Select a floor. The lift carries you to its landing.</p>', actions:[] });
+    const controls = $('panel-actions');
+    for (let i = 0; i < inside.floors.levels.length; i++) {
+      const button = document.createElement('button');
+      button.textContent = 'Floor ' + (i+1) + ' · ' + inside.floors.titles[i];
+      button.disabled = i === inside.floorIndex;
+      button.onclick = () => changeFloor(i);
+      controls.append(button);
+    }
+  }
   function enter(coord) {
     const h = byCoord.get(coord);
-    const built = buildInterior(h, makeLabel);
-    inside = { house: h, ...built };
+    const floors = createFloorStack(h, makeLabel);
+    const built = floors ? floors.levels[0] : buildInterior(h, makeLabel);
+    inside = { house: h, ...built, floorIndex:0, floors };
     scene.add(built.group);
     town.group.visible = false;
     scene.background.set(INDOOR); scene.fog = null;
@@ -156,31 +201,58 @@ async function start() {
       built.group.add(walker.group);
       return walker;
     });
+    built.people = inside.people;
     player.place(built.spawn.x, built.spawn.z, 0);
+    player.baseHeight = 0;
+    updateFloorBadge();
     mode = 'house';
     $('btn-exit').hidden = false;
     visited.add(coord);
     expedition.noteVisit(coord);
     ambience.door();
     closePanel();
-    status(`Inside ${h.coordinate} · ${h.name}. Walk back through the front door to leave.`);
+    status(floors ? `Inside ${h.coordinate} · ${h.name}. Tap 🛗 Floors under the town clock to visit the upper storeys, or follow the stairs and lift sign.` : `Inside ${h.coordinate} · ${h.name}. Walk back through the front door to leave.`);
     showCard(h, true);
     cardTimer = 6;
+  }
+  // The high-street buildings now have their own walkable rooms and usable
+  // counters. Keep the existing villager/farm economy running in the street.
+  function enterShop(id) {
+    if(mode!=='town'||!life.places.has(id))return false;
+    const site=life.place(id), built=buildCivicInterior(site,makeLabel);
+    const staff=populateShopStaff(site,life,built,makeLabel);
+    const brief={coordinate:site.col+'8',name:site.name,kind:site.kind,
+      street:'High Street',summary:'Explore the shop interior and speak to staff.'};
+    inside={house:brief,place:site,...built,people:staff};
+    scene.add(built.group);town.group.visible=false;
+    scene.background.set(INDOOR);scene.fog=null;
+    world=new CollisionWorld(built.colliders);
+    player.place(built.spawn.x,built.spawn.z,0);
+    mode='house';$('btn-exit').hidden=false;
+    closePanel();npcChat.close();ambience.door();
+    $('card').hidden=true;delete $('card').dataset.coord;
+    status('Inside '+site.name+'. Walk to the counter or back through the entrance to leave.');
+    return true;
   }
   function leave(placeOutside = true) {
     if (!inside) return;
     closePanel(); npcChat.close();
     const coord = inside.house.coordinate;
+    const shop=inside.place||null;
     scene.remove(inside.group);
-    inside.group.traverse((o) => { if (o.isSprite) disposeLabel(o); else if (o.geometry && o.geometry.type !== 'BoxGeometry') o.geometry.dispose(); });
+    for (const group of (inside.floors ? inside.floors.levels.map(x => x.group) : [inside.group])) {
+      group.traverse((o) => { if (o.isSprite) disposeLabel(o); else if (o.geometry && o.geometry.type !== 'BoxGeometry') o.geometry.dispose(); });
+    }
     inside = null; mode = 'town'; world = townWorld;
+    player.baseHeight = 0; updateFloorBadge();
     $('btn-exit').hidden = true;
     town.group.visible = true; scene.background.set(SKY); scene.fog = fog;
-    if (placeOutside) { const l = town.lots.get(coord); player.place(l.doorPos.x, l.doorPos.z + 4, Math.PI); }
+    if (placeOutside) { if(shop) { const south=shop.side==='south'; player.place(shop.x,shop.door.z+(south?-2.25:2.25),south?0:Math.PI); }
+      else { const l=town.lots.get(coord);player.place(l.doorPos.x,l.doorPos.z+4,Math.PI); } }
     // Close the door behind the player so the doorway does not re-trigger.
     const d = town.doors.find((d) => d.userData.coordinate === coord); if (d) d.userData.open = 0;
     ambience.door();
-    status(`Back on the street at ${coord}.`);
+    status(shop?`Back outside ${shop.name}.`:`Back on the street at ${coord}.`);
   }
 
   // ── Overview (bird's-eye) ────────────────────────────────────────────────
@@ -334,17 +406,41 @@ async function start() {
       const treasure = expedition.nearby(player.pos), treasureD = away(treasure), npcD = away(nearNPC), personD = away(nearPerson);
       if (treasure && treasureD <= npcD && treasureD <= personD) { expedition.use(player.pos); ambience.relic(); return; }
       if (nearNPC && npcD <= personD) { input.releaseMouse(); closePanel(); $('npc-roster').hidden = true; npcChat.show(nearNPC.npc, null); input.reset(); return; }
-      if (nearPerson) { talkTo(nearPerson); return; }
+      if (nearPerson) { if(nearPerson.spot){enterShop(nearPerson.spot.id);return;} talkTo(nearPerson); return; }
       if (nearHouse) showCard(nearHouse.house);
       return;
     }
     if (nearThing) {
+      if (nearThing.floorNav) {
+        if (nearThing.floorNav === 'lift') openLift();
+        else changeFloor(nearThing.target);
+        return;
+      }
       const thing = nearThing, request = ++interactionRequest, house = inside;
+      if(inside?.place&&thing.act?.do==='civic-ledger'){
+        const p=inside.place;
+        openPanel(placePanel(life,p.id),thing);
+        return;
+      }
       const person = thing.person && inside.people?.find((p) => p.key === thing.key);
       if (person) {
         person.talking = true;
-        const getNearbyScene = () => (inside ? sceneFromRoom({ rooms: inside.rooms, objects: inside.sceneObjects || [], roomIndex: person.room ?? thing.room, position: person.pos }) : null);
-        openPanel(npcBehaviour(thing, { house: inside.house, houses, getNearbyScene, town: () => townContext(life, null, person.activity) }), thing);
+        if(inside.place){
+          const staffHome=person.v?.home?.coordinate && byCoord.get(person.v.home.coordinate);
+          const shopHouse=staffHome || {...inside.house,
+            int:{rooms:[{name:inside.rooms[0].name,props:[]}]},links:[],repo:null};
+          const shop=inside.place;
+          const localTown=()=>({
+            ...townContext(life,person.v||null),
+            location:{name:shop.name,status:'working',activity:person.activity},
+            workplace:{id:shop.id,name:shop.name},
+            resident:!person.v?person.activity:null,
+          });
+          openPanel(npcBehaviour(thing,{house:shopHouse,houses,
+            workplace:shop.name,town:localTown}),thing);
+        } else {
+          openPanel(npcBehaviour(thing,{house:inside.house,houses,getNearbyScene:()=>sceneFromRoom({rooms:inside.rooms,objects:inside.sceneObjects||[],roomIndex:person.room??thing.room,position:person.pos}),town:()=>townContext(life,null,person.activity)}),thing);
+        }
         return;
       }
       Promise.resolve(runInteraction(thing, ctx)).then((content) => { if (request === interactionRequest && inside === house && mode === 'house') openPanel(content, thing); })
@@ -388,13 +484,15 @@ async function start() {
   const saved = loadSave();
   if (saved?.pos) {
     for (const c of saved.visited || []) visited.add(c);
-    if (saved.inside && byCoord.has(saved.inside)) { enter(saved.inside); player.place(saved.pos.x, saved.pos.z, saved.yaw); }
+    if (saved.insideShop && life.places.has(saved.insideShop)) {
+      enterShop(saved.insideShop);player.place(saved.pos.x,saved.pos.z,saved.yaw);
+    } else if (saved.inside && byCoord.has(saved.inside)) { enter(saved.inside); player.place(saved.pos.x, saved.pos.z, saved.yaw); }
     else player.place(saved.pos.x, saved.pos.z, saved.yaw);
     if (world.hits(player.pos.x, player.pos.z, player.radius)) { if (mode === 'house') leave(false); spawn(); }
     status('Welcome back — your position was restored.');
   } else { spawn(); status('Welcome! Walk up to the Town Guide or any front door to begin.'); }
   let saveTimer = 0;
-  const save = () => writeSave({ pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, inside: inside?.house.coordinate || null, visited: [...visited] });
+  const save = () => writeSave({ pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, inside: inside&&!inside.place?inside.house.coordinate:null, insideShop:inside?.place?.id||null, visited: [...visited] });
   addEventListener('visibilitychange', () => { if (document.hidden) { save(); townLife.save(); } });
   addEventListener('pagehide', () => { save(); townLife.save(); });
   const syncSound = () => { $('btn-sound').textContent = ambience.on ? '🔊 Sound' : '🔇 Sound'; $('btn-sound').setAttribute('aria-pressed', String(ambience.on)); };
@@ -434,6 +532,7 @@ async function start() {
   function frame() {
     // Up to 0.15 s per frame keeps walking real-time on slow phones; collision subdivides the step.
     const raw = clock.getDelta(), dt = Math.min(raw, 0.15), t = clock.elapsedTime;
+    floorDoorCooldown = Math.max(0, floorDoorCooldown - dt);
     frames++; fpsTimer += raw; if (fpsTimer > 1) { fps = frames / fpsTimer; frames = 0; fpsTimer = 0; }
     // While a game is open the town neither renders nor reacts, so the game gets the whole device.
     if (playing) {
@@ -504,6 +603,19 @@ async function start() {
           if (d.userData.open > 0.6) { enter(z.coordinate); break; }
         }
       }
+      // Walk into an actual 3D shop interior when crossing the open shopfront.
+      // The outside facades are collision solids, so the transition happens
+      // just in front of their door (not inside an inaccessible wall).
+      if(mode==='town' && !overview){
+        for(const place of life.places.values()){
+          if(Math.abs(player.pos.x-place.x)<.93 &&
+             player.pos.z>=place.door.z-.12 &&
+             player.pos.z<=place.door.z+.92){
+            enterShop(place.id);
+            break;
+          }
+        }
+      }
       if (nearHouse && $('card').dataset.coord !== nearHouse.house.coordinate) { showCard(nearHouse.house); $('card').dataset.coord = nearHouse.house.coordinate; }
       if (!nearHouse && $('card').dataset.coord) { $('card').hidden = true; delete $('card').dataset.coord; }
       // House name boards are created only near the player to keep GPU memory low on phones.
@@ -528,7 +640,7 @@ async function start() {
       }
       const ex = inside.exitZone;
       // Generous exit area: the doorway plus the last 1.3 m inside it, centred on the actual door.
-      if (Math.abs(player.pos.x - (ex.x0 + ex.x1) / 2) < 1.55 && player.pos.z > inside.rooms[0].z1 - 1.3 && player.pos.z < ex.z1 + 0.5) leave();
+      if (floorDoorCooldown <= 0 && Math.abs(player.pos.x - (ex.x0 + ex.x1) / 2) < 1.55 && player.pos.z > inside.rooms[0].z1 - 1.3 && player.pos.z < ex.z1 + 0.5) { if (inside.floors && inside.floorIndex > 0) changeFloor(inside.floorIndex - 1); else leave(); }
       else {
         nearThing = pickNear();
         nearNPC = null;
@@ -541,7 +653,7 @@ async function start() {
         if (cardTimer > 0 && (cardTimer -= dt) <= 0) $('card').hidden = true;
         // Labels hide when the player is right on top of them so they never fill the screen,
         // and when a wall or closed door stands between them and the camera.
-        for (const s of inside.group.children) if (s.isSprite) s.visible = Math.hypot(s.position.x - player.pos.x, s.position.z - player.pos.z) > (s.userData.labelKind === 'room' ? 2.6 : 1.3) && labelVisible(camera.position, s.position, inside.sight);
+        for (const s of inside.group.children) if (s.isSprite) s.visible = Math.hypot(s.position.x - player.pos.x, s.position.z - player.pos.z) > (s.userData.labelKind === 'room' ? 2.6 : 1.3) && labelVisible(new THREE.Vector3(camera.position.x, camera.position.y - (inside.floorIndex || 0) * FLOOR_HEIGHT, camera.position.z), s.position, inside.sight);
       }
     }
     if (mode === 'town') input.consume('use');
@@ -562,7 +674,7 @@ async function start() {
     talkTo: (id) => npcChat.show(id),
     travel,
     state: () => ({
-      mode, coordinate: inside?.house.coordinate || null, pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, eye: player.eye, y: player.y, fps,
+      mode, coordinate: inside?.house.coordinate || null, floor: inside?.floorIndex || 0, floors: inside?.floors?.levels.length || 1, pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, eye: player.eye, y: player.y, fps,
       rooms: inside?.rooms.length || 0, props: inside?.placedProps.length || 0,
       interactables: inside ? inside.interactables.map((x) => ({ key: x.key, label: x.label, title: x.act.title || x.label, do: x.act.do, room: x.roomName })) : [],
       near: nearThing?.key || null, nearNPC: nearNPC?.npc.id || null, nearHouse: nearHouse?.house.coordinate || null,
@@ -603,12 +715,15 @@ async function start() {
     // Stands at the Town Guide kiosk, facing it.
     meetGuide() { if (mode === 'house') leave(false); player.place(town.guidePos.x, town.guidePos.z + 1.6, 0); return 'guide'; },
     goPlace,
+    shops:()=>[...life.places.values()].map(p=>({id:p.id,name:p.name,kind:p.kind,door:{x:p.x,z:p.door.z}})),
+    enterShop,
+    exitShop:()=>{if(!inside?.place)return false;leave();return true;},
     life: {
       ledger: () => life.ledger(), describe: (i) => life.describe(life.villagers[i]),
       // Jumps the clock (tests): everyone re-plans their day from scratch.
       setTime(minute) { life.minute = minute; life.stats = life.freshStats(); for (const v of life.villagers) { v.step = null; v.path = []; v.queue = []; v.doneToday = {}; } },
       run(minutes) { for (let m = 0; m < minutes; m += 0.5) life.tick(0.5); },
-      speed(n) { life.speed = n; }, trucks: () => life.trucks.map((t) => ({ x: t.x, z: t.z, state: t.state, braking: !!t.braking, load: t.load })),
+      speed(n) { life.speed = n; }, trucks: () => life.trucks.map((t) => ({ id:t.id, x:t.x, z:t.z, state:t.state, braking:!!t.braking, load:t.load, wait:t.wait, next:t.path.find(p=>Math.hypot(p.x-t.x,p.z-t.z)>0.1)||null })),
       places: () => [...life.places.values()].map((p) => ({ id: p.id, name: p.name, stock: p.stock, out: p.out, growth: p.growth })),
       parcels: () => life.parcels.length,
     },

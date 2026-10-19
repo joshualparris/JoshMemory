@@ -95,44 +95,60 @@ await nearTo(/^place:bakery$/);
 s = await st();
 check(s.nearPerson === 'place:bakery', `at the Bakery counter (${s.nearPerson})`);
 await shot('bakery-day');
+// Shops with walk-in interiors: E enters, then the counter inside opens the panel.
+async function counter(s) {
+  if (s.mode !== 'house' || s.panel) return s;
+  const desk = s.interactables.find((x) => x.do === 'civic-ledger');
+  await T((k) => window.__town.approach(k), desk.key);
+  await page.waitForFunction((k) => window.__town.state().near === k, desk.key, { timeout: 8000 });
+  await press('e');
+  return st();
+}
 await press('e');
-s = await st();
+s = await counter(await st());
 check(/Bakery/.test(s.panel?.title) && /On the shelves/.test(s.panel.text), `bakery panel: ${s.panel?.text.slice(0, 120)}`);
 const bought = await btn(/Buy/);
 s = await st();
 check(bought && /You buy/.test(s.panel?.text || ''), `bought something: ${s.panel?.text.slice(0, 90)}`);
 await T(() => window.__town.closePanel());
+await T(() => window.__town.exitShop());
 
 // 5. Town Hall ledger, a farm, the square.
 for (const [id, re] of [['hall', /Council[\s\S]*Networks/], ['silo', /Crop/], ['square', /Town news/], ['depot', /freight train/], ['power', /Supply:/], ['bank', /Your wallet/], ['waterworks', /Reservoir/], ['foundry', /Ore:/]]) {
   await T((x) => window.__town.goPlace(x), id);
   await nearTo(new RegExp(`^place:${id}$`));
+  const front = (await st()).pos;
   await press('e');
   s = await st();
+  s = await counter(s);
   check(re.test(s.panel?.title + s.panel?.text), `${id}: ${s.panel?.title}`);
   if (id === 'silo') { await T(() => window.__town.closePanel()); await T(() => { const t = window.__town.state(); window.__town.place(t.pos.x, t.pos.z + 18, Math.PI); }); await page.waitForTimeout(500); await shot('farm-fields'); }
   if (id === 'power') await shot('civic-power');
   if (id === 'bank') { const before = (await st()).panel.text; await btn(/Withdraw/); const after = (await st()).panel.text; check(/Withdrew \$20/.test(after), `bank withdrawal works (${after.slice(0, 60)})`); }
   if (id === 'hall') { await btn(/Vote Sage/); check(/vote for Sage/i.test((await st()).panel?.text || ''), 'can vote for mayor'); }
   await T(() => window.__town.closePanel());
+  if ((await st()).mode === 'house') { await T(() => window.__town.exitShop()); s = await st(); check(s.mode === 'town' && Math.abs(s.pos.z - front.z) < 4, `walked back out of ${id} onto its footpath (z ${s.pos.z.toFixed(1)} vs ${front.z.toFixed(1)})`); }
 }
 
-// 6. A truck brakes for the player standing in the road.
+// 6. A truck brakes for a player on its real upcoming road segment.
 await T(() => window.__town.life.setTime(8 * 60 + 30));
-let tr = null;
-for (let i = 0; i < 40 && !tr; i++) { await T(() => window.__town.life.run(1)); tr = (await T(() => window.__town.life.trucks())).find((t) => /heading|delivering/.test(t.state)); }
-if (tr) {
-  await T(() => window.__town.life.run(0.5));
-  const t1 = (await T(() => window.__town.life.trucks())).find((t) => t.state === tr.state);
-  const dx = t1.x - tr.x, dz = t1.z - tr.z, d = Math.hypot(dx, dz) || 1;
-  await T(([x, z]) => window.__town.place(x, z, 0), [t1.x + (dx / d) * 5, t1.z + (dz / d) * 5]);
-  await page.waitForTimeout(300);
-  const before = (await T(() => window.__town.life.trucks())).find((t) => t.state === tr.state);
-  await page.waitForTimeout(1500);
-  const after = (await T(() => window.__town.life.trucks())).find((t) => t.state === tr.state);
-  check(before.braking && Math.hypot(after.x - before.x, after.z - before.z) < 0.2, `truck "${tr.state}" braked for the player`);
+let tr=null;
+for(let i=0;i<45&&!tr;i++){
+  await T(() => window.__town.life.run(1));
+  tr=(await T(() => window.__town.life.trucks())).find(t=>/heading|delivering/.test(t.state)&&t.next&&t.wait<=0&&
+    Math.hypot(t.next.x-t.x,t.next.z-t.z)>11&&!t.braking);
+}
+if(tr){
+  const dx=tr.next.x-tr.x,dz=tr.next.z-tr.z,d=Math.hypot(dx,dz);
+  await T(([x,z])=>window.__town.place(x,z,0),[tr.x+dx/d*5.5,tr.z+dz/d*5.5]);
+  await page.waitForTimeout(450);
+  const before=(await T(()=>window.__town.life.trucks())).find(t=>t.id===tr.id);
+  await page.waitForTimeout(900);
+  const after=(await T(()=>window.__town.life.trucks())).find(t=>t.id===tr.id);
+  check(before.braking&&after.braking&&Math.hypot(after.x-before.x,after.z-before.z)<0.2,
+    `truck "${tr.state}" braked for the player ahead`);
   await shot('truck');
-} else check(false, 'found a truck on the road');
+}else check(false,'found an active truck with an open road ahead');
 
 // 7. Chat: what they ate, gossip, relic hints (offline replies; Groq is not configured).
 await T(() => window.__town.life.setTime(12 * 60 + 40));
@@ -204,12 +220,11 @@ check(rooms.size >= 2 && rooms.has(0), 'the resident walked through the house to
 await shot('resident-kitchen');
 await T(() => window.__town.toExit());
 
-// 10. Sound toggles without errors.
-await page.click('#btn-sound');
-s = await st(); const off = s.sound;
-await page.click('#btn-sound');
-s = await st();
-check(off === false && s.sound === true, 'sound button toggles');
+// 10. Sound remains opt-in; two clicks return to the original setting.
+const initialSound=(await st()).sound;
+await page.click('#btn-sound'); const changedSound=(await st()).sound;
+await page.click('#btn-sound'); s=await st();
+check(changedSound===!initialSound&&s.sound===initialSound,'sound button toggles');
 await page.waitForTimeout(1500);
 
 check(errors.length === 0, `no page errors${errors.length ? ': ' + errors.slice(0, 3).join(' | ') : ''}`);
