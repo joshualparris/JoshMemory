@@ -114,7 +114,7 @@ await T(() => window.__town.closePanel());
 await T(() => window.__town.exitShop());
 
 // 5. Town Hall ledger, a farm, the square.
-for (const [id, re] of [['hall', /Council[\s\S]*Networks/], ['silo', /Crop/], ['square', /Town news/], ['depot', /freight train/], ['power', /Supply:/], ['bank', /Your wallet/], ['waterworks', /Reservoir/], ['foundry', /Ore:/]]) {
+for (const [id, re] of [['hall', /Council[\s\S]*Treasury/], ['silo', /Crop/], ['square', /Town news/], ['depot', /freight train/], ['power', /Supply:/], ['bank', /Your wallet/], ['waterworks', /Reservoir/], ['foundry', /Ore:/]]) {
   await T((x) => window.__town.goPlace(x), id);
   await nearTo(new RegExp(`^place:${id}$`));
   const front = (await st()).pos;
@@ -125,7 +125,7 @@ for (const [id, re] of [['hall', /Council[\s\S]*Networks/], ['silo', /Crop/], ['
   if (id === 'silo') { await T(() => window.__town.closePanel()); await T(() => { const t = window.__town.state(); window.__town.place(t.pos.x, t.pos.z + 18, Math.PI); }); await page.waitForTimeout(500); await shot('farm-fields'); }
   if (id === 'power') await shot('civic-power');
   if (id === 'bank') { const before = (await st()).panel.text; await btn(/Withdraw/); const after = (await st()).panel.text; check(/Withdrew \$20/.test(after), `bank withdrawal works (${after.slice(0, 60)})`); }
-  if (id === 'hall') { await btn(/Vote Sage/); check(/vote for Sage/i.test((await st()).panel?.text || ''), 'can vote for mayor'); }
+  if (id === 'hall') { await btn(/Vote for Sadie/); check(/vote for Sadie has been recorded/i.test((await st()).panel?.text || ''), 'can vote for mayor'); }
   await T(() => window.__town.closePanel());
   if ((await st()).mode === 'house') { await T(() => window.__town.exitShop()); s = await st(); check(s.mode === 'town' && Math.abs(s.pos.z - front.z) < 4, `walked back out of ${id} onto its footpath (z ${s.pos.z.toFixed(1)} vs ${front.z.toFixed(1)})`); }
 }
@@ -141,7 +141,7 @@ for(let i=0;i<45&&!tr;i++){
 if(tr){
   const dx=tr.next.x-tr.x,dz=tr.next.z-tr.z,d=Math.hypot(dx,dz);
   await T(([x,z])=>window.__town.place(x,z,0),[tr.x+dx/d*5.5,tr.z+dz/d*5.5]);
-  // Trucks close to about 3 m before stopping; wait for that, then it must stay stopped.
+  // A truck may roll a little closer before it stops; wait for that, then it must stay stopped.
   await page.waitForFunction((id)=>window.__town.life.trucks().find(t=>t.id===id)?.braking,tr.id,{timeout:4000}).catch(()=>{});
   const before=(await T(()=>window.__town.life.trucks())).find(t=>t.id===tr.id);
   await page.waitForTimeout(900);

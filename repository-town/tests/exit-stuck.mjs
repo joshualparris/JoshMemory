@@ -10,6 +10,7 @@ const URL = opt('--url', 'http://localhost:8080/');
 const ROWS = opt('--rows', '1,8').split(',').map(Number);
 const TIMES = opt('--times', '7,12,18').split(',').map(Number);
 const ALL = args.includes('--all');
+const ONLY = opt('--only', '') ? opt('--only', '').split(',') : null;   // restrict shops to these ids
 const DO_SHOPS = ALL || args.includes('--shops') || !args.includes('--houses');
 const DO_HOUSES = ALL || args.includes('--houses') || !args.includes('--shops');
 
@@ -71,14 +72,24 @@ async function exitCheck(label, enterFn, awayYaw = Math.PI) {
   await page.keyboard.up('w');
   s = await st();
   if (s.mode !== 'town') problems.push(`${label}: re-entered the building by itself after leaving`);
-  else if (Math.hypot(s.pos.x - out.x, s.pos.z - out.z) < 3) problems.push(`${label}: stuck — walking forward for 8 s only moved ${Math.hypot(s.pos.x - out.x, s.pos.z - out.z).toFixed(2)} m from exit`);
+  else if (Math.hypot(s.pos.x - out.x, s.pos.z - out.z) < 3) {
+    // A delivery truck standing in the lane ahead is an ordinary obstacle: the player must be able
+    // to step along the footpath instead. Only flag a spot where sideways escape fails as well.
+    let escaped = false;
+    for (const yaw of [Math.PI / 2, -Math.PI / 2]) {
+      await page.evaluate(([x, z, y]) => window.__town.place(x, z, y), [out.x, out.z, yaw]);
+      await page.keyboard.down('w'); await page.waitForTimeout(2500); await page.keyboard.up('w');
+      const q = await st(); if (q.mode === 'town' && Math.hypot(q.pos.x - out.x, q.pos.z - out.z) > 3) escaped = true;
+    }
+    if (!escaped) problems.push(`${label}: stuck — walking forward for 8 s only moved ${Math.hypot(s.pos.x - out.x, s.pos.z - out.z).toFixed(2)} m from exit and could not sidestep either`);
+  }
 }
 
 const t0 = Date.now(); let checked = 0;
 for (const hour of TIMES) {
   await setClock(hour);
   if (DO_SHOPS) {
-    for (const sh of await page.evaluate(() => window.__town.shops())) {
+    for (const sh of (await page.evaluate(() => window.__town.shops())).filter((x) => !ONLY || ONLY.includes(x.id))) {
       await exitCheck(`${sh.id}@${hour}h`, async () => {
         await page.evaluate((id) => window.__town.goPlace(id), sh.id);
         await walkUntil((q) => q.mode === 'house', 5000);

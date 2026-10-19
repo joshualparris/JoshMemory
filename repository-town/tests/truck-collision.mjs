@@ -52,6 +52,6 @@ for (let i = 0; i < ticks; i++) {
   });
 }
 function pick(t) { return { id: t.id, x: +t.x.toFixed(1), z: +t.z.toFixed(1), heading: +t.heading.toFixed(2), state: t.state }; }
-const result = { days: DAYS, ticks, overlapTicks: overlaps, worstPenetration_m: +worst.toFixed(2), pairs: [...events], first, longestBrake_townMin: +maxBrake.toFixed(1), deadlocks, stuck: stuck.slice(0, 5), deliveries: life.stats.deliveries };
+const result = { days: DAYS, ticks, overlapTicks: overlaps, worstPenetration_m: +worst.toFixed(2), pairs: [...events], first, longestBrake_townMin: +maxBrake.toFixed(1), deadlocks, stuck: stuck.slice(0, 5), deliveries: life.stats.deliveries, recalls: life.recalls || 0 };
 console.log(JSON.stringify(result, null, 2));
 process.exit(overlaps || deadlocks ? 1 : 0);

@@ -53,12 +53,18 @@ const restored=grid();
 restored.restore(JSON.parse(JSON.stringify(before)));
 assert.equal(restored.civic.powerGrid.customers['west-homes'].status,'out');
 assert.equal(restored.powerGridEvents[0].id,'grid-1');
-assert.match(restored.repairPowerLine('west-feeder'),/Repair completed/);
-assert.equal(restored.civic.treasury,money-90);
-assert.equal(restored.place('hall').stock.parts,parts-2);
+assert.match(restored.repairPowerLine('west-feeder'),/repair requested/i);
+assert.equal(restored.civic.treasury,money,'no cost before inspection/authorisation');
+assert.equal(restored.place('hall').stock.parts,parts,'no parts used before inspection');
+assert.equal(restored.civic.powerGrid.customers['west-homes'].status,'out','fault remains until worker completes');
+advance(restored,210);
+assert(restored.civic.government.budget.spent>=90,'approved job spent from council budget');
+assert(restored.civic.government.audit.some(e=>e.type==='authorisation'),'GM authorised the material issue');
 assert.equal(restored.civic.powerGrid.affected.length,0);
 assert.equal(restored.powerGridEvents[1].type,'power-line-repaired');
-assert.equal(restored.repairPowerLine('west-feeder'),'That feeder is already working.');
+assert(restored.civic.government.orders.some(o=>o.kind==='feeder'&&o.status==='done'));
+
+assert.match(restored.repairPowerLine('west-feeder'),/feeder is currently working|feeder is already working/i);
 assert.equal(restored.snapshot().powerGridEvents.length,2);
 
 // The waterworks pump and sewage plant genuinely depend on their own feeders.
@@ -79,7 +85,7 @@ assert(waste.civic.indicators.pollution>wasPollution,'unpowered sewage works cau
 
 // Run the identical sequence twice: events, feeder flows and balances match.
 function scenario() { const p=grid();advance(p,120);p.faultPowerLine('west-feeder');
-  advance(p,60);p.repairPowerLine('west-feeder');return JSON.stringify({
+  advance(p,60);p.repairPowerLine('west-feeder');advance(p,210);return JSON.stringify({
     grid:p.civic.powerGrid,events:p.powerGridEvents,cash:p.civic.treasury,
     parts:p.place('hall').stock.parts,time:p.minute}); }
 assert.equal(scenario(),scenario(),'deterministic same seed/actions');
