@@ -40,6 +40,8 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
 #panel .big { font-size: 20px; }
 #panel .dim { opacity: .7; font-size: 12px; }
 #minimap { position: fixed; top: max(10px, env(safe-area-inset-top)); right: 10px; z-index: 8; width: 260px; height: 110px; background: #15253bd0; border-radius: 10px; }
+#floor-indicator { position:fixed; top:max(68px, calc(env(safe-area-inset-top) + 55px)); left:10px; z-index:9; background:#10223eea; padding:7px 12px; border-radius:9px; border:1px solid #8197b7; font-weight:600; max-width:calc(100vw - 20px); }
+@media (max-width:700px) { #floor-indicator { top:max(65px, calc(env(safe-area-inset-top) + 55px)); font-size:12px; max-width:210px; } }
 #crosshair { position: fixed; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px; border-radius: 50%; background: #fffc; z-index: 5; pointer-events: none; }
 #touch { position: fixed; inset: 0; z-index: 7; pointer-events: none; }
 #stick { position: absolute; width: 110px; height: 110px; left: 30px; bottom: 40px; border-radius: 50%; background: #ffffff22; border: 2px solid #ffffff55; opacity: .55; }
