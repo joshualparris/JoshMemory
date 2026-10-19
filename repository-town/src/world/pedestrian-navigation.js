@@ -19,6 +19,14 @@ export function blockersOnSegment(start,end,blockers,reach=3.7){
       lateral<PERSONAL+(o.radius||0)*.1;
   });
 }
+function clearSegment(from,to,blockers,world){
+  const length=dist(from,to),steps=Math.max(1,Math.ceil(length/.18));
+  for(let k=1;k<=steps;k++){
+    const t=k/steps;
+    if(!clear({x:from.x+(to.x-from.x)*t,z:from.z+(to.z-from.z)*t},blockers,world))return false;
+  }
+  return true;
+}
 function clear(pos,blockers,world){
   if(world?.hits?.(pos.x,pos.z,.45))return false;
   return blockers.every(b=>dist(pos,b)>=Math.max(PERSONAL,(b.radius||.6)+.66));
@@ -55,7 +63,7 @@ export function pedestrianDetour(start,goal,blockers=[],world=null){
       const p=coord(nx,nz);
       const ahead=(p.x-start.x)*dx+(p.z-start.z)*dz;
       if(ahead<-.9||ahead>targetDist+1.4||cross(p.x,p.z)>2.85)continue;
-      if(!clear(p,near,world))continue;
+      if(!clear(p,near,world)||!clearSegment(coord(node.ix,node.iz),p,near,world))continue;
       // A diagonal step may not cut through an obstacle corner.
       if(ix&&iz&&(!clear(coord(node.ix+ix,node.iz),near,world)||!clear(coord(node.ix,node.iz+iz),near,world)))continue;
       const g=node.g+GRID*(ix&&iz?Math.SQRT2:1),k=nx+','+nz;
