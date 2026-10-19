@@ -204,3 +204,12 @@ Newest first. Times in Australia/Sydney.
   General Manager now lodges work orders (priority service kept above 80%, others above 60%);
   elections returned identical results every week — leanings shift per election and the mayor
   answers for the town's mood and their own priority; egg/veg shortfall and unbounded fruit/flour piles.
+
+## 2026-10-20 — Community Bank interior (Claude, branch feat/bank-interior-20261020)
+- `src/world/bank-interior.js`: researched banking hall — roped queue lane, three-window teller counter
+  with acrylic screens (one staffed, two closed), glass loans office, two advice desks, waiting lounge,
+  two ATMs, round vault door, safe-deposit wall, back office. Six hotspots (`bank:counter` opens the
+  ledger panel). Teller stands behind the counter via `interior.staff` (shop-staff.js honours it).
+- New `src/world/interior-kit.js`: shared 14×18 m shell + helpers (`createKit`, `ROOM`) for the next
+  dedicated shop interiors (café, pub, post office…). The bakery was not migrated to it.
+- `tests/shop-interiors.mjs` has a bank branch (hotspots clear of colliders, staff behind counter, 2 rope colliders).
