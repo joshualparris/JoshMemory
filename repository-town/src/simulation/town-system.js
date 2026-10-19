@@ -32,7 +32,7 @@ const initialStores = {
   depot: { fuel: 90, wheat: 0, flour: 0, bread: 0, vegetables: 0, fruit: 0, eggs: 0, milk: 0 },
   power: { fuel: 200 }, waterworks: { cleanWater: 110 },
   sewage: { wastewater: 0 }, recycling: { recyclables: 0, scrap: 4 },
-  landfill: { rubbish: 0 }, factory: { ore: 30, metal: 8, parts: 16 },
+  landfill: { rubbish: 0 }, playerInventory: {}, factory: { ore: 30, metal: 8, parts: 16 },
   council: { parts: 8 }, homes: { rubbish: 0, recyclables: 0 },
 };
 const prices = { bread: 5, vegetables: 3, fruit: 4, eggs: 4, milk: 4, parts: 12 };
@@ -82,7 +82,7 @@ function seedState(population) {
   return {
     version: 1, minute: 480, day: 1, fractional: 0, population,
     mayor: "Rowan", ballots: {}, electionDay: 7, voted: false,
-    wallet: 75, bankBalance: 150, playerInventory: {}, householdCash: 2000, treasury: 4800, shopBalance: 700,
+    wallet: 75, bankBalance: 150, householdCash: 2000, treasury: 4800, shopBalance: 700,
     taxRate: 0.1, budgets: { utilities: 35, services: 30, environment: 20, transport: 15 },
     stores: clone(initialStores), residents,
     services: { power: 100, water: 100, sewage: 100, roads: 100, waste: 100, post: 100 },
