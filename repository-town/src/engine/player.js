@@ -39,7 +39,7 @@ export class Player {
     const moving = Math.hypot(this.vel.x, this.vel.y);
     this.bob += moving * dt * 2.1;
     const bobY = this.y === 0 ? Math.sin(this.bob) * Math.min(0.045, moving * 0.008) : 0;
-    this.camera.position.set(this.pos.x, this.y + this.eye + bobY, this.pos.z);
+    this.camera.position.set(this.pos.x, this.baseHeight + this.y + this.eye + bobY, this.pos.z);
     this.camera.rotation.set(this.pitch, this.yaw, 0, 'YXZ');
     return { moving, blocked, crouching, running: m.running && !crouching };
   }
