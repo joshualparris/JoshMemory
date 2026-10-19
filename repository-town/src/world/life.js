@@ -564,10 +564,13 @@ export class TownLife {
           // Escape an already-overlapping junction: moving away must be
           // permitted, otherwise three trucks can deadlock and starve the power
           // station of fuel for weeks. Still block new overlaps and approaches.
-          const wasOverlapping=trucksOverlap(t,o);
           const before=Math.hypot(t.x-o.x,t.z-o.z);
           const after=Math.hypot(proposed.x-o.x,proposed.z-o.z);
-          if(!wasOverlapping || after<=before+0.001)return true;
+          // Fixed-waypoint corners snap truck headings instantly. Even when
+          // that turn makes the body rectangles touch, let the lead vehicle
+          // travel outward to release the queue; never allow an approaching
+          // vehicle to decrease the centre-to-centre safety distance.
+          if(after<=before+0.001)return true;
         }
         // Trucks are roughly 6.6m bumper-to-bumper: keep an actual
         // following gap, not merely non-overlapping centre points. Vehicles
