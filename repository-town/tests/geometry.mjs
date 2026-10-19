@@ -13,12 +13,30 @@ for (const g of JSON.parse(fs.readFileSync(new URL('../data/games.json', import.
   if (!games.has(g.repo)) games.set(g.repo, []); games.get(g.repo).push(g);
 }
 const failures = [], counts = { houses: 0, rooms: 0, exhibits: 0, toys: 0, games: 0 };
+let declaredToys = 0;
 const kinds = new Set(['battle','loot','signal','repair','safari','kitchen','vault','trail']);
+// Beds in the new sleep/fatigue system are intentionally converted from old
+// authored actions (R5 used to assign a kitchen challenge to its recovery bed).
+// Count only the interactions that should exist in the *built* game.
+const effectiveAction = p => (typeof p !== 'string' && p[0] === 'bed') ? 'sleep' : p?.[2]?.do;
 const ctx = { activate() {}, toggle() { return true; } };
 for (const row of inventory.projects) {
   const h = mergeDiscovery(sanitise(toHouse(briefs.get(row.repo), row, inventory.grid.streetNames, {}, games)));
+  // Each public-safe house brief declares the toys that must be interactive.
+  // Verify the realised geometry against those declarations, not a frozen
+  // town-wide number that changes when a house's design is legitimately revised.
+  declaredToys += h.int.rooms.reduce((n,r) =>
+    n + (r.props || []).filter(p => kinds.has(effectiveAction(p))).length, 0);
   const b = buildInterior(h, () => new THREE.Object3D()), world = new CollisionWorld(b.colliders);
   const fail = m => failures.push(`${h.coordinate}: ${m}`);
+  const authored = h.int.rooms.flatMap(r=>r.props || []);
+  if (!b.interactables.some(e=>e.type==='bed' && e.act?.do==='sleep')) fail('no functional sleeping bed');
+  for (const kind of kinds) {
+    const expected=authored.filter(p=>effectiveAction(p)===kind).length;
+    const actual=b.interactables.filter(e=>e.act.do===kind).length;
+    if (actual!==expected) fail(`missing/extra ${kind} interactions: declared ${expected}, realised ${actual}`);
+  }
+
   counts.houses++; counts.rooms += b.rooms.length; counts.exhibits += b.interactables.length;
   if (world.hits(b.spawn.x, b.spawn.z, .35)) fail('spawn intersects collider');
   const pos = { x: b.spawn.x, z: b.spawn.z };
@@ -54,4 +72,7 @@ for (const row of inventory.projects) {
 }
 console.log(JSON.stringify({type:'CPU geometry and toy logic (not WebGL)',...counts,failures},null,2));
 assert.equal(failures.length,0,'Geometry regressions');
-assert.equal(counts.houses,188); assert.equal(counts.toys,193);
+assert.equal(counts.houses, inventory.projects.length, 'all inventory houses were built');
+assert.ok(counts.houses >= 188, 'unexpected loss of town houses');
+assert.ok(counts.toys >= 180, 'unexpected large loss of working toy interactions');
+assert.equal(counts.toys, declaredToys, 'all toys declared by house designs must exist as interactive exhibits');
