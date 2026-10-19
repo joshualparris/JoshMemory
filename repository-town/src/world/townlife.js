@@ -501,13 +501,18 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   let saveTimer = 0, tick = 0;
   const events = [];   // sounds for the ambience: { kind: 'bell'|'horn', n?, x, z }
   let lastHour = Math.floor(life.minute / 60), hornDone = -1;
+  let currentConversation=null,conversationElapsed=0;
   function update(dt, t, { player, mode, overview, camera, talkingTo }) {
     const inTown = mode === 'town';
     life.obstacles = inTown ? [player.pos] : [];
-    // Villagers stop to chat when the player walks up; cyclists hop off their bikes.
-    for (const p of people) {
-      const d = Math.hypot(p.v.x - player.pos.x, p.v.z - player.pos.z);
-      p.v.engaged = inTown && !p.v.inside && (talkingTo === p || d < 2.8);
+    // Proximity alone is NOT consent to an endless conversation. Only the
+    // explicitly opened interaction panel pauses a resident, for at most
+    // 15 real seconds. Work, dinner and sleep resume even if it stays open.
+    if(talkingTo!==currentConversation){currentConversation=talkingTo;conversationElapsed=0;}
+    if(currentConversation)conversationElapsed+=Math.max(0,dt);
+    for(const p of people){
+      const d=Math.hypot(p.v.x-player.pos.x,p.v.z-player.pos.z);
+      p.v.engaged=inTown&&!p.v.inside&&talkingTo===p&&conversationElapsed<15&&d<4.2;
     }
     let minutes = Math.min(dt, 0.25) * life.speed / SEC_PER_MIN;
     while (minutes > 0) { const step = Math.min(minutes, 0.5); life.tick(step); minutes -= step; }
