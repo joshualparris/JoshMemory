@@ -113,4 +113,8 @@ body.playing #hud, body.playing #touch, body.playing #minimap, body.playing #cro
   #panel.chat-typing .chat { flex: 1 1 auto; min-height: 0; }
   #panel.chat-typing .chat-log { max-height: none; }
 }
-
+/* The house card sits over the joystick half of a phone screen; let thumbs through to the canvas. */
+@media (pointer: coarse) {
+  #card { pointer-events: none; }
+  #card a { pointer-events: auto; }
+}

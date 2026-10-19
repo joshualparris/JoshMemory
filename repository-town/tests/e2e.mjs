@@ -77,7 +77,8 @@ async function exercise(page, coord, how, cdp) {
     if (how === 'touch') await page.tap('#t-use'); else await page.keyboard.press('e');
     await until(page, () => !!window.__town.state().panel, 2500);
     let p = (await st(page)).panel;
-    e.panel = !!p && p.title.startsWith(x.title) && p.text.trim().length >= 10;
+    // Adventure exhibits prefix their panel title with an emoji (🎁, 🔐, 🧭 …).
+    e.panel = !!p && p.title.replace(/^[^\p{L}\p{N}]+/u, '').startsWith(x.title.replace(/^[^\p{L}\p{N}]+/u, '')) && p.text.trim().length >= 10;
     if (x.do === 'quiz' && p) {
       const ok = await page.evaluate(() => window.__town.answer(0)); await sleep(100);
       const after = (await st(page)).panel;
