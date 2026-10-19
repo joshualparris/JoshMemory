@@ -157,12 +157,17 @@ const rowOf = (z) => { let best = 0; for (let r = 1; r < 8; r++) if (Math.abs(RO
 const sideZ = (r, z, off = 5.3) => (z < ROAD(r) ? ROAD(r) - off : ROAD(r) + off);
 // Footpath route: out to the footpath, along it, up an avenue if changing street, back in.
 export function walkRoute(a, b) {
-  const ra = rowOf(a.z), rb = rowOf(b.z), sa = sideZ(ra, a.z), sb = sideZ(rb, b.z);
+  const ra = rowOf(a.z), rb = rowOf(b.z);
+  // Pedestrians and cycles travelling in opposite directions need separate
+  // lanes, not a shared single-file route in front of every shop.
+  const setback=b.x>=a.x?6.6:4.5;
+  const sa = sideZ(ra, a.z, setback), sb = sideZ(rb, b.z, setback);
   const pts = [{ x: a.x, z: sa }];
   if (!(ra === rb && sa === sb)) {
     const ave = AVENUES.reduce((p, c) => (Math.abs(a.x - c) + Math.abs(b.x - c) < Math.abs(a.x - p) + Math.abs(b.x - p) ? c : p));
     // Walk up the edge of the avenue, clear of the trucks' lanes and the corner houses.
-    pts.push({ x: ave + 3.2, z: sa }, { x: ave + 3.2, z: sb });
+    const avenueTrack=ave+(sb>=sa?6.7:4.7);
+    pts.push({ x: avenueTrack, z: sa }, { x: avenueTrack, z: sb });
   }
   pts.push({ x: b.x, z: sb }, { x: b.x, z: b.z });
   return pts;
@@ -290,7 +295,7 @@ export class TownLife {
     // All walkers, shop visitors and on-duty staff retain physical space.
     // Stationary conversations count too; no more two models in one body.
     separatePedestrians(this.villagers.filter(v=>!v.inside).map(v=>({
-      id:v.id,pos:v,radius:v.bike&&v.path.length?.72:.59
+      id:v.id,pos:v,radius:v.bike&&v.path.length?1.16:.59
     })),{gap:1.24,passes:4});
     updatePublicForum(this);
     advanceCivicWork(this, minutes);
@@ -903,6 +908,19 @@ export class TownLife {
   }
 
   goThen(v, target, step) {
+    // Reserve an actual pavement space for each visitor instead of sending
+    // every shopping errand to the exact same point at the store entrance.
+    if (['buy','snack','eatout'].includes(step.kind) ||
+        (step.kind === 'idle' && ['pub','square'].includes(step.at))) {
+      const active=new Set(this.villagers.filter(o=>o!==v &&
+        o.step?.at===step.at && o.step?.queueSlot!==undefined &&
+        (o.path?.length || o.step?.dur>0)).map(o=>o.step.queueSlot));
+      let slot=0;while(active.has(slot)&&slot<64)slot++;
+      const row=Math.floor(slot/11),col=slot%11;
+      const offset=col===0?0:(col%2?1:-1)*Math.ceil(col/2)*2.1;
+      target={x:target.x+offset,z:target.z+Math.min(row,1)*1.85};
+      step={...step,queueSlot:slot};
+    }
     v.step = { ...step, target };
     v.path = Math.hypot(target.x - v.x, target.z - v.z) < 1 ? [] : walkRoute(v, target);
     // Long trips are by bike; short ones on foot.
@@ -926,6 +944,10 @@ export class TownLife {
     if(v.fatigue>92 && v.step?.kind==='work')v.memory='struggling to stay awake at work';
     if (v.engaged) return;                   // chatting with the player: stands still
     if (v.path.length) {
+      // Dismount in the final 12 m; pushing a full-size bicycle through a
+      // crowded shopfront is not realistic and causes large wheel overlaps.
+      if(v.bike && v.path.length===1 &&
+        Math.hypot(v.path[0].x-v.x,v.path[0].z-v.z)<12)v.bike=false;
       let budget = minutes * SEC_PER_MIN * (v.bike ? BIKE : WALK);
       while (budget > 0 && v.path.length) {
         const destination=v.path[0];
