@@ -19,7 +19,7 @@ import { mountNPCChat } from './ui/npc-chat.js';
 import { makePerson, Walker, houseWander, freeSpot, placeTownNPCs, animateNPCs, initialiseNPCWorksites } from './world/npcs.js';
 import { createTownLife } from './world/townlife.js';
 import { createAmbience } from './ui/ambience.js';
-import { placePanel, ledgerPanel, guidePanel, relicsLeft, townContext } from './ui/townpanels.js';
+import { placePanel, hallPanel, ledgerPanel, guidePanel, relicsLeft, townContext } from './ui/townpanels.js';
 import { createExpedition } from './adventure/expedition.js';
 
 const $ = (id) => document.getElementById(id);
@@ -433,7 +433,7 @@ async function start() {
       const thing = nearThing, request = ++interactionRequest, house = inside;
       if(inside?.place&&thing.act?.do==='civic-ledger'){
         const p=inside.place;
-        openPanel(p.id==='hall'?ledgerPanel(life):placePanel(life,p.id),thing);
+        openPanel(p.id==='hall'?hallPanel(life):placePanel(life,p.id),thing);
         return;
       }
       const person = thing.person && inside.people?.find((p) => p.key === thing.key);
