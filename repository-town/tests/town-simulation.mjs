@@ -40,7 +40,12 @@ assert.match(t.postLetter('Mabel'), /posted/);
 assert.match(t.vote(CANDIDATES[1]), /vote/);
 assert.match(t.vote(CANDIDATES[0]), /already voted/);
 t.civic.services.roads = 40;
-assert.match(t.repair('roads'), /roads now at 75%/);
+assert.match(t.repair('roads'), /Request lodged/);
+assert.equal(t.civic.services.roads,40,'button cannot magically repair roads');
+run(t,210);
+assert(t.civic.services.roads>=75,'a working crew completed the authorised repair');
+assert(t.civic.government.orders.some(w=>w.service==='roads'&&w.status==='done'));
+
 
 // Two weeks: the town keeps eating, stays powered, holds elections and keeps its books.
 let blackout = 0, minMeals = Infinity;
@@ -55,7 +60,8 @@ assert.ok(minMeals >= 80, `at least 80 meals a day (worst ${minMeals})`);
 assert.ok(t.civic.treasury > 1000, `the council stays solvent ($${Math.round(t.civic.treasury)})`);
 assert.ok(t.villagers.filter((v) => v.wallet < 5).length <= 6, 'most villagers can pay their way');
 assert.ok(t.civic.letters[0].delivered, 'the posted letter was delivered');
-assert.ok(t.news(60).some((e) => /Election day/.test(e.text)) || mayors.size > 1, 'an election was held');
+assert.ok(t.civic.government.elections.length>=2, 'two registered resident elections were held');
+assert.ok(t.civic.government.elections[0].roll.length>0,'real villagers voted');
 
 // Save and restore keeps the books and the visitor's bag.
 const copy = new TownLife({ homes });
