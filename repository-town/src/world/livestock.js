@@ -23,8 +23,9 @@ export function animalCareDay(t){
  s.animalFeedDay=t.day;
  for(const [farm,animals] of Object.entries(s.herds)){
    const p=t.place(farm),water=!!t.civic.supply.waterOk;
-   const fed=(p.stock.feed||0)>=3;
-   if(fed)p.stock.feed-=3;
+   // One feed pallet per herd per day, in addition to grazing.
+   const fed=(p.stock.feed||0)>=1;
+   if(fed)p.stock.feed-=1;
    for(const a of animals){
      if(!a.alive)continue;
      a.fed=fed;a.watered=water;

@@ -782,7 +782,11 @@ export class TownLife {
       const src = this.place(from), dst = this.place(to);
       const have = src.out[good] || 0, need = (dst.target?.[good] || 0) - (dst.stock[good] || 0);
       if (have < 3 || need < 3 || this.trucks.some((o) => o !== t && o.job?.to === to && o.job?.good === good)) continue;
-      const score = need / (dst.target[good] || 1) + this.rand() * 0.1;
+      // Perishable food and animal welfare deliveries outrank discretionary
+      // brewery and building orders when only three trucks are available.
+      const essential = ['butcher','greengrocer','store','bakery','cafe','pub'];
+      const score = need / (dst.target[good] || 1) + this.rand() * 0.1 +
+        (essential.includes(to)&&!['beerKeg','soda'].includes(good)?0.28:0) + (good==='feed'?0.2:0);
       if (!best || score > best.score) best = { from, to, good, n: Math.min(20, have, need), score };
     }
     if (!best) { t.state = 'waiting for an order'; return; }
