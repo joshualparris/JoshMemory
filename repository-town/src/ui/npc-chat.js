@@ -36,7 +36,7 @@ export function mountNPCChat(root=document) {
   const send=root.getElementById('npc-send');
   // GitHub Pages is static: its /api/npc-chat path cannot execute the Groq proxy.
   // Keep all AI requests on the separately hosted, access-controlled playtest.
-  const staticHost=/(^|\\.)github\\.io$/i.test(window.location.hostname);
+  const staticHost=/(^|\.)github\.io$/i.test(window.location.hostname);
   if(staticHost){
     const notice=root.createElement('p');notice.className='npc-host-notice';
     notice.append('Live AI is not available on GitHub Pages. ');
