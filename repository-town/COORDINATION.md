@@ -239,3 +239,5 @@ Newest first. Times in Australia/Sydney.
 - Verified: `npm run test:town`, `tests/shop-e2e.mjs`, `tests/exit-stuck.mjs --shops` for store/cafe/pub.
 
 - 2026-10-20 · Claude — ported `feat/town-snapshot-integrity-20261019` onto main's save format (not a textual merge): `TownLife.snapshot()` now adds `seed`, `rngState` and an optional `sim` block (villager positions/routes/needs, trucks, parcels, events, stats) on top of the existing `saveVersion:2` tuples; `restore()` validates first, returns true/false and changes nothing on a bad or future save; `townlife.js` keeps a rejected save in storage instead of overwriting it. Old saves without `sim` still load. Test: determinism check in `tests/town-simulation.mjs`.
+
+- 2026-10-20 · Claude — doors keep the player's facing: `enter`/`enterShop`/`leave` in `src/main.js` take `keepFacing` (used by the walk-through door sensors), so backing out of a building no longer spins the view 180°. Buttons/teleports still face outward. South-side shops add a half turn (`doorTurn`). Test: `node tests/door-facing.mjs` (needs the static server on :8091).

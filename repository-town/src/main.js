@@ -186,7 +186,11 @@ async function start() {
       controls.append(button);
     }
   }
-  function enter(coord) {
+  // Walking through a door keeps the way the player is facing, so backing in or out of a building does
+  // not spin the view. Interiors share the town's orientation, except south-side shops whose door faces -z.
+  const doorTurn = (site) => (site && site.side === 'south' ? Math.PI : 0);
+  function enter(coord, keepFacing = false) {
+    const yawIn = player.yaw;
     const h = byCoord.get(coord);
     const floors = createFloorStack(h, makeLabel);
     const built = floors ? floors.levels[0] : buildInterior(h, makeLabel);
@@ -214,7 +218,7 @@ async function start() {
       return walker;
     });
     built.people = inside.people;
-    player.place(built.spawn.x, built.spawn.z, 0);
+    player.place(built.spawn.x, built.spawn.z, keepFacing ? yawIn : 0);
     player.baseHeight = 0;
     updateFloorBadge();
     mode = 'house';
@@ -229,8 +233,9 @@ async function start() {
   }
   // The high-street buildings now have their own walkable rooms and usable
   // counters. Keep the existing villager/farm economy running in the street.
-  function enterShop(id) {
+  function enterShop(id, keepFacing = false) {
     if(mode!=='town'||!life.places.has(id))return false;
+    const yawIn = player.yaw;
     const site=life.place(id), built=buildCivicInterior(site,makeLabel);
     const staff=populateShopStaff(site,life,built,makeLabel);
     const brief={coordinate:site.col+'8',name:site.name,kind:site.kind,
@@ -239,15 +244,16 @@ async function start() {
     scene.add(built.group);town.group.visible=false;
     scene.background.set(INDOOR);scene.fog=null;
     world=new CollisionWorld(built.colliders);
-    player.place(built.spawn.x,built.spawn.z,0);
+    player.place(built.spawn.x,built.spawn.z,keepFacing ? yawIn - doorTurn(site) : 0);
     mode='house';$('btn-exit').hidden=false;
     closePanel();npcChat.close();ambience.door();
     $('card').hidden=true;delete $('card').dataset.coord;
     status('Inside '+site.name+'. Walk to the counter or back through the entrance to leave.');
     return true;
   }
-  function leave(placeOutside = true) {
+  function leave(placeOutside = true, keepFacing = false) {
     if (!inside) return;
+    const yawInside = player.yaw;
     closePanel(); npcChat.close();
     const coord = inside.house.coordinate;
     const shop=inside.place||null;
@@ -262,9 +268,9 @@ async function start() {
     if (placeOutside) {
       if (shop) {
         const pose = civicExitPose(shop, [...townWorld.all, ...townWorld.dynamic()], player.radius+0.08);
-        if (pose) player.place(pose.x,pose.z,pose.yaw);
+        if (pose) player.place(pose.x,pose.z,keepFacing ? yawInside + doorTurn(shop) : pose.yaw);
         else spawn(); // use safe Town Guide location instead of clipping into a wall
-      } else { const l=town.lots.get(coord);player.place(l.doorPos.x,l.doorPos.z+4,Math.PI); }
+      } else { const l=town.lots.get(coord);player.place(l.doorPos.x,l.doorPos.z+4,keepFacing ? yawInside : Math.PI); }
     }
     // Close the door behind the player so the doorway does not re-trigger.
     const d = town.doors.find((d) => d.userData.coordinate === coord); if (d) d.userData.open = 0;
@@ -648,7 +654,7 @@ async function start() {
       for (const z of town.doorZones) {
         if (player.pos.x > z.x0 && player.pos.x < z.x1 && player.pos.z > z.z0 && player.pos.z < z.z1) {
           const d = town.doors.find((d) => d.userData.coordinate === z.coordinate);
-          if (d.userData.open > 0.6) { enter(z.coordinate); break; }
+          if (d.userData.open > 0.6) { enter(z.coordinate, true); break; }
         }
       }
       // Walk into an actual 3D shop interior when crossing the open shopfront.
@@ -659,7 +665,7 @@ async function start() {
           if(Math.abs(player.pos.x-place.x)<.93 &&
              player.pos.z>=place.door.z-.12 &&
              player.pos.z<=place.door.z+.92){
-            enterShop(place.id);
+            enterShop(place.id, true);
             break;
           }
         }
@@ -689,7 +695,7 @@ async function start() {
       const ex = inside.exitZone;
       // Generous exit area: the doorway, the last 1.3 m inside it and anywhere beyond it, centred on
       // the actual door, so a slow frame or the floor-change cooldown cannot carry the player past it.
-      if (floorDoorCooldown <= 0 && Math.abs(player.pos.x - (ex.x0 + ex.x1) / 2) < 1.55 && player.pos.z > inside.rooms[0].z1 - 1.3) { if (inside.floors && inside.floorIndex > 0) changeFloor(inside.floorIndex - 1); else leave(); }
+      if (floorDoorCooldown <= 0 && Math.abs(player.pos.x - (ex.x0 + ex.x1) / 2) < 1.55 && player.pos.z > inside.rooms[0].z1 - 1.3) { if (inside.floors && inside.floorIndex > 0) changeFloor(inside.floorIndex - 1); else leave(true, true); }
       else {
         nearThing = pickNear();
         nearNPC = null;
