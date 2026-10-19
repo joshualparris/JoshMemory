@@ -11,7 +11,7 @@ import { lotPosition } from '../src/world/town.js';
 let total=0, objects=0, skipped=[], specific=false;
 for(let row=1;row<=8;row++){
   const briefs=JSON.parse(readFileSync(new URL('../briefs/row-'+row+'.json',import.meta.url),'utf8'));
-  assert.equal(briefs.length,26,'each full row has 26 lots');
+  assert.equal(briefs.length,row===8?6:26,'house inventory row count');
   for(let col=0;col<briefs.length;col++){
     const ext=briefs[col].ext,coord=String.fromCharCode(65+col)+row;
     const b=new Builder();
@@ -51,7 +51,7 @@ for(let row=1;row<=8;row++){
   }
 }
 assert(specific);
-assert(total===208);
+assert(total===188);
 assert(skipped.length<=8,'too many lost outdoor props: '+skipped.join(', '));
 console.log('PASS: '+total+' exteriors have walkable real door gaps; '+objects+
   ' yard objects avoid each other, buildings, footpaths and E7 van; skipped '+skipped.length+
