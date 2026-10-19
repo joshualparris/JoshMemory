@@ -9,7 +9,7 @@ export const PUB_LAYOUT = Object.freeze({ counterZ: -5.6, staff: { x: 0.8, z: -6
 
 export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
   const k = createKit(site, makeLabel, roomTitle);
-  const { THREE, group, box, cyl, ball, solid, text, add } = k;
+  const { THREE, group, box, cyl, ball, solid, text, add, blocker } = k;
   const { W, BACK, EDGE } = ROOM;
   const CZ = PUB_LAYOUT.counterZ;
   group.add(new THREE.HemisphereLight(0xffe4c0, 0x5a4636, 1.7));
@@ -40,7 +40,7 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
 
   // ── bistro tables (right-front) and lounge (left) ──
   const table = (x, z) => {
-    solid(1.0, 0.76, 1.0, x, 0.38, z, WOOD); box(1.1, 0.05, 1.1, x, 0.78, z, 0xe9e0d0);
+    blocker(1.0, 1.0, x, z); for (const [dx, dz] of [[-0.42, -0.42], [0.42, -0.42], [-0.42, 0.42], [0.42, 0.42]]) box(0.06, 0.76, 0.06, x + dx, 0.38, z + dz, DARKW); box(1.1, 0.05, 1.1, x, 0.78, z, 0xe9e0d0);
     cyl(0.05, 0.05, 0.14, x, 0.88, z, 0xcfe8ee, { a: 0.6 }, 8);
     for (const [dx, dz] of [[-0.8, 0], [0.8, 0], [0, 0.8], [0, -0.8]]) { box(0.4, 0.05, 0.4, x + dx, 0.46, z + dz, DARKW); box(0.4, 0.45, 0.05, x + dx, 0.7, z + dz + (dz ? Math.sign(dz) * 0.18 : 0), DARKW); }
   };

@@ -233,3 +233,8 @@ Newest first. Times in Australia/Sydney.
 - Deliberately NOT ported: ChatGPT's cash-vs-card toggle and its three-account player model (main keeps wallet + savings), 3D work
   stations (duties are panel buttons), and its player energy/food (main already has hunger and sleep in needs.js).
 - The verbatim original stays on branch `archive/chatgpt-economy-live-20261020`.
+
+## 2026-10-20 — Claude: economy rebalancing and researched Store, Café and Pub interiors
+- `finance.js`: grants are now needs-based (Commonwealth/NSW top the council up to a $6,000 reserve; GST top-up federal→state), villager households pay rent/power ($10/day) with capped `housingArrears`, PAYG is 15%. Long soak: council ~$6.5k, NSW ~$15k, villager savings no longer grow without bound.
+- New dedicated interiors built on `interior-kit.js`: `store-interior.js` (stock-driven shelves, gondolas, chillers, produce table, full-width counter), `cafe-interior.js` (espresso counter, pastry cabinet, tables, bench), `pub-interior.js` (bar, taps, bistro, lounge, pool). Dispatched in `shop-interior.js`; `tests/shop-interiors.mjs` has a branch for them (hotspots clear, staff behind counter).
+- Verified: `npm run test:town`, `tests/shop-e2e.mjs`, `tests/exit-stuck.mjs --shops` for store/cafe/pub.
