@@ -40,7 +40,12 @@ assert.match(t.postLetter('Mabel'), /posted/);
 assert.match(t.vote(CANDIDATES[1]), /vote/);
 assert.match(t.vote(CANDIDATES[0]), /already voted/);
 t.civic.services.roads = 40;
-assert.match(t.repair('roads'), /roads now at 75%/);
+assert.match(t.repair('roads'), /Request lodged/);
+assert.equal(t.civic.services.roads,40,'button cannot magically repair roads');
+run(t,210);
+assert(t.civic.services.roads>=75,'a working crew completed the authorised repair');
+assert(t.civic.government.orders.some(w=>w.service==='roads'&&w.status==='done'));
+
 
 // Two weeks: the town keeps eating, stays powered, holds elections and keeps its books.
 let blackout = 0, minMeals = Infinity;

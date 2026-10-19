@@ -218,6 +218,9 @@ export function advanceCivicWork(t,minutes) {
         activity:'inspecting '+order.service+' fault for '+order.id});
       record(t,'dispatch',worker.name+' assigned to '+order.id+' at '+t.place(order.site).name+'.',{workOrder:order.id});
     }
+    if(worker.step?.at!==order.site&&!worker.path.length&&['travelling','inspecting','repairing','waiting-for-funds'].includes(order.status)) {
+      t.goThen(worker,t.place(order.site).front,{kind:'work',at:order.site,until:worker.end,activity:'servicing '+order.service+' for '+order.id});
+    }
     if(worker.step?.at!==order.site||worker.path.length){continue;}
     if(order.status==='waiting-for-crew'||order.status==='travelling')order.status='inspecting';
     if(order.status==='inspecting'){
