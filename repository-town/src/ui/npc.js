@@ -5,6 +5,8 @@
 import { repoInfo } from './archive.js';
 import { RELICS, PROGRESS_KEY, cleanProgress } from '../adventure/data.js';
 import { answerSceneQuestion } from './scene-awareness.js';
+import { groundedLocationReply } from './npc-location.js';
+import { villagerProfile } from './villager-profiles.js';
 import { recordPlayerMessage, recordTownAction, socialContext, socialGossip } from './social.js';
 
 const LEGACY_KEY_STORE = 'repository-town.groq-keys';
@@ -32,6 +34,12 @@ async function askResidentProxy(id, house, name, f, role, history, town) {
     name,
     role: role === 'villager' ? 'villager' : 'resident',
     coordinate: house.coordinate,
+    // The house coordinate is a resident's home, not their current position.
+    currentLocation: town?.location || null,
+    currentActivity: me?.now || town?.resident || '',
+    currentTime: town?.time || '',
+    currentDay: town?.day || 1,
+    workplace: me?.workplace || '',
     street: house.street,
     houseName: house.name,
     kind: house.kind,
@@ -75,22 +83,10 @@ async function askResidentProxy(id, house, name, f, role, history, town) {
 }
 
 const NAMES = ['Ada', 'Bram', 'Cleo', 'Dorian', 'Edie', 'Finn', 'Greta', 'Hugo', 'Iris', 'Jasper', 'Kit', 'Lena', 'Milo', 'Nell', 'Otis', 'Pip', 'Quinn', 'Rosa', 'Sol', 'Tess', 'Uma', 'Vic', 'Wren', 'Xavi', 'Yara', 'Zed'];
-const VILLAGER_PROFILES = {
-  Mabel: ['community gardener', 'practical and sunny', 'seedlings and shared gardens'], Arlo: ['amateur engineer', 'curious and hands-on', 'tinkering and mechanisms'],
-  Bea: ['birdwatcher', 'gentle and observant', 'birds and trees'], Cas: ['dramatic storyteller', 'theatrical but kind', 'turning errands into adventures'],
-  Dot: ['detail collector', 'precise and easily delighted', 'maps and overlooked patterns'], Ezra: ['local history keeper', 'warm and reflective', 'old stories and archives'],
-  Flo: ['neighbourhood baker', 'upbeat and generous', 'recipes and friendly welcomes'], Gus: ['laid-back fixer', 'dry and reassuring', 'repairs and useful tools'],
-  Hattie: ['tea-and-etiquette enthusiast', 'polite with a mischievous streak', 'tea and well-timed pauses'], Ivo: ['puzzle setter', 'playful and analytical', 'riddles and logic'],
-  June: ['moonlit gardener', 'calm and dreamy', 'night walks and moon phases'], Kip: ['neighbourhood courier', 'brisk and helpful', 'shortcuts and messages'],
-  Lou: ['street musician', 'rhythmic and warm', 'melodies and found sounds'], Merv: ['retired code reviewer', 'deadpan and exacting', 'clear explanations and suspicious shortcuts'],
-  Nora: ['quiet caretaker', 'steady and reassuring', 'tidy spaces and helping neighbours'], Ollie: ['arcade enthusiast', 'excitable and competitive', 'games and unnecessary high scores'],
-  Peg: ['repair café regular', 'encouraging and practical', 'repair and reuse'], Rafe: ['amateur astronomer', 'thoughtful and enthusiastic', 'constellations and clear nights'],
-  Sadie: ['curious book-and-building collector', 'bright, nosy and quietly thoughtful', 'book stacks and unusual rooms'], Theo: ['philosophical walker', 'slow, thoughtful and gently funny', 'good questions and changing viewpoints'],
-  Una: ['native-plant champion', 'earnest and encouraging', 'local plants and habitat'], Vern: ['friendly town gossip', 'cheerful and conspiratorial', 'neighbourly news and unusual sightings'],
-  Win: ['weather watcher', 'observant and lightly dramatic', 'clouds, wind and changing light'], Zara: ['community organiser', 'decisive and welcoming', 'bringing people together and making plans'],
-};
+// Stable public export retained for all existing callers and tests.
+export { villagerProfile };
 // Temperament and interests per name; the town simulation (src/world/life.js) gives the job.
-export function villagerProfile(name, job) { const p = VILLAGER_PROFILES[name] || ['town neighbour', 'friendly and curious', 'the people and projects of Repository Town']; return job ? [job, p[1], p[2]] : p; }
+
 
 export function residentName(coordinate) {
   const n = coordinate.charCodeAt(0) - 65 + parseInt(coordinate.slice(1), 10) * 7;
@@ -193,6 +189,8 @@ function scripted(house, name, f, text, role, town) {
   const pick = (a) => a[Math.floor(Math.random() * a.length)];
   const civicReply=answerPoliticsQuestion(town,text);
   if(civicReply)return civicReply;
+  const locationReply=groundedLocationReply(town?.location,text);
+  if(locationReply)return locationReply;
   const sceneReply = answerSceneQuestion(f.scene, text, role);
   if (sceneReply) return sceneReply;
   const fromTown = townReply(t, town, pick);
@@ -290,7 +288,7 @@ export function npcBehaviour(x, ctx) {
   const job = ctx.town?.()?.self?.job;
   return {
     title: x.act.role === 'villager' ? `${name} · ${job ? `${job} · ` : ''}lives at ${house.coordinate} · ${house.name}` : `${name} · resident of ${house.name}`,
-    body: `<div class="chat"><div class="chat-log" aria-live="polite"></div>
+    body: `<div class="chat"><p class="chat-location dim" aria-live="polite"></p><div class="chat-log" aria-live="polite"></div>
       <div class="chat-chips">
         <button type="button" class="chat-chip" data-ask="Any relic hints for the Adventure Guild?">🧭 Relic hint</button>
         <button type="button" class="chat-chip" data-ask="Any gossip about the neighbours on this street?">🗣️ Neighbours</button>
@@ -309,6 +307,12 @@ export function npcBehaviour(x, ctx) {
     mount(root) {
       const panel = root.closest?.('#panel') || root;
       const log = root.querySelector('.chat-log'), form = root.querySelector('.chat-form'), input = root.querySelector('.chat-input'), brain = root.querySelector('.chat-brain');
+      const locationLabel=root.querySelector('.chat-location');
+      const updateLocationLabel=()=>{
+        const loc=ctx.town?.()?.location;
+        locationLabel.textContent=loc?(loc.status==='travelling'?'🚶 ':'📍 ')+loc.name+(loc.activity?' · '+loc.activity:''):'';
+      };
+      updateLocationLabel();
       const history = chats[id] || (chats[id] = []);
       const syncViewport = () => {
         const vv = window.visualViewport;
@@ -358,13 +362,19 @@ export function npcBehaviour(x, ctx) {
         const scene = ctx.getNearbyScene?.(x) || null;
         facts = await factsFor(house, name, allHouses, scene);
         const town = ctx.town?.() || null;
-        let reply;
-        try {
-          reply = answerPoliticsQuestion(town,text) || answerSceneQuestion(facts.scene, text, x.act.role) || await askResidentProxy(id, house, name, facts, x.act.role, history, town);
-        } catch (err) {
-          reply = scripted(house, name, facts, text, x.act.role, town);
-          if (err.code === 'offline') reply += ' (Offline, so a simple reply.)';
-          else if (err.code === 'busy') reply += ' (AI service is busy right now, so a simple reply.)';
+        updateLocationLabel();
+        // Civic facts, whereabouts and room objects come from real game state.
+        // Only open-ended dialogue needs the AI model.
+        let reply=answerPoliticsQuestion(town,text) ||
+          groundedLocationReply(town?.location,text) ||
+          answerSceneQuestion(facts.scene,text,x.act.role);
+        if(!reply){
+          try {reply=await askResidentProxy(id,house,name,facts,x.act.role,history,town);}
+          catch(err){
+            reply=scripted(house,name,facts,text,x.act.role,town);
+            if(err.code==='offline')reply += ' (Offline, so a simple reply.)';
+            else if(err.code==='busy')reply += ' (AI service is busy right now, so a simple reply.)';
+          }
         }
         history.push({ role: 'assistant', content: reply });
         saveChats();
