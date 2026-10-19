@@ -25,6 +25,13 @@ for (const row of inventory.projects) {
     n + (r.props || []).filter(p => kinds.has(p[2]?.do)).length, 0);
   const b = buildInterior(h, () => new THREE.Object3D()), world = new CollisionWorld(b.colliders);
   const fail = m => failures.push(`${h.coordinate}: ${m}`);
+  const authored = h.int.rooms.flatMap(r=>r.props || []);
+  for (const kind of kinds) {
+    const expected=authored.filter(p=>p[2]?.do===kind).length;
+    const actual=b.interactables.filter(e=>e.act.do===kind).length;
+    if (actual!==expected) fail(`missing/extra ${kind} interactions: declared ${expected}, realised ${actual}`);
+  }
+
   counts.houses++; counts.rooms += b.rooms.length; counts.exhibits += b.interactables.length;
   if (world.hits(b.spawn.x, b.spawn.z, .35)) fail('spawn intersects collider');
   const pos = { x: b.spawn.x, z: b.spawn.z };
