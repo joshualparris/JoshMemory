@@ -6,9 +6,10 @@ import { chromium } from 'playwright';
 
 const args = process.argv.slice(2);
 const opt = (k, d) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : d; };
-const URL = opt('--url', 'http://localhost:8091/');
+const URL = opt('--url', 'http://localhost:8080/');
 const SHOTS = opt('--shots', null);
 const ROWS = opt('--rows', '1,2,3,4,5,6,7,8').split(',').map(Number);
+if (!ROWS.length || ROWS.some(row => !Number.isInteger(row) || row < 1 || row > 8)) throw new Error('Use --rows 1,2,...,8');
 const PHOTOS = !args.includes('--no-photos');
 const LOT_X = 26, LOT_Z = 46, COLS = 26;
 const roadZ = (row) => (row - 1) * LOT_Z - 3.5 * LOT_Z + 16;
@@ -82,3 +83,4 @@ for (let c = 0; c <= COLS; c += 5) {
 }
 console.log(problems.length ? `\nPROBLEMS (${problems.length}):\n` + problems.join('\n') : '\nNo problems: every street and avenue walked end to end.');
 await browser.close();
+if (problems.length) process.exitCode = 1;

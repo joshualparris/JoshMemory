@@ -54,11 +54,9 @@
       define('readyState', 4); define('status', 200); define('statusText', 'OK'); define('responseURL', k);
       define('responseText', text); define('response', xhr.responseType === 'json' ? JSON.parse(text) : text);
       setTimeout(function () {
-        if (typeof xhr.onreadystatechange === 'function') xhr.onreadystatechange();
         xhr.dispatchEvent(new Event('readystatechange'));
-        if (typeof xhr.onload === 'function') xhr.onload(new ProgressEvent('load'));
         xhr.dispatchEvent(new ProgressEvent('load'));
-        if (typeof xhr.onloadend === 'function') xhr.onloadend(new ProgressEvent('loadend'));
+        xhr.dispatchEvent(new ProgressEvent('loadend'));
       }, 0);
     };
   }
@@ -83,6 +81,7 @@
     });
   }
 })();
+
 </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">

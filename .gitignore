@@ -30,3 +30,5 @@ test-results/
 local_memories/
 private/
 
+# Large WebAssembly binary exported locally by tools/pack_games.mjs
+repository-town/games/bramblewick/*.wasm

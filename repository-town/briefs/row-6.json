@@ -1770,11 +1770,19 @@
  },
  {
   "repo": "Parris-Tech-Services/Ideas",
-  "summary": "Private repository this session's GitHub access could not open; another repository called ideas is already attached, which blocks attaching this one, so this sketchbook studio is designed from its name only.",
+  "summary": "Standalone PWA edition of Sylvie + Elias Ideas: an offline-cached mobile-first family activity picker (index.html, app.js, things-data.js, moment-ideas.js, play-mode.js, sw.js, start-on-phone.ps1) that matches 1–5 nearby household items to OT sensory-diet play ideas with a guided timer and local activity-history export.",
   "evidence": [
-   "unreachable: name clash with attached joshuaparris-max/ideas; inventory name only"
+   "README.md",
+   "index.html",
+   "app.js",
+   "things-data.js",
+   "things.js",
+   "moment-ideas.js",
+   "play-mode.js",
+   "sw.js",
+   "start-on-phone.ps1"
   ],
-  "kind": "Sketchbook Studio (name-based)",
+  "kind": "Guided Sensory Play & 'Our Stuff' Townhouse",
   "ext": {
    "style": "townhouse",
    "walls": "#f2d84a",
@@ -1795,57 +1803,74 @@
    "light": "#fffbe0",
    "rooms": [
     {
-     "name": "Sketch Room",
+     "name": "Guided Play & 1-Minute Cue Room",
      "w": 8,
      "d": 8,
      "props": [
       [
        "easel",
-       "Sketch",
+       "play-mode.js parent script & timer",
        {
-        "do": "info",
-        "text": "Placeholder: this repository could not be attached because of a name clash."
+        "do": "steps",
+        "title": "Guided Play Mode (play-mode.js)",
+        "steps": [
+         "Tap 'Start this idea' on any regular or Use-What-We've-Got card to open Guided Play Mode.",
+         "Follow the step-by-step parent script and gentle countdown timer with a one-minute finishing cue.",
+         "Record a quick outcome — Loved it, Worked well, or Not today — into the browser's private 'Lately' log."
+        ]
        }
       ],
       [
        "stool",
-       "Stool"
+       "One-minute finishing-cue stool"
       ],
       [
        "corkboard",
-       "Pinned sketches"
+       "'No shopping needed' match board"
       ],
       [
        "lamp",
-       "Lamp"
+       "Calm transition lamp"
       ]
      ]
     },
     {
-     "name": "Idea Shelf",
+     "name": "'Lately' History & LAN Phone Launcher",
      "w": 8,
      "d": 8,
      "props": [
       [
        "shelf",
-       "Notebooks"
+       "things-data.js starter inventory"
       ],
       [
        "bookStack",
-       "Drafts",
+       "Private 'Lately' JSON/CSV export",
        {
-        "do": "count",
-        "unit": "Ideas noted",
-        "text": "Theme from the name only."
+        "do": "quiz",
+        "title": "Guided Play outcome ratings",
+        "q": "Which three quick outcome buttons does Guided Play Mode offer when finishing an activity in Sylvie + Elias Ideas?",
+        "options": [
+         "Pass, Fail, and Retry",
+         "Loved it, Worked well, and Not today",
+         "Gold, Silver, and Bronze"
+        ],
+        "answer": 1,
+        "explain": "Guided Play finishes with 'Loved it', 'Worked well', or 'Not today', saving to the local 'Lately' tab with JSON/CSV export."
        }
       ],
       [
        "sofa",
-       "Thinking couch"
+       "start-on-phone.ps1 Wi-Fi couch",
+       {
+        "do": "info",
+        "title": "Offline PWA & LAN phone server",
+        "text": "sw.js caches the entire app for offline phone use after the first load, and start-on-phone.ps1 serves it over local Wi-Fi on port 8080."
+       }
       ],
       [
        "plant",
-       "Plant"
+       "Sensory break plant"
       ]
      ]
     }

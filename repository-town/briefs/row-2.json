@@ -317,11 +317,16 @@
  },
  {
   "repo": "joshualparris/Paul-Roe-Private-Archive",
-  "summary": "Private repository this session's GitHub access could not open; from its name it is a private family archive companion to the public Paul-Roe memorial, so this quiet archive house is a respectful name-based placeholder with no contents represented.",
+  "summary": "Private multi-source research archive compiled across five connected sources — 316 unique Gmail messages/references, 763 deduplicated Google Drive items, 4 Cornerstone Google Calendar events across 28 calendars, GitHub cross-checks, and ChatGPT Library indexes — plus archived Vercel web analytics rollups.",
   "evidence": [
-   "unreachable: inventory name only (no GitHub access)"
+   "README.md",
+   "gmail/README.md",
+   "drive/all-matches-001.md",
+   "calendar/identifier-cross-checks.md",
+   "analytics/vercel-web-analytics/README.md",
+   "analytics/vercel-web-analytics/rollups.json"
   ],
-  "kind": "Private Archive (name-based)",
+  "kind": "Multi-Source Provenance Archive",
   "ext": {
    "style": "cottage",
    "walls": "#d8d0c8",
@@ -342,61 +347,74 @@
    "light": "#fff4e0",
    "rooms": [
     {
-     "name": "Quiet Room",
+     "name": "Connected Sources Room",
      "w": 8,
      "d": 8,
      "props": [
       [
        "candles",
-       "Remembrance candles",
+       "Memorial provenance light",
        {
         "do": "info",
-        "text": "This private archive could not be opened from this session; nothing from it is shown here."
+        "title": "Five connected sources audited",
+        "text": "Compiled on 19 September 2026 across Gmail (316 unique messages/references), Google Drive (763 unique non-trashed items), Google Calendar (28 calendars, 4 Cornerstone events), GitHub (5 owners checked), and ChatGPT Library indexes."
        }
       ],
       [
        "bench",
-       "Reflection bench"
+       "Cornerstone calendar cross-check"
       ],
       [
        "flowerBed",
-       "Garden flowers"
+       "Remembrance garden"
       ],
       [
        "lamp",
-       "Soft lamp"
+       "Reading lamp"
       ]
      ]
     },
     {
-     "name": "Archive Room",
+     "name": "Drive & Analytics Vault",
      "w": 8,
      "d": 8,
      "props": [
       [
        "archiveBoxes",
-       "Archive boxes"
+       "763 deduplicated Drive items",
+       {
+        "do": "quiz",
+        "title": "Archive coverage",
+        "q": "How many unique Gmail messages/references and non-trashed Google Drive items are indexed in this private archive?",
+        "options": [
+         "50 Gmail messages and 120 Drive items",
+         "316 Gmail references and 763 Drive items",
+         "1,000 Gmail references and 2,500 Drive items"
+        ],
+        "answer": 1,
+        "explain": "The archive indexes 316 unique Gmail references across name/email/spelling variants and 763 deduplicated Google Drive items."
+       }
       ],
       [
        "bookshelf",
-       "Albums"
+       "gmail/full-messages-*.md volumes"
       ],
       [
        "lectern",
-       "Guest book",
+       "Vercel web analytics rollups",
        {
         "do": "steps",
-        "title": "About this house",
+        "title": "Archive structure",
         "steps": [
-         "Designed from the repository name only.",
-         "No private material is represented.",
-         "Grant access to replace this with a reviewed design."
+         "gmail/: 309 exact name matches, 146 Cornerstone email matches, and 7 spelling variants merged into 316 unique references.",
+         "drive/: 763 unique non-trashed Drive items indexed in drive/all-matches-001.md onward with readable text contexts.",
+         "analytics/vercel-web-analytics/: daily CSV/JSON snapshots and 7-day/30-day production rollups."
         ]
        }
       ],
       [
        "easel",
-       "Portrait easel"
+       "Public web & Library cross-check"
       ]
      ]
     }
@@ -405,11 +423,18 @@
  },
  {
   "repo": "joshualparris/ResearchLibrary",
-  "summary": "Private repository this session's GitHub access could not open; Dubbozoo's README describes it as a private, Dewey-indexed research library that reciprocally indexes Dubbozoo under 590, so its rooms are navigable Dewey classes — the shelf contents themselves are unverified.",
+  "summary": "A private, Dewey-inspired master research catalogue indexing 889 Google Drive research documents across 311 classified topic groups and linking Josh's deep-research GitHub repositories without duplicating source evidence, paired with ResearchAtlas and ResearchGems.",
   "evidence": [
-   "unreachable: described in joshualparris/Dubbozoo README (Dewey 590 reciprocal index) and JoshMemory PROJECT_NETWORK.md"
+   "README.md",
+   "docs/github-research-library.md",
+   "docs/individual-research-documents.md",
+   "docs/document-level-dewey-audit.md",
+   "catalogue/repositories.json",
+   "catalogue/drive-documents.json",
+   "catalogue/drive-topic-groups.json",
+   "catalogue/classification-review-2026-10-15.json"
   ],
-  "kind": "Dewey Archive",
+  "kind": "Dewey Master Research Catalogue",
   "ext": {
    "style": "library",
    "walls": "#c8b89a",
@@ -436,29 +461,24 @@
      "props": [
       [
        "bookshelf",
-       "000 Computing & information"
+       "000 Computing, AI & information"
       ],
       [
        "bookshelf",
-       "100 Philosophy & psychology"
+       "100 Philosophy, psychology & ethics"
       ],
       [
        "cardCatalog",
-       "Dewey catalogue",
+       "catalogue/repositories.json",
        {
         "do": "steps",
-        "title": "Dewey classes",
+        "title": "Dewey master index (889 docs, 311 topic groups)",
         "steps": [
-         "000 Computer science, information & general works",
-         "100 Philosophy & psychology",
-         "200 Religion",
-         "300 Social sciences",
-         "400 Language",
-         "500 Science",
-         "600 Technology",
-         "700 Arts & recreation",
-         "800 Literature",
-         "900 History & geography"
+         "000–100: Computing, AI systems, information science, philosophy, and psychology.",
+         "200–300: Religion, Christian history, social sciences, law, and economics.",
+         "400–500: Language, pure sciences, astronomy, and 590 zoological archives (Dubbozoo).",
+         "600–700: Medicine, longevity & health (HealthiestPeople), engineering, arts, and interactive fiction.",
+         "800–900: Literature, biographies, Australian regional history, and geography."
         ]
        }
       ]
@@ -471,11 +491,16 @@
      "props": [
       [
        "bookshelf",
-       "200 Religion"
+       "200 Religion & theology"
       ],
       [
        "bookshelf",
-       "300 Social sciences"
+       "300 Social sciences & investigations",
+       {
+        "do": "info",
+        "title": "Document-level Dewey audit",
+        "text": "docs/document-level-dewey-audit.md and catalogue/drive-documents.json classify 889 Drive documents into 311 distinct title groups, resolving 84 formerly unclassified groups in classification-review-2026-10-15.json."
+       }
       ]
      ]
     },
@@ -486,22 +511,22 @@
      "props": [
       [
        "bookshelf",
-       "400 Language"
+       "400 Language & linguistics"
       ],
       [
        "specimenJars",
-       "590 Animals — see Dubbozoo",
+       "590 Animals — reciprocal Dubbozoo index",
        {
         "do": "quiz",
-        "title": "Shelve it",
-        "q": "Under which Dewey number does this library index the Dubbozoo wildlife journal?",
+        "title": "Document audit scale",
+        "q": "How many research documents and classified topic groups are indexed in docs/document-level-dewey-audit.md?",
         "options": [
-         "590",
-         "790",
-         "910"
+         "120 documents in 40 groups",
+         "889 documents in 311 title groups",
+         "2,000 documents in 500 groups"
         ],
-        "answer": 0,
-        "explain": "590 covers animals (zoology); Dubbozoo links back to this shelf."
+        "answer": 1,
+        "explain": "The document-level Dewey audit indexes 889 research documents organised into 311 classified topic groups."
        }
       ]
      ]
@@ -513,11 +538,11 @@
      "props": [
       [
        "bookshelf",
-       "600 Technology"
+       "600 Medicine, health & aged care"
       ],
       [
        "easel",
-       "700 Arts"
+       "700 Arts, music & narrative games"
       ]
      ]
     },
@@ -528,15 +553,15 @@
      "props": [
       [
        "bookshelf",
-       "800 Literature"
+       "800 Literature & rhetoric"
       ],
       [
        "globe",
-       "900 History & geography"
+       "900 History, geography & biography"
       ],
       [
        "lectern",
-       "Reading desk"
+       "ResearchAtlas & ResearchGems bridge"
       ]
      ]
     }
@@ -1635,11 +1660,24 @@
  },
  {
   "repo": "joshualparris/HealthiestPeople",
-  "summary": "Private repository this session's GitHub access could not open; JoshMemory's work log describes it as a research website of profiles, country research, charts and fact-check pages with source and provenance auditing, so this house reflects those notes; its real pages are unverified.",
+  "summary": "A source-first longevity and everyday-health playbook studying nine public case studies (Bryan Johnson, Michael Lustgarten, Dave Pascoe, Julie Gibson Clark, Larry Smarr, Michael Snyder, Bob Troia, Oskar Svendsen, Scott Kelly) plus a working-parent baseline with wearable, lab, cardiac, and frisbee CSV histories, Blue Zones, and Healthy Countries.",
   "evidence": [
-   "unreachable: JoshMemory continuity log (20–21 September 2026 entries)"
+   "README.md",
+   "app.js",
+   "charts.js",
+   "data-explorer.js",
+   "docs/blue-zones.md",
+   "docs/healthy-countries.md",
+   "docs/fact-check-audit.md",
+   "data/country-health-lessons.csv"
   ],
-  "kind": "Longevity Research Observatory",
+  "kind": "Longevity & Everyday Health Observatory",
+  "links": [
+   {
+    "label": "Everyday Health Playbook",
+    "url": "https://joshualparris.github.io/HealthiestPeople/"
+   }
+  ],
   "ext": {
    "style": "observatory",
    "walls": "#e8e0d0",
@@ -1660,69 +1698,81 @@
    "light": "#f8fff0",
    "rooms": [
     {
-     "name": "Profiles Gallery",
+     "name": "Case Studies & Blue Zones Gallery",
      "w": 10,
      "d": 8,
      "props": [
       [
        "easel",
-       "Profiles"
+       "Nine public case-study profiles"
       ],
       [
        "statue",
-       "Exemplar"
+       "Working-parent baseline",
+       {
+        "do": "quiz",
+        "title": "Case-study roster",
+        "q": "How many public health/longevity case studies are compared alongside the real-world working-parent baseline?",
+        "options": [
+         "Three case studies",
+         "Nine case studies",
+         "Twenty-five case studies"
+        ],
+        "answer": 1,
+        "explain": "Nine public case studies (Bryan Johnson, Michael Lustgarten, Dave Pascoe, Julie Gibson Clark, Larry Smarr, Michael Snyder, Bob Troia, Oskar Svendsen, and Scott Kelly) are compared with the working-parent baseline."
+       }
       ],
       [
        "globe",
-       "Country research",
+       "Blue Zones & Healthy Countries",
        {
         "do": "info",
-        "text": "Based on JoshMemory notes only: country research and profiles were built in September 2026."
+        "title": "Country & population lessons",
+        "text": "blue-zones.html, healthy-countries.html, and data/country-health-lessons.csv compare population-level longevity drivers with individual self-tracking protocols."
        }
       ]
      ]
     },
     {
-     "name": "Fact-check Desk",
+     "name": "Fact-Check & Playbook Desk",
      "w": 8,
      "d": 8,
      "props": [
       [
        "desk",
-       "Fact-check pages"
+       "Day-of-the-week parent playbook"
       ],
       [
        "filingCabinet",
-       "Source provenance",
+       "docs/fact-check-audit.md",
        {
         "do": "steps",
-        "title": "From the work log",
+        "title": "Translating protocols to real life",
         "steps": [
-         "Source and provenance auditing.",
-         "Fact-check pages.",
-         "Charts and graphs.",
-         "Mobile navigation fixes."
+         "Audit every claim in docs/fact-check-audit.md and docs/evidence-and-bias.md before adopting a routine.",
+         "Separate 'copy this' high-return habits from expensive or low-evidence interventions.",
+         "Use the day-of-the-week plan and 'minimum viable health' fallback on chaotic family days."
         ]
        }
       ]
      ]
     },
     {
-     "name": "Charts Room",
+     "name": "Longitudinal Charts Room",
      "w": 8,
      "d": 8,
      "props": [
       [
        "chartBoard",
-       "Charts & graphs"
+       "Wearables, labs, cardiac & frisbee CSVs"
       ],
       [
        "bookshelf",
-       "Research notes"
+       "Curated podcast & talk library"
       ],
       [
        "lamp",
-       "Reading lamp"
+       "Morning routine lamp"
       ]
      ]
     }
@@ -2316,11 +2366,17 @@
  },
  {
   "repo": "joshualparris/BrackenHouse",
-  "summary": "Private repository this session's GitHub access could not open; only its name is known, so this fern-garden house is a name-based placeholder awaiting access to the real project.",
+  "summary": "Consolidated evidence archive for Bracken House Dubbo (315 Macquarie Street, operated by UPA Aged Care Solutions): 14 source PDFs and 9 Markdown dossiers covering the 72–74 bed facility, the 20-bed secure dementia-specific Lavender Wing, night-shift nurse orientation, AN-ACC care minutes, and local IT support proposals.",
   "evidence": [
-   "unreachable: inventory name only (no GitHub access)"
+   "README.md",
+   "source-files/MANIFEST.md",
+   "research/night-shift-operations.md",
+   "research/facility-regulatory-history.md",
+   "research/technology-it-support.md",
+   "research/resident-tech-help-pilot.md",
+   "research/bracken-local-it-support-proposal.md"
   ],
-  "kind": "Bracken Cottage (name-based)",
+  "kind": "Aged-Care Operations & IT Archive",
   "ext": {
    "style": "cabin",
    "walls": "#7a8a5a",
@@ -2341,61 +2397,74 @@
    "light": "#fff4d0",
    "rooms": [
     {
-     "name": "Fern Room",
+     "name": "Lavender Wing & Night-Shift Desk",
      "w": 8,
      "d": 8,
      "props": [
       [
        "plant",
-       "Bracken fern",
+       "20-bed secure Lavender Wing",
        {
         "do": "info",
-        "text": "Placeholder: the BrackenHouse repository could not be opened from this session."
+        "title": "Bracken House Dubbo overview",
+        "text": "Located at 315 Macquarie Street, Dubbo and operated by UPA of NSW: 72–74 beds including the 20-bed secure dementia-specific Lavender Wing, re-accredited through 27 April 2027."
        }
       ],
       [
        "pottedTree",
-       "Garden tree"
+       "Courtyard sensory garden"
       ],
       [
        "bench",
-       "Window seat"
+       "Night-shift handover bench"
       ],
       [
        "lamp",
-       "Lamp"
+       "21:45–07:00 night-shift lamp"
       ]
      ]
     },
     {
-     "name": "Study",
+     "name": "IT Support & Regulatory Study",
      "w": 8,
      "d": 8,
      "props": [
       [
        "desk",
-       "Writing desk"
+       "Local IT support & resident tech pilot",
+       {
+        "do": "quiz",
+        "title": "Lavender Wing capacity",
+        "q": "According to the consolidated UPA and My Aged Care evidence in README.md, how many beds are in Bracken House's secure dementia-specific Lavender Wing?",
+        "options": [
+         "8 beds",
+         "20 beds",
+         "50 beds"
+        ],
+        "answer": 1,
+        "explain": "Public UPA and regulatory material consistently describes a 20-bed secure dementia-specific Lavender Wing within the 72–74 bed facility."
+       }
       ],
       [
        "bookshelf",
-       "Shelves"
+       "14 Drive PDFs & source-register.md"
       ],
       [
        "clock",
-       "Hall clock",
+       "Night-shift rounds & escalation",
        {
         "do": "steps",
-        "title": "Next step",
+        "title": "Consolidated research dossiers",
         "steps": [
-         "Grant this session access to the repository.",
-         "Re-run the evidence harvest.",
-         "Redesign the house from the real code."
+         "research/night-shift-operations.md: shift handovers, RN coverage, and dementia-wing rounding routines.",
+         "research/facility-regulatory-history.md: January 2024 re-accreditation through April 2027 and My Aged Care star ratings.",
+         "research/bracken-local-it-support-proposal.md & resident-tech-help-pilot.md: on-site Dubbo IT support and resident tech assistance."
         ]
        }
       ],
       [
        "rug",
-       "Rug"
+       "Macquarie Street hall rug"
       ]
      ]
     }
@@ -2652,11 +2721,17 @@
  },
  {
   "repo": "joshualparris/Coffeezilla",
-  "summary": "Private repository this session's GitHub access could not open; its name refers to the investigative journalist known for exposing scams, so this investigation room is a name-based placeholder; the repository's actual content is unverified.",
+  "summary": "A source-led investigative research archive prompted by Coffeezilla's reporting: 14 Markdown dossiers covering major crypto and influencer fraud outcomes (FTX, Celsius, Terra, SafeMoon, CryptoZoo, LIBRA, HAWK, CS2, MrBeast, US healthcare fraud), the Friendlyjordies firebombing / Alameddine network dossiers, a 110-topic global fraud roadmap, and a 274-question open questions register.",
   "evidence": [
-   "unreachable: inventory name only (no GitHub access)"
+   "README.md",
+   "research/2026-10-14-coffeezilla-major-investigations-outcomes.md",
+   "research/2026-10-14-global-fraud-master-research-roadmap.md",
+   "research/2026-10-14-open-questions-register.md",
+   "research/2026-10-14-alameddine-network-dossier.md",
+   "research/2026-10-14-alameddine-corruption-evidence.md",
+   "research/2026-10-14-healthcare-fraud-episode.md"
   ],
-  "kind": "Investigation Room (name-based)",
+  "kind": "Investigative Fraud & Case-Law Archive",
   "ext": {
    "style": "townhouse",
    "walls": "#3a2a22",
@@ -2677,61 +2752,74 @@
    "light": "#ffd8a0",
    "rooms": [
     {
-     "name": "Evidence Wall",
+     "name": "Fraud Outcomes & Dossier Wall",
      "w": 9,
      "d": 8,
      "props": [
       [
        "corkboard",
-       "Red-string board",
+       "110-topic global fraud roadmap",
        {
         "do": "info",
-        "text": "Placeholder: this private repository could not be opened, so the case files are imaginary."
+        "title": "Evidence-labelled case dossiers",
+        "text": "Tracks legal and court outcomes across FTX, Celsius, Terra, SafeMoon, CryptoZoo, LIBRA, HAWK, CS2, Save the Kids, MrBeast controversies, and US healthcare fraud, strictly separating police/court records from unproven allegations."
        }
       ],
       [
        "filingCabinet",
-       "Case files"
+       "Alameddine & ICAC evidence audit"
       ],
       [
        "coffeeMachine",
-       "Coffee"
+       "Late-night verification espresso"
       ],
       [
        "desk",
-       "Research desk"
+       "274 open questions register",
+       {
+        "do": "quiz",
+        "title": "Open-questions register",
+        "q": "How many unanswered or partially verified investigative questions are catalogued in 2026-10-14-open-questions-register.md?",
+        "options": [
+         "25 questions in 5 sections",
+         "274 questions in 24 sections",
+         "1,000 questions in 50 sections"
+        ],
+        "answer": 1,
+        "explain": "The consolidated open-questions register tracks 274 questions across 24 thematic sections alongside the 110-topic global fraud roadmap."
+       }
       ]
      ]
     },
     {
-     "name": "Studio",
+     "name": "Broadcast & Transcript Verification Studio",
      "w": 8,
      "d": 8,
      "props": [
       [
        "camera",
-       "Camera"
+       "Episode timestamp verification"
       ],
       [
        "microphone",
-       "Mic",
+       "Q001–Q005 wording & claim audit",
        {
         "do": "steps",
-        "title": "Name-based design",
+        "title": "Claim verification workflow",
         "steps": [
-         "Theme taken from the repository name.",
-         "Real exhibits need repository access.",
-         "Nothing here describes actual content."
+         "Log exact video timestamps and distinguish paraphrased remarks from verbatim transcripts (Q001–Q005).",
+         "Cross-check allegations against court filings, DOJ/SEC indictments, and NSW ICAC reports.",
+         "Label each claim's status before adding follow-up items to the 274-question register."
         ]
        }
       ],
       [
        "lamp",
-       "Key light"
+       "Studio key light"
       ],
       [
        "sofa",
-       "Interview couch"
+       "Source review couch"
       ]
      ]
     }
@@ -2740,11 +2828,19 @@
  },
  {
   "repo": "joshualparris/ColinBuchanan",
-  "summary": "Private repository this session's GitHub access could not open; only its name — a person's name — is known, so this plain study is a neutral placeholder that represents no personal information.",
+  "summary": "A browsable public-web reference archive and static web app (index.html, who-is-colin.html, watch.html) answering 'Who is Colin Buchanan?' through 142 reviewed CSV source records and 12 thematic research dossiers covering Cornerstone Community, Bourke/Pera Bore, APRA songwriting credits, Golden Guitars, Play School, and 2WEB Outback Radio.",
   "evidence": [
-   "unreachable: inventory name only (no GitHub access)"
+   "README.md",
+   "index.html",
+   "who-is-colin.html",
+   "watch.html",
+   "app.js",
+   "data/references.csv",
+   "data/deep-research-sources.csv",
+   "research/cornerstone-and-bourke.md",
+   "research/radio-and-audio.md"
   ],
-  "kind": "Private Study (name-based)",
+  "kind": "Australian Songwriter & Broadcast Archive",
   "ext": {
    "style": "cottage",
    "walls": "#b8a890",
@@ -2765,61 +2861,74 @@
    "light": "#fff2dc",
    "rooms": [
     {
-     "name": "Front Study",
+     "name": "142-Source Browser & Dossier Study",
      "w": 8,
      "d": 8,
      "props": [
       [
        "desk",
-       "Desk",
+       "142 reviewed CSV source records",
        {
         "do": "info",
-        "text": "Placeholder: no content from this private repository is represented."
+        "title": "Who is Colin Buchanan?",
+        "text": "Combines the 112-source baseline CSV and 30 deep-research additions (142 reviewed records total) with browsable reader pages (index.html, who-is-colin.html, watch.html) covering Cornerstone/Bourke, country music, Play School, and Christian kids' albums."
        }
       ],
       [
        "bookshelf",
-       "Bookshelf"
+       "12 thematic Markdown dossiers"
       ],
       [
        "chair",
-       "Chair"
+       "Reading chair"
       ],
       [
        "lamp",
-       "Lamp"
+       "Outback study lamp"
       ]
      ]
     },
     {
-     "name": "Back Room",
+     "name": "Bourke, Radio & Discography Room",
      "w": 8,
      "d": 8,
      "props": [
       [
        "archiveBoxes",
-       "Boxes"
+       "Cornerstone, Pera Bore & 2WEB dossiers",
+       {
+        "do": "quiz",
+        "title": "Reviewed source corpus",
+        "q": "How many reviewed source records are combined across data/references.csv and data/deep-research-sources.csv?",
+        "options": [
+         "45 records",
+         "142 records (112 baseline + 30 deep-research)",
+         "500 records"
+        ],
+        "answer": 1,
+        "explain": "The archive combines 112 baseline records with 30 deep-research additions for 142 reviewed public-web sources."
+       }
       ],
       [
        "clock",
-       "Clock",
+       "1988–91 breakthrough chronology",
        {
         "do": "steps",
-        "title": "Next step",
+        "title": "Archive research trails",
         "steps": [
-         "Grant repository access.",
-         "Harvest evidence.",
-         "Design from the real project."
+         "research/cornerstone-and-bourke.md: Cornerstone Community and Pera Bore / Bourke years that shaped 'Galahs in the Gidgee'.",
+         "research/play-school-and-tv.md & radio-and-audio.md: ABC Play School, 2WEB Outback Radio, Qantas in-flight audio, and TGIF segments.",
+         "research/discography.md & awards.md: Golden Guitar wins, ARIA nominations, APRA songwriting credits, and excluded homonyms."
         ]
        }
       ],
       [
        "plant",
-       "Plant"
+       "Gidgee bush planter"
       ],
       [
        "rug",
-       "Rug"
+       "Watch-library rug"
       ]
      ]
     }
@@ -2948,11 +3057,16 @@
  },
  {
   "repo": "joshualparris/EliasApp",
-  "summary": "Private repository this session's GitHub access could not open; only its name is known, so this small app studio is a neutral name-based placeholder awaiting access.",
+  "summary": "A bright, toddler-friendly local-first React and Vite play app for Elias built around garbage trucks, construction machines, Screwdriver World (flathead, Phillips, long, and electric screwdrivers), Things That Spin, Vehicle Sounds, and five toddler-safe tap games with parent controls for calm mode and reduced motion.",
   "evidence": [
-   "unreachable: inventory name only (no GitHub access)"
+   "README.md",
+   "CURRENT_STATUS.md",
+   "docs/content-and-safety.md",
+   "public/media/images/screwdrivers/",
+   "playwright.config.js",
+   "src/"
   ],
-  "kind": "App Studio (name-based)",
+  "kind": "Toddler Trucks & Screwdriver Playroom",
   "ext": {
    "style": "modern",
    "walls": "#e0e4e8",
@@ -2973,61 +3087,74 @@
    "light": "#f4f8ff",
    "rooms": [
     {
-     "name": "Studio",
+     "name": "Trucks & Screwdriver World",
      "w": 8,
      "d": 8,
      "props": [
       [
        "laptop",
-       "Prototype",
+       "Screwdriver World & Truck Bay",
        {
         "do": "info",
-        "text": "Placeholder: the EliasApp repository could not be opened from this session."
+        "title": "Built around Elias's favourite things",
+        "text": "Features Garbage Trucks, Construction, Cars and Trucks, Tools, Screwdriver World (flathead, Phillips, long, and electric screwdriver SVG fallbacks), Things That Spin, Build and Fix, and Vehicle Sounds."
        }
       ],
       [
        "easel",
-       "Sketches"
+       "Paint Shop & Build a House"
       ],
       [
        "plant",
-       "Plant"
+       "Sensory-friendly corner plant"
       ],
       [
        "stool",
-       "Stool"
+       "Little builder stool"
       ]
      ]
     },
     {
-     "name": "Test Corner",
+     "name": "Toddler Games & Calm-Mode Corner",
      "w": 8,
      "d": 8,
      "props": [
       [
        "phoneStand",
-       "Device"
+       "Parent controls & Calm Mode",
+       {
+        "do": "quiz",
+        "title": "Toddler-safe game lineup",
+        "q": "Which five tap games are included alongside the themed vehicle and tool zones in EliasApp?",
+        "options": [
+         "Chess, Checkers, Sudoku, Solitaire, and Minesweeper",
+         "Sorting Station, Parking Challenge, Build a House, Sound Memory, and Paint Shop",
+         "Space Invaders, Pac-Man, Pong, Tetris, and Breakout"
+        ],
+        "answer": 1,
+        "explain": "EliasApp ships Sorting Station, Parking Challenge, Build a House, Sound Memory, and Paint Shop with parent settings for sound, calm mode, and reduced motion."
+       }
       ],
       [
        "toyBlocks",
-       "Building blocks",
+       "Sorting Station & Parking Challenge",
        {
         "do": "steps",
-        "title": "Next step",
+        "title": "Parent safety & play loop",
         "steps": [
-         "Grant access to the repository.",
-         "Harvest its evidence.",
-         "Replace this placeholder with a real design."
+         "Large touch cards on the home dashboard open Garbage Trucks, Construction, or Screwdriver World.",
+         "Local SVG and media fallbacks ensure offline play without external ads or dark patterns.",
+         "Parent settings toggle sound, reduced motion, calm mode, and Watch and Learn video visibility."
         ]
        }
       ],
       [
        "sofa",
-       "Sofa"
+       "Watch & Learn story couch"
       ],
       [
        "rug",
-       "Rug"
+       "Play Zone road mat"
       ]
      ]
     }

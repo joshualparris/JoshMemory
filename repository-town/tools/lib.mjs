@@ -130,6 +130,7 @@ const PLAY_TEXT = {
   python: 'A text adventure running real Python. Type commands at the prompt; your progress saves automatically.',
   static: 'The real game, running inside Repository Town.',
   vite: 'The real game, built from its repository and running inside Repository Town.',
+  godot: 'The real Godot 4 game, exported to WebAssembly and running inside Repository Town.',
 };
 
 // Houses with playable games get an Arcade: one cabinet per game. Generated like the archive.

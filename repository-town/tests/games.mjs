@@ -25,8 +25,8 @@ for (const g of games) {
   if (!fs.existsSync(file)) { r.errors.push('not packed'); console.log(`✗ ${g.id}: not packed`); continue; }
   const page = await browser.newPage({ viewport: { width: 1000, height: 700 }, locale: 'en-US' });
   page.on('pageerror', (e) => { if (!benign.test(e.message) && !offlineOnly(e.message)) r.errors.push('pageerror: ' + e.message.slice(0, 200)); });
-  // Games marked online load libraries from a CDN; offline, only their absence is expected.
-  const offlineOnly = (m) => g.online && /is not defined|Failed to fetch|NetworkError/.test(m);
+  // Games marked online load libraries or WebAssembly from HTTP(S); offline, only their absence is expected.
+  const offlineOnly = (m) => g.online && /is not defined|Failed to fetch|NetworkError|URL scheme "file" is not supported/.test(m);
   const ignored = (t) => (g.ignoreErrors || []).some((x) => t.includes(x));
   page.on('console', (m) => { if (m.type() === 'error' && !benign.test(m.text()) && !ignored(m.text()) && !offlineOnly(m.text())) r.errors.push('console: ' + m.text().slice(0, 200)); });
   try {

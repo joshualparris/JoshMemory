@@ -90,7 +90,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600&family=Manrope:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
-  <script defer src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+  <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
   <style>
     :root {
       color-scheme: dark;
@@ -370,8 +370,9 @@
     </div>
   </div>
 
-  <py-script>
+  <script type="py">
 import random
+from js import document
 
 class Game:
     def __init__(self):
@@ -818,7 +819,7 @@ class Game:
         companions_el = document.getElementById("companions")
         companions_el.innerHTML = "".join(
             f"<div class='inventory-item'>{name}: {data['trait']} (rapport {data['rapport']})</div>"
-            for name, data in self.state["companions"].itecare2()
+            for name, data in self.state["companions"].items()
         )
 
         journal_el = document.getElementById("journal")
@@ -851,6 +852,6 @@ def init_game():
     game.render()
 
 init_game()
-  </py-script>
+  </script>
 </body>
 </html>

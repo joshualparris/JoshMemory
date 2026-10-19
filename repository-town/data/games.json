@@ -1,596 +1,646 @@
 {
- "note": "Games playable inside Repository Town. Packed by tools/pack_games.mjs into games/<id>/. kind: static | vite | python. Not playable in a browser yet: energyquest (Unity 2021.3 project: a WebGL export needs the Unity editor and a licence sign-in), multi-layer-zoom-game in openclaw-workspace (Parcel build, not yet supported by the packer). joshualparris/JoshHub's classic-dnd-text and newgame (Dark Realms) are broken in that repo; the fixed copies from Parris-Tech-Services/JoshHub (branch ccr-846db548-0l5zmu) play in the X3 house. Needs its own server, so not packed: rothfuss-kkc-adventure (SQLite + optional Gemini narration). JoshHub's tile-game (both copies) fetches src/map.json, which is not in either repository. SwordCoast's index.html loads src/main.js and styles/main.css, which are not in the repository (the same game plays from dndgame). Parris-Life-Dashboard's neon-dash is a placeholder page.",
- "games": [
-  {
-   "id": "whispering-wilds-py",
-   "repo": "joshualparris/Whispering-Wilds",
-   "title": "Whispering Wilds",
-   "kind": "python",
-   "main": "code.py"
-  },
-  {
-   "id": "starhaven-py",
-   "repo": "Parris-Tech-Services/Max",
-   "title": "StarHaven (Python)",
-   "kind": "python",
-   "main": "Strarhaven.py"
-  },
-  {
-   "id": "guess-the-number",
-   "repo": "Parris-Tech-Services/Max",
-   "title": "Guess the Number",
-   "kind": "python",
-   "main": "guess_the_number.py",
-   "test": [
-    "50",
-    "25",
-    "75"
-   ]
-  },
-  {
-   "id": "adventure-text",
-   "repo": "Parris-Tech-Services/AdventureText",
-   "title": "AdventureText",
-   "kind": "python",
-   "files": [
-    "src/adventure_text"
-   ],
-   "pythonPath": [
-    "src"
-   ],
-   "run": "from adventure_text.game import main\nmain()\n"
-  },
-  {
-   "id": "carl-crawler",
-   "repo": "Parris-Tech-Services/carl",
-   "title": "Carl: Python Crawler",
-   "kind": "python",
-   "main": "crawler.py",
-   "files": [
-    "crawler.py",
-    "src"
-   ],
-   "data": [
-    "data"
-   ]
-  },
-  {
-   "id": "carl",
-   "repo": "Parris-Tech-Services/carl",
-   "title": "Dungeon Crawler Carl",
-   "kind": "static",
-   "exclude": [
-    "claudev2",
-    "docs",
-    "tests",
-    "src"
-   ]
-  },
-  {
-   "id": "forbidden-quests",
-   "repo": "Parris-Tech-Services/ForbiddenQuests",
-   "title": "Forbidden Quests",
-   "kind": "static"
-  },
-  {
-   "id": "the-undercity",
-   "repo": "joshualparris/theUndercity",
-   "title": "The Undercity",
-   "kind": "static",
-   "exclude": [
-    "tools",
-    "tests",
-    "docs",
-    "audit"
-   ]
-  },
-  {
-   "id": "textgame",
-   "repo": "Parris-Tech-Services/TextGame",
-   "title": "Black Ridge Signal",
-   "kind": "static"
-  },
-  {
-   "id": "delve",
-   "repo": "Parris-Tech-Services/delve",
-   "title": "Delve",
-   "kind": "static"
-  },
-  {
-   "id": "drifter",
-   "repo": "Parris-Tech-Services/drifter",
-   "title": "Drifter",
-   "kind": "static",
-   "dir": "web-dist"
-  },
-  {
-   "id": "dndgame",
-   "repo": "Parris-Tech-Services/dndgame",
-   "title": "Sword Coast D&D",
-   "kind": "static",
-   "exclude": [
-    "tests",
-    "docs"
-   ]
-  },
-  {
-   "id": "kkc-adventure",
-   "repo": "Parris-Tech-Services/kkc-adventure",
-   "title": "KKC Adventure",
-   "kind": "static",
-   "exclude": [
-    "RothfussGameDocs",
-    "PromptGenerator1-20",
-    "docs"
-   ]
-  },
-  {
-   "id": "neathbound",
-   "repo": "Parris-Tech-Services/NeathBound",
-   "title": "NeathBound",
-   "kind": "static",
-   "exclude": [
-    "tools",
-    "tests",
-    "docs"
-   ]
-  },
-  {
-   "id": "wild2",
-   "repo": "Parris-Tech-Services/Wild2",
-   "title": "Whispering Wilds II",
-   "kind": "static"
-  },
-  {
-   "id": "breach-command",
-   "repo": "Parris-Tech-Services/breach-command",
-   "title": "Breach Command",
-   "kind": "static"
-  },
-  {
-   "id": "echo",
-   "repo": "Parris-Tech-Services/Echo",
-   "title": "Echo Vault",
-   "kind": "static"
-  },
-  {
-   "id": "elodin-deep-lore",
-   "repo": "Parris-Tech-Services/elodin-deep-lore",
-   "title": "Elodin: Deep Lore",
-   "kind": "static"
-  },
-  {
-   "id": "exitbackup",
-   "repo": "Parris-Tech-Services/exitbackup",
-   "title": "The Improbable Spaceship",
-   "kind": "static"
-  },
-  {
-   "id": "lantern-road",
-   "repo": "Parris-Tech-Services/lantern-road",
-   "title": "Lantern Road",
-   "kind": "static",
-   "exclude": [
-    "tests",
-    "docs",
-    "audit"
-   ]
-  },
-  {
-   "id": "starhaven",
-   "repo": "Parris-Tech-Services/StarHaven",
-   "title": "StarHaven",
-   "kind": "static"
-  },
-  {
-   "id": "waypoint",
-   "repo": "Parris-Tech-Services/Waypoint",
-   "title": "Waypoint",
-   "kind": "static"
-  },
-  {
-   "id": "marsh",
-   "repo": "Parris-Tech-Services/Marsh",
-   "title": "Marsh",
-   "kind": "static"
-  },
-  {
-   "id": "sylvie-phonetics",
-   "repo": "joshualparris/SylviePhonetics",
-   "title": "Sylvie Phonics",
-   "kind": "static",
-   "ignoreErrors": [
-    "content/bundle.json"
-   ]
-  },
-  {
-   "id": "sleepy",
-   "repo": "joshualparris/Sleepy",
-   "title": "Sylvie's Sleepy Stories",
-   "kind": "static",
-   "exclude": [
-    "audit",
-    "docs",
-    "scripts"
-   ]
-  },
-  {
-   "id": "astra-dnd",
-   "repo": "Parris-Tech-Services/AstraDndGame",
-   "title": "Astra D&D",
-   "kind": "static",
-   "dir": "web-dist"
-  },
-  {
-   "id": "arena",
-   "repo": "Parris-Tech-Services/Arena",
-   "title": "LLM Gladiator Arena",
-   "kind": "static",
-   "dir": "web-dist"
-  },
-  {
-   "id": "schism",
-   "repo": "Parris-Tech-Services/schism",
-   "title": "Schism",
-   "kind": "static",
-   "dir": "web-dist"
-  },
-  {
-   "id": "buckland-blocks-demo",
-   "repo": "joshualparris/buckland-blocks-demo",
-   "title": "Buckland Blocks (demo)",
-   "kind": "static",
-   "inlineImages": true
-  },
-  {
-   "id": "whispering-wilds-web",
-   "repo": "Parris-Tech-Services/whispering-wilds",
-   "title": "Whispering Wilds (PyScript)",
-   "kind": "static",
-   "about": "The original browser edition. It loads PyScript from the internet, so it needs a connection.",
-   "online": true
-  },
-  {
-   "id": "sword-chronicles",
-   "repo": "Parris-Tech-Services/SwordChronicles-backup-20260906-204137",
-   "title": "Sword Chronicles",
-   "kind": "static",
-   "exclude": [
-    "tests",
-    "docs"
-   ]
-  },
-  {
-   "id": "midnight-line",
-   "repo": "Parris-Tech-Services/Midnight-Line",
-   "title": "The Midnight Line",
-   "kind": "static",
-   "exclude": [
-    "portable-node",
-    "MinGit-2.52.0-64-bit",
-    "docs",
-    "src"
-   ]
-  },
-  {
-   "id": "joshplatform",
-   "repo": "Parris-Tech-Services/JoshPlatform",
-   "title": "JoshPlatform Arcade",
-   "kind": "static",
-   "exclude": [
-    "client",
-    "clearcore"
-   ]
-  },
-  {
-   "id": "awdagaer",
-   "repo": "Parris-Tech-Services/awdagaer",
-   "title": "Patchwork Quilt",
-   "kind": "static"
-  },
-  {
-   "id": "the-consultancy-beneath",
-   "repo": "joshualparris/the-consultancy-beneath",
-   "title": "The Consultancy Beneath",
-   "kind": "vite",
-   "hashRouter": true
-  },
-  {
-   "id": "eleven-realms",
-   "repo": "Parris-Tech-Services/Eleven-Realms",
-   "title": "Eleven Realms",
-   "kind": "vite"
-  },
-  {
-   "id": "wastes-courier",
-   "repo": "Parris-Tech-Services/wastes-courier-roguelike",
-   "title": "Wastes Courier",
-   "kind": "vite"
-  },
-  {
-   "id": "whirring-wilderness",
-   "repo": "Parris-Tech-Services/WhirringWilderness",
-   "title": "Whirring Wilderness",
-   "kind": "vite"
-  },
-  {
-   "id": "nebula-dice",
-   "repo": "Parris-Tech-Services/NebulaDice-Browser",
-   "title": "Nebula Dice",
-   "kind": "vite"
-  },
-  {
-   "id": "lore",
-   "repo": "Parris-Tech-Services/lore",
-   "title": "Lore",
-   "kind": "vite",
-   "online": true,
-   "about": "The real game, built from its repository. Its 3D text loads fonts from the internet, so it needs a connection."
-  },
-  {
-   "id": "ashfaller",
-   "repo": "Parris-Tech-Services/ashfaller",
-   "title": "Ashfaller",
-   "kind": "vite"
-  },
-  {
-   "id": "ashfallen",
-   "repo": "joshualparris/AshFallen",
-   "title": "Ashfaller: The Veil Between",
-   "kind": "vite"
-  },
-  {
-   "id": "sylvie-app",
-   "repo": "Parris-Tech-Services/SylvieApp",
-   "title": "Sylvie Play World",
-   "kind": "vite"
-  },
-  {
-   "id": "buckland-blocks",
-   "repo": "Parris-Tech-Services/BucklandBlocks",
-   "title": "Buckland Blocks",
-   "kind": "vite",
-   "configRoot": true,
-   "inlineImages": true
-  },
-  {
-   "id": "hub-aa-game-adventure",
-   "repo": "joshualparris/JoshHub",
-   "title": "AA Game Adventure",
-   "kind": "static",
-   "dir": "public/games/aa-game-adventure",
-   "extra": {
-    "public/src/data": "src/data"
-   }
-  },
-  {
-   "id": "hub-amodule-dnd",
-   "repo": "joshualparris/JoshHub",
-   "title": "Tile RPG",
-   "kind": "static",
-   "dir": "public/games/amodule-dnd"
-  },
-  {
-   "id": "hub-buckland-v1",
-   "repo": "joshualparris/JoshHub",
-   "title": "Buckland Street",
-   "kind": "static",
-   "dir": "public/games/buckland-v1"
-  },
-  {
-   "id": "hub-dnd-rpg-dungeon",
-   "repo": "joshualparris/JoshHub",
-   "title": "D&D RPG Dungeon",
-   "kind": "static",
-   "dir": "public/games/dnd-rpg-dungeon"
-  },
-  {
-   "id": "hub-infinite-office",
-   "repo": "joshualparris/JoshHub",
-   "title": "ORGSCAPE: The Infinite Office",
-   "kind": "static",
-   "dir": "public/games/infinite-office"
-  },
-  {
-   "id": "hub-max",
-   "repo": "joshualparris/JoshHub",
-   "title": "Max Games",
-   "kind": "static",
-   "dir": "public/games/max"
-  },
-  {
-   "id": "hub-mysterious-depths",
-   "repo": "joshualparris/JoshHub",
-   "title": "Mysterious Depths",
-   "kind": "static",
-   "dir": "public/games/mysterious-depths"
-  },
-  {
-   "id": "hub-simple-rpg-gh",
-   "repo": "joshualparris/JoshHub",
-   "title": "Signal Garden",
-   "kind": "static",
-   "dir": "public/games/simple-rpg-gh"
-  },
-  {
-   "id": "hub-boundary-road",
-   "repo": "joshualparris/JoshHub",
-   "title": "Boundary Road",
-   "kind": "static",
-   "dir": "public/games/boundary-road",
-   "online": true
-  },
-  {
-   "id": "pld-neverwinter-tales",
-   "repo": "Parris-Tech-Services/Parris-Life-Dashboard",
-   "title": "Neverwinter: Tales of the North",
-   "kind": "static",
-   "dir": "public/games/neverwinter-tales",
-   "online": true
-  },
-  {
-   "id": "pld-nexus-descent",
-   "repo": "Parris-Tech-Services/Parris-Life-Dashboard",
-   "title": "Nexus Descent",
-   "kind": "static",
-   "dir": "public/games/nexus-descent"
-  },
-  {
-   "id": "pld-wilds-2",
-   "repo": "Parris-Tech-Services/Parris-Life-Dashboard",
-   "title": "Whispering Wilds (Dashboard)",
-   "kind": "static",
-   "dir": "public/games/wilds-2"
-  },
-  {
-   "id": "pld-wilds-sail-west",
-   "repo": "Parris-Tech-Services/Parris-Life-Dashboard",
-   "title": "Wilds: Sail West",
-   "kind": "static",
-   "dir": "public/games/wilds-sail-west",
-   "online": true
-  },
-  {
-   "id": "ptshub-classic-dnd-text",
-   "repo": "Parris-Tech-Services/JoshHub",
-   "title": "Classic D&D Text Adventure",
-   "kind": "static",
-   "dir": "public/games/classic-dnd-text"
-  },
-  {
-   "id": "ptshub-newgame",
-   "repo": "Parris-Tech-Services/JoshHub",
-   "title": "Dark Realms",
-   "kind": "static",
-   "dir": "public/games/newgame"
-  },
-  {
-   "id": "ptshub-aa-game-adventure",
-   "repo": "Parris-Tech-Services/JoshHub",
-   "title": "AA Game Adventure",
-   "kind": "static",
-   "dir": "public/games/aa-game-adventure"
-  },
-  {
-   "id": "ptshub-neverwinter-tales",
-   "repo": "Parris-Tech-Services/JoshHub",
-   "title": "Neverwinter: Tales of the North",
-   "kind": "static",
-   "dir": "public/games/neverwinter-tales",
-   "online": true
-  },
-  {
-   "id": "ptshub-wilds-main",
-   "repo": "Parris-Tech-Services/JoshHub",
-   "title": "Whispering Wilds (Browser)",
-   "kind": "static",
-   "dir": "public/games/wilds-main"
-  },
-  {
-   "id": "ptshub-mysterious-depths",
-   "repo": "Parris-Tech-Services/JoshHub",
-   "title": "Mysterious Depths",
-   "kind": "static",
-   "dir": "public/games/mysterious-depths"
-  },
-  {
-   "id": "ptshub-infinite-office",
-   "repo": "Parris-Tech-Services/JoshHub",
-   "title": "ORGSCAPE: The Infinite Office",
-   "kind": "static",
-   "dir": "public/games/infinite-office"
-  },
-  {
-   "id": "ptshub-dnd-rpg-dungeon",
-   "repo": "Parris-Tech-Services/JoshHub",
-   "title": "D&D RPG Dungeon",
-   "kind": "static",
-   "dir": "public/games/dnd-rpg-dungeon"
-  },
-  {
-   "id": "ptshub-amodule-dnd",
-   "repo": "Parris-Tech-Services/JoshHub",
-   "title": "Tile RPG",
-   "kind": "static",
-   "dir": "public/games/amodule-dnd"
-  },
-  {
-   "id": "aetheria",
-   "repo": "Parris-Tech-Services/Aetheria",
-   "title": "Aetheria",
-   "kind": "vite",
-   "configRoot": true,
-   "hashRouter": true,
-   "localApi": {
-    "characters": {
-     "defaults": {
-      "level": 1,
-      "hp": 30,
-      "maxHp": 30,
-      "ac": 10,
-      "gold": 0,
-      "xp": 0,
-      "xpToNextLevel": 100,
-      "str": 10,
-      "dex": 10,
-      "con": 10,
-      "int": 10,
-      "wis": 10,
-      "cha": 10,
-      "mapId": "village",
-      "x": 1,
-      "y": 1,
-      "inventory": [],
-      "quests": []
-     }
+  "note": "Games playable inside Repository Town. Packed by tools/pack_games.mjs into games/<id>/. kind: static | vite | python. Not playable in a browser yet: energyquest (Unity 2021.3 project: a WebGL export needs the Unity editor and a licence sign-in), multi-layer-zoom-game in openclaw-workspace (Parcel build, not yet supported by the packer). joshualparris/JoshHub's classic-dnd-text and newgame (Dark Realms) are broken in that repo; the fixed copies from Parris-Tech-Services/JoshHub (branch ccr-846db548-0l5zmu) play in the X3 house. Needs its own server, so not packed: rothfuss-kkc-adventure (SQLite + optional Gemini narration). JoshHub's tile-game (both copies) fetches src/map.json, which is not in either repository. SwordCoast's index.html loads src/main.js and styles/main.css, which are not in the repository (the same game plays from dndgame). Parris-Life-Dashboard's neon-dash is a placeholder page.",
+  "games": [
+    {
+      "id": "whispering-wilds-py",
+      "repo": "joshualparris/Whispering-Wilds",
+      "title": "Whispering Wilds",
+      "kind": "python",
+      "main": "code.py"
+    },
+    {
+      "id": "starhaven-py",
+      "repo": "Parris-Tech-Services/Max",
+      "title": "StarHaven (Python)",
+      "kind": "python",
+      "main": "Strarhaven.py"
+    },
+    {
+      "id": "guess-the-number",
+      "repo": "Parris-Tech-Services/Max",
+      "title": "Guess the Number",
+      "kind": "python",
+      "main": "guess_the_number.py",
+      "test": [
+        "50",
+        "25",
+        "75"
+      ]
+    },
+    {
+      "id": "adventure-text",
+      "repo": "Parris-Tech-Services/AdventureText",
+      "title": "AdventureText",
+      "kind": "python",
+      "files": [
+        "src/adventure_text"
+      ],
+      "pythonPath": [
+        "src"
+      ],
+      "run": "from adventure_text.game import main\nmain()\n"
+    },
+    {
+      "id": "carl-crawler",
+      "repo": "Parris-Tech-Services/carl",
+      "title": "Carl: Python Crawler",
+      "kind": "python",
+      "main": "crawler.py",
+      "files": [
+        "crawler.py",
+        "src"
+      ],
+      "data": [
+        "data"
+      ]
+    },
+    {
+      "id": "carl",
+      "repo": "Parris-Tech-Services/carl",
+      "title": "Dungeon Crawler Carl",
+      "kind": "static",
+      "exclude": [
+        "claudev2",
+        "docs",
+        "tests",
+        "src"
+      ]
+    },
+    {
+      "id": "forbidden-quests",
+      "repo": "Parris-Tech-Services/ForbiddenQuests",
+      "title": "Forbidden Quests",
+      "kind": "static"
+    },
+    {
+      "id": "the-undercity",
+      "repo": "joshualparris/theUndercity",
+      "title": "The Undercity",
+      "kind": "static",
+      "exclude": [
+        "tools",
+        "tests",
+        "docs",
+        "audit"
+      ]
+    },
+    {
+      "id": "textgame",
+      "repo": "Parris-Tech-Services/TextGame",
+      "title": "Black Ridge Signal",
+      "kind": "static"
+    },
+    {
+      "id": "delve",
+      "repo": "Parris-Tech-Services/delve",
+      "title": "Delve",
+      "kind": "static"
+    },
+    {
+      "id": "drifter",
+      "repo": "Parris-Tech-Services/drifter",
+      "title": "Drifter",
+      "kind": "static",
+      "dir": "web-dist"
+    },
+    {
+      "id": "dndgame",
+      "repo": "Parris-Tech-Services/dndgame",
+      "title": "Sword Coast D&D",
+      "kind": "static",
+      "exclude": [
+        "tests",
+        "docs"
+      ]
+    },
+    {
+      "id": "kkc-adventure",
+      "repo": "Parris-Tech-Services/kkc-adventure",
+      "title": "KKC Adventure",
+      "kind": "static",
+      "exclude": [
+        "RothfussGameDocs",
+        "PromptGenerator1-20",
+        "docs"
+      ]
+    },
+    {
+      "id": "neathbound",
+      "repo": "Parris-Tech-Services/NeathBound",
+      "title": "NeathBound",
+      "kind": "static",
+      "exclude": [
+        "tools",
+        "tests",
+        "docs"
+      ]
+    },
+    {
+      "id": "wild2",
+      "repo": "Parris-Tech-Services/Wild2",
+      "title": "Whispering Wilds II",
+      "kind": "static"
+    },
+    {
+      "id": "breach-command",
+      "repo": "Parris-Tech-Services/breach-command",
+      "title": "Breach Command",
+      "kind": "static"
+    },
+    {
+      "id": "echo",
+      "repo": "Parris-Tech-Services/Echo",
+      "title": "Echo Vault",
+      "kind": "static"
+    },
+    {
+      "id": "elodin-deep-lore",
+      "repo": "Parris-Tech-Services/elodin-deep-lore",
+      "title": "Elodin: Deep Lore",
+      "kind": "static"
+    },
+    {
+      "id": "exitbackup",
+      "repo": "Parris-Tech-Services/exitbackup",
+      "title": "The Improbable Spaceship",
+      "kind": "static"
+    },
+    {
+      "id": "lantern-road",
+      "repo": "Parris-Tech-Services/lantern-road",
+      "title": "Lantern Road",
+      "kind": "static",
+      "exclude": [
+        "tests",
+        "docs",
+        "audit"
+      ]
+    },
+    {
+      "id": "starhaven",
+      "repo": "Parris-Tech-Services/StarHaven",
+      "title": "StarHaven",
+      "kind": "static"
+    },
+    {
+      "id": "waypoint",
+      "repo": "Parris-Tech-Services/Waypoint",
+      "title": "Waypoint",
+      "kind": "static"
+    },
+    {
+      "id": "marsh",
+      "repo": "Parris-Tech-Services/Marsh",
+      "title": "Marsh",
+      "kind": "static"
+    },
+    {
+      "id": "sylvie-phonetics",
+      "repo": "joshualparris/SylviePhonetics",
+      "title": "Sylvie Phonics",
+      "kind": "static",
+      "ignoreErrors": [
+        "content/bundle.json"
+      ]
+    },
+    {
+      "id": "sleepy",
+      "repo": "joshualparris/Sleepy",
+      "title": "Sylvie's Sleepy Stories",
+      "kind": "static",
+      "exclude": [
+        "audit",
+        "docs",
+        "scripts"
+      ]
+    },
+    {
+      "id": "astra-dnd",
+      "repo": "Parris-Tech-Services/AstraDndGame",
+      "title": "Astra D&D",
+      "kind": "static",
+      "dir": "web-dist"
+    },
+    {
+      "id": "arena",
+      "repo": "Parris-Tech-Services/Arena",
+      "title": "LLM Gladiator Arena",
+      "kind": "static",
+      "dir": "web-dist"
+    },
+    {
+      "id": "schism",
+      "repo": "Parris-Tech-Services/schism",
+      "title": "Schism",
+      "kind": "static",
+      "dir": "web-dist"
+    },
+    {
+      "id": "buckland-blocks-demo",
+      "repo": "joshualparris/buckland-blocks-demo",
+      "title": "Buckland Blocks (demo)",
+      "kind": "static",
+      "inlineImages": true
+    },
+    {
+      "id": "whispering-wilds-web",
+      "repo": "Parris-Tech-Services/whispering-wilds",
+      "title": "Whispering Wilds (PyScript)",
+      "kind": "static",
+      "about": "The original browser edition. It loads PyScript from the internet, so it needs a connection.",
+      "online": true
+    },
+    {
+      "id": "sword-chronicles",
+      "repo": "Parris-Tech-Services/SwordChronicles-backup-20260906-204137",
+      "title": "Sword Chronicles",
+      "kind": "static",
+      "exclude": [
+        "tests",
+        "docs"
+      ]
+    },
+    {
+      "id": "midnight-line",
+      "repo": "Parris-Tech-Services/Midnight-Line",
+      "title": "The Midnight Line",
+      "kind": "static",
+      "exclude": [
+        "portable-node",
+        "MinGit-2.52.0-64-bit",
+        "docs",
+        "src"
+      ]
+    },
+    {
+      "id": "joshplatform",
+      "repo": "Parris-Tech-Services/JoshPlatform",
+      "title": "JoshPlatform Arcade",
+      "kind": "static",
+      "exclude": [
+        "client",
+        "clearcore"
+      ]
+    },
+    {
+      "id": "awdagaer",
+      "repo": "Parris-Tech-Services/awdagaer",
+      "title": "Patchwork Quilt",
+      "kind": "static"
+    },
+    {
+      "id": "the-consultancy-beneath",
+      "repo": "joshualparris/the-consultancy-beneath",
+      "title": "The Consultancy Beneath",
+      "kind": "vite",
+      "hashRouter": true
+    },
+    {
+      "id": "eleven-realms",
+      "repo": "Parris-Tech-Services/Eleven-Realms",
+      "title": "Eleven Realms",
+      "kind": "vite"
+    },
+    {
+      "id": "wastes-courier",
+      "repo": "Parris-Tech-Services/wastes-courier-roguelike",
+      "title": "Wastes Courier",
+      "kind": "vite"
+    },
+    {
+      "id": "whirring-wilderness",
+      "repo": "Parris-Tech-Services/WhirringWilderness",
+      "title": "Whirring Wilderness",
+      "kind": "vite"
+    },
+    {
+      "id": "nebula-dice",
+      "repo": "Parris-Tech-Services/NebulaDice-Browser",
+      "title": "Nebula Dice",
+      "kind": "vite"
+    },
+    {
+      "id": "lore",
+      "repo": "Parris-Tech-Services/lore",
+      "title": "Lore",
+      "kind": "vite",
+      "online": true,
+      "about": "The real game, built from its repository. Its 3D text loads fonts from the internet, so it needs a connection."
+    },
+    {
+      "id": "ashfaller",
+      "repo": "Parris-Tech-Services/ashfaller",
+      "title": "Ashfaller",
+      "kind": "vite"
+    },
+    {
+      "id": "ashfallen",
+      "repo": "joshualparris/AshFallen",
+      "title": "Ashfaller: The Veil Between",
+      "kind": "vite"
+    },
+    {
+      "id": "sylvie-app",
+      "repo": "Parris-Tech-Services/SylvieApp",
+      "title": "Sylvie Play World",
+      "kind": "vite"
+    },
+    {
+      "id": "buckland-blocks",
+      "repo": "Parris-Tech-Services/BucklandBlocks",
+      "title": "Buckland Blocks",
+      "kind": "vite",
+      "configRoot": true,
+      "inlineImages": true
+    },
+    {
+      "id": "hub-aa-game-adventure",
+      "repo": "joshualparris/JoshHub",
+      "title": "AA Game Adventure",
+      "kind": "static",
+      "dir": "public/games/aa-game-adventure",
+      "extra": {
+        "public/src/data": "src/data"
+      }
+    },
+    {
+      "id": "hub-amodule-dnd",
+      "repo": "joshualparris/JoshHub",
+      "title": "Tile RPG",
+      "kind": "static",
+      "dir": "public/games/amodule-dnd"
+    },
+    {
+      "id": "hub-buckland-v1",
+      "repo": "joshualparris/JoshHub",
+      "title": "Buckland Street",
+      "kind": "static",
+      "dir": "public/games/buckland-v1"
+    },
+    {
+      "id": "hub-dnd-rpg-dungeon",
+      "repo": "joshualparris/JoshHub",
+      "title": "D&D RPG Dungeon",
+      "kind": "static",
+      "dir": "public/games/dnd-rpg-dungeon"
+    },
+    {
+      "id": "hub-infinite-office",
+      "repo": "joshualparris/JoshHub",
+      "title": "ORGSCAPE: The Infinite Office",
+      "kind": "static",
+      "dir": "public/games/infinite-office"
+    },
+    {
+      "id": "hub-max",
+      "repo": "joshualparris/JoshHub",
+      "title": "Max Games",
+      "kind": "static",
+      "dir": "public/games/max"
+    },
+    {
+      "id": "hub-mysterious-depths",
+      "repo": "joshualparris/JoshHub",
+      "title": "Mysterious Depths",
+      "kind": "static",
+      "dir": "public/games/mysterious-depths"
+    },
+    {
+      "id": "hub-simple-rpg-gh",
+      "repo": "joshualparris/JoshHub",
+      "title": "Signal Garden",
+      "kind": "static",
+      "dir": "public/games/simple-rpg-gh"
+    },
+    {
+      "id": "hub-boundary-road",
+      "repo": "joshualparris/JoshHub",
+      "title": "Boundary Road",
+      "kind": "static",
+      "dir": "public/games/boundary-road",
+      "online": true
+    },
+    {
+      "id": "pld-neverwinter-tales",
+      "repo": "Parris-Tech-Services/Parris-Life-Dashboard",
+      "title": "Neverwinter: Tales of the North",
+      "kind": "static",
+      "dir": "public/games/neverwinter-tales",
+      "online": true
+    },
+    {
+      "id": "pld-nexus-descent",
+      "repo": "Parris-Tech-Services/Parris-Life-Dashboard",
+      "title": "Nexus Descent",
+      "kind": "static",
+      "dir": "public/games/nexus-descent"
+    },
+    {
+      "id": "pld-wilds-2",
+      "repo": "Parris-Tech-Services/Parris-Life-Dashboard",
+      "title": "Whispering Wilds (Dashboard)",
+      "kind": "static",
+      "dir": "public/games/wilds-2"
+    },
+    {
+      "id": "pld-wilds-sail-west",
+      "repo": "Parris-Tech-Services/Parris-Life-Dashboard",
+      "title": "Wilds: Sail West",
+      "kind": "static",
+      "dir": "public/games/wilds-sail-west",
+      "online": true
+    },
+    {
+      "id": "ptshub-classic-dnd-text",
+      "repo": "Parris-Tech-Services/JoshHub",
+      "title": "Classic D&D Text Adventure",
+      "kind": "static",
+      "dir": "public/games/classic-dnd-text"
+    },
+    {
+      "id": "ptshub-newgame",
+      "repo": "Parris-Tech-Services/JoshHub",
+      "title": "Dark Realms",
+      "kind": "static",
+      "dir": "public/games/newgame"
+    },
+    {
+      "id": "ptshub-aa-game-adventure",
+      "repo": "Parris-Tech-Services/JoshHub",
+      "title": "AA Game Adventure",
+      "kind": "static",
+      "dir": "public/games/aa-game-adventure"
+    },
+    {
+      "id": "ptshub-neverwinter-tales",
+      "repo": "Parris-Tech-Services/JoshHub",
+      "title": "Neverwinter: Tales of the North",
+      "kind": "static",
+      "dir": "public/games/neverwinter-tales",
+      "online": true
+    },
+    {
+      "id": "ptshub-wilds-main",
+      "repo": "Parris-Tech-Services/JoshHub",
+      "title": "Whispering Wilds (Browser)",
+      "kind": "static",
+      "dir": "public/games/wilds-main"
+    },
+    {
+      "id": "ptshub-mysterious-depths",
+      "repo": "Parris-Tech-Services/JoshHub",
+      "title": "Mysterious Depths",
+      "kind": "static",
+      "dir": "public/games/mysterious-depths"
+    },
+    {
+      "id": "ptshub-infinite-office",
+      "repo": "Parris-Tech-Services/JoshHub",
+      "title": "ORGSCAPE: The Infinite Office",
+      "kind": "static",
+      "dir": "public/games/infinite-office"
+    },
+    {
+      "id": "ptshub-dnd-rpg-dungeon",
+      "repo": "Parris-Tech-Services/JoshHub",
+      "title": "D&D RPG Dungeon",
+      "kind": "static",
+      "dir": "public/games/dnd-rpg-dungeon"
+    },
+    {
+      "id": "ptshub-amodule-dnd",
+      "repo": "Parris-Tech-Services/JoshHub",
+      "title": "Tile RPG",
+      "kind": "static",
+      "dir": "public/games/amodule-dnd"
+    },
+    {
+      "id": "aetheria",
+      "repo": "Parris-Tech-Services/Aetheria",
+      "title": "Aetheria",
+      "kind": "vite",
+      "configRoot": true,
+      "hashRouter": true,
+      "localApi": {
+        "characters": {
+          "defaults": {
+            "level": 1,
+            "hp": 30,
+            "maxHp": 30,
+            "ac": 10,
+            "gold": 0,
+            "xp": 0,
+            "xpToNextLevel": 100,
+            "str": 10,
+            "dex": 10,
+            "con": 10,
+            "int": 10,
+            "wis": 10,
+            "cha": 10,
+            "mapId": "village",
+            "x": 1,
+            "y": 1,
+            "inventory": [],
+            "quests": []
+          }
+        }
+      },
+      "about": "The real game, built from its repository. Your characters are saved in this browser."
+    },
+    {
+      "id": "serenity",
+      "repo": "Parris-Tech-Services/Serenity-Keep-Flying",
+      "title": "Serenity: Keep Flying",
+      "kind": "vite",
+      "configRoot": true,
+      "hashRouter": true,
+      "localApi": {
+        "saves": {
+          "defaults": {
+            "userId": "local-player"
+          }
+        }
+      },
+      "localFixed": {
+        "auth/user": {
+          "id": "local-player",
+          "email": null,
+          "firstName": "Captain",
+          "lastName": null,
+          "profileImageUrl": null
+        }
+      },
+      "about": "The real game, built from its repository. You play as a local captain; saves stay in this browser."
+    },
+    {
+      "id": "zoom-game",
+      "repo": "Parris-Tech-Services/openclaw-workspace",
+      "title": "Multi-Layer Zoom Game",
+      "kind": "static",
+      "dir": "multi-layer-zoom-game",
+      "exclude": [
+        "multi-layer-zoom-game"
+      ],
+      "npm": true,
+      "jsx": true
+    },
+    {
+      "id": "bramblewick",
+      "repo": "Parris-Tech-Services/bramblewick",
+      "title": "Shadow Over Bramblewick",
+      "kind": "godot",
+      "online": true,
+      "about": "The real Godot 4 game, exported for the web. It loads a 39 MB engine, so it needs the website (not the offline zip) and a moment to start."
+    },
+    {
+      "id": "serenity-keep-flying",
+      "repo": "Parris-Tech-Services/Serenity-Keep-Flying",
+      "title": "Serenity: Keep Flying",
+      "kind": "vite",
+      "configRoot": true,
+      "hashRouter": true
+    },
+    {
+      "id": "rothfuss-kkc-adventure",
+      "repo": "Parris-Tech-Services/rothfuss-kkc-adventure",
+      "title": "KKC Adventure (University)",
+      "kind": "static",
+      "exclude": [
+        "public",
+        "tests",
+        "tools",
+        "audit",
+        "data"
+      ],
+      "browserServer": "api/game.ts"
+    },
+    {
+      "id": "multi-layer-zoom-game",
+      "repo": "Parris-Tech-Services/openclaw-workspace",
+      "title": "Multi-Layer Zoom Game",
+      "kind": "static",
+      "dir": "multi-layer-zoom-game/multi-layer-zoom-game"
+    },
+    {
+      "id": "hub-classic-dnd-text",
+      "repo": "joshualparris/JoshHub",
+      "title": "Classic D&D 5e Text Adventure",
+      "kind": "static",
+      "dir": "public/games/classic-dnd-text"
+    },
+    {
+      "id": "hub-newgame",
+      "repo": "joshualparris/JoshHub",
+      "title": "Dark Realms",
+      "kind": "static",
+      "dir": "public/games/newgame"
+    },
+    {
+      "id": "hub-tile-game",
+      "repo": "joshualparris/JoshHub",
+      "title": "Tile Game",
+      "kind": "static",
+      "dir": "public/games/tile-game"
     }
-   },
-   "about": "The real game, built from its repository. Your characters are saved in this browser."
-  },
-  {
-   "id": "serenity",
-   "repo": "Parris-Tech-Services/Serenity-Keep-Flying",
-   "title": "Serenity: Keep Flying",
-   "kind": "vite",
-   "configRoot": true,
-   "hashRouter": true,
-   "localApi": {
-    "saves": {
-     "defaults": {
-      "userId": "local-player"
-     }
-    }
-   },
-   "localFixed": {
-    "auth/user": {
-     "id": "local-player",
-     "email": null,
-     "firstName": "Captain",
-     "lastName": null,
-     "profileImageUrl": null
-    }
-   },
-   "about": "The real game, built from its repository. You play as a local captain; saves stay in this browser."
-  },
-  {
-   "id": "zoom-game",
-   "repo": "Parris-Tech-Services/openclaw-workspace",
-   "title": "Multi-Layer Zoom Game",
-   "kind": "static",
-   "dir": "multi-layer-zoom-game",
-   "exclude": [
-    "multi-layer-zoom-game"
-   ],
-   "npm": true,
-   "jsx": true
-  },
-  {
-   "id": "bramblewick",
-   "repo": "Parris-Tech-Services/bramblewick",
-   "title": "Shadow Over Bramblewick",
-   "kind": "godot",
-   "online": true,
-   "about": "The real Godot 4 game, exported for the web. It loads a 39 MB engine, so it needs the website (not the offline zip) and a moment to start."
-  }
- ]
+  ]
 }
