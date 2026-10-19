@@ -932,7 +932,9 @@ export class TownLife {
         const barriers=[
           ...this.obstacles.map(p=>({x:p.x,z:p.z,radius:.75})),
           ...(this.externalPedestrians||[]),
-          ...this.villagers.filter(o=>o!==v&&!o.inside).map(o=>({x:o.x,z:o.z,radius:o.bike?.76:.61}))
+          // Other moving townsfolk are handled by predictive steering and
+          // personal-space resolution. A* is for stationary barriers only.
+          ...this.villagers.filter(o=>o!==v&&!o.inside&&o.engaged).map(o=>({x:o.x,z:o.z,radius:.66}))
         ].filter(o=>Math.hypot(o.x-v.x,o.z-v.z)<7);
         // No involuntary interaction when walking near the player. A short,
         // collision-aware A* diversion lets people pass and continue work,
