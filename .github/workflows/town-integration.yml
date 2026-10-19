@@ -1,0 +1,47 @@
+name: Repository Town Integration
+
+on:
+  pull_request:
+    paths:
+      - 'repository-town/**'
+      - '.github/workflows/town-*.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'repository-town/**'
+      - '.github/workflows/town-*.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: town-gate-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  town-safety-gate:
+    name: Town safety gate
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install pinned Node dependencies
+        run: npm ci --no-audit --no-fund
+      - name: NPC realism, current place, town economy, collision, politics
+        run: npm run test:integration
+      - name: Build actual public and private town
+        run: npm run build
+      - name: Prove public data does not expose private content
+        run: npm run check:privacy
+      - name: Packed game integrity
+        run: node tests/game-integrity.mjs
