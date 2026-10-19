@@ -3,7 +3,6 @@ import fs from 'node:fs';
 import zlib from 'node:zlib';
 import { mergeDiscovery } from './merge-discovery.mjs';
 import path from 'node:path';
-import zlib from 'node:zlib';
 import { TOWN, loadBriefs, loadInventory, loadRepoData, validate, sanitise, redactPrivate } from './lib.mjs';
 
 // Generated Godot WebAssembly is kept as a checked-in gzip archive so clean
