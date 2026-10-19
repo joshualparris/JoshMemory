@@ -107,7 +107,7 @@ export function hallPanel(life) {
       '<h3>Requests and work orders</h3><table class="ledger"><tr><th>Ref</th><th>Service</th><th>Stage</th><th>Assigned</th><th>Work</th></tr>'+line+'</table>'+
       '<h3>Motions and community planning</h3><table class="ledger"><tr><th>Motion</th><th>Proposal</th><th>Outcome</th></tr>'+proposals+'</table>'+
       '<p>Approved-in-principle permits: '+g.permits.map(x=>esc(x.zone)+' ('+esc(x.id)+')').join(', ').replace(/^$/,'none')+'. Physical building works still require an approved work order.</p>'+
-      '<h3>Public meeting minutes</h3>'+minutes+
+      '<h3>Recorded council proceedings</h3>'+minutes+
       '<h3>Register of decisions</h3><ul class="news">'+ledger+'</ul>'+
       powerNetworkHTML(c)+bagLine(life),
     actions:[
