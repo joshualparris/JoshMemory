@@ -408,7 +408,13 @@ async function start() {
       else {
         nearThing = pickNear();
         nearNPC=houseGuide?pickNPC([houseGuide],2.75):null;
-        if(nearNPC && nearThing && Math.hypot(nearNPC.pos.x-player.pos.x,nearNPC.pos.z-player.pos.z)>1.9)nearNPC=null;
+        // A resident only takes over E/✋ from an exhibit when the player faces them more
+        // squarely (same score as pickNear), so someone standing beside an exhibit
+        // doesn't turn it into a chat.
+        if(nearNPC && nearThing){
+          const fwd=player.forward(), score=(p)=>{tmp.copy(p).sub(player.pos);tmp.y=0;const d=tmp.length();return d-1.6*(d<0.01?1:tmp.normalize().dot(fwd));};
+          if(Math.hypot(nearNPC.pos.x-player.pos.x,nearNPC.pos.z-player.pos.z)>1.9 || score(nearNPC.pos)>=score(nearThing.pos))nearNPC=null;
+        }
         if(houseGuide)animateNPCs([houseGuide],t,player.pos,dt,npcChat.isOpen()?npcChat.active():null);
         $('prompt').hidden = (!nearNPC && !nearThing) || !!panelOpen || npcChat.isOpen() || !$('npc-roster').hidden;
         if (nearNPC) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — 💬 Talk to ${nearNPC.npc.name}`;
@@ -445,7 +451,7 @@ async function start() {
       mode, coordinate: inside?.house.coordinate || null, pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, eye: player.eye, y: player.y, fps,
       rooms: inside?.rooms.length || 0, props: inside?.placedProps.length || 0,
       interactables: inside ? inside.interactables.map((x) => ({ key: x.key, label: x.label, title: x.act.title || x.label, do: x.act.do, room: x.roomName })) : [],
-      near: nearThing?.key || null, nearHouse: nearHouse?.house.coordinate || null,
+      near: nearThing?.key || null, nearNPC: nearNPC?.npc.id || null, nearHouse: nearHouse?.house.coordinate || null,
       panel: panelOpen ? { title: $('panel-title').textContent, text: $('panel-body').textContent, links: [...$('panel-actions').querySelectorAll('a')].map((a) => a.href), buttons: [...$('panel-actions').querySelectorAll('button')].map((b) => b.textContent) } : null,
       active: [...active], playing: playing?.id || null, gameSrc: playing ? $('game-frame').getAttribute('src') : null, calls: renderer.info.render.calls, triangles: renderer.info.render.triangles,
     }),
