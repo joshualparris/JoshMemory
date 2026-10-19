@@ -61,7 +61,7 @@ function bagLine(life) { const me = life.civic.player; return `<p class="dim">馃
 function civicPanel(life, id, again) {
   const p = life.place(id), c = life.civic, u = life.ledger().utilities, rows = [`<p>${esc(ABOUT[id] || '')}</p>`];
   const staff = life.villagers.filter((v) => v.work === id);
-  if (id === 'power') rows.push(`<p><b>Supply:</b> ${c.supply.power} of ${c.supply.powerDemand} needed 路 ${c.supply.ok ? '<span class="ok">lights on</span>' : '<b>BLACKOUT</b>'} 路 weather ${esc(c.weather)}</p><p><b>Fuel:</b> ${u.fuel} drums</p>${powerNetworkHTML(c)}`);
+  if (id === 'power') rows.push(`<p><b>Supply:</b> ${c.supply.power} of ${c.supply.powerDemand} needed 路 ${c.supply.ok ? '<span class="ok">all customers supplied</span>' : '<b>some locations have no power</b>'} 路 weather ${esc(c.weather)}</p><p><b>Fuel:</b> ${u.fuel} drums</p>${powerNetworkHTML(c)}`);
   if (id === 'waterworks') rows.push(`<p><b>Reservoir:</b> ${u.reservoir} kL 路 supplying ${c.supply.water} of ${c.supply.waterDemand} an hour 路 ${c.supply.waterOk ? '<span class="ok">normal</span>' : '<b>restrictions</b>'}</p>`);
   if (id === 'sewage') rows.push(`<p><b>Waiting for treatment:</b> ${u.wastewater} kL 路 pollution ${Math.round(c.indicators.pollution)}%</p>`);
   if (id === 'recycling') rows.push(`<p><b>Sorting:</b> ${u.recycling} bags 路 recycled today ${life.stats.recycled}</p><p class="dim">Kerbside recycling waiting: ${Math.floor(c.homes.recyclables)} bags.</p>`);
