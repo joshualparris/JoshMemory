@@ -12,6 +12,9 @@ import { setArchiveLoader } from './ui/archive.js';
 import { createExpedition } from './adventure/expedition.js';
 import { mountNPCChat } from './ui/npc-chat.js';
 import { placeTownNPCs, placeHouseGuide, animateNPCs, initialiseNPCWorksites } from './world/npcs.js';
+import { createTownSimulation } from './simulation/town-system.js';
+import { buildCivicDistrict } from './simulation/civic-world.js';
+import { mountLivingTown } from './simulation/ledger-ui.js';
 
 const $ = (id) => document.getElementById(id);
 const status = (t) => { $('status').textContent = t; };
@@ -20,6 +23,7 @@ addEventListener('error', (e) => fail(e.error || e.message));
 addEventListener('unhandledrejection', (e) => fail(e.reason));
 
 const SKY = 0x96c9f0, INDOOR = 0x1a1612;
+const NIGHT_SKY = new THREE.Color(0x14223b), DAY_SKY = new THREE.Color(SKY);
 
 async function start() {
   // The standalone single-file build embeds the data so it runs from file:// with no server.
@@ -49,6 +53,14 @@ async function start() {
   scene.add(sky);
 
   const town = buildTown(scene, houses, data.streets);
+  const civicDistrict = buildCivicDistrict(town, makeLabel);
+  let townSave = null;
+  try { townSave = JSON.parse(localStorage.getItem('repository-town-living-v1')); } catch { /* Use a new town on corrupt or blocked storage. */ }
+  let simulation;
+  try { simulation = createTownSimulation({ population: 32, restored: townSave }); }
+  catch { simulation = createTownSimulation({ population: 32 }); }
+  let livingView = simulation.snapshot();
+  const livingLedger = mountLivingTown(document, simulation);
   const streetNPCs = placeTownNPCs(town.group, town.lots, makeLabel);
   initialiseNPCWorksites(streetNPCs,town.group);
   streetSigns(town.group, data.streets, makeLabel);
@@ -203,6 +215,7 @@ async function start() {
   let playing = null;
   function startGame(g) {
     expedition.dismiss();
+    livingLedger.close();
     closePanel(); npcChat.close(); $('npc-roster').hidden = true;
     input.reset();
     playing = g;
@@ -286,7 +299,10 @@ async function start() {
     status('Welcome back — your position was restored.');
   } else { spawn(); status('Welcome! Walk up to any front door to go inside.'); }
   let saveTimer = 0;
-  const save = () => writeSave({ pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, inside: inside?.house.coordinate || null, visited: [...visited] });
+  const save = () => {
+    writeSave({ pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, inside: inside?.house.coordinate || null, visited: [...visited] });
+    try { localStorage.setItem('repository-town-living-v1', simulation.serialize()); } catch { /* Private mode and storage quota must not crash play. */ }
+  };
   addEventListener('visibilitychange', () => { if (document.hidden) save(); });
   addEventListener('pagehide', save);
 
@@ -328,12 +344,20 @@ async function start() {
       requestAnimationFrame(frame);
       return;
     }
+    const newMinutes = simulation.advance(dt);
+    if (newMinutes) { livingView = simulation.snapshot(); livingLedger.render(); }
+    const townHour = (livingView.minute % 1440) / 60;
+    const daylight = Math.max(0, Math.sin(Math.PI * (townHour - 6) / 12));
+    sun.intensity = 0.1 + 1.9 * daylight;
+    sky.children[0].intensity = 0.32 + 1.8 * daylight;
+    if (mode === 'town') { scene.background.copy(NIGHT_SKY).lerp(DAY_SKY, daylight); fog.color.copy(scene.background); }
+    civicDistrict.update(t, daylight < 0.25);
     if (input.consume('map')) setOverview(!overview);
-    if (input.consume('back')) { if(expedition.isOpen()) expedition.dismiss(); else if (npcChat.isOpen()) npcChat.close(); else if (!$('npc-roster').hidden) $('npc-roster').hidden=true; else if (panelOpen) closePanel(); else if (!$('help').hidden) $('help').hidden = true; else setOverview(false); }
+    if (input.consume('back')) { if(livingLedger.isOpen()) livingLedger.close(); else if(expedition.isOpen()) expedition.dismiss(); else if (npcChat.isOpen()) npcChat.close(); else if (!$('npc-roster').hidden) $('npc-roster').hidden=true; else if (panelOpen) closePanel(); else if (!$('help').hidden) $('help').hidden = true; else setOverview(false); }
     if (overview) {
       camera.position.set(player.pos.x, 150, player.pos.z + 95); camera.lookAt(player.pos.x, 0, player.pos.z);
       input.takeLook(); input.consume('jump');
-    } else if (expedition.isOpen() || panelOpen || npcChat.isOpen() || !$('npc-roster').hidden || !$('help').hidden) { input.reset(); }
+    } else if (livingLedger.isOpen() || expedition.isOpen() || panelOpen || npcChat.isOpen() || !$('npc-roster').hidden || !$('help').hidden) { input.reset(); }
     else player.update(dt, input, world);
 
     if (mode === 'town') {
@@ -403,6 +427,9 @@ async function start() {
     houses: houses.map((h) => ({ coordinate: h.coordinate, name: h.name })),
     npcs: streetNPCs.map(x => ({id:x.npc.id,name:x.npc.name,coordinate:x.npc.coordinate})),
     npcChat: () => ({open:npcChat.isOpen(),id:npcChat.active()}),
+    civicSites: civicDistrict.buildings.map(b => ({ id:b.id,name:b.name,coordinate:b.coordinate })),
+    livingTown: () => simulation.snapshot(),
+    openLedger: () => { document.getElementById('btn-living-town').click(); return livingLedger.isOpen(); },
     talkTo: (id) => npcChat.show(id),
     travel,
     state: () => ({
