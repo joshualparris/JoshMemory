@@ -7,6 +7,7 @@ import { RELICS, PROGRESS_KEY, cleanProgress } from '../adventure/data.js';
 import { answerSceneQuestion } from './scene-awareness.js';
 import { groundedLocationReply } from './npc-location.js';
 import { villagerProfile } from './villager-profiles.js';
+import { residentName } from './resident-identity.js';
 import { recordPlayerMessage, recordTownAction, socialContext, socialGossip } from './social.js';
 
 const LEGACY_KEY_STORE = 'repository-town.groq-keys';
@@ -88,7 +89,7 @@ export { villagerProfile };
 // Temperament and interests per name; the town simulation (src/world/life.js) gives the job.
 
 
-export { residentName } from './resident-identity.js';
+export { residentName };
 
 function coordDist(a, b) {
   const ca = a.charCodeAt(0) - 65, ra = parseInt(a.slice(1), 10);
