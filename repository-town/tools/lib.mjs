@@ -181,20 +181,15 @@ export function redactPrivate(text, inventory) {
   return out;
 }
 
-// Private repositories keep their architecture but lose every identifying string.
+// Private repositories keep their architecture and owner-approved repository name,
+// but continue to withhold their summaries, room names, exhibit text and links.
 export function sanitise(house) {
   if (house.visibility === 'public') return house;
   const generic = 'This exhibit belongs to a private project, so its details are withheld from the public town.';
   return {
     ...house,
     repo: null,
-    name: (() => {
-      // Fictional, coordinate-derived aliases keep private repository identities secret.
-      const first = ['Amber','Cedar','Copper','Willow','Silver','Moss','Sunlit','Maple','Blue','Golden','Fern','Star'];
-      const second = ['Workshop','Haven','Cottage','Atelier','Lodge','Gallery','Garden','Hall','Outpost','Studio','Nook','House'];
-      const n = (house.coordinate.charCodeAt(0)-65)*8 + Number(house.coordinate.slice(1))-1;
-      return first[n % first.length] + ' ' + second[Math.floor(n/first.length) % second.length];
-    })(),
+    name: house.name,
     kind: 'Private project',
     summary: 'This house belongs to a private repository. Its architecture is real; names and details are withheld from the public town.',
     links: [],

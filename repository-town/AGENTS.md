@@ -40,9 +40,10 @@ same sitting and say so in `COORDINATION.md`.
 
 ## Rules that protect Josh
 
-- **Privacy:** the public site and its repo never contain private repository names, URLs,
-  READMEs or text. `tools/check_privacy.mjs` enforces it; never bypass it. The offline zip
-  (`release/Repository-Town.html`) is Josh's private copy with real names.
+- **Privacy:** the public site may contain owner-approved private repository names, but never
+  their repository slugs, URLs, READMEs or private text. `tools/check_privacy.mjs` enforces it;
+  never bypass it. The offline zip (`release/Repository-Town.html`) remains Josh's private copy
+  with full details.
 - **No secrets in code, repos, or browser storage.** Groq API keys live only on the server (`GROQ_API_KEY` in `api/npc-chat.js`, gated by `TOWN_NPC_PIN` / `x-npc-code`). Never commit keys or store raw `gsk_...` keys in `localStorage`.
 - Keep GitHub Actions usage minimal (Josh asked); test locally.
 - Do not edit other game repositories to make the town work; record the problem instead

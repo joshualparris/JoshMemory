@@ -7,6 +7,11 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-19 · Codex — public house-directory update authorized by Josh: show private repository
+  names in deployed labels/search while keeping private URLs, READMEs, summaries, room names and
+  exhibit text redacted. Editing `tools/lib.mjs`, `tools/check_privacy.mjs` and documentation;
+  build/check/publish pending.
+
 - 2026-10-19 · Claude Code (local CLI on Josh's PC, worktree `~/dev/rt-claude`, branch
   `town-claude-playtest-20261019`) — **desktop playtest on a real GPU** (Intel UHD 630,
   headed Chromium) of `main` and integration branches, with findings posted below; and
