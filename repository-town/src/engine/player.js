@@ -14,6 +14,7 @@ export class Player {
     this.vel = new THREE.Vector2();
     this.bob = 0;
     this.radius = RADIUS;
+    this.baseHeight = 0;
   }
 
   place(x, z, yaw = this.yaw) { this.pos.set(x, 0, z); this.yaw = yaw; this.pitch = 0; this.vel.set(0, 0); this.y = 0; this.vy = 0; }
