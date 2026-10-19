@@ -1,3 +1,4 @@
+import { pedestrianDestination, movePedestrian } from './pedestrians.js';
 import { distributePower, townPowerDemands, POWER_LINE_IDS, GRID_FAULT_COST } from './power-grid.js';
 import { initialisePublicLife, attendPublicForum, updatePublicForum, civicDialogue } from './public-forum.js';
 import { freshCredit, recordEarning, noteBank, creditReport, borrow, repay, accrueInterest } from './credit.js';
@@ -874,6 +875,7 @@ export class TownLife {
   }
 
   goThen(v, target, step) {
+    if (step.at !== 'home') target = pedestrianDestination(v, target, this.villagers);
     v.step = { ...step, target };
     v.path = Math.hypot(target.x - v.x, target.z - v.z) < 1 ? [] : walkRoute(v, target);
     // Long trips are by bike; short ones on foot.
@@ -897,13 +899,7 @@ export class TownLife {
     if(v.fatigue>92 && v.step?.kind==='work')v.memory='struggling to stay awake at work';
     if (v.engaged) return;                   // chatting with the player: stands still
     if (v.path.length) {
-      let budget = minutes * SEC_PER_MIN * (v.bike ? BIKE : WALK);
-      while (budget > 0 && v.path.length) {
-        const p = v.path[0], dx = p.x - v.x, dz = p.z - v.z, d = Math.hypot(dx, dz);
-        if (d <= budget) { v.x = p.x; v.z = p.z; budget -= d; v.path.shift(); }
-        else { v.x += (dx / d) * budget; v.z += (dz / d) * budget; budget = 0; }
-        v.heading = Math.atan2(dx, dz);
-      }
+      movePedestrian(v, minutes * SEC_PER_MIN * (v.bike ? BIKE : WALK), this.villagers, this.obstacles);
       if (!v.path.length) this.arrive(v);
       return;
     }
@@ -1033,3 +1029,4 @@ export class TownLife {
     startNeeds(this);
   }
 }
+
