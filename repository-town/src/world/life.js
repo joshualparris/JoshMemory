@@ -1,4 +1,5 @@
 import { distributePower, townPowerDemands, POWER_LINE_IDS, GRID_FAULT_COST } from './power-grid.js';
+import { trucksOverlap } from './traffic.js';
 // Town life simulation: the clock, farms, the mill and bakery, shops, trucks, the post,
 // and villagers with jobs, hunger, pantries, wallets and daily routines. Pure logic (no
 // three.js) so it runs and is tested on its own; src/world/townlife.js draws it.
@@ -557,6 +558,9 @@ export class TownLife {
       this.villagers.some(v=>!v.inside&&near(v,1.6,8)) ||
       this.trucks.some(o=>{
         if(o===t||(t.state==='parked'&&!proposed))return false;
+        // Full oriented body collision, including a 90-degree turn. Test the
+        // proposed position/heading, not just the old truck centre.
+        if(proposed && trucksOverlap({x:proposed.x,z:proposed.z,heading:Math.atan2(dx,dz)},o))return true;
         // Trucks are roughly 6.6m bumper-to-bumper: keep an actual
         // following gap, not merely non-overlapping centre points. Vehicles
         // in the opposing Australian left-hand lane are separated laterally.
