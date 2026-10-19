@@ -18,7 +18,8 @@ Newest first. Times in Australia/Sydney.
 
 ## Done recently
 
-- 2026-10-19 · ChatGPT (mobile NPC keyboard repair) — `src/ui/npc-chat.js`, `src/npc.css`, `tests/npc-viewport.mjs`; isolated chat/visualViewport and lounge compact-mode changes. See PR for review and mobile-device confirmation.\n
+- 2026-10-19 · ChatGPT (mobile NPC keyboard repair) — `src/ui/npc-chat.js`, `src/npc.css`, `tests/npc-viewport.mjs`; isolated chat/visualViewport and lounge compact-mode changes. See branch `fix/npc-chat-android-keyboard-20261019` for review and mobile-device confirmation.
+
 - 2026-10-19 · Claude Code session (claude.ai/code, "Repository search") — villagers
   walk the town (`src/world/npcs.js`), residents wander indoors, more natural chat
   (`src/ui/npc.js`), Mouse look option, house signs moved clear of colonnades.
