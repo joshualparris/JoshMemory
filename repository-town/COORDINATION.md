@@ -24,6 +24,12 @@ Newest first. Times in Australia/Sydney.
 
 ## Done recently
 
+- 2026-10-19 · Codex — added a local-first village social simulation: seeded friend, enemy and
+  neutral relationships; gossip and friendship UI; persistent player trust; relationship changes
+  from praise, insults and completed errands; and social context for live AI prompts. Tests,
+  build, privacy and 188-house validation passed. Published at Pages commit `e26fbfb`; workflow
+  `39206698049` completed successfully.
+
 - 2026-10-19 · Codex — expanded all 24 street villagers with distinct offline and live-AI
   personalities, including Sadie as a curious book-and-building collector. Added the NPC
   personality contract test; build, privacy and house checks passed. Published to
