@@ -589,6 +589,9 @@ export class TownLife {
     if (!best) { t.state = 'waiting for an order'; return; }
     t.job = best; t.state = `heading to the ${this.place(best.from).name} for ${GOODS[best.good].name}`;
     t.path = this.routeTruck(t, best.from); t.leg = 'pickup';
+    // A vehicle already in its depot bay has arrived at a depot pickup;
+    // an empty route must execute loading, not strand the job forever.
+    if (!t.path.length) this.truckArrived(t);
   }
 
   truckArrived(t) {
