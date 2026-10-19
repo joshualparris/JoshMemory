@@ -261,7 +261,10 @@ export class TownLife {
     if (hourly) this.everyHour();
     for (const v of this.villagers) this.liveVillager(v, minutes);
     for (const t of this.trucks) this.driveTruck(t, minutes);
-    for (const t of this.trucks) if ((t.blockedFor || 0) > 40) this.unjam(t);
+    for (const t of this.trucks) {
+      t.jam = t.braking ? (t.jam || 0) + minutes : 0;      // continuous time spent unable to move
+      if (t.jam > 20) { t.jam = 0; this.unjam(t); }
+    }
   }
 
   newDay() {
@@ -510,7 +513,7 @@ export class TownLife {
     const depot = this.place('depot');
     // Stagger trucks away from the centre entrance and give each a full 8m bay.
     // The bay surface is rendered separately from the road and is not a lane.
-    return {x:depot.x + [-16, -7, 9][id], z:ROAD(7)-5.6};
+    return {x:depot.x + [-16, -7, 9][id], z:ROAD(7)-7.2};
   }
   // Road approach. Depot trucks make a short off-carriageway manoeuvre into their marked bay;
   // every other stop is made in the travelling lane beside the building (a delivery truck
@@ -529,6 +532,12 @@ export class TownLife {
     const stop = route[route.length - 1];
     return Math.hypot(t.x - stop.x, t.z - stop.z) < 0.2 ? [] : route;
   }
+  // Where a truck stands to serve a site: in the travelling lane beside the building (it double-parks
+  // to unload), never on the footpath over a counter or a worker.
+  stopAt(t, placeId) {
+    const route = driveRoute(t, { x: this.place(placeId).x, z: ROAD(7) });
+    return route[route.length - 1];
+  }
   driveTruck(t, minutes) {
     const drv = t.driver;
     const onShift = !!(drv && this.minute >= drv.start && this.minute < drv.end && drv.step?.kind === 'work');
@@ -541,7 +550,7 @@ export class TownLife {
     if (t.reverse > 0) {            // backing out to let a truck that is boxed in turn round
       const back = Math.min(t.reverse, secs * 3);
       const trial = { x: t.x - Math.sin(t.heading) * back, z: t.z - Math.cos(t.heading) * back, h: t.heading, reverse: true };
-      if (!this.blocked(t, trial)) { t.x = trial.x; t.z = trial.z; t.reverse -= back; } else t.reverse = 0;
+      if (Math.abs(trial.z - ROAD(7)) <= 4.2 && !this.blocked(t, trial)) { t.x = trial.x; t.z = trial.z; t.reverse -= back; } else t.reverse = 0;   // never reverse off the carriageway
       t.braking = true; return;
     }
     // Heading for the bay with no lead-in left (e.g. after backing out of a standoff): rejoin the
@@ -667,7 +676,12 @@ export class TownLife {
     const mine = truckBox(at.x, at.z, h, turningOnly ? 0.05 : TRUCK.gap);
     for (const o of this.trucks) {
       if (o === t) continue;
-      if (boxesOverlap(mine, truckBox(o.x, o.z, o.heading))) { t.blockedBy = o.id; t.why = 'body'; return true; }
+      const ob = truckBox(o.x, o.z, o.heading);
+      if (boxesOverlap(mine, ob)) {
+        // Bodies already touching: moving AWAY is always allowed, otherwise nothing can ever untangle.
+        if (!turningOnly && boxesOverlap(truckBox(t.x, t.z, t.heading), ob) && Math.hypot(at.x - o.x, at.z - o.z) > Math.hypot(t.x - o.x, t.z - o.z) + 1e-6) continue;
+        t.blockedBy = o.id; t.why = 'body'; return true;
+      }
     }
     // Hold back while another truck is serving a stop in this lane, so it has room to turn round.
     if (!turningOnly && !proposed?.reverse) {
@@ -686,7 +700,10 @@ export class TownLife {
       for (const o of this.trucks) {
         if (o === t) continue;
         const ox = o.x - at.x, oz = o.z - at.z, ahead = ox * fx + oz * fz;
-        if (ahead > 0 && ahead < TRUCK.follow && Math.abs(ox * rx + oz * rz) < 1.9 && ahead < (o.x - t.x) * fx + (o.z - t.z) * fz) { t.blockedBy = o.id; t.why = 'follow'; return true; }
+        const still = o.path.length === 0 || o.wait > 0 || o.braking;   // queue up close behind a stopped truck
+        const thr = still ? 8.6 : TRUCK.follow, now = (o.x - t.x) * fx + (o.z - t.z) * fz;
+        // Inside the gap already: never get closer. Outside it: one short step may close up to it.
+        if (ahead > 0 && ahead < thr && Math.abs(ox * rx + oz * rz) < 1.9 && ahead < now && now < thr) { t.blockedBy = o.id; t.why = 'follow'; return true; }
       }
     }
     t.blockedBy = null;
@@ -722,6 +739,9 @@ export class TownLife {
     if (!best) { t.state = 'waiting for an order'; return; }
     t.job = best; t.state = `heading to the ${this.place(best.from).name} for ${GOODS[best.good].name}`;
     t.path = this.routeTruck(t, best.from); t.leg = 'pickup';
+    // A vehicle already in its depot bay has arrived at a depot pickup;
+    // an empty route must execute loading, not strand the job forever.
+    if (!t.path.length) this.truckArrived(t);
   }
 
   truckArrived(t) {

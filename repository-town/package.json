@@ -9,7 +9,7 @@
     "check:privacy": "node tools/check_privacy.mjs",
     "test:e2e": "node tests/e2e.mjs",
     "serve": "node tools/serve.mjs dist/public 8080",
-    "test:town": "node tests/town-simulation.mjs && node tests/power-grid.mjs && node tests/shop-interiors.mjs && node tests/farmhouse.mjs && node tests/truck-collision.mjs --days 4"
+    "test:town": "node tests/town-simulation.mjs && node tests/power-grid.mjs && node tests/shop-interiors.mjs && node tests/traffic-and-shop-exits.mjs && node tests/farmhouse.mjs && node tests/truck-collision.mjs --days 4"
   },
   "devDependencies": {
     "brython": "^3.12.4",

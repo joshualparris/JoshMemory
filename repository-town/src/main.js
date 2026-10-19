@@ -258,7 +258,7 @@ async function start() {
     town.group.visible = true; scene.background.set(SKY); scene.fog = fog;
     if (placeOutside) {
       if (shop) {
-        const pose = civicExitPose(shop, townWorld.all, player.radius+0.08);
+        const pose = civicExitPose(shop, [...townWorld.all, ...townWorld.dynamic()], player.radius+0.08);
         if (pose) player.place(pose.x,pose.z,pose.yaw);
         else spawn(); // use safe Town Guide location instead of clipping into a wall
       } else { const l=town.lots.get(coord);player.place(l.doorPos.x,l.doorPos.z+4,Math.PI); }
