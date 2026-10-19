@@ -66,3 +66,7 @@ same sitting and say so in `COORDINATION.md`.
   `npc.js` resident chat (Groq + offline replies).
 - `src/adventure/` — Expedition Guild: 12 relics, puzzles, Quest Journal, compass.
 - `briefs/` — the 188 house designs; `tools/lib.mjs` turns them into houses.
+
+## Oct 2026 protected integration workflow
+
+See [docs/INTEGRATION_SYSTEM_2026-10-20.md](docs/INTEGRATION_SYSTEM_2026-10-20.md). NPC off-duty personalities now live in `src/ui/villager-profiles.js`. Never overwrite `main` using an older PR's `main.js` or `life.js`; bring only genuinely missing changes across and rely on the mandatory Town safety gate. Town auto-merge requires the explicit `town-automerge-approved` label and every check green.

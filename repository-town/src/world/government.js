@@ -1,3 +1,4 @@
+import { initialisePublicLife, publicForumReport } from './public-forum.js';
 // Civic governance for Repository Town. No fictional council members: every
 // elected representative and work crew maps to an actual TownLife villager.
 export const MAYOR_CANDIDATES=['Vern','Arlo','Sadie'];
@@ -31,7 +32,10 @@ const communityScore=(t,v,name)=> {
   const need=100-(t.civic.services[priority]||100);
   const income=v.wallet<50 ? (name==='Sadie'?8:0):name==='Vern'?3:0;
   const local=v.work===SERVICE_SITES[priority] ? 14:0;
-  const temperament=hash('candidate',v.id,name)%26;
+  // Leanings shift a little each election. The mayor answers for how the town has felt
+  // and for their own priority running down; challengers campaign on that neglect.
+  const temperament=hash('candidate',v.id,name,t.civic.electionDay)%26;
+  if(name===t.civic.mayor)return temperament+income+local-Math.floor(need/9)+Math.round((t.civic.indicators.happiness-80)/2);
   return temperament+income+local+Math.floor(need/9);
 };
 function selectCouncil(t,day) {
@@ -63,6 +67,7 @@ export function createGovernment(t) {
   };
   t.civic.government=g;
   syncOffices(t);g.councillors=selectCouncil(t,t.day);
+  initialisePublicLife(t);
   return g;
 }
 export function syncOffices(t) {
@@ -76,9 +81,24 @@ export function syncOffices(t) {
       if(old)Object.assign(v,{job:old.job,work:old.work,start:old.start,end:old.end,step:null,path:[]});
     }
     if(v.name===t.civic.mayor&&v.job!=='mayor'){
-      v.preMayor={job:v.job,work:v.work,start:v.start,end:v.end};
+      // A stand-in hands their borrowed job back to its owner; their own role is the clerk's.
+      v.preMayor=v.standInFor!=null?{job:'council clerk',work:'hall',start:540,end:960}:{job:v.job,work:v.work,start:v.start,end:v.end};
+      delete v.standInFor;
       Object.assign(v,{job:'mayor',work:'hall',start:540,end:960,step:null,path:[]});
     }
+  }
+  // A mayor elected from the workforce leaves a real job behind (the only gardener, a truck
+  // driver). The council clerk stands in until they return, so the town keeps running.
+  const mayor=resident(t,t.civic.mayor);
+  const vacancy=mayor?.job==='mayor'&&mayor.preMayor?.job!=='council clerk'?mayor.preMayor:null;
+  for(const v of t.villagers) if(v!==mayor&&v.standInFor!=null&&(v.standInFor!==mayor?.id||!vacancy)){
+    Object.assign(v,{job:'council clerk',work:'hall',start:540,end:960,step:null,path:[]});
+    delete v.standInFor;
+  }
+  const clerk=vacancy&&t.villagers.find(v=>v.job==='council clerk'&&v.standInFor==null);
+  if(clerk&&!t.villagers.some(v=>v.standInFor===mayor.id)){
+    Object.assign(clerk,{...vacancy,step:null,path:[],standInFor:mayor.id});
+    t.log(clerk.name+' is standing in as '+vacancy.job+' while '+mayor.name+' serves as mayor.');
   }
   const gm=t.villagers[g.generalManagerId];
   if(gm&&gm.name!==t.civic.mayor&&gm.job!=='general manager'){
@@ -144,6 +164,14 @@ export function requestFeeder(t,lineId){
     progress:0,requiredMinutes:50,inspectionMinutes:15,approvedBy:null});
   record(t,'service-request','Electricity feeder '+lineId+' requires work order '+id+'.',{workOrder:id});
   return 'Feeder '+lineId+' repair requested as '+id+'.';
+}
+// The General Manager's daily rounds: worn services get a work order without waiting for a
+// complaint, and the council's adopted priority is maintained to a higher standard.
+export function maintainServices(t) {
+  const g=t.civic.government;if(!g)return;
+  const priority=POLICY_CHOICES.find(x=>x.key===g.policy.priority)?.service;
+  for(const service of Object.keys(SERVICE_SITES))
+    if((t.civic.services[service]??100)<(service===priority?80:60))submitRequest(t,service,'General Manager');
 }
 export function proposeMotion(t,type,value) {
   const g=t.civic.government;
@@ -268,7 +296,7 @@ export function govSummary(t){
     elections:g.elections.slice(0,3),motions:g.motions.slice(0,10),
     orders:g.orders.slice(0,12),minutes:g.minutes.slice(0,4),
     permits:g.permits.slice(0,5),audit:g.audit.slice(0,14),
-    meetingDay:g.meetingDay};
+    meetingDay:g.meetingDay,forums:publicForumReport(t)};
 }
 export function restoreCivic(t,saved){
   if(!saved || typeof saved!=='object')return createGovernment(t);
@@ -283,5 +311,6 @@ export function restoreCivic(t,saved){
   if(!g.playerBallot||g.playerBallot.electionDay!==t.civic.electionDay)g.playerBallot=null;
   t.civic.voted=!!g.playerBallot;
   syncOffices(t);
+  initialisePublicLife(t);
   return g;
 }

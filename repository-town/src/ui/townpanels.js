@@ -1,6 +1,7 @@
 // Panels for town life: shop counters, farms, the Town Ledger and the town guide, plus
 // the gossip and Expedition relic hints villagers share in conversation (src/ui/npc.js).
 import { GOODS, amount, timeText, CANDIDATES } from '../world/life.js';
+import { locateVillager } from './npc-location.js';
 import { RELICS, PROGRESS_KEY, cleanProgress } from '../adventure/data.js';
 import { esc } from './interactions.js';
 
@@ -107,6 +108,7 @@ export function hallPanel(life) {
       '<h3>Requests and work orders</h3><table class="ledger"><tr><th>Ref</th><th>Service</th><th>Stage</th><th>Assigned</th><th>Work</th></tr>'+line+'</table>'+
       '<h3>Motions and community planning</h3><table class="ledger"><tr><th>Motion</th><th>Proposal</th><th>Outcome</th></tr>'+proposals+'</table>'+
       '<p>Approved-in-principle permits: '+g.permits.map(x=>esc(x.zone)+' ('+esc(x.id)+')').join(', ').replace(/^$/,'none')+'. Physical building works still require an approved work order.</p>'+
+      '<h3>Public election forums</h3><p>Candidate and councillor Q&A evenings at Market Square on alternate town days, after work. Residents can attend voluntarily and sometimes decline to discuss politics. Conversations never reveal a private vote.</p>'+g.forums.events.slice(-5).reverse().map(f=>'<p>Day '+f.day+': '+esc(f.speaker)+' discussed '+esc(f.issue)+' in the public square.</p>').join('')+
       '<h3>Recorded council proceedings</h3>'+minutes+
       '<h3>Register of decisions</h3><ul class="news">'+ledger+'</ul>'+
       powerNetworkHTML(c)+bagLine(life),
@@ -161,7 +163,7 @@ export function placePanel(life, id) {
   const sells = { store: p.sells, bakery: p.sells, greengrocer: p.sells, butcher: p.sells, cafe: ['pie', 'bread'], pub: ['pie'] }[id] || [];
   const me = life.civic.player, again = () => placePanel(life, id);
   const act = (label, fn) => ({ label, run: () => { const msg = fn(); const next = again(); return { ...next, body: `<p><b>${esc(msg)}</b></p>` + next.body }; } });
-  const actions = sells.filter((g) => (shelves[g] || 0) > 0).slice(0, 4).map((g) => act(`Buy ${GOODS[g].unit === 'pie' ? 'a pie' : `a ${GOODS[g].unit} of ${GOODS[g].name}`} ($${GOODS[g].price})`, () => life.buyItem(id, g)));
+  const actions = sells.filter((g) => (shelves[g] || 0) > 0).map((g) => act(`Buy ${GOODS[g].unit === 'pie' ? 'a pie' : `a ${GOODS[g].unit} of ${GOODS[g].name}`} ($${GOODS[g].price})`, () => life.buyItem(id, g)));
   for (const g of sells.filter((g) => me.bag[g] > 0).slice(0, 2)) actions.push(act(`Sell back ${GOODS[g].name}`, () => life.sellItem(id, g)));
   for (const g of Object.keys(me.bag).filter((g) => me.bag[g] > 0 && ['bread', 'pie', 'fruit', 'veg'].includes(g)).slice(0, 1)) actions.push(act(`Eat the ${GOODS[g].name}`, () => life.eatItem(g)));
   if (id === 'post') actions.push(act('Post a letter to Mabel ($2)', () => life.postLetter('Mabel')));
@@ -241,6 +243,8 @@ export function townContext(life, v, resident) {
   return {
     time: life.time(), day: life.day, daylight: life.isDay(),
     self: v ? life.describe(v) : null,
+    location: v ? locateVillager(life,v) : null,
+    politics: v ? life.civicChat(v) : null,
     resident: resident || null,
     gossip: gossip(life, v),
     relics: left.slice(0, 3).map((r) => ({ name: r.name, clue: r.clue, hint: r.hint })),

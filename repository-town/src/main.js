@@ -719,6 +719,8 @@ async function start() {
     toExit() { if (!inside) return false; player.place(inside.spawn.x, inside.spawn.z, Math.PI); return true; },
     place(x, z, yaw) { player.place(x, z, yaw); },
     probe(x, z) { return world.hits(x, z, player.radius); },
+    // Buildings and props only: moving trucks' footprints are left out.
+    probeStatic(x, z) { const d = world.dynamic; world.dynamic = null; try { return world.hits(x, z, player.radius); } finally { world.dynamic = d; } },
     // Stands next to a villager who is out and about, facing them.
     meetVillager(i = 0) {
       // Prefers someone walking somewhere, so tests see them stop for the player.

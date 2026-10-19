@@ -34,8 +34,18 @@ export function residentPrompt(r) {
   const houseName = String(r.houseName || 'House').slice(0, 90);
   const kind = String(r.kind || 'project').slice(0, 80);
   const summary = String(r.summary || '').slice(0, 400);
+  const current = r.currentLocation && typeof r.currentLocation === 'object' ? r.currentLocation : null;
+  const here = String(current?.name || '').slice(0, 110);
+  const movement = String(current?.status || '').slice(0, 32);
+  const activity = String(r.currentActivity || current?.activity || '').slice(0, 155);
+  const time = String(r.currentTime || '').slice(0, 30);
+  const work = String(r.workplace || current?.workplace || '').slice(0, 95);
   const where = r.role === 'villager'
-    ? `You live at house ${coord} on ${street}, but right now you are out walking around Repository Town and the visitor has stopped you in the street.`
+    ? 'HOME: house '+coord+' on '+street+'. This is HOME, not the current location. '+
+      (here ? 'Current place from the game simulation: '+here+' ('+movement+').' : 'Present whereabouts unknown; do not guess.')+
+      (activity ? ' Current activity: '+activity+'.' : '')+
+      (work ? ' Usual workplace: '+work+' (not necessarily their current place).' : '')+
+      (time ? ' Game time: '+time+'.' : '')
     : `You live in house ${coord} on ${street} and the visitor has come inside.`;
   const rooms = Array.isArray(r.rooms) ? r.rooms.map((x) => String(x).slice(0, 60)).slice(0, 12).join(', ') : '';
   const scene = r.scene && typeof r.scene === 'object' ? r.scene : null;
@@ -51,6 +61,7 @@ export function residentPrompt(r) {
   return [
     `You are ${name}, a local in Repository Town: a little walkable 3D town (set near Dubbo, NSW) where every house was built from one of Josh Parris's software projects on GitHub. ${where}`,
     `Your personality: ${moodOf(name)}.${r.personality ? ` More specifically: ${String(r.personality).slice(0, 260)}` : ''}`,
+    'Present location and activity from the town simulation outrank any conversation guess. Never substitute the home address, workplace, a destination or a street name for the actual present location. If unknown, say unknown; if travelling, say so. Correct earlier mistakes.',
     r.isPublic ? `Your house is the ${houseName} project (${kind}). ${summary}` : `${summary} The owner has approved the house name ${houseName} for the public town, so you may use that name. Do not reveal private URLs, README text or withheld project details.`,
     rooms ? `Rooms in your house: ${rooms}.` : '',
     exhibits ? `Things visitors can use inside (press E or the hand button): ${exhibits}.` : '',

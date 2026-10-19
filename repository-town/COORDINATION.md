@@ -7,10 +7,17 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+<<<<<<< HEAD
 - 2026-10-20 · Claude Code — **Bakery interior redesign** (first of the High Street shops to get a researched layout): new `src/world/bakery-interior.js`, dispatched from `shop-interior.js` for `bakery`; `shop-staff.js` now honours `interior.staff` positions; `tests/shop-interiors.mjs` has bakery-specific checks. Shop floor, glass pastry case, pie warmer, bread wall, café corner, and a visible kitchen (deck ovens, mixer, proofer, prep island, cooling racks). Shelves follow live `bakery.out` stock. Other shops still use the generic room — same approach can be copied per shop.
 
 - 2026-10-19 · Claude Code — **traffic and collision realism**, branch `realism`, MERGED into `main` and the Render branch `feat/town-realism-power-network-20261019` (merged with the playtest truck work; `traffic-and-shop-exits` adapted to lane stops). `life.mjs` Town Hall vote checks fail on plain main too (council UI change), not from this work. Trucks: real oriented-footprint collision, following distance, turning rate, lanes, bay gap-acceptance and deadlock breakers (`src/world/life.js` truck section: `TRUCK`, `routeTruck`, `driveTruck`, `blocked`, `unjam`). Props: lamps, kiosk, tables, crates, trees, fences, benches, stalls, troughs and silos are now solid (`Builder.solid()` in `src/world/builder.js`, used by `town.js` and `townlife.js`). Players can no longer be pinned inside a moving collider (`src/engine/collision.js`). New tests: `tests/truck-collision.mjs`, `tests/town-exit.mjs`, `tests/exit-stuck.mjs`. **Overlaps with the power-network branch in `life.js` and `townlife.js` — merge, do not overwrite either.**
+=======
+- 2026-10-20 · ChatGPT — modular NPC audit reconciliation and protected PR pipeline on `integration/town-npc-modular-ci-20261020`. Preserving the existing council politics, traffic, farmhouse, power and multi-floor systems; adding 38 personalities in an independent module, authoritative NPC location, and a gated/opt-in merge queue. Publishing held until merge and privacy/build tests finish. See `docs/INTEGRATION_SYSTEM_2026-10-20.md`.
+
+>>>>>>> origin/main
 - 2026-10-19 · ChatGPT (farmhouse regression repair) — COMPLETE: dedicated 10-area farmhouse restored in source and merged to main via PR #35; Nell positioned in the kitchen; farmhouse geometry and walkability regressions now pass (22 interactions; 1,726 reachable floor cells). The realism playtest Render build at commit `065ec52017443839d30e91d448d90bf6bc05680d` is LIVE (14-day town economy, power grid, traffic/Foundry, 33 interiors, farmhouse geometry, privacy tests pass). Truck junction deadlock fixed in `src/world/life.js` without disabling economic tests. Main QA also deployed. Avoid reintroducing generic farmhouse fallback.
+- 2026-10-19 · Claude Code — **traffic and collision realism**, local topic branch `realism` (from `feat/town-realism-power-network-20261019`), not pushed yet. Trucks: real oriented-footprint collision, following distance, turning rate, lanes, bay gap-acceptance and deadlock breakers (`src/world/life.js` truck section: `TRUCK`, `routeTruck`, `driveTruck`, `blocked`, `unjam`). Props: lamps, kiosk, tables, crates, trees, fences, benches, stalls, troughs and silos are now solid (`Builder.solid()` in `src/world/builder.js`, used by `town.js` and `townlife.js`). Players can no longer be pinned inside a moving collider (`src/engine/collision.js`). New tests: `tests/truck-collision.mjs`, `tests/town-exit.mjs`, `tests/exit-stuck.mjs`. **Overlaps with the power-network branch in `life.js` and `townlife.js` — merge, do not overwrite either.**
+- 2026-10-19 · Claude Code — **traffic and collision realism**, branch `realism`, MERGED into `main` and the Render branch `feat/town-realism-power-network-20261019` (merged with the playtest truck work; `traffic-and-shop-exits` adapted to lane stops). `life.mjs` Town Hall vote checks fail on plain main too (council UI change), not from this work. Trucks: real oriented-footprint collision, following distance, turning rate, lanes, bay gap-acceptance and deadlock breakers (`src/world/life.js` truck section: `TRUCK`, `routeTruck`, `driveTruck`, `blocked`, `unjam`). Props: lamps, kiosk, tables, crates, trees, fences, benches, stalls, troughs and silos are now solid (`Builder.solid()` in `src/world/builder.js`, used by `town.js` and `townlife.js`). Players can no longer be pinned inside a moving collider (`src/engine/collision.js`). New tests: `tests/truck-collision.mjs`, `tests/town-exit.mjs`, `tests/exit-stuck.mjs`. **Overlaps with the power-network branch in `life.js` and `townlife.js` — merge, do not overwrite either.**
 
 - 2026-10-19 · ChatGPT (GitHub connector) — **Replit-pack realism upgrade, first electricity-network vertical slice**, topic branch `feat/town-realism-power-network-20261019`. Files: `src/world/power-grid.js`, `src/world/life.js`, `src/world/townlife.js`, `src/ui/townpanels.js`, `tests/power-grid.mjs`, `package.json`, clock docs, README and `docs/REALISM_INFRASTRUCTURE_2026-10-19.md`. Named 10-edge power distribution, fault/repair and per-facility dependencies with Ledger UI. Prior 14-day town regression and focused in-memory JS tests passed; reference-pack tests also passed under Node. **Source PR, integration checks and real Android/browser verification remain pending.** Keep other AI work and the live Pages repo unmodified until reviewed. See design/limits document.
 
@@ -36,6 +43,8 @@ Newest first. Times in Australia/Sydney.
   is currently blocked by the Hobby team's daily deployment quota (`api-deployments-free-per-day`).
 
 ## Done recently
+- 2026-10-20 · ChatGPT (global doorway/yard collision fix) — **MERGED** via PR #42, main commit `671ca6cbc4f325ee5408c76ec677bb9b949bb66a`. New `src/world/exterior-collision.js` carves actual passable gaps in solid building AABBs, places exterior props/vehicles in collision-free slots, reserves door access and street footpaths; wired through `src/world/town.js` and `src/world/exterior.js`. Tested **188 real house entrances, E7 NextJS-Expert blue van, 683 yard objects (zero overlaps, zero omitted), 188 reachable exits to street (zero failures), 28-day economy and transport simulation, farmhouse, councillors, and public-data privacy scan**. Integrated against newer main before merge; don't reinstate single solid building collider or allow yard objects to sit across door aprons. Test `npm run test:town` includes `tests/exterior-collisions.mjs` and `tests/town-exit.mjs`.
+
 
 - 2026-10-19 · ChatGPT (government upgrade) — **MERGED to main** via PR #38, commit `c4e2179216b873eada7879ac8836e13a53bb61ff`. New canonical `src/world/government.js` adds resident elections, five named real-NPC councillors and GM, persisted meeting votes, public budgets and crew-based repaired infrastructure with actual NPC travel, material costs, inspections, completion and feeder-event history. `src/world/life.js`, `src/ui/townpanels.js`, `tests/government.mjs` integrated without overwriting latest truck collision/house fixes. Verified full economy/power/government/civic/farmhouse tests, 4-day traffic stress **zero overlaps and deadlocks**, public privacy scanner, Render main QA is live. See `docs/GOVERNMENT_IMPLEMENTATION_STATUS_2026-10-19.md` for evidence and outstanding planning/procurement/construction realism. **Do not reintroduce instant council repairs or random fake ballots.**
 
@@ -169,3 +178,32 @@ Newest first. Times in Australia/Sydney.
   edit it here and publish from a build, so neither of us overwrites the other.
 - Open ideas nobody has claimed yet: villagers offering relic hints; a town guide near
   the spawn; real-device testing notes from Josh.
+
+## 2026-10-19 — merge sweep onto main (Claude, branch ccr-846db548-0l5zmu)
+- Merged into `main` (bdd1047), each with build, privacy check and test suites: walk-in shops and
+  multi-floor houses, farmhouse restoration, power network/traffic, realism truck model, elected
+  council, government audit. Fixed: south-side shop exit, walk-out after changing floors (exit-zone
+  cooldown overshoot), e2e treating stairs/lift as exhibits, shop-e2e expecting a counter in the farmhouse.
+- **Publishing is blocked:** the site repo `Parris-Tech-Services/Repository-town` has a finite-money
+  economy merged straight into the generated output (its PR #1: `world/money.js`, `ui/economy-panels.js`,
+  `world/bakery-interior.js`, `world/bakery-production.js`, `ui/bakery-panel.js`, ~30 commits), built
+  on an older build without the civic wallet/bank in `life.js`. It must be ported into `src/` and
+  reconciled with `life.civic.player` (one money owner) before `publish_pages.sh` will run.
+- Known intermittent: `life.mjs` "no villager inside a building" can catch a villager brushing a
+  newly solid lamp or bench (about 1 run in 5); villager paths don't avoid the realism props yet.
+- Login-gated private layer: plan and prompt in `docs/SUPABASE_PRIVATE_LAYER_PROMPT.md` (needs a
+  new Supabase project; the free plan's two active slots are in use).
+
+## 2026-10-20 — simulation playtest and fixes (Claude, branch ccr-846db548-0l5zmu)
+- New `tests/simulation-soak.mjs` (in `npm run test:town`): 28 simulated days, 38 checks: every shop
+  counter, sold-out/closed/broke refusals, sales tax, bank, money conservation to the dollar (grant,
+  outside income, exports, imports, repair bills), elections, council motions, work orders, feeder
+  fault and repair, a fuel crisis and its power → water/wastewater cascade, meals, deliveries, mood,
+  and job cover through six changes of mayor. `--seed n` for other towns.
+- Fixed: pies baked without limit (150+ unsold) and burned the town's veg; bread capped at 30 and
+  gone by mid-afternoon; General Store showed only 4 of its 6 goods; electing a worker as mayor left
+  their job empty (Arlo the only gardener → no veg; Sadie a driver → fewer deliveries) — the council
+  clerk now stands in; the council never maintained services unless the visitor complained — the
+  General Manager now lodges work orders (priority service kept above 80%, others above 60%);
+  elections returned identical results every week — leanings shift per election and the mayor
+  answers for the town's mood and their own priority; egg/veg shortfall and unbounded fruit/flour piles.

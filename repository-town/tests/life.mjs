@@ -65,7 +65,7 @@ await T(() => window.__town.life.run(60));
 let overlaps = 0, samples = 0;
 for (let i = 0; i < 8; i++) {
   await T(() => window.__town.life.run(5));
-  for (const p of (await st()).people) if (!p.inside) { samples++; if (await T(([x, z]) => window.__town.probe(x, z), [p.x, p.z])) { overlaps++; if (overlaps < 4) console.log('    inside a collider:', p.name, p.activity, p.x.toFixed(1), p.z.toFixed(1)); } }
+  for (const p of (await st()).people) if (!p.inside) { samples++; if (await T(([x, z]) => window.__town.probeStatic(x, z), [p.x, p.z])) { overlaps++; if (overlaps < 4) console.log('    inside a collider:', p.name, p.activity, p.x.toFixed(1), p.z.toFixed(1)); } }
 }
 check(overlaps === 0, `no villager inside a building (${overlaps} of ${samples} samples)`);
 
@@ -112,9 +112,19 @@ s = await st();
 check(bought && /You buy/.test(s.panel?.text || ''), `bought something: ${s.panel?.text.slice(0, 90)}`);
 await T(() => window.__town.closePanel());
 await T(() => window.__town.exitShop());
+// The General Store counter offers every good on its shelves, not just the first four.
+await T(() => window.__town.goPlace('store'));
+await nearTo(/^place:store$/);
+await press('e');
+s = await counter(await st());
+const storeBuys = (s.panel?.buttons || []).filter((b) => /^Buy/.test(b));
+const stocked = await T(() => Object.entries(window.__town.life.ledger().shops.find((x) => x.name === 'General Store').stock).filter(([, n]) => n > 0).length);
+check(storeBuys.length === stocked && stocked >= 5, `General Store offers all ${stocked} stocked goods (${storeBuys.length} buy buttons)`);
+await T(() => window.__town.closePanel());
+await T(() => window.__town.exitShop());
 
 // 5. Town Hall ledger, a farm, the square.
-for (const [id, re] of [['hall', /Council[\s\S]*Networks/], ['silo', /Crop/], ['square', /Town news/], ['depot', /freight train/], ['power', /Supply:/], ['bank', /Your wallet/], ['waterworks', /Reservoir/], ['foundry', /Ore:/]]) {
+for (const [id, re] of [['hall', /Council[\s\S]*Treasury/], ['silo', /Crop/], ['square', /Town news/], ['depot', /freight train/], ['power', /Supply:/], ['bank', /Your wallet/], ['waterworks', /Reservoir/], ['foundry', /Ore:/]]) {
   await T((x) => window.__town.goPlace(x), id);
   await nearTo(new RegExp(`^place:${id}$`));
   const front = (await st()).pos;
@@ -125,7 +135,7 @@ for (const [id, re] of [['hall', /Council[\s\S]*Networks/], ['silo', /Crop/], ['
   if (id === 'silo') { await T(() => window.__town.closePanel()); await T(() => { const t = window.__town.state(); window.__town.place(t.pos.x, t.pos.z + 18, Math.PI); }); await page.waitForTimeout(500); await shot('farm-fields'); }
   if (id === 'power') await shot('civic-power');
   if (id === 'bank') { const before = (await st()).panel.text; await btn(/Withdraw/); const after = (await st()).panel.text; check(/Withdrew \$20/.test(after), `bank withdrawal works (${after.slice(0, 60)})`); }
-  if (id === 'hall') { await btn(/Vote Sage/); check(/vote for Sage/i.test((await st()).panel?.text || ''), 'can vote for mayor'); }
+  if (id === 'hall') { await btn(/Vote for Sadie/); check(/vote for Sadie has been recorded/i.test((await st()).panel?.text || ''), 'can vote for mayor'); }
   await T(() => window.__town.closePanel());
   if ((await st()).mode === 'house') { await T(() => window.__town.exitShop()); s = await st(); check(s.mode === 'town' && Math.abs(s.pos.z - front.z) < 4, `walked back out of ${id} onto its footpath (z ${s.pos.z.toFixed(1)} vs ${front.z.toFixed(1)})`); }
 }
@@ -141,25 +151,32 @@ for(let i=0;i<45&&!tr;i++){
 if(tr){
   const dx=tr.next.x-tr.x,dz=tr.next.z-tr.z,d=Math.hypot(dx,dz);
   await T(([x,z])=>window.__town.place(x,z,0),[tr.x+dx/d*5.5,tr.z+dz/d*5.5]);
-  await page.waitForTimeout(450);
+  // A truck may roll a little closer before it stops; wait for that, then it must stay stopped.
+  await page.waitForFunction((id)=>window.__town.life.trucks().find(t=>t.id===id)?.braking,tr.id,{timeout:4000}).catch(()=>{});
   const before=(await T(()=>window.__town.life.trucks())).find(t=>t.id===tr.id);
   await page.waitForTimeout(900);
   const after=(await T(()=>window.__town.life.trucks())).find(t=>t.id===tr.id);
   check(before.braking&&after.braking&&Math.hypot(after.x-before.x,after.z-before.z)<0.2,
-    `truck "${tr.state}" braked for the player ahead`);
+    `truck "${tr.state}" braked for the player ahead (${JSON.stringify({b:before.braking,a:after.braking,moved:Math.hypot(after.x-before.x,after.z-before.z).toFixed(2),path:tr.next,at:[tr.x,tr.z],now:[after.x,after.z],st:after.state})})`);
   await shot('truck');
 }else check(false,'found an active truck with an open road ahead');
 
 // 7. Chat: what they ate, gossip, relic hints (offline replies; Groq is not configured).
 await T(() => window.__town.life.setTime(12 * 60 + 40));
 await T(() => window.__town.life.run(20));
-const key = await T(() => window.__town.meetVillager(2));
-await nearTo(/^villager:/);
+// A villager with no street character closer, so E (like the prompt) talks to the villager.
+let key = null;
+for (let i = 2; i < 14 && !key; i++) {
+  const k = await T((n) => window.__town.meetVillager(n), i);
+  await nearTo(/^villager:/);
+  s = await st();
+  if (!s.nearNPC) key = k;
+}
 s = await st();
 check(/^villager:/.test(s.nearPerson || ''), `standing by a villager (${s.nearPerson}; asked for ${key})`);
 await press('e');
 s = await st();
-check(/lives at/.test(s.panel?.title || ''), `villager chat: ${s.panel?.title}`);
+check(/lives at/.test(s.panel?.title || ''), `villager chat: ${s.panel?.title} (near ${s.nearPerson}, street character ${s.nearNPC})`);
 const ask = async (q) => {
   await T((q) => { const b = [...document.querySelectorAll('.chat-chip')].find((x) => x.dataset.ask === q); b.click(); }, q);
   await page.waitForFunction(() => !document.querySelector('.thinking'), null, { timeout: 15000 });
