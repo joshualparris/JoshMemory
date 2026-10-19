@@ -86,3 +86,11 @@ The geometry test in the GitHub connector loaded the currently published 188-hou
 
 Players can use the live game link once the Pages deployment for this change succeeds. Staircases use E/✋ transitions rather than continuous physics; the existing engine still has 2D collision per storey.
 
+
+### X7 / 87-building live release evidence
+
+- Source PR [#32](https://github.com/joshualparris/JoshMemory/pull/32) merged into main at commit `725bff72ccfd80151a761ffc9fa594293879d575`.
+- Public Pages code updated at [`42b82e9`](https://github.com/Parris-Tech-Services/Repository-town/commit/42b82e9cc356816724eed728dd1f27e92d920893), preserving existing public NPC/shop code.
+- [GitHub Pages deployment 39235581217](https://github.com/Parris-Tech-Services/Repository-town/actions/runs/39235581217) **completed successfully** on that exact public commit.
+- Play URL: https://parris-tech-services.github.io/Repository-town/ . Enter **X7** then use the labelled **🛗 Floors** button below the town clock or the illuminated stair/lift sign beside the entrance.
+- The new source and live JS passed static syntax checks; isolated full-geometry tests built 87/87 multi-storey houses and validated stairs/lifts, with expanded logic tests passing. This is not proof that a human Android walkthrough is bug-free. Full real Android/browser playtesting remains outstanding.
