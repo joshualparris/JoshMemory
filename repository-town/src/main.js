@@ -16,6 +16,7 @@ import { sceneFromRoom } from './ui/scene-awareness.js';
 import { placeTownNPCs, placeHouseGuide, animateNPCs, initialiseNPCWorksites } from './world/npcs.js';
 import { createTownSimulation } from './simulation/town-system.js';
 import { buildCivicDistrict } from './simulation/civic-world.js';
+import { buildCivicInterior } from './simulation/civic-interior.js';
 import { mountLivingTown } from './simulation/ledger-ui.js';
 
 const $ = (id) => document.getElementById(id);
@@ -156,19 +157,49 @@ async function start() {
     showCard(h, true);
     cardTimer = 6;
   }
+  function enterCivic(place) {
+    if (!place || mode !== 'town') return false;
+    const built = buildCivicInterior(place, makeLabel);
+    // Reuse the established collision, minimap, movement and exit behaviour
+    // rather than a separate teleport-only menu for the high-street shops.
+    const civicHouse = {coordinate:place.coordinate,name:place.name,kind:place.kind,
+      street:'High Street',summary:'Explore '+place.name+' and speak to staff at the counter.'};
+    inside = {house:civicHouse,civic:place,...built};
+    scene.add(built.group);
+    town.group.visible = false;
+    scene.background.set(INDOOR);scene.fog=null;
+    world = new CollisionWorld(built.colliders);
+    player.place(built.spawn.x,built.spawn.z,0);
+    houseGuide=null;
+    mode='house';
+    $('btn-exit').hidden=false;
+    closePanel();
+    npcChat.close();
+    livingLedger.close();
+    $('card').hidden=true;
+    delete $('card').dataset.coord;
+    status('Inside '+place.name+'. Explore the displays, visit the counter, or walk back to the entrance to leave.');
+    return true;
+  }
+
   function leave(placeOutside = true) {
     if (!inside) return;
     closePanel(); npcChat.close(); houseGuide = null;
     const coord = inside.house.coordinate;
+    const civicSite = inside.civic || null;
     scene.remove(inside.group);
     inside.group.traverse((o) => { if (o.isSprite) disposeLabel(o); else if (o.geometry && o.geometry.type !== 'BoxGeometry') o.geometry.dispose(); });
     inside = null; mode = 'town'; world = townWorld;
     $('btn-exit').hidden = true;
     town.group.visible = true; scene.background.set(SKY); scene.fog = fog;
-    if (placeOutside) { const l = town.lots.get(coord); player.place(l.doorPos.x, l.doorPos.z + 4, Math.PI); }
+    if (placeOutside) {
+      if (civicSite) player.place(civicSite.doorPos.x, civicSite.doorPos.z + 2.4, Math.PI);
+      else { const l = town.lots.get(coord); player.place(l.doorPos.x, l.doorPos.z + 4, Math.PI); }
+    }
     // Close the door behind the player so the doorway does not re-trigger.
     const d = town.doors.find((d) => d.userData.coordinate === coord); if (d) d.userData.open = 0;
-    status(`Back on the street at ${coord}.`);
+    if(civicSite){const d=civicDistrict.doors.find(d=>d.userData.id===civicSite.id);if(d)d.userData.open=0;}
+    status(civicSite?`Back outside ${civicSite.name}.`:`Back on the street at ${coord}.`);
   }
 
   // ── Overview (bird's-eye) ────────────────────────────────────────────────
@@ -288,10 +319,11 @@ async function start() {
     const npcD=nearNPC?Math.hypot(player.pos.x-nearNPC.pos.x,player.pos.z-nearNPC.pos.z):Infinity;
     if(treasure && treasureD<=npcD){expedition.use(player.pos);return;}
     const civicD = nearCivic ? Math.hypot(player.pos.x-nearCivic.position.x, player.pos.z-nearCivic.position.z-7) : Infinity;
-    if (nearCivic && civicD <= npcD) { input.releaseMouse(); livingLedger.openFor(nearCivic.id); input.reset(); return; }
+    if (nearCivic && civicD <= npcD && mode === 'town') { enterCivic(nearCivic); input.reset(); return; }
     if (nearNPC) { input.releaseMouse(); closePanel(); $('npc-roster').hidden=true; npcChat.show(nearNPC.npc, nearNPC.house || null); input.reset(); return; }
     if (mode === 'house' && nearThing) {
       const thing = nearThing, request = ++interactionRequest, house = inside;
+      if (thing.act.do === 'civic-ledger' && inside.civic) { input.releaseMouse(); livingLedger.openFor(inside.civic.id); input.reset(); return; }
       Promise.resolve(runInteraction(thing, ctx)).then((content) => { if (request === interactionRequest && inside === house && mode === 'house') openPanel(content, thing); })
         .catch((e) => { if (request === interactionRequest && inside === house) openPanel({ title: thing.label, body: `<p>Couldn't open this exhibit: ${esc(e.message)}</p>` }, thing); });
       return;
