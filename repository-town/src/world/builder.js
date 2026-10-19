@@ -27,6 +27,20 @@ export class Builder {
     this.parts = [];
     this.dynamics = [];
     this.stack = [new THREE.Matrix4()];
+    this.solids = [];   // world-space {x0,x1,z0,z1} footprints of things the player must not walk through
+  }
+
+  // Records a solid footprint (w × d, centred on x,z in the current frame) so the town can
+  // collide with it. Works inside `at()` frames; the box is re-fitted to a world AABB.
+  solid(w, d, x, z) {
+    const e = this.matrix.elements, hw = w / 2, hd = d / 2;
+    let x0 = Infinity, x1 = -Infinity, z0 = Infinity, z1 = -Infinity;
+    for (const [sx, sz] of [[-1, -1], [1, -1], [1, 1], [-1, 1]]) {
+      const lx = x + sx * hw, lz = z + sz * hd;
+      const wx = e[0] * lx + e[8] * lz + e[12], wz = e[2] * lx + e[10] * lz + e[14];
+      x0 = Math.min(x0, wx); x1 = Math.max(x1, wx); z0 = Math.min(z0, wz); z1 = Math.max(z1, wz);
+    }
+    this.solids.push({ x0, x1, z0, z1 });
   }
 
   get matrix() {

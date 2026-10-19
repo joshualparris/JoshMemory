@@ -49,9 +49,20 @@ export class CollisionWorld {
     const steps = Math.max(1, Math.ceil(Math.max(Math.abs(dx), Math.abs(dz)) / (r * 0.5)));
     const sx = dx / steps, sz = dz / steps;
     let blocked = false;
+    // Already overlapping something (a truck rolled up, or an exit point under a vehicle's box):
+    // allow steps that take the player away from it, so nobody is ever pinned in place.
+    const gap = (c, x, z) => (x > c.x0 && x < c.x1 && z > c.z0 && z < c.z1)
+      ? -Math.min(x - c.x0, c.x1 - x, z - c.z0, c.z1 - z)          // inside the box: negative depth
+      : Math.hypot(x - Math.max(c.x0, Math.min(x, c.x1)), z - Math.max(c.z0, Math.min(z, c.z1)));
+    const free = (x, z) => {
+      const h = this.hits(x, z, r);
+      if (!h) return true;
+      const here = this.hits(pos.x, pos.z, r);
+      return !!here && here.x0 === h.x0 && here.x1 === h.x1 && here.z0 === h.z0 && here.z1 === h.z1 && gap(h, x, z) > gap(h, pos.x, pos.z) + 1e-6;
+    };
     for (let i = 0; i < steps; i++) {
-      if (!this.hits(pos.x + sx, pos.z, r)) pos.x += sx; else blocked = true;
-      if (!this.hits(pos.x, pos.z + sz, r)) pos.z += sz; else blocked = true;
+      if (free(pos.x + sx, pos.z)) pos.x += sx; else blocked = true;
+      if (free(pos.x, pos.z + sz)) pos.z += sz; else blocked = true;
     }
     return blocked;
   }
