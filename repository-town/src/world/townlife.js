@@ -395,6 +395,17 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     if (p.kind === 'farm') add(p.makes, grid(-5.2, p.makes === 'grain' ? 0.2 : 0.32, 8.4, 2.6, 1.0, 4, 2, 3, p.makes === 'grain' ? 0.32 : 0.14).map((s) => ({ ...s })), out(p.makes), 30);
     if (p.kind === 'farm' && p.makes !== 'grain') for (const x of [-6.2, -5.2, -4.2]) crate(statics, p.x + x, LOT8_Z + 8.4, 0.95, 1.0);
   }
+  // Dedicated rail-depot delivery-vehicle parking: the three buses/trucks
+  // have marked off-road bays (not parked in the 30 km/h traffic lanes).
+  // Paint sits barely above the ground and does not obstruct pedestrians.
+  for (let i=0; i<life.trucks.length; i++) {
+    const bay=life.depotBay(i), x=bay.x,z=bay.z;
+    statics.box(0x59636b,7.4,0.03,3.2,x,0.018,z);
+    for (const side of [-1,1])
+      statics.box(0xf2ecd1,0.10,0.045,3.1,x+side*3.7,0.044,z);
+    statics.box(0xf2ecd1,7.3,0.045,0.10,x,0.044,z-1.58);
+    statics.box(0xe0c35b,1.2,0.046,0.15,x,0.045,z+1.52);
+  }
   group.add(statics.build());
   const shopGlass = Builder.merge(statics.glass);
   const shopGlassMat = new THREE.MeshLambertMaterial({ vertexColors: true, emissive: 0xffc070, emissiveIntensity: 0 });
@@ -502,7 +513,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     }
     if (stars.visible) { stars.position.copy(camera.position); stars.material.opacity = Math.min(1, dark * 1.2); moon.position.set(camera.position.x - Math.cos(a) * 140, camera.position.y + Math.max(30, -Math.sin(a) * 120), camera.position.z - 60); }
     // A blackout puts out the windows and street lamps (src/world/life.js utilities).
-    const powered = life.civic.supply.ok;
+    const powered = life.civic.powerGrid ? life.civic.powerGrid.served > 0 : life.civic.supply.ok; // a local fault must not darken every lamp
     town.setNight(powered ? dark : dark * 0.04, m);
     const anyOpenLate = dark > 0.2;
     shopGlassMat.emissiveIntensity = anyOpenLate && powered ? dark * 0.9 : 0;

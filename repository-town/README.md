@@ -139,10 +139,16 @@ gameplay check.
 
 Twelve discoverable glowing relics are situated outside public houses, each with a puzzle and collectible reward. Open the Quest Journal with J, earn Compass and Lens milestones, visit houses for badges, and claim the final Guild Vault crown. Local-first: progress is in the user's browser storage and no AI calls are made for quests. See `src/adventure/`. Run `node tests/expedition.mjs` to validate. The Guild Chest starts near M4.
 
+## Realism upgrade — causal power network
+
+The first stage of the Replit-guided realism upgrade adds a ten-line electricity distribution graph, with capacity-limited supply for the clinic, water pumps, wastewater plant, businesses and two neighbourhood feeders. Unlike the earlier single-town percentage, a failed feeder identifies the **specific customers affected**. The Town Ledger and Town Hall show delivered/required units, line capacity and a training scenario with a funded council repair. Water pumping, wastewater treatment and food production use their individual electrical connections.
+
+Use `npm run test:town` for both the existing 14-day town regression and the new fault, network conservation and save-migration tests. Technical limits and the rest of the roadmap are documented in [docs/REALISM_INFRASTRUCTURE_2026-10-19.md](docs/REALISM_INFRASTRUCTURE_2026-10-19.md). This is a deterministic fictional capacity model, **not an electrical engineering model or a completed town digital twin**.
+
 ## Living Town prototype (in review)
 
 The civic simulation is grounded in a single, deterministic, offline-first model:
-a **24-real-minute town day**, 20 reserved empty street-8 lots with civic
+a **72-real-minute town day at 1× speed** (24 simulated hours; 3 real seconds per town minute), 20 reserved empty street-8 lots with civic
 buildings, a Town Ledger, community bank, mayoral voting, the post office,
 basic industry, agriculture, retail supply chains, power, treated water,
 sewage, refuse collection and recycling. Visitor Town Credits and town state

@@ -65,7 +65,7 @@ await T(() => window.__town.life.run(60));
 let overlaps = 0, samples = 0;
 for (let i = 0; i < 8; i++) {
   await T(() => window.__town.life.run(5));
-  for (const p of (await st()).people) if (!p.inside) { samples++; if (await T(([x, z]) => window.__town.probe(x, z), [p.x, p.z])) { overlaps++; if (overlaps < 4) console.log('    inside a collider:', p.name, p.activity, p.x.toFixed(1), p.z.toFixed(1)); } }
+  for (const p of (await st()).people) if (!p.inside) { samples++; if (await T(([x, z]) => window.__town.probeStatic(x, z), [p.x, p.z])) { overlaps++; if (overlaps < 4) console.log('    inside a collider:', p.name, p.activity, p.x.toFixed(1), p.z.toFixed(1)); } }
 }
 check(overlaps === 0, `no villager inside a building (${overlaps} of ${samples} samples)`);
 
@@ -141,12 +141,13 @@ for(let i=0;i<45&&!tr;i++){
 if(tr){
   const dx=tr.next.x-tr.x,dz=tr.next.z-tr.z,d=Math.hypot(dx,dz);
   await T(([x,z])=>window.__town.place(x,z,0),[tr.x+dx/d*5.5,tr.z+dz/d*5.5]);
-  await page.waitForTimeout(450);
+  // Trucks close to about 3 m before stopping; wait for that, then it must stay stopped.
+  await page.waitForFunction((id)=>window.__town.life.trucks().find(t=>t.id===id)?.braking,tr.id,{timeout:4000}).catch(()=>{});
   const before=(await T(()=>window.__town.life.trucks())).find(t=>t.id===tr.id);
   await page.waitForTimeout(900);
   const after=(await T(()=>window.__town.life.trucks())).find(t=>t.id===tr.id);
   check(before.braking&&after.braking&&Math.hypot(after.x-before.x,after.z-before.z)<0.2,
-    `truck "${tr.state}" braked for the player ahead`);
+    `truck "${tr.state}" braked for the player ahead (${JSON.stringify({b:before.braking,a:after.braking,moved:Math.hypot(after.x-before.x,after.z-before.z).toFixed(2),path:tr.next,at:[tr.x,tr.z],now:[after.x,after.z],st:after.state})})`);
   await shot('truck');
 }else check(false,'found an active truck with an open road ahead');
 

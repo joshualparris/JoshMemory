@@ -6,6 +6,7 @@ import { loadSave, writeSave, clearSave } from './engine/save.js';
 import { buildTown, streetSigns, lotPosition } from './world/town.js';
 import { buildInterior, labelVisible } from './world/interior.js';
 import { buildCivicInterior } from './world/shop-interior.js';
+import { civicExitPose } from './world/shop-exit.js';
 import { populateShopStaff } from './world/shop-staff.js';
 import { createFloorStack, FLOOR_HEIGHT } from './world/multifloor.js';
 import { animate } from './world/builder.js';
@@ -78,6 +79,14 @@ async function start() {
     { x0: -half.x - 5, x1: -half.x, z0: -half.z, z1: half.z }, { x0: half.x, x1: half.x + 5, z0: -half.z, z1: half.z },
   ];
   const townWorld = new CollisionWorld([...town.colliders, ...townLife.colliders, ...edges]);
+  // Dynamic vehicle footprints block player motion as well as truck movement.
+  // A vehicle is approx 2.2m wide and 6.6m long; use a conservative
+  // rotated-axis AABB for the town's existing 2D collision engine.
+  townWorld.dynamic = () => life.trucks.map(tr => {
+    const sn = Math.abs(Math.sin(tr.heading)), cs = Math.abs(Math.cos(tr.heading));
+    const hx = 1.18*cs + 3.4*sn, hz = 1.18*sn + 3.4*cs;
+    return {x0:tr.x-hx,x1:tr.x+hx,z0:tr.z-hz,z1:tr.z+hz};
+  });
 
   const input = new Input(renderer.domElement, $('touch'));
   const captureButton = $('btn-capture');
@@ -247,8 +256,13 @@ async function start() {
     player.baseHeight = 0; updateFloorBadge();
     $('btn-exit').hidden = true;
     town.group.visible = true; scene.background.set(SKY); scene.fog = fog;
-    if (placeOutside) { if(shop) { const south=shop.side==='south'; player.place(shop.x,shop.door.z+(south?-2.25:2.25),south?0:Math.PI); }
-      else { const l=town.lots.get(coord);player.place(l.doorPos.x,l.doorPos.z+4,Math.PI); } }
+    if (placeOutside) {
+      if (shop) {
+        const pose = civicExitPose(shop, [...townWorld.all, ...townWorld.dynamic()], player.radius+0.08);
+        if (pose) player.place(pose.x,pose.z,pose.yaw);
+        else spawn(); // use safe Town Guide location instead of clipping into a wall
+      } else { const l=town.lots.get(coord);player.place(l.doorPos.x,l.doorPos.z+4,Math.PI); }
+    }
     // Close the door behind the player so the doorway does not re-trigger.
     const d = town.doors.find((d) => d.userData.coordinate === coord); if (d) d.userData.open = 0;
     ambience.door();
@@ -705,6 +719,8 @@ async function start() {
     toExit() { if (!inside) return false; player.place(inside.spawn.x, inside.spawn.z, Math.PI); return true; },
     place(x, z, yaw) { player.place(x, z, yaw); },
     probe(x, z) { return world.hits(x, z, player.radius); },
+    // Buildings and props only: moving trucks' footprints are left out.
+    probeStatic(x, z) { const d = world.dynamic; world.dynamic = null; try { return world.hits(x, z, player.radius); } finally { world.dynamic = d; } },
     // Stands next to a villager who is out and about, facing them.
     meetVillager(i = 0) {
       // Prefers someone walking somewhere, so tests see them stop for the player.

@@ -33,7 +33,10 @@ export class CollisionWorld {
   }
 
   hits(x, z, r) {
-    for (const c of this.near(x, z, r)) {
+    // Dynamic AABBs (e.g. moving trucks) are queried live, not permanently
+    // inserted into the static spatial index where they would leave ghosts.
+    const moving = typeof this.dynamic === 'function' ? this.dynamic() : [];
+    for (const c of [...this.near(x,z,r), ...moving]) {
       const cx = Math.max(c.x0, Math.min(x, c.x1)), cz = Math.max(c.z0, Math.min(z, c.z1));
       if ((x - cx) ** 2 + (z - cz) ** 2 < r * r) return c;
     }

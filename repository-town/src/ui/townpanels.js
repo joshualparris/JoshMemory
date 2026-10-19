@@ -40,13 +40,28 @@ const ABOUT = {
 };
 const pct = (n) => `<span class="bar"><span style="width:${Math.round(n)}%"></span></span> ${Math.round(n)}%`;
 const money = (n) => `$${Math.round(n).toLocaleString('en-AU')}`;
+// These readings come directly from the deterministic power network.
+function powerNetworkHTML(c) {
+  const g=c.powerGrid;
+  if (!g) return '<p class="dim">Readings appear at the next town hour.</p>';
+  const customers=Object.values(g.customers).map(v=>'<tr><td>'+esc(v.name)+'</td><td>'+v.served+'/'+v.demand+'</td><td>'+esc(v.status)+'</td></tr>').join('');
+  const edges=g.edges.map(e=>'<tr><td>'+esc(e.id)+'</td><td>'+e.flow+'</td><td>'+e.availableCapacity+'</td></tr>').join('');
+  const faults=g.edges.filter(e=>e.failed).map(e=>esc(e.id)).join(', ')||'None';
+  return '<h3>Power distribution (illustrative capacity model)</h3><p>Generation '+g.generation+
+    ' · Delivered '+g.served+'/'+g.demand+' · Unserved '+g.unserved+
+    ' · Unused '+g.curtailed+'</p><table class="ledger"><tr><th>Customer</th><th>Supply</th><th>Status</th></tr>'+
+    customers+'</table><p><b>Failed feeders:</b> '+faults+
+    '</p><details><summary>Feeder flows and limits</summary><table class="ledger"><tr><th>Line</th><th>Flow</th><th>Limit</th></tr>'+
+    edges+'</table></details><p class="dim">Fictional hourly power units, not kWh or an AC network safety model.</p>';
+}
+
 function bagLine(life) { const me = life.civic.player; return `<p class="dim">🎒 Your bag: ${esc(Object.entries(me.bag).filter(([, n]) => n > 0).map(([g, n]) => amount(g, n)).join(', ') || 'empty')} · wallet ${money(me.wallet)} · savings ${money(me.bank)}</p>`; }
 
 // Utilities, the bank, the fire station and the foundry (south side of street 8).
 function civicPanel(life, id, again) {
   const p = life.place(id), c = life.civic, u = life.ledger().utilities, rows = [`<p>${esc(ABOUT[id] || '')}</p>`];
   const staff = life.villagers.filter((v) => v.work === id);
-  if (id === 'power') rows.push(`<p><b>Supply:</b> ${c.supply.power} of ${c.supply.powerDemand} needed · ${c.supply.ok ? '<span class="ok">lights on</span>' : '<b>BLACKOUT</b>'} · weather ${esc(c.weather)}</p><p><b>Fuel:</b> ${u.fuel} drums</p>`);
+  if (id === 'power') rows.push(`<p><b>Supply:</b> ${c.supply.power} of ${c.supply.powerDemand} needed · ${c.supply.ok ? '<span class="ok">all customers supplied</span>' : '<b>some locations have no power</b>'} · weather ${esc(c.weather)}</p><p><b>Fuel:</b> ${u.fuel} drums</p>${powerNetworkHTML(c)}`);
   if (id === 'waterworks') rows.push(`<p><b>Reservoir:</b> ${u.reservoir} kL · supplying ${c.supply.water} of ${c.supply.waterDemand} an hour · ${c.supply.waterOk ? '<span class="ok">normal</span>' : '<b>restrictions</b>'}</p>`);
   if (id === 'sewage') rows.push(`<p><b>Waiting for treatment:</b> ${u.wastewater} kL · pollution ${Math.round(c.indicators.pollution)}%</p>`);
   if (id === 'recycling') rows.push(`<p><b>Sorting:</b> ${u.recycling} bags · recycled today ${life.stats.recycled}</p><p class="dim">Kerbside recycling waiting: ${Math.floor(c.homes.recyclables)} bags.</p>`);
@@ -72,9 +87,12 @@ export function hallPanel(life) {
     body: `<p>Mayor <b>${esc(c.mayor)}</b> · next election day ${c.electionDay} · treasury ${money(c.treasury)} · tax ${Math.round(c.taxRate * 100)}% on sales, $15 a day in rates.</p>
       <p><b>Health</b> ${pct(c.indicators.health)} <b>Happiness</b> ${pct(c.indicators.happiness)} <b>Environment</b> ${pct(c.indicators.environment)}</p>
       <h3>Networks</h3>${Object.entries(c.services).map(([k, v]) => `<p>${esc(k)} ${pct(v)}</p>`).join('')}
-      <p class="dim">A repair costs $90 and two boxes of spare parts (in stock: ${life.place('hall').stock.parts || 0}). Most worn: ${esc(worst[0])}.</p>` + bagLine(life),
+      <p class="dim">A repair costs $90 and two boxes of spare parts (in stock: ${life.place('hall').stock.parts || 0}). Most worn: ${esc(worst[0])}.</p>${powerNetworkHTML(c)}` + bagLine(life),
     actions: [
       act(`Repair the ${worst[0]} network`, () => life.repair(worst[0])),
+      ...(c.powerLines['west-feeder']
+        ? [act('Repair west feeder ($90 + two parts)', () => life.repairPowerLine('west-feeder'))]
+        : [act('Simulate west feeder fault (training)', () => life.faultPowerLine('west-feeder'))]),
       ...CANDIDATES.map((n) => act(`Vote ${n}`, () => life.vote(n))),
       { label: 'Open the Town Ledger', run: () => ledgerPanel(life) },
     ],
@@ -133,7 +151,7 @@ export function ledgerPanel(life) {
       <h3>Shops</h3><table class="ledger"><tr><th>Shop</th><th>Stock</th><th>Till</th></tr>${L.shops.map((p) => `<tr><td>${esc(p.name)} ${p.open ? '' : '<span class="dim">(closed)</span>'}</td><td>${esc(list(p.stock))}</td><td>$${p.till}</td></tr>`).join('')}</table>
       <h3>Farms</h3><table class="ledger"><tr><th>Farm</th><th>Crop</th><th>Waiting for pickup</th></tr>${L.farms.map((f) => `<tr><td>${esc(f.name)}</td><td>${Math.round(f.growth * 100)}% grown</td><td>${f.waiting} ${esc(f.makes)}</td></tr>`).join('')}</table>
       <h3>Council and utilities</h3><p>Mayor ${esc(L.civic.mayor)} · treasury ${money(L.civic.treasury)} · weather ${esc(L.civic.weather)} · power ${L.civic.supply.power}/${L.civic.supply.powerDemand} ${L.civic.supply.ok ? '' : '<b>(blackout)</b>'} · water ${L.civic.supply.water}/${L.civic.supply.waterDemand} · fuel ${L.utilities.fuel} drums · reservoir ${L.utilities.reservoir} kL<br>Taxes today ${money(s.taxes)} · wages ${money(s.wages)} · recycled ${s.recycled} · to landfill ${s.landfill}</p>
-      <h3>Trucks</h3><p>${L.trucks.map((t) => esc(`${t.driver || 'Spare'}: ${t.state}`)).join('<br>')}</p>
+      ${powerNetworkHTML(L.civic)}<h3>Trucks</h3><p>${L.trucks.map((t) => esc(`${t.driver || 'Spare'}: ${t.state}`)).join('<br>')}</p>
       <h3>News</h3><ul class="news">${L.news.map((e) => `<li><span class="dim">${esc(e.t)}</span> ${esc(e.text)}</li>`).join('')}</ul>`,
   };
 }
