@@ -34,21 +34,12 @@ export function mountNPCChat(root=document) {
   const status=root.getElementById('npc-status');
   const form=root.getElementById('npc-form');
   const send=root.getElementById('npc-send');
-  // GitHub Pages is static: its /api/npc-chat path cannot execute the Groq proxy.
-  // Keep all AI requests on the separately hosted, access-controlled playtest.
-  const staticHost=/(^|\.)github\.io$/i.test(window.location.hostname);
-  if(staticHost){
-    const notice=root.createElement('p');notice.className='npc-host-notice';
-    notice.append('Live AI is not available on GitHub Pages. ');
-    const link=root.createElement('a');
-    link.href='https://repository-town-claude-playtest.vercel.app/people.html';
-    link.target='_blank';link.rel='noopener noreferrer';
-    link.textContent='Open the secure AI playtest ↗';
-    notice.append(link);
-    (pin.closest('.npc-access')||form).before(notice);
-    // A code entered here would be sent to a static 404 page, not the AI service.
-    if(pin.closest('.npc-access'))pin.closest('.npc-access').hidden=true;
-  }
+  // GitHub Pages serves static assets only; the protected chat API runs on
+  // Vercel. Never send the Groq key to the browser, and never put the PIN in a URL.
+  const pagesHost=/(^|\.)github\.io$/i.test(window.location.hostname);
+  const chatEndpoint=pagesHost
+    ? 'https://repository-town-claude-playtest.vercel.app/api/npc-chat'
+    : '/api/npc-chat';
   // Small local-only quest progress; neither badges nor scripted choices use Groq.
   const BADGE_KEY='repository-town:npc-badges:v1';
   let badges=[];
@@ -157,7 +148,7 @@ export function mountNPCChat(root=document) {
     feed.replaceChildren();
     for(const msg of chats.get(k))line(msg.role==='user'?'user':'npc',msg.content);
     try { pin.value=sessionStorage.getItem('town-npc-code')||pin.value||''; } catch {}
-    status.textContent=staticHost?'Offline on GitHub Pages · open the secure AI playtest above':'Fictional AI character · never share private information';
+    status.textContent=pagesHost?'Enter your access code for live AI (served securely via Vercel)':'Fictional AI character · never share private information';
     el.hidden=false;input.disabled=false;send.disabled=false;
     el.classList.remove('npc-typing');
     syncNpcViewport();
@@ -185,16 +176,16 @@ export function mountNPCChat(root=document) {
     status.textContent='Thinking…';
     const accessCode=pin.value.trim();
     let reply='',online=false,stale=false;
-    if(staticHost || !accessCode) {
+    if(!accessCode) {
       reply=houseAwareReply(npc,house,question)||FALLBACK[count++%FALLBACK.length];
-      status.textContent=staticHost?'Offline on GitHub Pages · use the secure AI playtest link above':'Offline dialogue · enter your private access code to enable live AI';
+      status.textContent='Offline dialogue · enter your private access code to enable live AI';
     } else {
       controller=new AbortController();
       const timeout=setTimeout(()=>controller?.abort(),22000);
       try {
-        const res=await fetch('/api/npc-chat',{
+        const res=await fetch(chatEndpoint,{
           method:'POST',
-          credentials:'same-origin',
+          credentials:'omit',
           headers:{'Content-Type':'application/json','x-npc-code':accessCode},
           body:JSON.stringify({npcId:npc.id,house:house?{name:house.name,kind:house.kind,coordinate:house.coordinate}:null,
             messages:history.slice(-8).map(({role,content})=>({role,content}))}),
