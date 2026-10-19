@@ -348,14 +348,18 @@ async function start() {
   const saved = loadSave();
   if (saved?.pos) {
     for (const c of saved.visited || []) visited.add(c);
-    if (saved.inside && byCoord.has(saved.inside)) { enter(saved.inside); player.place(saved.pos.x, saved.pos.z, saved.yaw); }
+    if (saved.insideCivic) {
+      const site=civicDistrict.buildings.find(s=>s.id===saved.insideCivic);
+      if(site){enterCivic(site);player.place(saved.pos.x,saved.pos.z,saved.yaw);}
+      else spawn();
+    } else if (saved.inside && byCoord.has(saved.inside)) { enter(saved.inside); player.place(saved.pos.x, saved.pos.z, saved.yaw); }
     else player.place(saved.pos.x, saved.pos.z, saved.yaw);
     if (world.hits(player.pos.x, player.pos.z, player.radius)) { if (mode === 'house') leave(false); spawn(); }
     status('Welcome back — your position was restored.');
   } else { spawn(); status('Welcome! Walk up to any front door to go inside.'); }
   let saveTimer = 0;
   const save = () => {
-    writeSave({ pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, inside: inside?.house.coordinate || null, visited: [...visited] });
+    writeSave({ pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, inside: inside&&!inside.civic?inside.house.coordinate:null, insideCivic:inside?.civic?.id||null, visited: [...visited] });
     try { localStorage.setItem('repository-town-living-v1', simulation.serialize()); } catch { /* Private mode and storage quota must not crash play. */ }
   };
   addEventListener('visibilitychange', () => { if (document.hidden) save(); });
@@ -427,6 +431,21 @@ async function start() {
         const d = Math.hypot(place.position.x-player.pos.x, place.position.z+7-player.pos.z);
         if (d < civicBest) { civicBest = d; nearCivic = place; }
       }
+      // Shopfront doors swing open on approach and change to an explorable
+      // interior when the visitor walks over the clear threshold.
+      for(const d of civicDistrict.doors){
+        const dist=Math.hypot(d.userData.centre.x-player.pos.x,d.userData.centre.z-player.pos.z);
+        const target=dist<3.5?1:0;
+        d.userData.open+=(target-d.userData.open)*Math.min(1,dt*5);
+        d.rotation.y=d.userData.open*1.55;
+      }
+      for(const z of civicDistrict.doorZones){
+        if(player.pos.x>z.x0&&player.pos.x<z.x1&&player.pos.z>z.z0&&player.pos.z<z.z1){
+          const door=civicDistrict.doors.find(d=>d.userData.id===z.id);
+          const site=civicDistrict.buildings.find(s=>s.id===z.id);
+          if(door&&site&&door.userData.open>0.52){enterCivic(site);break;}
+        }
+      }
       nearHouse = null; let best = 6;
       for (const l of town.lots.values()) { const d = Math.hypot(l.doorPos.x - player.pos.x, l.doorPos.z - player.pos.z); if (d < best) { best = d; nearHouse = l; } }
       for (const d of town.doors) {
@@ -451,7 +470,7 @@ async function start() {
       const nearRelic=expedition.nearby(player.pos);
       $('prompt').hidden = (!nearNPC && !nearCivic && !nearHouse && !nearRelic) || !!panelOpen || livingLedger.isOpen() || expedition.isOpen() || npcChat.isOpen() || !$('npc-roster').hidden;
       if(nearRelic && (!nearNPC || Math.hypot(player.pos.x-nearRelic.pos.x,player.pos.z-nearRelic.pos.z) <= Math.hypot(player.pos.x-nearNPC.pos.x,player.pos.z-nearNPC.pos.z))) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — ✨ ${nearRelic.id==='guild'?'Guild Chest':nearRelic.name}`;
-      else if (nearCivic && (!nearNPC || civicBest <= Math.hypot(player.pos.x-nearNPC.pos.x, player.pos.z-nearNPC.pos.z))) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — Visit ${nearCivic.name}`;
+      else if (nearCivic && (!nearNPC || civicBest <= Math.hypot(player.pos.x-nearNPC.pos.x, player.pos.z-nearNPC.pos.z))) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — Enter ${nearCivic.name} (or walk through its door)`;
       else if (nearNPC) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — 💬 Talk to ${nearNPC.npc.name}`;
       else if (nearHouse) $('prompt').textContent = `${nearHouse.house.coordinate} · ${nearHouse.house.name} — walk through the door to enter`;
       if (input.consume('use')) use();
@@ -499,7 +518,9 @@ async function start() {
     houses: houses.map((h) => ({ coordinate: h.coordinate, name: h.name })),
     npcs: streetNPCs.map(x => ({id:x.npc.id,name:x.npc.name,coordinate:x.npc.coordinate})),
     npcChat: () => ({open:npcChat.isOpen(),id:npcChat.active()}),
-    civicSites: civicDistrict.buildings.map(b => ({ id:b.id,name:b.name,coordinate:b.coordinate })),
+    civicSites: civicDistrict.buildings.map(b => ({ id:b.id,name:b.name,coordinate:b.coordinate,door:{x:b.doorPos.x,z:b.doorPos.z} })),
+    enterCivicSite: id=>{const site=civicDistrict.buildings.find(s=>s.id===id);return !!site&&enterCivic(site);},
+    exitCivicSite:()=>{if(!inside?.civic)return false;leave();return true;},
     visitCivicSite: (id) => { if (!civicDistrict.buildings.some(b => b.id===id)) return false; livingLedger.openFor(id); return true; },
     livingTown: () => simulation.snapshot(),
     openLedger: () => { document.getElementById('btn-living-town').click(); return livingLedger.isOpen(); },
