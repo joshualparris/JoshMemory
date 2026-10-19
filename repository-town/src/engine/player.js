@@ -25,7 +25,7 @@ export class Player {
     this.pitch = THREE.MathUtils.clamp(this.pitch - look.dy * sensitivity, -1.35, 1.35);
     const m = input.movement();
     const crouching = m.crouching && this.y === 0;
-    const speed = crouching ? SPEED.crouch : m.running ? SPEED.run : SPEED.walk;
+    const speed = (crouching ? SPEED.crouch : m.running ? SPEED.run : SPEED.walk) * (this.speedFactor ?? 1);
     // Desired velocity in world space from camera-relative input.
     const sin = Math.sin(this.yaw), cos = Math.cos(this.yaw);
     const tx = (m.x * cos + m.z * sin) * speed, tz = (-m.x * sin + m.z * cos) * speed;

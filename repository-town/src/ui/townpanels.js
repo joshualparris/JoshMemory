@@ -172,6 +172,22 @@ export function placePanel(life, id) {
   return { title: `${p.name} · ${p.kind === 'farm' ? 'farm' : p.kind}`, body: rows.join('') + (sells.length || id === 'post' ? bagLine(life) : ''), actions, wide: true };
 }
 
+// A real survival loop: food comes out of the visitor's purchased inventory.
+export function needsPanel(life) {
+  const n=life.needsReport(),me=life.civic.player;
+  const edibles=Object.entries(me.bag).filter(([g,q])=>q>0&&['bread','pie','fruit','veg','eggs','milk','lamb'].includes(g));
+  const act=(label,g)=>({label,run:()=>{const msg=life.eatItem(g),p=needsPanel(life);return {...p,body:'<p><b>'+esc(msg)+'</b></p>'+p.body};}});
+  return {title:'Your food and sleep',wide:false,
+    body:'<p>🍽 <b>Hunger:</b> '+Math.round(n.hunger)+'% (100% means very hungry).</p>'+
+      '<p>💤 <b>Fatigue:</b> '+Math.round(n.fatigue)+'% (100% means exhausted).</p>'+
+      '<p><b>Latest food:</b> '+esc(n.lastAte||'Nothing since arrival')+'</p>'+
+      '<p><b>In your bag:</b> '+(edibles.map(([g,q])=>esc(g)+' ×'+q).join(', ')||'No edible supplies')+'</p>'+
+      '<p>Food must be bought at a real shop before you can eat it. To sleep, visit the Railway Hotel opposite High Street at I8, book a room for $24, and use the bed in your allocated room.</p>'+
+      '<p class="dim">Sleep and food change your mobility; the game does not kill you for missing a meal.</p>'+
+      '<p>In the town: '+n.hungry+' hungry villagers, '+n.exhausted+' exhausted, '+n.sleeping+' currently asleep.</p>',
+    actions:edibles.map(([g])=>act('Eat '+g,g))};
+}
+
 export function ledgerPanel(life) {
   const L = life.ledger(), s = L.stats;
   const n = (o) => Object.entries(o).map(([g, k]) => esc(amount(g, k))).join(', ') || 'none yet';

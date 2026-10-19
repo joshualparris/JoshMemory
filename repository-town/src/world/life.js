@@ -434,7 +434,7 @@ export class TownLife {
   }
   eatItem(good) { return eatPlayer(this,good); }
   bookHotel() { return hotelCheckIn(this); }
-  sleepHotel() { return sleepPlayer(this,'hotel'); }
+  sleepHotel(room=null) { return sleepPlayer(this,'hotel',room); }
   needsReport() { return needsReport(this); }
   bank(op, n) {
     const me = this.civic.player, from = op === 'deposit' ? 'wallet' : 'bank', to = op === 'deposit' ? 'bank' : 'wallet';
