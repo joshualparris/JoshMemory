@@ -1,4 +1,5 @@
 import { distributePower, townPowerDemands, POWER_LINE_IDS, GRID_FAULT_COST } from './power-grid.js';
+import { initialisePublicLife, attendPublicForum, updatePublicForum, civicDialogue } from './public-forum.js';
 import { MAYOR_CANDIDATES, createGovernment, civicElection, castCivicVote, submitRequest, requestFeeder, proposeMotion, councilMeeting, advanceCivicWork, budgetRevenue, restoreCivic, govSummary } from './government.js';
 // Town life simulation: the clock, farms, the mill and bakery, shops, trucks, the post,
 // and villagers with jobs, hunger, pantries, wallets and daily routines. Pure logic (no
@@ -242,6 +243,7 @@ export class TownLife {
     this.obstacles = []; // set by the renderer each frame: [{x, z}] (the player)
     for (const t of this.trucks) t.driver = this.villagers.find((v) => v.job === 'truck driver' && !this.trucks.some((o) => o.driver === v)) || null;
     createGovernment(this);
+    initialisePublicLife(this);
     this.log(`Day ${this.day} begins. The town wakes up.`);
   }
 
@@ -262,6 +264,7 @@ export class TownLife {
     const hourly = Math.floor(before / 60) !== Math.floor(this.minute / 60) || this.minute < before;
     if (hourly) this.everyHour();
     for (const v of this.villagers) this.liveVillager(v, minutes);
+    updatePublicForum(this);
     advanceCivicWork(this, minutes);
     if (hourly && Math.floor(this.minute / 60) === 10 && this.day >= this.civic.government.meetingDay) councilMeeting(this);
     for (const t of this.trucks) this.driveTruck(t, minutes);
@@ -396,6 +399,7 @@ export class TownLife {
   holdCouncilMeeting() { return councilMeeting(this); }
   proposeCouncilMotion(type,value) { return proposeMotion(this,type,value); }
   governmentReport() { return govSummary(this); }
+  civicChat(v) { return civicDialogue(this,v); }
   // ── The visitor (the player): wallet, bank, bag and civic actions. Each returns a message. ──
   shelves(p) { return p.id === 'bakery' ? p.out : p.stock; }
   buyItem(shopId, good) {
@@ -789,6 +793,9 @@ export class TownLife {
       const near = ['bakery', 'store'].find((id) => this.open(this.place(id)) && (id === 'bakery' ? this.place(id).out.pie : this.place(id).stock.bread));
       if (near && v.wallet >= 5) return this.goThen(v, this.place(near).front, { kind: 'snack', at: near, good: near === 'bakery' ? 'pie' : 'bread', dur: 8, activity: `picking up ${near === 'bakery' ? 'a pie' : 'some bread'} for tea` });
     }
+    // After ordinary work, meals and shopping: an optional public election forum.
+    // Quiet residents aren't coerced into a conversation or pulled from work.
+    if (attendPublicForum(this,v)) return v.step;
     // Leisure.
     const r = this.rand();
     if (m >= 19 * 60 && r < 0.35 && this.open(this.place('pub'))) return this.goThen(v, this.place('pub').front, { kind: 'idle', at: 'pub', dur: 60 + this.rand() * 60, activity: 'having a yarn at the pub' });
@@ -991,6 +998,7 @@ export class TownLife {
     this.powerGridEventSeq=Number.isSafeInteger(s.powerGridEventSeq)?s.powerGridEventSeq:this.powerGridEvents.length;
     if (s.civic && typeof s.civic === 'object') Object.assign(this.civic, s.civic, { player: { ...this.civic.player, ...(s.civic.player || {}) } });
     restoreCivic(this,s.civic?.government);
+    initialisePublicLife(this);
     this.civic.powerLines = this.civic.powerLines && typeof this.civic.powerLines === 'object' ? this.civic.powerLines : {};
     if(this.civic.supply.powerDemand>0)this.updatePowerGrid();
     for (const [id, stock, out, till, growth] of s.places || []) { const p = this.place(id); if (p) Object.assign(p, { stock, out, till, growth: growth ?? p.growth }); }

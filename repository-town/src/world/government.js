@@ -1,3 +1,4 @@
+import { initialisePublicLife, publicForumReport } from './public-forum.js';
 // Civic governance for Repository Town. No fictional council members: every
 // elected representative and work crew maps to an actual TownLife villager.
 export const MAYOR_CANDIDATES=['Vern','Arlo','Sadie'];
@@ -63,6 +64,7 @@ export function createGovernment(t) {
   };
   t.civic.government=g;
   syncOffices(t);g.councillors=selectCouncil(t,t.day);
+  initialisePublicLife(t);
   return g;
 }
 export function syncOffices(t) {
@@ -268,7 +270,7 @@ export function govSummary(t){
     elections:g.elections.slice(0,3),motions:g.motions.slice(0,10),
     orders:g.orders.slice(0,12),minutes:g.minutes.slice(0,4),
     permits:g.permits.slice(0,5),audit:g.audit.slice(0,14),
-    meetingDay:g.meetingDay};
+    meetingDay:g.meetingDay,forums:publicForumReport(t)};
 }
 export function restoreCivic(t,saved){
   if(!saved || typeof saved!=='object')return createGovernment(t);
@@ -283,5 +285,6 @@ export function restoreCivic(t,saved){
   if(!g.playerBallot||g.playerBallot.electionDay!==t.civic.electionDay)g.playerBallot=null;
   t.civic.voted=!!g.playerBallot;
   syncOffices(t);
+  initialisePublicLife(t);
   return g;
 }
