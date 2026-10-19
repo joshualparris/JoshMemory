@@ -109,3 +109,8 @@ body.npc-lounge #npc-roster-items{max-height:min(580px,calc(100dvh - 295px));ove
   }
   body.npc-lounge #npc-chat.npc-typing #npc-close{display:block}
 }
+
+/* Static GitHub Pages builds cannot host the private Groq API. */
+.npc-host-notice{margin:0;padding:9px 12px;border-top:1px solid #38516b;background:#172d42;color:#e4eff8;font-size:13px;line-height:1.4;flex:0 0 auto}
+.npc-host-notice a{color:#b5edff;text-decoration:underline;font-weight:650}
+#npc-chat.npc-typing .npc-host-notice{display:none}
