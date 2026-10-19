@@ -7,6 +7,7 @@
 //           module scripts are bundled inline, local data files are served from an
 //           in-page fetch shim, and cross-app network widgets are removed.
 //   vite    a Vite project. Built in a scratch copy with base "./", then packed as static.
+//   godot   a Godot 4 project. Exported headless to WebAssembly/PCK with Godot, then packed as static.
 //   python  a terminal text adventure. Runs in Brython with a replayed input() terminal.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -36,8 +37,8 @@ function findClone(repo) {
         if (entry.toLowerCase() !== cand.toLowerCase()) continue;
         const dir = path.join(base, entry);
         try {
-          const url = execFileSync('git', ['-C', dir, 'remote', 'get-url', 'origin']).toString().trim().toLowerCase().replace(/\.git$/, '');
-          if (url.endsWith(`github.com/${repo}`.toLowerCase())) return dir;
+          const urls = execFileSync('git', ['-C', dir, 'remote', '-v']).toString().toLowerCase();
+          if (urls.includes(`github.com/${repo}`.toLowerCase()) || urls.includes(`github.com:${repo}`.toLowerCase())) return dir;
         } catch { /* not a clone */ }
       }
     }
@@ -96,10 +97,96 @@ function locate(dir, url) {
 
 const escScript = (s) => s.replace(/<\/script/gi, '<\\/script');
 
-async function bundle(entry, dir) {
+async function bundle(entry, dir, opts = {}) {
+  const plugins = opts.browserServer ? [{
+    name: 'browser-server',
+    setup(b) {
+      b.onResolve({ filter: /^(dotenv\/config|@google\/genai|os|path)$/ }, (a) => ({ path: a.path, namespace: 'stub' }));
+      b.onLoad({ filter: /.*/, namespace: 'stub' }, () => ({ contents: 'export default { tmpdir: () => "/tmp", join: (...p) => p.join("/") }; export const tmpdir = () => "/tmp"; export const join = (...p) => p.join("/");' }));
+      b.onResolve({ filter: /^better-sqlite3$/ }, () => ({ path: 'mem-sqlite', namespace: 'mem-sqlite' }));
+      b.onLoad({ filter: /.*/, namespace: 'mem-sqlite' }, () => ({
+        contents: `
+          const KEY = 'kkc-adventure-browser-db-v1';
+          function loadStore() {
+            try {
+              const raw = localStorage.getItem(KEY);
+              if (raw) return JSON.parse(raw);
+            } catch {}
+            return { locations: {}, npcs: {}, player_state: null, world_state: {}, save_slots: {} };
+          }
+          const store = loadStore();
+          function persist() {
+            try { localStorage.setItem(KEY, JSON.stringify(store)); } catch {}
+          }
+          export default class Database {
+            exec() {}
+            transaction(fn) { return (...args) => { const r = fn(...args); persist(); return r; }; }
+            prepare(sql) {
+              const s = sql.replace(/\\s+/g, ' ').trim();
+              if (/PRAGMA table_info\\(player_state\\)/i.test(s)) {
+                return { all: () => ['tuition_state', 'sympathy_state', 'warmth', 'fishery_state', 'eolian_state'].map((name) => ({ name })) };
+              }
+              if (/INSERT OR IGNORE INTO locations/i.test(s)) {
+                return { run: (p) => { if (!store.locations[p.id]) store.locations[p.id] = { ...p }; } };
+              }
+              if (/UPDATE locations/i.test(s)) {
+                return { run: (p) => { store.locations[p.id] = { ...p }; } };
+              }
+              if (/INSERT OR IGNORE INTO npcs/i.test(s)) {
+                return { run: (p) => { if (!store.npcs[p.id]) store.npcs[p.id] = { ...p }; } };
+              }
+              if (/UPDATE npcs/i.test(s)) {
+                return { run: (p) => { store.npcs[p.id] = { ...p }; } };
+              }
+              if (/(?:INTO|UPDATE) world_state/i.test(s)) {
+                return { run: (p) => { store.world_state = { ...p }; } };
+              }
+              if (/FROM locations WHERE id = \\?/i.test(s)) {
+                return { get: (id) => store.locations[id] };
+              }
+              if (/FROM locations ORDER BY id/i.test(s)) {
+                return { all: () => Object.values(store.locations).sort((a, b) => a.id.localeCompare(b.id)) };
+              }
+              if (/FROM npcs WHERE location_id = \\?/i.test(s)) {
+                return { all: (locId) => Object.values(store.npcs).filter((n) => n.location_id === locId).sort((a, b) => a.name.localeCompare(b.name)) };
+              }
+              if (/FROM player_state WHERE id = 1/i.test(s)) {
+                return { get: () => store.player_state || undefined };
+              }
+              if (/INSERT INTO player_state/i.test(s)) {
+                return { run: (p) => { store.player_state = { ...p }; persist(); } };
+              }
+              if (/INSERT INTO save_slots/i.test(s)) {
+                return { run: (p) => { store.save_slots[p.slot_name] = { slot_name: p.slot_name, saved_at: p.saved_at, state: p.state }; persist(); } };
+              }
+              if (/SELECT state FROM save_slots WHERE slot_name = \\?/i.test(s)) {
+                return { get: (name) => store.save_slots[name] };
+              }
+              if (/SELECT slot_name, saved_at FROM save_slots/i.test(s)) {
+                return { all: () => Object.values(store.save_slots).map(({ slot_name, saved_at }) => ({ slot_name, saved_at })).sort((a, b) => b.saved_at.localeCompare(a.saved_at)) };
+              }
+              if (/DELETE FROM save_slots WHERE slot_name = \\?/i.test(s)) {
+                return { run: (name) => { const had = Boolean(store.save_slots[name]); delete store.save_slots[name]; persist(); return { changes: had ? 1 : 0 }; } };
+              }
+              return { run: () => ({ changes: 0 }), get: () => undefined, all: () => [] };
+            }
+          }
+        `,
+        loader: 'js',
+      }));
+    },
+  }] : [];
+  const nodePaths = [path.join(TOWN, 'node_modules')];
+  for (const base of SOURCES) {
+    for (const c of ['Aetheria/node_modules', 'JoshHub/node_modules']) {
+      const p = path.join(base, c);
+      if (fs.existsSync(p)) nodePaths.push(p);
+    }
+  }
   const r = await esbuild.build({
-    entryPoints: [entry], bundle: true, format: 'esm', write: false, outdir: path.join(os.tmpdir(), 'pack-out'), absWorkingDir: dir, logLevel: 'silent',
-    loader: { '.png': 'dataurl', '.jpg': 'dataurl', '.jpeg': 'dataurl', '.gif': 'dataurl', '.webp': 'dataurl', '.svg': 'dataurl', '.mp3': 'file', '.ogg': 'file', '.wav': 'file', '.woff': 'dataurl', '.woff2': 'dataurl', '.ttf': 'dataurl', '.txt': 'text', '.md': 'text' },
+    entryPoints: [entry], bundle: true, format: opts.format || 'esm', write: false, outdir: path.join(os.tmpdir(), 'pack-out'), absWorkingDir: dir, logLevel: 'silent', plugins, nodePaths,
+    define: { 'process.env.NARRATION_MODE': '"local"', 'process.env.GEMINI_API_KEY': '""', 'process.env.DB_PATH': '""', 'require.main': 'null', 'module': '{}' },
+    loader: { '.js': 'jsx', '.png': 'dataurl', '.jpg': 'dataurl', '.jpeg': 'dataurl', '.gif': 'dataurl', '.webp': 'dataurl', '.svg': 'dataurl', '.mp3': 'file', '.ogg': 'file', '.wav': 'file', '.woff': 'dataurl', '.woff2': 'dataurl', '.ttf': 'dataurl', '.txt': 'text', '.md': 'text' },
     external: ['http:*', 'https:*'], assetNames: 'packed-assets/[name]-[hash]',
   });
   const js = r.outputFiles.filter((f) => f.path.endsWith('.js')).map((f) => f.text).join('\n');
@@ -148,11 +235,39 @@ async function makePlayable(dir, entry = 'index.html', opts = {}) {
       entryFile = path.join(htmlDir, `__inline_module_${n++}.mjs`);
       fs.writeFileSync(entryFile, m[2]);
     }
-    const { js, css } = await bundle(entryFile, htmlDir);
+    const { js, css } = await bundle(entryFile, htmlDir, opts);
     html = html.replace(m[0], () => `${css ? `<style>${css}</style>` : ''}<script type="module">${escScript(js)}</script>`);
   }
   for (const f of fs.readdirSync(htmlDir).filter((f) => f.startsWith('__inline_module_'))) fs.rmSync(path.join(htmlDir, f));
-  const shim = runtimeFor(htmlDir, opts);
+  let apiShim = '';
+  if (opts.browserServer) {
+    const srvEntry = path.join(htmlDir, '__browser_server__.ts');
+    fs.writeFileSync(srvEntry, `
+      import { handleInit, handleCommand } from ${JSON.stringify('./' + opts.browserServer)};
+      const origFetch = window.fetch.bind(window);
+      const jsonRes = (body, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
+      window.fetch = async (input, init = {}) => {
+        const u = typeof input === 'string' ? input : (input && input.url) || String(input);
+        if (/(?:^|\\/)api\\/init(?:\\?|$)/.test(u)) {
+          try { return jsonRes(await handleInit(), 200); } catch (e) { return jsonRes({ error: String(e) }, 500); }
+        }
+        if (/(?:^|\\/)api\\/command(?:\\?|$)/.test(u)) {
+          try {
+            const body = init.body ? JSON.parse(String(init.body)) : {};
+            const cmd = typeof body.command === 'string' ? body.command.trim() : '';
+            if (!cmd) return jsonRes({ error: 'Missing command.' }, 400);
+            return jsonRes(await handleCommand(cmd), 200);
+          } catch (e) { return jsonRes({ error: String(e) }, 500); }
+        }
+        return origFetch(input, init);
+      };
+    `);
+    const { js } = await bundle(srvEntry, htmlDir, { ...opts, format: 'iife' });
+    fs.rmSync(srvEntry, { force: true });
+    for (const d of ['api', 'src', 'tests', 'tools', 'audit']) fs.rmSync(path.join(htmlDir, d), { recursive: true, force: true });
+    apiShim = `<script>${escScript(js)}</script>`;
+  }
+  const shim = runtimeFor(htmlDir, opts) + apiShim;
   html = /<head[^>]*>/i.test(html) ? html.replace(/<head[^>]*>/i, (h) => h + shim) : shim + html;
   fs.writeFileSync(htmlPath, html);
 }
@@ -161,35 +276,78 @@ function run(cmd, argv, cwd) {
   execFileSync(cmd, argv, { cwd, stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: 256 * 1024 * 1024, env: { ...process.env, CI: '1', PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1', PUPPETEER_SKIP_DOWNLOAD: '1' }, timeout: 15 * 60 * 1000 });
 }
 
+function npmInstall(pkgDir) {
+  const lock = fs.existsSync(path.join(pkgDir, 'package-lock.json'));
+  const install = (cmd) => run('npm', [cmd, '--prefer-offline', '--no-audit', '--no-fund', '--ignore-scripts', '--loglevel=error'], pkgDir);
+  try { install(lock ? 'ci' : 'install'); return; } catch {}
+  try { install('install'); return; } catch (e) {
+    for (const base of SOURCES) {
+      for (const c of ['Aetheria/node_modules', 'JoshHub/node_modules']) {
+        const p = path.join(base, c);
+        if (fs.existsSync(path.join(p, '.bin', 'vite'))) {
+          execFileSync('cp', ['-a', p, path.join(pkgDir, 'node_modules')]);
+          return;
+        }
+      }
+    }
+    throw e;
+  }
+}
+
 async function packVite(g, clone, out) {
   const work = path.join(os.tmpdir(), 'town-game-build', g.id);
   fs.rmSync(work, { recursive: true, force: true });
   copyTree(clone, work);
   const pkgDir = path.join(work, g.pkg || '');
-  const lock = fs.existsSync(path.join(pkgDir, 'package-lock.json'));
-  const install = (cmd) => run('npm', [cmd, '--no-audit', '--no-fund', '--ignore-scripts', '--loglevel=error'], pkgDir);
-  // A lockfile that has drifted from package.json makes `npm ci` refuse; install resolves it.
-  try { install(lock ? 'ci' : 'install'); } catch (e) { if (!lock) throw e; install('install'); }
+  npmInstall(pkgDir);
   // Projects whose vite.config sets `root` (client/ apps) build from the package folder so
   // their PostCSS/Tailwind config at the package root still applies.
   const root = g.configRoot ? pkgDir : path.join(work, g.root || g.pkg || '');
   // Path-based routers cannot match a page opened from a folder; hash routing can.
   if (g.hashRouter) {
+    const srcDir = fs.existsSync(path.join(root, 'src')) ? path.join(root, 'src') : path.join(root, 'client', 'src');
     (function walk(d) {
       for (const e of fs.readdirSync(d, { withFileTypes: true })) {
         const p = path.join(d, e.name);
         if (e.isDirectory()) { if (!SKIP_DIRS.has(e.name)) walk(p); continue; }
         if (!/\.(jsx|tsx|js|ts)$/.test(e.name)) continue;
         const src = fs.readFileSync(p, 'utf8');
-        if (!src.includes('BrowserRouter')) continue;
-        fs.writeFileSync(p, src.replace(/\bBrowserRouter\b/g, 'HashRouter').replace(/(<HashRouter\b[^>]*?)\s+basename=(\{[^}]*\}|"[^"]*"|'[^']*')/g, '$1'));
+        if (src.includes('BrowserRouter')) {
+          fs.writeFileSync(p, src.replace(/\bBrowserRouter\b/g, 'HashRouter').replace(/(<HashRouter\b[^>]*?)\s+basename=(\{[^}]*\}|"[^"]*"|'[^']*')/g, '$1'));
+        } else if (src.includes('WouterRouter') && !src.includes('useHashLocation')) {
+          fs.writeFileSync(p, `import { useHashLocation } from "wouter/use-hash-location";\n` + src.replace(/window\.history\.replaceState\([^)]*\);/g, '').replace(/<WouterRouter\s+base=\{base\}>/g, '<WouterRouter hook={useHashLocation}>'));
+        }
       }
-    })(path.join(root, 'src'));
+    })(srcDir);
   }
   const dist = path.join(work, '__town_dist');
   // Relative base so the build works from any folder; the project's own config still applies.
   run(path.join(pkgDir, 'node_modules', '.bin', 'vite'), ['build', '--base', './', '--outDir', dist, '--emptyOutDir', ...(g.config ? ['--config', path.join(work, g.config)] : [])], root);
   copyTree(dist, out);
+  fs.rmSync(work, { recursive: true, force: true });
+}
+
+function findGodot() {
+  if (process.env.GODOT_BIN && fs.existsSync(process.env.GODOT_BIN)) return process.env.GODOT_BIN;
+  for (const base of [...SOURCES, path.join(os.homedir(), '.local', 'bin')]) {
+    for (const cand of [
+      path.join(base, 'godot', 'Godot_v4.4.1-stable_linux.x86_64'),
+      path.join(base, 'Godot_v4.4.1-stable_linux.x86_64'),
+      path.join(base, 'godot4'),
+      path.join(base, 'godot'),
+    ]) {
+      if (fs.existsSync(cand)) return cand;
+    }
+  }
+  return 'godot';
+}
+
+function packGodot(g, clone, out) {
+  const work = path.join(os.tmpdir(), 'town-game-build', g.id);
+  fs.rmSync(work, { recursive: true, force: true });
+  copyTree(clone, work);
+  fs.mkdirSync(out, { recursive: true });
+  run(findGodot(), ['--headless', '--path', work, '--export-release', g.preset || 'Web', path.join(out, 'index.html')], work);
   fs.rmSync(work, { recursive: true, force: true });
 }
 
@@ -241,9 +399,14 @@ for (const g of manifest.games) {
       const src = path.join(clone, g.dir || '');
       copyTree(src, out, (r, isDir) => !(isDir && (g.exclude || []).includes(r)));
       for (const [from, to] of Object.entries(g.extra || {})) copyTree(path.join(clone, from), path.join(out, to));
+      if (g.install) { npmInstall(out); }
       await makePlayable(out, g.entry || 'index.html', g);
+      if (g.install) { fs.rmSync(path.join(out, 'node_modules'), { recursive: true, force: true }); fs.rmSync(path.join(out, 'package-lock.json'), { force: true }); }
     } else if (g.kind === 'vite') {
       await packVite(g, clone, out);
+      await makePlayable(out, 'index.html', g);
+    } else if (g.kind === 'godot') {
+      packGodot(g, clone, out);
       await makePlayable(out, 'index.html', g);
     } else if (g.kind === 'python') packPython(g, clone, out);
     else throw new Error('unknown kind ' + g.kind);

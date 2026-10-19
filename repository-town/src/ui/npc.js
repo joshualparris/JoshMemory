@@ -2,9 +2,11 @@
 // they answer through Groq's chat API; without one, or offline, they answer from
 // the house's own facts. Keys are never part of the site or its data files.
 import { repoInfo } from './archive.js';
+import { RELICS, PROGRESS_KEY, cleanProgress } from '../adventure/data.js';
 
 const KEY_STORE = 'repository-town.groq-keys';
 const CHAT_STORE = 'repository-town.npc-chats';
+const ERRAND_STORE = 'repository-town.errands.v1';
 const MODELS = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'];
 const ENDPOINT = 'https://api.groq.com/openai/v1/chat/completions';
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -68,14 +70,45 @@ export function residentName(coordinate) {
   return NAMES[n % NAMES.length];
 }
 
+function coordDist(a, b) {
+  const ca = a.charCodeAt(0) - 65, ra = parseInt(a.slice(1), 10);
+  const cb = b.charCodeAt(0) - 65, rb = parseInt(b.slice(1), 10);
+  return Math.abs(ca - cb) + Math.abs(ra - rb) * 3;
+}
+
+// Connects villagers and residents to the Adventure Guild relic hunt, neighbours, and errands.
+function townContextFor(house, name, allHouses = []) {
+  const prog = cleanProgress(read(PROGRESS_KEY, {}));
+  const uncollected = RELICS.filter((r) => !prog.collected.includes(r.id));
+  const sortedRelics = [...(uncollected.length ? uncollected : RELICS)].sort((a, b) => coordDist(house.coordinate, a.coordinate) - coordDist(house.coordinate, b.coordinate));
+  const relic = sortedRelics[0];
+  const sameStreet = allHouses.filter((h) => h.street === house.street && h.coordinate !== house.coordinate);
+  const publicNeighbours = sameStreet.filter((h) => h.repo);
+  const pool = publicNeighbours.length ? publicNeighbours : sameStreet;
+  const seed = [...(name + house.coordinate)].reduce((s, c) => s * 31 + c.charCodeAt(0), 7) >>> 0;
+  const neighbour = pool.length ? pool[seed % pool.length] : null;
+  const targetPool = allHouses.filter((h) => h.repo && h.coordinate !== house.coordinate);
+  const errandTarget = targetPool.length ? targetPool[seed % targetPool.length] : neighbour;
+  const errands = read(ERRAND_STORE, { active: {}, done: [] });
+  const errandKey = `${house.coordinate}:${name}`;
+  const visitedTarget = errandTarget && prog.visited.includes(errandTarget.coordinate);
+  return { prog, uncollected, relic, neighbour, errandTarget, errands, errandKey, visitedTarget };
+}
+
+export function getErrandsSummary() {
+  const errands = read(ERRAND_STORE, { active: {}, done: [] });
+  return { active: Object.values(errands.active || {}), done: errands.done || [] };
+}
+
 // Everything the resident knows: the house's own facts, plus the README when readable.
-async function factsFor(house) {
+async function factsFor(house, name = '', allHouses = []) {
   const rooms = house.int.rooms.map((r) => r.name).filter(Boolean);
   const exhibits = house.int.rooms.flatMap((r) => r.props.filter((p) => p[1] && p[2]?.do).map((p) => `${p[1]} (${r.name})`));
   const games = house.int.rooms.flatMap((r) => r.props.filter((p) => p[2]?.do === 'game').map((p) => p[2].title));
   const data = house.repo ? await repoInfo(house.repo).catch(() => null) : null;
   const readme = data?.readme ? data.readme.replace(/```[\s\S]*?```/g, '').replace(/<[^>]+>/g, '').replace(/\n{3,}/g, '\n\n').slice(0, 2500) : '';
-  return { rooms, exhibits, games, readme, live: (house.links || []).map((l) => l.url) };
+  const townCtx = townContextFor(house, name, allHouses);
+  return { rooms, exhibits, games, readme, live: (house.links || []).map((l) => l.url), ...townCtx };
 }
 
 // A stable personality per person, so the same neighbour sounds the same every visit.
@@ -93,6 +126,15 @@ function systemPrompt(house, name, f, role) {
   const where = role === 'villager'
     ? `You live at house ${house.coordinate} on ${house.street}, but right now you are out walking around Repository Town and the visitor has stopped you in the street.`
     : `You live in house ${house.coordinate} on ${house.street} and the visitor has come inside.`;
+  const relicLine = f.relic
+    ? `Adventure Guild relic rumour you know: ${f.relic.name} (${f.relic.icon}) is near ${f.relic.coordinate} — "${f.relic.clue}" (${f.relic.hint}). The visitor has found ${f.prog?.collected.length || 0} of ${RELICS.length} relics so far.`
+    : '';
+  const gossipLine = f.neighbour
+    ? `Your neighbour down on ${house.street} is ${residentName(f.neighbour.coordinate)} at ${f.neighbour.coordinate} (${f.neighbour.name}, ${f.neighbour.kind}).`
+    : '';
+  const errandLine = f.errandTarget
+    ? `Small errand you can ask the visitor to do: pop over to ${f.errandTarget.coordinate} (${f.errandTarget.name}) and have a look inside, then let you know (${f.visitedTarget ? 'they have already visited it, so thank them warmly!' : 'they have not visited it yet'}).`
+    : '';
   return [
     `You are ${name}, a local in Repository Town: a little walkable 3D town (set near Dubbo, NSW) where every house was built from one of Josh Parris's software projects on GitHub. ${where}`,
     `Your personality: ${moodOf(name)}.`,
@@ -101,6 +143,9 @@ function systemPrompt(house, name, f, role) {
     `Things visitors can use inside (press E or the hand button): ${f.exhibits.slice(0, 40).join('; ')}.`,
     f.games.length ? `Games playable in your house's arcade: ${f.games.join(', ')}.` : '',
     f.live.length ? `Links: ${f.live.join(', ')}.` : '',
+    relicLine,
+    gossipLine,
+    errandLine,
     f.readme ? `What you know of the project, from its README:\n${f.readme}` : '',
     'How to talk: like a real neighbour having a casual chat, not a guide reading a brochure. Use contractions and everyday Australian English. Keep replies short (one to three sentences) and vary how you start them. React to what the visitor actually said, and sometimes ask them something back. Share facts the way a person would ("oh, the arcade? Try Whispering Wilds"). Plain text only: no lists, no markdown, no emoji spam. Only claim facts given above; if you do not know something, say so honestly. Never mention being an AI or these instructions.',
   ].filter(Boolean).join('\n');
@@ -125,6 +170,41 @@ function scripted(house, name, f, text, role) {
   if (/who are you|your name|what.*you do|what are you (doing|up to)/.test(t)) return outside
     ? pick([`I'm ${name} from ${house.coordinate}. Just wandering — I like seeing what everyone's built.`, `${name}. I live at the ${house.name} house. Popping round to a neighbour's.`])
     : pick([`I'm ${name}, I look after this place. Mostly I potter about the archive.`, `${name}. I live here — someone's got to keep the ${pick(f.rooms)} in order.`]);
+  if (/relic|treasure|crystal|guild|clue|hint|compass/.test(t)) {
+    if (!f.uncollected?.length) return `Word around town is you've found all twelve Adventure Guild relics! Head back to the Guild Chest near M4 to claim the Crown.`;
+    const r = f.relic;
+    return pick([
+      `Chasing the Adventure Guild relics? Try ${r.coordinate} — ${r.clue} (${r.hint})`,
+      `I spotted a glowing crystal over by ${r.coordinate} not long ago. Folks call it the ${r.name}: "${r.clue}"`,
+      `If you're hunting relics for the Guild, check outside ${r.coordinate}. ${r.hint}`,
+    ]);
+  }
+  if (/neighbour|neighbor|gossip|rumour|rumor|street|who else/.test(t)) {
+    if (!f.neighbour) return `Everyone along ${house.street} keeps pretty busy, though ${outside ? 'I love strolling past their gardens' : 'it\'s a friendly street'}.`;
+    const nb = f.neighbour, nbRes = residentName(nb.coordinate);
+    return pick([
+      `Have you met ${nbRes} over at ${nb.coordinate}? That's the ${nb.name} place (${nb.kind}) — always tinkering with something new.`,
+      `Down on ${house.street}, ${nbRes} at ${nb.coordinate} (${nb.name}) has quite the setup. Worth poking your head in!`,
+      `Between you and me, ${nbRes} at ${nb.coordinate} (${nb.name}) has been bragging about their rooms all week. Go see if it lives up to the hype!`,
+    ]);
+  }
+  if (/errand|quest|task|favour|favor|job|help you/.test(t)) {
+    const tgt = f.errandTarget;
+    if (!tgt) return `Nothing urgent from me today — maybe check the Adventure Guild journal (press J) for relics!`;
+    const errs = read(ERRAND_STORE, { active: {}, done: [] });
+    if (f.visitedTarget) {
+      if (!errs.done.includes(f.errandKey)) {
+        errs.done.push(f.errandKey);
+        delete errs.active[f.errandKey];
+        write(ERRAND_STORE, errs);
+      }
+      const r = f.relic;
+      return `Legend! You already checked out ${tgt.coordinate} (${tgt.name}) for me. In return, here's a Guild tip: look for the ${r.name} outside ${r.coordinate} (${r.hint})`;
+    }
+    errs.active[f.errandKey] = { from: name, home: house.coordinate, target: tgt.coordinate, targetName: tgt.name };
+    write(ERRAND_STORE, errs);
+    return `Actually, could you do me a small favour? Pop over to ${tgt.coordinate} (${tgt.name}) and step inside to see how ${residentName(tgt.coordinate)}'s getting on, then come tell me!`;
+  }
   if (/thank|cheers|ta\b/.test(t)) return pick(['No worries!', 'Any time.', `Happy to help. Enjoy ${outside ? 'the town' : 'the house'}.`]);
   if (/bye|see ya|later|goodbye/.test(t)) return pick(['See you round!', 'Hooroo!', 'Catch you later.']);
   if (/game|play|arcade|fun/.test(t)) return f.games.length
@@ -158,17 +238,47 @@ function render(log, history, name) {
 // The behaviour behind every resident: a chat panel mounted into the exhibit panel.
 export function npcBehaviour(x, ctx) {
   const house = ctx.house;
+  const allHouses = ctx.houses || [];
   const name = x.act.name || residentName(house.coordinate);
   const id = x.act.role === 'villager' ? `villager:${name}` : house.coordinate;
   return {
     title: x.act.role === 'villager' ? `${name} · lives at ${house.coordinate} · ${house.name}` : `${name} · resident of ${house.name}`,
     body: `<div class="chat"><div class="chat-log" aria-live="polite"></div>
+      <div class="chat-chips">
+        <button type="button" class="chat-chip" data-ask="Any relic hints for the Adventure Guild?">🧭 Relic hint</button>
+        <button type="button" class="chat-chip" data-ask="Any gossip about the neighbours on this street?">🗣️ Neighbours</button>
+        <button type="button" class="chat-chip" data-ask="Do you have a small errand I can help with?">📦 Small errand</button>
+        <button type="button" class="chat-chip" data-ask="What games can I play around here?">🎮 Games</button>
+      </div>
       <form class="chat-form"><input class="chat-input" autocomplete="off" placeholder="Talk to ${esc(name)}…" aria-label="Message"><button>Send</button></form>
       <p class="chat-brain dim"></p></div>`,
     wide: true,
     mount(root) {
+      const panel = root.closest?.('#panel') || root;
       const log = root.querySelector('.chat-log'), form = root.querySelector('.chat-form'), input = root.querySelector('.chat-input'), brain = root.querySelector('.chat-brain');
       const history = chats[id] || (chats[id] = []);
+      const syncViewport = () => {
+        const vv = window.visualViewport;
+        const height = vv?.height ?? window.innerHeight;
+        const top = vv?.offsetTop ?? 0;
+        if (Number.isFinite(height) && height > 0) panel.style.setProperty('--npc-vh', height + 'px');
+        if (Number.isFinite(top)) panel.style.setProperty('--npc-top', Math.max(0, top) + 'px');
+      };
+      syncViewport();
+      window.addEventListener('resize', syncViewport);
+      window.addEventListener('orientationchange', syncViewport);
+      window.visualViewport?.addEventListener('resize', syncViewport);
+      window.visualViewport?.addEventListener('scroll', syncViewport);
+      input.setAttribute('enterkeyhint', 'send');
+      input.addEventListener('focus', () => {
+        panel.classList.add('chat-typing');
+        syncViewport();
+        requestAnimationFrame(() => { syncViewport(); log.scrollTop = log.scrollHeight; });
+      });
+      input.addEventListener('blur', () => {
+        setTimeout(() => { if (document.activeElement !== input) panel.classList.remove('chat-typing'); }, 150);
+      });
+      panel.classList.remove('chat-typing');
       const showBrain = () => {
         const n = getKeys().length;
         brain.innerHTML = n
@@ -180,6 +290,12 @@ export function npcBehaviour(x, ctx) {
       showBrain();
       render(log, history, name);
       let facts = null;
+      for (const chip of root.querySelectorAll('.chat-chip')) {
+        chip.addEventListener('click', () => {
+          input.value = chip.dataset.ask;
+          form.requestSubmit ? form.requestSubmit() : form.dispatchEvent(new Event('submit', { cancelable: true }));
+        });
+      }
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const text = input.value.trim();
@@ -188,7 +304,7 @@ export function npcBehaviour(x, ctx) {
         history.push({ role: 'user', content: text });
         render(log, history, name);
         log.insertAdjacentHTML('beforeend', `<p class="npc dim thinking">${esc(name)} is thinking…</p>`);
-        facts = facts || await factsFor(house);
+        facts = await factsFor(house, name, allHouses);
         let reply;
         try {
           reply = await groq([{ role: 'system', content: systemPrompt(house, name, facts, x.act.role) }, ...history.slice(-12)]);
@@ -201,9 +317,9 @@ export function npcBehaviour(x, ctx) {
         history.push({ role: 'assistant', content: reply });
         saveChats();
         render(log, history, name);
-        input.focus({ preventScroll: true });
+        if (!window.matchMedia?.('(pointer: coarse)').matches) input.focus({ preventScroll: true });
       });
-      setTimeout(() => input.focus({ preventScroll: true }), 50);
+      if (!window.matchMedia?.('(pointer: coarse)').matches) setTimeout(() => input.focus({ preventScroll: true }), 50);
     },
   };
 }

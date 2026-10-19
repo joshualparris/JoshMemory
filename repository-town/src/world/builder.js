@@ -18,10 +18,13 @@ const shared = {
 shared.pyramid.rotateY(Math.PI / 4);
 
 export const solidMaterial = new THREE.MeshLambertMaterial({ vertexColors: true });
+export const windowMaterial = new THREE.MeshLambertMaterial({ color: 0x9fd3ea, emissive: 0xffb85c, emissiveIntensity: 0 });
+export const lampMaterial = new THREE.MeshLambertMaterial({ color: 0xfff3c4, emissive: 0xffb84d, emissiveIntensity: 0.15 });
 
 export class Builder {
   constructor() {
     this.parts = [];
+    this.windows = [];
     this.dynamics = [];
     this.stack = [new THREE.Matrix4()];
   }
@@ -46,7 +49,8 @@ export class Builder {
     );
     g.applyMatrix4(this.matrix.clone().multiply(local));
     paint(g, color);
-    this.parts.push(g);
+    if (color === 0x9fd3ea) this.windows.push(g);
+    else this.parts.push(g);
     return g;
   }
 
@@ -78,8 +82,14 @@ export class Builder {
       for (const p of this.parts) p.dispose();
       group.add(new THREE.Mesh(merged, solidMaterial));
     }
+    if (this.windows.length) {
+      const mergedWin = mergeGeometries(this.windows, false);
+      for (const w of this.windows) w.dispose();
+      group.add(new THREE.Mesh(mergedWin, windowMaterial));
+    }
     for (const d of this.dynamics) group.add(d);
     this.parts = [];
+    this.windows = [];
     return group;
   }
 }

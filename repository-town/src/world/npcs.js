@@ -241,12 +241,12 @@ function performWork(entry,time) {
   }
   return entry.task==='rest';
 }
-export function animateNPCs(list,time,playerPos,dt=1/60,talkingTo=null,collisionWorld=null) {
+export function animateNPCs(list,time,playerPos,dt=1/60,talkingTo=null,collisionWorld=null,maxDist=65) {
   const step=Math.min(Math.max(dt,0),.15);
   for(const entry of list) {
     const group=entry.group, model=group.userData.body;
     const dist=Math.hypot(group.position.x-playerPos.x,group.position.z-playerPos.z);
-    group.visible=dist<65;
+    group.visible=dist<maxDist;
     if(!group.visible)continue;
     const chatting=talkingTo===entry.npc.id;
     if(entry.mode==='town') {
@@ -384,6 +384,7 @@ export class Walker {
         this.pos.x += (dx / d) * step; this.pos.z += (dz / d) * step;
         this.turnTo(Math.atan2(dx, dz), dt * 6);
         moving = true;
+        this.onMove?.(this.pos);
       }
     } else {
       this.path = planNext(this) || [];
@@ -421,24 +422,66 @@ export function freeSpot(pos, world, r = 0.4) {
   return pos;
 }
 
-// Indoor plan: wander to free points in the walker's own room, checking the way is clear.
-export function roomWander(room, world) {
+function clearLine(x0, z0, x1, z1, world, r = 0.35) {
+  const d = Math.hypot(x1 - x0, z1 - z0);
+  for (let s = 0.35; s <= d; s += 0.35) {
+    if (world.hits(x0 + (x1 - x0) * (s / d), z0 + (z1 - z0) * (s / d), r)) return false;
+  }
+  return !world.hits(x1, z1, r);
+}
+
+// Indoor plan: residents wander their current room and also walk through doorways
+// into neighbouring rooms rather than staying only in the archive.
+export function roomWander(roomOrRooms, world, openings = []) {
+  const rooms = Array.isArray(roomOrRooms) ? roomOrRooms : [roomOrRooms];
   return (w) => {
+    let curIdx = rooms.findIndex((r) => w.pos.x >= r.x0 && w.pos.x <= r.x1 && w.pos.z >= r.z0 && w.pos.z <= r.z1);
+    if (curIdx < 0) curIdx = w.room ?? 0;
+    w.room = curIdx;
+    const room = rooms[curIdx] || rooms[0];
+
+    // After the first local stroll, sometimes cross through a doorway into an adjacent room.
+    if (w._strolled && openings.length && Math.random() < 0.45) {
+      const doors = openings.filter((o) => o.rooms && (o.rooms[0] === curIdx || o.rooms[1] === curIdx));
+      if (doors.length) {
+        const o = doors[Math.floor(Math.random() * doors.length)];
+        const nextIdx = o.rooms[0] === curIdx ? o.rooms[1] : o.rooms[0];
+        const nextRoom = rooms[nextIdx];
+        if (nextRoom) {
+          const dx = o.axis === 'z' ? o.c : o.at;
+          const dz = o.axis === 'z' ? o.at : o.c;
+          const dir = o.axis === 'z' ? Math.sign((nextRoom.z0 + nextRoom.z1) / 2 - dz) || -1 : Math.sign((nextRoom.x0 + nextRoom.x1) / 2 - dx) || 1;
+          const pre = o.axis === 'z' ? { x: dx, z: dz - dir * 0.85 } : { x: dx - dir * 0.85, z: dz };
+          const post = o.axis === 'z' ? { x: dx, z: dz + dir * 0.85 } : { x: dx + dir * 0.85, z: dz };
+          if (clearLine(w.pos.x, w.pos.z, pre.x, pre.z, world, 0.32) && clearLine(pre.x, pre.z, post.x, post.z, world, 0.32)) {
+            for (let t = 0; t < 10; t++) {
+              const tx = nextRoom.x0 + 1.1 + Math.random() * Math.max(0.5, nextRoom.x1 - nextRoom.x0 - 2.2);
+              const tz = nextRoom.z0 + 1.1 + Math.random() * Math.max(0.5, nextRoom.z1 - nextRoom.z0 - 2.2);
+              if (clearLine(post.x, post.z, tx, tz, world, 0.34)) {
+                return [pre, { x: dx, z: dz }, post, { x: tx, z: tz, pause: 2.5 + Math.random() * 4 }];
+              }
+            }
+          }
+        }
+      }
+    }
+
     for (let tries = 0; tries < 12; tries++) {
       const x = room.x0 + 1.1 + Math.random() * (room.x1 - room.x0 - 2.2);
       const z = room.z0 + 1.1 + Math.random() * (room.z1 - room.z0 - 2.2);
       const d = Math.hypot(x - w.pos.x, z - w.pos.z);
       if (d < 1.5) continue;
-      let clear = true;
-      for (let s = 0.4; s <= d && clear; s += 0.4) clear = !world.hits(w.pos.x + (x - w.pos.x) * (s / d), w.pos.z + (z - w.pos.z) * (s / d), 0.35);
-      if (clear && !world.hits(x, z, 0.35)) return [{ x, z, pause: 2 + Math.random() * 5 }];
+      if (clearLine(w.pos.x, w.pos.z, x, z, world, 0.35)) {
+        w._strolled = true;
+        return [{ x, z, pause: 2 + Math.random() * 5 }];
+      }
     }
     return [];
   };
 }
 
 // Town plan: from wherever the villager is, walk to the sidewalk, along it (via the
-// nearest avenue when changing street) to another house's front path, and visit.
+// nearest avenue when changing street) to another house's front doorway, and visit.
 export function townRoutes(lots, LOT_Z) {
   const doors = [...lots.values()].map((l) => ({ coord: l.house.coordinate, x: l.doorPos.x, z: l.doorPos.z, row: l.lot.row }));
   const sidewalk = (row) => row * LOT_Z - 3.5 * LOT_Z + 16 - 5.3;
@@ -455,7 +498,8 @@ export function townRoutes(lots, LOT_Z) {
       path.push({ x: ave, z: sw }, { x: ave, z: sidewalk(to.row) });
     }
     if (Math.random() < 0.35) path.push({ x: (path.at(-1).x + to.x) / 2, z: sidewalk(to.row), pause: 2 + Math.random() * 3 });
-    path.push({ x: to.x, z: sidewalk(to.row) }, { x: to.x, z: to.z + 1.6, pause: 5 + Math.random() * 9 });
+    // Step right up to the neighbour's front door threshold so the hinged door swings open for the visit.
+    path.push({ x: to.x, z: sidewalk(to.row) }, { x: to.x, z: to.z + 1.15, pause: 5 + Math.random() * 7 });
     w.row = to.row; w.at = to.coord;
     return path;
   };

@@ -1,5 +1,5 @@
 {
- "note": "Games playable inside Repository Town. Packed by tools/pack_games.mjs into games/<id>/. kind: static | vite | python. Not playable in a browser yet: energyquest (Unity project), bramblewick (Godot project), Aetheria (imports 'ui/Button' but the file is 'button.tsx', so it only builds on Windows), multi-layer-zoom-game in openclaw-workspace (Parcel build, not yet supported by the packer). JoshHub's classic-dnd-text (game.js line 528) and newgame/Dark Realms (game.js line 1294) have syntax errors, so they are left out until those are fixed. Need their own server, so not packed: rothfuss-kkc-adventure (SQLite + Gemini API), Serenity-Keep-Flying (auth API). JoshHub's tile-game fetches src/map.json, which is not in the repository. SwordCoast's index.html loads src/main.js and styles/main.css, which are not in the repository (the same game plays from dndgame). Parris-Life-Dashboard's neon-dash is a placeholder page.",
+ "note": "Games playable inside Repository Town. Packed by tools/pack_games.mjs into games/<id>/. kind: static | vite | godot | python. Not playable in a browser yet: energyquest (Unity project). SwordCoast's index.html loads src/main.js and styles/main.css, which are not in the repository (the same game plays from dndgame). Parris-Life-Dashboard's neon-dash is a placeholder page.",
  "games": [
   {
    "id": "whispering-wilds-py",
@@ -354,6 +354,50 @@
    "inlineImages": true
   },
   {
+   "id": "aetheria",
+   "repo": "Parris-Tech-Services/Aetheria",
+   "title": "Aetheria",
+   "kind": "vite",
+   "configRoot": true
+  },
+  {
+   "id": "serenity-keep-flying",
+   "repo": "Parris-Tech-Services/Serenity-Keep-Flying",
+   "title": "Serenity: Keep Flying",
+   "kind": "vite",
+   "configRoot": true,
+   "hashRouter": true
+  },
+  {
+   "id": "bramblewick",
+   "repo": "Parris-Tech-Services/bramblewick",
+   "title": "Shadow Over Bramblewick",
+   "kind": "godot",
+   "online": true,
+   "about": "Godot 4 WebAssembly export. Browsers only stream .wasm and .pck files over HTTP(S), so open this over a local or remote web server."
+  },
+  {
+   "id": "rothfuss-kkc-adventure",
+   "repo": "Parris-Tech-Services/rothfuss-kkc-adventure",
+   "title": "KKC Adventure (University)",
+   "kind": "static",
+   "exclude": [
+    "public",
+    "tests",
+    "tools",
+    "audit",
+    "data"
+   ],
+   "browserServer": "api/game.ts"
+  },
+  {
+   "id": "multi-layer-zoom-game",
+   "repo": "Parris-Tech-Services/openclaw-workspace",
+   "title": "Multi-Layer Zoom Game",
+   "kind": "static",
+   "dir": "multi-layer-zoom-game/multi-layer-zoom-game"
+  },
+  {
    "id": "hub-aa-game-adventure",
    "repo": "joshualparris/JoshHub",
    "title": "AA Game Adventure",
@@ -376,6 +420,13 @@
    "title": "Buckland Street",
    "kind": "static",
    "dir": "public/games/buckland-v1"
+  },
+  {
+   "id": "hub-classic-dnd-text",
+   "repo": "joshualparris/JoshHub",
+   "title": "Classic D&D 5e Text Adventure",
+   "kind": "static",
+   "dir": "public/games/classic-dnd-text"
   },
   {
    "id": "hub-dnd-rpg-dungeon",
@@ -406,11 +457,25 @@
    "dir": "public/games/mysterious-depths"
   },
   {
+   "id": "hub-newgame",
+   "repo": "joshualparris/JoshHub",
+   "title": "Dark Realms",
+   "kind": "static",
+   "dir": "public/games/newgame"
+  },
+  {
    "id": "hub-simple-rpg-gh",
    "repo": "joshualparris/JoshHub",
    "title": "Signal Garden",
    "kind": "static",
    "dir": "public/games/simple-rpg-gh"
+  },
+  {
+   "id": "hub-tile-game",
+   "repo": "joshualparris/JoshHub",
+   "title": "Tile Game",
+   "kind": "static",
+   "dir": "public/games/tile-game"
   },
   {
    "id": "hub-boundary-road",

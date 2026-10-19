@@ -55,6 +55,7 @@ export function mountNPCChat(root=document) {
     if(Number.isFinite(top))el.style.setProperty('--npc-top',Math.max(0,top)+'px');
   }
   window.addEventListener('resize',syncNpcViewport);
+  window.addEventListener('orientationchange',syncNpcViewport);
   window.visualViewport?.addEventListener('resize',syncNpcViewport);
   window.visualViewport?.addEventListener('scroll',syncNpcViewport);
   syncNpcViewport();

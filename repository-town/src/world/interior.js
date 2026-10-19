@@ -274,7 +274,7 @@ function buildOnce(house, makeLabel, attempt) {
   for (const l of labels) { const sprite = makeLabel(l.text, l.kind); sprite.position.copy(l.pos); sprite.userData.labelKind = l.kind; group.add(sprite); }
   const dynamics = built.children.filter((c) => c.userData.anim);
   return {
-    group, colliders, doors, interactables, dynamics, rooms, placedProps, walkers,
+    group, colliders, doors, interactables, dynamics, rooms, openings: openings.filter((o) => o.rooms), placedProps, walkers,
     spawn: new THREE.Vector3(ex, 0, rooms[0].z1 - 1.6),
     exitZone: { x0: ex - DOOR_W / 2, x1: ex + DOOR_W / 2, z0: rooms[0].z1 + 0.1, z1: rooms[0].z1 + 1.2 },
     bounds: rooms.reduce((a, r) => ({ x0: Math.min(a.x0, r.x0), x1: Math.max(a.x1, r.x1), z0: Math.min(a.z0, r.z0), z1: Math.max(a.z1, r.z1) }), { x0: Infinity, x1: -Infinity, z0: Infinity, z1: -Infinity }),
