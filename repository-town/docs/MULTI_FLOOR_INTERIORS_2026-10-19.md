@@ -63,3 +63,26 @@ Follow repository-town/AGENTS.md and coordination notes. Merge the source topic 
 - Validated **the actual published V7 and W7 house data** against the published Three.js/Builder/props/interior/multifloor modules: both generate three floors with the expected unique rooms and stair/lift interactables without a geometry-construction error.
 - Confirmed JavaScript syntax for the published floor modules, game loop and player code, and a focused in-memory contract test.
 - Not independently verified: external HTTP content served by Pages (DNS was unavailable in the testing container), full Node build/privacy gate, headed Chromium and real Android end-to-end gameplay. Pages workflow success confirms publishing, not interactive correctness. Fix any issues found before adding multi-floor support to more buildings.
+
+## Expansion: all architectural multi-storey buildings (19 October 2026)
+
+The first release only enabled V7 and W7. Josh discovered a real missing case at **X7 Transfer**, another lighthouse. The implementation now derives the floor count from the *existing exterior style*, not just two hardcoded coordinates.
+
+- **Three floors**: lighthouse, tower, clocktower, castle, pagoda and windmill.
+- **Two floors**: townhouse, modern, terrace, mansion, treehouse, observatory, library, shopfront, gatehouse and factory.
+- **Single floor**: the other architectural styles, including cottages, cabins, caves and single-storey garages.
+- On the currently published 188-house inventory, these rules select **87 buildings**. This is the number tested from that inventory, not a permanent hardcoded total.
+- V7 and W7 keep their authored layouts. **X7** has a custom transfer dispatch/control and rescue-logistics second floor, plus a beacon lookout and preservation room third floor.
+- Other tall buildings get architectural themes. Towers have archives and a lookout; clocktowers have gear rooms and a bell chamber; castles have a residence and battlements. Smaller multi-level houses have family/study or mezzanine spaces. Each upper floor contains its own interactive exhibit.
+- The new floor plans use only generic public-safe objects and descriptions for private houses. They never pull private repository URLs, descriptions or source text into public content.
+- A blue *Stairs & lift* wayfinding sign is added just inside the entrance, as well as the actual spiral stair and lift structures in a dedicated connected stairwell.
+- An always-visible **🛗 Floors** button beneath the town clock opens the lift floor chooser directly on phones and desktops, avoiding a long search through existing rooms. The foyer sign is also interactable with E/✋.
+
+### Regression coverage
+
+Run `node tests/multifloor.mjs` to check all 16 eligible exterior types, private-safe themed props, X7-specific upper floors, navigation links, and the mobile Floors button. The existing V7/W7 tests remain.
+
+The geometry test in the GitHub connector loaded the currently published 188-house inventory, evaluated the actual Three.js and room-generation modules, and successfully built **all 87 eligible buildings**, checking correct level counts plus lift, upward and downward stair targets: **87 passed, 0 failed**. This is a geometry/logic smoke test, not a substitute for real mobile WebGL navigation.
+
+Players can use the live game link once the Pages deployment for this change succeeds. Staircases use E/✋ transitions rather than continuous physics; the existing engine still has 2D collision per storey.
+
