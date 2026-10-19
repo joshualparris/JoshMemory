@@ -167,7 +167,7 @@ function prepareTheme(theme, house, floor) {
     ...theme,
     rooms:theme.rooms.map((r,i)=>({
       ...r,name:r.name,props:[
-        ...r.props.map(p=>[...p]),
+        ...r.props.map(p=>typeof p==='string'?[p]:[...p]),
         ...(i===0?[]:[[accent,'Featured ' + accent,info('Explore ' + r.name,
           'Discover what happens in this part of the building.')]]),
       ],
