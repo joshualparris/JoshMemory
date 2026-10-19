@@ -4,6 +4,7 @@
 // Groq API keys are NEVER stored in the browser or included in client files.
 import { repoInfo } from './archive.js';
 import { RELICS, PROGRESS_KEY, cleanProgress } from '../adventure/data.js';
+import { recordPlayerMessage, recordTownAction, socialContext, socialGossip } from './social.js';
 
 const LEGACY_KEY_STORE = 'repository-town.groq-keys';
 const CODE_STORE = 'town-npc-code';
@@ -54,6 +55,7 @@ async function askResidentProxy(id, house, name, f, role, history) {
     errandHint: f.errandTarget ? `${f.errandTarget.coordinate} (${f.errandTarget.name})` : '',
     visitedTarget: Boolean(f.visitedTarget),
     personality: personality ? `${personality[0]}; ${personality[1]}; especially interested in ${personality[2]}.` : '',
+    social: f.social || {},
   };
   let res;
   try {
@@ -146,7 +148,7 @@ async function factsFor(house, name = '', allHouses = []) {
   const data = house.repo ? await repoInfo(house.repo).catch(() => null) : null;
   const readme = data?.readme ? data.readme.replace(/```[\s\S]*?```/g, '').replace(/<[^>]+>/g, '').replace(/\n{3,}/g, '\n\n').slice(0, 2500) : '';
   const townCtx = townContextFor(house, name, allHouses);
-  return { rooms, exhibits, games, readme, live: (house.links || []).map((l) => l.url), ...townCtx };
+  return { rooms, exhibits, games, readme, live: (house.links || []).map((l) => l.url), social: socialContext(name), ...townCtx };
 }
 
 // Without a model: varied, conversational replies built from the same facts.
@@ -179,11 +181,12 @@ function scripted(house, name, f, text, role) {
       `If you're hunting relics for the Guild, check outside ${r.coordinate}. ${r.hint}`,
     ]);
   }
+  if (/friend|enemy|relationship|think of/.test(t)) return socialGossip(name);
   if (/neighbour|neighbor|gossip|rumour|rumor|street|who else/.test(t)) {
     if (!f.neighbour) return `Everyone along ${house.street} keeps pretty busy, though ${outside ? 'I love strolling past their gardens' : 'it\'s a friendly street'}.`;
     const nb = f.neighbour, nbRes = residentName(nb.coordinate);
     return pick([
-      `Have you met ${nbRes} over at ${nb.coordinate}? That's the ${nb.name} place (${nb.kind}) — always tinkering with something new.`,
+      `${socialGossip(name)} Have you met ${nbRes} over at ${nb.coordinate}? That's the ${nb.name} place (${nb.kind}) — always tinkering with something new.`,
       `Down on ${house.street}, ${nbRes} at ${nb.coordinate} (${nb.name}) has quite the setup. Worth poking your head in!`,
       `Between you and me, ${nbRes} at ${nb.coordinate} (${nb.name}) has been bragging about their rooms all week. Go see if it lives up to the hype!`,
     ]);
@@ -197,6 +200,7 @@ function scripted(house, name, f, text, role) {
         errs.done.push(f.errandKey);
         delete errs.active[f.errandKey];
         write(ERRAND_STORE, errs);
+        recordTownAction(name, 'completed errand', residentName(tgt.coordinate));
       }
       const r = f.relic;
       return `Legend! You already checked out ${tgt.coordinate} (${tgt.name}) for me. In return, here's a Guild tip: look for the ${r.name} outside ${r.coordinate} (${r.hint})`;
@@ -247,6 +251,7 @@ export function npcBehaviour(x, ctx) {
       <div class="chat-chips">
         <button type="button" class="chat-chip" data-ask="Any relic hints for the Adventure Guild?">🧭 Relic hint</button>
         <button type="button" class="chat-chip" data-ask="Any gossip about the neighbours on this street?">🗣️ Neighbours</button>
+        <button type="button" class="chat-chip" data-ask="Who are your friends or enemies in town, and why?">💞 Friendships</button>
         <button type="button" class="chat-chip" data-ask="Do you have a small errand I can help with?">📦 Small errand</button>
         <button type="button" class="chat-chip" data-ask="What games can I play around here?">🎮 Games</button>
       </div>
@@ -301,6 +306,7 @@ export function npcBehaviour(x, ctx) {
         const text = input.value.trim();
         if (!text) return;
         input.value = '';
+        recordPlayerMessage(name, text);
         history.push({ role: 'user', content: text });
         render(log, history, name);
         log.insertAdjacentHTML('beforeend', `<p class="npc dim thinking">${esc(name)} is thinking…</p>`);
