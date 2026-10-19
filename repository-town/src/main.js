@@ -17,7 +17,7 @@ import { npcBehaviour } from './ui/npc.js';
 import { sceneFromRoom } from './ui/scene-awareness.js';
 import { mountNPCChat } from './ui/npc-chat.js';
 import { makePerson, Walker, houseWander, freeSpot, placeTownNPCs, animateNPCs, initialiseNPCWorksites } from './world/npcs.js';
-import { separatePedestrians } from './world/pedestrian-spacing.js';
+import { separatePedestrians, steerPedestrians } from './world/pedestrian-spacing.js';
 import { createTownLife } from './world/townlife.js';
 import { createAmbience } from './ui/ambience.js';
 import { bakeryKitchenPanel } from './ui/bakery-panel.js';
@@ -630,11 +630,18 @@ async function start() {
         Math.abs(p.v.x-player.pos.x)<95 && Math.abs(p.v.z-player.pos.z)<95);
       const nearbyCharacters=streetNPCs.filter(n=>n.mode==='town' &&
         Math.abs(n.pos.x-player.pos.x)<90 && Math.abs(n.pos.z-player.pos.z)<90);
-      separatePedestrians([
-        ...nearbyPeople.map(p=>({id:'resident:'+p.v.id,pos:p.v,radius:.61})),
-        ...nearbyCharacters.map(n=>({id:'character:'+n.npc.id,pos:n.pos,radius:.66})),
+      const movingPeople=[
+        ...nearbyPeople.map(p=>({id:'resident:'+p.v.id,pos:p.v,radius:.61,
+          goal:p.v.path?.[0]||null,speed:p.v.bike?4.5:1.5,fixed:!!p.v.engaged})),
+        ...nearbyCharacters.map(n=>({id:'character:'+n.npc.id,pos:n.pos,radius:.66,
+          goal:n.activity==='walk'?{x:n.targetX,z:n.targetZ}:null,speed:.65,
+          fixed:npcChat.isOpen()&&npcChat.active()===n.npc.id})),
         {id:'player',pos:player.pos,radius:.67,fixed:true}
-      ],{world:townWorld,gap:1.3,passes:6});
+      ];
+      // Small anticipatory sideways steps make room for oncoming bikes and
+      // pedestrians, before swept personal-space separation prevents overlaps.
+      steerPedestrians(movingPeople,{world:townWorld,dt});
+      separatePedestrians(movingPeople,{world:townWorld,gap:1.3,passes:6});
       // Renderer and interaction targets must follow the resolved positions,
       // never the pre-collision pose. This also fixes overlapping name tags.
       for(const p of nearbyPeople){
