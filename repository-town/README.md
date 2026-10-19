@@ -4,6 +4,10 @@ A walkable 3D town of all 188 repositories in Josh's inventory (`docs/repository
 Every house is designed from its own repository: a written brief records the evidence that was
 inspected, the exterior, the floor plan, the furnishings and the exhibits you can use.
 
+## Multi-floor tall buildings
+
+V7 Private House and W7 SwordCoast lighthouse now have three authored levels, stairs and an interactive lift. Floor 2 and Floor 3 are distinct interiors with separate exhibits. See [the multi-floor implementation and playtest guide](docs/MULTI_FLOOR_INTERIORS_2026-10-19.md). Source modules: `src/world/floor-plans.js` and `src/world/multifloor.js`; focused check: `node tests/multifloor.mjs`.
+
 ## Layout
 
 | Path | What it is |
