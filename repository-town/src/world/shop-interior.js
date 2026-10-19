@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { containLabel } from '../ui/labels.js';
 import { buildFarmhouseInterior } from './farmhouse-interior.js';
 import { buildHotelInterior } from './hotel-interior.js';
 import { buildBakeryInterior } from './bakery-interior.js';
@@ -118,7 +119,7 @@ export function buildCivicInterior(site,makeLabel) {
     const sprite=makeLabel(label,kind);
     sprite.position.set(x,y,z);
     sprite.userData.labelKind=kind;
-    sprite.renderOrder=12;
+    containLabel(sprite,{x0:-EDGE,x1:EDGE,z0:BACK,z1:FRONT,y0:0,y1:4.6});
     group.add(sprite);
   };
   text(site.name,0,3.15,-6.12,'room');
