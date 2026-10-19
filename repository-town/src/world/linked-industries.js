@@ -15,7 +15,7 @@ export function initialiseIndustries(t){
  s.log ||= [];s.imports ||= [];s.batches ||= [];s.drinks ||= [];
  s.project ||= {id:'WORKS-01',name:'Farm cooperative workshop extension',stage:0,
   progress:0,materialsPaid:0,startedDay:t.day,finishedDay:null,
-  contract:{owner:'Farm cooperative',builder:'Bluey',externalCapital:440}};
+  contract:{owner:'Farm cooperative',builder:'Bluey',externalCapital:440,permit:'approved existing-farm outbuilding'}};
  if(s.initialised)return s;
  // Each capital injection is explicitly accounted for as outside investment.
  for(const [id,capital] of [['hardware',420],['brewery',310],['pub',140],['buildsite',440],['vet',180]]){
@@ -102,6 +102,7 @@ export function serveDrink(t,customer,kind='soda'){
  if(!t.open(pub))return 'The public house is closed.';
  if(!t.villagers.some(v=>v.work==='pub'&&v.step?.kind==='work'&&!v.path.length))return 'No publican is on duty.';
  const alcohol=kind==='beer',good=alcohol?'beerKeg':'soda',price=alcohol?8:4;
+ if(pub.licenceActive===false)return 'The public house has no valid licence for alcohol service.';
  if(!['beer','soda'].includes(kind))return 'Drink unavailable.';
  if(alcohol&&(customer.job==='student'||customer.age<18))return 'Alcohol service is for eligible adults only.';
  if(customer.alcoholPreference==='none'&&alcohol)return 'This resident prefers not to drink alcohol.';

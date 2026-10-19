@@ -301,9 +301,11 @@ function buildField(p, group, statics, glass) {
     const herd = Array.from({ length: kind.n }, (_, i) => ({ x: f.x0 + 2 + ((i * 37) % 17) / 17 * (w - 4), z: f.z0 + 2 + ((i * 53) % 13) / 13 * (d - 4), h: i, tx: 0, tz: 0, wait: i % 4 }));
     const m = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), v = new THREE.Vector3(), up = new THREE.Vector3(0, 1, 0);
     const place = (a, t) => {
+      const record=p.animals?.[a.i];
+      const renderSize=record?.isolated?0.55:1;
       const bob = p.id === 'coop' && a.wait > 0 ? Math.max(0, Math.sin(t * 9 + a.h)) * 0.12 : 0;
       q.setFromAxisAngle(up, a.h);
-      m.compose(v.set(a.x, kind.y, a.z), q, s.set(...kind.body)); bodies.setMatrixAt(a.i, m);
+      m.compose(v.set(a.x, kind.y, a.z), q, s.set(kind.body[0]*renderSize,kind.body[1]*renderSize,kind.body[2]*renderSize)); bodies.setMatrixAt(a.i, m);
       const hx = Math.sin(a.h) * kind.body[2] * 0.55, hz = Math.cos(a.h) * kind.body[2] * 0.55;
       m.compose(v.set(a.x + hx, kind.y + kind.body[1] * 0.3 - bob * 3, a.z + hz), q, s.set(kind.body[0] * 0.5, kind.body[1] * 0.55, kind.body[0] * 0.55)); heads.setMatrixAt(a.i, m);
       if (patches) { m.compose(v.set(a.x + 0.2, kind.y + 0.25, a.z - 0.2), q, s.set(0.7, 0.6, 0.9)); patches.setMatrixAt(a.i, m); }

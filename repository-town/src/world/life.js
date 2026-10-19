@@ -459,7 +459,6 @@ export class TownLife {
     return `The ${p.name} buys it back for $${pay}.`;
   }
   eatItem(good) { return eatPlayer(this,good); }
-  servePubDrink(kind='soda') { return serveDrink(this,{...this.civic.player,name:'Visitor',get wallet(){return this._wallet;}},kind); }
   buyPubDrink(kind='soda') {
     const me=this.civic.player;
     const buyer={name:'Visitor',job:'visitor',age:me.age,wallet:me.wallet,alcoholPreference:'occasional'};

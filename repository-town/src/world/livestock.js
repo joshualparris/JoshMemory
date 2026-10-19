@@ -10,6 +10,7 @@ export function initialiseLivestock(t){
      [farm,Array.from({length:count},(_,i)=>({id:farm+'-'+String(i+1).padStart(2,'0'),species,
        health:88+(i%10),fed:true,watered:true,isolated:false,caseId:null,age:2+(i%5),alive:true}))]));
  }
+ for(const [farm,animals] of Object.entries(t.industries.herds))t.place(farm).animals=animals;
  t.industries.vetCases ||= [];
  t.industries.vetVisits ||= [];
  t.industries.animalFeedDay ||= 0;
