@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { FLOOR_SURFACE_Y } from './floor-surfaces.js';
 
 // The High Street bakery, laid out the way a real neighbourhood bakery works:
 //
@@ -77,7 +78,7 @@ export function buildBakeryInterior(site, makeLabel, roomTitle = 'Bakery') {
   for (let ix = 0; ix < 14; ix++) for (let iz = 0; iz < 11; iz++) if ((ix + iz) % 2 === 0) tiles.push([-6.5 + ix, -4.5 + iz]);
   const checker = new THREE.InstancedMesh(new THREE.PlaneGeometry(1, 1), mat(0x3a3632), tiles.length);
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0));
-  tiles.forEach(([x, z], i) => { m4.compose(new THREE.Vector3(x, 0.017, z), q, new THREE.Vector3(1, 1, 1)); checker.setMatrixAt(i, m4); });
+  tiles.forEach(([x, z], i) => { m4.compose(new THREE.Vector3(x, FLOOR_SURFACE_Y.tilePattern, z), q, new THREE.Vector3(1, 1, 1)); checker.setMatrixAt(i, m4); });
   group.add(checker);
   box(W - 0.5, 0.02, 6.4, 0, 0.005, -8.95, TERRA);
   box(2.2, 0.03, 1.2, 0, 0.03, 5.0, RED);                                   // door mat
@@ -274,7 +275,7 @@ export function buildBakeryInterior(site, makeLabel, roomTitle = 'Bakery') {
   };
   add('counter', 'Bread counter', 'civic-ledger', 'Buy fresh bread and pies, or open the Town Ledger.', 0.6, -4.2);
   add('pastries', 'Pastry case', 'info', 'The glass case holds cream buns, lamingtons, doughnuts, croissants and meat pies. The pie warmer keeps the day\'s pies hot. Pies are made each day from flour, lamb and vegetables.', -4.6, -4.2);
-  add('kitchen', 'Watch the bakers', 'info', 'Through the counter you can see the deck ovens, spiral mixer, proofer and the cooling racks. Bakers start at half past four: dough is mixed and shaped, proved warm and humid, then baked on the oven decks.', -2.2, -4.2);
+  add('kitchen', 'Bakery kitchen', 'bakery-kitchen', 'Through the counter you can see the deck ovens, spiral mixer, proofer and the cooling racks. Bakers start at half past four: dough is mixed and shaped, proved warm and humid, then baked on the oven decks.', -2.2, -4.2);
   add('breadwall', 'Bread wall', 'info', `Sourdough boules, tin loaves, baguettes and rolls sit in baskets on the bread wall. ${Math.round(breadN)} loaves are out right now. Flour arrives from the Mill, so no flour means no bread.`, 5.4, 2.4);
   add('cafe', 'Café corner', 'info', 'Two small tables and a bench by the window, for a pie and a cuppa while the bread cools.', -3.0, 1.9);
   placedProps.push({ type: 'noticeboard', room: 0 });

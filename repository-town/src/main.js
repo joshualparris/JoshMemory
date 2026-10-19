@@ -19,6 +19,7 @@ import { mountNPCChat } from './ui/npc-chat.js';
 import { makePerson, Walker, houseWander, freeSpot, placeTownNPCs, animateNPCs, initialiseNPCWorksites } from './world/npcs.js';
 import { createTownLife } from './world/townlife.js';
 import { createAmbience } from './ui/ambience.js';
+import { bakeryKitchenPanel } from './ui/bakery-panel.js';
 import { placePanel, ledgerPanel, guidePanel, needsPanel, relicsLeft, townContext } from './ui/townpanels.js';
 import { createExpedition } from './adventure/expedition.js';
 
@@ -448,6 +449,10 @@ async function start() {
             body:'<p>This is a private home. Its residents need their beds to sleep. To stay overnight, book your own room at the Railway Hotel, I8.</p>',
             actions:[]},thing);
         }
+        return;
+      }
+      if(inside?.place&&thing.act?.do==='bakery-kitchen'){
+        openPanel(bakeryKitchenPanel(life),thing);
         return;
       }
       if(inside?.place&&thing.act?.do==='civic-ledger'){

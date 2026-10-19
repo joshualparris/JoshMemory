@@ -56,7 +56,15 @@ export function movePedestrian(person, distance, people, obstacles = []) {
   if(person.crowdWait>0){person.crowdWait=Math.max(0,person.crowdWait-distance);return;}
   let attempts=Math.ceil(distance/.2)+16;
   while(distance>EPS && person.path.length && attempts-->0) {
-    const goal=person.path[0];
+    let goal=person.path[0];
+    const occupied=blockers.some(o=>Math.hypot(o.x-goal.x,o.z-goal.z)<PERSONAL_SPACE-EPS);
+    // Route corners are navigation hints, not destinations: don't insist on
+    // touching a corner occupied by somebody waiting outside a shop.
+    if(occupied && person.path.length>1 && Math.hypot(person.x-goal.x,person.z-goal.z)<3){person.path.shift();continue;}
+    if(occupied && person.path.length===1 && blockers.some(o=>!o.path?.length&&Math.hypot(o.x-goal.x,o.z-goal.z)<PERSONAL_SPACE-EPS)) {
+      goal=pedestrianDestination(person,goal,people);
+      person.path[0]=goal;if(person.step)person.step.target=goal;
+    }
     if(person.detourGoal!==goal){person.detourPath=[];person.detourGoal=goal;}
     let target=person.detourPath?.[0]||goal;
     let dx=target.x-person.x,dz=target.z-person.z,d=Math.hypot(dx,dz);
