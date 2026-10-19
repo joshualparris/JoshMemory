@@ -72,3 +72,59 @@ export function separatePedestrians(people,{world=null,gap=PEDESTRIAN_GAP,passes
   }
   return corrected;
 }
+
+
+// Anticipate a pedestrian/cyclist ahead instead of waiting until two bodies
+// overlap. This runs only in the visible scene, AFTER the deterministic town
+// economy tick. It never delays work shifts, fuel trucks or payroll.
+// An actor has {id,pos,goal:{x,z},speed,radius?,fixed?,guard?}.
+export function steerPedestrians(people,{world=null,dt=1/60}={}) {
+  const step=Math.max(0,Math.min(0.1,dt));
+  if(!step)return 0;
+  let steered=0;
+  for(const a of people){
+    if(a.fixed||!a.goal||!Number.isFinite(a.goal.x)||!Number.isFinite(a.goal.z))continue;
+    const gx=a.goal.x-a.pos.x,gz=a.goal.z-a.pos.z,remaining=Math.hypot(gx,gz);
+    if(remaining<0.18)continue;
+    const forward={x:gx/remaining,z:gz/remaining};
+    // Right-hand passing: opposing walkers choose opposite world-space sides.
+    // When the kerb is on the right, try the left rather than enter traffic.
+    const right={x:forward.z,z:-forward.x};
+    const sight=a.speed>3?5.0:3.0;
+    let threat=null,best=Infinity;
+    for(const b of people){
+      if(b===a||!b.pos||!Number.isFinite(b.pos.x)||!Number.isFinite(b.pos.z))continue;
+      const dx=b.pos.x-a.pos.x,dz=b.pos.z-a.pos.z;
+      const ahead=dx*forward.x+dz*forward.z;
+      if(ahead<0.05||ahead>sight)continue;
+      const lateral=Math.abs(dx*right.x+dz*right.z);
+      const width=(a.radius??PEDESTRIAN_RADIUS)+(b.radius??PEDESTRIAN_RADIUS)+0.55;
+      if(lateral>=width)continue;
+      // Avoid upcoming collision, not someone walking away much faster.
+      const ownSpeed=a.speed??1.5;
+      const bg=b.goal?{x:b.goal.x-b.pos.x,z:b.goal.z-b.pos.z}:null;
+      const bd=bg?Math.hypot(bg.x,bg.z):0;
+      const along=bd>0.15?(bg.x*forward.x+bg.z*forward.z)/bd:0;
+      if(along>0.8&&(b.speed??0)>=ownSpeed+0.4)continue;
+      const score=ahead+lateral*0.35;
+      if(score<best){best=score;threat=b;}
+    }
+    if(!threat)continue;
+    const amount=Math.min(0.28,step*(a.speed??1.5)*1.7);
+    const oldX=a.pos.x,oldZ=a.pos.z;
+    const currentDistance=Math.hypot(oldX-threat.pos.x,oldZ-threat.pos.z);
+    for(const dir of [1,-1]){
+      const x=oldX+right.x*amount*dir,z=oldZ+right.z*amount*dir;
+      if(!canPlace(a,x,z,world,a.radius??PEDESTRIAN_RADIUS))continue;
+      // Do not steer a walker from the footpath into the vehicle lanes.
+      const road=Math.round((oldZ+145)/46)*46-145;
+      const oldKerb=oldZ-road,newKerb=z-road;
+      if(Math.abs(oldKerb)>3.7&&Math.abs(oldKerb)<8&&
+        (Math.sign(oldKerb)!==Math.sign(newKerb)||Math.abs(newKerb)<3.7))continue;
+      const nextDistance=Math.hypot(x-threat.pos.x,z-threat.pos.z);
+      if(currentDistance>1.4&&nextDistance<1.25)continue;
+      a.pos.x=x;a.pos.z=z;steered++;break;
+    }
+  }
+  return steered;
+}
