@@ -246,7 +246,12 @@ export function advanceCivicWork(t,minutes) {
       order.progress+=minutes;
       if(order.progress<order.requiredMinutes)continue;
       order.status='done';order.finished=date(t);order.progress=order.requiredMinutes;
-      if(order.kind==='feeder'){delete t.civic.powerLines[order.lineId];t.updatePowerGrid();}
+      if(order.kind==='feeder'){
+        delete t.civic.powerLines[order.lineId];
+        t.recordPowerEvent('power-line-repaired',order.lineId,worker.name,
+          'Completed authorised work order '+order.id);
+        t.updatePowerGrid();
+      }
       else t.civic.services[order.service]=Math.min(100,t.civic.services[order.service]+35);
       t.stats.repairs++;g.completedOrders++;
       record(t,'completion',worker.name+' completed '+order.id+'; '+order.service+' service verified.',{workOrder:order.id});
