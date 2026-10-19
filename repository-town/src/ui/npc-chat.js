@@ -31,6 +31,30 @@ export function mountNPCChat(root=document) {
   const chats=new Map();
   let active=null, context=null, busy=false, controller=null, count=0, beforeFocus=null;
   try { pin.value=sessionStorage.getItem('town-npc-code')||''; } catch {}
+  // The on-screen keyboard changes the *visual* viewport without always resizing
+  // the layout viewport (notably on Android Chrome and Samsung Internet).
+  function syncNpcViewport() {
+    const vv=window.visualViewport;
+    const height=vv?.height ?? window.innerHeight;
+    const top=vv?.offsetTop ?? 0;
+    if(Number.isFinite(height)&&height>0)el.style.setProperty('--npc-vh',height+'px');
+    if(Number.isFinite(top))el.style.setProperty('--npc-top',Math.max(0,top)+'px');
+  }
+  window.addEventListener('resize',syncNpcViewport);
+  window.visualViewport?.addEventListener('resize',syncNpcViewport);
+  window.visualViewport?.addEventListener('scroll',syncNpcViewport);
+  syncNpcViewport();
+  input.setAttribute('enterkeyhint','send');
+  input.addEventListener('focus',()=>{
+    el.classList.add('npc-typing');
+    syncNpcViewport();
+    // Scroll only the message list, not the entire page or a fixed dialog.
+    requestAnimationFrame(()=>{
+      syncNpcViewport();
+      if(!el.hidden)feed.scrollTop=feed.scrollHeight;
+    });
+  });
+  input.addEventListener('blur',()=>el.classList.remove('npc-typing'));
   function line(who,message) {
     const row=root.createElement('div');row.className='npc-line '+who;
     const bubble=root.createElement('div');bubble.className='npc-bubble';
@@ -106,11 +130,16 @@ export function mountNPCChat(root=document) {
     for(const msg of chats.get(k))line(msg.role==='user'?'user':'npc',msg.content);
     status.textContent='Fictional AI character · never share private information';
     el.hidden=false;input.disabled=false;send.disabled=false;
-    input.focus();
+    el.classList.remove('npc-typing');
+    syncNpcViewport();
+    // Don't open the Android keyboard before the visitor can see the
+    // access-code field, suggested prompts and NPC quest controls.
+    if(!window.matchMedia('(pointer: coarse)').matches)input.focus();
     return true;
   }
   function close() {
-    controller?.abort();controller=null;busy=false;active=null;el.hidden=true;
+    controller?.abort();controller=null;busy=false;active=null;
+    input.blur();el.classList.remove('npc-typing');el.hidden=true;
     if(beforeFocus?.focus)beforeFocus.focus();
   }
   root.getElementById('npc-close').addEventListener('click',close);
@@ -121,7 +150,9 @@ export function mountNPCChat(root=document) {
     const npc=active, house=context, k=key(npc,house);
     const history=chats.get(k);
     history.push({role:'user',content:question});line('user',question);
-    input.value='';busy=true;input.disabled=true;send.disabled=true;
+    input.value='';busy=true;send.disabled=true;
+    // Keep the composer focused while Groq replies: disabling the input
+    // dismisses the Android keyboard and refocusing makes it jump back.
     status.textContent='Thinking…';
     const accessCode=pin.value.trim();
     let reply='',online=false,stale=false;
@@ -169,7 +200,7 @@ export function mountNPCChat(root=document) {
       if(history.length>21)history.splice(0,history.length-21);
       line('npc',reply.slice(0,2000));
       status.textContent=online?'Groq live · '+npc.name+' · conversations kept in this tab only':status.textContent;
-      input.disabled=false;send.disabled=false;busy=false;input.focus();
+      input.disabled=false;send.disabled=false;busy=false;
     }
   });
   const list=root.getElementById('npc-roster-items');
