@@ -1,3 +1,4 @@
+import { distributePower, townPowerDemands, POWER_LINE_IDS, GRID_FAULT_COST } from './power-grid.js';
 // Town life simulation: the clock, farms, the mill and bakery, shops, trucks, the post,
 // and villagers with jobs, hunger, pantries, wallets and daily routines. Pure logic (no
 // three.js) so it runs and is tested on its own; src/world/townlife.js draws it.
@@ -8,7 +9,7 @@
 // Places sit on street 8's empty lots (G8–Z8) and the farm strip south of it.
 
 export const LOT_X = 26, LOT_Z = 46;
-export const SEC_PER_MIN = 3;
+export const SEC_PER_MIN = 3; // 72 real minutes per 24-hour town day at 1×
 export const WALK = 1.5, BIKE = 4.5, DRIVE = 8;               // metres per real second
 const WAGES = { retired: 40, student: 20, mayor: 95, nurse: 85, teacher: 85, programmer: 95, 'bank teller': 75, 'power operator': 85, firefighter: 85 };
 const BASE_WAGE = 70;
@@ -164,6 +165,7 @@ export class TownLife {
     this.rand = rng(seed);
     this.day = 1; this.minute = minute;
     this.events = []; this.stats = this.freshStats();
+    this.powerGridEvents = []; this.powerGridEventSeq = 0;
     this.places = new Map();
     for (const d of PLACE_DEFS) {
       const col = d.col.charCodeAt(0) - 65;
@@ -191,6 +193,7 @@ export class TownLife {
       weather: 'sunny', treasury: 4800, taxRate: 0.1, mayor: 'Vern', ballots: {}, voted: false, electionDay: 7,
       services: Object.fromEntries(SERVICES.map((k) => [k, 100])), homes: { rubbish: 0, recyclables: 0 },
       supply: { power: 0, powerDemand: 0, water: 0, waterDemand: 0, ok: true, waterOk: true },
+      powerLines: {}, powerGrid: null,
       indicators: { health: 90, happiness: 78, environment: 82, pollution: 3 },
       letters: [], player: { wallet: 75, bank: 150, bag: {} },
     };
@@ -269,6 +272,58 @@ export class TownLife {
   // A sale at a till: the town takes its tax, the shop keeps the rest.
   sale(shop, price) { const tax = Math.round(price * this.civic.taxRate * 100) / 100; shop.till += price - tax; this.civic.treasury += tax; this.stats.taxes += tax; }
   ok(service) { return this.civic.services[service] >= 35; }
+  gridPowered(customerId) {
+    const c=this.civic.powerGrid?.customers?.[customerId];
+    return c ? c.served >= c.demand : this.civic.supply.ok;
+  }
+  recordPowerEvent(type, lineId, actor, cause) {
+    const record={ id:'grid-'+(++this.powerGridEventSeq), day:this.day, minute:this.minute,
+      type, actor, locationId:lineId, cause };
+    this.powerGridEvents.push(record);
+    if(this.powerGridEvents.length>80)this.powerGridEvents.shift();
+    return record;
+  }
+  // Faults are explicit actions, not random arbitrary percentages. A later
+  // hourly model step recalculates exactly which customers lose supply.
+  faultPowerLine(lineId) {
+    if(!POWER_LINE_IDS.includes(lineId)) return 'Unknown power line.';
+    if(this.civic.powerLines[lineId])return 'That feeder is already out of service.';
+    this.civic.powerLines[lineId]=true;
+    this.recordPowerEvent('power-line-failed',lineId,'system:test-scenario','simulated feeder fault');
+    this.log('Electricity fault reported on '+lineId+'. Distribution will be reassessed this hour.');
+    this.updatePowerGrid();
+    return 'Fault recorded on '+lineId+'. Check the Town Ledger for affected services.';
+  }
+  repairPowerLine(lineId) {
+    if(!POWER_LINE_IDS.includes(lineId))return 'Unknown power line.';
+    if(!this.civic.powerLines[lineId])return 'That feeder is already working.';
+    if(this.civic.treasury<GRID_FAULT_COST.credits)return 'The council does not have enough funds.';
+    const hall=this.place('hall');
+    if((hall.stock.parts||0)<GRID_FAULT_COST.parts)return 'The council needs two spare parts boxes.';
+    this.civic.treasury-=GRID_FAULT_COST.credits;hall.stock.parts-=GRID_FAULT_COST.parts;
+    delete this.civic.powerLines[lineId];
+    this.recordPowerEvent('power-line-repaired',lineId,'town-council',
+      'authorised maintenance: $90 and 2 parts boxes');
+    this.log('Council crews repaired '+lineId+' for $90 and two spare parts boxes.');
+    this.updatePowerGrid();
+    return 'Repair completed on '+lineId+'. The distribution model has been updated.';
+  }
+  updatePowerGrid() {
+    const h=Math.floor(this.minute/60), c=this.civic;
+    const demand=townPowerDemands(h,c.supply.powerDemand);
+    const previous=c.powerGrid;
+    c.powerGrid=distributePower({generation:Math.max(0,Math.floor(c.supply.power)),
+      demands:demand, failedLines:c.powerLines});
+    c.supply.ok=c.powerGrid.unserved===0;
+    if(previous) {
+      const old=new Set(previous.affected), now=new Set(c.powerGrid.affected);
+      const newly=[...now].filter(id=>!old.has(id));
+      const recovered=[...old].filter(id=>!now.has(id));
+      if(newly.length)this.log('Power interrupted at '+newly.map(id=>c.powerGrid.customers[id].name).join(', ')+'.');
+      if(recovered.length)this.log('Power restored to '+recovered.map(id=>c.powerGrid.customers[id].name).join(', ')+'.');
+    }
+    return c.powerGrid;
+  }
   rubbish(n) { this.civic.homes.rubbish += n * 0.5; this.civic.homes.recyclables += n * 0.5; }
 
   // Power, water, wastewater, waste and industry, once an hour.
@@ -282,16 +337,17 @@ export class TownLife {
     const thermal = (power.stock.fuel || 0) >= fuelNeed && this.ok('power') ? Math.max(0, demand - solar) : 0;
     if (thermal) power.stock.fuel -= fuelNeed;
     c.supply.power = this.ok('power') ? solar + thermal : 0; c.supply.powerDemand = demand;
-    const wasOk = c.supply.ok; c.supply.ok = c.supply.power >= demand;
+    const wasOk = c.supply.ok;
+    this.updatePowerGrid();
     if (!c.supply.ok && wasOk) this.log('Blackout! The Power Station cannot meet demand — homes and the bakery are dark.');
     if (c.supply.ok && !wasOk) this.log('Power is back on across town.');
-    if (c.supply.ok && this.ok('water')) water.stock.water = Math.min(250, (water.stock.water || 0) + 25);
+    if (this.gridPowered('waterworks') && this.ok('water')) water.stock.water = Math.min(250, (water.stock.water || 0) + 25);
     const need = 16 + (day ? 4 : 0), got = Math.min(need, water.stock.water || 0);
     water.stock.water -= got; c.supply.water = got; c.supply.waterDemand = need;
     const wasWater = c.supply.waterOk; c.supply.waterOk = got >= need;
     if (!c.supply.waterOk && wasWater) this.log('Water restrictions: the Water Works cannot keep up.');
     sewage.stock.wastewater = (sewage.stock.wastewater || 0) + Math.floor(got * 0.8);
-    if (c.supply.ok && this.ok('sewage')) { sewage.stock.wastewater = Math.max(0, sewage.stock.wastewater - 22); c.indicators.pollution = clamp(c.indicators.pollution - 0.2, 0, 100); }
+    if (this.gridPowered('sewage') && this.ok('sewage')) { sewage.stock.wastewater = Math.max(0, sewage.stock.wastewater - 22); c.indicators.pollution = clamp(c.indicators.pollution - 0.2, 0, 100); }
     if (sewage.stock.wastewater > 70) { c.indicators.pollution = clamp(c.indicators.pollution + 2, 0, 100); if (h % 4 === 0) this.log('The Wastewater Works is backed up and polluting the creek.'); }
     // Bin day twice a day: rubbish to the Waste Depot, recycling to the Recycling Centre.
     if ((h === 6 || h === 15) && this.ok('waste') && this.ok('roads')) {
@@ -303,7 +359,7 @@ export class TownLife {
     if (at('recycling').length && rec.stock.recyclables >= 4) { const n = Math.min(14, rec.stock.recyclables); rec.stock.recyclables -= n; rec.stock.scrap += Math.floor(n / 2); this.stats.recycled += n; }
     if (rec.stock.scrap >= 8) { rec.out.scrap = (rec.out.scrap || 0) + rec.stock.scrap; rec.stock.scrap = 0; }
     const fo = this.place('foundry');
-    if (at('foundry').length && c.supply.ok) {
+    if (at('foundry').length && this.gridPowered('industry')) {
       if ((fo.stock.ore || 0) >= 2) { fo.stock.ore -= 2; fo.stock.metal = (fo.stock.metal || 0) + 1; }
       if ((fo.stock.scrap || 0) >= 4) { fo.stock.scrap -= 4; fo.out.parts = (fo.out.parts || 0) + 2; }
     }
@@ -401,7 +457,7 @@ export class TownLife {
     }
     const h = Math.floor(this.minute / 60);
     this.utilitiesHour(h, at);
-    const powered = this.civic.supply.ok;
+    const powered = this.gridPowered('bakery');
     const mill = this.place('mill');
     const batch = Math.min(2, Math.floor((mill.stock.grain || 0) / 3));
     if (at('mill').length && batch && powered) { mill.stock.grain -= 3 * batch; mill.out.flour = (mill.out.flour || 0) + 2 * batch; this.stats.milled += 2 * batch; }
@@ -742,11 +798,18 @@ export class TownLife {
   }
 
   // Saves just what matters to resume tomorrow where the town left off.
-  snapshot() { return { day: this.day, minute: this.minute, civic: this.civic, places: [...this.places.values()].map((p) => [p.id, p.stock, p.out, p.till, p.growth]), villagers: this.villagers.map((v) => [v.id, v.pantry, v.wallet, v.lastMeal, v.meals]) }; }
+  snapshot() { return { saveVersion:2, day: this.day, minute: this.minute, powerGridEvents:this.powerGridEvents, powerGridEventSeq:this.powerGridEventSeq, civic: this.civic, places: [...this.places.values()].map((p) => [p.id, p.stock, p.out, p.till, p.growth]), villagers: this.villagers.map((v) => [v.id, v.pantry, v.wallet, v.lastMeal, v.meals]) }; }
   restore(s) {
     if (!s || typeof s !== 'object') return;
-    this.day = s.day || 1; this.minute = s.minute || 7 * 60;
+    this.day = Number.isFinite(s.day) && s.day >= 1 ? s.day : 1;
+    this.minute = Number.isFinite(s.minute) && s.minute >= 0 && s.minute < 1440 ? s.minute : 7 * 60;
+    // v1 saves had no schema tag, event history or feeder faults. They are
+    // retained and naturally migrate to v2 on the next save.
+    this.powerGridEvents=Array.isArray(s.powerGridEvents)?s.powerGridEvents.slice(-80):[];
+    this.powerGridEventSeq=Number.isSafeInteger(s.powerGridEventSeq)?s.powerGridEventSeq:this.powerGridEvents.length;
     if (s.civic && typeof s.civic === 'object') Object.assign(this.civic, s.civic, { player: { ...this.civic.player, ...(s.civic.player || {}) } });
+    this.civic.powerLines = this.civic.powerLines && typeof this.civic.powerLines === 'object' ? this.civic.powerLines : {};
+    if(this.civic.supply.powerDemand>0)this.updatePowerGrid();
     for (const [id, stock, out, till, growth] of s.places || []) { const p = this.place(id); if (p) Object.assign(p, { stock, out, till, growth: growth ?? p.growth }); }
     for (const [id, pantry, wallet, lastMeal, meals] of s.villagers || []) { const v = this.villagers[id]; if (v) Object.assign(v, { pantry, wallet, lastMeal, meals: meals || [] }); }
   }
