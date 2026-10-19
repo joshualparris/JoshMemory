@@ -5,7 +5,7 @@ export function isSceneQuestion(message) {
   const q=clean(message,400).toLowerCase();
   return /\b(objects?|furniture|things?|items?|equipment|exhibits?|decorations?)\b.{0,70}\b(near|around|next to|beside|here|room|right now|you|me|us)\b/.test(q)
     || /\b(near|around|next to|beside)\b.{0,60}\b(you|me|us|here|room)\b/.test(q)
-    || /\bwhat(?:'s| is| are| can you see| do you see)\b.{0,55}\b(nearby|around|here|beside|next to|in (?:this|your) room|in front|behind you)\b/.test(q)
+    || /\b(?:what(?:'s| is) (?:nearby|around|here|beside|next to)|what (?:can|do) you see (?:nearby|around|here|beside|next to)|what are (?:the )?(?:objects|things|items) (?:nearby|around|here|beside|next to))\b/.test(q)
     || /\b(what|which)\b.{0,50}\b(in this room|beside you|next to you|around you|on your (?:left|right))\b/.test(q)
     || /\bwhat can (?:i|we) (?:use|interact with|touch|click) (?:here|nearby|in this room)\b/.test(q)
     || /\b(to|on) your (?:left|right)\b/.test(q);
