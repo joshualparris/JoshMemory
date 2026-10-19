@@ -10,7 +10,7 @@ const CODE_STORE = 'town-npc-code';
 // On GitHub Pages call the authenticated Vercel proxy instead of a static /api
 // URL. The Groq key remains server-side; browsers send only the playtest PIN.
 const PAGES_HOST = typeof location !== 'undefined' && /(^|\.)github\.io$/i.test(location.hostname);
-const NPC_API = PAGES_HOST ? 'https://repository-town-claude-playtest.vercel.app/api/npc-chat' : '/api/npc-chat';
+const NPC_API = PAGES_HOST ? 'https://repository-town-ai-bridge.parris-neathaustralia.workers.dev/api/npc-chat' : '/api/npc-chat';
 const CHAT_STORE = 'repository-town.npc-chats';
 const ERRAND_STORE = 'repository-town.errands.v1';
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
