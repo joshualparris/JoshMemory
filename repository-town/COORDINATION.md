@@ -7,7 +7,6 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
-- 2026-10-19 · ChatGPT GitHub connector — revised multi-floor V7/W7 three-storey feature ported onto **latest source main** as `feat/tall-building-floors-current-20261019`, after older topic PR #29 became 100 commits behind. New `src/world/floor-plans.js`, `src/world/multifloor.js`, code wiring in `src/main.js`, camera `src/engine/player.js`, styles, contract test and docs. Existing indoor walkers and town simulation retained; upstairs floors are separate 3D groups at heights 0,3.8,7.6 with E/✋ stairs and floor-selecting lifts. **NOT MERGED OR PUBLISHED** until local tests, build and privacy check, plus desktop/real Android V7/W7 playtests. Never overwrite concurrent changes. Stairs are interaction-based vertical traversal because collision remains 2D; source code and documentation provided for review.
 
 
 - 2026-10-19 · ChatGPT GitHub connector — separate playtest branch `repository-town-merged-playtest-20261019` deployed to Render `https://repository-town-npc-playtest.onrender.com`; 32 NPCs, wandering, worksite inventory/build prototype, roof replacements and collision-aware wandering. **NOT YET MERGED**: compare reveals two divergent branches with overlapping edits to `src/main.js`, `src/world/npcs.js`, `src/ui/*` and the adventure files. Please preserve both implementations when integrating; do not publish one branch over the other. Render preview uses manually triggered deployment and privacy check. Proposed next step is reviewed three-way merge plus tests.\n
@@ -26,6 +25,9 @@ Newest first. Times in Australia/Sydney.
   is currently blocked by the Hobby team's daily deployment quota (`api-deployments-free-per-day`).
 
 ## Done recently
+
+- 2026-10-19 · ChatGPT GitHub connector — **V7/W7 three-storey interiors MERGED and Pages PUBLISHED**. Source PR [#30](https://github.com/joshualparris/JoshMemory/pull/30) merged at `14838688`; public site updated at `2a19860`, with successful Pages deployment run `39232948450`. Unique floors 2/3, spiral stair E/✋ transitions, floor-selectable lifts, height-adjusted camera and floor badge. Public geometry-construction tests of V7 and W7 passed, as did static syntax and contract checks. **Not yet verified:** real-device Android/desktop gameplay, full Town build and privacy CI. See `docs/MULTI_FLOOR_INTERIORS_2026-10-19.md`. Keep future changes mirrored source-first; DO NOT blindly overwrite new Pages work.
+
 
 - 2026-10-19 · ChatGPT — unified `integration/town-unified-20261019`: richer single-source TownLife and Claude branches #9/#16/#17/#18 reconciled onto latest `main`; Vercel quota exceeded; Cloudflare Pages Git integration unavailable. Full Github Actions Playwright run 39229344740 succeeded: build 188 houses, public privacy, 14 stable days, NPC/utility/merchant/driver checks, desktop/mobile A1/F3/H1/M5/Y5, arcade and 76/76 packed game loads. Temporary QA workflow removed. Exact unified build not yet deployed; preserve published-only NPC location fixes until separately ported and verified.
 
