@@ -732,7 +732,7 @@ async function start() {
     // Stands at the Town Guide kiosk, facing it.
     meetGuide() { if (mode === 'house') leave(false); player.place(town.guidePos.x, town.guidePos.z + 1.6, 0); return 'guide'; },
     goPlace,
-    shops:()=>[...life.places.values()].map(p=>({id:p.id,name:p.name,kind:p.kind,door:{x:p.x,z:p.door.z}})),
+    shops:()=>[...life.places.values()].map(p=>({id:p.id,name:p.name,kind:p.kind,side:p.side||'north',door:{x:p.x,z:p.door.z}})),
     enterShop,
     setFloor:(i)=>changeFloor(i),
     exitShop:()=>{if(!inside?.place)return false;leave();return true;},

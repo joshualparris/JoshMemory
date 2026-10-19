@@ -20,7 +20,7 @@ for(let i=0;i<3;i++){
 const lane=dep.curb.z;
 const t=tr[0],other=tr[1],third=tr[2];
 t.x=0;t.z=lane;t.path=[{x:35,z:lane}];t.state='delivering';t.heading=Math.PI/2;
-other.x=9;other.z=lane;other.path=[];other.state='waiting';
+other.x=16;other.z=lane;other.path=[];other.state='waiting';
 third.x=100;third.z=lane;third.path=[];third.state='parked';
 life.obstacles=[];life.villagers=[];
 life.driveTruck(t,0.5);
@@ -28,12 +28,12 @@ assert(t.braking,'truck must brake behind a stopped truck');
 assert(t.x>0,'truck should roll up to a safe following distance');
 assert(Math.hypot(t.x-other.x,t.z-other.z)>=6.1,'a 6.6m truck must not clip through another truck');
 // It must resume when the road ahead clears rather than remain frozen.
-other.x=80;life.driveTruck(t,0.5);
-assert(!t.braking&&t.x>4,'truck resumes after traffic clears');
+const held=t.x;other.x=80;life.driveTruck(t,0.5);
+assert(!t.braking&&t.x>held,'truck resumes after traffic clears');
 const pass=new TownLife({homes,minute:420});
 pass.villagers=[];pass.obstacles=[];
 pass.trucks[0].x=0;pass.trucks[0].z=lane;pass.trucks[0].path=[{x:20,z:lane}];pass.trucks[0].state='driving';
-pass.trucks[1].x=12;pass.trucks[1].z=lane+3.4;pass.trucks[1].path=[{x:-20,z:lane+3.4}];pass.trucks[1].state='driving';
+pass.trucks[1].x=12;pass.trucks[1].z=lane+3.4;pass.trucks[1].heading=-Math.PI/2;pass.trucks[1].path=[{x:-20,z:lane+3.4}];pass.trucks[1].state='driving';
 pass.trucks[2].x=100;pass.trucks[2].z=lane+3.4;
 pass.driveTruck(pass.trucks[0],0.5);pass.driveTruck(pass.trucks[1],0.5);
 assert(!pass.trucks[0].braking&&!pass.trucks[1].braking,'opposing left-hand traffic should pass');
@@ -48,8 +48,9 @@ behind.x=0;behind.z=-4.8;behind.heading=0;behind.path=[];behind.state='waiting';
 away.x=100;away.z=100;
 assert.equal(recovery.blocked(lead,{x:0,z:.9}),false,'already overlapping truck must escape by moving away');
 assert.equal(recovery.blocked(behind,{x:0,z:-3.9}),true,'following truck cannot move deeper into overlap');
-// Parking geometry is site-relative and delivery trucks finish off the road.
-for(const v of tr){const drop=life.stopAt(v,'foundry');assert(drop.z>dep.curb.z+3,'Foundry unloading should use south-side shoulder');}
+// Parking geometry is site-relative.
+// Delivery trucks unload from the travelling lane beside the building, never on a footpath.
+{const route=life.routeTruck(tr[0],'foundry'),drop=route.at(-1);assert(drop&&Math.abs(drop.z-dep.curb.z)<5,'Foundry unloading stays on the carriageway');}
 const foundry=life.place('foundry');
 assert.equal(foundry.side,'south');
 const exterior=[{x0:foundry.x-7,x1:foundry.x+7,z0:FIELD_Z0,z1:FIELD_Z0+10}];

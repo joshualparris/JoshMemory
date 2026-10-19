@@ -111,6 +111,24 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const fmt = (m) => `${String(Math.floor(m / 60) % 24).padStart(2, '0')}:${String(Math.floor(m % 60)).padStart(2, '0')}`;
 export const timeText = fmt;
 
+// ── Truck footprints ───────────────────────────────────────────────────────
+// A delivery truck is about 6.6 m × 2.2 m (see makeTruck in townlife.js). Boxes are oriented:
+// (fx, fz) is the unit forward vector and half-extents run along it (hl) and across it (hw).
+export const TRUCK = { hl: 3.3, hw: 1.2, gap: 0.15, turn: 1.5, site: 10, follow: 11 };
+// turn: rad per real second. site: hold-off radius (m) round a stop in use. follow: same-lane
+// following distance (m, centre to centre) so the truck in front always has room to turn out.
+export function truckBox(x, z, heading, grow = 0) { return { x, z, fx: Math.sin(heading), fz: Math.cos(heading), hl: TRUCK.hl + grow, hw: TRUCK.hw + grow }; }
+export function boxesOverlap(a, b) {
+  for (const [ax, az] of [[a.fx, a.fz], [a.fz, -a.fx], [b.fx, b.fz], [b.fz, -b.fx]]) {
+    const ra = a.hl * Math.abs(a.fx * ax + a.fz * az) + a.hw * Math.abs(a.fz * ax - a.fx * az);
+    const rb = b.hl * Math.abs(b.fx * ax + b.fz * az) + b.hw * Math.abs(b.fz * ax - b.fx * az);
+    if (Math.abs((b.x - a.x) * ax + (b.z - a.z) * az) >= ra + rb) return false;
+  }
+  return true;
+}
+const clampAbs = (v, m) => Math.max(-m, Math.min(m, v));
+function angleDiff(a, b) { let d = a - b; while (d > Math.PI) d -= Math.PI * 2; while (d < -Math.PI) d += Math.PI * 2; return d; }
+
 // Seeded random so a new town always starts the same way.
 function rng(seed) { let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
 
@@ -243,6 +261,7 @@ export class TownLife {
     if (hourly) this.everyHour();
     for (const v of this.villagers) this.liveVillager(v, minutes);
     for (const t of this.trucks) this.driveTruck(t, minutes);
+    for (const t of this.trucks) if ((t.blockedFor || 0) > 40) this.unjam(t);
   }
 
   newDay() {
@@ -493,85 +512,197 @@ export class TownLife {
     // The bay surface is rendered separately from the road and is not a lane.
     return {x:depot.x + [-16, -7, 9][id], z:ROAD(7)-7.2};
   }
-  // Road approach and short off-carriageway final manoeuvre. The last
-  // waypoint is a proper loading bay, never a through-traffic lane.
+  // Road approach. Depot trucks make a short off-carriageway manoeuvre into their marked bay;
+  // every other stop is made in the travelling lane beside the building (a delivery truck
+  // double-parks to unload), so a truck never parks on a footpath over a counter or a worker.
   routeTruck(t, placeId) {
-    const bay = this.stopAt(t, placeId);
-    if (Math.hypot(t.x-bay.x,t.z-bay.z) < 0.2) return [];
-    return [...driveRoute(t,bay),bay];
+    if (placeId === 'depot') {
+      const bay = this.depotBay(t.id);
+      if (Math.hypot(t.x - bay.x, t.z - bay.z) < 0.2) return [];
+      // Run along the lane and swing in over the last ~9 m, so the truck arrives nearly square to
+      // the bay instead of nose-first across the lane.
+      const lane = driveRoute(t, bay), prev = lane.length > 1 ? lane[lane.length - 2] : t, end = lane[lane.length - 1];
+      const dir = Math.sign(bay.x - prev.x) || 1, lead = { x: bay.x - dir * 5.5, z: end.z };
+      return (lead.x - prev.x) * dir > 0.5 ? [...lane.slice(0, -1), lead, bay] : [...lane, bay];
+    }
+    const route = driveRoute(t, { x: this.place(placeId).x, z: ROAD(7) });
+    const stop = route[route.length - 1];
+    return Math.hypot(t.x - stop.x, t.z - stop.z) < 0.2 ? [] : route;
   }
   driveTruck(t, minutes) {
-    const drv=t.driver;
-    const onShift=!!(drv && this.minute>=drv.start && this.minute<drv.end && drv.step?.kind==='work');
-    t.braking=false;
-    if(t.wait>0){t.wait=Math.max(0,t.wait-minutes);return;}
+    const drv = t.driver;
+    const onShift = !!(drv && this.minute >= drv.start && this.minute < drv.end && drv.step?.kind === 'work');
+    t.braking = false;
+    if (t.wait > 0) { t.wait = Math.max(0, t.wait - minutes); return; }
+    const secs = Math.max(0, minutes) * SEC_PER_MIN;
+    // A stop is "in use" from arrival until the truck has driven clear of it; others hold back.
+    if (t.ignoreSite != null && !this.trucks[t.ignoreSite]?.siteAt) t.ignoreSite = null;
+    if (t.siteAt && Math.hypot(t.x - t.siteAt.x, t.z - t.siteAt.z) > TRUCK.site + 1) t.siteAt = null;
+    if (t.reverse > 0) {            // backing out to let a truck that is boxed in turn round
+      const back = Math.min(t.reverse, secs * 3);
+      const trial = { x: t.x - Math.sin(t.heading) * back, z: t.z - Math.cos(t.heading) * back, h: t.heading, reverse: true };
+      if (!this.blocked(t, trial)) { t.x = trial.x; t.z = trial.z; t.reverse -= back; } else t.reverse = 0;
+      t.braking = true; return;
+    }
+    // Heading for the bay with no lead-in left (e.g. after backing out of a standoff): rejoin the
+    // lane and swing in properly instead of cutting diagonally across a neighbour's bay.
+    if (t.path.length === 1 && !t.retreat && !t.pulling) {
+      const bay = this.depotBay(t.id);
+      if (Math.hypot(t.path[0].x - bay.x, t.path[0].z - bay.z) < 0.5 && Math.abs(t.x - bay.x) > 6.5 && Math.abs(t.z - bay.z) > 3) t.path = this.routeTruck(t, 'depot');
+    }
     if (!t.path.length) {
-      if (!onShift && !t.job && t.state!=='parked') {
-        t.leg='return';t.state='returning to the depot parking bays';
-        t.path=this.routeTruck(t,'depot');
-        if(!t.path.length){t.state='parked';t.leg=null;}
-      } else if(onShift && !t.job && t.state!=='returning to the depot parking bays') this.pickJob(t);
+      if (!onShift && !t.job && t.state !== 'parked') {
+        t.leg = 'return'; t.state = 'returning to the depot parking bays';
+        t.path = this.routeTruck(t, 'depot');
+        if (!t.path.length) { t.state = 'parked'; t.leg = null; }
+      } else if (onShift && !t.job && t.state !== 'returning to the depot parking bays') this.pickJob(t);
+      // Already standing at the pickup or drop-off (e.g. a depot job from the depot's own bay):
+      // there is nothing to drive, so the stop happens now instead of never.
+      if (!t.path.length && t.job) { if (!this.squareUp(t, secs)) this.truckArrived(t); return; }
     }
-    if (!t.path.length) return;
-    let budget=Math.max(0,minutes)*SEC_PER_MIN*DRIVE; // approx 29 km/h max
-    // Substep all motion. A full half-town-minute tick is 12m: checking
-    // collision only once per tick let two trucks jump through one another.
-    while(budget>0.0001 && t.path.length) {
-      const p=t.path[0],dx=p.x-t.x,dz=p.z-t.z,d=Math.hypot(dx,dz);
-      if(d<0.0001){t.path.shift();continue;}
-      const step=Math.min(budget,d,0.9),fx=dx/d,fz=dz/d;
-      const trial={x:t.x+fx*step,z:t.z+fz*step};
-      if(this.blocked(t,trial)){t.braking=true;return;}
-      t.x=trial.x;t.z=trial.z;t.heading=Math.atan2(dx,dz);
-      budget-=step;
-      if(d-step<=0.0001){t.x=p.x;t.z=p.z;t.path.shift();}
+    if (!t.path.length) {
+      // Parked: settle square to the bay, turning like a vehicle rather than snapping round.
+      if (t.state === 'parked') this.squareUp(t, secs);
+      return;
     }
-    if(!t.path.length){
-      if(t.leg==='return' && !t.job) {t.leg=null;t.state='parked';t.heading=Math.PI/2;}
+    let budget = secs * DRIVE, turn = secs * TRUCK.turn;   // metres and radians available this tick
+    // Substep all motion: a full half-town-minute tick is 12 m, and checking collision once per
+    // tick let two trucks jump through one another.
+    for (let guard = 0; (budget > 1e-4 || turn > 1e-4) && t.path.length && guard < 600; guard++) {
+      const p = t.path[0], dx = p.x - t.x, dz = p.z - t.z, d = Math.hypot(dx, dz);
+      if (d < 0.15) { t.x = p.x; t.z = p.z; t.path.shift(); continue; }   // close enough: arrived at this point
+      const err = angleDiff(Math.atan2(dx, dz), t.heading);
+      const h = Math.abs(err) < 0.01 ? t.heading + err : t.heading + clampAbs(err, turn);
+      turn -= Math.abs(h - t.heading);
+      // Sharp corners are taken as a slow point turn first; shallow ones are driven through.
+      const step = Math.abs(angleDiff(Math.atan2(dx, dz), h)) < 0.5 ? Math.min(budget, d, 0.9) : 0;
+      if (step <= 0 && Math.abs(h - t.heading) < 1e-6) break;
+      const trial = { x: t.x + (dx / d) * step, z: t.z + (dz / d) * step, h };
+      if (this.blocked(t, trial)) { t.braking = true; this.noteBlocked(t, minutes); return; }
+      t.x = trial.x; t.z = trial.z; t.heading = h; budget -= step; t.blockedFor = 0;
+      if (step > 0 && d - step <= 1e-4) { t.x = p.x; t.z = p.z; t.path.shift(); }
+    }
+    if (!t.path.length) {
+      if (this.squareUp(t, secs)) return;
+      if (t.retreat) {              // back in the bay: wait a moment, then plan the trip again
+        t.retreat = false; t.wait = 3;
+        const to = t.job ? (t.leg === 'pickup' ? t.job.from : t.job.to) : 'depot';
+        t.path = this.routeTruck(t, to);
+      }
+      else if (t.leg === 'return' && !t.job) { t.leg = null; t.state = 'parked'; }
       else this.truckArrived(t);
     }
   }
 
-  // Depot bays are separate from traffic. Customer stops use shoulder/loading
-  // space rather than the left-hand through lane. The three loading slots do
-  // not overlap one another even if multiple vans visit the same site.
-  stopAt(t,id) {
-    if(id==='depot')return this.depotBay(t.id);
-    const p=this.place(id);
-    return {x:p.x+(t.id-1)*6,z:ROAD(7)+(p.side==='south'?5.5:-5.5)};
+  // A truck standing in its depot bay squares up to it (nose along the bay) before it counts as
+  // arrived or parked, so it never sticks out across the lane. True while still turning.
+  squareUp(t, secs) {
+    const bay = this.depotBay(t.id);
+    if (Math.hypot(t.x - bay.x, t.z - bay.z) > 0.3) return false;
+    const err = angleDiff(Math.PI / 2, t.heading);
+    if (Math.abs(err) < 0.02) return false;
+    const h = t.heading + clampAbs(err, secs * TRUCK.turn);
+    if (this.blocked(t, { x: t.x, z: t.z, h })) t.braking = true; else t.heading = h;
+    return true;
   }
 
-  blocked(t, proposed=null) {
-    // Only objects ahead in the direction of the next route segment can brake
-    // us. Other trucks include parked vehicles and oncoming/cross traffic.
-    const next=t.path.find(p=>Math.hypot(p.x-t.x,p.z-t.z)>0.1);
-    const dx=next?next.x-t.x:Math.sin(t.heading),dz=next?next.z-t.z:Math.cos(t.heading);
-    const len=Math.hypot(dx,dz)||1,fx=dx/len,fz=dz/len;
-    // People and obstacles: measured from where the truck would be, so the front
-    // bumper (3.4 m ahead of the centre) stops short of them — 2 m for the player
-    // and obstacles, 1 m for villagers (a wider gap gridlocks trucks behind
-    // villagers standing at delivery stops).
-    const at=proposed||t;
-    const near=(p,width,look)=>{
-      const x=p.x-at.x,z=p.z-at.z,ahead=x*fx+z*fz;
-      return ahead>0.3&&ahead<look&&Math.abs(x*fz-z*fx)<width;
+  // Last resort for a jam nothing else untangled: the truck is recalled to its own depot bay (when
+  // that is clear) and plans its trip again, rather than the town's deliveries stopping for good.
+  unjam(t) {
+    const bay = this.depotBay(t.id);
+    if (this.trucks.some((o) => o !== t && boxesOverlap(truckBox(bay.x, bay.z, Math.PI / 2, 0.3), truckBox(o.x, o.z, o.heading)))) { t.blockedFor = 30; return; }
+    t.x = bay.x; t.z = bay.z; t.heading = Math.PI / 2; t.pulling = false; t.retreat = false; t.reverse = 0; t.siteAt = null; t.blockedFor = 0;
+    t.wait = 2; t.path = t.job ? this.routeTruck(t, t.leg === 'pickup' ? t.job.from : t.job.to) : [];
+    this.stats.truckRecalls = (this.stats.truckRecalls || 0) + 1;
+    this.recalls = (this.recalls || 0) + 1;
+  }
+
+  // Two trucks that have each been waiting on the other for a long time: the lower-priority one
+  // (higher id) backs straight out of the way instead of both waiting for ever.
+  noteBlocked(t, minutes) {
+    t.blockedFor = (t.blockedFor || 0) + minutes;
+    // Courtesy only goes so far: after a few minutes a truck stops holding back for another's stop
+    // (bodies and following distance still keep them apart), which breaks waiting circles.
+    if (t.why === 'site' && t.blockedFor > 6 && t.blockedBy != null) t.ignoreSite = t.blockedBy;
+    const o = this.trucks[t.blockedBy];
+    if (t.blockedFor > 8 && o && o.braking && o.blockedBy === t.id && t.id > o.id) { t.reverse = 8; t.blockedFor = 0; }
+    // Boxed in half-way out of a bay by a truck that cannot get past: back into the bay and try again.
+    if (t.blockedFor > 10 && t.pulling && !t.retreat) {
+      t.retreat = true; t.pulling = false; t.blockedFor = 0;
+      t.path = [this.depotBay(t.id)];
+    }
+  }
+
+  // Would the truck run into anything if it moved to `proposed` {x, z, h} (default: where it
+  // stands now)? Trucks are tested as real 6.6 m × 2.2 m footprints plus a safety gap, so two
+  // trucks can never overlap whatever their angle, even beside or behind one another.
+  // People (the player and villagers) block it when they are inside, or just ahead of, the
+  // footprint in the direction it is about to travel.
+  blocked(t, proposed = null) {
+    const at = proposed || { x: t.x, z: t.z, h: t.heading };
+    const h = at.h ?? t.heading;
+    // Pulling out of a depot bay: wait for a gap in the traffic before swinging across the lanes.
+    const bay = this.depotBay(t.id), leaving = t.path[0] && Math.hypot(t.path[0].x - bay.x, t.path[0].z - bay.z) > 0.5;
+    if (proposed && leaving && !proposed.reverse && !t.pulling && !t.retreat && Math.hypot(t.x - bay.x, t.z - bay.z) < 1) {
+      for (const o of this.trucks) {
+        if (o === t || Math.abs(o.z - ROAD(7)) > 4.6) continue;
+        const dx = o.x - t.x, moving = o.path.length > 0 && o.wait <= 0 && !o.braking, closing = moving && dx * Math.sin(o.heading) < 0;   // heading towards our bay
+        if (Math.abs(dx) < 16 || (closing && Math.abs(dx) < 48)) { t.blockedBy = o.id; t.why = 'bay-gap'; return true; }
+      }
+      t.pulling = true;
+    }
+    // Turning in across the lanes to a bay: let through traffic near the bay go by first.
+    const bayHead = t.path[0] && Math.hypot(t.path[0].x - bay.x, t.path[0].z - bay.z) < 0.5;
+    if (proposed && bayHead && !proposed.reverse && !t.retreat && Math.abs(t.z - bay.z) > 3.2 && Math.hypot(t.x - bay.x, t.z - bay.z) < 14) {
+      for (const o of this.trucks) {
+        if (o === t || Math.abs(o.x - bay.x) > 13 || Math.abs(o.z - bay.z) < 1.5) continue;
+        const oBay = this.depotBay(o.id), entering = o.path[0] && Math.hypot(o.path[0].x - oBay.x, o.path[0].z - oBay.z) < 0.5;
+        if (entering && o.id > t.id) continue;     // two trucks turning in: the lower id goes first
+        t.blockedBy = o.id; t.why = 'bay-in'; return true;
+      }
+    }
+    if (t.pulling && Math.abs(t.z - ROAD(7)) < 3.0) t.pulling = false;
+    // Driving needs a following gap; turning on the spot only needs the bodies to clear.
+    const turningOnly = !!proposed && Math.hypot(at.x - t.x, at.z - t.z) < 1e-6;
+    const mine = truckBox(at.x, at.z, h, turningOnly ? 0.05 : TRUCK.gap);
+    const here = proposed && truckBox(t.x, t.z, t.heading, TRUCK.gap);
+    for (const o of this.trucks) {
+      if (o === t) continue;
+      const other = truckBox(o.x, o.z, o.heading);
+      if (!boxesOverlap(mine, other)) continue;
+      // Already touching (e.g. after a recall or a restored save): moving apart is always allowed.
+      if (here && boxesOverlap(here, other) && Math.hypot(at.x - o.x, at.z - o.z) > Math.hypot(t.x - o.x, t.z - o.z)) continue;
+      t.blockedBy = o.id; t.why = 'body'; return true;
+    }
+    // Hold back while another truck is serving a stop in this lane, so it has room to turn round.
+    if (!turningOnly && !proposed?.reverse) {
+      for (const o of this.trucks) {
+        if (o === t || !o.siteAt || t.ignoreSite === o.id) continue;
+        const now = Math.hypot(t.x - o.siteAt.x, t.z - o.siteAt.z), then = Math.hypot(at.x - o.siteAt.x, at.z - o.siteAt.z);
+        if (then < TRUCK.site && then < now && Math.abs(at.z - o.siteAt.z) < 5) { t.blockedBy = o.id; t.why = 'site'; return true; }
+      }
+    }
+    const next = t.path.find((p) => Math.hypot(p.x - t.x, p.z - t.z) > 0.1);
+    let fx = proposed?.reverse ? -Math.sin(h) : next ? next.x - t.x : Math.sin(h), fz = proposed?.reverse ? -Math.cos(h) : next ? next.z - t.z : Math.cos(h);
+    const len = Math.hypot(fx, fz) || 1; fx /= len; fz /= len;
+    const rx = fz, rz = -fx;
+    // Keep a real following distance in the same lane (never closer than we already are).
+    if (!turningOnly && !proposed?.reverse) {
+      for (const o of this.trucks) {
+        if (o === t) continue;
+        const ox = o.x - at.x, oz = o.z - at.z, ahead = ox * fx + oz * fz;
+        if (ahead > 0 && ahead < TRUCK.follow && Math.abs(ox * rx + oz * rz) < 1.9 && ahead < (o.x - t.x) * fx + (o.z - t.z) * fz) { t.blockedBy = o.id; t.why = 'follow'; return true; }
+      }
+    }
+    t.blockedBy = null;
+    // Only people in the way matter: look no further than the end of the current straight leg,
+    // so a pedestrian on the far footpath is not 'in the way' of a truck that is about to turn.
+    const reach = turningOnly ? 0.3 : next ? Math.min(3.5, Math.hypot(next.x - at.x, next.z - at.z) + 0.5) : 3.5;
+    const hit = (q) => {
+      const x = q.x - at.x, z = q.z - at.z, ahead = x * fx + z * fz;
+      return ahead > -TRUCK.hl && ahead < TRUCK.hl + reach && Math.abs(x * rx + z * rz) < TRUCK.hw + 0.5;
     };
-    return this.obstacles.some(p=>near(p,1.8,5.6)) ||
-      this.villagers.some(v=>!v.inside&&near(v,1.6,4.4)) ||
-      this.trucks.some(o=>{
-        if(o===t||(t.state==='parked'&&!proposed))return false;
-        // Full oriented body collision, including a 90-degree turn. Test the
-        // proposed position/heading, not just the old truck centre.
-        // Road-lane collision is active; full-size oriented body SAT needs
-        // more turning radius and reserved unloading junctions first. Enforcing
-        // it on the old narrow apron deadlocks the entire food/fuel network.
-        // Trucks are roughly 6.6m bumper-to-bumper: keep an actual
-        // following gap, not merely non-overlapping centre points. Vehicles
-        // in the opposing Australian left-hand lane are separated laterally.
-        const rx=o.x-t.x,rz=o.z-t.z,ahead=rx*fx+rz*fz;
-        if(ahead<=0.3||ahead>12||Math.abs(rx*fz-rz*fx)>2.85)return false;
-        return Math.hypot(o.x-at.x,o.z-at.z)<6.2;
-      });
+    return this.obstacles.some(hit) || this.villagers.some((v) => !v.inside && hit(v));
   }
 
   // Finds the most useful load: a destination short of a good that a source has spare.
@@ -603,6 +734,7 @@ export class TownLife {
 
   truckArrived(t) {
     if (!t.job) { t.state = 'parked'; return; }
+    t.siteAt = { x: t.x, z: t.z };
     const src = this.place(t.job.from), dst = this.place(t.job.to), g = t.job.good;
     if (t.leg === 'pickup') {
       const n = Math.min(t.job.n, src.out[g] || 0);

@@ -56,10 +56,11 @@ function shopfront(b, w, d, h, wall, trim, stripes) {
   if (stripes) { const n = Math.round(w / 1.2); for (let i = 0; i < n; i++) b.add('box', stripes[i % 2], w / n, 0.08, 2.0, -w / 2 + (i + 0.5) * (w / n), 3.05, 7.95, 0.35, 0, 0); }
 }
 function table(b, x, z, w = 2.4, d = 0.9, top = WOOD) {
+  b.solid(w, d, x, z);
   b.block(top, w, 0.08, d, x, 0.82, z);
   for (const sx of [-1, 1]) for (const sz of [-1, 1]) b.block(0x5a4030, 0.08, 0.82, 0.08, x + sx * (w / 2 - 0.1), 0, z + sz * (d / 2 - 0.1));
 }
-function crate(b, x, z, w = 0.9, d = 0.6, y = 0) { b.block(0x9a7448, w, 0.3, d, x, y, z); }
+function crate(b, x, z, w = 0.9, d = 0.6, y = 0) { b.solid(w, d, x, z); b.block(0x9a7448, w, 0.3, d, x, y, z); }
 function shed(b, w, d, h, wall, roof, z0 = 7) {
   b.box(wall, w, h, d, 0, h / 2, z0 - d / 2);
   const r = Math.hypot(w / 2 + 0.4, 1.6), ang = Math.atan2(1.6, w / 2 + 0.4);
@@ -67,9 +68,9 @@ function shed(b, w, d, h, wall, roof, z0 = 7) {
   b.add('box', roof, r, 0.15, d + 0.8, (w / 2 + 0.4) / 2, h + 0.8, z0 - d / 2, 0, 0, -ang);
   b.box(0x3a2a1e, 2.6, 2.8, 0.06, 0, 1.4, z0 + 0.03);
 }
-function tree(b, x, z, s = 1, leaf = 0x4e8a46) { b.cyl(0x6a4a2a, 0.22 * s, 2.4 * s, x, 1.2 * s, z); b.ball(leaf, 1.5 * s, x, 3.2 * s, z); }
+function tree(b, x, z, s = 1, leaf = 0x4e8a46) { b.solid(0.6 * s, 0.6 * s, x, z); b.cyl(0x6a4a2a, 0.22 * s, 2.4 * s, x, 1.2 * s, z); b.ball(leaf, 1.5 * s, x, 3.2 * s, z); }
 function fence(b, x0, x1, z0, z1, gateX) {
-  const rail = (ax, az, bx, bz) => { const len = Math.hypot(bx - ax, bz - az), ry = Math.atan2(bx - ax, bz - az) + Math.PI / 2; for (const y of [0.45, 0.9]) b.box(0xd8cdb8, len, 0.08, 0.06, (ax + bx) / 2, y, (az + bz) / 2, ry); for (let s = 0; s <= len; s += 2.5) b.block(0xc8bca5, 0.1, 1.05, 0.1, ax + (bx - ax) * (s / len), 0, az + (bz - az) * (s / len)); };
+  const rail = (ax, az, bx, bz) => { b.solid(Math.max(0.3, Math.abs(bx - ax)), Math.max(0.3, Math.abs(bz - az)), (ax + bx) / 2, (az + bz) / 2); const len = Math.hypot(bx - ax, bz - az), ry = Math.atan2(bx - ax, bz - az) + Math.PI / 2; for (const y of [0.45, 0.9]) b.box(0xd8cdb8, len, 0.08, 0.06, (ax + bx) / 2, y, (az + bz) / 2, ry); for (let s = 0; s <= len; s += 2.5) b.block(0xc8bca5, 0.1, 1.05, 0.1, ax + (bx - ax) * (s / len), 0, az + (bz - az) * (s / len)); };
   rail(x0, z1, x1, z1); rail(x0, z0, x0, z1); rail(x1, z0, x1, z1);
   if (gateX === undefined) rail(x0, z0, x1, z0); else { rail(x0, z0, gateX - 1.6, z0); rail(gateX + 1.6, z0, x1, z0); }
 }
@@ -154,10 +155,10 @@ const BUILD = {
   square(b) {
     b.box(0xc9c0ac, 24, 0.05, 30, 0, 0.03, -4);
     b.cyl(0xbab6ae, 2.6, 0.7, 0, 0.35, -4); b.cyl(0x6fb8e0, 2.3, 0.1, 0, 0.66, -4); b.cyl(0xbab6ae, 0.35, 2, 0, 1, -4); b.ball(0xbab6ae, 0.6, 0, 2.1, -4);
-    for (const [x, z, r] of [[-6, -4, Math.PI / 2], [6, -4, -Math.PI / 2], [0, 3, Math.PI], [0, -11, 0]]) b.at(x, 0, z, r, () => { b.block(WOOD, 2, 0.08, 0.6, 0, 0.45, 0); b.block(WOOD, 2, 0.5, 0.08, 0, 0.5, -0.3); b.block(DARK, 0.1, 0.45, 0.5, -0.9, 0, 0); b.block(DARK, 0.1, 0.45, 0.5, 0.9, 0, 0); });
+    for (const [x, z, r] of [[-6, -4, Math.PI / 2], [6, -4, -Math.PI / 2], [0, 3, Math.PI], [0, -11, 0]]) b.at(x, 0, z, r, () => { b.solid(2, 0.7, 0, 0); b.block(WOOD, 2, 0.08, 0.6, 0, 0.45, 0); b.block(WOOD, 2, 0.5, 0.08, 0, 0.5, -0.3); b.block(DARK, 0.1, 0.45, 0.5, -0.9, 0, 0); b.block(DARK, 0.1, 0.45, 0.5, 0.9, 0, 0); });
     for (const [x, z] of [[-9, -14], [9, -14], [-9, 5], [9, 5], [-9, -4.5], [9, -4.5]]) tree(b, x, z, 1.1, 0x5a9a50);
     // Saturday-style market stalls along the back.
-    for (const [x, c] of [[-5, 0xd85a4a], [0, 0x3a7ab8], [5, 0xe0b040]]) { b.block(WOOD, 3, 0.9, 1.2, x, 0, -15); b.box(c, 3.4, 0.08, 1.8, x, 2.4, -15); for (const sx of [-1.5, 1.5]) b.block(DARK, 0.08, 2.4, 0.08, x + sx, 0, -14.4); }
+    for (const [x, c] of [[-5, 0xd85a4a], [0, 0x3a7ab8], [5, 0xe0b040]]) { b.solid(3, 1.2, x, -15); b.block(WOOD, 3, 0.9, 1.2, x, 0, -15); b.box(c, 3.4, 0.08, 1.8, x, 2.4, -15); for (const sx of [-1.5, 1.5]) b.block(DARK, 0.08, 2.4, 0.08, x + sx, 0, -14.4); }
     return null;
   },
 };
@@ -253,9 +254,9 @@ function buildField(p, group, statics, glass) {
     // Livestock paddocks: pasture, a fence with a gate on the road side, a trough.
     b.box(0x6fae58, w, 0.03, d, cx, 0.02, cz);
     fence(b, f.x0 + 0.5, f.x1 - 0.5, f.z0 + 0.5, f.z1 - 0.5, cx);
-    b.block(0x8a8a8a, 2.4, 0.5, 0.7, cx + 6, 0, f.z1 - 3);
+    b.solid(2.4, 0.7, cx + 6, f.z1 - 3); b.block(0x8a8a8a, 2.4, 0.5, 0.7, cx + 6, 0, f.z1 - 3);
     const kind = { sheep: { n: 12, body: [0.9, 0.62, 1.2], bodyC: 0xf2efe6, head: 0x2a2420, y: 0.62 }, dairy: { n: 7, body: [1.1, 1.0, 2.0], bodyC: 0xf5f2ea, head: 0x2a2420, y: 1.0 }, coop: { n: 16, body: [0.3, 0.3, 0.38], bodyC: 0xa8582a, head: 0xd83a2a, y: 0.3 } }[p.id];
-    if (p.id === 'coop') b.at(cx - 6, 0, f.z1 - 4, 0, () => { b.block(0xc89a5a, 3, 1.8, 2.2, 0, 0.4, 0); b.pyramid(0x8a4a2a, 3.6, 1, 2.8, 0, 2.7, 0); for (const sx of [-1.2, 1.2]) b.block(DARK, 0.12, 0.4, 0.12, sx, 0, 0); });
+    if (p.id === 'coop') b.at(cx - 6, 0, f.z1 - 4, 0, () => { b.solid(3, 2.2, 0, 0); b.block(0xc89a5a, 3, 1.8, 2.2, 0, 0.4, 0); b.pyramid(0x8a4a2a, 3.6, 1, 2.8, 0, 2.7, 0); for (const sx of [-1.2, 1.2]) b.block(DARK, 0.12, 0.4, 0.12, sx, 0, 0); });
     const bodyGeo = new THREE.SphereGeometry(0.5, 10, 7), headGeo = new THREE.SphereGeometry(0.5, 8, 6);
     const bodies = new THREE.InstancedMesh(bodyGeo, new THREE.MeshLambertMaterial({ color: kind.bodyC }), kind.n);
     const heads = new THREE.InstancedMesh(headGeo, new THREE.MeshLambertMaterial({ color: kind.head }), kind.n);
@@ -370,7 +371,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       continue;
     }
     b.at(p.x, 0, LOT8_Z, 0, () => {
-      if (kind === 'farm') { const [w, d, h, wall, roof] = FARM_SHED[p.id]; shed(b, w, d, h, wall, roof); fp = { w, d }; if (p.id === 'silo') { for (const x of [9, 12]) { b.cyl(0xc8c8c0, 1.4, 9, x, 4.5, -1); b.cone(0xa8a8a0, 1.6, 1.4, x, 9.7, -1); } } }
+      if (kind === 'farm') { const [w, d, h, wall, roof] = FARM_SHED[p.id]; shed(b, w, d, h, wall, roof); fp = { w, d }; if (p.id === 'silo') { for (const x of [9, 12]) { b.solid(2.6, 2.6, x, -1); b.cyl(0xc8c8c0, 1.4, 9, x, 4.5, -1); b.cone(0xa8a8a0, 1.6, 1.4, x, 9.7, -1); } } }
       else fp = BUILD[kind](b);
     });
     if (fp) colliders.push({ x0: p.x - fp.w / 2, x1: p.x + fp.w / 2, z0: LOT8_Z + (fp.front ?? 7) - fp.d, z1: LOT8_Z + (fp.front ?? 7) });
@@ -407,6 +408,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     statics.box(0xe0c35b,1.2,0.046,0.15,x,0.045,z+1.52);
   }
   group.add(statics.build());
+  colliders.push(...statics.solids);
   const shopGlass = Builder.merge(statics.glass);
   const shopGlassMat = new THREE.MeshLambertMaterial({ vertexColors: true, emissive: 0xffc070, emissiveIntensity: 0 });
   if (shopGlass) group.add(new THREE.Mesh(shopGlass, shopGlassMat));
@@ -549,7 +551,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       const t0 = tr.t;
       tr.group.visible = !overview && near(t0.x, t0.z, 120);
       tr.group.position.set(t0.x, 0, t0.z);
-      tr.group.rotation.y += angleDiff(t0.heading, tr.group.rotation.y) * Math.min(1, dt * 6);
+      tr.group.rotation.y = t0.heading;   // the simulation already turns at a realistic rate; smoothing would make the mesh lag its footprint
       tr.load.count = t0.load ? Math.min(10, Math.max(1, Math.round(t0.load.n / 2))) : 0;
       tr.tails.material.emissiveIntensity = t0.braking ? 1.6 : dark > 0.3 ? 0.7 : 0;
     }
