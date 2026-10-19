@@ -1038,7 +1038,7 @@ export class TownLife {
   }
 
   // Saves just what matters to resume tomorrow where the town left off.
-  snapshot() { return { saveVersion:2, day: this.day, minute: this.minute, powerGridEvents:this.powerGridEvents, powerGridEventSeq:this.powerGridEventSeq, civic: this.civic, places: [...this.places.values()].map((p) => [p.id, p.stock, p.out, p.till, p.growth]), villagers: this.villagers.map((v) => [v.id, v.pantry, v.wallet, v.lastMeal, v.meals, v.hunger, v.fatigue, v.restedMinutes, v.wageArrears || 0, v.rateArrears || 0]), hotelBookings:this.place('hotel').bookings }; }
+  snapshot() { return { saveVersion:2, day: this.day, minute: this.minute, powerGridEvents:this.powerGridEvents, powerGridEventSeq:this.powerGridEventSeq, civic: this.civic, places: [...this.places.values()].map((p) => [p.id, p.stock, p.out, p.till, p.growth]), villagers: this.villagers.map((v) => [v.id, v.pantry, v.wallet, v.lastMeal, v.meals, v.hunger, v.fatigue, v.restedMinutes, v.wageArrears || 0, v.rateArrears || 0, v.housingArrears || 0]), hotelBookings:this.place('hotel').bookings }; }
   restore(s) {
     if (!s || typeof s !== 'object') return;
     this.day = Number.isFinite(s.day) && s.day >= 1 ? s.day : 1;
@@ -1053,7 +1053,7 @@ export class TownLife {
     this.civic.powerLines = this.civic.powerLines && typeof this.civic.powerLines === 'object' ? this.civic.powerLines : {};
     if(this.civic.supply.powerDemand>0)this.updatePowerGrid();
     for (const [id, stock, out, till, growth] of s.places || []) { const p = this.place(id); if (p) Object.assign(p, { stock, out, till, growth: growth ?? p.growth }); }
-    for (const [id, pantry, wallet, lastMeal, meals, hunger, fatigue, restedMinutes, wageArrears, rateArrears] of s.villagers || []) { const v = this.villagers[id]; if (v) Object.assign(v, { pantry, wallet, lastMeal, meals: meals || [], hunger: Number.isFinite(hunger)?hunger:v.hunger, fatigue: Number.isFinite(fatigue)?fatigue:v.fatigue, restedMinutes: Number.isFinite(restedMinutes)?restedMinutes:0, wageArrears: Number.isFinite(wageArrears)?wageArrears:0, rateArrears: Number.isFinite(rateArrears)?rateArrears:0 }); }
+    for (const [id, pantry, wallet, lastMeal, meals, hunger, fatigue, restedMinutes, wageArrears, rateArrears, housingArrears] of s.villagers || []) { const v = this.villagers[id]; if (v) Object.assign(v, { pantry, wallet, lastMeal, meals: meals || [], hunger: Number.isFinite(hunger)?hunger:v.hunger, fatigue: Number.isFinite(fatigue)?fatigue:v.fatigue, restedMinutes: Number.isFinite(restedMinutes)?restedMinutes:0, wageArrears: Number.isFinite(wageArrears)?wageArrears:0, rateArrears: Number.isFinite(rateArrears)?rateArrears:0, housingArrears: Number.isFinite(housingArrears)?housingArrears:0 }); }
     this.place('hotel').bookings=Array.isArray(s.hotelBookings)?s.hotelBookings.slice(-12):[];
     startNeeds(this);
   }

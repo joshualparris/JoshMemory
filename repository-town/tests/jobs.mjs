@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import { TownLife } from '../src/world/life.js';
 import { JOB_BOARD } from '../src/world/jobs.js';
+import { RATES } from '../src/world/finance.js';
 
 const homes = [];
 for (let r = 0; r < 7; r++) for (let c = 0; c < 26; c += 2) homes.push({ coordinate: String.fromCharCode(65 + c) + (r + 1), name: 'House', door: { x: (c - 12.5) * 26, z: r * 46 - 161 + 4 } });
@@ -42,12 +43,12 @@ const shop = t.place('store'); shop.till = 500;
 const w0 = me.wallet, fed0 = f().federal, before = total();
 const r = t.finishJob();
 assert.match(r.message, /Shift complete/, r.message);
-const tax = Math.floor(24 * 0.1);
+const tax = Math.floor(24 * RATES.paygPercent / 100);
 assert.equal(me.wallet, w0 + 24 - tax, 'net wage in the wallet');
 assert.equal(f().federal, fed0 + tax, 'PAYG went to the Commonwealth');
 assert.equal(shop.till, 500 - 24, 'the till paid the wage');
 assert.ok(Math.abs(total() - before) < 1e-6, 'wages only move money');
-assert.ok(t.creditReport().earned >= 22, 'wages count towards credit');
+assert.ok(t.creditReport().earned >= 20, 'wages count towards credit');
 assert.ok(t.jobsReport().receipts.some((x) => /Shop|stocker|Store/.test(x.text)), 'wage receipt recorded');
 assert.match(t.startJob('store-stocker').message, /already did/, 'one of each per day');
 

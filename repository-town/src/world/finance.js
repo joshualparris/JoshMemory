@@ -5,12 +5,17 @@
 // treasury, which the soak test counts in town money. Figures are fictional Town Dollars for a
 // 24-minute game day, not real Australian rates.
 export const RATES = Object.freeze({
-  paygPercent: 10,        // simplified whole-dollar PAYG withholding on wages
+  paygPercent: 15,        // simplified whole-dollar PAYG withholding on wages
   visitorRent: 8,         // per town day, from day 2
   visitorPower: 2,
   businessUtilities: 3,   // per private business per town day
-  federalGrant: 600,      // daily Commonwealth local-services grant to council (while funds last)
-  stateGrant: 300,        // daily NSW local-infrastructure grant to council (while funds last)
+  npcRent: 8,             // every villager household pays rent and power too, to the council
+  npcPower: 2,
+  councilReserve: 6000,   // grants top the council up towards this level; a rich council needs none
+  federalGrant: 600,      // most the Commonwealth pays the council in a day
+  stateGrant: 300,        // most NSW pays the council in a day
+  gstTopUp: 400,          // most the Commonwealth passes to NSW in a day (the GST pool)
+  stateReserve: 15000,
   federalStart: 40000,
   stateStart: 25000,
   arrearsCapWages: 6,     // unpaid wage arrears stop growing after this many shifts
@@ -91,10 +96,16 @@ export function drawState(life, amount) {
 }
 export function noteCouncilWage(life, amount) { if (amount > 0) { revenue(life, 'councilWages', amount); record(life, 'council', 'wages', amount, 'Council payroll'); } }
 
-// Daily Commonwealth and NSW grants to the council, from money those treasuries actually hold.
+// Daily grants are needs-based, as for a real country council: the Commonwealth and NSW only top the
+// council up when it is below its reserve, and the Commonwealth passes the GST pool to NSW when NSW
+// runs low. Every dollar moves from a treasury that actually holds it.
 export function dailyGrants(life) {
   const f = fin(life), c = life.civic;
-  const fed = Math.min(RATES.federalGrant, f.federal), st = Math.min(RATES.stateGrant, f.state);
+  const gst = Math.min(RATES.gstTopUp, Math.max(0, RATES.stateReserve - f.state), f.federal);
+  if (gst > 0) { f.federal = r2(f.federal - gst); f.state = r2(f.state + gst); record(life, 'commonwealth', 'nsw', gst, 'GST distribution to NSW'); }
+  const need = Math.max(0, RATES.councilReserve - c.treasury);
+  const fed = Math.min(RATES.federalGrant, f.federal, need);
+  const st = Math.min(RATES.stateGrant, f.state, Math.max(0, need - fed));
   f.federal = r2(f.federal - fed); f.state = r2(f.state - st);
   c.treasury = r2(c.treasury + fed + st);
   if (fed) record(life, 'commonwealth', 'council', fed, 'Commonwealth local services grant');
@@ -121,6 +132,13 @@ export function dailyClose(life) {
   bill(RATES.visitorRent, 'rentArrears', 'rent');
   bill(RATES.visitorPower, 'powerArrears', 'power');
   if (f.rentArrears + f.powerArrears > 0) life.log('Your rent and power are overdue. Pay them at the Community Bank.');
+  // Every villager household pays rent and power as well, from its wallet; shortfalls become arrears.
+  for (const v of life.villagers) {
+    const due = RATES.npcRent + RATES.npcPower + (v.housingArrears || 0), pay = Math.min(due, Math.max(0, Math.floor(v.wallet)));
+    if (pay > 0) { v.wallet -= pay; c.treasury = r2(c.treasury + pay); revenue(life, 'rent', pay); }
+    v.housingArrears = Math.min(80, r2(due - pay));
+    if (v.housingArrears > 0) f.daily.unpaid = r2(f.daily.unpaid + v.housingArrears);
+  }
   // Private businesses pay utilities from the till, then any bills they still owe.
   for (const p of life.places.values()) {
     if (p.kind === 'home' || p.kind === 'utility' || !p.target || ['hall', 'school', 'clinic', 'post', 'depot', 'square', 'bank'].includes(p.id)) continue;
@@ -166,7 +184,7 @@ export function economyReport(life) {
     rentArrears: f.rentArrears, powerArrears: f.powerArrears,
     daily: { ...f.daily }, lifetime: { ...f.lifetime },
     wageArrears: life.villagers.reduce((n, v) => n + (v.wageArrears || 0), 0),
-    rateArrears: life.villagers.reduce((n, v) => n + (v.rateArrears || 0), 0),
+    rateArrears: life.villagers.reduce((n, v) => n + (v.rateArrears || 0) + (v.housingArrears || 0), 0),
     biz, entries: f.entries.slice(0, 16),
   };
 }
