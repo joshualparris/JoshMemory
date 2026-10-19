@@ -1,0 +1,40 @@
+name: Town Economy Regression
+on:
+  push:
+    branches:
+      - feat/town-real-economy-20261019
+      - main
+      - feat/town-economy-full-realism-20261020
+    paths:
+      - 'world/life.js'
+      - 'world/money.js'
+      - 'world/finance.js'
+      - 'ui/townpanels.js'
+      - 'ui/economy-panels.js'
+      - 'main.js'
+      - 'tests/economy.mjs'
+      - 'tests/economy-realism.mjs'
+      - '.github/workflows/town-economy.yml'
+  pull_request:
+    paths:
+      - 'world/life.js'
+      - 'world/money.js'
+      - 'world/finance.js'
+      - 'ui/townpanels.js'
+      - 'ui/economy-panels.js'
+      - 'main.js'
+      - 'tests/economy.mjs'
+      - 'tests/economy-realism.mjs'
+jobs:
+  economy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Money conservation and regression
+        run: node tests/economy.mjs && node tests/economy-realism.mjs
