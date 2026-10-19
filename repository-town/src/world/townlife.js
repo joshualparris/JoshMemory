@@ -164,6 +164,30 @@ const BUILD = {
 };
 // Civic sites across the road (authored like the rest: street side +z, front wall at z = +7).
 Object.assign(BUILD, {
+  hardware(b) {
+    shopfront(b,13,9,4.5,0xb2a89a,0x75644a,[0xf0c060,0x5c6c7a]);
+    for(const x of [-4,4]){b.block(0x99734a,2.2,1.2,2.0,x,0,9.0);b.box(0xd4be83,2.3,.15,2.0,x,1.3,9.0);}
+    return {w:13,d:9};
+  },
+  vet(b) {
+    b.box(0xd6e2d9,13,5.5,9,0,2.75,2.5);b.pyramid(0x718c82,13.6,2.0,10,0,6.1,2.5);
+    for(const x of [-4.5,4.5])b.box(GLASS,1.9,1.7,.08,x,2.6,7.04);
+    b.box(0x314c44,2.2,2.7,.08,0,1.35,7.05);b.box(0x91c0a2,4,.6,.08,0,4.4,7.08);
+    return {w:13,d:9};
+  },
+  brewery(b) {
+    b.box(0x9d6f4e,14,6,10,0,3,2);b.box(0x664537,14.6,.6,10.6,0,6.3,2);
+    for(const x of [-4,4]){b.cyl(0xb9b0a0,1.2,7,x,3.5,-2);b.cyl(0x8a785e,.9,.4,x,7,-2);}
+    b.box(0x4e3028,2.3,3,.08,0,1.5,7.05);
+    return {w:14,d:10};
+  },
+  buildsite(b) {
+    b.box(0xc7b79a,13,4.5,9,0,2.25,2.5);
+    for(const x of [-6.2,6.2])for(const z of [-2,4,7])b.block(0x726453,.12,6,.12,x,0,z);
+    for(const y of [2,4.5])b.box(0xb6a990,13,.12,.65,0,y,7);
+    b.box(0x6e6050,2.4,2.8,.08,0,1.4,7.05);
+    return {w:13,d:9};
+  },
   hotel(b) {
     // Road-facing south-side hotel: two floors, reception, guest-room windows.
     b.box(0xd9b894,14,7,10,0,3.5,2);
@@ -277,9 +301,11 @@ function buildField(p, group, statics, glass) {
     const herd = Array.from({ length: kind.n }, (_, i) => ({ x: f.x0 + 2 + ((i * 37) % 17) / 17 * (w - 4), z: f.z0 + 2 + ((i * 53) % 13) / 13 * (d - 4), h: i, tx: 0, tz: 0, wait: i % 4 }));
     const m = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), v = new THREE.Vector3(), up = new THREE.Vector3(0, 1, 0);
     const place = (a, t) => {
+      const record=p.animals?.[a.i];
+      const renderSize=record?.isolated?0.55:1;
       const bob = p.id === 'coop' && a.wait > 0 ? Math.max(0, Math.sin(t * 9 + a.h)) * 0.12 : 0;
       q.setFromAxisAngle(up, a.h);
-      m.compose(v.set(a.x, kind.y, a.z), q, s.set(...kind.body)); bodies.setMatrixAt(a.i, m);
+      m.compose(v.set(a.x, kind.y, a.z), q, s.set(kind.body[0]*renderSize,kind.body[1]*renderSize,kind.body[2]*renderSize)); bodies.setMatrixAt(a.i, m);
       const hx = Math.sin(a.h) * kind.body[2] * 0.55, hz = Math.cos(a.h) * kind.body[2] * 0.55;
       m.compose(v.set(a.x + hx, kind.y + kind.body[1] * 0.3 - bob * 3, a.z + hz), q, s.set(kind.body[0] * 0.5, kind.body[1] * 0.55, kind.body[0] * 0.55)); heads.setMatrixAt(a.i, m);
       if (patches) { m.compose(v.set(a.x + 0.2, kind.y + 0.25, a.z - 0.2), q, s.set(0.7, 0.6, 0.9)); patches.setMatrixAt(a.i, m); }

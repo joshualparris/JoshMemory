@@ -14,6 +14,14 @@ for(const id of CIVIC_INTERIOR_IDS){
     room.group.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material?.dispose)o.material.dispose();});
     continue;
   }
+  if(['vet','hardware','brewery','buildsite'].includes(id)){
+    assert.equal(room.rooms.length,3,id+' has three unique working rooms');
+    assert(room.placedProps.length>=7,id+' must have actual trade furnishings');
+    assert(room.interactables.some(x=>x.act?.do==='info'),id+' must expose trade process');
+    assert(room.exitZone.z1>room.spawn.z);
+    room.group.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material?.dispose)o.material.dispose();});
+    continue;
+  }
   if(id==='hotel'){
     assert.equal(room.rooms.length,5,'hotel has reception and four real bedrooms');
     assert.equal(room.interactables.filter(x=>x.type==='bed').length,4);
