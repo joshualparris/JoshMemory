@@ -507,7 +507,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     // Villagers stop to chat when the player walks up; cyclists hop off their bikes.
     for (const p of people) {
       const d = Math.hypot(p.v.x - player.pos.x, p.v.z - player.pos.z);
-      p.v.engaged = inTown && !p.v.inside && (talkingTo === p || d < 2.8);
+      p.v.engaged = inTown && !p.v.inside && talkingTo === p; // proximity alone must never freeze passers-by
     }
     let minutes = Math.min(dt, 0.25) * life.speed / SEC_PER_MIN;
     while (minutes > 0) { const step = Math.min(minutes, 0.5); life.tick(step); minutes -= step; }
