@@ -270,7 +270,7 @@ async function start() {
         const pose = civicExitPose(shop, [...townWorld.all, ...townWorld.dynamic()], player.radius+0.08);
         if (pose) player.place(pose.x,pose.z,keepFacing ? yawInside + doorTurn(shop) : pose.yaw);
         else spawn(); // use safe Town Guide location instead of clipping into a wall
-      } else { const l=town.lots.get(coord);player.place(l.doorPos.x,l.doorPos.z+4,keepFacing ? yawInside : Math.PI); }
+      } else { const l=town.lots.get(coord);player.place(l.doorPos.x,l.doorPos.z+4,Math.PI);if(keepFacing)player.yaw=yawInside; }
     }
     // Close the door behind the player so the doorway does not re-trigger.
     const d = town.doors.find((d) => d.userData.coordinate === coord); if (d) d.userData.open = 0;
