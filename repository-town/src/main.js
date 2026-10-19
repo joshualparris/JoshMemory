@@ -485,7 +485,10 @@ async function start() {
       }
       const ex = inside.exitZone;
       // Generous exit area: the doorway plus the last 1.3 m inside it, centred on the actual door.
-      if (Math.abs(player.pos.x - (ex.x0 + ex.x1) / 2) < 1.55 && player.pos.z > inside.rooms[0].z1 - 1.3 && player.pos.z < ex.z1 + 0.5) leave();
+      if (Math.abs(player.pos.x - (ex.x0 + ex.x1) / 2) < 1.55 && player.pos.z > inside.rooms[0].z1 - 1.3 && player.pos.z < ex.z1 + 0.5) {
+         if (inside.floors && inside.floorIndex > 0) changeFloor(inside.floorIndex - 1);
+         else leave();
+       }
       else {
         nearThing = pickNear();
         nearNPC=houseGuide?pickNPC([houseGuide],2.75):null;
