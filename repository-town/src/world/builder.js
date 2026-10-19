@@ -18,6 +18,9 @@ const shared = {
 shared.pyramid.rotateY(Math.PI / 4);
 
 export const solidMaterial = new THREE.MeshLambertMaterial({ vertexColors: true });
+// Window glass colour shared with exterior.js; a builder with `glass = []` sets those
+// panes aside so the town can light them at night (src/world/town.js).
+export const GLASS = 0x9fd3ea;
 
 export class Builder {
   constructor() {
@@ -46,7 +49,7 @@ export class Builder {
     );
     g.applyMatrix4(this.matrix.clone().multiply(local));
     paint(g, color);
-    this.parts.push(g);
+    (this.glass && color === GLASS ? this.glass : this.parts).push(g);
     return g;
   }
 
@@ -69,6 +72,14 @@ export class Builder {
     mesh.userData.anim = { ...anim, base: mesh.position.clone(), baseRot: mesh.rotation.y, phase: this.dynamics.length };
     this.dynamics.push(mesh);
     return mesh;
+  }
+
+  // Merges loose geometries (e.g. collected glass) into one; null when there are none.
+  static merge(geometries) {
+    if (!geometries.length) return null;
+    const merged = mergeGeometries(geometries, false);
+    for (const g of geometries) g.dispose();
+    return merged;
   }
 
   build() {

@@ -21,5 +21,14 @@ assert(css.includes('#npc-chat.npc-typing small'));
 assert(css.includes('body.npc-lounge #npc-chat.npc-typing{'));
 assert(css.includes('height:calc(var(--npc-vh,100dvh)'));
 assert(css.includes('top:calc(var(--npc-top,0px)'));
-for(const html of [people,index]){for(const id of ['npc-chat','npc-messages','npc-input','npc-form'])assert(html.includes('id="'+id+'"'),id+' missing');assert(!html.includes('id="npc-code"'),'PIN field must stay removed');}
-console.log('PASS: visualViewport wiring, no-PIN focus mode, flex composer and mobile lounge layout');
+for(const html of [people,index]) { for(const id of ['npc-chat','npc-messages','npc-input','npc-form'])assert(html.includes('id="'+id+'"'),id+' missing'); assert(!html.includes('id="npc-code"'),'Deprecated PIN input must not return'); }
+const residentSource=readFileSync(new URL('../src/ui/npc.js',import.meta.url),'utf8');
+const residentCss=readFileSync(new URL('../src/styles.css',import.meta.url),'utf8');
+assert(residentSource.includes("window.visualViewport?.addEventListener('resize', syncViewport)"));
+assert(residentSource.includes("window.visualViewport?.addEventListener('scroll', syncViewport)"));
+assert(residentSource.includes("window.addEventListener('orientationchange', syncViewport)"));
+assert(residentSource.includes("panel.classList.add('chat-typing')"));
+assert(residentSource.includes("panel.classList.remove('chat-typing')"));
+assert(residentCss.includes('#panel.chat-typing .chat-chips, #panel.chat-typing .chat-brain, #panel.chat-typing #panel-actions { display: none; }'));
+assert(residentCss.includes('#panel.chat-typing {'));
+console.log('PASS: visualViewport wiring, PIN-free resident focus mode, flex composer and mobile lounge layout');

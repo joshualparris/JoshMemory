@@ -9,7 +9,7 @@ class XHR extends EventTarget {
 }
 const win = { XMLHttpRequest: XHR, fetch: () => { throw Error('Unexpected network fetch'); } };
 const context = { window: win, location: new URL('https://town.example/games/demo/index.html'), URL, Response, Event, ProgressEvent: Event, setTimeout, history: {} };
-const packed = source.replace(/var F = .*?;/, 'var F = {"data.json":"{\\"ok\\":true}"};').replace(/var IMG = .*?;/, 'var IMG = {};');
+const packed = source.replace(/var F = .*?;/, 'var F = {"data.json":"{\\"ok\\":true}"};').replace(/var IMG = .*?;/, 'var IMG = {};').replace(/var API = .*?;/, 'var API = null;');
 vm.runInNewContext(packed, context);
 const response = await win.fetch('/data.json'); assert.deepEqual(await response.json(), {ok:true});
 const xhr = new XHR(); let properties=0, listeners=0, ends=0;

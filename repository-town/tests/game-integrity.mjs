@@ -2,6 +2,7 @@
 // This is a structural gate, not a substitute for Chromium gameplay tests.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import zlib from 'node:zlib';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -22,6 +23,27 @@ for (const game of manifest) {
   if (docs !== 1) broken.push(`${game.id}: found ${docs} HTML doctypes; expected one`);
   if (!/<html\b/i.test(html) || !/<\/html>/i.test(html)) broken.push(`${game.id}: incomplete HTML shell`);
   if (html.trim().length < 150) broken.push(`${game.id}: suspiciously short page`);
+  if (game.kind === 'godot') {
+    const wasmGz = path.join(dir, 'index.wasm.gz');
+    const wasm = path.join(dir, 'index.wasm');
+    const pck = path.join(dir, 'index.pck');
+    // The 40+ MB .wasm is ignored; a clean Git checkout contains its tracked
+    // .wasm.gz instead. Validate that the archive actually decompresses to a
+    // WebAssembly module. tools/build.mjs restores it before publishing.
+    let restored = null;
+    if (!fs.existsSync(wasmGz)) broken.push(`${game.id}: missing tracked index.wasm.gz`);
+    else try {
+      restored = zlib.gunzipSync(fs.readFileSync(wasmGz));
+      if (restored.length < 1024 || restored.subarray(0, 4).toString('hex') !== '0061736d')
+        broken.push(`${game.id}: invalid WebAssembly payload in index.wasm.gz`);
+    } catch (e) { broken.push(`${game.id}: corrupt index.wasm.gz (${e.message})`); }
+    if (fs.existsSync(wasm)) {
+      const built = fs.readFileSync(wasm);
+      if (built.subarray(0, 4).toString('hex') !== '0061736d') broken.push(`${game.id}: invalid index.wasm header`);
+      else if (restored && !built.equals(restored)) broken.push(`${game.id}: local WebAssembly differs from tracked archive`);
+    }
+    if (!fs.existsSync(pck)) broken.push(`${game.id}: missing index.pck`);
+  }
   valid++;
 }
 // Catch the exact regression Work found: an AA page with conflict markers and

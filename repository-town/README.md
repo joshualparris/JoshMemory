@@ -80,11 +80,12 @@ playable yet are listed in the `note` field of `data/games.json`, each with the 
 
 ## Privacy
 
-`dist/public` is the only deployable build. Private repositories keep their architecture but lose their
-name, summary, room names, labels and exhibit text; their exhibits become generic toggles. The leak check
-scans the built files for private slugs, URLs, distinctive names and every free-text string written in a
-private brief (strings a public brief or public README also uses are ignored). The public archive only
-carries public repositories, with private slugs and names in their READMEs redacted.
+`dist/public` is the only deployable build. Private repositories keep their architecture and
+owner-approved repository name, but lose their summary, room names, labels and exhibit text; their
+exhibits become generic toggles. The leak check scans the built files for private slugs, URLs and every
+free-text string written in a private brief (strings a public brief or public README also uses are
+ignored). The public archive only carries public repositories, with private slugs and names in their
+READMEs redacted.
 
 ## Deployment
 

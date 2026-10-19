@@ -1,11 +1,17 @@
 [
  {
   "repo": "joshualparris/HugCoach",
-  "summary": "Private repository this session's GitHub access could not open; JoshMemory lists it among Josh's apps without describing it, so this warm family-room house is a name-based placeholder.",
+  "summary": "A privacy-first, evidence-based relationship and Christian marriage learning platform built with Next.js, Prisma, and PostgreSQL: integrates retrieval practice, SM-2 spaced repetition, interleaving, and consent-centered connection rituals drawing on Gottman, Nagoski, Perel, Basson, and Johnson.",
   "evidence": [
-   "unreachable: inventory name; listed in JoshMemory app inventories"
+   "README.md",
+   "docs/01-vision.md",
+   "docs/04-learning-model.md",
+   "docs/06-spaced-repetition.md",
+   "docs/09-safety-boundaries.md",
+   "prisma/schema.prisma",
+   "src/"
   ],
-  "kind": "Family Room (name-based)",
+  "kind": "Relationship Learning & Ritual Studio",
   "ext": {
    "style": "cottage",
    "walls": "#f2c8b8",
@@ -26,57 +32,74 @@
    "light": "#ffe8d8",
    "rooms": [
     {
-     "name": "Family Room",
+     "name": "Connection Rituals Lounge",
      "w": 8,
      "d": 8,
      "props": [
       [
        "sofa",
-       "Big hug sofa",
+       "At-home connection rituals",
        {
         "do": "info",
-        "text": "Placeholder: the HugCoach repository could not be opened from this session."
+        "title": "Privacy-first relationship science",
+        "text": "Synthesizes research from John Gottman (Sound Relationship House), Emily Nagoski (Dual Control Model), Esther Perel, Rosemary Basson, and Sue Johnson within a non-coercive, consent-centered Christian marriage framework."
        }
       ],
       [
        "rug",
-       "Play rug"
+       "Safety & boundary-setting mat"
       ],
       [
        "fireplace",
-       "Fireplace"
+       "Evening check-in hearth"
       ],
       [
        "lamp",
-       "Lamp"
+       "Warm reading lamp"
       ]
      ]
     },
     {
-     "name": "Coach's Corner",
+     "name": "SM-2 Spaced Repetition Study",
      "w": 8,
      "d": 8,
      "props": [
       [
        "corkboard",
-       "Ideas board",
+       "SM-2 & retrieval-practice loop",
        {
-        "do": "count",
-        "unit": "Hugs counted",
-        "text": "Theme from the name only — real features unverified."
+        "do": "steps",
+        "title": "Four learning-science pillars (docs/04-learning-model.md)",
+        "steps": [
+         "Retrieval practice (Roediger & Karpicke, 2006): every lesson ends with a no-peek quiz before feedback.",
+         "Spaced repetition (Wozniak SM-2): expanding review intervals of 1d → 6d → 14d → 30d.",
+         "Interleaving & immediate explanatory feedback across mixed relationship domains."
+        ]
        }
       ],
       [
        "chair",
-       "Armchair"
+       "Reflection armchair"
       ],
       [
        "plant",
-       "Plant"
+       "Growth planter"
       ],
       [
        "bookStack",
-       "Picture books"
+       "Prisma & Postgres question bank",
+       {
+        "do": "quiz",
+        "title": "Spaced repetition algorithm",
+        "q": "Which spaced-repetition algorithm does HugCoach specify in docs/04-learning-model.md and docs/06-spaced-repetition.md?",
+        "options": [
+         "PageRank",
+         "SM-2 (Wozniak, 1990) with 1d → 6d → 14d → 30d intervals",
+         "Random daily shuffle"
+        ],
+        "answer": 1,
+        "explain": "HugCoach uses Wozniak's SM-2 schedule with exponential intervals and lapse resets."
+       }
       ]
      ]
     }
@@ -85,11 +108,18 @@
  },
  {
   "repo": "joshualparris/Ideas",
-  "summary": "Private repository this session's GitHub access could not open; another repository called ideas is already attached, which blocks attaching this one, so this idea workshop is designed from its name only.",
+  "summary": "A dual private family repository housing Sylvie + Elias Ideas — a mobile-first household activity picker built from OT sensory diet notes ('Our stuff' material matcher, guided play timer, developmental prompts) — alongside projects/IgniteApp ('Ignite Us'), a local-first couples connection app with a 42-prompt Daily Desire Draw and Body Map Ritual.",
   "evidence": [
-   "unreachable: name clash with attached joshuaparris-max/ideas; inventory name only"
+   "README.md",
+   "index.html",
+   "app.js",
+   "things-data.js",
+   "moment-ideas.js",
+   "play-mode.js",
+   "development-guidance.js",
+   "projects/IgniteApp/README.md"
   ],
-  "kind": "Idea Workshop (name-based)",
+  "kind": "Family Sensory Play & Ignite Us Workshop",
   "ext": {
    "style": "greenhouse",
    "walls": "#c8d8a8",
@@ -110,62 +140,74 @@
    "light": "#fffbe0",
    "rooms": [
     {
-     "name": "Seedling Room",
+     "name": "Sylvie + Elias 'Our Stuff' Playroom",
      "w": 8,
      "d": 8,
      "props": [
       [
        "herbGarden",
-       "Seed ideas",
+       "'Our stuff' household matcher",
        {
-        "do": "count",
-        "unit": "Ideas planted",
-        "text": "Placeholder: this repository could not be attached because of a name clash."
+        "do": "steps",
+        "title": "Use What We've Got flow",
+        "steps": [
+         "Mark starter household and OT sensory-diet items as available in things-data.js.",
+         "Pick 1–5 nearby items under 'Today we have...' and choose the current sensory/energy need.",
+         "Launch Guided Play Mode for a parent script, 1-minute finishing cue timer, and 'No shopping needed' badge."
+        ]
        }
       ],
       [
        "pottedTree",
-       "Grown idea"
+       "Developmental guidance prompts"
       ],
       [
        "easel",
-       "Sketch"
+       "Activity photos & setup cards"
       ],
       [
        "stool",
-       "Stool"
+       "Play-timer stool"
       ]
      ]
     },
     {
-     "name": "Pin Room",
+     "name": "Ignite Us Studio (projects/IgniteApp)",
      "w": 8,
      "d": 8,
      "props": [
       [
        "corkboard",
-       "Idea wall",
+       "42-prompt Daily Desire Draw",
        {
-        "do": "steps",
-        "title": "Next step",
-        "steps": [
-         "Start a session with this repository as a source.",
-         "Harvest its evidence.",
-         "Redesign this house from its real contents."
-        ]
+        "do": "quiz",
+        "title": "Ignite Us features",
+        "q": "In projects/IgniteApp/README.md, how many structured prompts and Mood Igniter scene templates does Ignite Us include?",
+        "options": [
+         "10 prompts and 5 scene templates",
+         "42 structured prompts and 25 scene templates",
+         "100 prompts and 100 templates"
+        ],
+        "answer": 1,
+        "explain": "Ignite Us implements a 42-prompt Daily Desire Draw across 7 categories plus 25 Mood Igniter scene templates and a Green/Yellow/Red check-in."
        }
       ],
       [
        "desk",
-       "Desk"
+       "Body Map Ritual & MS comfort mode",
+       {
+        "do": "info",
+        "title": "Consent-forward couples tools",
+        "text": "projects/IgniteApp includes Green/Yellow/Red check-ins, external touch-zone Body Map rituals, MS/comfort adaptations, and encrypted-at-rest local browser notes."
+       }
       ],
       [
        "lamp",
-       "Lamp"
+       "Mood Igniter lamp"
       ],
       [
        "bookStack",
-       "Notebooks"
+       "OT sensory & therapy notes"
       ]
      ]
     }
@@ -275,11 +317,17 @@
  },
  {
   "repo": "joshualparris/JoshDashboard4",
-  "summary": "Private repository this session's GitHub access could not open; JoshMemory's own docs describe it as the private GitHub-backed store for JoshMemory cloud continuity: append-only JSON records with supersession under joshmemory-cloud/v1, holding shared pause/resume state.",
+  "summary": "JoshMemory Cloud Store: the private, always-available GitHub backing store holding 340 append-only JSON continuity records under joshmemory-cloud/v1/ (handoffs, project_facts, accountability) alongside human-readable Markdown mirrors in joshmemory-cloud/private-view/ and ChatGPT conversation catalogues.",
   "evidence": [
-   "unreachable: described in JoshMemory README and continuity docs (joshmemory-cloud/v1 store)"
+   "README.md",
+   "joshmemory-cloud/private-view/README.md",
+   "joshmemory-cloud/private-view/project-facts-all.md",
+   "joshmemory-cloud/private-view/accountability-1.md",
+   "joshmemory-cloud/private-view/raw-archive-1.md",
+   "chatgpt-conversations/2026-01-16_to_2026-09-25_wikipedia-style-chatgpt-catalogue-planning.md",
+   "audit/BEAUTIFUL_CODE_STANDARD_AUDIT.md"
   ],
-  "kind": "Continuity Vault",
+  "kind": "JoshMemory Cloud Continuity Vault",
   "ext": {
    "style": "bunker",
    "walls": "#5a6a7a",
@@ -300,66 +348,74 @@
    "light": "#d8fff0",
    "rooms": [
     {
-     "name": "Record Vault",
+     "name": "joshmemory-cloud/v1 Record Vault",
      "w": 9,
      "d": 8,
      "props": [
       [
        "archiveBoxes",
-       "Append-only records",
+       "340 append-only JSON records",
        {
         "do": "quiz",
-        "title": "Records",
-        "q": "How does the store change a record?",
+        "title": "Append-only continuity",
+        "q": "How does JoshMemory Cloud Store update a fact or handoff record under joshmemory-cloud/v1/?",
         "options": [
-         "It edits in place",
-         "It appends a new record that supersedes the old one",
-         "It deletes and rewrites"
+         "It mutates the JSON file in place",
+         "It writes a new append-only JSON record that supersedes the prior record",
+         "It drops and recreates the branch"
         ],
         "answer": 1,
-        "explain": "Records are append-only JSON with supersession, per the JoshMemory docs."
+        "explain": "Records under joshmemory-cloud/v1/ are append-only JSON with supersession, mirrored into human-readable Markdown under joshmemory-cloud/private-view/."
        }
       ],
       [
        "serverRack",
-       "joshmemory-cloud/v1"
+       "joshmemory-cloud/v1/ store"
       ],
       [
        "safe",
-       "Private store"
+       "Redacted handoffs & accountability"
       ],
       [
        "router",
-       "GitHub API link"
+       "Always-on GitHub continuity layer"
       ]
      ]
     },
     {
-     "name": "Pause & Resume",
+     "name": "Private-View & Catalogue Mirror",
      "w": 8,
      "d": 8,
      "props": [
       [
        "clock",
-       "Shared pause/resume state",
+       "Cross-agent handoff state",
        {
-        "do": "toggle",
-        "title": "Session",
-        "on": "Resume: another agent can pick up from the stored state.",
-        "off": "Paused."
+        "do": "steps",
+        "title": "Inside joshmemory-cloud/private-view/",
+        "steps": [
+         "project-facts-all.md: consolidated project facts across Josh's active repositories.",
+         "accountability-1.md & accountability-2.md: verification and completion audit trails.",
+         "raw-archive-1.md through raw-archive-4.md & chatgpt-conversations/: browsable Markdown mirrors of raw continuity records."
+        ]
        }
       ],
       [
        "consolePanel",
-       "Continuity console"
+       "Continuity & audit console",
+       {
+        "do": "info",
+        "title": "Why GitHub backs the store",
+        "text": "Using a private GitHub repository as the append-only store means no local workstation or AVANCE PC needs to stay powered on for agents to read or write continuity state."
+       }
       ],
       [
        "filingCabinet",
-       "Handoffs"
+       "project-facts-all.md & raw-archive-1..4"
       ],
       [
        "lamp",
-       "Desk lamp"
+       "Vault reading lamp"
       ]
      ]
     }
@@ -368,11 +424,18 @@
  },
  {
   "repo": "joshualparris/JoshDataHunt",
-  "summary": "Private repository this session's GitHub access could not open; only its name is known, so this data-hunting lodge is a name-based placeholder awaiting access.",
+  "summary": "A private, phone-first personal breach and exposure monitor for Josh and family built with Next.js and TypeScript: queries keyless XposedOrNot (XON) and LeakCheck APIs with localStorage rate-limit queue resumption, parses Checkup .xlsx workbooks entirely in the browser (ignoring password/token/TOTP columns), and provides one-tap HIBP checks.",
   "evidence": [
-   "unreachable: inventory name only (no GitHub access)"
+   "README.md",
+   "app/page.tsx",
+   "app/verify/page.tsx",
+   "app/api/free-scan/route.ts",
+   "app/api/deep-search/route.ts",
+   "components/SpreadsheetImporter.tsx",
+   "components/FreeExposureResult.tsx",
+   "lib/clientXlsxEmails.ts"
   ],
-  "kind": "Data Hunt Lodge (name-based)",
+  "kind": "Personal Breach & Exposure Monitor",
   "ext": {
    "style": "cabin",
    "walls": "#6a5a4a",
@@ -393,61 +456,74 @@
    "light": "#ffe8c0",
    "rooms": [
     {
-     "name": "Trophy Room",
+     "name": "Free-First Breach Scanner",
      "w": 8,
      "d": 8,
      "props": [
       [
        "trophyCase",
-       "Found datasets",
+       "XposedOrNot & LeakCheck scanner",
        {
         "do": "info",
-        "text": "Placeholder: the JoshDataHunt repository could not be opened from this session."
+        "title": "Free-first dual-source breach checks",
+        "text": "Queries keyless XposedOrNot (2 req/s, 25/hr, 100/day per IP) alongside LeakCheck so one provider can still return partial results if the other is rate-limited, queuing unfinished bulk scans in localStorage."
        }
       ],
       [
        "mapTable",
-       "Hunting map"
+       "Exposure & remediation map"
       ],
       [
        "fireplace",
-       "Fire"
+       "Watchtower hearth"
       ],
       [
        "sofa",
-       "Lodge couch"
+       "Mobile triage couch"
       ]
      ]
     },
     {
-     "name": "Gear Room",
+     "name": "In-Browser Workbook Importer",
      "w": 8,
      "d": 8,
      "props": [
       [
        "toolWall",
-       "Scrapers & exporters"
+       "SpreadsheetImporter.tsx & clientXlsxEmails.ts",
+       {
+        "do": "quiz",
+        "title": "Client-side workbook privacy",
+        "q": "When importing a Checkup .xlsx workbook in JoshDataHunt, how are password, token, and TOTP columns handled?",
+        "options": [
+         "Uploaded to a cloud server for encryption",
+         "Parsed inside the browser with password, token, secret, and TOTP columns ignored",
+         "Emailed to the administrator"
+        ],
+        "answer": 1,
+        "explain": "lib/clientXlsxEmails.ts parses the workbook inside the browser, strips secret/password/TOTP columns, and deduplicates email addresses before any authorised check runs."
+       }
       ],
       [
        "crates",
-       "Exports"
+       "Rate-limit localStorage scan queue"
       ],
       [
        "globe",
-       "Sources",
+       "HIBP & Intelligence X checks",
        {
         "do": "steps",
-        "title": "Next step",
+        "title": "Safe breach-hunting workflow",
         "steps": [
-         "Grant access.",
-         "Harvest evidence.",
-         "Replace this placeholder."
+         "Parse the Checkup .xlsx workbook locally in the browser and strip all password/token/TOTP columns.",
+         "Confirm ownership/authorisation for deduplicated family email addresses.",
+         "Run free-scan routes across XposedOrNot and LeakCheck, or use one-tap Have I Been Pwned verification."
         ]
        }
       ],
       [
        "lamp",
-       "Lamp"
+       "Scanner desk lamp"
       ]
      ]
     }
@@ -810,11 +886,18 @@
  },
  {
   "repo": "joshualparris/my-repository",
-  "summary": "Private repository this session's GitHub access could not open; its generic name suggests a starter or test repository, so this house is a plain starter-home placeholder.",
+  "summary": "A hybrid private staging and encrypted-archive repository combining the static HealthiestPeople everyday-health playbook (standalone.html, app.js, site-data.js, nine case-study profiles, and longitudinal health CSVs) with joshmemory-private/, an encrypted personal memory archive storing chunked payloads (chunk0.enc.json, chunk1.enc.json).",
   "evidence": [
-   "unreachable: inventory name only (no GitHub access)"
+   "README.md",
+   "index.html",
+   "standalone.html",
+   "app.js",
+   "site-data.js",
+   "data/metrics.csv",
+   "joshmemory-private/data/chunk0.enc.json",
+   "joshmemory-private/data/chunk1.enc.json"
   ],
-  "kind": "Starter Home (name-based)",
+  "kind": "Health Playbook & Encrypted Memory Cottage",
   "ext": {
    "style": "cottage",
    "walls": "#e0e0d8",
@@ -835,61 +918,74 @@
    "light": "#fffaf0",
    "rooms": [
     {
-     "name": "Empty Lounge",
+     "name": "Encrypted Memory Vault (joshmemory-private)",
      "w": 8,
      "d": 8,
      "props": [
       [
        "crates",
-       "Moving boxes",
+       "chunk0.enc.json & chunk1.enc.json",
        {
         "do": "info",
-        "text": "Placeholder: my-repository could not be opened; its generic name suggests a starter repo."
+        "title": "Hidden inside 'my-repository'",
+        "text": "Despite its generic GitHub starter name, this repository holds two real payloads: a static build of the HealthiestPeople everyday-health playbook at the root, and joshmemory-private/data/chunk0.enc.json + chunk1.enc.json for the encrypted memory viewer."
        }
       ],
       [
        "chair",
-       "Folding chair"
+       "Decryption reader chair"
       ],
       [
        "lamp",
-       "Bare bulb"
+       "Archive reading lamp"
       ],
       [
        "rug",
-       "Rug"
+       "Woven cottage rug"
       ]
      ]
     },
     {
-     "name": "Spare Room",
+     "name": "Static Playbook Staging Room",
      "w": 8,
      "d": 8,
      "props": [
       [
        "ladder",
-       "Ladder"
+       "standalone.html & vercel.json deploy ladder"
       ],
       [
        "toolWall",
-       "Starter tools",
+       "Nine case studies & working-parent baseline",
        {
-        "do": "steps",
-        "title": "Next step",
-        "steps": [
-         "Grant access.",
-         "Check whether it is a template or a test.",
-         "Design from what is really there."
-        ]
+        "do": "quiz",
+        "title": "Dual-purpose repository",
+        "q": "What two distinct systems live side by side inside joshualparris/my-repository?",
+        "options": [
+         "An empty README and a hello-world script",
+         "The HealthiestPeople static playbook and the encrypted joshmemory-private/ chunk archive",
+         "A Minecraft server and a Discord bot"
+        ],
+        "answer": 1,
+        "explain": "The root hosts the HealthiestPeople static site (index.html, standalone.html, data/*.csv, docs/people/*.md) while joshmemory-private/data/ stores encrypted JSON chunks."
        }
       ],
       [
        "bench",
-       "Bench"
+       "Monday frisbee & wearable CSV bench",
+       {
+        "do": "steps",
+        "title": "Contents of the staging tree",
+        "steps": [
+         "Root static app: index.html, standalone.html, app.js, site-data.js, and resources-data.js.",
+         "data/: josh-body-composition-history.csv, josh-frisbee-history.csv, josh-labs-history.csv, josh-weekly-wearable-history.csv, and metrics.csv.",
+         "joshmemory-private/data/: encrypted archive chunks chunk0.enc.json and chunk1.enc.json."
+        ]
+       }
       ],
       [
        "plant",
-       "Plant"
+       "Minimum-viable-health planter"
       ]
      ]
     }
@@ -1216,11 +1312,17 @@
  },
  {
   "repo": "joshualparris/TristanHarris",
-  "summary": "Private repository this session's GitHub access could not open; its name refers to the humane-technology advocate, so this reflective study on attention is a name-based placeholder; the repository's actual content is unverified.",
+  "summary": "A source-linked 2026 research dossier and personal life guide on Tristan Harris and the Center for Humane Technology: 28 research dossiers covering Time Well Spent, The Social Dilemma, his 2026 documentary 'The AI Doc: Or How I Became an Apocaloptimist', autonomous AI agent swarms, the Chinese AMAP agent fleet audit, and a 5-part personal humane-tech life guide.",
   "evidence": [
-   "unreachable: inventory name only (no GitHub access)"
+   "README.md",
+   "research/01-life-and-career.md",
+   "research/02-2026-timeline.md",
+   "research/14-autonomous-ai-agent-swarms-online-2026.md",
+   "research/15-chinese-amap-agent-fleet-deep-investigation-2026.md",
+   "personal/04-one-page-life-guide.md",
+   "data/amap-fleet-daily-reports-2026-09-28_to_2026-10-04.csv"
   ],
-  "kind": "Attention Study (name-based)",
+  "kind": "Humane Technology & AI-Risk Dossier",
   "ext": {
    "style": "modern",
    "walls": "#e8eef0",
@@ -1241,58 +1343,74 @@
    "light": "#f6fff8",
    "rooms": [
     {
-     "name": "Quiet Study",
+     "name": "CHT & 2026 AI-Risk Dossier Study",
      "w": 8,
      "d": 8,
      "props": [
       [
        "bookshelf",
-       "Reading",
+       "28 research/ dossiers & fact checks",
        {
         "do": "info",
-        "text": "Placeholder: the TristanHarris repository could not be opened from this session."
+        "title": "From Time Well Spent to 2026 AI governance",
+        "text": "Tracks Tristan Harris's work from Google design ethicist and The Social Dilemma to his 2026 documentary 'The AI Doc: Or How I Became an Apocaloptimist', Davos/ITU briefings, and autonomous AI agent swarm investigations."
        }
       ],
       [
        "desk",
-       "Desk"
+       "AMAP agent fleet audit & CSV",
+       {
+        "do": "quiz",
+        "title": "2026 documentary & agent fleet audit",
+        "q": "Which 2026 documentary and autonomous-agent dataset are examined in this repository's research/ and data/ folders?",
+        "options": [
+         "The Social Network 2 and a Twitter bot CSV",
+         "The AI Doc: Or How I Became an Apocaloptimist and amap-fleet-daily-reports-2026-09-28_to_2026-10-04.csv",
+         "Lo and Behold and an email spam log"
+        ],
+        "answer": 1,
+        "explain": "research/02-2026-timeline.md covers The AI Doc (March 2026 cinema / September 2026 Netflix), and research/15–16 plus data/ audit the Chinese AMAP agent fleet daily reports."
+       }
       ],
       [
        "plant",
-       "Plant"
+       "Calm study fern"
       ],
       [
        "lamp",
-       "Lamp"
+       "Reading lamp"
       ]
      ]
     },
     {
-     "name": "Screen-Free Room",
+     "name": "One-Page Humane Life Guide Room",
      "w": 8,
      "d": 8,
      "props": [
       [
        "phoneStand",
-       "Phone parked",
+       "personal/04-one-page-life-guide.md",
        {
-        "do": "toggle",
-        "title": "Do not disturb",
-        "on": "Notifications paused — a name-based nod to humane technology.",
-        "off": "Notifications on."
+        "do": "steps",
+        "title": "Five-part personal life guide (personal/00–04)",
+        "steps": [
+         "personal/00-read-me-first.md & 01-domains-and-evidence.md: audit where attention-harvesting incentives erode family time and sleep.",
+         "personal/02-plans-policies-and-projects.md: replace infinite feeds with bounded, intentional tools.",
+         "personal/04-one-page-life-guide.md: daily defaults for notification hygiene, deep focus, and screen-free family presence."
+        ]
        }
       ],
       [
        "sofa",
-       "Sofa"
+       "Unplugged conversation sofa"
       ],
       [
        "chessboard",
-       "Slow game"
+       "Long-horizon strategy board"
       ],
       [
        "rug",
-       "Rug"
+       "Quiet room rug"
       ]
      ]
     }

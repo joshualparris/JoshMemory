@@ -111,7 +111,7 @@ function wall(b, colliders, axis, at, from, to, h, color, openings, sight) {
   const seg = (s, e, y0, y1) => {
     if (e - s < 0.01) return;
     const len = e - s, mid = (s + e) / 2, hh = y1 - y0;
-    sight.push(axis === 'z' ? { x0:s,x1:e,y0,y1,z0:at-WALL_T/2,z1:at+WALL_T/2 } : { x0:at-WALL_T/2,x1:at+WALL_T/2,y0,y1,z0:s,z1:e });
+    sight.push(axis === 'z' ? { x0: s, x1: e, y0, y1, z0: at - WALL_T / 2, z1: at + WALL_T / 2 } : { x0: at - WALL_T / 2, x1: at + WALL_T / 2, y0, y1, z0: s, z1: e });
     if (axis === 'z') { b.box(color, len, hh, WALL_T, mid, y0 + hh / 2, at); if (y0 === 0) { colliders.push({ x0: s, x1: e, z0: at - WALL_T, z1: at + WALL_T }); b.box(SKIRT, len, 0.14, WALL_T + 0.06, mid, 0.07, at); } }
     else { b.box(color, WALL_T, hh, len, at, y0 + hh / 2, mid); if (y0 === 0) { colliders.push({ x0: at - WALL_T, x1: at + WALL_T, z0: s, z1: e }); b.box(SKIRT, WALL_T + 0.06, 0.14, len, at, 0.07, mid); } }
   };
@@ -183,7 +183,7 @@ function buildOnce(house, makeLabel, attempt) {
   const spec = house.int;
   const b = new Builder();
   const colliders = [];
-  const sight = [];
+  const sight = []; // boxes that hide labels behind them (walls, lintels, closed doors)
   const rooms = placeRooms(spec.rooms, spec.layout, attempt);
   const h = spec.height || 3.6;
   const openings = [];
@@ -213,8 +213,8 @@ function buildOnce(house, makeLabel, attempt) {
   for (const o of openings) if (o !== entrance) {
     const door = doorLeaf(group, o.axis, o.at, o.c, spec.doors || 0x7a5a3c);
     doors.push(door);
-    const span = { s:o.c-DOOR_W/2, e:o.c+DOOR_W/2 }, t=WALL_T;
-    sight.push(o.axis==='z' ? {x0:span.s,x1:span.e,y0:0,y1:DOOR_H,z0:o.at-t,z1:o.at+t,door} : {x0:o.at-t,x1:o.at+t,y0:0,y1:DOOR_H,z0:span.s,z1:span.e,door});
+    const span = { s: o.c - DOOR_W / 2, e: o.c + DOOR_W / 2 }, t = WALL_T;
+    sight.push(o.axis === 'z' ? { x0: span.s, x1: span.e, y0: 0, y1: DOOR_H, z0: o.at - t, z1: o.at + t, door } : { x0: o.at - t, x1: o.at + t, y0: 0, y1: DOOR_H, z0: span.s, z1: span.e, door });
   }
   const exitDoor = doorLeaf(group, 'z', entrance.at, entrance.c, spec.doors || 0x7a5a3c);
   exitDoor.userData.exit = true;
@@ -222,7 +222,8 @@ function buildOnce(house, makeLabel, attempt) {
 
   const interactables = [];
   const placedProps = [];
-  const sceneObjects = []; // positions of actually placed furniture and exhibits
+  const sceneObjects = []; // placed furniture, decor and usable exhibits for resident perception
+  const walkers = [];
   rooms.forEach((r, ri) => {
     const roomGaps = openings.filter((o) => (o.axis === 'z' && (Math.abs(o.at - r.z0) < 0.3 || Math.abs(o.at - r.z1) < 0.3) && o.c > r.x0 && o.c < r.x1) || (o.axis === 'x' && (Math.abs(o.at - r.x0) < 0.3 || Math.abs(o.at - r.x1) < 0.3) && o.c > r.z0 && o.c < r.z1))
       .map((o) => ({ axis: o.axis, at: o.axis === 'z' ? (Math.abs(o.at - r.z0) < 0.3 ? r.z0 + WALL_T : r.z1 - WALL_T) : (Math.abs(o.at - r.x0) < 0.3 ? r.x0 + WALL_T : r.x1 - WALL_T), c: o.c }));
@@ -239,9 +240,17 @@ function buildOnce(house, makeLabel, attempt) {
       else if (want === 'center') {
         while (cells.length && !spot) { const c = cells.shift(); if (doorZones.every((dz) => Math.hypot(dz.x - c.x, dz.z - c.z) > 3.2)) spot = { ...c, rot: 0 }; }
       }
-      if (!spot) { const w = slots.wall(Math.max(prop.w, 0.6)); spot = w ? { ...w, onWall:true } : (cells.length ? { ...cells.shift(), rot:0 } : null); }
+      if (!spot) { const w = slots.wall(Math.max(prop.w, 0.6)); spot = w ? { ...w, onWall: true } : (cells.length ? { ...cells.shift(), rot: 0 } : null); }
       if (!spot) throw Object.assign(new Error(`${house.repo}: no room for ${type} in "${r.name}" — enlarge the room`), { crowded: spec.rooms.some((x) => x.archive) });
       const key = act && act.do ? `${house.coordinate}:${ri}:${pi}` : null;
+      // Residents are people, not furniture: main.js gives them a moving body (src/world/npcs.js).
+      if (prop.walker) {
+        const pos = new THREE.Vector3(spot.x, 0, spot.z);
+        walkers.push({ key, act, room: ri, pos, label });
+        interactables.push({ key, type, label: label || prop.label, act, room: ri, pos, roomName: r.name, person: true });
+        placedProps.push({ type, room: ri });
+        return;
+      }
       b.at(spot.x, 0, spot.z, spot.rot, () => prop.build(b, { c: act?.c, a: act?.a, key }));
       const sideways = Math.abs(Math.sin(spot.rot)) > 0.5;
       const fw = sideways ? prop.d : prop.w, fd = sideways ? prop.w : prop.d;
@@ -249,8 +258,9 @@ function buildOnce(house, makeLabel, attempt) {
       placedProps.push({ type, room: ri });
       sceneObjects.push({ type, label: label || prop.label, room: ri, pos: { x: spot.x, z: spot.z }, interactive: !!key });
       const pos = new THREE.Vector3(spot.x, 0, spot.z);
+      // Wall props get their label pushed out into the room so it never sits inside the wall.
       const out = spot.onWall ? LABEL_INSET : 0;
-      if (label) labels.push({ text: label, pos: new THREE.Vector3(spot.x + Math.sin(spot.rot)*out, Math.min(h-0.35,Math.max(propTop(type)+0.4,2.35)), spot.z + Math.cos(spot.rot)*out), room:ri, kind:key?'interactive':'prop' });
+      if (label) labels.push({ text: label, pos: new THREE.Vector3(spot.x + Math.sin(spot.rot) * out, Math.min(h - 0.35, Math.max(propTop(type) + 0.4, 2.35)), spot.z + Math.cos(spot.rot) * out), room: ri, kind: key ? 'interactive' : 'prop' });
       if (key) interactables.push({ key, type, label: label || prop.label, act, room: ri, pos, roomName: r.name });
     });
     // Decoration only: a rug where the floor would otherwise be empty, and framed
@@ -274,26 +284,26 @@ function buildOnce(house, makeLabel, attempt) {
 
   const built = b.build();
   group.add(built, light);
-  labels.forEach(l => {
-    const r=rooms[l.room],mx=Math.min(0.4,r.w/2),mz=Math.min(0.4,r.d/2);
-    l.pos.x=Math.min(r.x1-mx,Math.max(r.x0+mx,l.pos.x));
-    l.pos.z=Math.min(r.z1-mz,Math.max(r.z0+mz,l.pos.z));
+
+  // Keep every label's centre inside its room so the wall check in labelVisible() is reliable.
+  labels.forEach((l) => {
+    const r = rooms[l.room], mx = Math.min(0.4, r.w / 2), mz = Math.min(0.4, r.d / 2);
+    l.pos.x = Math.min(r.x1 - mx, Math.max(r.x0 + mx, l.pos.x));
+    l.pos.z = Math.min(r.z1 - mz, Math.max(r.z0 + mz, l.pos.z));
   });
-  for (const l of labels) {
-    const sprite=makeLabel(l.text,l.kind);sprite.position.copy(l.pos);
-    sprite.userData.labelKind=l.kind;
-    if(sprite.material)sprite.material.depthTest=false;
-    sprite.renderOrder=10;group.add(sprite);
-  }
+  // Interior labels draw over everything; walls and closed doors hide them via labelVisible().
+  for (const l of labels) { const sprite = makeLabel(l.text, l.kind); sprite.position.copy(l.pos); sprite.userData.labelKind = l.kind; if (sprite.material) sprite.material.depthTest = false; sprite.renderOrder = 10; group.add(sprite); }
   const dynamics = built.children.filter((c) => c.userData.anim);
   return {
-    group, colliders, sight, doors, interactables, dynamics, rooms, placedProps, sceneObjects,
+    group, colliders, sight, doors, interactables, dynamics, rooms, placedProps, sceneObjects, walkers,
+    openings: openings.filter((o) => o.rooms),   // internal doorways, for residents moving between rooms
     spawn: new THREE.Vector3(ex, 0, rooms[0].z1 - 1.6),
     exitZone: { x0: ex - DOOR_W / 2, x1: ex + DOOR_W / 2, z0: rooms[0].z1 + 0.1, z1: rooms[0].z1 + 1.2 },
     bounds: rooms.reduce((a, r) => ({ x0: Math.min(a.x0, r.x0), x1: Math.max(a.x1, r.x1), z0: Math.min(a.z0, r.z0), z1: Math.max(a.z1, r.z1) }), { x0: Infinity, x1: -Infinity, z0: Infinity, z1: -Infinity }),
   };
 }
 
+// True when nothing in `sight` (walls, lintels, closed doors) sits between eye and label.
 export function labelVisible(eye, at, sight) {
   const dx = at.x - eye.x, dy = at.y - eye.y, dz = at.z - eye.z;
   for (const bx of sight) {

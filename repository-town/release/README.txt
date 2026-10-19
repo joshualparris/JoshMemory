@@ -9,9 +9,9 @@ Double-click an HTML file to play in your browser. No internet, server or Claude
                                     commit, lucky-dip file, README fortune and a dice tray.
                                     It contains your private repositories' names and READMEs,
                                     so keep it to yourself.
-  Repository-Town-public-safe.html  Private repositories show as "Private house" with no
-                                    names or README text. Only this one is safe to put on a
-                                    public website.
+  Repository-Town-public-safe.html  Private repositories show their owner-approved names,
+                                    but no private repository URLs, READMEs or text. Only this
+                                    one is safe to put on a public website.
 
 Games
   Houses of repositories that are games have an Arcade (or Game Room). Walk up to a

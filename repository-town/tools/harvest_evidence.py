@@ -1,9 +1,12 @@
 """Collect per-repository evidence for Repository Town design briefs.
 
-Reads local clones only (no network). Output is the PRIVATE master evidence file;
-it must never be copied into the public build.
+Reads local clones (and optionally shallow-clones missing repositories when
+--fetch-missing is passed), while preserving existing inspected entries from
+private/evidence.json or data/repo-data.json for repositories not currently
+cloned on disk. Output is the PRIVATE master evidence file; it must never be
+copied into the public build.
 """
-import json, os, re, subprocess, sys
+import argparse, json, os, re, subprocess, sys
 from collections import Counter
 from pathlib import Path
 
@@ -11,24 +14,26 @@ ROOT = Path(__file__).resolve().parents[2]
 TOWN = ROOT / "repository-town"
 INVENTORY = ROOT / "docs" / "repository-town.json"
 OUT = TOWN / "private" / "evidence.json"
-SEARCH_DIRS = [Path(p) for p in sys.argv[1:]] or [Path("/home/user")]
+REPO_DATA = TOWN / "data" / "repo-data.json"
+DEFAULT_CLONE_DIR = Path("/home/josh/.gemini/antigravity-cli/brain/b5f2ea27-137a-4b63-8853-396e9a468b56/scratch/repo-clones")
+DEFAULT_SEARCH_DIRS = [Path("/home/josh/dev"), DEFAULT_CLONE_DIR, Path("/home/user")]
 SKIP_DIRS = {".git", "node_modules", "dist", "build", ".next", "vendor", "__pycache__", ".venv", "venv", "release", "coverage"}
 SOURCE_EXT = {".js", ".ts", ".tsx", ".jsx", ".py", ".html", ".css", ".cs", ".ps1", ".sh", ".go", ".rs", ".java", ".kt", ".swift", ".gd", ".lua", ".mjs", ".vue", ".svelte", ".json", ".md"}
 URL_RE = re.compile(r"https?://[\w.-]+\.(?:vercel\.app|github\.io|netlify\.app|pages\.dev|onrender\.com|web\.app|firebaseapp\.com|itch\.io|fly\.dev|railway\.app)[^\s)\"'<>]*")
 
 
-def git(path, *args):
+def git(path, *args, timeout=30):
     try:
-        return subprocess.run(["git", "-C", str(path), *args], capture_output=True, text=True, timeout=30).stdout.strip()
+        return subprocess.run(["git", "-C", str(path), *args], capture_output=True, text=True, timeout=timeout).stdout.strip()
     except Exception:
         return ""
 
 
-def find_clone(repo):
+def find_clone(repo, search_dirs):
     owner, name = repo.split("/")
     want = f"github.com/{repo}".lower()
     candidates = []
-    for base in SEARCH_DIRS:
+    for base in search_dirs:
         if not base.exists():
             continue
         for entry in base.iterdir():
@@ -39,6 +44,22 @@ def find_clone(repo):
         url = git(c, "remote", "get-url", "origin").lower().removesuffix(".git")
         if url.endswith(want):
             return c
+    return None
+
+
+def shallow_clone(repo, clone_dir):
+    owner, name = repo.split("/")
+    target = clone_dir / f"{owner}__{name}"
+    if target.exists():
+        return target
+    clone_dir.mkdir(parents=True, exist_ok=True)
+    url = f"https://github.com/{repo}.git"
+    try:
+        r = subprocess.run(["git", "clone", "--depth", "1", url, str(target)], capture_output=True, text=True, timeout=120)
+        if r.returncode == 0 and target.exists():
+            return target
+    except Exception:
+        pass
     return None
 
 
@@ -106,23 +127,95 @@ def collect(path):
     }
 
 
+def from_repo_data(rd):
+    readme_full = rd.get("readme", "")
+    scripts = rd.get("scripts", [])
+    files = rd.get("files", [])
+    return {
+        "readme": readme_full[:3000],
+        "readmeFull": readme_full,
+        "readmeTruncated": bool(rd.get("readmeTruncated")),
+        "files": files,
+        "fileTotal": rd.get("fileTotal", len(files)),
+        "readmeLength": len(readme_full),
+        "topLevel": sorted({f.split("/")[0] + ("/" if "/" in f else "") for f in files})[:40],
+        "fileCount": rd.get("fileTotal", len(files)),
+        "extensions": {},
+        "package": {"scripts": scripts} if scripts else {},
+        "htmlTitles": [],
+        "docs": rd.get("docs", []),
+        "largestSource": [],
+        "deployUrls": rd.get("live", []),
+        "lastCommit": rd.get("lastCommit", ""),
+    }
+
+
+def parse_args():
+    ap = argparse.ArgumentParser(description=__doc__)
+    ap.add_argument("search_dirs", nargs="*", help="Directories to search for local repository clones")
+    ap.add_argument("--fetch-missing", action="store_true", help="Shallow-clone any still-unreachable repository from GitHub")
+    ap.add_argument("--clone-dir", type=Path, default=DEFAULT_CLONE_DIR, help="Directory for shallow-cloned repositories")
+    ap.add_argument("--pull", action="store_true", help="Run git pull --ff-only on local clones before harvesting")
+    return ap.parse_args()
+
+
 def main():
-    inventory = json.loads(INVENTORY.read_text())
+    args = parse_args()
+    search_dirs = []
+    for p in ([Path(d) for d in args.search_dirs] + [args.clone_dir] + DEFAULT_SEARCH_DIRS):
+        if p not in search_dirs:
+            search_dirs.append(p)
+
+    inventory = json.loads(INVENTORY.read_text(encoding="utf-8"))
+    existing = {}
+    if OUT.exists():
+        try:
+            existing = json.loads(OUT.read_text(encoding="utf-8"))
+        except Exception:
+            existing = {}
+    existing_rd = {}
+    if REPO_DATA.exists():
+        try:
+            existing_rd = json.loads(REPO_DATA.read_text(encoding="utf-8"))
+        except Exception:
+            existing_rd = {}
+
     out = {}
+    counts = Counter()
     for p in inventory["projects"]:
-        clone = find_clone(p["repo"])
-        entry = {"repo": p["repo"], "visibility": p["visibility"], "archived": p["archived"], "coordinate": p["coordinate"]}
-        if clone is None:
-            entry["status"] = "unreachable"
+        repo = p["repo"]
+        base_meta = {"repo": repo, "visibility": p["visibility"], "archived": p["archived"], "coordinate": p["coordinate"]}
+        clone = find_clone(repo, search_dirs)
+        if clone is not None:
+            if args.pull:
+                git(clone, "pull", "--ff-only", timeout=60)
+            entry = {**base_meta, "status": "inspected", **collect(clone)}
+            counts["local_inspected"] += 1
+        elif existing.get(repo, {}).get("status") == "inspected":
+            entry = {**existing[repo], **base_meta, "status": "inspected"}
+            counts["preserved_evidence"] += 1
+        elif repo in existing_rd and not existing_rd[repo].get("unreachable"):
+            entry = {**base_meta, "status": "inspected", **from_repo_data(existing_rd[repo])}
+            counts["preserved_repo_data"] += 1
+        elif args.fetch_missing:
+            fetched = shallow_clone(repo, args.clone_dir)
+            if fetched is not None:
+                entry = {**base_meta, "status": "inspected", **collect(fetched)}
+                counts["fetched_inspected"] += 1
+            else:
+                entry = {**base_meta, "status": "unreachable"}
+                counts["unreachable"] += 1
         else:
-            entry["status"] = "inspected"
-            entry.update(collect(clone))
-        out[p["repo"]] = entry
+            entry = {**base_meta, "status": "unreachable"}
+            counts["unreachable"] += 1
+        out[repo] = entry
+
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(json.dumps(out, indent=1, ensure_ascii=False))
-    c = Counter(v["status"] for v in out.values())
-    print(dict(c), "->", OUT)
+    OUT.write_text(json.dumps(out, indent=1, ensure_ascii=False), encoding="utf-8")
+    status_counts = Counter(v["status"] for v in out.values())
+    print(f"{dict(status_counts)} (breakdown: {dict(counts)}) -> {OUT}")
 
 
 if __name__ == "__main__":
     main()
+

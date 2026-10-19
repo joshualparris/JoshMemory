@@ -5,7 +5,7 @@ let loader = null, data = null;
 
 // main.js supplies how to fetch the archive (inline data offline, repo-data.json online).
 export function setArchiveLoader(fn) { loader = fn; }
-async function repoInfo(repo) {
+export async function repoInfo(repo) {
   if (!data && loader) data = await loader();
   const d = data?.[repo];
   return d && !d.unreachable ? d : null;
