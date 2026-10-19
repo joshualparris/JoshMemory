@@ -1,4 +1,5 @@
 import { createKit, ROOM } from './interior-kit.js';
+import { FLOOR_SURFACE_Y } from './floor-surfaces.js';
 
 // The Community Bank, laid out like a small branch of a real retail bank:
 //
@@ -49,7 +50,7 @@ export function buildBankInterior(site, makeLabel, roomTitle = 'Banking hall') {
   for (let ix = 0; ix < 14; ix++) for (let iz = 0; iz < 11; iz++) if ((ix + iz) % 2 === 0) tiles.push([-6.5 + ix, -4.5 + iz]);
   const tilePat = new THREE.InstancedMesh(new THREE.PlaneGeometry(1, 1), mat(STONE2), tiles.length);
   const m4 = new THREE.Matrix4(), qf = new THREE.Quaternion().setFromEuler(new THREE.Euler(-Math.PI / 2, 0, 0));
-  tiles.forEach(([x, z], i) => { m4.compose(new THREE.Vector3(x, 0.015, z), qf, new THREE.Vector3(1, 1, 1)); tilePat.setMatrixAt(i, m4); });
+  tiles.forEach(([x, z], i) => { m4.compose(new THREE.Vector3(x, FLOOR_SURFACE_Y.tilePattern, z), qf, new THREE.Vector3(1, 1, 1)); tilePat.setMatrixAt(i, m4); });
   group.add(tilePat);
   box(3.3, 0.024, 7.2, -5.2, 0.03, 2.3, CARPET);            // advice zone
   box(3.1, 0.024, 4.2, 5.3, 0.03, -1.5, CARPET);            // lounge

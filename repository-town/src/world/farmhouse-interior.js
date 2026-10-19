@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { FLOOR_SURFACE_Y } from './floor-surfaces.js';
 
 // An occupied, working Central-West NSW family farmhouse, not a retail shop.
 // 9 separate zones, a sheltered entrance, flyscreens, kitchen/pantry, mudroom,
@@ -44,9 +45,9 @@ export function buildFarmhouseInterior(site,makeLabel){
     sceneObjects.push({type:'farmhouse',label,room,pos:{x,z},interactive:true});
     placedProps.push({type:key,room});
   };
-  const flat=(x,z,w,d,color)=>box(w,.025,d,x,.025,z,color);
+  const flat=(x,z,w,d,color,y=FLOOR_SURFACE_Y.finish)=>box(w,.025,d,x,y,z,color);
   const chair=(x,z)=>{solid(.65,.75,.62,x,.37,z,0x6d4b32);box(.63,.8,.13,x,1.09,z-.22,0x85613d);};
-  const rug=(x,z,w,d,color)=>flat(x,z,w,d,color);
+  const rug=(x,z,w,d,color)=>flat(x,z,w,d,color,FLOOR_SURFACE_Y.rug);
   const shelf=(x,z,w,d,h,color=0x765d42)=>{
     solid(w,h,d,x,h/2,z,color);
     for(let y=.55;y<h;y+=.66)box(w-.10,.07,d+.06,x,y,z,0xad8961);
@@ -279,7 +280,7 @@ export function buildFarmhouseInterior(site,makeLabel){
     3.05,-8.2,6);
 
   // BATHROOM: practical family bath and shower with actual fixtures.
-  flat(-5,-13.9,6.9,4.6,0xc6d1d1);
+  flat(-5,-13.9,6.9,4.6,0xc6d1d1,FLOOR_SURFACE_Y.wetTile);
   solid(1.0,.83,.78,-3.02,.41,-11.95,0xe3e2d8); // vanity
   box(1.15,1.02,.04,-3.02,2.10,-11.95,0x86aeb3); // mirror
   solid(1.72,.58,.98,-6.13,.32,-14.6,0xd9ddd8); // bath
