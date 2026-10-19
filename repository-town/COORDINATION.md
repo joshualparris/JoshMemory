@@ -24,6 +24,11 @@ Newest first. Times in Australia/Sydney.
 
 ## Done recently
 
+- 2026-10-19 · Codex — expanded all 24 street villagers with distinct offline and live-AI
+  personalities, including Sadie as a curious book-and-building collector. Added the NPC
+  personality contract test; build, privacy and house checks passed. Published to
+  `Parris-Tech-Services/Repository-town` at `5d1f749`; Pages run `39206341200` succeeded.
+
 - 2026-10-19 · Codex — with Josh's explicit approval, public house labels and search now show
   private repository names while private URLs, READMEs, summaries, room names and exhibit text
   remain redacted. Published to `Parris-Tech-Services/Repository-town` at `fe44bef`; Pages run
