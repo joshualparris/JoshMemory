@@ -15,6 +15,10 @@ for (const g of JSON.parse(fs.readFileSync(new URL('../data/games.json', import.
 const failures = [], counts = { houses: 0, rooms: 0, exhibits: 0, toys: 0, games: 0 };
 let declaredToys = 0;
 const kinds = new Set(['battle','loot','signal','repair','safari','kitchen','vault','trail']);
+// Beds in the new sleep/fatigue system are intentionally converted from old
+// authored actions (R5 used to assign a kitchen challenge to its recovery bed).
+// Count only the interactions that should exist in the *built* game.
+const effectiveAction = p => (typeof p !== 'string' && p[0] === 'bed') ? 'sleep' : p?.[2]?.do;
 const ctx = { activate() {}, toggle() { return true; } };
 for (const row of inventory.projects) {
   const h = mergeDiscovery(sanitise(toHouse(briefs.get(row.repo), row, inventory.grid.streetNames, {}, games)));
@@ -22,12 +26,13 @@ for (const row of inventory.projects) {
   // Verify the realised geometry against those declarations, not a frozen
   // town-wide number that changes when a house's design is legitimately revised.
   declaredToys += h.int.rooms.reduce((n,r) =>
-    n + (r.props || []).filter(p => kinds.has(p[2]?.do)).length, 0);
+    n + (r.props || []).filter(p => kinds.has(effectiveAction(p))).length, 0);
   const b = buildInterior(h, () => new THREE.Object3D()), world = new CollisionWorld(b.colliders);
   const fail = m => failures.push(`${h.coordinate}: ${m}`);
   const authored = h.int.rooms.flatMap(r=>r.props || []);
+  if (!b.interactables.some(e=>e.type==='bed' && e.act?.do==='sleep')) fail('no functional sleeping bed');
   for (const kind of kinds) {
-    const expected=authored.filter(p=>p[2]?.do===kind).length;
+    const expected=authored.filter(p=>effectiveAction(p)===kind).length;
     const actual=b.interactables.filter(e=>e.act.do===kind).length;
     if (actual!==expected) fail(`missing/extra ${kind} interactions: declared ${expected}, realised ${actual}`);
   }
