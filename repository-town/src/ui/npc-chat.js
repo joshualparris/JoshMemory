@@ -38,7 +38,7 @@ export function mountNPCChat(root=document) {
   // Vercel. Never send the Groq key to the browser, and never put the PIN in a URL.
   const pagesHost=/(^|\.)github\.io$/i.test(window.location.hostname);
   const chatEndpoint=pagesHost
-    ? 'https://repository-town-claude-playtest.vercel.app/api/npc-chat'
+    ? 'https://repository-town-ai-bridge.parris-neathaustralia.workers.dev/api/npc-chat'
     : '/api/npc-chat';
   // Small local-only quest progress; neither badges nor scripted choices use Groq.
   const BADGE_KEY='repository-town:npc-badges:v1';
