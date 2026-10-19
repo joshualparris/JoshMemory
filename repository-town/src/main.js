@@ -94,6 +94,7 @@ async function start() {
   syncMouseCapture(false);
   if (input.touch) $('touch').hidden = false;
   const player = new Player(camera);
+  let floorDoorCooldown = 0;
   const floorBadge = document.createElement('div');
   floorBadge.id = 'floor-indicator'; floorBadge.hidden = true; document.body.append(floorBadge);
   const npcChat = mountNPCChat(document);
@@ -150,6 +151,7 @@ async function start() {
     world = new CollisionWorld(next.colliders);
     player.place(next.landing.x, next.landing.z, Math.PI);
     player.baseHeight = target * FLOOR_HEIGHT;
+    floorDoorCooldown = 0.9;
     updateFloorBadge(); $('card').hidden = true; ambience.door();
     status('Floor ' + (target+1) + ': ' + floors.titles[target] + '. Use stairs or lift to change floors.');
     return true;
@@ -482,6 +484,7 @@ async function start() {
   function frame() {
     // Up to 0.15 s per frame keeps walking real-time on slow phones; collision subdivides the step.
     const raw = clock.getDelta(), dt = Math.min(raw, 0.15), t = clock.elapsedTime;
+    floorDoorCooldown = Math.max(0, floorDoorCooldown - dt);
     frames++; fpsTimer += raw; if (fpsTimer > 1) { fps = frames / fpsTimer; frames = 0; fpsTimer = 0; }
     // While a game is open the town neither renders nor reacts, so the game gets the whole device.
     if (playing) {
@@ -576,7 +579,7 @@ async function start() {
       }
       const ex = inside.exitZone;
       // Generous exit area: the doorway plus the last 1.3 m inside it, centred on the actual door.
-      if (Math.abs(player.pos.x - (ex.x0 + ex.x1) / 2) < 1.55 && player.pos.z > inside.rooms[0].z1 - 1.3 && player.pos.z < ex.z1 + 0.5) { if (inside.floors && inside.floorIndex > 0) changeFloor(inside.floorIndex - 1); else leave(); }
+      if (floorDoorCooldown <= 0 && Math.abs(player.pos.x - (ex.x0 + ex.x1) / 2) < 1.55 && player.pos.z > inside.rooms[0].z1 - 1.3 && player.pos.z < ex.z1 + 0.5) { if (inside.floors && inside.floorIndex > 0) changeFloor(inside.floorIndex - 1); else leave(); }
       else {
         nearThing = pickNear();
         nearNPC = null;
