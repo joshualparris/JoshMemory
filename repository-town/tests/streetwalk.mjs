@@ -77,7 +77,7 @@ for (const row of ROWS) {
   console.log(`street ${row} done (${((Date.now() - t0) / 1000).toFixed(0)}s, ${problems.length} problems so far)`);
 }
 // Avenues every 5 columns, end to end.
-for (let c = 0; c <= COLS; c += 5) {
+for (let c = 0; !args.includes('--no-avenues') && c <= COLS; c += 5) {
   const x = (c - COLS / 2) * LOT_X;
   await walk(`avenue x=${x}`, [x, roadZ(1) - 8], 'z', 1, roadZ(8) + 8);
 }

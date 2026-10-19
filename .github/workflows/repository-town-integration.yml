@@ -1,0 +1,40 @@
+name: Repository Town targeted integration
+on:
+  pull_request:
+    paths:
+      - 'repository-town/**'
+      - '.github/workflows/repository-town-integration.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  town:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - run: npm ci
+        working-directory: repository-town
+      - name: NPC dialogue unit checks
+        run: node tests/npc-house-dialogue.mjs
+        working-directory: repository-town
+      - name: Build and public privacy contract
+        run: npm run build && npm run check:privacy
+        working-directory: repository-town
+      - name: Install browser
+        run: npx playwright install --with-deps chromium
+        working-directory: repository-town
+      - name: Street walk smoke row 1
+        working-directory: repository-town
+        run: |
+          npm run serve > /tmp/town.log 2>&1 &
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8080/ -o /dev/null; then break; fi
+            sleep 1
+          done
+          node tests/streetwalk.mjs --rows 1 --no-photos --no-avenues
