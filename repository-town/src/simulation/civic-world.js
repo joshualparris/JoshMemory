@@ -15,6 +15,8 @@ export function buildCivicDistrict(town, makeLabel) {
     .map(letter => letter + "8").filter(coordinate => !town.lots.has(coordinate));
   const buildings = [];
   const boxes = [];
+  const doors = [];
+  const doorZones = [];
   const root = new THREE.Group();
   root.name = "Living Civic District";
   town.group.add(root);
@@ -45,18 +47,42 @@ export function buildCivicDistrict(town, makeLabel) {
       makeBox(3,3,3,roof,3,1.5,-3,group);
       boxes.push({x0:pos.x+1.5,x1:pos.x+4.5,z0:pos.z-4.5,z1:pos.z-1.5});
     } else {
-      makeBox(11,4.8,9,getWall(kind),0,2.4,0,group);
-      makeBox(12,0.7,10,roof,0,5.15,0,group);
-      for(const x of [-3.3,0,3.3]) makeBox(1.5,1.6,.08,windowMat,x,3,4.55,group);
-      makeBox(2.2,3,.2,roof,0,1.5,4.7,group);
+      // Four real walls with a 2.4m shopfront opening; never use a solid
+      // 11x9 collision rectangle that blocks the player at the entrance.
+      makeBox(11,.18,9,getWall(kind),0,.09,0,group);
+      makeBox(11,4.8,.24,getWall(kind),0,2.4,-4.5,group);
+      makeBox(.24,4.8,9,getWall(kind),-5.5,2.4,0,group);
+      makeBox(.24,4.8,9,getWall(kind),5.5,2.4,0,group);
+      for(const x of [-3.35,3.35]){
+        makeBox(4.3,4.8,.24,getWall(kind),x,2.4,4.5,group);
+        makeBox(1.5,1.6,.09,windowMat,x,3,4.66,group);
+        boxes.push({x0:pos.x+x-2.18,x1:pos.x+x+2.18,z0:pos.z+4.34,z1:pos.z+4.67});
+      }
+      boxes.push(
+        {x0:pos.x-5.7,x1:pos.x+5.7,z0:pos.z-4.7,z1:pos.z-4.34},
+        {x0:pos.x-5.7,x1:pos.x-5.3,z0:pos.z-4.5,z1:pos.z+4.5},
+        {x0:pos.x+5.3,x1:pos.x+5.7,z0:pos.z-4.5,z1:pos.z+4.5}
+      );
+      makeBox(12,.7,10,roof,0,5.15,0,group);
+      makeBox(2.5,.25,.24,roof,0,4.2,4.64,group);
       if(kind==="industry" || kind==="utilities"){
         makeBox(1.5,5,1.5,roof,3,7.7,-2,group);
       }
-      boxes.push({x0:pos.x-5.7,x1:pos.x+5.7,z0:pos.z-4.7,z1:pos.z+4.7});
     }
+    // The farm and park are outdoors but have a covered visitor entrance
+    // leading into their dedicated barn / pavilion walkable interior.
+    makeBox(2.8,.25,.28,roof,0,3.9,4.76,group);
+    for(const x of [-1.35,1.35])makeBox(.2,3.8,.24,roof,x,1.9,4.76,group);
+    const doorPosition=new THREE.Vector3(pos.x,0,pos.z+4.77);
+    const hinge=new THREE.Group();
+    const leaf=makeBox(2.1,2.9,.10,getWall(kind),1.05,1.45,0,hinge);
+    hinge.position.set(-1.16,0,4.81);
+    hinge.userData={id,coordinate,centre:doorPosition,open:0};
+    group.add(hinge);doors.push(hinge);
+    doorZones.push({id,x0:pos.x-.96,x1:pos.x+.96,z0:pos.z+4.82,z1:pos.z+6.0});
     const sign = makeLabel(icon + " " + name, "street");
     sign.position.set(0,7.4,5.4);group.add(sign);
-    buildings.push({id,name,kind,coordinate,position:pos});
+    buildings.push({id,name,kind,coordinate,position:pos,doorPos:doorPosition});
   };
   SITES.slice(0,available.length).forEach((site,i)=>makeSite(site,available[i]));
   // Shared emissive materials change after sunset without GPU-heavy point lights.
@@ -92,6 +118,6 @@ export function buildCivicDistrict(town, makeLabel) {
     });
   }
   town.colliders.push(...boxes);
-  return {buildings,update};
+  return {buildings,doors,doorZones,update};
 }
 
