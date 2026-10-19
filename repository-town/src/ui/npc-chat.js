@@ -4,9 +4,9 @@
 import { NPCS, getNPC } from './npc-data.js';
 
 const FALLBACK=[
-  'I can reply offline here. For an open-ended AI answer, use the secure playtest link or enter your access code on the hosted version.',
+  'The live AI is unavailable, but I can still chat with you offline.',
   'Fancy a little exploration? Find a new house, try an arcade or roll a d20.',
-  'I can still keep you company in offline mode. For an open-ended answer, connect Groq with your private access code.',
+  'I can still keep you company in offline mode. Try the AI again shortly.',
   'That sounds interesting! I wish I could give a proper answer right now. My offline dialogue is limited.'
 ];
 // Offline conversations should describe the public-safe house without exposing
@@ -30,16 +30,11 @@ export function mountNPCChat(root=document) {
   const subtitle=root.getElementById('npc-role');
   const avatar=root.getElementById('npc-avatar');
   const input=root.getElementById('npc-input');
-  const pin=root.getElementById('npc-code');
-  const status=root.getElementById('npc-status');
+    const status=root.getElementById('npc-status');
   const form=root.getElementById('npc-form');
   const send=root.getElementById('npc-send');
-  // GitHub Pages serves static assets only; the protected chat API runs on
-  // Vercel. Never send the Groq key to the browser, and never put the PIN in a URL.
-  const pagesHost=/(^|\.)github\.io$/i.test(window.location.hostname);
-  const chatEndpoint=pagesHost
-    ? 'https://repository-town-ai-bridge.parris-neathaustralia.workers.dev/api/npc-chat'
-    : '/api/npc-chat';
+  // Code-free AI endpoint; credentials remain only on Cloudflare.
+  const chatEndpoint='https://repository-town-no-code-ai.parris-neathaustralia.workers.dev/api/npc-chat';
   // Small local-only quest progress; neither badges nor scripted choices use Groq.
   const BADGE_KEY='repository-town:npc-badges:v1';
   let badges=[];
@@ -48,7 +43,6 @@ export function mountNPCChat(root=document) {
   form.before(activities);
   const chats=new Map();
   let active=null, context=null, busy=false, controller=null, count=0, beforeFocus=null;
-  try { pin.value=sessionStorage.getItem('town-npc-code')||''; } catch {}
   // The on-screen keyboard changes the *visual* viewport without always resizing
   // the layout viewport (notably on Android Chrome and Samsung Internet).
   function syncNpcViewport() {
@@ -147,13 +141,11 @@ export function mountNPCChat(root=document) {
     renderActivities(npc);
     feed.replaceChildren();
     for(const msg of chats.get(k))line(msg.role==='user'?'user':'npc',msg.content);
-    try { pin.value=sessionStorage.getItem('town-npc-code')||pin.value||''; } catch {}
-    status.textContent=pagesHost?'Enter your access code for live AI (served securely via Vercel)':'Fictional AI character · never share private information';
+    status.textContent='Cloudflare AI · no access code needed';
     el.hidden=false;input.disabled=false;send.disabled=false;
     el.classList.remove('npc-typing');
     syncNpcViewport();
-    // Don't open the Android keyboard before the visitor can see the
-    // access-code field, suggested prompts and NPC quest controls.
+    // Leave the keyboard closed on touch devices so quests stay visible.
     if(!window.matchMedia('(pointer: coarse)').matches)input.focus();
     return true;
   }
@@ -163,7 +155,6 @@ export function mountNPCChat(root=document) {
     if(beforeFocus?.focus)beforeFocus.focus();
   }
   root.getElementById('npc-close').addEventListener('click',close);
-  pin.addEventListener('change',()=>{try{sessionStorage.setItem('town-npc-code',pin.value.trim());}catch{}});
   form.addEventListener('submit',async(e)=>{
     e.preventDefault();if(!active||busy)return;
     const question=input.value.trim().slice(0,750);if(!question)return;
@@ -174,37 +165,26 @@ export function mountNPCChat(root=document) {
     // Keep the composer focused while Groq replies: disabling the input
     // dismisses the Android keyboard and refocusing makes it jump back.
     status.textContent='Thinking…';
-    const accessCode=pin.value.trim();
     let reply='',online=false,stale=false;
-    if(!accessCode) {
+    controller=new AbortController();
+    const timeout=setTimeout(()=>controller?.abort(),22000);
+    try {
+      const res=await fetch(chatEndpoint,{
+        method:'POST',credentials:'omit',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({npcId:npc.id,house:house?{name:house.name,kind:house.kind,coordinate:house.coordinate}:null,
+          messages:history.slice(-8).map(({role,content})=>({role,content}))}),
+        signal:controller.signal
+      });
+      const payload=await res.json().catch(()=>({}));
+      if(!res.ok)throw Error(payload.error||'AI unavailable ('+res.status+')');
+      reply=String(payload.reply||'').trim();
+      if(!reply)throw Error('Empty AI response');
+      online=true;
+    }catch(err){
       reply=houseAwareReply(npc,house,question)||FALLBACK[count++%FALLBACK.length];
-      status.textContent='Offline dialogue · enter your private access code to enable live AI';
-    } else {
-      controller=new AbortController();
-      const timeout=setTimeout(()=>controller?.abort(),22000);
-      try {
-        const res=await fetch(chatEndpoint,{
-          method:'POST',
-          credentials:'omit',
-          headers:{'Content-Type':'application/json','x-npc-code':accessCode},
-          body:JSON.stringify({npcId:npc.id,house:house?{name:house.name,kind:house.kind,coordinate:house.coordinate}:null,
-            messages:history.slice(-8).map(({role,content})=>({role,content}))}),
-          signal:controller.signal
-        });
-        const payload=await res.json().catch(()=>({}));
-        if(!res.ok) {
-          if(res.status===401){pin.value='';try{sessionStorage.removeItem('town-npc-code');}catch{}}
-          throw Error(payload.error||'AI service unavailable ('+res.status+')');
-        }
-        reply=String(payload.reply||'').trim();
-        if(!reply)throw Error('No response received');
-        online=true;
-        try{sessionStorage.setItem('town-npc-code',accessCode);}catch{}
-      }catch(err){
-        reply='I could not reach Groq just now. '+(err.name==='AbortError'?'The request timed out.':err.message)+
-          ' You can try again or continue using offline dialogue.';
-      }finally{clearTimeout(timeout);controller=null;}
-    }
+      status.textContent='AI unavailable · showing offline dialogue';
+    }finally{clearTimeout(timeout);controller=null;}
     stale=active!==npc||context!==house;
     if(!stale){
       history.push({role:'assistant',content:reply.slice(0,2000)});
