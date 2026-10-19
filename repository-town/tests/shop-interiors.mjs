@@ -14,9 +14,41 @@ for(const id of CIVIC_INTERIOR_IDS){
     room.group.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material?.dispose)o.material.dispose();});
     continue;
   }
+  if(id==='hotel'){
+    assert.equal(room.rooms.length,5,'hotel has reception and four real bedrooms');
+    assert.equal(room.interactables.filter(x=>x.type==='bed').length,4);
+    assert(room.exitZone.z1>room.spawn.z,'hotel must have walkable exit');
+    room.group.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material?.dispose)o.material.dispose();});
+    continue;
+  }
   assert.equal(room.rooms.length,1,id+' walk-in room');
+  if(id==='bakery'){
+    // Researched bakery: counter, pastry case, kitchen view, bread wall and café corner.
+    for(const k of ['counter','pastries','kitchen','breadwall','cafe'])assert(room.interactables.some(x=>x.key==='bakery:'+k),'bakery '+k);
+    assert.equal(room.sceneObjects.length,room.interactables.length,'bakery scene-aware objects');
+    assert(room.group.children.length>400,'bakery is richly furnished');
+    // Every hotspot must be reachable on foot and clear of furniture.
+    for(const x of room.interactables){const hit=room.colliders.some(c=>x.pos.x>c.x0-0.35&&x.pos.x<c.x1+0.35&&x.pos.z>c.z0-0.35&&x.pos.z<c.z1+0.35);assert.equal(hit,false,'bakery hotspot '+x.key+' is clear');}
+    assert(room.staff.pos.z<room.staff.use.z,'baker stands behind the counter');
+    // Shelves follow the live stock: empty shelves have fewer meshes than full ones.
+    const full=buildCivicInterior({id,name:'Bakery',out:{bread:30,pie:12}},label), bare=buildCivicInterior({id,name:'Bakery',out:{bread:0,pie:0}},label);
+    assert(bare.group.children.length<full.group.children.length-40,'sold-out shelves look empty');
+    assert(bare.interactables.find(x=>x.key==='bakery:breadwall').act.text.includes('0 loaves'),'bread wall reports stock');
+  } else if(id==='bank'){
+    // Researched bank branch: counter, ATM, advice desks, private office, vault, waiting area.
+    for(const k of ['counter','atm','advice','loans','vault','lounge'])assert(room.interactables.some(x=>x.key==='bank:'+k),'bank '+k);
+    assert.equal(room.sceneObjects.length,room.interactables.length,'bank scene-aware objects');
+    assert(room.group.children.length>300,'bank is richly furnished');
+    for(const x of room.interactables){const hit=room.colliders.some(c=>x.pos.x>c.x0-0.35&&x.pos.x<c.x1+0.35&&x.pos.z>c.z0-0.35&&x.pos.z<c.z1+0.35);assert.equal(hit,false,'bank hotspot '+x.key+' is clear');}
+    assert(room.staff.pos.z<room.staff.use.z,'teller stands behind the counter');
+    assert(room.staff.pos.z<-5.95,'teller is behind the counter line');
+    // Tellers are far from the door and a queue lane leads to them down the middle.
+    assert(room.staff.pos.z<-4&&room.spawn.z>3,'teller line is at the back, far from the entrance');
+    assert(room.colliders.filter(c=>Math.abs(Math.abs((c.x0+c.x1)/2)-1.15)<0.01&&(c.z1-c.z0)>3).length===2,'queue lane has two rope sides');
+  } else {
   assert.equal(room.interactables.length,3,id+' three interactive features');
   assert.equal(room.sceneObjects.length,3,id+' scene-aware objects');
+  }
   assert(room.colliders.length>=7,id+' walls and counters');
   assert.equal(room.spawn.z,3.75);
   assert(room.exitZone.z1>room.spawn.z);

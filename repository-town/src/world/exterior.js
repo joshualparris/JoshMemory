@@ -1,4 +1,5 @@
 import { PROPS } from './props.js';
+import { yardSite } from './exterior-collision.js';
 import { GLASS } from './builder.js';
 
 // Exterior architecture. Every style builds around the lot origin with the front
@@ -285,19 +286,26 @@ export function buildExterior(b, ext, colors) {
   fp.front = fp.front ?? fp.d / 2;
   const slots = yardSlots(fp);
   const yard = [];
+  const occupied = [];
   let slot = 0;
   for (const f of ext.features || []) {
     if (FEATURES[f]) FEATURES[f](b, fp, s);
     else if (YARD_PROPS[f]) {
-      const [x, z] = slots[slot++ % slots.length];
+      const preferred = slots[slot++ % slots.length];
       const prop = PROPS[YARD_PROPS[f]];
+      // All rendered yard objects reserve physical space, even visual-only
+      // objects: decorative trees/props must not intersect walls or vehicles.
+      const site = yardSite(fp,prop,preferred,occupied);
+      if (!site) { (fp.skippedYard || (fp.skippedYard=[])).push(f); continue; }
+      const {x,z,box}=site;
       b.at(x, 0, z, x < 0 ? Math.PI / 2 : -Math.PI / 2, () => prop.build(b, { c: f === 'flag' || f === 'balloons' ? colors.trim : undefined }));
-      // Rotated ±90°, so the footprint swaps axes.
-      if (prop.solid) yard.push({ x0: x - prop.d / 2, x1: x + prop.d / 2, z0: z - prop.w / 2, z1: z + prop.w / 2 });
+      occupied.push(box);
+      if (prop.solid) yard.push(box);
     } else throw new Error('Unknown exterior feature ' + f);
   }
   // Path and doormat give each front door a readable approach.
   b.box(0xc9bfa8, 1.8, 0.04, 4, fp.door.x, 0.02, fp.front + 2);
   fp.yard = yard;
+  fp.yardObjects = occupied;
   return fp;
 }

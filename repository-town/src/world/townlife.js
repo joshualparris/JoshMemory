@@ -164,6 +164,18 @@ const BUILD = {
 };
 // Civic sites across the road (authored like the rest: street side +z, front wall at z = +7).
 Object.assign(BUILD, {
+  hotel(b) {
+    // Road-facing south-side hotel: two floors, reception, guest-room windows.
+    b.box(0xd9b894,14,7,10,0,3.5,2);
+    b.box(0x774b36,15,0.6,11,0,7.3,2);
+    b.box(0x8b6549,15.2,0.25,11.2,0,7.65,2);
+    for(const y of [2.2,5.2])for(const x of [-5,-2.8,2.8,5])
+      b.box(GLASS,1.3,1.6,0.08,x,y,7.05);
+    b.box(0x4e3528,2.2,2.7,0.08,0,1.35,7.08);
+    b.box(0xf3dfb1,4.6,0.55,0.14,0,4.0,7.17);
+    b.box(0x816044,2.5,0.17,1.7,0,0.15,8.0);
+    return {w:14,d:10};
+  },
   bank(b) {
     b.box(0xd8d0c0, 14, 6, 10, 0, 3, 2); b.box(0xa89a80, 15, 0.6, 11, 0, 6.3, 2);
     for (let i = 0; i < 4; i++) b.cyl(WHITE, 0.3, 5.2, -4.5 + i * 3, 2.6, 7.5);

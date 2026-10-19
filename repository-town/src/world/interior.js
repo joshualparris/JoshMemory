@@ -212,7 +212,19 @@ export function buildInterior(house, makeLabel) {
 }
 
 function buildOnce(house, makeLabel, attempt) {
-  const spec = house.int;
+  // Every real home gets a reachable bedroom; four authored homes already
+  // include beds. Add a connected sleeping room, never a floating prop.
+  const authored=house.int;
+  const hasBed=authored.rooms.some(r=>(r.props||[]).some(e=>(typeof e==='string'?e:e[0])==='bed'));
+  const roomsWithBeds=authored.rooms.map(r=>({...r,props:(r.props||[]).map(e=>{
+    const type=typeof e==='string'?e:e[0];
+    return type==='bed'?[type,typeof e==='string'?'Bed':e[1]||'Bed',{...(Array.isArray(e)?e[2]||{}:{}),do:'sleep'}]:e;
+  })}));
+  if(!hasBed)roomsWithBeds.push({
+    name:'Bedroom',w:8,d:8,archive:true,
+    props:[['bed','Sleep in bed',{do:'sleep'}],['wardrobe','Clothes wardrobe'],['lamp','Bedside lamp']]
+  });
+  const spec={...authored,rooms:roomsWithBeds};
   const b = new Builder();
   const colliders = [];
   const sight = []; // boxes that hide labels behind them (walls, lintels, closed doors)
