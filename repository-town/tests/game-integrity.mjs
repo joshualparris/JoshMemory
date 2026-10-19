@@ -22,6 +22,16 @@ for (const game of manifest) {
   if (docs !== 1) broken.push(`${game.id}: found ${docs} HTML doctypes; expected one`);
   if (!/<html\b/i.test(html) || !/<\/html>/i.test(html)) broken.push(`${game.id}: incomplete HTML shell`);
   if (html.trim().length < 150) broken.push(`${game.id}: suspiciously short page`);
+  if (game.kind === 'godot') {
+    const wasmGz = path.join(dir, 'index.wasm.gz');
+    const wasm = path.join(dir, 'index.wasm');
+    const pck = path.join(dir, 'index.pck');
+    if (!fs.existsSync(wasmGz)) broken.push(`${game.id}: missing tracked index.wasm.gz`);
+    else if (fs.readFileSync(wasmGz).subarray(0, 2).toString('hex') !== '1f8b') broken.push(`${game.id}: invalid index.wasm.gz header`);
+    if (!fs.existsSync(wasm)) broken.push(`${game.id}: missing index.wasm (run tools/build.mjs)`);
+    else if (fs.readFileSync(wasm).subarray(0, 4).toString('hex') !== '0061736d') broken.push(`${game.id}: invalid index.wasm header`);
+    if (!fs.existsSync(pck)) broken.push(`${game.id}: missing index.pck`);
+  }
   valid++;
 }
 // Catch the exact regression Work found: an AA page with conflict markers and

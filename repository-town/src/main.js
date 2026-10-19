@@ -11,7 +11,7 @@ import { runInteraction, esc } from './ui/interactions.js';
 import { setArchiveLoader } from './ui/archive.js';
 import { createExpedition } from './adventure/expedition.js';
 import { mountNPCChat } from './ui/npc-chat.js';
-import { takeKeysFromHash, npcBehaviour, villagerName } from './ui/npc.js';
+import { npcBehaviour, villagerName } from './ui/npc.js';
 import { placeTownNPCs, animateNPCs, initialiseNPCWorksites, makePerson, Walker, roomWander, townRoutes, freeSpot } from './world/npcs.js';
 import { createSound } from './ui/sound.js';
 
@@ -29,8 +29,6 @@ const GROUND_DAY = new THREE.Color(0x79b46f), GROUND_NIGHT = new THREE.Color(0x2
 
 async function start() {
   // The standalone single-file build embeds the data so it runs from file:// with no server.
-  // A playtest link can carry Groq keys in its #fragment; they move to this browser's storage.
-  const keysAdded = takeKeysFromHash();
   const data = window.__HOUSES__ || await (await fetch('houses.json')).json();
   // Archive contents (READMEs, file lists) are large, so they load on first use.
   let archive = null;
@@ -415,9 +413,6 @@ async function start() {
     if (world.hits(player.pos.x, player.pos.z, player.radius)) { if (mode === 'house') leave(false); spawn(); }
     status('Welcome back — your position was restored.');
   } else { spawn(); status('Welcome! Walk up to the Town Guide or any front door to begin.'); }
-  // The link can also arrive while the town is already open (same page, new #fragment).
-  addEventListener('hashchange', () => { const n = takeKeysFromHash(); if (n) status(`Saved ${n} Groq key${n > 1 ? 's' : ''} on this device — residents can now chat.`); });
-  if (keysAdded) status(`Saved ${keysAdded} Groq key${keysAdded > 1 ? 's' : ''} on this device — residents can now chat.`);
   let saveTimer = 0;
   const save = () => writeSave({ pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, inside: inside?.house.coordinate || null, visited: [...visited] });
   addEventListener('visibilitychange', () => { if (document.hidden) save(); });

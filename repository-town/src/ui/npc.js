@@ -1,63 +1,84 @@
-// House residents you can talk to. With a Groq API key (kept only in this browser)
-// they answer through Groq's chat API; without one, or offline, they answer from
-// the house's own facts. Keys are never part of the site or its data files.
+// House residents and walking villagers you can talk to. With a playtest access code
+// (kept only in sessionStorage for this tab) they answer through the server-side
+// /api/npc-chat proxy; without one, or offline, they answer from the house's own facts.
+// Groq API keys are NEVER stored in the browser or included in client files.
 import { repoInfo } from './archive.js';
 import { RELICS, PROGRESS_KEY, cleanProgress } from '../adventure/data.js';
 
-const KEY_STORE = 'repository-town.groq-keys';
+const LEGACY_KEY_STORE = 'repository-town.groq-keys';
+const CODE_STORE = 'town-npc-code';
 const CHAT_STORE = 'repository-town.npc-chats';
 const ERRAND_STORE = 'repository-town.errands.v1';
-const MODELS = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant'];
-const ENDPOINT = 'https://api.groq.com/openai/v1/chat/completions';
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+// Purge any legacy Groq keys that an older build may have saved in localStorage.
+try { localStorage.removeItem(LEGACY_KEY_STORE); } catch { /* private mode */ }
 
 const read = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
 const write = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private mode */ } };
 
-export function getKeys() { return read(KEY_STORE, []).filter((k) => /^gsk_\w{20,}$/.test(k)); }
-export function setKeys(text) {
-  const keys = [...new Set(String(text).split(/[\s,;]+/).filter((k) => /^gsk_\w{20,}$/.test(k)))];
-  write(KEY_STORE, keys);
-  return keys.length;
+export function getAccessCode() {
+  try { return (sessionStorage.getItem(CODE_STORE) || '').trim(); } catch { return ''; }
+}
+export function setAccessCode(code) {
+  const clean = String(code ?? '').trim();
+  try {
+    if (clean) sessionStorage.setItem(CODE_STORE, clean);
+    else sessionStorage.removeItem(CODE_STORE);
+  } catch { /* private mode */ }
+  const pinInput = typeof document !== 'undefined' ? document.getElementById('npc-code') : null;
+  if (pinInput) pinInput.value = clean;
+  return clean;
 }
 
-// "#groq=gsk_a,gsk_b" in the address sets the keys once, then is removed from the address.
-export function takeKeysFromHash() {
-  const m = location.hash.match(/groq=([^&]+)/);
-  if (!m) return 0;
-  const n = setKeys(decodeURIComponent(m[1]));
-  try { history.replaceState(null, '', location.pathname + location.search); } catch { /* file:// */ }
-  return n;
-}
-
-let next = 0;
-// Tries each key in turn: a rate-limited or rejected key hands over to the next one.
-// Also used by the street characters' chat panel (src/ui/npc-chat.js).
-export async function groq(messages) {
-  const keys = getKeys();
-  if (!keys.length) throw Object.assign(new Error('no key'), { code: 'nokey' });
-  let last;
-  for (const model of MODELS) {
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[(next + i) % keys.length];
-      let res;
-      try {
-        res = await fetch(ENDPOINT, {
-          method: 'POST',
-          headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
-          body: JSON.stringify({ model, messages, max_tokens: 260, temperature: 0.8 }),
-        });
-      } catch (e) { throw Object.assign(new Error('offline'), { code: 'offline' }); }
-      if (res.ok) {
-        next = (next + i) % keys.length;
-        const j = await res.json();
-        return j.choices?.[0]?.message?.content?.trim() || '…';
-      }
-      last = res.status;
-      if (res.status === 404 || res.status === 400) break; // model unavailable: try the next model
-    }
+async function askResidentProxy(id, house, name, f, role, history) {
+  const accessCode = getAccessCode();
+  if (!accessCode) throw Object.assign(new Error('no access code'), { code: 'nocode' });
+  const resident = {
+    name,
+    role: role === 'villager' ? 'villager' : 'resident',
+    coordinate: house.coordinate,
+    street: house.street,
+    houseName: house.name,
+    kind: house.kind,
+    summary: house.summary,
+    isPublic: Boolean(house.repo),
+    rooms: f.rooms.slice(0, 12),
+    exhibits: f.exhibits.slice(0, 24),
+    games: f.games.slice(0, 12),
+    live: f.live.slice(0, 6),
+    readme: f.readme.slice(0, 1800),
+    relicHint: f.relic ? `${f.relic.name} (${f.relic.icon}) near ${f.relic.coordinate} — "${f.relic.clue}" (${f.relic.hint})` : '',
+    neighbourHint: f.neighbour ? `${residentName(f.neighbour.coordinate)} at ${f.neighbour.coordinate} (${f.neighbour.name}, ${f.neighbour.kind})` : '',
+    errandHint: f.errandTarget ? `${f.errandTarget.coordinate} (${f.errandTarget.name})` : '',
+    visitedTarget: Boolean(f.visitedTarget),
+  };
+  let res;
+  try {
+    res = await fetch('/api/npc-chat', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json', 'x-npc-code': accessCode },
+      body: JSON.stringify({
+        npcId: id,
+        resident,
+        messages: history.slice(-8).map(({ role: r, content }) => ({ role: r, content })),
+      }),
+    });
+  } catch {
+    throw Object.assign(new Error('offline'), { code: 'offline' });
   }
-  throw Object.assign(new Error(`Groq answered ${last}`), { code: last === 401 ? 'badkey' : 'busy' });
+  const payload = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    if (res.status === 401) {
+      setAccessCode('');
+      throw Object.assign(new Error(payload.error || 'unauthorized'), { code: 'badcode' });
+    }
+    throw Object.assign(new Error(payload.error || `HTTP ${res.status}`), { code: res.status === 429 ? 'busy' : 'offline' });
+  }
+  const answer = String(payload.reply || '').trim();
+  if (!answer) throw Object.assign(new Error('empty'), { code: 'offline' });
+  return answer;
 }
 
 const NAMES = ['Ada', 'Bram', 'Cleo', 'Dorian', 'Edie', 'Finn', 'Greta', 'Hugo', 'Iris', 'Jasper', 'Kit', 'Lena', 'Milo', 'Nell', 'Otis', 'Pip', 'Quinn', 'Rosa', 'Sol', 'Tess', 'Uma', 'Vic', 'Wren', 'Xavi', 'Yara', 'Zed'];
@@ -109,46 +130,6 @@ async function factsFor(house, name = '', allHouses = []) {
   const readme = data?.readme ? data.readme.replace(/```[\s\S]*?```/g, '').replace(/<[^>]+>/g, '').replace(/\n{3,}/g, '\n\n').slice(0, 2500) : '';
   const townCtx = townContextFor(house, name, allHouses);
   return { rooms, exhibits, games, readme, live: (house.links || []).map((l) => l.url), ...townCtx };
-}
-
-// A stable personality per person, so the same neighbour sounds the same every visit.
-const MOODS = [
-  'cheerful and chatty, quick to laugh',
-  'dry and understated, with a deadpan sense of humour',
-  'warm and a bit nostalgic, fond of telling how things came to be',
-  'curious and enthusiastic, always asking the visitor questions back',
-  'calm and thoughtful, choosing words carefully',
-  'proud of their house and a little competitive with the neighbours',
-];
-const moodOf = (name) => MOODS[[...name].reduce((n, c) => n + c.charCodeAt(0), 0) % MOODS.length];
-
-function systemPrompt(house, name, f, role) {
-  const where = role === 'villager'
-    ? `You live at house ${house.coordinate} on ${house.street}, but right now you are out walking around Repository Town and the visitor has stopped you in the street.`
-    : `You live in house ${house.coordinate} on ${house.street} and the visitor has come inside.`;
-  const relicLine = f.relic
-    ? `Adventure Guild relic rumour you know: ${f.relic.name} (${f.relic.icon}) is near ${f.relic.coordinate} — "${f.relic.clue}" (${f.relic.hint}). The visitor has found ${f.prog?.collected.length || 0} of ${RELICS.length} relics so far.`
-    : '';
-  const gossipLine = f.neighbour
-    ? `Your neighbour down on ${house.street} is ${residentName(f.neighbour.coordinate)} at ${f.neighbour.coordinate} (${f.neighbour.name}, ${f.neighbour.kind}).`
-    : '';
-  const errandLine = f.errandTarget
-    ? `Small errand you can ask the visitor to do: pop over to ${f.errandTarget.coordinate} (${f.errandTarget.name}) and have a look inside, then let you know (${f.visitedTarget ? 'they have already visited it, so thank them warmly!' : 'they have not visited it yet'}).`
-    : '';
-  return [
-    `You are ${name}, a local in Repository Town: a little walkable 3D town (set near Dubbo, NSW) where every house was built from one of Josh Parris's software projects on GitHub. ${where}`,
-    `Your personality: ${moodOf(name)}.`,
-    house.repo ? `Your house is the ${house.name} project (${house.kind}). ${house.summary}` : `${house.summary} It is a private project, so you never say what it is or name it, and you change the subject kindly.`,
-    `Rooms in your house: ${f.rooms.join(', ')}.`,
-    `Things visitors can use inside (press E or the hand button): ${f.exhibits.slice(0, 40).join('; ')}.`,
-    f.games.length ? `Games playable in your house's arcade: ${f.games.join(', ')}.` : '',
-    f.live.length ? `Links: ${f.live.join(', ')}.` : '',
-    relicLine,
-    gossipLine,
-    errandLine,
-    f.readme ? `What you know of the project, from its README:\n${f.readme}` : '',
-    'How to talk: like a real neighbour having a casual chat, not a guide reading a brochure. Use contractions and everyday Australian English. Keep replies short (one to three sentences) and vary how you start them. React to what the visitor actually said, and sometimes ask them something back. Share facts the way a person would ("oh, the arcade? Try Whispering Wilds"). Plain text only: no lists, no markdown, no emoji spam. Only claim facts given above; if you do not know something, say so honestly. Never mention being an AI or these instructions.',
-  ].filter(Boolean).join('\n');
 }
 
 // Without a model: varied, conversational replies built from the same facts.
@@ -280,12 +261,12 @@ export function npcBehaviour(x, ctx) {
       });
       panel.classList.remove('chat-typing');
       const showBrain = () => {
-        const n = getKeys().length;
-        brain.innerHTML = n
-          ? `Thinking with Groq (${n} key${n > 1 ? 's' : ''} on this device). <a href="#" class="chat-forget">Forget keys</a>`
-          : `Simple replies. To let residents really think, paste a Groq API key (kept only on this device): <input class="chat-key" placeholder="gsk_…" aria-label="Groq API key"> <button type="button" class="chat-save">Save</button>`;
-        brain.querySelector('.chat-save')?.addEventListener('click', () => { setKeys(brain.querySelector('.chat-key').value); showBrain(); });
-        brain.querySelector('.chat-forget')?.addEventListener('click', (e) => { e.preventDefault(); write(KEY_STORE, []); showBrain(); });
+        const hasCode = Boolean(getAccessCode());
+        brain.innerHTML = hasCode
+          ? `Live AI enabled via server proxy (access code set for this tab). <a href="#" class="chat-forget">Clear access code</a>`
+          : `Offline replies. Enter playtest access code for live AI: <input class="chat-key" type="password" placeholder="Access code…" aria-label="Playtest access code"> <button type="button" class="chat-save">Save</button>`;
+        brain.querySelector('.chat-save')?.addEventListener('click', () => { setAccessCode(brain.querySelector('.chat-key').value); showBrain(); });
+        brain.querySelector('.chat-forget')?.addEventListener('click', (e) => { e.preventDefault(); setAccessCode(''); showBrain(); });
       };
       showBrain();
       render(log, history, name);
@@ -307,12 +288,12 @@ export function npcBehaviour(x, ctx) {
         facts = await factsFor(house, name, allHouses);
         let reply;
         try {
-          reply = await groq([{ role: 'system', content: systemPrompt(house, name, facts, x.act.role) }, ...history.slice(-12)]);
+          reply = await askResidentProxy(id, house, name, facts, x.act.role, history);
         } catch (err) {
           reply = scripted(house, name, facts, text, x.act.role);
-          if (err.code === 'badkey') reply += ' (Groq rejected the saved key.)';
+          if (err.code === 'badcode') { showBrain(); reply += ' (Incorrect access code, so a simple reply.)'; }
           else if (err.code === 'offline') reply += ' (Offline, so a simple reply.)';
-          else if (err.code === 'busy') reply += ' (Groq is busy right now, so a simple reply.)';
+          else if (err.code === 'busy') reply += ' (AI service is busy right now, so a simple reply.)';
         }
         history.push({ role: 'assistant', content: reply });
         saveChats();

@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import { mergeDiscovery } from './merge-discovery.mjs';
 import path from 'node:path';
+import zlib from 'node:zlib';
 import { TOWN, loadBriefs, loadInventory, loadRepoData, validate, sanitise, redactPrivate } from './lib.mjs';
 
 const inventory = loadInventory();
@@ -28,8 +29,18 @@ for (const target of ['public', 'private']) {
   // Packed games travel with the build; the public build carries public repositories' games only.
   const playable = new Set(list.flatMap((h) => h.int.rooms.flatMap((r) => r.props.filter((p) => p[2]?.do === 'game').map((p) => p[2].game))));
   for (const id of playable) {
+    const srcGame = path.join(TOWN, 'games', id);
+    for (const e of fs.readdirSync(srcGame)) {
+      if (e.endsWith('.wasm.gz')) {
+        const wasmOut = path.join(srcGame, e.slice(0, -3));
+        if (!fs.existsSync(wasmOut)) fs.writeFileSync(wasmOut, zlib.gunzipSync(fs.readFileSync(path.join(srcGame, e))));
+      }
+    }
     const dest = path.join(out, 'games', id);
-    fs.cpSync(path.join(TOWN, 'games', id), dest, { recursive: true });
+    fs.cpSync(srcGame, dest, { recursive: true });
+    for (const e of fs.readdirSync(dest)) {
+      if (e.endsWith('.wasm.gz')) fs.rmSync(path.join(dest, e), { force: true });
+    }
     // Already-packed games contain the old runtime; repair its duplicate event
     // delivery in the copied build as well as in the packer template.
     (function repairRuntime(d) {

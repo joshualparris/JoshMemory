@@ -12,6 +12,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
+import zlib from 'node:zlib';
 import { execFileSync } from 'node:child_process';
 import * as esbuild from 'esbuild';
 import { TOWN } from './lib.mjs';
@@ -206,6 +207,10 @@ async function makePlayable(dir, entry = 'index.html', opts = {}) {
     throw new Error(`Game source contains unresolved Git merge markers: ${htmlPath}`);
   }
   html = html.replace(/<script\b[^>]*\bsrc=["'][^"']*["'][^>]*>\s*<\/script>/gi, (tag) => (WIDGET.test(tag) ? '' : tag));
+  html = html.replace(/<script\s+defer\s+src=["'](https:\/\/pyscript\.net\/releases\/2024[^"']+\/core\.js)["']\s*><\/script>/gi, '<script type="module" src="$1"></script>');
+  html = html.replace('<py-script>\nimport random', '<script type="py">\nimport random\nfrom js import document').replace('</py-script>', '</script>').replace('.itecare2()', '.items()');
+  html = html.replace('three@0.160.0/build/three.min.js', 'three@0.105.2/build/three.min.js').replace("return '/panos/placeholder.svg';", "return 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"2048\" height=\"1024\"><rect width=\"100%\" height=\"100%\" fill=\"#161922\"/><text x=\"50%\" y=\"50%\" fill=\"#7cd2ff\" font-family=\"sans-serif\" font-size=\"48\" text-anchor=\"middle\">Boundary Road Panorama</text></svg>');");
+  html = html.replace(/document\.getElementById\("(prev|next)"\)\.addEventListener/g, 'document.getElementById("$1")?.addEventListener');
   // Scripts that use import/export but are loaded as classic scripts (opts.moduleScripts).
   for (const src of opts.moduleScripts || []) html = html.replace(new RegExp(`<script\\s+src=["']${src.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}["']`), `<script type="module" src="${src}"`);
   html = html.replace(/<link\b[^>]*href=["'][^"']*(parris-network|portal-adapter)[^"']*["'][^>]*>/gi, '');
@@ -348,6 +353,10 @@ function packGodot(g, clone, out) {
   copyTree(clone, work);
   fs.mkdirSync(out, { recursive: true });
   run(findGodot(), ['--headless', '--path', work, '--export-release', g.preset || 'Web', path.join(out, 'index.html')], work);
+  const wasmPath = path.join(out, 'index.wasm');
+  if (fs.existsSync(wasmPath)) {
+    fs.writeFileSync(wasmPath + '.gz', zlib.gzipSync(fs.readFileSync(wasmPath), { level: 9 }));
+  }
   fs.rmSync(work, { recursive: true, force: true });
 }
 
