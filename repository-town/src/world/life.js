@@ -1,5 +1,6 @@
 import { distributePower, townPowerDemands, POWER_LINE_IDS, GRID_FAULT_COST } from './power-grid.js';
 import { initialisePublicLife, attendPublicForum, updatePublicForum, civicDialogue } from './public-forum.js';
+import { startNeeds, advanceNeeds, eatPlayer, hotelCheckIn, sleepPlayer, needsReport } from './needs.js';
 import { MAYOR_CANDIDATES, createGovernment, civicElection, castCivicVote, submitRequest, requestFeeder, proposeMotion, councilMeeting, advanceCivicWork, budgetRevenue, restoreCivic, govSummary, maintainServices } from './government.js';
 // Town life simulation: the clock, farms, the mill and bakery, shops, trucks, the post,
 // and villagers with jobs, hunger, pantries, wallets and daily routines. Pure logic (no
@@ -72,6 +73,7 @@ export const PLACE_DEFS = [
   { col: 'Z', id: 'farmhouse', name: 'Farmhouse', kind: 'home', opens: 0, closes: 24 * 60 },
   // Across the road from the high street (south side): finance, utilities and industry.
   { col: 'G', side: 'south', id: 'bank', name: 'Community Bank', kind: 'bank', opens: 9 * 60, closes: 16 * 60 },
+  { col: 'I', side: 'south', id: 'hotel', name: 'Railway Hotel', kind: 'hotel', opens: 0, closes: 24 * 60 },
   { col: 'H', side: 'south', id: 'power', name: 'Power Station', kind: 'utility', opens: 0, closes: 24 * 60, target: { fuel: 160 } },
   { col: 'J', side: 'south', id: 'waterworks', name: 'Water Works', kind: 'utility', opens: 0, closes: 24 * 60 },
   { col: 'L', side: 'south', id: 'sewage', name: 'Wastewater Works', kind: 'utility', opens: 0, closes: 24 * 60 },
@@ -246,6 +248,8 @@ export class TownLife {
     for (const t of this.trucks) t.driver = this.villagers.find((v) => v.job === 'truck driver' && !this.trucks.some((o) => o.driver === v)) || null;
     createGovernment(this);
     initialisePublicLife(this);
+    startNeeds(this);
+    this.place('hotel').bookings=[];
     this.log(`Day ${this.day} begins. The town wakes up.`);
   }
 
@@ -265,6 +269,7 @@ export class TownLife {
     if (this.minute >= 24 * 60) { this.minute -= 24 * 60; this.day++; this.newDay(); }
     const hourly = Math.floor(before / 60) !== Math.floor(this.minute / 60) || this.minute < before;
     if (hourly) this.everyHour();
+    advanceNeeds(this,minutes);
     for (const v of this.villagers) this.liveVillager(v, minutes);
     updatePublicForum(this);
     advanceCivicWork(this, minutes);
@@ -427,12 +432,10 @@ export class TownLife {
     me.bag[good]--; this.shelves(p)[good] = (this.shelves(p)[good] || 0) + 1; p.till -= pay; me.wallet += pay;
     return `The ${p.name} buys it back for $${pay}.`;
   }
-  eatItem(good) {
-    const me = this.civic.player;
-    if (!(me.bag[good] > 0)) return `You don't have any ${GOODS[good].name}.`;
-    me.bag[good]--; this.rubbish(1);
-    return `You eat the ${GOODS[good].unit === 'pie' ? 'pie' : GOODS[good].name} on a bench. Lovely.`;
-  }
+  eatItem(good) { return eatPlayer(this,good); }
+  bookHotel() { return hotelCheckIn(this); }
+  sleepHotel() { return sleepPlayer(this,'hotel'); }
+  needsReport() { return needsReport(this); }
   bank(op, n) {
     const me = this.civic.player, from = op === 'deposit' ? 'wallet' : 'bank', to = op === 'deposit' ? 'bank' : 'wallet';
     if (!this.open(this.place('bank'))) return 'The bank is closed (9:00–16:00).';
@@ -764,8 +767,9 @@ export class TownLife {
     const m = this.minute, home = this.doorstep(v), work = this.workSpot(v);
     const sleepFrom = v.job === 'baker' && v.start < 6 * 60 ? 20 * 60 + 30 : 22 * 60 + 30;
     const wake = Math.min(v.start - 75, 6 * 60 + 30);
-    const asleep = m >= sleepFrom || m < wake;
+    const asleep = m >= sleepFrom || m < wake || (v.fatigue>=94 && m >= v.end);
     if (asleep) return this.goThen(v, home, { kind: 'sleep', at: 'home', until: wake < m ? wake + 24 * 60 : wake, activity: 'asleep at home' });
+    if (v.hunger>=82 && m>=wake && !v.doneToday.breakfast) v.memory='very hungry, looking for breakfast';
     if (!v.doneToday.breakfast) {
       v.doneToday.breakfast = true;
       const meal = this.cookable(v, 'breakfast');
@@ -877,12 +881,14 @@ export class TownLife {
   eat(v, name, need) {
     for (const [k, n] of Object.entries(need || {})) v.pantry[k] = Math.max(0, (v.pantry[k] || 0) - n);
     v.hunger = 0; v.lastMeal = { name, at: this.minute, day: this.day };
+    v.missedMeals=0;
     v.meals.unshift(`${name} (${fmt(this.minute)})`); v.meals.length = Math.min(v.meals.length, 5);
     this.stats.meals++; this.rubbish(1);
   }
 
   liveVillager(v, minutes) {
     v.hunger = clamp(v.hunger + minutes * (v.step?.kind === 'sleep' ? 0.04 : 0.08), 0, 100);
+    if(v.fatigue>92 && v.step?.kind==='work')v.memory='struggling to stay awake at work';
     if (v.engaged) return;                   // chatting with the player: stands still
     if (v.path.length) {
       let budget = minutes * SEC_PER_MIN * (v.bike ? BIKE : WALK);
@@ -988,7 +994,8 @@ export class TownLife {
     const last = v.lastMeal ? `${v.lastMeal.name} at ${fmt(v.lastMeal.at)}${v.lastMeal.day !== this.day ? ' yesterday' : ''}` : 'nothing yet today';
     const pantry = Object.entries(v.pantry).filter(([, n]) => n > 0).map(([k, n]) => amount(k, n)).join(', ') || 'nothing much';
     return { name: v.name, job: v.job, workplace: v.work === 'home' ? 'from home' : this.place(v.work).name, home: `${v.home.coordinate} (${v.home.name})`,
-      now: v.activity, lastMeal: last, recentMeals: v.meals, hungry: v.hunger > 60, pantry, wallet: v.wallet, carrying: v.carrying, memory: v.memory || null };
+      now: v.activity, lastMeal: last, recentMeals: v.meals, hungry: v.hunger > 60,
+      fatigue: Math.round(v.fatigue), tired: v.fatigue>70, pantry, wallet: v.wallet, carrying: v.carrying, memory: v.memory || null };
   }
   news(n = 6) { return this.events.slice(0, n); }
   ledger() {
@@ -1000,7 +1007,7 @@ export class TownLife {
   }
 
   // Saves just what matters to resume tomorrow where the town left off.
-  snapshot() { return { saveVersion:2, day: this.day, minute: this.minute, powerGridEvents:this.powerGridEvents, powerGridEventSeq:this.powerGridEventSeq, civic: this.civic, places: [...this.places.values()].map((p) => [p.id, p.stock, p.out, p.till, p.growth]), villagers: this.villagers.map((v) => [v.id, v.pantry, v.wallet, v.lastMeal, v.meals]) }; }
+  snapshot() { return { saveVersion:2, day: this.day, minute: this.minute, powerGridEvents:this.powerGridEvents, powerGridEventSeq:this.powerGridEventSeq, civic: this.civic, places: [...this.places.values()].map((p) => [p.id, p.stock, p.out, p.till, p.growth]), villagers: this.villagers.map((v) => [v.id, v.pantry, v.wallet, v.lastMeal, v.meals, v.hunger, v.fatigue, v.restedMinutes]), hotelBookings:this.place('hotel').bookings }; }
   restore(s) {
     if (!s || typeof s !== 'object') return;
     this.day = Number.isFinite(s.day) && s.day >= 1 ? s.day : 1;
@@ -1015,6 +1022,8 @@ export class TownLife {
     this.civic.powerLines = this.civic.powerLines && typeof this.civic.powerLines === 'object' ? this.civic.powerLines : {};
     if(this.civic.supply.powerDemand>0)this.updatePowerGrid();
     for (const [id, stock, out, till, growth] of s.places || []) { const p = this.place(id); if (p) Object.assign(p, { stock, out, till, growth: growth ?? p.growth }); }
-    for (const [id, pantry, wallet, lastMeal, meals] of s.villagers || []) { const v = this.villagers[id]; if (v) Object.assign(v, { pantry, wallet, lastMeal, meals: meals || [] }); }
+    for (const [id, pantry, wallet, lastMeal, meals, hunger, fatigue, restedMinutes] of s.villagers || []) { const v = this.villagers[id]; if (v) Object.assign(v, { pantry, wallet, lastMeal, meals: meals || [], hunger: Number.isFinite(hunger)?hunger:v.hunger, fatigue: Number.isFinite(fatigue)?fatigue:v.fatigue, restedMinutes: Number.isFinite(restedMinutes)?restedMinutes:0 }); }
+    this.place('hotel').bookings=Array.isArray(s.hotelBookings)?s.hotelBookings.slice(-12):[];
+    startNeeds(this);
   }
 }
