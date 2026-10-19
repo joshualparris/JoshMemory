@@ -25,6 +25,7 @@ Newest first. Times in Australia/Sydney.
   is currently blocked by the Hobby team's daily deployment quota (`api-deployments-free-per-day`).
 
 ## Done recently
+- 2026-10-19 · ChatGPT — fixed Living Town NPC present-location awareness on the public-site source (`ui/npc-location.js`, `ui/npc.js`, `ui/townpanels.js`). Arlo's home H1 and Market Garden work location are separately grounded in simulation data; direct questions use deterministic answers. Cloudflare live AI prompt now combines current-location rules with the existing social/personality rules; worker secret and rate limits retained. Regression test `tests/npc-location.mjs` passes. Added the pure location helper, prompt source and ported test to canonical JoshMemory; full Living Town source reconciliation remains separate (do not overwrite current `src/main.js`).
 
 - 2026-10-19 · ChatGPT GitHub connector — **V7/W7 three-storey interiors MERGED and Pages PUBLISHED**. Source PR [#30](https://github.com/joshualparris/JoshMemory/pull/30) merged at `14838688`; public site updated at `2a19860`, with successful Pages deployment run `39232948450`. Unique floors 2/3, spiral stair E/✋ transitions, floor-selectable lifts, height-adjusted camera and floor badge. Public geometry-construction tests of V7 and W7 passed, as did static syntax and contract checks. **Not yet verified:** real-device Android/desktop gameplay, full Town build and privacy CI. See `docs/MULTI_FLOOR_INTERIORS_2026-10-19.md`. Keep future changes mirrored source-first; DO NOT blindly overwrite new Pages work.
 
