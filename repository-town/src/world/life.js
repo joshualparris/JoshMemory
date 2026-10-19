@@ -556,7 +556,7 @@ export class TownLife {
     return this.obstacles.some(p=>near(p,1.8,8)) ||
       this.villagers.some(v=>!v.inside&&near(v,1.6,8)) ||
       this.trucks.some(o=>{
-        if(o===t)return false;
+        if(o===t||(t.state==='parked'&&!proposed))return false;
         // Trucks are roughly 6.6m bumper-to-bumper: keep an actual
         // following gap, not merely non-overlapping centre points. Vehicles
         // in the opposing Australian left-hand lane are separated laterally.
