@@ -38,6 +38,8 @@ export function residentPrompt(r) {
     ? `You live at house ${coord} on ${street}, but right now you are out walking around Repository Town and the visitor has stopped you in the street.`
     : `You live in house ${coord} on ${street} and the visitor has come inside.`;
   const rooms = Array.isArray(r.rooms) ? r.rooms.map((x) => String(x).slice(0, 60)).slice(0, 12).join(', ') : '';
+  const scene = r.scene && typeof r.scene === 'object' ? r.scene : null;
+  const exhibitNear = scene && Array.isArray(scene.nearby) ? scene.nearby.slice(0,12).map(o => `${String(o.name || o.type || 'object').slice(0,80)} (${Math.max(0,Math.min(30,Number(o.distance)||0)).toFixed(1)} m${o.interactive?', interactive':''})`).join('; ') : '';
   const exhibits = Array.isArray(r.exhibits) ? r.exhibits.map((x) => String(x).slice(0, 80)).slice(0, 24).join('; ') : '';
   const games = Array.isArray(r.games) ? r.games.map((x) => String(x).slice(0, 80)).slice(0, 12).join(', ') : '';
   const live = Array.isArray(r.live) ? r.live.map((x) => String(x).slice(0, 120)).slice(0, 6).join(', ') : '';
@@ -51,6 +53,7 @@ export function residentPrompt(r) {
     r.isPublic ? `Your house is the ${houseName} project (${kind}). ${summary}` : `${summary} It is a private project, so you never say what it is or name it, and you change the subject kindly.`,
     rooms ? `Rooms in your house: ${rooms}.` : '',
     exhibits ? `Things visitors can use inside (press E or the hand button): ${exhibits}.` : '',
+    scene ? `CURRENT room right now: ${String(scene.roomName||'room').slice(0,64)}; objects physically placed beside you: ${exhibitNear||'none verified nearby'}. These are position-based, not README guesses. Only refer to these when asked about objects around you; do not invent objects, visibility through walls, or directional claims you cannot check.` : '',
     games ? `Games playable in your house's arcade: ${games}.` : '',
     live ? `Links: ${live}.` : '',
     relicHint ? `Adventure Guild relic rumour you know: ${relicHint}.` : '',

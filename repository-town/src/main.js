@@ -12,6 +12,7 @@ import { setArchiveLoader } from './ui/archive.js';
 import { createExpedition } from './adventure/expedition.js';
 import { mountNPCChat } from './ui/npc-chat.js';
 import { npcBehaviour, villagerName } from './ui/npc.js';
+import { sceneFromRoom } from './ui/scene-awareness.js';
 import { placeTownNPCs, animateNPCs, initialiseNPCWorksites, makePerson, Walker, roomWander, townRoutes, freeSpot } from './world/npcs.js';
 import { createSound } from './ui/sound.js';
 
@@ -353,6 +354,16 @@ async function start() {
   const ctx = {
     get house() { return inside?.house; },
     houses,
+    // Scene is sampled on each message, not when the chat first opens. Wandering
+    // residents therefore know the objects in the room they are in RIGHT NOW.
+    getNearbyScene: (thing) => {
+      if(mode!=='house'||!inside) return null;
+      const person=inside.people?.find(p=>p.key===thing.key);
+      return sceneFromRoom({
+        rooms:inside.rooms,objects:inside.sceneObjects||[],roomIndex:person?.room??thing.room,
+        position:person?.pos||thing.pos
+      });
+    },
     activate: (k) => active.add(k),
     toggle: (k) => { if (active.has(k)) { active.delete(k); return false; } active.add(k); return true; },
   };

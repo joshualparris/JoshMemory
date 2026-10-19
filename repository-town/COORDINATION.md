@@ -7,6 +7,8 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-19 · ChatGPT — scene-grounded local resident replies in separate `fix/town-npc-scene-awareness-20261019` branch, based on PR #11; edits `src/ui/scene-awareness.js`, `src/world/interior.js`, `src/main.js`, `src/ui/npc.js`, `src/ui/npc-prompt.js`, tests. No changes to PR #11 or production yet.
+
 
 - 2026-10-19 · Claude Code (local CLI on Josh's PC, worktree `~/dev/rt-claude`, branch
   `town-claude-playtest-20261019`) — **desktop playtest on a real GPU** (Intel UHD 630,

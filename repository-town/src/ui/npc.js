@@ -4,6 +4,7 @@
 // Groq API keys are NEVER stored in the browser or included in client files.
 import { repoInfo } from './archive.js';
 import { RELICS, PROGRESS_KEY, cleanProgress } from '../adventure/data.js';
+import { answerSceneQuestion } from './scene-awareness.js';
 
 const LEGACY_KEY_STORE = 'repository-town.groq-keys';
 const CODE_STORE = 'town-npc-code';
@@ -44,6 +45,7 @@ async function askResidentProxy(id, house, name, f, role, history) {
     summary: house.summary,
     isPublic: Boolean(house.repo),
     rooms: f.rooms.slice(0, 12),
+    scene: f.scene ? { roomName: f.scene.roomName, roomCount: f.scene.roomCount, nearby: f.scene.nearby.slice(0,12) } : null,
     exhibits: f.exhibits.slice(0, 24),
     games: f.games.slice(0, 12),
     live: f.live.slice(0, 6),
@@ -122,14 +124,14 @@ export function getErrandsSummary() {
 }
 
 // Everything the resident knows: the house's own facts, plus the README when readable.
-async function factsFor(house, name = '', allHouses = []) {
+async function factsFor(house, name = '', allHouses = [], scene = null) {
   const rooms = house.int.rooms.map((r) => r.name).filter(Boolean);
   const exhibits = house.int.rooms.flatMap((r) => r.props.filter((p) => p[1] && p[2]?.do).map((p) => `${p[1]} (${r.name})`));
   const games = house.int.rooms.flatMap((r) => r.props.filter((p) => p[2]?.do === 'game').map((p) => p[2].title));
   const data = house.repo ? await repoInfo(house.repo).catch(() => null) : null;
   const readme = data?.readme ? data.readme.replace(/```[\s\S]*?```/g, '').replace(/<[^>]+>/g, '').replace(/\n{3,}/g, '\n\n').slice(0, 2500) : '';
   const townCtx = townContextFor(house, name, allHouses);
-  return { rooms, exhibits, games, readme, live: (house.links || []).map((l) => l.url), ...townCtx };
+  return { rooms, exhibits, games, readme, scene, live: (house.links || []).map((l) => l.url), ...townCtx };
 }
 
 // Without a model: varied, conversational replies built from the same facts.
@@ -138,6 +140,8 @@ function scripted(house, name, f, text, role) {
   const pick = (a) => a[Math.floor(Math.random() * a.length)];
   const exhibit = () => pick(f.exhibits)?.replace(/ \(.*\)$/, '') || 'the archive';
   const outside = role === 'villager';
+  const sceneReply = answerSceneQuestion(f.scene, text, role);
+  if (sceneReply) return sceneReply;
   if (/^(hi|hello|hey|g'?day|yo|howdy|morning|afternoon|evening)\b/.test(t)) return pick([
     `G'day! I'm ${name}. ${outside ? `I live over at ${house.coordinate}, the ${house.name} place.` : `Welcome to ${house.name}.`}`,
     `Oh, hello there. ${name}'s the name. ${outside ? 'Just stretching my legs.' : 'Come in, have a look around.'}`,
@@ -229,6 +233,7 @@ export function npcBehaviour(x, ctx) {
         <button type="button" class="chat-chip" data-ask="Any relic hints for the Adventure Guild?">🧭 Relic hint</button>
         <button type="button" class="chat-chip" data-ask="Any gossip about the neighbours on this street?">🗣️ Neighbours</button>
         <button type="button" class="chat-chip" data-ask="Do you have a small errand I can help with?">📦 Small errand</button>
+        <button type="button" class="chat-chip" data-ask="What objects are near you right now?">🪑 Nearby objects</button>
         <button type="button" class="chat-chip" data-ask="What games can I play around here?">🎮 Games</button>
       </div>
       <form class="chat-form"><input class="chat-input" autocomplete="off" placeholder="Talk to ${esc(name)}…" aria-label="Message"><button>Send</button></form>
@@ -285,10 +290,15 @@ export function npcBehaviour(x, ctx) {
         history.push({ role: 'user', content: text });
         render(log, history, name);
         log.insertAdjacentHTML('beforeend', `<p class="npc dim thinking">${esc(name)} is thinking…</p>`);
-        facts = await factsFor(house, name, allHouses);
+        // Scene queries work offline and must never turn into random README quotes.
+        // Fresh positional facts are also passed to the proxy for general AI chat.
+        const scene = ctx.getNearbyScene?.(x) || null;
+        facts = await factsFor(house, name, allHouses, scene);
         let reply;
         try {
-          reply = await askResidentProxy(id, house, name, facts, x.act.role, history);
+          const grounded = answerSceneQuestion(facts.scene, text, x.act.role);
+          // Trust the in-game spatial index over an AI model's guess.
+          reply = grounded || await askResidentProxy(id, house, name, facts, x.act.role, history);
         } catch (err) {
           reply = scripted(house, name, facts, text, x.act.role);
           if (err.code === 'badcode') { showBrain(); reply += ' (Incorrect access code, so a simple reply.)'; }
