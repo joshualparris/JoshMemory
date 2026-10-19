@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { Builder } from './builder.js';
 import { buildExterior } from './exterior.js';
+import { exteriorColliders } from './exterior-collision.js';
 
 // Town layout: 26 columns (A–Z) × 8 rows (streets). Every house faces +z onto its
 // street. Rows are merged into one mesh each so the whole town is ~10 draw calls.
@@ -78,7 +79,9 @@ export function buildTown(scene, houses, streets) {
     const mesh = hb.build();
     mesh.position.set(lot.x, 0, lot.z);
     group.add(mesh);
-    colliders.push({ x0: lot.x - fp.w / 2, x1: lot.x + fp.w / 2, z0: lot.z - fp.d / 2, z1: lot.z + fp.front - 0.05 });
+    // A single solid rectangular footprint blocked every visible front door.
+    // Reserve the real 3D doorway and keep the rest of the building solid.
+    colliders.push(...exteriorColliders(fp,lot.x,lot.z));
     for (const y of fp.yard) colliders.push({ x0: lot.x + y.x0, x1: lot.x + y.x1, z0: lot.z + y.z0, z1: lot.z + y.z1 });
     const doorPos = new THREE.Vector3(lot.x + fp.door.x, 0, lot.z + fp.front);
     lots.set(h.coordinate, { house: h, lot, fp, doorPos, mesh });
