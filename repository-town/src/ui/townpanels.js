@@ -162,7 +162,7 @@ export function placePanel(life, id) {
   const sells = { store: p.sells, bakery: p.sells, greengrocer: p.sells, butcher: p.sells, cafe: ['pie', 'bread'], pub: ['pie'] }[id] || [];
   const me = life.civic.player, again = () => placePanel(life, id);
   const act = (label, fn) => ({ label, run: () => { const msg = fn(); const next = again(); return { ...next, body: `<p><b>${esc(msg)}</b></p>` + next.body }; } });
-  const actions = sells.filter((g) => (shelves[g] || 0) > 0).slice(0, 4).map((g) => act(`Buy ${GOODS[g].unit === 'pie' ? 'a pie' : `a ${GOODS[g].unit} of ${GOODS[g].name}`} ($${GOODS[g].price})`, () => life.buyItem(id, g)));
+  const actions = sells.filter((g) => (shelves[g] || 0) > 0).map((g) => act(`Buy ${GOODS[g].unit === 'pie' ? 'a pie' : `a ${GOODS[g].unit} of ${GOODS[g].name}`} ($${GOODS[g].price})`, () => life.buyItem(id, g)));
   for (const g of sells.filter((g) => me.bag[g] > 0).slice(0, 2)) actions.push(act(`Sell back ${GOODS[g].name}`, () => life.sellItem(id, g)));
   for (const g of Object.keys(me.bag).filter((g) => me.bag[g] > 0 && ['bread', 'pie', 'fruit', 'veg'].includes(g)).slice(0, 1)) actions.push(act(`Eat the ${GOODS[g].name}`, () => life.eatItem(g)));
   if (id === 'post') actions.push(act('Post a letter to Mabel ($2)', () => life.postLetter('Mabel')));

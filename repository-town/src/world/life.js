@@ -1,6 +1,6 @@
 import { distributePower, townPowerDemands, POWER_LINE_IDS, GRID_FAULT_COST } from './power-grid.js';
 import { initialisePublicLife, attendPublicForum, updatePublicForum, civicDialogue } from './public-forum.js';
-import { MAYOR_CANDIDATES, createGovernment, civicElection, castCivicVote, submitRequest, requestFeeder, proposeMotion, councilMeeting, advanceCivicWork, budgetRevenue, restoreCivic, govSummary } from './government.js';
+import { MAYOR_CANDIDATES, createGovernment, civicElection, castCivicVote, submitRequest, requestFeeder, proposeMotion, councilMeeting, advanceCivicWork, budgetRevenue, restoreCivic, govSummary, maintainServices } from './government.js';
 // Town life simulation: the clock, farms, the mill and bakery, shops, trucks, the post,
 // and villagers with jobs, hunger, pantries, wallets and daily routines. Pure logic (no
 // three.js) so it runs and is tested on its own; src/world/townlife.js draws it.
@@ -16,6 +16,8 @@ export const SEC_PER_MIN = TOWN_CLOCK.realSecondsPerTownMinute; // 72 real minut
 export const WALK = 1.5, BIKE = 4.5, DRIVE = 8;               // metres per real second
 const WAGES = { retired: 40, student: 20, mayor: 95, nurse: 85, teacher: 85, programmer: 95, 'bank teller': 75, 'power operator': 85, firefighter: 85 };
 const BASE_WAGE = 70;
+// Per-worker harvest multipliers: a market garden and a chook shed out-produce a paddock per hand.
+const FARM_YIELD = { veg: 1.6, eggs: 1.5 };
 // Workplaces paid from the town treasury; everyone else is paid from their employer's till.
 const PUBLIC = new Set(['hall', 'school', 'clinic', 'post', 'depot', 'power', 'waterworks', 'sewage', 'recycling', 'landfill', 'fire', 'bank', 'square']);
 const WEATHER = ['sunny', 'sunny', 'cloudy', 'rainy', 'windy', 'sunny', 'cloudy'];
@@ -247,7 +249,7 @@ export class TownLife {
     this.log(`Day ${this.day} begins. The town wakes up.`);
   }
 
-  freshStats() { return { harvested: {}, milled: 0, baked: 0, deliveries: 0, delivered: {}, sold: {}, meals: 0, mealsOut: 0, parcels: 0, taxes: 0, wages: 0, recycled: 0, landfill: 0, letters: 0, repairs: 0 }; }
+  freshStats() { return { harvested: {}, milled: 0, baked: 0, deliveries: 0, delivered: {}, sold: {}, meals: 0, mealsOut: 0, parcels: 0, taxes: 0, wages: 0, recycled: 0, landfill: 0, letters: 0, repairs: 0, stockouts: 0, powerCutHours: 0 }; }
   place(id) { return this.places.get(id); }
   time() { return fmt(this.minute); }
   isDay() { return this.minute >= 6 * 60 && this.minute < 19 * 60; }
@@ -299,7 +301,12 @@ export class TownLife {
     c.weather = WEATHER[Math.floor(this.rand() * WEATHER.length)]; // Ballots stay locked until this election finishes.
     for (const k of SERVICES) c.services[k] = clamp(c.services[k] - (k === 'roads' ? 0.45 : 0.25) - this.rand() * 0.5, 0, 100);
     c.indicators.environment = clamp(100 - c.indicators.pollution, 0, 100);
-    c.indicators.happiness = clamp(c.indicators.happiness + (c.supply.ok && c.supply.waterOk ? 1 : -3), 0, 100);
+    // Mood follows what people lived through yesterday: power cuts, empty shelves, worn services.
+    const y = this.yesterday, worn = SERVICES.some((k) => c.services[k] < 50);
+    // About 20 empty shelves a day is ordinary small-town life; far more is felt.
+    const mood = (y.powerCutHours ? -3 : 0) - (y.stockouts > 60 ? 2 : y.stockouts > 35 ? 1 : 0) + (worn ? -2 : 0);
+    c.indicators.happiness = clamp(c.indicators.happiness + (mood || 1), 0, 100);
+    maintainServices(this);
     if (this.day >= c.electionDay) this.election();
     this.log(`Day ${this.day} begins: ${c.weather} weather. The 6:40 freight train is due at the Rail Depot.`);
   }
@@ -365,6 +372,7 @@ export class TownLife {
     c.supply.power = this.ok('power') ? solar + thermal : 0; c.supply.powerDemand = demand;
     const wasOk = c.supply.ok;
     this.updatePowerGrid();
+    if (!c.supply.ok) this.stats.powerCutHours++;
     if (!c.supply.ok && wasOk) this.log('Electricity shortage: check affected feeders and customers in the Town Ledger.');
     if (c.supply.ok && !wasOk) this.log('Full electricity supply has been restored to all connected customers.');
     if (this.gridPowered('waterworks') && this.ok('water')) water.stock.water = Math.min(250, (water.stock.water || 0) + 25);
@@ -456,8 +464,9 @@ export class TownLife {
       if (p.kind === 'farm') {
         p.growth = clamp(p.growth + (this.isDay() ? ({ rainy: 0.06, sunny: 0.04, cloudy: 0.035, windy: 0.03 })[this.civic.weather] : 0.01), 0, 1);
         const hands = at(p.id).length;
-        if (hands && this.open(p)) {
-          const n = Math.round((2 + 3 * p.growth) * hands);
+        // Farms stop picking once their shed is full (60), so unsold produce doesn't pile up forever.
+        if (hands && this.open(p) && (p.out[p.makes] || 0) < 60) {
+          const n = Math.round((2 + 3 * p.growth) * hands * (FARM_YIELD[p.makes] || 1));
           p.out[p.makes] = (p.out[p.makes] || 0) + n;
           this.stats.harvested[p.makes] = (this.stats.harvested[p.makes] || 0) + n;
           if (p.makes === 'grain' && p.growth > 0.9) { p.growth = 0.3; this.log(`The wheat paddock was harvested. ${n} bags of grain went into the silo.`); }
@@ -469,12 +478,13 @@ export class TownLife {
     const powered = this.gridPowered('bakery');
     const mill = this.place('mill');
     const batch = Math.min(2, Math.floor((mill.stock.grain || 0) / 3));
-    if (at('mill').length && batch && powered) { mill.stock.grain -= 3 * batch; mill.out.flour = (mill.out.flour || 0) + 2 * batch; this.stats.milled += 2 * batch; }
+    if (at('mill').length && batch && powered && (mill.out.flour || 0) < 60) { mill.stock.grain -= 3 * batch; mill.out.flour = (mill.out.flour || 0) + 2 * batch; this.stats.milled += 2 * batch; }
     const bakery = this.place('bakery');
     if (at('bakery').length && powered && this.civic.supply.waterOk) {
       const s = bakery.stock;
-      if ((s.flour || 0) >= 2) { s.flour -= 2; bakery.out.bread = (bakery.out.bread || 0) + 8; this.stats.baked += 8; if ((bakery.out.bread || 0) > 30) bakery.out.bread = 30; }
-      if ((s.flour || 0) >= 1 && (s.lamb || 0) >= 1 && (s.veg || 0) >= 1) { s.flour--; s.lamb--; s.veg--; bakery.out.pie = (bakery.out.pie || 0) + 4; this.stats.baked += 4; }
+      // Bake to a full shelf, not beyond: surplus would only waste flour, lamb and veg.
+      if ((s.flour || 0) >= 2 && (bakery.out.bread || 0) < 48) { s.flour -= 2; bakery.out.bread = (bakery.out.bread || 0) + 8; this.stats.baked += 8; }
+      if ((bakery.out.pie || 0) < 16 && (s.flour || 0) >= 1 && (s.lamb || 0) >= 1 && (s.veg || 0) >= 1) { s.flour--; s.lamb--; s.veg--; bakery.out.pie = (bakery.out.pie || 0) + 4; this.stats.baked += 4; }
     }
     if (h === 7) {
       const depot = this.place('depot');
@@ -928,6 +938,7 @@ export class TownLife {
     const [dish, price] = menu[Math.floor(this.rand() * menu.length)];
     const uses = where === 'pub' ? ['lamb', 'veg', 'pie'] : ['bread', 'eggs', 'milk', 'coffee'];
     const ok = uses.some((g) => (p.stock[g] || 0) > 0);
+    if (!ok) this.stats.stockouts++;
     if (!ok || v.wallet < price) { v.activity = `found the ${p.name} out of food`; this.log(`The ${p.name} ran out of food and had to turn ${v.name} away.`); return; }
     for (const g of uses) if ((p.stock[g] || 0) > 0) { p.stock[g]--; break; }
     v.wallet -= price; this.sale(p, price); this.stats.mealsOut++;
@@ -937,6 +948,7 @@ export class TownLife {
   // Buys one item and eats it on the spot (a roll for breakfast, a pie for lunch).
   snack(v, shopId, good) {
     const shop = this.place(shopId), src = shopId === 'bakery' ? shop.out : shop.stock, price = GOODS[good].price;
+    if (this.open(shop) && !(src[good] > 0)) this.stats.stockouts++;
     if (!this.open(shop) || !(src[good] > 0) || v.wallet < price) { v.memory = `the ${shop.name} had no ${GOODS[good].name} left`; v.activity = `found the ${shop.name} out of ${GOODS[good].name}`; return; }
     src[good]--; v.wallet -= price; this.sale(shop, price); this.stats.sold[good] = (this.stats.sold[good] || 0) + 1;
     this.eat(v, good === 'pie' ? 'a meat pie from the Bakery' : 'a fresh bread roll');
@@ -954,6 +966,7 @@ export class TownLife {
       else missing.push(GOODS[g].name);
     }
     if (Object.keys(bag).length) v.carrying = bag;
+    this.stats.stockouts += missing.length;
     if (missing.length) { v.memory = `the ${shop.name} was out of ${missing.join(' and ')}`; if (this.rand() < 0.5) this.log(`${v.name} found the ${shop.name} out of ${missing.join(' and ')}.`); }
   }
 
