@@ -82,3 +82,4 @@ for (let c = 0; c <= COLS; c += 5) {
 }
 console.log(problems.length ? `\nPROBLEMS (${problems.length}):\n` + problems.join('\n') : '\nNo problems: every street and avenue walked end to end.');
 await browser.close();
+if (problems.length) process.exitCode = 1;
