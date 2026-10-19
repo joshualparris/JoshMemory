@@ -11,6 +11,7 @@ import { runInteraction, esc } from './ui/interactions.js';
 import { setArchiveLoader } from './ui/archive.js';
 import { createExpedition } from './adventure/expedition.js';
 import { mountNPCChat } from './ui/npc-chat.js';
+import { createSound } from './ui/sound.js';
 import { sceneFromRoom } from './ui/scene-awareness.js';
 import { placeTownNPCs, placeHouseGuide, animateNPCs, initialiseNPCWorksites } from './world/npcs.js';
 import { createTownSimulation } from './simulation/town-system.js';
@@ -73,6 +74,17 @@ async function start() {
   const townWorld = new CollisionWorld([...town.colliders, ...edges]);
 
   const input = new Input(renderer.domElement, $('touch'));
+  const sound = createSound();
+  const soundButton = document.createElement('button');
+  soundButton.type = 'button'; soundButton.id = 'btn-town-sound';
+  soundButton.textContent = '🔇 Sound off'; soundButton.setAttribute('aria-pressed','false');
+  soundButton.title = 'Enable gentle procedural wind, birds, crickets and footsteps';
+  $('hud').querySelector('.row').appendChild(soundButton);
+  soundButton.addEventListener('click', () => {
+    const enabled = sound.toggle();
+    soundButton.textContent = enabled ? '🔊 Sound on' : '🔇 Sound off';
+    soundButton.setAttribute('aria-pressed', String(enabled));
+  });
   const captureButton = $('btn-capture');
   captureButton.hidden = input.touch || typeof renderer.domElement.requestPointerLock !== 'function';
   const syncMouseCapture = (captured) => {
@@ -363,6 +375,7 @@ async function start() {
     sky.children[0].intensity = 0.32 + 1.8 * daylight;
     if (mode === 'town') { scene.background.copy(NIGHT_SKY).lerp(DAY_SKY, daylight); fog.color.copy(scene.background); }
     civicDistrict.update(t, daylight < 0.25);
+    const movementX = player.pos.x, movementZ = player.pos.z;
     if (input.consume('map')) setOverview(!overview);
     if (input.consume('back')) { if(livingLedger.isOpen()) livingLedger.close(); else if(expedition.isOpen()) expedition.dismiss(); else if (npcChat.isOpen()) npcChat.close(); else if (!$('npc-roster').hidden) $('npc-roster').hidden=true; else if (panelOpen) closePanel(); else if (!$('help').hidden) $('help').hidden = true; else setOverview(false); }
     if (overview) {
@@ -371,6 +384,10 @@ async function start() {
     } else if (livingLedger.isOpen() || expedition.isOpen() || panelOpen || npcChat.isOpen() || !$('npc-roster').hidden || !$('help').hidden) { input.reset(); }
     else player.update(dt, input, world);
 
+    sound.update(dt, {
+      moving: Math.hypot(player.pos.x - movementX, player.pos.z - movementZ) > 0.025,
+      mode, night: daylight < 0.25 ? 1 : 0,
+    });
     if (mode === 'town') {
       nearNPC=pickNPC(streetNPCs); animateNPCs(streetNPCs,t,player.pos,dt,npcChat.isOpen()?npcChat.active():null,townWorld);
       nearCivic = null; let civicBest = 6;
