@@ -43,7 +43,7 @@ const main=fs.readFileSync(new URL('../src/main.js',import.meta.url),'utf8');
 assert(main.includes('placeTownNPCs') && main.includes('placeHouseGuide'));
 assert(fs.readFileSync(new URL('../src/index.html',import.meta.url),'utf8').includes('id="npc-chat"'));
 assert(fs.readFileSync(new URL('../src/people.html',import.meta.url),'utf8').includes('people.js'));
-process.env.GROQ_API_KEY='fake-for-test-only';
+process.env.GROQ_API_KEY='fake';
 process.env.TOWN_NPC_PIN='fake-code-for-test';
 let upstream=0;
 const oldFetch=globalThis.fetch;
