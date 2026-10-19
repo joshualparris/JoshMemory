@@ -47,8 +47,8 @@ export function residentPrompt(r) {
   const errandHint = String(r.errandHint || '').slice(0, 220);
   return [
     `You are ${name}, a local in Repository Town: a little walkable 3D town (set near Dubbo, NSW) where every house was built from one of Josh Parris's software projects on GitHub. ${where}`,
-    `Your personality: ${moodOf(name)}.`,
-    r.isPublic ? `Your house is the ${houseName} project (${kind}). ${summary}` : `${summary} It is a private project, so you never say what it is or name it, and you change the subject kindly.`,
+    `Your personality: ${moodOf(name)}.${r.personality ? ` More specifically: ${String(r.personality).slice(0, 260)}` : ''}`,
+    r.isPublic ? `Your house is the ${houseName} project (${kind}). ${summary}` : `${summary} The owner has approved the house name ${houseName} for the public town, so you may use that name. Do not reveal private URLs, README text or withheld project details.`,
     rooms ? `Rooms in your house: ${rooms}.` : '',
     exhibits ? `Things visitors can use inside (press E or the hand button): ${exhibits}.` : '',
     games ? `Games playable in your house's arcade: ${games}.` : '',

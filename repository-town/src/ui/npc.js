@@ -34,6 +34,7 @@ export function setAccessCode(code) {
 async function askResidentProxy(id, house, name, f, role, history) {
   const accessCode = getAccessCode();
   if (!accessCode) throw Object.assign(new Error('no access code'), { code: 'nocode' });
+  const personality = role === 'villager' ? villagerProfile(name) : null;
   const resident = {
     name,
     role: role === 'villager' ? 'villager' : 'resident',
@@ -52,6 +53,7 @@ async function askResidentProxy(id, house, name, f, role, history) {
     neighbourHint: f.neighbour ? `${residentName(f.neighbour.coordinate)} at ${f.neighbour.coordinate} (${f.neighbour.name}, ${f.neighbour.kind})` : '',
     errandHint: f.errandTarget ? `${f.errandTarget.coordinate} (${f.errandTarget.name})` : '',
     visitedTarget: Boolean(f.visitedTarget),
+    personality: personality ? `${personality[0]}; ${personality[1]}; especially interested in ${personality[2]}.` : '',
   };
   let res;
   try {
@@ -83,8 +85,23 @@ async function askResidentProxy(id, house, name, f, role, history) {
 
 const NAMES = ['Ada', 'Bram', 'Cleo', 'Dorian', 'Edie', 'Finn', 'Greta', 'Hugo', 'Iris', 'Jasper', 'Kit', 'Lena', 'Milo', 'Nell', 'Otis', 'Pip', 'Quinn', 'Rosa', 'Sol', 'Tess', 'Uma', 'Vic', 'Wren', 'Xavi', 'Yara', 'Zed'];
 const VILLAGERS = ['Mabel', 'Arlo', 'Bea', 'Cas', 'Dot', 'Ezra', 'Flo', 'Gus', 'Hattie', 'Ivo', 'June', 'Kip', 'Lou', 'Merv', 'Nora', 'Ollie', 'Peg', 'Rafe', 'Sadie', 'Theo', 'Una', 'Vern', 'Win', 'Zara'];
+const VILLAGER_PROFILES = {
+  Mabel: ['community gardener', 'practical and sunny', 'seedlings and shared gardens'], Arlo: ['amateur engineer', 'curious and hands-on', 'tinkering and mechanisms'],
+  Bea: ['birdwatcher', 'gentle and observant', 'birds and trees'], Cas: ['dramatic storyteller', 'theatrical but kind', 'turning errands into adventures'],
+  Dot: ['detail collector', 'precise and easily delighted', 'maps and overlooked patterns'], Ezra: ['local history keeper', 'warm and reflective', 'old stories and archives'],
+  Flo: ['neighbourhood baker', 'upbeat and generous', 'recipes and friendly welcomes'], Gus: ['laid-back fixer', 'dry and reassuring', 'repairs and useful tools'],
+  Hattie: ['tea-and-etiquette enthusiast', 'polite with a mischievous streak', 'tea and well-timed pauses'], Ivo: ['puzzle setter', 'playful and analytical', 'riddles and logic'],
+  June: ['moonlit gardener', 'calm and dreamy', 'night walks and moon phases'], Kip: ['neighbourhood courier', 'brisk and helpful', 'shortcuts and messages'],
+  Lou: ['street musician', 'rhythmic and warm', 'melodies and found sounds'], Merv: ['retired code reviewer', 'deadpan and exacting', 'clear explanations and suspicious shortcuts'],
+  Nora: ['quiet caretaker', 'steady and reassuring', 'tidy spaces and helping neighbours'], Ollie: ['arcade enthusiast', 'excitable and competitive', 'games and unnecessary high scores'],
+  Peg: ['repair café regular', 'encouraging and practical', 'repair and reuse'], Rafe: ['amateur astronomer', 'thoughtful and enthusiastic', 'constellations and clear nights'],
+  Sadie: ['curious book-and-building collector', 'bright, nosy and quietly thoughtful', 'book stacks and unusual rooms'], Theo: ['philosophical walker', 'slow, thoughtful and gently funny', 'good questions and changing viewpoints'],
+  Una: ['native-plant champion', 'earnest and encouraging', 'local plants and habitat'], Vern: ['friendly town gossip', 'cheerful and conspiratorial', 'neighbourly news and unusual sightings'],
+  Win: ['weather watcher', 'observant and lightly dramatic', 'clouds, wind and changing light'], Zara: ['community organiser', 'decisive and welcoming', 'bringing people together and making plans'],
+};
 // Villagers are neighbours out walking — different people from the residents at home.
 export function villagerName(i) { return VILLAGERS[i % VILLAGERS.length]; }
+export function villagerProfile(name) { return VILLAGER_PROFILES[name] || ['town neighbour', 'friendly and curious', 'the people and projects of Repository Town']; }
 
 export function residentName(coordinate) {
   const n = coordinate.charCodeAt(0) - 65 + parseInt(coordinate.slice(1), 10) * 7;
@@ -138,18 +155,20 @@ function scripted(house, name, f, text, role) {
   const pick = (a) => a[Math.floor(Math.random() * a.length)];
   const exhibit = () => pick(f.exhibits)?.replace(/ \(.*\)$/, '') || 'the archive';
   const outside = role === 'villager';
+  const profile = outside ? villagerProfile(name) : null;
+  const signature = () => profile ? ` I'm a ${profile[0]}, so I tend to notice ${profile[2]}.` : '';
   if (/^(hi|hello|hey|g'?day|yo|howdy|morning|afternoon|evening)\b/.test(t)) return pick([
-    `G'day! I'm ${name}. ${outside ? `I live over at ${house.coordinate}, the ${house.name} place.` : `Welcome to ${house.name}.`}`,
-    `Oh, hello there. ${name}'s the name. ${outside ? 'Just stretching my legs.' : 'Come in, have a look around.'}`,
-    `Hey! Don't think we've met — I'm ${name}. ${outside ? `I'm from ${house.coordinate} up the road.` : 'Make yourself at home.'}`,
+    `G'day! I'm ${name}. ${outside ? `I live over at ${house.coordinate}, the ${house.name} place.` : `Welcome to ${house.name}.`}${signature()}`,
+    `Oh, hello there. ${name}'s the name. ${outside ? `I'm a ${profile[0]}; I was just thinking about ${profile[2]}.` : 'Come in, have a look around.'}`,
+    `Hey! Don't think we've met — I'm ${name}. ${outside ? `I'm from ${house.coordinate} up the road. ${profile[1][0].toUpperCase() + profile[1].slice(1)} is generally how I go about things.` : 'Make yourself at home.'}`,
   ]);
   if (/how are|how're|how's it going|you ok|you good/.test(t)) return pick([
-    `Not bad at all, thanks for asking. ${outside ? 'Lovely day for a walk.' : 'Bit quiet in here today, so it\'s nice to have company.'} You?`,
+    `Not bad at all, thanks for asking. ${outside ? `Lovely day for a walk — I was looking for ideas about ${profile[2]}.` : 'Bit quiet in here today, so it\'s nice to have company.'} You?`,
     `Can't complain! Well, I could, but who'd listen? How about you?`,
     `Good, good. ${outside ? 'Off to see the neighbours.' : `Been tidying the ${pick(f.rooms)}.`}`,
   ]);
   if (/who are you|your name|what.*you do|what are you (doing|up to)/.test(t)) return outside
-    ? pick([`I'm ${name} from ${house.coordinate}. Just wandering — I like seeing what everyone's built.`, `${name}. I live at the ${house.name} house. Popping round to a neighbour's.`])
+    ? pick([`I'm ${name} from ${house.coordinate}. I'm a ${profile[0]}; I like ${profile[2]}.`, `${name}. ${profile[1][0].toUpperCase() + profile[1].slice(1)} is my usual approach. I live at the ${house.name} house and I'm popping round to a neighbour's.`])
     : pick([`I'm ${name}, I look after this place. Mostly I potter about the archive.`, `${name}. I live here — someone's got to keep the ${pick(f.rooms)} in order.`]);
   if (/relic|treasure|crystal|guild|clue|hint|compass/.test(t)) {
     if (!f.uncollected?.length) return `Word around town is you've found all twelve Adventure Guild relics! Head back to the Guild Chest near M4 to claim the Crown.`;
@@ -199,9 +218,9 @@ function scripted(house, name, f, text, role) {
   if (/link|site|web|live|online/.test(t)) return f.live.length ? `It's online at ${f.live[0].replace(/^https:\/\//, '')}. The globe in the archive has the rest.` : `Not sure it's online anywhere — the globe in the archive will show you the issues page.`;
   const lines = f.readme.split('\n').map((l) => l.replace(/[#*_`>|-]/g, '').trim()).filter((l) => l.length > 40 && l.length < 200);
   return pick([
-    `Hmm, good question. ${lines.length ? `All I really know is: “${pick(lines)}”` : house.summary}`,
-    `Couldn't tell you, honestly. Try the ${exhibit()}?`,
-    `${lines.length ? `Funny you ask — the README says “${pick(lines)}”` : `Not sure. Have you seen the ${exhibit()}?`}`,
+    `Hmm, good question. ${lines.length ? `All I really know is: “${pick(lines)}”` : house.summary}${signature()}`,
+    `Couldn't tell you, honestly. Try the ${exhibit()}?${signature()}`,
+    `${lines.length ? `Funny you ask — the README says “${pick(lines)}”` : `Not sure. Have you seen the ${exhibit()}?`}${signature()}`,
   ]);
 }
 
