@@ -18,6 +18,7 @@ try {
    assert(state.rooms>=1,site.id+' no room');
    // The farmhouse is a family home (tests/farmhouse.mjs), not a counter service.
    if(site.id==='farmhouse')assert(state.rooms>=10,'farmhouse has its ten rooms');
+   else if(site.id==='hotel')assert(state.interactables.some(x=>x.do==='sleep'),'hotel has bookable beds');
    else assert(state.interactables.some(x=>x.do==='civic-ledger'),site.id+' no ledger counter');
    const leave=await page.evaluate(()=>window.__town.exitShop());
    assert.equal(leave,true,site.id+' exit failed');
