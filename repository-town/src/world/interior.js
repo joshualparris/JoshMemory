@@ -188,7 +188,7 @@ function buildOnce(house, makeLabel, attempt) {
     const type=typeof e==='string'?e:e[0];
     return type==='bed'?[type,typeof e==='string'?'Bed':e[1]||'Bed',{...(Array.isArray(e)?e[2]||{}:{}),do:'sleep'}]:e;
   })}));
-  if(!hasBed)roomsWithBeds.push({
+  if(!hasBed&&!authored.nonResidential)roomsWithBeds.push({
     name:'Bedroom',w:8,d:8,archive:true,
     props:[['bed','Sleep in bed',{do:'sleep'}],['wardrobe','Clothes wardrobe'],['lamp','Bedside lamp']]
   });

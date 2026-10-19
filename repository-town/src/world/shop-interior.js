@@ -1,12 +1,17 @@
 import * as THREE from 'three';
 import { buildFarmhouseInterior } from './farmhouse-interior.js';
 import { buildHotelInterior } from './hotel-interior.js';
+import { buildIndustryInterior, LINKED_INTERIOR_IDS } from './linked-interiors.js';
 import { buildBakeryInterior } from './bakery-interior.js';
 import { buildBankInterior } from './bank-interior.js';
 
 // The twenty high-street services share a safe walkable plan, with different
 // fixtures, colours and exhibits. They are built only while the player is inside.
 const FITTINGS = {
+  hardware:['Town Hardware & Timber','Trade counter','Warehouse',0x9d8a64,'Order trade supplies','Goods arrive by rail and delivery trucks.'],
+  vet:['Rural Veterinary Practice','Vet reception','Animal health',0x81a59b,'Ask about animal cases','A real veterinarian attends the town farms.'],
+  brewery:['Branch Brewery','Batch desk','Fermentation',0xb29b78,'View brewing','Beer takes malt, hops, yeast, clean water and days of fermentation.'],
+  buildsite:['Farm Workshop Extension','Site office','Construction',0xa6a18b,'Inspect work orders','Materials, builder wages and inspections control actual progress.'],
   hotel:['Railway Hotel','Reception desk','Guest rooms',0xc3a783,'Book a guest room','The hotel has four bookable bedrooms.'],
   hall:['Town Hall','Council desk','Town notices',0xc3b88f,'Talk to the mayor','The Town Ledger keeps track of life in the neighbourhood.'],
   store:['General Store','Shop counter','Groceries and stock',0xc0a16f,'Browse the general store','Eggs, milk, flour, tea and bread arrive from the farms and freight train.'],
@@ -49,6 +54,7 @@ export function buildCivicInterior(site,makeLabel) {
   // A family's home must never regress to the single-room retail fallback.
   if(site.id==='farmhouse')return buildFarmhouseInterior(site,makeLabel);
   if(site.id==='hotel')return buildHotelInterior(site,makeLabel);
+  if(LINKED_INTERIOR_IDS.includes(site.id))return buildIndustryInterior(site,makeLabel);
   const [roomTitle,deskName,featureName,accent,deskInfo,featureInfo] =
     FITTINGS[site.id] || [site.name,'Service desk','Town noticeboard',0x98a8b3,'Visit this workplace','This building supports the town.'];
   // The bakery has its own researched layout: shop floor, counter and a visible production kitchen.
