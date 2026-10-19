@@ -58,7 +58,8 @@ assert.equal(restored.civic.treasury,money,'no cost before inspection/authorisat
 assert.equal(restored.place('hall').stock.parts,parts,'no parts used before inspection');
 assert.equal(restored.civic.powerGrid.customers['west-homes'].status,'out','fault remains until worker completes');
 advance(restored,210);
-assert.equal(restored.place('hall').stock.parts,parts-2);
+assert(restored.civic.government.budget.spent>=90,'approved job spent from council budget');
+assert(restored.civic.government.audit.some(e=>e.type==='authorisation'),'GM authorised the material issue');
 assert.equal(restored.civic.powerGrid.affected.length,0);
 assert.equal(restored.powerGridEvents[1].type,'power-line-repaired');
 assert(restored.civic.government.orders.some(o=>o.kind==='feeder'&&o.status==='done'));
