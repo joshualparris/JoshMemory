@@ -25,6 +25,11 @@ Newest first. Times in Australia/Sydney.
   `src/world/interior.js`, used in `src/main.js`'s house loop); wall-prop labels sit 0.6 m out
   from the wall. Town house signs are unchanged (still depth-tested). Known, pre-existing:
   labels of side-by-side wall props can overlap each other.
+  **Hot-fixed onto the live site** (`Parris-Tech-Services/Repository-town` commit `a201b9d`)
+  as a patch to `main.js` and `world/interior.js` only, because the live site is ahead of
+  `main` (villager personalities, social simulation, house names pushed straight there on
+  2026-10-19 16:4x and not yet in `src/`). Whoever ports those into `src/` should keep this
+  label change, and nobody should publish a plain `main` build over the site until then.
 - 2026-10-19 · Claude Code (local CLI, `~/dev/rt-claude`) — full 188-house playtest of `main`
   headless on the real Intel UHD 630 GPU, desktop + phone. Two real bugs found and fixed, both
   in open PRs: **#14** (arcade discovery + phone house card blocked the joystick at every door)
