@@ -11,6 +11,7 @@ import { runInteraction, esc } from './ui/interactions.js';
 import { setArchiveLoader } from './ui/archive.js';
 import { createExpedition } from './adventure/expedition.js';
 import { mountNPCChat } from './ui/npc-chat.js';
+import { sceneFromRoom } from './ui/scene-awareness.js';
 import { placeTownNPCs, placeHouseGuide, animateNPCs, initialiseNPCWorksites } from './world/npcs.js';
 import { createTownSimulation } from './simulation/town-system.js';
 import { buildCivicDistrict } from './simulation/civic-world.js';
@@ -88,7 +89,15 @@ async function start() {
   syncMouseCapture(false);
   if (input.touch) $('touch').hidden = false;
   const player = new Player(camera);
-  const npcChat = mountNPCChat(document);
+  const npcChat = mountNPCChat(document, { getScene: (npc, house) => {
+    // Sample the resident's current actual room every time a message is sent.
+    if(mode !== 'house' || !inside || !house || !houseGuide) return null;
+    if(house.coordinate !== inside.house.coordinate || npc.id !== houseGuide.npc.id) return null;
+    const p = houseGuide.pos;
+    const roomIndex = inside.rooms.findIndex(r => p.x >= r.x0 && p.x <= r.x1 && p.z >= r.z0 && p.z <= r.z1);
+    return sceneFromRoom({ rooms: inside.rooms, objects: inside.sceneObjects || [],
+      roomIndex, position: p, radius: 6 });
+  } });
 
   let interactionRequest = 0;
   let mode = 'town', inside = null, world = townWorld, overview = false;
