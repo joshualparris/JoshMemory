@@ -214,12 +214,12 @@ export function buildInterior(house, makeLabel) {
 function buildOnce(house, makeLabel, attempt) {
   // Every real home gets a reachable bedroom; four authored homes already
   // include beds. Add a connected sleeping room, never a floating prop.
+  // A bed that is already an exhibit (R5's "Recovery bed" activity) keeps it.
   const authored=house.int;
-  const hasBed=authored.rooms.some(r=>(r.props||[]).some(e=>(typeof e==='string'?e:e[0])==='bed'));
-  const roomsWithBeds=authored.rooms.map(r=>({...r,props:(r.props||[]).map(e=>{
-    const type=typeof e==='string'?e:e[0];
-    return type==='bed'?[type,typeof e==='string'?'Bed':e[1]||'Bed',{...(Array.isArray(e)?e[2]||{}:{}),do:'sleep'}]:e;
-  })}));
+  const plainBed=e=>(typeof e==='string'?e:e[0])==='bed'&&(typeof e==='string'||!e[2]?.do||e[2].do==='sleep');
+  const hasBed=authored.rooms.some(r=>(r.props||[]).some(plainBed));
+  const roomsWithBeds=authored.rooms.map(r=>({...r,props:(r.props||[]).map(e=>
+    plainBed(e)?['bed',typeof e==='string'?'Bed':e[1]||'Bed',{...(Array.isArray(e)?e[2]||{}:{}),do:'sleep'}]:e)}));
   if(!hasBed)roomsWithBeds.push({
     name:'Bedroom',w:8,d:8,archive:true,
     props:[['bed','Sleep in bed',{do:'sleep'}],['wardrobe','Clothes wardrobe'],['lamp','Bedside lamp']]
