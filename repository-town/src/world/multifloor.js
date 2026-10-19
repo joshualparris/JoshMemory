@@ -50,7 +50,7 @@ function decorate(level, floor, count, makeLabel) {
     const x = Math.max(c.x0,Math.min(p.x,c.x1)), z = Math.max(c.z0,Math.min(p.z,c.z1));
     return (p.x-x)**2+(p.z-z)**2 < 0.5**2;
   });
-  if (blocked(landing)) for (const [dx,dz] of [[0,1.55],[0,0.6],[-0.6,1.4],[0.6,1.4]]) {
+  if (blocked(landing)) for (const [dx,dz] of [[0,0.6],[0,1.2],[-0.6,0.7],[0.6,0.7]]) {
     const p = new THREE.Vector3(cx+dx,0,cz+dz);
     if (!blocked(p)) { landing.copy(p); break; }
   }
