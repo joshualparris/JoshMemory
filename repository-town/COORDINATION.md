@@ -7,10 +7,6 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
-- 2026-10-19 · Codex — public house-directory update authorized by Josh: show private repository
-  names in deployed labels/search while keeping private URLs, READMEs, summaries, room names and
-  exhibit text redacted. Editing `tools/lib.mjs`, `tools/check_privacy.mjs` and documentation;
-  build/check/publish pending.
 
 - 2026-10-19 · Claude Code (local CLI on Josh's PC, worktree `~/dev/rt-claude`, branch
   `town-claude-playtest-20261019`) — **desktop playtest on a real GPU** (Intel UHD 630,
@@ -27,6 +23,12 @@ Newest first. Times in Australia/Sydney.
 - 2026-10-19 · ChatGPT GitHub connector — separate playtest branch `repository-town-merged-playtest-20261019` deployed to Render `https://repository-town-npc-playtest.onrender.com`; 32 NPCs, wandering, worksite inventory/build prototype, roof replacements and collision-aware wandering.
 
 ## Done recently
+
+- 2026-10-19 · Codex — with Josh's explicit approval, public house labels and search now show
+  private repository names while private URLs, READMEs, summaries, room names and exhibit text
+  remain redacted. Published to `Parris-Tech-Services/Repository-town` at `fe44bef`; Pages run
+  `39206068937` completed successfully. Restored `src/tests/expedition.mjs` so the live acceptance
+  test is preserved by future generated publishes.
 
 - 2026-10-19 · Antigravity (`~/dev/rt-improve`, branch `repository-town-improvements-20261019`) — finished Claude's upgrade round and reconciled all active branches (`origin/main`, `origin/ccr-846db548-0l5zmu`, `origin/fix/npc-chat-android-keyboard-20261019`, `origin/repository-town-claude-tests-integration-20261019`, `origin/town-claude-playtest-20261019`):
   - Researched & redesigned all 17 previously unreachable houses (`A1`, `D1`, `E1`, `C2`, `D2`, `N2`, `T2`, `W2`, `X2`, `Z2`, `A3`, `B3`, `D3`, `E3`, `I3`, `M3`, `R6`) from their real GitHub repositories (`188/188` readable in `data/repo-data.json`, `0` unreachable) and added `tools/refresh_data.mjs`.
