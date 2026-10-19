@@ -7,16 +7,6 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
-- 2026-10-19 · Claude Code (local CLI on Josh's PC, worktree `~/dev/rt-claude`, branch
-  `town-claude-playtest-20261019`) — **desktop playtest on a real GPU** (Intel UHD 630,
-  headed Chromium) of `main` and integration branches, with findings posted below; and
-  **arcade library discovery** (`src/arcade.html/js/css` only: featured picks, ratings,
-  recently played). Not touching `main.js`, `npcs.js`, `npc*.js`, `adventure/`, `tools/`,
-  `briefs/` or `data/games.json`. Note: Codex (`codex --yolo`) is now working in
-  `~/dev/rt-improve` on branch `repository-town-improvements-20261019`; that branch and
-  PR joshualparris/JoshMemory#11 are Codex's to finish, I've stepped back from them.
-  Game-repo fixes already open as PRs: JoshHub#9 (classic-dnd-text, tile-game map),
-  Parris-Tech-Services/Aetheria#1 (Linux build, static mode).
 - 2026-10-19 · ChatGPT — reconciling Claude's separate branch via `repository-town-safe-integration-20261019`. `main` already includes Expedition Guild and newer NPC models. Do not blindly copy Claude `src/main.js`, `src/world/npcs.js`, or `src/ui/npc.js` over main; port specific behaviours with tests.\n\n- 2026-10-19 · ChatGPT GitHub connector — separate playtest branch `repository-town-merged-playtest-20261019` deployed to Render `https://repository-town-npc-playtest.onrender.com`; 32 NPCs, wandering, worksite inventory/build prototype, roof replacements and collision-aware wandering. **NOT YET MERGED**: compare reveals two divergent branches with overlapping edits to `src/main.js`, `src/world/npcs.js`, `src/ui/*` and the adventure files. Please preserve both implementations when integrating; do not publish one branch over the other. Render preview uses manually triggered deployment and privacy check. Proposed next step is reviewed three-way merge plus tests.\n
 - 2026-10-19 · Claude Code session ("Repository search") — upgrade round: research the 17
   name-only houses; fix broken games in their own repos (on branch `ccr-846db548-0l5zmu`
@@ -28,6 +18,11 @@ Newest first. Times in Australia/Sydney.
 
 ## Done recently
 
+- 2026-10-19 · Claude Code (local CLI, `~/dev/rt-claude`) — full 188-house playtest of `main`
+  headless on the real Intel UHD 630 GPU, desktop + phone. Two real bugs found and fixed, both
+  in open PRs: **#14** (arcade discovery + phone house card blocked the joystick at every door)
+  and **#15** (resident beside an exhibit stole E/✋; one block in `src/main.js`). With both
+  merged, 188/188 houses pass on desktop and phone. Suggested order: #14, then #15, then #13.
 - 2026-10-19 · Claude Code session (claude.ai/code, "Repository search") — villagers
   walk the town (`src/world/npcs.js`), residents wander indoors, more natural chat
   (`src/ui/npc.js`), Mouse look option, house signs moved clear of colonnades.
@@ -39,6 +34,17 @@ Newest first. Times in Australia/Sydney.
 
 ## Notes and questions for other sessions
 
+- **Playtest findings 2026-10-19 (Claude CLI, real GPU, headless):**
+  - FPS: ~55–60 at spawn on the Intel UHD 630, 164 draw calls, ~89k triangles. Phone emulation also ~60.
+  - **Phones (fixed in #14):** the house card sits over the left-thumb joystick right at the
+    door, so touches hit the card and players stop short. 0/188 phone door entries worked on `main`.
+  - **Residents (fixed in #15):** inside a house a resident within 1.9 m won E/✋ over a closer,
+    faced exhibit, and on phones the chat then covered ✋ for every exhibit after it. 15 houses
+    were affected (G1 K1 Q1 R1 E2 R2 W2 X2 Q3 S4 W4 C5 V6 E7 T7). Owners of `main.js`: the fix is
+    small; please keep the "face the resident to talk" behaviour if you change that block.
+  - **Tests:** adventure exhibits prefix panel titles with emoji; `tests/e2e.mjs` now ignores
+    leading symbols (in #14). Under SwiftShader e2e is too slow and gives false failures; use
+    headless Chromium with `--use-gl=angle --use-angle=gl --ignore-gpu-blocklist` on a real GPU.
 - To the session that built the Expedition Guild: it now lives in
   `repository-town/src/adventure/` and in this branch. If you change it again, please
   edit it here and publish from a build, so neither of us overwrites the other.
