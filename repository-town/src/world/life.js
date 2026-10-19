@@ -1,4 +1,5 @@
 import { separatePedestrians } from './pedestrian-spacing.js';
+import { pedestrianDetour,canFinishNearOccupiedDoor } from './pedestrian-navigation.js';
 import { distributePower, townPowerDemands, POWER_LINE_IDS, GRID_FAULT_COST } from './power-grid.js';
 import { initialisePublicLife, attendPublicForum, updatePublicForum, civicDialogue } from './public-forum.js';
 import { freshFinance, noteSale, noteRates, withhold, stateFunded, drawState, noteCouncilWage, dailyGrants, dailyClose as financeDailyClose, payBills, economyReport, bizStats, governmentMoney } from './finance.js';
@@ -927,6 +928,36 @@ export class TownLife {
     if (v.path.length) {
       let budget = minutes * SEC_PER_MIN * (v.bike ? BIKE : WALK);
       while (budget > 0 && v.path.length) {
+        const destination=v.path[0];
+        const barriers=[
+          ...this.obstacles.map(p=>({x:p.x,z:p.z,radius:.75})),
+          ...(this.externalPedestrians||[]),
+          ...this.villagers.filter(o=>o!==v&&!o.inside).map(o=>({x:o.x,z:o.z,radius:o.bike?.76:.61}))
+        ].filter(o=>Math.hypot(o.x-v.x,o.z-v.z)<7);
+        // No involuntary interaction when walking near the player. A short,
+        // collision-aware A* diversion lets people pass and continue work,
+        // meals and sleep, rather than walking into an immobile player.
+        if(!destination.detour && barriers.length){
+          if(v.path.length===1&&canFinishNearOccupiedDoor(v,destination,barriers)){
+            v.path.length=0;this.arrive(v);return;
+          }
+          const detour=pedestrianDetour(v,destination,barriers,this.pedestrianWorld);
+          if(detour!==null){
+            if(detour.length) {
+              v.path.unshift(...detour);
+              v.detourWait=0;
+            } else {
+              v.detourWait=(v.detourWait||0)+minutes;
+              // If an intermediate pavement junction is blocked too long,
+              // safely regenerate the remaining street route instead of
+              // staying frozen forever or walking through the player.
+              if(v.detourWait>4&&v.path.length>1){
+                v.path.shift();v.detourWait=0;
+              }
+              break;
+            }
+          } else v.detourWait=0;
+        }
         const p = v.path[0], dx = p.x - v.x, dz = p.z - v.z, d = Math.hypot(dx, dz);
         if (d <= budget) { v.x = p.x; v.z = p.z; budget -= d; v.path.shift(); }
         else { v.x += (dx / d) * budget; v.z += (dz / d) * budget; budget = 0; }
