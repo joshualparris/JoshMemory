@@ -7,6 +7,10 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-19 · ChatGPT (GitHub connector) — **Replit-pack realism upgrade, first electricity-network vertical slice**, topic branch `feat/town-realism-power-network-20261019`. Files: `src/world/power-grid.js`, `src/world/life.js`, `src/world/townlife.js`, `src/ui/townpanels.js`, `tests/power-grid.mjs`, `package.json`, clock docs, README and `docs/REALISM_INFRASTRUCTURE_2026-10-19.md`. Named 10-edge power distribution, fault/repair and per-facility dependencies with Ledger UI. Prior 14-day town regression and focused in-memory JS tests passed; reference-pack tests also passed under Node. **Source PR, integration checks and real Android/browser verification remain pending.** Keep other AI work and the live Pages repo unmodified until reviewed. See design/limits document.
+
+
+
 
 
 
