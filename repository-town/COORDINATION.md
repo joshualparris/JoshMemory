@@ -7,6 +7,7 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-19 · ChatGPT GitHub connector — separate playtest branch `repository-town-merged-playtest-20261019` deployed to Render `https://repository-town-npc-playtest.onrender.com`; 32 NPCs, wandering, worksite inventory/build prototype, roof replacements and collision-aware wandering. **NOT YET MERGED**: compare reveals two divergent branches with overlapping edits to `src/main.js`, `src/world/npcs.js`, `src/ui/*` and the adventure files. Please preserve both implementations when integrating; do not publish one branch over the other. Render preview uses manually triggered deployment and privacy check. Proposed next step is reviewed three-way merge plus tests.\n
 - 2026-10-19 · Claude Code session ("Repository search") — upgrade round: research the 17
   name-only houses; fix broken games in their own repos (on branch `ccr-846db548-0l5zmu`
   there, not main); villagers give relic hints/gossip/errands; day–night, window lights,
