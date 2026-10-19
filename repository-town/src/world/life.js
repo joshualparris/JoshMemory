@@ -212,7 +212,13 @@ export class TownLife {
         carrying: null, lastMeal: null, meals: [], seen: [], doneToday: {},
       };
     });
-    this.trucks = [0, 1, 2].map((i) => ({ id: i, driver: null, x: this.place('depot').curb.x + (i - 1) * 8, z: ROAD(7) - 1.7, heading: 0, path: [], job: null, load: null, wait: 0, state: 'parked' }));
+    // Dedicated marked bays beside the depot, outside the 2 travel lanes.
+    // Never initialise a stationary truck in the middle of the carriageway.
+    this.trucks = [0, 1, 2].map((i) => {
+      const bay = this.depotBay(i);
+      return { id:i, driver:null, x:bay.x, z:bay.z, heading:Math.PI/2,
+        path:[], job:null, load:null, wait:0, leg:null, state:'parked', braking:false };
+    });
     this.parcels = [];   // { coordinate, x, z, from } waiting on doorsteps
     this.obstacles = []; // set by the renderer each frame: [{x, z}] (the player)
     for (const t of this.trucks) t.driver = this.villagers.find((v) => v.job === 'truck driver' && !this.trucks.some((o) => o.driver === v)) || null;
@@ -481,39 +487,75 @@ export class TownLife {
   }
 
   // ── Trucks ──
+  depotBay(id) {
+    const depot = this.place('depot');
+    // Stagger trucks away from the centre entrance and give each a full 8m bay.
+    // The bay surface is rendered separately from the road and is not a lane.
+    return {x:depot.x + [-16, -7, 9][id], z:ROAD(7)-5.6};
+  }
+  // Road approach and short off-carriageway final manoeuvre. The last
+  // waypoint is a proper loading bay, never a through-traffic lane.
+  routeTruck(t, placeId) {
+    const bay = this.stopAt(t, placeId);
+    if (Math.hypot(t.x-bay.x,t.z-bay.z) < 0.2) return [];
+    return [...driveRoute(t,bay),bay];
+  }
   driveTruck(t, minutes) {
-    const drv = t.driver;
-    const onShift = drv && this.minute >= drv.start && this.minute < drv.end && drv.step?.kind === 'work';
-    if (t.wait > 0) { t.wait -= minutes; return; }
-    // Brakes for anyone standing in the road ahead (the player, villagers crossing).
-    t.braking = t.path.length > 0 && this.blocked(t);
-    if (t.braking) return;
-    if (t.path.length) {
-      let budget = minutes * SEC_PER_MIN * DRIVE;  // ~30 km/h in town
-      while (budget > 0 && t.path.length) {
-        const p = t.path[0], dx = p.x - t.x, dz = p.z - t.z, d = Math.hypot(dx, dz);
-        if (d <= budget) { t.x = p.x; t.z = p.z; budget -= d; t.path.shift(); if (d > 0.01) t.heading = Math.atan2(dx, dz); }
-        else { t.x += (dx / d) * budget; t.z += (dz / d) * budget; t.heading = Math.atan2(dx, dz); budget = 0; }
-      }
-      if (!t.path.length) this.truckArrived(t);
-      return;
+    const drv=t.driver;
+    const onShift=!!(drv && this.minute>=drv.start && this.minute<drv.end && drv.step?.kind==='work');
+    t.braking=false;
+    if(t.wait>0){t.wait=Math.max(0,t.wait-minutes);return;}
+    if (!t.path.length) {
+      if (!onShift && !t.job && t.state!=='parked') {
+        t.leg='return';t.state='returning to the depot parking bays';
+        t.path=this.routeTruck(t,'depot');
+        if(!t.path.length){t.state='parked';t.leg=null;}
+      } else if(onShift && !t.job && t.state!=='returning to the depot parking bays') this.pickJob(t);
     }
-    if (!onShift) { if (t.state !== 'parked') { t.state = 'parked'; t.path = driveRoute(t, this.stopAt(t, 'depot')); t.job = null; } return; }
-    if (!t.job) this.pickJob(t);
+    if (!t.path.length) return;
+    let budget=Math.max(0,minutes)*SEC_PER_MIN*DRIVE; // approx 29 km/h max
+    // Substep all motion. A full half-town-minute tick is 12m: checking
+    // collision only once per tick let two trucks jump through one another.
+    while(budget>0.0001 && t.path.length) {
+      const p=t.path[0],dx=p.x-t.x,dz=p.z-t.z,d=Math.hypot(dx,dz);
+      if(d<0.0001){t.path.shift();continue;}
+      const step=Math.min(budget,d,0.9),fx=dx/d,fz=dz/d;
+      const trial={x:t.x+fx*step,z:t.z+fz*step};
+      if(this.blocked(t,trial)){t.braking=true;return;}
+      t.x=trial.x;t.z=trial.z;t.heading=Math.atan2(dx,dz);
+      budget-=step;
+      if(d-step<=0.0001){t.x=p.x;t.z=p.z;t.path.shift();}
+    }
+    if(!t.path.length){
+      if(t.leg==='return' && !t.job) {t.leg=null;t.state='parked';t.heading=Math.PI/2;}
+      else this.truckArrived(t);
+    }
   }
 
-  // Each truck has its own bay along the curb so two never stop on the same spot.
-  stopAt(t, id) { const c = this.place(id).curb; return { x: c.x + (t.id - 1) * 8, z: c.z }; }
+  // Depot bays are separate from traffic. Customer stops use shoulder/loading
+  // space rather than the left-hand through lane. The three loading slots do
+  // not overlap one another even if multiple vans visit the same site.
+  stopAt(t,id) {
+    if(id==='depot')return this.depotBay(t.id);
+    const p=this.place(id);
+    return {x:p.x+(t.id-1)*6,z:ROAD(7)+(p.side==='south'?5.5:-5.5)};
+  }
 
-  blocked(t) {
-    // Measure the real next route segment, which may differ from the last heading
-    // immediately after turning at a junction.
-    const next = t.path.find(p => Math.hypot(p.x - t.x,p.z - t.z)>0.1);
-    const dx = next ? next.x-t.x : Math.sin(t.heading), dz = next ? next.z-t.z : Math.cos(t.heading);
-    const len = Math.hypot(dx,dz)||1, fx=dx/len, fz=dz/len;
-    const near = p => {const x=p.x-t.x,z=p.z-t.z,ahead=x*fx+z*fz;
-      return ahead>1&&ahead<8&&Math.abs(x*fz-z*fx)<1.3;};
-    return this.obstacles.some(near)||this.villagers.some(v=>!v.inside&&near(v));
+  blocked(t, proposed=null) {
+    // Only objects ahead in the direction of the next route segment can brake
+    // us. Other trucks include parked vehicles and oncoming/cross traffic.
+    const next=t.path.find(p=>Math.hypot(p.x-t.x,p.z-t.z)>0.1);
+    const dx=next?next.x-t.x:Math.sin(t.heading),dz=next?next.z-t.z:Math.cos(t.heading);
+    const len=Math.hypot(dx,dz)||1,fx=dx/len,fz=dz/len;
+    const near=(p,width=1.5,look=8)=>{
+      const x=p.x-t.x,z=p.z-t.z,ahead=x*fx+z*fz;
+      if(ahead<=0.3||ahead>=look||Math.abs(x*fz-z*fx)>=width)return false;
+      // If a step is requested, allow braking within that swept envelope.
+      return !proposed || Math.hypot(p.x-proposed.x,p.z-proposed.z)<Math.max(width,2.2);
+    };
+    return this.obstacles.some(p=>near(p,1.8,8)) ||
+      this.villagers.some(v=>!v.inside&&near(v,1.6,8)) ||
+      this.trucks.some(o=>o!==t&&near(o,3.05,9));
   }
 
   // Finds the most useful load: a destination short of a good that a source has spare.
@@ -537,7 +579,7 @@ export class TownLife {
     }
     if (!best) { t.state = 'waiting for an order'; return; }
     t.job = best; t.state = `heading to the ${this.place(best.from).name} for ${GOODS[best.good].name}`;
-    t.path = driveRoute(t, this.stopAt(t, best.from)); t.leg = 'pickup';
+    t.path = this.routeTruck(t, best.from); t.leg = 'pickup';
   }
 
   truckArrived(t) {
@@ -547,7 +589,7 @@ export class TownLife {
       const n = Math.min(t.job.n, src.out[g] || 0);
       src.out[g] = (src.out[g] || 0) - n; t.load = { good: g, n };
       t.wait = 4; t.leg = 'deliver'; t.state = `delivering ${amount(g, n)} to the ${dst.name}`;
-      t.path = driveRoute(t, this.stopAt(t, t.job.to));
+      t.path = this.routeTruck(t, t.job.to);
       if (!n) { t.job = null; t.path = []; t.leg = null; t.state = 'found nothing to collect, looking for another job'; }
     } else {
       const n = t.load?.n || 0;
