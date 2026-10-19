@@ -492,7 +492,7 @@ export class TownLife {
     const depot = this.place('depot');
     // Stagger trucks away from the centre entrance and give each a full 8m bay.
     // The bay surface is rendered separately from the road and is not a lane.
-    return {x:depot.x + [-16, -7, 9][id], z:ROAD(7)-5.6};
+    return {x:depot.x + [-16, -7, 9][id], z:ROAD(7)-7.2};
   }
   // Road approach and short off-carriageway final manoeuvre. The last
   // waypoint is a proper loading bay, never a through-traffic lane.
