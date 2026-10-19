@@ -187,7 +187,13 @@ export function sanitise(house) {
   return {
     ...house,
     repo: null,
-    name: `Private house ${house.coordinate}`,
+    name: (() => {
+      // Fictional, coordinate-derived aliases keep private repository identities secret.
+      const first = ['Amber','Cedar','Copper','Willow','Silver','Moss','Sunlit','Maple','Blue','Golden','Fern','Star'];
+      const second = ['Workshop','Haven','Cottage','Atelier','Lodge','Gallery','Garden','Hall','Outpost','Studio','Nook','House'];
+      const n = (house.coordinate.charCodeAt(0)-65)*8 + Number(house.coordinate.slice(1))-1;
+      return first[n % first.length] + ' ' + second[Math.floor(n/first.length) % second.length];
+    })(),
     kind: 'Private project',
     summary: 'This house belongs to a private repository. Its architecture is real; names and details are withheld from the public town.',
     links: [],

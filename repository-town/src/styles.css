@@ -10,7 +10,20 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
 #loading { position: fixed; inset: 0; z-index: 50; display: grid; place-content: center; text-align: center; background: #13233a; }
 #loading.error { background: #5a1f25; }
 #hud { position: fixed; top: max(10px, env(safe-area-inset-top)); left: 10px; z-index: 10; background: var(--panel); padding: 10px; border-radius: 12px; max-width: min(360px, calc(100vw - 20px)); }
-#hud h1 { font-size: 17px; margin: 0 0 6px; }
+#hud h1 { font-size: 17px; margin: 0; }
+.hud-heading { display:flex; align-items:center; justify-content:space-between; gap:9px; }
+.hud-title-short { display:none; }
+#btn-hud-toggle { font-size:23px; font-weight:700; padding:0; width:38px; height:38px; min-width:38px; display:grid; place-items:center; line-height:1; border-radius:9px; flex-shrink:0; }
+#hud-details { margin-top:6px; }
+#hud.hud-minimised { width:max-content; max-width:calc(100vw - 20px); padding:5px 6px 5px 10px; border:1px solid #66819d; }
+#hud.hud-minimised #hud-details { display:none; }
+#hud.hud-minimised h1 { font-size:14px; white-space:nowrap; }
+#hud.hud-minimised .hud-heading { gap:9px; }
+#hud.hud-minimised .hud-title-full { display:none; }
+#hud.hud-minimised .hud-title-short { display:inline; }
+#hud.hud-minimised #btn-hud-toggle { width:38px; height:38px; min-width:38px; font-size:21px; }
+#hud #btn-hud-toggle:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
+
 #search-form { display: flex; gap: 6px; }
 #search { flex: 1; min-width: 0; }
 .row { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
@@ -37,6 +50,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
 @media (max-width: 700px) {
   #hud { padding: 8px; font-size: 12px; max-width: 230px; }
   #hud h1 { font-size: 14px; }
+  #hud.hud-minimised { padding:4px 5px 4px 9px; }
   #minimap { width: 140px; height: 60px; }
   #card { bottom: auto; top: 150px; font-size: 12px; max-width: 260px; }
   #panel, #help { bottom: 160px; max-height: 40dvh; }
