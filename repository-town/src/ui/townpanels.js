@@ -4,7 +4,8 @@ import { GOODS, amount, timeText, CANDIDATES } from '../world/life.js';
 import { locateVillager } from './npc-location.js';
 import { RELICS, PROGRESS_KEY, cleanProgress } from '../adventure/data.js';
 import { esc } from './interactions.js';
-import { economyPanel } from './economy-panels.js';
+import { economyPanel, jobPanel } from './economy-panels.js';
+import { JOB_BOARD } from '../world/jobs.js';
 
 const list = (o) => Object.entries(o || {}).filter(([, n]) => n > 0).map(([g, n]) => amount(g, n)).join(', ') || 'nothing';
 const hours = (p) => (p.opens === 0 && p.closes >= 1440 ? 'open all hours' : `${timeText(p.opens)}–${timeText(p.closes)}`);
@@ -154,6 +155,11 @@ export function hallPanel(life) {
 }
 
 export function placePanel(life, id) {
+  const panel = placePanelBase(life, id);
+  if (JOB_BOARD.some((j) => j.site === id)) panel.actions = [...(panel.actions || []), { label: '💼 Work a shift here', run: () => jobPanel(life, id, () => placePanel(life, id)) }];
+  return panel;
+}
+function placePanelBase(life, id) {
   const p = life.place(id);
   if (p.side === 'south') return civicPanel(life, id, () => placePanel(life, id));
   if (id === 'hall') return hallPanel(life);

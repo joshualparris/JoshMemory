@@ -227,5 +227,9 @@ Newest first. Times in Australia/Sydney.
   visitor rent $8 + power $2 per day from day 2 (arrears block loans; `life.payBills()`), business utilities $3/day, a bounded journal,
   `ui/economy-panels.js` Town accounts (Town Ledger and bank counter), bakery supervised batch (`bakery-production.js`,
   `ui/bakery-panel.js`, hotspot `bakery:kitchen`). Soak money total counts the treasuries and the lending pool. `tests/finance.mjs`.
-- NOT ported: paid job board with clocked shifts/work stations, cash-vs-card wallet and receipts (ChatGPT's TownMoney); ChatGPT's
-  player energy/food (main already has hunger and sleep in needs.js).
+- Also ported: paid job board and wallet (`src/world/jobs.js`, `ui/economy-panels.js`, HUD "💳 Wallet"): six shifts, done inside the
+  workplace with staff on duty (`life.playerAt` is set by main.js), duties five minutes apart, till then council pays, 10% PAYG,
+  two shifts a day, receipts, `tests/jobs.mjs`. "Work a shift here" is on each workplace counter panel.
+- Deliberately NOT ported: ChatGPT's cash-vs-card toggle and its three-account player model (main keeps wallet + savings), 3D work
+  stations (duties are panel buttons), and its player energy/food (main already has hunger and sleep in needs.js).
+- The verbatim original stays on branch `archive/chatgpt-economy-live-20261020`.

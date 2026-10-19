@@ -1,6 +1,7 @@
 import { distributePower, townPowerDemands, POWER_LINE_IDS, GRID_FAULT_COST } from './power-grid.js';
 import { initialisePublicLife, attendPublicForum, updatePublicForum, civicDialogue } from './public-forum.js';
 import { freshFinance, noteSale, noteRates, withhold, stateFunded, drawState, noteCouncilWage, dailyGrants, dailyClose as financeDailyClose, payBills, economyReport, bizStats, governmentMoney } from './finance.js';
+import { receipt, tickJobs, startJob, performTask, abandonJob, finishJob, jobsReport, current as currentJob, supervisors } from './jobs.js';
 import { freshCredit, recordEarning, noteBank, creditReport, borrow, repay, accrueInterest } from './credit.js';
 import { startNeeds, advanceNeeds, eatPlayer, hotelCheckIn, sleepPlayer, needsReport } from './needs.js';
 import { MAYOR_CANDIDATES, createGovernment, civicElection, castCivicVote, submitRequest, requestFeeder, proposeMotion, councilMeeting, advanceCivicWork, budgetRevenue, restoreCivic, govSummary, maintainServices } from './government.js';
@@ -267,6 +268,7 @@ export class TownLife {
   // Advances the town by `minutes` of town time (call with small steps).
   tick(minutes) {
     const before = this.minute;
+    tickJobs(this, minutes);
     this.minute += minutes;
     if (this.minute >= 24 * 60) { this.minute -= 24 * 60; this.day++; this.newDay(); }
     const hourly = Math.floor(before / 60) !== Math.floor(this.minute / 60) || this.minute < before;
@@ -424,7 +426,7 @@ export class TownLife {
     if (!this.open(p)) return `The ${p.name} is closed — it opens at ${fmt(p.opens)}.`;
     if (!(this.shelves(p)[good] > 0)) return `Sorry, sold out of ${GOODS[good].name}. The next truck should bring more.`;
     if (me.wallet < price) return `You need $${price} but only have $${me.wallet} — try the Community Bank.`;
-    this.shelves(p)[good]--; me.wallet -= price; this.sale(p, price);
+    this.shelves(p)[good]--; me.wallet -= price; this.sale(p, price); receipt(this, 'purchase', `${GOODS[good].name} at ${p.name}`, -price);
     me.bag[good] = (me.bag[good] || 0) + 1; this.stats.sold[good] = (this.stats.sold[good] || 0) + 1;
     this.log(`A visitor bought ${GOODS[good].name} at the ${p.name}.`);
     return `You buy ${amount(good, 1)} for $${price}. It's in your bag.`;
@@ -433,7 +435,7 @@ export class TownLife {
     const p = this.place(shopId), me = this.civic.player, pay = Math.max(1, Math.floor(GOODS[good].price * 0.6));
     if (!(me.bag[good] > 0)) return `You don't have any ${GOODS[good].name}.`;
     if (p.till < pay) return `The ${p.name} can't afford to buy it back right now.`;
-    me.bag[good]--; this.shelves(p)[good] = (this.shelves(p)[good] || 0) + 1; p.till -= pay; me.wallet += pay; recordEarning(this, pay);
+    me.bag[good]--; this.shelves(p)[good] = (this.shelves(p)[good] || 0) + 1; p.till -= pay; me.wallet += pay; recordEarning(this, pay); receipt(this, 'sale', `Sold ${GOODS[good].name} to ${p.name}`, pay);
     return `The ${p.name} buys it back for $${pay}.`;
   }
   eatItem(good) { return eatPlayer(this,good); }
@@ -446,11 +448,17 @@ export class TownLife {
     const m = Math.min(n, me[from]);
     if (m <= 0) return `Nothing to ${op}.`;
     me[from] -= m; me[to] += m;
-    noteBank(this, `${op === 'deposit' ? 'Deposited' : 'Withdrew'} $${m}.`);
+    noteBank(this, `${op === 'deposit' ? 'Deposited' : 'Withdrew'} $${m}.`); receipt(this, 'bank', `${op === 'deposit' ? 'Deposited' : 'Withdrew'} $${m}`, 0);
     return `${op === 'deposit' ? 'Deposited' : 'Withdrew'} $${m}. Wallet $${me.wallet}, savings $${me.bank}.`;
   }
   creditReport() { return creditReport(this); }
   payBills() { return payBills(this); }
+  jobsReport() { return jobsReport(this); }
+  startJob(id) { return startJob(this, id); }
+  doTask(t) { return performTask(this, t); }
+  cancelJob() { return abandonJob(this); }
+  finishJob() { return finishJob(this); }
+  jobSupervisors(site) { return supervisors(this, site); }
   economyReport() { return economyReport(this); }
   borrow(n) { return borrow(this, n); }
   repay(n) { return repay(this, n); }
