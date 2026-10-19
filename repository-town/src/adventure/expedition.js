@@ -183,6 +183,22 @@ export function createExpedition({town,makeLabel,openPanel,travel,releaseMouse})
     text(inner,'h3','🏠 House explorer badges');
     const house=text(inner,'div','','expedition-milestones');
     for(const badge of HOUSE_BADGES)text(house,'div',(state.visited.length>=badge.count?'✅ ':'🔒 ')+badge.icon+' '+badge.name+' · '+badge.count+' houses','expedition-milestone');
+    let errands={active:{},done:[]};
+    try{errands=JSON.parse(localStorage.getItem('repository-town.errands.v1')||'{}')||errands;}catch{}
+    const activeErrands=Object.values(errands.active||{}), doneCount=(errands.done||[]).length;
+    text(inner,'h3','📦 Neighbour errands ('+doneCount+' completed)');
+    if(!activeErrands.length)text(inner,'p','Talk to any walking villager or indoor resident and ask for a small errand, neighbour gossip or a relic hint.','journal-muted');
+    else {
+      const eGrid=text(inner,'div','','relic-grid');
+      for(const er of activeErrands){
+        const visitedNow=state.visited.includes(er.target);
+        const card=text(eGrid,'div','','relic-card'+(visitedNow?' owned':''));
+        text(card,'strong',(visitedNow?'✅ ':'📦 ')+'For '+er.from+' ('+er.home+')');
+        text(card,'small',visitedNow?'Visited '+er.target+' · Return to '+er.from+' for your Guild tip!':'Visit '+er.target+' ('+er.targetName+') and step inside.');
+        const controls=text(card,'div','','relic-actions');
+        button(controls,'📍 Go to '+(visitedNow?er.home:er.target),()=>{dismiss();travel(visitedNow?er.home:er.target);});
+      }
+    }
     button(inner,'Close journal',dismiss,'journal-close-bottom');
     refreshCount();
   }

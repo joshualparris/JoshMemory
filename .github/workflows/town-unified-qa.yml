@@ -1,0 +1,64 @@
+name: Town integration playtest (temporary)
+on:
+  push:
+    branches:
+      - integration/town-unified-20261019
+permissions:
+  contents: read
+jobs:
+  test-town:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Build and public privacy
+        run: |
+          node tools/build.mjs
+          node tools/check_privacy.mjs
+      - name: Simulation and structural regressions
+        run: |
+          node tests/town-simulation.mjs
+          node tests/npc-scene-awareness.mjs
+          node tests/npc-no-pin.mjs
+          node tests/npc-viewport.mjs
+          node tests/label-visibility.mjs
+          node tests/expedition.mjs
+          node tests/npc-contract.mjs
+          node tests/game-integrity.mjs
+          node tests/runtime.mjs
+          node tests/geometry.mjs
+          node tests/npc-house-dialogue.mjs
+          node tests/npc-personality.mjs
+          node tests/social.mjs
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Start built public town
+        run: |
+          node tools/serve.mjs dist/public 8091 > /tmp/repository-town-server.log 2>&1 &
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:8091/ -o /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/repository-town-server.log
+          exit 1
+      - name: Interactive full-town simulations and NPCs
+        run: |
+          node tests/life.mjs
+          node tests/people.mjs
+          node tests/npc.mjs
+      - name: Desktop and phone house playtest
+        run: node tests/e2e.mjs --only A1,F3,H1,M5,Y5
+      - name: Arcade and embedded games
+        run: |
+          node tests/arcade.mjs
+          node tests/games.mjs

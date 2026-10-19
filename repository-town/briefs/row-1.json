@@ -1,11 +1,27 @@
 [
  {
   "repo": "joshualparris/Aliens",
-  "summary": "Private repository this session's GitHub access could not open; the design is inferred from its name only (an alien-contact theme) and needs verification against the real repository.",
+  "summary": "Are We Alone? — an evidence-first UAP and astrobiology research repository and interactive web explorer covering 30 questions across Batches 1–4, the 2004 USS Nimitz encounter, David Grusch's claims, official U.S. investigations, NASA/JPL imagery, and an interstellar travel-time calculator.",
   "evidence": [
-   "unreachable: inventory name only (no GitHub access)"
+   "README.md",
+   "EVIDENCE_MATRIX.md",
+   "RESEARCH_STANDARD.md",
+   "TIMELINE.md",
+   "app.js",
+   "batch12.js",
+   "batch3.js"
   ],
-  "kind": "Xenobiology Outpost (name-based)",
+  "kind": "UAP & Astrobiology Evidence Observatory",
+  "links": [
+   {
+    "label": "Evidence Explorer (Render)",
+    "url": "https://aliens-evidence-render.onrender.com"
+   },
+   {
+    "label": "Evidence Explorer (Vercel)",
+    "url": "https://aliens-evidence.vercel.app"
+   }
+  ],
   "ext": {
    "style": "spaceport",
    "walls": "#6b7f8f",
@@ -26,58 +42,74 @@
    "light": "#c8fff0",
    "rooms": [
     {
-     "name": "Landing Bay",
+     "name": "Evidence Explorer Bay",
      "w": 9,
      "d": 8,
      "props": [
       [
        "airlock",
-       "Outer airlock",
+       "Reading mode selector",
        {
-        "do": "toggle",
-        "title": "Airlock",
-        "on": "Airlock cycling — this room is themed from the repository name only; contents unverified.",
-        "off": "Airlock sealed."
+        "do": "steps",
+        "title": "Three reading depths",
+        "steps": [
+         "60-second mode: plain-English bottom-line summary and confidence badge for each of the 30 questions.",
+         "Explorer mode: layered interactive evidence cards, NASA/JPL imagery, and 'what would change the answer?' prompts.",
+         "Research mode: full primary-source trails, EVIDENCE_MATRIX.md cross-checks, and disputed-claim registers."
+        ]
        }
       ],
       [
        "spaceship",
-       "Scout craft"
+       "2004 USS Nimitz UAP case",
+       {
+        "do": "info",
+        "title": "USS Nimitz & official investigations",
+        "text": "Examines radar/FLIR testimony from the 2004 USS Nimitz encounter alongside AARO, NASA UAP independent study reports, and David Grusch's congressional testimony — separating verified sensor records from uncorroborated claims."
+       }
       ],
       [
        "crates",
-       "Sealed cargo"
+       "Batches 1–4 question packs"
       ],
       [
        "consolePanel",
-       "Docking console"
+       "Interstellar travel-time calculator"
       ]
      ]
     },
     {
-     "name": "Specimen Lab",
+     "name": "Astrobiology & Audit Lab",
      "w": 9,
      "d": 8,
      "props": [
       [
        "cryoPod",
-       "Specimen pod",
+       "Biosignature & NHI standard",
        {
-        "do": "info",
-        "text": "Placeholder exhibit: GitHub access to this private repository was not available, so this lab reflects the name 'Aliens' rather than its code."
+        "do": "quiz",
+        "title": "Evidence threshold",
+        "q": "According to RESEARCH_STANDARD.md, how many core questions are evaluated across Batches 1–4 of the Evidence Explorer?",
+        "options": [
+         "10 questions",
+         "30 questions",
+         "100 questions"
+        ],
+        "answer": 1,
+        "explain": "The Explorer evaluates 30 structured questions across Batches 1–4 with explicit confidence and disagreement labels."
        }
       ],
       [
        "specimenJars",
-       "Sample shelf"
+       "Exoplanet biosignature samples"
       ],
       [
        "microscope",
-       "Analysis bench"
+       "RETROACTIVE_AUDIT.md bench"
       ],
       [
        "hologram",
-       "Star chart"
+       "NASA 3D sky & timeline chart"
       ]
      ]
     }
@@ -307,11 +339,16 @@
  },
  {
   "repo": "joshualparris/FailbetterGames",
-  "summary": "Private repository this session's GitHub access could not open; its name points to Failbetter Games, makers of Fallen London, so this candlelit study is a name-based placeholder pending real access.",
+  "summary": "An evidence-led research library and runnable reference QBN engine covering Failbetter Games — Fallen London, Sunless Sea, Sunless Skies, Mask of the Rose, Mandrake, and StoryNexus preservation — with an ESM storylet engine implementing Broad/Narrow quality checks, pyramidal change points, and an Opportunity Deck.",
   "evidence": [
-   "unreachable: inventory name only (no GitHub access)"
+   "README.md",
+   "fallen-london/reference-engine/engine.mjs",
+   "fallen-london/reference-engine/demo.html",
+   "fallen-london/engineering/01-original-narrative-engine.md",
+   "shared-universe/lore-continuity.md",
+   "technology-preservation/storynexus.md"
   ],
-  "kind": "Storylet Study (name-based)",
+  "kind": "Neath Storylet & QBN Archive",
   "ext": {
    "style": "townhouse",
    "walls": "#4a3a4a",
@@ -332,61 +369,74 @@
    "light": "#ffcf8a",
    "rooms": [
     {
-     "name": "Candlelit Study",
+     "name": "Neath Lore & Studio Study",
      "w": 9,
      "d": 8,
      "props": [
       [
        "lectern",
-       "Reading stand"
-      ],
-      [
-       "candles",
-       "Candles",
+       "Shared-universe lore index",
        {
         "do": "info",
-        "text": "Placeholder: this private repository could not be opened from this session, so its contents are not represented yet."
+        "title": "Evidence-led Neath dossier",
+        "text": "Separates confirmed studio history, game mechanics, and lore across Fallen London, Sunless Sea, Sunless Skies, Mask of the Rose, and Mandrake from fan interpretation, while preserving StoryNexus architecture notes."
        }
       ],
       [
+       "candles",
+       "Neath gas-lamp candles"
+      ],
+      [
        "bookshelf",
-       "Collected stories"
+       "Fallen London & Sunless guides"
       ],
       [
        "clock",
-       "Mantel clock"
+       "Action bank & candle timer"
       ]
      ]
     },
     {
-     "name": "Card Parlour",
+     "name": "Reference QBN Parlour",
      "w": 8,
      "d": 8,
      "props": [
       [
        "cardTable",
-       "Storylet cards",
+       "Reference QBN engine",
        {
         "do": "steps",
-        "title": "Name-based theme",
+        "title": "How engine.mjs evaluates a turn",
         "steps": [
-         "Failbetter Games is known for storylet-driven narrative.",
-         "This room borrows that idea as a placeholder.",
-         "Grant access to the repository to replace it with real exhibits."
+         "Filter storylets by location and quality prerequisites (min/max levels).",
+         "Evaluate Broad difficulty checks at 0.6 × (Quality / Difficulty) or Narrow checks stepping 10% per level.",
+         "Apply pyramidal change points (level N→N+1 requires N+1 CP) and trigger menace auto-fire storylets at level 8."
         ]
        }
       ],
       [
        "mirror",
-       "Gilded mirror"
+       "Parabola glass & Menaces",
+       {
+        "do": "quiz",
+        "title": "Broad difficulty formula",
+        "q": "In fallen-london/reference-engine/engine.mjs, what is the success chance when a player's quality equals the Broad difficulty?",
+        "options": [
+         "50%",
+         "60%",
+         "75%"
+        ],
+        "answer": 1,
+        "explain": "Broad difficulty uses 0.6 × (Q / D), giving a 60% base chance when Quality equals Difficulty."
+       }
       ],
       [
        "sofa",
-       "Velvet settee"
+       "Bazaar velvet settee"
       ],
       [
        "bookStack",
-       "Draft stories"
+       "StoryNexus preservation notes"
       ]
      ]
     }
@@ -395,11 +445,16 @@
  },
  {
   "repo": "joshualparris/realms-atlas",
-  "summary": "Private repository this session's GitHub access could not open; JoshMemory lists it among the fiction/world-building projects, so this cartographer's tower is designed from its name and that mention only.",
+  "summary": "The Atlas of Broken Realms — a React and Vite fantasy overworld hub game in a pnpm TypeScript monorepo where players explore a procedurally generated 60×50 tile grid across 10 themed regions, collect sigils, and traverse 69 portals (stable, echo, broken, hidden, sealed) linking to external apps and games.",
   "evidence": [
-   "unreachable: inventory name; JoshMemory continuity notes mention realms-atlas"
+   "README.md",
+   "replit.md",
+   "artifacts/atlas-of-broken-realms/src/data/regions.ts",
+   "artifacts/atlas-of-broken-realms/src/data/portals.ts",
+   "artifacts/atlas-of-broken-realms/src/data/mapGenerator.ts",
+   "artifacts/atlas-of-broken-realms/src/game/useGameEngine.ts"
   ],
-  "kind": "Cartographer's Tower (name-based)",
+  "kind": "Broken Realms Cartographer's Tower",
   "ext": {
    "style": "tower",
    "walls": "#c8b89a",
@@ -420,58 +475,74 @@
    "light": "#fff2d0",
    "rooms": [
     {
-     "name": "Map Room",
+     "name": "Lantern Crossroads Map Room",
      "w": 9,
      "d": 9,
      "props": [
       [
        "mapTable",
-       "Atlas of realms",
+       "60×50 Broken Realms grid",
        {
-        "do": "toggle",
-        "title": "Atlas",
-        "on": "The atlas lights up — a name-based placeholder until the repository can be inspected.",
-        "off": "Atlas dimmed."
+        "do": "steps",
+        "title": "Exploring the Broken Realms",
+        "steps": [
+         "Begin at the Lantern Crossroads (x:30, y:25) beside The Central Lantern and The Waystone.",
+         "Roam the 60×50 procedural tile map across 10 regions including Whispering Forest, Infinite City, and Sunken Archive.",
+         "Discover 69 portals categorized as stable, echo, broken, hidden, or sealed, with localStorage autosave and portable JSON backup."
+        ]
        }
       ],
       [
        "globe",
-       "Realm globe"
+       "Ten-region world globe"
       ],
       [
        "scrollRack",
-       "Map scrolls"
+       "69 portal registry scrolls"
       ],
       [
        "bookshelf",
-       "Gazetteers"
+       "Region & landmark gazetteers"
       ]
      ]
     },
     {
-     "name": "Survey Loft",
+     "name": "Portal Survey Loft",
      "w": 7,
      "d": 8,
      "props": [
       [
        "telescope",
-       "Survey scope",
+       "Portal stability scope",
        {
-        "do": "info",
-        "text": "JoshMemory notes mention realms-atlas alongside other world-building projects; its actual features are unverified."
+        "do": "quiz",
+        "title": "Broken Realms geography",
+        "q": "How many themed regions and linked portals make up the 60×50 overworld in The Atlas of Broken Realms?",
+        "options": [
+         "4 regions and 12 portals",
+         "10 regions and 69 portals",
+         "25 regions and 200 portals"
+        ],
+        "answer": 1,
+        "explain": "regions.ts defines 10 themed regions and portals.ts defines 69 portals across five stability tiers."
        }
       ],
       [
        "pinMap",
-       "Pinned regions"
+       "Sigil & fast-travel landmarks",
+       {
+        "do": "info",
+        "title": "Five portal classes",
+        "text": "Portals in portals.ts are classified as stable (live primary apps), echo (mirrors/alternate deploys), broken, hidden, or sealed, each with region coordinates and flavour text."
+       }
       ],
       [
        "signpost",
-       "Realm markers"
+       "The Waystone signpost"
       ],
       [
        "chair",
-       "Surveyor's chair"
+       "Cartographer's chair"
       ]
      ]
     }

@@ -1,7 +1,7 @@
-// Lightweight, friendly low-poly residents. Geometry is procedural, so no image assets,
+// Named street characters (src/ui/npc-data.js): lightweight, friendly low-poly figures. Geometry is procedural, so no image assets,
 // CDN calls, texture downloads, or private repository data are needed.
 import * as THREE from 'three';
-import { NPCS, HOUSE_GUIDE } from '../ui/npc-data.js';
+import { NPCS } from '../ui/npc-data.js';
 
 function colour(value) { return new THREE.MeshLambertMaterial({color:value}); }
 const skin = colour(0xf1c8a1), dark = colour(0x293043), black = colour(0x161b28);
@@ -169,24 +169,6 @@ export function placeTownNPCs(group, lots, makeLabel) {
   }
   return result;
 }
-export function placeHouseGuide(inside, makeLabel) {
-  const room=inside.rooms[0], world=inside.colliders;
-  const candidates=[
-    [inside.spawn.x+1.5,inside.spawn.z-1.3],
-    [inside.spawn.x-1.5,inside.spawn.z-1.3],
-    [inside.spawn.x+1.5,inside.spawn.z+.8],
-    [inside.spawn.x-1.5,inside.spawn.z+.8]
-  ];
-  const free=(x,z)=>{
-    if(x<=room.x0+.55||x>=room.x1-.55||z<=room.z0+.55||z>=room.z1-1.65)return false;
-    return !world.some(c => {const cx=Math.max(c.x0,Math.min(x,c.x1)),cz=Math.max(c.z0,Math.min(z,c.z1));return (x-cx)**2+(z-cz)**2<.55**2;});
-  };
-  const point=candidates.find(p=>free(...p));
-  if(!point)return null;
-  const figure=makeNPC(HOUSE_GUIDE,makeLabel);
-  figure.position.set(point[0],0,point[1]);inside.group.add(figure);
-  return {npc:HOUSE_GUIDE,group:figure,pos:figure.position,mode:'house',house:{name:inside.house.name,kind:inside.house.kind,coordinate:inside.house.coordinate}};
-}
 // Deterministic per-resident pseudo-randomness; no frame-to-frame shared RNG state.
 function wander01(entry, step) {
   let n=(entry.seed ^ Math.imul(step+1, 0x9e3779b1))>>>0;
@@ -259,12 +241,12 @@ function performWork(entry,time) {
   }
   return entry.task==='rest';
 }
-export function animateNPCs(list,time,playerPos,dt=1/60,talkingTo=null,collisionWorld=null) {
+export function animateNPCs(list,time,playerPos,dt=1/60,talkingTo=null,collisionWorld=null,maxDist=65) {
   const step=Math.min(Math.max(dt,0),.15);
   for(const entry of list) {
     const group=entry.group, model=group.userData.body;
     const dist=Math.hypot(group.position.x-playerPos.x,group.position.z-playerPos.z);
-    group.visible=dist<65;
+    group.visible=dist<maxDist;
     if(!group.visible)continue;
     const chatting=talkingTo===entry.npc.id;
     if(entry.mode==='town') {
@@ -329,4 +311,185 @@ export function animateNPCs(list,time,playerPos,dt=1/60,talkingTo=null,collision
     const label=group.userData.label;
     if(label)label.visible=dist>1.4;
   }
+}
+
+// ── Townsfolk: the simulated villagers' figures and each house's resident ──
+
+// People: house residents who move about their house, and villagers whose days the
+// town simulation plans (src/world/life.js, drawn by townlife.js). Both stop and turn
+// to face the player who comes to talk.
+const SKIN = [0xe2b48c, 0xc68e63, 0x8d5a3b, 0xf1c9a5, 0xa8714a];
+const HAIR = [0x3b2a1e, 0x1d1d1d, 0x8a5a2b, 0xd8b26a, 0x6b3a2a, 0x9a9a9a];
+const mats = new Map();
+const mat = (c) => { if (!mats.has(c)) mats.set(c, new THREE.MeshLambertMaterial({ color: c })); return mats.get(c); };
+const BOX = new THREE.BoxGeometry(1, 1, 1);
+const BALL = new THREE.SphereGeometry(1, 10, 7);
+
+function part(geo, color, sx, sy, sz, x, y, z, parent) {
+  const m = new THREE.Mesh(geo, mat(color));
+  m.scale.set(sx, sy, sz); m.position.set(x, y, z);
+  parent.add(m);
+  return m;
+}
+
+// A jointed figure: legs and arms hang from pivots so they can swing while walking.
+export function makePerson(seed, shirt, trousers) {
+  const g = new THREE.Group();
+  const skin = SKIN[seed % SKIN.length], hair = HAIR[(seed >> 2) % HAIR.length];
+  const limb = (x, y, color, len, w) => {
+    const pivot = new THREE.Group(); pivot.position.set(x, y, 0); g.add(pivot);
+    part(BOX, color, w, len, w, 0, -len / 2, 0, pivot);
+    return pivot;
+  };
+  const legs = [limb(-0.11, 0.82, trousers, 0.8, 0.16), limb(0.11, 0.82, trousers, 0.8, 0.16)];
+  part(BOX, shirt, 0.46, 0.62, 0.26, 0, 1.12, 0, g);
+  const arms = [limb(-0.31, 1.4, shirt, 0.56, 0.12), limb(0.31, 1.4, shirt, 0.56, 0.12)];
+  for (const a of arms) part(BALL, skin, 0.065, 0.065, 0.065, 0, -0.6, 0, a);
+  const head = new THREE.Group(); head.position.set(0, 1.68, 0); g.add(head);
+  part(BALL, skin, 0.17, 0.17, 0.17, 0, 0, 0, head);
+  part(BALL, hair, 0.175, 0.1, 0.175, 0, 0.08, -0.02, head);
+  for (const x of [-0.06, 0.06]) part(BALL, 0x1d1d1d, 0.025, 0.025, 0.025, x, 0.02, 0.155, head);
+  return { group: g, legs, arms, head };
+}
+
+// Swings limbs while walking and settles them when standing (shared by every figure).
+export function pose(p, dt, t, moving, faceForward = moving) {
+  const swing = moving ? Math.sin(t * 7 + p.phase) * 0.55 : 0;
+  const ease = (r, v) => r + (v - r) * Math.min(1, dt * 10);
+  p.legs[0].rotation.x = ease(p.legs[0].rotation.x, swing);
+  p.legs[1].rotation.x = ease(p.legs[1].rotation.x, -swing);
+  p.arms[0].rotation.x = ease(p.arms[0].rotation.x, -swing * 0.8);
+  p.arms[1].rotation.x = ease(p.arms[1].rotation.x, swing * 0.8);
+  if (faceForward) p.head.rotation.y = ease(p.head.rotation.y, 0);
+  else p.head.rotation.y = Math.sin(t * 0.7 + p.phase) * 0.5;
+}
+
+// Shared walking behaviour: follow waypoints, pause, look around; stop for the player.
+export class Walker {
+  constructor(person, pos, { speed = 1.3, name } = {}) {
+    Object.assign(this, person);
+    this.pos = pos;                 // shared with the interactable, so prompts follow the walker
+    this.speed = speed; this.name = name;
+    this.path = []; this.wait = 1 + Math.random() * 3; this.phase = Math.random() * 10;
+    this.heading = Math.random() * Math.PI * 2; this.talking = false;
+    this.group.position.copy(pos);
+  }
+
+  update(dt, t, player, planNext) {
+    const toPlayer = Math.hypot(player.pos.x - this.pos.x, player.pos.z - this.pos.z);
+    const engaged = this.talking || toPlayer < 2.8;
+    // The name tag would fill the screen up close; the on-screen prompt names them instead.
+    if (this.tag) this.tag.visible = toPlayer > 3;
+    let moving = false;
+    if (engaged) {
+      // Turn to face the visitor and wait.
+      this.turnTo(Math.atan2(player.pos.x - this.pos.x, player.pos.z - this.pos.z), dt * 4);
+    } else if (this.wait > 0) {
+      this.wait -= dt;
+    } else if (this.path.length) {
+      const target = this.path[0];
+      const dx = target.x - this.pos.x, dz = target.z - this.pos.z, d = Math.hypot(dx, dz);
+      if (d < 0.15) { this.path.shift(); if (target.room !== undefined) this.room = target.room; if (target.pause) this.wait = target.pause; }
+      else {
+        const step = Math.min(d, this.speed * dt);
+        this.pos.x += (dx / d) * step; this.pos.z += (dz / d) * step;
+        this.turnTo(Math.atan2(dx, dz), dt * 6);
+        moving = true;
+        this.onMove?.(this.pos);
+      }
+    } else {
+      this.path = planNext(this) || [];
+      if (!this.path.length) this.wait = 2 + Math.random() * 4;
+    }
+    pose(this, dt, t, moving, moving || engaged);
+    this.group.position.set(this.pos.x, moving ? Math.abs(Math.sin(t * 7 + this.phase)) * 0.04 : 0, this.pos.z);
+    this.group.rotation.y = this.heading;
+  }
+
+  turnTo(angle, rate) {
+    let diff = angle - this.heading;
+    while (diff > Math.PI) diff -= Math.PI * 2;
+    while (diff < -Math.PI) diff += Math.PI * 2;
+    this.heading += diff * Math.min(1, rate);
+  }
+}
+
+// Moves a person standing too close to furniture onto the nearest clear floor.
+export function freeSpot(pos, world, r = 0.4) {
+  if (!world.hits(pos.x, pos.z, r)) return pos;
+  for (let ring = 0.3; ring <= 3; ring += 0.3) {
+    for (let a = 0; a < Math.PI * 2; a += Math.PI / 8) {
+      const x = pos.x + Math.cos(a) * ring, z = pos.z + Math.sin(a) * ring;
+      if (!world.hits(x, z, r)) { pos.x = x; pos.z = z; return pos; }
+    }
+  }
+  return pos;
+}
+
+// A clear straight line between two floor points (people do not walk through furniture).
+function clearLine(world, a, b) {
+  const d = Math.hypot(b.x - a.x, b.z - a.z);
+  for (let s = 0.4; s <= d; s += 0.4) if (world.hits(a.x + (b.x - a.x) * (s / d), a.z + (b.z - a.z) * (s / d), 0.35)) return false;
+  return !world.hits(b.x, b.z, 0.35);
+}
+// A way from `from` to `to` inside one room: straight, or via a free point that sees both.
+function reach(room, world, from, to) {
+  if (clearLine(world, from, to)) return [to];
+  for (let i = 0; i < 24; i++) {
+    const x = room.x0 + 0.8 + Math.random() * (room.x1 - room.x0 - 1.6), z = room.z0 + 0.8 + Math.random() * (room.z1 - room.z0 - 1.6), p = { x, z };
+    if (clearLine(world, from, p) && clearLine(world, p, to)) return [p, to];
+  }
+  return null;
+}
+function freePoint(room, world, from, tries = 12) {
+  for (let i = 0; i < tries; i++) {
+    const x = room.x0 + 1.1 + Math.random() * (room.x1 - room.x0 - 2.2), z = room.z0 + 1.1 + Math.random() * (room.z1 - room.z0 - 2.2);
+    if (Math.hypot(x - from.x, z - from.z) > 1.2 && clearLine(world, from, { x, z })) return { x, z };
+  }
+  return null;
+}
+
+// Indoor plan: residents potter about their room, wander through doorways to other rooms,
+// head for the kitchen at mealtimes and sit still late at night. `links` are the house's
+// internal doorways ({ rooms: [a, b], axis, at, c }); `clock()` gives the town minute;
+// `kitchens` are rooms with a stove, fridge or pantry.
+export function houseWander(rooms, links, world, clock, kitchens = []) {
+  const through = (link, from) => {
+    const [a, b] = link.rooms, to = a === from ? b : a, side = (r) => (link.axis === 'z' ? Math.sign((rooms[r].z0 + rooms[r].z1) / 2 - link.at) : Math.sign((rooms[r].x0 + rooms[r].x1) / 2 - link.at));
+    const pt = (r, off) => (link.axis === 'z' ? { x: link.c, z: link.at + side(r) * off } : { x: link.at + side(r) * off, z: link.c });
+    return { to, pts: [pt(from, 0.9), { ...pt(to, 0.9), room: to }] };
+  };
+  // Shortest room-to-room route through doorways (houses have at most a dozen rooms).
+  const route = (from, goal) => {
+    const prev = new Map([[from, null]]), queue = [from];
+    while (queue.length) {
+      const r = queue.shift(); if (r === goal) break;
+      for (const l of links) if (l.rooms.includes(r)) { const n = l.rooms[0] === r ? l.rooms[1] : l.rooms[0]; if (!prev.has(n)) { prev.set(n, { r, l }); queue.push(n); } }
+    }
+    if (!prev.has(goal)) return null;
+    const steps = []; for (let r = goal; prev.get(r); r = prev.get(r).r) steps.unshift(prev.get(r));
+    return steps;
+  };
+  return (w) => {
+    const m = clock() % 1440, meal = (m >= 420 && m < 480) || (m >= 720 && m < 780) || (m >= 1080 && m < 1170);
+    const night = m >= 1380 || m < 330;
+    w.activity = night ? 'dozing in an armchair' : meal ? (m < 600 ? 'making breakfast' : m < 900 ? 'making lunch' : 'cooking dinner') : 'pottering about';
+    if (night) return [{ x: w.pos.x, z: w.pos.z, pause: 30 }];
+    let goal = w.room;
+    if (meal && kitchens.length && !kitchens.includes(w.room)) goal = kitchens[0];
+    else if (!meal && links.length && Math.random() < 0.3) { const ls = links.filter((l) => l.rooms.includes(w.room)); const l = ls[Math.floor(Math.random() * ls.length)]; if (l) goal = l.rooms[0] === w.room ? l.rooms[1] : l.rooms[0]; }
+    if (goal === w.room) { const p = freePoint(rooms[w.room], world, w.pos); return p ? [{ ...p, pause: meal ? 8 + Math.random() * 8 : 2 + Math.random() * 5 }] : []; }
+    const steps = route(w.room, goal);
+    if (!steps) return [];
+    const path = []; let at = w.room, from = w.pos;
+    for (const { l } of steps) {
+      const { to, pts } = through(l, at);
+      const leg = reach(rooms[at], world, from, pts[0]);
+      if (!leg) return path.length ? path : [];          // furniture blocks the way: go as far as possible
+      path.push(...leg, pts[1]); at = to; from = pts[1];
+    }
+    const end = freePoint(rooms[goal], world, from);
+    if (end) path.push({ ...end, pause: meal ? 10 + Math.random() * 10 : 3 + Math.random() * 6 });
+    return path;
+  };
 }

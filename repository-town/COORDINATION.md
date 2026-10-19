@@ -7,7 +7,8 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
-- 2026-10-19 · ChatGPT — adapting Claude's `tests/streetwalk.mjs` on `repository-town-claude-tests-integration-20261019`, then integrating complementary NPC tests and gameplay without replacing canonical game. Ported collision test with corrected local port/row validation; ported privacy-safe, house-aware offline NPC replies and added node assertion test. Full runtime validation still pending.\n\n- 2026-10-19 · ChatGPT — reconciling Claude's separate branch via `repository-town-safe-integration-20261019`. `main` already includes Expedition Guild and newer NPC models. Do not blindly copy Claude `src/main.js`, `src/world/npcs.js`, or `src/ui/npc.js` over main; port specific behaviours with tests.\n\n- 2026-10-19 · ChatGPT GitHub connector — separate playtest branch `repository-town-merged-playtest-20261019` deployed to Render `https://repository-town-npc-playtest.onrender.com`; 32 NPCs, wandering, worksite inventory/build prototype, roof replacements and collision-aware wandering. **NOT YET MERGED**: compare reveals two divergent branches with overlapping edits to `src/main.js`, `src/world/npcs.js`, `src/ui/*` and the adventure files. Please preserve both implementations when integrating; do not publish one branch over the other. Render preview uses manually triggered deployment and privacy check. Proposed next step is reviewed three-way merge plus tests.\n
+- 2026-10-19 · ChatGPT GitHub connector — separate playtest branch `repository-town-merged-playtest-20261019` deployed to Render `https://repository-town-npc-playtest.onrender.com`; 32 NPCs, wandering, worksite inventory/build prototype, roof replacements and collision-aware wandering. **NOT YET MERGED**: compare reveals two divergent branches with overlapping edits to `src/main.js`, `src/world/npcs.js`, `src/ui/*` and the adventure files. Please preserve both implementations when integrating; do not publish one branch over the other. Render preview uses manually triggered deployment and privacy check. Proposed next step is reviewed three-way merge plus tests.\n
+- 2026-10-19 · ChatGPT — reconciling Claude's separate branch via `repository-town-safe-integration-20261019`. `main` already includes Expedition Guild and newer NPC models. Do not blindly copy Claude `src/main.js`, `src/world/npcs.js`, or `src/ui/npc.js` over main; port specific behaviours with tests.\n\n- 2026-10-19 · ChatGPT GitHub connector — separate playtest branch `repository-town-merged-playtest-20261019` deployed to Render `https://repository-town-npc-playtest.onrender.com`; 32 NPCs, wandering, worksite inventory/build prototype, roof replacements and collision-aware wandering. **NOT YET MERGED**: compare reveals two divergent branches with overlapping edits to `src/main.js`, `src/world/npcs.js`, `src/ui/*` and the adventure files. Please preserve both implementations when integrating; do not publish one branch over the other. Render preview uses manually triggered deployment and privacy check. Proposed next step is reviewed three-way merge plus tests.\n
 - 2026-10-19 · Claude Code session ("Repository search") — upgrade round: research the 17
   name-only houses; fix broken games in their own repos (on branch `ccr-846db548-0l5zmu`
   there, not main); villagers give relic hints/gossip/errands; day–night, window lights,
@@ -15,19 +16,105 @@ Newest first. Times in Australia/Sydney.
   command; full 188-house re-test. Files: `src/world/npcs.js`, `src/ui/npc.js`,
   `src/main.js`, `src/world/town.js`, `src/adventure/` (read-only use of relic data),
   `tools/`, `briefs/`. Ping here before editing those.
+- 2026-10-19 · Codex — fixing the live NPC AI connection: connect the static GitHub Pages
+  frontend to the existing Vercel Groq proxy, add exact-origin CORS, validate the API and
+  publish the updated Pages build. Files: `api/npc-chat.js`, `src/ui/npc-api.js`,
+  `src/ui/npc.js`, `src/ui/npc-chat.js`. Local tests pass; Vercel production deployment
+  is currently blocked by the Hobby team's daily deployment quota (`api-deployments-free-per-day`).
 
 ## Done recently
 
-- 2026-10-19 · ChatGPT — focused Living Town repairs on `fix/living-town-playtest-20261019`, reconciled through main `17e20f2`: recycling/wastewater/meal/scrap accounting, invalid amounts, park/farm collisions and cumulative Ledger label. Seven regression groups, original simulation, 752 CPU entries, 88 route checks, 80 civic approaches and 188-house geometry suite pass. Local source build/privacy pass; full packed games and rendered/browser-device tests remain release gates. See `docs/PLAYTEST_REPAIRS_2026-10-19.md`. No live deployment replaced.
+- 2026-10-19 · Claude Code session ("Repository search") — **merged every town branch** into
+  the integration branch, one at a time with tests: `main`, #18 (contains #17, #11's NPC work,
+  #13, keyboard fix), #16 scene awareness, label occlusion, #13 CI smoke, #11, merged-playtest,
+  #19 living town. **#19's simulator is folded into `src/world/life.js`** so there is one
+  economy: power (solar by weather + fuel), water, wastewater, rubbish/recycling, foundry,
+  imports/exports, treasury with sales tax, rates, grants and business rates, wages paid from
+  real tills, bank, mayoral elections, council repairs, visitor bag (buy, sell back, eat),
+  letters. Its civic sites sit on the south side of street 8 (G, H, J, L, N, P, Q, R) facing the
+  high street; `src/simulation/*` is retired. Test: `tests/town-simulation.mjs` (Node).
 
+- 2026-10-19 · Claude Code session ("Repository search") — **ported the live site's direct
+  commits into `src/`** (site repo `a201b9d`…`5ee6c7f`): Cloudflare AI chat proxy (`ui/npc.js`,
+  `ui/npc-chat.js`, `ui/npc-prompt.js`, `ui/npc-data.js`), 32 named street characters and
+  worksites (`world/npcs.js` `placeTownNPCs`/`animateNPCs`), social sim (`ui/social.js`, now
+  sharing `VILLAGER_NAMES` with `world/life.js`), toys, HUD collapse, mouse capture, Smooth
+  mode, label occlusion, arcade/NPC lounge pages. One owner per job: sky/day–night, window
+  glow and lamps stay in `townlife.js`/`town.js` (the T key and time button now jump the
+  town clock); sound is `ui/ambience.js` (footsteps/door/relic folded in, `ui/sound.js`
+  retired); the guide kiosk opens the town-life guide panel and Rowan is its chat; residents
+  use `houseWander` (meals) with the room tracking from the site. **Not ported: the commit
+  that showed private repository names on the public site** — the build stays sanitised
+  until Josh confirms; ask him before changing `tools/lib.mjs` `sanitise`.
+
+- 2026-10-19 · Claude Code session ("Repository search") — **town simulator**: `src/world/life.js`
+  (clock: 72-minute days; farms → trucks → mill/bakery/shops → villagers buy, cook, eat; 32
+  villagers with jobs, wallets, pantries and meals; freight train; postie and parcels),
+  `src/world/townlife.js` (high street and farms on the empty lots G8–Z8, fields, livestock,
+  tractor, windmill, trucks that brake for you, bikes, day–night sky, stars, lit windows and
+  street lamps), `src/ui/townpanels.js` (shop counters, farms, Town Ledger, Wren the Town
+  Guide near the start, gossip and relic hints for chat), `src/ui/ambience.js` (sound),
+  residents walk between rooms and cook at mealtimes (`npcs.js` `houseWander`). The old
+  `townRoutes` villagers are gone. Test: `tests/life.mjs`. Sim state saves under
+  `repository-town.life.v1`. **Row 8 lots G–Z are now taken by town buildings.**
+
+- 2026-10-19 · Claude Code (local CLI, worktree `~/dev/rt-claude`, branch
+  `town-label-occlusion-20261019`) — **interior labels no longer clip into walls and doors**
+  (Josh's L5 screenshot). Interior label sprites now draw without depth test and are hidden by
+  a cheap line-of-sight check against walls, lintels and closed doors (`labelVisible()` in
+  `src/world/interior.js`, used in `src/main.js`'s house loop); wall-prop labels sit 0.6 m out
+  from the wall. Town house signs are unchanged (still depth-tested). Known, pre-existing:
+  labels of side-by-side wall props can overlap each other.
+  **Hot-fixed onto the live site** (`Parris-Tech-Services/Repository-town` commit `a201b9d`)
+  as a patch to `main.js` and `world/interior.js` only, because the live site is ahead of
+  `main` (villager personalities, social simulation, house names pushed straight there on
+  2026-10-19 16:4x and not yet in `src/`). Whoever ports those into `src/` should keep this
+  label change, and nobody should publish a plain `main` build over the site until then.
 - 2026-10-19 · ChatGPT (GitHub connector) — Living Town simulation prototype on `feat/living-town-simulation-20261019`: 20 vacant street-8 civic sites, trucks/lamps, 24-minute day/night, deterministic utilities + farm/mill/bakery/market/foundry/recycling/post/economy, visitor trading, council repairs/voting, persistent Ledger. Pure JS parse checks and `tests/town-simulation.mjs` assertions executed in an isolated JS evaluator; 90-town-day stock stress check completed (no negative stocks). **Not yet verified:** full npm build, privacy gate, desktop/Android browser visual playtest or deployed public site. Integrate after PR review and run those gates; do not overwrite other active branches.
-
-
 - 2026-10-19 · Claude Code (local CLI, `~/dev/rt-claude`) — full 188-house playtest of `main`
   headless on the real Intel UHD 630 GPU, desktop + phone. Two real bugs found and fixed, both
   in open PRs: **#14** (arcade discovery + phone house card blocked the joystick at every door)
   and **#15** (resident beside an exhibit stole E/✋; one block in `src/main.js`). With both
   merged, 188/188 houses pass on desktop and phone. Suggested order: #14, then #15, then #13.
+- 2026-10-19 · ChatGPT — scene-grounded local resident replies in separate `fix/town-npc-scene-awareness-20261019` branch, based on PR #11; edits `src/ui/scene-awareness.js`, `src/world/interior.js`, `src/main.js`, `src/ui/npc.js`, `src/ui/npc-prompt.js`, tests. No changes to PR #11 or production yet.
+- 2026-10-19 · Claude Code (local CLI on Josh's PC, worktree `~/dev/rt-claude`, branch
+  `town-claude-playtest-20261019`) — **desktop playtest on a real GPU** (Intel UHD 630,
+  headed Chromium) of `main` and integration branches, with findings posted below; and
+  **arcade library discovery** (`src/arcade.html/js/css` only: featured picks, ratings,
+  recently played). Not touching `main.js`, `npcs.js`, `npc*.js`, `adventure/`, `tools/`,
+  `briefs/` or `data/games.json`. Note: Codex (`codex --yolo`) is now working in
+  `~/dev/rt-improve` on branch `repository-town-improvements-20261019`; that branch and
+  PR joshualparris/JoshMemory#11 are Codex's to finish, I've stepped back from them.
+  Game-repo fixes already open as PRs: JoshHub#9 (classic-dnd-text, tile-game map),
+  Parris-Tech-Services/Aetheria#1 (Linux build, static mode).
+- 2026-10-19 · ChatGPT — adapting Claude's `tests/streetwalk.mjs` on `repository-town-claude-tests-integration-20261019`, then integrating complementary NPC tests and gameplay without replacing canonical game. Ported collision test with corrected local port/row validation; ported privacy-safe, house-aware offline NPC replies and added node assertion test. Full runtime validation still pending.
+- 2026-10-19 · ChatGPT — reconciling Claude's separate branch via `repository-town-safe-integration-20261019`. `main` already includes Expedition Guild and newer NPC models. Do not blindly copy Claude `src/main.js`, `src/world/npcs.js`, or `src/ui/npc.js` over main; port specific behaviours with tests.
+- 2026-10-19 · ChatGPT GitHub connector — separate playtest branch `repository-town-merged-playtest-20261019` deployed to Render `https://repository-town-npc-playtest.onrender.com`; 32 NPCs, wandering, worksite inventory/build prototype, roof replacements and collision-aware wandering.
+- 2026-10-19 · ChatGPT (code-free NPC AI) — Cloudflare Worker `repository-town-no-code-ai.parris-neathaustralia.workers.dev` replaces the Vercel AI backend for the *public game*. No player access codes. Worker code in `deploy/cloudflare-ai-worker.js`, uploads `src/ui/npc-data.js` and `src/ui/npc-prompt.js` as modules, and holds existing Groq key as an encrypted Worker secret. Rate-limit bindings IP_LIMIT (5/min/client per edge) and GLOBAL_LIMIT (4/min/edge); daily best-effort isolate cap. GitHub Pages public build hotfixed: `ui/npc-chat.js`, `ui/npc.js`, `index.html`, `people.html`; source changes in PR #18. Existing Vercel backend remains untouched and code-gated but is no longer used by the public site. Important: public `ui/npc.js` has extra social gameplay imports absent from this branch's `src/ui/npc.js`; preserve live functionality in eventual source reconciliation. Local mocked Worker tests pass, live Groq response not independently verified.
+- 2026-10-19 · ChatGPT (GitHub Pages live-AI bridge) — Updated both `src/ui/npc-chat.js` and `src/ui/npc.js` to send PIN-protected AI requests to Cloudflare Worker `repository-town-ai-bridge.parris-neathaustralia.workers.dev/api/npc-chat` from static GitHub Pages. Worker source is `deploy/pages-npc-proxy.js`; it allows the exact Pages origin, supports CORS preflight, rate-limits attempts best-effort, strips cookies/Origin and forwards the existing `x-npc-code` to Vercel where GROQ_API_KEY and TOWN_NPC_PIN remain server-side. Enabled Worker on workers.dev. Vercel `repository-town-claude-playtest` SSO set to `preview` (production endpoint accessible, still requires PIN). Matching public hotfixes applied to `Parris-Tech-Services/Repository-town` generated `ui/npc-chat.js` and `ui/npc.js` (plus prior `npc.css`). Backend `api/npc-chat.js` CORS change committed to hosting branch but **NOT DEPLOYED**: Vercel 402 daily deployment cap, so the Cloudflare bridge targets the existing published backend. Backend isolated-handler mock tests passed for allowed origin, preflight, bad PIN and good PIN; real remote Groq response **not verified**. Preserve this bridge and source changes during next build/publish. Source PR #17.
+## Done recently
+- 2026-10-19 · Codex — added a local-first village social simulation: seeded friend, enemy and
+  neutral relationships; gossip and friendship UI; persistent player trust; relationship changes
+  from praise, insults and completed errands; and social context for live AI prompts. Tests,
+  build, privacy and 188-house validation passed. Published at Pages commit `e26fbfb`; workflow
+  `39206698049` completed successfully.
+- 2026-10-19 · Codex — expanded all 24 street villagers with distinct offline and live-AI
+  personalities, including Sadie as a curious book-and-building collector. Added the NPC
+  personality contract test; build, privacy and house checks passed. Published to
+  `Parris-Tech-Services/Repository-town` at `5d1f749`; Pages run `39206341200` succeeded.
+- 2026-10-19 · Codex — with Josh's explicit approval, public house labels and search now show
+  private repository names while private URLs, READMEs, summaries, room names and exhibit text
+  remain redacted. Published to `Parris-Tech-Services/Repository-town` at `fe44bef`; Pages run
+  `39206068937` completed successfully. Restored `src/tests/expedition.mjs` so the live acceptance
+  test is preserved by future generated publishes.
+- 2026-10-19 · Antigravity (`~/dev/rt-improve`, branch `repository-town-improvements-20261019`) — finished Claude's upgrade round and reconciled all active branches (`origin/main`, `origin/ccr-846db548-0l5zmu`, `origin/fix/npc-chat-android-keyboard-20261019`, `origin/repository-town-claude-tests-integration-20261019`, `origin/town-claude-playtest-20261019`):
+  - Researched & redesigned all 17 previously unreachable houses (`A1`, `D1`, `E1`, `C2`, `D2`, `N2`, `T2`, `W2`, `X2`, `Z2`, `A3`, `B3`, `D3`, `E3`, `I3`, `M3`, `R6`) from their real GitHub repositories (`188/188` readable in `data/repo-data.json`, `0` unreachable) and added `tools/refresh_data.mjs`.
+  - Fixed & packed 8 additional playable games (total **65/65** packed games passing `tests/games.mjs`): `aetheria`, `hub-classic-dnd-text`, `hub-newgame` (Dark Realms), `hub-tile-game`, `hub-aa-game-adventure`, `bramblewick` (Godot 4.4.1 web export; `games/bramblewick/index.wasm.gz` tracked in Git and auto-decompressed by `tools/build.mjs`), `rothfuss-kkc-adventure` (browser SQLite shim for `/api/init` & `/api/command`), `serenity-keep-flying`, and `multi-layer-zoom-game`, plus fixed `hub-boundary-road` (`three@0.105.2` + inline SVG fallback) and `pld-wilds-sail-west` (`<script type="py">`).
+  - Switched `src/ui/npc.js` and `src/ui/npc-chat.js` to the server-side `/api/npc-chat` proxy (`api/npc-chat.js`, gated by `x-npc-code` from `sessionStorage.getItem('town-npc-code')`) and purged any legacy `repository-town.groq-keys` from `localStorage`.
+  - Connected villagers & indoor residents to Expedition Guild relic hints, same-street neighbour gossip, and small errands (`src/ui/npc.js`, `src/adventure/expedition.js`), added multi-room indoor doorway traversal (`roomWander`), day/dusk/night atmosphere + window/lamp lights + procedural WebAudio (`src/ui/sound.js`) + Town Guide kiosk, and phone distance culling (`#btn-perf`).
+  - Applied mobile `visualViewport` & compact typing mode (`npc-typing` / `chat-typing`) across both `#npc-chat` (`src/ui/npc-chat.js`, `src/npc.css`) and `#panel .chat` (`src/ui/npc.js`, `src/styles.css`), scoping `#panel.chat-typing` to `@media (max-width: 700px)` and deferring blur cleanup so desktop `#panel-close` clicks never miss due to synchronous layout shifts.
+- 2026-10-19 · ChatGPT (mobile NPC keyboard repair) — `src/ui/npc-chat.js`, `src/npc.css`, `tests/npc-viewport.mjs`; isolated chat/visualViewport and lounge compact-mode changes. See PR for review and mobile-device confirmation.
+- 2026-10-19 · ChatGPT (mobile NPC keyboard repair) — `src/ui/npc-chat.js`, `src/npc.css`, `tests/npc-viewport.mjs`; isolated chat/visualViewport and lounge compact-mode changes. See branch `fix/npc-chat-android-keyboard-20261019` for review and mobile-device confirmation.
 - 2026-10-19 · Claude Code session (claude.ai/code, "Repository search") — villagers
   walk the town (`src/world/npcs.js`), residents wander indoors, more natural chat
   (`src/ui/npc.js`), Mouse look option, house signs moved clear of colonnades.

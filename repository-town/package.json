@@ -9,14 +9,14 @@
     "check:privacy": "node tools/check_privacy.mjs",
     "test:e2e": "node tests/e2e.mjs",
     "serve": "node tools/serve.mjs dist/public 8080",
-    "test:town": "node tests/town-simulation.mjs && node --test tests/town-regressions.mjs"
+    "test:town": "node tests/town-simulation.mjs"
   },
   "devDependencies": {
     "brython": "^3.12.4",
     "esbuild": "^0.23.1",
     "playwright": "1.56.1",
+    "sql.js": "^1.10.3",
     "three": "0.160.1",
     "vite-plugin-singlefile": "^2.0.3"
   }
 }
-

@@ -1,8 +1,26 @@
 // Builds dist/public (sanitised, deployable) and dist/private (full detail, local only).
 import fs from 'node:fs';
+import zlib from 'node:zlib';
 import { mergeDiscovery } from './merge-discovery.mjs';
 import path from 'node:path';
 import { TOWN, loadBriefs, loadInventory, loadRepoData, validate, sanitise, redactPrivate } from './lib.mjs';
+
+// Generated Godot WebAssembly is kept as a checked-in gzip archive so clean
+// Render/GitHub checkouts work without installing the Godot editor. The plain
+// .wasm is ignored by Git and restored only as a local build input.
+const packedGames = JSON.parse(fs.readFileSync(path.join(TOWN, 'data', 'games.json'), 'utf8')).games;
+for (const game of packedGames.filter((g) => g.kind === 'godot')) {
+  const dir = path.join(TOWN, 'games', game.id);
+  const wasm = path.join(dir, 'index.wasm');
+  const archive = wasm + '.gz';
+  if (fs.existsSync(wasm) || !fs.existsSync(archive)) continue;
+  const decoded = zlib.gunzipSync(fs.readFileSync(archive));
+  if (decoded.length < 1024 || decoded.subarray(0, 4).toString('hex') !== '0061736d') {
+    throw new Error(game.id + ': invalid WebAssembly archive; refusing to publish a broken game');
+  }
+  fs.writeFileSync(wasm, decoded); // ignored generated artifact; not committed to Git
+  console.log('Restored '+game.id+' WebAssembly ('+(decoded.length/1048576).toFixed(1)+' MiB) from tracked gzip');
+}
 
 const inventory = loadInventory();
 const repoData = loadRepoData();
@@ -28,8 +46,18 @@ for (const target of ['public', 'private']) {
   // Packed games travel with the build; the public build carries public repositories' games only.
   const playable = new Set(list.flatMap((h) => h.int.rooms.flatMap((r) => r.props.filter((p) => p[2]?.do === 'game').map((p) => p[2].game))));
   for (const id of playable) {
+    const srcGame = path.join(TOWN, 'games', id);
+    for (const e of fs.readdirSync(srcGame)) {
+      if (e.endsWith('.wasm.gz')) {
+        const wasmOut = path.join(srcGame, e.slice(0, -3));
+        if (!fs.existsSync(wasmOut)) fs.writeFileSync(wasmOut, zlib.gunzipSync(fs.readFileSync(path.join(srcGame, e))));
+      }
+    }
     const dest = path.join(out, 'games', id);
-    fs.cpSync(path.join(TOWN, 'games', id), dest, { recursive: true });
+    fs.cpSync(srcGame, dest, { recursive: true });
+    for (const e of fs.readdirSync(dest)) {
+      if (e.endsWith('.wasm.gz')) fs.rmSync(path.join(dest, e), { force: true });
+    }
     // Already-packed games contain the old runtime; repair its duplicate event
     // delivery in the copied build as well as in the packer template.
     (function repairRuntime(d) {

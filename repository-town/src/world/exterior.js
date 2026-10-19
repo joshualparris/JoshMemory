@@ -1,9 +1,10 @@
 import { PROPS } from './props.js';
+import { GLASS } from './builder.js';
 
 // Exterior architecture. Every style builds around the lot origin with the front
 // door facing +z (the street). A style returns the solid footprint used for
 // collision, plus the door position the town uses for the enterable doorway.
-const GLASS = 0x9fd3ea, DARK = 0x3b3f46, STONE = 0x9a958c, WOOD = 0x8a6545;
+const DARK = 0x3b3f46, STONE = 0x9a958c, WOOD = 0x8a6545;
 
 function windows(b, w, d, h, floors, color, opts = {}) {
   const per = Math.max(1, Math.floor(w / 2.6));

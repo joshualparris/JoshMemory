@@ -9,8 +9,16 @@ const briefs = loadBriefs();
 // Test runs may be sharded (desktop/mobile, by street); merge every results file.
 const dir = path.join(TOWN, 'test-results');
 const results = { houses: {}, desktop: {}, mobile: {}, date: null };
-for (const f of fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => f.endsWith('.json')).sort() : []) {
+// games.json (tests/games.mjs) has its own shape: per-game load results.
+const gameResults = fs.existsSync(path.join(dir, 'games.json')) ? JSON.parse(fs.readFileSync(path.join(dir, 'games.json'), 'utf8')) : {};
+const gamesByRepo = new Map();
+for (const g of JSON.parse(fs.readFileSync(path.join(TOWN, 'data', 'games.json'), 'utf8')).games) {
+  if (!gamesByRepo.has(g.repo)) gamesByRepo.set(g.repo, []);
+  gamesByRepo.get(g.repo).push(g);
+}
+for (const f of fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => f.endsWith('.json') && f !== 'games.json').sort() : []) {
   const r = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'));
+  if (!r.houses) continue;
   if (r.desktop?.mechanics) results.desktop.mechanics = r.desktop.mechanics;
   results.date = [results.date, r.date].filter(Boolean).sort().pop();
   for (const [c, v] of Object.entries(r.houses)) {
@@ -46,7 +54,7 @@ for (const p of inventory.projects) {
     unreachable ? `⚠ ${b.evidence.join('; ')}` : `${b.evidence.length} sources: ${b.evidence.slice(0, 3).join(', ')}${b.evidence.length > 3 ? '…' : ''}`,
     `${b.ext.style} · ${b.ext.features.join(', ')}`,
     `${b.int.layout} · ${b.int.rooms.map((x) => x.name).join(' / ')} · ${props} props`,
-    acts.join('; '),
+    acts.join('; ') + (gamesByRepo.has(p.repo) ? ` · **Playable:** ${gamesByRepo.get(p.repo).map((g) => `${g.title} ${gameResults[g.id]?.ok ? '✓' : gameResults[g.id] ? '✗' : '(not run)'}`).join(', ')}` : ''),
     verdict(r?.desktop), verdict(r?.mobile),
     issues.length ? issues.join('; ') : '—',
   ].map(cell));
@@ -71,7 +79,11 @@ For every house, on a 1100×700 desktop viewport with the keyboard **and** on an
 
 Movement mechanics checked once per run — run: ${m.run ?? '?'}, crouch: ${m.crouch ?? '?'}, jump: ${m.jump ?? '?'}, wall collision: ${m.collision ?? '?'}, autosave survives reload: ${m.autosave ?? '?'}.
 
-**Not covered:** no test ran on a physical Android phone or a hardware GPU; frame rate on real devices is unmeasured; audio output was not listened to.
+Every house also has a generated Repository Archive (source, README, file browser, live site, latest commit, docs, lucky dip, README fortune, dice tray and a resident to talk to), and game houses an Arcade. All of these are exercised by the same per-house walk.
+
+Playable games: ${Object.values(gameResults).filter((r) => r.ok).length} of ${Object.keys(gameResults).length} packed games load from file:// without errors (tests/games.mjs).
+
+**Not covered:** Groq replies were tested against a stand-in server (this environment cannot reach api.groq.com); no test ran on a physical Android phone or a hardware GPU; frame rate on real devices is unmeasured; audio output was not listened to.
 
 | Lot | Repository | Evidence inspected | Exterior design | Interior design | Unique interactions | Desktop test | Android (emulated) test | Bugs / outstanding |
 |---|---|---|---|---|---|---|---|---|

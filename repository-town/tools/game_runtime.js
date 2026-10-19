@@ -4,6 +4,7 @@
 (function () {
   var F = __FILES__;
   var IMG = __IMAGES__;
+  var API = __API__;
   var fileMode = location.protocol === 'file:';
   var has = function (o, k) { return Object.prototype.hasOwnProperty.call(o, k); };
 
@@ -28,9 +29,45 @@
   }
   var typeOf = function (k) { return /\.json$/i.test(k) ? 'application/json' : /\.svg$/i.test(k) ? 'image/svg+xml' : /\.html?$/i.test(k) ? 'text/html' : 'text/plain'; };
 
+  // Local API: games whose server only stores records (data/games.json → localApi) keep
+  // them in this browser instead, so they play from a folder or the offline zip.
+  function apiHandle(u, method, bodyText) {
+    if (!API) return null;
+    var url; try { url = new URL(u, location.href); } catch (e) { return null; }
+    // Fixed answers (e.g. a signed-in local player for games built around a login).
+    var fixed = API.fixed && Object.keys(API.fixed).find(function (k) { return url.pathname.replace(/\/$/, '').endsWith('/api/' + k); });
+    if (fixed && method === 'GET') return new Response(JSON.stringify(API.fixed[fixed]), { status: 200, headers: { 'content-type': 'application/json' } });
+    var m = url.pathname.match(/\/api\/([\w-]+)(?:\/([\w-]+))?\/?$/);
+    if (!m || !API.collections || !API.collections[m[1]]) return null;
+    var col = m[1], id = m[2], key = 'town-api:' + API.game + ':' + col;
+    var list; try { list = JSON.parse(localStorage.getItem(key) || '[]'); } catch (e) { list = []; }
+    var save = function () { try { localStorage.setItem(key, JSON.stringify(list)); } catch (e) { /* storage full or blocked */ } };
+    var body = {}; try { body = bodyText ? JSON.parse(bodyText) : {}; } catch (e) { body = {}; }
+    var json = function (status, data) { return new Response(data === undefined ? null : JSON.stringify(data), { status: status, headers: { 'content-type': 'application/json' } }); };
+    var now = new Date().toISOString();
+    if (!id) {
+      if (method === 'GET') return json(200, list);
+      if (method === 'POST') {
+        var next = list.reduce(function (n, r) { return Math.max(n, +r.id || 0); }, 0) + 1;
+        var rec = Object.assign({}, API.collections[col].defaults || {}, body, { id: next, createdAt: now, updatedAt: now });
+        list.push(rec); save(); return json(201, rec);
+      }
+    } else {
+      var i = list.findIndex(function (r) { return String(r.id) === String(id); });
+      if (i < 0) return json(404, { message: 'Not found' });
+      if (method === 'GET') return json(200, list[i]);
+      if (method === 'PUT' || method === 'PATCH') { list[i] = Object.assign({}, list[i], body, { id: list[i].id, updatedAt: now }); save(); return json(200, list[i]); }
+      if (method === 'DELETE') { list.splice(i, 1); save(); return new Response(null, { status: 204 }); }
+    }
+    return json(405, { message: 'Method not allowed' });
+  }
+
   var realFetch = window.fetch && window.fetch.bind(window);
   window.fetch = function (input, init) {
     var u = typeof input === 'string' ? input : input && input.url;
+    var method = String((init && init.method) || (input && input.method) || 'GET').toUpperCase();
+    var api = u && apiHandle(u, method, init && typeof init.body === 'string' ? init.body : '');
+    if (api) return Promise.resolve(api);
     var k = u && lookup(F, u);
     // Online the real server answers relative requests; packed copies cover file:// and
     // root-absolute paths that no longer exist on the host.
