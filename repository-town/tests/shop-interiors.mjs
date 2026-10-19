@@ -14,6 +14,13 @@ for(const id of CIVIC_INTERIOR_IDS){
     room.group.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material?.dispose)o.material.dispose();});
     continue;
   }
+  if(id==='hotel'){
+    assert.equal(room.rooms.length,5,'hotel has reception and four real bedrooms');
+    assert.equal(room.interactables.filter(x=>x.type==='bed').length,4);
+    assert(room.exitZone.z1>room.spawn.z,'hotel must have walkable exit');
+    room.group.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material?.dispose)o.material.dispose();});
+    continue;
+  }
   assert.equal(room.rooms.length,1,id+' walk-in room');
   if(id==='bakery'){
     // Researched bakery: counter, pastry case, kitchen view, bread wall and café corner.

@@ -130,3 +130,9 @@ ul.news { margin: 4px 0; padding-left: 18px; font-size: 13px; }
   #card { pointer-events: none; }
   #card a { pointer-events: auto; }
 }
+
+/* Persistent survival status; still readable with the compact mobile HUD. */
+#needs-strip{display:flex;align-items:center;gap:8px;font-size:12px;padding:4px 0 0;justify-content:space-between}
+#needs-strip button{font-size:12px;min-height:28px;padding:3px 8px;border-radius:7px}
+#hud.hud-minimised #needs-strip{display:none}
+@media(max-width:600px){#needs-strip{font-size:11px}#needs-strip button{font-size:11px;padding:3px 6px}}
