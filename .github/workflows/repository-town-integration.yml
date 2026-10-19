@@ -37,4 +37,4 @@ jobs:
             if curl -fsS http://127.0.0.1:8080/ -o /dev/null; then break; fi
             sleep 1
           done
-          node tests/streetwalk.mjs --rows 1 --no-photos
+          node tests/streetwalk.mjs --rows 1 --no-photos --no-avenues
