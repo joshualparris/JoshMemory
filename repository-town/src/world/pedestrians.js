@@ -35,6 +35,19 @@ function detour(person, goal, blockers) {
   if(blockers.some(o=>Math.hypot(o.x-goal.x,o.z-goal.z)<PERSONAL_SPACE-EPS))return [];
   const start={x:person.x,z:person.z,i:0,j:0,g:0,parent:null};
   const side=n=>((n.x-start.x)*(goal.z-start.z)-(n.z-start.z)*(goal.x-start.x))*.0001;
+  const keepsPavement=(x,z)=>{
+    for(let r=0;r<8;r++){
+      const road=r*46-145;
+      if(start.z<=road-3.5 && goal.z<=road-3.5 && z>road-3.5)return false;
+      if(start.z>=road+3.5 && goal.z>=road+3.5 && z<road+3.5)return false;
+    }
+    for(const col of [0,5,10,15,20,25]){
+      const avenue=(col-13)*26;
+      if(start.x<=avenue-2.5 && goal.x<=avenue-2.5 && x>avenue-2.5)return false;
+      if(start.x>=avenue+2.5 && goal.x>=avenue+2.5 && x<avenue+2.5)return false;
+    }
+    return true;
+  };
   const open=[start], best=new Map([['0,0',0]]);
   for(let expanded=0;open.length && expanded<240;expanded++) {
     open.sort((a,b)=>(a.g+Math.hypot(a.x-goal.x,a.z-goal.z)+side(a))-(b.g+Math.hypot(b.x-goal.x,b.z-goal.z)+side(b)));
@@ -45,7 +58,7 @@ function detour(person, goal, blockers) {
     for(const [di,dj] of [[1,0],[0,1],[-1,0],[0,-1],[1,1],[-1,1],[-1,-1],[1,-1]]) {
       const i=n.i+di,j=n.j+dj;if(Math.abs(i)>16||Math.abs(j)>16)continue;
       const x=start.x+i*.5,z=start.z+j*.5,g=n.g+Math.hypot(di,dj)*.5,key=i+','+j;
-      if(g>=(best.get(key)??Infinity)||!clearMove(n,x,z,blockers))continue;
+      if(g>=(best.get(key)??Infinity)||!keepsPavement(x,z)||!clearMove(n,x,z,blockers))continue;
       best.set(key,g);open.push({x,z,i,j,g,parent:n});
     }
   }

@@ -15,6 +15,13 @@ for (const hz of [20,60]) {
 const cyclist=walker(0,-4,0,{x:4,z:0}), idle=walker(1,0,0,{x:0,z:0});idle.path=[];
 movePedestrian(cyclist,13.5,[cyclist,idle]);apart([cyclist,idle]);
 assert(!cyclist.path.length,'cyclist passes the stationary person');
+// Passing on a footpath must not become a prolonged detour through traffic.
+const pavement=[walker(0,0,171.7,{x:10,z:171.7}),walker(1,5,171.7,{x:5,z:171.7})];pavement[1].path=[];
+for(let f=0;f<500;f++){
+  movePedestrian(pavement[0],.075,pavement);apart(pavement);
+  assert(pavement[0].z<=173.5,'passing stays outside the street carriageway');
+}
+assert(!pavement[0].path.length,'passes the waiting villager without blocking traffic');
 const crowd=[];
 for(let i=0;i<12;i++) {
   const p=walker(i,-20+i*2,-8,{x:0,z:0});
