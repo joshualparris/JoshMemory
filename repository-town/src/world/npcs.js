@@ -248,7 +248,12 @@ export function animateNPCs(list,time,playerPos,dt=1/60,talkingTo=null,collision
     const dist=Math.hypot(group.position.x-playerPos.x,group.position.z-playerPos.z);
     group.visible=dist<maxDist;
     if(!group.visible)continue;
-    const chatting=talkingTo===entry.npc.id;
+    // Named NPC conversations also have a bounded duration. Opening a chat
+    // doesn't permanently hold someone's attention or stop their work.
+    const selected=talkingTo===entry.npc.id;
+    if(!selected)entry.chatElapsed=0;
+    else entry.chatElapsed=(entry.chatElapsed||0)+step;
+    const chatting=selected&&entry.chatElapsed<15&&dist<4.2;
     if(entry.mode==='town') {
       // Initialise lazily for old saves and test fixtures.
       if(entry.homeX===undefined){

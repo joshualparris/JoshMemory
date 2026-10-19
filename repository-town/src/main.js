@@ -606,6 +606,10 @@ async function start() {
     // The town keeps living while the player is indoors; the sky follows its clock.
     const talkingTo = panelOpen?.thing?.v ? panelOpen.thing : null;
     life.playerAt = mode === 'house' && inside?.place ? inside.place.id : null; // shifts count only inside the workplace
+    life.pedestrianWorld=townWorld;
+    life.externalPedestrians=mode==='town'
+      ?streetNPCs.filter(n=>n.mode==='town').map(n=>({x:n.pos.x,z:n.pos.z,radius:.66}))
+      :[];
     townLife.update(dt, t, { player, mode, overview, camera, talkingTo });
     const n=life.needsReport();
     const needsText=`🍽 ${Math.round(n.hunger)}% · 💤 ${Math.round(n.fatigue)}%`;
