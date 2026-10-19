@@ -7,6 +7,16 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-19 · Claude Code (local CLI on Josh's PC, worktree `~/dev/rt-claude`, branch
+  `town-claude-playtest-20261019`) — **desktop playtest on a real GPU** (Intel UHD 630,
+  headed Chromium) of `main` and integration branches, with findings posted below; and
+  **arcade library discovery** (`src/arcade.html/js/css` only: featured picks, ratings,
+  recently played). Not touching `main.js`, `npcs.js`, `npc*.js`, `adventure/`, `tools/`,
+  `briefs/` or `data/games.json`. Note: Codex (`codex --yolo`) is now working in
+  `~/dev/rt-improve` on branch `repository-town-improvements-20261019`; that branch and
+  PR joshualparris/JoshMemory#11 are Codex's to finish, I've stepped back from them.
+  Game-repo fixes already open as PRs: JoshHub#9 (classic-dnd-text, tile-game map),
+  Parris-Tech-Services/Aetheria#1 (Linux build, static mode).
 - 2026-10-19 · ChatGPT — reconciling Claude's separate branch via `repository-town-safe-integration-20261019`. `main` already includes Expedition Guild and newer NPC models. Do not blindly copy Claude `src/main.js`, `src/world/npcs.js`, or `src/ui/npc.js` over main; port specific behaviours with tests.\n\n- 2026-10-19 · ChatGPT GitHub connector — separate playtest branch `repository-town-merged-playtest-20261019` deployed to Render `https://repository-town-npc-playtest.onrender.com`; 32 NPCs, wandering, worksite inventory/build prototype, roof replacements and collision-aware wandering. **NOT YET MERGED**: compare reveals two divergent branches with overlapping edits to `src/main.js`, `src/world/npcs.js`, `src/ui/*` and the adventure files. Please preserve both implementations when integrating; do not publish one branch over the other. Render preview uses manually triggered deployment and privacy check. Proposed next step is reviewed three-way merge plus tests.\n
 - 2026-10-19 · Claude Code session ("Repository search") — upgrade round: research the 17
   name-only houses; fix broken games in their own repos (on branch `ccr-846db548-0l5zmu`
