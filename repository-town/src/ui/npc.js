@@ -52,8 +52,6 @@ async function askResidentProxy(id, house, name, f, role, history) {
   }
   const payload = await res.json().catch(() => ({}));
   if (!res.ok) {
-    throw Object.assign(new Error(payload.error || 'unauthorized'), { code: 'badcode' });
-    }
     throw Object.assign(new Error(payload.error || `HTTP ${res.status}`), { code: res.status === 429 ? 'busy' : 'offline' });
   }
   const answer = String(payload.reply || '').trim();
@@ -243,7 +241,7 @@ export function npcBehaviour(x, ctx) {
       const showBrain = () => {
         brain.textContent='Live AI hosted on Cloudflare, with offline dialogue if it is unavailable.';
       };
-            showBrain();
+      showBrain();
       render(log, history, name);
       let facts = null;
       for (const chip of root.querySelectorAll('.chat-chip')) {
