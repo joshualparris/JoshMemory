@@ -2,6 +2,7 @@
 // Only the visitor's submitted conversation is sent to the server; nothing is stored remotely
 // by Repository Town and no API key is ever sent to the browser.
 import { NPCS, getNPC } from './npc-data.js';
+import { NPC_CHAT_API } from './npc-api.js';
 
 const FALLBACK=[
   'My imagination is working, but the live AI connection is unavailable. Ask me again once your access code is set.',
@@ -177,9 +178,9 @@ export function mountNPCChat(root=document) {
       controller=new AbortController();
       const timeout=setTimeout(()=>controller?.abort(),22000);
       try {
-        const res=await fetch('/api/npc-chat',{
+        const res=await fetch(NPC_CHAT_API,{
           method:'POST',
-          credentials:'same-origin',
+          credentials:'omit',
           headers:{'Content-Type':'application/json','x-npc-code':accessCode},
           body:JSON.stringify({npcId:npc.id,house:house?{name:house.name,kind:house.kind,coordinate:house.coordinate}:null,
             messages:history.slice(-8).map(({role,content})=>({role,content}))}),

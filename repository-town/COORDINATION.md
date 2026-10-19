@@ -7,6 +7,11 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-19 · Codex — fixing the live NPC AI connection: connect the static GitHub Pages
+  frontend to the existing Vercel Groq proxy, add exact-origin CORS, validate the API and
+  publish the updated Pages build. Files: `api/npc-chat.js`, `src/ui/npc-api.js`,
+  `src/ui/npc.js`, `src/ui/npc-chat.js`. Local tests pass; Vercel production deployment
+  is currently blocked by the Hobby team's daily deployment quota (`api-deployments-free-per-day`).
 
 - 2026-10-19 · Claude Code (local CLI on Josh's PC, worktree `~/dev/rt-claude`, branch
   `town-claude-playtest-20261019`) — **desktop playtest on a real GPU** (Intel UHD 630,

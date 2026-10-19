@@ -5,11 +5,22 @@ import { getNPC } from '../src/ui/npc-data.js';
 import { creaturePrompt, residentPrompt } from '../src/ui/npc-prompt.js';
 
 const LIMIT_PER_IP=24, LIMIT_GLOBAL=240, WINDOW=60*60*1000;
+const ALLOWED_ORIGINS=new Set(['https://parris-tech-services.github.io']);
 // Best-effort protection per function instance. Also set usage caps in Groq's
 // console: serverless instances do not share this in-memory map.
 const buckets=new Map();
 let globalBucket={start:Date.now(),n:0}, keyIdx=0;
 const reply=(res,code,json)=>{res.statusCode=code;res.setHeader('Content-Type','application/json; charset=utf-8');res.setHeader('Cache-Control','no-store, max-age=0');res.end(JSON.stringify(json));};
+function cors(req,res) {
+  const origin=String(req.headers.origin||'');
+  let sameOrigin=false;
+  try{sameOrigin=origin&&new URL(origin).host===String(req.headers['x-forwarded-host']||req.headers.host||'');}catch{}
+  if(origin&&!ALLOWED_ORIGINS.has(origin)&&!sameOrigin)return false;
+  if(origin){res.setHeader('Access-Control-Allow-Origin',origin);res.setHeader('Vary','Origin');}
+  res.setHeader('Access-Control-Allow-Methods','GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers','Content-Type, x-npc-code');
+  return true;
+}
 function equal(a,b) {
   const x=Buffer.from(String(a||'')),y=Buffer.from(String(b||''));
   return x.length===y.length && x.length>0 && timingSafeEqual(x,y);
@@ -29,16 +40,11 @@ function serverKeys() {
   return String(process.env.GROQ_API_KEY||'').split(/[\s,;]+/).map(k=>k.trim()).filter(Boolean);
 }
 export default async function handler(req,res){
+  if(!cors(req,res))return reply(res,403,{error:'Use the Repository Town website.'});
+  if(req.method==='OPTIONS'){res.statusCode=204;return res.end();}
   const keys=serverKeys();
   if(req.method==='GET')return reply(res,200,{available:!!(keys.length&&process.env.TOWN_NPC_PIN),model:process.env.GROQ_MODEL||'openai/gpt-oss-20b'});
   if(req.method!=='POST'){res.setHeader('Allow','GET, POST');return reply(res,405,{error:'Method not supported.'});}
-  const origin=req.headers.origin;
-  const host=req.headers['x-forwarded-host']||req.headers.host;
-  if(origin) {
-    let same=false;
-    try{same=new URL(origin).host===host;}catch{}
-    if(!same)return reply(res,403,{error:'Use the Repository Town website.'});
-  }
   if(!keys.length||!process.env.TOWN_NPC_PIN)return reply(res,503,{error:'Live NPC chat is not configured yet. Try offline dialogue.'});
   if(!equal(req.headers['x-npc-code'],process.env.TOWN_NPC_PIN))return reply(res,401,{error:'Incorrect access code. Check the code supplied with your playtest link.'});
   if(Number(req.headers['content-length']||0)>16000)return reply(res,413,{error:'Conversation too long.'});

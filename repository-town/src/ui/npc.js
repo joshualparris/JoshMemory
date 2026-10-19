@@ -5,6 +5,7 @@
 import { repoInfo } from './archive.js';
 import { RELICS, PROGRESS_KEY, cleanProgress } from '../adventure/data.js';
 import { recordPlayerMessage, recordTownAction, socialContext, socialGossip } from './social.js';
+import { NPC_CHAT_API } from './npc-api.js';
 
 const LEGACY_KEY_STORE = 'repository-town.groq-keys';
 const CODE_STORE = 'town-npc-code';
@@ -59,9 +60,9 @@ async function askResidentProxy(id, house, name, f, role, history) {
   };
   let res;
   try {
-    res = await fetch('/api/npc-chat', {
+    res = await fetch(NPC_CHAT_API, {
       method: 'POST',
-      credentials: 'same-origin',
+      credentials: 'omit',
       headers: { 'Content-Type': 'application/json', 'x-npc-code': accessCode },
       body: JSON.stringify({
         npcId: id,
