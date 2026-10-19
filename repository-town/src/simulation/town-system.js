@@ -142,8 +142,8 @@ function runHour(s) {
   const waterOK = actualWater >= needed;
   if (!waterOK && hour % 3 === 0) addLog(s, "Water restrictions: supply cannot meet demand.");
   add(s, "sewage", "wastewater", Math.floor(actualWater * 0.8));
-  s.supply.wastewater = stock(s, "sewage", "wastewater");
   const treated = electricityOK && checkService(s, "sewage") ? take(s, "sewage", "wastewater", 22) : 0;
+  s.supply.wastewater = stock(s, "sewage", "wastewater");
   if (treated) { s.indicators.pollution = bounded(s.indicators.pollution - 0.2, 0, 100); }
   if (stock(s, "sewage", "wastewater") > 70) {
     s.indicators.pollution = bounded(s.indicators.pollution + 2, 0, 100);
@@ -179,16 +179,18 @@ function runHour(s) {
   // Household demand, generated waste and local sales (no phantom inventory).
   if ([7, 12, 18].includes(hour)) {
     const mealsNeeded = Math.ceil(s.population / 8);
-    const bread = take(s, "market", "bread", mealsNeeded);
-    const vegetables = take(s, "market", "vegetables", mealsNeeded);
-    const meals = Math.min(bread, vegetables);
+    const mealPrice = prices.bread + prices.vegetables;
+    const affordable = Math.floor(s.householdCash / mealPrice);
+    const meals = Math.min(mealsNeeded, affordable, stock(s, "market", "bread"), stock(s, "market", "vegetables"));
+    const bread = take(s, "market", "bread", meals);
+    const vegetables = take(s, "market", "vegetables", meals);
     s.stats.meals += meals;
     const wanted = bread * prices.bread + vegetables * prices.vegetables;
     const income = Math.min(s.householdCash, wanted);
     s.householdCash -= income;
     const taxes = Math.floor(income * s.taxRate);
     s.shopBalance += income - taxes; s.treasury += taxes; s.stats.taxes += taxes;
-    if (income < wanted) s.indicators.happiness = bounded(s.indicators.happiness - 2, 0, 100);
+    if (affordable < mealsNeeded) s.indicators.happiness = bounded(s.indicators.happiness - 2, 0, 100);
     add(s, "homes", "rubbish", Math.ceil((bread + vegetables) / 4));
     add(s, "homes", "recyclables", Math.floor((bread + vegetables) / 4));
     if (meals < mealsNeeded) {
@@ -207,8 +209,10 @@ function runHour(s) {
     }
   }
   if (hour === 10 && electricityOK) {
-    const salvaged = transfer(s, "recycling", "factory", "scrap", 8);
-    add(s, "factory", "parts", Math.floor(salvaged / 2));
+    transfer(s, "recycling", "factory", "scrap", 8);
+    const parts = Math.min(4, Math.floor(stock(s, "factory", "scrap") / 2));
+    take(s, "factory", "scrap", parts * 2);
+    add(s, "factory", "parts", parts);
   }
   if (hour === 9 || hour === 15) {
     const ready = s.letters.filter(x => x.due <= s.day && !x.delivered);
@@ -268,6 +272,7 @@ export function createTownSimulation({ population = 32, restored = null } = {}) 
     return count;
   }
   function buy(item, amount = 1) {
+    if (!Number.isFinite(amount) || !Number.isInteger(amount) || amount <= 0) return { ok: false, message: "Enter a positive whole-number amount." };
     const n = bounded(Math.floor(amount), 1, 20), price = prices[item];
     if (!price) return { ok: false, message: "That item is not for sale." };
     if (stock(s, "market", item) < n) return { ok: false, message: "The market is out of stock." };
@@ -279,6 +284,7 @@ export function createTownSimulation({ population = 32, restored = null } = {}) 
     return { ok: true, message: "Bought " + n + " " + item + " for " + cost + " TC." };
   }
   function sell(item, amount = 1) {
+    if (!Number.isFinite(amount) || !Number.isInteger(amount) || amount <= 0) return { ok: false, message: "Enter a positive whole-number amount." };
     const n = bounded(Math.floor(amount), 1, 20), price = prices[item];
     if (!price) return { ok: false, message: "The market does not trade that item." };
     if (stock(s, "playerInventory", item) < n) return { ok: false, message: "You do not have enough " + item + "." };
@@ -290,15 +296,15 @@ export function createTownSimulation({ population = 32, restored = null } = {}) 
     return { ok: true, message: "Sold " + n + " " + item + " for " + payment + " TC." };
   }
   function recycle(amount = 2) {
+    if (!Number.isFinite(amount) || !Number.isInteger(amount) || amount <= 0) return { ok: false, message: "Enter a positive whole-number amount." };
     const n = bounded(Math.floor(amount), 1, 10);
     // Voluntary litter collection is a small bounded visitor activity, not free infinite cash.
     const collected = take(s, "homes", "recyclables", n);
     if (!collected) return { ok: false, message: "No recyclables are waiting for collection." };
     add(s, "recycling", "recyclables", collected);
     const reward = Math.min(s.treasury, collected * 2); s.treasury -= reward; s.wallet += reward;
-    s.stats.recycled += collected;
     addLog(s, "Visitor sorted " + collected + " recyclables and earned " + reward + " TC.");
-    return { ok: true, message: "Recycled " + collected + " items; earned " + reward + " TC." };
+    return { ok: true, message: "Sorted " + collected + " items for recycling; earned " + reward + " TC." };
   }
   function repair(service) {
     if (!Object.hasOwn(s.services, service)) return { ok: false, message: "Unknown public service." };
@@ -324,11 +330,13 @@ export function createTownSimulation({ population = 32, restored = null } = {}) 
     return { ok: true, message: "Vote recorded. Next election: day " + s.electionDay + "." };
   }
   function deposit(amount) {
+    if (!Number.isFinite(amount) || !Number.isInteger(amount) || amount <= 0) return { ok: false, message: "Enter a positive whole-number amount." };
     const n = bounded(Math.floor(amount), 1, 10000);
     if (s.wallet < n) return { ok: false, message: "Not enough credits in your wallet." };
     s.wallet -= n; s.bankBalance += n; return { ok: true, message: "Deposited " + n + " TC." };
   }
   function withdraw(amount) {
+    if (!Number.isFinite(amount) || !Number.isInteger(amount) || amount <= 0) return { ok: false, message: "Enter a positive whole-number amount." };
     const n = bounded(Math.floor(amount), 1, 10000);
     if (s.bankBalance < n) return { ok: false, message: "Not enough credits in your account." };
     s.bankBalance -= n; s.wallet += n; return { ok: true, message: "Withdrew " + n + " TC." };
@@ -343,3 +351,4 @@ export function createTownSimulation({ population = 32, restored = null } = {}) 
   const snapshot = () => clone({ ...s, hour: Math.floor((s.minute % 1440) / 60), time: clockText(s.minute), activities: s.residents.map(r => ({ ...r, activity: residentSchedule(Math.floor((s.minute % 1440) / 60), r.job) })) });
   return { advance, buy, sell, recycle, repair, reportFault, vote, deposit, withdraw, postLetter, snapshot, serialize: () => JSON.stringify(s) };
 }
+

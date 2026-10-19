@@ -38,10 +38,12 @@ export function buildCivicDistrict(town, makeLabel) {
       canopy.position.y = 5.5; group.add(canopy);
       const trunk = new THREE.Mesh(new THREE.CylinderGeometry(.5,.65,4,8),roof);
       trunk.position.y = 2;group.add(trunk);
+      boxes.push({x0:pos.x-.65,x1:pos.x+.65,z0:pos.z-.65,z1:pos.z+.65});
     } else if (kind === "agriculture") {
       makeBox(8,.3,7,getWall(kind),0,.15,0,group);
       for (let n=0;n<4;n++) makeBox(7,.55,.45,getWall("recreation"),0,.6,-2+n*1.4,group);
       makeBox(3,3,3,roof,3,1.5,-3,group);
+      boxes.push({x0:pos.x+1.5,x1:pos.x+4.5,z0:pos.z-4.5,z1:pos.z-1.5});
     } else {
       makeBox(11,4.8,9,getWall(kind),0,2.4,0,group);
       makeBox(12,0.7,10,roof,0,5.15,0,group);
@@ -92,3 +94,4 @@ export function buildCivicDistrict(town, makeLabel) {
   town.colliders.push(...boxes);
   return {buildings,update};
 }
+
