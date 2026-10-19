@@ -786,7 +786,7 @@ export class TownLife {
       // brewery and building orders when only three trucks are available.
       const essential = ['butcher','greengrocer','store','bakery','cafe','pub'];
       const score = need / (dst.target[good] || 1) + this.rand() * 0.1 +
-        (essential.includes(to)&&!['beerKeg','soda'].includes(good)?0.28:0) + (good==='feed'?0.2:0);
+        (essential.includes(to)&&!['beerKeg','soda'].includes(good)?({greengrocer:0.9,butcher:0.8,store:0.7,bakery:0.5,cafe:0.35,pub:0.25}[to]||0):0) + (good==='feed'?0.25:0);
       if (!best || score > best.score) best = { from, to, good, n: Math.min(20, have, need), score };
     }
     if (!best) { t.state = 'waiting for an order'; return; }
