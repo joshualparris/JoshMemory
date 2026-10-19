@@ -82,7 +82,7 @@ function seedState(population) {
   return {
     version: 1, minute: 480, day: 1, fractional: 0, population,
     mayor: "Rowan", ballots: {}, electionDay: 7, voted: false,
-    wallet: 75, bankBalance: 150, treasury: 4800, shopBalance: 700,
+    wallet: 75, bankBalance: 150, householdCash: 2000, treasury: 4800, shopBalance: 700,
     taxRate: 0.1, budgets: { utilities: 35, services: 30, environment: 20, transport: 15 },
     stores: clone(initialStores), residents,
     services: { power: 100, water: 100, sewage: 100, roads: 100, waste: 100, post: 100 },
@@ -101,9 +101,30 @@ function deliver(s, from, to, item, amount) {
 }
 function runHour(s) {
   const hour = Math.floor((s.minute % 1440) / 60);
+  // External trading partners supply fuel and ore; imports cost actual public funds.
+  // Foundry exports provide new income rather than silently conjuring treasury funds.
+  if (hour === 8) {
+    const imports = [
+      ["power", "fuel", 45, 140, 140],
+      ["depot", "fuel", 12, 60, 60],
+      ["factory", "ore", 14, 48, 75],
+      ["council", "parts", 3, 12, 100],
+    ];
+    for (const [site, item, below, qty, cost] of imports) {
+      if (stock(s, site, item) < below && s.treasury >= cost) {
+        s.treasury -= cost; add(s, site, item, qty);
+        addLog(s, "External supplier delivered " + qty + " " + item + " to " + site + " for " + cost + " TC.");
+      }
+    }
+  }
+  if (hour === 16 && stock(s, "factory", "metal") >= 14 && checkService(s, "roads")) {
+    const sold = take(s, "factory", "metal", 10);
+    s.treasury += sold * 12;
+    addLog(s, "The foundry exported " + sold + " metal units for " + (sold * 12) + " TC.");
+  }
   const daytime = hour >= 7 && hour <= 18;
   const solar = daytime ? (s.weather === "sunny" ? 25 : s.weather === "cloudy" ? 14 : 8) : 0;
-  const thermal = stock(s, "power", "fuel") >= 2 && checkService(s, "power") ? 22 : 0;
+  const thermal = stock(s, "power", "fuel") >= 2 && checkService(s, "power") ? 34 : 0;
   if (thermal) take(s, "power", "fuel", 2);
   const demand = 32 + (hour >= 8 && hour < 18 ? 8 : 0);
   s.supply.electricity = checkService(s, "power") ? solar + thermal : 0;
@@ -162,9 +183,12 @@ function runHour(s) {
     const vegetables = take(s, "market", "vegetables", mealsNeeded);
     const meals = Math.min(bread, vegetables);
     s.stats.meals += meals;
-    const income = bread * prices.bread + vegetables * prices.vegetables;
+    const wanted = bread * prices.bread + vegetables * prices.vegetables;
+    const income = Math.min(s.householdCash, wanted);
+    s.householdCash -= income;
     const taxes = Math.floor(income * s.taxRate);
     s.shopBalance += income - taxes; s.treasury += taxes; s.stats.taxes += taxes;
+    if (income < wanted) s.indicators.happiness = bounded(s.indicators.happiness - 2, 0, 100);
     add(s, "homes", "rubbish", Math.ceil((bread + vegetables) / 4));
     add(s, "homes", "recyclables", Math.floor((bread + vegetables) / 4));
     if (meals < mealsNeeded) {
@@ -197,7 +221,10 @@ function runHour(s) {
   // Maintenance and public wages: government cannot spend money it does not have.
   if (hour === 17) {
     const due = Math.min(s.treasury, s.population * 2);
-    s.treasury -= due; s.stats.wages += due;
+    s.treasury -= due; s.householdCash += due;
+    const privateWages = Math.min(s.shopBalance, s.population * 4);
+    s.shopBalance -= privateWages; s.householdCash += privateWages;
+    s.stats.wages += due + privateWages;
     if (due < s.population * 2) s.indicators.happiness = bounded(s.indicators.happiness - 2, 0, 100);
   }
   if (hour === 0) {
