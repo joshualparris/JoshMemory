@@ -112,6 +112,16 @@ s = await st();
 check(bought && /You buy/.test(s.panel?.text || ''), `bought something: ${s.panel?.text.slice(0, 90)}`);
 await T(() => window.__town.closePanel());
 await T(() => window.__town.exitShop());
+// The General Store counter offers every good on its shelves, not just the first four.
+await T(() => window.__town.goPlace('store'));
+await nearTo(/^place:store$/);
+await press('e');
+s = await counter(await st());
+const storeBuys = (s.panel?.buttons || []).filter((b) => /^Buy/.test(b));
+const stocked = await T(() => Object.entries(window.__town.life.ledger().shops.find((x) => x.name === 'General Store').stock).filter(([, n]) => n > 0).length);
+check(storeBuys.length === stocked && stocked >= 5, `General Store offers all ${stocked} stocked goods (${storeBuys.length} buy buttons)`);
+await T(() => window.__town.closePanel());
+await T(() => window.__town.exitShop());
 
 // 5. Town Hall ledger, a farm, the square.
 for (const [id, re] of [['hall', /Council[\s\S]*Treasury/], ['silo', /Crop/], ['square', /Town news/], ['depot', /freight train/], ['power', /Supply:/], ['bank', /Your wallet/], ['waterworks', /Reservoir/], ['foundry', /Ore:/]]) {
@@ -154,13 +164,19 @@ if(tr){
 // 7. Chat: what they ate, gossip, relic hints (offline replies; Groq is not configured).
 await T(() => window.__town.life.setTime(12 * 60 + 40));
 await T(() => window.__town.life.run(20));
-const key = await T(() => window.__town.meetVillager(2));
-await nearTo(/^villager:/);
+// A villager with no street character closer, so E (like the prompt) talks to the villager.
+let key = null;
+for (let i = 2; i < 14 && !key; i++) {
+  const k = await T((n) => window.__town.meetVillager(n), i);
+  await nearTo(/^villager:/);
+  s = await st();
+  if (!s.nearNPC) key = k;
+}
 s = await st();
 check(/^villager:/.test(s.nearPerson || ''), `standing by a villager (${s.nearPerson}; asked for ${key})`);
 await press('e');
 s = await st();
-check(/lives at/.test(s.panel?.title || ''), `villager chat: ${s.panel?.title}`);
+check(/lives at/.test(s.panel?.title || ''), `villager chat: ${s.panel?.title} (near ${s.nearPerson}, street character ${s.nearNPC})`);
 const ask = async (q) => {
   await T((q) => { const b = [...document.querySelectorAll('.chat-chip')].find((x) => x.dataset.ask === q); b.click(); }, q);
   await page.waitForFunction(() => !document.querySelector('.thinking'), null, { timeout: 15000 });

@@ -185,3 +185,17 @@ Newest first. Times in Australia/Sydney.
   newly solid lamp or bench (about 1 run in 5); villager paths don't avoid the realism props yet.
 - Login-gated private layer: plan and prompt in `docs/SUPABASE_PRIVATE_LAYER_PROMPT.md` (needs a
   new Supabase project; the free plan's two active slots are in use).
+
+## 2026-10-20 — simulation playtest and fixes (Claude, branch ccr-846db548-0l5zmu)
+- New `tests/simulation-soak.mjs` (in `npm run test:town`): 28 simulated days, 38 checks: every shop
+  counter, sold-out/closed/broke refusals, sales tax, bank, money conservation to the dollar (grant,
+  outside income, exports, imports, repair bills), elections, council motions, work orders, feeder
+  fault and repair, a fuel crisis and its power → water/wastewater cascade, meals, deliveries, mood,
+  and job cover through six changes of mayor. `--seed n` for other towns.
+- Fixed: pies baked without limit (150+ unsold) and burned the town's veg; bread capped at 30 and
+  gone by mid-afternoon; General Store showed only 4 of its 6 goods; electing a worker as mayor left
+  their job empty (Arlo the only gardener → no veg; Sadie a driver → fewer deliveries) — the council
+  clerk now stands in; the council never maintained services unless the visitor complained — the
+  General Manager now lodges work orders (priority service kept above 80%, others above 60%);
+  elections returned identical results every week — leanings shift per election and the mayor
+  answers for the town's mood and their own priority; egg/veg shortfall and unbounded fruit/flour piles.
