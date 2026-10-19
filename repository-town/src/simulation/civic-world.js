@@ -18,14 +18,14 @@ export function buildCivicDistrict(town, makeLabel) {
   const root = new THREE.Group();
   root.name = "Living Civic District";
   town.group.add(root);
-  const roofs = new Map();
   const walls = new Map();
   const getWall = kind => {
     if (!walls.has(kind)) walls.set(kind, new THREE.MeshLambertMaterial({color: colours[kind] || 0xb8a385}));
     return walls.get(kind);
   };
   const roof = new THREE.MeshLambertMaterial({color: 0x3f4b57});
-  const windowMat = new THREE.MeshLambertMaterial({color:0xffdc8e,emissive:0x4f3310});
+  const windowMat = new THREE.MeshLambertMaterial({color:0xffdc8e,emissive:0xffc56f,emissiveIntensity:0.06});
+  const lampMat = new THREE.MeshLambertMaterial({color:0xffe7a6,emissive:0xffc56f,emissiveIntensity:0.08});
   const makeBox = (w,h,d,material,x,y,z, parent) => {
     const mesh = new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);
     mesh.position.set(x,y,z);parent.add(mesh);return mesh;
@@ -57,6 +57,12 @@ export function buildCivicDistrict(town, makeLabel) {
     buildings.push({id,name,kind,coordinate,position:pos});
   };
   SITES.slice(0,available.length).forEach((site,i)=>makeSite(site,available[i]));
+  // Shared emissive materials change after sunset without GPU-heavy point lights.
+  available.filter((_,i)=>i%2===0).forEach(coordinate=>{
+    const p=lotPosition(coordinate);
+    makeBox(.18,5,.18,roof,p.x+7,2.5,p.z+10,root);
+    makeBox(.9,.55,.9,lampMat,p.x+7,5.1,p.z+10,root);
+  });
   // Two small procedural delivery trucks drive the existing high-street road.
   // Their motion is cosmetic; actual deliveries are recorded by the model.
   const truckMat = new THREE.MeshLambertMaterial({color:0xebba64});
@@ -71,7 +77,9 @@ export function buildCivicDistrict(town, makeLabel) {
     }
     root.add(vehicle);return vehicle;
   });
-  function update(t) {
+  function update(t, night = false) {
+    windowMat.emissiveIntensity = night ? 1.3 : 0.06;
+    lampMat.emissiveIntensity = night ? 2.2 : 0.08;
     if(!available.length)return;
     const left=lotPosition("A8").x-20,right=lotPosition("Z8").x+20;
     const road=lotPosition("A8").z+16, span=right-left;
