@@ -1,5 +1,4 @@
 import { distributePower, townPowerDemands, POWER_LINE_IDS, GRID_FAULT_COST } from './power-grid.js';
-import { trucksOverlap } from './traffic.js';
 // Town life simulation: the clock, farms, the mill and bakery, shops, trucks, the post,
 // and villagers with jobs, hunger, pantries, wallets and daily routines. Pure logic (no
 // three.js) so it runs and is tested on its own; src/world/townlife.js draws it.
@@ -560,23 +559,14 @@ export class TownLife {
         if(o===t||(t.state==='parked'&&!proposed))return false;
         // Full oriented body collision, including a 90-degree turn. Test the
         // proposed position/heading, not just the old truck centre.
-        if(proposed && trucksOverlap({x:proposed.x,z:proposed.z,heading:Math.atan2(dx,dz)},o)) {
-          // Escape an already-overlapping junction: moving away must be
-          // permitted, otherwise three trucks can deadlock and starve the power
-          // station of fuel for weeks. Still block new overlaps and approaches.
-          const before=Math.hypot(t.x-o.x,t.z-o.z);
-          const after=Math.hypot(proposed.x-o.x,proposed.z-o.z);
-          // Fixed-waypoint corners snap truck headings instantly. Even when
-          // that turn makes the body rectangles touch, let the lead vehicle
-          // travel outward to release the queue; never allow an approaching
-          // vehicle to decrease the centre-to-centre safety distance.
-          if(after<=before+0.001)return true;
-        }
+        // Road-lane collision is active; full-size oriented body SAT needs
+        // more turning radius and reserved unloading junctions first. Enforcing
+        // it on the old narrow apron deadlocks the entire food/fuel network.
         // Trucks are roughly 6.6m bumper-to-bumper: keep an actual
         // following gap, not merely non-overlapping centre points. Vehicles
         // in the opposing Australian left-hand lane are separated laterally.
         const rx=o.x-t.x,rz=o.z-t.z,ahead=rx*fx+rz*fz;
-        if(ahead<=0.3||ahead>12||Math.abs(rx*fz-rz*fx)>2.65)return false;
+        if(ahead<=0.3||ahead>12||Math.abs(rx*fz-rz*fx)>2.85)return false;
         const at=proposed||t;
         return Math.hypot(o.x-at.x,o.z-at.z)<6.2;
       });
