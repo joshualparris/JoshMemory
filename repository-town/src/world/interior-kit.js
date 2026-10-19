@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { containLabel } from '../ui/labels.js';
 
 // Shared building blocks for the dedicated High Street interiors (bank, and future shops).
 // Every walk-in room uses the same 14 m × 18 m shell, door gap, spawn point and exit zone so the
@@ -31,7 +32,9 @@ export function createKit(site, makeLabel, roomTitle) {
   const blocker = (w, d, x, z) => colliders.push({ x0: x - w / 2, x1: x + w / 2, z0: z - d / 2, z1: z + d / 2 });
   const solid = (w, h, d, x, y, z, c, o) => { box(w, h, d, x, y, z, c, o); blocker(w, d, x, z); };
   const text = (label, x, y, z, kind = 'interactive') => {
-    const s = makeLabel(label, kind); s.position.set(x, y, z); s.userData.labelKind = kind; s.renderOrder = 12; group.add(s);
+    const s = makeLabel(label, kind); s.position.set(x, y, z); s.userData.labelKind = kind;
+    containLabel(s, { x0:-EDGE, x1:EDGE, z0:BACK, z1:FRONT, y0:0, y1:4.6 });
+    group.add(s);
   };
   const add = (key, label, doWhat, body, x, z) => {
     const pos = new THREE.Vector3(x, 0, z);
