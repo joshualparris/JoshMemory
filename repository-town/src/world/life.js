@@ -9,7 +9,8 @@ import { distributePower, townPowerDemands, POWER_LINE_IDS, GRID_FAULT_COST } fr
 // Places sit on street 8's empty lots (G8–Z8) and the farm strip south of it.
 
 export const LOT_X = 26, LOT_Z = 46;
-export const SEC_PER_MIN = 3; // 72 real minutes per 24-hour town day at 1×
+export const TOWN_CLOCK = Object.freeze({ minutesPerDay:1440, realSecondsPerTownMinute:3 });
+export const SEC_PER_MIN = TOWN_CLOCK.realSecondsPerTownMinute; // 72 real minutes per 24-hour town day at 1×
 export const WALK = 1.5, BIKE = 4.5, DRIVE = 8;               // metres per real second
 const WAGES = { retired: 40, student: 20, mayor: 95, nurse: 85, teacher: 85, programmer: 95, 'bank teller': 75, 'power operator': 85, firefighter: 85 };
 const BASE_WAGE = 70;
