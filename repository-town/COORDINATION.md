@@ -7,7 +7,8 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
-- 2026-10-20 · ChatGPT — Rail Depot R8 dedicated interior on `feat/rail-depot-interior-20261020`: research, receiving/dispatch, racks, packing, staff facilities and reachable interactions. Preserve PR85 fire station and PR84 mill.
+- 2026-10-20 21:31 Sydney · ChatGPT — CLAIMED Water Works J8 on `feat/waterworks-interior-20261020`: dedicated treatment building, laboratory, pumps and reachable interactions; new waterworks-interior.js, shop dispatcher/tests only. Preserve Claude’s Power Station PR87; do not overlap.
+
 
 
 
