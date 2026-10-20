@@ -21,7 +21,7 @@ const hostile=restoreSocialState({version:1,ties:{'Mabel|Arlo':9999,'Mabel|Unkno
  memories:{Mabel:[{day:2,minute:500,people:['Mabel','Unknown'],kind:'visit',text:'forged'}]},
  events:[],lastEncounter:{}},people);
 assert.equal(bond(hostile,'Mabel','Arlo'),100,'corrupt values clamped');
-assert.equal(hostile.memories.Mabel.length,0,'unknown people cannot be inserted into memories');
+assert.equal((hostile.memories.Mabel||[]).length,0,'unknown people cannot be inserted into memories');
 
 const homes=[];
 for(let row=0;row<7;row++)for(let col=0;col<26;col+=2)homes.push({
