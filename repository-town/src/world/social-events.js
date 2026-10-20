@@ -83,9 +83,13 @@ export function restoreSocialState(raw,names){
     ? {day:e.day,minute:Math.max(0,Math.min(1439,Math.floor(e.minute))),
       kind:e.kind,people:[...e.people],change:clamp(Number(e.change)||0),text:e.text.slice(0,180)}:null;
   state.events=(Array.isArray(raw.events)?raw.events:[]).map(cleanEvent).filter(Boolean).slice(0,MAX_EVENTS);
-  for(const name of names)
-    state.memories[name]=(Array.isArray(raw.memories?.[name])?raw.memories[name]:[])
+  for(const name of names){
+    const history=(Array.isArray(raw.memories?.[name])?raw.memories[name]:[])
       .map(cleanEvent).filter(e=>e&&e.people.includes(name)).slice(0,MAX_MEMORY);
+    // Don't invent empty properties: snapshots must round-trip bit-for-bit
+    // through the deterministic town replay checks.
+    if(history.length)state.memories[name]=history;
+  }
   for(const [k,day] of Object.entries(raw.lastEncounter||{})){
     const [kind,a,b]=k.split('|');
     if(['visit','work'].includes(kind)&&valid(a,names)&&valid(b,names)&&Number.isInteger(day)&&day>0)
