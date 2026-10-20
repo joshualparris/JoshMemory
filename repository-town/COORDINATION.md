@@ -213,6 +213,15 @@ Newest first. Times in Australia/Sydney.
   elections returned identical results every week — leanings shift per election and the mayor
   answers for the town's mood and their own priority; egg/veg shortfall and unbounded fruit/flour piles.
 
+## 2026-10-20 — windows onto the living town (Claude, branch ccr-846db548-0l5zmu)
+- Every building has real windows: house rooms on every storey (2,833 across 188 houses and 111 upper
+  floors, placed in outside wall the furniture leaves free), shop display and side windows, farmhouse glass.
+- Indoors, `src/main.js renderFrame` draws the town first from the matching spot in the street
+  (`src/world/windows.js townView`), then the rooms on top, so the street shows through windows and the
+  open front door — only when one is in view. `townLife.update({ view })` keeps villagers, trucks,
+  weather and sky moving around that spot. Civic buildings are now one mesh each (hidden from inside).
+- `tests/windows.mjs`: windows on every X7 floor, villagers moving outside while you're in, day/night
+  through the glass, Bakery windows. The Bakery and Bank interiors share the windowed shell (`interior-kit.js highStreetShell`). Screenshots in `docs/screenshots/window-*.png`.
 ## 2026-10-20 — Community Bank interior (Claude, branch feat/bank-interior-20261020)
 - `src/world/bank-interior.js`: researched banking hall — roped queue lane, three-window teller counter
   with acrylic screens (one staffed, two closed), glass loans office, two advice desks, waiting lounge,
@@ -244,19 +253,36 @@ Newest first. Times in Australia/Sydney.
 - `finance.js`: grants are now needs-based (Commonwealth/NSW top the council up to a $6,000 reserve; GST top-up federal→state), villager households pay rent/power ($10/day) with capped `housingArrears`, PAYG is 15%. Long soak: council ~$6.5k, NSW ~$15k, villager savings no longer grow without bound.
 - New dedicated interiors built on `interior-kit.js`: `store-interior.js` (stock-driven shelves, gondolas, chillers, produce table, full-width counter), `cafe-interior.js` (espresso counter, pastry cabinet, tables, bench), `pub-interior.js` (bar, taps, bistro, lounge, pool). Dispatched in `shop-interior.js`; `tests/shop-interiors.mjs` has a branch for them (hotspots clear, staff behind counter).
 - Verified: `npm run test:town`, `tests/shop-e2e.mjs`, `tests/exit-stuck.mjs --shops` for store/cafe/pub.
-
+- Exits: the civic exit-direction fix landed in #49 (`shop-exit.js`, `src/tests/building-exits.mjs`);
+  `tests/exit-facing.mjs` (in `test:town`) checks it end to end in the browser — walking out and the
+  Exit button — for a north and a south building and a house. `tests/life.mjs` closes a display panel
+  opened near a shop's door before using the counter (new General Store layout).
 - 2026-10-20 · Claude — ported `feat/town-snapshot-integrity-20261019` onto main's save format (not a textual merge): `TownLife.snapshot()` now adds `seed`, `rngState` and an optional `sim` block (villager positions/routes/needs, trucks, parcels, events, stats) on top of the existing `saveVersion:2` tuples; `restore()` validates first, returns true/false and changes nothing on a bad or future save; `townlife.js` keeps a rejected save in storage instead of overwriting it. Old saves without `sim` still load. Test: determinism check in `tests/town-simulation.mjs`.
 
 - 2026-10-20 · Claude — doors keep the player's facing: `enter`/`enterShop`/`leave` in `src/main.js` take `keepFacing` (used by the walk-through door sensors), so backing out of a building no longer spins the view 180°. Buttons/teleports still face outward. South-side shops add a half turn (`doorTurn`). Test: `node tests/door-facing.mjs` (needs the static server on :8091).
 
 - 2026-10-20 · Claude — researched interiors for the Post Office (`post-interior.js`), Clinic (`clinic-interior.js`) and Town Hall (`hall-interior.js`: public counter, council meeting room with dais and gallery, ballot box). Same kit, test branch and staff behaviour as the bank/store/café/pub. Note: the earlier door-facing commit briefly broke `src/tests/building-exits.mjs` (a source-text check on the house exit line); fixed by keeping `player.place(…,Math.PI)` and applying `keepFacing` after it.
 
+## 2026-10-20 — NPC playtest and fixes (Claude, branch ccr-846db548-0l5zmu)
+- New `tests/npc-soak.mjs` (browser, in `npm run test:browser`): a full simulated day in the real
+  collision world, every villager every 10 town minutes, plus all 32 street characters.
+- Fixed: villagers froze for good beside a street character who stepped up next to them (e.g. Spark
+  on the footpath): the A* detour treated every step away as "too close" (`pedestrian-navigation.js`;
+  regression in `tests/pedestrian-navigation.mjs`). Also on main before this.
+- Fixed: villagers walked through buildings and yards (~8 a day on main): avenue walking lanes moved
+  to the kerb edge, keeping left (±3.6 m); fixed obstacles on a route (sheds, bins, lamps) now get the
+  same bounded A* detour; avenue-side lots keep yard objects off the avenue kerb (`town.js
+  yardLimitsFor`, checked in `tests/exterior-collisions.mjs`). A few brief contacts a day remain with
+  the goods-display crates where shoppers queue at shop fronts.
+- `tests/people.mjs` follows #60's design: nearby villagers keep going; opening a chat stops them.
+- Browser tests are not in `test:town`: the CI gate has no Chromium (the gate failed on PR #68).
 - 2026-10-20 · Claude — real furniture models: KayKit "Furniture Bits" (CC0, Kay Lousberg) in `src/assets/furniture/` with `vendor/GLTFLoader.js`. `src/world/furniture.js` loads them in the browser (non-blocking from `main.js`), bakes the colour atlas into vertex colours and exposes `modelGeometry`; `Builder.model()` merges them into a house's single mesh and `kit.model()` places them in civic interiors. House props `bed`, `sofa`, `chair`, `table`, `cabinet` and the café, pub, clinic and hall chairs/sofas now use models, each falling back to the old box furniture when models are not loaded (Node tests never load them). Test: `node tests/furniture.mjs`. More models can be added to `FURNITURE` and used with `b.model(name, x, y, z, ry, {w,h,d})`.
 
 ## Decor pass (Claude, 2026-10-20)
 - Houses: rugs (4 KayKit variants), standing lamp, cactus plants, decorated shelves now use the CC0 models in `props.js`; box fallbacks kept (node tests/mock builders have no `b.model`).
 - Interiors: framed pictures on walls via `interior.js` (5 frame models, box fallback); pub/café/clinic/hall/post got frames, lamps and cacti. Hotspots/colliders unchanged.
-
+- The Wheat Farm's second silo stood on the easternmost avenue (x 312) and blocked it end-to-end
+  (`tests/streetwalk.mjs`); both silos now stand behind the shed.
 ## Greengrocer, butcher, school/library and farm sheds (Claude, 2026-10-20)
 - New dedicated interiors on the kit: `grocer-interior.js`, `butcher-interior.js`, `school-interior.js`, `farm-interior.js` (one builder, six variants: sheep, dairy, coop, orchard, garden, silo). Dispatch is in `shop-interior.js`; `tests/shop-interiors.mjs` covers them (>250 objects, staff behind counter, hotspots clear of colliders).
 - Each keeps one `civic-ledger` counter hotspot, so shop/farm counter behaviour is unchanged.

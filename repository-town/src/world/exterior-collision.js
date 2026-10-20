@@ -36,10 +36,12 @@ export function doorApproach(fp) {
   const half=fp.door.w/2 + PLAYER_RADIUS + 0.35;
   return {x0:centre-half,x1:centre+half,z0:front-1.0,z1:front+5.5};
 }
-export function yardSite(fp,prop,slot,occupied=[]) {
+// `limits` narrows the yard on a side that backs onto an avenue (src/world/town.js), so no shed
+// or bin stands on the avenue's kerb where people walk.
+export function yardSite(fp,prop,slot,occupied=[],limits={}) {
   // +z is the road; no yard object may extend onto its footpath or the
   // adjacent lot. The west/east reserve keeps neighbours separated.
-  const limitX=11.9, back=-15.5, front=10.0, margin=0.35;
+  const left=limits.left??11.9, right=limits.right??11.9, back=-15.5, front=10.0, margin=0.35;
   const body={x0:-fp.w/2,x1:fp.w/2,z0:-fp.d/2,z1:fp.front??fp.d/2};
   const access=doorApproach(fp);
   // Preserve the authored slot first. Search alternate places only when it
@@ -51,7 +53,7 @@ export function yardSite(fp,prop,slot,occupied=[]) {
   }
   for(const [x,z] of candidates){
     const box=rotatedYardFootprint(prop,x,z);
-    if(box.x0<-limitX||box.x1>limitX||box.z0<back||box.z1>front)continue;
+    if(box.x0<-left||box.x1>right||box.z0<back||box.z1>front)continue;
     if(overlapping(box,body,margin)||overlapping(box,access,margin))continue;
     if(occupied.some(y=>overlapping(box,y,margin)))continue;
     return {x,z,box};

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { glassMesh } from './windows.js';
 import { modelGeometry } from './furniture.js';
 import { containLabel } from '../ui/labels.js';
 
@@ -6,6 +7,34 @@ import { containLabel } from '../ui/labels.js';
 // Every walk-in room uses the same 14 m × 18 m shell, door gap, spawn point and exit zone so the
 // game's entry, exit and door-sensor logic works identically for all of them; only the contents differ.
 export const ROOM = Object.freeze({ W: 14, D: 18, FRONT: 6, BACK: -12, EDGE: 7, WALL: 0.24 });
+
+// The shell of every High Street room: back wall, display windows either side of the front door
+// and a window in each side wall. Low solid sills keep the player in; sills sit above any wall
+// panelling; the street shows through the glass (src/world/windows.js). Returns the glass mesh and
+// the windows ({ axis, at, s, e, out }) for the game's window checks.
+export function highStreetShell({ box, solid, wall, frontSill = 0.9, sideSill = 1.4 }) {
+  const { W, D, FRONT, BACK, EDGE, WALL } = ROOM, HEAD = 3.2, SIDE_HEAD = 2.9, WZ0 = -2.5, WZ1 = 1.5, panes = [], windows = [];
+  solid(W, 4.6, WALL, 0, 2.3, BACK, wall);
+  for (const x of [-4, 4]) {
+    solid(6, frontSill, WALL, x, frontSill / 2, FRONT, wall);
+    for (const px of [x - 2.65, x + 2.65]) box(0.7, 4.6 - frontSill, WALL, px, 2.3 + frontSill / 2, FRONT, wall);
+    box(4.6, 4.6 - HEAD, WALL, x, (4.6 + HEAD) / 2, FRONT, wall);
+    panes.push({ w: 4.6, h: HEAD - frontSill, d: 0.04, x, y: (frontSill + HEAD) / 2, z: FRONT });
+    windows.push({ axis: 'z', at: FRONT, s: x - 2.3, e: x + 2.3, out: 1 });
+  }
+  for (const x of [-EDGE, EDGE]) {
+    solid(WALL, sideSill, D, x, sideSill / 2, -3, wall);
+    box(WALL, 4.6 - sideSill, WZ0 - BACK, x, 2.3 + sideSill / 2, (BACK + WZ0) / 2, wall);
+    box(WALL, 4.6 - sideSill, FRONT - WZ1, x, 2.3 + sideSill / 2, (WZ1 + FRONT) / 2, wall);
+    box(WALL, 4.6 - SIDE_HEAD, WZ1 - WZ0, x, (4.6 + SIDE_HEAD) / 2, (WZ0 + WZ1) / 2, wall);
+    box(WALL + 0.12, 0.06, WZ1 - WZ0 + 0.1, x, sideSill + 0.03, (WZ0 + WZ1) / 2, 0x6f5343);
+    panes.push({ w: 0.04, h: SIDE_HEAD - sideSill, d: WZ1 - WZ0, x, y: (sideSill + SIDE_HEAD) / 2, z: (WZ0 + WZ1) / 2 });
+    windows.push({ axis: 'x', at: x, s: WZ0, e: WZ1, out: Math.sign(x) });
+  }
+  box(2.4, 0.2, WALL, 0, 3.1, FRONT, 0x6f5343);
+  box(2.15, 0.06, 0.6, 0, 0.02, FRONT, 0xb9b8ae);
+  return { glass: glassMesh(panes), windows };
+}
 
 export function createKit(site, makeLabel, roomTitle) {
   const { W, D, FRONT, BACK, EDGE, WALL } = ROOM;
@@ -52,18 +81,13 @@ export function createKit(site, makeLabel, roomTitle) {
     interactables.push({ key: site.id + ':' + key, type: 'civic', label, room: 0, roomName: roomTitle, pos, act: { do: doWhat, title: label, text: body, civicId: site.id } });
     sceneObjects.push({ type: 'civic', label, room: 0, pos: { x, z }, interactive: true });
   };
-  // Floor, ceiling, solid side/back walls and a front wall with a proper door gap (never a collider
-  // across the doorway), plus a low decorative sill.
-  const shell = ({ wall, ceiling = 0xf0e8d6, floor = 0xb9a88f }) => {
+  // Floor, ceiling and the windowed shell, with a proper door gap (never a collider across it).
+  let windows = [];
+  const shell = ({ wall, ceiling = 0xf0e8d6, floor = 0xb9a88f, frontSill, sideSill }) => {
     box(W, 0.24, D, 0, -0.12, -3, floor);
     box(W, 0.27, D, 0, 4.7, -3, ceiling);
-    solid(W, 4.6, WALL, 0, 2.3, BACK, wall);
-    solid(WALL, 4.6, D, -EDGE, 2.3, -3, wall);
-    solid(WALL, 4.6, D, EDGE, 2.3, -3, wall);
-    solid(6, 4.6, WALL, -4, 2.3, FRONT, wall);
-    solid(6, 4.6, WALL, 4, 2.3, FRONT, wall);
-    box(2.4, 0.2, WALL, 0, 3.1, FRONT, 0x6f5343);
-    box(2.15, 0.06, 0.6, 0, 0.02, FRONT, 0xb9b8ae);
+    const s = highStreetShell({ box, solid, wall, frontSill, sideSill });
+    group.add(s.glass); windows = s.windows;
   };
   const finish = (extra = {}) => ({
     group, colliders, interactables, sceneObjects, placedProps,
@@ -72,6 +96,7 @@ export function createKit(site, makeLabel, roomTitle) {
     bounds: { x0: -EDGE, x1: EDGE, z0: BACK, z1: FRONT },
     spawn: new THREE.Vector3(0, 0, FRONT - 2.25),
     exitZone: { x0: -1.05, x1: 1.05, z0: FRONT - 0.1, z1: FRONT + 1.2 },
+    windows,
     ...extra,
   });
   return { THREE, group, colliders, interactables, sceneObjects, placedProps, mat, geo, put, model, box, cyl, ball, torus, blocker, solid, text, add, shell, finish };

@@ -375,9 +375,17 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   for (let x = -half - 30; x < half + 30; x += 1.4) statics.box(0x5a4030, 0.25, 0.08, 2.4, x, 0.05, RAIL_Z);
   statics.box(0x8a8478, half * 2 + 60, 0.03, 3.4, 0, 0.01, RAIL_Z);
 
+  // Each civic building is its own mesh (plus one for its glass), so it can be hidden while the
+  // player is inside it and looking out of its windows (src/main.js renderFrame).
+  const shopGlassMat = new THREE.MeshLambertMaterial({ vertexColors: true, emissive: 0xffc070, emissiveIntensity: 0 });
+  const buildings = new Map();
   for (const p of life.places.values()) {
-    // Every building merges into one town-life mesh (one draw call), authored in its lot's frame.
-    const b = statics;
+    const b = new Builder(); b.glass = [];
+    const finish = () => {
+      const meshes = [b.build()], glass = Builder.merge(b.glass);
+      if (glass) meshes.push(new THREE.Mesh(glass, shopGlassMat));
+      group.add(...meshes); colliders.push(...b.solids); buildings.set(p.id, meshes);
+    };
     const kind = BUILD[p.id] ? p.id : p.kind === 'farm' ? 'farm' : p.kind === 'home' ? 'farmhouse' : p.kind === 'park' ? 'square' : p.id;
     let fp;
     // South-side civic sites face the street (−z) from across the road.
@@ -390,12 +398,15 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       sign.position.set(p.x, 3.85, FIELD_Z0 - 4.6);
       group.add(sign); labels.push(sign);
       spots.push({ key: `place:${p.id}`, id: p.id, pos: new THREE.Vector3(p.x, 0, FIELD_Z0 - 2.4), label: `${p.name} — ${{ bank: 'your account', fire: 'station board', foundry: 'the works' }[p.id] || 'the plant'}` });
+      finish();
       continue;
     }
+    // The wheat farm's silos stand behind its shed, clear of the end of the avenue (9.5 m out).
     b.at(p.x, 0, LOT8_Z, 0, () => {
-      if (kind === 'farm') { const [w, d, h, wall, roof] = FARM_SHED[p.id]; shed(b, w, d, h, wall, roof); fp = { w, d }; if (p.id === 'silo') { for (const x of [9, 12]) { b.solid(2.6, 2.6, x, -1); b.cyl(0xc8c8c0, 1.4, 9, x, 4.5, -1); b.cone(0xa8a8a0, 1.6, 1.4, x, 9.7, -1); } } }
+      if (kind === 'farm') { const [w, d, h, wall, roof] = FARM_SHED[p.id]; shed(b, w, d, h, wall, roof); fp = { w, d }; if (p.id === 'silo') { for (const x of [2.5, 6]) { b.solid(2.6, 2.6, x, -9); b.cyl(0xc8c8c0, 1.4, 9, x, 4.5, -9); b.cone(0xa8a8a0, 1.6, 1.4, x, 9.7, -9); } } }
       else fp = BUILD[kind](b);
     });
+    finish();
     if (fp) colliders.push({ x0: p.x - fp.w / 2, x1: p.x + fp.w / 2, z0: LOT8_Z + (fp.front ?? 7) - fp.d, z1: LOT8_Z + (fp.front ?? 7) });
     if (kind === 'square') colliders.push({ x0: p.x - 2.7, x1: p.x + 2.7, z0: LOT8_Z - 6.7, z1: LOT8_Z - 1.3 });
     // Name board over the door.
@@ -446,7 +457,6 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   group.add(statics.build());
   colliders.push(...statics.solids);
   const shopGlass = Builder.merge(statics.glass);
-  const shopGlassMat = new THREE.MeshLambertMaterial({ vertexColors: true, emissive: 0xffc070, emissiveIntensity: 0 });
   if (shopGlass) group.add(new THREE.Mesh(shopGlass, shopGlassMat));
 
   // Dynamic signal heads: two visible poles, one per traffic approach.
@@ -547,8 +557,10 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   const events = [];   // sounds for the ambience: { kind: 'bell'|'horn', n?, x, z }
   let lastHour = Math.floor(life.minute / 60), hornDone = -1;
   let currentConversation=null,conversationElapsed=0;
-  function update(dt, t, { player, mode, overview, camera, talkingTo }) {
-    const inTown = mode === 'town';
+  // `view` is set while the player is indoors and looking out of a window: the camera standing
+  // at the matching spot in town (src/world/windows.js), so the street keeps moving out there.
+  function update(dt, t, { player, mode, overview, camera, talkingTo, view = null }) {
+    const inTown = mode === 'town', eye = view ? view.position : player.pos, skyCam = view || camera;
     life.obstacles = inTown ? [player.pos] : [];
     // Proximity alone is NOT consent to an endless conversation. Only the
     // explicitly opened interaction panel pauses a resident, for at most
@@ -577,30 +589,31 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     const weather = life.civic.weather, overcast = weather === 'rainy' ? 0.55 : weather === 'cloudy' ? 0.3 : 0;
     if (overcast) bg.lerp(GREY.clone().multiplyScalar(0.3 + 0.7 * day), overcast);
     if (inTown && !overview) { scene.background.copy(bg); fog.color.copy(bg); }
+    else if (view) fog.color.copy(bg);
     else if (inTown) scene.background.copy(bg);
     hemi.intensity = (0.5 + 1.6 * day) * (1 - overcast * 0.35); hemi.color.copy(hemiNight).lerp(hemiDay, day);
     const a = ((m / 60 - 6) / 24) * Math.PI * 2;      // sun rises in the east (+x) at 6:00
     sun.position.set(Math.cos(a) * 130, Math.max(8, Math.sin(a) * 140), 50); sun.intensity = 2.0 * day;
     sun.color.setHex(dusk > 0.25 ? 0xffb070 : 0xffe7bf);
-    stars.visible = moon.visible = inTown && dark > 0.2 && !overcast;
-    rain.visible = inTown && !overview && weather === 'rainy';
+    stars.visible = moon.visible = (inTown || !!view) && dark > 0.2 && !overcast;
+    rain.visible = (inTown || !!view) && !overview && weather === 'rainy';
     if (rain.visible) {
-      rain.position.set(camera.position.x, 0, camera.position.z);
+      rain.position.set(skyCam.position.x, 0, skyCam.position.z);
       const a2 = rain.geometry.attributes.position;
       for (let i = 0; i < a2.count; i++) { let y = a2.getY(i) - dt * 14; if (y < 0) y += 22; a2.setY(i, y); }
       a2.needsUpdate = true;
     }
-    if (stars.visible) { stars.position.copy(camera.position); stars.material.opacity = Math.min(1, dark * 1.2); moon.position.set(camera.position.x - Math.cos(a) * 140, camera.position.y + Math.max(30, -Math.sin(a) * 120), camera.position.z - 60); }
+    if (stars.visible) { stars.position.copy(skyCam.position); stars.material.opacity = Math.min(1, dark * 1.2); moon.position.set(skyCam.position.x - Math.cos(a) * 140, skyCam.position.y + Math.max(30, -Math.sin(a) * 120), skyCam.position.z - 60); }
     // A blackout puts out the windows and street lamps (src/world/life.js utilities).
     const powered = life.civic.powerGrid ? life.civic.powerGrid.served > 0 : life.civic.supply.ok; // a local fault must not darken every lamp
     town.setNight(powered ? dark : dark * 0.04, m);
     const anyOpenLate = dark > 0.2;
     shopGlassMat.emissiveIntensity = anyOpenLate && powered ? dark * 0.9 : 0;
     lightMat.emissiveIntensity = dark > 0.3 ? 1.4 : 0;  // vehicle headlights run on their own batteries
-    if (!inTown) return;
+    if (!inTown && !view) return;
 
     // Moving things are only updated near the player; far ones are hidden by fog anyway.
-    const near = (x, z, r) => Math.abs(x - player.pos.x) < r && Math.abs(z - player.pos.z) < r;
+    const near = (x, z, r) => Math.abs(x - eye.x) < r && Math.abs(z - eye.z) < r;
     for (const p of people) {
       const v = p.v, moved = Math.hypot(v.x - p.last.x, v.z - p.last.z);
       p.last.x = v.x; p.last.z = v.z; p.pos.set(v.x, 0, v.z);
@@ -625,11 +638,11 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       // another 32cm made the bikes hover visibly above the street.
       p.fig.group.position.set(v.x, riding ? 0 : moving ? Math.abs(Math.sin(t * 7 + p.fig.phase)) * 0.04 : 0, v.z);
       p.fig.group.rotation.y = p.heading;
-      const dist = Math.hypot(v.x - player.pos.x, v.z - player.pos.z);
+      const dist = Math.hypot(v.x - eye.x, v.z - eye.z);
       p.tag.visible = dist > 3 && !p.bubble;
       // A passing hello: a speech bubble for a few seconds, then quiet for a while.
       if (p.bubble && (p.bubbleT -= dt) <= 0) { p.fig.group.remove(p.bubble); p.bubble.material.map.dispose(); p.bubble.material.dispose(); p.bubble = null; }
-      if (!p.bubble && dist < 7 && dist > 2.8 && t > (p.quietUntil || 0)) {
+      if (inTown && !p.bubble && dist < 7 && dist > 2.8 && t > (p.quietUntil || 0)) {
         p.bubble = makeLabel(`💬 ${greeting(v, m)}`, 'prop'); p.bubble.position.set(0, 2.35, 0); p.fig.group.add(p.bubble);
         p.bubbleT = 3.5; p.quietUntil = t + 40 + Math.random() * 40;
       }
@@ -661,7 +674,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     }
   }
 
-  return { life, group, colliders, spots, people, update, save, events, placeFront: (id) => { const p = life.place(id); return p.side === 'south' ? { x: p.x, z: FIELD_Z0 - 4.4, yaw: Math.PI } : { x: p.x, z: LOT8_Z + 12.6, yaw: 0 }; } };
+  return { life, group, colliders, spots, people, update, save, events, skyColour: bg, skyParts: [stars, rain, moon], building: (id) => buildings.get(id) || [], placeFront: (id) => { const p = life.place(id); return p.side === 'south' ? { x: p.x, z: FIELD_Z0 - 4.4, yaw: Math.PI } : { x: p.x, z: LOT8_Z + 12.6, yaw: 0 }; } };
 }
 
 // What a villager calls out as the player passes, from the time of day and what they're up to.

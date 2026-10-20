@@ -97,7 +97,9 @@ check(s.nearPerson === 'place:bakery', `at the Bakery counter (${s.nearPerson})`
 await shot('bakery-day');
 // Shops with walk-in interiors: E enters, then the counter inside opens the panel.
 async function counter(s) {
-  if (s.mode !== 'house' || s.panel) return s;
+  if (s.mode !== 'house') return s;
+  // The press that entered may have opened a display near the door; go to the counter instead.
+  if (s.panel) await T(() => window.__town.closePanel());
   const desk = s.interactables.find((x) => x.do === 'civic-ledger');
   await T((k) => window.__town.approach(k), desk.key);
   await page.waitForFunction((k) => window.__town.state().near === k, desk.key, { timeout: 8000 });
@@ -119,7 +121,7 @@ await press('e');
 s = await counter(await st());
 const storeBuys = (s.panel?.buttons || []).filter((b) => /^Buy/.test(b));
 const stocked = await T(() => Object.entries(window.__town.life.ledger().shops.find((x) => x.name === 'General Store').stock).filter(([, n]) => n > 0).length);
-check(storeBuys.length === stocked && stocked >= 5, `General Store offers all ${stocked} stocked goods (${storeBuys.length} buy buttons)`);
+check(storeBuys.length === stocked && stocked >= 5, `General Store offers all ${stocked} stocked goods (${storeBuys.length} buy buttons; panel ${s.panel?.title})`);
 await T(() => window.__town.closePanel());
 await T(() => window.__town.exitShop());
 

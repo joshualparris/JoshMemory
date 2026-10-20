@@ -36,7 +36,7 @@ export function buildBankInterior(site, makeLabel, roomTitle = 'Banking hall') {
     BLUE = 0x2f5d7c, CARPET = 0x40607a, MARBLE = 0xece8df, STEEL = 0xb9bec4, STEEL2 = 0x8d9399, GLASS = 0xcfe8ee,
     GREEN = 0x5f8a4e, LEATHER = 0x5b3a2a;
 
-  k.shell({ wall: PLASTER, ceiling: 0xf3ecdc });
+  k.shell({ wall: PLASTER, ceiling: 0xf3ecdc, frontSill: 1.4, sideSill: 1.4 });   // sills clear the 1.37 m panelling
   // Panelled dado (dark timber with a brass rail) round the hall; brand-blue frieze near the ceiling.
   for (const sx of [-EDGE + 0.15, EDGE - 0.15]) { box(0.06, 1.35, 17.6, sx, 0.67, -3, DARK); box(0.1, 0.05, 17.6, sx, 1.37, -3, BRASS); }
   box(W - 0.5, 1.35, 0.06, 0, 0.67, BACK + 0.15, DARK); box(W - 0.5, 0.05, 0.1, 0, 1.37, BACK + 0.15, BRASS);

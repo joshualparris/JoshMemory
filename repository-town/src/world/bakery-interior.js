@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { highStreetShell } from './interior-kit.js';
 import { FLOOR_SURFACE_Y } from './floor-surfaces.js';
 
 // The High Street bakery, laid out the way a real neighbourhood bakery works:
@@ -58,13 +59,9 @@ export function buildBakeryInterior(site, makeLabel, roomTitle = 'Bakery') {
   // ── shell: same footprint, door gap and spawn as every High Street room ──
   box(W, 0.24, D, 0, -0.12, -3, 0xb9a88f);
   box(W, 0.27, D, 0, 4.7, -3, 0xf0e8d6);
-  solid(W, 4.6, WALL, 0, 2.3, BACK, PLASTER);
-  solid(WALL, 4.6, D, -EDGE, 2.3, -3, PLASTER);
-  solid(WALL, 4.6, D, EDGE, 2.3, -3, PLASTER);
-  solid(6, 4.6, WALL, -4, 2.3, FRONT, PLASTER);
-  solid(6, 4.6, WALL, 4, 2.3, FRONT, PLASTER);
-  box(2.4, 0.2, WALL, 0, 3.1, FRONT, 0x6f5343);
-  box(2.15, 0.06, 0.6, 0, 0.02, FRONT, 0xb9b8ae);
+  // Sills clear the 1.3 m tiled dado; the café seats sit at the front windows.
+  const shell = highStreetShell({ box, solid, wall: PLASTER, frontSill: 1.3, sideSill: 1.3 });
+  group.add(shell.glass);
   // White tiled dado along the side and back walls, with a wooden rail on top.
   for (const sx of [-EDGE + 0.15, EDGE - 0.15]) { box(0.06, 1.25, D - 0.4, sx, 0.62, -3, TILE); box(0.1, 0.07, D - 0.4, sx, 1.27, -3, WOOD); }
   box(W - 0.5, 1.25, 0.06, 0, 0.62, BACK + 0.15, TILE); box(W - 0.5, 0.07, 0.1, 0, 1.27, BACK + 0.15, WOOD);
@@ -285,6 +282,7 @@ export function buildBakeryInterior(site, makeLabel, roomTitle = 'Bakery') {
     group, colliders, interactables, sceneObjects, placedProps, rooms,
     doors: [], dynamics: [], sight: [],
     staff: { pos: BAKERY_LAYOUT.staff, use: BAKERY_LAYOUT.staffUse },
+    windows: shell.windows,
     bounds: { x0: -EDGE, x1: EDGE, z0: BACK, z1: FRONT },
     spawn: new THREE.Vector3(0, 0, FRONT - 2.25),
     exitZone: { x0: -1.05, x1: 1.05, z0: FRONT - 0.1, z1: FRONT + 1.2 },
