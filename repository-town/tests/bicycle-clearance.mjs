@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {bicycleClear,cyclingRoute,BIKE_HALF_WHEELBASE} from '../src/world/bicycle-safety.js';
 import {TownLife} from '../src/world/life.js';
-const obstacle={hits:(x,z,r)=>Math.abs(x-.6)<r+.11 && Math.abs(z)<r+.11};
+const obstacle={hits:(x,z,r)=>Math.abs(x)<r+.11 && Math.abs(z-.6)<r+.11};
 assert.equal(bicycleClear(obstacle,0,0,0,1),false,'front wheel intersects a lamp pole although rider centre clears');
 assert.equal(bicycleClear(obstacle,0,0,0,-1),false,'rear wheel intersects a lamp pole');
 assert.equal(bicycleClear(obstacle,-5,0,0,1),true,'clear cycle route stays rideable');
