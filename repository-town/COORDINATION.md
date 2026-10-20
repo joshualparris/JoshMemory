@@ -324,3 +324,5 @@ Newest first. Times in Australia/Sydney.
 - `town.js`: kerb stones, gutter, white edge lines (broken at cross avenues) and stormwater grates along every street. Visual only; no new colliders.
 - Sign frames: tried a timber frame round the floating name label, then removed it because the shopfront painted boards (`shop-signs.js`, other session) replace the need for one.
 - `ambience.js`: per-room sound (hum, murmur, one-off clinks, tills, ticks, bleats, clucks). `main.js` passes `room` (the place id, or `house`) to `ambience.update`.
+
+- 2026-10-20 · ChatGPT — Rail Depot R8 implementation complete on `feat/rail-depot-interior-20261020`: dedicated freight house, seven reachable interactions, entry stock displays, live ledger and staff facilities. Local empty/full stock, geometry and walking-route tests pass. Integration gate and deployment tracked in PR; browser WebGL unavailable, so no visual walk claimed. Preserves PR84 mill and PR85 fire station.
