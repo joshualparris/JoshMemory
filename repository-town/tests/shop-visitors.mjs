@@ -15,7 +15,7 @@ for(const [id,builder] of [['pub',buildPubInterior],['cafe',buildCafeInterior]])
   {id:0,name:'Dot',job:'poultry keeper',inside:true,path:[],step:{at:id,kind:'eatout',dur:30,activity:'eating out'},activity:'eating out'},
   {id:1,name:'Arlo',job:'market gardener',inside:true,path:[],step:{at:id,kind:id==='pub'?'idle':'eatout',dur:50,activity:'catching up'},activity:'catching up'},
   {id:2,name:'June',job:'teacher',inside:false,path:[{x:0,z:2}],step:{at:id,kind:'eatout',dur:20,activity:'walking to café'},activity:'walking to café'},
-  {id:3,name:'Bea',job:'barista',inside:true,path:[],step:{at:id,kind:'work',until:900,activity:'on shift'},activity:'on shift'},
+  {id:3,name:'Bea',job:'barista',inside:false,path:[],step:{at:id,kind:'work',until:900,activity:'on shift'},activity:'on shift'},
  ];
  const life={villagers:visitors};
  assert.equal(visitorsForSite(life,id,3).length,2,'real customers, not outside or staff');
