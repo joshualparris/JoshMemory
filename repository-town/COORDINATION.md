@@ -364,3 +364,6 @@ Newest first. Times in Australia/Sydney.
 - `src/ui/ambience.js` rewritten (same API plus `shopBell`, `debug`): footsteps per surface, one per camera-bob cycle (`player.bob`), wet splash in rain, landing thump, indoor room reverb; rain/roof patter/thunder, windy gusts, cicadas, magpie, crow, dog, dawn rooster, frogs, crickets, water-works burble, truck diesel idle, door latch + shop bell.
 - `main.js` passes weather (`life.civic.weather`), surface, bob phase, crouch/airborne, hour and water proximity to `ambience.update`; `__town.life.setWeather(w)` and `state().soundDebug` are test hooks. `tests/footsteps.mjs` (browser, :8091) covers it.
 - Not done: no real water to wade through exists in the town, so the 'water' splash recipe is only used for the wet overlay; house front paths are treated as grass.
+
+## 2026-10-21 — hosting consolidation (Codex, integration/town-hosting-consolidation-20261021)
+- IN PROGRESS: inventory and preserve all hosted Town snapshots; reconcile public generated extras; establish a single release manifest and tested production/staging/Pages pipeline. Preserve all feature branches and published history. No gameplay replacement from old branches.

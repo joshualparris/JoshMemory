@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import zlib from 'node:zlib';
 import { mergeDiscovery } from './merge-discovery.mjs';
+import { stampRelease } from './release-manifest.mjs';
 import path from 'node:path';
 import { TOWN, loadBriefs, loadInventory, loadRepoData, validate, sanitise, redactPrivate } from './lib.mjs';
 
@@ -87,6 +88,15 @@ for (const target of ['public', 'private']) {
   }
   if (fs.existsSync(path.join(TOWN, 'games', '_python'))) fs.cpSync(path.join(TOWN, 'games', '_python'), path.join(out, 'games', '_python'), { recursive: true });
   fs.writeFileSync(path.join(out, 'houses.json'), JSON.stringify({ version: 2, generated: inventory.generated, streets: inventory.grid.streetNames, houses: list }));
+  if (target === 'public') {
+    const hosting = JSON.parse(fs.readFileSync(path.join(TOWN,'deploy/hosting.json'),'utf8'));
+    const handover = fs.readFileSync(path.join(out,'handover.html'),'utf8');
+    for (const legacy of hosting.legacyPaths) {
+      fs.mkdirSync(path.join(out,legacy),{recursive:true});
+      fs.writeFileSync(path.join(out,legacy,'index.html'),handover.replace('src="ui/handover.js"','src="../ui/handover.js"'));
+    }
+    stampRelease(TOWN, out);
+  }
 }
 console.log(`Built ${houses.length} houses (${report.styles} exterior styles) → dist/public, dist/private${errors.length ? ` · ${errors.length} briefs skipped (--partial)` : ''}`);
 
