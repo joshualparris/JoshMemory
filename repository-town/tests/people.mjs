@@ -40,21 +40,23 @@ const moved = after.filter((v, i) => Math.hypot(v.x - before[i].x, v.z - before[
 check(moved >= 5, `${moved}/${before.length} villagers moved more than 2 m in 12 s (the rest are at home or at work)`);
 check(inside === 0, `no villager stood inside a wall or house (${inside} overlaps in ${looks} samples)`);
 
-// 2. Walk up to a villager: they stop, turn to you, and chat.
+// 2. Walk up to a villager: you're prompted to talk. Being nearby doesn't hold anyone up (they go
+// on with their day, src/world/townlife.js); opening a chat does, and they stop while you talk.
 const key = await page.evaluate(() => window.__town.meetVillager(0));
 console.log(`  meeting ${key}`);
 await page.waitForFunction(() => /^villager:/.test(window.__town.state().nearPerson || ''), null, { timeout: 8000 }).catch(() => null);
-const v0 = (await st()).people.find((v) => v.key === key);
-await page.waitForTimeout(1500);
-const v1 = (await st()).people.find((v) => v.key === key);
-check(Math.hypot(v1.x - v0.x, v1.z - v0.z) < 0.3, 'villager stops walking when you come up to them');
 s = await st();
-check(s.nearPerson === key, `prompted to talk (${s.nearPerson})`);
+check(/^villager:/.test(s.nearPerson || ''), `prompted to talk (${s.nearPerson})`);
 await shot('1-meet-villager');
 await page.keyboard.press('e');
 await page.waitForSelector('#panel .chat-input', { timeout: 8000 });
 const title = await page.innerText('#panel-title');
 check(/lives at [A-Z]\d/.test(title), `chat opens: "${title}"`);
+const chatting = s.nearPerson;
+const v0 = (await st()).people.find((v) => v.key === chatting);
+await page.waitForTimeout(1500);
+const v1 = (await st()).people.find((v) => v.key === chatting);
+check(Math.hypot(v1.x - v0.x, v1.z - v0.z) < 0.3, 'villager stops walking while you chat');
 const talking = (await st()).nearPerson;
 const replies = [];
 for (const msg of ['hello', 'how are you?', 'what are you up to?', 'any games around here?', 'thanks, bye']) {

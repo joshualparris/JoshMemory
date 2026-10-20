@@ -6,7 +6,7 @@ import { Builder } from '../src/world/builder.js';
 import { buildExterior } from '../src/world/exterior.js';
 import { CollisionWorld } from '../src/engine/collision.js';
 import { exteriorColliders, doorApproach, overlapping, PLAYER_RADIUS } from '../src/world/exterior-collision.js';
-import { lotPosition } from '../src/world/town.js';
+import { lotPosition, yardLimitsFor } from '../src/world/town.js';
 
 let total=0, objects=0, skipped=[], specific=false;
 for(let row=1;row<=8;row++){
@@ -16,7 +16,12 @@ for(let row=1;row<=8;row++){
     const ext=briefs[col].ext,coord=String.fromCharCode(65+col)+row;
     const b=new Builder();
     const color=Object.fromEntries(['walls','roof','trim','door'].map(k=>[k,Number.parseInt(String(ext[k]).replace('#',''),16)]));
-    const fp=buildExterior(b,ext,color);
+    const limits=yardLimitsFor(coord);
+    const fp=buildExterior(b,ext,color,limits);
+    // Lots beside an avenue keep their yard off its kerb, where villagers walk.
+    for(const q of fp.yardObjects){
+      assert(!(limits.left&&q.x0<-limits.left-1e-6)&&!(limits.right&&q.x1>limits.right+1e-6),coord+' yard object stands on the avenue kerb');
+    }
     const lot=lotPosition(coord);
     const walls=exteriorColliders(fp,lot.x,lot.z);
     const full=[...walls,...fp.yard.map(q=>({x0:lot.x+q.x0,x1:lot.x+q.x1,z0:lot.z+q.z0,z1:lot.z+q.z1}))];

@@ -91,6 +91,8 @@ async function exercise(page, coord, how, cdp) {
     let p = (await st(page)).panel;
     // Adventure exhibits prefix their panel title with an emoji (🎁, 🔐, 🧭 …).
     e.panel = !!p && p.title.replace(/^[^\p{L}\p{N}]+/u, '').startsWith(x.title.replace(/^[^\p{L}\p{N}]+/u, '')) && p.text.trim().length >= 10;
+    // A home's bed explains it belongs to the residents (book the hotel instead), under its own title.
+    if (x.do === 'sleep') e.panel = !!p && /bed/i.test(p.title) && p.text.trim().length >= 10;
     if (x.do === 'quiz' && p) {
       const ok = await page.evaluate(() => window.__town.answer(0)); await sleep(100);
       const after = (await st(page)).panel;

@@ -1,3 +1,4 @@
+import { shopService } from './shop-attendance.js';
 import { separatePedestrians } from './pedestrian-spacing.js';
 import { freshSocialState,recordSocialEvent,socialReport,chooseSocialVisit,restoreSocialState } from './social-events.js';
 import { mustStopAtCrossing } from './traffic-signals.js';
@@ -224,13 +225,16 @@ export function walkRoute(a, b) {
   const ra = rowOf(a.z), rb = rowOf(b.z);
   // Pedestrians and cycles travelling in opposite directions need separate
   // lanes, not a shared single-file route in front of every shop.
+  // Opposing lanes 2.1 m apart; walkers on the outer one step round front-yard objects
+  // (pedestrian-navigation.js staticBlockOnSegment).
   const setback=b.x>=a.x?6.6:4.5;
   const sa = sideZ(ra, a.z, setback), sb = sideZ(rb, b.z, setback);
   const pts = [{ x: a.x, z: sa }];
   if (!(ra === rb && sa === sb)) {
     const ave = AVENUES.reduce((p, c) => (Math.abs(a.x - c) + Math.abs(b.x - c) < Math.abs(a.x - p) + Math.abs(b.x - p) ? c : p));
-    // Walk up the edge of the avenue, clear of the trucks' lanes and the corner houses.
-    const avenueTrack=ave+(sb>=sa?6.7:4.7);
+    // Walk up the kerb edge of the avenue, keeping left (+x going north, −x going south): 3.6 m out
+    // clears the trucks (their sides reach 2.9 m) and the high-street buildings 4 m from the centre.
+    const avenueTrack=ave+(sb>=sa?3.6:-3.6);
     pts.push({ x: avenueTrack, z: sa }, { x: avenueTrack, z: sb });
   }
   pts.push({ x: b.x, z: sb }, { x: b.x, z: b.z });
@@ -550,6 +554,8 @@ export class TownLife {
   buyItem(shopId, good) {
     const p = this.place(shopId), me = this.civic.player, price = GOODS[good].price;
     if (!this.open(p)) return `The ${p.name} is closed — it opens at ${fmt(p.opens)}.`;
+    const service = shopService(this, p);
+    if (!service.available) return service.message;
     if (!(this.shelves(p)[good] > 0)) return `Sorry, sold out of ${GOODS[good].name}. The next truck should bring more.`;
     if (me.wallet < price) return `You need $${price} but only have $${me.wallet} — try the Community Bank.`;
     this.shelves(p)[good]--; me.wallet -= price; this.sale(p, price); receipt(this, 'purchase', `${GOODS[good].name} at ${p.name}`, -price);
@@ -569,6 +575,8 @@ export class TownLife {
     if (!recipe) return 'That dish is not on this menu.';
     const p = this.place(shopId), me = this.civic.player, price = GOODS[good].price;
     if (!this.open(p)) return `The ${p.name} is closed — it opens at ${fmt(p.opens)}.`;
+    const service = shopService(this, p);
+    if (!service.available) return service.message;
     if (!this.menuAvailability(shopId, good)) return `Sorry, ${GOODS[good].name} is sold out until ingredients arrive.`;
     if (me.wallet < price) return `You need ${price} but have ${me.wallet}.`;
     const stock = this.shelves(p);
@@ -583,6 +591,8 @@ export class TownLife {
   }
   sellItem(shopId, good) {
     const p = this.place(shopId), me = this.civic.player, pay = Math.max(1, Math.floor(GOODS[good].price * 0.6));
+    const service = shopService(this, p);
+    if (!service.available) return service.message;
     if (!(me.bag[good] > 0)) return `You don't have any ${GOODS[good].name}.`;
     if (p.till < pay) return `The ${p.name} can't afford to buy it back right now.`;
     me.bag[good]--; this.shelves(p)[good] = (this.shelves(p)[good] || 0) + 1; p.till -= pay; me.wallet += pay; recordEarning(this, pay); receipt(this, 'sale', `Sold ${GOODS[good].name} to ${p.name}`, pay);
@@ -950,19 +960,23 @@ export class TownLife {
       const meal = this.cookable(v, 'breakfast');
       if (meal) return this.goThen(v, home, { kind: 'cook', at: 'home', meal, dur: 20, activity: `making ${meal[0]}` });
       const cafe = this.place('cafe');
-      if (this.open(cafe) && v.wallet >= 9) return this.goThen(v, cafe.front, { kind: 'eatout', at: 'cafe', dur: 25, activity: 'having breakfast at the Commit Café' });
+      if (shopService(this,cafe).available && v.wallet >= 9) return this.goThen(v, cafe.front, { kind: 'eatout', at: 'cafe', dur: 25, activity: 'having breakfast at the Commit Café' });
       if (this.open(this.place('bakery')) && v.wallet >= 5) return this.goThen(v, this.place('bakery').front, { kind: 'snack', at: 'bakery', good: 'bread', dur: 8, activity: 'grabbing a bread roll at the Bakery' });
     }
     const working = m >= v.start && m < v.end;
-    if (working && !(m >= 12 * 60 && m < 13 * 60 && !v.doneToday.lunch && v.job !== 'publican')) {
+    // Food counters cover the noon rush, then take staggered lunch breaks.
+    const counter = ['store','bakery','greengrocer','butcher','cafe'].includes(v.work);
+    const colleagues = counter ? this.villagers.filter(o=>o.work===v.work) : [];
+    const lunchAt = counter ? 13*60 + Math.max(0,colleagues.indexOf(v))*30 : 12*60;
+    if (working && !(m >= lunchAt && m < lunchAt + 60 && !v.doneToday.lunch && v.job !== 'publican')) {
       if (v.work === 'home') return this.goThen(v, home, { kind: 'work', at: 'home', until: v.end, activity: 'coding at home' });
       if (v.job === 'postie' && !v.doneToday.round && (this.place('post').stock.parcel || 0) > 0) return this.postRound(v);
-      return this.goThen(v, work, { kind: 'work', at: v.work, until: Math.min(v.end, m < 12 * 60 && v.job !== 'publican' ? 12 * 60 : v.end), activity: this.workActivity(v) });
+      return this.goThen(v, work, { kind: 'work', at: v.work, until: Math.min(v.end, m < lunchAt && v.job !== 'publican' ? lunchAt : v.end), activity: this.workActivity(v) });
     }
-    if (working && !v.doneToday.lunch) {
+    if (!v.doneToday.lunch && m >= lunchAt && m < lunchAt + 60) {
       v.doneToday.lunch = true;
       const cafe = this.place('cafe');
-      if (this.rand() < 0.5 && this.open(cafe) && v.wallet >= 10) return this.goThen(v, cafe.front, { kind: 'eatout', at: 'cafe', dur: 30, activity: 'grabbing lunch at the Commit Café' });
+      if (this.rand() < 0.5 && shopService(this,cafe).available && v.wallet >= 10) return this.goThen(v, cafe.front, { kind: 'eatout', at: 'cafe', dur: 30, activity: 'grabbing lunch at the Commit Café' });
       const meal = this.cookable(v, 'lunch');
       if (meal) { this.eat(v, meal[0], meal[1]); return this.goThen(v, this.place('square').front, { kind: 'idle', dur: 30, activity: `eating ${meal[0]} in the Market Square` }); }
       return this.goThen(v, this.place('bakery').front, { kind: 'snack', at: 'bakery', good: 'pie', dur: 15, activity: 'buying a pie for lunch' });
@@ -978,7 +992,7 @@ export class TownLife {
       const meal = this.cookable(v, 'dinner');
       if (meal) return this.goThen(v, home, { kind: 'cook', at: 'home', meal, dur: 40, activity: `cooking ${meal[0]}` });
       const pub = this.place('pub');
-      if (this.open(pub) && v.wallet >= 18) return this.goThen(v, pub.front, { kind: 'eatout', at: 'pub', dur: 50, activity: 'having dinner at The Merged Branch' });
+      if (shopService(this,pub).available && v.wallet >= 18) return this.goThen(v, pub.front, { kind: 'eatout', at: 'pub', dur: 50, activity: 'having dinner at The Merged Branch' });
       const near = ['bakery', 'store'].find((id) => this.open(this.place(id)) && (id === 'bakery' ? this.place(id).out.pie : this.place(id).stock.bread));
       if (near && v.wallet >= 5) return this.goThen(v, this.place(near).front, { kind: 'snack', at: near, good: near === 'bakery' ? 'pie' : 'bread', dur: 8, activity: `picking up ${near === 'bakery' ? 'a pie' : 'some bread'} for tea` });
     }
@@ -1164,6 +1178,14 @@ export class TownLife {
             }
           } else v.detourWait=0;
         }
+        // Fixed obstacles on the way (yard sheds, bins, lamps): step round them with the same local
+        // A*. Checked again only after moving 2.5 m, and a dead end is walked as before, not frozen.
+        else if(!destination.detour&&this.pedestrianWorld&&
+          !(v.staticClear===destination&&Math.hypot(v.x-v.staticClearX,v.z-v.staticClearZ)<2.5)){
+          const detour=pedestrianDetour(v,destination,[],this.pedestrianWorld);
+          if(detour?.length)v.path.unshift(...detour);
+          else{v.staticClear=destination;v.staticClearX=v.x;v.staticClearZ=v.z;}
+        }
         const p = v.path[0], dx = p.x - v.x, dz = p.z - v.z, d = Math.hypot(dx, dz);
         if (d <= budget) { v.x = p.x; v.z = p.z; budget -= d; v.path.shift(); }
         else { v.x += (dx / d) * budget; v.z += (dz / d) * budget; budget = 0; }
@@ -1236,8 +1258,20 @@ export class TownLife {
     this.plan(v);
   }
 
+  missedServiceMeal(v, message) {
+    v.memory = message;
+    const type = this.minute < 11*60 ? 'breakfast' : this.minute < 16*60 ? 'lunch' : 'dinner';
+    const meal = this.cookable(v,type);
+    if (meal && v.step) {
+      v.step.dur = 1;
+      v.queue = [{kind:'cook',at:'home',target:this.doorstep(v),meal,dur:20,activity:`making ${meal[0]} after finding no counter service`}];
+    }
+  }
+
   eatOut(v, where) {
     const p = this.place(where), menu = OUT_MEALS[where] || OUT_MEALS.cafe;
+    const service = shopService(this, p);
+    if (!service.available) { this.missedServiceMeal(v, service.message); v.activity = `could not get service at ${p.name}`; return; }
     const [dish, price] = menu[Math.floor(this.rand() * menu.length)];
     const uses = where === 'pub' ? ['lamb', 'veg', 'pie'] : ['bread', 'eggs', 'milk', 'coffee'];
     const ok = uses.some((g) => (p.stock[g] || 0) > 0);
@@ -1251,6 +1285,8 @@ export class TownLife {
   // Buys one item and eats it on the spot (a roll for breakfast, a pie for lunch).
   snack(v, shopId, good) {
     const shop = this.place(shopId), src = shopId === 'bakery' ? shop.out : shop.stock, price = GOODS[good].price;
+    const service = shopService(this, shop);
+    if (!service.available) { this.missedServiceMeal(v, service.message); v.activity = `could not get service at ${shop.name}`; return; }
     if (this.open(shop) && !(src[good] > 0)) this.stats.stockouts++;
     if (!this.open(shop) || !(src[good] > 0) || v.wallet < price) { v.memory = `the ${shop.name} had no ${GOODS[good].name} left`; v.activity = `found the ${shop.name} out of ${GOODS[good].name}`; return; }
     src[good]--; v.wallet -= price; this.sale(shop, price); this.stats.sold[good] = (this.stats.sold[good] || 0) + 1;
@@ -1259,6 +1295,8 @@ export class TownLife {
 
   buy(v, shopId, items) {
     const shop = this.place(shopId);
+    const service = shopService(this, shop);
+    if (!service.available) { v.memory = service.message; return; }
     const src = shopId === 'bakery' ? shop.out : shop.stock;
     const bag = v.carrying || {};
     const missing = [];
@@ -1368,3 +1406,4 @@ export class TownLife {
     return true;
   }
 }
+

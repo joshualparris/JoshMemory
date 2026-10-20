@@ -8,6 +8,12 @@ import { exteriorColliders } from './exterior-collision.js';
 export const LOT_X = 26, LOT_Z = 46;
 const COLS = 26;
 
+// Lots in every fifth column back onto an avenue (on the left of columns A, F, K…, on the right of
+// E, J, O…): their yard objects stay 8.4 m from the lot centre on that side, off the avenue's kerb.
+export function yardLimitsFor(coordinate) {
+  const col = coordinate.charCodeAt(0) - 65;
+  return { left: col % 5 === 0 ? 8.4 : undefined, right: (col + 1) % 5 === 0 ? 8.4 : undefined };
+}
 export function lotPosition(coordinate) {
   const col = coordinate.charCodeAt(0) - 65, row = parseInt(coordinate.slice(1), 10) - 1;
   return { x: (col - (COLS - 1) / 2) * LOT_X, z: row * LOT_Z - 3.5 * LOT_Z, row, col };
@@ -89,7 +95,7 @@ export function buildTown(scene, houses, streets) {
   for (const [n, h] of houses.entries()) {
     const lot = lotPosition(h.coordinate);
     const hb = new Builder(); hb.glass = [];
-    const fp = buildExterior(hb, h.ext, h.ext);
+    const fp = buildExterior(hb, h.ext, h.ext, yardLimitsFor(h.coordinate));
     for (const g of hb.glass) { g.translate(lot.x, 0, lot.z); panes[(n * 7) % 10 < 5 ? 0 : (n * 7) % 10 < 9 ? 1 : 2].push(g); }
     const mesh = hb.build();
     mesh.position.set(lot.x, 0, lot.z);

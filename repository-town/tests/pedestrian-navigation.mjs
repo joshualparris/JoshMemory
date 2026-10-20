@@ -52,3 +52,14 @@ assert(source.includes('conversationElapsed<15'),'town conversation must have an
 const named=(await import('node:fs')).readFileSync(new URL('../src/world/npcs.js',import.meta.url),'utf8');
 assert(named.includes('entry.chatElapsed<15'),'named street NPCs must also resume activity');
 console.log('PASS: A* safely detours around static visitor, simulated villager completes work journey, persisted route, time-boxed conversations without passive stopping');
+
+// A walker someone has stepped up beside (inside personal space) must still find a way on,
+// not freeze next to them for the rest of the day (a villager stuck beside Spark on the footpath).
+{
+  const detour = pedestrianDetour;
+  const bystander = { x: -35.99, z: -11.48, radius: .66 };
+  const way = detour({ x: -36.1, z: -10.7 }, { x: 94, z: -10.7 }, [bystander], null);
+  assert(Array.isArray(way) && way.length > 0, 'a walker beside a standing person gets a detour, not a dead end');
+  assert(way.every((p) => Math.hypot(p.x - bystander.x, p.z - bystander.z) >= .75), 'the detour never moves closer to them');
+}
+console.log('PASS: walker beside a standing person escapes');

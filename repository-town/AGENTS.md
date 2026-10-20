@@ -33,6 +33,10 @@ same sitting and say so in `COORDINATION.md`.
      residents going to the kitchen at dinner, sound.
    - `node tests/people.mjs` — villagers walk, stop, chat; residents move about.
    - `node tests/npc.mjs` — resident chat, Groq key handling (Groq stubbed).
+   - `node tests/npc-soak.mjs` — a whole simulated day: no villager stuck, inside a building or
+     on top of another; sleep and work routines; street characters clear.
+   - `npm run test:browser` — the browser suites CI doesn't run (it has no Chromium): exits,
+     windows, NPC soak, people, life.
    - `node tests/games.mjs` — every packed game loads from file://.
    - `node tests/streetwalk.mjs` — walk every street and avenue on foot.
    - `src/tests/expedition.mjs` — Expedition Guild relics (run from `dist/public`).

@@ -29,18 +29,37 @@ function clearSegment(from,to,blockers,world){
 }
 function clear(pos,blockers,world){
   if(world?.hits?.(pos.x,pos.z,.45))return false;
-  return blockers.every(b=>dist(pos,b)>=Math.max(PERSONAL,(b.radius||.6)+.66));
+  return blockers.every(b=>dist(pos,b)>=(b.limit??Math.max(PERSONAL,(b.radius||.6)+.66)));
 }
 // Returns a series of distinct, collision-free local waypoints and then
 // rejoins the original footpath route. No instantaneous position teleport.
 // null: unobstructed; []: no safe bypass (yield and retry next tick).
+// Distance along start→goal (within `reach`) to the first fixed obstacle — a shed, bin, lamp or
+// wall corner in the town's collision world — or null when the way is clear. The first and last
+// metre are ignored: doorsteps and pavement edges legitimately sit right beside walls.
+export function staticBlockOnSegment(start,goal,world,reach=3.7){
+  if(!world?.hits)return null;
+  const length=dist(start,goal),end=Math.min(length-1,reach);
+  for(let a=.6;a<=end;a+=.2){
+    const t=a/length;
+    if(world.hits(start.x+(goal.x-start.x)*t,start.z+(goal.z-start.z)*t,.4))return a;
+  }
+  return null;
+}
 export function pedestrianDetour(start,goal,blockers=[],world=null){
   const length=dist(start,goal);
   if(length<.05)return null;
-  const near=blockersOnSegment(start,goal,blockers);
-  if(!near.length)return null;
+  // Someone who has already come within personal space (they stepped up beside the walker) may
+  // only not be approached any closer; otherwise every step away looks blocked and the walker
+  // freezes beside them for good.
+  const near=blockersOnSegment(start,goal,blockers).map(b=>{
+    const need=Math.max(PERSONAL,(b.radius||.6)+.66),now=dist(start,b);
+    return now<need?{...b,limit:Math.max(.3,now-.02)}:b;
+  });
+  const wall=near.length?null:staticBlockOnSegment(start,goal,world);
+  if(!near.length&&wall===null)return null;
   const dx=(goal.x-start.x)/length,dz=(goal.z-start.z)/length;
-  const targetDist=Math.min(length,Math.max(4.2,Math.min(6.5,dist(start,near[0])+2.8)));
+  const targetDist=Math.min(length,Math.max(4.2,Math.min(6.5,(near.length?dist(start,near[0]):wall)+2.8)));
   const target={x:start.x+dx*targetDist,z:start.z+dz*targetDist};
   const limit=Math.ceil((targetDist+2.9)/GRID);
   const cross=(x,z)=>Math.abs((x-start.x)*dz-(z-start.z)*dx);

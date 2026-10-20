@@ -7,6 +7,7 @@ import { RELICS, PROGRESS_KEY, cleanProgress } from '../adventure/data.js';
 import { esc } from './interactions.js';
 import { economyPanel, jobPanel } from './economy-panels.js';
 import { JOB_BOARD } from '../world/jobs.js';
+import { workingAt, shopService } from '../world/shop-attendance.js';
 
 const list = (o) => Object.entries(o || {}).filter(([, n]) => n > 0).map(([g, n]) => amount(g, n)).join(', ') || 'nothing';
 const hours = (p) => (p.opens === 0 && p.closes >= 1440 ? 'open all hours' : `${timeText(p.opens)}–${timeText(p.closes)}`);
@@ -166,11 +167,13 @@ function placePanelBase(life, id) {
   if (id === 'hall') return hallPanel(life);
   const open = life.open(p);
   const staff = life.villagers.filter((v) => v.work === id);
-  const here = staff.filter((v) => v.step?.kind === 'work' && !v.path.length);
+  const here = life.villagers.filter((v) => workingAt(v,id));
+  const service = shopService(life,p), serving = service.available;
   const visitors = life.villagers.filter((v) => v.step?.at === id && v.step.kind !== 'work' && !v.path.length);
   const rows = [];
   rows.push(`<p>${esc(ABOUT[id] || '')}</p>`);
   rows.push(`<p><b>Hours:</b> ${esc(hours(p))} · ${open ? '<span class="ok">open now</span>' : '<span class="dim">closed now</span>'} · it's ${esc(life.time())}</p>`);
+  rows.push(`<p><b>Counter:</b> ${esc(service.message)}</p>`);
   if (p.kind === 'farm') {
     rows.push(`<p><b>Crop:</b> <span class="bar"><span style="width:${Math.round(p.growth * 100)}%"></span></span> ${Math.round(p.growth * 100)}% grown</p>`);
     rows.push(`<p><b>Waiting for the truck:</b> ${esc(amount(p.makes, p.out[p.makes] || 0))}</p>`);
@@ -181,7 +184,7 @@ function placePanelBase(life, id) {
     if (id === 'bakery') rows.push(`<p><b>Out the back:</b> ${esc(list(p.stock))}</p>`);
     if (id === 'mill') rows.push(`<p><b>Ready to go:</b> ${esc(list(p.out))}</p>`);
     if (id === 'depot') rows.push(`<p><b>On the platform:</b> ${esc(list(p.out))}</p><p><b>Trucks:</b> ${life.trucks.map((t) => esc(`${t.driver?.name || 'Spare truck'} — ${t.state}`)).join('<br>')}</p>`);
-    if (p.till) rows.push(`<p><b>Takings so far:</b> $${p.till}</p>`);
+    if (Number.isFinite(p.till)) rows.push(`<p><b>Cash in till:</b> ${money(p.till)}</p>`);
   }
   rows.push(`<p><b>Working here:</b> ${staff.length ? staff.map((v) => esc(`${v.name} (${v.job}, ${timeText(v.start)}–${timeText(v.end)})${here.includes(v) ? ' — here now' : ''}`)).join(', ') : 'nobody'}</p>`);
   if (visitors.length) rows.push(`<p><b>Here now:</b> ${visitors.map((v) => esc(`${v.name}, ${v.activity}`)).join('; ')}</p>`);
@@ -194,30 +197,30 @@ function placePanelBase(life, id) {
     const msg = fn(), next = again();
     return { ...next, body: '<p><b>' + esc(msg) + '</b></p>' + next.body };
   } });
-  const actions = sells.filter(g => (shelves[g] || 0) > 0)
+  const actions = sells.filter(g => serving && (shelves[g] || 0) > 0)
     .map(g => act('Buy ' + GOODS[g].name + ' ($' + GOODS[g].price + ')', () => life.buyItem(id, g)));
   if (Object.keys(prepared).length) {
-    rows.push('<h3>Menu · available to order</h3><p>' +
+    rows.push('<h3>Menu' + (serving ? ' · available to order' : ' · service closed') + '</h3><p>' +
       Object.keys(prepared).map(g => esc(GOODS[g].name) + ' · $' + GOODS[g].price +
       (life.menuAvailability(id,g) ? '' : ' (sold out)')).join(' · ') + '</p>');
-    for (const g of Object.keys(prepared).filter(g => life.menuAvailability(id,g)))
+    for (const g of Object.keys(prepared).filter(g => serving && life.menuAvailability(id,g)))
       actions.push(act('Order ' + GOODS[g].name + ' ($' + GOODS[g].price + ')', () => life.buyMenuItem(id,g)));
   }
-  for (const g of [...new Set([...sells, ...Object.keys(prepared)])].filter(g => (me.bag[g] || 0) > 0 && GOODS[g]))
+  for (const g of [...new Set([...sells, ...Object.keys(prepared)])].filter(g => serving && (me.bag[g] || 0) > 0 && GOODS[g]))
     actions.push(act('Sell back ' + GOODS[g].name, () => life.sellItem(id,g)));
   for (const g of Object.keys(me.bag).filter(g => me.bag[g] > 0 && ['bread','pie','fruit','veg','eggs','milk','lamb'].includes(g)).slice(0,1))
     actions.push(act('Eat the ' + GOODS[g].name, () => life.eatItem(g)));
-  if (id === 'post') actions.push(act('Post a letter to Mabel ($2)', () => life.postLetter('Mabel')));
+  if (id === 'post' && open) actions.push(act('Post a letter to Mabel ($2)', () => life.postLetter('Mabel')));
   if (id === 'cafe') {
     const categories = [...new Set(CAFE_MENU.map(item => item.category))];
-    rows.push('<h3>Commit Café menu</h3><p>Prepared to order using delivered ingredients.</p>');
+    rows.push('<h3>Commit Café menu</h3><p>' + (serving ? 'Prepared to order using delivered ingredients.' : 'Service closed. Menu shown for your next visit.') + '</p>');
     for (const category of categories) {
       rows.push('<h4>' + esc(category) + '</h4><p>' +
         CAFE_MENU.filter(item => item.category === category)
           .map(item => esc(item.name) + ' · $' + item.price +
             (cafeAvailable(p,item) ? '' : ' (sold out)')).join(' · ') + '</p>');
     }
-    for (const item of CAFE_MENU)
+    for (const item of CAFE_MENU.filter(item => serving && cafeAvailable(p,item)))
       actions.push(act('Order ' + item.name + ' ($' + item.price + ')' +
         (cafeAvailable(p,item) ? '' : ' · sold out'), () => life.orderCafe(item.id)));
   }
@@ -326,3 +329,5 @@ export function townContext(life, v, resident) {
     trucks: life.trucks.map((t) => `${t.driver?.name || 'a spare truck'} is ${t.state}`),
   };
 }
+
+

@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { containLabel } from '../ui/labels.js';
 import { buildFarmhouseInterior } from './farmhouse-interior.js';
+import { highStreetShell } from './interior-kit.js';
 import { buildHotelInterior } from './hotel-interior.js';
 import { buildBakeryInterior } from './bakery-interior.js';
 import { buildBankInterior } from './bank-interior.js';
@@ -54,7 +55,6 @@ const FITTINGS = {
   council:['Public works office','Maintenance desk','Repair plans',0x9bada7,'Report a fault','Council workers maintain roads, utilities and public buildings.'],
 };
 const BASE_W=14, BASE_D=18, FRONT=6, BACK=-12, EDGE=7;
-const WALL=0.24;
 
 export function buildCivicInterior(site,makeLabel) {
   // A family's home must never regress to the single-room retail fallback.
@@ -90,18 +90,12 @@ export function buildCivicInterior(site,makeLabel) {
     box(w,h,d,x,y,z,colour);
     colliders.push({x0:x-w/2,x1:x+w/2,z0:z-d/2,z1:z+d/2});
   };
-  // A proper door-sized gap in the front wall, not a collision rectangle
-  // covering the whole entrance. The rear wall and both side walls are solid.
   box(BASE_W,0.24,BASE_D,0,-0.12,-3,0xb9a88f);
   box(BASE_W,0.27,BASE_D,0,4.7,-3,0x615d56);
-  solid(BASE_W,4.6,WALL,0,2.3,BACK,0xc3b6a4);
-  solid(WALL,4.6,BASE_D,-EDGE,2.3,-3,0xc3b6a4);
-  solid(WALL,4.6,BASE_D, EDGE,2.3,-3,0xc3b6a4);
-  solid(6,4.6,WALL,-4,2.3,FRONT,0xc3b6a4);
-  solid(6,4.6,WALL,4,2.3,FRONT,0xc3b6a4);
-  box(2.4,0.2,WALL,0,3.1,FRONT,0x6f5343);
-  // Door sill is low and decorative so it never traps the player.
-  box(2.15,0.06,0.6,0,0.02,FRONT,0xb9b8ae);
+  // The shared High Street shell: a real door gap (no collider across it, a low decorative
+  // sill), display windows onto the street and a window in each side wall.
+  const shell=highStreetShell({box,solid,wall:0xc3b6a4,frontSill:0.6,sideSill:0.9});
+  group.add(shell.glass);
   box(BASE_W-0.5,0.16,0.5,0,3.65,BACK+0.5,accent);
   // A facing counter, with 3m clearance down the central entrance aisle.
   solid(8,1.2,1.2,0,0.6,-6.4,0x735844);
@@ -147,6 +141,7 @@ export function buildCivicInterior(site,makeLabel) {
   const rooms=[{name:roomTitle,x0:-EDGE,x1:EDGE,z0:BACK,z1:FRONT,w:BASE_W,d:BASE_D,parent:-1}];
   return {
     group,colliders,interactables,sceneObjects,placedProps,rooms,
+    windows:shell.windows,
     doors:[],dynamics:[],sight:[],
     bounds:{x0:-EDGE,x1:EDGE,z0:BACK,z1:FRONT},
     spawn:new THREE.Vector3(0,0,FRONT-2.25),
