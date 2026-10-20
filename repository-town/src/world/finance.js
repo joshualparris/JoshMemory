@@ -1,3 +1,5 @@
+import { householdDay } from './household.js';
+import { bankReceives } from './credit.js';
 // Public and household finance on top of the town's money model (life.civic): finite Commonwealth
 // and NSW treasuries, PAYG income tax, council grants, the visitor's rent and power bills, household
 // and business arrears, business utilities, and a double-entry journal. Every transfer moves money
@@ -9,8 +11,6 @@ export const RATES = Object.freeze({
   visitorRent: 8,         // per town day, from day 2
   visitorPower: 2,
   businessUtilities: 3,   // per private business per town day
-  npcRent: 8,             // every villager household pays rent and power too, to the council
-  npcPower: 2,
   councilReserve: 6000,   // grants top the council up towards this level; a rich council needs none
   federalGrant: 600,      // most the Commonwealth pays the council in a day
   stateGrant: 300,        // most NSW pays the council in a day
@@ -132,11 +132,13 @@ export function dailyClose(life) {
   bill(RATES.visitorRent, 'rentArrears', 'rent');
   bill(RATES.visitorPower, 'powerArrears', 'power');
   if (f.rentArrears + f.powerArrears > 0) life.log('Your rent and power are overdue. Pay them at the Community Bank.');
-  // Every villager household pays rent and power as well, from its wallet; shortfalls become arrears.
+  // Villager households (src/world/household.js): renters pay the council's housing office, buyers
+  // repay the Community Bank, and overdue power and water bills are collected by direct debit.
   for (const v of life.villagers) {
-    const due = RATES.npcRent + RATES.npcPower + (v.housingArrears || 0), pay = Math.min(due, Math.max(0, Math.floor(v.wallet)));
-    if (pay > 0) { v.wallet -= pay; c.treasury = r2(c.treasury + pay); revenue(life, 'rent', pay); }
-    v.housingArrears = Math.min(80, r2(due - pay));
+    const h = householdDay(life, v);
+    if (h.council > 0) { c.treasury = r2(c.treasury + h.council); revenue(life, 'rent', h.council); }
+    if (h.bank > 0) { bankReceives(life, h.bank); record(life, 'npc:' + v.name, 'community bank', h.bank, 'Home-loan repayment'); }
+    v.housingArrears = Math.min(80, h.owed);
     if (v.housingArrears > 0) f.daily.unpaid = r2(f.daily.unpaid + v.housingArrears);
   }
   // Private businesses pay utilities from the till, then any bills they still owe.

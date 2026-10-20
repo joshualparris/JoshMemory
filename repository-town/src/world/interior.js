@@ -79,7 +79,9 @@ function placeRooms(rooms, layout, skip = 0) {
 function attachRoom(R, r, put, skip) {
   const front = R[0].z1;
   const overlaps = (a) => R.some((b) => a.x0 < b.x1 - 0.01 && a.x1 > b.x0 + 0.01 && a.z0 < b.z1 - 0.01 && a.z1 > b.z0 + 0.01);
-  for (const [pi, p] of R.entries()) {
+  // Household rooms open off the newest rooms first, so their doorways don't eat the wall space
+  // an authored room needs for its exhibits.
+  for (const [pi, p] of r.household ? [...R.entries()].reverse() : R.entries()) {
     const cz = p.z0 + (p.d - r.d) / 2, cx = p.x0 + (p.w - r.w) / 2;
     const tries = [[p.x1, cz], [p.x0 - r.w, cz], [cx, p.z0 - r.d], [p.x1, p.z1 - r.d], [p.x0 - r.w, p.z1 - r.d], [p.x1, p.z0], [p.x0 - r.w, p.z0], [p.x0, p.z0 - r.d], [p.x1 - r.w, p.z0 - r.d]];
     for (const [x, z] of tries) {
@@ -225,6 +227,19 @@ function buildOnce(house, makeLabel, attempt) {
     name:'Bedroom',w:8,d:8,archive:true,
     props:[['bed','Sleep in bed',{do:'sleep'}],['wardrobe','Clothes wardrobe'],['lamp','Bedside lamp']]
   });
+  // A villager's own home (house.household = their name) also gets the rooms they live in:
+  // the appliances here are the ones src/world/household.js runs, and using them opens that household.
+  if(house.household){
+    const use=(what)=>({do:'household',what});
+    const have=new Set(authored.rooms.map(r=>r.name));
+    const add=(name,w,d,props)=>{ if(!have.has(name))roomsWithBeds.push({name,w,d,archive:true,household:true,props}); };
+    add('Kitchen',10,8,[['fridge','Fridge',use('fridge')],['pantry','Pantry',use('pantry')],['stove','Oven and cooktop',use('oven')],
+      ['kitchenSink','Kitchen sink',use('sink')],['crockery','Plates and cutlery',use('crockery')],['table','Kitchen table']]);
+    add('Bathroom and laundry',10,8,[['shower','Shower',use('shower')],['toilet','Toilet'],['basin','Basin and mirror'],
+      ['washingMachine','Washing machine',use('laundry')],['freezer','Chest freezer',use('freezer')],['switchboard','Switchboard',use('power')]]);
+    add('Living room',10,9,[['sofa','Couch'],['tv','Television',use('tv')],['aircon','Air conditioner',use('climate')],
+      ['computer','Home computer',use('computer')],['lamp','Reading lamp']]);
+  }
   const spec={...authored,rooms:roomsWithBeds};
   const b = new Builder();
   const colliders = [];

@@ -1,0 +1,50 @@
+// Shop food that doesn't keep: daily markdown losses on perishable stock, and the cold rooms on the
+// high street, which need power. Pure logic, deterministic; life.js calls in hourly and at day's end.
+//
+// High-street shops share the Mill and Bakery feeder (src/world/power-grid.js customer 'bakery').
+// Chilled stock follows the Australian 2-hour/4-hour rule: after four hours without refrigeration
+// it is unsafe and is thrown out.
+import { COUNTERS } from './counter-queue.js';
+
+// Share of each perishable shelf lost per day (stale, bruised or past its date). Whole units only,
+// so a small shelf of two or three doesn't lose anything.
+export const DAILY_LOSS = { bread: 0.15, pie: 0.25, milk: 0.05, lamb: 0.04, eggs: 0.02, veg: 0.08, fruit: 0.05 };
+export const CHILLED = ['milk', 'lamb'];
+export const COLD_LIMIT = 240;   // town minutes without power before chilled stock is unsafe
+
+const shelvesOf = (p) => [p.stock, p.out].filter(Boolean);
+
+// Once an hour: cold rooms lose power with the bakery feeder; four hours off and chilled stock goes.
+export function coldChainHour(life) {
+  const powered = life.gridPowered('bakery');
+  let tossed = 0;
+  for (const id of COUNTERS) {
+    const p = life.place(id);
+    p.coldOff = powered ? 0 : (p.coldOff || 0) + 60;
+    if (p.coldOff !== COLD_LIMIT) continue;
+    const lost = [];
+    for (const shelf of shelvesOf(p)) for (const g of CHILLED) if (shelf[g] > 0) { lost.push(`${shelf[g]} ${g}`); tossed += shelf[g]; shelf[g] = 0; }
+    if (lost.length) life.log(`The ${p.name}'s cold room has been off for four hours: ${lost.join(' and ')} thrown out under the food-safety rule.`);
+  }
+  if (tossed) { life.stats.wasted = (life.stats.wasted || 0) + tossed; life.rubbish(tossed); }
+  return tossed;
+}
+
+// At the end of the day: stale bread and pies, bruised fruit and veg, milk and meat at their dates.
+export function shopWasteDay(life) {
+  let total = 0;
+  const notes = [];
+  for (const id of COUNTERS) {
+    const p = life.place(id);
+    for (const shelf of shelvesOf(p)) for (const [g, rate] of Object.entries(DAILY_LOSS)) {
+      const n = Math.floor((shelf[g] || 0) * rate);
+      if (n > 0) { shelf[g] -= n; total += n; notes.push(`${n} ${g} at the ${p.name}`); }
+    }
+  }
+  if (total) {
+    life.stats.wasted = (life.stats.wasted || 0) + total;
+    life.rubbish(total);
+    life.log(`Closing time: ${notes.slice(0, 3).join(', ')}${notes.length > 3 ? ' and more' : ''} went out as past their best.`);
+  }
+  return total;
+}

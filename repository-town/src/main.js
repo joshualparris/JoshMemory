@@ -25,7 +25,7 @@ import { createTownLife } from './world/townlife.js';
 import { createAmbience } from './ui/ambience.js';
 import { bakeryKitchenPanel } from './ui/bakery-panel.js';
 import { walletPanel, jobBoardPanel } from './ui/economy-panels.js';
-import { placePanel, ledgerPanel, guidePanel, needsPanel, relicsLeft, townContext } from './ui/townpanels.js';
+import { placePanel, ledgerPanel, guidePanel, needsPanel, relicsLeft, townContext, householdPanel } from './ui/townpanels.js';
 import { createExpedition } from './adventure/expedition.js';
 
 const $ = (id) => document.getElementById(id);
@@ -239,7 +239,9 @@ async function start() {
   const doorTurn = (site) => (site && site.side === 'south' ? Math.PI : 0);
   function enter(coord, keepFacing = false) {
     const yawIn = player.yaw;
-    const h = byCoord.get(coord);
+    // A villager's own home also has their kitchen, bathroom and laundry, and living room.
+    const resident = life.villagers.find((v) => v.home.coordinate === coord);
+    const h = resident ? { ...byCoord.get(coord), household: resident.name } : byCoord.get(coord);
     const floors = createFloorStack(h, makeLabel);
     const built = floors ? floors.levels[0] : buildInterior(h, makeLabel);
     // Every storey shares the ground floor's frame: front door at the interior's exit, facing +z
@@ -516,6 +518,10 @@ async function start() {
       }
       if(inside?.place&&thing.act?.do==='bakery-kitchen'){
         openPanel(bakeryKitchenPanel(life),thing);
+        return;
+      }
+      if(thing.act?.do==='household'&&inside?.house?.household){
+        openPanel(householdPanel(life,inside.house.household,thing.act.what),thing);
         return;
       }
       if(inside?.place&&thing.act?.do==='civic-ledger'){

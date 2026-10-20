@@ -19,12 +19,21 @@ Object.assign(cafe.stock,{coffee:5,milk:5,bread:5,eggs:5,veg:5,pie:3,fruit:5,tea
 const order=CAFE_MENU.find(i=>i.id==='flat-white');
 assert(cafeAvailable(cafe,order));
 const wallet=p.wallet,stock={...cafe.stock},sales=t.stats.meals;
-assert.match(t.orderCafe('flat-white'),/Served Flat white/);
+assert.match(t.orderCafe('flat-white'),/Ordered Flat white .*Ticket 1: it will be brought to you in about 3 minutes/);
 assert.equal(p.wallet,wallet-order.price);
 assert.equal(cafe.stock.coffee,stock.coffee-1);
 assert.equal(cafe.stock.milk,stock.milk-1);
-assert(p.hunger<80);
+// Paid at the counter, made to order: nothing to drink until the barista calls the ticket.
+assert.equal(p.orders.length,1);
+assert.equal(t.stats.meals,sales);
+const hungerBefore=p.hunger;
+for(let i=0;i<8;i++)t.tick(0.5);
+assert.equal(p.orders.length,0,'the flat white is served once it is made');
+assert(p.hunger<hungerBefore);
 assert.equal(t.stats.meals,sales+1);
+assert.match(p.served[0],/Ticket 1: Flat white served/);
+// Ticking the town lets villagers move; keep the barista behind the counter for the refusal checks.
+barista.step={kind:'work',at:'cafe'}; barista.path=[];
 p.wallet=0;
 const before={...cafe.stock};
 assert.match(t.orderCafe('latte'),/need \$5/);

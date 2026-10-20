@@ -46,6 +46,23 @@ Newest first. Times in Australia/Sydney.
 
 ## Done recently
 
+- 2026-10-20 · Claude Code — **villagers actually live at home; shop queues, prep times, spoilage**, branch `ccr-846db548-0l5zmu`.
+  - `src/world/household.js` (new, one owner for home state):
+    - Each villager has a larder of dated food batches in the pantry, fridge and freezer. Food spoils; a warm summer pantry spoils faster. A fridge without power for four hours loses its chilled food; a freezer thaws after a day. Meat comes out of the freezer to thaw.
+    - Appliances, seasons and outdoor temperature drive reverse-cycle heating and cooling and lights.
+    - Power and water are metered and feed the town's hourly demand, replacing the flat home load. A weekly power and water bill arrives by email and is paid at the home computer.
+    - Tenure: renters pay the council, buyers repay a Community Bank home loan, retirees own outright. This replaces the flat `npcRent`/`npcPower`.
+    - A weekly budget set at the computer steers eating out (soft: nobody skips a meal over it), and each household has an inbox (payslips, bills, notices).
+    - Chores: dishes, laundry, mowing, watering, letterbox, showers, TV.
+  - `src/world/counter-queue.js` (new): first-come-first-served counter lines served by the staff actually on duty, order-taking time and kitchen prep time with backlog, ticketed café and menu orders for the visitor.
+  - `src/world/cold-chain.js` (new): daily perishable losses at shops, and high-street cold rooms that fail after four hours without power.
+  - Villager homes (`interior.js`, `props.js`, `main.js`, `townpanels.js`): a kitchen, bathroom and laundry, and living room with 12 usable appliances showing that household's real state. Back yards get a shed and mower, rotary clothesline, vegie patch, sprinkler, AC unit, letterbox and meter box (`townlife.js`).
+  - Also fixed:
+    - Market Square stroll targets could land on a lamp post (`life.js` `jitter`).
+    - Lunchtime grocery runs for people who finish after the shops' staff leave.
+    - Evening fallback now checks the shop is staffed, not just open.
+  - Tests: `tests/household.mjs` and `tests/household-homes.mjs` (all 188 houses fit a household) are added to `test:town`; `tests/household-browser.mjs` is added to `test:browser`. `cafe-orders.mjs` is updated for tickets.
+
 - 2026-10-20 · Replit — **Explorer's Log**, PR [#81](https://github.com/joshualparris/JoshMemory/pull/81) is open; the Repository Town Integration safety gate passed. Adds the live house-discovery counter, progress panel, next-house shortcut, and focused tests using existing local-save data. **Not merged or deployed.**
 
 - 2026-10-20 · Claude Code — **high-street realism pass**, branch `ccr-846db548-0l5zmu`. Walked the shop street and fixed what looked fake: every shop and civic building now has a painted name board (`src/world/shop-signs.js`, one canvas atlas and one mesh; the clinic's red cross is painted on its sign), glazed shop doors with brass handles and OPEN/CLOSED cards that follow each shop's real hours (faintly lit so they read at night), paved forecourts in place of the grass strip between footpath and shopfronts (the depot's truck bays are left clear), kerbs along both sides of the road, benches and bins between shops, and gate signs for the farms (`src/world/townlife.js`). Benches, bins and sign posts are solid; npc-soak, people, life, shop-e2e, shop-crowd, streetwalk, `test:integration` and the Vercel build command all pass. Not done: shop window displays, parked cars and street trees (they would sit in NPC and truck lanes).

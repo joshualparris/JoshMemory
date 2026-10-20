@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import * as THREE from 'three';
 import { populateShopStaff } from '../src/world/shop-staff.js';
 import { workingAt, shopService } from '../src/world/shop-attendance.js';
+import { COUNTERS, lineAt, pendingOrders } from '../src/world/counter-queue.js';
 
 const interior=()=>({group:new THREE.Group(),rooms:Array.from({length:4},()=>({name:'Room'})),interactables:[],sceneObjects:[]});
 const label=()=>new THREE.Group();
@@ -30,8 +31,8 @@ assert(populateShopStaff({id:'farmhouse',name:'Farmhouse'}, {villagers:[]},inter
 const source=readFileSync(new URL('../src/ui/townpanels.js',import.meta.url),'utf8').replace(/^import .*;\s*$/gm,'').replace(/^export /gm,'');
 const goods={bread:{name:'bread',price:5},pie:{name:'pie',price:8},roast:{name:'roast',price:18}};
 const cafeMenu=[{id:'coffee',name:'Coffee',category:'Drinks',price:4},{id:'tea',name:'Tea',category:'Drinks',price:3}];
-const panels=new Function('GOODS','VENUE_MENU','CAFE_MENU','cafeAvailable','workingAt','shopService','esc','amount','timeText','JOB_BOARD',source+'\nreturn placePanel;')(
-  goods,{pub:{roast:{}}},cafeMenu,(p,item)=>item.id==='coffee',workingAt,shopService,String,(g,n)=>n+' '+g,String,[]);
+const panels=new Function('GOODS','VENUE_MENU','CAFE_MENU','cafeAvailable','workingAt','shopService','esc','amount','timeText','JOB_BOARD','COUNTERS','lineAt','pendingOrders',source+'\nreturn placePanel;')(
+  goods,{pub:{roast:{}}},cafeMenu,(p,item)=>item.id==='coffee',workingAt,shopService,String,(g,n)=>n+' '+g,String,[],COUNTERS,lineAt,pendingOrders);
 const site={id:'store',name:'General Store',kind:'shop',opens:480,closes:1080,stock:{bread:4,pie:2},out:{},target:{bread:8},sells:['bread'],till:0};
 let open=false;
 const town={place:()=>site,open:()=>open,time:()=>open?'10:00':'23:00',villagers:[worker],civic:{player:{wallet:20,bank:40,bag:{bread:1}}},needsReport:()=>({hunger:0,fatigue:0}),menuAvailability:()=>true};
