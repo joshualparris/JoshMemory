@@ -16,6 +16,8 @@ import { freshCredit, recordEarning, noteBank, creditReport, borrow, repay, accr
 import { ensureHousehold, hasFood, heldCount, takeFood, stowFood, larderSummary, householdHour, homeTask, householdDone, householdReport, noteIncome, noteSpend, canAfford, outdoorTemp, season } from './household.js';
 import { startNeeds, advanceNeeds, eatPlayer, hotelCheckIn, sleepPlayer, needsReport } from './needs.js';
 import { initialiseProperties, propertyReport, buyProperty, listProperty, sellProperty, leaseProperty, endLease, propertyDay } from './property.js';
+import { ensureTenancies, leaseReport, commercialRentDay, issueCommercialDisclosure, renewCommercial, reviewCommercialRent, tenancyNotice, applyTribunal, hearing, enforcePossession, leaseOverview } from './lease-law.js';
+import { exchangePurchase, rescindContract, settlePurchase, contractReport, contractQuote } from './property-contracts.js';
 import { initialiseVehicles, motorReport, buyVehicle, serviceVehicle, renewRegistration, sellVehicle, motorDay } from './vehicles.js';
 import { MAYOR_CANDIDATES, createGovernment, civicElection, castCivicVote, submitRequest, requestFeeder, proposeMotion, councilMeeting, advanceCivicWork, budgetRevenue, restoreCivic, govSummary, maintainServices } from './government.js';
 // Town life simulation: the clock, farms, the mill and bakery, shops, trucks, the post,
@@ -355,6 +357,7 @@ export class TownLife {
     startNeeds(this);
     this.place('hotel').bookings=[];
     initialiseProperties(this);
+    ensureTenancies(this);
     initialiseVehicles(this);
     this.log(`Day ${this.day} begins. The town wakes up.`);
   }
@@ -446,6 +449,16 @@ export class TownLife {
     budgetRevenue(this, dailyGrants(this), 'grant');
     financeDailyClose(this);
     propertyDay(this);
+    commercialRentDay(this);
+    for(const v of this.villagers){
+      const l=leaseReport(this,'H:'+v.home.coordinate);
+      if(l&&l.kind==='residential'){
+        l.landlord=this.civic.property.parcels[l.id]?.owner||l.landlord;
+        l.arrears=v.housingArrears||0;
+        if(l.arrears>0&&l.lateSince===null)l.lateSince=this.day;
+        if(l.arrears<=0){l.lateSince=null;if(l.notice?.ground==='rent-arrears')l.notice=null;}
+      }
+    }
     motorDay(this);
     // Villagers bank anything over $250 (money saved, not spent in town).
     for (const v of this.villagers) if (v.wallet > 250) { v.savings = (v.savings || 0) + v.wallet - 250; v.wallet = 250; }
@@ -646,6 +659,19 @@ export class TownLife {
     return `${op === 'deposit' ? 'Deposited' : 'Withdrew'} $${m}. Wallet $${me.wallet}, savings $${me.bank}.`;
   }
   propertyReport() { return propertyReport(this); }
+  contractQuote(id) {return contractQuote(this,id);}
+  contractReport(id) {return contractReport(this,id);}
+  exchangePurchase(id) {return exchangePurchase(this,id);}
+  rescindContract(id) {return rescindContract(this,id);}
+  settlePurchase(id) {return settlePurchase(this,id,(life,parcel)=>buyProperty(life,parcel));}
+  leaseReport(id) {return leaseOverview(this,id);}
+  commercialDisclosure(id) {return issueCommercialDisclosure(this,id);}
+  renewCommercial(id) {return renewCommercial(this,id);}
+  reviewCommercialRent(id) {return reviewCommercialRent(this,id);}
+  tenancyNotice(id,ground='rent-arrears') {return tenancyNotice(this,id,ground);}
+  applyTenancyOrder(id) {return applyTribunal(this,id);}
+  tenancyHearing(id) {return hearing(this,id);}
+  enforceTenancyOrder(id) {return enforcePossession(this,id);}
   buyProperty(id) { return buyProperty(this,id); }
   listProperty(id) { return listProperty(this,id); }
   sellProperty(id) { return sellProperty(this,id); }
