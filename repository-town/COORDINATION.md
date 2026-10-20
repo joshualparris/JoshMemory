@@ -258,3 +258,17 @@ Newest first. Times in Australia/Sydney.
 - 2026-10-20 · Claude — doors keep the player's facing: `enter`/`enterShop`/`leave` in `src/main.js` take `keepFacing` (used by the walk-through door sensors), so backing out of a building no longer spins the view 180°. Buttons/teleports still face outward. South-side shops add a half turn (`doorTurn`). Test: `node tests/door-facing.mjs` (needs the static server on :8091).
 
 - 2026-10-20 · Claude — researched interiors for the Post Office (`post-interior.js`), Clinic (`clinic-interior.js`) and Town Hall (`hall-interior.js`: public counter, council meeting room with dais and gallery, ballot box). Same kit, test branch and staff behaviour as the bank/store/café/pub. Note: the earlier door-facing commit briefly broke `src/tests/building-exits.mjs` (a source-text check on the house exit line); fixed by keeping `player.place(…,Math.PI)` and applying `keepFacing` after it.
+
+## 2026-10-20 — NPC playtest and fixes (Claude, branch ccr-846db548-0l5zmu)
+- New `tests/npc-soak.mjs` (browser, in `npm run test:browser`): a full simulated day in the real
+  collision world, every villager every 10 town minutes, plus all 32 street characters.
+- Fixed: villagers froze for good beside a street character who stepped up next to them (e.g. Spark
+  on the footpath): the A* detour treated every step away as "too close" (`pedestrian-navigation.js`;
+  regression in `tests/pedestrian-navigation.mjs`). Also on main before this.
+- Fixed: villagers walked through buildings and yards (~8 a day on main): avenue walking lanes moved
+  to the kerb edge, keeping left (±3.6 m); fixed obstacles on a route (sheds, bins, lamps) now get the
+  same bounded A* detour; avenue-side lots keep yard objects off the avenue kerb (`town.js
+  yardLimitsFor`, checked in `tests/exterior-collisions.mjs`). A few brief contacts a day remain with
+  the goods-display crates where shoppers queue at shop fronts.
+- `tests/people.mjs` follows #60's design: nearby villagers keep going; opening a chat stops them.
+- Browser tests are not in `test:town`: the CI gate has no Chromium (the gate failed on PR #68).

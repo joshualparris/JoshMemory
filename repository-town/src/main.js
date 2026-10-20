@@ -844,7 +844,7 @@ async function start() {
     place(x, z, yaw) { player.place(x, z, yaw); },
     probe(x, z) { return world.hits(x, z, player.radius); },
     // Buildings and props only: moving trucks' footprints are left out.
-    probeStatic(x, z) { const d = world.dynamic; world.dynamic = null; try { return world.hits(x, z, player.radius); } finally { world.dynamic = d; } },
+    probeStatic(x, z, r = player.radius) { const d = world.dynamic; world.dynamic = null; try { return world.hits(x, z, r); } finally { world.dynamic = d; } },
     // Stands next to a villager who is out and about, facing them.
     meetVillager(i = 0) {
       // Prefers someone walking somewhere, so tests see them stop for the player.
@@ -860,6 +860,8 @@ async function start() {
     enterShop,
     setFloor:(i)=>changeFloor(i),
     // Where the town's villager figures are drawn (they keep moving while the player is indoors).
+    // The named street characters: where they are and whether they are out in town.
+    streetPeople:()=>streetNPCs.map(n=>({id:n.npc.id,name:n.npc.name,x:n.pos.x,z:n.pos.z,mode:n.mode||null,visible:n.group?.visible??null})),
     townFigures:()=>townLife.people.map(p=>({key:p.key,x:p.fig.group.position.x,z:p.fig.group.position.z,visible:p.fig.group.visible})),
     // Stands 1.3 m inside window i of the current floor, looking out of it.
     lookOut(i=0){
@@ -875,6 +877,8 @@ async function start() {
       // Jumps the clock (tests): everyone re-plans their day from scratch.
       setTime(minute) { life.minute = minute; life.stats = life.freshStats(); for (const v of life.villagers) { v.step = null; v.path = []; v.queue = []; v.doneToday = {}; } },
       run(minutes) { for (let m = 0; m < minutes; m += 0.5) life.tick(0.5); },
+      // A villager's live route and plan, for diagnosing where people walk.
+      route: (name) => { const v = life.villagers.find((x) => x.name === name); return v && { x: v.x, z: v.z, bike: !!v.bike, inside: v.inside, path: v.path.map((p) => ({ x: p.x, z: p.z, detour: !!p.detour })), step: v.step && { kind: v.step.kind, at: v.step.at, target: v.step.target } }; },
       speed(n) { life.speed = n; }, trucks: () => life.trucks.map((t) => ({ id:t.id, x:t.x, z:t.z, state:t.state, braking:!!t.braking, load:t.load, wait:t.wait, next:t.path.find(p=>Math.hypot(p.x-t.x,p.z-t.z)>0.1)||null })),
       places: () => [...life.places.values()].map((p) => ({ id: p.id, name: p.name, stock: p.stock, out: p.out, growth: p.growth })),
       parcels: () => life.parcels.length,

@@ -161,13 +161,16 @@ export function walkRoute(a, b) {
   const ra = rowOf(a.z), rb = rowOf(b.z);
   // Pedestrians and cycles travelling in opposite directions need separate
   // lanes, not a shared single-file route in front of every shop.
+  // Opposing lanes 2.1 m apart; walkers on the outer one step round front-yard objects
+  // (pedestrian-navigation.js staticBlockOnSegment).
   const setback=b.x>=a.x?6.6:4.5;
   const sa = sideZ(ra, a.z, setback), sb = sideZ(rb, b.z, setback);
   const pts = [{ x: a.x, z: sa }];
   if (!(ra === rb && sa === sb)) {
     const ave = AVENUES.reduce((p, c) => (Math.abs(a.x - c) + Math.abs(b.x - c) < Math.abs(a.x - p) + Math.abs(b.x - p) ? c : p));
-    // Walk up the edge of the avenue, clear of the trucks' lanes and the corner houses.
-    const avenueTrack=ave+(sb>=sa?6.7:4.7);
+    // Walk up the kerb edge of the avenue, keeping left (+x going north, −x going south): 3.6 m out
+    // clears the trucks (their sides reach 2.9 m) and the high-street buildings 4 m from the centre.
+    const avenueTrack=ave+(sb>=sa?3.6:-3.6);
     pts.push({ x: avenueTrack, z: sa }, { x: avenueTrack, z: sb });
   }
   pts.push({ x: b.x, z: sb }, { x: b.x, z: b.z });
@@ -1003,6 +1006,14 @@ export class TownLife {
               break;
             }
           } else v.detourWait=0;
+        }
+        // Fixed obstacles on the way (yard sheds, bins, lamps): step round them with the same local
+        // A*. Checked again only after moving 2.5 m, and a dead end is walked as before, not frozen.
+        else if(!destination.detour&&this.pedestrianWorld&&
+          !(v.staticClear===destination&&Math.hypot(v.x-v.staticClearX,v.z-v.staticClearZ)<2.5)){
+          const detour=pedestrianDetour(v,destination,[],this.pedestrianWorld);
+          if(detour?.length)v.path.unshift(...detour);
+          else{v.staticClear=destination;v.staticClearX=v.x;v.staticClearZ=v.z;}
         }
         const p = v.path[0], dx = p.x - v.x, dz = p.z - v.z, d = Math.hypot(dx, dz);
         if (d <= budget) { v.x = p.x; v.z = p.z; budget -= d; v.path.shift(); }

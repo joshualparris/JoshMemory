@@ -278,7 +278,7 @@ export const YARD_PROPS = {
 
 export const FEATURE_NAMES = [...Object.keys(FEATURES), ...Object.keys(YARD_PROPS)];
 
-export function buildExterior(b, ext, colors) {
+export function buildExterior(b, ext, colors, yardLimits = {}) {
   const style = STYLES[ext.style];
   if (!style) throw new Error('Unknown exterior style ' + ext.style);
   const s = { walls: colors.walls, roof: colors.roof, trim: colors.trim };
@@ -295,7 +295,7 @@ export function buildExterior(b, ext, colors) {
       const prop = PROPS[YARD_PROPS[f]];
       // All rendered yard objects reserve physical space, even visual-only
       // objects: decorative trees/props must not intersect walls or vehicles.
-      const site = yardSite(fp,prop,preferred,occupied);
+      const site = yardSite(fp,prop,preferred,occupied,yardLimits);
       if (!site) { (fp.skippedYard || (fp.skippedYard=[])).push(f); continue; }
       const {x,z,box}=site;
       b.at(x, 0, z, x < 0 ? Math.PI / 2 : -Math.PI / 2, () => prop.build(b, { c: f === 'flag' || f === 'balloons' ? colors.trim : undefined }));
