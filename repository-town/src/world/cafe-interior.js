@@ -59,6 +59,7 @@ export function buildCafeInterior(site, makeLabel, roomTitle = 'Community café'
     blocker(0.8, 0.8, x, z); cyl(0.05, 0.05, 0.74, x, 0.37, z, 0x3a3f44, {}, 8); cyl(0.22, 0.26, 0.03, x, 0.02, z, 0x3a3f44, {}, 14);   // pedestal table
     cyl(0.42, 0.42, 0.05, x, 0.78, z, 0xe9e0d0, {}, 20); cyl(0.04, 0.04, 0.2, x, 0.88, z, 0x8a7a6a, {}, 6); ball(0.06, x, 1.0, z, [0xd8452f, 0x7fb04a, 0xe8c63a][Math.abs(Math.round(x + z)) % 3]);
     for (const [dx, dz, ry] of [[-0.6, 0, Math.PI / 2], [0.6, 0, -Math.PI / 2], [0, 0.6, Math.PI], [0, -0.6, 0]]) {
+      k.seat('table-'+x+'-'+z+'-'+dx+'-'+dz,'chair',x+dx,z+dz,Math.PI+ry);
       if (model('chair_B_wood', x + dx, z + dz, ry, { w: 0.46, d: 0.5, h: 0.86 })) continue;
       cyl(0.2, 0.2, 0.04, x + dx, 0.46, z + dz, WOOD, {}, 12); for (const a of [[-0.1, -0.1], [0.1, -0.1], [-0.1, 0.1], [0.1, 0.1]]) box(0.03, 0.44, 0.03, x + dx + a[0], 0.22, z + dz + a[1], DARKW);
     }
@@ -66,9 +67,10 @@ export function buildCafeInterior(site, makeLabel, roomTitle = 'Community café'
   for (const [x, z] of [[-4.2, 2.8], [-1.6, 2.8], [-4.2, -0.8], [-1.6, -0.8], [1.6, 2.8], [4.2, 2.8]]) table(x, z);
   // communal long table on the right
   solid(1.0, 0.78, 4.0, 4.4, 0.39, -1.4, WOOD); box(1.1, 0.06, 4.1, 4.4, 0.8, -1.4, 0xb08458);
-  for (const z of [-2.8, -1.4, 0, ]) for (const sx of [-1, 1]) { box(0.4, 0.05, 0.4, 4.4 + sx * 0.85, 0.5, z, DARKW); box(0.04, 0.5, 0.04, 4.4 + sx * 0.85, 0.25, z, 0x2a2a2a); }
+  for (const z of [-2.8, -1.4, 0, ]) for (const sx of [-1, 1]) { k.seat('communal-'+z+'-'+sx,'stool',4.4+sx*.85,z,Math.PI+(sx>0?Math.PI/2:-Math.PI/2)); box(0.4, 0.05, 0.4, 4.4 + sx * 0.85, 0.5, z, DARKW); box(0.04, 0.5, 0.04, 4.4 + sx * 0.85, 0.25, z, 0x2a2a2a); }
   // window bench along the left wall with cushions
   solid(0.7, 0.5, 5.0, -6.35, 0.25, 1.0, WOOD); box(0.62, 0.12, 4.9, -6.35, 0.56, 1.0, 0x6a8f7a);
+  for (const z of [-0.8,0.5,1.8,3.1]) k.seat('window-bench-'+z,'bench',-6.35,z,Math.PI*1.5);
   for (let i = 0; i < 4; i++) box(0.12, 0.34, 0.4, -6.5, 0.8, -0.8 + i * 1.3, [0xe8b04a, 0xc9553d, 0xf2eadb, 0x4f7fa6][i]);
   // water and condiment station, newspaper rack, plants
   solid(1.4, 0.95, 0.5, 3.6, 0.48, 5.25, WOOD); box(1.5, 0.05, 0.55, 3.6, 0.97, 5.25, 0xe9e4d8);

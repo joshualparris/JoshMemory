@@ -22,6 +22,8 @@ import { mountNPCChat } from './ui/npc-chat.js';
 import { makePerson, Walker, houseWander, freeSpot, placeTownNPCs, animateNPCs, initialiseNPCWorksites } from './world/npcs.js';
 import { separatePedestrians, steerPedestrians } from './world/pedestrian-spacing.js';
 import { createTownLife } from './world/townlife.js';
+import { nearestSeat } from './world/seats.js';
+import { furniturePanel } from './ui/furniture.js';
 import { createAmbience } from './ui/ambience.js';
 import { bakeryKitchenPanel } from './ui/bakery-panel.js';
 import { walletPanel, jobBoardPanel } from './ui/economy-panels.js';
@@ -110,7 +112,7 @@ async function start() {
   // Named street characters (src/ui/npc-data.js) with their own AI chat window.
   const streetNPCs = placeTownNPCs(town.group, town.lots, makeLabel);
   initialiseNPCWorksites(streetNPCs, town.group);
-  let nearPerson = null, nearNPC = null;
+  let nearPerson = null, nearNPC = null, nearTownSeat = null;
   const ambience = createAmbience();
   const wake = () => ambience.start();
   addEventListener('pointerdown', wake); addEventListener('keydown', wake);
@@ -150,6 +152,15 @@ async function start() {
   if (input.touch) $('touch').hidden = false;
   loadFurniture().catch(() => {});   // real furniture models; interiors fall back to boxes until they arrive
   const player = new Player(camera);
+  const tableOrder = document.createElement('button');
+  tableOrder.id='btn-table-order';tableOrder.type='button';
+  tableOrder.textContent='🍽 Order at table';
+  tableOrder.hidden=true;tableOrder.title='Order food or drinks without leaving your seat';
+  $('needs-strip').append(tableOrder);
+  tableOrder.onclick=()=>{
+    if(player.seated && inside?.place && ['cafe','pub'].includes(inside.place.id))
+      openPanel(placePanel(life,inside.place.id));
+  };
   $('btn-needs').onclick = () => openPanel(needsPanel(life));
   let floorDoorCooldown = 0;
   const floorBadge = document.createElement('button');
@@ -420,7 +431,13 @@ async function start() {
     const actions = $('panel-actions'); actions.innerHTML = '';
     for (const a of content.actions || []) {
       if (a.url) { const el = document.createElement('a'); el.href = a.url; el.target = '_blank'; el.rel = 'noopener'; el.textContent = a.label; el.className = 'btn-link'; actions.append(el); }
-      else { const el = document.createElement('button'); el.textContent = a.label; el.onclick = () => { if (a.play) return startGame(a.play); const next = a.run ? a.run() : content.onAnswer(a.answer); if (next) openPanel(next, thing); };
+      else { const el = document.createElement('button'); el.textContent = a.label; el.onclick = () => { if (a.play) return startGame(a.play); const beforeWallet=life.civic.player.wallet;
+          const next = a.run ? a.run() : content.onAnswer(a.answer);
+          if (next && player.seated && ['cafe','pub'].includes(inside?.place?.id) &&
+              a.label.toLowerCase().startsWith('order ') && life.civic.player.wallet<beforeWallet && typeof next.body==='string') {
+            next.body='<p><b>🍽 Your order has been brought to your table.</b></p>'+next.body;
+          }
+          if (next) openPanel(next, thing); };
         if (a.play) el.className = 'play'; actions.append(el); }
     }
     $('panel').hidden = false;
@@ -477,13 +494,44 @@ async function start() {
       const score = d - 1.6 * dot;
       if (score < best) { best = score; pick = x; }
     }
-    return pick;
+    // Authored interactions take priority; passive furniture and seats are
+    // selectable when the player looks at them instead of replacing exhibits.
+    const seat=nearestSeat(inside.seats,at,fwd,2.6);
+    if(seat) {
+      const d=Math.hypot(seat.pos.x-at.x,seat.pos.z-at.z);
+      const facing=d<.01?1:((seat.pos.x-at.x)*fwd.x+(seat.pos.z-at.z)*fwd.z)/d;
+      // A visible seat wins when clearly nearer or better aligned than the
+      // exhibit. Otherwise keep the intentional authored exhibit.
+      if(!pick || d-.7*facing<best-.35)
+        return {...seat,act:{do:'sit',title:seat.label}};
+    }
+    if(pick)return pick;
+    const furniture=inside.furniture||[];
+    let selected=null,rank=Infinity;
+    for(const item of furniture) {
+      const dx=item.pos.x-at.x,dz=item.pos.z-at.z,d=Math.hypot(dx,dz);
+      if(d>2.4)continue;
+      const facing=d<.01?1:(dx*fwd.x+dz*fwd.z)/d;
+      if(facing<.25&&d>1.1)continue;
+      const score=d-.7*facing;
+      if(score<rank){rank=score;selected=item;}
+    }
+    return selected;
   }
   // Relics, street characters, villagers, the guide and shop counters can stand close
   // together, so Use goes to whichever is nearest; everything stays reachable.
   const away = (p) => (p ? Math.hypot(player.pos.x - p.pos.x, player.pos.z - p.pos.z) : Infinity);
   function use() {
+    if(player.seated){
+      if(player.stand(world))status('You stand up.');
+      else status('There is no clear space to stand. Move the furniture or try again.');
+      return;
+    }
     if (mode === 'town') {
+      if(nearTownSeat && player.sit(nearTownSeat,world)){
+        status('Sitting on '+nearTownSeat.label+'. Look around; move, jump or use to stand.');
+        return;
+      }
       const treasure = expedition.nearby(player.pos), treasureD = away(treasure), npcD = away(nearNPC), personD = away(nearPerson);
       if (treasure && treasureD <= npcD && treasureD <= personD) { expedition.use(player.pos); ambience.relic(); return; }
       if (nearNPC && npcD <= personD) { input.releaseMouse(); closePanel(); $('npc-roster').hidden = true; npcChat.show(nearNPC.npc, null); input.reset(); return; }
@@ -492,6 +540,15 @@ async function start() {
       return;
     }
     if (nearThing) {
+      if(nearThing.act?.do==='sit'){
+        if(player.sit(nearThing,world))status('Sitting on '+nearThing.label+'. Look around; move, jump or use to stand.');
+        else status('Move closer to the seat to sit safely.');
+        return;
+      }
+      if(nearThing.act?.do==='furniture'){
+        openPanel(furniturePanel(nearThing),nearThing);
+        return;
+      }
       if (nearThing.floorNav) {
         if (nearThing.floorNav === 'lift') openLift();
         else changeFloor(nearThing.target);
@@ -695,12 +752,17 @@ async function start() {
       player.speedFactor=Math.max(0.45,1-(n.hunger>80?0.23:0)-(n.fatigue>75?0.32:0));
       player.update(dt,input,world);
     }
+    // Keep the table-service control in the always-visible needs strip on
+    // phones with the rest of the HUD collapsed.
+    tableOrder.hidden=!(player.seated && mode==='house' &&
+      inside?.place && ['cafe','pub'].includes(inside.place.id));
     const movedDist = Math.hypot(player.pos.x - prevX, player.pos.z - prevZ);
     prevX = player.pos.x; prevZ = player.pos.z;
 
     // The town keeps living while the player is indoors; the sky follows its clock.
     const talkingTo = panelOpen?.thing?.v ? panelOpen.thing : null;
-    life.playerAt = mode === 'house' && inside?.place ? inside.place.id : null; // shifts count only inside the workplace
+    life.playerAt = mode === 'house' && inside?.place ? inside.place.id : null;
+    life.playerSeated = !!player.seated; // shifts count only inside the workplace
     life.pedestrianWorld=townWorld;
     life.externalPedestrians=mode==='town'
       ?streetNPCs.filter(n=>n.mode==='town').map(n=>({x:n.pos.x,z:n.pos.z,radius:.66}))
@@ -773,6 +835,7 @@ async function start() {
       for (const p of townLife.people) if (!p.v.inside) consider(p, 2.6);
       consider(guideSpot, 2.6);
       for (const sp of townLife.spots) consider({ ...sp, spot: sp }, 3.2);
+      nearTownSeat = !overview ? nearestSeat(townLife.seats,player.pos,player.forward(),2.4) : null;
       nearHouse = null; let best = 6;
       for (const l of town.lots.values()) {
         const d = Math.hypot(l.doorPos.x - player.pos.x, l.doorPos.z - player.pos.z);
@@ -816,8 +879,10 @@ async function start() {
         else if (d > labelCull + 15 && has) { town.group.remove(has); disposeLabel(has); houseLabels.delete(c); }
       }
       const nearRelic = expedition.nearby(player.pos), relicD = away(nearRelic), npcD = away(nearNPC), personD = away(nearPerson);
-      $('prompt').hidden = (!nearNPC && !nearPerson && !nearHouse && !nearRelic) || !!panelOpen || expedition.isOpen() || npcChat.isOpen() || !$('npc-roster').hidden;
-      if (nearRelic && relicD <= npcD && relicD <= personD) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — ✨ ${nearRelic.id === 'guild' ? 'Guild Chest' : nearRelic.name}`;
+      $('prompt').hidden = (!player.seated && !nearTownSeat && !nearNPC && !nearPerson && !nearHouse && !nearRelic) || !!panelOpen || expedition.isOpen() || npcChat.isOpen() || !$('npc-roster').hidden;
+      if (player.seated) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — Stand up · Move or jump to stand`;
+      else if(nearTownSeat) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — Sit on ${nearTownSeat.label}`;
+      else if (nearRelic && relicD <= npcD && relicD <= personD) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — ✨ ${nearRelic.id === 'guild' ? 'Guild Chest' : nearRelic.name}`;
       else if (nearNPC && npcD <= personD) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — 💬 Talk to ${nearNPC.npc.name}`;
       else if (nearPerson) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — ${nearPerson.v ? `Talk to ${nearPerson.v.name} (${nearPerson.v.job}) · ${nearPerson.v.activity.replace(/^(walking|cycling) — /, '')}` : nearPerson.label}`;
       else if (nearHouse) $('prompt').textContent = `${nearHouse.house.coordinate} · ${nearHouse.house.name} — walk through the door to enter`;
@@ -834,11 +899,12 @@ async function start() {
       // the actual door, so a slow frame or the floor-change cooldown cannot carry the player past it.
       if (floorDoorCooldown <= 0 && Math.abs(player.pos.x - (ex.x0 + ex.x1) / 2) < 1.55 && player.pos.z > inside.rooms[0].z1 - 1.3) { if (inside.floors && inside.floorIndex > 0) changeFloor(inside.floorIndex - 1); else leave(true, true); }
       else {
-        nearThing = pickNear();
+        nearThing = player.seated ? null : pickNear();
         nearNPC = null;
-        $('prompt').hidden = !nearThing || !!panelOpen || npcChat.isOpen() || !$('npc-roster').hidden;
+        $('prompt').hidden = (!nearThing && !player.seated) || !!panelOpen || npcChat.isOpen() || !$('npc-roster').hidden;
         const who = nearThing?.person && inside.people?.find((p) => p.key === nearThing.key);
-        if (nearThing) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — ${nearThing.label}${who ? ` · ${who.activity}` : ''}`;
+        if (player.seated) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — Stand up · Move or jump to stand`;
+        else if (nearThing) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — ${nearThing.act?.do==='sit'?'Sit on ':''}${nearThing.label}${who ? ` · ${who.activity}` : ''}`;
         if (input.consume('use')) use();
         animate(inside.dynamics, t, active);
         for (const p of inside.people || []) p.update(dt, t, player, p.plan);
@@ -866,7 +932,9 @@ async function start() {
     talkTo: (id) => npcChat.show(id),
     travel,
     state: () => ({
-      mode, coordinate: inside?.house.coordinate || null, floor: inside?.floorIndex || 0, windows: inside?.windows?.length || 0, floors: inside?.floors?.levels.length || 1, pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, eye: player.eye, y: player.y, fps,
+      mode, seated: player.seated ? {key:player.seated.key,label:player.seated.label} : null,
+      seats: mode==='house' ? (inside?.seats||[]).map(x=>({key:x.key,type:x.type,label:x.label,pos:x.pos,room:x.room})) : townLife.seats.map(x=>({key:x.key,type:x.type,label:x.label,pos:x.pos})),
+      coordinate: inside?.house.coordinate || null, floor: inside?.floorIndex || 0, windows: inside?.windows?.length || 0, floors: inside?.floors?.levels.length || 1, pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, eye: player.eye, y: player.y, fps,
       rooms: inside?.rooms.length || 0, props: inside?.placedProps.length || 0,
       interactables: inside ? inside.interactables.map((x) => ({ key: x.key, label: x.label, title: x.act.title || x.label, do: x.act.do, nav: x.floorNav || null, room: x.roomName })) : [],
       near: nearThing?.key || null, nearNPC: nearNPC?.npc.id || null, nearHouse: nearHouse?.house.coordinate || null,
@@ -888,6 +956,21 @@ async function start() {
           const yaw = Math.atan2(-(x.pos.x - p.x), -(x.pos.z - p.z));
           const fwd = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
           if (!world.hits(p.x, p.z, player.radius + 0.05) && pickNear(p, fwd) === x) { player.place(p.x, p.z, yaw); return true; }
+        }
+      }
+      return false;
+    },
+    // Test-only seat approach. Physically chooses a clear floor position
+    // near the furniture rather than teleporting directly into its collider.
+    approachSeat(key) {
+      const seat=(mode==='house' ? inside?.seats : townLife.seats)?.find(s=>s.key===key);
+      if(!seat)return false;
+      for(const radius of [1.15,1.45,1.8,2.1]){
+        for(let angle=0;angle<Math.PI*2;angle+=Math.PI/4){
+          const x=seat.pos.x+Math.sin(angle)*radius,z=seat.pos.z+Math.cos(angle)*radius;
+          if(world.hits(x,z,player.radius+.03))continue;
+          player.place(x,z,Math.atan2(-(seat.pos.x-x),-(seat.pos.z-z)));
+          return true;
         }
       }
       return false;
