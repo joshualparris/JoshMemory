@@ -1,3 +1,4 @@
+import { shopService } from './shop-attendance.js';
 // Commit Cafe menu: shared by the player-facing counter and the town economy.
 // Every item is made from real stocks; prices are Australian dollars.
 import { receipt } from './jobs.js';
@@ -28,6 +29,8 @@ export function orderCafe(t,id) {
   if(!item)return 'That item is not on the cafe menu.';
   const cafe=t.place('cafe'),player=t.civic.player;
   if(!t.open(cafe))return 'Commit Cafe is closed. It opens at 06:30.';
+  const service=shopService(t,cafe);
+  if(!service.available)return service.message;
   if(!cafeAvailable(cafe,item))return item.name+' is sold out until the next delivery.';
   if(player.wallet<item.price)return 'You need $'+item.price+' for '+item.name+', but have $'+player.wallet+'.';
   for(const [good,n] of Object.entries(item.ingredients))cafe.stock[good]-=n;
@@ -42,3 +45,4 @@ export function orderCafe(t,id) {
   t.log('The visitor ordered '+item.name+' at Commit Cafe.');
   return 'Served '+item.name+' for $'+item.price+'. Hunger: '+Math.round(player.hunger)+'%.';
 }
+
