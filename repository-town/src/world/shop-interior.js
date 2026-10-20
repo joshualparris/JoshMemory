@@ -24,6 +24,7 @@ import { buildButcherInterior } from './butcher-interior.js';
 import { buildSchoolInterior } from './school-interior.js';
 import { buildFarmInterior, FARM_SHED_IDS } from './farm-interior.js';
 import { buildTradeInterior } from './trade-interiors.js';
+import { buildTradeEducationInterior, TRADE_EDUCATION_INTERIORS } from './trade-education-interiors.js';
 
 // The twenty high-street services share a safe walkable plan, with different
 // fixtures, colours and exhibits. They are built only while the player is inside.
@@ -73,6 +74,7 @@ const BASE_W=14, BASE_D=18, FRONT=6, BACK=-12, EDGE=7;
 export function buildCivicInterior(site,makeLabel,life=null) {
   // A family's home must never regress to the single-room retail fallback.
   if(site.id==='farmhouse')return buildFarmhouseInterior(site,makeLabel);
+  if(TRADE_EDUCATION_INTERIORS.includes(site.id))return buildTradeEducationInterior(site,makeLabel);
   if(site.id==='hotel')return buildHotelInterior(site,makeLabel);
   if(['realestate','dealership','mechanic'].includes(site.id))return buildTradeInterior(site,makeLabel);
   const [roomTitle,deskName,featureName,accent,deskInfo,featureInfo] =
