@@ -63,6 +63,20 @@ export const GOODS = {
   pub_pie: { name: 'steak pie and mash', unit: 'serve', price: 18 },
   pub_tea: { name: 'cup of tea', unit: 'serve', price: 4 },
   pub_coffee: { name: 'cup of coffee', unit: 'serve', price: 5 },
+  cafe_pie: { name: 'pie of the day', unit: 'serve', price: 10 },
+  cafe_cream_bun: { name: 'cream bun', unit: 'serve', price: 6 },
+  cafe_lamington: { name: 'lamington', unit: 'serve', price: 5 },
+  cafe_sausage_roll: { name: 'sausage roll', unit: 'serve', price: 7 },
+  cafe_coffee: { name: 'coffee', unit: 'serve', price: 5 },
+  store_coffee: { name: 'takeaway coffee', unit: 'serve', price: 5 },
+  store_cordial: { name: 'cordial', unit: 'bottle', price: 4 },
+  store_tinned_food: { name: 'tinned goods', unit: 'tin', price: 4 },
+  store_butter: { name: 'butter', unit: 'block', price: 5 },
+  store_lollies: { name: 'lollies', unit: 'bag', price: 3 },
+  pub_beer: { name: 'tap beer', unit: 'glass', price: 8 },
+  pub_bottled_beer: { name: 'bottled beer', unit: 'bottle', price: 9 },
+  pub_soft_drink: { name: 'soft drink', unit: 'glass', price: 4 },
+  pub_chips: { name: 'chips', unit: 'serve', price: 7 },
 };
 
 // col letter → place. `sells` are what villagers can buy; `makes` what work produces.
@@ -137,6 +151,18 @@ export const VENUE_MENU = Object.freeze({
     cafe_flat_white: { coffee: 1, milk: 1, bread: 1 },
     cafe_toastie: { bread: 1, milk: 1 },
     cafe_soup: { veg: 1 },
+    cafe_pie: { pie: 1 },
+    cafe_cream_bun: { bread: 1, milk: 1 },
+    cafe_lamington: { bread: 1, milk: 1 },
+    cafe_sausage_roll: { pie: 1 },
+    cafe_coffee: { coffee: 1 },
+  }),
+  store: Object.freeze({
+    store_coffee: { coffee: 1 },
+    store_cordial: { fruit: 1 },
+    store_tinned_food: { veg: 1 },
+    store_butter: { milk: 1 },
+    store_lollies: { fruit: 1 },
   }),
   pub: Object.freeze({
     pub_parmy: { lamb: 1, veg: 1 },
@@ -144,6 +170,10 @@ export const VENUE_MENU = Object.freeze({
     pub_pie: { pie: 1, veg: 1 },
     pub_tea: { tea: 1 },
     pub_coffee: { coffee: 1 },
+    pub_beer: { grain: 1 },
+    pub_bottled_beer: { grain: 1 },
+    pub_soft_drink: { fruit: 1 },
+    pub_chips: { veg: 1 },
   }),
 });
 
