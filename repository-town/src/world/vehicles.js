@@ -28,6 +28,8 @@ export function buyVehicle(life,stockId){
  s.stock.splice(index,1);s.dealerCash+=item.price;
  const vehicle={...item,registration:'RT-'+String(s.next++).padStart(3,'0'),owner:'visitor',
    regoUntil:life.day+28,lastService:life.day,serviceDue:life.day+14,roadworthy:item.condition>=60};
+ const dealer=life.place('dealership');
+ vehicle.x=dealer.x+9;vehicle.z=dealer.curb.z+1.6;vehicle.yaw=0;vehicle.fuel=20;
  s.owned.push(vehicle);
  s.journal.unshift('Day '+life.day+': bought '+vehicle.registration+' for $'+item.price+'.');
  return vehicle.registration+' registered in your name. Transfer costs $'+(duty+transfer)+'. Rego expires day '+vehicle.regoUntil+'. Parked at High Street Motors: approach the car and use E or the hand control to drive.';
