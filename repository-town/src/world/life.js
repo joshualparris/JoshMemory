@@ -1,4 +1,5 @@
 import { separatePedestrians } from './pedestrian-spacing.js';
+import { mustStopAtCrossing } from './traffic-signals.js';
 import { orderCafe } from './cafe-menu.js';
 import { bicycleClear, cyclingRoute } from './bicycle-safety.js';
 import { pedestrianDetour,canFinishNearOccupiedDoor } from './pedestrian-navigation.js';
@@ -770,6 +771,12 @@ export class TownLife {
   blocked(t, proposed = null) {
     const at = proposed || { x: t.x, z: t.z, h: t.heading };
     const h = at.h ?? t.heading;
+    // Signalised pedestrian crossing: physically stop before the stop line
+    // rather than simply changing a decorative lamp. Let trucks already in
+    // the crossing finish clearing it when lights change.
+    if(proposed && !proposed.reverse && mustStopAtCrossing(t,at,this.minute)){
+      t.blockedBy=null;t.why='signal';return true;
+    }
     // Pulling out of a depot bay: wait for a gap in the traffic before swinging across the lanes.
     const bay = this.depotBay(t.id), leaving = t.path[0] && Math.hypot(t.path[0].x - bay.x, t.path[0].z - bay.z) > 0.5;
     if (proposed && leaving && !proposed.reverse && !t.pulling && !t.retreat && Math.hypot(t.x - bay.x, t.z - bay.z) < 1) {

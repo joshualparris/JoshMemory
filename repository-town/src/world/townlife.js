@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { SIGNAL_CROSSINGS, crossingState } from './traffic-signals.js';
 import { Builder, GLASS } from './builder.js';
 import { makePerson, pose } from './npcs.js';
 import { TownLife, GOODS, RAIL_Z, trainX, FIELD_Z0, FIELD_Z1, SEC_PER_MIN, LOT_X } from './life.js';
@@ -433,11 +434,55 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     statics.box(0xf2ecd1,7.3,0.045,0.10,x,0.044,z-1.58);
     statics.box(0xe0c35b,1.2,0.046,0.15,x,0.045,z+1.52);
   }
+  // Painted zebra stripes mark the pedestrian-controlled crossing. These
+  // surfaces are visual only, not solid obstacles in the walking/collision map.
+  for(const crossing of SIGNAL_CROSSINGS){
+    for(let i=-3;i<=3;i++)
+      statics.box(0xf5f4e7,0.50,0.032,9.0,crossing.x+i*0.83,0.047,crossing.z);
+    for(const sign of [-1,1])
+      statics.box(0xf5eac9,0.14,0.037,4.8,
+        crossing.x-sign*5.8,0.05,crossing.z+sign*1.8);
+  }
   group.add(statics.build());
   colliders.push(...statics.solids);
   const shopGlass = Builder.merge(statics.glass);
   const shopGlassMat = new THREE.MeshLambertMaterial({ vertexColors: true, emissive: 0xffc070, emissiveIntensity: 0 });
   if (shopGlass) group.add(new THREE.Mesh(shopGlass, shopGlassMat));
+
+  // Dynamic signal heads: two visible poles, one per traffic approach.
+  // Three emissive bulbs per head; no per-frame geometry or new point lights.
+  const signalHeads=[];
+  const mastGeo=new THREE.CylinderGeometry(0.09,0.12,3.7,8);
+  const cabinetGeo=new THREE.BoxGeometry(0.62,1.60,0.44);
+  const lampGeo=new THREE.SphereGeometry(0.19,10,8);
+  const mastMat=new THREE.MeshLambertMaterial({color:0x666a70});
+  const cabinetMat=new THREE.MeshLambertMaterial({color:0x222326});
+  const lampColors={red:0xff3030,amber:0xffbb20,green:0x22e663};
+  for(const site of SIGNAL_CROSSINGS){
+    for(const side of [-1,1]){
+      const head=new THREE.Group();
+      head.position.set(site.x+side*7.4,0,site.z+side*6.3);
+      const mast=new THREE.Mesh(mastGeo,mastMat);mast.position.y=1.85;head.add(mast);
+      const box=new THREE.Mesh(cabinetGeo,cabinetMat);box.position.y=3.14;head.add(box);
+      const bulbs={};
+      for(const [name,y] of [['red',3.60],['amber',3.14],['green',2.68]]){
+        const material=new THREE.MeshLambertMaterial({color:lampColors[name],emissive:0x050505});
+        const light=new THREE.Mesh(lampGeo,material);
+        light.position.set(0,y,0.26);head.add(light);bulbs[name]=material;
+      }
+      group.add(head);signalHeads.push(bulbs);
+    }
+  }
+  let lastSignalPhase=null;
+  function syncTrafficSignals(minute){
+    const state=crossingState(minute),phase=state.vehicles;
+    if(phase===lastSignalPhase)return;
+    lastSignalPhase=phase;
+    for(const bulbs of signalHeads)
+      for(const [name,material] of Object.entries(bulbs))
+        material.emissive.setHex(name===phase?lampColors[name]:0x050505);
+  }
+  syncTrafficSignals(life.minute);
 
   // Windmill sails turn while the miller works.
   const mill = life.place('mill');
@@ -518,6 +563,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     while (minutes > 0) { const step = Math.min(minutes, 0.5); life.tick(step); minutes -= step; }
     if ((saveTimer += dt) > 10) { saveTimer = 0; save(); }
     const m = life.minute;
+    syncTrafficSignals(m);
     if (Math.floor(m) !== clockMinute) { clockMinute = Math.floor(m); drawClock(m); }
     // The Town Hall bell strikes the hour; the freight train sounds its horn coming in.
     const hour = Math.floor(m / 60);
