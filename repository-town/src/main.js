@@ -481,9 +481,16 @@ async function start() {
     }
     // Authored interactions take priority; passive furniture and seats are
     // selectable when the player looks at them instead of replacing exhibits.
-    if (pick) return pick;
     const seat=nearestSeat(inside.seats,at,fwd,2.6);
-    if(seat) return {...seat,act:{do:'sit',title:seat.label}};
+    if(seat) {
+      const d=Math.hypot(seat.pos.x-at.x,seat.pos.z-at.z);
+      const facing=d<.01?1:((seat.pos.x-at.x)*fwd.x+(seat.pos.z-at.z)*fwd.z)/d;
+      // A visible seat wins when clearly nearer or better aligned than the
+      // exhibit. Otherwise keep the intentional authored exhibit.
+      if(!pick || d-.7*facing<best-.35)
+        return {...seat,act:{do:'sit',title:seat.label}};
+    }
+    if(pick)return pick;
     const furniture=inside.furniture||[];
     let selected=null,rank=Infinity;
     for(const item of furniture) {
@@ -930,6 +937,21 @@ async function start() {
           const yaw = Math.atan2(-(x.pos.x - p.x), -(x.pos.z - p.z));
           const fwd = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
           if (!world.hits(p.x, p.z, player.radius + 0.05) && pickNear(p, fwd) === x) { player.place(p.x, p.z, yaw); return true; }
+        }
+      }
+      return false;
+    },
+    // Test-only seat approach. Physically chooses a clear floor position
+    // near the furniture rather than teleporting directly into its collider.
+    approachSeat(key) {
+      const seat=(mode==='house' ? inside?.seats : townLife.seats)?.find(s=>s.key===key);
+      if(!seat)return false;
+      for(const radius of [1.15,1.45,1.8,2.1]){
+        for(let angle=0;angle<Math.PI*2;angle+=Math.PI/4){
+          const x=seat.pos.x+Math.sin(angle)*radius,z=seat.pos.z+Math.cos(angle)*radius;
+          if(world.hits(x,z,player.radius+.03))continue;
+          player.place(x,z,Math.atan2(-(seat.pos.x-x),-(seat.pos.z-z)));
+          return true;
         }
       }
       return false;
