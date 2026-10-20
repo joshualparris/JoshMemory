@@ -11,6 +11,7 @@ import { workingAt, shopService } from '../world/shop-attendance.js';
 import { COUNTERS, lineAt, pendingOrders } from '../world/counter-queue.js';
 import { householdReport, feederFor, TARIFF, fireDanger, season } from '../world/household.js';
 import { propertyOfficePanel, motorMarketPanel, motorWorkshopPanel } from './property-panels.js';
+import { tradeEducationPanel } from './trade-education-panels.js';
 
 const list = (o) => Object.entries(o || {}).filter(([, n]) => n > 0).map(([g, n]) => amount(g, n)).join(', ') || 'nothing';
 const hours = (p) => (p.opens === 0 && p.closes >= 1440 ? 'open all hours' : `${timeText(p.opens)}–${timeText(p.closes)}`);
@@ -167,6 +168,7 @@ export function hallPanel(life) {
 }
 
 export function placePanel(life, id) {
+  if(['hardware','trades','tafe','university','school'].includes(id))return tradeEducationPanel(life,id);
   if(id==='realestate')return propertyOfficePanel(life);
   if(id==='realty')return propertyOfficePanel(life);
   if(id==='dealership')return motorMarketPanel(life);
