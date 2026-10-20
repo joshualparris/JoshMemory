@@ -39,3 +39,4 @@ jobs:
               await github.rest.pulls.merge({
                 ...context.repo,pull_number:n,sha:pr.head.sha,merge_method:'squash'
               });
+            }

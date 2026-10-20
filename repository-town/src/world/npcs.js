@@ -236,10 +236,16 @@ function performWork(entry,time) {
     }
     return true;
   }
-  if(entry.task==='rest' && time>=entry.activityUntil){
-    entry.activity='idle';entry.activityUntil=time+8;
+  if(entry.task==='rest') {
+    // A finished or blocked construction task must not permanently override
+    // the ordinary wandering scheduler. Wait out the brief recovery period,
+    // then resume normal activities without restarting completed construction.
+    if(time<entry.activityUntil)return true;
+    entry.task='done';
+    entry.activity='idle';
+    entry.activityUntil=time;
   }
-  return entry.task==='rest';
+  return false;
 }
 export function animateNPCs(list,time,playerPos,dt=1/60,talkingTo=null,collisionWorld=null,maxDist=65) {
   const step=Math.min(Math.max(dt,0),.15);
@@ -248,7 +254,12 @@ export function animateNPCs(list,time,playerPos,dt=1/60,talkingTo=null,collision
     const dist=Math.hypot(group.position.x-playerPos.x,group.position.z-playerPos.z);
     group.visible=dist<maxDist;
     if(!group.visible)continue;
-    const chatting=talkingTo===entry.npc.id;
+    // Named NPC conversations also have a bounded duration. Opening a chat
+    // doesn't permanently hold someone's attention or stop their work.
+    const selected=talkingTo===entry.npc.id;
+    if(!selected)entry.chatElapsed=0;
+    else entry.chatElapsed=(entry.chatElapsed||0)+step;
+    const chatting=selected&&entry.chatElapsed<15&&dist<4.2;
     if(entry.mode==='town') {
       // Initialise lazily for old saves and test fixtures.
       if(entry.homeX===undefined){

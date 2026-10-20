@@ -18,6 +18,7 @@ import { npcBehaviour } from './ui/npc.js';
 import { sceneFromRoom } from './ui/scene-awareness.js';
 import { mountNPCChat } from './ui/npc-chat.js';
 import { makePerson, Walker, houseWander, freeSpot, placeTownNPCs, animateNPCs, initialiseNPCWorksites } from './world/npcs.js';
+import { separatePedestrians, steerPedestrians } from './world/pedestrian-spacing.js';
 import { createTownLife } from './world/townlife.js';
 import { createAmbience } from './ui/ambience.js';
 import { bakeryKitchenPanel } from './ui/bakery-panel.js';
@@ -44,7 +45,9 @@ async function start() {
 
   const touch = matchMedia('(pointer: coarse)').matches;
   const renderer = new THREE.WebGLRenderer({ antialias: !touch, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, touch ? 1 : 1.5));
+  const preferredPixelRatio = Math.min(devicePixelRatio, touch ? 1 : 1.5);
+  let renderPixelRatio = Math.min(preferredPixelRatio, touch ? 1 : 1.15);
+  renderer.setPixelRatio(renderPixelRatio);
   renderer.setSize(innerWidth, innerHeight);
   renderer.domElement.id = 'scene';
   document.body.prepend(renderer.domElement);
@@ -576,12 +579,34 @@ async function start() {
   // ── Frame loop ───────────────────────────────────────────────────────────
   const clock = new THREE.Clock();
   let mapTimer = 0, frames = 0, fpsTimer = 0, fps = 0, prevX = player.pos.x, prevZ = player.pos.z;
+  // Adaptive resolution: sustained slow frames lower GPU pixel cost; recovery
+  // is deliberately gradual to avoid oscillation and repeated canvas resizes.
+  let slowSeconds = 0, fastSeconds = 0, resolutionCooldown = 0;
+  function adaptResolution(elapsed) {
+    if (document.hidden || playing || overview) return;
+    resolutionCooldown = Math.max(0, resolutionCooldown - elapsed);
+    slowSeconds = fps < 42 ? slowSeconds + elapsed : 0;
+    fastSeconds = fps > 56 ? fastSeconds + elapsed : 0;
+    if (resolutionCooldown > 0) return;
+    const minimum = Math.min(preferredPixelRatio, 0.7);
+    if (slowSeconds >= 4 && renderPixelRatio > minimum + 0.03) {
+      renderPixelRatio = Math.max(minimum, Math.round((renderPixelRatio - 0.15) * 100) / 100);
+    } else if (fastSeconds >= 10 && renderPixelRatio < preferredPixelRatio - 0.03) {
+      renderPixelRatio = Math.min(preferredPixelRatio, Math.round((renderPixelRatio + 0.1) * 100) / 100);
+    } else return;
+    renderer.setPixelRatio(renderPixelRatio);
+    slowSeconds = 0; fastSeconds = 0; resolutionCooldown = 6;
+  }
   const tmp = new THREE.Vector3();
   function frame() {
     // Up to 0.15 s per frame keeps walking real-time on slow phones; collision subdivides the step.
     const raw = clock.getDelta(), dt = Math.min(raw, 0.15), t = clock.elapsedTime;
     floorDoorCooldown = Math.max(0, floorDoorCooldown - dt);
-    frames++; fpsTimer += raw; if (fpsTimer > 1) { fps = frames / fpsTimer; frames = 0; fpsTimer = 0; }
+    frames++; fpsTimer += raw; if (fpsTimer > 1) {
+      fps = frames / fpsTimer;
+      adaptResolution(fpsTimer);
+      frames = 0; fpsTimer = 0;
+    }
     // While a game is open the town neither renders nor reacts, so the game gets the whole device.
     if (playing) {
       if (input.consume('back')) stopGame();
@@ -607,6 +632,10 @@ async function start() {
     // The town keeps living while the player is indoors; the sky follows its clock.
     const talkingTo = panelOpen?.thing?.v ? panelOpen.thing : null;
     life.playerAt = mode === 'house' && inside?.place ? inside.place.id : null; // shifts count only inside the workplace
+    life.pedestrianWorld=townWorld;
+    life.externalPedestrians=mode==='town'
+      ?streetNPCs.filter(n=>n.mode==='town').map(n=>({x:n.pos.x,z:n.pos.z,radius:.66}))
+      :[];
     townLife.update(dt, t, { player, mode, overview, camera, talkingTo });
     const n=life.needsReport();
     const needsText=`🍽 ${Math.round(n.hunger)}% · 💤 ${Math.round(n.fatigue)}%`;
@@ -625,6 +654,42 @@ async function start() {
       const npcCull = lowPerf ? 48 : 65, houseCull = lowPerf ? 115 : 175, labelCull = lowPerf ? 42 : 55;
       nearNPC = pickNPC(streetNPCs);
       animateNPCs(streetNPCs, t, player.pos, dt, npcChat.isOpen() ? npcChat.active() : null, townWorld, npcCull);
+      // Two independent NPC families occupy the SAME physical town: both
+      // named quest characters and ordinary residents share collision spacing.
+      const nearbyPeople=townLife.people.filter(p=>!p.v.inside &&
+        Math.abs(p.v.x-player.pos.x)<95 && Math.abs(p.v.z-player.pos.z)<95);
+      const nearbyCharacters=streetNPCs.filter(n=>n.mode==='town' &&
+        Math.abs(n.pos.x-player.pos.x)<90 && Math.abs(n.pos.z-player.pos.z)<90);
+      const movingPeople=[
+        ...nearbyPeople.map(p=>({id:'resident:'+p.v.id,pos:p.v,
+          radius:p.v.bike&&p.v.path?.length?1.16:.61,
+          goal:p.v.path?.[0]||null,speed:p.v.bike?4.5:1.5,fixed:!!p.v.engaged})),
+        ...nearbyCharacters.map(n=>({id:'character:'+n.npc.id,pos:n.pos,radius:.66,
+          goal:n.activity==='walk'?{x:n.targetX,z:n.targetZ}:null,speed:.65,
+          fixed:npcChat.isOpen()&&npcChat.active()===n.npc.id})),
+        {id:'player',pos:player.pos,radius:.67,fixed:true}
+      ];
+      // Small anticipatory sideways steps make room for oncoming bikes and
+      // pedestrians, before swept personal-space separation prevents overlaps.
+      steerPedestrians(movingPeople,{world:townWorld,dt});
+      separatePedestrians(movingPeople,{world:townWorld,gap:1.3,passes:6});
+      // Renderer and interaction targets must follow the resolved positions,
+      // never the pre-collision pose. This also fixes overlapping name tags.
+      for(const p of nearbyPeople){
+        p.pos.set(p.v.x,0,p.v.z);
+        p.fig.group.position.x=p.v.x;p.fig.group.position.z=p.v.z;
+      }
+      const namedLabels=[
+        ...nearbyPeople.filter(p=>p.fig.group.visible).map(p=>({label:p.tag,pos:p.v,
+          distance:Math.hypot(p.v.x-player.pos.x,p.v.z-player.pos.z)})),
+        ...nearbyCharacters.filter(n=>n.group.visible).map(n=>({label:n.group.userData.label,pos:n.pos,
+          distance:Math.hypot(n.pos.x-player.pos.x,n.pos.z-player.pos.z)}))
+      ].filter(x=>x.label?.visible).sort((a,b)=>a.distance-b.distance);
+      const displayed=[];
+      for(const item of namedLabels){
+        if(displayed.some(p=>Math.hypot(p.pos.x-item.pos.x,p.pos.z-item.pos.z)<2.3))item.label.visible=false;
+        else displayed.push(item);
+      }
       // Villagers, the guide kiosk and the shop counters: pick the one the player is facing.
       nearPerson = null; let bestP = Infinity;
       const consider = (c, reach) => {
@@ -739,7 +804,7 @@ async function start() {
       people: (mode === 'town' ? townLife.people.map((p) => ({ key: p.key, name: p.v.name, job: p.v.job, x: p.v.x, z: p.v.z, inside: p.v.inside, activity: p.v.activity, visible: p.fig.group.visible })) : (inside?.people || []).map((p) => ({ key: p.key, name: p.name, x: p.pos.x, z: p.pos.z, room: p.room, activity: p.activity }))),
       time: life.time(), day: life.day, minute: life.minute, speed: life.speed, daylight: life.daylight(), sound: ambience.on, needs:life.needsReport(),
       nearPerson: nearPerson?.key || null,
-      active: [...active], playing: playing?.id || null, gameSrc: playing ? $('game-frame').getAttribute('src') : null, calls: renderer.info.render.calls, triangles: renderer.info.render.triangles,
+      active: [...active], playing: playing?.id || null, gameSrc: playing ? $('game-frame').getAttribute('src') : null, calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, renderPixelRatio,
     }),
     // Stands the player 1.6 m in front of an exhibit, facing it, so the test then presses Use.
     approach(key) {

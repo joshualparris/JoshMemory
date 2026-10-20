@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { containLabel } from '../ui/labels.js';
 import { Builder } from './builder.js';
 import { PROPS } from './props.js';
 
@@ -297,14 +298,15 @@ function buildOnce(house, makeLabel, attempt) {
   const built = b.build();
   group.add(built, light);
 
-  // Keep every label's centre inside its room so the wall check in labelVisible() is reliable.
-  labels.forEach((l) => {
-    const r = rooms[l.room], mx = Math.min(0.4, r.w / 2), mz = Math.min(0.4, r.d / 2);
-    l.pos.x = Math.min(r.x1 - mx, Math.max(r.x0 + mx, l.pos.x));
-    l.pos.z = Math.min(r.z1 - mz, Math.max(r.z0 + mz, l.pos.z));
-  });
-  // Interior labels draw over everything; walls and closed doors hide them via labelVisible().
-  for (const l of labels) { const sprite = makeLabel(l.text, l.kind); sprite.position.copy(l.pos); sprite.userData.labelKind = l.kind; if (sprite.material) sprite.material.depthTest = false; sprite.renderOrder = 10; group.add(sprite); }
+  // Contain the whole billboard within its room. Never turn off depth testing:
+  // walls, columns and door lintels must obscure both the text and its panel.
+  for (const l of labels) {
+    const sprite = makeLabel(l.text, l.kind);
+    sprite.position.copy(l.pos);
+    sprite.userData.labelKind = l.kind;
+    containLabel(sprite, { ...rooms[l.room], y0:0, y1:h });
+    group.add(sprite);
+  }
   const dynamics = built.children.filter((c) => c.userData.anim);
   return {
     group, colliders, sight, doors, interactables, dynamics, rooms, placedProps, sceneObjects, walkers,
