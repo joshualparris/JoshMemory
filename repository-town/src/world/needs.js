@@ -2,7 +2,7 @@
 // Neither meals nor shelter are magically free. No health/death punishment.
 const clamp=(n)=>Math.max(0,Math.min(100,n));
 export const HOTEL_RATE=24, HOTEL_ROOMS=4;
-export const FOOD_ENERGY={bread:38,pie:55,fruit:34,veg:32,eggs:44,milk:30,lamb:56};
+export const FOOD_ENERGY={bread:38,pie:55,fruit:34,veg:32,eggs:44,milk:30,lamb:56,cafe_roll:58,cafe_breakfast:80,cafe_flat_white:42,cafe_toastie:55,cafe_soup:45,pub_parmy:85,pub_roast:90,pub_pie:75,pub_tea:5,pub_coffee:5};
 export function startNeeds(t) {
   const p=t.civic.player;
   p.hunger=clamp(Number.isFinite(p.hunger)?p.hunger:32);
