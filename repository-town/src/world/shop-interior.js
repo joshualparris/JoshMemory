@@ -1,3 +1,4 @@
+import { buildFireInterior } from './fire-interior.js';
 import { buildMillInterior } from './mill-interior.js';
 import * as THREE from 'three';
 import { containLabel } from '../ui/labels.js';
@@ -77,6 +78,7 @@ export function buildCivicInterior(site,makeLabel) {
   if(site.id==='greengrocer')return buildGrocerInterior(site,makeLabel,roomTitle);
   if(site.id==='butcher')return buildButcherInterior(site,makeLabel,roomTitle);
   if(site.id==='school')return buildSchoolInterior(site,makeLabel,roomTitle);
+  if(site.id==='fire')return buildFireInterior(site,makeLabel,roomTitle);
   if(FARM_SHED_IDS.includes(site.id))return buildFarmInterior(site,makeLabel,roomTitle);
   const group=new THREE.Group();
   group.name='Inside '+site.name;

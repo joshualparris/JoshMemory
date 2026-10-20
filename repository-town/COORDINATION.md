@@ -47,6 +47,14 @@ Newest first. Times in Australia/Sydney.
 
 ## Done recently
 
+- 2026-10-20 · Claude Code — **Fire & Rescue station interior**, branch `ccr-846db548-0l5zmu`. It was the one High Street building still falling through to the generic room (no `FITTINGS` entry). New `src/world/fire-interior.js`, researched from recent Fire and Rescue NSW station builds and refits (Ulladulla, Wentworth Falls, Kingscliff, Cessnock) and IAFF "clean firefighter" zoning guidance:
+  - **Engine bay:** a twin bay behind the two street roller doors, with the personnel door between them. Bay A has the Class 2 pumper (crew cab, roller-shutter lockers, rear pump panel, hose reels, roof ladders, light bar) on its exhaust-extraction hose and shore power. Bay B has the hazmat trailer, a hose-drying rack, a workbench, extinguishers and the fire danger rating arc sign. There are yellow walkway lines, floor drains, the station-alerting beacon, a first-aid kit and an AED.
+  - **Dirty zone:** the PPE and decontamination room (open lockers of gold turnout gear with helmets, the officer's white; washer-extractor, drying cabinet, decon shower, hose-off sink) and the BA room (sets on charge with status lights, compressor and fill cabinet, test bench).
+  - **Clean zone:** the watchroom (turnout printer, CAD screen, radio console, pager charging rack, district hydrant map, station board) and the mess and training room (kitchen, urn, fridge, table, training screen, honour board).
+  - 19 usable things across 5 rooms. The firefighter on shift now wears navy station wear (`shop-staff.js`).
+  - The station board opens the live station panel, which now shows today's **fire danger rating** using the Australian Fire Danger Rating System levels. `fireDanger()` in `household.js` derives it from the season, a per-day warm/cool spell and the weather; windy no longer cools the forecast, because hot inland days come with hot winds.
+  - Tests: a fire block in `tests/shop-interiors.mjs` (walkable floor, every hotspot reachable and clear) and `tests/fire-station.mjs` in `test:browser` (walk in, use all 19 items, board shows the rating, walk out).
+
 - 2026-10-20 · Claude Code — **villagers actually live at home; shop queues, prep times, spoilage**, branch `ccr-846db548-0l5zmu`.
   - `src/world/household.js` (new, one owner for home state):
     - Each villager has a larder of dated food batches in the pantry, fridge and freezer. Food spoils; a warm summer pantry spoils faster. A fridge without power for four hours loses its chilled food; a freezer thaws after a day. Meat comes out of the freezer to thaw.
