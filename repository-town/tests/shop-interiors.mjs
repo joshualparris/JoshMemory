@@ -61,6 +61,15 @@ for(const id of CIVIC_INTERIOR_IDS){
     room.group.traverse(o=>{o.geometry?.dispose();o.material?.dispose?.();});
     continue;
   }
+  if(['police','ambulance','court','solicitor'].includes(id)){
+    assert(room.justiceFacility,id+' must have researched emergency/justice interior');
+    assert.equal(room.rooms.length,5,id+' unique service zones');
+    assert(room.interactables.length>=7,id+' public services and case enquiries');
+    assert(room.interactables.some(i=>i.act.do==='emergency'||i.act.do==='justice'),id+' real interactions');
+    assert(room.exitZone.z1>room.spawn.z,id+' can return to street');
+    room.group.traverse(o=>{o.geometry?.dispose();o.material?.dispose?.();});
+    continue;
+  }
   if(id==='recycling'){
     assert(room.recyclingLayout,'P8 uses dedicated sorted-recycling and reuse centre');
     assert.equal(room.rooms.length,5);

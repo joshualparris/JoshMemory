@@ -9,6 +9,7 @@ import { buildInterior, labelVisible } from './world/interior.js';
 import { buildCivicInterior } from './world/shop-interior.js';
 import { surfaceAt, roomFloor } from './world/surfaces.js';
 import { FIELD_Z0 } from './world/life.js';
+import { emergencyPanel,justicePanel } from './ui/emergency-panels.js';
 import { civicExitPose } from './world/shop-exit.js';
 import { populateShopStaff } from './world/shop-staff.js';
 import { createShopVisitors } from './world/shop-visitors.js';
@@ -25,6 +26,7 @@ import { mountNPCChat } from './ui/npc-chat.js';
 import { makePerson, Walker, houseWander, freeSpot, placeTownNPCs, animateNPCs, initialiseNPCWorksites } from './world/npcs.js';
 import { separatePedestrians, steerPedestrians } from './world/pedestrian-spacing.js';
 import { createTownLife } from './world/townlife.js';
+import { createPlayerDriving } from './world/player-driving.js';
 import { nearestSeat } from './world/seats.js';
 import { furniturePanel } from './ui/furniture.js';
 import { createAmbience } from './ui/ambience.js';
@@ -155,6 +157,7 @@ async function start() {
   if (input.touch) $('touch').hidden = false;
   loadFurniture().catch(() => {});   // real furniture models; interiors fall back to boxes until they arrive
   const player = new Player(camera);
+  const driving=createPlayerDriving(life,scene,townWorld,player,camera,input);
   const tableOrder = document.createElement('button');
   tableOrder.id='btn-table-order';tableOrder.type='button';
   tableOrder.textContent='🍽 Order at table';
@@ -184,7 +187,7 @@ async function start() {
     $('btn-discoveries').setAttribute('aria-label', 'Explorer\'s Log, ' + found + ' of ' + total + ' houses discovered');
   }
   const houseLabels = new Map();
-  let nearHouse = null, nearThing = null, panelOpen = null, cardTimer = 0;
+  let nearHouse = null, nearThing = null, nearCar=null, panelOpen = null, cardTimer = 0;
   const expedition = createExpedition({town,makeLabel,openPanel,travel,
     releaseMouse:()=>input.releaseMouse()});
 
@@ -194,6 +197,7 @@ async function start() {
     return { x: l.doorPos.x, z: l.doorPos.z + 9, yaw: 0 };
   }
   function travel(coord) {
+    if(driving.driving){status('Park and get out before travelling.');return false;}
     if (!town.lots.has(coord)) return false;
     if (mode === 'house') leave(false);
     closePanel(); npcChat.close(); $('npc-roster').hidden = true;
@@ -207,6 +211,7 @@ async function start() {
   }
   // Stands on the footpath outside a shop, farm or the square, facing it.
   function goPlace(id) {
+    if(driving.driving){status('Park and get out before fast travel.');return;}
     closePanel(); npcChat.close();
     if (mode === 'house') leave(false);
     const f = townLife.placeFront(id);
@@ -409,6 +414,7 @@ async function start() {
   syncPerfBtn();
   $('btn-perf').onclick = () => { lowPerf = !lowPerf; syncPerfBtn(); status(lowPerf ? 'Smooth mode on: drawing fewer distant objects.' : 'Full draw distance restored.'); };
   $('btn-guide').onclick = () => openPanel(guideContent(), guideSpot);
+  $('btn-000').onclick = () => openPanel(emergencyPanel(life,{x:player.pos.x,z:player.pos.z}),guideSpot);
   $('btn-discoveries').onclick = () => openPanel(discoveryContent(), guideSpot);
   $('btn-wallet').onclick = () => openPanel(walletPanel(life, { go: (id) => { goPlace(id); return null; } }), guideSpot);
   $('btn-help').onclick = () => { input.releaseMouse(); $('help').hidden = !$('help').hidden; };
@@ -530,6 +536,8 @@ async function start() {
   // together, so Use goes to whichever is nearest; everything stays reachable.
   const away = (p) => (p ? Math.hypot(player.pos.x - p.pos.x, player.pos.z - p.pos.z) : Infinity);
   function use() {
+    if(driving.driving){status(driving.exit());return;}
+    if(mode==='town'&&nearCar){status(driving.enter(nearCar));return;}
     if(player.seated){
       if(player.stand(world))status('You stand up.');
       else status('There is no clear space to stand. Move the furniture or try again.');
@@ -589,6 +597,12 @@ async function start() {
       if(thing.act?.do==='household'&&inside?.house?.household){
         openPanel(householdPanel(life,inside.house.household,thing.act.what),thing);
         return;
+      }
+      if(inside?.place&&thing.act?.do==='emergency'){
+        openPanel(emergencyPanel(life,{x:player.pos.x,z:player.pos.z}),thing);return;
+      }
+      if(inside?.place&&thing.act?.do==='justice'){
+        openPanel(justicePanel(life),thing);return;
       }
       if(inside?.place&&thing.act?.do==='civic-ledger'){
         const p=inside.place;
@@ -759,7 +773,8 @@ async function start() {
     else {
       const n=life.needsReport();
       player.speedFactor=Math.max(0.45,1-(n.hunger>80?0.23:0)-(n.fatigue>75?0.32:0));
-      player.update(dt,input,world);
+      if(mode==='town'&&driving.driving) driving.update(dt);
+      else player.update(dt,input,world);
     }
     // Keep the table-service control in the always-visible needs strip on
     // phones with the rest of the HUD collapsed.
@@ -779,7 +794,8 @@ async function start() {
     const view = mode === 'house' && inside?.view ? inside.view.place(camera, outdoorCam) : null;
     townLife.update(dt, t, { player, mode, overview, camera, talkingTo, view });
     const n=life.needsReport();
-    const needsText=`🍽 ${Math.round(n.hunger)}% · 💤 ${Math.round(n.fatigue)}%`;
+    const car=driving.activeVehicle();
+    const needsText=`🍽 ${Math.round(n.hunger)}% · 💤 ${Math.round(n.fatigue)}%${car?' · 🚗 '+Math.round(Math.abs(car.speed||0)*3.6)+'km/h ⛽ '+Math.round(car.fuel||0)+'L':''}`;
     if($('needs-status').textContent!==needsText)$('needs-status').textContent=needsText;
     const clockText = `🕖 ${life.time()} · Day ${life.day}${life.speed > 1 ? ` · ${life.speed}×` : ''}`;
     if ($('clock').textContent !== clockText) $('clock').textContent = clockText;
@@ -845,7 +861,8 @@ async function start() {
       for (const p of townLife.people) if (!p.v.inside) consider(p, 2.6);
       consider(guideSpot, 2.6);
       for (const sp of townLife.spots) consider({ ...sp, spot: sp }, 3.2);
-      nearTownSeat = !overview ? nearestSeat(townLife.seats,player.pos,player.forward(),2.4) : null;
+      nearTownSeat = !overview&&!driving.driving ? nearestSeat(townLife.seats,player.pos,player.forward(),2.4) : null;
+      nearCar = !overview&&!driving.driving ? driving.nearest() : null;
       nearHouse = null; let best = 6;
       for (const l of town.lots.values()) {
         const d = Math.hypot(l.doorPos.x - player.pos.x, l.doorPos.z - player.pos.z);
@@ -861,7 +878,7 @@ async function start() {
         const someone = streetNPCs.some((n) => n.npc.coordinate === d.userData.coordinate && near(n.pos, 2.8)) || townLife.people.some((p) => p.v.home.coordinate === d.userData.coordinate && near(p.v, 2.2));
         const target = dist < 3.2 || someone ? 1 : 0; d.userData.open += (target - d.userData.open) * Math.min(1, dt * 5); d.rotation.y = d.userData.open * 1.55;
       }
-      for (const z of town.doorZones) {
+      if(!driving.driving)for (const z of town.doorZones) {
         if (player.pos.x > z.x0 && player.pos.x < z.x1 && player.pos.z > z.z0 && player.pos.z < z.z1) {
           const d = town.doors.find((d) => d.userData.coordinate === z.coordinate);
           if (d.userData.open > 0.6) { enter(z.coordinate, true); break; }
@@ -870,7 +887,7 @@ async function start() {
       // Walk into an actual 3D shop interior when crossing the open shopfront.
       // The outside facades are collision solids, so the transition happens
       // just in front of their door (not inside an inaccessible wall).
-      if(mode==='town' && !overview){
+      if(mode==='town' && !overview && !driving.driving){
         for(const place of life.places.values()){
           if(Math.abs(player.pos.x-place.x)<.93 &&
              player.pos.z>=place.door.z-.12 &&
@@ -889,8 +906,10 @@ async function start() {
         else if (d > labelCull + 15 && has) { town.group.remove(has); disposeLabel(has); houseLabels.delete(c); }
       }
       const nearRelic = expedition.nearby(player.pos), relicD = away(nearRelic), npcD = away(nearNPC), personD = away(nearPerson);
-      $('prompt').hidden = (!player.seated && !nearTownSeat && !nearNPC && !nearPerson && !nearHouse && !nearRelic) || !!panelOpen || expedition.isOpen() || npcChat.isOpen() || !$('npc-roster').hidden;
-      if (player.seated) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — Stand up · Move or jump to stand`;
+      $('prompt').hidden = (!driving.driving && !nearCar && !player.seated && !nearTownSeat && !nearNPC && !nearPerson && !nearHouse && !nearRelic) || !!panelOpen || expedition.isOpen() || npcChat.isOpen() || !$('npc-roster').hidden;
+      if(driving.driving)$('prompt').textContent=`${input.touch?'Tap ✋':'Press E'} — Park and get out (stop first)`;
+      else if(nearCar)$('prompt').textContent=`${input.touch?'Tap ✋':'Press E'} — Drive ${nearCar.registration} · ${nearCar.model}`;
+      else if (player.seated) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — Stand up · Move or jump to stand`;
       else if(nearTownSeat) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — Sit on ${nearTownSeat.label}`;
       else if (nearRelic && relicD <= npcD && relicD <= personD) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — ✨ ${nearRelic.id === 'guild' ? 'Guild Chest' : nearRelic.name}`;
       else if (nearNPC && npcD <= personD) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — 💬 Talk to ${nearNPC.npc.name}`;
@@ -945,7 +964,7 @@ async function start() {
     talkTo: (id) => npcChat.show(id),
     travel,
     state: () => ({
-      mode, seated: player.seated ? {key:player.seated.key,label:player.seated.label} : null,
+      mode, driving: driving.activeVehicle()?.registration||null, nearbyVehicle:nearCar?.registration||null, seated: player.seated ? {key:player.seated.key,label:player.seated.label} : null,
       seats: mode==='house' ? (inside?.seats||[]).map(x=>({key:x.key,type:x.type,label:x.label,pos:x.pos,room:x.room})) : townLife.seats.map(x=>({key:x.key,type:x.type,label:x.label,pos:x.pos})),
       coordinate: inside?.house.coordinate || null, floor: inside?.floorIndex || 0, windows: inside?.windows?.length || 0, floors: inside?.floors?.levels.length || 1, pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, eye: player.eye, y: player.y, fps,
       rooms: inside?.rooms.length || 0, props: inside?.placedProps.length || 0,
@@ -1005,6 +1024,10 @@ async function start() {
     // Stands at the Town Guide kiosk, facing it.
     meetGuide() { if (mode === 'house') leave(false); player.place(town.guidePos.x, town.guidePos.z + 1.6, 0); return 'guide'; },
     goPlace,
+    vehicles:()=>life.motorReport().owned.map(v=>({...v})),
+    enterVehicle:(reg)=>driving.enter(life.motorReport().owned.find(v=>v.registration===reg)),
+    leaveVehicle:()=>driving.exit(),
+    stepVehicle:(seconds)=>driving.update(seconds),
     shops:()=>[...life.places.values()].map(p=>({id:p.id,name:p.name,kind:p.kind,side:p.side||'north',door:{x:p.x,z:p.door.z}})),
     enterShop,
     setFloor:(i)=>changeFloor(i),

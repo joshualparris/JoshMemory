@@ -10,13 +10,17 @@ import { pedestrianDetour,canFinishNearOccupiedDoor } from './pedestrian-navigat
 import { routeProgress, escapeCrowdWaypoint, clearPedestrianSegment } from './pedestrian-progress.js';
 import { distributePower, townPowerDemands, POWER_LINE_IDS, GRID_FAULT_COST } from './power-grid.js';
 import { initialisePublicLife, attendPublicForum, updatePublicForum, civicDialogue } from './public-forum.js';
+import {initialEmergencyState,emergencyState,callTripleZero,advanceEmergency,caseReport,justiceSummary} from './emergency-justice.js';
 import { freshFinance, noteSale, noteRates, withhold, stateFunded, drawState, noteCouncilWage, dailyGrants, dailyClose as financeDailyClose, payBills, economyReport, bizStats, governmentMoney } from './finance.js';
 import { receipt, tickJobs, startJob, performTask, abandonJob, finishJob, jobsReport, current as currentJob, supervisors } from './jobs.js';
 import { freshCredit, recordEarning, noteBank, creditReport, borrow, repay, accrueInterest } from './credit.js';
 import { ensureHousehold, hasFood, heldCount, takeFood, stowFood, larderSummary, householdHour, homeTask, householdDone, householdReport, noteIncome, noteSpend, canAfford, outdoorTemp, season } from './household.js';
 import { startNeeds, advanceNeeds, eatPlayer, hotelCheckIn, sleepPlayer, needsReport } from './needs.js';
 import { initialiseProperties, propertyReport, buyProperty, listProperty, sellProperty, leaseProperty, endLease, propertyDay } from './property.js';
-import { initialiseVehicles, motorReport, buyVehicle, serviceVehicle, renewRegistration, sellVehicle, motorDay } from './vehicles.js';
+import { ensureTenancies, leaseReport, commercialRentDay, issueCommercialDisclosure, renewCommercial, reviewCommercialRent, tenancyNotice, applyTribunal, hearing, enforcePossession, leaseOverview } from './lease-law.js';
+import { exchangePurchase, rescindContract, settlePurchase, contractReport, contractQuote } from './property-contracts.js';
+import { initialiseVehicles, motorReport, buyVehicle, serviceVehicle, refuelVehicle, renewRegistration, sellVehicle, motorDay } from './vehicles.js';
+import { initialiseTradeEducation, advanceTradeEducation } from './trade-education.js';
 import { MAYOR_CANDIDATES, createGovernment, civicElection, castCivicVote, submitRequest, requestFeeder, proposeMotion, councilMeeting, advanceCivicWork, budgetRevenue, restoreCivic, govSummary, maintainServices } from './government.js';
 // Town life simulation: the clock, farms, the mill and bakery, shops, trucks, the post,
 // and villagers with jobs, hunger, pantries, wallets and daily routines. Pure logic (no
@@ -119,12 +123,20 @@ export const PLACE_DEFS = [
   { col: 'L', side: 'south', id: 'sewage', name: 'Wastewater Works', kind: 'utility', opens: 0, closes: 24 * 60 },
   { col: 'M', side: 'south', id: 'realty', name: 'Repository Realty', kind: 'office', opens: 9 * 60, closes: 17 * 60 },
   { col: 'N', side: 'south', id: 'fire', name: 'Fire & Rescue', kind: 'fire', opens: 0, closes: 24 * 60 },
+  { col: 'K', side: 'south', id: 'police', name: 'Repository Town Police Station', kind: 'emergency', opens: 0, closes: 1440 },
+  { col: 'O', side: 'south', id: 'ambulance', name: 'NSW Ambulance Station', kind: 'emergency', opens: 0, closes: 1440 },
   { col: 'P', side: 'south', id: 'recycling', name: 'Recycling Centre', kind: 'utility', opens: 7 * 60, closes: 16 * 60 },
   { col: 'Q', side: 'south', id: 'landfill', name: 'Waste Depot', kind: 'utility', opens: 6 * 60, closes: 17 * 60 },
   { col: 'R', side: 'south', id: 'foundry', name: 'Foundry & Workshop', kind: 'industry', opens: 7 * 60, closes: 16 * 60, target: { ore: 40, scrap: 20 } },
   { col: 'S', side: 'south', id: 'realestate', name: 'Central West Property & Land', kind: 'service', opens: 9 * 60, closes: 17 * 60 },
   { col: 'T', side: 'south', id: 'dealership', name: 'High Street Motors', kind: 'service', opens: 8 * 60, closes: 17 * 60 },
   { col: 'U', side: 'south', id: 'mechanic', name: 'Town Motor Workshop', kind: 'service', opens: 8 * 60, closes: 17 * 60 },
+  { col: 'E', side: 'south', id: 'court', name: 'Repository Town Local Court', kind: 'justice', opens: 9*60, closes: 16*60 },
+  { col: 'F', side: 'south', id: 'solicitor', name: 'High Street Solicitors & Legal Aid Enquiries', kind: 'justice', opens: 9*60, closes: 17*60 },
+  { col: 'V', side: 'south', id: 'hardware', name: 'Central West Hardware & Timber', kind: 'service', opens: 7 * 60, closes: 18 * 60 },
+  { col: 'W', side: 'south', id: 'trades', name: 'Town Trades & Maintenance', kind: 'service', opens: 7 * 60, closes: 17 * 60 },
+  { col: 'X', side: 'south', id: 'tafe', name: 'Town TAFE Trades Campus', kind: 'education', opens: 8 * 60, closes: 18 * 60 },
+  { col: 'Y', side: 'south', id: 'university', name: 'Regional University Study Centre', kind: 'education', opens: 8 * 60, closes: 21 * 60 },
 ];
 
 const JOBS = [
@@ -352,15 +364,21 @@ export class TownLife {
     for (const t of this.trucks) t.driver = this.villagers.find((v) => v.job === 'truck driver' && !this.trucks.some((o) => o.driver === v)) || null;
     createGovernment(this);
     initialisePublicLife(this);
+    this.civic.emergency=initialEmergencyState();
     startNeeds(this);
     this.place('hotel').bookings=[];
     initialiseProperties(this);
+    ensureTenancies(this);
     initialiseVehicles(this);
+    initialiseTradeEducation(this);
     this.log(`Day ${this.day} begins. The town wakes up.`);
   }
 
   freshStats() { return { harvested: {}, milled: 0, baked: 0, deliveries: 0, delivered: {}, sold: {}, meals: 0, mealsOut: 0, parcels: 0, taxes: 0, wages: 0, recycled: 0, landfill: 0, letters: 0, repairs: 0, stockouts: 0, powerCutHours: 0, wasted: 0 }; }
   place(id) { return this.places.get(id); }
+  dial000(type,location=null){return callTripleZero(this,type,location);}
+  emergencyReport(){return caseReport(this);}
+  justiceReport(){return justiceSummary(this);}
   time() { return fmt(this.minute); }
   isDay() { return this.minute >= 6 * 60 && this.minute < 19 * 60; }
   // 0 at midnight, 1 at noon: drives sky colour and lights.
@@ -375,8 +393,9 @@ export class TownLife {
     this.minute += minutes;
     if (this.minute >= 24 * 60) { this.minute -= 24 * 60; this.day++; this.newDay(); }
     const hourly = Math.floor(before / 60) !== Math.floor(this.minute / 60) || this.minute < before;
-    if (hourly) this.everyHour();
+    if (hourly) { this.everyHour(); advanceTradeEducation(this); }
     advanceNeeds(this,minutes);
+    advanceEmergency(this);
     for (const o of readyOrders(this)) this.collectOrder(o);
     for (const v of this.villagers) this.liveVillager(v, minutes);
     // All walkers, shop visitors and on-duty staff retain physical space.
@@ -446,6 +465,16 @@ export class TownLife {
     budgetRevenue(this, dailyGrants(this), 'grant');
     financeDailyClose(this);
     propertyDay(this);
+    commercialRentDay(this);
+    for(const v of this.villagers){
+      const l=leaseReport(this,'H:'+v.home.coordinate);
+      if(l&&l.kind==='residential'){
+        l.landlord=this.civic.property.parcels[l.id]?.owner||l.landlord;
+        l.arrears=v.housingArrears||0;
+        if(l.arrears>0&&l.lateSince===null)l.lateSince=this.day;
+        if(l.arrears<=0){l.lateSince=null;if(l.notice?.ground==='rent-arrears')l.notice=null;}
+      }
+    }
     motorDay(this);
     // Villagers bank anything over $250 (money saved, not spent in town).
     for (const v of this.villagers) if (v.wallet > 250) { v.savings = (v.savings || 0) + v.wallet - 250; v.wallet = 250; }
@@ -646,6 +675,19 @@ export class TownLife {
     return `${op === 'deposit' ? 'Deposited' : 'Withdrew'} $${m}. Wallet $${me.wallet}, savings $${me.bank}.`;
   }
   propertyReport() { return propertyReport(this); }
+  contractQuote(id) {return contractQuote(this,id);}
+  contractReport(id) {return contractReport(this,id);}
+  exchangePurchase(id) {return exchangePurchase(this,id);}
+  rescindContract(id) {return rescindContract(this,id);}
+  settlePurchase(id) {return settlePurchase(this,id,(life,parcel)=>buyProperty(life,parcel));}
+  leaseReport(id) {return leaseOverview(this,id);}
+  commercialDisclosure(id) {return issueCommercialDisclosure(this,id);}
+  renewCommercial(id) {return renewCommercial(this,id);}
+  reviewCommercialRent(id) {return reviewCommercialRent(this,id);}
+  tenancyNotice(id,ground='rent-arrears') {return tenancyNotice(this,id,ground);}
+  applyTenancyOrder(id) {return applyTribunal(this,id);}
+  tenancyHearing(id) {return hearing(this,id);}
+  enforceTenancyOrder(id) {return enforcePossession(this,id);}
   buyProperty(id) { return buyProperty(this,id); }
   listProperty(id) { return listProperty(this,id); }
   sellProperty(id) { return sellProperty(this,id); }
@@ -654,6 +696,7 @@ export class TownLife {
   motorReport() { return motorReport(this); }
   buyVehicle(id) { return buyVehicle(this,id); }
   serviceVehicle(reg) { return serviceVehicle(this,reg); }
+  refuelVehicle(reg) {return refuelVehicle(this,reg);}
   renewRegistration(reg) { return renewRegistration(this,reg); }
   sellVehicle(reg) { return sellVehicle(this,reg); }
   creditReport() { return creditReport(this); }
@@ -1503,7 +1546,9 @@ export class TownLife {
     this.powerGridEventSeq=Number.isSafeInteger(s.powerGridEventSeq)?s.powerGridEventSeq:this.powerGridEvents.length;
     if (s.civic && typeof s.civic === 'object') Object.assign(this.civic, s.civic, { player: { ...this.civic.player, ...(s.civic.player || {}) } });
     restoreCivic(this,s.civic?.government);
+    initialiseTradeEducation(this);
     initialisePublicLife(this);
+    emergencyState(this);
     this.civic.powerLines = this.civic.powerLines && typeof this.civic.powerLines === 'object' ? this.civic.powerLines : {};
     if(this.civic.supply.powerDemand>0)this.updatePowerGrid();
     for (const [id, stock, out, till, growth] of s.places || []) { const p = this.place(id); if (p) Object.assign(p, { stock, out, till, growth: growth ?? p.growth }); }

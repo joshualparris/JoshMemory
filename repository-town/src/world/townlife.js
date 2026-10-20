@@ -95,6 +95,10 @@ const SIGN_AT = {
   realestate:[0,4.05,7.1,7.2,0.5,'#e9e1d0','#453827'],
   dealership:[0,4.05,7.1,7.2,0.5,'#c8d6e2','#1d4267'],
   mechanic:[0,4.05,7.1,7.2,0.5,'#273940','#f2c74a'],
+  police:[0,4.35,7.16,8.8,.60,'#20395b','#f2e9d4'],
+  ambulance:[0,4.20,7.16,8.4,.57,'#f2f5ef','#b02d35'],
+  court:[0,5.60,7.16,9.0,.64,'#eee6d7','#343c51'],
+  solicitor:[0,4.11,7.16,9.2,.57,'#264a43','#f4ece0'],
 };
 const SHOP_COLOURS = { store: ['#2f6b8c', '#f6f1e2'], bakery: ['#8a5a2a', '#f8ecd2'], cafe: ['#e8d8b8', '#2f5a4a'], greengrocer: ['#3f7a3a', '#f6f1e2'], butcher: ['#b8413a', '#ffffff'], post: ['#b8413a', '#ffffff'], clinic: ['#ffffff', '#2a5a78'] };
 
@@ -186,6 +190,74 @@ const BUILD = {
 };
 // Civic sites across the road (authored like the rest: street side +z, front wall at z = +7).
 Object.assign(BUILD, {
+  police(b){
+    // Brick rural NSW police station, public reception one side and
+    // separated secure custody entry to the rear (no public jail access).
+    b.box(0xc7b9a4,14,5.0,10,0,2.5,2);
+    b.box(0x283e59,14.5,.48,10.6,0,5.23,2);
+    b.box(0x385575,14.5,1.04,.4,0,5.85,6.85);
+    for(const x of [-4.7,-2.8,2.8,4.7]){
+      b.box(GLASS,1.56,1.94,.07,x,2.16,7.11);
+      b.box(0xe4e7e6,1.66,.12,.12,x,3.18,7.15);
+      b.box(0x4e6176,.13,2.04,.12,x,2.13,7.17);
+    }
+    b.box(0x243b52,1.8,2.85,.12,0,1.43,7.13);
+    b.box(GLASS,1.55,2.35,.03,0,1.45,7.22);
+    b.box(0xdddccf,.06,.40,.12,.64,1.43,7.29);
+    b.box(0x354d61,4.2,.16,1.3,0,3.58,7.62);
+    b.box(0xeee9d6,1.6,.78,.06,-5.32,2.6,7.22);
+    b.box(0x284a65,1.41,.51,.07,-5.32,2.63,7.27);
+    // Secure steel-gated custody sallyport is at rear, off the public sidewalk.
+    for(const x of [-5.5,5.5])b.box(0x34404b,.22,2.7,.17,x,1.35,-3.07);
+    return {w:14,d:10};
+  },
+  ambulance(b){
+    // Regional ambulance operations and secure two-bay equipment area.
+    b.box(0xe9e9e1,14,5.1,10,0,2.55,2);
+    b.box(0xb73741,14.6,.32,10.5,0,5.30,2);
+    for(const x of [-3.72,3.72]){
+      b.box(0xdde3e1,4.7,3.22,.08,x,1.65,7.13);
+      for(const y of [.86,1.65,2.44])b.box(0x9ebfc1,4.62,.075,.1,x,y,7.18);
+      b.box(0xb83740,4.68,.25,.07,x,3.26,7.20);
+    }
+    b.box(GLASS,1.50,2.4,.065,0,1.46,7.24);
+    b.box(0xb6363e,1.74,.22,.1,0,2.85,7.27);
+    // Marked simulated vehicle spaces, no pedestrians obstructing entrance.
+    for(const x of [-4.8,4.8]){
+      b.block(0xeceae0,2.48,.05,3.9,x,.025,10.1);
+      b.block(0xb32f3e,.17,.055,3.9,x-1.15,.030,10.1);
+    }
+    return {w:14,d:10};
+  },
+  court(b){
+    // Modest Local Court, not a prison: formal stone facade, shaded
+    // entrance and public hearing windows with discrete registry sign.
+    b.box(0xddd4bf,14,6.1,10,0,3.05,2);
+    b.box(0x6a665b,14.4,.38,10.6,0,6.27,2);
+    b.box(0xe2dccd,14.6,.36,2.2,0,5.04,7.51);
+    for(const x of [-5,-3,3,5]){
+      b.cyl(0xeee7d4,.28,4.3,x,2.25,7.65);
+      b.box(0xd3cbbb,.72,.23,.70,x,4.40,7.65);
+    }
+    for(const x of [-5.6,5.6])b.box(GLASS,1.34,2.1,.07,x,2.4,7.15);
+    b.box(0x493a32,2.1,3.25,.09,0,1.63,7.15);
+    b.box(0xd4d7cc,1.6,2.1,.05,0,1.58,7.25);
+    b.box(0xd5aa63,.08,.45,.08,.72,1.46,7.33);
+    b.box(0xb6ac97,2.8,.13,1.2,0,.10,8.05);
+    return {w:14,d:10};
+  },
+  solicitor(b){
+    // Plain commercial solicitors' rooms, glazed reception and private
+    // offices, visibly not a police or court building.
+    shopfront(b,14,10,4.9,0xe2dac8,0x264940,null);
+    b.box(0x264940,14.5,.28,1.70,0,3.55,7.75);
+    for(const x of [-4.6,-2.9,2.9,4.6]){
+      b.box(0xf8f2e6,1.3,.75,.036,x,2.04,7.19);
+      b.box(0x295e5a,1.13,.12,.039,x,2.31,7.22);
+      b.box(0x9a967f,.72,.06,.039,x,1.83,7.22);
+    }
+    return {w:14,d:10};
+  },
   realty(b) {
     // Distinct small-town NSW real estate shopfront, southwest face of
     // Market Square. A low heritage-style parapet, timber awning, two big
@@ -299,6 +371,37 @@ Object.assign(BUILD, {
     shed(b,14,10,5,0xa6adaf,0x555e63);
     for(const x of [-3.6,3.6])b.box(0xd5d9da,3.9,3.5,.06,x,1.75,7.12);
     b.box(0x3f525e,13.6,.55,.1,0,4.05,7.16);
+    return {w:14,d:10};
+  },
+  hardware(b){
+    shopfront(b,14,10,5.0,0xbca88b,0x3c5145,[0xe5b54a,0x456b57]);
+    for(const x of [-5.0,-3.4,3.4,5.0]){
+      b.block(0xa77e52,.2,2.0,.25,x,1.8,9.5);
+      b.box(0xe5be66,1.3,.1,.36,x,3.0,7.15);
+    }
+    for(const x of [-5,5]){b.block(0x875e39,.65,.7,1.0,x,0,10.3);b.box(0xe4c39b,.65,.2,1.1,x,.72,10.3);}
+    return {w:14,d:10};
+  },
+  trades(b){
+    shopfront(b,14,10,5.1,0xb2bec1,0x40546d,[0x426d85,0xd2d6d8]);
+    for(const x of [-4.5,4.5]){
+      b.block(0xe8ebee,2.0,1.0,3.0,x,0,10.0);
+      b.box(0x407ea6,1.6,.6,.06,x,2.15,7.2);
+    }
+    for(const x of [-5,5]){b.cyl(0x2d3339,.35,.18,x,.32,10.5,Math.PI/2);}
+    return {w:14,d:10};
+  },
+  tafe(b){
+    shopfront(b,14,10,5.3,0xdac4a0,0x8a4839,[0xc57f45,0xffe2ac]);
+    b.box(0x784e36,14.3,.35,10.4,0,5.4,2.0);
+    for(const x of [-5,5]){b.block(0xaf6952,1.3,1.4,1.2,x,0,9.7);b.box(0xe4d1af,1.3,.1,.45,x,1.48,9.7);}
+    return {w:14,d:10};
+  },
+  university(b){
+    shopfront(b,14,10,6.2,0xe0dacb,0x3e5870,[0x5c789c,0xf0e9dc]);
+    b.box(0x334a5a,14.5,.32,10.4,0,6.25,2.0);
+    for(const x of [-5.7,5.7]){b.cyl(0xf0ebda,.35,5.1,x,2.65,9.0);b.box(0x506b89,.82,.38,.55,x,5.1,9.0);}
+    b.box(0x688bab,5.4,.22,.12,0,4.2,7.2);
     return {w:14,d:10};
   },
   foundry(b) {
