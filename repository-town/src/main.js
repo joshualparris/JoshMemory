@@ -3,6 +3,7 @@ import { CollisionWorld } from './engine/collision.js';
 import { Input } from './engine/input.js';
 import { Player } from './engine/player.js';
 import { loadSave, writeSave, clearSave } from './engine/save.js';
+import { discoveryProgress } from './ui/discovery-log.js';
 import { buildTown, streetSigns, lotPosition } from './world/town.js';
 import { buildInterior, labelVisible } from './world/interior.js';
 import { buildCivicInterior } from './world/shop-interior.js';
@@ -163,6 +164,11 @@ async function start() {
   let mode = 'town', inside = null, world = townWorld, overview = false;
   const active = new Set();
   const visited = new Set();
+  function syncDiscoveryCount() {
+    const { found, total } = discoveryProgress(houses, visited);
+    $('discovery-count').textContent = found + '/' + total;
+    $('btn-discoveries').setAttribute('aria-label', 'Explorer\'s Log, ' + found + ' of ' + total + ' houses discovered');
+  }
   const houseLabels = new Map();
   let nearHouse = null, nearThing = null, panelOpen = null, cardTimer = 0;
   const expedition = createExpedition({town,makeLabel,openPanel,travel,
@@ -271,6 +277,7 @@ async function start() {
     mode = 'house';
     $('btn-exit').hidden = false;
     visited.add(coord);
+    syncDiscoveryCount();
     expedition.noteVisit(coord);
     ambience.door();
     closePanel();
@@ -385,6 +392,7 @@ async function start() {
   syncPerfBtn();
   $('btn-perf').onclick = () => { lowPerf = !lowPerf; syncPerfBtn(); status(lowPerf ? 'Smooth mode on: drawing fewer distant objects.' : 'Full draw distance restored.'); };
   $('btn-guide').onclick = () => openPanel(guideContent(), guideSpot);
+  $('btn-discoveries').onclick = () => openPanel(discoveryContent(), guideSpot);
   $('btn-wallet').onclick = () => openPanel(walletPanel(life, { go: (id) => { goPlace(id); return null; } }), guideSpot);
   $('btn-help').onclick = () => { input.releaseMouse(); $('help').hidden = !$('help').hidden; };
   $('btn-npcs').onclick = () => { $('npc-roster').hidden = !$('npc-roster').hidden; input.reset(); };
@@ -570,6 +578,18 @@ async function start() {
       speed: () => life.speed, setSpeed: (n) => { life.speed = n; townLife.save(); }, relic: () => relicsLeft()[0],
     });
   }
+  function discoveryContent() {
+    const progress = discoveryProgress(houses, visited);
+    const next = progress.next;
+    const barMax = Math.max(progress.total, 1);
+    const target = next ? '<p>Next undiscovered: <strong>' + esc(next.coordinate) + ' · ' + esc(next.name) + '</strong></p><p class="dim">Walk through its front door to add it to your log.</p>' : '<p>Every house in Repository Town is in your log.</p>';
+    return {
+      title: "Explorer's Log",
+      body: '<p><strong>' + progress.found + ' / ' + progress.total + '</strong> houses discovered · ' + progress.percent + '%</p>' +
+        '<progress max="' + barMax + '" value="' + progress.found + '" aria-label="' + progress.found + ' of ' + progress.total + ' houses discovered"></progress>' + target,
+      actions: next ? [{ label: 'Go to ' + next.coordinate, run: () => { travel(next.coordinate); return null; } }] : [],
+    };
+  }
   function talkTo(p) {
     if (p.guide) { openPanel(guideContent(), p); return; }
     if (p.spot) { openPanel(placePanel(life, p.spot.id), p); return; }
@@ -590,6 +610,7 @@ async function start() {
     if (world.hits(player.pos.x, player.pos.z, player.radius)) { if (mode === 'house') leave(false); spawn(); }
     status('Welcome back — your position was restored.');
   } else { spawn(); status('Welcome! Walk up to the Town Guide or any front door to begin.'); }
+  syncDiscoveryCount();
   let saveTimer = 0;
   const save = () => writeSave({ pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, inside: inside&&!inside.place?inside.house.coordinate:null, insideShop:inside?.place?.id||null, visited: [...visited] });
   addEventListener('visibilitychange', () => { if (document.hidden) { save(); townLife.save(); } });
