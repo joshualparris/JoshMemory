@@ -9,6 +9,7 @@ import { buildInterior, labelVisible } from './world/interior.js';
 import { buildCivicInterior } from './world/shop-interior.js';
 import { civicExitPose } from './world/shop-exit.js';
 import { populateShopStaff } from './world/shop-staff.js';
+import { createShopVisitors } from './world/shop-visitors.js';
 import { loadFurniture } from './world/furniture.js';
 import { createFloorStack, FLOOR_HEIGHT } from './world/multifloor.js';
 import { townView } from './world/windows.js';
@@ -311,6 +312,9 @@ async function start() {
     scene.add(built.group);town.group.visible=false;
     scene.background.set(INDOOR);scene.fog=null;
     world=new CollisionWorld(built.colliders);
+    // The same TownLife villagers that shop, eat and work here now have
+    // visible bodies, independent of the staff member behind the counter.
+    inside.visitors=createShopVisitors(site,life,inside,makeLabel,inside.people);
     player.place(built.spawn.x,built.spawn.z,keepFacing ? yawIn - doorTurn(site) : 0);
     mode='house';$('btn-exit').hidden=false;
     closePanel();npcChat.close();ambience.door();
@@ -496,7 +500,7 @@ async function start() {
     }
     // Authored interactions take priority; passive furniture and seats are
     // selectable when the player looks at them instead of replacing exhibits.
-    const seat=nearestSeat(inside.seats,at,fwd,2.6);
+    const seat=nearestSeat((inside.seats||[]).filter(s=>!s.occupiedBy),at,fwd,2.6);
     if(seat) {
       const d=Math.hypot(seat.pos.x-at.x,seat.pos.z-at.z);
       const facing=d<.01?1:((seat.pos.x-at.x)*fwd.x+(seat.pos.z-at.z)*fwd.z)/d;
@@ -541,6 +545,7 @@ async function start() {
     }
     if (nearThing) {
       if(nearThing.act?.do==='sit'){
+        if(inside?.seats?.find(s=>s.key===nearThing.key)?.occupiedBy){status('That seat is occupied. Try another table.');return;}
         if(player.sit(nearThing,world))status('Sitting on '+nearThing.label+'. Look around; move, jump or use to stand.');
         else status('Move closer to the seat to sit safely.');
         return;
@@ -907,7 +912,10 @@ async function start() {
         else if (nearThing) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — ${nearThing.act?.do==='sit'?'Sit on ':''}${nearThing.label}${who ? ` · ${who.activity}` : ''}`;
         if (input.consume('use')) use();
         animate(inside.dynamics, t, active);
-        for (const p of inside.people || []) p.update(dt, t, player, p.plan);
+        inside.visitors?.update(dt,t,player);
+        // Shop patrons are synchronised with the authoritative town economy
+        // above; they have their own movement and seated animation.
+        for (const p of inside.people || []) if(!p.key?.startsWith('visitor:'))p.update(dt,t,player,p.plan);
         if (cardTimer > 0 && (cardTimer -= dt) <= 0) $('card').hidden = true;
         // Labels hide when the player is right on top of them so they never fill the screen,
         // and when a wall or closed door stands between them and the camera.
@@ -939,7 +947,7 @@ async function start() {
       interactables: inside ? inside.interactables.map((x) => ({ key: x.key, label: x.label, title: x.act.title || x.label, do: x.act.do, nav: x.floorNav || null, room: x.roomName })) : [],
       near: nearThing?.key || null, nearNPC: nearNPC?.npc.id || null, nearHouse: nearHouse?.house.coordinate || null,
       panel: panelOpen ? { title: $('panel-title').textContent, text: $('panel-body').textContent, links: [...$('panel-actions').querySelectorAll('a')].map((a) => a.href), buttons: [...$('panel-actions').querySelectorAll('button')].map((b) => b.textContent) } : null,
-      people: (mode === 'town' ? townLife.people.map((p) => ({ key: p.key, name: p.v.name, job: p.v.job, x: p.v.x, z: p.v.z, inside: p.v.inside, activity: p.v.activity, visible: p.fig.group.visible })) : (inside?.people || []).map((p) => ({ key: p.key, name: p.name, x: p.pos.x, z: p.pos.z, room: p.room, activity: p.activity }))),
+      people: (mode === 'town' ? townLife.people.map((p) => ({ key: p.key, name: p.v.name, job: p.v.job, x: p.v.x, z: p.v.z, inside: p.v.inside, activity: p.v.activity, visible: p.fig.group.visible })) : (inside?.people || []).map((p) => ({ key: p.key, name: p.name, x: p.pos.x, z: p.pos.z, room: p.room, activity: p.activity, state:p.state||'staff', visible:p.group.visible }))),
       time: life.time(), day: life.day, minute: life.minute, speed: life.speed, daylight: life.daylight(), sound: ambience.on, needs:life.needsReport(),
       nearPerson: nearPerson?.key || null,
       active: [...active], playing: playing?.id || null, gameSrc: playing ? $('game-frame').getAttribute('src') : null, calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, renderPixelRatio,
