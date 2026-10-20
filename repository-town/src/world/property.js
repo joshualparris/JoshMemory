@@ -40,7 +40,7 @@ export function initialiseProperties(life){
       id:propertyKey('house',h.coordinate),name:h.coordinate+' · '+h.name,kind:'house',
       address:h.coordinate,owner:title,tenant:occupant?.name||null,
       occupied:!!occupant,value,rent:8,
-      listed:!occupant&&i%7===0,protected:false,condition:78+i%20,
+      listed:(!occupant&&i%7===0)||(!!occupant&&tenure==='rent'&&i%19===0),protected:false,condition:78+i%20,
     };
   }
   for(const p of life.places.values()){
@@ -55,7 +55,7 @@ export function initialiseProperties(life){
     };
   }
   // Distinct opening balances for market counterparties, not minted on each sale.
-  const state={version:1,parcels,accounts:{'Town Property Cooperative':150000,'Town Housing Trust':80000,'High Street Property Trust':85000,'Agricultural Cooperative':125000,'Property Office':0},
+  const state={version:1,parcels,accounts:{'Town Property Cooperative':150000,'Town Housing Trust':80000,'High Street Property Trust':85000,'Agricultural Cooperative':125000,'Property Office':1200},
     reserve:175000,liens:{},playerLease:null,journal:[],lastDay:1};
   life.civic.property=state;
   return state;
@@ -115,7 +115,8 @@ export function sellProperty(life,id){
 export function leaseProperty(life,id){
   const s=registry(life),p=s.parcels[id],me=life.civic.player;
   if(!p||p.kind!=='house'||p.tenant||p.owner==='visitor'||s.playerLease)return 'That home is not available for a new lease.';
-  const bond=p.rent*2;
+  // Four seven-day in-game weeks: escrow is held, not paid to the landlord.
+  const bond=p.rent*28;
   if(!spend(me,bond))return 'You need $'+bond+' for the refundable rental bond.';
   p.tenant='visitor';p.occupied=true;s.playerLease=id;s.bond=bond;
   write(s,'Leased '+p.name+' to visitor; $'+bond+' bond held.',life.day);
@@ -147,6 +148,9 @@ export function propertyDay(life){
   if(!s||s.lastDay===life.day)return;
   s.lastDay=life.day;
   const me=life.civic.player;
+  const agentWage=Math.min(12,s.accounts['Property Office']);
+  s.accounts['Property Office']=round(s.accounts['Property Office']-agentWage);
+  s.accounts.agentWages=round((s.accounts.agentWages||0)+agentWage);
   for(const p of Object.values(s.parcels).filter(p=>p.owner==='visitor')){
     const lien=s.liens[p.id];
     if(lien){
@@ -159,8 +163,10 @@ export function propertyDay(life){
       if(lien.balance===0){delete s.liens[p.id];write(s,'Mortgage discharged on '+p.name,life.day);}
     }
     const rates=p.kind==='house'?2:p.kind==='farm'?7:4;
-    if(spend(me,Math.min(rates,cash(me))))life.civic.treasury=round(life.civic.treasury+Math.min(rates,rates));
-    else {p.ratesArrears=(p.ratesArrears||0)+rates;}
+    const ratesOwed=round(rates+(p.ratesArrears||0));
+    const ratesPaid=round(Math.min(ratesOwed,cash(me)));
+    if(ratesPaid>0){spend(me,ratesPaid);life.civic.treasury=round(life.civic.treasury+ratesPaid);}
+    p.ratesArrears=round(ratesOwed-ratesPaid);
     // Buildings deteriorate slowly. Maintenance work is paid for separately.
     p.condition=Math.max(10,round(p.condition-0.05));
   }
