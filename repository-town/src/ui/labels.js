@@ -26,9 +26,37 @@ export function makeLabel(text, kind = 'prop') {
   ctx.fillText(shown, 18, h / 2 + 2);
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
-  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthWrite: false, depthTest: true }));
+  // Labels must obey the same depth buffer as walls, columns and shopfronts.
+  // depthWrite stays off so transparent letter edges do not occlude scenery.
+  const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: tex, depthWrite: false, depthTest: true, alphaTest: 0.04,
+  }));
   sprite.scale.set(w * st.scale, h * st.scale, 1);
+  // Long names should not extend over adjacent rooms, doors or buildings.
+  const maxWidth = {house:4.6,street:6,room:3.4,interactive:2.9,prop:2.6}[kind] || 2.6;
+  if (sprite.scale.x > maxWidth) {
+    const factor = maxWidth / sprite.scale.x;
+    sprite.scale.multiplyScalar(factor);
+  }
   sprite.userData.text = text;
+  return sprite;
+}
+
+// Keep the entire camera-facing sign within a room, not just its centre.
+// A sprite is a billboard, so its horizontal half-width may extend in X or Z
+// depending on where the player stands. Reserve that margin on both axes.
+export function containLabel(sprite, room, inset = 0.24) {
+  const width = room.x1 - room.x0, depth = room.z1 - room.z0;
+  const available = Math.max(0.25, Math.min(width, depth) - inset * 2);
+  if (sprite.scale.x > available) sprite.scale.multiplyScalar(available / sprite.scale.x);
+  const margin = sprite.scale.x / 2 + inset;
+  const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+  sprite.position.x = clamp(sprite.position.x, room.x0 + margin, room.x1 - margin);
+  sprite.position.z = clamp(sprite.position.z, room.z0 + margin, room.z1 - margin);
+  if (Number.isFinite(room.y1)) {
+    const half = sprite.scale.y / 2;
+    sprite.position.y = clamp(sprite.position.y, (room.y0 ?? 0) + half + 0.12, room.y1 - half - 0.12);
+  }
   return sprite;
 }
 

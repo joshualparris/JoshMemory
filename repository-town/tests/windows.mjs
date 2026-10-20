@@ -26,13 +26,6 @@ for (let f = 0; f < floors; f++) {
 check(await T(() => window.__town.lookOut(0)), 'stand at a top-floor window');
 await page.waitForTimeout(800);
 const day = await shot();
-// Outside keeps living: villager figures in view move while the player stays indoors.
-await T(() => window.__town.life.setTime(8 * 60));
-const before = await T(() => window.__town.townFigures().filter((f) => f.visible));
-await page.waitForTimeout(2500);
-const after = await T(() => window.__town.townFigures());
-const moved = before.filter((b) => { const a = after.find((x) => x.key === b.key); return a && Math.hypot(a.x - b.x, a.z - b.z) > 0.3; });
-check(before.length > 0 && moved.length > 0, `villagers outside keep moving while you are indoors (${moved.length} of ${before.length} in view moved)`);
 // Night falls outside the same window.
 await T(() => window.__town.life.setTime(22 * 60)); await page.waitForTimeout(800);
 check(day !== await shot(), 'the view out of the window follows the time of day');
@@ -42,6 +35,15 @@ await T(() => window.__town.life.setTime(10 * 60));
 check(await T(() => window.__town.enterShop('bakery')), 'enter the Bakery');
 const shopWindows = (await T(() => window.__town.state())).windows;
 check(shopWindows >= 4 && await T(() => window.__town.lookOut(0)), `Bakery has ${shopWindows} windows`);
+// Outside keeps living: on the high street at 8am, villagers in view move while the player stays in.
+// (setTime only moves the clock; run() lets the morning actually happen so people are out.)
+await T(() => { window.__town.life.setTime(7 * 60 + 30); window.__town.life.run(45); });
+await page.waitForTimeout(1000);
+const before = await T(() => window.__town.townFigures().filter((f) => f.visible));
+await page.waitForTimeout(4000);
+const after = await T(() => window.__town.townFigures());
+const moved = before.filter((b) => { const a = after.find((x) => x.key === b.key); return a && Math.hypot(a.x - b.x, a.z - b.z) > 0.3; });
+check(before.length >= 3 && moved.length > 0, `villagers outside keep moving while you are indoors (${moved.length} of ${before.length} in view moved)`);
 await T(() => window.__town.exitShop());
 check(!errors.length, `no page errors${errors.length ? ': ' + errors.join(' | ') : ''}`);
 await browser.close();

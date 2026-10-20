@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { containLabel } from '../ui/labels.js';
 import { buildFarmhouseInterior } from './farmhouse-interior.js';
 import { highStreetShell } from './interior-kit.js';
 import { buildHotelInterior } from './hotel-interior.js';
@@ -7,6 +8,9 @@ import { buildBankInterior } from './bank-interior.js';
 import { buildStoreInterior } from './store-interior.js';
 import { buildCafeInterior } from './cafe-interior.js';
 import { buildPubInterior } from './pub-interior.js';
+import { buildPostInterior } from './post-interior.js';
+import { buildClinicInterior } from './clinic-interior.js';
+import { buildHallInterior } from './hall-interior.js';
 
 // The twenty high-street services share a safe walkable plan, with different
 // fixtures, colours and exhibits. They are built only while the player is inside.
@@ -61,6 +65,9 @@ export function buildCivicInterior(site,makeLabel) {
   if(site.id==='store')return buildStoreInterior(site,makeLabel,roomTitle);
   if(site.id==='cafe')return buildCafeInterior(site,makeLabel,roomTitle);
   if(site.id==='pub')return buildPubInterior(site,makeLabel,roomTitle);
+  if(site.id==='post')return buildPostInterior(site,makeLabel,roomTitle);
+  if(site.id==='clinic')return buildClinicInterior(site,makeLabel,roomTitle);
+  if(site.id==='hall')return buildHallInterior(site,makeLabel,roomTitle);
   const group=new THREE.Group();
   group.name='Inside '+site.name;
   const colliders=[],interactables=[],sceneObjects=[],placedProps=[];
@@ -106,7 +113,7 @@ export function buildCivicInterior(site,makeLabel) {
     const sprite=makeLabel(label,kind);
     sprite.position.set(x,y,z);
     sprite.userData.labelKind=kind;
-    sprite.renderOrder=12;
+    containLabel(sprite,{x0:-EDGE,x1:EDGE,z0:BACK,z1:FRONT,y0:0,y1:4.6});
     group.add(sprite);
   };
   text(site.name,0,3.15,-6.12,'room');

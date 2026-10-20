@@ -1,3 +1,6 @@
+import { separatePedestrians } from './pedestrian-spacing.js';
+import { bicycleClear, cyclingRoute } from './bicycle-safety.js';
+import { pedestrianDetour,canFinishNearOccupiedDoor } from './pedestrian-navigation.js';
 import { distributePower, townPowerDemands, POWER_LINE_IDS, GRID_FAULT_COST } from './power-grid.js';
 import { initialisePublicLife, attendPublicForum, updatePublicForum, civicDialogue } from './public-forum.js';
 import { freshFinance, noteSale, noteRates, withhold, stateFunded, drawState, noteCouncilWage, dailyGrants, dailyClose as financeDailyClose, payBills, economyReport, bizStats, governmentMoney } from './finance.js';
@@ -147,20 +150,25 @@ function rng(seed) {
   return next;
 }
 // Live simulation state saved so a reload resumes exactly where the town was (positions, routes, trucks, random state).
-const SIM_VILLAGER_FIELDS = ['x', 'z', 'heading', 'inside', 'path', 'step', 'activity', 'hunger', 'fatigue', 'restedMinutes', 'wallet', 'savings', 'pantry', 'carrying', 'lastMeal', 'meals', 'seen', 'doneToday', 'queue', 'paidDay', 'bike', 'memory', 'wageArrears', 'rateArrears', 'housingArrears'];
-const SIM_TRUCK_FIELDS = ['x', 'z', 'heading', 'path', 'job', 'leg', 'load', 'wait', 'state'];
+const SIM_VILLAGER_FIELDS = ['x', 'z', 'heading', 'inside', 'path', 'step', 'activity', 'hunger', 'fatigue', 'restedMinutes', 'wallet', 'savings', 'pantry', 'carrying', 'lastMeal', 'meals', 'seen', 'doneToday', 'queue', 'paidDay', 'bike', 'memory', 'wageArrears', 'rateArrears', 'housingArrears', 'detourWait'];
+const SIM_TRUCK_FIELDS = ['x', 'z', 'heading', 'path', 'job', 'leg', 'load', 'wait', 'state', 'braking', 'jam', 'siteAt', 'pulling', 'blockedBy', 'blockedFor', 'why', 'ignoreSite', 'retreat', 'reverse'];
 
 // ── Walking routes ─────────────────────────────────────────────────────────
 const rowOf = (z) => { let best = 0; for (let r = 1; r < 8; r++) if (Math.abs(ROAD(r) - z) < Math.abs(ROAD(best) - z)) best = r; return best; };
 const sideZ = (r, z, off = 5.3) => (z < ROAD(r) ? ROAD(r) - off : ROAD(r) + off);
 // Footpath route: out to the footpath, along it, up an avenue if changing street, back in.
 export function walkRoute(a, b) {
-  const ra = rowOf(a.z), rb = rowOf(b.z), sa = sideZ(ra, a.z), sb = sideZ(rb, b.z);
+  const ra = rowOf(a.z), rb = rowOf(b.z);
+  // Pedestrians and cycles travelling in opposite directions need separate
+  // lanes, not a shared single-file route in front of every shop.
+  const setback=b.x>=a.x?6.6:4.5;
+  const sa = sideZ(ra, a.z, setback), sb = sideZ(rb, b.z, setback);
   const pts = [{ x: a.x, z: sa }];
   if (!(ra === rb && sa === sb)) {
     const ave = AVENUES.reduce((p, c) => (Math.abs(a.x - c) + Math.abs(b.x - c) < Math.abs(a.x - p) + Math.abs(b.x - p) ? c : p));
     // Walk up the edge of the avenue, clear of the trucks' lanes and the corner houses.
-    pts.push({ x: ave + 3.2, z: sa }, { x: ave + 3.2, z: sb });
+    const avenueTrack=ave+(sb>=sa?6.7:4.7);
+    pts.push({ x: avenueTrack, z: sa }, { x: avenueTrack, z: sb });
   }
   pts.push({ x: b.x, z: sb }, { x: b.x, z: b.z });
   return pts;
@@ -285,6 +293,12 @@ export class TownLife {
     if (hourly) this.everyHour();
     advanceNeeds(this,minutes);
     for (const v of this.villagers) this.liveVillager(v, minutes);
+    // All walkers, shop visitors and on-duty staff retain physical space.
+    // Stationary conversations count too; no more two models in one body.
+    separatePedestrians(this.villagers.filter(v=>!v.inside).map(v=>({
+      id:v.id,pos:v,radius:v.bike&&v.path.length?1.16:.59,
+      fixed:!!v.engaged
+    })),{world:this.pedestrianWorld||null,gap:1.24,passes:6});
     updatePublicForum(this);
     advanceCivicWork(this, minutes);
     if (hourly && Math.floor(this.minute / 60) === 10 && this.day >= this.civic.government.meetingDay) councilMeeting(this);
@@ -896,11 +910,31 @@ export class TownLife {
   }
 
   goThen(v, target, step) {
+    // Give shoppers and workers distinct, sheltered waiting/arrival spaces.
+    // A short queue belongs on the shop-side footpath, NOT through the door,
+    // inside the adjoining storefront or in the carriageway.
+    const site=this.places.get(step.at);
+    const atFront=site&&Math.hypot(target.x-site.front.x,target.z-site.front.z)<4.5;
+    const reserves=atFront&&(['buy','snack','eatout'].includes(step.kind)||
+      (step.kind==='work'&&site.kind!=='farm'&&v.job!=='truck driver')||
+      (step.kind==='idle'&&['pub','square'].includes(step.at)));
+    if(reserves){
+      const active=new Set(this.villagers.filter(o=>o!==v &&
+        o.step?.at===step.at && o.step?.queueSlot!==undefined &&
+        (o.path?.length || o.step?.dur>0 || o.step?.until!==undefined)).map(o=>o.step.queueSlot));
+      let slot=0;while(active.has(slot)&&slot<64)slot++;
+      const row=Math.min(1,Math.floor(slot/11)),col=slot%11;
+      const offset=col===0?0:(col%2?1:-1)*Math.ceil(col/2)*1.9;
+      const towardRoad=site.side==='south'?-1:1;
+      target={x:site.front.x+offset,z:site.front.z+row*1.9*towardRoad};
+      step={...step,queueSlot:slot};
+    }
     v.step = { ...step, target };
     v.path = Math.hypot(target.x - v.x, target.z - v.z) < 1 ? [] : walkRoute(v, target);
     // Long trips are by bike; short ones on foot.
     let len = 0, prev = v; for (const p of v.path) { len += Math.abs(p.x - prev.x) + Math.abs(p.z - prev.z); prev = p; }
     v.bike = len > 160 && v.job !== 'retired';
+    if(v.bike) v.path=cyclingRoute(v.path,v,target,z=>ROAD(rowOf(z)));
     if (v.path.length) { v.inside = false; v.activity = `${v.bike ? 'cycling' : 'walking'} — ${step.activity}`; }
     else this.arrive(v);                       // already there
     return v.step;
@@ -919,8 +953,57 @@ export class TownLife {
     if(v.fatigue>92 && v.step?.kind==='work')v.memory='struggling to stay awake at work';
     if (v.engaged) return;                   // chatting with the player: stands still
     if (v.path.length) {
+      // Dismount in the final 12 m; pushing a full-size bicycle through a
+      // crowded shopfront is not realistic and causes large wheel overlaps.
+      if(v.bike && v.path.length===1 &&
+        Math.hypot(v.path[0].x-v.x,v.path[0].z-v.z)<12)v.bike=false;
       let budget = minutes * SEC_PER_MIN * (v.bike ? BIKE : WALK);
       while (budget > 0 && v.path.length) {
+        if(v.path[0].dismount)v.bike=false;
+        if(v.bike&&this.pedestrianWorld){
+          const dest=v.path[0],dx=dest.x-v.x,dz=dest.z-v.z,dl=Math.hypot(dx,dz);
+          const reach=Math.min(dl,budget),samples=Math.max(1,Math.ceil(reach/.28));
+          for(let k=0;k<=samples;k++){
+            const at=dl?reach*k/samples/dl:0;
+            if(!bicycleClear(this.pedestrianWorld,v.x+dx*at,v.z+dz*at,dx,dz)){
+              v.bike=false;
+              budget=Math.min(budget,minutes*SEC_PER_MIN*WALK);
+              break;
+            }
+          }
+        }
+        const destination=v.path[0];
+        const barriers=[
+          ...this.obstacles.map(p=>({x:p.x,z:p.z,radius:.75})),
+          ...(this.externalPedestrians||[]),
+          // Other moving townsfolk are handled by predictive steering and
+          // personal-space resolution. A* is for stationary barriers only.
+          ...this.villagers.filter(o=>o!==v&&!o.inside&&o.engaged).map(o=>({x:o.x,z:o.z,radius:.66}))
+        ].filter(o=>Math.hypot(o.x-v.x,o.z-v.z)<7);
+        // No involuntary interaction when walking near the player. A short,
+        // collision-aware A* diversion lets people pass and continue work,
+        // meals and sleep, rather than walking into an immobile player.
+        if(!destination.detour && barriers.length){
+          if(v.path.length===1&&canFinishNearOccupiedDoor(v,destination,barriers)){
+            v.path.length=0;this.arrive(v);return;
+          }
+          const detour=pedestrianDetour(v,destination,barriers,this.pedestrianWorld);
+          if(detour!==null){
+            if(detour.length) {
+              v.path.unshift(...detour);
+              v.detourWait=0;
+            } else {
+              v.detourWait=(v.detourWait||0)+minutes;
+              // If an intermediate pavement junction is blocked too long,
+              // safely regenerate the remaining street route instead of
+              // staying frozen forever or walking through the player.
+              if(v.detourWait>4&&v.path.length>1){
+                v.path.shift();v.detourWait=0;
+              }
+              break;
+            }
+          } else v.detourWait=0;
+        }
         const p = v.path[0], dx = p.x - v.x, dz = p.z - v.z, d = Math.hypot(dx, dz);
         if (d <= budget) { v.x = p.x; v.z = p.z; budget -= d; v.path.shift(); }
         else { v.x += (dx / d) * budget; v.z += (dz / d) * budget; budget = 0; }
@@ -943,7 +1026,15 @@ export class TownLife {
   arrive(v) {
     const s = v.step; if (!s) return;
     v.activity = s.activity;
-    v.inside = s.at === 'home';
+    // People actually ENTER shops to work, eat and buy things. Previously
+    // everyone remained outdoors for their entire shift or café visit, causing
+    // a permanent overlapping crowd in front of the Bakery and General Store.
+    // Indoor shop staff already have their corresponding real-NPC counter model.
+    const place=this.places.get(s.at);
+    const indoorWork=s.kind==='work'&&place&&!['farm','depot','park','home'].includes(place.kind);
+    const indoorVisit=['buy','snack','eatout'].includes(s.kind)&&place&&
+      ['shop','cafe','pub'].includes(place.kind);
+    v.inside=s.at==='home'||!!indoorWork||!!indoorVisit;
     if (s.kind === 'snack') this.snack(v, s.at, s.good);
     if (s.kind === 'eatout' || s.kind === 'buy' || s.kind === 'parcel') {
       // These happen on arrival; the step's duration is the time spent there.

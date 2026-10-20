@@ -391,7 +391,11 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     if (p.side === 'south') {
       b.at(p.x, 0, FIELD_Z0 + 7, Math.PI, () => { fp = BUILD[p.id](b); });
       colliders.push({ x0: p.x - fp.w / 2, x1: p.x + fp.w / 2, z0: FIELD_Z0, z1: FIELD_Z0 + fp.d });
-      const sign = makeLabel(p.name, 'house'); sign.position.set(p.x, 6.2, FIELD_Z0 - 1); group.add(sign); labels.push(sign);
+      // Keep the business name clear of the roofline and deep colonnades:
+      // a freestanding, non-colliding sign just outside the south doorway.
+      const sign = makeLabel(p.name, 'house');
+      sign.position.set(p.x, 3.85, FIELD_Z0 - 4.6);
+      group.add(sign); labels.push(sign);
       spots.push({ key: `place:${p.id}`, id: p.id, pos: new THREE.Vector3(p.x, 0, FIELD_Z0 - 2.4), label: `${p.name} — ${{ bank: 'your account', fire: 'station board', foundry: 'the works' }[p.id] || 'the plant'}` });
       finish();
       continue;
@@ -404,7 +408,12 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     if (fp) colliders.push({ x0: p.x - fp.w / 2, x1: p.x + fp.w / 2, z0: LOT8_Z + (fp.front ?? 7) - fp.d, z1: LOT8_Z + (fp.front ?? 7) });
     if (kind === 'square') colliders.push({ x0: p.x - 2.7, x1: p.x + 2.7, z0: LOT8_Z - 6.7, z1: LOT8_Z - 1.3 });
     // Name board over the door.
-    const sign = makeLabel(p.name, 'house'); sign.position.set(p.x, kind === 'square' ? 3.2 : kind === 'hall' ? 9 : 6.2, LOT8_Z + (kind === 'square' ? 9 : 8)); group.add(sign); labels.push(sign);
+    // Place signs forward of awnings, pillars and the Town Hall portico,
+    // rather than embedding the billboard behind the roof or facade.
+    const sign = makeLabel(p.name, 'house');
+    sign.position.set(p.x, kind === 'square' ? 3.2 : 3.85,
+      LOT8_Z + (kind === 'square' ? 11 : 12.4));
+    group.add(sign); labels.push(sign);
     // The place's counter: stand on the footpath in front and press E.
     spots.push({ key: `place:${p.id}`, id: p.id, pos: new THREE.Vector3(p.x, 0, LOT8_Z + 10.4), label: p.kind === 'farm' ? `${p.name} — see how it's farmed` : p.kind === 'park' ? 'Market Square notice board' : p.id === 'hall' ? 'Town Hall — the Town Ledger' : `${p.name} — ${p.kind === 'shop' || p.kind === 'cafe' || p.kind === 'pub' ? 'see what\'s on the shelves' : 'look inside'}` });
     // Field across the road.
@@ -501,15 +510,20 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   let saveTimer = 0, tick = 0;
   const events = [];   // sounds for the ambience: { kind: 'bell'|'horn', n?, x, z }
   let lastHour = Math.floor(life.minute / 60), hornDone = -1;
+  let currentConversation=null,conversationElapsed=0;
   // `view` is set while the player is indoors and looking out of a window: the camera standing
   // at the matching spot in town (src/world/windows.js), so the street keeps moving out there.
   function update(dt, t, { player, mode, overview, camera, talkingTo, view = null }) {
     const inTown = mode === 'town', eye = view ? view.position : player.pos, skyCam = view || camera;
     life.obstacles = inTown ? [player.pos] : [];
-    // Villagers stop to chat when the player walks up; cyclists hop off their bikes.
-    for (const p of people) {
-      const d = Math.hypot(p.v.x - player.pos.x, p.v.z - player.pos.z);
-      p.v.engaged = inTown && !p.v.inside && (talkingTo === p || d < 2.8);
+    // Proximity alone is NOT consent to an endless conversation. Only the
+    // explicitly opened interaction panel pauses a resident, for at most
+    // 15 real seconds. Work, dinner and sleep resume even if it stays open.
+    if(talkingTo!==currentConversation){currentConversation=talkingTo;conversationElapsed=0;}
+    if(currentConversation)conversationElapsed+=Math.max(0,dt);
+    for(const p of people){
+      const d=Math.hypot(p.v.x-player.pos.x,p.v.z-player.pos.z);
+      p.v.engaged=inTown&&!p.v.inside&&talkingTo===p&&conversationElapsed<15&&d<4.2;
     }
     let minutes = Math.min(dt, 0.25) * life.speed / SEC_PER_MIN;
     while (minutes > 0) { const step = Math.min(minutes, 0.5); life.tick(step); minutes -= step; }
@@ -564,8 +578,18 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       else if (moving) p.heading += angleDiff(v.heading ?? p.heading, p.heading) * Math.min(1, dt * 8);
       p.bike.visible = !!v.bike && !v.engaged && v.path.length > 0;
       p.bag.visible = !!v.carrying && !p.bike.visible;
-      pose(p.fig, dt, t * (p.bike.visible ? 0.8 : 1), moving, moving || v.engaged);
-      p.fig.group.position.set(v.x, p.bike.visible ? 0.32 : moving ? Math.abs(Math.sin(t * 7 + p.fig.phase)) * 0.04 : 0, v.z);
+      const riding=p.bike.visible;
+      pose(p.fig, dt, t, moving&&!riding, moving || v.engaged);
+      if(riding){
+        const pedal=Math.sin(t*8+p.fig.phase)*0.38;
+        p.fig.legs[0].rotation.x=0.32+pedal;
+        p.fig.legs[1].rotation.x=0.32-pedal;
+        p.fig.arms[0].rotation.x=-0.48;
+        p.fig.arms[1].rotation.x=-0.48;
+      }
+      // Bicycle wheels already rest at y=.34; lifting the whole figure
+      // another 32cm made the bikes hover visibly above the street.
+      p.fig.group.position.set(v.x, riding ? 0 : moving ? Math.abs(Math.sin(t * 7 + p.fig.phase)) * 0.04 : 0, v.z);
       p.fig.group.rotation.y = p.heading;
       const dist = Math.hypot(v.x - eye.x, v.z - eye.z);
       p.tag.visible = dist > 3 && !p.bubble;
