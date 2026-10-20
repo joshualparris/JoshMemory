@@ -44,7 +44,9 @@ async function start() {
 
   const touch = matchMedia('(pointer: coarse)').matches;
   const renderer = new THREE.WebGLRenderer({ antialias: !touch, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(devicePixelRatio, touch ? 1 : 1.5));
+  const preferredPixelRatio = Math.min(devicePixelRatio, touch ? 1 : 1.5);
+  let renderPixelRatio = Math.min(preferredPixelRatio, touch ? 1 : 1.15);
+  renderer.setPixelRatio(renderPixelRatio);
   renderer.setSize(innerWidth, innerHeight);
   renderer.domElement.id = 'scene';
   document.body.prepend(renderer.domElement);
@@ -575,12 +577,34 @@ async function start() {
   // ── Frame loop ───────────────────────────────────────────────────────────
   const clock = new THREE.Clock();
   let mapTimer = 0, frames = 0, fpsTimer = 0, fps = 0, prevX = player.pos.x, prevZ = player.pos.z;
+  // Adaptive resolution: sustained slow frames lower GPU pixel cost; recovery
+  // is deliberately gradual to avoid oscillation and repeated canvas resizes.
+  let slowSeconds = 0, fastSeconds = 0, resolutionCooldown = 0;
+  function adaptResolution(elapsed) {
+    if (document.hidden || playing || overview) return;
+    resolutionCooldown = Math.max(0, resolutionCooldown - elapsed);
+    slowSeconds = fps < 42 ? slowSeconds + elapsed : 0;
+    fastSeconds = fps > 56 ? fastSeconds + elapsed : 0;
+    if (resolutionCooldown > 0) return;
+    const minimum = Math.min(preferredPixelRatio, 0.7);
+    if (slowSeconds >= 4 && renderPixelRatio > minimum + 0.03) {
+      renderPixelRatio = Math.max(minimum, Math.round((renderPixelRatio - 0.15) * 100) / 100);
+    } else if (fastSeconds >= 10 && renderPixelRatio < preferredPixelRatio - 0.03) {
+      renderPixelRatio = Math.min(preferredPixelRatio, Math.round((renderPixelRatio + 0.1) * 100) / 100);
+    } else return;
+    renderer.setPixelRatio(renderPixelRatio);
+    slowSeconds = 0; fastSeconds = 0; resolutionCooldown = 6;
+  }
   const tmp = new THREE.Vector3();
   function frame() {
     // Up to 0.15 s per frame keeps walking real-time on slow phones; collision subdivides the step.
     const raw = clock.getDelta(), dt = Math.min(raw, 0.15), t = clock.elapsedTime;
     floorDoorCooldown = Math.max(0, floorDoorCooldown - dt);
-    frames++; fpsTimer += raw; if (fpsTimer > 1) { fps = frames / fpsTimer; frames = 0; fpsTimer = 0; }
+    frames++; fpsTimer += raw; if (fpsTimer > 1) {
+      fps = frames / fpsTimer;
+      adaptResolution(fpsTimer);
+      frames = 0; fpsTimer = 0;
+    }
     // While a game is open the town neither renders nor reacts, so the game gets the whole device.
     if (playing) {
       if (input.consume('back')) stopGame();
@@ -778,7 +802,7 @@ async function start() {
       people: (mode === 'town' ? townLife.people.map((p) => ({ key: p.key, name: p.v.name, job: p.v.job, x: p.v.x, z: p.v.z, inside: p.v.inside, activity: p.v.activity, visible: p.fig.group.visible })) : (inside?.people || []).map((p) => ({ key: p.key, name: p.name, x: p.pos.x, z: p.pos.z, room: p.room, activity: p.activity }))),
       time: life.time(), day: life.day, minute: life.minute, speed: life.speed, daylight: life.daylight(), sound: ambience.on, needs:life.needsReport(),
       nearPerson: nearPerson?.key || null,
-      active: [...active], playing: playing?.id || null, gameSrc: playing ? $('game-frame').getAttribute('src') : null, calls: renderer.info.render.calls, triangles: renderer.info.render.triangles,
+      active: [...active], playing: playing?.id || null, gameSrc: playing ? $('game-frame').getAttribute('src') : null, calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, renderPixelRatio,
     }),
     // Stands the player 1.6 m in front of an exhibit, facing it, so the test then presses Use.
     approach(key) {
