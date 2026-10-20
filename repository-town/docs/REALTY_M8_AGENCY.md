@@ -8,7 +8,7 @@
 - Single-level 14m-wide storefront with timber verandah, glazing, two
   property-card windows, door, display panel, street-address sign, and
   step-free entry. It is not a renamed existing farm, bank or shop.
-- `src/world/life.js`: site `realty` is open 9:00–17:00. Named agent Piper
+- `src/world/life.js`: site `realty` is open 9:00–17:00. Named agent Gwen
   works there 09:00–17:00. The company starts with a **finite $650 of
   private opening capital** for its first wages; no invented sales revenue
   or infinite-money real estate fees.
