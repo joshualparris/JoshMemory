@@ -952,8 +952,21 @@ export class TownLife {
     if (m >= 19 * 60 && r < 0.35 && this.open(this.place('pub'))) return this.goThen(v, this.place('pub').front, { kind: 'idle', at: 'pub', dur: 60 + this.rand() * 60, activity: 'having a yarn at the pub' });
     if (r < 0.55) return this.goThen(v, this.jitter(this.place('square').front, 8), { kind: 'idle', dur: 20 + this.rand() * 30, activity: 'taking a stroll through the Market Square' });
     if (r < 0.8) {
-      const friend = this.homes[Math.floor(this.rand() * this.homes.length)];
-      return this.goThen(v, { x: friend.door.x, z: friend.door.z + 1.8 }, { kind: 'idle', dur: 15 + this.rand() * 20, activity: `visiting the neighbours at ${friend.coordinate} (${friend.name})`, visit: friend });
+      // A visit only happens when a real named neighbour is available at home.
+      // The relationship influences who we choose, but work and sleep come first.
+      const available=this.villagers.filter(o=>o!==v && o.inside &&
+        !o.path.length && o.step?.at==='home' && o.step?.kind!=='sleep');
+      const friend=chooseSocialVisit(this.social,v.name,available,this.day);
+      if(friend){
+        const home=friend.home;
+        return this.goThen(v,{x:home.door.x,z:home.door.z+1.8},{
+          kind:'idle',at:'social',dur:15+this.rand()*20,
+          activity:'visiting '+friend.name+' at '+home.coordinate,
+          visit:home,socialTarget:friend.name
+        });
+      }
+      return this.goThen(v,this.jitter(this.place('square').front,7),
+        {kind:'idle',dur:20+this.rand()*20,activity:'out walking after work'});
     }
     return this.goThen(v, home, { kind: 'idle', at: 'home', dur: 40, activity: 'pottering about at home' });
   }
