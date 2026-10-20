@@ -22,6 +22,8 @@ import { mountNPCChat } from './ui/npc-chat.js';
 import { makePerson, Walker, houseWander, freeSpot, placeTownNPCs, animateNPCs, initialiseNPCWorksites } from './world/npcs.js';
 import { separatePedestrians, steerPedestrians } from './world/pedestrian-spacing.js';
 import { createTownLife } from './world/townlife.js';
+import { nearestSeat } from './world/seats.js';
+import { furniturePanel } from './ui/furniture.js';
 import { createAmbience } from './ui/ambience.js';
 import { bakeryKitchenPanel } from './ui/bakery-panel.js';
 import { walletPanel, jobBoardPanel } from './ui/economy-panels.js';
@@ -110,7 +112,7 @@ async function start() {
   // Named street characters (src/ui/npc-data.js) with their own AI chat window.
   const streetNPCs = placeTownNPCs(town.group, town.lots, makeLabel);
   initialiseNPCWorksites(streetNPCs, town.group);
-  let nearPerson = null, nearNPC = null;
+  let nearPerson = null, nearNPC = null, nearTownSeat = null;
   const ambience = createAmbience();
   const wake = () => ambience.start();
   addEventListener('pointerdown', wake); addEventListener('keydown', wake);
@@ -477,13 +479,37 @@ async function start() {
       const score = d - 1.6 * dot;
       if (score < best) { best = score; pick = x; }
     }
-    return pick;
+    // Authored interactions take priority; passive furniture and seats are
+    // selectable when the player looks at them instead of replacing exhibits.
+    if (pick) return pick;
+    const seat=nearestSeat(inside.seats,at,fwd,2.6);
+    if(seat) return {...seat,act:{do:'sit',title:seat.label}};
+    const furniture=inside.furniture||[];
+    let selected=null,rank=Infinity;
+    for(const item of furniture) {
+      const dx=item.pos.x-at.x,dz=item.pos.z-at.z,d=Math.hypot(dx,dz);
+      if(d>2.4)continue;
+      const facing=d<.01?1:(dx*fwd.x+dz*fwd.z)/d;
+      if(facing<.25&&d>1.1)continue;
+      const score=d-.7*facing;
+      if(score<rank){rank=score;selected=item;}
+    }
+    return selected;
   }
   // Relics, street characters, villagers, the guide and shop counters can stand close
   // together, so Use goes to whichever is nearest; everything stays reachable.
   const away = (p) => (p ? Math.hypot(player.pos.x - p.pos.x, player.pos.z - p.pos.z) : Infinity);
   function use() {
+    if(player.seated){
+      if(player.stand(world))status('You stand up.');
+      else status('There is no clear space to stand. Move the furniture or try again.');
+      return;
+    }
     if (mode === 'town') {
+      if(nearTownSeat && player.sit(nearTownSeat,world)){
+        status('Sitting on '+nearTownSeat.label+'. Look around; move, jump or use to stand.');
+        return;
+      }
       const treasure = expedition.nearby(player.pos), treasureD = away(treasure), npcD = away(nearNPC), personD = away(nearPerson);
       if (treasure && treasureD <= npcD && treasureD <= personD) { expedition.use(player.pos); ambience.relic(); return; }
       if (nearNPC && npcD <= personD) { input.releaseMouse(); closePanel(); $('npc-roster').hidden = true; npcChat.show(nearNPC.npc, null); input.reset(); return; }
@@ -492,6 +518,15 @@ async function start() {
       return;
     }
     if (nearThing) {
+      if(nearThing.act?.do==='sit'){
+        if(player.sit(nearThing,world))status('Sitting on '+nearThing.label+'. Look around; move, jump or use to stand.');
+        else status('Move closer to the seat to sit safely.');
+        return;
+      }
+      if(nearThing.act?.do==='furniture'){
+        openPanel(furniturePanel(nearThing),nearThing);
+        return;
+      }
       if (nearThing.floorNav) {
         if (nearThing.floorNav === 'lift') openLift();
         else changeFloor(nearThing.target);
@@ -700,7 +735,8 @@ async function start() {
 
     // The town keeps living while the player is indoors; the sky follows its clock.
     const talkingTo = panelOpen?.thing?.v ? panelOpen.thing : null;
-    life.playerAt = mode === 'house' && inside?.place ? inside.place.id : null; // shifts count only inside the workplace
+    life.playerAt = mode === 'house' && inside?.place ? inside.place.id : null;
+    life.playerSeated = !!player.seated; // shifts count only inside the workplace
     life.pedestrianWorld=townWorld;
     life.externalPedestrians=mode==='town'
       ?streetNPCs.filter(n=>n.mode==='town').map(n=>({x:n.pos.x,z:n.pos.z,radius:.66}))
@@ -773,6 +809,7 @@ async function start() {
       for (const p of townLife.people) if (!p.v.inside) consider(p, 2.6);
       consider(guideSpot, 2.6);
       for (const sp of townLife.spots) consider({ ...sp, spot: sp }, 3.2);
+      nearTownSeat = !overview ? nearestSeat(townLife.seats,player.pos,player.forward(),2.4) : null;
       nearHouse = null; let best = 6;
       for (const l of town.lots.values()) {
         const d = Math.hypot(l.doorPos.x - player.pos.x, l.doorPos.z - player.pos.z);
@@ -816,8 +853,10 @@ async function start() {
         else if (d > labelCull + 15 && has) { town.group.remove(has); disposeLabel(has); houseLabels.delete(c); }
       }
       const nearRelic = expedition.nearby(player.pos), relicD = away(nearRelic), npcD = away(nearNPC), personD = away(nearPerson);
-      $('prompt').hidden = (!nearNPC && !nearPerson && !nearHouse && !nearRelic) || !!panelOpen || expedition.isOpen() || npcChat.isOpen() || !$('npc-roster').hidden;
-      if (nearRelic && relicD <= npcD && relicD <= personD) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — ✨ ${nearRelic.id === 'guild' ? 'Guild Chest' : nearRelic.name}`;
+      $('prompt').hidden = (!player.seated && !nearTownSeat && !nearNPC && !nearPerson && !nearHouse && !nearRelic) || !!panelOpen || expedition.isOpen() || npcChat.isOpen() || !$('npc-roster').hidden;
+      if (player.seated) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — Stand up · Move or jump to stand`;
+      else if(nearTownSeat) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — Sit on ${nearTownSeat.label}`;
+      else if (nearRelic && relicD <= npcD && relicD <= personD) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — ✨ ${nearRelic.id === 'guild' ? 'Guild Chest' : nearRelic.name}`;
       else if (nearNPC && npcD <= personD) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — 💬 Talk to ${nearNPC.npc.name}`;
       else if (nearPerson) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — ${nearPerson.v ? `Talk to ${nearPerson.v.name} (${nearPerson.v.job}) · ${nearPerson.v.activity.replace(/^(walking|cycling) — /, '')}` : nearPerson.label}`;
       else if (nearHouse) $('prompt').textContent = `${nearHouse.house.coordinate} · ${nearHouse.house.name} — walk through the door to enter`;
@@ -834,11 +873,12 @@ async function start() {
       // the actual door, so a slow frame or the floor-change cooldown cannot carry the player past it.
       if (floorDoorCooldown <= 0 && Math.abs(player.pos.x - (ex.x0 + ex.x1) / 2) < 1.55 && player.pos.z > inside.rooms[0].z1 - 1.3) { if (inside.floors && inside.floorIndex > 0) changeFloor(inside.floorIndex - 1); else leave(true, true); }
       else {
-        nearThing = pickNear();
+        nearThing = player.seated ? null : pickNear();
         nearNPC = null;
-        $('prompt').hidden = !nearThing || !!panelOpen || npcChat.isOpen() || !$('npc-roster').hidden;
+        $('prompt').hidden = (!nearThing && !player.seated) || !!panelOpen || npcChat.isOpen() || !$('npc-roster').hidden;
         const who = nearThing?.person && inside.people?.find((p) => p.key === nearThing.key);
-        if (nearThing) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — ${nearThing.label}${who ? ` · ${who.activity}` : ''}`;
+        if (player.seated) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — Stand up · Move or jump to stand`;
+        else if (nearThing) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — ${nearThing.act?.do==='sit'?'Sit on ':''}${nearThing.label}${who ? ` · ${who.activity}` : ''}`;
         if (input.consume('use')) use();
         animate(inside.dynamics, t, active);
         for (const p of inside.people || []) p.update(dt, t, player, p.plan);
@@ -866,7 +906,9 @@ async function start() {
     talkTo: (id) => npcChat.show(id),
     travel,
     state: () => ({
-      mode, coordinate: inside?.house.coordinate || null, floor: inside?.floorIndex || 0, windows: inside?.windows?.length || 0, floors: inside?.floors?.levels.length || 1, pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, eye: player.eye, y: player.y, fps,
+      mode, seated: player.seated ? {key:player.seated.key,label:player.seated.label} : null,
+      seats: mode==='house' ? (inside?.seats||[]).map(x=>({key:x.key,type:x.type,label:x.label,pos:x.pos,room:x.room})) : townLife.seats.map(x=>({key:x.key,type:x.type,label:x.label,pos:x.pos})),
+      coordinate: inside?.house.coordinate || null, floor: inside?.floorIndex || 0, windows: inside?.windows?.length || 0, floors: inside?.floors?.levels.length || 1, pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, eye: player.eye, y: player.y, fps,
       rooms: inside?.rooms.length || 0, props: inside?.placedProps.length || 0,
       interactables: inside ? inside.interactables.map((x) => ({ key: x.key, label: x.label, title: x.act.title || x.label, do: x.act.do, nav: x.floorNav || null, room: x.roomName })) : [],
       near: nearThing?.key || null, nearNPC: nearNPC?.npc.id || null, nearHouse: nearHouse?.house.coordinate || null,
