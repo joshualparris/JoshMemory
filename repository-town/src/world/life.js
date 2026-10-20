@@ -132,16 +132,15 @@ const JOBS = [
   ['truck driver', 'depot', 6 * 60 + 30, 15 * 60], ['teacher', 'school', 8 * 60, 15 * 60 + 30], ['nurse', 'clinic', 8 * 60, 17 * 60],
   ['mayor', 'hall', 9 * 60, 16 * 60], ['station master', 'depot', 6 * 60, 15 * 60], ['programmer', 'home', 9 * 60, 17 * 60],
   ['programmer', 'home', 10 * 60, 18 * 60], ['retired', 'square', 9 * 60, 12 * 60], ['student', 'school', 8 * 60 + 30, 15 * 60],
-  ['student', 'school', 8 * 60 + 30, 15 * 60], ['artist', 'square', 10 * 60, 15 * 60], ['retired', 'square', 14 * 60, 17 * 60],
+  ['student', 'school', 8 * 60 + 30, 15 * 60], ['artist', 'square', 10 * 60, 15 * 60], ['real estate agent', 'realty', 9 * 60, 17 * 60],
   ['farmer', 'silo', 7 * 60, 15 * 60], ['grocer', 'greengrocer', 8 * 60, 16 * 60],
   ['power operator', 'power', 6 * 60, 18 * 60], ['water operator', 'waterworks', 7 * 60, 15 * 60], ['recycler', 'recycling', 7 * 60, 15 * 60],
   ['firefighter', 'fire', 8 * 60, 18 * 60], ['bank teller', 'bank', 8 * 60 + 30, 16 * 60 + 30], ['foundry worker', 'foundry', 7 * 60, 15 * 60],
-  ['real estate agent', 'realty', 9 * 60, 17 * 60],
 ];
 // Villager names; src/ui/social.js keeps their friendships and grudges.
 export const VILLAGER_NAMES = ['Mabel', 'Arlo', 'Bea', 'Cas', 'Dot', 'Ezra', 'Flo', 'Gus', 'Hattie', 'Ivo', 'June', 'Kip', 'Lou', 'Merv', 'Nora', 'Ollie',
   'Peg', 'Rafe', 'Sadie', 'Theo', 'Una', 'Vern', 'Win', 'Zara', 'Bluey', 'Clem', 'Dulcie', 'Errol', 'Fern', 'Gwen', 'Harlan', 'Ida',
-  'Archie', 'Bonnie', 'Cooper', 'Daisy', 'Elsie', 'Frankie', 'Piper'];
+  'Archie', 'Bonnie', 'Cooper', 'Daisy', 'Elsie', 'Frankie'];
 
 // Home meals: [name, ingredients]. Villagers cook the first one their pantry can make.
 const MEALS = {
