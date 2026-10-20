@@ -181,16 +181,16 @@ export function buildRecyclingInterior(site,makeLabel,life=null){
   // Initial few pallet platforms are always present; bales reflect actual
   // simulated inventory and can be empty.
   for(let i=0;i<12;i++){
-    const x=-5.75+(i%3)*1.35,z=-10.8+Math.floor(i/3)*1.15;
+    const x=-5.75+(i%3)*1.10,z=-10.8+Math.floor(i/3)*1.15;
     if(i<baleCount)bale(x,z,[C.card,C.paper,C.blue][i%3]);
     else if(i%3===0){
       for(const dz of [-.32,.32])box(.90,.10,.14,x,.10,z+dz,C.wood);
     }
   }
   // Static guarded horizontal compactor display beyond the visitor railing.
-  solid(1.16,1.60,1.25,-3.15,.80,-8.05,C.steel);
-  box(.75,.51,.045,-3.15,1.34,-7.40,C.frame);
-  for(let i=0;i<4;i++)led(-3.42+i*.18,1.30,-7.37,i===0?C.red:C.green);
+  solid(1.16,1.60,1.25,-4.12,.80,-8.05,C.steel);
+  box(.75,.51,.045,-4.12,1.34,-7.40,C.frame);
+  for(let i=0;i<4;i++)led(-4.39+i*.18,1.30,-7.37,i===0?C.red:C.green);
   for(const z of [-8.4,-9.7])crate(4.15,z,C.gold,0);
   for(const z of [-8.4,-9.7])crate(5.40,z,C.blue,0);
   solid(.66,1.05,.78,6.16,.525,-10.76,C.frame);
