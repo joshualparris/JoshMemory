@@ -37,4 +37,9 @@ life.liveVillager(rider,.02);
 assert.equal(rider.bike,false,'bike automatically dismounts when lamp blocks wheel corridor');
 const main=readFileSync(new URL('../src/main.js',import.meta.url),'utf8');
 assert(main.includes("radius:p.v.bike&&p.v.path.length?1.16:.61"),'visual crowd spacing must respect bicycle, not pedestrian radius');
+const display=readFileSync(new URL('../src/world/townlife.js',import.meta.url),'utf8');
+assert(display.includes('p.fig.group.position.set(v.x, riding ? 0'),
+  'bicycle wheels must sit on road rather than floating 32 cm above it');
+assert(display.includes('p.fig.legs[0].rotation.x=0.32+pedal'),
+  'cyclists must pedal rather than swing legs with a walking animation');
 console.log('PASS: wheelbase, lamp-post clearance, cycle lanes, dismount points and visual collision footprint');
