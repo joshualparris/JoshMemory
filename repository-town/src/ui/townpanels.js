@@ -202,7 +202,7 @@ function placePanelBase(life, id) {
 // A real survival loop: food comes out of the visitor's purchased inventory.
 export function needsPanel(life) {
   const n=life.needsReport(),me=life.civic.player;
-  const edibles=Object.entries(me.bag).filter(([g,q])=>q>0&&['bread','pie','fruit','veg','eggs','milk','lamb'].includes(g));
+  const edibles=Object.entries(me.bag).filter(([g,q])=>q>0&&(['bread','pie','fruit','veg','eggs','milk','lamb'].includes(g) || Object.values(VENUE_MENU).some(menu=>Object.hasOwn(menu,g))));
   const act=(label,g)=>({label,run:()=>{const msg=life.eatItem(g),p=needsPanel(life);return {...p,body:'<p><b>'+esc(msg)+'</b></p>'+p.body};}});
   return {title:'Your food and sleep',wide:false,
     body:'<p>🍽 <b>Hunger:</b> '+Math.round(n.hunger)+'% (100% means very hungry).</p>'+
