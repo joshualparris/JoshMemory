@@ -34,9 +34,9 @@ legal rules are more complex and are not encoded in full.
   These ARE NOT a sentenced prison or unmonitored public cell access.
 * **O8 NSW Ambulance Station** — 24-hour response unit, clinical stocks, crew
   communication board, decontamination and ambulance-bay equipment.
-* **V8 Repository Town Local Court** — registry, public gallery, courtroom,
+* **E8 Repository Town Local Court** — registry, public gallery, courtroom,
   confidential legal meeting area and separate secure holding area.
-* **W8 High Street Solicitors** — reception, Legal Aid eligibility enquiries,
+* **F8 High Street Solicitors** — reception, Legal Aid eligibility enquiries,
   workstations, client conference and controlled confidential case records.
 * Existing **N8 Fire & Rescue** is dispatched alongside the new facilities.
 * Existing **Q8 Clinic** provides local primary health care; hospital referral
