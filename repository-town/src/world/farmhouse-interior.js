@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { glassMesh } from './windows.js';
 import { FLOOR_SURFACE_Y } from './floor-surfaces.js';
+import { makeSeat } from './seats.js';
 
 // An occupied, working Central-West NSW family farmhouse, not a retail shop.
 // 9 separate zones, a sheltered entrance, flyscreens, kitchen/pantry, mudroom,
@@ -21,7 +22,7 @@ export const FARMHOUSE_ROOMS=['Entry passage',...ZONES.map(z=>z.name),'Walk-in p
 
 export function buildFarmhouseInterior(site,makeLabel){
   const group=new THREE.Group();group.name='Farmhouse · occupied home';
-  const colliders=[],interactables=[],sceneObjects=[],placedProps=[],dynamics=[],meshes=[];
+  const colliders=[],interactables=[],sceneObjects=[],placedProps=[],dynamics=[],meshes=[],seats=[];
   const byColour=new Map(),materials=new Map();
   const material=c=>{if(!materials.has(c))materials.set(c,new THREE.MeshLambertMaterial({color:c}));return materials.get(c);};
   const box=(w,h,d,x,y,z,color)=>{
@@ -47,7 +48,15 @@ export function buildFarmhouseInterior(site,makeLabel){
     placedProps.push({type:key,room});
   };
   const flat=(x,z,w,d,color,y=FLOOR_SURFACE_Y.finish)=>box(w,.025,d,x,y,z,color);
-  const chair=(x,z)=>{solid(.65,.75,.62,x,.37,z,0x6d4b32);box(.63,.8,.13,x,1.09,z-.22,0x85613d);};
+  const seat=(key,type,x,z,yaw=Math.PI)=>{
+    const zone=ZONES.findIndex(q=>z>=q.z0&&z<=q.z1&&
+      (q.side<0?x< -HALL:x>HALL));
+    const room=Math.max(0,zone+1);
+    const s=makeSeat('farmhouse:seat:'+key,type,x,z,yaw,
+      {room,roomName:FARMHOUSE_ROOMS[room]});
+    if(s)seats.push(s);
+  };
+  const chair=(x,z)=>{solid(.65,.75,.62,x,.37,z,0x6d4b32);box(.63,.8,.13,x,1.09,z-.22,0x85613d);seat('chair-'+x+'-'+z,'chair',x,z);};
   const rug=(x,z,w,d,color)=>flat(x,z,w,d,color,FLOOR_SURFACE_Y.rug);
   const shelf=(x,z,w,d,h,color=0x765d42)=>{
     solid(w,h,d,x,h/2,z,color);
@@ -132,6 +141,7 @@ export function buildFarmhouseInterior(site,makeLabel){
 
   // BOOT ROOM: dirty-to-clean workflow, farming boots, raincoats, hats.
   solid(2.4,.47,.62,-6.25,.25,3.3,0x785b3e); // bench
+  for(const x of [-6.85,-5.65])seat('mudroom-'+x,'bench',x,3.3);
   for(const x of [-7.3,-6.5,-5.7]) {
     box(.42,.48,.72,x,.23,1.34,0x414c38); // gumboots
     box(.48,.08,.55,x,.50,1.43,0x353b33);
@@ -153,6 +163,7 @@ export function buildFarmhouseInterior(site,makeLabel){
   // LIVING ROOM: sofas, rug, books, old combustion fireplace, radio.
   rug(5.30,3.20,4.8,3.15,0x87745f);
   solid(2.9,.82,.88,5.35,.42,2.12,0x6e766b);
+  for(const x of [4.45,5.35,6.25])seat('living-sofa-'+x,'sofa',x,2.12,Math.PI);
   box(2.76,.70,.22,5.35,1.12,1.83,0x7d877a);
   solid(1.3,.47,.75,5.20,.24,3.65,0x816243);
   for(const z of [1.0,5.45])shelf(8.15,z,.55,.8,2.4,0x71583d);
@@ -343,7 +354,7 @@ export function buildFarmhouseInterior(site,makeLabel){
     ...ZONES.map(q=>({name:q.name,x0:q.side<0?-EDGE:HALL,x1:q.side<0?-HALL:EDGE,z0:q.z0,z1:q.z1})),
     {...pantry,name:'Walk-in pantry'}];
   group.add(glassMesh(panes));
-  return {group,colliders,interactables,sceneObjects,placedProps,rooms,
+  return {group,colliders,interactables,seats,sceneObjects,placedProps,rooms,
     doors:[],dynamics,sight:[],people:[],
     bounds:{x0:-EDGE,x1:EDGE,z0:REAR,z1:FRONT},
     spawn:new THREE.Vector3(0,0,FRONT-2.4),
