@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { makeSeat } from './seats.js';
 import { glassMesh } from './windows.js';
 import { modelGeometry } from './furniture.js';
 import { containLabel } from '../ui/labels.js';
@@ -40,7 +41,7 @@ export function createKit(site, makeLabel, roomTitle) {
   const { W, D, FRONT, BACK, EDGE, WALL } = ROOM;
   const group = new THREE.Group();
   group.name = 'Inside ' + site.name;
-  const colliders = [], interactables = [], sceneObjects = [], placedProps = [];
+  const colliders = [], interactables = [], sceneObjects = [], placedProps = [], seats = [];
   const mats = new Map(), geos = new Map();
   const mat = (c, o = {}) => {
     const k = c + '|' + (o.e ?? '') + '|' + (o.a ?? 1) + '|' + (o.side ?? 0);
@@ -81,6 +82,11 @@ export function createKit(site, makeLabel, roomTitle) {
     interactables.push({ key: site.id + ':' + key, type: 'civic', label, room: 0, roomName: roomTitle, pos, act: { do: doWhat, title: label, text: body, civicId: site.id } });
     sceneObjects.push({ type: 'civic', label, room: 0, pos: { x, z }, interactive: true });
   };
+  const seat = (key,type,x,z,yaw=Math.PI,options={}) => {
+    const s=makeSeat(site.id+':seat:'+key,type,x,z,yaw,{room:0,roomName:roomTitle,...options});
+    if(s)seats.push(s);
+    return s;
+  };
   // Floor, ceiling and the windowed shell, with a proper door gap (never a collider across it).
   let windows = [];
   const shell = ({ wall, ceiling = 0xf0e8d6, floor = 0xb9a88f, frontSill, sideSill }) => {
@@ -90,7 +96,7 @@ export function createKit(site, makeLabel, roomTitle) {
     group.add(s.glass); windows = s.windows;
   };
   const finish = (extra = {}) => ({
-    group, colliders, interactables, sceneObjects, placedProps,
+    group, colliders, interactables, sceneObjects, placedProps, seats,
     rooms: [{ name: roomTitle, x0: -EDGE, x1: EDGE, z0: BACK, z1: FRONT, w: W, d: D, parent: -1 }],
     doors: [], dynamics: [], sight: [],
     bounds: { x0: -EDGE, x1: EDGE, z0: BACK, z1: FRONT },
@@ -99,5 +105,5 @@ export function createKit(site, makeLabel, roomTitle) {
     windows,
     ...extra,
   });
-  return { THREE, group, colliders, interactables, sceneObjects, placedProps, mat, geo, put, model, box, cyl, ball, torus, blocker, solid, text, add, shell, finish };
+  return { THREE, group, colliders, interactables, sceneObjects, placedProps, mat, geo, put, model, box, cyl, ball, torus, blocker, solid, text, add, seat, shell, finish };
 }
