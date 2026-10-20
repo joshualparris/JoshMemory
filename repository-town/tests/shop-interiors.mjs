@@ -48,6 +48,19 @@ for(const id of CIVIC_INTERIOR_IDS){
       ['pumper','exhaust','hazmat','hose','rating','ppc','washer','decon','basets','fill','test','printer','radio','pagers','map','board','kitchen','training','honour']);
     continue;
   }
+  if(id==='recycling'){
+    assert(room.recyclingLayout,'P8 must not use the generic service counter');
+    assert.deepEqual(room.rooms.map(r=>r.name),[
+      'Receival and weigh-in desk','Reuse and repair assessment',
+      'Manual pre-sorting and safety','Separation demonstration gallery',
+      'Baled materials and dispatch']);
+    assert.equal(room.interactables.length,16,'16 recycling exhibit hotspots');
+    assert(room.interactables.some(i=>i.key==='recycling:presort'));
+    assert(room.interactables.some(i=>i.key==='recycling:dispatch'));
+    assert(room.staff&&room.staff.pos.z<room.staff.use.z,'recycler behind weigh-in counter');
+    room.group.traverse(o=>{o.geometry?.dispose();o.material?.dispose?.();});
+    continue;
+  }
   if(id==='sewage'){
     assert(room.wastewaterLayout,'Wastewater Works is not a generic room');
     assert.equal(room.rooms.length,5,'L8 wastewater treatment galleries');
