@@ -2,6 +2,7 @@ import { shopService } from './shop-attendance.js';
 // Commit Cafe menu: shared by the player-facing counter and the town economy.
 // Every item is made from real stocks; prices are Australian dollars.
 import { receipt } from './jobs.js';
+import { placeOrder } from './counter-queue.js';
 
 export const CAFE_MENU = Object.freeze([
   {id:'espresso',name:'Espresso',category:'Coffee',price:4,ingredients:{coffee:1},hunger:2},
@@ -37,12 +38,20 @@ export function orderCafe(t,id) {
   player.wallet-=item.price;
   t.sale(cafe,item.price);
   receipt(t,'purchase',item.name+' at Commit Cafe',-item.price);
+  t.stats.sold[id]=(t.stats.sold[id]||0)+1;
+  t.log('The visitor ordered '+item.name+' at Commit Cafe.');
+  // Made to order (src/world/counter-queue.js): it reaches the table when the ticket is called.
+  const ticket=placeOrder(t,'cafe',id,item.name,'cafe');
+  return 'Ordered '+item.name+' for $'+item.price+'. Ticket '+ticket.ticket+': it will be brought to you in about '+ticket.minutes+' minutes.';
+}
+
+// The order arrives: the visitor eats or drinks it.
+export function serveCafe(t,id) {
+  const item=CAFE_MENU.find(x=>x.id===id),player=t.civic.player;
+  if(!item)return;
   player.hunger=Math.max(0,(player.hunger??0)-item.hunger);
   player.lastAte=item.name+' (Day '+t.day+' '+t.time()+')';
   t.stats.meals++;
-  t.stats.sold[id]=(t.stats.sold[id]||0)+1;
   t.rubbish(1);
-  t.log('The visitor ordered '+item.name+' at Commit Cafe.');
-  return 'Served '+item.name+' for $'+item.price+'. Hunger: '+Math.round(player.hunger)+'%.';
 }
 

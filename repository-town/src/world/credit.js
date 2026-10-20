@@ -42,6 +42,11 @@ export function recordEarning(life, amount) {
 
 export function noteBank(life, text) { note(life, text); }
 
+// Villagers' home-loan repayments are deposited into the bank's lending pool.
+export function bankReceives(life, amount) {
+  if (amount > 0) credit(life).capital = cents(credit(life).capital + amount);
+}
+
 export function creditReport(life) {
   const k = credit(life), loan = k.loan;
   const rate = loan && life.day > loan.due ? CREDIT.overdueRate : CREDIT.dailyRate;
