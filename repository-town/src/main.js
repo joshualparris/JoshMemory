@@ -635,7 +635,8 @@ async function start() {
       const nearbyCharacters=streetNPCs.filter(n=>n.mode==='town' &&
         Math.abs(n.pos.x-player.pos.x)<90 && Math.abs(n.pos.z-player.pos.z)<90);
       const movingPeople=[
-        ...nearbyPeople.map(p=>({id:'resident:'+p.v.id,pos:p.v,radius:.61,
+        ...nearbyPeople.map(p=>({id:'resident:'+p.v.id,pos:p.v,
+          radius:p.v.bike&&p.v.path.length?1.16:.61,
           goal:p.v.path?.[0]||null,speed:p.v.bike?4.5:1.5,fixed:!!p.v.engaged})),
         ...nearbyCharacters.map(n=>({id:'character:'+n.npc.id,pos:n.pos,radius:.66,
           goal:n.activity==='walk'?{x:n.targetX,z:n.targetZ}:null,speed:.65,
