@@ -401,8 +401,9 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       finish();
       continue;
     }
+    // The wheat farm's silos stand behind its shed, clear of the end of the avenue (9.5 m out).
     b.at(p.x, 0, LOT8_Z, 0, () => {
-      if (kind === 'farm') { const [w, d, h, wall, roof] = FARM_SHED[p.id]; shed(b, w, d, h, wall, roof); fp = { w, d }; if (p.id === 'silo') { for (const x of [9, 12]) { b.solid(2.6, 2.6, x, -1); b.cyl(0xc8c8c0, 1.4, 9, x, 4.5, -1); b.cone(0xa8a8a0, 1.6, 1.4, x, 9.7, -1); } } }
+      if (kind === 'farm') { const [w, d, h, wall, roof] = FARM_SHED[p.id]; shed(b, w, d, h, wall, roof); fp = { w, d }; if (p.id === 'silo') { for (const x of [2.5, 6]) { b.solid(2.6, 2.6, x, -9); b.cyl(0xc8c8c0, 1.4, 9, x, 4.5, -9); b.cone(0xa8a8a0, 1.6, 1.4, x, 9.7, -9); } } }
       else fp = BUILD[kind](b);
     });
     finish();

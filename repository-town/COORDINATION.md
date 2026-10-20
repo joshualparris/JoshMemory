@@ -279,3 +279,5 @@ Newest first. Times in Australia/Sydney.
 ## Decor pass (Claude, 2026-10-20)
 - Houses: rugs (4 KayKit variants), standing lamp, cactus plants, decorated shelves now use the CC0 models in `props.js`; box fallbacks kept (node tests/mock builders have no `b.model`).
 - Interiors: framed pictures on walls via `interior.js` (5 frame models, box fallback); pub/café/clinic/hall/post got frames, lamps and cacti. Hotspots/colliders unchanged.
+- The Wheat Farm's second silo stood on the easternmost avenue (x 312) and blocked it end-to-end
+  (`tests/streetwalk.mjs`); both silos now stand behind the shed.
