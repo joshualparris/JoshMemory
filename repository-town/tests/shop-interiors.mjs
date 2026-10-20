@@ -48,6 +48,19 @@ for(const id of CIVIC_INTERIOR_IDS){
       ['pumper','exhaust','hazmat','hose','rating','ppc','washer','decon','basets','fill','test','printer','radio','pagers','map','board','kitchen','training','honour']);
     continue;
   }
+  if(id==='realty'){
+    assert(room.realtyLayout,'M8 uses its own licensed-property agency office');
+    assert.deepEqual(room.rooms.map(r=>r.name),[
+      'Reception and waiting','Property window displays',
+      'Sales and agent workstations','Private client meeting room',
+      'Property management and records']);
+    assert.equal(room.interactables.length,16);
+    assert(room.interactables.some(x=>x.key==='realty:trust'));
+    assert(room.interactables.some(x=>x.key==='realty:directory'));
+    assert(room.staff&&room.staff.pos.z<room.staff.use.z);
+    room.group.traverse(o=>{o.geometry?.dispose();o.material?.dispose?.();});
+    continue;
+  }
   if(id==='recycling'){
     assert(room.recyclingLayout,'P8 uses dedicated sorted-recycling and reuse centre');
     assert.equal(room.rooms.length,5);

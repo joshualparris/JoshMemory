@@ -29,7 +29,7 @@ export const LOT_X = 26, LOT_Z = 46;
 export const TOWN_CLOCK = Object.freeze({ minutesPerDay:1440, realSecondsPerTownMinute:3 });
 export const SEC_PER_MIN = TOWN_CLOCK.realSecondsPerTownMinute; // 72 real minutes per 24-hour town day at 1×
 export const WALK = 1.5, BIKE = 4.5, DRIVE = 8;               // metres per real second
-const WAGES = { retired: 40, student: 20, mayor: 95, nurse: 85, teacher: 85, programmer: 95, 'bank teller': 75, 'power operator': 85, firefighter: 85 };
+const WAGES = { retired: 40, student: 20, mayor: 95, nurse: 85, teacher: 85, programmer: 95, 'bank teller': 75, 'real estate agent': 82, 'power operator': 85, firefighter: 85 };
 const BASE_WAGE = 70;
 // Per-worker harvest multipliers: a market garden and a chook shed out-produce a paddock per hand.
 const FARM_YIELD = { veg: 1.6, eggs: 1.5 };
@@ -115,6 +115,7 @@ export const PLACE_DEFS = [
   { col: 'H', side: 'south', id: 'power', name: 'Power Station', kind: 'utility', opens: 0, closes: 24 * 60, target: { fuel: 160 } },
   { col: 'J', side: 'south', id: 'waterworks', name: 'Water Works', kind: 'utility', opens: 0, closes: 24 * 60 },
   { col: 'L', side: 'south', id: 'sewage', name: 'Wastewater Works', kind: 'utility', opens: 0, closes: 24 * 60 },
+  { col: 'M', side: 'south', id: 'realty', name: 'Repository Realty', kind: 'office', opens: 9 * 60, closes: 17 * 60 },
   { col: 'N', side: 'south', id: 'fire', name: 'Fire & Rescue', kind: 'fire', opens: 0, closes: 24 * 60 },
   { col: 'P', side: 'south', id: 'recycling', name: 'Recycling Centre', kind: 'utility', opens: 7 * 60, closes: 16 * 60 },
   { col: 'Q', side: 'south', id: 'landfill', name: 'Waste Depot', kind: 'utility', opens: 6 * 60, closes: 17 * 60 },
@@ -131,7 +132,7 @@ const JOBS = [
   ['truck driver', 'depot', 6 * 60 + 30, 15 * 60], ['teacher', 'school', 8 * 60, 15 * 60 + 30], ['nurse', 'clinic', 8 * 60, 17 * 60],
   ['mayor', 'hall', 9 * 60, 16 * 60], ['station master', 'depot', 6 * 60, 15 * 60], ['programmer', 'home', 9 * 60, 17 * 60],
   ['programmer', 'home', 10 * 60, 18 * 60], ['retired', 'square', 9 * 60, 12 * 60], ['student', 'school', 8 * 60 + 30, 15 * 60],
-  ['student', 'school', 8 * 60 + 30, 15 * 60], ['artist', 'square', 10 * 60, 15 * 60], ['retired', 'square', 14 * 60, 17 * 60],
+  ['student', 'school', 8 * 60 + 30, 15 * 60], ['artist', 'square', 10 * 60, 15 * 60], ['real estate agent', 'realty', 9 * 60, 17 * 60],
   ['farmer', 'silo', 7 * 60, 15 * 60], ['grocer', 'greengrocer', 8 * 60, 16 * 60],
   ['power operator', 'power', 6 * 60, 18 * 60], ['water operator', 'waterworks', 7 * 60, 15 * 60], ['recycler', 'recycling', 7 * 60, 15 * 60],
   ['firefighter', 'fire', 8 * 60, 18 * 60], ['bank teller', 'bank', 8 * 60 + 30, 16 * 60 + 30], ['foundry worker', 'foundry', 7 * 60, 15 * 60],
@@ -300,6 +301,9 @@ export class TownLife {
     this.place('waterworks').stock = { water: 160 };
     this.place('sewage').stock = { wastewater: 0 };
     this.place('recycling').stock = { recyclables: 0, scrap: 4 };
+    // One-time opening capital supplied by the agency's founding investors.
+    // Unlike a public service, agency wages draw down finite company reserves.
+    this.place('realty').till = 650;
     this.place('landfill').stock = { rubbish: 0 };
     Object.assign(this.place('foundry').stock, { ore: 20, metal: 4 });
     this.place('foundry').out = { parts: 6 };
