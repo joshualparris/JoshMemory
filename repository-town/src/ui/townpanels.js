@@ -8,6 +8,8 @@ import { esc } from './interactions.js';
 import { economyPanel, jobPanel } from './economy-panels.js';
 import { JOB_BOARD } from '../world/jobs.js';
 import { workingAt, shopService } from '../world/shop-attendance.js';
+import { COUNTERS, lineAt, pendingOrders } from '../world/counter-queue.js';
+import { householdReport, feederFor, TARIFF } from '../world/household.js';
 
 const list = (o) => Object.entries(o || {}).filter(([, n]) => n > 0).map(([g, n]) => amount(g, n)).join(', ') || 'nothing';
 const hours = (p) => (p.opens === 0 && p.closes >= 1440 ? 'open all hours' : `${timeText(p.opens)}–${timeText(p.closes)}`);
@@ -188,6 +190,13 @@ function placePanelBase(life, id) {
   }
   rows.push(`<p><b>Working here:</b> ${staff.length ? staff.map((v) => esc(`${v.name} (${v.job}, ${timeText(v.start)}–${timeText(v.end)})${here.includes(v) ? ' — here now' : ''}`)).join(', ') : 'nobody'}</p>`);
   if (visitors.length) rows.push(`<p><b>Here now:</b> ${visitors.map((v) => esc(`${v.name}, ${v.activity}`)).join('; ')}</p>`);
+  if (COUNTERS.has(id)) {
+    const line = lineAt(life, id);
+    rows.push(`<p><b>At the counter:</b> ${line.staff ? `${line.staff} serving` : 'nobody serving'}${line.length ? `, ${line.length} in line (${esc(line.names.join(', '))})` : ', no queue'}.</p>`);
+  }
+  const tickets = pendingOrders(life).filter((o) => o.venue === id);
+  if (tickets.length) rows.push(`<p><b>Your orders:</b> ${tickets.map((o) => esc(`ticket ${o.ticket}, ${o.name}, ready in ${o.minutes} min`)).join('; ')}</p>`);
+  if (id === 'cafe' || id === 'pub') for (const t of (life.civic.player.served || []).slice(0, 2)) rows.push(`<p class="dim">${esc(t)}</p>`);
   if (id === 'square' || id === 'hall') rows.push(`<h3>Town news</h3><ul class="news">${life.news(8).map((e) => `<li><span class="dim">${esc(e.t)}</span> ${esc(e.text)}</li>`).join('')}</ul>`);
   const shelves = id === 'bakery' ? p.out : p.stock;
   const sells = { store: p.sells, bakery: p.sells, greengrocer: p.sells, butcher: p.sells, cafe: ['pie', 'bread'], pub: ['pie'] }[id] || [];
@@ -331,3 +340,39 @@ export function townContext(life, v, resident) {
 }
 
 
+
+// ── A villager's home: using an appliance shows that household as it really is ─────────────
+const STORE_LABEL = { fridge: 'Fridge', freezer: 'Chest freezer', pantry: 'Pantry' };
+export function householdPanel(life, name, what) {
+  const v = life.villagers.find((x) => x.name === name);
+  if (!v) return { title: 'Household', body: '<p>Nobody lives here at the moment.</p>', actions: [] };
+  const r = householdReport(life, v), powered = life.gridPowered(feederFor(v));
+  const shelf = (store) => {
+    const s = r.larder.find((x) => x.store === store);
+    return s.items.length ? '<ul>' + s.items.map((i) => `<li>${esc(i.text)}${i.state === 'fresh' ? '' : ` — <b>${esc(i.state)}</b>`}</li>`).join('') + '</ul>' : '<p>Empty.</p>';
+  };
+  const temp = `<p>Outside ${r.outdoor}° (${esc(r.season)}), inside ${r.indoor}°. The air conditioner is ${r.climate === 'off' ? 'off' : r.climate}.</p>`;
+  const sections = {
+    fridge: () => `<p>${powered ? 'Humming away at 4°.' : '<b>No power</b> — chilled food is safe for four hours.'}</p>${shelf('fridge')}`,
+    freezer: () => `<p>${powered ? 'Frozen solid at −18°.' : '<b>No power</b> — it will start to thaw.'} Meat comes out to thaw in the fridge overnight.</p>${shelf('freezer')}`,
+    pantry: () => shelf('pantry') + `<p class="dim">Thrown out as gone off so far: ${r.threwOut}.</p>`,
+    oven: () => `<p>Recent meals: ${esc((v.meals || []).slice(0, 4).join('; ') || 'none yet')}.</p>`,
+    sink: () => `<p>${r.dishes ? `${r.dishes} lot${r.dishes > 1 ? 's' : ''} of dishes waiting in the sink.` : 'The sink is clear and the dishes are put away.'}</p>`,
+    crockery: () => `<p>Plates, bowls, mugs and a cutlery drawer. ${r.dishes >= 2 ? 'Most of them are in the sink.' : 'All clean.'}</p>`,
+    shower: () => `<p>Electric hot water. ${v.doneToday?.shower ? `${esc(v.name)} has showered today.` : 'Not used yet today.'}</p>`,
+    laundry: () => `<p>Laundry basket: ${r.laundry} load${r.laundry === 1 ? '' : 's'} waiting. Washing dries on the rotary clothesline out the back.</p>`,
+    power: () => `<p>Mains ${powered ? 'on' : '<b>off</b> (feeder fault or shortage)'}. Lights ${r.lights ? 'on' : 'off'}.</p><p>Meter since the last bill: ${r.meter.power} units of power ($${(r.meter.power * TARIFF.power).toFixed(2)}), ${r.meter.water} of water ($${(r.meter.water * TARIFF.water).toFixed(2)}).</p>`,
+    tv: () => `<p>${/TV/.test(v.activity || '') ? `${esc(v.name)} is watching it now.` : 'Switched off at the wall.'}</p>`,
+    climate: () => temp + '<p>It holds 21° in winter and 23° in summer while someone is up, and runs overnight only when it is very cold or very hot.</p>',
+    computer: () => {
+      const b = r.budget;
+      return `<p><b>${esc(v.name)}'s home</b>: ${esc(r.housing)}. Wallet $${Math.round(r.wallet)}, savings $${Math.round(r.savings)}.</p>` +
+        (b ? `<h4>Budget for week ${b.week}</h4><p>Income $${b.income} · housing $${b.housing} · council rates $${b.rates} · power and water $${b.utilities} · groceries $${b.food} (spent $${Math.round(r.spent.food)}) · eating out $${b.out} (spent $${Math.round(r.spent.out)}) · savings $${b.savings}</p>` : '<p>No budget set yet: it gets done at the computer once a week.</p>') +
+        `<h4>Bills</h4>${r.bills.length ? '<ul>' + r.bills.slice(-3).reverse().map((x) => `<li>Power and water $${x.amount}, due Day ${x.due} — ${x.paid ? 'paid' : '<b>unpaid</b>'}</li>`).join('') + '</ul>' : `<p>None yet. Power is $${TARIFF.power} a unit and water $${TARIFF.water}, billed weekly.</p>`}` +
+        `<h4>Inbox</h4><ul>${r.inbox.map((m) => `<li>${m.read ? '' : '<b>'}${esc(`Day ${m.day} ${m.time} · ${m.from}: ${m.subject}`)}${m.read ? '' : '</b>'}<br><span class="dim">${esc(m.body)}</span></li>`).join('') || '<li>No email.</li>'}</ul>`;
+    },
+  };
+  const body = (sections[what] || sections.computer)();
+  return { title: `${v.name}'s ${STORE_LABEL[what] || { oven: 'kitchen', sink: 'kitchen sink', crockery: 'kitchen', shower: 'bathroom', laundry: 'laundry', power: 'switchboard', tv: 'living room', climate: 'air conditioner', computer: 'computer' }[what] || 'home'}`,
+    body: `<p class="dim">${esc(v.name)} is ${esc(v.activity || 'about')}.</p>` + body + (what === 'computer' ? '' : temp), actions: [], wide: what === 'computer' };
+}

@@ -65,7 +65,7 @@ export function createFloorStack(house, makeLabel) {
   const ground = buildInterior({ ...house, int:{ ...house.int,rooms:[...house.int.rooms,lobby] } },makeLabel);
   const upperLevels = upper.map(plan => {
     const rooms = plan.rooms.map((r,i) => ({ ...r,vertical:i===0,props:r.props.map(p => [...p]) }));
-    return buildInterior({ ...house,int:{ ...house.int,layout:plan.layout, height:3.6,
+    return buildInterior({ ...house,household:undefined,int:{ ...house.int,layout:plan.layout, height:3.6,
       floor:house.int.floor,rooms } },makeLabel);
   });
   // A second way to find vertical navigation: place a highly visible sign

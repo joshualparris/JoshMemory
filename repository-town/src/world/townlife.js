@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { SIGNAL_CROSSINGS, crossingState } from './traffic-signals.js';
 import { Builder, GLASS } from './builder.js';
 import { buildSignBoards } from './shop-signs.js';
+import { PROPS } from './props.js';
 import { makePerson, pose } from './npcs.js';
 import { TownLife, GOODS, RAIL_Z, trainX, FIELD_Z0, FIELD_Z1, SEC_PER_MIN, LOT_X, AVENUES } from './life.js';
 
@@ -383,6 +384,27 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   const group = new THREE.Group(); town.group.add(group);
   const colliders = [], spots = [], displays = [], fields = [], labels = [];
   const statics = new Builder(); statics.glass = [];
+
+  // Villagers' houses: letterbox and meter box out the front; air conditioner, shed and mower,
+  // rotary clothesline, vegie patch and sprinkler in the back yard, well away from the footpaths.
+  for (const v of life.villagers) {
+    const lot = town.lots.get(v.home.coordinate); if (!lot) continue;
+    const { fp } = lot, ox = lot.lot.x, oz = lot.lot.z, back = -fp.d / 2;
+    const place = (type, x, z, rot = 0, solid = PROPS[type].solid) => {
+      statics.at(ox + x, 0, oz + z, rot, () => PROPS[type].build(statics, {}));
+      if (solid) { const p = PROPS[type], side = Math.abs(Math.sin(rot)) > 0.5; statics.solid(side ? p.d : p.w, side ? p.w : p.d, ox + x, oz + z); }
+    };
+    const clear = (x, z) => !(fp.yardObjects || []).some((b) => x > b.x0 - 0.5 && x < b.x1 + 0.5 && z > b.z0 - 0.5 && z < b.z1 + 0.5);
+    const lx = [1.5, -1.5, 2.4, -2.4].map((d) => fp.door.x + d).find((x) => clear(x, fp.front + 3.9));
+    if (lx !== undefined) place('letterbox', lx, fp.front + 3.9, 0, false);
+    place('meterBox', fp.w / 2 + 0.08, 0, Math.PI / 2, false);
+    place('acUnit', fp.w / 2 - 1.2, back - 0.35, Math.PI);
+    place('shed', -4.5, back - 7.5);
+    place('mower', -2.3, back - 6.4, 0.3, false);
+    place('clothesline', 2.6, back - 5.2);
+    place('vegiePatch', 3.2, back - 9.6);
+    place('sprinkler', 3.2, back - 8.3);
+  }
 
   // Railway line behind street 8, with level crossings where it meets the avenues.
   const half = town.bounds.width / 2;
