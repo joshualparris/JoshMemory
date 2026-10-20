@@ -187,17 +187,33 @@ export function createShopVisitors(site,life,interior,makeLabel,people){
     }
     for(const p of entries.values()){
       if(!active.has(p.v.id)&&!p.exit){
-        p.exit=true;if(p.seat){delete p.seat.occupiedBy;reserved.delete(p.seat.key);p.seat=null;}
-        // A person leaving the venue uses the actual clear entrance.
+        p.exit=true;
+        if(p.seat){
+          // The model stands up beside its former chair before walking away.
+          // Starting a route inside a solid sofa would otherwise fail.
+          if(p.landing)positionAt(p,p.landing);
+          delete p.seat.occupiedBy;reserved.delete(p.seat.key);p.seat=null;
+        }
         if(!setDestination(p,entry))p.state='gone';
+      }
+      // Customers who were waiting for actual counter service must take a
+      // seat after being served, not stay motionless at the till.
+      if(!p.exit&&!p.seat&&p.state==='standing'&&wantsSeat(p.v)&&
+         reserveSeat(p,reserved,playerSeat)){
+        if(setDestination(p,p.landing))p.next='seating';
+        else{positionAt(p,p.seat.pos);p.state='seated';}
       }
       if(p.state==='standing'&&p.seat&&p.next==='service'&&!p.exit){
         if(setDestination(p,p.landing))p.next='seating';
       }
       if(p.state!=='gone')advance(p,dt,t,player);
       if(p.state==='gone'){
-        group.remove(p.group);interior.interactables.splice(interior.interactables.indexOf(p.hotspot),1);
-        people.splice(people.indexOf(p),1);entries.delete(p.v.id);
+        group.remove(p.group);
+        const hotspotIndex=interior.interactables.indexOf(p.hotspot);
+        if(hotspotIndex>=0)interior.interactables.splice(hotspotIndex,1);
+        const personIndex=people.indexOf(p);
+        if(personIndex>=0)people.splice(personIndex,1);
+        entries.delete(p.v.id);
       }
     }
     initial=false;
