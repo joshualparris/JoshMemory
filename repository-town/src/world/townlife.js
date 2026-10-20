@@ -419,7 +419,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     // A painted timber sign frame around the name board: two posts and top/bottom rails (open, so the label reads from both sides).
     { const FRAME = { shop: 0x2f5d3a, cafe: 0x7a3b2e, pub: 0x4a2f22, farm: 0x6b4a2e, park: 0x3d5f48, hall: 0x2d3f66, post: 0xb3342b, clinic: 0x2f6f77, school: 0x2d3f66, bank: 0x27384f }[p.kind] || 0x3a3f45;
       const fz = LOT8_Z + (kind === 'square' ? 11 : 12.4), fy = kind === 'square' ? 3.2 : 3.85;
-      for (const sx of [-2.7, 2.7]) { statics.box(FRAME, 0.16, fy + 0.7, 0.16, p.x + sx, (fy + 0.7) / 2, fz); colliders.push({ x0: p.x + sx - 0.1, x1: p.x + sx + 0.1, z0: fz - 0.1, z1: fz + 0.1 }); }
+      for (const sx of [-2.7, 2.7]) { statics.box(FRAME, 0.16, fy + 0.7, 0.16, p.x + sx, (fy + 0.7) / 2, fz); if (kind !== 'square') colliders.push({ x0: p.x + sx - 0.1, x1: p.x + sx + 0.1, z0: fz - 0.1, z1: fz + 0.1 }); }   // the square's frame sits on the walking line, so it is walk-through
       statics.box(FRAME, 5.6, 0.14, 0.14, p.x, fy + 0.65, fz); statics.box(FRAME, 5.6, 0.1, 0.12, p.x, fy - 0.62, fz);
       statics.box(0xe6d9b0, 5.2, 0.04, 0.05, p.x, fy + 0.54, fz); }
     // The place's counter: stand on the footpath in front and press E.
