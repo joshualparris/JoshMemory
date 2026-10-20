@@ -1,5 +1,6 @@
 import { registry,propertyReport,depositFor,closingCosts,PROPERTY_RULES,PROPERTY_YEAR } from '../world/property.js';
 import { VEHICLE_MODELS } from '../world/vehicles.js';
+import { NSW_GUIDANCE } from '../world/nsw-property-law.js';
 const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const money=n=>'$'+Math.round(n).toLocaleString('en-AU');
 const action=(label,fn,returnTo)=>({label,run:()=>{
@@ -14,7 +15,7 @@ export function deedPanel(life,id) {
   const back=()=>propertyOfficePanel(life);
   const self=()=>deedPanel(life,id);
   const status=p.protected?'Public title — not for sale':p.listed?'For sale':'Off market';
-  const body='<p><b>Address:</b> '+esc(p.address)+' · <b>Title holder:</b> '+esc(owned?'You':p.owner)+
+  let body='<p><b>Address:</b> '+esc(p.address)+' · <b>Title holder:</b> '+esc(owned?'You':p.owner)+
     '</p><p><b>Current occupier:</b> '+esc(p.tenant||'Vacant')+
     ' · <b>Status:</b> '+esc(status)+'</p>'+
     '<p><b>Estimated value:</b> '+money(p.value)+' · <b>Rent:</b> '+money(p.rent)+'/town day'+
@@ -23,14 +24,42 @@ export function deedPanel(life,id) {
     (!owned&&p.listed?'<p><b>20% deposit + transfer duty and conveyancing:</b> '+money(depositFor(p))+
     ' due up front. Loan advance '+money(p.value*.8)+' secured against the title.</p>':'')+
     '<p class="dim">The resident or shop operator is separate from the freehold owner. Existing leases survive a sale. These are fictional Town Dollar values; one in-game year is '+PROPERTY_YEAR+' town days, not real NSW house prices or legal fees.</p>';
+  const contract=life.contractReport(id),quote=life.contractQuote(id);
+  const lease=life.leaseReport(id);
+  if(quote)body+='<p><b>NSW 2026/27 reference:</b> illustrative AUD '+money(quote.indicativeAUD)+
+    ' property incurs '+money(quote.nswDutyAUD)+' general transfer duty. Not a real valuation; '+money(quote.gameDuty)+' converted Town Dollars in-game. Conventional residential contracts: 5 business-day cooling-off, generally ~6-week settlement, 0.25% cooling-off withdrawal charge. The game uses 5 and 7 <i>town days</i> respectively.</p>';
+  if(contract)body+='<p><b>Contract exchanged:</b> deposit '+money(contract.deposit)+
+    ' in trust · cooling-off through day '+contract.coolOffUntil+' · settlement day '+contract.settleDay+'.</p>';
+  if(lease)body+='<h3>Tenancy / commercial lease</h3><p><b>Occupant:</b> '+esc(lease.tenant)+
+    ' · '+esc(lease.kind)+' · rent '+money(lease.rent)+'/day · outgoings '+money(lease.outgoings)+
+    ' · term through day '+lease.end+' · arrears '+money(lease.arrears)+
+    ' · status '+esc(lease.status)+'.</p>'+
+    (lease.kind==='commercial'?'<p>Permitted use: '+esc(lease.permittedUse)+
+      '. Disclosure served: day '+esc(lease.disclosureServed)+
+      '. Insurance: '+esc(lease.insurance)+'. Fit-out: '+esc(lease.fitout)+'.</p>':'')+
+    '<p class="dim">'+esc(lease.note)+'</p>';
   const actions=[];
   if(!openFor(life,'realestate'))actions.push({label:'Office closed · return to listings',run:back});
   else if(owned){
     actions.push(action(p.listed?'Withdraw listing':'List property for sale',()=>life.listProperty(id),self));
     if(p.listed)actions.push(action('Accept market offer / sell',()=>life.sellProperty(id),self));
-  }else if(p.listed)actions.push(action('Purchase property / finance 80%',()=>life.buyProperty(id),self));
+    if(lease?.kind==='commercial'){
+      actions.push(action('Serve retail lease disclosure',()=>life.commercialDisclosure(id),self));
+      actions.push(action('Renew commercial tenancy (requires 7-day disclosure)',()=>life.renewCommercial(id),self));
+      actions.push(action('Review commercial rent (once per town year)',()=>life.reviewCommercialRent(id),self));
+    }
+    if(lease?.status==='active'&&lease.arrears>0)actions.push(action('Serve documented arrears notice (subject to eligibility)',()=>life.tenancyNotice(id),self));
+    if(lease?.notice){
+      actions.push(action('Apply for independent tenancy decision',()=>life.applyTenancyOrder(id),self));
+      if(lease.order)actions.push(action('Attend formal tenancy hearing',()=>life.tenancyHearing(id),self));
+      if(lease.order?.decision==='possession-order')actions.push(action('Enforce possession order (no self-help lockout)',()=>life.enforceTenancyOrder(id),self));
+    }
+  }else if(contract){
+    actions.push(action('Settle exchanged purchase (when due)',()=>life.settlePurchase(id),self));
+    if(life.day<=contract.coolOffUntil)actions.push(action('Rescind contract during cooling-off',()=>life.rescindContract(id),self));
+  }else if(p.listed)actions.push(action('Exchange NSW-style purchase contract (10% deposit)',()=>life.exchangePurchase(id),self));
   if(openFor(life,'realestate')&&p.kind==='house'&&!p.tenant&&!owned)
-    actions.push(action('Apply to rent this vacant home (bond '+money(p.rent*288)+')',()=>life.leaseProperty(id),self));
+    actions.push(action('Apply to rent this vacant home (bond '+money(p.rent*28)+')',()=>life.leaseProperty(id),self));
   actions.push({label:'Return to property office',run:back});
   return {title:'Land title · '+p.name,body,actions,wide:true};
 }
@@ -72,12 +101,13 @@ export function motorMarketPanel(life) {
   }).join('');
   const actions=open?r.stock.map(v=>action('Buy '+(VEHICLE_MODELS.find(m=>m.id===v.model)?.name)+' · '+money(v.price),()=>life.buyVehicle(v.stockId),()=>motorMarketPanel(life))):[];
   for(const v of r.owned)if(open)actions.push(action('Trade in '+v.registration,()=>life.sellVehicle(v.registration),()=>motorMarketPanel(life)));
+  for(const v of r.owned)if(open)actions.push(action('Refuel '+v.registration+' · $3/litre',()=>life.refuelVehicle(v.registration),()=>motorMarketPanel(life)));
   actions.push({label:'Visit the mechanics',run:()=>motorWorkshopPanel(life)});
   return {title:'🚗 High Street Motors · south T8',
     body:'<p><b>Dealer inventory:</b> '+r.stock.length+' cars, utes, vans or trucks. Cash dealer reserves '+money(r.dealerCash)+'. '+(open?'Showroom open':'Showroom closed')+'.</p>'+
       '<table class="ledger"><tr><th>Model</th><th>Price</th><th>Odometer</th><th>Condition</th></tr>'+inventory+'</table>'+
       '<p><b>Your vehicle titles</b></p><ul>'+ (own||'<li>No vehicles yet.</li>')+'</ul>'+
-      '<p class="dim">Town Dollar prices. Purchase and ownership are implemented, but player driving controls, fuel consumption and parking of purchased vehicles are not yet implemented.</p>',
+      '<p class="dim">Vehicles appear outside the dealership when purchased. Walk to the driver door and use E or ✋; drive with WASD/arrow keys or mobile joystick, brake and use E/✋ to exit. Registration, fuel, collision stops, servicing and odometer all persist. Road speed is limited to town streets.</p>',
     actions,wide:true};
 }
 export function motorWorkshopPanel(life) {
