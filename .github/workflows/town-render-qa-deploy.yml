@@ -1,0 +1,47 @@
+name: Repository Town Render QA Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/town-render-qa-deploy.yml'
+      - 'repository-town/src/**'
+      - 'repository-town/data/**'
+      - 'repository-town/briefs/**'
+      - 'repository-town/games/**'
+      - 'repository-town/tools/**'
+      - 'repository-town/vendor/**'
+      - 'repository-town/package.json'
+      - 'repository-town/package-lock.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: repository-town-render-qa
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Trigger Render QA deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Require Render deploy hook
+        env:
+          RENDER_QA_DEPLOY_HOOK: ${{ secrets.RENDER_QA_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$RENDER_QA_DEPLOY_HOOK" ]; then
+            echo "::error::Missing repository secret RENDER_QA_DEPLOY_HOOK. Add the Render QA deploy hook URL in Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+      - name: Trigger Render QA deployment
+        env:
+          RENDER_QA_DEPLOY_HOOK: ${{ secrets.RENDER_QA_DEPLOY_HOOK }}
+        run: |
+          set +x
+          if ! curl --fail --silent --max-time 30 --request POST --output /dev/null "$RENDER_QA_DEPLOY_HOOK"; then
+            echo "::error::Render QA deploy-hook request failed; the hook URL was not logged."
+            exit 1
+          fi

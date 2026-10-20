@@ -19,3 +19,13 @@ assert.match(body,/pr\.base\.ref!=='main'/,'only approved main PRs may merge');
 // Compile without executing; payload can never affect the repository during tests.
 new Function('github','context', 'return (async () => {\n' + body + '\n})()');
 console.log('PASS: opt-in merge workflow parses and retains safe merge guards');
+const renderDeploy=readFileSync(new URL('../../.github/workflows/town-render-qa-deploy.yml', import.meta.url),'utf8');
+assert.match(renderDeploy,/branches:\s*\[main\]/,'Render deploys must be limited to main');
+assert.match(renderDeploy,/workflow_dispatch:/,'maintainers need an intentional manual deploy trigger');
+assert.match(renderDeploy,/repository-town\/src\/\*\*/,'source changes must trigger QA deploys');
+assert.match(renderDeploy,/RENDER_QA_DEPLOY_HOOK/,'deploy hook must come from a GitHub secret');
+assert.match(renderDeploy,/--request POST/,'Render hook must be called with POST');
+assert.ok(renderDeploy.includes('--output /dev/null'),'deploy-hook response must not be printed');
+assert.doesNotMatch(renderDeploy,/pull_request:/,'pull requests must never deploy');
+assert.doesNotMatch(renderDeploy,/echo[^\n]*\$RENDER_QA_DEPLOY_HOOK/,'hook URL must never be echoed');
+console.log('PASS: Render QA deploy is main-only, secret-backed, and does not run from pull requests.');
