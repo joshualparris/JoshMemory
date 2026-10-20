@@ -1,4 +1,5 @@
 import { separatePedestrians } from './pedestrian-spacing.js';
+import { bicycleClear, cyclingRoute } from './bicycle-safety.js';
 import { pedestrianDetour,canFinishNearOccupiedDoor } from './pedestrian-navigation.js';
 import { distributePower, townPowerDemands, POWER_LINE_IDS, GRID_FAULT_COST } from './power-grid.js';
 import { initialisePublicLife, attendPublicForum, updatePublicForum, civicDialogue } from './public-forum.js';
@@ -933,6 +934,7 @@ export class TownLife {
     // Long trips are by bike; short ones on foot.
     let len = 0, prev = v; for (const p of v.path) { len += Math.abs(p.x - prev.x) + Math.abs(p.z - prev.z); prev = p; }
     v.bike = len > 160 && v.job !== 'retired';
+    if(v.bike) v.path=cyclingRoute(v.path,v,target,z=>ROAD(rowOf(z)));
     if (v.path.length) { v.inside = false; v.activity = `${v.bike ? 'cycling' : 'walking'} — ${step.activity}`; }
     else this.arrive(v);                       // already there
     return v.step;
@@ -957,6 +959,19 @@ export class TownLife {
         Math.hypot(v.path[0].x-v.x,v.path[0].z-v.z)<12)v.bike=false;
       let budget = minutes * SEC_PER_MIN * (v.bike ? BIKE : WALK);
       while (budget > 0 && v.path.length) {
+        if(v.path[0].dismount)v.bike=false;
+        if(v.bike&&this.pedestrianWorld){
+          const dest=v.path[0],dx=dest.x-v.x,dz=dest.z-v.z,dl=Math.hypot(dx,dz);
+          const reach=Math.min(dl,budget),samples=Math.max(1,Math.ceil(reach/.28));
+          for(let k=0;k<=samples;k++){
+            const at=dl?reach*k/samples/dl:0;
+            if(!bicycleClear(this.pedestrianWorld,v.x+dx*at,v.z+dz*at,dx,dz)){
+              v.bike=false;
+              budget=Math.min(budget,minutes*SEC_PER_MIN*WALK);
+              break;
+            }
+          }
+        }
         const destination=v.path[0];
         const barriers=[
           ...this.obstacles.map(p=>({x:p.x,z:p.z,radius:.75})),
