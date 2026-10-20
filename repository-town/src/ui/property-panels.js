@@ -101,12 +101,13 @@ export function motorMarketPanel(life) {
   }).join('');
   const actions=open?r.stock.map(v=>action('Buy '+(VEHICLE_MODELS.find(m=>m.id===v.model)?.name)+' · '+money(v.price),()=>life.buyVehicle(v.stockId),()=>motorMarketPanel(life))):[];
   for(const v of r.owned)if(open)actions.push(action('Trade in '+v.registration,()=>life.sellVehicle(v.registration),()=>motorMarketPanel(life)));
+  for(const v of r.owned)if(open)actions.push(action('Refuel '+v.registration+' · $3/litre',()=>life.refuelVehicle(v.registration),()=>motorMarketPanel(life)));
   actions.push({label:'Visit the mechanics',run:()=>motorWorkshopPanel(life)});
   return {title:'🚗 High Street Motors · south T8',
     body:'<p><b>Dealer inventory:</b> '+r.stock.length+' cars, utes, vans or trucks. Cash dealer reserves '+money(r.dealerCash)+'. '+(open?'Showroom open':'Showroom closed')+'.</p>'+
       '<table class="ledger"><tr><th>Model</th><th>Price</th><th>Odometer</th><th>Condition</th></tr>'+inventory+'</table>'+
       '<p><b>Your vehicle titles</b></p><ul>'+ (own||'<li>No vehicles yet.</li>')+'</ul>'+
-      '<p class="dim">Town Dollar prices. Purchase and ownership are implemented, but player driving controls, fuel consumption and parking of purchased vehicles are not yet implemented.</p>',
+      '<p class="dim">Vehicles appear outside the dealership when purchased. Walk to the driver door and use E or ✋; drive with WASD/arrow keys or mobile joystick, brake and use E/✋ to exit. Registration, fuel, collision stops, servicing and odometer all persist. Road speed is limited to town streets.</p>',
     actions,wide:true};
 }
 export function motorWorkshopPanel(life) {
