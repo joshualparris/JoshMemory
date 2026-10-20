@@ -57,7 +57,7 @@ async function askResidentProxy(id, house, name, f, role, history, town) {
     errandHint: f.errandTarget ? `${f.errandTarget.coordinate} (${f.errandTarget.name})` : '',
     visitedTarget: Boolean(f.visitedTarget),
     personality: ((personality ? `${personality[0]}; ${personality[1]}; especially interested in ${personality[2]}.` : '') + life + civicProfile).trim(),
-    social: { ...(f.social || {}), gossip: `${f.social?.gossip || ''}${news}`.trim() },
+    social: { ...(f.social || {}), ...(town?.social || {}), gossip: `${town?.social?.gossip || f.social?.gossip || ''}${news}`.trim(), recent: (town?.social?.recent || []).slice(0, 4) },
   };
   let res;
   try {
@@ -219,12 +219,12 @@ function scripted(house, name, f, text, role, town) {
       `If you're hunting relics for the Guild, check outside ${r.coordinate}. ${r.hint}`,
     ]);
   }
-  if (/friend|enemy|relationship|think of/.test(t)) return socialGossip(name);
+  if (/friend|enemy|relationship|think of|remember|last time|worked with/.test(t)) return town?.social?.gossip || socialGossip(name);
   if (/neighbour|neighbor|gossip|rumour|rumor|street|who else/.test(t)) {
     if (!f.neighbour) return `Everyone along ${house.street} keeps pretty busy, though ${outside ? 'I love strolling past their gardens' : 'it\'s a friendly street'}.`;
     const nb = f.neighbour, nbRes = residentName(nb.coordinate);
     return pick([
-      `${socialGossip(name)} Have you met ${nbRes} over at ${nb.coordinate}? That's the ${nb.name} place (${nb.kind}) — always tinkering with something new.`,
+      `${town?.social?.gossip || socialGossip(name)} Have you met ${nbRes} over at ${nb.coordinate}? That's the ${nb.name} place (${nb.kind}) — always tinkering with something new.`,
       `Down on ${house.street}, ${nbRes} at ${nb.coordinate} (${nb.name}) has quite the setup. Worth poking your head in!`,
       `Between you and me, ${nbRes} at ${nb.coordinate} (${nb.name}) has been bragging about their rooms all week. Go see if it lives up to the hype!`,
     ]);

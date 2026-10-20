@@ -318,6 +318,7 @@ export function townContext(life, v, resident) {
     self: v ? life.describe(v) : null,
     location: v ? locateVillager(life,v) : null,
     politics: v ? life.civicChat(v) : null,
+    social: v ? life.socialSummary(v.name) : null,
     resident: resident || null,
     gossip: gossip(life, v),
     relics: left.slice(0, 3).map((r) => ({ name: r.name, clue: r.clue, hint: r.hint })),

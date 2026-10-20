@@ -45,7 +45,7 @@ for(const id of CIVIC_INTERIOR_IDS){
     // Tellers are far from the door and a queue lane leads to them down the middle.
     assert(room.staff.pos.z<-4&&room.spawn.z>3,'teller line is at the back, far from the entrance');
     assert(room.colliders.filter(c=>Math.abs(Math.abs((c.x0+c.x1)/2)-1.15)<0.01&&(c.z1-c.z0)>3).length===2,'queue lane has two rope sides');
-  } else if(id==='store'||id==='cafe'||id==='pub'||id==='post'||id==='clinic'||id==='hall'){
+  } else if(id==='store'||id==='cafe'||id==='pub'||id==='post'||id==='clinic'||id==='hall'||id==='greengrocer'||id==='butcher'||id==='school'||['sheep','dairy','coop','orchard','garden','silo'].includes(id)){
     // Researched dedicated interiors: full-width counter, staff behind it, hotspots clear of furniture.
     assert(room.interactables.length>=4,id+' has several interactive features');
     assert.equal(room.sceneObjects.length,room.interactables.length,id+' scene-aware objects');

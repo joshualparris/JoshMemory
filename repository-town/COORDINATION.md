@@ -7,6 +7,8 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-20 · ChatGPT — **DONE: Android crowd-orbit loop at General Store**, PR #76 merged into `main` at `29fe2c0`. Adds `src/world/pedestrian-progress.js`, integrated progress recovery in `life.js`, named NPC stuck-target recovery in `npcs.js`, pub visitors seated indoors, `tests/pedestrian-orbit.mjs` in `test:town`. GitHub Repository Town Integration safety gate passed (town simulation/collision, geometry, build, privacy, game integrity). Render `repository-town-main-qa.onrender.com` is live at exactly `29fe2c0` (deploy `dep-dbbd3u3bc2fs73aoi0eg`). **Emergency Pages hotfix:** Generated-site files `world/pedestrian-progress.js`, `world/life.js`, `world/npcs.js` copied from that same tested source commit to `Parris-Tech-Services/Repository-town` (latest site commit `1ed3cf4`). Prior public module blob SHA matched pre-fix source exactly; future source builds contain same fix. GitHub Pages propagation and a real Android motion playtest still require independent confirmation.
+
 - 2026-10-20 · ChatGPT — **MIT open-source town simulation adaptation #1: IsoCity traffic signals** on `feat/isocity-inspired-signal-crossing-20261020`. Scope: `src/world/traffic-signals.js`, `src/world/life.js`, `src/world/townlife.js`, `tests/traffic-signals.mjs`, `package.json` and `docs/OPEN_SOURCE_PORT_ISOCITY_SIGNAL_2026-10-20.md`. One deterministic High Street zebra at (52,177); truck amber/red stopping, green resumption, visual signal poles. New code, not copied from IsoCity; licence and attribution documented. Do NOT overwrite collision/truck behaviour. Canonical integration gate and source-to-public publish required before declaring live. Pedestrian light does not yet control autonomous walkers.
 
 
@@ -281,3 +283,6 @@ Newest first. Times in Australia/Sydney.
 - Interiors: framed pictures on walls via `interior.js` (5 frame models, box fallback); pub/café/clinic/hall/post got frames, lamps and cacti. Hotspots/colliders unchanged.
 - The Wheat Farm's second silo stood on the easternmost avenue (x 312) and blocked it end-to-end
   (`tests/streetwalk.mjs`); both silos now stand behind the shed.
+## Greengrocer, butcher, school/library and farm sheds (Claude, 2026-10-20)
+- New dedicated interiors on the kit: `grocer-interior.js`, `butcher-interior.js`, `school-interior.js`, `farm-interior.js` (one builder, six variants: sheep, dairy, coop, orchard, garden, silo). Dispatch is in `shop-interior.js`; `tests/shop-interiors.mjs` covers them (>250 objects, staff behind counter, hotspots clear of colliders).
+- Each keeps one `civic-ledger` counter hotspot, so shop/farm counter behaviour is unchanged.
