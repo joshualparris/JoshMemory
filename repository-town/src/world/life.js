@@ -1,4 +1,5 @@
 import { separatePedestrians } from './pedestrian-spacing.js';
+import { freshSocialState,recordSocialEvent,socialReport,chooseSocialVisit,restoreSocialState } from './social-events.js';
 import { mustStopAtCrossing } from './traffic-signals.js';
 import { orderCafe } from './cafe-menu.js';
 import { bicycleClear, cyclingRoute } from './bicycle-safety.js';
@@ -318,6 +319,8 @@ export class TownLife {
         carrying: null, lastMeal: null, meals: [], seen: [], doneToday: {},
       };
     });
+    // Persisted NPC social lives advance alongside the town rather than only in UI.
+    this.social=freshSocialState();
     // Dedicated marked bays beside the depot, outside the 2 travel lanes.
     // Never initialise a stationary truck in the middle of the carriageway.
     this.trucks = [0, 1, 2].map((i) => {
@@ -1149,12 +1152,28 @@ export class TownLife {
       if (s.kind === 'parcel') { this.parcels.push({ coordinate: s.home.coordinate, x: s.home.door.x + 0.6, z: s.home.door.z + 0.6, from: v.name }); this.stats.parcels++; }
     }
     if (s.visit) v.seen.unshift(s.visit.coordinate);
+    if(s.socialTarget){
+      const other=this.villagers.find(o=>o.name===s.socialTarget);
+      if(other && other.inside && !other.path.length &&
+        other.step?.at==='home' && other.step?.kind!=='sleep'){
+        const event=recordSocialEvent(this.social,v.name,other.name,'visit',this.day,this.minute);
+        if(event)this.log(event.text);
+      }
+    }
   }
 
   finish(v) {
     const s = v.step;
     if (s?.kind === 'cook' && s.meal) this.eat(v, s.meal[0], s.meal[1]);
     if (s?.kind === 'work' && this.minute >= v.end - 1 && v.paidDay !== this.day) this.pay(v);
+    if(s?.kind==='work' && v.work!=='home' && !v.path.length){
+      const colleague=this.villagers.find(o=>o!==v && o.work===v.work &&
+        o.step?.kind==='work' && !o.path.length);
+      if(colleague){
+        const event=recordSocialEvent(this.social,v.name,colleague.name,'work',this.day,this.minute);
+        if(event)this.log(event.text);
+      }
+    }
     if (s?.kind === 'idle' && s.at === 'home' && v.carrying) {
       for (const [k, n] of Object.entries(v.carrying)) v.pantry[k] = (v.pantry[k] || 0) + n;
       v.carrying = null;
@@ -1233,8 +1252,10 @@ export class TownLife {
     const pantry = Object.entries(v.pantry).filter(([, n]) => n > 0).map(([k, n]) => amount(k, n)).join(', ') || 'nothing much';
     return { name: v.name, job: v.job, workplace: v.work === 'home' ? 'from home' : this.place(v.work).name, home: `${v.home.coordinate} (${v.home.name})`,
       now: v.activity, lastMeal: last, recentMeals: v.meals, hungry: v.hunger > 60,
-      fatigue: Math.round(v.fatigue), tired: v.fatigue>70, pantry, wallet: v.wallet, carrying: v.carrying, memory: v.memory || null };
+      fatigue: Math.round(v.fatigue), tired: v.fatigue>70, pantry, wallet: v.wallet,
+      carrying: v.carrying, memory: v.memory || null, social: this.socialSummary(v.name) };
   }
+  socialSummary(name) { return socialReport(this.social,name,this.villagers.map(v=>v.name)); }
   news(n = 6) { return this.events.slice(0, n); }
   ledger() {
     const shops = [...this.places.values()].filter((p) => p.target && !['utility', 'industry', 'hall'].includes(p.kind)).map((p) => ({ name: p.name, stock: p.stock, till: Math.round(p.till), open: this.open(p) }));
@@ -1247,7 +1268,7 @@ export class TownLife {
   // Saves just what matters to resume tomorrow where the town left off.
   snapshot() {
     const pick = (o, keys) => { const r = { id: o.id }; for (const k of keys) if (o[k] !== undefined) r[k] = o[k]; return r; };
-    const state = { saveVersion:2, seed: this.seed, rngState: this.rand.getState(), day: this.day, minute: this.minute, powerGridEvents:this.powerGridEvents, powerGridEventSeq:this.powerGridEventSeq, civic: this.civic, places: [...this.places.values()].map((p) => [p.id, p.stock, p.out, p.till, p.growth]), villagers: this.villagers.map((v) => [v.id, v.pantry, v.wallet, v.lastMeal, v.meals, v.hunger, v.fatigue, v.restedMinutes, v.wageArrears || 0, v.rateArrears || 0, v.housingArrears || 0]), hotelBookings:this.place('hotel').bookings,
+    const state = { saveVersion:2, seed: this.seed, rngState: this.rand.getState(), day: this.day, minute: this.minute, social:this.social, powerGridEvents:this.powerGridEvents, powerGridEventSeq:this.powerGridEventSeq, civic: this.civic, places: [...this.places.values()].map((p) => [p.id, p.stock, p.out, p.till, p.growth]), villagers: this.villagers.map((v) => [v.id, v.pantry, v.wallet, v.lastMeal, v.meals, v.hunger, v.fatigue, v.restedMinutes, v.wageArrears || 0, v.rateArrears || 0, v.housingArrears || 0]), hotelBookings:this.place('hotel').bookings,
       sim: { events: this.events, stats: this.stats, yesterday: this.yesterday || null, villagers: this.villagers.map((v) => ({ ...pick(v, SIM_VILLAGER_FIELDS), wageArrears: v.wageArrears || 0, rateArrears: v.rateArrears || 0, housingArrears: v.housingArrears || 0 })), trucks: (this.trucks || []).map((t) => pick(t, SIM_TRUCK_FIELDS)), parcels: this.parcels || [] } };
     return JSON.parse(JSON.stringify(state));
   }
@@ -1282,6 +1303,7 @@ export class TownLife {
     for (const [id, stock, out, till, growth] of s.places || []) { const p = this.place(id); if (p) Object.assign(p, { stock, out, till, growth: growth ?? p.growth }); }
     for (const [id, pantry, wallet, lastMeal, meals, hunger, fatigue, restedMinutes, wageArrears, rateArrears, housingArrears] of s.villagers || []) { const v = this.villagers[id]; if (v) Object.assign(v, { pantry, wallet, lastMeal, meals: meals || [], hunger: Number.isFinite(hunger)?hunger:v.hunger, fatigue: Number.isFinite(fatigue)?fatigue:v.fatigue, restedMinutes: Number.isFinite(restedMinutes)?restedMinutes:0, wageArrears: Number.isFinite(wageArrears)?wageArrears:0, rateArrears: Number.isFinite(rateArrears)?rateArrears:0, housingArrears: Number.isFinite(housingArrears)?housingArrears:0 }); }
     this.place('hotel').bookings=Array.isArray(s.hotelBookings)?s.hotelBookings.slice(-12):[];
+    this.social=restoreSocialState(s.social,this.villagers.map(v=>v.name));
     if (sim) {
       this.seed = s.seed; this.rand.setState(s.rngState);
       this.events = sim.events; this.stats = sim.stats; this.yesterday = sim.yesterday || undefined;
