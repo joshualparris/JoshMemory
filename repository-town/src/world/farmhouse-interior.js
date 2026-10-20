@@ -22,7 +22,7 @@ export function buildFarmhouseInterior(site,makeLabel){
   const group=new THREE.Group();group.name='Farmhouse · occupied home';
   const colliders=[],interactables=[],sceneObjects=[],placedProps=[],dynamics=[],meshes=[];
   const byColour=new Map(),materials=new Map();
-  const material=c=>{if(!materials.has(c))materials.set(c,new THREE.MeshLambertMaterial({color:c}));return materials.get(c);};
+  const material=c=>{if(!materials.has(c))materials.set(c,new THREE.MeshLambertMaterial(c===0x9dbab6?{color:c,transparent:true,opacity:0.22,depthWrite:false,side:THREE.DoubleSide}:{color:c}));return materials.get(c);};
   const box=(w,h,d,x,y,z,color)=>{
     if(!byColour.has(color))byColour.set(color,[]);
     byColour.get(color).push({w,h,d,x,y,z});
@@ -341,6 +341,7 @@ export function buildFarmhouseInterior(site,makeLabel){
     ...ZONES.map(q=>({name:q.name,x0:q.side<0?-EDGE:HALL,x1:q.side<0?-HALL:EDGE,z0:q.z0,z1:q.z1})),
     {...pantry,name:'Walk-in pantry'}];
   return {group,colliders,interactables,sceneObjects,placedProps,rooms,
+    windows:ZONES.map(q=>({axis:'x',at:q.side*EDGE,c:(q.z0+q.z1)/2,w:Math.min(1.85,q.z1-q.z0-1.1),y0:1.01,y1:2.81,win:true})),
     doors:[],dynamics,sight:[],people:[],
     bounds:{x0:-EDGE,x1:EDGE,z0:REAR,z1:FRONT},
     spawn:new THREE.Vector3(0,0,FRONT-2.4),

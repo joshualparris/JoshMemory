@@ -89,8 +89,19 @@ export function buildCivicInterior(site,makeLabel) {
   solid(BASE_W,4.6,WALL,0,2.3,BACK,0xc3b6a4);
   solid(WALL,4.6,BASE_D,-EDGE,2.3,-3,0xc3b6a4);
   solid(WALL,4.6,BASE_D, EDGE,2.3,-3,0xc3b6a4);
-  solid(6,4.6,WALL,-4,2.3,FRONT,0xc3b6a4);
-  solid(6,4.6,WALL,4,2.3,FRONT,0xc3b6a4);
+  const winMat=new THREE.MeshLambertMaterial({color:0x9fd3ea,transparent:true,opacity:0.18,depthWrite:false,side:THREE.DoubleSide});
+  for (const sx of [-1, 1]) {
+    colliders.push({x0:sx*4-3,x1:sx*4+3,z0:FRONT-WALL/2,z1:FRONT+WALL/2});
+    box(6,1.4,WALL,sx*4,0.7,FRONT,0xc3b6a4);
+    box(6,1.4,WALL,sx*4,3.9,FRONT,0xc3b6a4);
+    box(1.2,1.8,WALL,sx*6.4,2.3,FRONT,0xc3b6a4);
+    box(1.0,1.8,WALL,sx*1.5,2.3,FRONT,0xc3b6a4);
+    box(3.9,0.07,WALL+0.08,sx*3.9,1.4,FRONT,0x6f5343);
+    box(3.9,0.07,WALL+0.06,sx*3.9,3.2,FRONT,0x6f5343);
+    for(const wx of [sx*2.03,sx*3.9,sx*5.77])box(0.05,1.8,WALL+0.04,wx,2.3,FRONT,0x6f5343);
+    const pane=new THREE.Mesh(new THREE.BoxGeometry(3.74,1.74,0.03),winMat);
+    pane.position.set(sx*3.9,2.3,FRONT);group.add(pane);
+  }
   box(2.4,0.2,WALL,0,3.1,FRONT,0x6f5343);
   // Door sill is low and decorative so it never traps the player.
   box(2.15,0.06,0.6,0,0.02,FRONT,0xb9b8ae);
@@ -139,6 +150,7 @@ export function buildCivicInterior(site,makeLabel) {
   const rooms=[{name:roomTitle,x0:-EDGE,x1:EDGE,z0:BACK,z1:FRONT,w:BASE_W,d:BASE_D,parent:-1}];
   return {
     group,colliders,interactables,sceneObjects,placedProps,rooms,
+    windows:[{axis:'z',at:FRONT,c:-3.9,w:3.8,y0:1.4,y1:3.2,win:true},{axis:'z',at:FRONT,c:3.9,w:3.8,y0:1.4,y1:3.2,win:true}],
     doors:[],dynamics:[],sight:[],
     bounds:{x0:-EDGE,x1:EDGE,z0:BACK,z1:FRONT},
     spawn:new THREE.Vector3(0,0,FRONT-2.25),

@@ -2,7 +2,7 @@
 // runs four weeks and checks shops, money, politics, electricity, water, waste and trucks
 // day by day, plus the visitor's own actions. Prints a daily table and a findings list.
 //   node tests/simulation-soak.mjs [--days 28] [--seed n] [--quiet]
-import { TownLife, CANDIDATES } from '../src/world/life.js';
+import { TownLife, CANDIDATES, GOODS } from '../src/world/life.js';
 import { syncOffices } from '../src/world/government.js';
 
 const args = process.argv.slice(2);
@@ -46,9 +46,15 @@ function instrument(t) {
   const pay = t.pay.bind(t), hour = t.everyHour.bind(t), day = t.newDay.bind(t), log = t.log.bind(t);
   t.pay = (v) => { if (v.job === 'programmer') { const w = v.wallet, tr = t.civic.treasury, fd = t.civic.finance.federal; pay(v); flows.outside += (v.wallet - w) + (t.civic.finance.federal - fd) + Math.max(0, t.civic.treasury - tr); } else pay(v); };
   t.everyHour = () => {
-    const d = t.place('depot').out, f = d.fuel || 0, o = d.ore || 0;
+    const d = t.place('depot').out;
+    const before = Object.fromEntries(['fuel', 'ore', 'hay', 'lamb', 'coffee', 'tea', 'parcel'].map((g) => [g, d[g] || 0]));
     hour();
-    if (Math.floor(t.minute / 60) === 7) flows.imports += ((d.fuel || 0) - f) * 1 + ((d.ore || 0) - o) * 2;
+    if (Math.floor(t.minute / 60) === 7) {
+      flows.imports += (d.fuel - before.fuel) * 1 + (d.ore - before.ore) * 2
+        + (d.hay - before.hay) * GOODS.hay.price + (d.lamb - before.lamb) * GOODS.lamb.price
+        + (d.coffee - before.coffee) * GOODS.coffee.price * 0.5 + (d.tea - before.tea) * GOODS.tea.price * 0.5
+        + (d.parcel - before.parcel);
+    }
   };
   t.newDay = () => { day(); };
   t.log = (text) => { const m = /exported \d+ tonnes of metal by rail for \$(\d+)/.exec(text); if (m) flows.exports += +m[1]; log(text); };

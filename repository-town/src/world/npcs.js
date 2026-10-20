@@ -247,7 +247,6 @@ export function animateNPCs(list,time,playerPos,dt=1/60,talkingTo=null,collision
     const group=entry.group, model=group.userData.body;
     const dist=Math.hypot(group.position.x-playerPos.x,group.position.z-playerPos.z);
     group.visible=dist<maxDist;
-    if(!group.visible)continue;
     // Named NPC conversations also have a bounded duration. Opening a chat
     // doesn't permanently hold someone's attention or stop their work.
     const selected=talkingTo===entry.npc.id;
@@ -314,7 +313,7 @@ export function animateNPCs(list,time,playerPos,dt=1/60,talkingTo=null,collision
       model.position.y=Math.sin(time*1.1)*.018;
     }
     const label=group.userData.label;
-    if(label)label.visible=dist>1.4;
+    if(label)label.visible=group.visible&&dist>1.4;
   }
 }
 

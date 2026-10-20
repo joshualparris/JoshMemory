@@ -17,15 +17,15 @@ const ABOUT = {
   bakery: 'The bakers start at half past four. Each hour two bags of flour make eight loaves; flour, lamb and vegetables make meat pies.',
   cafe: 'Brekkie and lunch from 6:30. The cook uses bread, eggs and milk delivered each morning; the coffee comes in on the train.',
   greengrocer: 'Vegetables from the Market Garden and fruit from the Orchard, brought in by truck.',
-  butcher: 'Lamb from the Sheep Station, cut fresh each morning.',
+  butcher: 'Lamb arrives from a regional meatworks through the freight depot and is cut fresh each morning.',
   square: 'The heart of town: benches, a fountain, market stalls, and the notice board with today\'s news.',
   pub: 'The Merged Branch opens at 11. Roasts, parmies and pies for dinner; a yarn and a cold drink after work.',
   post: 'The 7:00 freight train brings the mail. Trucks carry it here and the postie walks the parcels to people\'s doorsteps.',
   school: 'Classes from half past eight to three.',
   clinic: 'The town nurse sees patients from eight to five.',
-  depot: 'The freight train is due at 6:40 and unloads coffee, tea and parcels at 7:00. Three trucks work out of here.',
+  depot: 'The freight train is due at 6:40 and unloads paid regional supplies, including livestock feed, processed lamb, coffee, tea and parcels. Three trucks distribute goods around town.',
   mill: 'Grain from the Wheat Farm goes in; every hour the miller grinds up to six bags of grain into four bags of flour.',
-  sheep: 'Merino sheep graze the paddock across the road. The shearer brings in lamb for the butcher, the pub and the bakery\'s pies.',
+  sheep: 'Merino sheep graze the paddock across the road. The shearer produces wool; lamb sold in town comes from a regional meatworks through the freight depot.',
   dairy: 'The cows are milked from five in the morning. Fresh milk goes to the store, the café and the bakery.',
   coop: 'The chooks roam the yard across the road; the poultry keeper collects eggs each morning.',
   orchard: 'Apple, orange and lemon trees. The more the trees ripen, the bigger the pick.',
@@ -171,7 +171,9 @@ function placePanelBase(life, id) {
   rows.push(`<p>${esc(ABOUT[id] || '')}</p>`);
   rows.push(`<p><b>Hours:</b> ${esc(hours(p))} · ${open ? '<span class="ok">open now</span>' : '<span class="dim">closed now</span>'} · it's ${esc(life.time())}</p>`);
   if (p.kind === 'farm') {
-    rows.push(`<p><b>Crop:</b> <span class="bar"><span style="width:${Math.round(p.growth * 100)}%"></span></span> ${Math.round(p.growth * 100)}% grown</p>`);
+    const herd = life.livestockReport(id);
+    rows.push(`<p><b>${herd ? 'Pasture / forage' : 'Crop'}:</b> <span class="bar"><span style="width:${Math.round(p.growth * 100)}%"></span></span> ${Math.round(p.growth * 100)}% ${herd ? 'available' : 'grown'}</p>`);
+    if (herd) rows.push(`<p><b>Herd:</b> ${herd.healthy}/${herd.count} ${esc(herd.species)} in productive condition · average health ${herd.health}% · condition ${herd.condition}% · feed ${herd.feedStock} ${esc(herd.feed)} on hand</p>`);
     rows.push(`<p><b>Waiting for the truck:</b> ${esc(amount(p.makes, p.out[p.makes] || 0))}</p>`);
     rows.push(`<p><b>Harvested today:</b> ${esc(amount(p.makes, life.stats.harvested[p.makes] || 0))}</p>`);
   } else {
@@ -226,7 +228,7 @@ export function ledgerPanel(life) {
       <b>Meals:</b> ${s.meals} eaten (${s.mealsOut} at the café and pub) · <b>Parcels delivered:</b> ${s.parcels}</p>
       ${y ? `<p class="dim">Yesterday: ${y.deliveries} deliveries, ${y.baked} baked, ${y.meals} meals, ${y.parcels} parcels.</p>` : ''}
       <h3>Shops</h3><table class="ledger"><tr><th>Shop</th><th>Stock</th><th>Till</th></tr>${L.shops.map((p) => `<tr><td>${esc(p.name)} ${p.open ? '' : '<span class="dim">(closed)</span>'}</td><td>${esc(list(p.stock))}</td><td>$${p.till}</td></tr>`).join('')}</table>
-      <h3>Farms</h3><table class="ledger"><tr><th>Farm</th><th>Crop</th><th>Waiting for pickup</th></tr>${L.farms.map((f) => `<tr><td>${esc(f.name)}</td><td>${Math.round(f.growth * 100)}% grown</td><td>${f.waiting} ${esc(f.makes)}</td></tr>`).join('')}</table>
+      <h3>Farms</h3><table class="ledger"><tr><th>Farm</th><th>Crop / herd</th><th>Waiting / welfare</th></tr>${L.farms.map((f) => `<tr><td>${esc(f.name)}</td><td>${Math.round(f.growth * 100)}% grown${f.herd ? ` · ${f.herd.healthy}/${f.herd.count} ${esc(f.herd.species)} healthy` : ''}</td><td>${f.waiting} ${esc(f.makes)}${f.herd ? ` · ${f.herd.feedStock} ${esc(f.herd.feed)} feed` : ''}</td></tr>`).join('')}</table>
       <h3>Government and public works</h3><p>Mayor ${esc(council.mayor)} · GM ${esc(council.manager)} · ${council.councillors.length} elected councillors · ${council.orders.filter(o=>o.status!=='done').length} work orders open · ${council.motions.filter(m=>m.status==='tabled').length} motions pending. Visit Town Hall for decisions and reports.</p>
       <h3>Council and utilities</h3><p>Mayor ${esc(L.civic.mayor)} · treasury ${money(L.civic.treasury)} · weather ${esc(L.civic.weather)} · power ${L.civic.supply.power}/${L.civic.supply.powerDemand} ${L.civic.supply.ok ? '' : '<b>(blackout)</b>'} · water ${L.civic.supply.water}/${L.civic.supply.waterDemand} · fuel ${L.utilities.fuel} drums · reservoir ${L.utilities.reservoir} kL<br>Taxes today ${money(s.taxes)} · wages ${money(s.wages)} · recycled ${s.recycled} · to landfill ${s.landfill}</p>
       ${powerNetworkHTML(L.civic)}<h3>Trucks</h3><p>${L.trucks.map((t) => esc(`${t.driver || 'Spare'}: ${t.state}`)).join('<br>')}</p>

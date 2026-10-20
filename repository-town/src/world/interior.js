@@ -104,19 +104,64 @@ function sharedOpening(a, b) {
   return null;
 }
 
-// Wall along one edge of a room with doorway gaps. Collision gets the solid pieces only.
-const SKIRT = 0x5a4a3c;
-function wall(b, colliders, axis, at, from, to, h, color, openings, sight) {
-  const cuts = openings.filter((o) => o.axis === axis && Math.abs(o.at - at) < 0.01 && o.c - DOOR_W / 2 > from && o.c + DOOR_W / 2 < to).map((o) => [o.c - DOOR_W / 2, o.c + DOOR_W / 2]).sort((p, q) => p[0] - q[0]);
+// Wall along one edge of a room with doorway and window gaps. Collision gets the solid pieces only.
+const SKIRT = 0x5a4a3c, WIN_W = 1.5, WIN_Y0 = 1.15, WIN_Y1 = 2.48, WIN_FRAME = 0x6b533e, WIN_SILL = 0xf2efe6;
+const winGlassMat = new THREE.MeshLambertMaterial({ color: 0x9fd3ea, transparent: true, opacity: 0.18, depthWrite: false, side: THREE.DoubleSide });
+const LOW_WALL_PROPS = new Set(['desk', 'table', 'counter', 'bench', 'bed', 'sofa', 'cabinet', 'workbench', 'consolePanel', 'stove', 'herbGarden', 'dumbbells', 'sleepPod', 'scale', 'coffeeMachine', 'treasureChest', 'barrel', 'crates', 'cashRegister', 'safe', 'piggyBank', 'ledgerDesk', 'candles', 'donationBox', 'mailbox', 'washingMachine', 'bathtub', 'crib', 'bookStack', 'archiveBoxes', 'podium', 'piano', 'battery', 'router', 'phoneStand', 'nfcReader', 'trolley']);
+
+function subtractSpans(from, to, blocked, minLen) {
+  let spans = from < to ? [[from, to]] : [];
+  for (const [bs, be] of blocked) {
+    const next = [];
+    for (const [s, e] of spans) {
+      if (be <= s || bs >= e) next.push([s, e]);
+      else {
+        if (bs > s) next.push([s, bs]);
+        if (be < e) next.push([be, e]);
+      }
+    }
+    spans = next;
+  }
+  return spans.filter(([s, e]) => e - s >= minLen);
+}
+
+function wall(b, colliders, axis, at, from, to, h, color, openings, sight, winPanes) {
+  const cuts = openings
+    .filter((o) => o.axis === axis && Math.abs(o.at - at) < 0.01 && o.c - (o.w || DOOR_W) / 2 > from && o.c + (o.w || DOOR_W) / 2 < to)
+    .map((o) => ({ s: o.c - (o.w || DOOR_W) / 2, e: o.c + (o.w || DOOR_W) / 2, y0: o.y0 ?? 0, y1: o.y1 ?? DOOR_H, win: !!o.win }))
+    .sort((p, q) => p.s - q.s);
   let cursor = from;
   const seg = (s, e, y0, y1) => {
-    if (e - s < 0.01) return;
+    if (e - s < 0.01 || y1 - y0 < 0.01) return;
     const len = e - s, mid = (s + e) / 2, hh = y1 - y0;
     sight.push(axis === 'z' ? { x0: s, x1: e, y0, y1, z0: at - WALL_T / 2, z1: at + WALL_T / 2 } : { x0: at - WALL_T / 2, x1: at + WALL_T / 2, y0, y1, z0: s, z1: e });
     if (axis === 'z') { b.box(color, len, hh, WALL_T, mid, y0 + hh / 2, at); if (y0 === 0) { colliders.push({ x0: s, x1: e, z0: at - WALL_T, z1: at + WALL_T }); b.box(SKIRT, len, 0.14, WALL_T + 0.06, mid, 0.07, at); } }
     else { b.box(color, WALL_T, hh, len, at, y0 + hh / 2, mid); if (y0 === 0) { colliders.push({ x0: at - WALL_T, x1: at + WALL_T, z0: s, z1: e }); b.box(SKIRT, WALL_T + 0.06, 0.14, len, at, 0.07, mid); } }
   };
-  for (const [s, e] of cuts) { seg(cursor, s, 0, h); seg(s, e, DOOR_H, h); cursor = e; }
+  for (const { s, e, y0, y1, win } of cuts) {
+    seg(cursor, s, 0, h);
+    if (win) {
+      seg(s, e, 0, y0);
+      seg(s, e, y1, h);
+      const len = e - s, mid = (s + e) / 2, hh = y1 - y0, cy = y0 + hh / 2;
+      if (axis === 'z') {
+        b.box(WIN_SILL, len + 0.12, 0.06, WALL_T + 0.1, mid, y0 + 0.03, at);
+        b.box(WIN_FRAME, len + 0.08, 0.06, WALL_T + 0.05, mid, y1 - 0.03, at);
+        for (const x of [s + 0.03, e - 0.03, mid]) b.box(WIN_FRAME, 0.05, hh, WALL_T + 0.04, x, cy, at);
+        b.box(WIN_FRAME, len, 0.04, WALL_T + 0.03, mid, cy, at);
+        if (winPanes) { const g = new THREE.BoxGeometry(len - 0.06, hh - 0.06, 0.025); g.translate(mid, cy, at); winPanes.push(g); }
+      } else {
+        b.box(WIN_SILL, WALL_T + 0.1, 0.06, len + 0.12, at, y0 + 0.03, mid);
+        b.box(WIN_FRAME, WALL_T + 0.05, 0.06, len + 0.08, at, y1 - 0.03, mid);
+        for (const z of [s + 0.03, e - 0.03, mid]) b.box(WIN_FRAME, WALL_T + 0.04, hh, 0.05, at, cy, z);
+        b.box(WIN_FRAME, WALL_T + 0.03, 0.04, len, at, cy, mid);
+        if (winPanes) { const g = new THREE.BoxGeometry(0.025, hh - 0.06, len - 0.06); g.translate(at, cy, mid); winPanes.push(g); }
+      }
+    } else {
+      seg(s, e, DOOR_H, h);
+    }
+    cursor = e;
+  }
   seg(cursor, to, 0, h);
   return cuts;
 }
@@ -136,14 +181,18 @@ function doorLeaf(group, axis, at, c, color) {
 // Wall-run slot allocator: props fill walls in turn, avoiding doorway gaps.
 function makeSlots(r, gaps) {
   const runs = [
-    { axis: 'z', at: r.z0 + WALL_T, from: r.x0 + 0.4, to: r.x1 - 0.4, rot: 0 },
-    { axis: 'x', at: r.x0 + WALL_T, from: r.z0 + 0.4, to: r.z1 - 0.4, rot: Math.PI / 2 },
-    { axis: 'x', at: r.x1 - WALL_T, from: r.z0 + 0.4, to: r.z1 - 0.4, rot: -Math.PI / 2 },
-    { axis: 'z', at: r.z1 - WALL_T, from: r.x0 + 0.4, to: r.x1 - 0.4, rot: Math.PI },
-  ].map((run) => ({ ...run, used: gaps.filter((g) => g.axis === run.axis && Math.abs(g.at - run.at) < WALL_T * 1.6).map((g) => [g.c - DOOR_W / 2 - 0.9, g.c + DOOR_W / 2 + 0.9]) }));
+    { axis: 'z', edge: r.z0, at: r.z0 + WALL_T, from: r.x0 + 0.4, to: r.x1 - 0.4, rot: 0 },
+    { axis: 'x', edge: r.x0, at: r.x0 + WALL_T, from: r.z0 + 0.4, to: r.z1 - 0.4, rot: Math.PI / 2 },
+    { axis: 'x', edge: r.x1, at: r.x1 - WALL_T, from: r.z0 + 0.4, to: r.z1 - 0.4, rot: -Math.PI / 2 },
+    { axis: 'z', edge: r.z1, at: r.z1 - WALL_T, from: r.x0 + 0.4, to: r.x1 - 0.4, rot: Math.PI },
+  ].map((run) => {
+    const doors = gaps.filter((g) => g.axis === run.axis && Math.abs(g.at - run.at) < WALL_T * 1.6).map((g) => [g.c - DOOR_W / 2 - 0.9, g.c + DOOR_W / 2 + 0.9]);
+    return { ...run, used: doors.slice(), tallUsed: doors.slice() };
+  });
   let turn = 0;
   return {
-    wall(w) {
+    runs,
+    wall(w, tall = true) {
       for (let k = 0; k < runs.length; k++) {
         const run = runs[(turn + k) % runs.length];
         let pos = run.from;
@@ -151,6 +200,7 @@ function makeSlots(r, gaps) {
         for (const [s, e] of used) { if (pos + w <= s) break; pos = Math.max(pos, e); }
         if (pos + w <= run.to) {
           run.used.push([pos, pos + w + 0.25]);
+          if (tall) run.tallUsed.push([pos, pos + w + 0.25]);
           turn = (turn + k + 1) % runs.length;
           const c = pos + w / 2;
           return run.axis === 'z' ? { x: c, z: run.at + (run.rot === 0 ? 1 : -1) * 0.02, rot: run.rot } : { x: run.at, z: c, rot: run.rot };
@@ -184,10 +234,12 @@ function buildOnce(house, makeLabel, attempt) {
   // Every real home gets a reachable bedroom; four authored homes already
   // include beds. Add a connected sleeping room, never a floating prop.
   const authored=house.int;
-  const hasBed=authored.rooms.some(r=>(r.props||[]).some(e=>(typeof e==='string'?e:e[0])==='bed'));
+  const isSleepBed=e=>{const t=typeof e==='string'?e:e[0],d=Array.isArray(e)?e[2]?.do:null;return t==='bed'&&(!d||d==='read'||d==='sleep');};
+  const hasBed=authored.rooms.some(r=>(r.props||[]).some(isSleepBed));
   const roomsWithBeds=authored.rooms.map(r=>({...r,props:(r.props||[]).map(e=>{
+    if(!isSleepBed(e))return e;
     const type=typeof e==='string'?e:e[0];
-    return type==='bed'?[type,typeof e==='string'?'Bed':e[1]||'Bed',{...(Array.isArray(e)?e[2]||{}:{}),do:'sleep'}]:e;
+    return [type,typeof e==='string'?'Bed':e[1]||'Bed',{...(Array.isArray(e)?e[2]||{}:{}),do:'sleep'}];
   })}));
   if(!hasBed)roomsWithBeds.push({
     name:'Bedroom',w:8,d:8,archive:true,
@@ -197,6 +249,7 @@ function buildOnce(house, makeLabel, attempt) {
   const b = new Builder();
   const colliders = [];
   const sight = []; // boxes that hide labels behind them (walls, lintels, closed doors)
+  const winPanes = [];
   const rooms = placeRooms(spec.rooms, spec.layout, attempt);
   const h = spec.height || 3.6;
   const openings = [];
@@ -210,35 +263,12 @@ function buildOnce(house, makeLabel, attempt) {
   const group = new THREE.Group();
   const doors = [];
   const labels = [];
-  rooms.forEach((r, i) => {
-    const floor = r.floor || spec.floor, walls = r.walls || spec.walls;
-    b.box(floor, r.w, 0.1, r.d, (r.x0 + r.x1) / 2, -0.05, (r.z0 + r.z1) / 2);
-    b.box(spec.ceiling || 0xf2efe8, r.w, 0.1, r.d, (r.x0 + r.x1) / 2, h + 0.05, (r.z0 + r.z1) / 2);
-    b.cyl(0xfff4d8, 0.35, 0.06, (r.x0 + r.x1) / 2, h - 0.03, (r.z0 + r.z1) / 2);
-    const inset = (axis, edge, to) => openings.map((o) => (o.axis === axis && Math.abs(o.at - edge) < 0.01 ? { ...o, at: to } : o));
-    wall(b, colliders, 'z', r.z0 + WALL_T / 2, r.x0, r.x1, h, walls, inset('z', r.z0, r.z0 + WALL_T / 2), sight);
-    wall(b, colliders, 'z', r.z1 - WALL_T / 2, r.x0, r.x1, h, walls, inset('z', r.z1, r.z1 - WALL_T / 2), sight);
-    wall(b, colliders, 'x', r.x0 + WALL_T / 2, r.z0, r.z1, h, walls, inset('x', r.x0, r.x0 + WALL_T / 2), sight);
-    wall(b, colliders, 'x', r.x1 - WALL_T / 2, r.z0, r.z1, h, walls, inset('x', r.x1, r.x1 - WALL_T / 2), sight);
-    // z0 walls of rooms whose back opens into another room need the cut too.
-    if (r.name) labels.push({ text: r.name, pos: new THREE.Vector3((r.x0 + r.x1) / 2, h - 0.45, r.z0 + 0.6), room: i, kind: 'room' });
-  });
-  for (const o of openings) if (o !== entrance) {
-    const door = doorLeaf(group, o.axis, o.at, o.c, spec.doors || 0x7a5a3c);
-    doors.push(door);
-    const span = { s: o.c - DOOR_W / 2, e: o.c + DOOR_W / 2 }, t = WALL_T;
-    sight.push(o.axis === 'z' ? { x0: span.s, x1: span.e, y0: 0, y1: DOOR_H, z0: o.at - t, z1: o.at + t, door } : { x0: o.at - t, x1: o.at + t, y0: 0, y1: DOOR_H, z0: span.s, z1: span.e, door });
-  }
-  const exitDoor = doorLeaf(group, 'z', entrance.at, entrance.c, spec.doors || 0x7a5a3c);
-  exitDoor.userData.exit = true;
-  doors.push(exitDoor);
-
   const interactables = [];
   const placedProps = [];
   const sceneObjects = []; // placed furniture, decor and usable exhibits for resident perception
   const walkers = [];
   rooms.forEach((r, ri) => {
-    const roomGaps = openings.filter((o) => (o.axis === 'z' && (Math.abs(o.at - r.z0) < 0.3 || Math.abs(o.at - r.z1) < 0.3) && o.c > r.x0 && o.c < r.x1) || (o.axis === 'x' && (Math.abs(o.at - r.x0) < 0.3 || Math.abs(o.at - r.x1) < 0.3) && o.c > r.z0 && o.c < r.z1))
+    const roomGaps = openings.filter((o) => !o.win && ((o.axis === 'z' && (Math.abs(o.at - r.z0) < 0.3 || Math.abs(o.at - r.z1) < 0.3) && o.c > r.x0 && o.c < r.x1) || (o.axis === 'x' && (Math.abs(o.at - r.x0) < 0.3 || Math.abs(o.at - r.x1) < 0.3) && o.c > r.z0 && o.c < r.z1)))
       .map((o) => ({ axis: o.axis, at: o.axis === 'z' ? (Math.abs(o.at - r.z0) < 0.3 ? r.z0 + WALL_T : r.z1 - WALL_T) : (Math.abs(o.at - r.x0) < 0.3 ? r.x0 + WALL_T : r.x1 - WALL_T), c: o.c }));
     const slots = makeSlots(r, roomGaps);
     const cells = centreGrid(r);
@@ -253,7 +283,7 @@ function buildOnce(house, makeLabel, attempt) {
       else if (want === 'center') {
         while (cells.length && !spot) { const c = cells.shift(); if (doorZones.every((dz) => Math.hypot(dz.x - c.x, dz.z - c.z) > 3.2)) spot = { ...c, rot: 0 }; }
       }
-      if (!spot) { const w = slots.wall(Math.max(prop.w, 0.6)); spot = w ? { ...w, onWall: true } : (cells.length ? { ...cells.shift(), rot: 0 } : null); }
+      if (!spot) { const w = slots.wall(Math.max(prop.w, 0.6), !LOW_WALL_PROPS.has(type)); spot = w ? { ...w, onWall: true } : (cells.length ? { ...cells.shift(), rot: 0 } : null); }
       if (!spot) throw Object.assign(new Error(`${house.repo}: no room for ${type} in "${r.name}" — enlarge the room`), { crowded: spec.rooms.some((x) => x.archive) });
       const key = act && act.do ? `${house.coordinate}:${ri}:${pi}` : null;
       // Residents are people, not furniture: main.js gives them a moving body (src/world/npcs.js).
@@ -276,6 +306,34 @@ function buildOnce(house, makeLabel, attempt) {
       if (label) labels.push({ text: label, pos: new THREE.Vector3(spot.x + Math.sin(spot.rot) * out, Math.min(h - 0.35, Math.max(propTop(type) + 0.4, 2.35)), spot.z + Math.cos(spot.rot) * out), room: ri, kind: key ? 'interactive' : 'prop' });
       if (key) interactables.push({ key, type, label: label || prop.label, act, room: ri, pos, roomName: r.name });
     });
+    // Cut exterior windows along outer room walls (never through shared walls, doorways or tall wall props).
+    for (const run of slots.runs) {
+      const shared = rooms.filter((other) => other !== r && (
+        run.axis === 'z'
+          ? (Math.abs(other.z0 - run.edge) < 0.05 || Math.abs(other.z1 - run.edge) < 0.05) && Math.min(r.x1, other.x1) > Math.max(r.x0, other.x0)
+          : (Math.abs(other.x0 - run.edge) < 0.05 || Math.abs(other.x1 - run.edge) < 0.05) && Math.min(r.z1, other.z1) > Math.max(r.z0, other.z0)
+      )).map((other) => run.axis === 'z'
+        ? [Math.max(r.x0, other.x0) - 0.35, Math.min(r.x1, other.x1) + 0.35]
+        : [Math.max(r.z0, other.z0) - 0.35, Math.min(r.z1, other.z1) + 0.35]);
+      const addWin = (c, y0, y1) => {
+        openings.push({ axis: run.axis, at: run.edge, c, w: WIN_W, y0, y1: Math.min(h - 0.45, y1), win: true });
+        run.used.push([c - WIN_W / 2 - 0.25, c + WIN_W / 2 + 0.25]);
+        sceneObjects.push({ type: 'window', label: 'window looking outside', room: ri, pos: run.axis === 'z' ? { x: c, z: run.edge } : { x: run.edge, z: c }, interactive: false });
+      };
+      const free = subtractSpans(run.from + 0.1, run.to - 0.1, [...shared, ...run.used], WIN_W);
+      if (free.length) {
+        for (const [s, e] of free) {
+          if (e - s >= 4.2) { addWin(s + (e - s) * 0.28, WIN_Y0, WIN_Y1); addWin(s + (e - s) * 0.72, WIN_Y0, WIN_Y1); }
+          else addWin((s + e) / 2, WIN_Y0, WIN_Y1);
+        }
+      } else {
+        const aboveLow = subtractSpans(run.from + 0.1, run.to - 0.1, [...shared, ...run.tallUsed], WIN_W);
+        if (aboveLow.length) {
+          const [s, e] = aboveLow.sort((a, b) => (b[1] - b[0]) - (a[1] - a[0]))[0];
+          addWin((s + e) / 2, 1.34, 2.52);
+        }
+      }
+    }
     // Decoration only: a rug where the floor would otherwise be empty, and framed
     // pictures on leftover wall space. Repository-specific content comes from the brief.
     if (!(r.props || []).some((p) => CENTRE.has(typeof p === 'string' ? p : p[0])) && cells.length) {
@@ -290,12 +348,37 @@ function buildOnce(house, makeLabel, attempt) {
     }
   });
 
+  rooms.forEach((r, i) => {
+    const floor = r.floor || spec.floor, walls = r.walls || spec.walls;
+    b.box(floor, r.w, 0.1, r.d, (r.x0 + r.x1) / 2, -0.05, (r.z0 + r.z1) / 2);
+    b.box(spec.ceiling || 0xf2efe8, r.w, 0.1, r.d, (r.x0 + r.x1) / 2, h + 0.05, (r.z0 + r.z1) / 2);
+    b.cyl(0xfff4d8, 0.35, 0.06, (r.x0 + r.x1) / 2, h - 0.03, (r.z0 + r.z1) / 2);
+    const inset = (axis, edge, to) => openings.map((o) => (o.axis === axis && Math.abs(o.at - edge) < 0.01 ? { ...o, at: to } : o));
+    wall(b, colliders, 'z', r.z0 + WALL_T / 2, r.x0, r.x1, h, walls, inset('z', r.z0, r.z0 + WALL_T / 2), sight, winPanes);
+    wall(b, colliders, 'z', r.z1 - WALL_T / 2, r.x0, r.x1, h, walls, inset('z', r.z1, r.z1 - WALL_T / 2), sight, winPanes);
+    wall(b, colliders, 'x', r.x0 + WALL_T / 2, r.z0, r.z1, h, walls, inset('x', r.x0, r.x0 + WALL_T / 2), sight, winPanes);
+    wall(b, colliders, 'x', r.x1 - WALL_T / 2, r.z0, r.z1, h, walls, inset('x', r.x1, r.x1 - WALL_T / 2), sight, winPanes);
+    // z0 walls of rooms whose back opens into another room need the cut too.
+    if (r.name) labels.push({ text: r.name, pos: new THREE.Vector3((r.x0 + r.x1) / 2, h - 0.45, r.z0 + 0.6), room: i, kind: 'room' });
+  });
+  for (const o of openings) if (o !== entrance && !o.win) {
+    const door = doorLeaf(group, o.axis, o.at, o.c, spec.doors || 0x7a5a3c);
+    doors.push(door);
+    const span = { s: o.c - DOOR_W / 2, e: o.c + DOOR_W / 2 }, t = WALL_T;
+    sight.push(o.axis === 'z' ? { x0: span.s, x1: span.e, y0: 0, y1: DOOR_H, z0: o.at - t, z1: o.at + t, door } : { x0: o.at - t, x1: o.at + t, y0: 0, y1: DOOR_H, z0: span.s, z1: span.e, door });
+  }
+  const exitDoor = doorLeaf(group, 'z', entrance.at, entrance.c, spec.doors || 0x7a5a3c);
+  exitDoor.userData.exit = true;
+  doors.push(exitDoor);
+
   // Lights: one warm fill per room plus a hemisphere for the whole interior.
   const light = new THREE.Group();
   light.add(new THREE.HemisphereLight(0xffffff, 0x554a40, 1.6));
   rooms.slice(0, 5).forEach((r) => { const p = new THREE.PointLight(spec.light || 0xffe6c0, 22, Math.max(r.w, r.d) * 1.6, 1.6); p.position.set((r.x0 + r.x1) / 2, h - 0.5, (r.z0 + r.z1) / 2); light.add(p); });
 
   const built = b.build();
+  const winGeo = Builder.merge(winPanes);
+  if (winGeo) group.add(new THREE.Mesh(winGeo, winGlassMat));
   group.add(built, light);
 
   // Contain the whole billboard within its room. Never turn off depth testing:
@@ -311,6 +394,7 @@ function buildOnce(house, makeLabel, attempt) {
   return {
     group, colliders, sight, doors, interactables, dynamics, rooms, placedProps, sceneObjects, walkers,
     openings: openings.filter((o) => o.rooms),   // internal doorways, for residents moving between rooms
+    windows: openings.filter((o) => o.win),
     spawn: new THREE.Vector3(ex, 0, rooms[0].z1 - 1.6),
     exitZone: { x0: ex - DOOR_W / 2, x1: ex + DOOR_W / 2, z0: rooms[0].z1 + 0.1, z1: rooms[0].z1 + 1.2 },
     bounds: rooms.reduce((a, r) => ({ x0: Math.min(a.x0, r.x0), x1: Math.max(a.x1, r.x1), z0: Math.min(a.z0, r.z0), z1: Math.max(a.z1, r.z1) }), { x0: Infinity, x1: -Infinity, z0: Infinity, z1: -Infinity }),

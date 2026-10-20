@@ -14,7 +14,7 @@ export function createKit(site, makeLabel, roomTitle) {
   const mats = new Map(), geos = new Map();
   const mat = (c, o = {}) => {
     const k = c + '|' + (o.e ?? '') + '|' + (o.a ?? 1) + '|' + (o.side ?? 0);
-    if (!mats.has(k)) mats.set(k, new THREE.MeshLambertMaterial({ color: c, emissive: o.e ?? 0x000000, emissiveIntensity: o.e ? 0.55 : 0, transparent: (o.a ?? 1) < 1, opacity: o.a ?? 1, side: o.side ?? THREE.FrontSide }));
+    if (!mats.has(k)) mats.set(k, new THREE.MeshLambertMaterial({ color: c, emissive: o.e ?? 0x000000, emissiveIntensity: o.e ? 0.55 : 0, transparent: (o.a ?? 1) < 1, opacity: o.a ?? 1, depthWrite: (o.a ?? 1) >= 1, side: o.side ?? THREE.FrontSide }));
     return mats.get(k);
   };
   const geo = (k, make) => { if (!geos.has(k)) geos.set(k, make()); return geos.get(k); };
@@ -49,14 +49,24 @@ export function createKit(site, makeLabel, roomTitle) {
     solid(W, 4.6, WALL, 0, 2.3, BACK, wall);
     solid(WALL, 4.6, D, -EDGE, 2.3, -3, wall);
     solid(WALL, 4.6, D, EDGE, 2.3, -3, wall);
-    solid(6, 4.6, WALL, -4, 2.3, FRONT, wall);
-    solid(6, 4.6, WALL, 4, 2.3, FRONT, wall);
+    for (const sx of [-1, 1]) {
+      blocker(6, WALL, sx * 4, FRONT);
+      box(6, 1.4, WALL, sx * 4, 0.7, FRONT, wall);
+      box(6, 1.4, WALL, sx * 4, 3.9, FRONT, wall);
+      box(1.2, 1.8, WALL, sx * 6.4, 2.3, FRONT, wall);
+      box(1.0, 1.8, WALL, sx * 1.5, 2.3, FRONT, wall);
+      box(3.9, 0.07, WALL + 0.08, sx * 3.9, 1.4, FRONT, 0x6f5343);
+      box(3.9, 0.07, WALL + 0.06, sx * 3.9, 3.2, FRONT, 0x6f5343);
+      for (const wx of [sx * 2.03, sx * 3.9, sx * 5.77]) box(0.05, 1.8, WALL + 0.04, wx, 2.3, FRONT, 0x6f5343);
+      box(3.74, 1.74, 0.03, sx * 3.9, 2.3, FRONT, 0x9fd3ea, { a: 0.18, side: THREE.DoubleSide });
+    }
     box(2.4, 0.2, WALL, 0, 3.1, FRONT, 0x6f5343);
     box(2.15, 0.06, 0.6, 0, 0.02, FRONT, 0xb9b8ae);
   };
   const finish = (extra = {}) => ({
     group, colliders, interactables, sceneObjects, placedProps,
     rooms: [{ name: roomTitle, x0: -EDGE, x1: EDGE, z0: BACK, z1: FRONT, w: W, d: D, parent: -1 }],
+    windows: [{ axis: 'z', at: FRONT, c: -3.9, w: 3.8, y0: 1.4, y1: 3.2, win: true }, { axis: 'z', at: FRONT, c: 3.9, w: 3.8, y0: 1.4, y1: 3.2, win: true }],
     doors: [], dynamics: [], sight: [],
     bounds: { x0: -EDGE, x1: EDGE, z0: BACK, z1: FRONT },
     spawn: new THREE.Vector3(0, 0, FRONT - 2.25),

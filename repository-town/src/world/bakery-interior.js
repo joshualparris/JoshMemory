@@ -30,7 +30,7 @@ export function buildBakeryInterior(site, makeLabel, roomTitle = 'Bakery') {
   const mats = new Map(), geos = new Map();
   const mat = (c, o = {}) => {
     const k = c + '|' + (o.e ?? '') + '|' + (o.a ?? 1) + '|' + (o.side ?? 0);
-    if (!mats.has(k)) mats.set(k, new THREE.MeshLambertMaterial({ color: c, emissive: o.e ?? 0x000000, emissiveIntensity: o.e ? 0.55 : 0, transparent: (o.a ?? 1) < 1, opacity: o.a ?? 1, side: o.side ?? THREE.FrontSide }));
+    if (!mats.has(k)) mats.set(k, new THREE.MeshLambertMaterial({ color: c, emissive: o.e ?? 0x000000, emissiveIntensity: o.e ? 0.55 : 0, transparent: (o.a ?? 1) < 1, opacity: o.a ?? 1, depthWrite: (o.a ?? 1) >= 1, side: o.side ?? THREE.FrontSide }));
     return mats.get(k);
   };
   const geo = (k, make) => { if (!geos.has(k)) geos.set(k, make()); return geos.get(k); };
@@ -61,8 +61,17 @@ export function buildBakeryInterior(site, makeLabel, roomTitle = 'Bakery') {
   solid(W, 4.6, WALL, 0, 2.3, BACK, PLASTER);
   solid(WALL, 4.6, D, -EDGE, 2.3, -3, PLASTER);
   solid(WALL, 4.6, D, EDGE, 2.3, -3, PLASTER);
-  solid(6, 4.6, WALL, -4, 2.3, FRONT, PLASTER);
-  solid(6, 4.6, WALL, 4, 2.3, FRONT, PLASTER);
+  for (const sx of [-1, 1]) {
+    blocker(6, WALL, sx * 4, FRONT);
+    box(6, 1.4, WALL, sx * 4, 0.7, FRONT, PLASTER);
+    box(6, 1.4, WALL, sx * 4, 3.9, FRONT, PLASTER);
+    box(1.2, 1.8, WALL, sx * 6.4, 2.3, FRONT, PLASTER);
+    box(1.0, 1.8, WALL, sx * 1.5, 2.3, FRONT, PLASTER);
+    box(3.9, 0.07, WALL + 0.08, sx * 3.9, 1.4, FRONT, WOOD);
+    box(3.9, 0.07, WALL + 0.06, sx * 3.9, 3.2, FRONT, WOOD);
+    for (const wx of [sx * 2.03, sx * 3.9, sx * 5.77]) box(0.05, 1.8, WALL + 0.04, wx, 2.3, FRONT, WOOD);
+    box(3.74, 1.74, 0.03, sx * 3.9, 2.3, FRONT, GLASS, { a: 0.18, side: THREE.DoubleSide });
+  }
   box(2.4, 0.2, WALL, 0, 3.1, FRONT, 0x6f5343);
   box(2.15, 0.06, 0.6, 0, 0.02, FRONT, 0xb9b8ae);
   // White tiled dado along the side and back walls, with a wooden rail on top.
@@ -283,6 +292,7 @@ export function buildBakeryInterior(site, makeLabel, roomTitle = 'Bakery') {
   const rooms = [{ name: roomTitle, x0: -EDGE, x1: EDGE, z0: BACK, z1: FRONT, w: W, d: D, parent: -1 }];
   return {
     group, colliders, interactables, sceneObjects, placedProps, rooms,
+    windows: [{ axis: 'z', at: FRONT, c: -3.9, w: 3.8, y0: 1.4, y1: 3.2, win: true }, { axis: 'z', at: FRONT, c: 3.9, w: 3.8, y0: 1.4, y1: 3.2, win: true }],
     doors: [], dynamics: [], sight: [],
     staff: { pos: BAKERY_LAYOUT.staff, use: BAKERY_LAYOUT.staffUse },
     bounds: { x0: -EDGE, x1: EDGE, z0: BACK, z1: FRONT },

@@ -9,8 +9,8 @@ const homes = [];
 for (let r = 0; r < 7; r++) for (let c = 0; c < 26; c += 2) homes.push({ coordinate: String.fromCharCode(65 + c) + (r + 1), name: 'House', door: { x: (c - 12.5) * 26, z: r * 46 - 161 + 4 } });
 let t = new TownLife({ homes, minute: 10 * 60, seed: 5 });
 const me = t.civic.player, f = () => t.civic.finance;
-let onDuty = null;                                   // keep this workplace's staff at their posts while time runs
-const staff = (site) => { onDuty = site; for (const v of t.villagers) if (v.work === site) { v.step = { kind: 'work' }; v.path = []; } };
+let onDuty = null;                                   // keep a scheduled worker visibly travelling while time runs
+const staff = (site) => { onDuty = site; for (const v of t.villagers) if (v.work === site) { v.step = { kind: 'walk' }; v.path = [{ x: v.x + 1, z: v.z }]; } };
 const run = (m) => { for (let i = 0; i < m; i += 0.5) { if (onDuty) staff(onDuty); t.tick(0.5); } };
 const task = (k) => { if (onDuty) staff(onDuty); return t.doTask(k); };
 const total = () => me.wallet + me.bank + t.civic.treasury + f().federal + f().state + [...t.places.values()].reduce((s, p) => s + p.till, 0);
@@ -20,13 +20,19 @@ assert.match(t.startJob('nope').message, /Unknown/);
 assert.match(t.startJob('store-stocker').message, /Shift started/, 'store is open at 10:00');
 assert.match(t.startJob('bakery-assistant').message, /Finish or cancel/, 'one shift at a time');
 
-// Time does not count outside the workplace, or without staff on duty.
+// Time does not count outside the workplace, or outside a worker's scheduled shift.
 t.playerAt = null; staff('store'); run(10);
 assert.equal(t.jobsReport().active.worked, 0, 'no progress outside');
-t.playerAt = 'store'; onDuty = null; for (const v of t.villagers) if (v.work === 'store') { v.step = { kind: 'walk' }; v.path = [1]; }
-run(10); assert.equal(t.jobsReport().active.worked, 0, 'no progress with no one on duty');
-staff('store'); run(10);
-assert.ok(t.jobsReport().active.worked >= 9, 'progress inside with staff on duty');
+t.playerAt = 'store'; onDuty = null;
+const storeStaff = t.villagers.filter((v) => v.work === 'store'), savedStarts = storeStaff.map((v) => v.start);
+for (const v of storeStaff) v.start = 11 * 60;
+run(10); assert.equal(t.jobsReport().active.worked, 0, 'no progress when staff are off shift');
+assert.match(task('check-expiry').message, /no one on duty/, 'off-shift staff cannot supervise');
+storeStaff.forEach((v, i) => { v.start = savedStarts[i]; });
+staff('store');
+assert.equal(t.jobSupervisors('store').length, 1, 'scheduled staff supervise while travelling to their post');
+run(10);
+assert.ok(t.jobsReport().active.worked >= 9, 'progress inside during scheduled staff hours');
 
 // Duties: unknown, then spaced five minutes apart.
 assert.match(task('nonsense').message, /not a duty/);

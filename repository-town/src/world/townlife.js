@@ -21,6 +21,8 @@ const GOOD_GEO = {
   eggs: [new THREE.BoxGeometry(0.3, 0.09, 0.14), [0xf3ead8, 0xe8d9bf]],
   milk: [new THREE.CylinderGeometry(0.06, 0.06, 0.26, 8), [0xfafafa]],
   lamb: [new THREE.BoxGeometry(0.24, 0.09, 0.17), [0xb5414a, 0xc45a5a]],
+  wool: [new THREE.BoxGeometry(0.34, 0.22, 0.28), [0xe9e1cf, 0xf2eee4]],
+  hay: [new THREE.BoxGeometry(0.34, 0.2, 0.24), [0xc6a44b, 0xd4b65a]],
   coffee: [new THREE.BoxGeometry(0.2, 0.3, 0.12), [0x5a3a24, 0x6a4430]],
   tea: [new THREE.CylinderGeometry(0.08, 0.08, 0.18, 8), [0x2f7a5a, 0x7a2f3a, 0x2f4a7a]],
   grain: [new THREE.SphereGeometry(0.28, 8, 6), [0xc8a860, 0xbf9f55]],
@@ -230,7 +232,7 @@ const FARM_SHED = {
 };
 
 // What each farm grows in its field.
-function buildField(p, group, statics, glass) {
+function buildField(p, group, statics, glass, life) {
   const f = p.field, cx = (f.x0 + f.x1) / 2, cz = (f.z0 + f.z1) / 2, w = f.x1 - f.x0, d = f.z1 - f.z0;
   const b = statics;
   b.box(0x7a5a3a, w, 0.03, d, cx, 0.015, cz);            // tilled soil or pasture base
@@ -275,6 +277,9 @@ function buildField(p, group, statics, glass) {
     const patches = p.id === 'dairy' ? new THREE.InstancedMesh(new THREE.SphereGeometry(0.5, 6, 5), new THREE.MeshLambertMaterial({ color: 0x1d1d1d }), kind.n) : null;
     group.add(bodies, heads); if (patches) group.add(patches);
     const herd = Array.from({ length: kind.n }, (_, i) => ({ x: f.x0 + 2 + ((i * 37) % 17) / 17 * (w - 4), z: f.z0 + 2 + ((i * 53) % 13) / 13 * (d - 4), h: i, tx: 0, tz: 0, wait: i % 4 }));
+    const animalRecords = life.civic.livestock?.herds?.[p.id]?.animals;
+    const bodyColor = new THREE.Color();
+    const poorCondition = new THREE.Color(0xb85b4a);
     const m = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), v = new THREE.Vector3(), up = new THREE.Vector3(0, 1, 0);
     const place = (a, t) => {
       const bob = p.id === 'coop' && a.wait > 0 ? Math.max(0, Math.sin(t * 9 + a.h)) * 0.12 : 0;
@@ -289,6 +294,8 @@ function buildField(p, group, statics, glass) {
     dyn.update = (dt, t, near) => {
       if (!near) return;
       for (const a of herd) {
+        const animal = animalRecords?.[a.i];
+        if (animal) bodies.setColorAt(a.i, bodyColor.setHex(kind.bodyC).lerp(poorCondition, 1 - animal.health / 100));
         if (a.wait > 0) a.wait -= dt;
         else {
           const dx = a.tx - a.x, dz = a.tz - a.z, dd = Math.hypot(dx, dz);
@@ -297,7 +304,8 @@ function buildField(p, group, statics, glass) {
         }
         place(a, t);
       }
-      bodies.instanceMatrix.needsUpdate = true; heads.instanceMatrix.needsUpdate = true; if (patches) patches.instanceMatrix.needsUpdate = true;
+      bodies.instanceMatrix.needsUpdate = true; if (animalRecords) bodies.instanceColor.needsUpdate = true;
+      heads.instanceMatrix.needsUpdate = true; if (patches) patches.instanceMatrix.needsUpdate = true;
     };
   }
   return dyn;
@@ -374,9 +382,11 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   for (let x = -half - 30; x < half + 30; x += 1.4) statics.box(0x5a4030, 0.25, 0.08, 2.4, x, 0.05, RAIL_Z);
   statics.box(0x8a8478, half * 2 + 60, 0.03, 3.4, 0, 0.01, RAIL_Z);
 
+  const shopGlassMat = new THREE.MeshLambertMaterial({ vertexColors: true, emissive: 0xffc070, emissiveIntensity: 0 });
   for (const p of life.places.values()) {
-    // Every building merges into one town-life mesh (one draw call), authored in its lot's frame.
-    const b = statics;
+    // Each place builds its own mesh so its exterior shell can be hidden when the player is inside it.
+    const pb = new Builder(); pb.glass = [];
+    const b = pb;
     const kind = BUILD[p.id] ? p.id : p.kind === 'farm' ? 'farm' : p.kind === 'home' ? 'farmhouse' : p.kind === 'park' ? 'square' : p.id;
     let fp;
     // South-side civic sites face the street (−z) from across the road.
@@ -389,6 +399,9 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       sign.position.set(p.x, 3.85, FIELD_Z0 - 4.6);
       group.add(sign); labels.push(sign);
       spots.push({ key: `place:${p.id}`, id: p.id, pos: new THREE.Vector3(p.x, 0, FIELD_Z0 - 2.4), label: `${p.name} — ${{ bank: 'your account', fire: 'station board', foundry: 'the works' }[p.id] || 'the plant'}` });
+      const pMesh = pb.build(), pGlass = Builder.merge(pb.glass);
+      if (pGlass) pMesh.add(new THREE.Mesh(pGlass, shopGlassMat));
+      group.add(pMesh); colliders.push(...pb.solids); p.mesh = pMesh;
       continue;
     }
     b.at(p.x, 0, LOT8_Z, 0, () => {
@@ -397,6 +410,10 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     });
     if (fp) colliders.push({ x0: p.x - fp.w / 2, x1: p.x + fp.w / 2, z0: LOT8_Z + (fp.front ?? 7) - fp.d, z1: LOT8_Z + (fp.front ?? 7) });
     if (kind === 'square') colliders.push({ x0: p.x - 2.7, x1: p.x + 2.7, z0: LOT8_Z - 6.7, z1: LOT8_Z - 1.3 });
+    if (p.kind === 'farm' && p.makes !== 'grain') for (const x of [-6.2, -5.2, -4.2]) crate(pb, p.x + x, LOT8_Z + 8.4, 0.95, 1.0);
+    const pMesh = pb.build(), pGlass = Builder.merge(pb.glass);
+    if (pGlass) pMesh.add(new THREE.Mesh(pGlass, shopGlassMat));
+    group.add(pMesh); colliders.push(...pb.solids); p.mesh = pMesh;
     // Name board over the door.
     // Place signs forward of awnings, pillars and the Town Hall portico,
     // rather than embedding the billboard behind the roof or facade.
@@ -407,9 +424,9 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     // The place's counter: stand on the footpath in front and press E.
     spots.push({ key: `place:${p.id}`, id: p.id, pos: new THREE.Vector3(p.x, 0, LOT8_Z + 10.4), label: p.kind === 'farm' ? `${p.name} — see how it's farmed` : p.kind === 'park' ? 'Market Square notice board' : p.id === 'hall' ? 'Town Hall — the Town Ledger' : `${p.name} — ${p.kind === 'shop' || p.kind === 'cafe' || p.kind === 'pub' ? 'see what\'s on the shelves' : 'look inside'}` });
     // Field across the road.
-    if (p.field) fields.push({ p, ...buildField(p, group, statics, statics.glass) });
+    if (p.field) fields.push({ p, ...buildField(p, group, statics, statics.glass, life) });
     // Goods on display, following the stock.
-    const add = (good, slots, read, full) => displays.push(display(group, good, slots.map((s) => ({ ...s, x: s.x + p.x, z: s.z + LOT8_Z })), read, full));
+    const add = (good, slots, read, full) => displays.push(display(pMesh, good, slots.map((s) => ({ ...s, x: s.x + p.x, z: s.z + LOT8_Z })), read, full));
     const st = (g) => () => p.stock[g], out = (g) => () => p.out[g];
     if (p.id === 'store') { add('eggs', grid(-4.8, 0.91, 8.6, 1.1, 0.7, 3, 3, 2), st('eggs'), 20); add('milk', grid(-3.6, 0.99, 8.6, 1.1, 0.7, 3, 3), st('milk'), 20); add('bread', grid(4.2, 0.95, 8.6, 2.2, 0.7, 5, 2), st('bread'), 10); add('flour', grid(-6.2, 0.18, 9.3, 0.6, 1.2, 1, 3, 2, 0.32), st('flour'), 10); add('coffee', grid(3.5, 1.25, 6.6, 2, 0.1, 6, 1), st('coffee'), 10); add('tea', grid(-3.5, 1.15, 6.6, 2, 0.1, 6, 1), st('tea'), 10); }
     if (p.id === 'bakery') { add('bread', grid(-3.6, 0.95, 8.6, 2.2, 0.7, 5, 3, 2, 0.16), out('bread'), 30); add('pie', grid(3.6, 0.9, 8.6, 2.2, 0.7, 5, 2), out('pie'), 12); add('flour', grid(-5.4, 0.18, 6.3, 0.1, 0.1, 1, 1).concat(grid(-5.4, 0.18, 5.6, 0.6, 1.2, 1, 3, 2, 0.32)), st('flour'), 12); }
@@ -420,7 +437,6 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     if (p.id === 'mill') { add('grain', grid(-4.6, 0.2, 5.6, 1.2, 1.6, 2, 3, 2, 0.32), st('grain'), 20); add('flour', grid(4.6, 0.2, 7.6, 2.4, 0.8, 4, 2, 2, 0.32), out('flour'), 20); }
     if (p.id === 'depot') { add('coffee', grid(-6, 1.05, RAIL_Z - LOT8_Z + 3.6, 1.6, 1, 4, 2, 2, 0.3), out('coffee'), 20); add('tea', grid(-3.6, 1.0, RAIL_Z - LOT8_Z + 3.6, 1.4, 1, 4, 2, 2, 0.18), out('tea'), 16); add('parcel', grid(5.5, 1.03, RAIL_Z - LOT8_Z + 3.6, 1.8, 1.2, 3, 2, 3, 0.27), out('parcel'), 18); }
     if (p.kind === 'farm') add(p.makes, grid(-5.2, p.makes === 'grain' ? 0.2 : 0.32, 8.4, 2.6, 1.0, 4, 2, 3, p.makes === 'grain' ? 0.32 : 0.14).map((s) => ({ ...s })), out(p.makes), 30);
-    if (p.kind === 'farm' && p.makes !== 'grain') for (const x of [-6.2, -5.2, -4.2]) crate(statics, p.x + x, LOT8_Z + 8.4, 0.95, 1.0);
   }
   // Dedicated rail-depot delivery-vehicle parking: the three buses/trucks
   // have marked off-road bays (not parked in the 30 km/h traffic lanes).
@@ -436,13 +452,12 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   group.add(statics.build());
   colliders.push(...statics.solids);
   const shopGlass = Builder.merge(statics.glass);
-  const shopGlassMat = new THREE.MeshLambertMaterial({ vertexColors: true, emissive: 0xffc070, emissiveIntensity: 0 });
   if (shopGlass) group.add(new THREE.Mesh(shopGlass, shopGlassMat));
 
   // Windmill sails turn while the miller works.
   const mill = life.place('mill');
   const sb = new Builder(); for (let i = 0; i < 4; i++) sb.add('box', 0xe8e0d0, 0.9, 5, 0.08, Math.sin(i * Math.PI / 2) * 2.6, Math.cos(i * Math.PI / 2) * 2.6, 0, 0, 0, -i * Math.PI / 2);
-  const sails = sb.build(); sails.position.set(mill.x, 9.5, LOT8_Z + 4.2); group.add(sails);
+  const sails = sb.build(); sails.position.set(mill.x, 9.5, LOT8_Z + 4.2); (mill.mesh || group).add(sails);
   // The tractor works the wheat paddock when a farmer is at work there.
   const silo = life.place('silo');
   const tb = new Builder(); tb.block(0x3a8a3a, 1.6, 1.0, 2.6, 0, 0.6, 0); tb.block(0x3a8a3a, 1.2, 1.2, 1.2, 0, 1.6, -0.5); tb.box(GLASS, 1.0, 0.8, 1.0, 0, 2.2, -0.5);
@@ -486,7 +501,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   const clockCanvas = document.createElement('canvas'); clockCanvas.width = 128; clockCanvas.height = 128;
   const clockTex = new THREE.CanvasTexture(clockCanvas); clockTex.colorSpace = THREE.SRGBColorSpace;
   const clockFace = new THREE.Mesh(new THREE.CircleGeometry(1.4, 24), new THREE.MeshBasicMaterial({ map: clockTex }));
-  clockFace.position.set(hall.x, 11.6, LOT8_Z + 3.02); group.add(clockFace);
+  clockFace.position.set(hall.x, 11.6, LOT8_Z + 3.02); (hall.mesh || group).add(clockFace);
   let clockMinute = -1;
   function drawClock(minute) {
     const c = clockCanvas.getContext('2d'); c.clearRect(0, 0, 128, 128);
@@ -502,7 +517,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   const events = [];   // sounds for the ambience: { kind: 'bell'|'horn', n?, x, z }
   let lastHour = Math.floor(life.minute / 60), hornDone = -1;
   let currentConversation=null,conversationElapsed=0;
-  function update(dt, t, { player, mode, overview, camera, talkingTo }) {
+  function update(dt, t, { player, mode, overview, camera, talkingTo, inside }) {
     const inTown = mode === 'town';
     life.obstacles = inTown ? [player.pos] : [];
     // Proximity alone is NOT consent to an endless conversation. Only the
@@ -524,19 +539,19 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     if (hour !== lastHour) { lastHour = hour; if (hour >= 7 && hour <= 21) events.push({ kind: 'bell', n: hour % 12 || 12, x: hall.x, z: LOT8_Z }); }
     if (m >= 405 && m < 410 && hornDone !== life.day) { hornDone = life.day; events.push({ kind: 'horn', x: trainX(m, depot.x) ?? depot.x, z: RAIL_Z }); }
 
-    // Sky and lights follow the clock everywhere; indoors only the town's state changes.
+    // Sky and lights follow the clock everywhere; windows indoors look out onto the live town sky.
     const day = life.daylight(), dark = THREE.MathUtils.clamp((0.55 - day) / 0.45, 0, 1);
     const dusk = day > 0 && day < 0.6 ? Math.sin((day / 0.6) * Math.PI) * 0.55 : 0;
     bg.copy(NIGHT_SKY).lerp(DAY_SKY, day).lerp(DUSK, dusk);
     const weather = life.civic.weather, overcast = weather === 'rainy' ? 0.55 : weather === 'cloudy' ? 0.3 : 0;
     if (overcast) bg.lerp(GREY.clone().multiplyScalar(0.3 + 0.7 * day), overcast);
-    if (inTown && !overview) { scene.background.copy(bg); fog.color.copy(bg); }
-    else if (inTown) scene.background.copy(bg);
+    if (!overview) { scene.background.copy(bg); fog.color.copy(bg); }
+    else scene.background.copy(bg);
     hemi.intensity = (0.5 + 1.6 * day) * (1 - overcast * 0.35); hemi.color.copy(hemiNight).lerp(hemiDay, day);
     const a = ((m / 60 - 6) / 24) * Math.PI * 2;      // sun rises in the east (+x) at 6:00
     sun.position.set(Math.cos(a) * 130, Math.max(8, Math.sin(a) * 140), 50); sun.intensity = 2.0 * day;
     sun.color.setHex(dusk > 0.25 ? 0xffb070 : 0xffe7bf);
-    stars.visible = moon.visible = inTown && dark > 0.2 && !overcast;
+    stars.visible = moon.visible = dark > 0.2 && !overcast;
     rain.visible = inTown && !overview && weather === 'rainy';
     if (rain.visible) {
       rain.position.set(camera.position.x, 0, camera.position.z);
@@ -551,18 +566,26 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     const anyOpenLate = dark > 0.2;
     shopGlassMat.emissiveIntensity = anyOpenLate && powered ? dark * 0.9 : 0;
     lightMat.emissiveIntensity = dark > 0.3 ? 1.4 : 0;  // vehicle headlights run on their own batteries
-    if (!inTown) return;
 
-    // Moving things are only updated near the player; far ones are hidden by fog anyway.
-    const near = (x, z, r) => Math.abs(x - player.pos.x) < r && Math.abs(z - player.pos.z) < r;
+    // Moving things are updated around the player's town-space position so they remain visible through windows.
+    const cos = Math.cos(town.group.rotation.y), sin = Math.sin(town.group.rotation.y);
+    const rdx = player.pos.x - town.group.position.x, rdz = player.pos.z - town.group.position.z;
+    const px = rdx * cos - rdz * sin, pz = rdx * sin + rdz * cos;
+    const near = (x, z, r) => Math.abs(x - px) < r && Math.abs(z - pz) < r;
+    const inActiveFootprint = (x, z) => {
+      if (inTown || !inside?.bounds) return false;
+      const ix = x * cos + z * sin + town.group.position.x;
+      const iz = -x * sin + z * cos + town.group.position.z;
+      return ix > inside.bounds.x0 - 0.6 && ix < inside.bounds.x1 + 0.6 && iz > inside.bounds.z0 - 0.6 && iz < inside.bounds.z1 + 0.6;
+    };
     for (const p of people) {
       const v = p.v, moved = Math.hypot(v.x - p.last.x, v.z - p.last.z);
       p.last.x = v.x; p.last.z = v.z; p.pos.set(v.x, 0, v.z);
-      const show = !v.inside && !overview && near(v.x, v.z, 95);
+      const show = !v.inside && !overview && near(v.x, v.z, 95) && !inActiveFootprint(v.x, v.z);
       p.fig.group.visible = show;
       if (!show) continue;
       const moving = moved > 0.0005 && !v.engaged;
-      if (v.engaged) { const want = Math.atan2(player.pos.x - v.x, player.pos.z - v.z); p.heading += angleDiff(want, p.heading) * Math.min(1, dt * 4); }
+      if (v.engaged) { const want = Math.atan2(px - v.x, pz - v.z); p.heading += angleDiff(want, p.heading) * Math.min(1, dt * 4); }
       else if (moving) p.heading += angleDiff(v.heading ?? p.heading, p.heading) * Math.min(1, dt * 8);
       p.bike.visible = !!v.bike && !v.engaged && v.path.length > 0;
       p.bag.visible = !!v.carrying && !p.bike.visible;
@@ -579,11 +602,11 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       // another 32cm made the bikes hover visibly above the street.
       p.fig.group.position.set(v.x, riding ? 0 : moving ? Math.abs(Math.sin(t * 7 + p.fig.phase)) * 0.04 : 0, v.z);
       p.fig.group.rotation.y = p.heading;
-      const dist = Math.hypot(v.x - player.pos.x, v.z - player.pos.z);
+      const dist = Math.hypot(v.x - px, v.z - pz);
       p.tag.visible = dist > 3 && !p.bubble;
       // A passing hello: a speech bubble for a few seconds, then quiet for a while.
       if (p.bubble && (p.bubbleT -= dt) <= 0) { p.fig.group.remove(p.bubble); p.bubble.material.map.dispose(); p.bubble.material.dispose(); p.bubble = null; }
-      if (!p.bubble && dist < 7 && dist > 2.8 && t > (p.quietUntil || 0)) {
+      if (!p.bubble && inTown && dist < 7 && dist > 2.8 && t > (p.quietUntil || 0)) {
         p.bubble = makeLabel(`💬 ${greeting(v, m)}`, 'prop'); p.bubble.position.set(0, 2.35, 0); p.fig.group.add(p.bubble);
         p.bubbleT = 3.5; p.quietUntil = t + 40 + Math.random() * 40;
       }

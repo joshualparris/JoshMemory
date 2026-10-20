@@ -190,6 +190,41 @@ async function start() {
   // Walking through a door keeps the way the player is facing, so backing in or out of a building does
   // not spin the view. Interiors share the town's orientation, except south-side shops whose door faces -z.
   const doorTurn = (site) => (site && site.side === 'south' ? Math.PI : 0);
+  function interiorToTown(x, z) {
+    if (!inside) return { x, z };
+    const ex = inside.exitZone ? (inside.exitZone.x0 + inside.exitZone.x1) / 2 : 0;
+    const ez = inside.rooms?.[0]?.z1 ?? 0;
+    if (inside.place) {
+      const c = Math.cos(doorTurn(inside.place));
+      return { x: inside.place.x + (x - ex) * c, z: inside.place.door.z + (z - ez) * c };
+    }
+    const l = town.lots.get(inside.house.coordinate);
+    return l ? { x: l.doorPos.x + (x - ex), z: l.doorPos.z + (z - ez) } : { x, z };
+  }
+  function syncOutdoorView() {
+    if (mode !== 'house' || !inside) {
+      town.group.position.set(0, 0, 0);
+      town.group.rotation.y = 0;
+      town.group.visible = true;
+      for (const p of life.places.values()) if (p.mesh) p.mesh.visible = true;
+      for (const s of houseLabels.values()) s.visible = true;
+      return;
+    }
+    const ex = inside.exitZone ? (inside.exitZone.x0 + inside.exitZone.x1) / 2 : 0;
+    const ez = inside.rooms?.[0]?.z1 ?? 0;
+    for (const p of life.places.values()) if (p.mesh) p.mesh.visible = p !== inside.place;
+    if (inside.place) {
+      const rot = -doorTurn(inside.place), c = Math.cos(rot);
+      town.group.rotation.y = rot;
+      town.group.position.set(ex - inside.place.x * c, -0.09, ez - inside.place.door.z * c);
+    } else {
+      const l = town.lots.get(inside.house.coordinate);
+      town.group.rotation.y = 0;
+      if (l) town.group.position.set(ex - l.doorPos.x, -0.09, ez - l.doorPos.z);
+    }
+    town.group.visible = true;
+    scene.fog = fog;
+  }
   function enter(coord, keepFacing = false) {
     const yawIn = player.yaw;
     const h = byCoord.get(coord);
@@ -197,8 +232,6 @@ async function start() {
     const built = floors ? floors.levels[0] : buildInterior(h, makeLabel);
     inside = { house: h, ...built, floorIndex:0, floors };
     scene.add(built.group);
-    town.group.visible = false;
-    scene.background.set(INDOOR); scene.fog = null;
     world = new CollisionWorld(built.colliders);
     // Residents move between rooms, and cook in the kitchen (if the house has one) at mealtimes;
     // the interactable shares their position and tracks the room they are in.
@@ -223,6 +256,7 @@ async function start() {
     player.baseHeight = 0;
     updateFloorBadge();
     mode = 'house';
+    syncOutdoorView();
     $('btn-exit').hidden = false;
     visited.add(coord);
     expedition.noteVisit(coord);
@@ -242,11 +276,10 @@ async function start() {
     const brief={coordinate:site.col+'8',name:site.name,kind:site.kind,
       street:'High Street',summary:'Explore the shop interior and speak to staff.'};
     inside={house:brief,place:site,...built,people:staff};
-    scene.add(built.group);town.group.visible=false;
-    scene.background.set(INDOOR);scene.fog=null;
+    scene.add(built.group);
     world=new CollisionWorld(built.colliders);
     player.place(built.spawn.x,built.spawn.z,keepFacing ? yawIn - doorTurn(site) : 0);
-    mode='house';$('btn-exit').hidden=false;
+    mode='house';syncOutdoorView();$('btn-exit').hidden=false;
     closePanel();npcChat.close();ambience.door();
     $('card').hidden=true;delete $('card').dataset.coord;
     status('Inside '+site.name+'. Walk to the counter or back through the entrance to leave.');
@@ -265,13 +298,13 @@ async function start() {
     inside = null; mode = 'town'; world = townWorld;
     player.baseHeight = 0; updateFloorBadge();
     $('btn-exit').hidden = true;
-    town.group.visible = true; scene.background.set(SKY); scene.fog = fog;
+    syncOutdoorView(); scene.background.set(SKY); scene.fog = fog;
     if (placeOutside) {
       if (shop) {
         const pose = civicExitPose(shop, [...townWorld.all, ...townWorld.dynamic()], player.radius+0.08);
         if (pose) player.place(pose.x,pose.z,keepFacing ? yawInside + doorTurn(shop) : pose.yaw);
         else spawn(); // use safe Town Guide location instead of clipping into a wall
-      } else { const l=town.lots.get(coord);player.place(l.doorPos.x,l.doorPos.z+4,Math.PI);if(keepFacing)player.yaw=yawInside; }
+      } else { const l=town.lots.get(coord);player.place(l.doorPos.x, l.doorPos.z + 4, keepFacing ? yawInside : Math.PI); }
     }
     // Close the door behind the player so the doorway does not re-trigger.
     const d = town.doors.find((d) => d.userData.coordinate === coord); if (d) d.userData.open = 0;
@@ -285,7 +318,7 @@ async function start() {
     if (on) input.releaseMouse();
     overview = on && mode === 'town';
     $('btn-map').setAttribute('aria-pressed', String(overview));
-    scene.fog = overview || mode === 'house' ? null : fog;
+    scene.fog = overview ? null : fog;
     camera.far = overview ? 600 : (lowPerf ? 130 : 185); camera.updateProjectionMatrix();
     if (overview) {
       for (const l of town.lots.values()) if (l.mesh) l.mesh.visible = true;
@@ -610,7 +643,7 @@ async function start() {
     life.externalPedestrians=mode==='town'
       ?streetNPCs.filter(n=>n.mode==='town').map(n=>({x:n.pos.x,z:n.pos.z,radius:.66}))
       :[];
-    townLife.update(dt, t, { player, mode, overview, camera, talkingTo });
+    townLife.update(dt, t, { player, mode, overview, camera, talkingTo, inside });
     const n=life.needsReport();
     const needsText=`🍽 ${Math.round(n.hunger)}% · 💤 ${Math.round(n.fatigue)}%`;
     if($('needs-status').textContent!==needsText)$('needs-status').textContent=needsText;
@@ -727,6 +760,31 @@ async function start() {
       else if (nearHouse) $('prompt').textContent = `${nearHouse.house.coordinate} · ${nearHouse.house.name} — walk through the door to enter`;
       if (input.consume('use')) use();
     } else {
+      // Keep the surrounding street visible through the windows while hiding the active building's exterior shell.
+      const tp = interiorToTown(player.pos.x, player.pos.z);
+      const b0 = inside.bounds ? interiorToTown(inside.bounds.x0, inside.bounds.z0) : tp;
+      const b1 = inside.bounds ? interiorToTown(inside.bounds.x1, inside.bounds.z1) : tp;
+      const tx0 = Math.min(b0.x, b1.x), tx1 = Math.max(b0.x, b1.x), tz0 = Math.min(b0.z, b1.z), tz1 = Math.max(b0.z, b1.z);
+      const houseCull = lowPerf ? 115 : 175, npcCull = lowPerf ? 48 : 65;
+      for (const l of town.lots.values()) {
+        const isSelf = !inside.place && l.house.coordinate === inside.house.coordinate;
+        const overlaps = l.lot.x + l.lot.w / 2 > tx0 + 0.5 && l.lot.x - l.lot.w / 2 < tx1 - 0.5 && l.lot.z + l.lot.d / 2 > tz0 + 0.5 && l.lot.z - l.lot.d / 2 < tz1 - 0.5;
+        const d = Math.hypot(l.doorPos.x - tp.x, l.doorPos.z - tp.z);
+        if (l.mesh) l.mesh.visible = !isSelf && !overlaps && d < houseCull;
+      }
+      for (const d of town.doors) {
+        const isSelf = !inside.place && d.userData.coordinate === inside.house.coordinate;
+        const overlaps = d.userData.centre.x > tx0 - 0.5 && d.userData.centre.x < tx1 + 0.5 && d.userData.centre.z > tz0 - 0.5 && d.userData.centre.z < tz1 + 0.5;
+        const dist = Math.hypot(d.userData.centre.x - tp.x, d.userData.centre.z - tp.z);
+        d.visible = !isSelf && !overlaps && dist < (lowPerf ? 65 : 110);
+      }
+      for (const [c, s] of houseLabels) {
+        s.visible = (!inside.place ? c !== inside.house.coordinate : true) && !(s.position.x > tx0 - 1 && s.position.x < tx1 + 1 && s.position.z > tz0 - 1 && s.position.z < tz1 + 4);
+      }
+      animateNPCs(streetNPCs, t, new THREE.Vector3(tp.x, 0, tp.z), dt, null, townWorld, npcCull);
+      for (const n of streetNPCs) {
+        if (n.pos.x > tx0 - 0.6 && n.pos.x < tx1 + 0.6 && n.pos.z > tz0 - 0.6 && n.pos.z < tz1 + 0.6) n.group.visible = false;
+      }
       // Inside doors swing open for the player and for residents walking through them.
       for (const d of inside.doors) {
         const dist = Math.hypot(d.userData.centre.x - player.pos.x, d.userData.centre.z - player.pos.z);
@@ -771,7 +829,7 @@ async function start() {
     travel,
     state: () => ({
       mode, coordinate: inside?.house.coordinate || null, floor: inside?.floorIndex || 0, floors: inside?.floors?.levels.length || 1, pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, eye: player.eye, y: player.y, fps,
-      rooms: inside?.rooms.length || 0, props: inside?.placedProps.length || 0,
+      rooms: inside?.rooms.length || 0, props: inside?.placedProps.length || 0, windows: inside?.windows?.length || 0,
       interactables: inside ? inside.interactables.map((x) => ({ key: x.key, label: x.label, title: x.act.title || x.label, do: x.act.do, nav: x.floorNav || null, room: x.roomName })) : [],
       near: nearThing?.key || null, nearNPC: nearNPC?.npc.id || null, nearHouse: nearHouse?.house.coordinate || null,
       panel: panelOpen ? { title: $('panel-title').textContent, text: $('panel-body').textContent, links: [...$('panel-actions').querySelectorAll('a')].map((a) => a.href), buttons: [...$('panel-actions').querySelectorAll('button')].map((b) => b.textContent) } : null,

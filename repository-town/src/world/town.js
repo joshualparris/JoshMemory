@@ -68,15 +68,16 @@ export function buildTown(scene, houses, streets) {
 
   // One mesh per house: frustum culling then skips houses behind or beyond the fog.
   const lots = new Map();
-  // Window glass goes into three town-wide meshes: households that go to bed early,
+  // Window glass uses three shared materials: households that go to bed early,
   // late, and the night owls, so lights go out across town in stages (setNight).
-  const panes = [[], [], []];
+  const windowMats = [0, 1, 2].map(() => new THREE.MeshLambertMaterial({ vertexColors: true, emissive: 0xffb45a, emissiveIntensity: 0 }));
   for (const [n, h] of houses.entries()) {
     const lot = lotPosition(h.coordinate);
     const hb = new Builder(); hb.glass = [];
     const fp = buildExterior(hb, h.ext, h.ext);
-    for (const g of hb.glass) { g.translate(lot.x, 0, lot.z); panes[(n * 7) % 10 < 5 ? 0 : (n * 7) % 10 < 9 ? 1 : 2].push(g); }
     const mesh = hb.build();
+    const glassGeo = Builder.merge(hb.glass);
+    if (glassGeo) mesh.add(new THREE.Mesh(glassGeo, windowMats[(n * 7) % 10 < 5 ? 0 : (n * 7) % 10 < 9 ? 1 : 2]));
     mesh.position.set(lot.x, 0, lot.z);
     group.add(mesh);
     // A single solid rectangular footprint blocked every visible front door.
@@ -102,9 +103,6 @@ export function buildTown(scene, houses, streets) {
   const doorZones = [...lots.values()].map(({ house, doorPos, fp }) => ({
     coordinate: house.coordinate, x0: doorPos.x - fp.door.w / 2 + 0.15, x1: doorPos.x + fp.door.w / 2 - 0.15, z0: doorPos.z - 0.1, z1: doorPos.z + 0.6,
   }));
-
-  const windowMats = panes.map(() => new THREE.MeshLambertMaterial({ vertexColors: true, emissive: 0xffb45a, emissiveIntensity: 0 }));
-  panes.forEach((p, i) => { const g = Builder.merge(p); if (g) group.add(new THREE.Mesh(g, windowMats[i])); });
   // dark: 0 by day … 1 at night. minute: town clock, for bedtimes and early risers.
   function setNight(dark, minute) {
     const h = minute / 60;

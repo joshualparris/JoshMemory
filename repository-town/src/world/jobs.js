@@ -36,7 +36,8 @@ export function receipt(life, type, text, amount) {
   if (type === 'purchase') j.spent = Math.round((j.spent + Math.abs(amount)) * 100) / 100;
 }
 
-export const supervisors = (life, site) => life.villagers.filter((v) => v.work === site && v.step?.kind === 'work' && !v.path?.length);
+export const supervisors = (life, site) => life.villagers.filter((v) =>
+  v.work === site && life.minute >= v.start && life.minute < v.end && life.open(life.place(site)));
 export function current(life) { const a = jobs(life).active; return a && a.day === life.day ? a : null; }
 const doneToday = (life) => (jobs(life).done[life.day] || []);
 
