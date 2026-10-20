@@ -295,8 +295,9 @@ export class TownLife {
     // All walkers, shop visitors and on-duty staff retain physical space.
     // Stationary conversations count too; no more two models in one body.
     separatePedestrians(this.villagers.filter(v=>!v.inside).map(v=>({
-      id:v.id,pos:v,radius:v.bike&&v.path.length?1.16:.59
-    })),{gap:1.24,passes:4});
+      id:v.id,pos:v,radius:v.bike&&v.path.length?1.16:.59,
+      fixed:!!v.engaged
+    })),{world:this.pedestrianWorld||null,gap:1.24,passes:6});
     updatePublicForum(this);
     advanceCivicWork(this, minutes);
     if (hourly && Math.floor(this.minute / 60) === 10 && this.day >= this.civic.government.meetingDay) councilMeeting(this);
@@ -908,17 +909,23 @@ export class TownLife {
   }
 
   goThen(v, target, step) {
-    // Reserve an actual pavement space for each visitor instead of sending
-    // every shopping errand to the exact same point at the store entrance.
-    if (['buy','snack','eatout'].includes(step.kind) ||
-        (step.kind === 'idle' && ['pub','square'].includes(step.at))) {
+    // Give shoppers and workers distinct, sheltered waiting/arrival spaces.
+    // A short queue belongs on the shop-side footpath, NOT through the door,
+    // inside the adjoining storefront or in the carriageway.
+    const site=this.places.get(step.at);
+    const atFront=site&&Math.hypot(target.x-site.front.x,target.z-site.front.z)<4.5;
+    const reserves=atFront&&(['buy','snack','eatout'].includes(step.kind)||
+      (step.kind==='work'&&site.kind!=='farm'&&v.job!=='truck driver')||
+      (step.kind==='idle'&&['pub','square'].includes(step.at)));
+    if(reserves){
       const active=new Set(this.villagers.filter(o=>o!==v &&
         o.step?.at===step.at && o.step?.queueSlot!==undefined &&
-        (o.path?.length || o.step?.dur>0)).map(o=>o.step.queueSlot));
+        (o.path?.length || o.step?.dur>0 || o.step?.until!==undefined)).map(o=>o.step.queueSlot));
       let slot=0;while(active.has(slot)&&slot<64)slot++;
-      const row=Math.floor(slot/11),col=slot%11;
-      const offset=col===0?0:(col%2?1:-1)*Math.ceil(col/2)*2.1;
-      target={x:target.x+offset,z:target.z+Math.min(row,1)*1.85};
+      const row=Math.min(1,Math.floor(slot/7)),col=slot%7;
+      const offset=col===0?0:(col%2?1:-1)*Math.ceil(col/2)*1.6;
+      const towardRoad=site.side==='south'?-1:1;
+      target={x:site.front.x+offset,z:site.front.z+row*1.6*towardRoad};
       step={...step,queueSlot:slot};
     }
     v.step = { ...step, target };
@@ -1004,7 +1011,15 @@ export class TownLife {
   arrive(v) {
     const s = v.step; if (!s) return;
     v.activity = s.activity;
-    v.inside = s.at === 'home';
+    // People actually ENTER shops to work, eat and buy things. Previously
+    // everyone remained outdoors for their entire shift or café visit, causing
+    // a permanent overlapping crowd in front of the Bakery and General Store.
+    // Indoor shop staff already have their corresponding real-NPC counter model.
+    const place=this.places.get(s.at);
+    const indoorWork=s.kind==='work'&&place&&!['farm','depot','park','home'].includes(place.kind);
+    const indoorVisit=['buy','snack','eatout'].includes(s.kind)&&place&&
+      ['shop','cafe','pub'].includes(place.kind);
+    v.inside=s.at==='home'||!!indoorWork||!!indoorVisit;
     if (s.kind === 'snack') this.snack(v, s.at, s.good);
     if (s.kind === 'eatout' || s.kind === 'buy' || s.kind === 'parcel') {
       // These happen on arrival; the step's duration is the time spent there.
