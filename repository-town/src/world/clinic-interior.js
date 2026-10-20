@@ -44,6 +44,8 @@ export function buildClinicInterior(site, makeLabel, roomTitle = 'Health clinic'
   // kids' corner
   box(2.0, 0.03, 1.8, -5.6, 0.03, 4.0, 0xe8c840); for (const [x, z, c] of [[-6.2, 3.6, 0xc43c32], [-5.8, 4.5, 0x3a78c8], [-5.2, 3.8, 0x5f9a54]]) { box(0.3, 0.3, 0.3, x, 0.2, z, c); } cyl(0.25, 0.25, 0.04, -5.2, 0.5, 4.5, 0xe8e8e8, {}, 12);
   solid(0.4, 1.6, 0.7, 6.45, 0.8, 4.6, 0xe8ecec); box(0.3, 0.3, 0.02, 6.25, 1.2, 4.6, 0xcfe8ee, { a: 0.5 }); text('Hand sanitiser · Masks', 6.2, 1.9, 4.6);
+  for (const [z, f] of [[-3.5, 'pictureframe_large_A'], [-1.0, 'pictureframe_medium'], [1.2, 'pictureframe_small_C']]) model(f, -EDGE + 0.1, z, Math.PI / 2, { h: 0.7 }, 1.65);
+  model('cactus_small_A', -6.3, 5.4, 0, { w: 0.4, d: 0.4, h: 0.5 });
   box(2.0, 1.3, 0.06, -6.9, 2.2, 3.0, 0xe9e4d4); text('Flu clinic · Immunisations · Mental health', -6.8, 2.2, 3.1);
   cyl(0.3, 0.3, 0.05, -2.2, 0.03, 4.0, 0x5aa8a0, {}, 16); box(0.5, 0.05, 0.5, -2.2, 0.9, 4.0, STEEL); box(0.04, 0.9, 0.04, -2.2, 0.45, 4.0, STEEL);  // scales
 

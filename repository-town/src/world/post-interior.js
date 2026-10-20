@@ -9,7 +9,7 @@ export const POST_LAYOUT = Object.freeze({ counterZ: -5.5, staff: { x: 0.8, z: -
 
 export function buildPostInterior(site, makeLabel, roomTitle = 'Post office') {
   const k = createKit(site, makeLabel, roomTitle);
-  const { THREE, group, box, cyl, ball, solid, text, add } = k;
+  const { THREE, group, box, cyl, ball, solid, text, add, model } = k;
   const { W, BACK, EDGE } = ROOM;
   const CZ = POST_LAYOUT.counterZ;
   group.add(new THREE.HemisphereLight(0xffffff, 0x77695a, 2.0));
@@ -48,6 +48,7 @@ export function buildPostInterior(site, makeLabel, roomTitle = 'Post office') {
   cyl(0.1, 0.1, 0.06, 4.4, 1.0, -0.4, 0xc8a070, {}, 14); for (let i = 0; i < 4; i++) box(0.3, 0.02, 0.22, 5.2 + (i % 2) * 0.4, 0.97 + Math.floor(i / 2) * 0.03, -0.35, [CREAM, 0xe8d8b0][i % 2]);
   for (const [x, y] of [[4.0, 0.6], [4.0, 0.2]]) box(0.5, 0.35, 0.3, x, y + 0.1, -0.4 - 0.2, 0x3a3f44, { e: 0x000000 });
   solid(0.4, 1.6, 1.2, 6.45, 0.8, 2.8, 0x7a5a3a); for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) box(0.08, 0.2, 0.18, 6.22, 0.5 + i * 0.35, 2.4 + j * 0.28, [RED, BLUE, 0xe8c040, 0x5f9a54][(i + j) % 4]);
+  model('pictureframe_large_A', -2.0, 5.78, Math.PI, { h: 0.8 }, 2.0);
   box(2.4, 1.2, 0.06, 3.0, 2.4, 5.8, 0xc8a878); text('Postal rates · Lodge by 4pm', 3.0, 2.4, 5.7);
 
   add('counter', 'Postal counter', 'civic-ledger', 'Post a parcel, pay a bill or open the Town Ledger. Parcels are collected from doorsteps at seven each evening.', POST_LAYOUT.staffUse.x, POST_LAYOUT.staffUse.z);
