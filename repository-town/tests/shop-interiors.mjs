@@ -48,6 +48,14 @@ for(const id of CIVIC_INTERIOR_IDS){
       ['pumper','exhaust','hazmat','hose','rating','ppc','washer','decon','basets','fill','test','printer','radio','pagers','map','board','kitchen','training','honour']);
     continue;
   }
+  if(id==='waterworks'){
+    assert(room.waterworksLayout,'Water Works has its own treatment-plant interior');
+    assert.equal(room.rooms.length,5,'all treatment zones are represented');
+    assert.equal(room.interactables.length,12,'Water Works has 12 inspection points');
+    assert(room.staff && room.staff.pos.z < room.staff.use.z,'operator behind SCADA console');
+    room.group.traverse(o=>{o.geometry?.dispose();o.material?.dispose?.();});
+    continue;
+  }
   if(id==='power'){
     // Remote-town hybrid diesel-solar-battery station: control room, switchroom, battery room, engine hall.
     walkable(['Control room','Switchroom','Corridor','Battery and inverter room','Engine hall'],
