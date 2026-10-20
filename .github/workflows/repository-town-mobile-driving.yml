@@ -1,5 +1,14 @@
 name: Repository Town Mobile Driving
 on:
+  push:
+    branches:
+      - main
+      - feat/driving-leases-nsw-property-20261020
+    paths:
+      - 'repository-town/src/world/player-driving.js'
+      - 'repository-town/src/world/vehicles.js'
+      - 'repository-town/tests/mobile-driving.mjs'
+      - '.github/workflows/repository-town-mobile-driving.yml'
   pull_request:
     paths:
       - 'repository-town/src/**'
