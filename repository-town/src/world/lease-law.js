@@ -7,7 +7,7 @@ export function ensureTenancies(life){
  const s=life.civic.property;
  if(!s.tenancies)s.tenancies={};
  for(const p of Object.values(s.parcels)){
-  if(s.tenancies[p.id]||!p.tenant||p.protected)continue;
+  if(s.tenancies[p.id]||!p.tenant||p.protected||p.owner==='resident:'+p.tenant)continue;
   const commercial=['commercial','farm'].includes(p.kind);
   s.tenancies[p.id]={id:p.id,kind:commercial?'commercial':'residential',landlord:p.owner,
     tenant:p.tenant,rent:p.rent,term:commercial?112:56,start:life.day,
@@ -35,7 +35,7 @@ function recipient(life,owner,n){
 export function commercialRentDay(life){
  const leases=ensureTenancies(life);
  for(const l of Object.values(leases)){
-  if(l.status!=='active'||l.kind!=='commercial')continue;
+  if(!['active','holding-over'].includes(l.status)||l.kind!=='commercial')continue;
   // Lease travels with its freehold title; landlord can change on settlement.
   const p=life.civic.property.parcels[l.id];
   if(!p)continue;
@@ -50,7 +50,7 @@ export function commercialRentDay(life){
   if(l.arrears>0&&l.lateSince===null)l.lateSince=life.day;
   if(l.arrears<=0) {l.lateSince=null;if(l.notice?.ground==='rent-arrears')l.notice=null;}
   l.lastPaid=payment>0?life.day:l.lastPaid;
-  if(life.day>=l.end){l.status='holding-over';l.history.push({day:life.day,text:'Term expired; occupancy continues pending negotiated renewal.'});}
+  if(life.day>=l.end&&l.status==='active'){l.status='holding-over';l.history.push({day:life.day,text:'Term expired; occupancy continues pending negotiated renewal.'});}
  }
 }
 export function issueCommercialDisclosure(life,id){
