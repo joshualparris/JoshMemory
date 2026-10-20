@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import vm from 'node:vm';
 
 const src=readFileSync(new URL('../deploy/cloudflare-ai-worker.js',import.meta.url),'utf8')
-  .replace(/^import .*;\\s*$/gm,'')
+  .replace(/^import .*;\s*$/gm,'')
   .replace('export default {','globalThis.worker = {');
 const scope={
   Response,Request,URL,Date,Map,Set,AbortController,setTimeout,clearTimeout,
