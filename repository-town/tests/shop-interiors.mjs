@@ -21,6 +21,29 @@ for(const id of CIVIC_INTERIOR_IDS){
     room.group.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material?.dispose)o.material.dispose();});
     continue;
   }
+  if(id==='fire'){
+    // Researched country fire station: twin engine bay, dirty PPE/decon and BA rooms, clean watchroom and mess.
+    assert.deepEqual(room.rooms.map(r=>r.name),['Engine bay','PPE and decontamination room','Breathing apparatus room','Watchroom','Mess and training room']);
+    for(const k of ['pumper','exhaust','hazmat','hose','rating','ppc','washer','decon','basets','fill','test','printer','radio','pagers','map','board','kitchen','training','honour'])assert(room.interactables.some(x=>x.key==='fire:'+k),'fire '+k);
+    assert(room.interactables.some(x=>x.act.do==='civic-ledger'),'station board opens the live station panel');
+    // Walk the floor from the front door at the player's radius: every room and every hotspot is reachable.
+    const hits=(x,z,r=.35)=>room.colliders.some(c=>x>c.x0-r&&x<c.x1+r&&z>c.z0-r&&z<c.z1+r);
+    const step=.25,seen=new Set(['0,0']),queue=[[0,0]],o=room.spawn;
+    assert(!hits(o.x,o.z),'spawn is clear');
+    for(let i=0;i<queue.length;i++){const [gx,gz]=queue[i];for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=gx+dx,nz=gz+dz,x=o.x+nx*step,z=o.z+nz*step,key=nx+','+nz;if(seen.has(key)||x<-7||x>7||z<-12||z>6||hits(x,z))continue;seen.add(key);queue.push([nx,nz]);}}
+    const pts=queue.map(([x,z])=>[o.x+x*step,o.z+z*step]);
+    for(const r of room.rooms)assert(pts.some(([x,z])=>x>r.x0+.4&&x<r.x1-.4&&z>r.z0+.4&&z<r.z1-.4),'reach '+r.name);
+    for(const x of room.interactables){
+      assert(!hits(x.pos.x,x.pos.z,.3),'fire hotspot '+x.key+' is clear of furniture');
+      assert(pts.some(([px,pz])=>Math.hypot(px-x.pos.x,pz-x.pos.z)<.6),'fire hotspot '+x.key+' is reachable on foot');
+      const r=room.rooms[x.room];assert(x.pos.x>=r.x0&&x.pos.x<=r.x1&&x.pos.z>=r.z0&&x.pos.z<=r.z1,x.key+' is in '+r.name);
+    }
+    assert(!hits(room.staff.pos.x,room.staff.pos.z,.25)&&!hits(room.staff.use.x,room.staff.use.z,.3),'firefighter stands clear of the trucks');
+    assert(room.windows.length>=4,'bay doors and side windows look out on the street');
+    assert(room.group.children.length>300,'fire station is richly furnished');
+    room.group.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material?.dispose)o.material.dispose();});
+    continue;
+  }
   assert.equal(room.rooms.length,1,id+' walk-in room');
   if(id==='bakery'){
     // Researched bakery: counter, pastry case, kitchen view, bread wall and café corner.

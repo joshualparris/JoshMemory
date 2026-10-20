@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { makePerson, Walker } from './npcs.js';
 import { workingAt } from './shop-attendance.js';
 
-const SHIRTS={shop:0x557e9f,cafe:0x528c75,pub:0x9b6847,farm:0x71914e,clinic:0x77a7ac,school:0x6883b0,post:0x96745c};
+const SHIRTS={shop:0x557e9f,cafe:0x528c75,pub:0x9b6847,farm:0x71914e,clinic:0x77a7ac,school:0x6883b0,post:0x96745c,fire:0x23304d};   // fire: navy station wear
 const HOST_NAMES={square:'Market Guide',farmhouse:'Nell'};
 
 export function populateShopStaff(site,life,interior,makeLabel){

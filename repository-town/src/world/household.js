@@ -19,10 +19,23 @@ export const SEASONS = ['spring', 'summer', 'autumn', 'winter'];
 export const season = (day) => SEASONS[Math.floor(((day - 1) % 28) / 7)];
 // Inland New South Wales: hot summer afternoons, frosty winter mornings. Coldest near 5am, warmest at 3pm.
 const CLIMATE = { spring: [18, 7], summer: [26, 8], autumn: [17, 7], winter: [9, 7] };
-const WEATHER_SHIFT = { sunny: 2, cloudy: -1, windy: -2, rainy: -3 };
+const WEATHER_SHIFT = { sunny: 2, cloudy: -1, windy: 0, rainy: -3 };   // inland hot days come with hot, gusty winds
 export function outdoorTemp(day, minute, weather = 'sunny') {
   const [mean, swing] = CLIMATE[season(day)], h = minute / 60;
-  return Math.round((mean + swing * Math.cos(((h - 15) / 24) * 2 * Math.PI) + (WEATHER_SHIFT[weather] || 0)) * 10) / 10;
+  const spell = ((day * 37) % 7) - 3;   // each day a little warmer or cooler than the season's average
+  return Math.round((mean + spell + swing * Math.cos(((h - 15) / 24) * 2 * Math.PI) + (WEATHER_SHIFT[weather] || 0)) * 10) / 10;
+}
+
+// Australian Fire Danger Rating System levels (Moderate, High, Extreme, Catastrophic; "No rating" on
+// low-risk days), from the day's hottest temperature and the weather. A town stand-in for the Bureau's
+// forecast, not a real calculation: hot and windy is the dangerous combination.
+export const FIRE_DANGER = ['No rating', 'Moderate', 'High', 'Extreme', 'Catastrophic'];
+export function fireDanger(day, weather = 'sunny') {
+  const peak = outdoorTemp(day, 15 * 60, weather);
+  if (weather === 'rainy' || peak < 18) return { level: 0, name: FIRE_DANGER[0], peak };
+  const wind = weather === 'windy';
+  const level = peak >= 40 && wind ? 4 : (peak >= 35 && wind) || peak >= 40 ? 3 : (peak >= 30 && wind) || peak >= 33 ? 2 : 1;
+  return { level, name: FIRE_DANGER[level], peak };
 }
 
 // ── Food storage ─────────────────────────────────────────────────────────────

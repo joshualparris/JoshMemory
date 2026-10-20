@@ -12,7 +12,7 @@ const fresh = () => new TownLife({ homes, seed: 20261020 });
 
 // Seasons and weather: cold winter mornings, hot summer afternoons.
 assert.equal(season(1), 'spring'); assert.equal(season(8), 'summer'); assert.equal(season(22), 'winter'); assert.equal(season(29), 'spring');
-assert(outdoorTemp(10, 15 * 60, 'sunny') > 30 && outdoorTemp(24, 5 * 60, 'sunny') < 5);
+assert(outdoorTemp(10, 15 * 60, 'sunny') > 30 && outdoorTemp(22, 5 * 60, 'cloudy') < 5);
 
 // Food: chilled things go in the fridge, a second kilo of lamb in the freezer; frozen meat isn't cookable until thawed.
 {

@@ -9,7 +9,7 @@ import { economyPanel, jobPanel } from './economy-panels.js';
 import { JOB_BOARD } from '../world/jobs.js';
 import { workingAt, shopService } from '../world/shop-attendance.js';
 import { COUNTERS, lineAt, pendingOrders } from '../world/counter-queue.js';
-import { householdReport, feederFor, TARIFF } from '../world/household.js';
+import { householdReport, feederFor, TARIFF, fireDanger, season } from '../world/household.js';
 
 const list = (o) => Object.entries(o || {}).filter(([, n]) => n > 0).map(([g, n]) => amount(g, n)).join(', ') || 'nothing';
 const hours = (p) => (p.opens === 0 && p.closes >= 1440 ? 'open all hours' : `${timeText(p.opens)}–${timeText(p.closes)}`);
@@ -74,6 +74,11 @@ function civicPanel(life, id, again) {
   if (id === 'recycling') rows.push(`<p><b>Sorting:</b> ${u.recycling} bags · recycled today ${life.stats.recycled}</p><p class="dim">Kerbside recycling waiting: ${Math.floor(c.homes.recyclables)} bags.</p>`);
   if (id === 'landfill') rows.push(`<p><b>Rubbish buried:</b> ${u.landfill} tonnes · environment ${Math.round(c.indicators.environment)}%</p>`);
   if (id === 'foundry') rows.push(`<p><b>Ore:</b> ${p.stock.ore || 0} · <b>metal:</b> ${p.stock.metal || 0} · <b>scrap:</b> ${p.stock.scrap || 0} · <b>parts ready:</b> ${p.out.parts || 0}</p>`);
+  if (id === 'fire') {
+    const fd = fireDanger(life.day, c.weather), advice = ['Fires should be controlled. Report any you see.', 'Plan and prepare: know your bush fire plan.', 'Be ready to act: check your plan and stay informed.', 'Take action now to protect life and property.', 'For your survival, leave bush fire risk areas.'][fd.level];
+    rows.push(`<h3>Fire danger rating today: ${esc(fd.name)}</h3><p>${esc(advice)} Forecast top of ${Math.round(fd.peak)}°, ${esc(c.weather)}, ${esc(season(life.day))}.</p>`);
+    rows.push(`<p><b>Crew:</b> ${staff.map((v) => esc(`${v.name}, ${v.activity || 'off duty'}`)).join('; ') || 'nobody rostered'}. Retained firefighters carry pagers and respond from home or work when a call comes in.</p>`);
+  }
   if (id === 'fire') rows.push(`<h3>Town networks</h3>${Object.entries(c.services).map(([k, v]) => `<p>${esc(k)} ${pct(v)}</p>`).join('')}<p class="dim">Repairs are ordered at the Town Hall.</p>`);
   if (id === 'hotel') rows.push(`<p><b>Railway Hotel:</b> ${life.needsReport().rooms} guest rooms · ${life.needsReport().rate} per night · ${c.player.hotelBooking?'Room '+c.player.hotelBooking.room+' booked':'No room key yet'}.</p><p>To sleep, book here then use the bed in your allocated guest room.</p>`);
   if (id === 'bank') rows.push(`<p><b>Your wallet:</b> ${money(c.player.wallet)} · <b>savings:</b> ${money(c.player.bank)}</p><p class="dim">Town treasury: ${money(c.treasury)}. Villagers' savings: ${money(life.villagers.reduce((a, v) => a + (v.savings || 0), 0))}.</p>`);
