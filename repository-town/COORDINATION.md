@@ -7,6 +7,8 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-20 · ChatGPT — **Neighborly-inspired lived social history**, now on reconciled branch `feat/neighborly-social-reconciled-20261020` (original PR #75 conflicted with concurrent NPC progress fixes). Source: `src/world/social-events.js`, `src/world/life.js`, `src/ui/npc.js`, `src/ui/townpanels.js`, tests and docs. Real coworker/visit memories, relationship-aware visits, persisted bounded state and truthful online/offline dialogue. Preserves newer `pedestrian-progress.js` and associated tests. No upstream Neighborly Python source copied. CI gate and public publish pending.
+
 - 2026-10-20 · ChatGPT — **MIT open-source town simulation adaptation #1: IsoCity traffic signals** on `feat/isocity-inspired-signal-crossing-20261020`. Scope: `src/world/traffic-signals.js`, `src/world/life.js`, `src/world/townlife.js`, `tests/traffic-signals.mjs`, `package.json` and `docs/OPEN_SOURCE_PORT_ISOCITY_SIGNAL_2026-10-20.md`. One deterministic High Street zebra at (52,177); truck amber/red stopping, green resumption, visual signal poles. New code, not copied from IsoCity; licence and attribution documented. Do NOT overwrite collision/truck behaviour. Canonical integration gate and source-to-public publish required before declaring live. Pedestrian light does not yet control autonomous walkers.
 
 
