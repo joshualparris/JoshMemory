@@ -434,7 +434,7 @@ async function start() {
       else { const el = document.createElement('button'); el.textContent = a.label; el.onclick = () => { if (a.play) return startGame(a.play); const beforeWallet=life.civic.player.wallet;
           const next = a.run ? a.run() : content.onAnswer(a.answer);
           if (next && player.seated && ['cafe','pub'].includes(inside?.place?.id) &&
-              /^Order\\b/i.test(a.label) && life.civic.player.wallet<beforeWallet && typeof next.body==='string') {
+              a.label.toLowerCase().startsWith('order ') && life.civic.player.wallet<beforeWallet && typeof next.body==='string') {
             next.body='<p><b>🍽 Your order has been brought to your table.</b></p>'+next.body;
           }
           if (next) openPanel(next, thing); };
