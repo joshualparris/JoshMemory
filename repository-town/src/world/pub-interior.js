@@ -9,7 +9,7 @@ export const PUB_LAYOUT = Object.freeze({ counterZ: -5.6, staff: { x: 0.8, z: -6
 
 export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
   const k = createKit(site, makeLabel, roomTitle);
-  const { THREE, group, box, cyl, ball, solid, text, add, blocker } = k;
+  const { THREE, group, box, cyl, ball, solid, text, add, blocker, model } = k;
   const { W, BACK, EDGE } = ROOM;
   const CZ = PUB_LAYOUT.counterZ;
   group.add(new THREE.HemisphereLight(0xffe4c0, 0x5a4636, 1.7));
@@ -42,11 +42,15 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
   const table = (x, z) => {
     blocker(1.0, 1.0, x, z); for (const [dx, dz] of [[-0.42, -0.42], [0.42, -0.42], [-0.42, 0.42], [0.42, 0.42]]) box(0.06, 0.76, 0.06, x + dx, 0.38, z + dz, DARKW); box(1.1, 0.05, 1.1, x, 0.78, z, 0xe9e0d0);
     cyl(0.05, 0.05, 0.14, x, 0.88, z, 0xcfe8ee, { a: 0.6 }, 8);
-    for (const [dx, dz] of [[-0.8, 0], [0.8, 0], [0, 0.8], [0, -0.8]]) { box(0.4, 0.05, 0.4, x + dx, 0.46, z + dz, DARKW); box(0.4, 0.45, 0.05, x + dx, 0.7, z + dz + (dz ? Math.sign(dz) * 0.18 : 0), DARKW); }
+    for (const [dx, dz, ry] of [[-0.8, 0, Math.PI / 2], [0.8, 0, -Math.PI / 2], [0, 0.8, Math.PI], [0, -0.8, 0]]) {
+      if (model('chair_A_wood', x + dx, z + dz, ry, { w: 0.5, d: 0.52, h: 0.92 })) continue;
+      box(0.4, 0.05, 0.4, x + dx, 0.46, z + dz, DARKW); box(0.4, 0.45, 0.05, x + dx, 0.7, z + dz + (dz ? Math.sign(dz) * 0.18 : 0), DARKW);
+    }
   };
   for (const [x, z] of [[3.6, 3.0], [3.6, -0.4], [-3.6, 3.0]]) table(x, z);
-  solid(2.0, 0.55, 0.9, -5.2, 0.28, -1.8, LEATHER); box(2.0, 0.5, 0.2, -5.2, 0.85, -2.2, LEATHER);          // lounge sofa
-  for (const z of [0.2, 1.4]) { solid(0.9, 0.5, 0.9, -5.6, 0.25, z, LEATHER); box(0.2, 0.5, 0.9, -6.0, 0.7, z, LEATHER); }
+  blocker(2.0, 0.9, -5.2, -1.8);
+  if (!model('couch', -5.2, -1.8, 0, { w: 2.0, d: 0.9, h: 0.85 })) { box(2.0, 0.55, 0.9, -5.2, 0.28, -1.8, LEATHER); box(2.0, 0.5, 0.2, -5.2, 0.85, -2.2, LEATHER); }   // lounge sofa
+  for (const z of [0.2, 1.4]) { blocker(0.9, 0.9, -5.6, z); if (!model('armchair', -5.6, z, Math.PI / 2, { w: 0.9, d: 0.9, h: 0.9 })) { box(0.9, 0.5, 0.9, -5.6, 0.25, z, LEATHER); box(0.2, 0.5, 0.9, -6.0, 0.7, z, LEATHER); } }
   solid(0.9, 0.4, 0.9, -4.2, 0.2, -0.3, WOOD);                                                               // coffee table
   // fireplace on the left wall
   solid(0.7, 1.6, 2.0, -6.55, 0.8, -4.0, 0x7a5a48); box(0.1, 0.8, 1.2, -6.18, 0.5, -4.0, 0x1a1410); box(0.08, 0.3, 0.9, -6.14, 0.3, -4.0, 0xff7a2a, { e: 0xff5a10 });

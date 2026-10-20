@@ -1,4 +1,6 @@
 import { separatePedestrians } from './pedestrian-spacing.js';
+import { mustStopAtCrossing } from './traffic-signals.js';
+import { orderCafe } from './cafe-menu.js';
 import { bicycleClear, cyclingRoute } from './bicycle-safety.js';
 import { pedestrianDetour,canFinishNearOccupiedDoor } from './pedestrian-navigation.js';
 import { distributePower, townPowerDemands, POWER_LINE_IDS, GRID_FAULT_COST } from './power-grid.js';
@@ -53,6 +55,30 @@ export const GOODS = {
   ore: { name: 'ore', unit: 'tonne', price: 4 },
   scrap: { name: 'scrap metal', unit: 'crate', price: 2 },
   parts: { name: 'spare parts', unit: 'box', price: 12 },
+  cafe_roll: { name: 'bacon-and-egg roll', unit: 'serve', price: 9 },
+  cafe_breakfast: { name: 'big brekkie', unit: 'serve', price: 14 },
+  cafe_flat_white: { name: 'flat white and muffin', unit: 'serve', price: 8 },
+  cafe_toastie: { name: 'toastie', unit: 'serve', price: 9 },
+  cafe_soup: { name: 'soup of the day', unit: 'serve', price: 10 },
+  pub_parmy: { name: 'parmy and chips', unit: 'serve', price: 22 },
+  pub_roast: { name: 'roast of the day', unit: 'serve', price: 24 },
+  pub_pie: { name: 'steak pie and mash', unit: 'serve', price: 18 },
+  pub_tea: { name: 'cup of tea', unit: 'serve', price: 4 },
+  pub_coffee: { name: 'cup of coffee', unit: 'serve', price: 5 },
+  cafe_pie: { name: 'pie of the day', unit: 'serve', price: 10 },
+  cafe_cream_bun: { name: 'cream bun', unit: 'serve', price: 6 },
+  cafe_lamington: { name: 'lamington', unit: 'serve', price: 5 },
+  cafe_sausage_roll: { name: 'sausage roll', unit: 'serve', price: 7 },
+  cafe_coffee: { name: 'coffee', unit: 'serve', price: 5 },
+  store_coffee: { name: 'takeaway coffee', unit: 'serve', price: 5 },
+  store_cordial: { name: 'cordial', unit: 'bottle', price: 4 },
+  store_tinned_food: { name: 'tinned goods', unit: 'tin', price: 4 },
+  store_butter: { name: 'butter', unit: 'block', price: 5 },
+  store_lollies: { name: 'lollies', unit: 'bag', price: 3 },
+  pub_beer: { name: 'tap beer', unit: 'glass', price: 8 },
+  pub_bottled_beer: { name: 'bottled beer', unit: 'bottle', price: 9 },
+  pub_soft_drink: { name: 'soft drink', unit: 'glass', price: 4 },
+  pub_chips: { name: 'chips', unit: 'serve', price: 7 },
 };
 
 // col letter → place. `sells` are what villagers can buy; `makes` what work produces.
@@ -116,6 +142,41 @@ const MEALS = {
   dinner: [['roast lamb and veg', { lamb: 1, veg: 1 }], ['a vegie omelette', { eggs: 1, veg: 1 }], ['a meat pie with peas', { pie: 1 }], ['vegetable soup with bread', { veg: 1, bread: 1 }]],
 };
 const OUT_MEALS = { cafe: [['bacon-and-egg roll', 9], ['big brekkie', 14], ['flat white and a muffin', 8], ['toastie', 9], ['soup of the day', 10]], pub: [['a parmy and chips', 22], ['roast of the day', 24], ['steak pie and mash', 18]] };
+
+// Prepared dishes use the same real stock, money, bag and receipt system as retail goods.
+// Ingredient quantities are simplified town-simulation recipes, not exact food recipes.
+export const VENUE_MENU = Object.freeze({
+  cafe: Object.freeze({
+    cafe_roll: { bread: 1, eggs: 1 },
+    cafe_breakfast: { bread: 1, eggs: 1, veg: 1 },
+    cafe_flat_white: { coffee: 1, milk: 1, bread: 1 },
+    cafe_toastie: { bread: 1, milk: 1 },
+    cafe_soup: { veg: 1 },
+    cafe_pie: { pie: 1 },
+    cafe_cream_bun: { bread: 1, milk: 1 },
+    cafe_lamington: { bread: 1, milk: 1 },
+    cafe_sausage_roll: { pie: 1 },
+    cafe_coffee: { coffee: 1 },
+  }),
+  store: Object.freeze({
+    store_coffee: { coffee: 1 },
+    store_cordial: { fruit: 1 },
+    store_tinned_food: { veg: 1 },
+    store_butter: { milk: 1 },
+    store_lollies: { fruit: 1 },
+  }),
+  pub: Object.freeze({
+    pub_parmy: { lamb: 1, veg: 1 },
+    pub_roast: { lamb: 1, veg: 1 },
+    pub_pie: { pie: 1, veg: 1 },
+    pub_tea: { tea: 1 },
+    pub_coffee: { coffee: 1 },
+    pub_beer: { grain: 1 },
+    pub_bottled_beer: { grain: 1 },
+    pub_soft_drink: { fruit: 1 },
+    pub_chips: { veg: 1 },
+  }),
+});
 
 const plural = (unit, n) => (n === 1 ? unit : /[sx]$|ch$/.test(unit) ? `${unit}es` : unit === 'loaf' ? 'loaves' : `${unit}s`);
 export const amount = (good, n) => (GOODS[good].unit === 'dozen' ? `${n} dozen ${GOODS[good].name}` : `${n} ${plural(GOODS[good].unit, n)} of ${GOODS[good].name}`);
@@ -458,6 +519,30 @@ export class TownLife {
     this.log(`A visitor bought ${GOODS[good].name} at the ${p.name}.`);
     return `You buy ${amount(good, 1)} for $${price}. It's in your bag.`;
   }
+  menuAvailability(shopId, good) {
+    const recipe = VENUE_MENU[shopId]?.[good];
+    if (!recipe) return false;
+    const stock = this.shelves(this.place(shopId));
+    return (stock[good] || 0) > 0 ||
+      Object.entries(recipe).every(([ingredient, n]) => (stock[ingredient] || 0) >= n);
+  }
+  buyMenuItem(shopId, good) {
+    const recipe = VENUE_MENU[shopId]?.[good];
+    if (!recipe) return 'That dish is not on this menu.';
+    const p = this.place(shopId), me = this.civic.player, price = GOODS[good].price;
+    if (!this.open(p)) return `The ${p.name} is closed — it opens at ${fmt(p.opens)}.`;
+    if (!this.menuAvailability(shopId, good)) return `Sorry, ${GOODS[good].name} is sold out until ingredients arrive.`;
+    if (me.wallet < price) return `You need ${price} but have ${me.wallet}.`;
+    const stock = this.shelves(p);
+    if ((stock[good] || 0) > 0) stock[good]--;
+    else for (const [ingredient, n] of Object.entries(recipe)) stock[ingredient] -= n;
+    me.wallet -= price; this.sale(p, price);
+    receipt(this, 'purchase', `${GOODS[good].name} at ${p.name}`, -price);
+    me.bag[good] = (me.bag[good] || 0) + 1;
+    this.stats.sold[good] = (this.stats.sold[good] || 0) + 1;
+    this.log(`The visitor ordered ${GOODS[good].name} at ${p.name}.`);
+    return `You buy ${GOODS[good].name} for ${price}. It's in your bag and ready to eat.`;
+  }
   sellItem(shopId, good) {
     const p = this.place(shopId), me = this.civic.player, pay = Math.max(1, Math.floor(GOODS[good].price * 0.6));
     if (!(me.bag[good] > 0)) return `You don't have any ${GOODS[good].name}.`;
@@ -466,6 +551,7 @@ export class TownLife {
     return `The ${p.name} buys it back for $${pay}.`;
   }
   eatItem(good) { return eatPlayer(this,good); }
+  orderCafe(itemId) { return orderCafe(this,itemId); }
   bookHotel() { return hotelCheckIn(this); }
   sleepHotel(room=null) { return sleepPlayer(this,'hotel',room); }
   needsReport() { return needsReport(this); }
@@ -688,6 +774,12 @@ export class TownLife {
   blocked(t, proposed = null) {
     const at = proposed || { x: t.x, z: t.z, h: t.heading };
     const h = at.h ?? t.heading;
+    // Signalised pedestrian crossing: physically stop before the stop line
+    // rather than simply changing a decorative lamp. Let trucks already in
+    // the crossing finish clearing it when lights change.
+    if(proposed && !proposed.reverse && mustStopAtCrossing(t,at,this.minute)){
+      t.blockedBy=null;t.why='signal';return true;
+    }
     // Pulling out of a depot bay: wait for a gap in the traffic before swinging across the lanes.
     const bay = this.depotBay(t.id), leaving = t.path[0] && Math.hypot(t.path[0].x - bay.x, t.path[0].z - bay.z) > 0.5;
     if (proposed && leaving && !proposed.reverse && !t.pulling && !t.retreat && Math.hypot(t.x - bay.x, t.z - bay.z) < 1) {
@@ -763,7 +855,7 @@ export class TownLife {
       ['garden', 'veg', 'greengrocer'], ['garden', 'veg', 'bakery'], ['garden', 'veg', 'pub'], ['garden', 'veg', 'cafe'], ['orchard', 'fruit', 'greengrocer'],
       ['dairy', 'milk', 'store'], ['dairy', 'milk', 'cafe'], ['dairy', 'milk', 'bakery'], ['coop', 'eggs', 'store'], ['coop', 'eggs', 'cafe'], ['coop', 'eggs', 'bakery'],
       ['sheep', 'lamb', 'butcher'], ['sheep', 'lamb', 'pub'], ['sheep', 'lamb', 'bakery'],
-      ['depot', 'coffee', 'cafe'], ['depot', 'coffee', 'store'], ['depot', 'tea', 'store'], ['depot', 'parcel', 'post'],
+      ['depot', 'coffee', 'cafe'], ['depot', 'coffee', 'store'], ['depot', 'tea', 'store'], ['depot', 'tea', 'cafe'], ['orchard', 'fruit', 'cafe'], ['depot', 'parcel', 'post'],
       ['depot', 'fuel', 'power'], ['depot', 'ore', 'foundry'], ['recycling', 'scrap', 'foundry'], ['foundry', 'parts', 'hall'],
     ];
     let best = null;
@@ -1000,8 +1092,22 @@ export class TownLife {
               // If an intermediate pavement junction is blocked too long,
               // safely regenerate the remaining street route instead of
               // staying frozen forever or walking through the player.
-              if(v.detourWait>4&&v.path.length>1){
-                v.path.shift();v.detourWait=0;
+              if(v.detourWait>4){
+                // Never remain trapped at a doorway or waypoint forever.
+                // Intermediate waypoints can be discarded; for the final
+                // destination either enter when already close enough or
+                // regenerate a fresh trip from the current safe position.
+                v.detourWait=0;
+                if(v.path.length>1){
+                  v.path.shift();
+                }else if(Math.hypot(v.x-destination.x,v.z-destination.z)<2.6){
+                  v.path.length=0;this.arrive(v);return;
+                }else{
+                  const goal={x:destination.x,z:destination.z};
+                  v.path=walkRoute(v,goal);
+                  // A blocked final approach will be reconsidered on the
+                  // next tick; don't teleport into an occupied doorway.
+                }
               }
               break;
             }

@@ -10,7 +10,7 @@ export const HALL_LAYOUT = Object.freeze({ counterZ: -5.5, staff: { x: 3.4, z: -
 
 export function buildHallInterior(site, makeLabel, roomTitle = 'Town Hall') {
   const k = createKit(site, makeLabel, roomTitle);
-  const { THREE, group, box, cyl, ball, solid, blocker, text, add } = k;
+  const { THREE, group, box, cyl, ball, solid, blocker, text, add, model } = k;
   const { W, BACK, EDGE } = ROOM;
   const CZ = HALL_LAYOUT.counterZ;
   group.add(new THREE.HemisphereLight(0xfff6e4, 0x7a6c58, 1.9));
@@ -41,7 +41,7 @@ export function buildHallInterior(site, makeLabel, roomTitle = 'Town Hall') {
   solid(0.5, 1.1, 0.5, -0.2, 0.55, -6.9, WOOD); box(0.5, 0.1, 0.4, -0.2, 1.15, -6.9, DARKW);                       // lectern
   for (const [x, c] of [[-6.4, BLUE], [-1.3, 0x1a4a8a]]) { cyl(0.03, 0.03, 3.2, x, 1.9, -11.5, 0xc4c8cc, {}, 6); box(0.9, 0.6, 0.02, x + 0.45, 3.2, -11.5, c); }   // flags
   box(2.4, 1.5, 0.06, -3.7, 2.6, BACK + 0.15, 0x5a4332); box(2.2, 1.3, 0.04, -3.7, 2.6, BACK + 0.2, 0xe8dec0); text('Our Town · Our Council', -3.7, 2.6, BACK + 0.3);
-  for (const r of [0, 1, 2, 3]) for (let c = 0; c < 5; c++) { const x = -5.7 + c * 0.9, z = -4.3 + r * 1.1; box(0.5, 0.06, 0.5, x, 0.45, z, 0x3a2a22); box(0.5, 0.5, 0.06, x, 0.75, z + 0.25, 0x3a2a22); box(0.04, 0.45, 0.04, x - 0.2, 0.22, z, 0x222222); box(0.04, 0.45, 0.04, x + 0.2, 0.22, z, 0x222222); }
+  for (const r of [0, 1, 2, 3]) for (let c = 0; c < 5; c++) { const x = -5.7 + c * 0.9, z = -4.3 + r * 1.1; if (model('chair_B_wood', x, z, Math.PI, { w: 0.5, d: 0.5, h: 0.9 })) continue; box(0.5, 0.06, 0.5, x, 0.45, z, 0x3a2a22); box(0.5, 0.5, 0.06, x, 0.75, z + 0.25, 0x3a2a22); box(0.04, 0.45, 0.04, x - 0.2, 0.22, z, 0x222222); box(0.04, 0.45, 0.04, x + 0.2, 0.22, z, 0x222222); }
   blocker(5.0, 0.7, -3.4, -4.3 - 0.0); blocker(5.0, 0.7, -3.4, -3.2); blocker(5.0, 0.7, -3.4, -2.1); blocker(5.0, 0.7, -3.4, -1.0);
 
   // ── foyer: noticeboard, honour board, ballot box, town map ──
