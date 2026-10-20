@@ -3,6 +3,7 @@ import { mustStopAtCrossing } from './traffic-signals.js';
 import { orderCafe } from './cafe-menu.js';
 import { bicycleClear, cyclingRoute } from './bicycle-safety.js';
 import { pedestrianDetour,canFinishNearOccupiedDoor } from './pedestrian-navigation.js';
+import { routeProgress, escapeCrowdWaypoint, clearPedestrianSegment } from './pedestrian-progress.js';
 import { distributePower, townPowerDemands, POWER_LINE_IDS, GRID_FAULT_COST } from './power-grid.js';
 import { initialisePublicLife, attendPublicForum, updatePublicForum, civicDialogue } from './public-forum.js';
 import { freshFinance, noteSale, noteRates, withhold, stateFunded, drawState, noteCouncilWage, dailyGrants, dailyClose as financeDailyClose, payBills, economyReport, bizStats, governmentMoney } from './finance.js';
@@ -360,6 +361,43 @@ export class TownLife {
       id:v.id,pos:v,radius:v.bike&&v.path.length?1.16:.59,
       fixed:!!v.engaged
     })),{world:this.pedestrianWorld||null,gap:1.24,passes:6});
+    // A crowd can nudge walkers sideways every tick while route-following
+    // pulls them back towards the same obstructed point. Detect lack of NET
+    // forward progress, recover via a real walkable detour, and never orbit
+    // a closed shop entrance endlessly. No teleporting through walls.
+    for (const v of this.villagers) {
+      if (v.inside || v.engaged || !v.path.length) {
+        v.walkProgress = null;
+        continue;
+      }
+      if (!routeProgress(v, minutes)) continue;
+      const destination = v.path[0];
+      if (v.path.length === 1 && v.step?.at &&
+          Math.hypot(v.x - destination.x, v.z - destination.z) < 2.1) {
+        v.path.length = 0;
+        v.walkProgress = null;
+        this.arrive(v);
+        continue;
+      }
+      const attempts = v.crowdRecovery || 0;
+      if (attempts < 3 && escapeCrowdWaypoint(v, this.pedestrianWorld, attempts)) {
+        v.crowdRecovery = attempts + 1;
+      } else if (v.path.length > 1 &&
+                 clearPedestrianSegment(v, v.path[1], this.pedestrianWorld)) {
+        // Skip an unattainable intermediate point ONLY if the next point
+        // has a swept, unobstructed path. Never skip blindly through walls.
+        v.path.shift();
+        v.crowdRecovery = 0;
+      } else {
+        // No clear route: yield instead of replaying the same circular walk.
+        // Planning resumes automatically when this short idle step finishes.
+        v.path = [];
+        v.step = { kind: 'idle', dur: 5, activity: 'waiting for the footpath to clear' };
+        v.inside = false;
+        v.crowdRecovery = 0;
+        v.walkProgress = null;
+      }
+    }
     updatePublicForum(this);
     advanceCivicWork(this, minutes);
     if (hourly && Math.floor(this.minute / 60) === 10 && this.day >= this.civic.government.meetingDay) councilMeeting(this);
@@ -1140,7 +1178,9 @@ export class TownLife {
     const indoorWork=s.kind==='work'&&place&&!['farm','depot','park','home'].includes(place.kind);
     const indoorVisit=['buy','snack','eatout'].includes(s.kind)&&place&&
       ['shop','cafe','pub'].includes(place.kind);
-    v.inside=s.at==='home'||!!indoorWork||!!indoorVisit;
+    // Pub patrons sit inside, not in a stationary crowd outside its door.
+    const indoorLeisure = s.kind === 'idle' && s.at === 'pub';
+    v.inside=s.at==='home'||!!indoorWork||!!indoorVisit||indoorLeisure;
     if (s.kind === 'snack') this.snack(v, s.at, s.good);
     if (s.kind === 'eatout' || s.kind === 'buy' || s.kind === 'parcel') {
       // These happen on arrival; the step's duration is the time spent there.
