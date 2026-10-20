@@ -59,6 +59,16 @@ export function createKit(site, makeLabel, roomTitle) {
   // Real furniture model (see furniture.js) at floor position x,z facing +z rotated by ry; false when not loaded.
   let modelMat = null;
   const model = (name, x, z, ry, fit, y = 0) => {
+    // Automatically register seated furniture in any future specialised
+    // interior using the same kit. Registration is independent of whether
+    // the asynchronous model asset is loaded; most sites draw a fallback.
+    const type = /^chair_/.test(name) ? 'chair' :
+      /^(?:couch|sofa)/.test(name) ? 'sofa' :
+      /^armchair/.test(name) ? 'armchair' :
+      /^stool/.test(name) ? 'stool' : null;
+    if(type && !seats.some(seat=>Math.hypot(seat.pos.x-x,seat.pos.z-z)<.18))
+      seats.push(makeSeat(site.id+':seat:model:'+name+':'+x+':'+z,type,x,z,Math.PI+(ry||0),
+        {room:0,roomName:roomTitle}));
     const g = modelGeometry(name, fit);
     if (!g) return false;
     modelMat ||= new THREE.MeshLambertMaterial({ vertexColors: true });
@@ -84,7 +94,7 @@ export function createKit(site, makeLabel, roomTitle) {
   };
   const seat = (key,type,x,z,yaw=Math.PI,options={}) => {
     const s=makeSeat(site.id+':seat:'+key,type,x,z,yaw,{room:0,roomName:roomTitle,...options});
-    if(s)seats.push(s);
+    if(s && !seats.some(other=>Math.hypot(other.pos.x-x,other.pos.z-z)<.18))seats.push(s);
     return s;
   };
   // Floor, ceiling and the windowed shell, with a proper door gap (never a collider across it).
