@@ -1,8 +1,9 @@
 import * as THREE from 'three';
 import { SIGNAL_CROSSINGS, crossingState } from './traffic-signals.js';
 import { Builder, GLASS } from './builder.js';
+import { buildSignBoards } from './shop-signs.js';
 import { makePerson, pose } from './npcs.js';
-import { TownLife, GOODS, RAIL_Z, trainX, FIELD_Z0, FIELD_Z1, SEC_PER_MIN, LOT_X } from './life.js';
+import { TownLife, GOODS, RAIL_Z, trainX, FIELD_Z0, FIELD_Z1, SEC_PER_MIN, LOT_X, AVENUES } from './life.js';
 
 // Draws the town simulation (src/world/life.js): the high street and farms on street 8,
 // fields, livestock, the freight train, delivery trucks, villagers, doorstep parcels and
@@ -52,7 +53,8 @@ function shopfront(b, w, d, h, wall, trim, stripes) {
   b.box(wall, w, h, d, 0, h / 2, 7 - d / 2);
   b.box(trim, w + 0.4, 0.6, d + 0.4, 0, h + 0.3, 7 - d / 2);
   for (const x of [-w * 0.28, w * 0.28]) { b.box(GLASS, w * 0.32, 1.9, 0.08, x, 1.65, 7.04); b.box(trim, w * 0.34, 0.12, 0.14, x, 0.65, 7.06); }
-  b.box(0x3a2a1e, 1.5, 2.4, 0.06, 0, 1.2, 7.04);
+  // A glazed shop door in a timber frame, with a brass pull.
+  b.box(0x3a2a1e, 1.5, 2.4, 0.06, 0, 1.2, 7.04); b.box(GLASS, 1.1, 1.75, 0.03, 0, 1.4, 7.08); b.box(0xc9a85a, 0.05, 0.36, 0.05, 0.48, 1.15, 7.11);
   b.box(0x22252a, w * 0.62, 0.8, 0.12, 0, h - 0.55, 7.08);
   if (stripes) { const n = Math.round(w / 1.2); for (let i = 0; i < n; i++) b.add('box', stripes[i % 2], w / n, 0.08, 2.0, -w / 2 + (i + 0.5) * (w / n), 3.05, 7.95, 0.35, 0, 0); }
 }
@@ -75,6 +77,20 @@ function fence(b, x0, x1, z0, z1, gateX) {
   rail(x0, z1, x1, z1); rail(x0, z0, x0, z1); rail(x1, z0, x1, z1);
   if (gateX === undefined) rail(x0, z0, x1, z0); else { rail(x0, z0, gateX - 1.6, z0); rail(gateX + 1.6, z0, x1, z0); }
 }
+
+// Painted name boards (src/world/shop-signs.js), in each lot's frame: [x, y, z, w, h, background, lettering].
+// Shopfronts paint over their existing board (w × h of the building decides its size).
+const SHOPFRONT = { store: [14, 5], bakery: [12, 4.6], cafe: [12, 4.4], greengrocer: [12, 4.4], butcher: [11, 4.4], post: [11, 4.6], clinic: [12, 4.6] };
+const SIGN_AT = {
+  pub: [0, 6.15, 7.08, 7, 0.9, '#1f3a2a', '#f1e3b5'], hall: [0, 7.1, 7.99, 11, 0.62, '#d8d2c4', '#3a3226'],
+  school: [0, 3.9, 7.07, 6, 0.7, '#f3ead2', '#2a3a5a'], depot: [0, 3.9, 7.07, 6, 0.7, '#2b2118', '#f1e3b5'],
+  mill: [0, 3.2, 4.06, 2.6, 0.55, '#f3ead2', '#3a2a1e'], bank: [0, 5.62, 7.83, 9, 0.55, '#e8e2d2', '#3a3226'],
+  power: [-2, 3.4, 7.09, 5, 0.6, '#e8c23a', '#222222'], waterworks: [-4, 2.95, 5.58, 4.4, 0.5, '#e9eef2', '#1f4a6a'],
+  sewage: [0, 2.6, 7.09, 4.2, 0.45, '#e6e2d6', '#3a4a3a'], fire: [0, 5.3, 7.13, 5, 0.6, '#f2efe6', '#b83a32'],
+  recycling: [0, 3.4, 7.09, 5, 0.55, '#2f5a2a', '#f2efe6'], landfill: [0, 2.1, 6.73, 3.6, 0.45, '#e6e2d6', '#3a3226'],
+  foundry: [0, 4.55, 7.09, 6.5, 0.7, '#2a2420', '#ff9a4a'], hotel: [0, 4.0, 7.26, 4.6, 0.55, '#f3dfb1', '#5a3a22'],
+};
+const SHOP_COLOURS = { store: ['#2f6b8c', '#f6f1e2'], bakery: ['#8a5a2a', '#f8ecd2'], cafe: ['#e8d8b8', '#2f5a4a'], greengrocer: ['#3f7a3a', '#f6f1e2'], butcher: ['#b8413a', '#ffffff'], post: ['#b8413a', '#ffffff'], clinic: ['#ffffff', '#2a5a78'] };
 
 // Returns { w, d } of the solid front block so the town can collide with it.
 const BUILD = {
@@ -128,7 +144,6 @@ const BUILD = {
   },
   clinic(b) {
     shopfront(b, 12, 9, 4.6, WHITE, 0x7ab0c8, null);
-    b.box(0xd03030, 1.4, 0.4, 0.06, 0, 4.0, 7.12); b.box(0xd03030, 0.4, 1.4, 0.06, 0, 4.0, 7.12);
     return { w: 12, d: 9 };
   },
   depot(b) {
@@ -219,7 +234,7 @@ Object.assign(BUILD, {
   foundry(b) {
     b.box(0x6a5a50, 14, 7, 10, 0, 3.5, 2); b.box(0x4a4a4a, 14.6, 0.5, 10.6, 0, 7.25, 2);
     for (const x of [-4, 3]) b.cyl(0x4a4040, 0.6, 12, x, 6, -1);
-    b.box(0x2a2a2a, 4, 4, 0.06, 0, 2, 7.05); b.box(0xff8a3a, 3.6, 0.3, 0.07, 0, 4.3, 7.06);
+    b.box(0x2a2a2a, 4, 4, 0.06, 0, 2, 7.05);
     return { w: 14, d: 10 };
   },
 });
@@ -378,7 +393,13 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   // Each civic building is its own mesh (plus one for its glass), so it can be hidden while the
   // player is inside it and looking out of its windows (src/main.js renderFrame).
   const shopGlassMat = new THREE.MeshLambertMaterial({ vertexColors: true, emissive: 0xffc070, emissiveIntensity: 0 });
-  const buildings = new Map();
+  const buildings = new Map(), signs = [];
+  // Farms get a painted sign on two posts at the gate.
+  const farmSign = (p) => {
+    const x = p.x + 5.8, z = LOT8_Z + 8.2;
+    for (const dx of [-1.2, 1.2]) { statics.solid(0.15, 0.15, x + dx, z); statics.block(WOOD, 0.12, 1.85, 0.12, x + dx, 0, z - 0.04); }
+    signs.push({ text: p.name, x, y: 1.5, z, w: 2.6, h: 0.6, bg: '#f3ead2', fg: '#3a2a1e' });
+  };
   for (const p of life.places.values()) {
     const b = new Builder(); b.glass = [];
     const finish = () => {
@@ -398,6 +419,8 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       sign.position.set(p.x, 3.85, FIELD_Z0 - 4.6);
       group.add(sign); labels.push(sign);
       spots.push({ key: `place:${p.id}`, id: p.id, pos: new THREE.Vector3(p.x, 0, FIELD_Z0 - 2.4), label: `${p.name} — ${{ bank: 'your account', fire: 'station board', foundry: 'the works' }[p.id] || 'the plant'}` });
+      const at = SIGN_AT[p.id];   // turned to face the road, like the building
+      if (at) signs.push({ text: p.name, x: p.x - at[0], y: at[1], z: FIELD_Z0 + 7 - at[2], w: at[3], h: at[4], rotY: Math.PI, bg: at[5], fg: at[6] });
       finish();
       continue;
     }
@@ -407,6 +430,9 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       else fp = BUILD[kind](b);
     });
     finish();
+    if (SHOPFRONT[p.id]) { const [w, h] = SHOPFRONT[p.id], [bg, fg] = SHOP_COLOURS[p.id]; signs.push({ text: p.name, x: p.x, y: h - 0.55, z: LOT8_Z + 7.15, w: w * 0.6, h: 0.7, bg, fg, cross: p.id === 'clinic' }); }
+    else if (SIGN_AT[p.id]) { const at = SIGN_AT[p.id]; signs.push({ text: p.name, x: p.x + at[0], y: at[1], z: LOT8_Z + at[2], w: at[3], h: at[4], bg: at[5], fg: at[6] }); }
+    else if (p.kind === 'farm') farmSign(p);
     if (fp) colliders.push({ x0: p.x - fp.w / 2, x1: p.x + fp.w / 2, z0: LOT8_Z + (fp.front ?? 7) - fp.d, z1: LOT8_Z + (fp.front ?? 7) });
     if (kind === 'square') colliders.push({ x0: p.x - 2.7, x1: p.x + 2.7, z0: LOT8_Z - 6.7, z1: LOT8_Z - 1.3 });
     // Name board over the door.
@@ -454,7 +480,48 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       statics.box(0xf5eac9,0.14,0.037,4.8,
         crossing.x-sign*5.8,0.05,crossing.z+sign*1.8);
   }
+  // A real main street: pavers from the footpath up to every shopfront (no lawn in between) and a
+  // concrete kerb along both edges of the road. Gaps leave the avenue mouths and the depot's truck
+  // bays clear.
+  const STREET_Z = LOT8_Z + 16;
+  const runs = (x0, x1, gaps) => {
+    const cuts = [...AVENUES.map((a) => [a - 3.6, a + 3.6]), ...gaps].filter(([a, b]) => b > x0 && a < x1).sort((a, b) => a[0] - b[0]);
+    const out = []; let at = x0;
+    for (const [a, b] of cuts) { if (a > at) out.push([at, a]); at = Math.max(at, b); }
+    if (x1 > at) out.push([at, x1]);
+    return out;
+  };
+  // Street furniture on the pavement where one shop meets the next: a bench and a bin.
+  const shopXs = [...life.places.values()].filter((q) => q.side !== 'south' && q.kind !== 'farm').map((q) => q.x).sort((a, b) => a - b);
+  for (let i = 0; i + 1 < shopXs.length; i++) {
+    const x = (shopXs[i] + shopXs[i + 1]) / 2, z = LOT8_Z + 8.3;
+    if (AVENUES.some((a) => Math.abs(a - x) < 6)) continue;
+    statics.solid(1.8, 0.6, x - 0.6, z); statics.block(WOOD, 1.8, 0.07, 0.5, x - 0.6, 0.45, z); statics.block(WOOD, 1.8, 0.45, 0.07, x - 0.6, 0.5, z - 0.25);
+    for (const sx of [-1.45, 0.25]) statics.block(DARK, 0.08, 0.45, 0.5, x + sx, 0, z);
+    statics.solid(0.5, 0.5, x + 1.1, z); statics.cyl(0x3f5a3a, 0.24, 0.9, x + 1.1, 0.45, z);
+  }
+  const depotX = life.place('depot').x;
+  for (const [a, b] of runs(-186, 340, [[depotX - 22, depotX + 15]])) statics.box(0xcdc5b3, b - a, 0.07, 2.9, (a + b) / 2, 0.035, LOT8_Z + 8.45);
+  for (const [a, b] of runs(-184, 131, [])) statics.box(0xcdc5b3, b - a, 0.07, 1.9, (a + b) / 2, 0.035, (STREET_Z + 6.1 + FIELD_Z0) / 2);
+  for (const side of [-1, 1]) for (const [a, b] of runs(-330, 340, [])) statics.box(0xb9b4a8, b - a, 0.14, 0.2, (a + b) / 2, 0.07, STREET_Z + side * 4.6);
   group.add(statics.build());
+  const signBoards = buildSignBoards(signs); if (signBoards) group.add(signBoards);
+  // OPEN / CLOSED cards hanging in each shop's door glass, turned by the shop's real hours; a
+  // faint glow stands in for the shop light behind them so CLOSED still reads after dark.
+  const card = (text, colour) => {
+    const c = document.createElement('canvas'); c.width = 128; c.height = 64; const x = c.getContext('2d');
+    x.fillStyle = '#f6f1e2'; x.fillRect(0, 0, 128, 64); x.strokeStyle = colour; x.lineWidth = 6; x.strokeRect(4, 4, 120, 56);
+    x.fillStyle = colour; x.font = 'bold 34px Arial, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(text, 64, 34);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return new THREE.MeshLambertMaterial({ map: t, emissive: 0x6a6a6a, emissiveMap: t });
+  };
+  const doorCards = [];
+  if (typeof document !== 'undefined') {
+    const cardGeo = new THREE.PlaneGeometry(0.5, 0.25), openMat = card('OPEN', '#2f7a3a'), closedMat = card('CLOSED', '#b8413a');
+    for (const id of Object.keys(SHOPFRONT)) {
+      const q = life.place(id), m = new THREE.Mesh(cardGeo, openMat);
+      m.position.set(q.x, 1.85, LOT8_Z + 7.12); group.add(m); doorCards.push({ q, m, openMat, closedMat });
+    }
+  }
   colliders.push(...statics.solids);
   const shopGlass = Builder.merge(statics.glass);
   if (shopGlass) group.add(new THREE.Mesh(shopGlass, shopGlassMat));
@@ -609,6 +676,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     town.setNight(powered ? dark : dark * 0.04, m);
     const anyOpenLate = dark > 0.2;
     shopGlassMat.emissiveIntensity = anyOpenLate && powered ? dark * 0.9 : 0;
+    for (const d of doorCards) d.m.material = life.open(d.q) ? d.openMat : d.closedMat;
     lightMat.emissiveIntensity = dark > 0.3 ? 1.4 : 0;  // vehicle headlights run on their own batteries
     if (!inTown && !view) return;
 
