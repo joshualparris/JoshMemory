@@ -10,7 +10,7 @@ export const CAFE_LAYOUT = Object.freeze({ counterZ: -5.5, staff: { x: 1.0, z: -
 
 export function buildCafeInterior(site, makeLabel, roomTitle = 'Community café') {
   const k = createKit(site, makeLabel, roomTitle);
-  const { THREE, group, box, cyl, ball, solid, text, add, blocker } = k;
+  const { THREE, group, box, cyl, ball, solid, text, add, blocker, model } = k;
   const { W, FRONT, BACK, EDGE } = ROOM;
   const CZ = CAFE_LAYOUT.counterZ;
   group.add(new THREE.HemisphereLight(0xfff0d8, 0x6e5a48, 1.9));
@@ -58,7 +58,10 @@ export function buildCafeInterior(site, makeLabel, roomTitle = 'Community café'
   const table = (x, z) => {
     blocker(0.8, 0.8, x, z); cyl(0.05, 0.05, 0.74, x, 0.37, z, 0x3a3f44, {}, 8); cyl(0.22, 0.26, 0.03, x, 0.02, z, 0x3a3f44, {}, 14);   // pedestal table
     cyl(0.42, 0.42, 0.05, x, 0.78, z, 0xe9e0d0, {}, 20); cyl(0.04, 0.04, 0.2, x, 0.88, z, 0x8a7a6a, {}, 6); ball(0.06, x, 1.0, z, [0xd8452f, 0x7fb04a, 0xe8c63a][Math.abs(Math.round(x + z)) % 3]);
-    for (const [dx, dz] of [[-0.6, 0], [0.6, 0], [0, 0.6], [0, -0.6]]) { cyl(0.2, 0.2, 0.04, x + dx, 0.46, z + dz, WOOD, {}, 12); for (const a of [[-0.1, -0.1], [0.1, -0.1], [-0.1, 0.1], [0.1, 0.1]]) box(0.03, 0.44, 0.03, x + dx + a[0], 0.22, z + dz + a[1], DARKW); }
+    for (const [dx, dz, ry] of [[-0.6, 0, Math.PI / 2], [0.6, 0, -Math.PI / 2], [0, 0.6, Math.PI], [0, -0.6, 0]]) {
+      if (model('chair_B_wood', x + dx, z + dz, ry, { w: 0.46, d: 0.5, h: 0.86 })) continue;
+      cyl(0.2, 0.2, 0.04, x + dx, 0.46, z + dz, WOOD, {}, 12); for (const a of [[-0.1, -0.1], [0.1, -0.1], [-0.1, 0.1], [0.1, 0.1]]) box(0.03, 0.44, 0.03, x + dx + a[0], 0.22, z + dz + a[1], DARKW);
+    }
   };
   for (const [x, z] of [[-4.2, 2.8], [-1.6, 2.8], [-4.2, -0.8], [-1.6, -0.8], [1.6, 2.8], [4.2, 2.8]]) table(x, z);
   // communal long table on the right

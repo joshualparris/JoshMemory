@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { modelGeometry } from './furniture.js';
 
 // Shared building blocks for the dedicated High Street interiors (bank, and future shops).
 // Every walk-in room uses the same 14 m × 18 m shell, door gap, spawn point and exit zone so the
@@ -23,6 +24,16 @@ export function createKit(site, makeLabel, roomTitle) {
     if (o.ry) m.rotation.y = o.ry; if (o.rx) m.rotation.x = o.rx; if (o.rz) m.rotation.z = o.rz;
     if (o.s) m.scale.set(...o.s);
     group.add(m); return m;
+  };
+  // Real furniture model (see furniture.js) at floor position x,z facing +z rotated by ry; false when not loaded.
+  let modelMat = null;
+  const model = (name, x, z, ry, fit, y = 0) => {
+    const g = modelGeometry(name, fit);
+    if (!g) return false;
+    modelMat ||= new THREE.MeshLambertMaterial({ vertexColors: true });
+    const m = new THREE.Mesh(g, modelMat);
+    m.position.set(x, y, z); m.rotation.y = ry || 0;
+    group.add(m); return true;
   };
   const box = (w, h, d, x, y, z, c, o) => put(geo(`b${w},${h},${d}`, () => new THREE.BoxGeometry(w, h, d)), c, x, y, z, o);
   const cyl = (rt, rb, h, x, y, z, c, o, seg = 12, open = false) => put(geo(`c${rt},${rb},${h},${seg},${open}`, () => new THREE.CylinderGeometry(rt, rb, h, seg, 1, open)), c, x, y, z, { side: open ? THREE.DoubleSide : undefined, ...o });
@@ -60,5 +71,5 @@ export function createKit(site, makeLabel, roomTitle) {
     exitZone: { x0: -1.05, x1: 1.05, z0: FRONT - 0.1, z1: FRONT + 1.2 },
     ...extra,
   });
-  return { THREE, group, colliders, interactables, sceneObjects, placedProps, mat, geo, put, box, cyl, ball, torus, blocker, solid, text, add, shell, finish };
+  return { THREE, group, colliders, interactables, sceneObjects, placedProps, mat, geo, put, model, box, cyl, ball, torus, blocker, solid, text, add, shell, finish };
 }

@@ -9,7 +9,7 @@ export const CLINIC_LAYOUT = Object.freeze({ counterZ: -5.5, staff: { x: -1.0, z
 
 export function buildClinicInterior(site, makeLabel, roomTitle = 'Health clinic') {
   const k = createKit(site, makeLabel, roomTitle);
-  const { THREE, group, box, cyl, ball, solid, blocker, text, add } = k;
+  const { THREE, group, box, cyl, ball, solid, blocker, text, add, model } = k;
   const { W, BACK, EDGE } = ROOM;
   const CZ = CLINIC_LAYOUT.counterZ;
   group.add(new THREE.HemisphereLight(0xf4fffb, 0x8a9a96, 2.2));
@@ -37,8 +37,8 @@ export function buildClinicInterior(site, makeLabel, roomTitle = 'Health clinic'
   for (let i = 0; i < 12; i++) box(0.12, 0.2, 0.1, -1.9 + i * 0.16, 1.62 + (i % 2) * 0.5, BACK + 0.3, [0xe8e8e8, 0x6aa0c8, 0xe8b830, 0xc87878][i % 4]);
 
   // ── waiting room (left) ──
-  for (const z of [1.8, -0.2, -2.2]) for (const [x, n] of [[-5.6, 4]]) { for (let c = 0; c < n; c++) { box(0.55, 0.08, 0.5, x - 0.3 + c * 0, 0.45, z - 0.9 + c * 0.6, 0x3a6a8a); box(0.08, 0.5, 0.5, x - 0.55, 0.75, z - 0.9 + c * 0.6, 0x3a6a8a); box(0.04, 0.45, 0.04, x - 0.3, 0.22, z - 0.9 + c * 0.6, STEEL); } blocker(0.7, 2.4, x - 0.4, z - 0.3); }
-  for (const z of [1.8, -0.2, -2.2]) for (let c = 0; c < 4; c++) { box(0.55, 0.08, 0.5, -3.7, 0.45, z - 0.9 + c * 0.6, 0x3a6a8a); box(0.08, 0.5, 0.5, -3.45, 0.75, z - 0.9 + c * 0.6, 0x3a6a8a); box(0.04, 0.45, 0.04, -3.7, 0.22, z - 0.9 + c * 0.6, STEEL); } 
+  for (const z of [1.8, -0.2, -2.2]) for (const [x, n] of [[-5.6, 4]]) { for (let c = 0; c < n; c++) { if (!model('chair_C', x - 0.3, z - 0.9 + c * 0.6, Math.PI / 2, { w: 0.5, d: 0.55, h: 0.9 })) { box(0.55, 0.08, 0.5, x - 0.3 + c * 0, 0.45, z - 0.9 + c * 0.6, 0x3a6a8a); box(0.08, 0.5, 0.5, x - 0.55, 0.75, z - 0.9 + c * 0.6, 0x3a6a8a); box(0.04, 0.45, 0.04, x - 0.3, 0.22, z - 0.9 + c * 0.6, STEEL); } } blocker(0.7, 2.4, x - 0.4, z - 0.3); }
+  for (const z of [1.8, -0.2, -2.2]) for (let c = 0; c < 4; c++) { if (!model('chair_C', -3.7, z - 0.9 + c * 0.6, -Math.PI / 2, { w: 0.5, d: 0.55, h: 0.9 })) { box(0.55, 0.08, 0.5, -3.7, 0.45, z - 0.9 + c * 0.6, 0x3a6a8a); box(0.08, 0.5, 0.5, -3.45, 0.75, z - 0.9 + c * 0.6, 0x3a6a8a); box(0.04, 0.45, 0.04, -3.7, 0.22, z - 0.9 + c * 0.6, STEEL); } } 
   blocker(0.7, 7.6, -3.65, -0.1);
   solid(0.8, 0.5, 0.8, -4.65, 0.25, 4.3, WOOD); for (let i = 0; i < 5; i++) box(0.3, 0.02, 0.22, -4.8 + (i % 3) * 0.1, 0.52 + i * 0.015, 4.3, [0xe8b830, 0xc87878, 0x6aa0c8, 0x7fb070, 0xe8e8e8][i]);   // magazines
   // kids' corner

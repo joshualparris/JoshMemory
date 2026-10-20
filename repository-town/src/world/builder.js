@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { modelGeometry } from './furniture.js';
 
 // Accumulates coloured primitives in a local frame and merges them into one
 // vertex-coloured mesh, so a whole house costs one draw call on Android GPUs.
@@ -75,6 +76,17 @@ export class Builder {
   ball(color, r, x, y, z, sy = 1) { return this.add('sphere', color, r * 2, r * 2 * sy, r * 2, x, y, z); }
   pyramid(color, w, h, d, x, y, z) { return this.add('pyramid', color, w, h, d, x, y, z); }
   ring(color, r, x, y, z, rx = 0) { return this.add('torus', color, r * 2, r * 2, r * 2, x, y, z, rx); }
+
+  // A real furniture model fitted to {w,h,d} in the current frame (facing +z, standing on y).
+  // Returns false when models are not loaded, so the caller can build its box version instead.
+  model(name, x, y, z, ry, fit) {
+    const g = modelGeometry(name, fit);
+    if (!g) return false;
+    g.deleteAttribute('uv');   // parts are merged without uv (see paint)
+    g.applyMatrix4(this.matrix.clone().multiply(new THREE.Matrix4().makeRotationY(ry || 0).setPosition(x, y, z)));
+    this.parts.push(g);
+    return true;
+  }
 
   // A separately animated mesh positioned in the current frame.
   dynamic(kind, color, sx, sy, sz, x, y, z, anim) {

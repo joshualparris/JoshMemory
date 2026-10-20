@@ -18,22 +18,24 @@ def('desk', 'Desk', 1.8, 0.9, (b, o) => {
   for (const x of [-0.8, 0.8]) b.block(o.c || WOOD, 0.08, 0.72, 0.8, x, 0, 0);
 });
 def('table', 'Table', 1.6, 1.0, (b, o) => {
+  if (b.model('table_medium_long', 0, 0, 0, 0, { w: 1.6, d: 1.0, h: 0.76, color: o.c, tint: 0.25 })) return;
   b.block(o.c || WOOD, 1.6, 0.08, 1.0, 0, 0.74, 0);
   for (const x of [-0.7, 0.7]) for (const z of [-0.4, 0.4]) b.block(o.c || WOOD, 0.08, 0.74, 0.08, x, 0, z);
 });
 def('roundTable', 'Round table', 1.3, 1.3, (b, o) => { b.cyl(o.c || WOOD, 0.65, 0.07, 0, 0.75, 0); b.cyl(DARK, 0.08, 0.72, 0, 0.36, 0); b.cyl(DARK, 0.35, 0.04, 0, 0.02, 0); });
 def('chair', 'Chair', 0.6, 0.6, (b, o) => {
+  if (b.model(o.c ? 'chair_B_wood' : 'chair_A_wood', 0, 0, 0, 0, { w: 0.5, d: 0.52, h: 0.92, color: o.c, tint: 0.3 })) return;
   b.block(o.c || WOOD, 0.5, 0.06, 0.5, 0, 0.45, 0); b.block(o.c || WOOD, 0.5, 0.55, 0.06, 0, 0.5, -0.22);
   for (const x of [-0.2, 0.2]) for (const z of [-0.2, 0.2]) b.block(DARK, 0.05, 0.45, 0.05, x, 0, z);
 }, { solid: false });
-def('sofa', 'Sofa', 2.2, 0.9, (b, o) => { const c = o.c || 0x6a7fa8; b.block(c, 2.2, 0.45, 0.9, 0, 0, 0); b.block(c, 2.2, 0.5, 0.25, 0, 0.45, -0.32); for (const x of [-1, 1]) b.block(c, 0.22, 0.3, 0.9, x, 0.45, 0); });
-def('bed', 'Bed', 1.6, 2.1, (b, o) => { b.block(WOOD, 1.6, 0.4, 2.1, 0, 0, 0); b.block(WHITE, 1.5, 0.15, 2.0, 0, 0.4, 0); b.block(o.c || 0x7d93c4, 1.5, 0.08, 1.3, 0, 0.55, 0.35); b.block(WHITE, 0.6, 0.12, 0.35, -0.35, 0.55, -0.75); b.block(WHITE, 0.6, 0.12, 0.35, 0.35, 0.55, -0.75); b.block(WOOD, 1.6, 0.7, 0.08, 0, 0.4, -1.03); });
+def('sofa', 'Sofa', 2.2, 0.9, (b, o) => { if (b.model('couch_pillows', 0, 0, 0, 0, { w: 2.2, d: 0.95, h: 0.86, color: o.c, tint: 0.2 })) return; const c = o.c || 0x6a7fa8; b.block(c, 2.2, 0.45, 0.9, 0, 0, 0); b.block(c, 2.2, 0.5, 0.25, 0, 0.45, -0.32); for (const x of [-1, 1]) b.block(c, 0.22, 0.3, 0.9, x, 0.45, 0); });
+def('bed', 'Bed', 1.6, 2.1, (b, o) => { if (b.model('bed_double_A', 0, 0, 0, 0, { w: 1.6, d: 2.1, h: 0.72, color: o.c, tint: 0.15 })) return; b.block(WOOD, 1.6, 0.4, 2.1, 0, 0, 0); b.block(WHITE, 1.5, 0.15, 2.0, 0, 0.4, 0); b.block(o.c || 0x7d93c4, 1.5, 0.08, 1.3, 0, 0.55, 0.35); b.block(WHITE, 0.6, 0.12, 0.35, -0.35, 0.55, -0.75); b.block(WHITE, 0.6, 0.12, 0.35, 0.35, 0.55, -0.75); b.block(WOOD, 1.6, 0.7, 0.08, 0, 0.4, -1.03); });
 def('bookshelf', 'Bookshelf', 1.6, 0.45, (b, o) => {
   b.block(o.c || 0x6e4e33, 1.6, 2.2, 0.4, 0, 0, -0.02);
   const cols = [0x446a7b, 0x967a42, 0x8d5365, 0x4f7d55, 0xc9b27c, 0x6b5c94];
   for (let s = 0; s < 4; s++) for (let i = 0; i < 9; i++) b.block(cols[(i * 7 + s * 3) % 6], 0.13, 0.36 + ((i + s) % 3) * 0.04, 0.3, -0.66 + i * 0.165, 0.12 + s * 0.52, 0.06);
 });
-def('cabinet', 'Cabinet', 1.0, 0.5, (b, o) => { b.block(o.c || 0x7b6a58, 1.0, 1.2, 0.5, 0, 0, 0); b.box(DARK, 0.9, 0.02, 0.02, 0, 0.6, 0.26); b.box(GOLD, 0.06, 0.06, 0.04, 0.1, 0.9, 0.27); });
+def('cabinet', 'Cabinet', 1.0, 0.5, (b, o) => { if (b.model('cabinet_small', 0, 0, 0, 0, { w: 1.0, d: 0.5, h: 1.0, color: o.c, tint: 0.25 })) return; b.block(o.c || 0x7b6a58, 1.0, 1.2, 0.5, 0, 0, 0); b.box(DARK, 0.9, 0.02, 0.02, 0, 0.6, 0.26); b.box(GOLD, 0.06, 0.06, 0.04, 0.1, 0.9, 0.27); });
 def('counter', 'Counter', 2.4, 0.7, (b, o) => { b.block(o.c || 0x9c8062, 2.4, 0.9, 0.7, 0, 0, 0); b.block(o.a || 0xe0d6bd, 2.5, 0.06, 0.75, 0, 0.9, 0); });
 def('bench', 'Bench', 1.8, 0.5, (b, o) => { b.block(o.c || WOOD, 1.8, 0.08, 0.45, 0, 0.42, 0); for (const x of [-0.75, 0.75]) b.block(DARK, 0.08, 0.42, 0.4, x, 0, 0); }, { solid: false });
 // Three concentric rug fabrics have progressively higher top surfaces so mobile depth buffers never z-fight.
