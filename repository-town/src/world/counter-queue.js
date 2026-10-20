@@ -14,11 +14,10 @@ export const GIVE_UP = 20;    // town minutes in line before a customer leaves w
 const counterTime = (step) => step.kind === 'buy' ? 1 + 0.4 * (step.items?.length || 1) : 1.5;
 
 // Minutes the kitchen needs, by dish name or menu id. Unknown dishes take eight.
-const PREP = [
+const PREP = [   // most specific first: the first match wins
+  [/parmy/, 18], [/breakfast|brekkie/, 12], [/pie and mash|pub_pie/, 12], [/roast/, 10], [/chips/, 8], [/eggs|omelette/, 8],
+  [/toastie|sausage/, 6], [/toast|roll|muffin|bun|lamington/, 5], [/soup|pie/, 4], [/juice|fruit/, 4],
   [/espresso|long-black|flat.white|latte|cappuccino|coffee|tea|cuppa|cordial|soft.drink|beer/, 3],
-  [/juice|fruit/, 4], [/soup|pie_?$|meat pie|pie$/, 4], [/toast(?!ie)|roll|muffin|bun|lamington/, 5],
-  [/toastie|sausage/, 6], [/eggs|omelette/, 8], [/chips/, 8], [/roast/, 10], [/pie and mash|pub_pie/, 12],
-  [/breakfast|brekkie/, 12], [/parmy/, 18],
 ];
 export function prepMinutes(name) {
   const s = String(name).toLowerCase();

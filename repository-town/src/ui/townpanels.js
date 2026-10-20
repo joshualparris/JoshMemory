@@ -342,7 +342,7 @@ export function townContext(life, v, resident) {
 
 
 // ── A villager's home: using an appliance shows that household as it really is ─────────────
-const STORE_LABEL = { fridge: 'Fridge', freezer: 'Chest freezer', pantry: 'Pantry' };
+const STORE_LABEL = { fridge: 'fridge', freezer: 'chest freezer', pantry: 'pantry' };
 export function householdPanel(life, name, what) {
   const v = life.villagers.find((x) => x.name === name);
   if (!v) return { title: 'Household', body: '<p>Nobody lives here at the moment.</p>', actions: [] };
@@ -368,7 +368,7 @@ export function householdPanel(life, name, what) {
       const b = r.budget;
       return `<p><b>${esc(v.name)}'s home</b>: ${esc(r.housing)}. Wallet $${Math.round(r.wallet)}, savings $${Math.round(r.savings)}.</p>` +
         (b ? `<h4>Budget for week ${b.week}</h4><p>Income $${b.income} · housing $${b.housing} · council rates $${b.rates} · power and water $${b.utilities} · groceries $${b.food} (spent $${Math.round(r.spent.food)}) · eating out $${b.out} (spent $${Math.round(r.spent.out)}) · savings $${b.savings}</p>` : '<p>No budget set yet: it gets done at the computer once a week.</p>') +
-        `<h4>Bills</h4>${r.bills.length ? '<ul>' + r.bills.slice(-3).reverse().map((x) => `<li>Power and water $${x.amount}, due Day ${x.due} — ${x.paid ? 'paid' : '<b>unpaid</b>'}</li>`).join('') + '</ul>' : `<p>None yet. Power is $${TARIFF.power} a unit and water $${TARIFF.water}, billed weekly.</p>`}` +
+        `<h4>Bills</h4>${r.bills.length ? '<ul>' + r.bills.slice(-3).reverse().map((x) => `<li>Power and water $${x.amount}, due Day ${x.due} — ${x.paid ? 'paid' : '<b>unpaid</b>'}</li>`).join('') + '</ul>' : `<p>None yet. Power is $${TARIFF.power.toFixed(2)} a unit and water $${TARIFF.water.toFixed(2)}, billed weekly.</p>`}` +
         `<h4>Inbox</h4><ul>${r.inbox.map((m) => `<li>${m.read ? '' : '<b>'}${esc(`Day ${m.day} ${m.time} · ${m.from}: ${m.subject}`)}${m.read ? '' : '</b>'}<br><span class="dim">${esc(m.body)}</span></li>`).join('') || '<li>No email.</li>'}</ul>`;
     },
   };

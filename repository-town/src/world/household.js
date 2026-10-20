@@ -42,7 +42,7 @@ const HOME_STORE = { bread: 'pantry', fruit: 'pantry', milk: 'fridge', eggs: 'fr
 const FRIDGE_KEEP = { lamb: 1, bread: 3 };   // more than this goes in the freezer
 export const PERISHABLES = Object.keys(SHELF);
 
-const batch = (g, n, store, wear = 0) => ({ g, n, store, wear: r2(wear) });
+const batch = (g, n, store, wear = 0) => ({ g, n, store, wear: Math.round(wear * 1e4) / 1e4 });
 
 // Turns the old pantry counts (saves before households existed) into dated batches.
 export function larderFrom(counts) {
@@ -84,8 +84,13 @@ const UNIT = { bread: ['loaf', 'loaves'], pie: ['pie', 'pies'], milk: ['litre of
 const say = (g, n) => `${n} ${UNIT[g][n === 1 ? 0 : 1]}`;
 export function larderLines(v) {
   return ['fridge', 'freezer', 'pantry'].map((s) => {
-    const items = v.larder.filter((b) => b.store === s).sort((a, b) => b.wear - a.wear);
-    return { store: s, items: items.map((b) => ({ good: b.g, n: b.n, text: say(b.g, b.n), state: b.wear > 0.8 ? 'use today' : b.wear > 0.55 ? 'use soon' : 'fresh' })) };
+    // Batches of the same food in the same state read as one line.
+    const lines = new Map();
+    for (const b of v.larder.filter((x) => x.store === s).sort((a, b) => b.wear - a.wear)) {
+      const state = b.wear > 0.8 ? 'use today' : b.wear > 0.55 ? 'use soon' : 'fresh', key = b.g + state;
+      lines.set(key, { good: b.g, state, n: (lines.get(key)?.n || 0) + b.n });
+    }
+    return { store: s, items: [...lines.values()].map((i) => ({ ...i, text: say(i.good, i.n) })) };
   });
 }
 export function larderSummary(v) {
@@ -299,25 +304,27 @@ export function householdHour(life, hour) {
     // there are no water restrictions.
     h.garden = clamp(h.garden - (t > 25 ? 3 : t > 15 ? 1.6 : 0.8) + (life.civic.weather === 'rainy' ? 4 : 0), 0, 100);
     if (hour === 6 && h.garden < 45 && life.civic.weather !== 'rainy' && !restricted) { h.garden = 95; w += WATER.sprinkler; }
-    // Fridge and freezer without power: after four hours, chilled food is unsafe and the freezer thaws.
+    // Fridge and freezer without power: after four hours chilled food in the fridge is unsafe; a closed
+    // freezer stays frozen for about a day, then its contents thaw into the fridge to be used quickly.
     h.fridgeOff = powered ? 0 : h.fridgeOff + 60;
     if (h.fridgeOff === 240) {
-      const tossed = v.larder.filter((b) => b.store !== 'pantry' && CHILLED.has(b.g));
-      for (const b of v.larder) if (b.store === 'freezer') { b.store = 'fridge'; b.wear = Math.max(b.wear, 0.7); }
+      const tossed = v.larder.filter((b) => b.store === 'fridge' && CHILLED.has(b.g));
       if (tossed.length) {
+        const n = tossed.reduce((s, b) => s + b.n, 0);
         v.larder = v.larder.filter((b) => !tossed.includes(b));
-        h.threwOut += tossed.reduce((n, b) => n + b.n, 0); life.rubbish(tossed.reduce((n, b) => n + b.n, 0));
+        h.threwOut += n; life.rubbish(n);
         v.memory = 'the power was off for hours, so the fridge food had to go';
         notes.push(`${v.name} threw out ${tossed.map((b) => say(b.g, b.n)).join(' and ')} after four hours without power.`);
       }
     }
+    if (h.fridgeOff === 1440) for (const b of v.larder) if (b.store === 'freezer') { b.store = 'fridge'; b.wear = Math.max(b.wear, 0.7); }
     // Food ages; a warm summer pantry ages faster, and a fridge with no power is just a cupboard.
     const heat = t > 28 ? 1.5 : 1;
     let spoiled = [];
     for (const b of v.larder) {
       const where = !powered && b.store !== 'pantry' ? (b.store === 'freezer' ? 'fridge' : 'pantry') : b.store;
       const life_ = SHELF[b.g][where] || SHELF[b.g].pantry;
-      b.wear = r2(b.wear + (60 / life_) * (where === 'pantry' ? heat : 1));
+      b.wear = Math.round((b.wear + (60 / life_) * (where === 'pantry' ? heat : 1)) * 1e4) / 1e4;
       if (b.wear >= 1) spoiled.push(b);
     }
     if (spoiled.length) {

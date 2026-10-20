@@ -1083,7 +1083,14 @@ export class TownLife {
       student: 'in class', retired: 'feeding the ducks', artist: 'painting the town' };
     return `${a[v.job] || 'working'} at the ${v.work === 'home' ? 'house' : this.place(v.work).name}`;
   }
-  jitter(p, r) { return { x: p.x + (this.rand() - 0.5) * r * 2, z: p.z + (this.rand() - 0.5) * r * 0.6 }; }
+  // A spot near p to stand on: never one inside a lamp post, bench or bin (tries a few, then p itself).
+  jitter(p, r) {
+    for (let i = 0; i < 6; i++) {
+      const q = { x: p.x + (this.rand() - 0.5) * r * 2, z: p.z + (this.rand() - 0.5) * r * 0.6 };
+      if (!this.pedestrianWorld?.hits(q.x, q.z, 0.6)) return q;
+    }
+    return { x: p.x, z: p.z };
+  }
 
   cookable(v, kind) { return MEALS[kind].find(([, need]) => hasFood(v, need)) || null; }
   shoppingList(v) {
