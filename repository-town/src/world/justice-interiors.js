@@ -11,10 +11,10 @@ export const JUSTICE_INTERIORS=Object.freeze({
  ambulance:{title:'NSW Ambulance Station',site:'O8',colour:0xae4546,
   zones:['Crew reception','Call response and crew board','Clinical supplies','Decontamination and crew welfare','Ambulance bay and vehicle equipment'],
   labels:['CREW DESK','CREW DISPATCH BOARD','MEDICAL SUPPLY','DECON / REST','AMBULANCE BAY']},
- court:{title:'Repository Town Local Court',site:'V8',colour:0x856e51,
+ court:{title:'Repository Town Local Court',site:'E8',colour:0x856e51,
   zones:['Registry and public enquiries','Public waiting gallery','Magistrate courtroom','Legal consultation room','Court staff and secure holding'],
   labels:['COURT REGISTRY','PUBLIC WAITING','LOCAL COURTROOM','LEGAL CONSULTATION','STAFF / SECURE ZONE']},
- solicitor:{title:'High Street Solicitors',site:'W8',colour:0x33655b,
+ solicitor:{title:'High Street Solicitors',site:'F8',colour:0x33655b,
   zones:['Public client reception','Legal Aid enquiries','Solicitor workstations','Confidential consultation','Case preparation and secure records'],
   labels:['CLIENT RECEPTION','LEGAL AID ENQUIRIES','SOLICITORS','PRIVATE MEETING','SECURE CASE FILES']}
 });
