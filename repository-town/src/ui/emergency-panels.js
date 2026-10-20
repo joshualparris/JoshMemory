@@ -1,5 +1,6 @@
 import {INCIDENTS,caseReport,addIndependentEvidence,
-  evaluatePoliceCharge,seekLegalAdvice,justiceSummary} from '../world/emergency-justice.js';
+  evaluatePoliceCharge,seekLegalAdvice,justiceSummary,
+  verifySceneWitness,examineForensics} from '../world/emergency-justice.js';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({
   '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
 })[c]);
@@ -61,6 +62,10 @@ export function justicePanel(life,notice=''){
         evaluatePoliceCharge(life,latest.id):'No investigation is open.')},
       {label:'Record shop CCTV in latest investigation',run:()=>justicePanel(life,latest?
         addIndependentEvidence(life,latest.id,'cctv'):'No active case is available.')},
+      {label:'Verify on-scene witness against CCTV',run:()=>justicePanel(life,latest?
+        verifySceneWitness(life,latest.id):'No active investigation.')},
+      {label:'Release independent forensic report to both sides',run:()=>justicePanel(life,latest?
+        examineForensics(life,latest.id):'No criminal court case.')},
       {label:'Request legal advice on latest case',run:()=>justicePanel(life,latest?
         seekLegalAdvice(life,latest.id):'No case has been filed.')},
       {label:'Refresh cases',run:()=>justicePanel(life)}
