@@ -355,3 +355,9 @@ Newest first. Times in Australia/Sydney.
 - `ambience.js`: per-room sound (hum, murmur, one-off clinks, tills, ticks, bleats, clucks). `main.js` passes `room` (the place id, or `house`) to `ambience.update`.
 
 - 2026-10-20 · ChatGPT — Rail Depot R8 implementation complete on `feat/rail-depot-interior-20261020`: dedicated freight house, seven reachable interactions, entry stock displays, live ledger and staff facilities. Local empty/full stock, geometry and walking-route tests pass. Integration gate and deployment tracked in PR; browser WebGL unavailable, so no visual walk claimed. Preserves PR84 mill and PR85 fire station.
+
+## Soundscape: surface footsteps, weather, wildlife (Claude, 2026-10-20)
+- `src/world/surfaces.js` (pure, tested by `tests/surfaces.mjs`, in `test:town`): `surfaceAt(x,z)` → asphalt / concrete / paver / dirt / gravel / grass; `roomFloor(id)` → tile / timber / carpet / straw / concrete.
+- `src/ui/ambience.js` rewritten (same API plus `shopBell`, `debug`): footsteps per surface, one per camera-bob cycle (`player.bob`), wet splash in rain, landing thump, indoor room reverb; rain/roof patter/thunder, windy gusts, cicadas, magpie, crow, dog, dawn rooster, frogs, crickets, water-works burble, truck diesel idle, door latch + shop bell.
+- `main.js` passes weather (`life.civic.weather`), surface, bob phase, crouch/airborne, hour and water proximity to `ambience.update`; `__town.life.setWeather(w)` and `state().soundDebug` are test hooks. `tests/footsteps.mjs` (browser, :8091) covers it.
+- Not done: no real water to wade through exists in the town, so the 'water' splash recipe is only used for the wet overlay; house front paths are treated as grass.
