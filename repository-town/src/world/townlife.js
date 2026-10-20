@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { makeSeat } from './seats.js';
 import { SIGNAL_CROSSINGS, crossingState } from './traffic-signals.js';
 import { Builder, GLASS } from './builder.js';
 import { buildSignBoards } from './shop-signs.js';
@@ -382,7 +383,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   const save = () => { if (saveBlocked) return false; try { localStorage.setItem(STORE, JSON.stringify({ v: 1, life: life.snapshot(), speed: life.speed })); return true; } catch { return false; /* storage full or blocked */ } };
 
   const group = new THREE.Group(); town.group.add(group);
-  const colliders = [], spots = [], displays = [], fields = [], labels = [];
+  const colliders = [], spots = [], seats = [], displays = [], fields = [], labels = [];
   const statics = new Builder(); statics.glass = [];
 
   // Villagers' houses: letterbox and meter box out the front; air conditioner, shed and mower,
@@ -456,7 +457,11 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     else if (SIGN_AT[p.id]) { const at = SIGN_AT[p.id]; signs.push({ text: p.name, x: p.x + at[0], y: at[1], z: LOT8_Z + at[2], w: at[3], h: at[4], bg: at[5], fg: at[6] }); }
     else if (p.kind === 'farm') farmSign(p);
     if (fp) colliders.push({ x0: p.x - fp.w / 2, x1: p.x + fp.w / 2, z0: LOT8_Z + (fp.front ?? 7) - fp.d, z1: LOT8_Z + (fp.front ?? 7) });
-    if (kind === 'square') colliders.push({ x0: p.x - 2.7, x1: p.x + 2.7, z0: LOT8_Z - 6.7, z1: LOT8_Z - 1.3 });
+    if (kind === 'square') {
+      colliders.push({ x0: p.x - 2.7, x1: p.x + 2.7, z0: LOT8_Z - 6.7, z1: LOT8_Z - 1.3 });
+      for(const [i,x,z,yaw] of [[0,-6,-4,Math.PI/2],[1,6,-4,-Math.PI/2],[2,0,3,Math.PI],[3,0,-11,0]])
+        seats.push(makeSeat('square:bench:'+i,'bench',p.x+x,LOT8_Z+z,yaw,{label:'Market Square bench'}));
+    }
     // Name board over the door.
     // Place signs forward of awnings, pillars and the Town Hall portico,
     // rather than embedding the billboard behind the roof or facade.
@@ -518,7 +523,8 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   for (let i = 0; i + 1 < shopXs.length; i++) {
     const x = (shopXs[i] + shopXs[i + 1]) / 2, z = LOT8_Z + 8.3;
     if (AVENUES.some((a) => Math.abs(a - x) < 6)) continue;
-    statics.solid(1.8, 0.6, x - 0.6, z); statics.block(WOOD, 1.8, 0.07, 0.5, x - 0.6, 0.45, z); statics.block(WOOD, 1.8, 0.45, 0.07, x - 0.6, 0.5, z - 0.25);
+    statics.solid(1.8, 0.6, x - 0.6, z);
+    seats.push(makeSeat('street:bench:'+i,'bench',x-0.6,z,Math.PI,{label:'High Street bench'})); statics.block(WOOD, 1.8, 0.07, 0.5, x - 0.6, 0.45, z); statics.block(WOOD, 1.8, 0.45, 0.07, x - 0.6, 0.5, z - 0.25);
     for (const sx of [-1.45, 0.25]) statics.block(DARK, 0.08, 0.45, 0.5, x + sx, 0, z);
     statics.solid(0.5, 0.5, x + 1.1, z); statics.cyl(0x3f5a3a, 0.24, 0.9, x + 1.1, 0.45, z);
   }
@@ -764,7 +770,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     }
   }
 
-  return { life, group, colliders, spots, people, update, save, events, skyColour: bg, skyParts: [stars, rain, moon], building: (id) => buildings.get(id) || [], placeFront: (id) => { const p = life.place(id); return p.side === 'south' ? { x: p.x, z: FIELD_Z0 - 4.4, yaw: Math.PI } : { x: p.x, z: LOT8_Z + 12.6, yaw: 0 }; } };
+  return { life, group, colliders, spots, seats, people, update, save, events, skyColour: bg, skyParts: [stars, rain, moon], building: (id) => buildings.get(id) || [], placeFront: (id) => { const p = life.place(id); return p.side === 'south' ? { x: p.x, z: FIELD_Z0 - 4.4, yaw: Math.PI } : { x: p.x, z: LOT8_Z + 12.6, yaw: 0 }; } };
 }
 
 // What a villager calls out as the player passes, from the time of day and what they're up to.
