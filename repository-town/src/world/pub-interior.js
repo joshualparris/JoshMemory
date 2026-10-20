@@ -30,7 +30,7 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
   for (const x of [-3, -2.4, -1.8]) { cyl(0.025, 0.025, 0.3, x, 1.32, CZ + 0.15, BRASS, {}, 8); box(0.06, 0.1, 0.1, x, 1.5, CZ + 0.15, [0xc9a24a, 0x2f5a3f, 0x8a2f2f][Math.round((x + 3) / 0.6) % 3]); }
   for (let i = 0; i < 6; i++) cyl(0.05, 0.04, 0.12, -0.5 + i * 0.18, 1.2, CZ - 0.1, 0xe8e0c8, { a: 0.7 }, 10);
   box(0.46, 0.28, 0.42, 3.0, 1.28, CZ, 0x2d3036); box(0.38, 0.2, 0.02, 3.0, 1.33, CZ + 0.22, 0x8fc4e8, { e: 0x4f94c8 });
-  for (let i = 0; i < 6; i++) { const x = -3.4 + i * 1.3; cyl(0.2, 0.2, 0.05, x, 0.72, CZ + 1.25, LEATHER, {}, 12); cyl(0.03, 0.03, 0.7, x, 0.35, CZ + 1.25, 0x2a2a2a, {}, 6); cyl(0.2, 0.2, 0.02, x, 0.02, CZ + 1.25, 0x2a2a2a, {}, 12); }
+  for (let i = 0; i < 6; i++) { const x = -3.4 + i * 1.3; k.seat('barstool-'+i,'stool',x,CZ+1.25,0); cyl(0.2, 0.2, 0.05, x, 0.72, CZ + 1.25, LEATHER, {}, 12); cyl(0.03, 0.03, 0.7, x, 0.35, CZ + 1.25, 0x2a2a2a, {}, 6); cyl(0.2, 0.2, 0.02, x, 0.02, CZ + 1.25, 0x2a2a2a, {}, 12); }
   // back-bar: mirror, shelves of bottles, glass rack, fridges
   box(7.6, 1.5, 0.06, 0, 2.2, BACK + 0.2, 0xcfd8dc, { a: 0.5 });
   for (const y of [1.4, 1.9, 2.4]) { box(7.6, 0.05, 0.3, 0, y, BACK + 0.35, WOOD); for (let i = 0; i < 18; i++) cyl(0.055, 0.055, 0.28, -3.6 + i * 0.42, y + 0.16, BACK + 0.35, [0x2f5a3f, 0x7a4a22, 0xc9a24a, 0x3a5a7a, 0x8a2f2f][(i + Math.round(y * 5)) % 5], { a: 0.9 }, 8); }
@@ -43,14 +43,16 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
     blocker(1.0, 1.0, x, z); for (const [dx, dz] of [[-0.42, -0.42], [0.42, -0.42], [-0.42, 0.42], [0.42, 0.42]]) box(0.06, 0.76, 0.06, x + dx, 0.38, z + dz, DARKW); box(1.1, 0.05, 1.1, x, 0.78, z, 0xe9e0d0);
     cyl(0.05, 0.05, 0.14, x, 0.88, z, 0xcfe8ee, { a: 0.6 }, 8);
     for (const [dx, dz, ry] of [[-0.8, 0, Math.PI / 2], [0.8, 0, -Math.PI / 2], [0, 0.8, Math.PI], [0, -0.8, 0]]) {
+      k.seat('bistro-'+x+'-'+z+'-'+dx+'-'+dz,'chair',x+dx,z+dz,Math.PI+ry);
       if (model('chair_A_wood', x + dx, z + dz, ry, { w: 0.5, d: 0.52, h: 0.92 })) continue;
       box(0.4, 0.05, 0.4, x + dx, 0.46, z + dz, DARKW); box(0.4, 0.45, 0.05, x + dx, 0.7, z + dz + (dz ? Math.sign(dz) * 0.18 : 0), DARKW);
     }
   };
   for (const [x, z] of [[3.6, 3.0], [3.6, -0.4], [-3.6, 3.0]]) table(x, z);
   blocker(2.0, 0.9, -5.2, -1.8);
+  for(const x of [-5.75,-4.75])k.seat('sofa-'+x,'sofa',x,-1.8,Math.PI);
   if (!model('couch', -5.2, -1.8, 0, { w: 2.0, d: 0.9, h: 0.85 })) { box(2.0, 0.55, 0.9, -5.2, 0.28, -1.8, LEATHER); box(2.0, 0.5, 0.2, -5.2, 0.85, -2.2, LEATHER); }   // lounge sofa
-  for (const z of [0.2, 1.4]) { blocker(0.9, 0.9, -5.6, z); if (!model('armchair', -5.6, z, Math.PI / 2, { w: 0.9, d: 0.9, h: 0.9 })) { box(0.9, 0.5, 0.9, -5.6, 0.25, z, LEATHER); box(0.2, 0.5, 0.9, -6.0, 0.7, z, LEATHER); } }
+  for (const z of [0.2, 1.4]) { k.seat('armchair-'+z,'armchair',-5.6,z,Math.PI*1.5); blocker(0.9, 0.9, -5.6, z); if (!model('armchair', -5.6, z, Math.PI / 2, { w: 0.9, d: 0.9, h: 0.9 })) { box(0.9, 0.5, 0.9, -5.6, 0.25, z, LEATHER); box(0.2, 0.5, 0.9, -6.0, 0.7, z, LEATHER); } }
   solid(0.9, 0.4, 0.9, -4.2, 0.2, -0.3, WOOD);                                                               // coffee table
   // fireplace on the left wall
   solid(0.7, 1.6, 2.0, -6.55, 0.8, -4.0, 0x7a5a48); box(0.1, 0.8, 1.2, -6.18, 0.5, -4.0, 0x1a1410); box(0.08, 0.3, 0.9, -6.14, 0.3, -4.0, 0xff7a2a, { e: 0xff5a10 });

@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { makeSeat } from './seats.js';
 import { glassMesh } from './windows.js';
 import { modelGeometry } from './furniture.js';
 import { containLabel } from '../ui/labels.js';
@@ -40,7 +41,7 @@ export function createKit(site, makeLabel, roomTitle) {
   const { W, D, FRONT, BACK, EDGE, WALL } = ROOM;
   const group = new THREE.Group();
   group.name = 'Inside ' + site.name;
-  const colliders = [], interactables = [], sceneObjects = [], placedProps = [];
+  const colliders = [], interactables = [], sceneObjects = [], placedProps = [], seats = [];
   const mats = new Map(), geos = new Map();
   const mat = (c, o = {}) => {
     const k = c + '|' + (o.e ?? '') + '|' + (o.a ?? 1) + '|' + (o.side ?? 0);
@@ -58,6 +59,16 @@ export function createKit(site, makeLabel, roomTitle) {
   // Real furniture model (see furniture.js) at floor position x,z facing +z rotated by ry; false when not loaded.
   let modelMat = null;
   const model = (name, x, z, ry, fit, y = 0) => {
+    // Automatically register seated furniture in any future specialised
+    // interior using the same kit. Registration is independent of whether
+    // the asynchronous model asset is loaded; most sites draw a fallback.
+    const type = /^chair_/.test(name) ? 'chair' :
+      /^(?:couch|sofa)/.test(name) ? 'sofa' :
+      /^armchair/.test(name) ? 'armchair' :
+      /^stool/.test(name) ? 'stool' : null;
+    if(type && !seats.some(seat=>Math.hypot(seat.pos.x-x,seat.pos.z-z)<.18))
+      seats.push(makeSeat(site.id+':seat:model:'+name+':'+x+':'+z,type,x,z,Math.PI+(ry||0),
+        {room:0,roomName:roomTitle}));
     const g = modelGeometry(name, fit);
     if (!g) return false;
     modelMat ||= new THREE.MeshLambertMaterial({ vertexColors: true });
@@ -81,6 +92,11 @@ export function createKit(site, makeLabel, roomTitle) {
     interactables.push({ key: site.id + ':' + key, type: 'civic', label, room: 0, roomName: roomTitle, pos, act: { do: doWhat, title: label, text: body, civicId: site.id } });
     sceneObjects.push({ type: 'civic', label, room: 0, pos: { x, z }, interactive: true });
   };
+  const seat = (key,type,x,z,yaw=Math.PI,options={}) => {
+    const s=makeSeat(site.id+':seat:'+key,type,x,z,yaw,{room:0,roomName:roomTitle,...options});
+    if(s && !seats.some(other=>Math.hypot(other.pos.x-x,other.pos.z-z)<.18))seats.push(s);
+    return s;
+  };
   // Floor, ceiling and the windowed shell, with a proper door gap (never a collider across it).
   let windows = [];
   const shell = ({ wall, ceiling = 0xf0e8d6, floor = 0xb9a88f, frontSill, sideSill }) => {
@@ -90,7 +106,7 @@ export function createKit(site, makeLabel, roomTitle) {
     group.add(s.glass); windows = s.windows;
   };
   const finish = (extra = {}) => ({
-    group, colliders, interactables, sceneObjects, placedProps,
+    group, colliders, interactables, sceneObjects, placedProps, seats,
     rooms: [{ name: roomTitle, x0: -EDGE, x1: EDGE, z0: BACK, z1: FRONT, w: W, d: D, parent: -1 }],
     doors: [], dynamics: [], sight: [],
     bounds: { x0: -EDGE, x1: EDGE, z0: BACK, z1: FRONT },
@@ -99,5 +115,5 @@ export function createKit(site, makeLabel, roomTitle) {
     windows,
     ...extra,
   });
-  return { THREE, group, colliders, interactables, sceneObjects, placedProps, mat, geo, put, model, box, cyl, ball, torus, blocker, solid, text, add, shell, finish };
+  return { THREE, group, colliders, interactables, sceneObjects, placedProps, mat, geo, put, model, box, cyl, ball, torus, blocker, solid, text, add, seat, shell, finish };
 }

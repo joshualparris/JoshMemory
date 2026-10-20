@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { containLabel } from '../ui/labels.js';
 import { Builder } from './builder.js';
 import { PROPS } from './props.js';
+import { seatForProp } from './seats.js';
 import { SILL, HEAD, glassMesh, spreadWindows } from './windows.js';
 
 const WALL_T = 0.2, DOOR_W = 1.6, DOOR_H = 2.5, ROOM_SCALE = 0.82, LABEL_INSET = 0.6;
@@ -275,6 +276,7 @@ function buildOnce(house, makeLabel, attempt) {
   doors.push(exitDoor);
 
   const interactables = [];
+  const seats = [], furniture = [];
   const placedProps = [];
   const sceneObjects = []; // placed furniture, decor and usable exhibits for resident perception
   const walkers = [];
@@ -317,6 +319,13 @@ function buildOnce(house, makeLabel, attempt) {
       const out = spot.onWall ? LABEL_INSET : 0;
       if (label) labels.push({ text: label, pos: new THREE.Vector3(spot.x + Math.sin(spot.rot) * out, Math.min(h - 0.35, Math.max(propTop(type) + 0.4, 2.35)), spot.z + Math.cos(spot.rot) * out), room: ri, kind: key ? 'interactive' : 'prop' });
       if (key) interactables.push({ key, type, label: label || prop.label, act, room: ri, pos, roomName: r.name });
+      else {
+        const seat=seatForProp(type,spot,`seat:${house.coordinate}:${ri}:${pi}`,{room:ri,roomName:r.name,label:label||prop.label});
+        if(seat)seats.push(seat);
+        else furniture.push({ key:`furniture:${house.coordinate}:${ri}:${pi}`, type,
+          label:label||prop.label, pos, room:ri,roomName:r.name,
+          act:{do:'furniture',title:label||prop.label} });
+      }
     });
     // Decoration only: a rug where the floor would otherwise be empty, and framed
     // pictures on leftover wall space. Repository-specific content comes from the brief.
@@ -375,7 +384,7 @@ function buildOnce(house, makeLabel, attempt) {
   }
   const dynamics = built.children.filter((c) => c.userData.anim);
   return {
-    group, colliders, sight, doors, interactables, dynamics, rooms, placedProps, sceneObjects, walkers, windows,
+    group, colliders, sight, doors, interactables, seats, furniture, dynamics, rooms, placedProps, sceneObjects, walkers, windows,
     openings: openings.filter((o) => o.rooms),   // internal doorways, for residents moving between rooms
     spawn: new THREE.Vector3(ex, 0, rooms[0].z1 - 1.6),
     exitZone: { x0: ex - DOOR_W / 2, x1: ex + DOOR_W / 2, z0: rooms[0].z1 + 0.1, z1: rooms[0].z1 + 1.2 },
