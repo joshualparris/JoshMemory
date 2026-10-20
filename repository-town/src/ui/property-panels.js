@@ -30,7 +30,7 @@ export function deedPanel(life,id) {
     if(p.listed)actions.push(action('Accept market offer / sell',()=>life.sellProperty(id),self));
   }else if(p.listed)actions.push(action('Purchase property / finance 80%',()=>life.buyProperty(id),self));
   if(openFor(life,'realestate')&&p.kind==='house'&&!p.tenant&&!owned)
-    actions.push(action('Apply to rent this vacant home (bond '+money(p.rent*2)+')',()=>life.leaseProperty(id),self));
+    actions.push(action('Apply to rent this vacant home (bond '+money(p.rent*288)+')',()=>life.leaseProperty(id),self));
   actions.push({label:'Return to property office',run:back});
   return {title:'Land title · '+p.name,body,actions,wide:true};
 }
