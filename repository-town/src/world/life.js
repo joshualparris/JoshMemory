@@ -10,6 +10,7 @@ import { pedestrianDetour,canFinishNearOccupiedDoor } from './pedestrian-navigat
 import { routeProgress, escapeCrowdWaypoint, clearPedestrianSegment } from './pedestrian-progress.js';
 import { distributePower, townPowerDemands, POWER_LINE_IDS, GRID_FAULT_COST } from './power-grid.js';
 import { initialisePublicLife, attendPublicForum, updatePublicForum, civicDialogue } from './public-forum.js';
+import {initialEmergencyState,emergencyState,callTripleZero,advanceEmergency,caseReport,justiceSummary} from './emergency-justice.js';
 import { freshFinance, noteSale, noteRates, withhold, stateFunded, drawState, noteCouncilWage, dailyGrants, dailyClose as financeDailyClose, payBills, economyReport, bizStats, governmentMoney } from './finance.js';
 import { receipt, tickJobs, startJob, performTask, abandonJob, finishJob, jobsReport, current as currentJob, supervisors } from './jobs.js';
 import { freshCredit, recordEarning, noteBank, creditReport, borrow, repay, accrueInterest } from './credit.js';
@@ -119,12 +120,16 @@ export const PLACE_DEFS = [
   { col: 'L', side: 'south', id: 'sewage', name: 'Wastewater Works', kind: 'utility', opens: 0, closes: 24 * 60 },
   { col: 'M', side: 'south', id: 'realty', name: 'Repository Realty', kind: 'office', opens: 9 * 60, closes: 17 * 60 },
   { col: 'N', side: 'south', id: 'fire', name: 'Fire & Rescue', kind: 'fire', opens: 0, closes: 24 * 60 },
+  { col: 'K', side: 'south', id: 'police', name: 'Repository Town Police Station', kind: 'emergency', opens: 0, closes: 1440 },
+  { col: 'O', side: 'south', id: 'ambulance', name: 'NSW Ambulance Station', kind: 'emergency', opens: 0, closes: 1440 },
   { col: 'P', side: 'south', id: 'recycling', name: 'Recycling Centre', kind: 'utility', opens: 7 * 60, closes: 16 * 60 },
   { col: 'Q', side: 'south', id: 'landfill', name: 'Waste Depot', kind: 'utility', opens: 6 * 60, closes: 17 * 60 },
   { col: 'R', side: 'south', id: 'foundry', name: 'Foundry & Workshop', kind: 'industry', opens: 7 * 60, closes: 16 * 60, target: { ore: 40, scrap: 20 } },
   { col: 'S', side: 'south', id: 'realestate', name: 'Central West Property & Land', kind: 'service', opens: 9 * 60, closes: 17 * 60 },
   { col: 'T', side: 'south', id: 'dealership', name: 'High Street Motors', kind: 'service', opens: 8 * 60, closes: 17 * 60 },
   { col: 'U', side: 'south', id: 'mechanic', name: 'Town Motor Workshop', kind: 'service', opens: 8 * 60, closes: 17 * 60 },
+  { col: 'V', side: 'south', id: 'court', name: 'Repository Town Local Court', kind: 'justice', opens: 9*60, closes: 16*60 },
+  { col: 'W', side: 'south', id: 'solicitor', name: 'High Street Solicitors & Legal Aid Enquiries', kind: 'justice', opens: 9*60, closes: 17*60 },
 ];
 
 const JOBS = [
@@ -352,6 +357,7 @@ export class TownLife {
     for (const t of this.trucks) t.driver = this.villagers.find((v) => v.job === 'truck driver' && !this.trucks.some((o) => o.driver === v)) || null;
     createGovernment(this);
     initialisePublicLife(this);
+    this.civic.emergency=initialEmergencyState();
     startNeeds(this);
     this.place('hotel').bookings=[];
     initialiseProperties(this);
@@ -361,6 +367,9 @@ export class TownLife {
 
   freshStats() { return { harvested: {}, milled: 0, baked: 0, deliveries: 0, delivered: {}, sold: {}, meals: 0, mealsOut: 0, parcels: 0, taxes: 0, wages: 0, recycled: 0, landfill: 0, letters: 0, repairs: 0, stockouts: 0, powerCutHours: 0, wasted: 0 }; }
   place(id) { return this.places.get(id); }
+  dial000(type,location=null){return callTripleZero(this,type,location);}
+  emergencyReport(){return caseReport(this);}
+  justiceReport(){return justiceSummary(this);}
   time() { return fmt(this.minute); }
   isDay() { return this.minute >= 6 * 60 && this.minute < 19 * 60; }
   // 0 at midnight, 1 at noon: drives sky colour and lights.
@@ -377,6 +386,7 @@ export class TownLife {
     const hourly = Math.floor(before / 60) !== Math.floor(this.minute / 60) || this.minute < before;
     if (hourly) this.everyHour();
     advanceNeeds(this,minutes);
+    advanceEmergency(this);
     for (const o of readyOrders(this)) this.collectOrder(o);
     for (const v of this.villagers) this.liveVillager(v, minutes);
     // All walkers, shop visitors and on-duty staff retain physical space.
@@ -1504,6 +1514,7 @@ export class TownLife {
     if (s.civic && typeof s.civic === 'object') Object.assign(this.civic, s.civic, { player: { ...this.civic.player, ...(s.civic.player || {}) } });
     restoreCivic(this,s.civic?.government);
     initialisePublicLife(this);
+    emergencyState(this);
     this.civic.powerLines = this.civic.powerLines && typeof this.civic.powerLines === 'object' ? this.civic.powerLines : {};
     if(this.civic.supply.powerDemand>0)this.updatePowerGrid();
     for (const [id, stock, out, till, growth] of s.places || []) { const p = this.place(id); if (p) Object.assign(p, { stock, out, till, growth: growth ?? p.growth }); }
