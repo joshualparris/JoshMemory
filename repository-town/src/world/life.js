@@ -569,7 +569,7 @@ export class TownLife {
       // Fuel and ore are imports the council pays for.
       const fuel = (depot.out.fuel || 0) < 60 ? 60 : 0, ore = (depot.out.ore || 0) < 20 ? 20 : 0;
       const hay = (depot.out.hay || 0) < 14 ? 14 - (depot.out.hay || 0) : 0;
-      const lamb = (depot.out.lamb || 0) < 16 ? 16 - (depot.out.lamb || 0) : 0;
+      const lamb = (depot.out.lamb || 0) < 18 ? 18 - (depot.out.lamb || 0) : 0;
       const cost = fuel * 1 + ore * 2 + hay * GOODS.hay.price + lamb * GOODS.lamb.price + coffee * GOODS.coffee.price * 0.5 + tea * GOODS.tea.price * 0.5 + parcel;
       if (cost && this.civic.treasury >= cost) {
         depot.out.fuel = (depot.out.fuel || 0) + fuel; depot.out.ore = (depot.out.ore || 0) + ore;

@@ -201,8 +201,16 @@ function placePanelBase(life, id) {
     rows.push('<h3>Commit Café menu</h3><p>Order at the counter. Prices include preparation and service; all orders use delivered ingredients and are served immediately.</p>');
     for (const category of categories) {
       rows.push('<h4>' + esc(category) + '</h4>');
-      rows.push('<p>' + CAFE_MENU.filter(item => item.category === category)
-        .map(item => esc(item.name) + ' · 
+      const items = CAFE_MENU.filter(item => item.category === category);
+      rows.push('<ul>' + items.map(item =>
+        `<li>${esc(item.name)} · $${item.price} · ${cafeAvailable(p, item) ? 'in stock' : 'sold out'}</li>`
+      ).join('') + '</ul>');
+      for (const item of items.filter(item => cafeAvailable(p, item))) {
+        actions.push(act(`Order ${item.name} ($${item.price})`, () => life.orderCafe(item.id)));
+      }
+    }
+  }
+  return { title: p.name, body: rows.join('') + bagLine(life), actions, wide: true };
 }
 
 // A real survival loop: food comes out of the visitor's purchased inventory.
