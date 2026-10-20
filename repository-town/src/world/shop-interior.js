@@ -1,3 +1,4 @@
+import { buildPowerInterior } from './power-interior.js';
 import { buildDepotInterior } from './depot-interior.js';
 import { buildFireInterior } from './fire-interior.js';
 import { buildMillInterior } from './mill-interior.js';
@@ -59,7 +60,8 @@ const FITTINGS = {
 };
 const BASE_W=14, BASE_D=18, FRONT=6, BACK=-12, EDGE=7;
 
-export function buildCivicInterior(site,makeLabel) {
+// `life` is optional: interiors that show the town's live state (the power station's mimic panel) read it.
+export function buildCivicInterior(site,makeLabel,life=null) {
   // A family's home must never regress to the single-room retail fallback.
   if(site.id==='farmhouse')return buildFarmhouseInterior(site,makeLabel);
   if(site.id==='hotel')return buildHotelInterior(site,makeLabel);
@@ -81,6 +83,7 @@ export function buildCivicInterior(site,makeLabel) {
   if(site.id==='butcher')return buildButcherInterior(site,makeLabel,roomTitle);
   if(site.id==='school')return buildSchoolInterior(site,makeLabel,roomTitle);
   if(site.id==='fire')return buildFireInterior(site,makeLabel,roomTitle);
+  if(site.id==='power')return buildPowerInterior(site,makeLabel,roomTitle,life);
   if(FARM_SHED_IDS.includes(site.id))return buildFarmInterior(site,makeLabel,roomTitle);
   const group=new THREE.Group();
   group.name='Inside '+site.name;

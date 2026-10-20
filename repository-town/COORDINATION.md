@@ -49,6 +49,17 @@ Newest first. Times in Australia/Sydney.
 
 ## Done recently
 
+- 2026-10-20 · Claude Code — **Power Station interior: a remote-town hybrid diesel–solar–battery station**, branch `ccr-846db548-0l5zmu`. Note: I also built a railway-station Rail Depot but dropped it unmerged, because ChatGPT's claimed freight-house depot (#86) landed first.
+  - New `src/world/power-interior.js`, modelled on Lord Howe Island's microgrid (three 300 kW diesel sets, solar, battery, microgrid controller) and Horizon Power's remote towns. It has five rooms:
+    - **Control room:** SCADA desk facing a network mimic panel whose lamps follow the live `powerGrid` feeders (red closed, green open or faulted, amber idle); logbook, permit-to-work board and emergency stop.
+    - **Switchroom:** a breaker cubicle per `POWER_EDGES` feeder with live lamps, synchronising panel with synchroscope, rubber mat and arc-flash cabinet.
+    - **Battery and inverter room:** battery racks, solar inverters, microgrid controller, AC and gas-suppression cylinders.
+    - **Engine hall:** three generating sets that show as running according to the live diesel output; radiators, exhaust stacks, gantry crane, a fuel day tank whose gauge follows `power.stock.fuel`, transfer pump and drums.
+    - **Corridor** joining the control room to the engine hall.
+  - 16 usable things, and the SCADA desk opens the live power panel.
+  - `buildCivicInterior(site, makeLabel, life = null)` now takes the town as an optional third argument (passed from `main.js`), so an interior can show live state.
+  - Tests: `tests/shop-interiors.mjs` has a shared walkability helper for fire and power, and checks that the mimic panel, generators and day tank follow the live state. `tests/fire-station.mjs` is now `tests/walk-in-buildings.mjs` (fire and power, in `test:browser`).
+
 - 2026-10-20 · Claude Code — **Fire & Rescue station interior**, branch `ccr-846db548-0l5zmu`. It was the one High Street building still falling through to the generic room (no `FITTINGS` entry). New `src/world/fire-interior.js`, researched from recent Fire and Rescue NSW station builds and refits (Ulladulla, Wentworth Falls, Kingscliff, Cessnock) and IAFF "clean firefighter" zoning guidance:
   - **Engine bay:** a twin bay behind the two street roller doors, with the personnel door between them. Bay A has the Class 2 pumper (crew cab, roller-shutter lockers, rear pump panel, hose reels, roof ladders, light bar) on its exhaust-extraction hose and shore power. Bay B has the hazmat trailer, a hose-drying rack, a workbench, extinguishers and the fire danger rating arc sign. There are yellow walkway lines, floor drains, the station-alerting beacon, a first-aid kit and an AED.
   - **Dirty zone:** the PPE and decontamination room (open lockers of gold turnout gear with helmets, the officer's white; washer-extractor, drying cabinet, decon shower, hose-off sink) and the BA room (sets on charge with status lights, compressor and fill cabinet, test bench).

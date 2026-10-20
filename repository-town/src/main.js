@@ -290,7 +290,7 @@ async function start() {
   function enterShop(id, keepFacing = false) {
     if(mode!=='town'||!life.places.has(id))return false;
     const yawIn = player.yaw;
-    const site=life.place(id), built=buildCivicInterior(site,makeLabel);
+    const site=life.place(id), built=buildCivicInterior(site,makeLabel,life);
     const staff=populateShopStaff(site,life,built,makeLabel);
     const brief={coordinate:site.col+'8',name:site.name,kind:site.kind,
       street:'High Street',summary:'Explore the shop interior and speak to staff.'};
