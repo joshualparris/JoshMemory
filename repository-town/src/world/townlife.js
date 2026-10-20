@@ -301,6 +301,37 @@ Object.assign(BUILD, {
     b.box(0x3f525e,13.6,.55,.1,0,4.05,7.16);
     return {w:14,d:10};
   },
+  hardware(b){
+    shopfront(b,14,10,5.0,0xbca88b,0x3c5145,[0xe5b54a,0x456b57]);
+    for(const x of [-5.0,-3.4,3.4,5.0]){
+      b.block(0xa77e52,.2,2.0,.25,x,1.8,9.5);
+      b.box(0xe5be66,1.3,.1,.36,x,3.0,7.15);
+    }
+    for(const x of [-5,5]){b.block(0x875e39,.65,.7,1.0,x,0,10.3);b.box(0xe4c39b,.65,.2,1.1,x,.72,10.3);}
+    return {w:14,d:10};
+  },
+  trades(b){
+    shopfront(b,14,10,5.1,0xb2bec1,0x40546d,[0x426d85,0xd2d6d8]);
+    for(const x of [-4.5,4.5]){
+      b.block(0xe8ebee,2.0,1.0,3.0,x,0,10.0);
+      b.box(0x407ea6,1.6,.6,.06,x,2.15,7.2);
+    }
+    for(const x of [-5,5]){b.cyl(0x2d3339,.35,.18,x,.32,10.5,Math.PI/2);}
+    return {w:14,d:10};
+  },
+  tafe(b){
+    shopfront(b,14,10,5.3,0xdac4a0,0x8a4839,[0xc57f45,0xffe2ac]);
+    b.box(0x784e36,14.3,.35,10.4,0,5.4,2.0);
+    for(const x of [-5,5]){b.block(0xaf6952,1.3,1.4,1.2,x,0,9.7);b.box(0xe4d1af,1.3,.1,.45,x,1.48,9.7);}
+    return {w:14,d:10};
+  },
+  university(b){
+    shopfront(b,14,10,6.2,0xe0dacb,0x3e5870,[0x5c789c,0xf0e9dc]);
+    b.box(0x334a5a,14.5,.32,10.4,0,6.25,2.0);
+    for(const x of [-5.7,5.7]){b.cyl(0xf0ebda,.35,5.1,x,2.65,9.0);b.box(0x506b89,.82,.38,.55,x,5.1,9.0);}
+    b.box(0x688bab,5.4,.22,.12,0,4.2,7.2);
+    return {w:14,d:10};
+  },
   foundry(b) {
     b.box(0x6a5a50, 14, 7, 10, 0, 3.5, 2); b.box(0x4a4a4a, 14.6, 0.5, 10.6, 0, 7.25, 2);
     for (const x of [-4, 3]) b.cyl(0x4a4040, 0.6, 12, x, 6, -1);
