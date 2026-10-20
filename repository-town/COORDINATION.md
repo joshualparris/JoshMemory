@@ -254,3 +254,7 @@ Newest first. Times in Australia/Sydney.
 ## Decor pass (Claude, 2026-10-20)
 - Houses: rugs (4 KayKit variants), standing lamp, cactus plants, decorated shelves now use the CC0 models in `props.js`; box fallbacks kept (node tests/mock builders have no `b.model`).
 - Interiors: framed pictures on walls via `interior.js` (5 frame models, box fallback); pub/café/clinic/hall/post got frames, lamps and cacti. Hotspots/colliders unchanged.
+
+## Greengrocer, butcher, school/library and farm sheds (Claude, 2026-10-20)
+- New dedicated interiors on the kit: `grocer-interior.js`, `butcher-interior.js`, `school-interior.js`, `farm-interior.js` (one builder, six variants: sheep, dairy, coop, orchard, garden, silo). Dispatch is in `shop-interior.js`; `tests/shop-interiors.mjs` covers them (>250 objects, staff behind counter, hotspots clear of colliders).
+- Each keeps one `civic-ledger` counter hotspot, so shop/farm counter behaviour is unchanged.

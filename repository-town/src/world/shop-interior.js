@@ -10,6 +10,10 @@ import { buildPubInterior } from './pub-interior.js';
 import { buildPostInterior } from './post-interior.js';
 import { buildClinicInterior } from './clinic-interior.js';
 import { buildHallInterior } from './hall-interior.js';
+import { buildGrocerInterior } from './grocer-interior.js';
+import { buildButcherInterior } from './butcher-interior.js';
+import { buildSchoolInterior } from './school-interior.js';
+import { buildFarmInterior, FARM_SHED_IDS } from './farm-interior.js';
 
 // The twenty high-street services share a safe walkable plan, with different
 // fixtures, colours and exhibits. They are built only while the player is inside.
@@ -68,6 +72,10 @@ export function buildCivicInterior(site,makeLabel) {
   if(site.id==='post')return buildPostInterior(site,makeLabel,roomTitle);
   if(site.id==='clinic')return buildClinicInterior(site,makeLabel,roomTitle);
   if(site.id==='hall')return buildHallInterior(site,makeLabel,roomTitle);
+  if(site.id==='greengrocer')return buildGrocerInterior(site,makeLabel,roomTitle);
+  if(site.id==='butcher')return buildButcherInterior(site,makeLabel,roomTitle);
+  if(site.id==='school')return buildSchoolInterior(site,makeLabel,roomTitle);
+  if(FARM_SHED_IDS.includes(site.id))return buildFarmInterior(site,makeLabel,roomTitle);
   const group=new THREE.Group();
   group.name='Inside '+site.name;
   const colliders=[],interactables=[],sceneObjects=[],placedProps=[];
