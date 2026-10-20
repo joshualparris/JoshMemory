@@ -1,8 +1,10 @@
 import { separatePedestrians } from './pedestrian-spacing.js';
+import { freshSocialState,recordSocialEvent,socialReport,chooseSocialVisit,restoreSocialState } from './social-events.js';
 import { mustStopAtCrossing } from './traffic-signals.js';
 import { orderCafe } from './cafe-menu.js';
 import { bicycleClear, cyclingRoute } from './bicycle-safety.js';
 import { pedestrianDetour,canFinishNearOccupiedDoor } from './pedestrian-navigation.js';
+import { routeProgress, escapeCrowdWaypoint, clearPedestrianSegment } from './pedestrian-progress.js';
 import { distributePower, townPowerDemands, POWER_LINE_IDS, GRID_FAULT_COST } from './power-grid.js';
 import { initialisePublicLife, attendPublicForum, updatePublicForum, civicDialogue } from './public-forum.js';
 import { freshFinance, noteSale, noteRates, withhold, stateFunded, drawState, noteCouncilWage, dailyGrants, dailyClose as financeDailyClose, payBills, economyReport, bizStats, governmentMoney } from './finance.js';
@@ -318,6 +320,8 @@ export class TownLife {
         carrying: null, lastMeal: null, meals: [], seen: [], doneToday: {},
       };
     });
+    // Persisted NPC social lives advance alongside the town rather than only in UI.
+    this.social=freshSocialState();
     // Dedicated marked bays beside the depot, outside the 2 travel lanes.
     // Never initialise a stationary truck in the middle of the carriageway.
     this.trucks = [0, 1, 2].map((i) => {
@@ -360,6 +364,43 @@ export class TownLife {
       id:v.id,pos:v,radius:v.bike&&v.path.length?1.16:.59,
       fixed:!!v.engaged
     })),{world:this.pedestrianWorld||null,gap:1.24,passes:6});
+    // A crowd can nudge walkers sideways every tick while route-following
+    // pulls them back towards the same obstructed point. Detect lack of NET
+    // forward progress, recover via a real walkable detour, and never orbit
+    // a closed shop entrance endlessly. No teleporting through walls.
+    for (const v of this.villagers) {
+      if (v.inside || v.engaged || !v.path.length) {
+        v.walkProgress = null;
+        continue;
+      }
+      if (!routeProgress(v, minutes)) continue;
+      const destination = v.path[0];
+      if (v.path.length === 1 && v.step?.at &&
+          Math.hypot(v.x - destination.x, v.z - destination.z) < 2.1) {
+        v.path.length = 0;
+        v.walkProgress = null;
+        this.arrive(v);
+        continue;
+      }
+      const attempts = v.crowdRecovery || 0;
+      if (attempts < 3 && escapeCrowdWaypoint(v, this.pedestrianWorld, attempts)) {
+        v.crowdRecovery = attempts + 1;
+      } else if (v.path.length > 1 &&
+                 clearPedestrianSegment(v, v.path[1], this.pedestrianWorld)) {
+        // Skip an unattainable intermediate point ONLY if the next point
+        // has a swept, unobstructed path. Never skip blindly through walls.
+        v.path.shift();
+        v.crowdRecovery = 0;
+      } else {
+        // No clear route: yield instead of replaying the same circular walk.
+        // Planning resumes automatically when this short idle step finishes.
+        v.path = [];
+        v.step = { kind: 'idle', dur: 5, activity: 'waiting for the footpath to clear' };
+        v.inside = false;
+        v.crowdRecovery = 0;
+        v.walkProgress = null;
+      }
+    }
     updatePublicForum(this);
     advanceCivicWork(this, minutes);
     if (hourly && Math.floor(this.minute / 60) === 10 && this.day >= this.civic.government.meetingDay) councilMeeting(this);
@@ -949,8 +990,21 @@ export class TownLife {
     if (m >= 19 * 60 && r < 0.35 && this.open(this.place('pub'))) return this.goThen(v, this.place('pub').front, { kind: 'idle', at: 'pub', dur: 60 + this.rand() * 60, activity: 'having a yarn at the pub' });
     if (r < 0.55) return this.goThen(v, this.jitter(this.place('square').front, 8), { kind: 'idle', dur: 20 + this.rand() * 30, activity: 'taking a stroll through the Market Square' });
     if (r < 0.8) {
-      const friend = this.homes[Math.floor(this.rand() * this.homes.length)];
-      return this.goThen(v, { x: friend.door.x, z: friend.door.z + 1.8 }, { kind: 'idle', dur: 15 + this.rand() * 20, activity: `visiting the neighbours at ${friend.coordinate} (${friend.name})`, visit: friend });
+      // A visit only happens when a real named neighbour is available at home.
+      // The relationship influences who we choose, but work and sleep come first.
+      const available=this.villagers.filter(o=>o!==v && o.inside &&
+        !o.path.length && o.step?.at==='home' && o.step?.kind==='idle');
+      const friend=chooseSocialVisit(this.social,v.name,available,this.day);
+      if(friend){
+        const home=friend.home;
+        return this.goThen(v,{x:home.door.x,z:home.door.z+1.8},{
+          kind:'idle',at:'social',dur:15+this.rand()*20,
+          activity:'visiting '+friend.name+' at '+home.coordinate,
+          visit:home,socialTarget:friend.name
+        });
+      }
+      return this.goThen(v,this.jitter(this.place('square').front,7),
+        {kind:'idle',dur:20+this.rand()*20,activity:'out walking after work'});
     }
     return this.goThen(v, home, { kind: 'idle', at: 'home', dur: 40, activity: 'pottering about at home' });
   }
@@ -1140,7 +1194,9 @@ export class TownLife {
     const indoorWork=s.kind==='work'&&place&&!['farm','depot','park','home'].includes(place.kind);
     const indoorVisit=['buy','snack','eatout'].includes(s.kind)&&place&&
       ['shop','cafe','pub'].includes(place.kind);
-    v.inside=s.at==='home'||!!indoorWork||!!indoorVisit;
+    // Pub patrons sit inside, not in a stationary crowd outside its door.
+    const indoorLeisure = s.kind === 'idle' && s.at === 'pub';
+    v.inside=s.at==='home'||!!indoorWork||!!indoorVisit||indoorLeisure;
     if (s.kind === 'snack') this.snack(v, s.at, s.good);
     if (s.kind === 'eatout' || s.kind === 'buy' || s.kind === 'parcel') {
       // These happen on arrival; the step's duration is the time spent there.
@@ -1149,12 +1205,28 @@ export class TownLife {
       if (s.kind === 'parcel') { this.parcels.push({ coordinate: s.home.coordinate, x: s.home.door.x + 0.6, z: s.home.door.z + 0.6, from: v.name }); this.stats.parcels++; }
     }
     if (s.visit) v.seen.unshift(s.visit.coordinate);
+    if(s.socialTarget){
+      const other=this.villagers.find(o=>o.name===s.socialTarget);
+      if(other && other.inside && !other.path.length &&
+        other.step?.at==='home' && other.step?.kind==='idle'){
+        const event=recordSocialEvent(this.social,v.name,other.name,'visit',this.day,this.minute);
+        if(event)this.log(event.text);
+      }
+    }
   }
 
   finish(v) {
     const s = v.step;
     if (s?.kind === 'cook' && s.meal) this.eat(v, s.meal[0], s.meal[1]);
     if (s?.kind === 'work' && this.minute >= v.end - 1 && v.paidDay !== this.day) this.pay(v);
+    if(s?.kind==='work' && v.work!=='home' && !v.path.length){
+      const colleague=this.villagers.find(o=>o!==v && o.work===v.work &&
+        o.step?.kind==='work' && !o.path.length);
+      if(colleague){
+        const event=recordSocialEvent(this.social,v.name,colleague.name,'work',this.day,this.minute);
+        if(event)this.log(event.text);
+      }
+    }
     if (s?.kind === 'idle' && s.at === 'home' && v.carrying) {
       for (const [k, n] of Object.entries(v.carrying)) v.pantry[k] = (v.pantry[k] || 0) + n;
       v.carrying = null;
@@ -1233,8 +1305,10 @@ export class TownLife {
     const pantry = Object.entries(v.pantry).filter(([, n]) => n > 0).map(([k, n]) => amount(k, n)).join(', ') || 'nothing much';
     return { name: v.name, job: v.job, workplace: v.work === 'home' ? 'from home' : this.place(v.work).name, home: `${v.home.coordinate} (${v.home.name})`,
       now: v.activity, lastMeal: last, recentMeals: v.meals, hungry: v.hunger > 60,
-      fatigue: Math.round(v.fatigue), tired: v.fatigue>70, pantry, wallet: v.wallet, carrying: v.carrying, memory: v.memory || null };
+      fatigue: Math.round(v.fatigue), tired: v.fatigue>70, pantry, wallet: v.wallet,
+      carrying: v.carrying, memory: v.memory || null, social: this.socialSummary(v.name) };
   }
+  socialSummary(name) { return socialReport(this.social,name,this.villagers.map(v=>v.name)); }
   news(n = 6) { return this.events.slice(0, n); }
   ledger() {
     const shops = [...this.places.values()].filter((p) => p.target && !['utility', 'industry', 'hall'].includes(p.kind)).map((p) => ({ name: p.name, stock: p.stock, till: Math.round(p.till), open: this.open(p) }));
@@ -1247,7 +1321,7 @@ export class TownLife {
   // Saves just what matters to resume tomorrow where the town left off.
   snapshot() {
     const pick = (o, keys) => { const r = { id: o.id }; for (const k of keys) if (o[k] !== undefined) r[k] = o[k]; return r; };
-    const state = { saveVersion:2, seed: this.seed, rngState: this.rand.getState(), day: this.day, minute: this.minute, powerGridEvents:this.powerGridEvents, powerGridEventSeq:this.powerGridEventSeq, civic: this.civic, places: [...this.places.values()].map((p) => [p.id, p.stock, p.out, p.till, p.growth]), villagers: this.villagers.map((v) => [v.id, v.pantry, v.wallet, v.lastMeal, v.meals, v.hunger, v.fatigue, v.restedMinutes, v.wageArrears || 0, v.rateArrears || 0, v.housingArrears || 0]), hotelBookings:this.place('hotel').bookings,
+    const state = { saveVersion:2, seed: this.seed, rngState: this.rand.getState(), day: this.day, minute: this.minute, social:this.social, powerGridEvents:this.powerGridEvents, powerGridEventSeq:this.powerGridEventSeq, civic: this.civic, places: [...this.places.values()].map((p) => [p.id, p.stock, p.out, p.till, p.growth]), villagers: this.villagers.map((v) => [v.id, v.pantry, v.wallet, v.lastMeal, v.meals, v.hunger, v.fatigue, v.restedMinutes, v.wageArrears || 0, v.rateArrears || 0, v.housingArrears || 0]), hotelBookings:this.place('hotel').bookings,
       sim: { events: this.events, stats: this.stats, yesterday: this.yesterday || null, villagers: this.villagers.map((v) => ({ ...pick(v, SIM_VILLAGER_FIELDS), wageArrears: v.wageArrears || 0, rateArrears: v.rateArrears || 0, housingArrears: v.housingArrears || 0 })), trucks: (this.trucks || []).map((t) => pick(t, SIM_TRUCK_FIELDS)), parcels: this.parcels || [] } };
     return JSON.parse(JSON.stringify(state));
   }
@@ -1282,6 +1356,7 @@ export class TownLife {
     for (const [id, stock, out, till, growth] of s.places || []) { const p = this.place(id); if (p) Object.assign(p, { stock, out, till, growth: growth ?? p.growth }); }
     for (const [id, pantry, wallet, lastMeal, meals, hunger, fatigue, restedMinutes, wageArrears, rateArrears, housingArrears] of s.villagers || []) { const v = this.villagers[id]; if (v) Object.assign(v, { pantry, wallet, lastMeal, meals: meals || [], hunger: Number.isFinite(hunger)?hunger:v.hunger, fatigue: Number.isFinite(fatigue)?fatigue:v.fatigue, restedMinutes: Number.isFinite(restedMinutes)?restedMinutes:0, wageArrears: Number.isFinite(wageArrears)?wageArrears:0, rateArrears: Number.isFinite(rateArrears)?rateArrears:0, housingArrears: Number.isFinite(housingArrears)?housingArrears:0 }); }
     this.place('hotel').bookings=Array.isArray(s.hotelBookings)?s.hotelBookings.slice(-12):[];
+    this.social=restoreSocialState(s.social,this.villagers.map(v=>v.name));
     if (sim) {
       this.seed = s.seed; this.rand.setState(s.rngState);
       this.events = sim.events; this.stats = sim.stats; this.yesterday = sim.yesterday || undefined;
