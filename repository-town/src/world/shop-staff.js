@@ -5,14 +5,17 @@ import { makePerson, Walker } from './npcs.js';
 import { workingAt } from './shop-attendance.js';
 
 const SHIRTS={shop:0x557e9f,cafe:0x528c75,pub:0x9b6847,farm:0x71914e,clinic:0x77a7ac,school:0x6883b0,post:0x96745c,fire:0x23304d};   // fire: navy station wear
-const HOST_NAMES={square:'Market Guide',farmhouse:'Nell'};
+// These three proprietors are local businesses, not pretend existing town employees.
+const HOST_NAMES={square:'Market Guide',farmhouse:'Nell',realestate:'Harper',dealership:'Callum',mechanic:'Jo'};
+const HOST_ROLES={realestate:'licensed property agent',dealership:'vehicle sales consultant',mechanic:'motor mechanic'};
+
 
 export function populateShopStaff(site,life,interior,makeLabel){
   const workers=life.villagers.filter(v=>v.work===site.id);
   // Keep the worker's real name, role, and home available to the conversation.
   const worker=workers.find(v=>workingAt(v,site.id)) || null;
   const name=worker?.name||HOST_NAMES[site.id]||site.name+' Guide';
-  const job=worker?.job||(site.id==='farmhouse'?'farmhouse resident':site.kind==='farm'?'farm guide':'visitor assistant');
+  const job=worker?.job||HOST_ROLES[site.id]||(site.id==='farmhouse'?'farmhouse resident':site.kind==='farm'?'farm guide':'visitor assistant');
   const home=site.id==='farmhouse';
   const pos=home?new THREE.Vector3(-5.20,0,-3.65):interior.staff?new THREE.Vector3(interior.staff.pos.x,0,interior.staff.pos.z):new THREE.Vector3(2.65,0,-8.25);
   const seed=[...site.id].reduce((x,ch)=>x+ch.charCodeAt(0),31);
@@ -48,7 +51,7 @@ export function populateShopStaff(site,life,interior,makeLabel){
     const current=life.villagers.find(v=>workingAt(v,site.id)) || null;
     // Only explicitly named hosts exist without a roster. Do not invent a
     // volunteer to cover every absent employee, closed shop or empty depot.
-    const present=!!current || (!workers.length && !!HOST_NAMES[site.id]);
+    const present=!!current || (!workers.length && !!HOST_NAMES[site.id] && (!HOST_ROLES[site.id] || life.open(site)));
     npc.group.visible=present;
     npc.v=current;
     for(const [list,item] of [[interior.interactables,hotspot],[interior.sceneObjects,scenePerson]]){
@@ -60,7 +63,7 @@ export function populateShopStaff(site,life,interior,makeLabel){
     if(current!==shownWorker){
       shownWorker=current;
       npc.name=current?.name||HOST_NAMES[site.id];
-      const role=current?.job||(home?'farmhouse resident':'market guide');
+      const role=current?.job||HOST_ROLES[site.id]||(home?'farmhouse resident':'market guide');
       hotspot.label='Talk to '+npc.name;
       Object.assign(hotspot.act,{name:npc.name,job:role});
       scenePerson.label=npc.name+' ('+role+')';
@@ -71,7 +74,7 @@ export function populateShopStaff(site,life,interior,makeLabel){
       npc.tag.position.set(0,2.28,0);npc.tag.userData.labelKind='interactive';
       npc.group.add(npc.tag);
     }
-    npc.activity=current?.activity||(home?'at home organising family farm jobs':'welcoming visitors to the market');
+    npc.activity=current?.activity||(home?'at home organising family farm jobs':HOST_ROLES[site.id]?'serving customers at '+site.name:'welcoming visitors to the market');
     return true;
   };
   npc.update=(...args)=>{if(sync())animate(...args);};
