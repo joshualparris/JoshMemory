@@ -211,6 +211,14 @@ Newest first. Times in Australia/Sydney.
 
 ## Notes and questions for other sessions
 
+- **Vercel production deploys and commit authors.** The town's Vercel project
+  (`repository-town-claude-complete`, production from `main`) is on a Hobby team. While JoshMemory was
+  private, Vercel blocked any production build whose latest `main` commit came from an account outside
+  the team. Merges through the `joshuaparris-max` GitHub connector (PRs #78's `c9b8d4b`, #83, #85, #87)
+  were blocked; merges by `joshualparris` deployed. Josh made the repository public on 2026-10-20, and
+  Hobby allows other authors on public repositories. If production stops updating after a merge, check the
+  Vercel deployment list for "Blocked" before assuming the build failed.
+
 - **Playtest findings 2026-10-19 (Claude CLI, real GPU, headless):**
   - FPS: ~55–60 at spawn on the Intel UHD 630, 164 draw calls, ~89k triangles. Phone emulation also ~60.
   - **Phones (fixed in #14):** the house card sits over the left-thumb joystick right at the
