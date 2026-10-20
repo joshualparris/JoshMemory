@@ -30,7 +30,115 @@ export function buyVehicle(life,stockId){
    regoUntil:life.day+28,lastService:life.day,serviceDue:life.day+14,roadworthy:item.condition>=60};
  s.owned.push(vehicle);
  s.journal.unshift('Day '+life.day+': bought '+vehicle.registration+' for $'+item.price+'.');
- return vehicle.registration+' registered in your name. Transfer costs $'+(duty+transfer)+'. Rego expires day '+vehicle.regoUntil+'. Player driving is not yet supported.';
+ return vehicle.registration+' registered in your name. Transfer costs $'+(duty+transfer)+'. Rego expires day '+vehicle.regoUntil+'. The vehicle is parked outside High Street Motors; walk to its driver door and press E or tap Use.';
+}
+export function refuelVehicle(life,registration){
+ const s=motorReport(life),v=s.owned.find(x=>x.registration===registration);
+ if(!v)return 'Vehicle not registered in your name.';
+ const required=Math.max(0,30-(v.fuel??20)),litres=Math.min(10,required),amount=r2(litres*3);
+ if(litres<=0)return 'The tank is already full.';
+ // Finite depot fuel: a drum is abstracted as ten litres in game.
+ const depot=life.place('depot'),drums=Math.ceil(litres/10);
+ if((depot.out.fuel||0)<drums)return 'The freight depot is waiting for a fuel delivery.';
+ if(!take(life.civic.player,amount))return 'You need 
+ const s=motorReport(life),v=s.owned.find(x=>x.registration===registration);
+ if(!v)return 'This registration is not in your name.';
+ const model=VEHICLE_MODELS.find(m=>m.id===v.model),cost=model?.service||50;
+ if(s.parts<1)return 'The workshop is waiting for parts from the Foundry.';
+ if(!take(life.civic.player,cost))return 'You need $'+cost+' for parts and labour.';
+ s.parts-=1;s.garageCash+=cost;
+ v.condition=Math.min(100,v.condition+28);v.lastService=life.day;v.serviceDue=life.day+14;v.roadworthy=v.condition>=60;
+ s.journal.unshift('Day '+life.day+': '+registration+' serviced for $'+cost+'.');
+ return registration+' serviced ($'+cost+'). Condition '+v.condition+'%; next due day '+v.serviceDue+'.';
+}
+export function renewRegistration(life,registration){
+ const s=motorReport(life),v=s.owned.find(x=>x.registration===registration);
+ if(!v)return 'Vehicle not found in your register.';
+ if(!v.roadworthy||v.condition<60)return 'Roadworthy repairs required first.';
+ const amount=v.model==='truck'?90:30;
+ if(!take(life.civic.player,amount))return 'Registration costs $'+amount+'.';
+ life.civic.treasury+=amount;v.regoUntil=Math.max(life.day,v.regoUntil)+28;
+ return registration+' registration renewed to day '+v.regoUntil+'.';
+}
+export function sellVehicle(life,registration){
+ const s=motorReport(life),v=s.owned.find(x=>x.registration===registration);
+ if(!v)return 'No matching vehicle title.';
+ const price=Math.round(v.price*(0.6+v.condition/250));
+ if(s.dealerCash<price)return 'Dealer lacks the funds to offer a trade-in.';
+ s.dealerCash-=price;life.civic.player.bank=r2(life.civic.player.bank+price);
+ s.owned=s.owned.filter(x=>x!==v);
+ s.stock.push({...v,stockId:'trade-'+s.next++,price:Math.round(price*1.18)});
+ s.journal.unshift('Day '+life.day+': sold '+registration+' for $'+price+'.');
+ return 'Dealer settled $'+price+' for '+registration+'; the title transferred.';
+}
+export function motorDay(life){
+ const s=motorReport(life);if(s.day===life.day)return;
+ s.day=life.day;
+ const foundry=life.place('foundry');
+ const restock=Math.min(Math.max(0,10-s.parts),foundry?.out?.parts||0,Math.floor(s.garageCash/12));
+ if(restock>0){foundry.out.parts-=restock;foundry.till+=restock*12;s.garageCash-=restock*12;s.parts+=restock;}
+ const dealerWage=Math.min(26,s.dealerCash),garageWage=Math.min(28,s.garageCash);
+ s.dealerCash-=dealerWage;s.garageCash-=garageWage;s.staffWages+=dealerWage+garageWage;
+ for(const v of s.owned){v.condition=Math.max(10,r2(v.condition-.15));v.roadworthy=v.condition>=60;}
+ for(const t of life.trucks){
+   t.condition=Math.max(25,r2((t.condition??85)-.2));
+   if(t.condition<45&&life.civic.treasury>=35&&s.parts>0){
+     life.civic.treasury-=35;s.garageCash+=35;s.parts--;t.condition=Math.min(100,t.condition+30);
+     life.stats.repairs=(life.stats.repairs||0)+1;life.log('Motor Workshop serviced depot truck '+t.id+' for $35.');
+   }
+ }
+}
++amount+' to refuel.';
+ depot.out.fuel-=drums;s.dealerCash+=amount;v.fuel=r2((v.fuel??20)+litres);
+ return registration+' refuelled by '+litres+'L for 
+ const s=motorReport(life),v=s.owned.find(x=>x.registration===registration);
+ if(!v)return 'This registration is not in your name.';
+ const model=VEHICLE_MODELS.find(m=>m.id===v.model),cost=model?.service||50;
+ if(s.parts<1)return 'The workshop is waiting for parts from the Foundry.';
+ if(!take(life.civic.player,cost))return 'You need $'+cost+' for parts and labour.';
+ s.parts-=1;s.garageCash+=cost;
+ v.condition=Math.min(100,v.condition+28);v.lastService=life.day;v.serviceDue=life.day+14;v.roadworthy=v.condition>=60;
+ s.journal.unshift('Day '+life.day+': '+registration+' serviced for $'+cost+'.');
+ return registration+' serviced ($'+cost+'). Condition '+v.condition+'%; next due day '+v.serviceDue+'.';
+}
+export function renewRegistration(life,registration){
+ const s=motorReport(life),v=s.owned.find(x=>x.registration===registration);
+ if(!v)return 'Vehicle not found in your register.';
+ if(!v.roadworthy||v.condition<60)return 'Roadworthy repairs required first.';
+ const amount=v.model==='truck'?90:30;
+ if(!take(life.civic.player,amount))return 'Registration costs $'+amount+'.';
+ life.civic.treasury+=amount;v.regoUntil=Math.max(life.day,v.regoUntil)+28;
+ return registration+' registration renewed to day '+v.regoUntil+'.';
+}
+export function sellVehicle(life,registration){
+ const s=motorReport(life),v=s.owned.find(x=>x.registration===registration);
+ if(!v)return 'No matching vehicle title.';
+ const price=Math.round(v.price*(0.6+v.condition/250));
+ if(s.dealerCash<price)return 'Dealer lacks the funds to offer a trade-in.';
+ s.dealerCash-=price;life.civic.player.bank=r2(life.civic.player.bank+price);
+ s.owned=s.owned.filter(x=>x!==v);
+ s.stock.push({...v,stockId:'trade-'+s.next++,price:Math.round(price*1.18)});
+ s.journal.unshift('Day '+life.day+': sold '+registration+' for $'+price+'.');
+ return 'Dealer settled $'+price+' for '+registration+'; the title transferred.';
+}
+export function motorDay(life){
+ const s=motorReport(life);if(s.day===life.day)return;
+ s.day=life.day;
+ const foundry=life.place('foundry');
+ const restock=Math.min(Math.max(0,10-s.parts),foundry?.out?.parts||0,Math.floor(s.garageCash/12));
+ if(restock>0){foundry.out.parts-=restock;foundry.till+=restock*12;s.garageCash-=restock*12;s.parts+=restock;}
+ const dealerWage=Math.min(26,s.dealerCash),garageWage=Math.min(28,s.garageCash);
+ s.dealerCash-=dealerWage;s.garageCash-=garageWage;s.staffWages+=dealerWage+garageWage;
+ for(const v of s.owned){v.condition=Math.max(10,r2(v.condition-.15));v.roadworthy=v.condition>=60;}
+ for(const t of life.trucks){
+   t.condition=Math.max(25,r2((t.condition??85)-.2));
+   if(t.condition<45&&life.civic.treasury>=35&&s.parts>0){
+     life.civic.treasury-=35;s.garageCash+=35;s.parts--;t.condition=Math.min(100,t.condition+30);
+     life.stats.repairs=(life.stats.repairs||0)+1;life.log('Motor Workshop serviced depot truck '+t.id+' for $35.');
+   }
+ }
+}
++amount+'; tank '+v.fuel+'L.';
 }
 export function serviceVehicle(life,registration){
  const s=motorReport(life),v=s.owned.find(x=>x.registration===registration);
