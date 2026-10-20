@@ -7,7 +7,6 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
-- 2026-10-20 · ChatGPT — staff-dependent retail service on `feat/shop-service-presence-20261020`: shared availability, authoritative transaction guards, counter messages and regressions. Preserve current simulation and source-only deployment workflow.
 
 - 2026-10-20 · ChatGPT — **DONE: Android crowd-orbit loop at General Store**, PR #76 merged into `main` at `29fe2c0`. Adds `src/world/pedestrian-progress.js`, integrated progress recovery in `life.js`, named NPC stuck-target recovery in `npcs.js`, pub visitors seated indoors, `tests/pedestrian-orbit.mjs` in `test:town`. GitHub Repository Town Integration safety gate passed (town simulation/collision, geometry, build, privacy, game integrity). Render `repository-town-main-qa.onrender.com` is live at exactly `29fe2c0` (deploy `dep-dbbd3u3bc2fs73aoi0eg`). **Emergency Pages hotfix:** Generated-site files `world/pedestrian-progress.js`, `world/life.js`, `world/npcs.js` copied from that same tested source commit to `Parris-Tech-Services/Repository-town` (latest site commit `1ed3cf4`). Prior public module blob SHA matched pre-fix source exactly; future source builds contain same fix. GitHub Pages propagation and a real Android motion playtest still require independent confirmation.
 
