@@ -10,6 +10,8 @@ export const INCIDENTS=Object.freeze({
     place:'High Street',medical:true},
   breakin:{label:'Break-in at an occupied shop',services:['police'],priority:2,
     place:'High Street shops',criminal:true},
+  assault:{label:'Violent assault with an injured person',services:['police','ambulance'],priority:1,
+    place:'High Street',criminal:true,medical:true,serious:true},
   suspicious:{label:'Suspicious noise, no immediate danger',services:[],priority:4,
     place:'Residential street',nonEmergency:true}
 });
@@ -31,7 +33,7 @@ function log(t,record,message){
   const entry={at:safeNow(t),when:stamp(t),text:message};
   record.timeline.push(entry); t.log('Emergency '+record.id+': '+message);
 }
-const activeStages=new Set(['call-taking','dispatched','en-route','on-scene','investigating']);
+const activeStages=new Set(['call-taking','awaiting-unit','dispatched','en-route','on-scene','investigating']);
 export function callTripleZero(t,type,location=null){
   const kind=INCIDENTS[type];if(!kind)return{ok:false,message:'Unknown incident type.'};
   const state=emergencyState(t),now=safeNow(t);
@@ -58,12 +60,12 @@ export function callTripleZero(t,type,location=null){
 const transition=(t,i,status,message)=>{i.status=status;log(t,i,message);};
 function criminalCase(t,i){
   const s=emergencyState(t);if(i.caseId)return s.cases.find(c=>c.id===i.caseId);
-  const c={id:'C'+i.id.slice(1),incidentId:i.id,offence:'Suspected property break-in',opened:safeNow(t),
+  const c={id:'C'+i.id.slice(1),incidentId:i.id,offence:i.type==='assault'?'Alleged violent assault':'Suspected property break-in',opened:safeNow(t),
     status:'investigation',suspect:null,evidence:[
       {kind:'scene',text:'Damaged shop lock documented',reliability:'scene-verified'},
       {kind:'witness',text:'A witness account has not yet been verified',reliability:'unconfirmed'}
     ],charged:false,plea:null,bail:null,lawyer:null,hearingAt:null,verdict:null,
-    sentence:null,timeline:[]};
+    sentence:null,timeline:[],custody:'none',trialAt:null,risk:'unassessed'};
   s.cases.push(c);s.cases=s.cases.slice(-40);i.caseId=c.id;
   log(t,c,'Police secure the shop and begin recording evidence. No villager is automatically accused.');
   return c;
@@ -114,15 +116,44 @@ export function advanceEmergency(t){
   }
   for(const c of s.cases){
     if(c.status==='court-listed'&&now>=c.hearingAt){
-      // No verdict is ever produced unless a defendant was charged with
-      // corroborated evidence and had a recorded opportunity for advice.
-      if(!c.charged||!c.lawyer||!c.evidence.some(e=>e.kind==='independent'))
-        throw new Error('Unsafe court transition: missing charge, counsel or independent evidence');
-      c.status='hearing';log(t,c,'Local Court mention held. Magistrate reviews charge, evidence, bail and legal representation.');
-      // Evidence in this simulation is intentionally insufficient for proof
-      // beyond reasonable doubt unless a later tested court procedure adds it.
-      c.status='adjourned';c.hearingAt=null;
-      log(t,c,'Case adjourned for disclosure and further evidence. Defendant remains presumed innocent; no sentence imposed.');
+      if(!c.charged||!c.suspect||!c.lawyer||!c.evidence.some(e=>e.kind==='independent'))
+        throw new Error('Unsafe criminal proceeding: charges, identity, advice and disclosure required');
+      c.status='court-mention';log(t,c,'Magistrate holds initial Local Court mention, reviews disclosure and confirms access to legal advice.');
+      if(c.bail?.status==='police-refused'){
+        // Real bail is an individual unacceptable-risk assessment, NOT a
+        // formula. This scripted exercise illustrates a protective decision.
+        c.bail={status:'court-refused',reason:'serious allegation plus documented immediate contact risk',
+          review:'The defendant can seek further legal advice and bail review'};
+        c.custody='remand-corrections';log(t,c,'Court refuses bail on assessed risk. Remand in a separate corrections facility is NOT a conviction.');
+      }
+      c.status='listed-for-hearing';c.trialAt=now+3*1440;
+      log(t,c,'Matter adjourned for a defended hearing with disclosure and defence preparation. Accused pleads not guilty.');
+    }
+    if(c.status==='listed-for-hearing'&&now>=c.trialAt){
+      if(!c.charged||!c.lawyer)throw new Error('Trial without lawfully charged defendant and counsel');
+      const evidence=c.evidence.filter(e=>['independent','identification','forensic'].includes(e.kind));
+      // Simplified game court assessment, deliberately acquits if proof is
+      // uncertain. Identifying evidence and independent corroboration alone
+      // are NOT enough; the game requires additional authenticated forensics.
+      const beyondDoubt=evidence.some(e=>e.kind==='forensic')&&
+        evidence.some(e=>e.kind==='identification')&&
+        evidence.some(e=>e.kind==='independent');
+      c.verdict=beyondDoubt?'guilty':'not-guilty';
+      c.status='finalised';
+      if(!beyondDoubt){
+        c.custody='released';s.statistics.acquittals++;
+        c.sentence=null;
+        log(t,c,'Magistrate finds the charge not proven beyond reasonable doubt. Defendant acquitted and released; no sentence.');
+      }else{
+        s.statistics.convictions++;
+        c.sentence=c.offence.includes('assault')?{type:'custodial sentence',days:14,location:'off-map corrections facility',releaseAt:now+14*1440}:
+          {type:'court-imposed fine with victim compensation assessment',amount:240};
+        c.custody=c.sentence.releaseAt?'sentenced-corrections':'released';
+        log(t,c,'After conviction the magistrate imposes a proportionate illustrative sentence; custody if ordered is at off-map corrections, never in the police station.');
+      }
+    }
+    if(c.status==='finalised'&&c.custody==='sentenced-corrections'&&c.sentence?.releaseAt<=now){
+      c.custody='released';log(t,c,'Corrections confirms sentence complete and orders release. No further detention without legal grounds.');
     }
   }
   return s;
@@ -151,18 +182,62 @@ export function seekLegalAdvice(t,caseId,person='defendant'){
   log(t,c,'Defendant requested a legal adviser. Confidential legal advice is separate from police evidence.');
   return 'Legal adviser requested. Eligibility for NSW Legal Aid is assessed individually, not automatically guaranteed.';
 }
+// A controlled scenario witness is generated for a *nonresident actor*,
+// not for any actual villager chosen at random. Real shop CCTV and the
+// on-scene officer's independent identification must both be recorded.
+export function verifySceneWitness(t,caseId){
+  const c=emergencyState(t).cases.find(x=>x.id===caseId);
+  if(!c||c.status!=='investigation')return 'Only an open investigation can verify a witness.';
+  if(!c.evidence.some(e=>e.kind==='independent'))return 'Obtain and log independent scene footage before matching an identity.';
+  if(c.suspect)return 'Witness has already been recorded and identity is under review.';
+  const incident=emergencyState(t).incidents.find(i=>i.id===c.incidentId);
+  if(!incident||incident.status==='call-taking'||incident.status==='dispatched'||incident.status==='en-route')
+    return 'Police have not yet attended this scene to verify the witness.';
+  c.suspect={id:'SCENARIO-'+c.id,name:'Visiting suspect ('+c.id+')',resident:false,identityVerified:true};
+  c.evidence.push({kind:'identification',text:'Responding officer checked witness description against an independent visual record',
+    reliability:'verified-scenario-identification'});
+  log(t,c,'After attending the scene, an officer verifies a visiting suspect against witness and CCTV. Actual residents are not automatically blamed.');
+  return 'Independent identity corroboration recorded. A charge still requires review; suspect remains presumed innocent.';
+}
+export function examineForensics(t,caseId){
+  const c=emergencyState(t).cases.find(x=>x.id===caseId);
+  if(!c||!c.suspect||!c.charged)return 'Complete a lawful charge and identification before the simulated laboratory report is released.';
+  if(c.evidence.some(e=>e.kind==='forensic'))return 'Forensic exhibit already recorded.';
+  c.evidence.push({kind:'forensic',text:'Independent laboratory links a controlled exhibit to the scripted visiting suspect',
+    reliability:'laboratory-report-in-scenario'});
+  log(t,c,'Independent test results disclosed to prosecution and defence. Court, not police, decides what proof is sufficient.');
+  return 'Forensic report recorded and disclosed to defence.';
+}
 export function evaluatePoliceCharge(t,caseId){
   const c=emergencyState(t).cases.find(x=>x.id===caseId);
   if(!c)return 'Case not found.';
   if(c.status!=='investigation')return 'This investigation is no longer at the charging stage.';
-  // This edition has NO verified suspect identification from CCTV/witness
-  // matching. Return the correct legal outcome, not a made-up arrest.
-  log(t,c,'Investigators reviewed collected material. No reliably identified accused person. Further enquiries required.');
-  return 'Evidence review recorded; no charge laid. A police report is not proof that a crime occurred, or that any resident is guilty.';
+  const corroborated=c.suspect?.identityVerified&&
+    c.evidence.some(e=>e.kind==='independent')&&c.evidence.some(e=>e.kind==='identification');
+  if(!corroborated){
+    log(t,c,'Investigators cannot establish a corroborated suspect. Investigation remains open; no arbitrary arrest.');
+    return 'Police cannot charge without an identified suspect and sufficient corroborated material. Report stays under investigation.';
+  }
+  c.charged=true;c.status='court-listed';c.custody='station-holding';c.plea='not-guilty';
+  c.risk=c.offence.includes('assault')?'serious alleged harm and immediate safety concerns':'low risk; fixed court date';
+  c.bail=c.offence.includes('assault')?
+    {status:'police-refused',reason:'serious risk to alleged victim, prompt court review required'}:
+    {status:'police-granted',conditions:['Attend Local Court','Do not contact the complainant'],reason:'risks managed by conditions'};
+  if(c.bail.status==='police-granted')c.custody='released';
+  c.hearingAt=t.day*1440+10*60;
+  c.lawyer ||= {type:'legal advice requested before court',client:'defendant',contactedAt:safeNow(t)};
+  emergencyState(t).statistics.charges++;
+  log(t,c,'Police charge the corroborated visiting suspect after investigation; record rights, bail decision, legal advice and initial court date. Allegation not a conviction.');
+  return c.id+' charged in an illustrative case. '+(c.bail.status==='police-granted'?'Conditional police bail granted.':'Police refuse bail pending prompt judicial review.')+
+    ' First Local Court mention scheduled on Day '+(t.day+1)+' at 10:00.';
 }
 export function justiceSummary(t){
   const s=emergencyState(t),cases=s.cases;return 'Open investigations: '+
     cases.filter(c=>c.status==='investigation').length+'. Cases before court: '+
     cases.filter(c=>c.status==='court-listed'||c.status==='hearing').length+
-    '. Persons in police custody: 0. Sentenced prisoners: 0. No resident has been charged without verified identification.';
+    '. Police holding: '+cases.filter(c=>c.custody==='station-holding').length+
+    '. On remand at off-map corrections: '+cases.filter(c=>c.custody==='remand-corrections').length+
+    '. Serving sentence at off-map corrections: '+cases.filter(c=>c.custody==='sentenced-corrections').length+
+    '. Charges: '+s.statistics.charges+'. Convictions: '+s.statistics.convictions+
+    '. Acquittals: '+s.statistics.acquittals+'. No resident is accused without verified identification.';
 }
