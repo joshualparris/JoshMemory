@@ -6,6 +6,8 @@ Add a line under **In progress** when you start (who, what, which files), move i
 Newest first. Times in Australia/Sydney.
 
 ## In progress
+- 2026-10-20 · ChatGPT — **L8 Wastewater Works interior (distinct from J8 Water Works)**, feature branch `feat/wastewater-works-interior-20261020`. Scope: new `src/world/wastewater-interior.js`, minimal `src/world/shop-interior.js` routing, `tests/wastewater-interior.mjs`, core civic-interior checks, package test suite and `docs/WASTEWATER_WORKS_INTERIOR.md`. Inspired by Dubbo Regional Council and Sydney Water treatment stages; SCADA lab, covered bar screen/grit, bioreactor/clarifier, sludge and reuse, full-width clear visitor spine. No NPC, physics, power, water, depot, other shop or external module overwritten. CI and public-site publication pending.
+
 
 - 2026-10-20 21:31 Sydney · ChatGPT — CLAIMED Water Works J8 on `feat/waterworks-interior-20261020`: dedicated treatment building, laboratory, pumps and reachable interactions; new waterworks-interior.js, shop dispatcher/tests only. Preserve Claude’s Power Station PR87; do not overlap.
 
