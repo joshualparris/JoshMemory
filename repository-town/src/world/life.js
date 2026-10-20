@@ -54,6 +54,30 @@ export const GOODS = {
   ore: { name: 'ore', unit: 'tonne', price: 4 },
   scrap: { name: 'scrap metal', unit: 'crate', price: 2 },
   parts: { name: 'spare parts', unit: 'box', price: 12 },
+  cafe_roll: { name: 'bacon-and-egg roll', unit: 'serve', price: 9 },
+  cafe_breakfast: { name: 'big brekkie', unit: 'serve', price: 14 },
+  cafe_flat_white: { name: 'flat white and muffin', unit: 'serve', price: 8 },
+  cafe_toastie: { name: 'toastie', unit: 'serve', price: 9 },
+  cafe_soup: { name: 'soup of the day', unit: 'serve', price: 10 },
+  pub_parmy: { name: 'parmy and chips', unit: 'serve', price: 22 },
+  pub_roast: { name: 'roast of the day', unit: 'serve', price: 24 },
+  pub_pie: { name: 'steak pie and mash', unit: 'serve', price: 18 },
+  pub_tea: { name: 'cup of tea', unit: 'serve', price: 4 },
+  pub_coffee: { name: 'cup of coffee', unit: 'serve', price: 5 },
+  cafe_pie: { name: 'pie of the day', unit: 'serve', price: 10 },
+  cafe_cream_bun: { name: 'cream bun', unit: 'serve', price: 6 },
+  cafe_lamington: { name: 'lamington', unit: 'serve', price: 5 },
+  cafe_sausage_roll: { name: 'sausage roll', unit: 'serve', price: 7 },
+  cafe_coffee: { name: 'coffee', unit: 'serve', price: 5 },
+  store_coffee: { name: 'takeaway coffee', unit: 'serve', price: 5 },
+  store_cordial: { name: 'cordial', unit: 'bottle', price: 4 },
+  store_tinned_food: { name: 'tinned goods', unit: 'tin', price: 4 },
+  store_butter: { name: 'butter', unit: 'block', price: 5 },
+  store_lollies: { name: 'lollies', unit: 'bag', price: 3 },
+  pub_beer: { name: 'tap beer', unit: 'glass', price: 8 },
+  pub_bottled_beer: { name: 'bottled beer', unit: 'bottle', price: 9 },
+  pub_soft_drink: { name: 'soft drink', unit: 'glass', price: 4 },
+  pub_chips: { name: 'chips', unit: 'serve', price: 7 },
 };
 
 // col letter → place. `sells` are what villagers can buy; `makes` what work produces.
@@ -117,6 +141,41 @@ const MEALS = {
   dinner: [['roast lamb and veg', { lamb: 1, veg: 1 }], ['a vegie omelette', { eggs: 1, veg: 1 }], ['a meat pie with peas', { pie: 1 }], ['vegetable soup with bread', { veg: 1, bread: 1 }]],
 };
 const OUT_MEALS = { cafe: [['bacon-and-egg roll', 9], ['big brekkie', 14], ['flat white and a muffin', 8], ['toastie', 9], ['soup of the day', 10]], pub: [['a parmy and chips', 22], ['roast of the day', 24], ['steak pie and mash', 18]] };
+
+// Prepared dishes use the same real stock, money, bag and receipt system as retail goods.
+// Ingredient quantities are simplified town-simulation recipes, not exact food recipes.
+export const VENUE_MENU = Object.freeze({
+  cafe: Object.freeze({
+    cafe_roll: { bread: 1, eggs: 1 },
+    cafe_breakfast: { bread: 1, eggs: 1, veg: 1 },
+    cafe_flat_white: { coffee: 1, milk: 1, bread: 1 },
+    cafe_toastie: { bread: 1, milk: 1 },
+    cafe_soup: { veg: 1 },
+    cafe_pie: { pie: 1 },
+    cafe_cream_bun: { bread: 1, milk: 1 },
+    cafe_lamington: { bread: 1, milk: 1 },
+    cafe_sausage_roll: { pie: 1 },
+    cafe_coffee: { coffee: 1 },
+  }),
+  store: Object.freeze({
+    store_coffee: { coffee: 1 },
+    store_cordial: { fruit: 1 },
+    store_tinned_food: { veg: 1 },
+    store_butter: { milk: 1 },
+    store_lollies: { fruit: 1 },
+  }),
+  pub: Object.freeze({
+    pub_parmy: { lamb: 1, veg: 1 },
+    pub_roast: { lamb: 1, veg: 1 },
+    pub_pie: { pie: 1, veg: 1 },
+    pub_tea: { tea: 1 },
+    pub_coffee: { coffee: 1 },
+    pub_beer: { grain: 1 },
+    pub_bottled_beer: { grain: 1 },
+    pub_soft_drink: { fruit: 1 },
+    pub_chips: { veg: 1 },
+  }),
+});
 
 const plural = (unit, n) => (n === 1 ? unit : /[sx]$|ch$/.test(unit) ? `${unit}es` : unit === 'loaf' ? 'loaves' : `${unit}s`);
 export const amount = (good, n) => (GOODS[good].unit === 'dozen' ? `${n} dozen ${GOODS[good].name}` : `${n} ${plural(GOODS[good].unit, n)} of ${GOODS[good].name}`);
@@ -455,6 +514,30 @@ export class TownLife {
     me.bag[good] = (me.bag[good] || 0) + 1; this.stats.sold[good] = (this.stats.sold[good] || 0) + 1;
     this.log(`A visitor bought ${GOODS[good].name} at the ${p.name}.`);
     return `You buy ${amount(good, 1)} for $${price}. It's in your bag.`;
+  }
+  menuAvailability(shopId, good) {
+    const recipe = VENUE_MENU[shopId]?.[good];
+    if (!recipe) return false;
+    const stock = this.shelves(this.place(shopId));
+    return (stock[good] || 0) > 0 ||
+      Object.entries(recipe).every(([ingredient, n]) => (stock[ingredient] || 0) >= n);
+  }
+  buyMenuItem(shopId, good) {
+    const recipe = VENUE_MENU[shopId]?.[good];
+    if (!recipe) return 'That dish is not on this menu.';
+    const p = this.place(shopId), me = this.civic.player, price = GOODS[good].price;
+    if (!this.open(p)) return `The ${p.name} is closed — it opens at ${fmt(p.opens)}.`;
+    if (!this.menuAvailability(shopId, good)) return `Sorry, ${GOODS[good].name} is sold out until ingredients arrive.`;
+    if (me.wallet < price) return `You need ${price} but have ${me.wallet}.`;
+    const stock = this.shelves(p);
+    if ((stock[good] || 0) > 0) stock[good]--;
+    else for (const [ingredient, n] of Object.entries(recipe)) stock[ingredient] -= n;
+    me.wallet -= price; this.sale(p, price);
+    receipt(this, 'purchase', `${GOODS[good].name} at ${p.name}`, -price);
+    me.bag[good] = (me.bag[good] || 0) + 1;
+    this.stats.sold[good] = (this.stats.sold[good] || 0) + 1;
+    this.log(`The visitor ordered ${GOODS[good].name} at ${p.name}.`);
+    return `You buy ${GOODS[good].name} for ${price}. It's in your bag and ready to eat.`;
   }
   sellItem(shopId, good) {
     const p = this.place(shopId), me = this.civic.player, pay = Math.max(1, Math.floor(GOODS[good].price * 0.6));
