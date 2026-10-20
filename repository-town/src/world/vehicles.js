@@ -30,7 +30,7 @@ export function buyVehicle(life,stockId){
    regoUntil:life.day+28,lastService:life.day,serviceDue:life.day+14,roadworthy:item.condition>=60};
  s.owned.push(vehicle);
  s.journal.unshift('Day '+life.day+': bought '+vehicle.registration+' for $'+item.price+'.');
- return vehicle.registration+' registered in your name. Transfer costs $'+(duty+transfer)+'. Rego expires day '+vehicle.regoUntil+'. Player driving is not yet supported.';
+ return vehicle.registration+' registered in your name. Transfer costs $'+(duty+transfer)+'. Rego expires day '+vehicle.regoUntil+'. Parked at High Street Motors: approach the car and use E or the hand control to drive.';
 }
 export function serviceVehicle(life,registration){
  const s=motorReport(life),v=s.owned.find(x=>x.registration===registration);
@@ -79,4 +79,17 @@ export function motorDay(life){
      life.stats.repairs=(life.stats.repairs||0)+1;life.log('Motor Workshop serviced depot truck '+t.id+' for $35.');
    }
  }
+}
+
+export function refuelVehicle(life,registration) {
+ const state=motorReport(life),vehicle=state.owned.find(v=>v.registration===registration);
+ if(!vehicle)return 'Vehicle not owned by player.';
+ const need=Math.max(0,30-(vehicle.fuel??20)),litres=Math.min(10,need),price=r2(litres*3);
+ if(litres===0)return 'Fuel tank is full.';
+ const depot=life.place('depot');
+ const drums=Math.ceil(litres/10);
+ if((depot.out.fuel||0)<drums)return 'Fuel delivery required at the depot.';
+ if(!take(life.civic.player,price))return 'Insufficient cleared funds for fuel.';
+ depot.out.fuel-=drums;state.dealerCash+=price;vehicle.fuel=r2((vehicle.fuel??20)+litres);
+ return registration+' refuelled '+litres+' litres for '+price+' Town Dollars.';
 }

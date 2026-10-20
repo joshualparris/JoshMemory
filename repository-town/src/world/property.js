@@ -1,7 +1,9 @@
 // Physical land titles are independent of GitHub repository authorship.
 // 28-day simulation year: values are fictional Town Dollars, not actual NSW valuations.
 // Council assets cannot be sold, and tenancies survive a change of landlord.
+import { nswIndicativeQuote } from './nsw-property-law.js';
 const round=n=>Math.round(n*100)/100;
+const dutyFor=p=>nswIndicativeQuote(p.value).scaledTownDuty;
 export const PROPERTY_YEAR=28;
 export const PROPERTY_RULES=Object.freeze({deposit:0.2,transfer:0.03,agency:0.02,conveyancing:20,mortgageDaily:0.0008,loanDays:112});
 export const publicSites=new Set(['hall','square','school','clinic','depot','post','fire','power','waterworks','sewage','recycling','landfill','bank']);
@@ -69,7 +71,7 @@ export function propertyReport(life) {
     debt:Object.values(s.liens).reduce((a,b)=>a+b.balance,0),
     playerLease:s.playerLease,journal:s.journal.slice(0,12),reserve:s.reserve};
 }
-export const closingCosts=p=>round(p.value*PROPERTY_RULES.transfer+PROPERTY_RULES.conveyancing);
+export const closingCosts=p=>round(dutyFor(p)+PROPERTY_RULES.conveyancing);
 export const depositFor=p=>round(p.value*PROPERTY_RULES.deposit+closingCosts(p));
 export function buyProperty(life,id){
   const s=registry(life),p=s.parcels[id],me=life.civic.player;
@@ -79,7 +81,7 @@ export function buyProperty(life,id){
   if(cash(me)<upfront)return 'You need '+upfront+' Town Dollars for the deposit, duty and conveyancing. You have '+round(cash(me))+'.';
   if(s.reserve<loan)return 'The Community Bank does not have enough property lending funds available.';
   if(!spend(me,upfront))return 'Insufficient cleared funds.';
-  const duty=round(p.value*PROPERTY_RULES.transfer),fee=round(p.value*PROPERTY_RULES.agency);
+  const duty=dutyFor(p),fee=round(p.value*PROPERTY_RULES.agency);
   s.reserve=round(s.reserve-loan);
   // Transfer price comes from the bank advance plus the buyer's equity.
   s.accounts[owner]=round((s.accounts[owner]||0)+p.value-fee);
