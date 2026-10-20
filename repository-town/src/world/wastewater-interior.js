@@ -64,6 +64,11 @@ export function buildWastewaterInterior(site,makeLabel,life=null){
     cyl(.17,.17,.10,x,y,z+.02,0xf2f5ea,{rx:Math.PI/2});
     box(.11,.017,.015,x+.03,y+.04,z+.08,C.red,{rz:.5});
   };
+  const gauge=(x,y,z)=>{
+    cyl(.22,.22,.075,x,y,z,C.cream,{rx:Math.PI/2});
+    cyl(.16,.16,.077,x,y,z+.018,0xeaf1ea,{rx:Math.PI/2});
+    box(.095,.014,.014,x+.02,y+.05,z+.06,C.red,{rz:.52});
+  };
   const tank=(x,z,colour,r=.72,h=1.23)=>{
     // Round sealed model basins and closed process vessels, not exposed pits.
     cyl(r,r,h,x,h/2,z,colour,{a:.82},16);
@@ -240,6 +245,16 @@ export function buildWastewaterInterior(site,makeLabel,life=null){
   ];
   const rooms=zones.map((name,i)=>({name,...bounds[i],
     w:bounds[i].x1-bounds[i].x0,d:bounds[i].z1-bounds[i].z0,parent:-1}));
+  // The common interaction kit starts every hotspot in room zero.
+  // Assign the correct treatment zone for NPC scene awareness and inspection.
+  for(let i=0;i<k.interactables.length;i++){
+    const item=k.interactables[i],scene=k.sceneObjects[i];
+    const zone=rooms.findIndex(r=>item.pos.x>=r.x0 && item.pos.x<=r.x1 &&
+      item.pos.z>=r.z0 && item.pos.z<=r.z1);
+    if(zone<0)throw new Error('Wastewater hotspot outside zones: '+item.key);
+    item.room=zone;item.roomName=rooms[zone].name;
+    scene.room=zone;
+  }
   return k.finish({wastewaterLayout:true,rooms,
     staff:{pos:WASTEWATER_LAYOUT.staff,use:WASTEWATER_LAYOUT.staffUse},
     wastewaterSnapshot:{stored:inflow,pollution:Number.isFinite(pollution)?pollution:null}
