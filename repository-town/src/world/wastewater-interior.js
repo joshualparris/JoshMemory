@@ -64,11 +64,6 @@ export function buildWastewaterInterior(site,makeLabel,life=null){
     cyl(.17,.17,.10,x,y,z+.02,0xf2f5ea,{rx:Math.PI/2});
     box(.11,.017,.015,x+.03,y+.04,z+.08,C.red,{rz:.5});
   };
-  const gauge=(x,y,z)=>{
-    cyl(.22,.22,.075,x,y,z,C.cream,{rx:Math.PI/2});
-    cyl(.16,.16,.077,x,y,z+.018,0xeaf1ea,{rx:Math.PI/2});
-    box(.095,.014,.014,x+.02,y+.05,z+.06,C.red,{rz:.52});
-  };
   const tank=(x,z,colour,r=.72,h=1.23)=>{
     // Round sealed model basins and closed process vessels, not exposed pits.
     cyl(r,r,h,x,h/2,z,colour,{a:.82},16);
