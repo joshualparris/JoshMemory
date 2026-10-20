@@ -17,6 +17,7 @@ import { ensureHousehold, hasFood, heldCount, takeFood, stowFood, larderSummary,
 import { startNeeds, advanceNeeds, eatPlayer, hotelCheckIn, sleepPlayer, needsReport } from './needs.js';
 import { initialiseProperties, propertyReport, buyProperty, listProperty, sellProperty, leaseProperty, endLease, propertyDay } from './property.js';
 import { initialiseVehicles, motorReport, buyVehicle, serviceVehicle, renewRegistration, sellVehicle, motorDay } from './vehicles.js';
+import { initialiseTradeEducation, advanceTradeEducation } from './trade-education.js';
 import { MAYOR_CANDIDATES, createGovernment, civicElection, castCivicVote, submitRequest, requestFeeder, proposeMotion, councilMeeting, advanceCivicWork, budgetRevenue, restoreCivic, govSummary, maintainServices } from './government.js';
 // Town life simulation: the clock, farms, the mill and bakery, shops, trucks, the post,
 // and villagers with jobs, hunger, pantries, wallets and daily routines. Pure logic (no
@@ -125,6 +126,10 @@ export const PLACE_DEFS = [
   { col: 'S', side: 'south', id: 'realestate', name: 'Central West Property & Land', kind: 'service', opens: 9 * 60, closes: 17 * 60 },
   { col: 'T', side: 'south', id: 'dealership', name: 'High Street Motors', kind: 'service', opens: 8 * 60, closes: 17 * 60 },
   { col: 'U', side: 'south', id: 'mechanic', name: 'Town Motor Workshop', kind: 'service', opens: 8 * 60, closes: 17 * 60 },
+  { col: 'V', side: 'south', id: 'hardware', name: 'Central West Hardware & Timber', kind: 'service', opens: 7 * 60, closes: 18 * 60 },
+  { col: 'W', side: 'south', id: 'trades', name: 'Town Trades & Maintenance', kind: 'service', opens: 7 * 60, closes: 17 * 60 },
+  { col: 'X', side: 'south', id: 'tafe', name: 'Town TAFE Trades Campus', kind: 'education', opens: 8 * 60, closes: 18 * 60 },
+  { col: 'Y', side: 'south', id: 'university', name: 'Regional University Study Centre', kind: 'education', opens: 8 * 60, closes: 21 * 60 },
 ];
 
 const JOBS = [
@@ -356,6 +361,7 @@ export class TownLife {
     this.place('hotel').bookings=[];
     initialiseProperties(this);
     initialiseVehicles(this);
+    initialiseTradeEducation(this);
     this.log(`Day ${this.day} begins. The town wakes up.`);
   }
 
@@ -375,7 +381,7 @@ export class TownLife {
     this.minute += minutes;
     if (this.minute >= 24 * 60) { this.minute -= 24 * 60; this.day++; this.newDay(); }
     const hourly = Math.floor(before / 60) !== Math.floor(this.minute / 60) || this.minute < before;
-    if (hourly) this.everyHour();
+    if (hourly) { this.everyHour(); advanceTradeEducation(this); }
     advanceNeeds(this,minutes);
     for (const o of readyOrders(this)) this.collectOrder(o);
     for (const v of this.villagers) this.liveVillager(v, minutes);
@@ -1503,6 +1509,7 @@ export class TownLife {
     this.powerGridEventSeq=Number.isSafeInteger(s.powerGridEventSeq)?s.powerGridEventSeq:this.powerGridEvents.length;
     if (s.civic && typeof s.civic === 'object') Object.assign(this.civic, s.civic, { player: { ...this.civic.player, ...(s.civic.player || {}) } });
     restoreCivic(this,s.civic?.government);
+    initialiseTradeEducation(this);
     initialisePublicLife(this);
     this.civic.powerLines = this.civic.powerLines && typeof this.civic.powerLines === 'object' ? this.civic.powerLines : {};
     if(this.civic.supply.powerDemand>0)this.updatePowerGrid();
