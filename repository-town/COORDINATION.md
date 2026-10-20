@@ -6,6 +6,8 @@ Add a line under **In progress** when you start (who, what, which files), move i
 Newest first. Times in Australia/Sydney.
 
 ## In progress
+- 2026-10-20 · ChatGPT — **P8 Recycling Centre interior**, `feat/p8-recycling-depot-interior-20261020`: research-based local reuse depot, guarded pre-sort and sorting displays, stock-dependent baling, dedicated loading bay, 16 hotspots and flood-fill walking tests. New `src/world/recycling-interior.js`, minimal `src/world/shop-interior.js` route, `tests/recycling-interior.mjs`, `tests/shop-interiors.mjs`, `package.json`, `docs/RECYCLING_CENTRE_INTERIOR.md`. No changes to NPC, traffic, Water Works, Wastewater Works or Foundry. CI and public deployment pending.
+
 - 2026-10-20 · ChatGPT — **L8 Wastewater Works interior (distinct from J8 Water Works)**, feature branch `feat/wastewater-works-interior-20261020`. Scope: new `src/world/wastewater-interior.js`, minimal `src/world/shop-interior.js` routing, `tests/wastewater-interior.mjs`, core civic-interior checks, package test suite and `docs/WASTEWATER_WORKS_INTERIOR.md`. Inspired by Dubbo Regional Council and Sydney Water treatment stages; SCADA lab, covered bar screen/grit, bioreactor/clarifier, sludge and reuse, full-width clear visitor spine. No NPC, physics, power, water, depot, other shop or external module overwritten. CI and public-site publication pending.
 
 
