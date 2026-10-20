@@ -922,10 +922,10 @@ export class TownLife {
         o.step?.at===step.at && o.step?.queueSlot!==undefined &&
         (o.path?.length || o.step?.dur>0 || o.step?.until!==undefined)).map(o=>o.step.queueSlot));
       let slot=0;while(active.has(slot)&&slot<64)slot++;
-      const row=Math.min(1,Math.floor(slot/7)),col=slot%7;
-      const offset=col===0?0:(col%2?1:-1)*Math.ceil(col/2)*1.6;
+      const row=Math.min(1,Math.floor(slot/11)),col=slot%11;
+      const offset=col===0?0:(col%2?1:-1)*Math.ceil(col/2)*1.9;
       const towardRoad=site.side==='south'?-1:1;
-      target={x:site.front.x+offset,z:site.front.z+row*1.6*towardRoad};
+      target={x:site.front.x+offset,z:site.front.z+row*1.9*towardRoad};
       step={...step,queueSlot:slot};
     }
     v.step = { ...step, target };
