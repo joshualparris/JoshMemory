@@ -1,0 +1,33 @@
+name: Repository Town Mobile Driving
+on:
+  pull_request:
+    paths:
+      - 'repository-town/src/**'
+      - 'repository-town/tests/mobile-driving.mjs'
+      - '.github/workflows/repository-town-mobile-driving.yml'
+  workflow_dispatch:
+jobs:
+  android-emulation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Install sandboxed Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Build sanitized game
+        run: npm run build
+      - name: Run town web server and touchscreen playtest
+        run: |
+          node tools/serve.mjs dist/public 8091 > /tmp/rt-serve.log 2>&1 &
+          for n in $(seq 1 45); do if curl -fsS http://127.0.0.1:8091/ >/dev/null; then break; fi; sleep 1; done
+          TOWN_URL=http://127.0.0.1:8091/ node tests/mobile-driving.mjs
