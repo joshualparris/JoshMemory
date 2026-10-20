@@ -1,5 +1,6 @@
 import { separatePedestrians } from './pedestrian-spacing.js';
 import { orderCafe } from './cafe-menu.js';
+import { orderPub } from './pub-menu.js';
 import { bicycleClear, cyclingRoute } from './bicycle-safety.js';
 import { pedestrianDetour,canFinishNearOccupiedDoor } from './pedestrian-navigation.js';
 import { distributePower, townPowerDemands, POWER_LINE_IDS, GRID_FAULT_COST } from './power-grid.js';
@@ -465,6 +466,7 @@ export class TownLife {
   }
   eatItem(good) { return eatPlayer(this,good); }
   orderCafe(itemId) { return orderCafe(this,itemId); }
+  orderPub(itemId) { return orderPub(this,itemId); }
   bookHotel() { return hotelCheckIn(this); }
   sleepHotel(room=null) { return sleepPlayer(this,'hotel',room); }
   needsReport() { return needsReport(this); }
