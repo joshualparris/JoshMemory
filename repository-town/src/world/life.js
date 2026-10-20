@@ -302,6 +302,9 @@ export class TownLife {
     this.place('waterworks').stock = { water: 160 };
     this.place('sewage').stock = { wastewater: 0 };
     this.place('recycling').stock = { recyclables: 0, scrap: 4 };
+    // One-time opening capital supplied by the agency's founding investors.
+    // Unlike a public service, agency wages draw down finite company reserves.
+    this.place('realty').till = 650;
     this.place('landfill').stock = { rubbish: 0 };
     Object.assign(this.place('foundry').stock, { ore: 20, metal: 4 });
     this.place('foundry').out = { parts: 6 };
