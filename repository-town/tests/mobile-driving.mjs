@@ -11,7 +11,7 @@ try {
  await page.goto(URL,{waitUntil:'domcontentloaded',timeout:90000});
  await page.waitForFunction(()=>window.__town&&document.getElementById('loading').hidden,null,{timeout:90000});
  assert(await page.isVisible('#t-use'),'the mobile Use action is visible');
- await page.evaluate(()=>{window.__town.life.ledger().civic.player.bank=5000;window.__town.enterShop('dealership');});
+ await page.evaluate(()=>{window.__town.life.setTime(10*60);window.__town.life.ledger().civic.player.bank=5000;window.__town.enterShop('dealership');});
  await page.waitForFunction(()=>window.__town.state().mode==='house');
  const things=await page.evaluate(()=>window.__town.state().interactables);
  const counter=things.find(x=>/vehicle sales desk/i.test(x.label));
