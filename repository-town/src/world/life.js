@@ -955,7 +955,7 @@ export class TownLife {
       // A visit only happens when a real named neighbour is available at home.
       // The relationship influences who we choose, but work and sleep come first.
       const available=this.villagers.filter(o=>o!==v && o.inside &&
-        !o.path.length && o.step?.at==='home' && o.step?.kind!=='sleep');
+        !o.path.length && o.step?.at==='home' && o.step?.kind==='idle');
       const friend=chooseSocialVisit(this.social,v.name,available,this.day);
       if(friend){
         const home=friend.home;
@@ -1168,7 +1168,7 @@ export class TownLife {
     if(s.socialTarget){
       const other=this.villagers.find(o=>o.name===s.socialTarget);
       if(other && other.inside && !other.path.length &&
-        other.step?.at==='home' && other.step?.kind!=='sleep'){
+        other.step?.at==='home' && other.step?.kind==='idle'){
         const event=recordSocialEvent(this.social,v.name,other.name,'visit',this.day,this.minute);
         if(event)this.log(event.text);
       }
