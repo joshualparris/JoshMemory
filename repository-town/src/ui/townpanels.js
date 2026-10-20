@@ -189,21 +189,41 @@ function placePanelBase(life, id) {
   const shelves = id === 'bakery' ? p.out : p.stock;
   const sells = { store: p.sells, bakery: p.sells, greengrocer: p.sells, butcher: p.sells, cafe: ['pie', 'bread'], pub: ['pie'] }[id] || [];
   const prepared = id === 'cafe' ? {} : (VENUE_MENU[id] || {});
-  if (Object.keys(prepared).length) rows.push('<h3>Menu · available to order</h3><p>' +
-    Object.keys(prepared).map(g => esc(GOODS[g].name) + ' 
-  const act = (label, fn) => ({ label, run: () => { const msg = fn(); const next = again(); return { ...next, body: `<p><b>${esc(msg)}</b></p>` + next.body }; } });
-  const actions = sells.filter((g) => (shelves[g] || 0) > 0).map((g) => act(`Buy ${GOODS[g].unit === 'pie' ? 'a pie' : `a ${GOODS[g].unit} of ${GOODS[g].name}`} ($${GOODS[g].price})`, () => life.buyItem(id, g)));
-  for (const g of Object.keys(prepared).filter(g => life.menuAvailability(id, g))) actions.push(act(`Order ${GOODS[g].name} (${GOODS[g].price})`, () => life.buyMenuItem(id, g)));
-  for (const g of [...new Set([...sells, ...Object.keys(prepared)])].filter(g => me.bag[g] > 0)) actions.push(act(`Sell back ${GOODS[g].name}`, () => life.sellItem(id, g)));
-  for (const g of Object.keys(me.bag).filter((g) => me.bag[g] > 0 && (['bread', 'pie', 'fruit', 'veg', 'eggs', 'milk', 'lamb'].includes(g) || Object.hasOwn(prepared, g))).slice(0, 1)) actions.push(act(`Eat the ${GOODS[g].name}`, () => life.eatItem(g)));
+  const me = life.civic.player, again = () => placePanel(life, id);
+  const act = (label, fn) => ({ label, run: () => {
+    const msg = fn(), next = again();
+    return { ...next, body: '<p><b>' + esc(msg) + '</b></p>' + next.body };
+  } });
+  const actions = sells.filter(g => (shelves[g] || 0) > 0)
+    .map(g => act('Buy ' + GOODS[g].name + ' ($' + GOODS[g].price + ')', () => life.buyItem(id, g)));
+  if (Object.keys(prepared).length) {
+    rows.push('<h3>Menu · available to order</h3><p>' +
+      Object.keys(prepared).map(g => esc(GOODS[g].name) + ' · $' + GOODS[g].price +
+      (life.menuAvailability(id,g) ? '' : ' (sold out)')).join(' · ') + '</p>');
+    for (const g of Object.keys(prepared).filter(g => life.menuAvailability(id,g)))
+      actions.push(act('Order ' + GOODS[g].name + ' ($' + GOODS[g].price + ')', () => life.buyMenuItem(id,g)));
+  }
+  for (const g of [...new Set([...sells, ...Object.keys(prepared)])].filter(g => (me.bag[g] || 0) > 0 && GOODS[g]))
+    actions.push(act('Sell back ' + GOODS[g].name, () => life.sellItem(id,g)));
+  for (const g of Object.keys(me.bag).filter(g => me.bag[g] > 0 && ['bread','pie','fruit','veg','eggs','milk','lamb'].includes(g)).slice(0,1))
+    actions.push(act('Eat the ' + GOODS[g].name, () => life.eatItem(g)));
   if (id === 'post') actions.push(act('Post a letter to Mabel ($2)', () => life.postLetter('Mabel')));
   if (id === 'cafe') {
     const categories = [...new Set(CAFE_MENU.map(item => item.category))];
-    rows.push('<h3>Commit Café menu</h3><p>Order at the counter. Prices include preparation and service; all orders use delivered ingredients and are served immediately.</p>');
+    rows.push('<h3>Commit Café menu</h3><p>Prepared to order using delivered ingredients.</p>');
     for (const category of categories) {
-      rows.push('<h4>' + esc(category) + '</h4>');
-      rows.push('<p>' + CAFE_MENU.filter(item => item.category === category)
-        .map(item => esc(item.name) + ' · 
+      rows.push('<h4>' + esc(category) + '</h4><p>' +
+        CAFE_MENU.filter(item => item.category === category)
+          .map(item => esc(item.name) + ' · $' + item.price +
+            (cafeAvailable(p,item) ? '' : ' (sold out)')).join(' · ') + '</p>');
+    }
+    for (const item of CAFE_MENU)
+      actions.push(act('Order ' + item.name + ' ($' + item.price + ')' +
+        (cafeAvailable(p,item) ? '' : ' · sold out'), () => life.orderCafe(item.id)));
+  }
+  return { title: p.name + ' · ' + (p.kind === 'farm' ? 'farm' : p.kind),
+    body: rows.join('') + (sells.length || id === 'post' || id === 'cafe' || Object.keys(prepared).length ? bagLine(life) : ''),
+    actions, wide: true };
 }
 
 // A real survival loop: food comes out of the visitor's purchased inventory.
