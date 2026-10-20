@@ -566,8 +566,18 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       else if (moving) p.heading += angleDiff(v.heading ?? p.heading, p.heading) * Math.min(1, dt * 8);
       p.bike.visible = !!v.bike && !v.engaged && v.path.length > 0;
       p.bag.visible = !!v.carrying && !p.bike.visible;
-      pose(p.fig, dt, t * (p.bike.visible ? 0.8 : 1), moving, moving || v.engaged);
-      p.fig.group.position.set(v.x, p.bike.visible ? 0.32 : moving ? Math.abs(Math.sin(t * 7 + p.fig.phase)) * 0.04 : 0, v.z);
+      const riding=p.bike.visible;
+      pose(p.fig, dt, t, moving&&!riding, moving || v.engaged);
+      if(riding){
+        const pedal=Math.sin(t*8+p.fig.phase)*0.38;
+        p.fig.legs[0].rotation.x=0.32+pedal;
+        p.fig.legs[1].rotation.x=0.32-pedal;
+        p.fig.arms[0].rotation.x=-0.48;
+        p.fig.arms[1].rotation.x=-0.48;
+      }
+      // Bicycle wheels already rest at y=.34; lifting the whole figure
+      // another 32cm made the bikes hover visibly above the street.
+      p.fig.group.position.set(v.x, riding ? 0 : moving ? Math.abs(Math.sin(t * 7 + p.fig.phase)) * 0.04 : 0, v.z);
       p.fig.group.rotation.y = p.heading;
       const dist = Math.hypot(v.x - player.pos.x, v.z - player.pos.z);
       p.tag.visible = dist > 3 && !p.bubble;
