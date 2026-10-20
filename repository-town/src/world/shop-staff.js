@@ -6,8 +6,8 @@ import { workingAt } from './shop-attendance.js';
 
 const SHIRTS={shop:0x557e9f,cafe:0x528c75,pub:0x9b6847,farm:0x71914e,clinic:0x77a7ac,school:0x6883b0,post:0x96745c,fire:0x23304d};   // fire: navy station wear
 // These three proprietors are local businesses, not pretend existing town employees.
-const HOST_NAMES={square:'Market Guide',farmhouse:'Nell',realestate:'Harper',dealership:'Callum',mechanic:'Jo'};
-const HOST_ROLES={realestate:'licensed property agent',dealership:'vehicle sales consultant',mechanic:'motor mechanic'};
+const HOST_NAMES={square:'Market Guide',farmhouse:'Nell',realestate:'Harper',dealership:'Callum',mechanic:'Jo',hardware:'Penny Carter',trades:'Ella Morgan',tafe:'Ash Kumar',university:'Dr Anika Shah'};
+const HOST_ROLES={realestate:'licensed property agent',dealership:'vehicle sales consultant',mechanic:'motor mechanic',hardware:'hardware and timber manager',trades:'NSW-licensed electrician and repair coordinator',tafe:'vocational skills trainer',university:'engineering lecturer and research supervisor'};
 
 
 export function populateShopStaff(site,life,interior,makeLabel){
