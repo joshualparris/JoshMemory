@@ -5,7 +5,7 @@
 const KEY = 'repository-town.sound';
 
 export function createAmbience() {
-  let ctx = null, master = null, wind = null, crickets = null, street = null, rumble = null, nextBird = 0, nextCricket = 0;
+  let ctx = null, master = null, hum = null, humGain = null, murmur = null, nextRoom = 0, wind = null, crickets = null, street = null, rumble = null, nextBird = 0, nextCricket = 0;
   let stepTimer = 0;
   let on = false; try { on = localStorage.getItem(KEY) === 'on'; } catch { /* storage blocked */ }
 
@@ -30,6 +30,8 @@ export function createAmbience() {
     wind = loop(ctx, brown, 'lowpass', 500);
     street = loop(ctx, brown, 'bandpass', 700, 0.7);
     rumble = loop(ctx, brown, 'lowpass', 120);
+    murmur = loop(ctx, brown, 'bandpass', 900, 0.5);                       // voices and clatter inside busy rooms
+    hum = ctx.createOscillator(); hum.frequency.value = 100; humGain = ctx.createGain(); humGain.gain.value = 0; hum.connect(humGain).connect(master); hum.start();   // fridge and fluoro hum
     const white = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate), wd = white.getChannelData(0);
     for (let i = 0; i < wd.length; i++) wd[i] = Math.random() * 2 - 1;
     crickets = white;
@@ -90,9 +92,48 @@ export function createAmbience() {
     o.connect(g).connect(master); o.start(now); o.stop(now + dur + 0.02);
   }
 
+
+  // Per-room sound: a steady hum and murmur plus the odd one-off (cup clink, till, clock tick, sheep, hen...).
+  const ROOMS = {
+    cafe: { hum: 0.012, murmur: 0.07, ev: ['clink', 'clink', 'till'], gap: [2, 6] },
+    bakery: { hum: 0.015, murmur: 0.025, ev: ['till', 'clink'], gap: [4, 10] },
+    pub: { hum: 0.01, murmur: 0.1, ev: ['clink', 'clink', 'thud'], gap: [2, 5] },
+    store: { hum: 0.03, murmur: 0.015, ev: ['till', 'beep'], gap: [4, 9] },
+    greengrocer: { hum: 0.012, murmur: 0.012, ev: ['till', 'thud'], gap: [5, 11] },
+    butcher: { hum: 0.035, murmur: 0.01, ev: ['thud', 'till'], gap: [4, 9] },
+    post: { hum: 0.02, murmur: 0.015, ev: ['beep', 'thud'], gap: [5, 10] },
+    clinic: { hum: 0.025, murmur: 0.01, ev: ['tick', 'beep'], gap: [6, 12] },
+    bank: { hum: 0.02, murmur: 0.012, ev: ['beep', 'tick'], gap: [5, 10] },
+    hall: { hum: 0.012, murmur: 0.025, ev: ['tick', 'thud'], gap: [4, 9] },
+    school: { hum: 0.012, murmur: 0.04, ev: ['tick', 'page'], gap: [3, 8] },
+    sheep: { hum: 0, murmur: 0.006, ev: ['bleat', 'bleat', 'thud'], gap: [3, 8] },
+    dairy: { hum: 0.03, murmur: 0.006, ev: ['low', 'clink'], gap: [4, 10] },
+    coop: { hum: 0, murmur: 0.006, ev: ['cluck', 'cluck', 'cluck'], gap: [1.5, 4] },
+    orchard: { hum: 0, murmur: 0.004, ev: ['thud'], gap: [6, 12] },
+    garden: { hum: 0, murmur: 0.004, ev: ['thud', 'page'], gap: [6, 12] },
+    silo: { hum: 0.012, murmur: 0.006, ev: ['thud', 'creak'], gap: [5, 11] },
+    farmhouse: { hum: 0, murmur: 0.01, ev: ['tick', 'creak'], gap: [6, 12] },
+    hotel: { hum: 0.01, murmur: 0.02, ev: ['tick', 'creak'], gap: [6, 12] },
+    house: { hum: 0.006, murmur: 0.004, ev: ['tick', 'creak'], gap: [8, 16] },
+  };
+  function roomEvent(kind) {
+    switch (kind) {
+      case 'clink': tone(2400 + Math.random() * 900, 0.09, 0.025, 'sine'); setTimeout(() => tone(3300, 0.07, 0.015), 70); break;
+      case 'till': tone(1500, 0.05, 0.03, 'square'); setTimeout(() => tone(1100, 0.12, 0.03, 'triangle'), 90); break;
+      case 'beep': tone(1760, 0.08, 0.03, 'square'); break;
+      case 'tick': tone(1200, 0.025, 0.03, 'triangle'); setTimeout(() => tone(900, 0.025, 0.025, 'triangle'), 500); break;
+      case 'thud': tone(95, 0.12, 0.07, 'triangle', -25); break;
+      case 'page': tone(2600, 0.06, 0.012, 'sawtooth', -1500); break;
+      case 'creak': tone(180, 0.35, 0.02, 'sawtooth', 70); break;
+      case 'bleat': tone(480, 0.5, 0.035, 'sawtooth', -140); break;
+      case 'low': tone(110, 0.8, 0.05, 'sawtooth', -30); break;
+      case 'cluck': tone(700, 0.06, 0.03, 'square', -200); setTimeout(() => tone(620, 0.07, 0.03, 'square', -150), 90); break;
+    }
+  }
+
   // Called every frame. day: 0–1 daylight; busy: 0–1 people nearby; truck: distance to the
   // nearest truck (m); moving/running: the player's footsteps.
-  function update(dt, { day, busy = 0, truck = Infinity, indoors = false, moving = false, running = false }) {
+  function update(dt, { day, busy = 0, truck = Infinity, indoors = false, room = '', moving = false, running = false }) {
     if (!ctx || !on) return;
     if (ctx.state === 'suspended') ctx.resume();
     const set = (node, v) => node.gain.gain.setTargetAtTime(v, ctx.currentTime, 0.4);
@@ -100,7 +141,9 @@ export function createAmbience() {
     set(wind, (0.05 + 0.04 * Math.sin(ctx.currentTime * 0.13)) * out);
     set(street, 0.05 * busy * out);
     set(rumble, Math.max(0, 1 - truck / 40) * 0.3 * out);
-    const now = ctx.currentTime;
+    const now = ctx.currentTime, rm = indoors ? ROOMS[room] || ROOMS.house : null;
+    set(murmur, rm ? rm.murmur : 0); humGain.gain.setTargetAtTime(rm ? rm.hum : 0, now, 0.4);
+    if (rm && now > nextRoom) { roomEvent(rm.ev[Math.floor(Math.random() * rm.ev.length)]); nextRoom = now + rm.gap[0] + Math.random() * (rm.gap[1] - rm.gap[0]); }
     if (day > 0.15 && now > nextBird) { const n = 1 + Math.floor(Math.random() * 3); for (let i = 0; i < n; i++) setTimeout(() => ctx && chirp(0.05 * day * out), i * 140); nextBird = now + 1.5 + Math.random() * 5 / Math.max(0.3, day); }
     if (day < 0.25 && now > nextCricket) { cricket(0.03 * (1 - day * 4) * out); nextCricket = now + 0.35 + Math.random() * 0.9; }
     if (moving) { stepTimer -= dt * (running ? 1.65 : 1); if (stepTimer <= 0) { stepTimer = 0.42; tone(indoors ? 135 : 110, 0.045, 0.035, 'triangle', -25); } }

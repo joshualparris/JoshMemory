@@ -31,6 +31,19 @@ export function buildTown(scene, houses, streets) {
     for (let i = 0; i < 60; i++) deco.box(0xf2efe6, 2.2, 0.05, 0.2, -width / 2 + 30 + i * (width - 60) / 60, 0.03, z);
     deco.box(0xc9c4b8, width - 40, 0.08, 1.6, 0, 0.04, z - 5.3);
     deco.box(0xc9c4b8, width - 40, 0.08, 1.6, 0, 0.04, z + 5.3);
+    // Kerb, gutter and painted edge lines, broken at each cross avenue like a real kerb return.
+    const stops = [-width / 2 + 20];
+    for (let c = 0; c <= COLS; c += 5) stops.push((c - COLS / 2) * LOT_X - 4.2, (c - COLS / 2) * LOT_X + 4.2);
+    stops.push(width / 2 - 20);
+    for (let i = 0; i + 1 < stops.length; i += 2) {
+      const x0 = stops[i], x1 = stops[i + 1], len = x1 - x0, cx = (x0 + x1) / 2;
+      if (len < 2) continue;
+      for (const side of [-1, 1]) {
+        deco.box(0x9a968c, len, 0.13, 0.2, cx, 0.065, z + side * 4.6);        // kerb stones, a little proud of the footpath
+        deco.box(0x383b40, len, 0.046, 0.55, cx, 0.023, z + side * 4.22);     // gutter
+        deco.box(0xe9e6da, len, 0.052, 0.09, cx, 0.026, z + side * 3.65);     // white edge line
+      }
+    }
   }
   // Cross avenues every 5 columns so the grid is walkable without zig-zagging between yards.
   for (let c = 0; c <= COLS; c += 5) deco.box(0x55595f, 7, 0.035, depth - 20, (c - COLS / 2) * LOT_X, 0.018, 0);
@@ -49,6 +62,8 @@ export function buildTown(scene, houses, streets) {
         deco.cyl(0x2f3338, 0.08, 4.2, lx, 2.1, lz);
         deco.solid(0.5, 0.5, lx, lz);           // the pole is solid; the arm and lamp head are overhead
         deco.box(0x2f3338, 0.08, 0.08, 0.9, lx, 4.15, lz - side * 0.4);
+        deco.box(0x2a2c30, 0.55, 0.05, 0.32, lx + 3.5, 0.05, z + side * 4.22);           // stormwater grate
+        for (let g = 0; g < 4; g++) deco.box(0x4a4d52, 0.04, 0.052, 0.28, lx + 3.5 - 0.18 + g * 0.12, 0.052, z + side * 4.22);
         heads.box(0x9fd3ea, 0.42, 0.2, 0.42, lx, 4.0, lz - side * 0.85);
       }
     }

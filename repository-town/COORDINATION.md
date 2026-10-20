@@ -260,3 +260,8 @@ Newest first. Times in Australia/Sydney.
 ## Greengrocer, butcher, school/library and farm sheds (Claude, 2026-10-20)
 - New dedicated interiors on the kit: `grocer-interior.js`, `butcher-interior.js`, `school-interior.js`, `farm-interior.js` (one builder, six variants: sheep, dairy, coop, orchard, garden, silo). Dispatch is in `shop-interior.js`; `tests/shop-interiors.mjs` covers them (>250 objects, staff behind counter, hotspots clear of colliders).
 - Each keeps one `civic-ledger` counter hotspot, so shop/farm counter behaviour is unchanged.
+
+## Kerbs, sign frames and room sound (Claude, 2026-10-20)
+- `town.js`: kerb stones, gutter, white edge lines (broken at cross avenues) and stormwater grates along every street. Visual only; no new colliders.
+- `townlife.js`: painted timber sign frame (two slim solid posts plus rails, coloured by building kind) around every high-street name board.
+- `ambience.js`: per-room sound (hum, murmur, one-off clinks, tills, ticks, bleats, clucks). `main.js` passes `room` (the place id, or `house`) to `ambience.update`.
