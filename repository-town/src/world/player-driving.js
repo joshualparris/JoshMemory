@@ -105,8 +105,8 @@ export function createPlayerDriving(life,scene,collision,player,camera,input){
    // Road driving only, no tunnelling through buildings/trucks/NPCs.
    if(roadAllows(nx,nz)&&!pedestrian&&!parked&&!collision.hits(nx,nz,Math.min(1.15,spec[0]/2+.1))){
      const distance=Math.hypot(dx,dz);
-     v.x=nx;v.z=nz;v.yaw=yaw;v.odometer=r2((v.odometer||0)+distance/1000);
-     v.fuel=r2(Math.max(0,(v.fuel||0)-distance*.003));
+     v.x=nx;v.z=nz;v.yaw=yaw;v.odometer=(v.odometer||0)+distance/1000;
+     v.fuel=Math.max(0,(v.fuel||0)-distance*.003);
      v.condition=r2(Math.max(0,(v.condition||100)-distance*.00008));
      if(v.condition<60)v.roadworthy=false;
    }else{speed=0;message='Brake! Road edge, pedestrian or obstruction.';}
