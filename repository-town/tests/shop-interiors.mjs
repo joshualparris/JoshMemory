@@ -45,7 +45,11 @@ for(const id of CIVIC_INTERIOR_IDS){
     continue;
   }
   assert.equal(room.rooms.length,1,id+' walk-in room');
-  if(id==='mill'){
+  if(id==='depot'){
+    assert(room.depotLayout,'depot uses its dedicated freight-house layout');
+    assert.equal(room.interactables.length,7,'depot inspections and live ledger');
+    assert(room.staff.pos.z<room.staff.use.z);
+  } else if(id==='mill'){
     assert(room.millLayout,'mill uses its dedicated layout');
     assert.equal(room.interactables.length,7,'mill process inspections and live ledger');
     assert(room.staff.pos.z<room.staff.use.z);
