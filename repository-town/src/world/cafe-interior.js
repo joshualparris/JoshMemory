@@ -75,6 +75,8 @@ export function buildCafeInterior(site, makeLabel, roomTitle = 'Community café'
   cyl(0.1, 0.1, 0.3, 3.2, 1.15, 5.25, 0xcfe8ee, { a: 0.55 }, 10); for (let i = 0; i < 3; i++) cyl(0.04, 0.04, 0.1, 3.7 + i * 0.12, 1.05, 5.25, 0xf4f0e8, {}, 8);
   text('Water · Sugar · Napkins', 3.6, 1.65, 5.25);
   solid(0.5, 1.4, 0.3, -5.6, 0.7, 5.5, 0x5a4a3a); for (let i = 0; i < 3; i++) box(0.4, 0.3, 0.04, -5.6, 0.4 + i * 0.35, 5.33, [0xf0e6c8, 0xd9e8f0, 0xf0d6d0][i]);
+  for (const [x, z, f] of [[-5.0, 5.88, 'pictureframe_medium'], [-2.8, 5.88, 'pictureframe_large_A'], [5.6, 5.88, 'pictureframe_small_B']]) model(f, x, z - 0.1, Math.PI, { h: 0.7 }, 1.9);
+  for (const [x, z, f] of [[6.85, -4.0, 'pictureframe_medium'], [6.85, -1.0, 'pictureframe_small_A'], [6.85, 2.0, 'pictureframe_large_A']]) model(f, x - 0.1, z, -Math.PI / 2, { h: 0.7 }, 1.9);
   for (const [x, z] of [[-6.2, -4.2], [6.2, 3.8], [6.2, -8.0]]) { cyl(0.26, 0.2, 0.4, x, 0.2, z, 0xb4553b, {}, 10); for (let i = 0; i < 6; i++) ball(0.22, x + Math.cos(i) * 0.16, 0.8 + (i % 3) * 0.2, z + Math.sin(i) * 0.16, GREEN); }
 
   add('counter', 'Coffee counter', 'civic-ledger', 'Flat whites, brekkie and lunch. Order and pay at the counter, or open the Town Ledger.', CAFE_LAYOUT.staffUse.x, CAFE_LAYOUT.staffUse.z);

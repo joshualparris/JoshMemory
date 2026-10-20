@@ -49,6 +49,8 @@ export function buildHallInterior(site, makeLabel, roomTitle = 'Town Hall') {
   box(0.06, 1.0, 1.8, -EDGE + 0.12, 1.9, 2.5, 0x3a2a22); for (let i = 0; i < 6; i++) box(0.02, 0.08, 1.4, -EDGE + 0.17, 1.55 + i * 0.12, 2.5, GOLD); text('Honour board · Past mayors', -EDGE + 0.3, 2.55, 2.5);
   solid(0.5, 0.9, 0.5, 5.6, 0.45, 2.2, 0x3a2a22); box(0.5, 0.05, 0.5, 5.6, 0.92, 2.2, WOOD); box(0.26, 0.02, 0.04, 5.6, 0.95, 2.2, 0x111111); text('Ballot box', 5.6, 1.5, 2.2);
   box(1.8, 1.2, 0.06, 5.0, 2.4, 5.85, 0xd8c8a0); box(1.6, 1.0, 0.04, 5.0, 2.4, 5.8, 0xa8c898); text('Town map', 5.0, 2.4, 5.7);
+  for (const [x, f] of [[-4.6, 'pictureframe_large_A'], [-2.6, 'pictureframe_medium'], [2.6, 'pictureframe_small_A']]) model(f, x, 5.88, Math.PI, { h: 0.8 }, 2.0);
+  model('lamp_standing', -6.2, 3.8, 0, { w: 0.45, d: 0.45, h: 1.7 });
   solid(0.9, 0.8, 0.5, -5.6, 0.4, 5.0, WOOD); for (let i = 0; i < 5; i++) box(0.3, 0.02, 0.22, -5.8 + (i % 3) * 0.2, 0.82 + i * 0.012, 5.0, [CREAM, 0xe8d8b0, 0xd8e0e8][i % 3]);   // brochures
 
   add('counter', 'Public counter', 'civic-ledger', 'Pay rates, lodge a request or open the Town Ledger. The council meets here on its meeting days; the Town Ledger shows the budget, votes and repairs.', HALL_LAYOUT.staffUse.x, HALL_LAYOUT.staffUse.z);

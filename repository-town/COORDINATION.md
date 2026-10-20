@@ -275,3 +275,7 @@ Newest first. Times in Australia/Sydney.
 - `tests/people.mjs` follows #60's design: nearby villagers keep going; opening a chat stops them.
 - Browser tests are not in `test:town`: the CI gate has no Chromium (the gate failed on PR #68).
 - 2026-10-20 · Claude — real furniture models: KayKit "Furniture Bits" (CC0, Kay Lousberg) in `src/assets/furniture/` with `vendor/GLTFLoader.js`. `src/world/furniture.js` loads them in the browser (non-blocking from `main.js`), bakes the colour atlas into vertex colours and exposes `modelGeometry`; `Builder.model()` merges them into a house's single mesh and `kit.model()` places them in civic interiors. House props `bed`, `sofa`, `chair`, `table`, `cabinet` and the café, pub, clinic and hall chairs/sofas now use models, each falling back to the old box furniture when models are not loaded (Node tests never load them). Test: `node tests/furniture.mjs`. More models can be added to `FURNITURE` and used with `b.model(name, x, y, z, ry, {w,h,d})`.
+
+## Decor pass (Claude, 2026-10-20)
+- Houses: rugs (4 KayKit variants), standing lamp, cactus plants, decorated shelves now use the CC0 models in `props.js`; box fallbacks kept (node tests/mock builders have no `b.model`).
+- Interiors: framed pictures on walls via `interior.js` (5 frame models, box fallback); pub/café/clinic/hall/post got frames, lamps and cacti. Hotspots/colliders unchanged.

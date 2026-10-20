@@ -319,7 +319,13 @@ function buildOnce(house, makeLabel, attempt) {
       const spot = slots.wall(1.1); if (!spot) break;
       const col = ART[(ri + k * 5 + Math.round(r.d)) % ART.length];
       sceneObjects.push({ type: 'picture', label: 'framed wall picture', room: ri, pos: { x: spot.x, z: spot.z }, interactive: false });
-      b.at(spot.x, 0, spot.z, spot.rot, () => { b.box(0x3a2a1e, 1.0, 0.75, 0.05, 0, 1.75, -0.02); b.box(col, 0.84, 0.59, 0.03, 0, 1.75, 0.01); b.box(0xf2efe6, 0.3, 0.2, 0.031, -0.18, 1.85, 0.012); });
+      // Real framed pictures when the furniture models are loaded (each stays within the 1.1 m wall slot).
+      const FRAMES = [['pictureframe_medium', 0.78], ['pictureframe_large_A', 0.9], ['pictureframe_small_A', 0.5], ['pictureframe_small_B', 0.46], ['pictureframe_small_C', 0.5]];
+      const [fname, fh] = FRAMES[(ri + k * 2 + Math.round(r.d)) % FRAMES.length];
+      b.at(spot.x, 0, spot.z, spot.rot, () => {
+        if (b.model(fname, 0, 1.75 - fh / 2, 0.08, 0, { h: fh })) return;
+        b.box(0x3a2a1e, 1.0, 0.75, 0.05, 0, 1.75, -0.02); b.box(col, 0.84, 0.59, 0.03, 0, 1.75, 0.01); b.box(0xf2efe6, 0.3, 0.2, 0.031, -0.18, 1.85, 0.012);
+      });
     }
   });
 
