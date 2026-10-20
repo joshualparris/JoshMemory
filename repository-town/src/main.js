@@ -152,6 +152,15 @@ async function start() {
   if (input.touch) $('touch').hidden = false;
   loadFurniture().catch(() => {});   // real furniture models; interiors fall back to boxes until they arrive
   const player = new Player(camera);
+  const tableOrder = document.createElement('button');
+  tableOrder.id='btn-table-order';tableOrder.type='button';
+  tableOrder.textContent='🍽 Order at table';
+  tableOrder.hidden=true;tableOrder.title='Order food or drinks without leaving your seat';
+  $('needs-strip').append(tableOrder);
+  tableOrder.onclick=()=>{
+    if(player.seated && inside?.place && ['cafe','pub'].includes(inside.place.id))
+      openPanel(placePanel(life,inside.place.id));
+  };
   $('btn-needs').onclick = () => openPanel(needsPanel(life));
   let floorDoorCooldown = 0;
   const floorBadge = document.createElement('button');
@@ -422,7 +431,13 @@ async function start() {
     const actions = $('panel-actions'); actions.innerHTML = '';
     for (const a of content.actions || []) {
       if (a.url) { const el = document.createElement('a'); el.href = a.url; el.target = '_blank'; el.rel = 'noopener'; el.textContent = a.label; el.className = 'btn-link'; actions.append(el); }
-      else { const el = document.createElement('button'); el.textContent = a.label; el.onclick = () => { if (a.play) return startGame(a.play); const next = a.run ? a.run() : content.onAnswer(a.answer); if (next) openPanel(next, thing); };
+      else { const el = document.createElement('button'); el.textContent = a.label; el.onclick = () => { if (a.play) return startGame(a.play); const beforeWallet=life.civic.player.wallet;
+          const next = a.run ? a.run() : content.onAnswer(a.answer);
+          if (next && player.seated && ['cafe','pub'].includes(inside?.place?.id) &&
+              /^Order\\b/i.test(a.label) && life.civic.player.wallet<beforeWallet && typeof next.body==='string') {
+            next.body='<p><b>🍽 Your order has been brought to your table.</b></p>'+next.body;
+          }
+          if (next) openPanel(next, thing); };
         if (a.play) el.className = 'play'; actions.append(el); }
     }
     $('panel').hidden = false;
@@ -737,6 +752,10 @@ async function start() {
       player.speedFactor=Math.max(0.45,1-(n.hunger>80?0.23:0)-(n.fatigue>75?0.32:0));
       player.update(dt,input,world);
     }
+    // Keep the table-service control in the always-visible needs strip on
+    // phones with the rest of the HUD collapsed.
+    tableOrder.hidden=!(player.seated && mode==='house' &&
+      inside?.place && ['cafe','pub'].includes(inside.place.id));
     const movedDist = Math.hypot(player.pos.x - prevX, player.pos.z - prevZ);
     prevX = player.pos.x; prevZ = player.pos.z;
 
