@@ -1039,6 +1039,23 @@ export class TownLife {
     // After ordinary work, meals and shopping: an optional public election forum.
     // Quiet residents aren't coerced into a conversation or pulled from work.
     if (attendPublicForum(this,v)) return v.step;
+    // A few residents finishing work call into a real staffed cafe or pub
+    // for an afternoon meal. This generates actual paid visits, not fake
+    // bodies created merely because the player enters the building.
+    // People with insufficient disposable funds go home instead.
+    if(!v.doneToday.afternoonSocial && m>=14*60 && m<17*60 && m>=v.end){
+      v.doneToday.afternoonSocial=true;
+      const cafe=this.place('cafe'),pub=this.place('pub');
+      const venue=this.open(cafe)&&this.rand()<.32 ? cafe : pub;
+      if(this.rand()<.48 && shopService(this,venue).available &&
+         v.wallet>=24 && canAfford(v,'out',24)){
+        return this.goThen(v,venue.front,{
+          kind:'eatout',at:venue.id,dur:25+this.rand()*15,
+          activity:venue.id==='cafe'?'having afternoon tea at the Commit Café':
+            'having a late lunch with neighbours at The Merged Branch'
+        });
+      }
+    }
     // Jobs around the house come before going out: bills, washing up, laundry, the lawn, the garden.
     const task = homeTask(this, v, this.rand);
     if (task && (task.kind !== 'relax' || this.rand() < 0.5)) return this.goThen(v, home, { ...task, at: 'home' });
