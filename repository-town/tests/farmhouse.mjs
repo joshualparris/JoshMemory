@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import { CollisionWorld } from '../src/engine/collision.js';
 import { coplanarFloorSurfaces } from '../src/world/floor-surfaces.js';
+import { makeSeat } from '../src/world/seats.js';
 const source=readFileSync(new URL('../src/world/farmhouse-interior.js',import.meta.url),'utf8');
 const shop=readFileSync(new URL('../src/world/shop-interior.js',import.meta.url),'utf8');
 const V=class {constructor(x=0,y=0,z=0){Object.assign(this,{x,y,z})}set(x,y,z){Object.assign(this,{x,y,z});return this}};
@@ -15,7 +16,7 @@ const Three={Group,Mesh,InstancedMesh,Matrix4,Vector3:V,BoxGeometry:class {},Cyl
 const runnable=source.replace(/^import .*?;\s*$/gm,'').replace(/^export\s+/gm,'');
 const glassMesh=(panes)=>Object.assign(new Mesh(null,'window glass'),{panes});
 const { FLOOR_SURFACE_Y } = await import('../src/world/floor-surfaces.js');
-const make=new Function('THREE','FLOOR_SURFACE_Y','glassMesh',runnable+'\nreturn buildFarmhouseInterior;')(Three,FLOOR_SURFACE_Y,glassMesh);
+const make=new Function('THREE','FLOOR_SURFACE_Y','glassMesh','makeSeat',runnable+'\nreturn buildFarmhouseInterior;')(Three,FLOOR_SURFACE_Y,glassMesh,makeSeat);
 assert(shop.includes("if(site.id==='farmhouse')return buildFarmhouseInterior(site,makeLabel)"),'farmhouse must use its own layout');
 const x=make({id:'farmhouse',name:'Farmhouse'},()=>({position:new V(),userData:{}}));
 assert.equal(x.rooms.length,10,'should have 10 distinct areas, not a shop counter');
