@@ -1,5 +1,6 @@
 import { householdDay } from './household.js';
 import { bankReceives } from './credit.js';
+import { receiveTenantRent, visitorRentAccount } from './property.js';
 // Public and household finance on top of the town's money model (life.civic): finite Commonwealth
 // and NSW treasuries, PAYG income tax, council grants, the visitor's rent and power bills, household
 // and business arrears, business utilities, and a double-entry journal. Every transfer moves money
@@ -125,18 +126,25 @@ export function dailyClose(life) {
   const bill = (due, field, label) => {
     let owe = f[field] + due, paid = 0;
     for (const pot of ['wallet', 'bank']) { const take = Math.min(owe, Math.floor(me[pot])); if (take > 0) { me[pot] -= take; owe -= take; paid += take; } }
-    f[field] = owe; c.treasury = r2(c.treasury + paid); f.visitorPaid += paid;
+    f[field] = owe;
+    const councilPaid = label === 'rent' ? visitorRentAccount(life,paid) : paid;
+    c.treasury = r2(c.treasury + councilPaid); f.visitorPaid += paid;
     if (paid) { revenue(life, label === 'rent' ? 'rent' : 'utilities', paid); record(life, 'visitor', 'council', paid, 'Your ' + label); }
     if (owe > 0) f.daily.unpaid = r2(f.daily.unpaid + owe);
   };
-  bill(RATES.visitorRent, 'rentArrears', 'rent');
+  // Homeowners have no rent; investment owners without a home still rent.
+  const pr=c.property,holdsVacantHome=!!pr&&Object.values(pr.parcels).some(p=>p.owner==='visitor'&&p.kind==='house'&&!p.tenant);
+  const lease=pr?.playerLease&&pr.parcels[pr.playerLease];
+  bill(holdsVacantHome?0:(lease?.rent||RATES.visitorRent), 'rentArrears', 'rent');
   bill(RATES.visitorPower, 'powerArrears', 'power');
   if (f.rentArrears + f.powerArrears > 0) life.log('Your rent and power are overdue. Pay them at the Community Bank.');
   // Villager households (src/world/household.js): renters pay the council's housing office, buyers
   // repay the Community Bank, and overdue power and water bills are collected by direct debit.
   for (const v of life.villagers) {
     const h = householdDay(life, v);
-    if (h.council > 0) { c.treasury = r2(c.treasury + h.council); revenue(life, 'rent', h.council); }
+    const landlordRent=receiveTenantRent(life,v,h.rentPaid||0);
+    const publicPaid = Math.max(0,r2(h.council-(h.rentPaid||0)+landlordRent));
+    if (publicPaid > 0) { c.treasury = r2(c.treasury + publicPaid); revenue(life, 'rent', publicPaid); }
     if (h.bank > 0) { bankReceives(life, h.bank); record(life, 'npc:' + v.name, 'community bank', h.bank, 'Home-loan repayment'); }
     v.housingArrears = Math.min(80, h.owed);
     if (v.housingArrears > 0) f.daily.unpaid = r2(f.daily.unpaid + v.housingArrears);

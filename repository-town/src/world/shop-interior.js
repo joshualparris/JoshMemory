@@ -23,6 +23,7 @@ import { buildGrocerInterior } from './grocer-interior.js';
 import { buildButcherInterior } from './butcher-interior.js';
 import { buildSchoolInterior } from './school-interior.js';
 import { buildFarmInterior, FARM_SHED_IDS } from './farm-interior.js';
+import { buildTradeInterior } from './trade-interiors.js';
 
 // The twenty high-street services share a safe walkable plan, with different
 // fixtures, colours and exhibits. They are built only while the player is inside.
@@ -62,6 +63,9 @@ const FITTINGS = {
   fire:['Fire station','Service desk','Rescue equipment',0xc47066,'Visit fire and rescue','The firefighters respond to emergencies and help keep the town safe.'],
   cafe:['Community café','Coffee counter','Café tables',0xbb927c,'Order at the café','Meet neighbours for a drink, a meal or a chat after walking the town.'],
   council:['Public works office','Maintenance desk','Repair plans',0x9bada7,'Report a fault','Council workers maintain roads, utilities and public buildings.'],
+  realestate:['Property office','Sales and rental counter','Land titles',0xd3b88e,'Browse land titles','The estate agent handles land titles, buying, selling and rentals.'],
+  dealership:['Vehicle showroom','Car sales counter','Used cars',0x98aebf,'Browse cars and trucks','A finite inventory of used cars, work utes, vans and rigid trucks.'],
+  mechanic:['Motor workshop','Service reception','Hoists and tools',0x88949c,'Book a vehicle service','Servicing, roadworthy checks and fleet maintenance.'],
 };
 const BASE_W=14, BASE_D=18, FRONT=6, BACK=-12, EDGE=7;
 
@@ -70,6 +74,7 @@ export function buildCivicInterior(site,makeLabel,life=null) {
   // A family's home must never regress to the single-room retail fallback.
   if(site.id==='farmhouse')return buildFarmhouseInterior(site,makeLabel);
   if(site.id==='hotel')return buildHotelInterior(site,makeLabel);
+  if(['realestate','dealership','mechanic'].includes(site.id))return buildTradeInterior(site,makeLabel);
   const [roomTitle,deskName,featureName,accent,deskInfo,featureInfo] =
     FITTINGS[site.id] || [site.name,'Service desk','Town noticeboard',0x98a8b3,'Visit this workplace','This building supports the town.'];
   // The bakery has its own researched layout: shop floor, counter and a visible production kitchen.

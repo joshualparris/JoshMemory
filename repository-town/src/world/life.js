@@ -15,6 +15,8 @@ import { receipt, tickJobs, startJob, performTask, abandonJob, finishJob, jobsRe
 import { freshCredit, recordEarning, noteBank, creditReport, borrow, repay, accrueInterest } from './credit.js';
 import { ensureHousehold, hasFood, heldCount, takeFood, stowFood, larderSummary, householdHour, homeTask, householdDone, householdReport, noteIncome, noteSpend, canAfford, outdoorTemp, season } from './household.js';
 import { startNeeds, advanceNeeds, eatPlayer, hotelCheckIn, sleepPlayer, needsReport } from './needs.js';
+import { initialiseProperties, propertyReport, buyProperty, listProperty, sellProperty, leaseProperty, endLease, propertyDay } from './property.js';
+import { initialiseVehicles, motorReport, buyVehicle, serviceVehicle, renewRegistration, sellVehicle, motorDay } from './vehicles.js';
 import { MAYOR_CANDIDATES, createGovernment, civicElection, castCivicVote, submitRequest, requestFeeder, proposeMotion, councilMeeting, advanceCivicWork, budgetRevenue, restoreCivic, govSummary, maintainServices } from './government.js';
 // Town life simulation: the clock, farms, the mill and bakery, shops, trucks, the post,
 // and villagers with jobs, hunger, pantries, wallets and daily routines. Pure logic (no
@@ -120,6 +122,9 @@ export const PLACE_DEFS = [
   { col: 'P', side: 'south', id: 'recycling', name: 'Recycling Centre', kind: 'utility', opens: 7 * 60, closes: 16 * 60 },
   { col: 'Q', side: 'south', id: 'landfill', name: 'Waste Depot', kind: 'utility', opens: 6 * 60, closes: 17 * 60 },
   { col: 'R', side: 'south', id: 'foundry', name: 'Foundry & Workshop', kind: 'industry', opens: 7 * 60, closes: 16 * 60, target: { ore: 40, scrap: 20 } },
+  { col: 'S', side: 'south', id: 'realestate', name: 'Central West Property & Land', kind: 'service', opens: 9 * 60, closes: 17 * 60 },
+  { col: 'T', side: 'south', id: 'dealership', name: 'High Street Motors', kind: 'service', opens: 8 * 60, closes: 17 * 60 },
+  { col: 'U', side: 'south', id: 'mechanic', name: 'Town Motor Workshop', kind: 'service', opens: 8 * 60, closes: 17 * 60 },
 ];
 
 const JOBS = [
@@ -349,6 +354,8 @@ export class TownLife {
     initialisePublicLife(this);
     startNeeds(this);
     this.place('hotel').bookings=[];
+    initialiseProperties(this);
+    initialiseVehicles(this);
     this.log(`Day ${this.day} begins. The town wakes up.`);
   }
 
@@ -438,6 +445,8 @@ export class TownLife {
     // Like any country town, the council relies on state and federal grants.
     budgetRevenue(this, dailyGrants(this), 'grant');
     financeDailyClose(this);
+    propertyDay(this);
+    motorDay(this);
     // Villagers bank anything over $250 (money saved, not spent in town).
     for (const v of this.villagers) if (v.wallet > 250) { v.savings = (v.savings || 0) + v.wallet - 250; v.wallet = 250; }
     // End-of-day books: public takings go to the council; a business keeps a $50 float, pays
@@ -636,6 +645,17 @@ export class TownLife {
     noteBank(this, `${op === 'deposit' ? 'Deposited' : 'Withdrew'} $${m}.`); receipt(this, 'bank', `${op === 'deposit' ? 'Deposited' : 'Withdrew'} $${m}`, 0);
     return `${op === 'deposit' ? 'Deposited' : 'Withdrew'} $${m}. Wallet $${me.wallet}, savings $${me.bank}.`;
   }
+  propertyReport() { return propertyReport(this); }
+  buyProperty(id) { return buyProperty(this,id); }
+  listProperty(id) { return listProperty(this,id); }
+  sellProperty(id) { return sellProperty(this,id); }
+  leaseProperty(id) { return leaseProperty(this,id); }
+  endLease() { return endLease(this); }
+  motorReport() { return motorReport(this); }
+  buyVehicle(id) { return buyVehicle(this,id); }
+  serviceVehicle(reg) { return serviceVehicle(this,reg); }
+  renewRegistration(reg) { return renewRegistration(this,reg); }
+  sellVehicle(reg) { return sellVehicle(this,reg); }
   creditReport() { return creditReport(this); }
   payBills() { return payBills(this); }
   jobsReport() { return jobsReport(this); }
