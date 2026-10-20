@@ -45,7 +45,11 @@ for(const id of CIVIC_INTERIOR_IDS){
     continue;
   }
   assert.equal(room.rooms.length,1,id+' walk-in room');
-  if(id==='bakery'){
+  if(id==='mill'){
+    assert(room.millLayout,'mill uses its dedicated layout');
+    assert.equal(room.interactables.length,7,'mill process inspections and live ledger');
+    assert(room.staff.pos.z<room.staff.use.z);
+  } else if(id==='bakery'){
     // Researched bakery: counter, pastry case, kitchen view, bread wall and café corner.
     for(const k of ['counter','pastries','kitchen','breadwall','cafe'])assert(room.interactables.some(x=>x.key==='bakery:'+k),'bakery '+k);
     assert.equal(room.sceneObjects.length,room.interactables.length,'bakery scene-aware objects');

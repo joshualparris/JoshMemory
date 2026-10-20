@@ -1,4 +1,5 @@
 import { buildFireInterior } from './fire-interior.js';
+import { buildMillInterior } from './mill-interior.js';
 import * as THREE from 'three';
 import { containLabel } from '../ui/labels.js';
 import { buildFarmhouseInterior } from './farmhouse-interior.js';
@@ -45,7 +46,6 @@ const FITTINGS = {
   power:['Power station','Control desk','Generator controls',0x9b9a9a,'Check power supply','The generators supply electricity to homes, shops and industries.'],
   waterworks:['Water works','Operations desk','Water pumps',0x7fb4cf,'Check clean water','Fresh water is treated and distributed to the town.'],
   sewage:['Wastewater works','Control station','Treatment tanks',0x6caeb2,'Check wastewater treatment','Wastewater is cleaned before returning safely to the environment.'],
-  fire:['Fire station','Watchroom','Engine bay',0xb8322c,'Fire and Rescue NSW station','Retained firefighters respond from here when their pagers go off.'],
   depot:['Freight depot','Dispatch desk','Delivery crates',0xae9677,'Check deliveries','Lorries bring raw materials and carry goods between workplaces.'],
   recycling:['Recycling centre','Recycling desk','Sorting bins',0x75b399,'Sort reclaimed materials','Useful materials are recovered to reduce rubbish and supply workshops.'],
   landfill:['Waste depot','Weighbridge office','Waste sorting',0x98a08b,'Check waste collection','The depot handles non-recyclable waste and safe disposal.'],
@@ -65,6 +65,7 @@ export function buildCivicInterior(site,makeLabel) {
   const [roomTitle,deskName,featureName,accent,deskInfo,featureInfo] =
     FITTINGS[site.id] || [site.name,'Service desk','Town noticeboard',0x98a8b3,'Visit this workplace','This building supports the town.'];
   // The bakery has its own researched layout: shop floor, counter and a visible production kitchen.
+  if(site.id==='mill')return buildMillInterior(site,makeLabel,roomTitle);
   if(site.id==='bakery')return buildBakeryInterior(site,makeLabel,roomTitle);
   // The bank: queue lane, tellers at the back, advice desks, private office, ATMs, vault.
   if(site.id==='bank')return buildBankInterior(site,makeLabel,roomTitle);
