@@ -87,4 +87,50 @@ const wallRider={id:'wall-rider',pos:{x:-2,z:0},goal:{x:4,z:0},speed:4.5};
 const blockedFriend={id:'blocking-friend',pos:{x:0,z:0},fixed:true};
 for(let i=0;i<7;i++)steerPedestrians([wallRider,blockedFriend],{world:wallSteering,dt:.1});
 assert(wallRider.pos.z>=-.1,'anticipatory steering must obey collision geometry');
+// Regression: occupied shop counters belong INSIDE the businesses, not as
+// identical stationary exterior figures in front of the doors for hours.
+const serviceTown=new TownLife({homes,minute:8*60,seed:20261020});
+const bakery=serviceTown.place('bakery');
+const bakers=serviceTown.villagers.filter(v=>v.work==='bakery');
+assert(bakers.length>=2,'the two bakery workers are represented');
+for(const worker of bakers){
+  serviceTown.goThen(worker,bakery.front,{
+    kind:'work',at:'bakery',until:14*60,activity:'baking at work'
+  });
+  assert.equal(worker.inside,false,'bakery staff remain visible while travelling to their job');
+}
+assert.notDeepEqual(bakers[0].step.target,bakers[1].step.target,
+  'employees get separate front-door approach slots');
+for(const worker of bakers){
+  worker.path.length=0;worker.x=worker.step.target.x;worker.z=worker.step.target.z;
+  serviceTown.arrive(worker);
+  assert.equal(worker.inside,true,'on-shift bakers work indoors, not permanently on the pavement');
+}
+const customer=serviceTown.villagers.find(v=>v.work!=='bakery');
+serviceTown.goThen(customer,bakery.front,{
+  kind:'buy',at:'bakery',items:[],dur:5,activity:'shopping'
+});
+assert.equal(customer.inside,false,'customer approaches visibly from outside');
+customer.path.length=0;customer.x=customer.step.target.x;customer.z=customer.step.target.z;
+serviceTown.arrive(customer);
+assert.equal(customer.inside,true,'customer visits the actual shop interior');
+serviceTown.goThen(customer,{x:bakery.front.x+20,z:bakery.front.z},{
+  kind:'idle',dur:3,activity:'walking away'
+});
+assert.equal(customer.inside,false,'customer reappears outside when leaving the shop');
+const fieldHand=serviceTown.villagers.find(v=>v.work==='garden');
+assert(fieldHand,'a farm worker exists');
+serviceTown.goThen(fieldHand,serviceTown.place('garden').front,{
+  kind:'work',at:'garden',until:15*60,activity:'tending crops'
+});
+fieldHand.path.length=0;serviceTown.arrive(fieldHand);
+assert.equal(fieldHand.inside,false,'farm workers remain outdoors');
+// The collision grid is consulted by simulation spacing, not only by the
+// renderer. Residents must never be pushed through nearby shop walls.
+const boundsWorld={hits:(x)=>x>0.70?{x0:0.7}:null};
+const pushed=[{id:'worker-a',pos:{x:0,z:0}},{id:'worker-b',pos:{x:0,z:0}}];
+for(let i=0;i<8;i++)separatePedestrians(pushed,{world:boundsWorld,passes:6});
+assert(pushed.every(p=>p.pos.x<=0.70),'shop wall cannot be crossed by separating customers');
+coverage(pushed,1.23);
+console.log('PASS: Bakery workers, shopping customers, real colliders, and bicycle clearances');
 console.log('PASS: Hattie/Gus and named crowds separate; head-on walkers and cyclists pass; sidewalks and wall geometry protected; town movement stable');
