@@ -2,6 +2,7 @@ import { buildPowerInterior } from './power-interior.js';
 import { buildDepotInterior } from './depot-interior.js';
 import { buildWaterworksInterior } from './waterworks-interior.js';
 import { buildWastewaterInterior } from './wastewater-interior.js';
+import { buildRecyclingInterior } from './recycling-interior.js';
 import { buildFireInterior } from './fire-interior.js';
 import { buildMillInterior } from './mill-interior.js';
 import * as THREE from 'three';
@@ -73,6 +74,7 @@ export function buildCivicInterior(site,makeLabel,life=null) {
   if(site.id==='depot')return buildDepotInterior(site,makeLabel);
   if(site.id==='waterworks')return buildWaterworksInterior(site,makeLabel,life);
   if(site.id==='sewage')return buildWastewaterInterior(site,makeLabel,life);
+  if(site.id==='recycling')return buildRecyclingInterior(site,makeLabel,life);
   if(site.id==='mill')return buildMillInterior(site,makeLabel,roomTitle);
   if(site.id==='bakery')return buildBakeryInterior(site,makeLabel,roomTitle);
   // The bank: queue lane, tellers at the back, advice desks, private office, ATMs, vault.
