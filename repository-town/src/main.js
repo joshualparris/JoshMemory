@@ -596,7 +596,6 @@ async function start() {
     slowSeconds = 0; fastSeconds = 0; resolutionCooldown = 6;
   }
   const tmp = new THREE.Vector3();
-  const tmp = new THREE.Vector3();
   function frame() {
     // Up to 0.15 s per frame keeps walking real-time on slow phones; collision subdivides the step.
     const raw = clock.getDelta(), dt = Math.min(raw, 0.15), t = clock.elapsedTime;
