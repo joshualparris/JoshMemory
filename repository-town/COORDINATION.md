@@ -292,5 +292,5 @@ Newest first. Times in Australia/Sydney.
 
 ## Kerbs, sign frames and room sound (Claude, 2026-10-20)
 - `town.js`: kerb stones, gutter, white edge lines (broken at cross avenues) and stormwater grates along every street. Visual only; no new colliders.
-- `townlife.js`: painted timber sign frame (two slim solid posts plus rails, coloured by building kind) around every high-street name board.
+- Sign frames: tried a timber frame round the floating name label, then removed it because the shopfront painted boards (`shop-signs.js`, other session) replace the need for one.
 - `ambience.js`: per-room sound (hum, murmur, one-off clinks, tills, ticks, bleats, clucks). `main.js` passes `room` (the place id, or `house`) to `ambience.update`.
