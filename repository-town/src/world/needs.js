@@ -20,7 +20,9 @@ export function startNeeds(t) {
 export function advanceNeeds(t,minutes) {
   const p=startNeeds(t);
   p.hunger=clamp(p.hunger+minutes*0.075);
-  p.fatigue=clamp(p.fatigue+minutes*0.062);
+  // Sitting is a gentle break, not a substitute for overnight sleep:
+  // time and household charges continue while the visitor rests.
+  p.fatigue=clamp(p.fatigue+minutes*(t.playerSeated ? -0.08 : 0.062));
   for(const v of t.villagers){
     const sleeping=v.step?.kind==='sleep'&&v.inside&&!v.path.length;
     // People regain energy only when actually home, not while travelling.
