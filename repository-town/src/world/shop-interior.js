@@ -3,6 +3,7 @@ import { buildDepotInterior } from './depot-interior.js';
 import { buildWaterworksInterior } from './waterworks-interior.js';
 import { buildWastewaterInterior } from './wastewater-interior.js';
 import { buildRecyclingInterior } from './recycling-interior.js';
+import { buildRealtyInterior } from './realty-interior.js';
 import { buildFireInterior } from './fire-interior.js';
 import { buildMillInterior } from './mill-interior.js';
 import * as THREE from 'three';
@@ -42,6 +43,7 @@ const FITTINGS = {
   farmhouse:['Farmhouse kitchen','Kitchen table','Family photos',0xa59c89,'Visit the farmhouse','Farm families gather here for meals.'],
   'town-hall':['Public meeting hall','Public service desk','Town notices',0xbaaa83,'Council decisions, elections and public services','Citizens meet here to discuss the town budget and propose new projects.'],
   bank:['Banking hall','Teller counter','Account records',0x6c9fba,'Deposit and withdraw Town Credits','Money, wages and civic spending are recorded by the Community Bank.'],
+  realty:['Repository Realty','Property reception','Local property records',0x527b71,'Ask for property details','Real estate agents can explain the town property directory, inspections and leasing.'],
   post:['Post office','Postal counter','Sorting shelves',0xce8e63,'Send a parcel or check deliveries','Mail is collected, sorted and delivered by the town posties.'],
   market:['Market hall','Fresh produce stall','Produce crates',0x90ad67,'Buy fresh produce','The shelves are stocked by the farm, mill and other local producers.'],
   bakery:['Bakery kitchen','Bread counter','Bakery ovens',0xdca765,'Buy fresh bread','Flour arrives from the mill. The bakery turns it into loaves each day.'],
@@ -75,6 +77,7 @@ export function buildCivicInterior(site,makeLabel,life=null) {
   if(site.id==='waterworks')return buildWaterworksInterior(site,makeLabel,life);
   if(site.id==='sewage')return buildWastewaterInterior(site,makeLabel,life);
   if(site.id==='recycling')return buildRecyclingInterior(site,makeLabel,life);
+  if(site.id==='realty')return buildRealtyInterior(site,makeLabel,life);
   if(site.id==='mill')return buildMillInterior(site,makeLabel,roomTitle);
   if(site.id==='bakery')return buildBakeryInterior(site,makeLabel,roomTitle);
   // The bank: queue lane, tellers at the back, advice desks, private office, ATMs, vault.
