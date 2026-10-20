@@ -91,49 +91,22 @@ free-text string written in a private brief (strings a public brief or public RE
 ignored). The public archive only carries public repositories, with private slugs and names in their
 READMEs redacted.
 
-## Deployment
+## Deployment and saved progress
 
-`vercel.json` builds `dist/public`. On Vercel set the project's **Root Directory** to `repository-town`.
-The build runs the leak check and fails the deployment if private data would be published.
+Canonical source: `main`, `repository-town/`. See [hosting and release policy](docs/HOSTING.md).
 
+- Main game: https://repository-town-claude-complete.vercel.app/
+- Staging: https://repository-town-main-qa.onrender.com/
+- Backup: https://parris-tech-services.github.io/Repository-town/
 
-## Talking to town residents (Groq AI)
+Run `npm run build:release` before publishing. Every host uses **only** `dist/public`.
+`release.json` identifies the exact source commit and SHA-256 fingerprint of all deployed files.
+`release.html` displays that version and transfers allowlisted saved progress between origins.
+Never deploy `dist/private`, standalone private releases or raw evidence.
 
-Repository Town includes 32 animated street NPCs with distinct personalities, plus a
-House Curator where there is room inside an interior. Walk near a resident and use E/✋,
-or choose a character with the **💬 NPCs** button. The **NPC Lounge** at `people.html`
-runs without WebGL, which is useful on Android devices where the 3D renderer struggles.
-
-NPC text chat is served by `api/npc-chat.js` (Vercel Node function). It calls Groq's
-`/openai/v1/chat/completions` using `openai/gpt-oss-20b`. **Never put credentials in
-source files, client JavaScript, the public ZIP or GitHub.** Configure these encrypted
-Vercel production environment variables:
-
-- `GROQ_API_KEY`: a newly generated, secret Groq key.
-- `TOWN_NPC_PIN`: a private playtest access code (required on every API request).
-- `GROQ_MODEL`: optional; defaults to `openai/gpt-oss-20b`.
-
-After changing a Vercel environment variable, **redeploy** so the running function
-gets the new value. Protect and rotate keys through Groq's console; any keys ever
-pasted into messages should be revoked. Set independent Groq spending and rate
-limits before opening AI chat to the public. The built-in rate limits are best-effort
-per serverless instance, not an account-wide cost cap. The access code is for a
-private playtest; it is not a replacement for per-user authentication on a public app.
-
-Conversations are kept in memory in the visitor's browser tab only, with an optional
-access code in sessionStorage. Messages sent for AI chat are processed by Groq.
-If the connection fails or no code is supplied, clearly labelled scripted dialogue
-remains available. The function forwards only bounded messages and returns bounded
-text responses. It does not send source repositories, private data or the API key
-to the browser. Server tests use mocked network requests:
-
-```bash
-node tests/npc-contract.mjs
-```
-
-The Vercel build also runs the 57-game integrity, packed-runtime, geometry and
-privacy tests. A successful build is not a substitute for a real mobile/browser
-gameplay check.
+NPC chat uses the shared Cloudflare endpoint in `deploy/hosting.json`; Groq credentials and
+rate limits stay on that Worker. The older Vercel PIN-gated API is retained for compatibility,
+but the public game does not require a PIN. Scripted replies remain available offline.
 
 ## Adventure Guild exploration mode
 

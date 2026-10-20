@@ -11,7 +11,9 @@ before changing anything, and update `COORDINATION.md` when you start and finish
 | Source code (edit here) | `JoshMemory` repo, branch `main` (use a reviewed integration branch for simultaneous changes), folder `repository-town/src/` |
 | Build + checks | `repository-town/tools/` (`build.mjs`, `check_privacy.mjs`, `pack_games.mjs`) |
 | Packed games | `repository-town/games/` (made by `tools/pack_games.mjs`, from each game's own repo) |
-| Live playtest site | `Parris-Tech-Services/Repository-town` → https://parris-tech-services.github.io/Repository-town/ |
+| Production game | https://repository-town-claude-complete.vercel.app/ |
+| Shared staging | https://repository-town-main-qa.onrender.com/ |
+| Generated backup | `Parris-Tech-Services/Repository-town` → https://parris-tech-services.github.io/Repository-town/ |
 
 The site repo holds **generated build output** (`dist/public`). Do not edit it by hand:
 the next publish replaces it from `src/`, and hand edits there are lost unless someone
@@ -74,3 +76,6 @@ same sitting and say so in `COORDINATION.md`.
 ## Oct 2026 protected integration workflow
 
 See [docs/INTEGRATION_SYSTEM_2026-10-20.md](docs/INTEGRATION_SYSTEM_2026-10-20.md). NPC off-duty personalities now live in `src/ui/villager-profiles.js`. Never overwrite `main` using an older PR's `main.js` or `life.js`; bring only genuinely missing changes across and rely on the mandatory Town safety gate. Town auto-merge requires the explicit `town-automerge-approved` label and every check green.
+
+## Consolidated hosting
+Read `docs/HOSTING.md` and `deploy/hosting.json`. Use `npm run build:release` before publishing. Every public host must expose the same approved `release.json` commit and content fingerprint. No new permanent per-feature services. Preserve snapshots before retirement; offer save export on the old origin.

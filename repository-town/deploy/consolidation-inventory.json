@@ -1,0 +1,123 @@
+{
+  "date": "2026-10-21",
+  "render": [
+    {
+      "name": "repository-town-food-sleep-qa",
+      "id": "srv-dbb8ilvf3r2c73e8envg",
+      "url": "https://repository-town-food-sleep-qa.onrender.com",
+      "branch": "feat/town-hunger-sleep-hotel-20261020",
+      "commit": "438140f795cfda955a92b297343e6a6f3fc862d1",
+      "status": "live",
+      "archiveBranch": "archive/consolidation-20261021/food-sleep-qa",
+      "archived": true
+    },
+    {
+      "name": "repository-town-collisions-main-qa",
+      "id": "srv-dbb8brnf3r2c73e7ksh0",
+      "url": "https://repository-town-collisions-main-qa.onrender.com",
+      "branch": "integration/town-doorway-yard-collision-20261020",
+      "commit": "9b3522ae26d7eb717023904f12c0a4edaefec934",
+      "status": "live",
+      "archiveBranch": "archive/consolidation-20261021/collisions-main-qa",
+      "archived": true
+    },
+    {
+      "name": "repository-town-doorways-playtest",
+      "id": "srv-dbb89dfavr4c73d4glo0",
+      "url": "https://repository-town-doorways-playtest.onrender.com",
+      "branch": "fix/town-doorway-yard-collision-20261020",
+      "commit": "1e07b3d5cf4d44393d1b5707bc318d3cae1e065d",
+      "status": "live",
+      "archiveBranch": "archive/consolidation-20261021/doorways-playtest",
+      "archived": true
+    },
+    {
+      "name": "repository-town-civic-campaigns-qa",
+      "id": "srv-dbb7j37f3r2c73e4tuq0",
+      "url": "https://repository-town-civic-campaigns-qa.onrender.com",
+      "branch": "feat/town-political-campaigns-20261020",
+      "commit": "1a156b2d3237f860dc5b46e89ae7acc53d32fc5c",
+      "status": "live",
+      "archiveBranch": "archive/consolidation-20261021/civic-campaigns-qa",
+      "archived": true
+    },
+    {
+      "name": "repository-town-government-main-qa",
+      "id": "srv-dbb0gujncjis73an33i0",
+      "url": "https://repository-town-government-main-qa.onrender.com",
+      "branch": "integration/government-main-20261019",
+      "commit": "d5b0f7561cef680c7197f4388d5947b6636a8d47",
+      "status": "live",
+      "archiveBranch": "archive/consolidation-20261021/government-main-qa",
+      "archived": true
+    },
+    {
+      "name": "repository-town-government-playtest",
+      "id": "srv-dbb0c7tg1s2s73dpsvpg",
+      "url": "https://repository-town-government-playtest.onrender.com",
+      "branch": "feat/town-government-civic-20261019",
+      "commit": "c76d9423cff90310d2489fd7aa0a7ffa45f25833",
+      "status": "live",
+      "archiveBranch": "archive/consolidation-20261021/government-playtest",
+      "archived": true
+    },
+    {
+      "name": "repository-town-traffic-foundry-qa",
+      "id": "srv-dbavujm1egvs73cblk80",
+      "url": "https://repository-town-traffic-foundry-qa.onrender.com",
+      "branch": "fix/traffic-foundry-playtest-20261019",
+      "commit": "7e8d1c5ca3f79ee48d6050a7e8797154960044b2",
+      "status": "build_failed",
+      "archiveBranch": "archive/consolidation-20261021/traffic-foundry-qa",
+      "archived": true
+    },
+    {
+      "name": "repository-town-realism-playtest",
+      "id": "srv-dbav79brjlhs73aqih6g",
+      "url": "https://repository-town-realism-playtest.onrender.com",
+      "branch": "feat/town-realism-power-network-20261019",
+      "commit": "065ec52017443839d30e91d448d90bf6bc05680d",
+      "status": "live",
+      "archiveBranch": "archive/consolidation-20261021/realism-playtest",
+      "archived": true
+    },
+    {
+      "name": "repository-town-scene-qa",
+      "id": "srv-dbar0hs9v7es739k5j8g",
+      "url": "https://repository-town-scene-qa.onrender.com",
+      "branch": "fix/town-npc-scene-awareness-20261019",
+      "commit": "b81d23f1f1dd501544984cb739d25888177664a5",
+      "status": "live",
+      "archiveBranch": "archive/consolidation-20261021/scene-qa",
+      "archived": true
+    },
+    {
+      "name": "repository-town-main-qa",
+      "id": "srv-dbam28dg1s2s73cke0m0",
+      "url": "https://repository-town-main-qa.onrender.com",
+      "branch": "main",
+      "commit": "954f45f9e7f9605393523395baa31421236cafb6",
+      "status": "live",
+      "archiveBranch": "archive/consolidation-20261021/main-qa",
+      "archived": true
+    },
+    {
+      "name": "repository-town-npc-playtest",
+      "id": "srv-dbalfmjbc2fs73broom0",
+      "url": "https://repository-town-npc-playtest.onrender.com",
+      "branch": "repository-town-merged-playtest-20261019",
+      "commit": "ea2145626c87a27ac4022ab10bc2587f01a99593",
+      "status": "live",
+      "archiveBranch": "archive/consolidation-20261021/npc-playtest",
+      "archived": true
+    }
+  ],
+  "sourceBaseline": "5b446fe2e980d8e0a58689f6765dbfff52fffba2",
+  "pagesBaseline": "ab9799fdd6a572dd988a806bb1a5feb06f9a16d6",
+  "pagesSourceComparison": "All canonical src files and generated house/archive data exactly matched before consolidation.",
+  "preservedNestedCopies": [
+    "backup-unified",
+    "windows-playtest",
+    "playtest-bank-bakery"
+  ]
+}
