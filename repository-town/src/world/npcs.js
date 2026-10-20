@@ -287,6 +287,25 @@ export function animateNPCs(list,time,playerPos,dt=1/60,talkingTo=null,collision
             entry.heading+= (wander01(entry,entry.walkPhase*5+4)-.5)*1.35;
           }
         }
+        // The character loop is separate from the villagers' daily planner.
+        // A crowd can repeatedly push a named character out of reach of its
+        // supply pile or short wander target without ever triggering the old
+        // 'did not move this frame' test. Detect NET progress across frames.
+        if(entry.activity==='walk'){
+          const goalKey=entry.targetX.toFixed(2)+'/'+entry.targetZ.toFixed(2);
+          const remaining=Math.hypot(entry.targetX-group.position.x,entry.targetZ-group.position.z);
+          if(entry.lastWalkGoal!==goalKey){
+            entry.lastWalkGoal=goalKey;entry.lastWalkBest=remaining;entry.lastWalkImproved=time;
+          }else if(remaining<entry.lastWalkBest-.15){
+            entry.lastWalkBest=remaining;entry.lastWalkImproved=time;
+          }else if(remaining>.23 && time-(entry.lastWalkImproved??time)>6){
+            // Stop orbiting; allow the normal scheduler to choose fresh work
+            // or a new wander target after a short break.
+            if(entry.workSite && ['gather','build'].includes(entry.task))entry.task='rest';
+            entry.activity='idle';entry.activityUntil=time+3;
+            entry.lastWalkGoal=null;entry.blockedTime=0;
+          }
+        }else entry.lastWalkGoal=null;
         if(entry.activity==='walk'){
           const dx=entry.targetX-group.position.x,dz=entry.targetZ-group.position.z;
           const distance=Math.hypot(dx,dz);
