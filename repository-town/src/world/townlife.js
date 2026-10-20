@@ -91,6 +91,7 @@ const SIGN_AT = {
   sewage: [0, 2.6, 7.09, 4.2, 0.45, '#e6e2d6', '#3a4a3a'], fire: [0, 5.3, 7.13, 5, 0.6, '#f2efe6', '#b83a32'],
   recycling: [0, 3.4, 7.09, 5, 0.55, '#2f5a2a', '#f2efe6'], landfill: [0, 2.1, 6.73, 3.6, 0.45, '#e6e2d6', '#3a3226'],
   foundry: [0, 4.55, 7.09, 6.5, 0.7, '#2a2420', '#ff9a4a'], hotel: [0, 4.0, 7.26, 4.6, 0.55, '#f3dfb1', '#5a3a22'],
+  realty: [0, 4.14, 7.16, 9.3, 0.62, '#234c47', '#f4e8d2'],
 };
 const SHOP_COLOURS = { store: ['#2f6b8c', '#f6f1e2'], bakery: ['#8a5a2a', '#f8ecd2'], cafe: ['#e8d8b8', '#2f5a4a'], greengrocer: ['#3f7a3a', '#f6f1e2'], butcher: ['#b8413a', '#ffffff'], post: ['#b8413a', '#ffffff'], clinic: ['#ffffff', '#2a5a78'] };
 
@@ -182,6 +183,50 @@ const BUILD = {
 };
 // Civic sites across the road (authored like the rest: street side +z, front wall at z = +7).
 Object.assign(BUILD, {
+  realty(b) {
+    // Distinct small-town NSW real estate shopfront, southwest face of
+    // Market Square. A low heritage-style parapet, timber awning, two big
+    // listing windows and a recognisable glass entry facing the main street.
+    b.box(0xe2dccf,14,4.85,10,0,2.425,2);
+    b.box(0x45635f,14.6,.40,10.6,0,5.08,2);
+    b.box(0x314e49,14.8,1.0,.48,0,5.57,6.79);
+    for(const x of [-5.6,5.6]){
+      b.box(0xbba682,.26,5.03,.32,x,2.52,7.08);
+      b.box(0xbaa786,.24,.75,.32,x,4.79,7.1);
+    }
+    // Symmetrical plate-glass listing window bays and deep bronze mullions.
+    for(const x of [-3.88,3.88]){
+      b.box(0x9dbcc2,5.50,2.71,.065,x,2.29,7.08);
+      b.box(0x344c4d,5.54,.10,.10,x,.90,7.12);
+      b.box(0x344c4d,5.54,.09,.11,x,3.66,7.12);
+      for(const sx of [-2.73,0,2.73])
+        b.box(0x344c4d,.10,2.78,.13,x+sx,2.27,7.13);
+      for(let i=0;i<5;i++){
+        const sx=x-1.77+(i%3)*1.76,y=2.69-Math.floor(i/3)*.99;
+        b.box(0xf4f1e9,1.17,.81,.028,sx,y,7.173);
+        b.box([0x3d836c,0x396e83,0x9fa77c][i%3],1.10,.34,.032,sx,y+.20,7.195);
+        b.box(0x233f44,.80,.045,.038,sx,y-.20,7.215);
+      }
+    }
+    // Recessed-glass entry with visible door hardware and an unobstructed
+    // street-door approach; frame remains graphical, not a solid barrier.
+    b.box(0x284643,2.0,3.25,.10,0,1.62,7.12);
+    b.box(0x9fbec2,1.74,2.86,.028,0,1.64,7.19);
+    b.box(0xbda974,.08,.46,.11,.73,1.49,7.28);
+    b.box(0x284643,.10,2.88,.10,0,1.60,7.23);
+    b.box(0xebe3d0,2.2,.14,.8,0,.10,7.59);
+    // Timber verandah awning and pressed-metal details.
+    b.box(0x745c46,15.0,.19,2.75,0,3.77,7.8);
+    b.box(0xe5dac4,15.04,.065,.20,0,3.62,9.12);
+    for(const x of [-6.3,-4.3,-2.3,0,2.3,4.3,6.3])
+      b.box(0xb1a084,.09,.34,2.30,x,3.63,7.94);
+    // Shop hours, agency notice and accessible entry signs.
+    b.box(0xe8e3d6,1.12,.81,.032,1.38,2.15,7.21);
+    b.box(0x456b62,.89,.13,.034,1.38,2.32,7.235);
+    b.box(0xb2bcab,1.25,.25,.03,0,.18,8.13);
+    b.box(0x5f705c,1.8,.06,.44,0,.05,8.07);
+    return {w:14,d:10};
+  },
   hotel(b) {
     // Road-facing south-side hotel: two floors, reception, guest-room windows.
     b.box(0xd9b894,14,7,10,0,3.5,2);
