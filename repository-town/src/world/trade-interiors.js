@@ -51,6 +51,9 @@ export function buildTradeInterior(site,makeLabel) {
   } else {
     // Hoist, accessible service bay, tool walls, tyre racks and parts counter.
     solid(4.6,.92,.8,-2.9,.46,-6.1,0x4c5760);
+    // Rear parts cupboards and fluid cabinets keep the service bay walkable.
+    solid(1.15,1.8,.65,-5.5,.9,-9.4,0x74828b);
+    solid(1.15,1.8,.65,5.5,.9,-9.4,0x6d7478);
     box(4.8,.08,.84,-2.9,.96,-6.1,0xcdd1d3);
     for(const x of [-5.2,1.0]) {
       box(.23,2.35,.23,x,1.18,-1.8,0xe8b642);
