@@ -10,6 +10,7 @@ import { JOB_BOARD } from '../world/jobs.js';
 import { workingAt, shopService } from '../world/shop-attendance.js';
 import { COUNTERS, lineAt, pendingOrders } from '../world/counter-queue.js';
 import { householdReport, feederFor, TARIFF, fireDanger, season } from '../world/household.js';
+import { propertyOfficePanel, motorMarketPanel, motorWorkshopPanel } from './property-panels.js';
 
 const list = (o) => Object.entries(o || {}).filter(([, n]) => n > 0).map(([g, n]) => amount(g, n)).join(', ') || 'nothing';
 const hours = (p) => (p.opens === 0 && p.closes >= 1440 ? 'open all hours' : `${timeText(p.opens)}–${timeText(p.closes)}`);
@@ -96,6 +97,7 @@ function civicPanel(life, id, again) {
   const actions = [];
   if (id === 'hotel') actions.push(act('Book a room ($24)', () => life.bookHotel()));
   if (id === 'bank') actions.push(act('Deposit $20', () => life.bank('deposit', 20)), act('Withdraw $20', () => life.bank('withdraw', 20)));
+  if (id === 'bank') actions.push({label:'🏠 Land titles and property mortgages',run:()=>propertyOfficePanel(life)});
   if (id === 'bank') {
     const loan = life.creditReport().loan;
     const owing = life.economyReport();
@@ -105,6 +107,7 @@ function civicPanel(life, id, again) {
     else for (const n of life.creditReport().sizes) actions.push(act(`Borrow $${n}`, () => life.borrow(n)));
   }
   if (id === 'recycling') actions.push(act('Help sort kerbside recycling', () => life.collectRecycling()));
+  if (id === 'hall') actions.push({label:'View the town land registry',run:()=>propertyOfficePanel(life)});
   return { title: `${p.name}`, body: rows.join('') + bagLine(life), actions, wide: true };
 }
 
@@ -164,6 +167,10 @@ export function hallPanel(life) {
 }
 
 export function placePanel(life, id) {
+  if(id==='realestate')return propertyOfficePanel(life);
+  if(id==='realty')return propertyOfficePanel(life);
+  if(id==='dealership')return motorMarketPanel(life);
+  if(id==='mechanic')return motorWorkshopPanel(life);
   const panel = placePanelBase(life, id);
   if (JOB_BOARD.some((j) => j.site === id)) panel.actions = [...(panel.actions || []), { label: '💼 Work a shift here', run: () => jobPanel(life, id, () => placePanel(life, id)) }];
   return panel;

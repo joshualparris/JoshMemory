@@ -202,13 +202,13 @@ function payFrom(v, amount) {
 // Daily housing payment (direct debit): rent to the council's housing office, or the mortgage
 // repayment to the Community Bank. Returns { council, bank } amounts paid for the town's books.
 export function payHousing(life, v) {
-  const h = ensureHousehold(v), out = { council: 0, bank: 0, owed: 0 };
+  const h = ensureHousehold(v), out = { council: 0, bank: 0, owed: 0, rentPaid: 0 };
   if (h.tenure === 'owned' && !(v.housingArrears > 0)) return out;
   const m = h.mortgage, base = h.tenure === 'rent' ? HOUSING.rent : m ? Math.min(HOUSING.repayment, r2(m.balance * (1 + HOUSING.mortgageRate))) : 0;
   const due = r2(base + (v.housingArrears || 0));
   if (!(due > 0)) return out;
   const paid = payFrom(v, due);
-  if (!m) out.council = paid;
+  if (!m) { out.council = paid; if(h.tenure==='rent')out.rentPaid=Math.min(paid,HOUSING.rent+(v.housingArrears||0)); }
   else {
     out.bank = paid;
     const interest = r2(m.balance * HOUSING.mortgageRate);

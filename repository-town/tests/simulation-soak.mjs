@@ -24,7 +24,16 @@ const money = (t) => {
   const tills = [...t.places.values()].reduce((s, x) => s + x.till, 0);
   const bank = t.civic.credit?.capital || 0; // the credit union's lending pool
   const gov = (t.civic.finance?.federal || 0) + (t.civic.finance?.state || 0); // Commonwealth and NSW treasuries
-  return { villagers: v, player: p, tills, treasury: t.civic.treasury, bank, gov, total: v + p + tills + t.civic.treasury + bank + gov };
+  // A title transfer or rental payment moves cash among landlords, buyers,
+  // property lenders and the agent; vehicle trades and workshop wages do too.
+  // Count those finite accounts rather than treating their deposits as lost money.
+  const land=t.civic.property;
+  const propertyFunds=land ? Object.values(land.accounts).reduce((sum,n)=>sum+(Number(n)||0),0)
+    +(land.reserve||0)+(land.bond||0) : 0;
+  const motor=t.civic.motor;
+  const vehicleFunds=motor ? (motor.dealerCash||0)+(motor.garageCash||0)+(motor.staffWages||0) : 0;
+  return { villagers:v,player:p,tills,treasury:t.civic.treasury,bank,gov,propertyFunds,vehicleFunds,
+    total:v+p+tills+t.civic.treasury+bank+gov+propertyFunds+vehicleFunds };
 };
 const negatives = (t) => {
   const bad = [];

@@ -420,7 +420,9 @@ async function start() {
 
   function showCard(h, insideNow = false) {
     const links = (h.links || []).map((l) => `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)} ↗</a>`).join(' · ');
-    $('card').innerHTML = `<h2>${esc(h.coordinate)} · ${esc(h.name)}</h2><p class="kind">${esc(h.kind)} · ${esc(h.street)}</p><p>${esc(h.summary)}</p>${links ? `<p>${links}</p>` : ''}${insideNow ? '' : '<p class="dim">Walk to the door to go inside.</p>'}`;
+    const deed=life.civic.property?.parcels?.['H:'+h.coordinate];
+    const ownerLine=deed ? `<p class="dim"><b>Title:</b> ${esc(deed.owner==='visitor'?'You':deed.owner)} · <b>Occupier:</b> ${esc(deed.tenant||'Vacant')} · <b>Value:</b> ${Number(deed.value).toLocaleString('en-AU')} ${deed.listed?' · For sale':''}</p>` : '';
+    $('card').innerHTML = `<h2>${esc(h.coordinate)} · ${esc(h.name)}</h2><p class="kind">${esc(h.kind)} · ${esc(h.street)}</p><p>${esc(h.summary)}</p>${ownerLine}${links ? `<p>${links}</p>` : ''}${insideNow ? '' : '<p class="dim">Walk to the door to go inside.</p>'}`;
     $('card').hidden = false;
   }
   function openPanel(content, thing) {

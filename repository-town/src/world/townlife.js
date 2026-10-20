@@ -92,6 +92,9 @@ const SIGN_AT = {
   recycling: [0, 3.4, 7.09, 5, 0.55, '#2f5a2a', '#f2efe6'], landfill: [0, 2.1, 6.73, 3.6, 0.45, '#e6e2d6', '#3a3226'],
   foundry: [0, 4.55, 7.09, 6.5, 0.7, '#2a2420', '#ff9a4a'], hotel: [0, 4.0, 7.26, 4.6, 0.55, '#f3dfb1', '#5a3a22'],
   realty: [0, 4.14, 7.16, 9.3, 0.62, '#234c47', '#f4e8d2'],
+  realestate:[0,4.05,7.1,7.2,0.5,'#e9e1d0','#453827'],
+  dealership:[0,4.05,7.1,7.2,0.5,'#c8d6e2','#1d4267'],
+  mechanic:[0,4.05,7.1,7.2,0.5,'#273940','#f2c74a'],
 };
 const SHOP_COLOURS = { store: ['#2f6b8c', '#f6f1e2'], bakery: ['#8a5a2a', '#f8ecd2'], cafe: ['#e8d8b8', '#2f5a4a'], greengrocer: ['#3f7a3a', '#f6f1e2'], butcher: ['#b8413a', '#ffffff'], post: ['#b8413a', '#ffffff'], clinic: ['#ffffff', '#2a5a78'] };
 
@@ -277,6 +280,26 @@ Object.assign(BUILD, {
     for (const [x, z, r] of [[-3, -1, 3.2], [3, 0, 2.6]]) b.ball(0x7a6a50, r, x, 0, z, 0.45);
     b.box(0xb8b0a0, 4, 2.6, 3, 0, 1.3, 5.2); fence(b, -6.5, 6.5, -6, 6.6);
     return { w: 13, d: 12 };
+  },
+  realestate(b){
+    shopfront(b,14,10,4.9,0xe8decf,0x6b5845,null);
+    for(const x of [-5.2,-3.4,3.4,5.2])b.box(GLASS,1.0,1.7,0.05,x,2.0,7.1);
+    return {w:14,d:10};
+  },
+  dealership(b){
+    shopfront(b,14,10,4.9,0xc3d1dc,0x315d7c,null);
+    for(const x of [-4,4]){
+      b.block(0x456e91,1.65,0.9,2.8,x,0,9.3);
+      b.box(GLASS,1.5,.5,1.7,x,1.1,9.3);
+      for(const ax of [-.85,.85])for(const az of [-1,1])b.cyl(0x242729,.3,.23,x+ax,.32,9.3+az,Math.PI/2);
+    }
+    return {w:14,d:10};
+  },
+  mechanic(b){
+    shed(b,14,10,5,0xa6adaf,0x555e63);
+    for(const x of [-3.6,3.6])b.box(0xd5d9da,3.9,3.5,.06,x,1.75,7.12);
+    b.box(0x3f525e,13.6,.55,.1,0,4.05,7.16);
+    return {w:14,d:10};
   },
   foundry(b) {
     b.box(0x6a5a50, 14, 7, 10, 0, 3.5, 2); b.box(0x4a4a4a, 14.6, 0.5, 10.6, 0, 7.25, 2);
