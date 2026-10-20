@@ -15,7 +15,7 @@ export function ensureTenancies(life){
     deposit:0,depositHeld:0,arrears:0,lastPaid:life.day,lastReview:life.day,
     lateSince:null,notice:null,order:null,condition:p.condition,
     permittedUse:commercial?p.name:'residence',
-    disclosureServed:commercial?life.day-7:null,reviewMethod:'fixed 28-day anniversary',
+    disclosureServed:null,reviewMethod:'fixed 28-day anniversary',
     fitout:'tenant fittings; structural repairs by landlord',insurance:'operator public liability',
     status:'active',bondLedger:[],history:[]};
  }
