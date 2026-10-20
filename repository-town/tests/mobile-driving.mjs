@@ -23,9 +23,10 @@ try {
  const buttons=await page.evaluate(()=>window.__town.state().panel.buttons);
  const buy=buttons.findIndex(s=>s.startsWith('Buy Used hatchback'));
  assert(buy>=0,'used vehicle purchase available in interactive dealership');
- await page.evaluate(i=>window.__town.answer(i),buy);
+ const result=await page.evaluate(i=>({clicked:window.__town.answer(i),panel:window.__town.state().panel,
+    funds:window.__town.life.ledger().civic.player}),buy);
  let v=await page.evaluate(()=>window.__town.vehicles()[0]);
- assert(v&&v.registration&&Number.isFinite(v.x),'purchased car appears in world');
+ assert(v&&v.registration&&Number.isFinite(v.x),'purchased car appears in world: '+JSON.stringify({result,vehicle:v}).slice(0,1000));
  await page.evaluate(()=>{window.__town.exitShop();});
  await page.evaluate(p=>window.__town.place(p.x+1.5,p.z+1.5),v);
  await page.waitForFunction(reg=>window.__town.state().nearbyVehicle===reg,v.registration,{timeout:6000});
