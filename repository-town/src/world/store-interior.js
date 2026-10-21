@@ -62,7 +62,12 @@ export function buildStoreInterior(site, makeLabel, roomTitle = 'General Store')
 
   // ── two double-sided gondolas ──
   for (const gx of [-3.6, 3.6]) {
-    solid(1.0, 1.7, 5.4, gx, 0.85, -0.2, 0x8c8f93);
+    // The shelf carcass used to be a solid box with four shelf slabs buried inside it.
+    // Their coplanar faces fought the depth buffer (grey flashing lines). Build an
+    // open-backed metal frame instead, with shelf slabs sitting clear of the uprights.
+    solid(0.10, 1.7, 5.4, gx - 0.45, 0.85, -0.2, 0x8c8f93);
+    solid(0.10, 1.7, 5.4, gx + 0.45, 0.85, -0.2, 0x8c8f93);
+    for(const ez of [-2.85,2.45])box(0.9,1.7,0.08,gx,0.85,ez,0x8c8f93);
     for (const y of [0.3, 0.75, 1.2, 1.6]) { box(1.0, 0.04, 5.4, gx, y, -0.2, 0xb4b8bc); stockRow(gx - 0.2, y + 0.02, -0.2, 5.0, 'z', gx * 3 + y * 7); stockRow(gx + 0.2, y + 0.02, -0.2, 5.0, 'z', gx * 5 + y * 3); }
     box(1.0, 0.3, 0.06, gx, 1.95, -0.2, RED);                 // end-cap header
     solid(1.1, 0.9, 0.5, gx, 0.45, 2.75, RED); text('Specials', gx, 1.4, 2.75);
