@@ -4,6 +4,7 @@ import { buildWaterworksInterior } from './waterworks-interior.js';
 import { buildWastewaterInterior } from './wastewater-interior.js';
 import { buildRecyclingInterior } from './recycling-interior.js';
 import { buildRealtyInterior } from './realty-interior.js';
+import { buildWasteDepotInterior } from './waste-depot-interior.js';
 import { buildJusticeInterior } from './justice-interiors.js';
 import { buildFireInterior } from './fire-interior.js';
 import { buildMillInterior } from './mill-interior.js';
@@ -90,6 +91,7 @@ export function buildCivicInterior(site,makeLabel,life=null) {
   if(site.id==='sewage')return buildWastewaterInterior(site,makeLabel,life);
   if(site.id==='recycling')return buildRecyclingInterior(site,makeLabel,life);
   if(site.id==='realty')return buildRealtyInterior(site,makeLabel,life);
+  if(site.id==='landfill')return buildWasteDepotInterior(site,makeLabel,life);
   if(['police','ambulance','court','solicitor'].includes(site.id))return buildJusticeInterior(site,makeLabel,life);
   if(site.id==='mill')return buildMillInterior(site,makeLabel,roomTitle);
   if(site.id==='bakery')return buildBakeryInterior(site,makeLabel,roomTitle);

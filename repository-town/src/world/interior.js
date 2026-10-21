@@ -224,13 +224,13 @@ function buildOnce(house, makeLabel, attempt) {
     const type=typeof e==='string'?e:e[0];
     return type==='bed'?[type,typeof e==='string'?'Bed':e[1]||'Bed',{...(Array.isArray(e)?e[2]||{}:{}),do:'sleep'}]:e;
   })}));
-  if(!hasBed)roomsWithBeds.push({
+  if(!hasBed && !house.memorial)roomsWithBeds.push({
     name:'Bedroom',w:8,d:8,archive:true,
     props:[['bed','Sleep in bed',{do:'sleep'}],['wardrobe','Clothes wardrobe'],['lamp','Bedside lamp']]
   });
   // A villager's own home (house.household = their name) also gets the rooms they live in:
   // the appliances here are the ones src/world/household.js runs, and using them opens that household.
-  if(house.household){
+  if(house.household && !house.memorial){
     const use=(what)=>({do:'household',what});
     const have=new Set(authored.rooms.map(r=>r.name));
     const add=(name,w,d,props)=>{ if(!have.has(name))roomsWithBeds.push({name,w,d,archive:true,household:true,props}); };
@@ -263,7 +263,8 @@ function buildOnce(house, makeLabel, attempt) {
     b.box(floor, r.w, 0.1, r.d, (r.x0 + r.x1) / 2, -0.05, (r.z0 + r.z1) / 2);
     b.box(spec.ceiling || 0xf2efe8, r.w, 0.1, r.d, (r.x0 + r.x1) / 2, h + 0.05, (r.z0 + r.z1) / 2);
     b.cyl(0xfff4d8, 0.35, 0.06, (r.x0 + r.x1) / 2, h - 0.03, (r.z0 + r.z1) / 2);
-    if (r.name) labels.push({ text: r.name, pos: new THREE.Vector3((r.x0 + r.x1) / 2, h - 0.45, r.z0 + 0.6), room: i, kind: 'room' });
+    // Centre the title *inside its actual room* instead of pinning it to a wall shared with another room.
+    if (r.name) labels.push({ text: r.name, pos: new THREE.Vector3((r.x0 + r.x1) / 2, h - 0.45, (r.z0 + r.z1) / 2), room: i, kind: 'room' });
   });
   for (const o of openings) if (o !== entrance) {
     const door = doorLeaf(group, o.axis, o.at, o.c, spec.doors || 0x7a5a3c);
@@ -379,6 +380,7 @@ function buildOnce(house, makeLabel, attempt) {
     const sprite = makeLabel(l.text, l.kind);
     sprite.position.copy(l.pos);
     sprite.userData.labelKind = l.kind;
+    sprite.userData.labelRoom = l.room;
     containLabel(sprite, { ...rooms[l.room], y0:0, y1:h });
     group.add(sprite);
   }

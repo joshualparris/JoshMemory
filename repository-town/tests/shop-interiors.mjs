@@ -80,6 +80,16 @@ for(const id of CIVIC_INTERIOR_IDS){
     room.group.traverse(o=>{o.geometry?.dispose();o.material?.dispose?.();});
     continue;
   }
+  if(id==='landfill'){
+    assert(room.wasteDepotLayout,'Q8 Waste Depot is not a generic room');
+    assert.equal(room.interactables.length,9,'Q8 transfer-depot stations');
+    assert(room.interactables.some(x=>x.key==='landfill:site-rules'));
+    assert(room.interactables.some(x=>x.key==='landfill:dispatch'));
+    assert.equal(room.interactables.filter(x=>x.act?.do==='waste-depot-status').length,8,'eight stations open the live depot panel');
+    assert(room.interactables.some(x=>x.key==='landfill:weighin'&&x.act?.do==='civic-ledger'),'weigh-in desk opens the Town Ledger');
+    room.group.traverse(o=>{o.geometry?.dispose();o.material?.dispose?.();});
+    continue;
+  }
   if(id==='sewage'){
     assert(room.wastewaterLayout,'Wastewater Works is not a generic room');
     assert.equal(room.rooms.length,5,'L8 wastewater treatment galleries');
