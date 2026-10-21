@@ -5,8 +5,8 @@ import {useOccupation,occupationState,tickOccupationWork} from '../src/world/occ
 import {deliveryAction,deliveryState} from '../src/world/delivery-work.js';
 import {superviseBread} from '../src/world/bakery-production.js';
 import {storeBatches,reserveBatch,restoreBatch,tickStoreBatches,returnToSupplier} from '../src/world/store-batches.js';
-import {queueCafeCustomer,useCafe,workState,tickWorkplay} from '../src/world/workplay.js';
-import {FULL_WORK_MENU,orderRecipe} from '../src/world/work-recipes.js';
+import {queueCafeCustomer,useCafe,workState,tickWorkplay,restockCafePantry} from '../src/world/workplay.js';
+import {FULL_WORK_MENU,orderRecipe,recipeFor} from '../src/world/work-recipes.js';
 import {heartPoints,latteScore} from '../src/ui/latte-art.js';
 import {buildCivicInterior} from '../src/world/shop-interior.js';
 import {installPhysicalJobs,usePhysicalJob} from '../src/world/physical-jobs.js';
@@ -53,8 +53,8 @@ t=make();let batches=storeBatches(t);const old=batches.lots.find(b=>b.good==='mi
 const snap=JSON.parse(JSON.stringify(t.snapshot())),u=make();assert(u.restore(snap));assert.equal(u.civic.storeBatches.claims.length,1);
 // Every menu recipe can be prepared, with multi-item ingredients and one payment.
 assert.equal(FULL_WORK_MENU.length,16);assert(latteScore(heartPoints())>.95);assert(latteScore([{x:0,y:0}])===0);
-for(const recipe of FULL_WORK_MENU){t=shift('cafe','cafe-all-rounder');const cafe=t.place('cafe');for(const g of ['coffee','milk','oatmilk','tea','bread','eggs','veg','pie','fruit'])cafe.stock[g]=50;const v=t.villagers.find(v=>v.work!=='cafe');v.wallet=100;v.step={kind:'eatout',at:'cafe',queue:{joined:1}};const o=queueCafeCustomer(t,v);Object.assign(o,{item:recipe.id,items:[recipe.id],diet:'standard',milk:'dairy'});assert(useCafe(t,'take').ok);const r=orderRecipe(o);if(r.hasMilk){assert(!useCafe(t,'milk','oat').ok);assert(useCafe(t,'milk','dairy').ok);}const station=r.kind==='food'||r.kind==='oven'?'kitchen':'barista';for(const step of r.steps){assert(useCafe(t,'prepare',station).mini);assert(!useCafe(t,'finish-step',step[0],.1).ok);assert(useCafe(t,'finish-step',step[0],.9).ok);}assert(useCafe(t,'collect').ok);assert(useCafe(t,'deliver',o.table).ok);assert.equal(v.wallet,100-r.price);assert(!useCafe(t,'deliver',o.table).ok);}
-t=shift('cafe','cafe-all-rounder');const patron=t.villagers.find(v=>v.work!=='cafe');patron.wallet=100;patron.step={kind:'eatout',at:'cafe',queue:{joined:1}};queueCafeCustomer(t,patron);t.minute+=91;tickWorkplay(t);assert.equal(workState(t).cafe.tickets[0].state,'cancelled');
+for(const recipe of FULL_WORK_MENU){t=shift('cafe','cafe-all-rounder');const cafe=t.place('cafe');for(const g of ['coffee','milk','oatmilk','tea','bread','eggs','veg','pie','fruit'])cafe.stock[g]=50;const v=t.villagers.find(v=>v.work!=='cafe');v.wallet=100;v.step={kind:'eatout',at:'cafe',queue:{joined:1}};const o=queueCafeCustomer(t,v);Object.assign(o,{item:recipe.id,items:[recipe.id],diet:'standard',milk:'dairy'});assert(useCafe(t,'take').ok);const r=orderRecipe(o);if(r.hasMilk){assert(useCafe(t,'milk','dairy').ok);}const station=r.kind==='food'||r.kind==='oven'?'kitchen':'barista';for(const step of r.steps){assert(useCafe(t,'prepare',station).mini);assert(!useCafe(t,'finish-step',step[0],.1).ok);assert(useCafe(t,'finish-step',step[0],.9).ok);}assert(useCafe(t,'collect').ok);assert(useCafe(t,'deliver',o.table).ok);assert.equal(v.wallet,100-r.price-1,'quick successful service earns a customer-funded tip');assert(!useCafe(t,'deliver',o.table).ok);}
+t=shift('cafe','cafe-all-rounder');const patron=t.villagers.find(v=>v.work!=='cafe');patron.wallet=100;patron.step={kind:'eatout',at:'cafe',queue:{joined:1}};queueCafeCustomer(t,patron);t.minute+=(workState(t).cafe.tickets[0].patience||90)+1;tickWorkplay(t);assert.equal(workState(t).cafe.tickets[0].state,'cancelled');
 // Bundled oat-milk order crosses barista and kitchen stations without double
 // reservation or payment; save mid-preparation and resume the same ticket.
 t=shift('cafe','cafe-all-rounder');for(const g of ['coffee','milk','oatmilk','tea','fruit','bread','eggs','veg','pie'])t.place('cafe').stock[g]=50;
@@ -64,7 +64,7 @@ let bundle=orderRecipe(ticket),steps=bundle.steps,coffee0=t.place('cafe').stock.
 assert(useCafe(t,'prepare','barista').mini);assert.equal(t.place('cafe').stock.oatmilk,oat0-1);assert(useCafe(t,'finish-step',steps[0][0],.9).ok);
 let resumed=make();assert(resumed.restore(JSON.parse(JSON.stringify(t.snapshot()))));t=resumed;staff(t,'cafe');ticket=workState(t).cafe.tickets.find(x=>x.id===ticket.id);bundle=orderRecipe(ticket);
 for(const step of bundle.steps.slice(1)){assert(useCafe(t,'prepare',step[3]).mini);assert(useCafe(t,'finish-step',step[0],.9).ok);}
-assert.equal(t.place('cafe').stock.coffee,coffee0-1);assert(useCafe(t,'collect').ok);assert(useCafe(t,'deliver',ticket.table).ok);assert.equal(t.villagers.find(v=>v.id===customer.id).wallet,100-bundle.price);
+assert.equal(t.place('cafe').stock.coffee,coffee0-1);assert(useCafe(t,'collect').ok);assert(useCafe(t,'deliver',ticket.table).ok);assert.equal(t.villagers.find(v=>v.id===customer.id).wallet,100-bundle.price-1);
 // All reserved occupation goods survive crossing midnight and save migration.
 t=shift('garden','farm-hand');action(t,'garden','water-plants','fill');action(t,'garden','water-plants','water');action(t,'garden','water-plants','water');for(let i=0;i<3;i++)action(t,'garden','weed-beds','weed');action(t,'garden','weed-beds','compost');action(t,'garden','pack-produce','harvest');
 resumed=make();assert(resumed.restore(JSON.parse(JSON.stringify(t.snapshot()))));assert.equal(occupationState(resumed).garden.crate,3);
@@ -99,4 +99,26 @@ for(const id of ['post','depot','hall','garden','coop','bakery']){const life=mak
  assert.equal(resumed.place('bakery').stock.flour,2,'new batch debited once');
  assert(!superviseBread(resumed,'weigh',2000).ok,'no duplicate weighing');
 }
+// PR120 reconciliation: paid alternative ingredients, wrong substitutions, remakes and tips.
+{
+ const c=shift('cafe','cafe-all-rounder'),p=c.place('cafe'),depot=c.place('depot');
+ Object.assign(p.stock,{coffee:50,milk:50,bread:50,oatmilk:0,soymilk:0,gfbread:0,veg:50,pie:50,eggs:50});
+ const beforeTill=p.till,beforeDepot=depot.till,cost=restockCafePantry(c);
+ assert.equal(cost,50);assert.equal(beforeTill-p.till,cost);assert.equal(depot.till-beforeDepot,cost);
+ assert.equal(restockCafePantry(c),0,'supplier not paid twice');
+ assert.equal(orderRecipe({item:'toast',items:['toast'],bread:'gluten-free'}).ingredients.gfbread,1);
+ assert(!('bread' in orderRecipe({item:'toast',items:['toast'],bread:'gluten-free'}).ingredients));
+ const patron=c.villagers.find(v=>v.work!=='cafe');patron.wallet=100;patron.step={kind:'eatout',at:'cafe',queue:{joined:1}};
+ const o=queueCafeCustomer(c,patron);Object.assign(o,{item:'latte',items:['latte'],milk:'oat',diet:'dairy-free',bread:'regular'});
+ assert(useCafe(c,'take').ok);assert(useCafe(c,'milk','dairy').ok);
+ let r=orderRecipe(o);for(const step of r.steps){assert(useCafe(c,'prepare',step[3]||'barista').mini);assert(useCafe(c,'finish-step',step[0],.9).ok);}
+ assert(useCafe(c,'collect').ok);const wallet=patron.wallet,unchangedTill=p.till;
+ assert(!useCafe(c,'deliver',o.table).ok,'wrong milk refused at the actual table');
+ assert.equal(patron.wallet,wallet);assert.equal(p.till,unchangedTill);assert.equal(o.state,'accepted');
+ assert(useCafe(c,'milk','oat').ok);r=orderRecipe(o);for(const step of r.steps){assert(useCafe(c,'prepare',step[3]||'barista').mini);assert(useCafe(c,'finish-step',step[0],.9).ok);}
+ assert(useCafe(c,'collect').ok);assert(useCafe(c,'deliver',o.table).ok);
+ assert.equal(patron.wallet,wallet-r.price-1);assert.equal(workState(c).cafe.tips,1);
+ assert(!useCafe(c,'deliver',o.table).ok,'no double payment');
+}
+assert(recipeFor('pie').steps.some(s=>s[0]==='preheat')&&recipeFor('pie').steps.some(s=>s[0]==='probe'));
 console.log('PASS: real freight/post addresses, farm/feed/egg stock conservation, cleaner, repaired lamp, driven van/receipt guards, full bakery, FEFO/cold returns, 16 cafe recipes, patience, saved state and reachable stations.');

@@ -7,6 +7,23 @@ export function workState(t){
  const s=t.civic.workplay??={version:1,store:{shelves:{},carton:null,quarantine:0,restocked:0},cafe:{next:1,tickets:[],selected:null,held:null,served:0,cleared:0}};
  return s;
 }
+// Finite alternative ingredients are purchased from the Rail Depot, not gifted to
+// the café. Supplier and café till balances transfer exactly the same amount.
+export function restockCafePantry(t){
+ const c=workState(t).cafe,p=t.place('cafe'),depot=t.place('depot');
+ if(c.pantryDay===t.day)return 0;
+ if(t.minute<360)return 0;
+ const targets={oatmilk:8,soymilk:8,gfbread:6},prices={oatmilk:2,soymilk:2,gfbread:3};
+ let paid=0;
+ for(const [good,target] of Object.entries(targets)){
+  const have=Math.max(0,Math.floor(p.stock[good]||0));
+  const n=Math.min(Math.max(0,target-have),Math.floor(Math.max(0,p.till||0)/prices[good]));
+  if(!n)continue;
+  const cost=n*prices[good];p.till-=cost;depot.till+=cost;p.stock[good]=have+n;paid+=cost;
+ }
+ c.pantryDay=t.day;
+ return paid;
+}
 export function isWorking(t,site){const a=t.civic.jobs?.active;return !!(a&&a.site===site&&a.day===t.day&&t.playerAt===site);}
 function authorised(t,site){return isWorking(t,site)&&t.jobSupervisors(site).length>0&&t.open(t.place(site));}
 function mark(t,task){
@@ -76,15 +93,26 @@ export function queueCafeCustomer(t,v){
  if(existing)return existing;
  const busy=c.tickets.filter(o=>!['cleared','cancelled'].includes(o.state));if(busy.length>=6)return null;
  const table=[1,2,3,4,5,6].find(n=>!busy.some(o=>o.table===n));
- const p=t.place('cafe'),choices=FULL_WORK_MENU.filter(r=>v.wallet>=r.price);
+ const p=t.place('cafe');restockCafePantry(t);
+ const diet=['vegan','gluten-free','standard','vegetarian','dairy-free','standard','standard'][Math.abs(v.id)%7];
+ const milk=['vegan','dairy-free'].includes(diet)?(v.id%2?'soy':'oat'):'dairy',bread=diet==='gluten-free'?'gluten-free':'regular';
+ const choices=FULL_WORK_MENU.filter(r=>v.wallet>=r.price);
  if(!choices.length)return null;
- const diet=v.id%7===0?'vegan':v.id%7===1?'gluten-free':'standard',milk=diet==='vegan'?'oat':'dairy';
- const suitable=choices.filter(r=>diet!=='vegan'||(!r.ingredients.eggs&&!r.ingredients.pie)).filter(r=>diet!=='gluten-free'||!r.ingredients.bread).filter(r=>Object.entries(orderRecipe({item:r.id,diet,milk}).ingredients).every(([g,n])=>(p.stock[g]||0)>=n));
+ const suitable=choices.filter(r=>!(diet==='vegan'&&(r.ingredients.eggs||r.ingredients.pie||r.ingredients.milk&&!['oat','soy'].includes(milk))))
+  .filter(r=>!(diet==='vegetarian'&&r.ingredients.pie))
+  .filter(r=>!(diet==='gluten-free'&&r.ingredients.pie))
+  .filter(r=>Object.entries(orderRecipe({item:r.id,diet,milk,bread}).ingredients).every(([g,n])=>(p.stock[g]||0)>=n));
  if(!suitable.length)return null;
  const r=suitable[Math.abs(v.id+c.next-1)%suitable.length];
- const o={id:c.next++,customer:v.id,name:v.name,item:r.id,table,state:'queue',step:0,quality:[],created:now(t),diet,milk,items:[r.id],patience:90,chosenMilk:null};
+ const o={id:c.next++,customer:v.id,name:v.name,item:r.id,table,state:'queue',step:0,quality:[],created:now(t),diet,milk,bread,items:[r.id],patience:45+(v.id*11%31+31)%31,chosenMilk:null,chosenBread:null};
  const second=suitable.find(x=>x.id!==r.id&&(['food','oven'].includes(x.kind)!==['food','oven'].includes(r.kind)));
  if(c.next%3===0&&second){const pair={...o,items:[r.id,second.id]};const bundle=orderRecipe(pair);if(v.wallet>=bundle.price&&Object.entries(bundle.ingredients).every(([g,n])=>(p.stock[g]||0)>=n))o.items.push(second.id);}
+ if(c.next%5===0&&o.items.length<3){
+  const third=suitable.find(x=>!o.items.includes(x.id));
+  if(third){const candidate={...o,items:[...o.items,third.id]},basket=orderRecipe(candidate);
+   if(v.wallet>=basket.price&&Object.entries(basket.ingredients).every(([g,n])=>(p.stock[g]||0)>=n))o.items.push(third.id);
+  }
+ }
  const final=orderRecipe(o);if(!Object.entries(final.ingredients).every(([g,n])=>(p.stock[g]||0)>=n))return null;
  c.tickets.push(o);v.step.workTicket=o.id;v.activity='Queuing to order at Commit Café';
  c.tickets=c.tickets.filter(x=>!['cleared','cancelled'].includes(x.state)).concat(c.tickets.filter(x=>['cleared','cancelled'].includes(x.state)).slice(-12));
@@ -108,9 +136,9 @@ export function cafeCounter(t,v){
 export function cancelCafe(t,o){
  const c=workState(t).cafe,v=t.villagers.find(v=>v.id===o.customer);
  // Reserved ingredients are returned only while raw. Prepared food becomes waste.
- if(o.reserved&&o.step===0){for(const [g,n]of Object.entries(orderRecipe(o).ingredients))t.place('cafe').stock[g]=(t.place('cafe').stock[g]||0)+n;}
+ if(o.reserved&&o.step===0){for(const [g,n]of Object.entries(o.reservedIngredients||orderRecipe(o).ingredients))t.place('cafe').stock[g]=(t.place('cafe').stock[g]||0)+n;}
  if(o.reserved&&o.step>0)t.rubbish(1);
- o.state='cancelled';o.reserved=false;if(c.held===o.id)c.held=null;
+ o.state='cancelled';o.reserved=false;o.reservedIngredients=null;if(c.held===o.id)c.held=null;
  if(v?.step?.workTicket===o.id){delete v.step.workTicket;delete v.step.food;v.step.queue={joined:now(t),serving:null};}
 }
 export function useCafe(t,action,arg,score){
@@ -130,15 +158,27 @@ export function useCafe(t,action,arg,score){
  }
  if(!o)return result(false,'Select a ticket on the order rail first.');
  const r=orderRecipe(o);
- if(action==='milk'){if(!['accepted','preparing'].includes(o.state)||o.reserved)return result(false,'Milk selection is locked once preparation starts.');if(arg!==o.milk)return result(false,'Ticket requests '+o.milk+' milk. Choose that option; ingredients and wages are unchanged.');o.chosenMilk=arg;return result(true,'Correct '+arg+' milk jug selected.');}
+ if(action==='milk'){
+  if(!['accepted','preparing'].includes(o.state)||o.reserved)return result(false,'Milk choice is locked once preparation starts.');
+  if(!['dairy','skim','oat','soy'].includes(arg))return result(false,'Unknown milk choice.');
+  o.chosenMilk=arg;return result(true,arg+' milk selected. Compare with the ticket before delivering.');
+ }
+ if(action==='bread'){
+  if(!['accepted','preparing'].includes(o.state)||o.reserved)return result(false,'Bread choice is locked once preparation starts.');
+  if(!['regular','gluten-free'].includes(arg))return result(false,'Unknown bread choice.');
+  o.chosenBread=arg;return result(true,arg+' bread selected. Check dietary request before service.');
+ }
  if(action==='prepare'){
   if(!['accepted','preparing'].includes(o.state))return result(false,'This order is not waiting for preparation.');
   const station=r.steps[o.step]?.[3]||(['food','oven'].includes(r.kind)?'kitchen':'barista');
   if(arg!==station)return result(false,'Prepare '+r.name+' at the '+station+' station.');
-  if(r.hasMilk&&o.chosenMilk!==o.milk)return result(false,'Select the requested '+o.milk+' milk jug before preparation.',{milkChoice:true});
+  if(r.hasMilk&&!o.chosenMilk)return result(false,'Choose a milk jug for the ticket before preparation.',{milkChoice:true,request:o.milk});
+  if(r.hasBread&&o.bread==='gluten-free'&&!o.chosenBread)return result(false,'Choose the requested bread before preparation.',{breadChoice:true,request:o.bread});
   if(!o.reserved){
-   if(!Object.entries(r.ingredients).every(([g,n])=>(p.stock[g]||0)>=n))return result(false,'Ingredients are sold out. Wait for a delivery.');
-   for(const[g,n]of Object.entries(r.ingredients))p.stock[g]-=n;o.reserved=true;
+   const actual=orderRecipe({...o,milk:o.chosenMilk||o.milk,bread:o.chosenBread||o.bread});
+   if(!Object.entries(actual.ingredients).every(([g,n])=>(p.stock[g]||0)>=n))return result(false,'Ingredients are sold out. Wait for a delivery.');
+   for(const[g,n]of Object.entries(actual.ingredients))p.stock[g]-=n;
+   o.reservedIngredients={...actual.ingredients};o.reserved=true;
   }
   o.state='preparing';return result(true,r.steps[o.step][1],{mini:r.steps[o.step],order:o.id});
  }
@@ -159,13 +199,22 @@ export function useCafe(t,action,arg,score){
   if(Number(arg)!==o.table)return result(false,'Wrong table. This tray belongs to '+o.name+' at table '+o.table+'.');
   const v=t.villagers.find(v=>v.id===o.customer);
   if(!v?.step||v.step.workTicket!==o.id){cancelCafe(t,o);return result(false,'The customer has left. Return to the counter.');}
+  if((r.hasMilk&&o.chosenMilk!==o.milk)||(r.hasBread&&o.bread==='gluten-free'&&o.chosenBread!==o.bread)){
+   const error=r.hasMilk&&o.chosenMilk!==o.milk?'milk':'bread';
+   c.refused=(c.refused||0)+1;t.rubbish(1);
+   o.step=0;o.quality=[];o.state='accepted';o.reserved=false;o.reservedIngredients=null;
+   o.chosenMilk=null;o.chosenBread=null;c.held=null;
+   return result(false,'The '+error+' does not match the dietary ticket and must be remade. Customer pays nothing and worker pay is unaffected.');
+  }
   if(v.wallet<r.price)return result(false,'The customer cannot afford this order. Ask the counter to cancel it.');
-  v.wallet-=r.price;noteSpend(v,'out',r.price);t.sale(p,r.price);t.stats.mealsOut++;
+  const tip=now(t)-o.created<=30&&v.wallet>=r.price+1?1:0;
+  v.wallet-=r.price+tip;
+  if(tip){t.civic.player.wallet+=tip;c.tips=(c.tips||0)+tip;}noteSpend(v,'out',r.price);t.sale(p,r.price);t.stats.mealsOut++;
   t.eat(v,r.name);v.activity='Enjoying '+r.name+' at table '+o.table;
   delete v.step.queue;delete v.step.food;v.step.dur=12;
   o.state='served';o.servedAt=now(t);c.held=null;c.served++;o.reserved=false;
   t.log('Ticket '+o.id+': '+o.name+' served '+r.name+' at table '+o.table+'.');
-  return result(true,'Correct table! '+o.name+' received '+r.name+'. $'+r.price+' paid to the café.');
+  return result(true,'Correct table! '+o.name+' received '+r.name+'. $'+r.price+' paid to the café.'+(tip?' $1 tip earned.':''));
  }
  if(action==='clear'){
   if(Number(arg)!==o.table||!['dirty','served'].includes(o.state))return result(false,'There are no finished dishes from this ticket at that table.');
@@ -176,7 +225,7 @@ export function useCafe(t,action,arg,score){
  return result(false,'Unknown café task.');
 }
 export function tickWorkplay(t){
- tickStoreBatches(t);
+ tickStoreBatches(t);restockCafePantry(t);
  const state=t.civic.workplay;if(!state)return;
  const a=t.civic.jobs?.active;
  if(state.store.carton&&(!a||a.site!=='store'||a.day!==t.day)){

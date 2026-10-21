@@ -1,5 +1,6 @@
 import {occupationPanel} from './ui/occupation-panels.js';
 import {installWorkplay} from './world/workplay-view.js';
+import {queueCafeCustomer} from './world/workplay.js';
 import { mountCompanion } from './ui/companion.js';
 import * as THREE from 'three';
 import { CollisionWorld } from './engine/collision.js';
@@ -1156,6 +1157,33 @@ async function start() {
     answer(i) { const b = $('panel-actions').querySelectorAll('button')[i]; if (b) b.click(); return !!b; },
     closePanel,
   };
+
+  // Local browser acceptance fixture only. Production does not expose this
+  // mutation hook; it creates an actual TownLife villager café order.
+  if(['localhost','127.0.0.1'].includes(location.hostname)){
+    window.__town.prepareCafeTestShift=()=>{
+      if(inside?.place?.id!=='cafe')return false;
+      const p=life.place('cafe');p.till=Math.max(500,p.till||0);
+      for(const v of life.villagers)if(v.work==='cafe'){
+        v.step={kind:'work',at:'cafe'};v.path=[];v.inside=true;
+      }
+      life.playerAt='cafe'; // test's immediate setup runs before the next animation frame
+      return life.jobSupervisors('cafe').length>0;
+    };
+    window.__town.queueCafeTestPatron=()=>{
+      if(inside?.place?.id!=='cafe'||life.civic.jobs?.active?.site!=='cafe')return null;
+      const v=life.villagers.find(v=>v.work!=='cafe'&&!v.step?.workTicket);
+      if(!v)return null;
+      v.wallet=Math.max(100,v.wallet||0);v.path=[];v.inside=true;
+      v.step={kind:'eatout',at:'cafe',dur:100,queue:{joined:life.day*1440+life.minute}};
+      const stock=life.place('cafe').stock;
+      for(const good of ['coffee','milk','oatmilk','soymilk','gfbread','bread','eggs','veg','pie','tea'])stock[good]=Math.max(40,stock[good]||0);
+      const o=queueCafeCustomer(life,v);
+      if(!o)return null;
+      Object.assign(o,{item:'latte',items:['latte','toast'],milk:'oat',diet:'dairy-free',bread:'regular',patience:75,chosenMilk:null,chosenBread:null});
+      return {id:o.id,name:o.name,table:o.table};
+    };
+  }
 
   $('loading').hidden = true;
   requestAnimationFrame(frame);
