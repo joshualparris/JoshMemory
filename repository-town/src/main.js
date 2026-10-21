@@ -1,6 +1,7 @@
 import {occupationPanel} from './ui/occupation-panels.js';
 import {installWorkplay} from './world/workplay-view.js';
 import { mountCompanion } from './ui/companion.js';
+import { isHudBlocked } from './ui/hud-visibility.js';
 import * as THREE from 'three';
 import { CollisionWorld } from './engine/collision.js';
 import { Input } from './engine/input.js';
@@ -205,13 +206,34 @@ async function start() {
   const expedition = createExpedition({town,makeLabel,openPanel,travel,
     releaseMouse:()=>input.releaseMouse()});
 
+  // All focused overlays take priority over the floating AI launcher and
+  // the bottom interaction hint. This also handles the small building card.
+  function blockingHudOverlays(){
+    return {
+      panel:!!panelOpen||!$('panel').hidden,
+      buildingCard:!$('card').hidden,
+      npcDialogue:npcChat.isOpen(),
+      expedition:expedition.isOpen(),
+      roster:!$('npc-roster').hidden,
+      help:!$('help').hidden,
+      game:!$('game').hidden,
+      map:overview,
+    };
+  }
   const companion = mountCompanion({
     getContext:()=>({mode,place:inside?.place?.name||inside?.house?.name||(nearPerson?.spot?life.place(nearPerson.spot.id)?.name:null)||nearHouse?.house?.name||'Town streets',
       coordinate:inside?.house?.coordinate||nearHouse?.house?.coordinate||'',floor:inside?.floorIndex||0,
       pos:player.pos,wallet:life.civic.player.wallet,target:mode==='house'?nearThing:(nearTownSeat?{...nearTownSeat,act:{do:'sit'}}:nearPerson?.spot?{...nearPerson.spot,act:{do:'civic-ledger'}}:nearHouse?{key:nearHouse.house.coordinate,label:nearHouse.house.name,act:{do:'enter'}}:null),
       interactions:inside?.interactables||[]}),
-    onOpen:()=>{input.releaseMouse();input.reset();npcChat.close();},onClose:()=>input.reset()
+    onOpen:()=>{input.releaseMouse();input.reset();npcChat.close();},onClose:()=>input.reset(),
+    isBlocked:()=>isHudBlocked(blockingHudOverlays())
   });
+
+  function syncOverlayHud(){
+    const blocked=isHudBlocked(blockingHudOverlays());
+    companion.setBlocked(blocked);
+    if(blocked)$('prompt').hidden=true;
+  }
 
   // ── Movement between town and houses ─────────────────────────────────────
   function frontOf(coord) {
@@ -850,6 +872,7 @@ async function start() {
       frames = 0; fpsTimer = 0;
     }
     // While a game is open the town neither renders nor reacts, so the game gets the whole device.
+    syncOverlayHud();
     if (playing) {
       if (input.consume('back')) stopGame();
       input.takeLook(); for (const k of ['use', 'jump', 'map']) input.consume(k);
@@ -1084,6 +1107,9 @@ async function start() {
     expedition.update(t,player,mode);
     mapTimer += dt; if (mapTimer > 0.2) { drawMap(); mapTimer = 0; }
     saveTimer += dt; if (saveTimer > 3) { save(); saveTimer = 0; }
+    // Apply after selecting the new nearby prompt: never let it reappear over
+    // a shop menu, building card, NPC conversation or other focused interface.
+    syncOverlayHud();
     renderFrame();
     requestAnimationFrame(frame);
   }
