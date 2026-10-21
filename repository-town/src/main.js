@@ -28,6 +28,7 @@ import { mountNPCChat } from './ui/npc-chat.js';
 import { makePerson, Walker, houseWander, freeSpot, placeTownNPCs, animateNPCs, initialiseNPCWorksites } from './world/npcs.js';
 import { separatePedestrians, steerPedestrians } from './world/pedestrian-spacing.js';
 import { createTownLife } from './world/townlife.js';
+import { createEmergencyResponseVisuals } from './world/emergency-response-visuals.js';
 import { createPlayerDriving } from './world/player-driving.js';
 import { nearestSeat } from './world/seats.js';
 import { furniturePanel } from './ui/furniture.js';
@@ -114,6 +115,7 @@ async function start() {
   // Town life: farms, shops, trucks and 32 villagers with jobs and meals (src/world/life.js).
   const townLife = createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog });
   const life = townLife.life;
+  const emergencyVisuals = createEmergencyResponseVisuals(life, town);
   // The Town Guide kiosk by the start (src/world/town.js) opens the guide panel.
   const guideSpot = { key: 'guide', pos: town.guidePos, label: '🗺️ Read the Town Guide', guide: true };
   // Named street characters (src/ui/npc-data.js) with their own AI chat window.
@@ -802,6 +804,7 @@ async function start() {
       :[];
     const view = mode === 'house' && inside?.view ? inside.view.place(camera, outdoorCam) : null;
     townLife.update(dt, t, { player, mode, overview, camera, talkingTo, view });
+    emergencyVisuals.update(t);
     const n=life.needsReport();
     const car=driving.activeVehicle();
     const needsText=`🍽 ${Math.round(n.hunger)}% · 💤 ${Math.round(n.fatigue)}%${car?' · 🚗 '+Math.round(Math.abs(car.speed||0)*3.6)+'km/h ⛽ '+Math.round(car.fuel||0)+'L':''}`;
