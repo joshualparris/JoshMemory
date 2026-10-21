@@ -37,8 +37,12 @@ try{
  const pending=await page.evaluate(()=>window.__town.queueCafeTestPatron?.());
  assert(pending,'local acceptance fixture registered a real villager via the normal café order system: '+JSON.stringify(await page.evaluate(()=>({shift:window.__town.life.ledger().civic?.jobs?.active,mode:window.__town.state().mode,service:window.__town.state().workplay?.cafe?.tickets?.length}))));
  await page.evaluate(()=>window.__town.closePanel?.());
- await tapStation('workplay:cafe:orders');
- assert.equal((await state()).workplay.cafe.tickets.find(o=>o.id===pending.id).state,'accepted');
+ for(let n=0;n<7;n++){
+  if((await state()).workplay.cafe.tickets.find(o=>o.id===pending.id)?.state==='accepted')break;
+  await tapStation('workplay:cafe:orders');await page.waitForTimeout(120);
+ }
+ const taken=await state();
+ assert.equal(taken.workplay.cafe.tickets.find(o=>o.id===pending.id)?.state,'accepted','ticket service: '+JSON.stringify({selected:taken.workplay.cafe.selected,tickets:taken.workplay.cafe.tickets.map(o=>({id:o.id,state:o.state,created:o.created})),status:await page.locator('#status').textContent().catch(()=>null)}));
  await tapStation('workplay:cafe:barista');
  await page.waitForFunction(()=>window.__town.state().panel?.title?.includes('milk'),null,{timeout:6500});
  await page.locator('#panel-actions button').filter({hasText:/oat milk/i}).first().tap();
