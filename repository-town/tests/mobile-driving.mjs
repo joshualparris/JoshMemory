@@ -46,11 +46,16 @@ try {
  const x=page.viewportSize().width*.2,y=page.viewportSize().height*.7;
  await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y,id:1}]});
  await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x,y:y-48,id:1}]});
+ await new Promise(r=>setTimeout(r,120));
+ const duringTouch=await page.evaluate(()=>window.__town.driveDiagnostics?.());
+ assert(duringTouch&&duringTouch.input.z<-.4,
+    'Android joystick must deliver forward input to the actual game canvas: '+JSON.stringify(duringTouch));
  await new Promise(r=>setTimeout(r,2200));
  await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
  await new Promise(r=>setTimeout(r,200));
  v=await page.evaluate(()=>window.__town.vehicles()[0]);
- assert(v.fuel<20,'mobile joystick advances vehicle and consumes fuel');
+ const diagnosis=await page.evaluate(()=>window.__town.driveDiagnostics?.());
+ assert(v.fuel<20,'mobile joystick advances vehicle and consumes fuel: '+JSON.stringify({duringTouch,diagnosis,current:v}));
  assert(v.odometer>64000,'odometer increases as vehicle travels');
  assert(!errors.length,'no browser page errors: '+errors.join('; '));
  console.log('PASS: Android viewport, full dealer purchase, physical car spawn, touch entry and joystick driving');
