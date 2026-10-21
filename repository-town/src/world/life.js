@@ -422,6 +422,15 @@ export class TownLife {
         carrying: null, lastMeal: null, meals: [], seen: [], doneToday: {},
       };
     });
+    // A larger population needs more shelves and wholesale storage, not magically replenished stock.
+    // Goods still originate at farms and are physically delivered by the existing trucks.
+    const demandScale=Math.max(1,this.villagers.length/legacyCount);
+    for(const id of ['store','bakery','greengrocer','butcher','cafe','pub','mill']){
+      const p=this.place(id);for(const [good,quantity] of Object.entries(p.target||{})){
+        p.target[good]=Math.ceil(quantity*demandScale);
+        p.stock[good]=Math.ceil((p.stock[good]||0)*demandScale);
+      }
+    }
     // Each household's food, appliances, bills and chores (src/world/household.js).
     for (const v of this.villagers) { v.larder = null; ensureHousehold(v); }
     // Persisted NPC social lives advance alongside the town rather than only in UI.
@@ -815,7 +824,7 @@ export class TownLife {
         const hands = at(p.id).length;
         // Farms stop picking once their shed is full (60), so unsold produce doesn't pile up forever.
         if (hands && this.open(p) && (p.out[p.makes] || 0) < 60) {
-          const n = Math.round((2 + 3 * p.growth) * hands * (FARM_YIELD[p.makes] || 1));
+          const n = Math.round((2 + 3 * p.growth) * hands * (FARM_YIELD[p.makes] || 1) * Math.max(1, this.villagers.length/38));
           p.out[p.makes] = (p.out[p.makes] || 0) + n;
           this.stats.harvested[p.makes] = (this.stats.harvested[p.makes] || 0) + n;
           if (p.makes === 'grain' && p.growth > 0.9) { p.growth = 0.3; this.log(`The wheat paddock was harvested. ${n} bags of grain went into the silo.`); }
@@ -834,14 +843,14 @@ export class TownLife {
     if (at('bakery').length && powered && this.civic.supply.waterOk && !workAssetFault(this,'bakery-mixer')) {
       const s = bakery.stock;
       // Bake to a full shelf, not beyond: surplus would only waste flour, lamb and veg.
-      if ((s.flour || 0) >= 2 && (bakery.out.bread || 0) < 48) { s.flour -= 2; bakery.out.bread = (bakery.out.bread || 0) + 8; this.stats.baked += 8; }
-      if ((bakery.out.pie || 0) < 16 && (s.flour || 0) >= 1 && (s.lamb || 0) >= 1 && (s.veg || 0) >= 1) { s.flour--; s.lamb--; s.veg--; bakery.out.pie = (bakery.out.pie || 0) + 4; this.stats.baked += 4; }
+      if ((s.flour || 0) >= 2 && (bakery.out.bread || 0) < Math.ceil(48*Math.max(1,this.villagers.length/38))) { s.flour -= 2; const batch=Math.ceil(8*Math.max(1,this.villagers.length/38));bakery.out.bread = (bakery.out.bread || 0) + batch; this.stats.baked += batch; }
+      if ((bakery.out.pie || 0) < Math.ceil(16*Math.max(1,this.villagers.length/38)) && (s.flour || 0) >= 1 && (s.lamb || 0) >= 1 && (s.veg || 0) >= 1) { s.flour--; s.lamb--; s.veg--; bakery.out.pie = (bakery.out.pie || 0) + 4; this.stats.baked += 4; }
     }
     if (h === 7) {
       const depot = this.place('depot');
       depot.out.coffee = (depot.out.coffee || 0) + 8; depot.out.tea = (depot.out.tea || 0) + 6; depot.out.parcel = (depot.out.parcel || 0) + 6 + Math.round(this.rand() * 6);
       // Fuel and ore are imports the council pays for.
-      const fuel = (depot.out.fuel || 0) < 60 ? 60 : 0, ore = (depot.out.ore || 0) < 20 ? 20 : 0, cost = fuel * 1 + ore * 2;
+      const fuel = (depot.out.fuel || 0) < 90 ? 90 : 0, ore = (depot.out.ore || 0) < 20 ? 20 : 0, cost = fuel * 1 + ore * 2;
       if (cost && this.civic.treasury >= cost) { depot.out.fuel = (depot.out.fuel || 0) + fuel; depot.out.ore = (depot.out.ore || 0) + ore; this.civic.treasury -= cost; }
       this.log(`The freight train pulled into the Rail Depot with coffee, tea, the mail${cost ? ', fuel and ore' : ''}.`);
     }
