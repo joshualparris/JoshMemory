@@ -8,6 +8,7 @@ on:
       - 'repository-town/src/world/player-driving.js'
       - 'repository-town/src/world/vehicles.js'
       - 'repository-town/tests/mobile-driving.mjs'
+      - 'repository-town/tests/cafe-mobile.mjs'
       - '.github/workflows/repository-town-mobile-driving.yml'
   pull_request:
     paths:
@@ -40,3 +41,4 @@ jobs:
           node tools/serve.mjs dist/public 8091 > /tmp/rt-serve.log 2>&1 &
           for n in $(seq 1 45); do if curl -fsS http://127.0.0.1:8091/ >/dev/null; then break; fi; sleep 1; done
           TOWN_URL=http://127.0.0.1:8091/ node tests/mobile-driving.mjs
+          TOWN_URL=http://127.0.0.1:8091/ node tests/cafe-mobile.mjs
