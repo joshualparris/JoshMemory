@@ -5,9 +5,9 @@ export function workingAt(worker, site) {
   const front = typeof site === 'object' ? site.front : null;
   const positioned = Number.isFinite(worker.x) && Number.isFinite(worker.z);
   if (positioned && Number.isFinite(front?.x) && Number.isFinite(front?.z)) {
-    // Live positions take priority over a stale route length: the last few
-    // waypoints often remain after an actual cashier arrives at reception.
-    if (Math.hypot(worker.x-front.x,worker.z-front.z) <= 2.75) return true;
+    // Live positions take priority over a stale route length: some workers serve customers six metres inside the actual building,
+    // while others still have leftover pedestrian path waypoints.
+    if (Math.hypot(worker.x-front.x,worker.z-front.z) <= 8.5) return true;
     // Farm employees legitimately work in the paddock, not at a counter.
     // Their agricultural field is a real workplace within the site boundary.
     const field = site?.field;
