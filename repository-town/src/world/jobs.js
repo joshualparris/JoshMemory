@@ -14,7 +14,8 @@ export const JOB_BOARD = Object.freeze([
   {id:'maintenance-assistant',site:'hall',name:'Supervised maintenance apprentice',minutes:45,pay:30,tasks:['diagnose-fault','isolate-equipment','repair-test'],blurb:'Diagnose and repair the actual Town Hall work lamp with a supervisor'},
   { id: 'civic-cleaner', site: 'hall', name: 'Town Hall caretaker', minutes: 35, pay: 25, tasks: ['clean-floors', 'empty-bins', 'inspect-floor'], blurb: 'Tidy public areas and inspect facilities' },
 ]);
-export const MAX_SHIFTS_PER_DAY = 2;
+export const MAX_SHIFTS_PER_DAY = 12; // safety ceiling; paid time is the primary daily limit
+export const MAX_PAID_MINUTES_PER_DAY = 480; // eight game hours, not two arbitrary short jobs
 const TASK_GAP = 5; // town minutes between duties
 
 export const freshJobs = () => ({ active: null, done: {}, earned: 0, spent: 0, receipts: [] });
@@ -43,13 +44,24 @@ export function receipt(life, type, text, amount) {
 export const supervisors = (life, site) => life.villagers.filter((v) => v.work === site && v.step?.kind === 'work' && !v.path?.length);
 export function current(life) { const a = jobs(life).active;if(a&&a.day!==life.day){closeShift(life,a,'Day ended');return null;}return a||null; }
 const doneToday = (life) => (jobs(life).done[life.day] || []);
+export const paidMinutesToday = life => {
+  const slips=payroll(life).slips.filter(s=>s.day===life.day);
+  const recorded=slips.reduce((n,s)=>n+Math.max(0,Math.min(480,s.minutes||0)),0);
+  // Migrate earlier saves where completed jobs were recorded without payslips.
+  return recorded || (slips.length ? 0 : doneToday(life).reduce((n,id)=>n+(byId(id)?.minutes||0),0));
+};
+export const shiftsToday = life => {
+  const count=payroll(life).slips.filter(s=>s.day===life.day).length;
+  return count || doneToday(life).length;
+};
 
 export function startJob(life, id) {
   const j = jobs(life), def = byId(id), site = def && life.place(def.site);
   if (!def) return { ok: false, message: 'Unknown job.' };
   if (current(life)) { const a=current(life); const workplace=life.place(a.site); return { ok:false, message:'You are already working at '+(workplace?.name||a.site)+'. Finish that shift there, or cancel it from any workplace job panel first.' }; }
-  if (doneToday(life).includes(id)) return { ok: false, message: 'You already did that shift today.' };
-  if (doneToday(life).length >= MAX_SHIFTS_PER_DAY) return { ok: false, message: `You can work ${MAX_SHIFTS_PER_DAY} shifts a day.` };
+  const used=paidMinutesToday(life),count=shiftsToday(life);
+  if (used + def.minutes > MAX_PAID_MINUTES_PER_DAY) return {ok:false,message:'Daily paid work limit reached: '+used+'/'+MAX_PAID_MINUTES_PER_DAY+' minutes already worked. Come back tomorrow.'};
+  if (count>=MAX_SHIFTS_PER_DAY) return {ok:false,message:'Daily shift safety limit reached. Come back tomorrow.'};
   if (!life.open(site)) return { ok: false, message: `${site.name} is closed right now.` };
   const offer=jobOffer(life,def);
   if (employerFunds(life,def.site)<offer.pay || debtFor(life,def.site)>0) return {ok:false,message:'This employer cannot fund a new shift. Existing wage debts must be paid first.'};
@@ -123,5 +135,5 @@ export function finishJob(life) {
 
 export function jobsReport(life) {
   const j = jobs(life), a = current(life);
-  return { active: a ? { ...a, tasks: [...a.tasks] } : null, earned: j.earned, spent: j.spent, receipts: j.receipts.slice(0, 9), payslips: structuredClone(payroll(life).slips), wageDebt:debtFor(life), skills:structuredClone(payroll(life).skills), shiftsToday: doneToday(life).length, doneToday: [...doneToday(life)] };
+  return { active: a ? { ...a, tasks: [...a.tasks] } : null, earned: j.earned, spent: j.spent, receipts: j.receipts.slice(0, 9), payslips: structuredClone(payroll(life).slips), wageDebt:debtFor(life), skills:structuredClone(payroll(life).skills), shiftsToday: shiftsToday(life), paidMinutesToday:paidMinutesToday(life), paidMinutesLimit:MAX_PAID_MINUTES_PER_DAY, doneToday: [...doneToday(life)] };
 }
