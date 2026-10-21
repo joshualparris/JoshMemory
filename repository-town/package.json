@@ -13,7 +13,7 @@
     "test:integration": "node src/tests/economy.mjs && node src/tests/economy-realism.mjs && node tests/resident-identities.mjs && node tests/npc-realism-audit.mjs && node tests/npc-location.mjs && node tests/npc-personality.mjs && node --check src/world/social-events.js && node tests/social-events.mjs && node tests/npc-scene-awareness.mjs && npm run test:town",
     "test:browser": "node tests/exit-facing.mjs && node tests/windows.mjs && node tests/npc-soak.mjs --quiet && node tests/people.mjs && node tests/life.mjs && node tests/household-browser.mjs && node tests/walk-in-buildings.mjs",
     "test:release": "node tests/release.mjs && node tests/companion.mjs",
-    "build:release": "npm run test:release && npm run test:integration && node tests/expedition.mjs && node tests/npc-contract.mjs && node tests/runtime.mjs && node tests/geometry.mjs && npm run build && npm run check:privacy && node tests/paul-roe-memorial.mjs && node tests/game-integrity.mjs && node tools/verify-release.mjs"
+    "build:release": "npm run test:release && npm run test:integration && node tests/expedition.mjs && node tests/npc-contract.mjs && node tests/runtime.mjs && node tests/geometry.mjs && node tests/z-fighting-source.mjs && npm run build && npm run check:privacy && node tests/paul-roe-memorial.mjs && node tests/game-integrity.mjs && node tools/verify-release.mjs"
   },
   "devDependencies": {
     "brython": "^3.12.4",
