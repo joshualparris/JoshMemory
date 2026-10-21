@@ -361,7 +361,7 @@ export class TownLife {
       const col = d.col.charCodeAt(0) - 65;
       const x = lotX(col), south = d.side === 'south';
       this.places.set(d.id, {
-        ...d, x, door: { x, z: south ? FIELD_Z0 - 0.5 : LOT8_Z + 7.5 }, front: { x, z: south ? FIELD_Z0 - 2.2 : LOT8_Z + 9.3 }, curb: { x, z: south ? ROAD(7) + 1.7 : ROAD(7) - 1.7 },
+        ...d, target: d.target ? {...d.target} : undefined, x, door: { x, z: south ? FIELD_Z0 - 0.5 : LOT8_Z + 7.5 }, front: { x, z: south ? FIELD_Z0 - 2.2 : LOT8_Z + 9.3 }, curb: { x, z: south ? ROAD(7) + 1.7 : ROAD(7) - 1.7 },
         stock: Object.fromEntries(Object.keys(d.target || {}).map((k) => [k, Math.round(d.target[k] * 0.6)])), till: 0, out: {},
       });
     }
