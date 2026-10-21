@@ -18,7 +18,7 @@ import { FIELD_Z0 } from './world/life.js';
 import { emergencyPanel,justicePanel } from './ui/emergency-panels.js';
 import { civicExitPose } from './world/shop-exit.js';
 import { populateShopStaff } from './world/shop-staff.js';
-import { facilityAccess } from './world/facility-access.js';
+import { facilityAccess, restrictedServiceAction } from './world/facility-access.js';
 import { createShopVisitors } from './world/shop-visitors.js';
 import { loadFurniture } from './world/furniture.js';
 import { createFloorStack, FLOOR_HEIGHT } from './world/multifloor.js';
@@ -621,6 +621,8 @@ async function start() {
         return;
       }
       const thing = nearThing, request = ++interactionRequest, house = inside;
+      const restricted=restrictedServiceAction(life,inside?.place,thing);
+      if(restricted){status(restricted);return;}
       if(thing.act?.do==='soy-action'){
         const result=life.soyAction(inside?.place?.id,thing.act.action);
         status(result.message);
