@@ -1,4 +1,4 @@
-import {storeBatches,batchLabel} from './store-batches.js';
+import {storeBatches,batchLabel,SAFE_TEMP} from './store-batches.js';
 import * as THREE from 'three';
 import {STORE_GOODS,CAFE_TABLES,recipeFor,orderRecipe} from './work-recipes.js';
 import {workState,storeState,useStore,useCafe,isWorking} from './workplay.js';
@@ -76,7 +76,7 @@ export function installWorkplay(built,site,makeLabel,life,{openPanel,closePanel,
   const{action,arg}=item.act;
   if(site.id==='store'){
    if(action==='receiving'){
-    const s=storeState(life);openPanel(choices('General Store · receiving','<p>Collect a carton, carry it to the correct shelf and use the shelf to unpack it. Six units complete the refill duty. Cartons contain real saleable stock.</p>',s.carton?[{label:'Return carried carton',run:()=>{say(useStore(life,'return'));return null;}}]:storeBatches(life).lots.filter(b=>b.n>b.shelf).map(b=>({label:'Pick up '+batchLabel(b),run:()=>{say(useStore(life,'pickup',{good:b.good,batchId:b.id}));return null;}}))));return;
+    const s=storeState(life);openPanel(choices('General Store · receiving','<p>Collect a carton, carry it to the correct shelf and use the shelf to unpack it. Six units complete the refill duty. Cartons contain real saleable stock.</p>',s.carton?[{label:'Return carried carton',run:()=>{say(useStore(life,'return'));return null;}}]:storeBatches(life).lots.filter(b=>b.probe==='pending').map(b=>({label:'Probe chilled delivery '+batchLabel(b)+' (accept at '+SAFE_TEMP+' °C or below)',run:()=>{say(useStore(life,'probe',b.id));return null;}})).concat(storeBatches(life).lots.filter(b=>b.n>b.shelf&&b.probe!=='pending').map(b=>({label:'Pick up '+batchLabel(b),run:()=>{say(useStore(life,'pickup',{good:b.good,batchId:b.id}));return null;}})))));return;
    }
    if(action==='inspect'){openPanel(choices('Batch inspection','<p>The delivery label says <b>damaged / do not sell</b>. Check packaging and date labels before filling shelves. What should happen to this carton?</p>',storeBatches(life).quarantine.filter(q=>!q.returned).map(q=>({label:'Return quarantined '+batchLabel(q)+' to supplier',run:()=>{say(useStore(life,'supplier-return',q.id));return null;}})).concat([{label:'Put it straight on the shelf',run:()=>{say(useStore(life,'inspect','sell'));return null;}},{label:'Isolate in the returns cage',run:()=>{say(useStore(life,'inspect','quarantine'));return null;}}])));return;}
    if(action==='count'){
