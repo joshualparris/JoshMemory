@@ -18,6 +18,7 @@ import { FIELD_Z0 } from './world/life.js';
 import { emergencyPanel,justicePanel } from './ui/emergency-panels.js';
 import { civicExitPose } from './world/shop-exit.js';
 import { populateShopStaff } from './world/shop-staff.js';
+import { facilityAccess } from './world/facility-access.js';
 import { createShopVisitors } from './world/shop-visitors.js';
 import { loadFurniture } from './world/furniture.js';
 import { createFloorStack, FLOOR_HEIGHT } from './world/multifloor.js';
@@ -333,10 +334,17 @@ async function start() {
   }
   // The high-street buildings now have their own walkable rooms and usable
   // counters. Keep the existing villager/farm economy running in the street.
+  let lastDeniedEntrance = '', lastDeniedTime = 0;
   function enterShop(id, keepFacing = false) {
     if(mode!=='town'||!life.places.has(id))return false;
+    const site=life.place(id), access=facilityAccess(life,site);
+    if(!access.allowed){
+      const now=performance.now();
+      if(id!==lastDeniedEntrance || now-lastDeniedTime>3500){status(access.message);lastDeniedEntrance=id;lastDeniedTime=now;}
+      return false;
+    }
     const yawIn = player.yaw;
-    const site=life.place(id), built=buildCivicInterior(site,makeLabel,life);
+    const built=buildCivicInterior(site,makeLabel,life);
     installPhysicalJobs(built,site,makeLabel,life);
     built.workplay=installWorkplay(built,site,makeLabel,life,{openPanel,closePanel,status,sound:kind=>ambience.work(kind),getVisitors:()=>inside?.visitors?.entries});
     if(site.id==='bakery')built.bakeryImmersion=installBakeryImmersion(built,life,camera,makeLabel);
@@ -356,7 +364,7 @@ async function start() {
     mode='house';$('btn-exit').hidden=false;
     closePanel();npcChat.close();ambience.door();ambience.shopBell();
     $('card').hidden=true;delete $('card').dataset.coord;
-    status('Inside '+site.name+'. Walk to the counter or back through the entrance to leave.');
+    status(access.reason==='supervised' ? access.message+' You may return through the entrance at any time.' : 'Inside '+site.name+'. Walk to the counter or back through the entrance to leave.');
     return true;
   }
   function leave(placeOutside = true, keepFacing = false) {
@@ -982,7 +990,13 @@ async function start() {
           if(Math.abs(player.pos.x-place.x)<.93 &&
              player.pos.z>=place.door.z-.12 &&
              player.pos.z<=place.door.z+.92){
-            enterShop(place.id, true);
+            if(!enterShop(place.id, true)){
+              // The façade itself is collision-solid, but its transition zone
+              // is not. Bounce outside the trigger instead of allowing a
+              // locked door to teleport the player indoors on the next frame.
+              const streetSide=place.side==='south' ? place.door.z-1.15 : place.door.z+1.35;
+              player.place(player.pos.x,streetSide,player.yaw);
+            }
             break;
           }
         }
