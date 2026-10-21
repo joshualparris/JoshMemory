@@ -50,7 +50,9 @@ for(const side of ['north','south']){
 // because their navigator still has short remaining waypoints.
 const store={id:'store',front:{x:100,z:50}};
 const attendant={step:{kind:'work',at:'store'},path:[{x:100,z:51},{x:100,z:50}],x:101.4,z:51.2,inside:false};
-assert(workingAt(attendant,store),'reception attendant within 2.75m counts as on site');
+assert(workingAt(attendant,store),'nearby worker counts as on site');
+assert(workingAt({...attendant,x:106,z:52},store),'café staff six metres behind the counter are on premises');
+assert(!workingAt({...attendant,x:109.5,z:50},store),'commuter 9.5m away cannot open premises');
 assert(!workingAt({...attendant,x:125,z:50},store),'commuter 25m away is not on site');
 assert(workingAt({...attendant,inside:true},store),'cashier physically inside the premises is still on duty');
 assert(!workingAt({...attendant,path:[],x:125,z:50},store),'zero waypoints cannot disguise a worker far from reception');
