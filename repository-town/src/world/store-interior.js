@@ -50,9 +50,14 @@ export function buildStoreInterior(site, makeLabel, roomTitle = 'General Store')
     if (side === 1) { /* right wall is the chiller bank near the front half, shelving behind */ }
     const z0 = side === -1 ? 3.6 : -3.0, z1 = side === -1 ? -5.1 : -5.1;
     const len = z0 - z1, zc = (z0 + z1) / 2;
-    solid(0.5, 2.1, len, x, 1.05, zc, SHELF);
-    box(0.06, 2.1, len, x - side * 0.27, 1.05, zc, DARKW);
-    for (const y of [0.35, 0.85, 1.35, 1.85]) { box(0.5, 0.04, len, x, y, zc, TIMBER); stockRow(x - side * 0.06, y + 0.02, zc, len - 0.2, 'z', Math.round(y * 10)); }
+    // Open frame: no opaque backing volume under the shelf faces. Leave a
+    // measurable gap between shelves, end posts and side rails to avoid z-fighting.
+    for (const end of [-1, 1]) box(0.08, 2.1, 0.08, x, 1.05, zc + end * (len / 2 - 0.04), DARKW);
+    box(0.08, 2.1, Math.max(0.1, len - 0.16), x + side * 0.22, 1.05, zc, SHELF);
+    for (const y of [0.35, 0.85, 1.35, 1.85]) {
+      box(0.38, 0.04, len - 0.20, x - side * 0.01, y, zc, TIMBER);
+      stockRow(x - side * 0.06, y + 0.02, zc, len - 0.3, 'z', Math.round(y * 10));
+    }
   }
   // glass-door chillers: milk, eggs and butter
   solid(0.9, 2.1, 4.4, EDGE - 0.55, 1.05, -0.7, 0xd9dde0);
