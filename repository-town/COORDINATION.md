@@ -398,3 +398,13 @@ Newest first. Times in Australia/Sydney.
 - Focused payroll and occupation acceptance tests pass, including saved mid-preparation bundles, cargo across midnight, all recipe steps, a driven delivery route, single payments and reachable station geometry. Existing full release gate passed during integration; final committed-tree gate and staging/CI follow. Human listening and new desktop/real Android visual/touch acceptance remain open in the roadmap and playtest guide; no device or listening review claimed.
 
 - Release verification: the complete local release gate, staging READY and both required GitHub integration/mobile-driving checks passed. Final fleet review added employer-funded work-van servicing/registration and an actual driven return-to-depot acceptance test; these are being revalidated before merge. Human/device/listening acceptance remains open.
+
+## 2026-10-21 — consistent human NPCs (ChatGPT, fix/town-human-avatars-20261021)
+- Source of screenshot issue: makePerson used cylinder bodies; pose() could receive an undefined
+  phase from shop visitors and write NaN rotations, hiding their arms and legs.
+- Replaced everyday humanoid and named-human silhouettes with a shared low-poly
+  sculpted torso, separate arms and articulated knees/elbows, hands, shoes, facial
+  features and deterministic gait phase. Fantastical quest NPC shapes stay intact.
+- Added tests/npc-appearance.mjs to the required release gate. Do not remove the
+  finite-phase guard or restore barrel-shaped torsos. Awaiting PR checks/production
+  verification; physical Android visual review remains unverified.
