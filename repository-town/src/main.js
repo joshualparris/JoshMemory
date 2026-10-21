@@ -235,7 +235,8 @@ async function start() {
     const f = townLife.placeFront(id);
     player.place(f.x, f.z, f.yaw ?? 0);
     input.pressed.delete('map'); setOverview(false);
-    status(`Outside the ${life.place(id).name}.`);
+    const name = life.place(id).name;
+    status(`Outside ${/^the /i.test(name) ? '' : 'the '}${name}.`);
   }
   function updateFloorBadge() {
     floorBadge.hidden = !inside?.floors;
@@ -406,12 +407,21 @@ async function start() {
   // ── HUD ──────────────────────────────────────────────────────────────────
   const list = $('house-list');
   for (const h of houses) { const o = document.createElement('option'); o.value = `${h.coordinate} · ${h.name}`; list.append(o); }
+  // High Street shops, civic buildings and farms are places, not houses: list them too so any building can be found.
+  const placeLabel = (p) => `${p.name} · ${p.side === 'south' ? 'South ' : ''}${p.col}8`;
+  const places = [...life.places.values()].filter((p) => p.col);
+  for (const p of places) { const o = document.createElement('option'); o.value = placeLabel(p); list.append(o); }
   $('search-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const q = $('search').value.trim().toLowerCase(); if (!q) return;
     const code = q.split(' ')[0].toUpperCase();
-    const h = byCoord.get(code) || houses.find((h) => h.name.toLowerCase() === q) || houses.find((h) => h.name.toLowerCase().includes(q) || `${h.coordinate} · ${h.name}`.toLowerCase() === q);
-    if (h) { travel(h.coordinate); $('search').blur(); } else status(`No house matches "${$('search').value}".`);
+    const p = places.find((p) => placeLabel(p).toLowerCase() === q || p.name.toLowerCase() === q || p.id === q);
+    const h = !p && (byCoord.get(code) || houses.find((h) => h.name.toLowerCase() === q || `${h.coordinate} · ${h.name}`.toLowerCase() === q));
+    const near = !p && !h && places.find((p) => p.name.toLowerCase().includes(q));
+    const named = !p && !h && !near && houses.find((h) => h.name.toLowerCase().includes(q));
+    if (p || near) { goPlace((p || near).id); $('search').blur(); }
+    else if (h || named) { travel((h || named).coordinate); $('search').blur(); }
+    else status(`No building matches "${$('search').value}".`);
   });
   $('btn-map').onclick = () => setOverview(!overview);
   // Time of day: jumps the town clock (src/world/life.js) to the next part of the day.
