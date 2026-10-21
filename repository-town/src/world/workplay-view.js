@@ -94,7 +94,7 @@ export function installWorkplay(built,site,makeLabel,life,{openPanel,closePanel,
    return;
   }
   const r=say(useCafe(life,action,arg));
-  if(r.milkChoice){openPanel(choices('Select the ticket’s milk','<p>Read the ticket and use the matching jug. Dietary requests affect the actual reserved ingredients.</p>',['dairy','oat'].map(milk=>({label:milk+' milk',run:()=>{say(useCafe(life,'milk',milk));return null;}}))));return;}
+  if(r.milkChoice){openPanel(choices('Select the ticket’s milk','<p>Read the ticket and use the matching jug. Dietary requests affect the actual reserved ingredients.</p>',['dairy','oat','soy'].map(milk=>({label:milk+' milk',run:()=>{say(useCafe(life,'milk',milk));return null;}}))));return;}
   if(r.mini){
    animation={kind:r.mini[0].split(':').at(-1),start:elapsed};
    openPanel(skillPanel(r.mini,score=>{
