@@ -44,3 +44,21 @@ export function facilityAccess(town, place) {
   return { allowed:true, reason:SUPERVISED.has(place.id)?'supervised':'staffed',
     message:SUPERVISED.has(place.id)?`Welcome to ${place.name}. Report to the staff counter; workrooms and records are staff-only.`:`${place.name} is staffed and open.` };
 }
+
+// Public admission never authorises handling evidence, health supplies,
+// dispatch radios or client records. A legitimate, current workplace shift
+// may grant access when authorised by the corresponding supervisor.
+const STAFF_ONLY_INTERACTIONS = Object.freeze({
+  police:['dispatch','evidence','interview','custody'],
+  ambulance:['call','crew','stock','decon','vehicle','vehicle2'],
+  court:['bench','holding','consult'],
+  solicitor:['office','consult','records'],
+});
+export function restrictedServiceAction(town, place, item) {
+  if (!place || !item?.key) return null;
+  const key = String(item.key).split(':').at(-1);
+  if (!STAFF_ONLY_INTERACTIONS[place.id]?.includes(key)) return null;
+  const shift=town.jobsReport?.()?.active;
+  if (shift?.site === place.id && shift.day === town.day) return null;
+  return `${item.label || 'This area'} is restricted to authorised staff and escorted visitors. Please speak to the receptionist; confidential records and equipment are not public exhibits.`;
+}
