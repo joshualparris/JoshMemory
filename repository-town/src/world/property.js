@@ -42,7 +42,9 @@ export function initialiseProperties(life){
       id:propertyKey('house',h.coordinate),name:h.coordinate+' · '+h.name,kind:'house',
       address:h.coordinate,owner:title,tenant:occupant?.name||null,
       occupied:!!occupant,value,rent:8,
-      listed:(!occupant&&i%7===0)||(!!occupant&&tenure==='rent'&&i%19===0),protected:false,condition:78+i%20,
+      // More vacant houses are genuinely listed as the larger workforce moves in.
+      // All 188 legal titles, existing tenancies and ownership stay unchanged.
+      listed:(!occupant&&i%5===0)||(!!occupant&&tenure==='rent'&&i%19===0),protected:false,condition:78+i%20,
     };
   }
   for(const p of life.places.values()){

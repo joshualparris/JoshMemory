@@ -68,30 +68,37 @@ export function playerHome(t, coordinate) {
   if (parcel.owner==='visitor' && (!parcel.tenant || parcel.tenant==='visitor')) return parcel;
   return null;
 }
-function sleepUntilMorning(t, p, label) {
-  if(t.minute>=360 && t.minute<1080)return 'Overnight sleep starts at 18:00. Come back this evening.';
-  const mins=(6*60-t.minute+1440)%1440||480;
-  const n=Math.min(480,Math.max(300,mins));
-  for(let done=0;done<n;done+=.5)t.tick(Math.min(.5,n-done));
-  p.fatigue=clamp(p.fatigue-95);
-  p.hunger=clamp(p.hunger+7);
-  p.lastSleptDay=t.day;
-  t.log('The visitor slept at '+label+' and woke up rested.');
-  return 'You slept at '+label+'. It is Day '+t.day+' '+t.time()+'. Fatigue '+Math.round(p.fatigue)+'%, hunger '+Math.round(p.hunger)+'%.';
+function sleepInBed(t, p, label) {
+  // Paid hotel rooms and owned beds can be used during the day as well as at night.
+  // A daytime rest is a nap; overnight sleep runs all the way to 06:00.
+  const nap=t.minute>=360 && t.minute<1080;
+  const minutes=nap?120:((360-t.minute+1440)%1440||1440);
+  const fatigueBefore=p.fatigue;
+  for(let done=0;done<minutes;done+=.5)t.tick(Math.min(.5,minutes-done));
+  // The simulation clock still advances everyone's work, deliveries and needs.
+  // Set the player's recovered fatigue relative to their pre-sleep state, so
+  // the awake-fatigue accumulated during tick() cannot cancel their rest.
+  const recovery=nap?42:Math.min(95,minutes*0.2);
+  p.fatigue=clamp(fatigueBefore-recovery);
+  p.hunger=clamp(p.hunger+(nap?2:7));
+  if(!nap)p.lastSleptDay=t.day;
+  const action=nap?'took a two-hour nap':'slept';
+  t.log('The visitor '+action+' at '+label+' and woke up rested.');
+  return 'You '+action+' at '+label+'. It is Day '+t.day+' '+t.time()+'. Fatigue '+Math.round(p.fatigue)+'%, hunger '+Math.round(p.hunger)+'%.';
 }
 export function sleepPlayer(t,site='hotel',room=null) {
   const p=startNeeds(t);
   if(site==='home'){
     const parcel=playerHome(t,room);
     if(!parcel)return 'This bed belongs to someone else. Rent or buy a vacant home before sleeping here.';
-    return sleepUntilMorning(t,p,parcel.name);
+    return sleepInBed(t,p,parcel.name);
   }
   const valid=p.hotelBooking&&(p.hotelBooking.day===t.day||(t.minute<360&&p.hotelBooking.day===t.day-1));
   if(site!=='hotel'||!valid)return 'You need to book a hotel room for tonight first.';
   if(room!==null&&room!==p.hotelBooking.room)return 'Your key is for guest room '+p.hotelBooking.room+'.';
-  const result=sleepUntilMorning(t,p,'the Railway Hotel');
+  const result=sleepInBed(t,p,'the Railway Hotel');
   if(result.startsWith('You slept'))p.hotelBooking=null;
-  return result.replace('You slept at the Railway Hotel.', 'You slept at the hotel.');
+  return result.replace('at the Railway Hotel.', 'at the hotel.');
 }
 export function needsReport(t){
   const p=startNeeds(t),all=t.villagers;

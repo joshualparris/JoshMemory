@@ -29,7 +29,7 @@ const clear = (path, from, what) => {
   }
 };
 const shop = t.place('store').front, farms = places.filter((p) => p.field?.access);
-assert.equal(farms.length, 6, 'all six paddocks have a civic building in front');
+assert.equal(farms.length, 7, 'all seven paddocks, including the soybean block, have safe access behind buildings');
 let routes = 0;
 for (const p of farms) {
   assert(p.field.z0 >= FIELD_Z0 + SOUTH_SITE_DEPTH, `${p.id} paddock starts behind the building in front`);
@@ -46,4 +46,4 @@ for (const p of farms) {
     }
   }
 }
-console.log(`PASS: 6 paddocks behind their civic buildings; ${routes} walking and cycling routes and 150 work spots clear of every building`);
+console.log(`PASS: ${farms.length} paddocks behind buildings; ${routes} walking and cycling routes and ${farms.length*25} work spots clear of every building`);

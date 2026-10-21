@@ -39,6 +39,7 @@ export function makeLabel(text, kind = 'prop') {
     sprite.scale.multiplyScalar(factor);
   }
   sprite.userData.text = text;
+  sprite.userData.labelKind = kind;
   return sprite;
 }
 

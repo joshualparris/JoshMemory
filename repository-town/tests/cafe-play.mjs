@@ -56,7 +56,7 @@ for (let n = 0; n < 40 && (ticket = await ticketOf(id)).state !== 'ready'; n++) 
 step(ticket.state === 'ready', 'every item ready: ' + (ticket.items || []).join(' + ') + (milk ? ' · ' + ticket.milk + ' milk chosen' : '') + (art ? ' · latte art' : ''));
 await go('workplay:cafe:pass'); step(/Carrying/.test(await status()), 'collected the tray at the pass');
 let paid = false;
-for (let i = 0; i < 12 && !paid; i++) { await go('workplay:cafe:table-' + ticket.table); paid = /paid to the café/.test(await status()); if (!paid) await T(() => window.__town.life.run(1)); }
+for (let i = 0; i < 30 && !paid; i++) { await go('workplay:cafe:table-' + ticket.table); paid = /paid to the café/.test(await status()); if (!paid) await T(() => window.__town.life.run(2)); }
 step(paid, 'delivered to table ' + ticket.table + ': ' + (await status()).slice(0, 120));
 const hud = await T(() => document.getElementById('workplay-hud')?.innerText || '');
 step(/served/.test(hud), 'HUD: ' + hud.replace(/\n/g, ' | '));

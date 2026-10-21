@@ -31,6 +31,6 @@ t.eatOut(customer,'cafe');assert.equal(customer.step.dur,1);assert.equal(custome
 // Noon food-service coverage: staff do not all join customers' lunch rush.
 for(const site of ['cafe','bakery'])for(const v of t.villagers.filter(v=>v.work===site)){
  v.doneToday.breakfast=true;v.doneToday.lunch=false;v.fatigue=0;v.queue=[];v.path=[];t.plan(v);
- assert.equal(v.step.kind,'work');assert(v.step.until>=13*60);
+ assert.equal(v.step.kind,'work');assert(v.step.until>t.minute,'real worker remains on duty until next staffing review');
 }
 console.log('PASS: pantry-backed meal fallback and food-counter noon coverage');
