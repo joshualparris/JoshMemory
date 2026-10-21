@@ -1135,7 +1135,10 @@ export class TownLife {
   // Decides the next thing to do from the clock, hunger, pantry and job.
   plan(v) {
     const m = this.minute, home = this.doorstep(v), work = this.workSpot(v);
-    const sleepFrom = v.job === 'baker' && v.start < 6 * 60 ? 20 * 60 + 30 : 22 * 60 + 30;
+    // Late publicans, concierges and duty officers finish and get paid BEFORE
+    // going to bed. Otherwise 22:30 bedtime cancels their 23:00 shift early.
+    const sleepFrom = v.job === 'baker' && v.start < 6 * 60 ? 20 * 60 + 30 :
+      v.end >= 22 * 60 ? Math.min(24 * 60, v.end + 30) : 22 * 60 + 30;
     const wake = Math.min(v.start - 75, 6 * 60 + 30);
     const asleep = m >= sleepFrom || m < wake || (v.fatigue>=94 && m >= v.end);
     if (asleep) return this.goThen(v, home, { kind: 'sleep', at: 'home', until: wake < m ? wake + 24 * 60 : wake, activity: 'asleep at home' });
