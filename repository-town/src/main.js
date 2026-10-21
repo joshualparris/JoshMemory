@@ -1101,6 +1101,20 @@ async function start() {
         life.tick(Math.min(0.5, minutes - elapsed));
       return true;
     },
+    // Read-only playtest evidence: a rostered worker is not automatically on
+    // duty at the counter. The real visitor-access rule remains authoritative.
+    facilityState(id) {
+      const site=life.place(id);
+      if(!site)return null;
+      const access=facilityAccess(life,site);
+      return {id,minute:life.minute,day:life.day,...access,
+        workers:life.villagers.filter(v=>v.work===id).map(v=>({
+          name:v.name,job:v.job,at:v.step?.at||null,
+          kind:v.step?.kind||null,inside:!!v.inside,
+          pathLength:v.path?.length||0,activity:v.activity
+        }))};
+    },
+
     houses: houses.map((h) => ({ coordinate: h.coordinate, name: h.name })),
     npcs: streetNPCs.map((x) => ({ id: x.npc.id, name: x.npc.name, coordinate: x.npc.coordinate })),
     npcChat: () => ({ open: npcChat.isOpen(), id: npcChat.active() }),

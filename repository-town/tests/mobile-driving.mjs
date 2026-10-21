@@ -11,8 +11,17 @@ try {
  await page.goto(URL,{waitUntil:'domcontentloaded',timeout:90000});
  await page.waitForFunction(()=>window.__town&&document.getElementById('loading').hidden,null,{timeout:90000});
  assert(await page.isVisible('#t-use'),'the mobile Use action is visible');
- await page.evaluate(()=>{window.__town.life.setTime(10*60);window.__town.life.ledger().civic.player.bank=5000;window.__town.enterShop('dealership');});
- await page.waitForFunction(()=>window.__town.state().mode==='house');
+ await page.evaluate(()=>{window.__town.life.setTime(8*60);window.__town.life.ledger().civic.player.bank=5000;});
+ let dealer=null;
+ for(let attempt=0;attempt<27;attempt++){
+   dealer=await page.evaluate(()=>window.__town.facilityState?.('dealership')||null);
+   if(dealer?.allowed)break;
+   await page.evaluate(()=>window.__town.advanceSimulation?.(10));
+ }
+ assert(dealer?.allowed,'dealer must have a real consultant in attendance: '+JSON.stringify(dealer));
+ assert(await page.evaluate(()=>window.__town.enterShop('dealership')),
+    'staffed dealership refused admission: '+JSON.stringify(dealer));
+ await page.waitForFunction(()=>window.__town.state().mode==='house',{timeout:8000});
  const things=await page.evaluate(()=>window.__town.state().interactables);
  const counter=things.find(x=>/vehicle sales desk/i.test(x.label));
  assert(counter,'showroom sales counter exists');
