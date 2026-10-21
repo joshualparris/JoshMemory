@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import {TownLife} from '../src/world/life.js';
 import {workState,useStore,useCafe,queueCafeCustomer,cafeCounter,tickWorkplay,storeState} from '../src/world/workplay.js';
 import {recipeFor,orderRecipe} from '../src/world/work-recipes.js';
+import {installWorkplay} from '../src/world/workplay-view.js';
+import * as THREE from 'three';
 import {musicProfile,createSoundtrack} from '../src/ui/soundtrack.js';
 const homes=[];for(let r=0;r<7;r++)for(let c=0;c<26;c+=2)homes.push({coordinate:String.fromCharCode(65+c)+(r+1),name:'House',door:{x:(c-12.5)*26,z:r*46-161+4}});
 function setup(site,job){const t=new TownLife({homes,minute:10*60,seed:5});t.place(site).till=100;t.playerAt=site;for(const v of t.villagers)if(v.work===site){v.step={kind:'work',at:site};v.path=[];}assert(t.startJob(job).ok);return t;}
@@ -29,4 +31,44 @@ assert(!useCafe(t,'deliver',o.table).ok,'cannot double-serve or double-charge');
 t.minute+=9;tickWorkplay(t);assert(useCafe(t,'clear',o.table).ok);
 const s=t.snapshot(),restored=new TownLife({homes,minute:600,seed:5});assert(restored.restore(s));assert.equal(workState(restored).cafe.served,1);
 assert.notEqual(musicProfile('cafe').name,musicProfile('pub').name);assert.notEqual(musicProfile('',0,false).name,musicProfile('',1,false).name);
+// Mobile regression: inspection decisions must return visible feedback in the
+// same panel, not only a fleeting status toast obscured by the open dialogue.
+{
+ const shop=setup('store','store-stocker');
+ shop.place('store').stock.coffee=20;
+ let shown, closed=0;
+ const built={group:new THREE.Group(),interactables:[]};
+ const view=installWorkplay(built,shop.place('store'),()=>new THREE.Group(),shop,{
+  openPanel:p=>{shown=p;},closePanel:()=>{closed++;},
+  status:()=>{},sound:()=>{},getVisitors:()=>new Map()
+ });
+ assert(view,'store has live workplay UI');
+ const station=built.interactables.find(i=>i.act.action==='inspect');
+ assert(station,'inspection has a usable in-world hotspot');
+ view.use(station);
+ assert.equal(shown.title,'Batch inspection');
+ const wrong=shown.actions.find(a=>a.label==='Put it straight on the shelf').run();
+ assert.equal(wrong.title,'Batch action not completed');
+ assert.match(wrong.body,/Isolate it instead/,'wrong choice explains why');
+ assert(wrong.actions.some(a=>a.label==='Try again'),'failure can be retried');
+ const ready=wrong.actions.find(a=>a.label==='Try again').run();
+ const stock=shop.place('store').stock;
+ const before=Object.values(stock).reduce((sum,n)=>sum+n,0);
+ const receipt=ready.actions.find(a=>a.label==='Isolate in the returns cage').run();
+ assert.equal(receipt.title,'Batch action recorded');
+ assert.match(receipt.body,/returns cage/i,'quarantine receipt is visible within the modal');
+ assert.match(receipt.body,/Saleable stock reduced by one/,'saleable stock is explicitly reconciled');
+ assert.equal(Object.values(stock).reduce((sum,n)=>sum+n,0),before-1);
+ assert.equal(shop.civic.storeBatches.quarantine.filter(q=>!q.returned).length,1);
+ assert(shop.civic.jobs.active.hands.earned.includes('check-expiry'),'paid shift earns inspection duty');
+ const cage=receipt.actions.find(a=>a.label==='Review returns cage').run();
+ const sendBack=cage.actions.find(a=>a.label.startsWith('Return quarantined'));
+ assert(sendBack,'returns cage offers supplier review for quarantined stock');
+ const returned=sendBack.run();
+ assert.match(returned.body,/returned to/,'supplier return provides its own visible receipt');
+ assert.equal(shop.civic.storeBatches.quarantine.filter(q=>!q.returned).length,0);
+ returned.actions.find(a=>a.label==='Close and continue shift').run();
+ assert.equal(closed,1,'player can dismiss receipt and resume normal work');
+ view.dispose();
+}
 console.log('PASS: real stock carrying, correct shelves, quarantine and count, cancellation conservation; FIFO cafe tickets, real ingredients, timed steps, correct tables, one payment, save restoration and venue music profiles.');

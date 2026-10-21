@@ -1,4 +1,5 @@
 import {workAssetFault} from './occupation-work.js';
+import {soyState,soyAction,soyHourly,soyReport,takeSoyShipment,deliverSoyShipment} from './soy-chain.js';
 import { shopService } from './shop-attendance.js';
 import { coldChainHour, shopWasteDay } from './cold-chain.js';
 import { COUNTERS, joinLine, tickCounter, placeOrder, readyOrders } from './counter-queue.js';
@@ -21,7 +22,7 @@ import { initialiseProperties, propertyReport, buyProperty, listProperty, sellPr
 import { ensureTenancies, leaseReport, commercialRentDay, issueCommercialDisclosure, renewCommercial, reviewCommercialRent, tenancyNotice, applyTribunal, hearing, enforcePossession, leaseOverview } from './lease-law.js';
 import { exchangePurchase, rescindContract, settlePurchase, contractReport, contractQuote } from './property-contracts.js';
 import { initialiseVehicles, motorReport, buyVehicle, serviceVehicle, refuelVehicle, renewRegistration, sellVehicle, motorDay } from './vehicles.js';
-import { initialiseTradeEducation, advanceTradeEducation } from './trade-education.js';
+import { initialiseTradeEducation, advanceTradeEducation, advanceTownTradeOperations } from './trade-education.js';
 import { MAYOR_CANDIDATES, createGovernment, civicElection, castCivicVote, submitRequest, requestFeeder, proposeMotion, councilMeeting, advanceCivicWork, budgetRevenue, restoreCivic, govSummary, maintainServices } from './government.js';
 // Town life simulation: the clock, farms, the mill and bakery, shops, trucks, the post,
 // and villagers with jobs, hunger, pantries, wallets and daily routines. Pure logic (no
@@ -53,6 +54,8 @@ export const FIELD_Z0 = ROAD(7) + 8, FIELD_Z1 = ROAD(7) + 34;  // farm strip sou
 
 export const GOODS = {
   oatmilk:{name:'Oat drink',unit:'bottle',price:4},
+  soybeans:{name:'food-grade soybeans',unit:'bag',price:5},
+  soymilk:{name:'chilled soy drink (SOY allergen)',unit:'carton',price:5},
   grain: { name: 'grain', unit: 'bag', price: 2 },
   flour: { name: 'flour', unit: 'bag', price: 4 },
   bread: { name: 'bread', unit: 'loaf', price: 5 },
@@ -98,16 +101,16 @@ export const GOODS = {
 // col letter → place. `sells` are what villagers can buy; `makes` what work produces.
 export const PLACE_DEFS = [
   { col: 'G', id: 'hall', name: 'Town Hall', kind: 'hall', opens: 9 * 60, closes: 17 * 60, target: { parts: 10 } },
-  { col: 'H', id: 'store', name: 'General Store', kind: 'shop', sells: ['eggs', 'milk', 'flour', 'tea', 'coffee', 'bread'], opens: 7 * 60, closes: 19 * 60, target: { eggs: 20, milk: 20, flour: 10, tea: 10, coffee: 10, bread: 10 } },
+  { col: 'H', id: 'store', name: 'General Store', kind: 'shop', sells: ['eggs', 'milk', 'flour', 'tea', 'coffee', 'bread'], opens: 7 * 60, closes: 20 * 60, target: { eggs: 20, milk: 20, flour: 10, tea: 10, coffee: 10, bread: 10 } },
   { col: 'I', id: 'bakery', name: 'Bakery', kind: 'shop', sells: ['bread', 'pie'], opens: 6 * 60, closes: 18 * 60, target: { flour: 12, eggs: 6, milk: 6, lamb: 6, veg: 6 } },
-  { col: 'J', id: 'cafe', name: 'Commit Café', kind: 'cafe', opens: 6 * 60 + 30, closes: 16 * 60, target: { bread: 10, eggs: 10, milk: 10, oatmilk:6, coffee: 6, tea:6, fruit:8, veg: 6, pie: 6 } },
+  { col: 'J', id: 'cafe', name: 'Commit Café', kind: 'cafe', opens: 6 * 60 + 30, closes: 17 * 60, target: { bread: 10, eggs: 10, milk: 10, oatmilk:6, soymilk:8, coffee: 6, tea:6, fruit:8, veg: 6, pie: 6 } },
   { col: 'K', id: 'greengrocer', name: 'Greengrocer', kind: 'shop', sells: ['veg', 'fruit'], opens: 8 * 60, closes: 18 * 60, target: { veg: 24, fruit: 20 } },
   { col: 'L', id: 'butcher', name: 'Butcher', kind: 'shop', sells: ['lamb'], opens: 8 * 60, closes: 17 * 60 + 30, target: { lamb: 16 } },
   { col: 'M', id: 'square', name: 'Market Square', kind: 'park', opens: 0, closes: 24 * 60 },
   { col: 'N', id: 'pub', name: 'The Merged Branch', kind: 'pub', opens: 11 * 60, closes: 23 * 60, target: { lamb: 8, veg: 10, pie: 6, bread: 6 } },
-  { col: 'O', id: 'post', name: 'Post Office', kind: 'post', opens: 8 * 60, closes: 17 * 60, target: { parcel: 12 } },
+  { col: 'O', id: 'post', name: 'Post Office', kind: 'post', opens: 8 * 60, closes: 18 * 60, target: { parcel: 12 } },
   { col: 'P', id: 'school', name: 'School', kind: 'school', opens: 8 * 60 + 30, closes: 15 * 60 },
-  { col: 'Q', id: 'clinic', name: 'Clinic', kind: 'clinic', opens: 8 * 60, closes: 17 * 60 },
+  { col: 'Q', id: 'clinic', name: 'Clinic', kind: 'clinic', opens: 8 * 60, closes: 19 * 60 },
   { col: 'R', id: 'depot', name: 'Rail Depot', kind: 'depot', opens: 6 * 60, closes: 18 * 60 },
   { col: 'S', id: 'mill', name: 'Flour Mill', kind: 'mill', opens: 7 * 60, closes: 16 * 60, target: { grain: 20 } },
   { col: 'T', id: 'sheep', name: 'Sheep Station', kind: 'farm', makes: 'lamb', opens: 6 * 60, closes: 15 * 60 },
@@ -117,8 +120,10 @@ export const PLACE_DEFS = [
   { col: 'X', id: 'garden', name: 'Market Garden', kind: 'farm', makes: 'veg', opens: 6 * 60, closes: 15 * 60 },
   { col: 'Y', id: 'silo', name: 'Wheat Farm', kind: 'farm', makes: 'grain', opens: 6 * 60, closes: 16 * 60 },
   { col: 'Z', id: 'farmhouse', name: 'Farmhouse', kind: 'home', opens: 0, closes: 24 * 60 },
+  {col:'B',side:'south',id:'soyfarm',name:'Macquarie Soybean Farm',kind:'farm',makes:'soybeans',opens:6*60,closes:16*60},
+  {col:'C',side:'south',id:'soyplant',name:'Macquarie Plant Drinks',kind:'industry',opens:7*60,closes:17*60,target:{soybeans:16}},
   // Across the road from the high street (south side): finance, utilities and industry.
-  { col: 'G', side: 'south', id: 'bank', name: 'Community Bank', kind: 'bank', opens: 9 * 60, closes: 16 * 60 },
+  { col: 'G', side: 'south', id: 'bank', name: 'Community Bank', kind: 'bank', opens: 8 * 60 + 30, closes: 17 * 60 + 30 },
   { col: 'I', side: 'south', id: 'hotel', name: 'Railway Hotel', kind: 'hotel', opens: 0, closes: 24 * 60 },
   { col: 'H', side: 'south', id: 'power', name: 'Power Station', kind: 'utility', opens: 0, closes: 24 * 60, target: { fuel: 160 } },
   { col: 'J', side: 'south', id: 'waterworks', name: 'Water Works', kind: 'utility', opens: 0, closes: 24 * 60 },
@@ -152,14 +157,73 @@ const JOBS = [
   ['mayor', 'hall', 9 * 60, 16 * 60], ['station master', 'depot', 6 * 60, 15 * 60], ['programmer', 'home', 9 * 60, 17 * 60],
   ['programmer', 'home', 10 * 60, 18 * 60], ['retired', 'square', 9 * 60, 12 * 60], ['student', 'school', 8 * 60 + 30, 15 * 60],
   ['student', 'school', 8 * 60 + 30, 15 * 60], ['artist', 'square', 10 * 60, 15 * 60], ['real estate agent', 'realty', 9 * 60, 17 * 60],
-  ['farmer', 'silo', 7 * 60, 15 * 60], ['grocer', 'greengrocer', 8 * 60, 16 * 60],
+  ['soybean grower', 'soyfarm', 7 * 60, 16 * 60], ['plant-drink technician', 'soyplant', 8 * 60, 17 * 60],
   ['power operator', 'power', 6 * 60, 18 * 60], ['water operator', 'waterworks', 7 * 60, 15 * 60], ['recycler', 'recycling', 7 * 60, 15 * 60],
   ['firefighter', 'fire', 8 * 60, 18 * 60], ['bank teller', 'bank', 8 * 60 + 30, 16 * 60 + 30], ['foundry worker', 'foundry', 7 * 60, 15 * 60],
+  // Real shift workers with households, journeys and paid wages, rather than
+  // permanently spawned ghost receptionists. Existing 38 IDs remain stable.
+  ['hotel receptionist', 'hotel', 7 * 60, 16 * 60], ['evening concierge', 'hotel', 15 * 60 + 30, 23 * 60],
+  ['police desk officer', 'police', 7 * 60, 16 * 60], ['police duty officer', 'police', 15 * 60 + 30, 23 * 60],
+  ['ambulance dispatcher', 'ambulance', 7 * 60, 19 * 60],
+  ['court registry officer', 'court', 8 * 60 + 30, 16 * 60 + 30],
+  ['legal receptionist', 'solicitor', 8 * 60 + 30, 17 * 60],
+  ['wastewater operator', 'sewage', 7 * 60, 17 * 60],
+  ['weighbridge officer', 'landfill', 6 * 60, 17 * 60],
+  ['property sales agent', 'realestate', 9 * 60, 17 * 60],
+  ['vehicle sales consultant', 'dealership', 8 * 60, 17 * 60],
+  ['service adviser', 'mechanic', 8 * 60, 17 * 60],
+  ['hardware attendant', 'hardware', 7 * 60, 18 * 60],
+  ['trade coordinator', 'trades', 7 * 60, 17 * 60],
+  ['TAFE student-services officer', 'tafe', 8 * 60, 18 * 60],
+  ['university librarian', 'university', 8 * 60, 21 * 60],
+  ['council customer-service officer', 'hall', 9 * 60, 17 * 60],
+  ['postal counter clerk', 'post', 8 * 60, 17 * 60],
+  ['clinic receptionist', 'clinic', 8 * 60, 17 * 60],
+  ['school librarian', 'school', 8 * 60, 15 * 60 + 30],
+  ['plant reception and safety officer', 'soyplant', 7 * 60, 17 * 60],
+  ['afternoon barista', 'cafe', 12 * 60, 16 * 60],
+  ['afternoon cashier', 'store', 10 * 60, 20 * 60],
 ];
+// A shop with only one employee cannot genuinely remain open during that
+// employee's lunch or trips around town. Add real named relief workers, each
+// with their own house, commute, roster and paid wages. Existing IDs 0–60 stay
+// in exactly the same order to preserve older saved games.
+const RELIEF_ROLES = {
+ store:'evening checkout operator', bakery:'afternoon baker', cafe:'late café attendant',
+ greengrocer:'produce sales assistant', butcher:'qualified butcher', pub:'bar attendant',
+ bank:'bank customer-service officer', post:'postal customer-service officer',
+ clinic:'clinic nurse and receptionist', court:'court registry deputy',
+ solicitor:'legal receptionist', police:'police station front-desk officer',
+ ambulance:'ambulance station liaison', fire:'fire station visitor officer',
+ power:'power station visitor and safety officer', waterworks:'water treatment duty officer',
+ sewage:'wastewater safety officer', soyfarm:'soybean farm supervisor',
+ soyplant:'food safety and plant reception officer', school:'school office receptionist',
+ realty:'property reception agent', realestate:'licensed estate agent',
+ dealership:'vehicle sales assistant', mechanic:'service reception coordinator',
+ hardware:'hardware counter attendant', trades:'trade dispatch coordinator',
+ tafe:'TAFE student-services adviser', university:'university student services officer',
+ landfill:'waste weighbridge attendant', recycling:'recycling site safety officer',
+ foundry:'foundry safety supervisor', mill:'milling production assistant',
+ sheep:'livestock stationhand', dairy:'dairy shed operator',
+ coop:'poultry shed attendant', orchard:'orchard hand', garden:'garden produce assistant',
+ silo:'grain handling operator'
+};
+export const RELIEF_SITES = PLACE_DEFS.filter(p=>p.kind!=='home' && p.kind!=='park' &&
+ JOBS.filter(j=>j[1]===p.id && !['student','retired'].includes(j[0])).length<2).map(p=>p.id);
+for (const id of RELIEF_SITES) {
+ const p=PLACE_DEFS.find(place=>place.id===id);
+ const start=Math.max(5*60,p.opens+60);
+ const end=Math.min(23*60,p.closes);
+ JOBS.push([RELIEF_ROLES[id]||'relief service attendant',id,start,end]);
+}
+export const ROSTER_SIZE = JOBS.length;
 // Villager names; src/ui/social.js keeps their friendships and grudges.
 export const VILLAGER_NAMES = ['Mabel', 'Arlo', 'Bea', 'Cas', 'Dot', 'Ezra', 'Flo', 'Gus', 'Hattie', 'Ivo', 'June', 'Kip', 'Lou', 'Merv', 'Nora', 'Ollie',
   'Peg', 'Rafe', 'Sadie', 'Theo', 'Una', 'Vern', 'Win', 'Zara', 'Bluey', 'Clem', 'Dulcie', 'Errol', 'Fern', 'Gwen', 'Harlan', 'Ida',
-  'Archie', 'Bonnie', 'Cooper', 'Daisy', 'Elsie', 'Frankie'];
+  'Archie', 'Bonnie', 'Cooper', 'Daisy', 'Elsie', 'Frankie',
+  'Lena', 'Miles', 'Serena', 'Damon', 'Pippa', 'Marcus', 'Talia', 'Neve', 'Owen', 'Priya', 'Hugh',
+  'Tess', 'Kieran', 'Ruby', 'Felix', 'Jules', 'Maeve', 'Aidan', 'Iris', 'Oscar', 'Rosa', 'Nina', 'Mina',
+  'Amber', 'Benji', 'Celia', 'Dev', 'Emmett', 'Fiona', 'Georgia', 'Hazel', 'Indi', 'Jonah', 'Kara', 'Lachlan', 'Molly', 'Nathan', 'Olivia', 'Parker', 'Quinn', 'Rowan', 'Sienna', 'Tobias', 'Ursula', 'Violet', 'Willow', 'Xavier', 'Yasmin', 'Zeke', 'Adelaide', 'Bram', 'Clara', 'Dario'];
 
 // Home meals: [name, ingredients]. Villagers cook the first one their pantry can make.
 const MEALS = {
@@ -331,7 +395,7 @@ export class TownLife {
       const col = d.col.charCodeAt(0) - 65;
       const x = lotX(col), south = d.side === 'south';
       this.places.set(d.id, {
-        ...d, x, door: { x, z: south ? FIELD_Z0 - 0.5 : LOT8_Z + 7.5 }, front: { x, z: south ? FIELD_Z0 - 2.2 : LOT8_Z + 9.3 }, curb: { x, z: south ? ROAD(7) + 1.7 : ROAD(7) - 1.7 },
+        ...d, target: d.target ? {...d.target} : undefined, x, door: { x, z: south ? FIELD_Z0 - 0.5 : LOT8_Z + 7.5 }, front: { x, z: south ? FIELD_Z0 - 2.2 : LOT8_Z + 9.3 }, curb: { x, z: south ? ROAD(7) + 1.7 : ROAD(7) - 1.7 },
         stock: Object.fromEntries(Object.keys(d.target || {}).map((k) => [k, Math.round(d.target[k] * 0.6)])), till: 0, out: {},
       });
     }
@@ -343,6 +407,9 @@ export class TownLife {
       if (front) p.field.access = { gateX: p.x, backZ: FIELD_Z0 + SOUTH_SITE_DEPTH + 1.5, aisleX: front.x + 9.5 };
     }
     this.place('mill').out.flour = 6;
+    this.place('soyfarm').out.soybeans=12;
+    this.place('soyplant').stock.soybeans=0;
+    this.place('cafe').stock.soymilk=0;
     this.place('bakery').out = { bread: 8, pie: 4 };
     this.place('depot').out = { coffee: 12, tea: 10, parcel: 6, fuel: 30, ore: 10 };
     Object.assign(this.place('power').stock, { fuel: 120 });
@@ -367,8 +434,18 @@ export class TownLife {
     };
     this.homes = homes;
     // Spread households across town: every step-th house, starting from the third.
-    const step = Math.max(1, Math.floor(homes.length / JOBS.length));
-    const picks = homes.filter((_, i) => i % step === Math.min(2, step - 1)).slice(0, JOBS.length);
+    // Preserve all original 38 residents' house assignments so existing saves
+    // keep their household and legal property references intact. New employees
+    // move into otherwise unused homes spread across the remaining streets.
+    const legacyCount = 38;
+    const step = Math.max(1, Math.floor(homes.length / legacyCount));
+    const legacyHomes = homes.filter((_, i) => i % step === Math.min(2, step - 1)).slice(0, legacyCount);
+    const occupied = new Set(legacyHomes.map(h => h.coordinate));
+    const availableHomes = homes.filter(h => !occupied.has(h.coordinate));
+    const extraCount = Math.max(0, JOBS.length - legacyCount);
+    const extraStep = Math.max(1, Math.floor(availableHomes.length / Math.max(1, extraCount)));
+    const extraHomes = availableHomes.filter((_, i) => i % extraStep === 0).slice(0, extraCount);
+    const picks = [...legacyHomes, ...extraHomes];
     this.villagers = JOBS.slice(0, picks.length).map(([job, work, start, end], i) => {
       const home = picks[i];
       return {
@@ -379,6 +456,15 @@ export class TownLife {
         carrying: null, lastMeal: null, meals: [], seen: [], doneToday: {},
       };
     });
+    // A larger population needs more shelves and wholesale storage, not magically replenished stock.
+    // Goods still originate at farms and are physically delivered by the existing trucks.
+    const demandScale=Math.max(1,this.villagers.length/legacyCount);
+    for(const id of ['store','bakery','greengrocer','butcher','cafe','pub','mill']){
+      const p=this.place(id);for(const [good,quantity] of Object.entries(p.target||{})){
+        p.target[good]=Math.ceil(quantity*demandScale);
+        p.stock[good]=Math.ceil((p.stock[good]||0)*demandScale);
+      }
+    }
     // Each household's food, appliances, bills and chores (src/world/household.js).
     for (const v of this.villagers) { v.larder = null; ensureHousehold(v); }
     // Persisted NPC social lives advance alongside the town rather than only in UI.
@@ -393,6 +479,9 @@ export class TownLife {
     this.parcels = [];   // { coordinate, x, z, from } waiting on doorsteps
     this.obstacles = []; // set by the renderer each frame: [{x, z}] (the player)
     for (const t of this.trucks) t.driver = this.villagers.find((v) => v.job === 'truck driver' && !this.trucks.some((o) => o.driver === v)) || null;
+    soyState(this);
+    this.place('soyfarm').till=200;
+    this.place('soyplant').till=300;
     createGovernment(this);
     initialisePublicLife(this);
     this.civic.emergency=initialEmergencyState();
@@ -428,6 +517,7 @@ export class TownLife {
     const hourly = Math.floor(before / 60) !== Math.floor(this.minute / 60) || this.minute < before;
     if (hourly) { this.everyHour(); advanceTradeEducation(this); }
     advanceNeeds(this,minutes);
+    advanceTownTradeOperations(this,minutes);
     advanceEmergency(this);
     for (const o of readyOrders(this)) this.collectOrder(o);
     for (const v of this.villagers) this.liveVillager(v, minutes);
@@ -626,6 +716,19 @@ export class TownLife {
     }
     if (h === 16 && (fo.stock.metal || 0) >= 14) { const n = fo.stock.metal - 4; fo.stock.metal = 4; fo.till += n * 12; this.log(`The foundry exported ${n} tonnes of metal by rail for $${n * 12}.`); }
     if (h === 8 && (this.place('power').stock.fuel || 0) < 60) this.log('The Power Station is low on fuel; a truck is due from the depot.');
+    // Evening regional cost-of-living support for the poorest households.
+    // It is means tested and moves existing council money, never mints funds.
+    if(h===21 && this.civic.treasury>600){
+      let assisted=0;
+      for(const v of this.villagers){
+        if(v.wallet>=35 || v.job==='student' || v.job==='retired')continue;
+        const amount=Math.min(35-v.wallet,Math.max(0,this.civic.treasury-600),28);
+        if(amount<=0)break;
+        this.civic.treasury-=amount;v.wallet+=amount;assisted++;
+      }
+      if(assisted)this.log('Council household hardship payments supported '+assisted+' low-income workers.');
+    }
+
     // Post: letters the visitor posts arrive the next day with the postie.
     if (h === 15) { const due = c.letters.filter((l) => l.day < this.day && !l.delivered); for (const l of due) l.delivered = true; if (due.length) { this.stats.letters += due.length; this.log(`The postie delivered ${due.length} letter${due.length > 1 ? 's' : ''} you posted.`); } }
   }
@@ -686,6 +789,8 @@ export class TownLife {
     return `The ${p.name} buys it back for $${pay}.`;
   }
   eatItem(good) { return eatPlayer(this,good); }
+  soyAction(site,action){return soyAction(this,site,action);}
+  soyReport(){return soyReport(this);}
   orderCafe(itemId) { return orderCafe(this,itemId); }
   // The visitor's ticket is called: a café order is brought to the table, a menu dish goes in the bag.
   collectOrder(o) {
@@ -764,12 +869,12 @@ export class TownLife {
   everyHour() {
     const at = (id) => this.villagers.filter((v) => v.work === id && v.step?.kind === 'work');
     for (const p of this.places.values()) {
-      if (p.kind === 'farm') {
+      if (p.kind === 'farm' && p.id!=='soyfarm') {
         p.growth = clamp(p.growth + (this.isDay() ? ({ rainy: 0.06, sunny: 0.04, cloudy: 0.035, windy: 0.03 })[this.civic.weather] : 0.01), 0, 1);
         const hands = at(p.id).length;
         // Farms stop picking once their shed is full (60), so unsold produce doesn't pile up forever.
         if (hands && this.open(p) && (p.out[p.makes] || 0) < 60) {
-          const n = Math.round((2 + 3 * p.growth) * hands * (FARM_YIELD[p.makes] || 1));
+          const n = Math.round((2 + 3 * p.growth) * hands * (FARM_YIELD[p.makes] || 1) * Math.max(1, this.villagers.length/38));
           p.out[p.makes] = (p.out[p.makes] || 0) + n;
           this.stats.harvested[p.makes] = (this.stats.harvested[p.makes] || 0) + n;
           if (p.makes === 'grain' && p.growth > 0.9) { p.growth = 0.3; this.log(`The wheat paddock was harvested. ${n} bags of grain went into the silo.`); }
@@ -778,6 +883,7 @@ export class TownLife {
     }
     const h = Math.floor(this.minute / 60);
     this.utilitiesHour(h, at);
+    soyHourly(this);
     const powered = this.gridPowered('bakery');
     const mill = this.place('mill');
     const batch = Math.min(2, Math.floor((mill.stock.grain || 0) / 3));
@@ -787,14 +893,14 @@ export class TownLife {
     if (at('bakery').length && powered && this.civic.supply.waterOk && !workAssetFault(this,'bakery-mixer')) {
       const s = bakery.stock;
       // Bake to a full shelf, not beyond: surplus would only waste flour, lamb and veg.
-      if ((s.flour || 0) >= 2 && (bakery.out.bread || 0) < 48) { s.flour -= 2; bakery.out.bread = (bakery.out.bread || 0) + 8; this.stats.baked += 8; }
-      if ((bakery.out.pie || 0) < 16 && (s.flour || 0) >= 1 && (s.lamb || 0) >= 1 && (s.veg || 0) >= 1) { s.flour--; s.lamb--; s.veg--; bakery.out.pie = (bakery.out.pie || 0) + 4; this.stats.baked += 4; }
+      if ((s.flour || 0) >= 2 && (bakery.out.bread || 0) < Math.ceil(48*Math.max(1,this.villagers.length/38))) { s.flour -= 2; const batch=Math.ceil(8*Math.max(1,this.villagers.length/38));bakery.out.bread = (bakery.out.bread || 0) + batch; this.stats.baked += batch; }
+      if ((bakery.out.pie || 0) < Math.ceil(16*Math.max(1,this.villagers.length/38)) && (s.flour || 0) >= 1 && (s.lamb || 0) >= 1 && (s.veg || 0) >= 1) { s.flour--; s.lamb--; s.veg--; bakery.out.pie = (bakery.out.pie || 0) + 4; this.stats.baked += 4; }
     }
     if (h === 7) {
       const depot = this.place('depot');
       depot.out.coffee = (depot.out.coffee || 0) + 8; depot.out.tea = (depot.out.tea || 0) + 6; depot.out.parcel = (depot.out.parcel || 0) + 6 + Math.round(this.rand() * 6);
       // Fuel and ore are imports the council pays for.
-      const fuel = (depot.out.fuel || 0) < 60 ? 60 : 0, ore = (depot.out.ore || 0) < 20 ? 20 : 0, cost = fuel * 1 + ore * 2;
+      const fuel = (depot.out.fuel || 0) < 90 ? 90 : 0, ore = (depot.out.ore || 0) < 20 ? 20 : 0, cost = fuel * 1 + ore * 2;
       if (cost && this.civic.treasury >= cost) { depot.out.fuel = (depot.out.fuel || 0) + fuel; depot.out.ore = (depot.out.ore || 0) + ore; this.civic.treasury -= cost; }
       this.log(`The freight train pulled into the Rail Depot with coffee, tea, the mail${cost ? ', fuel and ore' : ''}.`);
     }
@@ -1020,7 +1126,8 @@ export class TownLife {
   // Finds the most useful load: a destination short of a good that a source has spare.
   pickJob(t) {
     const routes = [
-      ['silo', 'grain', 'mill'], ['silo', 'grain', 'coop'], ['mill', 'flour', 'bakery'], ['mill','oatmilk','cafe'], ['mill', 'flour', 'store'],
+      ['soyfarm','soybeans','soyplant'], ['soyplant','soymilk','cafe'],
+      ['silo', 'grain', 'mill'], ['silo', 'grain', 'coop'],  ['mill', 'flour', 'bakery'], ['mill','oatmilk','cafe'], ['mill', 'flour', 'store'],
       ['bakery', 'bread', 'store'], ['bakery', 'bread', 'cafe'], ['bakery', 'pie', 'cafe'], ['bakery', 'pie', 'pub'], ['bakery', 'bread', 'pub'],
       ['garden', 'veg', 'greengrocer'], ['garden', 'veg', 'bakery'], ['garden', 'veg', 'pub'], ['garden', 'veg', 'cafe'], ['orchard', 'fruit', 'greengrocer'],
       ['dairy', 'milk', 'store'], ['dairy', 'milk', 'cafe'], ['dairy', 'milk', 'bakery'], ['coop', 'eggs', 'store'], ['coop', 'eggs', 'cafe'], ['coop', 'eggs', 'bakery'],
@@ -1031,10 +1138,11 @@ export class TownLife {
     let best = null;
     for (const [from, good, to] of routes) {
       const src = this.place(from), dst = this.place(to);
-      const have = src.out[good] || 0, need = (dst.target?.[good] || 0) - (dst.stock[good] || 0);
+      // Soy growers always hold back two certified bags for the next sowing; a truck may not strip their seed reserve.
+      const have = good==='soybeans'&&from==='soyfarm'?Math.max(0,(src.out[good]||0)-2):(src.out[good]||0), need = (dst.target?.[good] || 0) - (dst.stock[good] || 0);
       if (have < 3 || need < 3 || this.trucks.some((o) => o !== t && o.job?.to === to && o.job?.good === good)) continue;
-      const score = need / (dst.target[good] || 1) + this.rand() * 0.1;
-      if (!best || score > best.score) best = { from, to, good, n: Math.min(20, have, need), score };
+      const score = need / (dst.target[good] || 1) + this.rand() * 0.1 + (['store','greengrocer','butcher'].includes(to) ? 0.12 : 0);
+      if (!best || score > best.score) best = { from, to, good, n: Math.min(40, have, need), score };
     }
     if (!best) { t.state = 'waiting for an order'; return; }
     t.job = best; t.state = `heading to the ${this.place(best.from).name} for ${GOODS[best.good].name}`;
@@ -1050,19 +1158,24 @@ export class TownLife {
     const src = this.place(t.job.from), dst = this.place(t.job.to), g = t.job.good;
     if (t.leg === 'pickup') {
       const n = Math.min(t.job.n, src.out[g] || 0);
-      src.out[g] = (src.out[g] || 0) - n; t.load = { good: g, n };
+      if(g==='soymilk'){
+        const lots=takeSoyShipment(this,n);
+        if(!lots){t.job=null;t.path=[];t.state='soy shipment unavailable';return;}
+        t.load={good:g,n,soyLots:lots,loadedAt:this.day*1440+this.minute};
+      }else{src.out[g] = (src.out[g] || 0) - n; t.load = { good: g, n };}
       t.wait = 4; t.leg = 'deliver'; t.state = `delivering ${amount(g, n)} to the ${dst.name}`;
       t.path = this.routeTruck(t, t.job.to);
       if (!n) { t.job = null; t.path = []; t.leg = null; t.state = 'found nothing to collect, looking for another job'; }
     } else {
       const n = t.load?.n || 0;
-      dst.stock[g] = (dst.stock[g] || 0) + n;
+      const safe=g!=='soymilk'||deliverSoyShipment(this,t);
+      if(safe)dst.stock[g] = (dst.stock[g] || 0) + n;
       // The buyer pays the supplier wholesale (half retail); the council pays for public stores.
-      const cost = n * GOODS[g].price * 0.5, payer = PUBLIC.has(dst.id) || dst.kind === 'utility' ? null : dst;
+      const cost = (safe?n:0) * GOODS[g].price * 0.5, payer = PUBLIC.has(dst.id) || dst.kind === 'utility' ? null : dst;
       const paid = payer ? Math.min(cost, Math.max(0, payer.till)) : Math.min(cost, this.civic.treasury);
       if (payer) payer.till -= paid; else this.civic.treasury -= paid;
       src.till += paid;
-      this.stats.deliveries++; this.stats.delivered[g] = (this.stats.delivered[g] || 0) + n;
+      this.stats.deliveries++; this.stats.delivered[g] = (this.stats.delivered[g] || 0) + (safe?n:0);
       if (n >= 8 || this.rand() < 0.3) this.log(`${t.driver?.name || 'A truck'} delivered ${amount(g, n)} to the ${dst.name}.`);
       t.load = null; t.job = null; t.wait = 4; t.state = 'unloaded, looking for the next job';
     }
@@ -1072,7 +1185,10 @@ export class TownLife {
   // Decides the next thing to do from the clock, hunger, pantry and job.
   plan(v) {
     const m = this.minute, home = this.doorstep(v), work = this.workSpot(v);
-    const sleepFrom = v.job === 'baker' && v.start < 6 * 60 ? 20 * 60 + 30 : 22 * 60 + 30;
+    // Late publicans, concierges and duty officers finish and get paid BEFORE
+    // going to bed. Otherwise 22:30 bedtime cancels their 23:00 shift early.
+    const sleepFrom = v.job === 'baker' && v.start < 6 * 60 ? 20 * 60 + 30 :
+      v.end >= 22 * 60 ? Math.min(24 * 60, v.end + 30) : 22 * 60 + 30;
     const wake = Math.min(v.start - 75, 6 * 60 + 30);
     const asleep = m >= sleepFrom || m < wake || (v.fatigue>=94 && m >= v.end);
     if (asleep) return this.goThen(v, home, { kind: 'sleep', at: 'home', until: wake < m ? wake + 24 * 60 : wake, activity: 'asleep at home' });
@@ -1094,16 +1210,37 @@ export class TownLife {
       if (cafeOk) return this.goThen(v, cafe.front, { kind: 'eatout', at: 'cafe', dur: 25, activity: 'having breakfast at the Commit Café (over budget this week)' });
     }
     const working = m >= v.start && m < v.end;
-    // Food counters cover the noon rush, then take staggered lunch breaks.
-    const counter = ['store','bakery','greengrocer','butcher','cafe'].includes(v.work);
-    const colleagues = counter ? this.villagers.filter(o=>o.work===v.work) : [];
-    const lunchAt = counter ? 13*60 + Math.max(0,colleagues.indexOf(v))*30 : 12*60;
-    if (working && !(m >= lunchAt && m < lunchAt + 60 && !v.doneToday.lunch && v.job !== 'publican')) {
+    // Employees take real off-duty meals, but never all leave the counter at
+    // noon together. Each business staggers 40-minute breaks by two hours.
+    // Relief workers begin earlier than the first break so lunch crowds can
+    // still be served by another *physically present* paid employee.
+    const colleagues = this.villagers.filter(o=>o.work===v.work && !['student','retired'].includes(o.job));
+    const rank = Math.max(0,colleagues.indexOf(v));
+    const lunchAt = Math.max(v.start+75,Math.min(v.end-45,11*60+15+rank*120));
+    // Lunch is not a magic instant dismissal of reception. Workers can defer
+    // it when the only other employee is travelling, shopping or off duty.
+    // The stagger is a preference; cover is checked against real NPC presence.
+    const lunchDue = !v.doneToday.lunch && m>=lunchAt && m<Math.min(v.end-5,16*60+30);
+    const isPublicWorker = v.work!=='home' && !['student','retired'].includes(v.job);
+    const actualCover = !isPublicWorker || colleagues.some(o=>o!==v &&
+      o.step?.kind==='work' && o.step.at===v.work &&
+      !o.path.length && o.start<=m && o.end>m+35);
+    const leaveForLunch = working && lunchDue && actualCover;
+    if (working && !leaveForLunch) {
       if (v.work === 'home') return this.goThen(v, home, { kind: 'work', at: 'home', until: v.end, activity: 'coding at home' });
       if (v.job === 'postie' && !v.doneToday.round && (this.place('post').stock.parcel || 0) > 0) return this.postRound(v);
-      return this.goThen(v, work, { kind: 'work', at: v.work, until: Math.min(v.end, m < lunchAt && v.job !== 'publican' ? lunchAt : v.end), activity: this.workActivity(v) });
+      const until=Math.min(v.end, m < lunchAt ? lunchAt : lunchDue ? m+15 : v.end);
+      // Extending a live shift must NOT send a cashier who is already at the
+      // counter on a fresh random commute through three footpath waypoints.
+      // That brief phantom journey was closing eight buildings at 13:15.
+      if(v.step?.kind==='work' && v.step.at===v.work && !v.path.length){
+        v.step.until=until;
+        v.activity=this.workActivity(v);
+        return v.step;
+      }
+      return this.goThen(v, work, { kind: 'work', at: v.work, until, activity: this.workActivity(v) });
     }
-    if (!v.doneToday.lunch && m >= lunchAt && m < lunchAt + 60) {
+    if (leaveForLunch) {
       v.doneToday.lunch = true;
       const cafe = this.place('cafe');
       let lunch;
@@ -1113,8 +1250,9 @@ export class TownLife {
         if (meal) { this.eat(v, meal[0], meal[1]); lunch = this.goThen(v, this.place('square').front, { kind: 'idle', dur: 30, activity: `eating ${meal[0]} in the Market Square` }); }
         else lunch = this.goThen(v, this.place('bakery').front, { kind: 'snack', at: 'bakery', good: 'pie', dur: 15, activity: 'buying a pie for lunch' });
       }
-      // Anyone who finishes after the shops' staff go home does the grocery run on their lunch break
-      // and takes the bags home after work.
+      // Workers who finish after stores close need time to buy food at lunch.
+      // These trips remain real, but staggered relief cover continues to serve
+      // customers while the staff member shops.
       if (v.end >= 16 * 60 + 30 && !v.doneToday.shopping) {
         const errands = this.shopStops(v, this.shoppingList(v));
         if (errands.length) { v.doneToday.shopping = true; v.queue = errands; }
@@ -1571,8 +1709,8 @@ export class TownLife {
     if (s.sim !== undefined) {
       const r = s.sim;
       const ok = r && typeof r === 'object' && Array.isArray(r.events) && r.stats && typeof r.stats === 'object' && Array.isArray(r.villagers) && Array.isArray(r.trucks) && Array.isArray(r.parcels)
-        && r.villagers.length === this.villagers.length && r.trucks.length === (this.trucks || []).length && Number.isInteger(s.rngState) && s.rngState >= 0 && s.rngState <= 0xffffffff && Number.isInteger(s.seed) && s.seed >= 0 && s.seed <= 0xffffffff
-        && r.villagers.every((v) => v && Number.isInteger(v.id) && this.villagers.some((x) => x.id === v.id)) && r.trucks.every((t) => t && Number.isInteger(t.id) && Array.isArray(t.path) && (this.trucks || []).some((x) => x.id === t.id));
+        && (r.villagers.length === this.villagers.length || (this.villagers.length > 38 && r.villagers.length === 38)) && r.trucks.length === (this.trucks || []).length && Number.isInteger(s.rngState) && s.rngState >= 0 && s.rngState <= 0xffffffff && Number.isInteger(s.seed) && s.seed >= 0 && s.seed <= 0xffffffff
+        && r.villagers.every((v, i) => v && Number.isInteger(v.id) && v.id === i && this.villagers.some((x) => x.id === v.id)) && r.trucks.every((t) => t && Number.isInteger(t.id) && Array.isArray(t.path) && (this.trucks || []).some((x) => x.id === t.id));
       if (!ok) return false;
       sim = JSON.parse(JSON.stringify(r));
     }

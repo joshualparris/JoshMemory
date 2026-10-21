@@ -1,6 +1,10 @@
 name: Repository Town Recorded WebGL Playtest
 
 on:
+  pull_request:
+    paths:
+      - 'repository-town/**'
+      - '.github/workflows/town-webgl-playtest.yml'
   push:
     branches: [main]
     paths:
@@ -53,11 +57,21 @@ jobs:
         env:
           TOWN_PLAYTEST_URL: http://127.0.0.1:8091/
           LIBGL_ALWAYS_SOFTWARE: '1'
+      # PRs test their own built code, not an unrelated older Vercel deploy.
+      # Run the hosted acceptance separately after the release is published.
+      - name: Play real hosted production game in Chromium and Pixel 7 emulation
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          mv test-results/webgl-playtest test-results/webgl-playtest-built
+          node tests/webgl-playtest.mjs
+        env:
+          TOWN_PLAYTEST_URL: https://parris-tech-services.github.io/Repository-town/
+          LIBGL_ALWAYS_SOFTWARE: '1'
       - name: Upload screenshots, 3D videos and state telemetry
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: town-webgl-playtest-${{ github.run_id }}
-          path: repository-town/test-results/webgl-playtest/
+          path: repository-town/test-results/webgl-playtest*/
           retention-days: 14
           if-no-files-found: warn

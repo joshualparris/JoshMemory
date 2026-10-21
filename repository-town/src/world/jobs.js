@@ -3,6 +3,8 @@ import { tickWorkplay } from './workplay.js';
 import { payroll, closeTimesheet, settlePayslip, employerFunds, debtFor } from './visitor-payroll.js';
 
 export const JOB_BOARD = Object.freeze([
+  {id:'soy-field-hand',site:'soyfarm',name:'Soybean field hand',minutes:45,pay:30,tasks:['field-preparation','crop-irrigation','crop-scouting'],blurb:'Sow inoculated seed, irrigate and inspect a real soybean paddock'},
+  {id:'soy-production-operator',site:'soyplant',name:'Plant-drink production operator',minutes:75,pay:52,tasks:['intake-quality','wet-grinding','pack-and-label'],blurb:'Trace a soybean batch through washing, hydration, grinding, heat safety and chilled packaging'},
   {id:'cafe-all-rounder',site:'cafe',name:'Café all-rounder',minutes:40,pay:28,tasks:['take-orders','prepare-orders','table-service'],blurb:'Take customer orders, make drinks and food, and deliver to numbered tables'},
   { id: 'bakery-assistant', site: 'bakery', name: 'Bakery assistant', minutes: 35, pay: 24, tasks: ['wash-hands', 'prep-bench', 'cooling'], blurb: 'Help shape, tray and pack baked goods' },
   {id:'poultry-hand',site:'coop',name:'Poultry farmhand',minutes:35,pay:24,tasks:['feed-hens','collect-eggs','store-eggs'],blurb:'Feed hens from real grain, collect eggs and pack them for town deliveries'},

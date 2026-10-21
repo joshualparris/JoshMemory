@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import {TownLife} from '../src/world/life.js';
+import {TownLife, ROSTER_SIZE} from '../src/world/life.js';
 import {buildCivicInterior} from '../src/world/shop-interior.js';
 import {REALTY_LAYOUT} from '../src/world/realty-interior.js';
 import {agencyBoard,agencyDisplayText} from '../src/world/realty-listings.js';
@@ -25,7 +25,7 @@ const agent=t.villagers.find(v=>v.work==='realty');
 assert(agent,'agency should be staffed by a real named villager');
 assert.equal(agent.job,'real estate agent');
 assert.equal(agent.name,'Gwen');
-assert.equal(t.villagers.length,38,'existing 38-person population preserved');
+assert.equal(t.villagers.length,ROSTER_SIZE,'existing the original 38 residents retain their names and IDs alongside 23 employed neighbours');
 assert(!['power','waterworks','sewage'].includes(agent.work),'not a public utility worker');
 const listings=agencyBoard(t);
 assert(listings.length>=4,'sample the real town address directory');

@@ -77,7 +77,13 @@ export function populateShopStaff(site,life,interior,makeLabel){
     npc.activity=current?.activity||(home?'at home organising family farm jobs':HOST_ROLES[site.id]?'serving customers at '+site.name:'welcoming visitors to the market');
     return true;
   };
-  npc.update=(...args)=>{if(sync())animate(...args);};
+  npc.update=(...args)=>{if(sync()){
+    // Staff can be found at the desk, but their names appear only when a
+    // visitor approaches: no floating labels filling the mobile screen.
+    const visitor=args[2]?.pos;
+    npc.tag.visible=!!visitor && Math.hypot(visitor.x-pos.x,visitor.z-pos.z)<5.5;
+    animate(...args);
+  }};
   sync();
   return [npc];
 }
