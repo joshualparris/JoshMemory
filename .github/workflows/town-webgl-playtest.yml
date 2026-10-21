@@ -1,0 +1,63 @@
+name: Repository Town Recorded WebGL Playtest
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'repository-town/src/**'
+      - 'repository-town/tests/webgl-playtest.mjs'
+      - 'repository-town/tools/**'
+      - 'repository-town/package.json'
+      - '.github/workflows/town-webgl-playtest.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: town-recorded-webgl-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  playable-3d:
+    name: Desktop + Android-size recorded WebGL gameplay
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install pinned dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Install Chromium and software rendering libraries
+        run: npx playwright install --with-deps chromium
+      - name: Build actual playable site
+        run: npm run build
+      - name: Play and record 3D game, fail on missing WebGL
+        run: |
+          node tools/serve.mjs dist/public 8091 > /tmp/town-playtest-server.log 2>&1 &
+          server=$!
+          trap 'kill $server 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8091/ > /dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsSI http://127.0.0.1:8091/ > /dev/null
+          node tests/webgl-playtest.mjs
+        env:
+          TOWN_PLAYTEST_URL: http://127.0.0.1:8091/
+          LIBGL_ALWAYS_SOFTWARE: '1'
+      - name: Upload screenshots, 3D videos and state telemetry
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: town-webgl-playtest-${{ github.run_id }}
+          path: repository-town/test-results/webgl-playtest/
+          retention-days: 14
+          if-no-files-found: warn
