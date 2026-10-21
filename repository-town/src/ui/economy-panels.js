@@ -66,22 +66,38 @@ export function jobBoardPanel(life, opts = {}) {
 
 // The shift screen for one workplace, opened from its counter panel.
 export function jobPanel(life, site, back) {
-  const defs = JOB_BOARD.filter((x) => x.site === site), j = life.jobsReport(), a = j.active && j.active.site === site ? j.active : null;
-  const p = life.place(site), sup = life.jobSupervisors(site);
-  const flash = (msg) => { const pp = jobPanel(life, site, back); pp.body = `<p><b>${esc(msg)}</b></p>` + pp.body; return pp; };
-  const def = a && JOB_BOARD.find((x) => x.id === a.id);
-  let body = `<p><b>Employer:</b> ${esc(p.name)} · <b>Time:</b> ${esc(life.time())} · <b>On duty:</b> ${esc(sup.map((v) => v.name).join(', ') || 'no one right now')}</p>`;
-  if (a) body += `<p><b>Current shift:</b> ${esc(def.name)} · ${Math.floor(a.worked)}/${a.required} town minutes worked · pays ${d(a.pay)}</p>
-    <p><b>Duties:</b> ${def.tasks.map((k) => (a.tasks.includes(k) ? '✅ ' : '☐ ') + esc(k.replace(/-/g, ' '))).join(' · ')}</p>
-    <p class="dim">Time only counts while you are in here and someone is on duty. Duties need five town minutes between them.</p>`;
-  else body += `<p>No shift started. Shifts today: ${j.shiftsToday}/${MAX_SHIFTS_PER_DAY}.</p>`;
-  const actions = [];
-  if (a) {
-    for (const k of def.tasks) if (!a.tasks.includes(k)) actions.push({ label: `Do: ${k.replace(/-/g, ' ')}`, run: () => flash(life.doTask(k).message) });
-    actions.push({ label: a.worked >= a.required && a.tasks.length >= def.tasks.length ? `✅ Clock out and collect ${d(a.pay)}` : 'Check progress', run: () => flash(a.worked >= a.required && a.tasks.length >= def.tasks.length ? life.finishJob().message : `Keep working. ${Math.ceil(a.required - a.worked)} minutes to go.`) });
-    actions.push({ label: 'Cancel shift (no wages)', run: () => flash(life.cancelJob().message) });
-  } else for (const x of defs) actions.push({ label: `${x.name} · ${x.minutes} min · ${d(x.pay)}`, run: () => flash(life.startJob(x.id).message) });
-  actions.push({ label: '💳 Wallet', run: () => walletPanel(life) });
-  if (back) actions.push({ label: 'Back', run: back });
-  return { title: `💼 Work at ${p.name}`, body, actions, wide: true };
+  const defs=JOB_BOARD.filter(x=>x.site===site),j=life.jobsReport(),active=j.active;
+  const local=active?.site===site?active:null,other=active&&!local?active:null;
+  const p=life.place(site),supervisors=life.jobSupervisors(site);
+  const flash=msg=>{const result=jobPanel(life,site,back);result.body='<p><b>'+esc(msg)+'</b></p>'+result.body;return result;};
+  const currentDef=active&&JOB_BOARD.find(x=>x.id===active.id);
+  let body='<p><b>Employer:</b> '+esc(p.name)+' · <b>Time:</b> '+esc(life.time())+
+    ' · <b>On duty:</b> '+esc(supervisors.map(x=>x.name).join(', ')||'no one right now')+'</p>';
+  const actions=[];
+  if(other){
+    const employer=life.place(other.site);
+    body+='<p><b>You already have an active shift:</b> '+esc(currentDef?.name||other.id)+
+      ' at <b>'+esc(employer?.name||other.site)+'</b> · '+Math.floor(other.worked)+'/'+other.required+
+      ' town minutes. Your progress remains saved while you visit other buildings, but working elsewhere does not count towards this shift.</p>'+
+      '<p>Return to '+esc(employer?.name||other.site)+' to complete your duties, or cancel this shift before starting here.</p>';
+    actions.push({label:'Cancel '+(currentDef?.name||'current shift')+' (no wages)',run:()=>flash(life.cancelJob().message)});
+  }else if(local){
+    const def=currentDef;
+    body+='<p><b>Active shift:</b> '+esc(def.name)+' · '+Math.floor(local.worked)+'/'+local.required+
+      ' town minutes worked · pays '+d(local.pay)+'</p>'+
+      '<p><b>Duties:</b> '+def.tasks.map(k=>(local.tasks.includes(k)?'✅ ':'☐ ')+esc(k.replace(/-/g,' '))).join(' · ')+'</p>'+
+      '<p>Close this panel and use the labelled 3D work stations. Work time only counts while you are inside this workplace with a supervisor present.</p>';
+    const ready=local.worked>=local.required&&def.tasks.every(k=>local.tasks.includes(k));
+    actions.push({label:ready?'✅ Clock out and collect '+d(local.pay):'Check shift progress',
+      run:()=>flash(ready?life.finishJob().message:'Still '+Math.ceil(Math.max(0,local.required-local.worked))+
+        ' town minutes to work; '+def.tasks.filter(k=>!local.tasks.includes(k)).length+' duties remaining.')});
+    actions.push({label:'Cancel current shift (no wages)',run:()=>flash(life.cancelJob().message)});
+  }else{
+    body+='<p>No shift started here. Shifts completed today: '+j.shiftsToday+'/'+MAX_SHIFTS_PER_DAY+'.</p>';
+    for(const def of defs)actions.push({label:'Start '+def.name+' · '+def.minutes+' min · '+d(def.pay),
+      run:()=>flash(life.startJob(def.id).message)});
+  }
+  actions.push({label:'💳 Wallet',run:()=>walletPanel(life)});
+  if(back)actions.push({label:'Back',run:back});
+  return {title:'💼 Work at '+p.name,body,actions,wide:true};
 }
