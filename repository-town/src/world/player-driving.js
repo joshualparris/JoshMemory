@@ -55,7 +55,7 @@ export function createPlayerDriving(life,scene,collision,player,camera,input){
      if(!Number.isFinite(v.x)||!Number.isFinite(v.z)||v.parkingPending){
        const p=siteSpawn(i,v);
        if(p){v.x=p.x;v.z=p.z;v.yaw=0;v.speed=0;v.parkingPending=false;}
-       else if(!Number.isFinite(v.x)||!Number.isFinite(v.z))continue;
+       else if(!Number.isFinite(v.x)||!Number.isFinite(v.z))return;
        // When every roadside bay is temporarily occupied, keep the vehicle
        // parked as titled until a clear bay exists; never spawn inside a wall.
      }
