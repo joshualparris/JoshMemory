@@ -369,3 +369,8 @@ Newest first. Times in Australia/Sydney.
 
 ## 2026-10-21 — hosting consolidation (Codex, integration/town-hosting-consolidation-20261021)
 - IN PROGRESS: inventory and preserve all hosted Town snapshots; reconcile public generated extras; establish a single release manifest and tested production/staging/Pages pipeline. Preserve all feature branches and published history. No gameplay replacement from old branches.
+
+## 2026-10-21 — consolidation release and quota fallback
+- Source PR110 merged at 5c5637e; required integration and Android driving checks passed. Production READY with matching local/public release manifests. Pre-consolidation source, Pages/playtest and all 11 Render snapshot commits preserved as archive refs. Pages backup PR30 merged; legacy nested copies replaced by save-export handover pages.
+- Render explicitly rejected build dep-dbbvvjcs728c73dgdda0 because workspace pipeline minutes are exhausted. Reuse existing Vercel Playtest as the only staging host; no spending limit increased. Archive/suspend redundant Render copies after preservation, retaining recovery.
+- Desktop/Android save export/import and rejection checks pass. Existing baseline browser NPC soak reports 6 solid contacts (limit 3); life browser likewise detects solid contacts. Control run against unchanged main gameplay reproduces these failures. Do not weaken the tests or claim full gameplay acceptance. Existing entry/exit, people, windows, household and civic walk-in checks pass.

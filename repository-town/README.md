@@ -96,7 +96,7 @@ READMEs redacted.
 Canonical source: `main`, `repository-town/`. See [hosting and release policy](docs/HOSTING.md).
 
 - Main game: https://repository-town-claude-complete.vercel.app/
-- Staging: https://repository-town-main-qa.onrender.com/
+- Staging: https://repository-town-claude-playtest.vercel.app/
 - Backup: https://parris-tech-services.github.io/Repository-town/
 
 Run `npm run build:release` before publishing. Every host uses **only** `dist/public`.
