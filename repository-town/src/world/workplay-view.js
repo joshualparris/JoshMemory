@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import {STORE_GOODS,CAFE_TABLES,recipeFor} from './work-recipes.js';
 import {workState,storeState,useStore,useCafe,isWorking} from './workplay.js';
 import {choices,skillPanel} from '../ui/work-panels.js';
+import {shelfLabels,SAFE_TEMP} from './store-batches.js';
 import {esc} from '../ui/interactions.js';
 const mesh=(root,geo,color,x,y,z)=>{const m=new THREE.Mesh(geo,new THREE.MeshLambertMaterial({color}));m.position.set(x,y,z);root.add(m);return m;};
 export function installWorkplay(built,site,makeLabel,life,{openPanel,closePanel,status,sound,getVisitors}){
@@ -75,9 +76,27 @@ export function installWorkplay(built,site,makeLabel,life,{openPanel,closePanel,
   const{action,arg}=item.act;
   if(site.id==='store'){
    if(action==='receiving'){
-    const s=storeState(life);openPanel(choices('General Store · receiving','<p>Collect a carton, carry it to the correct shelf and use the shelf to unpack it. Six units complete the refill duty. Cartons contain real saleable stock.</p>',s.carton?[{label:'Return carried carton',run:()=>{say(useStore(life,'return'));return null;}}]:Object.entries(STORE_GOODS).map(([g,d])=>({label:'Pick up '+d.name+' · '+d.zone,run:()=>{say(useStore(life,'pickup',g));return null;}}))));return;
+    const s=storeState(life),lots=Object.values(s.lots).flat(),dock=s.pending.map(id=>lots.find(l=>l.id===id)).filter(Boolean);
+    // Chilled deliveries wait on the dock until probed; over the limit they go back to the supplier.
+    const probes=dock.map(l=>({label:'Probe chilled delivery · '+l.qty+' '+STORE_GOODS[l.good].name+' from '+(life.place(l.from)?.name||'supplier'),run:()=>{say(useStore(life,'probe',l.id));return null;}}));
+    const intro='<p>Collect a carton, carry it to the correct shelf and use the shelf to unpack it. Six units complete the refill duty. Cartons contain real saleable stock.</p>'+(dock.length?'<p><b>'+dock.length+' chilled deliver'+(dock.length===1?'y':'ies')+' on the dock.</b> Probe each one: accept at '+SAFE_TEMP+' °C or below, otherwise it goes back to the supplier. Unchecked chilled stock is binned after two hours.</p>':'');
+    openPanel(choices('General Store · receiving',intro,s.carton?[{label:'Return carried carton',run:()=>{say(useStore(life,'return'));return null;}}]:probes.concat(Object.entries(STORE_GOODS).map(([g,d])=>({label:'Pick up '+d.name+' · '+d.zone,run:()=>{say(useStore(life,'pickup',g));return null;}})))));return;
    }
-   if(action==='inspect'){openPanel(choices('Batch inspection','<p>The delivery label says <b>damaged / do not sell</b>. Check packaging and date labels before filling shelves. What should happen to this carton?</p>',[{label:'Put it straight on the shelf',run:()=>{say(useStore(life,'inspect','sell'));return null;}},{label:'Isolate in the returns cage',run:()=>{say(useStore(life,'inspect','quarantine'));return null;}}]));return;}
+   if(action==='inspect'){
+    const s=storeState(life),why={damaged:'damaged',warm:'warm on arrival',expired:'out of date'};
+    const dates=Object.entries(STORE_GOODS).map(([g,d])=>'<li>'+esc(d.name)+': '+(shelfLabels(s,g,s.shelves[g]||0).map(l=>l.qty+' use by day '+l.useBy+(l.useBy<life.day?' <b>(expired)</b>':l.useBy===life.day?' (last day)':'')).join(', ')||'shelf empty')+'</li>').join('');
+    const cage=s.returns.length?'<ul>'+s.returns.map(r=>'<li>'+r.qty+' '+esc(STORE_GOODS[r.good].name)+' · '+why[r.reason]+(r.from?' · '+esc(life.place(r.from)?.name||r.from):'')+'</li>').join('')+'</ul>':'<p>The returns cage is empty.</p>';
+    const body='<p>Front of each shelf first (customers take from the front). Today is day '+life.day+'.</p><ul>'+dates+'</ul><h3>Returns cage</h3>'+cage+'<p>Damaged and warm deliveries are credited by the supplier; out-of-date stock is the store’s own loss.</p>';
+    const damaged=life.civic.jobs?.active?.hands?.earned?.includes('check-expiry')?[]:[{label:'Damaged carton: put it straight on the shelf',run:()=>{say(useStore(life,'inspect','sell'));return null;}},{label:'Damaged carton: isolate in the returns cage',run:()=>{say(useStore(life,'inspect','quarantine'));return null;}}];
+    openPanel(choices('Dates, damage and supplier returns',body,damaged.concat([{label:'Date check: pull out-of-date stock',run:()=>{say(useStore(life,'datecheck'));return null;}},{label:'Process returns cage · supplier credit notes',run:()=>{say(useStore(life,'returns'));return null;}}])));return;
+   }
+   if(action==='shelve'){
+    const s=storeState(life);
+    if(!s.carton||STORE_GOODS[s.carton.good].zone!==arg){say(useStore(life,'shelve',arg));return;}
+    const carton=Math.min(...(s.carton.lots||[]).map(l=>l.useBy)),front=shelfLabels(s,s.carton.good,s.shelves[s.carton.good]||0);
+    const body='<p>Your carton: '+s.carton.n+' '+esc(STORE_GOODS[s.carton.good].name)+', use by day '+(Number.isFinite(carton)?carton:'—')+'. On the shelf now: '+(front.map(l=>l.qty+' use by day '+l.useBy).join(', ')||'nothing')+'.</p><p>Customers take from the front. Where does this carton go?</p>';
+    openPanel(choices('Stock rotation',body,[{label:'Behind the stock already on the shelf',run:()=>{say(useStore(life,'shelve',arg,'behind'));return null;}},{label:'In front of the stock already on the shelf',run:()=>{say(useStore(life,'shelve',arg,'front'));return null;}}]));return;
+   }
    if(action==='count'){
     const s=storeState(life),target=Object.values(s.shelves).reduce((n,v)=>n+Math.min(6,v),0);
     openPanel({title:'Stocktake · count marked shelf sections',body:'<p>Count the coloured products in the five marked sections (coffee, tea, bread, milk and eggs). Each section displays up to six units. Enter the combined visible count.</p><label>Count <input id="work-stock-count" type="number" min="0" max="30" inputmode="numeric"></label><button id="work-submit-count">Record count</button>',actions:[],mount:root=>{root.querySelector('#work-submit-count').onclick=()=>{const r=say(useStore(life,'count',root.querySelector('#work-stock-count').value));if(r.ok)closePanel();};}});return;
@@ -111,7 +130,7 @@ export function installWorkplay(built,site,makeLabel,life,{openPanel,closePanel,
    const s=storeState(life);for(const[g,arr]of Object.entries(shelfMeshes))arr.forEach((m,i)=>m.visible=i<Math.min(6,s.shelves[g]));
    if(active&&s.carton){carry.visible=true;carton.visible=true;tray.visible=false;carriedCup.visible=false;carriedFood.visible=false;carton.material.color.set(STORE_GOODS[s.carton.good].colour);}
    const a=life.civic.jobs?.active;
-   const str='GENERAL STORE SHIFT\n'+(s.carton?'Carrying '+s.carton.n+' '+STORE_GOODS[s.carton.good].name+' → '+STORE_GOODS[s.carton.good].zone:'Receiving bay → correct shelf')+'\nRestocked: '+(a?.hands?.restocked||0)+'/6 units\nInspect damaged batch · refill · stocktake';if(str!==hudText){hud.textContent=str;hudText=str;}
+   const str='GENERAL STORE SHIFT\n'+(s.carton?'Carrying '+s.carton.n+' '+STORE_GOODS[s.carton.good].name+' → '+STORE_GOODS[s.carton.good].zone:'Receiving bay → correct shelf')+'\nRestocked: '+(a?.hands?.restocked||0)+'/6 units'+(s.pending.length?'\n'+s.pending.length+' chilled deliver'+(s.pending.length===1?'y':'ies')+' to probe':'')+(s.returns.length?'\nReturns cage: '+s.returns.reduce((n,r)=>n+r.qty,0)+' units':'')+'\nRotation: '+s.fefo.right+' right · '+s.fefo.wrong+' to fix\nInspect damage/dates · refill · stocktake';if(str!==hudText){hud.textContent=str;hudText=str;}
   }else{
    const c=state.cafe,o=c.tickets.find(x=>x.id===(c.held||c.selected));
    if(active&&c.held){carry.visible=true;carton.visible=false;tray.visible=true;const food=['food','oven'].includes(recipeFor(o.item).kind);carriedCup.visible=!food;carriedFood.visible=food;}

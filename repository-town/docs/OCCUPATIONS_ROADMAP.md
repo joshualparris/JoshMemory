@@ -4,7 +4,7 @@ Player-requested roadmap. Check boxes only when the complete gameplay loop is im
 
 ## Current delivery
 - [x] General Store first playable loop: inspect damaged goods, quarantine, carry delivery cartons, match products to shelf zones and count visible stock; real inventory and existing shift wages.
-- [ ] Expand date-labelled batches and FEFO stock rotation, cold-chain handling and supplier returns.
+- [x] Expand date-labelled batches and FEFO stock rotation, cold-chain handling and supplier returns.
 - [x] Café first playable loop: actual villagers queue, named orders and tables, six recipes with skill activities/equipment animations, carried trays, correct-table delivery, payment and dishes.
 - [ ] Expand the full menu, milk/dietary options, multi-item orders, customer patience, deeper baking and latte-art gestures.
 - [x] Original adaptive venue/day/night music, separate music/effects/ambience controls, café grinder/steam/pour/crockery and venue atmosphere.

@@ -1,5 +1,6 @@
 import {WORK_RECIPES,recipeFor,STORE_GOODS} from './work-recipes.js';
 import {noteSpend} from './household.js';
+import {batchState,syncLots,noteStoreDelivery,takeFromBackroom,placeOnShelf,fefoPlacement,pullExpired,probeLot,processReturns,staffRoutines,dockTimeouts,SAFE_TEMP} from './store-batches.js';
 const result=(ok,message,extra={})=>({ok,message,...extra});
 const now=t=>t.day*1440+t.minute;
 export function workState(t){
@@ -22,9 +23,11 @@ export function storeState(t){
   if(Number.isFinite(s.lastStock[g])&&current<s.lastStock[g])s.shelves[g]=Math.max(0,s.shelves[g]-(s.lastStock[g]-current));
   s.shelves[g]=Math.max(0,Math.min(s.shelves[g],current));s.lastStock[g]=current;
  }
- return s;
+ return syncLots(t,s,shop);
 }
-export function useStore(t,action,arg){
+// A truck has just unloaded at the General Store (life.js truckArrived): record the dated lot.
+export function storeDelivery(t,g,n,from,paid){return noteStoreDelivery(t,batchState(workState(t).store),t.place('store'),g,n,from,paid);}
+export function useStore(t,action,arg,where){
  if(!authorised(t,'store'))return result(false,'Start a General Store shift and work while a supervisor is on duty.');
  const s=storeState(t),a=t.civic.jobs.active,stock=t.place('store').stock;
  const success=message=>{for(const g of Object.keys(STORE_GOODS))s.lastStock[g]=stock[g]||0;return result(true,message);};
@@ -34,7 +37,9 @@ export function useStore(t,action,arg){
   if(arg!=='quarantine')return result(false,'The carton is marked damaged / do not sell. Isolate it instead of putting it on a shelf.');
   const good=Object.keys(STORE_GOODS).find(g=>(stock[g]||0)>(s.shelves[g]||0));
   if(!good)return result(false,'No backroom carton is available to inspect. Wait for a delivery.');
+  const [unit]=takeFromBackroom(s,good,s.shelves[good]||0,1);
   stock[good]--;s.quarantine++;s.lastQuarantine=good;
+  s.returns.push({good,qty:1,reason:'damaged',from:unit?.from||null,unitCost:unit?.unitCost||0,lot:unit?.id});
   mark(t,'check-expiry');return success('Damaged '+STORE_GOODS[good].name+' isolated in the returns cage. Saleable stock reduced by one.');
  }
  if(action==='pickup'){
@@ -42,21 +47,43 @@ export function useStore(t,action,arg){
   const g=STORE_GOODS[arg];if(!g)return result(false,'Choose a labelled product carton.');
   const n=Math.min(3,Math.max(0,(stock[arg]||0)-(s.shelves[arg]||0)));
   if(!n)return result(false,'No '+g.name+' remains in the backroom. Wait for a delivery or choose another carton.');
-  stock[arg]-=n;s.carton={good:arg,n};
+  const lots=takeFromBackroom(s,arg,s.shelves[arg]||0,n);
+  stock[arg]-=n;s.carton={good:arg,n,lots};
   return success('Carrying '+n+' '+g.name+'. Walk to the '+g.zone+' shelf and use it.');
  }
  if(action==='return'){
   if(!s.carton)return result(false,'You are not carrying a carton.');
+  placeOnShelf(s,s.carton.good,s.shelves[s.carton.good]||0,s.carton.lots||[],'behind');
   stock[s.carton.good]=(stock[s.carton.good]||0)+s.carton.n;s.carton=null;
   return success('Carton returned to the receiving bay.');
  }
  if(action==='shelve'){
   if(!s.carton)return result(false,'Collect a labelled carton from the receiving bay first.');
   const {good,n}=s.carton;if(STORE_GOODS[good].zone!==arg)return result(false,'Wrong shelf: '+STORE_GOODS[good].name+' belongs in '+STORE_GOODS[good].zone+'.');
+  // Customers take from the front. FEFO keeps the earliest use-by there; a wrong choice is
+  // explained, never deducted from wages, and its cost shows up as stock that goes out of date.
+  const carried=s.carton.lots||[],right=fefoPlacement(s,good,s.shelves[good]||0,carried),place=where||right;
+  placeOnShelf(s,good,s.shelves[good]||0,carried,place);if(place===right)s.fefo.right++;else s.fefo.wrong++;
+  const rotation=place===right?(place==='behind'?' New stock placed behind the older dates (FEFO).':' This carton had the earliest date, so it went to the front (FEFO).'):(' Rotation check: the '+(place==='front'?'newer':'older')+' stock is now in front, so earlier dates may go out of date on the shelf. Next time put '+(right==='behind'?'new stock behind':'the earliest date in front')+'.');
   stock[good]=(stock[good]||0)+n;s.shelves[good]=(s.shelves[good]||0)+n;s.restocked+=n;s.carton=null;
   a.hands??={earned:[],scores:[]};a.hands.restocked=(a.hands.restocked||0)+n;
   if(a.hands.restocked>=6)mark(t,'refill-shelves');
-  return success(n+' '+STORE_GOODS[good].name+' stocked. '+Math.max(0,6-a.hands.restocked)+' more units needed for the refill duty.');
+  return success(n+' '+STORE_GOODS[good].name+' stocked.'+rotation+' '+Math.max(0,6-a.hands.restocked)+' more units needed for the refill duty.');
+ }
+ if(action==='probe'){
+  const lot=probeLot(t,s,t.place('store'),Number(arg));
+  if(!lot)return result(false,'That chilled delivery has already been checked.');
+  if(lot.probe==='rejected')return success(STORE_GOODS[lot.good].name+' probed at '+lot.temp+' °C, above the '+SAFE_TEMP+' °C limit. Rejected into the returns cage for the supplier.');
+  return success(STORE_GOODS[lot.good].name+' probed at '+lot.temp+' °C. Accepted into the cold room, use by day '+lot.useBy+'.');
+ }
+ if(action==='datecheck'){
+  const pulled=pullExpired(t,s,t.place('store'));
+  return success(pulled?pulled+' out-of-date units pulled from sale into the returns cage.':'Every date on the shelves is still in date.');
+ }
+ if(action==='returns'){
+  if(!s.returns.length)return result(false,'The returns cage is empty.');
+  const r=processReturns(t,s);
+  return success('Returns processed: '+r.disposed+' units out. Supplier credit $'+r.credit.toFixed(2)+' paid back to the store.'+(r.notes.length<r.disposed?' Out-of-date stock is the store’s own loss.':''));
  }
  if(action==='count'){
   const count=Object.values(s.shelves).reduce((sum,n)=>sum+Math.min(6,n),0);
@@ -164,7 +191,12 @@ export function tickWorkplay(t){
  const state=t.civic.workplay;if(!state)return;
  const a=t.civic.jobs?.active;
  if(state.store.carton&&(!a||a.site!=='store'||a.day!==t.day)){
-  const {good,n}=state.store.carton;t.place('store').stock[good]=(t.place('store').stock[good]||0)+n;state.store.carton=null;
+  const {good,n,lots}=state.store.carton;placeOnShelf(state.store,good,state.store.shelves[good]||0,lots||[],'behind');
+  t.place('store').stock[good]=(t.place('store').stock[good]||0)+n;state.store.carton=null;
+ }
+ if(state.store.lots){
+  const shop=t.place('store');batchState(state.store);
+  dockTimeouts(t,state.store,shop);staffRoutines(t,state.store,shop,a?.site==='store'&&a.day===t.day);
  }
  for(const o of state.cafe.tickets){
   if(o.state==='served'&&now(t)-o.servedAt>=8)o.state='dirty';
