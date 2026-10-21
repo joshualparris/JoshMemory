@@ -124,14 +124,10 @@ export function installWorkplay(built,site,makeLabel,life,{openPanel,closePanel,
    if(coffeeCup){const preparing=!!animation;pitcher.rotation.z=preparing&&animation.kind==='pour'?-.55:0;pitcher.position.y=1.55+(preparing?Math.sin(elapsed*3)*.025:0);stream.material.color.setHex(animation?.kind==='pour'?0xf4ead2:0x99704a);pan.rotation.z=preparing&&animation.kind==='cook'?Math.sin(elapsed*4)*.04:0;kitchenFood.material.color.setHex(preparing&&['cook','bake'].includes(animation.kind)?0xc48b3f:0xe9b851);stream.visible=preparing&&['extract','pour','fill'].includes(animation.kind);liquid.scale.y=preparing?.5+(Math.sin(elapsed*2)+1)/2:1;steam.forEach((m,i)=>{m.visible=preparing&&['steam','steep'].includes(animation.kind);m.position.y=1.4+((elapsed*.4+i*.12)% .6);m.position.x=-2.3+Math.sin(elapsed*2+i)*.08;m.material.opacity=.35*(1-(m.position.y-1.4)/.6);});coffeeCup.rotation.z=preparing&&animation.kind==='pour'?Math.sin(elapsed*2)*.12:0;ovenLight.material.emissive.setHex(preparing&&['cook','bake'].includes(animation.kind)?0xff7711:0x000000);}
    const wait=o?Math.max(0,Math.ceil((o.patience||90)-(life.day*1440+life.minute-o.created))):0;
    const steps=o?orderRecipe(o).steps:[],progress=o?Math.min(o.step||0,steps.length):0;
-   const str='CAFÉ SHIFT · '+c.tickets.filter(o=>o.state==='queue').length+' queuing\n'+(o?'#'+o.id+' '+o.name+' · '+orderRecipe(o).name+'\nTABLE '+o.table+' · '+o.state+' · '+o.diet+' · '+wait+' min left\nPrepared '+progress+'/'+steps.length+' steps · Milk '+(o.milk||'none')+' · Bread '+(o.bread||'regular'):'Take an order at the till')+'\n'+c.served+' served · '+c.cleared+' tables cleared · if(str!==hudText){hud.textContent=str;hudText=str;}
-  }
-  if(carry.visible){const f=player.forward();carry.position.set(player.pos.x+f.x*.72,player.eye-.55,player.pos.z+f.z*.72);carry.rotation.y=player.yaw;carry.rotation.z=Math.sin(elapsed*4)*.015;}
-  for(const a of actors)if(a.tag)a.tag.visible=active&&Math.hypot(a.item.pos.x-player.pos.x,a.item.pos.z-player.pos.z)>2.3;
- }
- return {use,update,customer(v){if(site.id!=='cafe'||!isWorking(life,'cafe')||!v)return false;const c=workState(life).cafe,o=c.tickets.find(o=>o.id===v.step?.workTicket);if(!o)return false;if(o.state==='queue')say(useCafe(life,'take',v.id));else if(c.held){const person=getVisitors?.()?.get(o.customer);if(person&&person.state!=='seated')status('Let the customer reach their table first.');else say(useCafe(life,'deliver',o.table));}else{c.selected=o.id;status('#'+o.id+' · '+v.name+' · '+orderRecipe(o).name+' · table '+o.table+' · '+o.state);}return true;},dispose:()=>{hud.remove();},root};
-}
-+(c.tips||0)+' tips';if(str!==hudText){hud.textContent=str;hudText=str;}
+   const str='CAFÉ SHIFT · '+c.tickets.filter(o=>o.state==='queue').length+' queuing\n'
++(o?'#'+o.id+' '+o.name+' · '+orderRecipe(o).name+'\nTABLE '+o.table+' · '+o.state+' · '+o.diet+' · '+wait+' min left\nPrepared '+progress+'/'+steps.length+' steps · Milk '+(o.milk||'none')+' · Bread '+(o.bread||'regular'):'Take an order at the till')
++'\n'+c.served+' served · '+c.cleared+' tables cleared · $'+(c.tips||0)+' tips';
+   if(str!==hudText){hud.textContent=str;hudText=str;}
   }
   if(carry.visible){const f=player.forward();carry.position.set(player.pos.x+f.x*.72,player.eye-.55,player.pos.z+f.z*.72);carry.rotation.y=player.yaw;carry.rotation.z=Math.sin(elapsed*4)*.015;}
   for(const a of actors)if(a.tag)a.tag.visible=active&&Math.hypot(a.item.pos.x-player.pos.x,a.item.pos.z-player.pos.z)>2.3;
