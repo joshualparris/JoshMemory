@@ -49,6 +49,29 @@ async function play(kind,options) {
   const origin=rec.steps[0].state.pos;
   assert(Math.hypot(origin.x-after.pos.x,origin.z-after.pos.z)>.05,kind+': keyboard walking did not move the player');
   await shot('02-after-walking');
+  // Genuine approach to the Community Bank from its southern pavement:
+  // no direct enterShop cheat. The camera walks towards the rendered door.
+  await page.evaluate(()=>window.__town.life?.setTime?.(9*60));
+  let bankAccess=null;
+  for(let attempt=0;attempt<36;attempt++){
+    bankAccess=await page.evaluate(()=>window.__town.facilityState?.('bank')||null);
+    if(bankAccess?.allowed)break;
+    await page.evaluate(()=>window.__town.advanceSimulation?.(10));
+  }
+  rec.bankAccess=bankAccess;
+  assert(bankAccess?.allowed,kind+': bank has no on-site teller at an ordinary staffed hour: '+JSON.stringify(bankAccess));
+  const bank=await page.evaluate(()=>window.__town.shops().find(s=>s.id==='bank'));
+  assert(bank?.side==='south',kind+': bank site missing south-side door');
+  const at={x:bank.door.x,z:bank.door.z-2.35,yaw:Math.PI};
+  assert.equal(await page.evaluate(p=>Boolean(window.__town.probeStatic(p.x,p.z)),at),false,kind+': front bank approach obstructed');
+  await page.evaluate(p=>window.__town.place(p.x,p.z,p.yaw),at);
+  await page.keyboard.down('w');
+  try{await page.waitForFunction(()=>window.__town.state().mode==='house',null,{timeout:7000});}
+  finally{await page.keyboard.up('w');}
+  assert.equal((await page.evaluate(()=>window.__town.state())).coordinate,'G8',kind+': entered wrong business instead of bank');
+  await shot('02b-bank-entered-by-walking');
+  assert(await page.evaluate(()=>window.__town.exitShop()),kind+': bank exit obstructed');
+  await shot('02c-bank-exited');
   // A fixed 180-minute jump is NOT proof the café has a worker on site:
   // the 61-person town has actual commutes, breaks and counter attendance.
   // Schedule a morning visit then advance the real simulation in small steps.
