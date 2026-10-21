@@ -20,7 +20,7 @@ export function bakeryKitchenPanel(life, note = '') {
   return {
     title: 'Bakery kitchen', wide: true,
     body: `${note ? `<p><b>${esc(note)}</b></p>` : ''}
-      <p>The bakers let you lend a hand with a batch. It mixes real flour into dough, proofs for 40 town minutes, then bakes for 25. Pastry hygiene rules apply: hand wash first, benches clean, ovens guarded. This is a game, not a live oven controller.</p>
+      <p>The bakers let you lend a hand with a batch. Close this panel and operate the labelled mixer, deck-oven and cooling-rack stations in the 3D shop. Mixing uses real flour, proofing takes 40 town minutes, and baking takes another 25. Pastry hygiene rules apply: hand wash first, benches clean, ovens guarded. This is a game, not a live oven controller.</p>
       <p><b>Town time:</b> ${esc(s.time)}, day ${fmt(s.day)} · ${s.bakeryOpen ? 'shop open' : 'shop closed'} · ${s.working.length} baker(s) on shift now</p>
       <h3>What's in the bakery</h3>
       <p><b>Flour:</b> ${fmt(s.flour)} bags · <b>eggs:</b> ${fmt(s.eggs)} · <b>milk:</b> ${fmt(s.milk)} · <b>lamb:</b> ${fmt(s.meat)} · <b>veg:</b> ${fmt(s.vegetables)}</p>
@@ -28,10 +28,6 @@ export function bakeryKitchenPanel(life, note = '') {
       <p><b>Your batch:</b> ${esc(stage)}</p>
       <p><b>Bakers:</b> ${roster}</p>
       <p class="dim">The bakery also bakes by itself every hour while the bakers work. A hand-run batch is limited to one per town day.</p>`,
-    actions: [
-      { label: 'Mix a batch (2 flour bags)', run: run('mix') },
-      { label: 'Put proofed dough in the oven', run: run('oven') },
-      { label: 'Unload eight finished loaves', run: run('unload') },
-    ],
+    actions: [],
   };
 }
