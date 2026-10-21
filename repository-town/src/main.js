@@ -612,6 +612,12 @@ async function start() {
         return;
       }
       const thing = nearThing, request = ++interactionRequest, house = inside;
+      if(thing.act?.do==='soy-action'){
+        const result=life.soyAction(inside?.place?.id,thing.act.action);
+        status(result.message);
+        if(result.ok)inside?.soyVisuals?.();
+        return;
+      }
       if(thing.act?.do==='sleep') {
         if(inside?.place?.id==='hotel') {
           const room=Number(thing.act.room)||null;
@@ -870,6 +876,7 @@ async function start() {
       :[];
     const view = mode === 'house' && inside?.view ? inside.view.place(camera, outdoorCam) : null;
     townLife.update(dt, t, { player, mode, overview, camera, talkingTo, view });
+    inside?.soyVisuals?.();
     if(mode==='house'&&inside?.bakeryImmersion)inside.bakeryImmersion.update(dt,t);
     emergencyVisuals.update(t);
     const n=life.needsReport();

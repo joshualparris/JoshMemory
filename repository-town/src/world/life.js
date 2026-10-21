@@ -1,4 +1,5 @@
 import {workAssetFault} from './occupation-work.js';
+import {soyState,soyAction,soyHourly,soyReport,takeSoyShipment,deliverSoyShipment} from './soy-chain.js';
 import { shopService } from './shop-attendance.js';
 import { coldChainHour, shopWasteDay } from './cold-chain.js';
 import { COUNTERS, joinLine, tickCounter, placeOrder, readyOrders } from './counter-queue.js';
@@ -53,6 +54,8 @@ export const FIELD_Z0 = ROAD(7) + 8, FIELD_Z1 = ROAD(7) + 34;  // farm strip sou
 
 export const GOODS = {
   oatmilk:{name:'Oat drink',unit:'bottle',price:4},
+  soybeans:{name:'food-grade soybeans',unit:'bag',price:5},
+  soymilk:{name:'chilled soy drink (SOY allergen)',unit:'carton',price:5},
   grain: { name: 'grain', unit: 'bag', price: 2 },
   flour: { name: 'flour', unit: 'bag', price: 4 },
   bread: { name: 'bread', unit: 'loaf', price: 5 },
@@ -100,7 +103,7 @@ export const PLACE_DEFS = [
   { col: 'G', id: 'hall', name: 'Town Hall', kind: 'hall', opens: 9 * 60, closes: 17 * 60, target: { parts: 10 } },
   { col: 'H', id: 'store', name: 'General Store', kind: 'shop', sells: ['eggs', 'milk', 'flour', 'tea', 'coffee', 'bread'], opens: 7 * 60, closes: 19 * 60, target: { eggs: 20, milk: 20, flour: 10, tea: 10, coffee: 10, bread: 10 } },
   { col: 'I', id: 'bakery', name: 'Bakery', kind: 'shop', sells: ['bread', 'pie'], opens: 6 * 60, closes: 18 * 60, target: { flour: 12, eggs: 6, milk: 6, lamb: 6, veg: 6 } },
-  { col: 'J', id: 'cafe', name: 'Commit Café', kind: 'cafe', opens: 6 * 60 + 30, closes: 16 * 60, target: { bread: 10, eggs: 10, milk: 10, oatmilk:6, coffee: 6, tea:6, fruit:8, veg: 6, pie: 6 } },
+  { col: 'J', id: 'cafe', name: 'Commit Café', kind: 'cafe', opens: 6 * 60 + 30, closes: 16 * 60, target: { bread: 10, eggs: 10, milk: 10, oatmilk:6, soymilk:8, coffee: 6, tea:6, fruit:8, veg: 6, pie: 6 } },
   { col: 'K', id: 'greengrocer', name: 'Greengrocer', kind: 'shop', sells: ['veg', 'fruit'], opens: 8 * 60, closes: 18 * 60, target: { veg: 24, fruit: 20 } },
   { col: 'L', id: 'butcher', name: 'Butcher', kind: 'shop', sells: ['lamb'], opens: 8 * 60, closes: 17 * 60 + 30, target: { lamb: 16 } },
   { col: 'M', id: 'square', name: 'Market Square', kind: 'park', opens: 0, closes: 24 * 60 },
@@ -117,6 +120,8 @@ export const PLACE_DEFS = [
   { col: 'X', id: 'garden', name: 'Market Garden', kind: 'farm', makes: 'veg', opens: 6 * 60, closes: 15 * 60 },
   { col: 'Y', id: 'silo', name: 'Wheat Farm', kind: 'farm', makes: 'grain', opens: 6 * 60, closes: 16 * 60 },
   { col: 'Z', id: 'farmhouse', name: 'Farmhouse', kind: 'home', opens: 0, closes: 24 * 60 },
+  {col:'B',side:'south',id:'soyfarm',name:'Macquarie Soybean Farm',kind:'farm',makes:'soybeans',opens:6*60,closes:16*60},
+  {col:'C',side:'south',id:'soyplant',name:'Macquarie Plant Drinks',kind:'industry',opens:7*60,closes:17*60,target:{soybeans:16}},
   // Across the road from the high street (south side): finance, utilities and industry.
   { col: 'G', side: 'south', id: 'bank', name: 'Community Bank', kind: 'bank', opens: 9 * 60, closes: 16 * 60 },
   { col: 'I', side: 'south', id: 'hotel', name: 'Railway Hotel', kind: 'hotel', opens: 0, closes: 24 * 60 },
@@ -152,7 +157,7 @@ const JOBS = [
   ['mayor', 'hall', 9 * 60, 16 * 60], ['station master', 'depot', 6 * 60, 15 * 60], ['programmer', 'home', 9 * 60, 17 * 60],
   ['programmer', 'home', 10 * 60, 18 * 60], ['retired', 'square', 9 * 60, 12 * 60], ['student', 'school', 8 * 60 + 30, 15 * 60],
   ['student', 'school', 8 * 60 + 30, 15 * 60], ['artist', 'square', 10 * 60, 15 * 60], ['real estate agent', 'realty', 9 * 60, 17 * 60],
-  ['farmer', 'silo', 7 * 60, 15 * 60], ['grocer', 'greengrocer', 8 * 60, 16 * 60],
+  ['soybean grower', 'soyfarm', 7 * 60, 16 * 60], ['plant-drink technician', 'soyplant', 8 * 60, 17 * 60],
   ['power operator', 'power', 6 * 60, 18 * 60], ['water operator', 'waterworks', 7 * 60, 15 * 60], ['recycler', 'recycling', 7 * 60, 15 * 60],
   ['firefighter', 'fire', 8 * 60, 18 * 60], ['bank teller', 'bank', 8 * 60 + 30, 16 * 60 + 30], ['foundry worker', 'foundry', 7 * 60, 15 * 60],
 ];
@@ -343,6 +348,9 @@ export class TownLife {
       if (front) p.field.access = { gateX: p.x, backZ: FIELD_Z0 + SOUTH_SITE_DEPTH + 1.5, aisleX: front.x + 9.5 };
     }
     this.place('mill').out.flour = 6;
+    this.place('soyfarm').out.soybeans=12;
+    this.place('soyplant').stock.soybeans=0;
+    this.place('cafe').stock.soymilk=0;
     this.place('bakery').out = { bread: 8, pie: 4 };
     this.place('depot').out = { coffee: 12, tea: 10, parcel: 6, fuel: 30, ore: 10 };
     Object.assign(this.place('power').stock, { fuel: 120 });
@@ -393,6 +401,9 @@ export class TownLife {
     this.parcels = [];   // { coordinate, x, z, from } waiting on doorsteps
     this.obstacles = []; // set by the renderer each frame: [{x, z}] (the player)
     for (const t of this.trucks) t.driver = this.villagers.find((v) => v.job === 'truck driver' && !this.trucks.some((o) => o.driver === v)) || null;
+    soyState(this);
+    this.place('soyfarm').till=200;
+    this.place('soyplant').till=300;
     createGovernment(this);
     initialisePublicLife(this);
     this.civic.emergency=initialEmergencyState();
@@ -684,6 +695,8 @@ export class TownLife {
     return `The ${p.name} buys it back for $${pay}.`;
   }
   eatItem(good) { return eatPlayer(this,good); }
+  soyAction(site,action){return soyAction(this,site,action);}
+  soyReport(){return soyReport(this);}
   orderCafe(itemId) { return orderCafe(this,itemId); }
   // The visitor's ticket is called: a café order is brought to the table, a menu dish goes in the bag.
   collectOrder(o) {
@@ -762,7 +775,7 @@ export class TownLife {
   everyHour() {
     const at = (id) => this.villagers.filter((v) => v.work === id && v.step?.kind === 'work');
     for (const p of this.places.values()) {
-      if (p.kind === 'farm') {
+      if (p.kind === 'farm' && p.id!=='soyfarm') {
         p.growth = clamp(p.growth + (this.isDay() ? ({ rainy: 0.06, sunny: 0.04, cloudy: 0.035, windy: 0.03 })[this.civic.weather] : 0.01), 0, 1);
         const hands = at(p.id).length;
         // Farms stop picking once their shed is full (60), so unsold produce doesn't pile up forever.
@@ -776,6 +789,7 @@ export class TownLife {
     }
     const h = Math.floor(this.minute / 60);
     this.utilitiesHour(h, at);
+    soyHourly(this);
     const powered = this.gridPowered('bakery');
     const mill = this.place('mill');
     const batch = Math.min(2, Math.floor((mill.stock.grain || 0) / 3));
@@ -1018,7 +1032,8 @@ export class TownLife {
   // Finds the most useful load: a destination short of a good that a source has spare.
   pickJob(t) {
     const routes = [
-      ['silo', 'grain', 'mill'], ['silo', 'grain', 'coop'], ['mill', 'flour', 'bakery'], ['mill','oatmilk','cafe'], ['mill', 'flour', 'store'],
+      ['soyfarm','soybeans','soyplant'], ['soyplant','soymilk','cafe'],
+      ['silo', 'grain', 'mill'], ['silo', 'grain', 'coop'],  ['mill', 'flour', 'bakery'], ['mill','oatmilk','cafe'], ['mill', 'flour', 'store'],
       ['bakery', 'bread', 'store'], ['bakery', 'bread', 'cafe'], ['bakery', 'pie', 'cafe'], ['bakery', 'pie', 'pub'], ['bakery', 'bread', 'pub'],
       ['garden', 'veg', 'greengrocer'], ['garden', 'veg', 'bakery'], ['garden', 'veg', 'pub'], ['garden', 'veg', 'cafe'], ['orchard', 'fruit', 'greengrocer'],
       ['dairy', 'milk', 'store'], ['dairy', 'milk', 'cafe'], ['dairy', 'milk', 'bakery'], ['coop', 'eggs', 'store'], ['coop', 'eggs', 'cafe'], ['coop', 'eggs', 'bakery'],
@@ -1029,7 +1044,8 @@ export class TownLife {
     let best = null;
     for (const [from, good, to] of routes) {
       const src = this.place(from), dst = this.place(to);
-      const have = src.out[good] || 0, need = (dst.target?.[good] || 0) - (dst.stock[good] || 0);
+      // Soy growers always hold back two certified bags for the next sowing; a truck may not strip their seed reserve.
+      const have = good==='soybeans'&&from==='soyfarm'?Math.max(0,(src.out[good]||0)-2):(src.out[good]||0), need = (dst.target?.[good] || 0) - (dst.stock[good] || 0);
       if (have < 3 || need < 3 || this.trucks.some((o) => o !== t && o.job?.to === to && o.job?.good === good)) continue;
       const score = need / (dst.target[good] || 1) + this.rand() * 0.1;
       if (!best || score > best.score) best = { from, to, good, n: Math.min(20, have, need), score };
@@ -1048,19 +1064,24 @@ export class TownLife {
     const src = this.place(t.job.from), dst = this.place(t.job.to), g = t.job.good;
     if (t.leg === 'pickup') {
       const n = Math.min(t.job.n, src.out[g] || 0);
-      src.out[g] = (src.out[g] || 0) - n; t.load = { good: g, n };
+      if(g==='soymilk'){
+        const lots=takeSoyShipment(this,n);
+        if(!lots){t.job=null;t.path=[];t.state='soy shipment unavailable';return;}
+        t.load={good:g,n,soyLots:lots,loadedAt:this.day*1440+this.minute};
+      }else{src.out[g] = (src.out[g] || 0) - n; t.load = { good: g, n };}
       t.wait = 4; t.leg = 'deliver'; t.state = `delivering ${amount(g, n)} to the ${dst.name}`;
       t.path = this.routeTruck(t, t.job.to);
       if (!n) { t.job = null; t.path = []; t.leg = null; t.state = 'found nothing to collect, looking for another job'; }
     } else {
       const n = t.load?.n || 0;
-      dst.stock[g] = (dst.stock[g] || 0) + n;
+      const safe=g!=='soymilk'||deliverSoyShipment(this,t);
+      if(safe)dst.stock[g] = (dst.stock[g] || 0) + n;
       // The buyer pays the supplier wholesale (half retail); the council pays for public stores.
-      const cost = n * GOODS[g].price * 0.5, payer = PUBLIC.has(dst.id) || dst.kind === 'utility' ? null : dst;
+      const cost = (safe?n:0) * GOODS[g].price * 0.5, payer = PUBLIC.has(dst.id) || dst.kind === 'utility' ? null : dst;
       const paid = payer ? Math.min(cost, Math.max(0, payer.till)) : Math.min(cost, this.civic.treasury);
       if (payer) payer.till -= paid; else this.civic.treasury -= paid;
       src.till += paid;
-      this.stats.deliveries++; this.stats.delivered[g] = (this.stats.delivered[g] || 0) + n;
+      this.stats.deliveries++; this.stats.delivered[g] = (this.stats.delivered[g] || 0) + (safe?n:0);
       if (n >= 8 || this.rand() < 0.3) this.log(`${t.driver?.name || 'A truck'} delivered ${amount(g, n)} to the ${dst.name}.`);
       t.load = null; t.job = null; t.wait = 4; t.state = 'unloaded, looking for the next job';
     }

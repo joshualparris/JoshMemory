@@ -68,6 +68,20 @@ async function play(kind,options) {
   await shot('04-cafe-interaction');
   assert(await page.evaluate(()=>window.__town.exitShop()),kind+': café exit failed');
   await shot('05-back-in-town');
+  // Visual acceptance: both new workplaces must exist in the rendered town,
+  // load without errors, show their own machinery and have approachable controls.
+  for(const [site,minControls] of [['soyfarm',4],['soyplant',7]]){
+    assert(await page.evaluate(id=>window.__town.enterShop(id),site),kind+': cannot enter '+site);
+    await page.waitForFunction(()=>window.__town.state().mode==='house'&&window.__town.state().calls>0,null,{timeout:15000});
+    const state=await page.evaluate(()=>window.__town.state());
+    const equipment=state.interactables.filter(i=>i.do==='soy-action');
+    assert.equal(equipment.length,minControls,site+': expected distinct working 3D machinery');
+    assert(await page.evaluate(key=>window.__town.approach(key),equipment[0].key),
+      kind+': soybean equipment physically obstructed at '+site);
+    await shot('06-'+site+'-equipment');
+    assert(await page.evaluate(()=>window.__town.exitShop()),kind+': '+site+' door/exit obstructed');
+  }
+  await shot('07-after-soy-farm-and-plant');
   assert.equal(errors.length,0,kind+': browser errors '+errors.join(' | '));
   rec.ok=true;
  }catch(e){

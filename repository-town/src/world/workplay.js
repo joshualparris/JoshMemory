@@ -78,11 +78,12 @@ export function queueCafeCustomer(t,v){
  const table=[1,2,3,4,5,6].find(n=>!busy.some(o=>o.table===n));
  const p=t.place('cafe'),choices=FULL_WORK_MENU.filter(r=>v.wallet>=r.price);
  if(!choices.length)return null;
- const diet=v.id%7===0?'vegan':v.id%7===1?'gluten-free':'standard',milk=diet==='vegan'?'oat':'dairy';
- const suitable=choices.filter(r=>diet!=='vegan'||(!r.ingredients.eggs&&!r.ingredients.pie)).filter(r=>diet!=='gluten-free'||!r.ingredients.bread).filter(r=>Object.entries(orderRecipe({item:r.id,diet,milk}).ingredients).every(([g,n])=>(p.stock[g]||0)>=n));
+ const diet=v.id%11===9?'soy-free':v.id%7===0?'vegan':v.id%7===1?'gluten-free':'standard',milk=diet==='vegan'&&(v.id%2===0)?'soy':diet==='vegan'||diet==='soy-free'?'oat':'dairy';
+ const suitable=choices.filter(r=>diet!=='vegan'||(!r.ingredients.eggs&&!r.ingredients.pie)).filter(r=>diet!=='soy-free'||!r.ingredients.soymilk).filter(r=>diet!=='gluten-free'||!r.ingredients.bread).filter(r=>Object.entries(orderRecipe({item:r.id,diet,milk}).ingredients).every(([g,n])=>(p.stock[g]||0)>=n));
  if(!suitable.length)return null;
  const r=suitable[Math.abs(v.id+c.next-1)%suitable.length];
- const o={id:c.next++,customer:v.id,name:v.name,item:r.id,table,state:'queue',step:0,quality:[],created:now(t),diet,milk,items:[r.id],patience:90,chosenMilk:null};
+ const selectedMilk=r.id.startsWith('soy-')?'soy':milk;
+ const o={id:c.next++,customer:v.id,name:v.name,item:r.id,table,state:'queue',step:0,quality:[],created:now(t),diet,milk:selectedMilk,items:[r.id],patience:90,chosenMilk:null};
  const second=suitable.find(x=>x.id!==r.id&&(['food','oven'].includes(x.kind)!==['food','oven'].includes(r.kind)));
  if(c.next%3===0&&second){const pair={...o,items:[r.id,second.id]};const bundle=orderRecipe(pair);if(v.wallet>=bundle.price&&Object.entries(bundle.ingredients).every(([g,n])=>(p.stock[g]||0)>=n))o.items.push(second.id);}
  const final=orderRecipe(o);if(!Object.entries(final.ingredients).every(([g,n])=>(p.stock[g]||0)>=n))return null;
@@ -130,7 +131,8 @@ export function useCafe(t,action,arg,score){
  }
  if(!o)return result(false,'Select a ticket on the order rail first.');
  const r=orderRecipe(o);
- if(action==='milk'){if(!['accepted','preparing'].includes(o.state)||o.reserved)return result(false,'Milk selection is locked once preparation starts.');if(arg!==o.milk)return result(false,'Ticket requests '+o.milk+' milk. Choose that option; ingredients and wages are unchanged.');o.chosenMilk=arg;return result(true,'Correct '+arg+' milk jug selected.');}
+ if(action==='milk'){if(!['accepted','preparing'].includes(o.state)||o.reserved)return result(false,'Milk selection is locked once preparation starts.');if(arg!==o.milk)return result(false,'Ticket requests '+o.milk+' milk. Choose that option; ingredients and wages are unchanged.');
+ if(arg==='soy'&&o.diet==='soy-free')return result(false,'Soy is an allergen for this guest. Stop and request a safe alternative.');o.chosenMilk=arg;return result(true,'Correct '+arg+' milk jug selected.');}
  if(action==='prepare'){
   if(!['accepted','preparing'].includes(o.state))return result(false,'This order is not waiting for preparation.');
   const station=r.steps[o.step]?.[3]||(['food','oven'].includes(r.kind)?'kitchen':'barista');

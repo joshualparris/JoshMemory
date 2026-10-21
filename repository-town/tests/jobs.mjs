@@ -15,7 +15,7 @@ const run = (m) => { for (let i = 0; i < m; i += 0.5) { if (onDuty) staff(onDuty
 const task = (k) => { if (onDuty) staff(onDuty); return t.doTask(k); };
 const total = () => me.wallet + me.bank + t.civic.treasury + f().federal + f().state + [...t.places.values()].reduce((s, p) => s + p.till, 0);
 
-assert.equal(JOB_BOARD.length, 10);
+assert.equal(JOB_BOARD.length, 12);
 assert.match(t.startJob('nope').message, /Unknown/);
 t.place('store').till=500;
 assert.match(t.startJob('store-stocker').message, /Shift started/, 'store is open at 10:00');
