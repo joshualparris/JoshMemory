@@ -29,7 +29,7 @@ export function openingHoursLabel(place) {
   return `${SUPERVISED.has(place.id)||RECEPTION_HOURS[place.id]?'RECEPTION':'OPEN'} ${CLOCK(opens)}-${CLOCK(closes)}`;
 }
 export function onSiteWorkers(town, place) {
-  return (town.villagers || []).filter(v => workingAt(v, place.id));
+  return (town.villagers || []).filter(v => workingAt(v, place));
 }
 export function facilityAccess(town, place) {
   if (!place) return { allowed:false, reason:'unknown', message:'This entrance is unavailable.' };
