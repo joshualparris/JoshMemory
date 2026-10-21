@@ -363,22 +363,58 @@ function part(geo, color, sx, sy, sz, x, y, z, parent) {
 }
 
 // A jointed figure: legs and arms hang from pivots so they can swing while walking.
+// Share simple rounded geometry across the whole simulated population. From a
+// phone's camera distance the old block-only torsos looked like floating boxes.
+const FIGURE_TORSO = new THREE.CylinderGeometry(0.24, 0.18, 1, 8);
+const FIGURE_LIMB = new THREE.CylinderGeometry(0.55, 0.7, 1, 7);
+
+// A complete, recognisable low-poly person with a face, hair, hands and shoes.
+// The existing leg/arm/head pivots are retained for walking and sitting.
 export function makePerson(seed, shirt, trousers) {
   const g = new THREE.Group();
   const skin = SKIN[seed % SKIN.length], hair = HAIR[(seed >> 2) % HAIR.length];
-  const limb = (x, y, color, len, w) => {
+  const outfit = new THREE.Group(); outfit.userData.isOutfit = true; g.add(outfit);
+  const limb = (x, y, color, len, width, leg = false) => {
     const pivot = new THREE.Group(); pivot.position.set(x, y, 0); g.add(pivot);
-    part(BOX, color, w, len, w, 0, -len / 2, 0, pivot);
+    part(FIGURE_LIMB, color, width, len, width, 0, -len / 2, 0, pivot);
+    if (leg) {
+      // Feet are firmly connected to the legs, not separate hovering cubes.
+      part(BALL, 0x292b31, 0.115, 0.085, 0.18, 0, -len + 0.045, 0.075, pivot);
+    } else {
+      part(BALL, skin, 0.078, 0.09, 0.078, 0, -len - 0.035, 0, pivot);
+    }
     return pivot;
   };
-  const legs = [limb(-0.11, 0.82, trousers, 0.8, 0.16), limb(0.11, 0.82, trousers, 0.8, 0.16)];
-  part(BOX, shirt, 0.46, 0.62, 0.26, 0, 1.12, 0, g);
-  const arms = [limb(-0.31, 1.4, shirt, 0.56, 0.12), limb(0.31, 1.4, shirt, 0.56, 0.12)];
-  for (const a of arms) part(BALL, skin, 0.065, 0.065, 0.065, 0, -0.6, 0, a);
-  const head = new THREE.Group(); head.position.set(0, 1.68, 0); g.add(head);
-  part(BALL, skin, 0.17, 0.17, 0.17, 0, 0, 0, head);
-  part(BALL, hair, 0.175, 0.1, 0.175, 0, 0.08, -0.02, head);
-  for (const x of [-0.06, 0.06]) part(BALL, 0x1d1d1d, 0.025, 0.025, 0.025, x, 0.02, 0.155, head);
+  const legs = [
+    limb(-0.135, 0.87, trousers, 0.77, 0.19, true),
+    limb(0.135, 0.87, trousers, 0.77, 0.19, true),
+  ];
+  part(FIGURE_TORSO, shirt, 1, 0.66, 0.95, 0, 1.18, 0, outfit);
+  part(BALL, shirt, 0.18, 0.14, 0.13, 0, 0.90, 0, outfit); // waist
+  // A light neckline separates the body visually from a larger, expressive head.
+  part(BALL, skin, 0.09, 0.105, 0.09, 0, 1.54, 0, outfit);
+  const arms = [
+    limb(-0.305, 1.41, shirt, 0.48, 0.145),
+    limb(0.305, 1.41, shirt, 0.48, 0.145),
+  ];
+  const head = new THREE.Group(); head.position.set(0, 1.75, 0); g.add(head);
+  part(BALL, skin, 0.225, 0.245, 0.205, 0, 0, 0, head);
+  // Layered hair cap, ears and a nose ensure faces read from oblique angles.
+  part(BALL, hair, 0.24, 0.13, 0.215, 0, 0.165, -0.018, head);
+  if (seed % 3 === 0) part(BALL, hair, 0.235, 0.16, 0.11, 0, 0.07, -0.13, head);
+  for (const side of [-1,1]) {
+    part(BALL, skin, 0.043, 0.076, 0.055, side * 0.221, -0.005, 0, head);
+    part(BALL, 0x26232a, 0.028, 0.033, 0.02, side * 0.09, 0.035, 0.188, head);
+  }
+  part(BALL, skin, 0.045, 0.053, 0.065, 0, -0.05, 0.193, head);
+  // Small uniform detail or apron for variety: these are clothed customers,
+  // not traffic-coloured placeholder boxes.
+  if (seed % 4 === 0) {
+    part(BOX, 0xeee0c0, 0.23, 0.31, 0.012, 0, 1.11, 0.187, outfit);
+    part(BOX, 0xb7aa99, 0.025, 0.19, 0.019, 0, 1.26, 0.207, outfit);
+  } else {
+    part(BALL, 0xf0e5d6, 0.023, 0.023, 0.013, 0, 1.37, 0.193, outfit);
+  }
   return { group: g, legs, arms, head };
 }
 
