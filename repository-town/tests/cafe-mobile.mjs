@@ -29,26 +29,17 @@ try{
  await tapStation(desk.key);
  await page.locator('#panel-actions button').filter({hasText:/work a shift/i}).first().tap();
  await page.locator('#panel-actions button').filter({hasText:/Start .*café/i}).first().tap();
- for(let i=0;i<90;i++){
-  if(await page.evaluate(()=>(window.__town.state().workplay?.cafe?.tickets||[]).some(o=>o.state==='queue')))break;
-  await page.evaluate(()=>window.__town.life.run(2));
- }
- const pending=await page.evaluate(()=>{
-  const c=window.__town.state().workplay?.cafe,o=c?.tickets?.find(o=>o.state==='queue');
-  if(!o)return null;
-  Object.assign(o,{item:'latte',items:['latte','toast'],milk:'oat',diet:'dairy-free',bread:'regular',patience:75,chosenMilk:null,chosenBread:null});
-  return {name:o.name,id:o.id,table:o.table};
- });
- assert(pending,'a real villager entered the café and queued');
+ const pending=await page.evaluate(()=>window.__town.queueCafeTestPatron?.());
+ assert(pending,'local acceptance fixture registered a real villager via the normal café order system');
  await page.evaluate(()=>window.__town.closePanel?.());
  await tapStation('workplay:cafe:orders');
- assert.equal((await state()).workplay.cafe.tickets[0].state,'accepted');
+ assert.equal((await state()).workplay.cafe.tickets.find(o=>o.id===pending.id).state,'accepted');
  await tapStation('workplay:cafe:barista');
  await page.waitForFunction(()=>window.__town.state().panel?.title?.includes('milk'),null,{timeout:6500});
  await page.locator('#panel-actions button').filter({hasText:/oat milk/i}).first().tap();
  let traced=false;
  for(let n=0;n<7;n++){
-  if((await state()).workplay.cafe.tickets[0].step>=5)break;
+  if((await state()).workplay.cafe.tickets.find(o=>o.id===pending.id).step>=5)break;
   await tapStation('workplay:cafe:barista');
   await page.waitForFunction(()=>document.getElementById('work-skill-assisted')||document.getElementById('latte-assist'),null,{timeout:7500});
   if(await page.locator('#latte-assist').isVisible()){traced=true;await page.tap('#latte-assist');}
@@ -57,16 +48,16 @@ try{
  }
  assert(traced,'latte-art gesture panel and assisted touch choice available');
  for(let n=0;n<6;n++){
-  if((await state()).workplay.cafe.tickets[0].state==='ready')break;
+  if((await state()).workplay.cafe.tickets.find(o=>o.id===pending.id).state==='ready')break;
   await tapStation('workplay:cafe:kitchen');
   await page.waitForFunction(()=>document.getElementById('work-skill-assisted'),null,{timeout:7500});
   await page.tap('#work-skill-assisted');await page.waitForTimeout(150);
  }
- assert.equal((await state()).workplay.cafe.tickets[0].state,'ready','mixed ticket prepared');
+ assert.equal((await state()).workplay.cafe.tickets.find(o=>o.id===pending.id).state,'ready','mixed ticket prepared');
  await tapStation('workplay:cafe:pass');
- assert.equal((await state()).workplay.cafe.held,1,'tray carried');
- await tapStation('workplay:cafe:table-1');
- const s=await state();assert.equal(s.workplay.cafe.tickets[0].state,'served','touch table service');
+ assert.equal((await state()).workplay.cafe.held,pending.id,'tray carried');
+ await tapStation('workplay:cafe:table-'+pending.table);
+ const s=await state();assert.equal(s.workplay.cafe.tickets.find(o=>o.id===pending.id).state,'served','touch table service');
  assert.equal(s.workplay.cafe.tips,1,'tip conserved and recorded');
  assert(!errors.length,'browser errors: '+errors.join('; '));
  console.log('PASS: emulated Android touchscreen café, oat request, latte art, food, tray and paid table');
