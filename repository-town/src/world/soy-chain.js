@@ -151,6 +151,8 @@ export function soyHourly(t){
  s.lastAutoHour=stamp;
  const working=id=>t.villagers.some(v=>v.work===id&&v.step?.kind==='work'&&!v.path?.length);
  const f=s.field,h=Math.floor(t.minute/60);
+ // Actual visible crop grows, yellows and disappears on harvest rather than being permanent scenery.
+ t.place('soyfarm').growth=f.phase==='growing'?Math.max(.05,Math.min(1,(t.day-f.plantedDay)/SOY_GROW_DAYS)):0;
  // An on-site professional does regular crop husbandry, rather than minting grain every hour.
  if(working('soyfarm')&&t.open(t.place('soyfarm'))){
   if(f.phase==='fallow'&&h===8&&(t.place('soyfarm').out.soybeans||0)>=2)soyAction(t,'soyfarm','sow',true);
