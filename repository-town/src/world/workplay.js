@@ -241,30 +241,3 @@ export function tickWorkplay(t){
  }
  if(a?.hands?.earned)for(const task of a.hands.earned)if(!a.tasks.includes(task))t.doTask(task);
 }
-+r.price+' paid to the café.'+(tip?' $1 tip earned.':''));
- }
- if(action==='clear'){
-  if(Number(arg)!==o.table||!['dirty','served'].includes(o.state))return result(false,'There are no finished dishes from this ticket at that table.');
-  if(o.state==='served'&&now(t)-o.servedAt<8)return result(false,o.name+' is still eating. Clear the table afterwards.');
-  o.state='cleared';c.cleared++;t.rubbish(1);mark(t,'table-service');return result(true,'Crockery cleared. Table '+o.table+' is ready for the next customer.');
- }
- if(action==='cancel'){if(['served','dirty','cleared','cancelled'].includes(o.state))return result(false,'Only unserved orders can be cancelled.');cancelCafe(t,o);return result(true,'Order cancelled; no customer was charged.');}
- return result(false,'Unknown café task.');
-}
-export function tickWorkplay(t){
- tickStoreBatches(t);
- const state=t.civic.workplay;if(!state)return;
- const a=t.civic.jobs?.active;
- if(state.store.carton&&(!a||a.site!=='store'||a.day!==t.day)){
-  restoreBatch(t,state.store.carton);state.store.carton=null;
- }
- for(const o of state.cafe.tickets){
-  if(o.state==='served'&&now(t)-o.servedAt>=8)o.state='dirty';
-  if(['queue','accepted','preparing','ready','carrying'].includes(o.state)){
-   const v=t.villagers.find(v=>v.id===o.customer);
-   if(now(t)-o.created>(o.patience||90)){cancelCafe(t,o);o.reason='Customer patience elapsed';continue;}
-   if(!a||a.site!=='cafe'||a.day!==t.day||t.playerAt!=='cafe'||!v?.step||v.step.workTicket!==o.id)cancelCafe(t,o);
-  }
- }
- if(a?.hands?.earned)for(const task of a.hands.earned)if(!a.tasks.includes(task))t.doTask(task);
-}
