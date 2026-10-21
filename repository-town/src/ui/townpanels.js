@@ -208,7 +208,7 @@ function placePanelBase(life, id) {
   if (id === 'hall') return hallPanel(life);
   const open = life.open(p);
   const staff = life.villagers.filter((v) => v.work === id);
-  const here = life.villagers.filter((v) => workingAt(v,id));
+  const here = life.villagers.filter((v) => workingAt(v,p));
   const service = shopService(life,p), serving = service.available;
   const visitors = life.villagers.filter((v) => v.step?.at === id && v.step.kind !== 'work' && !v.path.length);
   const rows = [];
