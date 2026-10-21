@@ -214,7 +214,7 @@ export function useCafe(t,action,arg,score){
   delete v.step.queue;delete v.step.food;v.step.dur=12;
   o.state='served';o.servedAt=now(t);c.held=null;c.served++;o.reserved=false;
   t.log('Ticket '+o.id+': '+o.name+' served '+r.name+' at table '+o.table+'.');
-  return result(true,'Correct table! '+o.name+' received '+r.name+'. 
+  return result(true,'Correct table! '+o.name+' received '+r.name+'. $'+r.price+' paid to the café.'+(tip?' $1 tip earned.':''));
  }
  if(action==='clear'){
   if(Number(arg)!==o.table||!['dirty','served'].includes(o.state))return result(false,'There are no finished dishes from this ticket at that table.');
