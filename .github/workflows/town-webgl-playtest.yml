@@ -57,11 +57,18 @@ jobs:
         env:
           TOWN_PLAYTEST_URL: http://127.0.0.1:8091/
           LIBGL_ALWAYS_SOFTWARE: '1'
+      - name: Play real hosted production game in Chromium and Pixel 7 emulation
+        run: |
+          mv test-results/webgl-playtest test-results/webgl-playtest-built
+          node tests/webgl-playtest.mjs
+        env:
+          TOWN_PLAYTEST_URL: https://repository-town-claude-complete.vercel.app/
+          LIBGL_ALWAYS_SOFTWARE: '1'
       - name: Upload screenshots, 3D videos and state telemetry
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: town-webgl-playtest-${{ github.run_id }}
-          path: repository-town/test-results/webgl-playtest/
+          path: repository-town/test-results/webgl-playtest*/
           retention-days: 14
           if-no-files-found: warn
