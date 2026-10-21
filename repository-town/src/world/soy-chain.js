@@ -14,28 +14,38 @@ export function soyState(t){
 const record=(s,t,message)=>{s.history.unshift('Day '+t.day+' '+t.time()+': '+message);s.history.length=Math.min(32,s.history.length)};
 const powered=t=>t.gridPowered('industry')&&t.civic.supply.waterOk;
 const liquid=t=>t.place('waterworks').stock.water||0;
-export function soyAction(t,site,action){
+export function soyAction(t,site,action,automated=false){
  const s=soyState(t),farm=t.place('soyfarm'),plant=t.place('soyplant'),f=s.field,now=clock(t);
+ if(!automated&&!(t.playerAt===site&&t.civic.jobs?.active?.site===site))
+   return no('You must clock in to the soybean farm or plant shift before operating this equipment.');
+ const complete=(step,message)=>{
+   if(!automated){
+     const task={sow:'field-preparation',irrigate:'crop-irrigation',inspect:'crop-scouting',
+       clean:'intake-quality',grind:'wet-grinding',filter:'wet-grinding',pack:'pack-and-label'}[step];
+     if(task)t.doTask(task);
+   }
+   return complete(action,message);
+ };
  if(site==='soyfarm'){
   if(action==='sow'){
    if(f.phase!=='fallow')return no('A soybean crop is already growing. Rotate paddocks between harvests.');
    if((farm.out.soybeans||0)<2)return no('Keep two bags of viable, tested soybean seed for the next sowing.');
    farm.out.soybeans-=2;Object.assign(f,{phase:'growing',plantedDay:t.day,wateredDay:0,irrigations:0,scoutedDay:0,scouts:0});
-   record(s,t,'Two bags of certified seed allocated to the summer paddock; crop planted.');return ok('Soy planted in the irrigated paddock. This town uses a compressed seven-day growing season.');
+   record(s,t,'Two bags of certified seed allocated to the summer paddock; crop planted.');return complete(action,'Soy planted in the irrigated paddock. This town uses a compressed seven-day growing season.');
   }
   if(action==='irrigate'){
    if(f.phase!=='growing')return no('There is no live soybean crop to irrigate.');
    if(f.wateredDay===t.day)return no('Paddock already watered today.');
    if(!t.civic.supply.waterOk||liquid(t)<1)return no('Irrigation requires available treated water; the pumps or reservoir are unavailable.');
    t.place('waterworks').stock.water--;f.irrigations++;f.wateredDay=t.day;
-   record(s,t,'Irrigated soybean crop; one reservoir unit consumed.');return ok('Drip irrigation logged. Water was deducted from the working reservoir.');
+   record(s,t,'Irrigated soybean crop; one reservoir unit consumed.');return complete(action,'Drip irrigation logged. Water was deducted from the working reservoir.');
   }
   if(action==='inspect'){
    if(f.phase!=='growing')return no('No standing crop to inspect.');
    if(f.scoutedDay===t.day)return no('Crop was already scouted today.');
    f.scoutedDay=t.day;f.scouts++;
    const stress=f.irrigations<1?'Water stress risk.':'Leaf rust / pest check recorded; no obvious signs.';
-   record(s,t,'Soy crop scouted: '+stress);return ok(stress+' Harvest is possible from day '+(f.plantedDay+SOY_GROW_DAYS)+'.');
+   record(s,t,'Soy crop scouted: '+stress);return complete(action,stress+' Harvest is possible from day '+(f.plantedDay+SOY_GROW_DAYS)+'.');
   }
   if(action==='harvest'){
    if(f.phase!=='growing')return no('Plant a crop before harvesting.');
@@ -47,7 +57,7 @@ export function soyAction(t,site,action){
    farm.out.soybeans=(farm.out.soybeans||0)+yieldBags;
    Object.assign(f,{phase:'fallow',plantedDay:0});
    t.stats.harvested.soybeans=(t.stats.harvested.soybeans||0)+yieldBags;
-   record(s,t,'Harvested '+yieldBags+' bags of food-grade soybeans; '+lost+' bags lost to irrigation stress.');return ok('Harvest completed: '+yieldBags+' bags of dry beans to the shed. Two bags must be retained for the next planting.');
+   record(s,t,'Harvested '+yieldBags+' bags of food-grade soybeans; '+lost+' bags lost to irrigation stress.');return complete(action,'Harvest completed: '+yieldBags+' bags of dry beans to the shed. Two bags must be retained for the next planting.');
   }
   return no('Unknown soybean field task.');
  }
@@ -60,27 +70,27 @@ export function soyAction(t,site,action){
    plant.stock.soybeans-=2;t.place('waterworks').stock.water--;
    s.batch={id:'SOY-'+s.next++,stage:'cleaned',started:now,readyAt:now,beans:2,water:1};
    record(s,t,'Dry beans graded, damaged seeds rejected, washed and batch '+s.batch.id+' opened.');
-   return ok('Beans weighed, sorted and washed. Batch '+s.batch.id+' logged with one water unit used.');
+   return complete(action,'Beans weighed, sorted and washed. Batch '+s.batch.id+' logged with one water unit used.');
  }
  if(!b)return no('Begin at raw soybean intake; no batch in progress.');
  if(action==='soak'){
    if(b.stage!=='cleaned')return no('Beans must be graded and washed before soaking.');
    b.stage='soaking';b.readyAt=now+120;record(s,t,b.id+' placed in supervised covered hydration vessel.');
-   return ok('Hydration started. Covered, food-safe tank needs 120 town minutes before wet grinding.');
+   return complete(action,'Hydration started. Covered, food-safe tank needs 120 town minutes before wet grinding.');
  }
  if(action==='grind'){
    if(b.stage!=='soaking'||now<b.readyAt)return no('Beans need to finish the supervised soaking interval first.');
    if(!powered(t)||liquid(t)<1)return no('Grinding needs running power, potable process water and working pumps.');
-   t.place('waterworks').stock.water--;b.water++;b.stage='ground';return ok('Hydrated beans wet-ground with one additional process-water unit.');
+   t.place('waterworks').stock.water--;b.water++;b.stage='ground';return complete(action,'Hydrated beans wet-ground with one additional process-water unit.');
  }
  if(action==='filter'){
    if(b.stage!=='ground')return no('Wet grinding must be completed before filtering.');
-   b.stage='filtered';b.okara=1;return ok('Fine slurry filtered. Soy pulp separated and held for controlled disposal.');
+   b.stage='filtered';b.okara=1;return complete(action,'Fine slurry filtered. Soy pulp separated and held for controlled disposal.');
  }
  if(action==='heat'){
    if(b.stage!=='filtered')return no('Filter the soy extract before the heat-treatment stage.');
    if(!powered(t))return no('Safety interlock: no power or town water. Do not bypass the heat process.');
-   b.stage='heating';b.readyAt=now+30;return ok('Validated industrial heat cycle simulated; a 30-town-minute interlock prevents early release.');
+   b.stage='heating';b.readyAt=now+30;return complete(action,'Validated industrial heat cycle simulated; a 30-town-minute interlock prevents early release.');
  }
  if(action==='pack'){
    if(b.stage!=='heating'||now<b.readyAt)return no('Heat-treatment holding time incomplete. Uncooked soy extract must never be bottled.');
@@ -90,12 +100,12 @@ export function soyAction(t,site,action){
    s.lots.push(lot);plant.out.soymilk=(plant.out.soymilk||0)+lot.n;s.batch=null;
    s.waste++;t.rubbish(1);
    record(s,t,'Packaged six chilled soy-drink cartons labelled '+lot.id+' / SOY allergen / use-by Day '+lot.expiresDay+'.');
-   return ok('Six sealed soy-drink cartons chilled and labelled. Batch '+lot.id+'; SOY allergen and use-by Day '+lot.expiresDay+'.');
+   return complete(action,'Six sealed soy-drink cartons chilled and labelled. Batch '+lot.id+'; SOY allergen and use-by Day '+lot.expiresDay+'.');
  }
  if(action==='reject'){
    if(!b)return no('No unsealed batch remains.');
    s.batch=null;s.waste+=2;t.rubbish(2);record(s,t,'Rejected '+b.id+' and destroyed unsealed product.');
-   return ok('Batch '+b.id+' quarantined and discarded; reserved ingredients are not returned to stock.');
+   return complete(action,'Batch '+b.id+' quarantined and discarded; reserved ingredients are not returned to stock.');
  }
  return no('Unknown soy-processing operation.');
 }
@@ -143,16 +153,16 @@ export function soyHourly(t){
  const f=s.field,h=Math.floor(t.minute/60);
  // An on-site professional does regular crop husbandry, rather than minting grain every hour.
  if(working('soyfarm')&&t.open(t.place('soyfarm'))){
-  if(f.phase==='fallow'&&h===8&&(t.place('soyfarm').out.soybeans||0)>=2)soyAction(t,'soyfarm','sow');
+  if(f.phase==='fallow'&&h===8&&(t.place('soyfarm').out.soybeans||0)>=2)soyAction(t,'soyfarm','sow',true);
   if(f.phase==='growing'){
-   if(h===9&&(t.day-f.plantedDay)%2===0)soyAction(t,'soyfarm','irrigate');
-   if(h===11)soyAction(t,'soyfarm','inspect');
-   if(h===14&&t.day-f.plantedDay>=SOY_GROW_DAYS)soyAction(t,'soyfarm','harvest');
+   if(h===9&&(t.day-f.plantedDay)%2===0)soyAction(t,'soyfarm','irrigate',true);
+   if(h===11)soyAction(t,'soyfarm','inspect',true);
+   if(h===14&&t.day-f.plantedDay>=SOY_GROW_DAYS)soyAction(t,'soyfarm','harvest',true);
   }
  }
  if(working('soyplant')&&t.open(t.place('soyplant'))){
   const next=!s.batch?'clean':{cleaned:'soak',soaking:'grind',ground:'filter',filtered:'heat',heating:'pack'}[s.batch.stage];
-  if(next)soyAction(t,'soyplant',next);
+  if(next)soyAction(t,'soyplant',next,true);
  }
  reconcileCafeSoy(t);
  for(const [placeId,where] of [['soyplant','lots'],['cafe','cafeLots']]){
