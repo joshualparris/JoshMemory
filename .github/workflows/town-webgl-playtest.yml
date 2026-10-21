@@ -57,12 +57,15 @@ jobs:
         env:
           TOWN_PLAYTEST_URL: http://127.0.0.1:8091/
           LIBGL_ALWAYS_SOFTWARE: '1'
+      # PRs test their own built code, not an unrelated older Vercel deploy.
+      # Run the hosted acceptance separately after the release is published.
       - name: Play real hosted production game in Chromium and Pixel 7 emulation
+        if: github.event_name == 'workflow_dispatch'
         run: |
           mv test-results/webgl-playtest test-results/webgl-playtest-built
           node tests/webgl-playtest.mjs
         env:
-          TOWN_PLAYTEST_URL: https://repository-town-claude-complete.vercel.app/
+          TOWN_PLAYTEST_URL: https://parris-tech-services.github.io/Repository-town/
           LIBGL_ALWAYS_SOFTWARE: '1'
       - name: Upload screenshots, 3D videos and state telemetry
         if: always()
