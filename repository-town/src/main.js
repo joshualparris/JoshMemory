@@ -1,5 +1,6 @@
 import {occupationPanel} from './ui/occupation-panels.js';
 import {installWorkplay} from './world/workplay-view.js';
+import {queueCafeCustomer} from './world/workplay.js';
 import { mountCompanion } from './ui/companion.js';
 import * as THREE from 'three';
 import { CollisionWorld } from './engine/collision.js';
@@ -624,9 +625,18 @@ async function start() {
               return {...p,body:'<p><b>'+esc(msg)+'</b></p>'+p.body};
             }},{label:'Hotel reception',run:()=>placePanel(life,'hotel')}]},thing);
         } else {
-          openPanel({title:'Someone else’s bed',
-            body:'<p>This is a private home. Its residents need their beds to sleep. To stay overnight, book your own room at the Railway Hotel, I8.</p>',
-            actions:[]},thing);
+          const home=inside?.house?.coordinate;
+          const parcel=home&&life.civic.property?.parcels?.['H:'+home];
+          const accessible=parcel&&((life.civic.property.playerLease==='H:'+home&&parcel.tenant==='visitor')||(parcel.owner==='visitor'&&(!parcel.tenant||parcel.tenant==='visitor')));
+          if(accessible){
+            openPanel({title:'Your home · '+thing.label,
+              body:'<p>You have the right to occupy this home. Sleep here overnight without paying hotel charges; normal town bills and activity continue.</p>',
+              actions:[{label:'Sleep in your own bed',run:()=>{const msg=life.sleepHome(home),p=needsPanel(life);return {...p,body:'<p><b>'+esc(msg)+'</b></p>'+p.body};}}]},thing);
+          }else{
+            openPanel({title:'Someone else’s bed',
+              body:'<p>This is a private home. Its residents need their beds to sleep. Rent an available home, buy one with vacant possession, or book your own hotel room at the Railway Hotel, I8.</p>',
+              actions:[]},thing);
+          }
         }
         return;
       }
@@ -1147,6 +1157,24 @@ async function start() {
     answer(i) { const b = $('panel-actions').querySelectorAll('button')[i]; if (b) b.click(); return !!b; },
     closePanel,
   };
+
+  // Local browser acceptance fixture only. Production does not expose this
+  // mutation hook; it creates an actual TownLife villager café order.
+  if(['localhost','127.0.0.1'].includes(location.hostname)){
+    window.__town.queueCafeTestPatron=()=>{
+      if(inside?.place?.id!=='cafe'||life.civic.jobs?.active?.site!=='cafe')return null;
+      const v=life.villagers.find(v=>v.work!=='cafe'&&!v.step?.workTicket);
+      if(!v)return null;
+      v.wallet=Math.max(100,v.wallet||0);v.path=[];v.inside=true;
+      v.step={kind:'eatout',at:'cafe',dur:100,queue:{joined:life.day*1440+life.minute}};
+      const stock=life.place('cafe').stock;
+      for(const good of ['coffee','milk','oatmilk','soymilk','gfbread','bread','eggs','veg','pie','tea'])stock[good]=Math.max(40,stock[good]||0);
+      const o=queueCafeCustomer(life,v);
+      if(!o)return null;
+      Object.assign(o,{item:'latte',items:['latte','toast'],milk:'oat',diet:'dairy-free',bread:'regular',patience:75,chosenMilk:null,chosenBread:null});
+      return {id:o.id,name:o.name,table:o.table};
+    };
+  }
 
   $('loading').hidden = true;
   requestAnimationFrame(frame);
