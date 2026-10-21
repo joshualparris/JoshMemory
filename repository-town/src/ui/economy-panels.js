@@ -73,6 +73,8 @@ export function jobPanel(life, site, back) {
   const currentDef=active&&JOB_BOARD.find(x=>x.id===active.id);
   let body='<p><b>Employer:</b> '+esc(p.name)+' · <b>Time:</b> '+esc(life.time())+
     ' · <b>On duty:</b> '+esc(supervisors.map(x=>x.name).join(', ')||'no one right now')+'</p>';
+  if(site==='store')body+='<p>Receiving bay → carry real cartons → correct shelf. Quarantine the damaged batch, refill six units and count the visible marked sections.</p>';
+  if(site==='cafe')body+='<p>Take real customer orders → prepare drinks or food → collect trays → deliver to the correct numbered table → clear dishes. Choose tickets at the order rail.</p>';
   const actions=[];
   if(other){
     const employer=life.place(other.site);

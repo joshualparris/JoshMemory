@@ -1,3 +1,4 @@
+import {createSoundtrack,musicProfile} from './soundtrack.js';
 // Town sound, synthesised with WebAudio (no audio files): wind, rain and thunder, birdsong, magpies,
 // cicadas, crickets and frogs, a dog and a rooster, a murmur on the high street, trucks, running water at
 // the water works, the Town Hall bell, the train horn, doors and shop bells, relic chimes, per-room sound
@@ -9,10 +10,13 @@ const KEY = 'repository-town.sound';
 
 export function createAmbience() {
   let ctx = null, master = null, wind = null, street = null, rumble = null, rain = null, roof = null, cicada = null, cicadaLfo = null, water = null, engine = null, hum = null, humGain = null, murmur = null;
+  let music=null,musicBus=null,ambienceBus=null,effectsBus=null;
+  let mix={master:.7,music:.35,ambience:.7,effects:.8};
+  try{const stored=JSON.parse(localStorage.getItem('repository-town.audio-mix')||'{}');for(const k of Object.keys(mix))if(Number.isFinite(stored[k]))mix[k]=Math.max(0,Math.min(1,stored[k]));}catch{}
   let white = null, reverb = null, reverbSend = null, indoorsNow = false;
   let nextBird = 0, nextCricket = 0, nextRoom = 0, nextMagpie = 0, nextDog = 0, nextFrog = 0, nextRooster = 0, nextThunder = 0, nextDrip = 0, nextCrow = 0;
   let stepTimer = 0, lastStepPhase = null, foot = 0, wasAirborne = false, roosterDay = -1;
-  const debug = { steps: 0, surface: null, wet: false, landings: 0 };
+  const debug = { track:'', steps: 0, surface: null, wet: false, landings: 0 };
   let on = false; try { on = localStorage.getItem(KEY) === 'on'; } catch { /* storage blocked */ }
 
   function noiseBuffer(c, seconds = 2) {
@@ -25,7 +29,7 @@ export function createAmbience() {
     const src = c.createBufferSource(); src.buffer = buffer; src.loop = true;
     const f = c.createBiquadFilter(); f.type = filterType; f.frequency.value = freq; f.Q.value = q;
     const g = c.createGain(); g.gain.value = 0;
-    src.connect(f).connect(g).connect(to || master); src.start();
+    src.connect(f).connect(g).connect(to || ambienceBus); src.start();
     return { gain: g, filter: f };
   }
   // A small room impulse: decaying noise, ~0.55 s, used for indoor footsteps and clinks.
@@ -34,13 +38,16 @@ export function createAmbience() {
     for (let ch = 0; ch < 2; ch++) { const d = imp.getChannelData(ch); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6); }
     const conv = c.createConvolver(); conv.buffer = imp;
     const send = c.createGain(); send.gain.value = 0;
-    send.connect(conv).connect(master);
+    send.connect(conv).connect(effectsBus);
     return send;
   }
   function start() {
     if (ctx || !on) return;
     const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
-    ctx = new AC(); master = ctx.createGain(); master.gain.value = 0.5; master.connect(ctx.destination);
+    ctx = new AC(); master = ctx.createGain(); master.gain.value = mix.master*.7; master.connect(ctx.destination);
+    ambienceBus=ctx.createGain();effectsBus=ctx.createGain();musicBus=ctx.createGain();
+    ambienceBus.gain.value=mix.ambience;effectsBus.gain.value=mix.effects;musicBus.gain.value=mix.music;
+    ambienceBus.connect(master);effectsBus.connect(master);musicBus.connect(master);music=createSoundtrack(ctx,musicBus);
     const brown = noiseBuffer(ctx);
     white = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate); const wd = white.getChannelData(0);
     for (let i = 0; i < wd.length; i++) wd[i] = Math.random() * 2 - 1;
@@ -52,18 +59,18 @@ export function createAmbience() {
     rain = loop(ctx, white, 'bandpass', 4200, 0.4);                         // rain on grass and paving
     roof = loop(ctx, white, 'lowpass', 1100, 0.7);                          // rain on a roof, heard indoors
     water = loop(ctx, brown, 'bandpass', 1100, 1.4);                        // the water works and treatment tanks
-    const am = ctx.createGain(); am.gain.value = 0.5; am.connect(master);    // tremolo stage: the LFO swings it 0..1, so the buzz pulses
+    const am = ctx.createGain(); am.gain.value = 0.5; am.connect(ambienceBus);    // tremolo stage: the LFO swings it 0..1, so the buzz pulses
     cicada = loop(ctx, white, 'bandpass', 5400, 6, am);                      // summer cicadas
     cicadaLfo = ctx.createOscillator(); cicadaLfo.frequency.value = 38;
     const cl = ctx.createGain(); cl.gain.value = 0.5; cicadaLfo.connect(cl); cl.connect(am.gain); cicadaLfo.start();
-    hum = ctx.createOscillator(); hum.frequency.value = 100; humGain = ctx.createGain(); humGain.gain.value = 0; hum.connect(humGain).connect(master); hum.start();   // fridge and fluoro hum
+    hum = ctx.createOscillator(); hum.frequency.value = 100; humGain = ctx.createGain(); humGain.gain.value = 0; hum.connect(humGain).connect(ambienceBus); hum.start();   // fridge and fluoro hum
     engine = ctx.createOscillator(); engine.type = 'sawtooth'; engine.frequency.value = 42;
     const elp = ctx.createBiquadFilter(); elp.type = 'lowpass'; elp.frequency.value = 220; const eg = ctx.createGain(); eg.gain.value = 0;
-    engine.connect(elp).connect(eg).connect(master); engine.start(); engine = { osc: engine, gain: eg };   // a diesel idle for the nearest truck
+    engine.connect(elp).connect(eg).connect(ambienceBus); engine.start(); engine = { osc: engine, gain: eg };   // a diesel idle for the nearest truck
   }
 
   // ── one-shot building blocks ──
-  const out = (node, wet = 0) => { node.connect(master); if (wet > 0 && reverbSend) { const s = ctx.createGain(); s.gain.value = wet; node.connect(s).connect(reverbSend); } };
+  const out = (node, wet = 0) => { node.connect(effectsBus); if (wet > 0 && reverbSend) { const s = ctx.createGain(); s.gain.value = wet; node.connect(s).connect(reverbSend); } };
   // A burst of filtered noise, `dur` s long, starting `at` s from now.
   function burst(type, freq, q, dur, vol, at = 0, wet = 0, slide = 0) {
     const t = ctx.currentTime + at, src = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
@@ -134,7 +141,7 @@ export function createAmbience() {
     const f0 = 2200 + Math.random() * 2200, f1 = f0 * (0.7 + Math.random() * 0.8);
     o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + 0.09);
     g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.12);
-    o.connect(g).connect(master); o.start(t); o.stop(t + 0.14);
+    o.connect(g).connect(effectsBus); o.start(t); o.stop(t + 0.14);
   }
   // A cricket: a few fast pulses of filtered noise around 4.5 kHz.
   function cricket(vol) {
@@ -142,7 +149,7 @@ export function createAmbience() {
     src.buffer = white; f.type = 'bandpass'; f.frequency.value = 4300 + Math.random() * 600; f.Q.value = 18;
     g.gain.setValueAtTime(0, t);
     for (let i = 0; i < 4; i++) { g.gain.linearRampToValueAtTime(vol, t + i * 0.05 + 0.01); g.gain.linearRampToValueAtTime(0, t + i * 0.05 + 0.035); }
-    src.connect(f).connect(g).connect(master); src.start(t); src.stop(t + 0.25);
+    src.connect(f).connect(g).connect(effectsBus); src.start(t); src.stop(t + 0.25);
   }
   // A magpie's carolling: a run of flutey notes that glide, 6-9 of them.
   function magpie(vol) {
@@ -151,7 +158,7 @@ export function createAmbience() {
       const t = ctx.currentTime + i * 0.16, o = ctx.createOscillator(), g = ctx.createGain(), f = base * [1, 1.5, 1.25, 1.9, 1.5, 1.33, 2, 1.5, 1.2][i];
       o.type = 'sine'; o.frequency.setValueAtTime(f, t); o.frequency.linearRampToValueAtTime(f * (i % 2 ? 0.85 : 1.15), t + 0.13);
       g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.15);
-      o.connect(g).connect(master); o.start(t); o.stop(t + 0.17);
+      o.connect(g).connect(effectsBus); o.start(t); o.stop(t + 0.17);
     }
   }
   // A crow's long "aaah-aah-aaaah", sawtooth through a bandpass.
@@ -160,7 +167,7 @@ export function createAmbience() {
       const t = ctx.currentTime + at, o = ctx.createOscillator(), g = ctx.createGain(), bp = ctx.createBiquadFilter();
       o.type = 'sawtooth'; o.frequency.setValueAtTime(f0, t); o.frequency.linearRampToValueAtTime(f0 * 0.78, t + dur); bp.type = 'bandpass'; bp.frequency.value = 1300; bp.Q.value = 1.2;
       g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + 0.05); g.gain.setValueAtTime(vol, t + dur - 0.08); g.gain.linearRampToValueAtTime(0, t + dur);
-      o.connect(bp).connect(g).connect(master); o.start(t); o.stop(t + dur + 0.02);
+      o.connect(bp).connect(g).connect(effectsBus); o.start(t); o.stop(t + dur + 0.02);
     }
   }
   // A distant dog: two or three barks, each a short falling tone with a rasp of noise.
@@ -170,7 +177,7 @@ export function createAmbience() {
       const at = i * 0.32, t = ctx.currentTime + at, o = ctx.createOscillator(), g = ctx.createGain(), lp = ctx.createBiquadFilter();
       o.type = 'sawtooth'; o.frequency.setValueAtTime(base * 1.4, t); o.frequency.exponentialRampToValueAtTime(base * 0.7, t + 0.16); lp.type = 'lowpass'; lp.frequency.value = 1400;
       g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.19);
-      o.connect(lp).connect(g).connect(master); o.start(t); o.stop(t + 0.2); burst('bandpass', 1100, 1, 0.12, vol * 0.5, at);
+      o.connect(lp).connect(g).connect(effectsBus); o.start(t); o.stop(t + 0.2); burst('bandpass', 1100, 1, 0.12, vol * 0.5, at);
     }
   }
   // A rooster at dawn: "cock-a-doodle-doo" as five rising and falling notes.
@@ -179,7 +186,7 @@ export function createAmbience() {
       const t = ctx.currentTime + at, o = ctx.createOscillator(), g = ctx.createGain(), bp = ctx.createBiquadFilter();
       o.type = 'sawtooth'; o.frequency.setValueAtTime(f0, t); o.frequency.linearRampToValueAtTime(f1, t + dur); bp.type = 'bandpass'; bp.frequency.value = 1500; bp.Q.value = 1.4;
       g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + 0.02); g.gain.linearRampToValueAtTime(0, t + dur);
-      o.connect(bp).connect(g).connect(master); o.start(t); o.stop(t + dur + 0.02);
+      o.connect(bp).connect(g).connect(effectsBus); o.start(t); o.stop(t + dur + 0.02);
     }
   }
   // A frog: a low pulsed croak, a few quick throbs of a square wave through a lowpass.
@@ -189,7 +196,7 @@ export function createAmbience() {
       const t = ctx.currentTime + i * 0.075, o = ctx.createOscillator(), g = ctx.createGain(), lp = ctx.createBiquadFilter();
       o.type = 'square'; o.frequency.value = f; lp.type = 'lowpass'; lp.frequency.value = 700;
       g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + 0.008); g.gain.linearRampToValueAtTime(0, t + 0.05);
-      o.connect(lp).connect(g).connect(master); o.start(t); o.stop(t + 0.06);
+      o.connect(lp).connect(g).connect(effectsBus); o.start(t); o.stop(t + 0.06);
     }
   }
   // Thunder: a sharp crack, then a long low rumble that rolls away.
@@ -199,7 +206,7 @@ export function createAmbience() {
     const src = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
     src.buffer = white; f.type = 'lowpass'; f.frequency.setValueAtTime(380, t); f.frequency.exponentialRampToValueAtTime(70, t + 3.4);
     g.gain.setValueAtTime(0.0001, t + 0.1); g.gain.linearRampToValueAtTime(vol, t + 0.5); g.gain.setValueAtTime(vol * 0.7, t + 1.2); g.gain.exponentialRampToValueAtTime(0.0001, t + 3.6);
-    src.connect(f).connect(g).connect(master); src.start(t, Math.random()); src.stop(t + 3.8);
+    src.connect(f).connect(g).connect(effectsBus); src.start(t, Math.random()); src.stop(t + 3.8);
   }
 
   // A church-style bell: a few inharmonic partials with a long decay, struck n times.
@@ -209,7 +216,7 @@ export function createAmbience() {
       for (const [f, a] of [[392, 1], [784, 0.5], [1046, 0.3], [470, 0.25]]) {
         const o = ctx.createOscillator(), g = ctx.createGain(); o.frequency.value = f;
         g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol * a, t + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, t + 2.4);
-        o.connect(g).connect(master); o.start(t); o.stop(t + 2.5);
+        o.connect(g).connect(effectsBus); o.start(t); o.stop(t + 2.5);
       }
     }
   }
@@ -219,7 +226,7 @@ export function createAmbience() {
     for (const f of [277, 349]) {
       const o = ctx.createOscillator(), g = ctx.createGain(), lp = ctx.createBiquadFilter(); o.type = 'sawtooth'; o.frequency.value = f; lp.type = 'lowpass'; lp.frequency.value = 1400;
       g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + 0.08); g.gain.setValueAtTime(vol, t + 1.4); g.gain.linearRampToValueAtTime(0, t + 1.6);
-      o.connect(lp).connect(g).connect(master); o.start(t); o.stop(t + 1.7);
+      o.connect(lp).connect(g).connect(effectsBus); o.start(t); o.stop(t + 1.7);
     }
   }
   // One-off sounds from the town, quieter with distance (m).
@@ -238,7 +245,7 @@ export function createAmbience() {
     o.type = type; o.frequency.setValueAtTime(freq, now);
     if (slide) o.frequency.exponentialRampToValueAtTime(Math.max(40, freq + slide), now + dur);
     g.gain.setValueAtTime(0.001, now); g.gain.linearRampToValueAtTime(vol, now + 0.02); g.gain.exponentialRampToValueAtTime(0.0008, now + dur);
-    o.connect(g).connect(master); o.start(now); o.stop(now + dur + 0.02);
+    o.connect(g).connect(effectsBus); o.start(now); o.stop(now + dur + 0.02);
   }
   // A door: a woody knock of the latch, a short hinge creak, and the door's swish.
   function door() {
@@ -304,6 +311,7 @@ export function createAmbience() {
     if (!ctx || !on) return;
     if (ctx.state === 'suspended') ctx.resume();
     const now = ctx.currentTime;
+    const profile=musicProfile(room,day,indoors);debug.track=profile.name;music?.update(profile,document.querySelector('#panel:not([hidden]),#npc-chat:not([hidden]),#town-companion:not([hidden])')!==null);
     const set = (node, v) => node.gain.gain.setTargetAtTime(v, now, 0.4);
     const out_ = indoors ? 0.25 : 1, rainy = weather === 'rainy', windy = weather === 'windy', cloudy = weather === 'cloudy';
     if (indoors !== indoorsNow) { indoorsNow = indoors; reverbSend.gain.setTargetAtTime(indoors ? 1 : 0, now, 0.1); }
@@ -329,7 +337,7 @@ export function createAmbience() {
     set(cicada, day > 0.5 && !rainy && !windy ? 0.018 * day * (0.7 + 0.3 * Math.sin(now * 0.2)) * out_ : 0);
     // Room tone indoors.
     const rm = indoors ? ROOMS[room] || ROOMS.house : null;
-    set(murmur, rm ? rm.murmur : 0); humGain.gain.setTargetAtTime(rm ? rm.hum : 0, now, 0.4);
+    set(murmur, rm ? rm.murmur*(.2+.8*Math.min(1,busy)) : 0); humGain.gain.setTargetAtTime(rm ? rm.hum : 0, now, 0.4);
     if (rm && now > nextRoom) { roomEvent(rm.ev[Math.floor(Math.random() * rm.ev.length)]); nextRoom = now + rm.gap[0] + Math.random() * (rm.gap[1] - rm.gap[0]); }
 
     // Wildlife: birds by day, magpies and crows now and then, a dog, a dawn rooster, crickets and frogs by night.
@@ -358,11 +366,14 @@ export function createAmbience() {
 
   function setOn(v) {
     on = v; try { localStorage.setItem(KEY, v ? 'on' : 'off'); } catch { /* storage blocked */ }
-    if (!v && ctx) { ctx.close(); ctx = null; }
+    if (!v && ctx) {music?.dispose();music=null;ctx.close(); ctx = null; }
     if (v) { start(); setTimeout(() => { tone(523.25, 0.12, 0.06, 'triangle'); setTimeout(() => tone(659.25, 0.16, 0.06, 'triangle'), 90); }, 50); }
   }
   return {
     start, update, setOn, play, door, shopBell,
+    get mix(){return {...mix};},
+    setMix(key,value){if(!(key in mix)||!Number.isFinite(value))return;mix[key]=Math.max(0,Math.min(1,value));try{localStorage.setItem('repository-town.audio-mix',JSON.stringify(mix));}catch{}if(ctx){master.gain.setTargetAtTime(mix.master*.7,ctx.currentTime,.1);ambienceBus.gain.setTargetAtTime(mix.ambience,ctx.currentTime,.1);effectsBus.gain.setTargetAtTime(mix.effects,ctx.currentTime,.1);musicBus.gain.setTargetAtTime(mix.music,ctx.currentTime,.1);}},
+    work(kind){if(!ctx||!on)return;switch(kind){case 'grind':burst('bandpass',650,1.5,1.4,.07);break;case 'steam':burst('highpass',4000,.7,2,.045);break;case 'extract':case 'fill':case 'pour':burst('bandpass',1600,.8,1.5,.035);break;case 'cook':case 'bake':burst('highpass',2400,.8,1.6,.035);break;case 'success':tone(659,.08,.035,'triangle');tone(880,.13,.025,'sine');break;case 'tamp':thump(110,.12,.06);break;default:roomEvent('clink');}},
     relic: () => { tone(587.33, 0.15, 0.07, 'triangle'); setTimeout(() => tone(880, 0.25, 0.07, 'triangle'), 110); },
     get on() { return on; }, get running() { return !!ctx && ctx.state === 'running'; }, debug,
   };

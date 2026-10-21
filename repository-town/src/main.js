@@ -1,3 +1,4 @@
+import {installWorkplay} from './world/workplay-view.js';
 import { mountCompanion } from './ui/companion.js';
 import * as THREE from 'three';
 import { CollisionWorld } from './engine/collision.js';
@@ -248,6 +249,7 @@ async function start() {
     const floors = inside.floors, house = inside.house;
     if (target === inside.floorIndex) { closePanel(); return true; }
     closePanel(); npcChat.close(); nearThing = null; nearNPC = null;
+    inside.workplay?.dispose();
     inside.bakeryImmersion?.dispose();
     scene.remove(inside.group);
     const next = floors.levels[target];
@@ -334,6 +336,7 @@ async function start() {
     const yawIn = player.yaw;
     const site=life.place(id), built=buildCivicInterior(site,makeLabel,life);
     installPhysicalJobs(built,site,makeLabel,life);
+    built.workplay=installWorkplay(built,site,makeLabel,life,{openPanel,closePanel,status,sound:kind=>ambience.work(kind),getVisitors:()=>inside?.visitors?.entries});
     if(site.id==='bakery')built.bakeryImmersion=installBakeryImmersion(built,life,camera,makeLabel);
     const staff=populateShopStaff(site,life,built,makeLabel);
     const brief={coordinate:site.col+'8',name:site.name,kind:site.kind,
@@ -360,6 +363,8 @@ async function start() {
     closePanel(); npcChat.close();
     const coord = inside.house.coordinate;
     const shop=inside.place||null;
+    inside.bakeryImmersion?.dispose();
+    inside.workplay?.dispose();
     scene.remove(inside.group);
     for (const group of (inside.floors ? inside.floors.levels.map(x => x.group) : [inside.group])) {
       group.traverse((o) => { if (o.isSprite) disposeLabel(o); else if (o.geometry && o.geometry.type !== 'BoxGeometry') o.geometry.dispose(); });
@@ -624,6 +629,7 @@ async function start() {
         }
         return;
       }
+      if(inside?.workplay&&thing.act?.do==='workplay'){inside.workplay.use(thing);return;}
       if(inside?.place?.id==='bakery'&&thing.act?.do==='bakery-immersive'){
         const message=inside.bakeryImmersion?.act(thing.act.action)||'This station is unavailable.';
         status(message);return;
@@ -665,6 +671,7 @@ async function start() {
       }
       const person = thing.person && inside.people?.find((p) => p.key === thing.key);
       if (person) {
+        if(inside.workplay?.customer(person.v))return;
         person.talking = true;
         if(inside.place){
           const staffHome=person.v?.home?.coordinate && byCoord.get(person.v.home.coordinate);
@@ -751,6 +758,9 @@ async function start() {
   addEventListener('pagehide', () => { save(); townLife.save(); });
   const syncSound = () => { $('btn-sound').textContent = ambience.on ? '🔊 Sound' : '🔇 Sound'; $('btn-sound').setAttribute('aria-pressed', String(ambience.on)); };
   $('btn-sound').onclick = () => { ambience.setOn(!ambience.on); syncSound(); status(ambience.on ? 'Town sound on.' : 'Town sound muted.'); };
+  const audioMixButton=document.createElement('button');audioMixButton.type='button';audioMixButton.textContent='🎚 Audio mix';$('btn-sound').after(audioMixButton);
+  audioMixButton.onclick=()=>openPanel({title:'Town soundscape',body:'<p>Original adaptive music changes with venue and time of day. Music softens during conversations. Sound starts only after you enable it.</p>'+Object.entries(ambience.mix).map(([key,value])=>'<p><label>'+key+' <input type="range" data-audio="'+key+'" min="0" max="100" value="'+Math.round(value*100)+'"></label></p>').join(''),actions:[{label:ambience.on?'Mute all sound':'Enable sound',run:()=>{ambience.setOn(!ambience.on);syncSound();return null;}}],mount:root=>{for(const el of root.querySelectorAll('[data-audio]'))el.oninput=()=>ambience.setMix(el.dataset.audio,Number(el.value)/100);}});
+
   syncSound();
 
   // ── Minimap ──────────────────────────────────────────────────────────────
@@ -861,7 +871,7 @@ async function start() {
       const busy = Math.min(1, townLife.people.filter((p) => !p.v.inside && Math.abs(p.v.x - player.pos.x) < 25 && Math.abs(p.v.z - player.pos.z) < 25).length / 5);
       for (const e of townLife.events.splice(0)) ambience.play(e, mode === 'house' ? 300 : Math.hypot(e.x - player.pos.x, e.z - player.pos.z));
       const wxyz = mode === 'town' ? [life.place('waterworks'), life.place('sewage')].filter(Boolean).reduce((m, q) => Math.max(m, 1 - Math.hypot(player.pos.x - q.x, player.pos.z - (FIELD_Z0 + 6)) / 40), 0) : 0;
-      ambience.update(dt, { day: life.daylight(), busy: mode === 'town' ? busy : 0, truck: mode === 'town' ? truck : Infinity, indoors: mode === 'house', room: inside?.place?.id || (inside ? 'house' : ''), weather: life.civic.weather, water: Math.max(0, wxyz), surface: mode === 'house' ? roomFloor(inside?.place?.id || 'house') : surfaceAt(player.pos.x, player.pos.z), stepPhase: player.bob, moving: movedDist > 0.015, running: movedDist > dt * 5.2, crouching: player.eye < 1.3, airborne: player.y > 0, hour: life.minute / 60, dayNumber: life.day });
+      ambience.update(dt, { day: life.daylight(), busy: mode === 'town' ? busy : Math.min(1,(inside?.people?.filter(p=>p.key?.startsWith('visitor:')).length||0)/8), truck: mode === 'town' ? truck : Infinity, indoors: mode === 'house', room: inside?.place?.id || (inside ? 'house' : ''), weather: life.civic.weather, water: Math.max(0, wxyz), surface: mode === 'house' ? roomFloor(inside?.place?.id || 'house') : surfaceAt(player.pos.x, player.pos.z), stepPhase: player.bob, moving: movedDist > 0.015, running: movedDist > dt * 5.2, crouching: player.eye < 1.3, airborne: player.y > 0, hour: life.minute / 60, dayNumber: life.day });
     }
 
     if (mode === 'town') {
@@ -993,6 +1003,7 @@ async function start() {
         if (input.consume('use')) use();
         animate(inside.dynamics, t, active);
         inside.visitors?.update(dt,t,player);
+        inside.workplay?.update(dt,player);
         // Shop patrons are synchronised with the authoritative town economy
         // above; they have their own movement and seated animation.
         for (const p of inside.people || []) if(!p.key?.startsWith('visitor:'))p.update(dt,t,player,p.plan);
@@ -1033,6 +1044,7 @@ async function start() {
     talkTo: (id) => npcChat.show(id),
     travel,
     state: () => ({
+      workplay:life.civic.workplay||null,
       mode, driving: driving.activeVehicle()?.registration||null, nearbyVehicle:nearCar?.registration||null, seated: player.seated ? {key:player.seated.key,label:player.seated.label} : null,
       seats: mode==='house' ? (inside?.seats||[]).map(x=>({key:x.key,type:x.type,label:x.label,pos:x.pos,room:x.room})) : townLife.seats.map(x=>({key:x.key,type:x.type,label:x.label,pos:x.pos})),
       coordinate: inside?.house.coordinate || null, floor: inside?.floorIndex || 0, windows: inside?.windows?.length || 0, floors: inside?.floors?.levels.length || 1, pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, eye: player.eye, y: player.y, fps,

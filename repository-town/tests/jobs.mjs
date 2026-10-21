@@ -15,10 +15,11 @@ const run = (m) => { for (let i = 0; i < m; i += 0.5) { if (onDuty) staff(onDuty
 const task = (k) => { if (onDuty) staff(onDuty); return t.doTask(k); };
 const total = () => me.wallet + me.bank + t.civic.treasury + f().federal + f().state + [...t.places.values()].reduce((s, p) => s + p.till, 0);
 
-assert.equal(JOB_BOARD.length, 6);
+assert.equal(JOB_BOARD.length, 7);
 assert.match(t.startJob('nope').message, /Unknown/);
 assert.match(t.startJob('store-stocker').message, /Shift started/, 'store is open at 10:00');
-assert.match(t.startJob('bakery-assistant').message, /Finish or cancel/, 'one shift at a time');
+assert.match(t.startJob('bakery-assistant').message, /already working|Finish or cancel/, 'one shift at a time');
+assert.equal(t.jobsReport().active.id,'store-stocker','a second employer cannot replace the current shift');
 
 // Time does not count outside the workplace, or without staff on duty.
 t.playerAt = null; staff('store'); run(10);
