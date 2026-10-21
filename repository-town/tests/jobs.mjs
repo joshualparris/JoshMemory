@@ -18,7 +18,7 @@ const total = () => me.wallet + me.bank + t.civic.treasury + f().federal + f().s
 assert.equal(JOB_BOARD.length, 6);
 assert.match(t.startJob('nope').message, /Unknown/);
 assert.match(t.startJob('store-stocker').message, /Shift started/, 'store is open at 10:00');
-assert.match(t.startJob('bakery-assistant').message, /Finish or cancel/, 'one shift at a time');
+assert.match(t.startJob('bakery-assistant').message, /Finish that shift there, or cancel it/, 'one shift at a time');
 
 // Time does not count outside the workplace, or without staff on duty.
 t.playerAt = null; staff('store'); run(10);
