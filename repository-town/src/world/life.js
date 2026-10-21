@@ -98,7 +98,7 @@ export const PLACE_DEFS = [
   { col: 'G', id: 'hall', name: 'Town Hall', kind: 'hall', opens: 9 * 60, closes: 17 * 60, target: { parts: 10 } },
   { col: 'H', id: 'store', name: 'General Store', kind: 'shop', sells: ['eggs', 'milk', 'flour', 'tea', 'coffee', 'bread'], opens: 7 * 60, closes: 19 * 60, target: { eggs: 20, milk: 20, flour: 10, tea: 10, coffee: 10, bread: 10 } },
   { col: 'I', id: 'bakery', name: 'Bakery', kind: 'shop', sells: ['bread', 'pie'], opens: 6 * 60, closes: 18 * 60, target: { flour: 12, eggs: 6, milk: 6, lamb: 6, veg: 6 } },
-  { col: 'J', id: 'cafe', name: 'Commit Café', kind: 'cafe', opens: 6 * 60 + 30, closes: 16 * 60, target: { bread: 10, eggs: 10, milk: 10, coffee: 6, veg: 6, pie: 6 } },
+  { col: 'J', id: 'cafe', name: 'Commit Café', kind: 'cafe', opens: 6 * 60 + 30, closes: 16 * 60, target: { bread: 10, eggs: 10, milk: 10, coffee: 6, veg: 6, pie: 6, tea: 4 } },
   { col: 'K', id: 'greengrocer', name: 'Greengrocer', kind: 'shop', sells: ['veg', 'fruit'], opens: 8 * 60, closes: 18 * 60, target: { veg: 24, fruit: 20 } },
   { col: 'L', id: 'butcher', name: 'Butcher', kind: 'shop', sells: ['lamb'], opens: 8 * 60, closes: 17 * 60 + 30, target: { lamb: 16 } },
   { col: 'M', id: 'square', name: 'Market Square', kind: 'park', opens: 0, closes: 24 * 60 },

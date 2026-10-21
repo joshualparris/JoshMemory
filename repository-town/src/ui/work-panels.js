@@ -2,6 +2,7 @@ import {esc} from './interactions.js';
 export function choices(title,body,options){return {title,body,actions:options};}
 export function skillPanel(step,done,cancel,sound){
  const [id,label,target]=step;
+ if(id==='art')return artPanel(step,done,cancel,sound);
  return {title:label+' · skill challenge',body:'<p>Stop the moving marker in the green zone. Timing changes preparation quality; a miss can be retried.</p><canvas id="work-skill" width="540" height="250" style="width:100%;max-width:540px;border-radius:12px;background:#182e35" aria-label="Animated preparation and timing meter"></canvas><p id="work-skill-readout" role="status">Ready</p><button id="work-skill-stop" type="button" style="padding:16px;font-size:18px">Stop / Space</button> <button id="work-skill-assisted" type="button">Assisted preparation</button><p class="dim">Assisted mode has no timing requirement. These are game recipes and timings.</p>',
  actions:[{label:'Put down tools / cancel',run:()=>{cancel();return null;}}],
  mount(root){
@@ -33,5 +34,37 @@ export function skillPanel(step,done,cancel,sound){
    requestAnimationFrame(draw);
   }
   sound?.(id);requestAnimationFrame(draw);
+ }};
+}
+
+// Latte art: trace the heart in the cup with a finger or mouse. The score is how much of the
+// outline the pour covered, less any milk spilt far off the pattern. Assisted mode needs no gesture.
+export const ART_PATH=(()=>{const pts=[];for(let i=0;i<=48;i++){const a=i/48*Math.PI*2,x=16*Math.sin(a)**3,y=13*Math.cos(a)-5*Math.cos(2*a)-2*Math.cos(3*a)-Math.cos(4*a);pts.push([270+x*4.4,118-y*4.4]);}return pts;})();
+export function artScore(trace,path=ART_PATH,reach=16){
+ if(trace.length<4)return 0;
+ const hit=path.filter(([x,y])=>trace.some(([a,b])=>Math.hypot(a-x,b-y)<=reach)).length/path.length;
+ const stray=trace.filter(([a,b])=>!path.some(([x,y])=>Math.hypot(a-x,b-y)<=reach*2)).length/trace.length;
+ return Math.max(0,Math.min(1,hit-stray*0.5));
+}
+function artPanel(step,done,cancel,sound){
+ const [,label]=step;
+ return {title:label+' · latte art',body:'<p>Pour the milk along the heart: press and trace the dotted outline in one smooth motion. Covering more of the shape makes a better pattern; a messy pour can be tried again.</p><canvas id="work-art" width="540" height="250" style="width:100%;max-width:540px;border-radius:12px;background:#182e35;touch-action:none" aria-label="Coffee cup with a heart outline to trace"></canvas><p id="work-art-readout" role="status">Trace the heart</p><button id="work-art-pour" type="button" style="padding:16px;font-size:18px">Finish pour / Space</button> <button id="work-art-assisted" type="button">Assisted pour</button><p class="dim">Assisted mode needs no gesture. These are game recipes.</p>',
+ actions:[{label:'Put down jug / cancel',run:()=>{cancel();return null;}}],
+ mount(root){
+  const canvas=root.querySelector('#work-art'),ctx=canvas.getContext('2d'),read=root.querySelector('#work-art-readout'),trace=[];let down=false,finished=false;
+  const at=e=>{const r=canvas.getBoundingClientRect();return [(e.clientX-r.left)*540/r.width,(e.clientY-r.top)*250/r.height];};
+  const draw=()=>{
+   ctx.clearRect(0,0,540,250);ctx.fillStyle='#f4ecdc';ctx.beginPath();ctx.arc(270,120,100,0,Math.PI*2);ctx.fill();
+   ctx.fillStyle='#7a4a2b';ctx.beginPath();ctx.arc(270,120,88,0,Math.PI*2);ctx.fill();
+   ctx.setLineDash([4,7]);ctx.strokeStyle='#e9d9bd';ctx.lineWidth=2;ctx.beginPath();ART_PATH.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();ctx.setLineDash([]);
+   ctx.strokeStyle='#fbf3e2';ctx.lineWidth=12;ctx.lineCap='round';ctx.beginPath();trace.forEach(([x,y],i)=>i?ctx.lineTo(x,y):ctx.moveTo(x,y));ctx.stroke();
+  };
+  const finish=assisted=>{if(finished)return;finished=true;removeEventListener('keydown',key);done(assisted?.75:artScore(trace));};
+  const key=e=>{if(e.code==='Space'&&!e.repeat&&canvas.isConnected){e.preventDefault();e.stopPropagation();finish(false);}};
+  canvas.addEventListener('pointerdown',e=>{down=true;canvas.setPointerCapture?.(e.pointerId);trace.push(at(e));draw();});
+  canvas.addEventListener('pointermove',e=>{if(!down)return;trace.push(at(e));draw();read.textContent='Pattern '+Math.round(artScore(trace)*100)+'%';});
+  canvas.addEventListener('pointerup',()=>{down=false;});
+  addEventListener('keydown',key);root.querySelector('#work-art-pour').onclick=()=>finish(false);root.querySelector('#work-art-assisted').onclick=()=>finish(true);
+  sound?.('pour');draw();
  }};
 }
