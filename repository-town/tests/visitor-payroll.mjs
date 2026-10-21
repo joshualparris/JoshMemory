@@ -9,7 +9,12 @@ const homes=[];for(let r=0;r<7;r++)for(let c=0;c<26;c+=2)homes.push({coordinate:
 const fresh=()=>new TownLife({homes,minute:600,seed:5});
 const staff=t=>{t.playerAt='store';for(const v of t.villagers)if(v.work==='store'){v.step={kind:'work'};v.path=[];}};
 const advance=(t,n)=>{for(let i=0;i<n;i++){staff(t);t.tick(1);}};
-let t=fresh();assert(!t.startJob('store-stocker').ok,'empty employer cannot promise funded work');
+// An empty till borrows one shift's wages from the council float (money moves, never created);
+// with no treasury to lend either, the shift cannot be promised.
+let t=fresh();t.place('store').till=0;const lender=t.civic.treasury;assert(t.startJob('store-stocker').ok,'the council wage float funds one shift');
+assert(t.civic.wageFloats.store.owed>0);assert.equal(Math.round((lender-t.civic.treasury)*100),Math.round(t.civic.wageFloats.store.owed*100));
+t=fresh();t.place('store').till=0;t.civic.treasury=0;assert(!t.startJob('store-stocker').ok,'nothing to lend: an empty employer cannot promise funded work');
+t=fresh();
 t.place('store').till=100;staff(t);assert(t.startJob('store-stocker').ok);
 advance(t,15);staff(t);assert(takeBreak(t).ok);assert(!t.doTask('check-expiry').ok,'rest period blocks duties');advance(t,5);
 assert.equal(t.jobsReport().active.breakTaken,5);assert.equal(t.jobsReport().active.worked,20);

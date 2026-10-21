@@ -1,6 +1,6 @@
 import {tickOccupationWork} from './occupation-work.js';
 import { tickWorkplay } from './workplay.js';
-import { payroll, closeTimesheet, settlePayslip, employerFunds, debtFor } from './visitor-payroll.js';
+import { payroll, closeTimesheet, settlePayslip, employerFunds, debtFor, ensureFloat, repayFloats } from './visitor-payroll.js';
 
 export const JOB_BOARD = Object.freeze([
   {id:'cafe-all-rounder',site:'cafe',name:'Café all-rounder',minutes:40,pay:28,tasks:['take-orders','prepare-orders','table-service'],blurb:'Take customer orders, make drinks and food, and deliver to numbered tables'},
@@ -64,6 +64,7 @@ export function startJob(life, id) {
   if (count>=MAX_SHIFTS_PER_DAY) return {ok:false,message:'Daily shift safety limit reached. Come back tomorrow.'};
   if (!life.open(site)) return { ok: false, message: `${site.name} is closed right now.` };
   const offer=jobOffer(life,def);
+  if (!debtFor(life,def.site)) ensureFloat(life,def.site,offer.pay);
   if (employerFunds(life,def.site)<offer.pay || debtFor(life,def.site)>0) return {ok:false,message:'This employer cannot fund a new shift. Existing wage debts must be paid first.'};
   j.active = { id, site: def.site, day: life.day, startedAt:nowMin(life), worked: 0, required: def.minutes, pay: offer.pay, grade:offer.grade, tasks: [], lastTaskAt: -999, breakRemaining:0, breakTaken:0, away:0 };
   return { ok: true, message: `Shift started at ${site.name}. Stay inside while the staff are working.` };
@@ -72,6 +73,7 @@ export function startJob(life, id) {
 // Called every simulated minute: the shift only advances while the visitor is inside the workplace
 // with a staff member on duty.
 export function tickJobs(life, minutes) {
+  if (life.minute >= 20 * 60 && life.civic.wageFloatDay !== life.day) { life.civic.wageFloatDay = life.day; repayFloats(life); }
   tickWorkplay(life);
   tickOccupationWork(life,minutes);
   const a = jobs(life).active;
