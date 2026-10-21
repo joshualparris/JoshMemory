@@ -1214,14 +1214,22 @@ export class TownLife {
     // still be served by another *physically present* paid employee.
     const colleagues = this.villagers.filter(o=>o.work===v.work && !['student','retired'].includes(o.job));
     const rank = Math.max(0,colleagues.indexOf(v));
-    const lunchAt = Math.max(v.start+75,Math.min(v.end-45,11*60+15+rank*240));
-    const lunchEnds = lunchAt+40;
-    if (working && !(m >= lunchAt && m < lunchEnds && !v.doneToday.lunch)) {
+    const lunchAt = Math.max(v.start+75,Math.min(v.end-45,11*60+15+rank*120));
+    // Lunch is not a magic instant dismissal of reception. Workers can defer
+    // it when the only other employee is travelling, shopping or off duty.
+    // The stagger is a preference; cover is checked against real NPC presence.
+    const lunchDue = !v.doneToday.lunch && m>=lunchAt && m<Math.min(v.end-5,16*60+30);
+    const isPublicWorker = v.work!=='home' && !['student','retired'].includes(v.job);
+    const actualCover = !isPublicWorker || colleagues.some(o=>o!==v &&
+      o.step?.kind==='work' && o.step.at===v.work &&
+      !o.path.length && o.start<=m && o.end>m+35);
+    const leaveForLunch = working && lunchDue && actualCover;
+    if (working && !leaveForLunch) {
       if (v.work === 'home') return this.goThen(v, home, { kind: 'work', at: 'home', until: v.end, activity: 'coding at home' });
       if (v.job === 'postie' && !v.doneToday.round && (this.place('post').stock.parcel || 0) > 0) return this.postRound(v);
-      return this.goThen(v, work, { kind: 'work', at: v.work, until: Math.min(v.end, m < lunchAt ? lunchAt : v.end), activity: this.workActivity(v) });
+      return this.goThen(v, work, { kind: 'work', at: v.work, until: Math.min(v.end, m < lunchAt ? lunchAt : lunchDue ? m+15 : v.end), activity: this.workActivity(v) });
     }
-    if (!v.doneToday.lunch && m >= lunchAt && m < lunchEnds) {
+    if (leaveForLunch) {
       v.doneToday.lunch = true;
       const cafe = this.place('cafe');
       let lunch;
