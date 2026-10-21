@@ -5,7 +5,7 @@ import { Builder, GLASS } from './builder.js';
 import { buildSignBoards } from './shop-signs.js';
 import { PROPS } from './props.js';
 import { makePerson, pose } from './npcs.js';
-import { facilityAccess } from './facility-access.js';
+import { facilityAccess, openingHoursLabel } from './facility-access.js';
 import { TownLife, GOODS, RAIL_Z, trainX, FIELD_Z0, FIELD_Z1, SEC_PER_MIN, LOT_X, AVENUES } from './life.js';
 
 // Draws the town simulation (src/world/life.js): the high street and farms on street 8,
@@ -629,6 +629,13 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     signs.push({ text: p.name, x, y: 1.5, z, w: 2.6, h: 0.6, bg: '#f3ead2', fg: '#3a2a1e' });
   };
   for (const p of life.places.values()) {
+    // Permanently painted, readable opening-hour plaques on EVERY civic facade.
+    // One shared atlas and merged mesh keeps these signs cheap on Android.
+    // Operational 24h sites publish visitor reception hours, not factory hours.
+    const south=p.side==='south';
+    signs.push({text:openingHoursLabel(p),x:p.x+3.35,y:2.95,
+      z:south?FIELD_Z0-0.25:LOT8_Z+7.28,
+      w:4.35,h:0.40,rotY:south?Math.PI:0,bg:'#f2ead6',fg:'#302c25'});
     const b = new Builder(); b.glass = [];
     const finish = () => {
       const meshes = [b.build()], glass = Builder.merge(b.glass);

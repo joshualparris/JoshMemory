@@ -5,11 +5,11 @@ import { workingAt } from './shop-attendance.js';
 const RECEPTION_HOURS = Object.freeze({
   hotel: [7 * 60, 23 * 60],
   police: [7 * 60, 23 * 60],
-  ambulance: [9 * 60, 17 * 60],
-  fire: [9 * 60, 17 * 60],
-  power: [9 * 60, 16 * 60],
-  waterworks: [9 * 60, 16 * 60],
-  sewage: [9 * 60, 16 * 60],
+  ambulance: [7 * 60, 19 * 60],
+  fire: [7 * 60, 19 * 60],
+  power: [8 * 60, 18 * 60],
+  waterworks: [8 * 60, 18 * 60],
+  sewage: [8 * 60, 18 * 60],
   farmhouse: [9 * 60, 17 * 60],
 });
 const SUPERVISED = new Set([
@@ -21,6 +21,12 @@ const PERMANENT_HOSTS = new Set(['farmhouse','square']); // named residents/mark
 const CLOCK = (m) => `${String(Math.floor(m / 60)).padStart(2,'0')}:${String(m % 60).padStart(2,'0')}`;
 export function visitorHours(place) {
   return RECEPTION_HOURS[place.id] || [place.opens, place.closes];
+}
+export function openingHoursLabel(place) {
+  if(place.id==='square') return 'PUBLIC 24 HOURS';
+  if(place.id==='farmhouse') return 'VISITS BY APPOINTMENT';
+  const [opens,closes]=visitorHours(place);
+  return `${SUPERVISED.has(place.id)||RECEPTION_HOURS[place.id]?'RECEPTION':'OPEN'} ${CLOCK(opens)}-${CLOCK(closes)}`;
 }
 export function onSiteWorkers(town, place) {
   return (town.villagers || []).filter(v => workingAt(v, place.id));

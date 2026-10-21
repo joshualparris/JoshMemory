@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { NPCS } from '../src/ui/npc-data.js';
-import { VILLAGER_NAMES } from '../src/world/life.js';
+import { VILLAGER_NAMES, ROSTER_SIZE } from '../src/world/life.js';
 import { villagerProfile } from '../src/ui/npc.js';
 import { locateVillager, groundedLocationReply } from '../src/ui/npc-location.js';
 import { residentPrompt } from '../src/ui/npc-prompt.js';
@@ -14,7 +14,7 @@ assert.equal(new Set(NPCS.map(n=>n.coordinate)).size,32);
 assert(NPCS.every(n=>n.welcome&&n.personality&&n.title&&n.coordinate),'every named character has a distinct persona and home lot');
 assert.equal(NPCS.filter(n=>n.shape).length,20,'20 fantastical character models');
 assert(NPCS.filter(n=>n.shape).every(n=>n.prompts?.length===3&&n.challenge?.choices?.length===3),'every fantasy character has prompts and a quiz');
-assert.equal(VILLAGER_NAMES.length,61,'61 living-town villagers');
+assert.equal(VILLAGER_NAMES.length,ROSTER_SIZE,'each town worker has a distinct real name');
 assert.equal(new Set(VILLAGER_NAMES).size,VILLAGER_NAMES.length);
 const personas=VILLAGER_NAMES.map(name=>villagerProfile(name));
 assert.equal(new Set(personas.map(x=>x[0])).size,VILLAGER_NAMES.length,'unique background personality for all villagers');
@@ -42,4 +42,4 @@ const panel=readFileSync(new URL('../src/ui/townpanels.js',import.meta.url),'utf
 assert(npc.includes('groundedLocationReply(town?.location,text)'),'dialogue must prioritise simulation facts');
 assert(npc.includes('currentLocation: town?.location'),'AI receives actual position');
 assert(panel.includes('location: v ? locateVillager(life,v)'),'town context supplies whereabouts');
-console.log('PASS: 32 named NPCs, 20 fantasy quests, 61 villagers with unique personas, live home/work/location separation and AI prompt parity.');
+console.log('PASS: 32 named NPCs, 20 fantasy quests, '+ROSTER_SIZE+' villagers with unique personas, live home/work/location separation and AI prompt parity.');

@@ -101,16 +101,16 @@ export const GOODS = {
 // col letter → place. `sells` are what villagers can buy; `makes` what work produces.
 export const PLACE_DEFS = [
   { col: 'G', id: 'hall', name: 'Town Hall', kind: 'hall', opens: 9 * 60, closes: 17 * 60, target: { parts: 10 } },
-  { col: 'H', id: 'store', name: 'General Store', kind: 'shop', sells: ['eggs', 'milk', 'flour', 'tea', 'coffee', 'bread'], opens: 7 * 60, closes: 19 * 60, target: { eggs: 20, milk: 20, flour: 10, tea: 10, coffee: 10, bread: 10 } },
+  { col: 'H', id: 'store', name: 'General Store', kind: 'shop', sells: ['eggs', 'milk', 'flour', 'tea', 'coffee', 'bread'], opens: 7 * 60, closes: 20 * 60, target: { eggs: 20, milk: 20, flour: 10, tea: 10, coffee: 10, bread: 10 } },
   { col: 'I', id: 'bakery', name: 'Bakery', kind: 'shop', sells: ['bread', 'pie'], opens: 6 * 60, closes: 18 * 60, target: { flour: 12, eggs: 6, milk: 6, lamb: 6, veg: 6 } },
-  { col: 'J', id: 'cafe', name: 'Commit Café', kind: 'cafe', opens: 6 * 60 + 30, closes: 16 * 60, target: { bread: 10, eggs: 10, milk: 10, oatmilk:6, soymilk:8, coffee: 6, tea:6, fruit:8, veg: 6, pie: 6 } },
+  { col: 'J', id: 'cafe', name: 'Commit Café', kind: 'cafe', opens: 6 * 60 + 30, closes: 17 * 60, target: { bread: 10, eggs: 10, milk: 10, oatmilk:6, soymilk:8, coffee: 6, tea:6, fruit:8, veg: 6, pie: 6 } },
   { col: 'K', id: 'greengrocer', name: 'Greengrocer', kind: 'shop', sells: ['veg', 'fruit'], opens: 8 * 60, closes: 18 * 60, target: { veg: 24, fruit: 20 } },
   { col: 'L', id: 'butcher', name: 'Butcher', kind: 'shop', sells: ['lamb'], opens: 8 * 60, closes: 17 * 60 + 30, target: { lamb: 16 } },
   { col: 'M', id: 'square', name: 'Market Square', kind: 'park', opens: 0, closes: 24 * 60 },
   { col: 'N', id: 'pub', name: 'The Merged Branch', kind: 'pub', opens: 11 * 60, closes: 23 * 60, target: { lamb: 8, veg: 10, pie: 6, bread: 6 } },
-  { col: 'O', id: 'post', name: 'Post Office', kind: 'post', opens: 8 * 60, closes: 17 * 60, target: { parcel: 12 } },
+  { col: 'O', id: 'post', name: 'Post Office', kind: 'post', opens: 8 * 60, closes: 18 * 60, target: { parcel: 12 } },
   { col: 'P', id: 'school', name: 'School', kind: 'school', opens: 8 * 60 + 30, closes: 15 * 60 },
-  { col: 'Q', id: 'clinic', name: 'Clinic', kind: 'clinic', opens: 8 * 60, closes: 17 * 60 },
+  { col: 'Q', id: 'clinic', name: 'Clinic', kind: 'clinic', opens: 8 * 60, closes: 19 * 60 },
   { col: 'R', id: 'depot', name: 'Rail Depot', kind: 'depot', opens: 6 * 60, closes: 18 * 60 },
   { col: 'S', id: 'mill', name: 'Flour Mill', kind: 'mill', opens: 7 * 60, closes: 16 * 60, target: { grain: 20 } },
   { col: 'T', id: 'sheep', name: 'Sheep Station', kind: 'farm', makes: 'lamb', opens: 6 * 60, closes: 15 * 60 },
@@ -123,7 +123,7 @@ export const PLACE_DEFS = [
   {col:'B',side:'south',id:'soyfarm',name:'Macquarie Soybean Farm',kind:'farm',makes:'soybeans',opens:6*60,closes:16*60},
   {col:'C',side:'south',id:'soyplant',name:'Macquarie Plant Drinks',kind:'industry',opens:7*60,closes:17*60,target:{soybeans:16}},
   // Across the road from the high street (south side): finance, utilities and industry.
-  { col: 'G', side: 'south', id: 'bank', name: 'Community Bank', kind: 'bank', opens: 9 * 60, closes: 16 * 60 },
+  { col: 'G', side: 'south', id: 'bank', name: 'Community Bank', kind: 'bank', opens: 8 * 60 + 30, closes: 17 * 60 + 30 },
   { col: 'I', side: 'south', id: 'hotel', name: 'Railway Hotel', kind: 'hotel', opens: 0, closes: 24 * 60 },
   { col: 'H', side: 'south', id: 'power', name: 'Power Station', kind: 'utility', opens: 0, closes: 24 * 60, target: { fuel: 160 } },
   { col: 'J', side: 'south', id: 'waterworks', name: 'Water Works', kind: 'utility', opens: 0, closes: 24 * 60 },
@@ -184,12 +184,46 @@ const JOBS = [
   ['afternoon barista', 'cafe', 12 * 60, 16 * 60],
   ['afternoon cashier', 'store', 12 * 60, 19 * 60],
 ];
+// A shop with only one employee cannot genuinely remain open during that
+// employee's lunch or trips around town. Add real named relief workers, each
+// with their own house, commute, roster and paid wages. Existing IDs 0–60 stay
+// in exactly the same order to preserve older saved games.
+const RELIEF_ROLES = {
+ store:'evening checkout operator', bakery:'afternoon baker', cafe:'late café attendant',
+ greengrocer:'produce sales assistant', butcher:'qualified butcher', pub:'bar attendant',
+ bank:'bank customer-service officer', post:'postal customer-service officer',
+ clinic:'clinic nurse and receptionist', court:'court registry deputy',
+ solicitor:'legal receptionist', police:'police station front-desk officer',
+ ambulance:'ambulance station liaison', fire:'fire station visitor officer',
+ power:'power station visitor and safety officer', waterworks:'water treatment duty officer',
+ sewage:'wastewater safety officer', soyfarm:'soybean farm supervisor',
+ soyplant:'food safety and plant reception officer', school:'school office receptionist',
+ realty:'property reception agent', realestate:'licensed estate agent',
+ dealership:'vehicle sales assistant', mechanic:'service reception coordinator',
+ hardware:'hardware counter attendant', trades:'trade dispatch coordinator',
+ tafe:'TAFE student-services adviser', university:'university student services officer',
+ landfill:'waste weighbridge attendant', recycling:'recycling site safety officer',
+ foundry:'foundry safety supervisor', mill:'milling production assistant',
+ sheep:'livestock stationhand', dairy:'dairy shed operator',
+ coop:'poultry shed attendant', orchard:'orchard hand', garden:'garden produce assistant',
+ silo:'grain handling operator'
+};
+export const RELIEF_SITES = PLACE_DEFS.filter(p=>p.kind!=='home' && p.kind!=='park' &&
+ JOBS.filter(j=>j[1]===p.id && !['student','retired'].includes(j[0])).length<2).map(p=>p.id);
+for (const id of RELIEF_SITES) {
+ const p=PLACE_DEFS.find(place=>place.id===id);
+ const start=Math.max(5*60,p.opens+60);
+ const end=Math.min(23*60,p.closes);
+ JOBS.push([RELIEF_ROLES[id]||'relief service attendant',id,start,end]);
+}
+export const ROSTER_SIZE = JOBS.length;
 // Villager names; src/ui/social.js keeps their friendships and grudges.
 export const VILLAGER_NAMES = ['Mabel', 'Arlo', 'Bea', 'Cas', 'Dot', 'Ezra', 'Flo', 'Gus', 'Hattie', 'Ivo', 'June', 'Kip', 'Lou', 'Merv', 'Nora', 'Ollie',
   'Peg', 'Rafe', 'Sadie', 'Theo', 'Una', 'Vern', 'Win', 'Zara', 'Bluey', 'Clem', 'Dulcie', 'Errol', 'Fern', 'Gwen', 'Harlan', 'Ida',
   'Archie', 'Bonnie', 'Cooper', 'Daisy', 'Elsie', 'Frankie',
   'Lena', 'Miles', 'Serena', 'Damon', 'Pippa', 'Marcus', 'Talia', 'Neve', 'Owen', 'Priya', 'Hugh',
-  'Tess', 'Kieran', 'Ruby', 'Felix', 'Jules', 'Maeve', 'Aidan', 'Iris', 'Oscar', 'Rosa', 'Nina', 'Mina'];
+  'Tess', 'Kieran', 'Ruby', 'Felix', 'Jules', 'Maeve', 'Aidan', 'Iris', 'Oscar', 'Rosa', 'Nina', 'Mina',
+  'Amber', 'Benji', 'Celia', 'Dev', 'Emmett', 'Fiona', 'Georgia', 'Hazel', 'Indi', 'Jonah', 'Kara', 'Lachlan', 'Molly', 'Nathan', 'Olivia', 'Parker', 'Quinn', 'Rowan', 'Sienna', 'Tobias', 'Ursula', 'Violet', 'Willow', 'Xavier', 'Yasmin', 'Zeke', 'Adelaide', 'Bram', 'Clara', 'Dario'];
 
 // Home meals: [name, ingredients]. Villagers cook the first one their pantry can make.
 const MEALS = {
@@ -1161,16 +1195,20 @@ export class TownLife {
       if (cafeOk) return this.goThen(v, cafe.front, { kind: 'eatout', at: 'cafe', dur: 25, activity: 'having breakfast at the Commit Café (over budget this week)' });
     }
     const working = m >= v.start && m < v.end;
-    // Food counters cover the noon rush, then take staggered lunch breaks.
-    const counter = ['store','bakery','greengrocer','butcher','cafe'].includes(v.work);
-    const colleagues = counter ? this.villagers.filter(o=>o.work===v.work) : [];
-    const lunchAt = counter ? 13*60 + Math.max(0,colleagues.indexOf(v))*30 : 12*60;
-    if (working && !(m >= lunchAt && m < lunchAt + 60 && !v.doneToday.lunch && v.job !== 'publican')) {
+    // Employees take real off-duty meals, but never all leave the counter at
+    // noon together. Each business staggers 40-minute breaks by two hours.
+    // Relief workers begin earlier than the first break so lunch crowds can
+    // still be served by another *physically present* paid employee.
+    const colleagues = this.villagers.filter(o=>o.work===v.work && !['student','retired'].includes(o.job));
+    const rank = Math.max(0,colleagues.indexOf(v));
+    const lunchAt = Math.max(v.start+75,Math.min(v.end-45,11*60+15+rank*120));
+    const lunchEnds = lunchAt+40;
+    if (working && !(m >= lunchAt && m < lunchEnds && !v.doneToday.lunch)) {
       if (v.work === 'home') return this.goThen(v, home, { kind: 'work', at: 'home', until: v.end, activity: 'coding at home' });
       if (v.job === 'postie' && !v.doneToday.round && (this.place('post').stock.parcel || 0) > 0) return this.postRound(v);
-      return this.goThen(v, work, { kind: 'work', at: v.work, until: Math.min(v.end, m < lunchAt && v.job !== 'publican' ? lunchAt : v.end), activity: this.workActivity(v) });
+      return this.goThen(v, work, { kind: 'work', at: v.work, until: Math.min(v.end, m < lunchAt ? lunchAt : v.end), activity: this.workActivity(v) });
     }
-    if (!v.doneToday.lunch && m >= lunchAt && m < lunchAt + 60) {
+    if (!v.doneToday.lunch && m >= lunchAt && m < lunchEnds) {
       v.doneToday.lunch = true;
       const cafe = this.place('cafe');
       let lunch;
