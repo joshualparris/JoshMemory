@@ -6,7 +6,7 @@
 |---|---|---|
 | Source | `joshualparris/JoshMemory`, `repository-town/`, `main` | Feature branches and reviewed PRs; never edit generated sites |
 | Production | `repository-town-claude-complete.vercel.app` | Git main; `npm run build:release` must succeed before a release becomes live |
-| Staging | `repository-town-main-qa.onrender.com` | One shared QA target; retain manual deployment until its settings are verified |
+| Staging | `repository-town-claude-playtest.vercel.app` | One existing Vercel QA project; deploy an exact candidate commit manually before promotion |
 | Backup | `parris-tech-services.github.io/Repository-town/` | Mirror the commit and content fingerprint of the live approved production release |
 | NPC AI | `repository-town-no-code-ai.parris-neathaustralia.workers.dev` | Shared Worker, existing secret and rate limits; no duplicate AI deployment per playtest |
 
@@ -58,3 +58,6 @@ Use an already-tested Vercel production deployment and its matching source commi
 sync follows that production release instead of assuming main should always win. For a retired
 Pages copy, restore files from its archive branch through a normal reviewed commit. Never force
 push shared main or replace the canonical gameplay files from an old snapshot.
+
+## Render quota fallback — 21 October 2026
+The Render dashboard confirmed its build pipeline allowance is exhausted for the billing period. No paid limit was raised. The existing Vercel Playtest project is the sole shared staging target; Render snapshots are archived and may be suspended without deleting history. A suspended origin can be temporarily resumed if a visitor needs its saved progress. Staging candidates are explicitly deployed by commit; automatic source-branch builds are disabled for retired projects.

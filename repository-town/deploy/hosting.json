@@ -2,9 +2,13 @@
   "schemaVersion": 1,
   "source": "https://github.com/joshualparris/JoshMemory/tree/main/repository-town",
   "production": "https://repository-town-claude-complete.vercel.app/",
-  "staging": "https://repository-town-main-qa.onrender.com/",
+  "staging": "https://repository-town-claude-playtest.vercel.app/",
   "backup": "https://parris-tech-services.github.io/Repository-town/",
   "npcApi": "https://repository-town-no-code-ai.parris-neathaustralia.workers.dev/api/npc-chat",
-  "legacyPaths": ["backup-unified", "windows-playtest", "playtest-bank-bakery"],
+  "legacyPaths": [
+    "backup-unified",
+    "windows-playtest",
+    "playtest-bank-bakery"
+  ],
   "archiveBranch": "archive/pre-consolidation-20261021"
 }
