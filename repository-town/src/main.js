@@ -1,3 +1,4 @@
+import { mountCompanion } from './ui/companion.js';
 import * as THREE from 'three';
 import { CollisionWorld } from './engine/collision.js';
 import { Input } from './engine/input.js';
@@ -8,6 +9,7 @@ import { buildTown, streetSigns, lotPosition } from './world/town.js';
 import { buildInterior, labelVisible } from './world/interior.js';
 import { honourPaulRoe } from './world/paul-roe-tribute.js';
 import { buildCivicInterior } from './world/shop-interior.js';
+import { installPhysicalJobs, usePhysicalJob } from './world/physical-jobs.js';
 import { wasteDepotPanel } from './ui/waste-depot-panel.js';
 import { surfaceAt, roomFloor } from './world/surfaces.js';
 import { FIELD_Z0 } from './world/life.js';
@@ -28,6 +30,7 @@ import { mountNPCChat } from './ui/npc-chat.js';
 import { makePerson, Walker, houseWander, freeSpot, placeTownNPCs, animateNPCs, initialiseNPCWorksites } from './world/npcs.js';
 import { separatePedestrians, steerPedestrians } from './world/pedestrian-spacing.js';
 import { createTownLife } from './world/townlife.js';
+import { createEmergencyResponseVisuals } from './world/emergency-response-visuals.js';
 import { createPlayerDriving } from './world/player-driving.js';
 import { nearestSeat } from './world/seats.js';
 import { furniturePanel } from './ui/furniture.js';
@@ -114,6 +117,7 @@ async function start() {
   // Town life: farms, shops, trucks and 32 villagers with jobs and meals (src/world/life.js).
   const townLife = createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog });
   const life = townLife.life;
+  const emergencyVisuals = createEmergencyResponseVisuals(life, town);
   // The Town Guide kiosk by the start (src/world/town.js) opens the guide panel.
   const guideSpot = { key: 'guide', pos: town.guidePos, label: '🗺️ Read the Town Guide', guide: true };
   // Named street characters (src/ui/npc-data.js) with their own AI chat window.
@@ -192,6 +196,14 @@ async function start() {
   let nearHouse = null, nearThing = null, nearCar=null, panelOpen = null, cardTimer = 0;
   const expedition = createExpedition({town,makeLabel,openPanel,travel,
     releaseMouse:()=>input.releaseMouse()});
+
+  const companion = mountCompanion({
+    getContext:()=>({mode,place:inside?.place?.name||inside?.house?.name||(nearPerson?.spot?life.place(nearPerson.spot.id)?.name:null)||nearHouse?.house?.name||'Town streets',
+      coordinate:inside?.house?.coordinate||nearHouse?.house?.coordinate||'',floor:inside?.floorIndex||0,
+      pos:player.pos,wallet:life.civic.player.wallet,target:mode==='house'?nearThing:(nearTownSeat?{...nearTownSeat,act:{do:'sit'}}:nearPerson?.spot?{...nearPerson.spot,act:{do:'civic-ledger'}}:nearHouse?{key:nearHouse.house.coordinate,label:nearHouse.house.name,act:{do:'enter'}}:null),
+      interactions:inside?.interactables||[]}),
+    onOpen:()=>{input.releaseMouse();input.reset();npcChat.close();},onClose:()=>input.reset()
+  });
 
   // ── Movement between town and houses ─────────────────────────────────────
   function frontOf(coord) {
@@ -315,6 +327,7 @@ async function start() {
     if(mode!=='town'||!life.places.has(id))return false;
     const yawIn = player.yaw;
     const site=life.place(id), built=buildCivicInterior(site,makeLabel,life);
+    installPhysicalJobs(built,site,makeLabel,life);
     const staff=populateShopStaff(site,life,built,makeLabel);
     const brief={coordinate:site.col+'8',name:site.name,kind:site.kind,
       street:'High Street',summary:'Explore the shop interior and speak to staff.'};
@@ -407,7 +420,7 @@ async function start() {
   $('btn-time').onclick = () => cycleTime();
   addEventListener('keydown', (e) => {
     if (e.key.toLowerCase() !== 't' || e.repeat || e.ctrlKey || e.altKey || e.metaKey) return;
-    if (e.target?.closest?.('input,textarea,select,[contenteditable],#panel,#game,#npc-chat')) return;
+    if (e.target?.closest?.('input,textarea,select,[contenteditable],#panel,#game,#npc-chat,#town-companion')) return;
     cycleTime();
   });
   function syncPerfBtn() {
@@ -595,6 +608,12 @@ async function start() {
         }
         return;
       }
+      if(inside?.place&&thing.act?.do==='physical-job'){
+        const result=usePhysicalJob(life,thing.act.task);
+        inside.workStationVisuals?.();
+        status(result.message);
+        return;
+      }
       if(inside?.place&&thing.act?.do==='bakery-kitchen'){
         openPanel(bakeryKitchenPanel(life),thing);
         return;
@@ -773,12 +792,12 @@ async function start() {
       return;
     }
     if (input.consume('map')) setOverview(!overview);
-    if (input.consume('back')) { if (expedition.isOpen()) expedition.dismiss(); else if (npcChat.isOpen()) npcChat.close(); else if (!$('npc-roster').hidden) $('npc-roster').hidden = true; else if (panelOpen) closePanel(); else if (!$('help').hidden) $('help').hidden = true; else setOverview(false); }
+    if (input.consume('back')) { if (companion.isOpen()) companion.close(); else if (expedition.isOpen()) expedition.dismiss(); else if (npcChat.isOpen()) npcChat.close(); else if (!$('npc-roster').hidden) $('npc-roster').hidden = true; else if (panelOpen) closePanel(); else if (!$('help').hidden) $('help').hidden = true; else setOverview(false); }
     if(expedition.isOpen()){input.keys.clear();input.takeLook();input.pressed.delete('use');}
     if (overview) {
       camera.position.set(player.pos.x, 150, player.pos.z + 95); camera.lookAt(player.pos.x, 0, player.pos.z);
       input.takeLook(); input.consume('jump');
-    } else if (expedition.isOpen() || panelOpen || npcChat.isOpen() || !$('npc-roster').hidden || !$('help').hidden) input.reset();
+    } else if (companion.isOpen() || expedition.isOpen() || panelOpen || npcChat.isOpen() || !$('npc-roster').hidden || !$('help').hidden) input.reset();
     else {
       const n=life.needsReport();
       player.speedFactor=Math.max(0.45,1-(n.hunger>80?0.23:0)-(n.fatigue>75?0.32:0));
@@ -802,6 +821,7 @@ async function start() {
       :[];
     const view = mode === 'house' && inside?.view ? inside.view.place(camera, outdoorCam) : null;
     townLife.update(dt, t, { player, mode, overview, camera, talkingTo, view });
+    emergencyVisuals.update(t);
     const n=life.needsReport();
     const car=driving.activeVehicle();
     const needsText=`🍽 ${Math.round(n.hunger)}% · 💤 ${Math.round(n.fatigue)}%${car?' · 🚗 '+Math.round(Math.abs(car.speed||0)*3.6)+'km/h ⛽ '+Math.round(car.fuel||0)+'L':''}`;
@@ -911,7 +931,7 @@ async function start() {
       // House name boards are created only near the player to keep GPU memory low on phones.
       for (const [c, l] of town.lots) {
         const d = Math.hypot(l.doorPos.x - player.pos.x, l.doorPos.z - player.pos.z), has = houseLabels.get(c);
-        if (d < labelCull && !has) { const s = makeLabel(`${c} · ${l.house.name}`, 'house'); s.position.set(l.doorPos.x, 3.7, l.doorPos.z + 3.4); /* clear of colonnades and pagoda eaves */ town.group.add(s); houseLabels.set(c, s); }
+        if (d < labelCull && !has) { const s = makeLabel(`${c} · ${l.house.name}`, 'house'); /* Anchor to each building's actual front wall; the old fixed offset buried deeper shop signs inside walls. */ s.position.set(l.lot.x, Math.max(3.7, Math.min(5.5, l.fp.h - 0.8)), l.doorPos.z + 1.2); town.group.add(s); houseLabels.set(c, s); }
         else if (d > labelCull + 15 && has) { town.group.remove(has); disposeLabel(has); houseLabels.delete(c); }
       }
       const nearRelic = expedition.nearby(player.pos), relicD = away(nearRelic), npcD = away(nearNPC), personD = away(nearPerson);
