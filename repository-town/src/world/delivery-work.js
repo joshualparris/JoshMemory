@@ -1,3 +1,4 @@
+import {fin,record} from './finance.js';
 // Employer-owned van uses the ordinary collision, steering, fuel and wear model.
 // Cargo stays in the saved van until physically unloaded or returned to depot.
 const r=(ok,message)=>({ok,message});
@@ -23,6 +24,11 @@ export function deliveryAction(t,action,site=t.playerAt){
   let v=van;
   if(!v){v={registration:'RT-WORK',model:'van',owner:'Rail Freight Cooperative',workVehicle:'depot',condition:95,roadworthy:true,regoUntil:t.day+28,price:0,odometer:0,fuel:0,x:depot.x+17,z:depot.curb.z,yaw:Math.PI/2};motor.owned.push(v);}
   if(!near(v,depot)||Math.abs(v.speed||0)>.35)return r(false,'Park the work van at the depot before loading.');
+  const service=v.condition<70||!v.roadworthy,renew=(v.regoUntil-t.day)<2,cost=(service?82:0)+(renew?30:0);
+  if(cost>t.civic.treasury||(service&&motor.parts<1))return r(false,'Employer cannot fund required vehicle servicing/registration or is waiting for workshop parts. No cargo loaded and no worker expense.');
+  if(service){t.civic.treasury-=82;motor.garageCash+=82;motor.parts--;v.condition=Math.min(100,v.condition+28);v.roadworthy=v.condition>=60;v.lastService=t.day;v.serviceDue=t.day+14;record(t,'council','motor-workshop',82,'Employer van service');}
+  if(renew){t.civic.treasury-=30;fin(t).state+=30;v.regoUntil=Math.max(t.day,v.regoUntil)+28;record(t,'council','state',30,'Employer van registration');}
+  if(!v.roadworthy)return r(false,'The employer van needs further workshop repairs before cargo can be loaded. Worker funds are unchanged.');
   if(v.fuel<6){if(!(depot.out.fuel>=1))return r(false,'Employer fuel is unavailable; wait for train supplies.');depot.out.fuel--;v.fuel=Math.min(30,v.fuel+10);}
   for(const l of route.lines)depot.out[l.good]-=l.n;
   route.status='loaded';route.registration=v.registration;route.startOdometer=v.odometer||0;duty('load-parcels');return r(true,'Correct parcels secured in RT-WORK, parked on the road beside the depot. Walk to its driver door and drive the displayed route. Exit after stopping before unloading inside each business.');

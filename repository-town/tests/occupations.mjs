@@ -42,6 +42,10 @@ for(const [i,l] of route.lines.entries()){
  assert(Math.hypot(van.x-p.curb.x,van.z-p.curb.z)<22);assert(deliveryAction(t,'unload',l.to).ok);assert.equal(p.stock[l.good],before+l.n);assert(!deliveryAction(t,'unload',l.to).ok);
 }
 assert.equal(route.status,'completed');
+assert.match(driving.enter(van),/Engine started/);throttle=1;let backFrames=0;while(Math.abs(van.x-t.place('depot').curb.x)>9&&backFrames++<12000)driving.update(1/60);assert(backFrames<12000);throttle=0;for(let i=0;i<180;i++)driving.update(1/60);assert.match(driving.exit(),/got out safely/);t.playerAt='depot';assert(deliveryAction(t,'return').ok);assert(route.returnedAt);
+// An older, worn employer van is funded from employer accounts, never worker cash.
+assert(deliveryAction(t,'manifest').ok);van.condition=58;van.roadworthy=false;van.regoUntil=t.day-1;const workerMoney=t.civic.player.wallet+t.civic.player.bank,publicFunds=t.civic.treasury;t.civic.treasury=10;assert(!deliveryAction(t,'load').ok);assert.equal(deliveryState(t).route.status,'accepted');t.civic.treasury=publicFunds;assert(deliveryAction(t,'load').ok);assert.equal(t.civic.player.wallet+t.civic.player.bank,workerMoney);assert.equal(t.civic.treasury,publicFunds-112);assert(van.roadworthy&&van.regoUntil>t.day);
+
 // Bread never becomes saleable before all stages and cooling complete.
 t=make();staff(t,'bakery');const bakery=t.place('bakery');bakery.out.bread=0;bakery.stock.flour=6;assert(superviseBread(t,'wash').ok);assert(!superviseBread(t,'weigh',1000).ok);assert(superviseBread(t,'weigh',2000).ok);assert(!superviseBread(t,'weigh',2000).ok);assert(superviseBread(t,'mix').ok);for(let i=0;i<8;i++)assert(superviseBread(t,'shape').ok);assert(superviseBread(t,'proof').ok);assert(!superviseBread(t,'oven').ok);t.minute+=40;assert(superviseBread(t,'oven').ok);t.minute+=25;assert(superviseBread(t,'unload').ok);assert.equal(bakery.out.bread,0);assert(!superviseBread(t,'pack').ok);t.minute+=6;assert(superviseBread(t,'pack').ok);assert.equal(bakery.out.bread,8);assert(!superviseBread(t,'pack').ok);
 // FEFO, exact batch return and cold exposure persist through saves.
