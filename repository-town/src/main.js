@@ -36,6 +36,7 @@ import { nearestSeat } from './world/seats.js';
 import { furniturePanel } from './ui/furniture.js';
 import { createAmbience } from './ui/ambience.js';
 import { bakeryKitchenPanel } from './ui/bakery-panel.js';
+import { superviseBread } from './world/bakery-production.js';
 import { walletPanel, jobBoardPanel } from './ui/economy-panels.js';
 import { placePanel, ledgerPanel, guidePanel, needsPanel, relicsLeft, townContext, householdPanel } from './ui/townpanels.js';
 import { createExpedition } from './adventure/expedition.js';
@@ -612,6 +613,12 @@ async function start() {
         const result=usePhysicalJob(life,thing.act.task);
         inside.workStationVisuals?.();
         status(result.message);
+        return;
+      }
+      if(inside?.place?.id==='bakery'&&thing.act?.do==='bakery-production'){
+        const result=superviseBread(life,thing.act.action);
+        status(result.message);
+        openPanel(bakeryKitchenPanel(life,result.message),thing);
         return;
       }
       if(inside?.place&&thing.act?.do==='bakery-kitchen'){
