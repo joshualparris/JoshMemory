@@ -41,7 +41,7 @@ export function walletPanel(life, opts = {}) {
     body: `<p><b>Wallet:</b> ${d(me.wallet)} · <b>Savings at the bank:</b> ${d(me.bank)} · <b>Total:</b> ${d(me.wallet + me.bank)}</p>
       <p><b>Earned from work and trading:</b> ${d(cr.earned)} · <b>Spent in shops:</b> ${d(j.spent)} · <b>Bag:</b> ${bag}</p>
       <p><b>Overdue:</b> rent ${d(r.rentArrears)}, power ${d(r.powerArrears)} · <b>Loan:</b> ${cr.loan ? d(cr.loan.owed) + ' owing, due day ' + cr.loan.due : 'none'}</p>
-      <p class="dim">Rent $8 and power $2 come out each morning (from day 2), then PAYG tax is taken from wages. Bank counter: deposits, loans and bills.</p>
+      <p class="dim">Daily rent is charged only for an active signed lease; household electricity is charged only while you occupy a home. Hotel stays are paid at reception. PAYG is withheld from wages.</p>
       <p><b>Wages still owed to you:</b> TD ${d(j.wageDebt)}</p><h3>Recent receipts</h3><table class="ledger"><tr><th>When</th><th>What</th><th>Change</th></tr>${rows}</table>`,
     actions: [
       {label:'Timesheets and payslips',run:()=>payslipPanel(life,()=>walletPanel(life,opts))},
