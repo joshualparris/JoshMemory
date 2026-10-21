@@ -143,8 +143,10 @@ async function play(kind,options) {
   // collision/door checks with the direct enterShop() harness shortcut.
   await page.evaluate(()=>window.__town.goPlace('cafe'));
   const cafeDoor=await page.evaluate(()=>{
-    const p=window.__town.state().pos;
-    return {x:p.x,z:p.z-0.8};
+    // placeFront is deliberately 5.1 metres back on the public footpath,
+    // NOT the door. Use the real entrance locator for the final approach.
+    const p=window.__town.shops().find(s=>s.id==='cafe');
+    return {x:p.door.x,z:p.door.z+1.0};
   });
   assert(await page.evaluate(p=>!window.__town.probeStatic(p.x,p.z),cafeDoor),
     kind+': staffed café doorway is physically blocked');
