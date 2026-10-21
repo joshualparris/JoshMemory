@@ -1167,7 +1167,8 @@ async function start() {
       for(const v of life.villagers)if(v.work==='cafe'){
         v.step={kind:'work',at:'cafe'};v.path=[];v.inside=true;
       }
-      return life.jobSupervisors('cafe').length>0&&life.playerAt==='cafe';
+      life.playerAt='cafe'; // test's immediate setup runs before the next animation frame
+      return life.jobSupervisors('cafe').length>0;
     };
     window.__town.queueCafeTestPatron=()=>{
       if(inside?.place?.id!=='cafe'||life.civic.jobs?.active?.site!=='cafe')return null;
