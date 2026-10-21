@@ -61,7 +61,7 @@ t.civic.treasury = 1000; shop.till = 0;
 assert.match(t.startJob('post-assistant').message, /Shift started/);
 t.playerAt = 'post'; staff('post'); run(31);
 for (const k of JOB_BOARD.find((x) => x.id === 'post-assistant').tasks) { task(k); run(6); }
-const c0 = t.civic.treasury; assert.match(t.finishJob().message, /Shift complete/); assert.equal(c0 - t.civic.treasury, 22, 'council covered the post office wage');
+const c0 = t.civic.treasury; assert.match(t.finishJob().message, /Shift complete/); assert(Math.abs((c0 - t.civic.treasury) - 22) < 1e-6, 'council covered the post office wage exactly to floating point precision');
 
 // Daily labour is limited by paid minutes, not an arbitrary two short shifts.
 assert(t.jobsReport().shiftsToday>=3,'all signed shifts appear on payslips');
