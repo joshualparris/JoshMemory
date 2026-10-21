@@ -1182,6 +1182,12 @@ async function start() {
     // Stands at the Town Guide kiosk, facing it.
     meetGuide() { if (mode === 'house') leave(false); player.place(town.guidePos.x, town.guidePos.z + 1.6, 0); return 'guide'; },
     goPlace,
+    driveDiagnostics:()=>({
+      input:input.movement(),touch:input.touch,
+      active:driving.activeVehicle()?.registration||null,
+      message:driving.message||null,
+      vehicle:driving.activeVehicle()?{...driving.activeVehicle()}:null
+    }),
     vehicles:()=>life.motorReport().owned.map(v=>({...v})),
     enterVehicle:(reg)=>driving.enter(life.motorReport().owned.find(v=>v.registration===reg)),
     leaveVehicle:()=>driving.exit(),
