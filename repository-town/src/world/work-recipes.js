@@ -4,7 +4,7 @@ export const WORK_RECIPES = Object.freeze([
  {id:'espresso',name:'Espresso',price:4,ingredients:{coffee:1},kind:'coffee',steps:[['grind','Grind beans',.68],['tamp','Tamp evenly',.55],['extract','Extract espresso',.64]]},
  {id:'eggs-toast',name:'Eggs on toast',price:13,ingredients:{eggs:2,bread:1},kind:'food',steps:[['prep','Crack eggs and prepare toast',.5],['cook','Time the eggs',.67],['plate','Plate breakfast',.55]]},
  {id:'vegie-toastie',name:'Vegetable toastie',price:12,ingredients:{bread:2,veg:1},kind:'food',steps:[['prep','Assemble the toastie',.55],['cook','Toast until golden',.65],['plate','Slice and plate',.5]]},
- {id:'pie',name:'Meat pie',price:9,ingredients:{pie:1},kind:'oven',steps:[['tray','Load the oven tray',.5],['bake','Time the bake',.7],['plate','Plate the pie',.5]]},
+ {id:'pie',name:'Meat pie',price:9,ingredients:{pie:1},kind:'oven',steps:[['preheat','Check oven heat at 200 °C',.62],['tray','Load the oven tray',.5],['bake','Time the bake',.7],['probe','Check a 75 °C game food centre',.62],['plate','Rest and plate the pie',.5]]},
  {id:'black-tea',name:'Pot of tea',price:4,ingredients:{tea:1},kind:'tea',steps:[['fill','Fill the teapot',.65],['steep','Time the steep',.6],['pour','Pour the tea',.55]]}
 ]);
 export const recipeFor=id=>FULL_WORK_MENU.find(r=>r.id===id);
@@ -30,9 +30,9 @@ export function orderRecipe(order){
  const ids=order.items?.length?order.items:[order.item],recipes=ids.map(id=>FULL_WORK_MENU.find(r=>r.id===id)).filter(Boolean);
  if(!recipes.length)return recipeFor(order.item);
  const ingredients={};for(const r of recipes)for(const[g,n]of Object.entries(r.ingredients))ingredients[g]=(ingredients[g]||0)+n;
- if(order.milk==='oat'&&ingredients.milk){ingredients.oatmilk=ingredients.milk;delete ingredients.milk;}
- if(order.diet==='gluten-free')delete ingredients.bread;
+ if(['oat','soy'].includes(order.milk)&&ingredients.milk){const key=order.milk==='oat'?'oatmilk':'soymilk';ingredients[key]=(ingredients[key]||0)+ingredients.milk;delete ingredients.milk;}
+ if((order.bread==='gluten-free'||(!order.bread&&order.diet==='gluten-free'))&&ingredients.bread){ingredients.gfbread=(ingredients.gfbread||0)+ingredients.bread;delete ingredients.bread;}
  const multi=recipes.length>1;
  return {id:order.item,name:recipes.map(r=>r.name).join(' + ')+(order.milk==='oat'?' · oat milk':'')+(order.diet&&order.diet!=='standard'?' · '+order.diet:''),price:recipes.reduce((n,r)=>n+r.price,0),ingredients,kind:recipes.some(r=>['food','oven'].includes(r.kind))?'food':recipes[0].kind,
- steps:recipes.flatMap((r,i)=>r.steps.map(([id,label,target])=>[multi?i+':'+id:id,(multi?r.name+' · ':'')+label,target,['food','oven'].includes(r.kind)?'kitchen':'barista'])),hasMilk:!!ingredients.milk||!!ingredients.oatmilk};
+ steps:recipes.flatMap((r,i)=>r.steps.map(([id,label,target])=>[multi?i+':'+id:id,(multi?r.name+' · ':'')+label,target,['food','oven'].includes(r.kind)?'kitchen':'barista'])),hasMilk:recipes.some(r=>!!r.ingredients.milk),hasBread:recipes.some(r=>!!r.ingredients.bread)};
 }
