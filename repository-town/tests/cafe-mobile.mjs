@@ -24,6 +24,9 @@ try{
  }
  assert(await page.evaluate(()=>window.__town.enterShop('cafe')),'enter café');
  await page.waitForFunction(()=>window.__town.state().mode==='house');
+ // Freeze simulation time during this deterministic UI test; animations and touch remain live.
+ // Prevent villager AI from replacing the fixture's supervised shifts and customer steps.
+ await page.evaluate(()=>window.__town.life.speed(0));
  assert(await page.evaluate(()=>window.__town.prepareCafeTestShift?.()),'local fixture provides funded supervised workplace');
  const desk=(await state()).interactables.find(x=>x.do==='civic-ledger');
  assert(desk,'counter has work board');
