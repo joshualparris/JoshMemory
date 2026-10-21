@@ -9,6 +9,7 @@ import { buildTown, streetSigns, lotPosition } from './world/town.js';
 import { buildInterior, labelVisible } from './world/interior.js';
 import { honourPaulRoe } from './world/paul-roe-tribute.js';
 import { buildCivicInterior } from './world/shop-interior.js';
+import { installPhysicalJobs, usePhysicalJob } from './world/physical-jobs.js';
 import { wasteDepotPanel } from './ui/waste-depot-panel.js';
 import { surfaceAt, roomFloor } from './world/surfaces.js';
 import { FIELD_Z0 } from './world/life.js';
@@ -326,6 +327,7 @@ async function start() {
     if(mode!=='town'||!life.places.has(id))return false;
     const yawIn = player.yaw;
     const site=life.place(id), built=buildCivicInterior(site,makeLabel,life);
+    installPhysicalJobs(built,site,makeLabel,life);
     const staff=populateShopStaff(site,life,built,makeLabel);
     const brief={coordinate:site.col+'8',name:site.name,kind:site.kind,
       street:'High Street',summary:'Explore the shop interior and speak to staff.'};
@@ -604,6 +606,12 @@ async function start() {
             body:'<p>This is a private home. Its residents need their beds to sleep. To stay overnight, book your own room at the Railway Hotel, I8.</p>',
             actions:[]},thing);
         }
+        return;
+      }
+      if(inside?.place&&thing.act?.do==='physical-job'){
+        const result=usePhysicalJob(life,thing.act.task);
+        inside.workStationVisuals?.();
+        status(result.message);
         return;
       }
       if(inside?.place&&thing.act?.do==='bakery-kitchen'){
