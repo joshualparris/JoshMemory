@@ -37,8 +37,15 @@ try {
  let v=await page.evaluate(()=>window.__town.vehicles()[0]);
  assert(v&&v.registration&&Number.isFinite(v.x),'purchased car appears in world: '+JSON.stringify({result,vehicle:v}).slice(0,1000));
  await page.evaluate(()=>{window.__town.exitShop();});
+ // Parking assignment is resolved when the street scene becomes active.
+ // Never walk to an obsolete provisional delivery position.
+ await page.waitForFunction(reg=>{
+   const car=window.__town.vehicles().find(v=>v.registration===reg);
+   return car&&!car.parkingPending&&Number.isFinite(car.x)&&Number.isFinite(car.z);
+ },v.registration,{timeout:10000});
+ v=await page.evaluate(reg=>window.__town.vehicles().find(v=>v.registration===reg),v.registration);
  await page.evaluate(p=>window.__town.place(p.x+1.5,p.z+1.5),v);
- await page.waitForFunction(reg=>window.__town.state().nearbyVehicle===reg,v.registration,{timeout:6000});
+ await page.waitForFunction(reg=>window.__town.state().nearbyVehicle===reg,v.registration,{timeout:10000});
  await page.tap('#t-use');
  await page.waitForFunction(()=>!!window.__town.state().driving,null,{timeout:5000});
  // Real touch events move the on-screen joystick: the same path as Android input.
