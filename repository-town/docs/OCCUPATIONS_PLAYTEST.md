@@ -31,6 +31,8 @@ Three complete supervised shifts at a workplace earn its town certificate and a 
 ## Automated evidence
 
 - `tests/visitor-payroll.mjs`: early/midnight pay, partial debts, cumulative PAYG, save/reload, paid breaks, fair rework, wage progression, contract escrow/acceptance/cancellation, repeated-payment refusal.
+- `tests/work-save.mjs`: every hands-on occupation reloaded after each step matches a straight playthrough; finished duties, café trays and delivery receipts cannot repeat after a reload; loading an older save drops later work; 10 days of shifts with 40 reloads match an uninterrupted town.
+- `tests/cafe-play.mjs --reload` (desktop and emulated Android): reloads the real page with an accepted order and again with a tray in hand, then delivers it — shift, ticket, tray and wallet come back exactly once.
 - `tests/occupations.mjs`: finite freight, correct post addresses, garden/animal supply chain, cleaning, lamp/tap/mixer repair effects, driven van route and signed receipts, full bread production, FEFO/cold handling/returns, every menu recipe, saved bundled oat order, patience, latte gesture scoring and reachable workstations.
 - `tests/workplay.mjs`, `tests/workplay-geometry.mjs`, `tests/work-audio.mjs`: existing stock/orders, actual customer seating, collision/path checks and audio graph/mixer bounds.
 - `npm run build:release`: whole-town regression, four-week simulation, public build/privacy and packed-game integrity.

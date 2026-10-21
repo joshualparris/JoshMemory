@@ -1,11 +1,13 @@
 // Café service in the real browser build, played like a player: start the café shift, take a real
 // villager's order at the till, pick the ticket's milk jug, work every preparation step (assisted
 // skill and latte-art panels) at whichever station the game asks for, collect the tray and deliver
-// it to the right table. Desktop by default; --mobile emulates an Android phone.
-//   node tests/cafe-play.mjs [--mobile] [--url u]
+// it to the right table. Desktop by default; --mobile emulates an Android phone. --reload reloads the
+// page (the game's own save) after taking the order and after collecting the tray, and checks the
+// shift, ticket, tray and wallet come back exactly once.
+//   node tests/cafe-play.mjs [--mobile] [--reload] [--url u]
 import { chromium } from 'playwright';
 const arg = (k, d) => { const i = process.argv.indexOf(k); return i >= 0 ? process.argv[i + 1] : d; };
-const mobile = process.argv.includes('--mobile');
+const mobile = process.argv.includes('--mobile'), reloads = process.argv.includes('--reload');
 const b = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
 const ctx = await b.newContext(mobile ? { viewport: { width: 412, height: 915 }, hasTouch: true, isMobile: true, deviceScaleFactor: 2 } : { viewport: { width: 1100, height: 700 } });
 const page = await ctx.newPage(); const errors = []; page.on('pageerror', (e) => errors.push(e.message));
@@ -24,10 +26,12 @@ await T(() => window.__town.closePanel?.());
 await T(() => window.__town.life.setTime(11 * 60 + 30));
 const staffed = () => T(() => window.__town.state().people.some((q) => { const r = window.__town.life.route(q.name); return r?.step?.kind === 'work' && r.step.at === 'cafe' && !r.path.length; }));
 for (let i = 0; i < 24 && !(await staffed()); i++) await T(() => window.__town.life.run(5));
-await T(() => window.__town.goPlace('cafe'));
-await page.waitForFunction(() => /^place:cafe$/.test(window.__town.state().nearPerson || ''), null, { timeout: 15000 }).catch(() => {});
-await press('e');
-let s = await st(); step(s.mode === 'house', 'entered Commit Café');
+const enter = async () => {
+  await T(() => window.__town.goPlace('cafe'));
+  await page.waitForFunction(() => /^place:cafe$/.test(window.__town.state().nearPerson || ''), null, { timeout: 15000 }).catch(() => {});
+  await press('e'); return st();
+};
+let s = await enter(); step(s.mode === 'house', 'entered Commit Café');
 const desk = s.interactables.find((x) => x.do === 'civic-ledger');
 let msg = '';
 for (let tries = 0; tries < 12 && !/Shift started/.test(msg); tries++) {
@@ -44,6 +48,17 @@ await go('workplay:cafe:orders'); const said = await status();
 const id = await T(() => window.__town.state().workplay.cafe.selected);
 let ticket = await ticketOf(id);
 step(ticket && ticket.state === 'accepted', 'took the order: ' + said.slice(0, 120));
+// Reload the page (pagehide saves the town) and check the work came back once, then walk back in.
+const saved = () => T((id) => { const c = window.__town.life.ledger().civic; return { shift: c.jobs?.active?.id, worked: c.jobs?.active?.worked || 0, wallet: c.player.wallet, tickets: c.workplay.cafe.tickets.filter((o) => o.id === id).map((o) => JSON.stringify([o.id, o.state, o.items, o.step, o.table, o.milk])), tray: c.workplay.cafe.held ?? null }; }, id);
+const reload = async (what) => {
+  const before = await saved();
+  await page.reload(); await page.waitForFunction(() => window.__town && document.getElementById('loading').hidden, null, { timeout: 90000 });
+  const after = await saved();
+  step(after.shift === before.shift && after.worked >= before.worked && after.wallet === before.wallet && after.tickets.length === 1 && after.tickets[0] === before.tickets[0] && after.tray === before.tray,
+    'reloaded with ' + what + ' saved once (shift ' + after.shift + ', ' + Math.round(after.worked) + ' min worked, wallet $' + after.wallet + ')');
+  if ((await st()).mode !== 'house') await enter();
+};
+if (reloads) await reload('the accepted order');
 let station = 'barista', art = false, milk = false;
 for (let n = 0; n < 40 && (ticket = await ticketOf(id)).state !== 'ready'; n++) {
   s = await go('workplay:cafe:' + station);
@@ -55,6 +70,7 @@ for (let n = 0; n < 40 && (ticket = await ticketOf(id)).state !== 'ready'; n++) 
 }
 step(ticket.state === 'ready', 'every item ready: ' + (ticket.items || []).join(' + ') + (milk ? ' · ' + ticket.milk + ' milk chosen' : '') + (art ? ' · latte art' : ''));
 await go('workplay:cafe:pass'); step(/Carrying/.test(await status()), 'collected the tray at the pass');
+if (reloads) await reload('the carried tray');
 let paid = false;
 for (let i = 0; i < 12 && !paid; i++) { await go('workplay:cafe:table-' + ticket.table); paid = /paid to the café/.test(await status()); if (!paid) await T(() => window.__town.life.run(1)); }
 step(paid, 'delivered to table ' + ticket.table + ': ' + (await status()).slice(0, 120));
@@ -62,4 +78,4 @@ const hud = await T(() => document.getElementById('workplay-hud')?.innerText || 
 step(/served/.test(hud), 'HUD: ' + hud.replace(/\n/g, ' | '));
 step(!errors.length, 'no page errors ' + errors.join('; '));
 await b.close();
-console.log(process.exitCode ? 'Cafe play FAILED' : 'All cafe-play checks passed (' + (mobile ? 'mobile' : 'desktop') + ').');
+console.log(process.exitCode ? 'Cafe play FAILED' : 'All cafe-play checks passed (' + (mobile ? 'mobile' : 'desktop') + (reloads ? ', with reloads' : '') + ').');

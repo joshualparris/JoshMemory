@@ -25,7 +25,7 @@ Player-requested roadmap. Check boxes only when the complete gameplay loop is im
 - [x] Employer finances determine hiring and payment; record unpaid wages as debt rather than erase work.
 - [x] Payslips show hours, rates, gross pay, PAYG and take-home pay, in fictional Town Dollars.
 - [x] Fair error/rework feedback without arbitrary wage deductions.
-- [ ] Save/restore all work, avoid duplicated goods/payments, verify desktop/mobile and long-running simulation.
+- [x] Save/restore all work, avoid duplicated goods/payments, verify desktop/mobile and long-running simulation (`tests/work-save.mjs`, `tests/cafe-play.mjs --reload` desktop + mobile).
 
 ## Experience standard
 Work changes something visible; another resident benefits; payment funds a meaningful town life.
