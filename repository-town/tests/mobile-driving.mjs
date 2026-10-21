@@ -11,8 +11,17 @@ try {
  await page.goto(URL,{waitUntil:'domcontentloaded',timeout:90000});
  await page.waitForFunction(()=>window.__town&&document.getElementById('loading').hidden,null,{timeout:90000});
  assert(await page.isVisible('#t-use'),'the mobile Use action is visible');
- await page.evaluate(()=>{window.__town.life.setTime(10*60);window.__town.life.ledger().civic.player.bank=5000;window.__town.enterShop('dealership');});
- await page.waitForFunction(()=>window.__town.state().mode==='house');
+ await page.evaluate(()=>{window.__town.life.setTime(8*60);window.__town.life.ledger().civic.player.bank=5000;});
+ let dealer=null;
+ for(let attempt=0;attempt<27;attempt++){
+   dealer=await page.evaluate(()=>window.__town.facilityState?.('dealership')||null);
+   if(dealer?.allowed)break;
+   await page.evaluate(()=>window.__town.advanceSimulation?.(10));
+ }
+ assert(dealer?.allowed,'dealer must have a real consultant in attendance: '+JSON.stringify(dealer));
+ assert(await page.evaluate(()=>window.__town.enterShop('dealership')),
+    'staffed dealership refused admission: '+JSON.stringify(dealer));
+ await page.waitForFunction(()=>window.__town.state().mode==='house',{timeout:8000});
  const things=await page.evaluate(()=>window.__town.state().interactables);
  const counter=things.find(x=>/vehicle sales desk/i.test(x.label));
  assert(counter,'showroom sales counter exists');
@@ -28,8 +37,15 @@ try {
  let v=await page.evaluate(()=>window.__town.vehicles()[0]);
  assert(v&&v.registration&&Number.isFinite(v.x),'purchased car appears in world: '+JSON.stringify({result,vehicle:v}).slice(0,1000));
  await page.evaluate(()=>{window.__town.exitShop();});
+ // Parking assignment is resolved when the street scene becomes active.
+ // Never walk to an obsolete provisional delivery position.
+ await page.waitForFunction(reg=>{
+   const car=window.__town.vehicles().find(v=>v.registration===reg);
+   return car&&!car.parkingPending&&Number.isFinite(car.x)&&Number.isFinite(car.z);
+ },v.registration,{timeout:10000});
+ v=await page.evaluate(reg=>window.__town.vehicles().find(v=>v.registration===reg),v.registration);
  await page.evaluate(p=>window.__town.place(p.x+1.5,p.z+1.5),v);
- await page.waitForFunction(reg=>window.__town.state().nearbyVehicle===reg,v.registration,{timeout:6000});
+ await page.waitForFunction(reg=>window.__town.state().nearbyVehicle===reg,v.registration,{timeout:10000});
  await page.tap('#t-use');
  await page.waitForFunction(()=>!!window.__town.state().driving,null,{timeout:5000});
  // Real touch events move the on-screen joystick: the same path as Android input.
@@ -37,11 +53,16 @@ try {
  const x=page.viewportSize().width*.2,y=page.viewportSize().height*.7;
  await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y,id:1}]});
  await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x,y:y-48,id:1}]});
+ await new Promise(r=>setTimeout(r,120));
+ const duringTouch=await page.evaluate(()=>window.__town.driveDiagnostics?.());
+ assert(duringTouch&&duringTouch.input.z<-.4,
+    'Android joystick must deliver forward input to the actual game canvas: '+JSON.stringify(duringTouch));
  await new Promise(r=>setTimeout(r,2200));
  await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
  await new Promise(r=>setTimeout(r,200));
  v=await page.evaluate(()=>window.__town.vehicles()[0]);
- assert(v.fuel<20,'mobile joystick advances vehicle and consumes fuel');
+ const diagnosis=await page.evaluate(()=>window.__town.driveDiagnostics?.());
+ assert(v.fuel<20,'mobile joystick advances vehicle and consumes fuel: '+JSON.stringify({duringTouch,diagnosis,current:v}));
  assert(v.odometer>64000,'odometer increases as vehicle travels');
  assert(!errors.length,'no browser page errors: '+errors.join('; '));
  console.log('PASS: Android viewport, full dealer purchase, physical car spawn, touch entry and joystick driving');

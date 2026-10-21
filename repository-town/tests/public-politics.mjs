@@ -1,7 +1,7 @@
 // Public politics regression: voluntary events, differing personalities,
 // respectful opt-outs, physical NPC movement, private ballots and persistence.
 import assert from 'node:assert/strict';
-import {TownLife} from '../src/world/life.js';
+import {TownLife, ROSTER_SIZE} from '../src/world/life.js';
 import {civicTemperament,civicIssue,initialisePublicLife,attendPublicForum,
   updatePublicForum,civicDialogue,publicForumReport} from '../src/world/public-forum.js';
 const homes=[];
@@ -11,7 +11,7 @@ for(let r=0;r<7;r++)for(let c=0;c<26;c+=2)
 const make=()=>new TownLife({homes,minute:1080,seed:20261019});
 const t=make();
 const p=initialisePublicLife(t);
-assert.equal(Object.keys(p.profiles).length,38);
+assert.equal(Object.keys(p.profiles).length,ROSTER_SIZE);
 assert(new Set(Object.values(p.profiles).map(x=>x.temperament)).size>=4,
   'residents have different civic engagement');
 assert(Object.values(p.profiles).some(x=>x.temperament==='avoids'));

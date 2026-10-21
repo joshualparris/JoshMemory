@@ -19,6 +19,9 @@ const extras=[
  ['cappuccino','Cappuccino',5,{coffee:1,milk:1},'coffee',[...coffee,['steam','Build microfoam',.75],['latte-art','Draw a foam heart',.55]]],
  ['iced-latte','Iced latte',6,{coffee:1,milk:1},'coffee',[...coffee,['fill','Layer cold milk and espresso',.65]]],
  ['milk-tea','Tea with milk',4,{tea:1,milk:1},'tea',[['fill','Fill teapot',.65],['steep','Time tea steeping',.6],['pour','Add requested milk',.55]]],
+ ['soy-latte','Soy latte (contains SOY)',6,{coffee:1,soymilk:1},'coffee',[...coffee,['steam','Steam dedicated soy jug; prevent cross-contact',.75],['latte-art','Pour soy microfoam',.55]]],
+ ['soy-flat-white','Soy flat white (contains SOY)',6,{coffee:1,soymilk:1},'coffee',[...coffee,['steam','Texture soy separately',.75],['pour','Pour the flat white',.55]]],
+ ['soy-iced-latte','Iced soy latte (contains SOY)',7,{coffee:1,soymilk:1},'coffee',[...coffee,['fill','Use chilled labelled soy carton',.65]]],
  ['fruit-juice','Fresh fruit juice',6,{fruit:2},'food',[['prep','Wash and halve fruit',.5],['press','Press fresh juice',.65],['pour','Pour and garnish',.55]]],
  ['toast','Toast',5,{bread:1},'food',[['prep','Slice bread',.5],['cook','Toast evenly',.65],['plate','Plate toast',.55]]],
  ['big-brekkie','Big breakfast',19,{eggs:2,bread:1,veg:1},'food',[['prep','Prepare eggs, bread and vegetables',.5],['cook','Coordinate griddle cooking',.65],['plate','Plate all breakfast components',.55]]],
@@ -31,8 +34,10 @@ export function orderRecipe(order){
  if(!recipes.length)return recipeFor(order.item);
  const ingredients={};for(const r of recipes)for(const[g,n]of Object.entries(r.ingredients))ingredients[g]=(ingredients[g]||0)+n;
  if(order.milk==='oat'&&ingredients.milk){ingredients.oatmilk=ingredients.milk;delete ingredients.milk;}
+ if(order.milk==='soy'&&ingredients.milk){ingredients.soymilk=ingredients.milk;delete ingredients.milk;}
+ if(ids.some(id=>id.startsWith('soy-'))&&ingredients.milk){ingredients.soymilk=(ingredients.soymilk||0)+ingredients.milk;delete ingredients.milk;}
  if(order.diet==='gluten-free')delete ingredients.bread;
  const multi=recipes.length>1;
- return {id:order.item,name:recipes.map(r=>r.name).join(' + ')+(order.milk==='oat'?' · oat milk':'')+(order.diet&&order.diet!=='standard'?' · '+order.diet:''),price:recipes.reduce((n,r)=>n+r.price,0),ingredients,kind:recipes.some(r=>['food','oven'].includes(r.kind))?'food':recipes[0].kind,
- steps:recipes.flatMap((r,i)=>r.steps.map(([id,label,target])=>[multi?i+':'+id:id,(multi?r.name+' · ':'')+label,target,['food','oven'].includes(r.kind)?'kitchen':'barista'])),hasMilk:!!ingredients.milk||!!ingredients.oatmilk};
+ return {id:order.item,name:recipes.map(r=>r.name).join(' + ')+(order.milk==='oat'?' · oat milk':order.milk==='soy'?' · SOY allergen':'')+(order.diet&&order.diet!=='standard'?' · '+order.diet:''),price:recipes.reduce((n,r)=>n+r.price,0),ingredients,kind:recipes.some(r=>['food','oven'].includes(r.kind))?'food':recipes[0].kind,
+ steps:recipes.flatMap((r,i)=>r.steps.map(([id,label,target])=>[multi?i+':'+id:id,(multi?r.name+' · ':'')+label,target,['food','oven'].includes(r.kind)?'kitchen':'barista'])),hasMilk:!!ingredients.milk||!!ingredients.oatmilk||!!ingredients.soymilk};
 }

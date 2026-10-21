@@ -2,16 +2,16 @@
 // allocation graph*, NOT an AC load-flow or electrical-safety calculation.
 // Power quantities are fictional game power units per simulated hour.
 export const POWER_EDGES = Object.freeze([
-  { id:'main-feed', from:'generator', to:'junction', capacity:80 },
+  { id:'main-feed', from:'generator', to:'junction', capacity:124 },
   { id:'critical-feed', from:'junction', to:'critical', capacity:16 },
   { id:'clinic-feed', from:'critical', to:'clinic', capacity:4 },
   { id:'waterworks-feed', from:'critical', to:'waterworks', capacity:6 },
   { id:'sewage-feed', from:'critical', to:'sewage', capacity:5 },
-  { id:'business-feed', from:'junction', to:'businesses', capacity:18 },
+  { id:'business-feed', from:'junction', to:'businesses', capacity:24 },
   { id:'bakery-feed', from:'businesses', to:'bakery', capacity:8 },
   { id:'industry-feed', from:'businesses', to:'industry', capacity:9 },
-  { id:'west-feeder', from:'junction', to:'west-homes', capacity:25 },
-  { id:'east-feeder', from:'junction', to:'east-homes', capacity:25 },
+  { id:'west-feeder', from:'junction', to:'west-homes', capacity:48 },
+  { id:'east-feeder', from:'junction', to:'east-homes', capacity:48 },
 ]);
 export const POWER_LINE_IDS = Object.freeze(POWER_EDGES.map(e => e.id));
 export const GRID_FAULT_COST = Object.freeze({ credits:90, parts:2 });
