@@ -247,6 +247,7 @@ async function start() {
     const floors = inside.floors, house = inside.house;
     if (target === inside.floorIndex) { closePanel(); return true; }
     closePanel(); npcChat.close(); nearThing = null; nearNPC = null;
+    inside.bakeryImmersion?.dispose();
     scene.remove(inside.group);
     const next = floors.levels[target];
     inside = { house, ...next, floorIndex:target, floors, people:next.people || [], view:inside.view, ownMeshes:inside.ownMeshes };
