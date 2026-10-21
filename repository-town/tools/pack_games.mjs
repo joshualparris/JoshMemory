@@ -420,6 +420,8 @@ for (const g of manifest.games) {
         run('npm', [fs.existsSync(path.join(work, 'package-lock.json')) ? 'ci' : 'install', '--no-audit', '--no-fund', '--ignore-scripts', '--loglevel=error'], work);
       }
       await makePlayable(out, g.entry || 'index.html', { ...g, nodePaths: work ? [path.join(work, 'node_modules')] : [] });
+      // The town opens games/<id>/index.html, so a differently named top-level entry page takes that name.
+      if (g.entry && !g.entry.includes('/') && g.entry !== 'index.html') fs.renameSync(path.join(out, g.entry), path.join(out, 'index.html'));
       if (work) fs.rmSync(work, { recursive: true, force: true });
     } else if (g.kind === 'vite') {
       await packVite(g, clone, out);

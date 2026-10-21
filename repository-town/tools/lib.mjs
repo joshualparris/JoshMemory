@@ -138,7 +138,7 @@ export function arcadeRoom(games) {
   const side = Math.min(16, Math.max(8, 6 + games.length * 0.75));
   return {
     name: games.length > 1 ? 'Arcade' : 'Game Room', archive: true, w: side, d: side, floor: 0x2a2440, walls: 0x3b3366,
-    props: games.map((g) => ['arcadeCabinet', `▶ ${g.title}`, { do: 'game', title: g.title, game: g.id, text: (g.about || PLAY_TEXT[g.kind]) + (g.online && !g.about ? ' It loads parts from the internet, so it needs a connection.' : ''), c: 0x2b2b6e, a: 0x7fe0ff, at: 'wall' }]),
+    props: games.map((g) => ['arcadeCabinet', `▶ ${g.title}`, { do: 'game', title: g.title, game: g.id, ...(g.public ? { public: true } : {}), text: (g.about || PLAY_TEXT[g.kind]) + (g.online && !g.about ? ' It loads parts from the internet, so it needs a connection.' : ''), c: 0x2b2b6e, a: 0x7fe0ff, at: 'wall' }]),
   };
 }
 
@@ -198,7 +198,8 @@ export function sanitise(house) {
       rooms: house.int.rooms.map((r, ri) => ({
         ...r,
         name: r.archive ? r.name : `Room ${ri + 1}`,
-        props: r.props.map(([type, label, act]) => (act?.do === 'npc' ? [type, label, act] : act?.do
+        // Game cabinets the owner approved for the public town (games.json "public": true) stay playable.
+        props: r.props.map(([type, label, act]) => (act?.do === 'npc' || (act?.do === 'game' && act.public) ? [type, label, act] : act?.do
           ? [type, PROPS[type].label, { do: 'toggle', title: PROPS[type].label, on: generic, off: 'Switched off.', at: act.at, c: act.c, a: act.a }]
           : [type, undefined, act?.at ? { at: act.at, c: act.c, a: act.a } : act?.c ? { c: act.c, a: act.a } : undefined])),
       })),

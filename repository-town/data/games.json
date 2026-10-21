@@ -1,5 +1,5 @@
 {
-  "note": "Games playable inside Repository Town. Packed by tools/pack_games.mjs into games/<id>/. kind: static | vite | python. Not playable in a browser yet: energyquest (Unity 2021.3 project: a WebGL export needs the Unity editor and a licence sign-in), multi-layer-zoom-game in openclaw-workspace (Parcel build, not yet supported by the packer). joshualparris/JoshHub's classic-dnd-text and newgame (Dark Realms) are broken in that repo; the fixed copies from Parris-Tech-Services/JoshHub (branch ccr-846db548-0l5zmu) play in the X3 house. Needs its own server, so not packed: rothfuss-kkc-adventure (SQLite + optional Gemini narration). JoshHub's tile-game (both copies) fetches src/map.json, which is not in either repository. SwordCoast's index.html loads src/main.js and styles/main.css, which are not in the repository (the same game plays from dndgame). Parris-Life-Dashboard's neon-dash is a placeholder page.",
+  "note": "Games playable inside Repository Town. Packed by tools/pack_games.mjs into games/<id>/. kind: static | vite | python. Not playable in a browser yet: energyquest (Unity 2021.3 project: a WebGL export needs the Unity editor and a licence sign-in), multi-layer-zoom-game in openclaw-workspace (Parcel build, not yet supported by the packer). joshualparris/JoshHub's classic-dnd-text and newgame (Dark Realms) are broken in that repo; the fixed copies from Parris-Tech-Services/JoshHub (branch ccr-846db548-0l5zmu) play in the X3 house. Needs its own server, so not packed: rothfuss-kkc-adventure (SQLite + optional Gemini narration). JoshHub's tile-game (both copies) fetches src/map.json, which is not in either repository. SwordCoast's index.html loads src/main.js and styles/main.css, which are not in the repository (the same game plays from dndgame). Parris-Life-Dashboard's neon-dash is a placeholder page. SIM-DBO1 Defender Trainer (dbo1-defender) is packed from DubboDataCentre branch ccr-78130064-ssgp5r (its PR #4 is not merged to main yet); owner approved making it public in the town on 2026-10-21.",
   "games": [
     {
       "id": "whispering-wilds-py",
@@ -641,6 +641,16 @@
       "title": "Tile Game",
       "kind": "static",
       "dir": "public/games/tile-game"
+    },
+    {
+      "id": "dbo1-defender",
+      "repo": "Parris-Tech-Services/DubboDataCentre",
+      "title": "SIM-DBO1 Defender Trainer",
+      "kind": "static",
+      "dir": "training-game/dbo1-defender-sim/assets",
+      "entry": "standalone.html",
+      "public": true,
+      "about": "A blue-team awareness game: you are the defender at reception, the mantrap and the SOC console. Spot the pressure, refuse, verify out-of-band and report. All data is fictional."
     }
   ]
 }
