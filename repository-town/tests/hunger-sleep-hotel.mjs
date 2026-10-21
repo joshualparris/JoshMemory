@@ -70,7 +70,7 @@ assert.equal(restored.civic.player.hotelBooking.room,booking.room);
 assert.equal(restored.place('hotel').bookings.length,1);
 assert.equal(restored.villagers[0].fatigue,v.fatigue);
 const before=restored.day,spent=restored.civic.player.wallet+restored.civic.player.bank;
-assert.match(restored.sleepHotel(booking.room),/slept at the hotel/);
+assert.match(restored.sleepHotel(booking.room),/slept at (?:the )?(?:Railway )?Hotel/i);
 assert(restored.civic.player.fatigue<35,'8 hours sleep restores player');
 // Sleeping runs the clock into a new day, so the visitor's morning rent and power come out, and nothing else.
 const billed=restored.civic.finance.visitorPaid;
