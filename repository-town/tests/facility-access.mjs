@@ -44,7 +44,7 @@ for(const minute of [12*60+45,13*60+15,13*60+45]){
  for(const id of noonSites){
   const site=lunchtime.place(id),access=facilityAccess(lunchtime,site);
   if(!access.allowed)lunchtimeFailures.push({id,time:lunchtime.time(),reason:access.reason,
-    staff:lunchtime.villagers.filter(v=>v.work===id).map(v=>({name:v.name,step:v.step?.kind,at:v.step?.at,path:v.path.length}))});
+    staff:lunchtime.villagers.filter(v=>v.work===id).map(v=>({name:v.name,step:v.step?.kind,at:v.step?.at,path:v.path.length,x:Math.round(v.x),z:Math.round(v.z),distance:Math.round(Math.hypot(v.x-site.front.x,v.z-site.front.z)),next:v.path[0]&&{x:Math.round(v.path[0].x),z:Math.round(v.path[0].z)}}))});
  }
 }
 assert.equal(lunchtimeFailures.length,0,'Unstaffed lunchtime entrances: '+JSON.stringify(lunchtimeFailures));
