@@ -1,3 +1,4 @@
+import { cafeCounter } from './workplay.js';
 // Shop counters: a real line in arrival order, served by however many staff are on the floor,
 // then (for cooked food) a kitchen that takes time to make it. Pure logic, deterministic.
 //
@@ -59,6 +60,7 @@ export function joinLine(life, v) {
 // meal, the eating); it returns false when the customer was turned away. Returns true while busy.
 export function tickCounter(life, v, minutes, serve, dishFor) {
   const s = v.step, place = life.place(s.at);
+  if(cafeCounter(life,v))return true;
   if (s.food) {
     if (now(life) < s.food.ready) return true;
     const dish = s.food.dish; delete s.food;

@@ -36,6 +36,7 @@ const cube=(group,color,w,h,d,x,y,z)=>{
  m.position.set(x,y,z);group.add(m);return m;
 };
 export function installPhysicalJobs(built,site,makeLabel,life){
+ if(['store','cafe'].includes(site.id))return;
  const def=JOB_BOARD.find(d=>d.site===site.id);
  if(!def)return;
  const stations=STATIONS[site.id]||STATIONS.hall;

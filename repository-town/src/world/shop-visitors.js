@@ -1,3 +1,4 @@
+import {CAFE_TABLES} from './work-recipes.js';
 // The real TownLife roster drives visible civic visitors. This is presentation
 // only: it never invents a customer, spends money, or advances the town clock.
 import * as THREE from 'three';
@@ -92,7 +93,9 @@ export function createShopVisitors(site,life,interior,makeLabel,people){
     s.key!==playerSeat && !reserved.has(s.key) && !s.occupiedBy &&
     (['pub','cafe'].includes(site.id) ? ['chair','stool','sofa','armchair','bench'].includes(s.type) : true));
   const reserveSeat=(p,reserved,playerSeat)=>{
-    const options=vacantSeats(reserved,playerSeat)
+    const ticket=site.id==='cafe'?life.civic?.workplay?.cafe?.tickets.find(o=>o.id===p.v.step?.workTicket):null;
+    const table=ticket&&CAFE_TABLES[ticket.table-1];
+    const options=vacantSeats(reserved,playerSeat).filter(s=>!table||Math.hypot(s.pos.x-table[0],s.pos.z-table[1])<.85)
       .map(s=>({s,landing:nearSeat(s,boxes,bounds)})).filter(x=>x.landing)
       .sort((a,b)=>length(a.landing,p.pos)-length(b.landing,p.pos));
     for(const {s,landing} of options){
@@ -205,6 +208,12 @@ export function createShopVisitors(site,life,interior,makeLabel,people){
       }
       if(p.state==='standing'&&p.seat&&p.next==='service'&&!p.exit){
         if(setDestination(p,p.landing))p.next='seating';
+      }
+      const ticket=site.id==='cafe'?life.civic?.workplay?.cafe?.tickets.find(o=>o.id===p.v.step?.workTicket):null;
+      if(ticket?.state==='queue'&&!p.exit){
+        const line=life.civic.workplay.cafe.tickets.filter(o=>o.state==='queue').sort((a,b)=>a.created-b.created||a.id-b.id);
+        const index=line.findIndex(o=>o.id===ticket.id),dest={x:1.2,z:-3.6+index*.75};
+        if(p.queueSlot!==index){if(setDestination(p,dest))p.queueSlot=index;}
       }
       if(p.state!=='gone')advance(p,dt,t,player);
       if(p.state==='gone'){
