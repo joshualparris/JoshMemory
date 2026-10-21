@@ -61,7 +61,7 @@ assert.ok(t.creditReport().journal.some((e) => /overdue/.test(e.text)), 'journal
 assert.ok(t.creditReport().loan.dailyInterest >= 1.9, 'overdue rate is 2% a day');
 
 // 6. Closed bank refuses.
-while (t.minute < 17 * 60 || t.minute > 20 * 60) t.tick(0.5);
+while (t.minute < 18 * 60 || t.minute > 20 * 60) t.tick(0.5);
 assert.match(t.repay(10), /closed/);
 assert.match(t.borrow(100), /closed/);
 

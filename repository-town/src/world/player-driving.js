@@ -30,22 +30,34 @@ export function roadAllows(x,z){
 }
 export function createPlayerDriving(life,scene,collision,player,camera,input){
  const meshes=new Map();let active=null,speed=0,message='';
- function siteSpawn(i){
+ function siteSpawn(i,self){
    const site=life.place('dealership');
-   const base={x:site.x+9,z:site.curb.z+1.6};
-   const offsets=[[0,0],[-3.2,0],[0,4.2],[-3.2,4.2],[5,0],[5,4.2]];
-   for(const [dx,dz] of [...offsets.slice(i%offsets.length),...offsets]){
-     const x=base.x+dx,z=base.z+dz;
-     if(!collision.hits(x,z,1.0))return {x,z};
+   if(!site)return null;
+   // Use the marked roadside parking bays, not the busy doorway or a back
+   // paddock with no road access. Only choose a currently clear space.
+   const spots=[[9,1.0],[11,1.0],[-9,1.0],[-11,1.0],[9,-.6],[-9,-.6],[13,-.6],[-13,-.6]];
+   for(let attempt=0;attempt<spots.length;attempt++){
+     const [ox,oz]=spots[(attempt+i)%spots.length];
+     const x=site.x+ox,z=site.curb.z+oz;
+     if(!roadAllows(x,z)||collision.hits(x,z,1.25))continue;
+     if(life.trucks.some(tr=>Math.hypot(tr.x-x,tr.z-z)<5))continue;
+     if(life.villagers.some(person=>!person.inside&&Math.hypot(person.x-x,person.z-z)<3.5))continue;
+     if((life.civic.motor?.owned||[]).some(v=>v!==self&&Number.isFinite(v.x)&&
+       Math.hypot(v.x-x,v.z-z)<3.5))continue;
+     return {x,z};
    }
-   return {x:site.x+10,z:site.front.z}; // placement retained; cannot start driving until unblocked
+   return null; // Never hide an unavailable parking spot by teleporting through traffic.
  }
  function sync(){
    const owned=life.civic.motor?.owned||[],ids=new Set(owned.map(v=>v.registration));
    for(const [reg,g] of meshes)if(!ids.has(reg)){scene.remove(g);meshes.delete(reg);if(active===reg){active=null;speed=0;}}
    owned.forEach((v,i)=>{
-     if(!Number.isFinite(v.x)||!Number.isFinite(v.z)){
-       const p=siteSpawn(i);v.x=p.x;v.z=p.z;v.yaw=0;v.fuel=20;v.speed=0;
+     if(!Number.isFinite(v.x)||!Number.isFinite(v.z)||v.parkingPending){
+       const p=siteSpawn(i,v);
+       if(p){v.x=p.x;v.z=p.z;v.yaw=0;v.speed=0;v.parkingPending=false;}
+       else if(!Number.isFinite(v.x)||!Number.isFinite(v.z))return;
+       // When every roadside bay is temporarily occupied, keep the vehicle
+       // parked as titled until a clear bay exists; never spawn inside a wall.
      }
      if(!meshes.has(v.registration)){const g=modelMesh(v.model);scene.add(g);meshes.set(v.registration,g);}
      const g=meshes.get(v.registration);g.position.set(v.x,0,v.z);g.rotation.y=v.yaw||0;
@@ -60,12 +72,13 @@ export function createPlayerDriving(life,scene,collision,player,camera,input){
    return best;
  }
  function enter(v){
+   if(v?.workVehicle==='depot'&&life.civic.jobs?.active?.id!=='delivery-driver'&&!(life.civic.deliveryWork?.route?.registration===v.registration&&!life.civic.deliveryWork.route.returnedAt&&['loaded','completed'].includes(life.civic.deliveryWork.route.status)))return 'Start a depot delivery shift to use the employer van.';
    if(!v||active)return 'Get out before entering another vehicle.';
    if(life.day>v.regoUntil||!v.roadworthy||v.condition<60)return 'Registration or roadworthy expired; see Town Motor Workshop.';
    if((v.fuel||0)<=0)return 'Fuel tank empty. Buy fuel at High Street Motors.';
    if(Math.hypot(player.pos.x-v.x,player.pos.z-v.z)>3.1)return 'Walk to the driver door to enter.';
    if(collision.hits(v.x,v.z,1.05))return 'The vehicle is blocked. Move it to a clear parking space before driving.';
-   active=v.registration;speed=0;player.seated=null;input.reset();
+   v.parkingPending=false;active=v.registration;speed=0;player.seated=null;input.reset();
    return 'Engine started. W/S or joystick forwards/back; A/D or joystick steer; E or ✋ to get out when stopped.';
  }
  function exit(){

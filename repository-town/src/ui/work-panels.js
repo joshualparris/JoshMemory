@@ -1,7 +1,9 @@
+import {latteArtPanel} from './latte-art.js';
 import {esc} from './interactions.js';
 export function choices(title,body,options){return {title,body,actions:options};}
 export function skillPanel(step,done,cancel,sound){
- const [id,label,target]=step;
+ const [stepId,label,target]=step,id=stepId.split(':').at(-1);
+ if(id==='latte-art')return latteArtPanel(done,cancel,sound);
  return {title:label+' · skill challenge',body:'<p>Stop the moving marker in the green zone. Timing changes preparation quality; a miss can be retried.</p><canvas id="work-skill" width="540" height="250" style="width:100%;max-width:540px;border-radius:12px;background:#182e35" aria-label="Animated preparation and timing meter"></canvas><p id="work-skill-readout" role="status">Ready</p><button id="work-skill-stop" type="button" style="padding:16px;font-size:18px">Stop / Space</button> <button id="work-skill-assisted" type="button">Assisted preparation</button><p class="dim">Assisted mode has no timing requirement. These are game recipes and timings.</p>',
  actions:[{label:'Put down tools / cancel',run:()=>{cancel();return null;}}],
  mount(root){

@@ -11,6 +11,15 @@ for (let r = 0; r < 7; r++) for (let c = 0; c < 26; c += 2) homes.push({ coordin
 const make = () => new TownLife({ homes, minute: 6 * 60, seed: 11 });
 const run = (t, m) => { for (let i = 0; i < m; i += 0.5) t.tick(0.5); };
 const toDay = (t, d, h = 10) => { while (t.day < d || (t.day === d && t.minute < h * 60)) t.tick(0.5); };
+const makeTenant = (life) => {
+  // Explicitly contract for housing before expecting rent and utility bills.
+  const parcels=Object.values(life.civic.property.parcels);
+  const home=parcels.find(p=>p.kind==='house'&&!p.tenant)||parcels.find(p=>p.kind==='house');
+  home.tenant=null;home.occupied=false;home.owner='Town Property Cooperative';
+  life.civic.player.wallet=500;life.civic.player.bank=0;
+  assert.match(life.leaseProperty(home.id),/Lease signed/);
+  return home;
+};
 const town = (t) => {
   const v = t.villagers.reduce((s, x) => s + x.wallet + (x.savings || 0), 0), p = t.civic.player;
   const tills = [...t.places.values()].reduce((s, x) => s + x.till, 0), f = t.civic.finance;
@@ -23,7 +32,8 @@ assert.equal(t.civic.finance.federal, RATES.federalStart);
 assert.equal(t.civic.finance.state, RATES.stateStart);
 assert.ok(Math.abs(t.economyReport().total - Math.round(town(t))) <= 1, 'report total matches the books');
 
-// 2. Day 1 has no rent; day 2 charges the visitor, councils and shops pay, grants come from the treasuries.
+// 2. Only an actual rented home incurs rent and power, with finite grants and wages.
+makeTenant(t);
 toDay(t, 1, 23);
 assert.equal(t.civic.finance.lifetime.rent, 0, 'no rent on the first day');
 const start = town(t), fed0 = t.civic.finance.federal, st0 = t.civic.finance.state, wallet0 = t.civic.player.wallet + t.civic.player.bank;
@@ -45,7 +55,7 @@ assert.equal(t.civic.finance.lifetime.grants, 0, 'no grant from an empty treasur
 assert.ok(t.civic.finance.federal >= 0 && t.civic.finance.state >= 0, 'treasuries never go negative');
 
 // 4. Visitor bills never overdraft; arrears block borrowing until paid.
-t = make(); toDay(t, 1, 23);
+t = make(); makeTenant(t); toDay(t, 1, 23);
 t.civic.player.wallet = 0; t.civic.player.bank = 0;
 toDay(t, 3, 10);
 assert.equal(t.civic.player.wallet, 0); assert.equal(t.civic.player.bank, 0);
@@ -94,14 +104,14 @@ assert.equal(w2.economyReport().commonwealth, RATES.federalStart, 'older saves g
 t = make(); toDay(t, 2, 6); run(t, 30);
 const bk = t.place('bakery'); bk.stock.flour = 10; bk.out.bread = 0;
 for (const v of t.villagers) if (v.work === 'bakery') { v.step = { kind: 'work' }; v.path = []; }
-assert.ok(superviseBread(t, 'mix').ok, 'mix starts');
+t.playerAt='bakery';assert.ok(superviseBread(t,'wash').ok);assert.ok(superviseBread(t,'weigh',2000).ok);assert.ok(superviseBread(t, 'mix').ok, 'mix starts');for(let i=0;i<8;i++)assert.ok(superviseBread(t,'shape').ok);assert.ok(superviseBread(t,'proof').ok);
 assert.equal(bk.stock.flour, 8, 'two bags of flour used');
 assert.match(superviseBread(t, 'oven').message, /Proofing is still underway/);
 run(t, 41);
 assert.ok(superviseBread(t, 'oven').ok, 'oven after proofing');
 assert.match(superviseBread(t, 'unload').message, /baking/);
 run(t, 26);
-const before = bk.out.bread; assert.ok(superviseBread(t, 'unload').ok, 'unload');
+const before = bk.out.bread; assert.ok(superviseBread(t, 'unload').ok, 'unload');t.minute+=6;assert.ok(superviseBread(t,'pack').ok);
 assert.equal(bk.out.bread, before + 8, 'eight loaves added to the rack');
 assert.match(superviseBread(t, 'mix').message, /finished/, 'one batch a day');
 

@@ -29,7 +29,7 @@ export function buyVehicle(life,stockId){
  const vehicle={...item,registration:'RT-'+String(s.next++).padStart(3,'0'),owner:'visitor',
    regoUntil:life.day+28,lastService:life.day,serviceDue:life.day+14,roadworthy:item.condition>=60};
  const dealer=life.place('dealership');
- vehicle.x=dealer.x+9;vehicle.z=dealer.curb.z+1.6;vehicle.yaw=0;vehicle.fuel=20;
+ vehicle.x=dealer.x+9;vehicle.z=dealer.curb.z+1.6;vehicle.yaw=0;vehicle.fuel=20;vehicle.parkingPending=true;
  s.owned.push(vehicle);
  s.journal.unshift('Day '+life.day+': bought '+vehicle.registration+' for $'+item.price+'.');
  return vehicle.registration+' registered in your name. Transfer costs $'+(duty+transfer)+'. Rego expires day '+vehicle.regoUntil+'. Parked at High Street Motors: approach the car and use E or the hand control to drive.';
@@ -56,7 +56,7 @@ export function renewRegistration(life,registration){
 }
 export function sellVehicle(life,registration){
  const s=motorReport(life),v=s.owned.find(x=>x.registration===registration);
- if(!v)return 'No matching vehicle title.';
+ if(!v||v.workVehicle)return 'No matching personal vehicle title. Employer vehicles cannot be sold.';
  const price=Math.round(v.price*(0.6+v.condition/250));
  if(s.dealerCash<price)return 'Dealer lacks the funds to offer a trade-in.';
  s.dealerCash-=price;life.civic.player.bank=r2(life.civic.player.bank+price);

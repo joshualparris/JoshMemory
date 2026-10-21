@@ -1,5 +1,5 @@
 // Paid shifts: only inside the workplace with staff on duty, duties five minutes apart, wages from the
-// employer's till then the council, PAYG to the Commonwealth, two shifts a day, and receipts.
+// employer's till then the council, PAYG to the Commonwealth, up to eight paid town hours a day, and receipts.
 import assert from 'node:assert/strict';
 import { TownLife } from '../src/world/life.js';
 import { JOB_BOARD } from '../src/world/jobs.js';
@@ -15,8 +15,9 @@ const run = (m) => { for (let i = 0; i < m; i += 0.5) { if (onDuty) staff(onDuty
 const task = (k) => { if (onDuty) staff(onDuty); return t.doTask(k); };
 const total = () => me.wallet + me.bank + t.civic.treasury + f().federal + f().state + [...t.places.values()].reduce((s, p) => s + p.till, 0);
 
-assert.equal(JOB_BOARD.length, 7);
+assert.equal(JOB_BOARD.length, 12);
 assert.match(t.startJob('nope').message, /Unknown/);
+t.place('store').till=500;
 assert.match(t.startJob('store-stocker').message, /Shift started/, 'store is open at 10:00');
 assert.match(t.startJob('bakery-assistant').message, /Finish that shift there, or cancel it/, 'one shift at a time');
 assert.equal(t.jobsReport().active.id,'store-stocker','a second employer cannot replace the current shift');
@@ -51,22 +52,26 @@ assert.equal(shop.till, 500 - 24, 'the till paid the wage');
 assert.ok(Math.abs(total() - before) < 1e-6, 'wages only move money');
 assert.ok(t.creditReport().earned >= 20, 'wages count towards credit');
 assert.ok(t.jobsReport().receipts.some((x) => /Shop|stocker|Store/.test(x.text)), 'wage receipt recorded');
-assert.match(t.startJob('store-stocker').message, /already did/, 'one of each per day');
+// Returning to the same employer later in the day is permitted while funded.
+assert.match(t.startJob('store-stocker').message, /Shift started/, 'repeat shifts are allowed until daily paid-hour limit');
+assert(t.cancelJob().ok,'zero-minute clock-out closes the extra shift without wages');
 
 // A broke till falls back to the council; with both empty the shift is not lost money.
 t.civic.treasury = 1000; shop.till = 0;
 assert.match(t.startJob('post-assistant').message, /Shift started/);
 t.playerAt = 'post'; staff('post'); run(31);
 for (const k of JOB_BOARD.find((x) => x.id === 'post-assistant').tasks) { task(k); run(6); }
-const c0 = t.civic.treasury; assert.match(t.finishJob().message, /Shift complete/); assert.equal(c0 - t.civic.treasury, 22, 'council covered the post office wage');
+const c0 = t.civic.treasury; assert.match(t.finishJob().message, /Shift complete/); assert(Math.abs((c0 - t.civic.treasury) - 22) < 1e-6, 'council covered the post office wage exactly to floating point precision');
 
-// Two shifts a day maximum.
-assert.match(t.startJob('civic-cleaner').message, /2 shifts a day/);
+// Daily labour is limited by paid minutes, not an arbitrary two short shifts.
+assert(t.jobsReport().shiftsToday>=3,'all signed shifts appear on payslips');
+t.civic.jobs.payroll.slips.push({day:t.day,minutes:480,site:'store',gross:0,paid:0});
+assert.match(t.startJob('civic-cleaner').message,/Daily paid work limit reached/);
 
 // An unfinished shift lapses at midnight.
 t = null;
 const u = new TownLife({ homes, minute: 10 * 60, seed: 5 });
-u.startJob('store-stocker');
+u.place('store').till=100;u.startJob('store-stocker');
 for (let i = 0; i < 15 * 60; i += 0.5) u.tick(0.5);
 assert.equal(u.jobsReport().active, null, 'shift lapsed overnight');
 

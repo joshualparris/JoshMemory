@@ -1,3 +1,5 @@
+import {routeVisitor} from './shop-visitors.js';
+import {occupationState,workAssetFault} from './occupation-work.js';
 import * as THREE from 'three';
 import { JOB_BOARD } from './jobs.js';
 
@@ -6,6 +8,7 @@ import { JOB_BOARD } from './jobs.js';
 const STATIONS={
   store:[[-4.45,-2.6],[1.25,2.45],[4.55,-3.5]],
   bakery:[[-3.0,-1.7],[0.1,-1.7],[3.0,-1.7]],
+  coop:[[-3.3,-2.5],[0.2,-2.4],[3.3,-2.5]],
   garden:[[-3.3,-2.5],[0.2,-2.4],[3.3,-2.5]],
   depot:[[-3.2,-2.4],[0.4,-2.6],[3.3,-2.5]],
   post:[[-3,-2.5],[0,-2.4],[3.1,-2.5]],
@@ -37,13 +40,37 @@ const cube=(group,color,w,h,d,x,y,z)=>{
 };
 export function installPhysicalJobs(built,site,makeLabel,life){
  if(['store','cafe'].includes(site.id))return;
- const def=JOB_BOARD.find(d=>d.site===site.id);
+ const def=JOB_BOARD.find(d=>d.site===site.id&&['depot-sorter','civic-cleaner'].includes(d.id))||JOB_BOARD.find(d=>d.site===site.id);
  if(!def)return;
  const stations=STATIONS[site.id]||STATIONS.hall;
  const root=new THREE.Group();root.name='Hands-on workplace stations';built.group.add(root);
  const actors=[];
+ const extras=[];
+ if(site.id==='hall'){
+   const lamp=cube(root,0x777b72,.28,.3,.28,4.7,2.1,-.8);
+   const light=new THREE.PointLight(0xffe4a8,0,5);light.position.copy(lamp.position);root.add(light);
+   const tap=cube(root,0xa5b4b8,.1,.3,.1,4.4,1,-.8),drip=cube(root,0x85c5df,.025,.35,.025,4.4,.7,-.8);
+   const spill=cube(root,0x6e9da7,1.2,.014,.65,-2.6,.025,-.7);
+   const sign=cube(root,0xe8bf37,.3,.4,.08,-1.8,.2,-.8);
+   const litter=Array.from({length:3},(_,i)=>cube(root,0xc9bc9b,.15,.025,.2,-3+i*.3,.032,-.6+i*.18));
+   extras.push(()=>{const s=occupationState(life),lit=s.trades.assets?.['hall-lamp']?.restored;light.intensity=lit?1.7:0;lamp.material.color.setHex(lit?0xffecaf:0x777b72);drip.visible=workAssetFault(life,'hall-tap');spill.visible=s.hall.spill;sign.visible=!!s.hall.wetUntil;litter.forEach((m,i)=>m.visible=i<s.hall.rubbish);});
+ }
+ if(site.id==='coop'){
+  const feed=cube(root,0xc9b06a,.7,.1,.35,-3,.45,-1.2),eggs=Array.from({length:2},(_,i)=>cube(root,0xe7ddc4,.2,.15,.16,.3*i,.65,-1.2));
+  extras.push(()=>{const s=occupationState(life).coop;feed.visible=s.fed;eggs.forEach(m=>m.visible=!!s.basket||s.packed);});
+ }
+ if(site.id==='garden'){
+   const weeds=Array.from({length:3},(_,i)=>cube(root,0x435f32,.14,.3,.1,-2.9+i*.4,.15,-1.1));
+   const crate=cube(root,0x8b613c,.65,.4,.5,3,.2,-1.2);
+   extras.push(()=>{const s=occupationState(life).garden;weeds.forEach((m,i)=>m.visible=i<s.weeds);crate.visible=!!s.crate||s.harvested;});
+ }
  def.tasks.forEach((task,index)=>{
-   const [x,z]=stations[index],g=new THREE.Group();
+   const preferred=stations[index];
+   const candidates=[];for(let dx=-3;dx<=3;dx+=.5)for(let dz=-3;dz<=3;dz+=.5)candidates.push([preferred[0]+dx,preferred[1]+dz]);
+   candidates.sort((a,b)=>Math.hypot(a[0]-preferred[0],a[1]-preferred[1])-Math.hypot(b[0]-preferred[0],b[1]-preferred[1]));
+   const point=candidates.find(([x,z])=>!built.colliders.some(c=>x>c.x0-.65&&x<c.x1+.65&&z>c.z0-.65&&z<c.z1+.65)&&routeVisitor(built.spawn,{x,z},built.colliders,built.bounds,.3));
+   if(!point)throw new Error('No reachable work station at '+site.id+':'+task);
+   const [x,z]=point,g=new THREE.Group();
    g.position.set(x,0,z);root.add(g);
    // A small equipment trolley with physical products that change as work progresses.
    cube(g,site.id==='bakery'?0xa3b0b5:0x554b40,.92,.72,.62,0,.36,0);
@@ -67,14 +94,18 @@ export function installPhysicalJobs(built,site,makeLabel,life){
    built.interactables.push({
      key:'job:'+site.id+':'+task,label:'Work: '+task.replace(/-/g,' '),
      type:'civic',room:0,roomName:site.name,pos:new THREE.Vector3(x,0,z),
-     act:{do:'physical-job',task,civicId:site.id}
+     act:{do:'physical-job',task,index,civicId:site.id}
    });
-   actors.push({task,pieces});
+   actors.push({task,shownTask:task,tag,pieces,index,item:built.interactables.at(-1)});
  });
  built.workStationVisuals=()=> {
    const shift=life.jobsReport().active;
+   for(const update of extras)update();
    for(const a of actors){
-     const step=shift?.site===site.id?(shift.tasks.includes(a.task)?3:(shift.progress?.[a.task]||0)):0;
+     const currentTask=shift?.site===site.id?JOB_BOARD.find(d=>d.id===shift.id)?.tasks[a.index]||a.task:a.task;
+     if(a.shownTask!==currentTask){const position=a.tag.position.clone();built.group.remove(a.tag);a.tag.material.map?.dispose();a.tag.material.dispose();a.tag=makeLabel(currentTask.replaceAll('-',' '),'interactive');a.tag.position.copy(position);a.tag.userData.labelKind='interactive';built.group.add(a.tag);a.shownTask=currentTask;}
+     a.item.label='Work: '+currentTask.replaceAll('-',' ');
+     const step=shift?.site===site.id?(shift.tasks.includes(currentTask)?3:(shift.progress?.[currentTask]||0)):0;
      a.pieces.forEach((mesh,n)=>{
        // Products travel off the trolley into a visible destination display.
        mesh.position.set((n-1)*.26,.99,0);
@@ -87,16 +118,16 @@ export function installPhysicalJobs(built,site,makeLabel,life){
 }
 export function usePhysicalJob(life,task){
  const shift=life.jobsReport().active;
+ if(shift&&(life.playerAt!==shift.site||!life.jobSupervisors(shift.site).length||shift.breakRemaining>0))return {ok:false,message:'Work on site with a supervisor, outside your paid rest break.'};
  if(!shift)return {ok:false,message:'Start a paid shift at the workplace counter first.'};
  const def=JOB_BOARD.find(d=>d.id===shift.id);
  if(!def?.tasks.includes(task))return {ok:false,message:'This station is not part of your current shift.'};
  if(shift.tasks.includes(task))return {ok:false,message:'This duty has already been completed.'};
+ // Preparation and cooling are credited by the real weigh/mix/proof/oven/pack
+ // chain. The old three-click practice trolleys must never consume extra flour
+ // or award a duty for goods that were never produced.
+ if(shift.site==='bakery'&&task!=='wash-hands')return {ok:false,message:'Use the Bakery kitchen production stations to prepare, bake, cool and pack real loaves. These duties are credited by real production, not practice trolley clicks.'};
  const stage=shift.progress?.[task]||0,steps=CAPTIONS[task]||[];
- if(shift.site==='bakery'){
-   if(task==='prep-bench'&&!shift.tasks.includes('wash-hands'))return {ok:false,message:'Wash and dry your hands at the basin before handling dough.'};
-   if(task==='cooling'&&!shift.tasks.includes('prep-bench'))return {ok:false,message:'Prepare the demonstration trays first. Hot trays must not be handled without supervision.'};
-   if(task==='prep-bench'&&stage===1&&(life.place('bakery')?.stock?.flour||0)<1)return {ok:false,message:'No flour available. The Mill must deliver a flour bag before you can prepare a batch.'};
- }
  if(stage<2){
    // Actual task state belongs to the shift, and persists in the save.
    const active=life.civic.jobs.active;active.progress??={};
@@ -105,18 +136,6 @@ export function usePhysicalJob(life,task){
  }
  const r=life.doTask(task);
  if(r.ok){
-   if(task==='prep-bench'&&shift.site==='bakery'){
-     const bakery=life.place('bakery');
-     if((bakery.stock.flour||0)<1)return {ok:false,message:'The bakery needs a flour delivery.'};
-     bakery.stock.flour-=1;
-     life.civic.jobs.active.bakeryTrainingBatch={flourUsed:1,trays:2,packed:false};
-   }
-   if(task==='cooling'&&shift.site==='bakery'&&life.civic.jobs.active.bakeryTrainingBatch){
-     life.civic.jobs.active.bakeryTrainingBatch.packed=true;
-     // This shift produces practice loaves, not instantly saleable bread: the
-     // separate supervised mixer / proof / oven chain handles actual baking.
-     r.message='Demonstration batch packed and correctly labelled. Saleable bread requires proofing and oven time. '+r.message;
-   }
    life.civic.jobs.active.progress??={};
    life.civic.jobs.active.progress[task]=3;
    if(task==='refill-shelves'){

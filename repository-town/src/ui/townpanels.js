@@ -70,6 +70,16 @@ function bagLine(life) { const me = life.civic.player; const n=life.needsReport(
 function civicPanel(life, id, again) {
   const p = life.place(id), c = life.civic, u = life.ledger().utilities, rows = [`<p>${esc(ABOUT[id] || '')}</p>`];
   const staff = life.villagers.filter((v) => v.work === id);
+  if(id==='soyfarm'||id==='soyplant'){
+    const soy=life.soyReport(),f=soy.field;
+    rows.push('<p><b>SOY SUPPLY CHAIN · traceable batches</b></p><p>'+
+      (id==='soyfarm'?'Field: '+esc(f.phase)+' · crop age '+f.age+'/7 town days · irrigations '+f.irrigations+
+      ' · inspections '+f.scouts+' · dry beans: '+soy.farmBeans+' bags':
+      'Raw soybeans: '+soy.processorBeans+' bags · process stage: '+esc(soy.batch?.stage||'idle')+
+      ' · chilled cartons: '+soy.ready+' · café on hand: '+soy.cafe)+
+      '</p><p>SOY is an allergen. Packed drink needs verified heat treatment, a dated lot and uninterrupted refrigeration. Game timings are compressed, not a real food-safety specification.</p>'+
+      '<p><b>Recent batch records:</b> '+esc(soy.history.slice(0,4).join(' | ')||'No operations recorded yet')+'</p>');
+  }
   if (id === 'power') rows.push(`<p><b>Supply:</b> ${c.supply.power} of ${c.supply.powerDemand} needed · ${c.supply.ok ? '<span class="ok">all customers supplied</span>' : '<b>some locations have no power</b>'} · weather ${esc(c.weather)}</p><p><b>Fuel:</b> ${u.fuel} drums</p>${powerNetworkHTML(c)}`);
   if (id === 'waterworks') rows.push(`<p><b>Reservoir:</b> ${u.reservoir} kL · supplying ${c.supply.water} of ${c.supply.waterDemand} an hour · ${c.supply.waterOk ? '<span class="ok">normal</span>' : '<b>restrictions</b>'}</p>`);
   if (id === 'sewage') rows.push(`<p><b>Waiting for treatment:</b> ${u.wastewater} kL · pollution ${Math.round(c.indicators.pollution)}%</p>`);

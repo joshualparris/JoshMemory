@@ -5,6 +5,7 @@ import { Builder, GLASS } from './builder.js';
 import { buildSignBoards } from './shop-signs.js';
 import { PROPS } from './props.js';
 import { makePerson, pose } from './npcs.js';
+import { facilityAccess, openingHoursLabel } from './facility-access.js';
 import { TownLife, GOODS, RAIL_Z, trainX, FIELD_Z0, FIELD_Z1, SEC_PER_MIN, LOT_X, AVENUES } from './life.js';
 
 // Draws the town simulation (src/world/life.js): the high street and farms on street 8,
@@ -83,7 +84,12 @@ function fence(b, x0, x1, z0, z1, gateX) {
 // Painted name boards (src/world/shop-signs.js), in each lot's frame: [x, y, z, w, h, background, lettering].
 // Shopfronts paint over their existing board (w × h of the building decides its size).
 const SHOPFRONT = { store: [14, 5], bakery: [12, 4.6], cafe: [12, 4.4], greengrocer: [12, 4.4], butcher: [11, 4.4], post: [11, 4.6], clinic: [12, 4.6] };
-const SIGN_AT = {
+export const SIGN_AT = {
+  // Permanent painted nameplates exactly over the currently blank upper shopfront
+  // panels (y = facade height - 0.55, z = front 7.13). Unlike nearby name
+  // sprites, these remain readable even when proximity labels are hidden.
+  soyfarm: [0, 3.75, 7.135, 7.12, 0.69, '#254632', '#f7f2df'],
+  soyplant: [0, 4.75, 7.135, 8.36, 0.71, '#264c57', '#f3f7f5'],
   pub: [0, 6.15, 7.08, 7, 0.9, '#1f3a2a', '#f1e3b5'], hall: [0, 7.1, 7.99, 11, 0.62, '#d8d2c4', '#3a3226'],
   school: [0, 3.9, 7.07, 6, 0.7, '#f3ead2', '#2a3a5a'], depot: [0, 3.9, 7.07, 6, 0.7, '#2b2118', '#f1e3b5'],
   mill: [0, 3.2, 4.06, 2.6, 0.55, '#f3ead2', '#3a2a1e'], bank: [0, 5.62, 7.83, 9, 0.55, '#e8e2d2', '#3a3226'],
@@ -104,6 +110,20 @@ const SHOP_COLOURS = { store: ['#2f6b8c', '#f6f1e2'], bakery: ['#8a5a2a', '#f8ec
 
 // Returns { w, d } of the solid front block so the town can collide with it.
 const BUILD = {
+  soyfarm(b) {
+    shopfront(b, 12, 8, 4.3, 0xb6a982, 0x568047, [0x79984d, 0xd7c78b]);
+    // Seed-grading shed, rainwater tanks and a small covered loading platform.
+    b.cyl(0x839b8f, 0.85, 2.2, 4.6, 1.1, 3.0);
+    b.box(0x916d45, 2.2, 0.2, 1.2, -4.2, 0.45, 9.5);
+    return {w:12,d:8};
+  },
+  soyplant(b) {
+    shopfront(b, 14, 9, 5.3, 0xc5d4d4, 0x477d88, [0x598a96, 0xe3f1ee]);
+    b.cyl(0xabbfc7, 1.1, 3.1, -4.5, 1.55, 2.3);
+    b.cyl(0x9eb1bb, .8, 2.5, 4.2, 1.25, 2.5);
+    b.box(0x7297a2, 3.8, .5, 1.1, 0, 2.0, 1.1);
+    return {w:14,d:9};
+  },
   store(b) { shopfront(b, 14, 10, 5, 0xd9c8a0, 0x6a4a2e, [0x2f6b8c, WHITE]); table(b, -4.2, 8.6); table(b, 4.2, 8.6); return { w: 14, d: 10 }; },
   bakery(b) { shopfront(b, 12, 9, 4.6, 0xf0dcc0, 0x8a5a2a, [0xc8553d, 0xf2e2c2]); table(b, -3.6, 8.6); table(b, 3.6, 8.6); b.cyl(0x9a958c, 0.45, 2.2, 4.5, 5.6, 0.5); return { w: 12, d: 9 }; },
   cafe(b) {
@@ -425,7 +445,20 @@ function buildField(p, group, statics, glass) {
   const b = statics;
   b.box(0x7a5a3a, w, 0.03, d, cx, 0.015, cz);            // tilled soil or pasture base
   const dyn = { update() {} };
-  if (p.id === 'silo' || p.id === 'garden') {
+  if (p.id === 'soyfarm') {
+    // Soy plants are crop rows, not livestock. One instanced mesh keeps phone draw calls low.
+    const rows=8,per=12;
+    const geo=new THREE.SphereGeometry(.24,7,5);
+    const mat=new THREE.MeshLambertMaterial({color:0x65a04b});
+    const crop=new THREE.InstancedMesh(geo,mat,rows*per);
+    const tr=new THREE.Matrix4();
+    for(let i=0;i<rows;i++)for(let j=0;j<per;j++){
+      tr.makeTranslation(f.x0+1+(j+.5)*(w-2)/per,.35,f.z0+1+(i+.5)*(d-2)/rows);
+      crop.setMatrixAt(i*per+j,tr);
+    }
+    crop.instanceMatrix.needsUpdate=true;group.add(crop);
+    dyn.update=()=>{crop.visible=p.growth>0.01;crop.scale.y=.2+Math.min(1,p.growth)*3;};
+  } else if (p.id === 'silo' || p.id === 'garden') {
     const rows = p.id === 'silo' ? 10 : 8, per = p.id === 'silo' ? 1 : 14;
     const geo = p.id === 'silo' ? new THREE.BoxGeometry(w - 2, 1, 1.4) : new THREE.SphereGeometry(0.32, 8, 6);
     geo.translate(0, 0.5, 0);
@@ -596,6 +629,13 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     signs.push({ text: p.name, x, y: 1.5, z, w: 2.6, h: 0.6, bg: '#f3ead2', fg: '#3a2a1e' });
   };
   for (const p of life.places.values()) {
+    // Permanently painted, readable opening-hour plaques on EVERY civic facade.
+    // One shared atlas and merged mesh keeps these signs cheap on Android.
+    // Operational 24h sites publish visitor reception hours, not factory hours.
+    const south=p.side==='south';
+    signs.push({text:openingHoursLabel(p),x:p.x+3.35,y:2.95,
+      z:south?FIELD_Z0-0.25:LOT8_Z+7.28,
+      w:4.35,h:0.40,rotY:south?Math.PI:0,bg:'#f2ead6',fg:'#302c25'});
     const b = new Builder(); b.glass = [];
     const finish = () => {
       const meshes = [b.build()], glass = Builder.merge(b.glass);
@@ -616,6 +656,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       spots.push({ key: `place:${p.id}`, id: p.id, pos: new THREE.Vector3(p.x, 0, FIELD_Z0 - 2.4), label: `${p.name} — ${{ bank: 'your account', fire: 'station board', foundry: 'the works' }[p.id] || 'the plant'}` });
       const at = SIGN_AT[p.id];   // turned to face the road, like the building
       if (at) signs.push({ text: p.name, x: p.x - at[0], y: at[1], z: FIELD_Z0 + 7 - at[2], w: at[3], h: at[4], rotY: Math.PI, bg: at[5], fg: at[6] });
+      if(p.field)fields.push({p,...buildField(p,group,statics,statics.glass)});
       finish();
       continue;
     }
@@ -776,6 +817,30 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   const depot = life.place('depot');
   // Trucks.
   const trucks = life.trucks.map((t, i) => { const v = makeTruck([0xd8562a, 0x2a6ab8, 0xe0b030][i]); group.add(v.group); return { t, ...v }; });
+  // Service vehicles and crew are views of the persisted trade job lifecycle.
+  // They are allocated once, then updated only when near the player.
+  const serviceVan=makeTruck(0xf0ead5),hardwareFreight=makeTruck(0x4a8795);
+  for(const v of [serviceVan,hardwareFreight]){
+    v.group.scale.set(.66,.80,.78);v.group.visible=false;group.add(v.group);
+    v.load.count=0;
+  }
+  const crewModels=new Map();
+  const setCrew=(id,x,z,active,nearby)=>{
+    if(!crewModels.has(id)){
+      const fig=makePerson(id==='kai'||id==='mia'?115:79,0xd7a756,0x263d55);
+      const tag=makeLabel(id==='kai'?'Kai · apprentice':id==='mia'?'Mia · apprentice':
+        id==='sam'?'Samir · plumber':id==='ella'?'Ella · electrician':
+        id==='noah'?'Noah · builder':'Ivy · IT technician','interactive');
+      tag.position.y=2.2;fig.group.add(tag);group.add(fig.group);
+      crewModels.set(id,{fig,tag});
+    }
+    const c=crewModels.get(id);
+    c.fig.group.visible=active&&nearby;
+    if(!c.fig.group.visible)return;
+    c.fig.group.position.set(x,0,z);
+    c.tag.visible=Math.hypot(x-eyeCached.x,z-eyeCached.z)<8;
+  };
+  const eyeCached={x:0,z:0};
   // Parcels waiting on doorsteps.
   const parcels = new THREE.InstancedMesh(GOOD_GEO.parcel[0], new THREE.MeshLambertMaterial({ color: 0xb08a5a }), 40);
   parcels.count = 0; group.add(parcels);
@@ -876,8 +941,9 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     town.setNight(powered ? dark : dark * 0.04, m);
     const anyOpenLate = dark > 0.2;
     shopGlassMat.emissiveIntensity = anyOpenLate && powered ? dark * 0.9 : 0;
-    for (const d of doorCards) d.m.material = life.open(d.q) ? d.openMat : d.closedMat;
+    for (const d of doorCards) d.m.material = facilityAccess(life, d.q).allowed ? d.openMat : d.closedMat;
     lightMat.emissiveIntensity = dark > 0.3 ? 1.4 : 0;  // vehicle headlights run on their own batteries
+    eyeCached.x=eye.x;eyeCached.z=eye.z;
     if (!inTown && !view) return;
 
     // Moving things are only updated near the player; far ones are hidden by fog anyway.
@@ -922,6 +988,33 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       tr.group.rotation.y = t0.heading;   // the simulation already turns at a realistic rate; smoothing would make the mesh lag its footprint
       tr.load.count = t0.load ? Math.min(10, Math.max(1, Math.round(t0.load.n / 2))) : 0;
       tr.tails.material.emissiveIntensity = t0.braking ? 1.6 : dark > 0.3 ? 0.7 : 0;
+    }
+    // Draw only the actual van on the road. Its location is advanced in
+    // TownLife.tick, so opening a menu cannot teleport it to the worksite.
+    const trade=life.civic.tradeEducation;
+    const job=trade?.orders?.find(o=>o.field&&
+      (o.status==='assigned'||o.status==='in-progress'||o.field.phase==='return'));
+    const v=job?.field?.van;
+    serviceVan.group.visible=!!v&&!overview&&near(v.pos.x,v.pos.z,105)&&job.field.phase!=='depot';
+    if(serviceVan.group.visible){
+      serviceVan.group.position.set(v.pos.x,0,v.pos.z);
+      serviceVan.group.rotation.y=v.heading||0;
+    }
+    for(const c of crewModels.values())c.fig.group.visible=false;
+    if(job?.field&&['safety','working','inspection'].includes(job.field.phase)){
+      const f=job.field,site=life.place(f.siteId),p=site?.front;
+      if(p){
+        const onScreen=!overview&&near(p.x,p.z,70);
+        setCrew(job.worker,p.x+.85,p.z+.45,true,onScreen);
+        if(f.apprentice)setCrew(f.apprentice,p.x-1.05,p.z+.45,true,onScreen);
+      }
+    }
+    const shipment=trade?.deliveries?.find(o=>o.status==='in-transit'&&o.vehicle);
+    const sv=shipment?.vehicle;
+    hardwareFreight.group.visible=!!sv&&!overview&&near(sv.pos.x,sv.pos.z,110);
+    if(hardwareFreight.group.visible){
+      hardwareFreight.group.position.set(sv.pos.x,0,sv.pos.z);
+      hardwareFreight.group.rotation.y=sv.heading||0;
     }
     const tx = trainX(m, depot.x);
     train.visible = tx !== null && !overview; if (tx !== null) train.position.x = tx;

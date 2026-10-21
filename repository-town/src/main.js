@@ -1,5 +1,7 @@
+import {occupationPanel} from './ui/occupation-panels.js';
 import {installWorkplay} from './world/workplay-view.js';
 import { mountCompanion } from './ui/companion.js';
+import { isHudBlocked } from './ui/hud-visibility.js';
 import * as THREE from 'three';
 import { CollisionWorld } from './engine/collision.js';
 import { Input } from './engine/input.js';
@@ -17,12 +19,15 @@ import { FIELD_Z0 } from './world/life.js';
 import { emergencyPanel,justicePanel } from './ui/emergency-panels.js';
 import { civicExitPose } from './world/shop-exit.js';
 import { populateShopStaff } from './world/shop-staff.js';
+import { facilityAccess, restrictedServiceAction } from './world/facility-access.js';
+import { atCivicEntrance, closedCivicDoorPose } from './world/civic-entrance.js';
 import { createShopVisitors } from './world/shop-visitors.js';
 import { loadFurniture } from './world/furniture.js';
 import { createFloorStack, FLOOR_HEIGHT } from './world/multifloor.js';
 import { townView } from './world/windows.js';
 import { animate } from './world/builder.js';
 import { makeLabel, disposeLabel } from './ui/labels.js';
+import { focusInteriorLabels, showNearbyHouseLabel } from './ui/context-labels.js';
 import { runInteraction, esc } from './ui/interactions.js';
 import { setArchiveLoader } from './ui/archive.js';
 import { npcBehaviour } from './ui/npc.js';
@@ -202,13 +207,34 @@ async function start() {
   const expedition = createExpedition({town,makeLabel,openPanel,travel,
     releaseMouse:()=>input.releaseMouse()});
 
+  // All focused overlays take priority over the floating AI launcher and
+  // the bottom interaction hint. This also handles the small building card.
+  function blockingHudOverlays(){
+    return {
+      panel:!!panelOpen||!$('panel').hidden,
+      buildingCard:!$('card').hidden,
+      npcDialogue:npcChat.isOpen(),
+      expedition:expedition.isOpen(),
+      roster:!$('npc-roster').hidden,
+      help:!$('help').hidden,
+      game:!$('game').hidden,
+      map:overview,
+    };
+  }
   const companion = mountCompanion({
     getContext:()=>({mode,place:inside?.place?.name||inside?.house?.name||(nearPerson?.spot?life.place(nearPerson.spot.id)?.name:null)||nearHouse?.house?.name||'Town streets',
       coordinate:inside?.house?.coordinate||nearHouse?.house?.coordinate||'',floor:inside?.floorIndex||0,
       pos:player.pos,wallet:life.civic.player.wallet,target:mode==='house'?nearThing:(nearTownSeat?{...nearTownSeat,act:{do:'sit'}}:nearPerson?.spot?{...nearPerson.spot,act:{do:'civic-ledger'}}:nearHouse?{key:nearHouse.house.coordinate,label:nearHouse.house.name,act:{do:'enter'}}:null),
       interactions:inside?.interactables||[]}),
-    onOpen:()=>{input.releaseMouse();input.reset();npcChat.close();},onClose:()=>input.reset()
+    onOpen:()=>{input.releaseMouse();input.reset();npcChat.close();},onClose:()=>input.reset(),
+    isBlocked:()=>isHudBlocked(blockingHudOverlays())
   });
+
+  function syncOverlayHud(){
+    const blocked=isHudBlocked(blockingHudOverlays());
+    companion.setBlocked(blocked);
+    if(blocked)$('prompt').hidden=true;
+  }
 
   // ── Movement between town and houses ─────────────────────────────────────
   function frontOf(coord) {
@@ -331,10 +357,17 @@ async function start() {
   }
   // The high-street buildings now have their own walkable rooms and usable
   // counters. Keep the existing villager/farm economy running in the street.
+  let lastDeniedEntrance = '', lastDeniedTime = 0;
   function enterShop(id, keepFacing = false) {
     if(mode!=='town'||!life.places.has(id))return false;
+    const site=life.place(id), access=facilityAccess(life,site);
+    if(!access.allowed){
+      const now=performance.now();
+      if(id!==lastDeniedEntrance || now-lastDeniedTime>3500){status(access.message);lastDeniedEntrance=id;lastDeniedTime=now;}
+      return false;
+    }
     const yawIn = player.yaw;
-    const site=life.place(id), built=buildCivicInterior(site,makeLabel,life);
+    const built=buildCivicInterior(site,makeLabel,life);
     installPhysicalJobs(built,site,makeLabel,life);
     built.workplay=installWorkplay(built,site,makeLabel,life,{openPanel,closePanel,status,sound:kind=>ambience.work(kind),getVisitors:()=>inside?.visitors?.entries});
     if(site.id==='bakery')built.bakeryImmersion=installBakeryImmersion(built,life,camera,makeLabel);
@@ -354,7 +387,7 @@ async function start() {
     mode='house';$('btn-exit').hidden=false;
     closePanel();npcChat.close();ambience.door();ambience.shopBell();
     $('card').hidden=true;delete $('card').dataset.coord;
-    status('Inside '+site.name+'. Walk to the counter or back through the entrance to leave.');
+    status(access.reason==='supervised' ? access.message+' You may return through the entrance at any time.' : 'Inside '+site.name+'. Walk to the counter or back through the entrance to leave.');
     return true;
   }
   function leave(placeOutside = true, keepFacing = false) {
@@ -611,21 +644,38 @@ async function start() {
         return;
       }
       const thing = nearThing, request = ++interactionRequest, house = inside;
+      const restricted=restrictedServiceAction(life,inside?.place,thing);
+      if(restricted){status(restricted);return;}
+      if(thing.act?.do==='soy-action'){
+        const result=life.soyAction(inside?.place?.id,thing.act.action);
+        status(result.message);
+        if(result.ok)inside?.soyVisuals?.();
+        return;
+      }
       if(thing.act?.do==='sleep') {
         if(inside?.place?.id==='hotel') {
           const room=Number(thing.act.room)||null;
           const n=life.needsReport();
           openPanel({title:'Railway Hotel · '+thing.label,
             body:'<p>'+esc(n.booking?'You have a booking for room '+n.booking.room+'.':'You need a room key from hotel reception first.')+'</p>'+
-              '<p>Sleep in your allocated room. Time, deliveries, wages and village routines continue overnight.</p>',
+              '<p>Daytime use is a two-hour nap that reduces fatigue; from 18:00 you sleep until 06:00. Town routines continue while you rest.</p>',
             actions:[{label:'Sleep in this bed',run:()=>{
               const msg=life.sleepHotel(room),p=needsPanel(life);
               return {...p,body:'<p><b>'+esc(msg)+'</b></p>'+p.body};
             }},{label:'Hotel reception',run:()=>placePanel(life,'hotel')}]},thing);
         } else {
-          openPanel({title:'Someone else’s bed',
-            body:'<p>This is a private home. Its residents need their beds to sleep. To stay overnight, book your own room at the Railway Hotel, I8.</p>',
-            actions:[]},thing);
+          const home=inside?.house?.coordinate;
+          const parcel=home&&life.civic.property?.parcels?.['H:'+home];
+          const accessible=parcel&&((life.civic.property.playerLease==='H:'+home&&parcel.tenant==='visitor')||(parcel.owner==='visitor'&&(!parcel.tenant||parcel.tenant==='visitor')));
+          if(accessible){
+            openPanel({title:'Your home · '+thing.label,
+              body:'<p>You have the right to occupy this home. Take a two-hour daytime nap or sleep until 06:00 overnight without hotel charges; normal town bills and activity continue.</p>',
+              actions:[{label:'Sleep in your own bed',run:()=>{const msg=life.sleepHome(home),p=needsPanel(life);return {...p,body:'<p><b>'+esc(msg)+'</b></p>'+p.body};}}]},thing);
+          }else{
+            openPanel({title:'Someone else’s bed',
+              body:'<p>This is a private home. Its residents need their beds to sleep. Rent an available home, buy one with vacant possession, or book your own hotel room at the Railway Hotel, I8.</p>',
+              actions:[]},thing);
+          }
         }
         return;
       }
@@ -635,13 +685,15 @@ async function start() {
         status(message);return;
       }
       if(inside?.place&&thing.act?.do==='physical-job'){
+        if(['depot','post','garden','coop','hall'].includes(inside.place.id)){openPanel(occupationPanel(life,inside.place.id,thing.act.index,()=>inside?.workStationVisuals?.()),thing);return;}
+        if(inside.place.id==='bakery'&&thing.act.task!=='wash-hands'){openPanel(bakeryKitchenPanel(life),thing);return;}
         const result=usePhysicalJob(life,thing.act.task);
         inside.workStationVisuals?.();
         status(result.message);
         return;
       }
       if(inside?.place?.id==='bakery'&&thing.act?.do==='bakery-production'){
-        const result=superviseBread(life,thing.act.action);
+        const result=thing.act.action==='mix'?{message:'Use the mixer controls below to weigh, mix and shape your saved batch.'}:superviseBread(life,thing.act.action);
         status(result.message);
         openPanel(bakeryKitchenPanel(life,result.message),thing);
         return;
@@ -821,6 +873,7 @@ async function start() {
       frames = 0; fpsTimer = 0;
     }
     // While a game is open the town neither renders nor reacts, so the game gets the whole device.
+    syncOverlayHud();
     if (playing) {
       if (input.consume('back')) stopGame();
       input.takeLook(); for (const k of ['use', 'jump', 'map']) input.consume(k);
@@ -849,6 +902,7 @@ async function start() {
 
     // The town keeps living while the player is indoors; the sky follows its clock.
     const talkingTo = panelOpen?.thing?.v ? panelOpen.thing : null;
+    life.workVehicleDriving=driving.activeVehicle()?.workVehicle==='depot';
     life.playerAt = mode === 'house' && inside?.place ? inside.place.id : null;
     life.playerSeated = !!player.seated; // shifts count only inside the workplace
     life.pedestrianWorld=townWorld;
@@ -857,6 +911,7 @@ async function start() {
       :[];
     const view = mode === 'house' && inside?.view ? inside.view.place(camera, outdoorCam) : null;
     townLife.update(dt, t, { player, mode, overview, camera, talkingTo, view });
+    inside?.soyVisuals?.();
     if(mode==='house'&&inside?.bakeryImmersion)inside.bakeryImmersion.update(dt,t);
     emergencyVisuals.update(t);
     const n=life.needsReport();
@@ -903,16 +958,19 @@ async function start() {
         p.pos.set(p.v.x,0,p.v.z);
         p.fig.group.position.x=p.v.x;p.fig.group.position.z=p.v.z;
       }
-      const namedLabels=[
-        ...nearbyPeople.filter(p=>p.fig.group.visible).map(p=>({label:p.tag,pos:p.v,
-          distance:Math.hypot(p.v.x-player.pos.x,p.v.z-player.pos.z)})),
-        ...nearbyCharacters.filter(n=>n.group.visible).map(n=>({label:n.group.userData.label,pos:n.pos,
-          distance:Math.hypot(n.pos.x-player.pos.x,n.pos.z-player.pos.z)}))
-      ].filter(x=>x.label?.visible).sort((a,b)=>a.distance-b.distance);
-      const displayed=[];
-      for(const item of namedLabels){
-        if(displayed.some(p=>Math.hypot(p.pos.x-item.pos.x,p.pos.z-item.pos.z)<2.3))item.label.visible=false;
-        else displayed.push(item);
+      // The nearby-action HUD, not dozens of world-space nameplates, identifies
+      // town residents. Keep animated characters visible but mute their billboards.
+      for (const p of townLife.people) if (p.tag) p.tag.visible = false;
+      for (const n of streetNPCs) if (n.group.userData.label) n.group.userData.label.visible = false;
+      // Speech is a rare exception, limited to the nearest passing greeting.
+      let greetingShown = false;
+      for (const p of [...nearbyPeople].sort((a,b) =>
+        Math.hypot(a.v.x-player.pos.x,a.v.z-player.pos.z) -
+        Math.hypot(b.v.x-player.pos.x,b.v.z-player.pos.z))) {
+        if (!p.bubble) continue;
+        const d = Math.hypot(p.v.x-player.pos.x,p.v.z-player.pos.z);
+        p.bubble.visible = !greetingShown && d < 5;
+        if (p.bubble.visible) greetingShown = true;
       }
       // Villagers, the guide kiosk and the shop counters: pick the one the player is facing.
       nearPerson = null; let bestP = Infinity;
@@ -955,21 +1013,40 @@ async function start() {
       // just in front of their door (not inside an inaccessible wall).
       if(mode==='town' && !overview && !driving.driving){
         for(const place of life.places.values()){
-          if(Math.abs(player.pos.x-place.x)<.93 &&
-             player.pos.z>=place.door.z-.12 &&
-             player.pos.z<=place.door.z+.92){
-            enterShop(place.id, true);
+          if(atCivicEntrance(place,player.pos)){
+            if(!enterShop(place.id, true)){
+              // Keep closed/unattended buildings secure, but give an obvious
+              // physical rejection outside the expanded entrance trigger.
+              const back=closedCivicDoorPose(place,player.pos);
+              player.place(back.x,back.z,player.yaw);
+            }
             break;
           }
         }
       }
       if (nearHouse && $('card').dataset.coord !== nearHouse.house.coordinate) { showCard(nearHouse.house); $('card').dataset.coord = nearHouse.house.coordinate; }
       if (!nearHouse && $('card').dataset.coord) { $('card').hidden = true; delete $('card').dataset.coord; }
-      // House name boards are created only near the player to keep GPU memory low on phones.
+      // Only the nearest, approached front door earns a floating house title.
+      // Permanent physical street/shop signs remain visible at every distance.
       for (const [c, l] of town.lots) {
-        const d = Math.hypot(l.doorPos.x - player.pos.x, l.doorPos.z - player.pos.z), has = houseLabels.get(c);
-        if (d < labelCull && !has) { const s = makeLabel(`${c} · ${l.house.name}`, 'house'); /* Anchor to each building's actual front wall; the old fixed offset buried deeper shop signs inside walls. */ s.position.set(l.lot.x, Math.max(3.7, Math.min(5.5, l.fp.h - 0.8)), l.doorPos.z + 1.2); town.group.add(s); houseLabels.set(c, s); }
-        else if (d > labelCull + 15 && has) { town.group.remove(has); disposeLabel(has); houseLabels.delete(c); }
+        const d = Math.hypot(l.doorPos.x-player.pos.x,l.doorPos.z-player.pos.z);
+        const has = houseLabels.get(c);
+        if (d < 16 && !has) {
+          const s = makeLabel(`${c} · ${l.house.name}`, 'house');
+          s.position.set(l.lot.x,Math.max(3.7,Math.min(5.5,l.fp.h-0.8)),l.doorPos.z+1.2);
+          town.group.add(s);houseLabels.set(c,s);
+        } else if (d > 22 && has) {
+          town.group.remove(has);disposeLabel(has);houseLabels.delete(c);
+        }
+        const label = houseLabels.get(c);
+        if (label) {
+          const dx=l.doorPos.x-player.pos.x,dz=l.doorPos.z-player.pos.z;
+          const face=d>0.01?(dx*player.forward().x+dz*player.forward().z)/d:1;
+          label.visible = showNearbyHouseLabel({
+            distance:d,facing:face,nearest:nearHouse===l,
+            overview,modal:!!panelOpen||npcChat.isOpen()||driving.driving
+          });
+        }
       }
       const nearRelic = expedition.nearby(player.pos), relicD = away(nearRelic), npcD = away(nearNPC), personD = away(nearPerson);
       $('prompt').hidden = (!driving.driving && !nearCar && !player.seated && !nearTownSeat && !nearNPC && !nearPerson && !nearHouse && !nearRelic) || !!panelOpen || expedition.isOpen() || npcChat.isOpen() || !$('npc-roster').hidden;
@@ -1004,32 +1081,33 @@ async function start() {
         animate(inside.dynamics, t, active);
         inside.visitors?.update(dt,t,player);
         inside.workplay?.update(dt,player);
+        inside.workStationVisuals?.();
         // Shop patrons are synchronised with the authoritative town economy
         // above; they have their own movement and seated animation.
         for (const p of inside.people || []) if(!p.key?.startsWith('visitor:'))p.update(dt,t,player,p.plan);
         if (cardTimer > 0 && (cardTimer -= dt) <= 0) $('card').hidden = true;
-        // Labels hide when the player is right on top of them so they never fill the screen,
-        // and when a wall or closed door stands between them and the camera.
-        // Labels belong to one room: a sign for Bathroom must never appear
-        // over a Living room wall or read as directions into the wrong room.
+        // A single short label may identify the object directly ahead;
+        // all room, employee, shelf and distant station labels stay quiet.
+        // The bottom-screen E/✋ prompt remains the accessible action cue.
+        const labelEye = new THREE.Vector3(camera.position.x,
+          camera.position.y - (inside.floorIndex || 0) * FLOOR_HEIGHT,camera.position.z);
         const currentRoom = inside.rooms.findIndex(r =>
           player.pos.x >= r.x0 && player.pos.x <= r.x1 &&
           player.pos.z >= r.z0 && player.pos.z <= r.z1);
-        const labelEye = new THREE.Vector3(camera.position.x,
-          camera.position.y - (inside.floorIndex || 0) * FLOOR_HEIGHT,camera.position.z);
-        for (const s of inside.group.children) if (s.isSprite) {
-          const belongsHere = s.userData.labelRoom == null ||
-            s.userData.labelRoom === currentRoom;
-          const nearEnough = Math.hypot(s.position.x-player.pos.x,s.position.z-player.pos.z) >
-            (s.userData.labelKind === 'room' ? 2.6 : 1.3);
-          s.visible = belongsHere && nearEnough && labelVisible(labelEye,s.position,inside.sight);
-        }
+        focusInteriorLabels(inside.group,{
+          target:nearThing?.pos || null,player:player.pos,forward:player.forward(),currentRoom,
+          modal:!!panelOpen||npcChat.isOpen()||expedition.isOpen(),
+          canSee:at=>labelVisible(labelEye,at,inside.sight)
+        });
       }
     }
     if (mode === 'town') input.consume('use');
     expedition.update(t,player,mode);
     mapTimer += dt; if (mapTimer > 0.2) { drawMap(); mapTimer = 0; }
     saveTimer += dt; if (saveTimer > 3) { save(); saveTimer = 0; }
+    // Apply after selecting the new nearby prompt: never let it reappear over
+    // a shop menu, building card, NPC conversation or other focused interface.
+    syncOverlayHud();
     renderFrame();
     requestAnimationFrame(frame);
   }
@@ -1038,6 +1116,29 @@ async function start() {
 
   // Test hook: lets the browser test suite drive real gameplay deterministically.
   window.__town = {
+    // Test harness fast-forwards genuine simulation steps, allowing attendants to
+    // commute to their workstations before the browser tries a staffed entrance.
+    // Access-control decisions remain unchanged: no unlocked-door shortcut.
+    advanceSimulation(minutes) {
+      if (!Number.isFinite(minutes) || minutes < 0 || minutes > 240) return false;
+      for (let elapsed = 0; elapsed < minutes; elapsed += 0.5)
+        life.tick(Math.min(0.5, minutes - elapsed));
+      return true;
+    },
+    // Read-only playtest evidence: a rostered worker is not automatically on
+    // duty at the counter. The real visitor-access rule remains authoritative.
+    facilityState(id) {
+      const site=life.place(id);
+      if(!site)return null;
+      const access=facilityAccess(life,site);
+      return {id,minute:life.minute,day:life.day,...access,
+        workers:life.villagers.filter(v=>v.work===id).map(v=>({
+          name:v.name,job:v.job,at:v.step?.at||null,
+          kind:v.step?.kind||null,inside:!!v.inside,
+          pathLength:v.path?.length||0,activity:v.activity
+        }))};
+    },
+
     houses: houses.map((h) => ({ coordinate: h.coordinate, name: h.name })),
     npcs: streetNPCs.map((x) => ({ id: x.npc.id, name: x.npc.name, coordinate: x.npc.coordinate })),
     npcChat: () => ({ open: npcChat.isOpen(), id: npcChat.active() }),
@@ -1105,6 +1206,12 @@ async function start() {
     // Stands at the Town Guide kiosk, facing it.
     meetGuide() { if (mode === 'house') leave(false); player.place(town.guidePos.x, town.guidePos.z + 1.6, 0); return 'guide'; },
     goPlace,
+    driveDiagnostics:()=>({
+      input:input.movement(),touch:input.touch,
+      active:driving.activeVehicle()?.registration||null,
+      message:driving.message||null,
+      vehicle:driving.activeVehicle()?{...driving.activeVehicle()}:null
+    }),
     vehicles:()=>life.motorReport().owned.map(v=>({...v})),
     enterVehicle:(reg)=>driving.enter(life.motorReport().owned.find(v=>v.registration===reg)),
     leaveVehicle:()=>driving.exit(),
