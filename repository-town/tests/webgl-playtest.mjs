@@ -43,6 +43,31 @@ async function play(kind,options) {
   rec.webgl=gl;
   await page.waitForFunction(()=>window.__town.state().calls>0,null,{timeout:15000});
   const a=await shot('01-town-rendered');
+  // A real modal must take priority over the floating Ask AI control on
+  // both desktop and Android-size screens. Do not test this by mocking CSS:
+  // open and close the actual Town Guide panel in the running game.
+  const launch=page.locator('#town-companion-button');
+  if(await page.evaluate(()=>!document.getElementById('card').hidden))
+    await page.evaluate(()=>window.__town.meetGuide()); // step clear of any house info card
+  await page.waitForFunction(()=>document.getElementById('card').hidden &&
+    !document.getElementById('town-companion-button').hidden,null,{timeout:5000});
+  assert(await launch.isVisible(),kind+': Ask AI should appear during free roam');
+  await page.evaluate(()=>document.getElementById('btn-guide').click());
+  await page.waitForFunction(()=>!document.getElementById('panel').hidden &&
+    document.getElementById('town-companion-button').hidden &&
+    document.getElementById('prompt').hidden,null,{timeout:5000});
+  assert(await launch.isHidden(),kind+': Ask AI covered the Town Guide menu');
+  await page.keyboard.press('k');
+  assert(await page.evaluate(()=>document.getElementById('town-companion').hidden),
+    kind+': keyboard shortcut opened Ask AI over a menu');
+  await shot('01b-guide-panel-no-ask-ai-overlap');
+  await page.evaluate(()=>document.getElementById('panel-close').click());
+  await page.waitForFunction(()=>document.getElementById('panel').hidden &&
+    document.getElementById('card').hidden &&
+    !document.getElementById('town-companion-button').hidden,null,{timeout:5000});
+  assert(await launch.isVisible(),kind+': Ask AI did not return after closing the menu');
+
+
   // Actual keyboard motion, not a teleport: player position must change.
   await page.keyboard.down('w');await page.waitForTimeout(950);await page.keyboard.up('w');
   const after=await page.evaluate(()=>window.__town.state());
