@@ -9,7 +9,7 @@ import {queueCafeCustomer,useCafe,workState,tickWorkplay} from '../src/world/wor
 import {FULL_WORK_MENU,orderRecipe} from '../src/world/work-recipes.js';
 import {heartPoints,latteScore} from '../src/ui/latte-art.js';
 import {buildCivicInterior} from '../src/world/shop-interior.js';
-import {installPhysicalJobs} from '../src/world/physical-jobs.js';
+import {installPhysicalJobs,usePhysicalJob} from '../src/world/physical-jobs.js';
 import {routeVisitor} from '../src/world/shop-visitors.js';
 import {createPlayerDriving,roadAllows} from '../src/world/player-driving.js';
 import {Player} from '../src/engine/player.js';
@@ -71,4 +71,32 @@ resumed=make();assert(resumed.restore(JSON.parse(JSON.stringify(t.snapshot()))))
 resumed.day++;staff(resumed,'garden');resumed.place('garden').till=500;assert(resumed.startJob('farm-hand').ok);assert.equal(occupationState(resumed).garden.crate,3,'previous harvest cannot disappear on a date change');const cropBefore=resumed.place('garden').out.veg;action(resumed,'garden','pack-produce','store');assert.equal(resumed.place('garden').out.veg,cropBefore+3);
 // Actual furniture geometry: new workstations can be approached from the door.
 for(const id of ['post','depot','hall','garden','coop','bakery']){const life=make(),site=life.place(id),built=buildCivicInterior(site,()=>new THREE.Sprite(new THREE.SpriteMaterial()));installPhysicalJobs(built,site,()=>new THREE.Sprite(new THREE.SpriteMaterial()),life);for(const item of built.interactables.filter(i=>i.act.do==='physical-job')){assert(routeVisitor(built.spawn,item.pos,built.colliders,built.bounds,.3),id+' reachable '+item.key);assert(!built.colliders.some(c=>item.pos.x>c.x0-.3&&item.pos.x<c.x1+.3&&item.pos.z>c.z0-.3&&item.pos.z<c.z1+.3),id+' clear '+item.key);}}
+// Regression: practice trolley clicks must never waste real flour or fake completed work.
+{
+ const job=shift('bakery','bakery-assistant'),flour=job.place('bakery').stock.flour;
+ assert(!usePhysicalJob(job,'prep-bench').ok,'practice preparation cannot bypass actual production');
+ assert(!usePhysicalJob(job,'cooling').ok,'practice cooling cannot bypass real loaves');
+ assert.equal(job.place('bakery').stock.flour,flour,'no flour lost to imaginary bread');
+ assert(!job.civic.jobs.active.bakeryTrainingBatch,'no synthetic demonstration inventory');
+}
+// Regression: a saved, unfinished batch is resumable today, but never bakeable tomorrow.
+{
+ const pending=make();staff(pending,'bakery');pending.place('bakery').out.bread=0;pending.place('bakery').stock.flour=6;
+ assert(superviseBread(pending,'wash').ok);
+ assert(superviseBread(pending,'weigh',2000).ok);
+ assert.equal(pending.place('bakery').stock.flour,4);
+ const saved=JSON.parse(JSON.stringify(pending.snapshot()));
+ const resumed=make();assert(resumed.restore(saved));staff(resumed,'bakery');
+ assert.equal(resumed.civic.bakeryBatch.phase,'weighed','unpacked batches survive a same-day save');
+ assert(superviseBread(resumed,'mix').ok,'resume correct same-day stage');
+ resumed.day+=1;resumed.minute=600;staff(resumed,'bakery');
+ assert(!superviseBread(resumed,'pack').ok,'stale dough never enters saleable stock');
+ assert.equal(resumed.place('bakery').out.bread,0);
+ assert.equal(resumed.place('bakery').stock.flour,4,'reserved flour not refunded or consumed twice');
+ assert.equal(resumed.civic.bakeryBatch,null,'expired state cleared');
+ assert(superviseBread(resumed,'wash').ok);
+ assert(superviseBread(resumed,'weigh',2000).ok,'new day may start a new finite batch');
+ assert.equal(resumed.place('bakery').stock.flour,2,'new batch debited once');
+ assert(!superviseBread(resumed,'weigh',2000).ok,'no duplicate weighing');
+}
 console.log('PASS: real freight/post addresses, farm/feed/egg stock conservation, cleaner, repaired lamp, driven van/receipt guards, full bakery, FEFO/cold returns, 16 cafe recipes, patience, saved state and reachable stations.');

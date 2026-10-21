@@ -2,7 +2,16 @@ import {workAssetFault} from './occupation-work.js';
 // One finite, saved bread batch per day. Sales inventory is released only after
 // weighing, mixing, shaping, proofing, baking, cooling and packing.
 const now=life=>life.day*1440+life.minute;
-export function bakeryInventory(life){const p=life.place('bakery');return {flour:p.stock.flour||0,eggs:p.stock.eggs||0,milk:p.stock.milk||0,meat:p.stock.lamb||0,vegetables:p.stock.veg||0,bread:p.out.bread||0,pies:p.out.pie||0,bakeryOpen:life.open(p),time:life.time(),day:life.day,bakers:life.villagers.filter(v=>v.work==='bakery'),working:life.villagers.filter(v=>v.work==='bakery'&&v.step?.kind==='work'&&!v.path?.length),batch:life.civic.bakeryBatch||null};}
+// Older unfinished dough cannot be baked after an overnight save or later visit.
+// Reserved ingredients were consumed at weighing; discarding stale dough must not
+// refund that flour or create loaves. A finished prior-day batch may be cleared.
+function expireOldBatch(life){
+ const b=life.civic.bakeryBatch;
+ if(!b||!Number.isFinite(b.day)||b.day>=life.day)return;
+ life.civic.bakeryBatch=null;
+ if(b.phase!=='finished')life.log('An unfinished Bakery batch expired overnight. Reserved flour remains used; no stale bread entered stock.');
+}
+export function bakeryInventory(life){expireOldBatch(life);const p=life.place('bakery');return {flour:p.stock.flour||0,eggs:p.stock.eggs||0,milk:p.stock.milk||0,meat:p.stock.lamb||0,vegetables:p.stock.veg||0,bread:p.out.bread||0,pies:p.out.pie||0,bakeryOpen:life.open(p),time:life.time(),day:life.day,bakers:life.villagers.filter(v=>v.work==='bakery'),working:life.villagers.filter(v=>v.work==='bakery'&&v.step?.kind==='work'&&!v.path?.length),batch:life.civic.bakeryBatch||null};}
 function duty(life,key){const a=life.civic.jobs?.active;if(a?.site!=='bakery')return;a.hands??={earned:[],scores:[]};if(!a.hands.earned.includes(key))a.hands.earned.push(key);life.doTask(key);}
 export function superviseBread(life,action,amount){
  const p=life.place('bakery'),s=bakeryInventory(life),t=now(life),b=s.batch;

@@ -13,7 +13,7 @@ export function bakeryKitchenPanel(life, note = '') {
   const stage = b ? ({
     weighed:'Ingredients weighed; mix and knead next.',mixed:'Mixed; shape eight loaves.',shaping:`Shaped ${b.shapes}/8 loaves.`,shaped:'Tray shaped; start proofing.',cooling:`Cooling (${minsLeft(b,life)} town minutes remaining); pack afterwards.`,proofing: `Dough is proofing (${minsLeft(b, life)} town minutes to go).`,
     baking: `Loaves are baking (${minsLeft(b, life)} town minutes to go).`,
-    finished: b.day === life.day ? 'Eight loaves came out of the oven today and are on the rack.' : 'Yesterday\'s batch is done. You can start another.',
+    finished: b.day === life.day ? 'Eight loaves were cooled, packed and placed in saleable stock today.' : 'Yesterday\'s batch is done. You can start another.',
   }[b.phase] || 'Ready') : 'No batch started yet.';
   const roster = s.bakers.map((v) => esc(`${v.name} (${v.job}, ${clock(v.start)}–${clock(v.end)})`)).join(', ') || 'No assigned staff';
   const run = (action, where) => () => { const z = superviseBread(life, action); return bakeryKitchenPanel(life, z.message); };
