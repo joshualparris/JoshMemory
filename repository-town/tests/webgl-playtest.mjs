@@ -49,12 +49,22 @@ async function play(kind,options) {
   const origin=rec.steps[0].state.pos;
   assert(Math.hypot(origin.x-after.pos.x,origin.z-after.pos.z)>.05,kind+': keyboard walking did not move the player');
   await shot('02-after-walking');
-  // Allow real on-shift staff to walk to their businesses before testing access.
-  // Older deployed builds lack this hook but retain their own established access rules.
-  await page.evaluate(()=>window.__town.advanceSimulation?.(180));
+  // A fixed 180-minute jump is NOT proof the café has a worker on site:
+  // the 61-person town has actual commutes, breaks and counter attendance.
+  // Schedule a morning visit then advance the real simulation in small steps.
+  // Never bypass facilityAccess or pretend an absent barista is present.
+  await page.evaluate(()=>window.__town.life?.setTime?.(8*60));
+  let cafeAccess=null;
+  for(let attempt=0;attempt<28;attempt++){
+    cafeAccess=await page.evaluate(()=>window.__town.facilityState?.('cafe')||null);
+    if(cafeAccess?.allowed)break;
+    await page.evaluate(()=>window.__town.advanceSimulation?.(10));
+  }
+  rec.cafeAccess=cafeAccess;
+  assert(cafeAccess?.allowed,kind+': café must have a real staff member on duty; '+JSON.stringify(cafeAccess));
   await page.waitForTimeout(250);
   // Use the real in-world interior and ensure it actually draws.
-  assert(await page.evaluate(()=>window.__town.enterShop('cafe')),kind+': could not enter staffed café');
+  assert(await page.evaluate(()=>window.__town.enterShop('cafe')),kind+': staffed café denied access: '+JSON.stringify(cafeAccess));
   await page.waitForFunction(()=>window.__town.state().mode==='house'&&window.__town.state().calls>0,null,{timeout:15000});
   const cafe=await shot('03-cafe-3d');
   assert(!a.equals(cafe),kind+': street and café screenshots are identical');
