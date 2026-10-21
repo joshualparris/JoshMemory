@@ -6,7 +6,9 @@ import { loadSave, writeSave, clearSave } from './engine/save.js';
 import { discoveryProgress } from './ui/discovery-log.js';
 import { buildTown, streetSigns, lotPosition } from './world/town.js';
 import { buildInterior, labelVisible } from './world/interior.js';
+import { honourPaulRoe } from './world/paul-roe-tribute.js';
 import { buildCivicInterior } from './world/shop-interior.js';
+import { wasteDepotPanel } from './ui/waste-depot-panel.js';
 import { surfaceAt, roomFloor } from './world/surfaces.js';
 import { FIELD_Z0 } from './world/life.js';
 import { emergencyPanel,justicePanel } from './ui/emergency-panels.js';
@@ -49,7 +51,7 @@ async function start() {
   // Archive contents (READMEs, file lists) are large, so they load on first use.
   let archive = null;
   setArchiveLoader(() => (archive = archive || (window.__REPO_DATA__ ? Promise.resolve(window.__REPO_DATA__) : fetch('repo-data.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({})))));
-  const houses = data.houses;
+  const houses = data.houses.map(honourPaulRoe);
   const byCoord = new Map(houses.map((h) => [h.coordinate, h]));
 
   const touch = matchMedia('(pointer: coarse)').matches;
@@ -260,8 +262,11 @@ async function start() {
     const yawIn = player.yaw;
     // A villager's own home also has their kitchen, bathroom and laundry, and living room.
     const resident = life.villagers.find((v) => v.home.coordinate === coord);
-    const h = resident ? { ...byCoord.get(coord), household: resident.name } : byCoord.get(coord);
-    const floors = createFloorStack(h, makeLabel);
+    const base = byCoord.get(coord);
+    // Memorial buildings are public galleries, not a randomly assigned NPC home.
+    // Never append generic kitchen, bathroom/laundry or living room overlays.
+    const h = resident && !base.memorial ? { ...base, household: resident.name } : base;
+    const floors = h.memorial ? null : createFloorStack(h, makeLabel);
     const built = floors ? floors.levels[0] : buildInterior(h, makeLabel);
     // Every storey shares the ground floor's frame: front door at the interior's exit, facing +z
     // like the house itself, so the windows look out on the real street (src/world/windows.js).
@@ -596,6 +601,10 @@ async function start() {
       }
       if(thing.act?.do==='household'&&inside?.house?.household){
         openPanel(householdPanel(life,inside.house.household,thing.act.what),thing);
+        return;
+      }
+      if(inside?.place?.id==='landfill'&&thing.act?.do==='waste-depot-status'){
+        openPanel(wasteDepotPanel(life,thing.key.split(':')[1]),thing);
         return;
       }
       if(inside?.place&&thing.act?.do==='emergency'){
@@ -943,7 +952,20 @@ async function start() {
         if (cardTimer > 0 && (cardTimer -= dt) <= 0) $('card').hidden = true;
         // Labels hide when the player is right on top of them so they never fill the screen,
         // and when a wall or closed door stands between them and the camera.
-        for (const s of inside.group.children) if (s.isSprite) s.visible = Math.hypot(s.position.x - player.pos.x, s.position.z - player.pos.z) > (s.userData.labelKind === 'room' ? 2.6 : 1.3) && labelVisible(new THREE.Vector3(camera.position.x, camera.position.y - (inside.floorIndex || 0) * FLOOR_HEIGHT, camera.position.z), s.position, inside.sight);
+        // Labels belong to one room: a sign for Bathroom must never appear
+        // over a Living room wall or read as directions into the wrong room.
+        const currentRoom = inside.rooms.findIndex(r =>
+          player.pos.x >= r.x0 && player.pos.x <= r.x1 &&
+          player.pos.z >= r.z0 && player.pos.z <= r.z1);
+        const labelEye = new THREE.Vector3(camera.position.x,
+          camera.position.y - (inside.floorIndex || 0) * FLOOR_HEIGHT,camera.position.z);
+        for (const s of inside.group.children) if (s.isSprite) {
+          const belongsHere = s.userData.labelRoom == null ||
+            s.userData.labelRoom === currentRoom;
+          const nearEnough = Math.hypot(s.position.x-player.pos.x,s.position.z-player.pos.z) >
+            (s.userData.labelKind === 'room' ? 2.6 : 1.3);
+          s.visible = belongsHere && nearEnough && labelVisible(labelEye,s.position,inside.sight);
+        }
       }
     }
     if (mode === 'town') input.consume('use');
