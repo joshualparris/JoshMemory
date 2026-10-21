@@ -43,6 +43,23 @@ async function play(kind,options) {
   rec.webgl=gl;
   await page.waitForFunction(()=>window.__town.state().calls>0,null,{timeout:15000});
   const a=await shot('01-town-rendered');
+  // Real exterior transition, not the direct enterShop() test hook: approach
+  // a house through the same collision and hinged-door triggers as Android.
+  const homeCoord=await page.evaluate(()=>window.__town.houses[0]?.coordinate);
+  assert(homeCoord,kind+': no town house to enter');
+  assert(await page.evaluate(c=>window.__town.travel(c),homeCoord));
+  const homeDoor=await page.evaluate(()=>{
+    const p=window.__town.state().pos;
+    return {x:p.x,z:p.z-9+1.8};
+  });
+  assert(await page.evaluate(p=>!window.__town.probeStatic(p.x,p.z),homeDoor),
+    kind+': house doorway is obstructed by solid world geometry');
+  await page.evaluate(p=>window.__town.place(p.x,p.z),homeDoor);
+  await page.waitForFunction(()=>window.__town.state().mode==='house',null,{timeout:6000});
+  await shot('01b-real-house-door-entry');
+  await page.evaluate(()=>window.__town.meetGuide());
+  await page.waitForFunction(()=>window.__town.state().mode==='town',null,{timeout:6000});
+
   // A real modal must take priority over the floating Ask AI control on
   // both desktop and Android-size screens. Do not test this by mocking CSS:
   // open and close the actual Town Guide panel in the running game.
@@ -122,7 +139,17 @@ async function play(kind,options) {
   assert(cafeAccess?.allowed,kind+': café must have a real staff member on duty; '+JSON.stringify(cafeAccess));
   await page.waitForTimeout(250);
   // Use the real in-world interior and ensure it actually draws.
-  assert(await page.evaluate(()=>window.__town.enterShop('cafe')),kind+': staffed café denied access: '+JSON.stringify(cafeAccess));
+  // Enter through the actual exterior trigger rather than bypassing
+  // collision/door checks with the direct enterShop() harness shortcut.
+  await page.evaluate(()=>window.__town.goPlace('cafe'));
+  const cafeDoor=await page.evaluate(()=>{
+    const p=window.__town.state().pos;
+    return {x:p.x,z:p.z-0.8};
+  });
+  assert(await page.evaluate(p=>!window.__town.probeStatic(p.x,p.z),cafeDoor),
+    kind+': staffed café doorway is physically blocked');
+  await page.evaluate(p=>window.__town.place(p.x,p.z),cafeDoor);
+  await page.waitForFunction(()=>window.__town.state().mode==='house',null,{timeout:6000});
   await page.waitForFunction(()=>window.__town.state().mode==='house'&&window.__town.state().calls>0,null,{timeout:15000});
   const cafe=await shot('03-cafe-3d');
   assert(!a.equals(cafe),kind+': street and café screenshots are identical');
