@@ -95,6 +95,25 @@ export function drawState(life, amount) {
   if (take > 0) { f.state = r2(f.state - take); revenue(life, 'stateWages', take); record(life, 'nsw', 'wages', take, 'NSW health and education payroll'); }
   return take;
 }
+// One-off NSW small-business establishment grant (fictional, NSW-inspired): at 8:00 on day 1
+// each private business gets opening working capital from the finite NSW treasury, so a new
+// shop can make payroll before its first sales. Sized on its staff; paid once per save.
+export const STARTUP_GRANT = Object.freeze({ base: 300, perStaff: 150, at: 8 * 60 });
+export function startupGrants(life, businesses) {
+  const f = fin(life);
+  if (f.startupGrantsPaid || (life.day === 1 && life.minute < STARTUP_GRANT.at)) return 0;
+  f.startupGrantsPaid = true;
+  let total = 0;
+  for (const p of businesses) {
+    const staff = life.villagers.filter((v) => v.work === p.id).length;
+    const amount = Math.min(STARTUP_GRANT.base + STARTUP_GRANT.perStaff * staff, f.state);
+    if (amount <= 0) break;
+    f.state = r2(f.state - amount); p.till = r2(p.till + amount); total = r2(total + amount);
+    record(life, 'nsw', 'business:' + p.id, amount, p.name + ' small-business establishment grant');
+  }
+  if (total) { revenue(life, 'startupGrants', total); life.log(`NSW small-business establishment grants paid: $${Math.round(total)} to ${businesses.length} local businesses.`); }
+  return total;
+}
 export function noteCouncilWage(life, amount) { if (amount > 0) { revenue(life, 'councilWages', amount); record(life, 'council', 'wages', amount, 'Council payroll'); } }
 
 // Daily grants are needs-based, as for a real country council: the Commonwealth and NSW only top the
