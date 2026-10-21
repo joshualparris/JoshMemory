@@ -78,7 +78,8 @@ export function queueCafeCustomer(t,v){
  const table=[1,2,3,4,5,6].find(n=>!busy.some(o=>o.table===n));
  const p=t.place('cafe'),choices=FULL_WORK_MENU.filter(r=>v.wallet>=r.price);
  if(!choices.length)return null;
- const diet=v.id%7===0?'vegan':v.id%7===1?'gluten-free':'standard',milk=diet==='vegan'?'oat':'dairy';
+ // Skim uses the same dairy milk; the barista still has to read the ticket and pick the right jug.
+ const diet=v.id%7===0?'vegan':v.id%7===1?'gluten-free':'standard',milk=diet==='vegan'?'oat':(v.id+c.next)%3===2?'skim':'dairy';
  const suitable=choices.filter(r=>diet!=='vegan'||(!r.ingredients.eggs&&!r.ingredients.pie)).filter(r=>diet!=='gluten-free'||!r.ingredients.bread).filter(r=>Object.entries(orderRecipe({item:r.id,diet,milk}).ingredients).every(([g,n])=>(p.stock[g]||0)>=n));
  if(!suitable.length)return null;
  const r=suitable[Math.abs(v.id+c.next-1)%suitable.length];
@@ -164,8 +165,11 @@ export function useCafe(t,action,arg,score){
   t.eat(v,r.name);v.activity='Enjoying '+r.name+' at table '+o.table;
   delete v.step.queue;delete v.step.food;v.step.dur=12;
   o.state='served';o.servedAt=now(t);c.held=null;c.served++;o.reserved=false;
+  // Quick service earns a $1 tip from the customer's own wallet to the visitor's.
+  const tip=now(t)-o.created<=(o.patience||90)/2&&v.wallet>=1?1:0;
+  if(tip){v.wallet-=tip;noteSpend(v,'out',tip);t.civic.player.wallet+=tip;c.tips=(c.tips||0)+tip;}
   t.log('Ticket '+o.id+': '+o.name+' served '+r.name+' at table '+o.table+'.');
-  return result(true,'Correct table! '+o.name+' received '+r.name+'. $'+r.price+' paid to the café.');
+  return result(true,'Correct table! '+o.name+' received '+r.name+'. $'+r.price+' paid to the café'+(tip?' and they left you a $1 tip.':'.'));
  }
  if(action==='clear'){
   if(Number(arg)!==o.table||!['dirty','served'].includes(o.state))return result(false,'There are no finished dishes from this ticket at that table.');

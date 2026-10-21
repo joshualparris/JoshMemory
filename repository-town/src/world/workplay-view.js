@@ -94,7 +94,7 @@ export function installWorkplay(built,site,makeLabel,life,{openPanel,closePanel,
    return;
   }
   const r=say(useCafe(life,action,arg));
-  if(r.milkChoice){openPanel(choices('Select the ticket’s milk','<p>Read the ticket and use the matching jug. Dietary requests affect the actual reserved ingredients.</p>',['dairy','oat'].map(milk=>({label:milk+' milk',run:()=>{say(useCafe(life,'milk',milk));return null;}}))));return;}
+  if(r.milkChoice){openPanel(choices('Select the ticket’s milk','<p>Read the ticket and use the matching jug. Dietary requests affect the actual reserved ingredients.</p>',['dairy','skim','oat'].map(milk=>({label:({dairy:'Full-cream (dairy)',skim:'Skim',oat:'Oat'})[milk]+' milk',run:()=>{say(useCafe(life,'milk',milk));return null;}}))));return;}
   if(r.mini){
    animation={kind:r.mini[0].split(':').at(-1),start:elapsed};
    openPanel(skillPanel(r.mini,score=>{
@@ -119,7 +119,7 @@ export function installWorkplay(built,site,makeLabel,life,{openPanel,closePanel,
    if(active&&c.held){carry.visible=true;carton.visible=false;tray.visible=true;const food=['food','oven'].includes(orderRecipe(o).kind);carriedCup.visible=!food;carriedFood.visible=food;}
    for(const a of actors)if(a.table){const ticket=c.tickets.find(o=>o.table===a.table&&['served','dirty'].includes(o.state));a.cup.visible=!!ticket;a.plate.visible=!!ticket;if(ticket)a.cup.material.color.set(ticket.state==='dirty'?0xa38b68:0xf2ecde);}
    if(coffeeCup){const preparing=!!animation;pitcher.rotation.z=preparing&&animation.kind==='pour'?-.55:0;pitcher.position.y=1.55+(preparing?Math.sin(elapsed*3)*.025:0);stream.material.color.setHex(animation?.kind==='pour'?0xf4ead2:0x99704a);pan.rotation.z=preparing&&animation.kind==='cook'?Math.sin(elapsed*4)*.04:0;kitchenFood.material.color.setHex(preparing&&['cook','bake'].includes(animation.kind)?0xc48b3f:0xe9b851);stream.visible=preparing&&['extract','pour','fill'].includes(animation.kind);liquid.scale.y=preparing?.5+(Math.sin(elapsed*2)+1)/2:1;steam.forEach((m,i)=>{m.visible=preparing&&['steam','steep'].includes(animation.kind);m.position.y=1.4+((elapsed*.4+i*.12)% .6);m.position.x=-2.3+Math.sin(elapsed*2+i)*.08;m.material.opacity=.35*(1-(m.position.y-1.4)/.6);});coffeeCup.rotation.z=preparing&&animation.kind==='pour'?Math.sin(elapsed*2)*.12:0;ovenLight.material.emissive.setHex(preparing&&['cook','bake'].includes(animation.kind)?0xff7711:0x000000);}
-   const str='CAFÉ SHIFT · '+c.tickets.filter(o=>o.state==='queue').length+' queuing\n'+(o?'#'+o.id+' '+o.name+' · '+orderRecipe(o).name+'\nTABLE '+o.table+' · '+o.state:'Take an order at the till')+'\n'+c.served+' served · '+c.cleared+' tables cleared';if(str!==hudText){hud.textContent=str;hudText=str;}
+   const str='CAFÉ SHIFT · '+c.tickets.filter(o=>o.state==='queue').length+' queuing\n'+(o?'#'+o.id+' '+o.name+' · '+orderRecipe(o).name+'\nTABLE '+o.table+' · '+o.state:'Take an order at the till')+'\n'+c.served+' served · '+c.cleared+' tables cleared · $'+(c.tips||0)+' tips';if(str!==hudText){hud.textContent=str;hudText=str;}
   }
   if(carry.visible){const f=player.forward();carry.position.set(player.pos.x+f.x*.72,player.eye-.55,player.pos.z+f.z*.72);carry.rotation.y=player.yaw;carry.rotation.z=Math.sin(elapsed*4)*.015;}
   for(const a of actors)if(a.tag)a.tag.visible=active&&Math.hypot(a.item.pos.x-player.pos.x,a.item.pos.z-player.pos.z)>2.3;

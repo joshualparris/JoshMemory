@@ -33,6 +33,6 @@ export function orderRecipe(order){
  if(order.milk==='oat'&&ingredients.milk){ingredients.oatmilk=ingredients.milk;delete ingredients.milk;}
  if(order.diet==='gluten-free')delete ingredients.bread;
  const multi=recipes.length>1;
- return {id:order.item,name:recipes.map(r=>r.name).join(' + ')+(order.milk==='oat'?' · oat milk':'')+(order.diet&&order.diet!=='standard'?' · '+order.diet:''),price:recipes.reduce((n,r)=>n+r.price,0),ingredients,kind:recipes.some(r=>['food','oven'].includes(r.kind))?'food':recipes[0].kind,
+ return {id:order.item,name:recipes.map(r=>r.name).join(' + ')+(order.milk==='oat'?' · oat milk':order.milk==='skim'&&recipes.some(r=>r.ingredients.milk)?' · skim milk':'')+(order.diet&&order.diet!=='standard'?' · '+order.diet:''),price:recipes.reduce((n,r)=>n+r.price,0),ingredients,kind:recipes.some(r=>['food','oven'].includes(r.kind))?'food':recipes[0].kind,
  steps:recipes.flatMap((r,i)=>r.steps.map(([id,label,target])=>[multi?i+':'+id:id,(multi?r.name+' · ':'')+label,target,['food','oven'].includes(r.kind)?'kitchen':'barista'])),hasMilk:!!ingredients.milk||!!ingredients.oatmilk};
 }

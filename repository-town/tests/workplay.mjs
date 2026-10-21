@@ -24,7 +24,7 @@ assert(useCafe(t,'prepare',station).mini);for(const[g,n]of Object.entries(recipe
 for(const step of recipe.steps){assert(useCafe(t,'prepare',step[3]||station).mini);assert(useCafe(t,'finish-step',step[0],.9).ok);}
 assert.equal(o.state,'ready');assert(!useCafe(t,'finish-step',recipe.steps.at(-1)[0],.9).ok);assert(useCafe(t,'collect').ok);
 assert(!useCafe(t,'deliver',o.table===1?2:1).ok);assert.equal(v.wallet,money,'wrong table cannot charge');
-assert(useCafe(t,'deliver',o.table).ok);assert.equal(v.wallet,money-recipe.price);assert.equal(cafe.till,till+recipe.price-Math.round(recipe.price*t.civic.taxRate*100)/100);
+assert(useCafe(t,'deliver',o.table).ok);assert.equal(v.wallet,money-recipe.price-(t.civic.workplay.cafe.tips||0),'charged the price once, plus any $1 tip for quick service');assert.equal(cafe.till,till+recipe.price-Math.round(recipe.price*t.civic.taxRate*100)/100);
 assert(!useCafe(t,'deliver',o.table).ok,'cannot double-serve or double-charge');assert(!useCafe(t,'cancel').ok,'served orders cannot be cancelled');
 t.minute+=9;tickWorkplay(t);assert(useCafe(t,'clear',o.table).ok);
 const s=t.snapshot(),restored=new TownLife({homes,minute:600,seed:5});assert(restored.restore(s));assert.equal(workState(restored).cafe.served,1);
