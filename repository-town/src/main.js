@@ -1161,6 +1161,14 @@ async function start() {
   // Local browser acceptance fixture only. Production does not expose this
   // mutation hook; it creates an actual TownLife villager café order.
   if(['localhost','127.0.0.1'].includes(location.hostname)){
+    window.__town.prepareCafeTestShift=()=>{
+      if(inside?.place?.id!=='cafe')return false;
+      const p=life.place('cafe');p.till=Math.max(500,p.till||0);
+      for(const v of life.villagers)if(v.work==='cafe'){
+        v.step={kind:'work',at:'cafe'};v.path=[];v.inside=true;
+      }
+      return life.jobSupervisors('cafe').length>0&&life.playerAt==='cafe';
+    };
     window.__town.queueCafeTestPatron=()=>{
       if(inside?.place?.id!=='cafe'||life.civic.jobs?.active?.site!=='cafe')return null;
       const v=life.villagers.find(v=>v.work!=='cafe'&&!v.step?.workTicket);
