@@ -12,7 +12,7 @@ before changing anything, and update `COORDINATION.md` when you start and finish
 | Build + checks | `repository-town/tools/` (`build.mjs`, `check_privacy.mjs`, `pack_games.mjs`) |
 | Packed games | `repository-town/games/` (made by `tools/pack_games.mjs`, from each game's own repo) |
 | Production game | https://repository-town-claude-complete.vercel.app/ |
-| Shared staging | https://repository-town-main-qa.onrender.com/ |
+| Shared staging | https://repository-town-claude-playtest.vercel.app/ |
 | Generated backup | `Parris-Tech-Services/Repository-town` → https://parris-tech-services.github.io/Repository-town/ |
 
 The site repo holds **generated build output** (`dist/public`). Do not edit it by hand:
