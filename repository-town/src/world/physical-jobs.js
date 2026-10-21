@@ -123,12 +123,11 @@ export function usePhysicalJob(life,task){
  const def=JOB_BOARD.find(d=>d.id===shift.id);
  if(!def?.tasks.includes(task))return {ok:false,message:'This station is not part of your current shift.'};
  if(shift.tasks.includes(task))return {ok:false,message:'This duty has already been completed.'};
+ // Preparation and cooling are credited by the real weigh/mix/proof/oven/pack
+ // chain. The old three-click practice trolleys must never consume extra flour
+ // or award a duty for goods that were never produced.
+ if(shift.site==='bakery'&&task!=='wash-hands')return {ok:false,message:'Use the Bakery kitchen production stations to prepare, bake, cool and pack real loaves. These duties are credited by real production, not practice trolley clicks.'};
  const stage=shift.progress?.[task]||0,steps=CAPTIONS[task]||[];
- if(shift.site==='bakery'){
-   if(task==='prep-bench'&&!shift.tasks.includes('wash-hands'))return {ok:false,message:'Wash and dry your hands at the basin before handling dough.'};
-   if(task==='cooling'&&!shift.tasks.includes('prep-bench'))return {ok:false,message:'Prepare the demonstration trays first. Hot trays must not be handled without supervision.'};
-   if(task==='prep-bench'&&stage===1&&(life.place('bakery')?.stock?.flour||0)<1)return {ok:false,message:'No flour available. The Mill must deliver a flour bag before you can prepare a batch.'};
- }
  if(stage<2){
    // Actual task state belongs to the shift, and persists in the save.
    const active=life.civic.jobs.active;active.progress??={};
@@ -137,18 +136,6 @@ export function usePhysicalJob(life,task){
  }
  const r=life.doTask(task);
  if(r.ok){
-   if(task==='prep-bench'&&shift.site==='bakery'){
-     const bakery=life.place('bakery');
-     if((bakery.stock.flour||0)<1)return {ok:false,message:'The bakery needs a flour delivery.'};
-     bakery.stock.flour-=1;
-     life.civic.jobs.active.bakeryTrainingBatch={flourUsed:1,trays:2,packed:false};
-   }
-   if(task==='cooling'&&shift.site==='bakery'&&life.civic.jobs.active.bakeryTrainingBatch){
-     life.civic.jobs.active.bakeryTrainingBatch.packed=true;
-     // This shift produces practice loaves, not instantly saleable bread: the
-     // separate supervised mixer / proof / oven chain handles actual baking.
-     r.message='Demonstration batch packed and correctly labelled. Saleable bread requires proofing and oven time. '+r.message;
-   }
    life.civic.jobs.active.progress??={};
    life.civic.jobs.active.progress[task]=3;
    if(task==='refill-shelves'){
