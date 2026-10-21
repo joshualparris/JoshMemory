@@ -37,6 +37,7 @@ import { furniturePanel } from './ui/furniture.js';
 import { createAmbience } from './ui/ambience.js';
 import { bakeryKitchenPanel } from './ui/bakery-panel.js';
 import { superviseBread } from './world/bakery-production.js';
+import { installBakeryImmersion } from './world/bakery-immersive.js';
 import { walletPanel, jobBoardPanel } from './ui/economy-panels.js';
 import { placePanel, ledgerPanel, guidePanel, needsPanel, relicsLeft, townContext, householdPanel } from './ui/townpanels.js';
 import { createExpedition } from './adventure/expedition.js';
@@ -73,6 +74,8 @@ async function start() {
   const fog = new THREE.Fog(SKY, 60, 170);
   scene.fog = fog;
   const camera = new THREE.PerspectiveCamera(72, innerWidth / innerHeight, 0.15, 185);
+  // Camera-space 3D hands/trays are rendered in the same scene as the shop.
+  scene.add(camera);
   const sky = new THREE.Group();
   const hemi = new THREE.HemisphereLight(0xffffff, 0x6e856e, 2.1); sky.add(hemi);
   const sun = new THREE.DirectionalLight(0xffe7bf, 2.0); sun.position.set(-70, 110, 55); sky.add(sun);
@@ -329,6 +332,7 @@ async function start() {
     const yawIn = player.yaw;
     const site=life.place(id), built=buildCivicInterior(site,makeLabel,life);
     installPhysicalJobs(built,site,makeLabel,life);
+    if(site.id==='bakery')built.bakeryImmersion=installBakeryImmersion(built,life,camera,makeLabel);
     const staff=populateShopStaff(site,life,built,makeLabel);
     const brief={coordinate:site.col+'8',name:site.name,kind:site.kind,
       street:'High Street',summary:'Explore the shop interior and speak to staff.'};
@@ -609,6 +613,10 @@ async function start() {
         }
         return;
       }
+      if(inside?.place?.id==='bakery'&&thing.act?.do==='bakery-immersive'){
+        const message=inside.bakeryImmersion?.act(thing.act.action)||'This station is unavailable.';
+        status(message);return;
+      }
       if(inside?.place&&thing.act?.do==='physical-job'){
         const result=usePhysicalJob(life,thing.act.task);
         inside.workStationVisuals?.();
@@ -828,6 +836,7 @@ async function start() {
       :[];
     const view = mode === 'house' && inside?.view ? inside.view.place(camera, outdoorCam) : null;
     townLife.update(dt, t, { player, mode, overview, camera, talkingTo, view });
+    if(mode==='house'&&inside?.bakeryImmersion)inside.bakeryImmersion.update(dt,t);
     emergencyVisuals.update(t);
     const n=life.needsReport();
     const car=driving.activeVehicle();
