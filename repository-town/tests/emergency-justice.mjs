@@ -13,7 +13,7 @@ const homes=Array.from({length:188},(_,i)=>({
  door:{x:((i%26)-12.5)*26,z:(Math.floor(i/26)-3.5)*46+4}
 }));
 const t=new TownLife({homes,minute:8*60,seed:20261020});
-assert.equal(t.villagers.length,38,'do not add phantom residents');
+assert.equal(t.villagers.length,61,'all added residents are real rostered staff with homes');
 for(const [id,lot] of [['police','K'],['ambulance','O'],['court','E'],['solicitor','F']]){
   const p=t.place(id);assert(p&&p.col===lot&&p.side==='south');
   assert.deepEqual(JUSTICE_INTERIORS[id].site,lot+'8');
