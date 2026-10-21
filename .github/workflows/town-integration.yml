@@ -39,6 +39,8 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Validate opt-in merge workflow syntax and safeguards
         run: node tests/workflow-syntax.mjs
+      - name: Parse-check game entry and cafe interfaces before simulation
+        run: node --check src/main.js && node --check src/world/workplay-view.js && node --check src/world/workplay.js
       - name: NPC realism, current place, town economy, collision, politics
         run: npm run test:integration
       - name: Release identity and saved-progress migration
