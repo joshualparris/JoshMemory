@@ -24,7 +24,7 @@ export function soyAction(t,site,action,automated=false){
        clean:'intake-quality',grind:'wet-grinding',filter:'wet-grinding',pack:'pack-and-label'}[step];
      if(task)t.doTask(task);
    }
-   return complete(action,message);
+   return ok(message);
  };
  if(site==='soyfarm'){
   if(action==='sow'){
