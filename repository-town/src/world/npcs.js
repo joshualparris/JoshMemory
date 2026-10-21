@@ -121,32 +121,28 @@ function creature(npc, makeLabel) {
 export function makeNPC(npc, makeLabel) {
   if(npc.shape){const special=creature(npc,makeLabel);if(special)return special;}
   const root = new THREE.Group();
-  const body = new THREE.Group(); root.add(body);
-  const tunic = colour(npc.color);
-  const torso = new THREE.Mesh(box(.76,.92,.4),tunic); torso.position.y=1.13;body.add(torso);
-  const head = new THREE.Mesh(ball(.35),skin); head.position.y=1.97;body.add(head);
-  const hair = new THREE.Mesh(box(.69,.16,.65),dark);hair.position.set(0,2.27,-.05);body.add(hair);
-  for(const side of [-1,1]) {
-    const arm = new THREE.Mesh(box(.21,.75,.25),tunic);arm.position.set(side*.52,1.13,0);body.add(arm);
-    const leg = new THREE.Mesh(box(.29,.63,.31),dark);leg.position.set(side*.21,.35,0);body.add(leg);
-    const eye = new THREE.Mesh(ball(.042),black);eye.position.set(side*.145,1.99,.3);body.add(eye);
-  }
-  // A coloured badge and tall hat make these characters recognisable from a distance.
-  const badge = new THREE.Mesh(box(.24,.24,.07),colour(npc.color));badge.position.set(.14,1.32,.24);body.add(badge);
+  const seed=[...npc.id].reduce((v,c)=>v*31+c.charCodeAt(0),17)>>>0;
+  const person=makePerson(seed,npc.color,0x293043);
+  root.add(person.group);
+  // Character-specific hats and robotic details remain attached to the head.
   if(['pip','sage','nova','vale'].includes(npc.id)){
-    const brim=new THREE.Mesh(new THREE.CylinderGeometry(.39,.45,.09,9),dark);brim.position.y=2.31;body.add(brim);
-    const crown=new THREE.Mesh(new THREE.CylinderGeometry(.25,.32,.31,9),tunic);crown.position.y=2.5;body.add(crown);
+    const brim=new THREE.Mesh(new THREE.CylinderGeometry(.29,.31,.045,9),dark);
+    brim.position.y=.263;person.head.add(brim);
+    const crown=new THREE.Mesh(new THREE.CylinderGeometry(.185,.23,.245,9),colour(npc.color));
+    crown.position.y=.39;person.head.add(crown);
   }
   if(npc.id==='circuit'){
-    head.material=colour(0xa7dce8);
-    const antenna=new THREE.Mesh(new THREE.CylinderGeometry(.025,.025,.38,7),dark);antenna.position.y=2.51;body.add(antenna);
-    const tip=new THREE.Mesh(ball(.095),tunic);tip.position.y=2.72;body.add(tip);
+    const antenna=new THREE.Mesh(new THREE.CylinderGeometry(.022,.022,.30,7),dark);
+    antenna.position.y=.39;person.head.add(antenna);
+    const tip=new THREE.Mesh(ball(.065),colour(npc.color));
+    tip.position.y=.56;person.head.add(tip);
   }
   if(makeLabel) {
-    const label=makeLabel(npc.emoji+' '+npc.name,'interactive');label.position.set(0,3.03,0);
-    root.add(label); root.userData.label=label;
+    const label=makeLabel(npc.emoji+' '+npc.name,'interactive');label.position.set(0,2.48,0);
+    root.add(label);root.userData.label=label;
   }
-  root.userData.body=body;
+  root.userData.body=person.group;
+  root.userData.person=person;
   root.userData.npc=npc;
   root.userData.baseY=0;
   return root;
@@ -365,69 +361,104 @@ function part(geo, color, sx, sy, sz, x, y, z, parent) {
 // A jointed figure: legs and arms hang from pivots so they can swing while walking.
 // Share simple rounded geometry across the whole simulated population. From a
 // phone's camera distance the old block-only torsos looked like floating boxes.
-const FIGURE_TORSO = new THREE.CylinderGeometry(0.24, 0.18, 1, 8);
-const FIGURE_LIMB = new THREE.CylinderGeometry(0.55, 0.7, 1, 7);
+// Reused geometry and materials keep a full town affordable on mobile.
+// A sculpted shoulder/chest/waist profile replaces the featureless cylinder.
+const FIGURE_TORSO = (() => {
+  const rings = [[0, .185, .115], [.22, .205, .13], [.52, .255, .15], [.62, .225, .125]];
+  const positions = [];
+  for (const [y, w, d] of rings) positions.push(-w,y,-d, w,y,-d, w,y,d, -w,y,d);
+  const indices = [];
+  for (let i = 0; i < rings.length-1; i++) {
+    for (let j = 0; j < 4; j++) {
+      const a=i*4+j, b=i*4+(j+1)%4, c=(i+1)*4+j, d=(i+1)*4+(j+1)%4;
+      indices.push(a,c,b,b,c,d);
+    }
+  }
+  indices.push(0,1,2,0,2,3);
+  const top=(rings.length-1)*4;
+  indices.push(top,top+2,top+1,top,top+3,top+2);
+  const geometry=new THREE.BufferGeometry();
+  geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+  geometry.setIndex(indices);
+  geometry.computeVertexNormals();
+  return geometry;
+})();
+const FIGURE_LIMB = new THREE.CylinderGeometry(.52, .63, 1, 7);
 
-// A complete, recognisable low-poly person with a face, hair, hands and shoes.
-// The existing leg/arm/head pivots are retained for walking and sitting.
+// All villagers, indoor workers and shoppers share the same articulated anatomy.
+// Pivot positions stay compatible with existing walking, seating and interaction code.
 export function makePerson(seed, shirt, trousers) {
   const g = new THREE.Group();
-  const skin = SKIN[seed % SKIN.length], hair = HAIR[(seed >> 2) % HAIR.length];
+  const skin = SKIN[Math.abs(seed) % SKIN.length], hair = HAIR[Math.floor(Math.abs(seed) / 4) % HAIR.length];
   const outfit = new THREE.Group(); outfit.userData.isOutfit = true; g.add(outfit);
-  const limb = (x, y, color, len, width, leg = false) => {
-    const pivot = new THREE.Group(); pivot.position.set(x, y, 0); g.add(pivot);
-    part(FIGURE_LIMB, color, width, len, width, 0, -len / 2, 0, pivot);
-    if (leg) {
-      // Feet are firmly connected to the legs, not separate hovering cubes.
-      part(BALL, 0x292b31, 0.115, 0.085, 0.18, 0, -len + 0.045, 0.075, pivot);
-    } else {
-      part(BALL, skin, 0.078, 0.09, 0.078, 0, -len - 0.035, 0, pivot);
-    }
-    return pivot;
-  };
-  const legs = [
-    limb(-0.135, 0.87, trousers, 0.77, 0.19, true),
-    limb(0.135, 0.87, trousers, 0.77, 0.19, true),
-  ];
-  part(FIGURE_TORSO, shirt, 1, 0.66, 0.95, 0, 1.18, 0, outfit);
-  part(BALL, shirt, 0.18, 0.14, 0.13, 0, 0.90, 0, outfit); // waist
-  // A light neckline separates the body visually from a larger, expressive head.
-  part(BALL, skin, 0.09, 0.105, 0.09, 0, 1.54, 0, outfit);
-  const arms = [
-    limb(-0.305, 1.41, shirt, 0.48, 0.145),
-    limb(0.305, 1.41, shirt, 0.48, 0.145),
-  ];
-  const head = new THREE.Group(); head.position.set(0, 1.75, 0); g.add(head);
-  part(BALL, skin, 0.225, 0.245, 0.205, 0, 0, 0, head);
-  // Layered hair cap, ears and a nose ensure faces read from oblique angles.
-  part(BALL, hair, 0.24, 0.13, 0.215, 0, 0.165, -0.018, head);
-  if (seed % 3 === 0) part(BALL, hair, 0.235, 0.16, 0.11, 0, 0.07, -0.13, head);
-  for (const side of [-1,1]) {
-    part(BALL, skin, 0.043, 0.076, 0.055, side * 0.221, -0.005, 0, head);
-    part(BALL, 0x26232a, 0.028, 0.033, 0.02, side * 0.09, 0.035, 0.188, head);
+  const pelvis = part(BALL, shirt, .195, .15, .14, 0, .965, 0, outfit);
+  part(FIGURE_TORSO, shirt, 1, 1, 1, 0, .95, 0, outfit);
+  part(BALL, shirt, .244, .105, .137, 0, 1.525, 0, outfit); // rounded shoulders
+  part(BALL, skin, .078, .09, .075, 0, 1.617, 0, outfit); // exposed neck
+  const legs = [], knees = [];
+  for (const side of [-1, 1]) {
+    const hip = new THREE.Group(); hip.position.set(side*.125, .88, 0); g.add(hip);
+    part(FIGURE_LIMB, trousers, .155, .40, .155, 0, -.20, 0, hip);
+    const knee = new THREE.Group(); knee.position.y=-.40; hip.add(knee);
+    part(BALL, trousers, .091, .088, .096, 0, 0, 0, knee);
+    part(FIGURE_LIMB, trousers, .13, .39, .13, 0, -.195, .005, knee);
+    part(BALL, 0x292b31, .122, .077, .185, 0, -.397, .085, knee);
+    legs.push(hip); knees.push(knee);
   }
-  part(BALL, skin, 0.045, 0.053, 0.065, 0, -0.05, 0.193, head);
-  // Small uniform detail or apron for variety: these are clothed customers,
-  // not traffic-coloured placeholder boxes.
+  const arms = [], elbows = [];
+  for (const side of [-1, 1]) {
+    const shoulder = new THREE.Group(); shoulder.position.set(side*.29, 1.465, 0); g.add(shoulder);
+    part(BALL, shirt, .119, .13, .125, 0, -.045, 0, shoulder);
+    part(FIGURE_LIMB, shirt, .126, .275, .126, 0, -.19, 0, shoulder);
+    const elbow = new THREE.Group(); elbow.position.y=-.33; shoulder.add(elbow);
+    part(FIGURE_LIMB, shirt, .112, .23, .112, 0, -.115, 0, elbow);
+    part(BALL, skin, .073, .095, .075, 0, -.273, .008, elbow);
+    arms.push(shoulder); elbows.push(elbow);
+  }
+  const head = new THREE.Group(); head.position.set(0, 1.805, 0); g.add(head);
+  part(BALL, skin, .203, .235, .188, 0, 0, 0, head);
+  // Distinct hair, ears, eyebrows, eyes, nose and mouth remain visible at phone scale.
+  part(BALL, hair, .218, .12, .201, 0, .167, -.016, head);
+  if (seed % 3 === 0) part(BALL, hair, .214, .12, .105, 0, .065, -.126, head);
+  for (const side of [-1, 1]) {
+    part(BALL, skin, .040, .065, .047, side*.201, -.016, 0, head);
+    part(BALL, 0xf6f1e7, .036, .034, .018, side*.082, .031, .176, head);
+    part(BALL, 0x2c2727, .019, .024, .014, side*.082, .029, .193, head);
+    part(BOX, hair, .076, .016, .022, side*.082, .099, .174, head);
+  }
+  part(BALL, skin, .040, .048, .053, 0, -.044, .188, head);
+  part(BOX, 0x885447, .078, .012, .012, 0, -.117, .177, head);
+  // Subtle outfit variations rather than random bulky blocks.
   if (seed % 4 === 0) {
-    part(BOX, 0xeee0c0, 0.23, 0.31, 0.012, 0, 1.11, 0.187, outfit);
-    part(BOX, 0xb7aa99, 0.025, 0.19, 0.019, 0, 1.26, 0.207, outfit);
+    part(BOX, 0xdcd3c1, .24, .32, .014, 0, 1.19, .145, outfit);
   } else {
-    part(BALL, 0xf0e5d6, 0.023, 0.023, 0.013, 0, 1.37, 0.193, outfit);
+    part(BALL, 0xf0e5d6, .021, .021, .013, 0, 1.40, .148, outfit);
   }
-  return { group: g, legs, arms, head };
+  void pelvis;
+  return { group: g, legs, knees, arms, elbows, head, phase:(Math.abs(seed)%997)*.137 };
 }
 
 // Swings limbs while walking and settles them when standing (shared by every figure).
 export function pose(p, dt, t, moving, faceForward = moving) {
-  const swing = moving ? Math.sin(t * 7 + p.phase) * 0.55 : 0;
+  // Every figure needs a finite phase. Uninitialised shop visitors previously
+  // got NaN rotations, making both legs and arms disappear in WebGL.
+  const phase = Number.isFinite(p.phase) ? p.phase : 0;
+  const swing = moving ? Math.sin(t * 7 + phase) * 0.55 : 0;
   const ease = (r, v) => r + (v - r) * Math.min(1, dt * 10);
   p.legs[0].rotation.x = ease(p.legs[0].rotation.x, swing);
   p.legs[1].rotation.x = ease(p.legs[1].rotation.x, -swing);
   p.arms[0].rotation.x = ease(p.arms[0].rotation.x, -swing * 0.8);
   p.arms[1].rotation.x = ease(p.arms[1].rotation.x, swing * 0.8);
+  if (p.knees) {
+    p.knees[0].rotation.x = ease(p.knees[0].rotation.x, moving ? Math.max(0,-swing)*.65 : 0);
+    p.knees[1].rotation.x = ease(p.knees[1].rotation.x, moving ? Math.max(0,swing)*.65 : 0);
+  }
+  if (p.elbows) {
+    p.elbows[0].rotation.x = ease(p.elbows[0].rotation.x, moving ? .10 : 0);
+    p.elbows[1].rotation.x = ease(p.elbows[1].rotation.x, moving ? .10 : 0);
+  }
   if (faceForward) p.head.rotation.y = ease(p.head.rotation.y, 0);
-  else p.head.rotation.y = Math.sin(t * 0.7 + p.phase) * 0.5;
+  else p.head.rotation.y = Math.sin(t * 0.7 + phase) * 0.5;
 }
 
 // Shared walking behaviour: follow waypoints, pause, look around; stop for the player.
