@@ -113,7 +113,8 @@ const BUILD = {
   },
   greengrocer(b) {
     shopfront(b, 12, 9, 4.4, 0xe8e0c8, 0x3f7a3a, [0x3f7a3a, 0xf2efe6]);
-    for (const x of [-4.2, -3.1, 3.1, 4.2]) for (const [z, y] of [[8.2, 0.55], [8.9, 0.25]]) { crate(b, x, z, 1.0, 0.65, y - 0.25); b.block(0x6a5030, 1.0, y - 0.25, 0.6, x, 0, z); }
+    // Tiered crates sit 0.3 m nearer the window so the queue slots (front z 9.3) and the footpath stay clear of them.
+    for (const x of [-4.2, -3.1, 3.1, 4.2]) for (const [z, y] of [[7.9, 0.55], [8.6, 0.25]]) { crate(b, x, z, 1.0, 0.65, y - 0.25); b.block(0x6a5030, 1.0, y - 0.25, 0.6, x, 0, z); }
     return { w: 12, d: 9 };
   },
   butcher(b) {
