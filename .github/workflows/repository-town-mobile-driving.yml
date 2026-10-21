@@ -36,6 +36,8 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Build sanitized game
         run: npm run build
+      - name: Syntax check every built browser JavaScript module
+        run: find dist/public -type f -name '*.js' -print0 | xargs -0 -r -n1 node --check
       - name: Run town web server and touchscreen playtest
         run: |
           node tools/serve.mjs dist/public 8091 > /tmp/rt-serve.log 2>&1 &
