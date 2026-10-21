@@ -12,6 +12,8 @@ const total=()=>t.civic.player.wallet+t.civic.player.bank+t.civic.treasury+
  [...t.places.values()].reduce((n,p)=>n+(p.till||0)+(p.operating||0),0);
 t.minute=11*60;
 const worker=t.villagers.find(v=>v.work==='store');worker.step={kind:'work',at:'store'};worker.path=[];
+// Place the simulated cashier at the real counter, not at home with a forged work step.
+worker.x=t.place('store').front.x;worker.z=t.place('store').front.z;
 const initial=total(),shop=t.place('store'),before=t.shelves(shop).bread,price=GOODS.bread.price;
 assert.match(t.buyItem('store','bread'),/You buy/);
 assert.equal(t.civic.player.wallet,75-price);
