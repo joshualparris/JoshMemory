@@ -1,6 +1,10 @@
 name: Repository Town Recorded WebGL Playtest
 
 on:
+  pull_request:
+    paths:
+      - 'repository-town/**'
+      - '.github/workflows/town-webgl-playtest.yml'
   push:
     branches: [main]
     paths:
