@@ -73,12 +73,12 @@ export function jobPanel(life, site, back) {
   let body = `<p><b>Employer:</b> ${esc(p.name)} · <b>Time:</b> ${esc(life.time())} · <b>On duty:</b> ${esc(sup.map((v) => v.name).join(', ') || 'no one right now')}</p>`;
   if (a) body += `<p><b>Current shift:</b> ${esc(def.name)} · ${Math.floor(a.worked)}/${a.required} town minutes worked · pays ${d(a.pay)}</p>
     <p><b>Duties:</b> ${def.tasks.map((k) => (a.tasks.includes(k) ? '✅ ' : '☐ ') + esc(k.replace(/-/g, ' '))).join(' · ')}</p>
-    <p class="dim">Time only counts while you are in here and someone is on duty. Walk up to the three labelled work stations and press E (or tap Use). Each duty has three physical steps; allow five town minutes between completed duties.</p>`;
+    <p class="dim">Time only counts while you are in here and someone is on duty. Close this panel, then walk up to the three labelled work stations and press E (or tap Use). Each duty has three physical steps; allow five town minutes between completed duties.</p>`;
   else body += `<p>No shift started. Shifts today: ${j.shiftsToday}/${MAX_SHIFTS_PER_DAY}.</p>`;
   const actions = [];
   if (a) {
     // Duties must be carried out at the physical 3D stations, not awarded by clicking a menu.
-    actions.push({ label: 'Return to the 3D workplace and use its task stations', run: () => null });
+    // Duty stations are physical objects in the world; there is no menu shortcut.
     actions.push({ label: a.worked >= a.required && a.tasks.length >= def.tasks.length ? `✅ Clock out and collect ${d(a.pay)}` : 'Check progress', run: () => flash(a.worked >= a.required && a.tasks.length >= def.tasks.length ? life.finishJob().message : `Keep working. ${Math.ceil(a.required - a.worked)} minutes to go.`) });
     actions.push({ label: 'Cancel shift (no wages)', run: () => flash(life.cancelJob().message) });
   } else for (const x of defs) actions.push({ label: `${x.name} · ${x.minutes} min · ${d(x.pay)}`, run: () => flash(life.startJob(x.id).message) });
