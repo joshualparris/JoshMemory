@@ -160,11 +160,36 @@ const JOBS = [
   ['soybean grower', 'soyfarm', 7 * 60, 16 * 60], ['plant-drink technician', 'soyplant', 8 * 60, 17 * 60],
   ['power operator', 'power', 6 * 60, 18 * 60], ['water operator', 'waterworks', 7 * 60, 15 * 60], ['recycler', 'recycling', 7 * 60, 15 * 60],
   ['firefighter', 'fire', 8 * 60, 18 * 60], ['bank teller', 'bank', 8 * 60 + 30, 16 * 60 + 30], ['foundry worker', 'foundry', 7 * 60, 15 * 60],
+  // Real shift workers with households, journeys and paid wages, rather than
+  // permanently spawned ghost receptionists. Existing 38 IDs remain stable.
+  ['hotel receptionist', 'hotel', 7 * 60, 16 * 60], ['evening concierge', 'hotel', 15 * 60 + 30, 23 * 60],
+  ['police desk officer', 'police', 7 * 60, 16 * 60], ['police duty officer', 'police', 15 * 60 + 30, 23 * 60],
+  ['ambulance dispatcher', 'ambulance', 7 * 60, 19 * 60],
+  ['court registry officer', 'court', 8 * 60 + 30, 16 * 60 + 30],
+  ['legal receptionist', 'solicitor', 8 * 60 + 30, 17 * 60],
+  ['wastewater operator', 'sewage', 7 * 60, 17 * 60],
+  ['weighbridge officer', 'landfill', 6 * 60, 17 * 60],
+  ['property sales agent', 'realestate', 9 * 60, 17 * 60],
+  ['vehicle sales consultant', 'dealership', 8 * 60, 17 * 60],
+  ['service adviser', 'mechanic', 8 * 60, 17 * 60],
+  ['hardware attendant', 'hardware', 7 * 60, 18 * 60],
+  ['trade coordinator', 'trades', 7 * 60, 17 * 60],
+  ['TAFE student-services officer', 'tafe', 8 * 60, 18 * 60],
+  ['university librarian', 'university', 8 * 60, 21 * 60],
+  ['council customer-service officer', 'hall', 9 * 60, 17 * 60],
+  ['postal counter clerk', 'post', 8 * 60, 17 * 60],
+  ['clinic receptionist', 'clinic', 8 * 60, 17 * 60],
+  ['school librarian', 'school', 8 * 60, 15 * 60 + 30],
+  ['plant reception and safety officer', 'soyplant', 7 * 60, 17 * 60],
+  ['afternoon barista', 'cafe', 12 * 60, 16 * 60],
+  ['afternoon cashier', 'store', 12 * 60, 19 * 60],
 ];
 // Villager names; src/ui/social.js keeps their friendships and grudges.
 export const VILLAGER_NAMES = ['Mabel', 'Arlo', 'Bea', 'Cas', 'Dot', 'Ezra', 'Flo', 'Gus', 'Hattie', 'Ivo', 'June', 'Kip', 'Lou', 'Merv', 'Nora', 'Ollie',
   'Peg', 'Rafe', 'Sadie', 'Theo', 'Una', 'Vern', 'Win', 'Zara', 'Bluey', 'Clem', 'Dulcie', 'Errol', 'Fern', 'Gwen', 'Harlan', 'Ida',
-  'Archie', 'Bonnie', 'Cooper', 'Daisy', 'Elsie', 'Frankie'];
+  'Archie', 'Bonnie', 'Cooper', 'Daisy', 'Elsie', 'Frankie',
+  'Lena', 'Miles', 'Serena', 'Damon', 'Pippa', 'Marcus', 'Talia', 'Neve', 'Owen', 'Priya', 'Hugh',
+  'Tess', 'Kieran', 'Ruby', 'Felix', 'Jules', 'Maeve', 'Aidan', 'Iris', 'Oscar', 'Rosa', 'Nina'];
 
 // Home meals: [name, ingredients]. Villagers cook the first one their pantry can make.
 const MEALS = {
@@ -375,8 +400,18 @@ export class TownLife {
     };
     this.homes = homes;
     // Spread households across town: every step-th house, starting from the third.
-    const step = Math.max(1, Math.floor(homes.length / JOBS.length));
-    const picks = homes.filter((_, i) => i % step === Math.min(2, step - 1)).slice(0, JOBS.length);
+    // Preserve all original 38 residents' house assignments so existing saves
+    // keep their household and legal property references intact. New employees
+    // move into otherwise unused homes spread across the remaining streets.
+    const legacyCount = 38;
+    const step = Math.max(1, Math.floor(homes.length / legacyCount));
+    const legacyHomes = homes.filter((_, i) => i % step === Math.min(2, step - 1)).slice(0, legacyCount);
+    const occupied = new Set(legacyHomes.map(h => h.coordinate));
+    const availableHomes = homes.filter(h => !occupied.has(h.coordinate));
+    const extraCount = Math.max(0, JOBS.length - legacyCount);
+    const extraStep = Math.max(1, Math.floor(availableHomes.length / Math.max(1, extraCount)));
+    const extraHomes = availableHomes.filter((_, i) => i % extraStep === 0).slice(0, extraCount);
+    const picks = [...legacyHomes, ...extraHomes];
     this.villagers = JOBS.slice(0, picks.length).map(([job, work, start, end], i) => {
       const home = picks[i];
       return {
@@ -1590,8 +1625,8 @@ export class TownLife {
     if (s.sim !== undefined) {
       const r = s.sim;
       const ok = r && typeof r === 'object' && Array.isArray(r.events) && r.stats && typeof r.stats === 'object' && Array.isArray(r.villagers) && Array.isArray(r.trucks) && Array.isArray(r.parcels)
-        && r.villagers.length === this.villagers.length && r.trucks.length === (this.trucks || []).length && Number.isInteger(s.rngState) && s.rngState >= 0 && s.rngState <= 0xffffffff && Number.isInteger(s.seed) && s.seed >= 0 && s.seed <= 0xffffffff
-        && r.villagers.every((v) => v && Number.isInteger(v.id) && this.villagers.some((x) => x.id === v.id)) && r.trucks.every((t) => t && Number.isInteger(t.id) && Array.isArray(t.path) && (this.trucks || []).some((x) => x.id === t.id));
+        && r.villagers.length >= 38 && r.villagers.length <= this.villagers.length && r.trucks.length === (this.trucks || []).length && Number.isInteger(s.rngState) && s.rngState >= 0 && s.rngState <= 0xffffffff && Number.isInteger(s.seed) && s.seed >= 0 && s.seed <= 0xffffffff
+        && r.villagers.every((v, i) => v && Number.isInteger(v.id) && v.id === i && this.villagers.some((x) => x.id === v.id)) && r.trucks.every((t) => t && Number.isInteger(t.id) && Array.isArray(t.path) && (this.trucks || []).some((x) => x.id === t.id));
       if (!ok) return false;
       sim = JSON.parse(JSON.stringify(r));
     }
