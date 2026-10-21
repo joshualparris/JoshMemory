@@ -1054,8 +1054,11 @@ async function start() {
         // The bottom-screen E/✋ prompt remains the accessible action cue.
         const labelEye = new THREE.Vector3(camera.position.x,
           camera.position.y - (inside.floorIndex || 0) * FLOOR_HEIGHT,camera.position.z);
+        const currentRoom = inside.rooms.findIndex(r =>
+          player.pos.x >= r.x0 && player.pos.x <= r.x1 &&
+          player.pos.z >= r.z0 && player.pos.z <= r.z1);
         focusInteriorLabels(inside.group,{
-          target:nearThing?.pos || null,player:player.pos,forward:player.forward(),
+          target:nearThing?.pos || null,player:player.pos,forward:player.forward(),currentRoom,
           modal:!!panelOpen||npcChat.isOpen()||expedition.isOpen(),
           canSee:at=>labelVisible(labelEye,at,inside.sight)
         });
