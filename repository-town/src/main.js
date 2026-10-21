@@ -24,6 +24,7 @@ import { createFloorStack, FLOOR_HEIGHT } from './world/multifloor.js';
 import { townView } from './world/windows.js';
 import { animate } from './world/builder.js';
 import { makeLabel, disposeLabel } from './ui/labels.js';
+import { focusInteriorLabels, showNearbyHouseLabel } from './ui/context-labels.js';
 import { runInteraction, esc } from './ui/interactions.js';
 import { setArchiveLoader } from './ui/archive.js';
 import { npcBehaviour } from './ui/npc.js';
@@ -923,16 +924,19 @@ async function start() {
         p.pos.set(p.v.x,0,p.v.z);
         p.fig.group.position.x=p.v.x;p.fig.group.position.z=p.v.z;
       }
-      const namedLabels=[
-        ...nearbyPeople.filter(p=>p.fig.group.visible).map(p=>({label:p.tag,pos:p.v,
-          distance:Math.hypot(p.v.x-player.pos.x,p.v.z-player.pos.z)})),
-        ...nearbyCharacters.filter(n=>n.group.visible).map(n=>({label:n.group.userData.label,pos:n.pos,
-          distance:Math.hypot(n.pos.x-player.pos.x,n.pos.z-player.pos.z)}))
-      ].filter(x=>x.label?.visible).sort((a,b)=>a.distance-b.distance);
-      const displayed=[];
-      for(const item of namedLabels){
-        if(displayed.some(p=>Math.hypot(p.pos.x-item.pos.x,p.pos.z-item.pos.z)<2.3))item.label.visible=false;
-        else displayed.push(item);
+      // The nearby-action HUD, not dozens of world-space nameplates, identifies
+      // town residents. Keep animated characters visible but mute their billboards.
+      for (const p of townLife.people) if (p.tag) p.tag.visible = false;
+      for (const n of streetNPCs) if (n.group.userData.label) n.group.userData.label.visible = false;
+      // Speech is a rare exception, limited to the nearest passing greeting.
+      let greetingShown = false;
+      for (const p of [...nearbyPeople].sort((a,b) =>
+        Math.hypot(a.v.x-player.pos.x,a.v.z-player.pos.z) -
+        Math.hypot(b.v.x-player.pos.x,b.v.z-player.pos.z))) {
+        if (!p.bubble) continue;
+        const d = Math.hypot(p.v.x-player.pos.x,p.v.z-player.pos.z);
+        p.bubble.visible = !greetingShown && d < 5;
+        if (p.bubble.visible) greetingShown = true;
       }
       // Villagers, the guide kiosk and the shop counters: pick the one the player is facing.
       nearPerson = null; let bestP = Infinity;
@@ -985,11 +989,27 @@ async function start() {
       }
       if (nearHouse && $('card').dataset.coord !== nearHouse.house.coordinate) { showCard(nearHouse.house); $('card').dataset.coord = nearHouse.house.coordinate; }
       if (!nearHouse && $('card').dataset.coord) { $('card').hidden = true; delete $('card').dataset.coord; }
-      // House name boards are created only near the player to keep GPU memory low on phones.
+      // Only the nearest, approached front door earns a floating house title.
+      // Permanent physical street/shop signs remain visible at every distance.
       for (const [c, l] of town.lots) {
-        const d = Math.hypot(l.doorPos.x - player.pos.x, l.doorPos.z - player.pos.z), has = houseLabels.get(c);
-        if (d < labelCull && !has) { const s = makeLabel(`${c} · ${l.house.name}`, 'house'); /* Anchor to each building's actual front wall; the old fixed offset buried deeper shop signs inside walls. */ s.position.set(l.lot.x, Math.max(3.7, Math.min(5.5, l.fp.h - 0.8)), l.doorPos.z + 1.2); town.group.add(s); houseLabels.set(c, s); }
-        else if (d > labelCull + 15 && has) { town.group.remove(has); disposeLabel(has); houseLabels.delete(c); }
+        const d = Math.hypot(l.doorPos.x-player.pos.x,l.doorPos.z-player.pos.z);
+        const has = houseLabels.get(c);
+        if (d < 16 && !has) {
+          const s = makeLabel(`${c} · ${l.house.name}`, 'house');
+          s.position.set(l.lot.x,Math.max(3.7,Math.min(5.5,l.fp.h-0.8)),l.doorPos.z+1.2);
+          town.group.add(s);houseLabels.set(c,s);
+        } else if (d > 22 && has) {
+          town.group.remove(has);disposeLabel(has);houseLabels.delete(c);
+        }
+        const label = houseLabels.get(c);
+        if (label) {
+          const dx=l.doorPos.x-player.pos.x,dz=l.doorPos.z-player.pos.z;
+          const face=d>0.01?(dx*player.forward().x+dz*player.forward().z)/d:1;
+          label.visible = showNearbyHouseLabel({
+            distance:d,facing:face,nearest:nearHouse===l,
+            overview,modal:!!panelOpen||npcChat.isOpen()||driving.driving
+          });
+        }
       }
       const nearRelic = expedition.nearby(player.pos), relicD = away(nearRelic), npcD = away(nearNPC), personD = away(nearPerson);
       $('prompt').hidden = (!driving.driving && !nearCar && !player.seated && !nearTownSeat && !nearNPC && !nearPerson && !nearHouse && !nearRelic) || !!panelOpen || expedition.isOpen() || npcChat.isOpen() || !$('npc-roster').hidden;
@@ -1029,22 +1049,16 @@ async function start() {
         // above; they have their own movement and seated animation.
         for (const p of inside.people || []) if(!p.key?.startsWith('visitor:'))p.update(dt,t,player,p.plan);
         if (cardTimer > 0 && (cardTimer -= dt) <= 0) $('card').hidden = true;
-        // Labels hide when the player is right on top of them so they never fill the screen,
-        // and when a wall or closed door stands between them and the camera.
-        // Labels belong to one room: a sign for Bathroom must never appear
-        // over a Living room wall or read as directions into the wrong room.
-        const currentRoom = inside.rooms.findIndex(r =>
-          player.pos.x >= r.x0 && player.pos.x <= r.x1 &&
-          player.pos.z >= r.z0 && player.pos.z <= r.z1);
+        // A single short label may identify the object directly ahead;
+        // all room, employee, shelf and distant station labels stay quiet.
+        // The bottom-screen E/✋ prompt remains the accessible action cue.
         const labelEye = new THREE.Vector3(camera.position.x,
           camera.position.y - (inside.floorIndex || 0) * FLOOR_HEIGHT,camera.position.z);
-        for (const s of inside.group.children) if (s.isSprite) {
-          const belongsHere = s.userData.labelRoom == null ||
-            s.userData.labelRoom === currentRoom;
-          const nearEnough = Math.hypot(s.position.x-player.pos.x,s.position.z-player.pos.z) >
-            (s.userData.labelKind === 'room' ? 2.6 : 1.3);
-          s.visible = belongsHere && nearEnough && labelVisible(labelEye,s.position,inside.sight);
-        }
+        focusInteriorLabels(inside.group,{
+          target:nearThing?.pos || null,player:player.pos,forward:player.forward(),
+          modal:!!panelOpen||npcChat.isOpen()||expedition.isOpen(),
+          canSee:at=>labelVisible(labelEye,at,inside.sight)
+        });
       }
     }
     if (mode === 'town') input.consume('use');
