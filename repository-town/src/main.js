@@ -1092,6 +1092,15 @@ async function start() {
 
   // Test hook: lets the browser test suite drive real gameplay deterministically.
   window.__town = {
+    // Test harness fast-forwards genuine simulation steps, allowing attendants to
+    // commute to their workstations before the browser tries a staffed entrance.
+    // Access-control decisions remain unchanged: no unlocked-door shortcut.
+    advanceSimulation(minutes) {
+      if (!Number.isFinite(minutes) || minutes < 0 || minutes > 240) return false;
+      for (let elapsed = 0; elapsed < minutes; elapsed += 0.5)
+        life.tick(Math.min(0.5, minutes - elapsed));
+      return true;
+    },
     houses: houses.map((h) => ({ coordinate: h.coordinate, name: h.name })),
     npcs: streetNPCs.map((x) => ({ id: x.npc.id, name: x.npc.name, coordinate: x.npc.coordinate })),
     npcChat: () => ({ open: npcChat.isOpen(), id: npcChat.active() }),
