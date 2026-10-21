@@ -2,15 +2,21 @@
 export function workingAt(worker, site) {
   const id = typeof site === 'string' ? site : site?.id;
   if (worker?.step?.kind !== 'work' || worker.step.at !== id) return false;
-  if (!(worker.path?.length)) return true;
-  // Real reception staff can be physically at the workplace while the NPC
-  // navigator is clearing its final 1–3 short waypoints. Never classify a
-  // worker two metres from the desk as absent solely because path.length > 0.
   const front = typeof site === 'object' ? site.front : null;
-  return worker.inside !== true &&
-    Number.isFinite(worker.x) && Number.isFinite(worker.z) &&
-    Number.isFinite(front?.x) && Number.isFinite(front?.z) &&
-    Math.hypot(worker.x-front.x,worker.z-front.z) <= 2.75;
+  const positioned = Number.isFinite(worker.x) && Number.isFinite(worker.z);
+  if (positioned && Number.isFinite(front?.x) && Number.isFinite(front?.z)) {
+    // Live positions take priority over a stale route length: the last few
+    // waypoints often remain after an actual cashier arrives at reception.
+    if (Math.hypot(worker.x-front.x,worker.z-front.z) <= 2.75) return true;
+    // Farm employees legitimately work in the paddock, not at a counter.
+    // Their agricultural field is a real workplace within the site boundary.
+    const field = site?.field;
+    return !!field && worker.x >= field.x0 && worker.x <= field.x1 &&
+      worker.z >= field.z0 && worker.z <= field.z1;
+  }
+  // Lightweight callers / synthetic tests without real coordinates retain
+  // the conservative original rule: a route must be fully finished.
+  return !(worker.path?.length);
 }
 
 
