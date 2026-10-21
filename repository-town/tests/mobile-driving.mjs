@@ -6,7 +6,7 @@ const URL=process.env.TOWN_URL||'http://127.0.0.1:8091/';
 const browser=await chromium.launch({args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
 const ctx=await browser.newContext({...devices['Pixel 7']});
 const page=await ctx.newPage(),errors=[];
-page.on('pageerror',e=>errors.push(e.message));
+page.on('pageerror',e=>errors.push(e.stack||e.message));
 try {
  await page.goto(URL,{waitUntil:'domcontentloaded',timeout:90000});
  try {
