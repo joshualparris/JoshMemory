@@ -5,7 +5,7 @@ import {useOccupation,occupationState,tickOccupationWork} from '../src/world/occ
 import {deliveryAction,deliveryState} from '../src/world/delivery-work.js';
 import {superviseBread} from '../src/world/bakery-production.js';
 import {storeBatches,reserveBatch,restoreBatch,tickStoreBatches,returnToSupplier} from '../src/world/store-batches.js';
-import {queueCafeCustomer,useCafe,workState,tickWorkplay} from '../src/world/workplay.js';
+import {queueCafeCustomer,useCafe,workState,tickWorkplay,restockCafePantry} from '../src/world/workplay.js';
 import {FULL_WORK_MENU,orderRecipe} from '../src/world/work-recipes.js';
 import {heartPoints,latteScore} from '../src/ui/latte-art.js';
 import {buildCivicInterior} from '../src/world/shop-interior.js';
@@ -99,4 +99,26 @@ for(const id of ['post','depot','hall','garden','coop','bakery']){const life=mak
  assert.equal(resumed.place('bakery').stock.flour,2,'new batch debited once');
  assert(!superviseBread(resumed,'weigh',2000).ok,'no duplicate weighing');
 }
+// PR120 reconciliation: paid alternative ingredients, wrong substitutions, remakes and tips.
+{
+ const c=shift('cafe','cafe-all-rounder'),p=c.place('cafe'),depot=c.place('depot');
+ Object.assign(p.stock,{coffee:50,milk:50,bread:50,oatmilk:0,soymilk:0,gfbread:0,veg:50,pie:50,eggs:50});
+ const beforeTill=p.till,beforeDepot=depot.till,cost=restockCafePantry(c);
+ assert.equal(cost,50);assert.equal(beforeTill-p.till,cost);assert.equal(depot.till-beforeDepot,cost);
+ assert.equal(restockCafePantry(c),0,'supplier not paid twice');
+ assert.equal(orderRecipe({item:'toast',items:['toast'],bread:'gluten-free'}).ingredients.gfbread,1);
+ assert(!('bread' in orderRecipe({item:'toast',items:['toast'],bread:'gluten-free'}).ingredients));
+ const patron=c.villagers.find(v=>v.work!=='cafe');patron.wallet=100;patron.step={kind:'eatout',at:'cafe',queue:{joined:1}};
+ const o=queueCafeCustomer(c,patron);Object.assign(o,{item:'latte',items:['latte'],milk:'oat',diet:'dairy-free',bread:'regular'});
+ assert(useCafe(c,'take').ok);assert(useCafe(c,'milk','dairy').ok);
+ let r=orderRecipe(o);for(const step of r.steps){assert(useCafe(c,'prepare',step[3]||'barista').mini);assert(useCafe(c,'finish-step',step[0],.9).ok);}
+ assert(useCafe(c,'collect').ok);const wallet=patron.wallet,unchangedTill=p.till;
+ assert(!useCafe(c,'deliver',o.table).ok,'wrong milk refused at the actual table');
+ assert.equal(patron.wallet,wallet);assert.equal(p.till,unchangedTill);assert.equal(o.state,'accepted');
+ assert(useCafe(c,'milk','oat').ok);r=orderRecipe(o);for(const step of r.steps){assert(useCafe(c,'prepare',step[3]||'barista').mini);assert(useCafe(c,'finish-step',step[0],.9).ok);}
+ assert(useCafe(c,'collect').ok);assert(useCafe(c,'deliver',o.table).ok);
+ assert.equal(patron.wallet,wallet-r.price-1);assert.equal(workState(c).cafe.tips,1);
+ assert(!useCafe(c,'deliver',o.table).ok,'no double payment');
+}
+assert(recipeFor('pie').steps.some(s=>s[0]==='preheat')&&recipeFor('pie').steps.some(s=>s[0]==='probe'));
 console.log('PASS: real freight/post addresses, farm/feed/egg stock conservation, cleaner, repaired lamp, driven van/receipt guards, full bakery, FEFO/cold returns, 16 cafe recipes, patience, saved state and reachable stations.');
