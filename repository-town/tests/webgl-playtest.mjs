@@ -107,6 +107,34 @@ async function play(kind,options) {
     assert(await page.evaluate(()=>window.__town.exitShop()),kind+': '+site+' door/exit obstructed');
   }
   await shot('07-after-soy-farm-and-plant');
+  // Real browser verification of all four new vocational interiors.
+  // The staff check follows real commutes; never replace it with a mock.
+  for(const site of ['hardware','trades','tafe','university']){
+    await page.evaluate(()=>window.__town.life?.setTime?.(9*60));
+    let access=null;
+    for(let attempt=0;attempt<27;attempt++){
+      access=await page.evaluate(id=>window.__town.facilityState?.(id)||null,site);
+      if(access?.allowed)break;
+      await page.evaluate(()=>window.__town.advanceSimulation?.(10));
+    }
+    rec.steps.push({action:'staffing-'+site,access});
+    assert(access?.allowed,kind+': vocational '+site+' has no staffed access '+JSON.stringify(access));
+    assert(await page.evaluate(id=>window.__town.enterShop(id),site),kind+': vocational '+site+' could not open its real door');
+    const room=await page.evaluate(()=>window.__town.state());
+    assert(room.mode==='house',kind+': '+site+' interior not loaded');
+    assert(room.interactables.length>=3,kind+': '+site+' has no meaningful learning/repair workstations');
+    const service=room.interactables.find(i=>i.do==='civic-ledger');
+    assert(service,kind+': '+site+' missing functional transactional/education counter');
+    assert(await page.evaluate(key=>window.__town.approach(key),service.key),kind+': '+site+' service desk obstructed');
+    await page.waitForTimeout(1250);
+    const observed=await page.evaluate(()=>window.__town.state());
+    rec.steps.push({action:'render-health-'+site,fps:observed.fps,mode:observed.mode,place:site,
+      roomCount:room.interactables.length,webglCalls:observed.calls});
+    assert(observed.calls>0&&observed.mode==='house',kind+': '+site+' renderer stopped drawing');
+    await shot('08-'+site+'-walkthrough');
+    assert(await page.evaluate(()=>window.__town.exitShop()),kind+': cannot walk out of '+site);
+  }
+  await shot('09-back-outside-vocational-precinct');
   assert.equal(errors.length,0,kind+': browser errors '+errors.join(' | '));
   rec.ok=true;
  }catch(e){
@@ -122,5 +150,5 @@ async function play(kind,options) {
 try{
  await play('desktop',{viewport:{width:1280,height:720}});
  await play('mobile',{...devices['Pixel 7']});
- console.log('PASS: recorded actual desktop/mobile WebGL rendering, walking, café entry, interaction and exit');
+ console.log('PASS: desktop and Android-sized Chromium WebGL, physical café/soy/vocational entrances, counters and exits; FPS captured to artifact');
 }finally{await browser.close()}
