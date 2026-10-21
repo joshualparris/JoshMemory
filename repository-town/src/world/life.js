@@ -714,6 +714,19 @@ export class TownLife {
     }
     if (h === 16 && (fo.stock.metal || 0) >= 14) { const n = fo.stock.metal - 4; fo.stock.metal = 4; fo.till += n * 12; this.log(`The foundry exported ${n} tonnes of metal by rail for $${n * 12}.`); }
     if (h === 8 && (this.place('power').stock.fuel || 0) < 60) this.log('The Power Station is low on fuel; a truck is due from the depot.');
+    // Evening regional cost-of-living support for the poorest households.
+    // It is means tested and moves existing council money, never mints funds.
+    if(h===21 && this.civic.treasury>600){
+      let assisted=0;
+      for(const v of this.villagers){
+        if(v.wallet>=35 || v.job==='student' || v.job==='retired')continue;
+        const amount=Math.min(35-v.wallet,Math.max(0,this.civic.treasury-600),28);
+        if(amount<=0)break;
+        this.civic.treasury-=amount;v.wallet+=amount;assisted++;
+      }
+      if(assisted)this.log('Council household hardship payments supported '+assisted+' low-income workers.');
+    }
+
     // Post: letters the visitor posts arrive the next day with the postie.
     if (h === 15) { const due = c.letters.filter((l) => l.day < this.day && !l.delivered); for (const l of due) l.delivered = true; if (due.length) { this.stats.letters += due.length; this.log(`The postie delivered ${due.length} letter${due.length > 1 ? 's' : ''} you posted.`); } }
   }

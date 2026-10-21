@@ -1,10 +1,10 @@
 // Run: node src/tests/economy.mjs
 // Actual current public-sector finance and finite local transactions.
 import assert from 'node:assert/strict';
-import { TownLife, GOODS } from '../world/life.js';
+import { TownLife, GOODS, ROSTER_SIZE } from '../world/life.js';
 const homes=Array.from({length:188},(_,i)=>({coordinate:String.fromCharCode(65+i%26)+(1+Math.floor(i/26)),name:'Home '+i,door:{x:i%26*26,z:Math.floor(i/26)*46}}));
 const t=new TownLife({homes});
-assert.equal(t.villagers.length,61);
+assert.equal(t.villagers.length,ROSTER_SIZE);
 assert.equal(t.civic.player.wallet,75);
 const total=()=>t.civic.player.wallet+t.civic.player.bank+t.civic.treasury+
  t.civic.finance.federal+t.civic.finance.state+
