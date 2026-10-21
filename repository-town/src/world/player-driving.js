@@ -30,7 +30,7 @@ export function roadAllows(x,z){
 }
 export function createPlayerDriving(life,scene,collision,player,camera,input){
  const meshes=new Map();let active=null,speed=0,message='';
- function siteSpawn(i){
+ function siteSpawn(i,self){
    const site=life.place('dealership');
    if(!site)return null;
    // Use the marked roadside parking bays, not the busy doorway or a back
@@ -42,7 +42,7 @@ export function createPlayerDriving(life,scene,collision,player,camera,input){
      if(!roadAllows(x,z)||collision.hits(x,z,1.25))continue;
      if(life.trucks.some(tr=>Math.hypot(tr.x-x,tr.z-z)<5))continue;
      if(life.villagers.some(person=>!person.inside&&Math.hypot(person.x-x,person.z-z)<3.5))continue;
-     if((life.civic.motor?.owned||[]).some(v=>Number.isFinite(v.x)&&
+     if((life.civic.motor?.owned||[]).some(v=>v!==self&&Number.isFinite(v.x)&&
        Math.hypot(v.x-x,v.z-z)<3.5))continue;
      return {x,z};
    }
@@ -53,7 +53,7 @@ export function createPlayerDriving(life,scene,collision,player,camera,input){
    for(const [reg,g] of meshes)if(!ids.has(reg)){scene.remove(g);meshes.delete(reg);if(active===reg){active=null;speed=0;}}
    owned.forEach((v,i)=>{
      if(!Number.isFinite(v.x)||!Number.isFinite(v.z)||v.parkingPending){
-       const p=siteSpawn(i);
+       const p=siteSpawn(i,v);
        if(p){v.x=p.x;v.z=p.z;v.yaw=0;v.speed=0;v.parkingPending=false;}
        else if(!Number.isFinite(v.x)||!Number.isFinite(v.z))continue;
        // When every roadside bay is temporarily occupied, keep the vehicle
@@ -78,7 +78,7 @@ export function createPlayerDriving(life,scene,collision,player,camera,input){
    if((v.fuel||0)<=0)return 'Fuel tank empty. Buy fuel at High Street Motors.';
    if(Math.hypot(player.pos.x-v.x,player.pos.z-v.z)>3.1)return 'Walk to the driver door to enter.';
    if(collision.hits(v.x,v.z,1.05))return 'The vehicle is blocked. Move it to a clear parking space before driving.';
-   active=v.registration;speed=0;player.seated=null;input.reset();
+   v.parkingPending=false;active=v.registration;speed=0;player.seated=null;input.reset();
    return 'Engine started. W/S or joystick forwards/back; A/D or joystick steer; E or ✋ to get out when stopped.';
  }
  function exit(){
