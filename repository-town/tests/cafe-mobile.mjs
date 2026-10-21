@@ -14,20 +14,33 @@ try{
  await page.goto(process.env.TOWN_URL||'http://127.0.0.1:8091/',{waitUntil:'domcontentloaded',timeout:90000});
  await page.waitForFunction(()=>window.__town&&document.getElementById('loading').hidden,null,{timeout:90000});
  assert(await page.isVisible('#t-use'),'touch Use button visible');
- const started=await page.evaluate(()=>{
-  const t=window.__town.life;t.setTime(11*60+30);t.place('cafe').till=500;
-  window.__town.enterShop('cafe');t.playerAt='cafe';
-  for(const v of t.villagers)if(v.work==='cafe'){v.step={kind:'work',at:'cafe'};v.path=[];}
-  const hired=t.startJob('cafe-all-rounder');if(!hired.ok)return hired.message;
-  for(const g of ['coffee','milk','oatmilk','soymilk','gfbread','bread','eggs','veg','pie','tea'])t.place('cafe').stock[g]=40;
-  const v=t.villagers.find(v=>v.work!=='cafe');v.wallet=100;v.path=[];v.inside=true;
-  v.step={kind:'eatout',at:'cafe',dur:100,workTicket:1,queue:{joined:t.day*1440+t.minute}};
-  t.civic.workplay??={store:{shelves:{},carton:null},cafe:{next:2,tickets:[],selected:null,held:null,served:0,cleared:0}};
-  t.civic.workplay.cafe={next:2,selected:null,held:null,served:0,cleared:0,tickets:[{id:1,customer:v.id,name:v.name,item:'latte',items:['latte','toast'],table:1,state:'queue',step:0,quality:[],created:t.day*1440+t.minute,patience:75,diet:'dairy-free',milk:'oat',bread:'regular',chosenMilk:null,chosenBread:null}]};
-  return 'ok';
- });
- assert.equal(started,'ok','start café shift: '+started);
+
+ await page.evaluate(()=>window.__town.life.setTime(11*60+30));
+ // Let genuine staff settle into their duty before entering the café.
+ for(let i=0;i<24;i++){
+  const working=await page.evaluate(()=>window.__town.state().people.some(q=>window.__town.life.route(q.name)?.step?.kind==='work'&&window.__town.life.route(q.name)?.step?.at==='cafe'));
+  if(working)break;
+  await page.evaluate(()=>window.__town.life.run(5));
+ }
+ assert(await page.evaluate(()=>window.__town.enterShop('cafe')),'enter café');
  await page.waitForFunction(()=>window.__town.state().mode==='house');
+ const desk=(await state()).interactables.find(x=>x.do==='civic-ledger');
+ assert(desk,'counter has work board');
+ await tapStation(desk.key);
+ await page.locator('#panel-actions button').filter({hasText:/work a shift/i}).first().tap();
+ await page.locator('#panel-actions button').filter({hasText:/Start .*café/i}).first().tap();
+ for(let i=0;i<90;i++){
+  if(await page.evaluate(()=>(window.__town.state().workplay?.cafe?.tickets||[]).some(o=>o.state==='queue')))break;
+  await page.evaluate(()=>window.__town.life.run(2));
+ }
+ const pending=await page.evaluate(()=>{
+  const c=window.__town.state().workplay?.cafe,o=c?.tickets?.find(o=>o.state==='queue');
+  if(!o)return null;
+  Object.assign(o,{item:'latte',items:['latte','toast'],milk:'oat',diet:'dairy-free',bread:'regular',patience:75,chosenMilk:null,chosenBread:null});
+  return {name:o.name,id:o.id,table:o.table};
+ });
+ assert(pending,'a real villager entered the café and queued');
+ await page.evaluate(()=>window.__town.closePanel?.());
  await tapStation('workplay:cafe:orders');
  assert.equal((await state()).workplay.cafe.tickets[0].state,'accepted');
  await tapStation('workplay:cafe:barista');
