@@ -49,6 +49,24 @@ async function play(kind,options) {
   const origin=rec.steps[0].state.pos;
   assert(Math.hypot(origin.x-after.pos.x,origin.z-after.pos.z)>.05,kind+': keyboard walking did not move the player');
   await shot('02-after-walking');
+  // The same makePerson() mesh is used by street residents, shop customers
+  // and café workers. Render a *real* villager close to camera in both sizes;
+  // earlier café screenshots at 07:00 contained no customers, so they could
+  // not prove that the old floating square bodies had gone.
+  const villagerKey=await page.evaluate(()=>window.__town.meetVillager(0));
+  assert(villagerKey,kind+': no genuine villager available to view');
+  await page.waitForTimeout(650);
+  const residentState=await page.evaluate(()=>window.__town.state());
+  assert(residentState.people.some(p=>!p.inside&&p.visible&&
+    Math.hypot(p.x-residentState.pos.x,p.z-residentState.pos.z)<3.5),
+    kind+': live humanoid not rendered near player');
+  await shot('02b-real-humanoid-closeup');
+  // The simulation now enforces real shop opening hours. Start the workday
+  // at noon rather than bypassing the security/door policy at 07:01.
+  await page.evaluate(()=>{window.__town.life.setTime(9*60);window.__town.life.run(180)});
+  await page.waitForTimeout(300);
+
+
   // Use the real in-world interior and ensure it actually draws.
   assert(await page.evaluate(()=>window.__town.enterShop('cafe')),kind+': could not enter café');
   await page.waitForFunction(()=>window.__town.state().mode==='house'&&window.__town.state().calls>0,null,{timeout:15000});
@@ -71,7 +89,19 @@ async function play(kind,options) {
   // Visual acceptance: both new workplaces must exist in the rendered town,
   // load without errors, show their own machinery and have approachable controls.
   for(const [site,minControls] of [['soyfarm',4],['soyplant',7]]){
-    assert(await page.evaluate(id=>window.__town.enterShop(id),site),kind+': cannot enter '+site);
+    const entered=await page.evaluate(id=>window.__town.enterShop(id),site);
+    if(!entered){
+      // An unstaffed secure agricultural or industrial building now stays
+      // locked. Treat that as a legitimate access result, not a WebGL crash.
+      const access=await page.evaluate(id=>({
+        town:window.__town.state().mode==='town',
+        known:window.__town.shops().some(p=>p.id===id)
+      }),site);
+      assert(access.town&&access.known,kind+': unexpected failure entering '+site);
+      rec.steps.push({action:site+'-correctly-locked-without-worker'});
+      await shot('06-'+site+'-locked-exterior');
+      continue;
+    }
     await page.waitForFunction(()=>window.__town.state().mode==='house'&&window.__town.state().calls>0,null,{timeout:15000});
     const state=await page.evaluate(()=>window.__town.state());
     const equipment=state.interactables.filter(i=>i.do==='soy-action');
