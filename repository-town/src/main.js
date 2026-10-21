@@ -19,6 +19,7 @@ import { emergencyPanel,justicePanel } from './ui/emergency-panels.js';
 import { civicExitPose } from './world/shop-exit.js';
 import { populateShopStaff } from './world/shop-staff.js';
 import { facilityAccess, restrictedServiceAction } from './world/facility-access.js';
+import { atCivicEntrance, closedCivicDoorPose } from './world/civic-entrance.js';
 import { createShopVisitors } from './world/shop-visitors.js';
 import { loadFurniture } from './world/furniture.js';
 import { createFloorStack, FLOOR_HEIGHT } from './world/multifloor.js';
@@ -989,15 +990,12 @@ async function start() {
       // just in front of their door (not inside an inaccessible wall).
       if(mode==='town' && !overview && !driving.driving){
         for(const place of life.places.values()){
-          if(Math.abs(player.pos.x-place.x)<.93 &&
-             player.pos.z>=place.door.z-.12 &&
-             player.pos.z<=place.door.z+.92){
+          if(atCivicEntrance(place,player.pos)){
             if(!enterShop(place.id, true)){
-              // The façade itself is collision-solid, but its transition zone
-              // is not. Bounce outside the trigger instead of allowing a
-              // locked door to teleport the player indoors on the next frame.
-              const streetSide=place.side==='south' ? place.door.z-1.15 : place.door.z+1.35;
-              player.place(player.pos.x,streetSide,player.yaw);
+              // Keep closed/unattended buildings secure, but give an obvious
+              // physical rejection outside the expanded entrance trigger.
+              const back=closedCivicDoorPose(place,player.pos);
+              player.place(back.x,back.z,player.yaw);
             }
             break;
           }
