@@ -54,7 +54,9 @@ assert.equal(facilityAccess(t,power).allowed,true,'daytime utility reception sta
 t.minute=19*60;
 assert.equal(facilityAccess(t,power).reason,'closed','power plant locked after visitor hours');
 const hotel=place('hotel',0,1440);
-assert.equal(facilityAccess(t,hotel).reason,'closed','no unbooked hotel lobby access at night');
+assert.equal(facilityAccess(t,hotel).reason,'unstaffed','open-hour hotel lobby still requires real staff');
+t.minute=23*60;
+assert.equal(facilityAccess(t,hotel).reason,'closed','unbooked lobby locked after reception closes');
 t.needsReport=()=>({booking:{room:2}});
 assert.equal(facilityAccess(t,hotel).reason,'guest','paid guests retain overnight key access');
 t.needsReport=()=>({booking:null});
