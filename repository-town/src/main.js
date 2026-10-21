@@ -1,3 +1,4 @@
+import { mountCompanion } from './ui/companion.js';
 import * as THREE from 'three';
 import { CollisionWorld } from './engine/collision.js';
 import { Input } from './engine/input.js';
@@ -194,6 +195,14 @@ async function start() {
   let nearHouse = null, nearThing = null, nearCar=null, panelOpen = null, cardTimer = 0;
   const expedition = createExpedition({town,makeLabel,openPanel,travel,
     releaseMouse:()=>input.releaseMouse()});
+
+  const companion = mountCompanion({
+    getContext:()=>({mode,place:inside?.place?.name||inside?.house?.name||(nearPerson?.spot?life.place(nearPerson.spot.id)?.name:null)||nearHouse?.house?.name||'Town streets',
+      coordinate:inside?.house?.coordinate||nearHouse?.house?.coordinate||'',floor:inside?.floorIndex||0,
+      pos:player.pos,wallet:life.civic.player.wallet,target:mode==='house'?nearThing:(nearTownSeat?{...nearTownSeat,act:{do:'sit'}}:nearPerson?.spot?{...nearPerson.spot,act:{do:'civic-ledger'}}:nearHouse?{key:nearHouse.house.coordinate,label:nearHouse.house.name,act:{do:'enter'}}:null),
+      interactions:inside?.interactables||[]}),
+    onOpen:()=>{input.releaseMouse();input.reset();npcChat.close();},onClose:()=>input.reset()
+  });
 
   // ── Movement between town and houses ─────────────────────────────────────
   function frontOf(coord) {
@@ -409,7 +418,7 @@ async function start() {
   $('btn-time').onclick = () => cycleTime();
   addEventListener('keydown', (e) => {
     if (e.key.toLowerCase() !== 't' || e.repeat || e.ctrlKey || e.altKey || e.metaKey) return;
-    if (e.target?.closest?.('input,textarea,select,[contenteditable],#panel,#game,#npc-chat')) return;
+    if (e.target?.closest?.('input,textarea,select,[contenteditable],#panel,#game,#npc-chat,#town-companion')) return;
     cycleTime();
   });
   function syncPerfBtn() {
@@ -775,12 +784,12 @@ async function start() {
       return;
     }
     if (input.consume('map')) setOverview(!overview);
-    if (input.consume('back')) { if (expedition.isOpen()) expedition.dismiss(); else if (npcChat.isOpen()) npcChat.close(); else if (!$('npc-roster').hidden) $('npc-roster').hidden = true; else if (panelOpen) closePanel(); else if (!$('help').hidden) $('help').hidden = true; else setOverview(false); }
+    if (input.consume('back')) { if (companion.isOpen()) companion.close(); else if (expedition.isOpen()) expedition.dismiss(); else if (npcChat.isOpen()) npcChat.close(); else if (!$('npc-roster').hidden) $('npc-roster').hidden = true; else if (panelOpen) closePanel(); else if (!$('help').hidden) $('help').hidden = true; else setOverview(false); }
     if(expedition.isOpen()){input.keys.clear();input.takeLook();input.pressed.delete('use');}
     if (overview) {
       camera.position.set(player.pos.x, 150, player.pos.z + 95); camera.lookAt(player.pos.x, 0, player.pos.z);
       input.takeLook(); input.consume('jump');
-    } else if (expedition.isOpen() || panelOpen || npcChat.isOpen() || !$('npc-roster').hidden || !$('help').hidden) input.reset();
+    } else if (companion.isOpen() || expedition.isOpen() || panelOpen || npcChat.isOpen() || !$('npc-roster').hidden || !$('help').hidden) input.reset();
     else {
       const n=life.needsReport();
       player.speedFactor=Math.max(0.45,1-(n.hunger>80?0.23:0)-(n.fatigue>75?0.32:0));

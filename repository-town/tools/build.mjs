@@ -1,3 +1,4 @@
+import { companionKnowledge } from './companion-knowledge.mjs';
 // Builds dist/public (sanitised, deployable) and dist/private (full detail, local only).
 import fs from 'node:fs';
 import zlib from 'node:zlib';
@@ -37,6 +38,7 @@ for (const target of ['public', 'private']) {
   const out = path.join(TOWN, 'dist', target);
   fs.rmSync(out, { recursive: true, force: true });
   fs.cpSync(path.join(TOWN, 'src'), out, { recursive: true });
+  fs.writeFileSync(path.join(out,'companion-knowledge.json'),JSON.stringify(companionKnowledge(TOWN)));
   fs.cpSync(path.join(TOWN, 'vendor'), path.join(out, 'vendor'), { recursive: true });
   const list = (target === 'public' ? houses.map(sanitise) : houses).map(mergeDiscovery);
   // The public archive carries public repositories only.
