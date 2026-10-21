@@ -1214,7 +1214,7 @@ export class TownLife {
     // still be served by another *physically present* paid employee.
     const colleagues = this.villagers.filter(o=>o.work===v.work && !['student','retired'].includes(o.job));
     const rank = Math.max(0,colleagues.indexOf(v));
-    const lunchAt = Math.max(v.start+75,Math.min(v.end-45,11*60+15+rank*120));
+    const lunchAt = Math.max(v.start+75,Math.min(v.end-45,11*60+15+rank*240));
     const lunchEnds = lunchAt+40;
     if (working && !(m >= lunchAt && m < lunchEnds && !v.doneToday.lunch)) {
       if (v.work === 'home') return this.goThen(v, home, { kind: 'work', at: 'home', until: v.end, activity: 'coding at home' });
@@ -1231,10 +1231,13 @@ export class TownLife {
         if (meal) { this.eat(v, meal[0], meal[1]); lunch = this.goThen(v, this.place('square').front, { kind: 'idle', dur: 30, activity: `eating ${meal[0]} in the Market Square` }); }
         else lunch = this.goThen(v, this.place('bakery').front, { kind: 'snack', at: 'bakery', good: 'pie', dur: 15, activity: 'buying a pie for lunch' });
       }
-      // Mid-shift shopping trips previously kept the only cashier off-site well
-      // beyond their lunch break (the 13:15 General Store closure). Do not append
-      // grocery errands to a working employee's queue: after their meal they
-      // return to their own counter, and shop after clocking off instead.
+      // Workers who finish after stores close need time to buy food at lunch.
+      // These trips remain real, but staggered relief cover continues to serve
+      // customers while the staff member shops.
+      if (v.end >= 16 * 60 + 30 && !v.doneToday.shopping) {
+        const errands = this.shopStops(v, this.shoppingList(v));
+        if (errands.length) { v.doneToday.shopping = true; v.queue = errands; }
+      }
       return lunch;
     }
     // After work: shopping when the pantry is low, then dinner, then the evening.
