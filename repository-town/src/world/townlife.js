@@ -5,6 +5,7 @@ import { Builder, GLASS } from './builder.js';
 import { buildSignBoards } from './shop-signs.js';
 import { PROPS } from './props.js';
 import { makePerson, pose } from './npcs.js';
+import { facilityAccess } from './facility-access.js';
 import { TownLife, GOODS, RAIL_Z, trainX, FIELD_Z0, FIELD_Z1, SEC_PER_MIN, LOT_X, AVENUES } from './life.js';
 
 // Draws the town simulation (src/world/life.js): the high street and farms on street 8,
@@ -909,7 +910,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     town.setNight(powered ? dark : dark * 0.04, m);
     const anyOpenLate = dark > 0.2;
     shopGlassMat.emissiveIntensity = anyOpenLate && powered ? dark * 0.9 : 0;
-    for (const d of doorCards) d.m.material = life.open(d.q) ? d.openMat : d.closedMat;
+    for (const d of doorCards) d.m.material = facilityAccess(life, d.q).allowed ? d.openMat : d.closedMat;
     lightMat.emissiveIntensity = dark > 0.3 ? 1.4 : 0;  // vehicle headlights run on their own batteries
     if (!inTown && !view) return;
 
