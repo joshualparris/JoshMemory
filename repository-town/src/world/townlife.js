@@ -83,7 +83,12 @@ function fence(b, x0, x1, z0, z1, gateX) {
 // Painted name boards (src/world/shop-signs.js), in each lot's frame: [x, y, z, w, h, background, lettering].
 // Shopfronts paint over their existing board (w × h of the building decides its size).
 const SHOPFRONT = { store: [14, 5], bakery: [12, 4.6], cafe: [12, 4.4], greengrocer: [12, 4.4], butcher: [11, 4.4], post: [11, 4.6], clinic: [12, 4.6] };
-const SIGN_AT = {
+export const SIGN_AT = {
+  // Permanent painted nameplates exactly over the currently blank upper shopfront
+  // panels (y = facade height - 0.55, z = front 7.13). Unlike nearby name
+  // sprites, these remain readable even when proximity labels are hidden.
+  soyfarm: [0, 3.75, 7.135, 7.12, 0.69, '#254632', '#f7f2df'],
+  soyplant: [0, 4.75, 7.135, 8.36, 0.71, '#264c57', '#f3f7f5'],
   pub: [0, 6.15, 7.08, 7, 0.9, '#1f3a2a', '#f1e3b5'], hall: [0, 7.1, 7.99, 11, 0.62, '#d8d2c4', '#3a3226'],
   school: [0, 3.9, 7.07, 6, 0.7, '#f3ead2', '#2a3a5a'], depot: [0, 3.9, 7.07, 6, 0.7, '#2b2118', '#f1e3b5'],
   mill: [0, 3.2, 4.06, 2.6, 0.55, '#f3ead2', '#3a2a1e'], bank: [0, 5.62, 7.83, 9, 0.55, '#e8e2d2', '#3a3226'],
