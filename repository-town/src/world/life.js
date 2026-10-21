@@ -261,6 +261,30 @@ export function walkRoute(a, b) {
   pts.push({ x: b.x, z: sb }, { x: b.x, z: b.z });
   return pts;
 }
+// South-side civic buildings stand on the front of the farm strip (up to 12 m deep from FIELD_Z0).
+// A paddock with one in front starts behind it, and workers reach it up the gap beside the building
+// and through the paddock's road-side gate instead of walking through the building.
+export const SOUTH_SITE_DEPTH = 12;
+const FIELD_BEHIND_Z0 = FIELD_Z0 + SOUTH_SITE_DEPTH + 3;
+function fieldWith(places, q) {
+  for (const p of places.values()) {
+    const f = p.field;
+    if (f?.access && q.x >= f.x0 && q.x <= f.x1 && q.z >= f.z0 - 0.5 && q.z <= f.z1) return f;
+  }
+  return null;
+}
+// Adds the gate and side-gap legs to a footpath (or cycling) route that starts or ends in such a paddock.
+export function fieldAccessRoute(places, path, from, to) {
+  if (!path.length) return path;
+  const legs = (f) => [{ x: f.access.gateX, z: f.z0 + 1.5 }, { x: f.access.gateX, z: f.access.backZ }, { x: f.access.aisleX, z: f.access.backZ }];
+  const out = path.slice(), fa = fieldWith(places, from), fb = fieldWith(places, to);
+  if (fb) {
+    const prev = out.length > 1 ? out[out.length - 2] : from;
+    out.splice(out.length - 1, 0, { x: fb.access.aisleX, z: prev.z }, ...legs(fb).reverse());
+  }
+  if (fa) out.unshift(...legs(fa), { x: fa.access.aisleX, z: out[0].z });
+  return out;
+}
 // Road route for trucks, driving on the left (Australia): heading +x the left lane is −z;
 // heading +z it is +x. Along the street, up the nearest avenue if changing street.
 export function driveRoute(a, b) {
@@ -310,7 +334,12 @@ export class TownLife {
       });
     }
     // Farms keep produce at the farm until a truck collects it; fields lie across the road.
-    for (const p of this.places.values()) if (p.kind === 'farm') { p.out[p.makes] = 8; p.field = { x0: p.x - 11, x1: p.x + 11, z0: FIELD_Z0, z1: FIELD_Z1 }; p.growth = 0.5; }
+    for (const p of this.places.values()) if (p.kind === 'farm') {
+      p.out[p.makes] = 8; p.growth = 0.5;
+      const front = [...this.places.values()].find((s) => s.side === 'south' && Math.abs(s.x - p.x) < 18);
+      p.field = { x0: p.x - 11, x1: p.x + 11, z0: front ? FIELD_BEHIND_Z0 : FIELD_Z0, z1: FIELD_Z1 };
+      if (front) p.field.access = { gateX: p.x, backZ: FIELD_Z0 + SOUTH_SITE_DEPTH + 1.5, aisleX: front.x + 9.5 };
+    }
     this.place('mill').out.flour = 6;
     this.place('bakery').out = { bread: 8, pie: 4 };
     this.place('depot').out = { coffee: 12, tea: 10, parcel: 6, fuel: 30, ore: 10 };
@@ -1156,7 +1185,8 @@ export class TownLife {
   workSpot(v) {
     if (v.work === 'home') return this.doorstep(v);
     const p = this.place(v.work);
-    if (p.field) return { x: p.field.x0 + 2 + this.rand() * (p.field.x1 - p.field.x0 - 4), z: p.field.z0 + 3 + this.rand() * (p.field.z1 - p.field.z0 - 6) };
+    // Clear of the gate and of the hen house and trough along the back of a paddock (z1 − 2.9 … z1 − 5.1).
+    if (p.field) return { x: p.field.x0 + 2 + this.rand() * (p.field.x1 - p.field.x0 - 4), z: p.field.z0 + 2.5 + this.rand() * (p.field.z1 - p.field.z0 - 8.1) };
     if (v.job === 'truck driver') return p.front;
     return this.jitter(p.front, 2);
   }
@@ -1234,6 +1264,7 @@ export class TownLife {
     let len = 0, prev = v; for (const p of v.path) { len += Math.abs(p.x - prev.x) + Math.abs(p.z - prev.z); prev = p; }
     v.bike = len > 160 && v.job !== 'retired';
     if(v.bike) v.path=cyclingRoute(v.path,v,target,z=>ROAD(rowOf(z)));
+    v.path = fieldAccessRoute(this.places, v.path, v, target);
     if (v.path.length) { v.inside = false; v.activity = `${v.bike ? 'cycling' : 'walking'} — ${step.activity}`; }
     else this.arrive(v);                       // already there
     return v.step;
@@ -1308,7 +1339,7 @@ export class TownLife {
                   v.path.length=0;this.arrive(v);return;
                 }else{
                   const goal={x:destination.x,z:destination.z};
-                  v.path=walkRoute(v,goal);
+                  v.path=fieldAccessRoute(this.places,walkRoute(v,goal),v,goal);
                   // A blocked final approach will be reconsidered on the
                   // next tick; don't teleport into an occupied doorway.
                 }
