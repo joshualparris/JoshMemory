@@ -95,8 +95,21 @@ export function usePhysicalJob(life,task){
    life.civic.jobs.active.progress[task]=3;
    if(task==='refill-shelves'){
      const store=life.place('store');
-     // Refill is limited by real available stock, never free inventory.
-     if(store){store.shelfRefills=(store.shelfRefills||0)+1;}
+     if(store){
+       // Store stock is the total owned quantity. Display stock is a subset
+       // of that total, so moving cartons out of the storeroom creates no goods.
+       store.displayStock??={};
+       let moved=0;
+       for(const good of ['flour','tea','coffee','bread','eggs','milk']){
+         const total=Math.max(0,Math.floor(store.stock?.[good]||0));
+         const displayed=Math.min(total,Math.max(0,Math.floor(store.displayStock[good]??Math.min(2,total))));
+         const capacity=Math.min(total,Math.max(3,Math.ceil((store.target?.[good]||8)*.55)));
+         const put=Math.min(3,Math.max(0,capacity-displayed),Math.max(0,total-displayed));
+         store.displayStock[good]=displayed+put;moved+=put;
+       }
+       store.shelfRefills=(store.shelfRefills||0)+1;
+       r.message='Moved '+moved+' units from storeroom to sales shelves without creating extra inventory. '+r.message;
+     }
    }
  }
  return {...r,message:r.ok?steps[2]+'. '+r.message:r.message};
