@@ -22,8 +22,10 @@ assert.equal(focusInteriorLabels(group,{...opts,target:null}),null,'no selected 
 assert.equal(focusInteriorLabels(group,{...opts,modal:true}),null,'dialogues hide labels');
 assert.equal(focusInteriorLabels(group,{...opts,canSee:()=>false}),null,'walls hide labels');
 close.userData.labelRoom=1;
+nested.userData.labelRoom=1;
 assert.equal(focusInteriorLabels(group,{...opts,currentRoom:0}),null,'other rooms hide labels');
 close.userData.labelRoom=0;
+nested.userData.labelRoom=0;
 assert.equal(focusInteriorLabels(group,{...opts,player:{x:0,z:2.1}}),null,'very close target uses HUD instead');
 assert.equal(showNearbyHouseLabel({distance:5,facing:1,nearest:true}),true);
 assert.equal(showNearbyHouseLabel({distance:10,facing:1,nearest:true}),false);
