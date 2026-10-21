@@ -7,13 +7,13 @@ const homes=Array.from({length:188},(_,i)=>({coordinate:String.fromCharCode(65+i
 const t=new TownLife({homes});
 for(let d=0;d<7;d++){
  for(let h=0;h<24;h++)t.tick(60);
- assert.equal(t.villagers.length,38);
+ assert.equal(t.villagers.length,61);
  const accounts=[t.civic.player.wallet,t.civic.player.bank,t.civic.treasury,t.civic.finance.federal,t.civic.finance.state,
  ...t.villagers.map(v=>v.wallet),...[...t.places.values()].flatMap(p=>[p.till||0,p.operating||0])];
  assert(accounts.every(n=>Number.isFinite(n)&&n>=-0.001),'nonnegative, finite account balances');
  for(const p of t.places.values())
    for(const n of Object.values(p.stock||{}))assert(Number.isFinite(n)&&n>=0,'no negative inventory');
- assert.equal(t.ledger().population,38);
+ assert.equal(t.ledger().population,61);
 }
 const state=t.snapshot(),copy=new TownLife({homes});
 copy.restore(state);
