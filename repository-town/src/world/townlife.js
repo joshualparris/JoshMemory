@@ -810,6 +810,30 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   const depot = life.place('depot');
   // Trucks.
   const trucks = life.trucks.map((t, i) => { const v = makeTruck([0xd8562a, 0x2a6ab8, 0xe0b030][i]); group.add(v.group); return { t, ...v }; });
+  // Service vehicles and crew are views of the persisted trade job lifecycle.
+  // They are allocated once, then updated only when near the player.
+  const serviceVan=makeTruck(0xf0ead5),hardwareFreight=makeTruck(0x4a8795);
+  for(const v of [serviceVan,hardwareFreight]){
+    v.group.scale.set(.66,.80,.78);v.group.visible=false;group.add(v.group);
+    v.load.count=0;
+  }
+  const crewModels=new Map();
+  const setCrew=(id,x,z,active,nearby)=>{
+    if(!crewModels.has(id)){
+      const fig=makePerson(id==='kai'||id==='mia'?115:79,0xd7a756,0x263d55);
+      const tag=makeLabel(id==='kai'?'Kai · apprentice':id==='mia'?'Mia · apprentice':
+        id==='sam'?'Samir · plumber':id==='ella'?'Ella · electrician':
+        id==='noah'?'Noah · builder':'Ivy · IT technician','interactive');
+      tag.position.y=2.2;fig.group.add(tag);group.add(fig.group);
+      crewModels.set(id,{fig,tag});
+    }
+    const c=crewModels.get(id);
+    c.fig.group.visible=active&&nearby;
+    if(!c.fig.group.visible)return;
+    c.fig.group.position.set(x,0,z);
+    c.tag.visible=Math.hypot(x-eyeCached.x,z-eyeCached.z)<8;
+  };
+  const eyeCached={x:0,z:0};
   // Parcels waiting on doorsteps.
   const parcels = new THREE.InstancedMesh(GOOD_GEO.parcel[0], new THREE.MeshLambertMaterial({ color: 0xb08a5a }), 40);
   parcels.count = 0; group.add(parcels);
@@ -912,6 +936,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     shopGlassMat.emissiveIntensity = anyOpenLate && powered ? dark * 0.9 : 0;
     for (const d of doorCards) d.m.material = facilityAccess(life, d.q).allowed ? d.openMat : d.closedMat;
     lightMat.emissiveIntensity = dark > 0.3 ? 1.4 : 0;  // vehicle headlights run on their own batteries
+    eyeCached.x=eye.x;eyeCached.z=eye.z;
     if (!inTown && !view) return;
 
     // Moving things are only updated near the player; far ones are hidden by fog anyway.
@@ -956,6 +981,33 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       tr.group.rotation.y = t0.heading;   // the simulation already turns at a realistic rate; smoothing would make the mesh lag its footprint
       tr.load.count = t0.load ? Math.min(10, Math.max(1, Math.round(t0.load.n / 2))) : 0;
       tr.tails.material.emissiveIntensity = t0.braking ? 1.6 : dark > 0.3 ? 0.7 : 0;
+    }
+    // Draw only the actual van on the road. Its location is advanced in
+    // TownLife.tick, so opening a menu cannot teleport it to the worksite.
+    const trade=life.civic.tradeEducation;
+    const job=trade?.orders?.find(o=>o.field&&
+      (o.status==='assigned'||o.status==='in-progress'||o.field.phase==='return'));
+    const v=job?.field?.van;
+    serviceVan.group.visible=!!v&&!overview&&near(v.pos.x,v.pos.z,105)&&job.field.phase!=='depot';
+    if(serviceVan.group.visible){
+      serviceVan.group.position.set(v.pos.x,0,v.pos.z);
+      serviceVan.group.rotation.y=v.heading||0;
+    }
+    for(const c of crewModels.values())c.fig.group.visible=false;
+    if(job?.field&&['safety','working','inspection'].includes(job.field.phase)){
+      const f=job.field,site=life.place(f.siteId),p=site?.front;
+      if(p){
+        const onScreen=!overview&&near(p.x,p.z,70);
+        setCrew(job.worker,p.x+.85,p.z+.45,true,onScreen);
+        if(f.apprentice)setCrew(f.apprentice,p.x-1.05,p.z+.45,true,onScreen);
+      }
+    }
+    const shipment=trade?.deliveries?.find(o=>o.status==='in-transit'&&o.vehicle);
+    const sv=shipment?.vehicle;
+    hardwareFreight.group.visible=!!sv&&!overview&&near(sv.pos.x,sv.pos.z,110);
+    if(hardwareFreight.group.visible){
+      hardwareFreight.group.position.set(sv.pos.x,0,sv.pos.z);
+      hardwareFreight.group.rotation.y=sv.heading||0;
     }
     const tx = trainX(m, depot.x);
     train.visible = tx !== null && !overview; if (tx !== null) train.position.x = tx;
