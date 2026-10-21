@@ -6,7 +6,7 @@ import {deliveryAction,deliveryState} from '../src/world/delivery-work.js';
 import {superviseBread} from '../src/world/bakery-production.js';
 import {storeBatches,reserveBatch,restoreBatch,tickStoreBatches,returnToSupplier} from '../src/world/store-batches.js';
 import {queueCafeCustomer,useCafe,workState,tickWorkplay,restockCafePantry} from '../src/world/workplay.js';
-import {FULL_WORK_MENU,orderRecipe} from '../src/world/work-recipes.js';
+import {FULL_WORK_MENU,orderRecipe,recipeFor} from '../src/world/work-recipes.js';
 import {heartPoints,latteScore} from '../src/ui/latte-art.js';
 import {buildCivicInterior} from '../src/world/shop-interior.js';
 import {installPhysicalJobs,usePhysicalJob} from '../src/world/physical-jobs.js';
