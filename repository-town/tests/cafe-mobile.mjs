@@ -24,6 +24,7 @@ try{
  }
  assert(await page.evaluate(()=>window.__town.enterShop('cafe')),'enter café');
  await page.waitForFunction(()=>window.__town.state().mode==='house');
+ assert(await page.evaluate(()=>window.__town.prepareCafeTestShift?.()),'local fixture provides funded supervised workplace');
  const desk=(await state()).interactables.find(x=>x.do==='civic-ledger');
  assert(desk,'counter has work board');
  await tapStation(desk.key);
