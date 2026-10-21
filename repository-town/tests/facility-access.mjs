@@ -61,6 +61,15 @@ assert(restored.restore(saved),'new expanded-town saved game must load');
 
 const place=(id,opens=9*60,closes=17*60)=>({id,name:id+' building',opens,closes});
 const t={day:1,minute:12*60,villagers:[],jobsReport:()=>({active:null}),needsReport:()=>({booking:null})};
+// Finishing the last few metres of a genuine on-site shift does not make
+// the entire building abruptly unstaffed at the clock boundary.
+const nearby=place('store');
+nearby.front={x:20,z:20};
+const attendant={name:'At the counter',step:{kind:'work',at:'store'},path:[{x:21,z:21}],x:21,z:21};
+const storeTown={...t,villagers:[attendant]};
+assert.equal(facilityAccess(storeTown,nearby).allowed,true,'nearby on-shift attendant covers the shop');
+attendant.x=100;attendant.z=100;
+assert.equal(facilityAccess(storeTown,nearby).reason,'unstaffed','distant commuting staff cannot bypass a real lock');
 const p=place('court');
 assert.equal(facilityAccess(t,p).reason,'unstaffed','unmanned public lobby is locked');
 const officer={name:'Jules',work:'court',step:{kind:'work',at:'court'},path:[{x:0,z:0}]};
