@@ -371,12 +371,12 @@ const FIGURE_TORSO = (() => {
   for (let i = 0; i < rings.length-1; i++) {
     for (let j = 0; j < 4; j++) {
       const a=i*4+j, b=i*4+(j+1)%4, c=(i+1)*4+j, d=(i+1)*4+(j+1)%4;
-      indices.push(a,b,c,b,d,c);
+      indices.push(a,c,b,b,c,d);
     }
   }
-  indices.push(0,2,1,0,3,2);
+  indices.push(0,1,2,0,2,3);
   const top=(rings.length-1)*4;
-  indices.push(top,top+1,top+2,top,top+2,top+3);
+  indices.push(top,top+2,top+1,top,top+3,top+2);
   const geometry=new THREE.BufferGeometry();
   geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
   geometry.setIndex(indices);
