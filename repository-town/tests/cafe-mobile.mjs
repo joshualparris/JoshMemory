@@ -29,8 +29,9 @@ try{
  await tapStation(desk.key);
  await page.locator('#panel-actions button').filter({hasText:/work a shift/i}).first().tap();
  await page.locator('#panel-actions button').filter({hasText:/Start .*café/i}).first().tap();
+ console.log('CAFÉ HIRING:',JSON.stringify(await page.evaluate(()=>({shift:window.__town.life.ledger().civic?.jobs?.active, panel:window.__town.state().panel}))));
  const pending=await page.evaluate(()=>window.__town.queueCafeTestPatron?.());
- assert(pending,'local acceptance fixture registered a real villager via the normal café order system');
+ assert(pending,'local acceptance fixture registered a real villager via the normal café order system: '+JSON.stringify(await page.evaluate(()=>({shift:window.__town.life.ledger().civic?.jobs?.active,mode:window.__town.state().mode,service:window.__town.state().workplay?.cafe?.tickets?.length}))));
  await page.evaluate(()=>window.__town.closePanel?.());
  await tapStation('workplay:cafe:orders');
  assert.equal((await state()).workplay.cafe.tickets.find(o=>o.id===pending.id).state,'accepted');
