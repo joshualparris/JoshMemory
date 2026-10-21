@@ -1,7 +1,9 @@
 import {companionContext,selectEvidence,developmentTask,companionRequest} from './companion-context.js';
+import {setCompanionLauncherVisibility} from './hud-visibility.js';
 const ENDPOINT='https://repository-town-no-code-ai.parris-neathaustralia.workers.dev/api/npc-chat';
-export function mountCompanion({getContext,onOpen,onClose}) {
+export function mountCompanion({getContext,onOpen,onClose,isBlocked=()=>false}) {
   const style=document.createElement('style');style.textContent=`
+#town-companion-button[hidden]{display:none!important}
 #town-companion-button{position:fixed;right:12px;bottom:100px;z-index:25;padding:12px;border-radius:12px;background:#12363c;color:#fff;border:1px solid #83cbc2;font:inherit}
 @media (pointer:coarse){#town-companion-button{right:max(12px,env(safe-area-inset-right));bottom:calc(max(18px,env(safe-area-inset-bottom)) + 140px);padding:8px 11px;font-size:13px}}
 @media (pointer:coarse) and (max-width:700px){#town-companion-button{right:10px;bottom:222px}}
@@ -13,15 +15,16 @@ export function mountCompanion({getContext,onOpen,onClose}) {
   el.innerHTML='<header><h2>Town Companion</h2><button type="button" id="companion-close" aria-label="Close Town Companion">Close</button></header><div id="companion-context"></div><div><button id="companion-pin" type="button">Pin this context</button> <button id="companion-task" type="button" disabled>Download development task</button></div><div id="companion-prompts"></div><div id="companion-feed" role="log" aria-live="polite"></div><details id="companion-evidence"><summary>Source evidence</summary><div></div></details><small id="companion-status">Questions and selected game context go to the AI provider. No code changes are made here.</small><form><input id="companion-input" aria-label="Ask about this place or object" placeholder="What can I do here?" maxlength="750" required><button type="submit">Ask</button></form>';
   document.body.append(launch,el);
   const $=id=>el.querySelector('#companion-'+id),feed=$('feed'),form=el.querySelector('form'),input=$('input');
-  let pinned=null,knowledge=null,history=[],controller=null,last=null,focusBefore=null;
+  let pinned=null,knowledge=null,history=[],controller=null,last=null,focusBefore=null,blocked=false;
   const snapshot=()=>companionContext(getContext());
   function showContext(){const c=pinned||snapshot();$('context').textContent=(pinned?'Pinned: ':'Here: ')+c.place+(c.coordinate?' · '+c.coordinate:'')+(c.target?' · '+c.target.label:' · no interactive object selected');return c;}
   function line(who,text){const p=document.createElement('p');p.textContent=who+': '+text;feed.append(p);feed.scrollTop=feed.scrollHeight;}
   function viewport(){el.style.setProperty('--companion-height',(window.visualViewport?.height||innerHeight)+'px');el.style.setProperty('--companion-top',((window.visualViewport?.offsetTop||0)+10)+'px');}
   window.visualViewport?.addEventListener('resize',viewport);window.visualViewport?.addEventListener('scroll',viewport);
-  function close(){controller?.abort();el.hidden=true;onClose();focusBefore?.focus?.();}
-  async function open(){focusBefore=document.activeElement;onOpen();el.hidden=false;viewport();showContext();input.focus();if(!knowledge)try{const r=await fetch('companion-knowledge.json');if(!r.ok)throw Error();knowledge=await r.json();}catch{$('status').textContent='Source evidence unavailable. Answers must flag this limitation.';}}
-  launch.onclick=open;$('close').onclick=close;
+  function close(){controller?.abort();el.hidden=true;onClose();focusBefore?.focus?.();setCompanionLauncherVisibility(launch,blocked,false);}
+  function setBlocked(value){blocked=!!value;if(blocked&&!el.hidden)close();setCompanionLauncherVisibility(launch,blocked,!el.hidden);}
+  async function open(){if(blocked||isBlocked())return;focusBefore=document.activeElement;onOpen();el.hidden=false;setCompanionLauncherVisibility(launch,false,true);viewport();showContext();input.focus();if(!knowledge)try{const r=await fetch('companion-knowledge.json');if(!r.ok)throw Error();knowledge=await r.json();}catch{$('status').textContent='Source evidence unavailable. Answers must flag this limitation.';}}
+  launch.onclick=()=>{if(!isBlocked())open();};$('close').onclick=close;
   $('pin').onclick=()=>{pinned=pinned?null:snapshot();$('pin').textContent=pinned?'Unpin / follow location':'Pin this context';showContext();};
   for(const q of ['What can I do here?','How was this coded?','Can I buy this?','Can I push this button?','What features are missing here?','How can I make this more realistic?']){const b=document.createElement('button');b.type='button';b.textContent=q;b.onclick=()=>{input.value=q;form.requestSubmit();};$('prompts').append(b);}
   form.onsubmit=async e=>{e.preventDefault();if(controller)return;const q=input.value.trim();if(!q)return;const context=showContext(),evidence=selectEvidence(knowledge,context,q);input.value='';line('You',q);history.push({role:'user',content:q});history=history.slice(-7);$('status').textContent='Thinking…';form.querySelector('button').disabled=true;$('task').disabled=true;
@@ -33,7 +36,7 @@ export function mountCompanion({getContext,onOpen,onClose}) {
   };
   $('task').onclick=()=>{if(!last)return;const {context,q,answer,evidence}=last;const url=URL.createObjectURL(new Blob([developmentTask(context,q,answer,evidence)],{type:'text/markdown'}));const a=document.createElement('a');a.href=url;a.download='repository-town-development-task.md';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
   el.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close();}if(e.key==='Tab'){const items=[...el.querySelectorAll('button,input,a,summary')].filter(x=>!x.disabled);const first=items[0],end=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();end.focus();}else if(!e.shiftKey&&document.activeElement===end){e.preventDefault();first.focus();}}});
-  addEventListener('keydown',e=>{if(e.key.toLowerCase()!=='k'||e.repeat||e.ctrlKey||e.metaKey||e.altKey||e.target?.closest?.('input,textarea,select,[contenteditable],#panel,#npc-chat,#game'))return;e.preventDefault();el.hidden?open():close();});
+  addEventListener('keydown',e=>{if(e.key.toLowerCase()!=='k'||e.repeat||e.ctrlKey||e.metaKey||e.altKey||e.target?.closest?.('input,textarea,select,[contenteditable],#panel,#npc-chat,#game'))return;if(el.hidden&&(blocked||isBlocked()))return;e.preventDefault();el.hidden?open():close();});
   setInterval(()=>{if(!el.hidden&&!pinned)showContext();},1000);
-  return {isOpen:()=>!el.hidden,close};
+  return {isOpen:()=>!el.hidden,close,setBlocked};
 }
