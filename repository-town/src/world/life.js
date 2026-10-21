@@ -1227,7 +1227,16 @@ export class TownLife {
     if (working && !leaveForLunch) {
       if (v.work === 'home') return this.goThen(v, home, { kind: 'work', at: 'home', until: v.end, activity: 'coding at home' });
       if (v.job === 'postie' && !v.doneToday.round && (this.place('post').stock.parcel || 0) > 0) return this.postRound(v);
-      return this.goThen(v, work, { kind: 'work', at: v.work, until: Math.min(v.end, m < lunchAt ? lunchAt : lunchDue ? m+15 : v.end), activity: this.workActivity(v) });
+      const until=Math.min(v.end, m < lunchAt ? lunchAt : lunchDue ? m+15 : v.end);
+      // Extending a live shift must NOT send a cashier who is already at the
+      // counter on a fresh random commute through three footpath waypoints.
+      // That brief phantom journey was closing eight buildings at 13:15.
+      if(v.step?.kind==='work' && v.step.at===v.work && !v.path.length){
+        v.step.until=until;
+        v.activity=this.workActivity(v);
+        return v.step;
+      }
+      return this.goThen(v, work, { kind: 'work', at: v.work, until, activity: this.workActivity(v) });
     }
     if (leaveForLunch) {
       v.doneToday.lunch = true;
