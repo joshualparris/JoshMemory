@@ -2,7 +2,7 @@
 // bag and money, council actions, elections, and two weeks of a stable economy.
 //   node tests/town-simulation.mjs
 import assert from 'node:assert/strict';
-import { TownLife, timeText, CANDIDATES } from '../src/world/life.js';
+import { TownLife, timeText, CANDIDATES, ROSTER_SIZE} from '../src/world/life.js';
 
 // Synthetic households on rows 1–7 (the real town has 188).
 const homes = [];
@@ -32,7 +32,7 @@ assert.equal(timeText(1440), '00:00');
 }
 
 const t = new TownLife({ homes, minute: 7 * 60 });
-assert.equal(t.villagers.length, 61);
+assert.equal(t.villagers.length, ROSTER_SIZE);
 run(t, 120);
 assert.equal(t.time(), '09:00');
 assert.ok(t.civic.supply.ok && t.civic.supply.power >= t.civic.supply.powerDemand, 'the grid powers the town');
@@ -87,7 +87,7 @@ assert.ok(t.civic.government.elections[0].roll.length>0,'real villagers voted');
 const copy = new TownLife({ homes });
 copy.restore(JSON.parse(JSON.stringify(t.snapshot())));
 assert.equal(copy.day, t.day); assert.equal(copy.civic.player.wallet, t.civic.player.wallet); assert.equal(Math.round(copy.civic.treasury), Math.round(t.civic.treasury));
-console.log(`PASS: town simulation — 61 villagers, utilities, bag and bank, council, elections (mayors ${[...mayors].join(', ')}), 14 stable days (worst ${minMeals} meals), restore`);
+console.log(`PASS: town simulation — ${ROSTER_SIZE} villagers, utilities, bag and bank, council, elections (mayors ${[...mayors].join(', ')}), 14 stable days (worst ${minMeals} meals), restore`);
 
 // Brakes must look down a new road segment after turning, not behind the vehicle.
 {
