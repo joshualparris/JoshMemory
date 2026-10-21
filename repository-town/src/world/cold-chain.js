@@ -8,8 +8,8 @@ import { COUNTERS } from './counter-queue.js';
 
 // Share of each perishable shelf lost per day (stale, bruised or past its date). Whole units only,
 // so a small shelf of two or three doesn't lose anything.
-export const DAILY_LOSS = { bread: 0.15, pie: 0.25, milk: 0.05, lamb: 0.04, eggs: 0.02, veg: 0.08, fruit: 0.05 };
-export const CHILLED = ['milk', 'oatmilk', 'lamb'];
+export const DAILY_LOSS = { bread: 0.15, pie: 0.25, milk: 0.05, lamb: 0.04, eggs: 0.02, veg: 0.08, fruit: 0.05 }; // soy uses labelled lots and explicit expiry
+export const CHILLED = ['milk', 'oatmilk', 'soymilk', 'lamb'];
 export const COLD_LIMIT = 240;   // town minutes without power before chilled stock is unsafe
 
 const shelvesOf = (p) => [p.stock, p.out].filter(Boolean);
@@ -25,6 +25,17 @@ export function coldChainHour(life) {
     const lost = [];
     for (const shelf of shelvesOf(p)) for (const g of CHILLED) if (shelf[g] > 0) { lost.push(`${shelf[g]} ${g}`); tossed += shelf[g]; shelf[g] = 0; }
     if (lost.length) life.log(`The ${p.name}'s cold room has been off for four hours: ${lost.join(' and ')} thrown out under the food-safety rule.`);
+  }
+  // Bottling plant's finished goods also need continuous cooling. Process rooms are
+  // not part of the normal retail counter list, so handle the plant explicitly.
+  const plant=life.place('soyplant');
+  if(plant){
+    plant.coldOff=life.gridPowered('industry')?0:(plant.coldOff||0)+60;
+    if(plant.coldOff>=COLD_LIMIT&&(plant.out.soymilk||0)>0){
+      const n=plant.out.soymilk;plant.out.soymilk=0;
+      const soy=life.civic.soy;if(soy){soy.lots=[];soy.waste+=n;}
+      tossed+=n;life.log('Plant-drink processing cooler lost power for four hours: '+n+' soy cartons disposed.');
+    }
   }
   if (tossed) { life.stats.wasted = (life.stats.wasted || 0) + tossed; life.rubbish(tossed); }
   return tossed;
