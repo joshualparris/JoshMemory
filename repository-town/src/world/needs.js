@@ -91,7 +91,7 @@ export function sleepPlayer(t,site='hotel',room=null) {
   if(room!==null&&room!==p.hotelBooking.room)return 'Your key is for guest room '+p.hotelBooking.room+'.';
   const result=sleepUntilMorning(t,p,'the Railway Hotel');
   if(result.startsWith('You slept'))p.hotelBooking=null;
-  return result;
+  return result.replace('You slept at the Railway Hotel.', 'You slept at the hotel.');
 }
 export function needsReport(t){
   const p=startNeeds(t),all=t.villagers;
