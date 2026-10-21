@@ -54,6 +54,7 @@ assert.equal(facilityAccess(t,power).allowed,true,'daytime utility reception sta
 t.minute=19*60;
 assert.equal(facilityAccess(t,power).reason,'closed','power plant locked after visitor hours');
 const hotel=place('hotel',0,1440);
+t.minute=12*60; // Reset after the power-plant evening check; midday is inside hotel reception hours.
 assert.equal(facilityAccess(t,hotel).reason,'unstaffed','open-hour hotel lobby still requires real staff');
 t.minute=23*60;
 assert.equal(facilityAccess(t,hotel).reason,'closed','unbooked lobby locked after reception closes');
