@@ -1044,7 +1044,8 @@ export class TownLife {
     let best = null;
     for (const [from, good, to] of routes) {
       const src = this.place(from), dst = this.place(to);
-      const have = src.out[good] || 0, need = (dst.target?.[good] || 0) - (dst.stock[good] || 0);
+      // Soy growers always hold back two certified bags for the next sowing; a truck may not strip their seed reserve.
+      const have = good==='soybeans'&&from==='soyfarm'?Math.max(0,(src.out[good]||0)-2):(src.out[good]||0), need = (dst.target?.[good] || 0) - (dst.stock[good] || 0);
       if (have < 3 || need < 3 || this.trucks.some((o) => o !== t && o.job?.to === to && o.job?.good === good)) continue;
       const score = need / (dst.target[good] || 1) + this.rand() * 0.1;
       if (!best || score > best.score) best = { from, to, good, n: Math.min(20, have, need), score };
