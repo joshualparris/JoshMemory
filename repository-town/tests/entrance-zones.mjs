@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {houseEntranceZone} from '../src/world/house-entrance.js';
 import {civicEntranceZone,atCivicEntrance,closedCivicDoorPose} from '../src/world/civic-entrance.js';
 import {exteriorColliders,PLAYER_RADIUS} from '../src/world/exterior-collision.js';
+import {workingAt} from '../src/world/shop-attendance.js';
 
 const hits=(x,z,boxes,r=PLAYER_RADIUS)=>boxes.some(b=>{
   const nearX=Math.max(b.x0,Math.min(b.x1,x));
@@ -45,4 +46,13 @@ for(const side of ['north','south']){
   assert(sensed>=2,'visitor must reach civic '+side+' entrance from footpath');
   checked++;
 }
-console.log('PASS: '+checked+' collision-clear house/civic approaches, low-FPS steps and safe locked-door bounce');
+// A real cashier 2m from reception cannot be classified absent merely
+// because their navigator still has short remaining waypoints.
+const store={id:'store',front:{x:100,z:50}};
+const attendant={step:{kind:'work',at:'store'},path:[{x:100,z:51},{x:100,z:50}],x:101.4,z:51.2,inside:false};
+assert(workingAt(attendant,store),'reception attendant within 2.75m counts as on site');
+assert(!workingAt({...attendant,x:125,z:50},store),'commuter 25m away is not on site');
+assert(!workingAt({...attendant,inside:true},store),'person still indoors at home cannot staff the shop');
+assert(!workingAt({...attendant,step:{kind:'eatout',at:'cafe'}},store),'lunch break is not coverage');
+assert(!workingAt(attendant,'store'),'callers without reception coordinates cannot assume arrival');
+console.log('PASS: '+checked+' collision-clear approaches, on-site staff and safe locked doors');
