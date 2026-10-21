@@ -22,7 +22,7 @@ import { initialiseProperties, propertyReport, buyProperty, listProperty, sellPr
 import { ensureTenancies, leaseReport, commercialRentDay, issueCommercialDisclosure, renewCommercial, reviewCommercialRent, tenancyNotice, applyTribunal, hearing, enforcePossession, leaseOverview } from './lease-law.js';
 import { exchangePurchase, rescindContract, settlePurchase, contractReport, contractQuote } from './property-contracts.js';
 import { initialiseVehicles, motorReport, buyVehicle, serviceVehicle, refuelVehicle, renewRegistration, sellVehicle, motorDay } from './vehicles.js';
-import { initialiseTradeEducation, advanceTradeEducation } from './trade-education.js';
+import { initialiseTradeEducation, advanceTradeEducation, advanceTownTradeOperations } from './trade-education.js';
 import { MAYOR_CANDIDATES, createGovernment, civicElection, castCivicVote, submitRequest, requestFeeder, proposeMotion, councilMeeting, advanceCivicWork, budgetRevenue, restoreCivic, govSummary, maintainServices } from './government.js';
 // Town life simulation: the clock, farms, the mill and bakery, shops, trucks, the post,
 // and villagers with jobs, hunger, pantries, wallets and daily routines. Pure logic (no
@@ -481,6 +481,7 @@ export class TownLife {
     const hourly = Math.floor(before / 60) !== Math.floor(this.minute / 60) || this.minute < before;
     if (hourly) { this.everyHour(); advanceTradeEducation(this); }
     advanceNeeds(this,minutes);
+    advanceTownTradeOperations(this,minutes);
     advanceEmergency(this);
     for (const o of readyOrders(this)) this.collectOrder(o);
     for (const v of this.villagers) this.liveVillager(v, minutes);
