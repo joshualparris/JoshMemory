@@ -85,7 +85,18 @@ async function play(kind,options) {
   // Visual acceptance: both new workplaces must exist in the rendered town,
   // load without errors, show their own machinery and have approachable controls.
   for(const [site,minControls] of [['soyfarm',4],['soyplant',7]]){
-    assert(await page.evaluate(id=>window.__town.enterShop(id),site),kind+': cannot enter '+site);
+    // The crop farm and processing plant have separate staff shifts. Wait for
+    // the real worker to reach the site before asking the door to open.
+    await page.evaluate(()=>window.__town.life?.setTime?.(8*60));
+    let access=null;
+    for(let attempt=0;attempt<27;attempt++){
+      access=await page.evaluate(id=>window.__town.facilityState?.(id)||null,site);
+      if(access?.allowed)break;
+      await page.evaluate(()=>window.__town.advanceSimulation?.(10));
+    }
+    rec.steps.push({action:'staffing-'+site,access});
+    assert(access?.allowed,kind+': '+site+' is not staffed for entry: '+JSON.stringify(access));
+    assert(await page.evaluate(id=>window.__town.enterShop(id),site),kind+': staffed '+site+' denied entry: '+JSON.stringify(access));
     await page.waitForFunction(()=>window.__town.state().mode==='house'&&window.__town.state().calls>0,null,{timeout:15000});
     const state=await page.evaluate(()=>window.__town.state());
     const equipment=state.interactables.filter(i=>i.do==='soy-action');
