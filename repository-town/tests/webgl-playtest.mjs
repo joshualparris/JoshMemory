@@ -68,11 +68,21 @@ async function play(kind,options) {
   assert(await launch.isVisible(),kind+': Ask AI did not return after closing the menu');
 
 
-  // Actual keyboard motion, not a teleport: player position must change.
-  await page.keyboard.down('w');await page.waitForTimeout(950);await page.keyboard.up('w');
+  // Test the real input path: keyboard on desktop, canvas joystick touch on
+  // Android. A focused Guide close button legitimately ignores keyboard W.
+  if(kind==='mobile'){
+    const cdp=await context.newCDPSession(page);
+    const {width,height}=page.viewportSize(),x=width*.2,y=height*.7;
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y,id:1}]});
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x,y:y-45,id:1}]});
+    await page.waitForTimeout(1300);
+    await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+  }else{
+    await page.keyboard.down('w');await page.waitForTimeout(950);await page.keyboard.up('w');
+  }
   const after=await page.evaluate(()=>window.__town.state());
   const origin=rec.steps[0].state.pos;
-  assert(Math.hypot(origin.x-after.pos.x,origin.z-after.pos.z)>.05,kind+': keyboard walking did not move the player');
+  assert(Math.hypot(origin.x-after.pos.x,origin.z-after.pos.z)>.05,kind+': real movement controls did not move the player');
   await shot('02-after-walking');
   // A fixed 180-minute jump is NOT proof the café has a worker on site:
   // the 61-person town has actual commutes, breaks and counter attendance.
