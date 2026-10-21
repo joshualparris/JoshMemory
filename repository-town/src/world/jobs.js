@@ -43,7 +43,7 @@ const doneToday = (life) => (jobs(life).done[life.day] || []);
 export function startJob(life, id) {
   const j = jobs(life), def = byId(id), site = def && life.place(def.site);
   if (!def) return { ok: false, message: 'Unknown job.' };
-  if (current(life)) return { ok: false, message: 'Finish or cancel your current shift first.' };
+  if (current(life)) { const a=current(life); const workplace=life.place(a.site); return { ok:false, message:'You are already working at '+(workplace?.name||a.site)+'. Finish that shift there, or cancel it from any workplace job panel first.' }; }
   if (doneToday(life).includes(id)) return { ok: false, message: 'You already did that shift today.' };
   if (doneToday(life).length >= MAX_SHIFTS_PER_DAY) return { ok: false, message: `You can work ${MAX_SHIFTS_PER_DAY} shifts a day.` };
   if (!life.open(site)) return { ok: false, message: `${site.name} is closed right now.` };
@@ -88,8 +88,8 @@ export function finishJob(life) {
   let paid = 0;
   if (place && !['hall', 'school', 'clinic', 'post', 'depot', 'square'].includes(place.id) && place.till > 0) { paid = Math.min(def.pay, Math.floor(place.till)); place.till -= paid; }
   const rest = Math.min(def.pay - paid, Math.floor(c.treasury)); c.treasury -= rest; paid += rest;
+  if (paid <= 0) return { ok: false, message: 'The employer cannot pay wages today. Your completed shift remains active until payment is available.' };
   j.active = null;
-  if (paid <= 0) return { ok: false, message: 'The employer cannot pay wages today. The shift is not lost; try again tomorrow.' };
   c.player.wallet += paid;
   const tax = withholdVisitor(life, paid);
   j.done[life.day] = [...doneToday(life), def.id];
