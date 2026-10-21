@@ -658,7 +658,7 @@ async function start() {
           const n=life.needsReport();
           openPanel({title:'Railway Hotel · '+thing.label,
             body:'<p>'+esc(n.booking?'You have a booking for room '+n.booking.room+'.':'You need a room key from hotel reception first.')+'</p>'+
-              '<p>Sleep in your allocated room. Time, deliveries, wages and village routines continue overnight.</p>',
+              '<p>Daytime use is a two-hour nap that reduces fatigue; from 18:00 you sleep until 06:00. Town routines continue while you rest.</p>',
             actions:[{label:'Sleep in this bed',run:()=>{
               const msg=life.sleepHotel(room),p=needsPanel(life);
               return {...p,body:'<p><b>'+esc(msg)+'</b></p>'+p.body};
@@ -669,7 +669,7 @@ async function start() {
           const accessible=parcel&&((life.civic.property.playerLease==='H:'+home&&parcel.tenant==='visitor')||(parcel.owner==='visitor'&&(!parcel.tenant||parcel.tenant==='visitor')));
           if(accessible){
             openPanel({title:'Your home · '+thing.label,
-              body:'<p>You have the right to occupy this home. Sleep here overnight without paying hotel charges; normal town bills and activity continue.</p>',
+              body:'<p>You have the right to occupy this home. Take a two-hour daytime nap or sleep until 06:00 overnight without hotel charges; normal town bills and activity continue.</p>',
               actions:[{label:'Sleep in your own bed',run:()=>{const msg=life.sleepHome(home),p=needsPanel(life);return {...p,body:'<p><b>'+esc(msg)+'</b></p>'+p.body};}}]},thing);
           }else{
             openPanel({title:'Someone else’s bed',
