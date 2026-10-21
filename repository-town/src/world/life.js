@@ -1231,12 +1231,10 @@ export class TownLife {
         if (meal) { this.eat(v, meal[0], meal[1]); lunch = this.goThen(v, this.place('square').front, { kind: 'idle', dur: 30, activity: `eating ${meal[0]} in the Market Square` }); }
         else lunch = this.goThen(v, this.place('bakery').front, { kind: 'snack', at: 'bakery', good: 'pie', dur: 15, activity: 'buying a pie for lunch' });
       }
-      // Anyone who finishes after the shops' staff go home does the grocery run on their lunch break
-      // and takes the bags home after work.
-      if (v.end >= 16 * 60 + 30 && !v.doneToday.shopping) {
-        const errands = this.shopStops(v, this.shoppingList(v));
-        if (errands.length) { v.doneToday.shopping = true; v.queue = errands; }
-      }
+      // Mid-shift shopping trips previously kept the only cashier off-site well
+      // beyond their lunch break (the 13:15 General Store closure). Do not append
+      // grocery errands to a working employee's queue: after their meal they
+      // return to their own counter, and shop after clocking off instead.
       return lunch;
     }
     // After work: shopping when the pantry is low, then dinner, then the evening.
