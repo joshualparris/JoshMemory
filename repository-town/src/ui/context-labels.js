@@ -3,7 +3,7 @@ import * as THREE from 'three';
 // The HUD already describes the closest usable object. World-space nameplates
 // are secondary: at most one short label, directly ahead, and never through walls.
 // This policy also covers NPC tags nested inside moving character groups.
-export function focusInteriorLabels(root, { target, player, forward, modal = false, canSee = () => true }) {
+export function focusInteriorLabels(root, { target, player, forward, modal = false, currentRoom = null, canSee = () => true }) {
   const at = new THREE.Vector3();
   let best = null, bestScore = Infinity;
   const dx = target ? target.x - player.x : 0;
@@ -16,7 +16,7 @@ export function focusInteriorLabels(root, { target, player, forward, modal = fal
     sprite.visible = false;
     // Long workstation descriptions belong in the bottom action prompt, not
     // large floating billboards that obscure other customers or furniture.
-    if (!focused || sprite.userData.labelKind !== 'interactive' || sprite.userData.text.length > 24) return;
+    if (!focused || (currentRoom != null && sprite.userData.labelRoom != null && sprite.userData.labelRoom !== currentRoom) || sprite.userData.labelKind !== 'interactive' || sprite.userData.text.length > 24) return;
     if (sprite.getWorldPosition) sprite.getWorldPosition(at);
     else at.copy(sprite.position);
     const offset = Math.hypot(at.x - target.x, at.z - target.z);
