@@ -138,5 +138,9 @@ export function installBakeryImmersion(built,life,camera,makeLabel){
   });
   parcel.visible=!!s.order;
  }
- return {act,update};
+ function dispose(){
+  camera.remove(hands);
+  hands.traverse(o=>{o.geometry?.dispose();if(o.material?.dispose)o.material.dispose();});
+ }
+ return {act,update,dispose};
 }
