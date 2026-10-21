@@ -32,7 +32,7 @@ assert.equal(timeText(1440), '00:00');
 }
 
 const t = new TownLife({ homes, minute: 7 * 60 });
-assert.equal(t.villagers.length, 38);
+assert.equal(t.villagers.length, 61);
 run(t, 120);
 assert.equal(t.time(), '09:00');
 assert.ok(t.civic.supply.ok && t.civic.supply.power >= t.civic.supply.powerDemand, 'the grid powers the town');
@@ -87,7 +87,7 @@ assert.ok(t.civic.government.elections[0].roll.length>0,'real villagers voted');
 const copy = new TownLife({ homes });
 copy.restore(JSON.parse(JSON.stringify(t.snapshot())));
 assert.equal(copy.day, t.day); assert.equal(copy.civic.player.wallet, t.civic.player.wallet); assert.equal(Math.round(copy.civic.treasury), Math.round(t.civic.treasury));
-console.log(`PASS: town simulation — 38 villagers, utilities, bag and bank, council, elections (mayors ${[...mayors].join(', ')}), 14 stable days (worst ${minMeals} meals), restore`);
+console.log(`PASS: town simulation — 61 villagers, utilities, bag and bank, council, elections (mayors ${[...mayors].join(', ')}), 14 stable days (worst ${minMeals} meals), restore`);
 
 // Brakes must look down a new road segment after turning, not behind the vehicle.
 {
