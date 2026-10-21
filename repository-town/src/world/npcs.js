@@ -389,7 +389,7 @@ const FIGURE_LIMB = new THREE.CylinderGeometry(.52, .63, 1, 7);
 // Pivot positions stay compatible with existing walking, seating and interaction code.
 export function makePerson(seed, shirt, trousers) {
   const g = new THREE.Group();
-  const skin = SKIN[Math.abs(seed) % SKIN.length], hair = HAIR[(Math.abs(seed) >> 2) % HAIR.length];
+  const skin = SKIN[Math.abs(seed) % SKIN.length], hair = HAIR[Math.floor(Math.abs(seed) / 4) % HAIR.length];
   const outfit = new THREE.Group(); outfit.userData.isOutfit = true; g.add(outfit);
   const pelvis = part(BALL, shirt, .195, .15, .14, 0, .965, 0, outfit);
   part(FIGURE_TORSO, shirt, 1, 1, 1, 0, .95, 0, outfit);
@@ -458,7 +458,7 @@ export function pose(p, dt, t, moving, faceForward = moving) {
     p.elbows[1].rotation.x = ease(p.elbows[1].rotation.x, moving ? .10 : 0);
   }
   if (faceForward) p.head.rotation.y = ease(p.head.rotation.y, 0);
-  else p.head.rotation.y = Math.sin(t * 0.7 + p.phase) * 0.5;
+  else p.head.rotation.y = Math.sin(t * 0.7 + phase) * 0.5;
 }
 
 // Shared walking behaviour: follow waypoints, pause, look around; stop for the player.
