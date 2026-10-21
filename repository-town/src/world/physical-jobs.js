@@ -5,7 +5,7 @@ import { JOB_BOARD } from './jobs.js';
 // The stage is stored on the current paid shift, not on a disposable popup.
 const STATIONS={
   store:[[-4.45,-2.6],[1.25,2.45],[4.55,-3.5]],
-  bakery:[[-3.1,-2.5],[0.8,-2],[3.2,-3.1]],
+  bakery:[[-3.0,-1.7],[0.1,-1.7],[3.0,-1.7]],
   garden:[[-3.3,-2.5],[0.2,-2.4],[3.3,-2.5]],
   depot:[[-3.2,-2.4],[0.4,-2.6],[3.3,-2.5]],
   post:[[-3,-2.5],[0,-2.4],[3.1,-2.5]],
@@ -16,8 +16,8 @@ const CAPTIONS={
   'refill-shelves':['Take box from delivery trolley','Put goods on lower shelf','Fill upper shelf'],
   'count-stock':['Count left-hand shelf','Count right-hand shelf','Record the inventory'],
   'wash-hands':['Turn on handwash tap','Wash hands','Dry hands'],
-  'prep-bench':['Clean preparation bench','Lay out trays','Prepare dough'],
-  cooling:['Check hot trays','Move tray onto rack','Pack cooled bread'],
+  'prep-bench':['Sanitise the preparation bench','Check recipe and measure flour','Mix, knead and shape dough onto trays'],
+  cooling:['Check rack space and protect hot trays','Move cooled demonstration loaves to the rack','Bag and correctly label the bread'],
   'water-plants':['Fill watering can','Water first crop row','Water second crop row'],
   'weed-beds':['Pull weeds from bed one','Clear bed two','Put weeds in green bin'],
   'pack-produce':['Pick produce','Fill crate','Stack packed crate'],
@@ -45,8 +45,16 @@ export function installPhysicalJobs(built,site,makeLabel,life){
    const [x,z]=stations[index],g=new THREE.Group();
    g.position.set(x,0,z);root.add(g);
    // A small equipment trolley with physical products that change as work progresses.
-   cube(g,0x554b40,.92,.72,.62,0,.36,0);
+   cube(g,site.id==='bakery'?0xa3b0b5:0x554b40,.92,.72,.62,0,.36,0);
    cube(g,0xd6b780,.98,.10,.68,0,.76,0);
+   if(site.id==='bakery'){
+     // Distinct equipment: blue handwash basin, steel flour bench, golden cooling rack.
+     const equipment=[0x4a9dbb,0xe2dac3,0xd29a4f][index];
+     cube(g,equipment,.79,.08,.45,0,.86,0);
+     if(index===0)cube(g,0xd9eef0,.16,.25,.16,.30,1.03,-.12);
+     if(index===1)cube(g,0xe9dfc7,.32,.09,.25,-.20,1.05,0);
+     if(index===2)for(const h of [.32,.52])cube(g,0x999c9d,.86,.035,.51,0,h,.02);
+   }
    const pieces=[];
    for(let n=0;n<3;n++){
      const isStore=site.id==='store',colour=isStore?([0xb88945,0x4c8d65,0x477ba2][n]):[0xc18c53,0x8aaf77,0x9f9d87][n];
@@ -83,6 +91,11 @@ export function usePhysicalJob(life,task){
  if(!def?.tasks.includes(task))return {ok:false,message:'This station is not part of your current shift.'};
  if(shift.tasks.includes(task))return {ok:false,message:'This duty has already been completed.'};
  const stage=shift.progress?.[task]||0,steps=CAPTIONS[task]||[];
+ if(shift.site==='bakery'){
+   if(task==='prep-bench'&&!shift.tasks.includes('wash-hands'))return {ok:false,message:'Wash and dry your hands at the basin before handling dough.'};
+   if(task==='cooling'&&!shift.tasks.includes('prep-bench'))return {ok:false,message:'Prepare the demonstration trays first. Hot trays must not be handled without supervision.'};
+   if(task==='prep-bench'&&stage===1&&(life.place('bakery')?.stock?.flour||0)<1)return {ok:false,message:'No flour available. The Mill must deliver a flour bag before you can prepare a batch.'};
+ }
  if(stage<2){
    // Actual task state belongs to the shift, and persists in the save.
    const active=life.civic.jobs.active;active.progress??={};
@@ -91,6 +104,18 @@ export function usePhysicalJob(life,task){
  }
  const r=life.doTask(task);
  if(r.ok){
+   if(task==='prep-bench'&&shift.site==='bakery'){
+     const bakery=life.place('bakery');
+     if((bakery.stock.flour||0)<1)return {ok:false,message:'The bakery needs a flour delivery.'};
+     bakery.stock.flour-=1;
+     life.civic.jobs.active.bakeryTrainingBatch={flourUsed:1,trays:2,packed:false};
+   }
+   if(task==='cooling'&&shift.site==='bakery'&&life.civic.jobs.active.bakeryTrainingBatch){
+     life.civic.jobs.active.bakeryTrainingBatch.packed=true;
+     // This shift produces practice loaves, not instantly saleable bread: the
+     // separate supervised mixer / proof / oven chain handles actual baking.
+     r.message='Demonstration batch packed and correctly labelled. Saleable bread requires proofing and oven time. '+r.message;
+   }
    life.civic.jobs.active.progress??={};
    life.civic.jobs.active.progress[task]=3;
    if(task==='refill-shelves'){
