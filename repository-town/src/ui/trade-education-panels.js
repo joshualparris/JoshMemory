@@ -1,6 +1,6 @@
 import { HARDWARE,REPAIR_TYPES,QUALIFICATIONS,TRADE_STAFF,
  tradeEducationReport,repairQuote,orderRepair,acceptRepair,cancelRepair,
- buyHardware,enrolQualification } from '../world/trade-education.js';
+ buyHardware,enrolQualification,bookHardwareDelivery,attendPlacement,sitAssessment,applyTownTradeLicence } from '../world/trade-education.js';
 import { esc } from './interactions.js';
 
 const money=n=>'$'+Math.round(n);
@@ -23,8 +23,16 @@ export function tradeEducationPanel(life,place){
   body+='<h3>Central West Hardware & Timber</h3><p>Supplier of framing timber, plumbing components, electrical goods, fasteners, coatings and workshop parts. Each sale removes physical stock and transfers money to the supplier.</p>';
   body+=rows(Object.entries(HARDWARE).map(([id,v])=>[v.name, money(v.price)+' each · '+(state.stock[id]||0)+' in stock']));
   body+='<p><b>Hardware till:</b> '+money(state.hardwareCash)+'</p>';
-  if(open)for(const [id,g] of Object.entries(HARDWARE))
+  if(open)for(const [id,g] of Object.entries(HARDWARE)){
    actions.push(btn('Buy '+g.name+' · '+money(g.price),life,place,()=>buyHardware(life,id)));
+   if((state.stock[id]||0)<g.initial/2)
+    actions.push(btn('Order 5 '+g.name+' from supplier',life,place,()=>bookHardwareDelivery(life,id,5)));
+  }
+  const shipments=(state.deliveries||[]).slice(-6);
+  if(shipments.length)body+='<h3>Inbound stock and supplier invoices</h3>'+
+    rows(shipments.map(d=>[d.id+' · '+HARDWARE[d.item].name,
+      d.count+' units · '+d.status+' · '+money(d.cost)+' wholesale'+
+      (d.vehicle?.pos?' · van ('+Math.round(d.vehicle.pos.x)+', '+Math.round(d.vehicle.pos.z)+')':'')]));
  }else if(place==='trades'){
   body+='<h3>Town Trades & Maintenance</h3><p>Fault → logged ticket → written quote → insured/licensed trade check → finite materials → dispatch → work → documented test and sign-off.</p>';
   body+=rows(TRADE_STAFF.map(v=>[v.name,v.job+' · '+(v.licence||('supervised by '+(v.supervisor||'qualified trainer')))]));
@@ -35,14 +43,19 @@ export function tradeEducationPanel(life,place){
   if(jobs.length){
    body+='<h3>Work orders</h3>'+rows(jobs.map(o=>{
     const q=repairQuote(o.type);
-    return [o.id+' · '+q.label,o.status+' · '+(TRADE_STAFF.find(v=>v.id===o.worker)?.name||'awaiting acceptance')+(o.paid?' · paid '+money(o.paid):' · quote '+money(q.total))];
+    return [o.id+' · '+q.label+' @ '+esc(o.field?.siteName||life.place(o.siteId)?.name||'worksite'),o.status+' · '+(TRADE_STAFF.find(v=>v.id===o.worker)?.name||'awaiting acceptance')+' · '+(o.field?.phase||'waiting')+(o.paid?' · paid '+money(o.paid):' · quote '+money(q.total))];
    }));
    for(const o of jobs){
     if(o.status==='quoted')actions.push(btn('Accept quote '+o.id+' · '+money(repairQuote(o.type).total),life,place,()=>acceptRepair(life,o.id)));
     if(['quoted','assigned'].includes(o.status))actions.push(btn('Cancel '+o.id,life,place,()=>cancelRepair(life,o.id)));
    }
   }
-  body+='<p class="dim">Contractors are registered as approved fictional town providers. Licences are separate from trade certificates. This first release models trade dispatch and sign-off economically; driving/onsite animations are not yet represented.</p>';
+  body+='<p class="dim">Crews now load tools, drive the mapped High Street route, assess site hazards, work and inspect before returning. Licence checks are simulated, never real NSW authorisation.</p>';
+  body+='<h3>Apprentice logbooks</h3>'+rows(Object.values(state.apprentices||{}).map(a=>[a.name,a.trade+' · '+a.hours+' supervised hours · '+a.units.length+' signed job entries']));
+  if(state.activeCourse?.id==='electro3'||state.activeCourse?.id==='plumb3')
+   actions.push(btn('Log supervised workplace placement',life,place,()=>attendPlacement(life)));
+  for(const trade of ['electrical','plumbing'])
+   actions.push(btn('Apply for town '+trade+' licence review',life,place,()=>applyTownTradeLicence(life,trade)));
  }else{
   const provider=place==='school'?'school':place;
   body+='<h3>'+esc(p.name)+'</h3>';
@@ -59,7 +72,17 @@ export function tradeEducationPanel(life,place){
   }
   if(state.activeCourse){
    const q=QUALIFICATIONS.find(x=>x.id===state.activeCourse.id);
-   body+='<h3>Current enrolment</h3><p>'+esc(q.title)+' · '+state.activeCourse.days+'/'+q.days+' attendance and assessment days completed. Study progresses at the 15:00 class/assessment window, not instantly.</p>';
+   body+='<h3>Current enrolment</h3><p>'+esc(q.title)+' · '+state.activeCourse.days+'/'+q.days+
+   ' class attendances recorded. To earn credit, be inside '+esc(life.place(q.provider).name)+
+   ' at 15:00 on a teaching day. A separate final competency assessment is required.</p>';
+   if(state.activeCourse.assessmentPending&&q.provider===provider){
+    body+='<p><b>Assessment available:</b> choose the sound response to a safety, research or evidence question.</p>';
+    for(const [answer,label] of [['safety','Safety first: identify hazards, isolate where required and follow approved procedures'],
+      ['evidence','Use reproducible measurements and properly referenced evidence'],
+      ['sources','Cross-check sources and provide a reasoned written answer'],
+      ['guess','Guess without checking or following safety procedures']])
+     actions.push(btn('Assessment: '+label,life,place,()=>sitAssessment(life,answer)));
+   }
   }
   body+='<p><b>Completed town qualifications:</b> '+(state.qualifications.map(id=>esc(QUALIFICATIONS.find(q=>q.id===id)?.title||id)).join('; ')||'None yet')+'</p>';
  }

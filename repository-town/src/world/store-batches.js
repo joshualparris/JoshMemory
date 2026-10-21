@@ -70,7 +70,7 @@ export function tickStoreBatches(t){
 // A truck has just unloaded at the General Store (life.js truckArrived adds the stock first): record
 // the invoiced lot with its real supplier and cost. Chilled loads wait on the dock for a probe.
 // Whole degrees from the arrival minute (the town clock runs in fractional minutes).
-export function deliveryTemp(t,good,n){const h=(Math.floor(t.day*1440+t.minute)*31+good.length*17+n*7)%97;return h<16?6+(h%4):2+(h%3);}
+export function deliveryTemp(t,good,n){const h=(Math.floor(t.day*1440+t.minute)*31+good.length*17+n*7)%97;return h<6?6+(h%4):2+(h%3);}
 export function noteStoreDelivery(t,good,n,from,paid){
  if(!(good in shelfLife)||!n)return null;
  const stock=t.place('store').stock;stock[good]-=n;const s=storeBatches(t);stock[good]+=n;

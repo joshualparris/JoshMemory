@@ -1,3 +1,4 @@
+import { initTradeOperations,worksite,advanceFieldRepairs,advanceHardwareShipments,orderHardwareShipment } from './trade-operations.js';
 // NSW-inspired town trades and education. All money/durations are fictional
 // and compressed for playability; awards and licences are NOT real credentials.
 // This module never bypasses the existing council network repair system.
@@ -50,13 +51,13 @@ function pay(me,amount){
  me.wallet=round(me.wallet-cash);me.bank=round(me.bank-(amount-cash));return true;
 }
 export function initialiseTradeEducation(life){
- if(life.civic.tradeEducation?.version===1)return life.civic.tradeEducation;
+ if(life.civic.tradeEducation?.version===1)return initTradeOperations(life,life.civic.tradeEducation);
  life.civic.tradeEducation={
   version:1,next:1,hardwareCash:440,contractorCash:520,
   stock:Object.fromEntries(Object.entries(HARDWARE).map(([id,g])=>[id,g.initial])),
   orders:[],receipts:[],qualifications:[],activeCourse:null,lastStudyDay:0
  };
- return life.civic.tradeEducation;
+ return initTradeOperations(life,life.civic.tradeEducation);
 }
 export function tradeEducationReport(life){return initialiseTradeEducation(life);}
 export function repairQuote(id){
@@ -69,7 +70,8 @@ export function orderRepair(life,id){
  const t=initialiseTradeEducation(life),q=repairQuote(id);
  if(!q)return 'Unknown repair type.';
  if(t.orders.some(o=>o.type===id&&!['completed','cancelled'].includes(o.status)))return 'There is already an open ticket for that fault.';
- const ticket={id:'R-'+String(t.next++).padStart(3,'0'),type:id,status:'quoted',day:life.day,paid:0,progress:0,inspection:q.inspection,worker:null};
+ const site=worksite(life,id);
+ const ticket={id:'R-'+String(t.next++).padStart(3,'0'),type:id,siteId:site?.id||null,status:'quoted',day:life.day,paid:0,progress:0,inspection:q.inspection,worker:null};
  t.orders.push(ticket);t.orders=t.orders.slice(-40);
  return `Fault report ${ticket.id} registered. Written quote $${q.total} includes inspection $${q.inspection}, parts $${q.materialsCost}, labour $${q.labour}. Accept the quote to book work.`;
 }
@@ -118,38 +120,81 @@ export function enrolQualification(life,id){
  if(t.qualifications.includes(id))return 'Already completed this qualification.';
  if(q.requires&&!t.qualifications.includes(q.requires))return 'Entry requirement: '+QUALIFICATIONS.find(x=>x.id===q.requires).title+'.';
  if(!pay(life.civic.player,q.fee))return 'Insufficient funds for $'+q.fee+' tuition.';
- t.activeCourse={id,days:0,startDay:life.day,lastDay:0};
+ t.activeCourse={id,days:0,startDay:life.day,lastDay:0,assessmentPending:false,assessmentAttempts:0,attendance:[]};
  t.hardwareCash=round(t.hardwareCash+(q.provider==='tafe'?q.fee:0));
  t.contractorCash=round(t.contractorCash+(q.provider==='university'?q.fee:0));
  life.log('Enrolled in '+q.title+'.');
  return 'Enrolled in '+q.title+'. Classes and assessments require '+q.days+' in-game study days. This is an in-game award, not a real credential.';
 }
+// Physical freight deliveries draw either from the Foundry's existing parts
+// or from paid off-town suppliers; no infinite automatic warehouse stock.
+export function bookHardwareDelivery(life,item,count=5){
+ const t=initialiseTradeEducation(life);
+ return orderHardwareShipment(life,t,item,count,HARDWARE);
+}
+export function advanceTownTradeOperations(life,minutes){
+ const t=initialiseTradeEducation(life);
+ advanceHardwareShipments(life,t,minutes);
+ advanceFieldRepairs(life,t,minutes,TRADE_STAFF,repairQuote);
+}
+const completionAnswer=(q)=>q.provider==='school'?'sources':q.provider==='university'?'evidence':'safety';
+export function attendPlacement(life){
+ const t=initialiseTradeEducation(life),c=t.activeCourse,q=QUALIFICATIONS.find(v=>v.id===c?.id);
+ if(!q?.apprenticeship)return 'Enrol in Certificate III apprenticeship training first.';
+ if(life.playerAt!=='trades')return 'Attend Town Trades & Maintenance in person with the trade supervisor.';
+ if(life.minute<8*60||life.minute>=17*60)return 'Supervised placement runs 08:00–17:00.';
+ if(t.playerPlacement.lastDay===life.day)return 'One supervised placement shift per town day.';
+ const trade=q.id==='electro3'?'electrical':'plumbing',lead=TRADE_STAFF.find(v=>v.trade===trade&&v.qualified&&v.licence);
+ if(!lead)return 'No licensed supervisor on shift.';
+ t.playerPlacement.lastDay=life.day;
+ t.playerPlacement[trade]=(t.playerPlacement[trade]||0)+3;
+ t.playerPlacement.verified.push({day:life.day,trade,hours:3,supervisor:lead.name,assessment:'toolbox talk, workplace hazards and supervised practice'});
+ t.playerPlacement.verified=t.playerPlacement.verified.slice(-90);
+ return 'Logged 3 hours of supervised '+trade+' practical work with '+lead.name+'.';
+}
+export function sitAssessment(life,answer){
+ const t=initialiseTradeEducation(life),c=t.activeCourse,q=QUALIFICATIONS.find(v=>v.id===c?.id);
+ if(!c||!q||!c.assessmentPending)return 'Complete all scheduled teaching sessions first.';
+ if(life.playerAt!==q.provider)return 'Attend '+life.place(q.provider).name+' for your assessment.';
+ c.assessmentAttempts=(c.assessmentAttempts||0)+1;
+ if(answer!==completionAnswer(q))return 'Assessment not passed. Review safe practice and evidence; you may try again.';
+ if(q.apprenticeship){
+  const trade=q.id==='electro3'?'electrical':'plumbing';
+  if((t.playerPlacement[trade]||0)<12)return 'You need 12 documented supervised placement hours before assessment sign-off.';
+ }
+ t.qualifications.push(q.id);t.activeCourse=null;
+ t.receipts.unshift({day:life.day,text:'Coursework and competency assessment completed: '+q.title+' (fictional town award)'});
+ life.log('Graduation at '+life.place(q.provider).name+': '+q.title+'. No NSW occupational licence has been issued.');
+ return 'Passed the final assessment. '+q.title+' recorded in your town transcript; a licence is a separate application.';
+}
+export function applyTownTradeLicence(life,trade){
+ const t=initialiseTradeEducation(life),qid=trade==='electrical'?'electro3':trade==='plumbing'?'plumb3':null;
+ if(!qid)return 'Only electrical and plumbing applications are simulated.';
+ if(!t.qualifications.includes(qid))return 'Complete the relevant Certificate III and practical assessment first.';
+ if((t.playerPlacement[trade]||0)<12)return 'Insufficient verified supervised work experience.';
+ if(t.licences[trade])return 'Application already submitted or granted.';
+ if(!pay(life.civic.player,35))return 'The fictional regulator charges a $35 processing fee.';
+ t.regulatorCash=(t.regulatorCash||0)+35;
+ t.licences[trade]={status:'under-review',submitted:life.day,reviewDay:life.day+2,trade};
+ return 'Fictional '+trade+' licence application submitted for review; no permission granted yet.';
+}
 export function advanceTradeEducation(life){
  const t=initialiseTradeEducation(life),course=t.activeCourse;
- // Advance at a single daily training/assessment window, not every frame.
- if(course&&life.minute>=15*60&&life.minute<16*60&&course.lastDay!==life.day){
+ // Class credit requires the actual player at the correct institution during
+ // its teaching window. One recorded attendance per day; no remote auto-grading.
+ if(course&&life.minute>=15*60&&life.minute<16*60&&course.lastDay!==life.day&&
+     life.playerAt===QUALIFICATIONS.find(q=>q.id===course.id)?.provider){
   course.days++;course.lastDay=life.day;
-  const q=QUALIFICATIONS.find(x=>x.id===course.id);
-  if(course.days>=q.days){
-   t.qualifications.push(q.id);t.activeCourse=null;
-   t.receipts.unshift({day:life.day,text:'Passed simulated coursework and practical assessment: '+q.title});
-   life.log('Completed the town simulation of '+q.title+'. No real licence issued.');
+  course.attendance||=[];
+  course.attendance.push({day:life.day,site:life.playerAt,session:'guided lesson, tutorial and workshop'});
+  const q=QUALIFICATIONS.find(q=>q.id===course.id);
+  if(course.days>=q.days){course.assessmentPending=true;life.log(q.title+' teaching complete; final competency assessment is available at '+life.place(q.provider).name+'.');}
+ }
+ for(const [trade,application] of Object.entries(t.licences||{})){
+  if(application.status==='under-review'&&life.day>=application.reviewDay){
+   const q=trade==='electrical'?'electro3':'plumb3';
+   application.status=t.qualifications.includes(q)&&(t.playerPlacement[trade]||0)>=12?'approved-town-only':'rejected';
+   life.log('Town licensing office reviewed '+trade+' application: '+application.status+'. This is a fictional game credential.');
   }
  }
- for(const o of t.orders){
-  if(o.status==='assigned'){o.status='in-progress';continue;}
-  if(o.status!=='in-progress')continue;
-  const q=repairQuote(o.type);o.progress++;
-  if(o.progress<q.hours)continue;
-  const staff=TRADE_STAFF.find(x=>x.id===o.worker);
-  if(!staff?.qualified||(q.trade!=='it'&&!staff.licence)){
-   o.status='inspection-hold';continue;
-  }
-  o.status='completed';o.completedDay=life.day;o.signedOffBy=staff.id;
-  t.contractorCash=round(t.contractorCash+o.escrow);o.escrow=0;
-  t.receipts.unshift({day:life.day,text:o.id+' completed and checked by '+staff.name+', '+q.risk});
-  life.stats.repairs=(life.stats.repairs||0)+1;
-  life.log('Repair '+o.id+' completed by '+staff.name+'; inspection signed off.');
- }
- t.receipts=t.receipts.slice(0,30);
 }

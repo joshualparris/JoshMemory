@@ -78,4 +78,20 @@ assert.equal(restored.civic.player.wallet+restored.civic.player.bank+billed,spen
 assert.equal(restored.civic.player.hotelBooking,null);
 assert(restored.day>=before);
 assert.equal(restored.needsReport().rooms,4);
+assert.equal(restored.time(),'06:00','overnight rest must finish at 06:00, not stop after eight hours');
+// Regression: paid room 1 is usable at 14:00. Napping reduces fatigue,
+// advances town time, and does not surrender the room key prematurely.
+const afternoon=new TownLife({homes,minute:14*60,seed:20261020});
+afternoon.civic.player.wallet=80;
+afternoon.civic.player.fatigue=92;
+assert.match(afternoon.bookHotel(),/Room \d booked/);
+const room=afternoon.civic.player.hotelBooking.room;
+assert.match(afternoon.sleepHotel((room%4)+1),/key is for/,'only the booked guest bed is usable');
+const dayBefore=afternoon.day;
+const message=afternoon.sleepHotel(room);
+assert.match(message,/two-hour nap at the hotel/);
+assert.equal(afternoon.time(),'16:00','afternoon rest advances two hours');
+assert.equal(afternoon.day,dayBefore);
+assert(afternoon.civic.player.fatigue<=55,'92% fatigue must improve substantially after a nap');
+assert.equal(afternoon.civic.player.hotelBooking.room,room,'nap should preserve the paid room key');
 console.log('PASS: 188 homes with usable beds ('+addedBeds+' added), 4 hotel guest beds, persisted bookings, paid rest, hunger/food consumption, villager fatigue and sleep recovery');
