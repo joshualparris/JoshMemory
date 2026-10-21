@@ -182,7 +182,7 @@ const JOBS = [
   ['school librarian', 'school', 8 * 60, 15 * 60 + 30],
   ['plant reception and safety officer', 'soyplant', 7 * 60, 17 * 60],
   ['afternoon barista', 'cafe', 12 * 60, 16 * 60],
-  ['afternoon cashier', 'store', 12 * 60, 19 * 60],
+  ['afternoon cashier', 'store', 10 * 60, 20 * 60],
 ];
 // A shop with only one employee cannot genuinely remain open during that
 // employee's lunch or trips around town. Add real named relief workers, each
@@ -1140,7 +1140,7 @@ export class TownLife {
       const have = good==='soybeans'&&from==='soyfarm'?Math.max(0,(src.out[good]||0)-2):(src.out[good]||0), need = (dst.target?.[good] || 0) - (dst.stock[good] || 0);
       if (have < 3 || need < 3 || this.trucks.some((o) => o !== t && o.job?.to === to && o.job?.good === good)) continue;
       const score = need / (dst.target[good] || 1) + this.rand() * 0.1 + (['store','greengrocer','butcher'].includes(to) ? 0.12 : 0);
-      if (!best || score > best.score) best = { from, to, good, n: Math.min(30, have, need), score };
+      if (!best || score > best.score) best = { from, to, good, n: Math.min(40, have, need), score };
     }
     if (!best) { t.state = 'waiting for an order'; return; }
     t.job = best; t.state = `heading to the ${this.place(best.from).name} for ${GOODS[best.good].name}`;

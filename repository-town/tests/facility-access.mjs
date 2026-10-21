@@ -38,16 +38,16 @@ assert(RELIEF_SITES.includes('bank')&&RELIEF_SITES.includes('court')&&RELIEF_SIT
 // and attendance (never bypass entry checks or create decorative ghost staff).
 const lunchtime=new TownLife({homes,minute:9*60,seed:42});
 const noonSites=['store','bakery','cafe','bank','court','solicitor','soyfarm','soyplant','power','waterworks','sewage','clinic','post','hardware'];
+const lunchtimeFailures=[];
 for(const minute of [12*60+45,13*60+15,13*60+45]){
  while(lunchtime.minute<minute)lunchtime.tick(.5);
  for(const id of noonSites){
   const site=lunchtime.place(id),access=facilityAccess(lunchtime,site);
-  assert(access.allowed,id+' should admit visitors at '+lunchtime.time()+
-    ', not '+access.reason+': '+JSON.stringify(lunchtime.villagers.filter(v=>v.work===id).map(v=>({
-      name:v.name,step:v.step?.kind,at:v.step?.at,path:v.path.length
-    }))));
+  if(!access.allowed)lunchtimeFailures.push({id,time:lunchtime.time(),reason:access.reason,
+    staff:lunchtime.villagers.filter(v=>v.work===id).map(v=>({name:v.name,step:v.step?.kind,at:v.step?.at,path:v.path.length}))});
  }
 }
+assert.equal(lunchtimeFailures.length,0,'Unstaffed lunchtime entrances: '+JSON.stringify(lunchtimeFailures));
 const original=life.villagers.slice(0,38).map(v=>[v.name,v.home.coordinate]);
 const saved=life.snapshot();
 const old=structuredClone(saved);
