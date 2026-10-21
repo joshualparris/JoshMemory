@@ -60,6 +60,7 @@ export function createPlayerDriving(life,scene,collision,player,camera,input){
    return best;
  }
  function enter(v){
+   if(v?.workVehicle==='depot'&&life.civic.jobs?.active?.id!=='delivery-driver'&&!(life.civic.deliveryWork?.route?.registration===v.registration&&!life.civic.deliveryWork.route.returnedAt&&['loaded','completed'].includes(life.civic.deliveryWork.route.status)))return 'Start a depot delivery shift to use the employer van.';
    if(!v||active)return 'Get out before entering another vehicle.';
    if(life.day>v.regoUntil||!v.roadworthy||v.condition<60)return 'Registration or roadworthy expired; see Town Motor Workshop.';
    if((v.fuel||0)<=0)return 'Fuel tank empty. Buy fuel at High Street Motors.';

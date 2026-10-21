@@ -94,14 +94,14 @@ assert.equal(w2.economyReport().commonwealth, RATES.federalStart, 'older saves g
 t = make(); toDay(t, 2, 6); run(t, 30);
 const bk = t.place('bakery'); bk.stock.flour = 10; bk.out.bread = 0;
 for (const v of t.villagers) if (v.work === 'bakery') { v.step = { kind: 'work' }; v.path = []; }
-assert.ok(superviseBread(t, 'mix').ok, 'mix starts');
+t.playerAt='bakery';assert.ok(superviseBread(t,'wash').ok);assert.ok(superviseBread(t,'weigh',2000).ok);assert.ok(superviseBread(t, 'mix').ok, 'mix starts');for(let i=0;i<8;i++)assert.ok(superviseBread(t,'shape').ok);assert.ok(superviseBread(t,'proof').ok);
 assert.equal(bk.stock.flour, 8, 'two bags of flour used');
 assert.match(superviseBread(t, 'oven').message, /Proofing is still underway/);
 run(t, 41);
 assert.ok(superviseBread(t, 'oven').ok, 'oven after proofing');
 assert.match(superviseBread(t, 'unload').message, /baking/);
 run(t, 26);
-const before = bk.out.bread; assert.ok(superviseBread(t, 'unload').ok, 'unload');
+const before = bk.out.bread; assert.ok(superviseBread(t, 'unload').ok, 'unload');t.minute+=6;assert.ok(superviseBread(t,'pack').ok);
 assert.equal(bk.out.bread, before + 8, 'eight loaves added to the rack');
 assert.match(superviseBread(t, 'mix').message, /finished/, 'one batch a day');
 

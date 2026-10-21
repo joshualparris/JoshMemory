@@ -78,8 +78,8 @@ export function withhold(life, v, gross) {
 }
 
 // PAYG on the visitor's wages, taken from the wallet that was just paid.
-export function withholdVisitor(life, gross) {
-  const me = life.civic.player, amount = Math.floor(gross * RATES.paygPercent / 100);
+export function withholdVisitor(life, gross, priorGross = 0) {
+  const me = life.civic.player, amount = Math.floor(r2(priorGross + gross) * RATES.paygPercent / 100) - Math.floor(priorGross * RATES.paygPercent / 100);
   if (amount <= 0 || me.wallet < amount) return 0;
   const f = fin(life);
   me.wallet -= amount; f.federal = r2(f.federal + amount);
@@ -187,10 +187,13 @@ export function economyReport(life) {
   });
   const people = life.villagers.reduce((n, v) => n + v.wallet + (v.savings || 0), 0);
   const tills = [...life.places.values()].reduce((n, p) => n + p.till, 0);
+  const workEscrow=c.workContracts?.active?.escrow||0;
+  const visitorWageDebt=(c.jobs?.payroll?.slips||[]).reduce((n,s)=>n+Math.max(0,s.gross-s.paid),0);
   return {
+    workEscrow,visitorWageDebt,
     council: r2(c.treasury), commonwealth: f.federal, nsw: f.state, bank: cr.capital,
     people: Math.round(people), tills: Math.round(tills), visitor: Math.round(c.player.wallet + c.player.bank),
-    total: Math.round(people + tills + c.treasury + f.federal + f.state + cr.capital + c.player.wallet + c.player.bank),
+    total: Math.round(people + tills + c.treasury + f.federal + f.state + cr.capital + c.player.wallet + c.player.bank + workEscrow),
     rentArrears: f.rentArrears, powerArrears: f.powerArrears,
     daily: { ...f.daily }, lifetime: { ...f.lifetime },
     wageArrears: life.villagers.reduce((n, v) => n + (v.wageArrears || 0), 0),

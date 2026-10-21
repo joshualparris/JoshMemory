@@ -9,7 +9,7 @@ import { COUNTERS } from './counter-queue.js';
 // Share of each perishable shelf lost per day (stale, bruised or past its date). Whole units only,
 // so a small shelf of two or three doesn't lose anything.
 export const DAILY_LOSS = { bread: 0.15, pie: 0.25, milk: 0.05, lamb: 0.04, eggs: 0.02, veg: 0.08, fruit: 0.05 };
-export const CHILLED = ['milk', 'lamb'];
+export const CHILLED = ['milk', 'oatmilk', 'lamb'];
 export const COLD_LIMIT = 240;   // town minutes without power before chilled stock is unsafe
 
 const shelvesOf = (p) => [p.stock, p.out].filter(Boolean);
@@ -21,7 +21,7 @@ export function coldChainHour(life) {
   for (const id of COUNTERS) {
     const p = life.place(id);
     p.coldOff = powered ? 0 : (p.coldOff || 0) + 60;
-    if (p.coldOff !== COLD_LIMIT) continue;
+    if (p.coldOff < COLD_LIMIT) continue;
     const lost = [];
     for (const shelf of shelvesOf(p)) for (const g of CHILLED) if (shelf[g] > 0) { lost.push(`${shelf[g]} ${g}`); tossed += shelf[g]; shelf[g] = 0; }
     if (lost.length) life.log(`The ${p.name}'s cold room has been off for four hours: ${lost.join(' and ')} thrown out under the food-safety rule.`);

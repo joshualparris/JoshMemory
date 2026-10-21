@@ -1,3 +1,4 @@
+import {workAssetFault} from './occupation-work.js';
 import { shopService } from './shop-attendance.js';
 import { coldChainHour, shopWasteDay } from './cold-chain.js';
 import { COUNTERS, joinLine, tickCounter, placeOrder, readyOrders } from './counter-queue.js';
@@ -51,6 +52,7 @@ export const AVENUES = [0, 5, 10, 15, 20, 25].map((c) => (c - 13) * LOT_X);
 export const FIELD_Z0 = ROAD(7) + 8, FIELD_Z1 = ROAD(7) + 34;  // farm strip south of street 8
 
 export const GOODS = {
+  oatmilk:{name:'Oat drink',unit:'bottle',price:4},
   grain: { name: 'grain', unit: 'bag', price: 2 },
   flour: { name: 'flour', unit: 'bag', price: 4 },
   bread: { name: 'bread', unit: 'loaf', price: 5 },
@@ -98,7 +100,7 @@ export const PLACE_DEFS = [
   { col: 'G', id: 'hall', name: 'Town Hall', kind: 'hall', opens: 9 * 60, closes: 17 * 60, target: { parts: 10 } },
   { col: 'H', id: 'store', name: 'General Store', kind: 'shop', sells: ['eggs', 'milk', 'flour', 'tea', 'coffee', 'bread'], opens: 7 * 60, closes: 19 * 60, target: { eggs: 20, milk: 20, flour: 10, tea: 10, coffee: 10, bread: 10 } },
   { col: 'I', id: 'bakery', name: 'Bakery', kind: 'shop', sells: ['bread', 'pie'], opens: 6 * 60, closes: 18 * 60, target: { flour: 12, eggs: 6, milk: 6, lamb: 6, veg: 6 } },
-  { col: 'J', id: 'cafe', name: 'Commit Café', kind: 'cafe', opens: 6 * 60 + 30, closes: 16 * 60, target: { bread: 10, eggs: 10, milk: 10, coffee: 6, veg: 6, pie: 6 } },
+  { col: 'J', id: 'cafe', name: 'Commit Café', kind: 'cafe', opens: 6 * 60 + 30, closes: 16 * 60, target: { bread: 10, eggs: 10, milk: 10, oatmilk:6, coffee: 6, tea:6, fruit:8, veg: 6, pie: 6 } },
   { col: 'K', id: 'greengrocer', name: 'Greengrocer', kind: 'shop', sells: ['veg', 'fruit'], opens: 8 * 60, closes: 18 * 60, target: { veg: 24, fruit: 20 } },
   { col: 'L', id: 'butcher', name: 'Butcher', kind: 'shop', sells: ['lamb'], opens: 8 * 60, closes: 17 * 60 + 30, target: { lamb: 16 } },
   { col: 'M', id: 'square', name: 'Market Square', kind: 'park', opens: 0, closes: 24 * 60 },
@@ -110,7 +112,7 @@ export const PLACE_DEFS = [
   { col: 'S', id: 'mill', name: 'Flour Mill', kind: 'mill', opens: 7 * 60, closes: 16 * 60, target: { grain: 20 } },
   { col: 'T', id: 'sheep', name: 'Sheep Station', kind: 'farm', makes: 'lamb', opens: 6 * 60, closes: 15 * 60 },
   { col: 'U', id: 'dairy', name: 'Dairy', kind: 'farm', makes: 'milk', opens: 5 * 60, closes: 14 * 60 },
-  { col: 'V', id: 'coop', name: 'Chook Shed', kind: 'farm', makes: 'eggs', opens: 6 * 60, closes: 14 * 60 },
+  { col: 'V', id: 'coop', name: 'Chook Shed', kind: 'farm', makes: 'eggs', target: {grain:6}, opens: 6 * 60, closes: 14 * 60 },
   { col: 'W', id: 'orchard', name: 'Orchard', kind: 'farm', makes: 'fruit', opens: 7 * 60, closes: 15 * 60 },
   { col: 'X', id: 'garden', name: 'Market Garden', kind: 'farm', makes: 'veg', opens: 6 * 60, closes: 15 * 60 },
   { col: 'Y', id: 'silo', name: 'Wheat Farm', kind: 'farm', makes: 'grain', opens: 6 * 60, closes: 16 * 60 },
@@ -777,8 +779,9 @@ export class TownLife {
     const mill = this.place('mill');
     const batch = Math.min(2, Math.floor((mill.stock.grain || 0) / 3));
     if (at('mill').length && batch && powered && (mill.out.flour || 0) < 60) { mill.stock.grain -= 3 * batch; mill.out.flour = (mill.out.flour || 0) + 2 * batch; this.stats.milled += 2 * batch; }
+    if(at('mill').length&&powered&&(mill.stock.grain||0)>=1&&(mill.out.oatmilk||0)<12&&(this.place('waterworks').stock.water||0)>=1){mill.stock.grain--;this.place('waterworks').stock.water--;mill.out.oatmilk=(mill.out.oatmilk||0)+2;}
     const bakery = this.place('bakery');
-    if (at('bakery').length && powered && this.civic.supply.waterOk) {
+    if (at('bakery').length && powered && this.civic.supply.waterOk && !workAssetFault(this,'bakery-mixer')) {
       const s = bakery.stock;
       // Bake to a full shelf, not beyond: surplus would only waste flour, lamb and veg.
       if ((s.flour || 0) >= 2 && (bakery.out.bread || 0) < 48) { s.flour -= 2; bakery.out.bread = (bakery.out.bread || 0) + 8; this.stats.baked += 8; }
@@ -1014,7 +1017,7 @@ export class TownLife {
   // Finds the most useful load: a destination short of a good that a source has spare.
   pickJob(t) {
     const routes = [
-      ['silo', 'grain', 'mill'], ['mill', 'flour', 'bakery'], ['mill', 'flour', 'store'],
+      ['silo', 'grain', 'mill'], ['silo', 'grain', 'coop'], ['mill', 'flour', 'bakery'], ['mill','oatmilk','cafe'], ['mill', 'flour', 'store'],
       ['bakery', 'bread', 'store'], ['bakery', 'bread', 'cafe'], ['bakery', 'pie', 'cafe'], ['bakery', 'pie', 'pub'], ['bakery', 'bread', 'pub'],
       ['garden', 'veg', 'greengrocer'], ['garden', 'veg', 'bakery'], ['garden', 'veg', 'pub'], ['garden', 'veg', 'cafe'], ['orchard', 'fruit', 'greengrocer'],
       ['dairy', 'milk', 'store'], ['dairy', 'milk', 'cafe'], ['dairy', 'milk', 'bakery'], ['coop', 'eggs', 'store'], ['coop', 'eggs', 'cafe'], ['coop', 'eggs', 'bakery'],
@@ -1231,7 +1234,8 @@ export class TownLife {
     const post = this.place('post');
     const n = Math.min(post.stock.parcel || 0, 6);
     post.stock.parcel -= n;
-    const stops = Array.from({ length: n }, () => this.homes[Math.floor(this.rand() * this.homes.length)]);
+    const prepared=this.civic.occupationWork?.post?.ready||[];
+    const stops = Array.from({ length: n }, () => { const address=prepared.shift();return this.homes.find(h=>h.coordinate===address)||this.homes[Math.floor(this.rand() * this.homes.length)]; });
     v.queue = stops.map((h) => ({ kind: 'parcel', home: h, dur: 2, activity: `delivering a parcel to ${h.coordinate} (${h.name})`, target: { x: h.door.x, z: h.door.z + 1.4 } }));
     v.queue.push({ kind: 'work', at: 'post', until: v.end, activity: 'sorting the mail at the Post Office', target: post.front });
     const first = v.queue.shift();

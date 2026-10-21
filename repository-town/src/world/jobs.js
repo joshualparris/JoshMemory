@@ -1,19 +1,18 @@
+import {tickOccupationWork} from './occupation-work.js';
 import { tickWorkplay } from './workplay.js';
-// Paid shifts and the visitor's receipts, on this town's money model. The visitor picks a shift at a
-// workplace, stays inside it while a staff member is on duty, does its three duties and collects the
-// wage. Pay comes from the employer's till first, then the council, and PAYG tax goes to the
-// Commonwealth, so no money is made. (Ported from the earlier live-site job board.)
-import { recordEarning } from './credit.js';
-import { withholdVisitor } from './finance.js';
+import { payroll, closeTimesheet, settlePayslip, employerFunds, debtFor } from './visitor-payroll.js';
 
 export const JOB_BOARD = Object.freeze([
   {id:'cafe-all-rounder',site:'cafe',name:'Café all-rounder',minutes:40,pay:28,tasks:['take-orders','prepare-orders','table-service'],blurb:'Take customer orders, make drinks and food, and deliver to numbered tables'},
   { id: 'bakery-assistant', site: 'bakery', name: 'Bakery assistant', minutes: 35, pay: 24, tasks: ['wash-hands', 'prep-bench', 'cooling'], blurb: 'Help shape, tray and pack baked goods' },
+  {id:'poultry-hand',site:'coop',name:'Poultry farmhand',minutes:35,pay:24,tasks:['feed-hens','collect-eggs','store-eggs'],blurb:'Feed hens from real grain, collect eggs and pack them for town deliveries'},
   { id: 'farm-hand', site: 'garden', name: 'Market Garden hand', minutes: 45, pay: 30, tasks: ['water-plants', 'weed-beds', 'pack-produce'], blurb: 'Water, weed and collect produce' },
+  {id:'delivery-driver',site:'depot',name:'Delivery driver',minutes:60,pay:40,tasks:['accept-manifest','load-parcels','confirm-receipt'],blurb:'Load real freight, drive the employer van and get business receipts'},
   { id: 'depot-sorter', site: 'depot', name: 'Rail Depot parcel sorter', minutes: 40, pay: 28, tasks: ['sort-freight', 'verify-manifest', 'stack-parcels'], blurb: 'Sort incoming freight and secure parcels' },
   { id: 'store-stocker', site: 'store', name: 'General Store shelf stocker', minutes: 35, pay: 24, tasks: ['check-expiry', 'refill-shelves', 'count-stock'], blurb: 'Count stock, check dates and refill shelves' },
   { id: 'post-assistant', site: 'post', name: 'Post Office assistant', minutes: 30, pay: 22, tasks: ['sort-mail', 'label-parcels', 'prepare-route'], blurb: 'Sort letters into the delivery rounds' },
-  { id: 'civic-cleaner', site: 'hall', name: 'Town Hall caretaker', minutes: 35, pay: 25, tasks: ['clean-floors', 'file-records', 'inspect-lighting'], blurb: 'Tidy public areas and inspect facilities' },
+  {id:'maintenance-assistant',site:'hall',name:'Supervised maintenance apprentice',minutes:45,pay:30,tasks:['diagnose-fault','isolate-equipment','repair-test'],blurb:'Diagnose and repair the actual Town Hall work lamp with a supervisor'},
+  { id: 'civic-cleaner', site: 'hall', name: 'Town Hall caretaker', minutes: 35, pay: 25, tasks: ['clean-floors', 'empty-bins', 'inspect-floor'], blurb: 'Tidy public areas and inspect facilities' },
 ]);
 export const MAX_SHIFTS_PER_DAY = 2;
 const TASK_GAP = 5; // town minutes between duties
@@ -23,10 +22,13 @@ function jobs(life) {
   const c = life.civic;
   if (!c.jobs || typeof c.jobs !== 'object') c.jobs = freshJobs();
   const j = c.jobs;
+  if(!Number.isFinite(j.earned))j.earned=0;
+  if(!Number.isFinite(j.spent))j.spent=0;
   if (!Array.isArray(j.receipts)) j.receipts = [];
   if (!j.done || typeof j.done !== 'object') j.done = {};
   return j;
 }
+export function jobOffer(life,def){const shifts=payroll(life).skills[def.site]?.shifts||0;const grade=shifts>=6?'Experienced':shifts>=3?'Certified':'Supervised trainee';return {...def,pay:Math.round(def.pay*(shifts>=6?1.25:shifts>=3?1.1:1)*100)/100,grade};}
 const byId = (id) => JOB_BOARD.find((x) => x.id === id);
 const nowMin = (life) => life.day * 1440 + life.minute;
 const clean = (s) => String(s || '').slice(0, 90);
@@ -39,7 +41,7 @@ export function receipt(life, type, text, amount) {
 }
 
 export const supervisors = (life, site) => life.villagers.filter((v) => v.work === site && v.step?.kind === 'work' && !v.path?.length);
-export function current(life) { const a = jobs(life).active; return a && a.day === life.day ? a : null; }
+export function current(life) { const a = jobs(life).active;if(a&&a.day!==life.day){closeShift(life,a,'Day ended');return null;}return a||null; }
 const doneToday = (life) => (jobs(life).done[life.day] || []);
 
 export function startJob(life, id) {
@@ -49,7 +51,9 @@ export function startJob(life, id) {
   if (doneToday(life).includes(id)) return { ok: false, message: 'You already did that shift today.' };
   if (doneToday(life).length >= MAX_SHIFTS_PER_DAY) return { ok: false, message: `You can work ${MAX_SHIFTS_PER_DAY} shifts a day.` };
   if (!life.open(site)) return { ok: false, message: `${site.name} is closed right now.` };
-  j.active = { id, site: def.site, day: life.day, worked: 0, required: def.minutes, pay: def.pay, tasks: [], lastTaskAt: -999 };
+  const offer=jobOffer(life,def);
+  if (employerFunds(life,def.site)<offer.pay || debtFor(life,def.site)>0) return {ok:false,message:'This employer cannot fund a new shift. Existing wage debts must be paid first.'};
+  j.active = { id, site: def.site, day: life.day, startedAt:nowMin(life), worked: 0, required: def.minutes, pay: offer.pay, grade:offer.grade, tasks: [], lastTaskAt: -999, breakRemaining:0, breakTaken:0, away:0 };
   return { ok: true, message: `Shift started at ${site.name}. Stay inside while the staff are working.` };
 }
 
@@ -57,17 +61,25 @@ export function startJob(life, id) {
 // with a staff member on duty.
 export function tickJobs(life, minutes) {
   tickWorkplay(life);
+  tickOccupationWork(life,minutes);
   const a = jobs(life).active;
   if (!a) return;
-  if (a.day !== life.day) { jobs(life).active = null; return; }          // an unfinished shift lapses at midnight
-  if (life.playerAt === a.site && supervisors(life, a.site).length) a.worked = Math.min(a.required, a.worked + minutes);
+  if (a.day !== life.day) { closeShift(life,a,'Day ended'); return; }
+  if(a.hands?.earned)for(const task of a.hands.earned)if(!a.tasks.includes(task))performTask(life,task);
+  const dt=Math.max(0,Number(minutes)||0);
+  if ((life.playerAt === a.site && supervisors(life, a.site).length) || (a.id==='delivery-driver'&&['loaded','completed'].includes(life.civic.deliveryWork?.route?.status)&&!life.civic.deliveryWork.route.returnedAt&&(life.workVehicleDriving||life.civic.deliveryWork.route.lines.some(l=>l.to===life.playerAt&&!l.delivered)))) {
+    const credited=Math.min(dt,Math.max(0,a.required-a.worked));
+    a.worked+=credited;
+    if(a.breakRemaining>0){const rest=Math.min(credited,a.breakRemaining);a.breakRemaining-=rest;a.breakTaken=(a.breakTaken||0)+rest;}
+  } else a.away=(a.away||0)+dt;
 }
 
 export function performTask(life, task) {
   const a = current(life), def = a && byId(a.id);
-  if (!a || !def.tasks.includes(task)) return { ok: false, message: 'That is not a duty on your current shift.' };
-  if (life.playerAt !== a.site) return { ok: false, message: 'You need to be inside the workplace.' };
-  if (!supervisors(life, a.site).length) return { ok: false, message: 'There is no one on duty to supervise you.' };
+  if (!a || !def || !def.tasks.includes(task)) return { ok: false, message: 'That is not a duty on your current shift.' };
+  if (life.playerAt !== a.site && !(a.id==='delivery-driver'&&task==='confirm-receipt'&&life.civic.deliveryWork?.route?.status==='completed')) return { ok: false, message: 'You need to be inside the workplace.' };
+  if (!supervisors(life, a.site).length && !(a.id==='delivery-driver'&&task==='confirm-receipt'&&life.civic.deliveryWork?.route?.status==='completed')) return { ok: false, message: 'There is no one on duty to supervise you.' };
+  if (a.breakRemaining>0) return {ok:false,message:'Enjoy your paid rest break before continuing this duty.'};
   if (a.tasks.includes(task)) return { ok: false, message: 'You already did that duty.' };
   const wait = TASK_GAP - (nowMin(life) - a.lastTaskAt);
   if (wait > 0) return { ok: false, message: `Give it ${Math.ceil(wait)} more town minutes before the next duty.` };
@@ -75,35 +87,41 @@ export function performTask(life, task) {
   return { ok: true, message: `Done: ${task.replace(/-/g, ' ')}.` };
 }
 
-export function abandonJob(life) {
-  if (!current(life)) return { ok: false, message: 'You have no shift.' };
-  jobs(life).active = null;
-  return { ok: true, message: 'Shift cancelled. No wages.' };
+function closeShift(life,a,reason) {
+  const j=jobs(life),def=byId(a.id);
+  if(!def)return {ok:false,message:'Unknown saved shift; no payment made.'};
+  const slip=closeTimesheet(life,a,def,reason);
+  j.active=null;
+  if(a.worked>0)j.done[a.day]=[...new Set([...(j.done[a.day]||[]),a.id])];
+  for(const day of Object.keys(j.done))if(Number(day)<life.day-2)delete j.done[day];
+  const paid=settlePayslip(life,slip),due=Math.round((slip.gross-slip.paid)*100)/100;
+  return {ok:true,message:(reason==='Completed'?'Shift complete. ':reason+'. ')+
+    'TD '+slip.gross+' earned gross; TD '+paid+' paid, TD '+slip.tax+' PAYG, TD '+slip.net+' take-home.'+
+    (due?' Employer still owes TD '+due+'. Saved on payslip #'+slip.id+'.':'')};
 }
-
+export function abandonJob(life) {
+  const a=current(life);
+  if(!a)return {ok:false,message:'You have no shift.'};
+  return closeShift(life,a,'Clocked out early');
+}
+export function takeBreak(life) {
+  const a=current(life);
+  if(!a||life.playerAt!==a.site||!supervisors(life,a.site).length)return {ok:false,message:'Be at your supervised workplace to start a break.'};
+  if(a.worked<15)return {ok:false,message:'A five-minute paid break is available after 15 town minutes.'};
+  if(a.breakTaken||a.breakRemaining||a.worked>=a.required)return {ok:false,message:'Your paid break has already been taken or the shift has ended.'};
+  a.breakRemaining=Math.min(5,a.required-a.worked);
+  return {ok:true,message:'Five-minute paid rest break started. Stay in the workplace; tasks resume afterwards.'};
+}
 export function finishJob(life) {
-  const j = jobs(life), a = current(life), def = a && byId(a.id);
-  if (!a) return { ok: false, message: 'You have no shift.' };
-  if (life.playerAt !== a.site) return { ok: false, message: 'Be inside the workplace to clock out.' };
-  if (a.worked < a.required) return { ok: false, message: `${Math.ceil(a.required - a.worked)} town minutes still to work.` };
-  if (a.tasks.length < def.tasks.length) return { ok: false, message: 'Finish all three duties first.' };
-  const place = life.place(def.site), c = life.civic;
-  let paid = 0;
-  if (place && !['hall', 'school', 'clinic', 'post', 'depot', 'square'].includes(place.id) && place.till > 0) { paid = Math.min(def.pay, Math.floor(place.till)); place.till -= paid; }
-  const rest = Math.min(def.pay - paid, Math.floor(c.treasury)); c.treasury -= rest; paid += rest;
-  if (paid <= 0) return { ok: false, message: 'The employer cannot pay wages today. Your completed shift remains active until payment is available.' };
-  j.active = null;
-  c.player.wallet += paid;
-  const tax = withholdVisitor(life, paid);
-  j.done[life.day] = [...doneToday(life), def.id];
-  for (const d of Object.keys(j.done)) if (Number(d) < life.day - 2) delete j.done[d];
-  j.earned += paid - tax;
-  recordEarning(life, paid - tax);
-  receipt(life, 'wage', `${def.name}, $${paid} gross, $${tax} PAYG`, paid - tax);
-  return { ok: true, message: `Shift complete. $${paid} gross, $${tax} PAYG tax, $${paid - tax} in your wallet.` };
+  const a=current(life);
+  if(!a)return {ok:false,message:'You have no shift.'};
+  if(life.playerAt!==a.site)return {ok:false,message:'Be inside the workplace to clock out.'};
+  if(a.worked<a.required)return {ok:false,message:Math.ceil(a.required-a.worked)+' town minutes still to work. You may clock out early and keep earned pay.'};
+  // Incomplete/reworked duties affect training credit, never wages already earned.
+  return closeShift(life,a,'Completed');
 }
 
 export function jobsReport(life) {
   const j = jobs(life), a = current(life);
-  return { active: a ? { ...a, tasks: [...a.tasks] } : null, earned: j.earned, spent: j.spent, receipts: j.receipts.slice(0, 9), shiftsToday: doneToday(life).length, doneToday: [...doneToday(life)] };
+  return { active: a ? { ...a, tasks: [...a.tasks] } : null, earned: j.earned, spent: j.spent, receipts: j.receipts.slice(0, 9), payslips: structuredClone(payroll(life).slips), wageDebt:debtFor(life), skills:structuredClone(payroll(life).skills), shiftsToday: doneToday(life).length, doneToday: [...doneToday(life)] };
 }
