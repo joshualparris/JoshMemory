@@ -9,7 +9,13 @@ const page=await ctx.newPage(),errors=[];
 page.on('pageerror',e=>errors.push(e.message));
 try {
  await page.goto(URL,{waitUntil:'domcontentloaded',timeout:90000});
- await page.waitForFunction(()=>window.__town&&document.getElementById('loading').hidden,null,{timeout:90000});
+ try {
+  await page.waitForFunction(()=>window.__town&&document.getElementById('loading')?.hidden,null,{timeout:90000});
+ } catch(e) {
+  const debug=await page.evaluate(()=>({title:document.title,ready:document.readyState,hasTown:!!window.__town,loading:document.getElementById('loading')?.outerHTML?.slice(0,800),status:document.getElementById('status')?.textContent?.slice(0,200),scripts:[...document.scripts].map(x=>x.src||x.type)})).catch(err=>({error:String(err)}));
+  console.error('Mobile startup diagnostic:',JSON.stringify({debug,pageErrors:errors}));
+  throw e;
+ }
  assert(await page.isVisible('#t-use'),'the mobile Use action is visible');
  await page.evaluate(()=>{window.__town.life.setTime(10*60);window.__town.life.ledger().civic.player.bank=5000;window.__town.enterShop('dealership');});
  await page.waitForFunction(()=>window.__town.state().mode==='house');
