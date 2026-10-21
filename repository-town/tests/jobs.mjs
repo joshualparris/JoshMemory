@@ -15,8 +15,9 @@ const run = (m) => { for (let i = 0; i < m; i += 0.5) { if (onDuty) staff(onDuty
 const task = (k) => { if (onDuty) staff(onDuty); return t.doTask(k); };
 const total = () => me.wallet + me.bank + t.civic.treasury + f().federal + f().state + [...t.places.values()].reduce((s, p) => s + p.till, 0);
 
-assert.equal(JOB_BOARD.length, 7);
+assert.equal(JOB_BOARD.length, 10);
 assert.match(t.startJob('nope').message, /Unknown/);
+t.place('store').till=500;
 assert.match(t.startJob('store-stocker').message, /Shift started/, 'store is open at 10:00');
 assert.match(t.startJob('bakery-assistant').message, /Finish that shift there, or cancel it/, 'one shift at a time');
 assert.equal(t.jobsReport().active.id,'store-stocker','a second employer cannot replace the current shift');
@@ -66,7 +67,7 @@ assert.match(t.startJob('civic-cleaner').message, /2 shifts a day/);
 // An unfinished shift lapses at midnight.
 t = null;
 const u = new TownLife({ homes, minute: 10 * 60, seed: 5 });
-u.startJob('store-stocker');
+u.place('store').till=100;u.startJob('store-stocker');
 for (let i = 0; i < 15 * 60; i += 0.5) u.tick(0.5);
 assert.equal(u.jobsReport().active, null, 'shift lapsed overnight');
 

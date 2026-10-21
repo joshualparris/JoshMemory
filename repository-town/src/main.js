@@ -1,3 +1,4 @@
+import {occupationPanel} from './ui/occupation-panels.js';
 import {installWorkplay} from './world/workplay-view.js';
 import { mountCompanion } from './ui/companion.js';
 import * as THREE from 'three';
@@ -635,13 +636,15 @@ async function start() {
         status(message);return;
       }
       if(inside?.place&&thing.act?.do==='physical-job'){
+        if(['depot','post','garden','coop','hall'].includes(inside.place.id)){openPanel(occupationPanel(life,inside.place.id,thing.act.index,()=>inside?.workStationVisuals?.()),thing);return;}
+        if(inside.place.id==='bakery'&&thing.act.task!=='wash-hands'){openPanel(bakeryKitchenPanel(life),thing);return;}
         const result=usePhysicalJob(life,thing.act.task);
         inside.workStationVisuals?.();
         status(result.message);
         return;
       }
       if(inside?.place?.id==='bakery'&&thing.act?.do==='bakery-production'){
-        const result=superviseBread(life,thing.act.action);
+        const result=thing.act.action==='mix'?{message:'Use the mixer controls below to weigh, mix and shape your saved batch.'}:superviseBread(life,thing.act.action);
         status(result.message);
         openPanel(bakeryKitchenPanel(life,result.message),thing);
         return;
@@ -849,6 +852,7 @@ async function start() {
 
     // The town keeps living while the player is indoors; the sky follows its clock.
     const talkingTo = panelOpen?.thing?.v ? panelOpen.thing : null;
+    life.workVehicleDriving=driving.activeVehicle()?.workVehicle==='depot';
     life.playerAt = mode === 'house' && inside?.place ? inside.place.id : null;
     life.playerSeated = !!player.seated; // shifts count only inside the workplace
     life.pedestrianWorld=townWorld;
@@ -1004,6 +1008,7 @@ async function start() {
         animate(inside.dynamics, t, active);
         inside.visitors?.update(dt,t,player);
         inside.workplay?.update(dt,player);
+        inside.workStationVisuals?.();
         // Shop patrons are synchronised with the authoritative town economy
         // above; they have their own movement and seated animation.
         for (const p of inside.people || []) if(!p.key?.startsWith('visitor:'))p.update(dt,t,player,p.plan);

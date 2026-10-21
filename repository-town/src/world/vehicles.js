@@ -56,7 +56,7 @@ export function renewRegistration(life,registration){
 }
 export function sellVehicle(life,registration){
  const s=motorReport(life),v=s.owned.find(x=>x.registration===registration);
- if(!v)return 'No matching vehicle title.';
+ if(!v||v.workVehicle)return 'No matching personal vehicle title. Employer vehicles cannot be sold.';
  const price=Math.round(v.price*(0.6+v.condition/250));
  if(s.dealerCash<price)return 'Dealer lacks the funds to offer a trade-in.';
  s.dealerCash-=price;life.civic.player.bank=r2(life.civic.player.bank+price);
