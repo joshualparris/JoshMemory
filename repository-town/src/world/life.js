@@ -189,7 +189,7 @@ export const VILLAGER_NAMES = ['Mabel', 'Arlo', 'Bea', 'Cas', 'Dot', 'Ezra', 'Fl
   'Peg', 'Rafe', 'Sadie', 'Theo', 'Una', 'Vern', 'Win', 'Zara', 'Bluey', 'Clem', 'Dulcie', 'Errol', 'Fern', 'Gwen', 'Harlan', 'Ida',
   'Archie', 'Bonnie', 'Cooper', 'Daisy', 'Elsie', 'Frankie',
   'Lena', 'Miles', 'Serena', 'Damon', 'Pippa', 'Marcus', 'Talia', 'Neve', 'Owen', 'Priya', 'Hugh',
-  'Tess', 'Kieran', 'Ruby', 'Felix', 'Jules', 'Maeve', 'Aidan', 'Iris', 'Oscar', 'Rosa', 'Nina'];
+  'Tess', 'Kieran', 'Ruby', 'Felix', 'Jules', 'Maeve', 'Aidan', 'Iris', 'Oscar', 'Rosa', 'Nina', 'Mina'];
 
 // Home meals: [name, ingredients]. Villagers cook the first one their pantry can make.
 const MEALS = {
@@ -1625,7 +1625,7 @@ export class TownLife {
     if (s.sim !== undefined) {
       const r = s.sim;
       const ok = r && typeof r === 'object' && Array.isArray(r.events) && r.stats && typeof r.stats === 'object' && Array.isArray(r.villagers) && Array.isArray(r.trucks) && Array.isArray(r.parcels)
-        && r.villagers.length >= 38 && r.villagers.length <= this.villagers.length && r.trucks.length === (this.trucks || []).length && Number.isInteger(s.rngState) && s.rngState >= 0 && s.rngState <= 0xffffffff && Number.isInteger(s.seed) && s.seed >= 0 && s.seed <= 0xffffffff
+        && (r.villagers.length === this.villagers.length || (this.villagers.length > 38 && r.villagers.length === 38)) && r.trucks.length === (this.trucks || []).length && Number.isInteger(s.rngState) && s.rngState >= 0 && s.rngState <= 0xffffffff && Number.isInteger(s.seed) && s.seed >= 0 && s.seed <= 0xffffffff
         && r.villagers.every((v, i) => v && Number.isInteger(v.id) && v.id === i && this.villagers.some((x) => x.id === v.id)) && r.trucks.every((t) => t && Number.isInteger(t.id) && Array.isArray(t.path) && (this.trucks || []).some((x) => x.id === t.id));
       if (!ok) return false;
       sim = JSON.parse(JSON.stringify(r));
