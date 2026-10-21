@@ -273,6 +273,17 @@ export function buildBakeryInterior(site, makeLabel, roomTitle = 'Bakery') {
   add('counter', 'Bread counter', 'civic-ledger', 'Buy fresh bread and pies, or open the Town Ledger.', 0.6, -4.2);
   add('pastries', 'Pastry case', 'info', 'The glass case holds cream buns, lamingtons, doughnuts, croissants and meat pies. The pie warmer keeps the day\'s pies hot. Pies are made each day from flour, lamb and vegetables.', -4.6, -4.2);
   add('kitchen', 'Bakery kitchen', 'bakery-kitchen', 'Through the counter you can see the deck ovens, spiral mixer, proofer and the cooling racks. Bakers start at half past four: dough is mixed and shaped, proved warm and humid, then baked on the oven decks.', -2.2, -4.2);
+  // Supervised batch controls at the customer-visible demonstration counter.
+  // The professional production equipment remains behind the staffed kitchen barrier.
+  add('mixer-control', 'Supervised mixer · start bread batch', 'bakery-production', 'Two bags of real flour are mixed by the baker; proofing takes 40 town minutes.', -3.9, -3.3);
+  interactables.at(-1).act.action='mix';
+  add('oven-control', 'Supervised deck oven · load proofed dough', 'bakery-production', 'The baker loads proofed dough into the guarded deck oven for 25 town minutes.', 0, -3.3);
+  interactables.at(-1).act.action='oven';
+  add('rack-control', 'Cooling rack · unload finished batch', 'bakery-production', 'The baker confirms the bread is finished before eight saleable loaves are added to inventory.', 3.6, -3.3);
+  interactables.at(-1).act.action='unload';
+  text('Mixer',-3.9,1.72,-3.3);
+  text('Oven',0,1.72,-3.3);
+  text('Cooling rack',3.6,1.72,-3.3);
   add('breadwall', 'Bread wall', 'info', `Sourdough boules, tin loaves, baguettes and rolls sit in baskets on the bread wall. ${Math.round(breadN)} loaves are out right now. Flour arrives from the Mill, so no flour means no bread.`, 5.4, 2.4);
   add('cafe', 'Café corner', 'info', 'Two small tables and a bench by the window, for a pie and a cuppa while the bread cools.', -3.0, 1.9);
   placedProps.push({ type: 'noticeboard', room: 0 });

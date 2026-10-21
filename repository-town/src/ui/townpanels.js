@@ -174,7 +174,22 @@ export function placePanel(life, id) {
   if(id==='dealership')return motorMarketPanel(life);
   if(id==='mechanic')return motorWorkshopPanel(life);
   const panel = placePanelBase(life, id);
-  if (JOB_BOARD.some((j) => j.site === id)) panel.actions = [...(panel.actions || []), { label: '💼 Work a shift here', run: () => jobPanel(life, id, () => placePanel(life, id)) }];
+  if (JOB_BOARD.some((j) => j.site === id)) {
+    const active=life.jobsReport().active;
+    const here=active?.site===id;
+    if(here){
+      const def=JOB_BOARD.find(j=>j.id===active.id);
+      panel.body+='<p><b>💼 Your current shift is here:</b> '+esc(def?.name||active.id)+
+        ' · '+Math.floor(active.worked)+'/'+active.required+' minutes · '+
+        active.tasks.length+'/'+(def?.tasks.length||3)+' duties complete. Return to your 3D stations or open your shift to clock out.</p>';
+    }else if(active){
+      const def=JOB_BOARD.find(j=>j.id===active.id);
+      panel.body+='<p><b>💼 Active shift elsewhere:</b> '+esc(def?.name||active.id)+' at '+
+        esc(life.place(active.site)?.name||active.site)+'. You cannot begin a second job until it is finished or cancelled.</p>';
+    }
+    panel.actions=[...(panel.actions||[]),{label:here?'💼 Resume / clock out of this shift':active?'💼 View existing shift / cancel':'💼 Start work a shift here',
+      run:()=>jobPanel(life,id,()=>placePanel(life,id))}];
+  }
   return panel;
 }
 function placePanelBase(life, id) {
