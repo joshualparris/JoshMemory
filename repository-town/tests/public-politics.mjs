@@ -5,9 +5,9 @@ import {TownLife, ROSTER_SIZE} from '../src/world/life.js';
 import {civicTemperament,civicIssue,initialisePublicLife,attendPublicForum,
   updatePublicForum,civicDialogue,publicForumReport} from '../src/world/public-forum.js';
 const homes=[];
-for(let r=0;r<7;r++)for(let c=0;c<26;c+=2)
+for(let r=0;r<8;r++)for(let c=0;c<26;c++){ if(r===7&&c>=6)continue;
   homes.push({coordinate:String.fromCharCode(65+c)+(r+1),name:'House',
-    door:{x:(c-12.5)*26,z:r*46-161+4}});
+    door:{x:(c-12.5)*26,z:r*46-161+4}}); }
 const make=()=>new TownLife({homes,minute:1080,seed:20261019});
 const t=make();
 const p=initialisePublicLife(t);
