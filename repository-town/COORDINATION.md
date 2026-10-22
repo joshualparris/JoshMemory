@@ -7,6 +7,8 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-22 · ChatGPT — **TESTING: morning opening coverage, rebased on merged yarn work** `fix/town-opening-reconciled-20261022`. Real staff leave home earlier, use genuine pre-opening commutes and start work when their paid shift begins; static signs say HOURS, near-door hint shows real entry status. Multi-seed 08:18 Greengrocer, Security and Locksmith tests green; inventory delivery priority/capacity adjusted to preserve physical stock after increased trading, full 28-day seed gate pending. Supersedes conflicted PR #156; maintain merged NPC yarn UI. Do not publish to generated Pages directly.
+
 - 2026-10-22 · ChatGPT — **IN PROGRESS: overheard NPC yarns** on `feat/town-overheard-yarns-20261022`. Contextual four-line conversations are generated at genuine meetings, saved with social memories, and shown through a mobile-friendly 🗣 Yarns log and local subtitles. Source changes: `src/world/yarn-dialogue.js`, `social-events.js`, `life.js`, new `src/ui/yarns.js`, minimal `src/main.js`, `tests/social-events.mjs`. Protect ongoing immersive-sleep work; tests, integration, and live deployment pending.
 
 
