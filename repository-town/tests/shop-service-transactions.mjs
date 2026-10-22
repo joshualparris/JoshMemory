@@ -12,7 +12,8 @@ for(const action of [()=>t.buyItem('store','bread'),()=>t.sellItem('store','brea
  const snapshot=before();assert.match(action(),/waiting for staff/);assert.equal(before(),snapshot,'refused service must not change food, money, receipts or statistics');
 }
 const worker=t.villagers.find(v=>v.work==='store');
-worker.step={kind:'work',at:'store'};worker.path=[{x:0,z:0}];assert.match(t.buyItem('store','bread'),/waiting for staff/);
+worker.step={kind:'work',at:'store'};worker.path=[{x:0,z:0}];Object.assign(worker,{x:worker.home.door.x,z:worker.home.door.z}); // still commuting from home
+assert.match(t.buyItem('store','bread'),/waiting for staff/);
 worker.path=[];assert.match(t.buyItem('store','bread'),/You buy/);
 worker.step={kind:'work',at:'hall'};assert.match(t.sellItem('store','bread'),/waiting for staff/,'stale counter action rechecks attendance');
 const relief=t.villagers.find(v=>v!==worker);relief.step={kind:'work',at:'store'};relief.path=[];
