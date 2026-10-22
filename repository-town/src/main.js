@@ -1121,7 +1121,14 @@ async function start() {
       else if(nearTownSeat) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — Sit on ${nearTownSeat.label}`;
       else if (nearRelic && relicD <= npcD && relicD <= personD) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — ✨ ${nearRelic.id === 'guild' ? 'Guild Chest' : nearRelic.name}`;
       else if (nearNPC && npcD <= personD) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — 💬 Talk to ${nearNPC.npc.name}`;
-      else if (nearPerson) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — ${nearPerson.v ? `Talk to ${nearPerson.v.name} (${nearPerson.v.job}) · ${nearPerson.v.activity.replace(/^(walking|cycling) — /, '')}` : nearPerson.label}`;
+      else if (nearPerson) {
+        const site=nearPerson.spot?.id && life.places.get(nearPerson.spot.id);
+        const access=site && facilityAccess(life,site);
+        const label=site && !access.allowed
+          ? (access.reason==='unstaffed'?site.name+' · Waiting for staff':site.name+' · Closed to visitors')
+          : nearPerson.v?`Talk to ${nearPerson.v.name} (${nearPerson.v.job}) · ${nearPerson.v.activity.replace(/^(walking|cycling) — /, '')}`:nearPerson.label;
+        $('prompt').textContent=`${input.touch?'Tap ✋':'Press E'} — ${label}`;
+      }
       else if (nearHouse) $('prompt').textContent = `${nearHouse.house.coordinate} · ${nearHouse.house.name} — walk through the door to enter`;
       if (input.consume('use')) use();
     } else {
