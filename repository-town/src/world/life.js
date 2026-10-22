@@ -1157,14 +1157,8 @@ export class TownLife {
       // Soy growers always hold back two certified bags for the next sowing; a truck may not strip their seed reserve.
       const have = good==='soybeans'&&from==='soyfarm'?Math.max(0,(src.out[good]||0)-2):(src.out[good]||0), need = (dst.target?.[good] || 0) - (dst.stock[good] || 0);
       if (have < 3 || need < 3 || this.trucks.some((o) => o !== t && o.job?.to === to && o.job?.good === good)) continue;
-      // Deliver actual upstream inventory to nearly empty food shops BEFORE
-      // repeated customers find bare shelves. Other cargos retain their
-      // existing weighted queue and no stock is generated out of thin air.
-      const staple=['store','greengrocer','butcher'].includes(to);
-      const fraction=(dst.stock[good]||0)/(dst.target?.[good]||1);
-      const urgent=staple&&fraction<0.35?2.25:0;
-      const score = need / (dst.target[good] || 1) + this.rand() * 0.1 + (staple ? 0.15 : 0) + urgent;
-      if (!best || score > best.score) best = { from, to, good, n: Math.min(50, have, need), score };
+      const score = need / (dst.target[good] || 1) + this.rand() * 0.1 + (['store','greengrocer','butcher'].includes(to) ? 0.42 : 0);
+      if (!best || score > best.score) best = { from, to, good, n: Math.min(70, have, need), score };
     }
     if (!best) { t.state = 'waiting for an order'; return; }
     t.job = best; t.state = `heading to the ${this.place(best.from).name} for ${GOODS[best.good].name}`;
