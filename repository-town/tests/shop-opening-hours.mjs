@@ -25,7 +25,7 @@ const served=hoursDirectoryEntries(makeLife(13*60,[staff]));
 assert.equal(served.find(e=>e.id==='store').status, 'Open for entry');
 const shut=hoursDirectoryEntries(makeLife(21*60,[staff]));
 assert.equal(shut.find(e=>e.id==='store').status, 'Closed now');
-assert.equal(shut.find(e=>e.id==='pub').status, 'Open for entry' === shut.find(e=>e.id==='pub').status ? 'Open for entry':'Waiting for staff');
+assert.equal(shut.find(e=>e.id==='pub').status, 'Waiting for staff');
 const directory=openingHoursPanel(midday,()=>{});
 assert.match(directory.body,/Commit Café/);
 assert.match(directory.body,/Community Bank/);
