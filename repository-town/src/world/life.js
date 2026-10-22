@@ -199,7 +199,7 @@ const RELIEF_ROLES = {
  solicitor:'legal receptionist', police:'police station front-desk officer',
  ambulance:'ambulance station liaison', fire:'fire station visitor officer',
  power:'power station visitor and safety officer', waterworks:'water treatment duty officer',
- sewage:'wastewater safety officer', soyfarm:'soybean farm supervisor',
+ sewage:'wastewater safety officer', soyfarm:'farm-gate visitor liaison',
  soyplant:'food safety and plant reception officer', school:'school office receptionist',
  realty:'property reception agent', realestate:'licensed estate agent',
  dealership:'vehicle sales assistant', mechanic:'service reception coordinator',
@@ -1359,6 +1359,9 @@ export class TownLife {
     if (v.work === 'home') return this.doorstep(v);
     const p = this.place(v.work);
     // Clear of the gate and of the hen house and trough along the back of a paddock (z1 − 2.9 … z1 − 5.1).
+    // A visitor liaison remains at the actual public farm gate rather than
+    // appearing to staff reception while twenty metres away in a field.
+    if (v.work === 'soyfarm' && v.job === 'farm-gate visitor liaison') return p.front;
     if (p.field) return { x: p.field.x0 + 2 + this.rand() * (p.field.x1 - p.field.x0 - 4), z: p.field.z0 + 2.5 + this.rand() * (p.field.z1 - p.field.z0 - 8.1) };
     if (v.job === 'truck driver') return p.front;
     return this.jitter(p.front, 2);
