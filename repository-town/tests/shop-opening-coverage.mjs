@@ -30,7 +30,19 @@ for(const seed of [42,20261022]){
       if(['store','greengrocer'].includes(id))assert(shopService(life,site).available,id+' must actually serve customers');
     }
   }
-  console.log('PASS morning coverage seed '+seed+': '+cases.map(c=>c[0]).join(', '));
+  // The screenshots are Day 4, not just first-day fresh-game conditions.
+  // Include accumulated fatigue, shopping, deliveries and saved work schedules.
+  while(life.day<4)life.tick(.5);
+  for(const minute of [8*60+18,8*60+47,8*60+55]){
+    while(life.minute+0.001<minute)life.tick(Math.min(.5,minute-life.minute));
+    for(const id of ['greengrocer','securityoffice','locksmith']){
+      const site=life.place(id),access=facilityAccess(life,site);
+      assert(access.allowed,'Day 4 seed '+seed+' at '+life.time()+' · '+id+' should have physically present staff: '+JSON.stringify({
+        access,staff:life.villagers.filter(v=>v.work===id).map(v=>({name:v.name,step:v.step?.kind,at:v.step?.at,legs:v.path.length,activity:v.activity}))
+      }));
+    }
+  }
+  console.log('PASS Day 1 and Day 4 morning coverage seed '+seed+': '+cases.map(c=>c[0]).join(', '));
 }
 // Security must not be bypassed by a rostered employee who has not arrived.
 const test=new TownLife({homes,minute:8*60+18,seed:42});
