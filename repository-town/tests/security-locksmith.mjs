@@ -18,7 +18,7 @@ for(const [id,col,name] of [
   const p=places.get(id);assert(p,id+' exists');
   assert.equal(p.col,col);assert.equal(p.side,'south');assert.equal(p.name,name);
   assert.equal(t.place(id).x,(col.charCodeAt(0)-65-12.5)*26);
-  assert(openingHoursLabel(p).includes('OPEN'),id+' publishes a visitor sign');
+  assert(openingHoursLabel(p).includes('HOURS'),id+' publishes scheduled visitor hours without falsely claiming it is staffed');
   assert(t.villagers.filter(v=>v.work===id).length>=2,id+' has real paid employees');
 }
 assert.equal(t.villagers.length,ROSTER_SIZE,'new named workers all reside in town');
