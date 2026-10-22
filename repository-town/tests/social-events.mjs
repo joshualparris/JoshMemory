@@ -57,3 +57,51 @@ work.finish(w1);
 assert(work.social.events.some(e=>e.kind==='work'&&e.people.includes(w2.name)),'working together creates a memory');
 assert(work.socialSummary(w2.name).recent[0].includes(w1.name));
 console.log('PASS: Neighborly-inspired relationships, witnessed visits/work, deterministic memory, persistence and legacy saves.');
+
+
+// Conversations contain attributable, deterministic lines and are not
+// generated for pretend interactions when only one person is present.
+const spoken=recordSocialEvent(freshSocialState(),'Mabel','Arlo','pub',5,20*60,{
+ location:'The Merged Branch',placeId:'pub',x:10.41,z:22.91,jobA:'baker',jobB:'teacher'});
+assert.equal(spoken.lines.length,4);
+assert.deepEqual(spoken.lines.map(x=>x.speaker),['Mabel','Arlo','Mabel','Arlo']);
+assert(spoken.lines.every(x=>x.text.length>8));
+assert.deepEqual(spoken.position,{x:10.4,z:22.9});
+const same=recordSocialEvent(freshSocialState(),'Mabel','Arlo','pub',5,20*60,{
+ location:'The Merged Branch',placeId:'pub',x:10.41,z:22.91,jobA:'baker',jobB:'teacher'});
+assert.deepEqual(same,spoken,'same time, history and people always give same dialogue');
+const linesSaved=restoreSocialState({version:1,events:[spoken],memories:{Mabel:[spoken],Arlo:[spoken]}},people);
+assert.deepEqual(linesSaved.events[0],spoken,'save/restore preserves exactly what was said');
+assert.equal(socialReport(linesSaved,'Mabel',people).conversations[0].lines[0].text,spoken.lines[0].text);
+const forged=restoreSocialState({version:1,events:[{...spoken,lines:[
+ {speaker:'Intruder',text:'I am not a villager'},
+ {speaker:'Mabel',text:'A genuine remark'}]}]},people);
+assert.deepEqual(forged.events[0].lines,[{speaker:'Mabel',text:'A genuine remark'}],
+ 'a corrupt save cannot impersonate a third villager');
+const pub=new TownLife({homes,minute:19*60+30,seed:2121});
+const pair=pub.villagers.slice(0,2);
+for(const v of pair){
+ v.path=[];v.inside=true;v.x=pub.place('pub').front.x;v.z=pub.place('pub').front.z;
+ v.step={kind:'idle',at:'pub',dur:40,activity:'relaxing at the pub'};
+}
+pub.arrive(pair[0]);
+assert(pub.social.events.some(e=>e.kind==='pub'&&e.lines.length===4),
+ 'two residents actually sharing the pub should talk');
+assert(pub.describe(pair[0]).social.conversations.length>0,'NPC should remember what was said');
+const snap=JSON.parse(JSON.stringify(pub.snapshot()));
+const loaded=new TownLife({homes,minute:0,seed:2121});
+assert(loaded.restore(snap));
+assert.deepEqual(loaded.social.events,pub.social.events,'pub transcript persists across reloads');
+const alone=new TownLife({homes,minute:19*60,seed:2121});
+const lone=alone.villagers[0];
+for(const v of alone.villagers.slice(1)){
+ v.path=[];v.step={kind:'idle',at:'home',dur:100};v.inside=true;
+}
+lone.step={kind:'idle',at:'pub',dur:15,activity:'relaxing'};
+lone.path=[];
+alone.arrive(lone);
+assert.equal(alone.social.events.length,0,'one person at the pub is not a conversation');
+const dialogueFile=await import('node:fs/promises').then(fs=>fs.readFile(new URL('../src/ui/yarns.js',import.meta.url),'utf8'));
+assert(dialogueFile.includes('captionText.textContent'),'captions must show the stored spoken text');
+assert(dialogueFile.includes('setAttribute(\'aria-label\',\'Town conversations\')'),'dialogue history must be accessible');
+console.log('PASS: attributable pub yarns, stable dialogue, memory, save/reload and no imaginary partners.');
