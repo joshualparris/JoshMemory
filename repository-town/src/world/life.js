@@ -40,10 +40,7 @@ export const WALK = 1.5, BIKE = 4.5, DRIVE = 8;               // metres per real
 const WAGES = { retired: 40, student: 20, mayor: 95, nurse: 85, teacher: 85, programmer: 95, 'bank teller': 75, 'real estate agent': 82, 'power operator': 85, firefighter: 85 };
 const BASE_WAGE = 70;
 // Per-worker harvest multipliers: a market garden and a chook shed out-produce a paddock per hand.
-// The expanded town's farms now support reliable staffed retail trade.
-// Goods still come from actual on-shift agricultural work, with a capped shed
-// and paid, physical freight; extra inventory is never generated in a shop.
-const FARM_YIELD = { veg: 2.1, eggs: 1.8, lamb: 1.4, fruit: 1.4, milk: 1.4 };
+const FARM_YIELD = { veg: 1.6, eggs: 1.5 };
 // Workplaces paid from the town treasury; everyone else is paid from their employer's till.
 const PUBLIC = new Set(['hall', 'school', 'clinic', 'post', 'depot', 'power', 'waterworks', 'sewage', 'recycling', 'landfill', 'fire', 'bank', 'square']);
 const WEATHER = ['sunny', 'sunny', 'cloudy', 'rainy', 'windy', 'sunny', 'cloudy'];
@@ -1160,8 +1157,8 @@ export class TownLife {
       // Soy growers always hold back two certified bags for the next sowing; a truck may not strip their seed reserve.
       const have = good==='soybeans'&&from==='soyfarm'?Math.max(0,(src.out[good]||0)-2):(src.out[good]||0), need = (dst.target?.[good] || 0) - (dst.stock[good] || 0);
       if (have < 3 || need < 3 || this.trucks.some((o) => o !== t && o.job?.to === to && o.job?.good === good)) continue;
-      const score = need / (dst.target[good] || 1) + this.rand() * 0.1 + (['store','greengrocer','butcher'].includes(to) ? 0.42 : 0);
-      if (!best || score > best.score) best = { from, to, good, n: Math.min(70, have, need), score };
+      const score = need / (dst.target[good] || 1) + this.rand() * 0.1 + (['store','greengrocer','butcher'].includes(to) ? 0.12 : 0);
+      if (!best || score > best.score) best = { from, to, good, n: Math.min(40, have, need), score };
     }
     if (!best) { t.state = 'waiting for an order'; return; }
     t.job = best; t.state = `heading to the ${this.place(best.from).name} for ${GOODS[best.good].name}`;
@@ -1690,7 +1687,8 @@ export class TownLife {
     const uses = where === 'pub' ? ['lamb', 'veg', 'pie'] : ['bread', 'eggs', 'milk', 'coffee'];
     const ok = uses.some((g) => (p.stock[g] || 0) > 0);
     if (!ok) this.stats.stockouts++;
-    if (!ok || v.wallet < price) { v.activity = `found the ${p.name} out of food`; this.log(`The ${p.name} ran out of food and had to turn ${v.name} away.`); return; }
+    if (!ok) { v.activity = `found the ${p.name} out of food`; this.log(`The ${p.name} ran out of food and had to turn ${v.name} away.`); return; }
+    if (v.wallet < price) { v.activity = `could not afford a meal at ${p.name}`; v.memory = `could not afford a meal at ${p.name}`; return; }
     for (const g of uses) if ((p.stock[g] || 0) > 0) { p.stock[g]--; break; }
     v.wallet -= price; noteSpend(v, 'out', price); this.sale(p, price); this.stats.mealsOut++;
     this.eat(v, dish); v.activity = `${v.step.activity} — ${dish}`;
@@ -1702,7 +1700,8 @@ export class TownLife {
     const service = shopService(this, shop);
     if (!service.available) { this.missedServiceMeal(v, service.message); v.activity = `could not get service at ${shop.name}`; return; }
     if (this.open(shop) && !(src[good] > 0)) this.stats.stockouts++;
-    if (!this.open(shop) || !(src[good] > 0) || v.wallet < price) { v.memory = `the ${shop.name} had no ${GOODS[good].name} left`; v.activity = `found the ${shop.name} out of ${GOODS[good].name}`; return; }
+    if (!this.open(shop) || !(src[good] > 0)) { v.memory = `the ${shop.name} had no ${GOODS[good].name} left`; v.activity = `found the ${shop.name} out of ${GOODS[good].name}`; return; }
+    if (v.wallet < price) { v.memory = `could not afford ${GOODS[good].name} at ${shop.name}`; v.activity = v.memory; return; }
     src[good]--; v.wallet -= price; noteSpend(v, 'out', price); this.sale(shop, price); this.stats.sold[good] = (this.stats.sold[good] || 0) + 1;
     this.eat(v, good === 'pie' ? 'a meat pie from the Bakery' : 'a fresh bread roll');
   }
@@ -1713,16 +1712,29 @@ export class TownLife {
     if (!service.available) { v.memory = service.message; return; }
     const src = shopId === 'bakery' ? shop.out : shop.stock;
     const bag = v.carrying || {};
-    const missing = [];
+    const missing = [], unaffordable = [];
     for (const g of items) {
       const n = g === 'veg' || g === 'bread' ? 2 : 1;
       const have = src[g] || 0, price = GOODS[g].price * n;
-      if (have >= n && v.wallet >= price) { src[g] -= n; bag[g] = (bag[g] || 0) + n; v.wallet -= price; noteSpend(v, 'food', price); this.sale(shop, price); this.stats.sold[g] = (this.stats.sold[g] || 0) + n; }
-      else missing.push(GOODS[g].name);
+      if (have < n) { missing.push(GOODS[g].name); continue; }
+      if (v.wallet < price) { unaffordable.push(GOODS[g].name); continue; }
+      src[g] -= n;
+      bag[g] = (bag[g] || 0) + n;
+      v.wallet -= price;
+      noteSpend(v, 'food', price);
+      this.sale(shop, price);
+      this.stats.sold[g] = (this.stats.sold[g] || 0) + n;
     }
     if (Object.keys(bag).length) v.carrying = bag;
+    // A customer with insufficient money is not evidence of an empty shelf.
+    // Report genuine unmet demand and affordability separately.
     this.stats.stockouts += missing.length;
-    if (missing.length) { v.memory = `the ${shop.name} was out of ${missing.join(' and ')}`; if (this.rand() < 0.5) this.log(`${v.name} found the ${shop.name} out of ${missing.join(' and ')}.`); }
+    if (missing.length) {
+      v.memory = 'the '+shop.name+' was out of '+missing.join(' and ');
+      if (this.rand() < 0.5) this.log(v.name+' found the '+shop.name+' out of '+missing.join(' and ')+'.');
+    } else if (unaffordable.length) {
+      v.memory = 'could not afford '+unaffordable.join(' and ')+' at '+shop.name;
+    }
   }
 
   // Workers are paid at the end of each shift by their employer's till, or by the council for
