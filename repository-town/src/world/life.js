@@ -1331,7 +1331,7 @@ export class TownLife {
     // Leisure.
     const r = this.rand();
     if (m >= 19 * 60 && r < 0.35 && this.open(this.place('pub'))) return this.goThen(v, this.place('pub').front, { kind: 'idle', at: 'pub', dur: 60 + this.rand() * 60, activity: 'relaxing at the pub, up for a yarn' });
-    if (r < 0.55) return this.goThen(v, this.jitter(this.place('square').front, 8), { kind: 'idle', at: 'square', dur: 20 + this.rand() * 30, activity: 'taking a stroll through the Market Square' });
+    if (r < 0.55) return this.goThen(v, this.jitter(this.place('square').front, 8), { kind: 'idle', dur: 20 + this.rand() * 30, activity: 'taking a stroll through the Market Square' });
     if (r < 0.8) {
       // A visit only happens when a real named neighbour is available at home.
       // The relationship influences who we choose, but work and sleep come first.
@@ -1347,7 +1347,7 @@ export class TownLife {
         });
       }
       return this.goThen(v,this.jitter(this.place('square').front,7),
-        {kind:'idle',at:'square',dur:20+this.rand()*20,activity:'out walking after work'});
+        {kind:'idle',dur:20+this.rand()*20,activity:'out walking after work'});
     }
     return this.goThen(v, home, { kind: 'idle', at: 'home', dur: 40, activity: m >= 18 * 60 ? 'watching TV on the couch' : 'pottering about at home' });
   }
@@ -1587,14 +1587,19 @@ export class TownLife {
     }
     // A yarn needs two actual residents sharing a place and some spare time.
     // Neither paid visits nor work shifts are invented for the conversation.
-    if(['pub','cafe','square'].includes(s.at) &&
+    const otherPlace=step=>step?.at||(
+      step?.kind==='idle'&&/Market Square|out walking after work/.test(step.activity||'')?'square':null);
+    const squareVisit=s.kind==='idle' && !s.at &&
+      /Market Square|out walking after work/.test(s.activity||'');
+    const socialPlace=squareVisit?'square':s.at;
+    if(['pub','cafe','square'].includes(socialPlace) &&
       ['idle','eatout'].includes(s.kind) && !v.path.length){
       const other=this.villagers.find(o=>o!==v && !o.path.length &&
-        o.step?.at===s.at && ['idle','eatout'].includes(o.step.kind) &&
+        (otherPlace(o.step)===socialPlace) && ['idle','eatout'].includes(o.step.kind) &&
         o.step.dur>0 && Math.hypot(o.x-v.x,o.z-v.z)<12);
       if(other){
-        const event=recordSocialEvent(this.social,v.name,other.name,s.at,this.day,this.minute,{
-          location:this.place(s.at)?.name||s.at,placeId:s.at,x:v.x,z:v.z,jobA:v.job,jobB:other.job
+        const event=recordSocialEvent(this.social,v.name,other.name,socialPlace,this.day,this.minute,{
+          location:this.place(socialPlace)?.name||socialPlace,placeId:socialPlace,x:v.x,z:v.z,jobA:v.job,jobB:other.job
         });
         if(event){
           this.log(event.text);
