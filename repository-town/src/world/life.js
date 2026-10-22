@@ -228,6 +228,7 @@ JOBS.push(
   ['security guard','securityhq',6*60,14*60],
   ['security guard','securityhq',14*60,22*60],
   ['security receptionist','securityoffice',8*60,20*60],
+  ['security office relief','securityoffice',12*60,20*60],
   ['qualified locksmith','locksmith',8*60,18*60],
   ['locksmith apprentice','locksmith',9*60,17*60],
 );
