@@ -136,3 +136,13 @@ ul.news { margin: 4px 0; padding-left: 18px; font-size: 13px; }
 #needs-strip button{font-size:12px;min-height:28px;padding:3px 8px;border-radius:7px}
 #hud.hud-minimised #needs-strip{display:none}
 @media(max-width:600px){#needs-strip{font-size:11px}#needs-strip button{font-size:11px;padding:3px 6px}}
+
+/* Visit-ready opening hours directory: legible on mobile and desktop. */
+.hours-list{display:grid;gap:6px;margin:8px 0 16px;}
+.hours-entry{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:rgba(255,255,255,.04);}
+.hours-entry-info{display:flex;flex:1 1 160px;min-width:0;flex-direction:column;gap:3px;}
+.hours-entry-info strong{overflow-wrap:anywhere;}
+.hours-entry-info .dim{font-size:.88em;}
+.hours-status{font-size:.87em;flex:0 1 auto;}
+.hours-entry button{padding:5px 12px;min-width:44px;}
+@media(max-width:600px){.hours-entry{gap:6px;padding:7px}.hours-entry-info{flex-basis:150px}.hours-status{flex-basis:auto}}

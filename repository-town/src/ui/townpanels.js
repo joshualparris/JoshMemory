@@ -8,13 +8,14 @@ import { esc } from './interactions.js';
 import { economyPanel, jobPanel } from './economy-panels.js';
 import { JOB_BOARD } from '../world/jobs.js';
 import { workingAt, shopService } from '../world/shop-attendance.js';
+import { facilityAccess, visitorHours } from '../world/facility-access.js';
 import { COUNTERS, lineAt, pendingOrders } from '../world/counter-queue.js';
 import { householdReport, feederFor, TARIFF, fireDanger, season } from '../world/household.js';
 import { propertyOfficePanel, motorMarketPanel, motorWorkshopPanel } from './property-panels.js';
 import { tradeEducationPanel } from './trade-education-panels.js';
 
 const list = (o) => Object.entries(o || {}).filter(([, n]) => n > 0).map(([g, n]) => amount(g, n)).join(', ') || 'nothing';
-const hours = (p) => (p.opens === 0 && p.closes >= 1440 ? 'open all hours' : `${timeText(p.opens)}–${timeText(p.closes)}`);
+const hours = (p) => { const [from, to] = visitorHours(p); return p.id === 'square' ? 'open all hours' : p.id === 'farmhouse' ? 'visits by appointment' : `${timeText(from)}–${timeText(to)}`; };
 
 // How each place works, so the town reads as a real supply chain.
 const ABOUT = {
@@ -103,7 +104,7 @@ function civicPanel(life, id, again) {
     rows.push(`<p><b>Household bills:</b> rent ${money(ov.rentArrears)} and power ${money(ov.powerArrears)} overdue · rent $8 and power $2 are charged each morning from your wallet, then savings.</p>`);
     if (cr.journal.length) rows.push(`<p class="dim"><b>Recent entries:</b></p><ul class="dim">${cr.journal.map((e) => `<li>Day ${e.day} · ${esc(e.text)}</li>`).join('')}</ul>`);
   }
-  rows.push(`<p><b>Hours:</b> ${esc(hours(p))} · <b>Staff:</b> ${staff.map((v) => esc(`${v.name} (${v.job})`)).join(', ') || 'automated'}</p>`);
+  rows.push(`<p><b>Visiting hours:</b> ${esc(hours(p))} · <b>Entry:</b> ${esc(facilityAccess(life,p).reason === 'unstaffed' ? 'waiting for staff' : facilityAccess(life,p).allowed ? 'open' : 'closed')} · <b>Staff:</b> ${staff.map((v) => esc(`${v.name} (${v.job})`)).join(', ') || 'automated'}</p>`);
   const act = (label, fn) => ({ label, run: () => { const msg = fn(); return { ...again(), body: `<p><b>${esc(msg)}</b></p>` + again().body }; } });
   const actions = [];
   if (id === 'hotel') actions.push(act('Book a room ($24)', () => life.bookHotel()));
@@ -206,14 +207,15 @@ function placePanelBase(life, id) {
   const p = life.place(id);
   if (p.side === 'south') return civicPanel(life, id, () => placePanel(life, id));
   if (id === 'hall') return hallPanel(life);
-  const open = life.open(p);
+  const access = facilityAccess(life, p);
+  const open = access.allowed;
   const staff = life.villagers.filter((v) => v.work === id);
   const here = life.villagers.filter((v) => workingAt(v,id));
   const service = shopService(life,p), serving = service.available;
   const visitors = life.villagers.filter((v) => v.step?.at === id && v.step.kind !== 'work' && !v.path.length);
   const rows = [];
   rows.push(`<p>${esc(ABOUT[id] || '')}</p>`);
-  rows.push(`<p><b>Hours:</b> ${esc(hours(p))} · ${open ? '<span class="ok">open now</span>' : '<span class="dim">closed now</span>'} · it's ${esc(life.time())}</p>`);
+  rows.push(`<p><b>Visiting hours:</b> ${esc(hours(p))} · ${open ? '<span class="ok">open for entry</span>' : `<span class="dim">${esc(access.reason === 'unstaffed' ? 'awaiting staff' : 'closed to visitors')}</span>`} · it's ${esc(life.time())}</p>`);
   rows.push(`<p><b>Counter:</b> ${esc(service.message)}</p>`);
   if (p.kind === 'farm') {
     rows.push(`<p><b>Crop:</b> <span class="bar"><span style="width:${Math.round(p.growth * 100)}%"></span></span> ${Math.round(p.growth * 100)}% grown</p>`);
