@@ -1109,6 +1109,12 @@ async function start() {
     }
     if (mode === 'town') input.consume('use');
     expedition.update(t,player,mode);
+    // One prompt at a time: the gold chest/relic bar only when E would open it, else the usual prompt.
+    if (mode === 'town' && !$('expedition-hint').hidden) {
+      const relic = expedition.nearby(player.pos), d = (o) => (o ? Math.hypot(o.pos.x - player.pos.x, o.pos.z - player.pos.z) : Infinity);
+      const relicWins = !driving.driving && !nearCar && !player.seated && !nearTownSeat && d(relic) <= d(nearNPC) && d(relic) <= d(nearPerson);
+      if (relicWins) $('prompt').hidden = true; else $('expedition-hint').hidden = true;
+    }
     mapTimer += dt; if (mapTimer > 0.2) { drawMap(); mapTimer = 0; }
     saveTimer += dt; if (saveTimer > 3) { save(); saveTimer = 0; }
     // Apply after selecting the new nearby prompt: never let it reappear over

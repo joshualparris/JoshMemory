@@ -683,7 +683,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       LOT8_Z + (kind === 'square' ? 11 : 12.4));
     group.add(sign); labels.push(sign);
     // The place's counter: stand on the footpath in front and press E.
-    spots.push({ key: `place:${p.id}`, id: p.id, pos: new THREE.Vector3(p.x, 0, LOT8_Z + 10.4), label: p.kind === 'farm' ? `${p.name} — see how it's farmed` : p.kind === 'park' ? 'Market Square notice board' : p.id === 'hall' ? 'Town Hall — the Town Ledger' : `${p.name} — ${p.kind === 'shop' || p.kind === 'cafe' || p.kind === 'pub' ? 'see what\'s on the shelves' : 'look inside'}` });
+    spots.push({ key: `place:${p.id}`, id: p.id, pos: new THREE.Vector3(p.x, 0, LOT8_Z + 10.4), label: p.kind === 'farm' ? `${p.name} — see how it's farmed` : p.kind === 'park' ? 'Market Square notice board' : p.id === 'hall' ? 'Town Hall — the Town Ledger' : `${p.name} — ${p.kind === 'cafe' ? 'order food and coffee' : p.kind === 'pub' ? 'grab a meal or a drink' : p.kind === 'shop' ? 'see what\'s on the shelves' : 'look inside'}` });
     // Field across the road.
     if (p.field) fields.push({ p, ...buildField(p, group, statics, statics.glass) });
     // Goods on display, following the stock.
