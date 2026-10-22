@@ -27,7 +27,7 @@ for(const [id,role] of [['hotel','hotel receptionist'],['police','police desk of
 for(const p of PLACE_DEFS.filter(p=>!['home','park'].includes(p.kind))){
  const team=life.villagers.filter(v=>v.work===p.id&&!['student','retired'].includes(v.job));
  assert(team.length>=2,p.name+' must have paid primary and relief staff');
- assert.equal(openingHoursLabel(p).includes('OPEN')||openingHoursLabel(p).includes('RECEPTION'),true,p.id+' has a readable hours sign');
+ assert.equal(openingHoursLabel(p).includes('HOURS')||openingHoursLabel(p).includes('RECEPTION'),true,p.id+' has a readable hours sign that does not falsely claim live opening');
 }
 for(const id of ['store','bank','court','solicitor','soyplant','soyfarm','power','waterworks','sewage','clinic','hardware']){
  const p=life.place(id),[opens,closes]=visitorHours(p);

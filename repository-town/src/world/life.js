@@ -154,7 +154,7 @@ const JOBS = [
   ['dairy hand', 'dairy', 5 * 60, 14 * 60], ['poultry keeper', 'coop', 6 * 60, 14 * 60], ['shearer', 'sheep', 6 * 60, 15 * 60],
   ['miller', 'mill', 7 * 60, 16 * 60], ['baker', 'bakery', 4 * 60 + 30, 13 * 60], ['baker', 'bakery', 6 * 60, 15 * 60],
   ['barista', 'cafe', 6 * 60 + 15, 15 * 60], ['cook', 'cafe', 7 * 60, 15 * 60 + 30], ['grocer', 'greengrocer', 7 * 60 + 30, 17 * 60],
-  ['shopkeeper', 'store', 7 * 60 + 30, 18 * 60], ['butcher', 'butcher', 7 * 60 + 30, 16 * 60], ['publican', 'pub', 11 * 60, 23 * 60],
+  ['shopkeeper', 'store', 7 * 60, 18 * 60], ['butcher', 'butcher', 7 * 60 + 30, 16 * 60], ['publican', 'pub', 11 * 60, 23 * 60],
   ['postie', 'post', 8 * 60, 14 * 60], ['truck driver', 'depot', 6 * 60, 16 * 60], ['truck driver', 'depot', 7 * 60, 17 * 60],
   ['truck driver', 'depot', 6 * 60 + 30, 15 * 60], ['teacher', 'school', 8 * 60, 15 * 60 + 30], ['nurse', 'clinic', 8 * 60, 17 * 60],
   ['mayor', 'hall', 9 * 60, 16 * 60], ['station master', 'depot', 6 * 60, 15 * 60], ['programmer', 'home', 9 * 60, 17 * 60],
@@ -542,7 +542,7 @@ export class TownLife {
     separatePedestrians(this.villagers.filter(v=>!v.inside).map(v=>({
       id:v.id,pos:v,radius:v.bike&&v.path.length?1.16:.59,
       fixed:!!v.engaged
-    })),{world:this.pedestrianWorld||null,gap:1.24,passes:6});
+    })),{world:this.pedestrianWorld||null,gap:1.24,passes:12});
     // A crowd can nudge walkers sideways every tick while route-following
     // pulls them back towards the same obstructed point. Detect lack of NET
     // forward progress, recover via a real walkable detour, and never orbit
@@ -1205,7 +1205,18 @@ export class TownLife {
     // going to bed. Otherwise 22:30 bedtime cancels their 23:00 shift early.
     const sleepFrom = v.job === 'baker' && v.start < 6 * 60 ? 20 * 60 + 30 :
       v.end >= 22 * 60 ? Math.min(24 * 60, v.end + 30) : 22 * 60 + 30;
-    const wake = Math.min(v.start - 75, 6 * 60 + 30);
+    // Staff travel to work before published opening, accounting for a
+    // genuine street commute plus time to prepare the premises.
+    const publicSite=this.places.get(v.work);
+    const receptionWorker=publicSite && !['home','park'].includes(publicSite.kind) &&
+      !['student','retired','security guard','truck driver','postie'].includes(v.job);
+    const routeDistance=receptionWorker
+      ? Math.abs(v.home.door.x-publicSite.front.x)+Math.abs(v.home.door.z-publicSite.front.z)+25 : 0;
+    const travelMinutes=Math.ceil(routeDistance/((routeDistance>160?BIKE:WALK)*SEC_PER_MIN)*1.45);
+    const preOpenLead=receptionWorker?Math.min(200,Math.max(35,travelMinutes+25)):0;
+    const wake = receptionWorker && v.start>=6*60
+      ? Math.min(v.start-75,6*60+30,Math.max(3*60,v.start-preOpenLead-40))
+      : Math.min(v.start-75,6*60+30);
     const asleep = m >= sleepFrom || m < wake || (v.fatigue>=94 && m >= v.end);
     if (asleep) return this.goThen(v, home, { kind: 'sleep', at: 'home', until: wake < m ? wake + 24 * 60 : wake, activity: 'asleep at home' });
     if (v.hunger>=82 && m>=wake && !v.doneToday.breakfast) v.memory='very hungry, looking for breakfast';
@@ -1225,7 +1236,18 @@ export class TownLife {
       if (this.open(this.place('bakery')) && v.wallet >= 5) return this.goThen(v, this.place('bakery').front, { kind: 'snack', at: 'bakery', good: 'bread', dur: 8, activity: 'grabbing a bread roll at the Bakery' });
       if (cafeOk) return this.goThen(v, cafe.front, { kind: 'eatout', at: 'cafe', dur: 25, activity: 'having breakfast at the Commit Café (over budget this week)' });
     }
+    // Opening preparation takes place at the real building rather than
+    // magically providing staff while a villager is still cycling in.
     const working = m >= v.start && m < v.end;
+    if(receptionWorker && m >= v.start-preOpenLead && m < v.start){
+      if(v.step?.kind==='preopen' && v.step.at===v.work && !v.path.length){
+        v.step.until=v.start;return v.step;
+      }
+      return this.goThen(v,publicSite.front,{
+        kind:'preopen',at:v.work,until:v.start,
+        activity:'opening up '+publicSite.name+' before customers arrive'
+      });
+    }
     if (v.job === 'security guard' && working) {
       // Paid rounds on public pavements, not police duties or unrestricted private access.
       const checkpoints = v.start < 12*60
@@ -1262,7 +1284,8 @@ export class TownLife {
       // Extending a live shift must NOT send a cashier who is already at the
       // counter on a fresh random commute through three footpath waypoints.
       // That brief phantom journey was closing eight buildings at 13:15.
-      if(v.step?.kind==='work' && v.step.at===v.work && !v.path.length){
+      if(['work','preopen'].includes(v.step?.kind) && v.step.at===v.work && !v.path.length){
+        v.step.kind='work';
         v.step.until=until;
         v.activity=this.workActivity(v);
         return v.step;
@@ -1422,7 +1445,7 @@ export class TownLife {
     const site=this.places.get(step.at);
     const atFront=site&&Math.hypot(target.x-site.front.x,target.z-site.front.z)<4.5;
     const reserves=atFront&&(['buy','snack','eatout'].includes(step.kind)||
-      (step.kind==='work'&&site.kind!=='farm'&&v.job!=='truck driver')||
+      (['work','preopen'].includes(step.kind)&&site.kind!=='farm'&&v.job!=='truck driver')||
       (step.kind==='idle'&&['pub','square'].includes(step.at)));
     if(reserves){
       const active=new Set(this.villagers.filter(o=>o!==v &&
@@ -1561,7 +1584,7 @@ export class TownLife {
     // a permanent overlapping crowd in front of the Bakery and General Store.
     // Indoor shop staff already have their corresponding real-NPC counter model.
     const place=this.places.get(s.at);
-    const indoorWork=s.kind==='work'&&place&&!['farm','depot','park','home'].includes(place.kind);
+    const indoorWork=['work','preopen'].includes(s.kind)&&place&&!['farm','depot','park','home'].includes(place.kind);
     const indoorVisit=['buy','snack','eatout'].includes(s.kind)&&place&&
       ['shop','cafe','pub'].includes(place.kind);
     // Pub patrons sit inside, not in a stationary crowd outside its door.
@@ -1664,7 +1687,8 @@ export class TownLife {
     const uses = where === 'pub' ? ['lamb', 'veg', 'pie'] : ['bread', 'eggs', 'milk', 'coffee'];
     const ok = uses.some((g) => (p.stock[g] || 0) > 0);
     if (!ok) this.stats.stockouts++;
-    if (!ok || v.wallet < price) { v.activity = `found the ${p.name} out of food`; this.log(`The ${p.name} ran out of food and had to turn ${v.name} away.`); return; }
+    if (!ok) { v.activity = `found the ${p.name} out of food`; this.log(`The ${p.name} ran out of food and had to turn ${v.name} away.`); return; }
+    if (v.wallet < price) { v.activity = `could not afford a meal at ${p.name}`; v.memory = `could not afford a meal at ${p.name}`; return; }
     for (const g of uses) if ((p.stock[g] || 0) > 0) { p.stock[g]--; break; }
     v.wallet -= price; noteSpend(v, 'out', price); this.sale(p, price); this.stats.mealsOut++;
     this.eat(v, dish); v.activity = `${v.step.activity} — ${dish}`;
@@ -1676,7 +1700,8 @@ export class TownLife {
     const service = shopService(this, shop);
     if (!service.available) { this.missedServiceMeal(v, service.message); v.activity = `could not get service at ${shop.name}`; return; }
     if (this.open(shop) && !(src[good] > 0)) this.stats.stockouts++;
-    if (!this.open(shop) || !(src[good] > 0) || v.wallet < price) { v.memory = `the ${shop.name} had no ${GOODS[good].name} left`; v.activity = `found the ${shop.name} out of ${GOODS[good].name}`; return; }
+    if (!this.open(shop) || !(src[good] > 0)) { v.memory = `the ${shop.name} had no ${GOODS[good].name} left`; v.activity = `found the ${shop.name} out of ${GOODS[good].name}`; return; }
+    if (v.wallet < price) { v.memory = `could not afford ${GOODS[good].name} at ${shop.name}`; v.activity = v.memory; return; }
     src[good]--; v.wallet -= price; noteSpend(v, 'out', price); this.sale(shop, price); this.stats.sold[good] = (this.stats.sold[good] || 0) + 1;
     this.eat(v, good === 'pie' ? 'a meat pie from the Bakery' : 'a fresh bread roll');
   }
@@ -1687,16 +1712,29 @@ export class TownLife {
     if (!service.available) { v.memory = service.message; return; }
     const src = shopId === 'bakery' ? shop.out : shop.stock;
     const bag = v.carrying || {};
-    const missing = [];
+    const missing = [], unaffordable = [];
     for (const g of items) {
       const n = g === 'veg' || g === 'bread' ? 2 : 1;
       const have = src[g] || 0, price = GOODS[g].price * n;
-      if (have >= n && v.wallet >= price) { src[g] -= n; bag[g] = (bag[g] || 0) + n; v.wallet -= price; noteSpend(v, 'food', price); this.sale(shop, price); this.stats.sold[g] = (this.stats.sold[g] || 0) + n; }
-      else missing.push(GOODS[g].name);
+      if (have < n) { missing.push(GOODS[g].name); continue; }
+      if (v.wallet < price) { unaffordable.push(GOODS[g].name); continue; }
+      src[g] -= n;
+      bag[g] = (bag[g] || 0) + n;
+      v.wallet -= price;
+      noteSpend(v, 'food', price);
+      this.sale(shop, price);
+      this.stats.sold[g] = (this.stats.sold[g] || 0) + n;
     }
     if (Object.keys(bag).length) v.carrying = bag;
+    // A customer with insufficient money is not evidence of an empty shelf.
+    // Report genuine unmet demand and affordability separately.
     this.stats.stockouts += missing.length;
-    if (missing.length) { v.memory = `the ${shop.name} was out of ${missing.join(' and ')}`; if (this.rand() < 0.5) this.log(`${v.name} found the ${shop.name} out of ${missing.join(' and ')}.`); }
+    if (missing.length) {
+      v.memory = 'the '+shop.name+' was out of '+missing.join(' and ');
+      if (this.rand() < 0.5) this.log(v.name+' found the '+shop.name+' out of '+missing.join(' and ')+'.');
+    } else if (unaffordable.length) {
+      v.memory = 'could not afford '+unaffordable.join(' and ')+' at '+shop.name;
+    }
   }
 
   // Workers are paid at the end of each shift by their employer's till, or by the council for
