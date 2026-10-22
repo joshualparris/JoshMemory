@@ -26,7 +26,7 @@ export function openingHoursLabel(place) {
   if(place.id==='square') return 'PUBLIC 24 HOURS';
   if(place.id==='farmhouse') return 'VISITS BY APPOINTMENT';
   const [opens,closes]=visitorHours(place);
-  return `${SUPERVISED.has(place.id)||RECEPTION_HOURS[place.id]?'RECEPTION':'OPEN'} ${CLOCK(opens)}-${CLOCK(closes)}`;
+  return `${SUPERVISED.has(place.id)||RECEPTION_HOURS[place.id]?'RECEPTION':'HOURS'} ${CLOCK(opens)}-${CLOCK(closes)}`;
 }
 export function onSiteWorkers(town, place) {
   return (town.villagers || []).filter(v => workingAt(v, place.id, place));
