@@ -335,7 +335,10 @@ export function walkRoute(a, b) {
   // lanes, not a shared single-file route in front of every shop.
   // Opposing lanes 2.1 m apart; walkers on the outer one step round front-yard objects
   // (pedestrian-navigation.js staticBlockOnSegment).
-  const setback=b.x>=a.x?6.6:4.5;
+  // The outward-moving footpath lane must clear lamp posts 6.0m from the road centre.
+  // 6.6m left a walker overlapping the lamp at (136, -13) on Street 4;
+  // 7.05m clears the post while staying outside the south-side shop facades.
+  const setback=b.x>=a.x?7.05:4.5;
   const sa = sideZ(ra, a.z, setback), sb = sideZ(rb, b.z, setback);
   const pts = [{ x: a.x, z: sa }];
   if (!(ra === rb && sa === sb)) {
