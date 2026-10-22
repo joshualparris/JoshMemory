@@ -5,6 +5,7 @@
 // Chilled stock follows the Australian 2-hour/4-hour rule: after four hours without refrigeration
 // it is unsafe and is thrown out.
 import { COUNTERS } from './counter-queue.js';
+import { theName } from './shop-attendance.js';
 
 // Share of each perishable shelf lost per day (stale, bruised or past its date). Whole units only,
 // so a small shelf of two or three doesn't lose anything.
@@ -24,7 +25,7 @@ export function coldChainHour(life) {
     if (p.coldOff < COLD_LIMIT) continue;
     const lost = [];
     for (const shelf of shelvesOf(p)) for (const g of CHILLED) if (shelf[g] > 0) { lost.push(`${shelf[g]} ${g}`); tossed += shelf[g]; shelf[g] = 0; }
-    if (lost.length) life.log(`The ${p.name}'s cold room has been off for four hours: ${lost.join(' and ')} thrown out under the food-safety rule.`);
+    if (lost.length) life.log(`${theName(p, true)}'s cold room has been off for four hours: ${lost.join(' and ')} thrown out under the food-safety rule.`);
   }
   // Bottling plant's finished goods also need continuous cooling. Process rooms are
   // not part of the normal retail counter list, so handle the plant explicitly.
@@ -49,7 +50,7 @@ export function shopWasteDay(life) {
     const p = life.place(id);
     for (const shelf of shelvesOf(p)) for (const [g, rate] of Object.entries(DAILY_LOSS)) {
       const n = Math.floor((shelf[g] || 0) * rate);
-      if (n > 0) { shelf[g] -= n; total += n; notes.push(`${n} ${g} at the ${p.name}`); }
+      if (n > 0) { shelf[g] -= n; total += n; notes.push(`${n} ${g} at ${theName(p)}`); }
     }
   }
   if (total) {
