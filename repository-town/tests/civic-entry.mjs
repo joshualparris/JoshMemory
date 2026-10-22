@@ -18,6 +18,8 @@ assert(!atCivicEntrance(bank,{x:bank.x+4,z:FIELD_Z0-1.25}));
 const outside=closedCivicDoorPose(bank,{x:bank.x,z:FIELD_Z0-1});
 assert(!atCivicEntrance(bank,outside));
 assert(outside.z<FIELD_Z0-.35);
+// Send the on-shift bank staff home so the entrance starts unstaffed.
+for(const v of life.villagers.filter(v=>v.work==='bank'))Object.assign(v,{step:null,path:[],x:v.home.door.x,z:v.home.door.z});
 assert.equal(facilityAccess(life,bank).reason,'unstaffed');
 const teller=life.villagers.find(v=>v.work==='bank');
 assert(teller);
