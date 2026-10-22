@@ -312,6 +312,9 @@ export function ledgerPanel(life) {
   const n = (o) => Object.entries(o).map(([g, k]) => esc(amount(g, k))).join(', ') || 'none yet';
   const y = L.yesterday;
   const council=life.governmentReport();
+  const yarns=(life.social?.events||[]).filter(e=>Array.isArray(e.lines)&&e.lines.length).slice(0,8);
+  const yarnHTML=yarns.map(e=>'<details><summary>'+esc(e.people.join(' & ')+' · '+(e.location||e.kind)+' · Day '+e.day+' '+String(Math.floor(e.minute/60)).padStart(2,'0')+':'+String(e.minute%60).padStart(2,'0'))+'</summary>'+
+    e.lines.map(line=>'<p><b>'+esc(line.speaker)+':</b> “'+esc(line.text)+'”</p>').join('')+'</details>').join('');
   return {
     title: `Town Ledger · Day ${L.day}, ${L.time}`, wide: true,
     body: `<p><b>Population:</b> ${L.population} villagers · ${L.atWork} at work · ${L.asleep} asleep · ${life.homes.length} households.</p>
@@ -325,6 +328,7 @@ export function ledgerPanel(life) {
       <h3>Government and public works</h3><p>Mayor ${esc(council.mayor)} · GM ${esc(council.manager)} · ${council.councillors.length} elected councillors · ${council.orders.filter(o=>o.status!=='done').length} work orders open · ${council.motions.filter(m=>m.status==='tabled').length} motions pending. Visit Town Hall for decisions and reports.</p>
       <h3>Council and utilities</h3><p>Mayor ${esc(L.civic.mayor)} · treasury ${money(L.civic.treasury)} · weather ${esc(L.civic.weather)} · power ${L.civic.supply.power}/${L.civic.supply.powerDemand} ${L.civic.supply.ok ? '' : '<b>(blackout)</b>'} · water ${L.civic.supply.water}/${L.civic.supply.waterDemand} · fuel ${L.utilities.fuel} drums · reservoir ${L.utilities.reservoir} kL<br>Taxes today ${money(s.taxes)} · wages ${money(s.wages)} · recycled ${s.recycled} · to landfill ${s.landfill}</p>
       ${powerNetworkHTML(L.civic)}<h3>Trucks</h3><p>${L.trucks.map((t) => esc(`${t.driver || 'Spare'}: ${t.state}`)).join('<br>')}</p>
+      <h3>Resident yarns — exactly what they said</h3>${yarnHTML||'<p>No conversations recorded yet. Let the town run or visit the pub.</p>'}
       <h3>News</h3><ul class="news">${L.news.map((e) => `<li><span class="dim">${esc(e.t)}</span> ${esc(e.text)}</li>`).join('')}</ul>`,
     actions: [{ label: '📊 Town accounts', run: () => economyPanel(life, () => ledgerPanel(life)) }],
   };

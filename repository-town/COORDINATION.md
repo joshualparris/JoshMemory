@@ -7,6 +7,9 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-22 · ChatGPT — **IN PROGRESS: overheard NPC yarns** on `feat/town-overheard-yarns-20261022`. Contextual four-line conversations are generated at genuine meetings, saved with social memories, and shown through a mobile-friendly 🗣 Yarns log and local subtitles. Source changes: `src/world/yarn-dialogue.js`, `social-events.js`, `life.js`, new `src/ui/yarns.js`, minimal `src/main.js`, `tests/social-events.mjs`. Protect ongoing immersive-sleep work; tests, integration, and live deployment pending.
+
+
 - 2026-10-22 · ChatGPT — **INTEGRATING: immersive timed sleep and wake-up** on `feat/town-immersive-sleep-20261022`. Source `src/world/needs.js`, `src/world/life.js`, `src/main.js`, `src/index.html`, `src/styles.css`; hotel and owned-home beds now offer 30 min–8 h rests and until 06:00 overnight, physically settle camera then fade to black, simulate deterministic town time in Android-friendly batches, wake/fade in and save. Extends `tests/hunger-sleep-hotel.mjs` and adds `tests/sleep-browser.mjs`. Full CI/build, merge and deployment pending; do not publish the generated Pages backup by hand.
 
 - 2026-10-22 · ChatGPT — **READY FOR REVIEW: low-frame-rate house and civic doorways** on `fix/town-lowfps-door-sensors-20261022`. House approach sensors extend to a collision-clear 2.25m, north civic entry sensors to 1.35m, and locked-door respawns remain outside the trigger. Full `npm run build:release`, privacy scan, 14 approach checks, 188-house exterior, civic access and visitor security checks passed in isolated sandbox. Awaiting merged commit and live verification.
