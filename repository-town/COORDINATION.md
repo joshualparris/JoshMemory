@@ -7,6 +7,8 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-22 · ChatGPT — **INTEGRATING: immersive timed sleep and wake-up** on `feat/town-immersive-sleep-20261022`. Source `src/world/needs.js`, `src/world/life.js`, `src/main.js`, `src/index.html`, `src/styles.css`; hotel and owned-home beds now offer 30 min–8 h rests and until 06:00 overnight, physically settle camera then fade to black, simulate deterministic town time in Android-friendly batches, wake/fade in and save. Extends `tests/hunger-sleep-hotel.mjs` and adds `tests/sleep-browser.mjs`. Full CI/build, merge and deployment pending; do not publish the generated Pages backup by hand.
+
 - 2026-10-22 · ChatGPT — **READY FOR REVIEW: low-frame-rate house and civic doorways** on `fix/town-lowfps-door-sensors-20261022`. House approach sensors extend to a collision-clear 2.25m, north civic entry sensors to 1.35m, and locked-door respawns remain outside the trigger. Full `npm run build:release`, privacy scan, 14 approach checks, 188-house exterior, civic access and visitor security checks passed in isolated sandbox. Awaiting merged commit and live verification.
 
 - 2026-10-22 · ChatGPT — **READY FOR INTEGRATION: playable café, save/restore stability and validated walking tests** on `fix/town-cafe-save-integrated-20261022`. Preserves merged PR #118 walk-test fixes while reconciling PR #132 (which includes PR #129): skim orders, $1 wallet-funded timely-service tips, full save replacement, step-by-step work-save regressions, mobile café browser tests. `npm run build:release` and privacy gate passed in isolated Vercel sandbox; browser tests tracked in PR CI. Source-first; generated Pages backup not overwritten.

@@ -54,6 +54,8 @@ jobs:
           done
           curl -fsSI http://127.0.0.1:8091/ > /dev/null
           node tests/webgl-playtest.mjs
+          node tests/sleep-browser.mjs
+          node tests/sleep-browser.mjs --mobile
         env:
           TOWN_PLAYTEST_URL: http://127.0.0.1:8091/
           LIBGL_ALWAYS_SOFTWARE: '1'

@@ -95,6 +95,17 @@ body.playing #hud, body.playing #touch, body.playing #minimap, body.playing #cro
 #panel .chat-key { width: 12em; padding: 4px 8px; }
 #panel .chat-brain { margin-top: 8px; }
 
+/* Immersive bedroom transition: full viewport, above every HUD/phone control. */
+#sleep-screen{position:fixed;inset:0;z-index:200;display:grid;place-items:center;
+  background:rgba(3,5,10,0);color:#f1f2f6;pointer-events:all;
+  opacity:1;transition:background .85s ease;}
+#sleep-screen.sleep-dark{background:rgba(3,5,10,1);}
+.sleep-content{text-align:center;opacity:0;transition:opacity .65s ease;padding:24px;max-width:90vw;}
+#sleep-screen.sleep-dark .sleep-content{opacity:1;}
+.sleep-icon{font-size:40px;line-height:1.6;filter:drop-shadow(0 0 20px #8da2cf88);}
+#sleep-message{font-size:clamp(19px,5vw,28px);margin:4px 0;font-weight:650;}
+#sleep-time{font-variant-numeric:tabular-nums;color:#b8c7dd;font-size:16px;letter-spacing:.04em;}
+@media(prefers-reduced-motion:reduce){#sleep-screen,.sleep-content{transition-duration:.12s;}}
 /* Town life */
 #clock { font-size: 12px; font-weight: normal; opacity: .85; margin-left: 6px; white-space: nowrap; }
 .bar { display: inline-block; width: 120px; height: 10px; background: #0003; border-radius: 5px; vertical-align: middle; overflow: hidden; }

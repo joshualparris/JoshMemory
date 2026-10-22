@@ -817,8 +817,8 @@ export class TownLife {
     me.served.length = Math.min(me.served.length, 5);
   }
   bookHotel() { return hotelCheckIn(this); }
-  sleepHotel(room=null) { return sleepPlayer(this,'hotel',room); }
-  sleepHome(coordinate) { return sleepPlayer(this,'home',coordinate); }
+  sleepHotel(room=null,duration=null) { return sleepPlayer(this,'hotel',room,duration); }
+  sleepHome(coordinate,duration=null) { return sleepPlayer(this,'home',coordinate,duration); }
   needsReport() { return needsReport(this); }
   bank(op, n) {
     const me = this.civic.player, from = op === 'deposit' ? 'wallet' : 'bank', to = op === 'deposit' ? 'bank' : 'wallet';

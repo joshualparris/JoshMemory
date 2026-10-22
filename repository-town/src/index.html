@@ -49,6 +49,13 @@
 </header>
 <aside id="card" hidden aria-live="polite"></aside>
 <div id="prompt" hidden></div>
+<div id="sleep-screen" role="status" aria-live="polite" aria-atomic="false" hidden>
+  <div class="sleep-content">
+    <div class="sleep-icon" aria-hidden="true">🌙</div>
+    <h2 id="sleep-message">Settling into bed…</h2>
+    <p id="sleep-time" aria-hidden="true"></p>
+  </div>
+</div>
 <section id="panel" role="dialog" aria-modal="false" aria-labelledby="panel-title" hidden>
   <button id="panel-close" aria-label="Close">✕</button>
   <h2 id="panel-title"></h2>
