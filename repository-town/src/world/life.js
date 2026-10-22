@@ -491,6 +491,8 @@ export class TownLife {
     ensureTenancies(this);
     initialiseVehicles(this);
     initialiseTradeEducation(this);
+    // Civic records a new town starts with; restore() drops any others the save didn't have.
+    this.baseCivic = Object.keys(this.civic);
     this.log(`Day ${this.day} begins. The town wakes up.`);
   }
 
@@ -1718,6 +1720,8 @@ export class TownLife {
     // retained and naturally migrate to v2 on the next save.
     this.powerGridEvents=Array.isArray(s.powerGridEvents)?s.powerGridEvents.slice(-80):[];
     this.powerGridEventSeq=Number.isSafeInteger(s.powerGridEventSeq)?s.powerGridEventSeq:this.powerGridEvents.length;
+    // A full save replaces work begun after it (shifts, trays, cartons, routes) rather than keeping it.
+    if (sim && s.civic) for (const k of Object.keys(this.civic)) if (!(k in s.civic) && !this.baseCivic.includes(k)) delete this.civic[k];
     if (s.civic && typeof s.civic === 'object') Object.assign(this.civic, s.civic, { player: { ...this.civic.player, ...(s.civic.player || {}) } });
     restoreCivic(this,s.civic?.government);
     initialiseTradeEducation(this);
@@ -1732,8 +1736,8 @@ export class TownLife {
     if (sim) {
       this.seed = s.seed; this.rand.setState(s.rngState);
       this.events = sim.events; this.stats = sim.stats; this.yesterday = sim.yesterday || undefined;
-      for (const saved of sim.villagers) { const cur = this.villagers.find((x) => x.id === saved.id); for (const k of SIM_VILLAGER_FIELDS) if (Object.prototype.hasOwnProperty.call(saved, k)) cur[k] = saved[k]; }
-      for (const saved of sim.trucks) { const cur = this.trucks.find((x) => x.id === saved.id); for (const k of SIM_TRUCK_FIELDS) if (Object.prototype.hasOwnProperty.call(saved, k)) cur[k] = saved[k]; }
+      for (const saved of sim.villagers) { const cur = this.villagers.find((x) => x.id === saved.id); for (const k of SIM_VILLAGER_FIELDS) if (Object.prototype.hasOwnProperty.call(saved, k)) cur[k] = saved[k]; else delete cur[k]; }
+      for (const saved of sim.trucks) { const cur = this.trucks.find((x) => x.id === saved.id); for (const k of SIM_TRUCK_FIELDS) if (Object.prototype.hasOwnProperty.call(saved, k)) cur[k] = saved[k]; else delete cur[k]; }
       this.parcels = sim.parcels;
     }
     for (const v of this.villagers) { if (!Array.isArray(v.larder)) v.larder = null; ensureHousehold(v); }
