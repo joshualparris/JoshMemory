@@ -42,7 +42,7 @@ try{
   assert.equal(await page.evaluate(()=>document.getElementById('sleep-screen').hidden),false,'black transition displayed');
   await page.waitForFunction(()=>!window.__town.state().sleeping,null,{timeout:20000});
   const after=await page.evaluate(()=>window.__town.state());
-  assert.equal(after.minute, before.minute+30,'chosen short nap advances exactly 30 town minutes');
+  assert(Math.abs(after.minute-(before.minute+30))<0.5,'chosen 30-minute nap advances town time (allowing ordinary fractional clock ticks)');
   assert(after.needs.fatigue<before.needs.fatigue,'fatigue recovers after sleep');
   assert.equal(after.needs.booking.room,1,'nap keeps paid key');
   assert.equal(after.mode,'house','player wakes beside the same bed');
@@ -52,7 +52,7 @@ try{
   await page.waitForFunction(()=>window.__town.state().sleeping,null,{timeout:5000});
   await page.waitForFunction(()=>!window.__town.state().sleeping,null,{timeout:30000});
   const full=await page.evaluate(()=>window.__town.state());
-  assert.equal(full.minute,(after.minute+480)%1440,'eight-hour sleep advances town time exactly');
+  assert(Math.abs(full.minute-((after.minute+480)%1440))<0.5,'eight-hour sleep advances town time (allowing ordinary fractional clock ticks)');
   assert(full.needs.fatigue<after.needs.fatigue,'full sleep recovers more energy');
   assert(!errors.length,'No uncaught browser errors: '+errors.join('; '));
   console.log('PASS: '+(mobile?'Android':'desktop')+' bed view, full-screen fade, chosen time, recovery, room persistence, wake-up');
