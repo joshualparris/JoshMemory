@@ -6,7 +6,7 @@ import { chromium } from 'playwright';
 
 const args = process.argv.slice(2);
 const opt = (k, d) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : d; };
-const URL = opt('--url', 'http://localhost:8080/');
+const URL = opt('--url', 'http://localhost:8091/');
 const ROWS = opt('--rows', '1,8').split(',').map(Number);
 const TIMES = opt('--times', '7,12,18').split(',').map(Number);
 const ALL = args.includes('--all');

@@ -99,12 +99,18 @@ await shot('bakery-day');
 async function counter(s) {
   if (s.mode !== 'house') return s;
   // The press that entered may have opened a display near the door; go to the counter instead.
-  if (s.panel) await T(() => window.__town.closePanel());
   const desk = s.interactables.find((x) => x.do === 'civic-ledger');
-  await T((k) => window.__town.approach(k), desk.key);
-  await page.waitForFunction((k) => window.__town.state().near === k, desk.key, { timeout: 8000 });
-  await press('e');
-  return st();
+  // Customers queue at the same counter. If one steps nearer than the desk as E is pressed,
+  // E greets them (nearest wins); a player would step back up and press again, so do the same.
+  for (let attempt = 0; attempt < 4; attempt++) {
+    if (s.panel) await T(() => window.__town.closePanel());
+    await T((k) => window.__town.approach(k), desk.key);
+    await page.waitForFunction((k) => window.__town.state().near === k, desk.key, { timeout: 8000 });
+    await press('e');
+    s = await st();
+    if (!/Say hello to/.test(s.panel?.text || '')) break;
+  }
+  return s;
 }
 await press('e');
 s = await counter(await st());
@@ -115,6 +121,15 @@ check(bought && /You buy/.test(s.panel?.text || ''), `bought something: ${s.pane
 await T(() => window.__town.closePanel());
 await T(() => window.__town.exitShop());
 // The General Store counter offers every good on its shelves, not just the first four.
+// The clock jump above makes everyone re-plan their morning, so the shopkeeper can still be
+// cycling in; let the town run (up to two hours) until someone is serving, the same test
+// as src/world/shop-attendance.js workingAt(), before checking the counter.
+const storeStaffed = () => T(() => window.__town.state().people.some((q) => {
+  const r = window.__town.life.route(q.name);
+  return r?.step?.kind === 'work' && r.step.at === 'store' && !r.path.length;
+}));
+for (let i = 0; i < 24 && !(await storeStaffed()); i++) await T(() => window.__town.life.run(5));
+check(await storeStaffed(), 'someone is serving at the General Store counter');
 await T(() => window.__town.goPlace('store'));
 await nearTo(/^place:store$/);
 await press('e');
