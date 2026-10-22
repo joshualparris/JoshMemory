@@ -48,4 +48,22 @@ for(const seed of [42,20261022]){
 const test=new TownLife({homes,minute:8*60+18,seed:42});
 const site=test.place('greengrocer');
 assert.equal(facilityAccess(test,site).reason,'unstaffed','no phantom opening merely because it is 08:18');
+// Poverty is not an inventory shortage. A stocked retailer must retain its
+// goods and count only actual missing goods in the town stockout metric.
+const budgetTown=new TownLife({homes,minute:10*60,seed:42});
+const grocer=budgetTown.place('greengrocer');
+const seller=budgetTown.villagers.find(v=>v.work==='greengrocer');
+Object.assign(seller,{x:grocer.front.x,z:grocer.front.z,step:{kind:'work',at:'greengrocer',until:17*60},path:[],inside:true});
+const buyer=budgetTown.villagers.find(v=>v!==seller);
+buyer.wallet=0;grocer.stock.veg=8;
+const stockBefore=grocer.stock.veg,missedBefore=budgetTown.stats.stockouts;
+budgetTown.buy(buyer,'greengrocer',['veg']);
+assert.equal(budgetTown.stats.stockouts,missedBefore,'unaffordable goods are not empty shelves');
+assert.equal(grocer.stock.veg,stockBefore,'unsold inventory remains physical');
+assert.match(buyer.memory,/could not afford/);
+buyer.wallet=100;grocer.stock.veg=0;
+budgetTown.buy(buyer,'greengrocer',['veg']);
+assert.equal(budgetTown.stats.stockouts,missedBefore+1,'actual missing goods are recorded');
+assert.match(buyer.memory,/out of/);
+console.log('PASS: cannot afford vs genuinely out of stock are distinct');
 console.log('PASS: staffed service, physical commutes, honest hours and no phantom attendance');
