@@ -20,7 +20,7 @@ const hours = (p) => { const [from, to] = visitorHours(p); return p.id === 'squa
 // How each place works, so the town reads as a real supply chain.
 const ABOUT = {
   hall: 'The mayor keeps the Town Ledger here: every harvest, delivery, sale and meal in town is written down.',
-  store: 'Eggs from the Chook Shed, milk from the Dairy, flour from the Mill, bread from the Bakery, and coffee and tea off the morning freight train.',
+  store: 'Eggs from the Chook Shed, milk from the Dairy, flour from the Mill, bread from the Bakery, a little fruit and veg for its cordial, lollies and tins, and coffee and tea off the morning freight train.',
   bakery: 'The bakers start at half past four. Each hour two bags of flour make eight loaves; flour, lamb and vegetables make meat pies.',
   cafe: 'Brekkie and lunch from 6:30. The cook uses bread, eggs and milk delivered each morning; the coffee comes in on the train.',
   greengrocer: 'Vegetables from the Market Garden and fruit from the Orchard, brought in by truck.',
