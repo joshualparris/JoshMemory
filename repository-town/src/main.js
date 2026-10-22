@@ -19,7 +19,7 @@ import { FIELD_Z0 } from './world/life.js';
 import { emergencyPanel,justicePanel } from './ui/emergency-panels.js';
 import { civicExitPose } from './world/shop-exit.js';
 import { populateShopStaff } from './world/shop-staff.js';
-import { facilityAccess, restrictedServiceAction } from './world/facility-access.js';
+import { facilityAccess, restrictedServiceAction, visitorHours } from './world/facility-access.js';
 import { atCivicEntrance, closedCivicDoorPose } from './world/civic-entrance.js';
 import { createShopVisitors } from './world/shop-visitors.js';
 import { loadFurniture } from './world/furniture.js';
@@ -974,17 +974,18 @@ async function start() {
       }
       // Villagers, the guide kiosk and the shop counters: pick the one the player is facing.
       nearPerson = null; let bestP = Infinity;
-      const consider = (c, reach) => {
+      const consider = (c, reach, bonus = 0) => {
         const d = Math.hypot(c.pos.x - player.pos.x, c.pos.z - player.pos.z);
         if (d > reach) return;
         tmp.copy(c.pos).sub(player.pos); tmp.y = 0;
         const facing = d < 0.01 ? 1 : tmp.normalize().dot(player.forward());
-        const score = d - 1.6 * facing;
+        const score = d - 1.6 * facing - (facing > 0.5 ? bonus : 0);
         if ((facing > 0.2 || d < 1.2) && score < bestP) { bestP = score; nearPerson = c; }
       };
       for (const p of townLife.people) if (!p.v.inside) consider(p, 2.6);
       consider(guideSpot, 2.6);
-      for (const sp of townLife.spots) consider({ ...sp, spot: sp }, 3.2);
+      // A shop door you are facing wins over a villager walking past or queuing beside it.
+      for (const sp of townLife.spots) consider({ ...sp, spot: sp }, 3.2, 1.5);
       nearTownSeat = !overview&&!driving.driving ? nearestSeat(townLife.seats,player.pos,player.forward(),2.4) : null;
       nearCar = !overview&&!driving.driving ? driving.nearest() : null;
       nearHouse = null; let best = 6;
@@ -1056,6 +1057,11 @@ async function start() {
       else if(nearTownSeat) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — Sit on ${nearTownSeat.label}`;
       else if (nearRelic && relicD <= npcD && relicD <= personD) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — ✨ ${nearRelic.id === 'guild' ? 'Guild Chest' : nearRelic.name}`;
       else if (nearNPC && npcD <= personD) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — 💬 Talk to ${nearNPC.npc.name}`;
+      else if (nearPerson?.spot && !facilityAccess(life, life.place(nearPerson.spot.id)).allowed) {
+        // Say it's locked before the press, not after: "closed until 07:30" or "waiting for staff".
+        const site = life.place(nearPerson.spot.id), access = facilityAccess(life, site), [opens, closes] = visitorHours(site), hhmm = (n) => `${String(Math.floor(n / 60)).padStart(2, '0')}:${String(n % 60).padStart(2, '0')}`;
+        $('prompt').textContent = `${site.name} — ${access.reason === 'closed' ? `closed · hours ${hhmm(opens)}–${hhmm(closes)}` : access.reason === 'unstaffed' ? 'locked until staff arrive' : 'closed'}`;
+      }
       else if (nearPerson) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — ${nearPerson.v ? `Talk to ${nearPerson.v.name} (${nearPerson.v.job}) · ${nearPerson.v.activity.replace(/^(walking|cycling) — /, '')}` : nearPerson.label}`;
       else if (nearHouse) $('prompt').textContent = `${nearHouse.house.coordinate} · ${nearHouse.house.name} — walk through the door to enter`;
       if (input.consume('use')) use();

@@ -37,15 +37,20 @@ export function lineAt(life, placeId) {
 }
 
 // Orders still cooking at a venue (villagers' and the visitor's).
+// When each order still in the kitchen will be ready, soonest first.
 function cooking(life, placeId) {
   const t = now(life);
-  return life.villagers.filter((o) => o.step?.at === placeId && o.step.food && o.step.food.ready > t).length
-    + (life.civic.player.orders || []).filter((o) => o.venue === placeId && o.ready > t).length;
+  return [...life.villagers.filter((o) => o.step?.at === placeId && o.step.food && o.step.food.ready > t).map((o) => o.step.food.ready),
+    ...(life.civic.player.orders || []).filter((o) => o.venue === placeId && o.ready > t).map((o) => o.ready)].sort((a, b) => a - b);
 }
-// When a newly ordered dish will be ready: the kitchen works on as many orders as there are staff.
+const PANS_PER_COOK = 3; // a cook has a few orders on the go at once: toast, eggs and a coffee
+// When a newly ordered dish will be ready: it starts as soon as a cook has a free pan, first come first
+// served. (It used to multiply the prep time by the whole queue as well, so lunch took up to 108 minutes.)
 export function readyAt(life, placeId, dish) {
   const staff = Math.max(1, shopService(life, life.place(placeId)).staff?.length || 1);
-  return now(life) + prepMinutes(dish) * (1 + Math.floor(cooking(life, placeId) / staff));
+  const pending = cooking(life, placeId), slots = staff * PANS_PER_COOK;
+  const start = pending.length < slots ? now(life) : pending[pending.length - slots];
+  return start + prepMinutes(dish);
 }
 
 // On arrival: join the line instead of being served on the spot.

@@ -301,6 +301,9 @@ function rng(seed) {
   return next;
 }
 // Live simulation state saved so a reload resumes exactly where the town was (positions, routes, trucks, random state).
+// Town minutes before a shift that staff set off: about 7 m of street per minute door to door
+// (crossings, footpaths, lights), plus ten minutes' margin; Y2 to the General Store is about an hour.
+const commuteLead = (v, site) => site ? Math.min(90, Math.max(20, Math.round(Math.hypot(v.home.door.x - site.front.x, v.home.door.z - site.front.z) / 7) + 10)) : 0;
 const SIM_VILLAGER_FIELDS = ['x', 'z', 'heading', 'inside', 'path', 'step', 'activity', 'hunger', 'fatigue', 'restedMinutes', 'wallet', 'savings', 'larder', 'household', 'carrying', 'lastMeal', 'meals', 'seen', 'doneToday', 'queue', 'paidDay', 'bike', 'memory', 'wageArrears', 'rateArrears', 'housingArrears', 'detourWait'];
 const SIM_TRUCK_FIELDS = ['x', 'z', 'heading', 'path', 'job', 'leg', 'load', 'wait', 'state', 'braking', 'jam', 'siteAt', 'pulling', 'blockedBy', 'blockedFor', 'why', 'ignoreSite', 'retreat', 'reverse'];
 
@@ -467,6 +470,23 @@ export class TownLife {
     }
     // Each household's food, appliances, bills and chores (src/world/household.js).
     for (const v of this.villagers) { v.larder = null; ensureHousehold(v); }
+    // A new town starts mid-morning, not at midnight: anyone whose shift is already under way
+    // begins at work (bakers since 04:30), not asleep at home leaving the shop locked.
+    for (const v of this.villagers) {
+      const site = v.work !== 'home' && this.places.get(v.work);
+      if (!site || !(minute >= v.start && minute < v.end) || ['student', 'retired'].includes(v.job)) continue;
+      Object.assign(v, { x: site.front.x, z: site.front.z, inside: false, activity: 'on shift' });
+      Object.assign(v.doneToday, { shower: true, breakfast: true });
+    }
+    // A business can only trade while somebody is rostered on: the posted hours never start
+    // before the first shift or run past the last (the bakery used to say 18:00 with nobody there).
+    for (const p of this.places.values()) {
+      if (!(p.opens > 0 || p.closes < 24 * 60)) continue;
+      const staff = this.villagers.filter((v) => v.work === p.id && !['student', 'retired'].includes(v.job));
+      if (!staff.length) continue;
+      p.opens = Math.max(p.opens, Math.min(...staff.map((v) => v.start)));
+      p.closes = Math.min(p.closes, Math.max(...staff.map((v) => v.end)));
+    }
     // Persisted NPC social lives advance alongside the town rather than only in UI.
     this.social=freshSocialState();
     // Dedicated marked bays beside the depot, outside the 2 travel lanes.
@@ -1181,13 +1201,14 @@ export class TownLife {
 
   // ── Villagers ──
   // Decides the next thing to do from the clock, hunger, pantry and job.
-  plan(v) {
+  plan(v, finished = null) {
     const m = this.minute, home = this.doorstep(v), work = this.workSpot(v);
     // Late publicans, concierges and duty officers finish and get paid BEFORE
     // going to bed. Otherwise 22:30 bedtime cancels their 23:00 shift early.
     const sleepFrom = v.job === 'baker' && v.start < 6 * 60 ? 20 * 60 + 30 :
       v.end >= 22 * 60 ? Math.min(24 * 60, v.end + 30) : 22 * 60 + 30;
-    const wake = Math.min(v.start - 75, 6 * 60 + 30);
+    // Up in time to shower, eat and still make the commute (a long ride means an earlier alarm).
+    const wake = Math.min(v.start - Math.max(75, 35 + commuteLead(v, this.places.get(v.work))), 6 * 60 + 30);
     const asleep = m >= sleepFrom || m < wake || (v.fatigue>=94 && m >= v.end);
     if (asleep) return this.goThen(v, home, { kind: 'sleep', at: 'home', until: wake < m ? wake + 24 * 60 : wake, activity: 'asleep at home' });
     if (v.hunger>=82 && m>=wake && !v.doneToday.breakfast) v.memory='very hungry, looking for breakfast';
@@ -1222,19 +1243,31 @@ export class TownLife {
     const isPublicWorker = v.work!=='home' && !['student','retired'].includes(v.job);
     const actualCover = !isPublicWorker || colleagues.some(o=>o!==v &&
       o.step?.kind==='work' && o.step.at===v.work &&
-      !o.path.length && o.start<=m && o.end>m+35);
+      !o.path.length && o.start<=m && o.end>m+75); // the walk out, 30 minutes to eat and the walk back
     const leaveForLunch = working && lunchDue && actualCover;
-    if (working && !leaveForLunch) {
+    // Staff set off in time for their commute so they are behind the counter when the doors open,
+    // not still walking there for the first part of the shift.
+    const commuting = isPublicWorker && m >= v.start - commuteLead(v, this.places.get(v.work)) && m < v.start;
+    if ((working && !leaveForLunch) || commuting) {
+      // Nobody to cover the counter for a lunch out: eat a packed lunch behind it instead of
+      // skipping lunch or locking the shop.
+      if (working && lunchDue && !actualCover && m >= lunchAt + 45 && v.work !== 'home') {
+        v.doneToday.lunch = true;
+        const meal = this.cookable(v, 'lunch');
+        if (meal) { this.eat(v, meal[0], meal[1]); v.memory = `ate ${meal[0]} behind the counter at work`; }
+      }
       if (v.work === 'home') return this.goThen(v, home, { kind: 'work', at: 'home', until: v.end, activity: 'coding at home' });
       if (v.job === 'postie' && !v.doneToday.round && (this.place('post').stock.parcel || 0) > 0) return this.postRound(v);
       const until=Math.min(v.end, m < lunchAt ? lunchAt : lunchDue ? m+15 : v.end);
       // Extending a live shift must NOT send a cashier who is already at the
       // counter on a fresh random commute through three footpath waypoints.
       // That brief phantom journey was closing eight buildings at 13:15.
-      if(v.step?.kind==='work' && v.step.at===v.work && !v.path.length){
-        v.step.until=until;
+      // finish() has already cleared the step, so look at the one that just ended too.
+      const shift=v.step||finished;
+      if(shift?.kind==='work' && shift.at===v.work && !v.path.length){
+        v.step=shift;shift.until=until;
         v.activity=this.workActivity(v);
-        return v.step;
+        return shift;
       }
       return this.goThen(v, work, { kind: 'work', at: v.work, until, activity: this.workActivity(v) });
     }
@@ -1251,7 +1284,10 @@ export class TownLife {
       // Workers who finish after stores close need time to buy food at lunch.
       // These trips remain real, but staggered relief cover continues to serve
       // customers while the staff member shops.
-      if (v.end >= 16 * 60 + 30 && !v.doneToday.shopping) {
+      // Only when a colleague is rostered long enough to cover lunch *and* the errands, or the
+      // counter sits locked mid-shift (the Post Office closed 14:00-15:45 while its clerk shopped).
+      const coverLasts = colleagues.some((o) => o !== v && o.start <= m && o.end > m + 120);
+      if (v.end >= 16 * 60 + 30 && !v.doneToday.shopping && (!isPublicWorker || coverLasts)) {
         const errands = this.shopStops(v, this.shoppingList(v));
         if (errands.length) { v.doneToday.shopping = true; v.queue = errands; }
       }
@@ -1425,6 +1461,9 @@ export class TownLife {
     v.hunger = clamp(v.hunger + minutes * (v.step?.kind === 'sleep' ? 0.04 : 0.08), 0, 100);
     if(v.fatigue>92 && v.step?.kind==='work')v.memory='struggling to stay awake at work';
     if (v.engaged) return;                   // chatting with the player: stands still
+    // A stroll, a visit or the washing-up gives way to work: once it is time to set off, go.
+    if (v.step && (v.step.kind === 'idle' ? v.step.at !== 'pub' : v.step.at === 'home' && !['sleep', 'shower', 'cook'].includes(v.step.kind)) && v.work !== 'home' && !['student','retired'].includes(v.job) &&
+        this.minute >= v.start - commuteLead(v, this.places.get(v.work)) && this.minute < v.start) { v.path = []; v.step = null; this.plan(v); return; }
     if (v.path.length) {
       // Dismount in the final 12 m; pushing a full-size bicycle through a
       // crowded shopfront is not realistic and causes large wheel overlaps.
@@ -1572,7 +1611,7 @@ export class TownLife {
     }
     v.step = null;
     if (v.queue?.length) { const next = v.queue.shift(); this.goThen(v, next.target || this.place(next.at).front, next); return; }
-    this.plan(v);
+    this.plan(v, s);
   }
 
   missedServiceMeal(v, message) {
