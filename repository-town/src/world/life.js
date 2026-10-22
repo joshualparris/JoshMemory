@@ -412,9 +412,7 @@ export class TownLife {
       const x = lotX(col), south = d.side === 'south';
       this.places.set(d.id, {
         ...d, target: d.target ? {...d.target} : undefined, x, door: { x, z: south ? FIELD_Z0 - 0.5 : LOT8_Z + 7.5 }, front: { x, z: south ? FIELD_Z0 - 2.2 : LOT8_Z + 9.3 }, curb: { x, z: south ? ROAD(7) + 1.7 : ROAD(7) - 1.7 },
-        // The three essential grocers begin with a fuller finite opening delivery;
-        // their new reliable morning service must not immediately run out of stock.
-        stock: Object.fromEntries(Object.keys(d.target || {}).map((k) => [k, Math.round(d.target[k] * (['store','greengrocer','butcher'].includes(d.id) ? 0.85 : 0.6))])), till: 0, out: {},
+        stock: Object.fromEntries(Object.keys(d.target || {}).map((k) => [k, Math.round(d.target[k] * 0.6)])), till: 0, out: {},
       });
     }
     // Farms keep produce at the farm until a truck collects it; fields lie across the road.
@@ -1159,7 +1157,7 @@ export class TownLife {
       // Soy growers always hold back two certified bags for the next sowing; a truck may not strip their seed reserve.
       const have = good==='soybeans'&&from==='soyfarm'?Math.max(0,(src.out[good]||0)-2):(src.out[good]||0), need = (dst.target?.[good] || 0) - (dst.stock[good] || 0);
       if (have < 3 || need < 3 || this.trucks.some((o) => o !== t && o.job?.to === to && o.job?.good === good)) continue;
-      const score = need / (dst.target[good] || 1) + this.rand() * 0.1 + (['store','greengrocer','butcher'].includes(to) ? 0.42 : 0);
+      const score = need / (dst.target[good] || 1) + this.rand() * 0.1 + (['store','greengrocer','butcher'].includes(to) ? 0.65 : 0);
       if (!best || score > best.score) best = { from, to, good, n: Math.min(50, have, need), score };
     }
     if (!best) { t.state = 'waiting for an order'; return; }
