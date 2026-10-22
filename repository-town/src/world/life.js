@@ -1330,7 +1330,7 @@ export class TownLife {
     if (task && (task.kind !== 'relax' || this.rand() < 0.5)) return this.goThen(v, home, { ...task, at: 'home' });
     // Leisure.
     const r = this.rand();
-    if (m >= 19 * 60 && r < 0.35 && this.open(this.place('pub'))) return this.goThen(v, this.place('pub').front, { kind: 'idle', at: 'pub', dur: 60 + this.rand() * 60, activity: 'having a yarn at the pub' });
+    if (m >= 19 * 60 && r < 0.35 && this.open(this.place('pub'))) return this.goThen(v, this.place('pub').front, { kind: 'idle', at: 'pub', dur: 60 + this.rand() * 60, activity: 'relaxing at the pub, up for a yarn' });
     if (r < 0.55) return this.goThen(v, this.jitter(this.place('square').front, 8), { kind: 'idle', dur: 20 + this.rand() * 30, activity: 'taking a stroll through the Market Square' });
     if (r < 0.8) {
       // A visit only happens when a real named neighbour is available at home.
@@ -1581,8 +1581,26 @@ export class TownLife {
       const other=this.villagers.find(o=>o.name===s.socialTarget);
       if(other && other.inside && !other.path.length &&
         other.step?.at==='home' && other.step?.kind==='idle'){
-        const event=recordSocialEvent(this.social,v.name,other.name,'visit',this.day,this.minute);
+        const event=recordSocialEvent(this.social,v.name,other.name,'visit',this.day,this.minute,{location:other.home.coordinate,placeId:'home',x:v.x,z:v.z,jobA:v.job,jobB:other.job});
         if(event)this.log(event.text);
+      }
+    }
+    // A yarn needs two actual residents sharing a place and some spare time.
+    // Neither paid visits nor work shifts are invented for the conversation.
+    if(['pub','cafe','square'].includes(s.at) &&
+      ['idle','eatout'].includes(s.kind) && !v.path.length){
+      const other=this.villagers.find(o=>o!==v && !o.path.length &&
+        o.step?.at===s.at && ['idle','eatout'].includes(o.step.kind) &&
+        o.step.dur>0 && Math.hypot(o.x-v.x,o.z-v.z)<12);
+      if(other){
+        const event=recordSocialEvent(this.social,v.name,other.name,s.at,this.day,this.minute,{
+          location:this.place(s.at)?.name||s.at,placeId:s.at,x:v.x,z:v.z,jobA:v.job,jobB:other.job
+        });
+        if(event){
+          this.log(event.text);
+          v.activity='having a yarn with '+other.name+' at '+event.location;
+          other.activity='having a yarn with '+v.name+' at '+event.location;
+        }
       }
     }
   }
@@ -1596,7 +1614,7 @@ export class TownLife {
       const colleague=this.villagers.find(o=>o!==v && o.work===v.work &&
         o.step?.kind==='work' && !o.path.length);
       if(colleague){
-        const event=recordSocialEvent(this.social,v.name,colleague.name,'work',this.day,this.minute);
+        const event=recordSocialEvent(this.social,v.name,colleague.name,'work',this.day,this.minute,{location:this.place(v.work)?.name||v.work,placeId:v.work,x:v.x,z:v.z,jobA:v.job,jobB:colleague.job});
         if(event)this.log(event.text);
       }
     }
