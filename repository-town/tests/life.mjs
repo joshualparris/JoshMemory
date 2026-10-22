@@ -120,7 +120,8 @@ await nearTo(/^place:store$/);
 await press('e');
 s = await counter(await st());
 const storeBuys = (s.panel?.buttons || []).filter((b) => /^Buy/.test(b));
-const stocked = await T(() => Object.entries(window.__town.life.ledger().shops.find((x) => x.name === 'General Store').stock).filter(([, n]) => n > 0).length);
+// Fruit and veg on the store's books are ingredients for its cordial and tins, not loose goods for sale.
+const stocked = await T(() => { const shop = window.__town.life.ledger().shops.find((x) => x.name === 'General Store'); return Object.entries(shop.stock).filter(([g, n]) => n > 0 && (!shop.sells || shop.sells.includes(g))).length; });
 check(storeBuys.length === stocked && stocked >= 5, `General Store offers all ${stocked} stocked goods (${storeBuys.length} buy buttons; panel ${s.panel?.title})`);
 await T(() => window.__town.closePanel());
 await T(() => window.__town.exitShop());

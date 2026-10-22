@@ -1,6 +1,6 @@
 import {workAssetFault} from './occupation-work.js';
 import {soyState,soyAction,soyHourly,soyReport,takeSoyShipment,deliverSoyShipment} from './soy-chain.js';
-import { shopService } from './shop-attendance.js';
+import { shopService, theName } from './shop-attendance.js';
 import { coldChainHour, shopWasteDay } from './cold-chain.js';
 import { COUNTERS, joinLine, tickCounter, placeOrder, readyOrders } from './counter-queue.js';
 import { separatePedestrians } from './pedestrian-spacing.js';
@@ -212,8 +212,10 @@ export const RELIEF_SITES = PLACE_DEFS.filter(p=>p.kind!=='home' && p.kind!=='pa
  JOBS.filter(j=>j[1]===p.id && !['student','retired'].includes(j[0])).length<2).map(p=>p.id);
 for (const id of RELIEF_SITES) {
  const p=PLACE_DEFS.find(place=>place.id===id);
- const start=Math.max(5*60,p.opens+60);
- const end=Math.min(23*60,p.closes);
+ // A real shift, at most ten hours: 24-hour sites used to get 05:00-23:00 (18 hours a day,
+ // exhausted and starving at work). Their relief covers the 08:00 reception day instead.
+ const start=p.opens>0?Math.max(5*60,p.opens+60):8*60;
+ const end=Math.min(23*60,p.closes,start+10*60);
  JOBS.push([RELIEF_ROLES[id]||'relief service attendant',id,start,end]);
 }
 export const ROSTER_SIZE = JOBS.length;
@@ -513,8 +515,14 @@ export class TownLife {
     for (const v of this.villagers) {
       const site = v.work !== 'home' && this.places.get(v.work);
       if (!site || !(this.minute >= v.start && this.minute < v.end) || ['student', 'retired'].includes(v.job)) continue;
-      Object.assign(v, { x: site.front.x, z: site.front.z, inside: false, path: [], step: null, activity: 'on shift' });
+      // At the front door, walking the last few metres to their spot (routed round sheds and
+      // trees): on duty from the first frame, since staff at the door count as present.
+      // Farmhands start out in their paddock (a clear spot) rather than walking in through the
+      // building that stands in front of it.
+      const start = site.field ? this.workSpot(v) : site.front;
+      Object.assign(v, { x: start.x, z: start.z, path: [], queue: [], step: null });
       Object.assign(v.doneToday, { shower: true, breakfast: true });
+      this.goThen(v, site.field ? start : this.workSpot(v), { kind: 'work', at: v.work, until: Math.min(v.end, this.minute + 30), activity: this.workActivity(v) });
     }
   }
 
@@ -764,14 +772,14 @@ export class TownLife {
   shelves(p) { return p.id === 'bakery' ? p.out : p.stock; }
   buyItem(shopId, good) {
     const p = this.place(shopId), me = this.civic.player, price = GOODS[good].price;
-    if (!this.open(p)) return `The ${p.name} is closed — it opens at ${fmt(p.opens)}.`;
+    if (!this.open(p)) return `${theName(p, true)} is closed — it opens at ${fmt(p.opens)}.`;
     const service = shopService(this, p);
     if (!service.available) return service.message;
     if (!(this.shelves(p)[good] > 0)) return `Sorry, sold out of ${GOODS[good].name}. The next truck should bring more.`;
     if (me.wallet < price) return `You need $${price} but only have $${me.wallet} — try the Community Bank.`;
     this.shelves(p)[good]--; me.wallet -= price; this.sale(p, price); receipt(this, 'purchase', `${GOODS[good].name} at ${p.name}`, -price);
     me.bag[good] = (me.bag[good] || 0) + 1; this.stats.sold[good] = (this.stats.sold[good] || 0) + 1;
-    this.log(`A visitor bought ${GOODS[good].name} at the ${p.name}.`);
+    this.log(`A visitor bought ${GOODS[good].name} at ${theName(p)}.`);
     return `You buy ${amount(good, 1)} for $${price}. It's in your bag.`;
   }
   menuAvailability(shopId, good) {
@@ -785,7 +793,7 @@ export class TownLife {
     const recipe = VENUE_MENU[shopId]?.[good];
     if (!recipe) return 'That dish is not on this menu.';
     const p = this.place(shopId), me = this.civic.player, price = GOODS[good].price;
-    if (!this.open(p)) return `The ${p.name} is closed — it opens at ${fmt(p.opens)}.`;
+    if (!this.open(p)) return `${theName(p, true)} is closed — it opens at ${fmt(p.opens)}.`;
     const service = shopService(this, p);
     if (!service.available) return service.message;
     if (!this.menuAvailability(shopId, good)) return `Sorry, ${GOODS[good].name} is sold out until ingredients arrive.`;
@@ -806,9 +814,9 @@ export class TownLife {
     const service = shopService(this, p);
     if (!service.available) return service.message;
     if (!(me.bag[good] > 0)) return `You don't have any ${GOODS[good].name}.`;
-    if (p.till < pay) return `The ${p.name} can't afford to buy it back right now.`;
+    if (p.till < pay) return `${theName(p, true)} can't afford to buy it back right now.`;
     me.bag[good]--; this.shelves(p)[good] = (this.shelves(p)[good] || 0) + 1; p.till -= pay; me.wallet += pay; recordEarning(this, pay); receipt(this, 'sale', `Sold ${GOODS[good].name} to ${p.name}`, pay);
-    return `The ${p.name} buys it back for $${pay}.`;
+    return `${theName(p, true)} buys it back for $${pay}.`;
   }
   eatItem(good) { return eatPlayer(this,good); }
   soyAction(site,action){return soyAction(this,site,action);}
@@ -1167,7 +1175,7 @@ export class TownLife {
       if (!best || score > best.score) best = { from, to, good, n: Math.min(40, have, need), score };
     }
     if (!best) { t.state = 'waiting for an order'; return; }
-    t.job = best; t.state = `heading to the ${this.place(best.from).name} for ${GOODS[best.good].name}`;
+    t.job = best; t.state = `heading to ${theName(this.place(best.from))} for ${GOODS[best.good].name}`;
     t.path = this.routeTruck(t, best.from); t.leg = 'pickup';
     // A vehicle already in its depot bay has arrived at a depot pickup;
     // an empty route must execute loading, not strand the job forever.
@@ -1185,7 +1193,7 @@ export class TownLife {
         if(!lots){t.job=null;t.path=[];t.state='soy shipment unavailable';return;}
         t.load={good:g,n,soyLots:lots,loadedAt:this.day*1440+this.minute};
       }else{src.out[g] = (src.out[g] || 0) - n; t.load = { good: g, n };}
-      t.wait = 4; t.leg = 'deliver'; t.state = `delivering ${amount(g, n)} to the ${dst.name}`;
+      t.wait = 4; t.leg = 'deliver'; t.state = `delivering ${amount(g, n)} to ${theName(dst)}`;
       t.path = this.routeTruck(t, t.job.to);
       if (!n) { t.job = null; t.path = []; t.leg = null; t.state = 'found nothing to collect, looking for another job'; }
     } else {
@@ -1198,7 +1206,7 @@ export class TownLife {
       if (payer) payer.till -= paid; else this.civic.treasury -= paid;
       src.till += paid;
       this.stats.deliveries++; this.stats.delivered[g] = (this.stats.delivered[g] || 0) + (safe?n:0);
-      if (n >= 8 || this.rand() < 0.3) this.log(`${t.driver?.name || 'A truck'} delivered ${amount(g, n)} to the ${dst.name}.`);
+      if (n >= 8 || this.rand() < 0.3) this.log(`${t.driver?.name || 'A truck'} delivered ${amount(g, n)} to ${theName(dst)}.`);
       t.load = null; t.job = null; t.wait = 4; t.state = 'unloaded, looking for the next job';
     }
   }
@@ -1239,11 +1247,17 @@ export class TownLife {
     // still be served by another *physically present* paid employee.
     const colleagues = this.villagers.filter(o=>o.work===v.work && !['student','retired'].includes(o.job));
     const rank = Math.max(0,colleagues.indexOf(v));
-    const lunchAt = Math.max(v.start+75,Math.min(v.end-45,11*60+15+rank*120));
+    // Evening shifts get a dinner break three hours in (they used to get no meal at all).
+    const lateShift = v.start >= 14*60;
+    // Long day shifts that run past 20:30 get a second, dinner break after lunch, staggered too.
+    const eveningBreak = !lateShift && v.end >= 20*60+30 && v.doneToday.lunch && !v.doneToday.dinner;
+    const lunchAt = lateShift ? v.start+180 : eveningBreak ? 18*60+rank*45 : Math.max(v.start+75,Math.min(v.end-45,11*60+15+rank*120));
     // Lunch is not a magic instant dismissal of reception. Workers can defer
     // it when the only other employee is travelling, shopping or off duty.
     // The stagger is a preference; cover is checked against real NPC presence.
-    const lunchDue = !v.doneToday.lunch && m>=lunchAt && m<Math.min(v.end-5,16*60+30);
+    // An evening shift's break is its dinner; lunch was at home before work.
+    const mealKey = lateShift || eveningBreak ? 'dinner' : 'lunch';
+    const lunchDue = !v.doneToday[mealKey] && m>=lunchAt && m<Math.min(v.end-5,lateShift||eveningBreak?24*60:16*60+30);
     const isPublicWorker = v.work!=='home' && !['student','retired'].includes(v.job);
     const actualCover = !isPublicWorker || colleagues.some(o=>o!==v &&
       o.step?.kind==='work' && o.step.at===v.work &&
@@ -1252,11 +1266,25 @@ export class TownLife {
     // Staff set off in time for their commute so they are behind the counter when the doors open,
     // not still walking there for the first part of the shift.
     const commuting = isPublicWorker && m >= v.start - commuteLead(v, this.places.get(v.work)) && m < v.start;
+    // Evening-shift workers shop and have lunch at home before work (they used to do neither,
+    // and went hungry from breakfast until supper with an empty pantry).
+    if (lateShift && isPublicWorker && !working && !commuting && m >= 11 * 60 && m < v.start) {
+      if (!v.doneToday.shopping) {
+        v.doneToday.shopping = true;
+        const list = this.shoppingList(v);
+        if (list.length) return this.shop(v, list);
+      }
+      if (!v.doneToday.lunch && m >= 12 * 60) {
+        v.doneToday.lunch = true;
+        const meal = this.cookable(v, 'lunch');
+        if (meal) return this.goThen(v, home, { kind: 'cook', at: 'home', meal, dur: 25, activity: `making ${meal[0]} for lunch` });
+      }
+    }
     if ((working && !leaveForLunch) || commuting) {
       // Nobody to cover the counter for a lunch out: eat a packed lunch behind it instead of
       // skipping lunch or locking the shop.
       if (working && lunchDue && !actualCover && m >= lunchAt + 45 && v.work !== 'home') {
-        v.doneToday.lunch = true;
+        v.doneToday[mealKey] = true;
         const meal = this.cookable(v, 'lunch');
         if (meal) { this.eat(v, meal[0], meal[1]); v.memory = `ate ${meal[0]} behind the counter at work`; }
       }
@@ -1276,14 +1304,17 @@ export class TownLife {
       return this.goThen(v, work, { kind: 'work', at: v.work, until, activity: this.workActivity(v) });
     }
     if (leaveForLunch) {
-      v.doneToday.lunch = true;
+      v.doneToday[mealKey] = true;
       const cafe = this.place('cafe');
       let lunch;
+      const pub = this.place('pub');
       if (this.rand() < 0.5 && shopService(this,cafe).available && v.wallet >= 10 && canAfford(v, 'out', 10)) lunch = this.goThen(v, cafe.front, { kind: 'eatout', at: 'cafe', dur: 30, activity: 'grabbing lunch at the Commit Café' });
+      else if ((lateShift || eveningBreak) && !this.cookable(v, 'lunch') && shopService(this,pub).available && v.wallet >= 15 && canAfford(v, 'out', 15)) lunch = this.goThen(v, pub.front, { kind: 'eatout', at: 'pub', dur: 30, activity: v.work === 'pub' ? 'having a staff meal in the back of the pub' : 'grabbing a counter meal on the dinner break' });
       else {
         const meal = this.cookable(v, 'lunch');
         if (meal) { this.eat(v, meal[0], meal[1]); lunch = this.goThen(v, this.place('square').front, { kind: 'idle', dur: 30, activity: `eating ${meal[0]} in the Market Square` }); }
-        else lunch = this.goThen(v, this.place('bakery').front, { kind: 'snack', at: 'bakery', good: 'pie', dur: 15, activity: 'buying a pie for lunch' });
+        else if (shopService(this, this.place('bakery')).available) lunch = this.goThen(v, this.place('bakery').front, { kind: 'snack', at: 'bakery', good: 'pie', dur: 15, activity: `buying a pie for ${mealKey}` });
+        else lunch = this.goThen(v, home, { kind: 'idle', at: 'home', dur: 25, activity: `heading home for ${mealKey}` }); // nothing open nearby
       }
       // Workers who finish after stores close need time to buy food at lunch.
       // These trips remain real, but staggered relief cover continues to serve
@@ -1368,7 +1399,15 @@ export class TownLife {
     if (v.work === 'home') return this.doorstep(v);
     const p = this.place(v.work);
     // Clear of the gate and of the hen house and trough along the back of a paddock (z1 − 2.9 … z1 − 5.1).
-    if (p.field) return { x: p.field.x0 + 2 + this.rand() * (p.field.x1 - p.field.x0 - 4), z: p.field.z0 + 2.5 + this.rand() * (p.field.z1 - p.field.z0 - 8.1) };
+    // Never inside an orchard tree or a shed: try a few spots, as jitter() does on the street.
+    if (p.field) {
+      let q;
+      for (let i = 0; i < 8; i++) {
+        q = { x: p.field.x0 + 2 + this.rand() * (p.field.x1 - p.field.x0 - 4), z: p.field.z0 + 2.5 + this.rand() * (p.field.z1 - p.field.z0 - 8.1) };
+        if (!this.pedestrianWorld?.hits(q.x, q.z, 0.6)) break;
+      }
+      return q;
+    }
     if (v.job === 'truck driver') return p.front;
     return this.jitter(p.front, 2);
   }
@@ -1377,7 +1416,7 @@ export class TownLife {
       barista: 'pulling coffees', cook: 'cooking brekkies', grocer: 'stacking the vegie crates', shopkeeper: 'serving at the counter', butcher: 'cutting lamb', publican: 'pulling beers',
       postie: 'sorting the mail', 'truck driver': 'driving deliveries', teacher: 'teaching a class', nurse: 'seeing patients', mayor: 'running the town', 'station master': 'meeting the train',
       student: 'in class', retired: 'feeding the ducks', artist: 'painting the town' };
-    return `${a[v.job] || 'working'} at the ${v.work === 'home' ? 'house' : this.place(v.work).name}`;
+    return `${a[v.job] || 'working'} at ${v.work === 'home' ? 'the house' : theName(this.place(v.work))}`;
   }
   // A spot near p to stand on: never one inside a lamp post, bench or bin (tries a few, then p itself).
   jitter(p, r) {
@@ -1398,7 +1437,7 @@ export class TownLife {
     const staffed = (id) => shopService(this, this.place(id)).available;
     const where = { bread: staffed('bakery') ? 'bakery' : 'store', pie: 'bakery', eggs: 'store', milk: 'store', veg: 'greengrocer', fruit: 'greengrocer', lamb: 'butcher' };
     const stops = [...new Set(list.map((g) => where[g]))].filter(staffed);
-    return stops.map((id) => ({ kind: 'buy', at: id, items: list.filter((g) => where[g] === id), dur: 5, activity: `shopping at the ${this.place(id).name}` }));
+    return stops.map((id) => ({ kind: 'buy', at: id, items: list.filter((g) => where[g] === id), dur: 5, activity: `shopping at ${theName(this.place(id))}` }));
   }
   shop(v, list) {
     const stops = this.shopStops(v, list);
@@ -1448,7 +1487,8 @@ export class TownLife {
     v.bike = len > 160 && v.job !== 'retired';
     if(v.bike) v.path=cyclingRoute(v.path,v,target,z=>ROAD(rowOf(z)));
     v.path = fieldAccessRoute(this.places, v.path, v, target);
-    if (v.path.length) { v.inside = false; v.activity = `${v.bike ? 'cycling' : 'walking'} — ${step.activity}`; }
+    // On the way home it's "cycling home", not "cycling — asleep at home" or "— watching TV on the couch".
+    if (v.path.length) { v.inside = false; v.activity = step.at === 'home' ? `${v.bike ? 'cycling' : 'walking'} home` : `${v.bike ? 'cycling' : 'walking'} — ${step.activity}`; }
     else this.arrive(v);                       // already there
     return v.step;
   }
@@ -1650,7 +1690,7 @@ export class TownLife {
     const uses = where === 'pub' ? ['lamb', 'veg', 'pie'] : ['bread', 'eggs', 'milk', 'coffee'];
     const ok = uses.some((g) => (p.stock[g] || 0) > 0);
     if (!ok) this.stats.stockouts++;
-    if (!ok || v.wallet < price) { v.activity = `found the ${p.name} out of food`; this.log(`The ${p.name} ran out of food and had to turn ${v.name} away.`); return; }
+    if (!ok || v.wallet < price) { v.activity = `found ${theName(p)} out of food`; this.log(`${theName(p, true)} ran out of food and had to turn ${v.name} away.`); return; }
     for (const g of uses) if ((p.stock[g] || 0) > 0) { p.stock[g]--; break; }
     v.wallet -= price; noteSpend(v, 'out', price); this.sale(p, price); this.stats.mealsOut++;
     this.eat(v, dish); v.activity = `${v.step.activity} — ${dish}`;
@@ -1662,7 +1702,7 @@ export class TownLife {
     const service = shopService(this, shop);
     if (!service.available) { this.missedServiceMeal(v, service.message); v.activity = `could not get service at ${shop.name}`; return; }
     if (this.open(shop) && !(src[good] > 0)) this.stats.stockouts++;
-    if (!this.open(shop) || !(src[good] > 0) || v.wallet < price) { v.memory = `the ${shop.name} had no ${GOODS[good].name} left`; v.activity = `found the ${shop.name} out of ${GOODS[good].name}`; return; }
+    if (!this.open(shop) || !(src[good] > 0) || v.wallet < price) { v.memory = `${theName(shop)} had no ${GOODS[good].name} left`; v.activity = `found ${theName(shop)} out of ${GOODS[good].name}`; return; }
     src[good]--; v.wallet -= price; noteSpend(v, 'out', price); this.sale(shop, price); this.stats.sold[good] = (this.stats.sold[good] || 0) + 1;
     this.eat(v, good === 'pie' ? 'a meat pie from the Bakery' : 'a fresh bread roll');
   }
@@ -1682,7 +1722,7 @@ export class TownLife {
     }
     if (Object.keys(bag).length) v.carrying = bag;
     this.stats.stockouts += missing.length;
-    if (missing.length) { v.memory = `the ${shop.name} was out of ${missing.join(' and ')}`; if (this.rand() < 0.5) this.log(`${v.name} found the ${shop.name} out of ${missing.join(' and ')}.`); }
+    if (missing.length) { v.memory = `${theName(shop)} was out of ${missing.join(' and ')}`; if (this.rand() < 0.5) this.log(`${v.name} found ${theName(shop)} out of ${missing.join(' and ')}.`); }
   }
 
   // Workers are paid at the end of each shift by their employer's till, or by the council for
@@ -1724,7 +1764,7 @@ export class TownLife {
   socialSummary(name) { return socialReport(this.social,name,this.villagers.map(v=>v.name)); }
   news(n = 6) { return this.events.slice(0, n); }
   ledger() {
-    const shops = [...this.places.values()].filter((p) => p.target && !['utility', 'industry', 'hall'].includes(p.kind)).map((p) => ({ name: p.name, stock: p.stock, till: Math.round(p.till), open: this.open(p) }));
+    const shops = [...this.places.values()].filter((p) => p.target && !['utility', 'industry', 'hall'].includes(p.kind)).map((p) => ({ name: p.name, sells: p.sells || null, stock: p.stock, till: Math.round(p.till), open: this.open(p) }));
     const farms = [...this.places.values()].filter((p) => p.kind === 'farm').map((p) => ({ name: p.name, makes: GOODS[p.makes].name, waiting: p.out[p.makes] || 0, growth: p.growth }));
     return { day: this.day, time: fmt(this.minute), stats: this.stats, yesterday: this.yesterday || null, shops, farms, trucks: this.trucks.map((t) => ({ driver: t.driver?.name, state: t.state, load: t.load })), parcels: this.parcels.length, news: this.news(12),
       civic: this.civic, utilities: { fuel: this.place('power').stock.fuel, reservoir: this.place('waterworks').stock.water, wastewater: this.place('sewage').stock.wastewater, landfill: this.place('landfill').stock.rubbish, recycling: this.place('recycling').stock.recyclables, parts: this.place('hall').stock.parts },
