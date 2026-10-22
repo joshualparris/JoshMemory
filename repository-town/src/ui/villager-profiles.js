@@ -81,6 +81,14 @@ export const VILLAGER_PROFILES = {
   Bram: ['community repair organiser','steady and sociable','tools, electrical checks and apprenticeships'],
   Clara: ['career mentoring volunteer','encouraging and structured','TAFE pathways and hands-on qualifications'],
   Dario: ['night sky study group leader','curious and reflective','university research and community lectures'],
+  Eamon: ['amateur radio operator','calm and conscientious','dispatch radio checks and bushwalking'],
+  Jett: ['street photography enthusiast','alert but approachable','street safety and walking familiar routes'],
+  Leila: ['community running coach','observant and patient','night lighting and neighbourhood walks'],
+  Nadine: ['first aid volunteer','reliable and quietly kind','incident reporting and listening to people'],
+  Mack: ['wildlife rescue supporter','careful and practical','safe late walks and helping lost pets'],
+  Ronan: ['local sport timekeeper','thorough and personable','venue checklists and match days'],
+  Taryn: ['heritage hardware collector','patient and meticulous','old locks and brass fittings'],
+  Yvette: ['precision metalcraft learner','curious and careful','key cutting and restoring door hardware'],
 };
 
 export function villagerProfile(name, job) {
