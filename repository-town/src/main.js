@@ -47,6 +47,7 @@ import { installBakeryImmersion } from './world/bakery-immersive.js';
 import { walletPanel, jobBoardPanel } from './ui/economy-panels.js';
 import { placePanel, ledgerPanel, guidePanel, needsPanel, relicsLeft, townContext, householdPanel } from './ui/townpanels.js';
 import { openingHoursPanel } from './ui/shop-hours-panel.js';
+import { createSleepSession, sleepChoices } from './world/needs.js';
 import { createExpedition } from './adventure/expedition.js';
 
 const $ = (id) => document.getElementById(id);
@@ -564,6 +565,69 @@ async function start() {
     panelOpen = null; $('panel').classList.remove('chat-typing'); $('panel').hidden = true;
   }
 
+  // Minecraft-style sleep: lie back into the actual bed, fade to black,
+  // simulate every intervening town tick, then fade back to the live world.
+  let sleeping=false;
+  const sleepScreen=$('sleep-screen');
+  const sleepText=$('sleep-message'),sleepTime=$('sleep-time');
+  const motionReduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const after=(ms)=>new Promise(resolve=>setTimeout(resolve,ms));
+  async function beginSleep(site,room,duration,bed) {
+    if(sleeping)return;
+    const session=createSleepSession(life,site,room,duration);
+    if(!session.ok){status(session.error);return;}
+    sleeping=true;
+    closePanel();companion.close();npcChat.close();input.releaseMouse();input.reset();
+    const oldPos=camera.position.clone(),oldRoll=camera.rotation.z;
+    sleepText.textContent='Settling into bed…';
+    sleepTime.textContent='Day '+session.startDay+' · '+session.startTime;
+    sleepScreen.hidden=false;
+    sleepScreen.classList.remove('sleep-dark');
+    const target=new THREE.Vector3(bed?.pos?.x??oldPos.x,player.baseHeight+0.86,bed?.pos?.z??oldPos.z);
+    try {
+      // One continuous motion: first-person view lowers onto the mattress,
+      // rolls towards the pillow and disappears beneath the dark overlay.
+      await new Promise(resolve=>{
+        const begin=performance.now(),length=motionReduced?120:850;
+        function settle(now){
+          const p=Math.min(1,(now-begin)/length),ease=p*p*(3-2*p);
+          camera.position.lerpVectors(oldPos,target,ease);
+          camera.rotation.z=oldRoll+ease*1.05;
+          renderFrame();
+          if(p<1)requestAnimationFrame(settle);else resolve();
+        }
+        requestAnimationFrame(()=>{
+          sleepScreen.classList.add('sleep-dark');
+          requestAnimationFrame(settle);
+        });
+      });
+      sleepText.textContent='💤 Sleeping…';
+      while(session.remaining>0){
+        session.advance(Math.min(12,session.remaining));
+        sleepTime.textContent='Day '+life.day+' · '+life.time();
+        // Yield between batches so the black screen stays responsive on Android.
+        await new Promise(resolve=>requestAnimationFrame(resolve));
+      }
+      const message=session.finish();
+      townLife.save();save();
+      sleepText.textContent=life.minute>=360&&life.minute<660?'🌅 Good morning':'☀️ You wake up';
+      sleepTime.textContent='Day '+life.day+' · '+life.time();
+      status(message);
+      await after(motionReduced?80:450);
+    }catch(error){
+      console.error('Sleep interrupted:',error);
+      status('Sleep was interrupted. Your current town progress has been kept.');
+      townLife.save();save();
+    }finally{
+      camera.position.copy(oldPos);camera.rotation.z=oldRoll;
+      sleepScreen.classList.remove('sleep-dark');
+      await after(motionReduced?130:850);
+      sleepScreen.hidden=true;
+      sleeping=false;
+      input.reset();
+    }
+  }
+
   const ctx = {
     get house() { return inside?.house; },
     houses,
@@ -655,30 +719,24 @@ async function start() {
         return;
       }
       if(thing.act?.do==='sleep') {
-        if(inside?.place?.id==='hotel') {
-          const room=Number(thing.act.room)||null;
-          const n=life.needsReport();
-          openPanel({title:'Railway Hotel · '+thing.label,
-            body:'<p>'+esc(n.booking?'You have a booking for room '+n.booking.room+'.':'You need a room key from hotel reception first.')+'</p>'+
-              '<p>Daytime use is a two-hour nap that reduces fatigue; from 18:00 you sleep until 06:00. Town routines continue while you rest.</p>',
-            actions:[{label:'Sleep in this bed',run:()=>{
-              const msg=life.sleepHotel(room),p=needsPanel(life);
-              return {...p,body:'<p><b>'+esc(msg)+'</b></p>'+p.body};
-            }},{label:'Hotel reception',run:()=>placePanel(life,'hotel')}]},thing);
-        } else {
-          const home=inside?.house?.coordinate;
-          const parcel=home&&life.civic.property?.parcels?.['H:'+home];
-          const accessible=parcel&&((life.civic.property.playerLease==='H:'+home&&parcel.tenant==='visitor')||(parcel.owner==='visitor'&&(!parcel.tenant||parcel.tenant==='visitor')));
-          if(accessible){
-            openPanel({title:'Your home · '+thing.label,
-              body:'<p>You have the right to occupy this home. Take a two-hour daytime nap or sleep until 06:00 overnight without hotel charges; normal town bills and activity continue.</p>',
-              actions:[{label:'Sleep in your own bed',run:()=>{const msg=life.sleepHome(home),p=needsPanel(life);return {...p,body:'<p><b>'+esc(msg)+'</b></p>'+p.body};}}]},thing);
-          }else{
-            openPanel({title:'Someone else’s bed',
-              body:'<p>This is a private home. Its residents need their beds to sleep. Rent an available home, buy one with vacant possession, or book your own hotel room at the Railway Hotel, I8.</p>',
-              actions:[]},thing);
-          }
+        const hotel=inside?.place?.id==='hotel';
+        const room=hotel?Number(thing.act.room)||null:inside?.house?.coordinate;
+        const site=hotel?'hotel':'home';
+        const check=createSleepSession(life,site,room,30);
+        if(!check.ok){
+          openPanel({title:hotel?'Railway Hotel · '+thing.label:'Private bedroom',
+            body:'<p>'+esc(check.error)+'</p><p>'+ (hotel?
+              'Only the guest bed matching your paid room key is available. Book at reception.':
+              'Rent or buy a vacant home before using its bed.')+'</p>',
+            actions:hotel?[{label:'Hotel reception',run:()=>placePanel(life,'hotel')}]:[]},thing);
+          return;
         }
+        const choices=sleepChoices(life);
+        openPanel({title:(hotel?'Railway Hotel':'Your home')+' · '+thing.label,
+          body:'<p>Climb into bed and choose how long to sleep. The screen darkens, you wake in this room, and the town carries on around you.</p>'+
+            '<p>Current time: <b>Day '+life.day+' · '+life.time()+'</b> · Fatigue '+Math.round(life.civic.player.fatigue)+'%.</p>'+
+            '<p>Longer sleep restores more energy. Hunger still rises; work shifts, deliveries, neighbours and bills continue.</p>',
+          actions:choices.map(choice=>({label:choice.label,run:()=>{beginSleep(site,room,choice.duration,thing);return null;}}))},thing);
         return;
       }
       if(inside?.workplay&&thing.act?.do==='workplay'){inside.workplay.use(thing);return;}
@@ -876,6 +934,7 @@ async function start() {
     }
     // While a game is open the town neither renders nor reacts, so the game gets the whole device.
     syncOverlayHud();
+    if (sleeping) { input.reset(); requestAnimationFrame(frame); return; }
     if (playing) {
       if (input.consume('back')) stopGame();
       input.takeLook(); for (const k of ['use', 'jump', 'map']) input.consume(k);
@@ -1148,7 +1207,7 @@ async function start() {
     travel,
     state: () => ({
       workplay:life.civic.workplay||null,
-      mode, driving: driving.activeVehicle()?.registration||null, nearbyVehicle:nearCar?.registration||null, seated: player.seated ? {key:player.seated.key,label:player.seated.label} : null,
+      mode, sleeping, driving: driving.activeVehicle()?.registration||null, nearbyVehicle:nearCar?.registration||null, seated: player.seated ? {key:player.seated.key,label:player.seated.label} : null,
       seats: mode==='house' ? (inside?.seats||[]).map(x=>({key:x.key,type:x.type,label:x.label,pos:x.pos,room:x.room})) : townLife.seats.map(x=>({key:x.key,type:x.type,label:x.label,pos:x.pos})),
       coordinate: inside?.house.coordinate || null, floor: inside?.floorIndex || 0, windows: inside?.windows?.length || 0, floors: inside?.floors?.levels.length || 1, pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, eye: player.eye, y: player.y, fps,
       rooms: inside?.rooms.length || 0, props: inside?.placedProps.length || 0,
