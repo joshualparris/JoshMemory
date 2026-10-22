@@ -646,7 +646,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   // Each civic building is its own mesh (plus one for its glass), so it can be hidden while the
   // player is inside it and looking out of its windows (src/main.js renderFrame).
   const shopGlassMat = new THREE.MeshLambertMaterial({ vertexColors: true, emissive: 0xffc070, emissiveIntensity: 0 });
-  const buildings = new Map(), signs = [];
+  const buildings = new Map(), signs = [], placeGlass = [];
   // Farms get a painted sign on two posts at the gate.
   const farmSign = (p) => {
     const x = p.x + 5.8, z = LOT8_Z + 8.2;
@@ -664,7 +664,8 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     const b = new Builder(); b.glass = [];
     const finish = () => {
       const meshes = [b.build()], glass = Builder.merge(b.glass);
-      if (glass) meshes.push(new THREE.Mesh(glass, shopGlassMat));
+      // Each building's windows light up only while it is open (a closed store stays dark).
+      if (glass) { const mat = shopGlassMat.clone(); placeGlass.push({ p, mat }); meshes.push(new THREE.Mesh(glass, mat)); }
       group.add(...meshes); colliders.push(...b.solids); buildings.set(p.id, meshes);
     };
     const kind = BUILD[p.id] ? p.id : p.kind === 'farm' ? 'farm' : p.kind === 'home' ? 'farmhouse' : p.kind === 'park' ? 'square' : p.id;
@@ -708,7 +709,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       LOT8_Z + (kind === 'square' ? 11 : 12.4));
     group.add(sign); labels.push(sign);
     // The place's counter: stand on the footpath in front and press E.
-    spots.push({ key: `place:${p.id}`, id: p.id, pos: new THREE.Vector3(p.x, 0, LOT8_Z + 10.4), label: p.kind === 'farm' ? `${p.name} — see how it's farmed` : p.kind === 'park' ? 'Market Square notice board' : p.id === 'hall' ? 'Town Hall — the Town Ledger' : `${p.name} — ${p.kind === 'shop' || p.kind === 'cafe' || p.kind === 'pub' ? 'see what\'s on the shelves' : 'look inside'}` });
+    spots.push({ key: `place:${p.id}`, id: p.id, pos: new THREE.Vector3(p.x, 0, LOT8_Z + 10.4), label: p.kind === 'farm' ? `${p.name} — see how it's farmed` : p.kind === 'park' ? 'Market Square notice board' : p.id === 'hall' ? 'Town Hall — the Town Ledger' : `${p.name} — ${p.kind === 'cafe' ? 'order food and coffee' : p.kind === 'pub' ? 'grab a meal or a drink' : p.kind === 'shop' ? 'see what\'s on the shelves' : 'look inside'}` });
     // Field across the road.
     if (p.field) fields.push({ p, ...buildField(p, group, statics, statics.glass) });
     // Goods on display, following the stock.
@@ -941,6 +942,8 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
 
     // Sky and lights follow the clock everywhere; indoors only the town's state changes.
     const day = life.daylight(), dark = THREE.MathUtils.clamp((0.55 - day) / 0.45, 0, 1);
+    // Name boards and opening-hours plaques are floodlit after dark, so they stay readable.
+    if (signBoards) signBoards.material.emissiveIntensity = dark * 0.55;
     const dusk = day > 0 && day < 0.6 ? Math.sin((day / 0.6) * Math.PI) * 0.55 : 0;
     bg.copy(NIGHT_SKY).lerp(DAY_SKY, day).lerp(DUSK, dusk);
     const weather = life.civic.weather, overcast = weather === 'rainy' ? 0.55 : weather === 'cloudy' ? 0.3 : 0;
@@ -964,8 +967,8 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     // A blackout puts out the windows and street lamps (src/world/life.js utilities).
     const powered = life.civic.powerGrid ? life.civic.powerGrid.served > 0 : life.civic.supply.ok; // a local fault must not darken every lamp
     town.setNight(powered ? dark : dark * 0.04, m);
-    const anyOpenLate = dark > 0.2;
-    shopGlassMat.emissiveIntensity = anyOpenLate && powered ? dark * 0.9 : 0;
+    shopGlassMat.emissiveIntensity = dark > 0.2 && powered ? dark * 0.9 : 0;
+    for (const g of placeGlass) g.mat.emissiveIntensity = dark > 0.2 && powered && life.open(g.p) ? dark * 0.9 : dark > 0.2 && powered ? dark * 0.08 : 0;
     for (const d of doorCards) d.m.material = facilityAccess(life, d.q).allowed ? d.openMat : d.closedMat;
     lightMat.emissiveIntensity = dark > 0.3 ? 1.4 : 0;  // vehicle headlights run on their own batteries
     eyeCached.x=eye.x;eyeCached.z=eye.z;

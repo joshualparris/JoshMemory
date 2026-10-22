@@ -75,3 +75,38 @@ jobs:
           path: repository-town/test-results/webgl-playtest*/
           retention-days: 14
           if-no-files-found: warn
+
+  full-browser:
+    name: Complete Chrome browser regression (bounded)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install pinned dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Build exact proposed source
+        run: npm run build
+      - name: Run complete browser suite with bounded execution
+        run: |
+          node tools/serve.mjs dist/public 8091 > /tmp/town-full-browser.log 2>&1 &
+          server=$!
+          trap 'kill $server 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8091/ >/dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsSI http://127.0.0.1:8091/ >/dev/null
+          timeout 38m npm run test:browser
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
