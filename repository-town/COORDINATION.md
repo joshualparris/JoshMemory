@@ -7,6 +7,9 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-22 · ChatGPT — **IN PROGRESS: port verified Pages-only attendance changes to canonical source**, branch `fix/town-port-pages-staff-attendance-20261022`. The Pages backup sync gate detected direct edits to generated shop/entrance modules after the last approved mirror. The house/civic entrance patches are already in canonical source, while staffing context remains partial. Port compatible position/field-aware `workingAt` and tests, preserve prior id+place API, and only then reconcile the untracked Pages blobs to their last approved fingerprints before an independently verified backup rebuild. Do not disable safety guard.
+
+
 - 2026-10-22 · ChatGPT — **IN PROGRESS: overheard NPC yarns** on `feat/town-overheard-yarns-20261022`. Contextual four-line conversations are generated at genuine meetings, saved with social memories, and shown through a mobile-friendly 🗣 Yarns log and local subtitles. Source changes: `src/world/yarn-dialogue.js`, `social-events.js`, `life.js`, new `src/ui/yarns.js`, minimal `src/main.js`, `tests/social-events.mjs`. Protect ongoing immersive-sleep work; tests, integration, and live deployment pending.
 
 
