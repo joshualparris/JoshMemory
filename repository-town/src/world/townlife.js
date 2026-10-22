@@ -105,11 +105,34 @@ export const SIGN_AT = {
   ambulance:[0,4.20,7.16,8.4,.57,'#f2f5ef','#b02d35'],
   court:[0,5.60,7.16,9.0,.64,'#eee6d7','#343c51'],
   solicitor:[0,4.11,7.16,9.2,.57,'#264a43','#f4ece0'],
+  securityhq:[0,4.18,7.13,9.8,.62,'#203951','#f6eaca'],
+  securityoffice:[0,4.15,7.13,9.0,.59,'#243c52','#e9f0eb'],
+  locksmith:[0,4.18,7.13,9.0,.60,'#7e5531','#fcf1ce'],
 };
 const SHOP_COLOURS = { store: ['#2f6b8c', '#f6f1e2'], bakery: ['#8a5a2a', '#f8ecd2'], cafe: ['#e8d8b8', '#2f5a4a'], greengrocer: ['#3f7a3a', '#f6f1e2'], butcher: ['#b8413a', '#ffffff'], post: ['#b8413a', '#ffffff'], clinic: ['#ffffff', '#2a5a78'] };
 
 // Returns { w, d } of the solid front block so the town can collide with it.
 const BUILD = {
+  securityhq(b) {
+    shopfront(b,14,10,5.2,0x869baa,0x243e58,[0x243e58,0xd7dfdd]);
+    b.box(0x243e58,14.4,.35,1.3,0,4.13,7.7);
+    for(const x of [-4.8,4.8]) { b.box(0xc9dbe1,1.15,1.25,.06,x,2.1,7.16); b.box(0x203951,1.15,.13,.08,x,1.31,7.19); }
+    return {w:14,d:10};
+  },
+  securityoffice(b) {
+    shopfront(b,14,10,4.9,0xc0c7c4,0x354c62,null);
+    b.box(0x243c52,14.2,.34,1.15,0,4.10,7.7);
+    for(const x of [-4.8,4.8]) b.box(0xb7cdd2,1.35,1.7,.06,x,2.12,7.17);
+    return {w:14,d:10};
+  },
+  locksmith(b) {
+    shopfront(b,14,10,4.9,0xd1b18a,0x6e482f,[0x996e43,0xe6c592]);
+    for(const x of [-4.6,4.6]) {
+      b.box(0xdcbf88,2.2,1.2,.07,x,2.45,7.18);
+      b.box(0x594638,2.0,.12,.09,x,1.72,7.2);
+    }
+    return {w:14,d:10};
+  },
   soyfarm(b) {
     shopfront(b, 12, 8, 4.3, 0xb6a982, 0x568047, [0x79984d, 0xd7c78b]);
     // Seed-grading shed, rainwater tanks and a small covered loading platform.
@@ -563,6 +586,8 @@ function makeBike() {
 
 // Shirts by job, so a baker looks like a baker from across the street.
 const UNIFORM = { farmer: 0x5b7a3a, 'dairy hand': 0x3a6a8a, 'poultry keeper': 0x8a6a3a, shearer: 0x6a5a4a, miller: 0xd8d0c0, baker: 0xf4f0e8, barista: 0x2f5a4a, cook: 0xf4f0e8,
+  'security guard':0x233e55, 'security dispatcher':0x354a64, 'security duty supervisor':0x304b61,
+  'security receptionist':0x4b6175, 'qualified locksmith':0x86624a, 'locksmith apprentice':0x9b754e,
   grocer: 0x3f7a3a, shopkeeper: 0x2f6b8c, butcher: 0xb8413a, publican: 0x5a3a2a, postie: 0xc83a2a, 'truck driver': 0xe88a2a, teacher: 0x7a4a8a, nurse: 0x7ab0d8, mayor: 0x2a2a3a,
   'station master': 0x2a3a5a, programmer: 0x4a4a5a, retired: 0xa88a6a, student: 0x2f5aa8, artist: 0xd86a8a };
 
@@ -1042,7 +1067,9 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
 const JOB_LINES = { baker: 'Fresh loaves out the front!', farmer: "Wheat's coming on nicely.", 'dairy hand': 'Cows were grumpy this morning.', 'poultry keeper': 'Chooks are laying well!',
   shearer: 'Sheep need a haircut.', miller: 'Mill\'s turning today.', barista: 'Flat white?', cook: 'Brekkie till eleven!', grocer: 'Pumpkins are cheap today.', shopkeeper: 'Milk just came in.',
   butcher: 'Lamb chops on special.', publican: 'Pub opens at eleven!', postie: 'Nothing for you today!', 'truck driver': 'Mind the trucks, love.', teacher: 'School run again…',
-  nurse: 'Keep your fluids up!', mayor: 'Lovely town, isn\'t it?', 'station master': 'Train was on time!', programmer: 'Just one more bug…', retired: 'In my day…', student: 'Got homework.', artist: 'Look at that light!' };
+  nurse: 'Keep your fluids up!', 'security guard':'Just checking the shopfronts on my round.',
+  'qualified locksmith':'Need a lock repaired? Bring proof of authorisation.',
+  mayor: 'Lovely town, isn\'t it?', 'station master': 'Train was on time!', programmer: 'Just one more bug…', retired: 'In my day…', student: 'Got homework.', artist: 'Look at that light!' };
 function greeting(v, minute) {
   const h = minute / 60, pick = (a) => a[Math.floor(Math.random() * a.length)];
   if (v.step?.kind==='civic-speaker'&&!v.path.length) return pick(['Happy to answer questions about town services.', 'Council forum at the square today.']);

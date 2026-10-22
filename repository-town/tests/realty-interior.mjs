@@ -6,10 +6,10 @@ import {REALTY_LAYOUT} from '../src/world/realty-interior.js';
 import {agencyBoard,agencyDisplayText} from '../src/world/realty-listings.js';
 
 const homes=[];
-for(let r=0;r<7;r++)for(let c=0;c<26;c+=2)homes.push({
+for(let r=0;r<8;r++)for(let c=0;c<26;c++){ if(r===7&&c>=6)continue;homes.push({
  coordinate:String.fromCharCode(65+c)+(r+1),name:'Repository '+c+'-'+r,
  door:{x:(c-12.5)*26,z:r*46-161+4}
-});
+}); }
 const t=new TownLife({homes,seed:20261020,minute:10*60});
 const p=t.place('realty');
 assert(p,'M8 property office must exist in town places');

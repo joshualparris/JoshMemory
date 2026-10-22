@@ -74,6 +74,13 @@ const FITTINGS = {
   realestate:['Property office','Sales and rental counter','Land titles',0xd3b88e,'Browse land titles','The estate agent handles land titles, buying, selling and rentals.'],
   dealership:['Vehicle showroom','Car sales counter','Used cars',0x98aebf,'Browse cars and trucks','A finite inventory of used cars, work utes, vans and rigid trucks.'],
   mechanic:['Motor workshop','Service reception','Hoists and tools',0x88949c,'Book a vehicle service','Servicing, roadworthy checks and fleet maintenance.'],
+  securityhq:['Security headquarters','Operations desk','Patrol assignments',0x304f69,
+    'Ask for the duty supervisor','Licensed private security workers patrol public shopfronts. Police handle crime and investigations.',
+    ],
+  securityoffice:['Security field office','Duty desk','Key and incident register',0x435c6b,
+    'Check field assignments','Guards check shuttered shops and report broken doors without entering private premises.'],
+  locksmith:['Locksmith workshop','Service counter','Key-cutting bench',0x9a7956,
+    'Ask about lock changes','Key cutting, repairs, rekeying and replacement locks require an owner or authorised tenant.'],
 };
 const BASE_W=14, BASE_D=18, FRONT=6, BACK=-12, EDGE=7;
 

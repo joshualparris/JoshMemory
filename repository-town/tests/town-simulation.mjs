@@ -4,9 +4,9 @@
 import assert from 'node:assert/strict';
 import { TownLife, timeText, CANDIDATES, ROSTER_SIZE} from '../src/world/life.js';
 
-// Synthetic households on rows 1–7 (the real town has 188).
+// 188 unique synthetic homes for the full paid roster.
 const homes = [];
-for (let r = 0; r < 7; r++) for (let c = 0; c < 26; c += 2) homes.push({ coordinate: String.fromCharCode(65 + c) + (r + 1), name: `House ${c}-${r}`, door: { x: (c - 12.5) * 26, z: r * 46 - 161 + 4 } });
+for (let r = 0; r < 8; r++) for (let c = 0; c < 26; c++) { if(r===7 && c>=6)continue; homes.push({ coordinate: String.fromCharCode(65 + c) + (r + 1), name: `House ${c}-${r}`, door: { x: (c - 12.5) * 26, z: r * 46 - 161 + 4 } }); }
 const run = (t, minutes) => { for (let m = 0; m < minutes; m += 0.5) t.tick(0.5); };
 
 assert.equal(timeText(480), '08:00');

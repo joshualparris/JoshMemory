@@ -86,6 +86,18 @@ function civicPanel(life, id, again) {
   if (id === 'sewage') rows.push(`<p><b>Waiting for treatment:</b> ${u.wastewater} kL · pollution ${Math.round(c.indicators.pollution)}%</p>`);
   if (id === 'recycling') rows.push(`<p><b>Sorting:</b> ${u.recycling} bags · recycled today ${life.stats.recycled}</p><p class="dim">Kerbside recycling waiting: ${Math.floor(c.homes.recyclables)} bags.</p>`);
   if (id === 'landfill') rows.push(`<p><b>Rubbish buried:</b> ${u.landfill} tonnes · environment ${Math.round(c.indicators.environment)}%</p>`);
+  if (id === 'securityhq' || id === 'securityoffice') {
+    const guards=life.villagers.filter(v=>v.job==='security guard');
+    rows.push('<h3>Active private-security patrols</h3>'+
+      guards.map(v=>'<p><b>'+esc(v.name)+'</b> · '+esc(timeText(v.start))+'–'+esc(timeText(v.end))+
+        ' · '+esc(v.activity)+
+        (v.step?.at&&life.place(v.step.at)?' · Next location: '+esc(life.place(v.step.at).name):'')+
+        '</p>').join('')+
+      '<p class="dim">These are paid private guards walking real footpath routes. They have no police powers, do not enter homes or shops without permission, and report incidents to police.</p>');
+  }
+  if (id === 'locksmith') rows.push(
+    '<h3>Locksmith services</h3><p>Key cutting, lock repairs, replacement cylinders and rekeying. Proof of ownership, tenancy or written authorisation is needed before any key is issued or lock changed.</p>'+
+    '<p class="dim">Locksmith service enquiries are informational; keys are not yet represented as tradable game inventory.</p>');
   if (id === 'foundry') rows.push(`<p><b>Ore:</b> ${p.stock.ore || 0} · <b>metal:</b> ${p.stock.metal || 0} · <b>scrap:</b> ${p.stock.scrap || 0} · <b>parts ready:</b> ${p.out.parts || 0}</p>`);
   if (id === 'fire') {
     const fd = fireDanger(life.day, c.weather), advice = ['Fires should be controlled. Report any you see.', 'Plan and prepare: know your bush fire plan.', 'Be ready to act: check your plan and stay informed.', 'Take action now to protect life and property.', 'For your survival, leave bush fire risk areas.'][fd.level];

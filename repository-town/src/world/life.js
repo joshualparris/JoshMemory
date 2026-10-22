@@ -144,6 +144,9 @@ export const PLACE_DEFS = [
   { col: 'W', side: 'south', id: 'trades', name: 'Town Trades & Maintenance', kind: 'service', opens: 7 * 60, closes: 17 * 60 },
   { col: 'X', side: 'south', id: 'tafe', name: 'Town TAFE Trades Campus', kind: 'education', opens: 8 * 60, closes: 18 * 60 },
   { col: 'Y', side: 'south', id: 'university', name: 'Regional University Study Centre', kind: 'education', opens: 8 * 60, closes: 21 * 60 },
+  { col: 'A', side: 'south', id: 'securityoffice', name: 'High Street Security Office', kind: 'service', opens: 8*60, closes: 20*60 },
+  { col: 'D', side: 'south', id: 'securityhq', name: 'Central West Security Headquarters', kind: 'service', opens: 7*60, closes: 22*60 },
+  { col: 'Z', side: 'south', id: 'locksmith', name: 'Macquarie Locksmith & Keys', kind: 'service', opens: 8*60, closes: 18*60 },
 ];
 
 const JOBS = [
@@ -196,7 +199,7 @@ const RELIEF_ROLES = {
  solicitor:'legal receptionist', police:'police station front-desk officer',
  ambulance:'ambulance station liaison', fire:'fire station visitor officer',
  power:'power station visitor and safety officer', waterworks:'water treatment duty officer',
- sewage:'wastewater safety officer', soyfarm:'soybean farm supervisor',
+ sewage:'wastewater safety officer', soyfarm:'farm-gate visitor liaison',
  soyplant:'food safety and plant reception officer', school:'school office receptionist',
  realty:'property reception agent', realestate:'licensed estate agent',
  dealership:'vehicle sales assistant', mechanic:'service reception coordinator',
@@ -214,8 +217,21 @@ for (const id of RELIEF_SITES) {
  const p=PLACE_DEFS.find(place=>place.id===id);
  const start=Math.max(5*60,p.opens+60);
  const end=Math.min(23*60,p.closes);
- JOBS.push([RELIEF_ROLES[id]||'relief service attendant',id,start,end]);
+ if(!['securityhq','securityoffice','locksmith'].includes(id))
+
+  JOBS.push([RELIEF_ROLES[id]||'relief service attendant',id,start,end]);
 }
+// Appended after the stable existing roster: retain household and saved-game IDs.
+JOBS.push(
+  ['security dispatcher','securityhq',7*60,15*60],
+  ['security duty supervisor','securityhq',14*60,22*60],
+  ['security guard','securityhq',6*60,14*60],
+  ['security guard','securityhq',14*60,22*60],
+  ['security receptionist','securityoffice',8*60,20*60],
+  ['security office relief','securityoffice',12*60,20*60],
+  ['qualified locksmith','locksmith',8*60,18*60],
+  ['locksmith apprentice','locksmith',9*60,17*60],
+);
 export const ROSTER_SIZE = JOBS.length;
 // Villager names; src/ui/social.js keeps their friendships and grudges.
 export const VILLAGER_NAMES = ['Mabel', 'Arlo', 'Bea', 'Cas', 'Dot', 'Ezra', 'Flo', 'Gus', 'Hattie', 'Ivo', 'June', 'Kip', 'Lou', 'Merv', 'Nora', 'Ollie',
@@ -223,7 +239,7 @@ export const VILLAGER_NAMES = ['Mabel', 'Arlo', 'Bea', 'Cas', 'Dot', 'Ezra', 'Fl
   'Archie', 'Bonnie', 'Cooper', 'Daisy', 'Elsie', 'Frankie',
   'Lena', 'Miles', 'Serena', 'Damon', 'Pippa', 'Marcus', 'Talia', 'Neve', 'Owen', 'Priya', 'Hugh',
   'Tess', 'Kieran', 'Ruby', 'Felix', 'Jules', 'Maeve', 'Aidan', 'Iris', 'Oscar', 'Rosa', 'Nina', 'Mina',
-  'Amber', 'Benji', 'Celia', 'Dev', 'Emmett', 'Fiona', 'Georgia', 'Hazel', 'Indi', 'Jonah', 'Kara', 'Lachlan', 'Molly', 'Nathan', 'Olivia', 'Parker', 'Quinn', 'Rowan', 'Sienna', 'Tobias', 'Ursula', 'Violet', 'Willow', 'Xavier', 'Yasmin', 'Zeke', 'Adelaide', 'Bram', 'Clara', 'Dario'];
+  'Amber', 'Benji', 'Celia', 'Dev', 'Emmett', 'Fiona', 'Georgia', 'Hazel', 'Indi', 'Jonah', 'Kara', 'Lachlan', 'Molly', 'Nathan', 'Olivia', 'Parker', 'Quinn', 'Rowan', 'Sienna', 'Tobias', 'Ursula', 'Violet', 'Willow', 'Xavier', 'Yasmin', 'Zeke', 'Adelaide', 'Bram', 'Clara', 'Dario', 'Eamon', 'Jett', 'Leila', 'Nadine', 'Mack', 'Ronan', 'Taryn', 'Yvette'];
 
 // Home meals: [name, ingredients]. Villagers cook the first one their pantry can make.
 const MEALS = {
@@ -301,7 +317,7 @@ function rng(seed) {
   return next;
 }
 // Live simulation state saved so a reload resumes exactly where the town was (positions, routes, trucks, random state).
-const SIM_VILLAGER_FIELDS = ['x', 'z', 'heading', 'inside', 'path', 'step', 'activity', 'hunger', 'fatigue', 'restedMinutes', 'wallet', 'savings', 'larder', 'household', 'carrying', 'lastMeal', 'meals', 'seen', 'doneToday', 'queue', 'paidDay', 'bike', 'memory', 'wageArrears', 'rateArrears', 'housingArrears', 'detourWait'];
+const SIM_VILLAGER_FIELDS = ['x', 'z', 'heading', 'inside', 'path', 'step', 'activity', 'hunger', 'fatigue', 'restedMinutes', 'wallet', 'savings', 'larder', 'household', 'carrying', 'lastMeal', 'meals', 'seen', 'doneToday', 'queue', 'paidDay', 'bike', 'memory', 'wageArrears', 'rateArrears', 'housingArrears', 'detourWait', 'patrolIndex'];
 const SIM_TRUCK_FIELDS = ['x', 'z', 'heading', 'path', 'job', 'leg', 'load', 'wait', 'state', 'braking', 'jam', 'siteAt', 'pulling', 'blockedBy', 'blockedFor', 'why', 'ignoreSite', 'retreat', 'reverse'];
 
 // ── Walking routes ─────────────────────────────────────────────────────────
@@ -1210,6 +1226,19 @@ export class TownLife {
       if (cafeOk) return this.goThen(v, cafe.front, { kind: 'eatout', at: 'cafe', dur: 25, activity: 'having breakfast at the Commit Café (over budget this week)' });
     }
     const working = m >= v.start && m < v.end;
+    if (v.job === 'security guard' && working) {
+      // Paid rounds on public pavements, not police duties or unrestricted private access.
+      const checkpoints = v.start < 12*60
+        ? ['securityhq','bank','store','cafe','police','pub','securityoffice']
+        : ['securityhq','hotel','bakery','pub','police','bank','securityoffice'];
+      const at = checkpoints[(v.patrolIndex || 0) % checkpoints.length];
+      v.patrolIndex = (v.patrolIndex || 0) + 1;
+      const site = this.place(at);
+      return this.goThen(v,site.front,{
+        kind:'patrol',at,dur:12,
+        activity:'patrolling the public frontage outside '+site.name
+      });
+    }
     // Employees take real off-duty meals, but never all leave the counter at
     // noon together. Each business staggers 40-minute breaks by two hours.
     // Relief workers begin earlier than the first break so lunch crowds can
@@ -1330,6 +1359,9 @@ export class TownLife {
     if (v.work === 'home') return this.doorstep(v);
     const p = this.place(v.work);
     // Clear of the gate and of the hen house and trough along the back of a paddock (z1 − 2.9 … z1 − 5.1).
+    // A visitor liaison remains at the actual public farm gate rather than
+    // appearing to staff reception while twenty metres away in a field.
+    if (v.work === 'soyfarm' && v.job === 'farm-gate visitor liaison') return p.front;
     if (p.field) return { x: p.field.x0 + 2 + this.rand() * (p.field.x1 - p.field.x0 - 4), z: p.field.z0 + 2.5 + this.rand() * (p.field.z1 - p.field.z0 - 8.1) };
     if (v.job === 'truck driver') return p.front;
     return this.jitter(p.front, 2);
@@ -1407,7 +1439,7 @@ export class TownLife {
     v.path = Math.hypot(target.x - v.x, target.z - v.z) < 1 ? [] : walkRoute(v, target);
     // Long trips are by bike; short ones on foot.
     let len = 0, prev = v; for (const p of v.path) { len += Math.abs(p.x - prev.x) + Math.abs(p.z - prev.z); prev = p; }
-    v.bike = len > 160 && v.job !== 'retired';
+    v.bike = len > 160 && v.job !== 'retired' && step.kind !== 'patrol';
     if(v.bike) v.path=cyclingRoute(v.path,v,target,z=>ROAD(rowOf(z)));
     v.path = fieldAccessRoute(this.places, v.path, v, target);
     if (v.path.length) { v.inside = false; v.activity = `${v.bike ? 'cycling' : 'walking'} — ${step.activity}`; }
@@ -1559,7 +1591,7 @@ export class TownLife {
     const s = v.step;
     if (s?.kind === 'cook' && s.meal) this.eat(v, s.meal[0], s.meal[1]);
     if (s?.at === 'home') { const paid = householdDone(this, v, s); if (paid?.council) { this.civic.treasury += paid.council; budgetRevenue(this, paid.council, 'utilities'); } }
-    if (s?.kind === 'work' && this.minute >= v.end - 1 && v.paidDay !== this.day) this.pay(v);
+    if (['work','patrol'].includes(s?.kind) && this.minute >= v.end - 1 && v.paidDay !== this.day) this.pay(v);
     if(s?.kind==='work' && v.work!=='home' && !v.path.length){
       const colleague=this.villagers.find(o=>o!==v && o.work===v.work &&
         o.step?.kind==='work' && !o.path.length);
@@ -1709,7 +1741,7 @@ export class TownLife {
     if (s.sim !== undefined) {
       const r = s.sim;
       const ok = r && typeof r === 'object' && Array.isArray(r.events) && r.stats && typeof r.stats === 'object' && Array.isArray(r.villagers) && Array.isArray(r.trucks) && Array.isArray(r.parcels)
-        && (r.villagers.length === this.villagers.length || (this.villagers.length > 38 && r.villagers.length === 38)) && r.trucks.length === (this.trucks || []).length && Number.isInteger(s.rngState) && s.rngState >= 0 && s.rngState <= 0xffffffff && Number.isInteger(s.seed) && s.seed >= 0 && s.seed <= 0xffffffff
+        && (r.villagers.length >= 38 && r.villagers.length <= this.villagers.length) && r.trucks.length === (this.trucks || []).length && Number.isInteger(s.rngState) && s.rngState >= 0 && s.rngState <= 0xffffffff && Number.isInteger(s.seed) && s.seed >= 0 && s.seed <= 0xffffffff
         && r.villagers.every((v, i) => v && Number.isInteger(v.id) && v.id === i && this.villagers.some((x) => x.id === v.id)) && r.trucks.every((t) => t && Number.isInteger(t.id) && Array.isArray(t.path) && (this.trucks || []).some((x) => x.id === t.id));
       if (!ok) return false;
       sim = JSON.parse(JSON.stringify(r));
