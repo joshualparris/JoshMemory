@@ -9,7 +9,7 @@ for (let r=0;r<7;r++) for(let c=0;c<26;c+=2)
 const t=new TownLife({homes,minute:8*60,seed:20261020});
 const cafe=t.place('cafe'),p=t.civic.player;
 const barista=t.villagers.find(v=>v.work==='cafe');
-barista.step={kind:'work',at:'cafe'}; barista.path=[];
+barista.step={kind:'work',at:'cafe'}; barista.path=[];barista.x=cafe.front.x;barista.z=cafe.front.z;
 assert.equal(CAFE_MENU.length,19);
 assert.equal(new Set(CAFE_MENU.map(i=>i.id)).size,CAFE_MENU.length);
 assert(CAFE_MENU.every(i=>i.price>0 && Object.keys(i.ingredients).length>0));
@@ -35,7 +35,7 @@ assert(p.hunger<hungerBefore);
 assert.equal(t.stats.meals,sales+1);
 assert.match(p.served[0],/Ticket 1: Flat white served/);
 // Ticking the town lets villagers move; keep the barista behind the counter for the refusal checks.
-barista.step={kind:'work',at:'cafe'}; barista.path=[];
+barista.step={kind:'work',at:'cafe'}; barista.path=[];barista.x=cafe.front.x;barista.z=cafe.front.z;
 p.wallet=0;
 const before={...cafe.stock};
 assert.match(t.orderCafe('latte'),/need \$5/);
