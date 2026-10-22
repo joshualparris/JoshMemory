@@ -184,6 +184,14 @@ function townReply(t, town, pick) {
 // Without a model: varied, conversational replies built from the same facts.
 function scripted(house, name, f, text, role, town) {
   const t = text.toLowerCase().trim();
+  // When asked what was actually said in a yarn, quote the saved simulation
+  // dialogue verbatim. Never invent an overheard exchange in the AI fallback.
+  if (/yarn|overheard|what (did|were) (you|they) say|exact(ly)? what.*said|conversation with/.test(t)) {
+    const e=town?.social?.conversations?.[0];
+    return e?.lines?.length
+      ? 'Here is what was said at '+(e.location||'town')+':\n'+e.lines.map(line=>line.speaker+': “'+line.text+'”').join('\n')
+      : "I haven't had a recorded conversation with another resident yet. Try the 🗣 Yarns button once neighbours meet.";
+  }
   const pick = (a) => a[Math.floor(Math.random() * a.length)];
   const civicReply=answerPoliticsQuestion(town,text);
   if(civicReply)return civicReply;
@@ -290,6 +298,7 @@ export function npcBehaviour(x, ctx) {
       <div class="chat-chips">
         <button type="button" class="chat-chip" data-ask="Any relic hints for the Adventure Guild?">🧭 Relic hint</button>
         <button type="button" class="chat-chip" data-ask="Any gossip about the neighbours on this street?">🗣️ Neighbours</button>
+         <button type="button" class="chat-chip" data-ask="What exactly was said in your most recent yarn?">💬 Recent yarn</button>
         <button type="button" class="chat-chip" data-ask="Who are your friends or enemies in town, and why?">💞 Friendships</button>
         <button type="button" class="chat-chip" data-ask="Do you have a small errand I can help with?">📦 Small errand</button>
         <button type="button" class="chat-chip" data-ask="What objects are near you right now?">🪑 Nearby objects</button>
