@@ -1242,7 +1242,7 @@ async function start() {
       ledger: () => life.ledger(), describe: (i) => life.describe(life.villagers[i]),
       // Jumps the clock (tests): everyone re-plans their day from scratch.
       setWeather(w) { life.civic.weather = w; },
-      setTime(minute) { life.minute = minute; life.stats = life.freshStats(); for (const v of life.villagers) { v.step = null; v.path = []; v.queue = []; v.doneToday = {}; } },
+      setTime(minute) { life.minute = minute; life.stats = life.freshStats(); for (const v of life.villagers) { v.step = null; v.path = []; v.queue = []; v.doneToday = {}; } life.startShiftsInProgress(); },
       run(minutes) { for (let m = 0; m < minutes; m += 0.5) life.tick(0.5); },
       // A villager's live route and plan, for diagnosing where people walk.
       route: (name) => { const v = life.villagers.find((x) => x.name === name); return v && { x: v.x, z: v.z, bike: !!v.bike, inside: v.inside, path: v.path.map((p) => ({ x: p.x, z: p.z, detour: !!p.detour })), step: v.step && { kind: v.step.kind, at: v.step.at, target: v.step.target } }; },

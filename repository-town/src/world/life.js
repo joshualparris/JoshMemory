@@ -470,14 +470,7 @@ export class TownLife {
     }
     // Each household's food, appliances, bills and chores (src/world/household.js).
     for (const v of this.villagers) { v.larder = null; ensureHousehold(v); }
-    // A new town starts mid-morning, not at midnight: anyone whose shift is already under way
-    // begins at work (bakers since 04:30), not asleep at home leaving the shop locked.
-    for (const v of this.villagers) {
-      const site = v.work !== 'home' && this.places.get(v.work);
-      if (!site || !(minute >= v.start && minute < v.end) || ['student', 'retired'].includes(v.job)) continue;
-      Object.assign(v, { x: site.front.x, z: site.front.z, inside: false, activity: 'on shift' });
-      Object.assign(v.doneToday, { shower: true, breakfast: true });
-    }
+    this.startShiftsInProgress();
     // A business can only trade while somebody is rostered on: the posted hours never start
     // before the first shift or run past the last (the bakery used to say 18:00 with nobody there).
     for (const p of this.places.values()) {
@@ -512,6 +505,17 @@ export class TownLife {
     initialiseVehicles(this);
     initialiseTradeEducation(this);
     this.log(`Day ${this.day} begins. The town wakes up.`);
+  }
+
+  // A new town starts mid-morning, not at midnight: anyone whose shift is already under way
+  // begins at work (bakers since 04:30), not asleep at home leaving the shop locked.
+  startShiftsInProgress() {
+    for (const v of this.villagers) {
+      const site = v.work !== 'home' && this.places.get(v.work);
+      if (!site || !(this.minute >= v.start && this.minute < v.end) || ['student', 'retired'].includes(v.job)) continue;
+      Object.assign(v, { x: site.front.x, z: site.front.z, inside: false, path: [], step: null, activity: 'on shift' });
+      Object.assign(v.doneToday, { shower: true, breakfast: true });
+    }
   }
 
   freshStats() { return { harvested: {}, milled: 0, baked: 0, deliveries: 0, delivered: {}, sold: {}, meals: 0, mealsOut: 0, parcels: 0, taxes: 0, wages: 0, recycled: 0, landfill: 0, letters: 0, repairs: 0, stockouts: 0, powerCutHours: 0, wasted: 0 }; }
