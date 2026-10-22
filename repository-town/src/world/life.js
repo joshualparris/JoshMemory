@@ -412,7 +412,9 @@ export class TownLife {
       const x = lotX(col), south = d.side === 'south';
       this.places.set(d.id, {
         ...d, target: d.target ? {...d.target} : undefined, x, door: { x, z: south ? FIELD_Z0 - 0.5 : LOT8_Z + 7.5 }, front: { x, z: south ? FIELD_Z0 - 2.2 : LOT8_Z + 9.3 }, curb: { x, z: south ? ROAD(7) + 1.7 : ROAD(7) - 1.7 },
-        stock: Object.fromEntries(Object.keys(d.target || {}).map((k) => [k, Math.round(d.target[k] * 0.6)])), till: 0, out: {},
+        // The three essential grocers begin with a fuller finite opening delivery;
+        // their new reliable morning service must not immediately run out of stock.
+        stock: Object.fromEntries(Object.keys(d.target || {}).map((k) => [k, Math.round(d.target[k] * (['store','greengrocer','butcher'].includes(d.id) ? 0.85 : 0.6))])), till: 0, out: {},
       });
     }
     // Farms keep produce at the farm until a truck collects it; fields lie across the road.
