@@ -9,7 +9,7 @@ const main=read('main.js'),panel=read('ui/waste-depot-panel.js');
 assert(router.includes("if(site.id==='landfill')return buildWasteDepotInterior(site,makeLabel,life);"));
 assert(main.includes("wasteDepotPanel(life,thing.key.split(':')[1])"));
 assert(panel.includes("life.place('landfill')"));
-assert(panel.includes("workingAt(v,'landfill')"));
+assert(panel.includes("workingAt(v,'landfill',p)"),'depot attendance must use the actual physical site');
 const V=class{constructor(x=0,y=0,z=0){this.x=x;this.y=y;this.z=z}set(x,y,z){Object.assign(this,{x,y,z})}};
 const kit=(site,makeLabel,title)=>{
  const group={add(){}},colliders=[],interactables=[],sceneObjects=[],placedProps=[];

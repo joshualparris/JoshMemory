@@ -46,4 +46,20 @@ for(const side of ['north','south']){
   assert(sensed>=2,'visitor must reach civic '+side+' entrance from footpath');
   checked++;
 }
-console.log('PASS: '+checked+' collision-clear house/civic approaches and safe locked doors');
+
+const store={id:'store',front:{x:100,z:50}};
+const attendant={step:{kind:'work',at:'store'},path:[{x:100,z:51},{x:100,z:50}],x:101.4,z:51.2,inside:false};
+assert(workingAt(attendant,store),'real nearby shop worker is on site despite short leftover path');
+assert(workingAt({...attendant,x:106,z:52},store),'reception worker six metres inside is on site');
+assert(!workingAt({...attendant,x:109.5,z:50},store),'commuting worker 9.5m away is not on site');
+assert(!workingAt({...attendant,x:125,z:50},store),'distant commuters cannot open a locked premises');
+assert(!workingAt({...attendant,path:[],x:125,z:50},store),'empty route cannot impersonate physical attendance');
+assert(workingAt({...attendant,path:[]},'store'),'legacy id-only caller remains compatible');
+assert(!workingAt(attendant,'store'),'legacy id-only caller cannot imply a worker with unfinished route');
+assert(workingAt({...attendant,inside:true},store),'real on-site employee remains recognised');
+const farm={id:'soyfarm',front:{x:0,z:0},field:{x0:-11,x1:11,z0:18,z1:30}};
+const grower={step:{kind:'work',at:'soyfarm'},path:Array(11).fill({x:0,z:18}),x:-3,z:24,inside:false};
+assert(workingAt(grower,farm),'farm worker in a paddock counts as physically at work');
+assert(!workingAt({...grower,x:0,z:35},farm),'off-site worker past the paddock boundary does not');
+assert(!workingAt({...attendant,step:{kind:'eatout',at:'cafe'}},store),'a person at lunch is not staffing the till');
+console.log('PASS: '+checked+' collision-clear approaches and positional staffing with saved route compatibility');

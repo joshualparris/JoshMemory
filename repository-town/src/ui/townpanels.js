@@ -222,7 +222,7 @@ function placePanelBase(life, id) {
   const access = facilityAccess(life, p);
   const open = access.allowed;
   const staff = life.villagers.filter((v) => v.work === id);
-  const here = life.villagers.filter((v) => workingAt(v,id));
+  const here = life.villagers.filter((v) => workingAt(v,id,p));
   const service = shopService(life,p), serving = service.available;
   const visitors = life.villagers.filter((v) => v.step?.at === id && v.step.kind !== 'work' && !v.path.length);
   const rows = [];

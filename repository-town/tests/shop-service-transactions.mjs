@@ -13,9 +13,9 @@ for(const action of [()=>t.buyItem('store','bread'),()=>t.sellItem('store','brea
 }
 const worker=t.villagers.find(v=>v.work==='store');
 worker.step={kind:'work',at:'store'};worker.path=[{x:0,z:0}];assert.match(t.buyItem('store','bread'),/waiting for staff/);
-worker.path=[];assert.match(t.buyItem('store','bread'),/You buy/);
+worker.path=[];worker.x=store.front.x;worker.z=store.front.z;assert.match(t.buyItem('store','bread'),/You buy/);
 worker.step={kind:'work',at:'hall'};assert.match(t.sellItem('store','bread'),/waiting for staff/,'stale counter action rechecks attendance');
-const relief=t.villagers.find(v=>v!==worker);relief.step={kind:'work',at:'store'};relief.path=[];
+const relief=t.villagers.find(v=>v!==worker);relief.step={kind:'work',at:'store'};relief.path=[];relief.x=store.front.x;relief.z=store.front.z;
 assert.match(t.sellItem('store','bread'),/buys it back/,'actual relief can serve even if their normal job is elsewhere');
 t.minute=23*60;const snapshot=before();assert.match(t.sellItem('store','bread'),/closed/);assert.equal(before(),snapshot,'closed buybacks cannot bypass shop hours');
 t.minute=12*60;relief.step={kind:'idle',at:'home'};
