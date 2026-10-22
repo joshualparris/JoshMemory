@@ -542,7 +542,7 @@ export class TownLife {
     separatePedestrians(this.villagers.filter(v=>!v.inside).map(v=>({
       id:v.id,pos:v,radius:v.bike&&v.path.length?1.16:.59,
       fixed:!!v.engaged
-    })),{world:this.pedestrianWorld||null,gap:1.24,passes:6});
+    })),{world:this.pedestrianWorld||null,gap:1.24,passes:12});
     // A crowd can nudge walkers sideways every tick while route-following
     // pulls them back towards the same obstructed point. Detect lack of NET
     // forward progress, recover via a real walkable detour, and never orbit
