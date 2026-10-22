@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { Builder } from './builder.js';
 import { buildExterior } from './exterior.js';
 import { exteriorColliders } from './exterior-collision.js';
+import { houseEntranceZone } from './house-entrance.js';
 
 // Town layout: 26 columns (A–Z) × 8 rows (streets). Every house faces +z onto its
 // street. Rows are merged into one mesh each so the whole town is ~10 draw calls.
@@ -121,7 +122,7 @@ export function buildTown(scene, houses, streets) {
     doors.push(hinge);
   }
   const doorZones = [...lots.values()].map(({ house, doorPos, fp }) => ({
-    coordinate: house.coordinate, x0: doorPos.x - fp.door.w / 2 + 0.15, x1: doorPos.x + fp.door.w / 2 - 0.15, z0: doorPos.z - 0.1, z1: doorPos.z + 0.6,
+    coordinate: house.coordinate, ...houseEntranceZone(doorPos, fp),
   }));
 
   const windowMats = panes.map(() => new THREE.MeshLambertMaterial({ vertexColors: true, emissive: 0xffb45a, emissiveIntensity: 0 }));

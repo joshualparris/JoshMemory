@@ -8,7 +8,7 @@ export function civicEntranceZone(place) {
   };
   return {
     x0:place.door.x-0.93,x1:place.door.x+0.93,
-    z0:place.door.z-0.12,z1:place.door.z+0.92
+    z0:place.door.z-0.12,z1:place.door.z+1.35
   };
 }
 export function atCivicEntrance(place,pos) {
@@ -19,5 +19,5 @@ export function atCivicEntrance(place,pos) {
 export function closedCivicDoorPose(place,pos) {
   // Put the visitor OUTSIDE the entire sensor, not in a repeat-trigger loop.
   // Keep the direction they were facing so the rejection feels natural.
-  return {x:pos.x,z:place.side==='south'?place.door.z-1.90:place.door.z+1.30};
+  return {x:pos.x,z:place.side==='south'?place.door.z-1.90:place.door.z+1.75};
 }
