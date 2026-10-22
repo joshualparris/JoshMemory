@@ -40,7 +40,10 @@ export const WALK = 1.5, BIKE = 4.5, DRIVE = 8;               // metres per real
 const WAGES = { retired: 40, student: 20, mayor: 95, nurse: 85, teacher: 85, programmer: 95, 'bank teller': 75, 'real estate agent': 82, 'power operator': 85, firefighter: 85 };
 const BASE_WAGE = 70;
 // Per-worker harvest multipliers: a market garden and a chook shed out-produce a paddock per hand.
-const FARM_YIELD = { veg: 1.6, eggs: 1.5 };
+// The expanded town's farms now support reliable staffed retail trade.
+// Goods still come from actual on-shift agricultural work, with a capped shed
+// and paid, physical freight; extra inventory is never generated in a shop.
+const FARM_YIELD = { veg: 2.1, eggs: 1.8, lamb: 1.4, fruit: 1.4, milk: 1.4 };
 // Workplaces paid from the town treasury; everyone else is paid from their employer's till.
 const PUBLIC = new Set(['hall', 'school', 'clinic', 'post', 'depot', 'power', 'waterworks', 'sewage', 'recycling', 'landfill', 'fire', 'bank', 'square']);
 const WEATHER = ['sunny', 'sunny', 'cloudy', 'rainy', 'windy', 'sunny', 'cloudy'];
