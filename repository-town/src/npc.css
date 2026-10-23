@@ -115,3 +115,12 @@ body.npc-lounge #npc-roster-items{max-height:min(580px,calc(100dvh - 295px));ove
 .npc-host-notice{margin:0;padding:9px 12px;border-top:1px solid #38516b;background:#172d42;color:#e4eff8;font-size:13px;line-height:1.4;flex:0 0 auto}
 .npc-host-notice a{color:#b5edff;text-decoration:underline;font-weight:650}
 #npc-chat.npc-typing .npc-host-notice{display:none}
+
+/* Explicit listen action: speech is never automatic and must not cover text. */
+.town-voice-button{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;gap:4px;min-height:36px;min-width:78px;margin:4px 2px;padding:5px 9px;border:1px solid #72b6ce;border-radius:999px;background:#173c51;color:#fff;font:inherit;font-size:12px;font-weight:750;cursor:pointer;touch-action:manipulation;white-space:nowrap}
+.town-voice-button:focus-visible{outline:3px solid #fbd67e;outline-offset:2px}
+.town-voice-button[aria-pressed="true"]{background:#714524;border-color:#efbf68}
+.npc-line .town-voice-button{align-self:flex-end}
+.chat-log .town-voice-button{vertical-align:middle;margin-left:8px}
+.yarn-line .town-voice-button{margin-top:6px}
+@media(max-width:480px){.npc-line{flex-wrap:wrap}.npc-line .town-voice-button{margin-left:auto}}
