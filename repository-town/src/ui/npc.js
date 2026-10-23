@@ -9,6 +9,7 @@ import { groundedLocationReply } from './npc-location.js';
 import { villagerProfile } from './villager-profiles.js';
 import { residentName } from './resident-identity.js';
 import { recordPlayerMessage, recordTownAction, socialContext, socialGossip } from './social.js';
+import {toggleTownVoice, primeTownVoice, stopTownVoice} from './voicebank.js';
 
 const LEGACY_KEY_STORE = 'repository-town.groq-keys';
 const NPC_API = 'https://repository-town-no-code-ai.parris-neathaustralia.workers.dev/api/npc-chat';
@@ -281,7 +282,7 @@ const saveChats = () => {
 };
 
 function render(log, history, name) {
-  log.innerHTML = history.map((m) => `<p class="${m.role === 'user' ? 'you' : 'npc'}"><b>${m.role === 'user' ? 'You' : esc(name)}:</b> ${esc(m.content)}</p>`).join('') || `<p class="dim">Say hello to ${esc(name)}.</p>`;
+  log.innerHTML = history.map((m,i) => `<p class="${m.role === 'user' ? 'you' : 'npc'}"><b>${m.role === 'user' ? 'You' : esc(name)}:</b> ${esc(m.content)}${m.role === 'assistant' ? ` <button type="button" class="town-voice-button" data-town-voice-index="${i}" aria-label="Read this line aloud" aria-pressed="false">🔊 Listen</button>` : ''}</p>`).join('') || `<p class="dim">Say hello to ${esc(name)}.</p>`;
   log.scrollTop = log.scrollHeight;
 }
 
@@ -348,6 +349,13 @@ export function npcBehaviour(x, ctx) {
       };
       showBrain();
       render(log, history, name);
+      void primeTownVoice();
+      log.addEventListener('click', event => {
+        const button = event.target.closest?.('button[data-town-voice-index]');
+        if (!button) return;
+        const line = history[Number(button.dataset.townVoiceIndex)];
+        if (line?.role === 'assistant') void toggleTownVoice(button, line.content);
+      });
       let facts = null;
       for (const chip of root.querySelectorAll('.chat-chip')) {
         chip.addEventListener('click', () => {
@@ -362,6 +370,7 @@ export function npcBehaviour(x, ctx) {
         input.value = '';
         recordPlayerMessage(name, text);
         history.push({ role: 'user', content: text });
+        stopTownVoice();
         render(log, history, name);
         log.insertAdjacentHTML('beforeend', `<p class="npc dim thinking">${esc(name)} is thinking…</p>`);
         // The scene is sampled per message, so a wandering resident knows the room they are
