@@ -51,7 +51,7 @@ function speakOnDevice(text) {
 export function toggleTownVoice(button, rawText) {
   if (active === button) { stopTownVoice(); return Promise.resolve({status:'cancelled'}); }
   stopTownVoice();
-  const text = String(rawText || '').trim().slice(0, 1200);
+  const text = String(rawText || '').trim().slice(0, 2400);
   if (!text) return Promise.resolve({status:'missing'});
   const now = revision;
   active = button;
@@ -61,7 +61,7 @@ export function toggleTownVoice(button, rawText) {
   // Prime in the background. The device fallback starts within the original
   // user gesture if the network module isn't ready yet.
   if (!loading) void primeTownVoice();
-  const speech = bank
+  const speech = bank && text.length <= 1000
     ? bank.say(text).then(result =>
         result.status === 'error' || result.status === 'missing' ? speakOnDevice(text) : result)
     : speakOnDevice(text);
