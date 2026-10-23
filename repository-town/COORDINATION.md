@@ -7,6 +7,7 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+
 - 2026-10-22 · ChatGPT — **TESTING: morning opening coverage, rebased on merged yarn work** `fix/town-opening-reconciled-20261022`. Real staff leave home earlier, use genuine pre-opening commutes and start work when their paid shift begins; static signs say HOURS, near-door hint shows real entry status. Multi-seed 08:18 Greengrocer, Security and Locksmith tests green; inventory delivery priority/capacity adjusted to preserve physical stock after increased trading, full 28-day seed gate pending. Supersedes conflicted PR #156; maintain merged NPC yarn UI. Do not publish to generated Pages directly.
 
 - 2026-10-22 · ChatGPT — **IN PROGRESS: overheard NPC yarns** on `feat/town-overheard-yarns-20261022`. Contextual four-line conversations are generated at genuine meetings, saved with social memories, and shown through a mobile-friendly 🗣 Yarns log and local subtitles. Source changes: `src/world/yarn-dialogue.js`, `social-events.js`, `life.js`, new `src/ui/yarns.js`, minimal `src/main.js`, `tests/social-events.mjs`. Protect ongoing immersive-sleep work; tests, integration, and live deployment pending.
@@ -87,6 +88,8 @@ Newest first. Times in Australia/Sydney.
   is currently blocked by the Hobby team's daily deployment quota (`api-deployments-free-per-day`).
 
 ## Done recently
+
+- 2026-10-23 · ChatGPT — **IMPLEMENTED, local integration verified: legacy Pages backup reconciliation** (`fix/town-backup-reconcile-20261023`, PR #160). Archived three exact public legacy files under `audit/legacy-pages-drift-2026-10-23/`; `tools/sync-backup.mjs` now permits only exact archived copies while rejecting all other unexplained drift. Seven Node/git fixture scenarios passed locally. **Production/Pages publication still pending** GitHub Actions and matching `release.json` fingerprints; do not claim it deployed.
 - 2026-10-20 · ChatGPT — **Dot / Vercel AI Cloudflare CORS fixed and deployed**. Root cause: `deploy/cloudflare-ai-worker.js` restricted `Origin` to GitHub Pages, returning 403 for `repository-town-claude-complete.vercel.app`, causing NPC offline fallback. Canonical [PR #90](https://github.com/joshualparris/JoshMemory/pull/90) merged (`81b80ec3`), full Town Integration gate green including `tests/worker-cors.mjs` simulated OPTIONS/POST, evil-origin denial, builds and privacy. Cloudflare Worker `repository-town-no-code-ai` updated using content-only API; verified deployed version `82d940d7-51cd-4341-8400-4e3186cc12c7`, `GROQ_API_KEY`, `IP_LIMIT`, and `GLOBAL_LIMIT` preserved. New allowlist includes verified Claude Complete Vercel origins and prior Pages/Worker origins with per-request CORS. **A real Groq response on the Android device has not yet been independently verified**; if still offline, check provider quota/key validity and worker invocation logs next.\n
 - 2026-10-20 · Claude Code — **Power Station interior: a remote-town hybrid diesel–solar–battery station**, branch `ccr-846db548-0l5zmu`. Note: I also built a railway-station Rail Depot but dropped it unmerged, because ChatGPT's claimed freight-house depot (#86) landed first.
   - New `src/world/power-interior.js`, modelled on Lord Howe Island's microgrid (three 300 kW diesel sets, solar, battery, microgrid controller) and Horizon Power's remote towns. It has five rooms:

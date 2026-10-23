@@ -11,10 +11,25 @@ const git=(...args)=>execFileSync('git',['-C',site,...args],{encoding:'utf8'}).t
 if(git('status','--porcelain'))throw Error('Backup checkout has local changes');
 const previous=JSON.parse(fs.readFileSync(path.join(site,'release.json'),'utf8'));
 const keep=new Set(['README.md','AGENTS.md','CLAUDE.md','.nojekyll']);
+// Three legacy Pages files predate the release manifest. Keep their exact contents
+// in source control before replacing the generated site; never silently drop drift.
+const archivedLegacy=new Set([
+  'tests/entrance-zones.mjs',
+  'world/civic-entrance.js',
+  'world/house-entrance.js',
+]);
+const archiveDir=path.resolve(new URL('../audit/legacy-pages-drift-2026-10-23/',import.meta.url).pathname);
 for(const name of git('ls-files').split('\n')) {
   if(name.startsWith('.github/')||keep.has(name)||name==='release.json')continue;
   const expected=previous.files[name];
-  if(!expected)throw Error('Untracked-in-manifest site file; preserve it before publishing: '+name);
+  if(!expected){
+    const archived=path.join(archiveDir,name);
+    if(!archivedLegacy.has(name)||!fs.existsSync(archived)||!fs.readFileSync(archived).equals(fs.readFileSync(path.join(site,name)))){
+      throw Error('Untracked-in-manifest site file; preserve it before publishing: '+name);
+    }
+    console.log('Verified legacy Pages-only file preserved in source archive: '+name);
+    continue;
+  }
   const hash=crypto.createHash('sha256').update(fs.readFileSync(path.join(site,name))).digest('hex');
   if(hash!==expected)throw Error('Live-only edit must be reconciled into source first: '+name);
 }
