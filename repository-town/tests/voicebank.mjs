@@ -43,7 +43,7 @@ const second = toggleTownVoice(button, 'Listen again.');
 assert.equal(button.textContent, '■ Stop');
 const cancelling = toggleTownVoice(button, 'Listen again.');
 assert.equal((await cancelling).status, 'cancelled');
-assert.equal(button.textContent, '🔊 Listen');
+assert.equal(button.textContent, '🔉 Device voice');
 assert(cancelCalls.length > 0, 'stop must cancel any device speech');
 speakCalls.at(-1).onend();
 await second;
