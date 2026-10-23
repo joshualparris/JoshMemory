@@ -74,7 +74,7 @@ export function mountNPCChat(root=document, { getScene = () => null } = {}) {
     const row=root.createElement('div');row.className='npc-line '+who;
     const bubble=root.createElement('div');bubble.className='npc-bubble';
     bubble.textContent=message;row.appendChild(bubble);
-    if(who==='npc')row.appendChild(makeTownListenButton(message,root));
+    if(who==='npc')row.appendChild(makeTownListenButton(message,root,{npcId:active?.id||''}));
     feed.appendChild(row);
     feed.scrollTop=feed.scrollHeight;
   }
@@ -137,7 +137,7 @@ export function mountNPCChat(root=document, { getScene = () => null } = {}) {
     if(!npc)return false;
     if(controller)controller.abort();
     beforeFocus=root.activeElement;
-    void primeTownVoice();
+    void primeTownVoice(npc.id);
     active=npc;context=house;busy=false;
     const k=key(npc,house);
     if(!chats.has(k))chats.set(k,[{role:'assistant',content:npc.welcome}]);
