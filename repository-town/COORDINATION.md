@@ -7,6 +7,8 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-23 · ChatGPT — **INTEGRATING: VoiceBank speech for town residents and yarns** on `feat/town-parrisvoicebank-audio-20261023`. New `src/ui/voicebank.js` uses approved public VoiceBank recordings with opt-in en-AU device speech fallback; adding compact Listen/Stop buttons to `src/ui/npc.js`, `npc-chat.js`, `yarns.js`, and tests. No paid synthesis, changes to NPC replies, clock, gameplay simulation, or private source publication. Full release gate and mobile browser tests underway; merge and production verification pending.
+
 
 - 2026-10-22 · ChatGPT — **TESTING: morning opening coverage, rebased on merged yarn work** `fix/town-opening-reconciled-20261022`. Real staff leave home earlier, use genuine pre-opening commutes and start work when their paid shift begins; static signs say HOURS, near-door hint shows real entry status. Multi-seed 08:18 Greengrocer, Security and Locksmith tests green; inventory delivery priority/capacity adjusted to preserve physical stock after increased trading, full 28-day seed gate pending. Supersedes conflicted PR #156; maintain merged NPC yarn UI. Do not publish to generated Pages directly.
 

@@ -3,6 +3,7 @@
 // by Repository Town and no API key is ever sent to the browser.
 import { NPCS, getNPC } from './npc-data.js';
 import { answerSceneQuestion } from './scene-awareness.js';
+import {makeTownListenButton, primeTownVoice, stopTownVoice} from './voicebank.js';
 
 const FALLBACK=[
   'The live AI is unavailable, but I can still chat with you offline.',
@@ -72,7 +73,9 @@ export function mountNPCChat(root=document, { getScene = () => null } = {}) {
   function line(who,message) {
     const row=root.createElement('div');row.className='npc-line '+who;
     const bubble=root.createElement('div');bubble.className='npc-bubble';
-    bubble.textContent=message;row.appendChild(bubble);feed.appendChild(row);
+    bubble.textContent=message;row.appendChild(bubble);
+    if(who==='npc')row.appendChild(makeTownListenButton(message,root));
+    feed.appendChild(row);
     feed.scrollTop=feed.scrollHeight;
   }
   function key(npc,house){return npc.id+':'+(house?.coordinate||'town');}
@@ -134,6 +137,7 @@ export function mountNPCChat(root=document, { getScene = () => null } = {}) {
     if(!npc)return false;
     if(controller)controller.abort();
     beforeFocus=root.activeElement;
+    void primeTownVoice();
     active=npc;context=house;busy=false;
     const k=key(npc,house);
     if(!chats.has(k))chats.set(k,[{role:'assistant',content:npc.welcome}]);
@@ -151,6 +155,7 @@ export function mountNPCChat(root=document, { getScene = () => null } = {}) {
     return true;
   }
   function close() {
+    stopTownVoice();
     controller?.abort();controller=null;busy=false;active=null;
     input.blur();el.classList.remove('npc-typing');el.hidden=true;
     if(beforeFocus?.focus)beforeFocus.focus();
