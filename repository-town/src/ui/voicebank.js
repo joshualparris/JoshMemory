@@ -18,7 +18,7 @@ export function primeTownVoice() {
 }
 
 function resetButton(button) {
-  if (!button?.isConnected) return;
+  if (!button) return;
   button.textContent = '🔊 Listen';
   button.setAttribute('aria-label', 'Read this line aloud');
   button.setAttribute('aria-pressed', 'false');
