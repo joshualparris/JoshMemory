@@ -174,3 +174,7 @@ deployment.
 ## Lighting task triage
 
 [Central lighting tasks RLT-001–019](docs/UNNUMBERED_TODO_IDS_2026-10-24.md#lighting-tasks-and-release-triage): current **RLT-011** to finish browser publication and open the PR; browser write access, reconciliation and local validation (RLT-008–010) are verified. Then review/merge, deploy and verify. RLT-001–007 retain their original audit IDs and local-only verification status.
+
+## Whole-portfolio master agent queue
+
+For tasks collected from all twenty agents, use [the portfolio master triage](../docs/MASTER_20_AGENT_TRIAGE_2026-10-25.md) and [globally ordered register](../docs/MASTER_20_AGENT_EXECUTION_QUEUE_2026-10-25.csv). The local NPC dialogue, collisions and mobile QA queues remain authoritative within their scope. The global queue begins with reported security investigations; it **does not renumber** Town's original IDs or claim new runtime work complete.
