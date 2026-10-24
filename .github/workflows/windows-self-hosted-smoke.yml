@@ -1,4 +1,4 @@
-name: Windows self-hosted runner smoke test
+name: Windows and WSL2 Linux self-hosted runner smoke test
 # Self-hosted only. A one-file, trusted main-branch change triggers the initial smoke test.
 # No checkout, third-party actions, secrets, network requests, or repository code execution.
 on:
@@ -13,6 +13,28 @@ concurrency:
   group: joshmemory-windows-self-hosted-smoke
   cancel-in-progress: true
 jobs:
+  wsl2-linux-preflight:
+    name: WSL2 Linux runner connectivity (read-only)
+    if: github.repository == 'joshualparris/JoshMemory' && github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, Linux, X64, parris-ci]
+    timeout-minutes: 5
+    steps:
+      - name: Verify real WSL2 Linux self-hosted execution
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$RUNNER_OS" = "Linux"
+          test "$RUNNER_ARCH" = "X64"
+          echo "Runner: $RUNNER_NAME; OS: $RUNNER_OS; Arch: $RUNNER_ARCH"
+          uname -a
+          free -h
+          df -h .
+          git --version
+          node --version
+          npm --version
+          python3 --version
+          ffmpeg -version | head -n 1
+          echo "PASS: WSL2 Linux runner executed successfully on joshualparris/JoshMemory."
   windows-preflight:
     name: Windows runner connectivity (read-only)
     if: github.repository == 'joshualparris/JoshMemory' && github.ref == 'refs/heads/main'
