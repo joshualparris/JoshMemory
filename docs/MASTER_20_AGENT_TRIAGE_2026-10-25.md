@@ -4,11 +4,15 @@
 **Source:** User-supplied 20-page report PDF and live checked source trackers on GitHub.  
 **Authority:** This file is the **cross-project priority entry point**, not a replacement for each repository's canonical checklist or an authorisation to change production.
 
-## The precise next task
+## The precise next task — SylvieApp first
 
-> **Rank 00001 — DCSC-GR-001:** Investigate possible API credential exposure in the DCSCompanion browser-side bundle and deployment configuration. This is **a reported risk, NOT a confirmed breach**. Verify the claim using authorised source/build inspection, protect any sensitive values, prevent further unsafe publication and document the result before lower-impact work. If already claimed or access-blocked, record the blocker and advance to the earliest **unclaimed, unblocked** task, beginning at rank 00002.
+> **Rank 00001 — SVA-008:** Identify missing, damaged, mismatched or unsuitable ElevenLabs clips and record exceptions against the current source. **Rank 00002 — SVA-012:** Implement and verify the common recorded-audio controller across SylvieApp activities. Start with the first eligible unclaimed row after reading the current repo coordination and checkpoint.
 
-**Do not jump to `RTN-002`, `RTD-010`, `GM-031.01`, `TR-003.01` or `AUDIO-013.02` as the single portfolio-wide first task.** Those were correct next pointers *within their own workstreams*, not global risk ranking. Their stable IDs remain unchanged.
+**Priority changed at user request (25 October 2026):** User no longer works at DCS and prefers SylvieApp. Ranks **00001–00301** are now its 288 open `SVA-` subtasks, 12 global parent `TASK-001..012` acceptance items and `GRA-148` review. Other non-DCS work follows with its existing relative sequence.
+
+**DCS-exclusive tasks deferred to ranks 02576–02640 (65 rows)**; previously completed DCSCompanion review `GRA-037` remains a historical reference at rank 02663. DCSCompanion, DCSPrep, DCSPD and other DCS-only repositories' review tasks all move down; **no task ID/status/source risk rating was changed**. In particular, `DCSC-GR-001/002` are reported potential credential/privacy risks, *not confirmed breaches*. If evidence indicates real exposure, inform an authorised DCS maintainer; user no longer working there is not a reason to conceal credible risks.
+
+Mixed `GRC-005` covers other non-DCS findings and remains in the active queue; its DCS-specific component is deferred with the direct DCSC-GR tasks. The former master starting recommendation `DCSC-GR-001` is **no longer the global next item**.
 
 ## Canonical machine-readable order
 
@@ -18,102 +22,92 @@
 
 Scope totals: 1,864 named `TR-xxx.yy` review subtasks (1,848 open; 16 reference-only), 208 `GRA-xxx` Greptile repo-review IDs (201 queued/provider-blocked; seven prior review/reference), 84 open `RTD-` dialogue tasks, 288 open `SVA-` SylvieApp subtasks, 35 open `GM-` GentleMovement subtasks, and the other distinct P0/P1 production, safety, crowd, lighting, audio and coordination IDs. **These are task/checklist counts, not unique bug counts or proven coding completions.** Review and implementation IDs for the same repository have distinct purposes.
 
-### The first 70 execution positions
+### The first 70 execution positions — SylvieApp
 
-| Global rank | Permanent ID | Priority | Next action | Evidence state |
+| Global rank | Permanent ID | Existing priority label | Exact task | Evidence state |
 |---:|---|---|---|---|
-| 00001 | `DCSC-GR-001` | P0 | Investigate possible client-side API credential and public build inclusion; confirm risk, rotate or revoke affected secret on | BLOCKED_INVESTIGATION |
-| 00002 | `DCSC-GR-002` | P0 | Review public DCSCompanion project visibility and school-related knowledge-base authorisation; remove inappropriate public co | BLOCKED_INVESTIGATION |
-| 00003 | `DLC-GR-002` | P0 | Investigate potential workplace network details exposure; verify actual rendering and clean exposure without reproducing priv | OPEN |
-| 00004 | `GRC-001` | P0 | Route and verify DadLAN network information concern, parent coordination of DLC-GR-002. | OPEN |
-| 00005 | `KFO-GR-011` | P0 | Fix possible Kaseya progress/review ID collision; test backward-compatible stored state. | OPEN |
-| 00006 | `GRC-002` | P0 | Track Kaseya progress-data repair and Greptile evidence for KFO-GR-011. | OPEN |
-| 00007 | `KFO-GR-012` | P1 | Reproduce and repair failing Kaseya browser test or affected feature, then obtain green CI. | OPEN |
-| 00008 | `GRC-003` | P1 | Coordinate Kaseya browser regression repair and verify KFO-GR-012. | OPEN |
-| 00009 | `RTG-002` | P1 | Restore correct emergency crew availability in Town simulation; focused scenarios. | OPEN |
-| 00010 | `RTG-003` | P1 | Correct simulated dispatch/response timing; deterministic tests. | OPEN |
-| 00011 | `RTG-004` | P1 | Make earlier investigations accessible through saved state or case selection. | OPEN |
-| 00012 | `GRC-004` | P1 | Reconcile source/mirror and verify Repository Town emergency fixes RTG-002/003/004. | OPEN |
-| 00013 | `RTN-007` | P0 | Resolve PR #186 conflicts while preserving parallel NPC/lighting/audio work. | OPEN |
-| 00014 | `RTN-009` | P1 | Prevent player-initiated NPC overlaps in queues/doors/shops/houses. | OPEN |
-| 00015 | `RTN-008` | P1 | Finish unique visual identity across named and household NPC cast. | OPEN |
-| 00016 | `RTN-010` | P1 | Playtest crowded pub, shops, rooms and mobile performance/FPS. | OPEN |
-| 00017 | `RTN-011` | P0 | Retest reconciled crowd changes with complete release/privacy/collision/browser suites. | OPEN |
-| 00018 | `RTN-012` | P0 | Merge verified crowd fixes into canonical main after required checks. | OPEN |
-| 00019 | `AUDIO-013.02` | P0 | Identify canonical live release alias, SHA and READY state, not merely PR status. | OPEN |
-| 00020 | `AUDIO-013.04` | P0 | Compare live release fingerprint with exact tested source SHA/asset evidence. | OPEN |
-| 00021 | `AUDIO-013.03` | P0 | Test actual hosted NPC audio/mobile assets/CORS and dialogue interactions. | OPEN |
-| 00022 | `RTM-001` | P1 | In live 3D encounter, opt-in nearby yarns, press X; ensure current event stays dismissed, future ones work. | OPEN |
-| 00023 | `AUDIO-045.03` | P1 | Verify mobile touch target/long-caption overflow/Ask AI and interaction prompts at phone sizes. | OPEN |
-| 00024 | `RTQ-001` | P1 | Full uninterrupted mobile gameplay acceptance including save/reload, address, NPC, toggle, FPS. | OPEN |
-| 00025 | `RTM-002` | P2 | On physical Android verify dialogue HUD, X, preferences, overlay, manual NPC and saved-game safety. | DEVICE_REQUIRED |
-| 00026 | `RLT-011` | P1 | Verify pushed lighting branch/source/index and open/advance scoped PR without overwriting main. | OPEN |
-| 00027 | `RLT-012` | P1 | Review, pass required checks and merge lighting PR. | OPEN |
-| 00028 | `RLT-013` | P1 | Deploy approved lighting release via healthy approved provider. | OPEN |
-| 00029 | `RLT-014` | P1 | Verify live lighting source SHA, release fingerprint and assets. | OPEN |
-| 00030 | `RLT-015` | P1 | Hosted desktop/mobile night lighting walkthrough for streets, interiors, signs and windows. | OPEN |
-| 00031 | `RLT-016` | P1 | Record final lighting release evidence in task/checkpoint/coordination docs. | OPEN |
-| 00032 | `RLT-017` | P2 | Physical Android night lighting and sustained FPS, if device available. | DEVICE_REQUIRED |
-| 00033 | `RLT-018` | P2 | Verify blackout/restoration through real gameplay, not just circuit unit tests. | OPEN |
-| 00034 | `RLT-019` | P3 | Expand lighting audit to remaining actual interiors and share exact coverage. | OPEN |
-| 00035 | `AUDIO-010.01` | P1 | Automate open/close/reopen, NPC switch, ten rapid taps, replay and stop in Playwright on desktop and mobile-sized Chrome. | OPEN |
-| 00036 | `AUDIO-010.02` | P1 | Confirm playback cancels on modal dismissal, leaving an NPC and switching residents. | OPEN |
-| 00037 | `AUDIO-010.03` | P1 | Check no stale promise re-enables the wrong button or starts duplicate WebAudio sources. | OPEN |
-| 00038 | `AUDIO-042.02` | P1 | Add a repeat-tap/switch/close stress test that detects overlapping voices or hanging player state. | OPEN |
-| 00039 | `AUDIO-010.04` | P1 | Attach browser logs and preserve source/e2e tests as regression protection. | OPEN |
-| 00040 | `RTR-009` | P1 | Run release build, privacy gate and existing Town simulation/NPC/game/arcade browser suites against reviewed source. | OPEN |
-| 00041 | `RTR-015` | P1 | Publish only the sanitised approved release and verify Vercel, staging and mirror source/content fingerprints. | OPEN |
-| 00042 | `AUDIO-013.01` | P1 | Identify canonical Town source as 'joshualparris/JoshMemory/repository-town', not the similarly named mirror. | OPEN |
-| 00043 | `RTD-010` | P1 | Use stable actor keys across named creatures, workers, households and house residents; names alone are not identifiers. | OPEN |
-| 00044 | `RTD-011` | P1 | Implement pure deterministic DialogueDirector separate from DOM, Three.js, voice playback and remote AI. | OPEN |
-| 00045 | `RTD-012` | P1 | Validate missing next nodes, duplicate IDs, unreachable nodes, dead ends, illegal cycles and actors at test/build time. | OPEN |
-| 00046 | `RTD-021` | P1 | Add pure Node contract tests and structured fixtures for the dialogue schema and state machine. | OPEN |
-| 00047 | `RTD-080` | P1 | Add schema and graph unit tests covering every condition, actor, branch link and fallback path. | OPEN |
-| 00048 | `RTD-013` | P2 | Implement topic categories: introductions, news, directions, work, relationships, quests, trade, help, farewell. | OPEN |
-| 00049 | `RTD-015` | P2 | Filter available player options by positive and negative predicates, with explicit unknown-state behaviour. | OPEN |
-| 00050 | `RTD-016` | P2 | Add dialogue priority and optional/repeatable/cooldown topics to prevent repetitive greetings. | OPEN |
-| 00051 | `RTD-014` | P2 | Implement per-NPC greetings for first meeting, repeat encounters and conditional return visits. | OPEN |
-| 00052 | `RTD-017` | P2 | Support topic history, nested choices, back/change subject, replay, goodbye and early dismissal. | OPEN |
-| 00053 | `RTD-018` | P2 | Cancel stale branches on NPC switch, walk-away, modal close, screen navigation or re-entry. | OPEN |
-| 00054 | `RTD-019` | P2 | Support safe dynamic captions with substitutions; NEVER claim recorded audio speaks substituted words it doesn't. | OPEN |
-| 00055 | `RTD-020` | P2 | Make offline authored dialogue fully functional even without optional AI. | OPEN |
-| 00056 | `RTD-056` | P2 | Design responsive NPC portrait/name/title, subtitle panel, choice list, actor voice source and clear exit/back controls. | OPEN |
-| 00057 | `RTD-057` | P2 | Support touchscreen, desktop mouse and keyboard arrows/numbers/Enter/Escape with predictable focus. | OPEN |
-| 00058 | `RTD-058` | P2 | Make scene choices readable on Android portrait/landscape and while visual viewport/keyboard changes. | OPEN |
-| 00059 | `RTD-059` | P2 | Add explicit Hear/Stop/Replay/Retry status and don't play audio automatically before a user gesture. | OPEN |
-| 00060 | `RTD-060` | P2 | Stop correct active voice on NPC switch/dismissal and prevent stale promises resurrecting old captions. | OPEN |
-| 00061 | `RTD-062` | P2 | Pause or block game inputs appropriately while in focused dialogue; restore them on close. | OPEN |
-| 00062 | `RTD-022` | P2 | Expose read-only predicates for time, NPC location, known places, visits, inventory, money, skill/quest stage, jobs and relat | OPEN |
-| 00063 | `RTD-023` | P2 | Connect existing Expedition Guild quest journal and optional named-NPC challenges to topic eligibility. | OPEN |
-| 00064 | `RTD-024` | P2 | Use allowlisted typed game action IDs; no arbitrary code evaluation or LLM-triggered write operations. | OPEN |
-| 00065 | `RTD-025` | P2 | Commit quest accept/advance/complete/reward only against authoritative game state. | OPEN |
-| 00066 | `RTD-031` | P2 | Make effects idempotent across replay, double clicks, reloads and slow network responses. | OPEN |
-| 00067 | `RTD-032` | P2 | Add negative tests proving failed transactions cannot trigger success captions or success recordings. | OPEN |
-| 00068 | `RTD-026` | P2 | Make voice success/retry/failure events reflect actual completed actions and distinct outcomes. | OPEN |
-| 00069 | `RTD-027` | P2 | Wire purchases, repairs and paid work through existing transactions; prevent fabricated/duplicate outcomes. | OPEN |
-| 00070 | `RTD-028` | P2 | Add negative branches for closed shops, unavailable tools, missing items, insufficient funds and cancelled tasks. | OPEN |
+| 00001 | `SVA-008` | P1 | Identify missing, damaged, mismatched or non-public-appropriate clips; track exceptions | OPEN |
+| 00002 | `SVA-012` | P1 | Implement one common recorded-audio controller for all games | OPEN |
+| 00003 | `SVA-013` | P1 | Preserve existing VO101–VO120 and Game300 playback engines and stop behavior | OPEN |
+| 00004 | `SVA-014` | P1 | Load same-origin audio on demand without paid synthesis | OPEN |
+| 00005 | `SVA-015` | P1 | Enforce one foreground voice and cancel on next clip or route transition | OPEN |
+| 00006 | `SVA-016` | P1 | Provide truthful captions, replay and stop controls and error messages | OPEN |
+| 00007 | `SVA-017` | P1 | Provide retry and handle missing audio without covert phone-TTS substitution | OPEN |
+| 00008 | `SVA-018` | P1 | Introduce Voice Clips, Tap to Listen and Quiet Play settings | OPEN |
+| 00009 | `SVA-019` | P1 | Default new installs to Voice Clips only after a gesture; preserve existing mute preferences | OPEN |
+| 00010 | `SVA-020` | P1 | Make mode switching instantly stop playback and preserve game state | OPEN |
+| 00011 | `SVA-021` | P1 | Avoid automatic talk on each tap; use meaningful verified state events | OPEN |
+| 00012 | `SVA-022` | P1 | Lazy-load and cap memory/network use; define offline/cache behavior | OPEN |
+| 00013 | `SVA-023` | P1 | Add accessible speaker controls and visual caption fallback | OPEN |
+| 00014 | `SVA-024` | P1 | Cross-check every index area/trigger with real React route and gameplay event | OPEN |
+| 00015 | `SVA-025` | P1 | Map shared guidance to navigation, earned rewards and genuine attempt outcomes | OPEN |
+| 00016 | `SVA-026` | P1 | Wire Fairy Garden planting and bloom only to real events | OPEN |
+| 00017 | `SVA-027` | P1 | Wire Farm Adventure water, feed, harvest and animal cues | OPEN |
+| 00018 | `SVA-028` | P1 | Wire all learning activities' prompts, hints, tries and exact outcomes | OPEN |
+| 00019 | `SVA-029` | P1 | Wire sorting cues to corresponding material and actual accepted/rejected bins | OPEN |
+| 00020 | `SVA-030` | P1 | Wire creative games including colouring, puzzle, dress-up and building | OPEN |
+| 00021 | `SVA-031` | P1 | Wire movement prompts as optional paced cues, never interrupting physical play | OPEN |
+| 00022 | `SVA-032` | P1 | Wire Sparkle Count exact number responses; never announce wrong answer as correct | OPEN |
+| 00023 | `SVA-033` | P1 | Wire Story Corner intros and seven branches only on accurate story states | OPEN |
+| 00024 | `SVA-034` | P1 | Wire 17 Things Sylvie Loves favourites to exact matching favourite IDs | OPEN |
+| 00025 | `SVA-035` | P2 | Wire Calm Down optional calming audio with replay and stop | OPEN |
+| 00026 | `SVA-036` | P2 | For missing triggers, implement/test valid new event or explicitly designate tap-to-listen only | OPEN |
+| 00027 | `SVA-037` | P2 | Audit child-appropriate meaning, voice identity and captions for each scene | OPEN |
+| 00028 | `SVA-040` | P2 | Unit-test manifest schema, duplicate IDs, missing files, invalid triggers, bad bytes | OPEN |
+| 00029 | `SVA-041` | P2 | Run lint and production build at documented commit SHA | OPEN |
+| 00030 | `SVA-042` | P2 | Run Playwright real click-to-recorded-audio checks for mapped activity events | OPEN |
+| 00031 | `SVA-043` | P2 | Run 100 Story Corner combinations using local same-origin assets | OPEN |
+| 00032 | `SVA-044` | P2 | Run 20 original learning Listen controls with correct captions | OPEN |
+| 00033 | `SVA-045` | P2 | Test invalid/uneearned achievements and game failure cases never trigger success narration | OPEN |
+| 00034 | `SVA-046` | P2 | Test mute, switching modes, replay, rapid taps, interruptions and stop | OPEN |
+| 00035 | `SVA-047` | P2 | Test 404, offline, slow response, decode errors and explicit recovery messaging | OPEN |
+| 00036 | `SVA-048` | P2 | Test phone-sized desktop/mobile Chromium, keyboard, accessibility and no game controls obscured | OPEN |
+| 00037 | `SVA-049` | P2 | Test offline resume, saved game scores, stars, progress, parent gate, quiet mode | OPEN |
+| 00038 | `SVA-050` | P2 | Deploy verified commit through Cloudflare and record live Worker deployment version | OPEN |
+| 00039 | `SVA-051` | P2 | Check production MP3 and ZIP URLs for HTTP, MIME, bytes and SHA-256 | OPEN |
+| 00040 | `SVA-052` | P2 | Playtest deployed site end to end with actual browser audio-start and caption assertions | OPEN |
+| 00041 | `SVA-053` | P2 | Publish per-clip proof including event, runtime result, tested commit and browser environment | OPEN |
+| 00042 | `SVA-054` | P2 | Update master and local global AUDIO_INTEGRATION_TODO.md links without erasing prior numbers | OPEN |
+| 00043 | `SVA-055` | P2 | SYLVIE-0001 — SYLVIE-0001.mp3; trigger: Open a game; voice: narrator; source SHA-256: cb0081aee405558a941d5ec10b8b68c7166fee1bb74d | OPEN |
+| 00044 | `SVA-056` | P2 | SYLVIE-0002 — SYLVIE-0002.mp3; trigger: Tap the speaker; voice: narrator; source SHA-256: 824415d41708acb6f7201f28aa8c04e1fb37f6c9 | OPEN |
+| 00045 | `SVA-057` | P2 | SYLVIE-0003 — SYLVIE-0003.mp3; trigger: Return home; voice: narrator; source SHA-256: 42499db88b5ad83783366f684e7095f751ff2683cc80 | OPEN |
+| 00046 | `SVA-058` | P2 | SYLVIE-0004 — SYLVIE-0004.mp3; trigger: Continue last activity; voice: narrator; source SHA-256: d9d33bd2e92042419e3f17136df62e630 | OPEN |
+| 00047 | `SVA-059` | P2 | SYLVIE-0005 — SYLVIE-0005.mp3; trigger: Stars earned; voice: narrator; source SHA-256: 7cbd1f91711e76e993e45561ce7b665b38c014ce4d6 | OPEN |
+| 00048 | `SVA-060` | P2 | SYLVIE-0006 — SYLVIE-0006.mp3; trigger: First try encouragement; voice: narrator; source SHA-256: 1b1094f7db2f34cac6b6542865ceb49e | OPEN |
+| 00049 | `SVA-061` | P2 | SYLVIE-0007 — SYLVIE-0007.mp3; trigger: Gentle retry; voice: narrator; source SHA-256: c433720cc92b09b9b6aa168082f2438af1c9c024b85 | OPEN |
+| 00050 | `SVA-062` | P2 | SYLVIE-0008 — SYLVIE-0008.mp3; trigger: Try another strategy; voice: narrator; source SHA-256: 7d199d3943fc62cf56d50959ccc615cafe9 | OPEN |
+| 00051 | `SVA-063` | P2 | SYLVIE-0009 — SYLVIE-0009.mp3; trigger: Activity completed; voice: narrator; source SHA-256: 51b46ddd10fae00fbc14a6321542be56aa5ac | OPEN |
+| 00052 | `SVA-064` | P2 | SYLVIE-0010 — SYLVIE-0010.mp3; trigger: Move to another activity; voice: narrator; source SHA-256: 547e76d75d15c9e1ecbfe6542b0cba0 | OPEN |
+| 00053 | `SVA-065` | P2 | SYLVIE-0011 — SYLVIE-0011.mp3; trigger: Ask a grown-up; voice: narrator; source SHA-256: 094d0b699a0efbc42af23865d74b0170fd445d0df | OPEN |
+| 00054 | `SVA-066` | P2 | SYLVIE-0012 — SYLVIE-0012.mp3; trigger: Sound off; voice: narrator; source SHA-256: 07c97721a7df8990745c28cfe4e5ee95f71cb130f9a801 | OPEN |
+| 00055 | `SVA-067` | P2 | SYLVIE-0013 — SYLVIE-0013.mp3; trigger: Sound on; voice: narrator; source SHA-256: 118ddff1b33b29503557b45d92683e4e17d32cdaed3f174 | OPEN |
+| 00056 | `SVA-068` | P2 | SYLVIE-0014 — SYLVIE-0014.mp3; trigger: Pause play; voice: narrator; source SHA-256: 7829c9295182a0f16c8398fd7fb080ad2941490960b50 | OPEN |
+| 00057 | `SVA-069` | P2 | SYLVIE-0015 — SYLVIE-0015.mp3; trigger: Resume play; voice: narrator; source SHA-256: d2cce1280e2b3b016fcf5c866dab228d2203e9e24c28 | OPEN |
+| 00058 | `SVA-070` | P2 | SYLVIE-0016 — SYLVIE-0016.mp3; trigger: Soft screen ending; voice: narrator; source SHA-256: 2ebc559e93c5d53d7dc30ca94e93f97427128 | OPEN |
+| 00059 | `SVA-071` | P2 | SYLVIE-0017 — SYLVIE-0017.mp3; trigger: Hard screen ending; voice: narrator; source SHA-256: 4cd7c29fb9bad248060727a307f6b175fe21a | OPEN |
+| 00060 | `SVA-072` | P2 | SYLVIE-0018 — SYLVIE-0018.mp3; trigger: Ask for help; voice: narrator; source SHA-256: e64f777b01f8885b630f539f769d51c384f797b7ede | OPEN |
+| 00061 | `SVA-073` | P2 | SYLVIE-0019 — SYLVIE-0019.mp3; trigger: Offline recording; voice: narrator; source SHA-256: 972b6cced5c31713d3e6de047f68e6dc27fe8f | OPEN |
+| 00062 | `SVA-074` | P2 | SYLVIE-0020 — SYLVIE-0020.mp3; trigger: Happy goodbye; voice: narrator; source SHA-256: 39cbea922d178f270cd2e4203ec24266c6d6d75c36 | OPEN |
+| 00063 | `SVA-075` | P2 | SYLVIE-0021 — SYLVIE-0021.mp3; trigger: Welcome; voice: petal_fairy; source SHA-256: 784f34bb20b3e36f9834739ec36d4efebbb2f34d10da6 | OPEN |
+| 00064 | `SVA-076` | P2 | SYLVIE-0022 — SYLVIE-0022.mp3; trigger: Instructions; voice: petal_fairy; source SHA-256: 69318ed91e0c96806a9c4f581072d353e70256ab | OPEN |
+| 00065 | `SVA-077` | P2 | SYLVIE-0023 — SYLVIE-0023.mp3; trigger: Helpful hint; voice: petal_fairy; source SHA-256: 4b76560eb9a778f331d0b9eb2fc6ee2be466e906 | OPEN |
+| 00066 | `SVA-078` | P2 | SYLVIE-0024 — SYLVIE-0024.mp3; trigger: Progress; voice: petal_fairy; source SHA-256: 3170f217101894a39d5b4ee46b402e1c7ff6ea728ee7 | OPEN |
+| 00067 | `SVA-079` | P2 | SYLVIE-0025 — SYLVIE-0025.mp3; trigger: Success; voice: petal_fairy; source SHA-256: af40d0a40830e07530d4cb5c35cb5456072cd49d0f3ed | OPEN |
+| 00068 | `SVA-080` | P2 | SYLVIE-0026 — SYLVIE-0026.mp3; trigger: Replay; voice: petal_fairy; source SHA-256: 2bc2442962e2ba7fea2924fe4852090b45a710e60104cf | OPEN |
+| 00069 | `SVA-081` | P2 | SYLVIE-0224 — SYLVIE-0224.mp3; trigger: Plant flower; voice: petal_fairy; source SHA-256: 17a9cd296e275a22e917d6c101e50cca95442a37 | OPEN |
+| 00070 | `SVA-082` | P2 | SYLVIE-0225 — SYLVIE-0225.mp3; trigger: Collect star; voice: petal_fairy; source SHA-256: a4db5443e05be435f795efcf1f0bc96557e45b67 | OPEN |
 
-## Workstream spans in the exact queue
+## Workstream ranges — updated execution order
 
-These spans are **inclusive** and occasionally interleaved at dependency gates; consult the CSV rank as the final tie-breaker.
+| Global rank range | Workstream and permanent identifiers |
+|---|---|
+| **00001–00301** | **SylvieApp first:** 288 unchecked detailed `SVA-` audio tasks, 12 `TASK-001..012` global acceptance parents, and `GRA-148` audit job. Starts at `SVA-008` then `SVA-012`. Parents/review do not each represent another bug. |
+| **00302–02575** | **Non-DCS work:** previous relative order retained, including privacy and data-integrity investigations, Town crowd/mobile/audio/lighting/arcade, 84 `RTD-` tasks, 35 GentleMovement `GM-` audio tasks and remaining Greptile/portfolio review steps. |
+| **02576–02640** | **65 deferred DCS-specific actionable/blocked entries:** `DCSC-GR-` findings, DCS-only `GRA-` reviews and `TR-` steps. No deletion or false completion. |
+| **02641–02662** | 22 historical/reviewed non-DCS reference entries. |
+| **02663** | Historical DCSCompanion `GRA-037` review reference only. |
 
-| Priority stage | CSV ranks | Purpose / authoritative source |
-|---|---|---|
-| Security, integrity and emergency-simulation investigation | 00001–00012 | `DCSC-GR-001/002`, `DLC-GR-002`, Kaseya `KFO-GR-011/012`, `RTG-002..004` and GRC coordination; do not imply confirmed data exposure |
-| Crowd source reconciliation, collisions, tested candidate | 00013–00018 | `RTN-007` first, then `RTN-009/008/010/011/012`; [canonical RTN 18-task tracker](../repository-town/docs/RTN_NPC_CROWD_FALLBACK_TRIAGE_2026-10-25.md) |
-| Production dialogue, mobile actual yarn X and settings | 00019–00025 | `AUDIO-013.02/04/03`, `RTM-001`, `AUDIO-045.03`, `RTQ-001`, physical `RTM-002`; [Agent 1's scoped queue](../repository-town/docs/NEXT_ACTION_TRIAGE.md) |
-| Lighting release and mobile/night regression | 00026–00034 | `RLT-011..019`. `RLT-008..010` already source/test checked; [live stable-ID registry](../repository-town/docs/UNNUMBERED_TODO_IDS_2026-10-24.md) |
-| Voice/mixer safety and production release gates | 00035–00042 | Existing `AUDIO-010`, `AUDIO-042`, `RTR-009/015` IDs |
-| Deterministic NPC dialogue foundation, authentic voices, quests, AI boundary, full release | 00043–00126 | All **84** open `RTD-010..093` in [RTD dependency ranking](../repository-town/docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md), with `RTD-010/011/012/021/080` first |
-| Remaining Town crowd, audio, arcade, release, plots and fictional council follow-through | 00127–00223 | Source [Town stable-ID register](../repository-town/docs/UNNUMBERED_TODO_IDS_2026-10-24.md); `RTA-001..007`, `RTP-001/002`, `RTC`, `RTR`, `RTL` |
-| GentleMovement precise recorded-audio and real-time session acceptance | 00224–00258 | All **35** open `GM-` subtasks; start `GM-031.01`; [VoiceBank index](https://github.com/Parris-Tech-Services/ParrisVoiceBank/blob/main/docs/GENTLE_MOVEMENT_AUDIO_TASK_INDEX.md) |
-| SylvieApp original recordings, autoplay, narration coverage, mobile/offline acceptance | 00259–00546 | **288** unchecked `SVA-` detailed tasks; [SylvieApp own checklist](https://github.com/Parris-Tech-Services/SylvieApp/blob/main/docs/SYLVIE_FULL_AUDIO_INTEGRATION_CHECKLIST_2026-10-24.md). Earlier key Cloudflare browser checks passed but full clip-by-clip/audio-listening coverage remains unverified |
-| Remaining provider findings / coordinating audit work / BucklandBlocks | 00547–00572 | 14 reported Greptile P2 findings, outstanding `GRC` orchestration, `BKG-002..005`; [RepoClean audit](https://github.com/Parris-Tech-Services/RepoClean/blob/antigravity-push/docs/GREPTILE_PORTFOLIO_REVIEW_QUEUE_2026-10-24.md) |
-| SylvieApp broader global parents and missing-report intake | 00573–00591 | `TASK-001..012` umbrella acceptance; `ARI-001/005/007/011/012/015/019` report reconciliation |
-| Remaining Greptile repo-review and portfolio-wide review jobs | 00592–02640 | **201 queued/blocked GRA** jobs + **1,848 open TR** steps, in original ID order, without exposing private repository names |
-| Historical / previously-reviewed reference IDs — **do not execute again** | 02641–02663 | Seven previous Greptile review IDs (finding repairs still separately open) and the first 16 historical `TR-` review-step references |
-
-The priority order is **risk first, dependency second, stable source sequence third**. A P1 or P2 item can legitimately appear in front of a different programme's P0-scoped item when the latter has an uncompleted prerequisite or is a distinct roadmap rather than a currently exploitable production problem. The CSV records the exact serial rank. Do not interpret it as task severity certification.
+Use the accompanying [2,663-row CSV](MASTER_20_AGENT_EXECUTION_QUEUE_2026-10-25.csv) as the **exact single ordering source**. `execution_rank` is a *user preference and scheduling number*, not a permanent task ID, security severity, proof of a fix or authority to access a former employer's accounts. Original risk labels and status are preserved in each row. Local canonical checklists keep their own status and within-repository ordering.
 
 ## Canonical ID reconciliation — Agent 2 vs Agent 4
 
@@ -164,12 +158,14 @@ Agent 21 is an **empty trailing heading** in the attachment, not a submitted rep
 
 ## Action contract for the next coding agent
 
-1. Read **row 00001**, and before claiming it check latest actual `main`, current issue/PR, `COORDINATION.md`, `WORK_CHECKPOINT.md`, source privacy policy, and owner claims. It is an **investigation**, not proof of a live secret.
+1. Read **row 00001 / SVA-008** in the current SylvieApp repo, checking its latest actual `main`, open PRs, coordination, checkpoints, recording manifests and owner claims. Verify real source evidence before claiming clips are damaged or missing.
 2. If blocked by missing access/device/owner, document the precise status and continue to the first eligible row in **ascending `execution_rank`**. Never quietly skip it or treat a provider quota as a source defect. Choose one non-overlapping owner/file scope at a time.
 3. Write a durable M1 checkpoint **before editing**, make branch-scoped changes, run source + relevant negative tests, then release/privacy gate if publishing. A PR created or code pushed is not a passing browser test, confirmed fix, or deployed website.
 4. For public games/apps: verify *actual* live URL, release fingerprint, assets, mobile layout and saved progress; use approved hosting failover if needed, without silently replacing approved production/backup origins.
 5. Record each executed task's ID, tested commit, CI run, browser/device evidence, provider blockers and resulting status **in its canonical repository**; update the master CSV only after the canonical source checkbox/evidence has changed. Use a single task ID once and retain references to its programme parent.
 6. Physical-device and unconnected-provider tasks are explicit external gates: do not claim a green handset or provider-run merely because an emulated browser or public site works.
+
+**Deferred DCS rule:** Do not resume work in DCS/school repos without current authorisation. If an actual sensitive-data or credential risk is confirmed, route it to an authorised maintainer without disclosing secrets in public docs.
 
 **Risk-specific rule:** Public documentation must not expose the actual suspected API key, workplace-network details, school data, private repo names or account credentials. Some agent reports have not completed; preserve **unknown** rather than create speculative bug descriptions.
 
