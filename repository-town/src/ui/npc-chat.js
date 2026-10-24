@@ -3,7 +3,7 @@
 // by Repository Town and no API key is ever sent to the browser.
 import { NPCS, getNPC } from './npc-data.js';
 import { answerSceneQuestion } from './scene-awareness.js';
-import {makeTownListenButton, primeTownVoice, stopTownVoice, makeTownRecordedLines} from './voicebank.js';
+import {makeTownListenButton, primeTownVoice, stopTownVoice, makeTownRecordedLines, makeTownContextCue} from './voicebank.js';
 
 const FALLBACK=[
   'The live AI is unavailable, but I can still chat with you offline.',
@@ -70,11 +70,17 @@ export function mountNPCChat(root=document, { getScene = () => null } = {}) {
     });
   });
   input.addEventListener('blur',()=>el.classList.remove('npc-typing'));
-  function line(who,message) {
+  // Recorded help only follows an explicit request; never infer game event state.
+  const requestedHelpCue=question=>/^(?:help\b|could you help\b|can you help\b|please help\b|any tips\b|got any tips\b|advice\b|what should i do\b)/i.test(String(question||'').trim())?'help':null;
+  function line(who,message,recordedEvent=null) {
     const row=root.createElement('div');row.className='npc-line '+who;
     const bubble=root.createElement('div');bubble.className='npc-bubble';
     bubble.textContent=message;row.appendChild(bubble);
-    if(who==='npc')row.appendChild(makeTownListenButton(message,root,{npcId:active?.id||''}));
+    if(who==='npc'){
+      row.appendChild(makeTownListenButton(message,root,{npcId:active?.id||''}));
+      const cue=makeTownContextCue(active?.id||'',recordedEvent,root);
+      if(cue)row.appendChild(cue);
+    }
     feed.appendChild(row);
     feed.scrollTop=feed.scrollHeight;
   }
@@ -147,7 +153,8 @@ export function mountNPCChat(root=document, { getScene = () => null } = {}) {
     subtitle.textContent=npc.title+(house?' · '+house.name:'');
     renderActivities(npc);
     feed.replaceChildren();
-    for(const msg of chats.get(k))line(msg.role==='user'?'user':'npc',msg.content);
+    for(const [index,msg] of chats.get(k).entries())
+      line(msg.role==='user'?'user':'npc',msg.content,msg.role==='assistant'&&(index===0?'greeting':msg.recordedEvent||null));
     status.textContent='Cloudflare AI · no access code needed';
     el.hidden=false;input.disabled=false;send.disabled=false;
     el.classList.remove('npc-typing');
@@ -205,9 +212,10 @@ export function mountNPCChat(root=document, { getScene = () => null } = {}) {
     }
     stale=active!==npc||context!==house;
     if(!stale){
-      history.push({role:'assistant',content:reply.slice(0,2000)});
+      const recordedEvent=requestedHelpCue(question);
+      history.push({role:'assistant',content:reply.slice(0,2000),recordedEvent});
       if(history.length>21)history.splice(0,history.length-21);
-      line('npc',reply.slice(0,2000));
+      line('npc',reply.slice(0,2000),recordedEvent);
       status.textContent=online?'Groq live · '+npc.name+' · conversations kept in this tab only':status.textContent;
       input.disabled=false;send.disabled=false;busy=false;
     }
