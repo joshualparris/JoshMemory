@@ -122,3 +122,44 @@ export function makeTownListenButton(text,root=document,{npcId=''}={}) {
   button.addEventListener('click',()=>{void toggleTownVoice(button,text,{npcId});});
   return button;
 }
+
+ 
+// Opt-in Game300 gallery. A real recording is never labelled as device speech.
+let game300Module=null;
+void import(VOICEBANK_ORIGIN+'/src/game300.js').then(module=>{game300Module=module}).catch(()=>{});
+export function makeTownRecordedLines(npcId,root=document){
+  const supported=new Set(['rowan','pip','circuit','wren','sol','sage','spark','lyra','nova','kit']);
+  const details=root.createElement('details');
+  details.className='npc-game300';
+  if(!supported.has(npcId))return details;
+  const summary=root.createElement('summary');summary.textContent='🎙️ Recorded character lines (10)';
+  details.appendChild(summary);
+  const buttons=root.createElement('div');buttons.className='npc-prompt-row';
+  const hear=root.createElement('button');hear.type='button';hear.className='npc-suggestion';hear.textContent='▶ Listen';
+  const next=root.createElement('button');next.type='button';next.className='npc-suggestion';next.textContent='↻ Next line';
+  const stop=root.createElement('button');stop.type='button';stop.className='npc-suggestion';stop.textContent='■ Stop';
+  const caption=root.createElement('p');caption.className='npc-activity-label';caption.setAttribute('role','status');
+  caption.textContent='Ten original recorded lines. Nothing plays automatically.';
+  let index=0,token=0;
+  const events=['greeting','help','quest','success','retry','ambient','explore','choice','farewell','surprise'];
+  const play=()=>{
+    if(!game300Module){caption.textContent='Recorded player is loading. Tap Listen again.';return;}
+    const mine=++token,event=events[index];
+    stopTownVoice();
+    caption.textContent='Loading '+event+' recording…';
+    hear.disabled=true;
+    void game300Module.playGame300('repo_town',npcId,event,{
+      onEnd:()=>{if(mine===token){hear.disabled=false;caption.textContent+=' ✓';}}
+    }).then(result=>{
+      if(mine!==token)return;
+      hear.disabled=false;
+      caption.textContent=result.status==='playing'?result.text:'Recording unavailable ('+result.status+').';
+    }).catch(()=>{if(mine===token){hear.disabled=false;caption.textContent='Recording unavailable.';}});
+  };
+  hear.addEventListener('click',play);
+  next.addEventListener('click',()=>{index=(index+1)%events.length;play();});
+  stop.addEventListener('click',()=>{token++;game300Module?.stopGame300();hear.disabled=false;caption.textContent='Stopped';});
+  details.addEventListener('toggle',()=>{if(!details.open){token++;game300Module?.stopGame300();hear.disabled=false;}});
+  buttons.append(hear,next,stop);details.append(buttons,caption);
+  return details;
+}
