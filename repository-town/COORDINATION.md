@@ -14,6 +14,9 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-24 · ChatGPT — **IN PROGRESS: prevent indoor resident bodies clipping through walls on mobile (user screenshots ~21:34 AEDT).** Scope `src/world/npcs.js` (indoor Walker movement and planner clearance), new `tests/indoor-resident-walls.mjs`, small test hook and `docs/INDOOR_RESIDENT_WALL_FIX_2026-10-24.md`; do not modify claimed `src/main.js` or dialogue/audio work. Root-cause hypothesis: indoor Walker moves directly along path without checking collision; resident's 3D arms protrude through walls even if its centre follows an imperfect waypoint. Must test wall-sweep, blocked route recovery and existing interiors, then review/merge/deploy/verify. Branch `fix/town-indoor-resident-wall-clipping-20261024`, start checkpoint recorded here. Leave unrelated tasks untouched.
+
+
 - 2026-10-24 · ChatGPT — **CLAIMED RTD-009 ONLY**: versioned pure actor/node/choice/priority/condition/recorded-response/next-node/typed-authorised-effect schema; branch `feat/town-rtd009-dialogue-schema-20261024` from main `6d17dd60e0c205e3cbe426a75d509889ad5d2799`. Expected new source `repository-town/src/dialogue/schema.js`, schema contract docs/fixtures `repository-town/docs/RTD_009_DIALOGUE_SCHEMA_V1.md`, tests `repository-town/tests/dialogue-schema.mjs` and `package.json` test hook, road/checkpoint/coord. Avoid active directional-addresses `src/world/addresses.js`, `src/world/property.js`, `src/main.js`, and existing voice modules/PR #164 (still OPEN). No runtime hooking, DialogueDirector (RTD-011), graph reachability/loop checks (RTD-012), quest effects execution (RTD-024/025) or paid ElevenLabs; only typed schema + structural tests. Acceptance RTAC-003 schema valid/invalid fixtures; checkpoint after each milestone. RTD-010+ unclaimed.
 
 
