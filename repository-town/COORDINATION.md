@@ -11,7 +11,6 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
-- 2026-10-24 · ChatGPT — **CLAIMED RTD-005: reconciliation only**, branch `docs/town-rtd005-audio-branch-reconciliation-20261024`. Compare merged PR #165/#166 to current source and tests, review PR #164 still open, `WORK_CHECKPOINT.md`, external Town audio task 006–013 and 040–048, and VoiceBank global acceptance; publish a verified status/dependency matrix in canonical source, tick RTD-005 only, preserve gameplay/audio assets, mark only proven tasks. No competing change to Replit or production deployments.
 
 
 
@@ -103,6 +102,9 @@ Newest first. Times in Australia/Sydney.
   is currently blocked by the Hobby team's daily deployment quota (`api-deployments-free-per-day`).
 
 ## Done recently
+
+- 2026-10-24 · ChatGPT — **DONE: RTD-005 PR #165/#166 and Town/VoiceBank audio acceptance reconciliation.** Source [RTD-005 evidence matrix](docs/RTD_005_DIALOGUE_AUDIO_RECONCILIATION_2026-10-24.md). Correctly identifies #165/#166 merged, #164 still open with 20 potentially conflicting clips, current shared six-stage recorded choice UI, ten Game300 voices, 17 global Town audio acceptance tasks with 006 checked and 16 open. Updated 93-item roadmap (RTD-001–005 checked) and WORK_CHECKPOINT, no gameplay or generated-mirror changes. Next RTD-006 current canonical deployment fingerprint/baseline. PR branch `docs/town-rtd005-audio-branch-reconciliation-20261024`.
+
 
 - 2026-10-24 · ChatGPT — **DONE: RTD-003 after Replit usage exhausted**; published [full cast/worker/house inventory](docs/RTD_003_NPC_CAST_INVENTORY_2026-10-24.md) and [machine-readable 319-key snapshot](docs/NPC_POPULATION_INVENTORY_2026-10-24.json). Corrected stale worker count: current **99** in TownLife, including original 38 stable IDs, with 32 named street characters and 188 unique house aliases. Added `tests/npc-population-inventory.mjs` to CI integration gate, marked RTD-003 only complete and updated WORK_CHECKPOINT. No runtime behaviour or VoiceBank changes, no generated backup edits. Branch `docs/town-rtd003-cast-inventory-20261024`.
 
