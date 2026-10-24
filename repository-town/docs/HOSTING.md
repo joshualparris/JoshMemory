@@ -77,3 +77,17 @@ For Repository Town, preserve user data by keeping each hostname/origin distinct
 On a deployment failure: capture exact provider failure and source commit, move to the next *eligible* alternative, run build/integrity/privacy checks, verify `release.json` SHA and representative production assets, then run desktop and narrow Android touch acceptance, including settings/dismiss and saved-game handover. Record successful URL plus evidence in `WORK_CHECKPOINT.md`.
 
 **No source or build output should be labelled live without a verified host response.** Do not send the user to an unverified QA URL as if its deployment succeeded.
+
+### Verified GitHub Pages QA escape hatch (24 October 2026)
+
+The initial standalone `joshualparris/repository-town` Pages workflow **passed all release/private-data checks but could not publish** because Pages was not enabled for that empty repository. Rather than stop there, the verified game build was published in an *isolated subpath* of the already-enabled `Parris-Tech-Services/Repository-town-playtest` site:
+
+- **QA only:** https://parris-tech-services.github.io/Repository-town-playtest/qa/mobile-dialogue-20261024/
+- **Canonical source SHA:** `2743a8f182d69038fee841c19f96f2313a40ff60`.
+- **Release fingerprint:** `32914d94b39a14f00fd193d04d2baa9ef652993d8b9708c42da3b9870dea74ca`.
+- **Full release/privacy build and publication:** [Actions run 40090579941](https://github.com/Parris-Tech-Services/Repository-town-playtest/actions/runs/40090579941), success.
+- **Live desktop checks:** [TinyFish 2eda6d34](https://agent.tinyfish.ai/runs/2eda6d34-42fa-430d-b457-87b3a158c949), verified 3D loading and saved auto-caption toggle.
+- **Live 390×844 Chromium checks:** [Actions run 40091978098](https://github.com/Parris-Tech-Services/Repository-town-playtest/actions/runs/40091978098), success; uploaded screenshot and JSON artifact `town-mobile-dialogue-browser-acceptance`.
+- **Remaining:** real NPC-encounter X button and physical Android gesture checks (code-level DOM acceptance passed, but no real encounter played). Do not claim those verified.
+
+The existing retired handover homepage remains byte-identical. **Important:** subpaths on the same hostname share browser origin/localStorage. Use a clean browser/incognito window before trying this QA version to avoid impacting saves belonging to the old playtest origin. It is not an automatic save migration. Production Vercel and the verified public backup remain separate, unchanged release roles.
