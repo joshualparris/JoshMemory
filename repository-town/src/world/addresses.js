@@ -7,7 +7,7 @@
 export const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 export const AUDIT_ROWS = 11; // 9-11 are planning bands, not constructed streets.
 const RE_LEGACY = /^([A-Z])([1-8])$/;
-const RE_PLOT = /^([A-Z])(1[01]|[1-9])[- ]?([NS])$/i;
+const RE_PLOT = /^([A-Z])(1[01]|[1-9])[- ]?(N|S|NORTH|SOUTH)$/i;
 export function houseAddress(coordinate) {
   const m = RE_LEGACY.exec(String(coordinate || '').toUpperCase());
   if (!m) throw new Error('Invalid legacy house coordinate: ' + coordinate);
@@ -20,7 +20,7 @@ export function placeAddress(place) {
 export function parseTownAddress(value) {
   const raw = String(value || '').trim().toUpperCase();
   const m = RE_PLOT.exec(raw);
-  if (m) return { address:m[1]+m[2]+'-'+m[3], col:m[1], row:Number(m[2]), side:m[3], legacy:false };
+  if (m) {const side=m[3][0];return { address:m[1]+m[2]+'-'+side, col:m[1], row:Number(m[2]), side, legacy:false };}
   const l = RE_LEGACY.exec(raw);
   if (l) return { address:l[0]+'-S', col:l[1], row:Number(l[2]), side:'S', legacy:true };
   return null;
