@@ -6,6 +6,8 @@
 
 **Start with `RTN-002` (P1): NPC/player crowd collision and service-position clearance.** Read the current coordination board and [PR #186](https://github.com/joshualparris/JoshMemory/pull/186) before writing code. PR #186 is **open and not currently mergeable** at inspection (head `dbe4fbeb9c8c590a7c32378f4a476f4bf56459cf`); first compare it to current `main`, its live owner claims and CI, then fix/reconcile rather than duplicate or overwrite the work. If that precise file scope is actively claimed, advance the first **unclaimed, unblocked** task below. Never use a documentation-only status or successful unit test as proof of a live fix.
 
+> **Status rule:** Every item in this queue remains OPEN until its own tests, deployed result where applicable and checkpoint evidence are independently verified. A merged plan or PR cannot close an implementation task.
+
 ## Priority queue (each row points to exactly one stable work-item ID)
 
 | Triage order | Priority | Unique task ID | Scope and concrete next action | Current evidence/status |
