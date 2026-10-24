@@ -4,7 +4,8 @@ import { SIGNAL_CROSSINGS, crossingState } from './traffic-signals.js';
 import { Builder, GLASS } from './builder.js';
 import { buildSignBoards } from './shop-signs.js';
 import { PROPS } from './props.js';
-import { makePerson, pose } from './npcs.js';
+import { pose } from './npcs.js';
+import { makeDistinctPerson } from './npc-wardrobe.js';
 import { facilityAccess, openingHoursLabel } from './facility-access.js';
 import { TownLife, GOODS, RAIL_Z, trainX, FIELD_Z0, FIELD_Z1, SEC_PER_MIN, LOT_X, AVENUES } from './life.js';
 
@@ -852,7 +853,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   const crewModels=new Map();
   const setCrew=(id,x,z,active,nearby)=>{
     if(!crewModels.has(id)){
-      const fig=makePerson(id==='kai'||id==='mia'?115:79,0xd7a756,0x263d55);
+      const fig=makeDistinctPerson('trade-crew:'+id);
       const tag=makeLabel(id==='kai'?'Kai · apprentice':id==='mia'?'Mia · apprentice':
         id==='sam'?'Samir · plumber':id==='ella'?'Ella · electrician':
         id==='noah'?'Noah · builder':'Ivy · IT technician','interactive');
@@ -873,7 +874,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
 
   // Villagers.
   const people = life.villagers.map((v, i) => {
-    const fig = makePerson(i * 13 + 5, UNIFORM[v.job] || 0x5a6a7a, [0x2f3440, 0x3a3a52, 0x4a3a2a, 0x2a4a5a][i % 4]);
+    const fig = makeDistinctPerson('villager:'+v.id+':'+v.name+':'+(v.job||''));
     fig.phase = i * 1.7;
     const bike = makeBike(); bike.visible = false; fig.group.add(bike);
     const bag = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.32, 0.18), new THREE.MeshLambertMaterial({ color: [0x3a7a3a, 0xc8a878, 0x2a5a8a][i % 3] })); bag.position.set(0.36, 0.72, 0.05); bag.visible = false; fig.group.add(bag);
