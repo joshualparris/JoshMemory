@@ -29,5 +29,6 @@ const chat=readFileSync(new URL('../src/ui/npc-chat.js',import.meta.url),'utf8')
 assert.match(chat,/makeTownContextCue\(active\?\.id\|\|''\,recordedEvent,root\)/);
 assert.match(chat,/index===0\?'greeting'/,'the original resident welcome gets an opt-in recorded alternative');
 assert.match(chat,/requestedHelpCue\(question\)/,'only visitor-requested help gets the optional recorded tip');
-assert.doesNotMatch(chat,/recordedEvent=.*(?:success|quest|retry)/,'do not infer success or quests from AI messages');
+assert.match(chat,/const recordedEvent=requestedHelpCue\(question\)/,'only explicit user requests may choose extra help audio');
+assert.doesNotMatch(chat,/const recordedEvent\s*=\s*['\"](?:success|quest|retry)['\"]/,'never infer quest outcomes from generic AI replies');
 console.log('PASS: 20 possible user-initiated greeting/help cues; no invented quest or success events.');
