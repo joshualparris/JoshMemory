@@ -6,7 +6,7 @@ import { pose } from './npcs.js';
 import { makeDistinctPerson } from './npc-wardrobe.js';
 
 // Full-body clearance, not a point-sized foot collision.
-const RADIUS = 0.44, GRID = 0.55, PERSONAL_SPACE = 0.85;
+const RADIUS = 0.35, GRID = 0.55, PERSONAL_SPACE = 0.85;
 const length = (a,b) => Math.hypot(a.x-b.x,a.z-b.z);
 const collision = (boxes,x,z,r=RADIUS) =>
   boxes.some(b=>x+r>b.x0 && x-r<b.x1 && z+r>b.z0 && z-r<b.z1);
@@ -197,7 +197,9 @@ export function createShopVisitors(site,life,interior,makeLabel,people){
         else p.blockedFor=0;
         if(p.blockedFor>4){
           // Abandon stale waypoints, retry when the aisle becomes available.
-          p.blockedFor=0;p.route=[];
+          p.blockedFor=0;
+          p.retryGoal=p.route[p.route.length-1]||p.standTarget||p.landing||counter;
+          p.route=[];
           if(p.exit)p.state='gone';
           else p.state='waiting';
         }
@@ -261,9 +263,13 @@ export function createShopVisitors(site,life,interior,makeLabel,people){
         if(setDestination(p,p.landing))p.next='seating';
         else{positionAt(p,p.seat.pos);p.state='seated';}
       }
-      if(p.state==='waiting'&&!p.exit&&p.standTarget&&
-         actorClear(p.standTarget,p,player) && !targetReserved(p.standTarget,p)){
-        setDestination(p,p.standTarget);
+      if(p.state==='waiting'&&!p.exit){
+        // A blocked service/seat route must be retryable, not leave a customer
+        // frozen in the aisle indefinitely after their initial path is discarded.
+        const goal=p.retryGoal||p.standTarget||(p.seat?p.landing:null);
+        if(goal && actorClear(goal,p,player) && !targetReserved(goal,p)){
+          if(setDestination(p,goal))p.retryGoal=null;
+        }
       }
       if(p.state==='standing'&&p.seat&&p.next==='service'&&!p.exit){
         if(setDestination(p,p.landing))p.next='seating';
