@@ -1,0 +1,43 @@
+name: Recorded dialogue integration (self-hosted Windows)
+# Trusted main only; no fork PR execution, paid hosted runners, npm install or paid audio synthesis.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'repository-town/src/ui/voicebank.js'
+      - 'repository-town/src/ui/npc-chat.js'
+      - 'repository-town/tests/voicebank.mjs'
+      - '.github/workflows/windows-recorded-audio-ci.yml'
+permissions:
+  contents: read
+concurrency:
+  group: joshmemory-recorded-audio-windows
+  cancel-in-progress: true
+jobs:
+  audio-integration:
+    name: Recorded NPC triggers and voice source safety
+    if: github.repository == 'joshualparris/JoshMemory' && github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 8
+    steps:
+      - name: Checkout reviewed main branch
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify Node is available
+        shell: powershell
+        run: |
+          node --version
+          if ($LASTEXITCODE -ne 0) { throw 'Node unavailable in Windows runner' }
+      - name: Validate modules and run recorded-audio regression
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          foreach ($path in @('repository-town/src/ui/voicebank.js','repository-town/src/ui/npc-chat.js','repository-town/tests/voicebank.mjs')) {
+            node --check $path
+            if ($LASTEXITCODE -ne 0) { throw "Syntax check failed: $path" }
+          }
+          node repository-town/tests/voicebank.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Recorded audio regression failed' }
+          Write-Host "PASS: recorded NPC playback controls and truthful event mapping on $env:RUNNER_NAME"
