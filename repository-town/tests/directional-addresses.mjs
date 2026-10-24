@@ -18,6 +18,7 @@ assert.deepEqual(parseTownAddress('z7'),{address:'Z7-S',col:'Z',row:7,side:'S',l
 assert.equal(parseTownAddress('z9 north')?.address,'Z9-N');
 assert.equal(parseTownAddress('z9-n')?.address,'Z9-N');
 assert.equal(houseAddress('Z7'),'Z7-S');
+assert.equal(houseAddress('H0'),'H0'); // Existing synthetic simulation fixture, not a plot
 assert.equal(by.get('Z7-S').kind,'house');
 assert.match(by.get('Z7-S').name,/UpskillApp/);
 assert.equal(by.get('Z7-N').kind,'not-surveyed');
