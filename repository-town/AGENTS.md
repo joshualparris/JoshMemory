@@ -4,6 +4,15 @@ Several AI sessions work on Repository Town at the same time for Josh. They cann
 message each other, so **this file and `COORDINATION.md` are how we talk**. Read both
 before changing anything, and update `COORDINATION.md` when you start and finish work.
 
+## Numbered RTD dialogue work — claim and checkpoint gate
+
+Before any Skyrim-inspired NPC/dialogue, town social, quest or recorded audio implementation, consult [RTD-007 coordination and checkpoint protocol](docs/RTD_007_COORDINATION_CHECKPOINT_PROTOCOL_2026-10-24.md) and the [RTD-001–093 roadmap](docs/SKYRIM_NPC_DIALOGUE_IMPLEMENTATION_TODO.md).
+
+1. Read latest `main`, this file, `COORDINATION.md`, `WORK_CHECKPOINT.md` and all relevant open PRs. **Reserve exact RTD IDs and file paths on the coordination board in canonical GitHub before editing**; use content-SHA protection and do not overwrite another agent's claim. Old "in progress" lines can be historical — inspect the real PR status.
+2. **Commit a start checkpoint before implementation**, then update and commit checkpoints after each meaningful milestone, before changing projects/interruption, and about every 10–15 minutes during prolonged active work. Record owner, branch, baseline/commit SHA, touched files, tests/evidence, incomplete items, blockers and exact resumption step.
+3. Change only unclaimed scope on a topic branch. Only mark RTD IDs completed when evidence meets that individual acceptance. Review/test a PR before merging, confirm `main`, and **move your completed board claim to Done**. Do not pre-claim the next task for a future session.
+4. Browser-audio asset availability, local browser playback, actual hosted-production playback, game-state consequences, mobile handset checks and deployed fingerprint are **different** acceptance levels. Never equate them or bypass privacy checks. Do not edit generated site repos.
+
 ## One source of truth
 
 | What | Where |
