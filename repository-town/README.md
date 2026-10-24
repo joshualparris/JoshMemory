@@ -61,6 +61,10 @@ Plain furniture that suits play also becomes a toy, built from the house's own c
 its exhibits, map tables spin its rooms, radios play a per-house tune, arcade cabinets keep a best score
 (`addToys`, up to six per house).
 
+## Automated arcade playtesting
+
+[Arcade Playtest QA](qa/README.md) adds an opt-in Skyvern browser-agent recipe and a Playwright runner for recorded observations. It can test all matching editions of AA Game Adventure and Mysterious Depths (or the whole catalogue), save before/after screenshots, report real runtime errors and preserve unanswered UX/balance questions for review. The GitHub Action is manual only; no player-facing telemetry or paid AI is required.
+
 ## Playable games
 
 `data/games.json` lists every repository game that runs in a browser (59 so far). `tools/pack_games.mjs`
