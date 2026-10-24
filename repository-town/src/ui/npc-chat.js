@@ -1,3 +1,4 @@
+import {recordedTopicsFor,recordedQuestion,recordedReply} from './recorded-dialogue.js';
 // Accessible NPC conversation UI shared by 3D Repository Town and the 2D NPC lounge.
 // Only the visitor's submitted conversation is sent to the server; nothing is stored remotely
 // by Repository Town and no API key is ever sent to the browser.
@@ -90,6 +91,14 @@ export function mountNPCChat(root=document, { getScene = () => null } = {}) {
       promptsRow.appendChild(b);
     }
     activities.appendChild(promptsRow);
+    const topics=recordedTopicsFor(npc);
+    if(topics.length){
+      const details=root.createElement('details');
+      const summary=root.createElement('summary');summary.textContent='Recorded conversations';details.appendChild(summary);
+      const note=root.createElement('p');note.textContent='Ask how this character speaks in a situation. These conversations do not change jobs, orders or transport.';details.appendChild(note);
+      for(const clip of topics){const button=root.createElement('button');button.type='button';button.className='npc-suggestion';button.dataset.recordedTopic=clip.id;button.textContent=clip.prompt;button.onclick=()=>{input.value=recordedQuestion(clip);form.requestSubmit();};details.appendChild(button);}
+      activities.appendChild(details);
+    }
     if(npc.challenge){
       const area=root.createElement('div');area.className='npc-quest-area';
       const toggle=root.createElement('button');toggle.type='button';toggle.className='npc-quest-toggle';
@@ -176,10 +185,11 @@ export function mountNPCChat(root=document, { getScene = () => null } = {}) {
     // This intentionally stays local and does not transmit room layouts to the AI API.
     let scene=null;
     try { scene=getScene(npc,house); } catch { scene=null; }
-    const grounded=answerSceneQuestion(scene,question,house?'resident':'villager');
+    const recorded=recordedReply(npc,question);
+    const grounded=recorded ?? answerSceneQuestion(scene,question,house?'resident':'villager');
     if(grounded!==null) {
       reply=grounded;
-      status.textContent='Verified room objects · local answer';
+      status.textContent=recorded?'Recorded character dialogue · ElevenLabs available':'Verified room objects · local answer';
     } else {
       controller=new AbortController();
       const timeout=setTimeout(()=>controller?.abort(),22000);
