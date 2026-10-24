@@ -39,6 +39,7 @@ function resetButton(button) {
 }
 export function stopTownVoice() {
   revision++;
+  game300Module?.stopGame300();
   bank?.stop();
   rowanBank?.stop();
   globalThis.speechSynthesis?.cancel?.();
