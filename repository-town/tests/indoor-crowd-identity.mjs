@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import { appearanceFor, makeDistinctPerson } from '../src/world/npc-wardrobe.js';
-import { createShopVisitors } from '../src/world/shop-visitors.js';
+import { createShopVisitors, clearWalk } from '../src/world/shop-visitors.js';
 
 // The same simulated resident always looks the same after returning to the room.
 const identities=Array.from({length:60},(_,i)=>'villager:'+i+':Resident '+i+':job '+(i%11));
@@ -17,6 +17,17 @@ for(const id of identities.slice(0,15)){
   assert(figure.group.children.some(x=>x.userData.isOutfit),'appearance includes visible clothing');
   assert(figure.group.scale.x>=.9&&figure.group.scale.x<1.11,'NPC fits standard walking clearance');
 }
+
+
+// Regression: the previous 18cm sample grid skipped a 4cm-deep corner cut
+// at the café table. Both endpoints were clear but the NPC got stuck forever.
+const table={x0:1.2,x1:2,z0:2.4,z1:3.2};
+const bounds={x0:-7,x1:7,z0:-12,z1:6};
+const start={x:2.2904015,z:3.5555574},finish={x:2.8404015,z:2.4555574};
+assert.equal(clearWalk(start,finish,[table],bounds),false,
+  'a human-sized swept collider must detect narrow corner penetration');
+assert.equal(clearWalk({x:2.8,z:4},{x:2.8,z:1},[table],bounds),true,
+  'a clean aisle must remain walkable');
 
 const site={id:'pub',name:'The Merged Branch'};
 const interior={
