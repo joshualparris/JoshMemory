@@ -1,5 +1,19 @@
 # Repository Town — WORK CHECKPOINT
 
+## VERIFIED COMPLETE — GitHub Pages live backup and N/S plot atlas (24 October 2026)
+
+**LIVE:** https://parris-tech-services.github.io/Repository-town/
+**LIVE MAP:** https://parris-tech-services.github.io/Repository-town/address-map.html
+**Verified source:** `18f9e93b887dda04368056008681b0140ad48913` (approved `main` ancestor), release.json content hash `32914d94b39a14f00fd193d04d2baa9ef652993d8b9708c42da3b9870dea74ca`. GitHub Pages mirror run [40091269927](https://github.com/Parris-Tech-Services/Repository-town/actions/runs/40091269927) **success**, platform Pages build [40091685402](https://github.com/Parris-Tech-Services/Repository-town/actions/runs/40091685402) **success**, live browser atlas verification [TinyFish run b3522645](https://agent.tinyfish.ai/runs/b3522645-f1c1-41e5-92b4-c6c8c2120989) **success**.
+
+- [x] Build release, privacy, five 28-day simulation seeds and desktop/Android WebGL all passed in Pages publisher.
+- [x] Historical Pages-only `AUDIO_INTEGRATION_TODO.md` and `tests/game300-live-playback.cjs` preserved byte-for-byte with Git SHA pins.
+- [x] Historical `ui/npc-chat.js` and `ui/voicebank.js` checked against canonical source; no old behaviour discarded. Pure line-preservation checks and negative regressions in CI.
+- [x] Current backup repository release.json matches exact tested source; `address-map.html` and `ui/address-map.js` exist in release manifest and checked-in build.
+- [x] Hosted browser directly loaded live map with 26 A–Z columns, 11 paired N/S row bands, 234 occupied building sites, 572 planning references; clicked Z7-S UpskillApp, Z8-N railway, Z8-S Farmhouse, Z9-N Macquarie Locksmith & Keys, and Z9-S unbuilt/unsurveyed. No missing content or errors observed.
+
+Vercel was rejected with 402 deployment quota; GitHub Pages is independently usable. No Cloudflare/Render setup was needed. The prior checkpoint notes below describe blockers **that are now resolved**. Further physical land clearance surveys (rear yards, utilities, road-9 construction) remain unimplemented and should not be confused with this successful map publication.
+
 ## Pages mirror code-continuity reconciliation — 24 October 2026
 
 **In progress:** follow-up to [PR #185](https://github.com/joshualparris/JoshMemory/pull/185). Run [40090217593](https://github.com/Parris-Tech-Services/Repository-town/actions/runs/40090217593) passed full public release, five 28-day seeds, desktop/Android WebGL and preserved the two pinned Pages-only docs/tests. Publishing correctly blocked at historical `ui/npc-chat.js` drift (not in the nine original legacy-sha exceptions).
