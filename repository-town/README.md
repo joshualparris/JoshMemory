@@ -12,6 +12,8 @@ The [readable physical plot atlas](src/address-map.html) uses the real game hous
 
 See the [93-task Skyrim-inspired NPC dialogue checklist](docs/SKYRIM_NPC_DIALOGUE_IMPLEMENTATION_TODO.md) for character-specific branching, conditions, quest effects, per-NPC memory, ElevenLabs recording/caption reconciliation, accessibility, browser playtests and production release gates. Existing recorded dialogue remains the starting point; implementation tasks are not marked complete without evidence.
 
+For the *next task after RTD-009* and a dependency-ranked crosswalk of **all 84 open RTD-010–093 items**, use [RTD follow-up triage](docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md). It preserves existing task identifiers and maps broader `TASK-032`–`TASK-045` parent work without duplicate tickets. **RTD-010 is the first suggested unclaimed implementation task**; check current coordination before claiming it.
+
 See also the [stable ID index for previously unnumbered open Town tasks](docs/UNNUMBERED_TODO_IDS_2026-10-24.md).
 
 ## Multi-floor tall buildings
