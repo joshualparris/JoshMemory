@@ -1,0 +1,76 @@
+name: Repository Town Arcade Playtest (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      arcade_url:
+        description: Public or staging arcade URL
+        type: string
+        required: true
+        default: https://repository-town-claude-complete.vercel.app/arcade.html
+      game_titles:
+        description: Comma-separated exact game titles; duplicate editions are tested independently
+        type: string
+        required: true
+        default: Mysterious Depths,AA Game Adventure
+      mobile:
+        description: Emulate an Android-sized viewport
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: arcade-manual-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  arcade-playtest:
+    name: Arcade browser acceptance
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - name: Checkout canonical Repository Town source
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install pinned dependencies and Chromium
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - name: Run observed arcade playthroughs
+        env:
+          ARCADE_URL: ${{ inputs.arcade_url }}
+          GAME_TITLES: ${{ inputs.game_titles }}
+          MOBILE: ${{ inputs.mobile }}
+        run: |
+          if [ "$MOBILE" = "true" ]; then
+            node tests/arcade-agent-playtest.mjs --url "$ARCADE_URL" --games "$GAME_TITLES" --mobile
+          else
+            node tests/arcade-agent-playtest.mjs --url "$ARCADE_URL" --games "$GAME_TITLES"
+          fi
+      - name: Upload machine-readable report and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: repository-town-arcade-playtest
+          path: repository-town/test-results/arcade-agent-playtest.json
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Upload screenshot evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: repository-town-arcade-screenshots
+          path: repository-town/test-results/arcade-evidence/
+          if-no-files-found: ignore
+          retention-days: 14
