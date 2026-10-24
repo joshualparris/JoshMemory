@@ -26,7 +26,8 @@ assert.equal(makeTownContextCue('ember','greeting',rootStub()),null,'unused spea
 assert.equal(makeTownContextCue('rowan','success',rootStub()),null,'completion recordings must not appear outside a real event');
 assert.equal(makeTownContextCue('rowan','quest',rootStub()),null,'quest recordings must not fabricate progress');
 const chat=readFileSync(new URL('../src/ui/npc-chat.js',import.meta.url),'utf8');
-assert.match(chat,/makeTownContextCue\(active\?\.id\|\|''\,recordedEvent,root\)/);
+assert.match(chat,/makeTownContextCue\(npcId,recordedEvent,root\)/,'chat selects recorded cue with active NPC ID');
+assert.match(chat,/if\(cue\)row.appendChild\(cue\);\s*else row.appendChild\(makeTownListenButton/,'no duplicate default TTS Listen button where recorded clip is available');
 assert.match(chat,/index===0\?'greeting'/,'the original resident welcome gets an opt-in recorded alternative');
 assert.match(chat,/requestedHelpCue\(question\)/,'only visitor-requested help gets the optional recorded tip');
 assert.match(chat,/const recordedEvent=requestedHelpCue\(question\)/,'only explicit user requests may choose extra help audio');
