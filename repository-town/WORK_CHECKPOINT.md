@@ -2,6 +2,17 @@
 
 Updated 2026-10-24 (Australia/Sydney). Working branch: `feat/town-npc-branching-recordings-20261024`.
 
+## RTD-007 — coordinated implementation ownership and milestone checkpoints (24 October 2026)
+
+**Status:** STARTED; RTD-007 only was reserved on canonical `main` **before** authoring protocol/roadmap changes. Source baseline `2d91b9e7d321103342755cd16929b1a7077b8c4f`; claim recorded under `COORDINATION.md` at main commit `b2cd82474e3a19c33f9090967169111188be4f26`. Branch planned: `docs/town-rtd007-coordination-checkpoints-20261024`.
+
+- [x] **M1 — Read and claim.** Re-read `AGENTS.md`, latest `COORDINATION.md`, RTD task definitions, checkpoint and open GitHub PRs. No active RTD-007 claim. Existing historical in-progress audio branches and still-open [PR #164](https://github.com/joshualparris/JoshMemory/pull/164) require conflict checks for any later gameplay/audio task.
+- [ ] **M2 — Author protocol.** Add concise operational [RTD-007 protocol](docs/RTD_007_COORDINATION_CHECKPOINT_PROTOCOL_2026-10-24.md) and agent entry point; specify atomic ownership, file paths, overlap, milestone checkpoints, tests and truthful handover.
+- [ ] **M3 — Record evidence.** Update RTD-007 roadmap with committed evidence, update this checkpoint after milestones, move board claim to Done in topic PR.
+- [ ] **M4 — Verify/merge.** Confirm 93 stable IDs, only RTD-001–007 checked, no runtime/voice/deployment changes, pass required PR CI, merge and verify on `main`; record final PR and CI links here.
+
+**Boundary:** Coordination/process documentation only. RTD-008 actor/feature acceptance criteria and RTD-009+ gameplay are **not** claimed or implemented here. The next session must inspect current board/PRs, independently claim RTD-008, then checkpoint before changing source. Never turn a historic “in progress” entry into an unsupported active reservation, and never claim hosted production audio on the basis of local Playwright tests.
+
 ## RTD-006 production-release and browser/audio baseline — 24 October 2026
 
 - **Final RTD-006 merge evidence:** [Repo Town PR #172](https://github.com/joshualparris/JoshMemory/pull/172) **merged** as `34eaf60455acf2984a8d69ed9b23477c24e70020`. Tested PR head `895e4054ca65dc33f785c67141adeec3b1e88735`. [Integration run 40080661228](https://github.com/joshualparris/JoshMemory/actions/runs/40080661228) **SUCCESS**, [recorded WebGL run 40080661245](https://github.com/joshualparris/JoshMemory/actions/runs/40080661245) **SUCCESS**. These were PR/head tests, not a newly executed interactive hosted-production audio test. The baseline production SHA and hash in the report are *time-of-audit snapshots*; re-inspect live `release.json` before a new release decision.
