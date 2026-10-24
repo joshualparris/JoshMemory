@@ -4,17 +4,26 @@ Updated 2026-10-24 (Australia/Sydney). Working branch: `feat/town-npc-branching-
 
 ## Follow-on Skyrim-inspired dialogue roadmap (24 October 2026)
 - Numbered 93-item roadmap: `docs/SKYRIM_NPC_DIALOGUE_IMPLEMENTATION_TODO.md` (RTD-001–093).
-- This publication adds planning documentation, not new gameplay. RTD-001/002 cover verified research/source only; RTD-003–093 are OPEN pending separate test and release evidence.
+- This publication adds planning documentation, not new gameplay. RTD-001/002 cover verified research/source only; RTD-005–093 are OPEN pending separate test and release evidence; RTD-003/004 audit evidence is committed.
 - The earlier recorded-branch PR #166 is merged, but its initial tree does not close the conditional quest, game-memory, cast expansion or full production-playtesting requirements of this roadmap.
-- **Resume:** inspect current main and `COORDINATION.md` first, then RTD-003/004/005 source inventory; build Rowan/Kit/Pip pilot and check off only proven results.
+- **Resume:** inspect current main and `COORDINATION.md` first, then RTD-005 source reconciliation; build Rowan/Kit/Pip pilot and check off only proven results.
 
 ## RTD-004 pinned source audit — 24 October 2026
 
 - **RTD-004 COMPLETE (source audit only)**: `docs/RTD_004_DIALOGUE_SYSTEM_AUDIT_2026-10-24.md` documents the canonical dialogue flows, Game300/VoiceBank engine, the NPC-to-NPC event path, Expedition Guild and all relevant local/save transfer state keys and privacy boundaries. Source snapshot `69a12eea14fa706c605943f98e300f1f263377d2`.
-- RTD-001, RTD-002, RTD-004 are checked in the 93-task roadmap; RTD-003 remains OPEN and untouched because Replit may be working on it (not verified in its workspace).
+- RTD-001, RTD-002, RTD-004 are checked in the 93-task roadmap; RTD-003 has now been completed by ChatGPT after Replit usage was exhausted; see the newer RTD-003 section.
 - **Do not reinterpret RTD-004 as a gameplay or deployment acceptance test.** No application source, recordings, CI runtime or deployed production was changed for this audit. All story, save integration and actual WebAudio acceptance tasks remain open.
 - **Next safe handover:** check Replit and the coordination board for RTD-003 status; otherwise proceed with RTD-005 (reconcile previously merged PR #166, existing choices and audio acceptance tracker) on a separate branch without clobbering Replit or concurrent NPC code.
 - Working audit PR branch: `docs/town-rtd004-source-audit-20261024`; see the linked audit for detailed integration seams.
+
+## RTD-003 population inventory takeover — 24 October 2026
+
+- **RTD-003 COMPLETE pending PR CI/merge:** `docs/RTD_003_NPC_CAST_INVENTORY_2026-10-24.md` and complete machine-readable `docs/NPC_POPULATION_INVENTORY_2026-10-24.json`; `tests/npc-population-inventory.mjs` added to `npm run test:integration`.
+- **Current figures confirmed from source:** 32 named street actors (10 Game300 voiced, 20 quizzes); **99** simulated Living Town workers, not only the historical 38. Original worker IDs 0–37 and home assignments stay stable. Workers comprise 61 baseline jobs + 30 relief jobs + 8 security/locksmith jobs; 99 named workers occupy 99 of 188 repository houses.
+- **188 resident aliases are coordinate-keyed labels, not 188 extra full-life NPCs.** Grid has 208 possible coordinates, 20 lacking a project (G8–Z8). Avoid conflating `named:rowan`, a simulated worker also named Rowan, and any similarly named house resident. Namespaced identity IDs and exact mapping are in the JSON snapshot.
+- **Execution evidence:** sourced from canonical NPCS, VoiceBank voice set, `TownLife` jobs/names/home allocation, project inventory and resident-name function; parity test instantiates real `TownLife` and checks 32/99/188 namespaced identities. No gameplay, voice, deployment or manual handset changes.
+- Replit exhausted its usage; task transferred explicitly by the user. This session does not overwrite Replit code or change the generated backup. RTD-004 previous audit unchanged.
+- **Next:** RTD-005 reconcile merged PR #166 and audio acceptance tracker, then use separate owner-specific conversation branches for Rowan, Kit and Pip.
 
 ## Scope and source of truth
 - Canonical editable repo: `joshualparris/JoshMemory/repository-town/src/`, not the generated `Parris-Tech-Services/Repository-town` mirror.
