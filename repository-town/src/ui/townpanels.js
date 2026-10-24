@@ -132,7 +132,7 @@ function civicPanel(life, id, again) {
   }
   if (id === 'recycling') actions.push(act('Help sort kerbside recycling', () => life.collectRecycling()));
   if (id === 'hall') actions.push({label:'View the town land registry',run:()=>propertyOfficePanel(life)});
-  return { title: `${p.name}`, body: rows.join('') + bagLine(life), actions, wide: true };
+  return { title: `${p.address} · ${p.name}`, body: rows.join('') + bagLine(life), actions, wide: true };
 }
 
 // Town Hall council: repairs, the mayoral election and the town books.
@@ -286,7 +286,7 @@ function placePanelBase(life, id) {
       actions.push(act('Order ' + item.name + ' ($' + item.price + ')' +
         (cafeAvailable(p,item) ? '' : ' · sold out'), () => life.orderCafe(item.id)));
   }
-  return { title: p.name + ' · ' + (p.kind === 'farm' ? 'farm' : p.kind),
+  return { title: p.address + ' · ' + p.name + ' · ' + (p.kind === 'farm' ? 'farm' : p.kind),
     body: rows.join('') + (sells.length || id === 'post' || id === 'cafe' || Object.keys(prepared).length ? bagLine(life) : ''),
     actions, wide: true };
 }
