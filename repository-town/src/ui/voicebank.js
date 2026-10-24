@@ -269,3 +269,34 @@ export function makeTownRecordedLines(npcId,root=document){
   buttons.append(hear,next,stop);details.append(buttons,caption);
   return details;
 }
+
+// Player-selected branching NPC dialogue. Reuses the one shared Web Audio
+// player, guarantees no device-TTS substitution and cancels stale callbacks.
+export function townRecordingsReady() {
+  return game300Loading.then(module=>Boolean(module));
+}
+export async function playTownRecordedEvent(npcId,event,{onCaption=()=>{},onEnd=()=>{},onStop=()=>{}}={}) {
+  if(!hasTownRecordedEvent(npcId,event))return {status:'missing',source:'elevenlabs'};
+  if(!game300Module)return {status:'unavailable',source:'elevenlabs'};
+  stopTownVoice();
+  const stamp=revision;
+  activeRecordedCue={reset(){onStop();}};
+  try {
+    // Keep this invocation synchronous from the actual click handler before
+    // awaiting its promise, so AudioContext.resume retains user activation.
+    const result=await game300Module.playGame300('repo_town',npcId,event,{
+      onEnd:()=>{
+        if(stamp!==revision)return;
+        activeRecordedCue=null;
+        onEnd();
+      },
+    });
+    if(stamp!==revision)return {status:'cancelled',source:'elevenlabs'};
+    if(result.status==='playing')onCaption(result.text);
+    else activeRecordedCue=null;
+    return {...result,source:'elevenlabs'};
+  }catch {
+    if(stamp===revision)activeRecordedCue=null;
+    return {status:'unavailable',source:'elevenlabs'};
+  }
+}
