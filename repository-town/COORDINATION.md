@@ -7,6 +7,8 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-24 · ChatGPT — **CLAIMED: recorded voices for every NPC** on `feat/town-all-npc-recordings-20261024`. Inspect all named residents, contextual dialogue and existing approved Drive/VoiceBank assets; extend exact-caption recorded playback and test every NPC. Scope: `src/ui/voicebank.js`, NPC cue call sites/data, audio manifest/import tooling, tests and checkpoint. Preserve concurrent simulation/UI changes. Source-first; no generated backup hand edits; full release/privacy gate, reviewed merge and live verification required.
+
 - 2026-10-23 · ChatGPT — **INTEGRATING: VoiceBank speech for town residents and yarns** on `feat/town-parrisvoicebank-audio-20261023`. New `src/ui/voicebank.js` uses approved public VoiceBank recordings with opt-in en-AU device speech fallback; adding compact Listen/Stop buttons to `src/ui/npc.js`, `npc-chat.js`, `yarns.js`, and tests. No paid synthesis, changes to NPC replies, clock, gameplay simulation, or private source publication. Full release gate and mobile browser tests underway; merge and production verification pending.
 
 
