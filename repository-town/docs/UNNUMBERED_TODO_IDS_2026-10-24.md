@@ -129,6 +129,15 @@ Source: [GitHub issue #157](https://github.com/joshualparris/JoshMemory/issues/1
 - [ ] **RTC-008** Investigate years 3–5 targeted water/sewer/power, walking/cycling, land-use and industrial compatibility investments with tested demand.
 - [ ] **RTC-009** Evaluate years 6–10 resilient energy, park/shade equity, community programmes and demand-evidenced transport with whole-of-life funding.
 
+## Mobile dialogue — newly identified exact Android acceptance gaps (RTM)
+
+Source: [ordered next-action triage](NEXT_ACTION_TRIAGE.md), user-provided Android screenshot of Kip's conversation obstructing Town's interaction prompt, and [verified QA release checkpoint](../WORK_CHECKPOINT.md). These were **not already separate, precisely scoped tasks** in the tracker. IDs `RTM-001` and `RTM-002` are permanent; do not use them again.
+
+- [ ] **RTM-001** [AI + browser evidence] Exercise the real ambient NPC-to-NPC yarn toast in a live deployed 3D scene: opt in to automatic captions, wait for an actual nearby yarn, tap **X** and prove that exact event stays dismissed while a later different yarn can appear. Record actual release SHA, screenshot/video and input trace; distinguish from the already-passing mock-DOM button test.
+- [ ] **RTM-002** [DEVICE acceptance] Verify on a **physical Android phone** in portrait/landscape that the HUD +, Dialogue settings, persistent automatic-conversation toggle, real yarn X, Yarns/NPC/Ask AI access and joystick/action controls are usable without overlapping or corrupting saves. Attach phone/browser/version and before/after evidence; if no physical device is available, leave open with blocker. Android-sized Playwright passing does not qualify.
+
+These are **additional narrowly defined outcomes**, cross-linked to wider `TASK-034`, `AUDIO-012.04`, `AUDIO-045.03` and `RTD-057/058`. They do not replace or close those original tasks.
+
 ## Already numbered elsewhere — deliberately not renumbered
 - [93-item Skyrim NPC checklist](SKYRIM_NPC_DIALOGUE_IMPLEMENTATION_TODO.md) — retains `RTD-001`–`RTD-093`.
 - [Nine-item earlier NPC checkpoint](../WORK_CHECKPOINT.md) — retains `RT-01`–`RT-09`.
