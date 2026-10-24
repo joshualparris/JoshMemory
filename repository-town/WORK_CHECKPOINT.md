@@ -169,3 +169,19 @@ All 22 are **UNRECORDED** in the approved Game300 Town pack. Do not play another
 - **AA Game Adventure** focused run `2398588b`: game opened and exited, agent tried arrows/WASD/space/canvas focus but did not verify item collection or movement; input focus uncertain. Source JoshHub HTML lacked any visible controls; added arrow-key/letter goal plus Focus controls button `774f0b6`, then fixed flow layout to a floating overlay `0c3724e` so the existing full-screen canvas remains 100vh. Script grammar/invariants passed via readback; no real QA after changes.
 - **Detailed evidence:** `qa/reports/2026-10-24-tinyfish-arcade.md` links the three TinyFish runs and scoped findings. Not an entire arcade nor duplicate-edition acceptance pass.
 - **Next:** repack the affected game(s), run `node tests/games.mjs --only hub-aa-game-adventure,hub-mysterious-depths` and targeted arcade Playwright input test, release/privacy gate, deploy exact build when Vercel rate limit permits, verify live keyboard interaction and final source fingerprint. TASK-040 remains OPEN.
+
+## Mobile NPC dialogue clutter — 24 October 2026, screenshot-based issue
+
+User-provided Android screenshot of the Merged Branch shows a Kip yarn caption over the interaction prompt and adjacent Ask AI/touch controls. Grounded source: `src/ui/yarns.js` creates `#town-yarn-caption` automatically for 15 seconds after a nearby simulated 4-line conversation, with only `Read yarn` and no dismiss option. It is **not** an NPC chat window opened intentionally by the player.
+
+Implementation in isolated branch `fix/town-mobile-yarn-controls-20261024`:
+- Immediate large ✕ dismissal of an individual caption; dismissed event ID stays hidden until a new event. Nearby conversations remain recorded in the Yarns history.
+- `Dialogue settings` HUD button (expand HUD with + on mobile) opens an accessible panel. `Automatically show nearby conversations` checkbox saves `repository-town.yarn-captions.v1` as on/off in localStorage, falling back to a session preference if unavailable.
+- Default unsolicited caption preference is **OFF for new narrow/touch devices**; **ON on desktop** for compatibility. Existing explicit preferences take precedence on every device. Toggling off hides visible caption immediately, without muting or disabling manually initiated Yarns/NPC/Ask AI.
+- Mobile caption when explicitly enabled moves above the interaction controls, and `[hidden]` styles are guaranteed even on a flex caption.
+- `isOpen()` and `close()` include settings menu, preserving existing Escape/back interaction and HUD action-blocking. Game Help includes instructions.
+- New `src/ui/yarn-preferences.js` pure helper and `tests/yarn-preferences.mjs` regression, appended to `npm run test:release`.
+
+**Evidence:** Connector readback, V8 parser syntax checks and independent in-memory preference logic checks passed (default, persisted override, dismissed event, next event). Full Node release gate and interactive browser/mobile visual acceptance **not yet executed**; do not claim deployed fix.
+
+**Next:** get CI/review success, merge, deploy with full release/privacy gate, run TinyFish or Playwright at the exact deployment revision on phone-sized screen to verify close button, persistence across reload, manual NPC conversations, HUD nonoverlap and user-facing release version. No auto-popup bug marked fully resolved until this.
