@@ -2,18 +2,27 @@
 
 Updated 2026-10-24 (Australia/Sydney). Working branch: `feat/town-npc-branching-recordings-20261024`.
 
+## RTD-005 merged dialogue and audio acceptance reconciliation — 24 October 2026
+
+- **RTD-005 COMPLETED, documentation-only**: [PR/audio ownership reconciliation](docs/RTD_005_DIALOGUE_AUDIO_RECONCILIATION_2026-10-24.md). Existing shared recorded dialogue and truthful speaker captions preserved; no runtime code, files or live deployments changed.
+- **GitHub facts confirmed:** PR [#165](https://github.com/joshualparris/JoshMemory/pull/165) (truthful Game300 greeting/help cues) and [#166](https://github.com/joshualparris/JoshMemory/pull/166) (shared choice dialogue, desktop/mobile browser tests) are **merged**. PR [#164](https://github.com/joshualparris/JoshMemory/pull/164) proposing 20 extra `VO041`–`VO060` clips is **open**, and overlaps the very same dialogue and voice source files. Review/port only verified source/caption/audio changes; do not blindly merge its older branch.
+- **17 global Town audio acceptance IDs 006–013, 040–048:** parent 006 verified checked (100 clips / ten cast); the other 16 are OPEN. The old audio-track subtask “merge #165” is obsolete, **not** proof that its parent 007 is complete. Full 3D/transaction/offline/production acceptance remains open.
+- **Older `RT-08`:** GitHub **merge** of #166 is complete; independent canonical **production release fingerprint and real deployed audio** remain to be proven, so older combined checkbox stays OPEN. Older `RT-09`: RTD-003 inventoried the cast, but the missing 22 named NPC voices have not been generated/approved; keep open.
+- **RTD-006 next:** pin current main SHA and compare actual live production/staging release fingerprints with tested browser/audio evidence; keep separate from inferred PR/CI success.
+- **No duplicate work:** preserve current `recorded-dialogue.js`, `npc-chat.js`, `voicebank.js`, CSS, ten known Game300 voices, exactly captioned WebAudio, `stopTownVoice` cancellation and #166 mobile focus fix.
+
 ## Follow-on Skyrim-inspired dialogue roadmap (24 October 2026)
 - Numbered 93-item roadmap: `docs/SKYRIM_NPC_DIALOGUE_IMPLEMENTATION_TODO.md` (RTD-001–093).
-- This publication adds planning documentation, not new gameplay. RTD-001/002 cover verified research/source only; RTD-005–093 are OPEN pending separate test and release evidence; RTD-003/004 audit evidence is committed.
+- Tasks RTD-001–005 are complete as design/source audit/identity inventory/PR and audio reconciliation; RTD-006–093 remain OPEN pending separate implementation and release evidence.
 - The earlier recorded-branch PR #166 is merged, but its initial tree does not close the conditional quest, game-memory, cast expansion or full production-playtesting requirements of this roadmap.
-- **Resume:** inspect current main and `COORDINATION.md` first, then RTD-005 source reconciliation; build Rowan/Kit/Pip pilot and check off only proven results.
+- **Resume:** inspect current main and `COORDINATION.md` first, then RTD-006 live release/CI baseline; build Rowan/Kit/Pip pilot and check off only proven results.
 
 ## RTD-004 pinned source audit — 24 October 2026
 
 - **RTD-004 COMPLETE (source audit only)**: `docs/RTD_004_DIALOGUE_SYSTEM_AUDIT_2026-10-24.md` documents the canonical dialogue flows, Game300/VoiceBank engine, the NPC-to-NPC event path, Expedition Guild and all relevant local/save transfer state keys and privacy boundaries. Source snapshot `69a12eea14fa706c605943f98e300f1f263377d2`.
 - RTD-001–004 are checked in the 93-task roadmap; RTD-003 was completed by ChatGPT after Replit usage was exhausted, including source-backed JSON and actual TownLife parity test.
 - **Do not reinterpret RTD-004 as a gameplay or deployment acceptance test.** No application source, recordings, CI runtime or deployed production was changed for this audit. All story, save integration and actual WebAudio acceptance tasks remain open.
-- **Next safe handover:** RTD-003/004 verified complete on main; proceed with RTD-005 (reconcile PR #166, existing choices and audio acceptance tracker) on a separate branch without clobbering concurrent NPC code.
+- **Next safe handover:** RTD-003/004 verified complete on main; proceed with RTD-006 (current main SHA, deployed release fingerprint, browser/audio baseline), protecting concurrent NPC code.
 - Working audit PR branch: `docs/town-rtd004-source-audit-20261024`; see the linked audit for detailed integration seams.
 
 ## RTD-003 population inventory takeover — 24 October 2026
@@ -27,7 +36,7 @@ Updated 2026-10-24 (Australia/Sydney). Working branch: `feat/town-npc-branching-
 - **188 resident aliases are coordinate-keyed labels, not 188 extra full-life NPCs.** Grid has 208 possible coordinates, 20 lacking a project (G8–Z8). Avoid conflating `named:rowan`, a simulated worker also named Rowan, and any similarly named house resident. Namespaced identity IDs and exact mapping are in the JSON snapshot.
 - **Execution evidence:** sourced from canonical NPCS, VoiceBank voice set, `TownLife` jobs/names/home allocation, project inventory and resident-name function; parity test instantiates real `TownLife` and checks 32/99/188 namespaced identities. No gameplay, voice, deployment or manual handset changes.
 - Replit exhausted its usage; task transferred explicitly by the user. This session does not overwrite Replit code or change the generated backup. RTD-004 previous audit unchanged.
-- **Next:** RTD-005 reconcile merged PR #166 and audio acceptance tracker, then use separate owner-specific conversation branches for Rowan, Kit and Pip.
+- **Next:** RTD-006 verify current live release/CI baseline, then use separate owner-specific conversation branches for Rowan, Kit and Pip.
 
 ## Scope and source of truth
 - Canonical editable repo: `joshualparris/JoshMemory/repository-town/src/`, not the generated `Parris-Tech-Services/Repository-town` mirror.
