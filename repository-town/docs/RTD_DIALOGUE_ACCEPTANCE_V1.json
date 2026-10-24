@@ -1,0 +1,572 @@
+{
+  "schemaVersion": "1.0.0",
+  "contractId": "repository-town-dialogue",
+  "status": "criteria_only_not_implementation_proof",
+  "ownerTask": "RTD-008",
+  "source": "repository-town/docs/SKYRIM_NPC_DIALOGUE_IMPLEMENTATION_TODO.md",
+  "layers": {
+    "review": "Diff/checkpoint/approved-scope documentation",
+    "unit": "Deterministic Node source and state test",
+    "ci": "Reviewed exact tested SHA with mandatory GitHub Actions",
+    "browser-local": "Local served 3D/2D actual browser action and audio evidence",
+    "browser-hosted": "Real staging or production host interaction with deployment manifest",
+    "deployment": "Host and generated backup SHA/content hash comparison"
+  },
+  "rules": [
+    "Only check a roadmap task when the cases relevant to its exact completed scope pass with cited evidence; cases have no pre-certified pass status.",
+    "A local browser WebAudio pass does not establish hosted production playback.",
+    "Exact voice transcript, recorded speaker identity and earned quest outcomes must be independently verifiable.",
+    "Every RTD implementation PR must give task IDs in title and body, mapped RTAC IDs, checkpoint, commands, tested SHA and clear incomplete evidence.",
+    "Do not automatically assert test success from this acceptance contract; these are future acceptance requirements."
+  ],
+  "cases": [
+    {
+      "id": "RTAC-001",
+      "title": "Task ownership and stable references",
+      "rtdIds": [
+        "RTD-001",
+        "RTD-002",
+        "RTD-005",
+        "RTD-006",
+        "RTD-007",
+        "RTD-008",
+        "RTD-088",
+        "RTD-092",
+        "RTD-093"
+      ],
+      "gate": "review",
+      "status": "not_evaluated",
+      "setup": "Fresh canonical main, matching COORDINATION claim, specific RTD IDs in title/body and checkpoint",
+      "expectedPass": "PR names task(s), lists test evidence separately from acceptance, avoids overwriting unrelated agents; 93 stable IDs retained",
+      "prohibitedFailure": "Missing task ID, unknown ID, unverified checkbox or file conflict is a fail",
+      "requiredEvidence": "GitHub PR diff, title/body, coordination, checkpoint, CI URL"
+    },
+    {
+      "id": "RTAC-002",
+      "title": "Actor identity isolation",
+      "rtdIds": [
+        "RTD-003",
+        "RTD-010",
+        "RTD-033",
+        "RTD-034",
+        "RTD-078"
+      ],
+      "gate": "unit",
+      "status": "not_evaluated",
+      "setup": "Named Rowan, worker Rowan and coordinate-keyed house resident with same display name",
+      "expectedPass": "Distinct stable actor keys keep independent memories, voice permission and interactions",
+      "prohibitedFailure": "Names merged, duplicated reward, voice borrowing or data leak",
+      "requiredEvidence": "Node identity contract, inventory parity"
+    },
+    {
+      "id": "RTAC-003",
+      "title": "Graph schema integrity",
+      "rtdIds": [
+        "RTD-009",
+        "RTD-011",
+        "RTD-012",
+        "RTD-021",
+        "RTD-080"
+      ],
+      "gate": "unit",
+      "status": "not_evaluated",
+      "setup": "Valid graph plus duplicate node, missing link, illegal cycle, unreachable and dead-end fixtures",
+      "expectedPass": "Deterministic director accepts valid nodes and rejects malformed fixtures with useful errors",
+      "prohibitedFailure": "Crash, silently accepted bad link or nondeterministic output",
+      "requiredEvidence": "Node fixture output and test SHA"
+    },
+    {
+      "id": "RTAC-004",
+      "title": "Topic groups and priority",
+      "rtdIds": [
+        "RTD-013",
+        "RTD-015",
+        "RTD-016",
+        "RTD-017"
+      ],
+      "gate": "unit",
+      "status": "not_evaluated",
+      "setup": "Two simultaneous valid topics, hidden topic, cooldown and repeatable topic",
+      "expectedPass": "Valid priority order, predicates and cooldown; back/change/replay/farewell work without unlocking hidden choice",
+      "prohibitedFailure": "Ineligible topic visible, duplicated cooldown event or wrong order",
+      "requiredEvidence": "Deterministic state/choice unit tests"
+    },
+    {
+      "id": "RTAC-005",
+      "title": "Greeting by encounter history",
+      "rtdIds": [
+        "RTD-014",
+        "RTD-033",
+        "RTD-035"
+      ],
+      "gate": "unit",
+      "status": "not_evaluated",
+      "setup": "First visit, repeated visit, real landmark visit and saved quest stage",
+      "expectedPass": "Actor speaks correct eligible first/repeat/return greeting based on real saved evidence",
+      "prohibitedFailure": "Invented prior meeting or generic first-time greeting on return",
+      "requiredEvidence": "Unit scenario with saved flags"
+    },
+    {
+      "id": "RTAC-006",
+      "title": "Branch cancellation and rapid transitions",
+      "rtdIds": [
+        "RTD-018",
+        "RTD-050",
+        "RTD-060",
+        "RTD-081"
+      ],
+      "gate": "browser-local",
+      "status": "not_evaluated",
+      "setup": "Open Rowan audio, switch to Kit, close/reopen, tap choices rapidly, resolve delayed audio promises",
+      "expectedPass": "Only current actor's clip/caption exists, old promise cannot resurrect; no duplicated effects",
+      "prohibitedFailure": "Stale actor audio, ghost caption or effect duplicated",
+      "requiredEvidence": "Playwright traces, source start/stop counters"
+    },
+    {
+      "id": "RTAC-007",
+      "title": "Recorded substitutions truthfulness",
+      "rtdIds": [
+        "RTD-019",
+        "RTD-043",
+        "RTD-044",
+        "RTD-051",
+        "RTD-082"
+      ],
+      "gate": "browser-local",
+      "status": "not_evaluated",
+      "setup": "Template with changing item/player name, known clip fixed words",
+      "expectedPass": "Clip only plays when verified transcription exactly equals displayed caption; dynamic text separately announced as not recorded",
+      "prohibitedFailure": "Recorded voice implied to utter substituted words not in MP3",
+      "requiredEvidence": "Transcript/clip manifest audit, browser caption assertions"
+    },
+    {
+      "id": "RTAC-008",
+      "title": "Offline authored and AI separation",
+      "rtdIds": [
+        "RTD-020",
+        "RTD-063",
+        "RTD-064",
+        "RTD-065"
+      ],
+      "gate": "browser-local",
+      "status": "not_evaluated",
+      "setup": "Disable Cloudflare AI/network while visiting named actor; ask unknown question separately",
+      "expectedPass": "Core authored choices work offline, AI is visibly separate, arbitrary AI cannot mutate world or claim an ElevenLabs recording",
+      "prohibitedFailure": "AI text presented as voice or offline core unusable",
+      "requiredEvidence": "Offline browser network trace and world snapshot"
+    },
+    {
+      "id": "RTAC-009",
+      "title": "Read-only world fact adapter",
+      "rtdIds": [
+        "RTD-022",
+        "RTD-029",
+        "RTD-030",
+        "RTD-067",
+        "RTD-068"
+      ],
+      "gate": "unit",
+      "status": "not_evaluated",
+      "setup": "Clock, actual NPC position, open/closed shop, visits, rumour, witnessed social yarn",
+      "expectedPass": "Predicates use current authoritative values and separate confirmed events from lore/rumour",
+      "prohibitedFailure": "Made-up location, opening hours or witnessed event",
+      "requiredEvidence": "Node fact adapter fixtures, seeded TownLife test"
+    },
+    {
+      "id": "RTAC-010",
+      "title": "Quest availability",
+      "rtdIds": [
+        "RTD-023",
+        "RTD-024",
+        "RTD-025"
+      ],
+      "gate": "unit",
+      "status": "not_evaluated",
+      "setup": "Quest stage 0/1/completed, challenge absent, player declines invitation",
+      "expectedPass": "Only allowed actions presented; accept/advance/complete invokes typed allowlisted authoritative command",
+      "prohibitedFailure": "Freeform response changes quest or stage skipped",
+      "requiredEvidence": "Unit quest-action tests, before/after state"
+    },
+    {
+      "id": "RTAC-011",
+      "title": "Repair success versus failure",
+      "rtdIds": [
+        "RTD-026",
+        "RTD-027",
+        "RTD-028",
+        "RTD-032",
+        "RTD-071",
+        "RTD-072"
+      ],
+      "gate": "browser-local",
+      "status": "not_evaluated",
+      "setup": "Kit offers repair with/without tools, sufficient funds, cancelled job, genuine fail or success",
+      "expectedPass": "Success audio only after completed actual repair; cancelled/failed/insufficient states never play success",
+      "prohibitedFailure": "Success clip after failure or free click; wrong inventory/pay",
+      "requiredEvidence": "Town repair tests, clip event log"
+    },
+    {
+      "id": "RTAC-012",
+      "title": "Transaction idempotence",
+      "rtdIds": [
+        "RTD-025",
+        "RTD-027",
+        "RTD-031",
+        "RTD-040",
+        "RTD-081"
+      ],
+      "gate": "unit",
+      "status": "not_evaluated",
+      "setup": "Rapid double click, reload mid-reward, stale network retry",
+      "expectedPass": "Exactly one committed transaction/reward with stable dedupe ID; state restores consistently",
+      "prohibitedFailure": "Double charge, double reward, replay-triggered pay",
+      "requiredEvidence": "Transaction state before/after JSON, Node regression"
+    },
+    {
+      "id": "RTAC-013",
+      "title": "Remembered social events",
+      "rtdIds": [
+        "RTD-033",
+        "RTD-034",
+        "RTD-035",
+        "RTD-041",
+        "RTD-079"
+      ],
+      "gate": "unit",
+      "status": "not_evaluated",
+      "setup": "Confirmed two-NPC meeting, player visits and off-duty workday",
+      "expectedPass": "Return dialogue unlocks only saved witnessed event from correct identity, reproducibly across seeds",
+      "prohibitedFailure": "Rumour becomes witnessed truth, personal events cross actors",
+      "requiredEvidence": "Seeded scenario diff and social event log"
+    },
+    {
+      "id": "RTAC-014",
+      "title": "Versioned save and migration",
+      "rtdIds": [
+        "RTD-036",
+        "RTD-039",
+        "RTD-040",
+        "RTD-047"
+      ],
+      "gate": "unit",
+      "status": "not_evaluated",
+      "setup": "Old save, new save, partial/corrupt export, invalid node reference, reload",
+      "expectedPass": "Migration preserves valid old gameplay while safely clearing obsolete dialogue stage; invalid input rejected without corruption",
+      "prohibitedFailure": "Lost inventory, stale reward, crash, private text export",
+      "requiredEvidence": "Save import/export tests, privacy review"
+    },
+    {
+      "id": "RTAC-015",
+      "title": "Memory privacy and consent",
+      "rtdIds": [
+        "RTD-037",
+        "RTD-038",
+        "RTD-066",
+        "RTD-092"
+      ],
+      "gate": "browser-local",
+      "status": "not_evaluated",
+      "setup": "AI free text entered, user disables memory/exports save, private repository labels present",
+      "expectedPass": "Raw AI chat/credentials omitted from public export; consent/reset works; no private repo content in topic journal",
+      "prohibitedFailure": "Private secrets/chats exported or stored without consent",
+      "requiredEvidence": "Privacy gate, export inspection, consent browser test"
+    },
+    {
+      "id": "RTAC-016",
+      "title": "Approved voice manifest integrity",
+      "rtdIds": [
+        "RTD-042",
+        "RTD-043",
+        "RTD-046",
+        "RTD-082"
+      ],
+      "gate": "unit",
+      "status": "not_evaluated",
+      "setup": "100 Game300 clips/10 actors plus missing/invalid manifest entries",
+      "expectedPass": "Checks actor/clip SHA256/transcript/duration/voice ownership and original backups before use",
+      "prohibitedFailure": "Hash mismatch, wrong actor or corrupted clip accepted",
+      "requiredEvidence": "VoiceBank manifest and hash verification report"
+    },
+    {
+      "id": "RTAC-017",
+      "title": "Semantic clip triggers",
+      "rtdIds": [
+        "RTD-044",
+        "RTD-045",
+        "RTD-051",
+        "RTD-055"
+      ],
+      "gate": "browser-local",
+      "status": "not_evaluated",
+      "setup": "Available greeting/help/ambient/choice and authentic result event",
+      "expectedPass": "Only semantically matching authored line used, exact subtitle; success/retry earned, no false overlay; tracker IDs cross-linked once",
+      "prohibitedFailure": "Generic unearned congratulations or text mismatch",
+      "requiredEvidence": "Recorded click traces, game state and event mapping"
+    },
+    {
+      "id": "RTAC-018",
+      "title": "Missing voice generation plan",
+      "rtdIds": [
+        "RTD-047",
+        "RTD-048",
+        "RTD-049",
+        "RTD-077",
+        "RTD-078"
+      ],
+      "gate": "review",
+      "status": "not_evaluated",
+      "setup": "Unvoiced named NPC, missing line and proposed Colab batch",
+      "expectedPass": "Missing-line manifest lists actor, exact script, preferred voice and approved Drive+GitHub storage; no paid run without consent",
+      "prohibitedFailure": "Borrowed voice, hallucinated recording or new key exposed",
+      "requiredEvidence": "Manifest diff, source location, owner approval and integrity hash"
+    },
+    {
+      "id": "RTAC-019",
+      "title": "Single playback authority and volume",
+      "rtdIds": [
+        "RTD-050",
+        "RTD-052",
+        "RTD-053",
+        "RTD-059",
+        "RTD-060"
+      ],
+      "gate": "browser-local",
+      "status": "not_evaluated",
+      "setup": "NPC clip, yarn, ambience/music and fast switch during ZIP load",
+      "expectedPass": "Lazy user-gesture start, one active speaker, correct volume/stop/replay; low-memory browser remains responsive",
+      "prohibitedFailure": "Simultaneous overlapping speakers, uncontrolled data prefetch, mute of speech",
+      "requiredEvidence": "Playwright audio spies, network and volume trace"
+    },
+    {
+      "id": "RTAC-020",
+      "title": "Missing/broken media graceful fallback",
+      "rtdIds": [
+        "RTD-051",
+        "RTD-052",
+        "RTD-054",
+        "RTD-083"
+      ],
+      "gate": "browser-local",
+      "status": "not_evaluated",
+      "setup": "404, CORS, malformed ZIP/MP3, aborted stream, offline, suspended WebAudio",
+      "expectedPass": "Unavailable status shown, no wrong device speech impersonation, controls recover after retry; no paid TTS request",
+      "prohibitedFailure": "Silent fake success, crash, paid API call or infinite spinner",
+      "requiredEvidence": "Network fault-injection and browser error log"
+    },
+    {
+      "id": "RTAC-021",
+      "title": "Accessible conversation UI",
+      "rtdIds": [
+        "RTD-056",
+        "RTD-057",
+        "RTD-058",
+        "RTD-059",
+        "RTD-061",
+        "RTD-062",
+        "RTD-085"
+      ],
+      "gate": "browser-local",
+      "status": "not_evaluated",
+      "setup": "Desktop keyboard, mobile portrait/landscape, focus/keyboard resize, screen reader and reduced motion",
+      "expectedPass": "Choice labels, actor/source/caption/status and back/exit discoverable; valid focus, touch targets, motion fallback; game controls restored",
+      "prohibitedFailure": "Trapped focus, obscured choices, impossible dismissal or unannounced clip",
+      "requiredEvidence": "Desktop/Pixel7 browser screenshots and accessibility assertions"
+    },
+    {
+      "id": "RTAC-022",
+      "title": "Optional AI grounding",
+      "rtdIds": [
+        "RTD-063",
+        "RTD-064",
+        "RTD-065",
+        "RTD-066",
+        "RTD-067"
+      ],
+      "gate": "browser-local",
+      "status": "not_evaluated",
+      "setup": "Grounded scene question, fabricated-reward prompt, network denied",
+      "expectedPass": "Actual local scene facts answered or candid offline response; AI cannot cause quest/inventory writes or impersonate approved audio",
+      "prohibitedFailure": "Model-induced mutation or unsupported source assertions",
+      "requiredEvidence": "AI request stub, state snapshots, privacy assertion"
+    },
+    {
+      "id": "RTAC-023",
+      "title": "Rowan pilot full arc",
+      "rtdIds": [
+        "RTD-069",
+        "RTD-070",
+        "RTD-075"
+      ],
+      "gate": "browser-local",
+      "status": "not_evaluated",
+      "setup": "Fresh player approaches Rowan; follow map/tour to actual landmark; save; meet again",
+      "expectedPass": "Appropriate first/return recorded actor clip and real landmark evidence; farewell and persistent milestone survive reload",
+      "prohibitedFailure": "Unvisited place marked visited, non-Rowan clip, no memory",
+      "requiredEvidence": "Walk-up browser recording, quest+save before/after, transcript"
+    },
+    {
+      "id": "RTAC-024",
+      "title": "Kit pilot full repair arc",
+      "rtdIds": [
+        "RTD-071",
+        "RTD-072",
+        "RTD-075"
+      ],
+      "gate": "browser-local",
+      "status": "not_evaluated",
+      "setup": "Approach Kit, request quote, insufficient tools, cancel, then successfully repair",
+      "expectedPass": "Every branch follows actual inventory/tool/cost/job result, voice/caption fits and reward occurs once",
+      "prohibitedFailure": "Result claimed before work or after cancelled repair",
+      "requiredEvidence": "Playwright complete repair log, negative tests, audio map"
+    },
+    {
+      "id": "RTAC-025",
+      "title": "Pip pilot full dice arc",
+      "rtdIds": [
+        "RTD-073",
+        "RTD-074",
+        "RTD-075"
+      ],
+      "gate": "browser-local",
+      "status": "not_evaluated",
+      "setup": "Approach Pip, select dice challenge, roll deterministic die, win/lose/retry, reload",
+      "expectedPass": "Spoken result matches actual rolled number/outcome; saved memory and replay don't reroll or reaward",
+      "prohibitedFailure": "Dice result invented by transcript or double reward",
+      "requiredEvidence": "Seeded roll tests, click sequence and approved audio"
+    },
+    {
+      "id": "RTAC-026",
+      "title": "Expansion to seven other voiced characters",
+      "rtdIds": [
+        "RTD-076",
+        "RTD-080"
+      ],
+      "gate": "browser-local",
+      "status": "not_evaluated",
+      "setup": "Circuit, Wren, Sol, Sage, Spark, Lyra, Nova graphs and all authored conditions",
+      "expectedPass": "Each character has unique correct actor voice, reachable topics, honest missing-line state and regression coverage",
+      "prohibitedFailure": "Cross-actor voice or unreachable content",
+      "requiredEvidence": "Per-character fixture and desktop/mobile traces"
+    },
+    {
+      "id": "RTAC-027",
+      "title": "Unvoiced cast, workers and NPC yarns",
+      "rtdIds": [
+        "RTD-077",
+        "RTD-078",
+        "RTD-079"
+      ],
+      "gate": "browser-local",
+      "status": "not_evaluated",
+      "setup": "22 unvoiced named actors, worker and house identity, recorded street yarn",
+      "expectedPass": "No borrowed MP3; expansion clearly optional, confirmed overheard topic only; 99 workers are distinct from 188 coordinate residents",
+      "prohibitedFailure": "Claim worker has approved bespoke voice without clip, invented yarn",
+      "requiredEvidence": "Cast inventory, browser captions and event log"
+    },
+    {
+      "id": "RTAC-028",
+      "title": "Deterministic negative-and-stress tests",
+      "rtdIds": [
+        "RTD-080",
+        "RTD-081",
+        "RTD-082",
+        "RTD-083"
+      ],
+      "gate": "unit",
+      "status": "not_evaluated",
+      "setup": "Bad actor/branch/condition, false transaction, wrong manifest, rapid change, ZIP faults",
+      "expectedPass": "Every negative fixture fails safely and no side effect leaks",
+      "prohibitedFailure": "Any rejected fixture changes game state or speaks wrong voice",
+      "requiredEvidence": "Node/Playwright failure injectors and regression results"
+    },
+    {
+      "id": "RTAC-029",
+      "title": "Complete desktop and Android browser journeys",
+      "rtdIds": [
+        "RTD-075",
+        "RTD-084",
+        "RTD-085",
+        "RTD-086"
+      ],
+      "gate": "browser-local",
+      "status": "not_evaluated",
+      "setup": "3D walk, enter room, approach NPC, choose topic, hear/replay/stop, swap, leave, sleep, reload",
+      "expectedPass": "Both desktop 1280x800 and Android-style 390x844 complete journey without stuck movement, lost focus, corrupt saves or overlapping audio",
+      "prohibitedFailure": "Any path blocked or result/voice mismatch",
+      "requiredEvidence": "Recorded Playwright video, console trace, game-state log"
+    },
+    {
+      "id": "RTAC-030",
+      "title": "Whole-town regression and privacy gate",
+      "rtdIds": [
+        "RTD-086",
+        "RTD-087",
+        "RTD-088"
+      ],
+      "gate": "ci",
+      "status": "not_evaluated",
+      "setup": "Canonical tested SHA and merged game-code changes",
+      "expectedPass": "Focused voice/graph tests, npm run build:release, privacy, world simulations, release integrity, required CI all pass",
+      "prohibitedFailure": "Skipped/failed mandatory gate or private repo leak",
+      "requiredEvidence": "Exact SHA, GitHub Actions IDs and test log"
+    },
+    {
+      "id": "RTAC-031",
+      "title": "Staging hosted WebAudio validation",
+      "rtdIds": [
+        "RTD-083",
+        "RTD-084",
+        "RTD-089"
+      ],
+      "gate": "browser-hosted",
+      "status": "not_evaluated",
+      "setup": "Existing staging URL deployed with approved build commit, actor and quest scenario",
+      "expectedPass": "Real hosted DOM/3D player gesture starts approved MP3, correct transcript, and real quest effect, without errors",
+      "prohibitedFailure": "Only localhost tested, wrong deployed SHA, skipped step or no actual audio start",
+      "requiredEvidence": "Staging release.json, URL, SHA, recorded browser traces"
+    },
+    {
+      "id": "RTAC-032",
+      "title": "Canonical production approval",
+      "rtdIds": [
+        "RTD-089",
+        "RTD-090"
+      ],
+      "gate": "browser-hosted",
+      "status": "not_evaluated",
+      "setup": "Approved exact tested commit promoted to existing production Vercel alias",
+      "expectedPass": "Production release.json sourceCommit/contentHash matches deployed SHA and tested artifact; real hosted voice + full quest journey pass",
+      "prohibitedFailure": "CI-only proof, stale release, skipped hosted browser or partial rollout marked complete",
+      "requiredEvidence": "Vercel deployment ID, manifest and production browser run"
+    },
+    {
+      "id": "RTAC-033",
+      "title": "Backup release parity",
+      "rtdIds": [
+        "RTD-090",
+        "RTD-091"
+      ],
+      "gate": "deployment",
+      "status": "not_evaluated",
+      "setup": "Production READY manifest and generated GitHub Pages backup manifest",
+      "expectedPass": "Same approved sourceCommit and contentHash on both; no direct mirror modifications",
+      "prohibitedFailure": "Mixed fingerprints, generated mirror hand edits, unverified rollback",
+      "requiredEvidence": "Production+Pages release URLs and SHA256 comparison"
+    },
+    {
+      "id": "RTAC-034",
+      "title": "Evidence archive and open-item honesty",
+      "rtdIds": [
+        "RTD-088",
+        "RTD-092",
+        "RTD-093"
+      ],
+      "gate": "review",
+      "status": "not_evaluated",
+      "setup": "PR includes implementation, test/media output and checkpoint, with any blocked tests",
+      "expectedPass": "Screenshots/logs/recording map linked, RTD statuses accurate, unresolved checks stay open with blocker",
+      "prohibitedFailure": "Unsupported success, missing logs or silently checked unimplemented work",
+      "requiredEvidence": "PR checklist, checkpoint and GitHub commit links"
+    }
+  ]
+}
