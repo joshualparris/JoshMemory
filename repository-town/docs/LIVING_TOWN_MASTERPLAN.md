@@ -25,11 +25,11 @@ The first slice exists on branch feat/living-town-simulation-20261019:
 - [x] Post letters with delivery windows, incidents and repair costs
 - [x] Interactive Ledger and an event log; save/load state in localStorage
 - [x] Pure-module regression checks for non-negative inventory and deterministic replay
-- [ ] A pathfinding NPC that *physically* performs each scheduled job
-- [ ] Interior walk-in civic facilities and shops
-- [ ] Actual pipes/cables/road network topology and vehicle cargo visuals
-- [ ] Real household-level ledgers, balanced company accounts, inventories
-- [ ] Browser GPU/mobile playtests and public publish (pending integration review)
+- [ ] **RTL-001** A pathfinding NPC that *physically* performs each scheduled job
+- [ ] **RTL-002** Interior walk-in civic facilities and shops
+- [ ] **RTL-003** Actual pipes/cables/road network topology and vehicle cargo visuals
+- [ ] **RTL-004** Real household-level ledgers, balanced company accounts, inventories
+- [ ] **RTL-005** Browser GPU/mobile playtests and public publish (pending integration review)
 
 The prototype uses abstract integer units. They are gameplay values, **not**
 real-world engineering measurements. It is single-player and local-first. A
