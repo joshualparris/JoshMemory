@@ -194,3 +194,9 @@ Coordinates: A–Z across, rows 1–8. Each row is a street; a lot number is the
 | **D8** · Workshop Way Lot 4 | [Parris-Tech-Services/WorkApp](https://github.com/Parris-Tech-Services/WorkApp) | [C8](#c8), [E8](#e8), [D7](#d7) |
 | **E8** · Workshop Way Lot 5 | [Parris-Tech-Services/WorkPlanner](https://github.com/Parris-Tech-Services/WorkPlanner) | [D8](#d8), [F8](#f8), [E7](#e7) |
 | **F8** · Workshop Way Lot 6 | [Parris-Tech-Services/WPHI](https://github.com/Parris-Tech-Services/WPHI) | [E8](#e8), [F7](#f7) |
+
+
+## Portfolio-wide agent triage
+
+The original **188 grid addresses** are unchanged. A separate [dated 233-repository triage route](PORTFOLIO_TRIAGE_2026-10-24.md) maps those existing coordinates to permanent `RT-<address>` identities, plus `RT-U###` IDs for **45 additional unplaced repositories**. For task priority use the separate `TR-###` visit order, never the physical Town order alone. [Open the full public-safe queue](PORTFOLIO_TRIAGE_REGISTRY_2026-10-24.csv) or [resume from its checkpoint](PORTFOLIO_TRIAGE_CHECKPOINT.md).
+
