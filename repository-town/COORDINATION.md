@@ -5,6 +5,10 @@ Add a line under **In progress** when you start (who, what, which files), move i
 **Done** when you finish, and leave notes or questions for the others below.
 Newest first. Times in Australia/Sydney.
 
+## Roadmap notes
+
+- 2026-10-24 · ChatGPT — **DOCUMENTED (no gameplay changed):** 93 numbered Skyrim-inspired NPC conversation tasks in `docs/SKYRIM_NPC_DIALOGUE_IMPLEMENTATION_TODO.md`; canonical `JoshMemory/repository-town/` source and merged PR #166 are the foundation. RTD-001/002 research checked; RTD-003–093 remain open until evidence. Documentation branch `docs/town-skyrim-dialogue-roadmap-20261024` linked from README. Update the shared checkpoint before implementing to avoid collision with other audio/NPC work.
+
 ## In progress
 
 - 2026-10-24 · ChatGPT — **INTEGRATING prerecorded branching NPC conversations**, PR #166, branch `feat/town-npc-branching-recordings-20261024`. Source `src/ui/recorded-dialogue.js`, `src/ui/npc-chat.js`, `src/ui/voicebank.js`, `src/npc.css`; tests `recorded-dialogue.mjs` and `recorded-dialogue-browser.mjs`, added to CI. Keeps ten pre-existing unique Game300 cast voices, player-selected replies, verified manifest text, no unearned quest/purchase success, no paid speech and no impersonation for unrecorded NPCs. Baseline eight checks passed before the new browser acceptance test was attached. Updated browser checks underway; canonical deployment and the other 22 residents' casting still unverified. See `WORK_CHECKPOINT.md`.
