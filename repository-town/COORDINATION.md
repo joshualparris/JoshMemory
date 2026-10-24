@@ -11,7 +11,6 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
-- 2026-10-24 · ChatGPT — **CLAIMED RTD-006 release / browser/audio baseline (audit only)**, branch `docs/town-rtd006-live-release-baseline-20261024`. Confirm current main SHA, Vercel deployment READY/alias, hosted `/release.json` source SHA+content hash, live HTTP assets including NPC/VoiceBank, staging fingerprint, latest passing desktop/mobile browser and CI evidence; document limitations (source main ahead, hosted-browser step skipped, no actual in-production player gesture). Update roadmap RTD-006, WORK_CHECKPOINT and this board. **No deploy, promotion, paid audio, source runtime or generated mirror edits.**
 
 
 - 2026-10-24 · ChatGPT — **MERGED (QA tooling only): arcade Skyvern/Playwright tester**, [PR #171](https://github.com/joshualparris/JoshMemory/pull/171), merge `db603aae`. Recorded Skyvern v2 workflow; no-account Playwright runner checks each exact-title edition, supports all games, captures runtime observations/screenshots, and produces JSON report. Manual GitHub Actions workflow and browserless contract are included. Four target index files/source-schema and JS syntax verified. Browser gameplay, balance assessment and manual dispatch NOT run. Vercel status on merge failed due project build-rate-limit, not a source compile failure; deployed arcade remains on older READY release. See `qa/README.md`, `WORK_CHECKPOINT.md`.
@@ -107,6 +106,9 @@ Newest first. Times in Australia/Sydney.
   is currently blocked by the Hobby team's daily deployment quota (`api-deployments-free-per-day`).
 
 ## Done recently
+
+- 2026-10-24 · ChatGPT — **DONE: RTD-006 canonical release/browser/audio baseline**; [pinned evidence](docs/RTD_006_RELEASE_BASELINE_2026-10-24.md). Compared GitHub main against actual READY Vercel `dpl_BUJvawLJX9Bvk87P7b7uKu1U4RJp` source `9e38531`, live `/release.json` SHA256 `afc7f0a2562b0823daf9d73dced3842dda27093325352a098ed2c24bac3de637`, verified 1,133 built files, production homepage+NPC JS HTTP 200, VoiceBank Game300 JS HTTP 200, staging mismatch and successful desktop/mobile recorded WebGL CI (runs 40079153284, 40079153300). IMPORTANT: real hosted-production browser step was SKIPPED, no deployed manual voice click claimed. Updated checkpoint, checked RTD-006 only; documentation-only branch `docs/town-rtd006-live-release-baseline-20261024`; no deployment or gameplay changes.
+
 
 - 2026-10-24 · ChatGPT — **DONE: RTD-005 PR #165/#166 and Town/VoiceBank audio acceptance reconciliation.** Source [RTD-005 evidence matrix](docs/RTD_005_DIALOGUE_AUDIO_RECONCILIATION_2026-10-24.md). Correctly identifies #165/#166 merged, #164 still open with 20 potentially conflicting clips, current shared six-stage recorded choice UI, ten Game300 voices, 17 global Town audio acceptance tasks with 006 checked and 16 open. Updated 93-item roadmap (RTD-001–005 checked) and WORK_CHECKPOINT, no gameplay or generated-mirror changes. Next RTD-006 current canonical deployment fingerprint/baseline. PR branch `docs/town-rtd005-audio-branch-reconciliation-20261024`.
 
