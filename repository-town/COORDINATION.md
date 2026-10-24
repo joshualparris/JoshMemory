@@ -14,6 +14,9 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-24 · ChatGPT — **IN PROGRESS: prevent indoor resident bodies clipping through walls on mobile (user screenshots ~21:34 AEDT).** Scope `src/world/npcs.js` (indoor Walker movement and planner clearance), new `tests/indoor-resident-walls.mjs`, small test hook and `docs/INDOOR_RESIDENT_WALL_FIX_2026-10-24.md`; do not modify claimed `src/main.js` or dialogue/audio work. Root-cause hypothesis: indoor Walker moves directly along path without checking collision; resident's 3D arms protrude through walls even if its centre follows an imperfect waypoint. Must test wall-sweep, blocked route recovery and existing interiors, then review/merge/deploy/verify. Branch `fix/town-indoor-resident-wall-clipping-20261024`, start checkpoint recorded here. Leave unrelated tasks untouched.
+
+
 
 
 - 2026-10-24 · ChatGPT — **IN PROGRESS: directional N/S property address audit and map**, branch `feat/town-directional-addresses-20261024`. Scope `src/world/addresses.js`, `src/world/property.js`, `src/main.js` search only, `tests/directional-addresses.mjs`, `docs/DIRECTIONAL_ADDRESS_AUDIT_2026-10-24.md`, `WORK_CHECKPOINT.md`, `README.md`. Never modify existing `coordinate` primary keys or private project text; preserve existing saves and listings. Road 9 not built; do not label unknown plots genuinely vacant. Other audio/dialogue claims remain untouched.
@@ -121,7 +124,6 @@ Newest first. Times in Australia/Sydney.
 ## Done recently
 
 - 2026-10-24 · ChatGPT — **DONE (PR/CI pending): RTD-009 schema specification and strict structural tests.** Claimed on main `c4722c84333d6947e7ff7775f81162f4fad7787f`, M1 checkpoint on main `6fd2e4547552a51548944b56cbcec6c12584ef31`. New pure `src/dialogue/schema.js` and [schema v1 guide](docs/RTD_009_DIALOGUE_SCHEMA_V1.md), adversarial `tests/dialogue-schema.mjs` wired into `npm run test:release`; RTD-009 checked only and WORK_CHECKPOINT M2/M3 committed. No changes to existing voiced NPC player, NPC AI, simulated economy, parallel N/S addresses or overlapping open #164. Schema has only typed request descriptors; effect execution, cross-graph validation and live recordings are explicitly future RTDs. Topic branch `feat/town-rtd009-dialogue-schema-20261024`, PR CI and merge to be linked in final checkpoint. RTD-010+ UNCLAIMED.
-
 
 - 2026-10-24 · ChatGPT — **DONE: focused RT-08 / AUDIO-013.03 live production verification evidence and corrected E2E household assertion.** [PR #177](https://github.com/joshualparris/JoshMemory/pull/177) squash-merged as `1d55b3677ddfe929beb1e7ea9c9d8ecac2003963`. Tested head `d0523316c3e0af4cbeb4cb4d2d18be224c1c8303`; [Town Integration 40084738543](https://github.com/joshualparris/JoshMemory/actions/runs/40084738543) SUCCESS and [Recorded WebGL 40084738567](https://github.com/joshualparris/JoshMemory/actions/runs/40084738567) SUCCESS. Independently tested actual published production: 10/10 Game300 actors × two profiles in NPC Lounge, Rowan/Pip/Kit × two profiles in 3D Town; A1 real entry/exit and touch/movement. See [RT-08 report](docs/RT_08_LIVE_PRODUCTION_ACCEPTANCE_2026-10-24.md). Cosmetic `/favicon.ico` 404 documented. **RT-08 and audio parent 013 remain OPEN** for complete world, real handset, offline/CSP and mirror acceptance; no runtime game changes or new deployment claimed.
 
