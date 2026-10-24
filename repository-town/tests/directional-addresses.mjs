@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { PLACE_DEFS } from '../src/world/life.js';
-import {houseAddress,placeAddress,parseTownAddress,auditTownSlots} from '../src/world/addresses.js';
+import {houseAddress,placeAddress,parseTownAddress,legacyHouseCoordinate,auditTownSlots} from '../src/world/addresses.js';
 import { initialiseProperties, upgradePropertyAddresses } from '../src/world/property.js';
 const inventory=JSON.parse(fs.readFileSync(new URL('../../docs/repository-town.json',import.meta.url),'utf8'));
 const homes=inventory.projects.map(({coordinate,repo})=>({coordinate,name:repo.split('/').at(-1)}));
@@ -18,6 +18,9 @@ assert.deepEqual(parseTownAddress('z7'),{address:'Z7-S',col:'Z',row:7,side:'S',l
 assert.equal(parseTownAddress('z9 north')?.address,'Z9-N');
 assert.equal(parseTownAddress('z9-n')?.address,'Z9-N');
 assert.equal(houseAddress('Z7'),'Z7-S');
+assert.equal(legacyHouseCoordinate('Z7-S'),'Z7');
+assert.equal(legacyHouseCoordinate('Z7-N'),null);
+assert.equal(legacyHouseCoordinate('H0'),'H0');
 assert.equal(houseAddress('H0'),'H0'); // Existing synthetic simulation fixture, not a plot
 assert.equal(by.get('Z7-S').kind,'house');
 assert.match(by.get('Z7-S').name,/UpskillApp/);
