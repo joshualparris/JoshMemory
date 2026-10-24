@@ -1,0 +1,178 @@
+[
+  {
+    "viewport": "desktop",
+    "scene": "street",
+    "hour": 12,
+    "fps": 8.047929893588146,
+    "calls": 153,
+    "minute": 720
+  },
+  {
+    "viewport": "desktop",
+    "scene": "street",
+    "hour": 19.5,
+    "fps": 10.001818512456387,
+    "calls": 154,
+    "minute": 1170
+  },
+  {
+    "viewport": "desktop",
+    "scene": "street",
+    "hour": 0,
+    "fps": 11.358258400378608,
+    "calls": 154,
+    "minute": 0
+  },
+  {
+    "viewport": "desktop",
+    "scene": "university",
+    "moved": 1.1151000000000009,
+    "mode": "house",
+    "fps": 17.424798239177914,
+    "calls": 9
+  },
+  {
+    "viewport": "desktop",
+    "scene": "tafe",
+    "moved": 1.3645800000000978,
+    "mode": "house",
+    "fps": 15.602055800294021,
+    "calls": 9
+  },
+  {
+    "viewport": "desktop",
+    "scene": "hardware",
+    "moved": 1.0273597305004216,
+    "mode": "house",
+    "fps": 14.878000396745648,
+    "calls": 9
+  },
+  {
+    "viewport": "desktop",
+    "scene": "trades",
+    "moved": 0.7828493080206158,
+    "mode": "house",
+    "fps": 14.468988135430378,
+    "calls": 9
+  },
+  {
+    "viewport": "desktop",
+    "scene": "store",
+    "moved": 0.550935,
+    "mode": "house",
+    "fps": 14.029180695847975,
+    "calls": 17
+  },
+  {
+    "viewport": "desktop",
+    "scene": "pub",
+    "moved": 0.5781509999998242,
+    "mode": "house",
+    "fps": 9.52018278750931,
+    "calls": 19
+  },
+  {
+    "viewport": "desktop",
+    "scene": "school",
+    "moved": 0.6145021002811073,
+    "mode": "house",
+    "fps": 8.781344521417521,
+    "calls": 16
+  },
+  {
+    "viewport": "desktop",
+    "scene": "clinic",
+    "moved": 0.5040629999999124,
+    "mode": "house",
+    "fps": 16.360311808296007,
+    "calls": 10
+  },
+  {
+    "viewport": "mobile",
+    "scene": "street",
+    "hour": 12,
+    "fps": 15.576323987539647,
+    "calls": 63,
+    "minute": 720
+  },
+  {
+    "viewport": "mobile",
+    "scene": "street",
+    "hour": 19.5,
+    "fps": 31.143552311435514,
+    "calls": 64,
+    "minute": 1170
+  },
+  {
+    "viewport": "mobile",
+    "scene": "street",
+    "hour": 0,
+    "fps": 33.006504222888,
+    "calls": 64,
+    "minute": 0
+  },
+  {
+    "viewport": "mobile",
+    "scene": "university",
+    "moved": 1.0309512905700196,
+    "mode": "house",
+    "fps": 60.2112328496707,
+    "calls": 6
+  },
+  {
+    "viewport": "mobile",
+    "scene": "tafe",
+    "moved": 1.0258244183388654,
+    "mode": "house",
+    "fps": 59.9880023995159,
+    "calls": 6
+  },
+  {
+    "viewport": "mobile",
+    "scene": "hardware",
+    "moved": 0.7946322216261725,
+    "mode": "house",
+    "fps": 39.35845714848248,
+    "calls": 6
+  },
+  {
+    "viewport": "mobile",
+    "scene": "trades",
+    "moved": 0.8479342274081296,
+    "mode": "house",
+    "fps": 60.82361152657152,
+    "calls": 6
+  },
+  {
+    "viewport": "mobile",
+    "scene": "store",
+    "moved": 0.4643704530320152,
+    "mode": "house",
+    "fps": 60.26476980834105,
+    "calls": 17
+  },
+  {
+    "viewport": "mobile",
+    "scene": "pub",
+    "moved": 0.4646075234824756,
+    "mode": "house",
+    "fps": 60.42595344229819,
+    "calls": 19
+  },
+  {
+    "viewport": "mobile",
+    "scene": "school",
+    "moved": 0.4645616102331167,
+    "mode": "house",
+    "fps": 60.17559435730767,
+    "calls": 16
+  },
+  {
+    "viewport": "mobile",
+    "scene": "clinic",
+    "moved": 0.45961599365259964,
+    "mode": "house",
+    "fps": 41.318248893261185,
+    "calls": 7
+  }
+]
