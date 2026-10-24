@@ -1,0 +1,33 @@
+name: GentleMovement recording integrity on Windows
+# Audits public, commit-pinned sources with no token or user secrets and no paid TTS.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/windows-gentle-audio-audit.yml']
+permissions:
+  contents: read
+jobs:
+  check-gentle:
+    if: github.repository == 'joshualparris/JoshMemory' && github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 20
+    steps:
+      - name: Clone exact public audio source without credentials
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $folder = Join-Path $env:RUNNER_TEMP 'gentle-audio-audit'
+          if (Test-Path $folder) { Remove-Item $folder -Force -Recurse }
+          git clone --no-tags --single-branch --depth 1 https://github.com/Parris-Tech-Services/GentleMovement.git $folder
+          if ($LASTEXITCODE -ne 0) { throw 'Could not clone trusted public source' }
+          Set-Location $folder
+          if ((git rev-parse HEAD) -ne '987a15b5c514a85fcc2a4e4d890f9879198434a0') { throw 'Source advanced: refuse to test unreviewed commit' }
+          node --version
+          node tools/verify-recorded-inventory.mjs --live
+          if ($LASTEXITCODE -ne 0) { throw '148-clip manifest/live SHA-256 verification failed' }
+          node --test premium-voice.test.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Premium recordings test failed' }
+          node --test scripts/voice-phrases.test.mjs
+          if ($LASTEXITCODE -ne 0) { throw 'Voice phrase plan test failed' }
+          Write-Host "PASS: pinned GentleMovement recorded clip integrity on $env:RUNNER_NAME"
