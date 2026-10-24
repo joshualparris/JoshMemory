@@ -6,8 +6,8 @@ Owner: ChatGPT; documentation-only branch `docs/town-next-action-triage-20261025
 
 - [x] Checked live `main` and existing `RTD-001`–`RTD-093`, `RT-01`–`RT-09`, `AUDIO-PPP.SS`, `RTR-001`–`RTR-016`, `RTL-001`–`RTL-005`, current PR #164 and PR #186.
 - [x] Identified pre-numbered acceptance for dialogue/audio and mobile building navigation; these identifiers remain unchanged.
-- [ ] Publish a strict dependency/priority queue for the five areas reported to Josh, with unique IDs assigned **only** where missing; link from master README and ID index.
-- [ ] Check ID uniqueness and checkbox integrity, merge docs after review/CI and record merged SHA.
+- [x] Published `docs/NEXT_ACTION_TRIAGE_2026-10-25.md` with 10 ranked next jobs from five reported areas: six newly numbered `RTN-001..003`, `RTQ-001`, `RTP-001..002` and four reused `RTD-043`, `RTD-044`, `RTD-084`, `RTR-010`. Linked from README and original 101-ID index.
+- [x] Validated 10 triage entries have 10 distinct IDs, all six new IDs appear exactly once as unchecked definitions in existing ID index, all previously numbered 101 entries retain exact IDs and checkbox status, reused RTD/RTR IDs exist, both index and README link target doc. [ ] PR CI/merge evidence pending.
 
 Out-of-scope: gameplay implementation, audio asset changes, PR #164/#186 reconciliation or deploy. Never treat a numbered task as complete on documentation evidence alone.
 
