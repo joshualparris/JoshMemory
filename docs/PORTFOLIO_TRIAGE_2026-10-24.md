@@ -2,6 +2,10 @@
 
 **Dated inventory:** 2026-10-24. **Coverage:** 233 distinct repositories found using the 188-entry [Repository Town snapshot](https://github.com/joshualparris/JoshMemory/blob/main/docs/repository-town.json) plus fresh GitHub discovery across the connected user/organisation searches (45 outside the original grid). Not a complete census of every unconnected GitHub account.
 
+## Numbered execution steps
+
+The unique child-task register is [PORTFOLIO_TRIAGE_TASK_STEPS_2026-10-25.csv](PORTFOLIO_TRIAGE_TASK_STEPS_2026-10-25.csv), with [step-by-step instructions](PORTFOLIO_TRIAGE_TASK_STEPS_2026-10-25.md). There are eight stable subtasks `TR-###.01` through `TR-###.08` for every review. **Next runnable task: TR-003.01**, not simply a vague instruction to "triage VoiceBank". Parent review IDs and town grid references remain unchanged. The 16 historical child IDs for completed parents TR-001 and TR-002 are reference-only, not retroactive claims of detailed acceptance.
+
 ## NEXT REPO FOR AGENT TRIAGE
 
 **`TR-003` / `RT-U032` — restricted, resolve in private registry.** The first two entries are already triaged for agent handoff: `TR-001` (web Whispering Wilds) and `TR-002` (Python Whispering Wilds). That does not mark their underlying coding work complete.
