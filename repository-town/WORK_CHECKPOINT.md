@@ -1,5 +1,16 @@
 # Repository Town — WORK CHECKPOINT
 
+## New outstanding-task ID triage — 25 October 2026
+
+Owner: ChatGPT; documentation-only branch `docs/town-next-action-triage-20261025`, board reservation on canonical main `ae10e95f7521b0395166f2fb6a1d2ac8cec61d3c`.
+
+- [x] Checked live `main` and existing `RTD-001`–`RTD-093`, `RT-01`–`RT-09`, `AUDIO-PPP.SS`, `RTR-001`–`RTR-016`, `RTL-001`–`RTL-005`, current PR #164 and PR #186.
+- [x] Identified pre-numbered acceptance for dialogue/audio and mobile building navigation; these identifiers remain unchanged.
+- [ ] Publish a strict dependency/priority queue for the five areas reported to Josh, with unique IDs assigned **only** where missing; link from master README and ID index.
+- [ ] Check ID uniqueness and checkbox integrity, merge docs after review/CI and record merged SHA.
+
+Out-of-scope: gameplay implementation, audio asset changes, PR #164/#186 reconciliation or deploy. Never treat a numbered task as complete on documentation evidence alone.
+
 ## VERIFIED COMPLETE — GitHub Pages live backup and N/S plot atlas (24 October 2026)
 
 **LIVE:** https://parris-tech-services.github.io/Repository-town/
