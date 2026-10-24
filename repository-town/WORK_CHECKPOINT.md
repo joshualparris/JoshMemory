@@ -1,5 +1,13 @@
 # Repository Town — WORK CHECKPOINT
 
+## RTN-001–018 — mobile NPC identity/collision and fallback release triage (25 October 2026)
+
+**Documentation/triage only.** Added [18 uniquely numbered, dependency-ordered tasks](docs/RTN_NPC_CROWD_FALLBACK_TRIAGE_2026-10-25.md) and a full cross-reference in [the master ID index](docs/UNNUMBERED_TODO_IDS_2026-10-24.md), linked from README. This preserves original RTD/RTR/RTL/RT/AUDIO IDs.
+
+**Next to implement: RTN-007.** The already tested `fix/town-distinct-npcs-and-indoor-crowds-20261024` candidate remains [PR #186](https://github.com/joshualparris/JoshMemory/pull/186), which GitHub reports as **unmerged with conflicts**. RTN-001–006 record source-level implementation/tests, not hosted deployment. The isolated sandbox passed `npm run build:release` at code SHA `ac0b8a106252b32c0f515f90044f3b4fcadf6049`; the later docs-only SHA does not constitute a new tested build. Do not call this live until RTN-012/016/017. Existing [Pages backup](https://parris-tech-services.github.io/Repository-town/) is working at an older approved source SHA and must not be overwritten as a quick QA host. See HOSTING policy for independent GitHub Pages, Render quota, Cloudflare authorization and separate-origin saved progress.
+
+**This checkpoint records IDs, not a completed fix, CI run, merge or new deployment.** Next agent: compare PR #186 and latest `main`, resolve conflicts surgically, protect concurrent work, then follow RTN-008–018.
+
 ## VERIFIED COMPLETE — GitHub Pages live backup and N/S plot atlas (24 October 2026)
 
 **LIVE:** https://parris-tech-services.github.io/Repository-town/
