@@ -4,6 +4,10 @@ A walkable 3D town of all 188 repositories in Josh's inventory (`docs/repository
 Every house is designed from its own repository: a written brief records the evidence that was
 inspected, the exterior, the floor plan, the furnishings and the exhibits you can use.
 
+## Physical N/S address registry and map
+
+The [readable physical plot atlas](src/address-map.html) uses the real game house inventory, town buildings, railway and farm fields. In a deployed build open `/address-map.html` or tap **Plot map**. Its 26 columns and 11 planning bands show **both** `N` and `S` for every column (e.g. `Z7-S` UpskillApp, `Z8-N` railway, `Z8-S` Farmhouse, `Z9-N` Macquarie Locksmith & Keys). Rows 9–11 are not asserted to be built streets. See [full physical land audit](docs/DIRECTIONAL_ADDRESS_AUDIT_2026-10-24.md). Legacy property keys and repository address links remain supported.
+
 ## NPC dialogue development roadmap
 
 See the [93-task Skyrim-inspired NPC dialogue checklist](docs/SKYRIM_NPC_DIALOGUE_IMPLEMENTATION_TODO.md) for character-specific branching, conditions, quest effects, per-NPC memory, ElevenLabs recording/caption reconciliation, accessibility, browser playtests and production release gates. Existing recorded dialogue remains the starting point; implementation tasks are not marked complete without evidence.
