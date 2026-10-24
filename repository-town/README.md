@@ -12,6 +12,8 @@ The [readable physical plot atlas](src/address-map.html) uses the real game hous
 
 See the [93-task Skyrim-inspired NPC dialogue checklist](docs/SKYRIM_NPC_DIALOGUE_IMPLEMENTATION_TODO.md) for character-specific branching, conditions, quest effects, per-NPC memory, ElevenLabs recording/caption reconciliation, accessibility, browser playtests and production release gates. Existing recorded dialogue remains the starting point; implementation tasks are not marked complete without evidence.
 
+**Start here for what to do next:** the [25 October prioritised, numbered task queue](docs/NEXT_ACTION_TRIAGE_2026-10-25.md) lists the exact next agent task, PR conflicts, all five remaining user-reported work areas, six new stable IDs and reused original IDs. Do not start competing fixes without checking `COORDINATION.md`.
+
 See also the [stable ID index for previously unnumbered open Town tasks](docs/UNNUMBERED_TODO_IDS_2026-10-24.md).
 
 ## Multi-floor tall buildings
