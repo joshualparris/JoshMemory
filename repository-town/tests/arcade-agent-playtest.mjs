@@ -129,6 +129,9 @@ async function testCard(title, index, position) {
       await page.waitForTimeout(180);
     }
     findings.evidence.final = await snapshot(frame);
+    const afterName = filename.replace(/\.png$/, '-after.png');
+    await page.screenshot({ path: path.join(screenshotDir, afterName), fullPage: false });
+    findings.evidence.after_screenshot = path.join('arcade-evidence', afterName).replaceAll('\\', '/');
     findings.playable = interactions.some(s => s.startsWith('Clicked ') || s.startsWith('Pressed '));
     findings.reached_ending_or_progressed =
       start.text !== findings.evidence.final.text || start.url !== findings.evidence.final.url
