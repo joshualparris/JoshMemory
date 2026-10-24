@@ -23,7 +23,8 @@
     "totalGridCells": 208,
     "gridCellsWithoutProjectHouse": 20,
     "workerHomes": 99,
-    "projectHousesNotAssignedWorker": 89
+    "projectHousesNotAssignedWorker": 89,
+    "governmentAppointedManager": 1
   },
   "namedStreetActors": [
     {
@@ -563,8 +564,8 @@
       "id": 27,
       "key": "worker:27",
       "name": "Errol",
-      "role": "student",
-      "workplace": "school",
+      "role": "general manager",
+      "workplace": "hall",
       "homeCoordinate": "G5",
       "rosterLayer": "original38"
     },
