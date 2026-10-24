@@ -11,7 +11,7 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
-- 2026-10-24 · ChatGPT — **IN PROGRESS: arcade AI/browser playtest automation** on `feat/arcade-autoplay-qa-20261024`. Scope exclusively `repository-town/tests/arcade-agent-playtest.mjs`, `repository-town/qa/`, docs and optional manual QA workflow; no changes to game engine, packed game binaries or NPC branches. Validate AA Game Adventure and Mysterious Depths variants; preserve Skyvern reference and report only observed evidence.
+- 2026-10-24 · ChatGPT — **MERGED (QA tooling only): arcade Skyvern/Playwright tester**, [PR #171](https://github.com/joshualparris/JoshMemory/pull/171), merge `db603aae`. Recorded Skyvern v2 workflow; no-account Playwright runner checks each exact-title edition, supports all games, captures runtime observations/screenshots, and produces JSON report. Manual GitHub Actions workflow and browserless contract are included. Four target index files/source-schema and JS syntax verified. Browser gameplay, balance assessment and manual dispatch NOT run. Vercel status on merge failed due project build-rate-limit, not a source compile failure; deployed arcade remains on older READY release. See `qa/README.md`, `WORK_CHECKPOINT.md`.
 
 
 
