@@ -46,3 +46,11 @@ Update this checkpoint at task start, after meaningful progress and before switc
 - Existing 233 review parents, private-repo redactions, task statuses, global parent IDs and unique local task IDs are preserved. 23 already-reviewed/historical rows moved to non-actionable reference at queue end; 2,640 remaining rows include known blocked/physical-device conditions.
 - Agent 2's conflicting RTN labels are corrected via canonical alias crosswalk in the Town ID registry; new `ARI-001/005/007/011/012/015/019` register missing report details only.
 - This is a dated priority snapshot, not a new execution result. Update each repo's canonical tracker and this checkpoint with actual PR, test and production evidence when tasks are completed.
+
+### Final merge verification — master 20-agent triage (25 October 2026)
+
+- **MERGED:** [PR #197](https://github.com/joshualparris/JoshMemory/pull/197), merge SHA `8a2f878aed1a65fe4035a396f25d525406d22272`.
+- Read back on canonical `main`: `docs/MASTER_20_AGENT_TRIAGE_2026-10-25.md`, `docs/MASTER_20_AGENT_EXECUTION_QUEUE_2026-10-25.csv`, `docs/MASTER_AGENT_REPORT_INTAKE_IDS_2026-10-25.md` and the corrected Town stable-ID registry.
+- Validation at merge: **2,663 total unique IDs**, **2,640 executable/conditional rows**, **23 reference-only rows**. Existing `RTN-001/002/003` now one authoritative checkbox meaning each; Agent 2 duplicates cross-referenced as historical aliases. Private repository identities remain redacted in the source public-safe `TR` registry and in this queue.
+- **NEXT global rank 00001:** `DCSC-GR-001` possible client API credential exposure investigation (**not a confirmed breach**), claim from current repo before editing. 20 agent report slots documented, six incomplete/blocked status summaries tracked as report-intake `ARI` rather than fabricated repairs.
+- **No implementation, auth change, API key rotation, deploy, provider usage, simulated gameplay, audio generation or real-handset test was undertaken by this consolidation.** Do not confuse a review-job task with resolution of its findings.
