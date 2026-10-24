@@ -1,0 +1,2366 @@
+{
+  "schemaVersion": 1,
+  "generatedFor": "RTD-003",
+  "source": "joshualparris/JoshMemory",
+  "sourceSnapshot": {
+    "namedNpcData": "336f792d79b075e28d45250bdfc0e453044e9eff",
+    "livingTown": "09cd8d48f3c3a14a18a35cd34de12c0093d2c702",
+    "repositoryInventory": "5697fb847befc676d19b308ef1202e65e7458533",
+    "residentIdentity": "d43da9fda02682ef301fa4f2ec3014854a6982e1",
+    "voicebank": "95a8d59004c849aaef984a81bc151bde5f12e7a0"
+  },
+  "counts": {
+    "namedStreetActors": 32,
+    "voicebankGame300Speakers": 10,
+    "scriptedQuizzes": 20,
+    "simulatedWorkers": 99,
+    "originalWorkersKeptStable": 38,
+    "additionalWorkers": 61,
+    "baseJobRows": 61,
+    "reliefWorkers": 30,
+    "securityWorkers": 8,
+    "houseResidentSlots": 188,
+    "totalGridCells": 208,
+    "gridCellsWithoutProjectHouse": 20,
+    "workerHomes": 99,
+    "projectHousesNotAssignedWorker": 89
+  },
+  "namedStreetActors": [
+    {
+      "key": "named:rowan",
+      "id": "rowan",
+      "name": "Rowan",
+      "title": "Town Guide",
+      "coordinate": "M4",
+      "voicedGame300": true,
+      "hasQuizChallenge": false
+    },
+    {
+      "key": "named:pip",
+      "id": "pip",
+      "name": "Pip",
+      "title": "Dice Goblin",
+      "coordinate": "M5",
+      "voicedGame300": true,
+      "hasQuizChallenge": false
+    },
+    {
+      "key": "named:circuit",
+      "id": "circuit",
+      "name": "Circuit",
+      "title": "Robot Mechanic",
+      "coordinate": "Y2",
+      "voicedGame300": true,
+      "hasQuizChallenge": false
+    },
+    {
+      "key": "named:wren",
+      "id": "wren",
+      "name": "Wren",
+      "title": "Wildlife Ranger",
+      "coordinate": "B2",
+      "voicedGame300": true,
+      "hasQuizChallenge": false
+    },
+    {
+      "key": "named:sol",
+      "id": "sol",
+      "name": "Sol",
+      "title": "Travelling Chef",
+      "coordinate": "M2",
+      "voicedGame300": true,
+      "hasQuizChallenge": false
+    },
+    {
+      "key": "named:sage",
+      "id": "sage",
+      "name": "Sage",
+      "title": "Library Sage",
+      "coordinate": "A2",
+      "voicedGame300": true,
+      "hasQuizChallenge": false
+    },
+    {
+      "key": "named:spark",
+      "id": "spark",
+      "name": "Spark",
+      "title": "Radio Inventor",
+      "coordinate": "L4",
+      "voicedGame300": true,
+      "hasQuizChallenge": false
+    },
+    {
+      "key": "named:lyra",
+      "id": "lyra",
+      "name": "Lyra",
+      "title": "Street Musician",
+      "coordinate": "J7",
+      "voicedGame300": true,
+      "hasQuizChallenge": false
+    },
+    {
+      "key": "named:nova",
+      "id": "nova",
+      "name": "Nova",
+      "title": "Star Navigator",
+      "coordinate": "C7",
+      "voicedGame300": true,
+      "hasQuizChallenge": false
+    },
+    {
+      "key": "named:kit",
+      "id": "kit",
+      "name": "Kit",
+      "title": "Repair Café Volunteer",
+      "coordinate": "V2",
+      "voicedGame300": true,
+      "hasQuizChallenge": false
+    },
+    {
+      "key": "named:ember",
+      "id": "ember",
+      "name": "Ember",
+      "title": "Arena Champion",
+      "coordinate": "F5",
+      "voicedGame300": false,
+      "hasQuizChallenge": false
+    },
+    {
+      "key": "named:vale",
+      "id": "vale",
+      "name": "Captain Vale",
+      "title": "Space Captain",
+      "coordinate": "Z1",
+      "voicedGame300": false,
+      "hasQuizChallenge": false
+    },
+    {
+      "key": "named:bramble",
+      "id": "bramble",
+      "name": "Bramble",
+      "title": "Walking Tree",
+      "coordinate": "H1",
+      "voicedGame300": false,
+      "hasQuizChallenge": true
+    },
+    {
+      "key": "named:echo",
+      "id": "echo",
+      "name": "Echo",
+      "title": "Friendly Ghost",
+      "coordinate": "Q3",
+      "voicedGame300": false,
+      "hasQuizChallenge": true
+    },
+    {
+      "key": "named:moss",
+      "id": "moss",
+      "name": "Moss",
+      "title": "Mushroom Keeper",
+      "coordinate": "H7",
+      "voicedGame300": false,
+      "hasQuizChallenge": true
+    },
+    {
+      "key": "named:byte",
+      "id": "byte",
+      "name": "Byte",
+      "title": "Glitch Sprite",
+      "coordinate": "J5",
+      "voicedGame300": false,
+      "hasQuizChallenge": true
+    },
+    {
+      "key": "named:tick",
+      "id": "tick",
+      "name": "Tick",
+      "title": "Clockwork Timekeeper",
+      "coordinate": "S3",
+      "voicedGame300": false,
+      "hasQuizChallenge": true
+    },
+    {
+      "key": "named:nimbus",
+      "id": "nimbus",
+      "name": "Nimbus",
+      "title": "Raincloud Poet",
+      "coordinate": "D6",
+      "voicedGame300": false,
+      "hasQuizChallenge": true
+    },
+    {
+      "key": "named:fizz",
+      "id": "fizz",
+      "name": "Fizz",
+      "title": "Potion Slime",
+      "coordinate": "W1",
+      "voicedGame300": false,
+      "hasQuizChallenge": true
+    },
+    {
+      "key": "named:coral",
+      "id": "coral",
+      "name": "Captain Coral",
+      "title": "Sea Dragon",
+      "coordinate": "P3",
+      "voicedGame300": false,
+      "hasQuizChallenge": true
+    },
+    {
+      "key": "named:quill",
+      "id": "quill",
+      "name": "Quill",
+      "title": "Talking Raven",
+      "coordinate": "A4",
+      "voicedGame300": false,
+      "hasQuizChallenge": true
+    },
+    {
+      "key": "named:orbit",
+      "id": "orbit",
+      "name": "Orbit",
+      "title": "Curious Alien",
+      "coordinate": "X1",
+      "voicedGame300": false,
+      "hasQuizChallenge": true
+    },
+    {
+      "key": "named:thistle",
+      "id": "thistle",
+      "name": "Thistle",
+      "title": "Fox Merchant",
+      "coordinate": "O4",
+      "voicedGame300": false,
+      "hasQuizChallenge": true
+    },
+    {
+      "key": "named:basil",
+      "id": "basil",
+      "name": "Basil",
+      "title": "Tea Witch",
+      "coordinate": "M6",
+      "voicedGame300": false,
+      "hasQuizChallenge": true
+    },
+    {
+      "key": "named:pebble",
+      "id": "pebble",
+      "name": "Pebble",
+      "title": "Stone Golem",
+      "coordinate": "G1",
+      "voicedGame300": false,
+      "hasQuizChallenge": true
+    },
+    {
+      "key": "named:zig",
+      "id": "zig",
+      "name": "Zig",
+      "title": "Robot Dog",
+      "coordinate": "L6",
+      "voicedGame300": false,
+      "hasQuizChallenge": true
+    },
+    {
+      "key": "named:pollen",
+      "id": "pollen",
+      "name": "Pollen",
+      "title": "Bee Engineer",
+      "coordinate": "N2",
+      "voicedGame300": false,
+      "hasQuizChallenge": true
+    },
+    {
+      "key": "named:lumen",
+      "id": "lumen",
+      "name": "Lumen",
+      "title": "Lantern Spirit",
+      "coordinate": "T4",
+      "voicedGame300": false,
+      "hasQuizChallenge": true
+    },
+    {
+      "key": "named:vesper",
+      "id": "vesper",
+      "name": "Vesper",
+      "title": "Night Owl",
+      "coordinate": "R6",
+      "voicedGame300": false,
+      "hasQuizChallenge": true
+    },
+    {
+      "key": "named:kestrel",
+      "id": "kestrel",
+      "name": "Kestrel",
+      "title": "Sky Pirate",
+      "coordinate": "F6",
+      "voicedGame300": false,
+      "hasQuizChallenge": true
+    },
+    {
+      "key": "named:drift",
+      "id": "drift",
+      "name": "Drift",
+      "title": "Sleepy Astronaut",
+      "coordinate": "U7",
+      "voicedGame300": false,
+      "hasQuizChallenge": true
+    },
+    {
+      "key": "named:tangle",
+      "id": "tangle",
+      "name": "Tangle",
+      "title": "Octopus Puzzle Master",
+      "coordinate": "T2",
+      "voicedGame300": false,
+      "hasQuizChallenge": true
+    }
+  ],
+  "livingTownWorkers": [
+    {
+      "id": 0,
+      "key": "worker:0",
+      "name": "Mabel",
+      "role": "farmer",
+      "workplace": "silo",
+      "homeCoordinate": "C1",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 1,
+      "key": "worker:1",
+      "name": "Arlo",
+      "role": "farmer",
+      "workplace": "garden",
+      "homeCoordinate": "G1",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 2,
+      "key": "worker:2",
+      "name": "Bea",
+      "role": "farmer",
+      "workplace": "orchard",
+      "homeCoordinate": "K1",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 3,
+      "key": "worker:3",
+      "name": "Cas",
+      "role": "dairy hand",
+      "workplace": "dairy",
+      "homeCoordinate": "O1",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 4,
+      "key": "worker:4",
+      "name": "Dot",
+      "role": "poultry keeper",
+      "workplace": "coop",
+      "homeCoordinate": "S1",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 5,
+      "key": "worker:5",
+      "name": "Ezra",
+      "role": "shearer",
+      "workplace": "sheep",
+      "homeCoordinate": "W1",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 6,
+      "key": "worker:6",
+      "name": "Flo",
+      "role": "miller",
+      "workplace": "mill",
+      "homeCoordinate": "A2",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 7,
+      "key": "worker:7",
+      "name": "Gus",
+      "role": "baker",
+      "workplace": "bakery",
+      "homeCoordinate": "E2",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 8,
+      "key": "worker:8",
+      "name": "Hattie",
+      "role": "baker",
+      "workplace": "bakery",
+      "homeCoordinate": "I2",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 9,
+      "key": "worker:9",
+      "name": "Ivo",
+      "role": "barista",
+      "workplace": "cafe",
+      "homeCoordinate": "M2",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 10,
+      "key": "worker:10",
+      "name": "June",
+      "role": "cook",
+      "workplace": "cafe",
+      "homeCoordinate": "Q2",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 11,
+      "key": "worker:11",
+      "name": "Kip",
+      "role": "grocer",
+      "workplace": "greengrocer",
+      "homeCoordinate": "U2",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 12,
+      "key": "worker:12",
+      "name": "Lou",
+      "role": "shopkeeper",
+      "workplace": "store",
+      "homeCoordinate": "Y2",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 13,
+      "key": "worker:13",
+      "name": "Merv",
+      "role": "butcher",
+      "workplace": "butcher",
+      "homeCoordinate": "C3",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 14,
+      "key": "worker:14",
+      "name": "Nora",
+      "role": "publican",
+      "workplace": "pub",
+      "homeCoordinate": "G3",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 15,
+      "key": "worker:15",
+      "name": "Ollie",
+      "role": "postie",
+      "workplace": "post",
+      "homeCoordinate": "K3",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 16,
+      "key": "worker:16",
+      "name": "Peg",
+      "role": "truck driver",
+      "workplace": "depot",
+      "homeCoordinate": "O3",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 17,
+      "key": "worker:17",
+      "name": "Rafe",
+      "role": "truck driver",
+      "workplace": "depot",
+      "homeCoordinate": "S3",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 18,
+      "key": "worker:18",
+      "name": "Sadie",
+      "role": "truck driver",
+      "workplace": "depot",
+      "homeCoordinate": "W3",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 19,
+      "key": "worker:19",
+      "name": "Theo",
+      "role": "teacher",
+      "workplace": "school",
+      "homeCoordinate": "A4",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 20,
+      "key": "worker:20",
+      "name": "Una",
+      "role": "nurse",
+      "workplace": "clinic",
+      "homeCoordinate": "E4",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 21,
+      "key": "worker:21",
+      "name": "Vern",
+      "role": "mayor",
+      "workplace": "hall",
+      "homeCoordinate": "I4",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 22,
+      "key": "worker:22",
+      "name": "Win",
+      "role": "station master",
+      "workplace": "depot",
+      "homeCoordinate": "M4",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 23,
+      "key": "worker:23",
+      "name": "Zara",
+      "role": "programmer",
+      "workplace": "home",
+      "homeCoordinate": "Q4",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 24,
+      "key": "worker:24",
+      "name": "Bluey",
+      "role": "programmer",
+      "workplace": "home",
+      "homeCoordinate": "U4",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 25,
+      "key": "worker:25",
+      "name": "Clem",
+      "role": "retired",
+      "workplace": "square",
+      "homeCoordinate": "Y4",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 26,
+      "key": "worker:26",
+      "name": "Dulcie",
+      "role": "student",
+      "workplace": "school",
+      "homeCoordinate": "C5",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 27,
+      "key": "worker:27",
+      "name": "Errol",
+      "role": "student",
+      "workplace": "school",
+      "homeCoordinate": "G5",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 28,
+      "key": "worker:28",
+      "name": "Fern",
+      "role": "artist",
+      "workplace": "square",
+      "homeCoordinate": "K5",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 29,
+      "key": "worker:29",
+      "name": "Gwen",
+      "role": "real estate agent",
+      "workplace": "realty",
+      "homeCoordinate": "O5",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 30,
+      "key": "worker:30",
+      "name": "Harlan",
+      "role": "soybean grower",
+      "workplace": "soyfarm",
+      "homeCoordinate": "S5",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 31,
+      "key": "worker:31",
+      "name": "Ida",
+      "role": "plant-drink technician",
+      "workplace": "soyplant",
+      "homeCoordinate": "W5",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 32,
+      "key": "worker:32",
+      "name": "Archie",
+      "role": "power operator",
+      "workplace": "power",
+      "homeCoordinate": "A6",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 33,
+      "key": "worker:33",
+      "name": "Bonnie",
+      "role": "water operator",
+      "workplace": "waterworks",
+      "homeCoordinate": "E6",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 34,
+      "key": "worker:34",
+      "name": "Cooper",
+      "role": "recycler",
+      "workplace": "recycling",
+      "homeCoordinate": "I6",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 35,
+      "key": "worker:35",
+      "name": "Daisy",
+      "role": "firefighter",
+      "workplace": "fire",
+      "homeCoordinate": "M6",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 36,
+      "key": "worker:36",
+      "name": "Elsie",
+      "role": "bank teller",
+      "workplace": "bank",
+      "homeCoordinate": "Q6",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 37,
+      "key": "worker:37",
+      "name": "Frankie",
+      "role": "foundry worker",
+      "workplace": "foundry",
+      "homeCoordinate": "U6",
+      "rosterLayer": "original38"
+    },
+    {
+      "id": 38,
+      "key": "worker:38",
+      "name": "Lena",
+      "role": "hotel receptionist",
+      "workplace": "hotel",
+      "homeCoordinate": "A1",
+      "rosterLayer": "baseline"
+    },
+    {
+      "id": 39,
+      "key": "worker:39",
+      "name": "Miles",
+      "role": "evening concierge",
+      "workplace": "hotel",
+      "homeCoordinate": "D1",
+      "rosterLayer": "baseline"
+    },
+    {
+      "id": 40,
+      "key": "worker:40",
+      "name": "Serena",
+      "role": "police desk officer",
+      "workplace": "police",
+      "homeCoordinate": "F1",
+      "rosterLayer": "baseline"
+    },
+    {
+      "id": 41,
+      "key": "worker:41",
+      "name": "Damon",
+      "role": "police duty officer",
+      "workplace": "police",
+      "homeCoordinate": "I1",
+      "rosterLayer": "baseline"
+    },
+    {
+      "id": 42,
+      "key": "worker:42",
+      "name": "Pippa",
+      "role": "ambulance dispatcher",
+      "workplace": "ambulance",
+      "homeCoordinate": "L1",
+      "rosterLayer": "baseline"
+    },
+    {
+      "id": 43,
+      "key": "worker:43",
+      "name": "Marcus",
+      "role": "court registry officer",
+      "workplace": "court",
+      "homeCoordinate": "N1",
+      "rosterLayer": "baseline"
+    },
+    {
+      "id": 44,
+      "key": "worker:44",
+      "name": "Talia",
+      "role": "legal receptionist",
+      "workplace": "solicitor",
+      "homeCoordinate": "Q1",
+      "rosterLayer": "baseline"
+    },
+    {
+      "id": 45,
+      "key": "worker:45",
+      "name": "Neve",
+      "role": "wastewater operator",
+      "workplace": "sewage",
+      "homeCoordinate": "T1",
+      "rosterLayer": "baseline"
+    },
+    {
+      "id": 46,
+      "key": "worker:46",
+      "name": "Owen",
+      "role": "weighbridge officer",
+      "workplace": "landfill",
+      "homeCoordinate": "V1",
+      "rosterLayer": "baseline"
+    },
+    {
+      "id": 47,
+      "key": "worker:47",
+      "name": "Priya",
+      "role": "property sales agent",
+      "workplace": "realestate",
+      "homeCoordinate": "Y1",
+      "rosterLayer": "baseline"
+    },
+    {
+      "id": 48,
+      "key": "worker:48",
+      "name": "Hugh",
+      "role": "vehicle sales consultant",
+      "workplace": "dealership",
+      "homeCoordinate": "B2",
+      "rosterLayer": "baseline"
+    },
+    {
+      "id": 49,
+      "key": "worker:49",
+      "name": "Tess",
+      "role": "service adviser",
+      "workplace": "mechanic",
+      "homeCoordinate": "D2",
+      "rosterLayer": "baseline"
+    },
+    {
+      "id": 50,
+      "key": "worker:50",
+      "name": "Kieran",
+      "role": "hardware attendant",
+      "workplace": "hardware",
+      "homeCoordinate": "G2",
+      "rosterLayer": "baseline"
+    },
+    {
+      "id": 51,
+      "key": "worker:51",
+      "name": "Ruby",
+      "role": "trade coordinator",
+      "workplace": "trades",
+      "homeCoordinate": "J2",
+      "rosterLayer": "baseline"
+    },
+    {
+      "id": 52,
+      "key": "worker:52",
+      "name": "Felix",
+      "role": "TAFE student-services officer",
+      "workplace": "tafe",
+      "homeCoordinate": "L2",
+      "rosterLayer": "baseline"
+    },
+    {
+      "id": 53,
+      "key": "worker:53",
+      "name": "Jules",
+      "role": "university librarian",
+      "workplace": "university",
+      "homeCoordinate": "O2",
+      "rosterLayer": "baseline"
+    },
+    {
+      "id": 54,
+      "key": "worker:54",
+      "name": "Maeve",
+      "role": "council customer-service officer",
+      "workplace": "hall",
+      "homeCoordinate": "R2",
+      "rosterLayer": "baseline"
+    },
+    {
+      "id": 55,
+      "key": "worker:55",
+      "name": "Aidan",
+      "role": "postal counter clerk",
+      "workplace": "post",
+      "homeCoordinate": "T2",
+      "rosterLayer": "baseline"
+    },
+    {
+      "id": 56,
+      "key": "worker:56",
+      "name": "Iris",
+      "role": "clinic receptionist",
+      "workplace": "clinic",
+      "homeCoordinate": "W2",
+      "rosterLayer": "baseline"
+    },
+    {
+      "id": 57,
+      "key": "worker:57",
+      "name": "Oscar",
+      "role": "school librarian",
+      "workplace": "school",
+      "homeCoordinate": "Z2",
+      "rosterLayer": "baseline"
+    },
+    {
+      "id": 58,
+      "key": "worker:58",
+      "name": "Rosa",
+      "role": "plant reception and safety officer",
+      "workplace": "soyplant",
+      "homeCoordinate": "B3",
+      "rosterLayer": "baseline"
+    },
+    {
+      "id": 59,
+      "key": "worker:59",
+      "name": "Nina",
+      "role": "afternoon barista",
+      "workplace": "cafe",
+      "homeCoordinate": "E3",
+      "rosterLayer": "baseline"
+    },
+    {
+      "id": 60,
+      "key": "worker:60",
+      "name": "Mina",
+      "role": "afternoon cashier",
+      "workplace": "store",
+      "homeCoordinate": "H3",
+      "rosterLayer": "baseline"
+    },
+    {
+      "id": 61,
+      "key": "worker:61",
+      "name": "Amber",
+      "role": "produce sales assistant",
+      "workplace": "greengrocer",
+      "homeCoordinate": "J3",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 62,
+      "key": "worker:62",
+      "name": "Benji",
+      "role": "qualified butcher",
+      "workplace": "butcher",
+      "homeCoordinate": "M3",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 63,
+      "key": "worker:63",
+      "name": "Celia",
+      "role": "bar attendant",
+      "workplace": "pub",
+      "homeCoordinate": "P3",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 64,
+      "key": "worker:64",
+      "name": "Dev",
+      "role": "milling production assistant",
+      "workplace": "mill",
+      "homeCoordinate": "R3",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 65,
+      "key": "worker:65",
+      "name": "Emmett",
+      "role": "livestock stationhand",
+      "workplace": "sheep",
+      "homeCoordinate": "U3",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 66,
+      "key": "worker:66",
+      "name": "Fiona",
+      "role": "dairy shed operator",
+      "workplace": "dairy",
+      "homeCoordinate": "X3",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 67,
+      "key": "worker:67",
+      "name": "Georgia",
+      "role": "poultry shed attendant",
+      "workplace": "coop",
+      "homeCoordinate": "Z3",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 68,
+      "key": "worker:68",
+      "name": "Hazel",
+      "role": "orchard hand",
+      "workplace": "orchard",
+      "homeCoordinate": "C4",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 69,
+      "key": "worker:69",
+      "name": "Indi",
+      "role": "garden produce assistant",
+      "workplace": "garden",
+      "homeCoordinate": "F4",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 70,
+      "key": "worker:70",
+      "name": "Jonah",
+      "role": "grain handling operator",
+      "workplace": "silo",
+      "homeCoordinate": "H4",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 71,
+      "key": "worker:71",
+      "name": "Kara",
+      "role": "farm-gate visitor liaison",
+      "workplace": "soyfarm",
+      "homeCoordinate": "K4",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 72,
+      "key": "worker:72",
+      "name": "Lachlan",
+      "role": "bank customer-service officer",
+      "workplace": "bank",
+      "homeCoordinate": "N4",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 73,
+      "key": "worker:73",
+      "name": "Molly",
+      "role": "power station visitor and safety officer",
+      "workplace": "power",
+      "homeCoordinate": "P4",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 74,
+      "key": "worker:74",
+      "name": "Nathan",
+      "role": "water treatment duty officer",
+      "workplace": "waterworks",
+      "homeCoordinate": "S4",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 75,
+      "key": "worker:75",
+      "name": "Olivia",
+      "role": "wastewater safety officer",
+      "workplace": "sewage",
+      "homeCoordinate": "V4",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 76,
+      "key": "worker:76",
+      "name": "Parker",
+      "role": "property reception agent",
+      "workplace": "realty",
+      "homeCoordinate": "X4",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 77,
+      "key": "worker:77",
+      "name": "Quinn",
+      "role": "fire station visitor officer",
+      "workplace": "fire",
+      "homeCoordinate": "A5",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 78,
+      "key": "worker:78",
+      "name": "Rowan",
+      "role": "ambulance station liaison",
+      "workplace": "ambulance",
+      "homeCoordinate": "D5",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 79,
+      "key": "worker:79",
+      "name": "Sienna",
+      "role": "recycling site safety officer",
+      "workplace": "recycling",
+      "homeCoordinate": "F5",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 80,
+      "key": "worker:80",
+      "name": "Tobias",
+      "role": "waste weighbridge attendant",
+      "workplace": "landfill",
+      "homeCoordinate": "I5",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 81,
+      "key": "worker:81",
+      "name": "Ursula",
+      "role": "foundry safety supervisor",
+      "workplace": "foundry",
+      "homeCoordinate": "L5",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 82,
+      "key": "worker:82",
+      "name": "Violet",
+      "role": "licensed estate agent",
+      "workplace": "realestate",
+      "homeCoordinate": "N5",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 83,
+      "key": "worker:83",
+      "name": "Willow",
+      "role": "vehicle sales assistant",
+      "workplace": "dealership",
+      "homeCoordinate": "Q5",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 84,
+      "key": "worker:84",
+      "name": "Xavier",
+      "role": "service reception coordinator",
+      "workplace": "mechanic",
+      "homeCoordinate": "T5",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 85,
+      "key": "worker:85",
+      "name": "Yasmin",
+      "role": "court registry deputy",
+      "workplace": "court",
+      "homeCoordinate": "V5",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 86,
+      "key": "worker:86",
+      "name": "Zeke",
+      "role": "legal receptionist",
+      "workplace": "solicitor",
+      "homeCoordinate": "Y5",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 87,
+      "key": "worker:87",
+      "name": "Adelaide",
+      "role": "hardware counter attendant",
+      "workplace": "hardware",
+      "homeCoordinate": "B6",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 88,
+      "key": "worker:88",
+      "name": "Bram",
+      "role": "trade dispatch coordinator",
+      "workplace": "trades",
+      "homeCoordinate": "D6",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 89,
+      "key": "worker:89",
+      "name": "Clara",
+      "role": "TAFE student-services adviser",
+      "workplace": "tafe",
+      "homeCoordinate": "G6",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 90,
+      "key": "worker:90",
+      "name": "Dario",
+      "role": "university student services officer",
+      "workplace": "university",
+      "homeCoordinate": "J6",
+      "rosterLayer": "relief"
+    },
+    {
+      "id": 91,
+      "key": "worker:91",
+      "name": "Eamon",
+      "role": "security dispatcher",
+      "workplace": "securityhq",
+      "homeCoordinate": "L6",
+      "rosterLayer": "security"
+    },
+    {
+      "id": 92,
+      "key": "worker:92",
+      "name": "Jett",
+      "role": "security duty supervisor",
+      "workplace": "securityhq",
+      "homeCoordinate": "O6",
+      "rosterLayer": "security"
+    },
+    {
+      "id": 93,
+      "key": "worker:93",
+      "name": "Leila",
+      "role": "security guard",
+      "workplace": "securityhq",
+      "homeCoordinate": "R6",
+      "rosterLayer": "security"
+    },
+    {
+      "id": 94,
+      "key": "worker:94",
+      "name": "Nadine",
+      "role": "security guard",
+      "workplace": "securityhq",
+      "homeCoordinate": "T6",
+      "rosterLayer": "security"
+    },
+    {
+      "id": 95,
+      "key": "worker:95",
+      "name": "Mack",
+      "role": "security receptionist",
+      "workplace": "securityoffice",
+      "homeCoordinate": "W6",
+      "rosterLayer": "security"
+    },
+    {
+      "id": 96,
+      "key": "worker:96",
+      "name": "Ronan",
+      "role": "security office relief",
+      "workplace": "securityoffice",
+      "homeCoordinate": "Y6",
+      "rosterLayer": "security"
+    },
+    {
+      "id": 97,
+      "key": "worker:97",
+      "name": "Taryn",
+      "role": "qualified locksmith",
+      "workplace": "locksmith",
+      "homeCoordinate": "A7",
+      "rosterLayer": "security"
+    },
+    {
+      "id": 98,
+      "key": "worker:98",
+      "name": "Yvette",
+      "role": "locksmith apprentice",
+      "workplace": "locksmith",
+      "homeCoordinate": "C7",
+      "rosterLayer": "security"
+    }
+  ],
+  "projectHouseResidentSlots": [
+    {
+      "key": "resident:A1",
+      "coordinate": "A1",
+      "name": "Ada Anderson",
+      "assignedWorkerId": 38
+    },
+    {
+      "key": "resident:B1",
+      "coordinate": "B1",
+      "name": "Bram Dawson",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:C1",
+      "coordinate": "C1",
+      "name": "Cleo Graham",
+      "assignedWorkerId": 0
+    },
+    {
+      "key": "resident:D1",
+      "coordinate": "D1",
+      "name": "Dorian Jones",
+      "assignedWorkerId": 39
+    },
+    {
+      "key": "resident:E1",
+      "coordinate": "E1",
+      "name": "Edie Mitchell",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:F1",
+      "coordinate": "F1",
+      "name": "Finn Parker",
+      "assignedWorkerId": 40
+    },
+    {
+      "key": "resident:G1",
+      "coordinate": "G1",
+      "name": "Greta Taylor",
+      "assignedWorkerId": 1
+    },
+    {
+      "key": "resident:H1",
+      "coordinate": "H1",
+      "name": "Hugo Walker",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:I1",
+      "coordinate": "I1",
+      "name": "Iris Burke",
+      "assignedWorkerId": 41
+    },
+    {
+      "key": "resident:J1",
+      "coordinate": "J1",
+      "name": "Jasper Foster",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:K1",
+      "coordinate": "K1",
+      "name": "Kit McKenzie",
+      "assignedWorkerId": 2
+    },
+    {
+      "key": "resident:L1",
+      "coordinate": "L1",
+      "name": "Lena Clarke",
+      "assignedWorkerId": 42
+    },
+    {
+      "key": "resident:M1",
+      "coordinate": "M1",
+      "name": "Milo Fletcher",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:N1",
+      "coordinate": "N1",
+      "name": "Nell Irwin",
+      "assignedWorkerId": 43
+    },
+    {
+      "key": "resident:O1",
+      "coordinate": "O1",
+      "name": "Otis Lawson",
+      "assignedWorkerId": 3
+    },
+    {
+      "key": "resident:P1",
+      "coordinate": "P1",
+      "name": "Pip Owen",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:Q1",
+      "coordinate": "Q1",
+      "name": "Quinn Saunders",
+      "assignedWorkerId": 44
+    },
+    {
+      "key": "resident:R1",
+      "coordinate": "R1",
+      "name": "Rosa Vaughan",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:S1",
+      "coordinate": "S1",
+      "name": "Sol Abbott",
+      "assignedWorkerId": 4
+    },
+    {
+      "key": "resident:T1",
+      "coordinate": "T1",
+      "name": "Tess Dean",
+      "assignedWorkerId": 45
+    },
+    {
+      "key": "resident:U1",
+      "coordinate": "U1",
+      "name": "Uma Hughes",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:V1",
+      "coordinate": "V1",
+      "name": "Vic Bennett",
+      "assignedWorkerId": 46
+    },
+    {
+      "key": "resident:W1",
+      "coordinate": "W1",
+      "name": "Wren Ellis",
+      "assignedWorkerId": 5
+    },
+    {
+      "key": "resident:X1",
+      "coordinate": "X1",
+      "name": "Xavi Harris",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:Y1",
+      "coordinate": "Y1",
+      "name": "Yara Kelly",
+      "assignedWorkerId": 47
+    },
+    {
+      "key": "resident:Z1",
+      "coordinate": "Z1",
+      "name": "Zed Nolan",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:A2",
+      "coordinate": "A2",
+      "name": "Hugo Clarke",
+      "assignedWorkerId": 6
+    },
+    {
+      "key": "resident:B2",
+      "coordinate": "B2",
+      "name": "Iris Fletcher",
+      "assignedWorkerId": 48
+    },
+    {
+      "key": "resident:C2",
+      "coordinate": "C2",
+      "name": "Jasper Irwin",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:D2",
+      "coordinate": "D2",
+      "name": "Kit Lawson",
+      "assignedWorkerId": 49
+    },
+    {
+      "key": "resident:E2",
+      "coordinate": "E2",
+      "name": "Lena Owen",
+      "assignedWorkerId": 7
+    },
+    {
+      "key": "resident:F2",
+      "coordinate": "F2",
+      "name": "Milo Saunders",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:G2",
+      "coordinate": "G2",
+      "name": "Nell Vaughan",
+      "assignedWorkerId": 50
+    },
+    {
+      "key": "resident:H2",
+      "coordinate": "H2",
+      "name": "Otis Abbott",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:I2",
+      "coordinate": "I2",
+      "name": "Pip Dean",
+      "assignedWorkerId": 8
+    },
+    {
+      "key": "resident:J2",
+      "coordinate": "J2",
+      "name": "Quinn Hughes",
+      "assignedWorkerId": 51
+    },
+    {
+      "key": "resident:K2",
+      "coordinate": "K2",
+      "name": "Rosa Bennett",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:L2",
+      "coordinate": "L2",
+      "name": "Sol Ellis",
+      "assignedWorkerId": 52
+    },
+    {
+      "key": "resident:M2",
+      "coordinate": "M2",
+      "name": "Tess Harris",
+      "assignedWorkerId": 9
+    },
+    {
+      "key": "resident:N2",
+      "coordinate": "N2",
+      "name": "Uma Kelly",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:O2",
+      "coordinate": "O2",
+      "name": "Vic Nolan",
+      "assignedWorkerId": 53
+    },
+    {
+      "key": "resident:P2",
+      "coordinate": "P2",
+      "name": "Wren Reid",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:Q2",
+      "coordinate": "Q2",
+      "name": "Xavi Underwood",
+      "assignedWorkerId": 10
+    },
+    {
+      "key": "resident:R2",
+      "coordinate": "R2",
+      "name": "Yara Young",
+      "assignedWorkerId": 54
+    },
+    {
+      "key": "resident:S2",
+      "coordinate": "S2",
+      "name": "Zed Campbell",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:T2",
+      "coordinate": "T2",
+      "name": "Ada Grant",
+      "assignedWorkerId": 55
+    },
+    {
+      "key": "resident:U2",
+      "coordinate": "U2",
+      "name": "Bram Anderson",
+      "assignedWorkerId": 11
+    },
+    {
+      "key": "resident:V2",
+      "coordinate": "V2",
+      "name": "Cleo Dawson",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:W2",
+      "coordinate": "W2",
+      "name": "Dorian Graham",
+      "assignedWorkerId": 56
+    },
+    {
+      "key": "resident:X2",
+      "coordinate": "X2",
+      "name": "Edie Jones",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:Y2",
+      "coordinate": "Y2",
+      "name": "Finn Mitchell",
+      "assignedWorkerId": 12
+    },
+    {
+      "key": "resident:Z2",
+      "coordinate": "Z2",
+      "name": "Greta Parker",
+      "assignedWorkerId": 57
+    },
+    {
+      "key": "resident:A3",
+      "coordinate": "A3",
+      "name": "Otis Ellis",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:B3",
+      "coordinate": "B3",
+      "name": "Pip Harris",
+      "assignedWorkerId": 58
+    },
+    {
+      "key": "resident:C3",
+      "coordinate": "C3",
+      "name": "Quinn Kelly",
+      "assignedWorkerId": 13
+    },
+    {
+      "key": "resident:D3",
+      "coordinate": "D3",
+      "name": "Rosa Nolan",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:E3",
+      "coordinate": "E3",
+      "name": "Sol Reid",
+      "assignedWorkerId": 59
+    },
+    {
+      "key": "resident:F3",
+      "coordinate": "F3",
+      "name": "Tess Underwood",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:G3",
+      "coordinate": "G3",
+      "name": "Uma Young",
+      "assignedWorkerId": 14
+    },
+    {
+      "key": "resident:H3",
+      "coordinate": "H3",
+      "name": "Vic Campbell",
+      "assignedWorkerId": 60
+    },
+    {
+      "key": "resident:I3",
+      "coordinate": "I3",
+      "name": "Wren Grant",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:J3",
+      "coordinate": "J3",
+      "name": "Xavi Anderson",
+      "assignedWorkerId": 61
+    },
+    {
+      "key": "resident:K3",
+      "coordinate": "K3",
+      "name": "Yara Dawson",
+      "assignedWorkerId": 15
+    },
+    {
+      "key": "resident:L3",
+      "coordinate": "L3",
+      "name": "Zed Graham",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:M3",
+      "coordinate": "M3",
+      "name": "Ada Jones",
+      "assignedWorkerId": 62
+    },
+    {
+      "key": "resident:N3",
+      "coordinate": "N3",
+      "name": "Bram Mitchell",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:O3",
+      "coordinate": "O3",
+      "name": "Cleo Parker",
+      "assignedWorkerId": 16
+    },
+    {
+      "key": "resident:P3",
+      "coordinate": "P3",
+      "name": "Dorian Taylor",
+      "assignedWorkerId": 63
+    },
+    {
+      "key": "resident:Q3",
+      "coordinate": "Q3",
+      "name": "Edie Walker",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:R3",
+      "coordinate": "R3",
+      "name": "Finn Burke",
+      "assignedWorkerId": 64
+    },
+    {
+      "key": "resident:S3",
+      "coordinate": "S3",
+      "name": "Greta Foster",
+      "assignedWorkerId": 17
+    },
+    {
+      "key": "resident:T3",
+      "coordinate": "T3",
+      "name": "Hugo McKenzie",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:U3",
+      "coordinate": "U3",
+      "name": "Iris Clarke",
+      "assignedWorkerId": 65
+    },
+    {
+      "key": "resident:V3",
+      "coordinate": "V3",
+      "name": "Jasper Fletcher",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:W3",
+      "coordinate": "W3",
+      "name": "Kit Irwin",
+      "assignedWorkerId": 18
+    },
+    {
+      "key": "resident:X3",
+      "coordinate": "X3",
+      "name": "Lena Lawson",
+      "assignedWorkerId": 66
+    },
+    {
+      "key": "resident:Y3",
+      "coordinate": "Y3",
+      "name": "Milo Owen",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:Z3",
+      "coordinate": "Z3",
+      "name": "Nell Saunders",
+      "assignedWorkerId": 67
+    },
+    {
+      "key": "resident:A4",
+      "coordinate": "A4",
+      "name": "Vic Graham",
+      "assignedWorkerId": 19
+    },
+    {
+      "key": "resident:B4",
+      "coordinate": "B4",
+      "name": "Wren Jones",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:C4",
+      "coordinate": "C4",
+      "name": "Xavi Mitchell",
+      "assignedWorkerId": 68
+    },
+    {
+      "key": "resident:D4",
+      "coordinate": "D4",
+      "name": "Yara Parker",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:E4",
+      "coordinate": "E4",
+      "name": "Zed Taylor",
+      "assignedWorkerId": 20
+    },
+    {
+      "key": "resident:F4",
+      "coordinate": "F4",
+      "name": "Ada Walker",
+      "assignedWorkerId": 69
+    },
+    {
+      "key": "resident:G4",
+      "coordinate": "G4",
+      "name": "Bram Burke",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:H4",
+      "coordinate": "H4",
+      "name": "Cleo Foster",
+      "assignedWorkerId": 70
+    },
+    {
+      "key": "resident:I4",
+      "coordinate": "I4",
+      "name": "Dorian McKenzie",
+      "assignedWorkerId": 21
+    },
+    {
+      "key": "resident:J4",
+      "coordinate": "J4",
+      "name": "Edie Clarke",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:K4",
+      "coordinate": "K4",
+      "name": "Finn Fletcher",
+      "assignedWorkerId": 71
+    },
+    {
+      "key": "resident:L4",
+      "coordinate": "L4",
+      "name": "Greta Irwin",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:M4",
+      "coordinate": "M4",
+      "name": "Hugo Lawson",
+      "assignedWorkerId": 22
+    },
+    {
+      "key": "resident:N4",
+      "coordinate": "N4",
+      "name": "Iris Owen",
+      "assignedWorkerId": 72
+    },
+    {
+      "key": "resident:O4",
+      "coordinate": "O4",
+      "name": "Jasper Saunders",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:P4",
+      "coordinate": "P4",
+      "name": "Kit Vaughan",
+      "assignedWorkerId": 73
+    },
+    {
+      "key": "resident:Q4",
+      "coordinate": "Q4",
+      "name": "Lena Abbott",
+      "assignedWorkerId": 23
+    },
+    {
+      "key": "resident:R4",
+      "coordinate": "R4",
+      "name": "Milo Dean",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:S4",
+      "coordinate": "S4",
+      "name": "Nell Hughes",
+      "assignedWorkerId": 74
+    },
+    {
+      "key": "resident:T4",
+      "coordinate": "T4",
+      "name": "Otis Bennett",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:U4",
+      "coordinate": "U4",
+      "name": "Pip Ellis",
+      "assignedWorkerId": 24
+    },
+    {
+      "key": "resident:V4",
+      "coordinate": "V4",
+      "name": "Quinn Harris",
+      "assignedWorkerId": 75
+    },
+    {
+      "key": "resident:W4",
+      "coordinate": "W4",
+      "name": "Rosa Kelly",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:X4",
+      "coordinate": "X4",
+      "name": "Sol Nolan",
+      "assignedWorkerId": 76
+    },
+    {
+      "key": "resident:Y4",
+      "coordinate": "Y4",
+      "name": "Tess Reid",
+      "assignedWorkerId": 25
+    },
+    {
+      "key": "resident:Z4",
+      "coordinate": "Z4",
+      "name": "Uma Underwood",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:A5",
+      "coordinate": "A5",
+      "name": "Cleo Irwin",
+      "assignedWorkerId": 77
+    },
+    {
+      "key": "resident:B5",
+      "coordinate": "B5",
+      "name": "Dorian Lawson",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:C5",
+      "coordinate": "C5",
+      "name": "Edie Owen",
+      "assignedWorkerId": 26
+    },
+    {
+      "key": "resident:D5",
+      "coordinate": "D5",
+      "name": "Finn Saunders",
+      "assignedWorkerId": 78
+    },
+    {
+      "key": "resident:E5",
+      "coordinate": "E5",
+      "name": "Greta Vaughan",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:F5",
+      "coordinate": "F5",
+      "name": "Hugo Abbott",
+      "assignedWorkerId": 79
+    },
+    {
+      "key": "resident:G5",
+      "coordinate": "G5",
+      "name": "Iris Dean",
+      "assignedWorkerId": 27
+    },
+    {
+      "key": "resident:H5",
+      "coordinate": "H5",
+      "name": "Jasper Hughes",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:I5",
+      "coordinate": "I5",
+      "name": "Kit Bennett",
+      "assignedWorkerId": 80
+    },
+    {
+      "key": "resident:J5",
+      "coordinate": "J5",
+      "name": "Lena Ellis",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:K5",
+      "coordinate": "K5",
+      "name": "Milo Harris",
+      "assignedWorkerId": 28
+    },
+    {
+      "key": "resident:L5",
+      "coordinate": "L5",
+      "name": "Nell Kelly",
+      "assignedWorkerId": 81
+    },
+    {
+      "key": "resident:M5",
+      "coordinate": "M5",
+      "name": "Otis Nolan",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:N5",
+      "coordinate": "N5",
+      "name": "Pip Reid",
+      "assignedWorkerId": 82
+    },
+    {
+      "key": "resident:O5",
+      "coordinate": "O5",
+      "name": "Quinn Underwood",
+      "assignedWorkerId": 29
+    },
+    {
+      "key": "resident:P5",
+      "coordinate": "P5",
+      "name": "Rosa Young",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:Q5",
+      "coordinate": "Q5",
+      "name": "Sol Campbell",
+      "assignedWorkerId": 83
+    },
+    {
+      "key": "resident:R5",
+      "coordinate": "R5",
+      "name": "Tess Grant",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:S5",
+      "coordinate": "S5",
+      "name": "Uma Anderson",
+      "assignedWorkerId": 30
+    },
+    {
+      "key": "resident:T5",
+      "coordinate": "T5",
+      "name": "Vic Dawson",
+      "assignedWorkerId": 84
+    },
+    {
+      "key": "resident:U5",
+      "coordinate": "U5",
+      "name": "Wren Graham",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:V5",
+      "coordinate": "V5",
+      "name": "Xavi Jones",
+      "assignedWorkerId": 85
+    },
+    {
+      "key": "resident:W5",
+      "coordinate": "W5",
+      "name": "Yara Mitchell",
+      "assignedWorkerId": 31
+    },
+    {
+      "key": "resident:X5",
+      "coordinate": "X5",
+      "name": "Zed Parker",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:Y5",
+      "coordinate": "Y5",
+      "name": "Ada Taylor",
+      "assignedWorkerId": 86
+    },
+    {
+      "key": "resident:Z5",
+      "coordinate": "Z5",
+      "name": "Bram Walker",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:A6",
+      "coordinate": "A6",
+      "name": "Jasper Kelly",
+      "assignedWorkerId": 32
+    },
+    {
+      "key": "resident:B6",
+      "coordinate": "B6",
+      "name": "Kit Nolan",
+      "assignedWorkerId": 87
+    },
+    {
+      "key": "resident:C6",
+      "coordinate": "C6",
+      "name": "Lena Reid",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:D6",
+      "coordinate": "D6",
+      "name": "Milo Underwood",
+      "assignedWorkerId": 88
+    },
+    {
+      "key": "resident:E6",
+      "coordinate": "E6",
+      "name": "Nell Young",
+      "assignedWorkerId": 33
+    },
+    {
+      "key": "resident:F6",
+      "coordinate": "F6",
+      "name": "Otis Campbell",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:G6",
+      "coordinate": "G6",
+      "name": "Pip Grant",
+      "assignedWorkerId": 89
+    },
+    {
+      "key": "resident:H6",
+      "coordinate": "H6",
+      "name": "Quinn Anderson",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:I6",
+      "coordinate": "I6",
+      "name": "Rosa Dawson",
+      "assignedWorkerId": 34
+    },
+    {
+      "key": "resident:J6",
+      "coordinate": "J6",
+      "name": "Sol Graham",
+      "assignedWorkerId": 90
+    },
+    {
+      "key": "resident:K6",
+      "coordinate": "K6",
+      "name": "Tess Jones",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:L6",
+      "coordinate": "L6",
+      "name": "Uma Mitchell",
+      "assignedWorkerId": 91
+    },
+    {
+      "key": "resident:M6",
+      "coordinate": "M6",
+      "name": "Vic Parker",
+      "assignedWorkerId": 35
+    },
+    {
+      "key": "resident:N6",
+      "coordinate": "N6",
+      "name": "Wren Taylor",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:O6",
+      "coordinate": "O6",
+      "name": "Xavi Walker",
+      "assignedWorkerId": 92
+    },
+    {
+      "key": "resident:P6",
+      "coordinate": "P6",
+      "name": "Yara Burke",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:Q6",
+      "coordinate": "Q6",
+      "name": "Zed Foster",
+      "assignedWorkerId": 36
+    },
+    {
+      "key": "resident:R6",
+      "coordinate": "R6",
+      "name": "Ada McKenzie",
+      "assignedWorkerId": 93
+    },
+    {
+      "key": "resident:S6",
+      "coordinate": "S6",
+      "name": "Bram Clarke",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:T6",
+      "coordinate": "T6",
+      "name": "Cleo Fletcher",
+      "assignedWorkerId": 94
+    },
+    {
+      "key": "resident:U6",
+      "coordinate": "U6",
+      "name": "Dorian Irwin",
+      "assignedWorkerId": 37
+    },
+    {
+      "key": "resident:V6",
+      "coordinate": "V6",
+      "name": "Edie Lawson",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:W6",
+      "coordinate": "W6",
+      "name": "Finn Owen",
+      "assignedWorkerId": 95
+    },
+    {
+      "key": "resident:X6",
+      "coordinate": "X6",
+      "name": "Greta Saunders",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:Y6",
+      "coordinate": "Y6",
+      "name": "Hugo Vaughan",
+      "assignedWorkerId": 96
+    },
+    {
+      "key": "resident:Z6",
+      "coordinate": "Z6",
+      "name": "Iris Abbott",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:A7",
+      "coordinate": "A7",
+      "name": "Quinn Mitchell",
+      "assignedWorkerId": 97
+    },
+    {
+      "key": "resident:B7",
+      "coordinate": "B7",
+      "name": "Rosa Parker",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:C7",
+      "coordinate": "C7",
+      "name": "Sol Taylor",
+      "assignedWorkerId": 98
+    },
+    {
+      "key": "resident:D7",
+      "coordinate": "D7",
+      "name": "Tess Walker",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:E7",
+      "coordinate": "E7",
+      "name": "Uma Burke",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:F7",
+      "coordinate": "F7",
+      "name": "Vic Foster",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:G7",
+      "coordinate": "G7",
+      "name": "Wren McKenzie",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:H7",
+      "coordinate": "H7",
+      "name": "Xavi Clarke",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:I7",
+      "coordinate": "I7",
+      "name": "Yara Fletcher",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:J7",
+      "coordinate": "J7",
+      "name": "Zed Irwin",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:K7",
+      "coordinate": "K7",
+      "name": "Ada Lawson",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:L7",
+      "coordinate": "L7",
+      "name": "Bram Owen",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:M7",
+      "coordinate": "M7",
+      "name": "Cleo Saunders",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:N7",
+      "coordinate": "N7",
+      "name": "Dorian Vaughan",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:O7",
+      "coordinate": "O7",
+      "name": "Edie Abbott",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:P7",
+      "coordinate": "P7",
+      "name": "Finn Dean",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:Q7",
+      "coordinate": "Q7",
+      "name": "Greta Hughes",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:R7",
+      "coordinate": "R7",
+      "name": "Hugo Bennett",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:S7",
+      "coordinate": "S7",
+      "name": "Iris Ellis",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:T7",
+      "coordinate": "T7",
+      "name": "Jasper Harris",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:U7",
+      "coordinate": "U7",
+      "name": "Kit Kelly",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:V7",
+      "coordinate": "V7",
+      "name": "Lena Nolan",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:W7",
+      "coordinate": "W7",
+      "name": "Milo Reid",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:X7",
+      "coordinate": "X7",
+      "name": "Nell Underwood",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:Y7",
+      "coordinate": "Y7",
+      "name": "Otis Young",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:Z7",
+      "coordinate": "Z7",
+      "name": "Pip Campbell",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:A8",
+      "coordinate": "A8",
+      "name": "Xavi Owen",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:B8",
+      "coordinate": "B8",
+      "name": "Yara Saunders",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:C8",
+      "coordinate": "C8",
+      "name": "Zed Vaughan",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:D8",
+      "coordinate": "D8",
+      "name": "Ada Abbott",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:E8",
+      "coordinate": "E8",
+      "name": "Bram Dean",
+      "assignedWorkerId": null
+    },
+    {
+      "key": "resident:F8",
+      "coordinate": "F8",
+      "name": "Cleo Hughes",
+      "assignedWorkerId": null
+    }
+  ],
+  "emptyGridCells": [
+    "G8",
+    "H8",
+    "I8",
+    "J8",
+    "K8",
+    "L8",
+    "M8",
+    "N8",
+    "O8",
+    "P8",
+    "Q8",
+    "R8",
+    "S8",
+    "T8",
+    "U8",
+    "V8",
+    "W8",
+    "X8",
+    "Y8",
+    "Z8"
+  ],
+  "displayNameOverlapBetweenStreetCastAndWorkers": [
+    "Rowan"
+  ]
+}
