@@ -1,5 +1,7 @@
 # Repo Town — next-action triage and stable task IDs
 
+> **SUPERSEDED ID WARNING (25 October 2026):** The three `RTN-001/002/003` task meanings and "start at RTN-002" order below came from Agent 2 and **collide with separately published canonical RTN-001..018 tasks**. They are **historical labels only** and must not be used as independent work. Canonical meanings/states are defined by [RTN 18-task tracker](RTN_NPC_CROWD_FALLBACK_TRIAGE_2026-10-25.md) and [central duplicate-ID crosswalk](UNNUMBERED_TODO_IDS_2026-10-24.md). **For the NPC crowd workstream, start at RTN-007** (reconcile PR #186), then the open RTN tasks in the [20-agent master execution queue](../../docs/MASTER_20_AGENT_TRIAGE_2026-10-25.md). `RTQ-001`, `RTP-001/002` and the already numbered `RTD/RTR` tasks remain legitimate. Retained below as historical PDF/agent evidence; no checkboxes should be marked from these stale RTN labels.
+
 **As-of:** 25 October 2026 (AEDT). **Scope:** the five unfinished areas in the 24 October status report, broken into actionable, individually referenceable jobs. **Canonical source:** `joshualparris/JoshMemory/repository-town/`. This is a documentation and prioritisation pass, **not** a claim that fixes have been implemented.
 
 ## Agent entrypoint — the next useful task

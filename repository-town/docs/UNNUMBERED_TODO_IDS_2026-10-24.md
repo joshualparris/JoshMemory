@@ -168,18 +168,25 @@ The 24 October mobile screenshots exposed duplicated-looking residents and visib
 - [House acceptance matrix](../ACCEPTANCE.md) — 188 coordinate-keyed house records, not numbered TODO bullets.
 - [Council audit issue #157](https://github.com/joshualparris/JoshMemory/issues/157) — six existing numbered policy resolutions preserved.
 
-## 25 October: six more previously unnumbered Repo Town tasks
+## 25 October — Agent 2 screenshot findings: canonical RTN crosswalk and three distinct new tasks
 
-These **new** IDs cover precise unnumbered aspects of the five open areas in the [agent's actionable triage queue](NEXT_ACTION_TRIAGE_2026-10-25.md). They are independent of the 101 IDs added on 24 October. All earlier task IDs and statuses above remain unchanged.
+**Consolidation correction (25 October):** Two agents independently assigned `RTN-001`, `RTN-002`, `RTN-003` to **different requirements**, resulting in duplicate contradictory checked/unchecked meanings in an earlier version of this register. Preserve the detailed [canonical 18-task RTN tracker](RTN_NPC_CROWD_FALLBACK_TRIAGE_2026-10-25.md), with `RTN-001..006` source-level checked, `RTN-007..018` open. Agent 2's *historical labels* below are **aliases only, not separate runnable IDs**:
 
-- [ ] **RTN-001** Visual distinctiveness of named workers, trade crew, indoor visitors and shop staff; deterministic, persistent identity. Candidate [PR #186](https://github.com/joshualparris/JoshMemory/pull/186).
-- [ ] **RTN-002** Player/visitor/NPC body collision, safe service waypoints, queue separation and no actor merging. Candidate [PR #186](https://github.com/joshualparris/JoshMemory/pull/186).
-- [ ] **RTN-003** Indoor resident wall/door/furniture collision and path recovery; distinct from #186 indoor shop crowds.
+| Agent 2 report label (historical; do not assign) | What Agent 2 requested | Canonical task(s) to execute |
+|---|---|---|
+| `RTN-001` (Agent 2) | Unique NPC appearances | `RTN-001` (existing outdoor foundation), **`RTN-008`** (remaining full cast) |
+| `RTN-002` (Agent 2) | NPC crowd merging/collision | `RTN-003/004` source foundation, **`RTN-009`** player collision, `RTN-010` visual phone audit |
+| `RTN-003` (Agent 2) | Indoor wall/door/furniture clipping | **`RTN-009`** and `RTR-010` building/collision acceptance |
+
+These were already encompassed by canonical tasks; **no additional implementation IDs** are minted. Agent 2's original [queue](NEXT_ACTION_TRIAGE_2026-10-25.md) remains historical input and is superseded for conflicting RTN meanings by the [20-agent master execution queue](../../docs/MASTER_20_AGENT_TRIAGE_2026-10-25.md). Do not mark canonical tasks complete because their names resemble one another.
+
+The other **three genuinely distinct permanent IDs** from Agent 2 remain unfinished:
+
 - [ ] **RTQ-001** One uninterrupted current-release mobile gameplay acceptance session including address navigation, NPC dialogue, auto-popup toggle, stop/dismiss, save/reload, FPS and logging.
-- [ ] **RTP-001** Spatially survey all candidate N/S land slots, clearances, yards, utility/rail corridors and active fields; identify *proven* vacant sites only.
+- [ ] **RTP-001** Spatially survey candidate N/S land slots, clearances, yards, utility/rail corridors and active fields; identify *proven* vacant sites only.
 - [ ] **RTP-002** Study the tree-lined, unbuilt row-9 road alignment and farm/rail boundaries before any design approval or construction.
 
-**No duplicate IDs created** for existing `RTD-043`/ `RTD-044`/ `RTD-084`, `RTR-010` or numbered audio acceptance work. Detailed acceptance, links to open PRs and triage order live in the [next-action queue](NEXT_ACTION_TRIAGE_2026-10-25.md). These six new items are all OPEN.
+No `RTD-043/044/084`, `RTR-010` or audio IDs were renumbered.
 
 ## Maintenance
 Treat this document as a cross-reference for *previously unnumbered* tasks, not a replacement for the original trackers. Do not reuse IDs or implicitly tick off parent/child tasks. Where an original tracker is now stale, reconcile wording and status in a distinct evidence-backed change.

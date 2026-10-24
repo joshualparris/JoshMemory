@@ -38,3 +38,11 @@ UTC timestamp | TR-### | RT-... | agent | branch/PR | status | evidence SHA/link
 ```
 
 Update this checkpoint at task start, after meaningful progress and before switching to another repo. Do not claim production tests or app fixes when the work was documentation-only.
+
+## Twenty-agent cross-portfolio task consolidation (25 October 2026)
+
+- [20-agent master triage](MASTER_20_AGENT_TRIAGE_2026-10-25.md) and [2,663-row unique-ID execution queue](MASTER_20_AGENT_EXECUTION_QUEUE_2026-10-25.csv) unify the project-specific RTD/RTN/RLT/RTA/RTM/GM/SVA, Greptile GRC/GRA, portfolio TR and related source tasks. The original 1,864-step TR registry remains authoritative for its repo-review subtasks.
+- First global task is `DCSC-GR-001`: investigate *possible* API credential in public browser build; no confirmed breach is asserted. Do not confuse a Greptile review job with fixing findings.
+- Existing 233 review parents, private-repo redactions, task statuses, global parent IDs and unique local task IDs are preserved. 23 already-reviewed/historical rows moved to non-actionable reference at queue end; 2,640 remaining rows include known blocked/physical-device conditions.
+- Agent 2's conflicting RTN labels are corrected via canonical alias crosswalk in the Town ID registry; new `ARI-001/005/007/011/012/015/019` register missing report details only.
+- This is a dated priority snapshot, not a new execution result. Update each repo's canonical tracker and this checkpoint with actual PR, test and production evidence when tasks are completed.
