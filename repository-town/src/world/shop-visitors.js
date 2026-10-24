@@ -285,9 +285,9 @@ export function createShopVisitors(site,life,interior,makeLabel,people){
         if(setDestination(p,p.landing))p.next='seating';
         else{positionAt(p,p.seat.pos);p.state='seated';}
       }
-      if(p.state==='waiting'){
-        // Re-check moving obstacles each frame: a player or customer may step
-        // aside, allowing the route to resume without clipping or teleporting.
+      if(p.state==='waiting' && t>=(p.retryAt||0)){
+        // Throttle A* on mobile; a full aisle may remain blocked for seconds.
+        p.retryAt=t+.75;
         const goal=p.retryGoal||p.standTarget||(p.seat?p.landing:null)||(p.exit?entry:null);
         if(goal && actorClear(goal,p,player) &&
            (p.exit||!targetReserved(goal,p)))setDestination(p,goal);
