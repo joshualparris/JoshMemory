@@ -184,3 +184,8 @@ Superseding clean branch: `fix/town-mobile-yarn-controls-reconciled-20261024` (o
 - **Verified so far:** V8 parser checks, in-memory helper assertions and actual mounted UI test through a DOM stand-in passed. Node full release and device/browser acceptance not yet run, so do not claim deployed completion.
 
 Next: PR checks/merge, full build:release/privacy, verify actual phone-sized interaction and deployed release source hash.
+
+### Mobile dialogue merge / release status
+- Clean [PR #184](https://github.com/joshualparris/JoshMemory/pull/184) **merged** as `e71e4c7b06bc33c0b6685b2c186a7370376eec44`; older conflicted PR #182 was closed.
+- Confirmed source-level JS syntax, saved preference logic and browserless actual mounted-UI behaviour. Focused tests are included in `npm run test:release` on main. Full Node release/privacy suite and touch-device visual acceptance have not returned verified green results.
+- GitHub combined status for merged SHA: **Vercel failure, target `upgradeToPro=build-rate-limit`**. Current production alias deployment `dpl_D13Yg9xZHFyJ36pu1yp4mRS5K8cF` was READY for older commit `4db4ef85fa581cf88af51dc1f208aed61190815b`, not the new merge. Do **not** tell users the fix is live until production `release.json` and manual browser controls are reverified.
