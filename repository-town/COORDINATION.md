@@ -11,6 +11,9 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-24 · ChatGPT — **CLAIMED RTD-007 only** (coordination ownership and durable checkpoint protocol), branch `docs/town-rtd007-coordination-checkpoints-20261024`. Source baseline main `2d91b9e7d321103342755cd16929b1a7077b8c4f`. Expected files: `AGENTS.md` (short mandatory RTD process), `COORDINATION.md` (claim/done), `WORK_CHECKPOINT.md` (start/milestones/final handover), `docs/RTD_007_COORDINATION_CHECKPOINT_PROTOCOL_2026-10-24.md` (operational template), and RTD-007 checkbox in `docs/SKYRIM_NPC_DIALOGUE_IMPLEMENTATION_TODO.md`. This is coordination/documentation only; **no game/audio code, deployment or RTD-008 implementation**. Historical PR #166 “INTEGRATING” note is stale (merged); cross-check GitHub. RTD-008 remains free for a separately claimed follow-on session. Move this exact record to Done after verified PR merge.
+
+
 
 
 - 2026-10-24 · ChatGPT — **MERGED (QA tooling only): arcade Skyvern/Playwright tester**, [PR #171](https://github.com/joshualparris/JoshMemory/pull/171), merge `db603aae`. Recorded Skyvern v2 workflow; no-account Playwright runner checks each exact-title edition, supports all games, captures runtime observations/screenshots, and produces JSON report. Manual GitHub Actions workflow and browserless contract are included. Four target index files/source-schema and JS syntax verified. Browser gameplay, balance assessment and manual dispatch NOT run. Vercel status on merge failed due project build-rate-limit, not a source compile failure; deployed arcade remains on older READY release. See `qa/README.md`, `WORK_CHECKPOINT.md`.
