@@ -129,3 +129,19 @@ body.npc-lounge #npc-roster-items{max-height:min(580px,calc(100dvh - 295px));ove
 .npc-line .npc-recorded-cue{display:flex;flex-wrap:wrap;align-items:center;gap:3px;width:100%;max-width:100%;min-width:0;padding:2px 0}
 .npc-line .npc-recorded-cue-button{margin:2px 0;min-width:0;max-width:100%;white-space:normal;text-align:center}
 .npc-line .npc-recorded-caption{flex-basis:100%;max-width:100%;min-width:0;overflow-wrap:anywhere;white-space:normal;margin:0 0 2px}
+
+
+/* Player-led, prerecorded NPC conversations. Works in the 3D modal and lounge. */
+.npc-recorded-conversation{min-width:0;max-width:100%;margin:9px 0;padding:10px;border:1px solid #547994;border-radius:12px;background:#142a41;color:#ebf7ff}
+.npc-recorded-conversation h3{font-size:14px;margin:0 0 5px}
+.npc-recorded-conversation .npc-activity-label{font-size:12px;line-height:1.35}
+.npc-recorded-conversation-choices{display:flex;gap:7px;flex-wrap:wrap;max-width:100%}
+.npc-recorded-conversation-choices .npc-recorded-choice{flex:1 1 135px;max-width:100%;min-height:44px;white-space:normal;text-align:left;padding:8px 10px}
+.npc-recorded-choice:disabled{opacity:.55;cursor:default}
+.npc-recorded-conversation-subtitle{font-size:13px;line-height:1.45;overflow-wrap:anywhere;white-space:normal;margin:10px 0 6px;min-height:1.5em}
+.npc-recorded-conversation-controls{display:flex;gap:8px;flex-wrap:wrap}
+.npc-recorded-conversation-controls button{font:inherit;font-size:12px;border:1px solid #729db6;border-radius:8px;min-height:44px;background:#28465d;color:#fff;padding:8px 10px;cursor:pointer}
+.npc-recorded-conversation button:focus-visible{outline:3px solid #fbd67e;outline-offset:2px}
+.npc-recorded-conversation button:disabled{opacity:.5;cursor:default}
+@media(max-width:700px){.npc-recorded-conversation-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.npc-recorded-conversation-choices .npc-recorded-choice{min-width:0;width:100%;max-width:100%}.npc-recorded-conversation{padding:9px}}
+@media(max-width:330px){.npc-recorded-conversation-choices{grid-template-columns:minmax(0,1fr)}}

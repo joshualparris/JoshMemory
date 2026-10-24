@@ -13,7 +13,7 @@ assert(source.includes("el.style.setProperty('--npc-vh',height+'px')"));
 assert(source.includes("el.style.setProperty('--npc-top',Math.max(0,top)+'px')"));
 assert(source.includes("el.classList.add('npc-typing')"));
 assert(source.includes("el.classList.remove('npc-typing')"));
-assert(source.includes("if(!window.matchMedia('(pointer: coarse)').matches)input.focus()"));
+assert(source.includes("if(!window.matchMedia('(pointer: coarse)').matches&&!activities.querySelector('.npc-recorded-conversation'))input.focus()"));
 assert(!source.includes("input.disabled=true;send.disabled=true"),'Sending should not bounce the mobile keyboard');
 assert(css.includes('#npc-messages{flex:1 1 auto;min-height:0'));
 assert(css.includes('#npc-chat.npc-typing .npc-activities'));

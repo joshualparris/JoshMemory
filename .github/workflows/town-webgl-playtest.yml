@@ -53,6 +53,7 @@ jobs:
             sleep 1
           done
           curl -fsSI http://127.0.0.1:8091/ > /dev/null
+          node tests/recorded-dialogue-browser.mjs
           node tests/webgl-playtest.mjs
           node tests/sleep-browser.mjs
           node tests/sleep-browser.mjs --mobile

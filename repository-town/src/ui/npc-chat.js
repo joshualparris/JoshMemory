@@ -4,6 +4,7 @@
 import { NPCS, getNPC } from './npc-data.js';
 import { answerSceneQuestion } from './scene-awareness.js';
 import {makeTownListenButton, primeTownVoice, stopTownVoice, makeTownRecordedLines, makeTownContextCue, isRowanWelcome} from './voicebank.js';
+import {makeTownRecordedConversation} from './recorded-dialogue.js';
 
 const FALLBACK=[
   'The live AI is unavailable, but I can still chat with you offline.',
@@ -98,6 +99,8 @@ export function mountNPCChat(root=document, { getScene = () => null } = {}) {
       b.onclick=()=>{ input.value=prompt;input.focus(); };
       promptsRow.appendChild(b);
     }
+    const recordedConversation=makeTownRecordedConversation(npc,root);
+    if(recordedConversation)activities.appendChild(recordedConversation);
     activities.appendChild(promptsRow);
     activities.appendChild(makeTownRecordedLines(npc.id,root));
     if(npc.challenge){
@@ -163,7 +166,9 @@ export function mountNPCChat(root=document, { getScene = () => null } = {}) {
     el.classList.remove('npc-typing');
     syncNpcViewport();
     // Leave the keyboard closed on touch devices so quests stay visible.
-    if(!window.matchMedia('(pointer: coarse)').matches)input.focus();
+    // Initial focus enters typing mode, which hides the recorded choices.
+    // Keep choices visible until visitors deliberately focus the composer.
+    if(!window.matchMedia('(pointer: coarse)').matches&&!activities.querySelector('.npc-recorded-conversation'))input.focus();
     return true;
   }
   function close() {
