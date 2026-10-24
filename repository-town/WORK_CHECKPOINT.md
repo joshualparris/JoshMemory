@@ -2,6 +2,12 @@
 
 Updated 2026-10-24 (Australia/Sydney). Working branch: `feat/town-npc-branching-recordings-20261024`.
 
+## Follow-on Skyrim-inspired dialogue roadmap (24 October 2026)
+- Numbered 93-item roadmap: `docs/SKYRIM_NPC_DIALOGUE_IMPLEMENTATION_TODO.md` (RTD-001–093).
+- This publication adds planning documentation, not new gameplay. RTD-001/002 cover verified research/source only; RTD-003–093 are OPEN pending separate test and release evidence.
+- The earlier recorded-branch PR #166 is merged, but its initial tree does not close the conditional quest, game-memory, cast expansion or full production-playtesting requirements of this roadmap.
+- **Resume:** inspect current main and `COORDINATION.md` first, then RTD-003/004/005 source inventory; build Rowan/Kit/Pip pilot and check off only proven results.
+
 ## Scope and source of truth
 - Canonical editable repo: `joshualparris/JoshMemory/repository-town/src/`, not the generated `Parris-Tech-Services/Repository-town` mirror.
 - Base main SHA: `6b18994b16cd763ebbac3ab8f3169bc0c20cc619`.
