@@ -172,7 +172,13 @@ export function makeTownContextCue(npcId,event,root=document) {
         });
       })
       .then(result=>{
-        if(request!==counter||currentRevision!==revision)return;
+        if(request!==counter)return;
+        if(currentRevision!==revision){
+          button.disabled=false;playing=false;
+          button.textContent='🎙 Hear recorded '+label;
+          button.setAttribute('aria-pressed','false');
+          caption.textContent='Stopped';return;
+        }
         button.disabled=false;
         if(result?.status==='playing'){
           playing=true;caption.textContent=result.text;
@@ -184,8 +190,9 @@ export function makeTownContextCue(npcId,event,root=document) {
         }
       })
       .catch(()=>{
-        if(request!==counter||currentRevision!==revision)return;
+        if(request!==counter)return;
         button.disabled=false;playing=false;button.textContent='🎙 Hear recorded '+label;
+        button.setAttribute('aria-pressed','false');
         caption.textContent='Recording unavailable; the chat text is still here.';
       });
   });
