@@ -3,7 +3,7 @@
 // by Repository Town and no API key is ever sent to the browser.
 import { NPCS, getNPC } from './npc-data.js';
 import { answerSceneQuestion } from './scene-awareness.js';
-import {makeTownListenButton, primeTownVoice, stopTownVoice, makeTownRecordedLines, makeTownContextCue} from './voicebank.js';
+import {makeTownListenButton, primeTownVoice, stopTownVoice, makeTownRecordedLines, makeTownContextCue, makeTownRecordedEventCue, hasTownRecordedEvent} from './voicebank.js';
 
 const FALLBACK=[
   'The live AI is unavailable, but I can still chat with you offline.',
@@ -107,6 +107,9 @@ export function mountNPCChat(root=document, { getScene = () => null } = {}) {
         const old=area.querySelector('.npc-quest');if(old){old.remove();return;}
         const quest=root.createElement('div');quest.className='npc-quest';
         const question=root.createElement('p');question.textContent=npc.challenge.question;quest.appendChild(question);
+        // Optional *real* recorded offer, never auto-played or mistaken for the question text.
+        if(hasTownRecordedEvent(npc.id,'quest'))
+          quest.appendChild(makeTownRecordedEventCue(npc.id,'quest',root));
         const choices=root.createElement('div');choices.className='npc-quest-choices';quest.appendChild(choices);
         const result=root.createElement('p');result.className='npc-quest-result';result.setAttribute('role','status');
         npc.challenge.choices.forEach((label,index)=>{
@@ -122,6 +125,10 @@ export function mountNPCChat(root=document, { getScene = () => null } = {}) {
               toggle.textContent='🏅 Replay quest: '+npc.challenge.title;
               updateRosterBadge(npc.id);
             }else result.textContent='Not quite! '+npc.name+' will give you another go.';
+            // Never offer an unearned success recording before the right answer.
+            const outcome=index===npc.challenge.answer?'success':'retry';
+            if(hasTownRecordedEvent(npc.id,outcome))
+              result.appendChild(makeTownRecordedEventCue(npc.id,outcome,root));
             const again=root.createElement('button');again.type='button';again.className='npc-quest-retry';again.textContent='↻ Try again';
             again.onclick=()=>{quest.remove();toggle.click();};quest.appendChild(again);
           });choices.appendChild(b);
