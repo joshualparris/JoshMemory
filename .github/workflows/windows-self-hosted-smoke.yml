@@ -1,0 +1,41 @@
+name: Windows self-hosted runner smoke test
+# Self-hosted only. A one-file, trusted main-branch change triggers the initial smoke test.
+# No checkout, third-party actions, secrets, network requests, or repository code execution.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/windows-self-hosted-smoke.yml'
+permissions:
+  contents: read
+concurrency:
+  group: joshmemory-windows-self-hosted-smoke
+  cancel-in-progress: true
+jobs:
+  windows-preflight:
+    name: Windows runner connectivity (read-only)
+    if: github.repository == 'joshualparris/JoshMemory' && github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 5
+    steps:
+      - name: Verify real Windows self-hosted execution
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          if ($env:RUNNER_OS -ne 'Windows') { throw "Expected Windows runner" }
+          if ($env:RUNNER_ARCH -ne 'X64') { throw "Expected X64 runner" }
+          Write-Host "Windows self-hosted runner is executing a real job."
+          Write-Host "Runner: $env:RUNNER_NAME"
+          Write-Host "OS: $env:RUNNER_OS; architecture: $env:RUNNER_ARCH"
+          Write-Host "PowerShell version: $($PSVersionTable.PSVersion.ToString())"
+          $os = Get-CimInstance Win32_OperatingSystem
+          Write-Host "Windows version: $($os.Version)"
+          Write-Host "Free physical memory (MB): $([math]::Round($os.FreePhysicalMemory / 1024))"
+          $drive = Get-PSDrive -Name C -PSProvider FileSystem -ErrorAction SilentlyContinue
+          if ($drive) { Write-Host "C: free GB: $([math]::Round($drive.Free / 1GB, 1))" }
+          foreach ($name in @('git','node','npm','python','py')) {
+            $cmd = Get-Command $name -ErrorAction SilentlyContinue
+            if ($cmd) { Write-Host "$name available" } else { Write-Host "$name not available to runner service (optional)" }
+          }
+          Write-Host "PASS: Windows runner executed successfully (no repo checkout or secrets)."
