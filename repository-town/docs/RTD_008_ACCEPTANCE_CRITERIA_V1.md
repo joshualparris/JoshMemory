@@ -110,5 +110,5 @@ The validator verifies IDs, cross-references, relevant case coverage and require
 
 - [x] RTD-008 claimed on canonical board with exact paths before work; start checkpoint committed on main.
 - [x] Versioned `RTD_DIALOGUE_ACCEPTANCE_V1.json` authored with 34 stable RTAC cases, explicit pass/fail and evidence layers.
-- [ ] Scoped GitHub RTD implementation PR template, validator and required integration CI.
+- [x] Scoped GitHub RTD implementation PR template, `tests/rtd-acceptance-contract.mjs` validator with negative metadata examples, and required Town Integration CI metadata gate.
 - [ ] Reviewed/merged PR with appropriate actual CI evidence; final M4 checkpoint and board handover.
