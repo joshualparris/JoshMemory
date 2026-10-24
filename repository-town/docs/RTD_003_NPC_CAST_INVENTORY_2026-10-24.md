@@ -24,6 +24,8 @@ The first **38 worker IDs (0–37)** and their home assignments are preserved fo
 - 30 dynamically appended relief shifts for understaffed facilities
 - 8 appended security office/HQ and locksmith workers
 
+**Runtime appointment matters:** the 61-row starting `JOBS` list is a *pre-initialization roster*, not the final active roles. During `TownLife` construction, `src/world/government.js` appoints Errol (stable worker ID 27) as General Manager at the Town Hall, replacing his starting `student`/`school` role. The committed worker table records the **actual initialized role**; its source-category count still reflects the 61-row baseline. The CI regression constructs the actual town to catch these transformations.
+
 The worker display-name pool contains **99 unique names** and each worker has a stable numeric `id` and a unique house coordinate in the current 188-house inventory. Keep `worker:<id>` as the future dialogue key; do not treat name or home coordinate as a worker's primary key.
 
 ## All 32 named street characters
