@@ -169,3 +169,17 @@ All 22 are **UNRECORDED** in the approved Game300 Town pack. Do not play another
 - **AA Game Adventure** focused run `2398588b`: game opened and exited, agent tried arrows/WASD/space/canvas focus but did not verify item collection or movement; input focus uncertain. Source JoshHub HTML lacked any visible controls; added arrow-key/letter goal plus Focus controls button `774f0b6`, then fixed flow layout to a floating overlay `0c3724e` so the existing full-screen canvas remains 100vh. Script grammar/invariants passed via readback; no real QA after changes.
 - **Detailed evidence:** `qa/reports/2026-10-24-tinyfish-arcade.md` links the three TinyFish runs and scoped findings. Not an entire arcade nor duplicate-edition acceptance pass.
 - **Next:** repack the affected game(s), run `node tests/games.mjs --only hub-aa-game-adventure,hub-mysterious-depths` and targeted arcade Playwright input test, release/privacy gate, deploy exact build when Vercel rate limit permits, verify live keyboard interaction and final source fingerprint. TASK-040 remains OPEN.
+
+
+## NPC appearance and indoor personal-space fix — 24 October 2026
+
+Owner: ChatGPT. Branch: `fix/town-distinct-npcs-and-indoor-crowds-20261024`. Canonical start reservation `7d369b760034e404f40e289252091ad03fd87500` in `COORDINATION.md` on `main`.
+
+- [x] Investigated user's mobile screenshot in pub: near-identical blue-green models piled into the camera; source `makePerson` offers limited silhouettes and `shop-visitors` treated furniture as solids but not other actors.
+- [x] Created stable deterministic identity outfit builder `src/world/npc-wardrobe.js` with clothing hues, six builds, eight hair/headgear styles, seven clothing shapes, accessories, glasses and facial hair. Wired to `shop-staff.js` and `shop-visitors.js` without touching actively claimed `npcs.js` or `main.js`.
+- [x] Indoor patrons now choose nonoverlapping standing spots, reserve their destination, use separated initial entrance locations or wait rather than spawning atop others, check player/staff/other patrons while walking, and retain furniture pathfinding with full-body clearance. Queue gap enlarged.
+- [x] Added `tests/indoor-crowd-identity.mjs`: identity consistency/variety and dense pub arrivals checked every frame for crowd/player overlaps, registered in `npm run test:release`.
+- [ ] Run and inspect actual GitHub Town integration/release and existing shop visitor tests; correct regressions.
+- [ ] PR review/merge, actual hosted release verification and real Samsung mobile visual signoff.
+
+Known boundary: this first scope fixes in-shop visitors and staff; exterior named NPCs and residents instantiated inside homes still use `makePerson` directly. Their existing owner is changing `npcs.js` and `main.js` concurrently. Do **not** claim all town NPCs have been restyled or all player-vs-NPC collisions solved. Live production may be behind GitHub because of Vercel 402 quota; report deployed fingerprint separately.
