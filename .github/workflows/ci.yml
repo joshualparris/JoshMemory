@@ -8,6 +8,7 @@ on:
       # Do not spend hosted Linux CI minutes for CI diagnostic files alone.
       - '.github/workflows/windows-self-hosted-smoke.yml'
       - '.github/workflows/windows-cross-repo-syntax.yml'
+      - '.github/workflows/windows-recorded-audio-ci.yml'
   pull_request:
     paths-ignore:
       - 'repository-town/**'
