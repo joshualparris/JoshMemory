@@ -2,6 +2,17 @@
 
 Updated 2026-10-24 (Australia/Sydney). Working branch: `feat/town-npc-branching-recordings-20261024`.
 
+## RTD-008 — versioned NPC dialogue acceptance contract (24 October 2026)
+
+**Status: IN PROGRESS.** Canonical main before claiming: `dbe343f6c5f8d2e49def71c0b333685945505003`. Task RTD-008 only reserved in `COORDINATION.md` on main as commit `ca90808273767c100d385b77977a549789d2acfa`; other RTDs remain unclaimed. Branch planned: `docs/town-rtd008-acceptance-contract-20261024`.
+
+- [x] **M1 — Read and claim.** Checked latest canonical main, 93-ID roadmap, RTD-007 ownership rules and open PRs. Source/audio conflicts: PR #164 is still open. Claimed documentation + acceptance test / PR template files only.
+- [ ] **M2 — Versioned contract.** Publish testable, game-specific acceptance cases with actor identity, branches, authoritative quest effects, save, ElevenLabs matching, fallback, interruption, mobile/offline, safety/privacy, real hosted release and backup fidelity, with explicit stable RTD IDs and per-case required evidence.
+- [ ] **M3 — PR traceability + contract regression.** Give RTD implementation PRs a selectable template with required task IDs and acceptance-case references, add Node contract verifier to CI integration, and document how evidence applies only to tested SHA.
+- [ ] **M4 — Merge/handover.** Update roadmap/checkpoint/board, verify sequential IDs 001–093 and only 001–008 checked; source diff/test CI, PR merge then final checkpoint on main with exact SHAs and CI status.
+
+**Boundary:** RTD-008 defines and verifies acceptance *criteria and traceability tooling*, not story engine implementation, recordings, playable NPC memories, full production interactive playtest or a release. Do not tick RTD-009+.
+
 ## RTD-007 — coordinated implementation ownership and milestone checkpoints (24 October 2026)
 
 **Status:** VERIFIED COMPLETE (PR #173 merged, both CI workflows green); RTD-007 only was reserved on canonical `main` **before** authoring protocol/roadmap changes. Source baseline `2d91b9e7d321103342755cd16929b1a7077b8c4f`; claim recorded under `COORDINATION.md` at main commit `b2cd82474e3a19c33f9090967169111188be4f26`. Branch planned: `docs/town-rtd007-coordination-checkpoints-20261024`.
