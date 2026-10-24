@@ -150,7 +150,13 @@ export function createShopVisitors(site,life,interior,makeLabel,people){
     // current activity instead of replaying their entrance from the beginning.
     if(wantsSeat(v)&&reserveSeat(p,reserved,playerSeat)){
       if(existing){positionAt(p,p.seat.pos);p.state='seated';}
-      else if(!setDestination(p,counter)){setDestination(p,p.landing);}
+      else {
+        // A busy service counter is a queue of distinct spots, not a single
+        // point that every arriving patron must occupy.
+        const service=standingSpot(p,player);
+        if(service){p.standTarget=service;setDestination(p,service);}
+        else setDestination(p,p.landing);
+      }
       p.next='service';
     }else{
       const destination=standingSpot(p,player);
@@ -209,7 +215,7 @@ export function createShopVisitors(site,life,interior,makeLabel,people){
       if(p.exit)p.state='gone';
       else if(p.seat&&p.next==='service'){
         // Queue by the counter first; once served, head to the reserved chair.
-        p.state='service';p.serviceDelay=1.6;
+        p.state='service';p.serviceDelay=1.6;p.standTarget=null;
       }else if(p.seat&&p.next==='seating'){
         positionAt(p,p.seat.pos);p.state='seated';
       }else p.state='standing';
