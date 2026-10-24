@@ -19,7 +19,7 @@ Newest first. Times in Australia/Sydney.
 
 
 
-- 2026-10-24 · ChatGPT — **IN PROGRESS: directional N/S property address audit and map**, branch `feat/town-directional-addresses-20261024`. Scope `src/world/addresses.js`, `src/world/property.js`, `src/main.js` search only, `tests/directional-addresses.mjs`, `docs/DIRECTIONAL_ADDRESS_AUDIT_2026-10-24.md`, `WORK_CHECKPOINT.md`, `README.md`. Never modify existing `coordinate` primary keys or private project text; preserve existing saves and listings. Road 9 not built; do not label unknown plots genuinely vacant. Other audio/dialogue claims remain untouched.
+- 2026-10-24 · ChatGPT — **DONE: N/S address audit and in-game plot atlas merged**, [PR #178](https://github.com/joshualparris/JoshMemory/pull/178), main merge `d7935f3b0f2ece5c7c02557c1b3a5287e867148e`. Verified the 572-slot physical audit and 234 building addresses, backwards-compatible deeds/house IDs; no roadway constructed. GitHub integration (including all five 28-day seeds), mobile driving and recorded WebGL CI all green. **Deployment blocked:** Vercel production still on older SHA; explicit deployment returned HTTP 402 `api-deployments-free-per-day` (>100/day). See `WORK_CHECKPOINT.md` and `docs/DIRECTIONAL_ADDRESS_AUDIT_2026-10-24.md` for handover. No source files left claimed.
 
 
 
