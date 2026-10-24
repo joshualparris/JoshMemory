@@ -2,6 +2,10 @@
 
 Updated 2026-10-24 (Australia/Sydney). Working branch: `feat/town-npc-branching-recordings-20261024`.
 
+## RT-08 / AUDIO-013.03 — live production browser evidence (24 October 2026)
+
+**PARTIALLY VERIFIED, OPEN parent tasks.** [Evidence report](docs/RT_08_LIVE_PRODUCTION_ACCEPTANCE_2026-10-24.md): the actual public Vercel release `34eaf60455acf2984a8d69ed9b23477c24e70020` (hash `afc7f0a2562b0823daf9d73dced3842dda27093325352a098ed2c24bac3de637`) was exercised with desktop/Pixel 7 Chromium. All ten Game300 actors passed real WebAudio/caption/stop/replay checks in the hosted NPC Lounge (20/20), Rowan/Pip/Kit passed in the real 3D Town NPC modal on both viewports (6/6), and A1 house entry/exit, movement, interactions and touch controls were tested. The 12 legacy E2E household-panel failures were false positives caused by personalised panel headings (e.g. “Lena's fridge”); a narrowly scoped E2E assertion correction is included in the QA PR. The browser's remaining 404 is precisely `/favicon.ico`, documented as non-blocking warning. **Do not claim all 188 houses, actual handset subjective audio, full CSP, offline failures or mirror parity passed.** No game/voice source or production deployment touched. RT-08 and AUDIO parent 013 stay unchecked.
+
 ## RTD-008 — versioned NPC dialogue acceptance contract (24 October 2026)
 
 **Status: VERIFIED COMPLETE (merged PR #176; three CI workflows green).** Canonical main before claiming: `dbe343f6c5f8d2e49def71c0b333685945505003`. Task RTD-008 only reserved in `COORDINATION.md` on main as commit `ca90808273767c100d385b77977a549789d2acfa`; other RTDs remain unclaimed. Branch planned: `docs/town-rtd008-acceptance-contract-20261024`.
