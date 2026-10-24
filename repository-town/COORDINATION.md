@@ -7,6 +7,8 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-24 · ChatGPT — INTEGRATING all 20 town ElevenLabs recordings on `codex/town-recorded-staff-dialogue-20261024`. Exact-caption local playback in `src/ui/voicebank.js`; contextual, explicitly framed character conversations in `npc-chat.js` and `recorded-dialogue.js`; existing characters and simulation preserved. Audio copied into `src/audio/town` so public builds ship it. Preserve live simulation and other sessions' work; full build/privacy and browser checks before merge.
+
 - 2026-10-23 · ChatGPT — **INTEGRATING: VoiceBank speech for town residents and yarns** on `feat/town-parrisvoicebank-audio-20261023`. New `src/ui/voicebank.js` uses approved public VoiceBank recordings with opt-in en-AU device speech fallback; adding compact Listen/Stop buttons to `src/ui/npc.js`, `npc-chat.js`, `yarns.js`, and tests. No paid synthesis, changes to NPC replies, clock, gameplay simulation, or private source publication. Full release gate and mobile browser tests underway; merge and production verification pending.
 
 
