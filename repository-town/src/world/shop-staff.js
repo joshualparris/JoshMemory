@@ -1,7 +1,8 @@
 // Shop NPCs are sourced from the existing TownLife roster, not a second
 // disconnected set of random names. Only explicitly named hosts cover public spaces.
 import * as THREE from 'three';
-import { makePerson, Walker } from './npcs.js';
+import { Walker } from './npcs.js';
+import { makeDistinctPerson } from './npc-wardrobe.js';
 import { workingAt } from './shop-attendance.js';
 
 const SHIRTS={shop:0x557e9f,cafe:0x528c75,pub:0x9b6847,farm:0x71914e,clinic:0x77a7ac,school:0x6883b0,post:0x96745c,fire:0x23304d};   // fire: navy station wear
@@ -19,7 +20,8 @@ export function populateShopStaff(site,life,interior,makeLabel){
   const home=site.id==='farmhouse';
   const pos=home?new THREE.Vector3(-5.20,0,-3.65):interior.staff?new THREE.Vector3(interior.staff.pos.x,0,interior.staff.pos.z):new THREE.Vector3(2.65,0,-8.25);
   const seed=[...site.id].reduce((x,ch)=>x+ch.charCodeAt(0),31);
-  const model=makePerson(seed,SHIRTS[site.kind]||0x7297aa,0x303e4e);
+  // The visual identity remains stable for this physical staff position.
+  const model=makeDistinctPerson('staff:'+site.id+':'+name+':'+job);
   const npc=new Walker(model,pos,{name,speed:0.4});
   npc.heading=0; // Face towards the front door, behind the service counter.
   npc.group.rotation.y=0;
