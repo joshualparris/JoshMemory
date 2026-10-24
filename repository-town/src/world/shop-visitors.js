@@ -13,11 +13,24 @@ const collision = (boxes,x,z,r=RADIUS) =>
 const inBounds = (b,x,z,r=RADIUS)=> x>b.x0+r && x<b.x1-r && z>b.z0+r && z<b.z1-r;
 const clear = (p,boxes,bounds,r=RADIUS) =>
   inBounds(bounds,p.x,p.z,r)&&!collision(boxes,p.x,p.z,r);
+// Sweep a person-sized circle continuously along a segment. Sparse samples
+// previously missed table corners between checkpoints and stranded customers.
 export function clearWalk(from,to,boxes,bounds,r=RADIUS){
-  const n=Math.max(1,Math.ceil(length(from,to)/0.18));
-  for(let i=1;i<=n;i++){
-    const p={x:from.x+(to.x-from.x)*i/n,z:from.z+(to.z-from.z)*i/n};
-    if(!clear(p,boxes,bounds,r))return false;
+  if(!clear(from,boxes,bounds,r)||!clear(to,boxes,bounds,r))return false;
+  for(const b of boxes){
+    let lo=0,hi=1,intersects=true;
+    for(const axis of ['x','z']){
+      const origin=from[axis],delta=to[axis]-origin;
+      const min=b[axis+'0']-r,max=b[axis+'1']+r;
+      if(Math.abs(delta)<1e-10){
+        if(origin<min||origin>max){intersects=false;break;}
+      }else{
+        const a=(min-origin)/delta,c=(max-origin)/delta;
+        lo=Math.max(lo,Math.min(a,c));hi=Math.min(hi,Math.max(a,c));
+        if(lo>hi){intersects=false;break;}
+      }
+    }
+    if(intersects&&lo<=hi)return false;
   }
   return true;
 }
