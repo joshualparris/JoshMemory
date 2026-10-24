@@ -42,7 +42,7 @@ Update this checkpoint at task start, after meaningful progress and before switc
 ## Twenty-agent cross-portfolio task consolidation (25 October 2026)
 
 - [20-agent master triage](MASTER_20_AGENT_TRIAGE_2026-10-25.md) and [2,663-row unique-ID execution queue](MASTER_20_AGENT_EXECUTION_QUEUE_2026-10-25.csv) unify the project-specific RTD/RTN/RLT/RTA/RTM/GM/SVA, Greptile GRC/GRA, portfolio TR and related source tasks. The original 1,864-step TR registry remains authoritative for its repo-review subtasks.
-- First global task is `DCSC-GR-001`: investigate *possible* API credential in public browser build; no confirmed breach is asserted. Do not confuse a Greptile review job with fixing findings.
+- **Historical global first task (superseded by user priority):** `DCSC-GR-001` was previously ranked first because of a *possible* exposed key, not a confirmed breach. Current user-requested global priority is **SVA-008**, with DCS-only work deferred; suspected security risks retain original labels for authorised-owner handoff. Do not confuse a Greptile review job with fixing findings.
 - Existing 233 review parents, private-repo redactions, task statuses, global parent IDs and unique local task IDs are preserved. 23 already-reviewed/historical rows moved to non-actionable reference at queue end; 2,640 remaining rows include known blocked/physical-device conditions.
 - Agent 2's conflicting RTN labels are corrected via canonical alias crosswalk in the Town ID registry; new `ARI-001/005/007/011/012/015/019` register missing report details only.
 - This is a dated priority snapshot, not a new execution result. Update each repo's canonical tracker and this checkpoint with actual PR, test and production evidence when tasks are completed.
@@ -52,5 +52,12 @@ Update this checkpoint at task start, after meaningful progress and before switc
 - **MERGED:** [PR #197](https://github.com/joshualparris/JoshMemory/pull/197), merge SHA `8a2f878aed1a65fe4035a396f25d525406d22272`.
 - Read back on canonical `main`: `docs/MASTER_20_AGENT_TRIAGE_2026-10-25.md`, `docs/MASTER_20_AGENT_EXECUTION_QUEUE_2026-10-25.csv`, `docs/MASTER_AGENT_REPORT_INTAKE_IDS_2026-10-25.md` and the corrected Town stable-ID registry.
 - Validation at merge: **2,663 total unique IDs**, **2,640 executable/conditional rows**, **23 reference-only rows**. Existing `RTN-001/002/003` now one authoritative checkbox meaning each; Agent 2 duplicates cross-referenced as historical aliases. Private repository identities remain redacted in the source public-safe `TR` registry and in this queue.
-- **NEXT global rank 00001:** `DCSC-GR-001` possible client API credential exposure investigation (**not a confirmed breach**), claim from current repo before editing. 20 agent report slots documented, six incomplete/blocked status summaries tracked as report-intake `ARI` rather than fabricated repairs.
+- **NEXT global rank 00001:** `SVA-008`, SylvieApp recording integrity, followed by `SVA-012` shared audio controller. DCS-only records are deferred to global ranks `02576–02640`; historical `GRA-037` review remains reference-only at rank `02663`. 20 agent report slots documented, six incomplete/blocked status summaries tracked as report-intake `ARI` rather than fabricated repairs.
 - **No implementation, auth change, API key rotation, deploy, provider usage, simulated gameplay, audio generation or real-handset test was undertaken by this consolidation.** Do not confuse a review-job task with resolution of its findings.
+
+## User-selected active project priority — 25 October 2026
+
+- Re-ranked the same **2,663 permanent unique IDs** with no deletion or changed task status: 301 SylvieApp rows first (`SVA` 288 open, `TASK` 12 umbrella, `GRA-148`), 2,274 other non-DCS rows in their previous order, 65 DCS-only deferred rows, then 23 reference-only rows.
+- New next agent action is **SVA-008**. Read latest SylvieApp manifests, commits, source checkpoints and agent claims; verify actual recording exceptions before changing anything.
+- DCS-specific tasks are deferred at user request; *potential* credential/privacy issues retain their source severity for handoff to an authorised owner. Mixed non-DCS Greptile coordination `GRC-005` stays active.
+- [Updated human-readable master](MASTER_20_AGENT_TRIAGE_2026-10-25.md) and [exact order CSV](MASTER_20_AGENT_EXECUTION_QUEUE_2026-10-25.csv). Old portfolio-local `TR-003.01` remains the next **TR-only review** if that programme resumes, not the global first.
