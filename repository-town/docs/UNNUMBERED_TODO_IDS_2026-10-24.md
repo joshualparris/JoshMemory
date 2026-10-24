@@ -183,3 +183,29 @@ These **new** IDs cover precise unnumbered aspects of the five open areas in the
 
 ## Maintenance
 Treat this document as a cross-reference for *previously unnumbered* tasks, not a replacement for the original trackers. Do not reuse IDs or implicitly tick off parent/child tasks. Where an original tracker is now stale, reconcile wording and status in a distinct evidence-backed change.
+
+
+## Recorded NPC conversations — exact request cross-reference (25 October 2026)
+
+This section maps Josh's request for natural, Skyrim-inspired prerecorded ElevenLabs conversations, player dialogue choices, all NPCs, missing-line generation, dual permanent storage and complete playtesting to **existing** IDs. It adds **zero new IDs**, changes **no existing number or checkbox**, and makes **no new implementation or deployment claim**. Rank is dependency order within this request, not a replacement for the Town-wide priority queue. Status remains authoritative in the [RTD roadmap](SKYRIM_NPC_DIALOGUE_IMPLEMENTATION_TODO.md); consult current coordination/PRs before claiming work.
+
+**First prerequisite: RTD-010**, unless already completed with evidence or actively owned; then take the first unclaimed, unblocked item below. Preserve the already merged recorded-choice implementation rather than replacing it from an old branch.
+
+| Order | Existing unique task IDs | Exact requested outcome / next action |
+| ---: | --- | --- |
+| 1 | RTD-010 | Separate persistent identities for 32 named actors, 99 workers and 188 house slots; never assign voices by display name alone. |
+| 2 | RTD-042, RTD-043 | Inventory existing recordings, reconcile proposed imports/current source, and verify clip, actor, transcript, voice, hash and playable asset before generating duplicates. |
+| 3 | RTD-011, RTD-012, RTD-013 | Implement deterministic, validated dialogue trees and topic choices, preserving the existing recorded-choice UI and authoritative world state. |
+| 4 | RTD-014, RTD-017, RTD-018 | Natural greetings/return visits and nested choices, back/change subject, replay, goodbye, early dismissal and safe actor switching. |
+| 5 | RTD-047, RTD-049 | Write missing per-character lines from actual branches and cast consistent, suitable, diverse ElevenLabs voices for the 22 named characters without existing Game300 voices. |
+| 6 | RTD-048, RTD-077 | Generate/import missing dialogue for those 22 characters; use the explicitly authorised ElevenLabs connector or the simple Colab route. Produce only intended takes, journal generation results and do not regenerate an uncertain billed request blindly. No paid synthesis at gameplay runtime. |
+| 7 | RTD-046, RTD-077, RTD-092 | **Dual-storage acceptance:** preserve original recordings and save every newly generated MP3, exact transcript, actor/voice ID, generation reference, file size and SHA-256 to both Google Drive and canonical GitHub/VoiceBank. Verify both copies and record their links before classifying a take as durably saved. Temporary signed media URLs alone do not qualify. This is an explicit acceptance detail for existing IDs, not a new duplicate task. |
+| 8 | RTD-078 | Cover workers and house residents as well as named street characters. Josh's request includes all NPCs; this expansion is requested, not permission to describe currently unvoiced roles as complete. Record per-actor implemented, missing and intentionally shared voice coverage honestly. |
+| 9 | RTD-044, RTD-045, RTD-050, RTD-051 | Attach exact recordings only to fitting branches/events; speech follows the player's conversation interaction, respects sound preferences, shows matching subtitles, and supports one foreground speaker, Stop and replay. Never announce unearned quest/repair/trade success or silently substitute device TTS. |
+| 10 | RTD-052, RTD-053, RTD-054 | Lazy loading, mobile memory/data and audio mixing; verified recovery from missing/corrupt media, offline/CORS failures and audio-context suspension. |
+| 11 | RTD-075, RTD-084, RTD-085, RTD-086 | Playtest Rowan/Kit/Pip pilots, then every implemented actor and reachable branch in the actual 3D world: approach, choose, real decode/playback, caption, replay, stop/close, switch/walk away, failure/retry, movement and save/reload on desktop and Android-sized viewports. Report physical-handset acceptance separately. |
+| 12 | RTD-087, RTD-088, RTD-089, RTD-090, RTD-091, RTD-092, RTD-093 | Run focused/full release and privacy gates; review/reconcile/merge, stage and verify actual playback, publish the tested release through approved hosting, verify production and backup fingerprints, and save evidence/checkpoints. Keep every unverified result open. |
+
+Parent cross-reference: **TASK-032** dialogue/context; **TASK-033** recordings; **TASK-034** overlay/mixer controls; **TASK-035** real quest/trade outcomes; **TASK-045** verified release. Existing detailed audio children remain under **AUDIO-009**, **AUDIO-010**, **AUDIO-011**, **AUDIO-012**, **AUDIO-013**, **AUDIO-040–048** above.
+
+The [complete RTD execution queue](RTD_NEXT_TASK_TRIAGE_2026-10-25.md) retains the remaining prerequisites and original IDs; this request cross-reference does not close them or bypass the current claim/checkpoint/review protocol.
