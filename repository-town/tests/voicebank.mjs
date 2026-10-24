@@ -1,7 +1,7 @@
 import './npc-context-cues.mjs';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {makeTownListenButton, toggleTownVoice, stopTownVoice, VOICEBANK_MANIFEST, ROWAN_MANIFEST, ROWAN_GREETING, isRowanWelcome, hasTownRecordedEvent, makeTownRecordedEventCue} from '../src/ui/voicebank.js';
+import {makeTownListenButton, toggleTownVoice, stopTownVoice, VOICEBANK_MANIFEST, ROWAN_MANIFEST, ROWAN_GREETING, isRowanWelcome, hasTownRecordedEvent, makeTownRecordedEventCue, makeTownContextCue} from '../src/ui/voicebank.js';
 
 // The remote VoiceBank is optional; no API keys, paid generation or synthetic
 // voice calls happen in CI. Device speech is stubbed, not actually played.
@@ -78,9 +78,13 @@ assert.equal(recordedCue.children[0].dataset.voiceSource,'elevenlabs');
 assert.equal(recordedCue.children[0].disabled,true,'no recorded control until the genuine player module loads');
 assert.match(recordedCue.children[0].textContent,/Loading voice/);
 assert.equal(makeTownRecordedEventCue('ember','success',root).children.length,0,'do not invent clips for unsupported NPCs');
+assert.equal(makeTownContextCue('pip','greeting',root).children.length,2,'real recorded greeting is a single inline control');
+assert.equal(makeTownContextCue('pip','success',root),null,'contextual chat must not invent successful quests');
 const npcChatSource=readFileSync(new URL('../src/ui/npc-chat.js',import.meta.url),'utf8');
-assert.match(npcChatSource,/outcome=index===npc\.challenge\.answer\?'success':'retry'/,'success line gated by actual correct answer');
-assert.match(npcChatSource,/hasTownRecordedEvent\(npc\.id,'quest'\)/,'quest offer belongs to opened quest');
+assert.match(npcChatSource,/const cue=isRowanWelcome\(message,npcId\)/,'Rowan retains exact ElevenLabs welcome');
+assert.match(npcChatSource,/if\(cue\)row.appendChild\(cue\);\s*else row.appendChild\(makeTownListenButton/,'recorded cue replaces duplicate device TTS control');
+assert.doesNotMatch(npcChatSource,/makeTownRecordedEventCue\(npc\.id,'quest'/,'unverified quiz must not claim to offer a matching voiced quest');
+assert.doesNotMatch(npcChatSource,/makeTownRecordedEventCue\(npc\.id,outcome/,'quizzes must not claim repairs, purchases or completed journeys');
 
 for (const path of ['npc-chat.js','npc.js','yarns.js']) {
   const src=readFileSync(new URL('../src/ui/'+path,import.meta.url),'utf8');
