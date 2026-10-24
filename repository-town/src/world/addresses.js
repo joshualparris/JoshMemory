@@ -27,6 +27,13 @@ export function parseTownAddress(value) {
   if (l) return { address:l[0]+'-S', col:l[1], row:Number(l[2]), side:'S', legacy:true };
   return null;
 }
+// Resolve new visible deeds back to historical H: keys for sleeping and ownership.
+// Never reinterpret an explicit north-only candidate as a south-side house.
+export function legacyHouseCoordinate(address) {
+  const parsed=parseTownAddress(address);
+  if (!parsed) return String(address || '').trim().toUpperCase();
+  return parsed.side==='S' && parsed.row<=8 ? parsed.col+parsed.row : null;
+}
 export function auditTownSlots(houses, places) {
   const slots = new Map();
   const set = (addr, change) => {
