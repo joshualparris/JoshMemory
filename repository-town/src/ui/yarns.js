@@ -101,6 +101,7 @@ export function mountTownYarns({life,player,onOpen=()=>{}}){
 #town-dialogue-settings p{font-size:13px;line-height:1.5;opacity:.9}
 #town-dialogue-settings button,#town-yarn-caption button{min-height:42px;min-width:42px;cursor:pointer}
 #town-yarn-caption{display:flex;align-items:center;justify-content:center;gap:8px}
+#town-yarn-caption[hidden],#town-yarns[hidden],#town-dialogue-settings[hidden]{display:none!important}
 #town-yarn-caption span{flex:1;margin:0;text-align:left}
 #town-yarn-caption [aria-label="Dismiss nearby conversation"]{flex-shrink:0}
 body.playing #town-yarns,body.playing #town-yarn-caption,body.playing #town-dialogue-settings{display:none!important}
