@@ -1,0 +1,31 @@
+name: Whispering Wilds recorded-audio integrity (Windows self-hosted)
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/windows-wilds-audio-ci.yml']
+permissions:
+  contents: read
+jobs:
+  wilds-recordings:
+    if: github.repository == 'joshualparris/JoshMemory' && github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 12
+    steps:
+      - name: Verify public game story scripts and all original MP3 files
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $target = Join-Path $env:RUNNER_TEMP 'whispering-wilds-audio'
+          if (Test-Path $target) { Remove-Item $target -Recurse -Force }
+          git clone --no-tags --single-branch --depth 1 https://github.com/Parris-Tech-Services/whispering-wilds.git $target
+          if ($LASTEXITCODE -ne 0) { throw 'Git clone failed' }
+          Set-Location $target
+          if ((git rev-parse HEAD) -ne '9faeb8b849d989e7f51a586def0e14cd07240468') { throw 'Source changed; refusing unreviewed code' }
+          python -m unittest discover -s tests -p 'test_*.py' -v
+          if ($LASTEXITCODE -ne 0) { throw 'Whispering Wilds audio integrity failed' }
+          node --check voices.js
+          if ($LASTEXITCODE -ne 0) { throw 'Whispering Wilds speech syntax failed' }
+          node --check tests/voice.browser.cjs
+          if ($LASTEXITCODE -ne 0) { throw 'Whispering Wilds browser test syntax failed' }
+          Write-Host "PASS: original 20 Wilds MP3s and recorded event safety on $env:RUNNER_NAME"
