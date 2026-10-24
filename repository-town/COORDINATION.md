@@ -14,6 +14,8 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-24 · ChatGPT — **IN PROGRESS: mobile yarn pop-up accessibility and preferences** on `fix/town-mobile-yarn-controls-20261024`. Scope `src/ui/yarns.js`, `src/index.html` (settings access), `src/main.js` (settings wire-up if required), focused tests/docs. Adds immediate close and persistent opt-out of automatically appearing nearby yarn captions; manual NPC and Yarn dialogue preserved. Screenshot shows Kip toast over interaction prompt; do not modify concurrent NPC recording branches.
+
 - 2026-10-24 · ChatGPT — **IN PROGRESS: prevent indoor resident bodies clipping through walls on mobile (user screenshots ~21:34 AEDT).** Scope `src/world/npcs.js` (indoor Walker movement and planner clearance), new `tests/indoor-resident-walls.mjs`, small test hook and `docs/INDOOR_RESIDENT_WALL_FIX_2026-10-24.md`; do not modify claimed `src/main.js` or dialogue/audio work. Root-cause hypothesis: indoor Walker moves directly along path without checking collision; resident's 3D arms protrude through walls even if its centre follows an imperfect waypoint. Must test wall-sweep, blocked route recovery and existing interiors, then review/merge/deploy/verify. Branch `fix/town-indoor-resident-wall-clipping-20261024`, start checkpoint recorded here. Leave unrelated tasks untouched.
 
 
