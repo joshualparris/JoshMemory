@@ -1,5 +1,10 @@
 # JoshMemory
 
+## Portfolio system task triage
+
+For a new coding agent reviewing **which repository to triage next**, follow [the 233-repository, grid-referenced portfolio route](docs/PORTFOLIO_TRIAGE_2026-10-24.md), [its permanent-ID registry](docs/PORTFOLIO_TRIAGE_REGISTRY_2026-10-24.csv) and [the durable next-task checkpoint](docs/PORTFOLIO_TRIAGE_CHECKPOINT.md). Each original Repository Town address is preserved; new repositories use `RT-U###` designations. Keep the grid location separate from the priority-based `TR-###` visit sequence. **Next: TR-003 / RT-U032**, subject to live work claims. Private repository identities are redacted in this public repo; authorised full mapping is stored in a separate restricted registry.
+
+
 JoshMemory is an evidence-aware project continuity system for AI-assisted software development. It helps Claude Code, Codex, Antigravity and other coding workflows resume a project from durable, redacted context while keeping **live Git/API/machine evidence authoritative**.
 
 The default shared-memory design no longer depends on AVANCE-WS7, a home PC or any other workstation remaining powered on. When an existing GitHub credential is available, JoshMemory automatically uses a private GitHub repository as the always-available backing store for handoffs, durable project facts, accountability references, bounded work leases, concise work journals and trust decisions.
