@@ -1,5 +1,16 @@
 # Repository Town — WORK CHECKPOINT
 
+## DOCS-RTD-TRIAGE-20261025 — after-RTD-009 work ID crosswalk
+
+**IN PROGRESS (documentation only).** Canonical main at start: `de547a1e0fa026e1c2470ead4cd840b6fa7cbf7e`. Claimed scope `DOCS-RTD-TRIAGE-20261025` on canonical `COORDINATION.md` at commit `a63981cf1022cc7cf1b4a62985fda5e4ed1ade47`, prior to edits. Topic branch `docs/town-rtd-after-009-triage-20261025`; no RTD-010 implementation reservation.
+
+- [x] M1 Read canonical 93-item RTD list, global `docs/OUTSTANDING_WORK_2026-10-24.md`, AGENTS, pending PRs and checkpoint; all RTD-001–009 checked; 010–093 open. No new IDs needed for the exact follow-up categories from the RTD-009 report.
+- [ ] M2 Author exact dependency-priority crosswalk: immediate 010/011/012; following graph/quests, social memory, original voice/casting, UI, Rowan/Kit/Pip and release; map overlapping global TASK-032–045 without duplicate IDs.
+- [ ] M3 Link into canonical RTD roadmap, global outstanding master and Town README. Preserve all existing task identifiers and completion states.
+- [ ] M4 Review docs-only changes, required CI, merge PR and record tested SHA and result. Leave RTD-010 unclaimed for next agent.
+
+**Boundary:** Documentation navigation only; no claim that gameplay, recordings, testing or deployment advanced. No change to actual RTD completion totals expected. Separate open PR #164 and #186 require refresh before modifying their code.
+
 ## VERIFIED COMPLETE — GitHub Pages live backup and N/S plot atlas (24 October 2026)
 
 **LIVE:** https://parris-tech-services.github.io/Repository-town/
