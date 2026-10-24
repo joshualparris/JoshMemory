@@ -25,3 +25,6 @@ Arcade test infrastructure committed and merged: [PR #171](https://github.com/jo
 
 ## TASK-040 TinyFish QA evidence
 Live focused browser reports in [repository-town/qa/reports/2026-10-24-tinyfish-arcade.md](repository-town/qa/reports/2026-10-24-tinyfish-arcade.md). Mysterious Depths hub edition reached one ending; AA Game Adventure opened but no keyboard progress demonstrated. JoshHub source guidance fixes are committed but unreleased. **Do not tick TASK-040**: broader two-edition + gameplay/release verification remains open.
+
+## TASK-034 mobile dialogue follow-up — 24 October 2026
+Source fix in [PR #184](https://github.com/joshualparris/JoshMemory/pull/184) merged; NPC yarn toast dismiss X and persistent auto-caption off switch (new touch devices default off). Focused mock-DOM behaviour test passed in an isolated V8 execution and is added to `npm run test:release`. **TASK-034 remains open** for full overlay/audio acceptance and deployment/real phone verification. Vercel status on merge: build-rate-limit.
