@@ -3,7 +3,7 @@
 // by Repository Town and no API key is ever sent to the browser.
 import { NPCS, getNPC } from './npc-data.js';
 import { answerSceneQuestion } from './scene-awareness.js';
-import {makeTownListenButton, primeTownVoice, stopTownVoice} from './voicebank.js';
+import {makeTownListenButton, primeTownVoice, stopTownVoice, makeTownRecordedLines} from './voicebank.js';
 
 const FALLBACK=[
   'The live AI is unavailable, but I can still chat with you offline.',
@@ -90,6 +90,7 @@ export function mountNPCChat(root=document, { getScene = () => null } = {}) {
       promptsRow.appendChild(b);
     }
     activities.appendChild(promptsRow);
+    activities.appendChild(makeTownRecordedLines(npc.id,root));
     if(npc.challenge){
       const area=root.createElement('div');area.className='npc-quest-area';
       const toggle=root.createElement('button');toggle.type='button';toggle.className='npc-quest-toggle';
@@ -135,6 +136,7 @@ export function mountNPCChat(root=document, { getScene = () => null } = {}) {
   function show(npcOrId,house=null) {
     const npc=typeof npcOrId==='string'?getNPC(npcOrId):npcOrId;
     if(!npc)return false;
+    stopTownVoice();
     if(controller)controller.abort();
     beforeFocus=root.activeElement;
     void primeTownVoice(npc.id);
