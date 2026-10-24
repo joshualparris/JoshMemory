@@ -11,7 +11,6 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
-- 2026-10-24 · ChatGPT — **CLAIMED RTD-003 after Replit usage exhausted**. Audit exactly 32 named cast actors, current 99 named TownLife villagers (the original 38 retain stable IDs), and 188 occupied project house-resident slots (208 possible grid coordinates). Publish documentation + a snapshot inventory JSON + parity regression tests, check only RTD-003. Branch `docs/town-rtd003-cast-inventory-20261024`. Do not change runtime NPC logic, VoiceBank/audio, Replit work or generated backup. Then move this entry to Done.
 
 
 
@@ -101,6 +100,9 @@ Newest first. Times in Australia/Sydney.
   is currently blocked by the Hobby team's daily deployment quota (`api-deployments-free-per-day`).
 
 ## Done recently
+
+- 2026-10-24 · ChatGPT — **DONE: RTD-003 after Replit usage exhausted**; published [full cast/worker/house inventory](docs/RTD_003_NPC_CAST_INVENTORY_2026-10-24.md) and [machine-readable 319-key snapshot](docs/NPC_POPULATION_INVENTORY_2026-10-24.json). Corrected stale worker count: current **99** in TownLife, including original 38 stable IDs, with 32 named street characters and 188 unique house aliases. Added `tests/npc-population-inventory.mjs` to CI integration gate, marked RTD-003 only complete and updated WORK_CHECKPOINT. No runtime behaviour or VoiceBank changes, no generated backup edits. Branch `docs/town-rtd003-cast-inventory-20261024`.
+
 
 - 2026-10-24 · ChatGPT — **DONE: RTD-004 read-only canonical NPC/audio/yarns/game-state/save audit**; [full evidence](docs/RTD_004_DIALOGUE_SYSTEM_AUDIT_2026-10-24.md). Inventoried actual modules and storage/transfer owners; checked RTD-004 only in 93-item roadmap and updated WORK_CHECKPOINT. Reused merged PR #166 as foundation, did not touch any gameplay source, audio assets or Replit's possible RTD-003 inventory. No runtime/playtest/deploy claims. PR branch `docs/town-rtd004-source-audit-20261024`.
 

@@ -21,7 +21,7 @@ Skyrim-*inspired* actor-specific dialogue branches, priorities, availability con
 
 - [x] **RTD-001** Research Skyrim's Creation Kit patterns: topics, TopicInfo, branches, conditions, quest stages, scenes, voice types and NPC schedules; use inspiration, not Bethesda assets.
 - [x] **RTD-002** Confirm canonical JoshMemory/repository-town source and generated Parris-Tech-Services/Repository-town mirror; follow AGENTS, COORDINATION and hosting policy.
-- [ ] **RTD-003** Inventory all 32 named NPCs, 38 Living Town workers and 188 house-resident slots; distinguish persistent identities from generated resident slots.
+- [x] **RTD-003** Inventory all 32 named NPCs, the **current 99 Living Town workers** (preserving the original 38 IDs) and 188 house-resident slots; distinguish persistent identities from generated resident slots. **Evidence:** [population audit](RTD_003_NPC_CAST_INVENTORY_2026-10-24.md), [complete 319-slot namespaced identity roster](NPC_POPULATION_INVENTORY_2026-10-24.json), and CI regression `tests/npc-population-inventory.mjs`.
 - [x] **RTD-004** Audit existing recorded-dialogue.js, npc-chat.js, npc.js, voicebank.js, town-life yarns, game state and save mechanisms. **Evidence:** [pinned source audit, flows/state ownership and integration risks](RTD_004_DIALOGUE_SYSTEM_AUDIT_2026-10-24.md). Read-only audit; no gameplay, audio generation, browser playtest or deployment claimed.
 - [ ] **RTD-005** Reconcile merged PR #166, its existing choice UI, current checkpoint and audio acceptance tracker; avoid duplicated or reverted work.
 - [ ] **RTD-006** Record current main commit, actual deployed release fingerprint, browser/audio test baseline and known limitations.
@@ -161,6 +161,6 @@ Do not publish that illustrative voice mapping until the actual clip words are i
 
 **Suggested source modules:** Extend `src/ui/recorded-dialogue.js`, `src/ui/npc-chat.js`, `src/ui/npc.js`, `src/ui/voicebank.js`; add pure dialogue state/condition/effects modules under `src/dialogue/`; integrate `src/world/life.js`, existing `src/ui/social.js`, Expedition Guild and canonical save functions without duplicating their state; extend `tests/recorded-dialogue.mjs`, `tests/voicebank.mjs` plus new dialogue/browser tests.
 
-**Tracked research evidence:** RTD-001 and RTD-002 completed as source/design research only. **All other RTD tasks open until implementation evidence is attached.** The merged PR #166 is a foundation, not acceptance of conditional story, quest or rollout tasks.
+**Verified planning/inventory tasks:** RTD-001, RTD-002, RTD-003 and RTD-004 (RTD-003 machine-readable population/identity inventory; RTD-004 source-system audit). **RTD-005–093 remain open until implementation/acceptance evidence is attached.** Merged PR #166 is a foundation, not acceptance of conditional story, quest or rollout tasks.
 
-**Next implementation:** Recheck current main/COORDINATION and PR #166 → start RTD-003 inventory → keep WORK_CHECKPOINT updated throughout → prioritise Rowan, Kit and Pip pilot before other cast → run complete release and live checks before checking deployed items.
+**Next implementation:** Recheck current main/COORDINATION and PR #166 → start RTD-005 reconciliation against audio tracker → keep WORK_CHECKPOINT updated throughout → use the RTD-003 namespaced IDs → prioritise Rowan, Kit and Pip pilot before other cast → run complete release and live checks before checking deployed items.
