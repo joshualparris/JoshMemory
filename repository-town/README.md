@@ -8,7 +8,11 @@ inspected, the exterior, the floor plan, the furnishings and the exhibits you ca
 
 The [readable physical plot atlas](src/address-map.html) uses the real game house inventory, town buildings, railway and farm fields. In a deployed build open `/address-map.html` or tap **Plot map**. Its 26 columns and 11 planning bands show **both** `N` and `S` for every column (e.g. `Z7-S` UpskillApp, `Z8-N` railway, `Z8-S` Farmhouse, `Z9-N` Macquarie Locksmith & Keys). Rows 9–11 are not asserted to be built streets. See [full physical land audit](docs/DIRECTIONAL_ADDRESS_AUDIT_2026-10-24.md). Legacy property keys and repository address links remain supported.
 
-## NPC dialogue development roadmap
+## Scoped follow-up triage: mobile dialogue, production and arcade
+
+[**Start here: 22-item numbered acceptance queue**](docs/NEXT_ACTION_TRIAGE.md) — authoritative existing IDs, next task for this scoped queue `AUDIO-013.02`, scoped live-production dialogue fix, real ambient yarn X/mobile handset tests, audio-overlap regression and complete arcade game playtests. The two genuinely missing unique IDs `RTM-001/002` are defined in the [stable ID registry](docs/UNNUMBERED_TODO_IDS_2026-10-24.md). Parent `TASK-034`/`TASK-040` stay open until accepted. Check [COORDINATION](COORDINATION.md) before claiming work; never renumber existing tasks.
+
+ ## NPC dialogue development roadmap
 
 See the [93-task Skyrim-inspired NPC dialogue checklist](docs/SKYRIM_NPC_DIALOGUE_IMPLEMENTATION_TODO.md) for character-specific branching, conditions, quest effects, per-NPC memory, ElevenLabs recording/caption reconciliation, accessibility, browser playtests and production release gates. Existing recorded dialogue remains the starting point; implementation tasks are not marked complete without evidence.
 
