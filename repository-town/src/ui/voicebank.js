@@ -39,6 +39,9 @@ function resetButton(button) {
 }
 export function stopTownVoice() {
   revision++;
+  const currentCue=activeRecordedCue;
+  activeRecordedCue=null;
+  currentCue?.reset();
   game300Module?.stopGame300();
   bank?.stop();
   rowanBank?.stop();
@@ -125,9 +128,92 @@ export function makeTownListenButton(text,root=document,{npcId=''}={}) {
 }
 
  
-// Opt-in Game300 gallery. A real recording is never labelled as device speech.
-let game300Module=null;
-void import(VOICEBANK_ORIGIN+'/src/game300.js').then(module=>{game300Module=module}).catch(()=>{});
+// Game300 clips are alternate, pre-recorded lines — never a false reading of a chat reply.
+// Only the player's explicit click starts audio. Captions show the exact recorded text.
+const GAME300_SPEAKERS=new Set(['rowan','pip','circuit','wren','sol','sage','spark','lyra','nova','kit']);
+const GAME300_EVENT_NAMES=new Set(['greeting','help','quest','success','retry','ambient','explore','choice','farewell','surprise']);
+let game300Module=null,activeRecordedCue=null;
+const game300Loading=import(VOICEBANK_ORIGIN+'/src/game300.js')
+  .then(module=>(game300Module=module)).catch(()=>null);
+export function hasTownRecordedEvent(npcId,event) {
+  return GAME300_SPEAKERS.has(npcId) && GAME300_EVENT_NAMES.has(event);
+}
+
+// Small inline control next to a genuine NPC greeting, quest or outcome.
+// Unlike the original gallery, it belongs to that specific game event.
+export function makeTownRecordedEventCue(npcId,event,root=document) {
+  const wrap=root.createElement('span');
+  wrap.className='npc-recorded-cue';
+  if(!hasTownRecordedEvent(npcId,event))return wrap;
+  const button=root.createElement('button');
+  button.type='button';
+  button.className='town-voice-button npc-recorded-cue-button';
+  button.dataset.voiceSource='elevenlabs';
+  const caption=root.createElement('span');
+  caption.className='npc-recorded-caption';
+  caption.setAttribute('role','status');
+  const label=event==='retry'?'try-again line':event+' line';
+  const readyLabel='▶ Hear recorded '+label;
+  const reset=()=>{
+    ticket++;
+    playing=false;
+    button.textContent=readyLabel;
+    caption.textContent='Stopped';
+  };
+  let ticket=0,playing=false;
+  button.disabled=true;
+  button.textContent='⏳ Loading voice';
+  button.setAttribute('aria-label','Hear the original ElevenLabs '+label+' (its exact words appear below)');
+  void game300Loading.then(module=>{
+    if(!module){
+      button.disabled=true;
+      button.textContent='⚠ Recording unavailable';
+      caption.textContent='The approved recording could not load.';
+    }else{
+      button.disabled=false;
+      button.textContent=readyLabel;
+    }
+  });
+  button.addEventListener('click',()=>{
+    if(button.disabled || !game300Module)return;
+    if(playing){stopTownVoice();return;}
+    stopTownVoice();
+    const stamp=revision,mine=++ticket;
+    playing=true;
+    activeRecordedCue={reset};
+    button.textContent='■ Stop recorded line';
+    caption.textContent='Loading recording…';
+    void game300Module.playGame300('repo_town',npcId,event,{
+      onEnd:()=>{
+        if(mine!==ticket||stamp!==revision)return;
+        playing=false;
+        activeRecordedCue=null;
+        button.textContent='▶ Replay recorded '+label;
+        caption.textContent+=' ✓';
+      }
+    }).then(result=>{
+      if(mine!==ticket||stamp!==revision)return;
+      if(result.status==='playing'){
+        caption.textContent=result.text; // Exact ZIP-manifest caption, not the NPC chat bubble
+      }else{
+        playing=false;
+        activeRecordedCue=null;
+        button.textContent='▶ Retry recorded '+label;
+        caption.textContent='Recording '+result.status+'.';
+      }
+    }).catch(()=>{
+      if(mine===ticket&&stamp===revision){
+        playing=false; activeRecordedCue=null;
+        button.textContent='▶ Retry recorded '+label;
+        caption.textContent='Recording unavailable.';
+      }
+    });
+  });
+  wrap.append(button,caption);
+  return wrap;
+}
+
+// Legacy opt-in gallery remains available for all ten events per NPC.
 
 const CONTEXT_RECORDING_ACTORS=new Set(['rowan','pip','circuit','wren','sol','sage','spark','lyra','nova','kit']);
 // A contextual, opt-in *extra* spoken line. The caption is the recording's real
@@ -201,10 +287,9 @@ export function makeTownContextCue(npcId,event,root=document) {
 }
 
 export function makeTownRecordedLines(npcId,root=document){
-  const supported=new Set(['rowan','pip','circuit','wren','sol','sage','spark','lyra','nova','kit']);
   const details=root.createElement('details');
   details.className='npc-game300';
-  if(!supported.has(npcId))return details;
+  if(!GAME300_SPEAKERS.has(npcId))return details;
   const summary=root.createElement('summary');summary.textContent='🎙️ Recorded character lines (10)';
   details.appendChild(summary);
   const buttons=root.createElement('div');buttons.className='npc-prompt-row';
