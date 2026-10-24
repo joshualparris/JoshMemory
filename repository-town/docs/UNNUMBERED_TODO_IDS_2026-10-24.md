@@ -185,6 +185,46 @@ These **new** IDs cover precise unnumbered aspects of the five open areas in the
 Treat this document as a cross-reference for *previously unnumbered* tasks, not a replacement for the original trackers. Do not reuse IDs or implicitly tick off parent/child tasks. Where an original tracker is now stale, reconcile wording and status in a distinct evidence-backed change.
 
 
+## Lighting tasks and release triage
+
+Added 25 October 2026. Scope: the lighting status report and its remaining publication/acceptance work. **Current action: RLT-011**, finish the browser publication and PR, then execute RLT-012 through RLT-016 in order. RLT-008–010 are complete for the current candidate. RLT-017–019 are subsequent targeted acceptance/coverage work; do not silently claim those verified. P0 unblocks publication, P1 delivers and verifies the release, P2 extends device/outage/coverage evidence.
+
+The existing **RLT-001–007** audit IDs are retained unchanged and are now indexed centrally. New **RLT-008–019** identify previously unnumbered work. These are lighting-specific acceptance records beneath the existing broader **RTR-009**, **RTR-013**, **RTR-015** and **RTR-016** tasks; none of those existing IDs or checkbox states are replaced. The lighting release does not claim audio task RT-08/AUDIO-013.03 complete.
+
+### Implemented and verified locally — release acceptance still open
+
+Evidence: [lighting audit](LIGHTING_AUDIT_2026-10-24.md), [browser metadata](../audit/lighting/after/metadata.json), [release checks](../audit/lighting/release-checks.log). Runtime candidate e72a654 passed the release/privacy gate and 38 desktop/emulated-Android scenarios; later main has not yet been reconciled. These statuses do not assert GitHub publication or deployment.
+
+| Existing ID | Exact scope | Status |
+|---|---|---|
+| RLT-001 | Streetlamps illuminate roads, footpaths and people | VERIFIED LOCALLY; hosted acceptance open |
+| RLT-002 | University, TAFE, hardware and trades interior lighting | VERIFIED LOCALLY; hosted acceptance open |
+| RLT-003 | Readable illuminated painted shop signs | VERIFIED LOCALLY; hosted acceptance open |
+| RLT-004 | Shop window lighting follows trading hours | VERIFIED LOCALLY; hosted acceptance open |
+| RLT-005 | Independent shared-shell lighting circuits and blackout controls | VERIFIED LOCALLY; hosted acceptance open |
+| RLT-006 | Repeatable desktop and emulated-Android lighting audit | VERIFIED LOCALLY; hosted acceptance open |
+| RLT-007 | Correct early/late/night-owl household bedtime schedules | VERIFIED LOCALLY; hosted acceptance open |
+
+### Remaining tasks — logical execution order
+
+**Browser fallback is working:** GitHub UI created the remote lighting branch and committed checkpoint/package, all five source files and both regression tests. CLI/connector authentication remains unavailable, but RLT-008 is satisfied by verified browser writes. Current action is RLT-011 (complete remaining files and PR); merge and hosted acceptance are still open.
+
+| Order | Unique ID | Priority | Exact task | Depends on | Acceptance |
+|---|---|---|---|---|---|
+| 1 | RLT-008 | P0 | [x] Restore authenticated GitHub write access | None | PASS: browser created the scoped branch and source commits f87f42b / 750446c; public Git fetch verifies the five runtime files byte-for-byte. No credentials extracted or changed. CLI/connector outage remains separately recorded. |
+| 2 | RLT-009 | P1 | [x] Fetch latest main and reconcile the lighting branch | RLT-008 | PASS: reconciled latest observed main ee432c0 into local f2053e1; preserved concurrent NPC/yarn/triage/hosting files. Recheck main before merging if it advances. |
+| 3 | RLT-010 | P1 | [x] Validate the reconciled release candidate | RLT-009 | PASS: f2053e1 full release gate, privacy (774 files/1116 markers) and 1140-file manifest. Runtime lighting files unchanged from e72a654, whose 38 desktop/emulated-Android browser scenarios passed. Hosted acceptance remains RLT-015. |
+| 4 | RLT-011 | P1 | [ ] Push lighting source, central task index, checkpoint and open the PR | RLT-010 | Remote branch/PR exists in joshualparris/JoshMemory; verify published files include RLT-001–019. Do not edit the generated backup by hand. |
+| 5 | RLT-012 | P1 | [ ] Review and merge the lighting PR | RLT-011 | Review scoped diff, preserve concurrent changes, pass required checks and verify merge commit on main. Revalidate changes introduced by reconciliation. |
+| 6 | RLT-013 | P1 | [ ] Deploy the approved lighting release | RLT-012 | Follow current docs/HOSTING.md and verify a successful deployment of the lighting commit. Use an eligible existing fallback if Vercel is blocked; an older working Town host does not complete this task. |
+| 7 | RLT-014 | P1 | [ ] Verify hosted version, fingerprint and assets | RLT-013 | Read live release.json, match sourceCommit/contentHash to approved build and check representative JS/assets. Check each intended host separately; record mismatches. |
+| 8 | RLT-015 | P1 | [ ] Run the actual hosted desktop/mobile lighting walkthrough | RLT-014 | Check daytime/dusk/midnight streets, eight built street segments, university/other audited interiors, shop signs/windows, movement and window rendering. Capture runtime errors, screenshots and exact URL/SHA. Local tests do not complete this task. |
+| 9 | RLT-016 | P1 | [ ] Close the lighting release with evidence in central docs | RLT-015 | Update this index, audit, WORK_CHECKPOINT and coordination with merged SHA, tested live URL/hash, results and remaining limits; push and verify the updates. No blanket completion of RTR/audio/NPC parents. |
+| 10 | RLT-017 | P2; device-dependent | [ ] Check real Android handset performance and night visibility | RLT-015 | Record actual hardware/browser, touch usability, sustained FPS and readable night views. Emulation is insufficient. If no handset is available, leave unverified; do not invent a release approval requirement. |
+| 11 | RLT-018 | P2 | [ ] Verify blackout and restoration through actual gameplay | RLT-015 | Exercise total power loss and a mapped feeder loss in shared-shell interiors; check fixtures/glow, unaffected circuits and restoration. Node circuit tests alone are not live outage acceptance. |
+| 12 | RLT-019 | P2; audit extension | [ ] Extend visual lighting coverage to unvisited interiors | RLT-015 | Inventory remaining civic rooms and repository-house interiors, record which were actually visited at night and file concrete defects. Current eight-interior route and geometry tests do not prove every corner was inspected. |
+
+Authoritative next action: **RLT-011 — finish publishing the scoped files and open the PR**. Browser write access and current candidate validation are verified. Keep task IDs stable if priority changes; change the Order column rather than renumbering IDs. This section is being published to the canonical GitHub lighting branch as part of RLT-011; main merge and deployment remain separate acceptance steps.
 ## Recorded NPC conversations — exact request cross-reference (25 October 2026)
 
 This section maps Josh's request for natural, Skyrim-inspired prerecorded ElevenLabs conversations, player dialogue choices, all NPCs, missing-line generation, dual permanent storage and complete playtesting to **existing** IDs. It adds **zero new IDs**, changes **no existing number or checkbox**, and makes **no new implementation or deployment claim**. Rank is dependency order within this request, not a replacement for the Town-wide priority queue. Status remains authoritative in the [RTD roadmap](SKYRIM_NPC_DIALOGUE_IMPLEMENTATION_TODO.md); consult current coordination/PRs before claiming work.

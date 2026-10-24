@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { createStreetLighting, lightingLevel, STREET_LIGHT_BUDGET, householdLightingOn } from './lighting.js';
 import { Builder } from './builder.js';
 import { buildExterior } from './exterior.js';
 import { exteriorColliders } from './exterior-collision.js';
@@ -59,8 +60,9 @@ export function buildTown(scene, houses, streets) {
     for (const z of [-depth / 2 - 6, depth / 2 + 6]) { const x = -width / 2 + i * width / 70; deco.cyl(0x6a4a2a, 0.3, 3, x, 1.5, z); deco.ball([0x4e8a46, 0x5a9a50, 0x467e40][i % 3], 2.2, x, 4.2, z); }
   }
   // Street lamps on both footpaths: poles merge into the street mesh, the lamp heads into
-  // one mesh that glows at night (no real lights, so phones pay nothing extra).
+  // one emissive mesh plus a bounded pool of real downward lights near the player.
   const heads = new Builder(); heads.glass = [];
+  const lampSources = [];
   for (let r = 0; r < 8; r++) {
     const z = r * LOT_Z - 3.5 * LOT_Z + 16;
     for (let x = -width / 2 + 36; x < width / 2 - 30; x += 26) {
@@ -71,7 +73,9 @@ export function buildTown(scene, houses, streets) {
         deco.box(0x2f3338, 0.08, 0.08, 0.9, lx, 4.15, lz - side * 0.4);
         deco.box(0x2a2c30, 0.55, 0.05, 0.32, lx + 3.5, 0.05, z + side * 4.22);           // stormwater grate
         for (let g = 0; g < 4; g++) deco.box(0x4a4d52, 0.04, 0.052, 0.28, lx + 3.5 - 0.18 + g * 0.12, 0.052, z + side * 4.22);
-        heads.box(0x9fd3ea, 0.42, 0.2, 0.42, lx, 4.0, lz - side * 0.85);
+        deco.box(0x2f3338, 0.52, 0.12, 0.52, lx, 4.16, lz - side * 0.85);
+        heads.box(0x9fd3ea, 0.42, 0.06, 0.42, lx, 4.06, lz - side * 0.85);
+        lampSources.push({x:lx,y:4.02,z:lz-side*.85,roadward:-side*2.5});
       }
     }
   }
@@ -87,6 +91,8 @@ export function buildTown(scene, houses, streets) {
   const lampMat = new THREE.MeshLambertMaterial({ color: 0xfff1c8, emissive: 0xffd27a, emissiveIntensity: 0 });
   const lamps = new THREE.Mesh(Builder.merge(heads.glass), lampMat);
   group.add(lamps);
+  const lightBudget = typeof matchMedia === 'function' && matchMedia('(pointer: coarse)').matches ? 2 : STREET_LIGHT_BUDGET;
+  const streetLighting = createStreetLighting(group, lampSources, lightBudget);
 
   // One mesh per house: frustum culling then skips houses behind or beyond the fog.
   const lots = new Map();
@@ -128,14 +134,14 @@ export function buildTown(scene, houses, streets) {
   const windowMats = panes.map(() => new THREE.MeshLambertMaterial({ vertexColors: true, emissive: 0xffb45a, emissiveIntensity: 0 }));
   panes.forEach((p, i) => { const g = Builder.merge(p); if (g) group.add(new THREE.Mesh(g, windowMats[i])); });
   // dark: 0 by day … 1 at night. minute: town clock, for bedtimes and early risers.
-  function setNight(dark, minute) {
-    const h = minute / 60;
-    const on = [h < 22 || h >= 5.5, h < 23.5 || h >= 6, true];
+  function setNight(dark, minute, eye = {x:0,z:0}, powered = true) {
+    const on = [0,1,2].map(cohort=>householdLightingOn(minute,cohort));
     windowMats.forEach((m, i) => { m.emissiveIntensity = on[i] ? dark * 0.95 : dark * 0.05; });
-    lampMat.emissiveIntensity = dark > 0.25 ? 1.2 : 0;
+    lampMat.emissiveIntensity = powered ? 1.2 * lightingLevel(dark) : 0;
+    streetLighting.update(eye, dark, powered);
   }
 
-  return { group, ground, colliders, lots, doors, doorZones, streets, guidePos: new THREE.Vector3(0, 0, guideZ), bounds: { width, depth }, setNight };
+  return { group, ground, colliders, lots, doors, doorZones, streets, guidePos: new THREE.Vector3(0, 0, guideZ), bounds: { width, depth }, streetLighting, lampSources, setNight };
 }
 
 // Street-name signs at both ends of each street, plus the Town Guide sign near spawn.

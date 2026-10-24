@@ -1,0 +1,12 @@
+{
+  "sourceCommit": "e72a65408bdba2f77e33beb227cd689bc2d3c305",
+  "contentHash": "d0e66d250b6d43ad7b89045dbd925b05a8a7e4abeab1e922b0bc5d4c63959d61",
+  "browser": "141.0.7390.37",
+  "contexts": [
+    "desktop",
+    "emulated Android"
+  ],
+  "scenarios": 38,
+  "blocked": [],
+  "runtimeErrors": 0
+}

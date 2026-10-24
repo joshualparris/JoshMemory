@@ -1,3 +1,4 @@
+import { shopLightingOn, interiorPalette } from './lighting.js';
 import * as THREE from 'three';
 import { makeSeat } from './seats.js';
 import { SIGNAL_CROSSINGS, crossingState } from './traffic-signals.js';
@@ -646,25 +647,30 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   // Each civic building is its own mesh (plus one for its glass), so it can be hidden while the
   // player is inside it and looking out of its windows (src/main.js renderFrame).
   const shopGlassMat = new THREE.MeshLambertMaterial({ vertexColors: true, emissive: 0xffc070, emissiveIntensity: 0 });
-  const buildings = new Map(), signs = [];
+  const buildings = new Map(), signs = [], shopGlazing = [];
   // Farms get a painted sign on two posts at the gate.
   const farmSign = (p) => {
     const x = p.x + 5.8, z = LOT8_Z + 8.2;
     for (const dx of [-1.2, 1.2]) { statics.solid(0.15, 0.15, x + dx, z); statics.block(WOOD, 0.12, 1.85, 0.12, x + dx, 0, z - 0.04); }
-    signs.push({ text: p.name, x, y: 1.5, z, w: 2.6, h: 0.6, bg: '#f3ead2', fg: '#3a2a1e' });
+    signs.push({place:p, text: p.name, x, y: 1.5, z, w: 2.6, h: 0.6, bg: '#f3ead2', fg: '#3a2a1e' });
   };
   for (const p of life.places.values()) {
     // Permanently painted, readable opening-hour plaques on EVERY civic facade.
     // One shared atlas and merged mesh keeps these signs cheap on Android.
     // Operational 24h sites publish visitor reception hours, not factory hours.
     const south=p.side==='south';
-    signs.push({text:openingHoursLabel(p),x:p.x+3.35,y:2.95,
+    signs.push({place:p,text:openingHoursLabel(p),x:p.x+3.35,y:2.95,
       z:south?FIELD_Z0-0.25:LOT8_Z+7.28,
       w:4.35,h:0.40,rotY:south?Math.PI:0,bg:'#f2ead6',fg:'#302c25'});
     const b = new Builder(); b.glass = [];
     const finish = () => {
       const meshes = [b.build()], glass = Builder.merge(b.glass);
-      if (glass) meshes.push(new THREE.Mesh(glass, shopGlassMat));
+      if (glass) {
+        const material = shopGlassMat.clone();
+        material.emissive.setHex(interiorPalette(p.id).colour);
+        meshes.push(new THREE.Mesh(glass, material));
+        shopGlazing.push({place:p,material});
+      }
       group.add(...meshes); colliders.push(...b.solids); buildings.set(p.id, meshes);
     };
     const kind = BUILD[p.id] ? p.id : p.kind === 'farm' ? 'farm' : p.kind === 'home' ? 'farmhouse' : p.kind === 'park' ? 'square' : p.id;
@@ -680,7 +686,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       group.add(sign); labels.push(sign);
       spots.push({ key: `place:${p.id}`, id: p.id, pos: new THREE.Vector3(p.x, 0, FIELD_Z0 - 2.4), label: `${p.name} — ${{ bank: 'your account', fire: 'station board', foundry: 'the works' }[p.id] || 'the plant'}` });
       const at = SIGN_AT[p.id];   // turned to face the road, like the building
-      if (at) signs.push({ text: p.name, x: p.x - at[0], y: at[1], z: FIELD_Z0 + 7 - at[2], w: at[3], h: at[4], rotY: Math.PI, bg: at[5], fg: at[6] });
+      if (at) signs.push({place:p, text: p.name, x: p.x - at[0], y: at[1], z: FIELD_Z0 + 7 - at[2], w: at[3], h: at[4], rotY: Math.PI, bg: at[5], fg: at[6] });
       if(p.field)fields.push({p,...buildField(p,group,statics,statics.glass)});
       finish();
       continue;
@@ -691,8 +697,8 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       else fp = BUILD[kind](b);
     });
     finish();
-    if (SHOPFRONT[p.id]) { const [w, h] = SHOPFRONT[p.id], [bg, fg] = SHOP_COLOURS[p.id]; signs.push({ text: p.name, x: p.x, y: h - 0.55, z: LOT8_Z + 7.15, w: w * 0.6, h: 0.7, bg, fg, cross: p.id === 'clinic' }); }
-    else if (SIGN_AT[p.id]) { const at = SIGN_AT[p.id]; signs.push({ text: p.name, x: p.x + at[0], y: at[1], z: LOT8_Z + at[2], w: at[3], h: at[4], bg: at[5], fg: at[6] }); }
+    if (SHOPFRONT[p.id]) { const [w, h] = SHOPFRONT[p.id], [bg, fg] = SHOP_COLOURS[p.id]; signs.push({place:p, text: p.name, x: p.x, y: h - 0.55, z: LOT8_Z + 7.15, w: w * 0.6, h: 0.7, bg, fg, cross: p.id === 'clinic' }); }
+    else if (SIGN_AT[p.id]) { const at = SIGN_AT[p.id]; signs.push({place:p, text: p.name, x: p.x + at[0], y: at[1], z: LOT8_Z + at[2], w: at[3], h: at[4], bg: at[5], fg: at[6] }); }
     else if (p.kind === 'farm') farmSign(p);
     if (fp) colliders.push({ x0: p.x - fp.w / 2, x1: p.x + fp.w / 2, z0: LOT8_Z + (fp.front ?? 7) - fp.d, z1: LOT8_Z + (fp.front ?? 7) });
     if (kind === 'square') {
@@ -963,9 +969,17 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     if (stars.visible) { stars.position.copy(skyCam.position); stars.material.opacity = Math.min(1, dark * 1.2); moon.position.set(skyCam.position.x - Math.cos(a) * 140, skyCam.position.y + Math.max(30, -Math.sin(a) * 120), skyCam.position.z - 60); }
     // A blackout puts out the windows and street lamps (src/world/life.js utilities).
     const powered = life.civic.powerGrid ? life.civic.powerGrid.served > 0 : life.civic.supply.ok; // a local fault must not darken every lamp
-    town.setNight(powered ? dark : dark * 0.04, m);
-    const anyOpenLate = dark > 0.2;
-    shopGlassMat.emissiveIntensity = anyOpenLate && powered ? dark * 0.9 : 0;
+    town.setNight(powered ? dark : 0, m, eye, powered);
+    for (const {place,material} of shopGlazing)
+      material.emissiveIntensity = powered && shopLightingOn(place,m) ? dark*.75 : 0;
+    signBoards?.userData.setLighting(dark, powered, m);
+    // Electric circuits are separate from sunset and reception access.
+    for(const child of scene.children)if(child.userData.updateLighting){
+      const id=child.userData.lightingSite;
+      const customer=['clinic','waterworks','sewage','bakery'].includes(id)?id:
+        ['mill','foundry','soyplant'].includes(id)?'industry':null;
+      child.userData.updateLighting(customer?life.gridPowered(customer):powered);
+    }
     for (const d of doorCards) d.m.material = facilityAccess(life, d.q).allowed ? d.openMat : d.closedMat;
     lightMat.emissiveIntensity = dark > 0.3 ? 1.4 : 0;  // vehicle headlights run on their own batteries
     eyeCached.x=eye.x;eyeCached.z=eye.z;

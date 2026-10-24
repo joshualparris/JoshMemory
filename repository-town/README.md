@@ -170,3 +170,7 @@ the delivery truck models are currently decorative. See
 complete buildout and scenario acceptance checks. Continue to run the
 normal build, privacy check and desktop/Android browser suites before public
 deployment.
+
+## Lighting task triage
+
+[Central lighting tasks RLT-001–019](docs/UNNUMBERED_TODO_IDS_2026-10-24.md#lighting-tasks-and-release-triage): current **RLT-011** to finish browser publication and open the PR; browser write access, reconciliation and local validation (RLT-008–010) are verified. Then review/merge, deploy and verify. RLT-001–007 retain their original audit IDs and local-only verification status.
