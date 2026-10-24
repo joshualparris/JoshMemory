@@ -1,3 +1,5 @@
+> **PORTFOLIO MASTER EXECUTION ENTRY POINT (25 Oct):** [20-agent risk/dependency triage](MASTER_20_AGENT_TRIAGE_2026-10-25.md) · [complete 2,663-row ordered task register](MASTER_20_AGENT_EXECUTION_QUEUE_2026-10-25.csv) · [unresolved report intake IDs](MASTER_AGENT_REPORT_INTAKE_IDS_2026-10-25.md). Start at rank **00001 / DCSC-GR-001** (reported risk investigation, NOT a confirmed breach); follow task ownership/dependencies. This index supersedes any contradictory *cross-project* first-step recommendations while preserving all permanent source IDs and completed states. No source repair/QA/deployment completed by numbering alone.
+
 # Numbered outstanding work — 2026-10-24
 
 Status: **OPEN / not independently verified**. Historical reports are not proof of current state. Mark done only with commit, test, deployment and playtest evidence as relevant.
