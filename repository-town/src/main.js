@@ -66,7 +66,7 @@ async function start() {
   // Archive contents (READMEs, file lists) are large, so they load on first use.
   let archive = null;
   setArchiveLoader(() => (archive = archive || (window.__REPO_DATA__ ? Promise.resolve(window.__REPO_DATA__) : fetch('repo-data.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({})))));
-  const houses = data.houses.map(h => ({ ...honourPaulRoe(h), address: houseAddress(h.coordinate) }));
+  const houses = data.houses.map(honourPaulRoe).map(h => ({ ...h, address: houseAddress(h.coordinate) }));
   const byCoord = new Map(houses.map((h) => [h.coordinate, h]));
 
   const touch = matchMedia('(pointer: coarse)').matches;
