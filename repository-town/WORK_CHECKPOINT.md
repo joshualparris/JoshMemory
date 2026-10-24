@@ -1,5 +1,11 @@
 # Repository Town — WORK CHECKPOINT
 
+## Agent work queue numbered — 25 October 2026 (reconciled to newer main)
+
+**Docs-only, implementation still open.** [Task queue](docs/NEXT_ACTION_TRIAGE_2026-10-25.md): 10 ranked distinct IDs for five user-reported open areas. Six new: `RTN-001`, `RTN-002`, `RTN-003`, `RTQ-001`, `RTP-001`, `RTP-002`; preserve and reuse existing `RTD-043`, `RTD-044`, `RTD-084`, `RTR-010`. All new tasks remain unchecked. Verified all 101 previously numbered source-index tasks still have identical IDs and checkbox states, and no repeated IDs in the ten-row triage. **Next:** `RTN-002` reconcile active collision [PR #186](https://github.com/joshualparris/JoshMemory/pull/186) and independent wall branch claims rather than overwrite existing work.
+
+Branch: `docs/town-next-action-triage-reconciled-20261025` (the first docs [PR #189](https://github.com/joshualparris/JoshMemory/pull/189) was conflicted by concurrent main commits; this branch is based on their current main). README and stable ID index cross-linked. No gameplay files, audio, roads, NPCs or releases altered.
+
 ## DOCS-RTD-TRIAGE-20261025 — after-RTD-009 work ID crosswalk
 
 **IN PROGRESS (documentation only).** Canonical main at start: `de547a1e0fa026e1c2470ead4cd840b6fa7cbf7e`. Claimed scope `DOCS-RTD-TRIAGE-20261025` on canonical `COORDINATION.md` at commit `a63981cf1022cc7cf1b4a62985fda5e4ed1ade47`, prior to edits. Topic branch `docs/town-rtd-after-009-triage-20261025`; no RTD-010 implementation reservation.
