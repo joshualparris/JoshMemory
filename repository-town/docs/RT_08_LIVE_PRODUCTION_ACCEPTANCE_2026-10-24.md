@@ -30,6 +30,17 @@
 
 **Disposition:** RT-08 and broad audio parent 013 remain **OPEN** pending their entire acceptance contract. AUDIO-013.03 remains open for the still-unchecked CSP and other exhaustive live asset checks. Do not mark those parent tasks complete solely based on this focused proof. No application code or production deployment was modified. Fix the optional favicon separately before insisting on zero console warnings.
 
+## Reproducible checks
+
+The published site is tested directly rather than assuming the application source branch is deployed:
+
+```bash
+TOWN_PLAYTEST_URL=https://repository-town-claude-complete.vercel.app/ node tests/recorded-dialogue-browser.mjs
+node tests/e2e.mjs --url https://repository-town-claude-complete.vercel.app/ --only A1 --out test-results/rt08-a1.json
+```
+
+Use a Chromium/Playwright environment with WebGL software rendering available. In the isolated Vercel sandbox, the default Playwright Chromium launcher was redirected to installed Google Chrome; no game code was modified. The exact environment run was completed before this document was authored; this documentation commit does **not** imply re-running its commands. The E2E house check and recorded-dialogue test were independent, and only the narrow A1 case was executed from the 188-house matrix. An explicit `favicon.ico` warning remains until the static asset is supplied.
+
 ## Follow-up
 
 - Extend production 3D NPC walk-up/visit test beyond the three demonstrated characters; test actor switching and walking away mid-playback, offline/poor network and accessibility.
