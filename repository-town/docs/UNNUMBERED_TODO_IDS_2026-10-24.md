@@ -129,6 +129,29 @@ Source: [GitHub issue #157](https://github.com/joshualparris/JoshMemory/issues/1
 - [ ] **RTC-008** Investigate years 3–5 targeted water/sewer/power, walking/cycling, land-use and industrial compatibility investments with tested demand.
 - [ ] **RTC-009** Evaluate years 6–10 resilient energy, park/shade equity, community programmes and demand-evidenced transport with whole-of-life funding.
 
+## Screenshot-based NPC uniqueness, collision and alternative-host release (RTN IDs)
+
+The 24 October mobile screenshots exposed duplicated-looking residents and visible body merging in a crowded pub. These are **new, uniquely numbered scoped tasks**, distinct from broad existing `RTR-009/010/015`, `RTL-005`, `RTD-010` and `RT-08`. Full acceptance and handoff details: [RTN-001–018 priority tracker](RTN_NPC_CROWD_FALLBACK_TRIAGE_2026-10-25.md). **Next action: RTN-007**. Checked items below were committed/tested on an *unmerged* candidate; **none proves a hosted fix**.
+
+- [x] **RTN-001** Deterministic visual individuality for simulated street residents and trade crew (source only).
+- [x] **RTN-002** Stable indoor shop-worker and visitor wardrobe identity (source only).
+- [x] **RTN-003** Separate shop spawning, queue positions and reserved standing space (source only).
+- [x] **RTN-004** NPC-to-NPC walking separation, dynamic obstacles, rerouting (source only).
+- [x] **RTN-005** Continuous body-sweep furniture collision + café-corner regression (source only).
+- [x] **RTN-006** Dense-crowd regression and complete sandbox release build on `ac0b8a1` (not deployed).
+- [ ] **RTN-007** **FIRST:** Resolve conflicting [PR #186](https://github.com/joshualparris/JoshMemory/pull/186) with latest canonical `main`.
+- [ ] **RTN-008** Distinct identities for remaining 32 named NPCs and 188 in-home slots; preserve voice/dialogue IDs.
+- [ ] **RTN-009** Player-initiated NPC collision/merging and narrow-space navigation.
+- [ ] **RTN-010** Crowded venue, camera, visual readability and mobile performance audit.
+- [ ] **RTN-011** Test reconciled SHA with full release/CI/privacy/integration and desktop/mobile browser checks.
+- [ ] **RTN-012** Review and merge conflict-free tested candidate into canonical source.
+- [ ] **RTN-013** Check eligible non-Vercel capacity (Render QA, separate Pages, Cloudflare); do not treat Neon as WebGL hosting.
+- [ ] **RTN-014** Build/publish merged source on independent `joshualparris/repository-town` GitHub Pages.
+- [ ] **RTN-015** If Pages unavailable, verify approved Render/Cloudflare static-host alternate (or document not required).
+- [ ] **RTN-016** Verify live `release.json` source/content fingerprint, assets, privacy and separate-origin save safety.
+- [ ] **RTN-017** Hosted pub/café/shop/university desktop + Android/mobile player/people walkthrough.
+- [ ] **RTN-018** Publish exact evidence and update checkpoint/coordination; only then close screenshot request.
+
 ## Already numbered elsewhere — deliberately not renumbered
 - [93-item Skyrim NPC checklist](SKYRIM_NPC_DIALOGUE_IMPLEMENTATION_TODO.md) — retains `RTD-001`–`RTD-093`.
 - [Nine-item earlier NPC checkpoint](../WORK_CHECKPOINT.md) — retains `RT-01`–`RT-09`.
