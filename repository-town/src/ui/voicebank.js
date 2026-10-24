@@ -149,25 +149,30 @@ export function makeTownRecordedEventCue(npcId,event,root=document) {
   button.type='button';
   button.className='town-voice-button npc-recorded-cue-button';
   button.dataset.voiceSource='elevenlabs';
+  button.setAttribute('aria-pressed','false');
   const caption=root.createElement('span');
   caption.className='npc-recorded-caption';
   caption.setAttribute('role','status');
+  caption.hidden=true;
   const label=event==='retry'?'try-again line':event+' line';
   const readyLabel='▶ Hear recorded '+label;
   const reset=()=>{
     ticket++;
     playing=false;
     button.textContent=readyLabel;
+    button.setAttribute('aria-pressed','false');
+    caption.hidden=false;
     caption.textContent='Stopped';
   };
   let ticket=0,playing=false;
   button.disabled=true;
-  button.textContent='⏳ Loading voice';
+  button.textContent='⏳ Loading voice (recorded)';
   button.setAttribute('aria-label','Hear the original ElevenLabs '+label+' (its exact words appear below)');
   void game300Loading.then(module=>{
     if(!module){
       button.disabled=true;
       button.textContent='⚠ Recording unavailable';
+      caption.hidden=false;
       caption.textContent='The approved recording could not load.';
     }else{
       button.disabled=false;
@@ -182,6 +187,8 @@ export function makeTownRecordedEventCue(npcId,event,root=document) {
     playing=true;
     activeRecordedCue={reset};
     button.textContent='■ Stop recorded line';
+    button.setAttribute('aria-pressed','true');
+    caption.hidden=false;
     caption.textContent='Loading recording…';
     void game300Module.playGame300('repo_town',npcId,event,{
       onEnd:()=>{
@@ -189,6 +196,7 @@ export function makeTownRecordedEventCue(npcId,event,root=document) {
         playing=false;
         activeRecordedCue=null;
         button.textContent='▶ Replay recorded '+label;
+        button.setAttribute('aria-pressed','false');
         caption.textContent+=' ✓';
       }
     }).then(result=>{
@@ -199,12 +207,14 @@ export function makeTownRecordedEventCue(npcId,event,root=document) {
         playing=false;
         activeRecordedCue=null;
         button.textContent='▶ Retry recorded '+label;
+        button.setAttribute('aria-pressed','false');
         caption.textContent='Recording '+result.status+'.';
       }
     }).catch(()=>{
       if(mine===ticket&&stamp===revision){
         playing=false; activeRecordedCue=null;
         button.textContent='▶ Retry recorded '+label;
+        button.setAttribute('aria-pressed','false');
         caption.textContent='Recording unavailable.';
       }
     });
