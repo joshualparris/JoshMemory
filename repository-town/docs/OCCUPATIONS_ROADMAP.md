@@ -8,7 +8,7 @@ Player-requested roadmap. Check boxes only when the complete gameplay loop is im
 - [x] Café first playable loop: actual villagers queue, named orders and tables, six recipes with skill activities/equipment animations, carried trays, correct-table delivery, payment and dishes.
 - [x] Expand the full menu, milk/dietary options, multi-item orders, customer patience, deeper baking and latte-art gestures.
 - [x] Original adaptive venue/day/night music, separate music/effects/ambience controls, café grinder/steam/pour/crockery and venue atmosphere.
-- [ ] Listening mix review and desktop/real Android visual and touch playtesting.
+- [ ] **UN-20261024-001-0011** Listening mix review and desktop/real Android visual and touch playtesting.
 
 ## Other occupations
 - [x] Bakery: weigh ingredients, mix, shape, proof, bake, cool and pack real production batches.
@@ -31,5 +31,5 @@ Player-requested roadmap. Check boxes only when the complete gameplay loop is im
 Work changes something visible; another resident benefits; payment funds a meaningful town life.
 
 ## Remaining acceptance
-- [ ] Listen to the mix across venues, busy/quiet service and day/night transitions.
-- [ ] Complete desktop and real Android visual/touch workflows, including saved cargo, trays and wage debt.
+- [ ] **UN-20261024-001-0034** Listen to the mix across venues, busy/quiet service and day/night transitions.
+- [ ] **UN-20261024-001-0035** Complete desktop and real Android visual/touch workflows, including saved cargo, trays and wage debt.
