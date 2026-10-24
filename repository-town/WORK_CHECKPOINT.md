@@ -2,6 +2,17 @@
 
 Updated 2026-10-24 (Australia/Sydney). Working branch: `feat/town-npc-branching-recordings-20261024`.
 
+## RTD-009 — versioned actor/node/choice dialogue schema (24 October 2026)
+
+**Status: IN PROGRESS; task RTD-009 exclusively.** Source main at reservation `6d17dd60e0c205e3cbe426a75d509889ad5d2799`; board claim committed on main `c4722c84333d6947e7ff7775f81162f4fad7787f` before modifying source. Topic branch `feat/town-rtd009-dialogue-schema-20261024`.
+
+- [x] **M1 — Read/claim/checkpoint.** Reviewed `AGENTS.md`, current `COORDINATION.md`, `WORK_CHECKPOINT.md`, RTD-008 acceptance RTAC-003, `src/ui/recorded-dialogue.js`, tests and open PRs. PR #164 conflicts with voice UI and remains open; separate directional N/S address work owns `src/main.js`, `src/world/addresses.js`, `src/world/property.js`. RTD-009 uses new isolated `src/dialogue/schema.js`; preserve existing Game300.
+- [ ] **M2 — Versioned schema and docs.** Specify typed actor key, node/topic/priority, choice IDs and labels, conditions/predicates, approved matching clip reference+exact transcript, next node, typed allowlisted effect descriptors. Pure JS, no DOM/audio/API, no simulation writes, no `eval`.
+- [ ] **M3 — Contract tests.** Valid three-actor scenario and invalid shape/injection/clip mismatch/unknown effect/condition cases, wired into `npm run test:release`; preserve all current tests.
+- [ ] **M4 — Review/merge.** Update RTD-009 roadmap checkbox only after verified code/tests, checkpoint and board, verify full CI incl recorded WebGL/5 economic seeds; merge and record PR SHA and links. RTD-010+ remain open.
+
+**Implementation boundary:** Defining/validating schema is RTD-009 only. Does *not* deliver DialogueDirector (RTD-011), complete reachability/cycle graph checks (RTD-012), live casting/audio integration, quest/payment execution or production playback acceptance. Existing `recorded-dialogue.js` remains unchanged.
+
 ## RT-08 / AUDIO-013.03 — live production browser evidence (24 October 2026)
 
 **MERGE AND CI VERIFIED:** [PR #177](https://github.com/joshualparris/JoshMemory/pull/177) squash-merged as `1d55b3677ddfe929beb1e7ea9c9d8ecac2003963`, tested head `d0523316c3e0af4cbeb4cb4d2d18be224c1c8303`. [Town Integration 40084738543](https://github.com/joshualparris/JoshMemory/actions/runs/40084738543) SUCCESS (safety gate and five economy seeds), [Recorded WebGL 40084738567](https://github.com/joshualparris/JoshMemory/actions/runs/40084738567) SUCCESS (local software-rendered WebGL; hosted production stage skipped, separately tested in actual production Chromium). **Only QA/docs modified. RT-08/audio parent 013 deliberately remain OPEN** until full acceptance.
