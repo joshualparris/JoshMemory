@@ -11,6 +11,9 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-24 · ChatGPT (this session) — **CLAIMED RTD-004 only: source-level audit of dialogue/audio/world/save integrations.** Scope: documentation `docs/RTD_004_DIALOGUE_SYSTEM_AUDIT_2026-10-24.md`, roadmap RTD-004 checkbox and `WORK_CHECKPOINT.md`; **no source/gameplay changes** and do not touch Replit's possible RTD-003 actor inventory. Review canonical `main` existing NPC, yarn, quest, save and audio modules and mark verified findings. Branch `docs/town-rtd004-source-audit-20261024`; update this line after PR merge.
+
+
 - 2026-10-24 · ChatGPT — **INTEGRATING prerecorded branching NPC conversations**, PR #166, branch `feat/town-npc-branching-recordings-20261024`. Source `src/ui/recorded-dialogue.js`, `src/ui/npc-chat.js`, `src/ui/voicebank.js`, `src/npc.css`; tests `recorded-dialogue.mjs` and `recorded-dialogue-browser.mjs`, added to CI. Keeps ten pre-existing unique Game300 cast voices, player-selected replies, verified manifest text, no unearned quest/purchase success, no paid speech and no impersonation for unrecorded NPCs. Baseline eight checks passed before the new browser acceptance test was attached. Updated browser checks underway; canonical deployment and the other 22 residents' casting still unverified. See `WORK_CHECKPOINT.md`.
 
 - 2026-10-23 · ChatGPT — **INTEGRATING: VoiceBank speech for town residents and yarns** on `feat/town-parrisvoicebank-audio-20261023`. New `src/ui/voicebank.js` uses approved public VoiceBank recordings with opt-in en-AU device speech fallback; adding compact Listen/Stop buttons to `src/ui/npc.js`, `npc-chat.js`, `yarns.js`, and tests. No paid synthesis, changes to NPC replies, clock, gameplay simulation, or private source publication. Full release gate and mobile browser tests underway; merge and production verification pending.
