@@ -8,7 +8,7 @@
 
 > **Rank 00001 — SVA-008:** Identify missing, damaged, mismatched or unsuitable ElevenLabs clips and record exceptions against the current source. **Rank 00002 — SVA-012:** Implement and verify the common recorded-audio controller across SylvieApp activities. Start with the first eligible unclaimed row after reading the current repo coordination and checkpoint.
 
-**Priority changed at user request (25 October 2026):** User no longer works at DCS and prefers SylvieApp. Ranks **00001–00301** are now its 288 open `SVA-` subtasks, 12 global parent `TASK-001..012` acceptance items and `GRA-148` review. Other non-DCS work follows with its existing relative sequence.
+**Priority changed at user request (25 October 2026):** User requested SylvieApp first and DCS-only work deferred. Ranks **00001–00301** are now its 288 open `SVA-` subtasks, 12 global parent `TASK-001..012` acceptance items and `GRA-148` review. Other non-DCS work follows with its existing relative sequence.
 
 **DCS-exclusive tasks deferred to ranks 02576–02640 (65 rows)**; previously completed DCSCompanion review `GRA-037` remains a historical reference at rank 02663. DCSCompanion, DCSPrep, DCSPD and other DCS-only repositories' review tasks all move down; **no task ID/status/source risk rating was changed**. In particular, `DCSC-GR-001/002` are reported potential credential/privacy risks, *not confirmed breaches*. If evidence indicates real exposure, inform an authorised DCS maintainer; user no longer working there is not a reason to conceal credible risks.
 
