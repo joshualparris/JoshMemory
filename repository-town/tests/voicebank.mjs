@@ -1,3 +1,4 @@
+import './npc-context-cues.mjs';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {makeTownListenButton, toggleTownVoice, stopTownVoice, VOICEBANK_MANIFEST, ROWAN_MANIFEST, ROWAN_GREETING, isRowanWelcome} from '../src/ui/voicebank.js';
