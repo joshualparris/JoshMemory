@@ -11,7 +11,6 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
-- 2026-10-24 · ChatGPT — **CLAIMED RTD-007 only** (coordination ownership and durable checkpoint protocol), branch `docs/town-rtd007-coordination-checkpoints-20261024`. Source baseline main `2d91b9e7d321103342755cd16929b1a7077b8c4f`. Expected files: `AGENTS.md` (short mandatory RTD process), `COORDINATION.md` (claim/done), `WORK_CHECKPOINT.md` (start/milestones/final handover), `docs/RTD_007_COORDINATION_CHECKPOINT_PROTOCOL_2026-10-24.md` (operational template), and RTD-007 checkbox in `docs/SKYRIM_NPC_DIALOGUE_IMPLEMENTATION_TODO.md`. This is coordination/documentation only; **no game/audio code, deployment or RTD-008 implementation**. Historical PR #166 “INTEGRATING” note is stale (merged); cross-check GitHub. RTD-008 remains free for a separately claimed follow-on session. Move this exact record to Done after verified PR merge.
 
 
 
@@ -109,6 +108,9 @@ Newest first. Times in Australia/Sydney.
   is currently blocked by the Hobby team's daily deployment quota (`api-deployments-free-per-day`).
 
 ## Done recently
+
+- 2026-10-24 · ChatGPT — **DONE: RTD-007 ownership reservation and durable milestone checkpointing**. Claimed on canonical main before edits (`b2cd82474e3a19c33f9090967169111188be4f26`) and checkpointed start (`553ae142e369b17bd88f19caa256c93ce9460623`). Published [RTD-007 coordination protocol](docs/RTD_007_COORDINATION_CHECKPOINT_PROTOCOL_2026-10-24.md), linked mandatory rules in `AGENTS.md`, checked RTD-007 only and updated `WORK_CHECKPOINT.md` at protocol and evidence milestones. All changes docs/agent instructions, **no gameplay/audio/source deployment**. Branch `docs/town-rtd007-coordination-checkpoints-20261024`; PR/CI verification tracked by checkpoint. **RTD-008 is UNCLAIMED** and must be independently reserved by its next owner before editing. Retain the separate still-open overlapping PR #164 and all other agents' entries.
+
 
 - 2026-10-24 · ChatGPT — **DONE: RTD-006 canonical release/browser/audio baseline**; [pinned evidence](docs/RTD_006_RELEASE_BASELINE_2026-10-24.md). Compared GitHub main against actual READY Vercel `dpl_BUJvawLJX9Bvk87P7b7uKu1U4RJp` source `9e38531`, live `/release.json` SHA256 `afc7f0a2562b0823daf9d73dced3842dda27093325352a098ed2c24bac3de637`, verified 1,133 built files, production homepage+NPC JS HTTP 200, VoiceBank Game300 JS HTTP 200, staging mismatch and successful desktop/mobile recorded WebGL CI (runs 40079153284, 40079153300). IMPORTANT: real hosted-production browser step was SKIPPED, no deployed manual voice click claimed. Updated checkpoint, checked RTD-006 only; documentation-only branch `docs/town-rtd006-live-release-baseline-20261024`; no deployment or gameplay changes.
 
