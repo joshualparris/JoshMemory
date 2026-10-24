@@ -1,0 +1,55 @@
+// Physical, road-relative plot addresses. Never replace legacy repository
+// coordinates or the H:/B: property keys used by old saved games.
+//
+// In Repo Town's existing street geometry a numbered street lies immediately
+// SOUTH of its row's repository houses. Thus the houses are the S frontage;
+// the following row's N frontage is across that same street.
+export const LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+export const AUDIT_ROWS = 11; // 9-11 are planning bands, not constructed streets.
+const RE_LEGACY = /^([A-Z])([1-8])$/;
+const RE_PLOT = /^([A-Z])(1[01]|[1-9])[- ]?([NS])$/i;
+export function houseAddress(coordinate) {
+  const m = RE_LEGACY.exec(String(coordinate || '').toUpperCase());
+  if (!m) throw new Error('Invalid legacy house coordinate: ' + coordinate);
+  return m[1] + m[2] + '-S';
+}
+export function placeAddress(place) {
+  if (!place || !LETTERS.includes(place.col) || place.col.length !== 1) throw new Error('Invalid site column');
+  return place.side === 'south' ? place.col + '9-N' : place.col + '8-S';
+}
+export function parseTownAddress(value) {
+  const raw = String(value || '').trim().toUpperCase();
+  const m = RE_PLOT.exec(raw);
+  if (m) return { address:m[1]+m[2]+'-'+m[3], col:m[1], row:Number(m[2]), side:m[3], legacy:false };
+  const l = RE_LEGACY.exec(raw);
+  if (l) return { address:l[0]+'-S', col:l[1], row:Number(l[2]), side:'S', legacy:true };
+  return null;
+}
+export function auditTownSlots(houses, places) {
+  const slots = new Map();
+  const set = (addr, change) => {
+    const before = slots.get(addr);
+    if (!before) throw new Error('Plot outside audited bounds: ' + addr);
+    if (before.kind === 'house' || before.kind === 'site') throw new Error('Double-booked building plot: ' + addr);
+    slots.set(addr, { ...before, ...change });
+  };
+  for (let row=1; row<=AUDIT_ROWS; row++) {
+    for (const col of LETTERS) for (const side of ['N','S']) {
+      const address = col+row+'-'+side;
+      let kind='not-surveyed', note='No building in this registry; yard, clearance and utility survey required';
+      if (row===1 && side==='N') { kind='boundary-not-surveyed'; note='Northern edge of existing house grid; not confirmed buildable'; }
+      if (row===8 && side==='N') { kind='railway'; note='Existing rail line and railway clearance — not available for buildings'; }
+      if (row===9 && side==='N') { kind='unassigned'; note='South side of existing row-8 street: site registry will locate civic buildings'; }
+      if (row===9 && side==='S') { kind='unbuilt-not-surveyed'; note='Behind row-9 north-facing sites. No row-9 road has been built; check crop fields and yard footprints'; }
+      if (row===9 && side==='S' && ('BTUVWXY'.includes(col))) { kind='farm-field'; note='Active farm field behind street frontage — protected agricultural use'; }
+      if (row===10) { kind='planning-only'; note='Agricultural perimeter/planning band; not a surveyed street or vacant legal plot'; }
+      if (row===11) { kind='planning-only'; note='Perimeter beyond built streets; not a surveyed street or vacant legal plot'; }
+      slots.set(address,{address,row,col,side,kind,note});
+    }
+  }
+  for (const h of houses) set(houseAddress(h.coordinate), { kind:'house', legacy:h.coordinate, name:h.name||'Repository house' });
+  for (const p of places) set(placeAddress(p), { kind:'site', id:p.id, name:p.name, siteKind:p.kind, note:p.side==='south'?'Across existing row-8 road':'On original row-8 lots' });
+  const values=[...slots.values()];
+  const count=(kind)=>values.filter(s=>s.kind===kind).length;
+  return { slots:values, counts:{total:values.length,houses:count('house'),sites:count('site'),railway:count('railway'),fields:count('farm-field'),unbuiltNotSurveyed:count('unbuilt-not-surveyed'),notSurveyed:count('not-surveyed')+count('boundary-not-surveyed'),planningOnly:count('planning-only')} };
+}
