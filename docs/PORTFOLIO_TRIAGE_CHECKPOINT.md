@@ -61,3 +61,10 @@ Update this checkpoint at task start, after meaningful progress and before switc
 - New next agent action is **SVA-008**. Read latest SylvieApp manifests, commits, source checkpoints and agent claims; verify actual recording exceptions before changing anything.
 - DCS-specific tasks are deferred at user request; *potential* credential/privacy issues retain their source severity for handoff to an authorised owner. Mixed non-DCS Greptile coordination `GRC-005` stays active.
 - [Updated human-readable master](MASTER_20_AGENT_TRIAGE_2026-10-25.md) and [exact order CSV](MASTER_20_AGENT_EXECUTION_QUEUE_2026-10-25.csv). Old portfolio-local `TR-003.01` remains the next **TR-only review** if that programme resumes, not the global first.
+
+### Merged priority update evidence — 25 October 2026
+
+- [PR #198](https://github.com/joshualparris/JoshMemory/pull/198) successfully merged into `main` with SHA `381e643fbb704234d3ee87190e4aec992cdea40f`.
+- Re-read merged master queue, human triage and tracker: **SVA-008 is global rank 00001**, followed by **SVA-012**. SylvieApp has 301 total front-loaded records (288 open SVA, 12 parent umbrella, GRA-148).
+- DCS-exclusive workload **65 actionable/blocked rows moved to 02576–02640**; the historical reviewed DCSCompanion reference stays last at 02663. Other non-DCS task order and every existing ID, risk rating, source scope, dependency and status were preserved.
+- This was **triage/reordering only**, not a recording import, audio fix, code deployment or real playback test. DCS potential key/privacy risks remain recorded for authorised-custodian handoff if confirmed.
