@@ -12,13 +12,14 @@ const option = (name, fallback) => {
 };
 const url = option('--url', 'https://repository-town-claude-complete.vercel.app/arcade.html');
 const selected = option('--games', 'Mysterious Depths,AA Game Adventure');
-const titles = selected.trim().startsWith('[') ? JSON.parse(selected) : selected.split(',').map(s => s.trim()).filter(Boolean);
+const allGames = selected.trim().toUpperCase() === 'ALL';
+const titles = allGames ? [] : selected.trim().startsWith('[') ? JSON.parse(selected) : selected.split(',').map(s => s.trim()).filter(Boolean);
 const maxActions = Math.min(20, Math.max(1, Number(option('--max-actions', '20')) || 20));
 const output = path.resolve(option('--output', 'test-results/arcade-agent-playtest.json'));
 const screenshotDir = path.join(path.dirname(output), 'arcade-evidence');
 const mobile = argv.includes('--mobile');
 const viewport = mobile ? { width: 390, height: 844 } : { width: 1280, height: 900 };
-if (!titles.length || !titles.every(t => typeof t === 'string' && t.trim()) || !/^https?:$/.test(new URL(url).protocol)) {
+if ((!allGames && !titles.length) || !titles.every(t => typeof t === 'string' && t.trim()) || !/^https?:$/.test(new URL(url).protocol)) {
   throw Error('Provide an http(s) --url and one or more --games');
 }
 await fs.mkdir(screenshotDir, { recursive: true });
@@ -160,6 +161,7 @@ try {
   const response = await discovery.goto(url, { waitUntil: 'domcontentloaded', timeout: 40000 });
   if (!response?.ok()) throw Error('Arcade returned HTTP ' + response?.status());
   await discovery.waitForFunction(() => /available|could not load/i.test(document.getElementById('count')?.textContent || ''), null, { timeout: 20000 });
+  if (allGames) titles.push(...new Set((await discovery.locator('#cards article h2').allTextContents()).map(t => t.trim()).filter(Boolean)));
   for (const title of titles) {
     await discovery.locator('#filter').fill(title);
     const visibleTitles = await discovery.locator('#cards article h2').allTextContents();
