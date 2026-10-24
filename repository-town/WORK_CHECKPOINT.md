@@ -1,5 +1,13 @@
 # Repository Town — WORK CHECKPOINT
 
+## Pages mirror preservation / recovery — 24 October 2026
+
+**Status: FIX IN BRANCH, re-release pending.** Vercel API quota 402 blocks production. Existing Pages backup Parris-Tech-Services/Repository-town triggered by workflow-file-only push (commit dace6e4a8b0c182d7af25da62c44c354b31d032e), [run 40089081725](https://github.com/Parris-Tech-Services/Repository-town/actions/runs/40089081725). Source 7d369b760034e404f40e289252091ad03fd87500 passed public release, all five 28-day seeds and recorded desktop/Android WebGL checks. Sync then correctly refused to drop unmanifested AUDIO_INTEGRATION_TODO.md.
+
+Exact tree-vs-manifest audit finds **two** out-of-manifest Pages-only files: AUDIO_INTEGRATION_TODO.md (Git blob 2076f4a5c26728bedcbd2a8cc82b1656c4417aff) and tests/game300-live-playback.cjs (Git blob 086a3ec1c2d85b031fecdbef077e471b71d8e203). Topic branch fix/town-pages-preserve-historic-assets-20261024 modifies only tools/sync-backup.mjs to verify and preserve these exact objects across backup builds; unknown files or altered blobs still fail; any collision with canonical output stops the sync. Never modify generated site content or bypass privacy/build gates.
+
+Next: green PR CI, merge, retrigger Pages workflow via scoped workflow-file push, verify backup release.json.sourceCommit and Pages build, then browser-check address-map.html and homepage. Record any remaining blocker.
+
 ## Directional N/S town land-address audit — started 24 October 2026
 
 Owner: ChatGPT. Topic branch `feat/town-directional-addresses-20261024`; canonical coordination claim `6d17dd60e0c205e3cbe426a75d509889ad5d2799` on `main`.
