@@ -11,6 +11,9 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-24 · ChatGPT — **CLAIMED RTD-003 after Replit usage exhausted**. Audit exactly 32 named cast actors, current 99 named TownLife villagers (the original 38 retain stable IDs), and 188 occupied project house-resident slots (208 possible grid coordinates). Publish documentation + a snapshot inventory JSON + parity regression tests, check only RTD-003. Branch `docs/town-rtd003-cast-inventory-20261024`. Do not change runtime NPC logic, VoiceBank/audio, Replit work or generated backup. Then move this entry to Done.
+
+
 
 
 - 2026-10-24 · ChatGPT — **INTEGRATING prerecorded branching NPC conversations**, PR #166, branch `feat/town-npc-branching-recordings-20261024`. Source `src/ui/recorded-dialogue.js`, `src/ui/npc-chat.js`, `src/ui/voicebank.js`, `src/npc.css`; tests `recorded-dialogue.mjs` and `recorded-dialogue-browser.mjs`, added to CI. Keeps ten pre-existing unique Game300 cast voices, player-selected replies, verified manifest text, no unearned quest/purchase success, no paid speech and no impersonation for unrecorded NPCs. Baseline eight checks passed before the new browser acceptance test was attached. Updated browser checks underway; canonical deployment and the other 22 residents' casting still unverified. See `WORK_CHECKPOINT.md`.
