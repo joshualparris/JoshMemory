@@ -1,5 +1,13 @@
 # Repository Town — WORK CHECKPOINT
 
+## RTN-001–018 — NPC uniqueness/collision task triage (25 October 2026)
+
+**VERIFIED COMPLETE — documentation numbering only.** Canonical `main` contains the [RTN-001–018 worklist](docs/RTN_NPC_CROWD_FALLBACK_TRIAGE_2026-10-25.md) and identical ID/status entries in [the central tracker](docs/UNNUMBERED_TODO_IDS_2026-10-24.md), with a README link. ID audit: **18 unique, 6 checked for code/sandbox evidence only, 12 unfinished; RTN-007 is next**. No existing identifiers were renumbered.
+
+**Separate unfinished implementation:** [PR #186](https://github.com/joshualparris/JoshMemory/pull/186) is conflict-blocked, unmerged, and **not deployed**; source-level `npm run build:release` passed in an isolated sandbox at `ac0b8a106252b32c0f515f90044f3b4fcadf6049`. Live independent/approved Pages releases remain older. Do not confuse this documentation milestone with a fix, hosted release, or Android acceptance.
+
+**Next action:** RTN-007: reconcile PR #186 against latest `main` without reverting parallel work; then continue RTN-008–018 in the documented priority order, using an eligible fallback host and exact release manifest checks.
+
 ## DOCS-RTD-TRIAGE-20261025 — after-RTD-009 work ID crosswalk
 
 **IN PROGRESS (documentation only).** Canonical main at start: `de547a1e0fa026e1c2470ead4cd840b6fa7cbf7e`. Claimed scope `DOCS-RTD-TRIAGE-20261025` on canonical `COORDINATION.md` at commit `a63981cf1022cc7cf1b4a62985fda5e4ed1ade47`, prior to edits. Topic branch `docs/town-rtd-after-009-triage-20261025`; no RTD-010 implementation reservation.
