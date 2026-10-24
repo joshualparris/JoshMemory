@@ -243,3 +243,11 @@ Prompt: User explicitly requires acting on Render/GitHub Pages/Cloudflare altern
 **Provider fallback evidence:** Vercel rate limit; Render `repository-town-main-qa` deploy `dep-dbe9cgnavr4c73a52qeg` failed for exhausted build minutes; Cloudflare Pages Git project creation 401 account integration; first standalone Pages project full build passed but Pages-site configuration absent; existing Pages handover subpath succeeded after full release gate. Policy also added to root `AGENTS.md` to require checking alternate hosts next time.
 
 Next: if promoting this code to **production**, preserve and verify save-export/reimport and each host's approved release hash. Do not equate a QA path with official production. Live physical Android UX and real yarn-toast close remain recommended checks.
+
+## Stable-ID next-action triage (25 October 2026)
+
+**Numbering/coordination task only, no gameplay or release modified.** Created [22-position canonical next-action queue](docs/NEXT_ACTION_TRIAGE.md) and cross-linked the existing master tracker `docs/OUTSTANDING_WORK_2026-10-24.md`, canonical README and [stable ID registry](docs/UNNUMBERED_TODO_IDS_2026-10-24.md). Did **not** edit existing `TASK-034`, `TASK-040`, `RTD`, `RTA`, `RTR` or `AUDIO` IDs/checkboxes. The only new stable task IDs are `RTM-001` (real nearby NPC yarn X acceptance) and `RTM-002` (physical Android dialogue/HUD overlap, preferences, saved-game safety).
+
+**Precisely where a new agent starts:** queue **01 / AUDIO-013.02**, live production Vercel alias/SHA, followed by `AUDIO-013.04` release fingerprint parity and `AUDIO-013.03` actual live NPC/audio tests. Previously observed Vercel READY source `42c4e0c` differs from Pages QA-tested `2743a8f`; these are not assumed equivalent. Claim only current unowned ID; check actual current provider state, preserve other agents' claims. Then `RTM-001`, mobile layout and physical Android `RTM-002`; afterwards TASK-034 dialogue/audio regressions; finish TASK-040 via the existing RTA-001..007 queue.
+
+**No implementation or QA acceptance task was closed by this numbering work.** Runtime implementation, CI and device playtest must be tracked independently with commit/test/release evidence. The old work checkpoint's dated "next" sections are historical; follow the linked queue for this exact scoped request.
