@@ -14,6 +14,9 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-24 · ChatGPT — **CLAIMED RTD-009 ONLY**: versioned pure actor/node/choice/priority/condition/recorded-response/next-node/typed-authorised-effect schema; branch `feat/town-rtd009-dialogue-schema-20261024` from main `6d17dd60e0c205e3cbe426a75d509889ad5d2799`. Expected new source `repository-town/src/dialogue/schema.js`, schema contract docs/fixtures `repository-town/docs/RTD_009_DIALOGUE_SCHEMA_V1.md`, tests `repository-town/tests/dialogue-schema.mjs` and `package.json` test hook, road/checkpoint/coord. Avoid active directional-addresses `src/world/addresses.js`, `src/world/property.js`, `src/main.js`, and existing voice modules/PR #164 (still OPEN). No runtime hooking, DialogueDirector (RTD-011), graph reachability/loop checks (RTD-012), quest effects execution (RTD-024/025) or paid ElevenLabs; only typed schema + structural tests. Acceptance RTAC-003 schema valid/invalid fixtures; checkpoint after each milestone. RTD-010+ unclaimed.
+
+
 - 2026-10-24 · ChatGPT — **IN PROGRESS: directional N/S property address audit and map**, branch `feat/town-directional-addresses-20261024`. Scope `src/world/addresses.js`, `src/world/property.js`, `src/main.js` search only, `tests/directional-addresses.mjs`, `docs/DIRECTIONAL_ADDRESS_AUDIT_2026-10-24.md`, `WORK_CHECKPOINT.md`, `README.md`. Never modify existing `coordinate` primary keys or private project text; preserve existing saves and listings. Road 9 not built; do not label unknown plots genuinely vacant. Other audio/dialogue claims remain untouched.
 
 
