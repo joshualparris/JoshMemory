@@ -28,3 +28,9 @@ Live focused browser reports in [repository-town/qa/reports/2026-10-24-tinyfish-
 
 ## TASK-034 mobile dialogue follow-up — 24 October 2026
 Source fix in [PR #184](https://github.com/joshualparris/JoshMemory/pull/184) merged; NPC yarn toast dismiss X and persistent auto-caption off switch (new touch devices default off). Focused mock-DOM behaviour test passed in an isolated V8 execution and is added to `npm run test:release`. **TASK-034 remains open** for full overlay/audio acceptance and deployment/real phone verification. Vercel status on merge: build-rate-limit.
+
+## Next-action triage order (25 October 2026)
+
+**Canonical agent entry point:** [Repository Town next actions — 22 ordered, existing unique task IDs](../repository-town/docs/NEXT_ACTION_TRIAGE.md). Starting point **AUDIO-013.02**; the list reuses existing `AUDIO`, `RTR`, `RTD` and `RTA` identifiers and introduces only `RTM-001/002` for previously unnumbered *real-yarn dismissal* and *physical Android overlay* acceptance. Their authoritative definitions are in [stable ID registry](../repository-town/docs/UNNUMBERED_TODO_IDS_2026-10-24.md).
+
+Parent `TASK-034` = dialogue overlays/mixer and Android yarn acceptance; parent `TASK-040` = arcade QA. **Do not renumber, replace or tick either parent on the strength of documentation.** Source-level fix, QA Pages build, Vercel READY and live acceptance are separate evidence gates. Exact cross-links, per-ID acceptance and sequential order are in the triage document. 
