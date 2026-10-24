@@ -1,5 +1,17 @@
 # Repository Town — WORK CHECKPOINT
 
+## VERIFIED COMPLETE — outstanding-task ID assignment (25 October 2026)
+
+Docs-only triage [PR #195](https://github.com/joshualparris/JoshMemory/pull/195) merged to canonical `main` as `46694b7555d365983ca87f01a90afdf70cabe516`. [Ten-item ranked next-action queue](docs/NEXT_ACTION_TRIAGE_2026-10-25.md) is discoverable from the [existing stable ID index](docs/UNNUMBERED_TODO_IDS_2026-10-24.md). This superseded closed/conflicted documentation PRs #189 and #194.
+
+- [x] All five previously reported unfinished areas mapped to **ten unique existing/new task IDs**; first executable task **RTN-002**: collision and merging; reconcile [open PR #186](https://github.com/joshualparris/JoshMemory/pull/186) and other active claims before editing.
+- [x] Added exactly six unchecked stable IDs: `RTN-001`, `RTN-002`, `RTN-003`, `RTQ-001`, `RTP-001`, `RTP-002`.
+- [x] Reused **unchanged** existing `RTD-043`, `RTD-044`, `RTD-084`, `RTR-010`; all 101 prior stable-index definitions keep their original identifiers/check statuses.
+- [x] Current `main` read-back verified ten task rows, six unchecked unique ID definitions and central index link; PR safety/integration and recorded WebGL CI passed.
+- [ ] Every implementation, audio clip integration, NPC fix, actual land/road work and mobile acceptance remains OPEN pending its own evidence — numbering is not completion.
+
+Scope of the numbering change is only two project docs plus this handover/coordination closeout. Do not automatically claim or modify another agent's active source files.
+
 ## RTN-001–018 — NPC uniqueness/collision task triage (25 October 2026)
 
 **VERIFIED COMPLETE — documentation numbering only.** Canonical `main` contains the [RTN-001–018 worklist](docs/RTN_NPC_CROWD_FALLBACK_TRIAGE_2026-10-25.md) and identical ID/status entries in [the central tracker](docs/UNNUMBERED_TODO_IDS_2026-10-24.md), with a README link. ID audit: **18 unique, 6 checked for code/sandbox evidence only, 12 unfinished; RTN-007 is next**. No existing identifiers were renumbered.
