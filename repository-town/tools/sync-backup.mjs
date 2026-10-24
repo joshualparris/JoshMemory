@@ -11,6 +11,22 @@ const git=(...args)=>execFileSync('git',['-C',site,...args],{encoding:'utf8'}).t
 if(git('status','--porcelain'))throw Error('Backup checkout has local changes');
 const previous=JSON.parse(fs.readFileSync(path.join(site,'release.json'),'utf8'));
 const keep=new Set(['README.md','AGENTS.md','CLAUDE.md','.nojekyll']);
+// Two Pages-only files were added on 24 October *after* the previous
+// release.json snapshot. Preserve their exact, individually audited Git
+// blobs rather than deleting useful audio/test work or weakening the
+// drift guard for arbitrary unmanifested files.
+const preservedPagesOnlySha=new Map([
+  ['AUDIO_INTEGRATION_TODO.md','2076f4a5c26728bedcbd2a8cc82b1656c4417aff'],
+  ['tests/game300-live-playback.cjs','086a3ec1c2d85b031fecdbef077e471b71d8e203'],
+]);
+const pagesOnlyCopies=new Map();
+for(const [name,sha] of preservedPagesOnlySha) {
+  const oldPath=path.join(site,name),newPath=path.join(output,name);
+  if(!fs.existsSync(oldPath))throw Error('Missing audited Pages-only asset: '+name);
+  if(git('hash-object','--',name)!==sha)throw Error('Pages-only asset changed since audit: '+name);
+  if(fs.existsSync(newPath))throw Error('Canonical release now owns Pages-only asset; reconcile explicitly: '+name);
+  pagesOnlyCopies.set(name,fs.readFileSync(oldPath));
+}
 // Three legacy Pages files predate the release manifest. Keep their exact contents
 // in source control before replacing the generated site; never silently drop drift.
 // Immutable blobs from the 21 October Pages-only PR #35 (9e425ab...),
@@ -41,6 +57,7 @@ for(const name of git('ls-files').split('\n')) {
   if(name.startsWith('.github/')||keep.has(name)||name==='release.json')continue;
   const expected=previous.files[name];
   if(!expected){
+    if(pagesOnlyCopies.has(name)) {console.log('Preserving audited Pages-only file with pinned Git blob: '+name);continue;}
     if(!exactHistoricalCopy(name))throw Error('Untracked-in-manifest site file; preserve it before publishing: '+name);
     console.log('Verified historical Pages-only file preserved by immutable blob: '+name);
     continue;
@@ -53,4 +70,11 @@ for(const name of git('ls-files').split('\n')) {
 }
 for(const entry of fs.readdirSync(site))if(entry!=='.git'&&entry!=='.github'&&!keep.has(entry))fs.rmSync(path.join(site,entry),{recursive:true,force:true});
 fs.cpSync(output,site,{recursive:true});
-console.log('Prepared exact production backup '+next.sourceCommit);
+// Restore exact old bytes after replacing generated game assets. These
+// never override the canonical build and remain protected on later syncs.
+for(const [name,bytes] of pagesOnlyCopies) {
+  const destination=path.join(site,name);
+  fs.mkdirSync(path.dirname(destination),{recursive:true});
+  fs.writeFileSync(destination,bytes);
+}
+console.log('Prepared exact production backup '+next.sourceCommit+' and '+pagesOnlyCopies.size+' audited Pages-only files');
