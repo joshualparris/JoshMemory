@@ -14,6 +14,9 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-24 · ChatGPT — **IN PROGRESS: directional N/S property address audit and map**, branch `feat/town-directional-addresses-20261024`. Scope `src/world/addresses.js`, `src/world/property.js`, `src/main.js` search only, `tests/directional-addresses.mjs`, `docs/DIRECTIONAL_ADDRESS_AUDIT_2026-10-24.md`, `WORK_CHECKPOINT.md`, `README.md`. Never modify existing `coordinate` primary keys or private project text; preserve existing saves and listings. Road 9 not built; do not label unknown plots genuinely vacant. Other audio/dialogue claims remain untouched.
+
+
 
 
 
