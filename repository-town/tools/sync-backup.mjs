@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import {execFileSync} from 'node:child_process';
+import { supersedesPagesOnlyCode } from './pages-drift-guard.mjs';
 const site=path.resolve(process.argv[2]);
 const output=path.resolve(new URL('../dist/public/',import.meta.url).pathname);
 const next=JSON.parse(fs.readFileSync(path.join(output,'release.json'),'utf8'));
@@ -52,27 +53,14 @@ const safelySupersededSha=new Map([
   ['ui/npc-chat.js','6cb4f2f33784c66d0778b376e56b5ca27e90037e'],
   ['ui/voicebank.js','43071c3418d22811c4d6a9a78a090001d9110ec2'],
 ]);
-function orderedSubset(oldText,newText) {
-  const oldLines=oldText.replace(/\r\n/g,'\n').split('\n');
-  const newLines=newText.replace(/\r\n/g,'\n').split('\n');
-  let i=0;
-  for(const line of newLines)if(line===oldLines[i])i++;
-  return i===oldLines.length;
-}
 function safelySuperseded(name){
   const known=safelySupersededSha.get(name);
   if(!known||git('hash-object','--',name)!==known)return false;
   const nextFile=path.join(output,name);
   if(!fs.existsSync(nextFile))return false;
-  let oldText=fs.readFileSync(path.join(site,name),'utf8');
+  const oldText=fs.readFileSync(path.join(site,name),'utf8');
   const newText=fs.readFileSync(nextFile,'utf8');
-  if(name==='ui/npc-chat.js') {
-    const previousFocus="    if(!window.matchMedia('(pointer: coarse)').matches)input.focus();";
-    const recordedFocus="    if(!window.matchMedia('(pointer: coarse)').matches&&!activities.querySelector('.npc-recorded-conversation'))input.focus();";
-    if(!oldText.includes(previousFocus)||!newText.includes(recordedFocus))return false;
-    oldText=oldText.replace(previousFocus,recordedFocus);
-  }
-  return orderedSubset(oldText,newText);
+  return supersedesPagesOnlyCode(name,oldText,newText);
 }
 const archiveDir=path.resolve(new URL('../audit/legacy-pages-drift-2026-10-23/',import.meta.url).pathname);
 function exactHistoricalCopy(name){
