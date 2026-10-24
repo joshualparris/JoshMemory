@@ -42,3 +42,7 @@ Status: **PARTIALLY VERIFIED**. This is observed browser evidence, not a complet
 6. Keep `TASK-040` open until broad arcade acceptance is actually complete.
 
 No gameplay code changes were made in canonical Repository Town by these findings. Source game enhancements belong to `joshualparris/JoshHub`, with source-first repack/release following separately.
+
+## Source follow-up after report
+- AA floating-help layout correction: `joshualparris/JoshHub` commit `0c3724ec` replaces the ordinary-flow help strip with a fixed floating panel, preserving the bundled CSS's `#game-canvas { height: 100vh; width: 100vw }` and `body { overflow: hidden }`. Inline focus script passed V8 parse and readback confirmed the fixed overlay and keyboard focus affordance. Still needs a real browser and packed-release test.
+- Mysterious Depths game source achievement explanation at `492e1b8c` confirmed present on readback. These are source edits only, not deployed.
