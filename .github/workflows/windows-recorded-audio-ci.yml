@@ -8,6 +8,7 @@ on:
       - 'repository-town/src/ui/voicebank.js'
       - 'repository-town/src/ui/npc-chat.js'
       - 'repository-town/tests/voicebank.mjs'
+      - 'repository-town/tests/npc-context-cues.mjs'
       - '.github/workflows/windows-recorded-audio-ci.yml'
 permissions:
   contents: read
@@ -34,7 +35,7 @@ jobs:
         shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
-          foreach ($path in @('repository-town/src/ui/voicebank.js','repository-town/src/ui/npc-chat.js','repository-town/tests/voicebank.mjs')) {
+          foreach ($path in @('repository-town/src/ui/voicebank.js','repository-town/src/ui/npc-chat.js','repository-town/tests/voicebank.mjs','repository-town/tests/npc-context-cues.mjs')) {
             node --check $path
             if ($LASTEXITCODE -ne 0) { throw "Syntax check failed: $path" }
           }
