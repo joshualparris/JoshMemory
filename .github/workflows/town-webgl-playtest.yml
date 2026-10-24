@@ -1,32 +1,14 @@
 name: Repository Town Recorded WebGL Playtest
-
+# Diagnostic branch only: acceptance against the already reviewed hosted release.
 on:
-  pull_request:
-    paths:
-      - 'repository-town/**'
-      - '.github/workflows/town-webgl-playtest.yml'
-  push:
-    branches: [main]
-    paths:
-      - 'repository-town/src/**'
-      - 'repository-town/tests/webgl-playtest.mjs'
-      - 'repository-town/tools/**'
-      - 'repository-town/package.json'
-      - '.github/workflows/town-webgl-playtest.yml'
   workflow_dispatch:
-
 permissions:
   contents: read
-
-concurrency:
-  group: town-recorded-webgl-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
-  playable-3d:
-    name: Desktop + Android-size recorded WebGL gameplay
+  hosted-lighting:
+    name: 38 hosted desktop and Android lighting scenarios
     runs-on: ubuntu-latest
-    timeout-minutes: 28
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: repository-town
@@ -37,44 +19,19 @@ jobs:
           node-version: '22'
           cache: npm
           cache-dependency-path: repository-town/package-lock.json
-      - name: Install pinned dependencies
-        run: npm ci --no-audit --no-fund
-      - name: Install Chromium and software rendering libraries
-        run: npx playwright install --with-deps chromium
-      - name: Build actual playable site
-        run: npm run build
-      - name: Play and record 3D game, fail on missing WebGL
-        run: |
-          node tools/serve.mjs dist/public 8091 > /tmp/town-playtest-server.log 2>&1 &
-          server=$!
-          trap 'kill $server 2>/dev/null || true' EXIT
-          for attempt in $(seq 1 40); do
-            if curl -fsS http://127.0.0.1:8091/ > /dev/null; then break; fi
-            sleep 1
-          done
-          curl -fsSI http://127.0.0.1:8091/ > /dev/null
-          node tests/recorded-dialogue-browser.mjs
-          node tests/webgl-playtest.mjs
-          node tests/sleep-browser.mjs
-          node tests/sleep-browser.mjs --mobile
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - name: Audit the exact approved hosted lighting release
+        run: node tests/lighting-hosted.mjs
         env:
-          TOWN_PLAYTEST_URL: http://127.0.0.1:8091/
+          LIGHTING_HOSTED_URL: https://repository-town-claude-complete.vercel.app/
+          LIGHTING_EXPECTED_SOURCE: a7156308945e2c403e1374108fa8a2d6c49737ef
           LIBGL_ALWAYS_SOFTWARE: '1'
-      # PRs test their own built code, not an unrelated older Vercel deploy.
-      # Run the hosted acceptance separately after the release is published.
-      - name: Play real hosted production game in Chromium and Pixel 7 emulation
-        if: github.event_name == 'workflow_dispatch'
-        run: |
-          mv test-results/webgl-playtest test-results/webgl-playtest-built
-          node tests/webgl-playtest.mjs
-        env:
-          TOWN_PLAYTEST_URL: https://parris-tech-services.github.io/Repository-town/
-          LIBGL_ALWAYS_SOFTWARE: '1'
-      - name: Upload screenshots, 3D videos and state telemetry
+      - name: Preserve hosted screenshots and fingerprint
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: town-webgl-playtest-${{ github.run_id }}
-          path: repository-town/test-results/webgl-playtest*/
+          name: town-hosted-lighting-${{ github.run_id }}
+          path: repository-town/audit/lighting/hosted/
           retention-days: 14
           if-no-files-found: warn
