@@ -1,0 +1,13 @@
+import assert from 'node:assert/strict';
+import {orderedSubset,supersedesPagesOnlyCode} from '../tools/pages-drift-guard.mjs';
+const focus="    if(!window.matchMedia('(pointer: coarse)').matches)input.focus();";
+const guarded="    if(!window.matchMedia('(pointer: coarse)').matches&&!activities.querySelector('.npc-recorded-conversation'))input.focus();";
+assert(orderedSubset('a\nb\nc','x\na\nb\nc\ny'));
+assert(!orderedSubset('a\nb\nc','a\nc'));
+assert(supersedesPagesOnlyCode('ui/npc-chat.js','const old=1;\n'+focus+'\nend;', "import {makeTownRecordedConversation} from './recorded-dialogue.js';\nconst old=1;\n"+guarded+'\nend;'));
+assert(!supersedesPagesOnlyCode('ui/npc-chat.js','const old=1;\n'+focus+'\nend;', 'const changed=1;\n'+guarded+'\nend;'));
+assert(!supersedesPagesOnlyCode('ui/npc-chat.js','const old=1;\n'+focus,'const old=1;\n'+focus));
+assert(supersedesPagesOnlyCode('ui/voicebank.js','const a=1;\nend;', 'const a=1;\nnewClip();\nend;'));
+assert(!supersedesPagesOnlyCode('ui/voicebank.js','const a=1;\nend;', 'const a=2;\nend;'));
+assert(!supersedesPagesOnlyCode('ui/other.js','hi','hi'));
+console.log('PASS: Pages source continuity guard permits known additions but rejects changed or deleted historical code');
