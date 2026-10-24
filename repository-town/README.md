@@ -14,6 +14,8 @@ See the [93-task Skyrim-inspired NPC dialogue checklist](docs/SKYRIM_NPC_DIALOGU
 
 See also the [stable ID index for previously unnumbered open Town tasks](docs/UNNUMBERED_TODO_IDS_2026-10-24.md).
 
+**NPC individuality/crowd-fix triage:** [RTN-001–018 — per-task status, merge-conflict and alternative-host release plan](docs/RTN_NPC_CROWD_FALLBACK_TRIAGE_2026-10-25.md). **Next unfinished: RTN-007**; staged code is not yet live.
+
 ## Multi-floor tall buildings
 
 Tall architectural exteriors now have two or three enterable floors, including V7 Private House, W7 SwordCoast and X7 Transfer lighthouses. A visible Floors control and stair/lift signs make upper levels easy to find. Floors 2 and 3 have different rooms and usable exhibits. See [the implementation and playtest guide](docs/MULTI_FLOOR_INTERIORS_2026-10-19.md). Source: `src/world/floor-plans.js` and `src/world/multifloor.js`. Focused test: `node tests/multifloor.mjs`.
