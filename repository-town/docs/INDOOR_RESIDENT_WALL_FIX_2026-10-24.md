@@ -27,3 +27,9 @@
 4. Remain alert for independent window-camera compositing issues or object-specific penetration outside the resident Walker class. Treat them as separate issues, not automatic proof this correction solved every rendering defect.
 
 **Tracking:** narrow clipping fix and tests may be merged/closed independently; broader visual/physical-device playtest acceptance must stay open until observed.
+
+## Hosted first-frame follow-up (same date)
+
+After the initial fix was deployed as canonical production `fbbb34dab8b8c6eff4bb855b59a94120d8a4cd0c`, live `release.json` and served `/world/npcs.js` matched exactly, but a fresh hosted Chromium run detected **one** A1 indoor resident overlapping the wall at the very first sample (Ada Anderson, sample 0); the ensuing 119 samples in local earlier testing were clear. This was not declared complete. Root cause of this remaining transient: main.js assigns the indoor planner after constructing a Walker, and an interior can render before the first `Walker.update()` performs 0.52m spawn clearance.
+
+**Follow-up corrective PR:** new setter `Walker.plan` calls `freeSpot(..., 0.52)` immediately on planner assignment and synchronises the 3D group before its first render; the existing update-time fallback remains in case other callers supply their planner directly. The `npc-appearance.mjs` release-gated tests now assert immediate clearance **without calling update()**. Node tests and 188-home geometry checks passed in sandbox `sbx_FFGlpanhn5P5zjVfDK46npzs6U1V`. This amendment also requires fresh green CI, an exact new production deployment and a repeat hosted browser verification; testing only the previous production SHA does not close it.
