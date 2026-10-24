@@ -10,12 +10,12 @@
 
 ## DOCS-RTD-TRIAGE-20261025 — after-RTD-009 work ID crosswalk
 
-**IN PROGRESS (documentation only).** Canonical main at start: `de547a1e0fa026e1c2470ead4cd840b6fa7cbf7e`. Claimed scope `DOCS-RTD-TRIAGE-20261025` on canonical `COORDINATION.md` at commit `a63981cf1022cc7cf1b4a62985fda5e4ed1ade47`, prior to edits. Topic branch `docs/town-rtd-after-009-triage-20261025`; no RTD-010 implementation reservation.
+**VERIFIED COMPLETE (documentation crosswalk only, merged PR #192 and three CI workflows green).** Canonical main at start: `de547a1e0fa026e1c2470ead4cd840b6fa7cbf7e`. Claimed scope `DOCS-RTD-TRIAGE-20261025` on canonical `COORDINATION.md` at commit `a63981cf1022cc7cf1b4a62985fda5e4ed1ade47`, prior to edits. Topic branch `docs/town-rtd-after-009-triage-20261025`; no RTD-010 implementation reservation.
 
 - [x] M1 Read canonical 93-item RTD list, global `docs/OUTSTANDING_WORK_2026-10-24.md`, AGENTS, pending PRs and checkpoint; all RTD-001–009 checked; 010–093 open. No new IDs needed for the exact follow-up categories from the RTD-009 report.
 - [x] M2 Authored [full 84-item ranked crosswalk](docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md) and master parent mappings, new document committed `2253dafa09e1850702751b2ab5de2253413ff00d`. First implementation RTD-010, then 011, 012. All identifiers reused, not renumbered.
 - [x] M3 Linked into [93-ID canonical roadmap](docs/SKYRIM_NPC_DIALOGUE_IMPLEMENTATION_TODO.md) (`8e082b490ce26c04d2d5eb4fbca5c9be77fe8570`), [global TASK-032–045 master](../docs/OUTSTANDING_WORK_2026-10-24.md) (`2c61846750e4f0690d60ce03b88ad38cbbc61341`), and [Town README](README.md) (`a7dd2cc48deac249ece677534a66fffed910b634`). Verified triage rank 1–84 contiguous, unique pending RTD-010–093 one each, master TASK-032–045 unchanged and open, RTD-001–009 remain the only checked items.
-- [ ] M4 Review docs-only changes, required CI, merge PR and record tested SHA and result. Leave RTD-010 unclaimed for next agent.
+- [x] M4 [PR #192](https://github.com/joshualparris/JoshMemory/pull/192) **MERGED** into canonical main as `fff5c0a75b6641c1de0c6ee67680fb44d4b9996d`, tested head `efbdc490e11e88b5b67fac412e15788a456a1558`. All green: [Town Integration #40129362594](https://github.com/joshualparris/JoshMemory/actions/runs/40129362594) (release/privacy gate + five 28-day simulations), [Recorded WebGL #40129362578](https://github.com/joshualparris/JoshMemory/actions/runs/40129362578) and [general CI #40129362704](https://github.com/joshualparris/JoshMemory/actions/runs/40129362704). Verified docs-only, zero changed task IDs or checkbox statuses; **RTD-010 unclaimed** for next agent.
 
 **Boundary:** Documentation navigation only; no claim that gameplay, recordings, testing or deployment advanced. No change to actual RTD completion totals expected. Separate open PR #164 and #186 require refresh before modifying their code.
 
