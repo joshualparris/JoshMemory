@@ -473,6 +473,14 @@ export class Walker {
   }
 
   update(dt, t, player, planNext) {
+    // Indoor route waypoints are only a plan, not permission to cross a solid wall.
+    // A resident's arms/head extend beyond its centre, so their clearance must
+    // be larger than the point clearance used by early path planners.
+    const collision = planNext?.collisionWorld;
+    if (collision && !this.spawnClearanceChecked) {
+      freeSpot(this.pos, collision, 0.52);
+      this.spawnClearanceChecked = true;
+    }
     const toPlayer = Math.hypot(player.pos.x - this.pos.x, player.pos.z - this.pos.z);
     const engaged = this.talking || toPlayer < 2.8;
     // The name tag would fill the screen up close; the on-screen prompt names them instead.
@@ -489,10 +497,22 @@ export class Walker {
       if (d < 0.15) { this.path.shift(); if (target.room !== undefined) this.room = target.room; if (target.pause) this.wait = target.pause; }
       else {
         const step = Math.min(d, this.speed * dt);
-        this.pos.x += (dx / d) * step; this.pos.z += (dz / d) * step;
-        this.turnTo(Math.atan2(dx, dz), dt * 6);
-        moving = true;
-        this.onMove?.(this.pos);
+        const beforeX = this.pos.x, beforeZ = this.pos.z;
+        if (collision) collision.move(this.pos, (dx / d) * step, (dz / d) * step, 0.52);
+        else { this.pos.x += (dx / d) * step; this.pos.z += (dz / d) * step; }
+        const travelled = Math.hypot(this.pos.x - beforeX, this.pos.z - beforeZ);
+        moving = travelled > 0.001;
+        if (moving) {
+          this.blockedFor = 0;
+          this.turnTo(Math.atan2(dx, dz), dt * 6);
+          this.onMove?.(this.pos);
+        } else if (collision && (this.blockedFor = (this.blockedFor || 0) + dt) > 0.7) {
+          // A blocked/stale route must be replanned, not leave a figure
+          // endlessly pushing its hands or shoulders into a wall.
+          this.path = [];
+          this.wait = 0.8;
+          this.blockedFor = 0;
+        }
       }
     } else {
       this.path = planNext(this) || [];
@@ -526,8 +546,11 @@ export function freeSpot(pos, world, r = 0.4) {
 // A clear straight line between two floor points (people do not walk through furniture).
 function clearLine(world, a, b) {
   const d = Math.hypot(b.x - a.x, b.z - a.z);
-  for (let s = 0.4; s <= d; s += 0.4) if (world.hits(a.x + (b.x - a.x) * (s / d), a.z + (b.z - a.z) * (s / d), 0.35)) return false;
-  return !world.hits(b.x, b.z, 0.35);
+  // Check endpoints and sufficiently short intervals that a thin wall cannot
+  // disappear between samples. Match the whole model's collision clearance.
+  if (world.hits(a.x, a.z, 0.52)) return false;
+  for (let s = 0.15; s < d; s += 0.15) if (world.hits(a.x + (b.x - a.x) * (s / d), a.z + (b.z - a.z) * (s / d), 0.52)) return false;
+  return !world.hits(b.x, b.z, 0.52);
 }
 // A way from `from` to `to` inside one room: straight, or via a free point that sees both.
 function reach(room, world, from, to) {
@@ -567,7 +590,7 @@ export function houseWander(rooms, links, world, clock, kitchens = []) {
     const steps = []; for (let r = goal; prev.get(r); r = prev.get(r).r) steps.unshift(prev.get(r));
     return steps;
   };
-  return (w) => {
+  const plan = (w) => {
     const m = clock() % 1440, meal = (m >= 420 && m < 480) || (m >= 720 && m < 780) || (m >= 1080 && m < 1170);
     const night = m >= 1380 || m < 330;
     w.activity = night ? 'dozing in an armchair' : meal ? (m < 600 ? 'making breakfast' : m < 900 ? 'making lunch' : 'cooking dinner') : 'pottering about';
@@ -589,4 +612,8 @@ export function houseWander(rooms, links, world, clock, kitchens = []) {
     if (end) path.push({ ...end, pause: meal ? 10 + Math.random() * 10 : 3 + Math.random() * 6 });
     return path;
   };
+  // The Walker owns its route updates; give it the same immutable collision
+  // world the planner used, without changing unrelated main.js integrations.
+  plan.collisionWorld = world;
+  return plan;
 }
