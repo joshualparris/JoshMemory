@@ -158,6 +158,8 @@ Agent 21 is an **empty trailing heading** in the attachment, not a submitted rep
 
 ## Agent-report follow-up IDs minted during consolidation
 
+[Permanent ARI report-intake task register](MASTER_AGENT_REPORT_INTAKE_IDS_2026-10-25.md).
+
 `ARI-001` records the RTN-label reconciliation, and `ARI-005`, `ARI-007`, `ARI-011`, `ARI-012`, `ARI-015`, `ARI-019` are **unique source-report recovery IDs**. They do **not** authorise imagined coding tasks or mark incomplete agent work finished. Existing source IDs were preserved and no previously checked task was reset.
 
 ## Action contract for the next coding agent
