@@ -14,6 +14,8 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-24 · ChatGPT — **RT-08 / AUDIO-013.03 live production verification (testing/evidence only)**. Browser QA of READY production `34eaf60455acf2984a8d69ed9b23477c24e70020`; Chromium on the actual production origin: 10/10 recorded Game300 actors in 2D desktop and mobile, three actors in live 3D desktop/mobile with WebAudio source starts, truthful captions, replay/stop, no paid requests or JS page errors. A1 actual house entry/exit and controls passed in both profiles; old E2E runner falsely expects generic household prop title instead of resident-specific title, and site favicon.ico returns a cosmetic HTTP 404. Claiming only `repository-town/tests/e2e.mjs` + docs `RT_08_LIVE_PRODUCTION_ACCEPTANCE_2026-10-24.md`, `WORK_CHECKPOINT.md` and coordination text on branch `test/town-rt08-live-verification-20261024`; no application source, generated mirror, deployment or RTD-008 source touched. Partial acceptance: no full 188-house or physical Samsung/audio quality signoff. Keep broad RT-08 checkbox open unless final contract satisfied.
+
 
 
 
