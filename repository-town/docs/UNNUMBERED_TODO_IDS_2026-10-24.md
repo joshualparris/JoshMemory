@@ -168,5 +168,18 @@ The 24 October mobile screenshots exposed duplicated-looking residents and visib
 - [House acceptance matrix](../ACCEPTANCE.md) — 188 coordinate-keyed house records, not numbered TODO bullets.
 - [Council audit issue #157](https://github.com/joshualparris/JoshMemory/issues/157) — six existing numbered policy resolutions preserved.
 
+## 25 October: six more previously unnumbered Repo Town tasks
+
+These **new** IDs cover precise unnumbered aspects of the five open areas in the [agent's actionable triage queue](NEXT_ACTION_TRIAGE_2026-10-25.md). They are independent of the 101 IDs added on 24 October. All earlier task IDs and statuses above remain unchanged.
+
+- [ ] **RTN-001** Visual distinctiveness of named workers, trade crew, indoor visitors and shop staff; deterministic, persistent identity. Candidate [PR #186](https://github.com/joshualparris/JoshMemory/pull/186).
+- [ ] **RTN-002** Player/visitor/NPC body collision, safe service waypoints, queue separation and no actor merging. Candidate [PR #186](https://github.com/joshualparris/JoshMemory/pull/186).
+- [ ] **RTN-003** Indoor resident wall/door/furniture collision and path recovery; distinct from #186 indoor shop crowds.
+- [ ] **RTQ-001** One uninterrupted current-release mobile gameplay acceptance session including address navigation, NPC dialogue, auto-popup toggle, stop/dismiss, save/reload, FPS and logging.
+- [ ] **RTP-001** Spatially survey all candidate N/S land slots, clearances, yards, utility/rail corridors and active fields; identify *proven* vacant sites only.
+- [ ] **RTP-002** Study the tree-lined, unbuilt row-9 road alignment and farm/rail boundaries before any design approval or construction.
+
+**No duplicate IDs created** for existing `RTD-043`/ `RTD-044`/ `RTD-084`, `RTR-010` or numbered audio acceptance work. Detailed acceptance, links to open PRs and triage order live in the [next-action queue](NEXT_ACTION_TRIAGE_2026-10-25.md). These six new items are all OPEN.
+
 ## Maintenance
 Treat this document as a cross-reference for *previously unnumbered* tasks, not a replacement for the original trackers. Do not reuse IDs or implicitly tick off parent/child tasks. Where an original tracker is now stale, reconcile wording and status in a distinct evidence-backed change.
