@@ -177,4 +177,4 @@ deployment.
 
 ## Whole-portfolio master agent queue
 
-For tasks collected from all twenty agents, use [the portfolio master triage](../docs/MASTER_20_AGENT_TRIAGE_2026-10-25.md) and [globally ordered register](../docs/MASTER_20_AGENT_EXECUTION_QUEUE_2026-10-25.csv). The local NPC dialogue, collisions and mobile QA queues remain authoritative within their scope. The global queue begins with reported security investigations; it **does not renumber** Town's original IDs or claim new runtime work complete.
+For tasks collected from all twenty agents, use [the portfolio master triage](../docs/MASTER_20_AGENT_TRIAGE_2026-10-25.md) and [globally ordered register](../docs/MASTER_20_AGENT_EXECUTION_QUEUE_2026-10-25.csv). The local NPC dialogue, collisions and mobile QA queues remain authoritative within their scope. The updated global queue begins with **SylvieApp `SVA-008`**, and DCS-only work is deferred; it **does not renumber** Town's original IDs or claim new runtime work complete.
