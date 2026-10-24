@@ -215,75 +215,13 @@ export function makeTownRecordedEventCue(npcId,event,root=document) {
 
 // Legacy opt-in gallery remains available for all ten events per NPC.
 
-const CONTEXT_RECORDING_ACTORS=new Set(['rowan','pip','circuit','wren','sol','sage','spark','lyra','nova','kit']);
-// A contextual, opt-in *extra* spoken line. The caption is the recording's real
-// transcript, not the AI chat bubble, so we never misrepresent what was spoken.
-// Keep factual answers and true game/quest state separate from bonus flavour.
+// Legacy NPC chat API: use the same cancellable, caption-accurate player as
+// other recorded game events. Never import a voice engine *after* the click:
+// loading first preserves the browser's user-gesture audio unlock.
 export function makeTownContextCue(npcId,event,root=document) {
-  if(!CONTEXT_RECORDING_ACTORS.has(npcId)||!['greeting','help'].includes(event))return null;
-  const span=root.createElement('span');span.className='npc-recorded-cue';
-  const button=root.createElement('button');button.type='button';
-  button.className='town-voice-button npc-recorded-cue-button';
-  button.dataset.voiceSource='elevenlabs';
-  const label=event==='greeting'?'greeting':'tip';
-  button.textContent='🎙 Hear recorded '+label;
-  button.setAttribute('aria-label','Hear '+npcId+'\'s recorded '+label);
-  button.setAttribute('aria-pressed','false');
-  const caption=root.createElement('span');
-  caption.className='npc-activity-label npc-recorded-caption';
-  caption.setAttribute('role','status');
-  caption.hidden=true;
-  let counter=0,playing=false;
-  button.addEventListener('click',()=>{
-    if(playing){
-      counter++;stopTownVoice();playing=false;
-      button.textContent='🎙 Hear recorded '+label;
-      button.setAttribute('aria-pressed','false');
-      caption.textContent='Stopped';caption.hidden=false;return;
-    }
-    stopTownVoice();
-    const request=++counter,currentRevision=revision;
-    button.disabled=true;button.textContent='⏳ Loading recorded '+label;
-    caption.hidden=false;caption.textContent='Loading recorded '+label+'…';
-    void import(VOICEBANK_ORIGIN+'/src/game300.js')
-      .then(async module=>{
-        if(request!==counter||currentRevision!==revision)return null;
-        return module.playGame300('repo_town',npcId,event,{
-          onEnd:()=>{
-            if(request===counter){
-              playing=false;button.textContent='🎙 Hear recorded '+label;
-              button.setAttribute('aria-pressed','false');
-            }
-          }
-        });
-      })
-      .then(result=>{
-        if(request!==counter)return;
-        if(currentRevision!==revision){
-          button.disabled=false;playing=false;
-          button.textContent='🎙 Hear recorded '+label;
-          button.setAttribute('aria-pressed','false');
-          caption.textContent='Stopped';return;
-        }
-        button.disabled=false;
-        if(result?.status==='playing'){
-          playing=true;caption.textContent=result.text;
-          button.textContent='■ Stop recorded '+label;
-          button.setAttribute('aria-pressed','true');
-        }else{
-          playing=false;caption.textContent='Recording unavailable; the chat text is still here.';
-          button.textContent='🎙 Hear recorded '+label;
-        }
-      })
-      .catch(()=>{
-        if(request!==counter)return;
-        button.disabled=false;playing=false;button.textContent='🎙 Hear recorded '+label;
-        button.setAttribute('aria-pressed','false');
-        caption.textContent='Recording unavailable; the chat text is still here.';
-      });
-  });
-  span.append(button,caption);
-  return span;
+  if(event!=='greeting' && event!=='help')return null;
+  if(!hasTownRecordedEvent(npcId,event))return null;
+  return makeTownRecordedEventCue(npcId,event,root);
 }
 
 export function makeTownRecordedLines(npcId,root=document){
