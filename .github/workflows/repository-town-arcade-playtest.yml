@@ -43,6 +43,8 @@ jobs:
           node-version: '22'
           cache: npm
           cache-dependency-path: repository-town/package-lock.json
+      - name: Verify arcade QA contract
+        run: node tests/arcade-qa-contract.mjs
       - name: Install pinned dependencies and Chromium
         run: |
           npm ci
