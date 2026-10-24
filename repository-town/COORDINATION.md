@@ -11,6 +11,8 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-24 · ChatGPT — **IN PROGRESS: arcade AI/browser playtest automation** on `feat/arcade-autoplay-qa-20261024`. Scope exclusively `repository-town/tests/arcade-agent-playtest.mjs`, `repository-town/qa/`, docs and optional manual QA workflow; no changes to game engine, packed game binaries or NPC branches. Validate AA Game Adventure and Mysterious Depths variants; preserve Skyvern reference and report only observed evidence.
+
 
 
 
