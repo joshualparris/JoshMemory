@@ -472,6 +472,20 @@ export class Walker {
     this.group.position.copy(pos);
   }
 
+
+  // A freshly entered room may render before its first animation frame, so
+  // clearance must happen when the planner is assigned, not only in update().
+  // Keep the existing interactable's shared position in sync with the model.
+  set plan(nextPlan) {
+    this._plan = nextPlan;
+    if (nextPlan?.collisionWorld) {
+      freeSpot(this.pos, nextPlan.collisionWorld, 0.52);
+      this.group.position.set(this.pos.x, 0, this.pos.z);
+      this.spawnClearanceChecked = true;
+    }
+  }
+  get plan() { return this._plan; }
+
   update(dt, t, player, planNext) {
     // Indoor route waypoints are only a plan, not permission to cross a solid wall.
     // A resident's arms/head extend beyond its centre, so their clearance must
