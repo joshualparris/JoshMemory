@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { addInteriorLighting } from './lighting.js';
 import { makeSeat } from './seats.js';
 import { glassMesh } from './windows.js';
 import { modelGeometry } from './furniture.js';
@@ -105,7 +106,10 @@ export function createKit(site, makeLabel, roomTitle) {
     const s = highStreetShell({ box, solid, wall, frontSill, sideSill });
     group.add(s.glass); windows = s.windows;
   };
-  const finish = (extra = {}) => ({
+  let lighting = null;
+  const finish = (extra = {}) => {
+    lighting ||= addInteriorLighting(group, site.id);
+    return ({
     group, colliders, interactables, sceneObjects, placedProps, seats,
     rooms: [{ name: roomTitle, x0: -EDGE, x1: EDGE, z0: BACK, z1: FRONT, w: W, d: D, parent: -1 }],
     doors: [], dynamics: [], sight: [],
@@ -115,5 +119,6 @@ export function createKit(site, makeLabel, roomTitle) {
     windows,
     ...extra,
   });
+  };
   return { THREE, group, colliders, interactables, sceneObjects, placedProps, mat, geo, put, model, box, cyl, ball, torus, blocker, solid, text, add, seat, shell, finish };
 }

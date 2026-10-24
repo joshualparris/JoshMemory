@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { lightingLevel, shopLightingOn } from './lighting.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 // Painted name boards for the high street: every sign is a strip in one canvas atlas and one
@@ -38,5 +39,42 @@ export function buildSignBoards(signs) {
   texture.anisotropy = 4;
   const mesh = new THREE.Mesh(mergeGeometries(parts), new THREE.MeshLambertMaterial({ map: texture }));
   mesh.name = 'shop signs';
+  // Baked downward wall-wash preserves painted colours and dark lettering.
+  const wash = document.createElement('canvas'); wash.width=canvas.width; wash.height=canvas.height;
+  const washContext=wash.getContext('2d'), washTexture=new THREE.CanvasTexture(wash);
+  washTexture.colorSpace=THREE.SRGBColorSpace;
+  mesh.material.emissiveMap=washTexture; mesh.material.emissive.setHex(0xffead0);
+  mesh.material.emissiveIntensity=0;
+  const fixtures=[];
+  for(const s of signs){
+    if(!s.place)continue;
+    const angle=s.rotY||0, offset=.23;
+    const fixture=new THREE.BoxGeometry(Math.min(s.w*.65,2.2),.10,.20);
+    fixture.rotateY(angle);
+    fixture.translate(s.x+Math.sin(angle)*offset,s.y+s.h/2+.12,s.z+Math.cos(angle)*offset);
+    fixtures.push(fixture);
+  }
+  if(fixtures.length){
+    mesh.add(new THREE.Mesh(mergeGeometries(fixtures),new THREE.MeshLambertMaterial({color:0x42464a})));
+    fixtures.forEach(g=>g.dispose());
+  }
+  let lastState='';
+  mesh.userData.setLighting=(dark,powered,minute)=>{
+    mesh.material.emissiveIntensity=powered ? lightingLevel(dark)*.7 : 0;
+    const on=signs.map(s=>!s.place||shopLightingOn(s.place,minute));
+    const state=on.join(',');
+    if(state===lastState)return;
+    lastState=state;
+    washContext.globalCompositeOperation='source-over';
+    washContext.fillStyle='#000'; washContext.fillRect(0,0,WIDTH,wash.height);
+    for(let i=0;i<signs.length;i++)if(on[i]){
+      const y=i*ROW;
+      washContext.drawImage(canvas,0,y,WIDTH,ROW,0,y,WIDTH,ROW);
+      const gradient=washContext.createLinearGradient(0,y,0,y+ROW);
+      gradient.addColorStop(0,'rgba(0,0,0,0.05)');gradient.addColorStop(1,'rgba(0,0,0,0.70)');
+      washContext.fillStyle=gradient;washContext.fillRect(0,y,WIDTH,ROW);
+    }
+    washTexture.needsUpdate=true;
+  };
   return mesh;
 }
