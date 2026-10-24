@@ -57,6 +57,16 @@ for (let i=0;i<200;i++) {
 }
 assert.equal(walker.path.length,0,'stale blocked waypoint must be discarded');
 
+// A resident can be drawn before their first update tick. Assignment of the
+// house planner must resolve a spawn close to a wall immediately.
+const spawnWall=new CollisionWorld([{x0:1,x1:1.2,z0:-4,z1:4}]);
+const firstFrame=new Walker(makePerson(31,0x557e9f,0x303e4e),new THREE.Vector3(.6,0,0),{name:'Spawn wall'});
+const spawnPlan=()=>[];spawnPlan.collisionWorld=spawnWall;
+assert(spawnWall.hits(firstFrame.pos.x,firstFrame.pos.z,.52),'fixture begins inside full-body wall clearance');
+firstFrame.plan=spawnPlan;
+assert(!spawnWall.hits(firstFrame.pos.x,firstFrame.pos.z,.52),'no wall overlap before the first animation frame');
+assert.equal(firstFrame.group.position.x,firstFrame.pos.x,'the drawn body must match the corrected spawn');
+
 // Doors must remain walkable and no existing room transition can be disabled
 // by using the figure's real collision clearance.
 const doorway=new CollisionWorld([
