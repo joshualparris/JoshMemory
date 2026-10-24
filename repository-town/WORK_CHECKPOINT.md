@@ -1,3 +1,46 @@
+# Lighting browser publication — 25 October 2026
+
+User requested another route; GitHub browser is authenticated as repository owner. Created remote branch fix/town-lighting-audit-20261024 from ee432c0 through normal UI. Reconciled current main locally; no runtime conflicts; latest tracker and other agents preserved. Scoped browser uploads will replace only lighting-owned changed files. Git/connector authentication remains unavailable; browser can write. Next: upload source/tests/docs/evidence, verify exact remote file hashes, review and merge PR, deploy eligible existing host and run live desktop/mobile lighting audit. Publication approval remains valid.
+
+# RLT-008 retry — 25 October 2026
+
+User explicitly selected @GitHub and requested another attempt. Retried connected get_repo and get_user_login: both return Unknown tool. Retried authorised topic-branch push: fatal could not read Username for https://github.com, No such device or address. No new remote write/PR/merge/deployment completed. RLT-008 remains BLOCKED; publication approval is unchanged. Lighting source and central task IDs remain locally committed; do not request the same approval again.
+
+# Lighting task numbering — 25 October 2026
+
+Documentation-only update on `fix/town-lighting-audit-20261024`. Central index `docs/UNNUMBERED_TODO_IDS_2026-10-24.md#lighting-tasks-and-release-triage` now preserves RLT-001–007 and defines new unique RLT-008–019 with priorities, dependencies and concrete acceptance. START RLT-008 (GitHub write access); deliver RLT-009–016 in order; keep RLT-017–019 device/outage/coverage evidence separate. Existing RTR/RTD/RT/audio identifiers and statuses unchanged. Existing central index bytes preserved; checked 19 unique definitions and earlier tracker prefix.
+
+Latest fetched main is de547a1; application source last reconciled/tested at e72a654, so RLT-009 remains open. Current task is numbering, not another runtime release. No new publication approval needed. GitHub publication remains blocked by unavailable authenticated write access. Central index changes are local until RLT-011; do not report them as pushed. Next: RLT-008.
+
+# Lighting release — approved, verified locally, GitHub authentication blocked
+
+User approval: YES, push/review/merge/deploy explicitly approved. No further permission request is needed for this scope.
+
+Reconciled canonical main `a64b979` into `fix/town-lighting-audit-20261024`; merge candidate `e72a65408bdba2f77e33beb227cd689bc2d3c305`. Preserved newer yarn settings, both test additions, hosting fallback policy and concurrent NPC claims. Inspected the final diff; no gameplay merge conflicts. Self-review recorded in `audit/lighting/PR_BODY.md`.
+
+VERIFIED: full `npm run build:release`, privacy scan (774 files, 1116 private markers), 1139-file release fingerprint; reran all 38 Chromium desktop/emulated Android lighting scenarios on reconciled candidate, zero runtime/shader errors, zero blocked locations. Final content hash `d0e66d250b6d43ad7b89045dbd925b05a8a7e4abeab1e922b0bc5d4c63959d61`. Selected screenshots and metadata updated; logs retained.
+
+BLOCKED TECHNICALLY: approved git push failed `fatal: could not read Username for https://github.com: No such device or address`; GitHub get_repo/create_pull_request return `Unknown tool`. Plugin inspection confirms GitHub installed/enabled, connector app-specific setting Allow all actions; this is not a remaining permission/approval problem. No available authenticated GitHub write path. Did not search for credentials or change app permissions. No remote branch, PR, remote main merge or deployment success claimed.
+
+NEXT: restore the connected GitHub service or an authenticated Git session; no token should be pasted into chat. Then fetch latest main, reconcile new work, push this branch, review/merge, deploy exact approved candidate using existing hosting policy and verify live SHA/hash plus desktop/mobile lighting. A binary Git patch is available in the shared workspace as `repo-town-lighting.patch` for recovery.
+
+# Lighting publication approved — integration underway
+
+User explicitly approved push, review/merge and deploy. Current branch `fix/town-lighting-audit-20261024` reconciles main `a64b979`; preserves yarn settings and hosting fallbacks. No gameplay conflicts; combine both new test commands and coordination claims. Prior publication blocker is resolved. Next: release checks, push, review and merge; verify live release and Android/desktop lighting.
+
+# Lighting audit — verified locally; publication blocked
+
+Owner: Codex. Branch `fix/town-lighting-audit-20261024`. Baseline `7d369b7`. Tested runtime candidate `51dc315ba762db576f8f4e9fa29b8db27c391926`; later evidence/checkpoint commits have no runtime changes. Scope: `lighting.js`, `town.js`, `townlife.js`, `interior-kit.js`, `shop-signs.js`, lighting tests and release-test script. No main.js, NPC, dialogue or audio edits.
+
+Implemented independent university/TAFE/hardware/trades lights, visible neutral panels/warm pendants, bounded downward street lights (4 desktop/2 touch; excluded in daytime), painted-sign wash, trading/24h/household schedules, and shared-shell blackout support. Fixed the original always-true residential OR bedtime conditions. All 45 civic interior builds have actual local lights.
+
+VERIFIED: full `npm run build:release`, privacy (773 files / 1116 private markers), release manifest (1138 files); final Chromium desktop/emulated-Android run: 38 scenarios, 16 interior movement checks, 16 walked street segments, zero blocked locations after genuine staffing retries, zero page/shader errors. Evidence and exact hash in `docs/LIGHTING_AUDIT_2026-10-24.md` and `audit/lighting/after/metadata.json`. Selected before/after images and full release log retained. Rejected the initial eight-light prototype for software performance and upward ceiling halos; final build uses lower budgets and downward emitters.
+
+BLOCKED: automatic approval review rejected `git push -u origin fix/town-lighting-audit-20261024`, stating publication was not authorised. Did not retry or route around it. GitHub connectors separately returned Unknown tool. All commits/evidence remain local; no PR, merge, staging, production or backup success claimed. Native handset and full 188-house on-foot coverage unverified.
+
+NEXT: user approval for push/review/merge/deploy; fetch and reconcile latest main and concurrent claims, push exact tested change with this checkpoint, review and test reconciled candidate, deploy and verify hosted fingerprints/playback/rendering. Keep scope reserved pending publication. Public engineering content only.
+
+
 # Repository Town — WORK CHECKPOINT
 
 ## RTN-001–018 — NPC uniqueness/collision task triage (25 October 2026)

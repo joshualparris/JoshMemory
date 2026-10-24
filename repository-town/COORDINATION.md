@@ -16,6 +16,9 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-25 · Codex — LIGHTING RLT-001–019: browser fallback has verified authenticated GitHub access and created `fix/town-lighting-audit-20261024` from main ee432c0. Uploading the reviewed lighting source/tests/evidence and central numbered tracker via GitHub UI; canonical source remains JoshMemory. No main.js, NPC, dialogue, audio or hosting-policy edits. Local main ee432c0 reconciled; release gate, review/merge and hosted acceptance pending. Preserve parallel NPC/triage work.
+
+
 - 2026-10-25 · ChatGPT — **CLAIMED DOCS-RTD-TRIAGE-20261025**: map exact unfinished follow-ups from RTD-009 status report to their *existing* RTD-010–093 and master TASK-032–045 identifiers in logical dependency order. Canonical baseline `de547a1e0fa026e1c2470ead4cd840b6fa7cbf7e`; branch `docs/town-rtd-after-009-triage-20261025`. Files: `repository-town/docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md`, existing RTD roadmap header/cross-reference, `repository-town/README.md`, global `docs/OUTSTANDING_WORK_2026-10-24.md`, `repository-town/WORK_CHECKPOINT.md`, and this board. **Documentation only; no new ID when existing ID already covers the exact work, do not renumber or check pending RTD/TASK work; no NPC/audio/runtime or generated backup modifications.** Do not claim RTD-010 implementation for the next agent. Board moved Done on docs PR review.
 
 

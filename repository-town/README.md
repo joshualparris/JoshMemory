@@ -168,3 +168,7 @@ the delivery truck models are currently decorative. See
 complete buildout and scenario acceptance checks. Continue to run the
 normal build, privacy check and desktop/Android browser suites before public
 deployment.
+
+## Lighting task triage
+
+[Central lighting tasks RLT-001–019](docs/UNNUMBERED_TODO_IDS_2026-10-24.md#lighting-tasks-and-release-triage): start **RLT-008** to restore GitHub write access, then reconcile, test, publish, review/merge, deploy and verify. RLT-001–007 retain their original audit IDs and local-only verification status.
