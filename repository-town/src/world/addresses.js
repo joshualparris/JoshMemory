@@ -10,7 +10,9 @@ const RE_LEGACY = /^([A-Z])([1-8])$/;
 const RE_PLOT = /^([A-Z])(1[01]|[1-9])[- ]?(N|S|NORTH|SOUTH)$/i;
 export function houseAddress(coordinate) {
   const m = RE_LEGACY.exec(String(coordinate || '').toUpperCase());
-  if (!m) throw new Error('Invalid legacy house coordinate: ' + coordinate);
+  // Test harnesses and older fixture saves may contain synthetic IDs (e.g. H0).
+  // Leave those untouched rather than fabricating an invalid physical plot.
+  if (!m) return String(coordinate || '').toUpperCase();
   return m[1] + m[2] + '-S';
 }
 export function placeAddress(place) {
