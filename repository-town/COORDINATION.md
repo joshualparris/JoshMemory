@@ -7,6 +7,9 @@ Newest first. Times in Australia/Sydney.
 
 ## Roadmap notes
 
+- 2026-10-24 · ChatGPT — **DONE, documentation only: number previously unnumbered open tasks**, [PR #175](https://github.com/joshualparris/JoshMemory/pull/175) squash-merged to main (`543035cce55f4ba0dfff9b69bd34e427abe61547`). Added 101 unique stable IDs in `docs/UNNUMBERED_TODO_IDS_2026-10-24.md` (5 RTL, 64 audio child, 7 RTA, 16 RTR, 9 RTC), added RTL IDs to the existing Living Town checklist and README link. Kept all prior RTD/RT/audio parent/realism/council numbers and completion statuses unchanged, with no code, audio, deploy or generated-backup edits. Validated 101 unique open IDs and exact original Living Town document when the five inserted IDs are removed.
+
+
 - 2026-10-24 · ChatGPT — **DOCUMENTED (no gameplay changed):** 93 numbered Skyrim-inspired NPC conversation tasks in `docs/SKYRIM_NPC_DIALOGUE_IMPLEMENTATION_TODO.md`; canonical `JoshMemory/repository-town/` source and merged PR #166 are the foundation. RTD-001/002 research checked; RTD-003–093 remain open until evidence. Documentation branch `docs/town-skyrim-dialogue-roadmap-20261024` linked from README. Update the shared checkpoint before implementing to avoid collision with other audio/NPC work.
 
 ## In progress
