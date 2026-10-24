@@ -3,6 +3,11 @@ name: CI
 on:
   push:
     branches: [main]
+    paths-ignore:
+      # These only exercise the already-registered Windows runner.
+      # Do not spend hosted Linux CI minutes for CI diagnostic files alone.
+      - '.github/workflows/windows-self-hosted-smoke.yml'
+      - '.github/workflows/windows-cross-repo-syntax.yml'
   pull_request:
     paths-ignore:
       - 'repository-town/**'
