@@ -1,0 +1,25 @@
+name: iMac 2017 self-hosted runner connectivity
+# Trusted main-only job. Does not checkout code, read secrets or execute untrusted PRs.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/imac-selfhosted-probe.yml']
+permissions:
+  contents: read
+jobs:
+  imac-preflight:
+    if: github.repository == 'joshualparris/JoshMemory' && github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, macOS, X64]
+    timeout-minutes: 5
+    steps:
+      - name: Check macOS self-hosted connection only
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$RUNNER_OS" = macOS
+          test "$RUNNER_ARCH" = X64
+          printf 'RUNNER_NAME=%s\nRUNNER_OS=%s\nRUNNER_ARCH=%s\n' "$RUNNER_NAME" "$RUNNER_OS" "$RUNNER_ARCH"
+          sw_vers
+          for tool in git node npm python3 ffmpeg brew; do if command -v "$tool" >/dev/null; then echo "$tool available"; else echo "$tool absent"; fi; done
+          echo 'PASS: trusted main-only iMac runner connected; no checkout, secrets or downloads.'
