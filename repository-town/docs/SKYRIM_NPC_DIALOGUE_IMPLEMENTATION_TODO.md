@@ -15,6 +15,12 @@ Skyrim-*inspired* actor-specific dialogue branches, priorities, availability con
 
 **Rules:** The authoritative simulation—not LLM text or a recording—determines quest, repairs, money and inventory. Exact ElevenLabs captions must come from a verified matching clip; never mislabel device TTS or replay generic success for unearned achievements. Preserve mobile performance, offline play and private-repository redaction. Update checkboxes only with committed passing evidence (SHA, tests and actual live playtest for release items). IDs are stable across future chats and PRs.
 
+## Next unfinished work — stable IDs and priority after RTD-009
+
+**Start with RTD-010** (identity isolation across named actors, workers and house residents), then **RTD-011** (deterministic DialogueDirector) and **RTD-012** (graph integrity). Use the [complete priority-ordered triage cross-reference for all 84 remaining existing IDs](RTD_NEXT_TASK_TRIAGE_2026-10-25.md), which also links broader master `TASK-032`–`TASK-045` work. Subsequent dependent tracks are dialogue and user controls (RTD-013–021, 056–062), authoritative quest/repair effects (RTD-022–032), saved social memory (RTD-033–041), ElevenLabs voice integrity/casting (RTD-042–055, 070/072/074, 076–078), real Rowan/Kit/Pip pilots (RTD-067–075) and live release evidence (RTD-080–093).
+
+**These tasks were already numbered; no RTD identifiers are reassigned or new checkboxes checked by the triage.** First read `COORDINATION.md` to avoid concurrent work; `RTD-010` is suggested, not pre-claimed.
+
 ## Numbered implementation tasks
 
 ### Phase 1: Research and architecture
