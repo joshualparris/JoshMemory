@@ -12,6 +12,15 @@
 - **Claim timestamp / branch / PR:** NONE
 - **Scope limitations:** Snapshot covers 233 detected repos, not all unconnected accounts. Forty-five discovered repos are outside the 188-address Town map. Existing grid mappings remain fixed. Queue priorities past the explicitly chosen high-impact group are provisional.
 
+## Exact numbered subtask checkpoint (25 October 2026)
+
+- **Next open child task:** `TR-003.01`, parent `TR-003`, permanent repository ID `RT-U032`.
+- **Work:** verify canonical repository, latest branch/source, permissions, existing `AGENTS.md` and `WORK_CHECKPOINT.md`, open PRs and agent claims before editing. Claim the task only once work actually starts.
+- **Then:** `TR-003.02` inventory tasks → `TR-003.03` preserve/complete unique identifiers → `TR-003.04` triage by urgency/dependency → `TR-003.05` designate exact next coding task → `TR-003.06` write agent handoff → `TR-003.07` fetch/verify commits → `TR-003.08` reconcile registry/checkpoint and move to `TR-004.01`.
+- **Claim status:** NONE (numbering work only). All eight `TR-003` steps remain `OPEN`.
+- **Canonical child task registry:** [PORTFOLIO_TRIAGE_TASK_STEPS_2026-10-25.csv](PORTFOLIO_TRIAGE_TASK_STEPS_2026-10-25.csv); [completion rules](PORTFOLIO_TRIAGE_TASK_STEPS_2026-10-25.md). The 233-row parent registry remains authoritative for repository status and permanent designation.
+- **Latest work:** added unique child task IDs centrally; no app fix, production deployment, audio playtest, repository audit or reviewed parent beyond TR-002 is claimed.
+
 ## Next action
 
 When asked **“Continue portfolio system task triage in local order”**:
