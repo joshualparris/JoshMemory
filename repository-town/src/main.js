@@ -9,6 +9,7 @@ import { Player } from './engine/player.js';
 import { loadSave, writeSave, clearSave } from './engine/save.js';
 import { discoveryProgress } from './ui/discovery-log.js';
 import { buildTown, streetSigns, lotPosition } from './world/town.js';
+import { houseAddress, parseTownAddress } from './world/addresses.js';
 import { buildInterior, labelVisible } from './world/interior.js';
 import { honourPaulRoe } from './world/paul-roe-tribute.js';
 import { buildCivicInterior } from './world/shop-interior.js';
@@ -65,7 +66,7 @@ async function start() {
   // Archive contents (READMEs, file lists) are large, so they load on first use.
   let archive = null;
   setArchiveLoader(() => (archive = archive || (window.__REPO_DATA__ ? Promise.resolve(window.__REPO_DATA__) : fetch('repo-data.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({})))));
-  const houses = data.houses.map(honourPaulRoe);
+  const houses = data.houses.map(h => ({ ...honourPaulRoe(h), address: houseAddress(h.coordinate) }));
   const byCoord = new Map(houses.map((h) => [h.coordinate, h]));
 
   const touch = matchMedia('(pointer: coarse)').matches;
@@ -256,7 +257,7 @@ async function start() {
     // A map toggle still queued from a slow bird's-eye frame must not reopen the map.
     input.pressed.delete('map');
     setOverview(false);
-    status(`Standing outside ${coord}.`);
+    status(`Standing outside ${houseAddress(coord)}.`);
     return true;
   }
   // Stands on the footpath outside a shop, farm or the square, facing it.
@@ -268,7 +269,7 @@ async function start() {
     player.place(f.x, f.z, f.yaw ?? 0);
     input.pressed.delete('map'); setOverview(false);
     const name = life.place(id).name;
-    status(`Outside ${/^the /i.test(name) ? '' : 'the '}${name}.`);
+    status(`Outside ${life.place(id).address} · ${/^the /i.test(name) ? '' : 'the '}${name}.`);
   }
   function updateFloorBadge() {
     floorBadge.hidden = !inside?.floors;
@@ -356,7 +357,7 @@ async function start() {
     expedition.noteVisit(coord);
     ambience.door();
     closePanel();
-    status(floors ? `Inside ${h.coordinate} · ${h.name}. Tap 🛗 Floors under the town clock to visit the upper storeys, or follow the stairs and lift sign.` : `Inside ${h.coordinate} · ${h.name}. Walk back through the front door to leave.`);
+    status(floors ? `Inside ${h.address} · ${h.name}. Tap 🛗 Floors under the town clock to visit the upper storeys, or follow the stairs and lift sign.` : `Inside ${h.address} · ${h.name}. Walk back through the front door to leave.`);
     showCard(h, true);
     cardTimer = 6;
   }
@@ -449,17 +450,18 @@ async function start() {
 
   // ── HUD ──────────────────────────────────────────────────────────────────
   const list = $('house-list');
-  for (const h of houses) { const o = document.createElement('option'); o.value = `${h.coordinate} · ${h.name}`; list.append(o); }
+  for (const h of houses) { const o = document.createElement('option'); o.value = `${h.address} · ${h.name}`; list.append(o); }
   // High Street shops, civic buildings and farms are places, not houses: list them too so any building can be found.
-  const placeLabel = (p) => `${p.name} · ${p.side === 'south' ? 'South ' : ''}${p.col}8`;
+  const placeLabel = (p) => `${p.name} · ${p.address}`;
   const places = [...life.places.values()].filter((p) => p.col);
   for (const p of places) { const o = document.createElement('option'); o.value = placeLabel(p); list.append(o); }
   $('search-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const q = $('search').value.trim().toLowerCase(); if (!q) return;
     const code = q.split(' ')[0].toUpperCase();
-    const p = places.find((p) => placeLabel(p).toLowerCase() === q || p.name.toLowerCase() === q || p.id === q);
-    const h = !p && (byCoord.get(code) || houses.find((h) => h.name.toLowerCase() === q || `${h.coordinate} · ${h.name}`.toLowerCase() === q));
+    const addressed = parseTownAddress(code);
+    const p = places.find((p) => placeLabel(p).toLowerCase() === q || p.name.toLowerCase() === q || p.id === q || p.address.toLowerCase() === q || (p.side==='south'&&q==='south '+p.col.toLowerCase()+'8') || (addressed && p.address===addressed.address && !byCoord.has(addressed.col+addressed.row)));
+    const h = !p && (byCoord.get(code) || (addressed && byCoord.get(addressed.col+addressed.row)) || houses.find((h) => h.name.toLowerCase() === q || h.address.toLowerCase() === q || `${h.address} · ${h.name}`.toLowerCase() === q || `${h.coordinate} · ${h.name}`.toLowerCase() === q));
     const near = !p && !h && places.find((p) => p.name.toLowerCase().includes(q));
     const named = !p && !h && !near && houses.find((h) => h.name.toLowerCase().includes(q));
     if (p || near) { goPlace((p || near).id); $('search').blur(); }
@@ -508,7 +510,7 @@ async function start() {
     const links = (h.links || []).map((l) => `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)} ↗</a>`).join(' · ');
     const deed=life.civic.property?.parcels?.['H:'+h.coordinate];
     const ownerLine=deed ? `<p class="dim"><b>Title:</b> ${esc(deed.owner==='visitor'?'You':deed.owner)} · <b>Occupier:</b> ${esc(deed.tenant||'Vacant')} · <b>Value:</b> ${Number(deed.value).toLocaleString('en-AU')} ${deed.listed?' · For sale':''}</p>` : '';
-    $('card').innerHTML = `<h2>${esc(h.coordinate)} · ${esc(h.name)}</h2><p class="kind">${esc(h.kind)} · ${esc(h.street)}</p><p>${esc(h.summary)}</p>${ownerLine}${links ? `<p>${links}</p>` : ''}${insideNow ? '' : '<p class="dim">Walk to the door to go inside.</p>'}`;
+    $('card').innerHTML = `<h2>${esc(h.address)} · ${esc(h.name)}</h2><p class="kind">${esc(h.kind)} · ${esc(h.street)}</p><p>${esc(h.summary)}</p>${ownerLine}${links ? `<p>${links}</p>` : ''}${insideNow ? '' : '<p class="dim">Walk to the door to go inside.</p>'}`;
     $('card').hidden = false;
   }
   function openPanel(content, thing) {
@@ -1097,7 +1099,7 @@ async function start() {
         const d = Math.hypot(l.doorPos.x-player.pos.x,l.doorPos.z-player.pos.z);
         const has = houseLabels.get(c);
         if (d < 16 && !has) {
-          const s = makeLabel(`${c} · ${l.house.name}`, 'house');
+          const s = makeLabel(`${l.house.address} · ${l.house.name}`, 'house');
           s.position.set(l.lot.x,Math.max(3.7,Math.min(5.5,l.fp.h-0.8)),l.doorPos.z+1.2);
           town.group.add(s);houseLabels.set(c,s);
         } else if (d > 22 && has) {
@@ -1129,7 +1131,7 @@ async function start() {
           : nearPerson.v?`Talk to ${nearPerson.v.name} (${nearPerson.v.job}) · ${nearPerson.v.activity.replace(/^(walking|cycling) — /, '')}`:nearPerson.label;
         $('prompt').textContent=`${input.touch?'Tap ✋':'Press E'} — ${label}`;
       }
-      else if (nearHouse) $('prompt').textContent = `${nearHouse.house.coordinate} · ${nearHouse.house.name} — walk through the door to enter`;
+      else if (nearHouse) $('prompt').textContent = `${nearHouse.house.address} · ${nearHouse.house.name} — walk through the door to enter`;
       if (input.consume('use')) use();
     } else {
       // Inside doors swing open for the player and for residents walking through them.
