@@ -1,5 +1,9 @@
 # JoshMemory
 
+## Portfolio review step IDs
+
+**Next exact procedural task:** `TR-003.01`. Read the [central 1,864-step numbered triage checklist](docs/PORTFOLIO_TRIAGE_TASK_STEPS_2026-10-25.md) and [complete public-safe child task register](docs/PORTFOLIO_TRIAGE_TASK_STEPS_2026-10-25.csv). These eight task steps belong to each repository review; project implementation TODOs retain their original unique IDs.
+
 ## Portfolio system task triage
 
 For a new coding agent reviewing **which repository to triage next**, follow [the 233-repository, grid-referenced portfolio route](docs/PORTFOLIO_TRIAGE_2026-10-24.md), [its permanent-ID registry](docs/PORTFOLIO_TRIAGE_REGISTRY_2026-10-24.csv) and [the durable next-task checkpoint](docs/PORTFOLIO_TRIAGE_CHECKPOINT.md). Each original Repository Town address is preserved; new repositories use `RT-U###` designations. Keep the grid location separate from the priority-based `TR-###` visit sequence. **Next: TR-003 / RT-U032**, subject to live work claims. Private repository identities are redacted in this public repo; authorised full mapping is stored in a separate restricted registry.
