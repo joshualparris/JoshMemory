@@ -99,9 +99,9 @@ export function mountNPCChat(root=document, { getScene = () => null } = {}) {
       b.onclick=()=>{ input.value=prompt;input.focus(); };
       promptsRow.appendChild(b);
     }
-    activities.appendChild(promptsRow);
     const recordedConversation=makeTownRecordedConversation(npc,root);
     if(recordedConversation)activities.appendChild(recordedConversation);
+    activities.appendChild(promptsRow);
     activities.appendChild(makeTownRecordedLines(npc.id,root));
     if(npc.challenge){
       const area=root.createElement('div');area.className='npc-quest-area';
