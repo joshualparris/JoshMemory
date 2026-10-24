@@ -1,4 +1,5 @@
 // Physiology, food and paid lodgings. Town minutes, persistent and deterministic.
+import { legacyHouseCoordinate } from './addresses.js';
 // Neither meals nor shelter are magically free. No health/death punishment.
 const clamp=(n)=>Math.max(0,Math.min(100,n));
 export const HOTEL_RATE=24, HOTEL_ROOMS=4;
@@ -62,7 +63,9 @@ export function hotelCheckIn(t) {
 // Buying an investment with an existing resident does not entitle the player to their bed.
 export function playerHome(t, coordinate) {
   if (!coordinate || !t.civic.property?.parcels) return null;
-  const id='H:'+coordinate, state=t.civic.property, parcel=state.parcels[id];
+  const legacy=legacyHouseCoordinate(coordinate);
+  if (!legacy) return null;
+  const id='H:'+legacy, state=t.civic.property, parcel=state.parcels[id];
   if (!parcel || parcel.kind!=='house') return null;
   if (state.playerLease===id && parcel.tenant==='visitor') return parcel;
   if (parcel.owner==='visitor' && (!parcel.tenant || parcel.tenant==='visitor')) return parcel;

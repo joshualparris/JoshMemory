@@ -675,7 +675,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       colliders.push({ x0: p.x - fp.w / 2, x1: p.x + fp.w / 2, z0: FIELD_Z0, z1: FIELD_Z0 + fp.d });
       // Keep the business name clear of the roofline and deep colonnades:
       // a freestanding, non-colliding sign just outside the south doorway.
-      const sign = makeLabel(p.name, 'house');
+      const sign = makeLabel(p.address+' · '+p.name, 'house');
       sign.position.set(p.x, 3.85, FIELD_Z0 - 4.6);
       group.add(sign); labels.push(sign);
       spots.push({ key: `place:${p.id}`, id: p.id, pos: new THREE.Vector3(p.x, 0, FIELD_Z0 - 2.4), label: `${p.name} — ${{ bank: 'your account', fire: 'station board', foundry: 'the works' }[p.id] || 'the plant'}` });
@@ -703,7 +703,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     // Name board over the door.
     // Place signs forward of awnings, pillars and the Town Hall portico,
     // rather than embedding the billboard behind the roof or facade.
-    const sign = makeLabel(p.name, 'house');
+    const sign = makeLabel(p.address+' · '+p.name, 'house');
     sign.position.set(p.x, kind === 'square' ? 3.2 : 3.85,
       LOT8_Z + (kind === 'square' ? 11 : 12.4));
     group.add(sign); labels.push(sign);

@@ -1,5 +1,20 @@
 # Repository Town — WORK CHECKPOINT
 
+## Directional N/S town land-address audit — started 24 October 2026
+
+Owner: ChatGPT. Topic branch `feat/town-directional-addresses-20261024`; canonical coordination claim `6d17dd60e0c205e3cbe426a75d509889ad5d2799` on `main`.
+
+- [x] Read town physical code (`src/world/town.js`, `life.js`, `townlife.js`), inventory and property system; photographed in-game Z7-S UpskillApp, Workshop Way rail and row 9 edge supplied by Josh.
+- [x] Confirmed existing inventory's 20 missing coordinates G8–Z8 are **all occupied** in the physical game (shops/farms); a separate full-width business frontage occupies future `A9-N`–`Z9-N`. The railway occupies the `8-N` corridor; future row-9 roadway is not implemented.
+- [x] Implemented `src/world/addresses.js`: 572 unique N/S planning plots; confirmed 234 existing built sites, all rail references and farm fields; no unsupported vacant claims.
+- [x] Added address labels to all houses, TownLife businesses, property deeds, building card, search, shop panels and readable in-game plot atlas; preserves legacy keys and migrates saved deed labels. Regression added to `npm run test:town`.
+- [x] Created `docs/DIRECTIONAL_ADDRESS_AUDIT_2026-10-24.md` and map. [ ] Await PR CI, release privacy, merge, deployment and browser confirmation.
+
+Validation pending on this branch: `node tests/directional-addresses.mjs`, full Town release/CI gate and hosted browser evidence. Current code claim is **implemented, unverified** until tests return. Next: review branch, open PR, read GitHub Actions jobs, fix any failures, merge only after green checks, then check deployed release fingerprint.
+
+Do not mistake "Vacant" in title card (occupant) for an empty building lot. Do not claim undeveloped ground is buildable without footprint/yard/collision survey.
+
+
 Updated 2026-10-24 (Australia/Sydney). Working branch: `feat/town-npc-branching-recordings-20261024`.
 
 ## RTD-009 — versioned actor/node/choice dialogue schema (24 October 2026)

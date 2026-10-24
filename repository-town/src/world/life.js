@@ -1,4 +1,5 @@
 import {workAssetFault} from './occupation-work.js';
+import { placeAddress } from './addresses.js';
 import {soyState,soyAction,soyHourly,soyReport,takeSoyShipment,deliverSoyShipment} from './soy-chain.js';
 import { shopService } from './shop-attendance.js';
 import { coldChainHour, shopWasteDay } from './cold-chain.js';
@@ -18,7 +19,7 @@ import { receipt, tickJobs, startJob, performTask, abandonJob, finishJob, jobsRe
 import { freshCredit, recordEarning, noteBank, creditReport, borrow, repay, accrueInterest } from './credit.js';
 import { ensureHousehold, hasFood, heldCount, takeFood, stowFood, larderSummary, householdHour, homeTask, householdDone, householdReport, noteIncome, noteSpend, canAfford, outdoorTemp, season } from './household.js';
 import { startNeeds, advanceNeeds, eatPlayer, hotelCheckIn, sleepPlayer, needsReport } from './needs.js';
-import { initialiseProperties, propertyReport, buyProperty, listProperty, sellProperty, leaseProperty, endLease, propertyDay } from './property.js';
+import { initialiseProperties, upgradePropertyAddresses, propertyReport, buyProperty, listProperty, sellProperty, leaseProperty, endLease, propertyDay } from './property.js';
 import { ensureTenancies, leaseReport, commercialRentDay, issueCommercialDisclosure, renewCommercial, reviewCommercialRent, tenancyNotice, applyTribunal, hearing, enforcePossession, leaseOverview } from './lease-law.js';
 import { exchangePurchase, rescindContract, settlePurchase, contractReport, contractQuote } from './property-contracts.js';
 import { initialiseVehicles, motorReport, buyVehicle, serviceVehicle, refuelVehicle, renewRegistration, sellVehicle, motorDay } from './vehicles.js';
@@ -411,7 +412,7 @@ export class TownLife {
       const col = d.col.charCodeAt(0) - 65;
       const x = lotX(col), south = d.side === 'south';
       this.places.set(d.id, {
-        ...d, target: d.target ? {...d.target} : undefined, x, door: { x, z: south ? FIELD_Z0 - 0.5 : LOT8_Z + 7.5 }, front: { x, z: south ? FIELD_Z0 - 2.2 : LOT8_Z + 9.3 }, curb: { x, z: south ? ROAD(7) + 1.7 : ROAD(7) - 1.7 },
+        ...d, address: placeAddress(d), target: d.target ? {...d.target} : undefined, x, door: { x, z: south ? FIELD_Z0 - 0.5 : LOT8_Z + 7.5 }, front: { x, z: south ? FIELD_Z0 - 2.2 : LOT8_Z + 9.3 }, curb: { x, z: south ? ROAD(7) + 1.7 : ROAD(7) - 1.7 },
         stock: Object.fromEntries(Object.keys(d.target || {}).map((k) => [k, Math.round(d.target[k] * 0.6)])), till: 0, out: {},
       });
     }
@@ -1816,6 +1817,7 @@ export class TownLife {
     // A full save replaces work begun after it (shifts, trays, cartons, routes) rather than keeping it.
     if (sim && s.civic) for (const k of Object.keys(this.civic)) if (!(k in s.civic) && !this.baseCivic.includes(k)) delete this.civic[k];
     if (s.civic && typeof s.civic === 'object') Object.assign(this.civic, s.civic, { player: { ...this.civic.player, ...(s.civic.player || {}) } });
+    upgradePropertyAddresses(this);
     restoreCivic(this,s.civic?.government);
     initialiseTradeEducation(this);
     initialisePublicLife(this);

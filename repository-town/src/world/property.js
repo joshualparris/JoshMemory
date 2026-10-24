@@ -2,6 +2,7 @@
 // 28-day simulation year: values are fictional Town Dollars, not actual NSW valuations.
 // Council assets cannot be sold, and tenancies survive a change of landlord.
 import { nswIndicativeQuote } from './nsw-property-law.js';
+import { houseAddress, placeAddress } from './addresses.js';
 const round=n=>Math.round(n*100)/100;
 const dutyFor=p=>nswIndicativeQuote(p.value).scaledTownDuty;
 export const PROPERTY_YEAR=28;
@@ -39,8 +40,8 @@ export function initialiseProperties(life){
       ? 'resident:'+occupant.name
       : occupant ? (i%3===0?'Town Housing Trust':'Town Property Cooperative') : 'Town Property Cooperative';
     parcels[propertyKey('house',h.coordinate)]={
-      id:propertyKey('house',h.coordinate),name:h.coordinate+' · '+h.name,kind:'house',
-      address:h.coordinate,owner:title,tenant:occupant?.name||null,
+      id:propertyKey('house',h.coordinate),name:houseAddress(h.coordinate)+' · '+h.name,kind:'house',
+      address:houseAddress(h.coordinate),legacyAddress:h.coordinate,owner:title,tenant:occupant?.name||null,
       occupied:!!occupant,value,rent:8,
       // More vacant houses are genuinely listed as the larger workforce moves in.
       // All 188 legal titles, existing tenancies and ownership stay unchanged.
@@ -52,8 +53,8 @@ export function initialiseProperties(life){
       p.id==='farmhouse'?'Agricultural Cooperative':'High Street Property Trust';
     const occupant=p.kind==='home'?'Farm families':publicSites.has(p.id)?'Public service':p.name;
     parcels[propertyKey('business',p.id)]={
-      id:propertyKey('business',p.id),name:p.name,kind:p.kind==='farm'?'farm':p.kind==='home'?'residential':'commercial',
-      address:(p.side==='south'?'South ':'' )+p.col+'8',owner,tenant:occupant,occupied:true,
+      id:propertyKey('business',p.id),name:placeAddress(p)+' · '+p.name,kind:p.kind==='farm'?'farm':p.kind==='home'?'residential':'commercial',
+      address:placeAddress(p),legacyAddress:(p.side==='south'?'South ':'')+p.col+'8',owner,tenant:occupant,occupied:true,
       value:businessPrices[p.id]||9500,rent:publicSites.has(p.id)?0:p.kind==='farm'?55:22,
       listed:false,protected:publicSites.has(p.id),condition:80,
     };
@@ -64,7 +65,23 @@ export function initialiseProperties(life){
   life.civic.property=state;
   return state;
 }
-export const registry=life=>life.civic.property;
+// Saved-property IDs, tenants, mortgages and leases remain immutable. Only
+// public-facing addresses/names migrate in place when an older save is loaded.
+export function upgradePropertyAddresses(life) {
+  const deeds=life.civic?.property?.parcels;
+  if (!deeds) return;
+  for(const h of life.homes||[]) {
+    const deed=deeds[propertyKey('house',h.coordinate)]; if(!deed)continue;
+    deed.address=houseAddress(h.coordinate);deed.legacyAddress=h.coordinate;
+    deed.name=deed.address+' · '+h.name;
+  }
+  for(const p of life.places.values()) {
+    const deed=deeds[propertyKey('business',p.id)];if(!deed)continue;
+    deed.address=placeAddress(p);deed.legacyAddress=(p.side==='south'?'South ':'')+p.col+'8';
+    deed.name=deed.address+' · '+p.name;
+  }
+}
+export const registry=life=>{upgradePropertyAddresses(life);return life.civic.property;};
 export function propertyReport(life) {
   const s=registry(life),entries=Object.values(s.parcels);
   return {total:entries.length,owned:entries.filter(p=>p.owner==='visitor'),
