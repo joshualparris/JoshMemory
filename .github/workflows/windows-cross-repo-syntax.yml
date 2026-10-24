@@ -1,0 +1,41 @@
+name: Windows cross-repo Python syntax check (trusted source)
+# First bootstrap runs on its own file change. Later runs are manual-only.
+# No checkout, no access to secrets and no execution of downloaded source.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/windows-cross-repo-syntax.yml'
+permissions:
+  contents: read
+concurrency:
+  group: windows-cross-repo-syntax
+  cancel-in-progress: true
+jobs:
+  gentlemovement-python-syntax:
+    name: Compile GentleMovement repair agent without executing it
+    if: github.repository == 'joshualparris/JoshMemory' && github.ref == 'refs/heads/main'
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 5
+    steps:
+      - name: Validate a pinned, trusted Python file
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $sha = '7b5013871eb8346bae0f8c41d03dcdc5a751ad49'
+          $url = "https://raw.githubusercontent.com/Parris-Tech-Services/GentleMovement/$sha/scripts/autonomous-repair.py"
+          $folder = Join-Path $env:RUNNER_TEMP 'gentlemovement-syntax'
+          New-Item -ItemType Directory -Path $folder -Force | Out-Null
+          $file = Join-Path $folder 'autonomous-repair.py'
+          try {
+            Invoke-WebRequest -UseBasicParsing -Uri $url -OutFile $file -TimeoutSec 35
+            if ((Get-Item $file).Length -lt 100) { throw 'Downloaded source unexpectedly empty' }
+            python -m py_compile $file
+            if ($LASTEXITCODE -ne 0) { throw 'GentleMovement Python syntax check failed' }
+            Write-Host "PASS: pinned GentleMovement source $sha compiles on $env:RUNNER_NAME ($env:RUNNER_OS)"
+            Write-Host 'Note: this checks Python syntax only; it does not run or import the AI repair agent.'
+          }
+          finally {
+            Remove-Item -LiteralPath $folder -Recurse -Force -ErrorAction SilentlyContinue
+          }
