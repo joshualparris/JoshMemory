@@ -4,6 +4,7 @@
 import { NPCS, getNPC } from './npc-data.js';
 import { answerSceneQuestion } from './scene-awareness.js';
 import {makeTownListenButton, primeTownVoice, stopTownVoice, makeTownRecordedLines, makeTownContextCue, isRowanWelcome} from './voicebank.js';
+import {makeTownRecordedConversation} from './recorded-dialogue.js';
 
 const FALLBACK=[
   'The live AI is unavailable, but I can still chat with you offline.',
@@ -99,6 +100,8 @@ export function mountNPCChat(root=document, { getScene = () => null } = {}) {
       promptsRow.appendChild(b);
     }
     activities.appendChild(promptsRow);
+    const recordedConversation=makeTownRecordedConversation(npc,root);
+    if(recordedConversation)activities.appendChild(recordedConversation);
     activities.appendChild(makeTownRecordedLines(npc.id,root));
     if(npc.challenge){
       const area=root.createElement('div');area.className='npc-quest-area';
