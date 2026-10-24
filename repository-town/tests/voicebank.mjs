@@ -1,7 +1,7 @@
 import './npc-context-cues.mjs';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {makeTownListenButton, toggleTownVoice, stopTownVoice, VOICEBANK_MANIFEST, ROWAN_MANIFEST, ROWAN_GREETING, isRowanWelcome} from '../src/ui/voicebank.js';
+import {makeTownListenButton, toggleTownVoice, stopTownVoice, VOICEBANK_MANIFEST, ROWAN_MANIFEST, ROWAN_GREETING, isRowanWelcome, hasTownRecordedEvent, makeTownRecordedEventCue} from '../src/ui/voicebank.js';
 
 // The remote VoiceBank is optional; no API keys, paid generation or synthetic
 // voice calls happen in CI. Device speech is stubbed, not actually played.
@@ -9,7 +9,8 @@ function element() {
   const handlers = new Map();
   const attrs = new Map();
   return {
-    isConnected: false, textContent: '', dataset: {},
+    isConnected: false, textContent: '', dataset: {}, children: [],
+    append(...items) { this.children.push(...items); },
     addEventListener: (event, fn) => handlers.set(event, fn),
     setAttribute: (name, value) => attrs.set(name, value),
     getAttribute: name => attrs.get(name),
@@ -64,6 +65,22 @@ const unavailable=await toggleTownVoice(rowan,ROWAN_GREETING,{npcId:'rowan'});
 assert.equal(unavailable.source,'elevenlabs');
 assert.equal(unavailable.status,'unavailable');
 assert.equal(speakCalls.length,callsBefore,'unavailable ElevenLabs must NEVER call speechSynthesis');
+
+
+assert.equal(hasTownRecordedEvent('pip','greeting'),true);
+assert.equal(hasTownRecordedEvent('kit','success'),true);
+assert.equal(hasTownRecordedEvent('kit','retry'),true);
+assert.equal(hasTownRecordedEvent('ember','success'),false,'no invented recording for unsupported character');
+assert.equal(hasTownRecordedEvent('pip','refund-approved'),false,'unknown events must not imply real outcomes');
+const recordedCue=makeTownRecordedEventCue('kit','success',root);
+assert.equal(recordedCue.children.length,2,'cue provides a button and accurate transcript area');
+assert.equal(recordedCue.children[0].dataset.voiceSource,'elevenlabs');
+assert.equal(recordedCue.children[0].disabled,true,'no recorded control until the genuine player module loads');
+assert.match(recordedCue.children[0].textContent,/Loading voice/);
+assert.equal(makeTownRecordedEventCue('ember','success',root).children.length,0,'do not invent clips for unsupported NPCs');
+const npcChatSource=readFileSync(new URL('../src/ui/npc-chat.js',import.meta.url),'utf8');
+assert.match(npcChatSource,/outcome=index===npc\.challenge\.answer\?'success':'retry'/,'success line gated by actual correct answer');
+assert.match(npcChatSource,/hasTownRecordedEvent\(npc\.id,'quest'\)/,'quest offer belongs to opened quest');
 
 for (const path of ['npc-chat.js','npc.js','yarns.js']) {
   const src=readFileSync(new URL('../src/ui/'+path,import.meta.url),'utf8');
