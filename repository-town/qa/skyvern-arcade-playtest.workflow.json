@@ -1,0 +1,164 @@
+{
+  "title": "Playtest the Vibe-Coded Game",
+  "description": "Opens the Repository Town arcade, plays each listed game, and reports observed bugs, confusing UX and balance issues.",
+  "proxy_location": null,
+  "webhook_callback_url": null,
+  "persist_browser_session": false,
+  "reuse_browser_session": false,
+  "pin_saved_session_ip": false,
+  "browser_profile_id": null,
+  "browser_profile_key": null,
+  "model": null,
+  "max_screenshot_scrolls": null,
+  "max_elapsed_time_minutes": null,
+  "totp_verification_url": null,
+  "totp_identifier": null,
+  "adaptive_caching": false,
+  "generate_script_on_terminal": false,
+  "extra_http_headers": null,
+  "cdp_connect_headers": null,
+  "run_with": "agent",
+  "browser_type": null,
+  "cache_key": "default",
+  "ai_fallback": true,
+  "mask_secrets": false,
+  "code_version": 2,
+  "workflow_definition": {
+    "version": 2,
+    "parameters": [
+      {
+        "parameter_type": "workflow",
+        "key": "arcade_url",
+        "description": null,
+        "workflow_parameter_type": "string",
+        "default_value": "https://repository-town-claude-complete.vercel.app/arcade.html"
+      },
+      {
+        "parameter_type": "workflow",
+        "key": "game_titles",
+        "description": null,
+        "workflow_parameter_type": "json",
+        "default_value": [
+          "Mysterious Depths",
+          "AA Game Adventure"
+        ]
+      }
+    ],
+    "blocks": [
+      {
+        "label": "playtest_each_game",
+        "continue_on_failure": true,
+        "next_loop_on_failure": true,
+        "next_block_label": null,
+        "ignore_workflow_system_prompt": false,
+        "loop_blocks": [
+          {
+            "label": "play_game",
+            "continue_on_failure": true,
+            "next_loop_on_failure": true,
+            "model": null,
+            "next_block_label": "report_game_findings",
+            "ignore_workflow_system_prompt": false,
+            "block_type": "navigation",
+            "title": "play_game",
+            "navigation_goal": "On the Repository Town arcade library use search to find '{{ current_value }}'. Multiple editions may exist: test the first matching edition and record its iframe game ID. Click Play. Read instructions; interact for up to 20 safe clicks, selections or suggested keyboard inputs. Attempt meaningful progress and an ending if possible. Observe and record only actual broken controls, errors, cut-off text, stuck states, UX confusion or balance observations. Do not leave the game page. Do not log in, purchase, publish, or interact with external services.",
+            "error_code_mapping": null,
+            "url": "{{ arcade_url }}",
+            "max_retries": 0,
+            "max_steps_per_run": 30,
+            "complete_on_download": false,
+            "download_suffix": null,
+            "parameter_keys": [],
+            "totp_identifier": null,
+            "totp_verification_url": null,
+            "disable_cache": false,
+            "complete_criterion": "Game opened and meaningfully tested, or a specific launch blocker was observed.",
+            "terminate_criterion": "",
+            "engine": "skyvern-3.0",
+            "include_action_history_in_verification": false
+          },
+          {
+            "label": "report_game_findings",
+            "continue_on_failure": true,
+            "next_loop_on_failure": true,
+            "model": null,
+            "next_block_label": null,
+            "ignore_workflow_system_prompt": false,
+            "block_type": "extraction",
+            "url": "",
+            "title": "report_game_findings",
+            "data_extraction_goal": "For '{{ current_value }}', report only observed game loading, interactions, progress, bugs, confusing UX and balance issues. If not directly observable, use empty arrays or say unverified; never invent a completion, failure or game mechanic. Distinguish edition/game ID when available.",
+            "data_schema": {
+              "type": "object",
+              "properties": {
+                "game_title": {
+                  "type": "string"
+                },
+                "game_id": {
+                  "type": "string"
+                },
+                "playable": {
+                  "type": "boolean"
+                },
+                "reached_ending_or_progressed": {
+                  "type": "string"
+                },
+                "bugs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "confusing_ux": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "balance_issues": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "summary": {
+                  "type": "string"
+                }
+              }
+            },
+            "max_retries": 0,
+            "max_steps_per_run": null,
+            "parameter_keys": [],
+            "disable_cache": false,
+            "engine": "skyvern-3.0",
+            "export_enabled": false,
+            "export_data_schema": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "export_file_name": null,
+            "export_records": null
+          }
+        ],
+        "block_type": "for_loop",
+        "loop_variable_reference": "game_titles",
+        "complete_if_empty": false,
+        "data_schema": null,
+        "loop_over_parameter_key": "game_titles"
+      }
+    ],
+    "finally_block_label": null,
+    "workflow_system_prompt": "Respect game-only scope. No accounts, purchases, data exports, or external navigation. Keep independent observation evidence. The catalogue has two editions of Mysterious Depths and AA Game Adventure; report the edition tested rather than claiming all editions were covered.",
+    "error_code_mapping": null,
+    "retry_policy": null
+  },
+  "run_sequentially": false,
+  "sequential_key": null
+}
