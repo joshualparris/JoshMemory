@@ -4,6 +4,10 @@ A walkable 3D town of all 188 repositories in Josh's inventory (`docs/repository
 Every house is designed from its own repository: a written brief records the evidence that was
 inspected, the exterior, the floor plan, the furnishings and the exhibits you can use.
 
+## NPC dialogue development roadmap
+
+See the [93-task Skyrim-inspired NPC dialogue checklist](docs/SKYRIM_NPC_DIALOGUE_IMPLEMENTATION_TODO.md) for character-specific branching, conditions, quest effects, per-NPC memory, ElevenLabs recording/caption reconciliation, accessibility, browser playtests and production release gates. Existing recorded dialogue remains the starting point; implementation tasks are not marked complete without evidence.
+
 ## Multi-floor tall buildings
 
 Tall architectural exteriors now have two or three enterable floors, including V7 Private House, W7 SwordCoast and X7 Transfer lighthouses. A visible Floors control and stair/lift signs make upper levels easy to find. Floors 2 and 3 have different rooms and usable exhibits. See [the implementation and playtest guide](docs/MULTI_FLOOR_INTERIORS_2026-10-19.md). Source: `src/world/floor-plans.js` and `src/world/multifloor.js`. Focused test: `node tests/multifloor.mjs`.
