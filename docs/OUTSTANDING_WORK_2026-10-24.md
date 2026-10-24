@@ -19,3 +19,6 @@ Status: **OPEN / not independently verified**. Historical reports are not proof 
 
 ## Completion evidence
 For every item record commit/PR, automated test result, deployed URL or build, interactive test outcome, and any remaining blocker. Do not mark tasks complete based on proposed changes alone.
+
+## TASK-040 implementation note — 24 October 2026
+Arcade test infrastructure committed and merged: [PR #171](https://github.com/joshualparris/JoshMemory/pull/171). Canonical files: `repository-town/tests/arcade-agent-playtest.mjs` and `repository-town/qa/skyvern-arcade-playtest.workflow.json`; manual GitHub Action collects JSON/screenshot artifacts. **TASK-040 stays open** until an actual complete arcade session has been executed and results reviewed. GitHub status on the merge indicates Vercel build-rate-limit; older production alias is READY.
