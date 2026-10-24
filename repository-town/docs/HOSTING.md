@@ -61,3 +61,19 @@ push shared main or replace the canonical gameplay files from an old snapshot.
 
 ## Render quota fallback — 21 October 2026
 The Render dashboard confirmed its build pipeline allowance is exhausted for the billing period. No paid limit was raised. The existing Vercel Playtest project is the sole shared staging target; Render snapshots are archived and may be suspended without deleting history. A suspended origin can be temporarily resumed if a visitor needs its saved progress. Staging candidates are explicitly deployed by commit; automatic source-branch builds are disabled for retired projects.
+
+## Hosting fallback procedure — 24 October 2026
+
+**Never treat Vercel quota as the end of the deployment task.** Prefer the already connected and non-destructive alternative with enough capacity. Status only becomes *deployed* when the exact built source SHA and live URLs/assets have been checked, and becomes *accepted* only after live browser/mobile tests.
+
+For Repository Town, preserve user data by keeping each hostname/origin distinct; never unilaterally move the existing production alias, overwrite saved progress, replace the verified Parris-Tech-Services backup, increase spending limits, or revive retired archive hosts. Use these in order:
+
+1. **Existing Vercel production** when build/release is permitted. If its status targets `upgradeToPro=build-rate-limit`, immediately use next options rather than repeatedly retrying.
+2. **Existing Render main QA** (`srv-dbam28dg1s2s73cke0m0`, `https://repository-town-main-qa.onrender.com`), linked to canonical main and auto-deploy off. Explicit trigger only on user-directed deployment; inspect Render build events. Build pipeline minutes were exhausted on 24 October 2026 (deploy `dep-dbe9cgnavr4c73a52qeg`), so do not repeat blindly.
+3. **Independent GitHub Pages alternate** (`joshualparris/repository-town`, `https://joshualparris.github.io/repository-town/`). Its workflow `.github/workflows/town-pages-alt.yml` checks out `JoshMemory/main`, runs complete `npm run build:release`, verifies SHA/private-data gate, and publishes through official Pages actions. It neither changes canonical source nor modifies the approved `Parris-Tech-Services/Repository-town` fingerprinted backup. Confirm Github Pages is enabled for Actions; review run results and mobile browser behaviour. First run `40090213978` initiated on 24 October 2026; terminal status must be inspected.
+4. **Cloudflare Pages** as a Git-connected fallback once the user's Pages Git integration is healthy. At 24 October 2026 it rejected project creation with `8000011` Git-installation 401 despite Pages Write scope, requiring account reauthorization; do not pretend deployment succeeded or retry indefinitely.
+5. **Approved GitHub Pages mirror** remains version-locked to the existing Vercel-approved production fingerprint and is not an unreviewed fallback target. **Neon** provides PostgreSQL, not static hosting; it cannot publish Town's WebGL build by itself.
+
+On a deployment failure: capture exact provider failure and source commit, move to the next *eligible* alternative, run build/integrity/privacy checks, verify `release.json` SHA and representative production assets, then run desktop and narrow Android touch acceptance, including settings/dismiss and saved-game handover. Record successful URL plus evidence in `WORK_CHECKPOINT.md`.
+
+**No source or build output should be labelled live without a verified host response.** Do not send the user to an unverified QA URL as if its deployment succeeded.
