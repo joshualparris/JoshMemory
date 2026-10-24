@@ -166,7 +166,9 @@ export function mountNPCChat(root=document, { getScene = () => null } = {}) {
     el.classList.remove('npc-typing');
     syncNpcViewport();
     // Leave the keyboard closed on touch devices so quests stay visible.
-    if(!window.matchMedia('(pointer: coarse)').matches)input.focus();
+    // Initial focus enters typing mode, which hides the recorded choices.
+    // Keep choices visible until visitors deliberately focus the composer.
+    if(!window.matchMedia('(pointer: coarse)').matches&&!activities.querySelector('.npc-recorded-conversation'))input.focus();
     return true;
   }
   function close() {
