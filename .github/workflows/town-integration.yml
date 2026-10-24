@@ -39,6 +39,12 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Validate opt-in merge workflow syntax and safeguards
         run: node tests/workflow-syntax.mjs
+      - name: Verify RTD-numbered PR acceptance references and checkpoint
+        if: github.event_name == 'pull_request'
+        env:
+          TOWN_PR_TITLE: ${{ github.event.pull_request.title }}
+          TOWN_PR_BODY: ${{ github.event.pull_request.body }}
+        run: node tests/rtd-acceptance-contract.mjs --pr
       - name: Full release build, integration, geometry, privacy and integrity
         run: npm run build:release
 
