@@ -14,6 +14,9 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-24 · ChatGPT — **CLAIMED RTD-008 ONLY**: define versioned NPC/dialogue acceptance contract with stable RTD task-ID mapping and observable pass/fail evidence; add scoped implementation PR template and a regression contract test. Baseline main `dbe343f6c5f8d2e49def71c0b333685945505003`; branch `docs/town-rtd008-acceptance-contract-20261024`. Planned files `repository-town/docs/RTD_008_*`, `repository-town/tests/rtd-acceptance-contract.mjs`, `repository-town/package.json`, `.github/PULL_REQUEST_TEMPLATE/repository-town-rtd.md`, `repository-town/AGENTS.md`, `COORDINATION.md`, `WORK_CHECKPOINT.md`, numbered roadmap. No NPC/game/ElevenLabs runtime code, unrelated templates or deployment; PR #164 remains open. RTD-009+ unclaimed. Checkpoint after each milestone, mark 008 complete only with reviewed PR plus CI.
+
+
 
 
 
