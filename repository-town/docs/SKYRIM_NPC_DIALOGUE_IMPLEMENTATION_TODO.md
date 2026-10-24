@@ -22,7 +22,7 @@ Skyrim-*inspired* actor-specific dialogue branches, priorities, availability con
 - [x] **RTD-001** Research Skyrim's Creation Kit patterns: topics, TopicInfo, branches, conditions, quest stages, scenes, voice types and NPC schedules; use inspiration, not Bethesda assets.
 - [x] **RTD-002** Confirm canonical JoshMemory/repository-town source and generated Parris-Tech-Services/Repository-town mirror; follow AGENTS, COORDINATION and hosting policy.
 - [ ] **RTD-003** Inventory all 32 named NPCs, 38 Living Town workers and 188 house-resident slots; distinguish persistent identities from generated resident slots.
-- [ ] **RTD-004** Audit existing recorded-dialogue.js, npc-chat.js, npc.js, voicebank.js, town-life yarns, game state and save mechanisms.
+- [x] **RTD-004** Audit existing recorded-dialogue.js, npc-chat.js, npc.js, voicebank.js, town-life yarns, game state and save mechanisms. **Evidence:** [pinned source audit, flows/state ownership and integration risks](RTD_004_DIALOGUE_SYSTEM_AUDIT_2026-10-24.md). Read-only audit; no gameplay, audio generation, browser playtest or deployment claimed.
 - [ ] **RTD-005** Reconcile merged PR #166, its existing choice UI, current checkpoint and audio acceptance tracker; avoid duplicated or reverted work.
 - [ ] **RTD-006** Record current main commit, actual deployed release fingerprint, browser/audio test baseline and known limitations.
 - [ ] **RTD-007** Reserve ownership on the COORDINATION board before implementation and update WORK_CHECKPOINT after each milestone.

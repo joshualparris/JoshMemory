@@ -11,7 +11,6 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
-- 2026-10-24 · ChatGPT (this session) — **CLAIMED RTD-004 only: source-level audit of dialogue/audio/world/save integrations.** Scope: documentation `docs/RTD_004_DIALOGUE_SYSTEM_AUDIT_2026-10-24.md`, roadmap RTD-004 checkbox and `WORK_CHECKPOINT.md`; **no source/gameplay changes** and do not touch Replit's possible RTD-003 actor inventory. Review canonical `main` existing NPC, yarn, quest, save and audio modules and mark verified findings. Branch `docs/town-rtd004-source-audit-20261024`; update this line after PR merge.
 
 
 - 2026-10-24 · ChatGPT — **INTEGRATING prerecorded branching NPC conversations**, PR #166, branch `feat/town-npc-branching-recordings-20261024`. Source `src/ui/recorded-dialogue.js`, `src/ui/npc-chat.js`, `src/ui/voicebank.js`, `src/npc.css`; tests `recorded-dialogue.mjs` and `recorded-dialogue-browser.mjs`, added to CI. Keeps ten pre-existing unique Game300 cast voices, player-selected replies, verified manifest text, no unearned quest/purchase success, no paid speech and no impersonation for unrecorded NPCs. Baseline eight checks passed before the new browser acceptance test was attached. Updated browser checks underway; canonical deployment and the other 22 residents' casting still unverified. See `WORK_CHECKPOINT.md`.
@@ -99,6 +98,9 @@ Newest first. Times in Australia/Sydney.
   is currently blocked by the Hobby team's daily deployment quota (`api-deployments-free-per-day`).
 
 ## Done recently
+
+- 2026-10-24 · ChatGPT — **DONE: RTD-004 read-only canonical NPC/audio/yarns/game-state/save audit**; [full evidence](docs/RTD_004_DIALOGUE_SYSTEM_AUDIT_2026-10-24.md). Inventoried actual modules and storage/transfer owners; checked RTD-004 only in 93-item roadmap and updated WORK_CHECKPOINT. Reused merged PR #166 as foundation, did not touch any gameplay source, audio assets or Replit's possible RTD-003 inventory. No runtime/playtest/deploy claims. PR branch `docs/town-rtd004-source-audit-20261024`.
+
 
 - 2026-10-23 · ChatGPT — **SOURCE FIX COMPLETE, RELEASE RECHECK REQUIRED: full nine-file Pages PR #35 drift** on `fix/town-backup-drift-pr35-20261023`. Mirror workflow 39902923390 attempt 2 passed release build, simulator and desktop/mobile Chromium, but stopped safely on `ui/townpanels.js`. Verified all 9 drift paths from compare `392dccb...main`; exact historical blob SHAs are locked in sync guard, with seven full archive copies and two preserved by immutable Git commit/blob. Unknown/mutated files remain blocked. Rerun workflow, compare exact production/Pages `release.json` before declaring deployment.
 

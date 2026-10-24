@@ -8,6 +8,14 @@ Updated 2026-10-24 (Australia/Sydney). Working branch: `feat/town-npc-branching-
 - The earlier recorded-branch PR #166 is merged, but its initial tree does not close the conditional quest, game-memory, cast expansion or full production-playtesting requirements of this roadmap.
 - **Resume:** inspect current main and `COORDINATION.md` first, then RTD-003/004/005 source inventory; build Rowan/Kit/Pip pilot and check off only proven results.
 
+## RTD-004 pinned source audit — 24 October 2026
+
+- **RTD-004 COMPLETE (source audit only)**: `docs/RTD_004_DIALOGUE_SYSTEM_AUDIT_2026-10-24.md` documents the canonical dialogue flows, Game300/VoiceBank engine, the NPC-to-NPC event path, Expedition Guild and all relevant local/save transfer state keys and privacy boundaries. Source snapshot `69a12eea14fa706c605943f98e300f1f263377d2`.
+- RTD-001, RTD-002, RTD-004 are checked in the 93-task roadmap; RTD-003 remains OPEN and untouched because Replit may be working on it (not verified in its workspace).
+- **Do not reinterpret RTD-004 as a gameplay or deployment acceptance test.** No application source, recordings, CI runtime or deployed production was changed for this audit. All story, save integration and actual WebAudio acceptance tasks remain open.
+- **Next safe handover:** check Replit and the coordination board for RTD-003 status; otherwise proceed with RTD-005 (reconcile previously merged PR #166, existing choices and audio acceptance tracker) on a separate branch without clobbering Replit or concurrent NPC code.
+- Working audit PR branch: `docs/town-rtd004-source-audit-20261024`; see the linked audit for detailed integration seams.
+
 ## Scope and source of truth
 - Canonical editable repo: `joshualparris/JoshMemory/repository-town/src/`, not the generated `Parris-Tech-Services/Repository-town` mirror.
 - Base main SHA: `6b18994b16cd763ebbac3ab8f3169bc0c20cc619`.
