@@ -1,0 +1,207 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> build:release
+> npm run test:release && npm run test:integration && node tests/expedition.mjs && node tests/npc-contract.mjs && node tests/runtime.mjs && node tests/geometry.mjs && node tests/z-fighting-source.mjs && npm run build && npm run check:privacy && node tests/paul-roe-memorial.mjs && node tests/game-integrity.mjs && node tools/verify-release.mjs
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> test:release
+> node tests/lighting.mjs && node tests/dialogue-schema.mjs && node tests/recorded-dialogue.mjs && node tests/entrance-zones.mjs && node tests/npc-appearance.mjs && node tests/context-labels.mjs && node tests/hud-visibility.mjs && node tests/release.mjs && node tests/companion.mjs && node tests/shop-opening-hours.mjs && node tests/shop-opening-coverage.mjs && node tests/security-locksmith.mjs && node tests/voicebank.mjs && node tests/yarn-preferences.mjs && node tests/yarn-ui.mjs
+
+PASS: all civic interiors lit; street light budget, falloff, clock, relocation, blackout and trading/overnight schedules
+PASS RTD-009 / RTAC-003: 3 actor namespaces, clip ownership, typed conditions, 7 allowlisted descriptor actions, immutable schema input and negative injection cases; no gameplay effect executed, no real clip claimed
+PASS: recorded NPC choice branches, player gesture, actor gating and safe outcomes
+PASS: 14 collision-clear house/civic approaches and safe locked doors
+PASS: articulated human silhouettes, shoes, faces, finite movement and named-character compatibility.
+PASS: one proximity/focus label; mobile-safe HUD fallback; complete low-poly NPCs
+PASS: all game overlays hide AI + prompt, disabled keyboard, automatic free-roam restoration
+PASS: deterministic release fingerprint, mutation detection, bounded save transfer, credential exclusion and failed-import rollback
+PASS: bounded context excludes unrelated fields, source selection uses real excerpts, deployed AI transport receives grounded context, tasks mark suggestions.
+Town opening hours: all places, live staff and reception access verified
+PASS Day 1 and Day 4 morning coverage seed 42: greengrocer, securityoffice, locksmith, store, hardware, tafe, dealership
+PASS Day 1 and Day 4 morning coverage seed 20261022: greengrocer, securityoffice, locksmith, store, hardware, tafe, dealership
+PASS: cannot afford vs genuinely out of stock are distinct
+PASS: staffed service, physical commutes, honest hours and no phantom attendance
+PASS: security HQ D8, security office A8, locksmith Z8, two moving guards, paid rosters and legacy-save migration
+PASS: 20 possible user-initiated greeting/help cues; no invented quest or success events.
+Town VoiceBank: opt-in controls, device fallback, cancellation and integrations passed
+PASS: persistent mobile/desktop yarn preferences, dismissal, panel suppression and manual-conversation wiring
+PASS: mobile settings, persisted toggle, caption dismiss, new event, close/back and manual access
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> test:integration
+> node src/tests/economy.mjs && node src/tests/economy-realism.mjs && node tests/resident-identities.mjs && node tests/npc-population-inventory.mjs && node tests/rtd-acceptance-contract.mjs --self-test-pr && node tests/npc-realism-audit.mjs && node tests/npc-location.mjs && node tests/npc-personality.mjs && node --check src/world/social-events.js && node tests/social-events.mjs && node tests/npc-scene-awareness.mjs && npm run test:town
+
+PASS: finite local trades, bank transfers, stock and insufficient funds
+PASS: seven-day livelihoods, stock, balances, ledger and finance persistence
+PASS: 208 unique stable house-resident identities, consistent across build and chat
+PASS RTD-003: 32 named actors, 10 approved recorded voices, 20 quizzes, 99 named simulated workers (38 legacy IDs), 188 unique house slots, 20 unused grid cells; stable keys and worker-home assignments
+PASS RTD-008 acceptance v1.0.0: 34 stable cases, RTD-009–093 mapped, evidence layers and PR template validated
+PASS: 32 named NPCs, 20 fantasy quests, 99 villagers with unique personas, live home/work/location separation and AI prompt parity.
+PASS: Arlo live location, home/work separation, travelled/unknown/nearby, user dialogue and no Arcade Avenue guess
+PASS: all 99 villagers have meaningful personalities, distinct hobbies and accurate job overrides.
+PASS: Neighborly-inspired relationships, witnessed visits/work, deterministic memory, persistence and legacy saves.
+PASS: attributable pub yarns, stable dialogue, memory, save/reload and no imaginary partners.
+PASS: resident real-room context, moving viewpoint, accurate distance order, props vs people, no through-wall claims, offline nearby answers
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> test:town
+> node tests/pages-drift-guard.mjs && node tests/directional-addresses.mjs && node tests/soy-signage.mjs && node tests/soy-chain.mjs && node tests/workplay.mjs && node tests/cafe-tips.mjs && node tests/work-save.mjs && node tests/workplay-geometry.mjs && node tests/work-audio.mjs && node tests/worker-cors.mjs && node --check src/world/waterworks-interior.js && node --check src/world/wastewater-interior.js && node --check src/world/recycling-interior.js && node --check src/world/realty-interior.js && node --check src/world/emergency-justice.js && node --check src/world/justice-interiors.js && node --check src/ui/emergency-panels.js && node tests/emergency-justice.mjs && node tests/realty-interior.mjs && node --check src/world/waste-depot-interior.js && node --check src/ui/waste-depot-panel.js && node tests/waste-depot-interior.mjs && node tests/property-trade.mjs && node tests/nsw-driving-lease.mjs && node tests/recycling-interior.mjs && node tests/wastewater-interior.mjs && node tests/waterworks-interior.mjs && node tests/depot-interior.mjs && node tests/mill-interior.mjs && node tests/shop-service-transactions.mjs && node tests/high-street-service.mjs && node tests/civic-entry.mjs && node tests/facility-access.mjs && node --check src/ui/townpanels.js && node tests/bicycle-clearance.mjs && node tests/farm-access.mjs && node tests/trade-education.mjs && node tests/shop-visitors.mjs && node tests/shop-crowd.mjs && node tests/labels-geometry.mjs && node tests/town-simulation.mjs && node tests/power-grid.mjs && node tests/shop-interiors.mjs && node tests/sitting.mjs && node --check src/world/life.js && node --check src/world/townlife.js && node tests/traffic-and-shop-exits.mjs && node tests/traffic-signals.mjs && node tests/pedestrian-spacing.mjs && node tests/pedestrian-navigation.mjs && node tests/pedestrian-orbit.mjs && node src/tests/building-exits.mjs && node tests/farmhouse.mjs && node tests/rug-layers.mjs && node tests/truck-collision.mjs --days 4 && node tests/government.mjs && node tests/public-politics.mjs && node tests/exterior-collisions.mjs && node tests/town-exit.mjs && node tests/hunger-sleep-hotel.mjs && node tests/player-housing-progression.mjs && node tests/cafe-orders.mjs && node tests/household.mjs && node tests/household-homes.mjs && node tests/credit.mjs && node tests/finance.mjs && node tests/jobs.mjs && node tests/visitor-payroll.mjs && node tests/occupations.mjs && node tests/discovery-log.mjs && node tests/simulation-soak.mjs --quiet && node tests/surfaces.mjs && node tests/shop-opening-hours.mjs
+
+PASS: Pages source continuity guard permits known additions but rejects changed or deleted historical code
+Directional plot audit passed: 188 houses, 46 sites, 26 rail-corridor references, 572 planning slots.
+PASS: both soy sites have contrasting physical nameplates on the correct outward-facing building fascia
+PASS: independent soy farm, real NPCs, crop water/seed/yield, timed food-safe plant stages, dated SOY-labelled stock, truck logistics, saleable café recipes, expired lot recall, save and 3D workstations
+PASS: real stock carrying, correct shelves, quarantine and count, cancellation conservation; FIFO cafe tickets, real ingredients, timed steps, correct tables, one payment, save restoration and venue music profiles.
+PASS: skim orders need the skim jug; quick service tips $1 customer → visitor with the café paid in full; slow service earns no tip
+  10 days: 17 shifts paid, 17 payslips, TD 373 earned — identical with 40 reloads
+PASS: every occupation resumes after a reload with the same goods and pay; finished work, cafe trays and delivery receipts cannot repeat; older saves replace newer work; long run with reloads matches an uninterrupted town
+PASS: store/cafe work hotspots are clear and reachable through actual furniture collision geometry; render update and disposal work.
+PASS: queued ticket customer walks through café furniture to a chair at the assigned table.
+PASS: adaptive music and work effects schedule on a valid audio graph, independent bounded mix controls persist, mute closes the context. Listening QA remains separate.
+PASS: Cloudflare worker allows known GitHub/Vercel origins, rejects outsiders, and returns live AI responses
+PASS: emergency triage, dispatch, trauma, evidence, legal advice, bail, independent court verdict, saved state, four unique walkable buildings.
+PASS: M8 Repository Realty site, real villager staffing, actual address directory, realistic office layout, safe walking and privacy.
+PASS: Q8 unique transfer depot, 9 stations, 1219 accessible cells, intact safe aisle, current rubbish stock and excluded plant controls
+PASS: property titles, buyers, mortgages, tenants, agencies, dealers, mechanics and persistence
+PASS: NSW 2026 duty, escrow and cooling, tenancy rights, retail disclosure, and playable owned vehicles
+PASS: P8 realistic sorting and reuse depot; 5 zones; 16 hotspots; clear visitor routes and exit; stock-backed bales.
+PASS: L8 wastewater treatment exhibits, unique gallery, 14 interactions, paths, safety, status and exit.
+PASS: J8 Water Works process zones, 12 interactions, safe entrances/exits, full routes, live-state snapshots.
+Depot: reachable staff, seven interactions and exit; empty/full stock; bounded geometry passed.
+PASS: dedicated mill, stock-aware pallets, seven reachable inspections, staff position and round-trip exit
+PASS: staff arrival, dispatch, relief, stale actions, closed buybacks and autonomous customers share atomic service rules
+PASS: pantry-backed meal fallback and food-counter noon coverage
+PASS: real counter attendance, travel/dispatch/shift changes, named hosts, closed trading, sold-out menus and honest till balances
+PASS: bank sensor meets walkway, honours staff hours, north doors unchanged
+PASS: 99 named residents, relief rosters, posted hours, historical save migration, real attendance and locked public entrances
+PASS: wheelbase, lamp-post clearance, cycle lanes, dismount points and visual collision footprint
+PASS: 7 paddocks behind buildings; 1400 walking and cycling routes and 175 work spots clear of every building
+PASS: 4 new vocational precinct buildings, finite sales, licensed repairs, escrow, signoff, refunds, AQF I–10, HSC distinction, save/restore and walkable rooms
+PASS: real café/pub customers visible, seated, uniquely reserved, entering and leaving with collision-safe paths
+PASS: store queue spreads along pavement, opposing cycling lanes stay apart, nearby player cannot trap villagers and evening simulation has no merged bodies
+PASS: label depth testing, capped size, wall/ceiling-safe footprints and front-of-building signage
+PASS: town simulation — 99 villagers, utilities, bag and bank, council, elections (mayors Vern), 14 stable days (worst 250 meals), restore
+PASS: 10-edge capacity-limited power grid; feeder fault, dependencies, budgeted repair, event replay and v1/v2 save restoration
+PASS: 45 civic/farm/shop interiors, including a 10-area farmhouse
+PASS: seat poses, approach safety, first-person sitting/standing, furniture, pub/cafe/farmhouse furniture, resting
+PASS: three off-road parking bays, truck following/opposing traffic, Foundry south exit, dynamic collision
+PASS: MIT-inspired signal cycle, safe stop line, both directions, truck braking/resuming, visible scene integration.
+PASS: Bakery workers, shopping customers, real colliders, and bicycle clearances
+PASS: Hattie/Gus and named crowds separate; head-on walkers and cyclists pass; sidewalks and wall geometry protected; town movement stable
+PASS: A* safely detours around static visitor, simulated villager completes work journey, persisted route, time-boxed conversations without passive stopping
+PASS: walker beside a standing person escapes
+PASS: crowd-orbit watchdog, swept detour, unreachable route, and indoor pub patrons
+PASS: north/south exits face away, remain collision-free and cannot immediately re-enter
+PASS: 10 farmhouse spaces, 22 objects, 1726 reachable floor cells, no inaccessible exhibits
+PASS: 23 actual floor surfaces without coplanar overlaps, physical farmhouse corridor/door and bank/bakery decal checks
+PASS: reusable rug layers spaced 0.022, 0.040, 0.058m; decorative rugs are walk-through
+{
+  "days": 4,
+  "ticks": 115200,
+  "overlapTicks": 0,
+  "worstPenetration_m": 0,
+  "pairs": [],
+  "first": null,
+  "longestBrake_townMin": 20,
+  "deadlocks": 0,
+  "stuck": [],
+  "deliveries": 1,
+  "recalls": 10
+}
+PASS: resident ballots, persisted one-vote rule, elected mayor and five councillors, GM, meetings, permits, staffed/approved public works and save migration
+PASS: voluntary campaigning and councillor Q&A, spatial meetings, engagement diversity, respectful avoidance, ballot privacy and save/restore
+PASS: 188 exteriors have walkable real door gaps; 683 yard objects avoid each other, buildings, footpaths and E7 van; skipped 0
+{
+  "houses": 188,
+  "colliders": 1803,
+  "failures": []
+}
+PASS: timed sleep, midnight wake, guest security, deterministic saves, no duplicate rest
+PASS: 188 homes with usable beds (184 added), 4 hotel guest beds, persisted bookings, paid rest, hunger/food consumption, villager fatigue and sleep recovery
+PASS: no phantom daily rent, signed bond, home sleep, saved lease, revoked access, vacant-owner access and tenanted-owner privacy
+Café menu, purchase, stock, wallet, hunger and refusal checks passed.
+PASS: households (food storage, spoilage, 4-hour rule, rent and home loans, bills, budgets, chores) and shop counters (FIFO lines, prep times, waste, cold rooms).
+{
+ "houses": 188,
+ "appliances": 2256,
+ "failures": []
+}
+PASS: 188 houses can each be a villager home with 12 working household appliances, all reachable.
+PASS: bank credit — eligibility, one loan, 1%/day interest, overdue, repayment, closed hours, save/restore, conservation
+PASS: finance — PAYG, finite treasuries, grants, rent/power arrears, loans gated on bills, wage arrears, utilities, save/restore, bakery batch
+PASS: jobs — shifts need presence and staff, duties spaced, till then council pays, PAYG, daily limits, lapse, save/restore
+PASS: saved partial and midnight wages, finite employer debts, cumulative PAYG, paid breaks, fair rework, training gate, contract escrow/acceptance/cancellation and idempotent payment.
+PASS: real freight/post addresses, farm/feed/egg stock conservation, cleaner, repaired lamp, driven van/receipt guards, full bakery, FEFO/cold returns, 16 cafe recipes, patience, saved state and reachable stations.
+PASS: discovery progress counts unique houses, ignores unknown visits and selects the next house.
+
+38 passed, 0 findings
+  ✓ visitor can buy at every shop (14 items across 6 shops)
+  ✓ a $5 loaf splits into 10% sales tax and the till — tax 0.5, till +4.5
+  ✓ shops buy goods back
+  ✓ visitor can eat from the bag
+  ✓ a sold-out shelf refuses the sale
+  ✓ a closed shop refuses the sale
+  ✓ an empty wallet cannot buy
+  ✓ bank deposit and withdrawal during opening hours
+  ✓ visitor votes for Sadie
+  ✓ one vote per election
+  ✓ a roads fault opens a work order — Request lodged as WO-0006. Inspection, approval and staffed repair are required.
+  ✓ a west-feeder fault cuts only the west homes — west-homes
+  ✓ the feeder repair is requested
+  ✓ money is conserved: every dollar comes from the grant, outside work or exports, or leaves as imports — start $707639, end $712543, expected $712543 (grant 0, outside 5320, exports 2964, imports 3110, repairs 270)
+  ✓ elections every 7 days (4 held)
+  ✓ elections are contested (more than one candidate gets votes or wins) — day 28: Vern 22/Arlo 18/Sadie 50; day 21: Vern 33/Arlo 24/Sadie 33; day 14: Vern 36/Arlo 26/Sadie 28; day 7: Vern 23/Arlo 29/Sadie 39
+  ✓ council meets every second day (14 meetings)
+  ✓ tax motion decided and applied (passed, tax now 0.08)
+  ✓ roads work order completed (done)
+  ✓ west feeder repaired (done, finished day 4 07:04)
+  ✓ running out of fuel causes a power shortage — day 9: 20h short, day 10: 0h short, day 11: 0h short
+  ✓ power recovers after the fuel crisis once the train and trucks restock — day 13: 0h, min fuel 95, day 14: 0h, min fuel 100, day 15: 0h, min fuel 106, day 16: 0h, min fuel 104
+  ✓ no power shortages on normal days
+  ✓ the blackout stops the water or wastewater pumps (power → utilities cascade) — day 9: water 0h short, wastewater 128, day 10: water 0h short, wastewater 52, day 11: water 0h short, wastewater 22
+  ✓ the taps run on normal days
+  ✓ wastewater keeps up on normal days — max 22
+  ✓ the council maintains worn services itself (1 General Manager work orders: roads done)
+  ✓ the town is content (happiness 90)
+  ✓ villagers eat (worst day 228 meals)
+  ✓ trucks keep delivering (worst 42/day)
+  ✓ the bakery bakes every day
+  ✓ the council stays solvent ($6439)
+  ✓ few villagers broke at the end (2) — Clem the retired $0, Dulcie the student $0
+  ✓ businesses don't hoard the town's money (tills $926 of $712543) — sheep $242, bakery $238, coop $144
+  ✓ shops mostly stocked (154 villager stock-outs against 11359 sales in 28 days, 1.4%) — store 68, greengrocer 48, butcher 38
+  ✓ services stay maintained (roads 84%, power 85%)
+  ✓ pollution stays low (0)
+  ✓ every job stays covered through six changes of mayor
+PASS: footstep surfaces for roads, footpaths, forecourts, fields, ballast, lawns and rooms
+Town opening hours: all places, live staff and reception access verified
+PASS: 188 houses, 12 public relics, 12 puzzles, progress persistence rules, quest tiers, integrated controls, JavaScript syntax
+PASS: 32 NPCs, 20 distinct creature models and quests, 3D placement, guarded server-only Groq proxy
+PASS packed fetch and single-delivery XHR lifecycle
+{
+  "type": "CPU geometry and toy logic (not WebGL)",
+  "houses": 188,
+  "rooms": 1034,
+  "exhibits": 3038,
+  "toys": 192,
+  "games": 59,
+  "failures": []
+}
+Z-fighting source guards passed (98 world modules scanned).
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> build
+> node tools/build.mjs
+
+Built 188 houses (34 exterior styles) → dist/public, dist/private
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> check:privacy
+> node tools/check_privacy.mjs
+
+Scanned 774 files in dist/public for 1116 private markers.
+No private repository data found in the public build.
+PASS: both Paul Roe memorial houses use sourced, private-safe tribute rooms; no fantasy games or misleading bathroom labels; other 186 homes preserved
+PASS: 77 packed game shells intact; conflict-free AA with offline runtime and bundled JS
+Verified 1140 files for source f2053e1def02d50d1badef31346de4b4426cbd77
