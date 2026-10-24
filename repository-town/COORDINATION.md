@@ -11,6 +11,9 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-24 · ChatGPT — **CLAIMED RTD-005: reconciliation only**, branch `docs/town-rtd005-audio-branch-reconciliation-20261024`. Compare merged PR #165/#166 to current source and tests, review PR #164 still open, `WORK_CHECKPOINT.md`, external Town audio task 006–013 and 040–048, and VoiceBank global acceptance; publish a verified status/dependency matrix in canonical source, tick RTD-005 only, preserve gameplay/audio assets, mark only proven tasks. No competing change to Replit or production deployments.
+
+
 
 
 
