@@ -169,3 +169,18 @@ All 22 are **UNRECORDED** in the approved Game300 Town pack. Do not play another
 - **AA Game Adventure** focused run `2398588b`: game opened and exited, agent tried arrows/WASD/space/canvas focus but did not verify item collection or movement; input focus uncertain. Source JoshHub HTML lacked any visible controls; added arrow-key/letter goal plus Focus controls button `774f0b6`, then fixed flow layout to a floating overlay `0c3724e` so the existing full-screen canvas remains 100vh. Script grammar/invariants passed via readback; no real QA after changes.
 - **Detailed evidence:** `qa/reports/2026-10-24-tinyfish-arcade.md` links the three TinyFish runs and scoped findings. Not an entire arcade nor duplicate-edition acceptance pass.
 - **Next:** repack the affected game(s), run `node tests/games.mjs --only hub-aa-game-adventure,hub-mysterious-depths` and targeted arcade Playwright input test, release/privacy gate, deploy exact build when Vercel rate limit permits, verify live keyboard interaction and final source fingerprint. TASK-040 remains OPEN.
+
+## Screenshot fix — mobile automatic NPC dialogue clutter, 24 October 2026
+
+Android screenshot showed Kip's automatic yarn caption covering the "tap to talk" interaction prompt. The actual source is `src/ui/yarns.js` 15-second nearby NPC yarn caption, not the player-initiated NPC chat dialog.
+
+Superseding clean branch: `fix/town-mobile-yarn-controls-reconciled-20261024` (original PR #182 conflicted after concurrent main updates).
+
+- Added immediate caption ✕ dismiss with per-event suppression and accessible labels.
+- Added **Dialogue settings** to the HUD (expand + first on phone), with a persisted **Automatically show nearby conversations** checkbox. Default OFF for new touch/narrow displays, ON for desktop; explicit saved choice overrides defaults. If storage fails, current-session preference still applies.
+- Settings hides automatic captions without affecting deliberate Yarns, NPCs or Ask AI, and participates in the same Escape/back + HUD overlay blocking.
+- Explicit `[hidden]` CSS and compact mobile caption position above touch controls when enabled.
+- Regression files `tests/yarn-preferences.mjs` and `tests/yarn-ui.mjs`, appended to the release test script without discarding concurrent suite changes.
+- **Verified so far:** V8 parser checks, in-memory helper assertions and actual mounted UI test through a DOM stand-in passed. Node full release and device/browser acceptance not yet run, so do not claim deployed completion.
+
+Next: PR checks/merge, full build:release/privacy, verify actual phone-sized interaction and deployed release source hash.
