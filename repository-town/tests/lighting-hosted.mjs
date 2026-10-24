@@ -40,9 +40,16 @@ try {
    await page.screenshot({path:`${dir}/${prefix}-${id}-night.png`});
    // Walking and looking out exercise the two-pass interior/window renderer.
    const before=await page.evaluate(()=>window.__town.state().pos);
-   await page.keyboard.down('w');await page.waitForTimeout(300);await page.keyboard.up('w');
-   const after=await page.evaluate(()=>window.__town.state().pos);
+   let after=before,walkKey=null;
+   // Spawn points can face a chair or an actor. Try an actual alternate step;
+   // retain the movement assertion and never teleport through an obstruction.
+   for(const key of ['w','a','s','d']){
+     await page.keyboard.down(key);await page.waitForTimeout(450);await page.keyboard.up(key);
+     after=await page.evaluate(()=>window.__town.state().pos);
+     if(Math.hypot(after.x-before.x,after.z-before.z)>.1){walkKey=key;break;}
+   }
    assert(Math.hypot(after.x-before.x,after.z-before.z)>.1,`${prefix} walked inside ${id}`);
+   if(walkKey!=='w')console.log('ALTERNATE WALK',prefix,id,walkKey);
    await page.evaluate(()=>window.__town.lookOut(0));await page.waitForTimeout(250);
    await page.screenshot({path:`${dir}/${prefix}-${id}-window.png`});
    report.push({viewport:prefix,scene:id,moved:Math.hypot(after.x-before.x,after.z-before.z),...await page.evaluate(()=>{const s=window.__town.state();return {mode:s.mode,fps:s.fps,calls:s.calls}})});
