@@ -7,6 +7,8 @@ Newest first. Times in Australia/Sydney.
 
 ## Roadmap notes
 
+- 2026-10-25 · ChatGPT — **DOCS ONLY: RTN-001–018 numbered and triaged.** Added [NPC individuality, crowd separation and fallback-release tracker](docs/RTN_NPC_CROWD_FALLBACK_TRIAGE_2026-10-25.md), indexed in [central task ID document](docs/UNNUMBERED_TODO_IDS_2026-10-24.md), README and checkpoint. Six source-level tasks on the existing unmerged PR #186 carry passed sandbox evidence; **RTN-007 is the next work item**, resolving existing merge conflicts before all-scene NPC, player collision, release and fallback-host acceptance. No gameplay files, deployment, or already-numbered tasks changed by this documentation-only claim.
+
 - 2026-10-24 · ChatGPT — **DONE, documentation only: number previously unnumbered open tasks**, [PR #175](https://github.com/joshualparris/JoshMemory/pull/175) squash-merged to main (`543035cce55f4ba0dfff9b69bd34e427abe61547`). Added 101 unique stable IDs in `docs/UNNUMBERED_TODO_IDS_2026-10-24.md` (5 RTL, 64 audio child, 7 RTA, 16 RTR, 9 RTC), added RTL IDs to the existing Living Town checklist and README link. Kept all prior RTD/RT/audio parent/realism/council numbers and completion statuses unchanged, with no code, audio, deploy or generated-backup edits. Validated 101 unique open IDs and exact original Living Town document when the five inserted IDs are removed.
 
 
