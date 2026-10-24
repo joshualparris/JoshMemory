@@ -17,6 +17,26 @@ Status: **OPEN / not independently verified**. Historical reports are not proof 
 - [ ] **TASK-044** Fix CI with appropriate Windows self-hosted runner
 - [ ] **TASK-045** Build release and verify deployed playable version
 
+## Repository Town NPC dialogue: crosswalk to all existing RTD IDs (25 October 2026)
+
+The exact follow-up tasks raised after RTD-009 already carry permanent identifiers in [the 93-task Repository Town dialogue roadmap](../repository-town/docs/SKYRIM_NPC_DIALOGUE_IMPLEMENTATION_TODO.md). **No re-numbering or new duplicate IDs were needed.** The [dependency-prioritised list ranks every one of the 84 outstanding RTD-010–093 tasks](../repository-town/docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md), gives their exact task descriptions, and explicitly maps these broader master parents.
+
+| Existing master task | Existing RTD subtasks relevant to it | Recommended first actionable ID |
+|---|---|---|
+| **TASK-032** NPC dialogue/context triggers | RTD-010–023, RTD-029–030, RTD-067–068, RTD-079–080 | **RTD-010** (identity) then 011/012 (director/graph) |
+| **TASK-033** remaining ElevenLabs recordings | RTD-042–055, 070/072/074, 076–078, 082–083 | **RTD-042** clip manifest |
+| **TASK-034** dialogue overlays and audio overlap | RTD-017–020, 050/053, 056–062, 084–085 | **RTD-017** behaviour; RTD-050 playback |
+| **TASK-035** quests/shops/trades/NPC flow | RTD-023–032, 069–075, 081, 084–086 | **RTD-023** quest eligibility |
+| **TASK-036** NPC pathfinding | RTD-067/075/084/086 concern interactions, while movement remains separately tracked by TASK-036 | **TASK-036** |
+| **TASK-037–042** FPS, buildings, traffic, arcade, economy and civic systems | Keep their own existing unique TASK identifiers; crossovers with RTD-027/028/075/081/086 don't replace them | Original TASK number |
+| **TASK-043** deterministic simulation/save | RTD-036/039–041, 081, 086–087 | **RTD-036** dialogue save flags |
+| **TASK-044** Windows CI runners | Separate existing TASK-044 (not an NPC story implementation ID) | **TASK-044** |
+| **TASK-045** release verification | RTD-087–093 | **RTD-087** full integration checks |
+
+**Triage order:** RTD-010 → 011 → 012 → 021/080 graph tests → 013–020 dialogue decisions → authoritative quest actions 022–032 → memory 033–041 → genuine audio 042–055 → character pilots 067–079 → release acceptance 080–093. UI RTD-056–066, early negative tests and PR reviews are interleaved with their affected features.
+
+**Status as audited:** RTD-001–009 were already checked; RTD-010–093 open. Every `TASK-NNN` parent remains unchanged and open until its *full* original scope is accepted. Existing active work and PRs must be checked independently before selecting a task.
+
 ## Completion evidence
 For every item record commit/PR, automated test result, deployed URL or build, interactive test outcome, and any remaining blocker. Do not mark tasks complete based on proposed changes alone.
 
