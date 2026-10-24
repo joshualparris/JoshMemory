@@ -106,15 +106,29 @@ export function createShopVisitors(site,life,interior,makeLabel,people){
   // is physical clearance; never instantiate an entire queue at one coordinate.
   const spawnSpot=(player)=>{
     for(const z of [entry.z,entry.z-.95,entry.z-1.9])
-      for(const x of [-1.25,1.25,0,-2.1,2.1])
+      for(const x of [1.25,-1.25,2.1,-2.1,0])
         if(actorClear({x,z},null,player))return {x,z};
     return null;
   };
   const positionAt=(p,target)=>{p.pos.x=target.x;p.pos.z=target.z;p.group.position.set(target.x,0,target.z);};
+  let currentPlayer=null;
+  // A* must see other actors and the player as temporary blockers. Otherwise
+  // it replans the identical straight route through someone's body forever.
+  const movingBlockers=p=>{
+    const blockers=[];
+    const add=pos=>{
+      if(!pos)return;
+      const r=PERSONAL_SPACE-RADIUS+.02;
+      blockers.push({x0:pos.x-r,x1:pos.x+r,z0:pos.z-r,z1:pos.z+r});
+    };
+    if(currentPlayer?.pos)add(currentPlayer.pos);
+    for(const other of otherPeople(p))add(other.pos);
+    return blockers;
+  };
   const setDestination=(p,destination)=>{
-    const path=routeVisitor(p.pos,destination,boxes,bounds);
+    const path=routeVisitor(p.pos,destination,[...boxes,...movingBlockers(p)],bounds);
     if(!path)return false;
-    p.route=path;p.state='walking';return true;
+    p.route=path;p.state='walking';p.retryGoal={...destination};return true;
   };
   const vacantSeats=(reserved,playerSeat)=> (interior.seats||[]).filter(s=>
     s.key!==playerSeat && !reserved.has(s.key) && !s.occupiedBy &&
@@ -201,13 +215,14 @@ export function createShopVisitors(site,life,interior,makeLabel,people){
         }
         if(!moved)p.blockedFor=(p.blockedFor||0)+Math.min(dt,.1);
         else p.blockedFor=0;
-        if(p.blockedFor>4){
-          // Abandon stale waypoints, retry when the aisle becomes available.
+        if(p.blockedFor>1.2){
+          // Replan around the current human obstacle, not the stale straight
+          // route. Waiting is safer than moving through another person.
           p.blockedFor=0;
-          p.retryGoal=p.route[p.route.length-1]||p.standTarget||p.landing||counter;
-          p.route=[];
-          if(p.exit)p.state='gone';
-          else p.state='waiting';
+          const destination=p.retryGoal||p.route[p.route.length-1]||p.standTarget||p.landing||counter;
+          if(!setDestination(p,destination)){
+            p.retryGoal={...destination};p.route=[];p.state='waiting';
+          }
         }
       }
     }
@@ -239,6 +254,7 @@ export function createShopVisitors(site,life,interior,makeLabel,people){
   };
   let initial=true;
   function update(dt,t,player){
+    currentPlayer=player;
     const reserved=new Set(),playerSeat=player.seated?.key||null;
     for(const s of interior.seats||[])delete s.occupiedBy;
     for(const p of entries.values())if(p.seat&&!p.exit&&p.state!=='gone'){
@@ -269,13 +285,12 @@ export function createShopVisitors(site,life,interior,makeLabel,people){
         if(setDestination(p,p.landing))p.next='seating';
         else{positionAt(p,p.seat.pos);p.state='seated';}
       }
-      if(p.state==='waiting'&&!p.exit){
-        // A blocked service/seat route must be retryable, not leave a customer
-        // frozen in the aisle indefinitely after their initial path is discarded.
-        const goal=p.retryGoal||p.standTarget||(p.seat?p.landing:null);
-        if(goal && actorClear(goal,p,player) && !targetReserved(goal,p)){
-          if(setDestination(p,goal))p.retryGoal=null;
-        }
+      if(p.state==='waiting'){
+        // Re-check moving obstacles each frame: a player or customer may step
+        // aside, allowing the route to resume without clipping or teleporting.
+        const goal=p.retryGoal||p.standTarget||(p.seat?p.landing:null)||(p.exit?entry:null);
+        if(goal && actorClear(goal,p,player) &&
+           (p.exit||!targetReserved(goal,p)))setDestination(p,goal);
       }
       if(p.state==='standing'&&p.seat&&p.next==='service'&&!p.exit){
         if(setDestination(p,p.landing))p.next='seating';
