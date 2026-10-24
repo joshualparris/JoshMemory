@@ -171,4 +171,4 @@ deployment.
 
 ## Lighting task triage
 
-[Central lighting tasks RLT-001–019](docs/UNNUMBERED_TODO_IDS_2026-10-24.md#lighting-tasks-and-release-triage): start **RLT-008** to restore GitHub write access, then reconcile, test, publish, review/merge, deploy and verify. RLT-001–007 retain their original audit IDs and local-only verification status.
+[Central lighting tasks RLT-001–019](docs/UNNUMBERED_TODO_IDS_2026-10-24.md#lighting-tasks-and-release-triage): current **RLT-011** to finish browser publication and open the PR; browser write access, reconciliation and local validation (RLT-008–010) are verified. Then review/merge, deploy and verify. RLT-001–007 retain their original audit IDs and local-only verification status.

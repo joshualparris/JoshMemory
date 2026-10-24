@@ -1,3 +1,11 @@
+# Lighting release — browser source publication verified, PR next
+
+RLT-008 restored authenticated write capability through GitHub UI without credential extraction. Remote feature branch fix/town-lighting-audit-20261024 at main ee432c0 now has all reviewed runtime files, tests, central RLT-001–019 tracker, audit evidence and release logs. Commits include f87f42b (renderer), 750446c (tests), d97f66d (central task index), 9675181/eb4adce (before/after evidence), 9abfadb (release log/review notes). Public Git fetch verified all five runtime files byte-for-byte. CLI/connector failures do not block this browser path.
+
+RLT-009 observed main reconciliation at f2053e1 and RLT-010 full release/privacy gate PASS (774 files, 1116 markers, 1140 manifest files). Lighting runtime unchanged since e72a654, whose 38 desktop/emulated Android scenarios passed. No main.js/NPC/audio edits. Latest main may advance through parallel documentation; reconcile at PR review before merging without overwriting other agents.
+
+Current RLT-011: open the PR after final checkpoint upload, verify remote branch diff. Then RLT-012 reviewed merge, RLT-013 eligible-host deploy and RLT-014/015 exact hosted fingerprint plus browser/Android checks. No hosted lighting success claimed yet. RLT-017–019 remain separate unverified acceptance. Explicit publication approval persists; do not ask again.
+
 # Lighting browser publication — 25 October 2026
 
 User requested another route; GitHub browser is authenticated as repository owner. Created remote branch fix/town-lighting-audit-20261024 from ee432c0 through normal UI. Reconciled current main locally; no runtime conflicts; latest tracker and other agents preserved. Scoped browser uploads will replace only lighting-owned changed files. Git/connector authentication remains unavailable; browser can write. Next: upload source/tests/docs/evidence, verify exact remote file hashes, review and merge PR, deploy eligible existing host and run live desktop/mobile lighting audit. Publication approval remains valid.
