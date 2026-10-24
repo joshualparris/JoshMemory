@@ -124,3 +124,8 @@ body.npc-lounge #npc-roster-items{max-height:min(580px,calc(100dvh - 295px));ove
 .chat-log .town-voice-button{vertical-align:middle;margin-left:8px}
 .yarn-line .town-voice-button{margin-top:6px}
 @media(max-width:480px){.npc-line{flex-wrap:wrap}.npc-line .town-voice-button{margin-left:auto}}
+
+/* Contextual recordings live beneath the matching NPC line, not over the 3D game. */
+.npc-line .npc-recorded-cue{display:flex;flex-wrap:wrap;align-items:center;gap:3px;width:100%;max-width:100%;min-width:0;padding:2px 0}
+.npc-line .npc-recorded-cue-button{margin:2px 0;min-width:0;max-width:100%;white-space:normal;text-align:center}
+.npc-line .npc-recorded-caption{flex-basis:100%;max-width:100%;min-width:0;overflow-wrap:anywhere;white-space:normal;margin:0 0 2px}
