@@ -1,5 +1,11 @@
 # Repository Town — WORK CHECKPOINT
 
+## Pages mirror code-continuity reconciliation — 24 October 2026
+
+**In progress:** follow-up to [PR #185](https://github.com/joshualparris/JoshMemory/pull/185). Run [40090217593](https://github.com/Parris-Tech-Services/Repository-town/actions/runs/40090217593) passed full public release, five 28-day seeds, desktop/Android WebGL and preserved the two pinned Pages-only docs/tests. Publishing correctly blocked at historical `ui/npc-chat.js` drift (not in the nine original legacy-sha exceptions).
+Full Git tree comparison with last released backup commit `89c59d5047cb904394628dac6825c78340b73224` shows **exactly five** changes: the workflow itself, two preserved extra files, and two modified game files `ui/npc-chat.js` (blob `6cb4f2f33784c66d0778b376e56b5ca27e90037e`) / `ui/voicebank.js` (blob `43071c3418d22811c4d6a9a78a090001d9110ec2`). Compared current source: voicebank older 272/272 lines present in order; NPC-chat older 251/252 lines present; its only replaced line is the safer recorded-dialogue focus guard. After replacing that one historic line, 252/252 lines are preserved in order. No code is being dropped.
+Branch `fix/town-pages-safe-drift-upgrade-20261024` adds pure `tools/pages-drift-guard.mjs`, regression `tests/pages-drift-guard.mjs`, and changes `tools/sync-backup.mjs` to allow **only** those exact pinned Git blobs when canonical public build retains every historical line in order, with the one named focus upgrade; all other drift continues failing closed. Runs regression in `npm run test:town`. Next PR checks -> merge -> trigger scoped backup workflow -> verify exact release and public map. No generated site files edited by hand.
+
 ## Pages mirror preservation / recovery — 24 October 2026
 
 **Status: FIX IN BRANCH, re-release pending.** Vercel API quota 402 blocks production. Existing Pages backup Parris-Tech-Services/Repository-town triggered by workflow-file-only push (commit dace6e4a8b0c182d7af25da62c44c354b31d032e), [run 40089081725](https://github.com/Parris-Tech-Services/Repository-town/actions/runs/40089081725). Source 7d369b760034e404f40e289252091ad03fd87500 passed public release, all five 28-day seeds and recorded desktop/Android WebGL checks. Sync then correctly refused to drop unmanifested AUDIO_INTEGRATION_TODO.md.

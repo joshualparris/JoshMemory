@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import {execFileSync} from 'node:child_process';
+import { supersedesPagesOnlyCode } from './pages-drift-guard.mjs';
 const site=path.resolve(process.argv[2]);
 const output=path.resolve(new URL('../dist/public/',import.meta.url).pathname);
 const next=JSON.parse(fs.readFileSync(path.join(output,'release.json'),'utf8'));
@@ -44,6 +45,23 @@ const historicBlobSha=new Map([
   ['world/shop-staff.js','fd5a10f3d36f7dbe82d321409ab68cdf8c0b463e'],
   ['world/town.js','679c9cbc650e6519ab27db9a2ec5b1f4a3411a60'],
 ]);
+// These two published source files changed *after* the last release manifest.
+// Compare the exact historical blob against the newer canonical output: the
+// full old code must remain in order. The only allowed change of an old line
+// is the recorded-choice focus guard, which is intentionally stricter.
+const safelySupersededSha=new Map([
+  ['ui/npc-chat.js','6cb4f2f33784c66d0778b376e56b5ca27e90037e'],
+  ['ui/voicebank.js','43071c3418d22811c4d6a9a78a090001d9110ec2'],
+]);
+function safelySuperseded(name){
+  const known=safelySupersededSha.get(name);
+  if(!known||git('hash-object','--',name)!==known)return false;
+  const nextFile=path.join(output,name);
+  if(!fs.existsSync(nextFile))return false;
+  const oldText=fs.readFileSync(path.join(site,name),'utf8');
+  const newText=fs.readFileSync(nextFile,'utf8');
+  return supersedesPagesOnlyCode(name,oldText,newText);
+}
 const archiveDir=path.resolve(new URL('../audit/legacy-pages-drift-2026-10-23/',import.meta.url).pathname);
 function exactHistoricalCopy(name){
   const sha=historicBlobSha.get(name);
@@ -64,6 +82,7 @@ for(const name of git('ls-files').split('\n')) {
   }
   const hash=crypto.createHash('sha256').update(fs.readFileSync(path.join(site,name))).digest('hex');
   if(hash!==expected){
+    if(safelySuperseded(name)){console.log('Verified canonical source supersedes historical Pages-only edit: '+name);continue;}
     if(!exactHistoricalCopy(name))throw Error('Live-only edit must be reconciled into source first: '+name);
     console.log('Verified historical Pages-only edit preserved by immutable blob: '+name);
   }
