@@ -11,6 +11,9 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-24 · ChatGPT — **CLAIMED RTD-006 release / browser/audio baseline (audit only)**, branch `docs/town-rtd006-live-release-baseline-20261024`. Confirm current main SHA, Vercel deployment READY/alias, hosted `/release.json` source SHA+content hash, live HTTP assets including NPC/VoiceBank, staging fingerprint, latest passing desktop/mobile browser and CI evidence; document limitations (source main ahead, hosted-browser step skipped, no actual in-production player gesture). Update roadmap RTD-006, WORK_CHECKPOINT and this board. **No deploy, promotion, paid audio, source runtime or generated mirror edits.**
+
+
 - 2026-10-24 · ChatGPT — **MERGED (QA tooling only): arcade Skyvern/Playwright tester**, [PR #171](https://github.com/joshualparris/JoshMemory/pull/171), merge `db603aae`. Recorded Skyvern v2 workflow; no-account Playwright runner checks each exact-title edition, supports all games, captures runtime observations/screenshots, and produces JSON report. Manual GitHub Actions workflow and browserless contract are included. Four target index files/source-schema and JS syntax verified. Browser gameplay, balance assessment and manual dispatch NOT run. Vercel status on merge failed due project build-rate-limit, not a source compile failure; deployed arcade remains on older READY release. See `qa/README.md`, `WORK_CHECKPOINT.md`.
 
 
