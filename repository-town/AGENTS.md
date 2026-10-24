@@ -13,6 +13,12 @@ Before any Skyrim-inspired NPC/dialogue, town social, quest or recorded audio im
 3. Change only unclaimed scope on a topic branch. Only mark RTD IDs completed when evidence meets that individual acceptance. Review/test a PR before merging, confirm `main`, and **move your completed board claim to Done**. Do not pre-claim the next task for a future session.
 4. Browser-audio asset availability, local browser playback, actual hosted-production playback, game-state consequences, mobile handset checks and deployed fingerprint are **different** acceptance levels. Never equate them or bypass privacy checks. Do not edit generated site repos.
 
+## RTD implementation PR acceptance and ID traceability (RTD-008 v1.0.0)
+
+Use the [versioned acceptance checklist](docs/RTD_008_ACCEPTANCE_CRITERIA_V1.md) and its [machine-readable 34-case contract](docs/RTD_DIALOGUE_ACCEPTANCE_V1.json) when implementing any numbered NPC, story, quest, memory or original ElevenLabs integration task. **Select** the scoped [GitHub RTD PR template](../.github/PULL_REQUEST_TEMPLATE/repository-town-rtd.md). Every new RTD implementation PR must include **stable `RTD-NNN` IDs in its title and `RTD task IDs:` field**; reference one or more real mapped `RTAC-NNN` scenarios in `Acceptance case IDs:` plus completed `Scope/exclusions:`, `Evidence:`, `Checkpoint:` and `Incomplete or blocked:` fields.
+
+The Town Integration workflow checks this traceability for RTD-numbered PRs; `npm run test:integration` guards the full 93-ID roadmap, v1 acceptance coverage and negative metadata samples. **This is a metadata gate, not automatic proof of gameplay success**. Every claimed scenario needs the concrete test type (Node, local Playwright/WebAudio, hosted staging, production and/or generated backup), exact tested SHA and evidence. Continue to leave unrelated/unverified tasks unchecked; RTD-009+ are future implementation work.
+
 ## One source of truth
 
 | What | Where |

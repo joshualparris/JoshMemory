@@ -14,7 +14,6 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
-- 2026-10-24 · ChatGPT — **CLAIMED RTD-008 ONLY**: define versioned NPC/dialogue acceptance contract with stable RTD task-ID mapping and observable pass/fail evidence; add scoped implementation PR template and a regression contract test. Baseline main `dbe343f6c5f8d2e49def71c0b333685945505003`; branch `docs/town-rtd008-acceptance-contract-20261024`. Planned files `repository-town/docs/RTD_008_*`, `repository-town/tests/rtd-acceptance-contract.mjs`, `repository-town/package.json`, `.github/PULL_REQUEST_TEMPLATE/repository-town-rtd.md`, `repository-town/AGENTS.md`, `COORDINATION.md`, `WORK_CHECKPOINT.md`, numbered roadmap. No NPC/game/ElevenLabs runtime code, unrelated templates or deployment; PR #164 remains open. RTD-009+ unclaimed. Checkpoint after each milestone, mark 008 complete only with reviewed PR plus CI.
 
 
 
@@ -114,6 +113,9 @@ Newest first. Times in Australia/Sydney.
   is currently blocked by the Hobby team's daily deployment quota (`api-deployments-free-per-day`).
 
 ## Done recently
+
+- 2026-10-24 · ChatGPT — **DONE (pending PR CI/merge): RTD-008 versioned dialogue acceptance contract and PR task traceability.** On main task claim `ca90808273767c100d385b77977a549789d2acfa` and M1 checkpoint `27d48b9eb957cc356804dd0512fb2871d742f45c` before edits. Published [RTD-008 human checklist](docs/RTD_008_ACCEPTANCE_CRITERIA_V1.md), [v1.0.0 machine contract](docs/RTD_DIALOGUE_ACCEPTANCE_V1.json) with 34 RTAC pass/fail scenarios and coverage of every RTD-009–093, new scoped `.github/PULL_REQUEST_TEMPLATE/repository-town-rtd.md`, Node test `tests/rtd-acceptance-contract.mjs` with negative ID/metadata checks, test integrated with `npm run test:integration` and PR-only Town Integration workflow traceability step, and AGENTS rules; M2/M3 checkpoints committed. Checked RTD-008 only; 009+ stay unclaimed/unimplemented. No game/audio runtime or deployment changed; topic branch `docs/town-rtd008-acceptance-contract-20261024` tracks PR and green CI. PR #164 remains independently open.
+
 
 - 2026-10-24 · ChatGPT — **DONE: RTD-007 ownership reservation and durable milestone checkpointing**. Claimed on canonical main before edits (`b2cd82474e3a19c33f9090967169111188be4f26`) and checkpointed start (`553ae142e369b17bd88f19caa256c93ce9460623`). Published [RTD-007 coordination protocol](docs/RTD_007_COORDINATION_CHECKPOINT_PROTOCOL_2026-10-24.md), linked mandatory rules in `AGENTS.md`, checked RTD-007 only and updated `WORK_CHECKPOINT.md` at protocol and evidence milestones. All changes docs/agent instructions, **no gameplay/audio/source deployment**. Branch `docs/town-rtd007-coordination-checkpoints-20261024`; PR/CI verification tracked by checkpoint. **RTD-008 is UNCLAIMED** and must be independently reserved by its next owner before editing. Retain the separate still-open overlapping PR #164 and all other agents' entries.
 
