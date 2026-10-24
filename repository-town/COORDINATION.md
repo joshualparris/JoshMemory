@@ -14,6 +14,9 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-25 · ChatGPT — **IN PROGRESS: number five reported Repo Town outstanding work areas and publish agent-ready triage**, documentation only, branch `docs/town-next-action-triage-20261025`. Own only new `docs/NEXT_ACTION_TRIAGE_2026-10-25.md`, appendices/cross-links in `docs/UNNUMBERED_TODO_IDS_2026-10-24.md`, `README.md`, `WORK_CHECKPOINT.md`, `COORDINATION.md`. Preserve RTD/RT/AUDIO/RTR/RTL existing IDs, checkbox statuses, code and independent PRs #164/#186. Define unique new IDs only for presently unnumbered NPC physical collisions/appearance, land clearance, planned row-9 corridor and extended mobile session QA; no implementation/deployment claims.
+
+
 - 2026-10-24 · ChatGPT — **VERIFIED COMPLETE: GitHub Pages backup deployment** of Repo Town. Reconciled and preserved two Pages-only audio/testing files (PR #185) and verified canonical supersets of two Pages-only NPC/voicebank edits (PR #187). [GitHub Pages mirror run #40091269927](https://github.com/Parris-Tech-Services/Repository-town/actions/runs/40091269927) passed full release, privacy, five 28-day seeds, desktop/Android WebGL, exact fingerprint, and publish. The resulting Pages deployment is green (#40091685402). `release.json.sourceCommit=18f9e93b887dda04368056008681b0140ad48913`, contentHash `32914d94b39a14f00fd193d04d2baa9ef652993d8b9708c42da3b9870dea74ca`. Live browser verified [interactive N/S plot atlas](https://parris-tech-services.github.io/Repository-town/address-map.html) loads, 234 buildings/572 references, and exact Z7-S/Z8-N/Z8-S/Z9-N/Z9-S cells. [Playable backup](https://parris-tech-services.github.io/Repository-town/) published. Vercel remains quota-blocked, but no longer blocks backup delivery. Source work scope CLOSED.
 
 
