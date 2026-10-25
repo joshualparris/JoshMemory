@@ -488,19 +488,25 @@ export class TownLife {
       letters: [], player: { wallet: 75, bank: 150, bag: {} }, credit: freshCredit(), finance: freshFinance(),
     };
     this.homes = homes;
-    // Spread households across town: every step-th house, starting from the third.
-    // Preserve all original 38 residents' house assignments so existing saves
-    // keep their household and legal property references intact. New employees
-    // move into otherwise unused homes spread across the remaining streets.
+    // Keep the original 38 placements and ALSO the historically assigned next
+    // 61 placements stable. Recomputing the placement stride from today's 188
+    // workers had silently moved worker IDs 38–98 into different houses,
+    // breaking existing household save references and the 24 Oct inventory.
     const legacyCount = 38;
+    const baselineRosterCount = 99;
     const step = Math.max(1, Math.floor(homes.length / legacyCount));
     const legacyHomes = homes.filter((_, i) => i % step === Math.min(2, step - 1)).slice(0, legacyCount);
     const occupied = new Set(legacyHomes.map(h => h.coordinate));
     const availableHomes = homes.filter(h => !occupied.has(h.coordinate));
-    const extraCount = Math.max(0, JOBS.length - legacyCount);
-    const extraStep = Math.max(1, Math.floor(availableHomes.length / Math.max(1, extraCount)));
-    const extraHomes = availableHomes.filter((_, i) => i % extraStep === 0).slice(0, extraCount);
-    const picks = [...legacyHomes, ...extraHomes];
+    // This stride is the *historical* 99-worker allocator and must not change
+    // when later services employ additional residents.
+    const baselineExtraCount = Math.max(0, Math.min(JOBS.length, baselineRosterCount) - legacyCount);
+    const baselineStep = Math.max(1, Math.floor(availableHomes.length / Math.max(1, baselineExtraCount)));
+    const baselineHomes = availableHomes.filter((_, i) => i % baselineStep === 0).slice(0, baselineExtraCount);
+    for(const home of baselineHomes)occupied.add(home.coordinate);
+    const unassignedHomes = availableHomes.filter(h => !occupied.has(h.coordinate));
+    const remainingCount = Math.max(0, JOBS.length - legacyHomes.length - baselineHomes.length);
+    const picks = [...legacyHomes, ...baselineHomes, ...unassignedHomes.slice(0, remainingCount)];
     this.villagers = JOBS.slice(0, picks.length).map(([job, work, start, end], i) => {
       const home = picks[i];
       return {
