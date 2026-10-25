@@ -145,8 +145,8 @@
       "id": "RTPUB-002",
       "title": "Exterior-to-interior dimensions and storeys",
       "priority": "P0",
-      "status": "geometry-conflict",
-      "sourceObservation": "Candidate pub facade is now single-storey 14 x 18 m like interior; plot boundaries, structure, exterior setback, roof engineering and safe rear discharge remain unverified.",
+      "status": "partially-represented",
+      "sourceObservation": "Design-stage candidate facade now 14 x 18 m single storey matching walkable interior; parcel/back-lot physical width/depth, setbacks, structure and external egress still UNVERIFIED.",
       "requiredEvidenceOrWork": "Reconcile game coordinate transforms, rear walls, accessible upper floor or remove upper floor cues, roof/building height and consistent fire envelope",
       "regulationRefs": [
         "S01",
@@ -612,9 +612,9 @@
   "summary": {
     "total": 34,
     "notModelled": 4,
-    "geometryConflict": 1,
+    "geometryConflict": 0,
     "unverified": 8,
-    "partiallyRepresented": 21,
+    "partiallyRepresented": 22,
     "verifiedCodeCompliant": 0,
     "researchItemsComplete": 1,
     "remainingResearchOrImplementation": 33
