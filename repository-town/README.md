@@ -2,6 +2,10 @@
 
 **Fictional NSW location:** [−32.273600, 148.408400](https://www.openstreetmap.org/?mlat=-32.2736&mlon=148.4084#map=15/-32.2736/148.4084) west of Minore in the Dubbo–Narromine corridor. **1883 founding:** Repo's Stores on the future G8-N Town Hall site; Reginald Arthur Repo (later the fictional Sir Reginald) was the first in-universe mayor in 1909. [Full 1883–2026 history](docs/REPOSITORY_TOWN_HISTORY_1883_2026.md) · [real-world geography and 16-utility context](docs/REPOSITORY_TOWN_GEOGRAPHY_MASTERPLAN.md) · [numbered integration work](docs/REPOSITORY_TOWN_GEOGRAPHY_TODO.md). This is not a surveyed, verified vacant or council-approved property.
 
+### RTGEO-003 real-ground planning check (25 October 2026)
+
+NSW Spatial Services/NSW Planning GIS identifies the fictional anchor as **Lot 105 DP835474, Minore NSW 2830, Dubbo Regional Council**, zoned **RU1 Primary Production**. This is **not cleared for physical town development**; the owner, land vacancy and current aerial occupancy remain unverified. [Read the exact cadastre/zoning audit](docs/RTGEO_003_SITE_AND_ZONING_AUDIT_2026-10-25.md). The game's fictional 1883 founding, pub history and existing 234 building IDs stay unchanged. Site-alternative and current-imagery checks are [RTGEO-017/018](docs/REPOSITORY_TOWN_GEOGRAPHY_TODO.md).
+
 ## Repository Town founded in 1883
 
 Walk into Town Hall (G8-N) and inspect the founding and geographic records. The 1883 shop is a *historic predecessor* of Town Hall, not an extra current building; live mayor Vern and all existing addresses remain unchanged.

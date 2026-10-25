@@ -1,0 +1,165 @@
+{
+  "id": "RTGEO-003",
+  "version": 1,
+  "asOf": "2026-10-25",
+  "anchor": {
+    "latitude": -32.2736,
+    "longitude": 148.4084,
+    "datum": "WGS84 EPSG:4326"
+  },
+  "plannedFootprint": {
+    "widthMetres": 780,
+    "heightMetres": 480,
+    "approxHectares": 37.44,
+    "degreeEnvelope": {
+      "minLon": 148.404252,
+      "minLat": -32.276208,
+      "maxLon": 148.412548,
+      "maxLat": -32.271891
+    },
+    "note": "Schematic simulation footprint, not surveyed parcel boundary"
+  },
+  "siteStatus": "ASSESSMENT-COMPLETE — NOT AN APPROVED REAL-TOWN SITE",
+  "planningDecision": "NO-GO FOR ASSUMING LAWFUL REAL-TOWN DEVELOPMENT UNDER CURRENT RU1; rezoning/consent and all constraints would require formal assessment. Fictional simulation overlay retained.",
+  "gisData": {
+    "cadastre": {
+      "lot": "105",
+      "depositedPlan": "DP835474",
+      "lotPlan": "105//DP835474",
+      "cadid": 108104832,
+      "sourceLayer": "https://maps.six.nsw.gov.au/arcgis/rest/services/sixmaps/Cadastre/MapServer/0",
+      "pointRecordCount": 1,
+      "rectangleIntersectRecordCount": 1,
+      "extraNote": "ArcGIS shape_Area and planlotarea fields differ; do not treat either as certified parcel area without registry plan; actual model footprint is 37.44 ha."
+    },
+    "administration": {
+      "suburb": "MINORE",
+      "postcode": "2830",
+      "lga": "DUBBO REGIONAL",
+      "council": "DUBBO REGIONAL COUNCIL",
+      "source": "https://maps.six.nsw.gov.au/arcgis/rest/services/sixmaps/Boundaries/MapServer",
+      "rectangleIntersectLgaCount": 1
+    },
+    "landUse": {
+      "zoneCode": "RU1",
+      "zoneName": "Primary Production",
+      "environmentalPlanningInstrument": "Dubbo Regional Local Environmental Plan 2022",
+      "amendmentFromService": "Map Amendment No 6",
+      "source": "https://mapprod3.environment.nsw.gov.au/arcgis/rest/services/Planning/EPI_Primary_Planning_Layers/MapServer/2",
+      "rectangleIntersectZoneCount": 1,
+      "assertion": "No current village or residential-town zoning observed. Does not prove each proposed individual use is prohibited; assess land-use table and amendments case by case.",
+      "datasetCurrencyDate": "2026-09-18"
+    },
+    "imagery": {
+      "source": "https://maps.six.nsw.gov.au/arcgis/rest/services/public/NSW_Imagery_Dates/MapServer/0",
+      "block": "narromine",
+      "captureStartDate": "2015-10-06",
+      "resolutionCentimetres": 50,
+      "rectangleSamplesMatching": 5,
+      "limits": "Imagery-date footprint metadata only; actual 2015 pixels were NOT visually inspected, nor were 2026 scene conditions confirmed",
+      "viewerAttempt": {
+        "portal": "https://portal.spatial.nsw.gov.au/explorer/index.html",
+        "outcome": "UNABLE-TO-INSPECT-PIXELS",
+        "reason": "Interactive SIX Maps/Explorer map canvas did not load; no coordinates-based aerial observation obtained."
+      }
+    }
+  },
+  "samplePoints": [
+    {
+      "label": "centre",
+      "latitude": -32.2736,
+      "longitude": 148.4084,
+      "lot": "105//DP835474"
+    },
+    {
+      "label": "NW",
+      "latitude": -32.271891,
+      "longitude": 148.404252,
+      "lot": "105//DP835474"
+    },
+    {
+      "label": "NE",
+      "latitude": -32.271891,
+      "longitude": 148.412548,
+      "lot": "105//DP835474"
+    },
+    {
+      "label": "SW",
+      "latitude": -32.276208,
+      "longitude": 148.404252,
+      "lot": "105//DP835474"
+    },
+    {
+      "label": "SE",
+      "latitude": -32.276208,
+      "longitude": 148.412548,
+      "lot": "105//DP835474"
+    },
+    {
+      "label": "N-mid",
+      "latitude": -32.271891,
+      "longitude": 148.4084,
+      "lot": "105//DP835474"
+    },
+    {
+      "label": "S-mid",
+      "latitude": -32.276208,
+      "longitude": 148.4084,
+      "lot": "105//DP835474"
+    },
+    {
+      "label": "E-mid",
+      "latitude": -32.2736,
+      "longitude": 148.412548,
+      "lot": "105//DP835474"
+    },
+    {
+      "label": "W-mid",
+      "latitude": -32.2736,
+      "longitude": 148.404252,
+      "lot": "105//DP835474"
+    }
+  ],
+  "rectangleIntersectionCheck": {
+    "cadastreFeatures": 1,
+    "zoningFeatures": 1,
+    "lgaFeatures": 1,
+    "method": "NSW ArcGIS esriGeometryEnvelope / esriSpatialRelIntersects; query degree rectangle covers model footprint corners, bounds approximate"
+  },
+  "vacancyAndOwnership": {
+    "vacant": false,
+    "claimVacant": false,
+    "actualVacancyStatus": "UNKNOWN",
+    "landowner": "NOT CHECKED",
+    "propertyAvailableForPurchase": "UNKNOWN",
+    "permissionToBuild": false,
+    "streetAddress": "NOT IDENTIFIED",
+    "existingBuildings": "UNKNOWN",
+    "landcover2026": "UNKNOWN"
+  },
+  "notWithinRTGEO003": [
+    "AHIMS and First Nations consent/cultural assessment (RTGEO-004)",
+    "DEM and flood AEP/safe development (RTGEO-005)",
+    "feeder and water points of connection (RTGEO-006–007)",
+    "actual road access/rail crossings (RTGEO-008–009)"
+  ],
+  "actions": [
+    "Preserve the town as a fictional, georeferenced overlay, not an existing NSW town",
+    "Mark this RU1 site NOT CLEARED for a physical 234-asset town or real construction",
+    "If a legally feasible real-world setting is required, initiate a second-location screen for existing RU5/village or permitted development land",
+    "Do not generate lot title or owner name from public parcel fields",
+    "Retain Sir Reginald Repo 1883 fiction and original 1911 pub without implying they are real NSW heritage buildings"
+  ],
+  "sources": {
+    "cadastre": "https://maps.six.nsw.gov.au/arcgis/rest/services/sixmaps/Cadastre/MapServer/0",
+    "boundaries": "https://maps.six.nsw.gov.au/arcgis/rest/services/sixmaps/Boundaries/MapServer",
+    "zoning": "https://mapprod3.environment.nsw.gov.au/arcgis/rest/services/Planning/EPI_Primary_Planning_Layers/MapServer/2",
+    "imageryDate": "https://maps.six.nsw.gov.au/arcgis/rest/services/public/NSW_Imagery_Dates/MapServer/0",
+    "aerialViewer": "https://portal.spatial.nsw.gov.au/explorer/index.html",
+    "lep": "https://www.dubbo.nsw.gov.au/Builders-Developers/Planning-Controls-Tools-and-Resources/Dubbo-Regional-Local-Environmental-Plan-2022",
+    "planningProposal": "https://www.dubbo.nsw.gov.au/Builders-Developers/Applying-and-Post-Approval/planning-proposal-application",
+    "cadastreInfo": "https://data.nsw.gov.au/data/en/dataset/spatial-services-nsw-cadastre/resource/e7763410-113d-477e-b5d6-27e86c10f3d4",
+    "imageryInfo": "https://portal.spatial.nsw.gov.au/client/services?id=c04ce33be7a04a7884f786f5beb20b19",
+    "planningPortal": "https://www.planningportal.nsw.gov.au/spatialviewer/"
+  }
+}

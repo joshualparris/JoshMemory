@@ -7,7 +7,10 @@ export const TOWN_ORIGIN=Object.freeze({
   firstBuilding: Object.freeze({name:"Repo's Stores",year:1883,site:'G8-N'}),
   firstMayor: Object.freeze({name:'Reginald Arthur Repo',termStart:1909,termEnd:1914,knightedFictionallyIn:1927}),
   currentMayor2026:'Vern',
-  site: Object.freeze({latitude:-32.2736,longitude:148.4084,datum:'EPSG:4326',fictional:true,surveyed:false}),
+  site: Object.freeze({latitude:-32.2736,longitude:148.4084,datum:'EPSG:4326',fictional:true,surveyed:false,
+    officialLocality:'MINORE',officialPostcode:'2830',officialLga:'DUBBO REGIONAL',
+    officialLotPlan:'105//DP835474',officialLandZone:'RU1',approvedRealTown:false,
+    physicalSiteVacancyVerified:false,aerialPixelsInspected:false}),
   bounds: Object.freeze({minX:-390,maxX:390,minZ:-190,maxZ:290}),
   historicPub: Object.freeze({id:'B:pub',built:null,firstTrade:null,originalName:null}),
 });
@@ -20,5 +23,5 @@ export function gameMetresToCoordinates(x,z) {
 export function townChronicleNotice() {
  return 'Repository Town, imagined near Minore in central-west NSW: '+TOWN_ORIGIN.site.latitude.toFixed(4)+', '+TOWN_ORIGIN.site.longitude.toFixed(4)+
  '. Founded in 1883 at Repo\'s Stores by Reginald Arthur Repo and Ellen Repo. Reginald was first fictional mayor from 1909; he was not called Sir until the fictional honour of 1927. '+
- 'Built on Aboriginal Country with living Traditional Owner connections. Real parcel, rails, water and grid connections are not surveyed.';
+ 'Built on Aboriginal Country with living Traditional Owner connections. Official GIS identifies real Lot 105 DP835474 in Minore, zoned RU1 farmland. The land is not verified vacant or approved for a real town; physical survey and rail, water and grid connections are not surveyed.';
 }

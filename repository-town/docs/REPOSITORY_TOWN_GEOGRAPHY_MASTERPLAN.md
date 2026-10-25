@@ -1,14 +1,18 @@
 # Repository Town geographic and infrastructure masterplan — Oct 2026
 
-**Anchor WGS84:** -32.273600, 148.408400; **candidate footprint:** x = −390…390 m east–west and z = −190…290 m north–south (37.44 ha). It is a **fictional point overlay** west of Minore. **Do not identify a real property as vacant, consented, available or flood-safe.** No cadastral parcel identity or binding utility network map has been verified.
+**Anchor WGS84:** -32.273600, 148.408400; **candidate footprint:** x = −390…390 m east–west and z = −190…290 m north–south (37.44 ha). It is a **fictional point overlay** west of Minore. **Official RTGEO-003 audit identifies Lot 105 DP835474, MINORE NSW 2830, Dubbo Regional Council and RU1 Primary Production zoning.** The parcel is **not proved vacant, available, developable or flood-safe**. [Source audit and rejected real-town suitability gate](RTGEO_003_SITE_AND_ZONING_AUDIT_2026-10-25.md). No binding town-side utility connection has been verified.
 
 ## 1. Location decisions and geometric transform
 
-- Region: **Orana / Central West NSW**, in the wider **Dubbo–Minore–Narromine corridor**, realistic farming hinterland west of Dubbo. **The LGA at this exact selected point has not been verified against the official LGA polygon** even though nearby Minore is documented as within Dubbo Regional Council; do not silently replace the in-game council with a real statutory authority.
+- Region: **Orana / Central West NSW**, in the wider **Dubbo–Minore–Narromine corridor**, realistic farming hinterland west of Dubbo. **Official NSW SIX Maps confirms the exact point is in Dubbo Regional Council, MINORE 2830.** This does not make the game's separately elected council a real statutory authority.
 - Neighbours: Minore **4.7 km**, Narromine **16.5 km**, Dubbo **18.8 km**, all **straight-line approximations** from published town-centre coordinates. Use routed maps for **driving times**. Nearest watercourse/bank is **not measured**.
 - Horizontal transform for game-world map position `(x,z)`: latitude ≈ −32.273600 − z/111195; longitude ≈ 148.408400 + x/(111195 cos(−32.273600°)). This local equirectangular transform is valid for **a small game map** and must not be treated as cadastral accuracy. Game y/elevation presently has **no known AHD datum**.
-- Source for parcel proof: NSW SIX Maps imagery, address, cadastre, 2-m contour/DEM and NSW Planning Portal land use layers. No claim of 'empty paddock' is complete until maps and, for real building consideration, landholder and Traditional Owner engagement substantiate it. See S01–S03.
+- **Parcel and zoning results are now verified** by RTGEO-003 against official ArcGIS layers: Lot **105 DP835474**, LGA **Dubbo Regional**, locality **Minore 2830**, zoning **RU1 Primary Production** throughout the tested game rectangle. **No current aerial scene was visually inspected**; the official dated imagery footprint is **2015**. Real title, current occupation, property availability, AHD topography, contour/DEM and cultural/environmental checks remain open. [Read full GIS report](RTGEO_003_SITE_AND_ZONING_AUDIT_2026-10-25.md).
 - **Maps:** [OSM candidate point](https://www.openstreetmap.org/?mlat=-32.273600&mlon=148.408400#map=15/-32.273600/148.408400) · [NSW SIX Maps](https://maps.six.nsw.gov.au/) · [planning layers](https://www.planningportal.nsw.gov.au/spatialviewer/).
+
+## RTGEO-003 land zoning hold
+
+**The official RU1 Primary Production zoning is not a town-development consent.** A fictional simulation can overlay this real coordinate, but a physical multi-purpose settlement of 188 houses, shops and services would need official land-use and infrastructure approvals and potentially rezoning. Do not interpret Lot 105 DP835474 as an empty public plot; landownership and current occupation have not been checked. [Council planning proposal path](https://www.dubbo.nsw.gov.au/Builders-Developers/Applying-and-Post-Approval/planning-proposal-application). The 37.44-hectare footprint intersects just one mapped lot/zone/LGA, but the **site's legal developability has failed the unverified-as-town gate**. Next engineering tasks may use this as a study anchor, never as proven buildable land.
 
 ## 2. Exact climate proxy and rainfall
 

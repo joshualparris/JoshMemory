@@ -1,12 +1,12 @@
 # RTGEO-001–016: Repository Town origins and site-specific geographic integration queue
 
-**Owner:** Repository Town; **first unblocked work:** **RTGEO-003** (cadastral/site imagery), then RTGEO-004 and -005. Never reuse or renumber any RTU, RTPUB, NSW-WAT, RTSW, RTSM or RLT IDs. All accepted research must remain distinct from actually implemented geographic simulation.
+**Owner:** Repository Town; **RTGEO-003 cadastral/zoning GIS assessment completed with NO-GO for physical town development under current RU1; full visual aerial and legal availability unresolved.** Next: RTGEO-004 and RTGEO-005; RTGEO-017 site-alternative review and RTGEO-018 current aerial inspection. Never reuse or renumber any RTU, RTPUB, NSW-WAT, RTSW, RTSM or RLT IDs. All accepted research must remain distinct from actually implemented geographic simulation.
 
 | ID | Priority | Status | Action and acceptance |
 |---|---|---|---|
 | **RTGEO-001** | P0 | COMPLETE-RESEARCH | **Select WGS84 candidate town-centre and local coordinate transform, without land-ownership assertions**. Anchor -32.2736/148.4084, 37.44-ha model schematic, locality distances, approximation and no-survey disclaimer |
 | **RTGEO-002** | P0 | COMPLETE-RESEARCH | **Founding and first building canon, Sir Reginald Repo mayor, full dated event registry**. 1883 Repo's Stores G8-N, co-founder Ellen Repo, 1909 first mayor, later 1927 title, historical 2026 Vern preserved |
-| **RTGEO-003** | P0 | OPEN | **Inspect actual selected parcel via official imagery, cadastre, zoning and LGA boundaries**. Record precise legal identifiers and land-use/occupation/landowner status; reject unsuitable site rather than claiming vacancy |
+| **RTGEO-003** | P0 | **COMPLETE GIS RESEARCH; NO-GO for real town; current aerial/occupancy NOT VERIFIED** | [Official cadastre, zoning and LGA assessment](RTGEO_003_SITE_AND_ZONING_AUDIT_2026-10-25.md): **Lot 105 DP835474, Minore 2830, Dubbo Regional Council, RU1 Primary Production**. Entire 37.44-ha approximate box intersects one registered lot and RU1 polygon. Landowner, current 2026 imagery, vacancy/occupation unknown; fictional overlay only, not a real development permission. |
 | **RTGEO-004** | P0 | OPEN | **Assess First Nations heritage, cultural consultation and ecology without inventing Aboriginal place histories**. Respect restricted AHIMS handling, maintain source and consultation status |
 | **RTGEO-005** | P0 | OPEN | **Resolve surveyed terrain, floodplain, storm drainage and development setbacks**. DEM, flood AEP, overland drainage, access cut-off, no invented flood-free elevation |
 | **RTGEO-006** | P0 | OPEN | **Match real Essential Energy upstream zone and feasible local 11/22kV distribution connection to synthetic RTU-005 model**. Real/fictional voltage/provenance split, exact point-of-connection remains null until network evidence |
@@ -21,4 +21,12 @@
 | **RTGEO-015** | P1 | OPEN | **Create historically distinct NPC dialogue and museum/town tours for Sir Reginald and founding narrative**. No invented real Aboriginal identity, fictional mayor only in historical exhibits, no 2026 duplicate |
 | **RTGEO-016** | P0 | OPEN | **Run responsive game build, integration and browser playtest on real deployed revision and revise map constraints**. Document exact release SHA and production/staging version, screenshot and tested devices |
 
+| **RTGEO-017** | P0 | OPEN | **Screen alternative NSW candidate coordinates** if an actually permitted urban-village site is required; prefer RU5/other appropriate zones and verified parcel, road, rail, water and flood criteria. Do not move the canon without a comparative engineering decision. |
+| **RTGEO-018** | P0 | OPEN | **Inspect actual aerial imagery pixels and 2026 occupancy**: retrieve official NSW Explorer most recent capture for Lot 105 DP835474 and whole 37.44-ha footprint, visually inventory existing structures, trees, water/track and date; never equate dated imagery with proof of legal vacancy or permission. |
+
 An agent must attach dated authoritative evidence to tasks; **research complete** does not mean site is vacant, rails/roads are connected, utility work commissioned, or a real permit issued. The first two tasks are the chosen canon and research documents; runtime climate/topology/site work is explicitly OPEN. Preserve current game addresses and 234 registry. [History](REPOSITORY_TOWN_HISTORY_1883_2026.md) · [Geography masterplan](REPOSITORY_TOWN_GEOGRAPHY_MASTERPLAN.md) · [JSON](REPOSITORY_TOWN_GEOGRAPHY_HISTORY_CANON.json).
+
+
+## RTGEO-003 result: 25 October 2026
+
+Verified [GIS assessment](RTGEO_003_SITE_AND_ZONING_AUDIT_2026-10-25.md). Do **not** declare the exact real property empty or rezoned: `RU1` Primary Production, cadastral Lot 105 DP835474, Minore 2830, Dubbo Regional Council. The 2015 map imagery-date metadata does not establish 2026 occupation and the interactive aerial canvas could not be inspected. The **GIS/research task is closed with a no-go-for-real-town conclusion**, whereas the distinct **aerial-visual review RTGEO-018 is open**. This preserves the user's fictional 1883/1911 history and all 234 building IDs while avoiding false claims about actual rural land.

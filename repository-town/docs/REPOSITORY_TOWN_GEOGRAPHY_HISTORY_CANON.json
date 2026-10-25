@@ -6,7 +6,7 @@
     "latitude": -32.2736,
     "longitude": 148.4084,
     "municipalStatus": "fictional municipal district on a candidate map overlay, not an actual gazetted town",
-    "legalSiteStatus": "NOT VERIFIED VACANT; not assessed for ownership, current land occupation, zoning, environmental controls, heritage or flood hazard",
+    "legalSiteStatus": "OFFICIAL GIS VERIFIED LOT 105 DP835474, MINORE 2830, DUBBO REGIONAL, RU1 PRIMARY PRODUCTION; NOT VERIFIED VACANT / AVAILABLE / APPROVED",
     "anchor": "town game x=0,z=0; x east, z south",
     "bounds": {
       "minX": -390,
@@ -14,7 +14,17 @@
       "minZ": -190,
       "maxZ": 290
     },
-    "approxHectares": 37.44
+    "approxHectares": 37.44,
+    "verifiedSiteAssessmentId": "RTGEO-003",
+    "registeredParcel": "105//DP835474",
+    "postcode": "2830",
+    "adminLocality": "MINORE",
+    "adminCouncil": "DUBBO REGIONAL COUNCIL",
+    "landUseZone": "RU1",
+    "landUseZoneDescription": "Primary Production",
+    "siteDevelopmentStatus": "NO-GO FOR ASSUMING PHYSICAL TOWN UNDER CURRENT RU1; FICTIONAL OVERLAY ONLY",
+    "aerialMetadataDate": "2015-10-06",
+    "aerialPixelsInspected": false
   },
   "nearestLocalities": [
     {
@@ -61,7 +71,7 @@
       "fictionalKnighthoodYear": 1927
     },
     "existingMayorIn2026": "Vern",
-    "realCouncil": "The point appears in the Dubbo–Minore district: LGA boundary and parcel not surveyed; in-game independent council is fictional"
+    "realCouncil": "Dubbo Regional Council confirmed at georeferenced anchor by NSW SIX Maps LGA MapServer; Repository Town in-game independent council remains fictional."
   },
   "nationalCode": "WGS84 EPSG:4326",
   "projection": {
@@ -581,6 +591,36 @@
       "title": "NSW SES Narromine flood emergency plan",
       "url": "https://www.ses.nsw.gov.au/sites/default/files/2024-06/Narromine%20LFP%20May%202024%20Endorsed.pdf",
       "type": "real-source"
+    },
+    {
+      "id": "S21",
+      "title": "Official SIX Maps cadastral lot service; exact site Lot 105 DP835474",
+      "url": "https://maps.six.nsw.gov.au/arcgis/rest/services/sixmaps/Cadastre/MapServer/0",
+      "type": "real-source"
+    },
+    {
+      "id": "S22",
+      "title": "Official SIX Maps suburb/LGA boundaries at selected site",
+      "url": "https://maps.six.nsw.gov.au/arcgis/rest/services/sixmaps/Boundaries/MapServer",
+      "type": "real-source"
+    },
+    {
+      "id": "S23",
+      "title": "Official NSW Planning Portal land zoning RU1",
+      "url": "https://mapprod3.environment.nsw.gov.au/arcgis/rest/services/Planning/EPI_Primary_Planning_Layers/MapServer/2",
+      "type": "real-source"
+    },
+    {
+      "id": "S24",
+      "title": "NSW Spatial Services imagery date layer — 2015 metadata, not current visual",
+      "url": "https://maps.six.nsw.gov.au/arcgis/rest/services/public/NSW_Imagery_Dates/MapServer/0",
+      "type": "real-source"
+    },
+    {
+      "id": "S25",
+      "title": "Dubbo Regional Council LEP 2022 zoning and planning controls",
+      "url": "https://www.dubbo.nsw.gov.au/Builders-Developers/Planning-Controls-Tools-and-Resources/Dubbo-Regional-Local-Environmental-Plan-2022",
+      "type": "real-source"
     }
   ],
   "unverifiedSiteChecks": [
@@ -595,5 +635,15 @@
     "sanitary sewer route, trade waste, stormwater outfall",
     "local soil bearing, wind and bushfire/vegetation constraints",
     "availability or sale of any parcel"
-  ]
+  ],
+  "siteAssessment": {
+    "reference": "repository-town/audit/geography/RTGEO_003_SITE_ASSESSMENT_2026-10-25.json",
+    "task": "RTGEO-003",
+    "status": "completed-site-assessment-no-go-real-town",
+    "verifiedBy": "NSW SIX Maps boundaries and cadastre plus NSW Planning LEP zoning",
+    "realWorldTownApproved": false,
+    "ownerKnown": false,
+    "parcelVacantKnown": false,
+    "imageryInspected": false
+  }
 }

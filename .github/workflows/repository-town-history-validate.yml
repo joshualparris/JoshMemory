@@ -6,6 +6,9 @@ on:
       - 'repository-town/src/world/hall-interior.js'
       - 'repository-town/docs/REPOSITORY_TOWN_GEOGRAPHY_HISTORY_CANON.json'
       - 'repository-town/tests/town-origin.mjs'
+      - 'repository-town/tests/rtgeo-003-site.mjs'
+      - 'repository-town/audit/geography/RTGEO_003_SITE_ASSESSMENT_2026-10-25.json'
+      - 'repository-town/docs/RTGEO_003_SITE_AND_ZONING_AUDIT_2026-10-25.md'
       - '.github/workflows/repository-town-history-validate.yml'
   pull_request:
     paths:
@@ -24,4 +27,4 @@ jobs:
         with:
           node-version: '22'
       - name: Validate geography, lore and no invented parcel approval
-        run: node --test repository-town/tests/town-origin.mjs
+        run: node --test repository-town/tests/town-origin.mjs repository-town/tests/rtgeo-003-site.mjs

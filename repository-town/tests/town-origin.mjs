@@ -16,6 +16,10 @@ test('fictional town geographic anchor and mayor consistent across source and JS
  assert.equal(data.founding.existingMayorIn2026,'Vern');
  assert.equal(TOWN_ORIGIN.historicPub.built,null);assert.equal(TOWN_ORIGIN.historicPub.firstTrade,null);
  assert.equal(data.coordinatesAreSurvey,false);
+ assert.equal(TOWN_ORIGIN.site.officialLotPlan,'105//DP835474');
+ assert.equal(TOWN_ORIGIN.site.officialLga,'DUBBO REGIONAL');
+ assert.equal(TOWN_ORIGIN.site.officialLandZone,'RU1');
+ assert.equal(TOWN_ORIGIN.site.physicalSiteVacancyVerified,false);
  assert.match(data.site.legalSiteStatus,/NOT VERIFIED VACANT/);
 });
 test('local coordinate transformation is monotonic, reversible near anchor and source-labelled',()=>{
