@@ -1,0 +1,39 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {TownLife,ROSTER_SIZE,RELIEF_SITES,EXPANSION_LOCAL_STAFFED} from '../src/world/life.js';
+import {MARRIED_COUPLES} from '../src/world/resident-families.js';
+import {householdHour} from '../src/world/household.js';
+const inventory=JSON.parse(fs.readFileSync(new URL('../../docs/repository-town.json',import.meta.url),'utf8'));
+const homes=inventory.projects.map(({coordinate})=>({coordinate,name:'Home '+coordinate,
+ door:{x:(coordinate.charCodeAt(0)-65-12.5)*26,z:(Number(coordinate.slice(1))-1-3.5)*46+3}}));
+assert.equal(ROSTER_SIZE,171);
+assert.equal(EXPANSION_LOCAL_STAFFED.length,72);
+assert.equal(RELIEF_SITES.some(id=>EXPANSION_LOCAL_STAFFED.includes(id)),false,'no duplicate relief');
+const town=new TownLife({homes});
+assert.equal(town.villagers.length,171);
+assert.equal(new Set(town.villagers.map(x=>x.name)).size,171);
+assert.equal(new Set(town.villagers.map(x=>x.home.coordinate)).size,116);
+assert.equal(town.marriages.length,MARRIED_COUPLES);
+for(let k=0;k<MARRIED_COUPLES;k++){
+ const a=town.villagers[k],b=town.villagers[99+k];
+ assert.equal(a.home.coordinate,b.home.coordinate);
+ assert.equal(a.spouseId,b.id);assert.equal(b.spouseId,a.id);
+ assert.equal(a.maritalStatus,'married');
+ assert.ok(a.relationshipBackstory.includes('married in'));
+ assert.strictEqual(a.larder,b.larder);
+ assert.strictEqual(a.household,b.household);
+ assert.equal(town.householdMembers(a.home.coordinate).sharedDoubleBed,true);
+}
+const a=town.villagers[0],b=town.villagers[99];
+a.inside=b.inside=true;a.step={kind:'sleep',at:'home'};b.step={kind:'sleep',at:'home'};
+const result=householdHour(town,1);
+assert.ok(result.power>0);assert.equal(a.household.meter.power,b.household.meter.power);
+const save=town.snapshot(),restored=new TownLife({homes});
+assert(restored.restore(save));
+assert.equal(restored.villagers[0].name,town.villagers[0].name);
+assert.strictEqual(restored.villagers[0].larder,restored.villagers[99].larder);
+assert.strictEqual(restored.villagers[0].household,restored.villagers[99].household);
+const int=fs.readFileSync(new URL('../src/world/interior.js',import.meta.url),'utf8');
+assert.match(int,/Shared double bed/);
+assert.match(int,/Second bedside lamp/);
+console.log('PASS 171 unique workers, 55 married couples, 116 occupied houses, shared food, meter, save and double beds.');

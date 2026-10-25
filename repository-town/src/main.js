@@ -329,7 +329,9 @@ async function start() {
     const base = byCoord.get(coord);
     // Memorial buildings are public galleries, not a randomly assigned NPC home.
     // Never append generic kitchen, bathroom/laundry or living room overlays.
-    const h = resident && !base.memorial ? { ...base, household: resident.name } : base;
+    const family=life.householdMembers(coord);
+    const h=resident&&!base.memorial?{...base,household:resident.name,
+      householdResidents:family.residents,marriedCouple:family.sharedDoubleBed}:base;
     const floors = h.memorial ? null : createFloorStack(h, makeLabel);
     const built = floors ? floors.levels[0] : buildInterior(h, makeLabel);
     attachPilotInteriorLighting(built.group,'H:'+coord);
