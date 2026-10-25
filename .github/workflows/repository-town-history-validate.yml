@@ -1,0 +1,27 @@
+name: Repository Town geographic and founding history validation
+on:
+  push:
+    paths:
+      - 'repository-town/src/world/town-origin.js'
+      - 'repository-town/src/world/hall-interior.js'
+      - 'repository-town/docs/REPOSITORY_TOWN_GEOGRAPHY_HISTORY_CANON.json'
+      - 'repository-town/tests/town-origin.mjs'
+      - '.github/workflows/repository-town-history-validate.yml'
+  pull_request:
+    paths:
+      - 'repository-town/src/world/town-origin.js'
+      - 'repository-town/src/world/hall-interior.js'
+      - 'repository-town/docs/REPOSITORY_TOWN_GEOGRAPHY_HISTORY_CANON.json'
+      - 'repository-town/tests/town-origin.mjs'
+permissions:
+  contents: read
+jobs:
+  town-history:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate geography, lore and no invented parcel approval
+        run: node --test repository-town/tests/town-origin.mjs

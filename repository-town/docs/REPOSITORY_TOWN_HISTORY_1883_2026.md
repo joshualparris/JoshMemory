@@ -14,7 +14,7 @@ Over the next decade, Repo's shop becomes a trading post, water-cart station, sm
 
 The **first mayor**, in the fictional local council story, is **Reginald Arthur Repo**, serving **1909–1914**. He is *not* a real registered NSW councillor. The later title **Sir Reginald Repo** comes from an expressly fictional **1927 honour**; he was **Reginald Repo, not yet Sir**, during his first mayoral term. He dies in the fictional chronology in **1940**. The existing playable mayor **Vern** remains mayor in the game's current 2026 era, with Arlo and Sadie as rivals; do **not** spawn Reginald as a modern NPC.
 
-The first store is dismantled in **1910** and its timber recycled into the town hall. The **Branch Line Hotel** is constructed in **1911** and opens **1912**, later refitted in **1958**, refrigerated in **1988** and renamed **The Merged Branch** in **2019**. These dates are **already canonical** in the pub's separate history. The nearby **Railway Hotel at I8-S** is a separate establishment with a different function and must never be merged into the pub's history. No actual early hotel licence is invented.
+The first store is dismantled in **1910** and its timber recycled into the town hall. The present fictional pub, **The Merged Branch at N8-S**, has an **UNKNOWN original construction date, opening date, former name and refurbishment chronology**. A comparison with dated NSW country hotels does not supply those missing facts. The **Railway Hotel at I8-S** is a different venue. No actual early licence or historical pub approval has been invented.
 
 ## Complete chronicle with evidence classification
 
@@ -40,8 +40,8 @@ The first store is dismantled in **1910** and its timber recycled into the town 
 | RTHIST-016 | **1906** | **Progress committee** | Repo's committee finances basic roads, dust control and shared drinking-water storage. Real government in the region is separate. | fiction |
 | RTHIST-017 | **1909** | **First mayor Reginald Repo** | Reginald Arthur Repo becomes **Repository Town's first in-universe mayor** of its fictional council. This does not create an actual separate NSW local government area at the real anchor. | fiction |
 | RTHIST-018 | **1910** | **First building replaced by public hall** | The 1883 Stores are carefully dismantled and timber reused in a larger hall on the G8-N plot, explaining the current Town Hall heritage plaque. | fiction |
-| RTHIST-019 | **1911** | **Brick country hotel constructed** | A Federation-style pub is built on N8-S as the Branch Line Hotel, consistent with the established pub history. | fiction |
-| RTHIST-020 | **1912** | **Branch Line Hotel opens** | The pub begins trade serving farms and railway workers. No original licence number or specific opening day is fabricated. | fiction |
+| RTHIST-019 | **1911** | **NSW country hotel architectural comparison** | An independently documented NSW country hotel dates to 1911; this is comparative architectural context only. The Merged Branch at N8-S has an UNKNOWN original construction date. | real-context |
+| RTHIST-020 | **1912** | **Regional hotel trade context** | Regional Australian hotels served travellers in this era. This 1912 context does NOT date Repository Town's pub, whose first trading year remains UNKNOWN. | design |
 | RTHIST-021 | **1914** | **War and absence** | The First World War affects local labour, farming and community life; do not invent named historical casualties. | fiction-context |
 | RTHIST-022 | **1918** | **Community memorial fund** | Families hold a fictional memorial fundraiser and maintain a register of returned residents, without impersonating real records. | fiction |
 | RTHIST-023 | **1923** | **Small generator and street lamps** | A local fuel-fired engine supplies limited evening electricity to the hall, pub and a few shops; household use remains sparse. | fiction |
@@ -52,25 +52,25 @@ The first store is dismantled in **1910** and its timber recycled into the town 
 | RTHIST-028 | **1943** | **Wartime freight and supplies** | Wartime rationing, supply convoys and farm production affect the community; no real military installation is attributed to the parcel. | fiction-context |
 | RTHIST-029 | **1950** | **Flood preparedness** | A documented regional history of floods prompts the fictional town to plan evacuation and protect low-lying approaches. | fiction-context |
 | RTHIST-030 | **1955** | **Macquarie basin flood** | The historic major flood at Narromine becomes the regional design lesson; there is no measured water depth at the selected coordinate. | real-context |
-| RTHIST-031 | **1958** | **Hotel refit** | The Branch Line Hotel receives a longer timber front bar, preserving the already established pub canon. | fiction |
+| RTHIST-031 | **1958** | **Mid-century hospitality fit-out comparison** | A mid-century hotel bar refit is a plausible design reference, NOT evidence that The Merged Branch was refurbished in 1958. | design |
 | RTHIST-032 | **1964** | **Water and sewers upgraded** | A fictional treated water network and gravity sewer are introduced in stages. Real intake, wastewater outfall, licences and pipe locations are unresolved. | fiction |
 | RTHIST-033 | **1967** | **Burrendong Dam completed** | Regional Macquarie flows are influenced by the real upstream dam; it does not eliminate flood, supply or drought risk. | real |
 | RTHIST-034 | **1972** | **Modern electricity begins** | The township transitions from independent generation to regional distribution; no actual year of connection or named feeder at the parcel is claimed. | fiction |
 | RTHIST-035 | **1975** | **Freight outlives passenger service** | Local station activity becomes mostly goods-oriented. The game's rail platform and timetable are fictional even though the regional railway is real. | fiction |
 | RTHIST-036 | **1983** | **Older brick shopfronts retained** | Residents preserve timber awnings and brickwork amid new materials, without a claimed legal heritage listing. | fiction |
-| RTHIST-037 | **1988** | **Pub refrigeration upgraded** | The hotel remodels cold storage and kitchen supply spaces, matching pub timeline. | fiction |
+| RTHIST-037 | **1988** | **Hospitality refrigeration comparison** | Late-twentieth-century refrigeration improvements inform the fictional pub kitchen; NO 1988 renovation is established for this building. | design |
 | RTHIST-038 | **1990** | **Flood and drought resilience** | Sheds, tanks and raised equipment racks feature in local disaster planning, but parcel flood elevations remain unknown. | fiction |
 | RTHIST-039 | **1996** | **Telephone and early internet** | Businesses adopt computers and dial-up, using fictional customer accounts rather than invented historic telephone exchange maps. | fiction |
 | RTHIST-040 | **2003** | **Council works yard modernised** | The rural depot gains fleet storage, salvage stock and maintenance facilities. | fiction |
 | RTHIST-041 | **2009** | **Energy and street-lighting renewal** | Old luminaires are progressively replaced, with inconsistent coverage retained in older streets. | fiction |
 | RTHIST-042 | **2015** | **Repair and recycling sector** | The town develops reuse, recycling and skills activities that later become its 2026 circular economy. | fiction |
-| RTHIST-043 | **2019** | **The Merged Branch renamed** | The Branch Line Hotel is renamed The Merged Branch; the distinct Railway Hotel remains a different property. | fiction |
+| RTHIST-043 | **2019** | **Present-day pub naming reference** | The Merged Branch is the current fictional venue name. The naming or renaming year and its original trading name are UNKNOWN; 2019 is contextual only. | design |
 | RTHIST-044 | **2020** | **Pandemic disruption** | Shops revise service, health communications and supply chains in response to the global event; no fictional exact case numbers are assigned. | fiction-context |
 | RTHIST-045 | **2022** | **Macquarie catchment flooding** | Regional severe wet-weather risk leads to renewed drainage and warning planning; the selected parcel's actual flood condition is unverified. | real-context |
 | RTHIST-046 | **2024** | **Digital work orders** | Town Hall starts electronic service requests and infrastructure maintenance records. | fiction |
 | RTHIST-047 | **2025** | **Trades, digital and civic growth** | Education, computing and repair/reuse facilities expand within the game's 234-site plan. | fiction |
 | RTHIST-048 | **2026** | **Mayor Vern and democratic life** | Vern is the current playable mayor, challenged by Arlo and Sadie. Seven-game-day elections are gameplay compression, not actual NSW election cycles. | game-canon |
-| RTHIST-049 | **2026** | **Pub utilities pilot** | The 1911 pub has a simulated WC, kitchen, energy, refrigeration and water, but not demonstrated fully code-compliant design. | game-canon |
+| RTHIST-049 | **2026** | **Pub utility and sanitary gameplay pilot** | The Merged Branch has modelled WC, kitchen, electricity, refrigeration and water systems; its construction date is UNKNOWN and compliance is not certified. | game-canon |
 | RTHIST-050 | **2026** | **Town mapped to Central West NSW** | The game gains a deliberate anchor at -32.273600,148.408400 on a candidate rural footprint west of Minore. Real ownership, cadastral and network access clearance remain unverified. | design |
 
 ## Physical setting and consequences
