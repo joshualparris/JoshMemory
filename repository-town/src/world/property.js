@@ -33,7 +33,8 @@ function write(state,text,day) {
 export function initialiseProperties(life){
   const parcels={};
   for(const [i,h] of life.homes.entries()){
-    const occupant=life.villagers.find(v=>v.home.coordinate===h.coordinate);
+    const residents=life.villagers.filter(v=>v.home.coordinate===h.coordinate);
+    const occupant=residents[0]||null;
     const tenure=occupant?.household?.tenure;
     const value=2800+(i%9)*320+(i%11===0?1200:0);
     const title=tenure==='owned'||tenure==='mortgage'
@@ -42,6 +43,8 @@ export function initialiseProperties(life){
     parcels[propertyKey('house',h.coordinate)]={
       id:propertyKey('house',h.coordinate),name:houseAddress(h.coordinate)+' · '+h.name,kind:'house',
       address:houseAddress(h.coordinate),legacyAddress:h.coordinate,owner:title,tenant:occupant?.name||null,
+      occupants:residents.map(v=>v.name),
+      jointOwners:title.startsWith('resident:')&&residents.length>1?residents.map(v=>v.name):[],
       occupied:!!occupant,value,rent:8,
       // More vacant houses are genuinely listed as the larger workforce moves in.
       // All 188 legal titles, existing tenancies and ownership stay unchanged.

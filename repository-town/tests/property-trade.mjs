@@ -11,8 +11,13 @@ assert.equal(report.total,188+town.places.size);
 assert(report.public>=10&&report.forSale.length>=20);
 for(const v of town.villagers){
   const p=state.parcels[propertyKey('house',v.home.coordinate)];
-  assert.equal(p.tenant,v.name);
-  if(v.household.tenure!=='rent')assert.equal(p.owner,'resident:'+v.name);
+  const lead=town.villagers.find(x=>x.home.coordinate===v.home.coordinate);
+  assert.equal(p.tenant,lead.name,'stable primary tenancy reference');
+  assert(p.occupants.includes(v.name),'all cohabiting people appear on property records');
+  if(v.household.tenure!=='rent'){
+    assert.equal(p.owner,'resident:'+lead.name);
+    if(v.maritalStatus==='married')assert(p.jointOwners.includes(v.name),'partner is named as joint owner');
+  }
 }
 const lab=()=>new THREE.Sprite(new THREE.SpriteMaterial());
 for(const [id,col] of [['realestate','S'],['dealership','T'],['mechanic','U']]){
