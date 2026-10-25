@@ -169,6 +169,14 @@ assert.equal(pilotMains(operations,'H:K7'),true,'other house remains supplied');
 pilotAction(operations,'fault:SERVICE:H:N7');
 householdHour(operations,23);
 assert.equal(resident.household.fridgeOff,0,'restored supply restarts fridge');
+// Appliances must genuinely stop drawing supply, even when the resident was cooking.
+resident.step={kind:'cook',at:'home'};resident.inside=true;operations.minute=18*60;
+const cookingOn=householdHour(operations,18);
+assert(cookingOn.power>0,'live home oven draws electricity');
+pilotAction(operations,'fault:SERVICE:H:N7');
+const cookingOut=householdHour(operations,18);
+assert.equal(cookingOut.power,0,'outage must prevent oven/TV/computer/hot-water phantom consumption');
+pilotAction(operations,'fault:SERVICE:H:N7');
 
 
 // Regression: the real Railway Hotel I9-N and Bakery previously had no
