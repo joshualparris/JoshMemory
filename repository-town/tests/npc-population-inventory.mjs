@@ -27,8 +27,12 @@ assert.equal(snapshot.counts.workerHomes, 99);
 assert.equal(snapshot.counts.projectHousesNotAssignedWorker, 89);
 assert.equal(snapshot.counts.baseJobRows + snapshot.counts.reliefWorkers + snapshot.counts.securityWorkers, 99);
 assert.equal(NPCS.length, 32);
-assert.equal(ROSTER_SIZE, 99, 'count the expanded live roster, not just the original 38');
-assert.equal(VILLAGER_NAMES.length, ROSTER_SIZE);
+// The published 24 October inventory is a historical snapshot of the first 99
+// workers. New town services grew the *live* roster to 188 on 25 October;
+// do not mislabel the historical list as the present live population.
+assert.equal(ROSTER_SIZE, 188, 'all 188 existing project homes can house a live worker');
+assert.equal(VILLAGER_NAMES.length, snapshot.counts.simulatedWorkers,
+  'original 99 first names and IDs must remain stable for saved games');
 assert.equal(new Set(VILLAGER_NAMES).size, 99);
 
 const named = NPCS.map(actor => ({
@@ -53,8 +57,13 @@ const homes = coords.map(coordinate => ({
   },
 }));
 const life = new TownLife({ homes });
-assert.equal(life.villagers.length, 99);
-const workers = life.villagers.map(v => ({
+assert.equal(life.villagers.length, ROSTER_SIZE);
+assert.equal(new Set(life.villagers.map(v=>v.name)).size,ROSTER_SIZE,
+  'every current worker needs a unique name, including the later service workers');
+assert.equal(new Set(life.villagers.map(v=>v.home.coordinate)).size,ROSTER_SIZE,
+  'each local worker needs their own actual project house');
+// Historical archival comparison deliberately covers only the original worker IDs.
+const workers = life.villagers.slice(0,snapshot.counts.simulatedWorkers).map(v => ({
   id: v.id,
   key: 'worker:' + v.id,
   name: v.name,
@@ -92,4 +101,4 @@ assert.deepEqual(snapshot.displayNameOverlapBetweenStreetCastAndWorkers, ['Rowan
 // Guard the published roster against accidentally leaking private repository references.
 assert(!JSON.stringify(snapshot).includes('github.com/'));
 assert(!JSON.stringify(snapshot).includes('joshualparris/Aliens'));
-console.log('PASS RTD-003: 32 named actors, 10 approved recorded voices, 20 quizzes, 99 named simulated workers (38 legacy IDs), 188 unique house slots, 20 unused grid cells; stable keys and worker-home assignments');
+console.log('PASS RTD-003: 32 named actors, 99 archived Oct-24 workers retained with stable IDs, 188 current uniquely named employed residents, 188 unique house slots, 20 unused grid cells and historic voice/quiz inventory');
