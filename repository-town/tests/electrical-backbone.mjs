@@ -68,6 +68,8 @@ assert(traceElectricalService(design,other.id,[pubTransformerEdge]).connected,
  for(const id of dedicatedNames){
    const s=design.services.find(q=>q.id===id);
    assert(s&&s.transformerId.startsWith('DIST-DED-'),id+' requires dedicated transformer');
+   const tx=design.transformers.find(x=>x.id===s.transformerId);
+   assert(tx.ratedKva>=1.2*tx.rawKva-0.01,id+' dedicated transformer must cover full connected peak with reserve');
    const fault=traceElectricalService(design,id,['MV-DED-TX-'+id.replace(/[^a-zA-Z0-9]/g,'-').toUpperCase()]);
    assert.equal(fault.connected,false,id+' transformer fault');
    assert(traceElectricalService(design,'B:pub',['MV-DED-TX-'+id.replace(/[^a-zA-Z0-9]/g,'-').toUpperCase()]).connected,'pub isolated from critical transformer fault');
