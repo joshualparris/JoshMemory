@@ -1,3 +1,4 @@
+import { tickPubUtilities, pubKitchenReady, pubAction, validPubUtilities } from './pub-utilities.js';
 import {workAssetFault} from './occupation-work.js';
 import { placeAddress } from './addresses.js';
 import {soyState,soyAction,soyHourly,soyReport,takeSoyShipment,deliverSoyShipment} from './soy-chain.js';
@@ -534,6 +535,7 @@ export class TownLife {
     const hourly = Math.floor(before / 60) !== Math.floor(this.minute / 60) || this.minute < before;
     if (hourly) { this.everyHour(); advanceTradeEducation(this); }
     advanceNeeds(this,minutes);
+    tickPubUtilities(this,minutes);
     advanceTownTradeOperations(this,minutes);
     advanceEmergency(this);
     for (const o of readyOrders(this)) this.collectOrder(o);
@@ -785,6 +787,10 @@ export class TownLife {
     if (!service.available) return service.message;
     if (!this.menuAvailability(shopId, good)) return `Sorry, ${GOODS[good].name} is sold out until ingredients arrive.`;
     if (me.wallet < price) return `You need ${price} but have ${me.wallet}.`;
+    if(shopId==='pub' && ['pub_parmy','pub_roast','pub_pie','pub_chips'].includes(good)){
+      if(!pubKitchenReady(this))return 'The pub kitchen is out of service. Check its utilities panel.';
+      pubAction(this,'meal');
+    }
     const stock = this.shelves(p);
     if ((stock[good] || 0) > 0) stock[good]--;
     else for (const [ingredient, n] of Object.entries(recipe)) stock[ingredient] -= n;
@@ -1690,6 +1696,7 @@ export class TownLife {
     if (!ok) this.stats.stockouts++;
     if (!ok) { v.activity = `found the ${p.name} out of food`; this.log(`The ${p.name} ran out of food and had to turn ${v.name} away.`); return; }
     if (v.wallet < price) { v.activity = `could not afford a meal at ${p.name}`; v.memory = `could not afford a meal at ${p.name}`; return; }
+    if(where==='pub'){if(!pubKitchenReady(this)){this.missedServiceMeal(v,'Pub kitchen utilities unavailable.');return;}pubAction(this,'meal');}
     for (const g of uses) if ((p.stock[g] || 0) > 0) { p.stock[g]--; break; }
     v.wallet -= price; noteSpend(v, 'out', price); this.sale(p, price); this.stats.mealsOut++;
     this.eat(v, dish); v.activity = `${v.step.activity} — ${dish}`;
@@ -1797,6 +1804,7 @@ export class TownLife {
     if (s.saveVersion !== undefined && (!Number.isInteger(s.saveVersion) || s.saveVersion < 1 || s.saveVersion > 3)) return false;
     if (!Number.isFinite(s.day) || s.day < 1 || !Number.isFinite(s.minute) || s.minute < 0 || s.minute >= 1440) return false;
     if (s.civic !== undefined && (s.civic === null || typeof s.civic !== 'object' || Array.isArray(s.civic))) return false;
+    if(s.civic?.pubUtilities!==undefined && !validPubUtilities(s.civic.pubUtilities))return false;
     if (s.places !== undefined && !Array.isArray(s.places)) return false;
     if (s.villagers !== undefined && !Array.isArray(s.villagers)) return false;
     let sim = null;

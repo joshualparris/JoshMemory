@@ -1,3 +1,4 @@
+import { pubUtilities, pubStatus } from './pub-utilities.js';
 import { createKit, ROOM } from './interior-kit.js';
 
 // The Merged Branch, laid out like an Australian country pub:
@@ -31,11 +32,12 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
   for (let i = 0; i < 6; i++) cyl(0.05, 0.04, 0.12, -0.5 + i * 0.18, 1.2, CZ - 0.1, 0xe8e0c8, { a: 0.7 }, 10);
   box(0.46, 0.28, 0.42, 3.0, 1.28, CZ, 0x2d3036); box(0.38, 0.2, 0.02, 3.0, 1.33, CZ + 0.22, 0x8fc4e8, { e: 0x4f94c8 });
   for (let i = 0; i < 6; i++) { const x = -3.4 + i * 1.3; k.seat('barstool-'+i,'stool',x,CZ+1.25,0); cyl(0.2, 0.2, 0.05, x, 0.72, CZ + 1.25, LEATHER, {}, 12); cyl(0.03, 0.03, 0.7, x, 0.35, CZ + 1.25, 0x2a2a2a, {}, 6); cyl(0.2, 0.2, 0.02, x, 0.02, CZ + 1.25, 0x2a2a2a, {}, 12); }
+  k.seat('bar-end-stool','stool',4.5,CZ+1.25,0); cyl(.2,.2,.05,4.5,.72,CZ+1.25,LEATHER); cyl(.03,.03,.7,4.5,.35,CZ+1.25,0x2a2a2a);
   // back-bar: mirror, shelves of bottles, glass rack, fridges
   box(7.6, 1.5, 0.06, 0, 2.2, BACK + 0.2, 0xcfd8dc, { a: 0.5 });
   for (const y of [1.4, 1.9, 2.4]) { box(7.6, 0.05, 0.3, 0, y, BACK + 0.35, WOOD); for (let i = 0; i < 18; i++) cyl(0.055, 0.055, 0.28, -3.6 + i * 0.42, y + 0.16, BACK + 0.35, [0x2f5a3f, 0x7a4a22, 0xc9a24a, 0x3a5a7a, 0x8a2f2f][(i + Math.round(y * 5)) % 5], { a: 0.9 }, 8); }
   solid(1.8, 0.95, 0.6, -3.0, 0.48, -10.5, 0xd9dde0); box(1.7, 0.8, 0.04, -3.0, 0.5, -10.18, 0xcfe8ee, { a: 0.4 });
-  box(1.4, 2.2, 0.08, 5.0, 1.1, BACK + 0.12, 0x6a5a4a);                                    // cold-room door
+  box(1.4, 2.2, 0.08, 1.8, 1.1, BACK + 0.12, 0x6a5a4a);                                    // cold-room door
   text(site.name, 0, 3.55, CZ - 0.5, 'room'); text('Bar · Meals · Keno', 0, 1.9, CZ - 0.1);
 
   // ── bistro tables (right-front) and lounge (left) ──
@@ -48,7 +50,7 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
       box(0.4, 0.05, 0.4, x + dx, 0.46, z + dz, DARKW); box(0.4, 0.45, 0.05, x + dx, 0.7, z + dz + (dz ? Math.sign(dz) * 0.18 : 0), DARKW);
     }
   };
-  for (const [x, z] of [[3.6, 3.0], [3.6, -0.4], [-3.6, 3.0]]) table(x, z);
+  for (const [x, z] of [[3.6, 3.0], [-3.6, 3.0]]) table(x, z);
   blocker(2.0, 0.9, -5.2, -1.8);
   for(const x of [-5.75,-4.75])k.seat('sofa-'+x,'sofa',x,-1.8,Math.PI);
   if (!model('couch', -5.2, -1.8, 0, { w: 2.0, d: 0.9, h: 0.85 })) { box(2.0, 0.55, 0.9, -5.2, 0.28, -1.8, LEATHER); box(2.0, 0.5, 0.2, -5.2, 0.85, -2.2, LEATHER); }   // lounge sofa
@@ -57,11 +59,8 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
   // fireplace on the left wall
   solid(0.7, 1.6, 2.0, -6.55, 0.8, -4.0, 0x7a5a48); box(0.1, 0.8, 1.2, -6.18, 0.5, -4.0, 0x1a1410); box(0.08, 0.3, 0.9, -6.14, 0.3, -4.0, 0xff7a2a, { e: 0xff5a10 });
   box(0.9, 0.08, 2.2, -6.5, 1.65, -4.0, DARKW);
-  // pool table and dartboard on the right
-  solid(1.5, 0.85, 2.6, 5.0, 0.43, -7.2, WOOD); box(1.3, 0.05, 2.4, 5.0, 0.87, -7.2, GREEN);
-  for (const [px, pz] of [[4.35, -8.3], [5.65, -8.3], [4.35, -6.1], [5.65, -6.1]]) ball(0.07, px, 0.8, pz, 0x111111);
-  ball(0.04, 5.0, 0.93, -6.8, 0xffffff); ball(0.04, 5.1, 0.93, -7.6, 0xd9453d);
-  cyl(0.28, 0.28, 0.04, 6.94, 1.7, -3.2, 0x1a1a1a, { rz: Math.PI / 2 }, 20); cyl(0.14, 0.14, 0.05, 6.93, 1.7, -3.2, 0xd9453d, { rz: Math.PI / 2 }, 16);
+  // Pool moved forward to leave a service corridor to the rear bathroom.
+  solid(1.5, .85, 2.6, 4.4, .43, -.7, WOOD); box(1.3,.05,2.4,4.4,.87,-.7,GREEN);
   // keno / TAB screens, menu board, framed pictures
   box(1.4, 0.8, 0.08, 6.9, 2.4, -1.0, 0x1b1d22); box(1.3, 0.7, 0.04, 6.86, 2.4, -1.0, 0x2e6a94, { e: 0x1e4a74 });
   box(2.2, 1.2, 0.06, -6.9, 2.5, 3.0, 0x1f2a24); text('Parmi · Roast · Pie of the day', -6.8, 2.5, 3.1);
@@ -69,7 +68,7 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
   model('lamp_standing', -6.2, -0.1, 0, { w: 0.45, d: 0.45, h: 1.6 }); model('cactus_medium_A', 6.3, 5.2, 0, { w: 0.5, d: 0.5, h: 0.6 });
 
   // finishing detail: beer mats, bunting, bar towels, glass rack, ceiling fans, brass rail, pool cues, stools' footrests
-  for (const [x, z] of [[3.6, 3.0], [3.6, -0.4], [-3.6, 3.0]]) for (let i = 0; i < 4; i++) { cyl(0.05, 0.05, 0.01, x - 0.3 + (i % 2) * 0.6, 0.81, z - 0.3 + Math.floor(i / 2) * 0.6, 0xd9c8a0, {}, 10); }
+  for (const [x, z] of [[3.6, 3.0], [-3.6, 3.0]]) for (let i = 0; i < 4; i++) { cyl(0.05, 0.05, 0.01, x - 0.3 + (i % 2) * 0.6, 0.81, z - 0.3 + Math.floor(i / 2) * 0.6, 0xd9c8a0, {}, 10); }
   for (let i = 0; i < 24; i++) box(0.18, 0.22, 0.01, -6.6 + i * 0.57, 3.3 - Math.sin(i / 24 * Math.PI) * 0.0, -11.7 + 0.02, [0xc9553d, 0xe3b04b, 0x2f5a3f, 0x4f7fa6][i % 4]);
   box(8.2, 0.05, 0.05, 0, 0.9, CZ + 0.55, BRASS);
   for (let i = 0; i < 10; i++) cyl(0.04, 0.03, 0.14, -1.6 + i * 0.16, 2.6, BACK + 0.36, 0xe8e0c8, { a: 0.6 }, 8);
@@ -80,10 +79,45 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
   for (const x of [-2.2, 1.6]) { box(0.5, 0.06, 0.4, x, 1.18, CZ + 0.2, 0x3a5a7a); }
   for (let i = 0; i < 8; i++) ball(0.07, -1.4 + i * 0.4, 1.3, CZ + 0.3, [0xd9453d, 0xe3b04b, 0x6f9a54][i % 3]);
 
+  // Back-of-house: kitchen on left, sanitary compartment on right.
+  solid(.12,2.7,3.8,3.8,1.35,-10,0xddd7c9);
+  solid(1.0,2.7,.12,4.3,1.35,-8.1,0xddd7c9); // door gap x4.8..6.7
+  text('WC · wash basin',5.4,2.6,-8.2);
+  cyl(.3,.25,.4,5.7,.3,-10.7,0xf5f5ef); box(.6,.65,.22,5.7,.68,-11.2,0xf5f5ef);
+  box(.7,.18,.5,4.45,.85,-10.6,STEEL); cyl(.025,.025,.25,4.45,1.04,-10.8,STEEL);
+  box(.3,.4,.12,4.0,1.3,-10.6,0xe5e8eb); // soap/towel dispenser
+  text('To sewer · vented sanitary drain',5.4,1.8,-11.5);
+  solid(1.1,.9,2,-5.7,.45,-10.4,STEEL); // cooker / preparation bench
+  for(const z of [-10.9,-10.2])cyl(.18,.18,.03,-5.7,.93,z,0x222222);
+  box(1.3,.3,2.1,-5.7,2.6,-10.4,STEEL);box(.35,1.4,.35,-5.7,3.4,-10.4,STEEL); // extraction hood
+  solid(.9,.9,.8,-5.7,.45,-8.4,STEEL);box(.6,.06,.5,-5.7,.94,-8.4,0x485f68);
+  cyl(.03,.03,.3,-5.7,1.1,-8.7,STEEL);
+  box(.6,1,.15,-6.8,1.4,-7.3,0xcbd1d4); // metered switchboard
+  box(.8,.55,.2,-6.7,2.1,-6.4,0x333c43); // NBN / router / communications UPS
+  cyl(.35,.35,1.2,-2, .65,-10.7,0xdddcd2); // insulated hot-water cylinder
+  solid(.6,.8,.5,-5.7,.4,-7.2,STEEL); cyl(.02,.02,.24,-5.7,1,-7.4,STEEL);
+  text('Kitchen · separate hand basin · extraction',-4.8,2.7,-8.5);
+  text('Cold room · dedicated refrigeration circuit',1.5,2.7,-11.4);
+  add('toilet','Toilet and hand washing','pub-utilities','Stored cistern water, sanitary drain and warm hand basin.',5.6,-9.2);
+  add('kitchen','Working kitchen services','pub-utilities','Cooking, extraction, potable water and grease pre-treatment.',-4.6,-8.6);
+  add('services','Utility meters and service diagram','pub-utilities','Inspect and test the pub connections.',-5.6,-6.5);
+  // Diagrammatic service routes deliberately shown above head height; not surveyed pipe positions.
+  const layers={};
+  for(const [id,color,x] of [['electricity',0xffcd38,-2],['water',0x38baff,-1],['sewer',0xb07949,0],['gas',0xf3a257,1],['internet',0xb783ff,2],['waste',0x72ce76,3]]){
+    const route=new THREE.Group();route.name='Pub utility '+id;
+    const line=new THREE.Mesh(new THREE.BoxGeometry(.07,.07,15),new THREE.MeshBasicMaterial({color}));line.position.set(x,3.7,-3);route.add(line);
+    const cross=new THREE.Mesh(new THREE.BoxGeometry(10,.07,.07),line.material);cross.position.set(0,3.7,-9);route.add(cross);group.add(route);layers[id]=route;route.visible=false;
+  }
+  const utilityVisuals=life=>{
+    const state=pubUtilities(life),status=pubStatus(life);
+    for(const [id,layer] of Object.entries(layers))layer.visible=state.overlay===id;
+    // All ordinary electric fixtures follow this building's breaker as well as town supply.
+    group.userData.updateLighting?.(status.power);
+  };
   add('counter', 'Bar', 'civic-ledger', 'Pull up a stool. Order a meal or a drink at the bar, or open the Town Ledger.', PUB_LAYOUT.staffUse.x, PUB_LAYOUT.staffUse.z);
   add('taps', 'Beer taps', 'info', 'Four taps and a fridge of bottles. Licensed hours run from eleven in the morning to late; the publican serves responsibly.', -2.4, -4.4);
   add('menu', 'Menu board', 'info', 'Chicken parmi, the roast of the day and a pie with chips. The kitchen uses beef, chicken and vegies delivered from the farms and the butcher.', -5.4, 3.9);
   add('lounge', 'Lounge and fire', 'info', 'Leather chairs round a fireplace for a long yarn after work.', -3.2, -1.5);
-  add('pool', 'Pool table and darts', 'info', 'A pool table, a dartboard and a keno screen: the Friday night regulars treat the room as their own.', 3.2, -3.4);
-  return k.finish({ staff: { pos: PUB_LAYOUT.staff, use: PUB_LAYOUT.staffUse } });
+  add('pool', 'Pool table', 'info', 'A pool table, a dartboard and a keno screen: the Friday night regulars treat the room as their own.', 3.2, -3.4);
+  return k.finish({ utilityVisuals, staff: { pos: PUB_LAYOUT.staff, use: PUB_LAYOUT.staffUse } });
 }

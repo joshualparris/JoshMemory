@@ -1,3 +1,4 @@
+import { pubUtilitiesPanel } from './ui/pub-utilities-panel.js';
 import {occupationPanel} from './ui/occupation-panels.js';
 import {installWorkplay} from './world/workplay-view.js';
 import { mountCompanion } from './ui/companion.js';
@@ -717,6 +718,9 @@ async function start() {
       const thing = nearThing, request = ++interactionRequest, house = inside;
       const restricted=restrictedServiceAction(life,inside?.place,thing);
       if(restricted){status(restricted);return;}
+      if(thing.act?.do==='pub-utilities'){
+        openPanel(pubUtilitiesPanel(life),thing);return;
+      }
       if(thing.act?.do==='soy-action'){
         const result=life.soyAction(inside?.place?.id,thing.act.action);
         status(result.message);
@@ -1155,6 +1159,7 @@ async function start() {
         animate(inside.dynamics, t, active);
         inside.visitors?.update(dt,t,player);
         inside.workplay?.update(dt,player);
+        inside.utilityVisuals?.(life);
         inside.workStationVisuals?.();
         // Shop patrons are synchronised with the authoritative town economy
         // above; they have their own movement and seated animation.

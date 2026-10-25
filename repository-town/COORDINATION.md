@@ -16,6 +16,8 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-25 · Codex — RTPUB-001–008 pub utilities pilot, branch feat/pub-utilities-20261025, baseline 59139c4. Scope pub-interior.js, new pub-utilities.js/pub-utilities-panel.js, focused Life/main integration, tests and documentation. Preserve other claims; no NPC/dialogue changes.
+
 
 
 
