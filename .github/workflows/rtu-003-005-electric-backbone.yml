@@ -3,6 +3,7 @@ on:
   push:
     branches: [feat/rtu-003-005-town-electric-backbone, main]
     paths:
+      - repository-town/src/world/utility-network-schema.js
       - repository-town/src/world/electrical-backbone.js
       - repository-town/tools/generate-electrical-backbone.mjs
       - repository-town/tests/electrical-backbone.mjs
@@ -53,5 +54,7 @@ jobs:
           git add repository-town/audit/electricity/design-network-v1.json
           if ! git diff --cached --quiet; then
             git commit -m "data(RTU-003-005): publish tested source-derived 234-site connection snapshot"
+            git fetch origin feat/rtu-003-005-town-electric-backbone
+            git rebase origin/feat/rtu-003-005-town-electric-backbone
             git push origin HEAD:feat/rtu-003-005-town-electric-backbone
           fi
