@@ -19,7 +19,31 @@ try{
     assert.equal(snap.siteById['B:hotel'].mains,true);
     assert.equal(snap.siteById['B:pub'].mains,true);
     assert.equal(snap.siteById['H:N7'].mains,true);
-    await page.locator('#btn-electrical-grid').click();
+    // Grid and AI launchers belong to the collapsible town controls.
+    // Both must disappear in the compact mobile HUD (no floating overlays).
+    const grid=page.locator('#btn-electrical-grid');
+    const ask=page.locator('#town-companion-button');
+    const menu=page.locator('#btn-hud-toggle');
+    await ask.waitFor({state:'attached'});
+    assert(await grid.evaluate(el=>!!el.closest('#hud-details .row')),'Grid belongs to the + menu');
+    assert(await ask.evaluate(el=>!!el.closest('#hud-details .row')),'Ask AI belongs to the + menu');
+    assert.equal(await grid.evaluate(el=>getComputedStyle(el).position),'static');
+    assert.equal(await ask.evaluate(el=>getComputedStyle(el).position),'static');
+    if(viewport.width<=700){
+      assert.equal(await grid.isVisible(),false,'Grid must not float over collapsed phone controls');
+      assert.equal(await ask.isVisible(),false,'Ask AI must not float over collapsed phone controls');
+      await menu.click();
+    }
+    assert(await grid.isVisible()&&await ask.isVisible(), 'Both controls must show inside expanded menu');
+    // Real on-screen AI launcher works and collapses the huge menu behind the dialog.
+    await ask.click();
+    await page.waitForTimeout(120);
+    assert(await page.locator('#town-companion').isVisible(),'Ask AI opens from + menu');
+    if(viewport.width<=700)assert.equal(await grid.isVisible(),false,'Menu minimises after Ask AI opens');
+    await page.locator('#companion-close').click();
+    if(viewport.width<=700)await menu.click();
+    await grid.click();
+    if(viewport.width<=700)assert.equal(await grid.isVisible(),false,'Menu minimises after Grid opens');
     await page.waitForTimeout(200);
     const text=await page.locator('#panel').innerText();
     assert(/Railway Hotel/.test(text));
@@ -58,5 +82,5 @@ try{
     await page.close();
   }
   assert.deepEqual(errors,[],'browser pageerrors: '+errors.join(' | '));
-  console.log('PASS: live desktop & 390px mobile 3D game loaded; grid HUD with touch-clicked action buttons, 16 site meters, local pub blackout, neighbour separation, north-house transformer faults and wiring overlay');
+  console.log('PASS: compact + menu houses AI and Grid launchers, expands/auto-collapses, plus live desktop & 390px mobile 3D game loaded; grid HUD with touch-clicked action buttons, 16 site meters, local pub blackout, neighbour separation, north-house transformer faults and wiring overlay');
 } finally { await browser.close(); }
