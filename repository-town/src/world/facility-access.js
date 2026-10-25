@@ -1,3 +1,4 @@
+import {pubAdmission} from './pub-standards.js';
 // Public entry is different from 24-hour operations: treatment plants, emergency
 // response and utilities keep working when their front reception is locked.
 import { workingAt } from './shop-attendance.js';
@@ -33,6 +34,7 @@ export function onSiteWorkers(town, place) {
 }
 export function facilityAccess(town, place) {
   if (!place) return { allowed:false, reason:'unknown', message:'This entrance is unavailable.' };
+  if(place.id==='pub'){const a=pubAdmission(town);if(!a.allowed)return a;}
   if (place.id === 'square') return { allowed:true, reason:'public', message:'Public space is open.' };
   const shift = town.jobsReport?.()?.active;
   if (shift?.site === place.id && shift.day === town.day)

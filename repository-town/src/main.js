@@ -1,3 +1,5 @@
+import {pubStandardsPanel} from './ui/pub-standards-panel.js';
+import {pubRearExitPose} from './world/pub-physical-plan-2026.js';
 import { pubUtilitiesPanel } from './ui/pub-utilities-panel.js';
 import {electricalPilotPanel} from './ui/electrical-pilot-panel.js';
 import {initialiseElectricalPilot,pilotReport,pilotAction} from './world/electrical-pilot.js';
@@ -330,7 +332,7 @@ async function start() {
     // Memorial buildings are public galleries, not a randomly assigned NPC home.
     // Never append generic kitchen, bathroom/laundry or living room overlays.
     const family=life.householdMembers(coord);
-    const h=resident&&!base.memorial?{...base,household:resident.name,
+    const h=resident && !base.memorial?{...base,household:resident.name,
       householdResidents:family.residents,marriedCouple:family.sharedDoubleBed}:base;
     const floors = h.memorial ? null : createFloorStack(h, makeLabel);
     const built = floors ? floors.levels[0] : buildInterior(h, makeLabel);
@@ -402,6 +404,7 @@ async function start() {
     scene.add(built.group);town.group.visible=false;
     scene.background.set(INDOOR);scene.fog=null;
     world=new CollisionWorld(built.colliders);
+    world.dynamic=()=>built.doors.filter(d=>d.userData.privacy&&d.userData.open<.8).map(d=>({x0:d.userData.centre.x-.7,x1:d.userData.centre.x+.7,z0:d.userData.centre.z-.06,z1:d.userData.centre.z+.06}));
     // The same TownLife villagers that shop, eat and work here now have
     // visible bodies, independent of the staff member behind the counter.
     inside.visitors=createShopVisitors(site,life,inside,makeLabel,inside.people);
@@ -412,7 +415,7 @@ async function start() {
     status(access.reason==='supervised' ? access.message+' You may return through the entrance at any time.' : 'Inside '+site.name+'. Walk to the counter or back through the entrance to leave.');
     return true;
   }
-  function leave(placeOutside = true, keepFacing = false) {
+  function leave(placeOutside = true, keepFacing = false, via = 'front') {
     if (!inside) return;
     const yawInside = player.yaw;
     closePanel(); npcChat.close();
@@ -430,7 +433,8 @@ async function start() {
     town.group.visible = true; scene.background.set(SKY); scene.fog = fog;
     if (placeOutside) {
       if (shop) {
-        const pose = civicExitPose(shop, [...townWorld.all, ...townWorld.dynamic()], player.radius+0.08);
+        const boxes=[...townWorld.all,...townWorld.dynamic()];
+        const pose = via==='rear'&&shop.id==='pub'?pubRearExitPose(shop,boxes,player.radius+.08):civicExitPose(shop,boxes,player.radius+0.08);
         if (pose) player.place(pose.x,pose.z,keepFacing ? yawInside + doorTurn(shop) : pose.yaw);
         else spawn(); // use safe Town Guide location instead of clipping into a wall
       } else { const l=town.lots.get(coord);player.place(l.doorPos.x,l.doorPos.z+4,keepFacing ? yawInside : Math.PI); }
@@ -733,6 +737,8 @@ async function start() {
       const thing = nearThing, request = ++interactionRequest, house = inside;
       const restricted=restrictedServiceAction(life,inside?.place,thing);
       if(restricted){status(restricted);return;}
+      if(thing.act?.do==='pub-standards'){openPanel(pubStandardsPanel(life),thing);return;}
+      if(thing.act?.do==='pub-rear-exit'){leave(true,false,'rear');return;}
       if(thing.act?.do==='pub-utilities'){
         openPanel(pubUtilitiesPanel(life),thing);return;
       }
@@ -1158,12 +1164,14 @@ async function start() {
       for (const d of inside.doors) {
         const dist = Math.hypot(d.userData.centre.x - player.pos.x, d.userData.centre.z - player.pos.z);
         const residentNear = (inside.people || []).some((p) => Math.hypot(d.userData.centre.x - p.pos.x, d.userData.centre.z - p.pos.z) < 2.0);
-        const target = dist < 2.8 || residentNear ? 1 : 0; d.userData.open += (target - d.userData.open) * Math.min(1, dt * 5); d.rotation.y = d.userData.baseRot + d.userData.open * 1.5;
+        const target = d.userData.privacy ? 0 : dist < 2.8 || residentNear ? 1 : 0; d.userData.open += (target - d.userData.open) * Math.min(1, dt * 5); d.rotation.y = d.userData.baseRot + d.userData.open * 1.5 * (d.userData.swing || 1);
       }
       const ex = inside.exitZone;
+      const rear=inside.rearExitZone;
       // Generous exit area: the doorway, the last 1.3 m inside it and anywhere beyond it, centred on
       // the actual door, so a slow frame or the floor-change cooldown cannot carry the player past it.
-      if (floorDoorCooldown <= 0 && Math.abs(player.pos.x - (ex.x0 + ex.x1) / 2) < 1.55 && player.pos.z > inside.rooms[0].z1 - 1.3) { if (inside.floors && inside.floorIndex > 0) changeFloor(inside.floorIndex - 1); else leave(true, true); }
+      if(rear&&floorDoorCooldown<=0&&player.pos.x>rear.x0&&player.pos.x<rear.x1&&player.pos.z<rear.z1){leave(true,false,'rear');}
+      else if (floorDoorCooldown <= 0 && Math.abs(player.pos.x - (ex.x0 + ex.x1) / 2) < 1.55 && player.pos.z > inside.rooms[0].z1 - 1.3) { if (inside.floors && inside.floorIndex > 0) changeFloor(inside.floorIndex - 1); else leave(true, true); }
       else {
         nearThing = player.seated ? null : pickNear();
         nearNPC = null;

@@ -46,6 +46,9 @@ async function play(kind,options) {
   // A real modal must take priority over the floating Ask AI control on
   // both desktop and Android-size screens. Do not test this by mocking CSS:
   // open and close the actual Town Guide panel in the running game.
+  // The mobile HUD intentionally starts collapsed. Exercise its real expand control.
+  if(await page.locator('#btn-hud-toggle').getAttribute('aria-expanded')==='false')
+    await page.locator('#btn-hud-toggle').click();
   const launch=page.locator('#town-companion-button');
   if(await page.evaluate(()=>!document.getElementById('card').hidden))
     await page.evaluate(()=>window.__town.meetGuide()); // step clear of any house info card
@@ -71,6 +74,8 @@ async function play(kind,options) {
   // Test the real input path: keyboard on desktop, canvas joystick touch on
   // Android. A focused Guide close button legitimately ignores keyboard W.
   if(kind==='mobile'){
+    if(await page.locator('#btn-hud-toggle').getAttribute('aria-expanded')==='true')
+      await page.locator('#btn-hud-toggle').click();
     const cdp=await context.newCDPSession(page);
     const {width,height}=page.viewportSize(),x=width*.2,y=height*.7;
     await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y,id:1}]});
@@ -100,6 +105,8 @@ async function play(kind,options) {
   const at={x:bank.door.x,z:bank.door.z-2.35,yaw:Math.PI};
   assert.equal(await page.evaluate(p=>Boolean(window.__town.probeStatic(p.x,p.z)),at),false,kind+': front bank approach obstructed');
   await page.evaluate(p=>window.__town.place(p.x,p.z,p.yaw),at);
+  // Return real input focus from the phone HUD button to the canvas before WASD.
+  const vp=page.viewportSize();await page.mouse.click(vp.width*.5,vp.height*.45);
   await page.keyboard.down('w');
   try{await page.waitForFunction(()=>window.__town.state().mode==='house',null,{timeout:7000});}
   finally{await page.keyboard.up('w');}

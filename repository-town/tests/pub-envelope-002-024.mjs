@@ -42,7 +42,7 @@ test('RTPUB-024 facade and visual mesh contain no accessible first floor',()=>{
  assert.ok(e.roofEaveM>=e.wallHeightM);
  assert.ok(e.roofPeakM<7,'no double-storey height');
  assert.equal(facade.pieces.filter(p=>p.name==='nonhabitable-roof').length,1);
- assert.equal(facade.pieces.filter(p=>p.name==='rear-wall').length,1);
+ assert.equal(facade.pieces.filter(p=>p.name==='rear-wall').length,2);
  assert(!facade.pieces.some(p=>/upper-glass|second-storey|upper-floor/.test(p.name)));
  const glass=facade.pieces.filter(p=>/glass$/.test(p.name));
  assert.equal(glass.filter(p=>p.name==='front-glass').length,2);

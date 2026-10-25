@@ -1,3 +1,4 @@
+import {pubAlcoholRefusal,pubAdmission,validPubStandards} from './pub-standards.js';
 import {ORIGINAL_WORKERS,EXPANSION_WORKERS,MARRIED_COUPLES,EXPANSION_IDENTITIES,createMarriages,reconcileSpouseHouseholds,householdMembers as familyMembers} from './resident-families.js';
 import { EXPANSION_SITES } from './town-expansion.js';
 import { tickPubUtilities, pubKitchenReady, pubAction, validPubUtilities } from './pub-utilities.js';
@@ -803,17 +804,17 @@ export class TownLife {
     }
     if (h === 16 && (fo.stock.metal || 0) >= 14) { const n = fo.stock.metal - 4; fo.stock.metal = 4; fo.till += n * 12; this.log(`The foundry exported ${n} tonnes of metal by rail for $${n * 12}.`); }
     if (h === 8 && (this.place('power').stock.fuel || 0) < 60) this.log('The Power Station is low on fuel; a truck is due from the depot.');
-    // Evening regional cost-of-living support for the poorest households.
+    // Morning and evening regional cost-of-living support for low-liquidity residents.
     // It is means tested and moves existing council money, never mints funds.
-    if(h===21 && this.civic.treasury>600){
+    if((h===7||h===21) && this.civic.treasury>600){
       let assisted=0;
       for(const v of this.villagers){
-        if(v.wallet>=35 || v.job==='student' || v.job==='retired')continue;
+        if(v.wallet+(v.savings||0)>=35)continue;
         const amount=Math.min(35-v.wallet,Math.max(0,this.civic.treasury-600),28);
         if(amount<=0)break;
         this.civic.treasury-=amount;v.wallet+=amount;assisted++;
       }
-      if(assisted)this.log('Council household hardship payments supported '+assisted+' low-income workers.');
+      if(assisted)this.log('Council household hardship payments supported '+assisted+' low-income residents.');
     }
 
     // Post: letters the visitor posts arrive the next day with the postie.
@@ -859,6 +860,7 @@ export class TownLife {
       if(!pubKitchenReady(this))return 'The pub kitchen is out of service. Check its utilities panel.';
       pubAction(this,'meal');
     }
+    if(shopId==='pub'&&['pub_beer','pub_bottled_beer'].includes(good)){const refusal=pubAlcoholRefusal(this);if(refusal)return refusal;}
     const stock = this.shelves(p);
     if ((stock[good] || 0) > 0) stock[good]--;
     else for (const [ingredient, n] of Object.entries(recipe)) stock[ingredient] -= n;
@@ -1659,6 +1661,9 @@ export class TownLife {
     // a permanent overlapping crowd in front of the Bakery and General Store.
     // Indoor shop staff already have their corresponding real-NPC counter model.
     const place=this.places.get(s.at);
+    if(s.at==='pub'&&!['work','preopen'].includes(s.kind)&&!v.inside&&!pubAdmission(this).allowed){
+      v.inside=false;if(s.kind==='eatout'){this.missedServiceMeal(v,'The pub is full or evacuating.');return;}this.goThen(v,this.place('square').front,{kind:'idle',at:'square',dur:10,activity:'waiting outside the full or closed pub'});return;
+    }
     const indoorWork=['work','preopen'].includes(s.kind)&&place&&!['farm','depot','park','home'].includes(place.kind);
     const indoorVisit=['buy','snack','eatout'].includes(s.kind)&&place&&
       ['shop','cafe','pub'].includes(place.kind);
@@ -1875,6 +1880,7 @@ export class TownLife {
     if (s.saveVersion !== undefined && (!Number.isInteger(s.saveVersion) || s.saveVersion < 1 || s.saveVersion > 3)) return false;
     if (!Number.isFinite(s.day) || s.day < 1 || !Number.isFinite(s.minute) || s.minute < 0 || s.minute >= 1440) return false;
     if (s.civic !== undefined && (s.civic === null || typeof s.civic !== 'object' || Array.isArray(s.civic))) return false;
+    if(s.civic?.pubStandards!==undefined&&!validPubStandards(s.civic.pubStandards))return false;
     if(s.civic?.pubUtilities!==undefined && !validPubUtilities(s.civic.pubUtilities))return false;
     if(s.civic?.electricalPilot!==undefined && !validElectricalPilotState(s.civic.electricalPilot))return false;
     if (s.places !== undefined && !Array.isArray(s.places)) return false;

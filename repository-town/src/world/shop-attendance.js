@@ -1,3 +1,4 @@
+import {pubStandards} from './pub-standards.js';
 import { pilotMains } from './electrical-pilot.js';
 
 // A roster is not proof of presence: council work can send somebody elsewhere.
@@ -16,6 +17,7 @@ export function workingAt(worker, siteId, place = null) {
 // Retail counters need an actual worker, not merely an opening-hours sign.
 const RETAIL = new Set(['store','bakery','greengrocer','butcher','cafe','pub']);
 export function shopService(town, place) {
+  if(place.id==='pub'){const s=pubStandards(town);if(s.alarm||s.gasLeak)return {available:false,reason:'emergency',message:'Pub service stopped for an emergency drill.'};}
   if (!town.open(place)) return {available:false, reason:'closed', message:`${place.name} is closed.`};
   const power=pilotMains(town,'B:'+place.id);
   if(power===false)return {available:false,reason:'power-outage',message:`${place.name}: no mains electricity. Till and refrigerated food sales cannot operate.`};

@@ -25,7 +25,7 @@ const u=pubUtilities(town);u.breaker=false;const money=town.civic.player.wallet,
 const bad=structuredClone(snapshot);bad.civic.pubUtilities.cisternL=-1;assert.equal(restored.restore(bad),false);
 console.log('PASS pub utilities: finite inventories, service dependencies, UPS depletion, cold chain, accounting, save restore, overlay isolation and walkable fixtures');
 // Regression: private sanitary enclosure and separate food room have animated leaves.
-assert.deepEqual(room.doors.map(d=>d.name),['pub:wc-door','pub:kitchen-door']);
+assert.deepEqual(room.doors.map(d=>d.name),['pub:cold-room-door','pub:ambulant-wc-door','pub:wc-door','pub:kitchen-door','pub:rear-fire-exit']);
 for(const door of room.doors){assert(door.children.some(c=>c.isMesh));assert(door.userData.centre.isVector3);assert(room.sight.some(s=>s.door===door));}
 const isolated={civic:{supply:{waterOk:true}},gridPowered:()=>true};
 const state=pubUtilities(isolated);const initialWater=state.waterL;
@@ -35,4 +35,9 @@ pubAction(isolated,'extraction');pubAction(isolated,'meal');assert.equal(state.m
 state.breaker=false;tickPubUtilities(isolated,300);assert.equal(state.emergencyMinutes,0);assert(state.foodQuarantined);
 state.breaker=true;tickPubUtilities(isolated,200);assert(pubStatus(isolated).cold);assert(state.foodQuarantined,'recooling never restores spoiled stock');pubAction(isolated,'meal');assert.equal(state.meals,0);
 room.utilityVisuals(isolated);state.breaker=false;state.emergencyMinutes=30;room.utilityVisuals(isolated);assert(room.group.getObjectByName('pub:emergency-light').intensity>0);state.emergencyMinutes=0;room.utilityVisuals(isolated);assert.equal(room.group.getObjectByName('pub:emergency-light').intensity,0);
-console.log('PASS pub sanitary leaves, potable water conservation, extraction interlock, independent emergency battery and persistent cold-stock quarantine');
+assert.match(pubAction(isolated,'scenario-admit'),/admission recorded/);
+for(let i=1;i<24;i++)pubAction(isolated,'scenario-admit');
+assert.equal(state.scenarioPatrons,24);assert.match(pubAction(isolated,'scenario-admit'),/REFUSED/);assert.equal(state.scenarioPatrons,24);
+assert.match(pubAction(isolated,'scenario-depart'),/departure/);assert.equal(state.scenarioPatrons,23);
+assert.equal(room.group.getObjectByName('pub:rear-emergency-light')?.intensity,0);
+console.log('PASS pub sanitary leaves, potable water conservation, extraction, emergency lights, cold stock and provisional occupancy scenario');
