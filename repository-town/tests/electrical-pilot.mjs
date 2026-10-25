@@ -18,7 +18,7 @@ let s=initialiseElectricalPilot(town);
 assert(validElectricalPilotState(s));
 assert.equal(pilotNetwork().sites.length,16);
 assert.equal(pilotNetwork().transformers.length,4);
-assert.equal(new Set(pilotNetwork().sites.map(x=>x.id)).size,15);
+assert.equal(new Set(pilotNetwork().sites.map(x=>x.id)).size,16);
 const full=JSON.parse(fs.readFileSync('audit/electricity/design-network-v1.json','utf8'));
 const fullEdges=new Map(full.edges.map(e=>[e.id,e]));
 for(const edge of pilotNetwork().edges){
