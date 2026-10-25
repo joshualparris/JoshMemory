@@ -32,7 +32,7 @@ const HOMES = {
   url:'https://fallingwater.org/fallingwater/',detail:'https://franklloydwright.org/site/fallingwater/',
   intro:'A scaled interpretation of Frank Lloyd Wright’s 1935 Kaufmann family house: horizontal cantilever terraces, local stone, open living/dining spaces and a hearth rooted in the rocky site above Bear Run.',
   rooms:[
-   ['Stone Hearth Living Room','The fireplace incorporates natural stone; Wright connected living spaces with the landscape.',['fireplace','sofa','rug','table']],
+   ['Stone Hearth Living Room','The fireplace incorporates natural stone; Wright connected living spaces with the landscape.',['fireplace','sofa','lamp','table']],
    ['Open Dining Area','The original first-floor living and dining spaces are continuous rather than separated by formal doorways.',['table','chair','lamp','plant']],
    ['Cantilever Terrace','Horizontal reinforced-concrete platforms reach over the stream and forest setting.',['bench','pottedTree','rock','lantern']],
    ['Bedroom and Private Terrace','Upper-storey bedroom suites have outdoor terraces; this room is only a schematic stand-in.',['bed','wardrobe','desk','lamp']]
