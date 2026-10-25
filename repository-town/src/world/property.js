@@ -57,7 +57,7 @@ export function initialiseProperties(life){
     const occupant=p.kind==='home'?'Farm families':publicSites.has(p.id)?'Public service':p.name;
     parcels[propertyKey('business',p.id)]={
       id:propertyKey('business',p.id),name:placeAddress(p)+' · '+p.name,kind:p.kind==='farm'?'farm':p.kind==='home'?'residential':'commercial',
-      address:placeAddress(p),legacyAddress:(p.side==='south'?'South ':'')+p.col+'8',owner,tenant:occupant,occupied:true,
+      address:placeAddress(p),legacyAddress:p.side==='north'?placeAddress(p):(p.side==='south'?'South ':'')+p.col+'8',owner,tenant:occupant,occupied:true,
       value:businessPrices[p.id]||9500,rent:publicSites.has(p.id)?0:p.kind==='farm'?55:22,
       listed:false,protected:publicSites.has(p.id),condition:80,
     };
