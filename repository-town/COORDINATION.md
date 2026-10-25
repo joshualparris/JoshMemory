@@ -16,6 +16,9 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-25 · Codex — IN PROGRESS: user-authorised PUB-CODE/RTPUB-010–017, 019, 021, 033–034 gameplay improvements, especially missing WC door/privacy and separated kitchen; inspect remaining standards without claiming certification. Files src/world/pub-interior.js, pub-utilities.js, src/ui/pub-utilities-panel.js, focused tests and pub docs. Preserve concurrent electrical backbone work. Baseline main; implementation, release gate, desktop/emulated mobile and hosted verification pending.
+
+
 
 
 
