@@ -19,6 +19,10 @@ for(let k=0;k<MARRIED_COUPLES;k++){
  assert.equal(a.home.coordinate,b.home.coordinate);
  assert.equal(a.spouseId,b.id);assert.equal(b.spouseId,a.id);
  assert.equal(a.maritalStatus,'married');
+ assert.notEqual(a.gender,b.gender,'each historic male/female spouse pair has complementary gender');
+ assert.ok(b.name.includes(' '),'new spouses have unique full names');
+ assert.notEqual(a.name,b.name);
+ assert.equal(a.familyName,b.familyName);
  assert.ok(a.relationshipBackstory.includes('married in'));
  assert.strictEqual(a.larder,b.larder);
  assert.strictEqual(a.household,b.household);
