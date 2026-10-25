@@ -1,0 +1,57 @@
+name: Repository Town compact + menu mobile regression
+on:
+  push:
+    branches: [fix/town-compact-menu-grid-ai-20261025, main]
+    paths:
+      - repository-town/src/index.html
+      - repository-town/src/main.js
+      - repository-town/src/ui/companion.js
+      - repository-town/src/ui/hud-collapse.js
+      - repository-town/src/ui/hud-visibility.js
+      - repository-town/tests/electrical-pilot-browser.mjs
+      - .github/workflows/rtu-compact-menu.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  compact-menu:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install
+        working-directory: repository-town
+        run: npm ci --no-audit --no-fund
+      - name: Test standalone UX/AI wiring, electricity physics and build
+        working-directory: repository-town
+        run: |
+          node tests/hud-visibility.mjs
+          node tests/companion.mjs
+          node tests/electrical-pilot.mjs
+          npm run build
+          npm run check:privacy
+      - name: Install browser
+        working-directory: repository-town
+        run: npx playwright install --with-deps chromium
+      - name: Actual desktop and mobile browser playtest
+        shell: bash
+        working-directory: repository-town
+        run: |
+          set -euo pipefail
+          node tools/serve.mjs dist/public 8080 > /tmp/compact-menu.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          for i in $(seq 1 40); do curl -fsS http://127.0.0.1:8080/ >/dev/null && break || sleep 1; done
+          TOWN_URL=http://127.0.0.1:8080/ TOWN_SHOTS=audit/electricity/compact-menu node tests/electrical-pilot-browser.mjs
+      - name: Screenshots to inspect on real devices
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compact-town-menu-desktop-android
+          path: repository-town/audit/electricity/compact-menu/*.png
+          retention-days: 35
