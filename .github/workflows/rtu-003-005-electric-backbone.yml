@@ -1,0 +1,60 @@
+name: RTU-003-005 per-building electrical backbone
+on:
+  push:
+    branches: [feat/rtu-003-005-town-electric-backbone, main]
+    paths:
+      - repository-town/src/world/utility-network-schema.js
+      - repository-town/src/world/electrical-backbone.js
+      - repository-town/tools/generate-electrical-backbone.mjs
+      - repository-town/tests/electrical-backbone.mjs
+      - repository-town/audit/electricity/coverage.json
+      - .github/workflows/rtu-003-005-electric-backbone.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  design-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Generate all property service connections from audited scene geometry
+        run: node repository-town/tools/generate-electrical-backbone.mjs
+      - name: Validate all source paths, transforms, pub isolation and bad fixtures
+        working-directory: repository-town
+        run: node tests/electrical-backbone.mjs
+      - name: Check source-derived design snapshot is deterministic
+        run: node repository-town/tools/generate-electrical-backbone.mjs --check
+      - name: Install Repository Town's exact package dependencies
+        working-directory: repository-town
+        run: npm ci --no-audit --no-fund
+      - name: Legacy grid regression
+        working-directory: repository-town
+        run: node tests/power-grid.mjs
+      - name: Production bundle smoke-build
+        working-directory: repository-town
+        run: npm run build
+      - name: Archive design and evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: rtu-003-005-234-site-physical-grid
+          path: repository-town/audit/electricity/design-network-v1.json
+          retention-days: 90
+      - name: Commit generated physical network snapshot to work branch only
+        if: github.ref_name == 'feat/rtu-003-005-town-electric-backbone' && github.event_name == 'push'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add repository-town/audit/electricity/design-network-v1.json
+          if ! git diff --cached --quiet; then
+            git commit -m "data(RTU-003-005): publish tested source-derived 234-site connection snapshot"
+            git fetch origin feat/rtu-003-005-town-electric-backbone
+            git rebase origin/feat/rtu-003-005-town-electric-backbone
+            git push origin HEAD:feat/rtu-003-005-town-electric-backbone
+          fi
