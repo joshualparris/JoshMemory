@@ -2,6 +2,7 @@
 // This is an explicitly SYNTHETIC network, NOT surveyed NSW wiring, a power-flow
 // solver, or a replacement for the existing ten-edge game dispatch (RTU-006/007).
 // Positions are existing game coordinate metres; every edge includes a route.
+import { validateUtilityGraph } from './utility-network-schema.js';
 export const ELECTRIC_SCHEMA_VERSION = 1;
 export const ROAD_X = Object.freeze([-338, -208, -78, 52, 182, 312]);
 export const STREET_COUNT = 8;
@@ -93,7 +94,11 @@ export function buildTownElectricalBackbone(records) {
     assert(Array.isArray(route)&&route.length>=2&&route.every(validPoint),'unrouted link '+id);
     const item={id,from,to,type,voltageKv:kv,route:route.map(clonePoint),
       lengthGameMetres:ROUND(route.slice(1).reduce((s,p,i)=>s+distance(route[i],p),0)),
-      condition:'design_available',isolationState:'closed',assetType:type,...extra};
+      condition:'design_available',isolationState:'closed',assetType:type,
+      capacity:Number.isFinite(extra.ampacityA)?{value:extra.ampacityA,unit:'A'}:
+        Number.isFinite(extra.ratedKva)?{value:extra.ratedKva,unit:'kVA'}:
+        Number.isFinite(extra.ratedMva)?{value:extra.ratedMva,unit:'MVA'}:
+        {value:null,unit:'unrated'},...extra};
     edges.push(item);return item;
   };
   const base=point(INTAKE.x,INTAKE.z), root=point(INTAKE.x,roadZ(8));
@@ -249,6 +254,7 @@ export function buildTownElectricalBackbone(records) {
   }
   return {
     schemaVersion:ELECTRIC_SCHEMA_VERSION,
+    utility:'electricity',units:{coordinate:'game_m',voltage:'kV',power:'kVA',lineCapacity:'A'},
     tasks:['RTU-003','RTU-004','RTU-005'],
     status:'synthetic_routed_connection_design_not_live_dispatch',
     baselineSource:'audit/electricity/coverage.json (RTU-001)',geometryBasis:'existing game road and door coordinates',
@@ -273,6 +279,7 @@ export function buildTownElectricalBackbone(records) {
 }
 export function validateTownElectricNetwork(network, sourceRecords) {
   assert(network.schemaVersion===1,'schema version');
+  validateUtilityGraph(network);
   assert(Array.isArray(network.nodes)&&Array.isArray(network.edges)&&Array.isArray(network.services),'missing typed arrays');
   const nodes=new Map(),incoming=new Map(),edgeIds=new Set();
   const allowedTypes=new Set(['external_supply','zone_substation_66kv','zone_substation_22kv','mv_junction',
