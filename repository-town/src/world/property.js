@@ -33,7 +33,8 @@ function write(state,text,day) {
 export function initialiseProperties(life){
   const parcels={};
   for(const [i,h] of life.homes.entries()){
-    const occupant=life.villagers.find(v=>v.home.coordinate===h.coordinate);
+    const residents=life.villagers.filter(v=>v.home.coordinate===h.coordinate);
+    const occupant=residents[0]||null;
     const tenure=occupant?.household?.tenure;
     const value=2800+(i%9)*320+(i%11===0?1200:0);
     const title=tenure==='owned'||tenure==='mortgage'
@@ -42,6 +43,8 @@ export function initialiseProperties(life){
     parcels[propertyKey('house',h.coordinate)]={
       id:propertyKey('house',h.coordinate),name:houseAddress(h.coordinate)+' · '+h.name,kind:'house',
       address:houseAddress(h.coordinate),legacyAddress:h.coordinate,owner:title,tenant:occupant?.name||null,
+      occupants:residents.map(v=>v.name),
+      jointOwners:title.startsWith('resident:')&&residents.length>1?residents.map(v=>v.name):[],
       occupied:!!occupant,value,rent:8,
       // More vacant houses are genuinely listed as the larger workforce moves in.
       // All 188 legal titles, existing tenancies and ownership stay unchanged.
@@ -54,7 +57,7 @@ export function initialiseProperties(life){
     const occupant=p.kind==='home'?'Farm families':publicSites.has(p.id)?'Public service':p.name;
     parcels[propertyKey('business',p.id)]={
       id:propertyKey('business',p.id),name:placeAddress(p)+' · '+p.name,kind:p.kind==='farm'?'farm':p.kind==='home'?'residential':'commercial',
-      address:placeAddress(p),legacyAddress:(p.side==='south'?'South ':'')+p.col+'8',owner,tenant:occupant,occupied:true,
+      address:placeAddress(p),legacyAddress:p.side==='north'?placeAddress(p):(p.side==='south'?'South ':'')+p.col+'8',owner,tenant:occupant,occupied:true,
       value:businessPrices[p.id]||9500,rent:publicSites.has(p.id)?0:p.kind==='farm'?55:22,
       listed:false,protected:publicSites.has(p.id),condition:80,
     };
@@ -74,10 +77,31 @@ export function upgradePropertyAddresses(life) {
     const deed=deeds[propertyKey('house',h.coordinate)]; if(!deed)continue;
     deed.address=houseAddress(h.coordinate);deed.legacyAddress=h.coordinate;
     deed.name=deed.address+' · '+h.name;
+    // Old saves predate married households: add secondary occupants without
+    // changing the legal primary tenant or title owner.
+    const residents=life.villagers.filter(v=>v.home.coordinate===h.coordinate).map(v=>v.name);
+    if(!Array.isArray(deed.occupants))
+      deed.occupants=deed.tenant==='visitor'?['visitor']:deed.tenant?residents:[];
+    if(!Array.isArray(deed.jointOwners))
+      deed.jointOwners=typeof deed.owner==='string'&&deed.owner.startsWith('resident:')?residents:[];
   }
-  for(const p of life.places.values()) {
-    const deed=deeds[propertyKey('business',p.id)];if(!deed)continue;
-    deed.address=placeAddress(p);deed.legacyAddress=(p.side==='south'?'South ':'')+p.col+'8';
+  for(const p of life.places.values()){
+    const id=propertyKey('business',p.id);
+    let deed=deeds[id];
+    if(!deed && p.expansion){
+      // Existing v1 saves know only the original 46 premises. Add 2026
+      // infill property records without resetting savings, land titles or leases.
+      const isPublic=publicSites.has(p.id);
+      deed={id,name:'',kind:'commercial',address:'',legacyAddress:'',
+        owner:isPublic?'Town Council':'High Street Property Trust',
+        tenant:isPublic?'Public service':p.name,occupied:true,
+        occupants:[],jointOwners:[],value:9500,rent:isPublic?0:22,
+        listed:false,protected:isPublic,condition:80};
+      deeds[id]=deed;
+    }
+    if(!deed)continue;
+    deed.address=placeAddress(p);
+    deed.legacyAddress=p.side==='north'?deed.address:(p.side==='south'?'South ':'')+p.col+'8';
     deed.name=deed.address+' · '+p.name;
   }
 }
@@ -107,7 +131,7 @@ export function buyProperty(life,id){
   s.accounts['Property Office']=round(s.accounts['Property Office']+fee+PROPERTY_RULES.conveyancing);
   life.civic.treasury=round(life.civic.treasury+duty);
   s.liens[id]={balance:loan,rate:PROPERTY_RULES.mortgageDaily,term:PROPERTY_RULES.loanDays,paid:0,arrears:0};
-  p.owner='visitor';p.listed=false;
+  p.owner='visitor';p.jointOwners=[];p.listed=false;
   write(s,'Acquired '+p.name+' for $'+p.value+' with mortgage $'+loan+'; existing tenant '+(p.tenant||'none')+'.',life.day);
   life.log('Settlement completed for '+p.name+'. The title is registered to you.');
   return 'Settlement complete. You own '+p.name+'. Mortgage $'+loan+'. '+(p.tenant?'The tenant remains under their existing lease.':'The property is vacant.');
@@ -128,7 +152,7 @@ export function sellProperty(life,id){
   s.accounts[buyer]=round(s.accounts[buyer]-price);
   s.accounts['Property Office']=round(s.accounts['Property Office']+fee);
   s.reserve=round(s.reserve+debt);delete s.liens[id];
-  pay(me,proceeds);p.owner=buyer;p.listed=false;
+  pay(me,proceeds);p.owner=buyer;p.jointOwners=[];p.listed=false;
   if(s.playerLease===id)s.playerLease=null;
   write(s,'Sold '+p.name+' for $'+price+'; selling fee $'+fee+', loan discharged $'+debt+'.',life.day);
   return 'Sale settled: $'+price+' sale, $'+fee+' commission, $'+debt+' mortgage discharged; $'+proceeds+' to your savings.';
@@ -139,14 +163,14 @@ export function leaseProperty(life,id){
   // Four seven-day in-game weeks: escrow is held, not paid to the landlord.
   const bond=p.rent*28;
   if(!spend(me,bond))return 'You need $'+bond+' for the refundable rental bond.';
-  p.tenant='visitor';p.occupied=true;s.playerLease=id;s.bond=bond;
+  p.tenant='visitor';p.occupants=['visitor'];p.occupied=true;s.playerLease=id;s.bond=bond;
   write(s,'Leased '+p.name+' to visitor; $'+bond+' bond held.',life.day);
   return 'Lease signed for '+p.name+'. Rent $'+p.rent+'/day, bond $'+bond+' held. You can inspect the property in town.';
 }
 export function endLease(life){
   const s=registry(life);if(!s.playerLease)return 'You have no recorded tenancy.';
   const p=s.parcels[s.playerLease];if(!p)return 'Missing tenancy record.';
-  p.tenant=null;p.occupied=false;const refund=s.bond||0;pay(life.civic.player,refund);
+  p.tenant=null;p.occupants=[];p.occupied=false;const refund=s.bond||0;pay(life.civic.player,refund);
   write(s,'Lease ended at '+p.name+'; bond '+refund+' returned.',life.day);
   s.playerLease=null;s.bond=0;
   return 'Lease ended. $'+refund+' bond refunded. You return to rented temporary accommodation.';

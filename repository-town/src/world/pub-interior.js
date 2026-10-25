@@ -1,4 +1,5 @@
 import {PUB_PHYSICAL_PLAN_2026,pubExitLayout} from './pub-physical-plan-2026.js';
+import {PUB_ENVELOPE,pubFacadeCoordinate} from './pub-envelope.js';
 import {pubHistoryDescription} from './pub-history.js';
 import { pubUtilities, pubStatus } from './pub-utilities.js';
 import { createKit, ROOM } from './interior-kit.js';
@@ -201,6 +202,17 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
   interior.physicalPlan=PUB_PHYSICAL_PLAN_2026;
   interior.fireEgressDesign=pubExitLayout();
   interior.rearExitZone={x0:-1.05,x1:1.05,z0:BACK-.8,z1:BACK+1.15,dischargeVerified:false};
+  // This room is a ground-level teleport scene, not a separately approved upstairs.
+  const envelope=PUB_ENVELOPE;
+  if(interior.bounds.x1-interior.bounds.x0!==envelope.widthM||
+     interior.bounds.z1-interior.bounds.z0!==envelope.depthM||
+     pubFacadeCoordinate(interior.bounds.z0)!==envelope.facade.rearZ||
+     pubFacadeCoordinate(interior.bounds.z1)!==envelope.facade.frontZ)
+    throw new Error('Pub interior dimensions disagree with the external building');
+  interior.buildingEnvelope=envelope;
+  interior.storey=0;
+  interior.storeyCount=envelope.modelledStoreys;
+
   interior.rooms.push({name:'Kitchen',x0:-6.9,x1:-3.96,z0:-11.9,z1:-6.96,w:2.94,d:4.94,parent:0});
   interior.rooms.push({name:'Sanitary compartment',x0:3.86,x1:6.9,z0:-11.9,z1:-8.16,w:3.04,d:3.74,parent:0});
   for(const item of interior.interactables){

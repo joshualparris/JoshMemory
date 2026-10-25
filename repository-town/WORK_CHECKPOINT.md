@@ -1,6 +1,12 @@
+# Pub completion resume — 25 October 2026
+Owner Codex; resume/pub-code-completion; remote PR #208 f6e41d9, latest main e9fc9e4. Reconciled conflicts retaining main pub-envelope and heritage/NPC fixes and P0 access/egress changes. No completion claims. Next: functional rear discharge, continuous access geometry, utility graph/service and safety operations; validate focused/full suites and publish exact tested build.
+
 # PUB-CODE top-five P0 physical redesign — 25 October 2026
 
 Owner ChatGPT; branch feat/pub-code-physical-top-five-20261025; main baseline e3824be. User authorised large structural pub remodel and tests. New design-stage changes: 14 × 18 m one-storey pub shell, revised signage, rear wall opening/door/aisle, 24+3 occupancy management scenario, sanitary fixtures/accessible circulation and extra rear emergency lighting. Preserve pre-existing electrical pilot and utilities. Permanent task IDs PUB-CODE/RTPUB-002/003/004/009/010 remain OPEN pending actual regulatory checks. Source and route tests, full CI and hosted exact SHA required. Real external rear discharge, legal approved capacity, AS1428 access, actual building/fire/food licences and all original permits remain UNVERIFIED.
+# PUB-CODE/RTPUB-002 and RTPUB-024 design milestone — 25 October 2026
+
+Focused branch `feat/rtpub-002-024-single-storey-envelope-20261025` changes only building envelope/stores, accompanying tests/docs and audit source fingerprints. Source module `src/world/pub-envelope.js` defines 14×18 m, 1 storey and +1 m interior→facade translation. `townlife.js` front/side windows, opaque walls, door and roof now agree with `pub-interior.js` envelope contract. Explicit construction-year UNKNOWN. Required full tests: Node source/mesh tests, existing sanitary/utility tests, pub audit, town safety, Android-sized game playtest, published SHA and actual hosted smoke; certification remains OPEN. Concurrent `feat/pub-code-physical-top-five-20261025` PR #208 contains overlapping site work — integrate via source-specific review, never overwrite its distinct tasks.
 
 # Pub rescue integration — 25 October 2026
 

@@ -5,22 +5,20 @@
   "gameAddress": "N8-S",
   "name": "The Merged Branch",
   "repository": "joshualparris/JoshMemory",
-  "basis": "Provisional pub structural P0 layout phase with cohabiting 171-worker town saved-state schema and 188 lot inventory; no legal certification.",
+  "basis": "RTPUB-002/024 exterior/interior geometry and modelled storey reconciled; site survey, approvals, fire separation, structure, access/egress remain unverified. This is not an NCC certificate.",
   "nccAsAtDate": "NCC 2022 Amendment 2 (NSW, effective 2025-07-29); NSW NCC 2025 planned commencement 2027-05-01",
   "provisionalBuildingClassification": "NCC NSW Class 6 hospitality bar/dining; confirm ancillary/mixed classification and actual approvals",
   "sourceBlobs": {
     "repository-town/audit/electricity/coverage.json": "f80df771b893799e27b3adc98b92fe335c13f28b",
-    "repository-town/src/world/interior-kit.js": "11d8811894b461040693efe5b63790cacd7811d7",
+    "repository-town/src/world/interior-kit.js": "db71ca2ed36aef856a774459f46e1ecd601f1e82",
     "repository-town/src/world/life.js": "08d00bb82718c0478d96229be7bb86ad0f45d781",
     "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2",
-    "repository-town/src/world/pub-interior.js": "f8f5109d8c791bdf6ca14a00c7d5068ce88fec46",
+    "repository-town/src/world/pub-interior.js": "838c624ba834fd69252fdfde3913bc8d12df0f45",
     "repository-town/src/world/shop-interior.js": "e2282db1927b79dd5e8a89a970a03e90b676dcf0",
-    "repository-town/src/world/townlife.js": "30e1fd29aa874dd6e6ddf294d67ce5be719c5912",
+    "repository-town/src/world/townlife.js": "efb7a874030e7dae5e2fdb0889854a799dd7e56d",
     "repository-town/tests/shop-interiors.mjs": "1a1e696c1c92ac4dc7566a8ff78c4c3cf41ea257",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
-    "repository-town/src/world/pub-physical-plan-2026.js": "2f9f8f8722db20cee333ddaba901c3975ce6543c",
-    "repository-town/src/world/pub-utilities.js": "5684b6133f1b6c3314c4274fa3f53a76efcad4cd",
-    "repository-town/src/ui/pub-utilities-panel.js": "b2289044fd42a20b7475d2039064fd70b4b34135"
+    "repository-town/src/world/pub-envelope.js": "197f51a7cdc4e34cbd0608b2443d402b6237af52"
   },
   "sources": {
     "S01": {
@@ -146,7 +144,7 @@
       "title": "Exterior-to-interior dimensions and storeys",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "Design-stage candidate facade now 14 x 18 m single storey matching walkable interior; parcel/back-lot physical width/depth, setbacks, structure and external egress still UNVERIFIED.",
+      "sourceObservation": "Authored game shell now 14 × 18 m single storey with front at local +7 and rear -11, matching interior front +6/rear -12 after +1 m z transform; actual cadastral, fire envelope, roof and external boundaries require independent assessment.",
       "requiredEvidenceOrWork": "Reconcile game coordinate transforms, rear walls, accessible upper floor or remove upper floor cues, roof/building height and consistent fire envelope",
       "regulationRefs": [
         "S01",
@@ -159,8 +157,8 @@
       "id": "RTPUB-003",
       "title": "Occupant capacity and seating/loads",
       "priority": "P0",
-      "status": "partially-represented",
-      "sourceObservation": "24 patron + 3 staff provisional manual admission scenario (not linked to actual NPCs); legal maximum, seats, sanitary fixtures and evacuation capacity unverified.",
+      "status": "unverified",
+      "sourceObservation": "three four-seat bistro tables, six bar stools and sofa/chairs; no occupancy certificate, staff/dynamic-crowd capacity",
       "requiredEvidenceOrWork": "Determine patron/staff occupancy and floor area, occupancy-based amenities and egress; set enforceable in-game maximum if game-realistic",
       "regulationRefs": [
         "S02",
@@ -173,8 +171,8 @@
       "id": "RTPUB-004",
       "title": "Egress route, door swing and exit count",
       "priority": "P0",
-      "status": "partially-represented",
-      "sourceObservation": "Pub-only rear 2.1 m wall opening, rear door and sign modelled; physical discharge beyond premises and exits/travel measurements not validated. Front game exit remains the only world transition.",
+      "status": "not-modelled",
+      "sourceObservation": "interior-kit has a front exitZone width 2.1 m and doors:[]; no rear fire exit; pub has central aisle furniture collision",
       "requiredEvidenceOrWork": "Compute path travel distance, exits number and distribution, swing, unobstructed clear widths, latch/hardware and final exit discharge for actual classification/occupancy, then implement accepted game geometry",
       "regulationRefs": [
         "S01",
@@ -188,7 +186,7 @@
       "title": "Emergency lighting and exit signs",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "Front and rear EXIT representations with separately switched finite emergency lights; no lux, locations, duration acceptance, sign standard or fire schedule verification.",
+      "sourceObservation": "Front EXIT representation and finite independent 90-minute emergency-light scenario added; required distribution/lux and escape-route design unverified.",
       "requiredEvidenceOrWork": "Add correctly located sign/lighting representations where NCC design requires; controlled blackout test, schedule/service references",
       "regulationRefs": [
         "S02",
@@ -242,8 +240,8 @@
       "id": "RTPUB-009",
       "title": "Accessible arrival, entrance and circulation",
       "priority": "P0",
-      "status": "partially-represented",
-      "sourceObservation": "Internal corridor kept open and provisional accessible WC approach test added; step-free footpath, gradient, threshold, turning circles and hardware still unverified.",
+      "status": "unverified",
+      "sourceObservation": "the kit provides a centre door gap and walkable spawn; threshold ramp, step-free path from footpath, turn space, AS 1428.1 clearances and tactile signs not assessed",
       "requiredEvidenceOrWork": "Measure full continuous accessible route and entrance; handle turn/counter reach, tables, pinch points and door hardware; obtain accessibility review",
       "regulationRefs": [
         "S01",
@@ -257,7 +255,7 @@
       "title": "Accessible WC and ambulant fixtures",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "Single wider provisional sanitary compartment has relocated pan/basin and grab rail; exact AS 1428.1 transfer envelope, door and amenity numbers still unverified.",
+      "sourceObservation": "Enclosed WC with animated 1.4 m privacy leaf and internal sight screen; accessible/ambulant fittings, circulation, fixture counts and independent review still open.",
       "requiredEvidenceOrWork": "Provide appropriate accessible/ambulant sanitary facilities after F4/D4 assessment with exact plans, circulation and fittings, no generic decorative toilet proof",
       "regulationRefs": [
         "S01",
@@ -454,8 +452,8 @@
       "id": "RTPUB-024",
       "title": "Fire compartmentation and upper-floor access",
       "priority": "P0",
-      "status": "unverified",
-      "sourceObservation": "external upper glazing implies further level but interior has no first floor, stairs, lift, fire-separation/cool-room compliance analysis",
+      "status": "partially-represented",
+      "sourceObservation": "Only ground-floor pub space exists; upper glazed row and false second level removed, non-habitable hipped roof and one storey explicit; no real fire-compartmentation, cool-room fire separation or adjoining-wall certification.",
       "requiredEvidenceOrWork": "Establish actual number of usable floors; if a real upper storey exists design stairs/access and consider fire compartmentation and egress, or treat façade as explicitly decorative",
       "regulationRefs": [
         "S02"
@@ -611,10 +609,10 @@
   ],
   "summary": {
     "total": 34,
-    "notModelled": 4,
+    "notModelled": 5,
     "geometryConflict": 0,
-    "unverified": 8,
-    "partiallyRepresented": 22,
+    "unverified": 9,
+    "partiallyRepresented": 20,
     "verifiedCodeCompliant": 0,
     "researchItemsComplete": 1,
     "remainingResearchOrImplementation": 33
@@ -661,5 +659,9 @@
     "originalCodeEdition": null,
     "formalHeritageListing": null,
     "sourceModule": "repository-town/src/world/pub-history.js"
-  }
+  },
+  "notes": [
+    "2026 north-frontage infill adds 72 new modelled sites elsewhere in town. Pub geometry and code checklist remain unverified beyond the existing 34-item audit; source hashes refreshed solely for regression tracking, not legal certification.",
+    "2026-10-25 family and 72-site expansion changed shared life.js. Pub NCC classification and safety remain unverified; source hash sync is regression provenance, not certification."
+  ]
 }
