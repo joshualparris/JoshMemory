@@ -16,6 +16,9 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-25 · ChatGPT — **RTU-001 IN PROGRESS: read-only electrical coverage audit.** Baseline main `19a13fe`. Scope: new `tools/audit-electricity.mjs`, `audit/electricity/`, `docs/RTU_001_ELECTRICAL_AUDIT.md`, README link and scoped checkpoint/coordination updates; no runtime/claimed NPC files modified. Enumerate 188 house lots and all PLACE_DEFS, trace demand/supply/circuits, execute faults/save probes and existing tests. Public outputs use coordinates/service IDs only, no private repository metadata. Results also go to NSWutilities. Next: generate and validate coverage evidence.
+
+
 
 
 
