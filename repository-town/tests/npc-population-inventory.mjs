@@ -31,9 +31,9 @@ assert.equal(NPCS.length, 32);
 // workers. New town services grew the *live* roster to 188 on 25 October;
 // do not mislabel the historical list as the present live population.
 assert.equal(ROSTER_SIZE, 188, 'all 188 existing project homes can house a live worker');
-assert.equal(VILLAGER_NAMES.length, snapshot.counts.simulatedWorkers,
-  'original 99 first names and IDs must remain stable for saved games');
-assert.equal(new Set(VILLAGER_NAMES).size, 99);
+assert.equal(VILLAGER_NAMES.length, ROSTER_SIZE,
+  'current names cover the full 188-worker roster, with historical 99 checked below');
+assert.equal(new Set(VILLAGER_NAMES).size, ROSTER_SIZE);
 
 const named = NPCS.map(actor => ({
   key: 'named:' + actor.id,
