@@ -1,3 +1,4 @@
+import { EXPANSION_SITES } from './town-expansion.js';
 import { tickPubUtilities, pubKitchenReady, pubAction, validPubUtilities } from './pub-utilities.js';
 import { tickElectricalPilot, validElectricalPilotState } from './electrical-pilot.js';
 import {workAssetFault} from './occupation-work.js';
@@ -150,6 +151,7 @@ export const PLACE_DEFS = [
   { col: 'A', side: 'south', id: 'securityoffice', name: 'High Street Security Office', kind: 'service', opens: 8*60, closes: 20*60 },
   { col: 'D', side: 'south', id: 'securityhq', name: 'Central West Security Headquarters', kind: 'service', opens: 7*60, closes: 22*60 },
   { col: 'Z', side: 'south', id: 'locksmith', name: 'Macquarie Locksmith & Keys', kind: 'service', opens: 8*60, closes: 18*60 },
+  ...EXPANSION_SITES,
 ];
 
 const JOBS = [
@@ -235,6 +237,12 @@ JOBS.push(
   ['qualified locksmith','locksmith',8*60,18*60],
   ['locksmith apprentice','locksmith',9*60,17*60],
 );
+// New 2026 services join AFTER all pre-existing roster IDs so existing save identities remain stable.
+// These are real on-duty resident workers, not permanent 'ghost' shop attendants.
+// Each added site has one rostered staff member; detailed relief/rotation is individual-building work.
+JOBS.push(...EXPANSION_SITES.map(site=>[site.staffRole,site.id,
+  Math.max(6*60,site.opens||8*60),
+  Math.min(22*60,site.closes||17*60)]));
 export const ROSTER_SIZE = JOBS.length;
 // Villager names; src/ui/social.js keeps their friendships and grudges.
 export const VILLAGER_NAMES = ['Mabel', 'Arlo', 'Bea', 'Cas', 'Dot', 'Ezra', 'Flo', 'Gus', 'Hattie', 'Ivo', 'June', 'Kip', 'Lou', 'Merv', 'Nora', 'Ollie',
@@ -412,9 +420,16 @@ export class TownLife {
     this.places = new Map();
     for (const d of PLACE_DEFS) {
       const col = d.col.charCodeAt(0) - 65;
-      const x = lotX(col), south = d.side === 'south';
+      const x = lotX(col), south = d.side === 'south', north = d.side === 'north';
+      // North-facing expansions use the already-built road immediately before their plot row.
+      // Row 7-N fronts road 6; its 10 m-deep facade ends before the existing 7-S houses.
+      const existingRoad = north ? ROAD(d.row-2) : ROAD(7);
+      const originZ = north ? existingRoad + 14 : south ? FIELD_Z0 + 7 : LOT8_Z;
       this.places.set(d.id, {
-        ...d, address: placeAddress(d), target: d.target ? {...d.target} : undefined, x, door: { x, z: south ? FIELD_Z0 - 0.5 : LOT8_Z + 7.5 }, front: { x, z: south ? FIELD_Z0 - 2.2 : LOT8_Z + 9.3 }, curb: { x, z: south ? ROAD(7) + 1.7 : ROAD(7) - 1.7 },
+        ...d, address: placeAddress(d), target: d.target ? {...d.target} : undefined,
+        x, originZ, door: { x, z: north ? existingRoad + 7.3 : south ? FIELD_Z0 - 0.5 : LOT8_Z + 7.5 },
+        front: { x, z: north ? existingRoad + 5.4 : south ? FIELD_Z0 - 2.2 : LOT8_Z + 9.3 },
+        curb: { x, z: north ? existingRoad + 1.7 : south ? ROAD(7) + 1.7 : ROAD(7) - 1.7 },
         stock: Object.fromEntries(Object.keys(d.target || {}).map((k) => [k, Math.round(d.target[k] * 0.6)])), till: 0, out: {},
       });
     }

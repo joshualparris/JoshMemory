@@ -17,7 +17,7 @@ const SUPERVISED = new Set([
   'depot','mill','foundry','soyplant','soyfarm','school','clinic',
   'court','solicitor','recycling'
 ]);
-const PERMANENT_HOSTS = new Set(['farmhouse','square']); // named residents/market guides
+const PERMANENT_HOSTS = new Set(['farmhouse','square','publicamenities','skatepark','communitygarden','busstop']); // named residents/market guides
 const CLOCK = (m) => `${String(Math.floor(m / 60)).padStart(2,'0')}:${String(m % 60).padStart(2,'0')}`;
 export function visitorHours(place) {
   return RECEPTION_HOURS[place.id] || [place.opens, place.closes];
