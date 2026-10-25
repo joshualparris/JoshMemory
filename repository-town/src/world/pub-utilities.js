@@ -31,7 +31,8 @@ export function tickPubUtilities(life,minutes) {
     const heater=p.power&&s.hotC<60?d.heaterKW:0;
     s.roofRunoffL=(s.roofRunoffL||0)+Math.max(0,Number(s.rainMmHour)||0)*252*.9*h;
     s.hotC=Math.max(18,Math.min(60,s.hotC+heater*h/(d.hotTankL*.001163)-(s.hotC-18)*dt/1440));
-    s.coldC= p.power ? Math.max(3,s.coldC-dt*.15) : 24-(24-s.coldC)*Math.exp(-dt/180);
+    // Battery-backed essentials can run the cold room for their limited rated autonomy.
+    s.coldC= (p.power||p.backup) ? Math.max(3,s.coldC-dt*.15) : 24-(24-s.coldC)*Math.exp(-dt/180);
     if(p.power){s.electricityKWh+=(1.2+.3+d.networkKW+heater)*h;s.upsKWh=Math.min(d.upsKWh,s.upsKWh+.06*h);}
     else s.upsKWh=Math.max(0,s.upsKWh-d.networkKW*h);
   }
