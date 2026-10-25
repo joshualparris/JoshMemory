@@ -1,12 +1,12 @@
 # RTPUB-001–034 — Pub building-code realism implementation queue
 
-**As of 25 October 2026.** Existing task IDs in JoshMemory/Repository Town, RTU, RTSW, NSW-WAT, RTSM and all other prefixes are unchanged. This is a NEW child stream for **B:pub / N8-S**, the fictional **The Merged Branch**. Tasks are **all open**; neither research documentation nor a pretty scene implies legal compliance. **Do not self-certify** a simulated pub or claim a real-world building permit.
+**Updated 25 October 2026.** Existing IDs are unchanged. **RTPUB-001 assessment: COMPLETE (research only)**. **RTPUB-002–034 remain OPEN.** Task IDs are qualified as **PUB-CODE/RTPUB-nnn** to distinguish the earlier utilities pilot's *independent* **PUB-UTIL/RTPUB-001–008**. Both legacy strings are retained; no existing tasks have been renumbered. Research does not imply building-code compliance, development approval or a real-world building permit.
 
-**Start:** RTPUB-001 (classification and approved design assumptions), RTPUB-002 (exterior/interior dimensional reconciliation), RTPUB-003 (occupant capacity), then prioritise accessible sanitary facilities, separate kitchen, egress and fire. Before editing scene files check [COORDINATION](../COORDINATION.md) for concurrent work. This roadmap documents gaps; the user requested an audit, **not a remodel in this commit**.
+**Next:** RTPUB-002 (exterior/interior dimensional reconciliation), RTPUB-003 (occupant capacity); [RTPUB-001 classification & approval evidence](PUB_RTPUB_001_CLASSIFICATION_2026.md) is complete **only as an assessment**, then prioritise accessible sanitary facilities, separate kitchen, egress and fire. Before editing scene files check [COORDINATION](../COORDINATION.md) for concurrent work. This roadmap documents gaps; the user requested an audit, **not a remodel in this commit**.
 
 | ID | Priority | Status | Task / necessary evidence | Existing source evidence |
 |---|---|---|---|---|
-| **RTPUB-001** | P0 | Open — unverified | Assess NSW Class 6 pub/bar and any mixed Class 9b/3 or other uses, approvals and which NCC edition applies to each construction stage; never claim retrospective universal obligation | site is named pub, has bar and dining; no classified floor plan, approved use, DA/CC/OC or prior approval date in audited scene |
+| **RTPUB-001** | P0 | **COMPLETE — classification research; building compliance still unverified** | NSW Class 6 under NSW A6G7 is the documented fictional bar/bistro working assumption; October 2026 NSW NCC 2022 Amendment 2; no real DA/CC/OC, original construction age unknown; [full evidence](PUB_RTPUB_001_CLASSIFICATION_2026.md) | The game now has a utilities pilot kitchen/WC, but no approved plan, upper-floor classification or real approval |
 | **RTPUB-002** | P0 | Open — geometry-conflict | Reconcile game coordinate transforms, rear walls, accessible upper floor or remove upper floor cues, roof/building height and consistent fire envelope | townlife.js pub facade 14 m wide × 11 m deep × ~7 m high with two glazing bands, vs interior-kit 14 m × 18 m single walkable room/4.7 m ceiling |
 | **RTPUB-003** | P0 | Open — unverified | Determine patron/staff occupancy and floor area, occupancy-based amenities and egress; set enforceable in-game maximum if game-realistic | three four-seat bistro tables, six bar stools and sofa/chairs; no occupancy certificate, staff/dynamic-crowd capacity |
 | **RTPUB-004** | P0 | Open — not-modelled | Compute path travel distance, exits number and distribution, swing, unobstructed clear widths, latch/hardware and final exit discharge for actual classification/occupancy, then implement accepted game geometry | interior-kit has a front exitZone width 2.1 m and doors:[]; no rear fire exit; pub has central aisle furniture collision |
@@ -59,3 +59,12 @@
 - Existing pub gameplay/economy and other agents' work must not be rewritten without COORDINATION.
 
 **Reports:** [full audit](PUB_NCC_2026_COMPLIANCE_AUDIT.md) · [machine-readable source observations](../audit/pub/2026-10-25-code-matrix.json). Do not check off tasks solely because a specification or source URL has been added.
+
+## ID collision and completion discipline (25 October 2026)
+
+An earlier independent [pub utilities pilot](PUB_UTILITIES_PILOT.md) had **RTPUB-001–008** before this building-standards audit used RTPUB-001–034. To avoid silently changing completed old tasks, **preserve both legacy IDs and always add their namespace** in agent requests and status exports:
+
+- `PUB-CODE/RTPUB-001` — the **NCC/approval classification assessment** completed here; all code compliance/permits remain unverified.
+- `PUB-UTIL/RTPUB-001` — the **prior 16-utility-boundary pilot audit**, already documented completed in its own pilot report.
+
+The namespace is part of the globally unique key. `RTPUB-002` alone can refer to two different tasks, so agents must specify `PUB-CODE` or `PUB-UTIL`. **Do not reassign either task number**. The machine-readable matrix records qualified IDs. Subsequent building-code work begins `PUB-CODE/RTPUB-002`.

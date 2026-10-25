@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "asOf": "2026-10-25",
   "locationId": "B:pub",
   "gameAddress": "N8-S",
@@ -9,14 +9,14 @@
   "nccAsAtDate": "NCC 2022 Amendment 2 (NSW, effective 2025-07-29); NSW NCC 2025 planned commencement 2027-05-01",
   "provisionalBuildingClassification": "NCC NSW Class 6 hospitality bar/dining; confirm ancillary/mixed classification and actual approvals",
   "sourceBlobs": {
-    "repository-town/src/world/pub-interior.js": "e838fd930069af152fd540917345559fcd9df272",
-    "repository-town/src/world/interior-kit.js": "db71ca2ed36aef856a774459f46e1ecd601f1e82",
-    "repository-town/src/world/townlife.js": "f3c23f39cef51a89f3e474c0ea3dbf8098ba7c2b",
-    "repository-town/src/world/life.js": "5bb9b66107a114ea06e8e68df20fad1d0e740a32",
-    "repository-town/src/world/shop-interior.js": "16dda8a921427cc02e4433d50bf3c73d361b9470",
-    "repository-town/tests/shop-interiors.mjs": "15f25f43d8c6be959cc0d83e546fd1a7e6ac28df",
     "repository-town/audit/electricity/coverage.json": "f80df771b893799e27b3adc98b92fe335c13f28b",
-    "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2"
+    "repository-town/src/world/interior-kit.js": "db71ca2ed36aef856a774459f46e1ecd601f1e82",
+    "repository-town/src/world/life.js": "3980a03242e5da0b4164ea1836183b30d971242a",
+    "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2",
+    "repository-town/src/world/pub-interior.js": "fd9ee1784ab2e9bbd0a07693331ca85edc10cff5",
+    "repository-town/src/world/shop-interior.js": "16dda8a921427cc02e4433d50bf3c73d361b9470",
+    "repository-town/src/world/townlife.js": "f3c23f39cef51a89f3e474c0ea3dbf8098ba7c2b",
+    "repository-town/tests/shop-interiors.mjs": "15f25f43d8c6be959cc0d83e546fd1a7e6ac28df"
   },
   "sources": {
     "S01": {
@@ -93,6 +93,26 @@
       "authority": "NSW Government",
       "title": "NCC 2025 adoption in NSW deferred to May 2027",
       "url": "https://www.nsw.gov.au/ministerial-releases/nsw-to-adopt-new-national-construction-code-may-2027"
+    },
+    "S16": {
+      "authority": "NSW Planning",
+      "title": "Change-of-use conditions",
+      "url": "https://planning.nsw.gov.au/the-planning-system/development-assessment/planning-approval-pathways/development-types/change-use"
+    },
+    "S17": {
+      "authority": "ABCB",
+      "title": "NCC 2022 Consolidated Requirements (NSW Schedule 5 NSW A6G7)",
+      "url": "https://ncc.abcb.gov.au/sites/default/files/resources/2025/ncc2022-consolidated-performance-requirements.pdf"
+    },
+    "S18": {
+      "authority": "NSW Government",
+      "title": "Approvals (DA/CDC/CC/OC)",
+      "url": "https://www.nsw.gov.au/housing-and-construction/building-or-renovating-a-home/preparing/approvals"
+    },
+    "S19": {
+      "authority": "NSW Building Commission",
+      "title": "Certifier FAQ updated 22 Oct 2026 (existing work)",
+      "url": "https://www.nsw.gov.au/housing-and-construction/compliance-and-regulation/building-certifiers/practice-advice/frequently-asked-questions"
     }
   },
   "checks": [
@@ -101,14 +121,21 @@
       "title": "Classification, use, approval and building age",
       "priority": "P0",
       "status": "unverified",
-      "sourceObservation": "site is named pub, has bar and dining; no classified floor plan, approved use, DA/CC/OC or prior approval date in audited scene",
+      "sourceObservation": "Class 6 bar/bistro assessed for October 2026 NSW NCC 2022 Amendment 2 (NSW A6G7); original construction date/actual DA, CC, OC, fire schedule, liquor approval unknown or not issued because B:pub is fictional; upper storey unresolved.",
       "requiredEvidenceOrWork": "Assess NSW Class 6 pub/bar and any mixed Class 9b/3 or other uses, approvals and which NCC edition applies to each construction stage; never claim retrospective universal obligation",
       "regulationRefs": [
         "S01",
         "S02",
-        "S08"
+        "S08",
+        "S16",
+        "S17",
+        "S18",
+        "S19"
       ],
-      "done": false
+      "done": true,
+      "qualifiedId": "PUB-CODE/RTPUB-001",
+      "completionType": "research-classification-and-approvals-pathway",
+      "completedEvidence": "repository-town/docs/PUB_RTPUB_001_CLASSIFICATION_2026.md"
     },
     {
       "id": "RTPUB-002",
@@ -121,7 +148,8 @@
         "S01",
         "S02"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-002"
     },
     {
       "id": "RTPUB-003",
@@ -134,7 +162,8 @@
         "S02",
         "S07"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-003"
     },
     {
       "id": "RTPUB-004",
@@ -147,7 +176,8 @@
         "S01",
         "S02"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-004"
     },
     {
       "id": "RTPUB-005",
@@ -160,7 +190,8 @@
         "S02",
         "S03"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-005"
     },
     {
       "id": "RTPUB-006",
@@ -173,7 +204,8 @@
         "S02",
         "S03"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-006"
     },
     {
       "id": "RTPUB-007",
@@ -186,7 +218,8 @@
         "S02",
         "S03"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-007"
     },
     {
       "id": "RTPUB-008",
@@ -198,7 +231,8 @@
       "regulationRefs": [
         "S03"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-008"
     },
     {
       "id": "RTPUB-009",
@@ -211,125 +245,135 @@
         "S01",
         "S02"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-009"
     },
     {
       "id": "RTPUB-010",
       "title": "Accessible WC and ambulant fixtures",
       "priority": "P0",
-      "status": "not-modelled",
-      "sourceObservation": "pub-interior.js creates one room and no WC, washbasin or accessible stall",
+      "status": "partially-represented",
+      "sourceObservation": "A fictional WC, cistern and wash basin are now drawn in the rear-right compartment via pub-utilities pilot; no audited compliant accessible/ambulant layout, fixture clearances or transfer zones",
       "requiredEvidenceOrWork": "Provide appropriate accessible/ambulant sanitary facilities after F4/D4 assessment with exact plans, circulation and fittings, no generic decorative toilet proof",
       "regulationRefs": [
         "S01",
         "S02"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-010"
     },
     {
       "id": "RTPUB-011",
       "title": "Public and staff sanitary fixture provision",
       "priority": "P0",
-      "status": "not-modelled",
-      "sourceObservation": "no pub toilet cubicles, basins, urinals or separated patron/staff amenities in source",
+      "status": "partially-represented",
+      "sourceObservation": "A rear-right single WC/basin is now modelled, but occupancy-driven count, ambulant facilities, separate patron/staff spaces, and plumbing/accessibility certification remain unknown",
       "requiredEvidenceOrWork": "Calculate fixtures against occupancy, use and mixed zones under NCC F4; model hygiene/privacy/availability and accessible provision",
       "regulationRefs": [
         "S01",
         "S02"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-011"
     },
     {
       "id": "RTPUB-012",
       "title": "Hot/cold water, waste drainage and backflow",
       "priority": "P0",
-      "status": "not-modelled",
-      "sourceObservation": "no visible pub meter, handwash outlet, water heater, grease-waste pipe, traps, sewer lateral or backflow asset; town water is still aggregate",
+      "status": "partially-represented",
+      "sourceObservation": "Pub utilities pilot now has a water valve, finite 160 L hot tank, 6 L cistern, separate sanitary/trade-waste counters and simulated flushing; lacks physical town meter, backflow selection, real pipes, grades and approvals",
       "requiredEvidenceOrWork": "Specify separate potable and trade-waste/drain fixtures, showers only if justified, backflow and hot-water service; connect actual water/sewer game system with conservation",
       "regulationRefs": [
         "S10",
         "S09"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-012"
     },
     {
       "id": "RTPUB-013",
       "title": "Actual enclosed commercial kitchen",
       "priority": "P0",
-      "status": "not-modelled",
-      "sourceObservation": "menu interaction claims meals prepared with a kitchen, but pub scene has no cooking room, ovens, cooking benches or doors to kitchen; menu-only",
+      "status": "partially-represented",
+      "sourceObservation": "Pub utility pilot added cooker/bench, hand-basin prop, ventilation hood, kitchen interaction and meal dependency; kitchen is NOT a self-contained assessed room or fully verified commercial food premises",
       "requiredEvidenceOrWork": "Build a working kitchen of credible scale and hygiene separation; model equipment work zones and path from food receiving through safe service",
       "regulationRefs": [
         "S04",
         "S06"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-013"
     },
     {
       "id": "RTPUB-014",
       "title": "Food preparation, warewashing and separation",
       "priority": "P0",
-      "status": "not-modelled",
-      "sourceObservation": "no dedicated produce washing/food prep sinks, dishwashing/sanitising line, clean/dirty separation or documented temperature-safe benching",
+      "status": "partially-represented",
+      "sourceObservation": "Pilot adds a kitchen work surface, sink, hand basin and modelled glasswash transaction; real clean/dirty zoning, adequate equipment count, sanitising and layout not verified",
       "requiredEvidenceOrWork": "Represent adequate prep, dedicated dishwashing/sanitising, hot potable supply, cleaners' sink and suitable impervious, washable materials; classify operations to choose required equipment",
       "regulationRefs": [
         "S04",
         "S05"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-014"
     },
     {
       "id": "RTPUB-015",
       "title": "Dedicated food handler wash stations",
       "priority": "P0",
-      "status": "not-modelled",
-      "sourceObservation": "no kitchen/bar handwashing sink with warm running potable water, soap and single-use drying fixture",
+      "status": "partially-represented",
+      "sourceObservation": "Pilot labels a separate kitchen hand basin and models wash action; warm running supply fixture dimensions/placement and toilet handwash compliance remain unassessed",
       "requiredEvidenceOrWork": "Locate dedicated handwash access within appropriate food-handler work zone and near WCs, with training/operability rather than a generic shared bar sink",
       "regulationRefs": [
         "S04",
         "S05"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-015"
     },
     {
       "id": "RTPUB-016",
       "title": "Refrigeration and food cold chain",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "visual fridge and a slab labelled cold-room door; no walkable cool-room volume, thermometer, food storage zones, temperature logs or explicit pub power feed",
+      "sourceObservation": "Pilot now tracks cold-room temperature and electric outage/recovery and visually labels dedicated refrigeration, but real walk-in room, commercial thermometers, storage segregation and food safety monitoring are not verified",
       "requiredEvidenceOrWork": "Add meaningful chiller/cold room/freezer storage, source-to-food service cold chain, measured/simulated temperatures and outage/recovery/unsafe-food disposal mechanics",
       "regulationRefs": [
         "S04",
         "S06"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-016"
     },
     {
       "id": "RTPUB-017",
       "title": "Kitchen exhaust and general ventilation",
       "priority": "P0",
-      "status": "not-modelled",
-      "sourceObservation": "no hoods, exhaust ducts, roof termination, make-up air, kitchen ventilation interlock; decorative ceiling fans are not ventilation verification",
+      "status": "partially-represented",
+      "sourceObservation": "Pilot added cooker hood/duct prop and models power-gated kitchen service; air change, flow, makeup air, roof discharge and fire protection unassessed",
       "requiredEvidenceOrWork": "If cooking appliances require it, size/install mechanical kitchen exhaust and make-up air and associated safe discharge/fire interfaces according to actual equipment/design; verify common ventilation requirements",
       "regulationRefs": [
         "S01",
         "S02",
         "S04"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-017"
     },
     {
       "id": "RTPUB-018",
       "title": "Trade waste, fat/oil/grease controls",
       "priority": "P0",
-      "status": "not-modelled",
-      "sourceObservation": "no greasy waste drainage, grease arrestor, consent/permit or separate collection pathway",
+      "status": "partially-represented",
+      "sourceObservation": "Pilot includes finite grease kg, trade-waste L, simulated pump-out; no physical legal grease arrestor size, grade/discharge design, or Section 68 approval",
       "requiredEvidenceOrWork": "Confirm if liquid trade-waste approval needed under Dubbo Section 68 requirements for documented kitchen operations; place accessible grease-treatment assets if specified",
       "regulationRefs": [
         "S09",
         "S04"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-018"
     },
     {
       "id": "RTPUB-019",
@@ -343,7 +387,8 @@
         "S05",
         "S08"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-019"
     },
     {
       "id": "RTPUB-020",
@@ -356,33 +401,36 @@
         "S01",
         "S02"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-020"
     },
     {
       "id": "RTPUB-021",
       "title": "Site-specific electrical circuits/switchboard/RCD",
       "priority": "P0",
-      "status": "not-modelled",
-      "sourceObservation": "RTU-001 B:pub reports physicalServiceId:null, meterId:null, no distinct customer demand; interior lights callback power-aware only",
+      "status": "partially-represented",
+      "sourceObservation": "Pilot adds electric breaker, kWh, switchboard prop and outage gating, but audited town B:pub physicalServiceId/meterId still null; RCD, phases, conductor and switchgear compliance unverified",
       "requiredEvidenceOrWork": "Map restaurant cooking/chiller/fan/equipment and essential lighting to metered circuits, isolators, RCD/earthing requirements and backup conditional, with load checks",
       "regulationRefs": [
         "S01",
         "S02"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-021"
     },
     {
       "id": "RTPUB-022",
       "title": "Cooking fuel/LPG/natural gas eligibility and safety",
       "priority": "P0",
-      "status": "unverified",
-      "sourceObservation": "no selected cooking technology, gas regulators, fuel supply, ventilation appliance metadata or shutoff; cannot presume town reticulation",
+      "status": "partially-represented",
+      "sourceObservation": "Pub pilot now assumes fictional two-cylinder 90 kg LPG with isolation, finite 18 kW burner usage; real cylinder enclosure, regulator, safety distances, pipe and gas compliance absent",
       "requiredEvidenceOrWork": "Choose electric or legitimately sourced LPG setup; represent isolation, metering, compliance evidence and fault behaviour, no invented gas lines",
       "regulationRefs": [
         "S01",
         "S02"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-022"
     },
     {
       "id": "RTPUB-023",
@@ -395,7 +443,8 @@
         "S01",
         "S02"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-023"
     },
     {
       "id": "RTPUB-024",
@@ -407,7 +456,8 @@
       "regulationRefs": [
         "S02"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-024"
     },
     {
       "id": "RTPUB-025",
@@ -421,7 +471,8 @@
         "S07",
         "S08"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-025"
     },
     {
       "id": "RTPUB-026",
@@ -434,7 +485,8 @@
         "S01",
         "S02"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-026"
     },
     {
       "id": "RTPUB-027",
@@ -447,7 +499,8 @@
         "S02",
         "S03"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-027"
     },
     {
       "id": "RTPUB-028",
@@ -460,7 +513,8 @@
         "S07",
         "S14"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-028"
     },
     {
       "id": "RTPUB-029",
@@ -474,7 +528,8 @@
         "S11",
         "S14"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-029"
     },
     {
       "id": "RTPUB-030",
@@ -487,7 +542,8 @@
         "S07",
         "S12"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-030"
     },
     {
       "id": "RTPUB-031",
@@ -501,7 +557,8 @@
         "S06",
         "S13"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-031"
     },
     {
       "id": "RTPUB-032",
@@ -514,20 +571,22 @@
         "S04",
         "S06"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-032"
     },
     {
       "id": "RTPUB-033",
       "title": "Separate water/sewer/fire/public utility dependencies",
       "priority": "P1",
       "status": "partially-represented",
-      "sourceObservation": "pub lights have power callback but electrical asset registry lacks physical service, and water/sewer systems are aggregate game stocks",
+      "sourceObservation": "The pilot adds fixture water/sewer/power/fuel dependencies and a diagrammatic utility overlay; town services remain abstract, no site-specific physical network, emergency/fire and mobile still separate gaps",
       "requiredEvidenceOrWork": "Connect all fixtures and plant equipment to real game services and test water/power/sewer outage effects; don't double count fictional water and sanitary streams",
       "regulationRefs": [
         "S01",
         "S10"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-033"
     },
     {
       "id": "RTPUB-034",
@@ -542,16 +601,19 @@
         "S04",
         "S07"
       ],
-      "done": false
+      "done": false,
+      "qualifiedId": "PUB-CODE/RTPUB-034"
     }
   ],
   "summary": {
     "total": 34,
-    "notModelled": 17,
+    "notModelled": 8,
     "geometryConflict": 1,
-    "unverified": 11,
-    "partiallyRepresented": 5,
-    "verifiedCodeCompliant": 0
+    "unverified": 10,
+    "partiallyRepresented": 15,
+    "verifiedCodeCompliant": 0,
+    "researchItemsComplete": 1,
+    "remainingResearchOrImplementation": 33
   },
   "limitations": [
     "No actual planning/occupation approvals or fire safety schedule viewed.",
@@ -559,5 +621,26 @@
     "Legal requirements and exact fixture/exit thresholds depend on approved class/use, occupancy and building work scope.",
     "No in-game site walk or live browser test performed.",
     "Current world coordinates and scene dimensions may use separate representation scales requiring reconciliation."
-  ]
+  ],
+  "latestSourceAsOf": "2026-10-25",
+  "concurrencyNote": "This audit was initially created before the pub utilities pilot landed. Observations and Git blobs have been reconciled to the later pilot scene; the pilot does not certify building-code compliance.",
+  "auditTaskNamespace": "PUB-CODE",
+  "existingLegacyCollision": {
+    "otherNamespace": "PUB-UTIL",
+    "sharedLegacyRange": "RTPUB-001 through RTPUB-008",
+    "policy": "Never renumber old tasks; qualify each stream as PUB-CODE/RTPUB-nnn and PUB-UTIL/RTPUB-nnn to disambiguate."
+  },
+  "researchDeliverables": {
+    "RTPUB_001": {
+      "status": "research-complete",
+      "classification": "NSW NCC 2022 Amendment 2, NSW A6G7, provisional Class 6 public bar/bistro",
+      "regulatoryDetermination": "none",
+      "fictionalConstructionDate": null,
+      "buildingAge": "unknown",
+      "planningStatus": "fictional/not-issued",
+      "designComparisonScenario": "hypothetical new Class 6 hospitality building submitted October 2026; upper floor unclassified/unknown",
+      "documentation": "repository-town/docs/PUB_RTPUB_001_CLASSIFICATION_2026.md",
+      "codeCompliance": "not assessed/certified"
+    }
+  }
 }

@@ -15,6 +15,8 @@ test('pub audit stays visibly non-certifying and uses the correct NSW 2026 code'
  assert.equal(audit.name,'The Merged Branch');assert.equal(audit.locationId,'B:pub');assert.equal(audit.gameAddress,'N8-S');
  assert.match(audit.nccAsAtDate,/2022 Amendment 2/);assert.match(audit.nccAsAtDate,/2027-05-01/);
  assert.equal(audit.summary.verifiedCodeCompliant,0);
+ assert.equal(audit.researchDeliverables.RTPUB_001.status,'research-complete');
+ assert.equal(audit.researchDeliverables.RTPUB_001.codeCompliance,'not assessed/certified');
 });
 test('all RTPUB-001 through RTPUB-034 tasks unique with honest statuses and source refs',()=>{
  assert.equal(audit.checks.length,34);
@@ -24,13 +26,17 @@ test('all RTPUB-001 through RTPUB-034 tasks unique with honest statuses and sour
   const c=audit.checks[i];
   assert.equal(c.id,'RTPUB-'+String(i+1).padStart(3,'0'));
   assert.ok(!ids.has(c.id));ids.add(c.id);
-  assert.ok(statuses.has(c.status));assert.equal(c.done,false);
+  assert.ok(statuses.has(c.status));assert.equal(c.done,i===0);
   assert.ok(['P0','P1','P2'].includes(c.priority));
   assert.ok(c.sourceObservation.length>20 && c.requiredEvidenceOrWork.length>30);
   for(const ref of c.regulationRefs)assert.ok(audit.sources[ref],c.id+' missing '+ref);
  }
  assert.equal(audit.summary.notModelled,audit.checks.filter(x=>x.status==='not-modelled').length);
  assert.equal(audit.summary.geometryConflict,1);
+ assert.equal(audit.summary.researchItemsComplete,1);
+ assert.equal(audit.summary.remainingResearchOrImplementation,33);
+ assert.deepEqual(audit.checks.filter(c=>c.done).map(c=>c.id),['RTPUB-001']);
+ assert.ok(audit.checks.every(c=>c.qualifiedId==='PUB-CODE/'+c.id));
 });
 test('audited source Git blob hashes unchanged — any code change requires new pub audit',async()=>{
  const entries=Object.entries(audit.sourceBlobs);
@@ -43,7 +49,8 @@ test('observed decorative pub, incompatible geometry and only one room/exit meta
  const pub=await readFile(repoFile('repository-town/src/world/pub-interior.js'),'utf8');
  const kit=await readFile(repoFile('repository-town/src/world/interior-kit.js'),'utf8');
  const ext=await readFile(repoFile('repository-town/src/world/townlife.js'),'utf8');
- assert.match(pub,/buildPubInterior/); assert.match(pub,/cold-room door/);assert.match(pub,/The kitchen uses/);
+ assert.match(pub,/buildPubInterior/); assert.match(pub,/cold-room door/); assert.match(pub,/The kitchen uses/);
+ assert.match(pub,/pub-utilities/); assert.match(pub,/Toilet and hand washing/); assert.match(pub,/Working kitchen services/);
  assert.match(kit,/W: 14, D: 18/); assert.match(kit,/doors: \[\]/);
  assert.match(ext,/pub\(b\)/); assert.match(ext,/14, 7, 11/);
  const registry=JSON.parse(await readFile(repoFile('repository-town/audit/electricity/coverage.json'),'utf8'));

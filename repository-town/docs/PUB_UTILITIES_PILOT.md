@@ -82,3 +82,7 @@ RTPUB-007: merged source and verified QA build published; final hosted QA run/la
 
 
 Actual hosted Vercel preview Playwright tests passed on desktop and emulated Android after configuring the execution environment's required network proxy. This is separate from TinyFish's rendering-only observation.
+
+## Task ID disambiguation — 25 October 2026
+
+The eight **existing** `RTPUB-001–008` numbers in this *utilities pilot* remain as published and retain their completion statuses. A separate later NSW code-audit queue independently reused those strings. To avoid conflating completion, use **`PUB-UTIL/RTPUB-001–008`** for THIS utilities pilot and **`PUB-CODE/RTPUB-001–034`** for the [NCC building-code audit](PUB_NCC_2026_TODO.md). No legacy number or meaning has changed. **PUB-CODE/RTPUB-001** research classification completion does **not** complete any utility work or certify real building compliance.
