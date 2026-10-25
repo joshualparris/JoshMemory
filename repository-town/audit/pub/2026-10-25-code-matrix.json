@@ -11,7 +11,7 @@
   "sourceBlobs": {
     "repository-town/audit/electricity/coverage.json": "f80df771b893799e27b3adc98b92fe335c13f28b",
     "repository-town/src/world/interior-kit.js": "db71ca2ed36aef856a774459f46e1ecd601f1e82",
-    "repository-town/src/world/life.js": "803f3bed104a13c55de9e4b0e17743085791bbb2",
+    "repository-town/src/world/life.js": "4af98264a488764134bdc997d43af5580a61e9ae",
     "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2",
     "repository-town/src/world/pub-interior.js": "1fa73392ce902c0509bf64f503159e6f309ea964",
     "repository-town/src/world/shop-interior.js": "e2282db1927b79dd5e8a89a970a03e90b676dcf0",
@@ -660,6 +660,7 @@
     "sourceModule": "repository-town/src/world/pub-history.js"
   },
   "notes": [
-    "2026 north-frontage infill adds 72 new modelled sites elsewhere in town. Pub geometry and code checklist remain unverified beyond the existing 34-item audit; source hashes refreshed solely for regression tracking, not legal certification."
+    "2026 north-frontage infill adds 72 new modelled sites elsewhere in town. Pub geometry and code checklist remain unverified beyond the existing 34-item audit; source hashes refreshed solely for regression tracking, not legal certification.",
+    "2026-10-25 family and 72-site expansion changed shared life.js. Pub NCC classification and safety remain unverified; source hash sync is regression provenance, not certification."
   ]
 }
