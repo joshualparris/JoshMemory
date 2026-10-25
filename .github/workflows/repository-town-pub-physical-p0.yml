@@ -1,0 +1,61 @@
+name: Repository Town pub P0 physical design and live-game acceptance
+on:
+  pull_request:
+    paths:
+      - 'repository-town/src/world/pub-physical-plan-2026.js'
+      - 'repository-town/src/world/pub-interior.js'
+      - 'repository-town/src/world/pub-utilities.js'
+      - 'repository-town/src/world/interior-kit.js'
+      - 'repository-town/src/world/townlife.js'
+      - 'repository-town/tests/pub-physical-p0.mjs'
+      - '.github/workflows/repository-town-pub-physical-p0.yml'
+  push:
+    paths:
+      - 'repository-town/src/world/pub-physical-plan-2026.js'
+      - 'repository-town/src/world/pub-interior.js'
+      - 'repository-town/tests/pub-physical-p0.mjs'
+      - '.github/workflows/repository-town-pub-physical-p0.yml'
+permissions:
+  contents: read
+jobs:
+  pub-p0-playtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Dependencies
+        working-directory: repository-town
+        run: npm ci --no-audit --no-fund
+      - name: Real Three.js layout, reachability, sanitary, electrical and provisional capacity
+        working-directory: repository-town
+        run: |
+          node --test tests/pub-physical-p0.mjs tests/pub-2026-audit.mjs tests/pub-history.mjs
+          node tests/pub-utilities.mjs
+          node tests/shop-interiors.mjs
+      - name: Full game release + source, privacy, integrity checks
+        working-directory: repository-town
+        run: |
+          npm run build:release
+          node tools/verify-release.mjs dist/public
+      - name: Desktop and Android-size browser walkthrough, doors and utility faults
+        working-directory: repository-town
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx playwright install --with-deps chromium
+          node tools/serve.mjs dist/public 8091 > /tmp/pub-p0.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          node tests/pub-utilities-browser.mjs
+      - name: Preserve browser playtest evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pub-p0-physical-browser-test
+          path: repository-town/audit/pub-utilities/
+          retention-days: 30
