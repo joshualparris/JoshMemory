@@ -5,7 +5,7 @@
   "gameAddress": "N8-S",
   "name": "The Merged Branch",
   "repository": "joshualparris/JoshMemory",
-  "basis": "Static default-branch source and test audit; not a browser playtest, construction inspection or legal compliance certificate",
+  "basis": "Reconciled pub WC privacy and kitchen model and UNKNOWN history; source fingerprint snapshot is current but NOT a legal building-code certification",
   "nccAsAtDate": "NCC 2022 Amendment 2 (NSW, effective 2025-07-29); NSW NCC 2025 planned commencement 2027-05-01",
   "provisionalBuildingClassification": "NCC NSW Class 6 hospitality bar/dining; confirm ancillary/mixed classification and actual approvals",
   "sourceBlobs": {
@@ -13,11 +13,11 @@
     "repository-town/src/world/interior-kit.js": "db71ca2ed36aef856a774459f46e1ecd601f1e82",
     "repository-town/src/world/life.js": "3980a03242e5da0b4164ea1836183b30d971242a",
     "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2",
-    "repository-town/src/world/pub-interior.js": "8ce0d833b21622868b86fabac3b3c5120ec1928b",
+    "repository-town/src/world/pub-interior.js": "45d75b8e79b55f6827085a92235625010e896cae",
     "repository-town/src/world/shop-interior.js": "16dda8a921427cc02e4433d50bf3c73d361b9470",
-    "repository-town/src/world/townlife.js": "43ea200a5684198dfe407e3e6c10f78d53be0c31",
-    "repository-town/tests/shop-interiors.mjs": "15f25f43d8c6be959cc0d83e546fd1a7e6ac28df",
-    "repository-town/src/world/pub-history.js": "f3d9e7f8fa703071f6b6db4c59d383a0ffb205e4"
+    "repository-town/src/world/townlife.js": "324ea96cd1d66db5873ae518c45851d0363fb473",
+    "repository-town/tests/shop-interiors.mjs": "1a1e696c1c92ac4dc7566a8ff78c4c3cf41ea257",
+    "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930"
   },
   "sources": {
     "S01": {
@@ -122,7 +122,7 @@
       "title": "Classification, use, approval and building age",
       "priority": "P0",
       "status": "unverified",
-      "sourceObservation": "Original construction 1911 and first trading 1912 are established fiction; first named Branch Line Hotel, renamed The Merged Branch in 2019. Current Class 6 provisional. Real original permit, statutory heritage listing, official first-trading date and 2026 approvals are not verified or issued.",
+      "sourceObservation": "Class 6 bar/bistro assessed for October 2026 NSW NCC 2022 Amendment 2 (NSW A6G7); original construction date/actual DA, CC, OC, fire schedule, liquor approval unknown or not issued because B:pub is fictional; upper storey unresolved.",
       "requiredEvidenceOrWork": "Assess NSW Class 6 pub/bar and any mixed Class 9b/3 or other uses, approvals and which NCC edition applies to each construction stage; never claim retrospective universal obligation",
       "regulationRefs": [
         "S01",
@@ -136,7 +136,7 @@
       "done": true,
       "qualifiedId": "PUB-CODE/RTPUB-001",
       "completionType": "research-classification-and-approvals-pathway",
-      "completedEvidence": "repository-town/docs/PUB_FICTIONAL_HISTORY_1911.md"
+      "completedEvidence": "repository-town/docs/PUB_RTPUB_001_CLASSIFICATION_2026.md"
     },
     {
       "id": "RTPUB-002",
@@ -184,8 +184,8 @@
       "id": "RTPUB-005",
       "title": "Emergency lighting and exit signs",
       "priority": "P0",
-      "status": "not-modelled",
-      "sourceObservation": "ordinary point/hemisphere and decorative wall lighting visible; no tested exit sign, emergency luminaire, power failure or escape-route contrast model",
+      "status": "partially-represented",
+      "sourceObservation": "Front EXIT representation and finite independent 90-minute emergency-light scenario added; required distribution/lux and escape-route design unverified.",
       "requiredEvidenceOrWork": "Add correctly located sign/lighting representations where NCC design requires; controlled blackout test, schedule/service references",
       "regulationRefs": [
         "S02",
@@ -198,8 +198,8 @@
       "id": "RTPUB-006",
       "title": "Essential fire safety measures",
       "priority": "P0",
-      "status": "not-modelled",
-      "sourceObservation": "pub scene has fireplace and room lighting but no identified alarm/smoke detection, portable extinguishers, hose reels, sprinklers (if required), fire blanket or appropriate kitchen suppression",
+      "status": "partially-represented",
+      "sourceObservation": "Visible extinguisher, blanket and smoke detector representations added; sizing, fire schedule, detection behaviour and inspection unverified.",
       "requiredEvidenceOrWork": "Determine required measures from NCC, building size/use and fire safety schedule; render actual necessary components and demonstrate fault/inspection states, not blanket declare sprinkler requirement",
       "regulationRefs": [
         "S02",
@@ -254,7 +254,7 @@
       "title": "Accessible WC and ambulant fixtures",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "A fictional WC, cistern and wash basin are now drawn in the rear-right compartment via pub-utilities pilot; no audited compliant accessible/ambulant layout, fixture clearances or transfer zones",
+      "sourceObservation": "Enclosed WC with animated 1.4 m privacy leaf and internal sight screen; accessible/ambulant fittings, circulation, fixture counts and independent review still open.",
       "requiredEvidenceOrWork": "Provide appropriate accessible/ambulant sanitary facilities after F4/D4 assessment with exact plans, circulation and fittings, no generic decorative toilet proof",
       "regulationRefs": [
         "S01",
@@ -268,7 +268,7 @@
       "title": "Public and staff sanitary fixture provision",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "A rear-right single WC/basin is now modelled, but occupancy-driven count, ambulant facilities, separate patron/staff spaces, and plumbing/accessibility certification remain unknown",
+      "sourceObservation": "WC and basin enclosed with door and privacy screen. Occupancy-based fixture quantity and staff/patron provision remain unverified.",
       "requiredEvidenceOrWork": "Calculate fixtures against occupancy, use and mixed zones under NCC F4; model hygiene/privacy/availability and accessible provision",
       "regulationRefs": [
         "S01",
@@ -296,7 +296,7 @@
       "title": "Actual enclosed commercial kitchen",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "Pub utility pilot added cooker/bench, hand-basin prop, ventilation hood, kitchen interaction and meal dependency; kitchen is NOT a self-contained assessed room or fully verified commercial food premises",
+      "sourceObservation": "Kitchen now has collidable enclosing partitions and a 1.5 m animated door; separate handwash, wash-up and cooking zones represented. Full workflow/hygiene design remains open.",
       "requiredEvidenceOrWork": "Build a working kitchen of credible scale and hygiene separation; model equipment work zones and path from food receiving through safe service",
       "regulationRefs": [
         "S04",
@@ -310,7 +310,7 @@
       "title": "Food preparation, warewashing and separation",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "Pilot adds a kitchen work surface, sink, hand basin and modelled glasswash transaction; real clean/dirty zoning, adequate equipment count, sanitising and layout not verified",
+      "sourceObservation": "Dedicated dishwasher and clean/dirty signage added; sanitising parameters and sufficient work zones unverified.",
       "requiredEvidenceOrWork": "Represent adequate prep, dedicated dishwashing/sanitising, hot potable supply, cleaners' sink and suitable impervious, washable materials; classify operations to choose required equipment",
       "regulationRefs": [
         "S04",
@@ -324,7 +324,7 @@
       "title": "Dedicated food handler wash stations",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "Pilot labels a separate kitchen hand basin and models wash action; warm running supply fixture dimensions/placement and toilet handwash compliance remain unassessed",
+      "sourceObservation": "Dedicated hand basin and physical soap/towel fixtures represented; placement/access and warm-water design remain unverified.",
       "requiredEvidenceOrWork": "Locate dedicated handwash access within appropriate food-handler work zone and near WCs, with training/operability rather than a generic shared bar sink",
       "regulationRefs": [
         "S04",
@@ -338,7 +338,7 @@
       "title": "Refrigeration and food cold chain",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "Pilot now tracks cold-room temperature and electric outage/recovery and visually labels dedicated refrigeration, but real walk-in room, commercial thermometers, storage segregation and food safety monitoring are not verified",
+      "sourceObservation": "Cold exposure accumulates; 120 warm minutes quarantines stock, recooling alone cannot restore cooking. Explicit disposal removes perishable/prepared stock before normal replenishment. Not full 3.2.2 time/temperature control.",
       "requiredEvidenceOrWork": "Add meaningful chiller/cold room/freezer storage, source-to-food service cold chain, measured/simulated temperatures and outage/recovery/unsafe-food disposal mechanics",
       "regulationRefs": [
         "S04",
@@ -352,7 +352,7 @@
       "title": "Kitchen exhaust and general ventilation",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "Pilot added cooker hood/duct prop and models power-gated kitchen service; air change, flow, makeup air, roof discharge and fire protection unassessed",
+      "sourceObservation": "Visible hood and duct plus extraction failure interlock block cooking; actual exhaust sizing, discharge and make-up air unverified.",
       "requiredEvidenceOrWork": "If cooking appliances require it, size/install mechanical kitchen exhaust and make-up air and associated safe discharge/fire interfaces according to actual equipment/design; verify common ventilation requirements",
       "regulationRefs": [
         "S01",
@@ -380,8 +380,8 @@
       "id": "RTPUB-019",
       "title": "Food refuse, recyclables, pest exclusion and cleaning",
       "priority": "P1",
-      "status": "not-modelled",
-      "sourceObservation": "pub scene has menu and bar decoration but no sealed waste store, food/chemical segregation, pest barriers or cleaners' sink",
+      "status": "partially-represented",
+      "sourceObservation": "Lidded kitchen waste/recycling bins added; chemical store, pest exclusion and collection routes still open.",
       "requiredEvidenceOrWork": "Design waste and recycling storage, non-food chemical store, service collection route, pest exclusion and safe mop-water discharge",
       "regulationRefs": [
         "S04",
@@ -508,7 +508,7 @@
       "title": "Hotel liquor licence conditions, free water, food availability",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "bar and meals menu are represented and fictional open hours 11:00–23:00; no documented licence/licensee display, free-water interaction or hours/conditions evidence",
+      "sourceObservation": "Free potable-water action meters 0.25 L and refuses when isolated. Licence, licensee and enforceable alcohol-service constraints remain open.",
       "requiredEvidenceOrWork": "Represent NSW hotel licence or chosen appropriate licence, displayed name/licensee, free drinkable water whenever alcohol served and suitable food supply; verify venue-specific approvals",
       "regulationRefs": [
         "S07",
@@ -580,7 +580,7 @@
       "title": "Separate water/sewer/fire/public utility dependencies",
       "priority": "P1",
       "status": "partially-represented",
-      "sourceObservation": "The pilot adds fixture water/sewer/power/fuel dependencies and a diagrammatic utility overlay; town services remain abstract, no site-specific physical network, emergency/fire and mobile still separate gaps",
+      "sourceObservation": "Existing pilot service boundaries retained; additional water, extraction, emergency-battery and persistent cold-stock failure checks. Individual physical electrical/water/sewer networks remain unfinished.",
       "requiredEvidenceOrWork": "Connect all fixtures and plant equipment to real game services and test water/power/sewer outage effects; don't double count fictional water and sanitary streams",
       "regulationRefs": [
         "S01",
@@ -608,7 +608,7 @@
   ],
   "summary": {
     "total": 34,
-    "notModelled": 8,
+    "notModelled": 5,
     "geometryConflict": 1,
     "unverified": 10,
     "partiallyRepresented": 15,
@@ -636,13 +636,13 @@
       "status": "research-complete",
       "classification": "NSW NCC 2022 Amendment 2, NSW A6G7, provisional Class 6 public bar/bistro",
       "regulatoryDetermination": "none",
-      "fictionalConstructionDate": 1911,
-      "buildingAge": "115 in 2026 (fictional canon)",
+      "fictionalConstructionDate": null,
+      "buildingAge": "UNKNOWN",
       "planningStatus": "fictional/not-issued",
-      "designComparisonScenario": "Existing 1911 fictional Class 6 country pub; 2026 new works reviewed against NSW NCC 2022 Amendment 2 as applicable, with existing building scope distinct",
+      "designComparisonScenario": "Existing fictional Class 6 pub with UNKNOWN original construction date; assess 2026 works under applicable NSW NCC 2022 Amendment 2 without inventing earlier approvals",
       "documentation": "repository-town/docs/PUB_RTPUB_001_CLASSIFICATION_2026.md",
       "codeCompliance": "not assessed/certified",
-      "firstTradingYear": 1912,
+      "firstTradingYear": null,
       "historicalEvidence": "repository-town/docs/PUB_FICTIONAL_HISTORY_1911.md"
     }
   },
@@ -650,10 +650,10 @@
     "site": "B:pub",
     "address": "N8-S",
     "fictional": true,
-    "constructionYear": 1911,
-    "tradingStartYear": 1912,
-    "originalName": "Branch Line Hotel",
-    "renamedYear": 2019,
+    "constructionYear": null,
+    "tradingStartYear": null,
+    "originalName": null,
+    "renamedYear": null,
     "originalPermitRecord": null,
     "originalCodeEdition": null,
     "formalHeritageListing": null,

@@ -1,3 +1,7 @@
+# Pub rescue integration — 25 October 2026
+
+Reconciles tested PR #204 sanitary/privacy/kitchen changes with the newer main pub-history commit, without fabricating original construction age. Date and opening year must remain UNKNOWN. The remaining 33 NCC/food/fire/utility tasks remain OPEN. New CI, reviewed merge and hosted fingerprint must pass before release claims. No actual building-code certification is claimed.
+
 # Utilities/sewerage research — 25 October 2026
 
 Owner: ChatGPT Work sewerage research; scope docs only. Baseline main b59ea0b; coordination claim ba683dd. New RT-SYS-001–016 register and RTSW-001–028 queue preserve RTU parents. Electricity research assigned to dedicated ChatGPT session; water assigned to Manus. Narromine provisional reference from 2026 PIRMP and 2025 performance report, compared with Uralla/Bundarra/Bermagui; installed reuse hardware is not treated as operational (report inactive since 2017). Eighteen-source registry, explicit review limits, Caroma/Vinidex examples, pinned EPA SWMM source review and proposed cistern-to-treatment architecture. No runtime code, new live feature or another researcher’s files changed. RTSW-001/002 research complete only; next RTSW-003 after ownership/inventory reconciliation; RTU-022–024 open. Publish same register/research/tasks in NSWutilities and reviewed central PR; record validation and source IDs.
