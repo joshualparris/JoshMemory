@@ -74,3 +74,6 @@ Research is preliminary, not the full three-game/all-utility audit. Task RTU-002
 ## Handover
 Next concrete action: RTU-002 primary-source and open-code comparison, then RTU-003 operational per-building service registry using the RTU-001 audit. No runtime files modified here; no deployment required for documentation. Existing RTD/RTN/RLT IDs remain unchanged.
 
+## System designations and sewerage children
+
+[RT-SYS-001–016](UTILITY_SYSTEM_REGISTER.md) names all utilities and supporting services without replacing RTU IDs. Electricity research stays with the dedicated ChatGPT researcher; water research stays with Manus. [Sewerage/plumbing report](SEWERAGE_RESEARCH_2026-10-25.md) and [RTSW-001–028 tasks](SEWERAGE_TASKS.md) expand RTU-022–024: two research children complete, RTSW-003 fixture inventory is next. The parent tasks remain open for actual implementation and acceptance.
