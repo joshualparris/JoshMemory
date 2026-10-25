@@ -13,10 +13,11 @@
     "repository-town/src/world/interior-kit.js": "db71ca2ed36aef856a774459f46e1ecd601f1e82",
     "repository-town/src/world/life.js": "3980a03242e5da0b4164ea1836183b30d971242a",
     "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2",
-    "repository-town/src/world/pub-interior.js": "fd9ee1784ab2e9bbd0a07693331ca85edc10cff5",
+    "repository-town/src/world/pub-interior.js": "8ce0d833b21622868b86fabac3b3c5120ec1928b",
     "repository-town/src/world/shop-interior.js": "16dda8a921427cc02e4433d50bf3c73d361b9470",
-    "repository-town/src/world/townlife.js": "f3c23f39cef51a89f3e474c0ea3dbf8098ba7c2b",
-    "repository-town/tests/shop-interiors.mjs": "15f25f43d8c6be959cc0d83e546fd1a7e6ac28df"
+    "repository-town/src/world/townlife.js": "43ea200a5684198dfe407e3e6c10f78d53be0c31",
+    "repository-town/tests/shop-interiors.mjs": "15f25f43d8c6be959cc0d83e546fd1a7e6ac28df",
+    "repository-town/src/world/pub-history.js": "f3d9e7f8fa703071f6b6db4c59d383a0ffb205e4"
   },
   "sources": {
     "S01": {
@@ -121,7 +122,7 @@
       "title": "Classification, use, approval and building age",
       "priority": "P0",
       "status": "unverified",
-      "sourceObservation": "Class 6 bar/bistro assessed for October 2026 NSW NCC 2022 Amendment 2 (NSW A6G7); original construction date/actual DA, CC, OC, fire schedule, liquor approval unknown or not issued because B:pub is fictional; upper storey unresolved.",
+      "sourceObservation": "Original construction 1911 and first trading 1912 are established fiction; first named Branch Line Hotel, renamed The Merged Branch in 2019. Current Class 6 provisional. Real original permit, statutory heritage listing, official first-trading date and 2026 approvals are not verified or issued.",
       "requiredEvidenceOrWork": "Assess NSW Class 6 pub/bar and any mixed Class 9b/3 or other uses, approvals and which NCC edition applies to each construction stage; never claim retrospective universal obligation",
       "regulationRefs": [
         "S01",
@@ -135,7 +136,7 @@
       "done": true,
       "qualifiedId": "PUB-CODE/RTPUB-001",
       "completionType": "research-classification-and-approvals-pathway",
-      "completedEvidence": "repository-town/docs/PUB_RTPUB_001_CLASSIFICATION_2026.md"
+      "completedEvidence": "repository-town/docs/PUB_FICTIONAL_HISTORY_1911.md"
     },
     {
       "id": "RTPUB-002",
@@ -635,12 +636,27 @@
       "status": "research-complete",
       "classification": "NSW NCC 2022 Amendment 2, NSW A6G7, provisional Class 6 public bar/bistro",
       "regulatoryDetermination": "none",
-      "fictionalConstructionDate": null,
-      "buildingAge": "unknown",
+      "fictionalConstructionDate": 1911,
+      "buildingAge": "115 in 2026 (fictional canon)",
       "planningStatus": "fictional/not-issued",
-      "designComparisonScenario": "hypothetical new Class 6 hospitality building submitted October 2026; upper floor unclassified/unknown",
+      "designComparisonScenario": "Existing 1911 fictional Class 6 country pub; 2026 new works reviewed against NSW NCC 2022 Amendment 2 as applicable, with existing building scope distinct",
       "documentation": "repository-town/docs/PUB_RTPUB_001_CLASSIFICATION_2026.md",
-      "codeCompliance": "not assessed/certified"
+      "codeCompliance": "not assessed/certified",
+      "firstTradingYear": 1912,
+      "historicalEvidence": "repository-town/docs/PUB_FICTIONAL_HISTORY_1911.md"
     }
+  },
+  "historicalCanon": {
+    "site": "B:pub",
+    "address": "N8-S",
+    "fictional": true,
+    "constructionYear": 1911,
+    "tradingStartYear": 1912,
+    "originalName": "Branch Line Hotel",
+    "renamedYear": 2019,
+    "originalPermitRecord": null,
+    "originalCodeEdition": null,
+    "formalHeritageListing": null,
+    "sourceModule": "repository-town/src/world/pub-history.js"
   }
 }

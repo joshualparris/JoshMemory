@@ -4,6 +4,12 @@
 **Assessed:** 25 October 2026, for the fictional game location. **Research assessment: COMPLETE; formal code compliance/real-world approvals: UNVERIFIED / not applicable to a fictional property.**
 **Canonical qualified key:** `PUB-CODE/RTPUB-001`. The earlier separate utilities pilot also uses `RTPUB-001`; it is now disambiguated as `PUB-UTIL/RTPUB-001` without renumbering either legacy task.
 
+## 25 October 2026 revision — original construction and immersive history now canon
+
+**Built 1911, opened for trade 1912** as the fictional *Branch Line Hotel*, renamed *The Merged Branch* in **2019**. **Age in October 2026: 115 years.** These are deliberate fictional Repository Town facts, modelled as [gameplay history with source comparisons](PUB_FICTIONAL_HISTORY_1911.md), a readable pub plaque and Federation-style frontage.
+
+**Regulatory distinction:** the pub is now treated as an **existing 1911 fictional building with 2026 improvements**, not a new 2026 construction. NSW NCC 2022 Amendment 2 applies to new work where triggered; untouched older construction is evaluated against its particular prior lawful status and applicable upgrade mechanisms, not automatically all current new-build rules. The original local building code, permits, historical licences, real-world heritage listing and fire safety schedule are still **unknown / not issued for this game**. The upper floor and footprint discrepancy remain unresolved under RTPUB-002. This section supersedes older 'construction date UNKNOWN' or '2026 new build' statements below if any remain.
+
 ## 1. The actual intended uses assessed
 
 | Game evidence | Use/extent | Building class assessment | Certainty |
@@ -33,7 +39,7 @@
 
 Relevant primary sources: [NSW NCC adoption and CC/CDC date guidance](https://www.nsw.gov.au/housing-and-construction/compliance-and-regulation/how-to-comply-national-construction-code), [25 March 2026 Ministerial announcement](https://www.nsw.gov.au/ministerial-releases/nsw-to-adopt-new-national-construction-code-may-2027), [certifier FAQs updated 22 October 2026](https://www.nsw.gov.au/housing-and-construction/compliance-and-regulation/building-certifiers/practice-advice/frequently-asked-questions).
 
-**Chosen game design assumption:** treat the playable bar/dining use as **a proposed new Class 6 ground-floor hospitality scenario as at 25 October 2026**, purely to support later measured design/fixture calculations. The *fictional pub's in-universe original construction date remains UNKNOWN* and has **not** been invented. An unmodelled upper floor is **not authorised by this assumption**. This fixes the applicable *design comparison baseline*, not any actual development consent.
+**Chosen current game design assumption:** treat the pub as an **existing, fictionally constructed 1911 Class 6 bar/bistro** with new kitchen/WC service work modelled in 2026. The code baseline applies to relevant new works and alterations, not an invented newly constructed 2026 building. The fictional pub was **constructed in 1911**, started trading in **1912**, and was renamed in **2019**; its original governmental approvals remain unverified. An unmodelled upper floor is **not authorised by this assumption**. This fixes the applicable *design comparison baseline*, not any actual development consent.
 
 ## 3. Approvals and building-age evidence ledger
 
@@ -42,7 +48,7 @@ These are **documents a real NSW project might need**. They do not exist for thi
 | Required evidence / approval | Status for B:pub | Verification/resolution |
 |---|---|---|
 | Real cadastral lot, title, zoning, address, existing lawful-use history | **Fictional / not applicable**, no real NSW land parcel matching game N8-S asserted | Do not query third-party building records as if N8-S were a real survey address |
-| Construction year / approved original BCA/NCC edition | **UNKNOWN** | Keep an explicit `constructionYear: null` and `originalCodeEdition: null` in audit metadata |
+| Construction year / approved original BCA/NCC edition | **1911 — fictional canon** | `constructionYear: 1911` and `originalCodeEdition: null`; no retrospective invented NSW approval record |
 | DA/development consent and its conditions (when required) | **NOT ISSUED for fictional game** | For a real site, establish applicable planning pathway, DA/consent or exempt/CDC decision and conditions; no invented DA number |
 | CDC (if legally eligible and chosen) | **NOT ISSUED** | Alternative complying route requires eligibility and certifier approval, not automatically available for every pub |
 | CC + certified architectural/site drawings for DA pathway | **NOT ISSUED** | Certifier compares future works against consent, NCC date and documentation |
@@ -59,7 +65,7 @@ NSW Planning explains that a **change of use can sometimes be exempt** if specif
 - **COMPLETE — current NSW construction-code edition/date established**; not incorrectly applying NCC 2025.
 - **COMPLETE — bar/bistro/ancillary use classified provisionally as NSW Class 6** with relevant NSW A6G7 exception for small music/arts venues.
 - **COMPLETE — separate hotel/accommodation not imported into pub building classification**, and potential 9b/3 ancillary uses correctly left conditional.
-- **COMPLETE — exact hypothetical 2026 new-build code comparison selected**, while original construction age and all government approvals explicitly unknown/not issued.
+- **COMPLETE — fictional existing 1911 pub, opening 1912, with applicable new work in 2026 assessed under modern NSW requirements; original permits and historic local rules unverified.**
 - **COMPLETE — DA/CDC, CC, OC, FSS, liquor/food approvals documented as a conditional approval pathway**, not fabricated.
 - **NOT COMPLETE — code compliance or actual approved building classification**. The pub has no real consent, occupancy or physical inspection; later work must be assessed by licensed experts if translated into real construction.
 - **OPEN RTPUB-002/003**: exterior/interior dimensions, actual storeys, occupancy; these are material prerequisites for calculating exits, sanitary fixtures, access and fire.

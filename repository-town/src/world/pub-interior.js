@@ -1,3 +1,4 @@
+import {PUB_HISTORY,pubHistoryDescription} from './pub-history.js';
 import { pubUtilities, pubStatus } from './pub-utilities.js';
 import { createKit, ROOM } from './interior-kit.js';
 
@@ -39,6 +40,9 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
   solid(1.8, 0.95, 0.6, -3.0, 0.48, -10.5, 0xd9dde0); box(1.7, 0.8, 0.04, -3.0, 0.5, -10.18, 0xcfe8ee, { a: 0.4 });
   box(1.4, 2.2, 0.08, 1.8, 1.1, BACK + 0.12, 0x6a5a4a);                                    // cold-room door
   text(site.name, 0, 3.55, CZ - 0.5, 'room'); text('Bar · Meals · Keno', 0, 1.9, CZ - 0.1);
+  // Plaque: fictional original construction year, not an NSW heritage listing.
+  box(.07,.8,1.35,6.85,2.35,3.55,BRASS);box(.075,.64,1.17,6.8,2.35,3.55,DARKW);
+  text('EST. '+PUB_HISTORY.originalConstructionYear,6.45,2.45,3.55,'room');
 
   // ── bistro tables (right-front) and lounge (left) ──
   const table = (x, z) => {
@@ -114,6 +118,7 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
     // All ordinary electric fixtures follow this building's breaker as well as town supply.
     group.userData.updateLighting?.(status.power);
   };
+  add('heritage','Hotel history · built 1911','info',pubHistoryDescription(),5.6,3.5);
   add('counter', 'Bar', 'civic-ledger', 'Pull up a stool. Order a meal or a drink at the bar, or open the Town Ledger.', PUB_LAYOUT.staffUse.x, PUB_LAYOUT.staffUse.z);
   add('taps', 'Beer taps', 'info', 'Four taps and a fridge of bottles. Licensed hours run from eleven in the morning to late; the publican serves responsibly.', -2.4, -4.4);
   add('menu', 'Menu board', 'info', 'Chicken parmi, the roast of the day and a pie with chips. The kitchen uses beef, chicken and vegies delivered from the farms and the butcher.', -5.4, 3.9);

@@ -68,3 +68,7 @@ An earlier independent [pub utilities pilot](PUB_UTILITIES_PILOT.md) had **RTPUB
 - `PUB-UTIL/RTPUB-001` — the **prior 16-utility-boundary pilot audit**, already documented completed in its own pilot report.
 
 The namespace is part of the globally unique key. `RTPUB-002` alone can refer to two different tasks, so agents must specify `PUB-CODE` or `PUB-UTIL`. **Do not reassign either task number**. The machine-readable matrix records qualified IDs. Subsequent building-code work begins `PUB-CODE/RTPUB-002`.
+
+## Fictional construction and game history (25 October 2026)
+
+**Canonical original construction: 1911.** First trade: **1912** under the name *Branch Line Hotel*, renamed *The Merged Branch* in **2019**. An in-game **EST. 1911** plaque and inspectable history, plus period-inspired street masonry, were added. See [history](PUB_FICTIONAL_HISTORY_1911.md). **PUB-CODE/RTPUB-001** remains completed for *research/design premise only*. **PUB-CODE/RTPUB-002…034 stay open**, especially mismatched exterior/interior and unassessed upper floor, fire, accessible WC and food premises. No actual approval, formal heritage listing or certified 2026 fit-out has been granted.

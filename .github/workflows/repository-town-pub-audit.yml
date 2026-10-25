@@ -2,6 +2,7 @@ name: Repository Town pub 2026 audit validity
 on:
   push:
     paths:
+      - 'repository-town/src/world/pub-history.js'
       - 'repository-town/src/world/pub-interior.js'
       - 'repository-town/src/world/interior-kit.js'
       - 'repository-town/src/world/townlife.js'
@@ -11,10 +12,12 @@ on:
       - 'repository-town/audit/electricity/coverage.json'
       - 'repository-town/src/world/power-grid.js'
       - 'repository-town/audit/pub/**'
+      - 'repository-town/tests/pub-history.mjs'
       - 'repository-town/tests/pub-2026-audit.mjs'
       - '.github/workflows/repository-town-pub-audit.yml'
   pull_request:
     paths:
+      - 'repository-town/src/world/pub-history.js'
       - 'repository-town/src/world/pub-interior.js'
       - 'repository-town/src/world/interior-kit.js'
       - 'repository-town/src/world/townlife.js'
@@ -24,6 +27,7 @@ on:
       - 'repository-town/audit/electricity/coverage.json'
       - 'repository-town/src/world/power-grid.js'
       - 'repository-town/audit/pub/**'
+      - 'repository-town/tests/pub-history.mjs'
       - 'repository-town/tests/pub-2026-audit.mjs'
 permissions:
   contents: read
@@ -36,4 +40,4 @@ jobs:
         with:
           node-version: '22'
       - name: Verify evidence IDs and source fingerprints (not legal certification)
-        run: node --test repository-town/tests/pub-2026-audit.mjs
+        run: node --test repository-town/tests/pub-2026-audit.mjs repository-town/tests/pub-history.mjs
