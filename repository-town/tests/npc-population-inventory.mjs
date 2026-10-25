@@ -28,12 +28,13 @@ assert.equal(snapshot.counts.projectHousesNotAssignedWorker, 89);
 assert.equal(snapshot.counts.baseJobRows + snapshot.counts.reliefWorkers + snapshot.counts.securityWorkers, 99);
 assert.equal(NPCS.length, 32);
 // The published 24 October inventory is a historical snapshot of the first 99
-// workers. New town services grew the *live* roster to 188 on 25 October;
+// workers. New town services grew the *live* roster to 171 on 25 October;
 // do not mislabel the historical list as the present live population.
-assert.equal(ROSTER_SIZE, 188, 'all 188 existing project homes can house a live worker');
-assert.equal(VILLAGER_NAMES.length, ROSTER_SIZE,
-  'current names cover the full 188-worker roster, with historical 99 checked below');
-assert.equal(new Set(VILLAGER_NAMES).size, ROSTER_SIZE);
+assert.equal(ROSTER_SIZE, 171, '99 legacy workers plus 72 new staffed businesses');
+assert.equal(VILLAGER_NAMES.length, snapshot.counts.simulatedWorkers,
+  'the original 99 first names remain stable across saved games');
+assert.equal(new Set(VILLAGER_NAMES).size, snapshot.counts.simulatedWorkers);
+// Additional 72 workers receive distinct generated surnames; 55 married couples share homes.
 
 const named = NPCS.map(actor => ({
   key: 'named:' + actor.id,
@@ -60,8 +61,8 @@ const life = new TownLife({ homes });
 assert.equal(life.villagers.length, ROSTER_SIZE);
 assert.equal(new Set(life.villagers.map(v=>v.name)).size,ROSTER_SIZE,
   'every current worker needs a unique name, including the later service workers');
-assert.equal(new Set(life.villagers.map(v=>v.home.coordinate)).size,ROSTER_SIZE,
-  'each local worker needs their own actual project house');
+assert.equal(new Set(life.villagers.map(v=>v.home.coordinate)).size,116,
+  'the 171-worker roster shares 55 couple households and uses 116 original lots');
 // Historical archival comparison deliberately covers only the original worker IDs.
 const workers = life.villagers.slice(0,snapshot.counts.simulatedWorkers).map(v => ({
   id: v.id,
@@ -118,4 +119,4 @@ assert.deepEqual(snapshot.displayNameOverlapBetweenStreetCastAndWorkers, ['Rowan
 // Guard the published roster against accidentally leaking private repository references.
 assert(!JSON.stringify(snapshot).includes('github.com/'));
 assert(!JSON.stringify(snapshot).includes('joshualparris/Aliens'));
-console.log('PASS RTD-003: 32 named actors, 99 archived Oct-24 workers retained with stable IDs, 188 current uniquely named employed residents, 188 unique house slots, 20 unused grid cells and historic voice/quiz inventory');
+console.log('PASS RTD-003: 32 named actors, 99 archived Oct-24 workers retained with stable IDs, 171 current uniquely named employed residents with 116 shared/individual homes, 188 house slots, 20 unused grid cells and historic voice/quiz inventory');
