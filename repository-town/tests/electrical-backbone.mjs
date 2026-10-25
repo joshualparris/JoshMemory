@@ -39,7 +39,7 @@ for(const item of design.services.filter(s=>s.status==='design_connected')){
   const route=traceElectricalService(design,item.id);
   assert(route.connected,item.id+' must reach external-grid source');
   assert(route.edges.some(e=>e.startsWith('MV-')),'MV path '+item.id);
-  assert(route.edges.some(e=>e.startsWith('TX-LV')),'transformer secondary '+item.id);
+  assert(route.edges.some(e=>e.startsWith('TX-LV')||e.startsWith('TX-DED-LV')),'transformer secondary '+item.id);
   assert(route.edges.includes('SERVICE:'+item.id),'service drop '+item.id);
   assert(route.edges.includes('MAIN-SWITCH:'+item.id),'meter/switchboard '+item.id);
   const outage=traceElectricalService(design,item.id,['MV-INTAKE']);
@@ -61,7 +61,17 @@ assert.equal(traceElectricalService(design,'B:pub',[pubTransformerEdge]).connect
 assert(theirPath.connected);
 assert(traceElectricalService(design,other.id,[pubTransformerEdge]).connected,
   'fault on pub transformer must not black out unrelated street');
-const meter=design.nodes.find(n=>n.id==='MTR:B:pub');
+// Essential services and heavy facilities receive their own transformer,
+ // so an industrial fault cannot de-energise the clinic, pub or neighbouring shop.
+ const dedicatedNames=['B:clinic','B:waterworks','B:sewage','B:foundry','B:soyplant','B:mill','B:university'];
+ for(const id of dedicatedNames){
+   const s=design.services.find(q=>q.id===id);
+   assert(s&&s.transformerId.startsWith('DIST-DED-'),id+' requires dedicated transformer');
+   const fault=traceElectricalService(design,id,['MV-DED-TX-'+id.replace(/[^a-zA-Z0-9]/g,'-').toUpperCase()]);
+   assert.equal(fault.connected,false,id+' transformer fault');
+   assert(traceElectricalService(design,'B:pub',['MV-DED-TX-'+id.replace(/[^a-zA-Z0-9]/g,'-').toUpperCase()]).connected,'pub isolated from critical transformer fault');
+ }
+ const meter=design.nodes.find(n=>n.id==='MTR:B:pub');
 assert(meter&&meter.position.x>0&&meter.position.z>160);
 for(const bad of [
   [{...audit.records[0]}, audit.records[0]],
@@ -84,6 +94,12 @@ const nonexistent=structuredClone(design);
 nonexistent.services[0].id='H:NOPE';
 assert.throws(()=>validateTownElectricNetwork(nonexistent,audit.records),/orphan service/);
 assert.throws(()=>traceElectricalService(design,'H:NOPE'),/unknown service/);
+const opened=structuredClone(design);
+const breaker=opened.edges.find(e=>e.id==='SERVICE:B:pub');
+breaker.isolationState='open';
+assert.equal(traceElectricalService(opened,'B:pub').connected,false);
+assert.equal(traceElectricalService(opened,'B:bakery').connected,true);
+assert.throws(()=>validateTownElectricNetwork(opened,audit.records),/unenergised source/);
 for(const transformer of design.transformers){
   assert(transformer.diversifiedKva * 1.2<=transformer.ratedKva+0.01,transformer.id+' has no headroom');
 }
