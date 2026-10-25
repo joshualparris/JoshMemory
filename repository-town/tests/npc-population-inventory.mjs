@@ -78,6 +78,7 @@ assert.equal(workers.filter(w => w.rosterLayer === 'baseline').length, 23);
 assert.equal(workers.filter(w => w.rosterLayer === 'relief').length, 30);
 assert.equal(workers.filter(w => w.rosterLayer === 'security').length, 8);
 assert.equal(new Set(workers.map(w => w.homeCoordinate)).size, 99);
+assert.equal(new Set(life.villagers.map(w=>w.home.coordinate)).size,116);
 assert.equal(new Set(workers.map(w => w.name)).size, 99);
 assert(workers.every(w => coords.includes(w.homeCoordinate)));
 

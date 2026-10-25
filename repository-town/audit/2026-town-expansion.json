@@ -585,12 +585,15 @@
     }
   ],
   "residentStaffing": {
-    "existingHoused": 171,
-    "newLocalHoused": 17,
-    "totalHoused": 188,
-    "additionalPremisesNotStaffedByTownResidents": 55,
-    "unoperatedShellsArePreviewOnly": true,
-    "regionalCommuterRosterPending": true
+    "originalWorkers": 99,
+    "newWorkers": 72,
+    "totalWorkers": 171,
+    "marriedCouples": 55,
+    "occupiedHomes": 116,
+    "existingHomes": 188,
+    "remainingNonworkerHomes": 72,
+    "allSitesRostered": true,
+    "interiors": "stage-one shells"
   },
   "painting": {
     "taskId": "RTBUILD-073",
@@ -599,5 +602,6 @@
     "contractor": "Asha Green",
     "status": "quoting-and-logistics-implemented",
     "nswRealLicenceIssued": false
-  }
+  },
+  "marriageModule": "repository-town/src/world/resident-families.js"
 }

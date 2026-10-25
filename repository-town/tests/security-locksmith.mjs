@@ -23,7 +23,8 @@ for(const [id,col,name] of [
 }
 assert.equal(t.villagers.length,ROSTER_SIZE,'new named workers all reside in town');
 assert.equal(new Set(t.villagers.map(v=>v.name)).size,ROSTER_SIZE,'guards and locksmith have distinct identities');
-assert.equal(new Set(t.villagers.map(v=>v.home.coordinate)).size,ROSTER_SIZE,'no new duplicate homes');
+assert.equal(new Set(t.villagers.map(v=>v.home.coordinate)).size,116,'only real married partners share dwellings');
+assert.equal(t.marriages.length,55);
 const guards=t.villagers.filter(v=>v.job==='security guard');
 assert.equal(guards.length,2,'morning and afternoon guard shifts');
 assert(guards[0].start<guards[1].start,'staggered guards');

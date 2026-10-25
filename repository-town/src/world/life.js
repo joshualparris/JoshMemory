@@ -1,3 +1,4 @@
+import {ORIGINAL_WORKERS,EXPANSION_WORKERS,MARRIED_COUPLES,createMarriages,reconcileSpouseHouseholds,householdMembers as familyMembers} from './resident-families.js';
 import { EXPANSION_SITES } from './town-expansion.js';
 import { tickPubUtilities, pubKitchenReady, pubAction, validPubUtilities } from './pub-utilities.js';
 import { tickElectricalPilot, validElectricalPilotState } from './electrical-pilot.js';
@@ -216,7 +217,7 @@ const RELIEF_ROLES = {
  coop:'poultry shed attendant', orchard:'orchard hand', garden:'garden produce assistant',
  silo:'grain handling operator'
 };
-export const RELIEF_SITES = PLACE_DEFS.filter(p=>p.kind!=='home' && p.kind!=='park' &&
+export const RELIEF_SITES = PLACE_DEFS.filter(p=>!p.expansion && p.kind!=='home' && p.kind!=='park' &&
  JOBS.filter(j=>j[1]===p.id && !['student','retired'].includes(j[0])).length<2).map(p=>p.id);
 for (const id of RELIEF_SITES) {
  const p=PLACE_DEFS.find(place=>place.id===id);
@@ -237,16 +238,12 @@ JOBS.push(
   ['qualified locksmith','locksmith',8*60,18*60],
   ['locksmith apprentice','locksmith',9*60,17*60],
 );
-// New 2026 services join AFTER all pre-existing roster IDs so existing save identities remain stable.
-// These are real on-duty resident workers, not permanent 'ghost' shop attendants.
-// Each added site has one rostered staff member; detailed relief/rotation is individual-building work.
-// Local residential jobs are deliberately capped by the 188 existing dwellings.
-// Remaining shells need visiting commuters or later roster design, not 72 invented homes.
-export const EXPANSION_LOCAL_STAFFED=Object.freeze(["library","pharmacy","fuelstop","repotech","nursery","hairdresser","officesupplies","publicamenities","childcare","vet","supermarket","dentist","sports","stockfeed","gym","optometry","pathology"]);
-JOBS.push(...EXPANSION_SITES.filter(site=>EXPANSION_LOCAL_STAFFED.includes(site.id))
-  .map(site=>[site.staffRole,site.id,
-    Math.max(6*60,site.opens||8*60),
-    Math.min(22*60,site.closes||17*60)]));
+// One named worker per new business. New sites never create duplicate automatic relief shifts.
+export const EXPANSION_LOCAL_STAFFED=Object.freeze(EXPANSION_SITES.map(p=>p.id));
+JOBS.push(...EXPANSION_SITES.map(p=>[p.staffRole,p.id,
+  Math.max(6*60,p.opens||8*60),Math.min(22*60,p.closes||17*60)]));
+if(JOBS.length!==ORIGINAL_WORKERS+EXPANSION_WORKERS)
+ throw new Error('Original worker IDs or expanded roster changed unexpectedly');
 export const ROSTER_SIZE = JOBS.length;
 // Villager names; src/ui/social.js keeps their friendships and grudges.
 export const VILLAGER_NAMES = ['Mabel', 'Arlo', 'Bea', 'Cas', 'Dot', 'Ezra', 'Flo', 'Gus', 'Hattie', 'Ivo', 'June', 'Kip', 'Lou', 'Merv', 'Nora', 'Ollie',
@@ -488,25 +485,27 @@ export class TownLife {
       letters: [], player: { wallet: 75, bank: 150, bag: {} }, credit: freshCredit(), finance: freshFinance(),
     };
     this.homes = homes;
-    // Keep the original 38 placements and ALSO the historically assigned next
-    // 61 placements stable. Recomputing the placement stride from today's 188
-    // workers had silently moved worker IDs 38–98 into different houses,
-    // breaking existing household save references and the 24 Oct inventory.
+    // Spread households across town: every step-th house, starting from the third.
+    // Preserve all original 38 residents' house assignments so existing saves
+    // keep their household and legal property references intact. New employees
+    // move into otherwise unused homes spread across the remaining streets.
     const legacyCount = 38;
-    const baselineRosterCount = 99;
     const step = Math.max(1, Math.floor(homes.length / legacyCount));
     const legacyHomes = homes.filter((_, i) => i % step === Math.min(2, step - 1)).slice(0, legacyCount);
     const occupied = new Set(legacyHomes.map(h => h.coordinate));
     const availableHomes = homes.filter(h => !occupied.has(h.coordinate));
-    // This stride is the *historical* 99-worker allocator and must not change
-    // when later services employ additional residents.
-    const baselineExtraCount = Math.max(0, Math.min(JOBS.length, baselineRosterCount) - legacyCount);
-    const baselineStep = Math.max(1, Math.floor(availableHomes.length / Math.max(1, baselineExtraCount)));
-    const baselineHomes = availableHomes.filter((_, i) => i % baselineStep === 0).slice(0, baselineExtraCount);
-    for(const home of baselineHomes)occupied.add(home.coordinate);
-    const unassignedHomes = availableHomes.filter(h => !occupied.has(h.coordinate));
-    const remainingCount = Math.max(0, JOBS.length - legacyHomes.length - baselineHomes.length);
-    const picks = [...legacyHomes, ...baselineHomes, ...unassignedHomes.slice(0, remainingCount)];
+    // Reproduce exactly the old 99-person address allocation for save compatibility.
+    const oldExtra=ORIGINAL_WORKERS-legacyCount;
+    const extraStep=Math.max(1,Math.floor(availableHomes.length/oldExtra));
+    const oldExtraHomes=availableHomes.filter((_,i)=>i%extraStep===0).slice(0,oldExtra);
+    const oldHomes=[...legacyHomes,...oldExtraHomes];
+    if(oldHomes.length!==ORIGINAL_WORKERS)throw new Error('Historical residents need 99 plots');
+    const oldCoords=new Set(oldHomes.map(h=>h.coordinate));
+    const remainingHomes=homes.filter(h=>!oldCoords.has(h.coordinate)).slice(0,EXPANSION_WORKERS-MARRIED_COUPLES);
+    if(remainingHomes.length!==EXPANSION_WORKERS-MARRIED_COUPLES)throw new Error('House shortage');
+    // 55 new employees marry existing residents and share their dwelling.
+    // The other 17 new employees occupy spare original dwellings.
+    const picks=[...oldHomes,...oldHomes.slice(0,MARRIED_COUPLES),...remainingHomes];
     this.villagers = JOBS.slice(0, picks.length).map(([job, work, start, end], i) => {
       const home = picks[i];
       return {
@@ -517,6 +516,7 @@ export class TownLife {
         carrying: null, lastMeal: null, meals: [], seen: [], doneToday: {},
       };
     });
+    this.marriages=createMarriages(this.villagers);
     // A larger population needs more shelves and wholesale storage, not magically replenished stock.
     // Goods still originate at farms and are physically delivered by the existing trucks.
     const demandScale=Math.max(1,this.villagers.length/legacyCount);
@@ -528,6 +528,7 @@ export class TownLife {
     }
     // Each household's food, appliances, bills and chores (src/world/household.js).
     for (const v of this.villagers) { v.larder = null; ensureHousehold(v); }
+    reconcileSpouseHouseholds(this.villagers);
     // Persisted NPC social lives advance alongside the town rather than only in UI.
     this.social=freshSocialState();
     // Dedicated marked bays beside the depot, outside the 2 travel lanes.
@@ -645,7 +646,20 @@ export class TownLife {
     const c = this.civic;
     accrueInterest(this);
     // Council rates: every household pays $15 a day towards wages and services.
-    let rates = 0; for (const v of this.villagers) { const due = 15 + (v.rateArrears || 0), r = Math.min(due, Math.max(0, v.wallet)); v.wallet -= r; rates += r; v.rateArrears = Math.min(60, Math.round((due - r) * 100) / 100); }
+    let rates=0;
+    const seenProperties=new Set();
+    for(const v of this.villagers){
+      const key=v.home.coordinate;
+      if(seenProperties.has(key))continue;
+      seenProperties.add(key);
+      const payers=this.villagers.filter(p=>p.home.coordinate===key);
+      let due=15+Math.max(...payers.map(p=>p.rateArrears||0));
+      for(const payer of payers){
+        const amount=Math.min(due,Math.max(0,payer.wallet));
+        payer.wallet-=amount;due-=amount;rates+=amount;
+      }
+      for(const payer of payers)payer.rateArrears=Math.min(60,Math.round(due*100)/100);
+    }
     c.treasury += rates; this.stats.rates = rates; budgetRevenue(this,rates,'rates');
     // Like any country town, the council relies on state and federal grants.
     budgetRevenue(this, dailyGrants(this), 'grant');
@@ -1817,13 +1831,16 @@ export class TownLife {
   }
 
   // ── For chat, the guide and the ledger ──
+  householdMembers(coordinate){return familyMembers(this.villagers,coordinate);}
   describe(v) {
     const last = v.lastMeal ? `${v.lastMeal.name} at ${fmt(v.lastMeal.at)}${v.lastMeal.day !== this.day ? ' yesterday' : ''}` : 'nothing yet today';
     const pantry = larderSummary(v);
     return { name: v.name, job: v.job, workplace: v.work === 'home' ? 'from home' : this.place(v.work).name, home: `${v.home.coordinate} (${v.home.name})`,
       now: v.activity, lastMeal: last, recentMeals: v.meals, hungry: v.hunger > 60,
       fatigue: Math.round(v.fatigue), tired: v.fatigue>70, pantry, wallet: v.wallet,
-      carrying: v.carrying, memory: v.memory || null, social: this.socialSummary(v.name) };
+      carrying: v.carrying, memory: v.memory || null, social: this.socialSummary(v.name),
+      relationship:{status:v.maritalStatus,spouse:v.spouseName||null,
+      marriageYear:v.marriageYear||null,backstory:v.relationshipBackstory||null} };
   }
   socialSummary(name) { return socialReport(this.social,name,this.villagers.map(v=>v.name)); }
   news(n = 6) { return this.events.slice(0, n); }
@@ -1889,6 +1906,7 @@ export class TownLife {
       this.parcels = sim.parcels;
     }
     for (const v of this.villagers) { if (!Array.isArray(v.larder)) v.larder = null; ensureHousehold(v); }
+    reconcileSpouseHouseholds(this.villagers);
     startNeeds(this);
     return true;
   }
