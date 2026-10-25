@@ -4,10 +4,7 @@
 const GIVEN = Object.freeze(['Ada','Bram','Cleo','Dorian','Edie','Finn','Greta','Hugo','Iris','Jasper','Kit','Lena','Milo','Nell','Otis','Pip','Quinn','Rosa','Sol','Tess','Uma','Vic','Wren','Xavi','Yara','Zed']);
 const FAMILY = Object.freeze(['Anderson','Bennett','Clarke','Dawson','Ellis','Fletcher','Graham','Harris','Irwin','Jones','Kelly','Lawson','Mitchell','Nolan','Owen','Parker','Reid','Saunders','Taylor','Underwood','Vaughan','Walker','Young','Abbott','Burke','Campbell','Dean','Foster','Grant','Hughes','McKenzie']);
 
-const HERITAGE_INTERPRETERS = Object.freeze({ A3:'Mara Ellery', N3:'Theo Mercer', T2:'Sadie Wren', I7:'Edgar Lane' });
-
 export function residentName(coordinate) {
-  if (Object.prototype.hasOwnProperty.call(HERITAGE_INTERPRETERS, coordinate)) return HERITAGE_INTERPRETERS[coordinate];
   const match = /^([A-Z])([1-8])$/.exec(String(coordinate || ''));
   if (!match) return 'Town resident';
   const col = match[1].charCodeAt(0) - 65;
