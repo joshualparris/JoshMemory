@@ -4,13 +4,13 @@ Status: RTU-001 source/runtime audit complete; no new utility runtime deployed. 
 Execution order is the numbered order below; IDs are permanent. Next: RTU-002, then RTU-003.
 Preserve existing power-grid tests, economy, saves, lighting circuits and other agents' claims.
 
-## Baseline audit (RTU-001 started)
+## Baseline audit (RTU-001 completed)
 Inspected src/world/power-grid.js and utility wiring in life.js at 19a13fe.
 Electricity: ten directed edges; seven aggregate customers (clinic, waterworks, sewage, bakery, industry, west/east homes). Integer fictional units, not kW/kWh. Capacity/fault accounting exists; every individual building is NOT connected.
 Water/sewer have stock/production dependencies in life.js; a physical pipe graph, per-property water balance, pressure and sewer gradients require separate verification.
 Gas has no audited distribution model. Do not infer piped natural gas availability from electricity fuel stocks.
 Lighting already has power-aware circuits; these must use the eventual building service connection rather than a global percentage.
-Full runtime/building coverage audit remains open: do not mark RTU-001 complete from these initial reads.
+The completed RTU-001 audit now covers all 234 registered locations, controlled fault/save probes and lighting scene inspection; see [report and evidence](RTU_001_ELECTRICAL_AUDIT.md). New utility implementation and hosted gameplay verification remain open.
 
 ## Research and design decisions
 Cities: Skylines II distinguishes electricity and water infrastructure and treatment; borrow readable service overlays and bottlenecks, not automatic fictional connections.
