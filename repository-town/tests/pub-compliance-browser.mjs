@@ -8,7 +8,10 @@ try{for(const mobile of [false,true]){
  await page.goto(process.env.TOWN_URL||'http://localhost:8091/');await page.waitForFunction(()=>window.__town&&document.getElementById('loading').hidden,null,{timeout:90000});
  const manifest=await page.evaluate(async()=>await(await fetch('release.json',{cache:'no-store'})).json());
  await page.evaluate(()=>{window.__town.life.setTime(600);window.__town.life.run(180);window.__town.life.speed(0);});
- assert(await page.evaluate(()=>window.__town.enterShop('pub')));
+ // Cross the actual street-facing entry transition with keyboard movement.
+ await page.evaluate(()=>{const p=window.__town.shops().find(x=>x.id==='pub');window.__town.meetGuide();window.__town.place(p.door.x,p.door.z+3,0);});
+ await page.keyboard.down('w');await page.waitForFunction(()=>window.__town.state().mode==='house',null,{timeout:8000});await page.keyboard.up('w');
+ assert((await page.evaluate(()=>window.__town.state().interactables)).some(x=>x.key==='pub:operations'));
  const press=async key=>{await page.keyboard.down(key);await page.waitForTimeout(200);await page.keyboard.up(key);await page.waitForTimeout(250);};
  const approach=async key=>{assert(await page.evaluate(key=>window.__town.approach(key),key),key+' reachable');await page.waitForTimeout(200);await press('e');};
  for(const key of ['pub:toilet','pub:ambulant-wc','pub:cold-room','pub:kitchen']){await approach(key);await page.getByRole('button',{name:'Flush second WC',exact:true}).waitFor();await page.screenshot({path:`audit/pub/completion/${mobile?'phone':'desktop'}-${key.split(':')[1]}.png`});await press('Escape');}
