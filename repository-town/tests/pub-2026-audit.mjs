@@ -49,14 +49,16 @@ test('audited source Git blob hashes unchanged — any code change requires new 
   assert.equal(checkedOutGitBlobSha(path),expected,'Re-audit changed source: '+path);
  }
 });
-test('observed decorative pub, incompatible geometry and only one room/exit metadata still true',async()=>{
+test('modelled single-storey pub envelope and rear exit are explicit; legal discharge remains unverified',async()=>{
  const pub=await readFile(repoFile('repository-town/src/world/pub-interior.js'),'utf8');
  const kit=await readFile(repoFile('repository-town/src/world/interior-kit.js'),'utf8');
  const ext=await readFile(repoFile('repository-town/src/world/townlife.js'),'utf8');
  assert.match(pub,/buildPubInterior/); assert.match(pub,/cold-room door/); assert.match(pub,/The kitchen uses/);
  assert.match(pub,/pub-utilities/); assert.match(pub,/Toilet and hand washing/); assert.match(pub,/Working kitchen services/);
  assert.match(kit,/W: 14, D: 18/); assert.match(kit,/doors: \[\]/);
- assert.match(ext,/pub\(b\)/); assert.match(ext,/14, 7, 11/);
+ assert.match(ext,/pub\(b\)/); assert.match(ext,/14,4\.7,18/);
+ assert.match(pub,/pub:rear-fire-exit/);assert.match(pub,/rearExitZone/);
+ assert.match(kit,/rearExit/);
  const registry=JSON.parse(await readFile(repoFile('repository-town/audit/electricity/coverage.json'),'utf8'));
  const site=registry.records.find(x=>x.id==='B:pub');
  assert.equal(site.address,'N8-S');assert.equal(site.physicalServiceId,null);assert.equal(site.meterId,null);

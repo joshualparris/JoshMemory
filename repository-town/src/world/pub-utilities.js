@@ -1,3 +1,4 @@
+import {pubScenarioAdmission,PUB_PHYSICAL_PLAN_2026} from './pub-physical-plan-2026.js';
 // Fictional Merged Branch pilot. SI-derived units, not an as-built installation.
 import { pilotReport } from './electrical-pilot.js';
 export const PUB_DESIGN = Object.freeze({cisternL:6, refillLmin:3, hotTankL:160, heaterKW:3.6, lpgKWhKg:12.8, burnerKW:18, upsKWh:.12, networkKW:.04});
@@ -7,6 +8,7 @@ export function pubUtilities(life) {
   state.coldExposureMinutes ??= 0;
   state.foodQuarantined ??= false;
   state.extractionOn ??= true;
+  state.scenarioPatrons ??= 0;
   return state;
 }
 export function validPubUtilities(s){
@@ -16,6 +18,7 @@ export function validPubUtilities(s){
  for(const key of ['emergencyMinutes','coldExposureMinutes','roofRunoffL','rainMmHour'])if(s[key]!==undefined&&(!Number.isFinite(s[key])||s[key]<0||s[key]>1e12))return false;
  for(const key of ['foodQuarantined','extractionOn'])if(s[key]!==undefined&&typeof s[key]!=='boolean')return false;
  if(s.emergencyMinutes>90)return false;
+ if(s.scenarioPatrons!==undefined&&(!Number.isInteger(s.scenarioPatrons)||s.scenarioPatrons<0||s.scenarioPatrons>PUB_PHYSICAL_PLAN_2026.occupancy.gameplayPatronScenario))return false;
  return s.cisternL<=6&&s.upsKWh<=.12&&s.hotC<=100&&s.coldC<=100&&['off','electricity','water','sewer','gas','internet','waste'].includes(s.overlay)&&Array.isArray(s.log)&&s.log.length<=20&&s.log.every(x=>typeof x==='string'&&x.length<1000);
 }
 export function pubStatus(life) {
@@ -52,6 +55,15 @@ export function tickPubUtilities(life,minutes) {
 function record(s,message){s.log.unshift(message);s.log=s.log.slice(0,20);return message;}
 export function pubAction(life,action){
   const s=pubUtilities(life),p=pubStatus(life),d=PUB_DESIGN;
+  if(action==='scenario-admit'){
+    const check=pubScenarioAdmission(s.scenarioPatrons,1);
+    if(!check.accepted)return record(s,'Scenario patron cap reached (24); admission REFUSED. Not a legal occupancy certificate or a live NPC census.');
+    s.scenarioPatrons++;return record(s,'Scenario admission recorded: '+s.scenarioPatrons+'/24 patrons (plus 3 staff design scenario).');
+  }
+  if(action==='scenario-depart'){
+    if(s.scenarioPatrons<1)return record(s,'Scenario patron count already zero.');
+    s.scenarioPatrons--;return record(s,'Scenario patron departure recorded: '+s.scenarioPatrons+'/24.');
+  }
   if(action==='water-drink'){
     if(!p.water)return record(s,'Free drinking water unavailable: potable mains isolated. Alcohol service must stop until safe drinking water is available.');
     s.waterL+=.25;return record(s,'Free drinking water served: 0.25 L potable water consumed.');

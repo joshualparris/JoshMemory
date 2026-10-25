@@ -16,6 +16,8 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-25 · ChatGPT — ACTIVE: PUB-CODE/RTPUB-002/003/004/009/010 highest-physical-impact redesign, plus 005 emergency interfaces. Branch `feat/pub-code-physical-top-five-20261025`. Scope: pub-interior.js, interior-kit.js (pub-only rear option), townlife.js (pub only), pub-physical-plan-2026.js, pub utilities/panel, focused regression, tracker/matrix/checkpoint. Preserve separate electricity grid pilot. No real compliance certification or final outdoor discharge claimed. Other town/NPC/lighting ownership unaffected.
+
 - 2026-10-25 · Codex — IN PROGRESS: user-authorised PUB-CODE/RTPUB-010–017, 019, 021, 033–034 gameplay improvements, especially missing WC door/privacy and separated kitchen; inspect remaining standards without claiming certification. Files src/world/pub-interior.js, pub-utilities.js, src/ui/pub-utilities-panel.js, focused tests and pub docs. Preserve concurrent electrical backbone work. Baseline main; implementation, release gate, desktop/emulated mobile and hosted verification pending.
 
 

@@ -1,3 +1,7 @@
+# PUB-CODE top-five P0 physical redesign — 25 October 2026
+
+Owner ChatGPT; branch feat/pub-code-physical-top-five-20261025; main baseline e3824be. User authorised large structural pub remodel and tests. New design-stage changes: 14 × 18 m one-storey pub shell, revised signage, rear wall opening/door/aisle, 24+3 occupancy management scenario, sanitary fixtures/accessible circulation and extra rear emergency lighting. Preserve pre-existing electrical pilot and utilities. Permanent task IDs PUB-CODE/RTPUB-002/003/004/009/010 remain OPEN pending actual regulatory checks. Source and route tests, full CI and hosted exact SHA required. Real external rear discharge, legal approved capacity, AS1428 access, actual building/fire/food licences and all original permits remain UNVERIFIED.
+
 # Pub rescue integration — 25 October 2026
 
 Reconciles tested PR #204 sanitary/privacy/kitchen changes with the newer main pub-history commit, without fabricating original construction age. Date and opening year must remain UNKNOWN. The remaining 33 NCC/food/fire/utility tasks remain OPEN. New CI, reviewed merge and hosted fingerprint must pass before release claims. No actual building-code certification is claimed.

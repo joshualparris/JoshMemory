@@ -14,9 +14,15 @@ export const ROOM = Object.freeze({ W: 14, D: 18, FRONT: 6, BACK: -12, EDGE: 7, 
 // and a window in each side wall. Low solid sills keep the player in; sills sit above any wall
 // panelling; the street shows through the glass (src/world/windows.js). Returns the glass mesh and
 // the windows ({ axis, at, s, e, out }) for the game's window checks.
-export function highStreetShell({ box, solid, wall, frontSill = 0.9, sideSill = 1.4 }) {
+export function highStreetShell({ box, solid, wall, frontSill = 0.9, sideSill = 1.4, rearExit = null }) {
   const { W, D, FRONT, BACK, EDGE, WALL } = ROOM, HEAD = 3.2, SIDE_HEAD = 2.9, WZ0 = -2.5, WZ1 = 1.5, panes = [], windows = [];
-  solid(W, 4.6, WALL, 0, 2.3, BACK, wall);
+  if(rearExit){
+    const {x0,x1}=rearExit;
+    if(!(x0>-W/2 && x1<W/2 && x1-x0>=.9))throw new RangeError('Invalid rear egress opening');
+    solid(x0+W/2,4.6,WALL,(-W/2+x0)/2,2.3,BACK,wall);
+    solid(W/2-x1,4.6,WALL,(x1+W/2)/2,2.3,BACK,wall);
+    box(x1-x0,.6,WALL,(x0+x1)/2,4.3,BACK,wall);
+  }else solid(W,4.6,WALL,0,2.3,BACK,wall);
   for (const x of [-4, 4]) {
     solid(6, frontSill, WALL, x, frontSill / 2, FRONT, wall);
     for (const px of [x - 2.65, x + 2.65]) box(0.7, 4.6 - frontSill, WALL, px, 2.3 + frontSill / 2, FRONT, wall);
@@ -100,10 +106,10 @@ export function createKit(site, makeLabel, roomTitle) {
   };
   // Floor, ceiling and the windowed shell, with a proper door gap (never a collider across it).
   let windows = [];
-  const shell = ({ wall, ceiling = 0xf0e8d6, floor = 0xb9a88f, frontSill, sideSill }) => {
+  const shell = ({ wall, ceiling = 0xf0e8d6, floor = 0xb9a88f, frontSill, sideSill, rearExit }) => {
     box(W, 0.24, D, 0, -0.12, -3, floor);
     box(W, 0.27, D, 0, 4.7, -3, ceiling);
-    const s = highStreetShell({ box, solid, wall, frontSill, sideSill });
+    const s = highStreetShell({ box, solid, wall, frontSill, sideSill, rearExit });
     group.add(s.glass); windows = s.windows;
   };
   let lighting = null;
