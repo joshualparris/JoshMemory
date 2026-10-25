@@ -217,6 +217,6 @@ The Merged Branch (`B:pub`, `N8-S`) was assessed against **NSW NCC 2022 Amendmen
 
 [NSW Class 6/approval and building-age evidence](docs/PUB_RTPUB_001_CLASSIFICATION_2026.md) is complete for the **fictional** The Merged Branch at N8-S. This does **not** claim code compliance or real DA/CC/OC. Task references now qualify the collision between **PUB-CODE/RTPUB-001–034** and pre-existing **PUB-UTIL/RTPUB-001–008** without renumbering. Updated [audit](docs/PUB_NCC_2026_COMPLIANCE_AUDIT.md) accounts for the separately merged [pub utilities pilot](docs/PUB_UTILITIES_PILOT.md); code tasks 002–034 remain open.
 
-## The Merged Branch — established 1911
+## The Merged Branch — original construction date UNKNOWN
 
-The fictional N8-S pub was **built in 1911**, opened **1912** as the *Branch Line Hotel*, and took the name *The Merged Branch* in **2019**. [History, NSW-era comparators and regulatory limitations](docs/PUB_FICTIONAL_HISTORY_1911.md). There is now an **EST. 1911** plaque with a game interaction and period-inspired brick façade. This does not invent permits, heritage listing or completed accessible/fire/kitchen code approval. [RTPUB audit and outstanding work](docs/PUB_NCC_2026_TODO.md).
+The fictional N8-S pub is **The Merged Branch**. Its original construction year, first opening date, former trading name and age remain **UNKNOWN**; earlier 1911/1912/2019 guesses were retracted. [Corrected source-aware history](docs/PUB_FICTIONAL_HISTORY_1911.md). The in-game inspection and plaque display the missing date rather than an invented year. A separate WC and kitchen, safety representations and utility interlocks are simulated, **not** independently certified building work. [RTPUB audit and remaining standards roadmap](docs/PUB_NCC_2026_TODO.md).
