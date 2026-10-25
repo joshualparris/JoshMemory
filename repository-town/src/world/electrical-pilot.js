@@ -155,6 +155,10 @@ export function pilotReport(life){
     essentialBackupKwh:state.essentialBackupKwh,siteCount:sites.length,
     status:'synthetic_pilot_not_certified_loadflow'};
 }
+export function pilotMains(life,id){
+  const report=pilotReport(life);
+  return report?.siteById?.[id]?.mains ?? null;
+}
 export function pilotPowered(life,id){
   const report=pilotReport(life);
   return report?.siteById?.[id]?.powered ?? null;
