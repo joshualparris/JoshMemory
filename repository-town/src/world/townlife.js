@@ -1,3 +1,4 @@
+import { buildPubFacade, PUB_ENVELOPE } from './pub-envelope.js';
 import { buildExpansionFacade } from './town-expansion-facades.js';
 import { shopLightingOn, interiorPalette } from './lighting.js';
 import * as THREE from 'three';
@@ -93,7 +94,7 @@ export const SIGN_AT = {
   // sprites, these remain readable even when proximity labels are hidden.
   soyfarm: [0, 3.75, 7.135, 7.12, 0.69, '#254632', '#f7f2df'],
   soyplant: [0, 4.75, 7.135, 8.36, 0.71, '#264c57', '#f3f7f5'],
-  pub: [0, 6.15, 7.08, 7, 0.9, '#1f3a2a', '#f1e3b5'], hall: [0, 7.1, 7.99, 11, 0.62, '#d8d2c4', '#3a3226'],
+  pub: [0, 3.91, 7.15, 7, 0.65, '#1f3a2a', '#f1e3b5'], hall: [0, 7.1, 7.99, 11, 0.62, '#d8d2c4', '#3a3226'],
   school: [0, 3.9, 7.07, 6, 0.7, '#f3ead2', '#2a3a5a'], depot: [0, 3.9, 7.07, 6, 0.7, '#2b2118', '#f1e3b5'],
   mill: [0, 3.2, 4.06, 2.6, 0.55, '#f3ead2', '#3a2a1e'], bank: [0, 5.62, 7.83, 9, 0.55, '#e8e2d2', '#3a3226'],
   power: [-2, 3.4, 7.09, 5, 0.6, '#e8c23a', '#222222'], waterworks: [-4, 2.95, 5.58, 4.4, 0.5, '#e9eef2', '#1f4a6a'],
@@ -169,16 +170,7 @@ const BUILD = {
     return { w: 11, d: 9 };
   },
   pub(b) {
-    b.box(0x7a4a3a, 14, 7, 11, 0, 3.5, 1.5); b.box(0x3a2a22, 14.6, 0.8, 11.6, 0, 7.4, 1.5);
-    for (let f = 0; f < 2; f++) for (const x of [-4.5, -1.6, 1.6, 4.5]) if (!(f === 0 && Math.abs(x) < 2)) b.box(GLASS, 1.2, 1.4, 0.08, x, 1.6 + f * 3.1, 7.04);
-    // Brick quoins and cornice hint at a period-inspired fictional hotel with unknown construction date.
-    for(const x of [-6.35,6.35])for(const y of [1.0,2.2,3.4,4.6,5.8])b.box(0xb47d61,.58,.22,.12,x,y,7.10);
-    b.box(0xd4b391,14.2,.23,.18,0,6.6,7.10);
-    b.box(0x2a1e18, 1.6, 2.5, 0.06, 0, 1.25, 7.04);
-    b.block(DARK, 0.1, 3.4, 0.1, 6.4, 0, 8.2); b.box(DARK, 1.2, 0.08, 0.08, 5.9, 3.3, 8.2); b.box(0x2f5a3a, 0.9, 1.1, 0.08, 5.6, 2.6, 8.2);
-    for (const x of [-5.2, -4.4]) b.cyl(0x7a5030, 0.4, 0.95, x, 0.48, 8.0);
-    for (const x of [-2.8, 3.2]) { b.block(WOOD, 1.8, 0.08, 0.8, x, 0.75, 9.6); b.block(WOOD, 1.8, 0.45, 0.3, x, 0, 9.0); b.block(WOOD, 1.8, 0.45, 0.3, x, 0, 10.2); }
-    return { w: 14, d: 11 };
+    return buildPubFacade(b,{GLASS,DARK,WOOD});
   },
   post(b) {
     shopfront(b, 11, 9, 4.6, 0xe8d2b0, 0xb8413a, null);

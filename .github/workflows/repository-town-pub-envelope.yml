@@ -1,0 +1,58 @@
+name: RTPUB-002 and RTPUB-024 building-envelope acceptance
+on:
+  pull_request:
+    paths:
+      - 'repository-town/src/world/pub-envelope.js'
+      - 'repository-town/src/world/pub-interior.js'
+      - 'repository-town/src/world/townlife.js'
+      - 'repository-town/tests/pub-envelope-002-024.mjs'
+      - '.github/workflows/repository-town-pub-envelope.yml'
+  push:
+    paths:
+      - 'repository-town/src/world/pub-envelope.js'
+      - 'repository-town/tests/pub-envelope-002-024.mjs'
+      - '.github/workflows/repository-town-pub-envelope.yml'
+permissions:
+  contents: read
+jobs:
+  pub-envelope-geometry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install deterministic dependencies
+        working-directory: repository-town
+        run: npm ci --no-audit --no-fund
+      - name: Assert real facade, roof and window geometry and matched pub interior
+        working-directory: repository-town
+        run: |
+          node --test tests/pub-envelope-002-024.mjs tests/pub-2026-audit.mjs tests/pub-history.mjs
+          node tests/pub-utilities.mjs
+          node tests/shop-interiors.mjs
+      - name: Run town release, saved games and collision acceptance
+        working-directory: repository-town
+        run: |
+          npm run build:release
+          node tools/verify-release.mjs dist/public
+      - name: Playtest published build at desktop and Android-sized viewport
+        working-directory: repository-town
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx playwright install --with-deps chromium
+          node tools/serve.mjs dist/public 8091 >/tmp/rtpub-envelope-qa.log 2>&1 &
+          pid=$!
+          trap 'kill "$pid" 2>/dev/null || true' EXIT
+          node tests/pub-utilities-browser.mjs
+      - name: Keep QA browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rtpub-002-024-qa
+          retention-days: 30
+          path: repository-town/audit/pub-utilities/
