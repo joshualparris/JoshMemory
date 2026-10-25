@@ -7,6 +7,9 @@ import { createElectricalPilotVisuals } from '../src/world/electrical-pilot-visu
 import { pubStatus,pubKitchenReady } from '../src/world/pub-utilities.js';
 import {electricalPilotPanel} from '../src/ui/electrical-pilot-panel.js';
 import fs from 'node:fs';
+import {shopService} from '../src/world/shop-attendance.js';
+import {coldChainHour} from '../src/world/cold-chain.js';
+import {householdHour,ensureHousehold} from '../src/world/household.js';
 
 const life=()=>({minute:12*60,day:1,civic:{weather:'sunny',
  supply:{waterOk:true},electricalPilot:null},gridPowered:()=>true});
@@ -110,4 +113,55 @@ assert(geometry.overlay.visible);
 assert(geometry.permanent.children.length>0);
 geometry.dispose();
 assert(base.children.length===0);
+
+// RTU-012 production acceptance: physical faults, not the old bakery/west-home
+// aggregate feeder, now gate counter trade, individual cold rooms and appliances.
+const operations=life();
+initialiseElectricalPilot(operations);
+operations.gridPowered=()=>true; // legacy grouped grid remains healthy
+operations.open=()=>true;
+operations.villagers=[];
+const shop={id:'butcher',name:'Town Butcher'};
+assert.equal(shopService(operations,shop).reason,'unstaffed');
+pilotAction(operations,'fault:SERVICE:B:butcher');
+assert.equal(shopService(operations,shop).reason,'power-outage','physical breaker disables shop till');
+assert.equal(pilotMains(operations,'B:pub'),true,'pub stays powered when butcher loses service');
+pilotAction(operations,'fault:SERVICE:B:butcher');
+assert.equal(shopService(operations,shop).reason,'unstaffed','repair restores electrical availability');
+const shops=Object.fromEntries(['store','bakery','greengrocer','butcher','cafe','pub','soyplant'].map(id=>
+ [id,{id,name:id,stock:{milk:5,lamb:3},out:{milk:0,lamb:0,soymilk:0},coldOff:0}]));
+operations.place=id=>shops[id]||null;
+operations.stats={wasted:0};
+operations.rubbish=()=>{};
+operations.log=()=>{};
+pilotAction(operations,'fault:SERVICE:B:butcher');
+coldChainHour(operations);
+assert.equal(shops.butcher.coldOff,60,'butcher fridge starts warming on its own isolated circuit');
+assert.equal(shops.store.coldOff,0,'neighbouring store fridge remains powered');
+assert.equal(shops.pub.coldOff,0,'pub fridge unaffected');
+pilotAction(operations,'fault:SERVICE:B:butcher');
+coldChainHour(operations);
+assert.equal(shops.butcher.coldOff,0,'restoring butcher service resets cooling outage timer');
+// The physical N7 service also powers a real household fridge, not only facade glass.
+const resident={
+ id:0,name:'N7 test resident',job:'retired',
+ home:{coordinate:'N7',door:{x:13,z:120}},
+ inside:true,step:{kind:'sleep',at:'home'},path:[],
+ larder:[],
+};
+ensureHousehold(resident);
+operations.villagers=[resident];
+operations.daylight=()=>0;
+operations.rubbish=()=>{};
+const nowSupply=householdHour(operations,23);
+assert(resident.household.meter.power>0&&resident.household.fridgeOff===0);
+pilotAction(operations,'fault:SERVICE:H:N7');
+const off=householdHour(operations,23);
+assert.equal(resident.household.fridgeOff,60,'N7 individual meter cuts household refrigeration');
+assert(off.power<nowSupply.power,'outage genuinely reduces served household energy');
+assert.equal(pilotMains(operations,'H:K7'),true,'other house remains supplied');
+pilotAction(operations,'fault:SERVICE:H:N7');
+householdHour(operations,23);
+assert.equal(resident.household.fridgeOff,0,'restored supply restarts fridge');
+
 console.log('PASS: RTU pilot 15 source-derived addresses, 4 transformers, real paths, kW/kWh, PV night/anti-islanding, battery SOC depletion, selective pub/shop/house faults, meter/saves, visual line scene and inspector UI');
