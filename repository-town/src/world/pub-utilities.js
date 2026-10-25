@@ -30,7 +30,7 @@ export function pubStatus(life) {
   const power=s.breaker && (pilot?pilot.mains:life.gridPowered('industry'));
   const backup=s.breaker && !!pilot?.backup;
   const water=s.waterValve && life.civic.supply.waterOk!==false && pubConnected(life,'water','town-water','water-isolator');
-  return {power,backup,water,internet:s.upstreamInternet&&pubConnected(life,'internet','carrier','eftpos')&&(power||backup||s.upsKWh>1e-8),sewer:s.sewerOpen&&pubConnected(life,'sanitary','sanitary-lateral','town-sewer'),hot:s.hotC>=45,cold:s.coldC<=5,gas:s.lpgValve&&s.lpgKg>0};
+  return {power,backup,water,internet:s.upstreamInternet&&pubConnected(life,'internet','carrier','eftpos')&&(((power||backup)&&pubConnected(life,'electricity','switchboard','network'))||s.upsKWh>1e-8),sewer:s.sewerOpen&&pubConnected(life,'sanitary','sanitary-lateral','town-sewer'),hot:s.hotC>=45,cold:s.coldC<=5,gas:s.lpgValve&&s.lpgKg>0};
 }
 export function pubKitchenReady(life){
  const s=pubUtilities(life),p=pubStatus(life);
@@ -52,7 +52,8 @@ export function tickPubUtilities(life,minutes) {
     s.hotC=Math.max(18,Math.min(60,s.hotC+heater*h/(d.hotTankL*.001163)-(s.hotC-18)*dt/1440));
     // Battery-backed essentials can run the cold room for their limited rated autonomy.
     s.coldC= ((p.power||p.backup)&&pubConnected(life,'electricity','switchboard','cold-room')) ? Math.max(3,s.coldC-dt*.15) : 24-(24-s.coldC)*Math.exp(-dt/180);
-    if(p.power){s.electricityKWh+=(1.2+.3+d.networkKW+heater)*h;s.upsKWh=Math.min(d.upsKWh,s.upsKWh+.06*h);}
+    if(p.power)s.electricityKWh+=((pubConnected(life,'electricity','switchboard','cold-room')?1.2:0)+(pubConnected(life,'electricity','switchboard','lights')?.3:0)+(pubConnected(life,'electricity','switchboard','network')?d.networkKW:0)+heater)*h;
+    if((p.power||p.backup)&&pubConnected(life,'electricity','switchboard','network'))s.upsKWh=Math.min(d.upsKWh,s.upsKWh+.06*h);
     else s.upsKWh=Math.max(0,s.upsKWh-d.networkKW*h);
   }
 }
@@ -89,7 +90,7 @@ export function pubAction(life,action){
     s.cisternL-=3;s.sewageL+=3;return record(s,'Half flush: 3 L from cistern to sanitary drain and town sewer.');
   }
   if(action==='wash'){
-    if(!p.water||!p.hot||!p.sewer||!pubConnected(life,'water','town-water','basin')||!pubStandards(life).soap||!pubStandards(life).towels)return record(s,'Hand washing unavailable: warm potable water and a working drain are required.');
+    if(!p.water||!p.hot||!p.sewer||!pubConnected(life,'water','town-water','basin')||!pubConnected(life,'sanitary','basin','town-sewer')||!pubStandards(life).soap||!pubStandards(life).towels)return record(s,'Hand washing unavailable: warm potable water and a working drain are required.');
     s.waterL+=2;s.sewageL+=2;s.hotC=18+(s.hotC-18)*(158/160);return record(s,'Hands washed with warm water, soap and a single-use towel; 2 L drained to sewer.');
   }
   if(action==='meal'){
@@ -99,13 +100,13 @@ export function pubAction(life,action){
     return record(s,'One demonstration meal prepared: LPG consumed, extraction powered, wash-up routed through grease arrestor. Not a stock purchase or food-safety certification.');
   }
   if(action==='glass'){
-    if(!p.power||!p.water||!p.sewer||!p.hot||!pubConnected(life,'trade','dishwasher','town-sewer'))return record(s,'Glasswasher unavailable: power, hot water and drainage required.');
+    if(!p.power||!p.water||!p.sewer||!p.hot||!pubConnected(life,'water','town-water','dishwasher')||!pubConnected(life,'trade','dishwasher','town-sewer'))return record(s,'Glasswasher unavailable: power, hot water and drainage required.');
     s.waterL+=3;s.tradeWasteL+=3;s.electricityKWh+=.1;s.hotC=18+(s.hotC-18)*157/160;return record(s,'Glasswasher cycle: 3 L, 0.1 kWh; trade wastewater to pre-treatment.');
   }
   if(action==='network')return record(s,p.internet?'Router and NBN endpoint powered; upstream link available. EFTPOS simulation online.':'Internet/VoIP/EFTPOS offline. Local backup cannot repair an upstream outage.');
   const toggles={water:'waterValve',power:'breaker',sewer:'sewerOpen',gas:'lpgValve',internet:'upstreamInternet'};
   if(toggles[action]){s[toggles[action]]=!s[toggles[action]];return record(s,action+' service '+(s[toggles[action]]?'available':'isolated')+' (simulation test).');}
   if(action==='collect')return record(s,pubStandardsAction(life,'collect'));
-  if(action==='grease'){s.greaseKg=0;return record(s,'Recorded licensed contractor grease-arrestor pump-out (manual scenario).');}
+  if(action==='grease')return record(s,pubStandardsAction(life,'grease'));
   return 'Unknown pub utility action.';
 }

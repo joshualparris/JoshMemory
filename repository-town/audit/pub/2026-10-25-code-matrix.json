@@ -19,12 +19,12 @@
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "3c994f3d469a1e86b856d23c52f9e954c17a3b95",
-    "repository-town/src/main.js": "e28c97464097d948f6abccfefc1f052204da6160",
+    "repository-town/src/main.js": "45764916e8bff3ca2e606a269451e578c306f383",
     "repository-town/src/world/pub-service-visuals.js": "250e1c65e7022bf98051f46dd908b263caacc5bd",
     "repository-town/src/world/pub-physical-plan-2026.js": "883ac78e5be55f79f77387068563743edb272c4a",
-    "repository-town/src/ui/pub-standards-panel.js": "3f62dd87f5dbf48b6a500135344a880f656bf3ea",
-    "repository-town/src/world/pub-utilities.js": "198dd0ef6fb03840d33aacd4c78da8ed900a6a58",
-    "repository-town/src/world/pub-standards.js": "fc4144f1db60fb71a49ea7517685e3650fbd1696",
+    "repository-town/src/ui/pub-standards-panel.js": "50a0f39d016d28f8ad7f1424e5297865fb8a530b",
+    "repository-town/src/world/pub-utilities.js": "859ea17b6df094883bfc8b6ae142260ab0251b69",
+    "repository-town/src/world/pub-standards.js": "8a16914e84ce645585629f84d5e70db31e71281e",
     "repository-town/src/world/pub-plant.js": "fdaf8c6fcc2394c84bf8e5670f2d4537e826bd0d"
   },
   "sources": {

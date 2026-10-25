@@ -1,3 +1,6 @@
+# Pub final candidate — 25 October 2026
+Full integration/28-day soak, geometry and privacy stages PASS. Final memorial guard failed on pre-existing resident&&!base.memorial whitespace; restored expected spacing only, then memorial/integrity/release verification PASS. Final focused graph tests now cover per-edge isolation, seven nonempty exclusive overlays and conserved oil/grease collection. No further feature expansion planned. Next: commit/source audit, upload candidate, exact-SHA full CI/browser and isolated hosted QA.
+
 # Pub release regression checkpoint — 25 October 2026
 Source uploaded to protected PR208 cc7e6e9; full release reached public-politics test. Its opt-out failure reproduced unchanged at e9fc9e4: civic-role branch bypassed avoids preference. Minimal fix preserves that preference before role selection; focused test passes. No new dialogue content/RTD completion claimed. Added actual detector/manual callpoint/panic hardware representations and corrected in-game rear-route descriptions; browser screenshots from earlier physical pass remain historical. Full release rerun pending, then exact-SHA build and desktop/phone hosted QA.
 
