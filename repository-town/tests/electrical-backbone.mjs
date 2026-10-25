@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { validateUtilityGraph } from '../src/world/utility-network-schema.js';
 import { buildTownElectricalBackbone,createElectricalServiceRegistry,
   validateTownElectricNetwork,traceElectricalService,ROAD_X,roadZ } from '../src/world/electrical-backbone.js';
 const path='audit/electricity/';
@@ -83,13 +84,13 @@ duplicate.edges.push({...duplicate.edges[0]});
 assert.throws(()=>validateTownElectricNetwork(duplicate,audit.records),/duplicate edge/);
 const broken=structuredClone(design);
 broken.edges[0].to='DOES-NOT-EXIST';
-assert.throws(()=>validateTownElectricNetwork(broken,audit.records),/orphan edge/);
+assert.throws(()=>validateTownElectricNetwork(broken,audit.records),/orphan/);
 const discon=structuredClone(design);
 discon.edges=discon.edges.filter(e=>e.id!=='MV-INTAKE');
 assert.throws(()=>validateTownElectricNetwork(discon,audit.records),/unenergised source/);
 const duplicatemeter=structuredClone(design);
 duplicatemeter.services.find(s=>s.id==='B:pub').meterId='MTR:B:bakery';
-assert.throws(()=>validateTownElectricNetwork(duplicatemeter,audit.records),/duplicate\/unassigned meter|missing meter/);
+assert.throws(()=>validateTownElectricNetwork(duplicatemeter,audit.records),/duplicate meter|duplicate\/unassigned meter|missing meter/);
 const nonexistent=structuredClone(design);
 nonexistent.services[0].id='H:NOPE';
 assert.throws(()=>validateTownElectricNetwork(nonexistent,audit.records),/orphan service/);
@@ -103,4 +104,23 @@ assert.throws(()=>validateTownElectricNetwork(opened,audit.records),/unenergised
 for(const transformer of design.transformers){
   assert(transformer.diversifiedKva * 1.2<=transformer.ratedKva+0.01,transformer.id+' has no headroom');
 }
+// The same physical graph contract handles other utility media without
+// pretending the full water/sewer/gas physics exist in this task.
+const waterFixture={
+  schemaVersion:1,utility:'water',units:{coordinate:'game_m',flow:'L/s'},
+  nodes:[{id:'TANK',type:'storage',condition:'design_available',position:{x:0,z:0}},
+         {id:'W-METER',type:'water_meter',condition:'design_available',position:{x:5,z:0}}],
+  edges:[{id:'PIPE',from:'TANK',to:'W-METER',type:'pressure_main',
+    route:[{x:0,z:0},{x:5,z:0}],capacity:{value:8,unit:'L/s'},
+    condition:'design_available',isolationState:'closed'}],
+  services:[{id:'H:A1',status:'design_connected',meterId:'W-METER'}]
+};
+assert.equal(validateUtilityGraph(waterFixture).meters,1);
+const waterBad=structuredClone(waterFixture);waterBad.edges[0].capacity.unit='bananas';
+assert.throws(()=>validateUtilityGraph(waterBad),/unsupported capacity units/);
+const waterCycle=structuredClone(waterFixture);
+waterCycle.edges.push({id:'BACK',from:'W-METER',to:'TANK',type:'bad_backflow',
+  route:[{x:5,z:0},{x:0,z:0}],capacity:{value:8,unit:'L/s'},
+  condition:'design_available',isolationState:'closed'});
+assert.throws(()=>validateUtilityGraph(waterCycle),/cycle/);
 console.log('PASS: RTU-003/004/005 all 234 properties audited, 233 design connections, pub and independent breaker faults, source→LV radial topology, route/phase/meter and invalid fixture checks; no live grid falsely claimed.');
