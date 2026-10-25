@@ -1,0 +1,563 @@
+{
+  "schemaVersion": 1,
+  "asOf": "2026-10-25",
+  "locationId": "B:pub",
+  "gameAddress": "N8-S",
+  "name": "The Merged Branch",
+  "repository": "joshualparris/JoshMemory",
+  "basis": "Static default-branch source and test audit; not a browser playtest, construction inspection or legal compliance certificate",
+  "nccAsAtDate": "NCC 2022 Amendment 2 (NSW, effective 2025-07-29); NSW NCC 2025 planned commencement 2027-05-01",
+  "provisionalBuildingClassification": "NCC NSW Class 6 hospitality bar/dining; confirm ancillary/mixed classification and actual approvals",
+  "sourceBlobs": {
+    "repository-town/src/world/pub-interior.js": "e838fd930069af152fd540917345559fcd9df272",
+    "repository-town/src/world/interior-kit.js": "db71ca2ed36aef856a774459f46e1ecd601f1e82",
+    "repository-town/src/world/townlife.js": "f3c23f39cef51a89f3e474c0ea3dbf8098ba7c2b",
+    "repository-town/src/world/life.js": "5bb9b66107a114ea06e8e68df20fad1d0e740a32",
+    "repository-town/src/world/shop-interior.js": "16dda8a921427cc02e4433d50bf3c73d361b9470",
+    "repository-town/tests/shop-interiors.mjs": "15f25f43d8c6be959cc0d83e546fd1a7e6ac28df",
+    "repository-town/audit/electricity/coverage.json": "f80df771b893799e27b3adc98b92fe335c13f28b",
+    "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2"
+  },
+  "sources": {
+    "S01": {
+      "authority": "NSW Building Commission",
+      "title": "How to comply with NCC: NSW current edition 2022 Amendment 2, 29 July 2025; 2025 deferred to May 2027",
+      "url": "https://www.nsw.gov.au/housing-and-construction/compliance-and-regulation/how-to-comply-national-construction-code"
+    },
+    "S02": {
+      "authority": "ABCB",
+      "title": "NCC 2022 Volume One NSW Class 6, Parts B/C/D/E/F/G/J; building classification applies by use",
+      "url": "https://ncc.abcb.gov.au/editions/ncc-2022/adopted/volume-one"
+    },
+    "S03": {
+      "authority": "NSW Building Commission",
+      "title": "AS 1851-2012 inspection/testing from 13 February 2026 and FSS/AFSS obligations",
+      "url": "https://www.nsw.gov.au/departments-and-agencies/building-commission/industry-changes/as1851-2012/responsibilities-of-building-owners-under-as-1851-2012"
+    },
+    "S04": {
+      "authority": "NSW Food Authority",
+      "title": "Cafes, restaurants and retail outlets: 3.2.3, AS 4674, premises and inspection",
+      "url": "https://www.foodauthority.nsw.gov.au/retail/cafes-restaurants-and-retail-outlets"
+    },
+    "S05": {
+      "authority": "NSW Food Authority",
+      "title": "Hand-washing requirements: dedicated warm potable handwash and adjoining WCs",
+      "url": "https://www.foodauthority.nsw.gov.au/help/hand-washing-food-businesses"
+    },
+    "S06": {
+      "authority": "NSW Food Authority",
+      "title": "Standard 3.2.2A: supervisor, food handler training, showing food safe",
+      "url": "https://www.foodauthority.nsw.gov.au/retail/standard-322a-food-safety-management-tools/standard-322a-frequently-asked-questions"
+    },
+    "S07": {
+      "authority": "NSW Government Liquor & Gaming",
+      "title": "Hotel licence: free water/food, posted hotel licence/licensee, minors restrictions, training and trading hours",
+      "url": "https://www.nsw.gov.au/business-and-economy/liquor-and-gaming/liquor-licensing/licence-types/hotel"
+    },
+    "S08": {
+      "authority": "Dubbo Regional Council",
+      "title": "Retail food businesses including bars and hotels must register with Council; planning and inspection",
+      "url": "https://www.dubbo.nsw.gov.au/Business-Investors/Business-Responsibilities/food-business-responsibilities"
+    },
+    "S09": {
+      "authority": "Dubbo Regional Council",
+      "title": "Liquid trade waste must have written Section 68 approval",
+      "url": "https://www.dubbo.nsw.gov.au/business-investors/business-responsibilities/trade-waste"
+    },
+    "S10": {
+      "authority": "NSW Building Commission",
+      "title": "Plumbing Code of Australia NCC Volume Three applies to NSW plumbing/drainage",
+      "url": "https://www.nsw.gov.au/housing-and-construction/compliance-and-regulation/how-to-comply-national-construction-code"
+    },
+    "S11": {
+      "authority": "NSW Government Liquor & Gaming",
+      "title": "Underage drinking: venue authorisations and age controls",
+      "url": "https://www.nsw.gov.au/business-and-economy/liquor-and-gaming/liquor-licensing/licence-responsibilities/underage-drinking"
+    },
+    "S12": {
+      "authority": "NSW Government Liquor & Gaming",
+      "title": "Gaming machine layout, separation and restricted access if gambling machines are added",
+      "url": "https://www.nsw.gov.au/business-and-economy/liquor-and-gaming/gaming/gaming-machines/location"
+    },
+    "S13": {
+      "authority": "NSW Food Authority",
+      "title": "Food Regulation 2025 commenced 1 September 2025",
+      "url": "https://www.foodauthority.nsw.gov.au/about-us/legislation/food-regulation-2025"
+    },
+    "S14": {
+      "authority": "NSW Government",
+      "title": "Liquor Plan of Management: free water, ID checks, RSA and service conditions",
+      "url": "https://www.nsw.gov.au/business-and-economy/liquor-and-gaming/liquor-licensing/resources/liquor-plan-of-management"
+    },
+    "S15": {
+      "authority": "NSW Government",
+      "title": "NCC 2025 adoption in NSW deferred to May 2027",
+      "url": "https://www.nsw.gov.au/ministerial-releases/nsw-to-adopt-new-national-construction-code-may-2027"
+    }
+  },
+  "checks": [
+    {
+      "id": "RTPUB-001",
+      "title": "Classification, use, approval and building age",
+      "priority": "P0",
+      "status": "unverified",
+      "sourceObservation": "site is named pub, has bar and dining; no classified floor plan, approved use, DA/CC/OC or prior approval date in audited scene",
+      "requiredEvidenceOrWork": "Assess NSW Class 6 pub/bar and any mixed Class 9b/3 or other uses, approvals and which NCC edition applies to each construction stage; never claim retrospective universal obligation",
+      "regulationRefs": [
+        "S01",
+        "S02",
+        "S08"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-002",
+      "title": "Exterior-to-interior dimensions and storeys",
+      "priority": "P0",
+      "status": "geometry-conflict",
+      "sourceObservation": "townlife.js pub facade 14 m wide × 11 m deep × ~7 m high with two glazing bands, vs interior-kit 14 m × 18 m single walkable room/4.7 m ceiling",
+      "requiredEvidenceOrWork": "Reconcile game coordinate transforms, rear walls, accessible upper floor or remove upper floor cues, roof/building height and consistent fire envelope",
+      "regulationRefs": [
+        "S01",
+        "S02"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-003",
+      "title": "Occupant capacity and seating/loads",
+      "priority": "P0",
+      "status": "unverified",
+      "sourceObservation": "three four-seat bistro tables, six bar stools and sofa/chairs; no occupancy certificate, staff/dynamic-crowd capacity",
+      "requiredEvidenceOrWork": "Determine patron/staff occupancy and floor area, occupancy-based amenities and egress; set enforceable in-game maximum if game-realistic",
+      "regulationRefs": [
+        "S02",
+        "S07"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-004",
+      "title": "Egress route, door swing and exit count",
+      "priority": "P0",
+      "status": "not-modelled",
+      "sourceObservation": "interior-kit has a front exitZone width 2.1 m and doors:[]; no rear fire exit; pub has central aisle furniture collision",
+      "requiredEvidenceOrWork": "Compute path travel distance, exits number and distribution, swing, unobstructed clear widths, latch/hardware and final exit discharge for actual classification/occupancy, then implement accepted game geometry",
+      "regulationRefs": [
+        "S01",
+        "S02"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-005",
+      "title": "Emergency lighting and exit signs",
+      "priority": "P0",
+      "status": "not-modelled",
+      "sourceObservation": "ordinary point/hemisphere and decorative wall lighting visible; no tested exit sign, emergency luminaire, power failure or escape-route contrast model",
+      "requiredEvidenceOrWork": "Add correctly located sign/lighting representations where NCC design requires; controlled blackout test, schedule/service references",
+      "regulationRefs": [
+        "S02",
+        "S03"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-006",
+      "title": "Essential fire safety measures",
+      "priority": "P0",
+      "status": "not-modelled",
+      "sourceObservation": "pub scene has fireplace and room lighting but no identified alarm/smoke detection, portable extinguishers, hose reels, sprinklers (if required), fire blanket or appropriate kitchen suppression",
+      "requiredEvidenceOrWork": "Determine required measures from NCC, building size/use and fire safety schedule; render actual necessary components and demonstrate fault/inspection states, not blanket declare sprinkler requirement",
+      "regulationRefs": [
+        "S02",
+        "S03"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-007",
+      "title": "Fireplace, heat, flue and combustible finishes",
+      "priority": "P0",
+      "status": "partially-represented",
+      "sourceObservation": "open-looking decorative fireplace at side wall x≈−6.55 with nearby lounge furnishings; flue, hearth, clearances and combustion air unknown",
+      "requiredEvidenceOrWork": "Check if appliance is real fuel or decorative; if fuelled, model hearth/flue/cowl, clearances, alarms and manufacturer fire-safety evidence; prevent impossible collision/ignition geometry",
+      "regulationRefs": [
+        "S02",
+        "S03"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-008",
+      "title": "Fire safety schedule and maintenance AS 1851",
+      "priority": "P0",
+      "status": "unverified",
+      "sourceObservation": "no building-specific fire safety schedule, routine inspection history, essential measures or annual fire safety statement evidence in gameplay files",
+      "requiredEvidenceOrWork": "Add documentary record and simulated competent inspection only after identifying applicable measures; 13 Feb 2026 NSW change matters",
+      "regulationRefs": [
+        "S03"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-009",
+      "title": "Accessible arrival, entrance and circulation",
+      "priority": "P0",
+      "status": "unverified",
+      "sourceObservation": "the kit provides a centre door gap and walkable spawn; threshold ramp, step-free path from footpath, turn space, AS 1428.1 clearances and tactile signs not assessed",
+      "requiredEvidenceOrWork": "Measure full continuous accessible route and entrance; handle turn/counter reach, tables, pinch points and door hardware; obtain accessibility review",
+      "regulationRefs": [
+        "S01",
+        "S02"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-010",
+      "title": "Accessible WC and ambulant fixtures",
+      "priority": "P0",
+      "status": "not-modelled",
+      "sourceObservation": "pub-interior.js creates one room and no WC, washbasin or accessible stall",
+      "requiredEvidenceOrWork": "Provide appropriate accessible/ambulant sanitary facilities after F4/D4 assessment with exact plans, circulation and fittings, no generic decorative toilet proof",
+      "regulationRefs": [
+        "S01",
+        "S02"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-011",
+      "title": "Public and staff sanitary fixture provision",
+      "priority": "P0",
+      "status": "not-modelled",
+      "sourceObservation": "no pub toilet cubicles, basins, urinals or separated patron/staff amenities in source",
+      "requiredEvidenceOrWork": "Calculate fixtures against occupancy, use and mixed zones under NCC F4; model hygiene/privacy/availability and accessible provision",
+      "regulationRefs": [
+        "S01",
+        "S02"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-012",
+      "title": "Hot/cold water, waste drainage and backflow",
+      "priority": "P0",
+      "status": "not-modelled",
+      "sourceObservation": "no visible pub meter, handwash outlet, water heater, grease-waste pipe, traps, sewer lateral or backflow asset; town water is still aggregate",
+      "requiredEvidenceOrWork": "Specify separate potable and trade-waste/drain fixtures, showers only if justified, backflow and hot-water service; connect actual water/sewer game system with conservation",
+      "regulationRefs": [
+        "S10",
+        "S09"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-013",
+      "title": "Actual enclosed commercial kitchen",
+      "priority": "P0",
+      "status": "not-modelled",
+      "sourceObservation": "menu interaction claims meals prepared with a kitchen, but pub scene has no cooking room, ovens, cooking benches or doors to kitchen; menu-only",
+      "requiredEvidenceOrWork": "Build a working kitchen of credible scale and hygiene separation; model equipment work zones and path from food receiving through safe service",
+      "regulationRefs": [
+        "S04",
+        "S06"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-014",
+      "title": "Food preparation, warewashing and separation",
+      "priority": "P0",
+      "status": "not-modelled",
+      "sourceObservation": "no dedicated produce washing/food prep sinks, dishwashing/sanitising line, clean/dirty separation or documented temperature-safe benching",
+      "requiredEvidenceOrWork": "Represent adequate prep, dedicated dishwashing/sanitising, hot potable supply, cleaners' sink and suitable impervious, washable materials; classify operations to choose required equipment",
+      "regulationRefs": [
+        "S04",
+        "S05"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-015",
+      "title": "Dedicated food handler wash stations",
+      "priority": "P0",
+      "status": "not-modelled",
+      "sourceObservation": "no kitchen/bar handwashing sink with warm running potable water, soap and single-use drying fixture",
+      "requiredEvidenceOrWork": "Locate dedicated handwash access within appropriate food-handler work zone and near WCs, with training/operability rather than a generic shared bar sink",
+      "regulationRefs": [
+        "S04",
+        "S05"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-016",
+      "title": "Refrigeration and food cold chain",
+      "priority": "P0",
+      "status": "partially-represented",
+      "sourceObservation": "visual fridge and a slab labelled cold-room door; no walkable cool-room volume, thermometer, food storage zones, temperature logs or explicit pub power feed",
+      "requiredEvidenceOrWork": "Add meaningful chiller/cold room/freezer storage, source-to-food service cold chain, measured/simulated temperatures and outage/recovery/unsafe-food disposal mechanics",
+      "regulationRefs": [
+        "S04",
+        "S06"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-017",
+      "title": "Kitchen exhaust and general ventilation",
+      "priority": "P0",
+      "status": "not-modelled",
+      "sourceObservation": "no hoods, exhaust ducts, roof termination, make-up air, kitchen ventilation interlock; decorative ceiling fans are not ventilation verification",
+      "requiredEvidenceOrWork": "If cooking appliances require it, size/install mechanical kitchen exhaust and make-up air and associated safe discharge/fire interfaces according to actual equipment/design; verify common ventilation requirements",
+      "regulationRefs": [
+        "S01",
+        "S02",
+        "S04"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-018",
+      "title": "Trade waste, fat/oil/grease controls",
+      "priority": "P0",
+      "status": "not-modelled",
+      "sourceObservation": "no greasy waste drainage, grease arrestor, consent/permit or separate collection pathway",
+      "requiredEvidenceOrWork": "Confirm if liquid trade-waste approval needed under Dubbo Section 68 requirements for documented kitchen operations; place accessible grease-treatment assets if specified",
+      "regulationRefs": [
+        "S09",
+        "S04"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-019",
+      "title": "Food refuse, recyclables, pest exclusion and cleaning",
+      "priority": "P1",
+      "status": "not-modelled",
+      "sourceObservation": "pub scene has menu and bar decoration but no sealed waste store, food/chemical segregation, pest barriers or cleaners' sink",
+      "requiredEvidenceOrWork": "Design waste and recycling storage, non-food chemical store, service collection route, pest exclusion and safe mop-water discharge",
+      "regulationRefs": [
+        "S04",
+        "S05",
+        "S08"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-020",
+      "title": "Site rainfall, drainage, roof and stormwater",
+      "priority": "P1",
+      "status": "unverified",
+      "sourceObservation": "pub exterior shell exists; no roof gutters/downpipes/site stormwater or surface drainage routing identified by this audit",
+      "requiredEvidenceOrWork": "Connect to separately audited RT-SYS-004; verify runoff routes, weatherproofing, ground/finished floor levels and sewage separation",
+      "regulationRefs": [
+        "S01",
+        "S02"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-021",
+      "title": "Site-specific electrical circuits/switchboard/RCD",
+      "priority": "P0",
+      "status": "not-modelled",
+      "sourceObservation": "RTU-001 B:pub reports physicalServiceId:null, meterId:null, no distinct customer demand; interior lights callback power-aware only",
+      "requiredEvidenceOrWork": "Map restaurant cooking/chiller/fan/equipment and essential lighting to metered circuits, isolators, RCD/earthing requirements and backup conditional, with load checks",
+      "regulationRefs": [
+        "S01",
+        "S02"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-022",
+      "title": "Cooking fuel/LPG/natural gas eligibility and safety",
+      "priority": "P0",
+      "status": "unverified",
+      "sourceObservation": "no selected cooking technology, gas regulators, fuel supply, ventilation appliance metadata or shutoff; cannot presume town reticulation",
+      "requiredEvidenceOrWork": "Choose electric or legitimately sourced LPG setup; represent isolation, metering, compliance evidence and fault behaviour, no invented gas lines",
+      "regulationRefs": [
+        "S01",
+        "S02"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-023",
+      "title": "Structural footing, loads, wind and roof",
+      "priority": "P1",
+      "status": "unverified",
+      "sourceObservation": "exterior uses box meshes; no structure/design engineering, slab/footings, roof anchorage, imposed loads, NSW wind/climate or fire resistance documentation",
+      "requiredEvidenceOrWork": "Create building-design assumptions and synthetic engineering metadata, verify spanning/structure/cladding, wind and storm loading and structural documentation before claims",
+      "regulationRefs": [
+        "S01",
+        "S02"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-024",
+      "title": "Fire compartmentation and upper-floor access",
+      "priority": "P0",
+      "status": "unverified",
+      "sourceObservation": "external upper glazing implies further level but interior has no first floor, stairs, lift, fire-separation/cool-room compliance analysis",
+      "requiredEvidenceOrWork": "Establish actual number of usable floors; if a real upper storey exists design stairs/access and consider fire compartmentation and egress, or treat façade as explicitly decorative",
+      "regulationRefs": [
+        "S02"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-025",
+      "title": "Indoor acoustic, odour and environmental impacts",
+      "priority": "P1",
+      "status": "unverified",
+      "sourceObservation": "pub, fireplace, lounge and patron activity in game; no calculated plant noise, exhaust or adjacent-premise noise controls",
+      "requiredEvidenceOrWork": "Check consent/licence noise limits and hours, plant/exhaust positions and neighbour impacts; supply fictional controls without asserting real site permit",
+      "regulationRefs": [
+        "S01",
+        "S07",
+        "S08"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-026",
+      "title": "Energy efficiency and insulation",
+      "priority": "P1",
+      "status": "unverified",
+      "sourceObservation": "visual ceiling, fans, cooler but no measured thermal envelope or NCC Section J equipment/controls/energy demand",
+      "requiredEvidenceOrWork": "Assess relevant NCC Section J for actual work/classification and create declared energy/insulation/HVAC loads consistent with electricity game model",
+      "regulationRefs": [
+        "S01",
+        "S02"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-027",
+      "title": "Emergency access, evacuation and staff procedure",
+      "priority": "P1",
+      "status": "not-modelled",
+      "sourceObservation": "no pub-specific evacuation plan, staff alarm action, evacuation muster/signage or fire-and-rescue access route in scene",
+      "requiredEvidenceOrWork": "Model credible staff response, guest egress, muster and evacuation routes without claiming game is fire-safety guidance",
+      "regulationRefs": [
+        "S02",
+        "S03"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-028",
+      "title": "Hotel liquor licence conditions, free water, food availability",
+      "priority": "P0",
+      "status": "partially-represented",
+      "sourceObservation": "bar and meals menu are represented and fictional open hours 11:00–23:00; no documented licence/licensee display, free-water interaction or hours/conditions evidence",
+      "requiredEvidenceOrWork": "Represent NSW hotel licence or chosen appropriate licence, displayed name/licensee, free drinkable water whenever alcohol served and suitable food supply; verify venue-specific approvals",
+      "regulationRefs": [
+        "S07",
+        "S14"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-029",
+      "title": "Responsible service, minors and designated areas",
+      "priority": "P0",
+      "status": "not-modelled",
+      "sourceObservation": "hotspot prose says 'publican serves responsibly' but no age check, RSA workflow, refusal service or minors-authorised floor zones",
+      "requiredEvidenceOrWork": "Add ID/RSA and refusal logic, minor access zone rules, licensed floor boundaries and front/counter signage only as relevant to actual approvals",
+      "regulationRefs": [
+        "S07",
+        "S11",
+        "S14"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-030",
+      "title": "TAB/Keno signage and gaming boundary",
+      "priority": "P1",
+      "status": "partially-represented",
+      "sourceObservation": "TAB/Keno screen is decorative; no gaming machine meshes (not the same as a TAB/Keno screen), authorisations or responsible gaming controls",
+      "requiredEvidenceOrWork": "Keep Keno/TAB separate from poker machine requirements; if gameplay gaming is added implement authorisations, age checks, responsible gambling rules and any separate room design",
+      "regulationRefs": [
+        "S07",
+        "S12"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-031",
+      "title": "Food registration, Food Regulation 2025 and FSS",
+      "priority": "P0",
+      "status": "not-modelled",
+      "sourceObservation": "lamb/pie/veg menu and supply economics exist; no Council food registration, Food Safety Supervisor, food handler training or evidence of safe food controls",
+      "requiredEvidenceOrWork": "Represent notified retail food premises, food supervisor certificates (fictional), training and 3.2.2A checks, lawful temperatures and food safety inspection history",
+      "regulationRefs": [
+        "S08",
+        "S06",
+        "S13"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-032",
+      "title": "Allergen information, traceability and food handling logs",
+      "priority": "P1",
+      "status": "not-modelled",
+      "sourceObservation": "menu gives general dishes but no ingredient allergen disclosures, storage traceability, raw/cooked separation or temperature evidence",
+      "requiredEvidenceOrWork": "Add allergen menu interaction, ingredient/substitution controls, supplier lots, critical control monitoring and no false dietary guarantees",
+      "regulationRefs": [
+        "S04",
+        "S06"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-033",
+      "title": "Separate water/sewer/fire/public utility dependencies",
+      "priority": "P1",
+      "status": "partially-represented",
+      "sourceObservation": "pub lights have power callback but electrical asset registry lacks physical service, and water/sewer systems are aggregate game stocks",
+      "requiredEvidenceOrWork": "Connect all fixtures and plant equipment to real game services and test water/power/sewer outage effects; don't double count fictional water and sanitary streams",
+      "regulationRefs": [
+        "S01",
+        "S10"
+      ],
+      "done": false
+    },
+    {
+      "id": "RTPUB-034",
+      "title": "Measured acceptance, access and legal-review gate",
+      "priority": "P0",
+      "status": "unverified",
+      "sourceObservation": "existing shop interior tests assert one room, colliders and reachable hotspots, not structural/egress/toilet/food/fire or legal certification",
+      "requiredEvidenceOrWork": "Add measured build spec, detailed floor plan, game 3D/mobile walk test, all relevant NCC/PCA/food/liquor checks, independent qualified design review; never mark formally certified using code tests",
+      "regulationRefs": [
+        "S01",
+        "S03",
+        "S04",
+        "S07"
+      ],
+      "done": false
+    }
+  ],
+  "summary": {
+    "total": 34,
+    "notModelled": 17,
+    "geometryConflict": 1,
+    "unverified": 11,
+    "partiallyRepresented": 5,
+    "verifiedCodeCompliant": 0
+  },
+  "limitations": [
+    "No actual planning/occupation approvals or fire safety schedule viewed.",
+    "A game mesh absence is not proof of a physical building code breach.",
+    "Legal requirements and exact fixture/exit thresholds depend on approved class/use, occupancy and building work scope.",
+    "No in-game site walk or live browser test performed.",
+    "Current world coordinates and scene dimensions may use separate representation scales requiring reconciliation."
+  ]
+}

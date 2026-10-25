@@ -1,0 +1,39 @@
+name: Repository Town pub 2026 audit validity
+on:
+  push:
+    paths:
+      - 'repository-town/src/world/pub-interior.js'
+      - 'repository-town/src/world/interior-kit.js'
+      - 'repository-town/src/world/townlife.js'
+      - 'repository-town/src/world/life.js'
+      - 'repository-town/src/world/shop-interior.js'
+      - 'repository-town/tests/shop-interiors.mjs'
+      - 'repository-town/audit/electricity/coverage.json'
+      - 'repository-town/src/world/power-grid.js'
+      - 'repository-town/audit/pub/**'
+      - 'repository-town/tests/pub-2026-audit.mjs'
+      - '.github/workflows/repository-town-pub-audit.yml'
+  pull_request:
+    paths:
+      - 'repository-town/src/world/pub-interior.js'
+      - 'repository-town/src/world/interior-kit.js'
+      - 'repository-town/src/world/townlife.js'
+      - 'repository-town/src/world/life.js'
+      - 'repository-town/src/world/shop-interior.js'
+      - 'repository-town/tests/shop-interiors.mjs'
+      - 'repository-town/audit/electricity/coverage.json'
+      - 'repository-town/src/world/power-grid.js'
+      - 'repository-town/audit/pub/**'
+      - 'repository-town/tests/pub-2026-audit.mjs'
+permissions:
+  contents: read
+jobs:
+  pub-audit-current:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify evidence IDs and source fingerprints (not legal certification)
+        run: node --test repository-town/tests/pub-2026-audit.mjs

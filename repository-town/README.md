@@ -194,3 +194,7 @@ For tasks collected from all twenty agents, use [the portfolio master triage](..
 ## Stormwater roadmap cross-repository handover (25 October)
 
 The parent [RTU utilities masterplan](docs/UTILITIES_MASTERPLAN_2026-10-25.md) now links the 30-task [RT-SYS-004 / RTSM stormwater roadmap](https://github.com/joshualparris/NSWutilities/blob/main/docs/STORMWATER_TASKS.md) and [16-system roadmap audit](https://github.com/joshualparris/NSWutilities/blob/main/docs/UTILITY_ROADMAP_AUDIT_2026-10-25.md). Tasks are defined canonically in NSWutilities so different AI agents do not create competing identifiers. RTSM-003 is the first unclaimed implementation starting point; no stormwater gameplay is claimed as shipped.
+
+## NSW October 2026 pub building-code audit
+
+The Merged Branch (`B:pub`, `N8-S`) was assessed against **NSW NCC 2022 Amendment 2** and 2026 food, liquor, plumbing, fire/accessibility and operational evidence on 25 October 2026. [Full source-based audit](docs/PUB_NCC_2026_COMPLIANCE_AUDIT.md), [34 permanent follow-up tasks RTPUB-001–034](docs/PUB_NCC_2026_TODO.md), [machine-readable audited observations](audit/pub/2026-10-25-code-matrix.json). **Not certifiable as modelled:** missing dedicated kitchen, toilets, assessed egress/accessible route/fire measures, utility services and external/internal shell consistency. This is a *fictional game implementation audit*, not a real building compliance certificate or live playtest. Do not mark work complete until acceptance evidence exists; the static CI only validates source freshness.
