@@ -16,7 +16,6 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
-- 2026-10-25 · Codex — RTPUB-001–008 pub utilities pilot, branch feat/pub-utilities-20261025, baseline 59139c4. Scope pub-interior.js, new pub-utilities.js/pub-utilities-panel.js, focused Life/main integration, tests and documentation. Preserve other claims; no NPC/dialogue changes.
 
 
 
@@ -136,7 +135,10 @@ Newest first. Times in Australia/Sydney.
   `src/ui/npc.js`, `src/ui/npc-chat.js`. Local tests pass; Vercel production deployment
   is currently blocked by the Hobby team's daily deployment quota (`api-deployments-free-per-day`).
 
-## Done recently
+## Done
+
+- 2026-10-25 · Codex — **SOURCE MERGED and QA PUBLISHED: RTPUB utilities pilot**, PR #201 / b7d623c; full release, five 28-day seeds, recorded WebGL and focused local/hosted desktop/emulated Android checks passed. New WC, hand basins, kitchen, finite service inventories, outage controls and overlays. Vercel production is quota-blocked; existing isolated Pages QA published by run 40156740087, root handover and production mirror preserved. Hosted acceptance run 40156987523; direct pub launcher at https://parris-tech-services.github.io/Repository-town-playtest/qa-tests/pub-utilities.html . Full physical network RTPUB-008 remains OPEN; next .01 asset/port graph, detailed children in NSWutilities/docs/PUB_UTILITIES_NEXT_IMPLEMENTATION.md. No claim all utility systems complete.
+ recently
 
 - 2026-10-25 · ChatGPT — **Utility designations and sewerage research complete (documentation only).** RT-SYS-001–016 register; Narromine provisional reference, 18-source registry, pinned SWMM code review, water/power contract proposal, RTSW-001–028 queue. Research children 001/002 complete; all implementation tasks and RTU-022–024 parents remain open. Next RTSW-003 after inventory-owner reconciliation. No electricity/Manus water runtime overwritten. See docs/SEWERAGE_RESEARCH_2026-10-25.md and scoped checkpoint.
 
