@@ -1,3 +1,5 @@
+import {validPubVenue,drinkPubBeer} from './pub-venue.js';
+import {validPool} from './pub-pool.js';
 import {pubAlcoholRefusal,pubAdmission,validPubStandards} from './pub-standards.js';
 import {ORIGINAL_WORKERS,EXPANSION_WORKERS,MARRIED_COUPLES,EXPANSION_IDENTITIES,createMarriages,reconcileSpouseHouseholds,householdMembers as familyMembers} from './resident-families.js';
 import { EXPANSION_SITES } from './town-expansion.js';
@@ -881,7 +883,7 @@ export class TownLife {
     me.bag[good]--; this.shelves(p)[good] = (this.shelves(p)[good] || 0) + 1; p.till -= pay; me.wallet += pay; recordEarning(this, pay); receipt(this, 'sale', `Sold ${GOODS[good].name} to ${p.name}`, pay);
     return `The ${p.name} buys it back for $${pay}.`;
   }
-  eatItem(good) { return eatPlayer(this,good); }
+  eatItem(good) { if(['pub_beer','pub_bottled_beer'].includes(good))return drinkPubBeer(this,good);return eatPlayer(this,good); }
   soyAction(site,action){return soyAction(this,site,action);}
   soyReport(){return soyReport(this);}
   orderCafe(itemId) { return orderCafe(this,itemId); }
@@ -1880,6 +1882,8 @@ export class TownLife {
     if (s.saveVersion !== undefined && (!Number.isInteger(s.saveVersion) || s.saveVersion < 1 || s.saveVersion > 3)) return false;
     if (!Number.isFinite(s.day) || s.day < 1 || !Number.isFinite(s.minute) || s.minute < 0 || s.minute >= 1440) return false;
     if (s.civic !== undefined && (s.civic === null || typeof s.civic !== 'object' || Array.isArray(s.civic))) return false;
+    if(s.civic?.pubVenue!==undefined&&!validPubVenue(s.civic.pubVenue))return false;
+    if(s.civic?.pubPool!==undefined&&!validPool(s.civic.pubPool))return false;
     if(s.civic?.pubStandards!==undefined&&!validPubStandards(s.civic.pubStandards))return false;
     if(s.civic?.pubUtilities!==undefined && !validPubUtilities(s.civic.pubUtilities))return false;
     if(s.civic?.electricalPilot!==undefined && !validElectricalPilotState(s.civic.electricalPilot))return false;

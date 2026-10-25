@@ -1,3 +1,5 @@
+import {pubPoolPanel} from './ui/pub-pool-panel.js';
+import {pubKenoPanel} from './ui/pub-venue-panel.js';
 import {pubStandardsPanel} from './ui/pub-standards-panel.js';
 import {pubRearExitPose} from './world/pub-physical-plan-2026.js';
 import { pubUtilitiesPanel } from './ui/pub-utilities-panel.js';
@@ -737,6 +739,8 @@ async function start() {
       const thing = nearThing, request = ++interactionRequest, house = inside;
       const restricted=restrictedServiceAction(life,inside?.place,thing);
       if(restricted){status(restricted);return;}
+      if(thing.act?.do==='pub-pool'){openPanel(pubPoolPanel(life),thing);return;}
+      if(thing.act?.do==='pub-keno'){openPanel(pubKenoPanel(life),thing);return;}
       if(thing.act?.do==='pub-standards'){openPanel(pubStandardsPanel(life),thing);return;}
       if(thing.act?.do==='pub-rear-exit'){leave(true,false,'rear');return;}
       if(thing.act?.do==='pub-utilities'){
@@ -1183,7 +1187,7 @@ async function start() {
         animate(inside.dynamics, t, active);
         inside.visitors?.update(dt,t,player);
         inside.workplay?.update(dt,player);
-        inside.utilityVisuals?.(life);
+        inside.utilityVisuals?.(life,dt,t);
         if(inside?.house?.coordinate){
           const p=pilotReport(life)?.siteById?.['H:'+inside.house.coordinate];
           if(p)inside.group.userData.updateLighting?.(p.mains);
