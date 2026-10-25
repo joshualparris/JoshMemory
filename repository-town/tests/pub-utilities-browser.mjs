@@ -4,6 +4,7 @@ const browser=await chromium.launch({args:['--no-sandbox','--use-angle=swiftshad
 for(const mobile of [false,true]){
  const page=await browser.newPage({viewport:mobile?{width:390,height:844}:{width:1280,height:800},isMobile:mobile,hasTouch:mobile});
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ const closePanel=async()=>{await page.locator('#panel-close').click();const vp=page.viewportSize();await page.mouse.click(vp.width*.5,vp.height*.45);};
  await page.goto(process.env.TOWN_URL||'http://localhost:8091/');
  await page.waitForFunction(()=>window.__town&&document.getElementById('loading').hidden,null,{timeout:90000});
  await page.evaluate(()=>{window.__town.life.setTime(10*60);window.__town.life.run(180);window.__town.life.speed(0);});
@@ -17,7 +18,7 @@ for(const mobile of [false,true]){
   await page.getByRole('button',{name:'Flush toilet',exact:true}).click();
   await page.getByRole('button',{name:'Overlay: water',exact:true}).click();
   await page.screenshot({path:`audit/pub-utilities/${mobile?'mobile':'desktop'}-${key.split(':')[1]}.png`});
-  await page.keyboard.down('Escape');await page.waitForTimeout(180);await page.keyboard.up('Escape');await page.waitForTimeout(150);
+  await closePanel();await page.waitForTimeout(150);
  }
  await page.evaluate(()=>window.__town.approach('pub:services'));await page.waitForTimeout(200);await page.keyboard.down('e');await page.waitForTimeout(180);await page.keyboard.up('e');
  await page.getByRole('button',{name:'Trip / reset pub breaker',exact:true}).click();
@@ -27,7 +28,9 @@ for(const mobile of [false,true]){
  await page.getByRole('button',{name:'Fail / restore upstream internet',exact:true}).click();
  assert((await page.locator('#panel-body').innerText()).includes('internet offline'));
  await page.screenshot({path:`audit/pub-utilities/${mobile?'mobile':'desktop'}-outage.png`});
- await page.keyboard.down('Escape');await page.waitForTimeout(180);await page.keyboard.up('Escape');
+ await closePanel();
+ // Start the movement probe in the clear aisle, not against service plant.
+ await page.evaluate(()=>window.__town.place(0,-2,0));
  const before=await page.evaluate(()=>window.__town.state().pos);
  await page.keyboard.down('s');await page.waitForTimeout(600);await page.keyboard.up('s');
  const after=await page.evaluate(()=>window.__town.state().pos);assert(Math.hypot(after.x-before.x,after.z-before.z)>.05,'keyboard movement');

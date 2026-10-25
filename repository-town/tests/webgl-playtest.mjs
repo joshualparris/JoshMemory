@@ -105,6 +105,8 @@ async function play(kind,options) {
   const at={x:bank.door.x,z:bank.door.z-2.35,yaw:Math.PI};
   assert.equal(await page.evaluate(p=>Boolean(window.__town.probeStatic(p.x,p.z)),at),false,kind+': front bank approach obstructed');
   await page.evaluate(p=>window.__town.place(p.x,p.z,p.yaw),at);
+  // Return real input focus from the phone HUD button to the canvas before WASD.
+  const vp=page.viewportSize();await page.mouse.click(vp.width*.5,vp.height*.45);
   await page.keyboard.down('w');
   try{await page.waitForFunction(()=>window.__town.state().mode==='house',null,{timeout:7000});}
   finally{await page.keyboard.up('w');}
