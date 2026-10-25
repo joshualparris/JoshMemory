@@ -222,7 +222,9 @@ export function buildTownElectricalBackbone(records) {
     const tx='DIST-DED-'+slug,bus='LV-DED-BUS-'+slug;
     const mv=point(x,z),curb=point(x,z+(s.side==='north'?-6.6:6.6));
     const diverse=ROUND(s.assumedConnectedKva*(s.critical?0.85:0.65));
-    const rated=maxKva(diverse*1.2);
+    // Dedicated industrial/essential feeders cannot assume diversity from a
+    // single premises; allow its full preliminary connected kVA plus reserve.
+    const rated=maxKva(s.assumedConnectedKva*1.2);
     assert(rated,'dedicated facility capacity exceeds catalogue '+s.id);
     node(tapId,'mv_tap',mv,22,{feederId,buildingSite:s.id});
     node(tx,'distribution_transformer',curb,0.4,{
