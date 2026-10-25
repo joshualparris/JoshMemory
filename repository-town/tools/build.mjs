@@ -42,7 +42,7 @@ for (const target of ['public', 'private']) {
   // Heritage museums never receive procedurally generated modern household furniture.
   // Modify only the PUBLIC bundle; canonical private simulation code stays untouched.
   if (target === 'public') for (const [relative, before, after] of [
-    ['main.js', 'resident&&!base.memorial?', 'resident&&!base.memorial&&!base.heritage?'],
+    ['main.js', 'resident && !base.memorial?', 'resident && !base.memorial&&!base.heritage?'],
     ['world/interior.js', '!house.memorial', '!house.memorial&&!house.heritage'],
   ]) {
     const file = path.join(out, relative), previous = fs.readFileSync(file, 'utf8');
