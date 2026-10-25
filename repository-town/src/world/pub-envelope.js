@@ -1,3 +1,4 @@
+import {addPubExteriorServices} from './pub-plant.js';
 // PUB-CODE/RTPUB-002 & RTPUB-024: a single source for the modelled pub's building envelope.
 // Dimensions are GAME UNITS (1 unit is treated as 1 metre for the design exercise).
 // This is not a surveyed cadastral plan, development consent, NCC certificate, or structural design.
@@ -71,7 +72,11 @@ export function buildPubFacade(b, {GLASS=0x9fd3ea,DARK=0x33363b,WOOD=0x8a6545}={
     piece('side-glass',GLASS,.045,sw.headM-sw.sillM,sw.frontZ-sw.rearZ,
       x+Math.sign(x)*.07,(sw.sillM+sw.headM)/2,(sw.frontZ+sw.rearZ)/2);
   }
-  piece('rear-wall',wall,e.widthM,high,t,0,high/2,B);
+  piece('rear-wall',wall,5.95,high,t,-4.025,high/2,B);
+  piece('rear-wall',wall,5.95,high,t,4.025,high/2,B);
+  piece('rear-exit-header',wall,2.1,high-2.5,t,0,(high+2.5)/2,B);
+  piece('rear-exit-door',0x3f514d,2.0,2.4,.08,0,1.2,B-.12);
+  addPubExteriorServices(b);
   // One low, non-occupied hipped roof and continuous parapet, not a false
   // upper storey or second row of illuminated windows.
   piece('roof-capping',roof,14.6,.24,18.6,0,4.86,C);

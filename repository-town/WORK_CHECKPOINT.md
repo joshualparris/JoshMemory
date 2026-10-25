@@ -1,3 +1,9 @@
+# Pub playable systems milestone — 25 October 2026
+Desktop + emulated Android browser checks PASS: both WCs, cold room, kitchen, operational faults, actual keyboard rear discharge and 1.2 m external route. Conservative two-hour warm-food quarantine; seven schematic network overlays. Focused PUB-CODE geometry/service, finance and household tests pass. Expanded-roster finance baseline fixed with one debit per shared home, population-scaled finite opening government allocation/reserve and morning/evening means-tested support (including students/pensioners). 14-day town test now PASS without weakening assertions. Full release and hosted publication pending. Next build:release, source audit and protected PR208 upload. No formal certification claimed.
+
+# PR208 completion milestone — 25 October 2026
+Reconciled main envelope/heritage/NPC fixes. Added second WC, walk-in cold room, widened circulation, real rear world exit/side route, four emergency luminaires, independently faultable typed service graphs, operations/RSA/inspection controls and persistent safety state. Focused geometry/service tests pass. Full release baseline economic failure reproduced; investigating shared-home billing. Browser boot syntax regression corrected; current desktop/Android tests being rerun. No legal or live certification claim.
+
 # Pub completion resume — 25 October 2026
 Owner Codex; resume/pub-code-completion; remote PR #208 f6e41d9, latest main e9fc9e4. Reconciled conflicts retaining main pub-envelope and heritage/NPC fixes and P0 access/egress changes. No completion claims. Next: functional rear discharge, continuous access geometry, utility graph/service and safety operations; validate focused/full suites and publish exact tested build.
 

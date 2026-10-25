@@ -17,8 +17,8 @@ export const RATES = Object.freeze({
   stateGrant: 300,        // most NSW pays the council in a day
   gstTopUp: 400,          // most the Commonwealth passes to NSW in a day (the GST pool)
   stateReserve: 15000,
-  federalStart: 40000,
-  stateStart: 25000,
+  federalStart: 180000,   // opening allocation for 171 residents (formerly 40000 for 38)
+  stateStart: 112500,     // same per-resident allocation; existing saves retain their balances
   arrearsCapWages: 6,     // unpaid wage arrears stop growing after this many shifts
   journalMax: 120,
 });
@@ -104,7 +104,10 @@ export function dailyGrants(life) {
   const f = fin(life), c = life.civic;
   const gst = Math.min(RATES.gstTopUp, Math.max(0, RATES.stateReserve - f.state), f.federal);
   if (gst > 0) { f.federal = r2(f.federal - gst); f.state = r2(f.state + gst); record(life, 'commonwealth', 'nsw', gst, 'GST distribution to NSW'); }
-  const need = Math.max(0, RATES.councilReserve - c.treasury);
+  // Keep the original per-resident operating reserve after roster expansion.
+  // Grants still debit finite state/federal accounts and obey their existing caps.
+  const reserve=RATES.councilReserve*Math.max(1,(life.villagers?.length||38)/38);
+  const need = Math.max(0, reserve - c.treasury);
   // Council transfers scale with the number of staffed households. Both caps remain
   // limited by the real finite Commonwealth and NSW balances, so wages cannot mint cash.
   const extra = Math.max(0, (life.villagers?.length || 38) - 38);
@@ -148,13 +151,18 @@ export function dailyClose(life) {
   if (f.rentArrears + f.powerArrears > 0) life.log('Your rent and power are overdue. Pay them at the Community Bank.');
   // Villager households (src/world/household.js): renters pay the council's housing office, buyers
   // repay the Community Bank, and overdue power and water bills are collected by direct debit.
+  const closedHomes=new Set();
   for (const v of life.villagers) {
+    const home=v.household||v;
+    if(closedHomes.has(home))continue;
+    closedHomes.add(home);
     const h = householdDay(life, v);
     const landlordRent=receiveTenantRent(life,v,h.rentPaid||0);
     const publicPaid = Math.max(0,r2(h.council-(h.rentPaid||0)+landlordRent));
     if (publicPaid > 0) { c.treasury = r2(c.treasury + publicPaid); revenue(life, 'rent', publicPaid); }
     if (h.bank > 0) { bankReceives(life, h.bank); record(life, 'npc:' + v.name, 'community bank', h.bank, 'Home-loan repayment'); }
     v.housingArrears = Math.min(80, h.owed);
+    for(const partner of life.villagers)if(partner!==v&&partner.household===v.household)partner.housingArrears=v.housingArrears;
     if (v.housingArrears > 0) f.daily.unpaid = r2(f.daily.unpaid + v.housingArrears);
   }
   // Private businesses pay utilities from the till, then any bills they still owe.

@@ -25,7 +25,7 @@ const u=pubUtilities(town);u.breaker=false;const money=town.civic.player.wallet,
 const bad=structuredClone(snapshot);bad.civic.pubUtilities.cisternL=-1;assert.equal(restored.restore(bad),false);
 console.log('PASS pub utilities: finite inventories, service dependencies, UPS depletion, cold chain, accounting, save restore, overlay isolation and walkable fixtures');
 // Regression: private sanitary enclosure and separate food room have animated leaves.
-assert.deepEqual(room.doors.map(d=>d.name),['pub:wc-door','pub:kitchen-door','pub:rear-fire-exit']);
+assert.deepEqual(room.doors.map(d=>d.name),['pub:cold-room-door','pub:ambulant-wc-door','pub:wc-door','pub:kitchen-door','pub:rear-fire-exit']);
 for(const door of room.doors){assert(door.children.some(c=>c.isMesh));assert(door.userData.centre.isVector3);assert(room.sight.some(s=>s.door===door));}
 const isolated={civic:{supply:{waterOk:true}},gridPowered:()=>true};
 const state=pubUtilities(isolated);const initialWater=state.waterL;

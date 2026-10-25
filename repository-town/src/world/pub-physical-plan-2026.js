@@ -29,3 +29,13 @@ export function pubExitLayout(){
  return {separationM:Math.abs(front.z-rear.z),rearHasModelledDoor:true,
   rearFinalDischargeVerified:false,notLegalEgressAssessment:true};
 }
+export function pubExteriorRoute(site){
+ const sign=site.side==='south'?-1:1,oz=site.originZ;
+ if(!Number.isFinite(oz)||!Number.isFinite(site.x))throw new TypeError('Pub world origin required');
+ return [{x:site.x,z:oz-13.2*sign},{x:site.x+8*sign,z:oz-14*sign},{x:site.x+8*sign,z:oz+12.2*sign},{x:site.x,z:oz+12.2*sign}];
+}
+export function pubRearExitPose(site,colliders,radius=.46){
+ const p=pubExteriorRoute(site)[0];
+ const blocked=(colliders||[]).some(c=>p.x>c.x0-radius&&p.x<c.x1+radius&&p.z>c.z0-radius&&p.z<c.z1+radius);
+ return blocked?null:{...p,yaw:site.side==='south'?Math.PI:0};
+}

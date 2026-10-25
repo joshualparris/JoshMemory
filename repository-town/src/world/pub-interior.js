@@ -1,3 +1,6 @@
+import {pubServiceLayers} from './pub-service-visuals.js';
+import {addPubPlant} from './pub-plant.js';
+import {pubStandards} from './pub-standards.js';
 import {PUB_PHYSICAL_PLAN_2026,pubExitLayout} from './pub-physical-plan-2026.js';
 import {PUB_ENVELOPE,pubFacadeCoordinate} from './pub-envelope.js';
 import {pubHistoryDescription} from './pub-history.js';
@@ -24,7 +27,7 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
     const leaf=new THREE.Mesh(new THREE.BoxGeometry(width-.04,2.36,.08),new THREE.MeshLambertMaterial({color:0x56635b}));
     leaf.position.set(width/2,1.18,0); hinge.add(leaf);
     for(const dz of [-.08,.08]){const handle=new THREE.Mesh(new THREE.BoxGeometry(.22,.04,.04),new THREE.MeshLambertMaterial({color:0xc4c8cc}));handle.position.set(width-.2,1,dz);hinge.add(handle);}
-    hinge.userData={baseRot:0,open:0,centre:new THREE.Vector3((x0+x1)/2,0,z)};
+    hinge.userData={baseRot:0,open:0,centre:new THREE.Vector3((x0+x1)/2,0,z),swing:id==='pub:wc-door'?-1:1};
     group.add(hinge);doors.push(hinge);
     sight.push({x0,x1,y0:0,y1:2.4,z0:z-.08,z1:z+.08,door:hinge});
     box(width,.3,.16,(x0+x1)/2,2.55,z,0xddd7c9);
@@ -48,7 +51,7 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
   for (let i = 0; i < 6; i++) cyl(0.05, 0.04, 0.12, -0.5 + i * 0.18, 1.2, CZ - 0.1, 0xe8e0c8, { a: 0.7 }, 10);
   box(0.46, 0.28, 0.42, 3.0, 1.28, CZ, 0x2d3036); box(0.38, 0.2, 0.02, 3.0, 1.33, CZ + 0.22, 0x8fc4e8, { e: 0x4f94c8 });
   for (let i = 0; i < 6; i++) { const x = -3.4 + i * 1.3; k.seat('barstool-'+i,'stool',x,CZ+1.25,0); cyl(0.2, 0.2, 0.05, x, 0.72, CZ + 1.25, LEATHER, {}, 12); cyl(0.03, 0.03, 0.7, x, 0.35, CZ + 1.25, 0x2a2a2a, {}, 6); cyl(0.2, 0.2, 0.02, x, 0.02, CZ + 1.25, 0x2a2a2a, {}, 12); }
-  k.seat('bar-end-stool','stool',4.5,CZ+1.25,0); cyl(.2,.2,.05,4.5,.72,CZ+1.25,LEATHER); cyl(.03,.03,.7,4.5,.35,CZ+1.25,0x2a2a2a);
+  k.seat('bar-end-stool','stool',3.9,1,0); cyl(.2,.2,.05,3.9,.72,1,LEATHER); cyl(.03,.03,.7,3.9,.35,1,0x2a2a2a);
   // back-bar: mirror, shelves of bottles, glass rack, fridges
   // Split back-bar shelving around the rear exit. The centre aisle stays clear to the door.
   for(const sx of [-2.6,2.6]) box(2.45,1.5,.06,sx,2.2,BACK+.2,0xcfd8dc,{a:.5});
@@ -56,8 +59,24 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
     box(2.45,.05,.3,side*2.6,y,BACK+.35,WOOD);
     for(let i=0;i<6;i++)cyl(.055,.055,.28,side*(1.55+i*.38),y+.16,BACK+.35,[0x2f5a3f,0x7a4a22,0xc9a24a,0x3a5a7a,0x8a2f2f][(i+Math.round(y*5))%5],{a:.9},8);
   }
-  solid(1.8, 0.95, 0.6, -3.0, 0.48, -10.5, 0xd9dde0); box(1.7, 0.8, 0.04, -3.0, 0.5, -10.18, 0xcfe8ee, { a: 0.4 });
-  box(1.4, 2.2, 0.08, 1.8, 1.1, BACK + 0.12, 0x6a5a4a);                                    // cold-room door
+  // Walk-in cold-room volume and door; no decorative fake entrance.
+  solid(.12,2.7,2.6,-1.15,1.35,-10.65,0xe1e6e3);
+  solid(.4,2.7,.12,-3.55,1.35,-9.3,0xe1e6e3);
+  solid(.5,2.7,.12,-1.45,1.35,-9.3,0xe1e6e3);
+  door('pub:cold-room-door',-3.35,-1.7,-9.3);
+  solid(.4,1.5,1.8,-3.55,.75,-10.7,STEEL);
+  text('Cold room · raw food below ready-to-eat',-2.5,2.4,-10.8);
+  add('cold-room','Cold room and temperature log','pub-utilities','Persistent temperature exposure and food quarantine.',-2.4,-9.8);
+  // Second sanitary cubicle: a separate ambulant design scenario, not a fixture-count approval.
+  solid(.12,2.7,3.0,1.25,1.35,-10.4,0xddd7c9);
+  solid(.6,2.7,.12,1.55,1.35,-8.9,0xddd7c9);
+  solid(.6,2.7,.12,3.45,1.35,-8.9,0xddd7c9);
+  door('pub:ambulant-wc-door',1.85,3.15,-8.9);
+  blocker(.6,.8,2.35,-11.1);cyl(.3,.25,.4,2.35,.3,-11.1,0xf5f5ef);box(.6,.65,.22,2.35,.68,-11.55,0xf5f5ef);
+  box(.55,.18,.45,3.15,.85,-10.2,STEEL);
+  for(const x of [1.7,3])box(.04,.04,.8,x,.85,-11.1,STEEL);
+  text('Ambulant WC · hand basin',2.5,2.7,-8.85);
+  add('ambulant-wc','Second WC and basin','pub-utilities','Separate WC and hand basin connected to sanitary service.',2.4,-9.5);
   text(site.name, 0, 3.55, CZ - 0.5, 'room'); text('Bar · Meals · Keno', 0, 1.9, CZ - 0.1);
   // No fabricated construction age is shown on this architectural placeholder plaque.
   box(.07,.8,1.35,6.85,2.35,3.55,BRASS);box(.075,.64,1.17,6.8,2.35,3.55,DARKW);
@@ -108,13 +127,14 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
   solid(.72,2.7,.12,6.56,1.35,-8.1,0xddd7c9);
   door('pub:wc-door',4.8,6.2,-8.1);
   // Privacy offset in the corridor, NOT cutting across the wheelchair circulation inside the WC.
-  solid(.12,2.4,1.1,4.03,1.2,-7.15,0xddd7c9);
+  // The outward-opening WC door provides privacy without a corridor baffle.
   box(2.8,.025,3.6,5.4,.025,-10.0,0xb9c6bd);
   text('WC · privacy door',5.5,2.8,-8.0);
 
   // Provisional WC remodel: fixture footprints and rear/side grab-rail representations.
   // Clearances remain UNVERIFIED until AS 1428.1 and an access professional review.
   cyl(.3,.25,.4,6.28,.3,-11.1,0xf5f5ef);box(.6,.65,.22,6.28,.68,-11.55,0xf5f5ef);
+  blocker(.6,.8,6.28,-11.1);blocker(.7,.5,4.26,-11.02);
   box(.7,.18,.5,4.26,.85,-11.02,STEEL);cyl(.025,.025,.25,4.26,1.04,-11.22,STEEL);
   box(.04,.04,.8,6.75,.87,-11.05,0xc4c8cc).name='pub:wc-grab-rail';
   box(.6,.04,.04,6.3,.87,-11.68,0xc4c8cc);
@@ -133,10 +153,10 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
   cyl(.03,.03,.3,-5.7,1.1,-8.7,STEEL);
   box(.6,1,.15,-6.8,1.4,-7.3,0xcbd1d4); // metered switchboard
   box(.8,.55,.2,-6.7,2.1,-6.4,0x333c43); // NBN / router / communications UPS
-  cyl(.35,.35,1.2,-2, .65,-10.7,0xdddcd2); // insulated hot-water cylinder
+  // Insulated hot-water cylinder is outside in the service yard.
   solid(.6,.8,.5,-6.5,.4,-7.7,STEEL); cyl(.02,.02,.24,-6.5,1,-7.9,STEEL);
   text('Kitchen · separate hand basin · extraction',-4.8,2.7,-8.5);
-  text('Cold room · dedicated refrigeration circuit',1.5,2.7,-11.4);
+
   add('toilet','Toilet and hand washing','pub-utilities','Stored cistern water, sanitary drain and warm hand basin.',5.6,-9.2);
   add('kitchen','Working kitchen services','pub-utilities','Cooking, extraction, potable water and grease pre-treatment.',-4.6,-7.6);
   add('services','Utility meters and service diagram','pub-utilities','Inspect and test the pub connections.',-5.6,-6.5);
@@ -147,7 +167,7 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
   }
   solid(.65,.85,.65,-4.55,.425,-10.8,STEEL); // dedicated dishwasher
   text('Dirty return → wash → clean rack',-4.6,1.6,-10.8);
-  for(const [x,z,color] of [[-4.6,-9.7,0x555b55],[-4.6,-8.8,0x397049]]){
+  for(const [x,z,color] of [[-2.4,-10.7,0x555b55],[-1.9,-10.7,0x397049]]){
     cyl(.22,.22,.65,x,.33,z,color);box(.5,.05,.5,x,.68,z,color); // lidded bins
   }
   box(.4,.5,.12,-6.72,1.6,-6.0,0xd3332d).name='pub:fire-blanket';
@@ -165,19 +185,15 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
   text('Free drinking water · ask at bar',1.1,1.7,CZ+.2);
   add('water-point','Free drinking water','pub-utilities','Potable water availability follows the water isolation valve.',1.4,-4.4);
   add('fire-safety','Fire equipment and evacuation','info','Fictional venue: stop service, use a clear available exit. Front and rear openings are modelled; rear external discharge, compliant travel distance, required fire systems, emergency lights and final assembly remain UNVERIFIED.',-3.4,-3.0);
-  add('rear-egress','Rear egress design — inspect','info','Rear outward discharge has NOT been tested against adjacent site lot, exit rules or fire schedule. Visual rear door is a provisional design only.',0,-10.6);
+  add('rear-egress','Rear exit to service yard','pub-rear-exit','Rear outward discharge has NOT been tested against adjacent site lot, exit rules or fire schedule. Visual rear door is a provisional design only.',0,-10.6);
   add('access','Access route and sanitary review','info','A step-free interior route, larger WC enclosure, rails and 1.4 m design doorway are modelled. External grade, turning envelope, transfer side, hardware and NCC/AS 1428.1 compliance remain UNVERIFIED.',5.4,-8.3);
   add('capacity','Operational capacity · provisional','info','Scenario only: 24 patrons plus three workers. NOT an approved occupancy limit; exact sanitary fixture numbers and egress widths must be determined by a qualified designer.',5.3,4.1);
   // Diagrammatic service routes deliberately shown above head height; not surveyed pipe positions.
-  const layers={};
-  for(const [id,color,x] of [['electricity',0xffcd38,-2],['water',0x38baff,-1],['sewer',0xb07949,0],['gas',0xf3a257,1],['internet',0xb783ff,2],['waste',0x72ce76,3]]){
-    const route=new THREE.Group();route.name='Pub utility '+id;
-    const line=new THREE.Mesh(new THREE.BoxGeometry(.07,.07,15),new THREE.MeshBasicMaterial({color}));line.position.set(x,3.7,-3);route.add(line);
-    const cross=new THREE.Mesh(new THREE.BoxGeometry(10,.07,.07),line.material);cross.position.set(0,3.7,-9);route.add(cross);group.add(route);layers[id]=route;route.visible=false;
-  }
+  const layers=pubServiceLayers(THREE,group);
   // Entire pub lighting (including former independent hemisphere fill) is
   // electrically switched. Emergency battery is deliberately limited to
   // essential loads and will not keep the dining-room lighting on.
+  for(const [id,x,z] of [['wc',5.5,-9.5],['kitchen',-5.2,-8.5]]){const light=new THREE.PointLight(0xe5f0ff,0,6,1.5);light.position.set(x,2.8,z);light.name='pub:'+id+'-emergency-light';group.add(light);}
   const lampCircuits=[];
   group.traverse(o=>{if(o.isLight)lampCircuits.push({light:o,original:o.intensity});});
   group.userData.lightingSite='pub';
@@ -185,12 +201,14 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
     for(const c of lampCircuits)c.light.intensity=powered?c.original:0;
   };
   const utilityVisuals=life=>{
-    const state=pubUtilities(life),status=pubStatus(life);
+    const state=pubUtilities(life),status=pubStatus(life),ops=pubStandards(life);
+    const wc=doors.find(d=>d.name==='pub:wc-door');if(wc)wc.userData.privacy=ops.wcPrivacy;
     for(const [id,layer] of Object.entries(layers))layer.visible=state.overlay===id;
     // All ordinary electric fixtures follow this building's breaker as well as town supply.
     group.userData.updateLighting?.(status.power);
     emergency.intensity=!status.power&&state.emergencyMinutes>0?1.5:0;
     rearEmergency.intensity=!status.power&&state.emergencyMinutes>0?1.5:0;
+    for(const id of ['wc','kitchen'])group.getObjectByName('pub:'+id+'-emergency-light').intensity=!status.power&&state.emergencyMinutes>0?1:0;
   };
   add('heritage','Hotel history · original construction unknown','info',pubHistoryDescription(),5.6,3.5);
   add('counter', 'Bar', 'civic-ledger', 'Pull up a stool. Order a meal or a drink at the bar, or open the Town Ledger.', PUB_LAYOUT.staffUse.x, PUB_LAYOUT.staffUse.z);
@@ -198,6 +216,7 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
   add('menu', 'Menu board', 'info', 'Chicken parmi, the roast of the day and a pie with chips. The kitchen uses beef, chicken and vegies delivered from the farms and the butcher.', -5.4, 3.9);
   add('lounge', 'Lounge and fire', 'info', 'Leather chairs round a fireplace for a long yarn after work.', -3.2, -1.5);
   add('pool', 'Pool table', 'info', 'A pool table, a dartboard and a keno screen: the Friday night regulars treat the room as their own.', 3.2, -3.4);
+  addPubPlant(k,site);
   const interior = k.finish({ doors, sight, utilityVisuals, staff: { pos: PUB_LAYOUT.staff, use: PUB_LAYOUT.staffUse } });
   interior.physicalPlan=PUB_PHYSICAL_PLAN_2026;
   interior.fireEgressDesign=pubExitLayout();
@@ -215,9 +234,13 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
 
   interior.rooms.push({name:'Kitchen',x0:-6.9,x1:-3.96,z0:-11.9,z1:-6.96,w:2.94,d:4.94,parent:0});
   interior.rooms.push({name:'Sanitary compartment',x0:3.86,x1:6.9,z0:-11.9,z1:-8.16,w:3.04,d:3.74,parent:0});
+  interior.rooms.push({name:'Walk-in cold room',x0:-3.8,x1:-1.21,z0:-11.9,z1:-9.36,w:2.59,d:2.54,parent:0});
+  interior.rooms.push({name:'Ambulant sanitary cubicle',x0:1.31,x1:3.74,z0:-11.9,z1:-8.96,w:2.43,d:2.94,parent:0});
   for(const item of interior.interactables){
     if(item.key===site.id+':kitchen')item.room=1;
-    if(item.key===site.id+':toilet')item.room=2;
+    if(item.key===site.id+':toilet'||item.key===site.id+':wc-assist')item.room=2;
+    if(item.key===site.id+':cold-room')item.room=3;
+    if(item.key===site.id+':ambulant-wc')item.room=4;
     item.roomName=interior.rooms[item.room].name;
   }
   return interior;

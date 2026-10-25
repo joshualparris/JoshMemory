@@ -90,3 +90,7 @@ Animated WC privacy door and screen, enclosed kitchen and door, hygiene/fire equ
 Modelled design milestone: a **single-storey** 14 × 18 m country pub envelope shares one set of dimensions and the 1 m scene-coordinate translation with the walkable interior. Ground-floor window elevations now correspond; the misleading upper glazing and 7 m tall opaque block are replaced by a detailed one-storey front/side/rear wall and low pitched non-habitable roof. 
 
 **Regulatory work remains open:** no survey, siting/fire separation check, structural/roof design, approved occupancy, certifier decision or site title evidence. [Dimension schedule, engineering hold points and acceptance tests](PUB_RTPUB_002_024_ENVELOPE_2026.md). Only close these full code-task IDs after that evidence exists; modelling milestones should not be mistaken for lawful sign-off.
+
+## Continued implementation and measurable acceptance
+
+See [PR #208 completion evidence](PUB_COMPLETION_2026-10-25.md) for reconciled envelope, five interior spaces, real rear discharge, 1.2 m route checks, independent fixtures/typed utility branches, operating interlocks, real patron cap, RSA scenarios and non-certifying inspection records. This supersedes stale “no WC/kitchen/exit” baseline observations above; formal code tasks remain open for independent assessment rather than being ticked from meshes or code tests.

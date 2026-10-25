@@ -5,20 +5,27 @@
   "gameAddress": "N8-S",
   "name": "The Merged Branch",
   "repository": "joshualparris/JoshMemory",
-  "basis": "RTPUB-002/024 exterior/interior geometry and modelled storey reconciled; site survey, approvals, fire separation, structure, access/egress remain unverified. This is not an NCC certificate.",
+  "basis": "Reconciled PR208 plus modelled building services and operating controls; public sources and test evidence are NOT formal compliance approval.",
   "nccAsAtDate": "NCC 2022 Amendment 2 (NSW, effective 2025-07-29); NSW NCC 2025 planned commencement 2027-05-01",
   "provisionalBuildingClassification": "NCC NSW Class 6 hospitality bar/dining; confirm ancillary/mixed classification and actual approvals",
   "sourceBlobs": {
     "repository-town/audit/electricity/coverage.json": "f80df771b893799e27b3adc98b92fe335c13f28b",
-    "repository-town/src/world/interior-kit.js": "db71ca2ed36aef856a774459f46e1ecd601f1e82",
-    "repository-town/src/world/life.js": "08d00bb82718c0478d96229be7bb86ad0f45d781",
+    "repository-town/src/world/interior-kit.js": "11d8811894b461040693efe5b63790cacd7811d7",
+    "repository-town/src/world/life.js": "233888a4f87b5ca9a6e2dd186fa2a220db7d58bd",
     "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2",
-    "repository-town/src/world/pub-interior.js": "838c624ba834fd69252fdfde3913bc8d12df0f45",
+    "repository-town/src/world/pub-interior.js": "99c24795fcd252d9a5c6e3f86da2b694e0aed854",
     "repository-town/src/world/shop-interior.js": "e2282db1927b79dd5e8a89a970a03e90b676dcf0",
     "repository-town/src/world/townlife.js": "efb7a874030e7dae5e2fdb0889854a799dd7e56d",
-    "repository-town/tests/shop-interiors.mjs": "1a1e696c1c92ac4dc7566a8ff78c4c3cf41ea257",
+    "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
-    "repository-town/src/world/pub-envelope.js": "197f51a7cdc4e34cbd0608b2443d402b6237af52"
+    "repository-town/src/world/pub-envelope.js": "3c994f3d469a1e86b856d23c52f9e954c17a3b95",
+    "repository-town/src/main.js": "e28c97464097d948f6abccfefc1f052204da6160",
+    "repository-town/src/world/pub-service-visuals.js": "250e1c65e7022bf98051f46dd908b263caacc5bd",
+    "repository-town/src/world/pub-physical-plan-2026.js": "0f0e5064f3698becb2ea3b3bd1360471a61f7b4c",
+    "repository-town/src/ui/pub-standards-panel.js": "3f62dd87f5dbf48b6a500135344a880f656bf3ea",
+    "repository-town/src/world/pub-utilities.js": "198dd0ef6fb03840d33aacd4c78da8ed900a6a58",
+    "repository-town/src/world/pub-standards.js": "fc4144f1db60fb71a49ea7517685e3650fbd1696",
+    "repository-town/src/world/pub-plant.js": "89fdb541450dd0d2eeb6c0300cd8f88a909d3de7"
   },
   "sources": {
     "S01": {
@@ -144,216 +151,231 @@
       "title": "Exterior-to-interior dimensions and storeys",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "Authored game shell now 14 × 18 m single storey with front at local +7 and rear -11, matching interior front +6/rear -12 after +1 m z transform; actual cadastral, fire envelope, roof and external boundaries require independent assessment.",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Reconcile game coordinate transforms, rear walls, accessible upper floor or remove upper floor cues, roof/building height and consistent fire envelope",
       "regulationRefs": [
         "S01",
         "S02"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-002"
+      "qualifiedId": "PUB-CODE/RTPUB-002",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-003",
       "title": "Occupant capacity and seating/loads",
       "priority": "P0",
-      "status": "unverified",
-      "sourceObservation": "three four-seat bistro tables, six bar stools and sofa/chairs; no occupancy certificate, staff/dynamic-crowd capacity",
+      "status": "partially-represented",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Determine patron/staff occupancy and floor area, occupancy-based amenities and egress; set enforceable in-game maximum if game-realistic",
       "regulationRefs": [
         "S02",
         "S07"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-003"
+      "qualifiedId": "PUB-CODE/RTPUB-003",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-004",
       "title": "Egress route, door swing and exit count",
       "priority": "P0",
-      "status": "not-modelled",
-      "sourceObservation": "interior-kit has a front exitZone width 2.1 m and doors:[]; no rear fire exit; pub has central aisle furniture collision",
+      "status": "partially-represented",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Compute path travel distance, exits number and distribution, swing, unobstructed clear widths, latch/hardware and final exit discharge for actual classification/occupancy, then implement accepted game geometry",
       "regulationRefs": [
         "S01",
         "S02"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-004"
+      "qualifiedId": "PUB-CODE/RTPUB-004",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-005",
       "title": "Emergency lighting and exit signs",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "Front EXIT representation and finite independent 90-minute emergency-light scenario added; required distribution/lux and escape-route design unverified.",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Add correctly located sign/lighting representations where NCC design requires; controlled blackout test, schedule/service references",
       "regulationRefs": [
         "S02",
         "S03"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-005"
+      "qualifiedId": "PUB-CODE/RTPUB-005",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-006",
       "title": "Essential fire safety measures",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "Visible extinguisher, blanket and smoke detector representations added; sizing, fire schedule, detection behaviour and inspection unverified.",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Determine required measures from NCC, building size/use and fire safety schedule; render actual necessary components and demonstrate fault/inspection states, not blanket declare sprinkler requirement",
       "regulationRefs": [
         "S02",
         "S03"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-006"
+      "qualifiedId": "PUB-CODE/RTPUB-006",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-007",
       "title": "Fireplace, heat, flue and combustible finishes",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "open-looking decorative fireplace at side wall x≈−6.55 with nearby lounge furnishings; flue, hearth, clearances and combustion air unknown",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Check if appliance is real fuel or decorative; if fuelled, model hearth/flue/cowl, clearances, alarms and manufacturer fire-safety evidence; prevent impossible collision/ignition geometry",
       "regulationRefs": [
         "S02",
         "S03"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-007"
+      "qualifiedId": "PUB-CODE/RTPUB-007",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-008",
       "title": "Fire safety schedule and maintenance AS 1851",
       "priority": "P0",
       "status": "unverified",
-      "sourceObservation": "no building-specific fire safety schedule, routine inspection history, essential measures or annual fire safety statement evidence in gameplay files",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Add documentary record and simulated competent inspection only after identifying applicable measures; 13 Feb 2026 NSW change matters",
       "regulationRefs": [
         "S03"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-008"
+      "qualifiedId": "PUB-CODE/RTPUB-008",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-009",
       "title": "Accessible arrival, entrance and circulation",
       "priority": "P0",
-      "status": "unverified",
-      "sourceObservation": "the kit provides a centre door gap and walkable spawn; threshold ramp, step-free path from footpath, turn space, AS 1428.1 clearances and tactile signs not assessed",
+      "status": "partially-represented",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Measure full continuous accessible route and entrance; handle turn/counter reach, tables, pinch points and door hardware; obtain accessibility review",
       "regulationRefs": [
         "S01",
         "S02"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-009"
+      "qualifiedId": "PUB-CODE/RTPUB-009",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-010",
       "title": "Accessible WC and ambulant fixtures",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "Enclosed WC with animated 1.4 m privacy leaf and internal sight screen; accessible/ambulant fittings, circulation, fixture counts and independent review still open.",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Provide appropriate accessible/ambulant sanitary facilities after F4/D4 assessment with exact plans, circulation and fittings, no generic decorative toilet proof",
       "regulationRefs": [
         "S01",
         "S02"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-010"
+      "qualifiedId": "PUB-CODE/RTPUB-010",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-011",
       "title": "Public and staff sanitary fixture provision",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "WC and basin enclosed with door and privacy screen. Occupancy-based fixture quantity and staff/patron provision remain unverified.",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Calculate fixtures against occupancy, use and mixed zones under NCC F4; model hygiene/privacy/availability and accessible provision",
       "regulationRefs": [
         "S01",
         "S02"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-011"
+      "qualifiedId": "PUB-CODE/RTPUB-011",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-012",
       "title": "Hot/cold water, waste drainage and backflow",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "Pub utilities pilot now has a water valve, finite 160 L hot tank, 6 L cistern, separate sanitary/trade-waste counters and simulated flushing; lacks physical town meter, backflow selection, real pipes, grades and approvals",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Specify separate potable and trade-waste/drain fixtures, showers only if justified, backflow and hot-water service; connect actual water/sewer game system with conservation",
       "regulationRefs": [
         "S10",
         "S09"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-012"
+      "qualifiedId": "PUB-CODE/RTPUB-012",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-013",
       "title": "Actual enclosed commercial kitchen",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "Kitchen now has collidable enclosing partitions and a 1.5 m animated door; separate handwash, wash-up and cooking zones represented. Full workflow/hygiene design remains open.",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Build a working kitchen of credible scale and hygiene separation; model equipment work zones and path from food receiving through safe service",
       "regulationRefs": [
         "S04",
         "S06"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-013"
+      "qualifiedId": "PUB-CODE/RTPUB-013",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-014",
       "title": "Food preparation, warewashing and separation",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "Dedicated dishwasher and clean/dirty signage added; sanitising parameters and sufficient work zones unverified.",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Represent adequate prep, dedicated dishwashing/sanitising, hot potable supply, cleaners' sink and suitable impervious, washable materials; classify operations to choose required equipment",
       "regulationRefs": [
         "S04",
         "S05"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-014"
+      "qualifiedId": "PUB-CODE/RTPUB-014",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-015",
       "title": "Dedicated food handler wash stations",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "Dedicated hand basin and physical soap/towel fixtures represented; placement/access and warm-water design remain unverified.",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Locate dedicated handwash access within appropriate food-handler work zone and near WCs, with training/operability rather than a generic shared bar sink",
       "regulationRefs": [
         "S04",
         "S05"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-015"
+      "qualifiedId": "PUB-CODE/RTPUB-015",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-016",
       "title": "Refrigeration and food cold chain",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "Cold exposure accumulates; 120 warm minutes quarantines stock, recooling alone cannot restore cooking. Explicit disposal removes perishable/prepared stock before normal replenishment. Not full 3.2.2 time/temperature control.",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Add meaningful chiller/cold room/freezer storage, source-to-food service cold chain, measured/simulated temperatures and outage/recovery/unsafe-food disposal mechanics",
       "regulationRefs": [
         "S04",
         "S06"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-016"
+      "qualifiedId": "PUB-CODE/RTPUB-016",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-017",
       "title": "Kitchen exhaust and general ventilation",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "Visible hood and duct plus extraction failure interlock block cooking; actual exhaust sizing, discharge and make-up air unverified.",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "If cooking appliances require it, size/install mechanical kitchen exhaust and make-up air and associated safe discharge/fire interfaces according to actual equipment/design; verify common ventilation requirements",
       "regulationRefs": [
         "S01",
@@ -361,28 +383,30 @@
         "S04"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-017"
+      "qualifiedId": "PUB-CODE/RTPUB-017",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-018",
       "title": "Trade waste, fat/oil/grease controls",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "Pilot includes finite grease kg, trade-waste L, simulated pump-out; no physical legal grease arrestor size, grade/discharge design, or Section 68 approval",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Confirm if liquid trade-waste approval needed under Dubbo Section 68 requirements for documented kitchen operations; place accessible grease-treatment assets if specified",
       "regulationRefs": [
         "S09",
         "S04"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-018"
+      "qualifiedId": "PUB-CODE/RTPUB-018",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-019",
       "title": "Food refuse, recyclables, pest exclusion and cleaning",
       "priority": "P1",
       "status": "partially-represented",
-      "sourceObservation": "Lidded kitchen waste/recycling bins added; chemical store, pest exclusion and collection routes still open.",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Design waste and recycling storage, non-food chemical store, service collection route, pest exclusion and safe mop-water discharge",
       "regulationRefs": [
         "S04",
@@ -390,83 +414,89 @@
         "S08"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-019"
+      "qualifiedId": "PUB-CODE/RTPUB-019",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-020",
       "title": "Site rainfall, drainage, roof and stormwater",
       "priority": "P1",
-      "status": "unverified",
-      "sourceObservation": "pub exterior shell exists; no roof gutters/downpipes/site stormwater or surface drainage routing identified by this audit",
+      "status": "partially-represented",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Connect to separately audited RT-SYS-004; verify runoff routes, weatherproofing, ground/finished floor levels and sewage separation",
       "regulationRefs": [
         "S01",
         "S02"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-020"
+      "qualifiedId": "PUB-CODE/RTPUB-020",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-021",
       "title": "Site-specific electrical circuits/switchboard/RCD",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "Pilot adds electric breaker, kWh, switchboard prop and outage gating, but audited town B:pub physicalServiceId/meterId still null; RCD, phases, conductor and switchgear compliance unverified",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Map restaurant cooking/chiller/fan/equipment and essential lighting to metered circuits, isolators, RCD/earthing requirements and backup conditional, with load checks",
       "regulationRefs": [
         "S01",
         "S02"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-021"
+      "qualifiedId": "PUB-CODE/RTPUB-021",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-022",
       "title": "Cooking fuel/LPG/natural gas eligibility and safety",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "Pub pilot now assumes fictional two-cylinder 90 kg LPG with isolation, finite 18 kW burner usage; real cylinder enclosure, regulator, safety distances, pipe and gas compliance absent",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Choose electric or legitimately sourced LPG setup; represent isolation, metering, compliance evidence and fault behaviour, no invented gas lines",
       "regulationRefs": [
         "S01",
         "S02"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-022"
+      "qualifiedId": "PUB-CODE/RTPUB-022",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-023",
       "title": "Structural footing, loads, wind and roof",
       "priority": "P1",
       "status": "unverified",
-      "sourceObservation": "exterior uses box meshes; no structure/design engineering, slab/footings, roof anchorage, imposed loads, NSW wind/climate or fire resistance documentation",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Create building-design assumptions and synthetic engineering metadata, verify spanning/structure/cladding, wind and storm loading and structural documentation before claims",
       "regulationRefs": [
         "S01",
         "S02"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-023"
+      "qualifiedId": "PUB-CODE/RTPUB-023",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-024",
       "title": "Fire compartmentation and upper-floor access",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "Only ground-floor pub space exists; upper glazed row and false second level removed, non-habitable hipped roof and one storey explicit; no real fire-compartmentation, cool-room fire separation or adjoining-wall certification.",
-      "requiredEvidenceOrWork": "Establish actual number of usable floors; if a real upper storey exists design stairs/access and consider fire compartmentation and egress, or treat façade as explicitly decorative",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
+      "requiredEvidenceOrWork": "Establish actual number of usable floors; if a real upper storey exists design stairs/access and consider fire compartmentation and egress, or treat fa\u00e7ade as explicitly decorative",
       "regulationRefs": [
         "S02"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-024"
+      "qualifiedId": "PUB-CODE/RTPUB-024",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-025",
       "title": "Indoor acoustic, odour and environmental impacts",
       "priority": "P1",
       "status": "unverified",
-      "sourceObservation": "pub, fireplace, lounge and patron activity in game; no calculated plant noise, exhaust or adjacent-premise noise controls",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Check consent/licence noise limits and hours, plant/exhaust positions and neighbour impacts; supply fictional controls without asserting real site permit",
       "regulationRefs": [
         "S01",
@@ -474,56 +504,60 @@
         "S08"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-025"
+      "qualifiedId": "PUB-CODE/RTPUB-025",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-026",
       "title": "Energy efficiency and insulation",
       "priority": "P1",
-      "status": "unverified",
-      "sourceObservation": "visual ceiling, fans, cooler but no measured thermal envelope or NCC Section J equipment/controls/energy demand",
+      "status": "partially-represented",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Assess relevant NCC Section J for actual work/classification and create declared energy/insulation/HVAC loads consistent with electricity game model",
       "regulationRefs": [
         "S01",
         "S02"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-026"
+      "qualifiedId": "PUB-CODE/RTPUB-026",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-027",
       "title": "Emergency access, evacuation and staff procedure",
       "priority": "P1",
-      "status": "not-modelled",
-      "sourceObservation": "no pub-specific evacuation plan, staff alarm action, evacuation muster/signage or fire-and-rescue access route in scene",
+      "status": "partially-represented",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Model credible staff response, guest egress, muster and evacuation routes without claiming game is fire-safety guidance",
       "regulationRefs": [
         "S02",
         "S03"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-027"
+      "qualifiedId": "PUB-CODE/RTPUB-027",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-028",
       "title": "Hotel liquor licence conditions, free water, food availability",
       "priority": "P0",
       "status": "partially-represented",
-      "sourceObservation": "Free potable-water action meters 0.25 L and refuses when isolated. Licence, licensee and enforceable alcohol-service constraints remain open.",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Represent NSW hotel licence or chosen appropriate licence, displayed name/licensee, free drinkable water whenever alcohol served and suitable food supply; verify venue-specific approvals",
       "regulationRefs": [
         "S07",
         "S14"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-028"
+      "qualifiedId": "PUB-CODE/RTPUB-028",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-029",
       "title": "Responsible service, minors and designated areas",
       "priority": "P0",
-      "status": "not-modelled",
-      "sourceObservation": "hotspot prose says 'publican serves responsibly' but no age check, RSA workflow, refusal service or minors-authorised floor zones",
+      "status": "partially-represented",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Add ID/RSA and refusal logic, minor access zone rules, licensed floor boundaries and front/counter signage only as relevant to actual approvals",
       "regulationRefs": [
         "S07",
@@ -531,28 +565,30 @@
         "S14"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-029"
+      "qualifiedId": "PUB-CODE/RTPUB-029",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-030",
       "title": "TAB/Keno signage and gaming boundary",
       "priority": "P1",
       "status": "partially-represented",
-      "sourceObservation": "TAB/Keno screen is decorative; no gaming machine meshes (not the same as a TAB/Keno screen), authorisations or responsible gaming controls",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Keep Keno/TAB separate from poker machine requirements; if gameplay gaming is added implement authorisations, age checks, responsible gambling rules and any separate room design",
       "regulationRefs": [
         "S07",
         "S12"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-030"
+      "qualifiedId": "PUB-CODE/RTPUB-030",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-031",
       "title": "Food registration, Food Regulation 2025 and FSS",
       "priority": "P0",
-      "status": "not-modelled",
-      "sourceObservation": "lamb/pie/veg menu and supply economics exist; no Council food registration, Food Safety Supervisor, food handler training or evidence of safe food controls",
+      "status": "partially-represented",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Represent notified retail food premises, food supervisor certificates (fictional), training and 3.2.2A checks, lawful temperatures and food safety inspection history",
       "regulationRefs": [
         "S08",
@@ -560,42 +596,45 @@
         "S13"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-031"
+      "qualifiedId": "PUB-CODE/RTPUB-031",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-032",
       "title": "Allergen information, traceability and food handling logs",
       "priority": "P1",
-      "status": "not-modelled",
-      "sourceObservation": "menu gives general dishes but no ingredient allergen disclosures, storage traceability, raw/cooked separation or temperature evidence",
+      "status": "partially-represented",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Add allergen menu interaction, ingredient/substitution controls, supplier lots, critical control monitoring and no false dietary guarantees",
       "regulationRefs": [
         "S04",
         "S06"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-032"
+      "qualifiedId": "PUB-CODE/RTPUB-032",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-033",
       "title": "Separate water/sewer/fire/public utility dependencies",
       "priority": "P1",
       "status": "partially-represented",
-      "sourceObservation": "Existing pilot service boundaries retained; additional water, extraction, emergency-battery and persistent cold-stock failure checks. Individual physical electrical/water/sewer networks remain unfinished.",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Connect all fixtures and plant equipment to real game services and test water/power/sewer outage effects; don't double count fictional water and sanitary streams",
       "regulationRefs": [
         "S01",
         "S10"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-033"
+      "qualifiedId": "PUB-CODE/RTPUB-033",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     },
     {
       "id": "RTPUB-034",
       "title": "Measured acceptance, access and legal-review gate",
       "priority": "P0",
       "status": "unverified",
-      "sourceObservation": "existing shop interior tests assert one room, colliders and reachable hotspots, not structural/egress/toilet/food/fire or legal certification",
+      "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
       "requiredEvidenceOrWork": "Add measured build spec, detailed floor plan, game 3D/mobile walk test, all relevant NCC/PCA/food/liquor checks, independent qualified design review; never mark formally certified using code tests",
       "regulationRefs": [
         "S01",
@@ -604,15 +643,16 @@
         "S07"
       ],
       "done": false,
-      "qualifiedId": "PUB-CODE/RTPUB-034"
+      "qualifiedId": "PUB-CODE/RTPUB-034",
+      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
     }
   ],
   "summary": {
     "total": 34,
-    "notModelled": 5,
+    "notModelled": 0,
     "geometryConflict": 0,
-    "unverified": 9,
-    "partiallyRepresented": 20,
+    "unverified": 5,
+    "partiallyRepresented": 29,
     "verifiedCodeCompliant": 0,
     "researchItemsComplete": 1,
     "remainingResearchOrImplementation": 33
@@ -662,6 +702,7 @@
   },
   "notes": [
     "2026 north-frontage infill adds 72 new modelled sites elsewhere in town. Pub geometry and code checklist remain unverified beyond the existing 34-item audit; source hashes refreshed solely for regression tracking, not legal certification.",
-    "2026-10-25 family and 72-site expansion changed shared life.js. Pub NCC classification and safety remain unverified; source hash sync is regression provenance, not certification."
+    "2026-10-25 family and 72-site expansion changed shared life.js. Pub NCC classification and safety remain unverified; source hash sync is regression provenance, not certification.",
+    "Completion continuation: five interior spaces, live rear escape, typed independent services and operating tests. All formal compliance tasks remain open; no permit or practitioner record fabricated."
   ]
 }

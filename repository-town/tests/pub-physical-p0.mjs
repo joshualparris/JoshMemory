@@ -14,8 +14,8 @@ test('PUB-002 one-storey 14 x 18 model, unknown age and conservative boundary cl
  assert.equal(room.bounds.x1-room.bounds.x0,14);
  assert.equal(room.bounds.z1-room.bounds.z0,18);
  const ext=await readFile(new URL('../src/world/townlife.js',import.meta.url),'utf8');
- assert.match(ext,/b\.box\(0x7a4a3a,14,4\.7,18/);
- assert.match(ext,/return \{ w: 14, d: 18 \}/);
+ assert.match(ext,/return buildPubFacade/);
+
  assert.doesNotMatch(ext,/fictional Federation-era 1911 hotel/);
 });
 test('PUB-003 scenario 24 patrons plus 3 staff, NOT legal approval; state bounded',()=>{
@@ -34,7 +34,7 @@ test('PUB-003 scenario 24 patrons plus 3 staff, NOT legal approval; state bounde
 });
 test('PUB-004 rear wall has actual collision opening, functioning door mesh and egress metadata',()=>{
  const names=room.doors.map(d=>d.name);
- assert.deepEqual(names,['pub:wc-door','pub:kitchen-door','pub:rear-fire-exit']);
+ assert.deepEqual(names,['pub:cold-room-door','pub:ambulant-wc-door','pub:wc-door','pub:kitchen-door','pub:rear-fire-exit']);
  assert.equal(pubExitLayout().separationM,18);
  assert.equal(pubExitLayout().rearFinalDischargeVerified,false);
  assert.equal(room.rearExitZone.dischargeVerified,false);

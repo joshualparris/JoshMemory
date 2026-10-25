@@ -201,6 +201,16 @@ function payFrom(v, amount) {
   return paid;
 }
 
+// Shared spouses contribute to one home's bills, without merging their personal wallets.
+function payHomeFrom(life,v,amount){
+ const members=(life.villagers||[]).filter(p=>p.home?.coordinate===v.home?.coordinate&&p.household===v.household);
+ if(members.length<2)return payFrom(v,amount);
+ let paid=0;const share=amount/members.length;
+ for(const p of members)paid=r2(paid+payFrom(p,share));
+ for(const p of members)if(paid<amount)paid=r2(paid+payFrom(p,r2(amount-paid)));
+ return paid;
+}
+
 // Daily housing payment (direct debit): rent to the council's housing office, or the mortgage
 // repayment to the Community Bank. Returns { council, bank } amounts paid for the town's books.
 export function payHousing(life, v) {
@@ -209,7 +219,7 @@ export function payHousing(life, v) {
   const m = h.mortgage, base = h.tenure === 'rent' ? HOUSING.rent : m ? Math.min(HOUSING.repayment, r2(m.balance * (1 + HOUSING.mortgageRate))) : 0;
   const due = r2(base + (v.housingArrears || 0));
   if (!(due > 0)) return out;
-  const paid = payFrom(v, due);
+  const paid = payHomeFrom(life,v,due);
   if (!m) { out.council = paid; if(h.tenure==='rent')out.rentPaid=Math.min(paid,HOUSING.rent+(v.housingArrears||0)); }
   else {
     out.bank = paid;
@@ -239,7 +249,7 @@ function settleBills(life, v, late) {
   let toCouncil = 0;
   for (const b of v.household.bills) {
     if (b.paid || (late && life.day <= b.due)) continue;
-    const amount = r2(b.amount + (late ? HOUSING.lateFee : 0)), paid = payFrom(v, amount);
+    const amount = r2(b.amount + (late ? HOUSING.lateFee : 0)), paid = payHomeFrom(life,v,amount);
     toCouncil = r2(toCouncil + paid);
     if (paid >= amount) { b.paid = true; if (late) mail(life, v, 'Town Council utilities', 'Overdue bill collected', `Bill ${b.id} was overdue, so $${amount} (with a $${HOUSING.lateFee} late fee) was taken by direct debit.`, { kind: 'notice' }); }
     else { b.amount = r2(amount - paid); }

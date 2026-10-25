@@ -1,3 +1,4 @@
+import {pubStandardsPanel} from './pub-standards-panel.js';
 // Panels for town life: shop counters, farms, the Town Ledger and the town guide, plus
 // the gossip and Expedition relic hints villagers share in conversation (src/ui/npc.js).
 import { GOODS, VENUE_MENU, amount, timeText, CANDIDATES } from '../world/life.js';
@@ -262,6 +263,7 @@ function placePanelBase(life, id) {
   } });
   const actions = sells.filter(g => serving && (shelves[g] || 0) > 0)
     .map(g => act('Buy ' + GOODS[g].name + ' ($' + GOODS[g].price + ')', () => life.buyItem(id, g)));
+  if(id==='pub')actions.push({label:'Pub safety and emergency controls',run:()=>pubStandardsPanel(life)});
   if (Object.keys(prepared).length) {
     rows.push('<h3>Menu' + (serving ? ' · available to order' : ' · service closed') + '</h3><p>' +
       Object.keys(prepared).map(g => esc(GOODS[g].name) + ' · $' + GOODS[g].price +
