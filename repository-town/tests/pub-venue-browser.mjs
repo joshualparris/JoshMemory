@@ -5,7 +5,7 @@ fs.mkdirSync('audit/pub/venue',{recursive:true});
 const options={args:['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader']};
 if(process.env.TOWN_PROXY&&process.env.HTTPS_PROXY){const u=new URL(process.env.HTTPS_PROXY);options.proxy={server:u.protocol+'//'+u.hostname+':'+u.port,username:decodeURIComponent(u.username),password:decodeURIComponent(u.password)}}
 const browser=await chromium.launch(options);
-try{for(const mobile of [false,true]){const page=await browser.newPage({viewport:mobile?{width:390,height:844}:{width:1280,height:900},isMobile:mobile,hasTouch:mobile,ignoreHTTPSErrors:!!process.env.TOWN_PROXY}),errors=[];page.on('pageerror',e=>errors.push(e.message));
+try{for(const mobile of [false,true]){const page=await browser.newPage({viewport:mobile?{width:390,height:844}:{width:1280,height:900},isMobile:mobile,hasTouch:mobile,ignoreHTTPSErrors:!!process.env.TOWN_PROXY}),errors=[];page.on('pageerror',e=>errors.push(e.stack||e.message));
 await page.goto(process.env.TOWN_URL||'http://localhost:8091/');await page.waitForFunction(()=>window.__town&&document.getElementById('loading').hidden,null,{timeout:90000,polling:500});
 await page.evaluate(()=>{window.__town.meetGuide();window.__town.life.setTime(600);for(let i=0;i<6;i++)window.__town.life.run(30);window.__town.life.speed(0);window.__town.enterShop('pub')});
 const approach=async key=>{assert(await page.evaluate(k=>window.__town.approach(k),key),key+' reachable');await page.waitForTimeout(250);await page.keyboard.down('e');await page.waitForTimeout(200);await page.keyboard.up('e');};

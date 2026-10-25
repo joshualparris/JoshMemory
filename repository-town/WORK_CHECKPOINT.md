@@ -415,3 +415,6 @@ PR219; 39 registered seats inside existing envelope, sampled clear door swings, 
 
 ### PUB-SIM interface acceptance
 Desktop and emulated-phone venue gameplay passed: pool shot, adult gate, scheduled three-minute Keno ticket/result and real menu alcohol purchase, zero page errors. Phone software WebGL replay exceeded the initial 30-second test deadline; 90-second bounded acceptance passes without changing simulation rules. Added failure diagnostics and reproducible hosted launcher test. Final remote publication still pending.
+
+### PUB-SIM phone replay regression
+Final repeated phone run caught a real intermittent first-frame timestamp race: requestAnimationFrame timestamp can precede the event handler's performance.now(), yielding index -1 and undefined balls. Clamped replay index to zero; authoritative physics/save result was already correct. Re-running exact final phone/browser and publication gates. Earlier single-pass phone success is not counted as proof this race was absent.

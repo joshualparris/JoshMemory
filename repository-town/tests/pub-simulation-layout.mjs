@@ -16,3 +16,10 @@ const person={v:{id:14,work:'pub',step:{kind:'work'}},pos:new THREE.Vector3(.8,0
 ops.alarm=true;room.afterPeople(life);assert.equal(room.group.getObjectByName('pub:service-tray').visible,false);ops.alarm=false;
 pubServiceEvent(life,'meal');s.services[0].returned=true;room.afterPeople(life);assert(room.group.getObjectByName('pub:moving-dish').visible);
 console.log('PASS pub layout/service: 39 seats, swept door clearance, moving panic hardware, powered/coasting fans, conserved beer/glassware, branch-gated washing, uniforms and physical service/emergency halt');
+// RAF timestamps describe the beginning of a frame and may predate the click.
+// A negative replay index used to pass undefined balls to the renderer on phones.
+const {pubPoolPanel}=await import('../src/ui/pub-pool-panel.js');
+const context=new Proxy({},{get:(o,k)=>o[k]||(()=>{}),set:(o,k,v)=>(o[k]=v,true)}),nodes={canvas:{getContext:()=>context,isConnected:true},'#pool-status':{},'#pool-shoot':{},'#pool-angle':{value:-90},'#pool-power':{value:50},'#pool-rack':{}};
+const callbacks=[],oldRAF=globalThis.requestAnimationFrame;globalThis.requestAnimationFrame=fn=>callbacks.push(fn);
+try{pubPoolPanel({civic:{}}).mount({querySelector:s=>nodes[s]});nodes['#pool-shoot'].onclick();assert(callbacks.length);assert.doesNotThrow(()=>callbacks.shift()(-100));assert.match(nodes['#pool-status'].textContent,/1 shots/);assert(callbacks.length,'replay continues after early timestamp');}finally{globalThis.requestAnimationFrame=oldRAF}
+console.log('PASS pool replay: early RAF timestamp is clamped to first valid frame');
