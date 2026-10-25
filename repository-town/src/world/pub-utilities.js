@@ -1,4 +1,5 @@
 // Fictional Merged Branch pilot. SI-derived units, not an as-built installation.
+import { pilotReport } from './electrical-pilot.js';
 export const PUB_DESIGN = Object.freeze({cisternL:6, refillLmin:3, hotTankL:160, heaterKW:3.6, lpgKWhKg:12.8, burnerKW:18, upsKWh:.12, networkKW:.04});
 export function pubUtilities(life) {
   return life.civic.pubUtilities ||= {version:1, waterValve:true, sewerOpen:true, breaker:true, upstreamInternet:true, lpgValve:true, lpgKg:90, cisternL:6, hotC:60, coldC:3, upsKWh:.12, greaseKg:0, binsKg:0, recyclingKg:0, oilL:0, roofRunoffL:0, rainMmHour:0, waterL:0, sewageL:0, tradeWasteL:0, electricityKWh:0, gasKg:0, meals:0, overlay:'off', log:[]};
@@ -10,8 +11,12 @@ export function validPubUtilities(s){
  return s.cisternL<=6&&s.upsKWh<=.12&&s.hotC<=100&&s.coldC<=100&&['off','electricity','water','sewer','gas','internet','waste'].includes(s.overlay)&&Array.isArray(s.log)&&s.log.length<=20&&s.log.every(x=>typeof x==='string'&&x.length<1000);
 }
 export function pubStatus(life) {
-  const s=pubUtilities(life), power=s.breaker && life.gridPowered('industry'), water=s.waterValve && life.civic.supply.waterOk!==false;
-  return {power,water,internet:s.upstreamInternet&&(power||s.upsKWh>1e-8),sewer:s.sewerOpen,hot:s.hotC>=45,cold:s.coldC<=5,gas:s.lpgValve&&s.lpgKg>0};
+  const s=pubUtilities(life), pilot=pilotReport(life)?.siteById['B:pub'];
+  // A backup inverter only serves essentials; it cannot run full bistro cooking.
+  const power=s.breaker && (pilot?pilot.mains:life.gridPowered('industry'));
+  const backup=s.breaker && !!pilot?.backup;
+  const water=s.waterValve && life.civic.supply.waterOk!==false;
+  return {power,backup,water,internet:s.upstreamInternet&&(power||backup||s.upsKWh>1e-8),sewer:s.sewerOpen,hot:s.hotC>=45,cold:s.coldC<=5,gas:s.lpgValve&&s.lpgKg>0};
 }
 export function pubKitchenReady(life){
  const s=pubUtilities(life),p=pubStatus(life);
