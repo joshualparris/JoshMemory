@@ -16,6 +16,8 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-25 · ChatGPT — **IN PROGRESS: utility/service designation register and sewerage/plumbing research.** Scope: new `docs/UTILITY_SYSTEM_REGISTER.*`, `docs/SEWERAGE_*`, NSWutilities research/source/task files and scoped README/masterplan/checkpoint links. No gameplay code, electricity researcher or Manus water files changed. Assign RT-SYS system IDs and RTSW research/implementation child IDs, preserving RTU parents. Compare Narromine, Uralla/Bundarra and Bermagui primary sources; specify toilet-to-treatment model and integration contracts. No runtime feature completion claimed.
+
 
 
 
