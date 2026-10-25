@@ -190,3 +190,7 @@ For tasks collected from all twenty agents, use [the portfolio master triage](..
 ## One-building connected utilities pilot
 
 [Merged Branch pub audit, evidence, model assumptions and RTPUB-001–008 roadmap](docs/PUB_UTILITIES_PILOT.md). Runtime belongs to JoshMemory/repository-town; research copies do not imply a live release or complete town network.
+
+## Stormwater roadmap cross-repository handover (25 October)
+
+The parent [RTU utilities masterplan](docs/UTILITIES_MASTERPLAN_2026-10-25.md) now links the 30-task [RT-SYS-004 / RTSM stormwater roadmap](https://github.com/joshualparris/NSWutilities/blob/main/docs/STORMWATER_TASKS.md) and [16-system roadmap audit](https://github.com/joshualparris/NSWutilities/blob/main/docs/UTILITY_ROADMAP_AUDIT_2026-10-25.md). Tasks are defined canonically in NSWutilities so different AI agents do not create competing identifiers. RTSM-003 is the first unclaimed implementation starting point; no stormwater gameplay is claimed as shipped.

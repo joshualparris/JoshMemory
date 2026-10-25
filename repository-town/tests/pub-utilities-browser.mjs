@@ -1,6 +1,5 @@
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
-import fs from 'node:fs';
 const browser=await chromium.launch({args:['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader']});
 for(const mobile of [false,true]){
  const page=await browser.newPage({viewport:mobile?{width:390,height:844}:{width:1280,height:800},isMobile:mobile,hasTouch:mobile});
@@ -12,15 +11,15 @@ for(const mobile of [false,true]){
  await page.waitForTimeout(500);
  for(const key of ['pub:services','pub:kitchen','pub:toilet']){
   assert(await page.evaluate(key=>window.__town.approach(key),key),'approach '+key);
-  await page.waitForTimeout(200);await page.keyboard.press('e');
+  await page.waitForTimeout(200);await page.keyboard.down('e');await page.waitForTimeout(180);await page.keyboard.up('e');
   await page.waitForFunction(()=>document.getElementById('panel-title')?.textContent.includes('connected utilities'));
-  assert(await page.getByRole('button',{name:'Flush toilet',exact:true}).isVisible());
+  await page.getByRole('button',{name:'Flush toilet',exact:true}).waitFor({state:'visible'});
   await page.getByRole('button',{name:'Flush toilet',exact:true}).click();
   await page.getByRole('button',{name:'Overlay: water',exact:true}).click();
   await page.screenshot({path:`audit/pub-utilities/${mobile?'mobile':'desktop'}-${key.split(':')[1]}.png`});
-  await page.keyboard.press('Escape');await page.waitForTimeout(150);
+  await page.keyboard.down('Escape');await page.waitForTimeout(180);await page.keyboard.up('Escape');await page.waitForTimeout(150);
  }
- await page.evaluate(()=>window.__town.approach('pub:services'));await page.waitForTimeout(200);await page.keyboard.press('e');
+ await page.evaluate(()=>window.__town.approach('pub:services'));await page.waitForTimeout(200);await page.keyboard.down('e');await page.waitForTimeout(180);await page.keyboard.up('e');
  await page.getByRole('button',{name:'Trip / reset pub breaker',exact:true}).click();
  assert((await page.locator('#panel-body').innerText()).includes('Power off'));
  await page.getByRole('button',{name:'Check internet / phone',exact:true}).click();
@@ -28,7 +27,7 @@ for(const mobile of [false,true]){
  await page.getByRole('button',{name:'Fail / restore upstream internet',exact:true}).click();
  assert((await page.locator('#panel-body').innerText()).includes('internet offline'));
  await page.screenshot({path:`audit/pub-utilities/${mobile?'mobile':'desktop'}-outage.png`});
- await page.keyboard.press('Escape');
+ await page.keyboard.down('Escape');await page.waitForTimeout(180);await page.keyboard.up('Escape');
  const before=await page.evaluate(()=>window.__town.state().pos);
  await page.keyboard.down('s');await page.waitForTimeout(600);await page.keyboard.up('s');
  const after=await page.evaluate(()=>window.__town.state().pos);assert(Math.hypot(after.x-before.x,after.z-before.z)>.05,'keyboard movement');
