@@ -16,6 +16,8 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-26 · Codex — CLAIMED PUB-SIM-001–008: user-requested utility boundary audit/reference-town evidence, finite gas/fuel/waste logistics, separate phone/mobile/broadcast functions, named staff RSA/RCG scenario endorsements and enforceable alcohol service, playable pool and non-cash Keno demonstration, tests and hosted release. Branch feat/pub-full-services-20261026; baseline a85b979. Scope pub-specific new modules/panels, pub-interior/standards/utilities and narrow main/life hooks, tests/docs. Preserve electrical backbone, formal PUB-CODE task statuses, unrelated NPC/audio and heritage work. No genuine certificates or undisclosed real circuits asserted.
+
 
 
 

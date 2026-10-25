@@ -1,3 +1,6 @@
+# Pub service depth start — 26 October 2026
+PUBLIC game engineering. Owner Codex; branch feat/pub-full-services-20261026, baseline a85b979. PUB-SIM-001–008: utility reference/evidence audit, distinct communications, finite gas/fuel/waste flows, named staff qualification gates, playable pool and no-cash Keno, negative/save/browser tests and hosted release. Current baseline has seven schematic networks and alcohol purchasing, but no proof of complete town-level utilities, realistic playable pool or Keno, staff competency records or formal compliance. Separate fictional operating records from real endorsements. Steering: hide existing launcher header immediately after entry/resume; host-only fix committed separately, live verification pending. Next implement small pure modules and integrate only through pub hooks.
+
 # Pub gameplay release VERIFIED COMPLETE — 25 October 2026
 PUBLIC game engineering evidence. Owner Codex; PR #208 merged `ca8f78e655834b623d7f610ba92419eae69fd54f` from tested head `fc6afb11b16b139a0dad6dd95cbc02eb46c982a6`. All eight PR workflows green. Canonical merged runtime/build tools/package match published QA runtime `f2cefefe86e5f423d3a9f9bdcaaf906e02399706` byte-for-byte; later head changes only corrected browser-test setup/checkpoint. Public fingerprint `cceaa0711a922937748dd44b6d8addc634cf4a2e81607a60295514638518db95`.
 
