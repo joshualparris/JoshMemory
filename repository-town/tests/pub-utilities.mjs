@@ -24,3 +24,15 @@ town.minute=12*60;const worker=town.villagers.find(v=>v.work==='pub');worker.ste
 const u=pubUtilities(town);u.breaker=false;const money=town.civic.player.wallet,stock=town.place('pub').stock.pub_roast;assert.match(town.buyMenuItem('pub','pub_roast'),/out of service/);assert.equal(town.civic.player.wallet,money);assert.equal(town.place('pub').stock.pub_roast,stock);u.breaker=true;u.waterValve=true;town.civic.supply.waterOk=true;town.gridPowered=()=>true;assert.match(town.buyMenuItem('pub','pub_roast'),/You order/);assert.equal(u.meals,1);assert.equal(town.civic.player.wallet,176);
 const bad=structuredClone(snapshot);bad.civic.pubUtilities.cisternL=-1;assert.equal(restored.restore(bad),false);
 console.log('PASS pub utilities: finite inventories, service dependencies, UPS depletion, cold chain, accounting, save restore, overlay isolation and walkable fixtures');
+// Regression: private sanitary enclosure and separate food room have animated leaves.
+assert.deepEqual(room.doors.map(d=>d.name),['pub:wc-door','pub:kitchen-door']);
+for(const door of room.doors){assert(door.children.some(c=>c.isMesh));assert(door.userData.centre.isVector3);assert(room.sight.some(s=>s.door===door));}
+const isolated={civic:{supply:{waterOk:true}},gridPowered:()=>true};
+const state=pubUtilities(isolated);const initialWater=state.waterL;
+assert.match(pubAction(isolated,'water-drink'),/0.25 L/);assert.equal(state.waterL-initialWater,.25);
+state.waterValve=false;const water=state.waterL;assert.match(pubAction(isolated,'water-drink'),/unavailable/);assert.equal(state.waterL,water);state.waterValve=true;
+pubAction(isolated,'extraction');pubAction(isolated,'meal');assert.equal(state.meals,0);pubAction(isolated,'extraction');
+state.breaker=false;tickPubUtilities(isolated,300);assert.equal(state.emergencyMinutes,0);assert(state.foodQuarantined);
+state.breaker=true;tickPubUtilities(isolated,200);assert(pubStatus(isolated).cold);assert(state.foodQuarantined,'recooling never restores spoiled stock');pubAction(isolated,'meal');assert.equal(state.meals,0);
+room.utilityVisuals(isolated);state.breaker=false;state.emergencyMinutes=30;room.utilityVisuals(isolated);assert(room.group.getObjectByName('pub:emergency-light').intensity>0);state.emergencyMinutes=0;room.utilityVisuals(isolated);assert.equal(room.group.getObjectByName('pub:emergency-light').intensity,0);
+console.log('PASS pub sanitary leaves, potable water conservation, extraction interlock, independent emergency battery and persistent cold-stock quarantine');

@@ -122,7 +122,7 @@ for(const id of CIVIC_INTERIOR_IDS){
     for(const r of [quiet,busy])r.group.traverse(o=>{if(o.geometry)o.geometry.dispose();});
     continue;
   }
-  assert.equal(room.rooms.length,1,id+' walk-in room');
+  assert.equal(room.rooms.length,id==='pub'?3:1,id+' walk-in rooms');
   if(id==='depot'){
     assert(room.depotLayout,'depot uses its dedicated freight-house layout');
     assert.equal(room.interactables.length,7,'depot inspections and live ledger');

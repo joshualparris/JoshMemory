@@ -2,7 +2,7 @@
 
 **Updated 25 October 2026.** Existing IDs are unchanged. **RTPUB-001 assessment: COMPLETE (research only)**. **RTPUB-002–034 remain OPEN.** Task IDs are qualified as **PUB-CODE/RTPUB-nnn** to distinguish the earlier utilities pilot's *independent* **PUB-UTIL/RTPUB-001–008**. Both legacy strings are retained; no existing tasks have been renumbered. Research does not imply building-code compliance, development approval or a real-world building permit.
 
-**Next:** RTPUB-002 (exterior/interior dimensional reconciliation), RTPUB-003 (occupant capacity); [RTPUB-001 classification & approval evidence](PUB_RTPUB_001_CLASSIFICATION_2026.md) is complete **only as an assessment**, then prioritise accessible sanitary facilities, separate kitchen, egress and fire. Before editing scene files check [COORDINATION](../COORDINATION.md) for concurrent work. This roadmap documents gaps; the user requested an audit, **not a remodel in this commit**.
+**Next:** RTPUB-002 (exterior/interior dimensional reconciliation), RTPUB-003 (occupant capacity); [RTPUB-001 classification & approval evidence](PUB_RTPUB_001_CLASSIFICATION_2026.md) is complete **only as an assessment**, then prioritise accessible sanitary facilities, separate kitchen, egress and fire. Before editing scene files check [COORDINATION](../COORDINATION.md) for concurrent work. The user has now authorised a remodel. See [sanitary and utility implementation evidence](PUB_SANITARY_IMPLEMENTATION_2026-10-25.md); remaining acceptance stays open.
 
 | ID | Priority | Status | Task / necessary evidence | Existing source evidence |
 |---|---|---|---|---|
@@ -68,3 +68,7 @@ An earlier independent [pub utilities pilot](PUB_UTILITIES_PILOT.md) had **RTPUB
 - `PUB-UTIL/RTPUB-001` — the **prior 16-utility-boundary pilot audit**, already documented completed in its own pilot report.
 
 The namespace is part of the globally unique key. `RTPUB-002` alone can refer to two different tasks, so agents must specify `PUB-CODE` or `PUB-UTIL`. **Do not reassign either task number**. The machine-readable matrix records qualified IDs. Subsequent building-code work begins `PUB-CODE/RTPUB-002`.
+
+## Sanitary/kitchen implementation follow-up
+
+Animated WC privacy door and screen, enclosed kitchen and door, hygiene/fire equipment representations, independent emergency-light battery, free potable-water metering, extraction interlock and persistent cold-stock quarantine are implemented in source. These are partial progress against PUB-CODE/RTPUB-005/006/010–017/019/028/033. All remaining standards tasks stay OPEN: no dimensionally reviewed accessible WC, calculated fixture capacity, rear egress, reconciled exterior envelope, structural/fire design, licensing or completed physical utility graph is asserted. See [evidence and next steps](PUB_SANITARY_IMPLEMENTATION_2026-10-25.md).
