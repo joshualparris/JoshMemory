@@ -1,0 +1,599 @@
+{
+  "schemaVersion": 1,
+  "asOf": "2026-10-25",
+  "title": "Repository Town — geographic and historic canon",
+  "site": {
+    "latitude": -32.2736,
+    "longitude": 148.4084,
+    "municipalStatus": "fictional municipal district on a candidate map overlay, not an actual gazetted town",
+    "legalSiteStatus": "NOT VERIFIED VACANT; not assessed for ownership, current land occupation, zoning, environmental controls, heritage or flood hazard",
+    "anchor": "town game x=0,z=0; x east, z south",
+    "bounds": {
+      "minX": -390,
+      "maxX": 390,
+      "minZ": -190,
+      "maxZ": 290
+    },
+    "approxHectares": 37.44
+  },
+  "nearestLocalities": [
+    {
+      "name": "Minore",
+      "latitude": -32.25833,
+      "longitude": 148.45556,
+      "approxStraightLineKm": 4.7
+    },
+    {
+      "name": "Narromine",
+      "latitude": -32.233,
+      "longitude": 148.2395,
+      "approxStraightLineKm": 16.5
+    },
+    {
+      "name": "Dubbo",
+      "latitude": -32.24295,
+      "longitude": 148.60484,
+      "approxStraightLineKm": 18.8
+    }
+  ],
+  "coordinatesAreSurvey": false,
+  "potentialAreaOverlaysAreNotLandTitles": true,
+  "founding": {
+    "foundingYear": 1883,
+    "firstPermanentColonialEraBuilding": {
+      "name": "Repo's Stores",
+      "siteId": "G8-N",
+      "year": 1883,
+      "use": "store/cart shelter and dwelling; now replaced by Town Hall",
+      "fictional": true
+    },
+    "namesake": "Reginald Arthur Repo",
+    "born": 1856,
+    "died": 1940,
+    "coFounder": "Ellen Repo",
+    "originalSettlementName": "Repo's Cross Roads",
+    "formalName": "Repository Town",
+    "firstMayorInUniverse": {
+      "name": "Reginald Arthur Repo",
+      "termStartYear": 1909,
+      "termEndYear": 1914,
+      "titleWasLater": "Sir",
+      "fictionalKnighthoodYear": 1927
+    },
+    "existingMayorIn2026": "Vern",
+    "realCouncil": "The point appears in the Dubbo–Minore district: LGA boundary and parcel not surveyed; in-game independent council is fictional"
+  },
+  "nationalCode": "WGS84 EPSG:4326",
+  "projection": {
+    "method": "local equirectangular approximation",
+    "xDirection": "east",
+    "zDirection": "south",
+    "gameMetreScale": 1,
+    "realElevations": "unresolved",
+    "notAParcelPolygon": true
+  },
+  "climateProxy": {
+    "bomStation": "Dubbo Airport AWS",
+    "stationNumber": "065070",
+    "annualMeanRainfallMm": 587.5,
+    "janMeanMaximumC": 33.7,
+    "julMeanMaximumC": 15.7,
+    "janMeanMinimumC": 18.4,
+    "julMeanMinimumC": 3.1,
+    "annualMeanMaximumC": 24.8,
+    "climateAtGPS": "not measured; BOM regional station proxy",
+    "source": "S08"
+  },
+  "realElectricity": {
+    "confirmed": "Transgrid Wellington 330/132kV -> Essential Energy Dubbo 132/66kV supply area; Narromine South Switching station on 132kV system supplies Narromine zone",
+    "unknown": [
+      "which real zone supplies exact point",
+      "which 22kV/11kV feeder or connection point",
+      "pole locations, phases, earth, ampacity, fault levels",
+      "real right of way and capacity"
+    ],
+    "simulationCandidate": "Regional 132kV system -> existing zone -> hypothetical 22kV rural feeder -> local 22/0.4kV distribution transformers -> 400/230V building services. Existing B:power H9-N remains a game-owned utility site, not a real 66/22kV permit.",
+    "source": "S09"
+  },
+  "water": {
+    "realCatchment": "Macquarie–Wambuul",
+    "siteToRiverDistanceKm": null,
+    "legalPublicWaterConnection": false,
+    "assumeRiverSupply": false,
+    "required": "validate river/cowal/flood map; choose licensed and treatable source or legitimate bulk connection; build treatment/storage and permitted discharge; local potable reticulation cannot be copied uncritically from Orange reference",
+    "source": "S13"
+  },
+  "transport": {
+    "regionalRoadContext": "Mitchell Highway Dubbo–Narromine corridor; fictional spur/road frontage pending cadastral and intersection review",
+    "regionalRailContext": "Existing Main Western rail connects Dubbo, Minore region and Narromine; game's Repository Siding is a fictitious branch feature, not an asserted ARTC station or level crossing",
+    "actualRoadEntry": "unknown",
+    "source": "S06"
+  },
+  "events": [
+    {
+      "id": "RTHIST-001",
+      "year": "Pre-1880",
+      "title": "Country before the invented town",
+      "details": "Indigenous peoples have lived on, cared for and travelled through the Macquarie–Wambuul basin for innumerable generations. The fictional town cannot be described as the first settlement or the land as previously empty of people.",
+      "category": "real-context"
+    },
+    {
+      "id": "RTHIST-002",
+      "year": 1818,
+      "title": "Colonial expedition era",
+      "details": "John Oxley travels the Macquarie region during the colonial period; this is not the discovery of Aboriginal land or the founding of Repository Town.",
+      "category": "real-context"
+    },
+    {
+      "id": "RTHIST-003",
+      "year": 1881,
+      "title": "Railway reaches Dubbo",
+      "details": "The Main Western railway reaches Dubbo in February 1881 and transforms freight and communications.",
+      "category": "real"
+    },
+    {
+      "id": "RTHIST-004",
+      "year": 1882,
+      "title": "Rail extends west",
+      "details": "The railway extension from Dubbo through Narromine towards Nevertire opens in October 1882. It supplies the realistic background for a fictional nearby goods village.",
+      "category": "real"
+    },
+    {
+      "id": "RTHIST-005",
+      "year": 1883,
+      "title": "First permanent colonial-era building",
+      "details": "Reginald Arthur Repo and Ellen Repo erect Repo's Stores, a timber slab general store, cart shelter and dwelling at what the game later calls G8-N. This is the first **fictional colonial-era permanent building**, not the first structure on Country.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-006",
+      "year": 1884,
+      "title": "Carted water and an unreliable well",
+      "details": "Water is carried by horse cart and stored in barrels and tanks; an attempted shallow well has variable yield. Exact bore and water rights are not invented.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-007",
+      "year": 1885,
+      "title": "Road and stockyards",
+      "details": "A rough wool-and-grain track connects the store, railway corridor and pastoral farms; fenced stockyards and a farrier appear.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-008",
+      "year": 1887,
+      "title": "Repo's Halt nickname",
+      "details": "Farmers petition for a railway loading point dubbed Repo's Halt; an actual historic railway siding at these coordinates is **not** asserted.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-009",
+      "year": 1889,
+      "title": "Local trading settlement",
+      "details": "Bakery, smithy and cart repair shed appear; drought, dust and impassable muddy approaches shape building forms.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-010",
+      "year": 1892,
+      "title": "Dry years and water rationing",
+      "details": "A dry spell prompts additional corrugated-iron tanks, hand carts and careful storage. This specific 1892 town event is fictional.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-011",
+      "year": 1894,
+      "title": "Repository becomes the place-name",
+      "details": "Repo's Cross Roads gradually becomes Repository on traders' notices, named for its early stores and the Repo family.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-012",
+      "year": 1896,
+      "title": "First classroom",
+      "details": "Ellen Repo helps arrange a part-time schoolroom used between shearing and harvest seasons; no real NSW school registration is implied.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-013",
+      "year": 1898,
+      "title": "Local fire volunteers",
+      "details": "Residents stock leather buckets, water drums and horse-drawn pumping gear at the store; modern emergency agencies arrive much later.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-014",
+      "year": 1901,
+      "title": "Federation celebrated",
+      "details": "Local residents gather to mark the real Federation of Australia in a fictional community meeting.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-015",
+      "year": 1903,
+      "title": "High Street surveyed in town lore",
+      "details": "The fictional grid is laid out with a high street, wider crossing avenues, drainage reservations, civic plot and farm roads. No actual NSW deposited plan is claimed.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-016",
+      "year": 1906,
+      "title": "Progress committee",
+      "details": "Repo's committee finances basic roads, dust control and shared drinking-water storage. Real government in the region is separate.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-017",
+      "year": 1909,
+      "title": "First mayor Reginald Repo",
+      "details": "Reginald Arthur Repo becomes **Repository Town's first in-universe mayor** of its fictional council. This does not create an actual separate NSW local government area at the real anchor.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-018",
+      "year": 1910,
+      "title": "First building replaced by public hall",
+      "details": "The 1883 Stores are carefully dismantled and timber reused in a larger hall on the G8-N plot, explaining the current Town Hall heritage plaque.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-019",
+      "year": 1911,
+      "title": "Brick country hotel constructed",
+      "details": "A Federation-style pub is built on N8-S as the Branch Line Hotel, consistent with the established pub history.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-020",
+      "year": 1912,
+      "title": "Branch Line Hotel opens",
+      "details": "The pub begins trade serving farms and railway workers. No original licence number or specific opening day is fabricated.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-021",
+      "year": 1914,
+      "title": "War and absence",
+      "details": "The First World War affects local labour, farming and community life; do not invent named historical casualties.",
+      "category": "fiction-context"
+    },
+    {
+      "id": "RTHIST-022",
+      "year": 1918,
+      "title": "Community memorial fund",
+      "details": "Families hold a fictional memorial fundraiser and maintain a register of returned residents, without impersonating real records.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-023",
+      "year": 1923,
+      "title": "Small generator and street lamps",
+      "details": "A local fuel-fired engine supplies limited evening electricity to the hall, pub and a few shops; household use remains sparse.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-024",
+      "year": 1927,
+      "title": "Sir Reginald title",
+      "details": "An entirely fictional knighthood recognises Reginald's community philanthropy. In 1909 he was **not yet Sir**; later chroniclers use the title retrospectively.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-025",
+      "year": 1931,
+      "title": "Depression public works",
+      "details": "Unemployed tradespeople repair culverts and unsealed lanes. Council cuts night lighting and postpones buildings.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-026",
+      "year": 1938,
+      "title": "First sealed high street",
+      "details": "Bitumen reaches the shop frontage, while rural access roads remain mostly unsealed.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-027",
+      "year": 1940,
+      "title": "Founder's death",
+      "details": "Sir Reginald Repo dies in the fictional story; his name survives on the hall's honour board and road signs.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-028",
+      "year": 1943,
+      "title": "Wartime freight and supplies",
+      "details": "Wartime rationing, supply convoys and farm production affect the community; no real military installation is attributed to the parcel.",
+      "category": "fiction-context"
+    },
+    {
+      "id": "RTHIST-029",
+      "year": 1950,
+      "title": "Flood preparedness",
+      "details": "A documented regional history of floods prompts the fictional town to plan evacuation and protect low-lying approaches.",
+      "category": "fiction-context"
+    },
+    {
+      "id": "RTHIST-030",
+      "year": 1955,
+      "title": "Macquarie basin flood",
+      "details": "The historic major flood at Narromine becomes the regional design lesson; there is no measured water depth at the selected coordinate.",
+      "category": "real-context"
+    },
+    {
+      "id": "RTHIST-031",
+      "year": 1958,
+      "title": "Hotel refit",
+      "details": "The Branch Line Hotel receives a longer timber front bar, preserving the already established pub canon.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-032",
+      "year": 1964,
+      "title": "Water and sewers upgraded",
+      "details": "A fictional treated water network and gravity sewer are introduced in stages. Real intake, wastewater outfall, licences and pipe locations are unresolved.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-033",
+      "year": 1967,
+      "title": "Burrendong Dam completed",
+      "details": "Regional Macquarie flows are influenced by the real upstream dam; it does not eliminate flood, supply or drought risk.",
+      "category": "real"
+    },
+    {
+      "id": "RTHIST-034",
+      "year": 1972,
+      "title": "Modern electricity begins",
+      "details": "The township transitions from independent generation to regional distribution; no actual year of connection or named feeder at the parcel is claimed.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-035",
+      "year": 1975,
+      "title": "Freight outlives passenger service",
+      "details": "Local station activity becomes mostly goods-oriented. The game's rail platform and timetable are fictional even though the regional railway is real.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-036",
+      "year": 1983,
+      "title": "Older brick shopfronts retained",
+      "details": "Residents preserve timber awnings and brickwork amid new materials, without a claimed legal heritage listing.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-037",
+      "year": 1988,
+      "title": "Pub refrigeration upgraded",
+      "details": "The hotel remodels cold storage and kitchen supply spaces, matching pub timeline.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-038",
+      "year": 1990,
+      "title": "Flood and drought resilience",
+      "details": "Sheds, tanks and raised equipment racks feature in local disaster planning, but parcel flood elevations remain unknown.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-039",
+      "year": 1996,
+      "title": "Telephone and early internet",
+      "details": "Businesses adopt computers and dial-up, using fictional customer accounts rather than invented historic telephone exchange maps.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-040",
+      "year": 2003,
+      "title": "Council works yard modernised",
+      "details": "The rural depot gains fleet storage, salvage stock and maintenance facilities.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-041",
+      "year": 2009,
+      "title": "Energy and street-lighting renewal",
+      "details": "Old luminaires are progressively replaced, with inconsistent coverage retained in older streets.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-042",
+      "year": 2015,
+      "title": "Repair and recycling sector",
+      "details": "The town develops reuse, recycling and skills activities that later become its 2026 circular economy.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-043",
+      "year": 2019,
+      "title": "The Merged Branch renamed",
+      "details": "The Branch Line Hotel is renamed The Merged Branch; the distinct Railway Hotel remains a different property.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-044",
+      "year": 2020,
+      "title": "Pandemic disruption",
+      "details": "Shops revise service, health communications and supply chains in response to the global event; no fictional exact case numbers are assigned.",
+      "category": "fiction-context"
+    },
+    {
+      "id": "RTHIST-045",
+      "year": 2022,
+      "title": "Macquarie catchment flooding",
+      "details": "Regional severe wet-weather risk leads to renewed drainage and warning planning; the selected parcel's actual flood condition is unverified.",
+      "category": "real-context"
+    },
+    {
+      "id": "RTHIST-046",
+      "year": 2024,
+      "title": "Digital work orders",
+      "details": "Town Hall starts electronic service requests and infrastructure maintenance records.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-047",
+      "year": 2025,
+      "title": "Trades, digital and civic growth",
+      "details": "Education, computing and repair/reuse facilities expand within the game's 234-site plan.",
+      "category": "fiction"
+    },
+    {
+      "id": "RTHIST-048",
+      "year": 2026,
+      "title": "Mayor Vern and democratic life",
+      "details": "Vern is the current playable mayor, challenged by Arlo and Sadie. Seven-game-day elections are gameplay compression, not actual NSW election cycles.",
+      "category": "game-canon"
+    },
+    {
+      "id": "RTHIST-049",
+      "year": 2026,
+      "title": "Pub utilities pilot",
+      "details": "The 1911 pub has a simulated WC, kitchen, energy, refrigeration and water, but not demonstrated fully code-compliant design.",
+      "category": "game-canon"
+    },
+    {
+      "id": "RTHIST-050",
+      "year": 2026,
+      "title": "Town mapped to Central West NSW",
+      "details": "The game gains a deliberate anchor at -32.273600,148.408400 on a candidate rural footprint west of Minore. Real ownership, cadastral and network access clearance remain unverified.",
+      "category": "design"
+    }
+  ],
+  "sources": [
+    {
+      "id": "S01",
+      "title": "NSW mapping cadastre imagery elevation",
+      "url": "https://alpha.portal.spatial.nsw.gov.au/client/toolsandviewers",
+      "type": "real-source"
+    },
+    {
+      "id": "S02",
+      "title": "NSW planning zoning maps",
+      "url": "https://www.planningportal.nsw.gov.au/spatialviewer/",
+      "type": "real-source"
+    },
+    {
+      "id": "S03",
+      "title": "Dubbo Regional Council villages (includes Minore)",
+      "url": "https://www.dubbo.nsw.gov.au/Our-Region-Environment/Maps-traffic-and-transport/city-maps",
+      "type": "real-source"
+    },
+    {
+      "id": "S04",
+      "title": "NSW Macquarie–Wambuul dual river name",
+      "url": "https://www.nsw.gov.au/departments-and-agencies/geographical-names-board/news/wambuul",
+      "type": "real-source"
+    },
+    {
+      "id": "S05",
+      "title": "Macquarie Aboriginal regional context",
+      "url": "https://www.bioregionalassessments.gov.au/assessments/11-context-statement-central-west-subregion/1122-human-geography",
+      "type": "real-source"
+    },
+    {
+      "id": "S06",
+      "title": "ARHS Narromine railway historical study",
+      "url": "https://arhsnsw.com.au/wp-content/uploads/2018/08/F-Narromine.pdf",
+      "type": "real-source"
+    },
+    {
+      "id": "S07",
+      "title": "NSW Heritage Dubbo Railway Precinct",
+      "url": "https://apps.environment.nsw.gov.au/dpcheritageapp/ViewHeritageItemDetails.aspx?ID=4806342",
+      "type": "real-source"
+    },
+    {
+      "id": "S08",
+      "title": "BOM Dubbo Airport AWS 065070",
+      "url": "https://www.bom.gov.au/climate/averages/tables/cw_065070_All.shtml",
+      "type": "real-source"
+    },
+    {
+      "id": "S09",
+      "title": "Essential Energy Distribution Annual Planning Report 2025 (Dubbo p50)",
+      "url": "https://dapr.essentialenergy.com.au/DAPR_Essential_Energy_2025.pdf",
+      "type": "real-source"
+    },
+    {
+      "id": "S10",
+      "title": "Essential Energy 2026 investigations Dubbo–Narromine",
+      "url": "https://engage.essentialenergy.com.au/dubbo-and-surrounds-high-voltage/news_feed/site-investigations-narromine-surrounds-and-dubbo-to-mendooran-rd",
+      "type": "real-source"
+    },
+    {
+      "id": "S11",
+      "title": "Essential Energy historic zone substation loads",
+      "url": "https://www.essentialenergy.com.au/our-network/network-projects/zone-substation-reports",
+      "type": "real-source"
+    },
+    {
+      "id": "S12",
+      "title": "Narromine Council 2026 floodplain review",
+      "url": "https://www.narromine.nsw.gov.au/development/flooding",
+      "type": "real-source"
+    },
+    {
+      "id": "S13",
+      "title": "NSW Macquarie–Wambuul water security investigations",
+      "url": "https://www.water.nsw.gov.au/our-work/water-infrastructure/regional-projects/macquarie-wambuul-water-security-project",
+      "type": "real-source"
+    },
+    {
+      "id": "S14",
+      "title": "Minore OSM place anchor",
+      "url": "https://mapcarta.com/16660700",
+      "type": "real-source"
+    },
+    {
+      "id": "S15",
+      "title": "Narromine OSM place anchor",
+      "url": "https://mapcarta.com/Narromine",
+      "type": "real-source"
+    },
+    {
+      "id": "S16",
+      "title": "Dubbo town centroid and Narromine geodesic reference",
+      "url": "https://www.geodatos.net/en/coordinates/australia/narromine",
+      "type": "real-source"
+    },
+    {
+      "id": "S17",
+      "title": "NSW Narromine historical civic records",
+      "url": "https://www.narromine.nsw.gov.au/community/local-history-room",
+      "type": "real-source"
+    },
+    {
+      "id": "S18",
+      "title": "Heritage NSW 1911 hotel architectural analogue",
+      "url": "https://apps.environment.nsw.gov.au/dpcheritageapp/ViewHeritageItemDetails.aspx?ID=1590062",
+      "type": "real-source"
+    },
+    {
+      "id": "S19",
+      "title": "NSW building code applicability Oct 2026",
+      "url": "https://www.nsw.gov.au/housing-and-construction/compliance-and-regulation/how-to-comply-national-construction-code",
+      "type": "real-source"
+    },
+    {
+      "id": "S20",
+      "title": "NSW SES Narromine flood emergency plan",
+      "url": "https://www.ses.nsw.gov.au/sites/default/files/2024-06/Narromine%20LFP%20May%202024%20Endorsed.pdf",
+      "type": "real-source"
+    }
+  ],
+  "unverifiedSiteChecks": [
+    "real satellite/open ground occupancy and property ownership",
+    "LGA/cadastral parcel, zoning and use permissibility",
+    "Registered Aboriginal heritage/AHIMS and ecological values",
+    "NSW flood study and site contour/levels plus safe overland drainage",
+    "physical highway/side-road access and sight lines, bridge class and approvals",
+    "rail easement and grade separation or crossing permissions",
+    "22kV feeder/transformer availability and easements",
+    "water abstraction licence or existing town main permission",
+    "sanitary sewer route, trade waste, stormwater outfall",
+    "local soil bearing, wind and bushfire/vegetation constraints",
+    "availability or sale of any parcel"
+  ]
+}
