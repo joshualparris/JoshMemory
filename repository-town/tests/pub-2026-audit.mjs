@@ -36,7 +36,7 @@ test('all RTPUB-001 through RTPUB-034 tasks unique with honest statuses and sour
   for(const ref of c.regulationRefs)assert.ok(audit.sources[ref],c.id+' missing '+ref);
  }
  assert.equal(audit.summary.notModelled,audit.checks.filter(x=>x.status==='not-modelled').length);
- assert.equal(audit.summary.geometryConflict,1);
+ assert.equal(audit.summary.geometryConflict,0);
  assert.equal(audit.summary.researchItemsComplete,1);
  assert.equal(audit.summary.remainingResearchOrImplementation,33);
  assert.deepEqual(audit.checks.filter(c=>c.done).map(c=>c.id),['RTPUB-001']);
