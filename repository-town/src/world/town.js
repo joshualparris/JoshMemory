@@ -99,11 +99,18 @@ export function buildTown(scene, houses, streets) {
   // Window glass goes into three town-wide meshes: households that go to bed early,
   // late, and the night owls, so lights go out across town in stages (setNight).
   const panes = [[], [], []];
+  const pilotWindows=[];
   for (const [n, h] of houses.entries()) {
     const lot = lotPosition(h.coordinate);
     const hb = new Builder(); hb.glass = [];
     const fp = buildExterior(hb, h.ext, h.ext, yardLimitsFor(h.coordinate));
-    for (const g of hb.glass) { g.translate(lot.x, 0, lot.z); panes[(n * 7) % 10 < 5 ? 0 : (n * 7) % 10 < 9 ? 1 : 2].push(g); }
+    const cohort=(n * 7) % 10 < 5 ? 0 : (n * 7) % 10 < 9 ? 1 : 2;
+    for (const g of hb.glass)g.translate(lot.x,0,lot.z);
+    if (/^[K-Q]7$/.test(h.coordinate)){
+      const glass=Builder.merge(hb.glass);
+      if(glass){const material=new THREE.MeshLambertMaterial({vertexColors:true,emissive:0xffb45a,emissiveIntensity:0});
+        group.add(new THREE.Mesh(glass,material));pilotWindows.push({id:'H:'+h.coordinate,material,cohort});}
+    } else for (const g of hb.glass)panes[cohort].push(g);
     const mesh = hb.build();
     mesh.position.set(lot.x, 0, lot.z);
     group.add(mesh);
@@ -134,9 +141,10 @@ export function buildTown(scene, houses, streets) {
   const windowMats = panes.map(() => new THREE.MeshLambertMaterial({ vertexColors: true, emissive: 0xffb45a, emissiveIntensity: 0 }));
   panes.forEach((p, i) => { const g = Builder.merge(p); if (g) group.add(new THREE.Mesh(g, windowMats[i])); });
   // dark: 0 by day … 1 at night. minute: town clock, for bedtimes and early risers.
-  function setNight(dark, minute, eye = {x:0,z:0}, powered = true) {
+  function setNight(dark, minute, eye = {x:0,z:0}, powered = true,perHousePower=()=>powered) {
     const on = [0,1,2].map(cohort=>householdLightingOn(minute,cohort));
     windowMats.forEach((m, i) => { m.emissiveIntensity = on[i] ? dark * 0.95 : dark * 0.05; });
+    for(const w of pilotWindows)w.material.emissiveIntensity=perHousePower(w.id)?(on[w.cohort]?dark*.95:dark*.05):0;
     lampMat.emissiveIntensity = powered ? 1.2 * lightingLevel(dark) : 0;
     streetLighting.update(eye, dark, powered);
   }

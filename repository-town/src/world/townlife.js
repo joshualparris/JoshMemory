@@ -1,5 +1,6 @@
 import { shopLightingOn, interiorPalette } from './lighting.js';
 import * as THREE from 'three';
+import {pilotMains} from './electrical-pilot.js';
 import { makeSeat } from './seats.js';
 import { SIGNAL_CROSSINGS, crossingState } from './traffic-signals.js';
 import { Builder, GLASS } from './builder.js';
@@ -972,16 +973,17 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     if (stars.visible) { stars.position.copy(skyCam.position); stars.material.opacity = Math.min(1, dark * 1.2); moon.position.set(skyCam.position.x - Math.cos(a) * 140, skyCam.position.y + Math.max(30, -Math.sin(a) * 120), skyCam.position.z - 60); }
     // A blackout puts out the windows and street lamps (src/world/life.js utilities).
     const powered = life.civic.powerGrid ? life.civic.powerGrid.served > 0 : life.civic.supply.ok; // a local fault must not darken every lamp
-    town.setNight(powered ? dark : 0, m, eye, powered);
+    town.setNight(powered ? dark : 0, m, eye, powered, id=>pilotMains(life,id) ?? powered);
     for (const {place,material} of shopGlazing)
-      material.emissiveIntensity = powered && shopLightingOn(place,m) ? dark*.75 : 0;
+      material.emissiveIntensity = (pilotMains(life,'B:'+place.id) ?? powered) && shopLightingOn(place,m) ? dark*.75 : 0;
     signBoards?.userData.setLighting(dark, powered, m);
     // Electric circuits are separate from sunset and reception access.
     for(const child of scene.children)if(child.userData.updateLighting){
       const id=child.userData.lightingSite;
       const customer=['clinic','waterworks','sewage','bakery'].includes(id)?id:
         ['mill','foundry','soyplant'].includes(id)?'industry':null;
-      child.userData.updateLighting(customer?life.gridPowered(customer):powered);
+      const pilot=pilotMains(life,id.startsWith('H:')||id.startsWith('B:')?id:'B:'+id);
+      child.userData.updateLighting(pilot??(customer?life.gridPowered(customer):powered));
     }
     for (const d of doorCards) d.m.material = facilityAccess(life, d.q).allowed ? d.openMat : d.closedMat;
     lightMat.emissiveIntensity = dark > 0.3 ? 1.4 : 0;  // vehicle headlights run on their own batteries

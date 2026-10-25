@@ -112,6 +112,15 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
     const line=new THREE.Mesh(new THREE.BoxGeometry(.07,.07,15),new THREE.MeshBasicMaterial({color}));line.position.set(x,3.7,-3);route.add(line);
     const cross=new THREE.Mesh(new THREE.BoxGeometry(10,.07,.07),line.material);cross.position.set(0,3.7,-9);route.add(cross);group.add(route);layers[id]=route;route.visible=false;
   }
+  // Entire pub lighting (including former independent hemisphere fill) is
+  // electrically switched. Emergency battery is deliberately limited to
+  // essential loads and will not keep the dining-room lighting on.
+  const lampCircuits=[];
+  group.traverse(o=>{if(o.isLight)lampCircuits.push({light:o,original:o.intensity});});
+  group.userData.lightingSite='pub';
+  group.userData.updateLighting=powered=>{
+    for(const c of lampCircuits)c.light.intensity=powered?c.original:0;
+  };
   const utilityVisuals=life=>{
     const state=pubUtilities(life),status=pubStatus(life);
     for(const [id,layer] of Object.entries(layers))layer.visible=state.overlay===id;
