@@ -11,11 +11,11 @@
   "sourceBlobs": {
     "repository-town/audit/electricity/coverage.json": "f80df771b893799e27b3adc98b92fe335c13f28b",
     "repository-town/src/world/interior-kit.js": "db71ca2ed36aef856a774459f46e1ecd601f1e82",
-    "repository-town/src/world/life.js": "ef96bcb1f1709ab9fc57cdc0c29fbeee6db45ba2",
+    "repository-town/src/world/life.js": "803f3bed104a13c55de9e4b0e17743085791bbb2",
     "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2",
     "repository-town/src/world/pub-interior.js": "1fa73392ce902c0509bf64f503159e6f309ea964",
-    "repository-town/src/world/shop-interior.js": "16dda8a921427cc02e4433d50bf3c73d361b9470",
-    "repository-town/src/world/townlife.js": "c07d54398b10b584e87420c447972a58afd50ff1",
+    "repository-town/src/world/shop-interior.js": "e2282db1927b79dd5e8a89a970a03e90b676dcf0",
+    "repository-town/src/world/townlife.js": "6717c071730692438d626009bdbd609af4a71e5f",
     "repository-town/tests/shop-interiors.mjs": "1a1e696c1c92ac4dc7566a8ff78c4c3cf41ea257",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930"
   },
@@ -658,5 +658,8 @@
     "originalCodeEdition": null,
     "formalHeritageListing": null,
     "sourceModule": "repository-town/src/world/pub-history.js"
-  }
+  },
+  "notes": [
+    "2026 north-frontage infill adds 72 new modelled sites elsewhere in town. Pub geometry and code checklist remain unverified beyond the existing 34-item audit; source hashes refreshed solely for regression tracking, not legal certification."
+  ]
 }
