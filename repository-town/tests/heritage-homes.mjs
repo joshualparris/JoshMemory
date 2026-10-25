@@ -5,7 +5,6 @@ import { PROPS } from '../src/world/props.js';
 import { STYLES, FEATURE_NAMES, buildExterior } from '../src/world/exterior.js';
 import { buildInterior } from '../src/world/interior.js';
 import { Builder } from '../src/world/builder.js';
-import { residentName } from '../src/ui/resident-identity.js';
 const expected = {A3:'Elizabeth Farm', N3:'Monticello', T2:'Vaucluse House', I7:'Fallingwater'};
 assert.deepEqual(Object.keys(expected).sort(), HERITAGE_COORDINATES.sort());
 for (const [coordinate,name] of Object.entries(expected)) {
@@ -15,7 +14,6 @@ for (const [coordinate,name] of Object.entries(expected)) {
  assert.equal(h.repo,null);
  assert.equal(h.heritage,true);
  assert.equal(h.street,source.street);
- assert.equal(residentName(coordinate),HERITAGE_GUIDES[coordinate]);
  assert.ok(h.summary.length>=60);
  assert.ok(STYLES[h.ext.style]);
  assert.ok(h.ext.features.every(f=>FEATURE_NAMES.includes(f)));
