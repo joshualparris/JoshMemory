@@ -4,6 +4,7 @@ on:
     branches: [fix/town-compact-menu-grid-ai-20261025, main]
     paths:
       - repository-town/src/index.html
+      - repository-town/src/styles.css
       - repository-town/src/main.js
       - repository-town/src/ui/companion.js
       - repository-town/src/ui/hud-collapse.js
