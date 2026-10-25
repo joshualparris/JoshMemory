@@ -2,6 +2,12 @@
 
 **Anchor WGS84:** -32.273600, 148.408400; **candidate footprint:** x = −390…390 m east–west and z = −190…290 m north–south (37.44 ha). It is a **fictional point overlay** west of Minore. **Official RTGEO-003 audit identifies Lot 105 DP835474, MINORE NSW 2830, Dubbo Regional Council and RU1 Primary Production zoning.** The parcel is **not proved vacant, available, developable or flood-safe**. [Source audit and rejected real-town suitability gate](RTGEO_003_SITE_AND_ZONING_AUDIT_2026-10-25.md). No binding town-side utility connection has been verified.
 
+## **Canonical alternative-universe rule (25 October 2026)**
+
+**The town is not moving.** Its exact `-32.273600,148.408400` WGS84 centre and all 234 site IDs remain fixed. The **real** NSW planning layer at this parcel is **RU1 Primary Production**, as documented below. The **fictional Repository Town universe** differs at this plot: it is **zoned RU5 Village-style for the established town**. The in-universe town began in 1883, its pub dates to 1911 and the current world exists as implemented. This is a deliberate simulation premise, **not a real NSW rezoning, council permit or authorisation for any development**. [Detailed real-versus-fiction contract](REPOSITORY_TOWN_ALTERNATE_UNIVERSE_ZONING.md).
+
+**Practical change:** The historical 'real-land RU1 no-go' is only a comparison, **not an instruction to move or stop building the fictional town**. RTGEO-017 alternative-site search is cancelled. RTGEO-018 real aerial checks are optional contextual research, since imagery of our reality would not show the alternative-universe town. All other infrastructure realism/physics and site hazard research remain open.
+
 ## 1. Location decisions and geometric transform
 
 - Region: **Orana / Central West NSW**, in the wider **Dubbo–Minore–Narromine corridor**, realistic farming hinterland west of Dubbo. **Official NSW SIX Maps confirms the exact point is in Dubbo Regional Council, MINORE 2830.** This does not make the game's separately elected council a real statutory authority.
@@ -10,9 +16,9 @@
 - **Parcel and zoning results are now verified** by RTGEO-003 against official ArcGIS layers: Lot **105 DP835474**, LGA **Dubbo Regional**, locality **Minore 2830**, zoning **RU1 Primary Production** throughout the tested game rectangle. **No current aerial scene was visually inspected**; the official dated imagery footprint is **2015**. Real title, current occupation, property availability, AHD topography, contour/DEM and cultural/environmental checks remain open. [Read full GIS report](RTGEO_003_SITE_AND_ZONING_AUDIT_2026-10-25.md).
 - **Maps:** [OSM candidate point](https://www.openstreetmap.org/?mlat=-32.273600&mlon=148.408400#map=15/-32.273600/148.408400) · [NSW SIX Maps](https://maps.six.nsw.gov.au/) · [planning layers](https://www.planningportal.nsw.gov.au/spatialviewer/).
 
-## RTGEO-003 land zoning hold
+## RTGEO-003 real NSW zoning evidence (not an in-game town siting hold)
 
-**The official RU1 Primary Production zoning is not a town-development consent.** A fictional simulation can overlay this real coordinate, but a physical multi-purpose settlement of 188 houses, shops and services would need official land-use and infrastructure approvals and potentially rezoning. Do not interpret Lot 105 DP835474 as an empty public plot; landownership and current occupation have not been checked. [Council planning proposal path](https://www.dubbo.nsw.gov.au/Builders-Developers/Applying-and-Post-Approval/planning-proposal-application). The 37.44-hectare footprint intersects just one mapped lot/zone/LGA, but the **site's legal developability has failed the unverified-as-town gate**. Next engineering tasks may use this as a study anchor, never as proven buildable land.
+**Real-world fact only:** RU1 Primary Production is not a real town-development consent; in Repository Town's **alternate universe** this footprint is instead **RU5 Village-style town-zoned**, with its existing fictional homes, shops and services. The game does not need to apply for a real rezoning. Do not interpret Lot 105 DP835474 as an empty public plot; landownership and current occupation have not been checked. [Council planning proposal path](https://www.dubbo.nsw.gov.au/Builders-Developers/Applying-and-Post-Approval/planning-proposal-application). The 37.44-hectare footprint intersects just one mapped lot/zone/LGA, but the **real-world legal permission remains unverified; this does not constrain the AU fictional town**. Next engineering tasks may use this as a study anchor, never as proven buildable land.
 
 ## 2. Exact climate proxy and rainfall
 

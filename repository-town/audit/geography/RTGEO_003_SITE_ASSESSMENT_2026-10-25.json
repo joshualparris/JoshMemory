@@ -19,8 +19,8 @@
     },
     "note": "Schematic simulation footprint, not surveyed parcel boundary"
   },
-  "siteStatus": "ASSESSMENT-COMPLETE — NOT AN APPROVED REAL-TOWN SITE",
-  "planningDecision": "NO-GO FOR ASSUMING LAWFUL REAL-TOWN DEVELOPMENT UNDER CURRENT RU1; rezoning/consent and all constraints would require formal assessment. Fictional simulation overlay retained.",
+  "siteStatus": "REAL-WORLD GIS ASSESSMENT COMPLETE; ALT-UNIVERSE TOWN ZONING ACTIVE",
+  "planningDecision": "REAL-WORLD ONLY: NO-GO for assuming lawful physical town under RU1; FICTIONAL UNIVERSE OVERRIDE: keep identical coordinates with town-zoned RU5-style village, no gameplay site-selection hold",
   "gisData": {
     "cadastre": {
       "lot": "105",
@@ -161,5 +161,19 @@
     "cadastreInfo": "https://data.nsw.gov.au/data/en/dataset/spatial-services-nsw-cadastre/resource/e7763410-113d-477e-b5d6-27e86c10f3d4",
     "imageryInfo": "https://portal.spatial.nsw.gov.au/client/services?id=c04ce33be7a04a7884f786f5beb20b19",
     "planningPortal": "https://www.planningportal.nsw.gov.au/spatialviewer/"
+  },
+  "schemaVersion": 2,
+  "fictionalCanonOverlay": {
+    "decidedOn": "2026-10-25",
+    "retainsSite": true,
+    "zone": "RU5 Village",
+    "world": "Repository Town alternative-universe",
+    "declaredFiction": true,
+    "realWorldRU1Unchanged": true,
+    "physicalTownExistsInFiction": true,
+    "realWorldLandApprovalsObtained": false,
+    "taskRTGEO017": "CANCELLED-UNNECESSARY",
+    "taskRTGEO018": "OPTIONAL-REFERENCE-NON-BLOCKING",
+    "documentation": "repository-town/docs/REPOSITORY_TOWN_ALTERNATE_UNIVERSE_ZONING.md"
   }
 }

@@ -30,21 +30,25 @@ test('no falsely asserted 2026 vacancy, right to develop or visual aerial inspec
  assert.equal(evidence.vacancyAndOwnership.actualVacancyStatus,'UNKNOWN');
  assert.equal(evidence.gisData.imagery.captureStartDate,'2015-10-06');
  assert.equal(evidence.gisData.imagery.viewerAttempt.outcome,'UNABLE-TO-INSPECT-PIXELS');
- assert.equal(evidence.siteStatus,'ASSESSMENT-COMPLETE — NOT AN APPROVED REAL-TOWN SITE');
+ assert.equal(evidence.siteStatus,'REAL-WORLD GIS ASSESSMENT COMPLETE; ALT-UNIVERSE TOWN ZONING ACTIVE');
+ assert.equal(evidence.fictionalCanonOverlay.zone,'RU5 Village');
+ assert.equal(evidence.fictionalCanonOverlay.retainsSite,true);
+ assert.equal(canon.site.universeZoning.zoneCode,'RU5');
  assert.equal(evidence.gisData.landUse.zoneCode,'RU1');
  assert.equal(canon.site.aerialPixelsInspected,false);
  assert.equal(TOWN_ORIGIN.site.approvedRealTown,false);
  assert.ok(evidence.sources.zoning.startsWith('https://mapprod3.environment.nsw.gov.au'));
 });
-test('roadmap closes GIS audit as fail/no-go but keeps aerial, cultural, flood, utility and alternative tasks open',async()=>{
+test('roadmap keeps real RU1 and AU RU5 separate; cancels alternative site task without blocking hazards',async()=>{
  const todo=await read('docs/REPOSITORY_TOWN_GEOGRAPHY_TODO.md');
  const lines=todo.split('\n');
- for(const [id,status] of [['RTGEO-003','COMPLETE GIS RESEARCH'],['RTGEO-004','OPEN'],['RTGEO-005','OPEN'],['RTGEO-006','OPEN'],['RTGEO-007','OPEN'],['RTGEO-017','OPEN'],['RTGEO-018','OPEN']]){
+ for(const [id,status] of [['RTGEO-003','COMPLETE GIS RESEARCH'],['RTGEO-004','OPEN'],['RTGEO-005','OPEN'],['RTGEO-006','OPEN'],['RTGEO-007','OPEN'],['RTGEO-017','CANCELLED'],['RTGEO-018','OPTIONAL REFERENCE']]){
   const row=lines.find(l=>l.startsWith('| **'+id+'**'));
   assert.ok(row,id+' missing');
   assert.match(row,new RegExp(status));
  }
  const hall=await read('src/world/hall-interior.js');
  assert.match(hall,/Lot 105 DP835474/);
- assert.match(hall,/RU1 Primary Production/);
+ assert.match(hall,/RU1 agricultural zoning/);
+ assert.match(hall,/RU5 Village/);
 });

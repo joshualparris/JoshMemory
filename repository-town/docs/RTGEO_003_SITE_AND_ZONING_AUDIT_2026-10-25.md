@@ -2,6 +2,12 @@
 
 **Audit date:** 25 October 2026. **Game centre (WGS84):** `-32.273600, 148.408400`. **Game footprint:** approximately 780 × 480 m (**37.44 ha**); this is *not* the cadastral parcel's size. **Finding: official geographic identity and zoning verified; NOT cleared for a real town.**
 
+## Canon decision superseding any **game-world relocation/no-go** interpretation
+
+**25 October 2026 — the user has selected an alternate universe where this exact parcel is zoned for Repository Town.** Keep **−32.273600,148.408400**, the town history, and all 234 building/site IDs. The real-world verified GIS result is still **RU1 Primary Production** and is preserved as historical *source evidence*. **In the game universe this town footprint is designated RU5 Village-style.** The real-world physical-town no-go described in the archived audit below **does not apply to the fictional world's zoning** and **must not trigger relocation or block in-game construction**. Neither a real LEP map change nor any actual DA/CC/OC has occurred.
+
+**RTGEO-017 alternative-site search: cancelled as unnecessary. RTGEO-018: optional external imagery reference only.** Continue RTGEO-004–016 for realistic climate, hazards, infrastructure and physical plausibility. [Locked alternate-universe canon](REPOSITORY_TOWN_ALTERNATE_UNIVERSE_ZONING.md).
+
 ## Decision
 
 **RTGEO-003: RESEARCH ASSESSMENT COMPLETED — failed real-world town-site suitability gate.**

@@ -19,6 +19,10 @@ test('fictional town geographic anchor and mayor consistent across source and JS
  assert.equal(TOWN_ORIGIN.site.officialLotPlan,'105//DP835474');
  assert.equal(TOWN_ORIGIN.site.officialLga,'DUBBO REGIONAL');
  assert.equal(TOWN_ORIGIN.site.officialLandZone,'RU1');
+ assert.equal(TOWN_ORIGIN.site.alternateUniverseZone,'RU5 Village');
+ assert.equal(TOWN_ORIGIN.site.alternateUniverseTownZoned,true);
+ assert.equal(data.site.universeZoning.zoneCode,'RU5');
+ assert.equal(data.site.realWorldZoning.zoneCode,'RU1');
  assert.equal(TOWN_ORIGIN.site.physicalSiteVacancyVerified,false);
  assert.match(data.site.legalSiteStatus,/NOT VERIFIED VACANT/);
 });
@@ -57,7 +61,9 @@ test('real-world data is cited but unknown utility connections never invented',(
  assert.equal(data.water.siteToRiverDistanceKm,null);
  assert.ok(data.realElectricity.unknown.length>=3);
  assert.equal(data.transport.actualRoadEntry,'unknown');
- assert.match(townChronicleNotice(),/not surveyed/);
+ assert.match(townChronicleNotice(),/alternate universe/);
+ assert.match(townChronicleNotice(),/RU5 Village/);
+ assert.match(townChronicleNotice(),/RU1 Primary Production/);
 });
 test('Town Hall contains two live history interactions and does not spawn a historical NPC',async()=>{
  const hall=await readFile(new URL('../src/world/hall-interior.js',import.meta.url),'utf8');

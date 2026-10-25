@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "asOf": "2026-10-25",
   "title": "Repository Town — geographic and historic canon",
   "site": {
@@ -22,9 +22,32 @@
     "adminCouncil": "DUBBO REGIONAL COUNCIL",
     "landUseZone": "RU1",
     "landUseZoneDescription": "Primary Production",
-    "siteDevelopmentStatus": "NO-GO FOR ASSUMING PHYSICAL TOWN UNDER CURRENT RU1; FICTIONAL OVERLAY ONLY",
+    "siteDevelopmentStatus": "GAME WORLD: EXISTING 1883–2026 TOWN, FICTIONALLY ZONED AS VILLAGE; REAL WORLD: RU1, NO PHYSICAL DEVELOPMENT APPROVAL VERIFIED",
     "aerialMetadataDate": "2015-10-06",
-    "aerialPixelsInspected": false
+    "aerialPixelsInspected": false,
+    "universeZoning": {
+      "world": "Repository Town alternate universe",
+      "zoneCode": "RU5",
+      "zoneName": "Village",
+      "fictional": true,
+      "appliesTo": "existing 37.44-hectare simulated footprint",
+      "civicAndMixedUse": "village/town precinct with existing homes, commercial, civic and individually assessed industrial and utility uses",
+      "physicalTownExistsInWorld": true,
+      "realWorldRezoning": false,
+      "legalDevelopmentConsentClaim": false,
+      "source": "repository-town/docs/REPOSITORY_TOWN_ALTERNATE_UNIVERSE_ZONING.md"
+    },
+    "realWorldZoning": {
+      "zoneCode": "RU1",
+      "zoneName": "Primary Production",
+      "parcel": "105//DP835474",
+      "evidence": "RTGEO-003 NSW Planning live GIS September 2026 dataset",
+      "originalFieldNames": [
+        "landUseZone",
+        "landUseZoneDescription"
+      ],
+      "realWorldTownApproved": false
+    }
   },
   "nearestLocalities": [
     {
@@ -639,11 +662,13 @@
   "siteAssessment": {
     "reference": "repository-town/audit/geography/RTGEO_003_SITE_ASSESSMENT_2026-10-25.json",
     "task": "RTGEO-003",
-    "status": "completed-site-assessment-no-go-real-town",
+    "status": "completed-real-gis-research-with-fictional-village-zone-override",
     "verifiedBy": "NSW SIX Maps boundaries and cadastre plus NSW Planning LEP zoning",
     "realWorldTownApproved": false,
     "ownerKnown": false,
     "parcelVacantKnown": false,
-    "imageryInspected": false
-  }
+    "imageryInspected": false,
+    "alternateUniverseVillageZoning": true
+  },
+  "worldRule": "Same NSW geography, climate, roads/rail regional context and safety/engineering standards as the real world; the selected game footprint is zoned for Repository Town in the alternate universe. Do not apply real-world RU1 as a game blocker."
 }
