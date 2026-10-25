@@ -4,13 +4,13 @@
 
 ## What is actually implemented
 
-- **15 actual game-property service IDs**, from the previously published [full 234-site synthetic RTU-003/004/005 network](../audit/electricity/design-network-v1.json): B:pub, B:post, B:school, B:butcher, B:greengrocer, B:bakery, B:cafe, B:store and **seven real northside house lots H:K7–H:Q7**.
-- **Real design topology reused without new arbitrary shortcuts**: 4 source-connected 22kV/LV transformers, 64 directed physical design edges, 65 graph nodes; taps and service meters uniquely matched to RTU-005.
+- **16 actual game-property service IDs**, from the previously published [full 234-site synthetic RTU-003/004/005 network](../audit/electricity/design-network-v1.json): B:pub, **B:hotel (the actual Railway Hotel at I9-N)**, B:post, B:school, B:butcher, B:greengrocer, B:bakery, B:cafe, B:store and **seven real northside house lots H:K7–H:Q7**.
+- **Real design topology reused without new arbitrary shortcuts**: 4 source-connected 22kV/LV transformers, 68 directed physical design edges, 69 graph nodes; taps and service meters uniquely matched to RTU-005.
 - **Deterministic demand curves** per property type/clock/weather: pub refrigeration and dining/kitchen peaks, bakery early production, shops, school, variable household evening loads. kW demand and kWh meters are *estimated engineering analogues*, not consumption measurements.
 - **Selectable pub electric equipment**: mains-only, mains + 6kW rooftop solar, or mains + 12kW rooftop solar and a 13.5kWh/5kW battery-inverter. Roof PV is zero at night and does not create a live street island. Battery is a limited single-property *essential circuits* backup, with conserved SOC/kWh, not a whole-kitchen or district generator.
 - **Local faults affecting the real pub utilities model**: trip the pub service and its entire kitchen fails while independent businesses remain powered; trip a transformer and only its downstream commercial or residential group loses mains. Trip the common intake and all pilot sites lose mains. Restore each breaker independently.
 - **Visible wiring**: exterior house service-drop conductors and poles plus an optional **underground X-RAY overlay**, registered curbside transformer cabinets, meter boxes that change colour according to supply and outage, and individual illuminated shop windows/house windows. These are design visualisations; their exact conductor geometry, sag, trench/switch room details remain non-surveyed.
-- **In-game UI**: always-available **⚡ Grid** button; physical inspector with 15 demand/meter records, demand/import/generation/unserved/loss estimates, transformer details, equipment controls, outage toggles and reset; also linked from pub utility meter interactable.
+- **In-game UI**: always-available **⚡ Grid** button; physical inspector with 16 demand/meter records, demand/import/generation/unserved/loss estimates, transformer details, equipment controls, outage toggles and reset; also linked from pub utility meter interactable.
 - **Save persistence**: pilot faults, selected equipment, energy totals and state of charge stored within existing `life.civic` snapshot, validation rejects malformed values. Legacy seven-group grid and saves remain compatible.
 - **Tests**: [pure deterministic tests](../tests/electrical-pilot.mjs), existing [full 234-property source network tests](../tests/electrical-backbone.mjs), legacy grid/public lighting/pub tests, and [real Chromium desktop + narrow viewport playtest](../tests/electrical-pilot-browser.mjs) with [CI screenshots](https://github.com/joshualparris/JoshMemory/actions/workflows/rtu-006-013-pub-grid.yml) when completed.
 
@@ -24,7 +24,7 @@
 6. Install solar + battery (explicit *demonstration* equipment) and trip pub service. Essential backed loads work until the battery discharges; kitchen still cannot run. Advance time to see depletion and kWh meter changes.
 7. Reset the pilot to restore normal supply. Check the visual windows and meter indicator.
 
-**Important:** The pub within the game is named **The Merged Branch**. There is also a separate **hotel** site at I9-N. The term 'Railway Hotel' used in the utility task discussion is not a third physical pub or an extra invented meter.
+**Important:** The pub within the game is named **The Merged Branch**. The separate **Railway Hotel** at I9-N is **also individually connected**, with its own meter and breaker. The two businesses are not the same physical site.
 
 ## Explicitly unfinished for the entire town
 
