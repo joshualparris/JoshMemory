@@ -28,19 +28,26 @@ try{
     assert(/Railway Hotel/.test(text));
     assert(/wiring/i.test(text));
     await page.screenshot({path:shots+'/grid-inspector-'+viewport.width+'.png'});
-    let status=await page.evaluate(()=>window.__town.pilotAction('fault:SERVICE:B:pub'));
-    assert(status.includes('fault:SERVICE:B:pub'));
+    // Actually scroll to and CLICK the public panel controls on both viewport
+    // sizes; exercising debug hooks alone would miss unreachable mobile buttons.
+    const tripPub=page.locator('#panel-actions button').filter({hasText:'Trip pub service'});
+    await tripPub.scrollIntoViewIfNeeded();
+    await tripPub.click();
     const isolated=await page.evaluate(()=>window.__town.pilotGrid());
     assert.equal(isolated.siteById['B:pub'].mains,false);
     assert.equal(isolated.siteById['B:post'].mains,true);
     assert.equal(isolated.siteById['B:hotel'].mains,true);
     assert.equal(isolated.siteById['B:bakery'].mains,true);
-    await page.evaluate(()=>window.__town.pilotAction('fault:SERVICE:B:hotel'));
+    const tripHotel=page.locator('#panel-actions button').filter({hasText:'Trip Railway Hotel service'});
+    await tripHotel.scrollIntoViewIfNeeded();
+    await tripHotel.click();
     const hotel=await page.evaluate(()=>window.__town.pilotGrid());
     assert.equal(hotel.siteById['B:hotel'].mains,false);
     assert.equal(hotel.siteById['B:post'].mains,true);
-    await page.evaluate(()=>window.__town.pilotAction('fault:SERVICE:B:hotel'));
-    await page.evaluate(()=>window.__town.pilotAction('toggleOverlay'));
+    const restoreHotel=page.locator('#panel-actions button').filter({hasText:'Restore Railway Hotel service'});
+    await restoreHotel.scrollIntoViewIfNeeded();await restoreHotel.click();
+    const toggle=page.locator('#panel-actions button').filter({hasText:'Show ⚡ wiring overlay'});
+    await toggle.scrollIntoViewIfNeeded();await toggle.click();
     await page.screenshot({path:shots+'/pub-outage-'+viewport.width+'.png'});
     await page.evaluate(()=>window.__town.pilotAction('fault:SERVICE:B:pub'));
     await page.evaluate(()=>window.__town.pilotAction('fault:MV-TX-R7-B3'));
@@ -51,5 +58,5 @@ try{
     await page.close();
   }
   assert.deepEqual(errors,[],'browser pageerrors: '+errors.join(' | '));
-  console.log('PASS: live desktop & 390px mobile 3D game loaded; grid HUD, 16 site meters, local pub blackout, neighbour separation, north-house transformer faults and wiring overlay');
+  console.log('PASS: live desktop & 390px mobile 3D game loaded; grid HUD with touch-clicked action buttons, 16 site meters, local pub blackout, neighbour separation, north-house transformer faults and wiring overlay');
 } finally { await browser.close(); }
