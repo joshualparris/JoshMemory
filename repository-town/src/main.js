@@ -193,7 +193,10 @@ async function start() {
   gridButton.id='btn-electrical-grid';gridButton.type='button';
   gridButton.textContent='⚡ Grid';gridButton.title='Inspect individual electrical circuits, appliances and local outages';
   gridButton.setAttribute('aria-label','Open Railway Hotel and street electricity pilot');
-  $('needs-strip').append(gridButton);
+  // A collapsed needs strip hides its children on mobile. This dedicated
+  // on-screen utility control remains discoverable on both desktop and touch.
+  gridButton.style.cssText='position:fixed;right:12px;top:96px;z-index:30;background:#273e4c;color:#fff;border:1px solid #aad6e3;border-radius:18px;padding:8px 12px;font:600 13px system-ui;box-shadow:0 2px 9px #0007;';
+  document.body.append(gridButton);
   gridButton.onclick=()=>openPanel(electricalPilotPanel(life));
   tableOrder.onclick=()=>{
     if(player.seated && inside?.place && ['cafe','pub'].includes(inside.place.id))
