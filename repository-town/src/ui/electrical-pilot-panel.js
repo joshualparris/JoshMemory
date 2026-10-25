@@ -22,7 +22,7 @@ export function electricalPilotPanel(life) {
         northHouses:'northside houses transformer',shared:'entire intake',post:'Post Office service',
         house:'house N7 service'})[name],run:()=>{pilotAction(life,'fault:'+id);return electricalPilotPanel(life);}}));
   return {
-    title:'⚡ Electrical grid · Railway Hotel pilot',
+    title:'⚡ Railway Hotel + Merged Branch · electrical grid',
     wide:true,
     body:'<p><strong>Physical network simulation:</strong> 16 modelled properties, four real routed game-world transformers, with separate service switches and meters. All layouts are <strong>synthetic NSW-style designs</strong>, not actual Essential Energy circuits. See the illuminated wiring on the street by enabling the network view.</p>'+
       '<p><b>Pub:</b> '+(pub.mains?'Mains supplying full circuits':pub.backup?'Essential refrigeration/lights on battery — kitchen OFF':'Blackout — kitchen and refrigerators unpowered')+
