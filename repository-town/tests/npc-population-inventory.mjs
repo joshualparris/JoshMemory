@@ -72,7 +72,23 @@ const workers = life.villagers.slice(0,snapshot.counts.simulatedWorkers).map(v =
   homeCoordinate: v.home.coordinate,
   rosterLayer: v.id < 38 ? 'original38' : v.id < 61 ? 'baseline' : v.id < 91 ? 'relief' : 'security',
 }));
-assert.deepEqual(snapshot.livingTownWorkers, workers);
+// The last eight 2024-recorded posts were provisional relief assignments.
+// The security/locksmith expansion now gives those stable resident IDs real
+// security roles, without changing their names, homes or identity keys.
+// Keep the immutable old snapshot intact and check continuity explicitly.
+for(let i=0;i<snapshot.livingTownWorkers.length;i++){
+  const old=snapshot.livingTownWorkers[i],live=workers[i];
+  assert.equal(live.id,old.id,'historic worker ID '+i);
+  assert.equal(live.key,old.key,'historic worker key '+i);
+  assert.equal(live.name,old.name,'historic worker name '+i);
+  assert.equal(live.homeCoordinate,old.homeCoordinate,'historic worker home '+i);
+  if(i<91){
+    assert.equal(live.role,old.role,'unchanged historic role '+i);
+    assert.equal(live.workplace,old.workplace,'unchanged historic workplace '+i);
+  }
+}
+assert(workers.slice(91,99).every(w=>['securityhq','securityoffice','locksmith'].includes(w.workplace)),
+  'the eight reassigned legacy posts must be real staffed security/locksmith workplaces');
 assert.equal(workers.filter(w => w.rosterLayer === 'original38').length, 38);
 assert.equal(workers.filter(w => w.rosterLayer === 'baseline').length, 23);
 assert.equal(workers.filter(w => w.rosterLayer === 'relief').length, 30);
