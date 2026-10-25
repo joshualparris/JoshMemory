@@ -1,5 +1,5 @@
 import { tickPubUtilities, pubKitchenReady, pubAction, validPubUtilities } from './pub-utilities.js';
-import { tickElectricalPilot } from './electrical-pilot.js';
+import { tickElectricalPilot, validElectricalPilotState } from './electrical-pilot.js';
 import {workAssetFault} from './occupation-work.js';
 import { placeAddress } from './addresses.js';
 import {soyState,soyAction,soyHourly,soyReport,takeSoyShipment,deliverSoyShipment} from './soy-chain.js';
@@ -1807,6 +1807,7 @@ export class TownLife {
     if (!Number.isFinite(s.day) || s.day < 1 || !Number.isFinite(s.minute) || s.minute < 0 || s.minute >= 1440) return false;
     if (s.civic !== undefined && (s.civic === null || typeof s.civic !== 'object' || Array.isArray(s.civic))) return false;
     if(s.civic?.pubUtilities!==undefined && !validPubUtilities(s.civic.pubUtilities))return false;
+    if(s.civic?.electricalPilot!==undefined && !validElectricalPilotState(s.civic.electricalPilot))return false;
     if (s.places !== undefined && !Array.isArray(s.places)) return false;
     if (s.villagers !== undefined && !Array.isArray(s.villagers)) return false;
     let sim = null;
