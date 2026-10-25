@@ -39,6 +39,16 @@ for (const target of ['public', 'private']) {
   const out = path.join(TOWN, 'dist', target);
   fs.rmSync(out, { recursive: true, force: true });
   fs.cpSync(path.join(TOWN, 'src'), out, { recursive: true });
+  // Heritage museums never receive procedurally generated modern household furniture.
+  // Modify only the PUBLIC bundle; canonical private simulation code stays untouched.
+  if (target === 'public') for (const [relative, before, after] of [
+    ['main.js', 'resident&&!base.memorial?', 'resident&&!base.memorial&&!base.heritage?'],
+    ['world/interior.js', '!house.memorial', '!house.memorial&&!house.heritage'],
+  ]) {
+    const file = path.join(out, relative), previous = fs.readFileSync(file, 'utf8');
+    if (!previous.includes(before)) throw new Error('Heritage public build patch needs update: ' + relative);
+    fs.writeFileSync(file, previous.replaceAll(before, after));
+  }
   fs.writeFileSync(path.join(out,'companion-knowledge.json'),JSON.stringify(companionKnowledge(TOWN)));
   fs.cpSync(path.join(TOWN, 'vendor'), path.join(out, 'vendor'), { recursive: true });
   const list = (target === 'public' ? houses.map(sanitise) : houses).map(mergeDiscovery).map(h => target === 'public' ? publicHeritageHouse(h) : h);
