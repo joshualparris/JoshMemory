@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 32518)
-Total output lines: 1938
-
 import {validPubVenue,drinkPubBeer,pubDrinkAvailable,reservePubDrink} from './pub-venue.js';
 import {validPool} from './pub-pool.js';
 import {pubAlcoholRefusal,pubAdmission,validPubStandards} from './pub-standards.js';
@@ -878,7 +875,157 @@ export class TownLife {
     this.log(`The visitor ordered ${GOODS[good].name} at ${p.name}.`);
     // Cooked to order: it goes in the bag when the kitchen calls the ticket.
     const t = placeOrder(this, shopId, good, GOODS[good].name, 'menu');
-    return `You order ${GOODS[good].name} for $${price}. Ticket ${t.ticket}: ready in about ${t.minutes} minutes, at ${fmt(t…2518 tokens truncated…* dir > 0.5 ? [...lane.slice(0, -1), lead, bay] : [...lane, bay];
+    return `You order ${GOODS[good].name} for $${price}. Ticket ${t.ticket}: ready in about ${t.minutes} minutes, at ${fmt(t.ready % 1440)}.`;
+  }
+  sellItem(shopId, good) {
+    if(['pub_beer','pub_bottled_beer'].includes(good))return 'Alcohol cannot be sold back through the general goods counter.';
+    const p = this.place(shopId), me = this.civic.player, pay = Math.max(1, Math.floor(GOODS[good].price * 0.6));
+    const service = shopService(this, p);
+    if (!service.available) return service.message;
+    if (!(me.bag[good] > 0)) return `You don't have any ${GOODS[good].name}.`;
+    if (p.till < pay) return `The ${p.name} can't afford to buy it back right now.`;
+    me.bag[good]--; this.shelves(p)[good] = (this.shelves(p)[good] || 0) + 1; p.till -= pay; me.wallet += pay; recordEarning(this, pay); receipt(this, 'sale', `Sold ${GOODS[good].name} to ${p.name}`, pay);
+    return `The ${p.name} buys it back for $${pay}.`;
+  }
+  eatItem(good) { if(['pub_beer','pub_bottled_beer'].includes(good))return drinkPubBeer(this,good);return eatPlayer(this,good); }
+  soyAction(site,action){return soyAction(this,site,action);}
+  soyReport(){return soyReport(this);}
+  orderCafe(itemId) { return orderCafe(this,itemId); }
+  // The visitor's ticket is called: a café order is brought to the table, a menu dish goes in the bag.
+  collectOrder(o) {
+    const me = this.civic.player;
+    if (o.kind === 'cafe') { serveCafe(this, o.item); this.log(`Ticket ${o.ticket}: the visitor's ${o.name} was served.`); }
+    else { me.bag[o.item] = (me.bag[o.item] || 0) + 1; this.log(`Ticket ${o.ticket}: the visitor collected ${o.name}.`); }
+    (me.served ||= []).unshift(`Ticket ${o.ticket}: ${o.name} ${o.kind === 'cafe' ? 'served' : 'in your bag'} at ${fmt(this.minute)}`);
+    me.served.length = Math.min(me.served.length, 5);
+  }
+  bookHotel() { return hotelCheckIn(this); }
+  sleepHotel(room=null,duration=null) { return sleepPlayer(this,'hotel',room,duration); }
+  sleepHome(coordinate,duration=null) { return sleepPlayer(this,'home',coordinate,duration); }
+  needsReport() { return needsReport(this); }
+  bank(op, n) {
+    const me = this.civic.player, from = op === 'deposit' ? 'wallet' : 'bank', to = op === 'deposit' ? 'bank' : 'wallet';
+    if (!this.open(this.place('bank'))) return 'The bank is closed (9:00–16:00).';
+    const m = Math.min(n, me[from]);
+    if (m <= 0) return `Nothing to ${op}.`;
+    me[from] -= m; me[to] += m;
+    noteBank(this, `${op === 'deposit' ? 'Deposited' : 'Withdrew'} $${m}.`); receipt(this, 'bank', `${op === 'deposit' ? 'Deposited' : 'Withdrew'} $${m}`, 0);
+    return `${op === 'deposit' ? 'Deposited' : 'Withdrew'} $${m}. Wallet $${me.wallet}, savings $${me.bank}.`;
+  }
+  propertyReport() { return propertyReport(this); }
+  contractQuote(id) {return contractQuote(this,id);}
+  contractReport(id) {return contractReport(this,id);}
+  exchangePurchase(id) {return exchangePurchase(this,id);}
+  rescindContract(id) {return rescindContract(this,id);}
+  settlePurchase(id) {return settlePurchase(this,id,(life,parcel)=>buyProperty(life,parcel));}
+  leaseReport(id) {return leaseOverview(this,id);}
+  commercialDisclosure(id) {return issueCommercialDisclosure(this,id);}
+  renewCommercial(id) {return renewCommercial(this,id);}
+  reviewCommercialRent(id) {return reviewCommercialRent(this,id);}
+  tenancyNotice(id,ground='rent-arrears') {return tenancyNotice(this,id,ground);}
+  applyTenancyOrder(id) {return applyTribunal(this,id);}
+  tenancyHearing(id) {return hearing(this,id);}
+  enforceTenancyOrder(id) {return enforcePossession(this,id);}
+  buyProperty(id) { return buyProperty(this,id); }
+  listProperty(id) { return listProperty(this,id); }
+  sellProperty(id) { return sellProperty(this,id); }
+  leaseProperty(id) { return leaseProperty(this,id); }
+  endLease() { return endLease(this); }
+  motorReport() { return motorReport(this); }
+  buyVehicle(id) { return buyVehicle(this,id); }
+  serviceVehicle(reg) { return serviceVehicle(this,reg); }
+  refuelVehicle(reg) {return refuelVehicle(this,reg);}
+  renewRegistration(reg) { return renewRegistration(this,reg); }
+  sellVehicle(reg) { return sellVehicle(this,reg); }
+  creditReport() { return creditReport(this); }
+  payBills() { return payBills(this); }
+  jobsReport() { return jobsReport(this); }
+  startJob(id) { return startJob(this, id); }
+  doTask(t) { return performTask(this, t); }
+  cancelJob() { return abandonJob(this); }
+  finishJob() { return finishJob(this); }
+  jobSupervisors(site) { return supervisors(this, site); }
+  economyReport() { return economyReport(this); }
+  borrow(n) { return borrow(this, n); }
+  repay(n) { return repay(this, n); }
+  vote(name) { return castCivicVote(this,name); }
+  postLetter(to) {
+    const me = this.civic.player;
+    if (me.wallet < 2) return 'Postage is $2.';
+    me.wallet -= 2; this.civic.treasury += 2; this.civic.letters.push({ to, day: this.day, delivered: false });
+    return `Letter to ${to} posted ($2). The postie delivers it tomorrow afternoon.`;
+  }
+  repair(service) { return submitRequest(this,service); }
+  collectRecycling() {
+    const c = this.civic, n = Math.min(5, Math.floor(c.homes.recyclables));
+    if (!n) return 'No recycling waiting on the kerbs right now.';
+    c.homes.recyclables -= n; this.place('recycling').stock.recyclables += n;
+    const reward = Math.min(c.treasury, n * 2); c.treasury -= reward; c.player.wallet += reward; recordEarning(this, reward);
+    return `You sort ${n} bags of recycling and the council pays you $${reward}.`;
+  }
+
+  // Production happens on the hour while the right workers are at work.
+  everyHour() {
+    const at = (id) => this.villagers.filter((v) => v.work === id && v.step?.kind === 'work');
+    for (const p of this.places.values()) {
+      if (p.kind === 'farm' && p.id!=='soyfarm') {
+        p.growth = clamp(p.growth + (this.isDay() ? ({ rainy: 0.06, sunny: 0.04, cloudy: 0.035, windy: 0.03 })[this.civic.weather] : 0.01), 0, 1);
+        const hands = at(p.id).length;
+        // Farms stop picking once their shed is full (60), so unsold produce doesn't pile up forever.
+        if (hands && this.open(p) && (p.out[p.makes] || 0) < 60) {
+          const n = Math.round((2 + 3 * p.growth) * hands * (FARM_YIELD[p.makes] || 1) * Math.max(1, this.villagers.length/38));
+          p.out[p.makes] = (p.out[p.makes] || 0) + n;
+          this.stats.harvested[p.makes] = (this.stats.harvested[p.makes] || 0) + n;
+          if (p.makes === 'grain' && p.growth > 0.9) { p.growth = 0.3; this.log(`The wheat paddock was harvested. ${n} bags of grain went into the silo.`); }
+        }
+      }
+    }
+    const h = Math.floor(this.minute / 60);
+    this.utilitiesHour(h, at);
+    soyHourly(this);
+    const powered = this.gridPowered('bakery');
+    const mill = this.place('mill');
+    const batch = Math.min(2, Math.floor((mill.stock.grain || 0) / 3));
+    if (at('mill').length && batch && powered && (mill.out.flour || 0) < 60) { mill.stock.grain -= 3 * batch; mill.out.flour = (mill.out.flour || 0) + 2 * batch; this.stats.milled += 2 * batch; }
+    if(at('mill').length&&powered&&(mill.stock.grain||0)>=1&&(mill.out.oatmilk||0)<12&&(this.place('waterworks').stock.water||0)>=1){mill.stock.grain--;this.place('waterworks').stock.water--;mill.out.oatmilk=(mill.out.oatmilk||0)+2;}
+    const bakery = this.place('bakery');
+    if (at('bakery').length && powered && this.civic.supply.waterOk && !workAssetFault(this,'bakery-mixer')) {
+      const s = bakery.stock;
+      // Bake to a full shelf, not beyond: surplus would only waste flour, lamb and veg.
+      if ((s.flour || 0) >= 2 && (bakery.out.bread || 0) < Math.ceil(48*Math.max(1,this.villagers.length/38))) { s.flour -= 2; const batch=Math.ceil(8*Math.max(1,this.villagers.length/38));bakery.out.bread = (bakery.out.bread || 0) + batch; this.stats.baked += batch; }
+      if ((bakery.out.pie || 0) < Math.ceil(16*Math.max(1,this.villagers.length/38)) && (s.flour || 0) >= 1 && (s.lamb || 0) >= 1 && (s.veg || 0) >= 1) { s.flour--; s.lamb--; s.veg--; bakery.out.pie = (bakery.out.pie || 0) + 4; this.stats.baked += 4; }
+    }
+    if (h === 7) {
+      const depot = this.place('depot');
+      depot.out.coffee = (depot.out.coffee || 0) + 8; depot.out.tea = (depot.out.tea || 0) + 6; depot.out.parcel = (depot.out.parcel || 0) + 6 + Math.round(this.rand() * 6);
+      // Fuel and ore are imports the council pays for.
+      const fuel = (depot.out.fuel || 0) < 90 ? 90 : 0, ore = (depot.out.ore || 0) < 20 ? 20 : 0, cost = fuel * 1 + ore * 2;
+      if (cost && this.civic.treasury >= cost) { depot.out.fuel = (depot.out.fuel || 0) + fuel; depot.out.ore = (depot.out.ore || 0) + ore; this.civic.treasury -= cost; }
+      this.log(`The freight train pulled into the Rail Depot with coffee, tea, the mail${cost ? ', fuel and ore' : ''}.`);
+    }
+    // Parcels left on doorsteps get taken inside by evening.
+    if (h === 19 && this.parcels.length) { this.log(`${this.parcels.length} parcel${this.parcels.length > 1 ? 's were' : ' was'} collected from doorsteps.`); this.parcels = []; }
+  }
+
+  // ── Trucks ──
+  depotBay(id) {
+    const depot = this.place('depot');
+    // Stagger trucks away from the centre entrance and give each a full 8m bay.
+    // The bay surface is rendered separately from the road and is not a lane.
+    return {x:depot.x + [-16, -7, 9][id], z:ROAD(7)-7.2};
+  }
+  // Road approach. Depot trucks make a short off-carriageway manoeuvre into their marked bay;
+  // every other stop is made in the travelling lane beside the building (a delivery truck
+  // double-parks to unload), so a truck never parks on a footpath over a counter or a worker.
+  routeTruck(t, placeId) {
+    if (placeId === 'depot') {
+      const bay = this.depotBay(t.id);
+      if (Math.hypot(t.x - bay.x, t.z - bay.z) < 0.2) return [];
+      // Run along the lane and swing in over the last ~9 m, so the truck arrives nearly square to
+      // the bay instead of nose-first across the lane.
+      const lane = driveRoute(t, bay), prev = lane.length > 1 ? lane[lane.length - 2] : t, end = lane[lane.length - 1];
+      const dir = Math.sign(bay.x - prev.x) || 1, lead = { x: bay.x - dir * 5.5, z: end.z };
+      return (lead.x - prev.x) * dir > 0.5 ? [...lane.slice(0, -1), lead, bay] : [...lane, bay];
     }
     const route = driveRoute(t, { x: this.place(placeId).x, z: ROAD(7) });
     const stop = route[route.length - 1];
