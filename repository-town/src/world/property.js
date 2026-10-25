@@ -110,7 +110,7 @@ export function buyProperty(life,id){
   s.accounts['Property Office']=round(s.accounts['Property Office']+fee+PROPERTY_RULES.conveyancing);
   life.civic.treasury=round(life.civic.treasury+duty);
   s.liens[id]={balance:loan,rate:PROPERTY_RULES.mortgageDaily,term:PROPERTY_RULES.loanDays,paid:0,arrears:0};
-  p.owner='visitor';p.listed=false;
+  p.owner='visitor';p.jointOwners=[];p.listed=false;
   write(s,'Acquired '+p.name+' for $'+p.value+' with mortgage $'+loan+'; existing tenant '+(p.tenant||'none')+'.',life.day);
   life.log('Settlement completed for '+p.name+'. The title is registered to you.');
   return 'Settlement complete. You own '+p.name+'. Mortgage $'+loan+'. '+(p.tenant?'The tenant remains under their existing lease.':'The property is vacant.');
@@ -131,7 +131,7 @@ export function sellProperty(life,id){
   s.accounts[buyer]=round(s.accounts[buyer]-price);
   s.accounts['Property Office']=round(s.accounts['Property Office']+fee);
   s.reserve=round(s.reserve+debt);delete s.liens[id];
-  pay(me,proceeds);p.owner=buyer;p.listed=false;
+  pay(me,proceeds);p.owner=buyer;p.jointOwners=[];p.listed=false;
   if(s.playerLease===id)s.playerLease=null;
   write(s,'Sold '+p.name+' for $'+price+'; selling fee $'+fee+', loan discharged $'+debt+'.',life.day);
   return 'Sale settled: $'+price+' sale, $'+fee+' commission, $'+debt+' mortgage discharged; $'+proceeds+' to your savings.';
@@ -142,14 +142,14 @@ export function leaseProperty(life,id){
   // Four seven-day in-game weeks: escrow is held, not paid to the landlord.
   const bond=p.rent*28;
   if(!spend(me,bond))return 'You need $'+bond+' for the refundable rental bond.';
-  p.tenant='visitor';p.occupied=true;s.playerLease=id;s.bond=bond;
+  p.tenant='visitor';p.occupants=['visitor'];p.occupied=true;s.playerLease=id;s.bond=bond;
   write(s,'Leased '+p.name+' to visitor; $'+bond+' bond held.',life.day);
   return 'Lease signed for '+p.name+'. Rent $'+p.rent+'/day, bond $'+bond+' held. You can inspect the property in town.';
 }
 export function endLease(life){
   const s=registry(life);if(!s.playerLease)return 'You have no recorded tenancy.';
   const p=s.parcels[s.playerLease];if(!p)return 'Missing tenancy record.';
-  p.tenant=null;p.occupied=false;const refund=s.bond||0;pay(life.civic.player,refund);
+  p.tenant=null;p.occupants=[];p.occupied=false;const refund=s.bond||0;pay(life.civic.player,refund);
   write(s,'Lease ended at '+p.name+'; bond '+refund+' returned.',life.day);
   s.playerLease=null;s.bond=0;
   return 'Lease ended. $'+refund+' bond refunded. You return to rented temporary accommodation.';
