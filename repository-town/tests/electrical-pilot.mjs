@@ -3,7 +3,8 @@ import * as THREE from 'three';
 import {pilotNetwork,pilotInitialState,initialiseElectricalPilot,pilotReport,
  pilotMains,pilotPowered,pilotSolarKw,pilotAction,tickElectricalPilot,
  validElectricalPilotState,PILOT_FAULTS,pilotPath} from '../src/world/electrical-pilot.js';
-import { createElectricalPilotVisuals } from '../src/world/electrical-pilot-visuals.js';
+import { createElectricalPilotVisuals,attachPilotInteriorLighting } from '../src/world/electrical-pilot-visuals.js';
+import { buildCivicInterior } from '../src/world/shop-interior.js';
 import { pubStatus,pubKitchenReady } from '../src/world/pub-utilities.js';
 import {electricalPilotPanel} from '../src/ui/electrical-pilot-panel.js';
 import fs from 'node:fs';
@@ -168,5 +169,20 @@ assert.equal(pilotMains(operations,'H:K7'),true,'other house remains supplied');
 pilotAction(operations,'fault:SERVICE:H:N7');
 householdHour(operations,23);
 assert.equal(resident.household.fridgeOff,0,'restored supply restarts fridge');
+
+
+// Regression: the real Railway Hotel I9-N and Bakery previously had no
+// dedicated electrical callbacks; their actual Three.js lights must now react.
+for(const place of [{id:'hotel',name:'Railway Hotel'}, {id:'bakery',name:'Bakery'}]){
+  const built=buildCivicInterior(place,()=>new THREE.Sprite(new THREE.SpriteMaterial()));
+  attachPilotInteriorLighting(built.group,'B:'+place.id);
+  const lights=[];built.group.traverse(o=>{if(o.isLight)lights.push(o);});
+  assert(lights.length>0,place.id+' must contain physical lights');
+  assert(typeof built.group.userData.updateLighting==='function');
+  built.group.userData.updateLighting(false);
+  assert(lights.every(x=>x.intensity===0),place.id+' must black out on physical service fault');
+  built.group.userData.updateLighting(true);
+  assert(lights.some(x=>x.intensity>0),place.id+' must re-energise on breaker restoration');
+}
 
 console.log('PASS: RTU pilot 16 source-derived addresses, 4 transformers, real paths, kW/kWh, PV night/anti-islanding, battery SOC depletion, selective pub/shop/house faults, meter/saves, visual line scene and inspector UI');
