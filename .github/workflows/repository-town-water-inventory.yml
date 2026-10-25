@@ -1,0 +1,24 @@
+name: Repository Town water and sewer inventory audit
+on:
+  push:
+    paths:
+      - 'repository-town/audit/water/**'
+      - 'repository-town/audit/electricity/coverage.json'
+      - 'repository-town/tests/water-service-coverage.mjs'
+      - '.github/workflows/repository-town-water-inventory.yml'
+  pull_request:
+    paths:
+      - 'repository-town/audit/water/**'
+      - 'repository-town/audit/electricity/coverage.json'
+      - 'repository-town/tests/water-service-coverage.mjs'
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test repository-town/tests/water-service-coverage.mjs

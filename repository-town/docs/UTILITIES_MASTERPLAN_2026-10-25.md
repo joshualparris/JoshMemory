@@ -71,6 +71,15 @@ Each task is open unless explicitly checked with evidence. Reserve file paths on
 - https://australia.prysmian.com/sites/australia.prysmian.com/files/media/documents/TechCG_2015-AU-v4_LOWRES.pdf
 Research is preliminary, not the full three-game/all-utility audit. Task RTU-002 closes that gap before sizing implementation.
 
+
+## Water research parity and auditable service inventory (2026-10-25 addition)
+
+Source audit only, **not** RTU-019–024 runtime completion. [Water/sewer RTU-019/022 baseline](RTU_019_024_WATER_SEWER_BASELINE_2026-10-25.md) and [realistic plumbing/toilet/sewer gameplay specification](WATER_AND_WASTEWATER_GAMEPLAY_SPEC.md) have been added. [234 world asset candidates](../audit/water/building-service-inventory.json) mirror the existing RTU-001 registry: **all water, sanitary, storm and reuse connections are unknown, not implicitly connected**. An accompanying validation test guards against drift. Actual network alignment and pressure/grade evidence remain open.
+
+The separate [NSWutilities water engineering architecture](https://github.com/joshualparris/NSWutilities/blob/main/docs/WATER_SIMULATION_ARCHITECTURE.md), [source/solver audit](https://github.com/joshualparris/NSWutilities/blob/main/docs/WATER_OPEN_SOURCE_AUDIT.md), [parity report](https://github.com/joshualparris/NSWutilities/blob/main/docs/WATER_PARITY_AUDIT_2026-10-25.md) and [permanent NSW-WAT task queue](https://github.com/joshualparris/NSWutilities/blob/main/docs/WATER_IMPLEMENTATION_TASKS.md) provide the same engineering-specification categories as the electrical work.
+
+No RTU task numbers or existing checkboxes are altered. **RTU-019…024 remain open until code, property-level pipe/sewer connection, hydraulics caveats, failing/recovering scenes, integration tests and game playtests are verified.** Standalone NSWutilities reference engine does not constitute Repository Town deployment.
+
 ## Handover
 Next concrete action: RTU-002 primary-source and open-code comparison, then RTU-003 operational per-building service registry using the RTU-001 audit. No runtime files modified here; no deployment required for documentation. Existing RTD/RTN/RLT IDs remain unchanged.
 
