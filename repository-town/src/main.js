@@ -1,4 +1,7 @@
 import { pubUtilitiesPanel } from './ui/pub-utilities-panel.js';
+import {electricalPilotPanel} from './ui/electrical-pilot-panel.js';
+import {initialiseElectricalPilot,pilotReport,pilotAction} from './world/electrical-pilot.js';
+import {createElectricalPilotVisuals,attachPilotInteriorLighting} from './world/electrical-pilot-visuals.js';
 import {occupationPanel} from './ui/occupation-panels.js';
 import {installWorkplay} from './world/workplay-view.js';
 import { mountCompanion } from './ui/companion.js';
@@ -132,6 +135,8 @@ async function start() {
   // Town life: farms, shops, trucks and 32 villagers with jobs and meals (src/world/life.js).
   const townLife = createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog });
   const life = townLife.life;
+  initialiseElectricalPilot(life);
+  const pilotVisuals=createElectricalPilotVisuals(town.group,life);
   const emergencyVisuals = createEmergencyResponseVisuals(life, town);
   // The Town Guide kiosk by the start (src/world/town.js) opens the guide panel.
   const guideSpot = { key: 'guide', pos: town.guidePos, label: '🗺️ Read the Town Guide', guide: true };
@@ -184,6 +189,15 @@ async function start() {
   tableOrder.textContent='🍽 Order at table';
   tableOrder.hidden=true;tableOrder.title='Order food or drinks without leaving your seat';
   $('needs-strip').append(tableOrder);
+  const gridButton=document.createElement('button');
+  gridButton.id='btn-electrical-grid';gridButton.type='button';
+  gridButton.textContent='⚡ Grid';gridButton.title='Inspect individual electrical circuits, appliances and local outages';
+  gridButton.setAttribute('aria-label','Open Railway Hotel and street electricity pilot');
+  // A collapsed needs strip hides its children on mobile. This dedicated
+  // on-screen utility control remains discoverable on both desktop and touch.
+  gridButton.style.cssText='position:fixed;right:12px;top:96px;z-index:30;background:#273e4c;color:#fff;border:1px solid #aad6e3;border-radius:18px;padding:8px 12px;font:600 13px system-ui;box-shadow:0 2px 9px #0007;';
+  document.body.append(gridButton);
+  gridButton.onclick=()=>openPanel(electricalPilotPanel(life));
   tableOrder.onclick=()=>{
     if(player.seated && inside?.place && ['cafe','pub'].includes(inside.place.id))
       openPanel(placePanel(life,inside.place.id));
@@ -321,6 +335,7 @@ async function start() {
     const h = resident && !base.memorial ? { ...base, household: resident.name } : base;
     const floors = h.memorial ? null : createFloorStack(h, makeLabel);
     const built = floors ? floors.levels[0] : buildInterior(h, makeLabel);
+    attachPilotInteriorLighting(built.group,'H:'+coord);
     // Every storey shares the ground floor's frame: front door at the interior's exit, facing +z
     // like the house itself, so the windows look out on the real street (src/world/windows.js).
     const lot = town.lots.get(coord), ex = built.exitZone;
@@ -375,6 +390,7 @@ async function start() {
     }
     const yawIn = player.yaw;
     const built=buildCivicInterior(site,makeLabel,life);
+    attachPilotInteriorLighting(built.group,'B:'+site.id);
     installPhysicalJobs(built,site,makeLabel,life);
     built.workplay=installWorkplay(built,site,makeLabel,life,{openPanel,closePanel,status,sound:kind=>ambience.work(kind),getVisitors:()=>inside?.visitors?.entries});
     if(site.id==='bakery')built.bakeryImmersion=installBakeryImmersion(built,life,camera,makeLabel);
@@ -981,6 +997,7 @@ async function start() {
       :[];
     const view = mode === 'house' && inside?.view ? inside.view.place(camera, outdoorCam) : null;
     townLife.update(dt, t, { player, mode, overview, camera, talkingTo, view });
+    pilotVisuals.update();
     yarns.update(dt,mode);
     inside?.soyVisuals?.();
     if(mode==='house'&&inside?.bakeryImmersion)inside.bakeryImmersion.update(dt,t);
@@ -1160,6 +1177,10 @@ async function start() {
         inside.visitors?.update(dt,t,player);
         inside.workplay?.update(dt,player);
         inside.utilityVisuals?.(life);
+        if(inside?.house?.coordinate){
+          const p=pilotReport(life)?.siteById?.['H:'+inside.house.coordinate];
+          if(p)inside.group.userData.updateLighting?.(p.mains);
+        }
         inside.workStationVisuals?.();
         // Shop patrons are synchronised with the authoritative town economy
         // above; they have their own movement and seated animation.
@@ -1198,6 +1219,8 @@ async function start() {
     // Test harness fast-forwards genuine simulation steps, allowing attendants to
     // commute to their workstations before the browser tries a staffed entrance.
     // Access-control decisions remain unchanged: no unlocked-door shortcut.
+    pilotGrid:()=>pilotReport(life),
+    pilotAction:(command)=>{const answer=pilotAction(life,command);pilotVisuals.update();return answer;},
     advanceSimulation(minutes) {
       if (!Number.isFinite(minutes) || minutes < 0 || minutes > 240) return false;
       for (let elapsed = 0; elapsed < minutes; elapsed += 0.5)

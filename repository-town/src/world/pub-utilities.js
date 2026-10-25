@@ -1,4 +1,5 @@
 // Fictional Merged Branch pilot. SI-derived units, not an as-built installation.
+import { pilotReport } from './electrical-pilot.js';
 export const PUB_DESIGN = Object.freeze({cisternL:6, refillLmin:3, hotTankL:160, heaterKW:3.6, lpgKWhKg:12.8, burnerKW:18, upsKWh:.12, networkKW:.04});
 export function pubUtilities(life) {
   const state = life.civic.pubUtilities ||= {version:1, waterValve:true, sewerOpen:true, breaker:true, upstreamInternet:true, lpgValve:true, lpgKg:90, cisternL:6, hotC:60, coldC:3, upsKWh:.12, greaseKg:0, binsKg:0, recyclingKg:0, oilL:0, roofRunoffL:0, rainMmHour:0, waterL:0, sewageL:0, tradeWasteL:0, electricityKWh:0, gasKg:0, meals:0, overlay:'off', log:[]};
@@ -18,8 +19,12 @@ export function validPubUtilities(s){
  return s.cisternL<=6&&s.upsKWh<=.12&&s.hotC<=100&&s.coldC<=100&&['off','electricity','water','sewer','gas','internet','waste'].includes(s.overlay)&&Array.isArray(s.log)&&s.log.length<=20&&s.log.every(x=>typeof x==='string'&&x.length<1000);
 }
 export function pubStatus(life) {
-  const s=pubUtilities(life), power=s.breaker && life.gridPowered('industry'), water=s.waterValve && life.civic.supply.waterOk!==false;
-  return {power,water,internet:s.upstreamInternet&&(power||s.upsKWh>1e-8),sewer:s.sewerOpen,hot:s.hotC>=45,cold:s.coldC<=5,gas:s.lpgValve&&s.lpgKg>0};
+  const s=pubUtilities(life), pilot=pilotReport(life)?.siteById['B:pub'];
+  // A backup inverter only serves essentials; it cannot run full bistro cooking.
+  const power=s.breaker && (pilot?pilot.mains:life.gridPowered('industry'));
+  const backup=s.breaker && !!pilot?.backup;
+  const water=s.waterValve && life.civic.supply.waterOk!==false;
+  return {power,backup,water,internet:s.upstreamInternet&&(power||backup||s.upsKWh>1e-8),sewer:s.sewerOpen,hot:s.hotC>=45,cold:s.coldC<=5,gas:s.lpgValve&&s.lpgKg>0};
 }
 export function pubKitchenReady(life){
  const s=pubUtilities(life),p=pubStatus(life);
@@ -38,7 +43,8 @@ export function tickPubUtilities(life,minutes) {
     const heater=p.power&&s.hotC<60?d.heaterKW:0;
     s.roofRunoffL=(s.roofRunoffL||0)+Math.max(0,Number(s.rainMmHour)||0)*252*.9*h;
     s.hotC=Math.max(18,Math.min(60,s.hotC+heater*h/(d.hotTankL*.001163)-(s.hotC-18)*dt/1440));
-    s.coldC= p.power ? Math.max(3,s.coldC-dt*.15) : 24-(24-s.coldC)*Math.exp(-dt/180);
+    // Battery-backed essentials can run the cold room for their limited rated autonomy.
+    s.coldC= (p.power||p.backup) ? Math.max(3,s.coldC-dt*.15) : 24-(24-s.coldC)*Math.exp(-dt/180);
     if(p.power){s.electricityKWh+=(1.2+.3+d.networkKW+heater)*h;s.upsKWh=Math.min(d.upsKWh,s.upsKWh+.06*h);}
     else s.upsKWh=Math.max(0,s.upsKWh-d.networkKW*h);
   }

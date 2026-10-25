@@ -95,3 +95,10 @@ Next concrete action: keep RTU-002 multi-utility sourcing open as distinct resea
 **No stormwater pipes, roof downpipe connections, overland solver, flood map or commissioned real-world flood model are currently proven to exist in Repository Town gameplay.** The existing RTU-001 coverage inventory of 234 location candidates and the water/sewer inventory are starting *property lists*, not stormwater network evidence. RTSM-003 (audit buildings, streets, pit outlets and gutters) is first open implementation work, with RTSM-004 (reference town choice) and RTSM-007 (observed/design rainfall definition) independent. Do not turn documented Dubbo-wide drainage counts into a fictional map of real street pipes.
 
 RTU-022 continues to own sanitary/stormwater separation; RTU-029/030 continue to own whole-town integration and release. RTSW sewerage does **not** own roof drains or flood routing. NSW-WAT potable/harvest interface requires separately authorised connections. No RTU, RTSW or NSW-WAT ID has been renamed or marked done. The plan remains **unassigned** until COORDINATION is checked.
+
+
+## RTU-006–015 targeted gameplay pilot — 25 October 2026
+
+[Railway Hotel / Merged Branch 16-site playable electricity pilot](RTU_006_013_PUB_ELECTRICAL_PILOT.md) adds property-specific kW/kWh usage, four routed transformers, protected single-premises solar/battery choices, UI-selectable service/transformer faults, and 3D wiring/meter views. It explicitly covers both **B:hotel at I9-N** and **B:pub at N8-S**, nearby businesses and seven row-7 houses. In the targeted scope, home refrigeration/heat/lighting and retail chilled inventory/till now respond to their actual feeder rather than the legacy grouped customer. [16-site source-derived design](../src/world/electrical-pilot-data.js).
+
+**Do not check off the full-town RTU-006/007/009–013/015–018 tasks based on this pilot.** Remaining 218 property records and full protection/engineering truth still need extending and testing. The separate QA URL is only counted deployed when its hosted release SHA is verified; main production must remain unchanged until broader release acceptance.

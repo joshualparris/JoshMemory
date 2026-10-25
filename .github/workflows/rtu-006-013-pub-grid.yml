@@ -1,0 +1,69 @@
+name: RTU-006-013 Railway Hotel electrical pilot
+on:
+  push:
+    branches: [feat/rtu-006-013-playable-pub-power-pilot, main]
+    paths:
+      - repository-town/src/world/electrical-pilot*.js
+      - repository-town/src/world/town.js
+      - repository-town/src/world/townlife.js
+      - repository-town/src/world/life.js
+      - repository-town/src/world/pub-utilities.js
+      - repository-town/src/world/pub-interior.js
+      - repository-town/src/main.js
+      - repository-town/src/ui/electrical-pilot-panel.js
+      - repository-town/src/ui/pub-utilities-panel.js
+      - repository-town/tests/electrical-pilot*.mjs
+      - .github/workflows/rtu-006-013-pub-grid.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test-playable:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: repository-town/package-lock.json
+      - run: npm ci --no-audit --no-fund
+        working-directory: repository-town
+      - name: Verify pure electrical physics, distinct connections, battery, lighting and prior grid
+        working-directory: repository-town
+        run: |
+          node tests/electrical-pilot.mjs
+          node tests/electrical-backbone.mjs
+          node tests/lighting.mjs
+          node tests/power-grid.mjs
+          node tests/pub-utilities.mjs
+      - name: Verify game production JS and privacy
+        working-directory: repository-town
+        run: |
+          npm run build
+          npm run check:privacy
+      - name: Install Playwright Chromium
+        working-directory: repository-town
+        run: npx playwright install --with-deps chromium
+      - name: Live built-game desktop and Android-size playtest
+        working-directory: repository-town
+        shell: bash
+        run: |
+          node tools/serve.mjs dist/public 8080 > /tmp/rtu-pilot-server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          for n in $(seq 1 50); do
+            if curl -fsS http://localhost:8080/ >/dev/null; then break; fi
+            sleep 1
+          done
+          TOWN_URL=http://localhost:8080/ TOWN_SHOTS=audit/electricity/pilot-playtest node tests/electrical-pilot-browser.mjs
+      - name: Publish screenshots and source-audited evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rtu-railway-hotel-electricity-browser-screenshots
+          path: |
+            repository-town/audit/electricity/pilot-playtest/*.png
+            repository-town/audit/electricity/design-network-v1.json
+          retention-days: 45

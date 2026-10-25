@@ -53,6 +53,9 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
   solid(1.8, 0.95, 0.6, -3.0, 0.48, -10.5, 0xd9dde0); box(1.7, 0.8, 0.04, -3.0, 0.5, -10.18, 0xcfe8ee, { a: 0.4 });
   box(1.4, 2.2, 0.08, 1.8, 1.1, BACK + 0.12, 0x6a5a4a);                                    // cold-room door
   text(site.name, 0, 3.55, CZ - 0.5, 'room'); text('Bar · Meals · Keno', 0, 1.9, CZ - 0.1);
+  // Plaque: fictional original construction year, not an NSW heritage listing.
+  box(.07,.8,1.35,6.85,2.35,3.55,BRASS);box(.075,.64,1.17,6.8,2.35,3.55,DARKW);
+  text('DATE UNKNOWN',6.45,2.45,3.55,'room');
 
   // ── bistro tables (right-front) and lounge (left) ──
   const table = (x, z) => {
@@ -154,6 +157,15 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
     const line=new THREE.Mesh(new THREE.BoxGeometry(.07,.07,15),new THREE.MeshBasicMaterial({color}));line.position.set(x,3.7,-3);route.add(line);
     const cross=new THREE.Mesh(new THREE.BoxGeometry(10,.07,.07),line.material);cross.position.set(0,3.7,-9);route.add(cross);group.add(route);layers[id]=route;route.visible=false;
   }
+  // Entire pub lighting (including former independent hemisphere fill) is
+  // electrically switched. Emergency battery is deliberately limited to
+  // essential loads and will not keep the dining-room lighting on.
+  const lampCircuits=[];
+  group.traverse(o=>{if(o.isLight)lampCircuits.push({light:o,original:o.intensity});});
+  group.userData.lightingSite='pub';
+  group.userData.updateLighting=powered=>{
+    for(const c of lampCircuits)c.light.intensity=powered?c.original:0;
+  };
   const utilityVisuals=life=>{
     const state=pubUtilities(life),status=pubStatus(life);
     for(const [id,layer] of Object.entries(layers))layer.visible=state.overlay===id;
@@ -161,8 +173,6 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
     group.userData.updateLighting?.(status.power);
     emergency.intensity=!status.power&&state.emergencyMinutes>0?1.5:0;
   };
-  // Original construction year is unknown; don't fabricate an EST date.
-  text('DATE UNKNOWN',6.45,2.45,3.55,'room');
   add('heritage','Hotel history · original construction unknown','info',pubHistoryDescription(),5.6,3.5);
   add('counter', 'Bar', 'civic-ledger', 'Pull up a stool. Order a meal or a drink at the bar, or open the Town Ledger.', PUB_LAYOUT.staffUse.x, PUB_LAYOUT.staffUse.z);
   add('taps', 'Beer taps', 'info', 'Four taps and a fridge of bottles. Licensed hours run from eleven in the morning to late; the publican serves responsibly.', -2.4, -4.4);
