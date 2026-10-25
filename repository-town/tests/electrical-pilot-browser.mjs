@@ -51,5 +51,5 @@ try{
     await page.close();
   }
   assert.deepEqual(errors,[],'browser pageerrors: '+errors.join(' | '));
-  console.log('PASS: live desktop & 390px mobile 3D game loaded; grid HUD, 15 site meters, local pub blackout, neighbour separation, north-house transformer faults and wiring overlay');
+  console.log('PASS: live desktop & 390px mobile 3D game loaded; grid HUD, 16 site meters, local pub blackout, neighbour separation, north-house transformer faults and wiring overlay');
 } finally { await browser.close(); }
