@@ -29,6 +29,7 @@ async function askResidentProxy(id, house, name, f, role, history, town) {
   const me = town?.self;
   const personality = role === 'villager' ? villagerProfile(name, me?.job) : null;
   const life = me ? ` Right now: ${me.now}. Last meal: ${me.lastMeal}. At home: ${me.pantry}.` : town?.resident ? ` Right now at home: ${town.resident}.` : '';
+  const marriage=me?.relationship?.backstory ? ` Marriage and household history: ${me.relationship.backstory}` : '';
   const news = town ? ` It is ${town.time}, day ${town.day}. Town news: ${town.gossip.slice(0, 4).join('; ')}.` : '';
   const civic=town?.politics;
   const civicProfile=civic?` Civic background: ${civic.role}; attitude to politics: ${civic.temperament}; local issue: ${civic.issue}. ${civic.memory||''} ${civic.priorities?'Talks publicly about '+civic.priorities+'.':''} ${civic.portfolio?'Council portfolio: '+civic.portfolio+'.':''} Never claim to know a private ballot. If reserved or avoids politics, do not initiate political chat and respectfully change the subject when asked.`:'';
@@ -57,7 +58,7 @@ async function askResidentProxy(id, house, name, f, role, history, town) {
     neighbourHint: f.neighbour ? `${residentName(f.neighbour.coordinate)} at ${f.neighbour.coordinate} (${f.neighbour.name}, ${f.neighbour.kind})` : '',
     errandHint: f.errandTarget ? `${f.errandTarget.coordinate} (${f.errandTarget.name})` : '',
     visitedTarget: Boolean(f.visitedTarget),
-    personality: ((personality ? `${personality[0]}; ${personality[1]}; especially interested in ${personality[2]}.` : '') + life + civicProfile).trim(),
+    personality: ((personality ? `${personality[0]}; ${personality[1]}; especially interested in ${personality[2]}.` : '') + life + marriage + civicProfile).trim(),
     social: { ...(f.social || {}), ...(town?.social || {}), gossip: `${town?.social?.gossip || f.social?.gossip || ''}${news}`.trim(), recent: (town?.social?.recent || []).slice(0, 4) },
   };
   let res;

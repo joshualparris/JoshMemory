@@ -1,3 +1,5 @@
+import {EXPANSION_IDENTITIES} from '../world/resident-families.js';
+import {EXPANSION_SITES} from '../world/town-expansion.js';
 // Background identities are independent of scheduled paid jobs.
 // Edit NPC personalities here, not in the conversation/rendering controller.
 // Source: the 38-villager NPC realism audit (2026-10-19).
@@ -92,6 +94,16 @@ export const VILLAGER_PROFILES = {
 };
 
 export function villagerProfile(name, job) {
-  const p=VILLAGER_PROFILES[name] || ['town neighbour', 'friendly and curious', 'the people and projects of Repository Town'];
+  // Dedicated identities for the 72 newly employed residents. Paid jobs and
+  // private hobbies are separate: no new worker should be a generic stranger.
+  const newcomer=EXPANSION_IDENTITIES.findIndex(person=>person.name===name);
+  const s=newcomer<0?null:EXPANSION_SITES[newcomer];
+  const expansion=s?[
+    'enthusiastic '+s.name+' community volunteer',
+    ['patient, down-to-earth and welcoming','curious, resourceful and thoughtful',
+      'friendly, practical and observant','warm, energetic and quietly funny'][newcomer%4],
+    'learning about '+s.description.toLowerCase()+' and sharing local stories'
+  ]:null;
+  const p=VILLAGER_PROFILES[name] || expansion || ['town neighbour', 'friendly and curious', 'the people and projects of Repository Town'];
   return job ? [job,p[1],p[2]] : p;
 }
