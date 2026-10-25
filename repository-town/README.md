@@ -186,3 +186,7 @@ For tasks collected from all twenty agents, use [the portfolio master triage](..
 ## Utility system IDs and sewerage research
 
 [RT-SYS-001–016 system register](docs/UTILITY_SYSTEM_REGISTER.md) covers utilities and supporting services, preserving all prior task IDs. Electricity research: dedicated ChatGPT session; water: Manus; sewerage/plumbing: this research strand. [Sewerage research](docs/SEWERAGE_RESEARCH_2026-10-25.md) selects Narromine provisionally, traces toilets through treatment and specifies water/power contracts. [RTSW-001–028 queue](docs/SEWERAGE_TASKS.md): research 001/002 complete; implementation starts RTSW-003; RTU-022–024 remain open. [Primary sources](docs/SEWERAGE_SOURCES.md). No new sewer gameplay deployed.
+
+## One-building connected utilities pilot
+
+[Merged Branch pub audit, evidence, model assumptions and RTPUB-001–008 roadmap](docs/PUB_UTILITIES_PILOT.md). Runtime belongs to JoshMemory/repository-town; research copies do not imply a live release or complete town network.

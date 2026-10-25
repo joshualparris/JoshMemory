@@ -1,0 +1,24 @@
+import assert from 'node:assert/strict';
+import * as THREE from 'three';
+import {TownLife} from '../src/world/life.js';
+import {pubUtilities,pubStatus,pubAction,tickPubUtilities} from '../src/world/pub-utilities.js';
+import {buildPubInterior} from '../src/world/pub-interior.js';
+const life={civic:{supply:{waterOk:true}},gridPowered:()=>true};
+const s=pubUtilities(life);
+assert.match(pubAction(life,'flush'),/3 L/);assert.equal(s.cisternL,3);assert.equal(s.sewageL,3);
+s.waterValve=false;pubAction(life,'flush');assert.equal(s.cisternL,0);assert.match(pubAction(life,'flush'),/Not enough/);
+tickPubUtilities(life,2);assert.equal(s.cisternL,0);s.waterValve=true;tickPubUtilities(life,2);assert.equal(s.cisternL,6);assert.equal(s.waterL,6);
+s.sewerOpen=false;const before=JSON.stringify(s);pubAction(life,'meal');assert.equal(s.meals,0);s.sewerOpen=true;
+pubAction(life,'meal');assert.equal(s.meals,1);assert(s.lpgKg<90);assert.equal(s.tradeWasteL,8);assert.equal(s.waterL,14);
+s.breaker=false;assert.equal(pubStatus(life).internet,true);tickPubUtilities(life,181);assert.equal(pubStatus(life).internet,false);assert(s.coldC>5);assert(s.upsKWh>=0);
+s.breaker=true;tickPubUtilities(life,120);assert(pubStatus(life).cold);s.upstreamInternet=false;assert(!pubStatus(life).internet);
+const room=buildPubInterior({id:'pub',name:'Merged Branch'},()=>new THREE.Sprite(new THREE.SpriteMaterial()));
+const hit=(x,z)=>room.colliders.some(c=>x>c.x0-.3&&x<c.x1+.3&&z>c.z0-.3&&z<c.z1+.3);
+const origin=room.spawn,queue=[[0,0]],seen=new Set(['0,0']);
+for(let i=0;i<queue.length;i++){const [a,b]=queue[i];for(const [dx,dz]of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=a+dx,nz=b+dz,x=origin.x+nx*.2,z=origin.z+nz*.2,key=nx+','+nz;if(seen.has(key)||x<-6.7||x>6.7||z<-11.7||z>5.7||hit(x,z))continue;seen.add(key);queue.push([nx,nz]);}}
+for(const item of room.interactables.filter(x=>x.act.do==='pub-utilities'))assert(queue.some(([x,z])=>Math.hypot(origin.x+x*.2-item.pos.x,origin.z+z*.2-item.pos.z)<.6),'walkable '+item.key);
+s.overlay='water';room.utilityVisuals(life);assert.equal(room.group.getObjectByName('Pub utility water').visible,true);assert.equal(room.group.getObjectByName('Pub utility gas').visible,false);
+const homes=[];for(let r=0;r<7;r++)for(let c=0;c<26;c+=2)homes.push({coordinate:String.fromCharCode(65+c)+(r+1),name:'House',door:{x:(c-12.5)*26,z:r*46-157}});
+const town=new TownLife({homes});pubUtilities(town).lpgKg=17;town.tick(.5);const snapshot=town.snapshot();const restored=new TownLife({homes});assert(restored.restore(snapshot));assert.equal(pubUtilities(restored).lpgKg,17);
+const bad=structuredClone(snapshot);bad.civic.pubUtilities.cisternL=-1;assert.equal(restored.restore(bad),false);
+console.log('PASS pub utilities: finite inventories, service dependencies, UPS depletion, cold chain, accounting, save restore, overlay isolation and walkable fixtures');

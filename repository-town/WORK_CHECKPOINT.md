@@ -351,3 +351,7 @@ Next: if promoting this code to **production**, preserve and verify save-export/
 
 ## Pub utilities start — 2026-10-25
 RTPUB-001–008; owner Codex; branch feat/pub-utilities-20261025; baseline 59139c4. Audit decorative pub, implement fictional connected building systems with explicit assumptions, regression and browser verification. No completion claims yet.
+
+
+### RTPUB milestone — source implementation
+Finite fixture/energy/fuel/waste model, service panel, exclusive schematic overlays, pub kitchen/WC geometry and real hot-order/NPC dinner dependencies implemented. Focused pub, power-grid, shop transactions, high-street, 45-interior, seating and initial build/privacy checks passed. First release run found 19 seats vs required 20; corrected with bar-end stool and verified sitting test. Full gate re-running; browser in progress; no deployment claim. Next: finish browser/release evidence, review and merge only if green.
