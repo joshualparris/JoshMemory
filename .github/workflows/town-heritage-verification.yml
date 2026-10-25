@@ -1,0 +1,36 @@
+name: Heritage House Release Verification
+on:
+  pull_request:
+    paths:
+      - 'repository-town/**'
+      - '.github/workflows/town-heritage-verification.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'repository-town/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  heritage-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - name: Validate four historical houses and resident guides
+        run: node tests/heritage-homes.mjs
+      - name: Generate both public and private builds
+        run: npm run build
+      - name: Check private-data release filters
+        run: npm run check:privacy
+      - name: Check public house names, sources and unchanged C2
+        run: node tests/heritage-public-release.mjs
