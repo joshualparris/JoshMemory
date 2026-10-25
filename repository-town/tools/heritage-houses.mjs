@@ -55,7 +55,7 @@ export function publicHeritageHouse(house) {
  return { coordinate:house.coordinate,repo:null,name:spec.name,visibility:'public',street:house.street,
    heritage:true,kind:spec.kind,summary:spec.intro,links:[
      {label:'Official museum',url:spec.url},{label:'Architecture and interiors',url:spec.detail}],
-   ext:{style:spec.style,walls,roof,trim,door:0x604d3c,features:['bench','flowerbeds','lanterns']},
+   ext:{style:spec.style,walls,roof,trim,door:0x604d3c,features:['bench','garden','lanterns']},
    int:{layout:spec.layout,floor:0xa58b6c,walls:0xe8dfce,light:0xffe7bb,doors:0x6d5743,ceiling:0xf3eee4,rooms}
  };
 }
