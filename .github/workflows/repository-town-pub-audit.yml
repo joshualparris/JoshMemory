@@ -4,6 +4,7 @@ on:
     paths:
       - 'repository-town/src/world/pub-history.js'
       - 'repository-town/src/world/pub-interior.js'
+      - 'repository-town/src/world/pub-envelope.js'
       - 'repository-town/src/world/interior-kit.js'
       - 'repository-town/src/world/townlife.js'
       - 'repository-town/src/world/life.js'
@@ -19,6 +20,7 @@ on:
     paths:
       - 'repository-town/src/world/pub-history.js'
       - 'repository-town/src/world/pub-interior.js'
+      - 'repository-town/src/world/pub-envelope.js'
       - 'repository-town/src/world/interior-kit.js'
       - 'repository-town/src/world/townlife.js'
       - 'repository-town/src/world/life.js'

@@ -1,3 +1,7 @@
+# PUB-CODE/RTPUB-002 and RTPUB-024 design milestone — 25 October 2026
+
+Focused branch `feat/rtpub-002-024-single-storey-envelope-20261025` changes only building envelope/stores, accompanying tests/docs and audit source fingerprints. Source module `src/world/pub-envelope.js` defines 14×18 m, 1 storey and +1 m interior→facade translation. `townlife.js` front/side windows, opaque walls, door and roof now agree with `pub-interior.js` envelope contract. Explicit construction-year UNKNOWN. Required full tests: Node source/mesh tests, existing sanitary/utility tests, pub audit, town safety, Android-sized game playtest, published SHA and actual hosted smoke; certification remains OPEN. Concurrent `feat/pub-code-physical-top-five-20261025` PR #208 contains overlapping site work — integrate via source-specific review, never overwrite its distinct tasks.
+
 # Pub rescue integration — 25 October 2026
 
 Reconciles tested PR #204 sanitary/privacy/kitchen changes with the newer main pub-history commit, without fabricating original construction age. Date and opening year must remain UNKNOWN. The remaining 33 NCC/food/fire/utility tasks remain OPEN. New CI, reviewed merge and hosted fingerprint must pass before release claims. No actual building-code certification is claimed.

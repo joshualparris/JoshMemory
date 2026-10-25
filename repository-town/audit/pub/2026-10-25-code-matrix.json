@@ -5,19 +5,20 @@
   "gameAddress": "N8-S",
   "name": "The Merged Branch",
   "repository": "joshualparris/JoshMemory",
-  "basis": "Verified Git blob snapshot of the reconciled WC/privacy, dedicated electrical pilot, utility interlocks and UNKNOWN pub history; NOT a legal building-code certification",
+  "basis": "RTPUB-002/024 exterior/interior geometry and modelled storey reconciled; site survey, approvals, fire separation, structure, access/egress remain unverified. This is not an NCC certificate.",
   "nccAsAtDate": "NCC 2022 Amendment 2 (NSW, effective 2025-07-29); NSW NCC 2025 planned commencement 2027-05-01",
   "provisionalBuildingClassification": "NCC NSW Class 6 hospitality bar/dining; confirm ancillary/mixed classification and actual approvals",
   "sourceBlobs": {
     "repository-town/audit/electricity/coverage.json": "f80df771b893799e27b3adc98b92fe335c13f28b",
     "repository-town/src/world/interior-kit.js": "db71ca2ed36aef856a774459f46e1ecd601f1e82",
-    "repository-town/src/world/life.js": "4af98264a488764134bdc997d43af5580a61e9ae",
+    "repository-town/src/world/life.js": "08d00bb82718c0478d96229be7bb86ad0f45d781",
     "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2",
-    "repository-town/src/world/pub-interior.js": "1fa73392ce902c0509bf64f503159e6f309ea964",
+    "repository-town/src/world/pub-interior.js": "838c624ba834fd69252fdfde3913bc8d12df0f45",
     "repository-town/src/world/shop-interior.js": "e2282db1927b79dd5e8a89a970a03e90b676dcf0",
-    "repository-town/src/world/townlife.js": "6717c071730692438d626009bdbd609af4a71e5f",
+    "repository-town/src/world/townlife.js": "efb7a874030e7dae5e2fdb0889854a799dd7e56d",
     "repository-town/tests/shop-interiors.mjs": "1a1e696c1c92ac4dc7566a8ff78c4c3cf41ea257",
-    "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930"
+    "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
+    "repository-town/src/world/pub-envelope.js": "197f51a7cdc4e34cbd0608b2443d402b6237af52"
   },
   "sources": {
     "S01": {
@@ -142,8 +143,8 @@
       "id": "RTPUB-002",
       "title": "Exterior-to-interior dimensions and storeys",
       "priority": "P0",
-      "status": "geometry-conflict",
-      "sourceObservation": "townlife.js pub facade 14 m wide × 11 m deep × ~7 m high with two glazing bands, vs interior-kit 14 m × 18 m single walkable room/4.7 m ceiling",
+      "status": "partially-represented",
+      "sourceObservation": "Authored game shell now 14 × 18 m single storey with front at local +7 and rear -11, matching interior front +6/rear -12 after +1 m z transform; actual cadastral, fire envelope, roof and external boundaries require independent assessment.",
       "requiredEvidenceOrWork": "Reconcile game coordinate transforms, rear walls, accessible upper floor or remove upper floor cues, roof/building height and consistent fire envelope",
       "regulationRefs": [
         "S01",
@@ -451,8 +452,8 @@
       "id": "RTPUB-024",
       "title": "Fire compartmentation and upper-floor access",
       "priority": "P0",
-      "status": "unverified",
-      "sourceObservation": "external upper glazing implies further level but interior has no first floor, stairs, lift, fire-separation/cool-room compliance analysis",
+      "status": "partially-represented",
+      "sourceObservation": "Only ground-floor pub space exists; upper glazed row and false second level removed, non-habitable hipped roof and one storey explicit; no real fire-compartmentation, cool-room fire separation or adjoining-wall certification.",
       "requiredEvidenceOrWork": "Establish actual number of usable floors; if a real upper storey exists design stairs/access and consider fire compartmentation and egress, or treat façade as explicitly decorative",
       "regulationRefs": [
         "S02"
@@ -609,9 +610,9 @@
   "summary": {
     "total": 34,
     "notModelled": 5,
-    "geometryConflict": 1,
-    "unverified": 10,
-    "partiallyRepresented": 15,
+    "geometryConflict": 0,
+    "unverified": 9,
+    "partiallyRepresented": 20,
     "verifiedCodeCompliant": 0,
     "researchItemsComplete": 1,
     "remainingResearchOrImplementation": 33
