@@ -256,6 +256,23 @@ export const VILLAGER_NAMES = ['Mabel', 'Arlo', 'Bea', 'Cas', 'Dot', 'Ezra', 'Fl
   'Tess', 'Kieran', 'Ruby', 'Felix', 'Jules', 'Maeve', 'Aidan', 'Iris', 'Oscar', 'Rosa', 'Nina', 'Mina',
   'Amber', 'Benji', 'Celia', 'Dev', 'Emmett', 'Fiona', 'Georgia', 'Hazel', 'Indi', 'Jonah', 'Kara', 'Lachlan', 'Molly', 'Nathan', 'Olivia', 'Parker', 'Quinn', 'Rowan', 'Sienna', 'Tobias', 'Ursula', 'Violet', 'Willow', 'Xavier', 'Yasmin', 'Zeke', 'Adelaide', 'Bram', 'Clara', 'Dario', 'Eamon', 'Jett', 'Leila', 'Nadine', 'Mack', 'Ronan', 'Taryn', 'Yvette'];
 
+// Keep all established villager IDs/names unchanged for old saves, and give
+// expansion workers distinct, deterministic full names rather than repeating
+// the 99 original first names (which broke the 188-worker release acceptance).
+// New workers are local people, not temporary duplicates of an existing NPC.
+const EXPANSION_SURNAMES=Object.freeze([
+  'Morgan','Nguyen','Kendall','Singh','Taylor','Olsen','Carver','Khan',
+  'Wilson','Dawson','Miller','Chen','Evans','Patel','Marsh','Hughes',
+  'Brooks','Jones','Williams','Cooper','White','Brown','Murphy','Reed'
+]);
+export function residentName(id){
+  const given=VILLAGER_NAMES[id % VILLAGER_NAMES.length];
+  if(id < VILLAGER_NAMES.length)return given;
+  const cycle=Math.floor(id/VILLAGER_NAMES.length);
+  const family=EXPANSION_SURNAMES[(id*7+cycle)%EXPANSION_SURNAMES.length];
+  return given+' '+family+(cycle>1?' '+cycle:'');
+}
+
 // Home meals: [name, ingredients]. Villagers cook the first one their pantry can make.
 const MEALS = {
   breakfast: [['toast and scrambled eggs', { bread: 1, eggs: 1 }], ['fruit and a glass of milk', { fruit: 1, milk: 1 }], ['toast with butter and a cuppa', { bread: 1 }]],
@@ -487,7 +504,7 @@ export class TownLife {
     this.villagers = JOBS.slice(0, picks.length).map(([job, work, start, end], i) => {
       const home = picks[i];
       return {
-        id: i, name: VILLAGER_NAMES[i % VILLAGER_NAMES.length], job, work, start, end, home,
+        id: i, name: residentName(i), job, work, start, end, home,
         x: home.door.x, z: home.door.z + 2, inside: true, path: [], step: null, activity: 'asleep at home',
         hunger: 25 + this.rand() * 20, wallet: 40 + Math.round(this.rand() * 40),
         larder: [], pantry: { bread: 2, eggs: 2, milk: 1, veg: 1, fruit: 1, lamb: i % 3 === 0 ? 0 : 1, pie: 0 },
