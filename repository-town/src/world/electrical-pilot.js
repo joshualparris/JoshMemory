@@ -208,6 +208,7 @@ export function tickElectricalPilot(life,minutes){
     } else if(pub.backup&&s.socKwh>0){
       const avail=Math.min(pub.servedKw,equip.inverterKw,s.socKwh*0.9/dt);
       backup=avail;s.socKwh=clamp(s.socKwh-(avail/0.9)*dt,0,equip.batteryKwh);
+      if(s.socKwh<0.000001)s.socKwh=0;
     }
     for(const site of report.sites){
       const actual=site.id==='B:pub'&&!site.mains?backup:site.servedKw;
