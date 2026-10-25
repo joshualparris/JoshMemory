@@ -182,3 +182,7 @@ For tasks collected from all twenty agents, use [the portfolio master triage](..
 ## Electrical baseline audit — RTU-001
 
 [Completed source/runtime audit](docs/RTU_001_ELECTRICAL_AUDIT.md): all 234 registered locations, per-property coverage CSV, deterministic probes and confirmed demand/lighting/save gaps. Reproduce with `node tools/audit-electricity.mjs --check`. This audit adds no electrical gameplay feature; RTU-002 research and RTU-003 service registry are next. See [whole-town utility plan](docs/UTILITIES_MASTERPLAN_2026-10-25.md).
+
+## Utility system IDs and sewerage research
+
+[RT-SYS-001–016 system register](docs/UTILITY_SYSTEM_REGISTER.md) covers utilities and supporting services, preserving all prior task IDs. Electricity research: dedicated ChatGPT session; water: Manus; sewerage/plumbing: this research strand. [Sewerage research](docs/SEWERAGE_RESEARCH_2026-10-25.md) selects Narromine provisionally, traces toilets through treatment and specifies water/power contracts. [RTSW-001–028 queue](docs/SEWERAGE_TASKS.md): research 001/002 complete; implementation starts RTSW-003; RTU-022–024 remain open. [Primary sources](docs/SEWERAGE_SOURCES.md). No new sewer gameplay deployed.

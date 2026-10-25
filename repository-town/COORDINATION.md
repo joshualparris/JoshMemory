@@ -16,8 +16,6 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
-- 2026-10-25 · ChatGPT — **IN PROGRESS: utility/service designation register and sewerage/plumbing research.** Scope: new `docs/UTILITY_SYSTEM_REGISTER.*`, `docs/SEWERAGE_*`, NSWutilities research/source/task files and scoped README/masterplan/checkpoint links. No gameplay code, electricity researcher or Manus water files changed. Assign RT-SYS system IDs and RTSW research/implementation child IDs, preserving RTU parents. Compare Narromine, Uralla/Bundarra and Bermagui primary sources; specify toilet-to-treatment model and integration contracts. No runtime feature completion claimed.
-
 
 
 
@@ -137,6 +135,9 @@ Newest first. Times in Australia/Sydney.
   is currently blocked by the Hobby team's daily deployment quota (`api-deployments-free-per-day`).
 
 ## Done recently
+
+- 2026-10-25 · ChatGPT — **Utility designations and sewerage research complete (documentation only).** RT-SYS-001–016 register; Narromine provisional reference, 18-source registry, pinned SWMM code review, water/power contract proposal, RTSW-001–028 queue. Research children 001/002 complete; all implementation tasks and RTU-022–024 parents remain open. Next RTSW-003 after inventory-owner reconciliation. No electricity/Manus water runtime overwritten. See docs/SEWERAGE_RESEARCH_2026-10-25.md and scoped checkpoint.
+
 
 - 2026-10-25 · ChatGPT — **RTU-001 audit complete (no runtime feature changed)**: [report](docs/RTU_001_ELECTRICAL_AUDIT.md), 234-location coverage, controlled faults/reload/Three.js lighting probes, reusable generator and source hashes. Actual bugs documented, not patched or claimed live. Existing RTU-002–030 remain open. Validation and publication evidence in scoped checkpoint and report.
 
