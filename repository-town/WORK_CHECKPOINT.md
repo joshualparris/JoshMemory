@@ -418,3 +418,6 @@ Desktop and emulated-phone venue gameplay passed: pool shot, adult gate, schedul
 
 ### PUB-SIM phone replay regression
 Final repeated phone run caught a real intermittent first-frame timestamp race: requestAnimationFrame timestamp can precede the event handler's performance.now(), yielding index -1 and undefined balls. Clamped replay index to zero; authoritative physics/save result was already correct. Re-running exact final phone/browser and publication gates. Earlier single-pass phone success is not counted as proof this race was absent.
+
+### PUB-SIM rendered service geometry
+Exact fe22 full release/privacy/integrity and desktop/phone venue gameplay passed. Visual carried-dish review revealed the lowered counter lacked a collision footprint; added it and sampled the rerouted staff path at quarter-minute intervals against furniture. Corrected glasses to sit above bar/table tops and dishes on trays; filling now changes liquid inside a constant glass instead of scaling the whole glass. Door sweeps, clear 1.2m route, 39 seats and serving-route tests pass. Releasing this final geometry correction rather than claiming the earlier image was clipping-free.

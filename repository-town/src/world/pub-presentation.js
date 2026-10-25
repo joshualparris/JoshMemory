@@ -5,9 +5,9 @@ export function servicePhase(event,minute){const age=minute-event.at,prep=event.
 export function installPubPresentation(k){
  const {THREE,group,colliders}=k,bounds={x0:-7,x1:7,z0:-12,z1:6};let people=[],activeId=null,path=null,home=null,actor=null;
  const mesh=(geo,color)=>new THREE.Mesh(geo,new THREE.MeshLambertMaterial({color}));
- const mug=mesh(new THREE.CylinderGeometry(.055,.05,.15,12),0xeac05a);mug.name='pub:served-drink';group.add(mug);
+ const mug=new THREE.Group();mug.name='pub:served-drink';group.add(mug);const glass=new THREE.Mesh(new THREE.CylinderGeometry(.059,.054,.15,12),new THREE.MeshLambertMaterial({color:0xdcebf0,transparent:true,opacity:.25}));mug.add(glass);const liquid=mesh(new THREE.CylinderGeometry(.052,.047,.13,12),0xeac05a);mug.add(liquid);
  const foam=mesh(new THREE.CylinderGeometry(.054,.054,.018,12),0xf9f2df);mug.add(foam);foam.position.y=.075;
- const stream=mesh(new THREE.CylinderGeometry(.009,.009,.22,6),0xe2af42);stream.name='pub:beer-pour-stream';stream.position.set(-2.4,1.21,-5.45);group.add(stream);
+ const stream=mesh(new THREE.CylinderGeometry(.009,.009,.12,6),0xe2af42);stream.name='pub:beer-pour-stream';stream.position.set(-2.4,1.385,-5.3);group.add(stream);
  const plate=mesh(new THREE.CylinderGeometry(.17,.16,.025,18),0xf1eee2);plate.name='pub:moving-dish';const food=mesh(new THREE.SphereGeometry(.12,8,5),0xab6c39);food.scale.y=.25;food.position.y=.04;plate.add(food);group.add(plate);
  const tray=mesh(new THREE.CylinderGeometry(.22,.22,.025,16),0x68777d);tray.name='pub:service-tray';group.add(tray);
  const uniforms=new Map();
@@ -19,10 +19,10 @@ export function installPubPresentation(k){
   stream.visible=mug.visible=plate.visible=tray.visible=false;
   if(!event){if(actor&&home){actor.pos.copy(home);actor.group.position.copy(home)}actor=null;activeId=null;return}
   if(event.id!==activeId){if(actor&&home){actor.pos.copy(home);actor.group.position.copy(home)}actor=people.find(p=>p.v?.work==='pub'&&p.v.step?.kind==='work'&&p.group.visible);home=actor?.pos.clone()||new THREE.Vector3(.8,0,-6.75);path=routeVisitor(home,{x:-1.1,z:1.0},colliders,bounds);activeId=event.id;}
-  if(phase.kind==='pour'&&event.kind==='beer'){stream.visible=!!actor;mug.visible=true;mug.position.set(-2.4,1.1,-5.45);mug.scale.y=Math.max(.1,phase.progress);return}
+  if(phase.kind==='pour'&&event.kind==='beer'){stream.visible=!!actor;mug.visible=true;mug.position.set(-2.4,1.245,-5.3);const fill=Math.max(.05,phase.progress);liquid.scale.y=fill;liquid.position.y=-.065+.065*fill;foam.position.y=-.065+.13*fill;return}
   if(phase.kind==='prepare'){plate.visible=true;plate.position.set(-5.65,1.0,-8.4);return}
-  const item=event.kind==='meal'?plate:mug;item.visible=true;item.scale.y=1;
-  if(phase.kind==='served'){item.position.set(-2.4,.83,1.8);if(actor&&path){const age=now-event.at,prep=event.kind==='meal'?10:3,p=pointAt([home,...path],1-Math.min(1,(age-prep-9)/9));actor.pos.set(p.x,0,p.z);actor.group.position.copy(actor.pos)}return}
-  if(path&&actor&&['carry','return'].includes(phase.kind)){const points=[home,...path],p=pointAt(points,phase.kind==='return'?1-phase.progress:phase.progress);actor.pos.set(p.x,0,p.z);actor.group.position.copy(actor.pos);actor.group.rotation.y=Math.atan2(-2.4-p.x,1.8-p.z);tray.visible=true;tray.position.set(p.x,1.05,p.z+.3);item.position.set(p.x,1.16,p.z+.3);}else item.position.set(-1.4,1.23,-5.4);
+  const item=event.kind==='meal'?plate:mug;item.visible=true;item.scale.y=1;liquid.scale.y=1;liquid.position.y=0;foam.position.y=.065;
+  if(phase.kind==='served'){item.position.set(-2.4,event.kind==='meal'?.83:.89,1.8);if(actor&&path){const age=now-event.at,prep=event.kind==='meal'?10:3,p=pointAt([home,...path],1-Math.min(1,(age-prep-9)/9));actor.pos.set(p.x,0,p.z);actor.group.position.copy(actor.pos)}return}
+  if(path&&actor&&['carry','return'].includes(phase.kind)){const points=[home,...path],p=pointAt(points,phase.kind==='return'?1-phase.progress:phase.progress);actor.pos.set(p.x,0,p.z);actor.group.position.copy(actor.pos);actor.group.rotation.y=Math.atan2(-2.4-p.x,1.8-p.z);tray.visible=true;tray.position.set(p.x,1.05,p.z+.3);item.position.set(p.x,event.kind==='meal'?1.08:1.14,p.z+.3);}else item.position.set(-1.4,1.23,-5.4);
  }};
 }

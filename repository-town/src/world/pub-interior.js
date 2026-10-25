@@ -52,6 +52,7 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
   for (const x of [-3, -2.4, -1.8]) { cyl(0.025, 0.025, 0.3, x, 1.32, CZ + 0.15, BRASS, {}, 8); box(0.06, 0.1, 0.1, x, 1.5, CZ + 0.15, [0xc9a24a, 0x2f5a3f, 0x8a2f2f][Math.round((x + 3) / 0.6) % 3]); }
   for (let i = 0; i < 6; i++) cyl(0.05, 0.04, 0.12, -0.5 + i * 0.18, 1.2, CZ - 0.1, 0xe8e0c8, { a: 0.7 }, 10);
   box(0.46, 0.28, 0.42, 3.5, 1.28, CZ, 0x2d3036); box(0.38, 0.2, 0.02, 3.5, 1.33, CZ + 0.22, 0x8fc4e8, { e: 0x4f94c8 });
+  box(.05,.05,.18,-2.4,1.445,CZ+.24,BRASS);
   const barSeats=[-3.85,-2.85,-1.85,-.85,1.2,3.65];
   for(const [i,x]of barSeats.entries()){k.seat('barstool-'+i,'stool',x,CZ+1.25,0);cyl(.2,.2,.05,x,.72,CZ+1.25,LEATHER);cyl(.03,.03,.7,x,.35,CZ+1.25,0x2a2a2a);cyl(.2,.2,.02,x,.02,CZ+1.25,0x2a2a2a);blocker(.4,.4,x,CZ+1.25);}
   k.seat('bar-end-stool','stool',4.65,CZ,Math.PI/2);cyl(.2,.2,.05,4.65,.72,CZ,LEATHER);cyl(.03,.03,.7,4.65,.35,CZ,0x2a2a2a);blocker(.4,.4,4.65,CZ);

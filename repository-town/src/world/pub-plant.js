@@ -1,6 +1,6 @@
 // Synthetic equipment locations; no hidden real-world infrastructure is asserted.
 export function addPubPlant(k,site){
- const {box,cyl,solid,text,add}=k,steel=0xb8c5ca;
+ const {box,cyl,solid,text,add,blocker}=k,steel=0xb8c5ca;
  // Separate hand washing, food preparation, dirty returns and clean storage.
  solid(.62,.88,1.1,-4.4,.44,-8.7,steel);box(.5,.04,.4,-4.4,.91,-8.7,0x536e75);
  text('Food preparation sink',-4.4,1.55,-8.7);
@@ -8,7 +8,7 @@ export function addPubPlant(k,site){
  solid(.7,1.4,.45,-1.65,.7,-8.5,0x547c78);text('Cleaner sink · locked chemicals',-1.65,2,-7.8);
  box(1.4,.45,.5,-5.6,2,-10.7,steel);text('Clean utensils · covered food storage',-5.5,2.35,-10.6);
  // Accessible lowered counter section in front of the retained bar.
- box(1,.07,1.1,2.6,.815,-5.6,0x6d4a30);text('Accessible service point',2.6,1.1,-4.7);
+ box(1,.07,1.1,2.6,.815,-5.6,0x6d4a30).name='pub:lowered-counter';blocker(1,1.1,2.6,-5.6);text('Accessible service point',2.6,1.1,-4.7);
  // Grab rails and reachable emergency-call representation.
  box(.05,.05,1.05,6.7,.85,-10.9,steel);
  box(.22,.3,.05,6.65,1.05,-9.8,0xc64e3c).name='pub:wc-assistance';
