@@ -1,0 +1,587 @@
+{
+  "date": "2026-10-25",
+  "status": "exterior-first",
+  "expectedExistingPremises": 46,
+  "expectedExistingHouses": 188,
+  "count": 72,
+  "p1": 22,
+  "p2": 50,
+  "plan": [
+    {
+      "id": "RTBUILD-001",
+      "address": "A7-N",
+      "placeId": "library",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-002",
+      "address": "B7-N",
+      "placeId": "pharmacy",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-003",
+      "address": "C7-N",
+      "placeId": "repotech",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-004",
+      "address": "D7-N",
+      "placeId": "publicamenities",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-005",
+      "address": "E7-N",
+      "placeId": "dentist",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-006",
+      "address": "F7-N",
+      "placeId": "supermarket",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-007",
+      "address": "G7-N",
+      "placeId": "physio",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-008",
+      "address": "H7-N",
+      "placeId": "pathology",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-009",
+      "address": "I7-N",
+      "placeId": "podiatry",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-010",
+      "address": "J7-N",
+      "placeId": "optometry",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-011",
+      "address": "K7-N",
+      "placeId": "counselling",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-012",
+      "address": "L7-N",
+      "placeId": "gym",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-013",
+      "address": "M7-N",
+      "placeId": "youthcentre",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-014",
+      "address": "N7-N",
+      "placeId": "artscentre",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-015",
+      "address": "O7-N",
+      "placeId": "communitynurse",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-016",
+      "address": "P7-N",
+      "placeId": "agedcare",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-017",
+      "address": "Q7-N",
+      "placeId": "disabilitysupport",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-018",
+      "address": "R7-N",
+      "placeId": "sports",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-019",
+      "address": "S7-N",
+      "placeId": "vet",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-020",
+      "address": "T7-N",
+      "placeId": "stockfeed",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-021",
+      "address": "U7-N",
+      "placeId": "farmsupplies",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-022",
+      "address": "V7-N",
+      "placeId": "ruralrepair",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-023",
+      "address": "W7-N",
+      "placeId": "nursery",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-024",
+      "address": "X7-N",
+      "placeId": "hairdresser",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-025",
+      "address": "Y7-N",
+      "placeId": "officesupplies",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-026",
+      "address": "Z7-N",
+      "placeId": "childcare",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-027",
+      "address": "A2-N",
+      "placeId": "fuelstop",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-028",
+      "address": "B2-N",
+      "placeId": "tyres",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-029",
+      "address": "C2-N",
+      "placeId": "carwash",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-030",
+      "address": "A6-N",
+      "placeId": "clothing",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-031",
+      "address": "B6-N",
+      "placeId": "opshop",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-032",
+      "address": "C6-N",
+      "placeId": "florist",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-033",
+      "address": "D6-N",
+      "placeId": "beauty",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-034",
+      "address": "E6-N",
+      "placeId": "laundry",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-035",
+      "address": "F6-N",
+      "placeId": "takeaway",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-036",
+      "address": "G6-N",
+      "placeId": "newsagent",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-037",
+      "address": "H6-N",
+      "placeId": "giftshop",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-038",
+      "address": "I6-N",
+      "placeId": "photography",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-039",
+      "address": "J6-N",
+      "placeId": "accountant",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-040",
+      "address": "K6-N",
+      "placeId": "insurance",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-041",
+      "address": "L6-N",
+      "placeId": "employment",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-042",
+      "address": "M6-N",
+      "placeId": "cleaning",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-043",
+      "address": "N6-N",
+      "placeId": "pestcontrol",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-044",
+      "address": "O6-N",
+      "placeId": "courier",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-045",
+      "address": "P6-N",
+      "placeId": "storage",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-046",
+      "address": "Q6-N",
+      "placeId": "furniture",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-047",
+      "address": "R6-N",
+      "placeId": "bikeshop",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-048",
+      "address": "S6-N",
+      "placeId": "homewares",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-049",
+      "address": "T6-N",
+      "placeId": "farmcontractor",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-050",
+      "address": "U6-N",
+      "placeId": "stockagent",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-051",
+      "address": "V6-N",
+      "placeId": "machinery",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-052",
+      "address": "W6-N",
+      "placeId": "irrigation",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-053",
+      "address": "X6-N",
+      "placeId": "funeral",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-054",
+      "address": "Y6-N",
+      "placeId": "freight",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-055",
+      "address": "Z6-N",
+      "placeId": "sewing",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-056",
+      "address": "A5-N",
+      "placeId": "mensshed",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-057",
+      "address": "B5-N",
+      "placeId": "repaircafe",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-058",
+      "address": "C5-N",
+      "placeId": "communitygarden",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-059",
+      "address": "D5-N",
+      "placeId": "museum",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-060",
+      "address": "E5-N",
+      "placeId": "church",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-061",
+      "address": "F5-N",
+      "placeId": "skatepark",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-062",
+      "address": "G5-N",
+      "placeId": "tennis",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-063",
+      "address": "H5-N",
+      "placeId": "netball",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-064",
+      "address": "I5-N",
+      "placeId": "pool",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-065",
+      "address": "J5-N",
+      "placeId": "sportsclub",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-066",
+      "address": "K5-N",
+      "placeId": "caravanpark",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-067",
+      "address": "L5-N",
+      "placeId": "showground",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-068",
+      "address": "M5-N",
+      "placeId": "cemetery",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-069",
+      "address": "N5-N",
+      "placeId": "busstop",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-070",
+      "address": "O5-N",
+      "placeId": "visitorcentre",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-071",
+      "address": "P5-N",
+      "placeId": "theatre",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    },
+    {
+      "id": "RTBUILD-072",
+      "address": "Q5-N",
+      "placeId": "scouts",
+      "stage": "exterior-first",
+      "interiorDetailed": false,
+      "realUtilitiesVerified": false
+    }
+  ]
+}
