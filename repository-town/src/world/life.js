@@ -1,4 +1,4 @@
-import {ORIGINAL_WORKERS,EXPANSION_WORKERS,MARRIED_COUPLES,createMarriages,reconcileSpouseHouseholds,householdMembers as familyMembers} from './resident-families.js';
+import {ORIGINAL_WORKERS,EXPANSION_WORKERS,MARRIED_COUPLES,EXPANSION_IDENTITIES,createMarriages,reconcileSpouseHouseholds,householdMembers as familyMembers} from './resident-families.js';
 import { EXPANSION_SITES } from './town-expansion.js';
 import { tickPubUtilities, pubKitchenReady, pubAction, validPubUtilities } from './pub-utilities.js';
 import { tickElectricalPilot, validElectricalPilotState } from './electrical-pilot.js';
@@ -263,6 +263,8 @@ const EXPANSION_SURNAMES=Object.freeze([
   'Brooks','Jones','Williams','Cooper','White','Brown','Murphy','Reed'
 ]);
 export function residentName(id){
+  if(id>=ORIGINAL_WORKERS && id<ORIGINAL_WORKERS+EXPANSION_WORKERS)
+    return EXPANSION_IDENTITIES[id-ORIGINAL_WORKERS].name;
   const given=VILLAGER_NAMES[id % VILLAGER_NAMES.length];
   if(id < VILLAGER_NAMES.length)return given;
   const cycle=Math.floor(id/VILLAGER_NAMES.length);
