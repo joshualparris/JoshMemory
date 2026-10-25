@@ -15,7 +15,8 @@ try{
     await page.goto(origin,{waitUntil:'domcontentloaded',timeout:90000});
     await page.waitForFunction(()=>window.__town&&document.getElementById('loading').hidden,null,{timeout:100000});
     const snap=await page.evaluate(()=>window.__town.pilotGrid());
-    assert.equal(snap.siteCount,15);
+    assert.equal(snap.siteCount,16);
+    assert.equal(snap.siteById['B:hotel'].mains,true);
     assert.equal(snap.siteById['B:pub'].mains,true);
     assert.equal(snap.siteById['H:N7'].mains,true);
     await page.locator('#btn-electrical-grid').click();
@@ -24,6 +25,7 @@ try{
     assert(/Railway Hotel/.test(text));
     assert(/kWh/.test(text));
     assert(/post office/i.test(text));
+    assert(/Railway Hotel/.test(text));
     assert(/wiring/i.test(text));
     await page.screenshot({path:shots+'/grid-inspector-'+viewport.width+'.png'});
     let status=await page.evaluate(()=>window.__town.pilotAction('fault:SERVICE:B:pub'));
@@ -31,7 +33,13 @@ try{
     const isolated=await page.evaluate(()=>window.__town.pilotGrid());
     assert.equal(isolated.siteById['B:pub'].mains,false);
     assert.equal(isolated.siteById['B:post'].mains,true);
+    assert.equal(isolated.siteById['B:hotel'].mains,true);
     assert.equal(isolated.siteById['B:bakery'].mains,true);
+    await page.evaluate(()=>window.__town.pilotAction('fault:SERVICE:B:hotel'));
+    const hotel=await page.evaluate(()=>window.__town.pilotGrid());
+    assert.equal(hotel.siteById['B:hotel'].mains,false);
+    assert.equal(hotel.siteById['B:post'].mains,true);
+    await page.evaluate(()=>window.__town.pilotAction('fault:SERVICE:B:hotel'));
     await page.evaluate(()=>window.__town.pilotAction('toggleOverlay'));
     await page.screenshot({path:shots+'/pub-outage-'+viewport.width+'.png'});
     await page.evaluate(()=>window.__town.pilotAction('fault:SERVICE:B:pub'));
