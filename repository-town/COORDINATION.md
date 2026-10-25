@@ -16,9 +16,6 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
-- 2026-10-25 · ChatGPT — **RTU-001 IN PROGRESS: read-only electrical coverage audit.** Baseline main `19a13fe`. Scope: new `tools/audit-electricity.mjs`, `audit/electricity/`, `docs/RTU_001_ELECTRICAL_AUDIT.md`, README link and scoped checkpoint/coordination updates; no runtime/claimed NPC files modified. Enumerate 188 house lots and all PLACE_DEFS, trace demand/supply/circuits, execute faults/save probes and existing tests. Public outputs use coordinates/service IDs only, no private repository metadata. Results also go to NSWutilities. Next: generate and validate coverage evidence.
-
-
 
 
 
@@ -138,6 +135,8 @@ Newest first. Times in Australia/Sydney.
   is currently blocked by the Hobby team's daily deployment quota (`api-deployments-free-per-day`).
 
 ## Done recently
+
+- 2026-10-25 · ChatGPT — **RTU-001 audit complete (no runtime feature changed)**: [report](docs/RTU_001_ELECTRICAL_AUDIT.md), 234-location coverage, controlled faults/reload/Three.js lighting probes, reusable generator and source hashes. Actual bugs documented, not patched or claimed live. Existing RTU-002–030 remain open. Validation and publication evidence in scoped checkpoint and report.
 
 - 2026-10-25 · ChatGPT — **VERIFIED DONE: DOCS-RTD-TRIAGE-20261025** [PR #192](https://github.com/joshualparris/JoshMemory/pull/192) merged `fff5c0a75b6641c1de0c6ee67680fb44d4b9996d`; [Town Integration #40129362594](https://github.com/joshualparris/JoshMemory/actions/runs/40129362594), [Recorded WebGL #40129362578](https://github.com/joshualparris/JoshMemory/actions/runs/40129362578) and [general CI #40129362704](https://github.com/joshualparris/JoshMemory/actions/runs/40129362704) all SUCCESS.. Added [after-009 ranked 84-item crosswalk](docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md): RTD-010–093 each appear exactly once with their **unchanged unique ID**, suggested rank, exact canonical task text and parents TASK-032–045 mapping. Linked [93-task roadmap](docs/SKYRIM_NPC_DIALOGUE_IMPLEMENTATION_TODO.md), [global parent tracker](../docs/OUTSTANDING_WORK_2026-10-24.md) and Town README. RTD-001–009 remain the only completed items; global TASK-032–045 remain open. No RTD-010 implementation reservation, no runtime/voice/build/deployment edit. Branch `docs/town-rtd-after-009-triage-20261025`; attach PR/CI to checkpoint after green result. 
 
@@ -298,6 +297,7 @@ Newest first. Times in Australia/Sydney.
 - 2026-10-19 · ChatGPT (code-free NPC AI) — Cloudflare Worker `repository-town-no-code-ai.parris-neathaustralia.workers.dev` replaces the Vercel AI backend for the *public game*. No player access codes. Worker code in `deploy/cloudflare-ai-worker.js`, uploads `src/ui/npc-data.js` and `src/ui/npc-prompt.js` as modules, and holds existing Groq key as an encrypted Worker secret. Rate-limit bindings IP_LIMIT (5/min/client per edge) and GLOBAL_LIMIT (4/min/edge); daily best-effort isolate cap. GitHub Pages public build hotfixed: `ui/npc-chat.js`, `ui/npc.js`, `index.html`, `people.html`; source changes in PR #18. Existing Vercel backend remains untouched and code-gated but is no longer used by the public site. Important: public `ui/npc.js` has extra social gameplay imports absent from this branch's `src/ui/npc.js`; preserve live functionality in eventual source reconciliation. Local mocked Worker tests pass, live Groq response not independently verified.
 - 2026-10-19 · ChatGPT (GitHub Pages live-AI bridge) — Updated both `src/ui/npc-chat.js` and `src/ui/npc.js` to send PIN-protected AI requests to Cloudflare Worker `repository-town-ai-bridge.parris-neathaustralia.workers.dev/api/npc-chat` from static GitHub Pages. Worker source is `deploy/pages-npc-proxy.js`; it allows the exact Pages origin, supports CORS preflight, rate-limits attempts best-effort, strips cookies/Origin and forwards the existing `x-npc-code` to Vercel where GROQ_API_KEY and TOWN_NPC_PIN remain server-side. Enabled Worker on workers.dev. Vercel `repository-town-claude-playtest` SSO set to `preview` (production endpoint accessible, still requires PIN). Matching public hotfixes applied to `Parris-Tech-Services/Repository-town` generated `ui/npc-chat.js` and `ui/npc.js` (plus prior `npc.css`). Backend `api/npc-chat.js` CORS change committed to hosting branch but **NOT DEPLOYED**: Vercel 402 daily deployment cap, so the Cloudflare bridge targets the existing published backend. Backend isolated-handler mock tests passed for allowed origin, preflight, bad PIN and good PIN; real remote Groq response **not verified**. Preserve this bridge and source changes during next build/publish. Source PR #17.
 ## Done recently
+
 - 2026-10-19 · Codex — added a local-first village social simulation: seeded friend, enemy and
   neutral relationships; gossip and friendship UI; persistent player trust; relationship changes
   from praise, insults and completed errands; and social context for live AI prompts. Tests,

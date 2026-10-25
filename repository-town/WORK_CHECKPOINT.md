@@ -1,3 +1,7 @@
+# RTU-001 electrical audit — 25 October 2026
+
+Owner: ChatGPT. Runtime baseline main `19a13fe`; remote coordination claim `474868e`. Scoped work: `tools/audit-electricity.mjs`, `audit/electricity/{coverage.json,buildings.csv,validation.txt}`, `docs/RTU_001_ELECTRICAL_AUDIT.md`, plan status and README/coordination/checkpoint. No runtime changes. Every 188 house/46 site location audited; 99 modelled households, 89 unmodelled house lots, 10 edges/7 customers/0 physical services. Ten controlled probes expose demand suppression, split mismatch, missing-ID fallback, refrigeration timer reload loss and lighting mapping gaps. 38 civic callbacks work directly; eight custom interiors lack them. Source/Node/Three.js audit only, not hosted gameplay. Evidence and exact commands in report/log. Next: RTU-002 primary-source comparison, then RTU-003 operational service registry. Publish through reviewed PR #199 and mirror audit evidence to NSWutilities.
+
 # Lighting release — browser source publication verified, PR next
 
 RLT-008 restored authenticated write capability through GitHub UI without credential extraction. Remote feature branch fix/town-lighting-audit-20261024 at main ee432c0 now has all reviewed runtime files, tests, central RLT-001–019 tracker, audit evidence and release logs. Commits include f87f42b (renderer), 750446c (tests), d97f66d (central task index), 9675181/eb4adce (before/after evidence), 9abfadb (release log/review notes). Public Git fetch verified all five runtime files byte-for-byte. CLI/connector failures do not block this browser path.
