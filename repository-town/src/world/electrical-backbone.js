@@ -84,7 +84,7 @@ export function buildTownElectricalBackbone(records) {
   const node=(id,type,position,kv,extra={})=>{
     assert(!nodeIds.has(id),'duplicate node '+id);nodeIds.add(id);
     assert(position===null || validPoint(position),'bad node geometry '+id);
-    const item={id,type,position:position&&clonePoint(position),voltageKv:kv,...extra};
+    const item={id,type,position:position&&clonePoint(position),voltageKv:kv,condition:'design_available',...extra};
     nodes.push(item);return item;
   };
   const edge=(id,from,to,type,kv,route,extra={})=>{
@@ -93,7 +93,7 @@ export function buildTownElectricalBackbone(records) {
     assert(Array.isArray(route)&&route.length>=2&&route.every(validPoint),'unrouted link '+id);
     const item={id,from,to,type,voltageKv:kv,route:route.map(clonePoint),
       lengthGameMetres:ROUND(route.slice(1).reduce((s,p,i)=>s+distance(route[i],p),0)),
-      ...extra};
+      condition:'design_available',isolationState:'closed',assetType:type,...extra};
     edges.push(item);return item;
   };
   const base=point(INTAKE.x,INTAKE.z), root=point(INTAKE.x,roadZ(8));
@@ -133,8 +133,12 @@ export function buildTownElectricalBackbone(records) {
     }
   }
   const active=services.filter(s=>s.status==='design_connected');
+  // Critical/large electric motors and major institutions warrant their own
+  // transformer/service protection rather than sharing a small-shop transformer.
+  const dedicated=active.filter(s=>s.assumedConnectedKva>=85);
+  const dedicatedIds=new Set(dedicated.map(s=>s.id));
   const groups=new Map();
-  for(const s of active){const key=s.row+':'+s.band;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(s);}
+  for(const s of active.filter(s=>!dedicatedIds.has(s.id))){const key=s.row+':'+s.band;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(s);}
   const transf=[];
   for(let row=1;row<=8;row++) for(let band=0;band<BAND_STARTS.length;band++){
     const locals=groups.get(row+':'+band)||[];
@@ -203,6 +207,46 @@ export function buildTownElectricalBackbone(records) {
       }
     }
   }
+  // Independent 22 kV spur, transformer, LV tap and meter for each major facility.
+  for(const s of dedicated){
+    const slug=s.id.replace(/[^a-zA-Z0-9]/g,'-').toUpperCase();
+    const row=s.row,z=roadZ(row),x=ROUND(s.door.x);
+    const sourceX=ROAD_X.reduce((best,k)=>Math.abs(k-x)<Math.abs(best-x)?k:best,ROAD_X[0]);
+    const feederId=feederName(sourceX);
+    const from=avenues.get(row+':'+sourceX),tapId='MV-DED-TAP-'+slug;
+    const tx='DIST-DED-'+slug,bus='LV-DED-BUS-'+slug;
+    const mv=point(x,z),curb=point(x,z+(s.side==='north'?-6.6:6.6));
+    const diverse=ROUND(s.assumedConnectedKva*(s.critical?0.85:0.65));
+    const rated=maxKva(diverse*1.2);
+    assert(rated,'dedicated facility capacity exceeds catalogue '+s.id);
+    node(tapId,'mv_tap',mv,22,{feederId,buildingSite:s.id});
+    node(tx,'distribution_transformer',curb,0.4,{
+      primaryKv:22,secondaryKv:0.4,ratedKva:rated,diversifiedDesignKva:diverse,
+      connectedDesignKva:s.assumedConnectedKva,siteCount:1,feederId,provenance:'SYNTHETIC'});
+    node(bus,'lv_bus',curb,0.4,{transformerId:tx,phases:'ABC'});
+    edge('MV-DED-SPUR-'+slug,from,tapId,'mv_underground',22,[point(sourceX,z),mv],
+      {feederId,ampacityA:160,placement:'existing street'});
+    edge('MV-DED-TX-'+slug,tapId,tx,'distribution_transformer_primary',22,[mv,curb],
+      {ratedKva:rated,feederId});
+    edge('TX-DED-LV-'+slug,tx,bus,'transformer_secondary',0.4,[curb,curb],
+      {ratedKva:rated});
+    const tap='TAP:'+s.id,m=s.meterPosition;
+    node(tap,'lv_pillar',curb,0.4,{transformerId:tx,side:s.side,phases:'ABC'});
+    node(s.meterId,'service_meter',m,0.4,{propertyId:s.id,phase:s.phase,serviceId:s.serviceId});
+    node(s.switchboardId,'switchboard',m,0.4,{propertyId:s.id,phase:s.phase});
+    edge('LV-MAIN:'+s.id,bus,tap,'lv_main',0.4,[curb,curb],
+      {ampacityA:400,side:s.side,transformerId:tx});
+    edge('SERVICE:'+s.id,tap,s.meterId,'underground_service',0.4,
+      [curb,point(m.x,curb.z),m],
+      {phase:s.phase,ampacityA:400,serviceId:s.serviceId,
+        assumedLengthGameMetres:ROUND(Math.abs(m.z-curb.z)+Math.abs(m.x-curb.x))});
+    edge('MAIN-SWITCH:'+s.id,s.meterId,s.switchboardId,'service_switchboard',0.4,[m,m],
+      {phase:s.phase,ampacityA:400});
+    s.transformerId=tx;s.feederId=feederId;s.connectionNode=s.switchboardId;
+    transf.push({id:tx,row,band:null,position:curb,primaryFeeder:feederId,
+      ratedKva:rated,diversifiedKva:diverse,rawKva:s.assumedConnectedKva,
+      customers:[s.id],dedicated:true});
+  }
   return {
     schemaVersion:ELECTRIC_SCHEMA_VERSION,
     tasks:['RTU-003','RTU-004','RTU-005'],
@@ -246,6 +290,8 @@ export function validateTownElectricNetwork(network, sourceRecords) {
   for(const e of network.edges){
     assert(typeof e.id==='string'&&!edgeIds.has(e.id),'duplicate edge '+e.id);edgeIds.add(e.id);
     assert(allowedEdges.has(e.type),'unrecognised edge '+e.id);
+    assert(e.condition==='design_available','invalid asset condition '+e.id);
+    assert(['closed','open'].includes(e.isolationState),'invalid isolator state '+e.id);
     assert(nodes.has(e.from)&&nodes.has(e.to),'orphan edge '+e.id);
     assert(e.from!==e.to,'self edge '+e.id);
     assert(!incoming.has(e.to),'nonradial multiple parents '+e.to);
@@ -273,7 +319,7 @@ export function validateTownElectricNetwork(network, sourceRecords) {
     assert(typeof s.meterId==='string'&&!meterIds.has(s.meterId),'duplicate/unassigned meter '+s.id);
     meterIds.add(s.meterId);assert(nodes.get(s.meterId)?.type==='service_meter','missing meter '+s.id);
     assert(nodes.get(s.connectionNode)?.type==='switchboard','missing switchboard '+s.id);
-    assert([...'ABC'].every(phase=>s.phase==='ABC'||!s.phase.includes(phase)||s.phase===phase),'invalid phase '+s.id);
+    assert(['A','B','C','ABC'].includes(s.phase),'invalid phase '+s.id);
     assert(s.designMaxCurrentA>0&&Number.isFinite(s.assumedConnectedKva),'unrated load '+s.id);
     const path=traceElectricalService(network,s.id);
     assert(path.connected,'unenergised source path '+s.id);
@@ -299,7 +345,7 @@ export function traceElectricalService(network,propertyId,failedEdgeIds=[]) {
     seen.add(at);
     const e=parents.get(at);
     if(!e)return {propertyId,connected:false,reason:'disconnected',edges:edgePath.reverse(),nodes:nodePath.reverse()};
-    if(failed.has(e.id))return {propertyId,connected:false,reason:'isolated',failedAt:e.id,edges:edgePath.reverse(),nodes:nodePath.reverse()};
+    if(failed.has(e.id)||e.isolationState==='open')return {propertyId,connected:false,reason:'isolated',failedAt:e.id,edges:edgePath.reverse(),nodes:nodePath.reverse()};
     edgePath.push(e.id);at=e.from;nodePath.push(at);
   }
   return {propertyId,connected:true,reason:'source_path',edges:edgePath.reverse(),nodes:nodePath.reverse()};
