@@ -94,3 +94,6 @@ Modelled design milestone: a **single-storey** 14 × 18 m country pub envelope s
 ## Continued implementation and measurable acceptance
 
 See [PR #208 completion evidence](PUB_COMPLETION_2026-10-25.md) for reconciled envelope, five interior spaces, real rear discharge, 1.2 m route checks, independent fixtures/typed utility branches, operating interlocks, real patron cap, RSA scenarios and non-certifying inspection records. This supersedes stale “no WC/kitchen/exit” baseline observations above; formal code tasks remain open for independent assessment rather than being ticked from meshes or code tests.
+
+
+**Playable implementation merged and published:** PR #208 is merged at `ca8f78e655834b623d7f610ba92419eae69fd54f`; all eight implementation workflows, full release/privacy and hosted desktop/emulated-phone walkthrough passed. [Play the upgraded pub](https://parris-tech-services.github.io/Repository-town-playtest/qa-tests/pub-compliance.html?v=36822853) (Enter pub at lunchtime). [Exact source/fingerprint, browser evidence and remaining independent approval requirements](PUB_COMPLETION_2026-10-25.md#published-acceptance-evidence). This does not change the formal regulatory assessment checkboxes.

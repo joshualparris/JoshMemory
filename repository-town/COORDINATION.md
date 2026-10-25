@@ -16,12 +16,6 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
-- 2026-10-25 · Codex — RESUMED PR #208 at user request: reconcile latest main e9fc9e4, complete pub access/egress, fixture service graph, fire/service interlocks, operating controls and desktop/mobile hosted QA. Scope pub-specific modules, narrowly scoped main/counter/access hooks, tests/docs. Preserve electrical backbone, heritage houses and unrelated NPC/audio work. Full legal certification cannot be conferred by game tests.
-
-- 2026-10-25 · ChatGPT — ACTIVE: PUB-CODE/RTPUB-002/003/004/009/010 highest-physical-impact redesign, plus 005 emergency interfaces. Branch `feat/pub-code-physical-top-five-20261025`. Scope: pub-interior.js, interior-kit.js (pub-only rear option), townlife.js (pub only), pub-physical-plan-2026.js, pub utilities/panel, focused regression, tracker/matrix/checkpoint. Preserve separate electricity grid pilot. No real compliance certification or final outdoor discharge claimed. Other town/NPC/lighting ownership unaffected.
-
-- 2026-10-25 · Codex — IN PROGRESS: user-authorised PUB-CODE/RTPUB-010–017, 019, 021, 033–034 gameplay improvements, especially missing WC door/privacy and separated kitchen; inspect remaining standards without claiming certification. Files src/world/pub-interior.js, pub-utilities.js, src/ui/pub-utilities-panel.js, focused tests and pub docs. Preserve concurrent electrical backbone work. Baseline main; implementation, release gate, desktop/emulated mobile and hosted verification pending.
-
 
 
 
@@ -143,6 +137,8 @@ Newest first. Times in Australia/Sydney.
   is currently blocked by the Hobby team's daily deployment quota (`api-deployments-free-per-day`).
 
 ## Done
+
+- 2026-10-25 · Codex — **DONE: playable pub systems and hosted QA**, [PR #208](https://github.com/joshualparris/JoshMemory/pull/208), merge `ca8f78e655834b623d7f610ba92419eae69fd54f`. Integrates the prior physical-P0 and WC/kitchen gameplay claims. Actual keyboard street entry/rear discharge, continuous 1.2 m game route, two WC rooms, cold room, seven utility overlays, fault/service/food/RSA/evacuation/inspection consequences and saved state verified desktop + emulated Android. All eight implementation PR workflows green, including full release/privacy and five 28-day seeds. Published isolated QA runtime `f2cefefe86e5f423d3a9f9bdcaaf906e02399706`, fingerprint `cceaa0711a922937748dd44b6d8addc634cf4a2e81607a60295514638518db95`; [playtest](https://parris-tech-services.github.io/Repository-town-playtest/qa-tests/pub-compliance.html?v=36822853), publisher 40194936640 and hosted verification 40195379814 PASS. Responsive launcher verified. **Formal PUB-CODE/RTPUB-001–034 assessment statuses remain unchanged; no actual building certification, licensed trade sign-off or permit is asserted.** Details: docs/PUB_COMPLETION_2026-10-25.md. No next-task reservation.
 
 - 2026-10-25 · Codex — **SOURCE MERGED and QA PUBLISHED: RTPUB utilities pilot**, PR #201 / b7d623c; full release, five 28-day seeds, recorded WebGL and focused local/hosted desktop/emulated Android checks passed. New WC, hand basins, kitchen, finite service inventories, outage controls and overlays. Vercel production is quota-blocked; existing isolated Pages QA published by run 40156740087, root handover and production mirror preserved. Hosted acceptance run 40156987523; direct pub launcher at https://parris-tech-services.github.io/Repository-town-playtest/qa-tests/pub-utilities.html . Full physical network RTPUB-008 remains OPEN; next .01 asset/port graph, detailed children in NSWutilities/docs/PUB_UTILITIES_NEXT_IMPLEMENTATION.md. No claim all utility systems complete.
  recently
