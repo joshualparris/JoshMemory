@@ -186,3 +186,7 @@ For tasks collected from all twenty agents, use [the portfolio master triage](..
 ## Utility system IDs and sewerage research
 
 [RT-SYS-001–016 system register](docs/UTILITY_SYSTEM_REGISTER.md) covers utilities and supporting services, preserving all prior task IDs. Electricity research: dedicated ChatGPT session; water: Manus; sewerage/plumbing: this research strand. [Sewerage research](docs/SEWERAGE_RESEARCH_2026-10-25.md) selects Narromine provisionally, traces toilets through treatment and specifies water/power contracts. [RTSW-001–028 queue](docs/SEWERAGE_TASKS.md): research 001/002 complete; implementation starts RTSW-003; RTU-022–024 remain open. [Primary sources](docs/SEWERAGE_SOURCES.md). No new sewer gameplay deployed.
+
+## Stormwater roadmap cross-repository handover (25 October)
+
+The parent [RTU utilities masterplan](docs/UTILITIES_MASTERPLAN_2026-10-25.md) now links the 30-task [RT-SYS-004 / RTSM stormwater roadmap](https://github.com/joshualparris/NSWutilities/blob/main/docs/STORMWATER_TASKS.md) and [16-system roadmap audit](https://github.com/joshualparris/NSWutilities/blob/main/docs/UTILITY_ROADMAP_AUDIT_2026-10-25.md). Tasks are defined canonically in NSWutilities so different AI agents do not create competing identifiers. RTSM-003 is the first unclaimed implementation starting point; no stormwater gameplay is claimed as shipped.
