@@ -1,7 +1,7 @@
 # Whole-town utilities implementation plan
 PUBLIC project engineering plan. 25 October 2026. Canonical source: JoshMemory/repository-town.
-Status: research and baseline audit started; no new utility runtime deployed.
-Execution order is the numbered order below; IDs are permanent. Next: RTU-001, then RTU-002.
+Status: RTU-001 source/runtime audit complete; no new utility runtime deployed. See [audit evidence](RTU_001_ELECTRICAL_AUDIT.md).
+Execution order is the numbered order below; IDs are permanent. Next: RTU-002, then RTU-003.
 Preserve existing power-grid tests, economy, saves, lighting circuits and other agents' claims.
 
 ## Baseline audit (RTU-001 started)
@@ -27,7 +27,7 @@ Gas: choose documented fictional town reticulation or LPG deliveries per propert
 
 ## Ordered tasks and acceptance
 Each task is open unless explicitly checked with evidence. Reserve file paths on COORDINATION before code changes.
-- [ ] RTU-001 Audit full current runtime, all building sources, utility consumers, saves, overlays and existing tests; publish reproducible coverage/gaps. STARTED: electricity baseline above.
+- [x] RTU-001 Audit full current runtime, all building sources, utility consumers, saves, overlays and existing tests; publish reproducible coverage/gaps. COMPLETE: [234-location source/runtime audit](RTU_001_ELECTRICAL_AUDIT.md), generator and validation evidence.
 - [ ] RTU-002 Finish sourced comparison of at least three simulation games and NSW electricity/water/sewer/gas practices; annotate deliberate simplifications and exact equipment datasheets.
 - [ ] RTU-003 Generate authoritative building service registry from actual house/civic/farm inventories, stable IDs and coordinates; every building has connected/not-required/off-grid status with reason. Gate missing/duplicate/orphan IDs.
 - [ ] RTU-004 Specify versioned common network schema: nodes, routed edges, capacities, units, assets, conditions, isolation, service meters; pure validator and invalid fixtures.
@@ -72,4 +72,5 @@ Each task is open unless explicitly checked with evidence. Reserve file paths on
 Research is preliminary, not the full three-game/all-utility audit. Task RTU-002 closes that gap before sizing implementation.
 
 ## Handover
-Next concrete action: RTU-001 enumerate actual building inventories and trace each existing utility consumer, then commit coverage report and tests before RTU-003. No runtime files modified here; no deployment required for documentation. Existing RTD/RTN/RLT IDs remain unchanged.
+Next concrete action: RTU-002 primary-source and open-code comparison, then RTU-003 operational per-building service registry using the RTU-001 audit. No runtime files modified here; no deployment required for documentation. Existing RTD/RTN/RLT IDs remain unchanged.
+

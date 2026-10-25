@@ -178,3 +178,7 @@ deployment.
 ## Whole-portfolio master agent queue
 
 For tasks collected from all twenty agents, use [the portfolio master triage](../docs/MASTER_20_AGENT_TRIAGE_2026-10-25.md) and [globally ordered register](../docs/MASTER_20_AGENT_EXECUTION_QUEUE_2026-10-25.csv). The local NPC dialogue, collisions and mobile QA queues remain authoritative within their scope. The updated global queue begins with **SylvieApp `SVA-008`**, and DCS-only work is deferred; it **does not renumber** Town's original IDs or claim new runtime work complete.
+
+## Electrical baseline audit — RTU-001
+
+[Completed source/runtime audit](docs/RTU_001_ELECTRICAL_AUDIT.md): all 234 registered locations, per-property coverage CSV, deterministic probes and confirmed demand/lighting/save gaps. Reproduce with `node tools/audit-electricity.mjs --check`. This audit adds no electrical gameplay feature; RTU-002 research and RTU-003 service registry are next. See [whole-town utility plan](docs/UTILITIES_MASTERPLAN_2026-10-25.md).
