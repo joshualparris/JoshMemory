@@ -40,14 +40,26 @@ function pathFor(id){
 const routes=new Map(P.sites.map(s=>[s.id,pathFor(s.id)]));
 export function pilotInitialState(){
   return {version:1,equipment:'grid',faults:[],overlay:false,socKwh:0,
-    meterKwh:Object.fromEntries(P.sites.map(s=>[s.id,0])),energyGridKwh:0,
+    meterKwh:Object.fromEntries(P.sites.map(s=>[s.id,0])),batteryCommissioned:false,energyGridKwh:0,
     solarKwh:0,unservedKwh:0,essentialBackupKwh:0,
     recentAction:'Grid pilot ready. All switches closed.',eventCount:0};
 }
+export function validElectricalPilotState(s){
+  if(!s||typeof s!=='object'||Array.isArray(s)||s.version!==1)return false;
+  if(!PILOT_EQUIPMENT[s.equipment]||!Array.isArray(s.faults)||s.faults.length>P.edges.length ||
+    !s.faults.every(id=>typeof id==='string'&&edgeIds.has(id)))return false;
+  if(typeof s.overlay!=='boolean'||typeof s.batteryCommissioned!=='boolean')return false;
+  for(const k of ['socKwh','energyGridKwh','solarKwh','unservedKwh','essentialBackupKwh'])
+    if(!Number.isFinite(s[k])||s[k]<0||s[k]>1e10)return false;
+  if(s.socKwh>13.5||!s.meterKwh||typeof s.meterKwh!=='object'||Array.isArray(s.meterKwh))return false;
+  if(!P.sites.every(site=>Number.isFinite(s.meterKwh[site.id])&&s.meterKwh[site.id]>=0&&
+    s.meterKwh[site.id]<=1e10))return false;
+  return typeof s.recentAction==='string'&&s.recentAction.length<350 &&
+    Number.isSafeInteger(s.eventCount)&&s.eventCount>=0;
+}
 export function initialiseElectricalPilot(life){
   const current=life.civic.electricalPilot;
-  if(!current || current.version!==1 || !Array.isArray(current.faults) ||
-     !PILOT_EQUIPMENT[current.equipment]){
+  if(!validElectricalPilotState(current)){
     life.civic.electricalPilot=pilotInitialState();
   }
   return life.civic.electricalPilot;
@@ -171,7 +183,9 @@ export function pilotAction(life,action){
     const name=action.slice(6);
     assert(PILOT_EQUIPMENT[name],'unrecognised equipment');
     s.equipment=name;s.socKwh=Math.min(s.socKwh,pilotEquip(s).batteryKwh);
-    if(s.equipment==='solarBattery'&&s.socKwh===0)s.socKwh=8; // declared precharged commissioning demonstration, not generated free each outage
+    if(s.equipment==='solarBattery'&&!s.batteryCommissioned){
+      s.socKwh=8;s.batteryCommissioned=true; // one-time precharged initial installation, not free on every toggle
+    }
   } else if(action.startsWith('fault:')){
     const id=action.slice(6);assert(edgeIds.has(id),'invalid edge fault '+id);
     s.faults=s.faults.includes(id)?s.faults.filter(x=>x!==id):[...s.faults,id];
@@ -180,7 +194,7 @@ export function pilotAction(life,action){
 }
 export function tickElectricalPilot(life,minutes){
   if(!pilotIsEnabled(life)||!Number.isFinite(minutes)||minutes<=0)return;
-  const s=life.civic.electricalPilot,equip=pilotEquip(s),h=Math.min(minutes,120)/60;
+  const s=life.civic.electricalPilot,equip=pilotEquip(s);
   // Integrate town time in bounded time slices, avoiding energy creation on rapid skip.
   let left=minutes;
   while(left>0){
@@ -200,7 +214,7 @@ export function tickElectricalPilot(life,minutes){
       s.meterKwh[site.id]=r3((s.meterKwh[site.id]||0)+actual*dt);
     }
     s.energyGridKwh=r3(s.energyGridKwh+report.gridImportKw*dt);
-    s.solarKwh=r3(s.solarKwh+report.solarKw*dt);
+    s.solarKwh=r3(s.solarKwh+(report.solarKw+charge)*dt);
     s.essentialBackupKwh=r3(s.essentialBackupKwh+backup*dt);
     s.unservedKwh=r3(s.unservedKwh+
       (report.totalDemandKw-report.servedKw+Math.max(0,pub.servedKw-backup)*(pub.mains?0:1))*dt);
