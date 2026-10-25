@@ -1,12 +1,16 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {createHash} from 'node:crypto';
+import {execFileSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
 
 const auditURL=new URL('../audit/pub/2026-10-25-code-matrix.json',import.meta.url);
 const audit=JSON.parse(await readFile(auditURL,'utf8'));
 function repoFile(path){return new URL('../'+path.replace(/^repository-town\//,''),import.meta.url)}
-function gitBlobSha(content){const header=Buffer.from('blob '+content.length+'\0');return createHash('sha1').update(header).update(content).digest('hex')}
+function checkedOutGitBlobSha(path) {
+ const root=fileURLToPath(new URL('../../',import.meta.url));
+ return execFileSync('git',['rev-parse','HEAD:'+path],{cwd:root,encoding:'utf8'}).trim();
+}
 test('pub audit stays visibly non-certifying and uses the correct NSW 2026 code',()=>{
  assert.equal(audit.name,'The Merged Branch');assert.equal(audit.locationId,'B:pub');assert.equal(audit.gameAddress,'N8-S');
  assert.match(audit.nccAsAtDate,/2022 Amendment 2/);assert.match(audit.nccAsAtDate,/2027-05-01/);
@@ -32,8 +36,7 @@ test('audited source Git blob hashes unchanged — any code change requires new 
  const entries=Object.entries(audit.sourceBlobs);
  assert.ok(entries.length>=7);
  for (const [path,expected] of entries) {
-  const bytes=await readFile(repoFile(path));
-  assert.equal(gitBlobSha(bytes),expected,'Re-audit changed source: '+path);
+  assert.equal(checkedOutGitBlobSha(path),expected,'Re-audit changed source: '+path);
  }
 });
 test('observed decorative pub, incompatible geometry and only one room/exit metadata still true',async()=>{
