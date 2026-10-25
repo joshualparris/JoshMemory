@@ -61,7 +61,7 @@ test('real-world data is cited but unknown utility connections never invented',(
  assert.equal(data.water.siteToRiverDistanceKm,null);
  assert.ok(data.realElectricity.unknown.length>=3);
  assert.equal(data.transport.actualRoadEntry,'unknown');
- assert.match(townChronicleNotice(),/alternate universe/);
+ assert.match(townChronicleNotice(),/alternative universe/i);
  assert.match(townChronicleNotice(),/RU5 Village/);
  assert.match(townChronicleNotice(),/RU1 Primary Production/);
 });
