@@ -16,7 +16,7 @@ const life=()=>({minute:12*60,day:1,civic:{weather:'sunny',
 const town=life();
 let s=initialiseElectricalPilot(town);
 assert(validElectricalPilotState(s));
-assert.equal(pilotNetwork().sites.length,15);
+assert.equal(pilotNetwork().sites.length,16);
 assert.equal(pilotNetwork().transformers.length,4);
 assert.equal(new Set(pilotNetwork().sites.map(x=>x.id)).size,15);
 const full=JSON.parse(fs.readFileSync('audit/electricity/design-network-v1.json','utf8'));
@@ -33,7 +33,7 @@ for(const site of pilotNetwork().sites){
   assert(pilotPath(site.id).includes('SERVICE:'+site.id),'missing service '+site.id);
 }
 const report=pilotReport(town);
-assert.equal(report.siteCount,15);
+assert.equal(report.siteCount,16);
 assert(report.sites.every(x=>x.mains&&x.unservedKw===0),'all pilot sites initially powered');
 assert(report.totalDemandKw>30&&report.totalDemandKw<120,'credible commercial + dwelling kW envelope');
 assert(report.siteById['B:pub'].demandKw>report.siteById['H:N7'].demandKw);
@@ -45,6 +45,11 @@ pilotAction(town,'fault:'+PILOT_FAULTS.pub);
 assert.equal(pilotMains(town,'B:pub'),false);
 assert.equal(pilotPowered(town,'B:pub'),false);
 assert.equal(pilotMains(town,'B:post'),true,'service fault must not affect neighbours');
+assert.equal(pilotMains(town,'B:hotel'),true,'Railway Hotel unaffected by the separate Merged Branch pub service fault');
+pilotAction(town,'fault:'+PILOT_FAULTS.hotel);
+assert.equal(pilotMains(town,'B:hotel'),false,'I9-N hotel loses its own electrical supply');
+assert.equal(pilotMains(town,'B:pub'),false,'pub still independently faulted');
+pilotAction(town,'fault:'+PILOT_FAULTS.hotel);
 assert.equal(pubStatus(town).power,false,'pub kitchen circuit follows physical breaker');
 assert.equal(pubKitchenReady(town),false,'no cooking during outage');
 assert(!pilotReport(town).siteById['B:post'].unservedKw);
@@ -55,7 +60,7 @@ for(const id of ['B:pub','B:post','B:school'])assert.equal(pilotMains(town,id),f
 for(const id of ['B:bakery','B:cafe','H:N7'])assert.equal(pilotMains(town,id),true,id+' unaffected');
 pilotAction(town,'fault:'+PILOT_FAULTS.pubDistrict);
 pilotAction(town,'fault:'+PILOT_FAULTS.shops);
-for(const id of ['B:bakery','B:butcher','B:cafe','B:greengrocer','B:store'])assert.equal(pilotMains(town,id),false);
+for(const id of ['B:bakery','B:butcher','B:cafe','B:greengrocer','B:store','B:hotel'])assert.equal(pilotMains(town,id),false);
 assert(pilotMains(town,'B:pub'));
 pilotAction(town,'fault:'+PILOT_FAULTS.shops);
 pilotAction(town,'fault:'+PILOT_FAULTS.northHouses);
@@ -103,7 +108,7 @@ assert.throws(()=>pilotAction(town,'fault:NOT-A-LINE'),/invalid edge/);
 assert.throws(()=>pilotAction(town,'equip:rocket'),/unrecognised equipment/);
 const panel=electricalPilotPanel(town);
 assert(panel.title.includes('Railway Hotel')&&panel.actions.length>=10);
-assert(panel.body.includes('kWh')&&panel.body.includes('N7'));
+assert(panel.body.includes('kWh')&&panel.body.includes('N7')&&panel.body.includes('Railway Hotel'));
 const base=new THREE.Group(),geometry=createElectricalPilotVisuals(base,town);
 assert(base.children.length===2);
 geometry.update();
@@ -164,4 +169,4 @@ pilotAction(operations,'fault:SERVICE:H:N7');
 householdHour(operations,23);
 assert.equal(resident.household.fridgeOff,0,'restored supply restarts fridge');
 
-console.log('PASS: RTU pilot 15 source-derived addresses, 4 transformers, real paths, kW/kWh, PV night/anti-islanding, battery SOC depletion, selective pub/shop/house faults, meter/saves, visual line scene and inspector UI');
+console.log('PASS: RTU pilot 16 source-derived addresses, 4 transformers, real paths, kW/kWh, PV night/anti-islanding, battery SOC depletion, selective pub/shop/house faults, meter/saves, visual line scene and inspector UI');
