@@ -220,3 +220,7 @@ The Merged Branch (`B:pub`, `N8-S`) was assessed against **NSW NCC 2022 Amendmen
 ## The Merged Branch — original construction date UNKNOWN
 
 The fictional N8-S pub is **The Merged Branch**. Its original construction year, first opening date, former trading name and age remain **UNKNOWN**; earlier 1911/1912/2019 guesses were retracted. [Corrected source-aware history](docs/PUB_FICTIONAL_HISTORY_1911.md). The in-game inspection and plaque display the missing date rather than an invented year. A separate WC and kitchen, safety representations and utility interlocks are simulated, **not** independently certified building work. [RTPUB audit and remaining standards roadmap](docs/PUB_NCC_2026_TODO.md).
+
+## 2026 northern-frontage infill expansion
+
+**72 new street-addressed buildings (22 Priority 1, 50 Priority 2)** are allocated in the already constructed street grid, including **A7-N/B7-N/C7-N/W7-N/X7-N/Y7-N/Z7-N**. The game draws distinctive category façades, records each property and provides basic enterable interior shells and visit points. **17** new resident shifts join **171** existing residents; the remaining new premises are **preview-only shells, not falsely staffed trading businesses**. Painter services use existing **W9-N Town Trades** rather than duplicate premises. [Exact 72 addresses, 73 tasks and current acceptance limitations](docs/2026_MISSING_BUILDINGS_MASTERPLAN.md). Detailed interior fit-out, complete utility hookups, pedestrian/backyard collision playtests and operating systems remain separate acceptance work.

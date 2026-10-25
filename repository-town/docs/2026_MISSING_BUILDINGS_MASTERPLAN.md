@@ -4,6 +4,10 @@
 
 **Priority order:** the nine free-standing first-wave sites (library, pharmacy, fuel stop, RepoTech, nursery, barber, office/print, public amenities/playground, childcare), then other Priority 1, then Priority 2. **Tenth first-wave project: painters** is an expansion of existing W9-N Town Trades & Maintenance; it is not a duplicate new lot. Existing hardware at V9-N remains. Actual fully modelled interiors, equipment, operating permits, utility hookups and building-code acceptance remain **future individual-building tasks**.
 
+**Residential-worker realism:** 72 additional resident workers would have taken the pre-existing **171** staff total to **243**, exceeding the **188 existing housing slots**. Exactly **17 local new jobs** are appended *after legacy staff IDs* to reach **188 housed workers**. Other planned premises are explorable but **preview-only/unoperated** until future commuting/labour modelling; never report them as staffed trading shops. See the enforced `EXPANSION_LOCAL_STAFFED` roster and acceptance tests.
+
+**Painting:** **RTBUILD-073** is implemented as a separate `repaintExterior` quoted work type from **Town Trades & Maintenance W9-N**, staffed by fictional painter **Asha Green**, with finite paint/sealant, dispatch, job-site preparation, six simulated work hours and inspection/escrow. No new lot, no real NSW contractor licence issued.
+
 **Important spatial honesty:** northern frontages face a street across from existing house fronts. The candidate plot namespace was previously labelled 'not surveyed'; being empty in address registry is *not proof of clearance of existing house backyards, fences or vegetation*. Automated geometry and interactive playtests must establish no collision. Large facilities get compact **gatehouse/pavilion/office** at a single address and do *not* purport to fit full ovals, cemeteries, showgrounds or holiday parks within the 26 m frontage.
 
 ## Priority 1 locations

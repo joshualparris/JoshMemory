@@ -240,9 +240,13 @@ JOBS.push(
 // New 2026 services join AFTER all pre-existing roster IDs so existing save identities remain stable.
 // These are real on-duty resident workers, not permanent 'ghost' shop attendants.
 // Each added site has one rostered staff member; detailed relief/rotation is individual-building work.
-JOBS.push(...EXPANSION_SITES.map(site=>[site.staffRole,site.id,
-  Math.max(6*60,site.opens||8*60),
-  Math.min(22*60,site.closes||17*60)]));
+// Local residential jobs are deliberately capped by the 188 existing dwellings.
+// Remaining shells need visiting commuters or later roster design, not 72 invented homes.
+export const EXPANSION_LOCAL_STAFFED=Object.freeze(["library","pharmacy","fuelstop","repotech","nursery","hairdresser","officesupplies","publicamenities","childcare","vet","supermarket","dentist","sports","stockfeed","gym","optometry","pathology"]);
+JOBS.push(...EXPANSION_SITES.filter(site=>EXPANSION_LOCAL_STAFFED.includes(site.id))
+  .map(site=>[site.staffRole,site.id,
+    Math.max(6*60,site.opens||8*60),
+    Math.min(22*60,site.closes||17*60)]));
 export const ROSTER_SIZE = JOBS.length;
 // Villager names; src/ui/social.js keeps their friendships and grudges.
 export const VILLAGER_NAMES = ['Mabel', 'Arlo', 'Bea', 'Cas', 'Dot', 'Ezra', 'Flo', 'Gus', 'Hattie', 'Ivo', 'June', 'Kip', 'Lou', 'Merv', 'Nora', 'Ollie',

@@ -20,6 +20,8 @@ assert(QUALIFICATIONS.find(q=>q.id==='hsc').level===null,'HSC is separate from A
 assert(TRADE_STAFF.filter(s=>s.qualified&&s.licence).some(s=>s.trade==='electrical'));
 assert(TRADE_STAFF.some(s=>s.supervisor&&!s.qualified),'apprentices clearly supervised');
 assert(Object.values(REPAIR_TYPES).some(x=>x.trade==='it'),'general computer repair included');
+assert(TRADE_STAFF.some(s=>s.trade==='painting'&&s.qualified));
+assert.equal(repairQuote('repaintExterior').trade,'painting');
 const starting={...e.stock},cash=e.hardwareCash,held=()=>life.civic.player.wallet+life.civic.player.bank;
 const initialMoney=held();assert.match(buyHardware(life,'timber'),/Bought/);
 assert.equal(e.stock.timber,starting.timber-1,'purchase lowers finite stock');

@@ -583,5 +583,21 @@
       "interiorDetailed": false,
       "realUtilitiesVerified": false
     }
-  ]
+  ],
+  "residentStaffing": {
+    "existingHoused": 171,
+    "newLocalHoused": 17,
+    "totalHoused": 188,
+    "additionalPremisesNotStaffedByTownResidents": 55,
+    "unoperatedShellsArePreviewOnly": true,
+    "regionalCommuterRosterPending": true
+  },
+  "painting": {
+    "taskId": "RTBUILD-073",
+    "existingPlot": "W9-N",
+    "type": "repaintExterior",
+    "contractor": "Asha Green",
+    "status": "quoting-and-logistics-implemented",
+    "nswRealLicenceIssued": false
+  }
 }
