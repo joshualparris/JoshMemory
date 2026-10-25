@@ -15,9 +15,9 @@ test('pub audit stays visibly non-certifying and uses the correct NSW 2026 code'
  assert.equal(audit.name,'The Merged Branch');assert.equal(audit.locationId,'B:pub');assert.equal(audit.gameAddress,'N8-S');
  assert.match(audit.nccAsAtDate,/2022 Amendment 2/);assert.match(audit.nccAsAtDate,/2027-05-01/);
  assert.equal(audit.summary.verifiedCodeCompliant,0);
- assert.equal(audit.historicalCanon.constructionYear,1911);
- assert.equal(audit.historicalCanon.tradingStartYear,1912);
- assert.equal(audit.researchDeliverables.RTPUB_001.fictionalConstructionDate,1911);
+ assert.equal(audit.historicalCanon.constructionYear,null);
+ assert.equal(audit.historicalCanon.tradingStartYear,null);
+ assert.equal(audit.researchDeliverables.RTPUB_001.fictionalConstructionDate,null);
  assert.equal(audit.historicalCanon.originalPermitRecord,null);
  assert.equal(audit.researchDeliverables.RTPUB_001.status,'research-complete');
  assert.equal(audit.researchDeliverables.RTPUB_001.codeCompliance,'not assessed/certified');

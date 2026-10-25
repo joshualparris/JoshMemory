@@ -14,7 +14,7 @@ test('fictional town geographic anchor and mayor consistent across source and JS
  assert.equal(data.founding.firstMayorInUniverse.termStartYear,1909);
  assert.equal(data.founding.firstMayorInUniverse.fictionalKnighthoodYear,1927);
  assert.equal(data.founding.existingMayorIn2026,'Vern');
- assert.equal(TOWN_ORIGIN.historicPub.built,1911);
+ assert.equal(TOWN_ORIGIN.historicPub.built,null);assert.equal(TOWN_ORIGIN.historicPub.firstTrade,null);
  assert.equal(data.coordinatesAreSurvey,false);
  assert.match(data.site.legalSiteStatus,/NOT VERIFIED VACANT/);
 });
@@ -40,7 +40,9 @@ test('50 dated canon events, stable unique IDs, chronology and evidence labels',
    assert.ok(k>=last);last=k; assert.ok(e.details.length>25);
    assert.ok(['real','real-context','fiction','fiction-context','game-canon','design'].includes(e.category));
  }
- assert.ok(data.events.some(x=>x.year===1911&&/hotel/i.test(x.title)));
+ assert.ok(data.events.some(x=>x.year===1911&&/hotel/i.test(x.title)&&/comparison/.test(x.title)));
+ assert.ok(!data.events.some(x=>/Branch Line Hotel opens|hotel constructed/i.test(x.title)));
+ assert.match(JSON.stringify(data.events.filter(x=>/pub/i.test(x.title)).map(x=>x.details)),/UNKNOWN/);
  assert.ok(data.events.some(x=>x.year===1883));
 });
 test('real-world data is cited but unknown utility connections never invented',()=>{

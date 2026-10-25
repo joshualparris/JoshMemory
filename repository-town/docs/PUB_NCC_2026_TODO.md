@@ -69,6 +69,10 @@ An earlier independent [pub utilities pilot](PUB_UTILITIES_PILOT.md) had **RTPUB
 
 The namespace is part of the globally unique key. `RTPUB-002` alone can refer to two different tasks, so agents must specify `PUB-CODE` or `PUB-UTIL`. **Do not reassign either task number**. The machine-readable matrix records qualified IDs. Subsequent building-code work begins `PUB-CODE/RTPUB-002`.
 
-## Fictional construction and game history (25 October 2026)
+## Construction history correction (25 October 2026)
 
-**Canonical original construction: 1911.** First trade: **1912** under the name *Branch Line Hotel*, renamed *The Merged Branch* in **2019**. An in-game **EST. 1911** plaque and inspectable history, plus period-inspired street masonry, were added. See [history](PUB_FICTIONAL_HISTORY_1911.md). **PUB-CODE/RTPUB-001** remains completed for *research/design premise only*. **PUB-CODE/RTPUB-002…034 stay open**, especially mismatched exterior/interior and unassessed upper floor, fire, accessible WC and food premises. No actual approval, formal heritage listing or certified 2026 fit-out has been granted.
+**Original construction date: UNKNOWN.** Previous invented 1911 construction and 1912 opening dates were not authorised and are retracted. Age, original name and pre-2026 events remain unverified. Period-inspired decoration does not date the building. The in-game inspection says UNKNOWN. [Corrected history](PUB_FICTIONAL_HISTORY_1911.md).
+
+## Sanitary/kitchen implementation follow-up
+
+Animated WC privacy door and screen, enclosed kitchen and door, hygiene/fire equipment representations, independent emergency-light battery, free potable-water metering, extraction interlock and persistent cold-stock quarantine are implemented in source. These are partial progress against PUB-CODE/RTPUB-005/006/010–017/019/028/033. All remaining standards tasks stay OPEN: no dimensionally reviewed accessible WC, calculated fixture capacity, rear egress, reconciled exterior envelope, structural/fire design, licensing or completed physical utility graph is asserted. See [evidence and next steps](PUB_SANITARY_IMPLEMENTATION_2026-10-25.md).

@@ -239,16 +239,16 @@
     {
       "id": "RTHIST-019",
       "year": 1911,
-      "title": "Brick country hotel constructed",
-      "details": "A Federation-style pub is built on N8-S as the Branch Line Hotel, consistent with the established pub history.",
-      "category": "fiction"
+      "title": "NSW country hotel architectural comparison",
+      "details": "An independently documented NSW country hotel dates to 1911; this is comparative architectural context only. The Merged Branch at N8-S has an UNKNOWN original construction date.",
+      "category": "real-context"
     },
     {
       "id": "RTHIST-020",
       "year": 1912,
-      "title": "Branch Line Hotel opens",
-      "details": "The pub begins trade serving farms and railway workers. No original licence number or specific opening day is fabricated.",
-      "category": "fiction"
+      "title": "Regional hotel trade context",
+      "details": "Regional Australian hotels served travellers in this era. This 1912 context does NOT date Repository Town's pub, whose first trading year remains UNKNOWN.",
+      "category": "design"
     },
     {
       "id": "RTHIST-021",
@@ -323,9 +323,9 @@
     {
       "id": "RTHIST-031",
       "year": 1958,
-      "title": "Hotel refit",
-      "details": "The Branch Line Hotel receives a longer timber front bar, preserving the already established pub canon.",
-      "category": "fiction"
+      "title": "Mid-century hospitality fit-out comparison",
+      "details": "A mid-century hotel bar refit is a plausible design reference, NOT evidence that The Merged Branch was refurbished in 1958.",
+      "category": "design"
     },
     {
       "id": "RTHIST-032",
@@ -365,9 +365,9 @@
     {
       "id": "RTHIST-037",
       "year": 1988,
-      "title": "Pub refrigeration upgraded",
-      "details": "The hotel remodels cold storage and kitchen supply spaces, matching pub timeline.",
-      "category": "fiction"
+      "title": "Hospitality refrigeration comparison",
+      "details": "Late-twentieth-century refrigeration improvements inform the fictional pub kitchen; NO 1988 renovation is established for this building.",
+      "category": "design"
     },
     {
       "id": "RTHIST-038",
@@ -407,9 +407,9 @@
     {
       "id": "RTHIST-043",
       "year": 2019,
-      "title": "The Merged Branch renamed",
-      "details": "The Branch Line Hotel is renamed The Merged Branch; the distinct Railway Hotel remains a different property.",
-      "category": "fiction"
+      "title": "Present-day pub naming reference",
+      "details": "The Merged Branch is the current fictional venue name. The naming or renaming year and its original trading name are UNKNOWN; 2019 is contextual only.",
+      "category": "design"
     },
     {
       "id": "RTHIST-044",
@@ -449,8 +449,8 @@
     {
       "id": "RTHIST-049",
       "year": 2026,
-      "title": "Pub utilities pilot",
-      "details": "The 1911 pub has a simulated WC, kitchen, energy, refrigeration and water, but not demonstrated fully code-compliant design.",
+      "title": "Pub utility and sanitary gameplay pilot",
+      "details": "The Merged Branch has modelled WC, kitchen, electricity, refrigeration and water systems; its construction date is UNKNOWN and compliance is not certified.",
       "category": "game-canon"
     },
     {

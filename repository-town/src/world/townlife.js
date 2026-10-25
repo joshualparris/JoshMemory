@@ -170,7 +170,7 @@ const BUILD = {
   pub(b) {
     b.box(0x7a4a3a, 14, 7, 11, 0, 3.5, 1.5); b.box(0x3a2a22, 14.6, 0.8, 11.6, 0, 7.4, 1.5);
     for (let f = 0; f < 2; f++) for (const x of [-4.5, -1.6, 1.6, 4.5]) if (!(f === 0 && Math.abs(x) < 2)) b.box(GLASS, 1.2, 1.4, 0.08, x, 1.6 + f * 3.1, 7.04);
-    // Brick quoins and cornice hint at a fictional Federation-era 1911 hotel.
+    // Brick quoins and cornice hint at a period-inspired fictional hotel with unknown construction date.
     for(const x of [-6.35,6.35])for(const y of [1.0,2.2,3.4,4.6,5.8])b.box(0xb47d61,.58,.22,.12,x,y,7.10);
     b.box(0xd4b391,14.2,.23,.18,0,6.6,7.10);
     b.box(0x2a1e18, 1.6, 2.5, 0.06, 0, 1.25, 7.04);
