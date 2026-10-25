@@ -2,7 +2,7 @@ import {PUB_SERVICE_EDGES} from './pub-standards.js';
 // Positions in the fictional interior scene. Boundary ports stand for yard/town assets;
 // these are schematic x-ray routes, never surveyed installation/clearance drawings.
 const P={
- 'town-gas':[-6.8,.1,-6],'gas-meter':[-6.6,.4,-6],ata:[-6.4,2,-6.4],'desk-phone':[1.8,1.3,-5.6],'mobile-carrier':[6.7,3.4,5.8],handset:[2,1.3,-5.6],'radio-transmitter':[-6.8,3.5,5.8],'radio-antenna':[-5.8,3.6,-2],radio:[-5.6,2.5,-2],'tv-transmitter':[6.8,3.5,5.8],'tv-aerial':[6.7,3.7,-1],television:[6.8,2.4,-1],'lpg-depot':[-6.8,.1,5.8],'delivery-truck':[-6.8,.1,-4],
+ 'town-gas':[-6.8,.1,-6],'gas-meter':[-6.6,.4,-6],ata:[-6.4,2,-6.4],'desk-phone':[1.8,1.3,-5.6],'mobile-carrier':[6.7,3.4,5.8],handset:[2,1.3,-5.6],'radio-transmitter':[-6.8,3.5,5.8],'radio-antenna':[-5.8,3.6,-2],radio:[-5.6,2.5,-2],'tv-transmitter':[6.8,3.5,5.8],'tv-aerial':[6.7,3.7,-1],television:[6.8,2.4,-3.6],'lpg-depot':[-6.8,.1,5.8],'delivery-truck':[-6.8,.1,-4],
  'kitchen-waste':[-4,.7,-8.2],'bar-recycling':[3,.4,-5.6],'general-bin':[6.7,.4,-9],'recycling-bin':[6.7,.4,-10],'collector':[6.8,.1,-11.5],
  'town-water':[-6.8,.2,-11.5],'water-meter':[-6.8,.4,-7.3],backflow:[-6.4,.4,-7.3],'water-isolator':[-6,.4,-7.3],
  wc:[6.28,.4,-11.1],wc2:[2.35,.4,-11.1],basin:[4.26,.8,-11.02],basin2:[3.15,.8,-10.2],prep:[-4.4,.9,-8.7],dishwasher:[-4.55,.5,-10.8],'bar-water':[1.4,1,-5.2],heater:[-6.8,1,-11.5],

@@ -1,4 +1,4 @@
-import {pubVenue,pubVenueTick} from './pub-venue.js';
+import {pubVenue,pubVenueTick,pubServiceEvent} from './pub-venue.js';
 import {pubConnected,pubFoodGate,pubStandards,pubStandardsAction,tickPubStandards} from './pub-standards.js';
 import {pubScenarioAdmission,PUB_PHYSICAL_PLAN_2026} from './pub-physical-plan-2026.js';
 // Fictional Merged Branch pilot. SI-derived units, not an as-built installation.
@@ -37,11 +37,11 @@ export function pubStatus(life) {
 }
 export function pubKitchenReady(life){
  const s=pubUtilities(life),p=pubStatus(life);
- return pubFoodGate(life)&&p.power&&p.water&&p.hot&&p.sewer&&p.cold&&!s.foodQuarantined&&s.extractionOn&&p.gas&&(life.civic.pubVenue?.gasSource==='natural'||s.lpgKg>=18/6/12.8)&&s.greaseKg<20&&s.binsKg<80;
+ return pubVenue(life).bar.cleanPlates>0&&pubVenue(life).services.length<128&&pubFoodGate(life)&&p.power&&p.water&&p.hot&&p.sewer&&p.cold&&!s.foodQuarantined&&s.extractionOn&&p.gas&&(life.civic.pubVenue?.gasSource==='natural'||s.lpgKg>=18/6/12.8)&&s.greaseKg<20&&s.binsKg<80;
 }
 export function tickPubUtilities(life,minutes) {
   if(!Number.isFinite(minutes)||minutes<=0)return;
-  const s=pubUtilities(life), d=PUB_DESIGN;tickPubStandards(life,minutes);pubVenueTick(life,minutes,pubStatus(life).power);
+  const s=pubUtilities(life), d=PUB_DESIGN;tickPubStandards(life,minutes);pubVenueTick(life,minutes,pubStatus(life).power,pubConnected(life,'water','town-water','dishwasher')&&pubConnected(life,'trade','dishwasher','town-sewer')&&pubConnected(life,'electricity','switchboard','dishwasher'));
   // Bounded substeps keep heating/UPS transitions stable during time acceleration.
   for(let m=0;m<minutes;m+=.5){const dt=Math.min(.5,minutes-m),h=dt/60,p=pubStatus(life);
     if(p.water&&pubConnected(life,'water','town-water','wc')){const refill=Math.min(d.cisternL-s.cisternL,d.refillLmin*dt);s.cisternL+=refill;s.waterL+=refill;}
@@ -99,7 +99,7 @@ export function pubAction(life,action){
   if(action==='meal'){
     const kg=d.burnerKW*(10/60)/d.lpgKWhKg;
     if(!pubKitchenReady(life))return record(s,'Kitchen unavailable: check power/extraction, water, hot water, cold room, LPG, drains, grease and waste capacity.');
-    if(pubVenue(life).gasSource==='natural')pubVenue(life).gasM3+=d.burnerKW*(10/60)/10.83;else{s.lpgKg-=kg;s.gasKg+=kg;}s.waterL+=8;s.tradeWasteL+=8;s.greaseKg+=.08;s.binsKg+=.3;s.recyclingKg+=.05;s.oilL+=.03;s.meals++;s.hotC=18+(s.hotC-18)*152/160;
+    if(pubVenue(life).gasSource==='natural')pubVenue(life).gasM3+=d.burnerKW*(10/60)/10.83;else{s.lpgKg-=kg;s.gasKg+=kg;}s.waterL+=8;s.tradeWasteL+=8;s.greaseKg+=.08;s.binsKg+=.3;s.recyclingKg+=.05;s.oilL+=.03;s.meals++;const bar=pubVenue(life).bar;bar.cleanPlates--;bar.inUsePlates++;pubServiceEvent(life,'meal');s.hotC=18+(s.hotC-18)*152/160;
     return record(s,'One demonstration meal prepared: selected fuel consumed, extraction powered, wash-up routed through grease arrestor. Not a stock purchase or food-safety certification.');
   }
   if(action==='glass'){

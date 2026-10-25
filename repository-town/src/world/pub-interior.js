@@ -1,3 +1,4 @@
+import {installPubPresentation} from './pub-presentation.js';
 import {pubServiceLayers} from './pub-service-visuals.js';
 import {addPubPlant} from './pub-plant.js';
 import {pubStandards} from './pub-standards.js';
@@ -22,8 +23,8 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
   const doors = [], sight = [], fans=[];
   // Match the existing interior door animator. Leaf closes when away from its threshold.
   const door = (id, x0, x1, z) => {
-    const width=x1-x0-(id==='pub:rear-fire-exit'?.11:0), hinge=new THREE.Group(); hinge.name=id;
-    const right=id==='pub:cold-room-door';hinge.position.set(right?x1:x0+(id==='pub:rear-fire-exit'?.055:0),0,z);
+    const width=x1-x0-.11, hinge=new THREE.Group(); hinge.name=id;
+    const right=id==='pub:cold-room-door';hinge.position.set(right?x1-.055:x0+.055,0,z);
     const leaf=new THREE.Mesh(new THREE.BoxGeometry(width-.04,2.36,.08),new THREE.MeshLambertMaterial({color:0x56635b}));
     leaf.position.set((right?-1:1)*width/2,1.18,0); hinge.add(leaf);
     for(const dz of [-.08,.08]){const handle=new THREE.Mesh(new THREE.BoxGeometry(.22,.04,.04),new THREE.MeshLambertMaterial({color:0xc4c8cc}));handle.position.set((right?-1:1)*(width-.2),1,dz);hinge.add(handle);}
@@ -216,7 +217,9 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
   add('pool','Play pool','pub-pool','Two-player physics pool: aim, shot power, cushions, pockets and house-rule fouls.',2.5,-.8);
   add('keno','Keno terminal','pub-keno','Free numbers demonstration; no stakes, prizes or real operator.',5.6,-3.6);
   addPubPlant(k,site);
+  const servicePresentation=installPubPresentation(k);
   const interior = k.finish({ doors, sight, utilityVisuals, staff: { pos: PUB_LAYOUT.staff, use: PUB_LAYOUT.staffUse } });
+  interior.attachPubStaff=servicePresentation.attach;interior.afterPeople=servicePresentation.update;
   interior.physicalPlan=PUB_PHYSICAL_PLAN_2026;
   interior.fireEgressDesign=pubExitLayout();
   interior.rearExitZone={x0:-1.05,x1:1.05,z0:BACK-.8,z1:BACK+1.15,dischargeVerified:false};

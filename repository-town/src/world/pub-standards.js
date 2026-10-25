@@ -8,7 +8,7 @@ export const PUB_SERVICE_EDGES = Object.freeze([
  ['trade','prep','grease-arrestor'],['trade','dishwasher','grease-arrestor'],['trade','grease-arrestor','trade-lateral'],['trade','trade-lateral','town-sewer'],
  ['stormwater','roof','gutters'],['stormwater','gutters','downpipes'],['stormwater','downpipes','storm-outlet'],
  ['gas','town-gas','gas-meter'],['gas','gas-meter','regulator'],['gas','lpg-store','regulator'],['gas','regulator','gas-isolator'],['gas','gas-isolator','cooker'],
- ...['cooker','heater','cold-room','lights','network','television','radio'].map(id=>['electricity','switchboard',id]),
+ ...['cooker','heater','cold-room','lights','network','television','radio','dishwasher'].map(id=>['electricity','switchboard',id]),
  ['internet','carrier','network'],['internet','network','eftpos'],
  ['telephone','network','ata'],['telephone','ata','desk-phone'],['mobile','mobile-carrier','handset'],['radio','radio-transmitter','radio-antenna'],['radio','radio-antenna','radio'],['television','tv-transmitter','tv-aerial'],['television','tv-aerial','television'],['fuel','lpg-depot','delivery-truck'],['fuel','delivery-truck','lpg-store'],
  ['waste','kitchen-waste','general-bin'],['waste','bar-recycling','recycling-bin'],['waste','general-bin','collector'],['waste','recycling-bin','collector']

@@ -398,6 +398,7 @@ async function start() {
     built.workplay=installWorkplay(built,site,makeLabel,life,{openPanel,closePanel,status,sound:kind=>ambience.work(kind),getVisitors:()=>inside?.visitors?.entries});
     if(site.id==='bakery')built.bakeryImmersion=installBakeryImmersion(built,life,camera,makeLabel);
     const staff=populateShopStaff(site,life,built,makeLabel);
+    built.attachPubStaff?.(staff);
     const brief={coordinate:site.col+'8',name:site.name,kind:site.kind,
       street:'High Street',summary:'Explore the shop interior and speak to staff.'};
     const ex=built.exitZone;
@@ -1196,6 +1197,7 @@ async function start() {
         // Shop patrons are synchronised with the authoritative town economy
         // above; they have their own movement and seated animation.
         for (const p of inside.people || []) if(!p.key?.startsWith('visitor:'))p.update(dt,t,player,p.plan);
+        inside.afterPeople?.(life,dt,t);
         if (cardTimer > 0 && (cardTimer -= dt) <= 0) $('card').hidden = true;
         // A single short label may identify the object directly ahead;
         // all room, employee, shelf and distant station labels stay quiet.
