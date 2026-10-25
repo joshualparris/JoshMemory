@@ -31,6 +31,8 @@ export function attendPublicForum(t,v){
   if(t.day%2!==0||t.minute<17*60+45||t.minute>=21*60||t.minute<v.end||
      v.doneToday?.forum||v.job==='student'||t.day>=t.civic.electionDay)return false;
   const state=initialisePublicLife(t),profile=state.profiles[String(v.id)];
+  // An opted-out resident keeps that choice even when elected to a civic role.
+  if(profile.temperament==='avoids')return false;
   const role=civicRole(t,v);
   const attend=role?(hash('representative',t.day,v.id)%5!==0):
     profile.temperament!=='avoids'&&

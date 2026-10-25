@@ -184,8 +184,8 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
   const rearEmergency=new THREE.PointLight(0xe5f0ff,0,12,1.5);rearEmergency.position.set(0,2.9,-9.7);rearEmergency.name='pub:rear-emergency-light';group.add(rearEmergency);
   text('Free drinking water · ask at bar',1.1,1.7,CZ+.2);
   add('water-point','Free drinking water','pub-utilities','Potable water availability follows the water isolation valve.',1.4,-4.4);
-  add('fire-safety','Fire equipment and evacuation','info','Fictional venue: stop service, use a clear available exit. Front and rear openings are modelled; rear external discharge, compliant travel distance, required fire systems, emergency lights and final assembly remain UNVERIFIED.',-3.4,-3.0);
-  add('rear-egress','Rear exit to service yard','pub-rear-exit','Rear outward discharge has NOT been tested against adjacent site lot, exit rules or fire schedule. Visual rear door is a provisional design only.',0,-10.6);
+  add('fire-safety','Fire equipment and evacuation','info','Fictional venue: stop service, use a clear available exit. Front and rear openings are modelled; the rear game route leads via the service yard to the street. Approved travel distances, required fire systems, lux design and real-world discharge rights remain UNVERIFIED.',-3.4,-3.0);
+  add('rear-egress','Rear exit to service yard','pub-rear-exit','Leave through the rear landing and paved side route to the street. Game collision clearance is tested; legal boundaries, exit rules and fire schedule require independent assessment.',0,-10.6);
   add('access','Access route and sanitary review','info','A step-free interior route, larger WC enclosure, rails and 1.4 m design doorway are modelled. External grade, turning envelope, transfer side, hardware and NCC/AS 1428.1 compliance remain UNVERIFIED.',5.4,-8.3);
   add('capacity','Operational capacity · provisional','info','Scenario only: 24 patrons plus three workers. NOT an approved occupancy limit; exact sanitary fixture numbers and egress widths must be determined by a qualified designer.',5.3,4.1);
   // Diagrammatic service routes deliberately shown above head height; not surveyed pipe positions.
@@ -214,7 +214,7 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
   add('counter', 'Bar', 'civic-ledger', 'Pull up a stool. Order a meal or a drink at the bar, or open the Town Ledger.', PUB_LAYOUT.staffUse.x, PUB_LAYOUT.staffUse.z);
   add('taps', 'Beer taps', 'info', 'Four taps and a fridge of bottles. Licensed hours run from eleven in the morning to late; the publican serves responsibly.', -2.4, -4.4);
   add('menu', 'Menu board', 'info', 'Chicken parmi, the roast of the day and a pie with chips. The kitchen uses beef, chicken and vegies delivered from the farms and the butcher.', -5.4, 3.9);
-  add('lounge', 'Lounge and fire', 'info', 'Leather chairs round a fireplace for a long yarn after work.', -3.2, -1.5);
+  add('lounge', 'Lounge and fire', 'info', 'Leather chairs around a decorative electric hearth for a long yarn after work.', -3.2, -1.5);
   add('pool', 'Pool table', 'info', 'A pool table, a dartboard and a keno screen: the Friday night regulars treat the room as their own.', 3.2, -3.4);
   addPubPlant(k,site);
   const interior = k.finish({ doors, sight, utilityVisuals, staff: { pos: PUB_LAYOUT.staff, use: PUB_LAYOUT.staffUse } });

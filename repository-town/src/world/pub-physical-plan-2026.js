@@ -16,7 +16,7 @@ export const PUB_PHYSICAL_PLAN_2026 = Object.freeze({
   doorClearOpeningDesignM:1.4,pan:Object.freeze({x:6.28,z:-11.1}),
   basin:Object.freeze({x:4.26,z:-11.02}),ambulantFacilityVerified:false,
   accessibleCirculationVerified:false,actualRequiredWCCount:null,genderProvisionVerified:false}),
- fire:Object.freeze({frontAndRearSignsRepresented:true,twoEmergencyLuminaires:true,fireScheduleApproved:false,
+ fire:Object.freeze({frontAndRearSignsRepresented:true,twoEmergencyLuminaires:true,modelledEmergencyLuminaireCount:4,gameDischargeCollisionTested:true,fireScheduleApproved:false,
   rearExitDischargeVerified:false,detectorDesignVerified:false,fireHydrantSprinklerNeedDetermined:false})
 });
 export function pubScenarioAdmission(current,entering=1){

@@ -13,7 +13,7 @@
     "repository-town/src/world/interior-kit.js": "11d8811894b461040693efe5b63790cacd7811d7",
     "repository-town/src/world/life.js": "233888a4f87b5ca9a6e2dd186fa2a220db7d58bd",
     "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2",
-    "repository-town/src/world/pub-interior.js": "99c24795fcd252d9a5c6e3f86da2b694e0aed854",
+    "repository-town/src/world/pub-interior.js": "3fd00e46e1f5345a540f9e991a9431763c11ba2a",
     "repository-town/src/world/shop-interior.js": "e2282db1927b79dd5e8a89a970a03e90b676dcf0",
     "repository-town/src/world/townlife.js": "efb7a874030e7dae5e2fdb0889854a799dd7e56d",
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
@@ -21,11 +21,11 @@
     "repository-town/src/world/pub-envelope.js": "3c994f3d469a1e86b856d23c52f9e954c17a3b95",
     "repository-town/src/main.js": "e28c97464097d948f6abccfefc1f052204da6160",
     "repository-town/src/world/pub-service-visuals.js": "250e1c65e7022bf98051f46dd908b263caacc5bd",
-    "repository-town/src/world/pub-physical-plan-2026.js": "0f0e5064f3698becb2ea3b3bd1360471a61f7b4c",
+    "repository-town/src/world/pub-physical-plan-2026.js": "883ac78e5be55f79f77387068563743edb272c4a",
     "repository-town/src/ui/pub-standards-panel.js": "3f62dd87f5dbf48b6a500135344a880f656bf3ea",
     "repository-town/src/world/pub-utilities.js": "198dd0ef6fb03840d33aacd4c78da8ed900a6a58",
     "repository-town/src/world/pub-standards.js": "fc4144f1db60fb71a49ea7517685e3650fbd1696",
-    "repository-town/src/world/pub-plant.js": "89fdb541450dd0d2eeb6c0300cd8f88a909d3de7"
+    "repository-town/src/world/pub-plant.js": "fdaf8c6fcc2394c84bf8e5670f2d4537e826bd0d"
   },
   "sources": {
     "S01": {

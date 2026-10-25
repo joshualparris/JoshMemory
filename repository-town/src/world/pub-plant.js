@@ -17,6 +17,10 @@ export function addPubPlant(k,site){
  for(const [name,x,z,color] of [['potable meter',-2.4,-9.9,0x38baff],['backflow',-2.1,-9.9,0x38baff],['sanitary inspection',6,-9.5,0xb07949],['trade waste outlet',-4.8,-11.4,0xb07949]]){
   const m=box(.22,.12,.22,x,.08,z,color);m.name='pub:'+name;
  }
+ // Detection/manual alarm representations share the persistent operational fault state.
+ for(const [x,z] of [[0,1],[-5.5,-8]]){const m=cyl(.15,.15,.04,x,3.64,z,0xe8e5dc);m.name='pub:detector:'+x;}
+ box(.18,.22,.06,-1.5,1.1,5.75,0xc53529).name='pub:manual-alarm';
+ box(1.75,.06,.08,0,1,-11.9,steel).name='pub:panic-hardware';
  // Readable operating/safety displays, no invented real permit numbers.
  text('No smoking · free drinking water · RSA',2.1,2.7,-5.7);
  add('operations','Safety, food handling and approvals','pub-standards','Inspect operating systems and simulated inspection history.',2.4,-3.5);
@@ -30,6 +34,8 @@ export function addPubExteriorServices(b){
  // Nominal plot has 6 m each side; keep central rear discharge and frontage clear.
  b.box(0x666e72,1.6,.25,1.5,-9,.13,-7.2); // bunded service pad
  for(const x of [-9.4,-8.6])b.cyl(0xcbd0d2,.25,1.3,x,.8,-7.2);
+ b.box(0x9c6c4f,.28,.3,.2,-9,1.25,-6.8); // regulator/valve schematic
+ b.box(0x697780,1,.25,.35,-6.5,3.1,-6.2); // make-up-air intake representation
  b.box(0x3f514d,2,.9,1.5,-9,.45,-10); // outdoor grease-arrestor access cover enclosure
  b.box(0x4c5c4a,1.2,1.2,.8,10,.6,-8.5); // pest-resistant lidded bin store
  b.box(0x39704f,1.2,1.2,.8,10,.6,-10);
