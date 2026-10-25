@@ -77,10 +77,31 @@ export function upgradePropertyAddresses(life) {
     const deed=deeds[propertyKey('house',h.coordinate)]; if(!deed)continue;
     deed.address=houseAddress(h.coordinate);deed.legacyAddress=h.coordinate;
     deed.name=deed.address+' · '+h.name;
+    // Old saves predate married households: add secondary occupants without
+    // changing the legal primary tenant or title owner.
+    const residents=life.villagers.filter(v=>v.home.coordinate===h.coordinate).map(v=>v.name);
+    if(!Array.isArray(deed.occupants))
+      deed.occupants=deed.tenant==='visitor'?['visitor']:deed.tenant?residents:[];
+    if(!Array.isArray(deed.jointOwners))
+      deed.jointOwners=typeof deed.owner==='string'&&deed.owner.startsWith('resident:')?residents:[];
   }
-  for(const p of life.places.values()) {
-    const deed=deeds[propertyKey('business',p.id)];if(!deed)continue;
-    deed.address=placeAddress(p);deed.legacyAddress=(p.side==='south'?'South ':'')+p.col+'8';
+  for(const p of life.places.values()){
+    const id=propertyKey('business',p.id);
+    let deed=deeds[id];
+    if(!deed && p.expansion){
+      // Existing v1 saves know only the original 46 premises. Add 2026
+      // infill property records without resetting savings, land titles or leases.
+      const isPublic=publicSites.has(p.id);
+      deed={id,name:'',kind:'commercial',address:'',legacyAddress:'',
+        owner:isPublic?'Town Council':'High Street Property Trust',
+        tenant:isPublic?'Public service':p.name,occupied:true,
+        occupants:[],jointOwners:[],value:9500,rent:isPublic?0:22,
+        listed:false,protected:isPublic,condition:80};
+      deeds[id]=deed;
+    }
+    if(!deed)continue;
+    deed.address=placeAddress(p);
+    deed.legacyAddress=p.side==='north'?deed.address:(p.side==='south'?'South ':'')+p.col+'8';
     deed.name=deed.address+' · '+p.name;
   }
 }
