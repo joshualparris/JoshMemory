@@ -3,6 +3,7 @@ import { companionKnowledge } from './companion-knowledge.mjs';
 import fs from 'node:fs';
 import zlib from 'node:zlib';
 import { mergeDiscovery } from './merge-discovery.mjs';
+import { publicHeritageHouse } from './heritage-houses.mjs';
 import { stampRelease } from './release-manifest.mjs';
 import path from 'node:path';
 import { TOWN, loadBriefs, loadInventory, loadRepoData, validate, sanitise, redactPrivate } from './lib.mjs';
@@ -40,7 +41,7 @@ for (const target of ['public', 'private']) {
   fs.cpSync(path.join(TOWN, 'src'), out, { recursive: true });
   fs.writeFileSync(path.join(out,'companion-knowledge.json'),JSON.stringify(companionKnowledge(TOWN)));
   fs.cpSync(path.join(TOWN, 'vendor'), path.join(out, 'vendor'), { recursive: true });
-  const list = (target === 'public' ? houses.map(sanitise) : houses).map(mergeDiscovery);
+  const list = (target === 'public' ? houses.map(sanitise) : houses).map(mergeDiscovery).map(h => target === 'public' ? publicHeritageHouse(h) : h);
   // The public archive carries public repositories only.
   // Public READMEs that link to a private repository get that link redacted.
   const archive = Object.fromEntries(Object.entries(repoData).filter(([repo]) => target === 'private' || inventory.projects.some((p) => p.repo === repo && p.visibility === 'public')));
