@@ -1,7 +1,7 @@
 # Whole-town utilities implementation plan
 PUBLIC project engineering plan. 25 October 2026. Canonical source: JoshMemory/repository-town.
-Status: RTU-001 source/runtime audit complete; no new utility runtime deployed. See [audit evidence](RTU_001_ELECTRICAL_AUDIT.md).
-Execution order is the numbered order below; IDs are permanent. Next: RTU-002, then RTU-003.
+Status: RTU-001 baseline plus RTU-003/004/005 synthetic, routed 234-site electrical design complete; **the new network is not yet energised or visible in runtime**. See [audit evidence](RTU_001_ELECTRICAL_AUDIT.md).
+Execution order and IDs are permanent. RTU-003/004/005 design implementation is now independently complete and validated; RTU-002 is still open for multi-utility research and RTU-006/007/011/012 are next for gameplay wiring.
 Preserve existing power-grid tests, economy, saves, lighting circuits and other agents' claims.
 
 ## Baseline audit (RTU-001 completed)
@@ -29,9 +29,9 @@ Gas: choose documented fictional town reticulation or LPG deliveries per propert
 Each task is open unless explicitly checked with evidence. Reserve file paths on COORDINATION before code changes.
 - [x] RTU-001 Audit full current runtime, all building sources, utility consumers, saves, overlays and existing tests; publish reproducible coverage/gaps. COMPLETE: [234-location source/runtime audit](RTU_001_ELECTRICAL_AUDIT.md), generator and validation evidence.
 - [ ] RTU-002 Finish sourced comparison of at least three simulation games and NSW electricity/water/sewer/gas practices; annotate deliberate simplifications and exact equipment datasheets.
-- [ ] RTU-003 Generate authoritative building service registry from actual house/civic/farm inventories, stable IDs and coordinates; every building has connected/not-required/off-grid status with reason. Gate missing/duplicate/orphan IDs.
-- [ ] RTU-004 Specify versioned common network schema: nodes, routed edges, capacities, units, assets, conditions, isolation, service meters; pure validator and invalid fixtures.
-- [ ] RTU-005 Choose and document town intake location and external generation scenario, MV voltage/feeder routes, transformers and LV circuits; prove every required building has a path. No hydro without hydrology.
+- [x] RTU-003 Generate authoritative building service registry from actual house/civic/farm inventories, stable IDs and coordinates; every building has connected/not-required/off-grid status with reason. Gate missing/duplicate/orphan IDs. **COMPLETE (DESIGN):** 234 audited H:/B: sites, 233 independently metered and switchboard-connected, one open park not requiring a premises meter; stable positions and phase labels, including the 89 unoccupied house lots. [Generator and acceptance](RTU_003_005_ELECTRICAL_BACKBONE.md). **Not yet wired to live appliances (RTU-012).**
+- [x] RTU-004 Specify versioned common network schema: nodes, routed edges, capacities, units, assets, conditions, isolation, service meters; pure validator and invalid fixtures. **COMPLETE:** source-controlled typed version-1 reusable water/wastewater/gas/electricity radial graph contract, domain voltage validators and invalid-fixture tests. [Schema and checks](../src/world/utility-network-schema.js). Non-radial utilities need an explicit future version.
+- [x] RTU-005 Choose and document town intake location and external generation scenario, MV voltage/feeder routes, transformers and LV circuits; prove every required building has a path. No hydro without hydrology. **COMPLETE (SYNTHETIC PHYSICAL DESIGN):** off-map 66kV external supply; power-station 66/22kV intake, two 22kV town feeders on existing roads, 39 street/dedicated 22/0.4kV transformers and property-level LV meter routes. Every intended building has an independently tested source path. [Routed design snapshot](../audit/electricity/design-network-v1.json) · [acceptance and caveats](RTU_003_005_ELECTRICAL_BACKBONE.md). **Not yet rendered or in the live game's dispatch (RTU-006/007/011/012).**
 - [ ] RTU-006 Replace grouped demand with per-building time/use/occupancy profiles and declared peak/diversity assumptions; preserve legacy adapter until migration verified.
 - [ ] RTU-007 Implement deterministic electrical dispatch, imports/export, edge/transformer limits, losses and unmet demand; reconcile energy each timestep. Document simplified voltage-drop model.
 - [ ] RTU-008 Add exact sourced equipment catalogue: modules/inverters/batteries, conductors, transformers, switchgear/meters; retain source URLs, variant, units and uncertainty. Ratings must match installation assumptions.
@@ -81,7 +81,7 @@ The separate [NSWutilities water engineering architecture](https://github.com/jo
 No RTU task numbers or existing checkboxes are altered. **RTU-019…024 remain open until code, property-level pipe/sewer connection, hydraulics caveats, failing/recovering scenes, integration tests and game playtests are verified.** Standalone NSWutilities reference engine does not constitute Repository Town deployment.
 
 ## Handover
-Next concrete action: RTU-002 primary-source and open-code comparison, then RTU-003 operational per-building service registry using the RTU-001 audit. No runtime files modified here; no deployment required for documentation. Existing RTD/RTN/RLT IDs remain unchanged.
+Next concrete action: keep RTU-002 multi-utility sourcing open as distinct research; implement RTU-006/007 per-property time-varying electrical demand and realistic dispatch into the RTU-003/004/005 schema, then RTU-011/012 network geometry and appliance wiring, with targeted Railway Hotel/pub outage playtesting. The design is pushed as code and validated in CI, **not yet publicly deployed gameplay**. Existing RTD/RTN/RLT IDs remain unchanged.
 
 ## System designations and sewerage children
 
