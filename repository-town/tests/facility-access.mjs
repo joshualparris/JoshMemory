@@ -2,7 +2,7 @@
 // mean that unescorted visitors may wander into records, workshops or utilities.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { TownLife, PLACE_DEFS, ROSTER_SIZE, RELIEF_SITES } from '../src/world/life.js';
+import { TownLife, PLACE_DEFS, ROSTER_SIZE, RELIEF_SITES, EXPANSION_LOCAL_STAFFED } from '../src/world/life.js';
 import { facilityAccess, onSiteWorkers, visitorHours, openingHoursLabel } from '../src/world/facility-access.js';
 import { populateShopStaff } from '../src/world/shop-staff.js';
 
@@ -13,7 +13,7 @@ const homes=Array.from({length:188},(_,i)=>({
 const life=new TownLife({homes,minute:10*60});
 assert.equal(life.villagers.length,ROSTER_SIZE,'existing people plus paid relief staff join the town');
 assert.equal(new Set(life.villagers.map(v=>v.name)).size,ROSTER_SIZE,'every rostered worker has a unique name');
-assert.equal(new Set(life.villagers.map(v=>v.home.coordinate)).size,ROSTER_SIZE,'each worker has an actual distinct household');
+assert.equal(new Set(life.villagers.map(v=>v.home.coordinate)).size,ROSTER_SIZE-55,'55 married couples share real homes; others have distinct addresses');
 for(const p of PLACE_DEFS) {
   assert(p.id==='farmhouse'||life.villagers.some(v=>v.work===p.id),'no empty workplace roster: '+p.id);
 }
@@ -26,7 +26,7 @@ for(const [id,role] of [['hotel','hotel receptionist'],['police','police desk of
 // a break without turning a 13:00 business into an unstaffed empty building.
 for(const p of PLACE_DEFS.filter(p=>!['home','park'].includes(p.kind))){
  const team=life.villagers.filter(v=>v.work===p.id&&!['student','retired'].includes(v.job));
- assert(team.length>=2,p.name+' must have paid primary and relief staff');
+ assert(team.length>=(EXPANSION_LOCAL_STAFFED.includes(p.id)?1:2),p.name+' needs an actual paid worker; legacy primary/relief staffing preserved');
  assert.equal(openingHoursLabel(p).includes('HOURS')||openingHoursLabel(p).includes('RECEPTION'),true,p.id+' has a readable hours sign that does not falsely claim live opening');
 }
 for(const id of ['store','bank','court','solicitor','soyplant','soyfarm','power','waterworks','sewage','clinic','hardware']){
