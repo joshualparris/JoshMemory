@@ -53,3 +53,7 @@ This is a computer-game design. EPANET is appropriate for independent *water hyd
 - https://www.nsw.gov.au/housing-and-construction/compliance-and-regulation/plumbers-and-drainers/standards-and-notes
 - https://www.epa.gov/water-research/epanet
 - https://www.epa.gov/water-research/storm-water-management-model-swmm
+
+## Coordinated sewer ownership
+
+The detailed [RTSW research](https://github.com/joshualparris/NSWutilities/blob/main/docs/SEWERAGE_RESEARCH_2026-10-25.md) and [RTSW queue](https://github.com/joshualparris/NSWutilities/blob/main/docs/SEWERAGE_TASKS.md) **supersede this brief for sewer-engine implementation detail**. RTSW uses Narromine as the focused sanitary treatment reference; the present document uses Dubbo for the source-to-tap and municipal utility context. Assign RTU-022–024 implementation only once, via RTSW ownership and COORDINATION. The NSW-WAT synthetic aggregate `sewageGeneratedL` must be switched off when real fixture-event driven sewer ledger arrives. No phantom double sanitary flow from the legacy `floor(got*0.8)`.

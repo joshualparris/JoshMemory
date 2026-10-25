@@ -35,3 +35,7 @@ Detailed research and algorithms live in NSWutilities:
 | RTU-029/030 | NSW-WAT-025…030 | Cross-fault, persistence, whole-town acceptance, real hosted playtest |
 
 **Status:** RTU-019 to RTU-024 remain OPEN. Source audit and inventory are prerequisite evidence, NOT evidence that those gameplay tasks have been implemented. The new water reference tests are in a different repository and cannot be substituted for Repository Town integrated tests.
+
+## Reconciliation with concurrent RTSW sewerage research
+
+NSWutilities concurrently includes [Narromine-focused sewerage research](https://github.com/joshualparris/NSWutilities/blob/main/docs/SEWERAGE_RESEARCH_2026-10-25.md), [RTSW-001–028 implementation queue](https://github.com/joshualparris/NSWutilities/blob/main/docs/SEWERAGE_TASKS.md), and [RT-SYS-001–016 system register](https://github.com/joshualparris/NSWutilities/blob/main/docs/UTILITY_SYSTEM_REGISTER.md). These are **complementary, not duplicate assignments**: **Dubbo** is the drinking-water/combined utility documentary analogue; **Narromine** is the provisional sanitary-system operating comparator. Never combine their real data into one purported real network. The RTSW tasks own sewer-specific runtime (toilets, sanitary pipes, gravity grades, sewage pumps and plant). NSW-WAT tasks specify shared water-supply data and interface constraints; RTU-022–024 remain the original town parent numbers. Existing 234 records are **location candidates**, not fixture counts. Next RTSW-003 must count fixtures/property modes before installing pipes.
