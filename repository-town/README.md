@@ -181,7 +181,7 @@ For tasks collected from all twenty agents, use [the portfolio master triage](..
 
 ## Electrical baseline audit — RTU-001
 
-[Completed source/runtime audit](docs/RTU_001_ELECTRICAL_AUDIT.md): all 234 registered locations, per-property coverage CSV, deterministic probes and confirmed demand/lighting/save gaps. Reproduce with `node tools/audit-electricity.mjs --check`. This audit adds no electrical gameplay feature; RTU-002 research and RTU-003 service registry are next. See [whole-town utility plan](docs/UTILITIES_MASTERPLAN_2026-10-25.md).
+[Completed source/runtime audit](docs/RTU_001_ELECTRICAL_AUDIT.md): all 234 registered locations, per-property coverage CSV, deterministic probes and confirmed demand/lighting/save gaps. Reproduce with `node tools/audit-electricity.mjs --check`. RTU-001's baseline alone added no gameplay, but [RTU-003/004/005](docs/RTU_003_005_ELECTRICAL_BACKBONE.md) now provides the 234-site designed utility network. A subsequent [16-property live-game electrical pilot](docs/RTU_006_013_PUB_ELECTRICAL_PILOT.md) implements independent meters, 3D wiring, selectable rooftop solar/battery, hotel/pub/shop/household outages, realistic illustrative load profiles and responsive appliances. **⚡ Grid** is the in-game inspector. [Isolated playable QA site](https://parris-tech-services.github.io/Repository-town-playtest/qa/electric-grid-20261025/) has distinct browser storage, and is NOT production. RTU-006/007/011/012/013 remain OPEN for full-town expansion; RTU-002 research remains separate. See [whole-town utility plan](docs/UTILITIES_MASTERPLAN_2026-10-25.md).
 
 ## Utility system IDs and sewerage research
 
