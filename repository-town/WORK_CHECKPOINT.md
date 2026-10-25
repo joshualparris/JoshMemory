@@ -347,3 +347,7 @@ Next: if promoting this code to **production**, preserve and verify save-export/
 - Canonical [scoped action index](docs/NEXT_ACTION_TRIAGE.md) verified on **merged main**: 22 sequential triage positions, **22 unique IDs**, first `AUDIO-013.02`, last `RTA-007`, zero missing registered IDs. Two newly allocated permanent `RTM-001/002` in [stable registry](docs/UNNUMBERED_TODO_IDS_2026-10-24.md); original RTD/AUDIO/RTR/RTA/TASK IDs and checkboxes unmodified.
 - Both root central `docs/OUTSTANDING_WORK_2026-10-24.md` and Town README link this scoped QA queue. Separate after-RTD-009 implementation triage remains independent, so the scoped starting step must **not** override global RTD-010 ownership.
 - This work is **documentation/numbering only**. No new runtime implementation, production deployment or physical Android test claimed; the broader TASK-034/TASK-040 acceptance remains open.
+
+
+## Pub utilities start — 2026-10-25
+RTPUB-001–008; owner Codex; branch feat/pub-utilities-20261025; baseline 59139c4. Audit decorative pub, implement fictional connected building systems with explicit assumptions, regression and browser verification. No completion claims yet.
