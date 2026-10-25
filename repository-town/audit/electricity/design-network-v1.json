@@ -10649,7 +10649,7 @@
       "condition": "design_available",
       "primaryKv": 22,
       "secondaryKv": 0.4,
-      "ratedKva": 100,
+      "ratedKva": 160,
       "diversifiedDesignKva": 72.25,
       "connectedDesignKva": 85,
       "siteCount": 1,
@@ -10729,7 +10729,7 @@
       "condition": "design_available",
       "primaryKv": 22,
       "secondaryKv": 0.4,
-      "ratedKva": 160,
+      "ratedKva": 315,
       "diversifiedDesignKva": 117,
       "connectedDesignKva": 180,
       "siteCount": 1,
@@ -10809,7 +10809,7 @@
       "condition": "design_available",
       "primaryKv": 22,
       "secondaryKv": 0.4,
-      "ratedKva": 100,
+      "ratedKva": 160,
       "diversifiedDesignKva": 65,
       "connectedDesignKva": 100,
       "siteCount": 1,
@@ -10969,7 +10969,7 @@
       "condition": "design_available",
       "primaryKv": 22,
       "secondaryKv": 0.4,
-      "ratedKva": 160,
+      "ratedKva": 315,
       "diversifiedDesignKva": 97.5,
       "connectedDesignKva": 150,
       "siteCount": 1,
@@ -11049,7 +11049,7 @@
       "condition": "design_available",
       "primaryKv": 22,
       "secondaryKv": 0.4,
-      "ratedKva": 100,
+      "ratedKva": 160,
       "diversifiedDesignKva": 58.5,
       "connectedDesignKva": 90,
       "siteCount": 1,
@@ -35476,10 +35476,10 @@
       "isolationState": "closed",
       "assetType": "distribution_transformer_primary",
       "capacity": {
-        "value": 100,
+        "value": 160,
         "unit": "kVA"
       },
-      "ratedKva": 100,
+      "ratedKva": 160,
       "feederId": "MV-EAST"
     },
     {
@@ -35503,10 +35503,10 @@
       "isolationState": "closed",
       "assetType": "transformer_secondary",
       "capacity": {
-        "value": 100,
+        "value": 160,
         "unit": "kVA"
       },
-      "ratedKva": 100
+      "ratedKva": 160
     },
     {
       "id": "LV-MAIN:B:clinic",
@@ -35645,10 +35645,10 @@
       "isolationState": "closed",
       "assetType": "distribution_transformer_primary",
       "capacity": {
-        "value": 160,
+        "value": 315,
         "unit": "kVA"
       },
-      "ratedKva": 160,
+      "ratedKva": 315,
       "feederId": "MV-EAST"
     },
     {
@@ -35672,10 +35672,10 @@
       "isolationState": "closed",
       "assetType": "transformer_secondary",
       "capacity": {
-        "value": 160,
+        "value": 315,
         "unit": "kVA"
       },
-      "ratedKva": 160
+      "ratedKva": 315
     },
     {
       "id": "LV-MAIN:B:foundry",
@@ -35814,10 +35814,10 @@
       "isolationState": "closed",
       "assetType": "distribution_transformer_primary",
       "capacity": {
-        "value": 100,
+        "value": 160,
         "unit": "kVA"
       },
-      "ratedKva": 100,
+      "ratedKva": 160,
       "feederId": "MV-EAST"
     },
     {
@@ -35841,10 +35841,10 @@
       "isolationState": "closed",
       "assetType": "transformer_secondary",
       "capacity": {
-        "value": 100,
+        "value": 160,
         "unit": "kVA"
       },
-      "ratedKva": 100
+      "ratedKva": 160
     },
     {
       "id": "LV-MAIN:B:mill",
@@ -36152,10 +36152,10 @@
       "isolationState": "closed",
       "assetType": "distribution_transformer_primary",
       "capacity": {
-        "value": 160,
+        "value": 315,
         "unit": "kVA"
       },
-      "ratedKva": 160,
+      "ratedKva": 315,
       "feederId": "MV-WEST"
     },
     {
@@ -36179,10 +36179,10 @@
       "isolationState": "closed",
       "assetType": "transformer_secondary",
       "capacity": {
-        "value": 160,
+        "value": 315,
         "unit": "kVA"
       },
-      "ratedKva": 160
+      "ratedKva": 315
     },
     {
       "id": "LV-MAIN:B:soyplant",
@@ -36321,10 +36321,10 @@
       "isolationState": "closed",
       "assetType": "distribution_transformer_primary",
       "capacity": {
-        "value": 100,
+        "value": 160,
         "unit": "kVA"
       },
-      "ratedKva": 100,
+      "ratedKva": 160,
       "feederId": "MV-EAST"
     },
     {
@@ -36348,10 +36348,10 @@
       "isolationState": "closed",
       "assetType": "transformer_secondary",
       "capacity": {
-        "value": 100,
+        "value": 160,
         "unit": "kVA"
       },
-      "ratedKva": 100
+      "ratedKva": 160
     },
     {
       "id": "LV-MAIN:B:university",
@@ -46137,7 +46137,7 @@
         "z": 170.4
       },
       "primaryFeeder": "MV-EAST",
-      "ratedKva": 100,
+      "ratedKva": 160,
       "diversifiedKva": 72.25,
       "rawKva": 85,
       "customers": [
@@ -46154,7 +46154,7 @@
         "z": 183.6
       },
       "primaryFeeder": "MV-EAST",
-      "ratedKva": 160,
+      "ratedKva": 315,
       "diversifiedKva": 117,
       "rawKva": 180,
       "customers": [
@@ -46171,7 +46171,7 @@
         "z": 170.4
       },
       "primaryFeeder": "MV-EAST",
-      "ratedKva": 100,
+      "ratedKva": 160,
       "diversifiedKva": 65,
       "rawKva": 100,
       "customers": [
@@ -46205,7 +46205,7 @@
         "z": 183.6
       },
       "primaryFeeder": "MV-WEST",
-      "ratedKva": 160,
+      "ratedKva": 315,
       "diversifiedKva": 97.5,
       "rawKva": 150,
       "customers": [
@@ -46222,7 +46222,7 @@
         "z": 183.6
       },
       "primaryFeeder": "MV-EAST",
-      "ratedKva": 100,
+      "ratedKva": 160,
       "diversifiedKva": 58.5,
       "rawKva": 90,
       "customers": [
