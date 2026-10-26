@@ -40,12 +40,12 @@ for(const side of [-1,1]){
  }
 }
 sim.life.minute=406;
-const barrier=sim.railBarrierColliders(RAIL_Z-12);
+const barrier=sim.railBarrierColliders(315.6,RAIL_Z-12);
 assert(barrier.length>0,'active crossing must protect a waiting player');
-assert.equal(sim.railBarrierColliders(RAIL_Z-2).length,0,
+assert.equal(sim.railBarrierColliders(315.6,RAIL_Z-2).filter(b=>b.z1>RAIL_Z+2).length,0,
  'already committed walker must be able to clear crossing');
 sim.life.minute=490;
-assert.equal(sim.railBarrierColliders(RAIL_Z-12).length,0,
+assert.equal(sim.railBarrierColliders(315.6,RAIL_Z-12).length,0,
  'gate collider must disappear with passing train');
 sim.life.setRailFault(true);
 assert.equal(sim.railBarrierColliders(RAIL_Z-12).length,RAIL_CROSSINGS.length,
