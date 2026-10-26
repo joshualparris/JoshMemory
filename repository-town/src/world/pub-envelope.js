@@ -1,3 +1,4 @@
+import {PUB_REAR_STAIRS} from './pub-rear-stairs.js';
 import {addPubExteriorServices} from './pub-plant.js';
 // PUB-CODE/RTPUB-002 & RTPUB-024: a single source for the modelled pub's building envelope.
 // Dimensions are GAME UNITS (1 unit is treated as 1 metre for the design exercise).
@@ -86,16 +87,29 @@ export function buildPubFacade(b, {GLASS=0x9fd3ea,DARK=0x33363b,WOOD=0x8a6545}={
   piece('upper-front-centre',wall,2.1,4.6,t,0,y+2.3,F);piece('upper-front-spandrel',wall,14,1.4,t,0,y+3.9,F);
   for(const x of [-7,7]){piece('upper-side-sill',wall,t,1.4,18,x,y+.7,C);piece('upper-side-rear',wall,t,3.2,sw.rearZ-B,x,y+3,(B+sw.rearZ)/2);piece('upper-side-front',wall,t,3.2,F-sw.frontZ,x,y+3,(F+sw.frontZ)/2);piece('upper-side-head',wall,t,1.7,sw.frontZ-sw.rearZ,x,y+3.75,(sw.frontZ+sw.rearZ)/2);piece('upper-glass',GLASS,.045,1.5,sw.frontZ-sw.rearZ,x+Math.sign(x)*.07,y+2.15,(sw.frontZ+sw.rearZ)/2);}
   piece('upper-rear-wall',wall,11.8,4.6,t,-1.1,y+2.3,B);piece('upper-rear-end',wall,.5,4.6,t,6.75,y+2.3,B);piece('upper-exit-header',wall,1.7,2.1,t,5.65,y+3.55,B);piece('upper-exit-door',0x52645c,1.6,2.4,.08,5.65,y+1.2,B-.1);
-  // Secondary outdoor dogleg stair within the nominal rear yard, clear of x=8 side route.
-  b.solid(3.4,5.5,5.2,-13.8);
-  for(let i=0;i<14;i++){piece('escape-stair-tread',0x687576,1.25,.12,.28,5.95,y-(i+1)*y/28,-11.3-(i+.5)*.28);piece('escape-stair-tread',0x687576,1.25,.12,.28,4.4,y/2-(i+1)*y/28,-15.22+(i+.5)*.28);}
-  piece('escape-stair-landing',0x687576,3.1,.15,1.3,5.17,y/2-.075,-15.85);
-  for(const x of [3.65,6.7])for(const z of [-11.3,-16.5])piece('escape-stair-support',0x414b4f,.12,5.85,.12,x,2.925,z);
-  piece('escape-stair-guard',0x414b4f,3.1,1.05,.06,5.17,y/2+.525,-16.45);
-  piece('escape-stair-guard',0x414b4f,1.4,1.05,.06,4.35,y+.525,-11.3);
-  const run=14*.28,angle=Math.atan2(y/2,run),length=Math.hypot(y/2,run);
-  for(const [x,mid,rx]of [[5.95,y*.75,-angle],[4.4,y*.25,angle]])for(const dx of [-.65,.65]){b.add('box',0x414b4f,.055,.055,length,x+dx,mid+.95,-13.26,rx);b.add('box',0x414b4f,.1,.2,length,x+dx,mid-.15,-13.26,rx);}
-  for(let i=0;i<14;i++)for(const dx of [-.65,.65]){piece('escape-stair-baluster',0x414b4f,.04,1,.04,5.95+dx,y-(i+1)*y/28+.5,-11.3-(i+.5)*.28);piece('escape-stair-baluster',0x414b4f,.04,1,.04,4.4+dx,y/2-(i+1)*y/28+.5,-15.22+(i+.5)*.28);}
+  // Rear-yard escape stair: a single continuous 28-tread flight, with both ends
+  // clear of the rear wall. Treads and the walker's outdoor height share a profile.
+  const stair=PUB_REAR_STAIRS, rise=stair.rise, run=stair.treadCount*stair.going;
+  piece('escape-stair-upper-landing',0x687576,1.72,.16,1.0,stair.x,stair.upperY-.08,stair.topLandingZ);
+  piece('escape-stair-foot-landing',0x979b94,1.8,.04,1.25,stair.x,.02,stair.bottomLandingZ);
+  for(let i=0;i<stair.treadCount;i++){
+    const z=stair.firstTreadZ-(i+.5)*stair.going,y=stair.upperY-(i+1)*rise;
+    piece('escape-stair-tread',0x687576,stair.clearWidth,.12,stair.going,stair.x,y-.06,z);
+    piece('escape-stair-nosing',0xd8c6a0,stair.clearWidth,.025,.045,stair.x,y+.01,z-stair.going*.42);
+    if(i%2===0)for(const dx of [-.73,.73])
+      piece('escape-stair-baluster',0x414b4f,.055,1.05,.055,stair.x+dx,y+.53,z);
+  }
+  const angle=Math.atan2(stair.upperY,run),slopeLen=Math.hypot(stair.upperY,run);
+  for(const dx of [-.73,.73]){
+    b.add('box',0x414b4f,.09,.18,slopeLen,stair.x+dx,stair.upperY/2-.14,stair.firstTreadZ-run/2,-angle);
+    b.add('box',0x414b4f,.065,.065,slopeLen,stair.x+dx,stair.upperY/2+1,stair.firstTreadZ-run/2,-angle);
+    // Only guard edges are solid in the 2-D outdoor collision world, not the
+    // whole walking flight. Leaving the sides blocked prevents lateral shortcuts.
+    b.solid(.12,run,stair.x+dx,stair.firstTreadZ-run/2);
+  }
+  piece('escape-stair-upper-post',0x414b4f,.075,1.15,.075,stair.x-.73,stair.upperY+.575,stair.topLandingZ);
+  piece('escape-stair-upper-post',0x414b4f,.075,1.15,.075,stair.x+.73,stair.upperY+.575,stair.topLandingZ);
+  piece('escape-stair-wayfinding',0x2e5a49,1.6,.45,.07,stair.x,1.6,stair.bottomLandingZ-.45);
   piece('lift-roof-overrun',0x687576,2.1,.5,2.4,-2.15,9.65,5.55);
   piece('roof-capping',roof,14.6,.24,18.6,0,9.66,C);
   b.pyramid(roof,14.6,e.roofPeakM-e.roofEaveM,18.6,0,
