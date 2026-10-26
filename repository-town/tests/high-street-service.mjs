@@ -1,3 +1,5 @@
+import {pubStandards,pubStandardsAction} from '../src/world/pub-standards.js';
+import {pubStandardsPanel} from '../src/ui/pub-standards-panel.js';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import * as THREE from 'three';
@@ -32,8 +34,8 @@ const source=readFileSync(new URL('../src/ui/townpanels.js',import.meta.url),'ut
 const goods={bread:{name:'bread',price:5},pie:{name:'pie',price:8},roast:{name:'roast',price:18}};
 const cafeMenu=[{id:'coffee',name:'Coffee',category:'Drinks',price:4},{id:'tea',name:'Tea',category:'Drinks',price:3}];
 const fixtureAccess = (town, p) => ({ allowed: town.open(p) && town.villagers.some(v => workingAt(v, p.id, p)), reason: town.open(p) ? 'unstaffed' : 'closed' });
-const panels=new Function('GOODS','VENUE_MENU','CAFE_MENU','cafeAvailable','workingAt','shopService','esc','amount','timeText','JOB_BOARD','COUNTERS','lineAt','pendingOrders','facilityAccess','visitorHours',source+'\nreturn placePanel;')(
-  goods,{pub:{roast:{}}},cafeMenu,(p,item)=>item.id==='coffee',workingAt,shopService,String,(g,n)=>n+' '+g,String,[],COUNTERS,lineAt,pendingOrders,fixtureAccess,(p)=>[p.opens,p.closes]);
+const panels=new Function('GOODS','VENUE_MENU','CAFE_MENU','cafeAvailable','workingAt','shopService','esc','amount','timeText','JOB_BOARD','COUNTERS','lineAt','pendingOrders','facilityAccess','visitorHours','pubStandards','pubStandardsAction','pubStandardsPanel',source+'\nreturn placePanel;')(
+  goods,{pub:{roast:{}}},cafeMenu,(p,item)=>item.id==='coffee',workingAt,shopService,String,(g,n)=>n+' '+g,String,[],COUNTERS,lineAt,pendingOrders,fixtureAccess,(p)=>[p.opens,p.closes],pubStandards,pubStandardsAction,pubStandardsPanel);
 const site={id:'store',name:'General Store',kind:'shop',opens:480,closes:1080,stock:{bread:4,pie:2},out:{},target:{bread:8},sells:['bread'],till:0};
 let open=false;
 const town={place:()=>site,open:()=>open,time:()=>open?'10:00':'23:00',villagers:[worker],civic:{player:{wallet:20,bank:40,bag:{bread:1}}},needsReport:()=>({hunger:0,fatigue:0}),menuAvailability:()=>true};
@@ -45,6 +47,9 @@ open=true;panel=panels(town,'store');assert(!panel.actions.some(a=>a.label.start
 worker.step={kind:'work',at:'store'};panel=panels(town,'store');assert(panel.actions.some(a=>a.label.startsWith('Buy bread')));
 site.stock.bread=0;panel=panels(town,'store');assert(!panel.actions.some(a=>a.label.startsWith('Buy bread')));
 site.id='pub';site.kind='pub';open=false;panel=panels(town,'pub');assert(!panel.actions.some(a=>a.label.startsWith('Order')));assert(panel.body.includes('service closed'));
+const confirm=panel.actions.find(a=>a.label==='Confirm character is 18+');assert(confirm.primary,'ID confirmation is a primary action even while closed');
+panel=confirm.run();assert(pubStandards(town).verifiedAdult);confirm.run();assert(pubStandards(town).verifiedAdult,'repeat confirmation does not revoke ID');assert(panel.body.includes('Adult ID: confirmed'));
+const controls=panel.actions.find(a=>a.label==='Pub service controls');assert(controls.primary);assert(controls.run().actions.find(a=>a.label==='Back to pub menu').run().body.includes('Adult ID: confirmed'));
 site.id='cafe';site.kind='cafe';panel=panels(town,'cafe');assert(!panel.actions.some(a=>a.label.startsWith('Order')));
 open=true;worker.step={kind:'work',at:'cafe'};panel=panels(town,'cafe');assert(panel.actions.some(a=>a.label.startsWith('Order Coffee')));assert(!panel.actions.some(a=>a.label.startsWith('Order Tea')));
 assert(panel.body.includes('Tea · $3 (sold out)'),'sold-out goods stay visible on the menu');

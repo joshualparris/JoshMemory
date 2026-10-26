@@ -433,3 +433,8 @@ Exact fe22 full release/privacy/integrity and desktop/phone venue gameplay passe
 
 ### PUB-EXP browser milestone
 Full local build:release/privacy/integrity passed candidate a6a1242. Desktop actual stair ascent, 32-seat upper floor, sitting/standing, lift isolation refusal, stair return, timed lift descent to cellar, finite wine transfer, hand basin, leak alarm and safe exit/refused re-entry, blackout stair/refuge and separate yard egress exercised successfully. Final assertion corrected to respect probeStatic's null-for-no-collision API. Upgraded upper furniture from blocking placeholder cubes to legs/seats/backs and open wine shelving, clear lighting around shafts. Final source candidate full checks/browser/hosted still pending. Existing eight-second generic browser navigation deadlines extended to 30s with polling to accommodate measured software WebGL timing; keyboard exit assertion retained.
+
+## 2026-10-26 — pub ID and service control discoverability
+- PR #220: direct character-18+ confirmation and Pub service controls above pub information; visible ID status, no-upload explanation and Back to pub menu. Confirmation is idempotent; other service gates preserved.
+- Public build/privacy scan and pub completion simulation passed. Desktop (1280×900) and phone emulation (390×844) browser acceptance passed: confirmation visible without scrolling, confirmed state, controls and return-to-menu, no page errors.
+- Full CI, merge and hosted publication/verification pending. Browser test: `node tests/pub-id-browser.mjs` (TOWN_URL defaults localhost:8097).
