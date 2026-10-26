@@ -494,10 +494,12 @@ async function start() {
     const q = $('search').value.trim().toLowerCase(); if (!q) return;
     const code = q.split(' ')[0].toUpperCase();
     const addressed = parseTownAddress(q) || parseTownAddress(code);
-    const p = places.find((p) => placeLabel(p).toLowerCase() === q || p.name.toLowerCase() === q || p.id === q || p.address.toLowerCase() === q || (p.side==='south'&&q==='south '+p.col.toLowerCase()+'8') || (addressed && p.address===addressed.address && !byCoord.has(addressed.col+addressed.row)));
-    const h = !p && (byCoord.get(code) || (addressed && addressed.side==='S' && byCoord.get(addressed.col+addressed.row)) || houses.find((h) => h.name.toLowerCase() === q || h.address.toLowerCase() === q || `${h.address} · ${h.name}`.toLowerCase() === q || `${h.coordinate} · ${h.name}`.toLowerCase() === q));
-    const near = !p && !h && places.find((p) => p.name.toLowerCase().includes(q));
-    const named = !p && !h && !near && houses.find((h) => h.name.toLowerCase().includes(q));
+    // Some civic destinations have no postal address or column. Search must never crash on missing metadata.
+    const lower = (value) => String(value ?? '').toLowerCase();
+    const p = places.find((p) => lower(placeLabel(p)) === q || lower(p.name) === q || lower(p.id) === q || lower(p.address) === q || (p.side==='south' && q==='south '+lower(p.col)+'8') || (addressed && p.address===addressed.address && !byCoord.has(addressed.col+addressed.row)));
+    const h = !p && (byCoord.get(code) || (addressed && addressed.side==='S' && byCoord.get(addressed.col+addressed.row)) || houses.find((h) => lower(h.name) === q || lower(h.address) === q || lower(`${h.address} · ${h.name}`) === q || lower(`${h.coordinate} · ${h.name}`) === q));
+    const near = !p && !h && places.find((p) => lower(p.name).includes(q));
+    const named = !p && !h && !near && houses.find((h) => lower(h.name).includes(q));
     if (p || near) { goPlace((p || near).id); $('search').blur(); }
     else if (h || named) { travel((h || named).coordinate); $('search').blur(); }
     else status(`No building matches "${$('search').value}".`);
