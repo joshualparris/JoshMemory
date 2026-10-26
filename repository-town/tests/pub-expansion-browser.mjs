@@ -18,4 +18,21 @@ await approach('pub:stairs-ground');await waitFloor(0);await approach('pub:stair
 await approach('pub:services');await page.getByRole('button',{name:'Cellar, lift and upper-floor services',exact:true}).click();await page.getByRole('button',{name:'Start / stop beverage-gas leak scenario',exact:true}).click();await page.evaluate(()=>window.__town.life.run(40));await page.getByRole('button',{name:'Reset gas alarm after assessment',exact:true}).click();assert((await page.locator('#panel-body').innerText()).includes('cleared'));await close();
 await approach('pub:services');await page.getByRole('button',{name:'Trip / reset pub breaker',exact:true}).click();await close();await approach('pub:lift');await page.getByRole('button',{name:'Upstairs · dining and office',exact:true}).click();assert((await page.locator('#panel-body').innerText()).includes('unavailable'));await close();await approach('pub:stairs-up');await waitFloor(1);await approach('pub:refuge');await page.getByRole('button',{name:'Request staff-assisted evacuation to ground',exact:true}).click();await waitFloor(0);
 await approach('pub:services');await page.getByRole('button',{name:'Trip / reset pub breaker',exact:true}).click();await close();await approach('pub:stairs-up');await waitFloor(1);await approach('pub:upper-emergency-exit');await page.waitForFunction(()=>window.__town.state().mode==='town',null,{timeout:30000,polling:200});let out=await page.evaluate(()=>({state:window.__town.state(),pub:window.__town.shops().find(x=>x.id==='pub')}));assert(out.state.pos.z<out.pub.door.z-18);assert(!await page.evaluate(()=>{const p=window.__town.state().pos;return window.__town.probeStatic(p.x,p.z,.6)}));await page.screenshot({path:`audit/pub/expansion/${mobile?'phone':'desktop'}-escape-yard.png`});
-const beforeMove=await page.evaluate(()=>window.__town.state().pos);await page.keyboard.down('s');await page.waitForTimeout(600);await page.keyboard.up('s');const afterMove=await page.evaluate(()=>window.__town.state().pos);assert(Math.hypot(afterMove.x-beforeMove.x,afterMove.z-beforeMove.z)>.05,'frame loop and walking continue after escape');assert.deepEqual(errors,[]);const m=await page.evaluate(async()=>await(await fetch('release.json')).json());console.log('PASS pub expansion live gameplay',mobile?'phone emulation':'desktop',m.sourceCommit,m.contentHash);await page.close();}}finally{await browser.close()}
+const beforeMove=await page.evaluate(()=>window.__town.state().pos);await page.keyboard.down('s');await page.waitForTimeout(600);await page.keyboard.up('s');const afterMove=await page.evaluate(()=>window.__town.state().pos);assert(Math.hypot(afterMove.x-beforeMove.x,afterMove.z-beforeMove.z)>.05,'frame loop and walking continue after escape');// Reverse the upstairs escape: real physical height falls along the outdoor
+// treads, then the yard marker returns us to the actual upper rear doorway.
+const yardTop=await page.evaluate(()=>window.__town.state());
+assert(yardTop.walkElevation>=0,'walker elevation always defined');
+await page.keyboard.down('w');await page.waitForTimeout(850);await page.keyboard.up('w');
+await page.waitForTimeout(220);
+const descended=await page.evaluate(()=>window.__town.state());
+assert(descended.walkElevation>0&&descended.walkElevation<4.6,'camera descends along real rear stairs');
+const yard=await page.evaluate(()=>{const p=window.__town.shops().find(x=>x.id==='pub');return {x:p.door.x+5.65,z:p.door.z-7-21.5};});
+await page.evaluate(p=>window.__town.place(p.x,p.z,Math.PI),yard);
+await page.waitForTimeout(500);
+assert(!await page.evaluate(p=>window.__town.probeStatic(p.x,p.z,.4),yard),'foot approach is collision free');
+assert.equal((await page.evaluate(()=>window.__town.state())).nearPerson,'pub:rear-stair-foot','rear stair sign is reachable from the service yard');
+await press('e');await waitFloor(1);
+const upperReturn=await page.evaluate(()=>window.__town.state());
+assert.equal(upperReturn.floorElevation,4.8);
+assert(Math.hypot(upperReturn.pos.x-5.65,upperReturn.pos.z+10.6)<.2,'returns beside the upper rear exit');
+assert.deepEqual(errors,[]);const m=await page.evaluate(async()=>await(await fetch('release.json')).json());console.log('PASS pub expansion live gameplay',mobile?'phone emulation':'desktop',m.sourceCommit,m.contentHash);await page.close();}}finally{await browser.close()}
