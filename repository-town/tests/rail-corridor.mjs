@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {RAIL_Z as lifeRail, trainX} from '../src/world/life.js';
 import {RAIL_Z,RAIL_GAUGE,RAIL_CROSSINGS,RAIL_STRUCTURE_HALF_WIDTH,
- RAIL_LAMP_MIN_DISTANCE,permittedTracksideLight,withinLevelCrossing,railCrossingClosed}
+ RAIL_LAMP_MIN_DISTANCE,permittedTracksideLight,withinLevelCrossing,railCrossingClosed,railSideYardClear}
  from '../src/world/rail-corridor.js';
 
 assert.equal(RAIL_Z,144,'rail line is on its dedicated strip, not street-7 pavement');
@@ -21,6 +21,8 @@ assert(Math.abs(RAIL_Z-southFootpathLamp)>RAIL_LAMP_MIN_DISTANCE);
 assert(permittedTracksideLight(southFootpathLamp-0.85));
 assert(!permittedTracksideLight(RAIL_Z),'on-track lamps are prohibited');
 assert(!permittedTracksideLight(RAIL_Z+1.6));
+assert(!railSideYardClear(RAIL_Z+1.6,2.5),'detached yard objects must not intrude');
+assert(railSideYardClear(161,3),'row-8 structures can remain in the safe house area');
 assert(permittedTracksideLight(RAIL_Z+8));
 for(const crossing of RAIL_CROSSINGS) {
   assert(withinLevelCrossing(crossing.x));
@@ -42,6 +44,7 @@ assert(railCrossingClosed(trainX(441,depotX),52,true),'departure is protected be
 const town=readFileSync(new URL('../src/world/town.js',import.meta.url),'utf8');
 const scene=readFileSync(new URL('../src/world/townlife.js',import.meta.url),'utf8');
 assert(town.includes('permittedTracksideLight(lz - side * 0.85)'),'lamps honour line protection');
+assert(scene.includes("v.home.coordinate.endsWith('8') && !railSideYardClear"),'rear garden props are excluded from corridor');
 assert(scene.includes('RAIL_GAUGE/2'),'both rails come from standard-gauge source');
 assert(scene.includes('withinLevelCrossing(x, 0.2)'),'sleepers leave crossings clear');
 assert(scene.includes('syncRailGates(m)'),'dynamic signals update every simulation tick');
