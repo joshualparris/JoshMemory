@@ -203,14 +203,9 @@ const BUILD = {
   depot(b) {
     b.box(0xb88a5a, 14, 5, 8, 0, 2.5, 3); b.box(0x4a3a2a, 16, 0.4, 10, 0, 5.2, 3);
     b.box(0x2a1e18, 2, 2.6, 0.06, 0, 1.3, 7.04); for (const x of [-4.5, 4.5]) b.box(GLASS, 1.6, 1.6, 0.08, x, 2, 7.04);
-    // The platform runs behind, along the railway line.
-    // Freight-only loading apron, intentionally outside the reserved train
-    // envelope. Its near edge is 3.7 m from track centre; no boarding claim.
-    const apronZ=RAIL_Z-LOT8_Z+RAIL_DEPOT_PLATFORM_SETBACK;
-    b.box(0xb8b0a0, 24, 0.9, RAIL_DEPOT_PLATFORM_DEPTH, 0, 0.45, apronZ);
-    b.box(0xe3c32f, 24, 0.025, 0.14, 0, 0.91, apronZ-RAIL_DEPOT_PLATFORM_DEPTH/2+0.25);
-    b.box(0x8a6545, 10, 0.2, 2.6, 0, 3.2, apronZ);
-    for (const x of [-4.5, 4.5]) b.block(0x8a6545, 0.2, 2.3, 0.2, x, 0.9, apronZ+1);
+    // This historic town-centre site is now the freight dispatch warehouse.
+    // The physically connected platform is modelled at the north rail terminal
+    // instead of teleporting a 350 m long platform into this building mesh.
     return { w: 14, d: 8 };
   },
   mill(b) {
@@ -691,6 +686,24 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   }
   // Warning and road-user control gates live at the approach lines, clear of
   // the running rail / train envelope. Pavement remains accessible when open.
+  // The real in-game train stops at the separate northern freight terminal.
+  // Warehouse/depot R8 handles onward road dispatch; trackside infrastructure
+  // is in its own world-space mesh, not merged into the R8 building shell.
+  const terminal=life.place('depot'),tx=terminal.x;
+  const apronZ=RAIL_Z+RAIL_DEPOT_PLATFORM_SETBACK;
+  statics.box(0xb8b0a0,24,0.9,RAIL_DEPOT_PLATFORM_DEPTH,tx,0.45,apronZ);
+  statics.box(0xe3c32f,24,0.025,0.14,tx,0.91,
+    apronZ-RAIL_DEPOT_PLATFORM_DEPTH/2+0.25);
+  statics.box(0x8a6545,10,0.20,2.6,tx,3.2,apronZ);
+  for(const dx of [-4.5,4.5]){
+    statics.block(0x8a6545,0.2,2.3,0.2,tx+dx,0,apronZ+1);
+    statics.solid(0.3,0.3,tx+dx,apronZ+1);
+  }
+  // Accessible grade-level maintenance route on the landward side; no
+  // platform ramp is asserted from a fictitious passenger train service.
+  statics.box(0xaaa8a0,132,0.05,1.8,tx,0.025,RAIL_Z+9.2);
+  statics.box(0x536b76,5,1.2,0.1,tx,3.5,apronZ+1.5);
+  // On-site terminal and dispatch warehouse remain functionally distinct.
   // Each civic building is its own mesh (plus one for its glass), so it can be hidden while the
   // player is inside it and looking out of its windows (src/main.js renderFrame).
   const shopGlassMat = new THREE.MeshLambertMaterial({ vertexColors: true, emissive: 0xffc070, emissiveIntensity: 0 });
