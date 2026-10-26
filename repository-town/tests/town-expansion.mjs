@@ -51,4 +51,5 @@ for(const s of EXPANSION_SITES){
  assert.ok(!atCivicEntrance(p,exit),p.id+' exit not repeatedly auto-triggered');
 }
 assert.equal(new Set(EXPANSION_LOCAL_STAFFED).size,72);
+await import('./bus-interchange.mjs');
 console.log('PASS: all 72 new 2026 north-frontage buildings use street-facing front doors for entry, locked-entry rejection, and collision-safe exit.');
