@@ -11,6 +11,11 @@ export const RAIL_CROSSINGS = Object.freeze([0,5,10,15,20,25].map(col =>
 export function permittedTracksideLight(z,margin=RAIL_LAMP_MIN_DISTANCE) {
   return Math.abs(z - RAIL_Z) >= margin;
 }
+// Keep detached sheds, clotheslines and animal/yard props away from the train.
+// Conservatively include the prop's full depth and one extra metre of margin.
+export function railSideYardClear(z,depth=0) {
+  return Math.abs(z-RAIL_Z) >= RAIL_STRUCTURE_HALF_WIDTH + depth/2 + 1;
+}
 export function withinLevelCrossing(x,extra=0) {
   return RAIL_CROSSINGS.some(c => Math.abs(x-c.x)<CROSSING_HALF_DECK+extra);
 }
