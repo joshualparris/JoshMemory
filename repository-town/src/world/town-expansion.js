@@ -122,7 +122,7 @@ export const EXPANSION_SITES=Object.freeze([
   },
   {
     "id": "pathology",
-    "name": "Regional Pathology Collection",
+    "name": "Riverbend Pathology",
     "col": "H",
     "row": 7,
     "side": "north",
@@ -130,7 +130,7 @@ export const EXPANSION_SITES=Object.freeze([
     "style": "health",
     "priority": "P1",
     "staffRole": "pathology collector",
-    "description": "Pathology specimen collection",
+    "description": "Private pathology collection rooms, waiting and specimen dispatch",
     "opens": 480,
     "closes": 1050,
     "expansion": true,
