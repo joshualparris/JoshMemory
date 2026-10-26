@@ -1,3 +1,7 @@
+# 26 October 2026 — PR223 CI regression correction and pub source re-audit
+
+CI initially failed pub venue ordering because the test fabricated an on-shift employee with no physical site coordinates; the fixture now positions the actual staff member at the pub front before the service transaction. The production attendance check remains physically enforced. Publication-specific pub code audit correctly caught the amended townlife.js source blob; inspected the changed renderer integration and verified the pub facade still invokes unchanged buildPubFacade, and refreshed only that SHA with explicit non-certifying provenance. No audit assertion bypassed and formal code approvals remain open. Old failure: pub-venue.mjs and source hashes; new CI/browser/mobile release acceptance still pending.
+
 # 26 October 2026 — reconcile position-based staffed service (PR #159)
 
 Applied 10 exact-match source/test patches from conflicted PR #159 to consolidation branch integration/all-town-branches-20261026 at 1de0fd2dc8. Maintains physical-front/distance and paddock attendance checks with legacy ID call compatibility, without transplanting an obsolete main.js or old release content. 10 files, all patch hunks uniquely matched; remote CI/release still unverified. Preserve the current pub model and other claimed scope. Next run tests, continue remaining safe ports.
