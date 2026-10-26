@@ -1,4 +1,5 @@
 import { buildPowerInterior } from './power-interior.js';
+import { buildBusInterchangeInterior } from './bus-interchange-interior.js';
 import { buildDepotInterior } from './depot-interior.js';
 import { buildWaterworksInterior } from './waterworks-interior.js';
 import { buildWastewaterInterior } from './wastewater-interior.js';
@@ -86,6 +87,7 @@ const BASE_W=14, BASE_D=18, FRONT=6, BACK=-12, EDGE=7;
 
 // `life` is optional: interiors that show the town's live state (the power station's mimic panel) read it.
 export function buildCivicInterior(site,makeLabel,life=null) {
+  if(site.id==='busstop')return buildBusInterchangeInterior(site,makeLabel);
   // A family's home must never regress to the single-room retail fallback.
   if(site.id==='farmhouse')return buildFarmhouseInterior(site,makeLabel);
   if(['soyfarm','soyplant'].includes(site.id))return buildSoyInterior(site,makeLabel,life);
