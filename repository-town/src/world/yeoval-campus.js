@@ -55,11 +55,11 @@ function wing(b,{x,z,w,d},tag) {
 }
 // Height stays deliberately modest: neither historic photos nor aerials indicate upper storeys.
 export function buildYeovalCampus(group, colliders) {
-  const s=YEOVAL_SITE, b=new Builder(); b.glass=[];
+  const s=YEOVAL_SITE, b=new Builder();
   // Road on the existing F/K avenue axis; new northern land is outside the 26x8 lots.
-  b.box(ROAD,7.0,.045,157,-37,.026,39); // world x -208 and z from -144 to -301 after rotation
-  b.box(ROAD,78,.044,8.0,-8,.023,27);  // virtual Lord Street north frontage
-  for(const dz of [-3.95,3.95])b.box(KERB,78,.12,.14,-8,.065,27+dz);
+  b.box(ROAD,7.0,.045,240,37,.026,-30); // existing x=-208 avenue extended north
+  b.box(ROAD,78,.044,8.0,8,.023,27);  // virtual Lord Street north frontage
+  for(const dz of [-3.95,3.95])b.box(KERB,78,.12,.14,8,.065,27+dz);
   // Landscaped apron and western access/parking area.
   b.box(0xc4b79b,78,.035,12,-2,.012,22);
   b.box(ROAD,18,.05,43,30,.035,-3);
