@@ -24,7 +24,11 @@ try{
   await page.evaluate(()=>{window.__town.place(0,1.9,0);document.activeElement?.blur?.();});
   // Gameplay ignores WASD aimed at a focused button. Click the 3D canvas
   // (rather than a menu) before sending real keyboard input.
-  const vp=page.viewportSize();await page.mouse.click(vp.width*.50,vp.height*.45);
+  const vp=page.viewportSize();
+  // Escape closes incidental guide/help overlays through the game's normal
+  // input path; the real scene canvas must receive subsequent WASD.
+  await page.keyboard.press('Escape');
+  await page.locator('#scene').click({position:{x:vp.width*.50,y:vp.height*.45}});
   const start=await page.evaluate(()=>window.__town.state().pos);
   if(mobile){
    const cdp=await context.newCDPSession(page),{width,height}=page.viewportSize(),x=width*.2,y=height*.72;
@@ -35,8 +39,20 @@ try{
    await page.evaluate(()=>document.activeElement?.blur?.());
    await page.keyboard.down('w');await page.waitForTimeout(500);await page.keyboard.up('w');
   }
+  const diagnosis=await page.evaluate(()=>({
+    input:window.__town.driveDiagnostics?.()?.input,
+    mode:window.__town.state().mode,
+    panel:document.getElementById('panel').hidden,
+    help:document.getElementById('help').hidden,
+    roster:document.getElementById('npc-roster').hidden,
+    active:document.activeElement?.tagName+'#'+document.activeElement?.id,
+    current:window.__town.state().pos,
+    blockedBefore:window.__town.probe(0,1.9),
+    blockedAhead:window.__town.probe(0,1.6)
+  }));
   const after=await page.evaluate(()=>window.__town.state().pos);
-  assert(after.z<start.z-.18,'actual '+(mobile?'touch':'keyboard')+' walk failed: '+JSON.stringify({start,after}));
+  console.log('Post office walking diagnostics',mobile?'Android':'desktop',JSON.stringify({start,after,diagnosis}));
+  assert(after.z<start.z-.18,'actual '+(mobile?'touch':'keyboard')+' walk failed: '+JSON.stringify({start,after,diagnosis}));
   await page.screenshot({path:`test-results/post-office/${mobile?'phone':'desktop'}-interior.png`});
   for(const key of ['post:counter','post:boxes','post:packing','post:assisted','post:collection','post:mail-slot','post:supplies']){
    assert(await page.evaluate(k=>window.__town.approach(k),key),'cannot physically approach postal station '+key);
