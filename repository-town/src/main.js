@@ -174,7 +174,7 @@ async function start() {
     }),
     // A raised boom must not stop walking, and a lowering boom must not trap
     // anybody already between the protected approaches. Query live state.
-    ...townLife.railBarrierColliders(player.pos.z)
+    ...townLife.railBarrierColliders(player.pos.x,player.pos.z)
   ];
 
   const input = new Input(renderer.domElement, $('touch'));
