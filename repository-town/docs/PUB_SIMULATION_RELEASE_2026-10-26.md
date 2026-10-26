@@ -1,3 +1,5 @@
+> Historical single-floor release. The pub now has 19 ground seats, 32 upstairs and a cellar; see [the superseding expansion release](PUB_CELLAR_UPSTAIRS_RELEASE_2026-10-26.md).
+
 # Pub simulation release — 26 October 2026
 
 Runtime source: `4718823f47c70a0f20407005009471f66af6430a`.
