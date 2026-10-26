@@ -66,7 +66,8 @@ export function buildYeovalInterior(makeLabel) {
   solid(33.7,3.15,.22,-18.15,1.575,17,WALL);
   solid(33.7,3.15,.22,18.15,1.575,17,WALL);
   box(2.6,.42,.24,0,2.95,17,WALL);
-  solid(70,3.15,.20,0,1.575,0,WALL);
+  solid(30.1,3.15,.20,-19.95,1.575,0,WALL);
+  solid(30.1,3.15,.20,19.95,1.575,0,WALL);
   for(const x of [-35,35])solid(.20,3.15,17,x,1.575,8.5,WALL);
   for(const x of [-4.9,4.9])solid(.19,3.15,12.5,x,1.575,-5.8,WALL);
   solid(43,3.15,.21,0,1.575,-28.5,WALL);
