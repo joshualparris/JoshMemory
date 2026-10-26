@@ -573,7 +573,7 @@ function makeTrain() {
   const b = new Builder();
   b.block(0x2a5a3a, 10, 3, 2.8, 0, 0.6, 0); b.box(0x1d1d1d, 2.6, 1.4, 2.4, 4.0, 4.3, 0); b.cyl(0x1d1d1d, 0.35, 1, -3.5, 4.1, 0);
   for (let i = 0; i < 4; i++) { const x = -11.5 - i * 11; b.block([0x8a4a2a, 0x5a6a7a, 0x8a7a4a, 0x6a3a3a][i], 10, 2.6, 2.8, x, 0.6, 0); }
-  for (let x = 4; x > -56; x -= 2.5) for (const z of [-1.1, 1.1]) b.cyl(0x1d1d1d, 0.45, 0.25, x, 0.45, z, Math.PI / 2);
+  for (let x = 4; x > -56; x -= 2.5) for (const z of [-RAIL_GAUGE/2, RAIL_GAUGE/2]) b.cyl(0x1d1d1d, 0.45, 0.25, x, 0.67, z, Math.PI / 2);
   return b.build();
 }
 // A simple bicycle for villagers riding across town.
@@ -944,7 +944,10 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   const tractor = tb.build(); group.add(tractor);
   const field = silo.field; let tractorS = 0;
   // Freight train.
-  const train = makeTrain(); train.visible = false; train.position.set(0, 0, RAIL_Z); group.add(train);
+  const train = makeTrain(); train.visible = false; train.position.set(0, 0, RAIL_Z);
+  // The simulated freight runs WEST (decreasing x) on both legs. Rotate the
+  // authored consist so the locomotive leads and its four wagons TRAIL east.
+  train.rotation.y = Math.PI; group.add(train);
   // Trucks.
   const trucks = life.trucks.map((t, i) => { const v = makeTruck([0xd8562a, 0x2a6ab8, 0xe0b030][i]); group.add(v.group); return { t, ...v }; });
   // Service vehicles and crew are views of the persisted trade job lifecycle.
