@@ -523,3 +523,7 @@ Newest first. Times in Australia/Sydney.
 ## Completed numbering handoff
 
 - 2026-10-25 · ChatGPT — **DONE, task numbering only:** [PR #195](https://github.com/joshualparris/JoshMemory/pull/195) merged as `46694b7555d365983ca87f01a90afdf70cabe516` after green Town Integration + recorded WebGL. [Prioritised ten-ID agent queue](docs/NEXT_ACTION_TRIAGE_2026-10-25.md) and [stable central index](docs/UNNUMBERED_TODO_IDS_2026-10-24.md) are on `main`: six new unchecked IDs `RTN-001..003`, `RTQ-001`, `RTP-001..002`; reused existing `RTD-043`, `RTD-044`, `RTD-084`, `RTR-010` without renumbering. All 101 earlier indexed tasks and checkboxes preserved. Start `RTN-002` by reconciling open PR #186 and its ownership claim. Superseded conflicted docs PRs #189/#194 closed. No gameplay/audio/road implementation claimed.
+
+
+## 26 October 2026 — PUB-EXP-001–006 claimed
+Codex; branch feat/pub-cellar-upper-20261026; baseline f81da769. User explicitly authorised cellar, upper dining, stairs, accessible lift/circulation and emergency exits. Scope: pub-specific floor-stack/interiors/envelope/utility hooks, narrow main floor-navigation integration, optional slab cutouts in interior-kit with unchanged defaults, tests, formal audit refresh and research/deployment docs. Preserve shared NPC/dialogue and existing electrical backbone. Validate ground clearance, all-floor collisions/seats/portals, lift failure, cellar supply/ventilation, second egress and actual desktop/phone gameplay before publication. No formal certification claimed.

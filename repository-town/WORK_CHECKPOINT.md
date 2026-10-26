@@ -1,3 +1,6 @@
+# Pub cellar and upstairs start — 26 October 2026
+PUBLIC game design. PUB-EXP-001–006, owner Codex, branch feat/pub-cellar-upper-20261026, baseline f81da769. Build a spatially aligned three-level pub (cellar, ground, upper dining) using existing per-floor collision scenes, realistic stair core, powered accessible lift, second escape route and scoped utility state. Move seating upstairs to decongest ground; retain conservative patron cap until assessed. Read existing architecture and prior evidence; implementation not started. Next implement source modules then collision/negative/gameplay tests, reviewed merge and verified isolated QA publication.
+
 # Pub pilot published and verified — 26 October 2026
 PR #219 merged e69ca6f; runtime4718823, fingerprint def06d2a86accb99f164d77306e11115a500f02b8fe9a5025e5a3f43539184d2. All seven source checks, publisher attempt2 and hosted acceptance40238413993 PASS. Actual hosted desktop/phone pool, Keno, alcohol ordering, pouring/dishes and header-free fullscreen automatic entry PASS. See docs/PUB_SIMULATION_RELEASE_2026-10-26.md. PUB-SIM-011–013 and all formal approval hold points remain OPEN; no physical handset or real certification claimed.
 
