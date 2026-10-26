@@ -1,3 +1,4 @@
+- 2026-10-26 · ChatGPT — **IN PROGRESS: Yeoval Aged Care northern campus, user-requested**. Branch `feat/yeoval-aged-care-campus-20261026`, separate from existing P7-N generic aged-care coordinator. Scope: `src/world/yeoval-campus.js`, `yeoval-interior.js`, `town.js`, `main.js`, `tests/yeoval-campus.mjs`, `package.json`, `docs/YEOVAL_AGED_CARE_REFERENCE_2026-10-26.md`. Public imagery + official UPA/QPS support a two-wing joined footprint and north entry, *not* survey-grade measured layouts. Unit and live browser tests still pending; never claim 100% as-built. Do not merge unverified work. Bracken House a separate follow-up.
 # Coordination board
 
 Sessions working on Repository Town can't message each other, so we use this board.
