@@ -1,4 +1,5 @@
 import { createKit, ROOM } from './interior-kit.js';
+import { addPostOperationalDetails } from './post-operational-details.js';
 
 // The Post Office, laid out like a small country post office:
 //   • A full-width service counter at the back with scales, a stamp drawer, a card reader and a parcel hatch;
@@ -49,11 +50,12 @@ export function buildPostInterior(site, makeLabel, roomTitle = 'Post office') {
   for (const [x, y] of [[4.0, 0.6], [4.0, 0.2]]) box(0.5, 0.35, 0.3, x, y + 0.1, -0.4 - 0.2, 0x3a3f44, { e: 0x000000 });
   solid(0.4, 1.6, 1.2, 6.45, 0.8, 2.8, 0x7a5a3a); for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) box(0.08, 0.2, 0.18, 6.22, 0.5 + i * 0.35, 2.4 + j * 0.28, [RED, BLUE, 0xe8c040, 0x5f9a54][(i + j) % 4]);
   model('pictureframe_large_A', -2.0, 5.78, Math.PI, { h: 0.8 }, 2.0);
-  box(2.4, 1.2, 0.06, 3.0, 2.4, 5.8, 0xc8a878); text('Postal rates · Lodge by 4pm', 3.0, 2.4, 5.7);
+  box(2.4, 1.2, 0.06, 3.0, 2.4, 5.8, 0xc8a878); text('Postage rates · check cutoff', 3.0, 2.4, 5.7);
 
   add('counter', 'Postal counter', 'civic-ledger', 'Post a parcel, pay a bill or open the Town Ledger. Parcels are collected from doorsteps at seven each evening.', POST_LAYOUT.staffUse.x, POST_LAYOUT.staffUse.z);
-  add('boxes', 'PO boxes', 'info', 'Rows of locked boxes for farms and businesses without a street address. The postie sorts the morning mail into them.', -3.6, -1.0);
+  add('boxes', 'PO boxes', 'info', 'Numbered, individually locked PO boxes provide a secure, separate delivery address. Mail is sorted behind the counter before collection.', -3.6, -1.0);
   add('parcels', 'Parcel shelves', 'info', 'Parcels wait here until collected. The post office keeps twelve in stock and the posties carry them out round the town.', -2.2, -4.3);
   add('packing', 'Packing bench', 'info', 'Boxes, tape and padded bags for sending something. The slot box by the door is cleared twice a day.', 3.4, -0.4);
+  addPostOperationalDetails(k);
   return k.finish({ staff: { pos: POST_LAYOUT.staff, use: POST_LAYOUT.staffUse } });
 }

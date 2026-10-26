@@ -1,0 +1,28 @@
+# Repo Town Post Office — rural postal-service realism
+
+Research date: **26 October 2026**. Scope: fictional town post office in the High Street, **not** an exact replica of Australia Post, a real premises, or a compliance-certified design. The game's shared shell is 14 m × 18 m and the town shopfront nominally 11 m × 9 m; **these are game coordinates, not measured building dimensions**. Existing game ledger, parcel inventory, resident travel and shop trading rules remain authoritative.
+
+## Sources inspected and resulting design choices
+
+1. **Australia Post: retail strategy and parcel branch design** — [2024–25 annual report](https://www.transparency.gov.au/publications/infrastructure-transport-regional-development-and-communications/australian_postal_corporation/australian-postal-corporation-annual-report-2024-25/business-review/delighting-our-customers-%26-communities). Describes counter collection, 24/7 parcel lockers at participating locations, packing/writing benches, parcel lodgement hatches and separate larger back-of-house areas. **Model**: distinct attended counter, parcel collection hatch, packing/writing zone, sorting and secure staff dispatch. We model small rural PO boxes instead of asserting this branch actually has 24/7 parcel lockers.
+2. **Australia Post: PO boxes** — [business PO Boxes and Locked Bags](https://auspost.com.au/business/receiving/po-boxes-and-locked-bags): numbered secure mailboxes, multiple sizes, 24/7 access *subject to site*, oversized parcels moved to attended collection. **Model**: separate wall of numbered PO boxes inside plus external customer-accessible face; secure parcel holding behind counter. Fictional painted PO boxes are not working access control.
+3. **Australia Post: parcel collection** — [Parcel at Post Office](https://auspost.com.au/help/collection-delivery/parcel-at-post-office): notification, suitable photo ID, custody before release. **Model**: staff handover area and explanatory collection hotspot. **Never claims actual identity verification or creates customer records.**
+4. **Australia Post: packaging** — [envelopes and satchels](https://auspost.com.au/personal/sending/packaging/envelopes-and-satchels), [boxes and bags](https://auspost.com.au/personal/sending/packaging/boxes-and-bags): shipping boxes, padded bags, satchels, labels and stationery. **Model**: stock on shelves, packing bench, scale, card rack and labelled bins.
+5. **Australia Post: tracking** — [Tracking help](https://auspost.com.au/help/parcel-tracking/tracking-support/help-with-tracking): receipt, barcode and scan events. **Model**: scanner and label printer placed behind the counter, not a fabricated online tracking number.
+6. **Australia Post: label readability** — [parcel preparation guide](https://auspost.com.au/content/dam/auspost_corp/media/documents/ap-parcel-freight-preparation-guide.pdf): flat, undamaged, legible labels. **Model**: label printer and sorting trays at the dispatch workbench.
+7. **Safe Work Australia: hazardous manual tasks** — [Lifting, pushing and pulling](https://www.safeworkaustralia.gov.au/safety-topic/hazards/lifting-pushing-and-pulling-manual-tasks): minimise bending, poor reach and unnecessary carrying via workstation layout and handling aids. **Model**: trolley, raised sorting workbench and grouped destinations; floor queues and corridors remain unblocked.
+8. **Australia Post: collection safety** — [Customer safety declaration](https://auspost.com.au/general/customer-safety-declaration): level/clear loading, pedestrian separation, adequate lighting, avoid obstructions. **Model**: no new road collision footprints, exterior canopy without obstructing pillars, internal bright lights and distinct staff zone.
+9. **Rural shop photographs** — publicly advertised Anglesea, Darlington Point, Nimbin and Rathdowney post offices display compact counters, cubbies, visible retail stock, fluorescent task lighting and narrow mail-sorting rooms. Reference photographs are a *typology*, not architectural drawings or a claim about those locations.
+
+## Built work
+
+- Street exterior: red shade awning, legible original shop sign, brick plinth and pilasters, 25 individually modelled PO-box doors, secure collection hatch, public posting box, light soffit, surveillance dome and mailroom ventilation. Avoid extra collision at the public door.
+- Interior: customer queue line; low assisted-service writing shelf; numbered PO-box bank; scales/POS and original counter; staff-side parcel scan/label printer; parcel staging cage; sorted trays; trolley; packaging shelves; extinguisher; existing stamps and cards.
+- Interactive information is deliberately informational; real transactional state still flows through the existing Town Ledger. New info panels do **not** take payment, invent a delivery event or pretend to verify ID.
+- Customer queue and lobby remain continuously walkable. Existing entrance, windows and staff position remain unchanged.
+
+## Limitations and acceptance
+
+No actual architectural floorplan, site measurements, Australia Post licence, secured customer records, 24-hour branch access, automatic parcel processing, evacuation/accessibility certification, AS 1428 design or NCC signoff is claimed. No real-world operating hours or lodgement cut-off is fabricated.
+
+Regression: `tests/post-office-architecture.mjs` checks footprint/facade and collision-free entrance, authentic named fixture meshes, preserved counter behaviour, reachable hotspots and radius-aware customer-to-staff paths. It is included in the repository's integration tests. Browser/hosted evidence must be independently recorded before claiming production verification.

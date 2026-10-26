@@ -127,6 +127,24 @@ export function buildExpansionFacade(b,site){
    b.box(0xbccbc0,3.1,.09,1.3,0,.04,face+.72);
    return {w,d,front:7};
  }
+ // H7-N: Riverbend Pathology with sheltered, step-free clinical shopfront.
+ if(site.id==='pathology'){
+  b.box(0x849f99,w,.12,d,0,.06,centre);
+  b.box(0xc4d5cc,w,4.2,d,0,2.1,centre);
+  b.box(0x2e6c70,w+.4,.36,d+.35,0,4.4,centre);
+  b.box(0x2e6c70,w+.4,.74,.4,0,3.8,face-.1);
+  for(const x of [-3.8,3.8]){
+   b.box(0x345e68,3.5,2.8,.13,x,2.0,face+.08);
+   b.box(GLASS,3.2,2.55,.14,x,2.0,face+.17);
+   b.box(0xb6d2c9,3.25,.65,.16,x,1.0,face+.28);
+  }
+  b.box(0x2c5961,2.35,3.15,.13,0,1.62,face+.12);
+  b.box(GLASS,2.16,2.92,.14,0,1.62,face+.2);
+  b.box(0xb9d7d1,.08,2.9,.16,0,1.62,face+.27);
+  b.box(0x9eb7ad,3.4,.15,1.1,0,3.15,face+.6);
+  b.box(0xb2b5ac,3.1,.08,1.2,0,.04,face+.7);
+  return {w,d,front:7};
+ }
  // E7-N dental practice: light clinical facade, waiting-room glazing and level entry.
  if(site.id==='dentist'){
    b.box(0xb7c8c7,w,.12,d,0,.06,centre);
