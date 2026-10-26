@@ -41,3 +41,24 @@ The full normative texts and site-specific measured geometry have not been certi
 ## Integration and release check
 
 PR #228 carries the rail changes through a normal reviewed branch. A first CI run exposed a depot-before-initialisation crash; this has been corrected, and the pub audit file has been reconciled with concurrent approved pub edits without changing their compliance status. The branch has merged the GitHub-tested synthetic merge tree to preserve concurrent source work. All safety, WebGL/mobile and publish checks are mandatory before any 'live fixed' claim. Deliberately retain the P0 signalling, trespass and professional approvals as open tasks.
+
+## Operational safety follow-up — 26 October 2026 (PR safety-controller branch)
+
+**Simulated controls implemented and required to pass release tests:**
+
+1. Measured static collision footprints against the model's explicit 3.5 m half-width rail reservation, with actual city/house meshes, row-8 rear-yard objects, and depot clearances exercised by `tests/rail-geometry.mjs`. Fence posts stay outside the reserved running envelope. This does **not** establish a certified kinematic envelope under AS 7507/AS 7633.
+2. Fenced BOTH edges of the railway. Public access remains through the six legitimate existing avenue crossings, not through gaps between them; crossing openings stay walkable when booms are raised.
+3. Single deterministic protection controller gives advance red warning, lowering then down booms, and only afterwards a modelled train-proceed state; red lights use the same protection state as truck brakes and walker/cyclist movement. The warning duration is at least 3 simulated minutes before the modelled danger point, above the 20-second baseline described by ATSB. This is not a measured site commissioning test.
+4. A road vehicle cannot *enter* a closed crossing: truck collision uses its 3.5 m half-length so its front bumper stops ahead of the boom. Pedestrians and cyclists stop on the approach. Road users already committed are permitted to leave the hazard zone rather than becoming trapped.
+5. Player physics uses dynamic boom barriers while road warnings apply; deliberate crossing users who were between booms when the warning began can escape, and visible rolling stock gets a separate moving collision footprint.
+6. A modelled crossing equipment/detection/power fault forces every boom down with red warnings, holds the locomotive for the rest of the service day, and prevents an immediate post-repair train jump. A train held over a crossing keeps it protected after the fault clears.
+7. Freight depot loading apron was shifted back to a 3.7 m minimum modelled lateral near-edge offset from track centre. Platform has a visible caution line. It is *freight loading only*, not an accessible passenger boarding platform.
+
+**Real-world regulatory/engineering hold, still OPEN:** AS 7633:2026 needs rolling stock kinematic and contingency outlines, surveyed infrastructure and approved site-specific clearance. AS 7658:2020 and AS 1742.7 require actual engineered warning/signalling hardware, validated train detection, power monitoring, lifecycle maintenance, road-rail authority interfaces and controlled safety assurance. ONRSR accreditation/interface agreements and road-authority approval, sightlines, grade/drainage, AS/NZS 1158 photometry, disabled pedestrian access and full fail-safe third-party verification are not possible from this game's synthetic coordinates. **No Australian rail safety certification or approval has been issued, and this simulated line must never be represented as safe for physical construction or operation.**
+
+Further references:
+- ATSB, [Level crossing collision and warning-time analysis](https://www.atsb.gov.au/investigations/ro-2021-003)
+- ARISO, [AS 7705 active crossing monitoring](https://www.ariso.org.au/products/as-77052019-level-crossing-monitoring-systems/)
+- ONRSR, [rail-road interface agreements](https://www.onrsr.com.au/industry-information/level-crossing-safety)
+
+**Acceptance:** `node tests/rail-corridor.mjs`, `node tests/rail-operations.mjs`, `node tests/rail-geometry.mjs`, `npm run build:release`, recorded desktop + Android WebGL acceptance, and actual production release commit verification. Do not mark complete from a code commit alone.
