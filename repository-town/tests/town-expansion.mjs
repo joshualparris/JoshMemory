@@ -53,4 +53,5 @@ for(const s of EXPANSION_SITES){
 assert.equal(new Set(EXPANSION_LOCAL_STAFFED).size,72);
 await import('./bus-interchange.mjs');
 await import('./visitor-information.mjs');
+await import('./cemetery-office.mjs');
 console.log('PASS: all 72 new 2026 north-frontage buildings use street-facing front doors for entry, locked-entry rejection, and collision-safe exit.');
