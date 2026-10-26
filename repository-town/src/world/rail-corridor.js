@@ -8,6 +8,8 @@ export const CROSSING_HALF_DECK = 4.5;
 export const TRAIN_LENGTH_M = 60;
 export const RAIL_CROSSINGS = Object.freeze([0,5,10,15,20,25].map(col =>
   Object.freeze({x:(col-13)*26,z:RAIL_Z,avenue:col})));
+export const RAIL_DEPOT_PLATFORM_SETBACK = 5.2; // lateral centre to platform centre
+export const RAIL_DEPOT_PLATFORM_DEPTH = 3.0;
 export const RAIL_MAX_TRAIN_HEIGHT = 5.2; // conservative envelope: highest locomotive exhaust
 export const RAIL_APPROACH_WARNING_MINUTES = 3; // 180 game seconds > modelled 20s minimum
 
