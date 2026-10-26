@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import {EXPANSION_SITES,EXPANSION_FIRST_WAVE} from '../src/world/town-expansion.js';
 import {expansionFootprint} from '../src/world/town-expansion-facades.js';
+import {civicEntranceZone,atCivicEntrance,closedCivicDoorPose} from '../src/world/civic-entrance.js';
+import {civicExitPose} from '../src/world/shop-exit.js';
 import {PLACE_DEFS,ROSTER_SIZE,TownLife,EXPANSION_LOCAL_STAFFED} from '../src/world/life.js';
 import {auditTownSlots,placeAddress} from '../src/world/addresses.js';
 import fs from 'node:fs';
@@ -37,6 +39,16 @@ for(const s of EXPANSION_SITES){
  assert.ok(p.door.z>p.front.z);
  assert.ok(p.originZ-7>road+6.5); // frontage wall behind kerb and traffic
  assert.ok(p.originZ-7+expansionFootprint(s.style).d<((s.row-1)*46-3.5*46)-4);
+ // All 72 infill premises face the PRECEDING road (-Z), never the solid back wall.
+ const zone=civicEntranceZone(p),footprint=expansionFootprint(s.style);
+ assert.ok(zone.z0 < p.door.z && zone.z1 < p.door.z+0.5, p.id+' sensor on street side');
+ assert.ok(atCivicEntrance(p,{x:p.door.x,z:p.door.z-1.0}),p.id+' front approach enters');
+ const rejected=closedCivicDoorPose(p,{x:p.door.x,z:p.door.z-1});
+ assert.ok(rejected.z<p.door.z && !atCivicEntrance(p,rejected),p.id+' locked entry rejects onto street');
+ const wall={x0:p.x-footprint.w/2,x1:p.x+footprint.w/2,z0:p.originZ-7,z1:p.originZ-7+footprint.d};
+ const exit=civicExitPose(p,[wall]);
+ assert.ok(exit && exit.z<p.door.z-3 && exit.yaw===0,p.id+' exits through FRONT door facing road');
+ assert.ok(!atCivicEntrance(p,exit),p.id+' exit not repeatedly auto-triggered');
 }
 assert.equal(new Set(EXPANSION_LOCAL_STAFFED).size,72);
-console.log('PASS 72 new northern-frontage 2026 business/service sites: 22 P1, 50 P2; all unique, existing rows/addresses conserved.');
+console.log('PASS: all 72 new 2026 north-frontage buildings use street-facing front doors for entry, locked-entry rejection, and collision-safe exit.');

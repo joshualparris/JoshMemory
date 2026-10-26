@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {houseEntranceZone} from '../src/world/house-entrance.js';
-import {civicEntranceZone,atCivicEntrance,closedCivicDoorPose} from '../src/world/civic-entrance.js';
+import {civicEntranceZone,atCivicEntrance,closedCivicDoorPose,civicStreetDirection} from '../src/world/civic-entrance.js';
 import {exteriorColliders,PLAYER_RADIUS} from '../src/world/exterior-collision.js';
 import {workingAt} from '../src/world/shop-attendance.js';
 
@@ -29,17 +29,19 @@ for(const w of [1.45,1.6,1.9,2.2]){
     checked++;
   }
 }
-for(const side of ['north','south']){
+for(const side of ['legacy','north','south']){
   const p={id:'test',side,door:{x:0,z:0}};
+  const outward=civicStreetDirection(p);
+  assert.equal(outward,side==='legacy'?1:-1,'correct road-facing facade normal');
   const sensor=civicEntranceZone(p);
   const bounce=closedCivicDoorPose(p,{x:0,z:0});
   assert(!atCivicEntrance(p,bounce),'locked building must reject player outside whole trigger');
-  const walls=side==='south'
+  const walls=outward<0
     ?[{x0:-6,x1:6,z0:0.5,z1:10}]
     :[{x0:-6,x1:6,z0:-10,z1:-0.5}];
   let sensed=0;
   for(let i=0;i<10;i++){
-    const z=side==='south'?-3+i*0.53:3-i*0.53;
+    const z=outward<0?-3+i*0.53:3-i*0.53;
     if(hits(0,z,walls))break;
     if(within(sensor,0,z))sensed++;
   }

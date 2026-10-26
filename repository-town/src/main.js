@@ -32,7 +32,7 @@ import { emergencyPanel,justicePanel } from './ui/emergency-panels.js';
 import { civicExitPose } from './world/shop-exit.js';
 import { populateShopStaff } from './world/shop-staff.js';
 import { facilityAccess, restrictedServiceAction } from './world/facility-access.js';
-import { atCivicEntrance, closedCivicDoorPose } from './world/civic-entrance.js';
+import { atCivicEntrance, closedCivicDoorPose, civicStreetDirection } from './world/civic-entrance.js';
 import { createShopVisitors } from './world/shop-visitors.js';
 import { loadFurniture } from './world/furniture.js';
 import { createFloorStack, FLOOR_HEIGHT } from './world/multifloor.js';
@@ -332,8 +332,8 @@ async function start() {
     }
   }
   // Walking through a door keeps the way the player is facing, so backing in or out of a building does
-  // not spin the view. Interiors share the town's orientation, except south-side shops whose door faces -z.
-  const doorTurn = (site) => (site && site.side === 'south' ? Math.PI : 0);
+  // not spin the view. Infill north-side and industrial south-side facades both face -Z.
+  const doorTurn = (site) => (civicStreetDirection(site) < 0 ? Math.PI : 0);
   function enter(coord, keepFacing = false) {
     const yawIn = player.yaw;
     // A villager's own home also has their kitchen, bathroom and laundry, and living room.
@@ -413,7 +413,7 @@ async function start() {
     if(floors){floors.levels[0].people=staff;for(const level of floors.levels.slice(1))attachPilotInteriorLighting(level.group,'B:pub');}
     const ex=built.exitZone;
     inside={house:brief,place:site,...built,people:staff,floors,floorIndex:0,
-      view:townView({x:(ex.x0+ex.x1)/2,z:ex.z0+0.1},site.door,site.side==='south'?Math.PI:0),ownMeshes:townLife.building(id)};
+      view:townView({x:(ex.x0+ex.x1)/2,z:ex.z0+0.1},site.door,doorTurn(site)),ownMeshes:townLife.building(id)};
     scene.add(built.group);town.group.visible=false;
     scene.background.set(INDOOR);scene.fog=null;
     world=new CollisionWorld(built.colliders);
@@ -1354,7 +1354,7 @@ async function start() {
     enterVehicle:(reg)=>driving.enter(life.motorReport().owned.find(v=>v.registration===reg)),
     leaveVehicle:()=>driving.exit(),
     stepVehicle:(seconds)=>driving.update(seconds),
-    shops:()=>[...life.places.values()].map(p=>({id:p.id,name:p.name,kind:p.kind,side:p.side||'north',door:{x:p.x,z:p.door.z}})),
+    shops:()=>[...life.places.values()].map(p=>({id:p.id,name:p.name,kind:p.kind,side:p.side||'north',expansion:!!p.expansion,door:{x:p.x,z:p.door.z}})),
     enterShop,
     setFloor:(i)=>changeFloor(i),
     // Where the town's villager figures are drawn (they keep moving while the player is indoors).
