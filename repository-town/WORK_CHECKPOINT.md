@@ -1,3 +1,7 @@
+# Branch/PR consolidation started — 26 October 2026
+
+User authorised merging all branches/PRs. Baseline 95912eae; topic integration/all-town-branches-20261026. Inventory: 246 remote branch heads and 15 open source PRs; NSWutilities 3 heads/no open PRs. Fetch full history before ancestry/patch audit (initial checkout shallow). Preserve current pub release and all concurrent claims; inspect draft/superseded work before reconciling. No consolidation complete yet. Next: classify actual unique patches, reconcile in isolated worktree, full tests and reviewed merge.
+
 # PUB-EXP release closed — 26 October 2026
 
 PR #221 and #222 merged (final merge aaf4533d976ca12f3f73e80e5d54164ed5dee34b). Runtime 46a3439e5204d856768e61842fa439a0d9b2c200; fingerprint 6be3babae426edb93c44438833bd66bff6a3c7803e57d55435f0c26eae0e3dc0. All seven source workflows passed. Publisher 40261155778 and actual hosted verification 40261957076 passed desktop/phone compliance, venue, expansion, ID and header-free launcher tests. Ground 19 seats, upper 32/office, cellar services, lift/stairs/refuge/second exit. Window board cleared and regression-tested; final local phone screenshot inspected. Optional TinyFish run did not start (wallet), no pass claimed. [release evidence](docs/PUB_CELLAR_UPSTAIRS_RELEASE_2026-10-26.md). PUB-EXP-001–006 complete within declared game scope; PUB-SIM-011–013 and real professional approvals remain open. Preserve isolated QA hosting and unrelated work. No source files left claimed.
