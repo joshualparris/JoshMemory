@@ -1,3 +1,7 @@
+# 26 October 2026 — consolidation PR #186 scoped recovery checkpoint
+
+From 48ae318ba9 on integration/all-town-branches-20261026, brought only the seven source/test identities-and-crowd files from conflicted PR #186 forward using exact-matching patch hunks against the current source (not an old full-file overwrite). Added one regression suite entry. Preserved all recent pub/upstairs/cellar/electrical, town expansion, privacy and saved-game changes. API-level patch application was conflict-free; build:release, privacy, browser, mobile and CI **not yet run/verified for this candidate**. Keep PR #186 open until exact-SHA CI and merge validation; do not assume remote publication. Next verify CI; reconcile remaining PRs individually.
+
 # Consolidation takeover — 26 October 2026
 
 Josh explicitly authorised this session to take over the existing consolidation claim. Baseline 9865eab4. All 15 currently open PRs conflict with main. Audit actual missing patches; preserve archived snapshots and current pub release. No merges claimed until verified.
