@@ -161,18 +161,20 @@ export const PLACE_DEFS = [
   ...EXPANSION_SITES,
 ];
 
+// Each venue's shifts together cover its advertised visitor hours
+// (tests/roster-coverage.mjs); a gap locks the door as "unstaffed".
 const JOBS = [
   ['farmer', 'silo', 6 * 60, 16 * 60], ['farmer', 'garden', 6 * 60, 15 * 60], ['farmer', 'orchard', 7 * 60, 15 * 60],
   ['dairy hand', 'dairy', 5 * 60, 14 * 60], ['poultry keeper', 'coop', 6 * 60, 14 * 60], ['shearer', 'sheep', 6 * 60, 15 * 60],
-  ['miller', 'mill', 7 * 60, 16 * 60], ['baker', 'bakery', 4 * 60 + 30, 13 * 60], ['baker', 'bakery', 6 * 60, 15 * 60],
+  ['miller', 'mill', 7 * 60, 16 * 60], ['baker', 'bakery', 4 * 60 + 30, 13 * 60], ['baker', 'bakery', 9 * 60, 18 * 60],
   ['barista', 'cafe', 6 * 60 + 15, 15 * 60], ['cook', 'cafe', 7 * 60, 15 * 60 + 30], ['grocer', 'greengrocer', 7 * 60 + 30, 17 * 60],
   ['shopkeeper', 'store', 7 * 60, 18 * 60], ['butcher', 'butcher', 7 * 60 + 30, 16 * 60], ['publican', 'pub', 11 * 60, 23 * 60],
-  ['postie', 'post', 8 * 60, 14 * 60], ['truck driver', 'depot', 6 * 60, 16 * 60], ['truck driver', 'depot', 7 * 60, 17 * 60],
+  ['postie', 'post', 8 * 60, 14 * 60], ['truck driver', 'depot', 6 * 60, 16 * 60], ['truck driver', 'depot', 8 * 60, 18 * 60],
   ['truck driver', 'depot', 6 * 60 + 30, 15 * 60], ['teacher', 'school', 8 * 60, 15 * 60 + 30], ['nurse', 'clinic', 8 * 60, 17 * 60],
   ['mayor', 'hall', 9 * 60, 16 * 60], ['station master', 'depot', 6 * 60, 15 * 60], ['programmer', 'home', 9 * 60, 17 * 60],
   ['programmer', 'home', 10 * 60, 18 * 60], ['retired', 'square', 9 * 60, 12 * 60], ['student', 'school', 8 * 60 + 30, 15 * 60],
   ['student', 'school', 8 * 60 + 30, 15 * 60], ['artist', 'square', 10 * 60, 15 * 60], ['real estate agent', 'realty', 9 * 60, 17 * 60],
-  ['soybean grower', 'soyfarm', 7 * 60, 16 * 60], ['plant-drink technician', 'soyplant', 8 * 60, 17 * 60],
+  ['soybean grower', 'soyfarm', 6 * 60, 15 * 60], ['plant-drink technician', 'soyplant', 8 * 60, 17 * 60],
   ['power operator', 'power', 6 * 60, 18 * 60], ['water operator', 'waterworks', 7 * 60, 15 * 60], ['recycler', 'recycling', 7 * 60, 15 * 60],
   ['firefighter', 'fire', 8 * 60, 18 * 60], ['bank teller', 'bank', 8 * 60 + 30, 16 * 60 + 30], ['foundry worker', 'foundry', 7 * 60, 15 * 60],
   // Real shift workers with households, journeys and paid wages, rather than
@@ -192,11 +194,11 @@ const JOBS = [
   ['TAFE student-services officer', 'tafe', 8 * 60, 18 * 60],
   ['university librarian', 'university', 8 * 60, 21 * 60],
   ['council customer-service officer', 'hall', 9 * 60, 17 * 60],
-  ['postal counter clerk', 'post', 8 * 60, 17 * 60],
-  ['clinic receptionist', 'clinic', 8 * 60, 17 * 60],
+  ['postal counter clerk', 'post', 9 * 60, 18 * 60],
+  ['clinic receptionist', 'clinic', 10 * 60, 19 * 60],
   ['school librarian', 'school', 8 * 60, 15 * 60 + 30],
   ['plant reception and safety officer', 'soyplant', 7 * 60, 17 * 60],
-  ['afternoon barista', 'cafe', 12 * 60, 16 * 60],
+  ['afternoon barista', 'cafe', 12 * 60, 17 * 60],
   ['afternoon cashier', 'store', 10 * 60, 20 * 60],
 ];
 // A shop with only one employee cannot genuinely remain open during that

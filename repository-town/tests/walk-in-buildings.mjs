@@ -25,8 +25,10 @@ const BUILDINGS = {
 };
 for (const [id, want] of Object.entries(BUILDINGS)) {
   const site = (await T(() => window.__town.shops())).find((s) => s.id === id);
-  // Step onto the shopfront door sensor, as for every High Street building (src/main.js).
-  await T((s) => window.__town.place(s.door.x, s.door.z + 0.4, 0), site);
+  // Step onto the shopfront door sensor from the street side (src/world/civic-entrance.js):
+  // legacy High Street shops open toward +Z, north/south-side sites toward -Z.
+  const street = site.side === 'south' || site.side === 'north' ? -1 : 1;
+  await T(([s, d]) => window.__town.place(s.door.x, s.door.z + d * 0.4, d > 0 ? 0 : Math.PI), [site, street]);
   const entered = await until(() => window.__town.state().mode === 'house', 12000);
   check(entered, `${id}: walked in through the front door`);
   if (!entered) continue;
