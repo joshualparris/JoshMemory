@@ -1,5 +1,6 @@
 import { buildPubFacade, PUB_ENVELOPE } from './pub-envelope.js';
 import { buildExpansionFacade } from './town-expansion-facades.js';
+import { buildPostFacade } from './post-facade.js';
 import { shopLightingOn, interiorPalette } from './lighting.js';
 import * as THREE from 'three';
 import {pilotMains} from './electrical-pilot.js';
@@ -174,11 +175,7 @@ const BUILD = {
   pub(b) {
     return buildPubFacade(b,{GLASS,DARK,WOOD});
   },
-  post(b) {
-    shopfront(b, 11, 9, 4.6, 0xe8d2b0, 0xb8413a, null);
-    b.block(RED, 0.6, 1.2, 0.5, 4.6, 0, 8.2); b.ball(RED, 0.3, 4.6, 1.2, 8.2); b.box(DARK, 0.4, 0.05, 0.05, 4.6, 1.0, 8.47);
-    return { w: 11, d: 9 };
-  },
+  post(b) { return buildPostFacade(b,{shopfront,RED,DARK}); },
   hall(b) {
     b.box(0xd8d2c4, 18, 7, 12, 0, 3.5, 1); b.box(0xb8b2a4, 19, 0.8, 13, 0, 7.4, 1);
     for (let i = 0; i < 6; i++) b.cyl(WHITE, 0.35, 6.4, -6.25 + i * 2.5, 3.2, 7.6);
