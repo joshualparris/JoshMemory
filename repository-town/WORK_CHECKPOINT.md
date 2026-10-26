@@ -441,3 +441,6 @@ Full local build:release/privacy/integrity passed candidate a6a1242. Desktop act
 
 ### PUB-EXP live-loop regression
 Final 407 browser exercised all expansion actions, then caught an actual generic frame lifecycle defect: E on an escape portal calls leave(), clearing inside, before the same frame reads inside.dynamics. Added an interior-existence guard after Use so town rendering/saving/input continue; browser now also asserts post-escape movement. Preserved ID controls pass desktop/phone, and the full revised rear route passes real town-collider sampling. Re-run final expansion acceptance on corrected source; do not treat 407 as accepted.
+
+### PUB-EXP final live visual clearance
+Expansion source0c passed all seven workflows, publisher and live desktop/phone expansion including cancelled lift and both exits. Visual inspection of the actual stair-landing screenshot found the relocated ground menu board intersected a side-window opening; moved it to the clear rear-left wall. Shifted one upper wall picture off the window edge too. Added actual Three.js bounding-box regression for TV/menu/pictures versus the side-window span. Gameplay/route tests pass. Supplemental source/hosted verification remains pending; do not label the window issue fixed before the new live view is checked.
