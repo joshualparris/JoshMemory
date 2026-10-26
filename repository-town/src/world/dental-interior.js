@@ -10,7 +10,7 @@ export function buildDentalInterior(site,makeLabel){
  const C={wall:0xe4eeec,blue:0x53869b,white:0xf1f5f3,steel:0x889ca3,seat:0x638d9d,teal:0x629a8f,dark:0x314954};
  k.shell({wall:C.wall,ceiling:0xf6f8f7,floor:0xa9bfba,frontSill:.75,sideSill:1.05});
  group.add(new THREE.HemisphereLight(0xf7fcff,0x6e8989,2.1));
- text('REPOSITORY DENTAL',0,3.35,-11.65,'room');
+ text('WATTLE STREET DENTAL',0,3.35,-11.65,'room');
  // Waiting/reception: front of house, seating, check-in and brochure rack.
  solid(3.0,.85,.75,3.7,.425,1.5,C.blue);
  box(3.1,.07,.84,3.7,.89,1.5,C.white);
