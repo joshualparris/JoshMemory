@@ -1,3 +1,7 @@
+# 26 October 2026 — Post Office rendered desktop/Pixel 7 Playwright acceptance added
+
+New `tests/post-office-browser.mjs` records a real 3D screenshot and asserts a physically staffed visit, postal interactions, exit returning to street and no page errors on desktop and Pixel 7. The recorded WebGL GitHub workflow now runs this focused test against its own candidate build after generic game play. This is a test requirement only; no claim of executed pass until exact SHA CI finishes.
+
 # 26 October 2026 — PR235 test-driven repairs
 
 Original PR CI exposed `ReferenceError: blocker is not defined` in Post Office queue creation; fixed missing destructuring from createKit. It also exposed a separate upstream 2026 rail relocation: `RAIL_Z` moved to 132 to clear row-8/pub escapes but `tests/rail-corridor.mjs` still asserted 144 and wrongly expected legacy street-7 lamps to remain lit inside a 5.5m exclusion. Updated only the stale test to assert 132, protected row-8 rear boundary and active suppression of those lamps. Did NOT change the railway model, tracks, signalling or certificates. Full CI restart pending.
