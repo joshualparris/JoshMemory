@@ -16,7 +16,6 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
-- 2026-10-26 · ChatGPT — IN PROGRESS: RTBUILD-069 N5-N Repository Community Bus Interchange realistic street-facing shell, accessible boarding hardstand/tactiles, passenger shelter, walkable waiting room with timetable/assistance and regression tests. Branch `feat/repo-n5-bus-interchange-realism-20261026`. Claim new `src/world/bus-interchange-*`, targeted `src/world/shop-interior.js` and `src/world/town-expansion-facades.js`, new `tests/bus-interchange.mjs`, test runner, scoped docs. Preserve town exits, other 71 new buildings, public privacy, no claims of legal approvals or real bus timetables. Source baseline main. Full release/browser/production still pending.
 
 
 
@@ -150,6 +149,9 @@ Newest first. Times in Australia/Sydney.
   is currently blocked by the Hobby team's daily deployment quota (`api-deployments-free-per-day`).
 
 ## Done
+
+- 2026-10-26 · ChatGPT — **VERIFIED MERGED AND LIVE: RTBUILD-069 N5-N Bus Interchange**, PR #230 squash merge `d5637c6ef04b782106fca7c63d036d18159a3c3b`. Dedicated 10×7m NSW-style one-stand bus shelter, transparent-style side glazing, waiting interior, priority benches, tactile boarding indicators, enquiries, 24h public waiting access, and matched street-facing door. Research/limits: `docs/N5_BUS_INTERCHANGE_REALISM_2026-10-26.md`. Branch WebGL desktop/Android, town integration/release, privacy, five 28-day simulations, Android driving and heritage checks passed. **Live Vercel deployment dpl_HMtt7kKRHVSVocpZAUnFBHucjQHi READY and production alias resolves to exact merged SHA**. Separate pre-existing pub 2026 audit hash check remains failing on unrelated `src/world/life.js`, not altered. This is a simulated facility, not an actual regulatory certification; no real bus arrivals claimed.
+
 
 - 2026-10-26 · ChatGPT — **SOURCE MERGED, CI VERIFIED**: [PR #227](https://github.com/joshualparris/JoshMemory/pull/227) squash-merged to main at `b8d671a89f3a754d40ddf41e2f9067ecab685408`. Shared -Z street-facing entry/exit/view fix for all 72 new infill properties; legacy +Z High Street and south industry preserved. Tests: all five 28-day simulations, Town safety/release/privacy gate, Android emulation, heritage release, and recorded desktop/mobile WebGL gameplay (including physical exit-facing browser regression) PASS at `1b6bec6af27e3d2f078b4107e17893b7b01586b5`. Vercel production deployment must be independently verified READY before claiming hosted completion. 
 
