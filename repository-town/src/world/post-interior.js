@@ -1,4 +1,5 @@
 import { createKit, ROOM } from './interior-kit.js';
+import { addPostOperationalDetails } from './post-operational-details.js';
 
 // The Post Office, laid out like a small country post office:
 //   • A full-width service counter at the back with scales, a stamp drawer, a card reader and a parcel hatch;
@@ -55,5 +56,6 @@ export function buildPostInterior(site, makeLabel, roomTitle = 'Post office') {
   add('boxes', 'PO boxes', 'info', 'Rows of locked boxes for farms and businesses without a street address. The postie sorts the morning mail into them.', -3.6, -1.0);
   add('parcels', 'Parcel shelves', 'info', 'Parcels wait here until collected. The post office keeps twelve in stock and the posties carry them out round the town.', -2.2, -4.3);
   add('packing', 'Packing bench', 'info', 'Boxes, tape and padded bags for sending something. The slot box by the door is cleared twice a day.', 3.4, -0.4);
+  addPostOperationalDetails(k);
   return k.finish({ staff: { pos: POST_LAYOUT.staff, use: POST_LAYOUT.staffUse } });
 }
