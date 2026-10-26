@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import * as THREE from 'three';
 import {AGED_CARE as L} from '../src/world/aged-care-layout.js';
 import {EXPANSION_SITES} from '../src/world/town-expansion.js';
@@ -17,6 +18,15 @@ assert(b.glass.length>5,'glazed residential windows and entry are not an opaque 
 const label=()=>new THREE.Sprite(new THREE.SpriteMaterial());
 const room=buildCivicInterior(site,label);
 assert.equal(room.agedCareLayout,L,'must dispatch to dedicated small household');
+// Regression: this interior uses plain doorway metadata, not animated Three.js door meshes.
+// Previously main.js accessed d.userData.privacy on these objects and crashed immediately.
+assert(room.doors.length>0,'aged-care interior must provide room connection metadata');
+assert(room.doors.some(d=>!d.userData),'aged-care doorway descriptors exercise non-mesh handling');
+const mainSource=readFileSync(new URL('../src/main.js',import.meta.url),'utf8');
+assert(mainSource.includes('if (!d?.userData?.centre || !d.rotation) continue;'),'render loop must skip non-mesh door descriptors');
+assert(mainSource.includes('(built.doors || []).filter(d=>d?.userData?.centre'),'dynamic collision must ignore metadata-only doors');
+assert(mainSource.includes('(next.doors || []).filter(d=>d?.userData?.centre'),'floor transitions must ignore metadata-only doors');
+assert(mainSource.includes('Number.isFinite(d.userData.open)'),'door animations must recover from missing open state');
 assert.equal(room.rooms.length,6,'foyer, living, dining, two bedrooms and corridor');
 assert.equal(room.bounds.x1-room.bounds.x0,L.w);
 assert.equal(room.bounds.z1-room.bounds.z0,L.d);
