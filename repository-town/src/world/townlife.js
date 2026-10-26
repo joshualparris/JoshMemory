@@ -12,7 +12,7 @@ import { pose } from './npcs.js';
 import { makeDistinctPerson } from './npc-wardrobe.js';
 import { facilityAccess, openingHoursLabel } from './facility-access.js';
 import { TownLife, GOODS, RAIL_Z, trainX, FIELD_Z0, FIELD_Z1, SEC_PER_MIN, LOT_X, AVENUES } from './life.js';
-import { RAIL_GAUGE, RAIL_CROSSINGS, RAIL_Z as TRACK_Z, withinLevelCrossing, railSideYardClear, railGateBoxes, railClearanceAudit } from './rail-corridor.js';
+import { RAIL_GAUGE, RAIL_CROSSINGS, RAIL_DEPOT_PLATFORM_SETBACK, RAIL_DEPOT_PLATFORM_DEPTH, withinLevelCrossing, railSideYardClear, railGateBoxes, railClearanceAudit } from './rail-corridor.js';
 
 // Draws the town simulation (src/world/life.js): the high street and farms on street 8,
 // fields, livestock, the freight train, delivery trucks, villagers, doorstep parcels and
@@ -204,8 +204,13 @@ const BUILD = {
     b.box(0xb88a5a, 14, 5, 8, 0, 2.5, 3); b.box(0x4a3a2a, 16, 0.4, 10, 0, 5.2, 3);
     b.box(0x2a1e18, 2, 2.6, 0.06, 0, 1.3, 7.04); for (const x of [-4.5, 4.5]) b.box(GLASS, 1.6, 1.6, 0.08, x, 2, 7.04);
     // The platform runs behind, along the railway line.
-    b.box(0xb8b0a0, 24, 0.9, 3, 0, 0.45, RAIL_Z - LOT8_Z + 3.4); b.box(0x8a6545, 10, 0.2, 2.6, 0, 3.2, RAIL_Z - LOT8_Z + 3.4);
-    for (const x of [-4.5, 4.5]) b.block(0x8a6545, 0.2, 2.3, 0.2, x, 0.9, RAIL_Z - LOT8_Z + 4.4);
+    // Freight-only loading apron, intentionally outside the reserved train
+    // envelope. Its near edge is 3.7 m from track centre; no boarding claim.
+    const apronZ=RAIL_Z-LOT8_Z+RAIL_DEPOT_PLATFORM_SETBACK;
+    b.box(0xb8b0a0, 24, 0.9, RAIL_DEPOT_PLATFORM_DEPTH, 0, 0.45, apronZ);
+    b.box(0xe3c32f, 24, 0.025, 0.14, 0, 0.91, apronZ-RAIL_DEPOT_PLATFORM_DEPTH/2+0.25);
+    b.box(0x8a6545, 10, 0.2, 2.6, 0, 3.2, apronZ);
+    for (const x of [-4.5, 4.5]) b.block(0x8a6545, 0.2, 2.3, 0.2, x, 0.9, apronZ+1);
     return { w: 14, d: 8 };
   },
   mill(b) {
