@@ -3,6 +3,7 @@
 // Geometry is phase-one massing, NOT a completed NCC, petrol, clinical or childcare approval.
 import { GLASS } from './builder.js';
 import { buildBusInterchangeFacade } from './bus-interchange-facade.js';
+import { buildVisitorInformationFacade } from './visitor-information-facade.js';
 const styles=Object.freeze({
  heritage:[0xbb8d72,0x755340,0x7e3c31],
  civic:[0xc8bda7,0x546873,0x334d60],
@@ -25,6 +26,7 @@ export function expansionFootprint(style){
 }
 export function buildExpansionFacade(b,site){
  if(site.id==='busstop')return buildBusInterchangeFacade(b);
+ if(site.id==='visitorcentre')return buildVisitorInformationFacade(b);
  const pal=styles[site.style]||styles.retail;
  const [wall,trim,accent]=pal,{w,d}=expansionFootprint(site.style);
  const h=site.style==='heritage'?5.1:site.style==='rural'?5:4.2;
@@ -102,6 +104,44 @@ export function buildExpansionFacade(b,site){
    b.box(0x91bdc4,.07,2.9,.18,0,1.6,face+.27);
    b.box(0x3a6476,4.1,.16,1.1,0,3.25,face+.65);
    b.box(0xaac3ca,3.2,.08,1.35,0,.04,face+.75);
+   return {w,d,front:7};
+ }
+ // F7-N: independent grocer with generous street-facing produce windows.
+ if(site.id==='supermarket'){
+   b.box(0xb8c3b8,w,.12,d,0,.06,centre);
+   b.box(0xe4e5d9,w,4.3,d,0,2.15,centre);
+   b.box(0x457e65,w+.45,.35,d+.35,0,4.4,centre);
+   b.box(0x467f66,w+.55,.72,.38,0,3.82,face-.12);
+   for(const x of [-3.75,3.75]){
+     b.box(0x426f64,3.35,2.55,.13,x,2.04,face+.09);
+     b.box(GLASS,3.12,2.33,.14,x,2.04,face+.18);
+     b.box(0xd8e6dc,.09,2.4,.17,x,2.04,face+.26);
+     b.box(0x9b7953,2.3,.45,.45,x,.83,face+.42);
+   }
+   b.box(0x355e56,2.3,3.12,.12,0,1.62,face+.1);
+   b.box(GLASS,2.08,2.9,.14,0,1.62,face+.18);
+   b.box(0xe0ede8,.08,2.88,.17,0,1.62,face+.27);
+   b.box(0x739e80,4.3,.18,1.25,0,3.18,face+.7);
+   b.box(0xbccbc0,3.1,.09,1.3,0,.04,face+.72);
+   return {w,d,front:7};
+ }
+ // E7-N dental practice: light clinical facade, waiting-room glazing and level entry.
+ if(site.id==='dentist'){
+   b.box(0xb7c8c7,w,.12,d,0,.06,centre);
+   b.box(0xe2edeb,w,4.25,d,0,2.125,centre);
+   b.box(0x537f90,w+.35,.32,d+.3,0,4.42,centre);
+   b.box(0x438b9a,w+.45,.7,.38,0,3.82,face-.12);
+   for(const x of [-3.7,3.7]){
+     b.box(0x4d7480,3.35,2.55,.12,x,2.03,face+.08);
+     b.box(GLASS,3.1,2.33,.13,x,2.03,face+.16);
+     b.box(0xe2edeb,.09,2.35,.15,x,2.03,face+.25);
+     b.box(0x94b5b8,2.9,.65,.16,x,1.05,face+.28);
+   }
+   b.box(0x426975,2.32,3.1,.12,0,1.62,face+.1);
+   b.box(GLASS,2.08,2.85,.14,0,1.62,face+.17);
+   b.box(0xd3e7e8,.08,2.86,.16,0,1.62,face+.26);
+   b.box(0x5d9eac,3.6,.16,1.2,0,3.18,face+.62);
+   b.box(0xc3d4d0,3.0,.08,1.4,0,.04,face+.75);
    return {w,d,front:7};
  }
  if(site.style==='fuel'){
