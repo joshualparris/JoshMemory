@@ -21,7 +21,8 @@ import { routeProgress, escapeCrowdWaypoint, clearPedestrianSegment } from './pe
 import { distributePower, townPowerDemands, POWER_LINE_IDS, GRID_FAULT_COST } from './power-grid.js';
 import { initialisePublicLife, attendPublicForum, updatePublicForum, civicDialogue } from './public-forum.js';
 import {initialEmergencyState,emergencyState,callTripleZero,advanceEmergency,caseReport,justiceSummary} from './emergency-justice.js';
-import { freshFinance, noteSale, noteRates, withhold, stateFunded, drawState, noteCouncilWage, dailyGrants, dailyClose as financeDailyClose, payBills, economyReport, bizStats, governmentMoney } from './finance.js';
+import { freshFinance, noteSale, noteRates, withhold, stateFunded, drawState, noteCouncilWage, dailyGrants, dailyClose as financeDailyClose, payBills, economyReport, bizStats, governmentMoney, startupGrants } from './finance.js';
+import { noteStoreDelivery } from './store-batches.js';
 import { receipt, tickJobs, startJob, performTask, abandonJob, finishJob, jobsReport, current as currentJob, supervisors } from './jobs.js';
 import { freshCredit, recordEarning, noteBank, creditReport, borrow, repay, accrueInterest } from './credit.js';
 import { ensureHousehold, hasFood, heldCount, takeFood, stowFood, larderSummary, householdHour, homeTask, householdDone, householdReport, noteIncome, noteSpend, canAfford, outdoorTemp, season } from './household.js';
@@ -573,6 +574,8 @@ export class TownLife {
 
   freshStats() { return { harvested: {}, milled: 0, baked: 0, deliveries: 0, delivered: {}, sold: {}, meals: 0, mealsOut: 0, parcels: 0, taxes: 0, wages: 0, recycled: 0, landfill: 0, letters: 0, repairs: 0, stockouts: 0, powerCutHours: 0, wasted: 0 }; }
   place(id) { return this.places.get(id); }
+  // Privately owned businesses: shops, hospitality, farms, mill, hotel, foundry, trade and professional services.
+  privateBusinesses() { return [...this.places.values()].filter((p) => !PUBLIC.has(p.id) && (['shop', 'cafe', 'pub', 'mill', 'farm', 'hotel', 'industry', 'service', 'office'].includes(p.kind) || p.id === 'solicitor')); }
   dial000(type,location=null){return callTripleZero(this,type,location);}
   emergencyReport(){return caseReport(this);}
   justiceReport(){return justiceSummary(this);}
@@ -589,6 +592,7 @@ export class TownLife {
     tickJobs(this, minutes);
     this.minute += minutes;
     if (this.minute >= 24 * 60) { this.minute -= 24 * 60; this.day++; this.newDay(); }
+    startupGrants(this, this.privateBusinesses());
     const hourly = Math.floor(before / 60) !== Math.floor(this.minute / 60) || this.minute < before;
     if (hourly) { this.everyHour(); advanceTradeEducation(this); }
     advanceNeeds(this,minutes);
@@ -1274,6 +1278,7 @@ export class TownLife {
       const paid = payer ? Math.min(cost, Math.max(0, payer.till)) : Math.min(cost, this.civic.treasury);
       if (payer) payer.till -= paid; else this.civic.treasury -= paid;
       src.till += paid;
+      if (dst.id === 'store' && n && safe) noteStoreDelivery(this, g, n, src.id, paid);   // invoiced, dated lot (store-batches.js)
       this.stats.deliveries++; this.stats.delivered[g] = (this.stats.delivered[g] || 0) + (safe?n:0);
       if (n >= 8 || this.rand() < 0.3) this.log(`${t.driver?.name || 'A truck'} delivered ${amount(g, n)} to the ${dst.name}.`);
       t.load = null; t.job = null; t.wait = 4; t.state = 'unloaded, looking for the next job';
