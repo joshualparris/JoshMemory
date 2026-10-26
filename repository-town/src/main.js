@@ -516,7 +516,7 @@ async function start() {
   const syncTimeBtn = () => { const h = life.minute / 60; const label = h < 6 || h >= 20.5 ? '🌙 Night' : h < 9 ? '🌅 Morning' : h < 17.5 ? '☀️ Day' : '🌇 Dusk'; if ($('btn-time').textContent !== label) $('btn-time').textContent = label; };
   $('btn-time').onclick = () => cycleTime();
   addEventListener('keydown', (e) => {
-    if (e.key.toLowerCase() !== 't' || e.repeat || e.ctrlKey || e.altKey || e.metaKey) return;
+    if (String(e.key ?? '').toLowerCase() !== 't' || e.repeat || e.ctrlKey || e.altKey || e.metaKey) return;
     if (e.target?.closest?.('input,textarea,select,[contenteditable],#panel,#game,#npc-chat,#town-companion')) return;
     cycleTime();
   });
@@ -567,7 +567,7 @@ async function start() {
       else { const el = document.createElement('button'); el.textContent = a.label; el.onclick = () => { if (a.play) return startGame(a.play); const beforeWallet=life.civic.player.wallet;
           const next = a.run ? a.run() : content.onAnswer(a.answer);
           if (next && player.seated && ['cafe','pub'].includes(inside?.place?.id) &&
-              a.label.toLowerCase().startsWith('order ') && life.civic.player.wallet<beforeWallet && typeof next.body==='string') {
+              String(a.label ?? '').toLowerCase().startsWith('order ') && life.civic.player.wallet<beforeWallet && typeof next.body==='string') {
             next.body='<p><b>'+(inside.floors?.isPub&&inside.floorIndex!==0?'Order recorded. Collect at the ground-floor bar.':'Your order has been brought to your table.')+'</b></p>'+next.body;
           }
           if (next) openPanel(next, thing); };
