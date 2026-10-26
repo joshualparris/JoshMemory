@@ -1,3 +1,7 @@
+# Consolidation takeover — 26 October 2026
+
+Josh explicitly authorised this session to take over the existing consolidation claim. Baseline 9865eab4. All 15 currently open PRs conflict with main. Audit actual missing patches; preserve archived snapshots and current pub release. No merges claimed until verified.
+
 # Branch/PR consolidation started — 26 October 2026
 
 User authorised merging all branches/PRs. Baseline 95912eae; topic integration/all-town-branches-20261026. Inventory: 246 remote branch heads and 15 open source PRs; NSWutilities 3 heads/no open PRs. Fetch full history before ancestry/patch audit (initial checkout shallow). Preserve current pub release and all concurrent claims; inspect draft/superseded work before reconciling. No consolidation complete yet. Next: classify actual unique patches, reconcile in isolated worktree, full tests and reviewed merge.
