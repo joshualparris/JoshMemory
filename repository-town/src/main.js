@@ -166,11 +166,16 @@ async function start() {
   // Dynamic vehicle footprints block player motion as well as truck movement.
   // A vehicle is approx 2.2m wide and 6.6m long; use a conservative
   // rotated-axis AABB for the town's existing 2D collision engine.
-  townWorld.dynamic = () => life.trucks.map(tr => {
-    const sn = Math.abs(Math.sin(tr.heading)), cs = Math.abs(Math.cos(tr.heading));
-    const hx = 1.18*cs + 3.4*sn, hz = 1.18*sn + 3.4*cs;
-    return {x0:tr.x-hx,x1:tr.x+hx,z0:tr.z-hz,z1:tr.z+hz};
-  });
+  townWorld.dynamic = () => [
+    ...life.trucks.map(tr => {
+      const sn = Math.abs(Math.sin(tr.heading)), cs = Math.abs(Math.cos(tr.heading));
+      const hx = 1.18*cs + 3.4*sn, hz = 1.18*sn + 3.4*cs;
+      return {x0:tr.x-hx,x1:tr.x+hx,z0:tr.z-hz,z1:tr.z+hz};
+    }),
+    // A raised boom must not stop walking, and a lowering boom must not trap
+    // anybody already between the protected approaches. Query live state.
+    ...townLife.railBarrierColliders(player.pos.z)
+  ];
 
   const input = new Input(renderer.domElement, $('touch'));
   const captureButton = $('btn-capture');
