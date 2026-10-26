@@ -55,6 +55,23 @@ for (const site of infill) {
 }
 check(infill.length > 0 && infillExercised, 'at least one new northern infill building was entered and exited');
 
+// N5-N public bus shelter: inspect actual room and walk back through the front door.
+const bus=shops.find(s=>s.id==='busstop');
+check(!!bus,'N5-N community bus interchange exists');
+if(bus){
+  check(await T(()=>window.__town.enterShop('busstop')),'N5-N is publicly enterable');
+  const inState=await T(()=>window.__town.state());
+  check(inState.mode==='house' && inState.windows>=4 && inState.interactables.some(i=>i.key==='busstop:timetable'),
+    'N5-N has its own glazed waiting room and timetable');
+  const out=await walkOut();
+  check(out.mode==='town' && out.pos.z<bus.door.z-2 && away(out,bus.door)>.7,
+    'walking from the shelter exits at its real street-facing doorway');
+  await T(()=>window.__town.enterShop('busstop'));
+  await T(()=>window.__town.exitShop());
+  const btnOut=await T(()=>window.__town.state());
+  check(btnOut.mode==='town' && btnOut.pos.z<bus.door.z-2,
+    'Exit action also places the player at the front, never at the rear wall');
+}
 // A house: walk in, walk back out.
 await T(() => window.__town.travel('A1')); await page.waitForTimeout(500);
 const front = await T(() => window.__town.state());
