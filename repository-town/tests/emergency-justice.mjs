@@ -83,7 +83,7 @@ assert(c.sentence&&c.sentence.type.includes('fine'),'minor nonviolent scenario h
 assert.equal(c.custody,'released');
 assert.equal(t.civic.emergency.statistics.convictions,1);
 const newReport=t.dial000('breakin');assert(newReport.ok);
-advance(11);
+for(let m=0;m<11;m++)advance(1);
 const next=t.civic.emergency.cases.at(-1);
 assert(next&&next.id!==c.id);
 assert.match(addIndependentEvidence(t,next.id,'cctv'),/CCTV evidence/);
