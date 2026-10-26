@@ -82,7 +82,7 @@ export function withholdVisitor(life, gross, priorGross = 0) {
   const me = life.civic.player, amount = Math.floor(r2(priorGross + gross) * RATES.paygPercent / 100) - Math.floor(priorGross * RATES.paygPercent / 100);
   if (amount <= 0 || me.wallet < amount) return 0;
   const f = fin(life);
-  me.wallet -= amount; f.federal = r2(f.federal + amount);
+  me.wallet = r2(me.wallet - amount); f.federal = r2(f.federal + amount);
   revenue(life, 'tax', amount);
   record(life, 'visitor', 'commonwealth', amount, 'PAYG income tax on your wages');
   return amount;

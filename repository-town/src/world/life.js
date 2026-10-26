@@ -326,6 +326,8 @@ export const VENUE_MENU = Object.freeze({
 const plural = (unit, n) => (n === 1 ? unit : /[sx]$|ch$/.test(unit) ? `${unit}es` : unit === 'loaf' ? 'loaves' : `${unit}s`);
 export const amount = (good, n) => (GOODS[good].unit === 'dozen' ? `${n} dozen ${GOODS[good].name}` : `${n} ${plural(GOODS[good].unit, n)} of ${GOODS[good].name}`);
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+// Player money is whole cents; plain float subtraction leaves values like 1.0099999999999998.
+const cents = (n) => Math.round(n * 100) / 100;
 const fmt = (m) => `${String(Math.floor(m / 60) % 24).padStart(2, '0')}:${String(Math.floor(m % 60)).padStart(2, '0')}`;
 export const timeText = fmt;
 
@@ -846,7 +848,7 @@ export class TownLife {
     if (!service.available) return service.message;
     if (!(this.shelves(p)[good] > 0)) return `Sorry, sold out of ${GOODS[good].name}. The next truck should bring more.`;
     if (me.wallet < price) return `You need $${price} but only have $${me.wallet} — try the Community Bank.`;
-    this.shelves(p)[good]--; me.wallet -= price; this.sale(p, price); receipt(this, 'purchase', `${GOODS[good].name} at ${p.name}`, -price);
+    this.shelves(p)[good]--; me.wallet = cents(me.wallet - price); this.sale(p, price); receipt(this, 'purchase', `${GOODS[good].name} at ${p.name}`, -price);
     me.bag[good] = (me.bag[good] || 0) + 1; this.stats.sold[good] = (this.stats.sold[good] || 0) + 1;
     this.log(`A visitor bought ${GOODS[good].name} at the ${p.name}.`);
     return `You buy ${amount(good, 1)} for $${price}. It's in your bag.`;
@@ -867,7 +869,7 @@ export class TownLife {
     const service = shopService(this, p);
     if (!service.available) return service.message;
     if (!this.menuAvailability(shopId, good)) return `Sorry, ${GOODS[good].name} is sold out until ingredients arrive.`;
-    if (me.wallet < price) return `You need ${price} but have ${me.wallet}.`;
+    if (me.wallet < price) return `You need $${price} but only have $${me.wallet}.`;
     if(shopId==='pub' && ['pub_parmy','pub_roast','pub_pie','pub_chips'].includes(good)){
       if(!pubKitchenReady(this))return 'The pub kitchen is out of service. Check its utilities panel.';
       pubAction(this,'meal');
@@ -877,7 +879,7 @@ export class TownLife {
     if(shopId==='pub'&&['pub_beer','pub_bottled_beer'].includes(good))reservePubDrink(this,good);
     else if ((stock[good] || 0) > 0) stock[good]--;
     else for (const [ingredient, n] of Object.entries(recipe)) stock[ingredient] -= n;
-    me.wallet -= price; this.sale(p, price);
+    me.wallet = cents(me.wallet - price); this.sale(p, price);
     receipt(this, 'purchase', `${GOODS[good].name} at ${p.name}`, -price);
     this.stats.sold[good] = (this.stats.sold[good] || 0) + 1;
     this.log(`The visitor ordered ${GOODS[good].name} at ${p.name}.`);
@@ -892,7 +894,7 @@ export class TownLife {
     if (!service.available) return service.message;
     if (!(me.bag[good] > 0)) return `You don't have any ${GOODS[good].name}.`;
     if (p.till < pay) return `The ${p.name} can't afford to buy it back right now.`;
-    me.bag[good]--; this.shelves(p)[good] = (this.shelves(p)[good] || 0) + 1; p.till -= pay; me.wallet += pay; recordEarning(this, pay); receipt(this, 'sale', `Sold ${GOODS[good].name} to ${p.name}`, pay);
+    me.bag[good]--; this.shelves(p)[good] = (this.shelves(p)[good] || 0) + 1; p.till -= pay; me.wallet = cents(me.wallet + pay); recordEarning(this, pay); receipt(this, 'sale', `Sold ${GOODS[good].name} to ${p.name}`, pay);
     return `The ${p.name} buys it back for $${pay}.`;
   }
   eatItem(good) { if(['pub_beer','pub_bottled_beer'].includes(good))return drinkPubBeer(this,good);return eatPlayer(this,good); }
@@ -960,7 +962,7 @@ export class TownLife {
   postLetter(to) {
     const me = this.civic.player;
     if (me.wallet < 2) return 'Postage is $2.';
-    me.wallet -= 2; this.civic.treasury += 2; this.civic.letters.push({ to, day: this.day, delivered: false });
+    me.wallet = cents(me.wallet - 2); this.civic.treasury += 2; this.civic.letters.push({ to, day: this.day, delivered: false });
     return `Letter to ${to} posted ($2). The postie delivers it tomorrow afternoon.`;
   }
   repair(service) { return submitRequest(this,service); }
@@ -968,7 +970,7 @@ export class TownLife {
     const c = this.civic, n = Math.min(5, Math.floor(c.homes.recyclables));
     if (!n) return 'No recycling waiting on the kerbs right now.';
     c.homes.recyclables -= n; this.place('recycling').stock.recyclables += n;
-    const reward = Math.min(c.treasury, n * 2); c.treasury -= reward; c.player.wallet += reward; recordEarning(this, reward);
+    const reward = Math.min(c.treasury, n * 2); c.treasury -= reward; c.player.wallet = cents(c.player.wallet + reward); recordEarning(this, reward);
     return `You sort ${n} bags of recycling and the council pays you $${reward}.`;
   }
 

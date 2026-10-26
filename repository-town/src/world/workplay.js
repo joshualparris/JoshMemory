@@ -170,7 +170,7 @@ export function useCafe(t,action,arg,score){
   o.state='served';o.servedAt=now(t);c.held=null;c.served++;o.reserved=false;
   // Quick service earns a $1 tip from the customer's own wallet to the visitor's.
   const tip=now(t)-o.created<=(o.patience||90)/2&&v.wallet>=1?1:0;
-  if(tip){v.wallet-=tip;noteSpend(v,'out',tip);t.civic.player.wallet+=tip;c.tips=(c.tips||0)+tip;}
+  if(tip){v.wallet-=tip;noteSpend(v,'out',tip);t.civic.player.wallet=Math.round((t.civic.player.wallet+tip)*100)/100;c.tips=(c.tips||0)+tip;}
   t.log('Ticket '+o.id+': '+o.name+' served '+r.name+' at table '+o.table+'.');
   return result(true,'Correct table! '+o.name+' received '+r.name+'. $'+r.price+' paid to the café'+(tip?' and they left you a $1 tip.':'.'));
  }

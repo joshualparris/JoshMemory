@@ -81,8 +81,8 @@ export function repay(life, amount) {
   const pay = Math.min(Math.floor(amount), Math.ceil(owed(loan)), can);
   if (pay <= 0) return 'You have nothing to repay with.';
   let left = pay;
-  const fromWallet = Math.min(me.wallet, left); me.wallet -= fromWallet; left -= fromWallet;
-  const fromBank = Math.min(me.bank, left); me.bank -= fromBank; left -= fromBank;
+  const fromWallet = Math.min(me.wallet, left); me.wallet = cents(me.wallet - fromWallet); left = cents(left - fromWallet);
+  const fromBank = Math.min(me.bank, left); me.bank = cents(me.bank - fromBank); left = cents(left - fromBank);
   k.capital = cents(k.capital + pay);
   const toInterest = Math.min(loan.interest, pay);
   loan.interest = cents(loan.interest - toInterest);
