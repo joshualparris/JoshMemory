@@ -64,6 +64,25 @@ export function buildExpansionFacade(b,site){
    for(const x of [-5.7,5.7])b.box(0x6e5141,.3,4.0,.32,x,2.0,face+.1);
    return {w,d,front:7};
  }
+ // B7-N: health-services storefront, readable dispensary identity and glazed entrance.
+ if(site.id==='pharmacy'){
+   b.box(0xc4d2d0,w,.12,d,0,.06,centre);
+   b.box(0xdce5e2,w,4.3,d,0,2.15,centre);
+   b.box(0x557d88,w+.35,.3,d+.3,0,4.42,centre);
+   b.box(0x35687e,w+.45,.72,.4,0,3.82,face-.12);
+   for(const x of [-3.7,3.7]){
+     b.box(0x607f8b,3.35,2.45,.12,x,2.0,face+.07);
+     b.box(GLASS,3.08,2.22,.14,x,2.0,face+.15);
+     b.box(0xe8eeee,.1,2.25,.18,x,2.0,face+.23);
+   }
+   b.box(0x5c7d86,2.35,3.05,.12,0,1.58,face+.09);
+   b.box(GLASS,2.15,2.82,.14,0,1.58,face+.17);
+   b.box(0xdce8e7,.08,2.8,.17,0,1.58,face+.25);
+   b.box(0x4e9688,.85,.2,.12,-5.3,3.3,face+.25);
+   b.box(0x4e9688,.2,.85,.12,-5.3,3.3,face+.26);
+   b.box(0xa9c5c3,3.1,.08,1.5,0,.04,face+.75);
+   return {w,d,front:7};
+ }
  if(site.style==='fuel'){
    b.box(0x565f60,12,.07,10.8,0,.03,1.5);
    b.box(wall,7,3.6,4.2,0,1.8,1);
