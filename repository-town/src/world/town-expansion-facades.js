@@ -43,6 +43,27 @@ export function buildExpansionFacade(b,site){
    }
    return {w,d,front:7};
  }
+ // A7-N library: civic entry and glazed reading bays instead of an opaque retail block.
+ if(site.id==='library'){
+   b.box(0xb8ad9c,w,.12,d,0,.06,centre);
+   b.box(0xb68c6e,w,4.5,d,0,2.25,centre);
+   b.box(0x6a4d3d,w+.45,.4,d+.3,0,4.7,centre);
+   b.box(0x5e716f,w+.5,.68,.35,0,4.12,face-.08);
+   // The entrance is a visible glazed double leaf, flanked by large reading windows.
+   for(const x of [-3.8,3.8]){
+     b.box(0x514e48,3.3,2.6,.11,x,2.05,face+.065);
+     b.box(GLASS,3.05,2.36,.13,x,2.05,face+.13);
+     b.box(0xd6c4a0,.12,2.5,.16,x,2.05,face+.23);
+     b.box(0xd6c4a0,3.2,.1,.16,x,.82,face+.23);
+   }
+   b.box(0x4c5958,2.4,3.25,.12,0,1.68,face+.09);
+   b.box(GLASS,2.12,2.9,.13,0,1.64,face+.17);
+   b.box(0xd6c4a0,.09,2.9,.17,0,1.64,face+.24);
+   for(const x of [-.25,.25])b.box(0xc3ae88,.045,.28,.15,x,1.5,face+.28);
+   b.box(0x9baba8,3.0,.1,1.4,0,.05,face+.72);
+   for(const x of [-5.7,5.7])b.box(0x6e5141,.3,4.0,.32,x,2.0,face+.1);
+   return {w,d,front:7};
+ }
  if(site.style==='fuel'){
    b.box(0x565f60,12,.07,10.8,0,.03,1.5);
    b.box(wall,7,3.6,4.2,0,1.8,1);
