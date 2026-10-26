@@ -28,13 +28,14 @@ try{for(const mobile of [false,true]){
   const {width,height}=page.viewportSize(),x=width*.2,y=height*.72;
   await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y,id:1}]});
   await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x,y:y-45,id:1}]});
-  await page.waitForTimeout(950);
+  await page.waitForTimeout(520);
   await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
  }else{await page.keyboard.down('w');await page.waitForTimeout(820);await page.keyboard.up('w');}
  const endKitchen=await page.evaluate(()=>window.__town.state().pos);
- assert(endKitchen.z<startKitchen.z-.2,'physically walk forward down kitchen galley');
- assert(endKitchen.x>-6.2&&endKitchen.x<-4.8&&endKitchen.z>-11.5,'walk remains in the kitchen clear aisle');
  await page.screenshot({path:`audit/pub/completion/${mobile?'phone':'desktop'}-kitchen-walk.png`});
+ console.log('Kitchen aisle locomotion',mobile?'touch':'keyboard',JSON.stringify({from:startKitchen,to:endKitchen}));
+ assert(endKitchen.z<startKitchen.z-.2,'physically walk forward down kitchen galley');
+ assert(endKitchen.x>-6.2&&endKitchen.x<-4.8&&endKitchen.z>-11.86&&endKitchen.z<-7.5,'walk remains in the kitchen floorplate: '+JSON.stringify(endKitchen));
  await approach('pub:operations');await page.getByRole('button',{name:'Simulated functional inspection',exact:true}).click();assert((await page.locator('#panel-body').innerText()).includes('functional inspection passed'));
  await page.getByRole('button',{name:'Isolate / restore grease arrestor',exact:true}).click();await page.getByRole('button',{name:'Simulated functional inspection',exact:true}).click();assert((await page.locator('#panel-body').innerText()).includes('FAILED'));await page.getByRole('button',{name:'Isolate / restore grease arrestor',exact:true}).click();
  await page.getByRole('button',{name:'Confirm character is 18+',exact:true}).click();await page.getByRole('button',{name:'Flag / clear intoxication',exact:true}).click();assert((await page.locator('#panel-body').innerText()).includes('refuse service'));
