@@ -9,8 +9,32 @@ export function payroll(life) {
   j.payroll ??= { next:1, slips:[], skills:{} };
   return j.payroll;
 }
+// Small private businesses keep a wage float so a visitor's shift can be offered even when the
+// till is empty. The council lends it from the treasury, at most one shift's pay per business per
+// day, and the business repays it from its till in the evening: money moves, it is never created.
+export const FLOAT_RESERVE = 20;   // till kept back for the next morning before repaying the float
+export function wageFloat(life, site) { const f = life.civic.wageFloats ??= {}; return f[site] ??= { balance:0, owed:0, day:0 }; }
+export function ensureFloat(life, site, pay) {
+  if (publicSites.has(site)) return 0;
+  const f = wageFloat(life, site), till = Math.max(0, life.place(site)?.till || 0);
+  if (f.day === life.day || till + f.balance >= pay) return 0;
+  const lend = cents(Math.min(pay - till - f.balance, Math.max(0, life.civic.treasury)));
+  if (!lend) return 0;
+  life.civic.treasury = cents(life.civic.treasury - lend); f.balance = cents(f.balance + lend); f.owed = cents(f.owed + lend); f.day = life.day;
+  record(life, 'council', 'business:' + site, lend, 'Wage float lent to ' + (life.place(site)?.name || site));
+  return lend;
+}
+export function repayFloats(life) {
+  for (const [site, f] of Object.entries(life.civic.wageFloats || {})) {
+    const p = life.place(site); if (!p || !f.owed) continue;
+    // Unused float goes straight back; then the till repays what was spent, above its reserve.
+    const back = cents(Math.min(f.balance, f.owed)); f.balance = cents(f.balance - back); f.owed = cents(f.owed - back);
+    const fromTill = cents(Math.min(f.owed, Math.max(0, p.till - FLOAT_RESERVE))); p.till = cents(p.till - fromTill); f.owed = cents(f.owed - fromTill);
+    if (back + fromTill) { life.civic.treasury = cents(life.civic.treasury + back + fromTill); record(life, 'business:' + site, 'council', cents(back + fromTill), 'Wage float repaid by ' + p.name); }
+  }
+}
 export function employerFunds(life, site) {
-  return cents(publicSites.has(site) ? life.civic.treasury : life.place(site)?.till);
+  return cents(publicSites.has(site) ? life.civic.treasury : (life.place(site)?.till || 0) + (life.civic.wageFloats?.[site]?.balance || 0));
 }
 export function debtFor(life, site) {
   return cents(payroll(life).slips.filter(s=>!site||s.site===site).reduce((n,s)=>n+s.gross-s.paid,0));
@@ -38,9 +62,13 @@ export function closeTimesheet(life, shift, def, reason) {
 export function settlePayslip(life, slip) {
   const due=cents(slip.gross-slip.paid), paid=Math.min(due,employerFunds(life,slip.site));
   if (!paid) return 0;
-  const pot=publicSites.has(slip.site)?life.civic:life.place(slip.site);
-  const key=publicSites.has(slip.site)?'treasury':'till';
-  pot[key]=cents(pot[key]-paid);
+  if (publicSites.has(slip.site)) life.civic.treasury=cents(life.civic.treasury-paid);
+  else {
+    // The wage float pays first; the till covers the rest.
+    const f=life.civic.wageFloats?.[slip.site],fromFloat=f?Math.min(f.balance,paid):0;
+    if (fromFloat) f.balance=cents(f.balance-fromFloat);
+    const p=life.place(slip.site);p.till=cents(p.till-(paid-fromFloat));
+  }
   life.civic.player.wallet=cents(life.civic.player.wallet+paid);
   // Withhold against cumulative gross so splitting arrears into payments cannot
   // evade whole-dollar PAYG rounding. Tax only cash actually received.
