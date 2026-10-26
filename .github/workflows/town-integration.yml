@@ -45,6 +45,8 @@ jobs:
           TOWN_PR_TITLE: ${{ github.event.pull_request.title }}
           TOWN_PR_BODY: ${{ github.event.pull_request.body }}
         run: node tests/rtd-acceptance-contract.mjs --pr
+      - name: Aged-care doorway crash and walkability regression
+        run: node tests/aged-care.mjs
       - name: Full release build, integration, geometry, privacy and integrity
         run: npm run build:release
 
