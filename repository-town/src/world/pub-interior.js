@@ -152,8 +152,10 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
   // and visual models use the same values so the player can physically pass.
   // A game circulation layout is not an Australian building/food-fitout approval.
   box(2.82,.025,4.8,-5.43,.025,-9.4,0x89938f).name='pub:kitchen:non-slip-floor';
-  for(const fixture of PUB_KITCHEN_LAYOUT.fixtures)
-    solid(fixture.w,fixture.h,fixture.d,fixture.x,fixture.h/2,fixture.z,STEEL).name='pub:kitchen:'+fixture.id;
+  for(const fixture of PUB_KITCHEN_LAYOUT.fixtures){
+    box(fixture.w,fixture.h,fixture.d,fixture.x,fixture.h/2,fixture.z,STEEL).name='pub:kitchen:'+fixture.id;
+    blocker(fixture.w,fixture.d,fixture.x,fixture.z);
+  }
 
   // Commercial hot line: four burners, fry/griddle zone, splashback, oven and
   // real extraction canopy; no centre-of-room obstruction.
