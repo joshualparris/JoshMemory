@@ -12,6 +12,7 @@ import { pose } from './npcs.js';
 import { makeDistinctPerson } from './npc-wardrobe.js';
 import { facilityAccess, openingHoursLabel } from './facility-access.js';
 import { TownLife, GOODS, RAIL_Z, trainX, FIELD_Z0, FIELD_Z1, SEC_PER_MIN, LOT_X, AVENUES } from './life.js';
+import { RAIL_GAUGE, RAIL_CROSSINGS, withinLevelCrossing, railCrossingClosed } from './rail-corridor.js';
 
 // Draws the town simulation (src/world/life.js): the high street and farms on street 8,
 // fields, livestock, the freight train, delivery trucks, villagers, doorstep parcels and
@@ -636,11 +637,32 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     place('sprinkler', 3.2, back - 8.3);
   }
 
-  // Railway line behind street 8, with level crossings where it meets the avenues.
-  const half = town.bounds.width / 2;
-  for (const z of [RAIL_Z - 0.75, RAIL_Z + 0.75]) statics.box(0x6a6a70, half * 2 + 60, 0.12, 0.1, 0, 0.12, z);
-  for (let x = -half - 30; x < half + 30; x += 1.4) statics.box(0x5a4030, 0.25, 0.08, 2.4, x, 0.05, RAIL_Z);
-  statics.box(0x8a8478, half * 2 + 60, 0.03, 3.4, 0, 0.01, RAIL_Z);
+  // Protected railway reservation between street 7 and the rear of row 8.
+  // Render ballast FIRST, then sleepers and standard-gauge rail heads. Earlier
+  // the track was at z=136, literally embedded in street 7's southern footpath.
+  const half = town.bounds.width / 2, trackLength = half * 2 + 60;
+  statics.box(0x82796c, trackLength, 0.08, 5.6, 0, 0.035, RAIL_Z); // ballast shoulder
+  statics.box(0x68645e, trackLength, 0.08, 3.6, 0, 0.082, RAIL_Z); // compacted trackbed
+  for (let x = -half - 30; x < half + 30; x += 0.75) {
+    if (!withinLevelCrossing(x, 0.2))
+      statics.box(0x594437, 0.24, 0.13, 2.6, x, 0.135, RAIL_Z);
+  }
+  for (const z of [RAIL_Z - RAIL_GAUGE/2, RAIL_Z + RAIL_GAUGE/2])
+    statics.box(0x92989c, trackLength, 0.11, 0.095, 0, 0.222, z);
+  // Road-crossing infill lies BELOW the running rail heads and gives paved
+  // avenue approaches continuous access. Keep flangeways visible either side.
+  for (const crossing of RAIL_CROSSINGS) {
+    const x = crossing.x;
+    statics.box(0x3b3d3f, 9.0, 0.06, RAIL_GAUGE-0.24, x, 0.155, RAIL_Z);
+    for (const side of [-1, 1]) {
+      statics.box(0x424548, 9.0, 0.06, 0.78, x, 0.155, RAIL_Z+side*1.22);
+      // Approach warning signs are on the road verge, not inside the track gauge.
+      const signX = x - 4.65, signZ = RAIL_Z + side*9.5;
+      statics.cyl(0x747879, 0.07, 2.7, signX, 1.35, signZ);
+      statics.box(0xf4f2e8, 1.15, 0.18, 0.09, signX, 2.6, signZ);
+      statics.box(0xd92f32, 0.76, 0.13, 0.10, signX, 2.25, signZ);
+    }
+  }
 
   // Each civic building is its own mesh (plus one for its glass), so it can be hidden while the
   // player is inside it and looking out of its windows (src/main.js renderFrame).
@@ -862,6 +884,49 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   }
   syncTrafficSignals(life.minute);
 
+  // Twelve paired boom arms, red warning lamps and crossing masts on six
+  // north–south avenues. Controls derive from the SAME train timetable as the
+  // rendered wagons; no random independent flashing or fake green lights.
+  const railGates=[];
+  const gateWhite=new THREE.MeshLambertMaterial({color:0xf5f3ec});
+  const gateRed=new THREE.MeshLambertMaterial({color:0xc82828});
+  const gateMast=new THREE.MeshLambertMaterial({color:0x5f6468});
+  const gateLightOff=0x180707, gateLightOn=0xff3030;
+  for(const crossing of RAIL_CROSSINGS){
+    for(const approach of [-1,1]){
+      const pivot=new THREE.Group();
+      pivot.position.set(crossing.x-4.5,1.2,RAIL_Z+approach*7.4);
+      const arm=new THREE.Mesh(new THREE.BoxGeometry(8,0.13,0.12),gateWhite);
+      arm.position.x=4;pivot.add(arm);
+      for(let j=0;j<6;j++){
+        const patch=new THREE.Mesh(new THREE.BoxGeometry(0.62,0.135,0.13),gateRed);
+        patch.position.x=0.65+j*1.2; pivot.add(patch);
+      }
+      const mast=new THREE.Mesh(new THREE.CylinderGeometry(0.11,0.13,2.5,8),gateMast);
+      mast.position.set(crossing.x-4.5,1.25,RAIL_Z+approach*7.4);group.add(mast);
+      const lamps=[];
+      for(const dx of [-0.29,0.29]){
+        const mat=new THREE.MeshLambertMaterial({color:0x9a2525,emissive:gateLightOff});
+        const bulb=new THREE.Mesh(new THREE.SphereGeometry(0.16,8,6),mat);
+        bulb.position.set(crossing.x-4.5+dx,2.2,RAIL_Z+approach*7.4);
+        group.add(bulb);lamps.push(mat);
+      }
+      group.add(pivot);railGates.push({crossing,pivot,lamps});
+    }
+  }
+  function syncRailGates(minute){
+    const trainFront=trainX(minute,depot.x);
+    const moving=trainFront!==null && (minute<420 || minute>=440);
+    const flash=Math.floor(minute*8)%2===0;
+    for(const gate of railGates){
+      const closed=railCrossingClosed(trainFront,gate.crossing.x,moving);
+      gate.pivot.rotation.z=closed?0:Math.PI/2;
+      gate.lamps.forEach((material,i)=>
+        material.emissive.setHex(closed && flash===(i===0)?gateLightOn:gateLightOff));
+    }
+  }
+  syncRailGates(life.minute);
+
   // Windmill sails turn while the miller works.
   const mill = life.place('mill');
   const sb = new Builder(); for (let i = 0; i < 4; i++) sb.add('box', 0xe8e0d0, 0.9, 5, 0.08, Math.sin(i * Math.PI / 2) * 2.6, Math.cos(i * Math.PI / 2) * 2.6, 0, 0, 0, -i * Math.PI / 2);
@@ -968,6 +1033,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     if ((saveTimer += dt) > 10) { saveTimer = 0; save(); }
     const m = life.minute;
     syncTrafficSignals(m);
+    syncRailGates(m);
     if (Math.floor(m) !== clockMinute) { clockMinute = Math.floor(m); drawClock(m); }
     // The Town Hall bell strikes the hour; the freight train sounds its horn coming in.
     const hour = Math.floor(m / 60);
