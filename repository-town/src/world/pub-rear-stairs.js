@@ -26,7 +26,7 @@ export function pubRearStairHeight(site,x,z) {
   // a giant collision box around both flights. Side guards prevent shortcuts.
   if (Math.abs(lx-s.x)>s.clearWidth/2) return 0;
   const lower=s.firstTreadZ-s.treadCount*s.going;
-  if (lz<lower-.12||lz>s.topLandingZ+.12) return 0;
+  if (lz<lower-.12||lz>s.topLandingZ+.4) return 0;
   return s.upperY*Math.max(0,Math.min(1,(lz-lower)/(s.firstTreadZ-lower)));
 }
 export function pubRearStairAtUpperDoor(site,x,z) {
