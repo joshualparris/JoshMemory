@@ -49,6 +49,12 @@ jobs:
         run: node tests/aged-care.mjs
       - name: Full release build, integration, geometry, privacy and integrity
         run: npm run build:release
+      - name: Chromium aged-care entry and exit smoke test (desktop and mobile)
+        run: |
+          node tools/serve.mjs dist/public 8091 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
+          node tests/aged-care-browser.mjs --url http://localhost:8091/
 
   town-28-day-multi-seed:
     name: 28-day economy simulation (seed ${{ matrix.seed }})
