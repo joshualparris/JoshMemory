@@ -1,10 +1,6 @@
-# 26 October 2026 — Post Office sculpted, test and sourced research prepared
+# 26 October 2026 — PR235 post model reconciled with O5 visitor centre, rail clearance, dental work
 
-Scoped branch feat/post-office-country-realism-20261026, base 7236e57. Implemented post-only frontage, retail queue, separate staff sorting, parcel hatch, 20 exterior boxes, labelled lodgement/collection, lower presentation shelf and six new truthful interactions. Added 0.32m-radius BFS geometry regression and research report with real Australian official resources. Audit townlife.js source blob 99d11f14cee13f71a97b8a695890e7c2e440579a -> b38997027416f8ffa121694ced18cd02098441d2, only BUILD.post call changed; no pub geometry affected. Full CI/build/browser/mobile and public release NOT YET verified.
-
-# 26 October 2026 — Post Office realism research/implementation started
-
-Claim: `feat/post-office-country-realism-20261026`, baseline a6c90dd95cffbb5203004d3c1fec2b1ddbe4092c. Scope post office interior, post facade only, focused test, dated research and QA. Reference: Australia Post 2024–25 Annual Report modern parcel lodgement/packing/back-of-house; Australia Post PO Boxes & Locked Bags; National Premises Standards/NCC public access intent. Research is general design precedent, not real dimensions of a real Post Office or certified compliance. Must test actual 3D geometry, hotspots, mobile and Vercel release before claiming complete.
+Rebased post-only source/test/docs on latest main f638f05de092c47f6cbc10e188e2be4b04d5c200 via a two-parent integration commit, preserving all new visitor-information, rail and dental commits. Post office controlled queue, low shelf, PO boxes, behind-counter sorting, 6 new info hotspots, non-colliding street detailing. Updated only townlife.js and shop-interior.js Git source provenance and appended documented audit explanation, not legal approval. Full exact-SHA CI (including 0.32m radius physical walk), privacy, browser and live deployment MUST pass before declaring complete.
 
 # 26 October 2026 — commerce consolidation merged-tree candidate
 

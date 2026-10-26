@@ -16,7 +16,10 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
-- 2026-10-26 · ChatGPT — IN PROGRESS (Josh requested another researched building): Repo Town Post Office interiors/exterior, branch `feat/post-office-country-realism-20261026` from a6c90dd95c. Claim `src/world/post-interior.js`, post-only `src/world/townlife.js` facade, `tests/post-office-realism.mjs`, dated research docs, `package.json`, audit provenance/checkpoints. Do not alter other builders or pub safety behaviour. Acceptance: public aisle and all service hotspots walkable, staff sort/dispatch separation, town facade preserved, economy/save unaffected, whole release/privacy/CI/mobile/production verified. Not a professional accessibility/compliance certification.
+- 2026-10-26 · ChatGPT — IN PROGRESS: researched regional NSW Post Office interior/street frontage, PR #235, branch `feat/post-office-country-realism-20261026`. Claimed post-only interior/facade, focused 0.32m-radius path geometry tests, dated cited research and audited townlife.js delegation. Full CI/browser/live deployment pending; preserve competing visitor-information, dental and rail updates.
+
+
+- 2026-10-26 · ChatGPT — **IN PROGRESS RTBUILD-070 O5-N Visitor Information Centre realism**. Branch `feat/rtbuild-070-visitor-information-realism-20261026`. Scope new `src/world/visitor-information-layout.js`, `visitor-information-facade.js`, `visitor-information-interior.js`; targeted `src/world/town-expansion-facades.js`, `shop-interior.js`, `town-expansion.js`; focused tests, source-based research docs. Adapt Dubbo Visitor Information Centre regional form (green pitched roof, verandah, windows, map/brochure area, travel help, products, public traveller facilities) to O5-N 12x9m fictional lot. No invented real floorplan, AVIC accreditation/trademark, certified dimensions, rates or bookings. Tests and hosted release required. All pub/other sites left untouched.
 
 
 

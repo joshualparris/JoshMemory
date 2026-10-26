@@ -1,0 +1,29 @@
+name: Pub Railway Clearance
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'repository-town/src/world/rail-corridor.js'
+      - 'repository-town/src/world/pub-envelope.js'
+      - 'repository-town/tests/pub-rail-clearance.mjs'
+      - '.github/workflows/town-pub-rail-clearance.yml'
+permissions:
+  contents: read
+jobs:
+  clearance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - run: npm ci
+      - run: node tests/pub-rail-clearance.mjs
+      - run: npm run build

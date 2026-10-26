@@ -1,7 +1,9 @@
 // Fictional Repository Town railway geometry and visual protection envelope.
 // Metres in world space. These are explicit *game design* buffers, not an
 // engineering sign-off or a substitute for AS 7633:2026 structure-gauge checks.
-export const RAIL_Z = 7 * 46 - 3.5 * 46 - 17; // 144: between street 7 and row-8 rear lots
+// Row-8 nominal lots span LOT8_Z +/- 23 m, so their rear boundary is z=138.
+// The track centre is 6 m beyond that boundary, not through pub escape stairs.
+export const RAIL_Z = 7 * 46 - 3.5 * 46 - 29; // 132: clear of row-8 rear lots
 export const RAIL_GAUGE = 1.435;
 export const RAIL_STRUCTURE_HALF_WIDTH = 3.5;
 export const RAIL_LAMP_MIN_DISTANCE = 5.5;
