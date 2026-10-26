@@ -412,6 +412,11 @@ async function start() {
     const floors=site.id==='pub'?createPubFloorStack(built,site,makeLabel):null;
     if(floors){floors.levels[0].people=staff;for(const level of floors.levels.slice(1))attachPilotInteriorLighting(level.group,'B:pub');}
     const ex=built.exitZone;
+    if (!ex || !built.spawn || !Array.isArray(built.colliders) || !Array.isArray(built.rooms)) {
+      console.error('Invalid civic interior data',site.id,{exitZone:ex,spawn:built.spawn,rooms:built.rooms});
+      status('This building interior is temporarily unavailable. You can keep exploring the town.');
+      return false;
+    }
     inside={house:brief,place:site,...built,people:staff,floors,floorIndex:0,
       view:townView({x:(ex.x0+ex.x1)/2,z:ex.z0+0.1},site.door,doorTurn(site)),ownMeshes:townLife.building(id)};
     scene.add(built.group);town.group.visible=false;
@@ -1200,7 +1205,7 @@ async function start() {
       // Generous exit area: the doorway, the last 1.3 m inside it and anywhere beyond it, centred on
       // the actual door, so a slow frame or the floor-change cooldown cannot carry the player past it.
       if(rear&&floorDoorCooldown<=0&&player.pos.x>rear.x0&&player.pos.x<rear.x1&&player.pos.z<rear.z1){leave(true,false,'rear');}
-      else if (ex && floorDoorCooldown <= 0 && Math.abs(player.pos.x - (ex.x0 + ex.x1) / 2) < 1.55 && player.pos.z > inside.rooms[0].z1 - 1.3) { if (inside.floors && inside.floorIndex > 0) changeFloor(inside.floorIndex - 1); else leave(true, true); }
+      else if (ex && inside.rooms?.[0] && floorDoorCooldown <= 0 && Math.abs(player.pos.x - (ex.x0 + ex.x1) / 2) < 1.55 && player.pos.z > inside.rooms[0].z1 - 1.3) { if (inside.floors && inside.floorIndex > 0) changeFloor(inside.floorIndex - 1); else leave(true, true); }
       else {
         nearThing = player.seated ? null : pickNear();
         nearNPC = null;
