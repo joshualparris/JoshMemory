@@ -19,12 +19,14 @@ export function railSideYardClear(z,depth=0) {
 export function withinLevelCrossing(x,extra=0) {
   return RAIL_CROSSINGS.some(c => Math.abs(x-c.x)<CROSSING_HALF_DECK+extra);
 }
-// The locomotive x is the front of a ~60 m train extending 54 m to the west.
+// The locomotive x is the front of a ~60 m WESTBOUND train extending 54 m EAST.
 // Gates begin warning while the train is still ~60 m short of the crossing,
 // and stay closed until the last carriage clears. Never signal a train during
 // its stationary, depot dwell interval (07:00–07:20 game clock).
 export function railCrossingClosed(trainFrontX,crossingX,moving=true) {
+  // Westbound consist: locomotive to the west, wagons 54 m to the EAST.
+  // Activate 60 m before engine reaches crossing, clear only after last wagon.
   return moving && Number.isFinite(trainFrontX) &&
-    trainFrontX + 6 >= crossingX - 60 &&
-    trainFrontX - 54 <= crossingX + 60;
+    trainFrontX <= crossingX + 60 &&
+    trainFrontX + 54 >= crossingX - 60;
 }
