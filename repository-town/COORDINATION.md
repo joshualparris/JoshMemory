@@ -16,6 +16,8 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-26 · Codex — IN PROGRESS: pub ID/service discoverability only on fix/pub-id-controls-20261026; src/ui/townpanels.js, pub-standards-panel.js, src/world/pub-standards.js and src/main.js primary action placement. Preserve physical pub expansion and other claims. Desktop/mobile acceptance and release pending.
+
 - 2026-10-26 · Codex — IMPLEMENTED AND HOSTED-VERIFIED PILOT PUB-SIM-001–010 (PR #219; follow-ups PUB-SIM-011–013 OPEN): user-requested utility boundary audit/reference-town evidence, finite gas/fuel/waste logistics, separate phone/mobile/broadcast functions, named staff RSA/RCG scenario endorsements and enforceable alcohol service, playable pool and non-cash Keno demonstration, tests and hosted release. Branch feat/pub-full-services-20261026; baseline a85b979. Scope pub-specific new modules/panels, pub-interior/standards/utilities and narrow main/life hooks, tests/docs. User added PUB-SIM-009 physical seating/door/window/fan remediation and PUB-SIM-010 visible service/staff presentation; attach via pub-only hooks and preserve shared NPC renderer. Preserve electrical backbone, formal PUB-CODE task statuses, unrelated NPC/audio and heritage work. No genuine certificates or undisclosed real circuits asserted.
 
 
