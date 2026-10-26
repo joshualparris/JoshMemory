@@ -56,3 +56,12 @@ test('pub rear stair player transitions and signage stay wired to real outdoor g
   assert.match(main,/pubRearStairAtUpperDoor\(site,player\.pos\.x,player\.pos\.z\)/);
   assert.match(main,/enterPubRearStairs\(\)/);
 });
+
+test('pub rear stair keeps clear lower yard route and never reintroduces the blocking dogleg',async()=>{
+  const fs=await import('node:fs/promises');
+  const facade=await fs.readFile(new URL('../src/world/pub-envelope.js',import.meta.url),'utf8');
+  const services=await fs.readFile(new URL('../src/world/pub-plant.js',import.meta.url),'utf8');
+  assert.doesNotMatch(facade,/solid\\(3\\.4,5\\.5,5\\.2,-13\\.8\\)/);
+  assert.match(services,/20\\.55/);
+  assert.equal(pubRearStairHeight(site,s.x,s.firstTreadZ-15*s.going)<4.8,true);
+});
