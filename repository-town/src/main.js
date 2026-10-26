@@ -32,7 +32,7 @@ import { emergencyPanel,justicePanel } from './ui/emergency-panels.js';
 import { civicExitPose } from './world/shop-exit.js';
 import { populateShopStaff } from './world/shop-staff.js';
 import { facilityAccess, restrictedServiceAction } from './world/facility-access.js';
-import { atCivicEntrance, closedCivicDoorPose } from './world/civic-entrance.js';
+import { atCivicEntrance, closedCivicDoorPose, civicStreetDirection } from './world/civic-entrance.js';
 import { createShopVisitors } from './world/shop-visitors.js';
 import { loadFurniture } from './world/furniture.js';
 import { createFloorStack, FLOOR_HEIGHT } from './world/multifloor.js';
@@ -332,8 +332,8 @@ async function start() {
     }
   }
   // Walking through a door keeps the way the player is facing, so backing in or out of a building does
-  // not spin the view. Interiors share the town's orientation, except south-side shops whose door faces -z.
-  const doorTurn = (site) => (site && site.side === 'south' ? Math.PI : 0);
+  // not spin the view. Infill north-side and industrial south-side facades both face -Z.
+  const doorTurn = (site) => (civicStreetDirection(site) < 0 ? Math.PI : 0);
   function enter(coord, keepFacing = false) {
     const yawIn = player.yaw;
     // A villager's own home also has their kitchen, bathroom and laundry, and living room.
@@ -413,7 +413,7 @@ async function start() {
     if(floors){floors.levels[0].people=staff;for(const level of floors.levels.slice(1))attachPilotInteriorLighting(level.group,'B:pub');}
     const ex=built.exitZone;
     inside={house:brief,place:site,...built,people:staff,floors,floorIndex:0,
-      view:townView({x:(ex.x0+ex.x1)/2,z:ex.z0+0.1},site.door,site.side==='south'?Math.PI:0),ownMeshes:townLife.building(id)};
+      view:townView({x:(ex.x0+ex.x1)/2,z:ex.z0+0.1},site.door,doorTurn(site)),ownMeshes:townLife.building(id)};
     scene.add(built.group);town.group.visible=false;
     scene.background.set(INDOOR);scene.fog=null;
     world=new CollisionWorld(built.colliders);
@@ -494,10 +494,12 @@ async function start() {
     const q = $('search').value.trim().toLowerCase(); if (!q) return;
     const code = q.split(' ')[0].toUpperCase();
     const addressed = parseTownAddress(q) || parseTownAddress(code);
-    const p = places.find((p) => placeLabel(p).toLowerCase() === q || p.name.toLowerCase() === q || p.id === q || p.address.toLowerCase() === q || (p.side==='south'&&q==='south '+p.col.toLowerCase()+'8') || (addressed && p.address===addressed.address && !byCoord.has(addressed.col+addressed.row)));
-    const h = !p && (byCoord.get(code) || (addressed && addressed.side==='S' && byCoord.get(addressed.col+addressed.row)) || houses.find((h) => h.name.toLowerCase() === q || h.address.toLowerCase() === q || `${h.address} · ${h.name}`.toLowerCase() === q || `${h.coordinate} · ${h.name}`.toLowerCase() === q));
-    const near = !p && !h && places.find((p) => p.name.toLowerCase().includes(q));
-    const named = !p && !h && !near && houses.find((h) => h.name.toLowerCase().includes(q));
+    // Some civic destinations have no postal address or column. Search must never crash on missing metadata.
+    const lower = (value) => String(value ?? '').toLowerCase();
+    const p = places.find((p) => lower(placeLabel(p)) === q || lower(p.name) === q || lower(p.id) === q || lower(p.address) === q || (p.side==='south' && q==='south '+lower(p.col)+'8') || (addressed && p.address===addressed.address && !byCoord.has(addressed.col+addressed.row)));
+    const h = !p && (byCoord.get(code) || (addressed && addressed.side==='S' && byCoord.get(addressed.col+addressed.row)) || houses.find((h) => lower(h.name) === q || lower(h.address) === q || lower(`${h.address} · ${h.name}`) === q || lower(`${h.coordinate} · ${h.name}`) === q));
+    const near = !p && !h && places.find((p) => lower(p.name).includes(q));
+    const named = !p && !h && !near && houses.find((h) => lower(h.name).includes(q));
     if (p || near) { goPlace((p || near).id); $('search').blur(); }
     else if (h || named) { travel((h || named).coordinate); $('search').blur(); }
     else status(`No building matches "${$('search').value}".`);
@@ -514,7 +516,7 @@ async function start() {
   const syncTimeBtn = () => { const h = life.minute / 60; const label = h < 6 || h >= 20.5 ? '🌙 Night' : h < 9 ? '🌅 Morning' : h < 17.5 ? '☀️ Day' : '🌇 Dusk'; if ($('btn-time').textContent !== label) $('btn-time').textContent = label; };
   $('btn-time').onclick = () => cycleTime();
   addEventListener('keydown', (e) => {
-    if (e.key.toLowerCase() !== 't' || e.repeat || e.ctrlKey || e.altKey || e.metaKey) return;
+    if (String(e.key ?? '').toLowerCase() !== 't' || e.repeat || e.ctrlKey || e.altKey || e.metaKey) return;
     if (e.target?.closest?.('input,textarea,select,[contenteditable],#panel,#game,#npc-chat,#town-companion')) return;
     cycleTime();
   });
@@ -565,7 +567,7 @@ async function start() {
       else { const el = document.createElement('button'); el.textContent = a.label; el.onclick = () => { if (a.play) return startGame(a.play); const beforeWallet=life.civic.player.wallet;
           const next = a.run ? a.run() : content.onAnswer(a.answer);
           if (next && player.seated && ['cafe','pub'].includes(inside?.place?.id) &&
-              a.label.toLowerCase().startsWith('order ') && life.civic.player.wallet<beforeWallet && typeof next.body==='string') {
+              String(a.label ?? '').toLowerCase().startsWith('order ') && life.civic.player.wallet<beforeWallet && typeof next.body==='string') {
             next.body='<p><b>'+(inside.floors?.isPub&&inside.floorIndex!==0?'Order recorded. Collect at the ground-floor bar.':'Your order has been brought to your table.')+'</b></p>'+next.body;
           }
           if (next) openPanel(next, thing); };
@@ -1352,7 +1354,7 @@ async function start() {
     enterVehicle:(reg)=>driving.enter(life.motorReport().owned.find(v=>v.registration===reg)),
     leaveVehicle:()=>driving.exit(),
     stepVehicle:(seconds)=>driving.update(seconds),
-    shops:()=>[...life.places.values()].map(p=>({id:p.id,name:p.name,kind:p.kind,side:p.side||'north',door:{x:p.x,z:p.door.z}})),
+    shops:()=>[...life.places.values()].map(p=>({id:p.id,name:p.name,kind:p.kind,side:p.side||'north',expansion:!!p.expansion,door:{x:p.x,z:p.door.z}})),
     enterShop,
     setFloor:(i)=>changeFloor(i),
     // Where the town's villager figures are drawn (they keep moving while the player is indoors).

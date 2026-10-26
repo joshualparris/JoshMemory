@@ -3,10 +3,9 @@
 // No browser, external API or paid service needed.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { civicExitPose } from '../world/shop-exit.js';
 
 const read = path => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
-const { civicExitPose } = await import('data:text/javascript;base64,' +
-  Buffer.from(read('world/shop-exit.js')).toString('base64'));
 
 const radius = 0.43;
 const hits = (p, colliders) => colliders.some(c => {
@@ -14,26 +13,26 @@ const hits = (p, colliders) => colliders.some(c => {
   const z = Math.max(c.z0, Math.min(c.z1, p.z));
   return (p.x - x) ** 2 + (p.z - z) ** 2 < radius ** 2;
 });
-for (const [side, outward] of [['north', 1], ['south', -1]]) {
-  const site = { id: side, side, door: { x: 20, z: 10 } };
+for (const [name, side, outward] of [['legacy High Street', undefined, 1], ['north-facing 2026 infill', 'north', -1], ['south-side industry', 'south', -1]]) {
+  const site = { id: name, side, door: { x: 20, z: 10 } };
   const pose = civicExitPose(site, [], radius);
-  assert(pose, side + ' exit must find a safe spot');
+  assert(pose, name + ' exit must find a safe spot');
   assert.equal(pose.x, site.door.x);
   assert.equal(pose.z, site.door.z + outward * 3.2);
   // Player.forward() is (-sin(yaw), -cos(yaw)), not (sin(yaw), cos(yaw)).
   const forwardZ = -Math.cos(pose.yaw);
-  assert(forwardZ * outward > 0.999, side + ' player must face AWAY from the building');
+  assert(forwardZ * outward > 0.999, name + ' player must face AWAY from the building');
   assert((pose.z - site.door.z) * forwardZ > 3,
-    side + ' player view must point toward the road, not the doorway');
+    name + ' player view must point toward the road, not the doorway');
   assert(Math.abs(pose.z - site.door.z) > 0.92 + radius,
-    side + ' must stay outside the automatic re-entry zone');
+    name + ' must stay outside the automatic re-entry zone');
   // Obstructed centreline: select a collision-safe footpath alternative,
   // still facing away from the door rather than towards it.
   const blocked = [{ x0: 19.5, x1: 20.5, z0: pose.z - 0.6, z1: pose.z + 0.6 }];
   const alternate = civicExitPose(site, blocked, radius);
-  assert(alternate && !hits(alternate, blocked), side + ' alternate exit must be clear');
+  assert(alternate && !hits(alternate, blocked), name + ' alternate exit must be clear');
   assert(-Math.cos(alternate.yaw) * outward > 0.999,
-    side + ' alternate exit must retain outward orientation');
+    name + ' alternate exit must retain outward orientation');
 }
 assert.equal(civicExitPose({ side:'north',door:{x:0,z:0} },
   [{x0:-10,x1:10,z0:-30,z1:30}], radius), null, 'all blocked = no unsafe spawn');
@@ -54,4 +53,4 @@ assert.match(main, /else leave\(true, true\)/,
   'walking through a physical door must preserve the player facing');
 assert.match(main, /civicExitPose\(shop,/,
   'all civic buildings must use the shared safe exit pose');
-console.log('PASS: north/south exits face away, remain collision-free and cannot immediately re-enter');
+console.log('PASS: legacy and both -Z-facing civic exits face the real road, remain collision-free and cannot immediately re-enter');

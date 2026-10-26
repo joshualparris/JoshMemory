@@ -10,7 +10,7 @@ const page = await browser.newPage({ viewport: { width: 900, height: 560 } });
 await page.goto(URL);
 await page.waitForFunction(() => window.__town && document.getElementById('loading').hidden, null, { timeout: 60000 });
 const T = (f, a) => page.evaluate(f, a);
-await T(() => window.__town.life.setTime(10 * 60));
+await T(() => { window.__town.life.setTime(9 * 60); window.__town.advanceSimulation(90); });
 // How squarely the view points away from the door: 1 = straight out, -1 = straight back at it.
 const away = (s, door) => { const dx = s.pos.x - door.x, dz = s.pos.z - door.z, d = Math.hypot(dx, dz) || 1; return (-Math.sin(s.yaw) * dx - Math.cos(s.yaw) * dz) / d; };
 const walkOut = async () => {
@@ -33,6 +33,28 @@ for (const id of ['bakery', 'power']) {
   s = await T(() => window.__town.state());
   check(s.mode === 'town' && away(s, site.door) > 0.7, `Exit from inside the ${site.name}: facing the street (${away(s, site.door).toFixed(2)})`);
 }
+// The 2026 row 2-7 north-facing infill must return to the REAL street side
+// (-Z). Try available staffed sites; access rules remain enforced.
+const infill = shops.filter(s => s.side === 'north' && s.expansion);
+let infillExercised = false;
+for (const site of infill) {
+  if (!await T(id => window.__town.enterShop(id), site.id)) continue;
+  infillExercised = true;
+  let s = await walkOut();
+  check(s.mode === 'town' && s.pos.z < site.door.z - 2 && away(s, site.door) > 0.7,
+    `walking out of new ${site.name}: outside FRONT door facing northern road`);
+  await T(id => window.__town.enterShop(id), site.id);
+  s = await T(() => window.__town.state());
+  if (s.mode === 'house') {
+    await T(() => window.__town.exitShop());
+    s = await T(() => window.__town.state());
+    check(s.mode === 'town' && s.pos.z < site.door.z - 2 && away(s, site.door) > 0.7,
+      `Exit button at ${site.name}: front footpath, not back wall`);
+  }
+  break;
+}
+check(infill.length > 0 && infillExercised, 'at least one new northern infill building was entered and exited');
+
 // A house: walk in, walk back out.
 await T(() => window.__town.travel('A1')); await page.waitForTimeout(500);
 const front = await T(() => window.__town.state());

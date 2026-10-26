@@ -25,7 +25,8 @@ export class Input {
   bindKeyboard() {
     addEventListener('keydown', (e) => {
       if (e.target.closest?.('input, textarea, select, button, a, [contenteditable]')) return;
-      const k = e.key.toLowerCase();
+      const k = String(e.key ?? '').toLowerCase();
+      if (!k) return;
       if (!this.keys.has(k)) {
         if (k === ' ') this.pressed.add('jump');
         if (k === 'e' || k === 'f' || k === 'enter') this.pressed.add('use');
@@ -38,7 +39,7 @@ export class Input {
       this.keys.add(k);
       if ([' ', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) e.preventDefault();
     });
-    addEventListener('keyup', (e) => this.keys.delete(e.key.toLowerCase()));
+    addEventListener('keyup', (e) => this.keys.delete(String(e.key ?? '').toLowerCase()));
     addEventListener('blur', () => this.reset());
   }
 

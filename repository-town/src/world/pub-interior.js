@@ -151,7 +151,14 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
   // preparation and dirty return on the opposite wall. Furniture footprints
   // and visual models use the same values so the player can physically pass.
   // A game circulation layout is not an Australian building/food-fitout approval.
-  box(2.82,.025,4.8,-5.43,.025,-9.4,0x89938f).name='pub:kitchen:non-slip-floor';
+  box(2.82,.025,4.8,-5.43,.025,-9.4,0x777e7c).name='pub:kitchen:non-slip-floor';
+  // Back-of-house needs wipe-clean, light-coloured envelope surfaces instead
+  // of inheriting the pub's brown timber ceiling and tan wall treatment.
+  // Thin surface panels have no collision footprint and never span the door.
+  box(2.82,.065,4.82,-5.43,4.10,-9.4,0xe8ebeb).name='pub:kitchen:washable-ceiling';
+  box(2.81,2.84,.045,-5.43,1.42,-11.82,0xdfe7e7).name='pub:kitchen:washable-rear-wall';
+  box(.045,2.84,4.74,-6.86,1.42,-9.35,0xdbe4e4).name='pub:kitchen:washable-left-wall';
+  box(.045,2.84,4.74,-4.035,1.42,-9.35,0xe9eded).name='pub:kitchen:washable-right-wall';
   for(const fixture of PUB_KITCHEN_LAYOUT.fixtures){
     box(fixture.w,fixture.h,fixture.d,fixture.x,fixture.h/2,fixture.z,STEEL).name='pub:kitchen:'+fixture.id;
     blocker(fixture.w,fixture.d,fixture.x,fixture.z);
@@ -209,7 +216,7 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
   box(.32,.05,.28,-6.68,1.68,-7.65,0xc4d0d1).name='pub:kitchen:temperature-log';
   box(.28,.035,.42,-6.68,1.96,-7.65,0xf2efdf);
 
-  // Bright protected ceiling panels and directional task illumination. Lights
+  // Diffused protected ceiling panels and glare-controlled task illumination. Lights
   // share the pub's actual breaker/blackout circuit; the output is artistic,
   // not measured lux. Avoid gloomy warm domestic pendants in a food workspace.
   const kitchenLenses=[];
@@ -218,7 +225,7 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
     const lens=new THREE.Mesh(new THREE.BoxGeometry(1.0,.026,.59),
       new THREE.MeshLambertMaterial({color:0xf4faff,emissive:0xf1faff,emissiveIntensity:.85}));
     lens.name='pub:kitchen:led-panel:'+(i+1);lens.position.set(x,3.79,z);group.add(lens);kitchenLenses.push(lens);
-    const light=new THREE.SpotLight(0xf3f8ff,85,6.4,1.03,.63,1.45);
+    const light=new THREE.SpotLight(0xf3f8ff,24,6.4,1.17,.77,1.35);
     light.name='pub:kitchen:task-light:'+(i+1);
     light.position.set(x,3.72,z);light.target.position.set(x,0,z);
     group.add(light,light.target);

@@ -1,8 +1,10 @@
-// A civic building's doorway is a WORLD transition, not a hole in its solid
-// exterior collider. South-side doors face negative Z and need their trigger
-// outside the building wall (the player's radius is 0.35m).
+// A civic doorway is a WORLD transition outside the solid exterior collider.
+// Both south-side industrial sites and the new row 2–7 north-facing infill have
+// street entrances toward -Z. Legacy High Street shops face +Z.
+export const civicStreetDirection = place =>
+  place?.side === 'south' || place?.side === 'north' ? -1 : 1;
 export function civicEntranceZone(place) {
-  if(place?.side==='south')return {
+  if(civicStreetDirection(place)<0)return {
     x0:place.door.x-1.0,x1:place.door.x+1.0,
     z0:place.door.z-1.55,z1:place.door.z+0.20
   };
@@ -19,5 +21,5 @@ export function atCivicEntrance(place,pos) {
 export function closedCivicDoorPose(place,pos) {
   // Put the visitor OUTSIDE the entire sensor, not in a repeat-trigger loop.
   // Keep the direction they were facing so the rejection feels natural.
-  return {x:pos.x,z:place.side==='south'?place.door.z-1.90:place.door.z+1.75};
+  return {x:pos.x,z:place.door.z + civicStreetDirection(place)*1.90};
 }

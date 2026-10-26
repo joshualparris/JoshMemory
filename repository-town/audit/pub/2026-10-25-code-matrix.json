@@ -11,9 +11,9 @@
   "sourceBlobs": {
     "repository-town/audit/electricity/coverage.json": "f80df771b893799e27b3adc98b92fe335c13f28b",
     "repository-town/src/world/interior-kit.js": "ceff1ba9e2197cb113c33760e9353f50ef1e97e3",
-    "repository-town/src/world/life.js": "94a10612a459610702bbcd1eacc2cc13da907e6d",
+    "repository-town/src/world/life.js": "02a3a7c600c1684333f22b90bdb557cc0c8e4f6d",
     "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2",
-    "repository-town/src/world/pub-interior.js": "cb84e8f070b5eea5c9d3a1bb2f5d856c0501e25a",
+    "repository-town/src/world/pub-interior.js": "46396a0552d2480f3c31585e77199803433ab6b6",
     "repository-town/src/world/shop-interior.js": "e2282db1927b79dd5e8a89a970a03e90b676dcf0",
     "repository-town/src/world/townlife.js": "7351e9a83ad097c6c523f4c4493921580540c380",
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
@@ -717,6 +717,7 @@
     "2026-10-26 PR223 re-audit: townlife.js render-only change replaces identical uniform NPC creation with deterministic individual appearances for pedestrians and trade crew. Verified code still delegates pub facade to unchanged buildPubFacade with shared pub envelope; geometry assertions must continue passing. Source blob refreshed for provenance only, not regulatory approval or proof of hosted acceptance.",
     "2026-10-26 PR224 re-audit: source pub-interior.js changed to clear a continuously walkable back-of-house kitchen galley (cook line, separate dedicated hand basin, preparation/fridge, dirty dishwasher/clean-rack and pass), add powered work luminaires and match modelled equipment to collision footprints. New player-radius pathfinding and breaker regression are required in the release gate. NSW Food Standards Code 3.2.3 and AS 4674 are used for design research only; no measured light levels, certified clearances, building approval, professional sign-off or change to the 34 official audit task statuses is asserted.",
     "2026-10-26 PR224 animation audit: prepared meal plate moved from the removed free-standing bench to the corresponding wall-aligned prep fridge worktop. Service events still require accepted, paid game-state events; moving visuals adds no new payments or compliance claim.",
-    "2026-10-26 PR225 audit reconciliation after PR224: retain pub kitchen layout/lighting source hashes and independently track commerce-only life.js changes at blob 94a10612a459610702bbcd1eacc2cc13da907e6d. This is audit provenance, not certification or approval."
+    "2026-10-26 PR226 visual QA follow-up: reviewed actual desktop/phone CI screenshots and found severe overexposure, prompting glare reduction and separate light-coloured cleanable kitchen ceiling/wall finishes. Added unobscured browser images and actual keyboard aisle-walk assertions. No measured luminance, certified cleanability or legal clearance is claimed.",
+    "2026-10-26 PR225 preservation: following the already merged front-door, fast-travel and pub changes, only finite commerce/source-and-tests are added; retain current official pub audit blobs, updating life.js hash to 02a3a7c600c1684333f22b90bdb557cc0c8e4f6d solely for source provenance (not certification)."
   ]
 }

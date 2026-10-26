@@ -39,7 +39,7 @@ export function mountCompanion({getContext,onOpen,onClose,isBlocked=()=>false}) 
   };
   $('task').onclick=()=>{if(!last)return;const {context,q,answer,evidence}=last;const url=URL.createObjectURL(new Blob([developmentTask(context,q,answer,evidence)],{type:'text/markdown'}));const a=document.createElement('a');a.href=url;a.download='repository-town-development-task.md';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
   el.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close();}if(e.key==='Tab'){const items=[...el.querySelectorAll('button,input,a,summary')].filter(x=>!x.disabled);const first=items[0],end=items.at(-1);if(e.shiftKey&&document.activeElement===first){e.preventDefault();end.focus();}else if(!e.shiftKey&&document.activeElement===end){e.preventDefault();first.focus();}}});
-  addEventListener('keydown',e=>{if(e.key.toLowerCase()!=='k'||e.repeat||e.ctrlKey||e.metaKey||e.altKey||e.target?.closest?.('input,textarea,select,[contenteditable],#panel,#npc-chat,#game'))return;if(el.hidden&&(blocked||isBlocked()))return;e.preventDefault();el.hidden?open():close();});
+  addEventListener('keydown',e=>{if(String(e.key ?? '').toLowerCase()!=='k'||e.repeat||e.ctrlKey||e.metaKey||e.altKey||e.target?.closest?.('input,textarea,select,[contenteditable],#panel,#npc-chat,#game'))return;if(el.hidden&&(blocked||isBlocked()))return;e.preventDefault();el.hidden?open():close();});
   setInterval(()=>{if(!el.hidden&&!pinned)showContext();},1000);
   return {isOpen:()=>!el.hidden,close,setBlocked};
 }
