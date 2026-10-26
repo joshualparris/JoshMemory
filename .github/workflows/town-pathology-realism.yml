@@ -1,0 +1,30 @@
+name: Riverbend Pathology Realism
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'repository-town/src/world/pathology-interior.js'
+      - 'repository-town/src/world/shop-interior.js'
+      - 'repository-town/src/world/town-expansion-facades.js'
+      - 'repository-town/tests/pathology-realism.mjs'
+      - '.github/workflows/town-pathology-realism.yml'
+permissions:
+  contents: read
+jobs:
+  pathology:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - run: npm ci
+      - run: node tests/pathology-realism.mjs
+      - run: npm run build
