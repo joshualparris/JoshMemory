@@ -10,7 +10,7 @@ const page = await browser.newPage({ viewport: { width: 900, height: 560 } });
 await page.goto(URL);
 await page.waitForFunction(() => window.__town && document.getElementById('loading').hidden, null, { timeout: 60000 });
 const T = (f, a) => page.evaluate(f, a);
-await T(() => window.__town.life.setTime(10 * 60));
+await T(() => { window.__town.life.setTime(9 * 60); window.__town.advanceSimulation(90); });
 // How squarely the view points away from the door: 1 = straight out, -1 = straight back at it.
 const away = (s, door) => { const dx = s.pos.x - door.x, dz = s.pos.z - door.z, d = Math.hypot(dx, dz) || 1; return (-Math.sin(s.yaw) * dx - Math.cos(s.yaw) * dz) / d; };
 const walkOut = async () => {
@@ -35,7 +35,6 @@ for (const id of ['bakery', 'power']) {
 }
 // The 2026 row 2-7 north-facing infill must return to the REAL street side
 // (-Z). Try available staffed sites; access rules remain enforced.
-await T(() => window.__town.advanceSimulation(45));
 const infill = shops.filter(s => s.side === 'north' && s.expansion);
 let infillExercised = false;
 for (const site of infill) {
