@@ -292,7 +292,7 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
   const poweredLighting=group.userData.updateLighting;
   group.userData.updateLighting=powered=>{
     poweredLighting?.(powered);
-    for(const lens of kitchenLenses)lens.material.emissiveIntensity=powered?.85:0;
+    for(const lens of kitchenLenses)lens.material.emissiveIntensity=powered ? .85 : 0;
   };
   interior.attachPubStaff=servicePresentation.attach;interior.afterPeople=servicePresentation.update;
   interior.physicalPlan=PUB_PHYSICAL_PLAN_2026;
