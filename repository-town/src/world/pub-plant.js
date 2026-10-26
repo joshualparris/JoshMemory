@@ -39,15 +39,18 @@ export function addPubExteriorServices(b){
  b.box(0x9c6c4f,.28,.3,.2,-9,1.25,-6.8); // regulator/valve schematic
  b.box(0x697780,1,.25,.35,-6.5,3.1,-6.2); // make-up-air intake representation
  b.box(0x3f514d,2,.9,1.5,-9,.45,-10); // outdoor grease-arrestor access cover enclosure
- b.box(0x4c5c4a,1.2,1.2,.8,10,.6,-8.5); // pest-resistant lidded bin store
- b.box(0x39704f,1.2,1.2,.8,10,.6,-10);
+ // Keep bin storage OUT of the rear escape and east-side pedestrian routes.
+ b.box(0x4c5c4a,1.2,1.2,.8,12,.6,-8.5);
+ b.box(0x39704f,1.2,1.2,.8,12,.6,-10);
  for(const x of [-7.18,7.18]){b.box(0x697780,.12,.12,18,x,4.62,-2);b.box(0x697780,.13,4.6,.13,x,2.3,-10.6);}
- b.box(0xb9c6bd,1.5,.025,7,0,.014,-15);b.box(0xb9c6bd,9.5,.025,1.5,4,.014,-20.55); // safe rear landing
- b.box(0xb9c6bd,1.5,.025,35,8,.014,-3.8); // side accessible route, no step
- b.box(0xb9c6bd,9,.025,1.5,4,.014,-14); // rear route to side path
- b.box(0xb9c6bd,8,.025,1.5,4,.014,12.2); // connects to frontage walkway
+ // Separate ground-floor discharge behind the building and along the east,
+ // with a footpath from the bottom of the upstairs return stair.
+ b.box(0xb9c6bd,11.5,.025,1.5,5.25,.014,-12);
+ b.box(0xb9c6bd,1.5,.025,26,10.5,.014,0);
+ b.box(0xb9c6bd,3.5,.025,1.5,9.3,.014,-2.9);
+ b.box(0xb9c6bd,11,.025,1.5,5.25,.014,12.2);
  b.cyl(0xcbd0d2,.38,1.8,-8.5,.9,-4.5); // insulated external hot-water cylinder
- for(const [w,d,x,z]of [[1.6,1.5,-9,-7.2],[2,1.5,-9,-10],[1.2,.8,10,-8.5],[1.2,.8,10,-10],[.8,.8,-8.5,-4.5]])b.solid?.(w,d,x,z);
+ for(const [w,d,x,z]of [[1.6,1.5,-9,-7.2],[2,1.5,-9,-10],[1.2,.8,12,-8.5],[1.2,.8,12,-10],[.8,.8,-8.5,-4.5]])b.solid?.(w,d,x,z);
  // Roof plant and perimeter support representations, no structural capacity claim.
  b.box(0xb8c5ca,.4,1.1,.4,-6,5.3,-8); // kitchen exhaust discharge
  for(const x of [-6.8,6.8])for(const z of [-10.8,6.8])b.box(0x775a42,.2,4.4,.2,x,2.2,z);

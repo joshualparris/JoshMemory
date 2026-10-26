@@ -87,30 +87,32 @@ export function buildPubFacade(b, {GLASS=0x9fd3ea,DARK=0x33363b,WOOD=0x8a6545}={
   piece('upper-front-centre',wall,2.1,4.6,t,0,y+2.3,F);piece('upper-front-spandrel',wall,14,1.4,t,0,y+3.9,F);
   for(const x of [-7,7]){piece('upper-side-sill',wall,t,1.4,18,x,y+.7,C);piece('upper-side-rear',wall,t,3.2,sw.rearZ-B,x,y+3,(B+sw.rearZ)/2);piece('upper-side-front',wall,t,3.2,F-sw.frontZ,x,y+3,(F+sw.frontZ)/2);piece('upper-side-head',wall,t,1.7,sw.frontZ-sw.rearZ,x,y+3.75,(sw.frontZ+sw.rearZ)/2);piece('upper-glass',GLASS,.045,1.5,sw.frontZ-sw.rearZ,x+Math.sign(x)*.07,y+2.15,(sw.frontZ+sw.rearZ)/2);}
   piece('upper-rear-wall',wall,11.8,4.6,t,-1.1,y+2.3,B);piece('upper-rear-end',wall,.5,4.6,t,6.75,y+2.3,B);piece('upper-exit-header',wall,1.7,2.1,t,5.65,y+3.55,B);piece('upper-exit-door',0x52645c,1.6,2.4,.08,5.65,y+1.2,B-.1);
-  // Rear-yard escape stair: a single continuous 28-tread flight, with both ends
-  // clear of the rear wall. Treads and the walker's outdoor height share a profile.
-  const stair=PUB_REAR_STAIRS, rise=stair.rise, run=stair.treadCount*stair.going;
-  piece('escape-stair-upper-landing',0x687576,1.72,.16,1.0,stair.x,stair.upperY-.08,stair.topLandingZ);
-  piece('escape-stair-foot-landing',0x979b94,1.8,.04,1.25,stair.x,.02,stair.bottomLandingZ);
+  // Elevated walkway from the second-storey rear door to the east-side stair.
+  // The entire flight heads TOWARDS the street: the adjacent rail corridor stays clear.
+  const stair=PUB_REAR_STAIRS,run=stair.treadCount*stair.going,rise=stair.rise;
+  piece('escape-stair-upper-landing',0x687576,3.9,.16,1.0,7.1,stair.upperY-.08,stair.topLandingZ);
+  piece('escape-stair-balcony-guard',0x414b4f,3.9,1.1,.055,7.1,stair.upperY+.55,stair.topLandingZ-.52);
+  b.solid(3.9,.055,7.1,stair.topLandingZ-.52);
+  piece('escape-stair-foot-landing',0x979b94,1.8,.04,1.4,stair.flightX,.02,stair.bottomLandingZ);
   for(let i=0;i<stair.treadCount;i++){
-    const z=stair.firstTreadZ-(i+.5)*stair.going,y=stair.upperY-(i+1)*rise;
-    piece('escape-stair-tread',0x687576,stair.clearWidth,.12,stair.going,stair.x,y-.06,z);
-    piece('escape-stair-nosing',0xd8c6a0,stair.clearWidth,.025,.045,stair.x,y+.01,z-stair.going*.42);
+    const z=stair.firstTreadZ+(i+.5)*stair.going,y=stair.upperY-(i+1)*rise;
+    piece('escape-stair-tread',0x687576,stair.clearWidth,.12,stair.going,stair.flightX,y-.06,z);
+    piece('escape-stair-nosing',0xd8c6a0,stair.clearWidth,.025,.045,stair.flightX,y+.01,z+stair.going*.42);
     if(i%2===0)for(const dx of [-.73,.73])
-      piece('escape-stair-baluster',0x414b4f,.055,1.05,.055,stair.x+dx,y+.53,z);
+      piece('escape-stair-baluster',0x414b4f,.055,1.05,.055,stair.flightX+dx,y+.53,z);
+    if(i%7===0)for(const dx of [-.73,.73])
+      piece('escape-stair-support',0x465357,.09,Math.max(.25,y),.09,stair.flightX+dx,y/2,z);
   }
-  const angle=Math.atan2(stair.upperY,run),slopeLen=Math.hypot(stair.upperY,run);
   for(const dx of [-.73,.73]){
-    b.add('box',0x414b4f,.09,.18,slopeLen,stair.x+dx,stair.upperY/2-.14,stair.firstTreadZ-run/2,-angle);
-    b.add('box',0x414b4f,.065,.065,slopeLen,stair.x+dx,stair.upperY/2+1,stair.firstTreadZ-run/2,-angle);
-    // Only guard edges are solid in the 2-D outdoor collision world, not the
-    // whole walking flight. Leaving the sides blocked prevents lateral shortcuts.
-    b.solid(.12,run,stair.x+dx,stair.firstTreadZ-run/2);
-    b.solid(.12,1.0,stair.x+dx,stair.topLandingZ);
+    // Sloping rails are visual only; solid barriers follow the horizontal
+    // footprint of the sides. Never block the centre of the walking steps.
+    for(let i=0;i<stair.treadCount;i+=2){
+      const z=stair.firstTreadZ+(i+1)*stair.going,y=stair.upperY-(i+1)*rise;
+      piece('escape-stair-handrail',0x414b4f,.065,.065,2*stair.going,stair.flightX+dx,y+1,z);
+    }
+    b.solid(.12,run,stair.flightX+dx,stair.firstTreadZ+run/2);
   }
-  piece('escape-stair-upper-post',0x414b4f,.075,1.15,.075,stair.x-.73,stair.upperY+.575,stair.topLandingZ);
-  piece('escape-stair-upper-post',0x414b4f,.075,1.15,.075,stair.x+.73,stair.upperY+.575,stair.topLandingZ);
-  piece('escape-stair-wayfinding',0x2e5a49,1.6,.45,.07,stair.x,1.6,stair.bottomLandingZ-.45);
+  piece('escape-stair-wayfinding',0x2e5a49,1.6,.45,.07,stair.flightX,1.6,stair.bottomLandingZ+.6);
   piece('lift-roof-overrun',0x687576,2.1,.5,2.4,-2.15,9.65,5.55);
   piece('roof-capping',roof,14.6,.24,18.6,0,9.66,C);
   b.pyramid(roof,14.6,e.roofPeakM-e.roofEaveM,18.6,0,
