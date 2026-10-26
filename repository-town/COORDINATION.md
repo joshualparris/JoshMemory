@@ -16,6 +16,9 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-26 · ChatGPT — IN PROGRESS: RTBUILD-069 N5-N Repository Community Bus Interchange realistic street-facing shell, accessible boarding hardstand/tactiles, passenger shelter, walkable waiting room with timetable/assistance and regression tests. Branch `feat/repo-n5-bus-interchange-realism-20261026`. Claim new `src/world/bus-interchange-*`, targeted `src/world/shop-interior.js` and `src/world/town-expansion-facades.js`, new `tests/bus-interchange.mjs`, test runner, scoped docs. Preserve town exits, other 71 new buildings, public privacy, no claims of legal approvals or real bus timetables. Source baseline main. Full release/browser/production still pending.
+
+
 
 - 2026-10-26 · ChatGPT — IN PROGRESS: fix pub kitchen walkability, cooking/wash/prep workflow and focused white work lighting on `fix/pub-kitchen-circulation-lighting-20261026`. Claim `src/world/pub-interior.js`, new `src/world/pub-kitchen-plan.js`, new `tests/pub-kitchen-layout.mjs`, `package.json`, kitchen QA notes. Preserve public venue, stair/lift, utility rules and other concurrent claims. Gate: collision/door sweep, light/power-outage, full release, hosted phone/desktop. No regulatory compliance claim.
 

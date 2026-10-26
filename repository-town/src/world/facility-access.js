@@ -25,6 +25,7 @@ export function visitorHours(place) {
 }
 export function openingHoursLabel(place) {
   if(place.id==='square') return 'PUBLIC 24 HOURS';
+  if(place.id==='busstop') return 'SHELTER 24 HOURS · HELP 08:00-17:30';
   if(place.id==='farmhouse') return 'VISITS BY APPOINTMENT';
   const [opens,closes]=visitorHours(place);
   return `${SUPERVISED.has(place.id)||RECEPTION_HOURS[place.id]?'RECEPTION':'HOURS'} ${CLOCK(opens)}-${CLOCK(closes)}`;
@@ -36,6 +37,7 @@ export function facilityAccess(town, place) {
   if (!place) return { allowed:false, reason:'unknown', message:'This entrance is unavailable.' };
   if(place.id==='pub'){const a=pubAdmission(town);if(!a.allowed)return a;}
   if (place.id === 'square') return { allowed:true, reason:'public', message:'Public space is open.' };
+  if (place.id === 'busstop') return { allowed:true, reason:'public', message:'The bus shelter and timetable area are public at all hours; staff assistance is limited to posted visitor hours.' };
   const shift = town.jobsReport?.()?.active;
   if (shift?.site === place.id && shift.day === town.day)
     return { allowed:true, reason:'employee', message:'Your current work shift gives you access to your workplace.' };

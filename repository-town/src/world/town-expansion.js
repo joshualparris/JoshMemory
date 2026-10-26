@@ -1167,11 +1167,11 @@ export const EXPANSION_SITES=Object.freeze([
     "style": "park",
     "priority": "P2",
     "staffRole": "bus liaison",
-    "description": "Transport stop and shelter",
+    "description": "Sheltered community bus stop with one boarding point, passenger information and step-free waiting area",
     "opens": 480,
     "closes": 1050,
     "expansion": true,
-    "constructionStage": "2026 massing shell; interior detail pending",
+    "constructionStage": "2026 modelled shelter and passenger waiting area; bus operations and regulatory approvals unverified",
     "taskId": "RTBUILD-069"
   },
   {
