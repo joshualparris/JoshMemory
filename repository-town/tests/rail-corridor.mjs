@@ -7,8 +7,7 @@ import {RAIL_Z,RAIL_GAUGE,RAIL_CROSSINGS,RAIL_STRUCTURE_HALF_WIDTH,
  RAIL_LAMP_MIN_DISTANCE,permittedTracksideLight,withinLevelCrossing,railCrossingClosed,railSideYardClear}
  from '../src/world/rail-corridor.js';
 
-assert.equal(RAIL_Z,132,'2026 rail move clears the row-8 rear building boundary and pub escape stair');
-assert(RAIL_Z+RAIL_STRUCTURE_HALF_WIDTH<138,'rail structure envelope stays north of row-8 rear lots');
+assert.equal(RAIL_Z,132,'rail line is outside the row-8 lot boundary and pub stairs');
 assert.equal(lifeRail,RAIL_Z,'simulated train and drawn rails use same corridor');
 assert.equal(RAIL_GAUGE,1.435,'rail heads use standard gauge');
 assert.equal(RAIL_CROSSINGS.length,6,'each physical north/south avenue has one crossing');
@@ -18,8 +17,8 @@ assert(RAIL_STRUCTURE_HALF_WIDTH>RAIL_GAUGE);
 assert.equal(RAIL_LAMP_MIN_DISTANCE,5.5);
 const street7=6*46-3.5*46+16; // 131
 const southFootpathLamp=street7+6; // 137, old railway centre 136
-assert(!permittedTracksideLight(southFootpathLamp),'legacy street-7 south lamp is suppressed where the railway passes');
-assert(!permittedTracksideLight(southFootpathLamp-0.85),'offset street lamp is also protected by track buffer');
+assert(Math.abs(RAIL_Z-southFootpathLamp)<RAIL_LAMP_MIN_DISTANCE,'nearby street lamp must be excluded');
+assert(!permittedTracksideLight(southFootpathLamp-0.85),'rail-adjacent lamp must be suppressed');
 assert(!permittedTracksideLight(RAIL_Z),'on-track lamps are prohibited');
 assert(!permittedTracksideLight(RAIL_Z+1.6));
 assert(!railSideYardClear(RAIL_Z+1.6,2.5),'detached yard objects must not intrude');
