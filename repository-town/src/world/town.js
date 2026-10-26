@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { permittedTracksideLight } from './rail-corridor.js';
 import { createStreetLighting, lightingLevel, STREET_LIGHT_BUDGET, householdLightingOn } from './lighting.js';
 import { Builder } from './builder.js';
 import { buildExterior } from './exterior.js';
@@ -68,6 +69,7 @@ export function buildTown(scene, houses, streets) {
     for (let x = -width / 2 + 36; x < width / 2 - 30; x += 26) {
       for (const side of [-1, 1]) {
         const lz = z + side * 6.0, lx = x + (side > 0 ? 13 : 0);
+        if (!permittedTracksideLight(lz - side * 0.85)) continue;
         deco.cyl(0x2f3338, 0.08, 4.2, lx, 2.1, lz);
         deco.solid(0.5, 0.5, lx, lz);           // the pole is solid; the arm and lamp head are overhead
         deco.box(0x2f3338, 0.08, 0.08, 0.9, lx, 4.15, lz - side * 0.4);
