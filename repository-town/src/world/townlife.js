@@ -12,7 +12,7 @@ import { pose } from './npcs.js';
 import { makeDistinctPerson } from './npc-wardrobe.js';
 import { facilityAccess, openingHoursLabel } from './facility-access.js';
 import { TownLife, GOODS, RAIL_Z, trainX, FIELD_Z0, FIELD_Z1, SEC_PER_MIN, LOT_X, AVENUES } from './life.js';
-import { RAIL_GAUGE, RAIL_CROSSINGS, withinLevelCrossing, railCrossingClosed } from './rail-corridor.js';
+import { RAIL_GAUGE, RAIL_CROSSINGS, withinLevelCrossing, railSideYardClear, railCrossingClosed } from './rail-corridor.js';
 
 // Draws the town simulation (src/world/life.js): the high street and farms on street 8,
 // fields, livestock, the freight train, delivery trucks, villagers, doorstep parcels and
@@ -622,6 +622,10 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     const lot = town.lots.get(v.home.coordinate); if (!lot) continue;
     const { fp } = lot, ox = lot.lot.x, oz = lot.lot.z, back = -fp.d / 2;
     const place = (type, x, z, rot = 0, solid = PROPS[type].solid) => {
+      // A8–F8 have short yards backing onto the realigned rail reservation.
+      // Never spawn detached equipment, a shed or foliage beneath a train.
+      const asset=PROPS[type], assetDepth=Math.abs(Math.sin(rot))>.5?asset.w:asset.d;
+      if(v.home.coordinate.endsWith('8') && !railSideYardClear(oz+z,assetDepth))return;
       statics.at(ox + x, 0, oz + z, rot, () => PROPS[type].build(statics, {}));
       if (solid) { const p = PROPS[type], side = Math.abs(Math.sin(rot)) > 0.5; statics.solid(side ? p.d : p.w, side ? p.w : p.d, ox + x, oz + z); }
     };
