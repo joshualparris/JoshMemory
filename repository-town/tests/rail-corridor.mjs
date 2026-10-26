@@ -7,7 +7,7 @@ import {RAIL_Z,RAIL_GAUGE,RAIL_CROSSINGS,RAIL_STRUCTURE_HALF_WIDTH,
  RAIL_LAMP_MIN_DISTANCE,permittedTracksideLight,withinLevelCrossing,railCrossingClosed,railSideYardClear}
  from '../src/world/rail-corridor.js';
 
-assert.equal(RAIL_Z,144,'rail line is on its dedicated strip, not street-7 pavement');
+assert.equal(RAIL_Z,-196,'track is outside row-1 rear lot boundary and all street traffic');
 assert.equal(lifeRail,RAIL_Z,'simulated train and drawn rails use same corridor');
 assert.equal(RAIL_GAUGE,1.435,'rail heads use standard gauge');
 assert.equal(RAIL_CROSSINGS.length,6,'each physical north/south avenue has one crossing');
