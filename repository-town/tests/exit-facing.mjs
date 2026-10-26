@@ -72,6 +72,25 @@ if(bus){
   check(btnOut.mode==='town' && btnOut.pos.z<bus.door.z-2,
     'Exit action also places the player at the front, never at the rear wall');
 }
+// O5-N regional visitor centre: both walking and the Exit command use its porch.
+const visitor=shops.find(s=>s.id==='visitorcentre');
+check(!!visitor,'O5-N visitor information site exists');
+if(visitor){
+  check(await T(()=>window.__town.enterShop('visitorcentre')),'O5-N accepts a visitor');
+  const insideVisitor=await T(()=>window.__town.state());
+  check(insideVisitor.mode==='house' && insideVisitor.windows>=4 &&
+    insideVisitor.interactables.some(i=>i.key==='visitorcentre:brochures') &&
+    insideVisitor.interactables.some(i=>i.key==='visitorcentre:amenities'),
+    'O5-N is a real walkable visitor information room, not a blank shell');
+  const departed=await walkOut();
+  check(departed.mode==='town' && departed.pos.z<visitor.door.z-2 &&
+    away(departed,visitor.door)>.7,'O5-N walk-out returns to front verandah');
+  await T(()=>window.__town.enterShop('visitorcentre'));
+  await T(()=>window.__town.exitShop());
+  const afterButton=await T(()=>window.__town.state());
+  check(afterButton.mode==='town' && afterButton.pos.z<visitor.door.z-2,
+    'O5-N manual exit returns to front rather than rear wall');
+}
 // A house: walk in, walk back out.
 await T(() => window.__town.travel('A1')); await page.waitForTimeout(500);
 const front = await T(() => window.__town.state());

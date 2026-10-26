@@ -3,6 +3,7 @@
 // Geometry is phase-one massing, NOT a completed NCC, petrol, clinical or childcare approval.
 import { GLASS } from './builder.js';
 import { buildBusInterchangeFacade } from './bus-interchange-facade.js';
+import { buildVisitorInformationFacade } from './visitor-information-facade.js';
 const styles=Object.freeze({
  heritage:[0xbb8d72,0x755340,0x7e3c31],
  civic:[0xc8bda7,0x546873,0x334d60],
@@ -25,6 +26,7 @@ export function expansionFootprint(style){
 }
 export function buildExpansionFacade(b,site){
  if(site.id==='busstop')return buildBusInterchangeFacade(b);
+ if(site.id==='visitorcentre')return buildVisitorInformationFacade(b);
  const pal=styles[site.style]||styles.retail;
  const [wall,trim,accent]=pal,{w,d}=expansionFootprint(site.style);
  const h=site.style==='heritage'?5.1:site.style==='rural'?5:4.2;

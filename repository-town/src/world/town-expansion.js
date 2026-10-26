@@ -1184,11 +1184,11 @@ export const EXPANSION_SITES=Object.freeze([
     "style": "heritage",
     "priority": "P2",
     "staffRole": "visitor officer",
-    "description": "Local tourism information",
+    "description": "Regional visitor information, local maps, guides and gifts with a verandah waiting room",
     "opens": 480,
     "closes": 1050,
     "expansion": true,
-    "constructionStage": "2026 massing shell; interior detail pending",
+    "constructionStage": "2026 researched model of regional visitor information; real-world compliance and bookings unverified",
     "taskId": "RTBUILD-070"
   },
   {
