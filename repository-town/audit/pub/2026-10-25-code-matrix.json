@@ -11,7 +11,7 @@
   "sourceBlobs": {
     "repository-town/audit/electricity/coverage.json": "f80df771b893799e27b3adc98b92fe335c13f28b",
     "repository-town/src/world/interior-kit.js": "ceff1ba9e2197cb113c33760e9353f50ef1e97e3",
-    "repository-town/src/world/life.js": "4d3a457bb4dce551c52aa32892158165762cf7d2",
+    "repository-town/src/world/life.js": "b656d1200de56abf0b94dbeaeac63cf8a1dd8a39",
     "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2",
     "repository-town/src/world/pub-interior.js": "06f6248bc175357cdd108dab7ae6560ecbeb59f6",
     "repository-town/src/world/shop-interior.js": "e2282db1927b79dd5e8a89a970a03e90b676dcf0",
@@ -21,11 +21,11 @@
     "repository-town/src/world/pub-envelope.js": "bc4928eea8092dea9e3f858479bdbb4cb626d1e6",
     "repository-town/src/main.js": "3aca0e1bdca115cf20a4cdc100dd4c52d14047a5",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
-    "repository-town/src/world/pub-physical-plan-2026.js": "c60523f69601e0540554b7bf260eaa0ecbdc56bd",
+    "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "50a0f39d016d28f8ad7f1424e5297865fb8a530b",
     "repository-town/src/world/pub-utilities.js": "874a26cf7ae46864b090cb77a107ea7057fe30b5",
-    "repository-town/src/world/pub-standards.js": "04ae489d67901f758a3fce5f84a094a2c7f54662",
-    "repository-town/src/world/pub-plant.js": "56904b4c9e60c9607ef342278f75c27e59a9dfe5",
+    "repository-town/src/world/pub-standards.js": "e0053e9aca94d7659efd47914a17bb5b819ba847",
+    "repository-town/src/world/pub-plant.js": "27947cb1b1646c3026ccb5ab331d625856a5bd62",
     "repository-town/src/world/pub-venue.js": "3be5be728a464d7c1046fd88eb02333a9ed2afae",
     "repository-town/src/world/pub-pool.js": "0465b320ec277b77e296d4003e454030628398c6",
     "repository-town/src/world/pub-presentation.js": "14ac09c9cd059dc9675b3fdcbc13b8f84502c9c6",
@@ -33,9 +33,9 @@
     "repository-town/src/ui/pub-pool-panel.js": "86f810c9ea5074675e4b45653d55e7abe3c82616",
     "repository-town/src/world/pub-expansion-state.js": "5dcf10ac0cb88c91f753d61c519e431484152fd3",
     "repository-town/src/world/pub-vertical-core.js": "0da18695fa3ad3c8cce5dabff5ed97b990df35f5",
-    "repository-town/src/world/pub-floors.js": "d29dc2dd96c2538847ad222ebd2ef5e3f3ca5c82",
+    "repository-town/src/world/pub-floors.js": "b865898a8be9cd5bf90c96e88933e796460f3004",
     "repository-town/src/ui/pub-expansion-panel.js": "9d651e6dc73ca54600ee03072ce9f88f69f264ce",
-    "repository-town/src/world/lighting.js": "22a87f148456ef8db2636f04108b37b0bed4ccd0"
+    "repository-town/src/world/lighting.js": "93a4e8ee973136b4ab2c0ac60529357022538165"
   },
   "sources": {
     "S01": {

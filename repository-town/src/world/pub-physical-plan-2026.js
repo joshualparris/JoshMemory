@@ -32,7 +32,7 @@ export function pubExitLayout(){
 export function pubExteriorRoute(site){
  const sign=site.side==='south'?-1:1,oz=site.originZ;
  if(!Number.isFinite(oz)||!Number.isFinite(site.x))throw new TypeError('Pub world origin required');
- return [{x:site.x,z:oz-13.2*sign},{x:site.x+8*sign,z:oz-14*sign},{x:site.x+8*sign,z:oz+12.2*sign},{x:site.x,z:oz+12.2*sign}];
+ return [{x:site.x,z:oz-13.2*sign},{x:site.x,z:oz-18.2*sign},{x:site.x+8*sign,z:oz-18.2*sign},{x:site.x+8*sign,z:oz+12.2*sign},{x:site.x,z:oz+12.2*sign}];
 }
 export function pubRearExitPose(site,colliders,radius=.46){
  const p=pubExteriorRoute(site)[0];
