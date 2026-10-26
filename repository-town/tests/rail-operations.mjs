@@ -40,13 +40,13 @@ assert.equal(railGateState(470,depotX,52,{heldFront:52}).phase,'occupied',
  'train held over crossing cannot give false open aspect');
 
 const blocking=railGateState(406,depotX,312);
-assert(railUserBlocked({x:315.6,z:134},{x:315.6,z:137},blocking,{radius:0.59}));
-assert(railUserBlocked({x:313.7,z:131},{x:313.7,z:136},blocking,{halfLength:3.5,radius:0.6}),
+assert(railUserBlocked({x:315.6,z:RAIL_Z-10},{x:315.6,z:RAIL_Z-7},blocking,{radius:0.59}));
+assert(railUserBlocked({x:313.7,z:RAIL_Z-13},{x:313.7,z:RAIL_Z-8},blocking,{halfLength:3.5,radius:0.6}),
  'truck must stop its front bumper before the boom');
-assert(!railUserBlocked({x:315.6,z:142},{x:315.6,z:150},blocking,{radius:0.59}),
+assert(!railUserBlocked({x:315.6,z:RAIL_Z-2},{x:315.6,z:RAIL_Z+6},blocking,{radius:0.59}),
  'walker already over track must be allowed to clear');
-assert(!railUserBlocked({x:315.6,z:133},{x:315.6,z:136},phases.clear,{radius:0.59}));
-assert(!railUserBlocked({x:120,z:133},{x:120,z:137},blocking,{radius:0.59}),
+assert(!railUserBlocked({x:315.6,z:RAIL_Z-11},{x:315.6,z:RAIL_Z-8},phases.clear,{radius:0.59}));
+assert(!railUserBlocked({x:120,z:RAIL_Z-11},{x:120,z:RAIL_Z-7},blocking,{radius:0.59}),
  'not at a crossing');
 assert.equal(railGateBoxes(312).length,2);
 assert.deepEqual(railClearanceAudit([{x0:3,x1:5,z0:RAIL_Z-0.5,z1:RAIL_Z+0.5},
@@ -61,8 +61,8 @@ for(let r=0;r<8;r++)for(let c=0;c<26;c++){
 const sim=new TownLife({homes,minute:407,seed:17});
 assert.equal(sim.railGate(312).phase,'closed');
 const truck=sim.trucks[0]; // Use actual driving gate enforcement, without invented visuals.
-assert(sim.railRoadBlocked({x:313.7,z:131},{x:313.7,z:136},3.5,0.6));
-assert(sim.railRoadBlocked({x:315.6,z:134},{x:315.6,z:137},0,0.59));
+assert(sim.railRoadBlocked({x:313.7,z:RAIL_Z-13},{x:313.7,z:RAIL_Z-8},3.5,0.6));
+assert(sim.railRoadBlocked({x:315.6,z:RAIL_Z-10},{x:315.6,z:RAIL_Z-7},0,0.59));
 sim.setRailFault(true);
 const held=sim.railTrainFront();
 assert.equal(held,trainX(407,depotX));
