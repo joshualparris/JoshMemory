@@ -20,6 +20,7 @@ import { Player } from './engine/player.js';
 import { loadSave, writeSave, clearSave } from './engine/save.js';
 import { discoveryProgress } from './ui/discovery-log.js';
 import { buildTown, streetSigns, lotPosition } from './world/town.js';
+import { buildYeovalInterior } from './world/yeoval-interior.js';
 import { houseAddress, parseTownAddress } from './world/addresses.js';
 import { buildInterior, labelVisible } from './world/interior.js';
 import { honourPaulRoe } from './world/paul-roe-tribute.js';
@@ -157,9 +158,14 @@ async function start() {
   // Smooth mode draws less of the distance; phones start with it on.
   let lowPerf = touch;
   streetSigns(town.group, data.streets, makeLabel);
+  for (const site of town.campuses || []) {
+    const sign=makeLabel(site.name+' · Aged care campus', 'house');
+    sign.position.set(site.entry.x,4.75,site.entry.z-2.9);
+    town.group.add(sign);
+  }
   const half = { x: town.bounds.width / 2, z: town.bounds.depth / 2 };
   const edges = [
-    { x0: -half.x - 5, x1: half.x + 5, z0: -half.z - 5, z1: -half.z }, { x0: -half.x - 5, x1: half.x + 5, z0: half.z, z1: half.z + 5 },
+    { x0: -half.x - 5, x1: half.x + 5, z0: -395, z1: -390 }, { x0: -half.x - 5, x1: half.x + 5, z0: half.z, z1: half.z + 5 },
     { x0: -half.x - 5, x1: -half.x, z0: -half.z, z1: half.z }, { x0: half.x, x1: half.x + 5, z0: -half.z, z1: half.z },
   ];
   const townWorld = new CollisionWorld([...town.colliders, ...townLife.colliders, ...edges]);
@@ -390,6 +396,25 @@ async function start() {
   }
   // The high-street buildings now have their own walkable rooms and usable
   // counters. Keep the existing villager/farm economy running in the street.
+  // Purpose-built northern campus; no part of the small row-7 storefront.
+  function enterCampus(id, keepFacing=false) {
+    if(mode!=='town')return false;
+    const site=(town.campuses||[]).find(x=>x.id===id);
+    if(!site)return false;
+    const yawIn=player.yaw;
+    const built=buildYeovalInterior(makeLabel);
+    inside={house:{coordinate:'YEOVAL',name:site.name,kind:'care'},campus:site,
+      ...built,people:[],floorIndex:0,floors:null};
+    scene.add(built.group);town.group.visible=false;
+    scene.background.set(INDOOR);scene.fog=null;
+    world=new CollisionWorld(built.colliders);
+    player.place(built.spawn.x,built.spawn.z,keepFacing?yawIn-Math.PI:0);
+    mode='house';player.baseHeight=0;updateFloorBadge();$('btn-exit').hidden=false;
+    closePanel();npcChat.close();ambience.door();
+    $('card').hidden=true;delete $('card').dataset.coord;
+    status('Inside '+site.name+'. This is an illustrative public-reference layout, not a surveyed floor plan. Return via the north entrance.');
+    return true;
+  }
   let lastDeniedEntrance = '', lastDeniedTime = 0;
   function enterShop(id, keepFacing = false) {
     if(mode!=='town'||!life.places.has(id))return false;
@@ -434,6 +459,7 @@ async function start() {
     closePanel(); npcChat.close();
     const coord = inside.house.coordinate;
     const shop=inside.place||null;
+    const campus=inside.campus||null;
     inside.bakeryImmersion?.dispose();
     inside.workplay?.dispose();
     if(inside.floors?.isPub)for(const level of inside.floors.levels)if(level.workplay!==inside.workplay)level.workplay?.dispose();
@@ -446,7 +472,10 @@ async function start() {
     $('btn-exit').hidden = true;
     town.group.visible = true; scene.background.set(SKY); scene.fog = fog;
     if (placeOutside) {
-      if (shop) {
+      if (campus) {
+        // Return north of the main entrance, never through a rear wall.
+        player.place(campus.entry.x,campus.entry.z-3.25,keepFacing?yawInside+Math.PI:0);
+      } else if (shop) {
         const boxes=[...townWorld.all,...townWorld.dynamic()];
         const pose=via==='secondary'&&shop.id==='pub'?pubSecondaryExitPose(shop,boxes,player.radius+.08):via==='rear'&&shop.id==='pub'?pubRearExitPose(shop,boxes,player.radius+.08):civicExitPose(shop,boxes,player.radius+0.08);
         if (pose) player.place(pose.x,pose.z,keepFacing ? yawInside + doorTurn(shop) : pose.yaw);
@@ -456,7 +485,7 @@ async function start() {
     // Close the door behind the player so the doorway does not re-trigger.
     const d = town.doors.find((d) => d.userData.coordinate === coord); if (d) d.userData.open = 0;
     ambience.door();
-    status(shop?`Back outside ${shop.name}.`:`Back on the street at ${coord}.`);
+    status(campus?`Back outside ${campus.name}.`:shop?`Back outside ${shop.name}.`:`Back on the street at ${coord}.`);
   }
 
   // ── Overview (bird's-eye) ────────────────────────────────────────────────
@@ -1130,6 +1159,14 @@ async function start() {
       // The outside facades are collision solids, so the transition happens
       // just in front of their door (not inside an inaccessible wall).
       if(mode==='town' && !overview && !driving.driving){
+        for(const site of town.campuses || []){
+          if(Math.abs(player.pos.x-site.entry.x)<1.3 &&
+             player.pos.z<site.entry.z-.20 && player.pos.z>site.entry.z-2.6){
+            enterCampus(site.id,true);break;
+          }
+        }
+      }
+      if(mode==='town' && !overview && !driving.driving){
         for(const place of life.places.values()){
           if(atCivicEntrance(place,player.pos)){
             if(!enterShop(place.id, true)){
@@ -1278,6 +1315,8 @@ async function start() {
     },
 
     houses: houses.map((h) => ({ coordinate: h.coordinate, name: h.name })),
+    campuses:()=>town.campuses.map(s=>({id:s.id,name:s.name,door:s.entry,scaleStatus:s.scaleStatus,wings:s.wings})),
+    enterCampus,
     npcs: streetNPCs.map((x) => ({ id: x.npc.id, name: x.npc.name, coordinate: x.npc.coordinate })),
     npcChat: () => ({ open: npcChat.isOpen(), id: npcChat.active() }),
     talkTo: (id) => npcChat.show(id),
