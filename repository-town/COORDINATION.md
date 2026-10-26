@@ -16,6 +16,9 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-26 · ChatGPT — IN PROGRESS: Railway Hotel I8-S regional historic accommodation realism, branch `feat/railway-hotel-regional-realism-20261026` baseline 3f07c2ca2d9. Reserve `src/world/hotel-interior.js`, new standalone `src/world/railway-hotel-facade.js`, **hotel-only** facade call in `src/world/townlife.js`, new focused geometry tests, dated heritage/source dossier, package.json, audit provenance. Preserve existing $24 booking, exactly four room keys and sleepers, all pub/rail/visitor-centre work. No official hotel building approval or real historic dimensions claimed. Acceptance includes full CI, desktop/phone browser, production exact SHA.
+
+
 - 2026-10-26 · ChatGPT — **RTBUILD-070 SOURCE MERGED / CI VERIFIED / PRODUCTION PENDING**: O5-N Visitor Information Centre research-inspired 12×9m detailed facade and walkable interior. [PR #234](https://github.com/joshualparris/JoshMemory/pull/234) merged to main `f638f05de092c47f6cbc10e188e2be4b04d5c200`. All five 28-day simulations, full town release/privacy safety gate, recorded desktop and Android WebGL round trip, Android driving, heritage checks PASSED on PR SHA `92dda1312ece413c23de96810a0811c1f5f4f497`. Separate pub audit hash check RED on unrelated historical `src/world/life.js` input; not modified. Vercel production deployment `dpl_6JgkMHvotF7pnz3HnAAo43du56P7` at exact merge SHA is QUEUED behind concurrent builds; production public alias currently older `93bdadfd`. NEXT: verify new deployment READY, then verify public domain maps to merged or descendant SHA and independently browser-check live O5-N. No real floorplan, bookings, AVIC accreditation or certified accessibility claimed; research in `docs/O5_VISITOR_INFORMATION_REALISM_2026-10-26.md`.
 
 

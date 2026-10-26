@@ -1,3 +1,7 @@
+# 26 October 2026 — Railway Hotel realism scope reserved
+
+Date 26 Oct 2026. I8 south Railway Hotel currently just reception and four generic bedrooms. Research precedents: NSW Heritage inventory Castlereagh Hotel Dubbo, Palace Hotel Broken Hill and Great Northern Teralba plus NSW Government Class 3 residential hotel guidance and Fire and Rescue NSW smoke alarms. Goal: visible country hotel frontage/verandah and believable gallery guest accommodation without changing occupancy, wallet or room keys. Do not claim compliance with NCC or precise real building measurements. Branch `feat/railway-hotel-regional-realism-20261026` baseline 3f07c2ca2d963ca939e2f97d0f99e4d4cf6993fb. Full tests/production pending.
+
 # 26 October 2026 — commerce consolidation merged-tree candidate
 
 Preserves latest main d5637c6ef04b782106fca7c63d036d18159a3c3b with bus/pharmacy/front entrances, pub and fast-travel fixes. Recovers original missing General Store invoices/temperature probes/supplier credits, finite state treasury startup capital, council wage float repayments and three regression suites from PRs #126–128. Ten of eleven checks on previous equivalent commerce candidate passed; Android job still running at tree construction. This commit is not VERIFIED until its own CI and the public deployment match. Pub audit source hashes synchronised for 27 tracked sources.
