@@ -1,3 +1,4 @@
+import {pubRearStairFoot} from './pub-rear-stairs.js';
 import { buildPubFacade, PUB_ENVELOPE } from './pub-envelope.js';
 import { buildExpansionFacade } from './town-expansion-facades.js';
 import { shopLightingOn, interiorPalette } from './lighting.js';
@@ -744,6 +745,17 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     group.add(sign); labels.push(sign);
     // The place's counter: stand on the footpath in front and press E.
     spots.push({ key: `place:${p.id}`, id: p.id, pos: new THREE.Vector3(p.x, 0, LOT8_Z + 10.4), label: p.kind === 'farm' ? `${p.name} — see how it's farmed` : p.kind === 'park' ? 'Market Square notice board' : p.id === 'hall' ? 'Town Hall — the Town Ledger' : `${p.name} — ${p.kind === 'shop' || p.kind === 'cafe' || p.kind === 'pub' ? 'see what\'s on the shelves' : 'look inside'}` });
+    if (p.id === 'pub') {
+      const foot=pubRearStairFoot(p);
+      // Reachable from the paved rear yard; does not use the inaccessible
+      // facade's old dogleg footprint or the main street entrance sensor.
+      spots.push({key:'pub:rear-stair-foot',id:'pub',entryFloor:1,rearStairs:true,
+        pos:new THREE.Vector3(foot.x,0,foot.z),
+        label:'Climb rear stairs to upstairs dining'});
+      signs.push({place:p,text:'REAR STAIRS · UPSTAIRS DINING',
+        x:foot.x,y:1.6,z:foot.z-.35,w:3.9,h:.45,
+        bg:'#264b43',fg:'#f8efdf'});
+    }
     // Field across the road.
     if (p.field) fields.push({ p, ...buildField(p, group, statics, statics.glass) });
     // Goods on display, following the stock.
