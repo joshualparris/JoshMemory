@@ -2,7 +2,7 @@ import {addPubVerticalCore,PUB_SHAFT_CUTS} from './pub-vertical-core.js';
 import {installPubPresentation} from './pub-presentation.js';
 import {pubServiceLayers} from './pub-service-visuals.js';
 import {addPubPlant} from './pub-plant.js';
-import {pubStandards} from './pub-standards.js';
+import {pubConnected,pubStandards} from './pub-standards.js';
 import {PUB_PHYSICAL_PLAN_2026,pubExitLayout} from './pub-physical-plan-2026.js';
 import {PUB_ENVELOPE,pubFacadeCoordinate} from './pub-envelope.js';
 import {pubHistoryDescription} from './pub-history.js';
@@ -203,6 +203,7 @@ export function buildPubInterior(site, makeLabel, roomTitle = 'Country pub') {
     const state=pubUtilities(life),status=pubStatus(life),ops=pubStandards(life);
     fanSpeed+=((status.power?3:0)-fanSpeed)*Math.min(1,dt*2);if(status.power)fanSpeed=Math.min(3,fanSpeed);for(const fan of fans)fan.rotation.y+=fanSpeed*dt;
     const tv=group.getObjectByName('pub:television');if(tv)tv.visible=status.television;
+    const entry=group.getObjectByName('pub:cellar-entry-beacon'),cellar=life.civic.pubVenue.expansion;if(entry&&cellar){const alarm=cellar.gasAlarm||!cellar.monitorOk||!cellar.ventilation||!status.power||!pubConnected(life,'electricity','switchboard','cellar-vent');entry.material.color.setHex(alarm?0xe63b32:0x59af90);entry.material.emissive.setHex(alarm?0xe63b32:0x59af90);entry.material.emissiveIntensity=status.power||state.emergencyMinutes>0?.5:0;}
     const wc=doors.find(d=>d.name==='pub:wc-door');if(wc)wc.userData.privacy=ops.wcPrivacy;
     for(const [id,layer] of Object.entries(layers))layer.visible=state.overlay===id;
     // All ordinary electric fixtures follow this building's breaker as well as town supply.

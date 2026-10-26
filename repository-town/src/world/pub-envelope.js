@@ -91,7 +91,11 @@ export function buildPubFacade(b, {GLASS=0x9fd3ea,DARK=0x33363b,WOOD=0x8a6545}={
   for(let i=0;i<14;i++){piece('escape-stair-tread',0x687576,1.25,.12,.28,5.95,y-(i+1)*y/28,-11.3-(i+.5)*.28);piece('escape-stair-tread',0x687576,1.25,.12,.28,4.4,y/2-(i+1)*y/28,-15.22+(i+.5)*.28);}
   piece('escape-stair-landing',0x687576,3.1,.15,1.3,5.17,y/2-.075,-15.85);
   for(const x of [3.65,6.7])for(const z of [-11.3,-16.5])piece('escape-stair-support',0x414b4f,.12,5.85,.12,x,2.925,z);
-  for(const z of [-11.3,-16.45])piece('escape-stair-guard',0x414b4f,3.1,1.05,.06,5.17,(z>-12?y:y/2)+.525,z);
+  piece('escape-stair-guard',0x414b4f,3.1,1.05,.06,5.17,y/2+.525,-16.45);
+  piece('escape-stair-guard',0x414b4f,1.4,1.05,.06,4.35,y+.525,-11.3);
+  const run=14*.28,angle=Math.atan2(y/2,run),length=Math.hypot(y/2,run);
+  for(const [x,mid,rx]of [[5.95,y*.75,-angle],[4.4,y*.25,angle]])for(const dx of [-.65,.65]){b.add('box',0x414b4f,.055,.055,length,x+dx,mid+.95,-13.26,rx);b.add('box',0x414b4f,.1,.2,length,x+dx,mid-.15,-13.26,rx);}
+  for(let i=0;i<14;i++)for(const dx of [-.65,.65]){piece('escape-stair-baluster',0x414b4f,.04,1,.04,5.95+dx,y-(i+1)*y/28+.5,-11.3-(i+.5)*.28);piece('escape-stair-baluster',0x414b4f,.04,1,.04,4.4+dx,y/2-(i+1)*y/28+.5,-15.22+(i+.5)*.28);}
   piece('lift-roof-overrun',0x687576,2.1,.5,2.4,-2.15,9.65,5.55);
   piece('roof-capping',roof,14.6,.24,18.6,0,9.66,C);
   b.pyramid(roof,14.6,e.roofPeakM-e.roofEaveM,18.6,0,
