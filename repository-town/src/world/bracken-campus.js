@@ -34,7 +34,13 @@ function shell(b,w,tag){
   const {x,z,w:width,d:depth}=w,h=4.0;
   // Independent external walls — central courtyard remains open-air.
   b.box(BRICK,width,h,.24,x,h/2,z-depth/2+.12);
-  b.box(BRICK,width,h,.24,x,h/2,z+depth/2-.12);
+  if(tag==='west'){
+    const gap=-12.5, half=1.4;
+    const left=gap-half-(x-width/2),right=x+width/2-(gap+half);
+    b.box(BRICK,left,h,.24,x-width/2+left/2,h/2,z+depth/2-.12);
+    b.box(BRICK,right,h,.24,gap+half+right/2,h/2,z+depth/2-.12);
+    b.box(BRICK,2.8,h-2.75,.24,gap,2.75+(h-2.75)/2,z+depth/2-.12);
+  }else b.box(BRICK,width,h,.24,x,h/2,z+depth/2-.12);
   for(const side of [-1,1]) b.box(BRICK,.24,h,depth,x+side*(width/2-.12),h/2,z);
   // Metal roof with raised ridge and aluminium gutters along eaves.
   b.box(ROOF,width+.6,.16,depth+.6,x,4.07,z);
@@ -70,7 +76,7 @@ function shell(b,w,tag){
 export function buildBrackenCampus(group,colliders){
   const s=BRACKEN_SITE,b=new Builder();
   // A public-access driveway extending an existing northern avenue.
-  b.box(ROAD,7,.055,226,0,.025,50); // rotated: this becomes north–south incorrectly?
+  b.box(ROAD,160,.055,7,7,.025,58); // local +X = world south; western road reaches original grid
   // Stand-alone west side parking, Bracken Way-style circulation and portico approach.
   b.box(ROAD,61,.04,14,-2,.020,65);
   b.box(0xd2cfc4,59,.025,6,-2,.03,54);
@@ -79,8 +85,7 @@ export function buildBrackenCampus(group,colliders){
     b.box(0xe8e4d8,.12,.05,5,x,.055,60);
   }
   for(const wing of s.wings)shell(b,wing,wing.id);
-  // Actual public entrance gap on local western face. Geometry is visually marked
-  // with an accessible glazed door under a roof, not hidden behind opaque box.
+  // Actual public entrance gap on local western face, not a blocked painted-on door.
   b.box(0xe4d9cb,9,.20,7,-12.5,3.55,51.1);
   for(const x of [-16.3,-8.7])for(const z of [49.2,54.2])
     b.cyl(0xc5b7a3,.19,3.35,x,1.69,z);
