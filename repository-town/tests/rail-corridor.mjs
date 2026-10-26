@@ -51,6 +51,10 @@ assert(scene.includes('for (const z of [-RAIL_GAUGE/2, RAIL_GAUGE/2])'),'train w
 assert(scene.includes('RAIL_GAUGE/2'),'both rails come from standard-gauge source');
 assert(scene.includes('withinLevelCrossing(x, 0.2)'),'sleepers leave crossings clear');
 assert(scene.includes('syncRailGates(m)'),'dynamic signals update every simulation tick');
-assert(scene.includes('railCrossingClosed(trainFront,gate.crossing.x,moving)'));
-assert(scene.includes('gate.pivot.rotation.z=closed?0:Math.PI/2'),'booms visually block the road when closed');
+assert(scene.includes('const state=life.railGate(gate.crossing.x)'),'the gates obey the shared road-user interlocking state');
+assert(scene.includes('railClearanceAudit([...town.colliders,...colliders])'));
+assert(scene.includes('statics.solid(len,0.25,centre,z)'),'fencing is physical, not decorative');
+assert(scene.includes('gate.pivot.rotation.z=state.arm*Math.PI/2'),'boom state reflects warning/closure/fault');
+const player=readFileSync(new URL('../src/main.js',import.meta.url),'utf8');
+assert(player.includes('townLife.railBarrierColliders(player.pos.z)'),'player movement obeys rail gates');
 console.log('PASS: track reservation, lamp clearance, gauge, six road decks, timetable-coupled gate state.');
