@@ -31,11 +31,13 @@ export function buildPharmacyInterior(site,makeLabel){
  text('Dispensary: staff only',0,2.1,-9.0);
  // The consultation room is visually enclosed with opaque partitions. It is not
  // represented as an open shop counter or used for storage.
- solid(.2,3.2,4.4,3.25,1.6,-3.75,white);
+ solid(.2,3.2,2.2,3.25,1.6,-4.85,white);
+ solid(.2,3.2,.8,3.25,1.6,-1.95,white);
+ box(.2,.75,1.4,3.25,2.82,-2.75,white);
  solid(3.3,3.2,.2,4.85,1.6,-5.95,white);
  solid(3.3,3.2,.2,4.85,1.6,-1.55,white);
  // Opaque door is set in the east wall facing the public circulation route.
- box(.09,2.35,.95,3.14,1.17,-2.35,0x9ab8bc);
+ box(.09,2.35,.95,3.14,1.17,-2.35,0x9ab8bc,{a:.28});
  box(.05,.12,.12,3.07,1.12,-2.15,0x6d7373);
  box(1.5,.75,.7,5.2,.375,-4.5,wood);
  model('chair_A_wood',4.7,-3.1,0,{h:.9});
