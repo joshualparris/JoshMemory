@@ -37,3 +37,7 @@ Phone screenshots: sleepers and running rails pass directly through a road-light
 - **AS 7630 Track Classification**: https://www.ariso.org.au/products/as-7630-track-classification/
 
 The full normative texts and site-specific measured geometry have not been certified here. These are planning controls in a game; never cite this document as evidence of engineering approval.
+
+## Integration and release check
+
+PR #228 carries the rail changes through a normal reviewed branch. A first CI run exposed a depot-before-initialisation crash; this has been corrected, and the pub audit file has been reconciled with concurrent approved pub edits without changing their compliance status. The branch has merged the GitHub-tested synthetic merge tree to preserve concurrent source work. All safety, WebGL/mobile and publish checks are mandatory before any 'live fixed' claim. Deliberately retain the P0 signalling, trespass and professional approvals as open tasks.
