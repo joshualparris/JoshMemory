@@ -42,11 +42,16 @@ for(const side of [-1,1]){
 sim.life.minute=406;
 const barrier=sim.railBarrierColliders(315.6,RAIL_Z-12);
 assert(barrier.length>0,'active crossing must protect a waiting player');
-assert.equal(sim.railBarrierColliders(315.6,RAIL_Z-2).filter(b=>b.z1>RAIL_Z+2).length,0,
- 'already committed walker must be able to clear crossing');
 sim.life.minute=490;
 assert.equal(sim.railBarrierColliders(315.6,RAIL_Z-12).length,0,
  'gate collider must disappear with passing train');
+// A person already between booms at the start of a closure gets an exit.
+sim.life.minute=406;
+const escapeBoxes=sim.railBarrierColliders(315.6,RAIL_Z-2);
+assert(!escapeBoxes.some(b=>b.z1>RAIL_Z+2),
+ 'a person already between booms must be able to exit');
+sim.life.minute=490;
+sim.railBarrierColliders(315.6,RAIL_Z-12);
 sim.life.setRailFault(true);
 assert.equal(sim.railBarrierColliders(RAIL_Z-12).length,RAIL_CROSSINGS.length,
  'fault closes all approaches without corrupting permanent collision grid');
