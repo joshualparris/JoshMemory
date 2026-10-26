@@ -1,3 +1,7 @@
+# 26 October 2026 — physical pub utilities worker fixture
+
+Full release next caught the same old fictitious-staff test issue in tests/pub-utilities.mjs. Set forced on-duty worker coordinates to the actual pub entrance in test setup. Do not weaken the actual physical staffing check; source game remains unchanged. Full CI recheck pending.
+
 # 26 October 2026 — PR223 CI regression correction and pub source re-audit
 
 CI initially failed pub venue ordering because the test fabricated an on-shift employee with no physical site coordinates; the fixture now positions the actual staff member at the pub front before the service transaction. The production attendance check remains physically enforced. Publication-specific pub code audit correctly caught the amended townlife.js source blob; inspected the changed renderer integration and verified the pub facade still invokes unchanged buildPubFacade, and refreshed only that SHA with explicit non-certifying provenance. No audit assertion bypassed and formal code approvals remain open. Old failure: pub-venue.mjs and source hashes; new CI/browser/mobile release acceptance still pending.
