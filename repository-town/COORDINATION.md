@@ -16,10 +16,11 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
-- 2026-10-26 · ChatGPT — IN PROGRESS: researched regional NSW Post Office interior/street frontage, PR #235, branch `feat/post-office-country-realism-20261026`. Claimed post-only interior/facade, focused 0.32m-radius path geometry tests, dated cited research and audited townlife.js delegation. Full CI/browser/live deployment pending; preserve competing visitor-information, dental and rail updates.
+- 2026-10-26 · ChatGPT — IN PROGRESS, scoped post office realism; branch feat/post-office-country-realism-20261026, PR #235 superseded by fresh review candidate. Original post office interior, standalone postal facade, code-audit provenance, 0.32m path test and actual desktop/Pixel 7 Playwright acceptance. Preserve rail, town visitor centre and all concurrent work. Do not claim deployed/certified before live verification.
 
 
-- 2026-10-26 · ChatGPT — **IN PROGRESS RTBUILD-070 O5-N Visitor Information Centre realism**. Branch `feat/rtbuild-070-visitor-information-realism-20261026`. Scope new `src/world/visitor-information-layout.js`, `visitor-information-facade.js`, `visitor-information-interior.js`; targeted `src/world/town-expansion-facades.js`, `shop-interior.js`, `town-expansion.js`; focused tests, source-based research docs. Adapt Dubbo Visitor Information Centre regional form (green pitched roof, verandah, windows, map/brochure area, travel help, products, public traveller facilities) to O5-N 12x9m fictional lot. No invented real floorplan, AVIC accreditation/trademark, certified dimensions, rates or bookings. Tests and hosted release required. All pub/other sites left untouched.
+- 2026-10-26 · ChatGPT — **RTBUILD-070 SOURCE MERGED / CI VERIFIED / PRODUCTION PENDING**: O5-N Visitor Information Centre research-inspired 12×9m detailed facade and walkable interior. [PR #234](https://github.com/joshualparris/JoshMemory/pull/234) merged to main `f638f05de092c47f6cbc10e188e2be4b04d5c200`. All five 28-day simulations, full town release/privacy safety gate, recorded desktop and Android WebGL round trip, Android driving, heritage checks PASSED on PR SHA `92dda1312ece413c23de96810a0811c1f5f4f497`. Separate pub audit hash check RED on unrelated historical `src/world/life.js` input; not modified. Vercel production deployment `dpl_6JgkMHvotF7pnz3HnAAo43du56P7` at exact merge SHA is QUEUED behind concurrent builds; production public alias currently older `93bdadfd`. NEXT: verify new deployment READY, then verify public domain maps to merged or descendant SHA and independently browser-check live O5-N. No real floorplan, bookings, AVIC accreditation or certified accessibility claimed; research in `docs/O5_VISITOR_INFORMATION_REALISM_2026-10-26.md`.
+
 
 
 
