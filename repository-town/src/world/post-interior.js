@@ -14,7 +14,7 @@ export const POST_LAYOUT = Object.freeze({
 
 export function buildPostInterior(site, makeLabel, roomTitle = 'Post office') {
   const k = createKit(site, makeLabel, roomTitle);
-  const { THREE, group, box, cyl, ball, solid, text, add, model } = k;
+  const { THREE, group, box, cyl, ball, solid, blocker, text, add, model } = k;
   const { W, BACK, EDGE } = ROOM;
   const CZ = POST_LAYOUT.counterZ;
   group.add(new THREE.HemisphereLight(0xffffff, 0x77695a, 2.0));

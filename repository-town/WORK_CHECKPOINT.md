@@ -1,3 +1,7 @@
+# 26 October 2026 — PR235 test-driven repairs
+
+Original PR CI exposed `ReferenceError: blocker is not defined` in Post Office queue creation; fixed missing destructuring from createKit. It also exposed a separate upstream 2026 rail relocation: `RAIL_Z` moved to 132 to clear row-8/pub escapes but `tests/rail-corridor.mjs` still asserted 144 and wrongly expected legacy street-7 lamps to remain lit inside a 5.5m exclusion. Updated only the stale test to assert 132, protected row-8 rear boundary and active suppression of those lamps. Did NOT change the railway model, tracks, signalling or certificates. Full CI restart pending.
+
 # 26 October 2026 — PR235 post model reconciled with O5 visitor centre, rail clearance, dental work
 
 Rebased post-only source/test/docs on latest main f638f05de092c47f6cbc10e188e2be4b04d5c200 via a two-parent integration commit, preserving all new visitor-information, rail and dental commits. Post office controlled queue, low shelf, PO boxes, behind-counter sorting, 6 new info hotspots, non-colliding street detailing. Updated only townlife.js and shop-interior.js Git source provenance and appended documented audit explanation, not legal approval. Full exact-SHA CI (including 0.32m radius physical walk), privacy, browser and live deployment MUST pass before declaring complete.
