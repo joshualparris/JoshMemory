@@ -14,7 +14,7 @@
     "repository-town/src/world/life.js": "7e05211c052c73792535dab100d32a72cd7ec5ba",
     "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2",
     "repository-town/src/world/pub-interior.js": "46396a0552d2480f3c31585e77199803433ab6b6",
-    "repository-town/src/world/shop-interior.js": "5222acc58fe8d1d49a879b3408473a075ff52ca9",
+    "repository-town/src/world/shop-interior.js": "63f8d800ea2fc538a771bd249f2026cd129357be",
     "repository-town/src/world/townlife.js": "99d11f14cee13f71a97b8a695890e7c2e440579a",
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
@@ -718,7 +718,8 @@
     "2026-10-26 PR224 re-audit: source pub-interior.js changed to clear a continuously walkable back-of-house kitchen galley (cook line, separate dedicated hand basin, preparation/fridge, dirty dishwasher/clean-rack and pass), add powered work luminaires and match modelled equipment to collision footprints. New player-radius pathfinding and breaker regression are required in the release gate. NSW Food Standards Code 3.2.3 and AS 4674 are used for design research only; no measured light levels, certified clearances, building approval, professional sign-off or change to the 34 official audit task statuses is asserted.",
     "2026-10-26 PR224 animation audit: prepared meal plate moved from the removed free-standing bench to the corresponding wall-aligned prep fridge worktop. Service events still require accepted, paid game-state events; moving visuals adds no new payments or compliance claim.",
     "2026-10-26 PR226 visual QA follow-up: reviewed actual desktop/phone CI screenshots and found severe overexposure, prompting glare reduction and separate light-coloured cleanable kitchen ceiling/wall finishes. Added unobscured browser images and actual keyboard aisle-walk assertions. No measured luminance, certified cleanability or legal clearance is claimed.",
-    "2026-10-26 PR225 coordinated merge from latest main: preserves pharmacy, N5 bus interchange, north-door exits, pub and fast travel; verified exact source blobs life 02a3a7c600c1684333f22b90bdb557cc0c8e4f6d, main.js 4eb06006c6a7e3cbe5070b3b23f290bb64516273 and shop-interior.js 5222acc58fe8d1d49a879b3408473a075ff52ca9. Financial changes are finite transfers; no legal or professional pub certification implied."
+    "2026-10-26 PR225 coordinated merge from latest main: preserves pharmacy, N5 bus interchange, north-door exits, pub and fast travel; verified exact source blobs life 02a3a7c600c1684333f22b90bdb557cc0c8e4f6d, main.js 4eb06006c6a7e3cbe5070b3b23f290bb64516273 and shop-interior.js 5222acc58fe8d1d49a879b3408473a075ff52ca9. Financial changes are finite transfers; no legal or professional pub certification implied.",
+    "2026-10-26 PR237 source-provenance refresh: re-read shared shop-interior.js Git blob after concurrent main branch changes. Source remains independently checked by its shop-wide geometry/interior CI; no new pub compliance status or certificate is asserted. Post office receives its own physical playtest gate."
   ],
   "sourceChangeReviews": {
     "2026-10-26-rail-corridor": {
