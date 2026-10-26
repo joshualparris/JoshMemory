@@ -1,0 +1,108 @@
+// Yeoval Aged Care campus, based on publicly visible imagery at 3–7 Lord Street,
+// Yeoval NSW and UPA's public description. This is an interpretive reconstruction,
+// NOT an as-built survey, evacuation drawing or operational floor plan.
+// Local +z faces Lord Street (north); rotation PI maps it to town-world -z.
+import { Builder, GLASS } from './builder.js';
+
+export const YEOVAL_SITE = Object.freeze({
+  id:'yeoval-aged-care', name:'Yeoval Aged Care',
+  realAddress:'3–7 Lord Street, Yeoval NSW 2868',
+  sourceRepository:'joshualparris/YeovalAgedCare',
+  x:-171, z:-260, rotation:Math.PI,
+  // Approximate inferred footprints, metres; no cadastral or measured plan is available.
+  wings:Object.freeze([
+    {id:'north',x:0,z:8.5,w:70,d:17},
+    {id:'connector',x:0,z:-5.5,w:10,d:12},
+    {id:'south',x:0,z:-20,w:43,d:17},
+    {id:'west-service',x:-26,z:-16,w:9,d:8},
+  ]),
+  front:17, entry:Object.freeze({x:-171,z:-277}),
+  approach:Object.freeze({x:-171,z:-281}),
+  scaleStatus:'estimated from user supplied Google imagery, not surveyed',
+  visualPeriod:'June 2026 Street View plus older public photographs',
+});
+
+// Local-to-world transform is intentionally explicit so the collision footprint,
+// entry pose, and visual layout cannot drift apart during future edits.
+export function yeovalWorld(x,z) {
+  return {x:YEOVAL_SITE.x-x,z:YEOVAL_SITE.z-z};
+}
+const ROAD=0x4e5052, KERB=0xb5aea0, BRICK=0xb77f60, PALE=0xd5c7b2;
+const METAL=0xc6c9c5, SHADE=0x9aa7a3, GREEN=0x547844;
+function wing(b,{x,z,w,d},tag) {
+  const h=3.65;
+  b.box(BRICK,w,h,d,x,h/2,z);
+  // The distinct shallow corrugated hip and gable roof profiles stay single storey.
+  b.box(METAL,w+.9,.18,d+.9,x,h+.10,z);
+  b.box(SHADE,w+.25,.13,d*.48,x,h+.53,z);
+  for(const rz of [-1,1]) b.box(0xe0e1db,w+.6,.09,.23,x,h+.25,z+rz*(d/2+.13));
+  // Regular domestic-scale glazed bays with frames, rather than commercial curtain walls.
+  const count=Math.max(2,Math.floor((w-3)/5.6));
+  for(let i=0;i<count;i++){
+    const xx=x-w/2+2.2+i*(w-4.4)/(count-1);
+    for(const side of [-1,1]){
+      // The entry is in the middle of the north wing, not an ordinary bedroom.
+      if(tag==='north'&&side>0&&Math.abs(xx)<4.5) continue;
+      b.box(0xe2ddd0,1.52,1.56,.10,xx,1.94,z+side*(d/2+.06));
+      b.box(GLASS,1.34,1.38,.12,xx,1.94,z+side*(d/2+.14));
+      b.box(0xddd4c4,.075,1.44,.13,xx,1.95,z+side*(d/2+.23));
+      b.box(0xe6ddce,1.48,.09,.15,xx,1.14,z+side*(d/2+.18));
+    }
+  }
+  for(const xx of [-w/2,w/2]){
+    b.box(0xe8ddc9,.12,2.2,1.7,x+xx+Math.sign(xx)*.06,1.85,z);
+  }
+}
+// Height stays deliberately modest: neither historic photos nor aerials indicate upper storeys.
+export function buildYeovalCampus(group, colliders) {
+  const s=YEOVAL_SITE, b=new Builder(); b.glass=[];
+  // Road on the existing F/K avenue axis; new northern land is outside the 26x8 lots.
+  b.box(ROAD,7.0,.045,157,-37,.026,39); // world x -208 and z from -144 to -301 after rotation
+  b.box(ROAD,78,.044,8.0,-8,.023,27);  // virtual Lord Street north frontage
+  for(const dz of [-3.95,3.95])b.box(KERB,78,.12,.14,-8,.065,27+dz);
+  // Landscaped apron and western access/parking area.
+  b.box(0xc4b79b,78,.035,12,-2,.012,22);
+  b.box(ROAD,18,.05,43,30,.035,-3);
+  for(let i=0;i<7;i++){
+    const zz=-21+i*6.0;
+    b.box(0xe8e6dd,.11,.055,5.4,21,.065,zz);
+  }
+  // Drive positions and planting are illustrative, not mapped traffic-engineering data.
+  for(const [x,z] of [[-31,22],[-25,22],[27,22],[-34,-28],[34,-29]]) {
+    b.cyl(0x846c4a,.14,2.2,x,1.10,z);
+    b.ball(GREEN,1.4,x,2.62,z);
+  }
+  for(const w of s.wings) wing(b,w,w.id);
+  // Northern front door + hipped entrance portico; glass leaves mark the accessible entrance.
+  b.box(0xd3c2a8,10,.19,6,0,3.02,19.4);
+  for(const x of [-4.2,4.2])for(const z of [17.5,22])b.cyl(0xb4a38d,.20,2.88,x,1.44,z);
+  b.box(0x786959,2.7,2.7,.12,0,1.38,17.10);
+  b.box(GLASS,2.28,2.28,.14,0,1.38,17.21);
+  b.box(0xc3b5a1,.08,2.28,.18,0,1.38,17.32);
+  b.box(0x9d8770,2.9,.11,.55,0,.055,17.56);
+  b.box(0x78b5c6,2.5,.82,.06,-5.9,3.15,17.3); // UPA sign panel
+  b.box(0xe3ddcd,.11,.35,.07,-5.9,3.14,17.35);
+  // A recognisable sheltered connecting spine and modest rear courtyard.
+  b.box(0xbcc5bd,10.5,.17,12,0,3.83,-5.5);
+  b.box(0x9cb598,28,.025,8,0,.026,-33);
+  for(const x of [-8,8]){b.box(0x9f8466,1.25,.08,0.8,x,.51,-33);b.box(0x806445,.12,.44,.12,x-.4,.23,-33);}
+  // Rainwater tanks seen east of the rear building in imagery.
+  for(const [x,z] of [[27,-25],[31,-25],[27,-31]]) {
+    b.cyl(0x9b9f96,1.25,2.3,x,1.15,z);
+    b.cyl(0xd0d3cb,1.31,.12,x,2.35,z);
+  }
+  const mesh=b.build();
+  // Geometries are local; group rotation makes real north the image's frontage.
+  mesh.position.set(s.x,0,s.z);mesh.rotation.y=s.rotation;mesh.name='Yeoval public-reference campus';group.add(mesh);
+  // House-shaped collision union with a clear 2.6m entrance; not a blanket bounding box.
+  const rect=(x0,x1,z0,z1)=>{
+    const a=yeovalWorld(x0,z0),c=yeovalWorld(x1,z1);
+    colliders.push({x0:Math.min(a.x,c.x),x1:Math.max(a.x,c.x),z0:Math.min(a.z,c.z),z1:Math.max(a.z,c.z)});
+  };
+  rect(-35,-1.35,0,17); rect(1.35,35,0,17);
+  rect(-1.35,1.35,0,15.1); // door gap exists ahead of transition sensor
+  rect(-5,5,-11.5,0);
+  rect(-21.5,21.5,-28.5,-11.5);
+  rect(-30.5,-21.5,-20,-12);
+  return { ...s, mesh, door:{...s.entry}, facing:'north' };
+}
