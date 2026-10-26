@@ -15,6 +15,17 @@ try{for(const mobile of [false,true]){
  const press=async key=>{await page.keyboard.down(key);await page.waitForTimeout(200);await page.keyboard.up(key);await page.waitForTimeout(250);};
  const approach=async key=>{assert(await page.evaluate(key=>window.__town.approach(key),key),key+' reachable');await page.waitForTimeout(200);await press('e');};
  for(const key of ['pub:toilet','pub:ambulant-wc','pub:cold-room','pub:kitchen']){await approach(key);await page.getByRole('button',{name:'Flush second WC',exact:true}).waitFor();await page.screenshot({path:`audit/pub/completion/${mobile?'phone':'desktop'}-${key.split(':')[1]}.png`});await press('Escape');}
+ // Direct viewpoint with no dialog masking the actual kitchen. Prove
+ // a real player-controlled walk along the clear galley on desktop and phone.
+ await page.evaluate(()=>window.__town.place(-5.52,-7.55,0));
+ await page.waitForTimeout(220);
+ const startKitchen=await page.evaluate(()=>window.__town.state().pos);
+ await page.screenshot({path:`audit/pub/completion/${mobile?'phone':'desktop'}-kitchen-clear.png`});
+ await page.keyboard.down('w');await page.waitForTimeout(820);await page.keyboard.up('w');
+ const endKitchen=await page.evaluate(()=>window.__town.state().pos);
+ assert(endKitchen.z<startKitchen.z-.2,'physically walk forward down kitchen galley');
+ assert(endKitchen.x>-6.2&&endKitchen.x<-4.8&&endKitchen.z>-11.5,'walk remains in the kitchen clear aisle');
+ await page.screenshot({path:`audit/pub/completion/${mobile?'phone':'desktop'}-kitchen-walk.png`});
  await approach('pub:operations');await page.getByRole('button',{name:'Simulated functional inspection',exact:true}).click();assert((await page.locator('#panel-body').innerText()).includes('functional inspection passed'));
  await page.getByRole('button',{name:'Isolate / restore grease arrestor',exact:true}).click();await page.getByRole('button',{name:'Simulated functional inspection',exact:true}).click();assert((await page.locator('#panel-body').innerText()).includes('FAILED'));await page.getByRole('button',{name:'Isolate / restore grease arrestor',exact:true}).click();
  await page.getByRole('button',{name:'Confirm character is 18+',exact:true}).click();await page.getByRole('button',{name:'Flag / clear intoxication',exact:true}).click();assert((await page.locator('#panel-body').innerText()).includes('refuse service'));
