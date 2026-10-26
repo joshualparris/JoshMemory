@@ -11,15 +11,15 @@
   "sourceBlobs": {
     "repository-town/audit/electricity/coverage.json": "f80df771b893799e27b3adc98b92fe335c13f28b",
     "repository-town/src/world/interior-kit.js": "ceff1ba9e2197cb113c33760e9353f50ef1e97e3",
-    "repository-town/src/world/life.js": "7e05211c052c73792535dab100d32a72cd7ec5ba",
+    "repository-town/src/world/life.js": "62cba264b8de89f7eb45f71402864d4e891b4387",
     "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2",
     "repository-town/src/world/pub-interior.js": "46396a0552d2480f3c31585e77199803433ab6b6",
-    "repository-town/src/world/shop-interior.js": "5222acc58fe8d1d49a879b3408473a075ff52ca9",
-    "repository-town/src/world/townlife.js": "99d11f14cee13f71a97b8a695890e7c2e440579a",
+    "repository-town/src/world/shop-interior.js": "27489bc589f00d4e37dae2349126ab84892184f6",
+    "repository-town/src/world/townlife.js": "d2b0c07e39be1e316704ede03dc5e72af1f87d16",
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "4eb06006c6a7e3cbe5070b3b23f290bb64516273",
+    "repository-town/src/main.js": "1f8206595394b80bc280bb6c9aa29dcdc7dd17e2",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -725,6 +725,11 @@
       "scope": "life.js changed only for single-source railway z import; townlife.js changes only rail geometry, x-normal westbound consist rendering, rail gates, street8 yard buffer, and depot initialisation. No pub/restaurant service rule, occupancy, building envelope, kitchen code, licensing or fire egress assertion changed.",
       "verification": "Rail source diff + tests/rail-corridor.mjs and existing published pub + whole-site CI. Compliance remains unverified.",
       "regulatoryStatus": "No rail or pub compliance certification asserted."
+    },
+    "2026-10-26-rail-operations": {
+      "scope": "Re-reviewed life.js for added railway gate, truck/pedestrian, train-hold logic; townlife.js for rail fences, moved loading apron, gate visual + diagnostic, player crossing barriers; main.js for dynamic collision of new rail gates. No pub building, permit, accessibility or liquor-service rules were changed. Other checked pub sources kept intact.",
+      "verification": "PR railway operations and geometry regression, recorded browser and full release CI required",
+      "regulatoryStatus": "Non-certifying. Real pub and railway statutory compliance has not been established."
     }
   }
 }
