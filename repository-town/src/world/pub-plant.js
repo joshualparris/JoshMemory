@@ -42,8 +42,8 @@ export function addPubExteriorServices(b){
  b.box(0x4c5c4a,1.2,1.2,.8,10,.6,-8.5); // pest-resistant lidded bin store
  b.box(0x39704f,1.2,1.2,.8,10,.6,-10);
  for(const x of [-7.18,7.18]){b.box(0x697780,.12,.12,18,x,4.62,-2);b.box(0x697780,.13,4.6,.13,x,2.3,-10.6);}
- b.box(0xb9c6bd,1.5,.025,7,0,.014,-15);b.box(0xb9c6bd,9.5,.025,1.5,4,.014,-18.2); // safe rear landing
- b.box(0xb9c6bd,1.5,.025,32.5,8,.014,-2.5); // side accessible route, no step
+ b.box(0xb9c6bd,1.5,.025,7,0,.014,-15);b.box(0xb9c6bd,9.5,.025,1.5,4,.014,-20.55); // safe rear landing
+ b.box(0xb9c6bd,1.5,.025,35,8,.014,-3.8); // side accessible route, no step
  b.box(0xb9c6bd,9,.025,1.5,4,.014,-14); // rear route to side path
  b.box(0xb9c6bd,8,.025,1.5,4,.014,12.2); // connects to frontage walkway
  b.cyl(0xcbd0d2,.38,1.8,-8.5,.9,-4.5); // insulated external hot-water cylinder
