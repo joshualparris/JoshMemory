@@ -58,14 +58,14 @@ for(let r=0;r<8;r++)for(let c=0;c<26;c++){
  homes.push({coordinate:String.fromCharCode(65+c)+(r+1),name:'Test home',
  door:{x:(c-12.5)*26,z:r*46-161+4}});
 }
-const sim=new TownLife({homes,minute:406,seed:17});
+const sim=new TownLife({homes,minute:407,seed:17});
 assert.equal(sim.railGate(312).phase,'closed');
 const truck=sim.trucks[0]; // Use actual driving gate enforcement, without invented visuals.
 assert(sim.railRoadBlocked({x:313.7,z:131},{x:313.7,z:136},3.5,0.6));
 assert(sim.railRoadBlocked({x:315.6,z:134},{x:315.6,z:137},0,0.59));
 sim.setRailFault(true);
 const held=sim.railTrainFront();
-assert.equal(held,trainX(406,depotX));
+assert.equal(held,trainX(407,depotX));
 sim.tick(0.5);
 assert.equal(sim.railTrainFront(),held,'failed interlocking freezes the simulated consist');
 for(const crossing of RAIL_CROSSINGS){
