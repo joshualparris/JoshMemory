@@ -1150,11 +1150,11 @@ export const EXPANSION_SITES=Object.freeze([
     "style": "heritage",
     "priority": "P1",
     "staffRole": "cemetery officer",
-    "description": "Cemetery records and small memorial garden; burial grounds need further land",
+    "description": "Dignified memorial garden office, private family consultation and secure records enquiry; no burial plots on this narrow lot",
     "opens": 480,
     "closes": 1050,
     "expansion": true,
-    "constructionStage": "2026 massing shell; interior detail pending",
+    "constructionStage": "2026 researched memorial office model complete; actual cemetery consents and records not simulated",
     "taskId": "RTBUILD-068"
   },
   {
