@@ -5,7 +5,7 @@
   "gameAddress": "N8-S",
   "name": "The Merged Branch",
   "repository": "joshualparris/JoshMemory",
-  "basis": "Two above-ground storeys plus cellar, per PUB_CELLAR_UPSTAIRS_2026-10-26.md; all regulatory approvals remain unverified.",
+  "basis": "Two above-ground storeys plus cellar, per PUB_CELLAR_UPSTAIRS_2026-10-26.md; all regulatory approvals remain unverified. East-side stair now faces the street, safely away from the railway visual/structure corridor. Game collision checks do not certify real-world NCC compliance.",
   "nccAsAtDate": "NCC 2022 Amendment 2 (NSW, effective 2025-07-29); NSW NCC 2025 planned commencement 2027-05-01",
   "provisionalBuildingClassification": "NCC NSW Class 6 hospitality bar/dining; confirm ancillary/mixed classification and actual approvals",
   "sourceBlobs": {
@@ -15,13 +15,13 @@
     "repository-town/src/world/pub-interior.js": "46396a0552d2480f3c31585e77199803433ab6b6",
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
-    "repository-town/src/world/pub-envelope.js": "3a842e65cca22bfc52e6d826052534c3f7fe7056",
+    "repository-town/src/world/pub-envelope.js": "7bf36b8ee1909b44ddbaf98f8f3e3bb9903f5975",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
-    "repository-town/src/world/pub-physical-plan-2026.js": "a7418892ac3978dd5143f3b1ce73b43305082235",
+    "repository-town/src/world/pub-physical-plan-2026.js": "a06a9d83e10d6be4bf05b0308560caabaf8fa804",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
     "repository-town/src/world/pub-utilities.js": "874a26cf7ae46864b090cb77a107ea7057fe30b5",
     "repository-town/src/world/pub-standards.js": "95d76de040b25a30dd402994ceb65e48d0cfcedb",
-    "repository-town/src/world/pub-plant.js": "d917d091b253e5c46b4b504be6361454ddd79a5f",
+    "repository-town/src/world/pub-plant.js": "457e1305429d123eae05c68dbec3214957efc4ca",
     "repository-town/src/world/pub-venue.js": "3be5be728a464d7c1046fd88eb02333a9ed2afae",
     "repository-town/src/world/pub-pool.js": "0465b320ec277b77e296d4003e454030628398c6",
     "repository-town/src/world/pub-presentation.js": "3e92b22f1feab1ba3a5f1270d13944ffb3ef0692",
@@ -32,7 +32,7 @@
     "repository-town/src/world/pub-floors.js": "981faf682dce84211cb05b2d9d705be2511ada5f",
     "repository-town/src/ui/pub-expansion-panel.js": "9d651e6dc73ca54600ee03072ce9f88f69f264ce",
     "repository-town/src/world/lighting.js": "93a4e8ee973136b4ab2c0ac60529357022538165",
-    "repository-town/src/world/pub-rear-stairs.js": "45e6fe6020227af540cef1b8a0c2b1db507aaf91"
+    "repository-town/src/world/pub-rear-stairs.js": "9b342a7edb0548e501250ff5515a25957885ac92"
   },
   "sources": {
     "S01": {
