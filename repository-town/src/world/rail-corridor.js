@@ -61,7 +61,7 @@ export function railGateState(minute,depotX,crossingX,{fault=false,heldFront=nul
 // they are never held in the dangerous track zone by a last-moment closure.
 export function railUserBlocked(from,to,gate,{halfLength=0,radius=0.5}={}){
   if(!gate?.roadStop||!from||!to)return false;
-  const boundary=RAIL_STRUCTURE_HALF_WIDTH+halfLength+radius+1.25;
+  const boundary=Math.max(RAIL_STRUCTURE_HALF_WIDTH+halfLength+radius+1.25,7.4+radius+0.35);
   const fromDist=Math.abs(from.z-RAIL_Z),toDist=Math.abs(to.z-RAIL_Z);
   if(fromDist<=boundary)return false; // do not trap someone already inside
   if(toDist>=fromDist)return false; // moving away from train
@@ -74,8 +74,8 @@ export function railGateBoxes(crossingX){
   // Dynamic player/cyclist barriers at outer rail approaches; no permanent
   // AABBs are left behind after opening. The track itself remains crossable.
   return [-1,1].map(side=>({
-    x0:crossingX-4.25,x1:crossingX+4.25,
-    z0:RAIL_Z+side*6.5-0.18,z1:RAIL_Z+side*6.5+0.18
+    x0:crossingX-6.2,x1:crossingX+6.2,
+    z0:RAIL_Z+side*7.4-0.18,z1:RAIL_Z+side*7.4+0.18
   }));
 }
 export function railClearanceAudit(solids,{corridorHalf=RAIL_STRUCTURE_HALF_WIDTH}={}){
