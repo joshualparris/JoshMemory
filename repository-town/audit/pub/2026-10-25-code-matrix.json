@@ -14,12 +14,12 @@
     "repository-town/src/world/life.js": "c2354af015768270658bfddacbc4d7e5fd1add69",
     "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2",
     "repository-town/src/world/pub-interior.js": "46396a0552d2480f3c31585e77199803433ab6b6",
-    "repository-town/src/world/shop-interior.js": "e2282db1927b79dd5e8a89a970a03e90b676dcf0",
+    "repository-town/src/world/shop-interior.js": "3ac2981d1eaa645d08163749397fe13546ecd243",
     "repository-town/src/world/townlife.js": "2e1c70d3b32c4a3f982ca0b3e3efa352f0e72e13",
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "b4f382eac90fe229fef12168159472cadfb75114",
+    "repository-town/src/main.js": "4eb06006c6a7e3cbe5070b3b23f290bb64516273",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -724,6 +724,11 @@
       "scope": "Pure railway geometry and timeline imports in life.js, rail rendering and crossing decorations in townlife.js, no changes to pub collision/facade, trading, lifecycle, premises legal status or any other listed source.",
       "verification": "Reviewed corrected scene and train-driven gate startup; exact test evidence in PR 228 CI.",
       "regulatoryStatus": "No change: no pub legal/building/rail compliance certification claimed"
+    },
+    "2026-10-26-concurrent-main-pub": {
+      "scope": "Detected concurrent main-line edits in shop-interior.js and src/main.js when PR228 was retested as a GitHub synthetic merge. They are NOT rail changes. Source hashes reconciled to actual merged tree. Functional pub tests must pass independently; compliance remains unverified.",
+      "verification": "GitHub PR228 merged-tree source-blobs audited; independent pub P0/envelope CI required to pass after reconciliation.",
+      "regulatoryStatus": "No building-code certification asserted."
     }
   }
 }
