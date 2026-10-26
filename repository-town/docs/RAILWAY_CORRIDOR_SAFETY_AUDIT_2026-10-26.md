@@ -8,7 +8,7 @@ Phone screenshots: sleepers and running rails pass directly through a road-light
 
 ## Implemented in this candidate
 
-- Realigned the common simulated + rendered rail axis to z144, between the street-7 road edge and row-8 building backs; retained the Rail Depot timetable and town address references.
+- Realigned the simulated and rendered rail axis to z=-196 in a northern reservation beyond row A. The intermediate z144 alignment (after z136) was superseded when a concurrent pub escape stair was found at z≈144.5 and nominal row-8 lot boundaries reached z138. At z=-196 the nearest row-1 rear lot boundary is z=-184, leaving 8.5 m from the modelled structure-outline edge to those plots.
 - Extracted `rail-corridor.js` as a single source of truth (1,435 mm gauge; 3.5 m game-envelope half-width). Neither that numeric envelope nor the 5.5 m streetlight placement margin is a certified AS 7633 dimension.
 - Rebuilt the visual cross-section in the right layer order: ballast, sleepers, running rails. Six avenues have infill panels below the rail tops, leaving visually readable flangeways.
 - Added independently updated paired warning lamps and articulated booms at the six at-grade avenue crossings. Gates obey the moving train's actual modelled position and approximate 54 m trailing wagons rather than a separate clock animation; gates open while the train is stationary at the depot.
@@ -52,7 +52,7 @@ PR #228 carries the rail changes through a normal reviewed branch. A first CI ru
 4. A road vehicle cannot *enter* a closed crossing: truck collision uses its 3.5 m half-length so its front bumper stops ahead of the boom. Pedestrians and cyclists stop on the approach. Road users already committed are permitted to leave the hazard zone rather than becoming trapped.
 5. Player physics uses dynamic boom barriers while road warnings apply; deliberate crossing users who were between booms when the warning began can escape, and visible rolling stock gets a separate moving collision footprint.
 6. A modelled crossing equipment/detection/power fault forces every boom down with red warnings, holds the locomotive for the rest of the service day, and prevents an immediate post-repair train jump. A train held over a crossing keeps it protected after the fault clears.
-7. Freight depot loading apron was shifted back to a 3.7 m minimum modelled lateral near-edge offset from track centre. Platform has a visible caution line. It is *freight loading only*, not an accessible passenger boarding platform.
+7. The separate North Rail Freight Terminal's loading/service apron sits behind a continuous line-side fence with its nearest edge 4.4 m from the running track centre. Platform has a visible caution line. It is *freight loading only*, not an accessible passenger boarding platform.
 
 **Real-world regulatory/engineering hold, still OPEN:** AS 7633:2026 needs rolling stock kinematic and contingency outlines, surveyed infrastructure and approved site-specific clearance. AS 7658:2020 and AS 1742.7 require actual engineered warning/signalling hardware, validated train detection, power monitoring, lifecycle maintenance, road-rail authority interfaces and controlled safety assurance. ONRSR accreditation/interface agreements and road-authority approval, sightlines, grade/drainage, AS/NZS 1158 photometry, disabled pedestrian access and full fail-safe third-party verification are not possible from this game's synthetic coordinates. **No Australian rail safety certification or approval has been issued, and this simulated line must never be represented as safe for physical construction or operation.**
 
@@ -62,3 +62,13 @@ Further references:
 - ONRSR, [rail-road interface agreements](https://www.onrsr.com.au/industry-information/level-crossing-safety)
 
 **Acceptance:** `node tests/rail-corridor.mjs`, `node tests/rail-operations.mjs`, `node tests/rail-geometry.mjs`, `npm run build:release`, recorded desktop + Android WebGL acceptance, and actual production release commit verification. Do not mark complete from a code commit alone.
+
+## Mandatory alignment reconciliation — final northern corridor candidate
+
+A separate change to `main` placed the railway at z132 to avoid the R8 pub's real external dogleg escape stairs. That would place it within the *actual street-7 carriageway* (centre z131). An intermediate rail centre z144 also cannot be assumed safe: R8 nominal lot rear boundaries extend to z138, and the pub's outdoor stair, supports and landing extend approximately to world z144.5. Neither straight-line position can pass a physical model-compliant clearance audit.
+
+The replacement in this candidate is **z=-196**, north of row A. The rear boundary of row-1 nominal plots is -184; conservative structure-outline north/east/z envelope is [-199.5,-192.5], giving at least 8.5 metres of separation to those plots. It is also remote from all eight built street carriageways. Existing six long north-south avenues already extend across the land parcel and cross this northern railway. Gate hardware, continuous side fencing, stop-line protection and train positions all derive from that same shared axis.
+
+The railway now has its own *North Rail Freight Terminal* near the rail, while the existing R8 Rail Depot address is treated as its road-dispatch warehouse (not physically rail-adjacent). The onward warehouse-to-terminal shuttle is not fully simulated; this remains open realism work. The north freight apron cannot be treated as a passenger platform or proof of accessible public embarkation.
+
+Do not restore the old z132/z144 rail axes during unrelated building merges.
