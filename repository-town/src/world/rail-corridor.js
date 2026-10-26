@@ -1,6 +1,8 @@
 // Repo Town railway: measurable game-space geometry and deterministic protection.
 // This is a SIMULATED safety envelope, not an AS 7633:2026 approval/certification.
-export const RAIL_Z = 144;
+// Rail reserve lies NORTH of row 1's rear lot boundary (z=-184), with
+// enough room to retain street geometry and existing pub fire escapes.
+export const RAIL_Z = -196;
 export const RAIL_GAUGE = 1.435;
 export const RAIL_STRUCTURE_HALF_WIDTH = 3.5;
 export const RAIL_LAMP_MIN_DISTANCE = 5.5;
