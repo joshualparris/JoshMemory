@@ -15,7 +15,7 @@
     "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2",
     "repository-town/src/world/pub-interior.js": "46396a0552d2480f3c31585e77199803433ab6b6",
     "repository-town/src/world/shop-interior.js": "fcba3ce0e1334356af95427fdf0cde54c87ae6cd",
-    "repository-town/src/world/townlife.js": "2e1c70d3b32c4a3f982ca0b3e3efa352f0e72e13",
+    "repository-town/src/world/townlife.js": "99d11f14cee13f71a97b8a695890e7c2e440579a",
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
@@ -721,7 +721,7 @@
   ],
   "sourceChangeReviews": {
     "2026-10-26-rail-corridor": {
-      "scope": "Pure railway geometry and timeline imports in life.js, rail rendering and crossing decorations in townlife.js, no changes to pub collision/facade, trading, lifecycle, premises legal status or any other listed source.",
+      "scope": "Pure railway geometry and timeline imports in life.js, rail rendering and crossing decorations in townlife.js, no changes to pub collision/facade, trading, lifecycle, premises legal status or any other listed source. Subsequent rolling-stock correction rotates a westbound locomotive to lead its consist, aligns wheels with 1,435 mm rail gauge and reverses trailing-vehicle warning interval; no pub architecture changed.",
       "verification": "Reviewed corrected scene and train-driven gate startup; exact test evidence in PR 228 CI.",
       "regulatoryStatus": "No change: no pub legal/building/rail compliance certification claimed"
     },
