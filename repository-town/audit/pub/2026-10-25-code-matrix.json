@@ -14,8 +14,8 @@
     "repository-town/src/world/life.js": "62cba264b8de89f7eb45f71402864d4e891b4387",
     "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2",
     "repository-town/src/world/pub-interior.js": "46396a0552d2480f3c31585e77199803433ab6b6",
-    "repository-town/src/world/shop-interior.js": "27489bc589f00d4e37dae2349126ab84892184f6",
-    "repository-town/src/world/townlife.js": "d2b0c07e39be1e316704ede03dc5e72af1f87d16",
+    "repository-town/src/world/shop-interior.js": "ea8d7f422146787ecc0224b41ef801bb8aa6d4f9",
+    "repository-town/src/world/townlife.js": "dfb622034ca14beec4903f96d8a8a07c116486a0",
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
@@ -727,7 +727,7 @@
       "regulatoryStatus": "No rail or pub compliance certification asserted."
     },
     "2026-10-26-rail-operations": {
-      "scope": "Re-reviewed life.js for added railway gate, truck/pedestrian, train-hold logic; townlife.js for rail fences, moved loading apron, gate visual + diagnostic, player crossing barriers; main.js for dynamic collision of new rail gates. No pub building, permit, accessibility or liquor-service rules were changed. Other checked pub sources kept intact.",
+      "scope": "Re-reviewed life.js for added railway gate, truck/pedestrian, train-hold logic; townlife.js for rail fences, moved loading apron, gate visual + diagnostic, player crossing barriers; main.js for dynamic collision of new rail gates. No pub building, permit, accessibility or liquor-service rules were changed. Other checked pub sources kept intact. Current main additionally changed shop-interior.js; latest main pub implementation retained, hash reviewed against exact merge tree.",
       "verification": "PR railway operations and geometry regression, recorded browser and full release CI required",
       "regulatoryStatus": "Non-certifying. Real pub and railway statutory compliance has not been established."
     }
