@@ -104,6 +104,25 @@ export function buildExpansionFacade(b,site){
    b.box(0xaac3ca,3.2,.08,1.35,0,.04,face+.75);
    return {w,d,front:7};
  }
+ // F7-N: independent grocer with generous street-facing produce windows.
+ if(site.id==='supermarket'){
+   b.box(0xb8c3b8,w,.12,d,0,.06,centre);
+   b.box(0xe4e5d9,w,4.3,d,0,2.15,centre);
+   b.box(0x457e65,w+.45,.35,d+.35,0,4.4,centre);
+   b.box(0x467f66,w+.55,.72,.38,0,3.82,face-.12);
+   for(const x of [-3.75,3.75]){
+     b.box(0x426f64,3.35,2.55,.13,x,2.04,face+.09);
+     b.box(GLASS,3.12,2.33,.14,x,2.04,face+.18);
+     b.box(0xd8e6dc,.09,2.4,.17,x,2.04,face+.26);
+     b.box(0x9b7953,2.3,.45,.45,x,.83,face+.42);
+   }
+   b.box(0x355e56,2.3,3.12,.12,0,1.62,face+.1);
+   b.box(GLASS,2.08,2.9,.14,0,1.62,face+.18);
+   b.box(0xe0ede8,.08,2.88,.17,0,1.62,face+.27);
+   b.box(0x739e80,4.3,.18,1.25,0,3.18,face+.7);
+   b.box(0xbccbc0,3.1,.09,1.3,0,.04,face+.72);
+   return {w,d,front:7};
+ }
  if(site.style==='fuel'){
    b.box(0x565f60,12,.07,10.8,0,.03,1.5);
    b.box(wall,7,3.6,4.2,0,1.8,1);
