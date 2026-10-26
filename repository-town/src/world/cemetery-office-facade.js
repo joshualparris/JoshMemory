@@ -60,6 +60,23 @@ export function buildCemeteryOfficeFacade(b){
  for(const x of [3.32,4.40])b.box(C.metal,.065,.43,.07,x,.35,front+1.78);
  b.box(C.wood,1.55,.12,.48,3.86,.60,front+1.78);
  b.box(C.wood,1.55,.5,.07,3.86,.88,front+1.55);
+ // Rainwater management: dark roof-edge gutters and genuine visible vertical
+ // downpipes discharge toward planting, not into the public door threshold.
+ for(const side of [-1,1]){
+   b.box(C.metal,.13,.16,L.d+.8,side*6.05,L.wallHeight-.04,mid);
+   for(const z of [rear+.75,front-1.3]){
+     b.box(C.metal,.105,3.55,.11,side*5.92,1.82,z);
+     b.box(C.metal,.23,.12,.26,side*5.79,.14,z);
+   }
+ }
+ // Brick soldier courses and matching lintels give the garden office
+ // visual material depth rather than a featureless rectangle.
+ for(const x of [-3.75,3.75]){
+   b.box(C.brick2,4.27,.16,.10,x,3.18,front+.13);
+   b.box(C.trim,4.29,.12,.14,x,.82,front+.16);
+   for(const dx of [-1.40,-.70,.70,1.40])
+     b.box(C.brick2,.06,.28,.12,x+dx,3.36,front+.15);
+ }
  // A secure records plaque and visible wheelchair-friendly waiting route.
  b.box(C.wood,2.35,.36,.09,0,3.29,front+1.06);
  for(const x of [-3.2,0,3.2])b.box(C.light,.68,.06,.23,x,3.55,front+.52);
