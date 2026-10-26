@@ -28,6 +28,7 @@ import { buildSchoolInterior } from './school-interior.js';
 import { buildLibraryInterior } from './library-interior.js';
 import { buildPharmacyInterior } from './pharmacy-interior.js';
 import { buildRepoTechInterior } from './repotech-interior.js';
+import { buildSupermarketInterior } from './supermarket-interior.js';
 import { buildFarmInterior, FARM_SHED_IDS } from './farm-interior.js';
 import {buildSoyInterior} from './soy-interior.js';
 import { buildTradeInterior } from './trade-interiors.js';
@@ -99,6 +100,7 @@ export function buildCivicInterior(site,makeLabel,life=null) {
   if(site.id==='library')return buildLibraryInterior(site,makeLabel);
   if(site.id==='pharmacy')return buildPharmacyInterior(site,makeLabel);
   if(site.id==='repotech')return buildRepoTechInterior(site,makeLabel);
+  if(site.id==='supermarket')return buildSupermarketInterior(site,makeLabel);
   if(['realestate','dealership','mechanic'].includes(site.id))return buildTradeInterior(site,makeLabel);
   const [roomTitle,deskName,featureName,accent,deskInfo,featureInfo] =
     FITTINGS[site.id] || (site.expansion
