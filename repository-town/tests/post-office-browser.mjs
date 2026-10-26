@@ -13,11 +13,14 @@ try{
   const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.goto(process.env.TOWN_URL||'http://127.0.0.1:8091/',{waitUntil:'domcontentloaded',timeout:90000});
   await page.waitForFunction(()=>window.__town&&document.getElementById('loading').hidden,null,{timeout:90000});
+  await page.evaluate(()=>{window.__town.life.setTime(9*60);window.__town.life.run(90);});
   const info=await page.evaluate(()=>{const p=window.__town.shops().find(x=>x.id==='post');if(!p)return null;window.__town.meetGuide();window.__town.place(p.door.x,p.door.z+3,0);return {id:p.id,door:p.door};});
   assert(info?.door,'post office street entrance is missing');
   await page.screenshot({path:`test-results/post-office/${mobile?'phone':'desktop'}-exterior.png`});
-  assert(await page.evaluate(()=>window.__town.enterShop('post')),'physical post office entrance should lead into the room');
-  await page.waitForFunction(()=>window.__town.state().mode==='house',{timeout:10000});
+  // Trigger the normal front-door sensor instead of bypassing it with a
+  // helper that can reject callers outside the door or out of trading hours.
+  await page.evaluate(p=>window.__town.place(p.door.x,p.door.z+.4,0),info);
+  await page.waitForFunction(()=>window.__town.state().mode==='house',null,{timeout:12000});
   await page.evaluate(()=>window.__town.place(0,1.9,0));const start=await page.evaluate(()=>window.__town.state().pos);
   if(mobile){
    const cdp=await context.newCDPSession(page),{width,height}=page.viewportSize(),x=width*.2,y=height*.72;
