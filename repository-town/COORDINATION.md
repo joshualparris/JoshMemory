@@ -16,8 +16,6 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
-- 2026-10-26 · ChatGPT — FIX IMPLEMENTED / TEST PENDING: 2026 north-facing infill door round-trip geometry. Branch `fix/north-infill-front-door-exits-20261026`. Scoped `src/world/civic-entrance.js`, `src/world/shop-exit.js`, narrowly scoped `src/main.js` door direction/view, `tests/entrance-zones.mjs`, `tests/town-expansion.mjs`, `src/tests/building-exits.mjs`, `tests/exit-facing.mjs`. All 72 new row 2–7 north-facing facilities must exit toward -Z (street/front), preserving legacy +Z High Street and -Z south industry. No pub core changes. Await CI/build/privacy and visual handset verification; claim closes only after merge. 
-
 
 - 2026-10-26 · ChatGPT — IN PROGRESS: fix pub kitchen walkability, cooking/wash/prep workflow and focused white work lighting on `fix/pub-kitchen-circulation-lighting-20261026`. Claim `src/world/pub-interior.js`, new `src/world/pub-kitchen-plan.js`, new `tests/pub-kitchen-layout.mjs`, `package.json`, kitchen QA notes. Preserve public venue, stair/lift, utility rules and other concurrent claims. Gate: collision/door sweep, light/power-outage, full release, hosted phone/desktop. No regulatory compliance claim.
 
@@ -149,6 +147,9 @@ Newest first. Times in Australia/Sydney.
   is currently blocked by the Hobby team's daily deployment quota (`api-deployments-free-per-day`).
 
 ## Done
+
+- 2026-10-26 · ChatGPT — **SOURCE MERGED, CI VERIFIED**: [PR #227](https://github.com/joshualparris/JoshMemory/pull/227) squash-merged to main at `b8d671a89f3a754d40ddf41e2f9067ecab685408`. Shared -Z street-facing entry/exit/view fix for all 72 new infill properties; legacy +Z High Street and south industry preserved. Tests: all five 28-day simulations, Town safety/release/privacy gate, Android emulation, heritage release, and recorded desktop/mobile WebGL gameplay (including physical exit-facing browser regression) PASS at `1b6bec6af27e3d2f078b4107e17893b7b01586b5`. Vercel production deployment must be independently verified READY before claiming hosted completion. 
+
 
 - 2026-10-25 · Codex — **DONE: playable pub systems and hosted QA**, [PR #208](https://github.com/joshualparris/JoshMemory/pull/208), merge `ca8f78e655834b623d7f610ba92419eae69fd54f`. Integrates the prior physical-P0 and WC/kitchen gameplay claims. Actual keyboard street entry/rear discharge, continuous 1.2 m game route, two WC rooms, cold room, seven utility overlays, fault/service/food/RSA/evacuation/inspection consequences and saved state verified desktop + emulated Android. All eight implementation PR workflows green, including full release/privacy and five 28-day seeds. Published isolated QA runtime `f2cefefe86e5f423d3a9f9bdcaaf906e02399706`, fingerprint `cceaa0711a922937748dd44b6d8addc634cf4a2e81607a60295514638518db95`; [playtest](https://parris-tech-services.github.io/Repository-town-playtest/qa-tests/pub-compliance.html?v=36822853), publisher 40194936640 and hosted verification 40195379814 PASS. Responsive launcher verified. **Formal PUB-CODE/RTPUB-001–034 assessment statuses remain unchanged; no actual building certification, licensed trade sign-off or permit is asserted.** Details: docs/PUB_COMPLETION_2026-10-25.md. No next-task reservation.
 
