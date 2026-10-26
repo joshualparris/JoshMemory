@@ -16,7 +16,7 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
-- 2026-10-26 · Codex — IN PROGRESS: user-authorised consolidation of open PRs and unmerged branches on integration/all-town-branches-20261026, baseline 95912eae. Audit every remote head and unique patch; preserve pub expansion, privacy, current roadmap IDs and other work. Reconcile genuinely missing changes; retain archived/superseded work without restoring obsolete code. Claim integration reconciliation only, not new feature completion. Tests/review required before main merge.
+- 2026-10-26 · Codex — IN PROGRESS (explicit takeover authorised by Josh in current session): user-authorised consolidation of open PRs and unmerged branches on integration/all-town-branches-20261026, baseline 95912eae. Audit every remote head and unique patch; preserve pub expansion, privacy, current roadmap IDs and other work. Reconcile genuinely missing changes; retain archived/superseded work without restoring obsolete code. Claim integration reconciliation only, not new feature completion. Tests/review required before main merge.
 
 
 - 2026-10-26 · Codex — IN PROGRESS: pub ID/service discoverability only on fix/pub-id-controls-20261026; src/ui/townpanels.js, pub-standards-panel.js, src/world/pub-standards.js and src/main.js primary action placement. Preserve physical pub expansion and other claims. Desktop/mobile acceptance and release pending.

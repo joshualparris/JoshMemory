@@ -3,16 +3,26 @@ import { pilotMains } from './electrical-pilot.js';
 
 // A roster is not proof of presence: council work can send somebody elsewhere.
 export function workingAt(worker, siteId, place = null) {
-  if(worker?.step?.kind!=='work'||worker.step.at!==siteId)return false;
-  if(!worker.path?.length)return true;
-  // Real workers already standing at their building's front desk must not
-  // disappear from the roster simply because the route planner leaves a
-  // handful of one-metre waypoints on their commute. Distant travellers
-  // still cannot open a locked workplace or serve customers.
-  return !!place?.front && Number.isFinite(worker.x) && Number.isFinite(worker.z) &&
-    Math.hypot(worker.x-place.front.x,worker.z-place.front.z)<=3.0;
+  // Accept either the existing (worker, id, place) API or the site's object.
+  // A scheduled employee is not proof of a physically staffed building.
+  const site=typeof siteId==='object'?siteId:place;
+  const id=typeof siteId==='object'?siteId?.id:siteId;
+  if(worker?.step?.kind!=='work'||worker.step.at!==id)return false;
+  const front=site?.front;
+  if(Number.isFinite(worker.x)&&Number.isFinite(worker.z)&&
+     Number.isFinite(front?.x)&&Number.isFinite(front?.z)){
+    // Remaining commute waypoints may not reflect a person actually at the
+    // counter. Use their physical position, including deeper reception areas.
+    if(Math.hypot(worker.x-front.x,worker.z-front.z)<=8.5)return true;
+    // Farm employees can be on-site in a genuine paddock, not the office.
+    const field=site?.field;
+    return !!field&&worker.x>=field.x0&&worker.x<=field.x1&&
+      worker.z>=field.z0&&worker.z<=field.z1;
+  }
+  // Older callsites and lightweight fixtures without a physical site retain
+  // the original conservative no-remaining-journey rule.
+  return !(worker.path?.length);
 }
-
 
 // Retail counters need an actual worker, not merely an opening-hours sign.
 const RETAIL = new Set(['store','bakery','greengrocer','butcher','cafe','pub']);

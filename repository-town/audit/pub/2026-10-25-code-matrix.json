@@ -15,7 +15,7 @@
     "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2",
     "repository-town/src/world/pub-interior.js": "180f564f9d94700092cf64f81d6d7f5cfb420bd7",
     "repository-town/src/world/shop-interior.js": "e2282db1927b79dd5e8a89a970a03e90b676dcf0",
-    "repository-town/src/world/townlife.js": "13ae972802ea687fb3310ee2f9a53dee610d2bfa",
+    "repository-town/src/world/townlife.js": "7351e9a83ad097c6c523f4c4493921580540c380",
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
@@ -713,6 +713,7 @@
   "notes": [
     "2026 north-frontage infill adds 72 new modelled sites elsewhere in town. Pub geometry and code checklist remain unverified beyond the existing 34-item audit; source hashes refreshed solely for regression tracking, not legal certification.",
     "2026-10-25 family and 72-site expansion changed shared life.js. Pub NCC classification and safety remain unverified; source hash sync is regression provenance, not certification.",
-    "Completion continuation: five interior spaces, live rear escape, typed independent services and operating tests. All formal compliance tasks remain open; no permit or practitioner record fabricated."
+    "Completion continuation: five interior spaces, live rear escape, typed independent services and operating tests. All formal compliance tasks remain open; no permit or practitioner record fabricated.",
+    "2026-10-26 PR223 re-audit: townlife.js render-only change replaces identical uniform NPC creation with deterministic individual appearances for pedestrians and trade crew. Verified code still delegates pub facade to unchanged buildPubFacade with shared pub envelope; geometry assertions must continue passing. Source blob refreshed for provenance only, not regulatory approval or proof of hosted acceptance."
   ]
 }
