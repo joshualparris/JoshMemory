@@ -26,7 +26,7 @@ assert.equal(by.get('Z7-S').kind,'house');
 assert.match(by.get('Z7-S').name,/UpskillApp/);
 assert.equal(by.get('Z7-N').kind,'site');
 assert.equal(by.get('Z7-N').name,'Creative Court Early Learning');
-assert.equal(by.get('A7-N').name,'Sir Reginald Repo Public Library');
+assert.equal(by.get('A7-N').name,'The Old Shire Library'); // current canonical town-place name
 assert.equal(by.get('W7-N').name,'Wambuul Nursery & Garden Centre');
 assert.equal(by.get('Z8-N').kind,'railway');
 assert.equal(by.get('Z8-S').name,'Farmhouse');
