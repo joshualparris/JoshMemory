@@ -12,7 +12,7 @@ import { pose } from './npcs.js';
 import { makeDistinctPerson } from './npc-wardrobe.js';
 import { facilityAccess, openingHoursLabel } from './facility-access.js';
 import { TownLife, GOODS, RAIL_Z, trainX, FIELD_Z0, FIELD_Z1, SEC_PER_MIN, LOT_X, AVENUES } from './life.js';
-import { RAIL_GAUGE, RAIL_CROSSINGS, withinLevelCrossing, railSideYardClear, railCrossingClosed } from './rail-corridor.js';
+import { RAIL_GAUGE, RAIL_CROSSINGS, RAIL_Z as TRACK_Z, withinLevelCrossing, railSideYardClear, railGateBoxes, railClearanceAudit } from './rail-corridor.js';
 
 // Draws the town simulation (src/world/life.js): the high street and farms on street 8,
 // fields, livestock, the freight train, delivery trucks, villagers, doorstep parcels and
@@ -670,6 +670,22 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     }
   }
 
+  // Continuous, solid rail-side fencing with safe pedestrian/vehicle openings
+  // only at the six level crossings. End-to-end fences prevent walking onto
+  // the track between streets; fence solids share the player's collision world.
+  const fenceEnds=[-half-30,...RAIL_CROSSINGS.flatMap(c=>[c.x-6.5,c.x+6.5]),half+30];
+  for(let i=0;i+1<fenceEnds.length;i+=2){
+    const a=fenceEnds[i],b=fenceEnds[i+1],len=b-a;
+    if(len<=0)continue;
+    for(const side of [-1,1]){
+      const z=RAIL_Z+side*4.15,centre=(a+b)/2;
+      for(const y of [0.65,1.32])statics.box(0x6e7676,len,0.08,0.1,centre,y,z);
+      for(let x=a;x<=b;x+=4)statics.block(0x667274,0.12,1.48,0.14,x,0,z);
+      statics.solid(len,0.25,centre,z);
+    }
+  }
+  // Warning and road-user control gates live at the approach lines, clear of
+  // the running rail / train envelope. Pavement remains accessible when open.
   // Each civic building is its own mesh (plus one for its glass), so it can be hidden while the
   // player is inside it and looking out of its windows (src/main.js renderFrame).
   const shopGlassMat = new THREE.MeshLambertMaterial({ vertexColors: true, emissive: 0xffc070, emissiveIntensity: 0 });
@@ -921,14 +937,14 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     }
   }
   function syncRailGates(minute){
-    const trainFront=trainX(minute,depot.x);
-    const moving=trainFront!==null && (minute<420 || minute>=440);
     const flash=Math.floor(minute*8)%2===0;
     for(const gate of railGates){
-      const closed=railCrossingClosed(trainFront,gate.crossing.x,moving);
-      gate.pivot.rotation.z=closed?0:Math.PI/2;
+      // One safety state drives actual road users, the player and the booms.
+      // A fault keeps red warnings and gates down, and holds the freight train.
+      const state=life.railGate(gate.crossing.x);
+      gate.pivot.rotation.z=state.arm*Math.PI/2;
       gate.lamps.forEach((material,i)=>
-        material.emissive.setHex(closed && flash===(i===0)?gateLightOn:gateLightOff));
+        material.emissive.setHex(state.warning&&flash===(i===0)?gateLightOn:gateLightOff));
     }
   }
   syncRailGates(life.minute);
@@ -1159,7 +1175,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       hardwareFreight.group.position.set(sv.pos.x,0,sv.pos.z);
       hardwareFreight.group.rotation.y=sv.heading||0;
     }
-    const tx = trainX(m, depot.x);
+    const tx = life.railTrainFront();
     train.visible = tx !== null && !overview; if (tx !== null) train.position.x = tx;
     // Sails spin while someone works the mill; the tractor drives up and down its paddock.
     if (life.villagers.some((v) => v.work === 'mill' && v.step?.kind === 'work' && !v.path.length)) sails.rotation.z -= dt * 0.9;
@@ -1178,7 +1194,17 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     }
   }
 
-  return { life, group, colliders, spots, seats, people, update, save, events, skyColour: bg, skyParts: [stars, rain, moon], building: (id) => buildings.get(id) || [], placeFront: (id) => { const p = life.place(id); return p.side === 'north' ? { x:p.x,z:p.front.z,yaw:Math.PI } : p.side === 'south' ? { x: p.x, z: FIELD_Z0 - 4.4, yaw: Math.PI } : { x: p.x, z: LOT8_Z + 12.6, yaw: 0 }; } };
+  // Clearance diagnostics are measured from real building/prop collider AABBs.
+  // Rail-side fences sit outside the reserved envelope; crossing stop lines
+  // are excluded by the explicitly marked level crossing footprints.
+  const railClearanceConflicts=railClearanceAudit([...town.colliders,...colliders]);
+  const railBarrierColliders=(playerZ)=>{
+    if(Math.abs(playerZ-RAIL_Z)<7.6)return []; // already inside: escape stays possible
+    const side=Math.sign(playerZ-RAIL_Z);
+    return RAIL_CROSSINGS.flatMap(c=>life.railGate(c.x).roadStop?
+      railGateBoxes(c.x).filter(b=>side*((b.z0+b.z1)/2-RAIL_Z)>0):[]);
+  };
+  return { railClearanceConflicts,railBarrierColliders, life, group, colliders, spots, seats, people, update, save, events, skyColour: bg, skyParts: [stars, rain, moon], building: (id) => buildings.get(id) || [], placeFront: (id) => { const p = life.place(id); return p.side === 'north' ? { x:p.x,z:p.front.z,yaw:Math.PI } : p.side === 'south' ? { x: p.x, z: FIELD_Z0 - 4.4, yaw: Math.PI } : { x: p.x, z: LOT8_Z + 12.6, yaw: 0 }; } };
 }
 
 // What a villager calls out as the player passes, from the time of day and what they're up to.
