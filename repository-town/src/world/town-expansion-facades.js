@@ -85,6 +85,25 @@ export function buildExpansionFacade(b,site){
    b.box(0xa9c5c3,3.1,.08,1.5,0,.04,face+.75);
    return {w,d,front:7};
  }
+ // C7-N computer shop: glazed demo bays, broad entrance, projecting canopy.
+ if(site.id==='repotech'){
+   b.box(0xaab7be,w,.12,d,0,.06,centre);
+   b.box(0x526676,w,4.25,d,0,2.125,centre);
+   b.box(0x263b4b,w+.4,.33,d+.35,0,4.43,centre);
+   b.box(0x60c5c8,w+.5,.7,.38,0,3.86,face-.1);
+   for(const x of [-3.8,3.8]){
+     b.box(0x263c4c,3.35,2.5,.13,x,2.05,face+.09);
+     b.box(GLASS,3.12,2.3,.14,x,2.05,face+.18);
+     b.box(0xb4cbd2,.1,2.4,.16,x,2.05,face+.27);
+     b.box(0x395f70,1.35,.6,.15,x,1.35,face+.34);
+   }
+   b.box(0x243c4a,2.3,3.1,.12,0,1.6,face+.1);
+   b.box(GLASS,2.08,2.9,.14,0,1.6,face+.18);
+   b.box(0x91bdc4,.07,2.9,.18,0,1.6,face+.27);
+   b.box(0x3a6476,4.1,.16,1.1,0,3.25,face+.65);
+   b.box(0xaac3ca,3.2,.08,1.35,0,.04,face+.75);
+   return {w,d,front:7};
+ }
  if(site.style==='fuel'){
    b.box(0x565f60,12,.07,10.8,0,.03,1.5);
    b.box(wall,7,3.6,4.2,0,1.8,1);
