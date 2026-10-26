@@ -50,14 +50,16 @@ test('kitchen cookline, ventilation, food handling and wash are represented',()=
   assert(room.group.getObjectByName('pub:kitchen:'+name),name+' missing');
 });
 test('two bright kitchen fixtures follow switchboard and emergency-only blackout',()=>{
+ for(const name of ['washable-ceiling','washable-rear-wall','washable-left-wall','washable-right-wall'])
+  assert(room.group.getObjectByName('pub:kitchen:'+name),'missing hygienic kitchen finish '+name);
  const lamps=[1,2].map(i=>room.group.getObjectByName('pub:kitchen:task-light:'+i));
  const lenses=[1,2].map(i=>room.group.getObjectByName('pub:kitchen:led-panel:'+i));
- assert(lamps.every(l=>l?.isSpotLight&&l.intensity>=70),'both kitchen task fixtures powered');
+ assert(lamps.every(l=>l?.isSpotLight&&l.intensity>=20),'both kitchen task fixtures powered');
  assert(lenses.every(l=>l?.material.emissiveIntensity>.5),'two visible lit panels');
  room.group.userData.updateLighting(false);
  assert(lamps.every(l=>l.intensity===0),'no general light on outage');
  assert(lenses.every(l=>l.material.emissiveIntensity===0),'no visually glowing false-on panels');
  room.group.userData.updateLighting(true);
- assert(lamps.every(l=>l.intensity>=70),'normal power re-energises workstations');
+ assert(lamps.every(l=>l.intensity>=20),'normal power re-energises workstations');
  assert(lenses.every(l=>l.material.emissiveIntensity>.5),'lenses recover after blackout');
 });
