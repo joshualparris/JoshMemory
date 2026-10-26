@@ -13,7 +13,13 @@ for (const [name, options] of [['desktop',{viewport:{width:1280,height:800}}],['
     console.log(name,'HTTP',response?.status());
     await page.waitForFunction(()=>window.__town && document.getElementById('loading')?.hidden,{timeout:60000});
     await page.evaluate(()=>window.dispatchEvent(new KeyboardEvent('keydown',{bubbles:true})));
-    await page.fill('#search','Repo Public Library');
+    const search = page.locator('#search');
+    // On phones the town HUD starts minimised. A real visitor must open + before searching.
+    if (!(await search.isVisible())) {
+      await page.locator('#btn-hud-toggle').click();
+      await search.waitFor({state:'visible',timeout:5000});
+    }
+    await search.fill('Repo Public Library');
     await page.locator('#search-form').evaluate(form=>form.requestSubmit());
     await page.waitForTimeout(800);
     if(errors.length) throw Error(errors.join('\n'));
