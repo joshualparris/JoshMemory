@@ -16,6 +16,9 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-26 · ChatGPT — FIX IMPLEMENTED / TEST PENDING: 2026 north-facing infill door round-trip geometry. Branch `fix/north-infill-front-door-exits-20261026`. Scoped `src/world/civic-entrance.js`, `src/world/shop-exit.js`, narrowly scoped `src/main.js` door direction/view, `tests/entrance-zones.mjs`, `tests/town-expansion.mjs`, `src/tests/building-exits.mjs`, `tests/exit-facing.mjs`. All 72 new row 2–7 north-facing facilities must exit toward -Z (street/front), preserving legacy +Z High Street and -Z south industry. No pub core changes. Await CI/build/privacy and visual handset verification; claim closes only after merge. 
+
+
 - 2026-10-26 · ChatGPT — IN PROGRESS: fix pub kitchen walkability, cooking/wash/prep workflow and focused white work lighting on `fix/pub-kitchen-circulation-lighting-20261026`. Claim `src/world/pub-interior.js`, new `src/world/pub-kitchen-plan.js`, new `tests/pub-kitchen-layout.mjs`, `package.json`, kitchen QA notes. Preserve public venue, stair/lift, utility rules and other concurrent claims. Gate: collision/door sweep, light/power-outage, full release, hosted phone/desktop. No regulatory compliance claim.
 
 - 2026-10-26 · Codex — IN PROGRESS (explicit takeover authorised by Josh in current session): user-authorised consolidation of open PRs and unmerged branches on integration/all-town-branches-20261026, baseline 95912eae. Audit every remote head and unique patch; preserve pub expansion, privacy, current roadmap IDs and other work. Reconcile genuinely missing changes; retain archived/superseded work without restoring obsolete code. Claim integration reconciliation only, not new feature completion. Tests/review required before main merge.
