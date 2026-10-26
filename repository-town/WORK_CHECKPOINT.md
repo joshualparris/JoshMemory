@@ -1,6 +1,6 @@
-# 26 October 2026 — PR225 reconciled against main edec5d2dcad6
+# 26 October 2026 — PR225 sync with f2ab27998193
 
-Retained all upstream front-door exits, fast-travel safeguards, kitchen upgrades. Applied four uniquely anchored life.js hunks to current main and reused candidate-only commerce files from PR225. The result tracks life.js hash 02a3a7c600c1684333f22b90bdb557cc0c8e4f6d, preserves pub safety audit, and adds three original store and wage regression suites to test:town. CI still required at this exact commit; no live claims until deployed and verified.
+Rebased commerce implementation on latest main including library realism, retaining all unrelated files. Updated stale code audit hashes for current main.js and shop-interior.js and candidate life.js only after matching actual Git blobs. Source and test suite require full exact-SHA CI and live production verification.
 
 # 26 October 2026 — physical pub utilities worker fixture
 
