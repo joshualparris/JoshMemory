@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import {buildCivicInterior} from '../src/world/shop-interior.js';
 import {DENTAL_PLAN} from '../src/world/dental-interior.js';
 import {buildExpansionFacade} from '../src/world/town-expansion-facades.js';
-const site={id:'dentist',name:'Repository Dental',style:'health'};
+const site={id:'dentist',name:'Wattle Street Dental',style:'health'};
 const room=buildCivicInterior(site,()=>new THREE.Sprite(new THREE.SpriteMaterial()));
 assert.equal(room.dentalLayout,DENTAL_PLAN);
 assert(room.group.children.length>55);
@@ -23,6 +23,10 @@ const pts=queue.map(([x,z])=>[room.spawn.x+x*step,room.spawn.z+z*step]);
 for(const p of room.interactables){
  assert(!hit(p.pos.x,p.pos.z),p.key+' blocked');
  assert(pts.some(([x,z])=>Math.hypot(x-p.pos.x,z-p.pos.z)<.55),p.key+' unreachable');
+}
+for(const [label,x,z] of [['surgery',-2,-7.1],['sterilisation',2.6,-7.7],['rear surgery',-3,-9.5]]) {
+ assert(!hit(x,z),label+' blocked');
+ assert(pts.some(([px,pz])=>Math.hypot(x-px,z-pz)<.55),label+' inaccessible');
 }
 const blocks=[],b={box:(...a)=>blocks.push(a),cyl:(...a)=>blocks.push(a),ball:(...a)=>blocks.push(a)};
 assert.equal(buildExpansionFacade(b,site).front,7);
