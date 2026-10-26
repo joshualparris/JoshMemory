@@ -16,6 +16,7 @@ import { isHudBlocked } from './ui/hud-visibility.js';
 import * as THREE from 'three';
 import { CollisionWorld } from './engine/collision.js';
 import { Input } from './engine/input.js';
+import {loadMovementSpeed,saveMovementSpeed,movementSpeedFactor} from './engine/movement-speed.js';
 import { Player } from './engine/player.js';
 import { loadSave, writeSave, clearSave } from './engine/save.js';
 import { discoveryProgress } from './ui/discovery-log.js';
@@ -190,6 +191,23 @@ async function start() {
   if (input.touch) $('touch').hidden = false;
   loadFurniture().catch(() => {});   // real furniture models; interiors fall back to boxes until they arrive
   const player = new Player(camera);
+  let movementSpeed=loadMovementSpeed(localStorage);
+  const speedSlider=$('movement-speed'), speedValue=$('movement-speed-value');
+  function showSpeedSetting(){
+    speedSlider.value=String(movementSpeed);
+    speedValue.textContent=movementSpeed.toFixed(1)+'×';
+    $('movement-speed-preview').textContent='Walk '+(4.2*movementSpeed).toFixed(1)+' m/s · Run '+(7.6*movementSpeed).toFixed(1)+' m/s (before hunger/fatigue)';
+  }
+  function closeSettings(){ $('settings').hidden=true; $('settings-close').blur(); speedSlider.blur(); input.reset(); }
+  speedSlider.addEventListener('input',()=>{
+    movementSpeed=saveMovementSpeed(localStorage,speedSlider.value);
+    showSpeedSetting();
+  });
+  $('movement-speed-reset').addEventListener('click',()=>{
+    movementSpeed=saveMovementSpeed(localStorage,1);showSpeedSetting();
+    status('Movement speed restored to normal.');
+  });
+  showSpeedSetting();
   const driving=createPlayerDriving(life,scene,townWorld,player,camera,input);
   const tableOrder = document.createElement('button');
   tableOrder.id='btn-table-order';tableOrder.type='button';
@@ -242,6 +260,7 @@ async function start() {
       roster:!$('npc-roster').hidden,
       yarns:yarns.isOpen(),
       help:!$('help').hidden,
+      settings:!$('settings').hidden,
       game:!$('game').hidden,
       map:overview,
     };
@@ -538,7 +557,15 @@ async function start() {
   $('btn-000').onclick = () => openPanel(emergencyPanel(life,{x:player.pos.x,z:player.pos.z}),guideSpot);
   $('btn-discoveries').onclick = () => openPanel(discoveryContent(), guideSpot);
   $('btn-wallet').onclick = () => openPanel(walletPanel(life, { go: (id) => { goPlace(id); return null; } }), guideSpot);
-  $('btn-help').onclick = () => { input.releaseMouse(); $('help').hidden = !$('help').hidden; };
+  $('btn-help').onclick = () => { closeSettings(); input.releaseMouse(); $('help').hidden = !$('help').hidden; };
+  $('btn-settings').onclick = () => {
+    input.releaseMouse();input.reset();
+    closePanel();npcChat.close();$('help').hidden=true;$('npc-roster').hidden=true;
+    $('settings').hidden=false;showSpeedSetting();
+    document.dispatchEvent(new Event('town:collapse-hud'));
+    speedSlider.focus();
+  };
+  $('settings-close').onclick = closeSettings;
   $('btn-npcs').onclick = () => { $('npc-roster').hidden = !$('npc-roster').hidden; input.reset(); };
   $('npc-roster-close').onclick = () => { $('npc-roster').hidden = true; };
   $('help-close').onclick = () => { $('help').hidden = true; };
@@ -1002,15 +1029,15 @@ async function start() {
       return;
     }
     if (input.consume('map')) setOverview(!overview);
-    if (input.consume('back')) { if (companion.isOpen()) companion.close(); else if (expedition.isOpen()) expedition.dismiss(); else if (npcChat.isOpen()) npcChat.close(); else if (yarns.isOpen()) yarns.close(); else if (!$('npc-roster').hidden) $('npc-roster').hidden = true; else if (panelOpen) closePanel(); else if (!$('help').hidden) $('help').hidden = true; else setOverview(false); }
+    if (input.consume('back')) { if (companion.isOpen()) companion.close(); else if (expedition.isOpen()) expedition.dismiss(); else if (npcChat.isOpen()) npcChat.close(); else if (yarns.isOpen()) yarns.close(); else if (!$('npc-roster').hidden) $('npc-roster').hidden = true; else if (panelOpen) closePanel(); else if (!$('settings').hidden) closeSettings(); else if (!$('help').hidden) $('help').hidden = true; else setOverview(false); }
     if(expedition.isOpen()){input.keys.clear();input.takeLook();input.pressed.delete('use');}
     if (overview) {
       camera.position.set(player.pos.x, 150, player.pos.z + 95); camera.lookAt(player.pos.x, 0, player.pos.z);
       input.takeLook(); input.consume('jump');
-    } else if (companion.isOpen() || expedition.isOpen() || panelOpen || npcChat.isOpen() || yarns.isOpen() || !$('npc-roster').hidden || !$('help').hidden) input.reset();
+    } else if (companion.isOpen() || expedition.isOpen() || panelOpen || npcChat.isOpen() || yarns.isOpen() || !$('npc-roster').hidden || !$('help').hidden || !$('settings').hidden) input.reset();
     else {
       const n=life.needsReport();
-      player.speedFactor=Math.max(0.45,1-(n.hunger>80?0.23:0)-(n.fatigue>75?0.32:0));
+      player.speedFactor=movementSpeedFactor(movementSpeed,n.hunger,n.fatigue);
       if(mode==='town'&&driving.driving) driving.update(dt);
       else player.update(dt,input,world);
     }
