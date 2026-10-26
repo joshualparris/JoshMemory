@@ -106,6 +106,7 @@ export function buildPubFacade(b, {GLASS=0x9fd3ea,DARK=0x33363b,WOOD=0x8a6545}={
     // Only guard edges are solid in the 2-D outdoor collision world, not the
     // whole walking flight. Leaving the sides blocked prevents lateral shortcuts.
     b.solid(.12,run,stair.x+dx,stair.firstTreadZ-run/2);
+    b.solid(.12,1.0,stair.x+dx,stair.topLandingZ);
   }
   piece('escape-stair-upper-post',0x414b4f,.075,1.15,.075,stair.x-.73,stair.upperY+.575,stair.topLandingZ);
   piece('escape-stair-upper-post',0x414b4f,.075,1.15,.075,stair.x+.73,stair.upperY+.575,stair.topLandingZ);
