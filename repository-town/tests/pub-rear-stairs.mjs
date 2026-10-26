@@ -69,6 +69,8 @@ test('pub rear stair keeps clear lower yard route and never reintroduces the blo
 });
 
 test('rear stair and ground discharge never occupy the railway structure corridor',()=>{
+  const b=new Builder();b.glass=[];
+  const facade=buildPubFacade(b),world=new CollisionWorld(b.solids);
   const origin=161,low=RAIL_Z+RAIL_STRUCTURE_HALF_WIDTH+1;
   assert(origin+s.topLandingZ-.55>low,'upper balcony guard outside track buffer');
   for(const step of facade.pieces.filter(p=>p.name==='escape-stair-tread'))
@@ -84,4 +86,5 @@ test('rear stair and ground discharge never occupy the railway structure corrido
     }
   }
   assert(pubRearExitPose(site,b.solids),'ground pub rear door remains walkable');
+  for(const g of [...b.parts,...b.glass])g.dispose();
 });
