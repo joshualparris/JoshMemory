@@ -53,6 +53,6 @@ assert(!escapeBoxes.some(b=>b.z1>RAIL_Z+2),
 sim.life.minute=490;
 sim.railBarrierColliders(315.6,RAIL_Z-12);
 sim.life.setRailFault(true);
-assert.equal(sim.railBarrierColliders(RAIL_Z-12).length,RAIL_CROSSINGS.length,
+assert.equal(sim.railBarrierColliders(315.6,RAIL_Z-12).length,2*RAIL_CROSSINGS.length,
  'fault closes all approaches without corrupting permanent collision grid');
 console.log('PASS: real-town collider envelope, six open crossing walkways, solid 2-sided fences, player stop/escape and fail-closed gates.');
