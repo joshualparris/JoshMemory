@@ -1,6 +1,7 @@
 import { buildPowerInterior } from './power-interior.js';
 import { buildBusInterchangeInterior } from './bus-interchange-interior.js';
 import { buildVisitorInformationInterior } from './visitor-information-interior.js';
+import { buildCemeteryOfficeInterior } from './cemetery-office-interior.js';
 import { buildDepotInterior } from './depot-interior.js';
 import { buildWaterworksInterior } from './waterworks-interior.js';
 import { buildWastewaterInterior } from './wastewater-interior.js';
@@ -97,6 +98,7 @@ const BASE_W=14, BASE_D=18, FRONT=6, BACK=-12, EDGE=7;
 export function buildCivicInterior(site,makeLabel,life=null) {
   if(site.id==='busstop')return buildBusInterchangeInterior(site,makeLabel);
   if(site.id==='visitorcentre')return buildVisitorInformationInterior(site,makeLabel);
+  if(site.id==='cemetery')return buildCemeteryOfficeInterior(site,makeLabel);
   // A family's home must never regress to the single-room retail fallback.
   if(site.id==='farmhouse')return buildFarmhouseInterior(site,makeLabel);
   if(['soyfarm','soyplant'].includes(site.id))return buildSoyInterior(site,makeLabel,life);
