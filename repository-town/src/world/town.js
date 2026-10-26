@@ -6,6 +6,7 @@ import { buildExterior } from './exterior.js';
 import { exteriorColliders } from './exterior-collision.js';
 import { houseEntranceZone } from './house-entrance.js';
 import { buildYeovalCampus } from './yeoval-campus.js';
+import { buildBrackenCampus } from './bracken-campus.js';
 
 // Town layout: 26 columns (A–Z) × 8 rows (streets). Every house faces +z onto its
 // street. Rows are merged into one mesh each so the whole town is ~10 draw calls.
@@ -152,7 +153,7 @@ export function buildTown(scene, houses, streets) {
     streetLighting.update(eye, dark, powered);
   }
 
-  const campuses = [buildYeovalCampus(group, colliders)];
+  const campuses = [buildYeovalCampus(group, colliders),buildBrackenCampus(group,colliders)];
   return { group, ground, colliders, campuses, lots, doors, doorZones, streets, guidePos: new THREE.Vector3(0, 0, guideZ), bounds: { width, depth }, streetLighting, lampSources, setNight };
 }
 
