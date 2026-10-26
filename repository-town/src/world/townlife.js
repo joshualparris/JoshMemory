@@ -1203,11 +1203,27 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   // Rail-side fences sit outside the reserved envelope; crossing stop lines
   // are excluded by the explicitly marked level crossing footprints.
   const railClearanceConflicts=railClearanceAudit([...town.colliders,...colliders]);
-  const railBarrierColliders=(playerZ)=>{
-    if(Math.abs(playerZ-RAIL_Z)<7.6)return []; // already inside: escape stays possible
-    const side=Math.sign(playerZ-RAIL_Z);
-    return RAIL_CROSSINGS.flatMap(c=>life.railGate(c.x).roadStop?
-      railGateBoxes(c.x).filter(b=>side*((b.z0+b.z1)/2-RAIL_Z)>0):[]);
+  const previousRailClosure=new Map(),railEscapePermit=new Set();
+  const railBarrierColliders=(playerX,playerZ)=>{
+    const boxes=[];
+    for(const c of RAIL_CROSSINGS){
+      const closed=life.railGate(c.x).roadStop;
+      const inside=Math.abs(playerZ-RAIL_Z)<7.3&&Math.abs(playerX-c.x)<6.2;
+      // If a person was on the crossing WHEN the warnings began, let
+      // them leave; never grant a new bypass once a closed gate is present.
+      if(closed&&!previousRailClosure.get(c.x)&&inside)railEscapePermit.add(c.x);
+      if(!closed)railEscapePermit.delete(c.x);
+      previousRailClosure.set(c.x,closed);
+      const escape=railEscapePermit.has(c.x);
+      if(escape&&(!inside&&Math.abs(playerZ-RAIL_Z)>8.0))
+        railEscapePermit.delete(c.x);
+      if(closed&&!escape)boxes.push(...railGateBoxes(c.x));
+    }
+    const front=life.railTrainFront();
+    if(Number.isFinite(front))boxes.push({
+      x0:front-6,x1:front+55,z0:RAIL_Z-1.65,z1:RAIL_Z+1.65
+    }); // real rolling-stock footprint, including wagons
+    return boxes;
   };
   return { railClearanceConflicts,railBarrierColliders, life, group, colliders, spots, seats, people, update, save, events, skyColour: bg, skyParts: [stars, rain, moon], building: (id) => buildings.get(id) || [], placeFront: (id) => { const p = life.place(id); return p.side === 'north' ? { x:p.x,z:p.front.z,yaw:Math.PI } : p.side === 'south' ? { x: p.x, z: FIELD_Z0 - 4.4, yaw: Math.PI } : { x: p.x, z: LOT8_Z + 12.6, yaw: 0 }; } };
 }
