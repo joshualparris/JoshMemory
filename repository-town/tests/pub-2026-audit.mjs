@@ -49,7 +49,7 @@ test('audited source Git blob hashes unchanged — any code change requires new 
   assert.equal(checkedOutGitBlobSha(path),expected,'Re-audit changed source: '+path);
  }
 });
-test('single-ground-floor envelope reconciled; egress remains separate and unverified',async()=>{
+test('expanded pub envelope reconciled; egress remains separate and unverified',async()=>{
  const pub=await readFile(repoFile('repository-town/src/world/pub-interior.js'),'utf8');
  const kit=await readFile(repoFile('repository-town/src/world/interior-kit.js'),'utf8');
  const ext=await readFile(repoFile('repository-town/src/world/townlife.js'),'utf8');

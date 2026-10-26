@@ -97,3 +97,8 @@ See [PR #208 completion evidence](PUB_COMPLETION_2026-10-25.md) for reconciled e
 
 
 **Playable implementation merged and published:** PR #208 is merged at `ca8f78e655834b623d7f610ba92419eae69fd54f`; all eight implementation workflows, full release/privacy and hosted desktop/emulated-phone walkthrough passed. [Play the upgraded pub](https://parris-tech-services.github.io/Repository-town-playtest/qa-tests/pub-compliance.html?v=36822853) (Enter pub at lunchtime). [Exact source/fingerprint, browser evidence and remaining independent approval requirements](PUB_COMPLETION_2026-10-25.md#published-acceptance-evidence). This does not change the formal regulatory assessment checkboxes.
+
+
+## Authorised cellar and upper-floor expansion — 26 October 2026
+
+The earlier single-storey choice is superseded by [PUB-EXP-001–006](PUB_CELLAR_UPSTAIRS_2026-10-26.md): two above-ground storeys, one cellar, actual slab openings, 19 ground seats and 32 upstairs seats, passenger lift, main stair, refuge and separate rear escape stair. Earlier baseline observations are historical. All regulatory tasks remain OPEN: the extension needs project-specific structural/excavation/waterproofing, construction type/fire compartmentation, access/evacuation, sanitary/occupancy, ventilation, gas, electrical, food and licensing assessment. Testable game routes and equipment interlocks are not approval evidence.

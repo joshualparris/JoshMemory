@@ -14,13 +14,13 @@ function build(){
 test('RTPUB-002 published geometry uses one 14x18m floorplate inside and out',()=>{
  const e=PUB_ENVELOPE,{b,facade}=build();
  const room=buildPubInterior({id:'pub',name:'The Merged Branch'},()=>new THREE.Sprite(new THREE.SpriteMaterial()));
- assert.deepEqual([e.widthM,e.depthM,e.modelledStoreys],[14,18,1]);
+ assert.deepEqual([e.widthM,e.depthM,e.modelledStoreys],[14,18,2]);
  assert.deepEqual([ROOM.W,ROOM.D],[e.widthM,e.depthM]);
  assert.equal(facade.w,room.bounds.x1-room.bounds.x0);
  assert.equal(facade.d,room.bounds.z1-room.bounds.z0);
  assert.equal(room.buildingEnvelope,e);
  assert.equal(room.storey,0);
- assert.equal(room.storeyCount,1);
+ assert.equal(room.storeyCount,3);
  assert.equal(pubFacadeCoordinate(room.bounds.z1),facade.front);
  assert.equal(pubFacadeCoordinate(room.bounds.z0),facade.back);
  assert.equal(facade.front-facade.back,18);
@@ -32,30 +32,12 @@ test('RTPUB-002 published geometry uses one 14x18m floorplate inside and out',()
  room.group.traverse(o=>{o.geometry?.dispose();o.material?.dispose?.();});
  for(const g of [...b.parts,...b.glass])g.dispose();
 });
-test('RTPUB-024 facade and visual mesh contain no accessible first floor',()=>{
+test('RTPUB-024 facade represents the reachable upper floor and separate rear escape stair',()=>{
  const {b,facade}=build(),e=PUB_ENVELOPE;
- assert.equal(facade.storeys,1);
- assert.equal(facade.hasUpperFloor,false);
- assert.equal(e.habitableUpperFloor,false);
- assert.equal(e.serviceRoofOnly,true);
- assert.equal(e.stairs,0);assert.equal(e.lift,0);assert.equal(e.upperWindows,0);
- assert.ok(e.roofEaveM>=e.wallHeightM);
- assert.ok(e.roofPeakM<7,'no double-storey height');
- assert.equal(facade.pieces.filter(p=>p.name==='nonhabitable-roof').length,1);
- assert.equal(facade.pieces.filter(p=>p.name==='rear-wall').length,2);
- assert(!facade.pieces.some(p=>/upper-glass|second-storey|upper-floor/.test(p.name)));
- const glass=facade.pieces.filter(p=>/glass$/.test(p.name));
- assert.equal(glass.filter(p=>p.name==='front-glass').length,2);
- assert.equal(glass.filter(p=>p.name==='side-glass').length,2);
- for(const pane of glass){
-  assert.ok(pane.y+pane.h/2<=3.25,pane.name+' has upper-storey glazing');
- }
- // Verify the actual geometry as well, not only author metadata.
- assert.equal(b.glass.length,5,'two shopfront windows, two side windows and door glazing');
- for(const geometry of b.glass){
-  geometry.computeBoundingBox();
-  assert(geometry.boundingBox.max.y<=3.3,'rendered exterior glass is ground-floor only');
- }
+ assert.equal(facade.storeys,2);assert.equal(facade.basementLevels,1);assert.equal(facade.hasUpperFloor,true);assert.equal(e.habitableUpperFloor,true);assert.equal(e.accessibleLevels,3);
+ assert.equal(e.stairs,2);assert.equal(e.lift,1);assert.equal(e.upperWindows,4);assert(e.roofPeakM>10);
+ assert.equal(facade.pieces.filter(p=>p.name==='upper-glass').length,4);assert.equal(facade.pieces.filter(p=>p.name==='escape-stair-tread').length,28);assert.equal(b.glass.length,9);
+ for(const geometry of b.glass){geometry.computeBoundingBox();assert(geometry.boundingBox.max.y<=8.3);}
  for(const g of [...b.parts,...b.glass])g.dispose();
 });
 test('RTPUB-002 facade walls have visible real door and window openings',()=>{

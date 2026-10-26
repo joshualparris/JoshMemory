@@ -7,8 +7,8 @@ import {PUB_PHYSICAL_PLAN_2026,pubScenarioAdmission,pubExitLayout} from '../src/
 import {pubAction,pubUtilities,validPubUtilities} from '../src/world/pub-utilities.js';
 const plan=PUB_PHYSICAL_PLAN_2026;
 const room=buildPubInterior({id:'pub',name:'The Merged Branch'},()=>new THREE.Sprite(new THREE.SpriteMaterial()));
-test('PUB-002 one-storey 14 x 18 model, unknown age and conservative boundary claims',async()=>{
- assert.deepEqual([plan.footprint.widthM,plan.footprint.depthM,plan.footprint.modelledStoreys],[14,18,1]);
+test('PUB-002 two-storey and cellar 14 x 18 model, unknown age and conservative boundary claims',async()=>{
+ assert.deepEqual([plan.footprint.widthM,plan.footprint.depthM,plan.footprint.modelledStoreys],[14,18,2]);
  assert.equal(plan.footprint.originalConstructionYear,null);
  assert.equal(plan.footprint.siteBoundaryVerified,false);
  assert.equal(room.bounds.x1-room.bounds.x0,14);
