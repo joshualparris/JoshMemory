@@ -1,4 +1,5 @@
 import { buildPubFacade, PUB_ENVELOPE } from './pub-envelope.js';
+import { decoratePostFacade } from './post-office-facade.js';
 import { buildExpansionFacade } from './town-expansion-facades.js';
 import { shopLightingOn, interiorPalette } from './lighting.js';
 import * as THREE from 'three';
@@ -177,6 +178,7 @@ const BUILD = {
   post(b) {
     shopfront(b, 11, 9, 4.6, 0xe8d2b0, 0xb8413a, null);
     b.block(RED, 0.6, 1.2, 0.5, 4.6, 0, 8.2); b.ball(RED, 0.3, 4.6, 1.2, 8.2); b.box(DARK, 0.4, 0.05, 0.05, 4.6, 1.0, 8.47);
+    decoratePostFacade(b);
     return { w: 11, d: 9 };
   },
   hall(b) {
