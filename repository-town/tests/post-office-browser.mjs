@@ -21,7 +21,11 @@ try{
   // helper that can reject callers outside the door or out of trading hours.
   await page.evaluate(p=>window.__town.place(p.door.x,p.door.z+.4,0),info);
   await page.waitForFunction(()=>window.__town.state().mode==='house',null,{timeout:12000});
-  await page.evaluate(()=>window.__town.place(0,1.9,0));const start=await page.evaluate(()=>window.__town.state().pos);
+  await page.evaluate(()=>{window.__town.place(0,1.9,0);document.activeElement?.blur?.();});
+  // Gameplay ignores WASD aimed at a focused button. Click the 3D canvas
+  // (rather than a menu) before sending real keyboard input.
+  const vp=page.viewportSize();await page.mouse.click(vp.width*.50,vp.height*.45);
+  const start=await page.evaluate(()=>window.__town.state().pos);
   if(mobile){
    const cdp=await context.newCDPSession(page),{width,height}=page.viewportSize(),x=width*.2,y=height*.72;
    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y,id:1}]});
