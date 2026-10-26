@@ -546,8 +546,11 @@ async function start() {
     $('panel-body').innerHTML = content.body;
     content.mount?.($('panel-body'));
     const actions = $('panel-actions'); actions.innerHTML = '';
+    let primary = $('panel-primary-actions');
+    if (!primary) { primary = document.createElement('div'); primary.id = 'panel-primary-actions'; primary.className = 'row'; $('panel-body').before(primary); }
+    primary.innerHTML = ''; primary.hidden = !(content.actions || []).some(a => a.primary);
     for (const a of content.actions || []) {
-      if (a.url) { const el = document.createElement('a'); el.href = a.url; el.target = '_blank'; el.rel = 'noopener'; el.textContent = a.label; el.className = 'btn-link'; actions.append(el); }
+      if (a.url) { const el = document.createElement('a'); el.href = a.url; el.target = '_blank'; el.rel = 'noopener'; el.textContent = a.label; el.className = 'btn-link'; (a.primary ? primary : actions).append(el); }
       else { const el = document.createElement('button'); el.textContent = a.label; el.onclick = () => { if (a.play) return startGame(a.play); const beforeWallet=life.civic.player.wallet;
           const next = a.run ? a.run() : content.onAnswer(a.answer);
           if (next && player.seated && ['cafe','pub'].includes(inside?.place?.id) &&
@@ -555,7 +558,7 @@ async function start() {
             next.body='<p><b>🍽 Your order has been brought to your table.</b></p>'+next.body;
           }
           if (next) openPanel(next, thing); };
-        if (a.play) el.className = 'play'; actions.append(el); }
+        if (a.play) el.className = 'play'; (a.primary ? primary : actions).append(el); }
     }
     $('panel').hidden = false;
     $('card').hidden = true;
