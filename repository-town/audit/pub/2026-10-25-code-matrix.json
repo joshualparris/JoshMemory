@@ -14,7 +14,7 @@
     "repository-town/src/world/life.js": "2395d81a1cdd52fbc6709dbebc4de0f31c3aff60",
     "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2",
     "repository-town/src/world/pub-interior.js": "46396a0552d2480f3c31585e77199803433ab6b6",
-    "repository-town/src/world/shop-interior.js": "3ac2981d1eaa645d08163749397fe13546ecd243",
+    "repository-town/src/world/shop-interior.js": "fcba3ce0e1334356af95427fdf0cde54c87ae6cd",
     "repository-town/src/world/townlife.js": "cf9fead8aec7a064afb659f1eee6fb837ae1f7f4",
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
