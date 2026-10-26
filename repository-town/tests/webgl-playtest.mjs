@@ -83,6 +83,10 @@ async function play(kind,options) {
     await page.waitForTimeout(1300);
     await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
   }else{
+    // Closing the Guide leaves its button focused, and keyboard input deliberately
+    // ignores focused buttons. Return focus to the playable canvas before WASD.
+    await page.evaluate(() => document.activeElement?.blur?.());
+    const vp=page.viewportSize();await page.mouse.click(vp.width*.5,vp.height*.45);
     await page.keyboard.down('w');await page.waitForTimeout(950);await page.keyboard.up('w');
   }
   const after=await page.evaluate(()=>window.__town.state());
