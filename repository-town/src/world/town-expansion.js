@@ -496,7 +496,7 @@ export const EXPANSION_SITES=Object.freeze([
   },
   {
     "id": "clothing",
-    "name": "Creative Court Clothing & Footwear",
+    "name": "Gumleaf Outfitters",
     "col": "A",
     "row": 6,
     "side": "north",
@@ -504,7 +504,7 @@ export const EXPANSION_SITES=Object.freeze([
     "style": "retail",
     "priority": "P2",
     "staffRole": "retail assistant",
-    "description": "Regional clothing and shoes",
+    "description": "Country clothing, footwear, fitting rooms and workwear",
     "opens": 480,
     "closes": 1050,
     "expansion": true,
