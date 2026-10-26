@@ -73,6 +73,6 @@ export function buildLibraryInterior(site,makeLabel){
  add('children','Children’s story time','info','Picture books, family reading and supervised story sessions are held in the children’s area.',-2.2,2.4);
  add('computers','Use a public computer','info','Public catalogue terminals and accessible computers provide digital literacy and research access.',3.5,-.9);
  add('history','Local history collection','info','Research the town’s past through newspapers, photographs and local studies resources.',3.55,-8.8);
- add('quiet','Quiet reading desks','info','Study desks are provided away from the children’s corner, with task lighting and reading materials.',3.55,-6.8);
+ add('quiet','Quiet reading desks','info','Study desks are provided away from the children’s corner, with task lighting and reading materials.',3.55,-7.3);
  return k.finish({libraryLayout:LIBRARY_PLAN,staff:{pos:{x:3.1,z:-7.25},use:LIBRARY_PLAN.staffUse}});
 }
