@@ -7,8 +7,15 @@ export const DENTAL_PLAN=Object.freeze({zones:['reception and waiting','consulta
 export function buildDentalInterior(site,makeLabel){
  const k=createKit(site,makeLabel,'Dental clinic');
  const {THREE,group,box,solid,text,add,cyl,ball}=k;
- const C={wall:0xe4eeec,blue:0x53869b,white:0xf1f5f3,steel:0x889ca3,seat:0x638d9d,teal:0x629a8f,dark:0x314954};
- k.shell({wall:C.wall,ceiling:0xf6f8f7,floor:0xa9bfba,frontSill:.75,sideSill:1.05});
+ const C={wall:0xb2c7c3,blue:0x32647a,white:0xf1f5f3,steel:0x70838b,seat:0x386a77,teal:0x408c7e,dark:0x243f51};
+ k.shell({wall:C.wall,ceiling:0xd4e0d8,floor:0x967b63,frontSill:.75,sideSill:1.05});
+ // Warm oak-look waiting room, colourful wayfinding and a continuous contrasting corridor.
+ box(13.1,.012,5.7,0,.013,2.8,0x977f67);
+ box(2.0,.014,10.1,.01,.017,-6.85,0x4f827e);
+ for(const x of [-5.6,-4.2,-2.8])box(.66,.04,.45,x,.51,2.5,0xb7c6ad);
+ for(const x of [-5.2,-3.5])box(.72,.85,.06,x,1.85,5.78,0x477e76);
+ box(3.1,.8,.06,3.65,3.7,5.78,0x2f6d79);
+ box(2.8,.2,.09,3.65,3.2,5.7,0xd9ad78);
  group.add(new THREE.HemisphereLight(0xf7fcff,0x6e8989,2.1));
  text('WATTLE STREET DENTAL',0,3.35,-11.65,'room');
  // Waiting/reception: front of house, seating, check-in and brochure rack.
@@ -22,9 +29,15 @@ export function buildDentalInterior(site,makeLabel){
  text('WAITING AREA',-4.4,2.2,2.6);
  // Clinical bay occupies left rear, with handwash and an instrument tray.
  // A glazed partition separates it visually from the public waiting area.
- solid(.16,3.2,7.5,-.7,1.6,-7.8,C.wall);
+ // The previous full-height partitions sealed off the surgeries. Split the walls
+ // into real segments and leave a 1.7 m patient doorway from the central corridor.
+ solid(.16,3.2,3.9,-.7,1.6,-10.05,C.wall);
+ solid(.16,3.2,1.35,-.7,1.6,-5.0,C.wall);
+ box(1.72,.28,.17,-.7,3.05,-6.8,0x32647a);
  solid(6.0,3.2,.16,-3.9,1.6,-4.05,C.wall);
  box(2.3,2.5,.055,-3.2,1.55,-4.0,0xa8cbd0,{a:.28});
+ // Dental room has an actual open doorway in its east wall, not a painted door.
+ box(.08,2.45,.09,-.7,1.22,-7.62,0x426e74);
  // Dental chair: adjustable-style base, reclined cushion, headrest and lamp arm.
  solid(1.2,.35,2.15,-4.3,.58,-8.0,0x607f8b);
  box(1.08,.24,1.25,-4.3,.89,-7.55,0x77a7b4,{rx:-.2});
@@ -42,8 +55,13 @@ export function buildDentalInterior(site,makeLabel){
  text('DENTAL OPERATORY',-4.2,2.5,-11.2);
  // Staff-only reprocessing area on right rear. Instrument flow is one-way,
  // with distinct dirty receiving, wash, inspection, steriliser and clean storage.
- solid(.18,3.2,7.3,1.35,1.6,-8.1,C.wall);
+ // Reprocessing can be visited in the simulation but is labelled staff-only in practice.
+ // The 1.8 m opening prevents the central corridor ending in a solid wall.
+ solid(.18,3.2,3.55,1.35,1.6,-10.23,C.wall);
+ solid(.18,3.2,1.35,1.35,1.6,-5.03,C.wall);
+ box(1.82,.25,.2,1.35,3.08,-7.67,0x32647a);
  solid(5.2,3.2,.16,4.0,1.6,-4.35,C.wall);
+ box(2.3,.08,.08,1.35,2.35,-7.67,0xd4b16e);
  const stages=[
   {x:2.05,name:'DIRTY',c:0xa86857},
   {x:3.0,name:'WASH',c:0x6a9eac},
@@ -73,8 +91,8 @@ export function buildDentalInterior(site,makeLabel){
  text('EXIT',0,2.8,5.55);
  add('reception','Check in for an appointment','civic-ledger','Reception confirms your appointment and assists with consent and treatment information.',1.5,1.4);
  add('waiting','Wait for the dentist','info','The waiting room is separated from the clinical treatment and instrument reprocessing areas.',-1.25,2.3);
- add('operatory','View dental treatment room','info','A dental chair, examination light, suction and clinical hand hygiene facilities support routine examinations.',-.05,-5.4);
- add('infection','Instrument reprocessing workflow','info','Used instruments follow a one-way dirty-to-clean sequence: receive, wash, inspect, package, sterilise and store. This area is restricted to trained staff.',.25,-8.7);
- add('hygiene','Infection prevention','info','Staff use hand hygiene, cleanable clinical surfaces, appropriate PPE and documented sterilisation monitoring.',-.05,-2.2);
+ add('operatory','Explore the dental surgery','info','Walk through the open doorway on your left to see the dental chair, examination light and clinical equipment.',-2.0,-6.8);
+ add('infection','Explore instrument sterilisation','info','The room on your right models a one-way dirty-to-clean sequence. In a real practice, this is staff-only.',2.4,-7.7);
+ add('hygiene','Infection prevention','info','Staff use hand hygiene, cleanable clinical surfaces, appropriate PPE and documented sterilisation monitoring.',0,-3.0);
  return k.finish({dentalLayout:DENTAL_PLAN,staff:{pos:{x:3.9,z:.5},use:{x:1.5,z:1.4}}});
 }
