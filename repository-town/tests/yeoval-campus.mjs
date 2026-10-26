@@ -11,7 +11,7 @@ assert.equal(campus.id,'yeoval-aged-care');
 assert.ok(campus.wings.length>=3,'north and south wings linked');
 assert.ok(campus.wings[0].w>campus.wings[2].w,'longer north frontage');
 assert.ok(campus.entry.z<campus.z,'door faces northern land');
-assert.ok(near(yeovalWorld(0,17).z,campus.entry.z),'entry transform');
+assert.ok(near(yeovalWorld(11,19).z,campus.entry.z) && near(yeovalWorld(11,19).x,campus.entry.x),'entry transform');
 assert.ok(!hasPoint(colliders,campus.entry.x,campus.entry.z,0.2),'door passage does not block entrance');
 assert.ok(colliders.some(c=>hasPoint([c],campus.entry.x+12,campus.entry.z+5)),'bedroom wing is solid');
 assert.ok(group.children.includes(campus.mesh),'campus rendered outdoors');
