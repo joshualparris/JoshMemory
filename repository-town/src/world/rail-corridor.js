@@ -61,7 +61,7 @@ export function railGateState(minute,depotX,crossingX,{fault=false,heldFront=nul
 // they are never held in the dangerous track zone by a last-moment closure.
 export function railUserBlocked(from,to,gate,{halfLength=0,radius=0.5}={}){
   if(!gate?.roadStop||!from||!to)return false;
-  const boundary=Math.max(RAIL_STRUCTURE_HALF_WIDTH+halfLength+radius+1.25,7.4+radius+0.35);
+  const boundary=Math.max(RAIL_STRUCTURE_HALF_WIDTH+halfLength+radius+1.25,7.4+halfLength+radius+0.35);
   const fromDist=Math.abs(from.z-RAIL_Z),toDist=Math.abs(to.z-RAIL_Z);
   if(fromDist<=boundary)return false; // do not trap someone already inside
   if(toDist>=fromDist)return false; // moving away from train
