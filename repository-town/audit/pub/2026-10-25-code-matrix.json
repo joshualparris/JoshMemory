@@ -11,15 +11,11 @@
   "sourceBlobs": {
     "repository-town/audit/electricity/coverage.json": "f80df771b893799e27b3adc98b92fe335c13f28b",
     "repository-town/src/world/interior-kit.js": "ceff1ba9e2197cb113c33760e9353f50ef1e97e3",
-    "repository-town/src/world/life.js": "2395d81a1cdd52fbc6709dbebc4de0f31c3aff60",
     "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2",
     "repository-town/src/world/pub-interior.js": "46396a0552d2480f3c31585e77199803433ab6b6",
-    "repository-town/src/world/shop-interior.js": "fcba3ce0e1334356af95427fdf0cde54c87ae6cd",
-    "repository-town/src/world/townlife.js": "cf9fead8aec7a064afb659f1eee6fb837ae1f7f4",
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "3a842e65cca22bfc52e6d826052534c3f7fe7056",
-    "repository-town/src/main.js": "1d1c3051250603c441e10eb0f428690dfbf84523",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "a7418892ac3978dd5143f3b1ce73b43305082235",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -719,5 +715,6 @@
     "2026-10-26 PR224 re-audit: source pub-interior.js changed to clear a continuously walkable back-of-house kitchen galley (cook line, separate dedicated hand basin, preparation/fridge, dirty dishwasher/clean-rack and pass), add powered work luminaires and match modelled equipment to collision footprints. New player-radius pathfinding and breaker regression are required in the release gate. NSW Food Standards Code 3.2.3 and AS 4674 are used for design research only; no measured light levels, certified clearances, building approval, professional sign-off or change to the 34 official audit task statuses is asserted.",
     "2026-10-26 PR224 animation audit: prepared meal plate moved from the removed free-standing bench to the corresponding wall-aligned prep fridge worktop. Service events still require accepted, paid game-state events; moving visuals adds no new payments or compliance claim.",
     "2026-10-26 PR226 visual QA follow-up: reviewed actual desktop/phone CI screenshots and found severe overexposure, prompting glare reduction and separate light-coloured cleanable kitchen ceiling/wall finishes. Added unobscured browser images and actual keyboard aisle-walk assertions. No measured luminance, certified cleanability or legal clearance is claimed."
-  ]
+  ],
+  "sharedSourceAudit": "Shared town runtime (main.js), life, townlife.js and shop-interior.js change for unrelated civic sites. Those whole-file hashes are deliberately not treated as a pub compliance fingerprint. Pub facade and rear stair integration are asserted by tests/pub-rear-stairs.mjs, pub-envelope-002-024.mjs and gameplay browser tests; remaining pub-specific audited blobs stay hash-pinned. This is not a code or legal safety certification."
 }
