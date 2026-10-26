@@ -2,6 +2,7 @@
 // townlife places and rotates them to face existing roads from north-side plots.
 // Geometry is phase-one massing, NOT a completed NCC, petrol, clinical or childcare approval.
 import { GLASS } from './builder.js';
+import { buildAgedCareFacade } from './aged-care-facade.js';
 import { buildBusInterchangeFacade } from './bus-interchange-facade.js';
 import { buildVisitorInformationFacade } from './visitor-information-facade.js';
 import { buildCemeteryOfficeFacade } from './cemetery-office-facade.js';
@@ -22,13 +23,14 @@ const styles=Object.freeze({
  carwash:[0xe1e7e8,0x487c94,0x67b2cc],
 });
 export function expansionFootprint(style){
-  return Object.freeze({w:style==='fuel'?13:style==='nursery'?13:style==='park'?10:12,
-    d:style==='park'?7:style==='fuel'?11:9});
+  return Object.freeze({w:style==='agedcare'?13:style==='fuel'?13:style==='nursery'?13:style==='park'?10:12,
+    d:style==='agedcare'?11:style==='park'?7:style==='fuel'?11:9});
 }
 export function buildExpansionFacade(b,site){
  if(site.id==='busstop')return buildBusInterchangeFacade(b);
  if(site.id==='visitorcentre')return buildVisitorInformationFacade(b);
  if(site.id==='cemetery')return buildCemeteryOfficeFacade(b);
+ if(site.id==='agedcare')return buildAgedCareFacade(b);
  const pal=styles[site.style]||styles.retail;
  const [wall,trim,accent]=pal,{w,d}=expansionFootprint(site.style);
  const h=site.style==='heritage'?5.1:site.style==='rural'?5:4.2;
