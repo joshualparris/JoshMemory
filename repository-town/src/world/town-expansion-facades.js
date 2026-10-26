@@ -144,6 +144,25 @@ export function buildExpansionFacade(b,site){
    b.box(0xc3d4d0,3.0,.08,1.4,0,.04,face+.75);
    return {w,d,front:7};
  }
+ // A6-N: Gumleaf Outfitters, country clothing and boots. Glazed display windows.
+ if(site.id==='clothing'){
+   b.box(0x92765d,w,.12,d,0,.06,centre);
+   b.box(0xbca184,w,4.2,d,0,2.1,centre);
+   b.box(0x315b49,w+.45,.42,d+.35,0,4.35,centre);
+   b.box(0x315b49,w+.4,.78,.4,0,3.8,face-.1);
+   for(const x of [-3.8,3.8]){
+     b.box(0x5e493b,3.45,2.8,.13,x,2.0,face+.07);
+     b.box(GLASS,3.25,2.58,.14,x,2.0,face+.17);
+     b.box(0xc5ac8c,3.3,.48,.17,x,.96,face+.28);
+     b.box(0x315b49,.1,2.6,.18,x,2.0,face+.27);
+   }
+   b.box(0x315b49,2.35,3.2,.14,0,1.65,face+.11);
+   b.box(GLASS,2.16,2.95,.15,0,1.65,face+.2);
+   b.box(0xbca184,.08,3.0,.16,0,1.65,face+.28);
+   b.box(0xb98c4e,3.8,.15,1.0,0,3.15,face+.55);
+   b.box(0xbca184,3.1,.08,1.15,0,.04,face+.6);
+   return {w,d,front:7};
+ }
  if(site.style==='fuel'){
    b.box(0x565f60,12,.07,10.8,0,.03,1.5);
    b.box(wall,7,3.6,4.2,0,1.8,1);
