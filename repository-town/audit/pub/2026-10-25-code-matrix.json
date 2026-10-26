@@ -5,32 +5,37 @@
   "gameAddress": "N8-S",
   "name": "The Merged Branch",
   "repository": "joshualparris/JoshMemory",
-  "basis": "Public evidence and modelled systems; see docs/PUB_SIMULATION_2026-10-26.md. Formal compliance remains unverified.",
+  "basis": "Two above-ground storeys plus cellar, per PUB_CELLAR_UPSTAIRS_2026-10-26.md; all regulatory approvals remain unverified.",
   "nccAsAtDate": "NCC 2022 Amendment 2 (NSW, effective 2025-07-29); NSW NCC 2025 planned commencement 2027-05-01",
   "provisionalBuildingClassification": "NCC NSW Class 6 hospitality bar/dining; confirm ancillary/mixed classification and actual approvals",
   "sourceBlobs": {
     "repository-town/audit/electricity/coverage.json": "f80df771b893799e27b3adc98b92fe335c13f28b",
-    "repository-town/src/world/interior-kit.js": "11d8811894b461040693efe5b63790cacd7811d7",
-    "repository-town/src/world/life.js": "4d3a457bb4dce551c52aa32892158165762cf7d2",
+    "repository-town/src/world/interior-kit.js": "ceff1ba9e2197cb113c33760e9353f50ef1e97e3",
+    "repository-town/src/world/life.js": "b656d1200de56abf0b94dbeaeac63cf8a1dd8a39",
     "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2",
-    "repository-town/src/world/pub-interior.js": "9845b7b656a6b73aa584cd142fdd46542c87d20d",
+    "repository-town/src/world/pub-interior.js": "c2847988002ac296f0af31e703ec101457cce652",
     "repository-town/src/world/shop-interior.js": "e2282db1927b79dd5e8a89a970a03e90b676dcf0",
     "repository-town/src/world/townlife.js": "13ae972802ea687fb3310ee2f9a53dee610d2bfa",
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
-    "repository-town/src/world/pub-envelope.js": "3c994f3d469a1e86b856d23c52f9e954c17a3b95",
-    "repository-town/src/main.js": "84a9cd157e2220daa65d585239735b8dafe23977",
-    "repository-town/src/world/pub-service-visuals.js": "e4131934e9c25c82ac45de668d4b1f923a9214c3",
-    "repository-town/src/world/pub-physical-plan-2026.js": "883ac78e5be55f79f77387068563743edb272c4a",
-    "repository-town/src/ui/pub-standards-panel.js": "50a0f39d016d28f8ad7f1424e5297865fb8a530b",
-    "repository-town/src/world/pub-utilities.js": "aea1977a6d5903412ae3c8f086e207891065ce4b",
-    "repository-town/src/world/pub-standards.js": "19dc573f19def2aeebdb13fe2f43675edc5c24e6",
-    "repository-town/src/world/pub-plant.js": "0c73e0f35aa89d1340498bae2622acd2fc281742",
-    "repository-town/src/world/pub-venue.js": "1e6ba75dd668f025c0a34246a7e0dc80f5d8cb03",
+    "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
+    "repository-town/src/main.js": "b4f382eac90fe229fef12168159472cadfb75114",
+    "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
+    "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
+    "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
+    "repository-town/src/world/pub-utilities.js": "874a26cf7ae46864b090cb77a107ea7057fe30b5",
+    "repository-town/src/world/pub-standards.js": "95d76de040b25a30dd402994ceb65e48d0cfcedb",
+    "repository-town/src/world/pub-plant.js": "27947cb1b1646c3026ccb5ab331d625856a5bd62",
+    "repository-town/src/world/pub-venue.js": "3be5be728a464d7c1046fd88eb02333a9ed2afae",
     "repository-town/src/world/pub-pool.js": "0465b320ec277b77e296d4003e454030628398c6",
-    "repository-town/src/world/pub-presentation.js": "39b39ebce959c382fde4027c95b0231b45f555fe",
+    "repository-town/src/world/pub-presentation.js": "14ac09c9cd059dc9675b3fdcbc13b8f84502c9c6",
     "repository-town/src/ui/pub-venue-panel.js": "39e1fca9ab345f929f20d52f0b86ddae547ae8b7",
-    "repository-town/src/ui/pub-pool-panel.js": "86f810c9ea5074675e4b45653d55e7abe3c82616"
+    "repository-town/src/ui/pub-pool-panel.js": "86f810c9ea5074675e4b45653d55e7abe3c82616",
+    "repository-town/src/world/pub-expansion-state.js": "5dcf10ac0cb88c91f753d61c519e431484152fd3",
+    "repository-town/src/world/pub-vertical-core.js": "0da18695fa3ad3c8cce5dabff5ed97b990df35f5",
+    "repository-town/src/world/pub-floors.js": "9fe1864f986207cd9b3ae6a5c9d515f54acbdf26",
+    "repository-town/src/ui/pub-expansion-panel.js": "9d651e6dc73ca54600ee03072ce9f88f69f264ce",
+    "repository-town/src/world/lighting.js": "93a4e8ee973136b4ab2c0ac60529357022538165"
   },
   "sources": {
     "S01": {
@@ -164,7 +169,7 @@
       ],
       "done": false,
       "qualifiedId": "PUB-CODE/RTPUB-002",
-      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
+      "implementationEvidence": "docs/PUB_CELLAR_UPSTAIRS_2026-10-26.md; tests/pub-expansion.mjs; source geometry/interlocks; independent approval still unverified"
     },
     {
       "id": "RTPUB-003",
@@ -194,7 +199,7 @@
       ],
       "done": false,
       "qualifiedId": "PUB-CODE/RTPUB-004",
-      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
+      "implementationEvidence": "docs/PUB_CELLAR_UPSTAIRS_2026-10-26.md; tests/pub-expansion.mjs; source geometry/interlocks; independent approval still unverified"
     },
     {
       "id": "RTPUB-005",
@@ -268,7 +273,7 @@
       ],
       "done": false,
       "qualifiedId": "PUB-CODE/RTPUB-009",
-      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
+      "implementationEvidence": "docs/PUB_CELLAR_UPSTAIRS_2026-10-26.md; tests/pub-expansion.mjs; source geometry/interlocks; independent approval still unverified"
     },
     {
       "id": "RTPUB-010",
@@ -494,7 +499,7 @@
       ],
       "done": false,
       "qualifiedId": "PUB-CODE/RTPUB-024",
-      "implementationEvidence": "docs/PUB_COMPLETION_2026-10-25.md; tests/pub-completion.mjs; tests/pub-compliance-browser.mjs"
+      "implementationEvidence": "docs/PUB_CELLAR_UPSTAIRS_2026-10-26.md; tests/pub-expansion.mjs; source geometry/interlocks; independent approval still unverified"
     },
     {
       "id": "RTPUB-025",

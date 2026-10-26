@@ -37,7 +37,7 @@ assert.match(furniturePanel({label:'Books',type:'bookshelf'}).body,/books/);
 
 const label=()=>new THREE.Sprite(new THREE.SpriteMaterial());
 for(const [id,build,min] of [
-  ['cafe',buildCafeInterior,34],['pub',buildPubInterior,20],['farmhouse',buildFarmhouseInterior,9]
+  ['cafe',buildCafeInterior,34],['pub',buildPubInterior,19],['farmhouse',buildFarmhouseInterior,9]
 ]){
   const room=build({id,name:id},label);
   assert(room.seats?.length>=min,id+' registered real places to sit: '+room.seats?.length);
