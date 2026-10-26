@@ -19,6 +19,8 @@ for (const [name, options] of [['desktop',{viewport:{width:1280,height:800}}],['
     if(errors.length) throw Error(errors.join('\n'));
     const fatal = await page.locator('#loading.error').isVisible();
     if(fatal) throw Error(await page.locator('#loading-text').innerText());
+    const statusText = await page.locator('#status').innerText();
+    if (!/outside/i.test(statusText)) throw Error('Named library fast travel did not complete: '+statusText);
     const state=await page.evaluate(()=>window.__town.state());
     console.log(name,'library travel state',JSON.stringify(state).slice(0,800));
     if(!state || !Number.isFinite(state.pos?.x ?? state.position?.x)) console.log(name,'position schema requires manual inspection');
