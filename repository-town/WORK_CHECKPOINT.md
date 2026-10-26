@@ -427,3 +427,9 @@ Final repeated phone run caught a real intermittent first-frame timestamp race: 
 
 ### PUB-SIM rendered service geometry
 Exact fe22 full release/privacy/integrity and desktop/phone venue gameplay passed. Visual carried-dish review revealed the lowered counter lacked a collision footprint; added it and sampled the rerouted staff path at quarter-minute intervals against furniture. Corrected glasses to sit above bar/table tops and dishes on trays; filling now changes liquid inside a constant glass instead of scaling the whole glass. Door sweeps, clear 1.2m route, 39 seats and serving-route tests pass. Releasing this final geometry correction rather than claiming the earlier image was clipping-free.
+
+
+## 2026-10-26 — pub ID and service control discoverability
+- PR #220: direct character-18+ confirmation and Pub service controls above pub information; visible ID status, no-upload explanation and Back to pub menu. Confirmation is idempotent; other service gates preserved.
+- Public build/privacy scan and pub completion simulation passed. Desktop (1280×900) and phone emulation (390×844) browser acceptance passed: confirmation visible without scrolling, confirmed state, controls and return-to-menu, no page errors.
+- Full CI, merge and hosted publication/verification pending. Browser test: `node tests/pub-id-browser.mjs` (TOWN_URL defaults localhost:8097).
