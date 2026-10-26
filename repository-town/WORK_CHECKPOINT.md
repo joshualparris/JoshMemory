@@ -1,3 +1,7 @@
+# 26 October 2026 — commerce consolidation merged-tree candidate
+
+Preserves latest main d5637c6ef04b782106fca7c63d036d18159a3c3b with bus/pharmacy/front entrances, pub and fast-travel fixes. Recovers original missing General Store invoices/temperature probes/supplier credits, finite state treasury startup capital, council wage float repayments and three regression suites from PRs #126–128. Ten of eleven checks on previous equivalent commerce candidate passed; Android job still running at tree construction. This commit is not VERIFIED until its own CI and the public deployment match. Pub audit source hashes synchronised for 27 tracked sources.
+
 # 26 October 2026 — physical pub utilities worker fixture
 
 Full release next caught the same old fictitious-staff test issue in tests/pub-utilities.mjs. Set forced on-duty worker coordinates to the actual pub entrance in test setup. Do not weaken the actual physical staffing check; source game remains unchanged. Full CI recheck pending.

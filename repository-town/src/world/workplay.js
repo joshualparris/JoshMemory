@@ -1,4 +1,4 @@
-import {storeBatches,reserveBatch,restoreBatch,quarantineBatch,cartonUnsafe,returnToSupplier,tickStoreBatches} from './store-batches.js';
+import {storeBatches,reserveBatch,restoreBatch,quarantineBatch,cartonUnsafe,returnToSupplier,tickStoreBatches,probeBatch,storeStaffRoutines} from './store-batches.js';
 import {FULL_WORK_MENU,recipeFor,orderRecipe,STORE_GOODS} from './work-recipes.js';
 import {noteSpend} from './household.js';
 const result=(ok,message,extra={})=>({ok,message,...extra});
@@ -49,6 +49,7 @@ export function useStore(t,action,arg){
   return success(reserved.message+' Walk to the '+g.zone+' shelf.');
  }
  if(action==='supplier-return')return returnToSupplier(t,arg);
+ if(action==='probe')return probeBatch(t,arg);
  if(action==='return'){
   if(!s.carton)return result(false,'You are not carrying a carton.');
   const safe=restoreBatch(t,s.carton);s.carton=null;
@@ -183,6 +184,7 @@ export function useCafe(t,action,arg,score){
 }
 export function tickWorkplay(t){
  tickStoreBatches(t);
+ {const shift=t.civic.jobs?.active;storeStaffRoutines(t,shift?.site==='store'&&shift.day===t.day);}
  const state=t.civic.workplay;if(!state)return;
  const a=t.civic.jobs?.active;
  if(state.store.carton&&(!a||a.site!=='store'||a.day!==t.day)){

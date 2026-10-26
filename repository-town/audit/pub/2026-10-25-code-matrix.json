@@ -5,23 +5,27 @@
   "gameAddress": "N8-S",
   "name": "The Merged Branch",
   "repository": "joshualparris/JoshMemory",
-  "basis": "Two above-ground storeys plus cellar, per PUB_CELLAR_UPSTAIRS_2026-10-26.md; all regulatory approvals remain unverified. Rear stair foot-to-upper doorway gameplay geometry re-audited 2026-10-26; professional egress and accessibility assessments still unverified.",
+  "basis": "Two above-ground storeys plus cellar, per PUB_CELLAR_UPSTAIRS_2026-10-26.md; all regulatory approvals remain unverified.",
   "nccAsAtDate": "NCC 2022 Amendment 2 (NSW, effective 2025-07-29); NSW NCC 2025 planned commencement 2027-05-01",
   "provisionalBuildingClassification": "NCC NSW Class 6 hospitality bar/dining; confirm ancillary/mixed classification and actual approvals",
   "sourceBlobs": {
     "repository-town/audit/electricity/coverage.json": "f80df771b893799e27b3adc98b92fe335c13f28b",
     "repository-town/src/world/interior-kit.js": "ceff1ba9e2197cb113c33760e9353f50ef1e97e3",
+    "repository-town/src/world/life.js": "02a3a7c600c1684333f22b90bdb557cc0c8e4f6d",
     "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2",
     "repository-town/src/world/pub-interior.js": "46396a0552d2480f3c31585e77199803433ab6b6",
+    "repository-town/src/world/shop-interior.js": "5222acc58fe8d1d49a879b3408473a075ff52ca9",
+    "repository-town/src/world/townlife.js": "7351e9a83ad097c6c523f4c4493921580540c380",
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
-    "repository-town/src/world/pub-envelope.js": "3a842e65cca22bfc52e6d826052534c3f7fe7056",
+    "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
+    "repository-town/src/main.js": "4eb06006c6a7e3cbe5070b3b23f290bb64516273",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
-    "repository-town/src/world/pub-physical-plan-2026.js": "a7418892ac3978dd5143f3b1ce73b43305082235",
+    "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
     "repository-town/src/world/pub-utilities.js": "874a26cf7ae46864b090cb77a107ea7057fe30b5",
     "repository-town/src/world/pub-standards.js": "95d76de040b25a30dd402994ceb65e48d0cfcedb",
-    "repository-town/src/world/pub-plant.js": "d917d091b253e5c46b4b504be6361454ddd79a5f",
+    "repository-town/src/world/pub-plant.js": "27947cb1b1646c3026ccb5ab331d625856a5bd62",
     "repository-town/src/world/pub-venue.js": "3be5be728a464d7c1046fd88eb02333a9ed2afae",
     "repository-town/src/world/pub-pool.js": "0465b320ec277b77e296d4003e454030628398c6",
     "repository-town/src/world/pub-presentation.js": "3e92b22f1feab1ba3a5f1270d13944ffb3ef0692",
@@ -31,8 +35,7 @@
     "repository-town/src/world/pub-vertical-core.js": "0da18695fa3ad3c8cce5dabff5ed97b990df35f5",
     "repository-town/src/world/pub-floors.js": "981faf682dce84211cb05b2d9d705be2511ada5f",
     "repository-town/src/ui/pub-expansion-panel.js": "9d651e6dc73ca54600ee03072ce9f88f69f264ce",
-    "repository-town/src/world/lighting.js": "93a4e8ee973136b4ab2c0ac60529357022538165",
-    "repository-town/src/world/pub-rear-stairs.js": "45e6fe6020227af540cef1b8a0c2b1db507aaf91"
+    "repository-town/src/world/lighting.js": "93a4e8ee973136b4ab2c0ac60529357022538165"
   },
   "sources": {
     "S01": {
@@ -714,7 +717,7 @@
     "2026-10-26 PR223 re-audit: townlife.js render-only change replaces identical uniform NPC creation with deterministic individual appearances for pedestrians and trade crew. Verified code still delegates pub facade to unchanged buildPubFacade with shared pub envelope; geometry assertions must continue passing. Source blob refreshed for provenance only, not regulatory approval or proof of hosted acceptance.",
     "2026-10-26 PR224 re-audit: source pub-interior.js changed to clear a continuously walkable back-of-house kitchen galley (cook line, separate dedicated hand basin, preparation/fridge, dirty dishwasher/clean-rack and pass), add powered work luminaires and match modelled equipment to collision footprints. New player-radius pathfinding and breaker regression are required in the release gate. NSW Food Standards Code 3.2.3 and AS 4674 are used for design research only; no measured light levels, certified clearances, building approval, professional sign-off or change to the 34 official audit task statuses is asserted.",
     "2026-10-26 PR224 animation audit: prepared meal plate moved from the removed free-standing bench to the corresponding wall-aligned prep fridge worktop. Service events still require accepted, paid game-state events; moving visuals adds no new payments or compliance claim.",
-    "2026-10-26 PR226 visual QA follow-up: reviewed actual desktop/phone CI screenshots and found severe overexposure, prompting glare reduction and separate light-coloured cleanable kitchen ceiling/wall finishes. Added unobscured browser images and actual keyboard aisle-walk assertions. No measured luminance, certified cleanability or legal clearance is claimed."
-  ],
-  "sharedSourceAudit": "Shared town runtime (main.js), life, townlife.js and shop-interior.js change for unrelated civic sites. Those whole-file hashes are deliberately not treated as a pub compliance fingerprint. Pub facade and rear stair integration are asserted by tests/pub-rear-stairs.mjs, pub-envelope-002-024.mjs and gameplay browser tests; remaining pub-specific audited blobs stay hash-pinned. This is not a code or legal safety certification."
+    "2026-10-26 PR226 visual QA follow-up: reviewed actual desktop/phone CI screenshots and found severe overexposure, prompting glare reduction and separate light-coloured cleanable kitchen ceiling/wall finishes. Added unobscured browser images and actual keyboard aisle-walk assertions. No measured luminance, certified cleanability or legal clearance is claimed.",
+    "2026-10-26 PR225 coordinated merge from latest main: preserves pharmacy, N5 bus interchange, north-door exits, pub and fast travel; verified exact source blobs life 02a3a7c600c1684333f22b90bdb557cc0c8e4f6d, main.js 4eb06006c6a7e3cbe5070b3b23f290bb64516273 and shop-interior.js 5222acc58fe8d1d49a879b3408473a075ff52ca9. Financial changes are finite transfers; no legal or professional pub certification implied."
+  ]
 }
