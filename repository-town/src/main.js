@@ -1,3 +1,4 @@
+import {pubRearStairHeight,pubRearStairAtUpperDoor} from './world/pub-rear-stairs.js';
 import {createPubFloorStack,pubExpansionServices} from './world/pub-floors.js';
 import {pubFloorRefusal,recordPubLiftTrip,PUB_LEVELS} from './world/pub-expansion-state.js';
 import {pubExpansionPanel} from './ui/pub-expansion-panel.js';
@@ -428,6 +429,16 @@ async function start() {
     status(access.reason==='supervised' ? access.message+' You may return through the entrance at any time.' : 'Inside '+site.name+'. Walk to the counter or back through the entrance to leave.');
     return true;
   }
+  // The external upper landing and the yard sign use the same pub interior
+  // transition. The visitor arrives beside the REAL upper rear exit, not at
+  // the ground-floor front door or through a wall.
+  function enterPubRearStairs() {
+    if (!enterShop('pub')) return false;
+    if (!changeFloor(1,'stairs')) { leave(true,false,'secondary'); return false; }
+    player.place(5.65,-10.6,Math.PI);
+    status('Upstairs dining · arrived by the rear escape stairs.');
+    return true;
+  }
   function leave(placeOutside = true, keepFacing = false, via = 'front') {
     if (!inside) return;
     const yawInside = player.yaw;
@@ -449,7 +460,13 @@ async function start() {
       if (shop) {
         const boxes=[...townWorld.all,...townWorld.dynamic()];
         const pose=via==='secondary'&&shop.id==='pub'?pubSecondaryExitPose(shop,boxes,player.radius+.08):via==='rear'&&shop.id==='pub'?pubRearExitPose(shop,boxes,player.radius+.08):civicExitPose(shop,boxes,player.radius+0.08);
-        if (pose) player.place(pose.x,pose.z,keepFacing ? yawInside + doorTurn(shop) : pose.yaw);
+        if (pose) {
+          player.place(pose.x,pose.z,keepFacing ? yawInside + doorTurn(shop) : pose.yaw);
+          if(shop.id==='pub'&&via==='secondary'){
+            player.baseHeight=pubRearStairHeight(shop,pose.x,pose.z);
+            player.camera.position.y=player.baseHeight+player.eye;
+          }
+        }
         else spawn(); // use safe Town Guide location instead of clipping into a wall
       } else { const l=town.lots.get(coord);player.place(l.doorPos.x,l.doorPos.z+4,keepFacing ? yawInside : Math.PI); }
     }
@@ -733,7 +750,7 @@ async function start() {
       const treasure = expedition.nearby(player.pos), treasureD = away(treasure), npcD = away(nearNPC), personD = away(nearPerson);
       if (treasure && treasureD <= npcD && treasureD <= personD) { expedition.use(player.pos); ambience.relic(); return; }
       if (nearNPC && npcD <= personD) { input.releaseMouse(); closePanel(); $('npc-roster').hidden = true; npcChat.show(nearNPC.npc, null); input.reset(); return; }
-      if (nearPerson) { if(nearPerson.spot){enterShop(nearPerson.spot.id);return;} talkTo(nearPerson); return; }
+      if (nearPerson) { if(nearPerson.spot){if(nearPerson.spot.rearStairs)enterPubRearStairs();else enterShop(nearPerson.spot.id);return;} talkTo(nearPerson); return; }
       if (nearHouse) showCard(nearHouse.house);
       return;
     }
@@ -1008,6 +1025,19 @@ async function start() {
       player.speedFactor=Math.max(0.45,1-(n.hunger>80?0.23:0)-(n.fatigue>75?0.32:0));
       if(mode==='town'&&driving.driving) driving.update(dt);
       else player.update(dt,input,world);
+    }
+    if (mode==='town'&&!driving.driving) {
+      const site=life.place('pub');
+      if(site){
+        const nextY=pubRearStairHeight(site,player.pos.x,player.pos.z);
+        player.camera.position.y+=nextY-player.baseHeight;
+        player.baseHeight=nextY;
+        // Crossing the upper threshold enters the actual first-floor rear
+        // landing. Walking down from the door is the reverse continuous route.
+        if(pubRearStairAtUpperDoor(site,player.pos.x,player.pos.z)){
+          enterPubRearStairs();
+        }
+      }
     }
     // Keep the table-service control in the always-visible needs strip on
     // phones with the rest of the HUD collapsed.
