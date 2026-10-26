@@ -87,7 +87,7 @@ export function buildAgedCareInterior(site,makeLabel){
   // 1.72 x 1.65 m illustrative ensuite in rear outer corner; no door across access.
   const divider=s*4.76;
   solid(.11,2.75,1.30,divider,1.375,-3.31,C.wall);
-  solid(1.62,2.75,.11,s*5.52,1.375,-2.55,C.wall);
+  solid(.72,2.75,.11,s*5.98,1.375,-2.55,C.wall);
   // no solid wall covering the narrow ensuite entry near (s*4.76,-2.2)
   solid(.51,.47,.54,s*5.75,.235,-3.50,C.bed);
   box(.45,.08,.48,s*5.75,.51,-3.50,C.bed);
@@ -144,9 +144,9 @@ export function buildAgedCareInterior(site,makeLabel){
   const lamp=new THREE.PointLight(0xffedd0,.46,7);lamp.position.set(x,3.97,z);group.add(lamp);
  }
  group.add(new THREE.HemisphereLight(0xfffaf1,0x91836c,2.25));
- add('welcome','Meet the care team','This is a fictional small-household model of residential aged care. A real home includes staffing, safe medicines systems and regulated care; visiting this desk is not a real booking or clinical consultation.',-1.45,2.05);
+ add('welcome','Meet the care team','This is a fictional small-household model of residential aged care. A real home includes staffing, safe medicines systems and regulated care; visiting this desk is not a real booking or clinical consultation.',-1.0,2.36);
  add('bedrooms','Visit resident bedrooms','Private sleeping spaces with beds, bedside belongings and illustrative ensuites. The two sample rooms are not proof of full aged-care facility capacity or accessibility certification.',0,-1.05);
- add('activities','Explore the residents lounge','A small, homelike lounge for conversation, games, music and time with family, rather than a commercial hospital waiting room.',-2.6,3.65);
+ add('activities','Explore the residents lounge','A small, homelike lounge for conversation, games, music and time with family, rather than a commercial hospital waiting room.',-2.13,2.83);
  add('dining','See the communal dining space','Residents share meals with support for individual choice, food safety and dignity. Actual meal preparation and dietetics are not simulated.',2.2,3.50);
  add('handover','See care staff handover','Care notes, clinical handover, medicine security, infection control and escalation are important to real registered-nurse practice. This exhibit is educational, not a clinical system.',.90,-2.65);
  add('gardens','Access and outdoor design','Good residential aged care provides accessible, safe outdoor space with shade, rest areas, meaningful gardens and a clear return path. The tiny existing town plot cannot yet host a fully walkable resident courtyard.',4.65,5.50);
@@ -154,7 +154,7 @@ export function buildAgedCareInterior(site,makeLabel){
   'care-staff','medication-cupboard','clean-utility','soiled-utility','kitchenette','hand-hygiene'].map(type=>({type,room:0})));
  return {group,colliders,interactables,sceneObjects,placedProps,seats,windows,
   rooms:L.rooms.map((r,i)=>({...r,w:r.x1-r.x0,d:r.z1-r.z0,parent:i===0?-1:0})),
-  doors:L.bedroomDoors.map((d,i)=>({from:0,to:i+3,x:d.x,z:(d.z0+d.z1)/2,width:d.z1-d.z0})),
+  doors:L.bedroomDoors.map((d,i)=>({from:5,to:i+3,x:d.x,z:(d.z0+d.z1)/2,width:d.z1-d.z0})),
   bounds:{x0:-6.5,x1:6.5,z0:L.rear,z1:L.front},spawn:new THREE.Vector3(L.entry.x,0,L.entry.z),
   exitZone:{...L.exit},agedCareLayout:L,
   staff:{pos:{x:-2.55,z:1.12},use:{x:-1.42,z:2.05}}};
