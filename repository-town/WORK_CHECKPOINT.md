@@ -438,3 +438,6 @@ Full local build:release/privacy/integrity passed candidate a6a1242. Desktop act
 - PR #220: direct character-18+ confirmation and Pub service controls above pub information; visible ID status, no-upload explanation and Back to pub menu. Confirmation is idempotent; other service gates preserved.
 - Public build/privacy scan and pub completion simulation passed. Desktop (1280×900) and phone emulation (390×844) browser acceptance passed: confirmation visible without scrolling, confirmed state, controls and return-to-menu, no page errors.
 - Full CI, merge and hosted publication/verification pending. Browser test: `node tests/pub-id-browser.mjs` (TOWN_URL defaults localhost:8097).
+
+### PUB-EXP live-loop regression
+Final 407 browser exercised all expansion actions, then caught an actual generic frame lifecycle defect: E on an escape portal calls leave(), clearing inside, before the same frame reads inside.dynamics. Added an interior-existence guard after Use so town rendering/saving/input continue; browser now also asserts post-escape movement. Preserved ID controls pass desktop/phone, and the full revised rear route passes real town-collider sampling. Re-run final expansion acceptance on corrected source; do not treat 407 as accepted.

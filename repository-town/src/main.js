@@ -1203,6 +1203,8 @@ async function start() {
         if (player.seated) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — Stand up · Move or jump to stand`;
         else if (nearThing) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — ${nearThing.act?.do==='sit'?'Sit on ':''}${nearThing.label}${who ? ` · ${who.activity}` : ''}`;
         if (input.consume('use')) use();
+        // An exit action can dispose the interior during this frame. Keep the town loop alive.
+        if(inside){
         animate(inside.dynamics, t, active);
         inside.visitors?.update(dt,t,player);
         inside.workplay?.update(dt,player);
@@ -1230,6 +1232,7 @@ async function start() {
           modal:!!panelOpen||npcChat.isOpen()||expedition.isOpen(),
           canSee:at=>labelVisible(labelEye,at,inside.sight)
         });
+        }
       }
     }
     if (mode === 'town') input.consume('use');
