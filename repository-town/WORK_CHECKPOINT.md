@@ -1,3 +1,7 @@
+# 26 October 2026 — Post Office realism research/implementation started
+
+Claim: `feat/post-office-country-realism-20261026`, baseline a6c90dd95cffbb5203004d3c1fec2b1ddbe4092c. Scope post office interior, post facade only, focused test, dated research and QA. Reference: Australia Post 2024–25 Annual Report modern parcel lodgement/packing/back-of-house; Australia Post PO Boxes & Locked Bags; National Premises Standards/NCC public access intent. Research is general design precedent, not real dimensions of a real Post Office or certified compliance. Must test actual 3D geometry, hotspots, mobile and Vercel release before claiming complete.
+
 # 26 October 2026 — commerce consolidation merged-tree candidate
 
 Preserves latest main d5637c6ef04b782106fca7c63d036d18159a3c3b with bus/pharmacy/front entrances, pub and fast-travel fixes. Recovers original missing General Store invoices/temperature probes/supplier credits, finite state treasury startup capital, council wage float repayments and three regression suites from PRs #126–128. Ten of eleven checks on previous equivalent commerce candidate passed; Android job still running at tree construction. This commit is not VERIFIED until its own CI and the public deployment match. Pub audit source hashes synchronised for 27 tracked sources.

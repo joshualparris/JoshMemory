@@ -16,6 +16,9 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-26 · ChatGPT — IN PROGRESS (Josh requested another researched building): Repo Town Post Office interiors/exterior, branch `feat/post-office-country-realism-20261026` from a6c90dd95c. Claim `src/world/post-interior.js`, post-only `src/world/townlife.js` facade, `tests/post-office-realism.mjs`, dated research docs, `package.json`, audit provenance/checkpoints. Do not alter other builders or pub safety behaviour. Acceptance: public aisle and all service hotspots walkable, staff sort/dispatch separation, town facade preserved, economy/save unaffected, whole release/privacy/CI/mobile/production verified. Not a professional accessibility/compliance certification.
+
+
 
 
 
