@@ -1,0 +1,39 @@
+name: Repo Town fast-travel browser regression
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'repository-town/src/**'
+      - 'repository-town/tests/fast-travel-regression.mjs'
+      - '.github/workflows/town-fast-travel.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - run: mkdir -p test-results
+      - run: |
+          npm run serve > test-results/server.log 2>&1 &
+          sleep 5
+          node tests/fast-travel-regression.mjs
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fast-travel-browser-evidence
+          path: repository-town/test-results/
+          retention-days: 7
