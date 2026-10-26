@@ -13,7 +13,7 @@ const HOST_ROLES={realestate:'licensed property agent',dealership:'vehicle sales
 export function populateShopStaff(site,life,interior,makeLabel){
   const workers=life.villagers.filter(v=>v.work===site.id);
   // Keep the worker's real name, role, and home available to the conversation.
-  const worker=workers.find(v=>workingAt(v,site.id)) || null;
+  const worker=workers.find(v=>workingAt(v,site.id,site)) || null;
   const name=worker?.name||HOST_NAMES[site.id]||site.name+' Guide';
   const job=worker?.job||HOST_ROLES[site.id]||(site.id==='farmhouse'?'farmhouse resident':site.kind==='farm'?'farm guide':'visitor assistant');
   const home=site.id==='farmhouse';
@@ -50,7 +50,7 @@ export function populateShopStaff(site,life,interior,makeLabel){
   const animate=npc.update.bind(npc);
   let shownWorker=worker;
   const sync=()=>{
-    const current=life.villagers.find(v=>workingAt(v,site.id)) || null;
+    const current=life.villagers.find(v=>workingAt(v,site.id,site)) || null;
     // Only explicitly named hosts exist without a roster. Do not invent a
     // volunteer to cover every absent employee, closed shop or empty depot.
     const present=!!current || (!workers.length && !!HOST_NAMES[site.id] && (!HOST_ROLES[site.id] || life.open(site)));

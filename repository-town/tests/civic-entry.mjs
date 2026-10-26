@@ -21,7 +21,7 @@ assert(outside.z<FIELD_Z0-.35);
 assert.equal(facilityAccess(life,bank).reason,'unstaffed');
 const teller=life.villagers.find(v=>v.work==='bank');
 assert(teller);
-teller.step={kind:'work',at:'bank'};teller.path=[];
+teller.step={kind:'work',at:'bank'};teller.path=[];teller.x=bank.front.x;teller.z=bank.front.z;
 assert.equal(facilityAccess(life,bank).allowed,true);
 life.minute=18*60;
 assert.equal(facilityAccess(life,bank).reason,'closed','bank must lock after newly posted 17:30 closing time');

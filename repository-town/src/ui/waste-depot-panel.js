@@ -19,7 +19,7 @@ export function wasteDepotPanel(life,key='site-rules'){
  const [title,details]=descriptions[key]||descriptions['site-rules'];
  const depot=n(p.stock?.rubbish),queue=n(life.civic?.homes?.rubbish);
  const collected=n(life.stats?.landfill),workers=life.villagers.filter(v=>v.work==='landfill');
- const onShift=workers.filter(v=>workingAt(v,'landfill'));
+ const onShift=workers.filter(v=>workingAt(v,'landfill',p));
  return {title:'🚛 Q8 Waste Depot · '+title,
   body:'<p>'+e(details)+'</p>'+
    '<h3>Current town collection numbers</h3>'+

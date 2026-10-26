@@ -1,3 +1,7 @@
+# 26 October 2026 — reconcile position-based staffed service (PR #159)
+
+Applied 10 exact-match source/test patches from conflicted PR #159 to consolidation branch integration/all-town-branches-20261026 at 1de0fd2dc8. Maintains physical-front/distance and paddock attendance checks with legacy ID call compatibility, without transplanting an obsolete main.js or old release content. 10 files, all patch hunks uniquely matched; remote CI/release still unverified. Preserve the current pub model and other claimed scope. Next run tests, continue remaining safe ports.
+
 # 26 October 2026 — consolidation PR #186 scoped recovery checkpoint
 
 From 48ae318ba9 on integration/all-town-branches-20261026, brought only the seven source/test identities-and-crowd files from conflicted PR #186 forward using exact-matching patch hunks against the current source (not an old full-file overwrite). Added one regression suite entry. Preserved all recent pub/upstairs/cellar/electrical, town expansion, privacy and saved-game changes. API-level patch application was conflict-free; build:release, privacy, browser, mobile and CI **not yet run/verified for this candidate**. Keep PR #186 open until exact-SHA CI and merge validation; do not assume remote publication. Next verify CI; reconcile remaining PRs individually.
