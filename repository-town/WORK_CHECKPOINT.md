@@ -1,3 +1,7 @@
+# 26 October 2026 — commerce/finance consolidation QA gate
+
+User-authorised missing implementation from conflicted PRs #126, #127 and #128 ported only through exact source-matching patches (PR127 finance import reanchored after PR126 added store invoicing import). Physical goods transfer: real supplier-dated invoices, chilled dock probes, returned damaged/warm stock credits paid from supplier till, staff probe routines. Opening funds move from a finite NSW game treasury once only; wage floats move from finite council till to business payroll then are repaid. Three original focused regression tests added to test:town. Pub source provenance life.js updated b656d1200de56abf0b94dbeaeac63cf8a1dd8a39 -> 94a10612a459610702bbcd1eacc2cc13da907e6d, code compliance/certification remains OPEN. Pending verified GitHub CI, multi-seed economy, browser/mobile gameplay and release checks; do not merge until passed. Preserve existing pub expansion, identity, electrical and backup releases.
+
 # 26 October 2026 — physical pub utilities worker fixture
 
 Full release next caught the same old fictitious-staff test issue in tests/pub-utilities.mjs. Set forced on-duty worker coordinates to the actual pub entrance in test setup. Do not weaken the actual physical staffing check; source game remains unchanged. Full CI recheck pending.

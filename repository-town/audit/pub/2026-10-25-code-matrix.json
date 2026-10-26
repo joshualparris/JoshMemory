@@ -11,7 +11,7 @@
   "sourceBlobs": {
     "repository-town/audit/electricity/coverage.json": "f80df771b893799e27b3adc98b92fe335c13f28b",
     "repository-town/src/world/interior-kit.js": "ceff1ba9e2197cb113c33760e9353f50ef1e97e3",
-    "repository-town/src/world/life.js": "b656d1200de56abf0b94dbeaeac63cf8a1dd8a39",
+    "repository-town/src/world/life.js": "94a10612a459610702bbcd1eacc2cc13da907e6d",
     "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2",
     "repository-town/src/world/pub-interior.js": "180f564f9d94700092cf64f81d6d7f5cfb420bd7",
     "repository-town/src/world/shop-interior.js": "e2282db1927b79dd5e8a89a970a03e90b676dcf0",
@@ -493,7 +493,7 @@
       "priority": "P0",
       "status": "partially-represented",
       "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
-      "requiredEvidenceOrWork": "Establish actual number of usable floors; if a real upper storey exists design stairs/access and consider fire compartmentation and egress, or treat fa\u00e7ade as explicitly decorative",
+      "requiredEvidenceOrWork": "Establish actual number of usable floors; if a real upper storey exists design stairs/access and consider fire compartmentation and egress, or treat façade as explicitly decorative",
       "regulationRefs": [
         "S02"
       ],
@@ -714,6 +714,7 @@
     "2026 north-frontage infill adds 72 new modelled sites elsewhere in town. Pub geometry and code checklist remain unverified beyond the existing 34-item audit; source hashes refreshed solely for regression tracking, not legal certification.",
     "2026-10-25 family and 72-site expansion changed shared life.js. Pub NCC classification and safety remain unverified; source hash sync is regression provenance, not certification.",
     "Completion continuation: five interior spaces, live rear escape, typed independent services and operating tests. All formal compliance tasks remain open; no permit or practitioner record fabricated.",
-    "2026-10-26 PR223 re-audit: townlife.js render-only change replaces identical uniform NPC creation with deterministic individual appearances for pedestrians and trade crew. Verified code still delegates pub facade to unchanged buildPubFacade with shared pub envelope; geometry assertions must continue passing. Source blob refreshed for provenance only, not regulatory approval or proof of hosted acceptance."
+    "2026-10-26 PR223 re-audit: townlife.js render-only change replaces identical uniform NPC creation with deterministic individual appearances for pedestrians and trade crew. Verified code still delegates pub facade to unchanged buildPubFacade with shared pub envelope; geometry assertions must continue passing. Source blob refreshed for provenance only, not regulatory approval or proof of hosted acceptance.",
+    "2026-10-26 commerce integration: shared simulation life.js adds store delivery invoices and finite state-funded business opening capital; the pub facade and vertical/egress envelope were not edited. This source Git blob hash 94a10612a459610702bbcd1eacc2cc13da907e6d is provenance only; all regulatory approval and full town tests remain separately unverified until review."
   ]
 }
