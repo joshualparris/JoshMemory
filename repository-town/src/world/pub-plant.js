@@ -32,25 +32,26 @@ export function addPubPlant(k,site){
  return {equipmentScenario:true,certified:false};
 }
 export function addPubExteriorServices(b){
- b.cyl(0x727d83,.18,1.2,-9,.65,-4);b.box(0xd5bd56,.3,.2,.05,-9,1.0,-3.8); // outdoor beverage CO2, separate from LPG
+ b.cyl(0x727d83,.18,1.2,-11.2,.65,-4);b.box(0xd5bd56,.3,.2,.05,-11.2,1.0,-3.8); // outdoor beverage CO2, separate from LPG
  // Nominal plot has 6 m each side; keep central rear discharge and frontage clear.
- b.box(0x666e72,1.6,.25,1.5,-9,.13,-7.2); // bunded service pad
- for(const x of [-9.4,-8.6])b.cyl(0xcbd0d2,.25,1.3,x,.8,-7.2);
- b.box(0x9c6c4f,.28,.3,.2,-9,1.25,-6.8); // regulator/valve schematic
+ b.box(0x666e72,1.6,.25,1.5,-11.2,.13,-7.2); // bunded service pad
+ for(const x of [-11.6,-10.8])b.cyl(0xcbd0d2,.25,1.3,x,.8,-7.2);
+ b.box(0x9c6c4f,.28,.3,.2,-11.2,1.25,-6.8); // regulator/valve schematic
  b.box(0x697780,1,.25,.35,-6.5,3.1,-6.2); // make-up-air intake representation
- b.box(0x3f514d,2,.9,1.5,-9,.45,-10); // outdoor grease-arrestor access cover enclosure
+ b.box(0x3f514d,2,.9,1.5,-11.2,.45,-10); // outdoor grease-arrestor access cover enclosure
  // Keep bin storage OUT of the rear escape and east-side pedestrian routes.
  b.box(0x4c5c4a,1.2,1.2,.8,12,.6,-8.5);
  b.box(0x39704f,1.2,1.2,.8,12,.6,-10);
  for(const x of [-7.18,7.18]){b.box(0x697780,.12,.12,18,x,4.62,-2);b.box(0x697780,.13,4.6,.13,x,2.3,-10.6);}
  // Separate ground-floor discharge behind the building and along the east,
  // with a footpath from the bottom of the upstairs return stair.
- b.box(0xb9c6bd,11.5,.025,1.5,5.25,.014,-12);
+ b.box(0xb9c6bd,9.3,.025,1.5,-4.25,.014,-12);
+ b.box(0xb9c6bd,1.5,.025,25,-8.5,.014,0);
  b.box(0xb9c6bd,1.5,.025,26,10.5,.014,0);
  b.box(0xb9c6bd,3.5,.025,1.5,9.3,.014,-2.9);
  b.box(0xb9c6bd,11,.025,1.5,5.25,.014,12.2);
- b.cyl(0xcbd0d2,.38,1.8,-8.5,.9,-4.5); // insulated external hot-water cylinder
- for(const [w,d,x,z]of [[1.6,1.5,-9,-7.2],[2,1.5,-9,-10],[1.2,.8,12,-8.5],[1.2,.8,12,-10],[.8,.8,-8.5,-4.5]])b.solid?.(w,d,x,z);
+ b.cyl(0xcbd0d2,.38,1.8,-11.2,.9,-4.5); // insulated external hot-water cylinder
+ for(const [w,d,x,z]of [[1.6,1.5,-11.2,-7.2],[2,1.5,-11.2,-10],[1.2,.8,12,-8.5],[1.2,.8,12,-10],[.8,.8,-11.2,-4.5]])b.solid?.(w,d,x,z);
  // Roof plant and perimeter support representations, no structural capacity claim.
  b.box(0xb8c5ca,.4,1.1,.4,-6,5.3,-8); // kitchen exhaust discharge
  for(const x of [-6.8,6.8])for(const z of [-10.8,6.8])b.box(0x775a42,.2,4.4,.2,x,2.2,z);
