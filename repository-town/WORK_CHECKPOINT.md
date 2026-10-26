@@ -1,3 +1,7 @@
+# 26 October 2026 — Post Office sculpted, test and sourced research prepared
+
+Scoped branch feat/post-office-country-realism-20261026, base 7236e57. Implemented post-only frontage, retail queue, separate staff sorting, parcel hatch, 20 exterior boxes, labelled lodgement/collection, lower presentation shelf and six new truthful interactions. Added 0.32m-radius BFS geometry regression and research report with real Australian official resources. Audit townlife.js source blob 99d11f14cee13f71a97b8a695890e7c2e440579a -> b38997027416f8ffa121694ced18cd02098441d2, only BUILD.post call changed; no pub geometry affected. Full CI/build/browser/mobile and public release NOT YET verified.
+
 # 26 October 2026 — Post Office realism research/implementation started
 
 Claim: `feat/post-office-country-realism-20261026`, baseline a6c90dd95cffbb5203004d3c1fec2b1ddbe4092c. Scope post office interior, post facade only, focused test, dated research and QA. Reference: Australia Post 2024–25 Annual Report modern parcel lodgement/packing/back-of-house; Australia Post PO Boxes & Locked Bags; National Premises Standards/NCC public access intent. Research is general design precedent, not real dimensions of a real Post Office or certified compliance. Must test actual 3D geometry, hotspots, mobile and Vercel release before claiming complete.
