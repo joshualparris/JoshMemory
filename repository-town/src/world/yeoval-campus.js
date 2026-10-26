@@ -31,7 +31,16 @@ const ROAD=0x4e5052, KERB=0xb5aea0, BRICK=0xb77f60, PALE=0xd5c7b2;
 const METAL=0xc6c9c5, SHADE=0x9aa7a3, GREEN=0x547844;
 function wing(b,{x,z,w,d},tag) {
   const h=3.65;
-  b.box(BRICK,w,h,d,x,h/2,z);
+  // Four actual facade walls, not an opaque box blocking the front entrance.
+  b.box(BRICK,w,h,.24,x,h/2,z-d/2+.12);
+  for(const side of [-1,1]) b.box(BRICK,.24,h,d,x+side*(w/2-.12),h/2,z);
+  if(tag==='north'){
+    const section=(w-2.8)/2;
+    for(const side of [-1,1])
+      b.box(BRICK,section,h,.24,x+side*(2.8/2+section/2),h/2,z+d/2-.12);
+    // A real headpiece above the 2.8m-wide glazed public doorway.
+    b.box(BRICK,2.8,h-2.75,.24,x,2.75+(h-2.75)/2,z+d/2-.12);
+  } else b.box(BRICK,w,h,.24,x,h/2,z+d/2-.12);
   // The distinct shallow corrugated hip and gable roof profiles stay single storey.
   b.box(METAL,w+.9,.18,d+.9,x,h+.10,z);
   b.box(SHADE,w+.25,.13,d*.48,x,h+.53,z);
