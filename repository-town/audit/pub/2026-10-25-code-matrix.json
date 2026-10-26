@@ -15,7 +15,7 @@
     "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2",
     "repository-town/src/world/pub-interior.js": "46396a0552d2480f3c31585e77199803433ab6b6",
     "repository-town/src/world/shop-interior.js": "e2282db1927b79dd5e8a89a970a03e90b676dcf0",
-    "repository-town/src/world/townlife.js": "0182c83753c4e60c7861484028272e32d0184b96",
+    "repository-town/src/world/townlife.js": "2e1c70d3b32c4a3f982ca0b3e3efa352f0e72e13",
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
@@ -722,7 +722,7 @@
   "sourceChangeReviews": {
     "2026-10-26-rail-corridor": {
       "scope": "Pure railway geometry and timeline imports in life.js, rail rendering and crossing decorations in townlife.js, no changes to pub collision/facade, trading, lifecycle, premises legal status or any other listed source.",
-      "verification": "rail-corridor source diff and tests/rail-corridor.mjs (required full CI/browser acceptance on PR 228)",
+      "verification": "Reviewed corrected scene and train-driven gate startup; exact test evidence in PR 228 CI.",
       "regulatoryStatus": "No change: no pub legal/building/rail compliance certification claimed"
     }
   }
