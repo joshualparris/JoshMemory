@@ -16,6 +16,9 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-26 · ChatGPT — **IN PROGRESS RTBUILD-070 O5-N Visitor Information Centre realism**. Branch `feat/rtbuild-070-visitor-information-realism-20261026`. Scope new `src/world/visitor-information-layout.js`, `visitor-information-facade.js`, `visitor-information-interior.js`; targeted `src/world/town-expansion-facades.js`, `shop-interior.js`, `town-expansion.js`; focused tests, source-based research docs. Adapt Dubbo Visitor Information Centre regional form (green pitched roof, verandah, windows, map/brochure area, travel help, products, public traveller facilities) to O5-N 12x9m fictional lot. No invented real floorplan, AVIC accreditation/trademark, certified dimensions, rates or bookings. Tests and hosted release required. All pub/other sites left untouched.
+
+
 
 
 
