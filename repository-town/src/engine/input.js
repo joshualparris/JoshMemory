@@ -121,7 +121,13 @@ export class Input {
     canvas.addEventListener('touchmove', move, { passive: false });
     canvas.addEventListener('touchend', end);
     canvas.addEventListener('touchcancel', end);
-    const btn = (id, fn) => { const el = root.querySelector(id); el.addEventListener('touchstart', (e) => { e.preventDefault(); fn(el); }, { passive: false }); el.addEventListener('click', () => fn(el)); };
+    // Some Android WebViews dispatch a synthetic click after touchstart despite
+    // preventDefault. Ignore that duplicate without suppressing keyboard clicks.
+    const btn = (id, fn) => {
+      const el = root.querySelector(id); let lastTouch = -Infinity;
+      el.addEventListener('touchstart', (e) => { e.preventDefault(); lastTouch = Date.now(); fn(el); }, { passive: false });
+      el.addEventListener('click', () => { if (Date.now() - lastTouch < 650) return; fn(el); });
+    };
     btn('#t-jump', () => this.pressed.add('jump'));
     btn('#t-use', () => this.pressed.add('use'));
     btn('#t-run', (el) => { this.run = !this.run; if (this.run) this.crouch = false; this.sync(root); });
