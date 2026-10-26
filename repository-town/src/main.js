@@ -310,7 +310,7 @@ async function start() {
     inside = { house, ...next, place:inside.place,floorIndex:target, floors, people:next.people || [], view:inside.view, ownMeshes:inside.ownMeshes };
     scene.add(next.group);
     world = new CollisionWorld(next.colliders);
-    world.dynamic=()=>next.doors.filter(d=>d?.userData?.privacy&&d.userData.open<.8).map(d=>({x0:d.userData.centre.x-.7,x1:d.userData.centre.x+.7,z0:d.userData.centre.z-.06,z1:d.userData.centre.z+.06}));
+    world.dynamic=()=>(next.doors || []).filter(d=>d?.userData?.centre&&d.userData.privacy&&d.userData.open<.8).map(d=>({x0:d.userData.centre.x-.7,x1:d.userData.centre.x+.7,z0:d.userData.centre.z-.06,z1:d.userData.centre.z+.06}));
     player.place(next.landing.x, next.landing.z, Math.PI);
     player.baseHeight = floors.elevations?.[target]??target*FLOOR_HEIGHT;
     floorDoorCooldown = 0.9;
@@ -417,7 +417,7 @@ async function start() {
     scene.add(built.group);town.group.visible=false;
     scene.background.set(INDOOR);scene.fog=null;
     world=new CollisionWorld(built.colliders);
-    world.dynamic=()=>built.doors.filter(d=>d?.userData?.privacy&&d.userData.open<.8).map(d=>({x0:d.userData.centre.x-.7,x1:d.userData.centre.x+.7,z0:d.userData.centre.z-.06,z1:d.userData.centre.z+.06}));
+    world.dynamic=()=>(built.doors || []).filter(d=>d?.userData?.centre&&d.userData.privacy&&d.userData.open<.8).map(d=>({x0:d.userData.centre.x-.7,x1:d.userData.centre.x+.7,z0:d.userData.centre.z-.06,z1:d.userData.centre.z+.06}));
     // The same TownLife villagers that shop, eat and work here now have
     // visible bodies, independent of the staff member behind the counter.
     inside.visitors=createShopVisitors(site,life,inside,makeLabel,inside.people);
@@ -1190,7 +1190,10 @@ async function start() {
         if (!d?.userData?.centre || !d.rotation) continue; // Layout-only door descriptors are not animated Three.js meshes.
         const dist = Math.hypot(d.userData.centre.x - player.pos.x, d.userData.centre.z - player.pos.z);
         const residentNear = (inside.people || []).some((p) => Math.hypot(d.userData.centre.x - p.pos.x, d.userData.centre.z - p.pos.z) < 2.0);
-        const target = d.userData.privacy ? 0 : dist < 2.8 || residentNear ? 1 : 0; d.userData.open += (target - d.userData.open) * Math.min(1, dt * 5); d.rotation.y = d.userData.baseRot + d.userData.open * 1.5 * (d.userData.swing || 1);
+        const target = d.userData.privacy ? 0 : dist < 2.8 || residentNear ? 1 : 0;
+        const openness = Number.isFinite(d.userData.open) ? d.userData.open : 0;
+        d.userData.open = openness + (target - openness) * Math.min(1, dt * 5);
+        d.rotation.y = (d.userData.baseRot || 0) + d.userData.open * 1.5 * (d.userData.swing || 1);
       }
       const ex = inside.exitZone;
       const rear=inside.rearExitZone;
