@@ -35,7 +35,8 @@ for (const id of ['bakery', 'power']) {
 }
 // The 2026 row 2-7 north-facing infill must return to the REAL street side
 // (-Z). Try available staffed sites; access rules remain enforced.
-const infill = shops.filter(s => s.side === 'north');
+await T(() => window.__town.advanceSimulation(45));
+const infill = shops.filter(s => s.side === 'north' && s.expansion);
 let infillExercised = false;
 for (const site of infill) {
   if (!await T(id => window.__town.enterShop(id), site.id)) continue;
