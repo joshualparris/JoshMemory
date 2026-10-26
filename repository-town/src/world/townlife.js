@@ -613,6 +613,8 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   const save = () => { if (saveBlocked) return false; try { localStorage.setItem(STORE, JSON.stringify({ v: 1, life: life.snapshot(), speed: life.speed })); return true; } catch { return false; /* storage full or blocked */ } };
 
   const group = new THREE.Group(); town.group.add(group);
+  // Crossing controller must resolve the depot BEFORE its initial gate update.
+  const depot = life.place('depot');
   const colliders = [], spots = [], seats = [], displays = [], fields = [], labels = [];
   const statics = new Builder(); statics.glass = [];
 
@@ -943,7 +945,6 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   const field = silo.field; let tractorS = 0;
   // Freight train.
   const train = makeTrain(); train.visible = false; train.position.set(0, 0, RAIL_Z); group.add(train);
-  const depot = life.place('depot');
   // Trucks.
   const trucks = life.trucks.map((t, i) => { const v = makeTruck([0xd8562a, 0x2a6ab8, 0xe0b030][i]); group.add(v.group); return { t, ...v }; });
   // Service vehicles and crew are views of the persisted trade job lifecycle.
