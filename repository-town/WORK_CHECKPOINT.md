@@ -1,3 +1,7 @@
+# 26 October 2026 — PR238 full CI stale address-name repair
+
+Town's current PLACE_DEFS A7-N name is The Old Shire Library after intentional local-brand renaming; directional-addresses.mjs was still hard-coded to Sir Reginald Repo Public Library. Corrected test label to the actual current named site without changing location, footprint, generated addresses or commerce. Post Office 3D behavior unaffected. Exact-head checks must rerun.
+
 # 26 October 2026 — Post Office rendered desktop/Pixel 7 Playwright acceptance added
 
 New `tests/post-office-browser.mjs` records a real 3D screenshot and asserts a physically staffed visit, postal interactions, exit returning to street and no page errors on desktop and Pixel 7. The recorded WebGL GitHub workflow now runs this focused test against its own candidate build after generic game play. This is a test requirement only; no claim of executed pass until exact SHA CI finishes.
