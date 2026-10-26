@@ -1,0 +1,63 @@
+name: Repo Town Post Office Realism
+on:
+  pull_request:
+    paths:
+      - 'repository-town/src/world/post-*.js'
+      - 'repository-town/src/world/townlife.js'
+      - 'repository-town/tests/post-office-*.mjs'
+      - '.github/workflows/town-post-office-realism.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'repository-town/src/world/post-*.js'
+      - 'repository-town/src/world/townlife.js'
+      - 'repository-town/tests/post-office-*.mjs'
+      - '.github/workflows/town-post-office-realism.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  post-office-geometry-and-playtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install reproducible dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Verify external and interior fixture geometry, reachability and actual service wiring
+        run: node --test tests/post-office-architecture.mjs
+      - name: Install headless Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Build the real playable town
+        run: npm run build
+      - name: Walk the post office on desktop and emulated Android
+        env:
+          TOWN_URL: http://127.0.0.1:8091/
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          set -euo pipefail
+          node tools/serve.mjs dist/public 8091 > /tmp/post-office-serve.log 2>&1 &
+          server=$!
+          trap 'kill $server 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8091/ >/dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsSI http://127.0.0.1:8091/ >/dev/null
+          node tests/post-office-browser.mjs
+      - name: Preserve screenshot evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: post-office-desktop-android-${{ github.run_id }}
+          path: repository-town/test-results/post-office/
+          if-no-files-found: ignore
+          retention-days: 14
