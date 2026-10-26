@@ -3,7 +3,7 @@
 export const EXPANSION_SITES=Object.freeze([
   {
     "id": "library",
-    "name": "Sir Reginald Repo Public Library",
+    "name": "The Old Shire Library",
     "col": "A",
     "row": 7,
     "side": "north",
@@ -37,7 +37,7 @@ export const EXPANSION_SITES=Object.freeze([
   },
   {
     "id": "repotech",
-    "name": "RepoTech Computers & Communications",
+    "name": "Copperline Computers",
     "col": "C",
     "row": 7,
     "side": "north",
@@ -71,7 +71,7 @@ export const EXPANSION_SITES=Object.freeze([
   },
   {
     "id": "dentist",
-    "name": "Repository Dental",
+    "name": "Wattle Street Dental",
     "col": "E",
     "row": 7,
     "side": "north",
@@ -88,7 +88,7 @@ export const EXPANSION_SITES=Object.freeze([
   },
   {
     "id": "supermarket",
-    "name": "Repository Fresh Supermarket",
+    "name": "The Corner Grocer",
     "col": "F",
     "row": 7,
     "side": "north",
@@ -105,7 +105,7 @@ export const EXPANSION_SITES=Object.freeze([
   },
   {
     "id": "physio",
-    "name": "Repository Physiotherapy",
+    "name": "Ironbark Physio",
     "col": "G",
     "row": 7,
     "side": "north",
@@ -156,7 +156,7 @@ export const EXPANSION_SITES=Object.freeze([
   },
   {
     "id": "optometry",
-    "name": "Repository Eyecare",
+    "name": "Clearview Optometrists",
     "col": "J",
     "row": 7,
     "side": "north",
@@ -190,7 +190,7 @@ export const EXPANSION_SITES=Object.freeze([
   },
   {
     "id": "gym",
-    "name": "Repository Fitness",
+    "name": "The Yard Fitness",
     "col": "L",
     "row": 7,
     "side": "north",
