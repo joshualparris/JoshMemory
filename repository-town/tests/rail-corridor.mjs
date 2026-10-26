@@ -56,5 +56,5 @@ assert(scene.includes('railClearanceAudit([...town.colliders,...colliders])'));
 assert(scene.includes('statics.solid(len,0.25,centre,z)'),'fencing is physical, not decorative');
 assert(scene.includes('gate.pivot.rotation.z=state.arm*Math.PI/2'),'boom state reflects warning/closure/fault');
 const player=readFileSync(new URL('../src/main.js',import.meta.url),'utf8');
-assert(player.includes('townLife.railBarrierColliders(player.pos.z)'),'player movement obeys rail gates');
+assert(player.includes('townLife.railBarrierColliders(player.pos.x,player.pos.z)'),'player movement obeys rail gates');
 console.log('PASS: track reservation, lamp clearance, gauge, six road decks, timetable-coupled gate state.');
