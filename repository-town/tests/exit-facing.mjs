@@ -91,6 +91,27 @@ if(visitor){
   check(afterButton.mode==='town' && afterButton.pos.z<visitor.door.z-2,
     'O5-N manual exit returns to front rather than rear wall');
 }
+// M5-N memorial office: physical consultation, public map, staff register and real street exit.
+const cemetery=shops.find(s=>s.id==='cemetery');
+check(!!cemetery,'M5-N memorial office exists');
+if(cemetery){
+  check(await T(()=>window.__town.enterShop('cemetery')),'M5-N can be entered through front door');
+  const insideCemetery=await T(()=>window.__town.state());
+  check(insideCemetery.mode==='house'&&insideCemetery.windows>=4
+    &&insideCemetery.interactables.some(i=>i.key==='cemetery:map')
+    &&insideCemetery.interactables.some(i=>i.key==='cemetery:consult')
+    &&insideCemetery.interactables.some(i=>i.key==='cemetery:records'),
+    'memorial office is physically furnished and has three distinct public/consultation/record functions');
+  const outCemetery=await walkOut();
+  check(outCemetery.mode==='town' && outCemetery.pos.z<cemetery.door.z-2
+    &&away(outCemetery,cemetery.door)>.7,
+    'walking out of M5-N goes to FRONT memorial-garden walkway');
+  await T(()=>window.__town.enterShop('cemetery'));
+  await T(()=>window.__town.exitShop());
+  const manualOut=await T(()=>window.__town.state());
+  check(manualOut.mode==='town'&&manualOut.pos.z<cemetery.door.z-2,
+    'M5-N manual exit also goes to the front, never through back wall');
+}
 // A house: walk in, walk back out.
 await T(() => window.__town.travel('A1')); await page.waitForTimeout(500);
 const front = await T(() => window.__town.state());
