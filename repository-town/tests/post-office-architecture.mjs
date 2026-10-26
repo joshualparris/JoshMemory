@@ -49,6 +49,8 @@ test('rural post office has service equipment, four realistic work zones and no 
   assert(post.group.getObjectByName(name),name+' must be physically visible');
  }
  assert(post.group.getObjectByName('post:outgoing-tray:5'));
+ for(const point of [{x:4.33,z:-8.85},{x:-4.63,z:-8.72},{x:3.53,z:-4.84},{x:6.45,z:.38}])
+  assert(blocked(point.x,point.z),'occupied postal fixture lacks collision: '+JSON.stringify(point));
  assert(post.group.getObjectByName('post:queue-floor-dash:4'));
  for(const key of ['counter','boxes','packing','assisted','collection','dispatch','mail-slot','supplies']){
   const item=post.interactables.find(a=>a.key==='post:'+key);
