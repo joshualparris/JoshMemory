@@ -1,3 +1,5 @@
+import { RAIL_Z } from './rail-corridor.js';
+export { RAIL_Z };
 import {validPubVenue,drinkPubBeer,pubDrinkAvailable,reservePubDrink} from './pub-venue.js';
 import {validPool} from './pub-pool.js';
 import {pubAlcoholRefusal,pubAdmission,validPubStandards} from './pub-standards.js';
@@ -422,7 +424,6 @@ export function driveRoute(a, b) {
 
 // The freight train runs on the line behind street 8: due 6:40, at the Rail Depot
 // 7:00–7:20, gone west by 7:40. Returns its x, or null when it is not in town.
-export const RAIL_Z = 7 * 46 - 3.5 * 46 - 25;
 export function trainX(minute, depotX) {
   const m = minute;
   if (m >= 400 && m < 420) return depotX + ((420 - m) / 20) * (420 - depotX);
