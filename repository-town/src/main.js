@@ -52,7 +52,7 @@ import { separatePedestrians, steerPedestrians } from './world/pedestrian-spacin
 import { createTownLife } from './world/townlife.js';
 import { createEmergencyResponseVisuals } from './world/emergency-response-visuals.js';
 import { createPlayerDriving } from './world/player-driving.js';
-import {SUBDIVISION_START, SUBDIVISION_PARCELS,ensureSubdivisionTitles} from './world/playable-subdivision.js';
+import {SUBDIVISION_START, SUBDIVISION_ROADS, SUBDIVISION_PARCELS,ensureSubdivisionTitles} from './world/playable-subdivision.js';
 import {CHEAT_PASSWORD,cheatClaimDeed,cheatAddFunds,cheatSpawnCar} from './world/cheat-actions.js';
 import { nearestSeat } from './world/seats.js';
 import { furniturePanel } from './ui/furniture.js';
@@ -161,9 +161,15 @@ async function start() {
   let lowPerf = touch;
   streetSigns(town.group, data.streets, makeLabel);
   const half = { x: town.bounds.width / 2, z: town.bounds.depth / 2 };
+  // Extended boundary: old -X and +Z walls would otherwise BLOCK the new
+  // road link at Workshop Way and the whole Wattle/Banksia neighbourhood.
+  // The existing house grid stays untouched; the perimeter alone expands.
+  const westEdge=-555,southEdge=338;
   const edges = [
-    { x0: -half.x - 5, x1: half.x + 5, z0: -half.z - 5, z1: -half.z }, { x0: -half.x - 5, x1: half.x + 5, z0: half.z, z1: half.z + 5 },
-    { x0: -half.x - 5, x1: -half.x, z0: -half.z, z1: half.z }, { x0: half.x, x1: half.x + 5, z0: -half.z, z1: half.z },
+    { x0: westEdge-5, x1: half.x+5, z0:-half.z-5, z1:-half.z },
+    { x0: westEdge-5, x1: half.x+5, z0:southEdge, z1:southEdge+5 },
+    { x0: westEdge-5, x1: westEdge, z0:-half.z-5, z1:southEdge+5 },
+    { x0:half.x, x1:half.x+5, z0:-half.z-5, z1:southEdge+5 }
   ];
   const townWorld = new CollisionWorld([...town.colliders, ...townLife.colliders, ...edges]);
   // Dynamic vehicle footprints block player motion as well as truck movement.
@@ -1065,6 +1071,23 @@ async function start() {
       for (const r of inside.rooms) mctx.fillRect(tx(r.x0) + 1, tz(r.z0) + 1, (r.x1 - r.x0) * s - 2, (r.z1 - r.z0) * s - 2);
       mctx.fillStyle = '#7fe0ff'; for (const x of inside.interactables) mctx.fillRect(tx(x.pos.x) - 2, tz(x.pos.z) - 2, 4, 4);
       drawArrow(tx(player.pos.x), tz(player.pos.z));
+      return;
+    }
+    // Local subdivision map when exploring its out-of-town streets; the old
+    // grid-only map clipped the player marker completely outside the canvas.
+    if(player.pos.x < -375 && player.pos.z > 160){
+      const x0=-550,x1=-402,z0=165,z1=325;
+      const sx=(W-10)/(x1-x0),sz=(H-10)/(z1-z0);
+      const tx=x=>5+(x-x0)*sx,tz=z=>5+(z-z0)*sz;
+      mctx.fillStyle='#263c30';mctx.fillRect(0,0,W,H);
+      mctx.fillStyle='#53616b';
+      for(const road of SUBDIVISION_ROADS)
+        mctx.fillRect(tx(road.x0),tz(road.z0),(road.x1-road.x0)*sx,(road.z1-road.z0)*sz);
+      for(const lot of SUBDIVISION_PARCELS){
+        mctx.fillStyle=life.civic.property.parcels[lot.id]?.owner==='visitor'?'#ffe089':'#a4cb8c';
+        mctx.fillRect(tx(lot.x-lot.width/2)+.4,tz(lot.z-lot.depth/2)+.4,lot.width*sx-.8,lot.depth*sz-.8);
+      }
+      drawArrow(tx(player.pos.x),tz(player.pos.z));
       return;
     }
     const sx = (W - 10) / town.bounds.width, sz = (H - 10) / town.bounds.depth;
