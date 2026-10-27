@@ -1,4 +1,5 @@
 import { RAIL_Z, RAIL_CROSSINGS, railGateState, railUserBlocked, scheduledRailTrainX } from './rail-corridor.js';
+import {townDate, townDateLabel, venueHoursOnDay, residentWorksToday, isWeekend} from './town-calendar.js';
 export { RAIL_Z };
 import {validPubVenue,drinkPubBeer,pubDrinkAvailable,reservePubDrink} from './pub-venue.js';
 import {validPool} from './pub-pool.js';
@@ -600,7 +601,8 @@ export class TownLife {
   startShiftsInProgress() {
     for (const v of this.villagers) {
       const site = v.work !== 'home' && this.places.get(v.work);
-      if (!site || !(this.minute >= v.start && this.minute < v.end) || ['student', 'retired'].includes(v.job)) continue;
+      const shift=this.shiftToday(v);
+      if (!site || !shift || !(this.minute >= shift.start && this.minute < shift.end) || ['student', 'retired'].includes(v.job)) continue;
       // At the front door, walking the last few metres to their spot (routed round sheds and
       // trees): on duty from the first frame, since staff at the door count as present.
       // Farmhands start out in their paddock (a clear spot) rather than walking in through the
@@ -608,7 +610,7 @@ export class TownLife {
       const start = site.field ? this.workSpot(v) : site.front;
       Object.assign(v, { x: start.x, z: start.z, path: [], queue: [], step: null });
       Object.assign(v.doneToday, { shower: true, breakfast: true });
-      this.goThen(v, site.field ? start : this.workSpot(v), { kind: 'work', at: v.work, until: Math.min(v.end, this.minute + 30), activity: this.workActivity(v) });
+      this.goThen(v, site.field ? start : this.workSpot(v), { kind: 'work', at: v.work, until: Math.min(shift.end, this.minute + 30), activity: this.workActivity(v) });
     }
   }
   freshStats() { return { harvested: {}, milled: 0, baked: 0, deliveries: 0, delivered: {}, sold: {}, meals: 0, mealsOut: 0, parcels: 0, taxes: 0, wages: 0, recycled: 0, landfill: 0, letters: 0, repairs: 0, stockouts: 0, powerCutHours: 0, wasted: 0 }; }
@@ -641,11 +643,26 @@ export class TownLife {
     return RAIL_CROSSINGS.some(c=>railUserBlocked(from,to,this.railGate(c.x),{halfLength,radius}));
   }
   time() { return fmt(this.minute); }
+  calendar(){return townDate(this.day);}
+  dateLabel(){return townDateLabel(this.day);}
+  weekday(){return this.calendar().weekdayName;}
+  // Shift status is calculated, never stored, so old and new saves cannot drift
+  // from their Day 1 calendar. No worker is duplicated to fill a weekend counter.
+  shiftToday(v){
+    const site=this.place(v.work)||{id:'home',kind:'home',opens:0,closes:1440};
+    const colleagues=this.villagers.filter(o=>o.work===v.work && !['student','retired'].includes(o.job));
+    if(!residentWorksToday(this.day,v,site,colleagues))return null;
+    const hours=venueHoursOnDay(site,this.day);
+    if(!hours)return null;
+    const start=isWeekend(this.day)&&site.id!=='home'?Math.min(v.start,hours[0]):v.start;
+    const end=isWeekend(this.day)&&site.id!=='home'?Math.min(v.end,hours[1]):v.end;
+    return end>start?{start,end}:null;
+  }
   isDay() { return this.minute >= 6 * 60 && this.minute < 19 * 60; }
   // 0 at midnight, 1 at noon: drives sky colour and lights.
   daylight() { const h = this.minute / 60; return clamp(Math.sin(((h - 6) / 13) * Math.PI) * 1.4, 0, 1); }
   log(text) { this.events.unshift({ t: `Day ${this.day} ${fmt(this.minute)}`, text }); this.events.length = Math.min(this.events.length, 60); }
-  open(p) { return this.minute >= p.opens && this.minute < p.closes; }
+  open(p) { const hours=venueHoursOnDay(p,this.day);return !!hours && this.minute >= hours[0] && this.minute < hours[1]; }
 
   // Advances the town by `minutes` of town time (call with small steps).
   tick(minutes) {
@@ -1351,12 +1368,58 @@ export class TownLife {
 
   // ── Villagers ──
   // Decides the next thing to do from the clock, hunger, pantry and job.
+  // Weekends are lived, not the same work queue with a different clock label.
+  // Off-duty residents sleep later, cook and do chores, visit neighbours, and
+  // spend Saturday at the market or Sunday relaxing with family and friends.
+  // Physical travel/arrival still uses ordinary collision-aware goThen paths.
+  planDayOff(v){
+    const m=this.minute,home=this.doorstep(v),sunday=this.calendar().weekday===0;
+    const wake=sunday?8*60+30:8*60,bed=sunday?22*60+30:23*60;
+    if(m< wake||m>=bed||v.fatigue>=96&&m>19*60)
+      return this.goThen(v,home,{kind:'sleep',at:'home',until:m>=bed?wake+1440:wake,
+        activity:'sleeping in on '+(sunday?'Sunday':'Saturday')});
+    if(!v.doneToday.shower){v.doneToday.shower=true;
+      return this.goThen(v,home,{kind:'shower',at:'home',dur:12,activity:'taking a relaxed weekend shower'});}
+    if(!v.doneToday.breakfast){v.doneToday.breakfast=true;
+      const meal=this.cookable(v,'breakfast');
+      if(meal)return this.goThen(v,home,{kind:'cook',at:'home',meal,dur:30,activity:'making weekend breakfast: '+meal[0]});}
+    if(m>=9*60&&m<12*60&&!v.doneToday.weekendMorning){
+      v.doneToday.weekendMorning=true;
+      if(sunday)return this.goThen(v,home,{kind:'idle',at:'home',dur:65,
+        activity:'spending a quiet Sunday morning with family'});
+      return this.goThen(v,this.jitter(this.place('square').front,7),{kind:'idle',dur:60,
+        activity:'browsing the Saturday market and catching up with neighbours'});
+    }
+    if(m>=12*60&&!v.doneToday.lunch){v.doneToday.lunch=true;
+      const meal=this.cookable(v,'lunch');
+      if(meal)return this.goThen(v,home,{kind:'cook',at:'home',meal,dur:35,activity:'making weekend lunch: '+meal[0]});}
+    if(m>=14*60&&m<17*60&&!v.doneToday.weekendAfternoon){
+      v.doneToday.weekendAfternoon=true;
+      if(sunday)return this.goThen(v,this.jitter(this.place('square').front,7),{
+        kind:'idle',dur:85,activity:'enjoying a Sunday afternoon stroll'});
+      const shops=['store','bakery','cafe'].filter(id=>this.open(this.place(id)));
+      const place=this.place(shops[Math.floor(this.rand()*shops.length)]||'square');
+      return this.goThen(v,place.front,{kind:'idle',dur:55,
+        activity:'heading out for a relaxed Saturday afternoon'});
+    }
+    if(m>=17*60+30&&!v.doneToday.dinner){v.doneToday.dinner=true;
+      const meal=this.cookable(v,'dinner');
+      if(meal)return this.goThen(v,home,{kind:'cook',at:'home',meal,dur:45,activity:'cooking weekend dinner: '+meal[0]});}
+    const task=homeTask(this,v,this.rand);
+    if(task&&this.rand()<.45)return this.goThen(v,home,{...task,at:'home'});
+    return this.goThen(v,home,{kind:'idle',at:'home',dur:35+this.rand()*40,
+      activity:sunday?'resting at home on Sunday':'relaxing at home on Saturday'});
+  }
+
   plan(v, finished = null) {
     const m = this.minute, home = this.doorstep(v), work = this.workSpot(v);
+    const shift=this.shiftToday(v);
+    if(!shift)return this.planDayOff(v);
+    const shiftStart=shift.start,shiftEnd=shift.end;
     // Late publicans, concierges and duty officers finish and get paid BEFORE
     // going to bed. Otherwise 22:30 bedtime cancels their 23:00 shift early.
-    const sleepFrom = v.job === 'baker' && v.start < 6 * 60 ? 20 * 60 + 30 :
-      v.end >= 22 * 60 ? Math.min(24 * 60, v.end + 30) : 22 * 60 + 30;
+    const sleepFrom = v.job === 'baker' && shiftStart < 6 * 60 ? 20 * 60 + 30 :
+      shiftEnd >= 22 * 60 ? Math.min(24 * 60, shiftEnd + 30) : 22 * 60 + 30;
     // Staff travel to work before published opening, accounting for a
     // genuine street commute plus time to prepare the premises.
     const publicSite=this.places.get(v.work);
@@ -1366,14 +1429,14 @@ export class TownLife {
       ? Math.abs(v.home.door.x-publicSite.front.x)+Math.abs(v.home.door.z-publicSite.front.z)+25 : 0;
     const travelMinutes=Math.ceil(routeDistance/((routeDistance>160?BIKE:WALK)*SEC_PER_MIN)*1.45);
     const preOpenLead=receptionWorker?Math.min(200,Math.max(35,travelMinutes+25)):0;
-    const wake = receptionWorker && v.start>=6*60
-      ? Math.min(v.start-75,6*60+30,Math.max(3*60,v.start-preOpenLead-40))
-      : Math.min(v.start-75,6*60+30);
-    const asleep = m >= sleepFrom || m < wake || (v.fatigue>=94 && m >= v.end);
+    const wake = receptionWorker && shiftStart>=6*60
+      ? Math.min(shiftStart-75,6*60+30,Math.max(3*60,shiftStart-preOpenLead-40))
+      : Math.min(shiftStart-75,6*60+30);
+    const asleep = m >= sleepFrom || m < wake || (v.fatigue>=94 && m >= shiftEnd);
     if (asleep) return this.goThen(v, home, { kind: 'sleep', at: 'home', until: wake < m ? wake + 24 * 60 : wake, activity: 'asleep at home' });
     if (v.hunger>=82 && m>=wake && !v.doneToday.breakfast) v.memory='very hungry, looking for breakfast';
     // A shower before breakfast, when there's time before work.
-    if (!v.doneToday.shower && !v.doneToday.breakfast && (v.work === 'home' || v.start - m >= 45 || m >= v.end)) {
+    if (!v.doneToday.shower && !v.doneToday.breakfast && (v.work === 'home' || shiftStart - m >= 45 || m >= shiftEnd)) {
       v.doneToday.shower = true;
       return this.goThen(v, home, { kind: 'shower', at: 'home', dur: 8, activity: 'having a shower' });
     }
@@ -1390,19 +1453,19 @@ export class TownLife {
     }
     // Opening preparation takes place at the real building rather than
     // magically providing staff while a villager is still cycling in.
-    const working = m >= v.start && m < v.end;
-    if(receptionWorker && m >= v.start-preOpenLead && m < v.start){
+    const working = m >= shiftStart && m < shiftEnd;
+    if(receptionWorker && m >= shiftStart-preOpenLead && m < shiftStart){
       if(v.step?.kind==='preopen' && v.step.at===v.work && !v.path.length){
-        v.step.until=v.start;return v.step;
+        v.step.until=shiftStart;return v.step;
       }
       return this.goThen(v,publicSite.front,{
-        kind:'preopen',at:v.work,until:v.start,
+        kind:'preopen',at:v.work,until:shiftStart,
         activity:'opening up '+publicSite.name+' before customers arrive'
       });
     }
     if (v.job === 'security guard' && working) {
       // Paid rounds on public pavements, not police duties or unrestricted private access.
-      const checkpoints = v.start < 12*60
+      const checkpoints = shiftStart < 12*60
         ? ['securityhq','bank','store','cafe','police','pub','securityoffice']
         : ['securityhq','hotel','bakery','pub','police','bank','securityoffice'];
       const at = checkpoints[(v.patrolIndex || 0) % checkpoints.length];
@@ -1420,16 +1483,16 @@ export class TownLife {
     const colleagues = this.villagers.filter(o=>o.work===v.work && !['student','retired'].includes(o.job));
     const rank = Math.max(0,colleagues.indexOf(v));
     // Evening shifts get a dinner break three hours in (they used to get no meal at all).
-    const lateShift = v.start >= 14*60;
+    const lateShift = shiftStart >= 14*60;
     // Long day shifts that run past 20:30 get a second, dinner break after lunch, staggered too.
-    const eveningBreak = !lateShift && v.end >= 20*60+30 && v.doneToday.lunch && !v.doneToday.dinner;
-    const lunchAt = lateShift ? v.start+180 : eveningBreak ? 18*60+rank*45 : Math.max(v.start+75,Math.min(v.end-45,11*60+15+rank*120));
+    const eveningBreak = !lateShift && shiftEnd >= 20*60+30 && v.doneToday.lunch && !v.doneToday.dinner;
+    const lunchAt = lateShift ? shiftStart+180 : eveningBreak ? 18*60+rank*45 : Math.max(shiftStart+75,Math.min(shiftEnd-45,11*60+15+rank*120));
     // Lunch is not a magic instant dismissal of reception. Workers can defer
     // it when the only other employee is travelling, shopping or off duty.
     // The stagger is a preference; cover is checked against real NPC presence.
     // An evening shift's break is its dinner; lunch was at home before work.
     const mealKey = lateShift || eveningBreak ? 'dinner' : 'lunch';
-    const lunchDue = !v.doneToday[mealKey] && m>=lunchAt && m<Math.min(v.end-5,lateShift||eveningBreak?24*60:16*60+30);
+    const lunchDue = !v.doneToday[mealKey] && m>=lunchAt && m<Math.min(shiftEnd-5,lateShift||eveningBreak?24*60:16*60+30);
     const isPublicWorker = v.work!=='home' && !['student','retired'].includes(v.job);
     const actualCover = !isPublicWorker || colleagues.some(o=>o!==v &&
       o.step?.kind==='work' && o.step.at===v.work &&
@@ -1437,10 +1500,10 @@ export class TownLife {
     const leaveForLunch = working && lunchDue && actualCover;
     // Staff set off in time for their commute so they are behind the counter when the doors open,
     // not still walking there for the first part of the shift.
-    const commuting = isPublicWorker && m >= v.start - commuteLead(v, this.places.get(v.work)) && m < v.start;
+    const commuting = isPublicWorker && m >= shiftStart - commuteLead(v, this.places.get(v.work)) && m < shiftStart;
     // Evening-shift workers shop and have lunch at home before work (they used to do neither,
     // and went hungry from breakfast until supper with an empty pantry).
-    if (lateShift && isPublicWorker && !working && !commuting && m >= 11 * 60 && m < v.start) {
+    if (lateShift && isPublicWorker && !working && !commuting && m >= 11 * 60 && m < shiftStart) {
       if (!v.doneToday.shopping) {
         v.doneToday.shopping = true;
         const list = this.shoppingList(v);
@@ -1460,9 +1523,9 @@ export class TownLife {
         const meal = this.cookable(v, 'lunch');
         if (meal) { this.eat(v, meal[0], meal[1]); v.memory = `ate ${meal[0]} behind the counter at work`; }
       }
-      if (v.work === 'home') return this.goThen(v, home, { kind: 'work', at: 'home', until: v.end, activity: 'coding at home' });
+      if (v.work === 'home') return this.goThen(v, home, { kind: 'work', at: 'home', until: shiftEnd, activity: 'coding at home' });
       if (v.job === 'postie' && !v.doneToday.round && (this.place('post').stock.parcel || 0) > 0) return this.postRound(v);
-      const until=Math.min(v.end, m < lunchAt ? lunchAt : lunchDue ? m+15 : v.end);
+      const until=Math.min(shiftEnd, m < lunchAt ? lunchAt : lunchDue ? m+15 : shiftEnd);
       // Extending a live shift must NOT send a cashier who is already at the
       // counter on a fresh random commute through three footpath waypoints.
       // That brief phantom journey was closing eight buildings at 13:15.
@@ -1494,14 +1557,14 @@ export class TownLife {
       // Only when a colleague is rostered long enough to cover lunch *and* the errands, or the
       // counter sits locked mid-shift (the Post Office closed 14:00-15:45 while its clerk shopped).
       const coverLasts = colleagues.some((o) => o !== v && o.start <= m && o.end > m + 120);
-      if (v.end >= 16 * 60 + 30 && !v.doneToday.shopping && (!isPublicWorker || coverLasts)) {
+      if (shiftEnd >= 16 * 60 + 30 && !v.doneToday.shopping && (!isPublicWorker || coverLasts)) {
         const errands = this.shopStops(v, this.shoppingList(v));
         if (errands.length) { v.doneToday.shopping = true; v.queue = errands; }
       }
       return lunch;
     }
     // After work: shopping when the pantry is low, then dinner, then the evening.
-    if (!v.doneToday.shopping && m >= Math.min(v.end, 16 * 60) && m < 18 * 60 + 30) {
+    if (!v.doneToday.shopping && m >= Math.min(shiftEnd, 16 * 60) && m < 18 * 60 + 30) {
       const list = this.shoppingList(v);
       v.doneToday.shopping = true;
       if (list.length) return this.shop(v, list);
@@ -1524,7 +1587,7 @@ export class TownLife {
     // for an afternoon meal. This generates actual paid visits, not fake
     // bodies created merely because the player enters the building.
     // People with insufficient disposable funds go home instead.
-    if(!v.doneToday.afternoonSocial && m>=14*60 && m<17*60 && m>=v.end){
+    if(!v.doneToday.afternoonSocial && m>=14*60 && m<17*60 && m>=shiftEnd){
       v.doneToday.afternoonSocial=true;
       const cafe=this.place('cafe'),pub=this.place('pub');
       const venue=this.open(cafe)&&this.rand()<.32 ? cafe : pub;
@@ -1681,8 +1744,12 @@ export class TownLife {
     if(v.fatigue>92 && v.step?.kind==='work')v.memory='struggling to stay awake at work';
     if (v.engaged) return;                   // chatting with the player: stands still
     // A stroll, a visit or the washing-up gives way to work: once it is time to set off, go.
-    if (v.step && (v.step.kind === 'idle' ? v.step.at !== 'pub' : v.step.at === 'home' && !['sleep', 'shower', 'cook'].includes(v.step.kind)) && v.work !== 'home' && !['student','retired'].includes(v.job) &&
-        this.minute >= v.start - commuteLead(v, this.places.get(v.work)) && this.minute < v.start) { v.path = []; v.step = null; this.plan(v); return; }
+    if (v.step && (v.step.kind === 'idle' ? v.step.at !== 'pub' : v.step.at === 'home' && !['sleep', 'shower', 'cook'].includes(v.step.kind)) && v.work !== 'home' && !['student','retired'].includes(v.job)) {
+      const shift=this.shiftToday(v);
+      if(shift && this.minute >= shift.start - commuteLead(v, this.places.get(v.work)) && this.minute < shift.start){
+        v.path=[];v.step=null;this.plan(v);return;
+      }
+    }
     if (v.path.length) {
       // Dismount in the final 12 m; pushing a full-size bicycle through a
       // crowded shopfront is not realistic and causes large wheel overlaps.
@@ -1848,7 +1915,7 @@ export class TownLife {
     const s = v.step;
     if (s?.kind === 'cook' && s.meal) this.eat(v, s.meal[0], s.meal[1]);
     if (s?.at === 'home') { const paid = householdDone(this, v, s); if (paid?.council) { this.civic.treasury += paid.council; budgetRevenue(this, paid.council, 'utilities'); } }
-    if (['work','patrol'].includes(s?.kind) && this.minute >= v.end - 1 && v.paidDay !== this.day) this.pay(v);
+    if (['work','patrol'].includes(s?.kind) && this.minute >= (this.shiftToday(v)?.end ?? v.end) - 1 && v.paidDay !== this.day) this.pay(v);
     if(s?.kind==='work' && v.work!=='home' && !v.path.length){
       const colleague=this.villagers.find(o=>o!==v && o.work===v.work &&
         o.step?.kind==='work' && !o.path.length);
@@ -1993,7 +2060,7 @@ export class TownLife {
   ledger() {
     const shops = [...this.places.values()].filter((p) => p.target && !['utility', 'industry', 'hall'].includes(p.kind)).map((p) => ({ name: p.name, sells: p.sells || null, stock: p.stock, till: Math.round(p.till), open: this.open(p) }));
     const farms = [...this.places.values()].filter((p) => p.kind === 'farm').map((p) => ({ name: p.name, makes: GOODS[p.makes].name, waiting: p.out[p.makes] || 0, growth: p.growth }));
-    return { day: this.day, time: fmt(this.minute), stats: this.stats, yesterday: this.yesterday || null, shops, farms, trucks: this.trucks.map((t) => ({ driver: t.driver?.name, state: t.state, load: t.load })), parcels: this.parcels.length, news: this.news(12),
+    return { day: this.day, date:this.dateLabel(), weekday:this.weekday(), time: fmt(this.minute), stats: this.stats, yesterday: this.yesterday || null, shops, farms, trucks: this.trucks.map((t) => ({ driver: t.driver?.name, state: t.state, load: t.load })), parcels: this.parcels.length, news: this.news(12),
       civic: this.civic, utilities: { fuel: this.place('power').stock.fuel, reservoir: this.place('waterworks').stock.water, wastewater: this.place('sewage').stock.wastewater, landfill: this.place('landfill').stock.rubbish, recycling: this.place('recycling').stock.recyclables, parts: this.place('hall').stock.parts },
       population: this.villagers.length, atWork: this.villagers.filter((v) => v.step?.kind === 'work').length, asleep: this.villagers.filter((v) => v.step?.kind === 'sleep').length };
   }

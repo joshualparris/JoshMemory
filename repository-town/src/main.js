@@ -703,7 +703,7 @@ async function start() {
     const next = TIMES.find(([m]) => m > life.minute + 1) || TIMES[0];
     if (next[0] < life.minute) { life.day++; life.newDay(); }
     life.minute = next[0];
-    status(`${next[1]} — the town clock now reads ${life.time()}.`);
+    status(`${next[1]} — ${life.dateLabel()}, ${life.time()} (Day ${life.day}).`);
   }
   const syncTimeBtn = () => { const h = life.minute / 60; const label = h < 6 || h >= 20.5 ? '🌙 Night' : h < 9 ? '🌅 Morning' : h < 17.5 ? '☀️ Day' : '🌇 Dusk'; if ($('btn-time').textContent !== label) $('btn-time').textContent = label; };
   $('btn-time').onclick = () => cycleTime();
@@ -1281,7 +1281,10 @@ async function start() {
     const car=driving.activeVehicle();
     const needsText=`🍽 ${Math.round(n.hunger)}% · 💤 ${Math.round(n.fatigue)}%${car?' · 🚗 '+Math.round(Math.abs(car.speed||0)*3.6)+'km/h ⛽ '+Math.round(car.fuel||0)+'L':''}`;
     if($('needs-status').textContent!==needsText)$('needs-status').textContent=needsText;
-    const clockText = `🕖 ${life.time()} · Day ${life.day}${life.speed > 1 ? ` · ${life.speed}×` : ''}`;
+    const civil=life.calendar();
+    const monthShort=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][civil.month-1];
+    const clockText = `${civil.weekdayName.slice(0,3)} ${civil.dayOfMonth} ${monthShort} · ${life.time()} · Day ${life.day}${life.speed > 1 ? ` · ${life.speed}×` : ''}`;
+    $('clock').title=life.dateLabel()+' — Day '+life.day;
     if ($('clock').textContent !== clockText) $('clock').textContent = clockText;
     syncTimeBtn();
     {
@@ -1581,7 +1584,7 @@ async function start() {
       near: nearThing?.key || null, nearNPC: nearNPC?.npc.id || null, nearHouse: nearHouse?.house.coordinate || null,
       panel: panelOpen ? { title: $('panel-title').textContent, text: $('panel-body').textContent, links: [...$('panel-actions').querySelectorAll('a')].map((a) => a.href), buttons: [...$('panel-actions').querySelectorAll('button')].map((b) => b.textContent) } : null,
       people: (mode === 'town' ? townLife.people.map((p) => ({ key: p.key, name: p.v.name, job: p.v.job, x: p.v.x, z: p.v.z, inside: p.v.inside, activity: p.v.activity, visible: p.fig.group.visible })) : (inside?.people || []).map((p) => ({ key: p.key, name: p.name, x: p.pos.x, z: p.pos.z, room: p.room, activity: p.activity, state:p.state||'staff', visible:p.group.visible }))),
-      time: life.time(), day: life.day, minute: life.minute, speed: life.speed, daylight: life.daylight(), sound: ambience.on, soundDebug: { ...ambience.debug }, needs:life.needsReport(),
+      time: life.time(), date: life.dateLabel(), weekday:life.weekday(), isoDate:life.calendar().iso, day: life.day, minute: life.minute, speed: life.speed, daylight: life.daylight(), sound: ambience.on, soundDebug: { ...ambience.debug }, needs:life.needsReport(),
       nearPerson: nearPerson?.key || null,
       active: [...active], playing: playing?.id || null, gameSrc: playing ? $('game-frame').getAttribute('src') : null, calls: renderer.info.render.calls, triangles: renderer.info.render.triangles, renderPixelRatio,
     }),
