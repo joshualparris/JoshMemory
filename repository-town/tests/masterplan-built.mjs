@@ -7,8 +7,8 @@ import { PLAN_ROADS, PLAN_PARCELS, PLAN_ROAD_NAMES, PLAN_HOMES, buildMasterplan,
 import { CORE_ROADS, graph, rect, overlap, roadRect, frontage } from '../src/world/masterplan-model.js';
 import { roadAllows } from '../src/world/player-driving.js';
 
-assert.equal(PLAN_PARCELS.length, 52, '48 homes, campus, park and two employment lots');
-assert.equal(PLAN_PARCELS.filter((p) => p.use === 'residential').length, 48);
+assert.equal(PLAN_PARCELS.length, 199, '195 homes plus campus, park and two employment lots');
+assert.equal(PLAN_PARCELS.filter((p) => p.use === 'residential').length, 195);
 assert.deepEqual([...new Set(PLAN_PARCELS.filter((p) => p.use === 'residential').map((p) => p.w * p.d))].sort((a, b) => a - b), [560, 700, 840], 'three lot sizes');
 
 // Addresses: unique, every parcel addressed on the road it fronts, odd left / even right,
@@ -54,7 +54,19 @@ assert(!roadAllows(-78, 600), 'avenues no longer extend infinitely south');
 assert(!roadAllows(100, 320), 'parcels between streets are not road');
 assert.equal(onPlannedOrCoreRoad(0, 0), false, 'between streets is not road');
 // A home on every residential lot, wholly inside its own lot with its walls solid.
-assert.equal(PLAN_HOMES.length, 48, 'every residential lot has a home');
+assert.equal(PLAN_HOMES.length, 195, 'every UN member and observer state has a home');
+assert.equal(new Set(PLAN_HOMES.map(h => h.country)).size, 195, 'unique countries');
+assert.equal(new Set(PLAN_HOMES.map(h => h.design.w.toFixed(4))).size, 195, 'all designs are geometrically distinct');
+assert(PLAN_HOMES.every(h => h.tradition && h.style), 'country-specific architecture cues are recorded');
+assert.equal(PLAN_HOMES.filter(h => h.parcelId.startsWith('home-')).length, 48, 'original lot IDs survive');
+assert.equal(PLAN_HOMES.filter(h => /-west-/.test(h.parcelId)).length, 147, 'three new street rows');
+for (const id of ['local-south','local-north']) {
+  const road = PLAN_ROADS.find(r => r.id === id);
+  assert.equal(road.a.x, -1330, id + ' extends west');
+}
+assert(PLAN_ROADS.some(r => r.name === 'Grevillea Street'));
+assert(onPlannedOrCoreRoad(-700,277) && onPlannedOrCoreRoad(-700,367) && onPlannedOrCoreRoad(-700,457), 'all western streets driveable');
+
 const built = buildMasterplan(new THREE.Group());
 assert(built.colliders.length >= 48, 'homes are solid');
 for (const c of built.colliders) {
@@ -67,4 +79,4 @@ for (const h of PLAN_HOMES) {
   const front = h.facesNorth ? p.z - p.d / 2 : p.z + p.d / 2;
   assert(Math.abs(Math.abs(h.frontZ - front) - 6) < 1e-6, `${h.address} has a 6 m front setback`);
 }
-console.log('PASS: 48 homes inside their lots, 52 addressed parcels, one connected network tied into Street 8, bounded driving, no overlaps');
+console.log('PASS: 195 country-inspired homes inside their lots, 199 addressed parcels, connected driveable streets, no overlaps');
