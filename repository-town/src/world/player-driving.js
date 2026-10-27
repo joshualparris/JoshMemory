@@ -193,7 +193,7 @@ export function createPlayerDriving(life,scene,collision,player,camera,input){
    if(blocked){speed=0;message='Brake! Road edge, pedestrian or obstruction.';}
    v.speed=speed;
    const transmission=transmissionFor(v.model,speed,throttle);
-   v.gear=transmission.gear;v.rpm=transmission.rpm;
+   v.gear=transmission.gear;v.rpm=transmission.rpm;v.throttle=Math.max(0,Math.min(1,throttle));   // accelerator position, for engine load in vehicle-audio.js
    v.coolantTemp=updateCoolantTemperature(v.coolantTemp,dt,speed,v.condition);
    player.pos.set(v.x,0,v.z);player.yaw=v.yaw||0;player.pitch=0;
    // Third-person trailing camera, no disembodied eye inside a dashboard.
