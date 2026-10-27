@@ -94,6 +94,7 @@ const bakery=serviceTown.place('bakery');
 const bakers=serviceTown.villagers.filter(v=>v.work==='bakery');
 assert(bakers.length>=2,'the two bakery workers are represented');
 for(const worker of bakers){
+  Object.assign(worker,{x:worker.home.door.x,z:worker.home.door.z+2,inside:true,path:[]}); // setting off from home, not already on shift
   serviceTown.goThen(worker,bakery.front,{
     kind:'work',at:'bakery',until:14*60,activity:'baking at work'
   });

@@ -1194,17 +1194,18 @@ async function start() {
       }
       // Villagers, the guide kiosk and the shop counters: pick the one the player is facing.
       nearPerson = null; let bestP = Infinity;
-      const consider = (c, reach) => {
+      const consider = (c, reach, bonus = 0) => {
         const d = Math.hypot(c.pos.x - player.pos.x, c.pos.z - player.pos.z);
         if (d > reach) return;
         tmp.copy(c.pos).sub(player.pos); tmp.y = 0;
         const facing = d < 0.01 ? 1 : tmp.normalize().dot(player.forward());
-        const score = d - 1.6 * facing;
+        const score = d - 1.6 * facing - (facing > 0.5 ? bonus : 0);
         if ((facing > 0.2 || d < 1.2) && score < bestP) { bestP = score; nearPerson = c; }
       };
       for (const p of townLife.people) if (!p.v.inside) consider(p, 2.6);
       consider(guideSpot, 2.6);
-      for (const sp of townLife.spots) consider({ ...sp, spot: sp }, 3.2);
+      // A shop door you are facing wins over a villager walking past or queuing beside it.
+      for (const sp of townLife.spots) consider({ ...sp, spot: sp }, 3.2, 1.5);
       nearTownSeat = !overview&&!driving.driving ? nearestSeat(townLife.seats,player.pos,player.forward(),2.4) : null;
       nearCar = !overview&&!driving.driving ? driving.nearest() : null;
       nearHouse = null; let best = 6;
@@ -1356,6 +1357,12 @@ async function start() {
     }
     if (mode === 'town') input.consume('use');
     expedition.update(t,player,mode);
+    // One prompt at a time: the gold chest/relic bar only when E would open it, else the usual prompt.
+    if (mode === 'town' && !$('expedition-hint').hidden) {
+      const relic = expedition.nearby(player.pos), d = (o) => (o ? Math.hypot(o.pos.x - player.pos.x, o.pos.z - player.pos.z) : Infinity);
+      const relicWins = !driving.driving && !nearCar && !player.seated && !nearTownSeat && d(relic) <= d(nearNPC) && d(relic) <= d(nearPerson);
+      if (relicWins) $('prompt').hidden = true; else $('expedition-hint').hidden = true;
+    }
     mapTimer += dt; if (mapTimer > 0.2) { drawMap(); mapTimer = 0; }
     saveTimer += dt; if (saveTimer > 3) { save(); saveTimer = 0; }
     // Apply after selecting the new nearby prompt: never let it reappear over
@@ -1493,7 +1500,7 @@ async function start() {
       ledger: () => life.ledger(), describe: (i) => life.describe(life.villagers[i]),
       // Jumps the clock (tests): everyone re-plans their day from scratch.
       setWeather(w) { life.civic.weather = w; },
-      setTime(minute) { life.minute = minute; life.stats = life.freshStats(); for (const v of life.villagers) { v.step = null; v.path = []; v.queue = []; v.doneToday = {}; } },
+      setTime(minute) { life.minute = minute; life.stats = life.freshStats(); for (const v of life.villagers) { v.step = null; v.path = []; v.queue = []; v.doneToday = {}; } life.startShiftsInProgress(); },
       run(minutes) { for (let m = 0; m < minutes; m += 0.5) life.tick(0.5); },
       // A villager's live route and plan, for diagnosing where people walk.
       route: (name) => { const v = life.villagers.find((x) => x.name === name); return v && { x: v.x, z: v.z, bike: !!v.bike, inside: v.inside, path: v.path.map((p) => ({ x: p.x, z: p.z, detour: !!p.detour })), step: v.step && { kind: v.step.kind, at: v.step.at, target: v.step.target } }; },

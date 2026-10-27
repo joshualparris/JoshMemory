@@ -1093,6 +1093,8 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
 
     // Sky and lights follow the clock everywhere; indoors only the town's state changes.
     const day = life.daylight(), dark = THREE.MathUtils.clamp((0.55 - day) / 0.45, 0, 1);
+    // Name boards and opening-hours plaques are floodlit after dark, so they stay readable.
+    if (signBoards) signBoards.material.emissiveIntensity = dark * 0.55;
     const dusk = day > 0 && day < 0.6 ? Math.sin((day / 0.6) * Math.PI) * 0.55 : 0;
     bg.copy(NIGHT_SKY).lerp(DAY_SKY, day).lerp(DUSK, dusk);
     const weather = life.civic.weather, overcast = weather === 'rainy' ? 0.55 : weather === 'cloudy' ? 0.3 : 0;

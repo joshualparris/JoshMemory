@@ -24,6 +24,9 @@ export function workingAt(worker, siteId, place = null) {
   return !(worker.path?.length);
 }
 
+// "the Bakery", but "The Merged Branch" (never "the The Merged Branch"); capital=true starts a sentence.
+export const theName = (place, capital = false) => /^the /i.test(place.name) ? place.name : (capital ? 'The ' : 'the ') + place.name;
+
 // Retail counters need an actual worker, not merely an opening-hours sign.
 const RETAIL = new Set(['store','bakery','greengrocer','butcher','cafe','pub']);
 export function shopService(town, place) {

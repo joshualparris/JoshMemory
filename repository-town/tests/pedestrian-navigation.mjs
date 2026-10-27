@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {TownLife} from '../src/world/life.js';
+import {TownLife,walkRoute,FIELD_Z0} from '../src/world/life.js';
 import {pedestrianDetour,activeConversation,blockersOnSegment,canFinishNearOccupiedDoor} from '../src/world/pedestrian-navigation.js';
 const dist=(a,b)=>Math.hypot(a.x-b.x,a.z-b.z);
 assert(!activeConversation(false,0,1),'walking near somebody never causes a chat');
@@ -63,3 +63,16 @@ console.log('PASS: A* safely detours around static visitor, simulated villager c
   assert(way.every((p) => Math.hypot(p.x - bystander.x, p.z - bystander.z) >= .75), 'the detour never moves closer to them');
 }
 console.log('PASS: walker beside a standing person escapes');
+
+ // Reproduces Clem's real Chrome collision at the Street 4 lamp:
+ // row 4 carriageway centre is -7, the lamp at x=136,z=-13.
+const road4=3*46-3.5*46+16;
+const foot=walkRoute({x:105,z:-18},{x:158,z:-18});
+const lamp={x:136,z:road4-6};
+assert(foot.length>=2 && foot[0].z<road4,'route follows northern footpath');
+assert(Math.abs(foot[0].z-lamp.z)>0.84,'walker body and pole footprint remain separated along entire lane');
+const south=walkRoute({x:105,z:FIELD_Z0+3},{x:158,z:FIELD_Z0+3});
+assert(FIELD_Z0-south[0].z>0.7,'southern walkway still clears commercial building walls');
+const reverse=walkRoute({x:158,z:-18},{x:105,z:-18});
+assert(Math.abs(reverse[0].z-lamp.z)>0.84,'opposing footpath direction clears the same streetlight');
+console.log('PASS: both footpath lanes clear Street 4 lamp posts and southern civic facades');

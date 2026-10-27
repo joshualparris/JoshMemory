@@ -35,9 +35,10 @@ await T(() => window.__town.life.setTime(10 * 60));
 check(await T(() => window.__town.enterShop('bakery')), 'enter the Bakery');
 const shopWindows = (await T(() => window.__town.state())).windows;
 check(shopWindows >= 4 && await T(() => window.__town.lookOut(0)), `Bakery has ${shopWindows} windows`);
-// Outside keeps living: on the high street at 8am, villagers in view move while the player stays in.
+// Outside keeps living: on the high street at 7am, villagers in view move while the player stays in.
 // (setTime only moves the clock; run() lets the morning actually happen so people are out.)
-await T(() => { window.__town.life.setTime(7 * 60 + 30); window.__town.life.run(45); });
+// 06:30 + 30 minutes: the 07:00 commute, now that staff are at work before their shops open.
+await T(() => { window.__town.life.setTime(6 * 60 + 30); window.__town.life.run(30); });
 await page.waitForTimeout(1000);
 const before = await T(() => window.__town.townFigures().filter((f) => f.visible));
 await page.waitForTimeout(4000);
