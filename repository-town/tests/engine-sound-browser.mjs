@@ -14,8 +14,12 @@ try {
   await page.route('**/api/npc-chat', (r) => r.abort('connectionrefused'));
   await page.goto(URL); await page.waitForFunction(() => window.__town && document.getElementById('loading').hidden, null, { timeout: 90000 });
   await page.click('canvas');
-  await page.evaluate(() => { window.__town.closePanel?.(); window.__town.cheats.open(); window.__town.cheats.run('goNew'); window.__town.cheats.run('carHere'); window.__town.cheats.close(); });
-  const crank = await waitPhase(page, 'cranking');
+  // Arm the phase listener BEFORE starting the engine: the 600ms starter
+  // can finish during a slow headless browser round trip on software WebGL.
+  await page.evaluate(() => { window.__town.closePanel?.(); window.__town.cheats.open(); window.__town.cheats.run('goNew'); });
+  const crankWatch = waitPhase(page, 'cranking');
+  await page.evaluate(() => { window.__town.cheats.run('carHere'); window.__town.cheats.close(); });
+  const crank = await crankWatch;
   step(!!crank, 'getting in cranks the starter');
   const idle = await waitPhase(page, 'running');
   step(!!idle && idle.rpm <= idle.idle + 50, `engine catches and settles to idle (${idle?.rpm} rpm, ${idle?.frequency?.toFixed(1)} Hz)`);
