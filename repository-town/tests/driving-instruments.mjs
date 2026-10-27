@@ -1,13 +1,14 @@
 import assert from 'node:assert/strict';
 import {FUEL_CAPACITY_L,updateCoolantTemperature,vehicleTelemetry} from '../src/world/driving-instruments.js';
+import {vehicleSpec} from '../src/world/vehicle-dynamics.js';
 assert.equal(FUEL_CAPACITY_L,30,'gauge uses same capacity as actual vehicle refuelling');
 assert.equal(vehicleTelemetry(null),null,'no fake car when the player is walking');
 const first=vehicleTelemetry({registration:'RT-101',model:'sedan',speed:10,fuel:15,odometer:64000.42,condition:84,coolantTemp:90});
 assert.equal(first.speedKmh,36,'real m/s must be converted to km/h');
 assert.equal(first.fuelLitres,15);
-assert.equal(first.fuelPercent,50);
+assert.equal(first.fuelPercent,Math.round(100*15/vehicleSpec('sedan').maxFuel),'fuel gauge uses actual model tank capacity');
 assert.equal(first.odometerKm,64000.4);
-assert.equal(first.direction,'D');
+assert(/^[1-6]$/.test(first.direction),'instrument shows actual automatic gear');
 assert.equal(first.coolantC,90);
 assert.equal(first.lowFuel,false);
 assert.equal(first.approximateRangeKm,5,'range grounded in current fuel burn');
