@@ -2,6 +2,7 @@
 // and CollisionWorld as the pedestrian. Only owned, registered vehicles work.
 import * as THREE from 'three';
 import { VEHICLE_MODELS } from './vehicles.js';
+import {updateCoolantTemperature} from './driving-instruments.js';
 import { onPlannedOrCoreRoad } from './masterplan-built.js';
 const MODEL={hatch:[1.65,3.4,0x397fbc,11],sedan:[1.84,4.4,0xb1b9c4,12],
  ute:[1.9,4.7,0xb78648,11],van:[2.05,5.4,0xe8e3d8,9],truck:[2.25,6.6,0x9a4d40,8]};
@@ -77,6 +78,7 @@ export function createPlayerDriving(life,scene,collision,player,camera,input){
    if(Math.hypot(player.pos.x-v.x,player.pos.z-v.z)>3.1)return 'Walk to the driver door to enter.';
    if(collision.hits(v.x,v.z,1.05))return 'The vehicle is blocked. Move it to a clear parking space before driving.';
    v.parkingPending=false;active=v.registration;speed=0;player.seated=null;input.reset();
+   if(!Number.isFinite(v.coolantTemp))v.coolantTemp=22;
    return 'Engine started. W/S or joystick forwards/back; A/D or joystick steer; E or ✋ to get out when stopped.';
  }
  function exit(){
@@ -122,6 +124,7 @@ export function createPlayerDriving(life,scene,collision,player,camera,input){
      if(v.condition<60)v.roadworthy=false;
    }else{speed=0;message='Brake! Road edge, pedestrian or obstruction.';}
    v.speed=r2(speed);
+   v.coolantTemp=updateCoolantTemperature(v.coolantTemp,dt,speed,v.condition);
    player.pos.set(v.x,0,v.z);player.yaw=v.yaw||0;player.pitch=0;
    // Third-person trailing camera, no disembodied eye inside a dashboard.
    const follow=9+(v.model==='truck'?4:0),px=v.x+Math.sin(v.yaw||0)*follow,
