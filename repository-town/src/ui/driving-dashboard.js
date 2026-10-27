@@ -9,6 +9,7 @@ const STATIONS=[
  {name:'Night Drive',profile:{name:'Car radio · night drive',bpm:102,root:45,type:'sine',style:'pulse',volume:.58}}
 ];
 const VOLUME_KEY='repository-town.car-radio-volume';
+const VISIBILITY_KEY='repository-town.car-dashboard-visible';
 const byId=(root,id)=>root.querySelector('#'+id);
 function text(root,id,value){const n=byId(root,id);if(n.textContent!==String(value))n.textContent=String(value);}
 export function createDrivingDashboard(){
@@ -25,7 +26,26 @@ export function createDrivingDashboard(){
  "<div class='drive-radio' role='group' aria-label='Car radio'><button type='button' id='drive-radio-power' aria-pressed='false' aria-label='Switch car radio on or off'>Radio ON</button><button type='button' id='drive-radio-prev' aria-label='Previous radio station'>‹</button><span id='drive-radio-station'>Radio off</span><button type='button' id='drive-radio-next' aria-label='Next radio station'>›</button><label class='drive-volume-label' for='drive-radio-volume'>Vol</label><input type='range' id='drive-radio-volume' aria-label='Car radio volume' min='0' max='100' step='5' value='35'></div></div>"
  ].join('');
  document.body.appendChild(el);
- let station=0,context=null,radioBus=null,soundtrack=null,shown=false,lastUpdate=-Infinity;
+ const toggle=document.createElement('button');
+ toggle.id='drive-dash-toggle';toggle.type='button';toggle.hidden=true;
+ toggle.setAttribute('aria-controls','driving-dashboard');
+ toggle.setAttribute('aria-label','Hide vehicle dashboard');
+ toggle.textContent='Hide dashboard';
+ document.body.appendChild(toggle);
+ let station=0,context=null,radioBus=null,soundtrack=null,shown=false,enabled=true,lastUpdate=-Infinity;
+ try{enabled=localStorage.getItem(VISIBILITY_KEY)!=='false';}catch{}
+ function syncVisibility(){
+  el.hidden=!shown||!enabled;toggle.hidden=!shown;
+  toggle.textContent=enabled?'Hide dashboard':'Show dashboard';
+  toggle.setAttribute('aria-label',enabled?'Hide vehicle dashboard':'Show vehicle dashboard');
+  toggle.setAttribute('aria-expanded',String(enabled));
+  toggle.setAttribute('aria-pressed',String(enabled));
+ }
+ toggle.addEventListener('click',()=>{
+  enabled=!enabled;
+  try{localStorage.setItem(VISIBILITY_KEY,String(enabled));}catch{}
+  syncVisibility();
+ });
  let volume=35;
  try{const raw=localStorage.getItem(VOLUME_KEY);if(raw!==null){const v=Number(raw);if(Number.isFinite(v)&&v>=0&&v<=100)volume=v;}}catch{}
  byId(el,'drive-radio-volume').value=String(volume);
@@ -58,8 +78,8 @@ export function createDrivingDashboard(){
  });
  function update(vehicle){
   const d=vehicleTelemetry(vehicle);
-  if(!d){if(shown){el.hidden=true;shown=false;}if(station)tune(0);return;}
-  if(!shown){el.hidden=false;shown=true;}
+  if(!d){if(shown){shown=false;syncVisibility();}if(station)tune(0);return;}
+  if(!shown){shown=true;syncVisibility();}
   const now=performance.now();
   if(now-lastUpdate>95){
    lastUpdate=now;
@@ -82,5 +102,5 @@ export function createDrivingDashboard(){
   }
   if(station&&soundtrack&&context?.state==='running')soundtrack.update(STATIONS[station].profile,false);
  }
- return {update,getState:()=>({visible:shown,station,volume}),destroy:()=>{tune(0);soundtrack?.dispose();context?.close().catch(()=>{});el.remove();}};
+ return {update,getState:()=>({visible:shown&&enabled,driving:shown,enabled,station,volume}),destroy:()=>{tune(0);soundtrack?.dispose();context?.close().catch(()=>{});el.remove();toggle.remove();}};
 }
