@@ -63,6 +63,7 @@ import { createEmergencyResponseVisuals } from './world/emergency-response-visua
 import { createPlayerDriving } from './world/player-driving.js';
 import { createDrivingDashboard } from './ui/driving-dashboard.js';
 import { buildRoadSigns } from './world/road-signs.js';
+import { buildFarmersMarket, stallPanel, buyAtStall, marketNotice } from './world/farmers-market.js';
 import { buildCivilWorks } from './world/civil-works.js';
 import { nearestSeat } from './world/seats.js';
 import { furniturePanel } from './ui/furniture.js';
@@ -175,6 +176,8 @@ async function start() {
   // NSW regulatory signs from the road network (src/world/road-signs.js): GIVE WAY/STOP, 50 km/h,
   // 40 km/h along the High Street shops and a school zone outside the school.
   const highStreetShops = [...life.places.values()].filter((p) => p.door && Math.abs(p.door.z - 177) < 12);
+  // Farmers' market in Market Square on the 1st and 3rd Saturday mornings (farmers-market.js).
+  const market = buildFarmersMarket(town.group, { x: life.place('square').x, z: 7 * 46 - 3.5 * 46 });
   const civilWorks = buildCivilWorks(town.group);   // estate services from the planning audit
   const roadSigns = buildRoadSigns(town.group, {
     highStreet: highStreetShops.length ? { z: 177, x0: Math.min(...highStreetShops.map((p) => p.x)) - 20, x1: Math.max(...highStreetShops.map((p) => p.x)) + 20 } : null,
@@ -195,7 +198,7 @@ async function start() {
     { x0: -1495, x1: 595, z0: -395, z1: -390 }, { x0: -1495, x1: 595, z0: 555, z1: 560 },
     { x0: -1495, x1: -1490, z0: -395, z1: 560 }, { x0: 590, x1: 595, z0: -395, z1: 560 },
   ];
-  const townWorld = new CollisionWorld([...town.colliders, ...townLife.colliders, ...masterplan.colliders, ...civilWorks.colliders, ...edges]);
+  const townWorld = new CollisionWorld([...town.colliders, ...townLife.colliders, ...masterplan.colliders, ...civilWorks.colliders, ...market.colliders, ...edges]);
   // Dynamic vehicle footprints block player motion as well as truck movement.
   // A vehicle is approx 2.2m wide and 6.6m long; use a conservative
   // rotated-axis AABB for the town's existing 2D collision engine.
@@ -957,6 +960,8 @@ async function start() {
       const treasure = expedition.nearby(player.pos), treasureD = away(treasure), npcD = away(nearNPC), personD = away(nearPerson);
       if (treasure && treasureD <= npcD && treasureD <= personD) { expedition.use(player.pos); ambience.relic(); return; }
       if (nearNPC && npcD <= personD) { input.releaseMouse(); closePanel(); $('npc-roster').hidden = true; npcChat.show(nearNPC.npc, null); input.reset(); return; }
+      if (nearPerson?.spot?.market) { openPanel(stallPanel(life, nearPerson.spot.market, (id, i) => buyAtStall(life, id, i)), guideSpot); return; }
+      if (nearPerson?.spot?.id === 'square') { openPanel(marketNotice(life.day, life.minute), guideSpot); return; }   // an open square, not a building
       if (nearPerson) { if(nearPerson.spot){enterShop(nearPerson.spot.id);return;} talkTo(nearPerson); return; }
       if (nearHouse) showCard(nearHouse.house);
       return;
@@ -1253,6 +1258,7 @@ async function start() {
       else player.update(dt,input,world);
     }
     drivingDashboard.update(mode==='town'&&!overview?driving.activeVehicle():null);
+    market.update(life.day, life.minute);
     carryFrame();
     // Keep the table-service control in the always-visible needs strip on
     // phones with the rest of the HUD collapsed.
@@ -1362,6 +1368,7 @@ async function start() {
       consider(guideSpot, 2.6);
       // A shop door you are facing wins over a villager walking past or queuing beside it.
       for (const sp of townLife.spots) consider({ ...sp, spot: sp }, 3.2, 1.5);
+      if (market.root.visible) for (const sp of market.spots) consider({ ...sp, spot: sp }, 3.6, 2.0);
       nearTownSeat = !overview&&!driving.driving ? nearestSeat(townLife.seats,player.pos,player.forward(),2.4) : null;
       nearCar = !overview&&!driving.driving ? driving.nearest() : null;
       nearHouse = null; let best = 6;
@@ -1410,7 +1417,7 @@ async function start() {
       }
       if(mode==='town' && !overview && !driving.driving){
         for(const place of life.places.values()){
-          if(atCivicEntrance(place,player.pos)){
+          if(place.kind!=='park'&&atCivicEntrance(place,player.pos)){
             if(!enterShop(place.id, true)){
               // Keep closed/unattended buildings secure, but give an obvious
               // physical rejection outside the expanded entrance trigger.
@@ -1638,6 +1645,7 @@ async function start() {
     meetGuide() { if (mode === 'house') leave(false); player.place(town.guidePos.x, town.guidePos.z + 1.6, 0); return 'guide'; },
     goPlace,
     driveDashboard:()=>drivingDashboard.getState(),
+    market:()=>({standing:market.root.visible,spots:market.spots.map(s=>({key:s.key,x:s.pos.x,z:s.pos.z,label:s.label}))}),
     roadSigns:()=>roadSigns.signs.map(({type,x,z,yaw})=>({type,x,z,yaw})),
     driveHeadlights:()=>driving.headlightStatus(),
     soundscape:()=>({track:ambience.debug.track,selectedTrack:ambience.selectedTrack,vehicle:ambience.debug.vehicle}),
@@ -1674,6 +1682,7 @@ async function start() {
       ledger: () => life.ledger(), describe: (i) => life.describe(life.villagers[i]),
       // Jumps the clock (tests): everyone re-plans their day from scratch.
       setWeather(w) { life.civic.weather = w; },
+      setDay(day) { life.day = day; },   // tests: jump the calendar (e.g. to a market Saturday)
       setTime(minute) { life.minute = minute; life.stats = life.freshStats(); for (const v of life.villagers) { v.step = null; v.path = []; v.queue = []; v.doneToday = {}; } life.startShiftsInProgress(); },
       run(minutes) { for (let m = 0; m < minutes; m += 0.5) life.tick(0.5); },
       // A villager's live route and plan, for diagnosing where people walk.

@@ -223,9 +223,8 @@ const BUILD = {
     b.box(0xc9c0ac, 24, 0.05, 30, 0, 0.03, -4);
     b.cyl(0xbab6ae, 2.6, 0.7, 0, 0.35, -4); b.cyl(0x6fb8e0, 2.3, 0.1, 0, 0.66, -4); b.cyl(0xbab6ae, 0.35, 2, 0, 1, -4); b.ball(0xbab6ae, 0.6, 0, 2.1, -4);
     for (const [x, z, r] of [[-6, -4, Math.PI / 2], [6, -4, -Math.PI / 2], [0, 3, Math.PI], [0, -11, 0]]) b.at(x, 0, z, r, () => { b.solid(2, 0.7, 0, 0); b.block(WOOD, 2, 0.08, 0.6, 0, 0.45, 0); b.block(WOOD, 2, 0.5, 0.08, 0, 0.5, -0.3); b.block(DARK, 0.1, 0.45, 0.5, -0.9, 0, 0); b.block(DARK, 0.1, 0.45, 0.5, 0.9, 0, 0); });
-    for (const [x, z] of [[-9, -14], [9, -14], [-9, 5], [9, 5], [-9, -4.5], [9, -4.5]]) tree(b, x, z, 1.1, 0x5a9a50);
-    // Saturday-style market stalls along the back.
-    for (const [x, c] of [[-5, 0xd85a4a], [0, 0x3a7ab8], [5, 0xe0b040]]) { b.solid(3, 1.2, x, -15); b.block(WOOD, 3, 0.9, 1.2, x, 0, -15); b.box(c, 3.4, 0.08, 1.8, x, 2.4, -15); for (const sx of [-1.5, 1.5]) b.block(DARK, 0.08, 2.4, 0.08, x + sx, 0, -14.4); }
+    for (const [x, z] of [[-11.2, -13.6], [11.2, -13.6], [-9, 5], [9, 5], [-9, -4.5], [9, -4.5]]) tree(b, x, z, 1.1, 0x5a9a50);   // rear trees in the corners, clear of the market sites
+    // Market stalls are set up only on market mornings (farmers-market.js).
     return null;
   },
 };
