@@ -57,6 +57,7 @@ jobs:
           node tests/webgl-playtest.mjs
           node tests/movement-speed-browser.mjs
           node tests/exit-facing.mjs
+          node tests/yeoval-browser.mjs
           node tests/sleep-browser.mjs
           node tests/sleep-browser.mjs --mobile
         env:
@@ -77,6 +78,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: town-webgl-playtest-${{ github.run_id }}
-          path: repository-town/test-results/webgl-playtest*/
+          path: |
+            repository-town/test-results/webgl-playtest*/
+            repository-town/test-results/yeoval-campus/
           retention-days: 14
           if-no-files-found: warn
