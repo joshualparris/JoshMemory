@@ -73,7 +73,7 @@ export class Player {
       this.camera.rotation.set(this.pitch,this.yaw,0,'YXZ');
       return {moving:0,blocked:false,crouching:false,running:false,seated:false};
     }
-    const crouching = m.crouching && this.y === 0;
+    const crouching = m.crouching && this.vy === 0;
     const speed = (crouching ? SPEED.crouch : m.running ? SPEED.run : SPEED.walk) * (this.speedFactor ?? 1);
     // Desired velocity in world space from camera-relative input.
     const sin = Math.sin(this.yaw), cos = Math.cos(this.yaw);
@@ -81,9 +81,12 @@ export class Player {
     const accel = this.y > 0 ? 4 : 14;
     this.vel.x += (tx - this.vel.x) * Math.min(1, accel * dt);
     this.vel.y += (tz - this.vel.y) * Math.min(1, accel * dt);
-    const blocked = world.move(this.pos, this.vel.x * dt, this.vel.y * dt, this.radius);
-    if (input.consume('jump') && this.y === 0 && !crouching) this.vy = 7.2;
-    this.vy -= 22 * dt; this.y = Math.max(0, this.y + this.vy * dt); if (this.y === 0) this.vy = Math.max(0, this.vy);
+    const blocked = world.move(this.pos, this.vel.x * dt, this.vel.y * dt, this.radius, this.y);
+    // Stand on whatever is underneath (furniture, roofs); walking off an edge drops you to the floor.
+    const floor = world.groundAt ? world.groundAt(this.pos.x, this.pos.z, this.radius, this.y) : 0;
+    const grounded = this.y <= floor + 1e-3 && this.vy <= 0;
+    if (input.consume('jump') && grounded && !crouching) this.vy = this.jumpSpeed ?? 7.2;
+    this.vy -= 22 * dt; this.y = Math.max(floor, this.y + this.vy * dt); if (this.y === floor) this.vy = Math.max(0, this.vy);
     this.eye += ((crouching ? CROUCH : STAND) - this.eye) * Math.min(1, 10 * dt);
     const moving = Math.hypot(this.vel.x, this.vel.y);
     this.bob += moving * dt * 2.1;

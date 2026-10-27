@@ -94,6 +94,16 @@ async function exercise(page, coord, how, cdp) {
       r.exhibits.push(e);
       continue;
     }
+    // Loose objects are picked up (carried in front of the player), then put down again.
+    if (x.do === 'pickup') {
+      e.carried = await until(page, `window.__town.thing(${JSON.stringify(x.key)})?.carried === true`, 2500);
+      if (how === 'touch') await page.tap('#t-use'); else await page.keyboard.press('e');
+      e.putDown = await until(page, `window.__town.thing(${JSON.stringify(x.key)})?.carried === false`, 2500);
+      e.ok = e.reachable && e.prompted && e.carried && e.putDown;
+      if (!e.ok) fail(`loose object "${x.label}" could not be picked up and put down: ${JSON.stringify(e)}`);
+      r.exhibits.push(e);
+      continue;
+    }
     await until(page, () => !!window.__town.state().panel, 2500);
     let p = (await st(page)).panel;
     // Adventure exhibits prefix their panel title with an emoji (🎁, 🔐, 🧭 …).

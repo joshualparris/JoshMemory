@@ -269,3 +269,15 @@ export function footprint(type) {
   const p = P[type];
   return { w: p.w, d: p.d };
 }
+
+// Height of a prop's top surface in metres: what the player stands on after jumping onto it.
+// Anything not listed is treated as 1 m high.
+const STAND_TOP = { desk: .76, table: .76, roundTable: .76, cafeTable: .76, cardTable: .76, diceTable: .76, ledgerDesk: .8, mapTable: .85,
+  bed: .6, sofa: .45, bench: .45, stool: .65, chair: .45, cabinet: .9, counter: 1.0, crates: .8, barrel: .9, stove: .9, kitchenSink: .9,
+  bathtub: .6, toilet: .45, basin: .85, workbench: .9, treasureChest: .55, piano: 1.15, pews: .5, washingMachine: .9, freezer: .9,
+  crib: .9, rug: .02, fireplace: 1.1, filingCabinet: 1.3, trolley: .9, hay: 1.0, bookshelf: 2.2, wardrobe: 2.2, fridge: 1.9, pantry: 2.0,
+  clock: 2.1, serverRack: 2.1, arcadeCabinet: 1.9, shed: 2.3, wagon: 1.2, truck: 2.6, van: 2.2, rock: .9, cashRegister: 1.1 };
+export function standTop(type) { return STAND_TOP[type] ?? 1.0; }
+// Small things a player can pick up and carry (built as their own meshes, not merged).
+export const PORTABLE = new Set(['lamp', 'plant', 'fruitBowl', 'bookStack', 'globe', 'guitar', 'radio', 'trophy',
+  'candles', 'toyBlocks', 'laptop', 'camera', 'crates', 'coinStack', 'piggyBank', 'lantern', 'microscope', 'specimenJars', 'vinyl', 'boardGame', 'chessboard']);

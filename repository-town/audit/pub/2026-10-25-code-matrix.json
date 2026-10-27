@@ -11,7 +11,7 @@
   "sourceBlobs": {
     "repository-town/audit/electricity/coverage.json": "f80df771b893799e27b3adc98b92fe335c13f28b",
     "repository-town/src/world/interior-kit.js": "ceff1ba9e2197cb113c33760e9353f50ef1e97e3",
-    "repository-town/src/world/life.js": "9b41b877e4eca3d71469ee99d31095be7252e002",
+    "repository-town/src/world/life.js": "a694ba38430b4bdbdcb01ca6b1b6a76dfe82efc4",
     "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2",
     "repository-town/src/world/pub-interior.js": "46396a0552d2480f3c31585e77199803433ab6b6",
     "repository-town/src/world/shop-interior.js": "c577d598e833c8523ae66715e47e2b4c3e61aff2",
@@ -19,7 +19,7 @@
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "15d86e0fbcca30428d4ccfbf76674c790609d95a",
+    "repository-town/src/main.js": "f69fd7842bfd4e9ad1a3d3aa5b4a869c5e624e3b",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -817,6 +817,15 @@
         "repository-town/src/main.js"
       ],
       "finding": "main.js: dossier panels and entry message. No pub change."
+    },
+    {
+      "date": "2026-10-27",
+      "by": "Claude (jump onto things, carry objects, cheat jump)",
+      "changedFiles": [
+        "repository-town/src/main.js",
+        "repository-town/src/world/life.js"
+      ],
+      "finding": "Climbable collider tops and carrying in shared code; pub geometry, egress and services unchanged."
     }
   ]
 }

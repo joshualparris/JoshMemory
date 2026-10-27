@@ -3,7 +3,7 @@
 // Upper levels drawn in the exterior remain inaccessible pending stairs/egress design.
 import * as THREE from 'three';
 import {Builder} from './builder.js';
-import {PROPS} from './props.js';
+import {PROPS,standTop} from './props.js';
 import {dossierFor,residentPanel,housePanel} from './country-dossiers.js';
 import {makeNPC} from './npcs.js';
 
@@ -90,7 +90,7 @@ export function buildCountryInterior(home,makeLabel=()=>new THREE.Group()){
   const item=plan.fixtures[i],prop=PROPS[item.type];
   if(!prop)throw new Error('Missing fixture '+item.type);
   b.at(item.x,0,item.z,0,()=>prop.build(b,{c:item.type==='sofa'?home.design.trim:undefined,key:'country:'+home.parcelId+':'+i}));
-  if(prop.solid)solid(item.x-prop.w/2,item.x+prop.w/2,item.z-prop.d/2,item.z+prop.d/2);
+  if(prop.solid)colliders.push({x0:item.x-prop.w/2,x1:item.x+prop.w/2,z0:item.z-prop.d/2,z1:item.z+prop.d/2,top:standTop(item.type)});
   const label=prop.label||item.type,key='country:'+home.parcelId+':'+i;
   const pos=new THREE.Vector3(item.x,0,item.z);
   const act={do:'furniture',title:label};
@@ -137,7 +137,7 @@ function buildDossierInterior(home,dossier,makeLabel){
   const key='country:'+home.parcelId+':'+i,rot=item.rot||0,turned=Math.abs(Math.sin(rot))>.5;
   b.at(item.x,0,item.z,rot,()=>prop.build(b,{key}));
   const pw=turned?prop.d:prop.w,pd=turned?prop.w:prop.d;
-  if(prop.solid)colliders.push({x0:item.x-pw/2,x1:item.x+pw/2,z0:item.z-pd/2,z1:item.z+pd/2});
+  if(prop.solid)colliders.push({x0:item.x-pw/2,x1:item.x+pw/2,z0:item.z-pd/2,z1:item.z+pd/2,top:standTop(item.type)});
   const label=item.label||prop.label||item.type,pos=new THREE.Vector3(item.x,0,item.z);
   const baby=(dossier.babies||[]).find(x=>x.fixtureLabel===item.label);
   const act=baby?{do:'dossier',panel:{title:baby.name,body:'<p>'+baby.bio+'</p>',actions:[]}}:{do:'furniture',title:label};

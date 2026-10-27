@@ -527,6 +527,7 @@ async function start() {
   }
   function leave(placeOutside = true, keepFacing = false, via = 'front') {
     if (!inside) return;
+    if (carried) { inside.interactables?.push(carried); carried = null; }   // the object stays in the house
     const yawInside = player.yaw;
     closePanel(); npcChat.close();
     const coord = inside.house.coordinate;
@@ -677,6 +678,8 @@ async function start() {
       goWork: () => teleport(456, 300, Math.PI, 'Saleyards Road and the employment lots'),
       goHigh: () => teleport(0, 173.6, 0, 'the High Street'),
       goGuide: () => { const busy = toTown(); if (busy) return { message: busy }; player.place(town.guidePos.x, town.guidePos.z + 1.6, 0); return { message: 'Teleported to the Town Guide.' }; },
+      // Big jump: launch speed for the chosen height (v = sqrt(2 g h), g = 22 m/s² in this game).
+      jump: (h) => { const m = Number(h) || 0; player.jumpSpeed = m > 0 ? Math.sqrt(2 * 22 * m) : 7.2; return { message: m > 0 ? `Jump height ${m} m. Press jump (space or ⤒) and land on furniture or roofs.` : 'Normal jump restored.' }; },
       money: () => addMoney(life, 10000),
       needs: () => refreshNeeds(life),
       buyNear: () => { const key = nearestPropertyKey(life, player.pos.x, player.pos.z, propertyPositions()); return key ? claimProperty(life, key) : { message: 'No property nearby.' }; },
@@ -914,7 +917,31 @@ async function start() {
   // Relics, street characters, villagers, the guide and shop counters can stand close
   // together, so Use goes to whichever is nearest; everything stays reachable.
   const away = (p) => (p ? Math.hypot(player.pos.x - p.pos.x, player.pos.z - p.pos.z) : Infinity);
+  // Carrying a small object picked up indoors: it floats in front of the player each frame
+  // (carryFrame) and is put down where they face, on the floor or on a table top.
+  let carried = null;
+  function pickUp(thing) {
+    if (carried) return;
+    const list = inside?.interactables, i = list ? list.indexOf(thing) : -1;
+    if (i >= 0) list.splice(i, 1);
+    carried = thing; status(`Carrying the ${thing.label.toLowerCase()}. Press use (E or ✋) to put it down where you are facing.`);
+  }
+  function putDown() {
+    const f = player.forward(), x = player.pos.x + f.x * 0.85, z = player.pos.z + f.z * 0.85;
+    if (world.hits(x, z, 0.18, player.y + 1.2)) { status('No room to put it down there. Face a clear spot.'); return; }
+    const y = world.groundAt ? world.groundAt(x, z, 0.3, player.y + 1.2) : 0;
+    carried.mesh.position.set(x, y, z); carried.mesh.rotation.y = player.yaw;
+    inside?.interactables?.push(carried);
+    status(`Put the ${carried.label.toLowerCase()} down${y > 0.05 ? ' on top' : ''}.`); carried = null;
+  }
+  function carryFrame() {
+    if (!carried) return;
+    const f = player.forward();
+    carried.mesh.position.set(player.pos.x + f.x * 0.75, player.y + player.eye - 0.75, player.pos.z + f.z * 0.75);
+    carried.mesh.rotation.y = player.yaw;
+  }
   function use() {
+    if (carried) { putDown(); return; }
     if(driving.driving){status(driving.exit());return;}
     if(mode==='town'&&nearCar){status(driving.enter(nearCar));return;}
     if(player.seated){
@@ -941,6 +968,7 @@ async function start() {
         else status('Move closer to the seat to sit safely.');
         return;
       }
+      if(nearThing.act?.do==='pickup'){ pickUp(nearThing); return; }
       if(nearThing.act?.do==='dossier'){ openPanel(nearThing.act.panel,nearThing); return; }
       if(nearThing.act?.do==='furniture'){
         openPanel(furniturePanel(nearThing),nearThing);
@@ -1225,6 +1253,7 @@ async function start() {
       else player.update(dt,input,world);
     }
     drivingDashboard.update(mode==='town'&&!overview?driving.activeVehicle():null);
+    carryFrame();
     // Keep the table-service control in the always-visible needs strip on
     // phones with the rest of the HUD collapsed.
     tableOrder.hidden=!(player.seated && mode==='house' &&
@@ -1454,10 +1483,11 @@ async function start() {
       else {
         nearThing = player.seated ? null : pickNear();
         nearNPC = null;
-        $('prompt').hidden = (!nearThing && !player.seated) || !!panelOpen || npcChat.isOpen() || !$('npc-roster').hidden;
+        if (carried && !panelOpen) { $('prompt').hidden = false; $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — Put down the ${carried.label.toLowerCase()}`; }
+        else $('prompt').hidden = (!nearThing && !player.seated) || !!panelOpen || npcChat.isOpen() || !$('npc-roster').hidden;
         const who = nearThing?.person && inside.people?.find((p) => p.key === nearThing.key);
         if (player.seated) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — Stand up · Move or jump to stand`;
-        else if (nearThing) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — ${nearThing.act?.do==='sit'?'Sit on ':''}${nearThing.label}${who ? ` · ${who.activity}` : ''}`;
+        else if (nearThing && !carried) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — ${nearThing.act?.do==='sit'?'Sit on ':nearThing.act?.do==='pickup'?'Pick up ':''}${nearThing.label}${who ? ` · ${who.activity}` : ''}`;
         if (input.consume('use')) use();
         // An exit action can dispose the interior during this frame. Keep the town loop alive.
         if(inside){
@@ -1590,6 +1620,7 @@ async function start() {
       return false;
     },
     // Stands just inside the entrance facing the exit door.
+    thing:(k)=>{const t=inside?.interactables?.find(i=>i.key===k)||(carried?.key===k?carried:null);return t?{x:t.pos.x,z:t.pos.z,y:t.mesh?.position.y??0,carried:carried===t}:null;},
     toExit() { if (!inside) return false; player.place(inside.spawn.x, inside.spawn.z, Math.PI); return true; },
     place(x, z, yaw) { player.place(x, z, yaw); },
     probe(x, z) { return world.hits(x, z, player.radius); },

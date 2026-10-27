@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { containLabel } from '../ui/labels.js';
 import { Builder } from './builder.js';
-import { PROPS } from './props.js';
+import { PROPS, standTop, PORTABLE } from './props.js';
 import { seatForProp } from './seats.js';
 import { SILL, HEAD, glassMesh, spreadWindows } from './windows.js';
 
@@ -257,6 +257,7 @@ function buildOnce(house, makeLabel, attempt) {
   b.box(0xb9b2a4, 3, 0.1, 1.6, ex, -0.05, rooms[0].z1 + 0.8);
 
   const group = new THREE.Group();
+  const portables = [];
   const doors = [];
   const labels = [];
   rooms.forEach((r, i) => {
@@ -310,10 +311,19 @@ function buildOnce(house, makeLabel, attempt) {
         placedProps.push({ type, room: ri });
         return;
       }
+      // Small loose things (no special action) are their own mesh so they can be picked up and moved.
+      if (PORTABLE.has(type) && !key) {
+        const pb = new Builder(); pb.at(0, 0, 0, 0, () => prop.build(pb, { c: act?.c, a: act?.a }));
+        const mesh = pb.build(); mesh.position.set(spot.x, 0, spot.z); mesh.rotation.y = spot.rot; mesh.name = 'carry:' + type;
+        portables.push(mesh);
+        interactables.push({ key: `carry:${house.coordinate}:${ri}:${pi}`, type, label: label || prop.label, act: { do: 'pickup' }, room: ri, pos: mesh.position, roomName: r.name, mesh });
+        placedProps.push({ type, room: ri });
+        return;
+      }
       b.at(spot.x, 0, spot.z, spot.rot, () => prop.build(b, { c: act?.c, a: act?.a, key }));
       const sideways = Math.abs(Math.sin(spot.rot)) > 0.5;
       const fw = sideways ? prop.d : prop.w, fd = sideways ? prop.w : prop.d;
-      if (prop.solid) colliders.push({ x0: spot.x - fw / 2, x1: spot.x + fw / 2, z0: spot.z - fd / 2, z1: spot.z + fd / 2 });
+      if (prop.solid) colliders.push({ x0: spot.x - fw / 2, x1: spot.x + fw / 2, z0: spot.z - fd / 2, z1: spot.z + fd / 2, top: standTop(type) });
       placedProps.push({ type, room: ri });
       sceneObjects.push({ type, label: label || prop.label, room: ri, pos: { x: spot.x, z: spot.z }, interactive: !!key });
       const pos = new THREE.Vector3(spot.x, 0, spot.z);
@@ -373,6 +383,7 @@ function buildOnce(house, makeLabel, attempt) {
 
   const built = b.build();
   group.add(built, light);
+  for (const m of portables) group.add(m);
   const glass = glassMesh(panes); if (glass) group.add(glass);
 
   // Contain the whole billboard within its room. Never turn off depth testing:
