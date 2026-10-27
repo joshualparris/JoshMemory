@@ -1259,7 +1259,9 @@ async function start() {
       const busy = Math.min(1, townLife.people.filter((p) => !p.v.inside && Math.abs(p.v.x - player.pos.x) < 25 && Math.abs(p.v.z - player.pos.z) < 25).length / 5);
       for (const e of townLife.events.splice(0)) ambience.play(e, mode === 'house' ? 300 : Math.hypot(e.x - player.pos.x, e.z - player.pos.z));
       const wxyz = mode === 'town' ? [life.place('waterworks'), life.place('sewage')].filter(Boolean).reduce((m, q) => Math.max(m, 1 - Math.hypot(player.pos.x - q.x, player.pos.z - (FIELD_Z0 + 6)) / 40), 0) : 0;
-      const animalDistance=(id)=>{const site=life.place(id);return mode==='town'&&site?Math.hypot(player.pos.x-site.x,player.pos.z-(site.field?.z??site.z??FIELD_Z0)):Infinity;};
+      const animalDistance=(id)=>{const site=life.place(id);if(mode!=='town'||!site?.field)return Infinity;
+        const f=site.field,x=Math.max(f.x0,Math.min(f.x1,player.pos.x)),z=Math.max(f.z0,Math.min(f.z1,player.pos.z));
+        return Math.hypot(player.pos.x-x,player.pos.z-z);};
       const crossings=mode==='town'?Math.min(...SIGNAL_CROSSINGS.map(q=>Math.hypot(player.pos.x-q.x,player.pos.z-q.z))):Infinity;
       ambience.update(dt, { day: life.daylight(), busy: mode === 'town' ? busy : Math.min(1,(inside?.people?.filter(p=>p.key?.startsWith('visitor:')).length||0)/8),
         vehicle:mode==='town'?driving.activeVehicle():null, sheepDistance:animalDistance('sheep'), cowDistance:animalDistance('dairy'),
