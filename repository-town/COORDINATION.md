@@ -16,6 +16,9 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-27 · Codex Work — IN PROGRESS: measured whole-town planning audit and explicit alternatives, baseline 449f9a4; research/masterplan/, tools/audit-masterplan.mjs, tests/masterplan.mjs, new planning model modules and narrow outskirts integration. Preserve building/NPC claims. Source and hosted acceptance pending.
+
+
 - 2026-10-27 · ChatGPT — **RTBUILD-016 IN PROGRESS; PR #240**: P7-N agedcare dedicated fictional 13×11m, two-bedroom small-household interior and facade; claimed new aged-care files, narrow dispatch in `src/world/shop-interior.js`, facade dispatch in `town-expansion-facades.js`, P7-N site metadata, `tests/aged-care.mjs`, `tests/town-expansion.mjs` import, and `docs/P7_AGED_CARE_REALISM_2026-10-27.md`. Branch `feat/rtbuild-016-aged-care-realism-20261027`. No NPC/pub/main.js changes. Source committed; 5 workflow gates queued/running, full hosted/production acceptance not claimed. Building is not surveyed/certified; full facilities require more land.
 
 
