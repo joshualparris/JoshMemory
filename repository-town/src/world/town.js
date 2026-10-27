@@ -5,6 +5,7 @@ import { Builder } from './builder.js';
 import { buildExterior } from './exterior.js';
 import { exteriorColliders } from './exterior-collision.js';
 import { houseEntranceZone } from './house-entrance.js';
+import { buildOutskirts } from './town-planning.js';
 
 // Town layout: 26 columns (A–Z) × 8 rows (streets). Every house faces +z onto its
 // street. Rows are merged into one mesh each so the whole town is ~10 draw calls.
@@ -32,6 +33,7 @@ export function buildTown(scene, houses, streets) {
   ground.rotation.x = -Math.PI / 2;
   ground.position.y = -0.06;
   group.add(ground);
+  const outskirts = buildOutskirts(group);
 
   const deco = new Builder();
   for (let r = 0; r < 8; r++) {
@@ -151,7 +153,7 @@ export function buildTown(scene, houses, streets) {
     streetLighting.update(eye, dark, powered);
   }
 
-  return { group, ground, colliders, lots, doors, doorZones, streets, guidePos: new THREE.Vector3(0, 0, guideZ), bounds: { width, depth }, streetLighting, lampSources, setNight };
+  return { group, ground, colliders, lots, doors, doorZones, streets, guidePos: new THREE.Vector3(0, 0, guideZ), bounds: { width, depth }, outskirts, streetLighting, lampSources, setNight };
 }
 
 // Street-name signs at both ends of each street, plus the Town Guide sign near spawn.
