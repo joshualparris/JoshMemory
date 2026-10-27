@@ -3,7 +3,7 @@
 //   node tests/masterplan-built.mjs
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { PLAN_ROADS, PLAN_PARCELS, PLAN_ROAD_NAMES, PLAN_HOMES, buildMasterplan, onPlannedOrCoreRoad, planJunctions } from '../src/world/masterplan-built.js';
+import { PLAN_ROADS, PLAN_PARCELS, PLAN_ROAD_NAMES, PLAN_HOMES, buildMasterplan, homeWalkway, onPlannedOrCoreRoad, planJunctions } from '../src/world/masterplan-built.js';
 import { CORE_ROADS, graph, rect, overlap, roadRect, frontage } from '../src/world/masterplan-model.js';
 import { roadAllows } from '../src/world/player-driving.js';
 
@@ -67,6 +67,11 @@ for (const id of ['local-south','local-north']) {
 assert(PLAN_ROADS.some(r => r.name === 'Grevillea Street'));
 assert(onPlannedOrCoreRoad(-700,277) && onPlannedOrCoreRoad(-700,367) && onPlannedOrCoreRoad(-700,457), 'all western streets driveable');
 
+for (const h of PLAN_HOMES) {
+ const w=homeWalkway(h);
+ assert(w.lengthM>2 && w.lengthM<17, h.address+' must have an actual footpath link');
+ assert(w.z0<=h.frontZ && w.z1>=h.frontZ, h.address+' entry joins path');
+}
 const built = buildMasterplan(new THREE.Group());
 assert(built.colliders.length >= 48, 'homes are solid');
 for (const c of built.colliders) {
