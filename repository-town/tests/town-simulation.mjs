@@ -67,14 +67,22 @@ assert(t.civic.government.orders.some(w=>w.service==='roads'&&w.status==='done')
 
 
 // Two weeks: the town keeps eating, stays powered, holds elections and keeps its books.
-let blackout = 0, minMeals = Infinity;
+let blackout = 0, minMeals = Infinity, firstOutage=null;
 const mayors = new Set([t.civic.mayor]);
 for (let d = 0; d < 14; d++) {
-  for (let m = 0; m < 1440; m += 0.5) { t.tick(0.5); if (!t.civic.supply.ok) blackout++; }
+  for (let m = 0; m < 1440; m += 0.5) { t.tick(0.5); if (!t.civic.supply.ok) {
+    blackout++;
+    if(!firstOutage) firstOutage={day:t.day,date:t.dateLabel(),minute:t.minute,weather:t.civic.weather,
+      powerStock:t.place('power').stock.fuel,depotFuel:t.place('depot').out.fuel,
+      powerService:t.civic.services.power,generated:t.civic.supply.power,
+      demand:t.civic.supply.powerDemand,gridUnserved:t.civic.powerGrid?.unserved,
+      faultLines:t.civic.powerLines,affected:t.civic.powerGrid?.affected?.slice(0,5),
+      trucks:t.trucks.map(q=>({state:q.state,job:q.job&&{from:q.job.from,to:q.job.to,good:q.job.good}}))};
+  } }
   if (t.yesterday) minMeals = Math.min(minMeals, t.yesterday.meals);
   mayors.add(t.civic.mayor);
 }
-assert.equal(blackout, 0, 'no blackouts while fuel deliveries keep up');
+assert.equal(blackout, 0, 'no blackouts while fuel deliveries keep up. FIRST_OUTAGE='+JSON.stringify(firstOutage));
 assert.ok(minMeals >= 80, `at least 80 meals a day (worst ${minMeals})`);
 assert.ok(t.civic.treasury > 1000, `the council stays solvent ($${Math.round(t.civic.treasury)})`);
 assert.ok(t.villagers.filter((v) => v.wallet < 5).length <= 6, 'most villagers can pay their way');
