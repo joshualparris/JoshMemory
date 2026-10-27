@@ -1149,7 +1149,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       }
       // Bicycle wheels already rest at y=.34; lifting the whole figure
       // another 32cm made the bikes hover visibly above the street.
-      p.fig.group.position.set(v.x, riding || modelled ? 0 : moving ? Math.abs(Math.sin(t * 7 + p.fig.phase)) * 0.04 : 0, v.z);
+      p.fig.group.position.set(v.x, riding ? 0 : modelled ? 0 : moving ? Math.abs(Math.sin(t * 7 + p.fig.phase)) * 0.04 : 0, v.z);
       p.fig.group.rotation.y = p.heading;
       const dist = Math.hypot(v.x - eye.x, v.z - eye.z);
       p.tag.visible = dist > 3 && !p.bubble;
