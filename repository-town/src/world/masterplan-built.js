@@ -75,7 +75,7 @@ export const PLAN_HOMES = Object.freeze(PLAN_PARCELS.filter((p) => p.use === 're
   // Homes front a street: north-side lots face south; south-side lots face north.
   const facesNorth = road.a.z === road.b.z && road.a.z < p.z;
   return Object.freeze({
-    parcelId: p.id, address: p.address,
+    parcelId: p.id, address: p.address, number: p.number,
     country: design.country, tradition: design.tradition, region: design.region,
     style: design.profile, design, facesNorth, x: p.x,
     frontZ: facesNorth ? p.z - p.d / 2 + 6 : p.z + p.d / 2 - 6,
@@ -94,6 +94,25 @@ export function homeWalkway(home) {
     width:1.6,roadId:r.id,lengthM:Math.abs(home.frontZ-sidewalkZ)};
 }
 
+// A wall plaque beside the front door: the street number large, the country beneath, as on a
+// real house sign. Painted onto a canvas so it is part of the house, not a floating label.
+function housePlaque(number, country) {
+  if (typeof document === 'undefined') return null;
+  const c = document.createElement('canvas'); c.width = 256; c.height = 160;
+  const g = c.getContext('2d');
+  g.fillStyle = '#f4efe2'; g.fillRect(0, 0, 256, 160);
+  g.strokeStyle = '#2b2b2b'; g.lineWidth = 8; g.strokeRect(4, 4, 248, 152);
+  g.fillStyle = '#1f1f1f'; g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.font = 'bold 84px Georgia, serif'; g.fillText(String(number), 128, 58);
+  let size = 44; g.font = `${size}px Georgia, serif`;
+  while (g.measureText(country).width > 232 && size > 20) { size -= 2; g.font = `${size}px Georgia, serif`; }
+  g.fillText(country, 128, 124);
+  const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(0.95, 0.6), new THREE.MeshLambertMaterial({ map: tex, emissive: 0xffffff, emissiveMap: tex, emissiveIntensity: 0.25 }));
+  m.name = `House sign ${number} · ${country}`;
+  return m;
+}
+
 function buildHomes(root) {
   const colliders = [];
   for (const h of PLAN_HOMES) {
@@ -103,6 +122,8 @@ function buildHomes(root) {
     const cz = h.facesNorth ? h.frontZ + fp.front : h.frontZ - fp.front;
     const mesh = b.build(); mesh.position.set(h.x, 0, cz); if (h.facesNorth) mesh.rotation.y = Math.PI;
     mesh.name = `${h.address} · ${h.country} (${h.tradition})`; root.add(mesh);
+    const plaque = h.number ? housePlaque(h.number, h.country) : null;
+    if (plaque) { plaque.position.set(fp.door.x + fp.door.w / 2 + 0.85, 1.8, fp.front + 0.04); mesh.add(plaque); }
     const glass = Builder.merge(b.glass);
     if (glass) { const g = new THREE.Mesh(glass, new THREE.MeshLambertMaterial({ vertexColors: true })); g.position.copy(mesh.position); g.rotation.y = mesh.rotation.y; root.add(g); }
     for (const c of [...exteriorColliders(fp, 0, 0), ...fp.yard]) {
