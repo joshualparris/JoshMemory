@@ -1,4 +1,5 @@
-import {createSoundtrack,musicProfile} from './soundtrack.js';
+import {createSoundtrack,musicProfile,MUSIC_TRACKS,musicTrackAt} from './soundtrack.js';
+import {createVehicleAudio} from './vehicle-audio.js';
 // Town sound, synthesised with WebAudio (no audio files): wind, rain and thunder, birdsong, magpies,
 // cicadas, crickets and frogs, a dog and a rooster, a murmur on the high street, trucks, running water at
 // the water works, the Town Hall bell, the train horn, doors and shop bells, relic chimes, per-room sound
@@ -10,7 +11,9 @@ const KEY = 'repository-town.sound';
 
 export function createAmbience() {
   let ctx = null, master = null, wind = null, street = null, rumble = null, rain = null, roof = null, cicada = null, cicadaLfo = null, water = null, engine = null, hum = null, humGain = null, murmur = null;
-  let music=null,musicBus=null,ambienceBus=null,effectsBus=null;
+  let music=null,vehicleAudio=null,musicBus=null,ambienceBus=null,effectsBus=null;
+  let trackIndex=-1,nextSheep=0,nextCow=0,nextCrossing=0;
+  try{const k=Number(localStorage.getItem('repository-town.music-track'));if(Number.isInteger(k)&&k>=-1&&k<MUSIC_TRACKS.length)trackIndex=k;}catch{}
   let mix={master:.7,music:.35,ambience:.7,effects:.8};
   try{const stored=JSON.parse(localStorage.getItem('repository-town.audio-mix')||'{}');for(const k of Object.keys(mix))if(Number.isFinite(stored[k]))mix[k]=Math.max(0,Math.min(1,stored[k]));}catch{}
   let white = null, reverb = null, reverbSend = null, indoorsNow = false;
@@ -47,7 +50,7 @@ export function createAmbience() {
     ctx = new AC(); master = ctx.createGain(); master.gain.value = mix.master*.7; master.connect(ctx.destination);
     ambienceBus=ctx.createGain();effectsBus=ctx.createGain();musicBus=ctx.createGain();
     ambienceBus.gain.value=mix.ambience;effectsBus.gain.value=mix.effects;musicBus.gain.value=mix.music;
-    ambienceBus.connect(master);effectsBus.connect(master);musicBus.connect(master);music=createSoundtrack(ctx,musicBus);
+    ambienceBus.connect(master);effectsBus.connect(master);musicBus.connect(master);music=createSoundtrack(ctx,musicBus);vehicleAudio=createVehicleAudio(ctx,effectsBus);
     const brown = noiseBuffer(ctx);
     white = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate); const wd = white.getChannelData(0);
     for (let i = 0; i < wd.length; i++) wd[i] = Math.random() * 2 - 1;
@@ -307,11 +310,14 @@ export function createAmbience() {
   //   surface: what's underfoot (see world/surfaces.js); stepPhase: the camera bob phase (a step lands each
   //   time it passes the bottom of the bob); moving/running/crouching/airborne: the player's state;
   //   hour: 0–24 (for the dawn rooster).
-  function update(dt, { day, busy = 0, truck = Infinity, indoors = false, room = '', weather = 'sunny', water: waterNear = 0, surface = 'grass', stepPhase, moving = false, running = false, crouching = false, airborne = false, hour = 12, dayNumber = 0 }) {
+  function update(dt, { day, busy = 0, truck = Infinity, indoors = false, room = '', weather = 'sunny', water: waterNear = 0, surface = 'grass', stepPhase, moving = false, running = false, crouching = false, airborne = false, hour = 12, dayNumber = 0, vehicle = null, sheepDistance = Infinity, cowDistance = Infinity, crossingDistance = Infinity, crossingWalk = false }) {
     if (!ctx || !on) return;
     if (ctx.state === 'suspended') ctx.resume();
     const now = ctx.currentTime;
-    const profile=musicProfile(room,day,indoors);debug.track=profile.name;music?.update(profile,document.querySelector('#panel:not([hidden]),#npc-chat:not([hidden]),#town-companion:not([hidden])')!==null);
+    const profile=trackIndex<0?musicProfile(room,day,indoors):musicTrackAt(trackIndex);
+    debug.track=profile.name;
+    music?.update(profile,document.querySelector('#panel:not([hidden]),#npc-chat:not([hidden]),#town-companion:not([hidden])')!==null);
+    debug.vehicle=vehicleAudio?.update(vehicle)||null;
     const set = (node, v) => node.gain.gain.setTargetAtTime(v, now, 0.4);
     const out_ = indoors ? 0.25 : 1, rainy = weather === 'rainy', windy = weather === 'windy', cloudy = weather === 'cloudy';
     if (indoors !== indoorsNow) { indoorsNow = indoors; reverbSend.gain.setTargetAtTime(indoors ? 1 : 0, now, 0.1); }
@@ -321,6 +327,9 @@ export function createAmbience() {
     set(wind, ((0.05 + 0.04 * Math.sin(now * 0.13)) * (windy ? 1 + 3 * gust : cloudy ? 1.3 : 1)) * out_);
     wind.filter.frequency.setTargetAtTime(windy ? 380 + 520 * gust : 500, now, 0.5);
     set(street, 0.05 * busy * out_);
+    // Outside the busiest public places have audible speech-band hubbub too.
+    // Inside rooms use the venue-specific mix below instead.
+    if(!indoors)murmur.gain.gain.setTargetAtTime(.065*busy,now,.4);
     set(rumble, Math.max(0, 1 - truck / 40) * 0.3 * out_);
     engine.gain.gain.setTargetAtTime(Math.max(0, 1 - truck / 55) * 0.05 * out_, now, 0.3);
     engine.osc.frequency.setTargetAtTime(40 + Math.max(0, 1 - truck / 55) * 9 + 2 * Math.sin(now * 5), now, 0.2);
@@ -337,8 +346,21 @@ export function createAmbience() {
     set(cicada, day > 0.5 && !rainy && !windy ? 0.018 * day * (0.7 + 0.3 * Math.sin(now * 0.2)) * out_ : 0);
     // Room tone indoors.
     const rm = indoors ? ROOMS[room] || ROOMS.house : null;
-    set(murmur, rm ? rm.murmur*(.2+.8*Math.min(1,busy)) : 0); humGain.gain.setTargetAtTime(rm ? rm.hum : 0, now, 0.4);
+    set(murmur, rm ? rm.murmur*(.2+.8*Math.min(1,busy)) : .065*busy); humGain.gain.setTargetAtTime(rm ? rm.hum : 0, now, 0.4);
     if (rm && now > nextRoom) { roomEvent(rm.ev[Math.floor(Math.random() * rm.ev.length)]); nextRoom = now + rm.gap[0] + Math.random() * (rm.gap[1] - rm.gap[0]); }
+    // Hearing range attenuates continuously: livestock cannot be heard from
+    // the high street, and crossing clicks only exist at the actual signal.
+    if(!indoors&&sheepDistance<55&&now>nextSheep){
+      roomEvent('bleat');nextSheep=now+3.5+Math.random()*4;
+    }else if(sheepDistance>=55)nextSheep=now;
+    if(!indoors&&cowDistance<58&&now>nextCow){
+      roomEvent('low');nextCow=now+5+Math.random()*5;
+    }else if(cowDistance>=58)nextCow=now;
+    if(!indoors&&crossingWalk&&crossingDistance<24&&now>nextCrossing){
+      tone(1580,.042,.019*Math.max(.1,1-crossingDistance/24),'square');
+      nextCrossing=now+.38;
+    }else if(!crossingWalk||crossingDistance>=24)nextCrossing=now;
+
 
     // Wildlife: birds by day, magpies and crows now and then, a dog, a dawn rooster, crickets and frogs by night.
     if (day > 0.15 && !rainy && now > nextBird) { const n = 1 + Math.floor(Math.random() * 3); for (let i = 0; i < n; i++) setTimeout(() => ctx && chirp(0.05 * day * out_), i * 140); nextBird = now + 1.5 + Math.random() * 5 / Math.max(0.3, day); }
@@ -366,12 +388,19 @@ export function createAmbience() {
 
   function setOn(v) {
     on = v; try { localStorage.setItem(KEY, v ? 'on' : 'off'); } catch { /* storage blocked */ }
-    if (!v && ctx) {music?.dispose();music=null;ctx.close(); ctx = null; }
+    if (!v && ctx) {music?.dispose();music=null;vehicleAudio?.dispose();vehicleAudio=null;ctx.close(); ctx = null; }
     if (v) { start(); setTimeout(() => { tone(523.25, 0.12, 0.06, 'triangle'); setTimeout(() => tone(659.25, 0.16, 0.06, 'triangle'), 90); }, 50); }
   }
   return {
     start, update, setOn, play, door, shopBell,
     get mix(){return {...mix};},
+    get tracks(){return MUSIC_TRACKS.map((t,i)=>({index:i,name:t.name,genre:t.style}));},
+    get selectedTrack(){return trackIndex;},
+    selectTrack(index){if(!Number.isInteger(index)||index<-1||index>=MUSIC_TRACKS.length)return false;
+      trackIndex=index;try{localStorage.setItem('repository-town.music-track',String(index));}catch{}
+      debug.track=index<0?'Adaptive venue soundtrack':musicTrackAt(index).name;return true;},
+    nextTrack(){trackIndex=(trackIndex+1)%MUSIC_TRACKS.length;try{localStorage.setItem('repository-town.music-track',String(trackIndex));}catch{}return musicTrackAt(trackIndex).name;},
+    previousTrack(){trackIndex=(trackIndex+MUSIC_TRACKS.length-1)%MUSIC_TRACKS.length;try{localStorage.setItem('repository-town.music-track',String(trackIndex));}catch{}return musicTrackAt(trackIndex).name;},
     setMix(key,value){if(!(key in mix)||!Number.isFinite(value))return;mix[key]=Math.max(0,Math.min(1,value));try{localStorage.setItem('repository-town.audio-mix',JSON.stringify(mix));}catch{}if(ctx){master.gain.setTargetAtTime(mix.master*.7,ctx.currentTime,.1);ambienceBus.gain.setTargetAtTime(mix.ambience,ctx.currentTime,.1);effectsBus.gain.setTargetAtTime(mix.effects,ctx.currentTime,.1);musicBus.gain.setTargetAtTime(mix.music,ctx.currentTime,.1);}},
     work(kind){if(!ctx||!on)return;switch(kind){case 'grind':burst('bandpass',650,1.5,1.4,.07);break;case 'steam':burst('highpass',4000,.7,2,.045);break;case 'extract':case 'fill':case 'pour':case 'latte-art':burst('bandpass',1600,.8,1.5,.035);break;case 'cook':case 'bake':case 'preheat':burst('highpass',2400,.8,1.6,.035);break;case 'probe':tone(920,.1,.026,'sine');break;case 'success':tone(659,.08,.035,'triangle');tone(880,.13,.025,'sine');break;case 'tamp':thump(110,.12,.06);break;default:roomEvent('clink');}},
     relic: () => { tone(587.33, 0.15, 0.07, 'triangle'); setTimeout(() => tone(880, 0.25, 0.07, 'triangle'), 110); },
