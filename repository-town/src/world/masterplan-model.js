@@ -28,7 +28,7 @@ function neighbourhood(south=false){
 }
 export function alternatives(legacyParcels,legacyRoads){
  const A={id:'A',name:'Existing twelve-reserve perimeter concept',roads:legacyRoads.map(r=>({id:r.id,a:{x:r.w>r.d?r.x-r.w/2:r.x,z:r.w>r.d?r.z:r.z-r.d/2},b:{x:r.w>r.d?r.x+r.w/2:r.x,z:r.w>r.d?r.z:r.z+r.d/2},width:Math.min(r.w,r.d),reserve:null,footpath:0,status:'concept',speed:30})),parcels:legacyParcels.map(p=>({...p,use:p.zone.startsWith('R')?'residential-reserve':'other-reserve',roadId:null,status:'concept',buildable:false})),buffers:[],assumedDwellings:null,officialAddresses:false};
- return [A,neighbourhood(),neighbourhood(true)];
+ return [A,neighbourhood(),neighbourhood(true),southernBypass()];
 }
 export const NORTHERN_PLAN=neighbourhood();
 export const rect=p=>({x0:p.x-p.w/2,x1:p.x+p.w/2,z0:p.z-p.d/2,z1:p.z+p.d/2});
@@ -65,3 +65,10 @@ export function planAddresses(plan){
   }
  }return records;
 }
+
+export function southernBypass(){
+ const p=neighbourhood(true);p.id='D';p.name='Southern neighbourhoods with farm-clear eastern tie-in';
+ const r=p.roads.find(r=>r.id==='core-link-2');r.a.x=338;r.b.x=338;
+ return p;
+}
+export const SELECTED_PLAN=southernBypass();
