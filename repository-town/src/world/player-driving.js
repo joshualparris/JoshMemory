@@ -1,5 +1,6 @@
 // Third-person, physically blocked vehicles. Uses the same Input joystick/keys
 // and CollisionWorld as the pedestrian. Only owned, registered vehicles work.
+import {stepDrivetrain,drivetrainFor} from './drivetrain.js';
 import * as THREE from 'three';
 import { VEHICLE_MODELS } from './vehicles.js';
 import {updateCoolantTemperature} from './driving-instruments.js';
@@ -152,6 +153,9 @@ export function createPlayerDriving(life,scene,collision,player,camera,input){
    }else{speed=0;message='Brake! Road edge, pedestrian or obstruction.';}
    v.speed=r2(speed);
    v.coolantTemp=updateCoolantTemperature(v.coolantTemp,dt,speed,v.condition);
+   // Gearbox and revs for the dashboard and engine sound (drivetrain.js).
+   const drive=stepDrivetrain(drivetrainFor(v.model),v.drive,speed,Math.abs(throttle),dt);
+   v.drive={gear:drive.gear,rpm:Math.round(drive.rpm),shiftTimer:drive.shiftTimer,load:drive.load,shifted:drive.shifted};
    player.pos.set(v.x,0,v.z);player.yaw=v.yaw||0;player.pitch=0;
    // Third-person trailing camera, no disembodied eye inside a dashboard.
    const follow=9+(v.model==='truck'?4:0),px=v.x+Math.sin(v.yaw||0)*follow,

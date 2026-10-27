@@ -131,8 +131,8 @@ export function createDrivingDashboard(){
    lastUpdate=now;
    text(el,'drive-model',(d.model+' · '+d.registration).toUpperCase());
    text(el,'drive-speed',d.speedKmh);
-   text(el,'drive-gear',d.direction);
-   text(el,'drive-rpm',d.rpm+' RPM approx.');
+   text(el,'drive-gear',d.direction==='D'&&d.gear?'D'+d.gear:d.direction);
+   text(el,'drive-rpm',d.rpm+' RPM');
    text(el,'drive-fuel',d.fuelLitres.toFixed(2)+' L');
    text(el,'drive-temp',d.coolantC+' °C');
    text(el,'drive-range','~'+d.approximateRangeKm+' km game range');

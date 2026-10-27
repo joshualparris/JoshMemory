@@ -375,6 +375,8 @@ export function createAmbience() {
     setMix(key,value){if(!(key in mix)||!Number.isFinite(value))return;mix[key]=Math.max(0,Math.min(1,value));try{localStorage.setItem('repository-town.audio-mix',JSON.stringify(mix));}catch{}if(ctx){master.gain.setTargetAtTime(mix.master*.7,ctx.currentTime,.1);ambienceBus.gain.setTargetAtTime(mix.ambience,ctx.currentTime,.1);effectsBus.gain.setTargetAtTime(mix.effects,ctx.currentTime,.1);musicBus.gain.setTargetAtTime(mix.music,ctx.currentTime,.1);}},
     work(kind){if(!ctx||!on)return;switch(kind){case 'grind':burst('bandpass',650,1.5,1.4,.07);break;case 'steam':burst('highpass',4000,.7,2,.045);break;case 'extract':case 'fill':case 'pour':case 'latte-art':burst('bandpass',1600,.8,1.5,.035);break;case 'cook':case 'bake':case 'preheat':burst('highpass',2400,.8,1.6,.035);break;case 'probe':tone(920,.1,.026,'sine');break;case 'success':tone(659,.08,.035,'triangle');tone(880,.13,.025,'sine');break;case 'tamp':thump(110,.12,.06);break;default:roomEvent('clink');}},
     relic: () => { tone(587.33, 0.15, 0.07, 'triangle'); setTimeout(() => tone(880, 0.25, 0.07, 'triangle'), 110); },
+    // The effects channel for other sound sources (engine-audio.js), only while sound is on.
+    effectsOut(){return ctx&&on?{ctx,bus:effectsBus,noise:white}:null;},
     get on() { return on; }, get running() { return !!ctx && ctx.state === 'running'; }, debug,
   };
 }

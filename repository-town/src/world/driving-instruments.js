@@ -30,7 +30,9 @@ export function vehicleTelemetry(vehicle) {
     speedKmh,
     speedMs,
     direction:speedMs < -.12?'R':'D',
-    rpm:Math.round((825+Math.abs(speedMs)*135)/50)*50, // approximate tachometer, not simulated engine revolutions
+    // Revs and gear from the drivetrain model when the car is being driven (drivetrain.js).
+    rpm:Math.round((Number.isFinite(vehicle.drive?.rpm)?vehicle.drive.rpm:825+Math.abs(speedMs)*135)/50)*50,
+    gear:Number.isInteger(vehicle.drive?.gear)?vehicle.drive.gear:null,
     fuelLitres:Math.round(fuel*100)/100,
     fuelPercent:Math.round(100*fuel/FUEL_CAPACITY_L),
     lowFuel:fuel<=4.5,

@@ -63,6 +63,7 @@ import { createEmergencyResponseVisuals } from './world/emergency-response-visua
 import { createPlayerDriving } from './world/player-driving.js';
 import { createDrivingDashboard } from './ui/driving-dashboard.js';
 import { buildRoadSigns } from './world/road-signs.js';
+import { createEngineAudio } from './ui/engine-audio.js';
 import { buildCivilWorks } from './world/civil-works.js';
 import { nearestSeat } from './world/seats.js';
 import { furniturePanel } from './ui/furniture.js';
@@ -246,6 +247,7 @@ async function start() {
   showSpeedSetting();
   const driving=createPlayerDriving(life,scene,townWorld,player,camera,input);
   const drivingDashboard=createDrivingDashboard();
+  const engineAudio=createEngineAudio(()=>ambience.effectsOut());
   const tableOrder = document.createElement('button');
   tableOrder.id='btn-table-order';tableOrder.type='button';
   tableOrder.textContent='🍽 Order at table';
@@ -1204,6 +1206,7 @@ async function start() {
       else player.update(dt,input,world);
     }
     drivingDashboard.update(mode==='town'&&!overview?driving.activeVehicle():null);
+    engineAudio.update(dt, mode==='town'&&driving.driving?driving.activeVehicle():null);
     // Keep the table-service control in the always-visible needs strip on
     // phones with the rest of the HUD collapsed.
     tableOrder.hidden=!(player.seated && mode==='house' &&
@@ -1573,6 +1576,8 @@ async function start() {
     meetGuide() { if (mode === 'house') leave(false); player.place(town.guidePos.x, town.guidePos.z + 1.6, 0); return 'guide'; },
     goPlace,
     driveDashboard:()=>drivingDashboard.getState(),
+    engineSound:()=>engineAudio.state,
+    driveState:()=>driving.activeVehicle()?.drive||null,
     roadSigns:()=>roadSigns.signs.map(({type,x,z,yaw})=>({type,x,z,yaw})),
     driveHeadlights:()=>driving.headlightStatus(),
     estateLights:()=>({count:masterplan.lampPositions.length,sourceCount:town.streetLighting.sourceCount,visible:masterplan.lampHeads.material.emissiveIntensity>0}),
@@ -1585,7 +1590,7 @@ async function start() {
     vehicles:()=>life.motorReport().owned.map(v=>({...v})),
     enterVehicle:(reg)=>driving.enter(life.motorReport().owned.find(v=>v.registration===reg)),
     leaveVehicle:()=>driving.exit(),
-    stepVehicle:(seconds)=>driving.update(seconds),
+    stepVehicle:(seconds)=>{const r=driving.update(seconds);engineAudio.update(seconds,driving.driving?driving.activeVehicle():null);return r;},
     shops:()=>[...life.places.values()].map(p=>({id:p.id,name:p.name,kind:p.kind,side:p.side||'north',expansion:!!p.expansion,door:{x:p.x,z:p.door.z}})),
     enterShop,
     enterCountryHome:(id)=>{const h=masterplan.homes.find(x=>x.parcelId===id||x.country===id||x.address===id);return h?enterCountryHome(h):false;},
