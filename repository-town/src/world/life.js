@@ -1,5 +1,5 @@
 import { RAIL_Z, RAIL_CROSSINGS, railGateState, railUserBlocked, scheduledRailTrainX } from './rail-corridor.js';
-import {townDate, townDateLabel, venueHoursOnDay, residentWorksToday, isWeekend} from './town-calendar.js';
+import {townDate, townDateLabel, venueHoursOnDay, residentWorksToday, isWeekend, weekdayOnlyWorkplace} from './town-calendar.js';
 export { RAIL_Z };
 import {validPubVenue,drinkPubBeer,pubDrinkAvailable,reservePubDrink} from './pub-venue.js';
 import {validPool} from './pub-pool.js';
@@ -2025,7 +2025,13 @@ export class TownLife {
   // outside town. Money moves, it isn't made.
   pay(v) {
     v.paidDay = this.day;
-    const base = WAGES[v.job] || BASE_WAGE, employer = v.work === 'home' ? null : this.place(v.work);
+    // Monday–Friday salaried workplaces distribute the SAME seven-day weekly
+    // income over five actual workdays (7/5), instead of making a bank teller
+    // work Sundays to afford groceries. No wage is created on the day off.
+    // These are fictional Town Dollars, not a statutory Australian award.
+    const dailyBase=WAGES[v.job]||BASE_WAGE;
+    const base=weekdayOnlyWorkplace(v.work)?Math.round(dailyBase*7/5*100)/100:dailyBase;
+    const employer = v.work === 'home' ? null : this.place(v.work);
     // Unpaid wages from earlier shifts are owed and paid when there is money to pay them.
     const wage = v.job === 'programmer' ? base : base + (v.wageArrears || 0);
     let paid = 0, fromCouncil = 0;
