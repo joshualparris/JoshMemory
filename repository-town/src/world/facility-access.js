@@ -30,7 +30,8 @@ export function openingHoursLabel(place) {
   if(place.id==='busstop') return 'SHELTER 24 HOURS · HELP 08:00-17:30';
   if(place.id==='farmhouse') return 'VISITS BY APPOINTMENT';
   const [opens,closes]=visitorHours(place);
-  return `${SUPERVISED.has(place.id)||RECEPTION_HOURS[place.id]?'RECEPTION':'HOURS'} ${CLOCK(opens)}-${CLOCK(closes)} · WEEKEND VARIES`;
+  const varied=!!venueHoursOnDay(place,7)&&!!venueHoursOnDay(place,6)&&venueHoursOnDay(place,7).join(',')===venueHoursOnDay(place,6).join(',')&&venueHoursOnDay(place,7).join(',')===visitorHours(place).join(',');
+  return `${SUPERVISED.has(place.id)||RECEPTION_HOURS[place.id]?'RECEPTION':'HOURS'} ${CLOCK(opens)}-${CLOCK(closes)}${varied?'':' · CHECK WEEKEND HOURS'}`;
 }
 export function onSiteWorkers(town, place) {
   return (town.villagers || []).filter(v => workingAt(v, place.id, place));
