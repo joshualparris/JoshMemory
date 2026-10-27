@@ -50,6 +50,16 @@ try {
  await page.waitForFunction(()=>!!window.__town.state().driving,null,{timeout:5000});
  await page.waitForFunction(()=>!document.getElementById('driving-dashboard')?.hidden,null,{timeout:5000});
  assert.equal(await page.locator('#drive-speed').innerText(),'0','speedometer begins at a stop');
+ assert(await page.isVisible('#drive-dash-toggle'),'Show/Hide toggle is accessible while driving on Android');
+ await page.tap('#drive-dash-toggle');
+ assert(await page.locator('#driving-dashboard').isHidden(),'button hides full instrument panel');
+ assert(await page.isVisible('#drive-dash-toggle'),'hide must NOT remove its own show control');
+ assert.equal(await page.locator('#drive-dash-toggle').innerText(),'Show dashboard');
+ assert.equal(await page.evaluate(()=>localStorage.getItem('repository-town.car-dashboard-visible')),'false','visibility choice is persisted');
+ await page.tap('#drive-dash-toggle');
+ assert(await page.isVisible('#driving-dashboard'),'button restores gauges immediately');
+ assert.equal(await page.locator('#drive-dash-toggle').innerText(),'Hide dashboard');
+ assert.equal(await page.evaluate(()=>localStorage.getItem('repository-town.car-dashboard-visible')),'true');
  const gaugeStart=await page.evaluate(()=>({fuel:document.getElementById('drive-fuel').textContent,temp:document.getElementById('drive-temp').textContent,registration:document.getElementById('drive-model').textContent}));
  assert(gaugeStart.fuel.includes('20.0')&&gaugeStart.registration.includes(v.registration),'dashboard displays the actual owned car and its fuel: '+JSON.stringify(gaugeStart));
  await page.tap('#drive-radio-power');
