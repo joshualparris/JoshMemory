@@ -71,6 +71,11 @@ async function play(kind,options) {
   assert(await launch.isVisible(),kind+': Ask AI did not return after closing the menu');
 
 
+  // Verify real controls on a clear existing road, not beside a solid guide.
+  const safeRoad={x:22,z:-7,yaw:Math.PI/2};
+  assert.equal(await page.evaluate(p=>Boolean(window.__town.probeStatic(p.x,p.z)),safeRoad),false,kind+': baseline street test point obstructed');
+  await page.evaluate(p=>window.__town.place(p.x,p.z,p.yaw),safeRoad);
+  const movementOrigin=await page.evaluate(()=>window.__town.state().pos);
   // Test the real input path: keyboard on desktop, canvas joystick touch on
   // Android. A focused Guide close button legitimately ignores keyboard W.
   if(kind==='mobile'){
@@ -90,8 +95,8 @@ async function play(kind,options) {
     await page.keyboard.down('w');await page.waitForTimeout(950);await page.keyboard.up('w');
   }
   const after=await page.evaluate(()=>window.__town.state());
-  const origin=rec.steps[0].state.pos;
-  assert(Math.hypot(origin.x-after.pos.x,origin.z-after.pos.z)>.05,kind+': real movement controls did not move the player');
+  const origin=movementOrigin;
+  assert(Math.hypot(origin.x-after.pos.x,origin.z-after.pos.z)>.05,kind+': real movement controls did not move the player from clear road '+JSON.stringify({origin,after:after.pos,mode:after.mode,panel:after.panel}));
   await shot('02-after-walking');
   // Genuine approach to the Community Bank from its southern pavement:
   // no direct enterShop cheat. The camera walks towards the rendered door.
