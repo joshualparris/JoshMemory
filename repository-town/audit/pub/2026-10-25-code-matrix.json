@@ -19,7 +19,7 @@
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "042179065ad051e673e72fe3b1b9408945205476",
+    "repository-town/src/main.js": "28b23c39d91401a115059bf573f6b0db854864e9",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -723,7 +723,8 @@
     "2026-10-26 PR237 re-integrated against latest main: reconciled repository-town/src/world/shop-interior.js, repository-town/src/world/townlife.js fingerprint(s), preserved concurrent retail and service-building changes. No regulatory signoff or change to pub certification.",
     "2026-10-27 PR242 integration re-audit: main.js world map display/boundary expansion and shared life.js northern footpath routing changed. Git hashes refreshed for provenance, not proof of pub code compliance, measured egress or professional certification.",
     "2026-10-27 footpath re-audit: eastbound north-side pavement lane adjusted to 5.0 m, westbound 7.05 m for cyclist separation. Does not assert pub compliance.",
-    "2026-10-27 alias routing re-audit: HUD fast travel accepts the legacy 'Repo Public Library' name for the existing 'The Old Shire Library' civic site. Pure search selection change; pub geometry, operations, egress and NCC regulatory status unchanged. This fingerprint does not certify compliance."
+    "2026-10-27 alias routing re-audit: HUD fast travel accepts the legacy 'Repo Public Library' name for the existing 'The Old Shire Library' civic site. Pure search selection change; pub geometry, operations, egress and NCC regulatory status unchanged. This fingerprint does not certify compliance.",
+    "2026-10-27 world-home ground-floor update: main.js now opens distinct country interiors without modifying any pub equipment or approvals. Source fingerprint refresh tracks code provenance only."
   ],
   "sourceChangeReviews": {
     "2026-10-26-rail-corridor": {
@@ -773,6 +774,15 @@
       ],
       "finding": "Legacy public library fast-travel alias now selects the existing A7-N library place (id 'library') in HUD search; pub compliance classification remains unchanged.",
       "evidence": "Root cause isolated to renamed library site string; GH Actions fast-travel regression provides a real browser verification."
+    },
+    {
+      "date": "2026-10-27",
+      "by": "ChatGPT (195-home planning and interior implementation)",
+      "changedFiles": [
+        "repository-town/src/main.js"
+      ],
+      "finding": "World-home door trigger and exit integration with per-home floor plans; no edits to pub physical configuration, NCC conclusions or egress. Existing 34 RTPUB statuses remain unchanged.",
+      "evidence": "Main.js Git blob reconciled for source integrity, all 34 RTPUB outcomes still non-certifying; current pub/whole-town tests must remain passing."
     }
   ]
 }
