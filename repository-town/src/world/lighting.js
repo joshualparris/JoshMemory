@@ -2,7 +2,7 @@ import * as THREE from 'three';
 
 // Rendering units are metres. Intensities are artistic approximations for the
 // pinned r160 Lambert renderer, not a claim of compliance with measured lux.
-export const STREET_LIGHT_BUDGET = 4;
+export const STREET_LIGHT_BUDGET = 6;
 export const lightingLevel = dark => THREE.MathUtils.smoothstep(dark, 0.12, 0.65);
 
 // Reuse a fixed set of downward luminaires, rather than hundreds of real lights.
@@ -15,24 +15,29 @@ export function createStreetLighting(parent, sources, budget = STREET_LIGHT_BUDG
     rig.add(light, light.target); return light;
   });
   let lastX = Infinity, lastZ = Infinity, selected = [];
+  // Main-town and estate lamps share one budget; adding new roads never
+  // creates hundreds of simultaneous mobile GPU light passes.
+  const allSources=[...sources];
+  function addSources(extra){allSources.push(...extra);lastX=Infinity;lastZ=Infinity;}
   function update(eye, dark, powered = true) {
     const level = powered ? lightingLevel(dark) : 0;
     // Selection is spatial, independent of frame rate or town clock speed.
     if (Math.hypot(eye.x - lastX, eye.z - lastZ) > 2) {
       lastX = eye.x; lastZ = eye.z;
-      selected = sources.map(s => ({ s, d: Math.hypot(s.x-eye.x, s.z-eye.z) }))
+      selected = allSources.map(s => ({ s, d: Math.hypot(s.x-eye.x, s.z-eye.z) }))
         .filter(e => e.d < 52).sort((a,b) => a.d-b.d).slice(0,budget).map(e=>e.s);
     }
     slots.forEach((light, i) => {
       const s = selected[i];
-      light.intensity = s ? 105 * level : 0;
+      light.intensity = s ? (s.estate ? 195 : 105) * level : 0;
       light.visible = !!s && level > 0;
       if (!s) return;
       light.position.set(s.x, s.y, s.z);
-      light.target.position.set(s.x, 0, s.z + (s.roadward || 0));
+      light.target.position.set(s.x + (s.roadwardX || 0), 0,
+        s.z + (s.roadwardZ ?? s.roadward ?? 0));
     });
   }
-  return { rig, slots, update };
+  return { rig, slots, update, addSources, get sourceCount(){return allSources.length;} };
 }
 
 export function interiorPalette(id) {
