@@ -1,4 +1,5 @@
 // Architectural cues are illustrative, not exact replicas or claims of a national "default".
+import { dossierFor } from './country-dossiers.js';
 // 193 UN members and the Holy See + Palestine. One distinct design per country.
 // Each cue describes a real regional house tradition; cultures within countries are diverse.
 const groups = [
@@ -243,7 +244,10 @@ export function countryDesign(index, lotWidth) {
 // Forms vary by architectural cue: pitches, pitched hip roofs, arcades, eaves, balconies,
 // thatch, courtyards, elevated floors, towers and terraces.
 export function buildCountryHome(b, design) {
- const {w,d,floors,index:i,profile,wall,roof,trim} = design;
+ const dossier = dossierFor(design.country);
+ // A researched country house (country-dossiers.js) sets its own period colours.
+ const {w,d,floors,index:i,profile} = design;
+ const wall = dossier?.exterior?.wall ?? design.wall, roof = dossier?.exterior?.roof ?? design.roof, trim = dossier?.exterior?.trim ?? design.trim;
  const elevated = profile === 'stilt' ? 1.35 : 0;
  const floorH = 2.95 + (i % 4)*0.12, h = floors * floorH;
  const angle = 0.33 + (i % 7)*0.055;
@@ -303,5 +307,21 @@ export function buildCountryHome(b, design) {
  }
  // Each building has its own subtle window rhythm/roof accent, not just a recolour.
  for(let n=0;n<1+i%5;n++) b.box(trim,.17,.21,.12,-w*.38+n*.4,roofY+.34,d/2+.18);
- return {w,d,h:elevated+h+3,front:d/2,door:{x:0,w:1.65},yard:[]};
+ const yard=[];
+ if(dossier?.exterior?.chimney){
+   // Brick chimney over the parlour fireplace on the side wall, rising clear of the roof.
+   const cz=-d/2+3.2+3.1;
+   b.box(dossier.exterior.chimney,.75,h+2.3,.95,-w/2-.2,elevated+(h+2.3)/2,Math.min(d/2-.6,cz));
+   b.box(0x5a3a30,.9,.14,1.1,-w/2-.2,elevated+h+2.37,Math.min(d/2-.6,cz));
+   yard.push({x0:-w/2-.575,x1:-w/2+.175,z0:Math.min(d/2-.6,cz)-.475,z1:Math.min(d/2-.6,cz)+.475});
+ }
+ if(dossier?.exterior?.tank){
+   // Corrugated iron rainwater tank on a timber stand beside the kitchen, fed from the gutter.
+   const tx=w/2+1.15,tz=-d/2+1.2;
+   b.box(0x6b5440,1.7,.45,1.7,tx,.22,tz);
+   b.cyl(dossier.exterior.tank,.8,1.9,tx,1.4,tz);
+   b.cyl(0x8d9397,.84,.08,tx,2.38,tz);
+   yard.push({x0:tx-.85,x1:tx+.85,z0:tz-.85,z1:tz+.85});
+ }
+ return {w,d,h:elevated+h+3,front:d/2,door:{x:0,w:1.65},yard};
 }

@@ -4,6 +4,8 @@
 import * as THREE from 'three';
 import {Builder} from './builder.js';
 import {PROPS} from './props.js';
+import {dossierFor,residentPanel,housePanel} from './country-dossiers.js';
+import {makeNPC} from './npcs.js';
 
 const WALL=0.18, OPEN=1.12;
 export function countryInteriorPlan(home){
@@ -42,6 +44,8 @@ export function countryExitPose(home){
 }
 
 export function buildCountryInterior(home,makeLabel=()=>new THREE.Group()){
+ const dossier=dossierFor(home.design.country);
+ if(dossier)return buildDossierInterior(home,dossier,makeLabel);
  const plan=countryInteriorPlan(home), {w,d,splitZ,splitX,bathDoor,bedDoor}=plan;
  const b=new Builder(),group=new THREE.Group(),colliders=[],sight=[];
  const floor=home.design.region==='Africa'?0xbca47f:home.design.region==='Europe'?0xccb9a4:0xc9baaa;
@@ -106,4 +110,54 @@ export function buildCountryInterior(home,makeLabel=()=>new THREE.Group()){
    spawn:new THREE.Vector3(0,0,depth-1.98),exitZone:ex,
    bounds:{x0:-half,x1:half,z0:-depth,z1:depth},countryPlan:plan,people:[],
  };
+}
+
+// A researched country house (country-dossiers.js): its own rooms, internal walls and doorways,
+// period fit-out with labelled fixtures, and the household in their rooms. The outer shell and
+// front entrance match the generic plan so entry, exit and the exterior collider are unchanged.
+function buildDossierInterior(home,dossier,makeLabel){
+ const {w,d}=home.design, half=w/2, depth=d/2, plan=dossier.plan(w,d);
+ const b=new Builder(),group=new THREE.Group(),colliders=[],sight=[];
+ const walls=dossier.exterior?.wall??home.design.wall,trim=dossier.exterior?.trim??home.design.trim;
+ const wall=(x0,x1,z0,z1)=>{if(x1<=x0||z1<=z0)return;b.box(walls,x1-x0,2.85,z1-z0,(x0+x1)/2,1.425,(z0+z1)/2);colliders.push({x0,x1,z0,z1});sight.push({x0,x1,y0:0,y1:2.85,z0,z1});};
+ b.box(0xb08a5e,w,.12,d,0,-.07,0);b.box(0xf3eee4,w,.12,d,0,3.15,0);       // floorboards; plaster ceiling
+ wall(-half,half,-depth,-depth+WALL);wall(-half,-half+WALL,-depth,depth);wall(half-WALL,half,-depth,depth);
+ wall(-half,-.875,depth-WALL,depth);wall(.875,half,depth-WALL,depth);
+ b.box(trim,1.9,.20,WALL,0,2.65,depth-WALL/2);
+ for(const r of plan.walls)wall(r.x0,r.x1,r.z0,r.z1);
+ // Picture rail and skirting in each room, in the trim colour.
+ for(const r of plan.rooms){
+  const light=new THREE.PointLight(0xffdcb0,9,Math.max(w,d)*1.4,1.8);
+  light.position.set((r.x0+r.x1)/2,2.6,(r.z0+r.z1)/2);group.add(light);
+  const label=makeLabel(r.name,'room');if(label){label.position.set((r.x0+r.x1)/2,2.35,(r.z0+r.z1)/2);group.add(label);}
+ }
+ const interactables=[],placedProps=[],sceneObjects=[],people=[];
+ plan.fixtures.forEach((item,i)=>{
+  const prop=PROPS[item.type];if(!prop)throw new Error('Missing fixture '+item.type);
+  const key='country:'+home.parcelId+':'+i,rot=item.rot||0,turned=Math.abs(Math.sin(rot))>.5;
+  b.at(item.x,0,item.z,rot,()=>prop.build(b,{key}));
+  const pw=turned?prop.d:prop.w,pd=turned?prop.w:prop.d;
+  if(prop.solid)colliders.push({x0:item.x-pw/2,x1:item.x+pw/2,z0:item.z-pd/2,z1:item.z+pd/2});
+  const label=item.label||prop.label||item.type,pos=new THREE.Vector3(item.x,0,item.z);
+  const baby=(dossier.babies||[]).find(x=>x.fixtureLabel===item.label);
+  const act=baby?{do:'dossier',panel:{title:baby.name,body:'<p>'+baby.bio+'</p>',actions:[]}}:{do:'furniture',title:label};
+  interactables.push({key,type:item.type,label:baby?baby.name+' (asleep)':label,act,room:item.room,pos,roomName:plan.rooms[item.room].name});
+  placedProps.push({type:item.type,room:item.room});
+  sceneObjects.push({type:item.type,label,room:item.room,pos:{x:item.x,z:item.z},interactive:true});
+ });
+ for(const r of dossier.residents){
+  const npc=makeNPC({id:r.id,name:r.name,emoji:r.emoji,color:r.shirt},makeLabel);
+  if(r.child){npc.userData.body.scale.setScalar(.58);npc.userData.label?.position.set(0,1.55,0);}
+  npc.position.set(r.x,0,r.z);npc.rotation.y=r.face||0;group.add(npc);
+  people.push({id:r.id,name:r.name,mesh:npc});
+  const pos=new THREE.Vector3(r.x,0,r.z);
+  interactables.push({key:'resident:'+r.id,type:'resident',label:'Talk to '+r.name,act:{do:'dossier',panel:residentPanel(dossier,r)},room:r.room,pos,roomName:plan.rooms[r.room].name});
+  colliders.push({x0:r.x-.28,x1:r.x+.28,z0:r.z-.28,z1:r.z+.28});
+ }
+ group.add(b.build(),new THREE.HemisphereLight(0xffffff,0x77705a,1.05));
+ return {group,colliders,sight,doors:[],interactables,seats:[],furniture:[],dynamics:b.dynamics,
+   rooms:plan.rooms,placedProps,sceneObjects,walkers:[],windows:[],openings:[],
+   spawn:new THREE.Vector3(0,0,depth-1.98),exitZone:{x0:-.875,x1:.875,z0:depth-.3,z1:depth+.75},
+   bounds:{x0:-half,x1:half,z0:-depth,z1:depth},countryPlan:{...plan,front:depth,floorsPlayable:1,certified:false},dossier,people:[],residents:people,
+   housePanel:housePanel(dossier)};
 }
