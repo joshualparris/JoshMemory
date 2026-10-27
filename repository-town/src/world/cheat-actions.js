@@ -43,7 +43,7 @@ export function cheatSpawnCar(life,x,z,collision,model='hatch'){
  const vehicle={stockId:'debug-'+n,model,registration,owner:'visitor',price:0,
   condition:100,odometer:0,fuel:90,roadworthy:true,regoUntil:life.day+365,
   lastService:life.day,serviceDue:life.day+365,
-  x:target.x,z:target.z,yaw:0,speed:0,parkingPending:false,debugVehicle:true};
+  x:target.x,z:target.z,yaw:Math.PI/2,speed:0,parkingPending:false,debugVehicle:true};
  motor.owned.push(vehicle);
  motor.journal.unshift('Day '+life.day+': debug-summoned '+registration+'.');
  return {ok:true,vehicle,message:'Summoned '+registration+' onto a clear road.'};
