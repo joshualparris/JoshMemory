@@ -107,5 +107,5 @@ const manifest={
  bodyAssets:report,sharedAnimationsFile:report[0].file,sharedClips:keptNames,
  totalBytes:total
 };
-await writeFile(path.join(out,'kaykit-manifest.json'),JSON.stringify(manifest,null,2)+'\\n');
+await writeFile(path.join(out,'kaykit-manifest.json'),JSON.stringify(manifest,null,2)+'\n');
 console.log('PASS KayKit GLB asset validation; total',total,'bytes; clips',keptNames);
