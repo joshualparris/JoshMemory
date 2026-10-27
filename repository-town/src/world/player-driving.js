@@ -43,7 +43,7 @@ export function setVehicleHeadlights(mesh,daylight,engineOn){
   const level=engineOn?headlightLevel(daylight):0;
   rig.level=level;
   rig.lenses.emissiveIntensity=2.4*level;
-  for(const beam of rig.beams){beam.intensity=210*level;beam.visible=level>0.001;}
+  for(const beam of rig.beams){beam.intensity=1600*level;beam.visible=level>0.001;}
   return level;
 }
 export function roadAllows(x,z){
