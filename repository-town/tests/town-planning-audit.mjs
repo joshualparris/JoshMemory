@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import {auditOutskirts} from '../src/world/town-planning-audit.js';
+const audit=auditOutskirts();
+assert.equal(audit.parcels.length,12);
+assert(audit.unfronted.length>0,'Conceptual parcels with no road frontage must be flagged');
+assert(audit.roadJunctions.length>0,'Proposed roads should at least meet one another');
+assert(audit.parcels.every(p=>p.areaM2>0&&p.hectares>0));
+assert(audit.parcels.some(p=>p.hectares<2));
+assert(audit.farmAreaHa<20,'Current agricultural reservations are not commercial broadacre farms');
+console.log(JSON.stringify(audit,null,2));
