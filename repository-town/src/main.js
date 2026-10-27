@@ -22,7 +22,7 @@ import { loadSave, writeSave, clearSave } from './engine/save.js';
 import { discoveryProgress } from './ui/discovery-log.js';
 import { buildTown, streetSigns, lotPosition } from './world/town.js';
 import { buildYeovalInterior } from './world/yeoval-interior.js';
-import { buildMasterplan } from './world/masterplan-built.js';
+import { buildMasterplan, PLAN_HOMES } from './world/masterplan-built.js';
 import { buildCountryInterior,countryEntrance,countryExitPose } from './world/country-interiors.js';
 import { CORE_ROADS } from './world/masterplan-model.js';
 import { RAIL_Z } from './world/rail-corridor.js';
@@ -377,6 +377,15 @@ async function start() {
     const name = life.place(id).name;
     status(`Outside ${life.place(id).address} · ${/^the /i.test(name) ? '' : 'the '}${name}.`);
   }
+  // Country homes in the new neighbourhood: stand on the front path, facing the door.
+  function goCountryHome(h) {
+    if(driving.driving){status('Park and get out before fast travel.');return;}
+    closePanel(); npcChat.close();
+    if (mode === 'house') leave(false);
+    player.place(h.x, h.facesNorth ? h.frontZ - 3 : h.frontZ + 3, h.facesNorth ? Math.PI : 0);
+    input.pressed.delete('map'); setOverview(false);
+    status(`Outside ${h.address} · the ${h.country} house (${h.tradition}).`);
+  }
   function updateFloorBadge() {
     floorBadge.hidden = !inside?.floors;
     if(inside?.floors?.isPub){floorBadge.textContent=inside.floors.titles[inside.floorIndex].split(' · ')[0]+' · Floors';return;}
@@ -659,6 +668,8 @@ async function start() {
   const placeLabel = (p) => `${p.name} · ${p.address}`;
   const places = [...life.places.values()].filter((p) => p.col);
   for (const p of places) { const o = document.createElement('option'); o.value = placeLabel(p); list.append(o); }
+  const homeLabel = (h) => `${h.country} · ${h.address}`;
+  for (const h of PLAN_HOMES) { const o = document.createElement('option'); o.value = homeLabel(h); list.append(o); }
   $('search-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const q = $('search').value.trim().toLowerCase(); if (!q) return;
@@ -670,7 +681,10 @@ async function start() {
     const h = !p && (byCoord.get(code) || (addressed && addressed.side==='S' && byCoord.get(addressed.col+addressed.row)) || houses.find((h) => lower(h.name) === q || lower(h.address) === q || lower(`${h.address} · ${h.name}`) === q || lower(`${h.coordinate} · ${h.name}`) === q));
     const near = !p && !h && places.find((p) => lower(p.name).includes(q));
     const named = !p && !h && !near && houses.find((h) => lower(h.name).includes(q));
-    if (p || near) { goPlace((p || near).id); $('search').blur(); }
+    const homeQ = q.split(' · ')[0];
+    const home = !p && !h && (PLAN_HOMES.find((x) => lower(homeLabel(x)) === q || lower(x.country) === homeQ || lower(x.address) === q) || (!near && !named && homeQ.length >= 3 && PLAN_HOMES.find((x) => lower(x.country).startsWith(homeQ))));
+    if (home) { goCountryHome(home); $('search').blur(); }
+    else if (p || near) { goPlace((p || near).id); $('search').blur(); }
     else if (h || named) { travel((h || named).coordinate); $('search').blur(); }
     else status(`No building matches "${$('search').value}".`);
   });

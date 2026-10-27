@@ -4,12 +4,12 @@
 // BrackenHouse and YeovalAgedCare public research, audited 27 Oct 2026.
 export const CARE_FACILITIES=Object.freeze({
  'bracken-house':Object.freeze({id:'bracken-house',name:'Bracken House',capacity:72,lavenderPlaces:20,
-   source:'joshualparris/BrackenHouse',capacityConfidence:'72–74 reported; 72 is a gameplay assumption',
+   source:'private research notes (Bracken House)',capacityConfidence:'72–74 reported; 72 is a gameplay assumption',
    shifts:{rn:[3,2,2],en:[2,2,1],pcw:[9,8,4],chef:[1,1,0],kitchen:[2,1,0],
      activities:[2,1,0],cleaning:[2,1,0],laundry:[1,1,0],admin:[2,0,0],
      maintenance:[1,0,0],physio:[1,0,0],manager:[1,0,0],chaplain:[1,0,0]}}),
  'yeoval-aged-care':Object.freeze({id:'yeoval-aged-care',name:'Yeoval Aged Care',capacity:25,lavenderPlaces:0,
-   source:'joshualparris/YeovalAgedCare',capacityConfidence:'25 places referenced publicly, actual occupancy unverified',
+   source:'private research notes (Yeoval aged care)',capacityConfidence:'25 places referenced publicly, actual occupancy unverified',
    shifts:{rn:[1,1,1],en:[1,1,0],pcw:[3,3,1],chef:[1,1,0],kitchen:[1,1,0],
      activities:[1,0,0],cleaning:[1,1,0],laundry:[1,0,0],admin:[1,0,0],
      maintenance:[1,0,0],physio:[1,0,0],manager:[1,0,0],chaplain:[0,0,0]}})
