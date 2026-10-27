@@ -1,13 +1,46 @@
 import {createSoundtrack} from './soundtrack.js';
 import {vehicleTelemetry} from '../world/driving-instruments.js';
 
-// Original generated music only. The radio never streams real stations or uses paid audio.
+// Generated stations play original music made in the browser. Live stations are real broadcasters:
+// their current stream address is looked up when tuned (Radio Browser, a free community directory),
+// because broadcasters move their stream URLs. Nothing is streamed until the player picks a live station.
 const STATIONS=[
  null,
  {name:'Country Road FM',profile:{name:'Car radio · country road',bpm:82,root:50,type:'triangle',style:'folk',volume:.62}},
  {name:'High Street Jazz',profile:{name:'Car radio · high street jazz',bpm:88,root:48,type:'sine',style:'jazz',volume:.62}},
- {name:'Night Drive',profile:{name:'Car radio · night drive',bpm:102,root:45,type:'sine',style:'pulse',volume:.58}}
+ {name:'Night Drive',profile:{name:'Car radio · night drive',bpm:102,root:45,type:'sine',style:'pulse',volume:.58}},
+ {name:'ABC Western Plains · Dubbo',live:{q:'ABC Western Plains',cc:'AU'}},
+ {name:'2DU 1251 AM · Dubbo',live:{q:'2DU',cc:'AU'}},
+ {name:'Zoo FM 93.5 · Dubbo',live:{q:'Zoo FM',cc:'AU'}},
+ {name:'triple j',live:{q:'triple j',cc:'AU'}},
+ {name:'ABC Classic',live:{q:'ABC Classic',cc:'AU'}},
+ {name:'ABC NewsRadio',live:{q:'ABC NewsRadio',cc:'AU'}},
+ {name:'Triple M Sydney',live:{q:'Triple M Sydney',cc:'AU'}},
+ {name:'BBC World Service · London',live:{q:'BBC World Service',cc:'GB'}},
+ {name:'BBC Radio 1 · London',live:{q:'BBC Radio 1',cc:'GB'}},
+ {name:'KEXP 90.3 · Seattle',live:{q:'KEXP',cc:'US'}},
+ {name:'FIP · Paris',live:{q:'FIP',cc:'FR'}},
+ {name:'Radio Paradise · California',live:{q:'Radio Paradise Main Mix',cc:'US'}},
+ {name:'RNZ National · New Zealand',live:{q:'RNZ National',cc:'NZ'}},
+ {name:'J-WAVE 81.3 · Tokyo',live:{q:'J-WAVE',cc:'JP'}},
 ];
+const DIRECTORY=['https://de1.api.radio-browser.info','https://nl1.api.radio-browser.info','https://at1.api.radio-browser.info'];
+const liveCache=new Map();
+export async function resolveLiveStream(live,fetchFn=globalThis.fetch){
+ const key=live.q+'|'+live.cc;
+ if(liveCache.has(key))return liveCache.get(key);
+ for(const host of DIRECTORY){
+  try{
+   const r=await fetchFn(host+'/json/stations/search?name='+encodeURIComponent(live.q)+'&countrycode='+live.cc+'&hidebroken=true&order=votes&reverse=true&limit=5');
+   if(!r.ok)continue;
+   const list=await r.json();
+   const hit=list.find(s=>/^https:/.test(s.url_resolved||''))||null;
+   if(hit){liveCache.set(key,hit.url_resolved);return hit.url_resolved;}
+   return null;
+  }catch{}
+ }
+ return null;
+}
 const VOLUME_KEY='repository-town.car-radio-volume';
 const VISIBILITY_KEY='repository-town.car-dashboard-visible';
 const byId=(root,id)=>root.querySelector('#'+id);
@@ -47,6 +80,7 @@ export function createDrivingDashboard(){
   syncVisibility();
  });
  let volume=35;
+ const stream=new Audio();stream.preload='none';
  try{const raw=localStorage.getItem(VOLUME_KEY);if(raw!==null){const v=Number(raw);if(Number.isFinite(v)&&v>=0&&v<=100)volume=v;}}catch{}
  byId(el,'drive-radio-volume').value=String(volume);
  function beginAudio(){
@@ -55,12 +89,24 @@ export function createDrivingDashboard(){
   context=new AC();radioBus=context.createGain();radioBus.gain.value=0;
   radioBus.connect(context.destination);soundtrack=createSoundtrack(context,radioBus);
  }
- function audioGain(){if(radioBus)radioBus.gain.setTargetAtTime(station?Math.min(1,volume/100)*.38:0,context.currentTime,.07);}
+ function audioGain(){stream.volume=Math.min(1,volume/100);if(radioBus)radioBus.gain.setTargetAtTime(station&&!STATIONS[station].live?Math.min(1,volume/100)*.38:0,context.currentTime,.07);}
  function tune(n){
   station=((n%STATIONS.length)+STATIONS.length)%STATIONS.length;
+  const s=STATIONS[station];
   if(station){beginAudio();context?.resume().catch(()=>{});}
   audioGain();
-  text(el,'drive-radio-station',station?STATIONS[station].name:'Radio off');
+  text(el,'drive-radio-station',station?s.name+(s.live?' · tuning…':''):'Radio off');
+  stream.pause();stream.removeAttribute('src');
+  if(s?.live){
+   const want=station;
+   resolveLiveStream(s.live).then(url=>{
+    if(station!==want)return;
+    if(!url){text(el,'drive-radio-station',s.name+' · unavailable');return;}
+    stream.src=url;stream.volume=Math.min(1,volume/100);
+    stream.play().then(()=>{if(station===want)text(el,'drive-radio-station',s.name+' · LIVE');})
+     .catch(()=>{if(station===want)text(el,'drive-radio-station',s.name+' · unavailable');});
+   });
+  }
   text(el,'drive-radio-power',station?'Radio OFF':'Radio ON');
   byId(el,'drive-radio-power').setAttribute('aria-pressed',String(!!station));
  }
@@ -100,7 +146,7 @@ export function createDrivingDashboard(){
    byId(el,'drive-fuel-container').classList.toggle('warning',d.lowFuel);
    byId(el,'drive-temp-container').classList.toggle('warning',d.hotEngine);
   }
-  if(station&&soundtrack&&context?.state==='running')soundtrack.update(STATIONS[station].profile,false);
+  if(station&&!STATIONS[station].live&&soundtrack&&context?.state==='running')soundtrack.update(STATIONS[station].profile,false);
  }
- return {update,getState:()=>({visible:shown&&enabled,driving:shown,enabled,station,volume}),destroy:()=>{tune(0);soundtrack?.dispose();context?.close().catch(()=>{});el.remove();toggle.remove();}};
+ return {update,getState:()=>({visible:shown&&enabled,driving:shown,enabled,station,volume}),destroy:()=>{tune(0);stream.pause();soundtrack?.dispose();context?.close().catch(()=>{});el.remove();toggle.remove();}};
 }
