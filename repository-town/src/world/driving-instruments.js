@@ -23,7 +23,7 @@ export function updateCoolantTemperature(previous, dt, speedMs, condition=100) {
 export function vehicleTelemetry(vehicle) {
   if (!vehicle) return null;
   const speedMs=finite(vehicle.speed),spec=vehicleSpec(vehicle.model),fuel=clamp(finite(vehicle.fuel),0,spec.maxFuel);
-  const transmission=transmissionFor(vehicle.model,speedMs,vehicle.speed<0?-.3:.5);
+  const transmission=transmissionFor(vehicle.model,speedMs,vehicle.speed<-.1?-.3:Math.abs(speedMs)<.25?0:.5);
   const temp=clamp(finite(vehicle.coolantTemp,22),-10,125);
   const speedKmh=Math.round(Math.abs(speedMs)*3.6);
   return {
@@ -44,6 +44,6 @@ export function vehicleTelemetry(vehicle) {
     hotEngine:temp>=108,
     odometerKm:Math.round(finite(vehicle.odometer)*10)/10,
     conditionPercent:Math.round(clamp(finite(vehicle.condition,100),0,100)),
-    approximateRangeKm:Math.floor(fuel/(spec.kind==='bike'?1.2:spec.id==='truck'?4.5:3)), // compressed game economy
+    approximateRangeKm:Math.floor(fuel/(spec.kind==='bike'?1.2:vehicle.model==='truck'?4.5:3)), // compressed game economy
   };
 }
