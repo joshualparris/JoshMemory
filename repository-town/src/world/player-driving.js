@@ -4,14 +4,17 @@ import * as THREE from 'three';
 import { VEHICLE_MODELS } from './vehicles.js';
 import {updateCoolantTemperature} from './driving-instruments.js';
 import { onPlannedOrCoreRoad } from './masterplan-built.js';
+import { lightingLevel } from './lighting.js';
+import { nightLightLevel } from './estate-lighting.js';
 const MODEL={hatch:[1.65,3.4,0x397fbc,11],sedan:[1.84,4.4,0xb1b9c4,12],
  ute:[1.9,4.7,0xb78648,11],van:[2.05,5.4,0xe8e3d8,9],truck:[2.25,6.6,0x9a4d40,8]};
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 const r2=n=>Math.round(n*100)/100;
-function modelMesh(model){
+export function modelMesh(model){
  const [w,d,colour]=MODEL[model]||MODEL.hatch;
  const g=new THREE.Group(),bodyMat=new THREE.MeshLambertMaterial({color:colour}),windowMat=new THREE.MeshLambertMaterial({color:0x9dc3d4}),
-  wheelMat=new THREE.MeshLambertMaterial({color:0x28282b}),lightMat=new THREE.MeshLambertMaterial({color:0xffe9b8});
+  wheelMat=new THREE.MeshLambertMaterial({color:0x28282b}),
+  lightMat=new THREE.MeshLambertMaterial({color:0xfff6d9,emissive:0xfff0c0,emissiveIntensity:0});
  const cube=(mat,x,y,z,ww,hh,dd)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(ww,hh,dd),mat);m.position.set(x,y,z);g.add(m);};
  cube(bodyMat,0,.65,0,w,.68,d);
  cube(windowMat,0,1.19,.04,w*.85,.55,d*.47);
@@ -19,8 +22,29 @@ function modelMesh(model){
    const wh=new THREE.Mesh(new THREE.CylinderGeometry(.36,.36,.19,10),wheelMat);
    wh.rotation.z=Math.PI/2;wh.position.set(x,.38,z);g.add(wh);
  }
- for(const x of [-w*.3,w*.3])cube(lightMat,x,.7,-d*.5,.27,.16,.08);
+ for(const x of [-w*.3,w*.3])cube(lightMat,x,.76,-d*.5-.045,.31,.19,.12);
+ // Forward is local -Z in this car model. Both lamps and their targets share
+ // the car's transform, so steering rotates the illuminated road area.
+ const headlights=[];
+ for(const x of [-w*.29,w*.29]){
+   const lamp=new THREE.SpotLight(0xfff1da,0,62,.31,.58,1.4);
+   lamp.name='Active vehicle low-beam headlight';
+   lamp.position.set(x,.77,-d*.5-.12);
+   lamp.target.position.set(x*.65,.06,-d*.5-32);
+   lamp.castShadow=false;g.add(lamp,lamp.target);headlights.push(lamp);
+ }
+ g.userData.headlights={beams:headlights,lenses:lightMat,level:0};
  return g;
+}
+export function headlightLevel(daylight){return lightingLevel(nightLightLevel(daylight));}
+export function setVehicleHeadlights(mesh,daylight,engineOn){
+  const rig=mesh?.userData?.headlights;
+  if(!rig)return 0;
+  const level=engineOn?headlightLevel(daylight):0;
+  rig.level=level;
+  rig.lenses.emissiveIntensity=2.4*level;
+  for(const beam of rig.beams){beam.intensity=210*level;beam.visible=level>0.001;}
+  return level;
 }
 export function roadAllows(x,z){
  // Streets, avenues and the master-plan roads, each bounded to its drawn extent: the old check
@@ -60,6 +84,7 @@ export function createPlayerDriving(life,scene,collision,player,camera,input){
      }
      if(!meshes.has(v.registration)){const g=modelMesh(v.model);scene.add(g);meshes.set(v.registration,g);}
      const g=meshes.get(v.registration);g.position.set(v.x,0,v.z);g.rotation.y=v.yaw||0;
+     setVehicleHeadlights(g,life.daylight(),active===v.registration);
    });
  }
  function nearest(x=player.pos.x,z=player.pos.z,range=3.1){
@@ -78,6 +103,7 @@ export function createPlayerDriving(life,scene,collision,player,camera,input){
    if(Math.hypot(player.pos.x-v.x,player.pos.z-v.z)>3.1)return 'Walk to the driver door to enter.';
    if(collision.hits(v.x,v.z,1.05))return 'The vehicle is blocked. Move it to a clear parking space before driving.';
    v.parkingPending=false;active=v.registration;speed=0;player.seated=null;input.reset();
+   setVehicleHeadlights(meshes.get(active),life.daylight(),true);
    if(!Number.isFinite(v.coolantTemp))v.coolantTemp=22;
    return 'Engine started. W/S or joystick forwards/back; A/D or joystick steer; E or ✋ to get out when stopped.';
  }
@@ -90,7 +116,8 @@ export function createPlayerDriving(life,scene,collision,player,camera,input){
      for(let i=0;i<16;i++){
        const angle=(v.yaw||0)+Math.PI/2+i*Math.PI/8,x=v.x+Math.cos(angle)*radius,z=v.z+Math.sin(angle)*radius;
        if(!collision.hits(x,z,player.radius+.1)){
-         player.place(x,z,v.yaw);active=null;speed=0;return 'Parked, handbrake on. You got out safely.';
+         player.place(x,z,v.yaw);setVehicleHeadlights(meshes.get(active),life.daylight(),false);
+         active=null;speed=0;return 'Parked, handbrake on. You got out safely.';
        }
      }
    }
@@ -134,5 +161,8 @@ export function createPlayerDriving(life,scene,collision,player,camera,input){
    return true;
  }
  function activeVehicle(){return active?life.civic.motor.owned.find(v=>v.registration===active)||null:null;}
- return {sync,nearest,enter,exit,update,activeVehicle,get driving(){return !!active;},get message(){return message;},clearMessage(){message='';}};
+ function headlightStatus(){const rig=meshes.get(active)?.userData?.headlights;
+   return {active:!!active,on:!!rig&&rig.level>0.01,level:rig?.level||0,beamCount:rig?.beams.length||0,
+     beamsLit:rig?.beams.filter(b=>b.intensity>0).length||0};}
+ return {sync,nearest,enter,exit,update,activeVehicle,headlightStatus,get driving(){return !!active;},get message(){return message;},clearMessage(){message='';}};
 }
