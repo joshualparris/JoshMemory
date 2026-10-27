@@ -6,30 +6,47 @@ import {updateCoolantTemperature} from './driving-instruments.js';
 import { onPlannedOrCoreRoad } from './masterplan-built.js';
 import { lightingLevel } from './lighting.js';
 import { nightLightLevel } from './estate-lighting.js';
+import {vehicleSpec,intendedSpeedMs,accelerationMs2,transmissionFor,clamp as vehicleClamp} from './vehicle-dynamics.js';
 const MODEL={hatch:[1.65,3.4,0x397fbc,11],sedan:[1.84,4.4,0xb1b9c4,12],
  ute:[1.9,4.7,0xb78648,11],van:[2.05,5.4,0xe8e3d8,9],truck:[2.25,6.6,0x9a4d40,8]};
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
 const r2=n=>Math.round(n*100)/100;
 export function modelMesh(model){
- const [w,d,colour]=MODEL[model]||MODEL.hatch;
+ const base=MODEL[model]||MODEL.hatch;
+ const spec=vehicleSpec(model),w=spec.width,d=spec.length;
+ const colour=({supercar:0xe02c23,gt:0x3c4a60,muscle:0x24262a,motorbike:0x202e56,scooter:0x78a5bd})[model]??base[2];
  const g=new THREE.Group(),bodyMat=new THREE.MeshLambertMaterial({color:colour}),windowMat=new THREE.MeshLambertMaterial({color:0x9dc3d4}),
   wheelMat=new THREE.MeshLambertMaterial({color:0x28282b}),
   lightMat=new THREE.MeshLambertMaterial({color:0xfff6d9,emissive:0xfff0c0,emissiveIntensity:0});
  const cube=(mat,x,y,z,ww,hh,dd)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(ww,hh,dd),mat);m.position.set(x,y,z);g.add(m);};
- cube(bodyMat,0,.65,0,w,.68,d);
- cube(windowMat,0,1.19,.04,w*.85,.55,d*.47);
- for(const x of [-w*.49,w*.49])for(const z of [-d*.34,d*.34]){
-   const wh=new THREE.Mesh(new THREE.CylinderGeometry(.36,.36,.19,10),wheelMat);
-   wh.rotation.z=Math.PI/2;wh.position.set(x,.38,z);g.add(wh);
+ if(spec.kind==='bike'){
+   // Narrow tank, seat, handlebar and TWO fore/aft wheels; not a narrow box car.
+   const wheelR=model==='scooter'?.29:.36;
+   for(const z of [-d*.36,d*.36]){
+     const wh=new THREE.Mesh(new THREE.CylinderGeometry(wheelR,wheelR,.13,16),wheelMat);
+     wh.rotation.z=Math.PI/2;wh.position.set(0,wheelR,z);g.add(wh);
+   }
+   cube(bodyMat,0,.74,-.1,w*.77,.36,d*.56);
+   cube(wheelMat,0,.97,d*.16,w*.68,.16,.65);
+   cube(windowMat,0,1.17,-d*.30,w*.85,.055,.08);
+   cube(bodyMat,0,.63,d*.27,w*.44,.28,.36);
+   cube(lightMat,0,.93,-d*.49,.32,.25,.14);
+ } else {
+   cube(bodyMat,0,.65,0,w,.68,d);
+   cube(windowMat,0,1.19,.04,w*.85,.55,d*.47);
+   for(const x of [-w*.49,w*.49])for(const z of [-d*.34,d*.34]){
+     const wh=new THREE.Mesh(new THREE.CylinderGeometry(.36,.36,.19,10),wheelMat);
+     wh.rotation.z=Math.PI/2;wh.position.set(x,.38,z);g.add(wh);
+   }
+   for(const x of [-w*.3,w*.3])cube(lightMat,x,.76,-d*.5-.045,.31,.19,.12);
  }
- for(const x of [-w*.3,w*.3])cube(lightMat,x,.76,-d*.5-.045,.31,.19,.12);
  // Forward is local -Z in this car model. Both lamps and their targets share
  // the car's transform, so steering rotates the illuminated road area.
  const headlights=[];
- for(const x of [-w*.29,w*.29]){
+ for(const x of (spec.kind==='bike'?[0]:[-w*.29,w*.29])){
    const lamp=new THREE.SpotLight(0xfff1da,0,62,.31,.58,1.4);
    lamp.name='Active vehicle low-beam headlight';
-   lamp.position.set(x,.77,-d*.5-.12);
+   lamp.position.set(x,spec.kind==='bike'?.92:.77,-d*.5-.12);
    lamp.target.position.set(x*.65,.06,-d*.5-32);
    lamp.castShadow=false;g.add(lamp,lamp.target);headlights.push(lamp);
  }
@@ -129,32 +146,44 @@ export function createPlayerDriving(life,scene,collision,player,camera,input){
    if(!v){active=null;return false;}
    const m=input.movement();input.takeLook();
    if(input.consume('use')){message=exit();if(!active)return false;}
-   const spec=MODEL[v.model]||MODEL.hatch,top=spec[3];
-   // Gradual throttle, service wear, reversing; no instant 180-degree pivots.
-   const throttle=-m.z,reverse=throttle<0;
-   const desired=clamp(throttle*top, -top*.37,top);
-   const accel=reverse?2.5:3.4;
-   speed+=clamp(desired-speed,-(throttle===0?7:accel)*dt,(throttle===0?7:accel)*dt);
+   const spec=vehicleSpec(v.model),top=spec.topKmh/3.6;
+   // Automatic gears/RPM follow speed and throttle. Street speed limit applies to
+   // all vehicles, including Ferraris, unless the user enables CHEAT closed-course.
+   const throttle=-m.z;
+   const desired=intendedSpeedMs(v.model,throttle,{unrestricted:v.cheat===true&&v.cheatUnrestricted===true});
+   const accel=throttle<-.01?Math.min(3,accelerationMs2(v.model,speed,throttle)):accelerationMs2(v.model,speed,throttle);
+   const braking=throttle===0?8.5:accel;
+   speed+=clamp(desired-speed,-braking*dt,braking*dt);
    if(life.day>v.regoUntil||!v.roadworthy||v.condition<60||(v.fuel||0)<=0)speed=0;
    let yaw=v.yaw||0;
-   if(Math.abs(speed)>.2)yaw-=m.x*(speed<0?-1:1)*clamp(Math.abs(speed)/top,0,.9)*1.25*dt;
-   const dx=-Math.sin(yaw)*speed*dt,dz=-Math.cos(yaw)*speed*dt;
-   const nx=v.x+dx,nz=v.z+dz;
-   const pedestrian=life.villagers.some(p=>!p.inside&&Math.hypot(nx-p.x,nz-p.z)<2.2);
-   const parked=(life.civic.motor.owned||[]).some(o=>o!==v&&Number.isFinite(o.x)&&Math.hypot(nx-o.x,nz-o.z)<3.1);
-   // Road driving only, no tunnelling through buildings/trucks/NPCs.
-   if(roadAllows(nx,nz)&&!pedestrian&&!parked&&!collision.hits(nx,nz,Math.min(1.15,spec[0]/2+.1))){
-     const distance=Math.hypot(dx,dz);
-     v.x=nx;v.z=nz;v.yaw=yaw;v.odometer=(v.odometer||0)+distance/1000;
-     v.fuel=Math.max(0,(v.fuel||0)-distance*.003);
-     v.condition=r2(Math.max(0,(v.condition||100)-distance*.00008));
-     if(v.condition<60)v.roadworthy=false;
-   }else{speed=0;message='Brake! Road edge, pedestrian or obstruction.';}
-   v.speed=r2(speed);
+   if(Math.abs(speed)>.2)yaw-=m.x*(speed<0?-1:1)*clamp(Math.abs(speed)/Math.min(top,16),0,.9)*(spec.kind==='bike'?1.65:1.25)*dt;
+   // Swept substeps prevent a 50km/h+ car from jumping through pedestrians,
+   // walls or road margins in a slow mobile frame.
+   const steps=Math.max(1,Math.ceil(Math.abs(speed)*dt/.7));
+   let distance=0,blocked=false;
+   for(let step=0;step<steps;step++){
+     const dx=-Math.sin(yaw)*speed*dt/steps,dz=-Math.cos(yaw)*speed*dt/steps;
+     const nx=v.x+dx,nz=v.z+dz;
+     const pedestrian=life.villagers.some(p=>!p.inside&&Math.hypot(nx-p.x,nz-p.z)<(spec.kind==='bike'?1.25:2.2));
+     const parked=(life.civic.motor.owned||[]).some(o=>o!==v&&Number.isFinite(o.x)&&Math.hypot(nx-o.x,nz-o.z)<(spec.length+vehicleSpec(o.model).length)*.35);
+     if(!roadAllows(nx,nz)||pedestrian||parked||collision.hits(nx,nz,Math.min(1.15,spec.width/2+.1))){blocked=true;break;}
+     distance+=Math.hypot(dx,dz);v.x=nx;v.z=nz;
+   }
+   v.yaw=yaw;
+   v.odometer=(v.odometer||0)+distance/1000;
+   // The original game fuel economy is highly compressed; retain save-game
+   // compatibility while differentiating heavy trucks and smaller bikes.
+   v.fuel=Math.max(0,(v.fuel||0)-distance*(spec.kind==='bike'?.0012:v.model==='truck'?.0045:.003));
+   v.condition=r2(Math.max(0,(v.condition||100)-distance*.00008));
+   if(v.condition<60)v.roadworthy=false;
+   if(blocked){speed=0;message='Brake! Road edge, pedestrian or obstruction.';}
+   v.speed=speed;
+   const transmission=transmissionFor(v.model,speed,throttle);
+   v.gear=transmission.gear;v.rpm=transmission.rpm;
    v.coolantTemp=updateCoolantTemperature(v.coolantTemp,dt,speed,v.condition);
    player.pos.set(v.x,0,v.z);player.yaw=v.yaw||0;player.pitch=0;
    // Third-person trailing camera, no disembodied eye inside a dashboard.
-   const follow=9+(v.model==='truck'?4:0),px=v.x+Math.sin(v.yaw||0)*follow,
+   const follow=spec.kind==='bike'?6:9+(v.model==='truck'?4:0),px=v.x+Math.sin(v.yaw||0)*follow,
      pz=v.z+Math.cos(v.yaw||0)*follow;
    camera.position.set(px,5.6,pz);
    camera.lookAt(v.x,1.1,v.z);
