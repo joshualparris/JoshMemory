@@ -202,8 +202,9 @@ export function buildMasterplan(group, makeLabel = null) {
   const setNight=(dark,powered=true)=>{
     lampHeads.material.emissiveIntensity=powered?1.5*lightingLevel(dark):0;
   };
-  const colliders=[...buildHomes(root),...poles.solids];
+  const homeColliders=buildHomes(root),lampColliders=poles.solids;
+  const colliders=[...homeColliders,...lampColliders];
   group.add(root);
   return { group: root, roads: PLAN_ROADS, parcels: PLAN_PARCELS, homes: PLAN_HOMES,
-    colliders, streetLampSources, lampHeads, setNight, lampPositions:ESTATE_LAMPS };
+    colliders, homeColliders, lampColliders, streetLampSources, lampHeads, setNight, lampPositions:ESTATE_LAMPS };
 }
