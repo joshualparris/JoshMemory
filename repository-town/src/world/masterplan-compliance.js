@@ -38,6 +38,13 @@ export function masterplanComplianceEvidence(){
  });
  const totalRoadLengthM=round(PLAN_ROADS.reduce((n,r)=>n+Math.hypot(r.b.x-r.a.x,r.b.z-r.a.z),0));
  const serviceFrontage=round(PLAN_PARCELS.filter(p=>p.use==='residential').reduce((n,p)=>n+frontage(p,PLAN_ROADS.find(r=>r.id===p.roadId)),0));
+ const park=PLAN_PARCELS.find(p=>p.use==='park');
+ const parkDistances=homes.map(h=>round(Math.hypot(h.country?PLAN_HOMES.find(q=>q.parcelId===h.id).x-park.x:0,PLAN_HOMES.find(q=>q.parcelId===h.id).frontZ-park.z)));
+ const parkAccess={method:'straight-line to eastern park; NOT a footpath network or DCP-compliance test',
+   parkAddress:park.address,parkAreaM2:park.areaM2,
+   homesBeyond400mStraightLine:parkDistances.filter(d=>d>400).length,
+   farthestHomeStraightLineM:Math.max(...parkDistances),
+   additionalWesternPublicSpaceNeeded:true};
  const roadSurfaceM2=round(PLAN_ROADS.reduce((n,r)=>n+Math.hypot(r.b.x-r.a.x,r.b.z-r.a.z)*r.width,0));
  const reservedRoadAreaM2=round(PLAN_ROADS.reduce((n,r)=>n+Math.hypot(r.b.x-r.a.x,r.b.z-r.a.z)*r.reserve,0));
  const g=graph([...CORE_ROADS,...PLAN_ROADS]);
@@ -60,7 +67,7 @@ export function masterplanComplianceEvidence(){
   traffic:{mode:'illustrative sensitivity, not forecast/transport impact assessment',siteTripsOtherPeakHour:50,
     scenarios:[.4,.8,1.2].map(rate=>({dwellingTripsPeakHour:rate,dwellingTrips:round(rate*lots.length),totalWithOther:round(rate*lots.length+50),ifEvenlySplitThreeEntrances:round((rate*lots.length+50)/3)})),
     requires:['observed trip generation and direction split','intersection turning counts and delays','service/emergency vehicle swept paths','parking and active-travel review']},
-  network:{connectedComponents:g.components.length,roadClosure,serviceStatus:'proposed in game only'},
+  network:{connectedComponents:g.components.length,roadClosure,serviceStatus:'proposed in game only',parkAccess},
   stormwater:{modelled:false,hydrology:false,pitPipeInvertDesign:false,downstreamLegalDischarge:false,overlandFlowRouting:false},
   water:{allLotsConnected:false,hydraulicCapacityVerified:false},sewer:{allLotsConnected:false,downstreamCapacityVerified:false},
   electricity:{allLotsConnected:false,capacityVerified:false},telecommunications:{allLotsConnected:false},
