@@ -661,7 +661,7 @@ export class TownLife {
   isDay() { return this.minute >= 6 * 60 && this.minute < 19 * 60; }
   // 0 at midnight, 1 at noon: drives sky colour and lights.
   daylight() { const h = this.minute / 60; return clamp(Math.sin(((h - 6) / 13) * Math.PI) * 1.4, 0, 1); }
-  log(text) { this.events.unshift({ t: `Day ${this.day} ${fmt(this.minute)}`, text }); this.events.length = Math.min(this.events.length, 60); }
+  log(text) { this.events.unshift({ t: `Day ${this.day} · ${this.dateLabel()} · ${fmt(this.minute)}`, text }); this.events.length = Math.min(this.events.length, 60); }
   open(p) { const hours=venueHoursOnDay(p,this.day);return !!hours && this.minute >= hours[0] && this.minute < hours[1]; }
 
   // Advances the town by `minutes` of town time (call with small steps).
