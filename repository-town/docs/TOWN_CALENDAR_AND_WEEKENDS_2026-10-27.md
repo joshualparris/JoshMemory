@@ -24,3 +24,6 @@ The broader multi-week release exposed a one-hour electrical distribution interr
 
 ## Scope and future realism
 This is a **fictional town roster**, not a legally approved Australian industrial award schedule, a live Dubbo Council service schedule or a real NSW public-holiday/school-term calendar. Future scope: NSW public holidays and school vacations, resident employment contracts/rest-days, more realistic shift relief including 24-hour staffing, event-specific weekend activities and district-specific trading by actual dates. Do not claim regulatory certification.
+
+## Five-day salaries and simulated household finances
+Offices, school support and other Monday–Friday workplaces no longer need to pay staff seven separate daily wages. Their **existing seven-day total is spread over the five genuine weekdays** (7/5 of the old daily payment per completed weekday shift); there is **no fake pay on Saturday or Sunday**. This is a game economy convention, not a statement about Australian award entitlements. Other venues retain their previous shift-based earnings. The full 14-day simulation continues to check that residents can afford everyday expenses without weakening the existing economic safeguards.
