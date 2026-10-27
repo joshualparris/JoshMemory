@@ -1,4 +1,3 @@
-import {pubRearStairHeight,pubRearStairAtUpperDoor} from './world/pub-rear-stairs.js';
 import {createPubFloorStack,pubExpansionServices} from './world/pub-floors.js';
 import {pubFloorRefusal,recordPubLiftTrip,PUB_LEVELS} from './world/pub-expansion-state.js';
 import {pubExpansionPanel} from './ui/pub-expansion-panel.js';
@@ -486,16 +485,6 @@ async function start() {
     status(access.reason==='supervised' ? access.message+' You may return through the entrance at any time.' : 'Inside '+site.name+'. Walk to the counter or back through the entrance to leave.');
     return true;
   }
-  // The external upper landing and the yard sign use the same pub interior
-  // transition. The visitor arrives beside the REAL upper rear exit, not at
-  // the ground-floor front door or through a wall.
-  function enterPubRearStairs() {
-    if (!enterShop('pub')) return false;
-    if (!changeFloor(1,'stairs')) { leave(true,false,'secondary'); return false; }
-    player.place(5.65,-10.6,Math.PI);
-    status('Upstairs dining · arrived by the rear escape stairs.');
-    return true;
-  }
   function leave(placeOutside = true, keepFacing = false, via = 'front') {
     if (!inside) return;
     const yawInside = player.yaw;
@@ -524,13 +513,7 @@ async function start() {
       } else if (shop) {
         const boxes=[...townWorld.all,...townWorld.dynamic()];
         const pose=via==='secondary'&&shop.id==='pub'?pubSecondaryExitPose(shop,boxes,player.radius+.08):via==='rear'&&shop.id==='pub'?pubRearExitPose(shop,boxes,player.radius+.08):civicExitPose(shop,boxes,player.radius+0.08);
-        if (pose) {
-          player.place(pose.x,pose.z,keepFacing ? yawInside + doorTurn(shop) : pose.yaw);
-          if(shop.id==='pub'&&via==='secondary'){
-            player.baseHeight=pubRearStairHeight(shop,pose.x,pose.z);
-            player.camera.position.y=player.baseHeight+player.eye;
-          }
-        }
+        if (pose) player.place(pose.x,pose.z,keepFacing ? yawInside + doorTurn(shop) : pose.yaw);
         else spawn(); // use safe Town Guide location instead of clipping into a wall
       } else { const l=town.lots.get(coord);player.place(l.doorPos.x,l.doorPos.z+4,keepFacing ? yawInside : Math.PI); }
     }
@@ -822,7 +805,7 @@ async function start() {
       const treasure = expedition.nearby(player.pos), treasureD = away(treasure), npcD = away(nearNPC), personD = away(nearPerson);
       if (treasure && treasureD <= npcD && treasureD <= personD) { expedition.use(player.pos); ambience.relic(); return; }
       if (nearNPC && npcD <= personD) { input.releaseMouse(); closePanel(); $('npc-roster').hidden = true; npcChat.show(nearNPC.npc, null); input.reset(); return; }
-      if (nearPerson) { if(nearPerson.spot){if(nearPerson.spot.rearStairs)enterPubRearStairs();else enterShop(nearPerson.spot.id);return;} talkTo(nearPerson); return; }
+      if (nearPerson) { if(nearPerson.spot){enterShop(nearPerson.spot.id);return;} talkTo(nearPerson); return; }
       if (nearHouse) showCard(nearHouse.house);
       return;
     }
@@ -1097,19 +1080,6 @@ async function start() {
       player.speedFactor=movementSpeedFactor(movementSpeed,n.hunger,n.fatigue);
       if(mode==='town'&&driving.driving) driving.update(dt);
       else player.update(dt,input,world);
-    }
-    if (mode==='town'&&!driving.driving) {
-      const site=life.place('pub');
-      if(site){
-        const nextY=pubRearStairHeight(site,player.pos.x,player.pos.z);
-        player.camera.position.y+=nextY-player.baseHeight;
-        player.baseHeight=nextY;
-        // Crossing the upper threshold enters the actual first-floor rear
-        // landing. Walking down from the door is the reverse continuous route.
-        if(pubRearStairAtUpperDoor(site,player.pos.x,player.pos.z)){
-          enterPubRearStairs();
-        }
-      }
     }
     // Keep the table-service control in the always-visible needs strip on
     // phones with the rest of the HUD collapsed.
@@ -1412,7 +1382,7 @@ async function start() {
       workplay:life.civic.workplay||null,
       mode, sleeping, driving: driving.activeVehicle()?.registration||null, nearbyVehicle:nearCar?.registration||null, seated: player.seated ? {key:player.seated.key,label:player.seated.label} : null,
       seats: mode==='house' ? (inside?.seats||[]).map(x=>({key:x.key,type:x.type,label:x.label,pos:x.pos,room:x.room})) : townLife.seats.map(x=>({key:x.key,type:x.type,label:x.label,pos:x.pos})),
-      levelName:inside?.levelName||'Ground floor',floorElevation:inside?.group.position.y||0,coordinate: inside?.house.coordinate || null, floor: inside?.floorIndex || 0, windows: inside?.windows?.length || 0, floors: inside?.floors?.levels.length || 1, pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, eye: player.eye, y: player.y, walkElevation:player.baseHeight, fps,
+      levelName:inside?.levelName||'Ground floor',floorElevation:inside?.group.position.y||0,coordinate: inside?.house.coordinate || null, floor: inside?.floorIndex || 0, windows: inside?.windows?.length || 0, floors: inside?.floors?.levels.length || 1, pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, eye: player.eye, y: player.y, fps,
       rooms: inside?.rooms.length || 0, props: inside?.placedProps.length || 0,
       interactables: inside ? inside.interactables.map((x) => ({ key: x.key, label: x.label, title: x.act.title || x.label, do: x.act.do, nav: x.floorNav || null, room: x.roomName })) : [],
       near: nearThing?.key || null, nearNPC: nearNPC?.npc.id || null, nearHouse: nearHouse?.house.coordinate || null,

@@ -17,30 +17,5 @@ await approach('pub:cellar-services');await page.getByRole('button',{name:'Move 
 await approach('pub:stairs-ground');await waitFloor(0);await approach('pub:stairs-cellar');assert.equal((await page.evaluate(()=>window.__town.state())).floor,0,'unsafe cellar entry is refused, escape remained possible');
 await approach('pub:services');await page.getByRole('button',{name:'Cellar, lift and upper-floor services',exact:true}).click();await page.getByRole('button',{name:'Start / stop beverage-gas leak scenario',exact:true}).click();await page.evaluate(()=>window.__town.life.run(40));await page.getByRole('button',{name:'Reset gas alarm after assessment',exact:true}).click();assert((await page.locator('#panel-body').innerText()).includes('cleared'));await close();
 await approach('pub:services');await page.getByRole('button',{name:'Trip / reset pub breaker',exact:true}).click();await close();await approach('pub:lift');await page.getByRole('button',{name:'Upstairs · dining and office',exact:true}).click();assert((await page.locator('#panel-body').innerText()).includes('unavailable'));await close();await approach('pub:stairs-up');await waitFloor(1);await approach('pub:refuge');await page.getByRole('button',{name:'Request staff-assisted evacuation to ground',exact:true}).click();await waitFloor(0);
-await approach('pub:services');await page.getByRole('button',{name:'Trip / reset pub breaker',exact:true}).click();await close();await approach('pub:stairs-up');await waitFloor(1);await approach('pub:upper-emergency-exit');await page.waitForFunction(()=>window.__town.state().mode==='town',null,{timeout:30000,polling:200});let out=await page.evaluate(()=>({state:window.__town.state(),pub:window.__town.shops().find(x=>x.id==='pub')}));assert(out.state.pos.z<out.pub.door.z-18);assert(!await page.evaluate(()=>{const p=window.__town.state().pos;return window.__town.probeStatic(p.x,p.z,.4)}),'escape lands on the rear escape stair head, clear of its handrail at body radius');await page.screenshot({path:`audit/pub/expansion/${mobile?'phone':'desktop'}-escape-yard.png`});
-// Travel the elevated rear-door balcony, turn right onto the east-side stairs,
-// then descend physically toward the street and away from the railway.
-await page.evaluate(()=>{const p=window.__town.state().pos;window.__town.place(p.x,p.z,-Math.PI/2);});
-const beforeMove=await page.evaluate(()=>window.__town.state().pos);
-// Walk until the head of the stair flight (8.5 m east of the pub's centreline), not for a fixed
-// time: on slow software rendering a fixed press stops short and walks into the balcony rail.
-const flightX=(await page.evaluate(()=>window.__town.shops().find(x=>x.id==='pub').door.x))+8.5;
-await page.keyboard.down('w');for(let i=0;i<40&&(await page.evaluate(()=>window.__town.state().pos.x))<flightX-.05;i++)await page.waitForTimeout(100);await page.keyboard.up('w');
-const balcony=await page.evaluate(()=>window.__town.state());
-assert(balcony.pos.x>beforeMove.x+1,'raised balcony traversable');
-assert(balcony.walkElevation>=4.6,'raised balcony must not fall to ground level');
-await page.evaluate(()=>{const p=window.__town.state().pos;window.__town.place(p.x,p.z,Math.PI);});
-await page.keyboard.down('w');for(let i=0;i<40;i++){await page.waitForTimeout(100);const e=await page.evaluate(()=>window.__town.state().walkElevation);if(e>0&&e<4.2)break;}await page.keyboard.up('w');
-await page.waitForTimeout(250);
-const descended=await page.evaluate(()=>window.__town.state());
-assert(descended.walkElevation>0&&descended.walkElevation<4.6,'actual east-side tread descent');
-const yard=await page.evaluate(()=>{const p=window.__town.shops().find(x=>x.id==='pub');return {x:p.door.x+8.5,z:p.door.z-7.5-2.9};});
-await page.evaluate(p=>window.__town.place(p.x,p.z,Math.PI),yard);
-await page.waitForTimeout(500);
-assert(!await page.evaluate(p=>window.__town.probeStatic(p.x,p.z,.4),yard),'rear stair foot is clear of obstacles');
-assert.equal((await page.evaluate(()=>window.__town.state())).nearPerson,'pub:rear-stair-foot','rear stair marker accessible from service path');
-await press('e');await waitFloor(1);
-const upperReturn=await page.evaluate(()=>window.__town.state());
-assert.equal(upperReturn.floorElevation,4.8);
-assert(Math.hypot(upperReturn.pos.x-5.65,upperReturn.pos.z+10.6)<.2,'return to upper door, not ground wall');
-assert.deepEqual(errors,[]);const m=await page.evaluate(async()=>await(await fetch('release.json')).json());console.log('PASS pub expansion live gameplay',mobile?'phone emulation':'desktop',m.sourceCommit,m.contentHash);await page.close();}}finally{await browser.close()}
+await approach('pub:services');await page.getByRole('button',{name:'Trip / reset pub breaker',exact:true}).click();await close();await approach('pub:stairs-up');await waitFloor(1);await approach('pub:upper-emergency-exit');await page.waitForFunction(()=>window.__town.state().mode==='town',null,{timeout:30000,polling:200});let out=await page.evaluate(()=>({state:window.__town.state(),pub:window.__town.shops().find(x=>x.id==='pub')}));assert(out.state.pos.z<out.pub.door.z-18);assert(!await page.evaluate(()=>{const p=window.__town.state().pos;return window.__town.probeStatic(p.x,p.z,.6)}));await page.screenshot({path:`audit/pub/expansion/${mobile?'phone':'desktop'}-escape-yard.png`});
+const beforeMove=await page.evaluate(()=>window.__town.state().pos);await page.keyboard.down('s');await page.waitForTimeout(600);await page.keyboard.up('s');const afterMove=await page.evaluate(()=>window.__town.state().pos);assert(Math.hypot(afterMove.x-beforeMove.x,afterMove.z-beforeMove.z)>.05,'frame loop and walking continue after escape');assert.deepEqual(errors,[]);const m=await page.evaluate(async()=>await(await fetch('release.json')).json());console.log('PASS pub expansion live gameplay',mobile?'phone emulation':'desktop',m.sourceCommit,m.contentHash);await page.close();}}finally{await browser.close()}
