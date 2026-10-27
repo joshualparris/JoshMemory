@@ -135,6 +135,9 @@ function paint(geometry, color) {
 
 // Advances the simple declarative animations attached by `dynamic()`.
 export function animate(dynamics, t, active) {
+  // Some bespoke interiors contain no animated objects; a missing collection
+  // must not crash the entire game (including restored saved positions).
+  if (dynamics == null) return;
   for (const m of dynamics) {
     const a = m.userData.anim;
     const on = a.always || active.has(a.key);
