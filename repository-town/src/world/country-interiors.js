@@ -24,7 +24,7 @@ export function countryInteriorPlan(home){
   {type:'table',x:w/2-1.17,z:.41,room:0},
   {type:'shower',x:-w/2+1.86,z:-d/2+.71,room:1},
   {type:'toilet',x:-w/2+.58,z:-d/2+.65,room:1},
-  {type:'basin',x:-w/2+.60,z:splitZ-1.05,room:1},
+  {type:'basin',x:-w/2+.85,z:splitZ-1.05,room:1},
   {type:'bed',x:w/2-1.24,z:-d/2+1.31,room:2},
   {type:'wardrobe',x:splitX+.88,z:-d/2+.45,room:2},
  ];
