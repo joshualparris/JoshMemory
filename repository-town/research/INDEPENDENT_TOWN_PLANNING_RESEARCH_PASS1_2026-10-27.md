@@ -67,9 +67,9 @@ Weights: safety 20%, walkability 15%, connectivity 15%, land-use compatibility 1
 | Infrastructure economy (5) | 3 | 4 | 2 |
 | Mobile performance (5) | 4 | 4 | 3 |
 | Backward compatibility (5) | 5 | 5 | 4 |
-| **Weighted result** | **1.80** | **4.15** | **3.50** |
+| **Weighted result** | **1.95** | **4.20** | **3.50** |
 
-Sensitivity: increase rural realism weight from 10% to 25% and decrease walkability from 15% to 0%: B becomes 3.85, C becomes 3.80. The result is close; a combined B+C strategy may outperform both, but requires actual engineering and scenario tests. Do not interpret the score as evidence of statutory compliance.
+Sensitivity: increase rural realism weight from 10% to 25% and decrease walkability from 15% to 0%: B becomes 3.90, C becomes 3.80. The result is close; a combined B+C strategy may outperform both, but requires actual engineering and scenario tests. Do not interpret the score as evidence of statutory compliance.
 
 ## Preferred *conditional* concept: B + employment/rural safeguards from C
 
