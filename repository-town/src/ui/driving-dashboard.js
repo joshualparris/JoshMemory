@@ -19,7 +19,7 @@ export function createDrivingDashboard(){
  "<div class='drive-dash-heading'><strong id='drive-model'>Vehicle</strong><span id='drive-engine-status'>ENGINE ON</span><button type='button' id='drive-dash-size' aria-expanded='true' aria-label='Toggle compact dashboard'>Compact</button></div>",
  "<div class='drive-dash-gauges'>",
  "<div class='drive-dash-speed' aria-label='Speedometer'><div class='drive-speed-value'><output id='drive-speed'>0</output><span class='drive-unit'>km/h</span></div><div class='drive-subline'><b id='drive-gear'>D</b><span id='drive-rpm'>850 RPM approx.</span></div></div>",
- "<div class='drive-dash-meter' id='drive-fuel-container'><div class='drive-meter-heading'><span>FUEL</span><output id='drive-fuel'>20 L</output></div><div id='drive-fuel-meter' class='drive-meter-track' role='meter' aria-label='Fuel in tank' aria-valuemin='0' aria-valuemax='30' aria-valuenow='20'><div id='drive-fuel-fill' class='drive-meter-fill'></div></div><small id='drive-range'>~66 km range</small></div>",
+ "<div class='drive-dash-meter' id='drive-fuel-container'><div class='drive-meter-heading'><span>FUEL</span><output id='drive-fuel'>20 L</output></div><div id='drive-fuel-meter' class='drive-meter-track' role='meter' aria-label='Fuel in tank' aria-valuemin='0' aria-valuemax='30' aria-valuenow='20'><div id='drive-fuel-fill' class='drive-meter-fill'></div></div><small id='drive-range'>~6 km game range</small></div>",
  "<div class='drive-dash-meter' id='drive-temp-container'><div class='drive-meter-heading'><span>ENGINE TEMP</span><output id='drive-temp'>22 °C</output></div><div id='drive-temp-meter' class='drive-meter-track' role='meter' aria-label='Simulated engine coolant temperature' aria-valuemin='40' aria-valuemax='120' aria-valuenow='40'><div id='drive-temp-fill' class='drive-meter-fill'></div></div><small id='drive-temp-state'>Warming up</small></div>",
  "</div>",
  "<div class='drive-dash-footer'><div class='drive-odo'><span>ODO</span><output id='drive-odo'>0.0 km</output><small id='drive-condition'>Condition 100%</small></div>",
@@ -89,7 +89,7 @@ export function createDrivingDashboard(){
    text(el,'drive-rpm',d.rpm+' RPM approx.');
    text(el,'drive-fuel',d.fuelLitres.toFixed(1)+' L');
    text(el,'drive-temp',d.coolantC+' °C');
-   text(el,'drive-range','~'+d.approximateRangeKm+' km range');
+   text(el,'drive-range','~'+d.approximateRangeKm+' km game range');
    text(el,'drive-odo',d.odometerKm.toFixed(1)+' km');
    text(el,'drive-condition','Condition '+d.conditionPercent+'%');
    text(el,'drive-temp-state',d.hotEngine?'HOT – stop safely':d.coolantC<70?'Warming up':'Normal');
