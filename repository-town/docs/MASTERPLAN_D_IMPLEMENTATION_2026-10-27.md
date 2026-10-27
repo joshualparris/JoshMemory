@@ -52,9 +52,11 @@ Names Board address, traffic study or engineering certification.
 | 10 | Full Node suite | Verified at commit time | All `test:release`, `test:integration`, `test:town` steps pass locally |
 | 11 | Production deployment verified on desktop and a real phone | **Not done** | Needs the PR merged and the Vercel/Pages deployment checked; a real handset test needs Josh |
 | 12 | Single-closure resilience | **Open** | Audit `largestClosureDisconnection` is 26 lots: closing one link segment cuts off that many frontages. A second east–west connection or a loop at the west end would fix it. |
-| 13 | Street 7 / railway overlap (ChatGPT defect 1) | **Open, not caused here** | `RAIL_Z` and Street 7 asphalt overlap across the town; needs a dedicated rail realignment task |
+| 13 | Street 7 / railway overlap (ChatGPT defect 1) | Resolved (stale finding) | The rail corridor now runs at `RAIL_Z` = −196, 51 m north of Street 1 (z −145); `tools/audit-masterplan.mjs` `roadRail` reports only the six avenue level crossings (interlocked gates from PR #236) and no parallel overlap. The finding predates the corridor relocation. |
 | 14 | Utilities, drainage, terrain, swept paths | **Out of scope / blocked** | No utility model exists for the new area; Austroads swept-path tables are paywalled (403 on full PDFs) |
-| 15 | Homes built on the residential lots | **Not done** | Lots are vacant and marked "not yet serviced". Adding houses needs owners/residents and economy hooks. |
+| 15 | Homes built on the residential lots | Verified (buildings) | 48 homes in six town styles (cottage, townhouse, cabin, modern, terrace, mansion) sized to frontage with 2 m side and 6 m front setbacks; solid walls; `tests/masterplan-built.mjs` checks every wall is inside its lot and clear of road reserves. No residents yet: they are owned by the Town Property Cooperative and can be claimed. |
+| 16 | Playtest cheat menu | Verified | Title ×5 or backtick ×3, password CHEAT123: summon/drive car, teleport, money, food/rest, own any property (including new homes as `P:` titles), clock, repairs. `tests/cheat-menu-browser.mjs` drives a summoned car along Wattle Street. |
+| 17 | Pub audit hash check | Verified | Re-audited the four changed source files (no pub change), all pub tests pass; `audit/pub/2026-10-25-code-matrix.json` `reaudits` entry. |
 
 ## Sources (addressing)
 
