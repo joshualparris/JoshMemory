@@ -61,6 +61,17 @@ export function populateCareCampus(id,interior,life,makeLabel){
  const create=(slot,kind)=>{
   if(!slots[slot])return null;
   const p=slots[slot],fig=makeDistinctPerson('fictional-agedcare:'+id+':'+kind+':'+slot);
+  // Clearly legible role silhouettes. Uniforms distinguish RN navy, EN teal,
+  // personal-care lilac and kitchen whites; visitors retain everyday clothing.
+  if(kind==='staff'){
+    const colours=[0x345d86,0x345d86,0x3c8d80,0x856ca8,0x856ca8,0xe6e5dc,0xc2b9ad];
+    const tunic=new THREE.Mesh(new THREE.BoxGeometry(.70,.58,.43),
+      new THREE.MeshLambertMaterial({color:colours[slot%colours.length]}));
+    tunic.position.set(0,1.15,.01);fig.group.add(tunic);
+    const tag=new THREE.Mesh(new THREE.BoxGeometry(.16,.11,.012),
+      new THREE.MeshLambertMaterial({color:0xf3f5ed}));
+    tag.position.set(.21,1.32,.235);fig.group.add(tag);
+  }
   fig.group.position.set(p[0],0,p[1]);
   const tag=makeLabel(kind==='staff'?'Care team':'Resident','interactive');
   tag.position.set(0,2.45,0);tag.userData.labelKind='interactive';
