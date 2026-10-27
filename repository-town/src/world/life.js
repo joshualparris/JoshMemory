@@ -384,10 +384,11 @@ export function walkRoute(a, b) {
   const setback=b.x>=a.x?7.05:4.5;
   // The north-side homes/props reach the outer footpath edge. Their old
   // eastbound 7.05m lane grazed walls around Street 8 (z≈170).
-  // Keep both north-side lanes nearer the kerb, but 0.95m or more away from
-  // streetlamps placed at 6m off-centre. South-side routes retain their
-  // deeper lane to clear shopfront awnings and commercial facades.
-  const lane = (row, z) => z < ROAD(row) ? (b.x>=a.x?5.0:4.5) : setback;
+  // Shift the eastbound north-side lane nearer the kerb (5.0 m), with
+  // westbound traffic still on the outer lane (7.05 m); this preserves the
+  // separate cycling directions and avoids the lamp at 6 m on either side.
+  // South-side routes retain their separate lanes and shopfront clearances.
+  const lane = (row, z) => z < ROAD(row) ? (b.x>=a.x?5.0:7.05) : setback;
   const sa = sideZ(ra, a.z, lane(ra,a.z)), sb = sideZ(rb, b.z, lane(rb,b.z));
   const pts = [{ x: a.x, z: sa }];
   if (!(ra === rb && sa === sb)) {
