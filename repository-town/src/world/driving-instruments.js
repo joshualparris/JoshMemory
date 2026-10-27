@@ -28,7 +28,7 @@ export function vehicleTelemetry(vehicle) {
     speedMs,
     direction:speedMs < -.12?'R':'D',
     rpm:Math.round((825+Math.abs(speedMs)*135)/50)*50, // approximate tachometer, not simulated engine revolutions
-    fuelLitres:Math.round(fuel*10)/10,
+    fuelLitres:Math.round(fuel*100)/100,
     fuelPercent:Math.round(100*fuel/FUEL_CAPACITY_L),
     lowFuel:fuel<=4.5,
     coolantC:Math.round(temp),
