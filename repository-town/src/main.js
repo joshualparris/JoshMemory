@@ -461,7 +461,7 @@ async function start() {
     mode='house';player.baseHeight=0;updateFloorBadge();$('btn-exit').hidden=false;
     closePanel();npcChat.close();ambience.door();
     $('card').hidden=true;delete $('card').dataset.coord;
-    status('Inside '+home.country+' · '+home.tradition+'. Ground floor includes a bedroom, bathroom, kitchen and living area. Upper levels are not yet accessible; this is not an approved building design.');
+    status(built.dossier?'Inside a '+built.dossier.house+' ('+built.dossier.era+'). Walk up to the residents to meet them.':'Inside '+home.country+' · '+home.tradition+'. Ground floor includes a bedroom, bathroom, kitchen and living area. Upper levels are not yet accessible; this is not an approved building design.');
     return true;
   }
   function enterCampus(id, keepFacing=false) {
@@ -941,6 +941,7 @@ async function start() {
         else status('Move closer to the seat to sit safely.');
         return;
       }
+      if(nearThing.act?.do==='dossier'){ openPanel(nearThing.act.panel,nearThing); return; }
       if(nearThing.act?.do==='furniture'){
         openPanel(furniturePanel(nearThing),nearThing);
         return;
