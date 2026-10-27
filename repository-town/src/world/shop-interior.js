@@ -30,6 +30,7 @@ import { buildButcherInterior } from './butcher-interior.js';
 import { buildSchoolInterior } from './school-interior.js';
 import { buildLibraryInterior } from './library-interior.js';
 import { buildPharmacyInterior } from './pharmacy-interior.js';
+import { buildArtsStudioInterior } from './arts-studio-interior.js';
 import { buildRepoTechInterior } from './repotech-interior.js';
 import { buildSupermarketInterior } from './supermarket-interior.js';
 import { buildDentalInterior } from './dental-interior.js';
@@ -109,6 +110,7 @@ export function buildCivicInterior(site,makeLabel,life=null) {
   if(site.id==='hotel')return buildHotelInterior(site,makeLabel);
   if(site.id==='library')return buildLibraryInterior(site,makeLabel);
   if(site.id==='pharmacy')return buildPharmacyInterior(site,makeLabel);
+  if(site.id==='artscentre')return buildArtsStudioInterior(site,makeLabel);
   if(site.id==='repotech')return buildRepoTechInterior(site,makeLabel);
   if(site.id==='supermarket')return buildSupermarketInterior(site,makeLabel);
   if(site.id==='dentist')return buildDentalInterior(site,makeLabel);

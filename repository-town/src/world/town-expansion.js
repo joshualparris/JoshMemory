@@ -236,7 +236,7 @@ export const EXPANSION_SITES=Object.freeze([
     "opens": 480,
     "closes": 1050,
     "expansion": true,
-    "constructionStage": "2026 massing shell; interior detail pending",
+    "constructionStage": "2026 fitted interior: gallery, studios, ceramics and kiln room",
     "taskId": "RTBUILD-014"
   },
   {

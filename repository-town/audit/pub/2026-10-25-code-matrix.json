@@ -11,15 +11,15 @@
   "sourceBlobs": {
     "repository-town/audit/electricity/coverage.json": "f80df771b893799e27b3adc98b92fe335c13f28b",
     "repository-town/src/world/interior-kit.js": "ceff1ba9e2197cb113c33760e9353f50ef1e97e3",
-    "repository-town/src/world/life.js": "7bead96303437736f28982cf7e98744eeff39a01",
+    "repository-town/src/world/life.js": "c9e983e9f0613b113f1105bcf819ca5f93512736",
     "repository-town/src/world/power-grid.js": "6de3f54d8fe576117594fe36124748e36da4e255",
     "repository-town/src/world/pub-interior.js": "46396a0552d2480f3c31585e77199803433ab6b6",
-    "repository-town/src/world/shop-interior.js": "c577d598e833c8523ae66715e47e2b4c3e61aff2",
+    "repository-town/src/world/shop-interior.js": "8a3a2ed135b56c3b6b0baea7a38dde26addec5ce",
     "repository-town/src/world/townlife.js": "0f57fe0b52ea61fb4be693615d7b9529a358eb2d",
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "3bc5c3caeb7717e188b9bf9b0ae0201684f3197f",
+    "repository-town/src/main.js": "4e7f0b144f7b6464d6ad64af96b68be9be7a7ddf",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -861,6 +861,16 @@
         "repository-town/src/main.js"
       ],
       "finding": "Merged main changes; faces, road signs and service-cable visuals only; no pub behaviour change."
+    },
+    {
+      "date": "2026-10-27",
+      "by": "Claude (Arts & Makers Studio interior)",
+      "changedFiles": [
+        "repository-town/src/world/life.js",
+        "repository-town/src/world/shop-interior.js",
+        "repository-town/src/main.js"
+      ],
+      "finding": "shop-interior.js: routes artscentre to its own interior. life.js (calendar grocery/meal buying) and main.js (country-home search) changed on main since the last audit; reviewed, no change to pub layout, services or utilities."
     }
   ]
 }
