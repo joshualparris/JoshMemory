@@ -58,6 +58,7 @@ jobs:
           node tests/movement-speed-browser.mjs
           node tests/exit-facing.mjs
           node tests/town-map-browser.mjs
+          node tests/cheat-menu-browser.mjs
           node tests/yeoval-browser.mjs
           node tests/sleep-browser.mjs
           node tests/sleep-browser.mjs --mobile

@@ -26,6 +26,8 @@ import { buildMasterplan } from './world/masterplan-built.js';
 import { CORE_ROADS } from './world/masterplan-model.js';
 import { RAIL_Z } from './world/rail-corridor.js';
 import { createTownMap } from './ui/town-map.js';
+import { createCheatMenu } from './ui/cheat-menu.js';
+import { summonCar, claimProperty, nearestPropertyKey, addMoney, refreshNeeds, fixAllCars, setClock } from './world/cheats.js';
 import { buildBrackenInterior } from './world/bracken-interior.js';
 import { houseAddress, parseTownAddress, placeAddress } from './world/addresses.js';
 import { buildInterior, labelVisible } from './world/interior.js';
@@ -606,6 +608,46 @@ async function start() {
     onOpen: () => { input.reset(); closePanel(); },
   });
   $('btn-townmap').onclick = () => townMap.open();
+  // Hidden playtest cheat menu (src/ui/cheat-menu.js): five taps on the HUD title or ` three times.
+  const toTown = () => { if (driving.driving) return 'Park and get out first.'; if (mode === 'house') leave(false); return null; };
+  const teleport = (x, z, yaw, where) => { const busy = toTown(); if (busy) return { message: busy }; player.place(x, z, yaw); return { message: 'Teleported to ' + where + '.' }; };
+  const propertyPositions = () => new Map([
+    ...[...town.lots].map(([coord, l]) => ['H:' + coord, l.doorPos]),
+    ...[...life.places.values()].map((p) => ['B:' + p.id, { x: p.x, z: p.door?.z ?? p.front?.z ?? 0 }]),
+  ]);
+  const cheats = createCheatMenu({
+    trigger: document.querySelector('#hud h1') || document.querySelector('h1'),
+    actions: {
+      car: () => { const busy = toTown(); if (busy) return { message: busy }; return summonCar(life, player.pos.x, player.pos.z, { clear: (x, z) => !townWorld.hits(x, z, 1.3) }); },
+      carHere: () => {
+        const busy = toTown(); if (busy) return { message: busy };
+        const r = summonCar(life, player.pos.x, player.pos.z, { clear: (x, z) => !townWorld.hits(x, z, 1.3) });
+        if (!r.ok) return r;
+        // Stand at the driver's door (driving.enter needs the player within 3.1 m), then get in.
+        const v = r.vehicle, side = [[0, 1.8], [0, -1.8], [1.8, 0], [-1.8, 0]].map(([dx, dz]) => ({ x: v.x + dx, z: v.z + dz })).find((p) => !townWorld.hits(p.x, p.z, player.radius)) || { x: v.x, z: v.z };
+        player.place(side.x, side.z, player.yaw);
+        driving.nearest(v.x, v.z, 0.5);
+        const message = driving.enter(v); status(message);
+        return { message, close: true };
+      },
+      fix: () => fixAllCars(life),
+      goNew: () => teleport(-150, 270.5, Math.PI, 'Wattle Street in the new neighbourhood'),
+      goWork: () => teleport(456, 300, Math.PI, 'Saleyards Road and the employment lots'),
+      goHigh: () => teleport(0, 173.6, 0, 'the High Street'),
+      goGuide: () => { const busy = toTown(); if (busy) return { message: busy }; player.place(town.guidePos.x, town.guidePos.z + 1.6, 0); return { message: 'Teleported to the Town Guide.' }; },
+      money: () => addMoney(life, 10000),
+      needs: () => refreshNeeds(life),
+      buyNear: () => { const key = nearestPropertyKey(life, player.pos.x, player.pos.z, propertyPositions()); return key ? claimProperty(life, key) : { message: 'No property nearby.' }; },
+      buyKey: (raw) => {
+        const v = String(raw || '').trim(); if (!v) return { message: 'Type a house grid code like A1, or B:bakery.' };
+        let key = /^[HB]:/i.test(v) ? v[0].toUpperCase() + v.slice(1) : /^[A-Z][1-8]$/i.test(v) ? 'H:' + v.toUpperCase() : null;
+        if (!key) { const p = [...life.places.values()].find((q) => q.name.toLowerCase().includes(v.toLowerCase())); key = p ? 'B:' + p.id : null; }
+        return key ? claimProperty(life, key) : { message: `No property matches “${v}”.` };
+      },
+      t8: () => setClock(life, 8 * 60), t13: () => setClock(life, 13 * 60), t20: () => setClock(life, 20 * 60),
+      map: () => { townMap.open(); return { close: true }; },
+    },
+  });
   addEventListener('keydown', (e) => {
     if (String(e.key).toLowerCase() !== 'n' || e.repeat || e.ctrlKey || e.metaKey || e.altKey || e.target.closest?.('input,textarea,select,[contenteditable]')) return;
     if (!townMap.isOpen()) { e.preventDefault(); townMap.open(); }
@@ -1524,6 +1566,7 @@ async function start() {
     answer(i) { const b = $('panel-actions').querySelectorAll('button')[i]; if (b) b.click(); return !!b; },
     closePanel,
     townMap,
+    cheats,
   };
 
   $('loading').hidden = true;
