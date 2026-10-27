@@ -169,6 +169,7 @@ async function start() {
   let lowPerf = touch;
   streetSigns(town.group, data.streets, makeLabel);
   const masterplan = buildMasterplan(town.group, makeLabel);
+  town.attachEstateLighting(masterplan);
   for (const site of town.campuses || []) {
     const sign=makeLabel(site.name+' · Aged care campus', 'house');
     sign.position.set(
@@ -1562,6 +1563,8 @@ async function start() {
     meetGuide() { if (mode === 'house') leave(false); player.place(town.guidePos.x, town.guidePos.z + 1.6, 0); return 'guide'; },
     goPlace,
     driveDashboard:()=>drivingDashboard.getState(),
+    driveHeadlights:()=>driving.headlightStatus(),
+    estateLights:()=>({count:masterplan.lampPositions.length,sourceCount:town.streetLighting.sourceCount,visible:masterplan.lampHeads.material.emissiveIntensity>0}),
     driveDiagnostics:()=>({
       input:input.movement(),touch:input.touch,
       active:driving.activeVehicle()?.registration||null,
