@@ -156,6 +156,6 @@ export function buildAgedCareInterior(site,makeLabel){
   rooms:L.rooms.map((r,i)=>({...r,w:r.x1-r.x0,d:r.z1-r.z0,parent:i===0?-1:0})),
   doors:L.bedroomDoors.map((d,i)=>({from:5,to:i+3,x:d.x,z:(d.z0+d.z1)/2,width:d.z1-d.z0})),
   bounds:{x0:-6.5,x1:6.5,z0:L.rear,z1:L.front},spawn:new THREE.Vector3(L.entry.x,0,L.entry.z),
-  exitZone:{...L.exit},agedCareLayout:L,
+  exitZone:{...L.exit},dynamics:[],sight:[],agedCareLayout:L,
   staff:{pos:{x:-2.55,z:1.12},use:{x:-1.42,z:2.05}}};
 }
