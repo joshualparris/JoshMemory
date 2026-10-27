@@ -11,7 +11,7 @@
   "sourceBlobs": {
     "repository-town/audit/electricity/coverage.json": "f80df771b893799e27b3adc98b92fe335c13f28b",
     "repository-town/src/world/interior-kit.js": "ceff1ba9e2197cb113c33760e9353f50ef1e97e3",
-    "repository-town/src/world/life.js": "922b52894aaca44ac00a321430786e54b2d457f8",
+    "repository-town/src/world/life.js": "a9f224ab6269bd5b60a4ca27fdb8666b44d2c080",
     "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2",
     "repository-town/src/world/pub-interior.js": "46396a0552d2480f3c31585e77199803433ab6b6",
     "repository-town/src/world/shop-interior.js": "c577d598e833c8523ae66715e47e2b4c3e61aff2",
@@ -19,7 +19,7 @@
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "0455035bf85228ff330a6afc8ed11fabb99c3b59",
+    "repository-town/src/main.js": "aae6d8c5c692dbb847b4463104db7af8040e426c",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -720,13 +720,19 @@
     "2026-10-26 PR226 visual QA follow-up: reviewed actual desktop/phone CI screenshots and found severe overexposure, prompting glare reduction and separate light-coloured cleanable kitchen ceiling/wall finishes. Added unobscured browser images and actual keyboard aisle-walk assertions. No measured luminance, certified cleanability or legal clearance is claimed.",
     "2026-10-26 PR225 coordinated merge from latest main: preserves pharmacy, N5 bus interchange, north-door exits, pub and fast travel; verified exact source blobs life 02a3a7c600c1684333f22b90bdb557cc0c8e4f6d, main.js 4eb06006c6a7e3cbe5070b3b23f290bb64516273 and shop-interior.js 5222acc58fe8d1d49a879b3408473a075ff52ca9. Financial changes are finite transfers; no legal or professional pub certification implied.",
     "2026-10-26 PR237 source-provenance refresh: re-read shared shop-interior.js Git blob after concurrent main branch changes. Source remains independently checked by its shop-wide geometry/interior CI; no new pub compliance status or certificate is asserted. Post office receives its own physical playtest gate.",
-    "2026-10-26 PR237 re-integrated against latest main: reconciled repository-town/src/world/shop-interior.js, repository-town/src/world/townlife.js fingerprint(s), preserved concurrent retail and service-building changes. No regulatory signoff or change to pub certification."
+    "2026-10-26 PR237 re-integrated against latest main: reconciled repository-town/src/world/shop-interior.js, repository-town/src/world/townlife.js fingerprint(s), preserved concurrent retail and service-building changes. No regulatory signoff or change to pub certification.",
+    "2026-10-27 PR242 integration re-audit: main.js world map display/boundary expansion and shared life.js northern footpath routing changed. Git hashes refreshed for provenance, not proof of pub code compliance, measured egress or professional certification."
   ],
   "sourceChangeReviews": {
     "2026-10-26-rail-corridor": {
       "scope": "life.js changed only for single-source railway z import; townlife.js changes only rail geometry, x-normal westbound consist rendering, rail gates, street8 yard buffer, and depot initialisation. No pub/restaurant service rule, occupancy, building envelope, kitchen code, licensing or fire egress assertion changed.",
       "verification": "Rail source diff + tests/rail-corridor.mjs and existing published pub + whole-site CI. Compliance remains unverified.",
       "regulatoryStatus": "No rail or pub compliance certification asserted."
+    },
+    "2026-10-27-world-homes-navigation": {
+      "scope": "195-country residential stage and pedestrian route clearance",
+      "verification": "Reviewed changed game world map boundaries and north-side walkway choice; separate pub envelope checks still required.",
+      "regulatoryStatus": "No change to any RTPUB regulatory status or certification."
     }
   },
   "reaudits": [
@@ -741,6 +747,16 @@
       ],
       "finding": "No change to pub geometry, utilities, egress, service rules or RTPUB check status. life.js only adds the pub as an evening-shift dinner option; shop-interior.js, townlife.js and main.js have no pub changes. All 34 RTPUB statuses unchanged. Follow-up: main.js later gained cheat-menu and map wiring only; still no pub change.",
       "evidence": "pub-venue, pub-kitchen-layout, pub-simulation-layout, pub-expansion, pub-completion, pub-utilities, pub-history, pub-physical-p0 and pub-envelope-002-024 all pass on this source."
+    },
+    {
+      "date": "2026-10-27",
+      "by": "ChatGPT (continuation PR #242)",
+      "changedFiles": [
+        "repository-town/src/main.js",
+        "repository-town/src/world/life.js"
+      ],
+      "finding": "New residential map/search and far-west playing boundary, safer high-street north-side footpath lane. No pub egress, building envelope or services changed.",
+      "evidence": "Shared source fingerprints updated; review remains non-certifying. Full current CI required."
     }
   ]
 }
