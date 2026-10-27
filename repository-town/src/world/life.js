@@ -1375,8 +1375,12 @@ export class TownLife {
   planDayOff(v){
     const m=this.minute,home=this.doorstep(v),sunday=this.calendar().weekday===0;
     const wake=sunday?8*60+30:8*60,bed=sunday?22*60+30:23*60;
+    // Sunday night is not a Monday sleep-in: residents wake in time for the
+    // next day's real work commute, including early bakers and dairy staff.
+    const nextWake=isWeekend(this.day+1)?(sunday?8*60+30:8*60):
+      Math.max(3*60,Math.min(6*60+30,v.start-75));
     if(m< wake||m>=bed||v.fatigue>=96&&m>19*60)
-      return this.goThen(v,home,{kind:'sleep',at:'home',until:m>=bed?wake+1440:wake,
+      return this.goThen(v,home,{kind:'sleep',at:'home',until:m>=bed?nextWake+1440:wake,
         activity:'sleeping in on '+(sunday?'Sunday':'Saturday')});
     if(!v.doneToday.shower){v.doneToday.shower=true;
       return this.goThen(v,home,{kind:'shower',at:'home',dur:12,activity:'taking a relaxed weekend shower'});}
