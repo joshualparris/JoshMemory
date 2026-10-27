@@ -67,6 +67,7 @@ import { buildCivilWorks } from './world/civil-works.js';
 import { nearestSeat } from './world/seats.js';
 import { furniturePanel } from './ui/furniture.js';
 import { createAmbience } from './ui/ambience.js';
+import {SIGNAL_CROSSINGS,crossingState} from './world/traffic-signals.js';
 import { bakeryKitchenPanel } from './ui/bakery-panel.js';
 import { superviseBread } from './world/bakery-production.js';
 import { installBakeryImmersion } from './world/bakery-immersive.js';
@@ -656,10 +657,10 @@ async function start() {
   const cheats = createCheatMenu({
     trigger: document.querySelector('#hud h1') || document.querySelector('h1'),
     actions: {
-      car: () => { const busy = toTown(); if (busy) return { message: busy }; return summonCar(life, player.pos.x, player.pos.z, { clear: (x, z) => !townWorld.hits(x, z, 1.3) }); },
-      carHere: () => {
+      car: (model='sedan') => { const busy = toTown(); if (busy) return { message: busy }; return summonCar(life, player.pos.x, player.pos.z, { model, clear: (x, z) => !townWorld.hits(x, z, 1.3) }); },
+      carHere: (model='sedan') => {
         const busy = toTown(); if (busy) return { message: busy };
-        const r = summonCar(life, player.pos.x, player.pos.z, { clear: (x, z) => !townWorld.hits(x, z, 1.3) });
+        const r = summonCar(life, player.pos.x, player.pos.z, { model, clear: (x, z) => !townWorld.hits(x, z, 1.3) });
         if (!r.ok) return r;
         // Stand at the driver's door (driving.enter needs the player within 3.1 m), then get in.
         const v = r.vehicle, side = [[0, 1.8], [0, -1.8], [1.8, 0], [-1.8, 0]].map(([dx, dz]) => ({ x: v.x + dx, z: v.z + dz })).find((p) => !townWorld.hits(p.x, p.z, player.radius)) || { x: v.x, z: v.z };
@@ -669,6 +670,9 @@ async function start() {
         return { message, close: true };
       },
       fix: () => fixAllCars(life),
+      trackMode:()=>{const v=driving.activeVehicle();if(!v)return {message:'Enter a cheat-spawned vehicle before changing track mode.'};
+        if(!v.cheat)return {message:'Closed-course override is available only for cheat vehicles.'};
+        v.cheatUnrestricted=!v.cheatUnrestricted;return {message:v.cheatUnrestricted?'Closed-course simulation enabled: no 50 km/h limiter. Not suitable for town roads or pedestrian areas.':'Town 50 km/h limiter restored.'};},
       goNew: () => teleport(-150, 270.5, Math.PI, 'Wattle Street in the new neighbourhood'),
       goWork: () => teleport(456, 300, Math.PI, 'Saleyards Road and the employment lots'),
       goHigh: () => teleport(0, 173.6, 0, 'the High Street'),
@@ -1119,7 +1123,23 @@ async function start() {
   const syncSound = () => { $('btn-sound').textContent = ambience.on ? '🔊 Sound' : '🔇 Sound'; $('btn-sound').setAttribute('aria-pressed', String(ambience.on)); };
   $('btn-sound').onclick = () => { ambience.setOn(!ambience.on); syncSound(); status(ambience.on ? 'Town sound on.' : 'Town sound muted.'); };
   const audioMixButton=document.createElement('button');audioMixButton.type='button';audioMixButton.textContent='🎚 Audio mix';$('btn-sound').after(audioMixButton);
-  audioMixButton.onclick=()=>openPanel({title:'Town soundscape',body:'<p>Original adaptive music changes with venue and time of day. Music softens during conversations. Sound starts only after you enable it.</p>'+Object.entries(ambience.mix).map(([key,value])=>'<p><label>'+key+' <input type="range" data-audio="'+key+'" min="0" max="100" value="'+Math.round(value*100)+'"></label></p>').join(''),actions:[{label:ambience.on?'Mute all sound':'Enable sound',run:()=>{ambience.setOn(!ambience.on);syncSound();return null;}}],mount:root=>{for(const el of root.querySelectorAll('[data-audio]'))el.oninput=()=>ambience.setMix(el.dataset.audio,Number(el.value)/100);}});
+  audioMixButton.onclick=()=>openPanel({title:'Town soundscape',
+    body:'<p>Procedurally composed original music — no copyrighted recordings. Use Next, Previous or the genre selector. Sound starts after you enable it.</p>'+
+      '<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><button type="button" data-music-prev>Previous track</button><button type="button" data-music-next>Next track</button></div>'+
+      '<p><label>Music track <select data-music-track><option value="-1">Adaptive by place and time</option>'+
+      ambience.tracks.map(t=>'<option value="'+t.index+'">'+t.name+'</option>').join('')+
+      '</select></label></p><p data-music-playing aria-live="polite"></p>'+
+      Object.entries(ambience.mix).map(([key,value])=>'<p><label>'+key+' <input type="range" data-audio="'+key+'" min="0" max="100" value="'+Math.round(value*100)+'"></label></p>').join(''),
+    actions:[{label:ambience.on?'Mute all sound':'Enable sound',run:()=>{ambience.setOn(!ambience.on);syncSound();return null;}}],
+    mount:root=>{
+      for(const el of root.querySelectorAll('[data-audio]'))el.oninput=()=>ambience.setMix(el.dataset.audio,Number(el.value)/100);
+      const choice=root.querySelector('[data-music-track]'),playing=root.querySelector('[data-music-playing]');
+      const update=()=>{choice.value=String(ambience.selectedTrack);playing.textContent=ambience.selectedTrack<0?'Adaptive soundtrack':ambience.tracks[ambience.selectedTrack].name;};
+      choice.onchange=()=>{ambience.selectTrack(Number(choice.value));update();};
+      root.querySelector('[data-music-prev]').onclick=()=>{ambience.previousTrack();update();};
+      root.querySelector('[data-music-next]').onclick=()=>{ambience.nextTrack();update();};
+      update();
+    }});
 
   syncSound();
 
@@ -1239,7 +1259,15 @@ async function start() {
       const busy = Math.min(1, townLife.people.filter((p) => !p.v.inside && Math.abs(p.v.x - player.pos.x) < 25 && Math.abs(p.v.z - player.pos.z) < 25).length / 5);
       for (const e of townLife.events.splice(0)) ambience.play(e, mode === 'house' ? 300 : Math.hypot(e.x - player.pos.x, e.z - player.pos.z));
       const wxyz = mode === 'town' ? [life.place('waterworks'), life.place('sewage')].filter(Boolean).reduce((m, q) => Math.max(m, 1 - Math.hypot(player.pos.x - q.x, player.pos.z - (FIELD_Z0 + 6)) / 40), 0) : 0;
-      ambience.update(dt, { day: life.daylight(), busy: mode === 'town' ? busy : Math.min(1,(inside?.people?.filter(p=>p.key?.startsWith('visitor:')).length||0)/8), truck: mode === 'town' ? truck : Infinity, indoors: mode === 'house', room: inside?.place?.id || (inside ? 'house' : ''), weather: life.civic.weather, water: Math.max(0, wxyz), surface: mode === 'house' ? roomFloor(inside?.place?.id || 'house') : surfaceAt(player.pos.x, player.pos.z), stepPhase: player.bob, moving: movedDist > 0.015, running: movedDist > dt * 5.2, crouching: player.eye < 1.3, airborne: player.y > 0, hour: life.minute / 60, dayNumber: life.day });
+      const animalDistance=(id)=>{const site=life.place(id);return mode==='town'&&site?Math.hypot(player.pos.x-site.x,player.pos.z-(site.field?.z??site.z??FIELD_Z0)):Infinity;};
+      const crossings=mode==='town'?Math.min(...SIGNAL_CROSSINGS.map(q=>Math.hypot(player.pos.x-q.x,player.pos.z-q.z))):Infinity;
+      ambience.update(dt, { day: life.daylight(), busy: mode === 'town' ? busy : Math.min(1,(inside?.people?.filter(p=>p.key?.startsWith('visitor:')).length||0)/8),
+        vehicle:mode==='town'?driving.activeVehicle():null, sheepDistance:animalDistance('sheep'), cowDistance:animalDistance('dairy'),
+        crossingDistance:crossings, crossingWalk:crossingState(life.minute).pedestrians==='walk',
+        truck: mode === 'town' ? truck : Infinity, indoors: mode === 'house', room: inside?.place?.id || (inside ? 'house' : ''), weather: life.civic.weather,
+        water: Math.max(0, wxyz), surface: mode === 'house' ? roomFloor(inside?.place?.id || 'house') : surfaceAt(player.pos.x, player.pos.z),
+        stepPhase: player.bob, moving: movedDist > 0.015&&!driving.driving, running: movedDist > dt * 5.2&&!driving.driving,
+        crouching: player.eye < 1.3, airborne: player.y > 0, hour: life.minute / 60, dayNumber: life.day });
     }
 
     if (mode === 'town') {
@@ -1575,6 +1603,7 @@ async function start() {
     driveDashboard:()=>drivingDashboard.getState(),
     roadSigns:()=>roadSigns.signs.map(({type,x,z,yaw})=>({type,x,z,yaw})),
     driveHeadlights:()=>driving.headlightStatus(),
+    soundscape:()=>({track:ambience.debug.track,selectedTrack:ambience.selectedTrack,vehicle:ambience.debug.vehicle}),
     estateLights:()=>({count:masterplan.lampPositions.length,sourceCount:town.streetLighting.sourceCount,visible:masterplan.lampHeads.material.emissiveIntensity>0}),
     driveDiagnostics:()=>({
       input:input.movement(),touch:input.touch,
