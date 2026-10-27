@@ -26,7 +26,7 @@ try {
     step(/Wrong password/.test((await menu()).text), `${tag} wrong password refused`);
     await page.fill('#cheat-password', 'CHEAT123'); await page.click('#cheat-unlock');
     m = await menu();
-    step(/Summon car/.test(m.text), `${tag} CHEAT123 unlocks the cheat menu`);
+    step(/Summon selected vehicle/.test(m.text), `${tag} CHEAT123 unlocks the cheat menu`);
 
     const run = (a) => page.evaluate((a) => document.querySelector(`#cheat-menu button[data-a="${a}"]`).click(), a);
     await run('goNew'); await page.waitForTimeout(300);
