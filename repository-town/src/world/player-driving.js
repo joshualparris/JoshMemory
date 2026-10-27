@@ -186,8 +186,11 @@ export function createPlayerDriving(life,scene,collision,player,camera,input){
    for(let step=0;step<steps;step++){
      const dx=-Math.sin(yaw)*speed*dt/steps,dz=-Math.cos(yaw)*speed*dt/steps;
      const nx=v.x+dx,nz=v.z+dz;
-     const pedestrian=life.villagers.some(p=>!p.inside&&Math.hypot(nx-p.x,nz-p.z)<(spec.kind==='bike'?1.25:2.2));
-     const parked=(life.civic.motor.owned||[]).some(o=>o!==v&&Number.isFinite(o.x)&&Math.hypot(nx-o.x,nz-o.z)<(spec.length+vehicleSpec(o.model).length)*.35);
+     // People and other vehicles stop the car only when it would move closer to them, so a car that
+     // starts overlapping one (a cheat car summoned onto another) can always drive away.
+     const closing=(o,r)=>{const now=Math.hypot(v.x-o.x,v.z-o.z),next=Math.hypot(nx-o.x,nz-o.z);return next<r&&next<now;};
+     const pedestrian=life.villagers.some(p=>!p.inside&&closing(p,spec.kind==='bike'?1.25:2.2));
+     const parked=(life.civic.motor.owned||[]).some(o=>o!==v&&Number.isFinite(o.x)&&closing(o,(spec.length+vehicleSpec(o.model).length)*.35));
      if(pedestrian||parked||collision.hits(nx,nz,Math.min(1.15,spec.width/2+.1))){blocked=true;break;}
      distance+=Math.hypot(dx,dz);v.x=nx;v.z=nz;
    }

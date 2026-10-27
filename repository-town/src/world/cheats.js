@@ -12,9 +12,13 @@ export function nearestRoadPoint(x, z, clear = () => true) {
   for (const b of DRIVEABLE_RECTS) {
     const inset = 2.2, x0 = b.x0 + inset, x1 = b.x1 - inset, z0 = b.z0 + inset, z1 = b.z1 - inset;
     if (x0 > x1 || z0 > z1) continue;
-    const p = { x: Math.min(x1, Math.max(x0, x)), z: Math.min(z1, Math.max(z0, z)) };
-    const d = Math.hypot(p.x - x, p.z - z);
-    if (d < dist && clear(p.x, p.z)) { dist = d; best = { ...p, horizontal: b.x1 - b.x0 > b.z1 - b.z0 }; }
+    // The closest point on this road, then points further along it, so an occupied spot is skipped.
+    const horizontal = x1 - x0 > z1 - z0, c = { x: Math.min(x1, Math.max(x0, x)), z: Math.min(z1, Math.max(z0, z)) };
+    for (const shift of [0, 7, -7, 14, -14, 21, -21, 28, -28]) {
+      const p = horizontal ? { x: Math.min(x1, Math.max(x0, c.x + shift)), z: c.z } : { x: c.x, z: Math.min(z1, Math.max(z0, c.z + shift)) };
+      const d = Math.hypot(p.x - x, p.z - z);
+      if (d < dist && clear(p.x, p.z)) { dist = d; best = { ...p, horizontal }; }
+    }
   }
   return best;
 }
@@ -23,7 +27,9 @@ export function nearestRoadPoint(x, z, clear = () => true) {
 export function summonCar(life, x, z, { model = 'sedan', clear } = {}) {
   const motor = life.civic.motor; if (!motor) return { ok: false, message: 'Vehicles are not available in this save.' };
   if(!Object.hasOwn(VEHICLE_DYNAMICS,model))return {ok:false,message:'Unknown vehicle model.'};
-  const spot = nearestRoadPoint(x, z, clear);
+  // Never park on top of another vehicle (that used to leave the new car unable to move).
+  const free = (px, pz) => (!clear || clear(px, pz)) && !(motor.owned || []).some((o) => Number.isFinite(o.x) && Math.hypot(o.x - px, o.z - pz) < 6);
+  const spot = nearestRoadPoint(x, z, free);
   if (!spot) return { ok: false, message: 'No clear road nearby to park a car.' };
   const spec=vehicleSpec(model);
   const vehicle = {
