@@ -1,0 +1,2306 @@
+[
+  {
+    "path": "deploy/cloudflare-ai-worker.js",
+    "bytes": 9384,
+    "sha256": "efc50c8ef512061fbfe25d1850259d7a58100e9306c8d33eb2f7457d991abeab",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "deploy/consolidation-inventory.json",
+    "bytes": 4882,
+    "sha256": "cd696cc9287b30da4f0e54101fc22b99a6c1eb4d80650c1be2b9c3dd2af1f4e3",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "deploy/hosting.json",
+    "bytes": 571,
+    "sha256": "98fe2e87638d0bf91648064977e63c2d69446b3fc5d77a1d005f9bd86c0cfa34",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "deploy/npc-prompt.js",
+    "bytes": 7329,
+    "sha256": "b42d80b73bbe293aeb3debde3033cce3482c027d0a3e8a6821453c6ad5c13965",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "deploy/pages-npc-proxy.js",
+    "bytes": 3167,
+    "sha256": "f1dd6cbe650b723d9827461ecee82f0cae5271c8823c1bbf743c52817b12c937",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/engine/collision.js",
+    "bytes": 2876,
+    "sha256": "95f34e2a1d108660fe1310bb9d9e996e1464a0b9ef210e2f00a1334b2ac434dc",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/engine/input.js",
+    "bytes": 6765,
+    "sha256": "b4ee3662c41fcd8b1ac471acd226ee94b5265a9fc0b6d68592d167d30d004792",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/engine/movement-speed.js",
+    "bytes": 1462,
+    "sha256": "ac172acbef1428e0a522869cf59c53e8373ad0db767b6dedcc31426f56dc22d9",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/engine/player.js",
+    "bytes": 4576,
+    "sha256": "311677fa6f0530c2533cf015d56d03b0f203dc0952ccc8a9132d6c538e1cebc1",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/engine/save-transfer.js",
+    "bytes": 2574,
+    "sha256": "5beaf1b664672e427e3514bfd23fd3273db5efb8b91c6f663fd9fcdc51789cd9",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/engine/save.js",
+    "bytes": 570,
+    "sha256": "1988ed577c9b9ab5bde90f4fa4560944b95069f2e775c3603026c43aac3b3b61",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/addresses.js",
+    "bytes": 4723,
+    "sha256": "8a6e2ff52841f96e91d4eb1699ed6368b7b8861be881ee103eee8837688dbd71",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/aged-care-facade.js",
+    "bytes": 2597,
+    "sha256": "0edf79a0584b7ae83ef03c37dc82ef277b114cb450e4cf0627e61bf704a3fd27",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/aged-care-interior.js",
+    "bytes": 9707,
+    "sha256": "5f3f56a4251153e83326e007e949acd1ceb92d6d3bb02091871194ef36270665",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/aged-care-layout.js",
+    "bytes": 1383,
+    "sha256": "ffffb466c2778181ea0150d04d85a60e8720bde34a2af3fbac1a3ec0d2cf457c",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/bakery-immersive.js",
+    "bytes": 4427,
+    "sha256": "f218bc05691d1acd4e52a047a728576795fbc113250b5a023c6c02d7c1949691",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/bakery-interior.js",
+    "bytes": 23175,
+    "sha256": "b4b32468771b83bea83ed19bc9860b29126448f87001e1cd28b17e9166424fbf",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/bakery-production.js",
+    "bytes": 5441,
+    "sha256": "f91a910da572cb1fbaf970e1a6a38bafa1f38a0795ad42b2701c34312a3ce481",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/bank-interior.js",
+    "bytes": 17974,
+    "sha256": "78bdaef3d6be9493d0178339842f75f337ba0da8ad7aae136b31fd31d2a58e21",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/bicycle-safety.js",
+    "bytes": 1881,
+    "sha256": "150c0259e25af8743f6013acddbbf786602245c9172a85a61f9771ed77480de6",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/bracken-campus.js",
+    "bytes": 6630,
+    "sha256": "30339e62d41c003cf679bef815a685a9f46d9e33a442b75442ff00198943d25b",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/bracken-interior.js",
+    "bytes": 10187,
+    "sha256": "cd5fe1c3ddc5b7406f3715e21fec60bed1fad45a04696f1baee0a2bd6173edb2",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/builder.js",
+    "bytes": 6772,
+    "sha256": "88e0ac1554d56bb2e4433cbcf2cfac006afa9bd4a20664fe5aaa63587661c8cf",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/bus-interchange-facade.js",
+    "bytes": 3065,
+    "sha256": "352107de4af408982fe9c59994fdbadfca9a8e5c5a6293d24172651f2ff15fc4",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/bus-interchange-interior.js",
+    "bytes": 7149,
+    "sha256": "304ce2da0773b70f88ab32c0d560986783bfeb0f3d37b5c5541527f853cfffad",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/bus-interchange-layout.js",
+    "bytes": 1169,
+    "sha256": "a7c0ff27087aeec6afd98d090764d8c6c088a89022ddfa8a3ae6e34265c9706d",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/butcher-interior.js",
+    "bytes": 5457,
+    "sha256": "13a9d8b6eb1a1b6fd2ea676b08675072b14075802e030e4132d42d8c4814aed7",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/cafe-interior.js",
+    "bytes": 9090,
+    "sha256": "ae59303f26648d3e3e2ba3e9481b96845e4b59010c55a9cce4033cbfa7a8233d",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/cafe-menu.js",
+    "bytes": 3992,
+    "sha256": "1abc553a2032db8a43eabae046c1c141527726470ac623161ac2b85f43d28f71",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/cemetery-office-facade.js",
+    "bytes": 4114,
+    "sha256": "d0c7747d4d65054a582e1fbec206d4a9a6b53ea2556fa46e1fa0e1942a288574",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/cemetery-office-interior.js",
+    "bytes": 10001,
+    "sha256": "18a9fa5352edd75226d8b42209e0df54adec3795a36254904ea93e65d4cf3a2b",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/cemetery-office-layout.js",
+    "bytes": 735,
+    "sha256": "e70c73c18a0457e85e4366acfcca62fb919b07de364063d755676d520c84a6b7",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/civic-entrance.js",
+    "bytes": 1074,
+    "sha256": "6004686b944527453e882be9d472ad57773338bd18cff7fa8f2e6b8c1d13c916",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/clinic-interior.js",
+    "bytes": 7949,
+    "sha256": "151b95e65241fb0e4da36cb499ceb58b87b914c5a987e068f3b471455710162f",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/clothing-interior.js",
+    "bytes": 4787,
+    "sha256": "265cb036315ab6009755e34eb8ec2cd6db3781e791db634ee1e06471ef9a5693",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/cold-chain.js",
+    "bytes": 3354,
+    "sha256": "5388f7e3396aa3e99d6f779ec9650c0b114ab4d30cc720dc4f53bee3b89b39ed",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/counter-queue.js",
+    "bytes": 6791,
+    "sha256": "a2e7e9cc008b1aeeb7e91aaa1d96e1affe2bf460a91b1b515dd326734fd4fbb4",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/credit.js",
+    "bytes": 5318,
+    "sha256": "e5e7405bf914f37a89311501dfa89a9d8a9a4ac1bfd477ca120f4f07e35e7da5",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/delivery-work.js",
+    "bytes": 6050,
+    "sha256": "ca1d19ef45e4c4dc37f3c049151d11d49359d12fb312db455bbea057ca58d779",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/dental-interior.js",
+    "bytes": 6021,
+    "sha256": "9abc0d7aca4a9b4230addb6ec805da8a61ed282083a3d01797127c81f880adf3",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/depot-interior.js",
+    "bytes": 7133,
+    "sha256": "ded2e87b83aa85cefacca095fc68793b445692b338ddc38c32c7224580323097",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/electrical-backbone.js",
+    "bytes": 23467,
+    "sha256": "7d7c1bf094c17353758b338cf21ba42c9dbd3d2443a8f4e88ce89899cc98b8b7",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/electrical-pilot-data.js",
+    "bytes": 49130,
+    "sha256": "70e864cf3cfd5933a72f8ccee5daba4dfefcaa35c69ac2722bf30b971b142394",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/electrical-pilot-visuals.js",
+    "bytes": 4277,
+    "sha256": "dde4f6de10ec8e598fd44449f57f2f54e43fa358eb33074c2af4db1b7b9d86ab",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/electrical-pilot.js",
+    "bytes": 11430,
+    "sha256": "7ad5accffd1545bc1f3df0e2c9366d382edc26c9cf49468e8623113b4fd26456",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/emergency-justice.js",
+    "bytes": 17976,
+    "sha256": "bd05c637eeb3256ec1a1b47c93fffbc2dd569dafa63656f14b917088069b7670",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/emergency-response-visuals.js",
+    "bytes": 4628,
+    "sha256": "c3a77eeb5f98c2293ea525d2475799fc97d21b8d81c3cf7ae1bcb097fcca2e03",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/exterior-collision.js",
+    "bytes": 3109,
+    "sha256": "ad28f646f1309f88587cd4854e448b4d335e5a6b5715a4cdfab1a26ec97662cc",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/exterior.js",
+    "bytes": 21882,
+    "sha256": "33b97ee7a5e9b7ce1f07c866ae993f138ff0cdd8b6c1cfbac13ebb9e82915cfc",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/facility-access.js",
+    "bytes": 5108,
+    "sha256": "110675721c8ff32352220d1240c37942b8eb2b1cf9d222e8c5a80f34907bd3c4",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/farm-interior.js",
+    "bytes": 11747,
+    "sha256": "0f8aec0ac84907f4cbd6aec0e9e22293bac2fef253de5cb23f1fc698c1f15090",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/farmhouse-interior.js",
+    "bytes": 20238,
+    "sha256": "fad03c41cf00ac804a586b9de3d867dd261e6b8966d38ca00d1a40971b54fe10",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/finance.js",
+    "bytes": 14581,
+    "sha256": "cd0fc4d795fc0c48a36c7e9b2711fe5d77c0f66cbf785db57204e5fe13a34df0",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/fire-interior.js",
+    "bytes": 24696,
+    "sha256": "c9fb5eeb5b9a9ab31381985280a090df27890daab8c0dacd6a1e5cb7b1fc2d9a",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/floor-plans.js",
+    "bytes": 11744,
+    "sha256": "f2818d5007cb94ea126fa9e2ed3a815f32c63ea2a0ed5c097c46a9b5538d4eb8",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/floor-surfaces.js",
+    "bytes": 634,
+    "sha256": "dd6e40cee17a945c7bb92c9386860ea650222b6aeb9ba40b5dadc3aa9cdd3705",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/furniture.js",
+    "bytes": 5363,
+    "sha256": "9b0d0d7725be2b522419759e1a59f320b8f3f5cc52a91c0d3ae7bcc271ac32b5",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/government.js",
+    "bytes": 18661,
+    "sha256": "05c9931a942eb488fbde3d5b6509aa91fc36b0a263ee54f3c23926a5aa358264",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/grocer-interior.js",
+    "bytes": 5651,
+    "sha256": "0d0cc03cdbab0e9b87f01b2192ed5d9bd7dc8db7f1af8f7af43642ecb01193b0",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/hall-interior.js",
+    "bytes": 7880,
+    "sha256": "de43d358f438715250362e05f6501b8aa838f79998ba900b65263ddf62fb087d",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/hotel-interior.js",
+    "bytes": 987,
+    "sha256": "25f946b020c9542cf963acba8f102b6f5dd5239a723efcc2d7a969976747314f",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/house-entrance.js",
+    "bytes": 739,
+    "sha256": "091169f248c9fe0b307e487017687bceb260eac559fab595561c2be95d96617a",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/household.js",
+    "bytes": 27830,
+    "sha256": "fcead45eca5c79bb2a4d16ba5936378c2df51315cc90c2b0ed158d27ae8a37f4",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/interior-kit.js",
+    "bytes": 8669,
+    "sha256": "2603d84b4e1e9d0908640575c2d8bc200a6ae0bd22ba0757510b68eff4b5c0a5",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/interior.js",
+    "bytes": 26721,
+    "sha256": "51303216953a5c0c03cf9172156c9ca23cf4712184510a59d8d3ccbc04a4994d",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/jobs.js",
+    "bytes": 11520,
+    "sha256": "cfdebd2c81f5045aff111f2483fd1be67db4e40c3a3eedf243e18c196f8b571c",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/justice-interiors.js",
+    "bytes": 13508,
+    "sha256": "494432def7bbcf70155affe858276299d8e9527ec6a50f3a95a3bfaaeadbff5f",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/lease-law.js",
+    "bytes": 8720,
+    "sha256": "2991026e37fdaaa0219a7a505c8123a6cac7b176d5e9247a4adbbc9e88ace275",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/library-interior.js",
+    "bytes": 4988,
+    "sha256": "7c4d24a0dc797d1a252a52cd17972f53ecfb7bcfc150cb6414493b06a4f7af17",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/life.js",
+    "bytes": 138945,
+    "sha256": "b723bfbdab78f3494ec9e2db5ee8a9e13831d2b576a86681077e90cf617dafac",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/lighting.js",
+    "bytes": 5156,
+    "sha256": "24a2eceaa3b2f1bb3d4f7f48face719bd01eb821d3d16e7f5551f35cd5cd175d",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/masterplan-model.js",
+    "bytes": 6811,
+    "sha256": "32775fcd212d43c8343bd0b74ee6b4a5ac261fd0869a820e964f6ac082ec655a",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/mill-interior.js",
+    "bytes": 7214,
+    "sha256": "850ce3ad2c8dc6cc047e0967ab6fb61fcb8aff5ab5a75dc73aa314afa23ad96b",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/multifloor.js",
+    "bytes": 4826,
+    "sha256": "d1b27652d9c2c0d1b4177c94d956ac1586c58b12f44fed9d6ba3870977991cee",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/needs.js",
+    "bytes": 8462,
+    "sha256": "937259b5d9389b73195ea51a7eca9ab1e45c6de2a6f11acbb9423dd774febb0c",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/npc-wardrobe.js",
+    "bytes": 5038,
+    "sha256": "9b35fadb702d618f465446b861bea6af3f793380401670cf2cfc4193844bba4f",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/npcs.js",
+    "bytes": 32356,
+    "sha256": "4fd3680e9f9dbde1d8ba0011635a1ee9e03d33aa9ed0bff5fbf36f756677102d",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/nsw-property-law.js",
+    "bytes": 2657,
+    "sha256": "f8bc1051007111bb70a04064a774ab714429caad4c30cf9fc3efe1425186a083",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/nursery-interior.js",
+    "bytes": 4550,
+    "sha256": "71325113160f624afa1b924cf132f66ccbbc8ee13147b3e533f57a74a138f1f5",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/occupation-work.js",
+    "bytes": 15135,
+    "sha256": "dc1c689768d4e4e04e479d9ea426d70a76233f83bafbd431a55f0b361493543b",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/pathology-interior.js",
+    "bytes": 4240,
+    "sha256": "f69586338d3f6f32a734d51715dd82a2d2097d87757448833328d499aef9cf7d",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/paul-roe-tribute.js",
+    "bytes": 7665,
+    "sha256": "cce0cdd741ef7c2ec714d84f1cdebd54b7d4c87b0e8e60928bb9f634060d41e9",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/pedestrian-navigation.js",
+    "bytes": 5690,
+    "sha256": "8f3b7fc8baf1c02ec01c0d4d5d92a08939ba35f5c5861b863c8eda26cb19d227",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/pedestrian-progress.js",
+    "bytes": 2259,
+    "sha256": "e119b645c489a521b36b8c789e43a9740ef69cd9a1003220bb777a39da10fd6c",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/pedestrian-spacing.js",
+    "bytes": 5948,
+    "sha256": "ac24e4732550925a7a91be3fcaaaaebe5d199bdb3d2c93a2ae8fc3f5a55a6b8b",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/pharmacy-interior.js",
+    "bytes": 4486,
+    "sha256": "4a2e5c9b30fb22071856e66a991498ee66e0eba8d311d458e74a65b0066bc72b",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/physical-jobs.js",
+    "bytes": 10167,
+    "sha256": "0ae3ca2dd675b792241cabeb7b35f93cffae844bb1347ca39044e5b525817909",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/planned-addresses.js",
+    "bytes": 1512,
+    "sha256": "5679ed2c2cf0d5dfc1c83a2b07febd7962fcafe6783e72a2bb3a6b13ef60f3b2",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/planned-road-graph.js",
+    "bytes": 1368,
+    "sha256": "230c2efe570f2f50b75702bf9c4a6c0ae91214a6f5c85cfc1506513a2dd3cd96",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/planning-runtime-audit.js",
+    "bytes": 839,
+    "sha256": "8580bedadf9b159cd7d6df15d92227e336a51ade9f83536bb90992457bbb7150",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/player-driving.js",
+    "bytes": 7864,
+    "sha256": "72b97d3a625aadd4b49debeb200f9d45b1a9ea20969b4255803f8b3d0c2b14ff",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/post-facade.js",
+    "bytes": 3076,
+    "sha256": "c026db43b052df0c020fc558cac26daf2c69e278eb81ea43b39ae3d7d6241bb8",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/post-interior.js",
+    "bytes": 6049,
+    "sha256": "1c5c5d0bfce127387acdada06c1c241494455342c017059cdce40f2850422fac",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/post-operational-details.js",
+    "bytes": 5587,
+    "sha256": "d6534dc8d92bf33d08915304130a9361cabfdd4605a7672447d65f53193ef900",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/power-grid.js",
+    "bytes": 5195,
+    "sha256": "94be125474b01cab70d97576b4a7c30761488218cb32d00bccd7cd1539e5978e",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/power-interior.js",
+    "bytes": 19330,
+    "sha256": "1fba9ae7b68975a8c97b3968e1245c25367abf369a6010a9b55d75b05b8ed410",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/property-contracts.js",
+    "bytes": 4481,
+    "sha256": "628901fa0e5e6a8e4817898339cdbfb8c727cd1c0a8265342a8a121a04a0a4d9",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/property.js",
+    "bytes": 13397,
+    "sha256": "b96d088866a0ce9af69fa95ffd1a4572c10c3b183fcebb6ae95a4085c2e4c03f",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/props.js",
+    "bytes": 56320,
+    "sha256": "53c7c2fa7a5926a0b3cc1150005e7de1cf45941101063dbea8387acd3db351ad",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/pub-envelope.js",
+    "bytes": 8281,
+    "sha256": "138c72c9029ed2035e809fcc55736b34472828b78a48ca53f21dd6969e17c143",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/pub-expansion-state.js",
+    "bytes": 4852,
+    "sha256": "2ab0867abbc6a7149ba16ad800cf8764e96c4e291bd6d9f90833927a7ac526c8",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/pub-floors.js",
+    "bytes": 7930,
+    "sha256": "ff0784fd265023ef5b3759f9c61fe49aff030bf6ab85e691a17f2969ce3dc4c0",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/pub-history.js",
+    "bytes": 1347,
+    "sha256": "cfec35112e34d06d522fa0cd7e96a182f5187ccd964cecff4a8ddf350e3695d2",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/pub-interior.js",
+    "bytes": 25695,
+    "sha256": "6fb4a27b091428e3cbaf033c78f021c5afb29a14fb58004676ed2c2df4036047",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/pub-kitchen-layout.js",
+    "bytes": 741,
+    "sha256": "7d1b81634220a11a62bc223d290d7c1f9086f5acd438fab6aef5e2621dec26e9",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/pub-physical-plan-2026.js",
+    "bytes": 3351,
+    "sha256": "dd42186b31f42f29ac1e347354075498d1b748bd79bed16dbb37dcf431022616",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/pub-plant.js",
+    "bytes": 4052,
+    "sha256": "bacd9e66332719bc3c80b7cb95de156d9cfa134f9f581828101698327aa15da7",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/pub-pool.js",
+    "bytes": 4672,
+    "sha256": "fadd2f9e7c8974c8d09bef4cad4aa52cb4a61e57a801c1681a0518f1e59f9ed7",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/pub-presentation.js",
+    "bytes": 4861,
+    "sha256": "115f05ae0fcfe015712303f29e4215e26cba76b78cbecff89623635c7ac225e5",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/pub-service-visuals.js",
+    "bytes": 3099,
+    "sha256": "b0559e7c93a9087bcfb0f150e09777e9dad78372815989fbae60cb527e952e86",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/pub-standards.js",
+    "bytes": 9883,
+    "sha256": "6b773737ef44fe2cd43e041dd36086b4a26ad23a6e0a6a3a4b2326e7abcd8d24",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/pub-utilities.js",
+    "bytes": 11943,
+    "sha256": "8ca5979084fbd2a0809499072035bc6926e9fa9771ba2f312a7811f1c5845dc9",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/pub-venue.js",
+    "bytes": 11699,
+    "sha256": "73e636114c4762bd0235a06ebafd5e78da2807980a5c7b214d7ef8d3867f96a2",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/pub-vertical-core.js",
+    "bytes": 2812,
+    "sha256": "2bd651c7f53c480d0aece86f7fea2ccab058663901c4fadcc23c6ce1aafe196c",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/public-forum.js",
+    "bytes": 5258,
+    "sha256": "2bdd57bd648d416b3be485ed9777b5c38d9d86654bcecfa97647cacf6bcba01d",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/rail-corridor.js",
+    "bytes": 4841,
+    "sha256": "a6edf9663f98d99ab75e642dd8e0e472d7d18ce6bc974f1ddef54742e1b21abb",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/realty-interior.js",
+    "bytes": 12545,
+    "sha256": "91a060d31c2466cb5ed995b2d40468bc87b1bd4e6f97a65ee05616aeb5a6eed0",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/realty-listings.js",
+    "bytes": 1480,
+    "sha256": "0cad68db17c288061461a9a8fee2cfd18666c33a63f98aef4f5dee90702b8b37",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/recycling-interior.js",
+    "bytes": 14410,
+    "sha256": "7b1ac3844d8d83b5042136bf74f0e51840d331777e0032ed6c9e15c955c880aa",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/repotech-interior.js",
+    "bytes": 4853,
+    "sha256": "2c3d426b9723c2a87e41560f62526901c6f9b3bbee9b4e98c740fff97faf1b13",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/resident-families.js",
+    "bytes": 11901,
+    "sha256": "d1bc29258d90f46b95dfbfad8e3e05bf226acbf6d971b714348bf5e8b12dcc54",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/school-interior.js",
+    "bytes": 5995,
+    "sha256": "018f5dd22376d5b7851150e11aecff3863f276863d15fe04ed03fd65aeb274eb",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/seats.js",
+    "bytes": 1787,
+    "sha256": "da302d94812ed1ed80cf217fe5e9fe3fb3c860b6d87f17cf6a5522238992e8ec",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/shop-attendance.js",
+    "bytes": 2644,
+    "sha256": "63fe000c639cecec3174d4a3eb61b619ac8a4a7f994ab896eb6604b99d6981e9",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/shop-exit.js",
+    "bytes": 1353,
+    "sha256": "f2f611ba075984f1aeb585a5e7fa7d173df872d28728c698f21b0dada4e6eb32",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/shop-interior.js",
+    "bytes": 17857,
+    "sha256": "1aad2e438a41102939cb034bb9fd5a9f3cd61851c0362838bb6d1bc61af022c8",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/shop-signs.js",
+    "bytes": 4315,
+    "sha256": "b578d5581dcd3fc906a77bdf1d4e55007deddf89b0af14cafb847ec93ae3db2c",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/shop-staff.js",
+    "bytes": 5062,
+    "sha256": "a676a0a26c93410cd7a9f26ebfa001f29402be413e7f3649d721d4bc0caa141e",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/shop-visitors.js",
+    "bytes": 15588,
+    "sha256": "b35e837c2cd93a643aac091ba9b2a419e09bdcf379a153214db62d12b8e69e43",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/social-events.js",
+    "bytes": 6788,
+    "sha256": "392c5ed72be143f2247eb459a04c248f38c88b0a9dbe6a6924873737b8317c01",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/soy-chain.js",
+    "bytes": 11603,
+    "sha256": "78e15bba584a0be860259ff6261f9e4f3398e3174404b85f097af427b4032101",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/soy-interior.js",
+    "bytes": 3636,
+    "sha256": "c9f045b7e37da3b5d8c816f4e0febd66980a842d1a9712893aada2e32e91e2e5",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/store-batches.js",
+    "bytes": 8166,
+    "sha256": "eca66477dd2acdd69a3f7052928ee0483a9e1a42c3ab710acd8397916a36be16",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/store-interior.js",
+    "bytes": 9243,
+    "sha256": "739acd75877e9e7899398ddc9e366071b509ddc6e7b3cab3e2c88cc3ef74a3c8",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/supermarket-interior.js",
+    "bytes": 4739,
+    "sha256": "ee9bbab0b655d91a75725af68303992e31051de78526b4d3fcc66b0b0afc3c90",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/surfaces.js",
+    "bytes": 1802,
+    "sha256": "05792627409949190598858d4a200279d38e4b2d52aece3b23bb78bddf84ef72",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/town-expansion-facades.js",
+    "bytes": 10117,
+    "sha256": "07cb9ae73f318e968478ae945f99ca9703a9272749ddde541d82d0b5f572d186",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/town-expansion.js",
+    "bytes": 33262,
+    "sha256": "a2d7bfb70b3390485f8883c0269b510b2e89ef4a5d40487bfe0ee42458142a9d",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/town-origin.js",
+    "bytes": 2097,
+    "sha256": "bec5a9fa447f260d49fb56664abe4460a32865687b1736438f5a769af3c19cbc",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/town-planning-audit.js",
+    "bytes": 1284,
+    "sha256": "58e7719a34e263f52331a46546d4345d097bf384b34eb3db5dc44273069d97fe",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/town-planning.js",
+    "bytes": 3574,
+    "sha256": "7b2627d1df4c3c576183663ae37dd0c48fb3ec63df471cbed427c7723f672e54",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/town.js",
+    "bytes": 9891,
+    "sha256": "323dfeac5ee2f1493fcd345f461422029e7e5e40774dcbf655c83f4f58797ec7",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/townlife.js",
+    "bytes": 80475,
+    "sha256": "9bfe2e5450b518407385c18437bb3cf0d95ce7fce40ca1dde734039e023688d8",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/trade-education-interiors.js",
+    "bytes": 5983,
+    "sha256": "a620a54b016fd1a6b2fcfeb69f6f63485ab476aa7706eca2cf8f44a2f7fd5470",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/trade-education.js",
+    "bytes": 15399,
+    "sha256": "2da815777a2519dec22728edb0fadfed71eeced48917e2e50954db6a54ac13e1",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/trade-interiors.js",
+    "bytes": 4495,
+    "sha256": "024db8d6a7bca284534ed16657a032579b47b79b7ca4f696c9485a285d42903a",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/trade-operations.js",
+    "bytes": 7988,
+    "sha256": "380745c29a638bbc80a470763e9fd798654d32bae80a03d68f6f9f32427fb4e1",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/traffic-signals.js",
+    "bytes": 2493,
+    "sha256": "b7f53a8b986069f48690e80e668d0da5fea03c12f37ef0ac574aa29f2a3cad97",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/traffic.js",
+    "bytes": 1227,
+    "sha256": "a71fd40499b25d57b225689c93ee9d6f5810138acee97f4722df1de0637023dc",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/utility-network-schema.js",
+    "bytes": 4028,
+    "sha256": "62d409ed1a0809276399ab6ca935c3081c05e35157de537d2714635b7c8f59a2",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/vehicles.js",
+    "bytes": 6071,
+    "sha256": "cfe88afe3fc660e068bf9460297a07f2267606b5f7f56fa24c8ae76b20fcf460",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/visitor-information-facade.js",
+    "bytes": 3552,
+    "sha256": "ddfb270e1252365db919dcb2070349cb5dbe33ea662cf9f66d52dd5a6c5402d0",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/visitor-information-interior.js",
+    "bytes": 9730,
+    "sha256": "1b5735546825b9c7ff98d595a4146030d63694dd50681b0a547e6176c66bab4d",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/visitor-information-layout.js",
+    "bytes": 789,
+    "sha256": "56c7f0e25ed5bce1618ace4826eaf9ec5170a2e368249e7d483d23fb44632bcd",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/visitor-payroll.js",
+    "bytes": 5871,
+    "sha256": "b93db2d7cb4bce07a2db1c6a8f93a2e2cdbc22f12a4dbb1418f9fed0f16fd200",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/waste-depot-interior.js",
+    "bytes": 10095,
+    "sha256": "ee6f7fe8a430c5d1838356b1e6c6085e7da68ccc1cd08ee098e8fe5478691725",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/wastewater-interior.js",
+    "bytes": 13563,
+    "sha256": "e49f66454314f3771749c52ecc64a3cce943a806d16493b1fc97497dac783a72",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/waterworks-interior.js",
+    "bytes": 11871,
+    "sha256": "32d41c168ddeccc66afc9c480966cdb2b864698ad0362b061a9f1c383f4faff0",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/windows.js",
+    "bytes": 2225,
+    "sha256": "2bff3b62d274563c765d886a9a280b36457fe689af21dc60d15d45af1cdc2e2a",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/work-contracts.js",
+    "bytes": 3305,
+    "sha256": "89bbeed008263a0a477b12007a751fbdaef78c6543813746cb505f4ff3fdbadf",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/work-recipes.js",
+    "bytes": 5455,
+    "sha256": "9ed26f7daa53ce6ed19a5ed6b6a4995697c4a84fbed108b355e73ab939422413",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/workplay-view.js",
+    "bytes": 14588,
+    "sha256": "e9f9a697723ad43d5942c31a7a8d9eb38af9191c956cc5fc711388e406f3086c",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/workplay.js",
+    "bytes": 15561,
+    "sha256": "4c277d49efb8fe6c5cc11df1e12c76b509747cd1ad70a6cdb1d28913e03de873",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/yarn-dialogue.js",
+    "bytes": 4382,
+    "sha256": "be6717626487bd10bfc463cee2d37b1a194dbfc1f6241aec8fca504042bde717",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/yeoval-campus.js",
+    "bytes": 6085,
+    "sha256": "310b2c834fc040c450d64499176befff06ee51ede7f9c08bb987eddd62545109",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "src/world/yeoval-interior.js",
+    "bytes": 9013,
+    "sha256": "70ee88d479de3469cb9fc77ab8a57867b38e78f4208e5895e01cf296e44b5ded",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/aged-care-browser.mjs",
+    "bytes": 2834,
+    "sha256": "c91d2ace7453f28893bf272a8934a1173b755107fcf44b3f30ce03a35ef767af",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/aged-care.mjs",
+    "bytes": 4402,
+    "sha256": "4e8c1871068478dee53515d7f4fba05dd917f25cbf36756b83a9c6aeca3d16d8",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/arcade-agent-playtest.mjs",
+    "bytes": 10154,
+    "sha256": "de58f07ce21f0a4a456e57000046fef1089199da0709da06bab80fcd16b0222f",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/arcade-qa-contract.mjs",
+    "bytes": 1819,
+    "sha256": "38debbd6a294f61abbb029ab87be5eb8fe54cdc71d939763c051d9ddf8d53d2c",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/arcade.mjs",
+    "bytes": 3382,
+    "sha256": "349d64b01d7f72a3482274e30e1e6dfb24e0a063c406408635be806db8719548",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/bicycle-clearance.mjs",
+    "bytes": 3261,
+    "sha256": "2680e65716825e745434f96d6d4a289baf7c5aa009b2214e093a25b0aadc9bc0",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/bus-interchange.mjs",
+    "bytes": 4564,
+    "sha256": "b687b62d0b5f28b75a1679f0efa2b7f69f0c776a68778f4e103f7ae601fccaa1",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/cafe-orders.mjs",
+    "bytes": 2664,
+    "sha256": "570b319eb74218c526366725d3b3843222f28cab6b276ff10370749e1b5d8597",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/cafe-play.mjs",
+    "bytes": 7838,
+    "sha256": "41c855d47ad2c2fa02e95ff71fe28f58c00853bdd39669456972786e7fdc7bdb",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/cafe-tips.mjs",
+    "bytes": 3228,
+    "sha256": "c4cb6b2dd47401413f52d831eaf1af4ecde028bd19542f0a4cb0d9b34422ea72",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/cemetery-office.mjs",
+    "bytes": 4546,
+    "sha256": "0f2561f2bb7c53028800cbfdab2925545c1343c9769ec6272c84a2d3b33f072f",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/civic-entry.mjs",
+    "bytes": 1811,
+    "sha256": "ba113fdad9bc92d67d6f9725734d554e3096a9718017dc5157ebd24de73fb8de",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/clothing-realism.mjs",
+    "bytes": 1780,
+    "sha256": "5ac262f496080091bcd0ff77959d98b58be405520a716ea463b6f10ffa42250b",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/companion.mjs",
+    "bytes": 1375,
+    "sha256": "0c5ef7a81ac363744761a83fbca6fa8ae793259f0f8a20ccb4a008b837f2619a",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/context-labels.mjs",
+    "bytes": 2713,
+    "sha256": "6e953d7489404e761a84107a095445aff5a3c22b636101f35bbaee28d0c28843",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/credit.mjs",
+    "bytes": 4308,
+    "sha256": "81a37e4b41949f6bc105bdeacf3ff14774164c3d960879bf61d5fc1d7dbb615c",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/dental-realism.mjs",
+    "bytes": 1965,
+    "sha256": "6bf819b6d4dcf8affa1d04545784ee5d2e7ee769cb829680a1f0c8bd4ce98dfb",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/depot-interior.mjs",
+    "bytes": 2457,
+    "sha256": "89b5a29f1f508fa6b1529475e7e71935faa6b1e5588569dadcde6778c17ea365",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/dialogue-schema.mjs",
+    "bytes": 7730,
+    "sha256": "34884437aa33b6df38dfa19c94dc98f829aa50e9b345dae15c9cd91ff7ec9701",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/directional-addresses.mjs",
+    "bytes": 3520,
+    "sha256": "248b060568491764bfc86568d8aec273b6e388a4c990744aa97bd94c0d31edca",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/discovery-log.mjs",
+    "bytes": 1307,
+    "sha256": "87f4d46e986bcaceb910e2d0c8c3b0fa1c9e800202b3a9381a7599312afebf9e",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/door-facing.mjs",
+    "bytes": 2872,
+    "sha256": "1789d0e12f1d192cbd06044e956dc9f968390ea246c859d6c146034cf7c764c8",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/e2e.mjs",
+    "bytes": 11962,
+    "sha256": "46b0238c17e7306f4a643fc211b46a09b7f95a64194ba71a041bd18d88c45ee3",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/electrical-backbone.mjs",
+    "bytes": 8625,
+    "sha256": "638b00ff2c63319e201101ad5254fac970e14d53c11f149712bb3a0e4a44e1ed",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/electrical-pilot-browser.mjs",
+    "bytes": 5454,
+    "sha256": "510016bc62c503aec222b3fc0bfce785521df4d10d570b7659990af22cbee874",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/electrical-pilot.mjs",
+    "bytes": 11532,
+    "sha256": "8518bc569468f99df924005bd1c03a9ec46588cbf2fbb309f6691aba673183f5",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/emergency-dispatch.mjs",
+    "bytes": 5380,
+    "sha256": "8131b040f1aed104871c7e4ac1c162435ee62e01ae49c146bcdd05e4d7eddc2d",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/emergency-justice.mjs",
+    "bytes": 7763,
+    "sha256": "959d641d9b6ec5bba9a5c57082b9d7ac03c24e78c1a3f3ff686461e5e442a075",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/entrance-zones.mjs",
+    "bytes": 3745,
+    "sha256": "b0a28933adcaabe5111f4f3e0f0fb0d1e1144d124e568dbe8e05cc1d04522f03",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/exit-facing.mjs",
+    "bytes": 7389,
+    "sha256": "de3f409fafb3237592f23e7ddc9d704e1600c403d47e554504af4685d5bc09aa",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/exit-stuck.mjs",
+    "bytes": 6553,
+    "sha256": "782af7c84ff2fb843988f560e7d148f936d35c6e08738673f513aa0cdc7db479",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/expedition.mjs",
+    "bytes": 3022,
+    "sha256": "8922dab94214e56be6f912cffdf4a88db2095391394c7187735cdfffe2670110",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/exterior-collisions.mjs",
+    "bytes": 3757,
+    "sha256": "d0330ea6b22174aa8a08d72968d6f87642a1b5a1cf5608f4ed66a1f001feb0f1",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/facility-access.mjs",
+    "bytes": 8043,
+    "sha256": "5374642a655412ea59ec93a5396584269a0ca3e5c5af9dfd60182a868193aaad",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/farm-access.mjs",
+    "bytes": 2895,
+    "sha256": "9eb4c8cf57bcffe2d4c1c3675086856875c0823c7bb58f16bea57d1319f3bb38",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/farmhouse.mjs",
+    "bytes": 6587,
+    "sha256": "50194c5f6a515bb13de18ae78012430af3d282632ee349bd35ee0f47b6bfffd0",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/fast-travel-regression.mjs",
+    "bytes": 2481,
+    "sha256": "b00e1938c865ee765724da0071425c2f9ea9366403ae6e4fd7ab626380a6a32a",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/finance.mjs",
+    "bytes": 7121,
+    "sha256": "56b1e451cf6cb3351ac861c705e3e0909c67a18aceadcdef53a53aff67599c2e",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/footsteps.mjs",
+    "bytes": 4246,
+    "sha256": "2bee83aacd43dd9238fc1d7d75b84cf28276a4448a03cc04ed7a400a594e34cf",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/furniture.mjs",
+    "bytes": 2022,
+    "sha256": "aa8d76d03603bf7793061da54300282aea3988c26833cda18e70df7a4b3b4998",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/game-integrity.mjs",
+    "bytes": 3427,
+    "sha256": "138fd79a8573355729b6dea801c2bdecd5eb06a373433aac506fc17b3fad16c4",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/game300-live-playback.cjs",
+    "bytes": 5222,
+    "sha256": "7c07b7675cadf85b1afa670d9c4d482f4b27bfcad4847045f2f1e3306180c4a9",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/gameprobe.mjs",
+    "bytes": 1888,
+    "sha256": "2797d19d77781fc59afff8de347465f63229012326f3f02e6e66b82fe497baf4",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/games.mjs",
+    "bytes": 4667,
+    "sha256": "63e4359c3647b03270409d136ed5f8afcb52e103d8ea7f375845826c695960e5",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/geometry.mjs",
+    "bytes": 4746,
+    "sha256": "f2edfd0015ccd6742d99e2772ba84f2c24f56aa8b0b2e8fcba273f7ba192a0bd",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/government.mjs",
+    "bytes": 4732,
+    "sha256": "3370c7f3d44b3c84a0d9e239666924a0c7de6dd8980e5dc992b2aa95b253da70",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/heritage-homes.mjs",
+    "bytes": 2293,
+    "sha256": "e19a02c1fdf2868742d7349121605ee58926c903c6cdee1dcb96fca4c5592e28",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/heritage-public-release.mjs",
+    "bytes": 1815,
+    "sha256": "ebae87efdd92b5fa8b3aa1a733d6d49f9f58b7beffe9cf1e2e7a5f840212d15c",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/high-street-service.mjs",
+    "bytes": 5824,
+    "sha256": "b89db887be51aa41f315ade02810001b63ec293f1d8ee8e84e34e9af757bd452",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/household-browser.mjs",
+    "bytes": 3668,
+    "sha256": "4c7ca034b66ef63e9734c4c098f72068931ced2b4ff562825ead5fbdb3f44409",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/household-homes.mjs",
+    "bytes": 3443,
+    "sha256": "0846afff59d912c8a623ae2bd502eeb80622ab5b1abd760f0438800ede1f07a1",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/household.mjs",
+    "bytes": 7409,
+    "sha256": "3775a46bf742ff1277a6f1cd3e5881558efd1201081a85cb4364015fe5ea2010",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/hud-visibility.mjs",
+    "bytes": 2128,
+    "sha256": "306bcd0ff90f5a3e2d5e94c52453af4cd7a34af7619bf8b21599e6878d24de5b",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/hunger-sleep-hotel.mjs",
+    "bytes": 7869,
+    "sha256": "c05688306b9da4447bc2548fbf7b97103c7cb15f4a64e8db3e928289e185c4c8",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/indoor-crowd-identity.mjs",
+    "bytes": 3974,
+    "sha256": "e62a6a7ea38b9999c9c2ed9b17c15edb6550fa914bd12165968d597261a127c3",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/jobs.mjs",
+    "bytes": 5625,
+    "sha256": "7748e86baeba127c93dc5c0cc3d081651f8ee0363ddce6628e38a33b660832a1",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/label-visibility.mjs",
+    "bytes": 924,
+    "sha256": "63d5c7a9ef185e0746c6bdefaee3fa3858d92faa9eeabd68f8ac6a6d73fabf3a",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/labels-geometry.mjs",
+    "bytes": 3033,
+    "sha256": "9674b1ee50b237d50aaf0cfc15c968a092a41a244f5f956fa5621e538d072132",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/library-realism.mjs",
+    "bytes": 2212,
+    "sha256": "77dad9fb43431e997ef8d8fae728f24e9dee7e8d89503576c7d8ff4038cf7fe8",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/life.mjs",
+    "bytes": 17149,
+    "sha256": "2dd5b70562398d5c41409c95f1a1229002b401589dc56f09380249574fa058a0",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/lighting-browser.mjs",
+    "bytes": 5248,
+    "sha256": "a69cf41fa2a7e86f02e20ec0cfa70f7cf0bd8bf7451264a5e8a9bed4e033ca0c",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/lighting.mjs",
+    "bytes": 2526,
+    "sha256": "4c28d515f4f6bbe8c2fa7a0693ca390893f3747051378bc7a28e03ff68111c04",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/married-households.mjs",
+    "bytes": 2622,
+    "sha256": "c1315f1e9df4006ad561f6d4c4baf84993a2a77aead739e0c6ae7530301f3550",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/masterplan-browser.mjs",
+    "bytes": 2757,
+    "sha256": "e4ed2365a372e22b0a1ed6cc75547983e01c320040d8b56973354c8068302e2a",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/mill-interior.mjs",
+    "bytes": 2171,
+    "sha256": "88340d91147a96e0693317b542003e90b16c704f5cbcfe79f12c2d2f574aca53",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/mobile-driving.mjs",
+    "bytes": 4777,
+    "sha256": "928db1be80d279ed810d7b66e18f2376e0f3084f84aa220a1e2414b230191ed6",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/movement-speed-browser.mjs",
+    "bytes": 3357,
+    "sha256": "289e0923ae698ea2a20d79373e06da3a07478cbb04be17c1d8853c8bfbc8f111",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/movement-speed.mjs",
+    "bytes": 2550,
+    "sha256": "7b8ab8e9d13421c95f180ab73502e27de8805258639892d3bd1ebbc67be9ca83",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/multifloor.mjs",
+    "bytes": 4976,
+    "sha256": "54dbc58945982b8c3cdb78f46540111ce5880538d7547e01d344e5fee9f2f3b7",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/npc-appearance.mjs",
+    "bytes": 4985,
+    "sha256": "0a23a73647771251acb15de9e8065ef0620146eb032482944d5fc2d6e78b2f24",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/npc-context-cues.mjs",
+    "bytes": 2370,
+    "sha256": "015fdab5b9ac39339ee7de7772bef4880dffe2aa834a3ce09a6ff8231af3a2ba",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/npc-contract.mjs",
+    "bytes": 4633,
+    "sha256": "e615f840aab6f36eed0831f0a6b908a4f577002002ab1392f267e695379aa933",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/npc-house-dialogue.mjs",
+    "bytes": 786,
+    "sha256": "aac3e64bfe2a1107ab921674b87040204b22f9192ce6c1e6af2ae9bc813859d6",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/npc-location.mjs",
+    "bytes": 2730,
+    "sha256": "c25f2425e97e2052b34e13041cf1c706674ccf02a01154faca035e91038d3098",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/npc-no-pin.mjs",
+    "bytes": 1180,
+    "sha256": "7786304b2a00b4052f3a83d047dd42257f350147f35cda7818ce8d9c437f4147",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/npc-personality.mjs",
+    "bytes": 1676,
+    "sha256": "90257858c6560c2f92a9655e7aa89e7cb32582f266f433b68dd3d88ab5bdc3d0",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/npc-population-inventory.mjs",
+    "bytes": 7177,
+    "sha256": "7dcc04cf5a2feb4f67d807ce922a4c99753e9436b2ee86ceb6daa9095ee52be7",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/npc-realism-audit.mjs",
+    "bytes": 3858,
+    "sha256": "c66a1e895422beab954fbf3799dce2702e5cff4d3779502ff961e68e03f0e1ae",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/npc-scene-awareness.mjs",
+    "bytes": 2358,
+    "sha256": "a37a809b3b3f1d3fc282531781053f51cbac70622f33332b2b7237ad360334e5",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/npc-soak.mjs",
+    "bytes": 6474,
+    "sha256": "7d21fd1110b86467631795d98747ecb243a7b9c364bb1ecf8b336d964bf56a8e",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/npc-viewport.mjs",
+    "bytes": 2865,
+    "sha256": "a74ec5b66a4029b10d2d5c82959e5febb2a86103f9ba54b01cc44360acac2866",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/npc.mjs",
+    "bytes": 5523,
+    "sha256": "e4146d51f486b1ab7e38d978bf7f3fb53533764a455d68fb54b153d8b7f89f2d",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/nsw-driving-lease.mjs",
+    "bytes": 4242,
+    "sha256": "bd64c5595950ebbde1c7e20b5805c28bc420ad1c15ffaa162a1507a15e1a3d72",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/nursery-realism.mjs",
+    "bytes": 1230,
+    "sha256": "d5400776b14fb85b9950e1e5ad52a922643c96f6dda67d2d78288a5f8fe25830",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/occupations.mjs",
+    "bytes": 17130,
+    "sha256": "680644f0eaa84a97c96b43da9bc797f32ede9c4b749caaea6a3a7dd3ab4921ce",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/pages-drift-guard.mjs",
+    "bytes": 1234,
+    "sha256": "ac6ee4d5973f83726efeb0bf0fdd46f004b53ca6c0694428c1c67beaf262e71f",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/pathology-realism.mjs",
+    "bytes": 1733,
+    "sha256": "76574a0c7db8427a69a9706f63710d1f37d906167f0bef5447f971c2ecca15dd",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/paul-roe-memorial.mjs",
+    "bytes": 4148,
+    "sha256": "c9cb82197308b10d360ccbb58c596af5727af9728c8b60561a0f8b0114df3c5c",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/pedestrian-navigation.mjs",
+    "bytes": 5420,
+    "sha256": "628db2b7666c950f8279dc69781f4d84eeb5483fa26baf0172c395efda4d3995",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/pedestrian-orbit.mjs",
+    "bytes": 2409,
+    "sha256": "6cb333201307bfe73b8e0b77251d5cd8b163e5c993631666316c7f6c99b9c0dd",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/pedestrian-spacing.mjs",
+    "bytes": 7612,
+    "sha256": "98efaa1850e1af7e09c668b059687395c334b3744d92ef87fac360f0f0a0b07b",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/people.mjs",
+    "bytes": 6656,
+    "sha256": "d7cd5909a76a2c345fbb8d7c191de15b4812c1d97dacd6247f7ab2d3ad8675d9",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/pharmacy-realism.mjs",
+    "bytes": 1955,
+    "sha256": "5a57842ac0fe95f7b1dc1ab48d930ba7ddea21e3aa4fd63e2940ffd01cbe4c68",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/planned-road-graph-addresses.mjs",
+    "bytes": 1096,
+    "sha256": "dd3dcb91dde8344018e509e213c87038fc0f435efc36bc4da7907d529a061430",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/player-housing-progression.mjs",
+    "bytes": 2863,
+    "sha256": "caf65d457bf8769ad0c50a7a6d9b66e567eaa6abcf9f051e0c8a878a4c7e093e",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/playtest.mjs",
+    "bytes": 5990,
+    "sha256": "b680f16b405e435897c5189a492cb56891dbb5a54de002f84b74a483f4811db8",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/post-office-architecture.mjs",
+    "bytes": 4239,
+    "sha256": "3cd1a22aec5e186336b4a6db0e5e47ec59cf9fad7e50413b9fc63bdf04d6997f",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/post-office-browser.mjs",
+    "bytes": 4485,
+    "sha256": "d26b97a53d14021a00e65482f141a9eceb74c6e5b175b1938ba6b2af6bb61291",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/power-grid.mjs",
+    "bytes": 5699,
+    "sha256": "64df7ba00d9aa2fcfbbc7d536d5dc5b158bfca64f6936f0e0b053c3bce897ec1",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/property-trade.mjs",
+    "bytes": 4237,
+    "sha256": "69058a13063275ee6b52185b63a0c7b1af7e52abfb1a619acbe1b9f5cbdfe4ed",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/pub-2026-audit.mjs",
+    "bytes": 4003,
+    "sha256": "0332ea4ef6e448bca21ff793763eeec30ad3c06b743aab2e8de7f908da08880c",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/pub-completion.mjs",
+    "bytes": 6137,
+    "sha256": "69836756bb77d9b51c222d57e4c5c42db9c09286591f864beabad57b22c7d93b",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/pub-compliance-browser.mjs",
+    "bytes": 6424,
+    "sha256": "3252f410b8c83a05815cdf30b3155f2faea5449c464790f1c98a7d0684a8d442",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/pub-envelope-002-024.mjs",
+    "bytes": 4347,
+    "sha256": "366251d75752ef9d4c1e74e4244fbf4fd3e5dc42df55a4cac69111c8cb1276da",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/pub-expansion-browser.mjs",
+    "bytes": 7014,
+    "sha256": "5b008f12f48ec90c7b2decc128bd900595086a48d43e71eb7a8e1cd78e58ac96",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/pub-expansion.mjs",
+    "bytes": 5952,
+    "sha256": "072f91b1017f3f3cb2b79c11488fde0476ace838cc89efbae31f0e4abb9544eb",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/pub-history.mjs",
+    "bytes": 1379,
+    "sha256": "a09cb6260645965443cf40b6d9cb7c8f8297b8166d8bc0a0dff1918b6f533bd5",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/pub-id-browser.mjs",
+    "bytes": 2105,
+    "sha256": "30ff8893efe341a993cce19faa0934157c4a459ac168b579b1444500ff5350cc",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/pub-kitchen-hosted-browser.mjs",
+    "bytes": 3430,
+    "sha256": "6667e3be006e01a7c5c4f19178484372a77109698568af0bb20298ab13992fd5",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/pub-kitchen-layout.mjs",
+    "bytes": 3688,
+    "sha256": "7be5cc46ddcb3e67d11750d78ae34e91eca12cebd5a024745b83803788381ae3",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/pub-launcher-browser.mjs",
+    "bytes": 1620,
+    "sha256": "2ef4271b13ac06b2d41bc8f967ebacaafcff55ee12586a3ed9d026f25d763730",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/pub-physical-p0.mjs",
+    "bytes": 4781,
+    "sha256": "9c24a4b66d79a593647012b6ace2d80faebce8ad7a58a6f8bdf0b81e72d0e9b9",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/pub-rail-clearance.mjs",
+    "bytes": 981,
+    "sha256": "ded33ad110403803496560b42d6657a9c742af37050d027d02c91b77990a907d",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/pub-simulation-layout.mjs",
+    "bytes": 4884,
+    "sha256": "23e0f549c8913bb5d70f7c6230b1c0e5501d0815c4c7bdcf06ccfa5d469ff5dc",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/pub-utilities-browser.mjs",
+    "bytes": 3590,
+    "sha256": "d38dc3c8f8d98d4c118183f4037e3bafb0431d41effd434054f1f51e02ae438a",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/pub-utilities.mjs",
+    "bytes": 5786,
+    "sha256": "f3ae20b7bf599330fe247c14057a60434bf018b1ad38d31a328a2cb03c15c04d",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/pub-venue-browser.mjs",
+    "bytes": 3492,
+    "sha256": "4bef494a8880fa806f0af23ed803046404b3199e0f7ea95c70b7fe1caee6a04e",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/pub-venue.mjs",
+    "bytes": 5069,
+    "sha256": "a0c8cc562f8dcf51c369a8fe42b4f6a83350f9086518855790b90e1fc0593a14",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/public-politics.mjs",
+    "bytes": 4054,
+    "sha256": "9ac8c812b298bd6a7055abeb1c1ef578e7a4ff73b3369506547b26ece56e8d0a",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/rail-corridor.mjs",
+    "bytes": 4233,
+    "sha256": "412a99040eaa16ae0071cd2340e0be566c449576f6011a36d18cf9ec98f8ea07",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/rail-geometry.mjs",
+    "bytes": 3321,
+    "sha256": "e3eb18643aee6911777a783df2419323dae0a6e4353d201a33eb345298aed93b",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/rail-operations.mjs",
+    "bytes": 4259,
+    "sha256": "beb81a7496adcaa818305a1d36fd6e422a512b5ec74ac9f02ae0cc98727522a4",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/realty-interior.mjs",
+    "bytes": 5641,
+    "sha256": "5277460a32a0045d0ff45025662d30dacd46d2aa97d87e43a4533477becd7c5f",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/recorded-dialogue-browser.mjs",
+    "bytes": 5309,
+    "sha256": "3005a161d2b8dd198d9e74d20ed0c0afe62274b7c55aa001eeba92c25a808934",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/recorded-dialogue.mjs",
+    "bytes": 1969,
+    "sha256": "80db2d3bd0da34937e19ae00b1d1ea7ee1c3eed24242821019ee94b53ebcd56e",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/recycling-interior.mjs",
+    "bytes": 5526,
+    "sha256": "c5aea4c454fc5d94b4f35831e8622c2b7d3dc22cf3adca671c9bded56edf054c",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/release-browser.mjs",
+    "bytes": 2741,
+    "sha256": "39c5c05454c3e503bf6f37a08f5ee5d0564e0588dee1b9d3e17c3de5150a4eb1",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/release.mjs",
+    "bytes": 2538,
+    "sha256": "36490f57a0c3e16cdd9309dd98e2c8406e190f2c8e7d68fbef9c37843745143a",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/repotech-realism.mjs",
+    "bytes": 1851,
+    "sha256": "98cc64e384710e416396280bb5d5e024da643e1f9ec7069b650a4470952657c5",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/resident-identities.mjs",
+    "bytes": 1170,
+    "sha256": "519c3a55f1cf59c888e8d6205de75a94aa8c920cf4a8033c027319481796e039",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/roster-coverage.mjs",
+    "bytes": 2029,
+    "sha256": "a6e14e88eecbe037a506325e80ff9aaf2f64039ae7ac17313ec96a3a30462c01",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/rtd-acceptance-contract.mjs",
+    "bytes": 5686,
+    "sha256": "8083756643d57669ee0e096c8e91477e9d08267bbba930ebe2b3f6e165a18287",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/rtgeo-003-site.mjs",
+    "bytes": 3573,
+    "sha256": "5afd58155ebf22daba5b972f8f273f97ebaff80f68eb016aa3e7f29522e048d7",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/rug-layers.mjs",
+    "bytes": 1349,
+    "sha256": "940bfb1a74a7eb41e995d81417da18e493d1e1d9df8dd0ac47aa2bfef32e9d1d",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/runtime.mjs",
+    "bytes": 1503,
+    "sha256": "ca68591dbdfffc521b51c0471188e7d5a9e77e3461e68e24afc8f4350e10e0de",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/security-locksmith.mjs",
+    "bytes": 3757,
+    "sha256": "7eb1e1c42d7b9b12cb8dfa20b3bdaf1eae70b40e02c96563501200651c7240ef",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/shop-crowd.mjs",
+    "bytes": 2798,
+    "sha256": "652bbca85253b28874caca34342c644132f9afafa02acb0a6d3221a998cf9d50",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/shop-e2e.mjs",
+    "bytes": 2595,
+    "sha256": "f0e39081b5ab0cecd24d47e2436b1c00e9e27deedc6fe12a8deed6220053e120",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/shop-interiors.mjs",
+    "bytes": 12982,
+    "sha256": "a1edad2a334bef6f783778e4b2a01e71317861e533be24167003dd9e43c307a0",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/shop-opening-coverage.mjs",
+    "bytes": 4132,
+    "sha256": "cb6740cd92f0f00686ac770d72aad79968972ae03d30ab384a625778a5e0593b",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/shop-opening-hours.mjs",
+    "bytes": 2531,
+    "sha256": "aed1c2933666ac81c0aba3eb91fd93059df7128f9908ba902b97c6d5143f2dab",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/shop-service-transactions.mjs",
+    "bytes": 3487,
+    "sha256": "e884eb90656ae9a56f654076dec42bb12bcc3f7842a96593c9f075fc65cbe433",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/shop-visitors.mjs",
+    "bytes": 3823,
+    "sha256": "70d43f09bec03cf9eb13dfbf686abc0bfb394cc509f0618e9c9821efce9ed2e1",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/simulation-soak.mjs",
+    "bytes": 16591,
+    "sha256": "4a5c01615e80c1c92bfd9638d64a82a5fc0cb05e7ed341e4aaa4e2604d2bd859",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/sitting.mjs",
+    "bytes": 3224,
+    "sha256": "7b6b9124df7c8062b60a2d9e235927239b9f735d3f34639daa733ab1f40e0945",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/sleep-browser.mjs",
+    "bytes": 4128,
+    "sha256": "41d6687266a7d5be9d7e77c733d099bc17a68cb06308d2419034558ba55ff76e",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/social-events.mjs",
+    "bytes": 6637,
+    "sha256": "b180a405710976d9ea1ba523f2ef28d89a8f58f022a81dbac2d4c26c5f5cd182",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/social.mjs",
+    "bytes": 1198,
+    "sha256": "07ff34f74ac4f3f136e666920cdeb49c721d2b2ba1a14d0b38b6d098c1d0acae",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/soy-chain.mjs",
+    "bytes": 5150,
+    "sha256": "04fcc088bdd3c5d1523e608d2eb0ef65a40b474abcf898d1a6283c96fe687d2c",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/soy-signage.mjs",
+    "bytes": 2097,
+    "sha256": "c80a87a0eace8cda044b8007af29920a49c5ae4484ac3367b7dfff213a8db3b0",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/startup-grants.mjs",
+    "bytes": 2482,
+    "sha256": "20642ff7ec84213769b57aec71d1d9982f3d725b2faeae3687bffe574d7cfb46",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/store-invoices.mjs",
+    "bytes": 5685,
+    "sha256": "707c1e6aef3be51c26cfaeec24478100d9af3ae8fd321f5ea90ff671f5095053",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/streetwalk.mjs",
+    "bytes": 5128,
+    "sha256": "6fef0a593004f1db2d6fe34a2ce544984c6a84a34620d32dfb92c8b58603575e",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/supermarket-realism.mjs",
+    "bytes": 1420,
+    "sha256": "c8ce29addd52b2b1ca9e378323d5cd0fbf658a94dedfe3fc866ef512227a9365",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/surfaces.mjs",
+    "bytes": 1277,
+    "sha256": "8a99def8fe4e08766eefe0771dd48ae94828f7e6a49f4a87409b57d85871103b",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/town-exit.mjs",
+    "bytes": 3462,
+    "sha256": "f6f674d374ced6f3f7da19da54dd419667855ba680f98e678438f223346d3237",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/town-expansion.mjs",
+    "bytes": 3568,
+    "sha256": "e1274bf949fa09eaf2fee053174831df33119b9de3570005329f1ad2c468fabc",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/town-origin.mjs",
+    "bytes": 4357,
+    "sha256": "d5bde1efb2159a7caa68bb93d47ab54f53081b045926c811d445ce6f946ee8aa",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/town-planning-audit.mjs",
+    "bytes": 605,
+    "sha256": "c6552c31536959335effaaf9ee5fe74247101c0782169600eeebbc4bc2b0b619",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/town-planning.mjs",
+    "bytes": 1154,
+    "sha256": "4b9c7741c050b5c230aee587c43057b535f2f6ee73431d47e0f15eb050d47a2b",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/town-recordings-browser.mjs",
+    "bytes": 2502,
+    "sha256": "37f59ad83c6a3c09def3a23850cf8f7ad2ab940ce746eb3ca7cc9f2eb2117ca2",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/town-recordings.mjs",
+    "bytes": 2208,
+    "sha256": "6e026995def813ef89beccbbc2b7c24f371cfd3afe19ffe5be8ac2cb0fc2f119",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/town-simulation.mjs",
+    "bytes": 5865,
+    "sha256": "042adbffea0d6d07ffa389fcfccbd3765944ae19b62c9ddb7a6aced646955363",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/trade-education.mjs",
+    "bytes": 7435,
+    "sha256": "60a98767977bba8ad6c793ec3798e2e87ca18d39c404b35830d480b6bcca38b9",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/traffic-and-shop-exits.mjs",
+    "bytes": 4791,
+    "sha256": "3db0b5ebb437a30fdabb472a1addf3951810e99480454a6c694c6ebab9bf4b6a",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/traffic-signals.mjs",
+    "bytes": 3056,
+    "sha256": "79c3ba58debcafdc90b430eaa94210d897c25ab82d0c37e1e489a351d2b50a2b",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/truck-collision.mjs",
+    "bytes": 3772,
+    "sha256": "3d66e8a36da712d2c2e8a75e70ebb62371e6f5dca383799dd0dbe24e5b8f8644",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/visitor-information.mjs",
+    "bytes": 3846,
+    "sha256": "0be35d9f216ae68586d494b6accec6a443a95c814bc7800d3511c95bc6d0b2b1",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/visitor-payroll.mjs",
+    "bytes": 4755,
+    "sha256": "8a2ea12c3651734f647be0ceb63089df7c294668cb0f7702e76263e86c145fa5",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/voicebank.mjs",
+    "bytes": 5673,
+    "sha256": "160f74ad262db5876d9edea80aa7bb084372bb33b3356463def8b02ee58f6248",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/wage-float.mjs",
+    "bytes": 3738,
+    "sha256": "7929ad2743efdb4f3160213a603f289d13022d9a216c28c58a2cbaa16f516e9e",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/walk-in-buildings.mjs",
+    "bytes": 4271,
+    "sha256": "783a821ea47cd6dbf091e248294db1aeb9bc047adc534fb5ec46cc54a7f67c54",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/wallet-cents.mjs",
+    "bytes": 1604,
+    "sha256": "9269441c17a5c58e6deed1f80acf5fc0eda23cab6586b8be28a032170c5d80c3",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/waste-depot-interior.mjs",
+    "bytes": 3737,
+    "sha256": "4eb4eefd011e1f20135494e3d763aa1ee2fee388db4bb2e96a45325c528f5261",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/wastewater-interior.mjs",
+    "bytes": 4718,
+    "sha256": "b44addd51246efbf0df19102e24394bbc92591809c727eb5e9d0c6925ab4b61c",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/water-service-coverage.mjs",
+    "bytes": 1264,
+    "sha256": "b6f123f21b666d324491c124f33bffa86ac079a69618dff1ac58cb6e928dfd97",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/waterworks-interior.mjs",
+    "bytes": 4393,
+    "sha256": "e1cc96e03ac237cc76180a141707cfe391f9cb020b14a0be4c9394649ab8adb2",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/webgl-playtest.mjs",
+    "bytes": 13812,
+    "sha256": "7fa677227448fb412052e6d4e5bfe99cf1afde40e5a91df3fb736a0c74f55271",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/windows.mjs",
+    "bytes": 3676,
+    "sha256": "14209c9164db4bf9b3c27bc3648cbc3574586e2b060eb38fb159b99cf8e294e6",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/work-audio.mjs",
+    "bytes": 1811,
+    "sha256": "1550b43909fceadccd86ac7695b795dfbaef45bb2565ff86cb0b76098c7a74ae",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/work-save.mjs",
+    "bytes": 9674,
+    "sha256": "d059a88a53f7fa9c6edb343fefed8cebc9ecaa600d20d2c778597a0608f5b3ca",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/worker-cors.mjs",
+    "bytes": 2860,
+    "sha256": "a219aca42c62ba5c58c8e7950150be9623aa93e96cd7c4782b02b569ece6abfd",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/workflow-syntax.mjs",
+    "bytes": 1326,
+    "sha256": "30d8c138d7dbae72c11f8f18927af7c3cf20ae419474b970475e0c4bd7721d1f",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/workplay-geometry.mjs",
+    "bytes": 2838,
+    "sha256": "f93198fc03082fbbbb3aac89348f46c1812f5a94b3d4b361ad70fcab1ce9adff",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/workplay.mjs",
+    "bytes": 6787,
+    "sha256": "cccd71849fda60694a2ae2933e320bb763eb3d481401a80158f9a98103e75839",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/yarn-preferences.mjs",
+    "bytes": 2573,
+    "sha256": "7e436f9de4395a45e88c40ee34532e424b41f1955e3cde16b63f263ff7a1c0b9",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/yarn-ui.mjs",
+    "bytes": 4107,
+    "sha256": "ba8ec207ee11d4f1b2791f1155476bb5bd2ba4848aef1cb45f3ca17c97f79776",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/yeoval-browser.mjs",
+    "bytes": 2843,
+    "sha256": "a329b7b13a75ca717162439e725b799c924588c2c9cb582373cc55b628d74eb6",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/yeoval-campus.mjs",
+    "bytes": 2074,
+    "sha256": "5b9d0a90471e738babe3e8089d6ff206d233d7c4bd8bef27fbd59a6c4fc6bb66",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tests/z-fighting-source.mjs",
+    "bytes": 1495,
+    "sha256": "9c1ec89f82e255854a0ab08a1c451ddc120c7049f8a6be637bf1e7448ade50ef",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tools/acceptance.mjs",
+    "bytes": 5953,
+    "sha256": "ab6801f725536d14ac91ee2717bf59e1d09b9b0df73d23d4d9fb4d40fbacf80c",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tools/audit-electricity.mjs",
+    "bytes": 12781,
+    "sha256": "63f027a810a439d0f7b003c9c9bbfb4ff157376c9635e17ec9f3b71e84164bc2",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tools/audit-masterplan.mjs",
+    "bytes": 6469,
+    "sha256": "205f84161ef00dfdd4aa5ff6a2b2bb08f66ecd2be1188d11f15022e3748a617d",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tools/build.mjs",
+    "bytes": 7121,
+    "sha256": "532b2f83452e0bae8bd9b4433b2adf6bfa902f44bd881f2cad5af6e81794a529",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tools/check.mjs",
+    "bytes": 885,
+    "sha256": "207c79c1dacb04f394135afd4c946bcbd8c98b7f35609a1d1a7fe51871bbef28",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tools/check_privacy.mjs",
+    "bytes": 3752,
+    "sha256": "5895c522e699a544f45b3e6ea306795360c580233e95bd5dbd5dfbcfa17f6174",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tools/companion-knowledge.mjs",
+    "bytes": 1142,
+    "sha256": "1d0cb46b4fd93f90f0b0ed6cdc9826b208bcf0358b0afd628b3538422f8e6e6f",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tools/game_runtime.js",
+    "bytes": 7464,
+    "sha256": "29c6a6e1da2bfd0fad8569d13a961903eec18b27342866da006953301d9ffafb",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tools/generate-electrical-backbone.mjs",
+    "bytes": 1368,
+    "sha256": "a406b63e2622fbde98c465fc1948b023b4f6b8303c1154cce7f143495c76a5e2",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tools/harvest_evidence.py",
+    "bytes": 9297,
+    "sha256": "6883e9052d6d6a97facbd987a736e7a7d45d238dd008f46342b8e5a11ee45dcb",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tools/heritage-houses.mjs",
+    "bytes": 6431,
+    "sha256": "3fd5f723444374db81e558673484a4fcb919e84609a7654c900c7ab4a30430ec",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tools/integration-report.mjs",
+    "bytes": 1422,
+    "sha256": "c1f9480f99ff1ceb8b2d81270b54d8b2f304fcb476943979e8f872a7f8e4c26c",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tools/lib.mjs",
+    "bytes": 16796,
+    "sha256": "4faf93eb0a4b615e1ae954c825888c03739e53f4d01b800e2789992501f56f66",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tools/merge-discovery.mjs",
+    "bytes": 1564,
+    "sha256": "255e6bd697112f680d2fbec9090ef1d147b0645ea0fbcfce2c4316408a5453d5",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tools/pack_games.mjs",
+    "bytes": 27730,
+    "sha256": "8c201ba0ec0b8de8a39a1be620fcce5538dfc807ba643827887c33307b82a445",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tools/pages-drift-guard.mjs",
+    "bytes": 927,
+    "sha256": "16c2019eba87f4a379b93ee5f29e5ef3dcac58f1fa291352d454f3f46b5aa0bb",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tools/publish_pages.sh",
+    "bytes": 1580,
+    "sha256": "530c232e8d70273da4ee40f45f6cc68e131a90539cfb7df5b60bd9b271473650",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tools/python_terminal.html",
+    "bytes": 11715,
+    "sha256": "1548ac9fb54c92c641386d119873aa0536858f79de6ac8e02206632e30896de4",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tools/refresh_data.mjs",
+    "bytes": 1688,
+    "sha256": "38c03b60aabda0438af18673802c9d87044b8abfae8fa809b050f81f687e3604",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tools/release-manifest.mjs",
+    "bytes": 1626,
+    "sha256": "b0498e553c2176dd1b5e4fc4b89ee106824aefd7971eff94c0818b154b13cc1f",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tools/repo_data.py",
+    "bytes": 2103,
+    "sha256": "7ae2df3c89c0a050a3428e141ea48180a8b5a36436a282a8a04e5fd362d9ff4b",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tools/serve.mjs",
+    "bytes": 1407,
+    "sha256": "b8195ad246ae091dea3ca0f5cfcae530c955192b654f267ac0963a9221743f76",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tools/shims/better-sqlite3.js",
+    "bytes": 2490,
+    "sha256": "6d87b64a976528423e6a3cc15681e7a2154e8316a6c92472d288e60c490fed32",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tools/shims/empty.js",
+    "bytes": 11,
+    "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tools/shims/node-stubs.js",
+    "bytes": 1004,
+    "sha256": "1050704121802fc1bc4c80e10552d6c9d21601269e9c1c7aea5dd83c8718cc43",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tools/standalone.mjs",
+    "bytes": 1809,
+    "sha256": "bdd10ecf42e2ce5a97c335bd6f726bb06de149a838d650d99e1bb0eb2c8cb135",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tools/sync-backup.mjs",
+    "bytes": 6115,
+    "sha256": "cfab444cd5a5c219fff8411ffc0db7e72dddd087a08c2d8cca7d70ab71aa2433",
+    "status": "inventoried; semantic coverage described in report"
+  },
+  {
+    "path": "tools/verify-release.mjs",
+    "bytes": 908,
+    "sha256": "6782da87059c6390ee2fd7422101418d0527601ab7f674eac895152161be0c77",
+    "status": "inventoried; semantic coverage described in report"
+  }
+]

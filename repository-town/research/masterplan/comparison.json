@@ -55,7 +55,11 @@
     "meanCentreDistance": 619.69,
     "roadIntrusions": 0,
     "buildingConflicts": 0,
-    "newRailInterfaces": [],
+    "newRailInterfaces": [
+      "core-link-0",
+      "core-link-1",
+      "core-link-2"
+    ],
     "largestClosureDisconnection": 26,
     "landAreaM2": 57600,
     "residentialLotSizes": [
