@@ -8,10 +8,11 @@ try{
  for(const mobile of [false,true]){
   const context=await browser.newContext(mobile?{...devices['Pixel 7']}:{viewport:{width:1180,height:780}});
   const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto(url);await page.waitForFunction(()=>window.__town&&document.querySelector('#loading')?.hidden,{timeout:90000});
+  await page.goto(url);await page.waitForFunction(()=>window.__town&&document.querySelector('#loading')?.hidden,null,{timeout:90000});
   await page.evaluate(()=>window.__town.closePanel?.());
+  if(!(await page.locator('#btn-sound').isVisible()))await page.click('#btn-hud-toggle');
   await page.click('#btn-sound');
-  await page.click('button:has-text("Audio mix")');
+  await page.getByRole('button',{name:/Audio mix/i}).click();
   await page.waitForSelector('[data-music-track]');
   await page.selectOption('[data-music-track]','3');
   assert.equal(await page.evaluate(()=>window.__town.soundscape().selectedTrack),3,'rock selection saved');
