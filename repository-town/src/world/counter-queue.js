@@ -6,7 +6,7 @@ import { cafeCounter } from './workplay.js';
 // service, ordered by when they joined, so a saved game restores it exactly. Kitchen tickets live
 // with whoever ordered them (a villager's step, or civic.player.orders for the visitor), and the
 // kitchen's backlog is counted from those tickets.
-import { shopService } from './shop-attendance.js';
+import { shopService, theName } from './shop-attendance.js';
 
 export const COUNTERS = new Set(['store', 'bakery', 'greengrocer', 'butcher', 'cafe', 'pub']);
 export const GIVE_UP = 20;    // town minutes in line before a customer leaves without being served
@@ -37,15 +37,20 @@ export function lineAt(life, placeId) {
 }
 
 // Orders still cooking at a venue (villagers' and the visitor's).
+// When each order still in the kitchen will be ready, soonest first.
 function cooking(life, placeId) {
   const t = now(life);
-  return life.villagers.filter((o) => o.step?.at === placeId && o.step.food && o.step.food.ready > t).length
-    + (life.civic.player.orders || []).filter((o) => o.venue === placeId && o.ready > t).length;
+  return [...life.villagers.filter((o) => o.step?.at === placeId && o.step.food && o.step.food.ready > t).map((o) => o.step.food.ready),
+    ...(life.civic.player.orders || []).filter((o) => o.venue === placeId && o.ready > t).map((o) => o.ready)].sort((a, b) => a - b);
 }
-// When a newly ordered dish will be ready: the kitchen works on as many orders as there are staff.
+const PANS_PER_COOK = 3; // a cook has a few orders on the go at once: toast, eggs and a coffee
+// When a newly ordered dish will be ready: it starts as soon as a cook has a free pan, first come first
+// served. (It used to multiply the prep time by the whole queue as well, so lunch took up to 108 minutes.)
 export function readyAt(life, placeId, dish) {
   const staff = Math.max(1, shopService(life, life.place(placeId)).staff?.length || 1);
-  return now(life) + prepMinutes(dish) * (1 + Math.floor(cooking(life, placeId) / staff));
+  const pending = cooking(life, placeId), slots = staff * PANS_PER_COOK;
+  const start = pending.length < slots ? now(life) : pending[pending.length - slots];
+  return start + prepMinutes(dish);
 }
 
 // On arrival: join the line instead of being served on the spot.
@@ -53,7 +58,7 @@ export function joinLine(life, v) {
   const s = v.step;
   s.queue = { joined: now(life) + v.id / 1000, serving: null };
   const ahead = waiting(life, s.at).length - 1;
-  v.activity = ahead > 0 ? `queuing at the ${life.place(s.at).name} (${ahead} ahead)` : `at the counter of the ${life.place(s.at).name}`;
+  v.activity = ahead > 0 ? `queuing at ${theName(life.place(s.at))} (${ahead} ahead)` : `at the counter of ${theName(life.place(s.at))}`;
 }
 
 // One tick for a customer in line or waiting on the kitchen. `serve(v)` completes the sale (and, for a
@@ -76,7 +81,7 @@ export function tickCounter(life, v, minutes, serve, dishFor) {
       // Order taken: the counter is free for the next person while the kitchen cooks.
       const dish = dishFor(v);
       s.food = { dish, ready: readyAt(life, place.id, dish[0]) };
-      v.activity = `waiting for ${dish[0]} at the ${place.name}`;
+      v.activity = `waiting for ${dish[0]} at ${theName(place)}`;
       return true;
     }
     serve(v);
@@ -90,18 +95,18 @@ export function tickCounter(life, v, minutes, serve, dishFor) {
   if (busy < staff && free[0] === v) {
     q.serving = counterTime(s);
     const clerk = service.staff?.[busy % staff];
-    v.activity = `being served${clerk ? ' by ' + clerk.name : ''} at the ${place.name}`;
+    v.activity = `being served${clerk ? ' by ' + clerk.name : ''} at ${theName(place)}`;
     return true;
   }
   if (now(life) - q.joined > GIVE_UP) {
     delete s.queue;
-    v.memory = `gave up waiting in the queue at the ${place.name}`;
-    v.activity = `gave up queuing at the ${place.name}`;
+    v.memory = `gave up waiting in the queue at ${theName(place)}`;
+    v.activity = `gave up queuing at ${theName(place)}`;
     if (s.dur !== undefined) s.dur = Math.min(s.dur, 1);
     return false;
   }
   const ahead = free.indexOf(v);
-  v.activity = `queuing at the ${place.name}${ahead > 0 ? ` (${ahead} ahead)` : ''}`;
+  v.activity = `queuing at ${theName(place)}${ahead > 0 ? ` (${ahead} ahead)` : ''}`;
   return true;
 }
 

@@ -24,17 +24,19 @@ export const PLANNED_ROADS=Object.freeze([
  {id:'west-access',name:'Western Access (proposed)',x:-394,z:0,w:56,d:7,role:'local'},
  {id:'east-access',name:'Eastern Access (proposed)',x:394,z:0,w:56,d:7,role:'local'},
 ]);
-export function buildOutskirts(group){
+// Options let the live town drop concept reserves and unconnected concept road strips that the
+// built master plan (masterplan-built.js) supersedes; the concept data itself stays as a record.
+export function buildOutskirts(group,{omitParcels=[],roads=true}={}){
  const plots=new THREE.Group();plots.name='Future land-use reservations (concept only)';
- const ground=new THREE.Mesh(new THREE.PlaneGeometry(1100,950),new THREE.MeshLambertMaterial({color:0x80b571}));
- ground.rotation.x=-Math.PI/2;ground.position.y=-.095;plots.add(ground);
+ const ground=new THREE.Mesh(new THREE.PlaneGeometry(2200,1150),new THREE.MeshLambertMaterial({color:0x80b571}));
+ ground.rotation.x=-Math.PI/2;ground.position.set(-490,-.095,25);plots.add(ground);
  const roadMaterial=new THREE.MeshLambertMaterial({color:0x55585a});
- for(const road of PLANNED_ROADS){
+ for(const road of roads?PLANNED_ROADS:[]){
   const mesh=new THREE.Mesh(new THREE.BoxGeometry(road.w,.025,road.d),roadMaterial);
   mesh.position.set(road.x,-.035,road.z);mesh.name=road.name;plots.add(mesh);
  }
  const materials=new Map();
- for(const p of OUTSKIRT_PARCELS){
+ for(const p of OUTSKIRT_PARCELS.filter(q=>!omitParcels.includes(q.id))){
   if(!materials.has(p.colour))materials.set(p.colour,new THREE.MeshLambertMaterial({color:p.colour,transparent:true,opacity:.73}));
   const tile=new THREE.Mesh(new THREE.BoxGeometry(p.w,.035,p.d),materials.get(p.colour));
   tile.position.set(p.x,-.008,p.z);tile.name=p.id+' '+p.zone+' '+p.name;plots.add(tile);

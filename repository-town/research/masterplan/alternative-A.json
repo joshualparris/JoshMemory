@@ -1,0 +1,3453 @@
+{
+  "plan": {
+    "id": "A",
+    "name": "Existing twelve-reserve perimeter concept",
+    "roads": [
+      {
+        "id": "west-collector",
+        "a": {
+          "x": -350,
+          "z": -265
+        },
+        "b": {
+          "x": -350,
+          "z": 265
+        },
+        "width": 9,
+        "reserve": null,
+        "footpath": 0,
+        "status": "concept",
+        "speed": 30
+      },
+      {
+        "id": "east-collector",
+        "a": {
+          "x": 350,
+          "z": -265
+        },
+        "b": {
+          "x": 350,
+          "z": 265
+        },
+        "width": 9,
+        "reserve": null,
+        "footpath": 0,
+        "status": "concept",
+        "speed": 30
+      },
+      {
+        "id": "north-connector",
+        "a": {
+          "x": -360,
+          "z": -235
+        },
+        "b": {
+          "x": 360,
+          "z": -235
+        },
+        "width": 9,
+        "reserve": null,
+        "footpath": 0,
+        "status": "concept",
+        "speed": 30
+      },
+      {
+        "id": "south-connector",
+        "a": {
+          "x": -360,
+          "z": 235
+        },
+        "b": {
+          "x": 360,
+          "z": 235
+        },
+        "width": 9,
+        "reserve": null,
+        "footpath": 0,
+        "status": "concept",
+        "speed": 30
+      },
+      {
+        "id": "west-access",
+        "a": {
+          "x": -422,
+          "z": 0
+        },
+        "b": {
+          "x": -366,
+          "z": 0
+        },
+        "width": 7,
+        "reserve": null,
+        "footpath": 0,
+        "status": "concept",
+        "speed": 30
+      },
+      {
+        "id": "east-access",
+        "a": {
+          "x": 366,
+          "z": 0
+        },
+        "b": {
+          "x": 422,
+          "z": 0
+        },
+        "width": 7,
+        "reserve": null,
+        "footpath": 0,
+        "status": "concept",
+        "speed": 30
+      }
+    ],
+    "parcels": [
+      {
+        "id": "W-R1",
+        "name": "Western cottages",
+        "zone": "R2",
+        "x": -426,
+        "z": -112,
+        "w": 110,
+        "d": 86,
+        "colour": 10009981,
+        "use": "residential-reserve",
+        "roadId": null,
+        "status": "concept",
+        "buildable": false
+      },
+      {
+        "id": "W-R2",
+        "name": "Western family homes",
+        "zone": "R2",
+        "x": -426,
+        "z": 4,
+        "w": 110,
+        "d": 102,
+        "colour": 10207105,
+        "use": "residential-reserve",
+        "roadId": null,
+        "status": "concept",
+        "buildable": false
+      },
+      {
+        "id": "W-C1",
+        "name": "Western community reserve",
+        "zone": "RE1",
+        "x": -426,
+        "z": 125,
+        "w": 110,
+        "d": 92,
+        "colour": 7252841,
+        "use": "residential-reserve",
+        "roadId": null,
+        "status": "concept",
+        "buildable": false
+      },
+      {
+        "id": "E-B1",
+        "name": "Eastern service businesses",
+        "zone": "E3",
+        "x": 426,
+        "z": -116,
+        "w": 110,
+        "d": 100,
+        "colour": 11903614,
+        "use": "other-reserve",
+        "roadId": null,
+        "status": "concept",
+        "buildable": false
+      },
+      {
+        "id": "E-L1",
+        "name": "Eastern light industry",
+        "zone": "E4",
+        "x": 426,
+        "z": 18,
+        "w": 110,
+        "d": 128,
+        "colour": 11575692,
+        "use": "other-reserve",
+        "roadId": null,
+        "status": "concept",
+        "buildable": false
+      },
+      {
+        "id": "E-R1",
+        "name": "Eastern rural transition",
+        "zone": "RU4",
+        "x": 426,
+        "z": 143,
+        "w": 110,
+        "d": 92,
+        "colour": 10860410,
+        "use": "residential-reserve",
+        "roadId": null,
+        "status": "concept",
+        "buildable": false
+      },
+      {
+        "id": "N-C1",
+        "name": "Northern civic reserve",
+        "zone": "SP2",
+        "x": -175,
+        "z": -310,
+        "w": 180,
+        "d": 115,
+        "colour": 9547668,
+        "use": "other-reserve",
+        "roadId": null,
+        "status": "concept",
+        "buildable": false
+      },
+      {
+        "id": "N-R1",
+        "name": "Northern medium-density housing",
+        "zone": "R3",
+        "x": 30,
+        "z": -310,
+        "w": 170,
+        "d": 115,
+        "colour": 11059091,
+        "use": "residential-reserve",
+        "roadId": null,
+        "status": "concept",
+        "buildable": false
+      },
+      {
+        "id": "N-R2",
+        "name": "Northern low-density housing",
+        "zone": "R2",
+        "x": 226,
+        "z": -310,
+        "w": 160,
+        "d": 115,
+        "colour": 10534792,
+        "use": "residential-reserve",
+        "roadId": null,
+        "status": "concept",
+        "buildable": false
+      },
+      {
+        "id": "S-R1",
+        "name": "Southern large-lot residential",
+        "zone": "R5",
+        "x": -220,
+        "z": 305,
+        "w": 190,
+        "d": 120,
+        "colour": 11124099,
+        "use": "residential-reserve",
+        "roadId": null,
+        "status": "concept",
+        "buildable": false
+      },
+      {
+        "id": "S-AG1",
+        "name": "Southern market gardens",
+        "zone": "RU4",
+        "x": 10,
+        "z": 310,
+        "w": 220,
+        "d": 130,
+        "colour": 9810031,
+        "use": "residential-reserve",
+        "roadId": null,
+        "status": "concept",
+        "buildable": false
+      },
+      {
+        "id": "S-AG2",
+        "name": "Southern grazing property",
+        "zone": "RU1",
+        "x": 260,
+        "z": 326,
+        "w": 220,
+        "d": 160,
+        "colour": 9349737,
+        "use": "residential-reserve",
+        "roadId": null,
+        "status": "concept",
+        "buildable": false
+      }
+    ],
+    "buffers": [],
+    "assumedDwellings": null,
+    "officialAddresses": false
+  },
+  "metrics": {
+    "id": "A",
+    "name": "Existing twelve-reserve perimeter concept",
+    "parcels": 12,
+    "dwellings": null,
+    "roadLengthM": 2612,
+    "pavedAreaM2": 23284,
+    "graphComponents": 4,
+    "unfronted": 12,
+    "unreachable": 12,
+    "within400": 0,
+    "within800": 0,
+    "meanCentreDistance": null,
+    "roadIntrusions": 3,
+    "buildingConflicts": 0,
+    "newRailInterfaces": [
+      "west-collector",
+      "east-collector"
+    ],
+    "largestClosureDisconnection": 0,
+    "landAreaM2": 211250,
+    "residentialLotSizes": [],
+    "trafficScenarios": null,
+    "infrastructureScenarios": [
+      {
+        "assumedDollarsPerRoadMetre": 500,
+        "cost": 1306000,
+        "excludes": "land, drainage, utilities, intersections, rail"
+      },
+      {
+        "assumedDollarsPerRoadMetre": 1500,
+        "cost": 3918000,
+        "excludes": "land, drainage, utilities, intersections, rail"
+      },
+      {
+        "assumedDollarsPerRoadMetre": 3000,
+        "cost": 7836000,
+        "excludes": "land, drainage, utilities, intersections, rail"
+      }
+    ]
+  },
+  "parcels": [
+    {
+      "id": "W-R1",
+      "name": "Western cottages",
+      "zone": "R2",
+      "x": -426,
+      "z": -112,
+      "w": 110,
+      "d": 86,
+      "colour": 10009981,
+      "use": "residential-reserve",
+      "roadId": null,
+      "status": "concept",
+      "buildable": false,
+      "area": 9460,
+      "frontages": [],
+      "access": null,
+      "networkDistanceToCentre": null,
+      "coreConflicts": [],
+      "roadIntrusions": []
+    },
+    {
+      "id": "W-R2",
+      "name": "Western family homes",
+      "zone": "R2",
+      "x": -426,
+      "z": 4,
+      "w": 110,
+      "d": 102,
+      "colour": 10207105,
+      "use": "residential-reserve",
+      "roadId": null,
+      "status": "concept",
+      "buildable": false,
+      "area": 11220,
+      "frontages": [],
+      "access": null,
+      "networkDistanceToCentre": null,
+      "coreConflicts": [],
+      "roadIntrusions": [
+        "west-access"
+      ]
+    },
+    {
+      "id": "W-C1",
+      "name": "Western community reserve",
+      "zone": "RE1",
+      "x": -426,
+      "z": 125,
+      "w": 110,
+      "d": 92,
+      "colour": 7252841,
+      "use": "residential-reserve",
+      "roadId": null,
+      "status": "concept",
+      "buildable": false,
+      "area": 10120,
+      "frontages": [],
+      "access": null,
+      "networkDistanceToCentre": null,
+      "coreConflicts": [],
+      "roadIntrusions": []
+    },
+    {
+      "id": "E-B1",
+      "name": "Eastern service businesses",
+      "zone": "E3",
+      "x": 426,
+      "z": -116,
+      "w": 110,
+      "d": 100,
+      "colour": 11903614,
+      "use": "other-reserve",
+      "roadId": null,
+      "status": "concept",
+      "buildable": false,
+      "area": 11000,
+      "frontages": [],
+      "access": null,
+      "networkDistanceToCentre": null,
+      "coreConflicts": [],
+      "roadIntrusions": []
+    },
+    {
+      "id": "E-L1",
+      "name": "Eastern light industry",
+      "zone": "E4",
+      "x": 426,
+      "z": 18,
+      "w": 110,
+      "d": 128,
+      "colour": 11575692,
+      "use": "other-reserve",
+      "roadId": null,
+      "status": "concept",
+      "buildable": false,
+      "area": 14080,
+      "frontages": [],
+      "access": null,
+      "networkDistanceToCentre": null,
+      "coreConflicts": [],
+      "roadIntrusions": [
+        "east-access"
+      ]
+    },
+    {
+      "id": "E-R1",
+      "name": "Eastern rural transition",
+      "zone": "RU4",
+      "x": 426,
+      "z": 143,
+      "w": 110,
+      "d": 92,
+      "colour": 10860410,
+      "use": "residential-reserve",
+      "roadId": null,
+      "status": "concept",
+      "buildable": false,
+      "area": 10120,
+      "frontages": [],
+      "access": null,
+      "networkDistanceToCentre": null,
+      "coreConflicts": [],
+      "roadIntrusions": []
+    },
+    {
+      "id": "N-C1",
+      "name": "Northern civic reserve",
+      "zone": "SP2",
+      "x": -175,
+      "z": -310,
+      "w": 180,
+      "d": 115,
+      "colour": 9547668,
+      "use": "other-reserve",
+      "roadId": null,
+      "status": "concept",
+      "buildable": false,
+      "area": 20700,
+      "frontages": [],
+      "access": null,
+      "networkDistanceToCentre": null,
+      "coreConflicts": [],
+      "roadIntrusions": []
+    },
+    {
+      "id": "N-R1",
+      "name": "Northern medium-density housing",
+      "zone": "R3",
+      "x": 30,
+      "z": -310,
+      "w": 170,
+      "d": 115,
+      "colour": 11059091,
+      "use": "residential-reserve",
+      "roadId": null,
+      "status": "concept",
+      "buildable": false,
+      "area": 19550,
+      "frontages": [],
+      "access": null,
+      "networkDistanceToCentre": null,
+      "coreConflicts": [],
+      "roadIntrusions": []
+    },
+    {
+      "id": "N-R2",
+      "name": "Northern low-density housing",
+      "zone": "R2",
+      "x": 226,
+      "z": -310,
+      "w": 160,
+      "d": 115,
+      "colour": 10534792,
+      "use": "residential-reserve",
+      "roadId": null,
+      "status": "concept",
+      "buildable": false,
+      "area": 18400,
+      "frontages": [],
+      "access": null,
+      "networkDistanceToCentre": null,
+      "coreConflicts": [],
+      "roadIntrusions": []
+    },
+    {
+      "id": "S-R1",
+      "name": "Southern large-lot residential",
+      "zone": "R5",
+      "x": -220,
+      "z": 305,
+      "w": 190,
+      "d": 120,
+      "colour": 11124099,
+      "use": "residential-reserve",
+      "roadId": null,
+      "status": "concept",
+      "buildable": false,
+      "area": 22800,
+      "frontages": [],
+      "access": null,
+      "networkDistanceToCentre": null,
+      "coreConflicts": [],
+      "roadIntrusions": []
+    },
+    {
+      "id": "S-AG1",
+      "name": "Southern market gardens",
+      "zone": "RU4",
+      "x": 10,
+      "z": 310,
+      "w": 220,
+      "d": 130,
+      "colour": 9810031,
+      "use": "residential-reserve",
+      "roadId": null,
+      "status": "concept",
+      "buildable": false,
+      "area": 28600,
+      "frontages": [],
+      "access": null,
+      "networkDistanceToCentre": null,
+      "coreConflicts": [],
+      "roadIntrusions": []
+    },
+    {
+      "id": "S-AG2",
+      "name": "Southern grazing property",
+      "zone": "RU1",
+      "x": 260,
+      "z": 326,
+      "w": 220,
+      "d": 160,
+      "colour": 9349737,
+      "use": "residential-reserve",
+      "roadId": null,
+      "status": "concept",
+      "buildable": false,
+      "area": 35200,
+      "frontages": [],
+      "access": null,
+      "networkDistanceToCentre": null,
+      "coreConflicts": [],
+      "roadIntrusions": [
+        "east-collector"
+      ]
+    }
+  ],
+  "graph": {
+    "nodes": [
+      {
+        "x": -348,
+        "z": -145,
+        "id": "-348,-145",
+        "edges": [
+          {
+            "to": "-338,-145",
+            "length": 10,
+            "roadId": "street-1"
+          }
+        ]
+      },
+      {
+        "x": -338,
+        "z": -145,
+        "id": "-338,-145",
+        "edges": [
+          {
+            "to": "-348,-145",
+            "length": 10,
+            "roadId": "street-1"
+          },
+          {
+            "to": "-208,-145",
+            "length": 130,
+            "roadId": "street-1"
+          },
+          {
+            "to": "-338,-204",
+            "length": 59,
+            "roadId": "avenue-0"
+          },
+          {
+            "to": "-338,-99",
+            "length": 46,
+            "roadId": "avenue-0"
+          }
+        ]
+      },
+      {
+        "x": -208,
+        "z": -145,
+        "id": "-208,-145",
+        "edges": [
+          {
+            "to": "-338,-145",
+            "length": 130,
+            "roadId": "street-1"
+          },
+          {
+            "to": "-78,-145",
+            "length": 130,
+            "roadId": "street-1"
+          },
+          {
+            "to": "-208,-204",
+            "length": 59,
+            "roadId": "avenue-1"
+          },
+          {
+            "to": "-208,-99",
+            "length": 46,
+            "roadId": "avenue-1"
+          }
+        ]
+      },
+      {
+        "x": -78,
+        "z": -145,
+        "id": "-78,-145",
+        "edges": [
+          {
+            "to": "-208,-145",
+            "length": 130,
+            "roadId": "street-1"
+          },
+          {
+            "to": "52,-145",
+            "length": 130,
+            "roadId": "street-1"
+          },
+          {
+            "to": "-78,-204",
+            "length": 59,
+            "roadId": "avenue-2"
+          },
+          {
+            "to": "-78,-99",
+            "length": 46,
+            "roadId": "avenue-2"
+          }
+        ]
+      },
+      {
+        "x": 52,
+        "z": -145,
+        "id": "52,-145",
+        "edges": [
+          {
+            "to": "-78,-145",
+            "length": 130,
+            "roadId": "street-1"
+          },
+          {
+            "to": "182,-145",
+            "length": 130,
+            "roadId": "street-1"
+          },
+          {
+            "to": "52,-204",
+            "length": 59,
+            "roadId": "avenue-3"
+          },
+          {
+            "to": "52,-99",
+            "length": 46,
+            "roadId": "avenue-3"
+          }
+        ]
+      },
+      {
+        "x": 182,
+        "z": -145,
+        "id": "182,-145",
+        "edges": [
+          {
+            "to": "52,-145",
+            "length": 130,
+            "roadId": "street-1"
+          },
+          {
+            "to": "312,-145",
+            "length": 130,
+            "roadId": "street-1"
+          },
+          {
+            "to": "182,-204",
+            "length": 59,
+            "roadId": "avenue-4"
+          },
+          {
+            "to": "182,-99",
+            "length": 46,
+            "roadId": "avenue-4"
+          }
+        ]
+      },
+      {
+        "x": 312,
+        "z": -145,
+        "id": "312,-145",
+        "edges": [
+          {
+            "to": "182,-145",
+            "length": 130,
+            "roadId": "street-1"
+          },
+          {
+            "to": "348,-145",
+            "length": 36,
+            "roadId": "street-1"
+          },
+          {
+            "to": "312,-204",
+            "length": 59,
+            "roadId": "avenue-5"
+          },
+          {
+            "to": "312,-99",
+            "length": 46,
+            "roadId": "avenue-5"
+          }
+        ]
+      },
+      {
+        "x": 348,
+        "z": -145,
+        "id": "348,-145",
+        "edges": [
+          {
+            "to": "312,-145",
+            "length": 36,
+            "roadId": "street-1"
+          }
+        ]
+      },
+      {
+        "x": -348,
+        "z": -99,
+        "id": "-348,-99",
+        "edges": [
+          {
+            "to": "-338,-99",
+            "length": 10,
+            "roadId": "street-2"
+          }
+        ]
+      },
+      {
+        "x": -338,
+        "z": -99,
+        "id": "-338,-99",
+        "edges": [
+          {
+            "to": "-348,-99",
+            "length": 10,
+            "roadId": "street-2"
+          },
+          {
+            "to": "-208,-99",
+            "length": 130,
+            "roadId": "street-2"
+          },
+          {
+            "to": "-338,-145",
+            "length": 46,
+            "roadId": "avenue-0"
+          },
+          {
+            "to": "-338,-53",
+            "length": 46,
+            "roadId": "avenue-0"
+          }
+        ]
+      },
+      {
+        "x": -208,
+        "z": -99,
+        "id": "-208,-99",
+        "edges": [
+          {
+            "to": "-338,-99",
+            "length": 130,
+            "roadId": "street-2"
+          },
+          {
+            "to": "-78,-99",
+            "length": 130,
+            "roadId": "street-2"
+          },
+          {
+            "to": "-208,-145",
+            "length": 46,
+            "roadId": "avenue-1"
+          },
+          {
+            "to": "-208,-53",
+            "length": 46,
+            "roadId": "avenue-1"
+          }
+        ]
+      },
+      {
+        "x": -78,
+        "z": -99,
+        "id": "-78,-99",
+        "edges": [
+          {
+            "to": "-208,-99",
+            "length": 130,
+            "roadId": "street-2"
+          },
+          {
+            "to": "52,-99",
+            "length": 130,
+            "roadId": "street-2"
+          },
+          {
+            "to": "-78,-145",
+            "length": 46,
+            "roadId": "avenue-2"
+          },
+          {
+            "to": "-78,-53",
+            "length": 46,
+            "roadId": "avenue-2"
+          }
+        ]
+      },
+      {
+        "x": 52,
+        "z": -99,
+        "id": "52,-99",
+        "edges": [
+          {
+            "to": "-78,-99",
+            "length": 130,
+            "roadId": "street-2"
+          },
+          {
+            "to": "182,-99",
+            "length": 130,
+            "roadId": "street-2"
+          },
+          {
+            "to": "52,-145",
+            "length": 46,
+            "roadId": "avenue-3"
+          },
+          {
+            "to": "52,-53",
+            "length": 46,
+            "roadId": "avenue-3"
+          }
+        ]
+      },
+      {
+        "x": 182,
+        "z": -99,
+        "id": "182,-99",
+        "edges": [
+          {
+            "to": "52,-99",
+            "length": 130,
+            "roadId": "street-2"
+          },
+          {
+            "to": "312,-99",
+            "length": 130,
+            "roadId": "street-2"
+          },
+          {
+            "to": "182,-145",
+            "length": 46,
+            "roadId": "avenue-4"
+          },
+          {
+            "to": "182,-53",
+            "length": 46,
+            "roadId": "avenue-4"
+          }
+        ]
+      },
+      {
+        "x": 312,
+        "z": -99,
+        "id": "312,-99",
+        "edges": [
+          {
+            "to": "182,-99",
+            "length": 130,
+            "roadId": "street-2"
+          },
+          {
+            "to": "348,-99",
+            "length": 36,
+            "roadId": "street-2"
+          },
+          {
+            "to": "312,-145",
+            "length": 46,
+            "roadId": "avenue-5"
+          },
+          {
+            "to": "312,-53",
+            "length": 46,
+            "roadId": "avenue-5"
+          }
+        ]
+      },
+      {
+        "x": 348,
+        "z": -99,
+        "id": "348,-99",
+        "edges": [
+          {
+            "to": "312,-99",
+            "length": 36,
+            "roadId": "street-2"
+          }
+        ]
+      },
+      {
+        "x": -348,
+        "z": -53,
+        "id": "-348,-53",
+        "edges": [
+          {
+            "to": "-338,-53",
+            "length": 10,
+            "roadId": "street-3"
+          }
+        ]
+      },
+      {
+        "x": -338,
+        "z": -53,
+        "id": "-338,-53",
+        "edges": [
+          {
+            "to": "-348,-53",
+            "length": 10,
+            "roadId": "street-3"
+          },
+          {
+            "to": "-208,-53",
+            "length": 130,
+            "roadId": "street-3"
+          },
+          {
+            "to": "-338,-99",
+            "length": 46,
+            "roadId": "avenue-0"
+          },
+          {
+            "to": "-338,-7",
+            "length": 46,
+            "roadId": "avenue-0"
+          }
+        ]
+      },
+      {
+        "x": -208,
+        "z": -53,
+        "id": "-208,-53",
+        "edges": [
+          {
+            "to": "-338,-53",
+            "length": 130,
+            "roadId": "street-3"
+          },
+          {
+            "to": "-78,-53",
+            "length": 130,
+            "roadId": "street-3"
+          },
+          {
+            "to": "-208,-99",
+            "length": 46,
+            "roadId": "avenue-1"
+          },
+          {
+            "to": "-208,-7",
+            "length": 46,
+            "roadId": "avenue-1"
+          }
+        ]
+      },
+      {
+        "x": -78,
+        "z": -53,
+        "id": "-78,-53",
+        "edges": [
+          {
+            "to": "-208,-53",
+            "length": 130,
+            "roadId": "street-3"
+          },
+          {
+            "to": "52,-53",
+            "length": 130,
+            "roadId": "street-3"
+          },
+          {
+            "to": "-78,-99",
+            "length": 46,
+            "roadId": "avenue-2"
+          },
+          {
+            "to": "-78,-7",
+            "length": 46,
+            "roadId": "avenue-2"
+          }
+        ]
+      },
+      {
+        "x": 52,
+        "z": -53,
+        "id": "52,-53",
+        "edges": [
+          {
+            "to": "-78,-53",
+            "length": 130,
+            "roadId": "street-3"
+          },
+          {
+            "to": "182,-53",
+            "length": 130,
+            "roadId": "street-3"
+          },
+          {
+            "to": "52,-99",
+            "length": 46,
+            "roadId": "avenue-3"
+          },
+          {
+            "to": "52,-7",
+            "length": 46,
+            "roadId": "avenue-3"
+          }
+        ]
+      },
+      {
+        "x": 182,
+        "z": -53,
+        "id": "182,-53",
+        "edges": [
+          {
+            "to": "52,-53",
+            "length": 130,
+            "roadId": "street-3"
+          },
+          {
+            "to": "312,-53",
+            "length": 130,
+            "roadId": "street-3"
+          },
+          {
+            "to": "182,-99",
+            "length": 46,
+            "roadId": "avenue-4"
+          },
+          {
+            "to": "182,-7",
+            "length": 46,
+            "roadId": "avenue-4"
+          }
+        ]
+      },
+      {
+        "x": 312,
+        "z": -53,
+        "id": "312,-53",
+        "edges": [
+          {
+            "to": "182,-53",
+            "length": 130,
+            "roadId": "street-3"
+          },
+          {
+            "to": "348,-53",
+            "length": 36,
+            "roadId": "street-3"
+          },
+          {
+            "to": "312,-99",
+            "length": 46,
+            "roadId": "avenue-5"
+          },
+          {
+            "to": "312,-7",
+            "length": 46,
+            "roadId": "avenue-5"
+          }
+        ]
+      },
+      {
+        "x": 348,
+        "z": -53,
+        "id": "348,-53",
+        "edges": [
+          {
+            "to": "312,-53",
+            "length": 36,
+            "roadId": "street-3"
+          }
+        ]
+      },
+      {
+        "x": -348,
+        "z": -7,
+        "id": "-348,-7",
+        "edges": [
+          {
+            "to": "-338,-7",
+            "length": 10,
+            "roadId": "street-4"
+          }
+        ]
+      },
+      {
+        "x": -338,
+        "z": -7,
+        "id": "-338,-7",
+        "edges": [
+          {
+            "to": "-348,-7",
+            "length": 10,
+            "roadId": "street-4"
+          },
+          {
+            "to": "-208,-7",
+            "length": 130,
+            "roadId": "street-4"
+          },
+          {
+            "to": "-338,-53",
+            "length": 46,
+            "roadId": "avenue-0"
+          },
+          {
+            "to": "-338,39",
+            "length": 46,
+            "roadId": "avenue-0"
+          }
+        ]
+      },
+      {
+        "x": -208,
+        "z": -7,
+        "id": "-208,-7",
+        "edges": [
+          {
+            "to": "-338,-7",
+            "length": 130,
+            "roadId": "street-4"
+          },
+          {
+            "to": "-78,-7",
+            "length": 130,
+            "roadId": "street-4"
+          },
+          {
+            "to": "-208,-53",
+            "length": 46,
+            "roadId": "avenue-1"
+          },
+          {
+            "to": "-208,39",
+            "length": 46,
+            "roadId": "avenue-1"
+          }
+        ]
+      },
+      {
+        "x": -78,
+        "z": -7,
+        "id": "-78,-7",
+        "edges": [
+          {
+            "to": "-208,-7",
+            "length": 130,
+            "roadId": "street-4"
+          },
+          {
+            "to": "52,-7",
+            "length": 130,
+            "roadId": "street-4"
+          },
+          {
+            "to": "-78,-53",
+            "length": 46,
+            "roadId": "avenue-2"
+          },
+          {
+            "to": "-78,39",
+            "length": 46,
+            "roadId": "avenue-2"
+          }
+        ]
+      },
+      {
+        "x": 52,
+        "z": -7,
+        "id": "52,-7",
+        "edges": [
+          {
+            "to": "-78,-7",
+            "length": 130,
+            "roadId": "street-4"
+          },
+          {
+            "to": "182,-7",
+            "length": 130,
+            "roadId": "street-4"
+          },
+          {
+            "to": "52,-53",
+            "length": 46,
+            "roadId": "avenue-3"
+          },
+          {
+            "to": "52,39",
+            "length": 46,
+            "roadId": "avenue-3"
+          }
+        ]
+      },
+      {
+        "x": 182,
+        "z": -7,
+        "id": "182,-7",
+        "edges": [
+          {
+            "to": "52,-7",
+            "length": 130,
+            "roadId": "street-4"
+          },
+          {
+            "to": "312,-7",
+            "length": 130,
+            "roadId": "street-4"
+          },
+          {
+            "to": "182,-53",
+            "length": 46,
+            "roadId": "avenue-4"
+          },
+          {
+            "to": "182,39",
+            "length": 46,
+            "roadId": "avenue-4"
+          }
+        ]
+      },
+      {
+        "x": 312,
+        "z": -7,
+        "id": "312,-7",
+        "edges": [
+          {
+            "to": "182,-7",
+            "length": 130,
+            "roadId": "street-4"
+          },
+          {
+            "to": "348,-7",
+            "length": 36,
+            "roadId": "street-4"
+          },
+          {
+            "to": "312,-53",
+            "length": 46,
+            "roadId": "avenue-5"
+          },
+          {
+            "to": "312,39",
+            "length": 46,
+            "roadId": "avenue-5"
+          }
+        ]
+      },
+      {
+        "x": 348,
+        "z": -7,
+        "id": "348,-7",
+        "edges": [
+          {
+            "to": "312,-7",
+            "length": 36,
+            "roadId": "street-4"
+          }
+        ]
+      },
+      {
+        "x": -348,
+        "z": 39,
+        "id": "-348,39",
+        "edges": [
+          {
+            "to": "-338,39",
+            "length": 10,
+            "roadId": "street-5"
+          }
+        ]
+      },
+      {
+        "x": -338,
+        "z": 39,
+        "id": "-338,39",
+        "edges": [
+          {
+            "to": "-348,39",
+            "length": 10,
+            "roadId": "street-5"
+          },
+          {
+            "to": "-208,39",
+            "length": 130,
+            "roadId": "street-5"
+          },
+          {
+            "to": "-338,-7",
+            "length": 46,
+            "roadId": "avenue-0"
+          },
+          {
+            "to": "-338,85",
+            "length": 46,
+            "roadId": "avenue-0"
+          }
+        ]
+      },
+      {
+        "x": -208,
+        "z": 39,
+        "id": "-208,39",
+        "edges": [
+          {
+            "to": "-338,39",
+            "length": 130,
+            "roadId": "street-5"
+          },
+          {
+            "to": "-78,39",
+            "length": 130,
+            "roadId": "street-5"
+          },
+          {
+            "to": "-208,-7",
+            "length": 46,
+            "roadId": "avenue-1"
+          },
+          {
+            "to": "-208,85",
+            "length": 46,
+            "roadId": "avenue-1"
+          }
+        ]
+      },
+      {
+        "x": -78,
+        "z": 39,
+        "id": "-78,39",
+        "edges": [
+          {
+            "to": "-208,39",
+            "length": 130,
+            "roadId": "street-5"
+          },
+          {
+            "to": "52,39",
+            "length": 130,
+            "roadId": "street-5"
+          },
+          {
+            "to": "-78,-7",
+            "length": 46,
+            "roadId": "avenue-2"
+          },
+          {
+            "to": "-78,85",
+            "length": 46,
+            "roadId": "avenue-2"
+          }
+        ]
+      },
+      {
+        "x": 52,
+        "z": 39,
+        "id": "52,39",
+        "edges": [
+          {
+            "to": "-78,39",
+            "length": 130,
+            "roadId": "street-5"
+          },
+          {
+            "to": "182,39",
+            "length": 130,
+            "roadId": "street-5"
+          },
+          {
+            "to": "52,-7",
+            "length": 46,
+            "roadId": "avenue-3"
+          },
+          {
+            "to": "52,85",
+            "length": 46,
+            "roadId": "avenue-3"
+          }
+        ]
+      },
+      {
+        "x": 182,
+        "z": 39,
+        "id": "182,39",
+        "edges": [
+          {
+            "to": "52,39",
+            "length": 130,
+            "roadId": "street-5"
+          },
+          {
+            "to": "312,39",
+            "length": 130,
+            "roadId": "street-5"
+          },
+          {
+            "to": "182,-7",
+            "length": 46,
+            "roadId": "avenue-4"
+          },
+          {
+            "to": "182,85",
+            "length": 46,
+            "roadId": "avenue-4"
+          }
+        ]
+      },
+      {
+        "x": 312,
+        "z": 39,
+        "id": "312,39",
+        "edges": [
+          {
+            "to": "182,39",
+            "length": 130,
+            "roadId": "street-5"
+          },
+          {
+            "to": "348,39",
+            "length": 36,
+            "roadId": "street-5"
+          },
+          {
+            "to": "312,-7",
+            "length": 46,
+            "roadId": "avenue-5"
+          },
+          {
+            "to": "312,85",
+            "length": 46,
+            "roadId": "avenue-5"
+          }
+        ]
+      },
+      {
+        "x": 348,
+        "z": 39,
+        "id": "348,39",
+        "edges": [
+          {
+            "to": "312,39",
+            "length": 36,
+            "roadId": "street-5"
+          }
+        ]
+      },
+      {
+        "x": -348,
+        "z": 85,
+        "id": "-348,85",
+        "edges": [
+          {
+            "to": "-338,85",
+            "length": 10,
+            "roadId": "street-6"
+          }
+        ]
+      },
+      {
+        "x": -338,
+        "z": 85,
+        "id": "-338,85",
+        "edges": [
+          {
+            "to": "-348,85",
+            "length": 10,
+            "roadId": "street-6"
+          },
+          {
+            "to": "-208,85",
+            "length": 130,
+            "roadId": "street-6"
+          },
+          {
+            "to": "-338,39",
+            "length": 46,
+            "roadId": "avenue-0"
+          },
+          {
+            "to": "-338,131",
+            "length": 46,
+            "roadId": "avenue-0"
+          }
+        ]
+      },
+      {
+        "x": -208,
+        "z": 85,
+        "id": "-208,85",
+        "edges": [
+          {
+            "to": "-338,85",
+            "length": 130,
+            "roadId": "street-6"
+          },
+          {
+            "to": "-78,85",
+            "length": 130,
+            "roadId": "street-6"
+          },
+          {
+            "to": "-208,39",
+            "length": 46,
+            "roadId": "avenue-1"
+          },
+          {
+            "to": "-208,131",
+            "length": 46,
+            "roadId": "avenue-1"
+          }
+        ]
+      },
+      {
+        "x": -78,
+        "z": 85,
+        "id": "-78,85",
+        "edges": [
+          {
+            "to": "-208,85",
+            "length": 130,
+            "roadId": "street-6"
+          },
+          {
+            "to": "52,85",
+            "length": 130,
+            "roadId": "street-6"
+          },
+          {
+            "to": "-78,39",
+            "length": 46,
+            "roadId": "avenue-2"
+          },
+          {
+            "to": "-78,131",
+            "length": 46,
+            "roadId": "avenue-2"
+          }
+        ]
+      },
+      {
+        "x": 52,
+        "z": 85,
+        "id": "52,85",
+        "edges": [
+          {
+            "to": "-78,85",
+            "length": 130,
+            "roadId": "street-6"
+          },
+          {
+            "to": "182,85",
+            "length": 130,
+            "roadId": "street-6"
+          },
+          {
+            "to": "52,39",
+            "length": 46,
+            "roadId": "avenue-3"
+          },
+          {
+            "to": "52,131",
+            "length": 46,
+            "roadId": "avenue-3"
+          }
+        ]
+      },
+      {
+        "x": 182,
+        "z": 85,
+        "id": "182,85",
+        "edges": [
+          {
+            "to": "52,85",
+            "length": 130,
+            "roadId": "street-6"
+          },
+          {
+            "to": "312,85",
+            "length": 130,
+            "roadId": "street-6"
+          },
+          {
+            "to": "182,39",
+            "length": 46,
+            "roadId": "avenue-4"
+          },
+          {
+            "to": "182,131",
+            "length": 46,
+            "roadId": "avenue-4"
+          }
+        ]
+      },
+      {
+        "x": 312,
+        "z": 85,
+        "id": "312,85",
+        "edges": [
+          {
+            "to": "182,85",
+            "length": 130,
+            "roadId": "street-6"
+          },
+          {
+            "to": "348,85",
+            "length": 36,
+            "roadId": "street-6"
+          },
+          {
+            "to": "312,39",
+            "length": 46,
+            "roadId": "avenue-5"
+          },
+          {
+            "to": "312,131",
+            "length": 46,
+            "roadId": "avenue-5"
+          }
+        ]
+      },
+      {
+        "x": 348,
+        "z": 85,
+        "id": "348,85",
+        "edges": [
+          {
+            "to": "312,85",
+            "length": 36,
+            "roadId": "street-6"
+          }
+        ]
+      },
+      {
+        "x": -348,
+        "z": 131,
+        "id": "-348,131",
+        "edges": [
+          {
+            "to": "-338,131",
+            "length": 10,
+            "roadId": "street-7"
+          }
+        ]
+      },
+      {
+        "x": -338,
+        "z": 131,
+        "id": "-338,131",
+        "edges": [
+          {
+            "to": "-348,131",
+            "length": 10,
+            "roadId": "street-7"
+          },
+          {
+            "to": "-208,131",
+            "length": 130,
+            "roadId": "street-7"
+          },
+          {
+            "to": "-338,85",
+            "length": 46,
+            "roadId": "avenue-0"
+          },
+          {
+            "to": "-338,177",
+            "length": 46,
+            "roadId": "avenue-0"
+          }
+        ]
+      },
+      {
+        "x": -208,
+        "z": 131,
+        "id": "-208,131",
+        "edges": [
+          {
+            "to": "-338,131",
+            "length": 130,
+            "roadId": "street-7"
+          },
+          {
+            "to": "-78,131",
+            "length": 130,
+            "roadId": "street-7"
+          },
+          {
+            "to": "-208,85",
+            "length": 46,
+            "roadId": "avenue-1"
+          },
+          {
+            "to": "-208,177",
+            "length": 46,
+            "roadId": "avenue-1"
+          }
+        ]
+      },
+      {
+        "x": -78,
+        "z": 131,
+        "id": "-78,131",
+        "edges": [
+          {
+            "to": "-208,131",
+            "length": 130,
+            "roadId": "street-7"
+          },
+          {
+            "to": "52,131",
+            "length": 130,
+            "roadId": "street-7"
+          },
+          {
+            "to": "-78,85",
+            "length": 46,
+            "roadId": "avenue-2"
+          },
+          {
+            "to": "-78,177",
+            "length": 46,
+            "roadId": "avenue-2"
+          }
+        ]
+      },
+      {
+        "x": 52,
+        "z": 131,
+        "id": "52,131",
+        "edges": [
+          {
+            "to": "-78,131",
+            "length": 130,
+            "roadId": "street-7"
+          },
+          {
+            "to": "182,131",
+            "length": 130,
+            "roadId": "street-7"
+          },
+          {
+            "to": "52,85",
+            "length": 46,
+            "roadId": "avenue-3"
+          },
+          {
+            "to": "52,177",
+            "length": 46,
+            "roadId": "avenue-3"
+          }
+        ]
+      },
+      {
+        "x": 182,
+        "z": 131,
+        "id": "182,131",
+        "edges": [
+          {
+            "to": "52,131",
+            "length": 130,
+            "roadId": "street-7"
+          },
+          {
+            "to": "312,131",
+            "length": 130,
+            "roadId": "street-7"
+          },
+          {
+            "to": "182,85",
+            "length": 46,
+            "roadId": "avenue-4"
+          },
+          {
+            "to": "182,177",
+            "length": 46,
+            "roadId": "avenue-4"
+          }
+        ]
+      },
+      {
+        "x": 312,
+        "z": 131,
+        "id": "312,131",
+        "edges": [
+          {
+            "to": "182,131",
+            "length": 130,
+            "roadId": "street-7"
+          },
+          {
+            "to": "348,131",
+            "length": 36,
+            "roadId": "street-7"
+          },
+          {
+            "to": "312,85",
+            "length": 46,
+            "roadId": "avenue-5"
+          },
+          {
+            "to": "312,177",
+            "length": 46,
+            "roadId": "avenue-5"
+          }
+        ]
+      },
+      {
+        "x": 348,
+        "z": 131,
+        "id": "348,131",
+        "edges": [
+          {
+            "to": "312,131",
+            "length": 36,
+            "roadId": "street-7"
+          }
+        ]
+      },
+      {
+        "x": -348,
+        "z": 177,
+        "id": "-348,177",
+        "edges": [
+          {
+            "to": "-338,177",
+            "length": 10,
+            "roadId": "street-8"
+          }
+        ]
+      },
+      {
+        "x": -338,
+        "z": 177,
+        "id": "-338,177",
+        "edges": [
+          {
+            "to": "-348,177",
+            "length": 10,
+            "roadId": "street-8"
+          },
+          {
+            "to": "-208,177",
+            "length": 130,
+            "roadId": "street-8"
+          },
+          {
+            "to": "-338,131",
+            "length": 46,
+            "roadId": "avenue-0"
+          },
+          {
+            "to": "-338,204",
+            "length": 27,
+            "roadId": "avenue-0"
+          }
+        ]
+      },
+      {
+        "x": -208,
+        "z": 177,
+        "id": "-208,177",
+        "edges": [
+          {
+            "to": "-338,177",
+            "length": 130,
+            "roadId": "street-8"
+          },
+          {
+            "to": "-78,177",
+            "length": 130,
+            "roadId": "street-8"
+          },
+          {
+            "to": "-208,131",
+            "length": 46,
+            "roadId": "avenue-1"
+          },
+          {
+            "to": "-208,204",
+            "length": 27,
+            "roadId": "avenue-1"
+          }
+        ]
+      },
+      {
+        "x": -78,
+        "z": 177,
+        "id": "-78,177",
+        "edges": [
+          {
+            "to": "-208,177",
+            "length": 130,
+            "roadId": "street-8"
+          },
+          {
+            "to": "52,177",
+            "length": 130,
+            "roadId": "street-8"
+          },
+          {
+            "to": "-78,131",
+            "length": 46,
+            "roadId": "avenue-2"
+          },
+          {
+            "to": "-78,204",
+            "length": 27,
+            "roadId": "avenue-2"
+          }
+        ]
+      },
+      {
+        "x": 52,
+        "z": 177,
+        "id": "52,177",
+        "edges": [
+          {
+            "to": "-78,177",
+            "length": 130,
+            "roadId": "street-8"
+          },
+          {
+            "to": "182,177",
+            "length": 130,
+            "roadId": "street-8"
+          },
+          {
+            "to": "52,131",
+            "length": 46,
+            "roadId": "avenue-3"
+          },
+          {
+            "to": "52,204",
+            "length": 27,
+            "roadId": "avenue-3"
+          }
+        ]
+      },
+      {
+        "x": 182,
+        "z": 177,
+        "id": "182,177",
+        "edges": [
+          {
+            "to": "52,177",
+            "length": 130,
+            "roadId": "street-8"
+          },
+          {
+            "to": "312,177",
+            "length": 130,
+            "roadId": "street-8"
+          },
+          {
+            "to": "182,131",
+            "length": 46,
+            "roadId": "avenue-4"
+          },
+          {
+            "to": "182,204",
+            "length": 27,
+            "roadId": "avenue-4"
+          }
+        ]
+      },
+      {
+        "x": 312,
+        "z": 177,
+        "id": "312,177",
+        "edges": [
+          {
+            "to": "182,177",
+            "length": 130,
+            "roadId": "street-8"
+          },
+          {
+            "to": "348,177",
+            "length": 36,
+            "roadId": "street-8"
+          },
+          {
+            "to": "312,131",
+            "length": 46,
+            "roadId": "avenue-5"
+          },
+          {
+            "to": "312,204",
+            "length": 27,
+            "roadId": "avenue-5"
+          }
+        ]
+      },
+      {
+        "x": 348,
+        "z": 177,
+        "id": "348,177",
+        "edges": [
+          {
+            "to": "312,177",
+            "length": 36,
+            "roadId": "street-8"
+          }
+        ]
+      },
+      {
+        "x": -338,
+        "z": -204,
+        "id": "-338,-204",
+        "edges": [
+          {
+            "to": "-338,-145",
+            "length": 59,
+            "roadId": "avenue-0"
+          }
+        ]
+      },
+      {
+        "x": -338,
+        "z": 204,
+        "id": "-338,204",
+        "edges": [
+          {
+            "to": "-338,177",
+            "length": 27,
+            "roadId": "avenue-0"
+          }
+        ]
+      },
+      {
+        "x": -208,
+        "z": -204,
+        "id": "-208,-204",
+        "edges": [
+          {
+            "to": "-208,-145",
+            "length": 59,
+            "roadId": "avenue-1"
+          }
+        ]
+      },
+      {
+        "x": -208,
+        "z": 204,
+        "id": "-208,204",
+        "edges": [
+          {
+            "to": "-208,177",
+            "length": 27,
+            "roadId": "avenue-1"
+          }
+        ]
+      },
+      {
+        "x": -78,
+        "z": -204,
+        "id": "-78,-204",
+        "edges": [
+          {
+            "to": "-78,-145",
+            "length": 59,
+            "roadId": "avenue-2"
+          }
+        ]
+      },
+      {
+        "x": -78,
+        "z": 204,
+        "id": "-78,204",
+        "edges": [
+          {
+            "to": "-78,177",
+            "length": 27,
+            "roadId": "avenue-2"
+          }
+        ]
+      },
+      {
+        "x": 52,
+        "z": -204,
+        "id": "52,-204",
+        "edges": [
+          {
+            "to": "52,-145",
+            "length": 59,
+            "roadId": "avenue-3"
+          }
+        ]
+      },
+      {
+        "x": 52,
+        "z": 204,
+        "id": "52,204",
+        "edges": [
+          {
+            "to": "52,177",
+            "length": 27,
+            "roadId": "avenue-3"
+          }
+        ]
+      },
+      {
+        "x": 182,
+        "z": -204,
+        "id": "182,-204",
+        "edges": [
+          {
+            "to": "182,-145",
+            "length": 59,
+            "roadId": "avenue-4"
+          }
+        ]
+      },
+      {
+        "x": 182,
+        "z": 204,
+        "id": "182,204",
+        "edges": [
+          {
+            "to": "182,177",
+            "length": 27,
+            "roadId": "avenue-4"
+          }
+        ]
+      },
+      {
+        "x": 312,
+        "z": -204,
+        "id": "312,-204",
+        "edges": [
+          {
+            "to": "312,-145",
+            "length": 59,
+            "roadId": "avenue-5"
+          }
+        ]
+      },
+      {
+        "x": 312,
+        "z": 204,
+        "id": "312,204",
+        "edges": [
+          {
+            "to": "312,177",
+            "length": 27,
+            "roadId": "avenue-5"
+          }
+        ]
+      },
+      {
+        "x": -350,
+        "z": -265,
+        "id": "-350,-265",
+        "edges": [
+          {
+            "to": "-350,-235",
+            "length": 30,
+            "roadId": "west-collector"
+          }
+        ]
+      },
+      {
+        "x": -350,
+        "z": -235,
+        "id": "-350,-235",
+        "edges": [
+          {
+            "to": "-350,-265",
+            "length": 30,
+            "roadId": "west-collector"
+          },
+          {
+            "to": "-350,235",
+            "length": 470,
+            "roadId": "west-collector"
+          },
+          {
+            "to": "-360,-235",
+            "length": 10,
+            "roadId": "north-connector"
+          },
+          {
+            "to": "350,-235",
+            "length": 700,
+            "roadId": "north-connector"
+          }
+        ]
+      },
+      {
+        "x": -350,
+        "z": 235,
+        "id": "-350,235",
+        "edges": [
+          {
+            "to": "-350,-235",
+            "length": 470,
+            "roadId": "west-collector"
+          },
+          {
+            "to": "-350,265",
+            "length": 30,
+            "roadId": "west-collector"
+          },
+          {
+            "to": "-360,235",
+            "length": 10,
+            "roadId": "south-connector"
+          },
+          {
+            "to": "350,235",
+            "length": 700,
+            "roadId": "south-connector"
+          }
+        ]
+      },
+      {
+        "x": -350,
+        "z": 265,
+        "id": "-350,265",
+        "edges": [
+          {
+            "to": "-350,235",
+            "length": 30,
+            "roadId": "west-collector"
+          }
+        ]
+      },
+      {
+        "x": 350,
+        "z": -265,
+        "id": "350,-265",
+        "edges": [
+          {
+            "to": "350,-235",
+            "length": 30,
+            "roadId": "east-collector"
+          }
+        ]
+      },
+      {
+        "x": 350,
+        "z": -235,
+        "id": "350,-235",
+        "edges": [
+          {
+            "to": "350,-265",
+            "length": 30,
+            "roadId": "east-collector"
+          },
+          {
+            "to": "350,235",
+            "length": 470,
+            "roadId": "east-collector"
+          },
+          {
+            "to": "-350,-235",
+            "length": 700,
+            "roadId": "north-connector"
+          },
+          {
+            "to": "360,-235",
+            "length": 10,
+            "roadId": "north-connector"
+          }
+        ]
+      },
+      {
+        "x": 350,
+        "z": 235,
+        "id": "350,235",
+        "edges": [
+          {
+            "to": "350,-235",
+            "length": 470,
+            "roadId": "east-collector"
+          },
+          {
+            "to": "350,265",
+            "length": 30,
+            "roadId": "east-collector"
+          },
+          {
+            "to": "-350,235",
+            "length": 700,
+            "roadId": "south-connector"
+          },
+          {
+            "to": "360,235",
+            "length": 10,
+            "roadId": "south-connector"
+          }
+        ]
+      },
+      {
+        "x": 350,
+        "z": 265,
+        "id": "350,265",
+        "edges": [
+          {
+            "to": "350,235",
+            "length": 30,
+            "roadId": "east-collector"
+          }
+        ]
+      },
+      {
+        "x": -360,
+        "z": -235,
+        "id": "-360,-235",
+        "edges": [
+          {
+            "to": "-350,-235",
+            "length": 10,
+            "roadId": "north-connector"
+          }
+        ]
+      },
+      {
+        "x": 360,
+        "z": -235,
+        "id": "360,-235",
+        "edges": [
+          {
+            "to": "350,-235",
+            "length": 10,
+            "roadId": "north-connector"
+          }
+        ]
+      },
+      {
+        "x": -360,
+        "z": 235,
+        "id": "-360,235",
+        "edges": [
+          {
+            "to": "-350,235",
+            "length": 10,
+            "roadId": "south-connector"
+          }
+        ]
+      },
+      {
+        "x": 360,
+        "z": 235,
+        "id": "360,235",
+        "edges": [
+          {
+            "to": "350,235",
+            "length": 10,
+            "roadId": "south-connector"
+          }
+        ]
+      },
+      {
+        "x": -422,
+        "z": 0,
+        "id": "-422,0",
+        "edges": [
+          {
+            "to": "-366,0",
+            "length": 56,
+            "roadId": "west-access"
+          }
+        ]
+      },
+      {
+        "x": -366,
+        "z": 0,
+        "id": "-366,0",
+        "edges": [
+          {
+            "to": "-422,0",
+            "length": 56,
+            "roadId": "west-access"
+          }
+        ]
+      },
+      {
+        "x": 366,
+        "z": 0,
+        "id": "366,0",
+        "edges": [
+          {
+            "to": "422,0",
+            "length": 56,
+            "roadId": "east-access"
+          }
+        ]
+      },
+      {
+        "x": 422,
+        "z": 0,
+        "id": "422,0",
+        "edges": [
+          {
+            "to": "366,0",
+            "length": 56,
+            "roadId": "east-access"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "a": "-348,-145",
+        "b": "-338,-145",
+        "length": 10,
+        "roadId": "street-1",
+        "status": "existing"
+      },
+      {
+        "a": "-338,-145",
+        "b": "-208,-145",
+        "length": 130,
+        "roadId": "street-1",
+        "status": "existing"
+      },
+      {
+        "a": "-208,-145",
+        "b": "-78,-145",
+        "length": 130,
+        "roadId": "street-1",
+        "status": "existing"
+      },
+      {
+        "a": "-78,-145",
+        "b": "52,-145",
+        "length": 130,
+        "roadId": "street-1",
+        "status": "existing"
+      },
+      {
+        "a": "52,-145",
+        "b": "182,-145",
+        "length": 130,
+        "roadId": "street-1",
+        "status": "existing"
+      },
+      {
+        "a": "182,-145",
+        "b": "312,-145",
+        "length": 130,
+        "roadId": "street-1",
+        "status": "existing"
+      },
+      {
+        "a": "312,-145",
+        "b": "348,-145",
+        "length": 36,
+        "roadId": "street-1",
+        "status": "existing"
+      },
+      {
+        "a": "-348,-99",
+        "b": "-338,-99",
+        "length": 10,
+        "roadId": "street-2",
+        "status": "existing"
+      },
+      {
+        "a": "-338,-99",
+        "b": "-208,-99",
+        "length": 130,
+        "roadId": "street-2",
+        "status": "existing"
+      },
+      {
+        "a": "-208,-99",
+        "b": "-78,-99",
+        "length": 130,
+        "roadId": "street-2",
+        "status": "existing"
+      },
+      {
+        "a": "-78,-99",
+        "b": "52,-99",
+        "length": 130,
+        "roadId": "street-2",
+        "status": "existing"
+      },
+      {
+        "a": "52,-99",
+        "b": "182,-99",
+        "length": 130,
+        "roadId": "street-2",
+        "status": "existing"
+      },
+      {
+        "a": "182,-99",
+        "b": "312,-99",
+        "length": 130,
+        "roadId": "street-2",
+        "status": "existing"
+      },
+      {
+        "a": "312,-99",
+        "b": "348,-99",
+        "length": 36,
+        "roadId": "street-2",
+        "status": "existing"
+      },
+      {
+        "a": "-348,-53",
+        "b": "-338,-53",
+        "length": 10,
+        "roadId": "street-3",
+        "status": "existing"
+      },
+      {
+        "a": "-338,-53",
+        "b": "-208,-53",
+        "length": 130,
+        "roadId": "street-3",
+        "status": "existing"
+      },
+      {
+        "a": "-208,-53",
+        "b": "-78,-53",
+        "length": 130,
+        "roadId": "street-3",
+        "status": "existing"
+      },
+      {
+        "a": "-78,-53",
+        "b": "52,-53",
+        "length": 130,
+        "roadId": "street-3",
+        "status": "existing"
+      },
+      {
+        "a": "52,-53",
+        "b": "182,-53",
+        "length": 130,
+        "roadId": "street-3",
+        "status": "existing"
+      },
+      {
+        "a": "182,-53",
+        "b": "312,-53",
+        "length": 130,
+        "roadId": "street-3",
+        "status": "existing"
+      },
+      {
+        "a": "312,-53",
+        "b": "348,-53",
+        "length": 36,
+        "roadId": "street-3",
+        "status": "existing"
+      },
+      {
+        "a": "-348,-7",
+        "b": "-338,-7",
+        "length": 10,
+        "roadId": "street-4",
+        "status": "existing"
+      },
+      {
+        "a": "-338,-7",
+        "b": "-208,-7",
+        "length": 130,
+        "roadId": "street-4",
+        "status": "existing"
+      },
+      {
+        "a": "-208,-7",
+        "b": "-78,-7",
+        "length": 130,
+        "roadId": "street-4",
+        "status": "existing"
+      },
+      {
+        "a": "-78,-7",
+        "b": "52,-7",
+        "length": 130,
+        "roadId": "street-4",
+        "status": "existing"
+      },
+      {
+        "a": "52,-7",
+        "b": "182,-7",
+        "length": 130,
+        "roadId": "street-4",
+        "status": "existing"
+      },
+      {
+        "a": "182,-7",
+        "b": "312,-7",
+        "length": 130,
+        "roadId": "street-4",
+        "status": "existing"
+      },
+      {
+        "a": "312,-7",
+        "b": "348,-7",
+        "length": 36,
+        "roadId": "street-4",
+        "status": "existing"
+      },
+      {
+        "a": "-348,39",
+        "b": "-338,39",
+        "length": 10,
+        "roadId": "street-5",
+        "status": "existing"
+      },
+      {
+        "a": "-338,39",
+        "b": "-208,39",
+        "length": 130,
+        "roadId": "street-5",
+        "status": "existing"
+      },
+      {
+        "a": "-208,39",
+        "b": "-78,39",
+        "length": 130,
+        "roadId": "street-5",
+        "status": "existing"
+      },
+      {
+        "a": "-78,39",
+        "b": "52,39",
+        "length": 130,
+        "roadId": "street-5",
+        "status": "existing"
+      },
+      {
+        "a": "52,39",
+        "b": "182,39",
+        "length": 130,
+        "roadId": "street-5",
+        "status": "existing"
+      },
+      {
+        "a": "182,39",
+        "b": "312,39",
+        "length": 130,
+        "roadId": "street-5",
+        "status": "existing"
+      },
+      {
+        "a": "312,39",
+        "b": "348,39",
+        "length": 36,
+        "roadId": "street-5",
+        "status": "existing"
+      },
+      {
+        "a": "-348,85",
+        "b": "-338,85",
+        "length": 10,
+        "roadId": "street-6",
+        "status": "existing"
+      },
+      {
+        "a": "-338,85",
+        "b": "-208,85",
+        "length": 130,
+        "roadId": "street-6",
+        "status": "existing"
+      },
+      {
+        "a": "-208,85",
+        "b": "-78,85",
+        "length": 130,
+        "roadId": "street-6",
+        "status": "existing"
+      },
+      {
+        "a": "-78,85",
+        "b": "52,85",
+        "length": 130,
+        "roadId": "street-6",
+        "status": "existing"
+      },
+      {
+        "a": "52,85",
+        "b": "182,85",
+        "length": 130,
+        "roadId": "street-6",
+        "status": "existing"
+      },
+      {
+        "a": "182,85",
+        "b": "312,85",
+        "length": 130,
+        "roadId": "street-6",
+        "status": "existing"
+      },
+      {
+        "a": "312,85",
+        "b": "348,85",
+        "length": 36,
+        "roadId": "street-6",
+        "status": "existing"
+      },
+      {
+        "a": "-348,131",
+        "b": "-338,131",
+        "length": 10,
+        "roadId": "street-7",
+        "status": "existing"
+      },
+      {
+        "a": "-338,131",
+        "b": "-208,131",
+        "length": 130,
+        "roadId": "street-7",
+        "status": "existing"
+      },
+      {
+        "a": "-208,131",
+        "b": "-78,131",
+        "length": 130,
+        "roadId": "street-7",
+        "status": "existing"
+      },
+      {
+        "a": "-78,131",
+        "b": "52,131",
+        "length": 130,
+        "roadId": "street-7",
+        "status": "existing"
+      },
+      {
+        "a": "52,131",
+        "b": "182,131",
+        "length": 130,
+        "roadId": "street-7",
+        "status": "existing"
+      },
+      {
+        "a": "182,131",
+        "b": "312,131",
+        "length": 130,
+        "roadId": "street-7",
+        "status": "existing"
+      },
+      {
+        "a": "312,131",
+        "b": "348,131",
+        "length": 36,
+        "roadId": "street-7",
+        "status": "existing"
+      },
+      {
+        "a": "-348,177",
+        "b": "-338,177",
+        "length": 10,
+        "roadId": "street-8",
+        "status": "existing"
+      },
+      {
+        "a": "-338,177",
+        "b": "-208,177",
+        "length": 130,
+        "roadId": "street-8",
+        "status": "existing"
+      },
+      {
+        "a": "-208,177",
+        "b": "-78,177",
+        "length": 130,
+        "roadId": "street-8",
+        "status": "existing"
+      },
+      {
+        "a": "-78,177",
+        "b": "52,177",
+        "length": 130,
+        "roadId": "street-8",
+        "status": "existing"
+      },
+      {
+        "a": "52,177",
+        "b": "182,177",
+        "length": 130,
+        "roadId": "street-8",
+        "status": "existing"
+      },
+      {
+        "a": "182,177",
+        "b": "312,177",
+        "length": 130,
+        "roadId": "street-8",
+        "status": "existing"
+      },
+      {
+        "a": "312,177",
+        "b": "348,177",
+        "length": 36,
+        "roadId": "street-8",
+        "status": "existing"
+      },
+      {
+        "a": "-338,-204",
+        "b": "-338,-145",
+        "length": 59,
+        "roadId": "avenue-0",
+        "status": "existing"
+      },
+      {
+        "a": "-338,-145",
+        "b": "-338,-99",
+        "length": 46,
+        "roadId": "avenue-0",
+        "status": "existing"
+      },
+      {
+        "a": "-338,-99",
+        "b": "-338,-53",
+        "length": 46,
+        "roadId": "avenue-0",
+        "status": "existing"
+      },
+      {
+        "a": "-338,-53",
+        "b": "-338,-7",
+        "length": 46,
+        "roadId": "avenue-0",
+        "status": "existing"
+      },
+      {
+        "a": "-338,-7",
+        "b": "-338,39",
+        "length": 46,
+        "roadId": "avenue-0",
+        "status": "existing"
+      },
+      {
+        "a": "-338,39",
+        "b": "-338,85",
+        "length": 46,
+        "roadId": "avenue-0",
+        "status": "existing"
+      },
+      {
+        "a": "-338,85",
+        "b": "-338,131",
+        "length": 46,
+        "roadId": "avenue-0",
+        "status": "existing"
+      },
+      {
+        "a": "-338,131",
+        "b": "-338,177",
+        "length": 46,
+        "roadId": "avenue-0",
+        "status": "existing"
+      },
+      {
+        "a": "-338,177",
+        "b": "-338,204",
+        "length": 27,
+        "roadId": "avenue-0",
+        "status": "existing"
+      },
+      {
+        "a": "-208,-204",
+        "b": "-208,-145",
+        "length": 59,
+        "roadId": "avenue-1",
+        "status": "existing"
+      },
+      {
+        "a": "-208,-145",
+        "b": "-208,-99",
+        "length": 46,
+        "roadId": "avenue-1",
+        "status": "existing"
+      },
+      {
+        "a": "-208,-99",
+        "b": "-208,-53",
+        "length": 46,
+        "roadId": "avenue-1",
+        "status": "existing"
+      },
+      {
+        "a": "-208,-53",
+        "b": "-208,-7",
+        "length": 46,
+        "roadId": "avenue-1",
+        "status": "existing"
+      },
+      {
+        "a": "-208,-7",
+        "b": "-208,39",
+        "length": 46,
+        "roadId": "avenue-1",
+        "status": "existing"
+      },
+      {
+        "a": "-208,39",
+        "b": "-208,85",
+        "length": 46,
+        "roadId": "avenue-1",
+        "status": "existing"
+      },
+      {
+        "a": "-208,85",
+        "b": "-208,131",
+        "length": 46,
+        "roadId": "avenue-1",
+        "status": "existing"
+      },
+      {
+        "a": "-208,131",
+        "b": "-208,177",
+        "length": 46,
+        "roadId": "avenue-1",
+        "status": "existing"
+      },
+      {
+        "a": "-208,177",
+        "b": "-208,204",
+        "length": 27,
+        "roadId": "avenue-1",
+        "status": "existing"
+      },
+      {
+        "a": "-78,-204",
+        "b": "-78,-145",
+        "length": 59,
+        "roadId": "avenue-2",
+        "status": "existing"
+      },
+      {
+        "a": "-78,-145",
+        "b": "-78,-99",
+        "length": 46,
+        "roadId": "avenue-2",
+        "status": "existing"
+      },
+      {
+        "a": "-78,-99",
+        "b": "-78,-53",
+        "length": 46,
+        "roadId": "avenue-2",
+        "status": "existing"
+      },
+      {
+        "a": "-78,-53",
+        "b": "-78,-7",
+        "length": 46,
+        "roadId": "avenue-2",
+        "status": "existing"
+      },
+      {
+        "a": "-78,-7",
+        "b": "-78,39",
+        "length": 46,
+        "roadId": "avenue-2",
+        "status": "existing"
+      },
+      {
+        "a": "-78,39",
+        "b": "-78,85",
+        "length": 46,
+        "roadId": "avenue-2",
+        "status": "existing"
+      },
+      {
+        "a": "-78,85",
+        "b": "-78,131",
+        "length": 46,
+        "roadId": "avenue-2",
+        "status": "existing"
+      },
+      {
+        "a": "-78,131",
+        "b": "-78,177",
+        "length": 46,
+        "roadId": "avenue-2",
+        "status": "existing"
+      },
+      {
+        "a": "-78,177",
+        "b": "-78,204",
+        "length": 27,
+        "roadId": "avenue-2",
+        "status": "existing"
+      },
+      {
+        "a": "52,-204",
+        "b": "52,-145",
+        "length": 59,
+        "roadId": "avenue-3",
+        "status": "existing"
+      },
+      {
+        "a": "52,-145",
+        "b": "52,-99",
+        "length": 46,
+        "roadId": "avenue-3",
+        "status": "existing"
+      },
+      {
+        "a": "52,-99",
+        "b": "52,-53",
+        "length": 46,
+        "roadId": "avenue-3",
+        "status": "existing"
+      },
+      {
+        "a": "52,-53",
+        "b": "52,-7",
+        "length": 46,
+        "roadId": "avenue-3",
+        "status": "existing"
+      },
+      {
+        "a": "52,-7",
+        "b": "52,39",
+        "length": 46,
+        "roadId": "avenue-3",
+        "status": "existing"
+      },
+      {
+        "a": "52,39",
+        "b": "52,85",
+        "length": 46,
+        "roadId": "avenue-3",
+        "status": "existing"
+      },
+      {
+        "a": "52,85",
+        "b": "52,131",
+        "length": 46,
+        "roadId": "avenue-3",
+        "status": "existing"
+      },
+      {
+        "a": "52,131",
+        "b": "52,177",
+        "length": 46,
+        "roadId": "avenue-3",
+        "status": "existing"
+      },
+      {
+        "a": "52,177",
+        "b": "52,204",
+        "length": 27,
+        "roadId": "avenue-3",
+        "status": "existing"
+      },
+      {
+        "a": "182,-204",
+        "b": "182,-145",
+        "length": 59,
+        "roadId": "avenue-4",
+        "status": "existing"
+      },
+      {
+        "a": "182,-145",
+        "b": "182,-99",
+        "length": 46,
+        "roadId": "avenue-4",
+        "status": "existing"
+      },
+      {
+        "a": "182,-99",
+        "b": "182,-53",
+        "length": 46,
+        "roadId": "avenue-4",
+        "status": "existing"
+      },
+      {
+        "a": "182,-53",
+        "b": "182,-7",
+        "length": 46,
+        "roadId": "avenue-4",
+        "status": "existing"
+      },
+      {
+        "a": "182,-7",
+        "b": "182,39",
+        "length": 46,
+        "roadId": "avenue-4",
+        "status": "existing"
+      },
+      {
+        "a": "182,39",
+        "b": "182,85",
+        "length": 46,
+        "roadId": "avenue-4",
+        "status": "existing"
+      },
+      {
+        "a": "182,85",
+        "b": "182,131",
+        "length": 46,
+        "roadId": "avenue-4",
+        "status": "existing"
+      },
+      {
+        "a": "182,131",
+        "b": "182,177",
+        "length": 46,
+        "roadId": "avenue-4",
+        "status": "existing"
+      },
+      {
+        "a": "182,177",
+        "b": "182,204",
+        "length": 27,
+        "roadId": "avenue-4",
+        "status": "existing"
+      },
+      {
+        "a": "312,-204",
+        "b": "312,-145",
+        "length": 59,
+        "roadId": "avenue-5",
+        "status": "existing"
+      },
+      {
+        "a": "312,-145",
+        "b": "312,-99",
+        "length": 46,
+        "roadId": "avenue-5",
+        "status": "existing"
+      },
+      {
+        "a": "312,-99",
+        "b": "312,-53",
+        "length": 46,
+        "roadId": "avenue-5",
+        "status": "existing"
+      },
+      {
+        "a": "312,-53",
+        "b": "312,-7",
+        "length": 46,
+        "roadId": "avenue-5",
+        "status": "existing"
+      },
+      {
+        "a": "312,-7",
+        "b": "312,39",
+        "length": 46,
+        "roadId": "avenue-5",
+        "status": "existing"
+      },
+      {
+        "a": "312,39",
+        "b": "312,85",
+        "length": 46,
+        "roadId": "avenue-5",
+        "status": "existing"
+      },
+      {
+        "a": "312,85",
+        "b": "312,131",
+        "length": 46,
+        "roadId": "avenue-5",
+        "status": "existing"
+      },
+      {
+        "a": "312,131",
+        "b": "312,177",
+        "length": 46,
+        "roadId": "avenue-5",
+        "status": "existing"
+      },
+      {
+        "a": "312,177",
+        "b": "312,204",
+        "length": 27,
+        "roadId": "avenue-5",
+        "status": "existing"
+      },
+      {
+        "a": "-350,-265",
+        "b": "-350,-235",
+        "length": 30,
+        "roadId": "west-collector",
+        "status": "concept"
+      },
+      {
+        "a": "-350,-235",
+        "b": "-350,235",
+        "length": 470,
+        "roadId": "west-collector",
+        "status": "concept"
+      },
+      {
+        "a": "-350,235",
+        "b": "-350,265",
+        "length": 30,
+        "roadId": "west-collector",
+        "status": "concept"
+      },
+      {
+        "a": "350,-265",
+        "b": "350,-235",
+        "length": 30,
+        "roadId": "east-collector",
+        "status": "concept"
+      },
+      {
+        "a": "350,-235",
+        "b": "350,235",
+        "length": 470,
+        "roadId": "east-collector",
+        "status": "concept"
+      },
+      {
+        "a": "350,235",
+        "b": "350,265",
+        "length": 30,
+        "roadId": "east-collector",
+        "status": "concept"
+      },
+      {
+        "a": "-360,-235",
+        "b": "-350,-235",
+        "length": 10,
+        "roadId": "north-connector",
+        "status": "concept"
+      },
+      {
+        "a": "-350,-235",
+        "b": "350,-235",
+        "length": 700,
+        "roadId": "north-connector",
+        "status": "concept"
+      },
+      {
+        "a": "350,-235",
+        "b": "360,-235",
+        "length": 10,
+        "roadId": "north-connector",
+        "status": "concept"
+      },
+      {
+        "a": "-360,235",
+        "b": "-350,235",
+        "length": 10,
+        "roadId": "south-connector",
+        "status": "concept"
+      },
+      {
+        "a": "-350,235",
+        "b": "350,235",
+        "length": 700,
+        "roadId": "south-connector",
+        "status": "concept"
+      },
+      {
+        "a": "350,235",
+        "b": "360,235",
+        "length": 10,
+        "roadId": "south-connector",
+        "status": "concept"
+      },
+      {
+        "a": "-422,0",
+        "b": "-366,0",
+        "length": 56,
+        "roadId": "west-access",
+        "status": "concept"
+      },
+      {
+        "a": "366,0",
+        "b": "422,0",
+        "length": 56,
+        "roadId": "east-access",
+        "status": "concept"
+      }
+    ],
+    "components": [
+      [
+        "-348,-145",
+        "-338,-145",
+        "-338,-99",
+        "-338,-53",
+        "-338,-7",
+        "-338,39",
+        "-338,85",
+        "-338,131",
+        "-338,177",
+        "-338,204",
+        "-208,177",
+        "-208,204",
+        "-78,177",
+        "-78,204",
+        "-78,131",
+        "-78,85",
+        "-78,39",
+        "-78,-7",
+        "-78,-53",
+        "-78,-99",
+        "-78,-145",
+        "-78,-204",
+        "52,-145",
+        "52,-204",
+        "182,-145",
+        "182,-99",
+        "182,-53",
+        "182,-7",
+        "182,39",
+        "182,85",
+        "182,131",
+        "182,177",
+        "182,204",
+        "312,177",
+        "312,204",
+        "348,177",
+        "312,131",
+        "348,131",
+        "312,85",
+        "348,85",
+        "312,39",
+        "348,39",
+        "312,-7",
+        "348,-7",
+        "312,-53",
+        "348,-53",
+        "312,-99",
+        "348,-99",
+        "182,-204",
+        "312,-145",
+        "312,-204",
+        "348,-145",
+        "52,-99",
+        "52,-53",
+        "52,-7",
+        "52,39",
+        "52,85",
+        "52,131",
+        "52,177",
+        "52,204",
+        "-348,177",
+        "-208,131",
+        "-348,131",
+        "-208,85",
+        "-348,85",
+        "-208,39",
+        "-348,39",
+        "-208,-7",
+        "-348,-7",
+        "-208,-53",
+        "-348,-53",
+        "-208,-99",
+        "-348,-99",
+        "-338,-204",
+        "-208,-145",
+        "-208,-204"
+      ],
+      [
+        "-350,-265",
+        "-350,-235",
+        "350,-235",
+        "360,-235",
+        "350,235",
+        "360,235",
+        "350,265",
+        "350,-265",
+        "-360,-235",
+        "-350,235",
+        "-360,235",
+        "-350,265"
+      ],
+      [
+        "-422,0",
+        "-366,0"
+      ],
+      [
+        "366,0",
+        "422,0"
+      ]
+    ]
+  },
+  "addresses": [],
+  "resilience": [
+    {
+      "closedRoad": "west-collector",
+      "unreachable": 0
+    },
+    {
+      "closedRoad": "east-collector",
+      "unreachable": 0
+    },
+    {
+      "closedRoad": "north-connector",
+      "unreachable": 0
+    },
+    {
+      "closedRoad": "south-connector",
+      "unreachable": 0
+    },
+    {
+      "closedRoad": "west-access",
+      "unreachable": 0
+    },
+    {
+      "closedRoad": "east-access",
+      "unreachable": 0
+    }
+  ]
+}

@@ -67,8 +67,24 @@ export function planAddresses(plan){
 }
 
 export function southernBypass(){
- const p=neighbourhood(true);p.id='D';p.name='Southern neighbourhoods with farm-clear eastern tie-in';
+ const p=neighbourhood(true);p.id='D';p.name='Southern neighbourhoods with farm-clear eastern tie-in and world-homes stage';
  const r=p.roads.find(r=>r.id==='core-link-2');r.a.x=338;r.b.x=338;
+ // Stage 2: 147 additional homes, in three rows of 49. These lie west of the
+ // existing 48-lot neighbourhood, never on the old north-of-town reserves.
+ // Roads connect at the west and east, so pedestrians and drivers can loop.
+ const WEST=-1330, EAST=-208;
+ for (const id of ['local-south','local-north']) p.roads.find(r=>r.id===id).a.x=WEST;
+ const kurrajong=p.roads.find(r=>r.id==='core-link-0');kurrajong.b.z=457;
+ p.roads.push(road('southern-edge',WEST,457,EAST,457),road('western-link',WEST,277,WEST,457));
+ const rows=[
+  {name:'wattle-west',roadId:'local-south',z0:232},
+  {name:'banksia-west',roadId:'local-north',z0:322},
+  {name:'grevillea-west',roadId:'southern-edge',z0:412},
+ ];
+ for (const row of rows) for(let i=0;i<49;i++) {
+  p.parcels.push(parcel(row.name+'-'+String(i+1).padStart(2,'0'), -1310+20*i,row.z0,20,35,'residential',row.roadId));
+ }
+ p.assumedDwellings=195;
  return p;
 }
 export const SELECTED_PLAN=southernBypass();

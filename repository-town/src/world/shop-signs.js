@@ -37,7 +37,8 @@ export function buildSignBoards(signs) {
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
   texture.anisotropy = 4;
-  const mesh = new THREE.Mesh(mergeGeometries(parts), new THREE.MeshLambertMaterial({ map: texture }));
+  // Emissive so townlife.js can floodlight the boards after dark.
+  const mesh = new THREE.Mesh(mergeGeometries(parts), new THREE.MeshLambertMaterial({ map: texture, emissive: 0xffffff, emissiveMap: texture, emissiveIntensity: 0 }));
   mesh.name = 'shop signs';
   // Baked downward wall-wash preserves painted colours and dark lettering.
   const wash = document.createElement('canvas'); wash.width=canvas.width; wash.height=canvas.height;

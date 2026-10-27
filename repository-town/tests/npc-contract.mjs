@@ -24,7 +24,8 @@ const placed=placeTownNPCs(npcGroup,fakeLots,()=>new THREE.Object3D());
 assert.equal(placed.length,32);
 assert.equal(npcGroup.children.length,32);
 const rowan=placed.find(n=>n.npc.id==='rowan');
-assert(Math.hypot(rowan.pos.x,rowan.pos.z-(fakeLots.get('M4').lot.z+16))<3.5,'Rowan must greet the spawn');
+const spawnGreetingDistance=Math.hypot(rowan.pos.x,rowan.pos.z-(fakeLots.get('M4').lot.z+16));
+assert(spawnGreetingDistance>=3.5&&spawnGreetingDistance<8,'Rowan must greet the spawn without filling the camera with his head');
 animateNPCs(placed,1,new THREE.Vector3(rowan.pos.x,0,rowan.pos.z));
 assert(rowan.group.visible);
 for(const e of placed){

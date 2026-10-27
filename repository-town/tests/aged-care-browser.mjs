@@ -17,7 +17,7 @@ try{
    await page.evaluate(()=>{window.__town.life.setTime(9*60);window.__town.life.run(90);});
    const site=await page.evaluate(()=>window.__town.shops().find(s=>s.id==='agedcare'));
    assert(site,'aged-care civic site missing');
-   assert((await page.evaluate(()=>window.__town.facilityState('agedcare'))).allowed,'aged-care preview should be open during daytime hours');
+   assert((await page.evaluate(()=>window.__town.facilityState('agedcare'))).allowed,'aged-care must be accessible during visiting hours');
    await page.evaluate(s=>window.__town.place(s.door.x,s.door.z-1.1,Math.PI),site);
    await page.waitForFunction(()=>window.__town.state().mode==='house',null,{timeout:12000});
    const state=await page.evaluate(()=>window.__town.state());

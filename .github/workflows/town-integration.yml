@@ -49,7 +49,7 @@ jobs:
         run: node tests/aged-care.mjs
       - name: Full release build, integration, geometry, privacy and integrity
         run: npm run build:release
-      - name: Install Chromium for aged-care browser smoke test
+      - name: Install Playwright Chromium
         run: npx playwright install --with-deps chromium
       - name: Chromium aged-care entry and exit smoke test (desktop and mobile)
         run: |

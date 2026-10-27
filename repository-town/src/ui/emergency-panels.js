@@ -35,10 +35,14 @@ export function emergencyPanel(life,position=null,notice=''){
     ]
   };
 }
-export function justicePanel(life,notice=''){
+export function justicePanel(life,notice='',selectedId=null){
   const state=caseReport(life);
+  // Actions apply to the chosen case (default: the newest), so older open
+  // cases can still be progressed after another call opens a new one.
+  const selected=state.cases.find(c=>c.id===selectedId)||state.cases.at(-1);
+  const open=state.cases.filter(c=>c.status!=='finalised'&&c!==selected);
   const cases=state.cases.slice(-8).reverse().map(c=>
-    '<article><strong>'+esc(c.id)+' · '+esc(c.offence)+'</strong>'+
+    '<article><strong>'+esc(c.id)+' · '+esc(c.offence)+(c===selected?' · selected':'')+'</strong>'+
     '<p>Status: '+esc(c.status)+' · '+(c.charged?'Charge recorded':'No charges')+
     ' · '+(c.suspect?esc(c.suspect.name):'No identified suspect')+'</p>'+
     '<p>Representation: '+(c.lawyer?esc(c.lawyer.type):'Not recorded')+
@@ -47,28 +51,28 @@ export function justicePanel(life,notice=''){
     c.evidence.map(e=>'<li>'+esc(e.text)+' — '+esc(e.reliability)+'</li>').join('')+
     '</ul><ol>'+timeline(c)+'</ol></details></article>'
   ).join('');
-  const latest=state.cases.at(-1);
   return {
     title:'⚖️ Repository Town · Police, Courts and Legal Advice',
     wide:true,
     body:'<p><strong>Simulated NSW-style justice.</strong> A crime report does not establish guilt. Police secure evidence, verify identification and decide if there is enough to charge. The court independently decides bail and the case. Remand is not a sentence.</p>'+
       (notice?'<p><b>'+esc(notice)+'</b></p>':'')+
       '<p>'+esc(justiceSummary(life))+'</p>'+
-      '<h3>Current cases</h3>'+(cases||'<p>No reported cases. Use the in-game 000 panel to report a break-in, or visit the police station.</p>')+
+      '<h3>Current cases</h3>'+(selected?'<p>Actions below apply to <b>'+esc(selected.id)+'</b>.</p>':'')+(cases||'<p>No reported cases. Use the in-game 000 panel to report a break-in, or visit the police station.</p>')+
       '<p>Police detention is temporary. If a person is remanded or sentenced, correctional services are a separate facility outside this little town.</p>',
     actions:[
       {label:'View 000 dispatch',run:()=>emergencyPanel(life)},
-      {label:'Review latest case evidence',run:()=>justicePanel(life,latest?
-        evaluatePoliceCharge(life,latest.id):'No investigation is open.')},
-      {label:'Record shop CCTV in latest investigation',run:()=>justicePanel(life,latest?
-        addIndependentEvidence(life,latest.id,'cctv'):'No active case is available.')},
-      {label:'Verify on-scene witness against CCTV',run:()=>justicePanel(life,latest?
-        verifySceneWitness(life,latest.id):'No active investigation.')},
-      {label:'Release independent forensic report to both sides',run:()=>justicePanel(life,latest?
-        examineForensics(life,latest.id):'No criminal court case.')},
-      {label:'Request legal advice on latest case',run:()=>justicePanel(life,latest?
-        seekLegalAdvice(life,latest.id):'No case has been filed.')},
-      {label:'Refresh cases',run:()=>justicePanel(life)}
+      {label:'Review selected case evidence',run:()=>justicePanel(life,selected?
+        evaluatePoliceCharge(life,selected.id):'No investigation is open.',selected?.id)},
+      {label:'Record shop CCTV in selected investigation',run:()=>justicePanel(life,selected?
+        addIndependentEvidence(life,selected.id,'cctv'):'No active case is available.',selected?.id)},
+      {label:'Verify on-scene witness against CCTV',run:()=>justicePanel(life,selected?
+        verifySceneWitness(life,selected.id):'No active investigation.',selected?.id)},
+      {label:'Release independent forensic report to both sides',run:()=>justicePanel(life,selected?
+        examineForensics(life,selected.id):'No criminal court case.',selected?.id)},
+      {label:'Request legal advice on selected case',run:()=>justicePanel(life,selected?
+        seekLegalAdvice(life,selected.id):'No case has been filed.',selected?.id)},
+      ...open.map(c=>({label:'Select case '+c.id+' · '+c.offence,run:()=>justicePanel(life,'',c.id)})),
+      {label:'Refresh cases',run:()=>justicePanel(life,'',selected?.id)}
     ]
   };
 }

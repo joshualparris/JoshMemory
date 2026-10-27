@@ -57,17 +57,37 @@ export function callTripleZero(t,type,location=null){
   log(t,incident,'Emergency call taker asks about hazards, injuries and whether the caller is safe. '+kind.services.join(', ')+' response requested.');
   return {ok:true,id,message:'In-game 000 report '+id+' logged: '+kind.label+'. The dispatcher is checking available units; advance town time to follow the response.'};
 }
-const transition=(t,i,status,message)=>{i.status=status;log(t,i,message);};
+// Stage intervals run from when the incident entered its current stage, so a call
+// that waited in the queue still has a real journey once a crew is free.
+const transition=(t,i,status,message)=>{i.status=status;i.stageAt=safeNow(t);log(t,i,message);};
+const since=(i,now)=>now-(i.stageAt??i.at);
+// Turnout plus travel, from a unit's own dispatch time to it being on scene.
+const travel=i=>i.priority===1?4:8;
+const attended=(i,service,now)=>i.dispatched.includes(service)&&now-(i.dispatchedAt?.[service]??i.at)>=travel(i);
+function dispatchFree(s,i,now){
+  const sent=[];
+  for(const service of i.services){
+    const unit=s.vehicles[service];
+    if(i.dispatched.includes(service)||!unit||unit.busyUntil>now)continue;
+    unit.assigned=i.id;unit.busyUntil=now+22;i.dispatched.push(service);
+    (i.dispatchedAt||={})[service]=now;s.statistics.dispatched++;sent.push(service);
+  }
+  return sent;
+}
+const SCENE_EVIDENCE={
+  assault:'Injuries and scene photographed; first aid and medical records requested',
+  breakin:'Damaged shop lock documented'
+};
 function criminalCase(t,i){
   const s=emergencyState(t);if(i.caseId)return s.cases.find(c=>c.id===i.caseId);
   const c={id:'C'+i.id.slice(1),incidentId:i.id,offence:i.type==='assault'?'Alleged violent assault':'Suspected property break-in',opened:safeNow(t),
     status:'investigation',suspect:null,evidence:[
-      {kind:'scene',text:'Damaged shop lock documented',reliability:'scene-verified'},
+      {kind:'scene',text:SCENE_EVIDENCE[i.type]||'Scene examined and photographed',reliability:'scene-verified'},
       {kind:'witness',text:'A witness account has not yet been verified',reliability:'unconfirmed'}
     ],charged:false,plea:null,bail:null,lawyer:null,hearingAt:null,verdict:null,
     sentence:null,timeline:[],custody:'none',trialAt:null,risk:'unassessed'};
   s.cases.push(c);s.cases=s.cases.slice(-40);i.caseId=c.id;
-  log(t,c,'Police secure the shop and begin recording evidence. No villager is automatically accused.');
+  log(t,c,'Police secure the '+(i.type==='breakin'?'shop':'scene')+' and begin recording evidence. No villager is automatically accused.');
   return c;
 }
 export function advanceEmergency(t){
@@ -75,27 +95,22 @@ export function advanceEmergency(t){
   for(const i of s.incidents){
     const age=now-i.at;
     if(i.status==='call-taking'&&age>=1){
-      for(const service of i.services){
-        const unit=s.vehicles[service];
-        if(unit&&unit.busyUntil<=now){
-          unit.assigned=i.id;unit.busyUntil=now+22;i.dispatched.push(service);s.statistics.dispatched++;
-        }
-      }
-      if(i.dispatched.length)transition(t,i,'dispatched','Control allocates '+i.dispatched.join(', ')+' units and sends the incident location, hazards and priority.');
+      const sent=dispatchFree(s,i,now);
+      if(sent.length)transition(t,i,'dispatched','Control allocates '+sent.join(', ')+' units and sends the incident location, hazards and priority.'+
+        (sent.length<i.services.length?' Remaining services stay requested until a unit is free.':''));
       else transition(t,i,'awaiting-unit','All appropriate units are committed. Call remains queued for the first available resource.');
+    }else if(i.status==='awaiting-unit'){
+      if(dispatchFree(s,i,now).length)transition(t,i,'dispatched','A unit became available and has been dispatched.');
+    }else if(['dispatched','en-route','on-scene'].includes(i.status)){
+      // A partial response keeps requesting the services it is still missing.
+      const sent=dispatchFree(s,i,now);
+      if(sent.length)log(t,i,'Additional '+sent.join(', ')+' unit dispatched now that it is available.');
     }
-    if(i.status==='awaiting-unit'){
-      let dispatched=false;
-      for(const service of i.services.filter(x=>!i.dispatched.includes(x))){
-        const unit=s.vehicles[service];
-        if(unit&&unit.busyUntil<=now){unit.assigned=i.id;unit.busyUntil=now+22;i.dispatched.push(service);s.statistics.dispatched++;dispatched=true;}
-      }
-      if(dispatched)transition(t,i,'dispatched','A unit became available and has been dispatched.');
-    }
-    if(i.status==='dispatched'&&age>=2)transition(t,i,'en-route','Responders travel from their station with incident updates; ETA is approximate, not guaranteed.');
-    if(i.status==='en-route'&&age>=Math.max(5,i.priority===1?5:9))
+    if(i.status==='dispatched'&&since(i,now)>=1)transition(t,i,'en-route','Responders travel from their station with incident updates; ETA is approximate, not guaranteed.');
+    if(i.status==='en-route'&&since(i,now)>=travel(i)-1)
       transition(t,i,'on-scene','First response unit arrives, makes the scene safe and assesses the report.');
-    if(i.status==='on-scene'&&age>=11){
+    // Each requested service must actually attend before its part is recorded.
+    if(i.status==='on-scene'&&since(i,now)>=(i.priority===1?6:2)&&i.services.every(x=>attended(i,x,now))){
       if(i.patient){
         i.patient.triage=i.type==='medical'?'high priority':i.type==='crash'?'urgent assessment':'smoke exposure check';
         i.patient.treated=true;i.patient.transport=i.type==='fire'?'treated at scene':'clinic triage / hospital referral';
@@ -106,7 +121,7 @@ export function advanceEmergency(t){
         transition(t,i,'investigating','Initial report becomes an evidence-led police investigation; no arrest or conviction is presumed.');
       }else transition(t,i,'resolved','Scene handed over to appropriate care or repair services; incident response closed.');
     }
-    if(i.status==='investigating'&&age>=20){
+    if(i.status==='investigating'&&since(i,now)>=9){
       transition(t,i,'resolved','Police preserve scene records and make follow-up enquiries; incident attended, case remains open separately.');
     }
     if(i.status==='resolved'&&!i.closedAt){i.closedAt=now;s.statistics.closed++;}
@@ -234,7 +249,7 @@ export function evaluatePoliceCharge(t,caseId){
 export function justiceSummary(t){
   const s=emergencyState(t),cases=s.cases;return 'Open investigations: '+
     cases.filter(c=>c.status==='investigation').length+'. Cases before court: '+
-    cases.filter(c=>c.status==='court-listed'||c.status==='hearing').length+
+    cases.filter(c=>['court-listed','court-mention','listed-for-hearing'].includes(c.status)).length+
     '. Police holding: '+cases.filter(c=>c.custody==='station-holding').length+
     '. On remand at off-map corrections: '+cases.filter(c=>c.custody==='remand-corrections').length+
     '. Serving sentence at off-map corrections: '+cases.filter(c=>c.custody==='sentenced-corrections').length+

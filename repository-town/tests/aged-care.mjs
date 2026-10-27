@@ -18,11 +18,9 @@ assert(b.glass.length>5,'glazed residential windows and entry are not an opaque 
 const label=()=>new THREE.Sprite(new THREE.SpriteMaterial());
 const room=buildCivicInterior(site,label);
 assert.equal(room.agedCareLayout,L,'must dispatch to dedicated small household');
-// Regression for the production red screen: `dynamics is not iterable` after
-// re-entering a bespoke aged-care interior or restoring a saved indoor position.
-assert(Array.isArray(room.dynamics),'every interior must provide iterable dynamics');
-assert.doesNotThrow(()=>animate(room.dynamics,1,new Set()),'aged-care renders first frame');
-assert.doesNotThrow(()=>animate(undefined,1,new Set()),'older saved custom interiors do not crash animation');
+assert(Array.isArray(room.dynamics),'custom interior always provides animation list');
+assert.doesNotThrow(()=>animate(room.dynamics,1,new Set()));
+assert.doesNotThrow(()=>animate(undefined,1,new Set()));
 // Regression: this interior uses plain doorway metadata, not animated Three.js door meshes.
 // Previously main.js accessed d.userData.privacy on these objects and crashed immediately.
 assert(room.doors.length>0,'aged-care interior must provide room connection metadata');

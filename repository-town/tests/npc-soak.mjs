@@ -33,7 +33,7 @@ const sample = () => T(() => {
 await T(() => window.__town.life.setTime(0));
 const track = new Map();   // name → { x, z, since (sample index), activity }
 const stuck = new Map(), walls = new Map(), overlaps = [], nan = new Set();
-let asleep3 = 0, atWork10 = 0, samples = 0;
+let asleep3 = 0, atWork10 = 0, samples = 0, took3 = false, took10 = false;
 for (let i = 0; i < HOURS * 6; i++) {
   await T(() => window.__town.life.run(10));
   const s = await sample(); samples++;
@@ -49,8 +49,10 @@ for (let i = 0; i < HOURS * 6; i++) {
       stuck.set(p.name, `${s.time}: ${p.name} the ${p.job} "${p.activity}" has not moved for ${(i - prev.since) * 10} town minutes at ${p.x.toFixed(1)},${p.z.toFixed(1)}; bike ${r.bike}, next ${JSON.stringify(r.path.slice(0, 3).map((q) => [+q.x.toFixed(1), +q.z.toFixed(1), q.detour ? 'detour' : '']))}, step ${JSON.stringify(r.step)}`);
     }
   }
-  if (s.time === '03:00') asleep3 = s.people.filter((p) => /asleep/.test(p.activity)).length;
-  if (s.time === '10:00') atWork10 = s.people.filter((p) => !/asleep|walking —|cycling —/.test(p.activity)).length;
+  // The live game loop also moves the clock between samples, so take the first
+  // sample in each ten-minute window rather than an exact minute.
+  if (/^03:0/.test(s.time) && !took3) { took3 = true; asleep3 = s.people.filter((p) => /asleep/.test(p.activity)).length; }
+  if (/^10:0/.test(s.time) && !took10) { took10 = true; atWork10 = s.people.filter((p) => !/asleep|walking —|cycling —/.test(p.activity)).length; }
   if (!QUIET && i % 18 === 0) console.log(`  ${s.time}: ${s.people.filter((p) => !p.inside).length} out, ${s.people.filter((p) => /^(walking|cycling)/.test(p.activity)).length} travelling`);
 }
 const all = (await T(() => window.__town.state())).people.length;

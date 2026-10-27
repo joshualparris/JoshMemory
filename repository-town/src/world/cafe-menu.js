@@ -38,7 +38,7 @@ export function orderCafe(t,id) {
   if(!cafeAvailable(cafe,item))return item.name+' is sold out until the next delivery.';
   if(player.wallet<item.price)return 'You need $'+item.price+' for '+item.name+', but have $'+player.wallet+'.';
   for(const [good,n] of Object.entries(item.ingredients))cafe.stock[good]-=n;
-  player.wallet-=item.price;
+  player.wallet=Math.round((player.wallet-item.price)*100)/100;
   t.sale(cafe,item.price);
   receipt(t,'purchase',item.name+' at Commit Cafe',-item.price);
   t.stats.sold[id]=(t.stats.sold[id]||0)+1;
