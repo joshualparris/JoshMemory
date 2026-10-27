@@ -382,7 +382,13 @@ export function walkRoute(a, b) {
   // 6.6m left a walker overlapping the lamp at (136, -13) on Street 4;
   // 7.05m clears the post while staying outside the south-side shop facades.
   const setback=b.x>=a.x?7.05:4.5;
-  const sa = sideZ(ra, a.z, setback), sb = sideZ(rb, b.z, setback);
+  // The north-side homes/props reach the outer footpath edge. Their old
+  // eastbound 7.05m lane grazed walls around Street 8 (z≈170).
+  // Keep both north-side lanes nearer the kerb, but 0.95m or more away from
+  // streetlamps placed at 6m off-centre. South-side routes retain their
+  // deeper lane to clear shopfront awnings and commercial facades.
+  const lane = (row, z) => z < ROAD(row) ? (b.x>=a.x?5.0:4.5) : setback;
+  const sa = sideZ(ra, a.z, lane(ra,a.z)), sb = sideZ(rb, b.z, lane(rb,b.z));
   const pts = [{ x: a.x, z: sa }];
   if (!(ra === rb && sa === sb)) {
     const ave = AVENUES.reduce((p, c) => (Math.abs(a.x - c) + Math.abs(b.x - c) < Math.abs(a.x - p) + Math.abs(b.x - p) ? c : p));
