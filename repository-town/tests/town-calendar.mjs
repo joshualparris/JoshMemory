@@ -54,6 +54,11 @@ assert.equal(life.dateLabel(),'Sunday 1 November 2026');
 life.plan(teacher);
 assert(teacher.step&&!['work','preopen'].includes(teacher.step.kind),'Sunday is not a fake work shift');
 assert.equal(life.open(store),true);assert.equal(life.open(bank),false);
+life.minute=23*60;teacher.step=null;teacher.path=[];teacher.doneToday={};
+life.plan(teacher);
+assert.equal(teacher.step.kind,'sleep','Sunday night has a real sleep period');
+assert(teacher.step.until>=1440+3*60 && teacher.step.until<=1440+6*60+30,
+ 'Sunday bedtime must allow early Monday teacher commute, not sleep until 08:30');
 life.day=8;life.minute=12*60;
 assert.equal(life.weekday(),'Monday');
 assert(life.shiftToday(teacher),'second Monday resumes weekday roster');
