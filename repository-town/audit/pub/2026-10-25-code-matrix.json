@@ -11,7 +11,7 @@
   "sourceBlobs": {
     "repository-town/audit/electricity/coverage.json": "f80df771b893799e27b3adc98b92fe335c13f28b",
     "repository-town/src/world/interior-kit.js": "ceff1ba9e2197cb113c33760e9353f50ef1e97e3",
-    "repository-town/src/world/life.js": "0b5a9b44f331f0492102251f7964ed5e8c67f647",
+    "repository-town/src/world/life.js": "7bead96303437736f28982cf7e98744eeff39a01",
     "repository-town/src/world/power-grid.js": "6de3f54d8fe576117594fe36124748e36da4e255",
     "repository-town/src/world/pub-interior.js": "46396a0552d2480f3c31585e77199803433ab6b6",
     "repository-town/src/world/shop-interior.js": "c577d598e833c8523ae66715e47e2b4c3e61aff2",
@@ -19,7 +19,7 @@
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "a3e02cfea2e2835442796101977314b0009084cb",
+    "repository-town/src/main.js": "3bc5c3caeb7717e188b9bf9b0ae0201684f3197f",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -844,6 +844,23 @@
         "repository-town/src/main.js"
       ],
       "finding": "Market Square stalls and square entrance change; no pub change."
+    },
+    {
+      "date": "2026-10-27",
+      "by": "Claude (inventory and torch)",
+      "changedFiles": [
+        "repository-town/src/main.js"
+      ],
+      "finding": "main.js: inventory, torch and key handling; no pub change."
+    },
+    {
+      "date": "2026-10-27",
+      "by": "Claude (merge of main into faces/signs branch)",
+      "changedFiles": [
+        "repository-town/src/world/life.js",
+        "repository-town/src/main.js"
+      ],
+      "finding": "Merged main changes; faces, road signs and service-cable visuals only; no pub behaviour change."
     }
   ]
 }

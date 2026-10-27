@@ -43,7 +43,7 @@ export function createCheatMenu({ trigger, actions }) {
       <div class="row"><button data-a="trackMode">Toggle closed-course speed override (cheat vehicles only)</button></div>
       <div class="row"><button data-a="goNew">📍 New neighbourhood</button><button data-a="goWork">📍 Saleyards Rd</button><button data-a="goHigh">📍 High Street</button><button data-a="goGuide">📍 Town Guide</button></div>
       <div class="row"><label for="cheat-jump">Jump height</label><select id="cheat-jump" aria-label="Jump height"><option value="0">Normal (about 1.2 m)</option><option value="3">3 m</option><option value="8">8 m: house roofs</option><option value="12">12 m</option><option value="25">25 m</option><option value="50">50 m</option></select><button data-a="jump">🦘 Set jump</button></div>
-      <div class="row"><button data-a="money">💰 +$10,000</button><button data-a="needs">🍽 Fill food &amp; rest</button></div>
+      <div class="row"><button data-a="torch">🔦 Torch</button><button data-a="money">💰 +$10,000</button><button data-a="needs">🍽 Fill food &amp; rest</button></div>
       <div class="row"><button data-a="buyNear">🏠 Own nearest property</button></div>
       <div class="row"><input id="cheat-prop" placeholder="e.g. 2 Wattle Street, A1 or bakery" aria-label="Property to own"><button data-a="buyKey">Own it</button></div>
       <div class="row"><button data-a="t8">🌅 08:00</button><button data-a="t13">☀️ 13:00</button><button data-a="t20">🌙 20:00</button></div>

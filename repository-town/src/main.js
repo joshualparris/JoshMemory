@@ -67,6 +67,8 @@ import { createPlayerDriving } from './world/player-driving.js';
 import { createDrivingDashboard } from './ui/driving-dashboard.js';
 import { buildRoadSigns } from './world/road-signs.js';
 import { buildFarmersMarket, stallPanel, buyAtStall, marketNotice } from './world/farmers-market.js';
+import { addItem, equip, toggleTorch, torchLit, equippedType } from './world/inventory.js';
+import { inventoryPanel } from './ui/inventory-panel.js';
 import { buildCivilWorks } from './world/civil-works.js';
 import { nearestSeat } from './world/seats.js';
 import { furniturePanel } from './ui/furniture.js';
@@ -186,6 +188,23 @@ async function start() {
   const highStreetShops = [...life.places.values()].filter((p) => p.door && Math.abs(p.door.z - 177) < 12);
   // Farmers' market in Market Square on the 1st and 3rd Saturday mornings (farmers-market.js).
   const market = buildFarmersMarket(town.group, { x: life.place('square').x, z: 7 * 46 - 3.5 * 46 });
+  // Torch: a spot light carried on the camera, lit when the player holds the torch and switches it
+  // on (world/inventory.js); a small torch shows in the bottom corner of the view while held.
+  const torchLight = new THREE.SpotLight(0xfff3dc, 0, 34, 0.36, 0.55, 1.2);
+  torchLight.position.set(0.25, -0.25, 0); torchLight.target.position.set(0, -0.8, -8); torchLight.castShadow = false;
+  camera.add(torchLight, torchLight.target);
+  const handTorch = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.045, 0.26, 10), new THREE.MeshLambertMaterial({ color: 0x2b2f36, emissive: 0x111111 }));
+  handTorch.rotation.x = Math.PI / 2 - 0.2; handTorch.position.set(0.3, -0.28, -0.55); handTorch.visible = false; camera.add(handTorch);
+  // A torch to find at the Town Guide kiosk, where every game starts.
+  const kioskTorch = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 0.3, 10), new THREE.MeshLambertMaterial({ color: 0xd9a400 }));
+  kioskTorch.rotation.z = Math.PI / 2; kioskTorch.position.set(town.guidePos.x + 1.4, 0.06, town.guidePos.z + 0.7); town.group.add(kioskTorch);
+  const itemSpots = [{ key: 'item:guide-torch', item: 'torch', found: 'foundGuideTorch', mesh: kioskTorch, pos: kioskTorch.position, label: '🔦 Pick up the torch' }];
+  function frameItems() {
+    const me = life.civic.player;
+    for (const it of itemSpots) it.mesh.visible = !me[it.found];
+    torchLight.intensity = torchLit(me) ? 75 : 0; torchLight.visible = torchLight.intensity > 0;
+    handTorch.visible = equippedType(me) === 'torch';
+  }
   const civilWorks = buildCivilWorks(town.group);   // estate services from the planning audit
   const roadSigns = buildRoadSigns(town.group, {
     highStreet: highStreetShops.length ? { z: 177, x0: Math.min(...highStreetShops.map((p) => p.x)) - 20, x1: Math.max(...highStreetShops.map((p) => p.x)) + 20 } : null,
@@ -689,6 +708,16 @@ async function start() {
     onOpen: () => { input.reset(); closePanel(); },
   });
   $('btn-townmap').onclick = () => townMap.open();
+  const openBag = () => openPanel(inventoryPanel(life.civic.player, { carried: carried?.label || null }), guideSpot);
+  $('btn-bag').onclick = openBag;
+  // Captured before the input handler: F is also a "use" key, so while the torch is in hand it
+  // switches the torch instead (otherwise F keeps working as use).
+  addEventListener('keydown', (e) => {
+    if (e.repeat || e.ctrlKey || e.metaKey || e.altKey || e.target?.closest?.('input,textarea,select,[contenteditable]')) return;
+    const k = String(e.key ?? '').toLowerCase();
+    if (k === 'i') { e.preventDefault(); if (panelOpen) closePanel(); else openBag(); }
+    if (k === 'f' && equippedType(life.civic.player) === 'torch') { e.preventDefault(); e.stopImmediatePropagation(); status(toggleTorch(life.civic.player)); }
+  }, { capture: true });
   // Hidden playtest cheat menu (src/ui/cheat-menu.js): five taps on the HUD title or ` three times.
   const toTown = () => { if (driving.driving) return 'Park and get out first.'; if (mode === 'house') leave(false); return null; };
   const teleport = (x, z, yaw, where) => { const busy = toTown(); if (busy) return { message: busy }; player.place(x, z, yaw); return { message: 'Teleported to ' + where + '.' }; };
@@ -722,6 +751,7 @@ async function start() {
       goGuide: () => { const busy = toTown(); if (busy) return { message: busy }; player.place(town.guidePos.x, town.guidePos.z + 1.6, 0); return { message: 'Teleported to the Town Guide.' }; },
       // Big jump: launch speed for the chosen height (v = sqrt(2 g h), g = 22 m/s² in this game).
       jump: (h) => { const m = Number(h) || 0; player.jumpSpeed = m > 0 ? Math.sqrt(2 * 22 * m) : 7.2; return { message: m > 0 ? `Jump height ${m} m. Press jump (space or ⤒) and land on furniture or roofs.` : 'Normal jump restored.' }; },
+      torch: () => { const me = life.civic.player; const id = addItem(me, 'torch'); equip(me, id); me.torchOn = true; return { message: 'A torch, switched on. F toggles it; 🎒 Bag to put it away.' }; },
       money: () => addMoney(life, 10000),
       needs: () => refreshNeeds(life),
       buyNear: () => { const key = nearestPropertyKey(life, player.pos.x, player.pos.z, propertyPositions()); return key ? claimProperty(life, key) : { message: 'No property nearby.' }; },
@@ -999,6 +1029,11 @@ async function start() {
       const treasure = expedition.nearby(player.pos), treasureD = away(treasure), npcD = away(nearNPC), personD = away(nearPerson);
       if (treasure && treasureD <= npcD && treasureD <= personD) { expedition.use(player.pos); ambience.relic(); return; }
       if (nearNPC && npcD <= personD) { input.releaseMouse(); closePanel(); $('npc-roster').hidden = true; npcChat.show(nearNPC.npc, null); input.reset(); return; }
+      if (nearPerson?.spot?.item) {
+        const me = life.civic.player, sp = nearPerson.spot; me[sp.found] = true;
+        const id = addItem(me, sp.item); if (!equippedType(me)) equip(me, id);
+        status('You pick up a torch and hold it. Press F (or open 🎒 Bag) to switch it on.'); return;
+      }
       if (nearPerson?.spot?.market) { openPanel(stallPanel(life, nearPerson.spot.market, (id, i) => buyAtStall(life, id, i)), guideSpot); return; }
       if (nearPerson?.spot?.id === 'square') { openPanel(marketNotice(life.day, life.minute), guideSpot); return; }   // an open square, not a building
       if (nearPerson) { if(nearPerson.spot){enterShop(nearPerson.spot.id);return;} talkTo(nearPerson); return; }
@@ -1298,6 +1333,7 @@ async function start() {
     }
     drivingDashboard.update(mode==='town'&&!overview?driving.activeVehicle():null);
     market.update(life.day, life.minute);
+    frameItems();
     carryFrame();
     // Keep the table-service control in the always-visible needs strip on
     // phones with the rest of the HUD collapsed.
@@ -1408,6 +1444,7 @@ async function start() {
       // A shop door you are facing wins over a villager walking past or queuing beside it.
       for (const sp of townLife.spots) consider({ ...sp, spot: sp }, 3.2, 1.5);
       if (market.root.visible) for (const sp of market.spots) consider({ ...sp, spot: sp }, 3.6, 2.0);
+      for (const sp of itemSpots) if (!life.civic.player[sp.found]) consider({ ...sp, spot: sp }, 2.6, 2.0);
       nearTownSeat = !overview&&!driving.driving ? nearestSeat(townLife.seats,player.pos,player.forward(),2.4) : null;
       nearCar = !overview&&!driving.driving ? driving.nearest() : null;
       nearHouse = null; let best = 6;
@@ -1684,6 +1721,7 @@ async function start() {
     meetGuide() { if (mode === 'house') leave(false); player.place(town.guidePos.x, town.guidePos.z + 1.6, 0); return 'guide'; },
     goPlace,
     driveDashboard:()=>drivingDashboard.getState(),
+    inventory:()=>{const me=life.civic.player;return {items:(me.items||[]).map(i=>i.type),held:equippedType(me),torchOn:torchLit(me),light:torchLight.intensity};},
     market:()=>({standing:market.root.visible,spots:market.spots.map(s=>({key:s.key,x:s.pos.x,z:s.pos.z,label:s.label}))}),
     roadSigns:()=>roadSigns.signs.map(({type,x,z,yaw})=>({type,x,z,yaw})),
     driveHeadlights:()=>driving.headlightStatus(),

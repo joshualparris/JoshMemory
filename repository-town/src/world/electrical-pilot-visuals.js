@@ -10,11 +10,14 @@ export function createElectricalPilotVisuals(townGroup,life){
   overlay.name='RTU electricity underground x-ray overlay';
   permanent.name='RTU pole and service pilot';
   townGroup.add(overlay,permanent);
-  const lineMats=new Map(),litMeters=[];
-  const mkLine=(route,color,y,opacity=0.78)=>{
+  const lineMats=new Map(),litMeters=[],serviceIds=new Set();
+  const mkLine=(route,color,y,opacity=0.78,sag=0)=>{
     const vertices=[];
     for(const p of route)vertices.push(p.x,y,p.z);
-    const geometry=new THREE.BufferGeometry().setFromPoints(route.map(p=>new THREE.Vector3(p.x,y,p.z)));
+    let pts=route.map(p=>new THREE.Vector3(p.x,y,p.z));
+    // Overhead service cables hang in a gentle catenary between pole and house, not a ruler line.
+    if(sag>0&&pts.length>=2){const a=pts[0],b=pts[pts.length-1];pts=[];for(let i=0;i<=12;i++){const t=i/12;pts.push(new THREE.Vector3(a.x+(b.x-a.x)*t,y-sag*4*t*(1-t),a.z+(b.z-a.z)*t));}}
+    const geometry=new THREE.BufferGeometry().setFromPoints(pts);
     const mat=new THREE.LineBasicMaterial({color,transparent:opacity<1,opacity,depthTest:true});
     return {mesh:new THREE.Line(geometry,mat),material:mat};
   };
@@ -29,8 +32,8 @@ export function createElectricalPilotVisuals(townGroup,life){
     if(e.type==='external_not_georeferenced'||e.type==='voltage_conversion')continue;
     const service=e.type==='service_drop',isMv=e.voltageKv>=22;
     const height=service?3.9:isMv?0.27:0.31;
-    const {mesh,material}=mkLine(e.route,service?0xd2dfde:isMv?0xffbe38:0x56c5ed,height,service?0.9:0.92);
-    mesh.userData.edgeId=e.id;lineMats.set(e.id,material);
+    const {mesh,material}=mkLine(e.route,service?0x1c1c1c:isMv?0xffbe38:0x56c5ed,height,service?1:0.92,service?0.35:0);
+    mesh.userData.edgeId=e.id;lineMats.set(e.id,material);if(service)serviceIds.add(e.id);
     (service?permanent:overlay).add(mesh);
     if(service && e.route.length){
       const a=e.route[0],key=a.x+':'+a.z;
@@ -58,11 +61,13 @@ export function createElectricalPilotVisuals(townGroup,life){
     if(!pilotIsEnabled(life)){overlay.visible=false;permanent.visible=false;return;}
     const state=life.civic.electricalPilot,report=pilotReport(life);
     overlay.visible=state.overlay;permanent.visible=true;
-    const key=state.faults.join('|')+'|'+Math.floor(life.minute/10);
+    const key=state.faults.join('|')+'|'+state.overlay+'|'+Math.floor(life.minute/10);
     if(key===previousKey)return;previousKey=key;
     const failed=new Set(state.faults);
     for(const [id,mat] of lineMats){
       const dead=failed.has(id);
+      // Outside the wiring view a healthy service drop is just a black cable.
+      if(serviceIds.has(id)&&!state.overlay&&!dead){mat.color.setHex(0x1c1c1c);mat.opacity=1;continue;}
       mat.color.setHex(dead?0xdf4b4b:id.startsWith('MV-')?0xffbe38:0x69cce9);
       mat.opacity=dead?1:0.8;
     }

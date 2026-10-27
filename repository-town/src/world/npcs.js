@@ -347,6 +347,7 @@ export function animateNPCs(list,time,playerPos,dt=1/60,talkingTo=null,collision
 // to face the player who comes to talk.
 const SKIN = [0xe2b48c, 0xc68e63, 0x8d5a3b, 0xf1c9a5, 0xa8714a];
 const HAIR = [0x3b2a1e, 0x1d1d1d, 0x8a5a2b, 0xd8b26a, 0x6b3a2a, 0x9a9a9a];
+const IRIS = [0x4a3222, 0x2f2a24, 0x3e5a72, 0x4d6b45, 0x6a5136];
 const mats = new Map();
 const mat = (c) => { if (!mats.has(c)) mats.set(c, new THREE.MeshLambertMaterial({ color: c })); return mats.get(c); };
 const BOX = new THREE.BoxGeometry(1, 1, 1);
@@ -421,14 +422,23 @@ export function makePerson(seed, shirt, trousers) {
   // Distinct hair, ears, eyebrows, eyes, nose and mouth remain visible at phone scale.
   part(BALL, hair, .218, .12, .201, 0, .167, -.016, head);
   if (seed % 3 === 0) part(BALL, hair, .214, .12, .105, 0, .065, -.126, head);
+  // Friendly, proportionate features: small eyes set into the face (dark iris, a little white,
+  // a soft lid line) rather than bulging eyeballs; a small nose; ears tucked against the head;
+  // fine eyebrows; a gentle smile and a touch of warmth in the cheeks.
+  const iris = IRIS[Math.floor(Math.abs(seed) / 13) % IRIS.length];
+  const shade = (c, k) => { const col = new THREE.Color(c); col.multiplyScalar(k); return col.getHex(); };
   for (const side of [-1, 1]) {
-    part(BALL, skin, .040, .065, .047, side*.201, -.016, 0, head);
-    part(BALL, 0xf6f1e7, .036, .034, .018, side*.082, .031, .176, head);
-    part(BALL, 0x2c2727, .019, .024, .014, side*.082, .029, .193, head);
-    part(BOX, hair, .076, .016, .022, side*.082, .099, .174, head);
+    part(BALL, skin, .026, .05, .03, side*.196, -.02, -.005, head);                 // ear, flush
+    part(BALL, 0xf2ece2, .024, .016, .008, side*.072, .03, .176, head);            // white of the eye
+    part(BALL, iris, .014, .015, .006, side*.072, .029, .181, head);               // iris
+    part(BALL, 0x111111, .007, .008, .004, side*.072, .029, .185, head);           // pupil
+    part(BOX, shade(skin, .82), .05, .008, .01, side*.072, .047, .178, head);      // upper lid crease
+    part(BOX, hair, .058, .009, .012, side*.074, .082, .181, head);                // eyebrow
+    part(BALL, new THREE.Color(skin).lerp(new THREE.Color(0xd88a86), .22).getHex(), .028, .018, .008, side*.098, -.045, .166, head); // faint cheek warmth
   }
-  part(BALL, skin, .040, .048, .053, 0, -.044, .188, head);
-  part(BOX, 0x885447, .078, .012, .012, 0, -.117, .177, head);
+  part(BALL, shade(skin, .93), .02, .028, .022, 0, -.022, .19, head);              // nose
+  part(BALL, 0x9a5a4e, .034, .009, .008, 0, -.095, .178, head);                    // lips
+  for (const side of [-1, 1]) part(BALL, 0x9a5a4e, .008, .007, .006, side*.032, -.09, .177, head);  // smile corners
   // Subtle outfit variations rather than random bulky blocks.
   if (seed % 4 === 0) {
     part(BOX, 0xdcd3c1, .24, .32, .014, 0, 1.19, .145, outfit);
