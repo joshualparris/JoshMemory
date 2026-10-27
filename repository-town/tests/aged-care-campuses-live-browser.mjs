@@ -34,7 +34,7 @@ try{
    await page.evaluate(()=>window.__town.closePanel());
    await page.evaluate(()=>window.__town.life.setTime(23*60+30));
    await page.waitForTimeout(250);
-   const night=await page.evaluate(()=>window.__town.carePopulation(id));
+   const night=await page.evaluate(campusId=>window.__town.carePopulation(campusId),id);
    assert(night.onDuty.some(p=>p.role==='rn'),'RN visible in night roster '+id);
    assert.equal(await page.evaluate(()=>window.__town.exitCampus()),true);
    assert.equal((await page.evaluate(()=>window.__town.state())).mode,'town');
