@@ -427,6 +427,20 @@ async function start() {
           text:'This is a fictional shared home, with a kitchen, sleeping rooms, bathroom, laundry and off-duty living area. Residents: '+people+'. No real UPA employee names or residential addresses are represented.'}});
       const plaque=makeLabel('CARE STAFF SHARE HOUSE · '+careHousemates.length+' housemates','interactive');
       plaque.position.set(p.x,2.32,p.z);built.group.add(plaque);
+      const offDuty=careHousemates.filter(w=>!careOnDuty(w.facility,life.day,life.minute).some(o=>o.id===w.id));
+      const roomIndex=Math.max(0,built.rooms.findIndex(room=>room.name==='Living room'));
+      const living=built.rooms[roomIndex];
+      for(let i=0;i<offDuty.length;i++){
+        const worker=offDuty[i];
+        const pos=new THREE.Vector3((living.x0+living.x1)/2+(i-.5)*.9,0,(living.z0+living.z1)/2+(i%2)*.5);
+        const key='care-share:'+coord+':'+worker.id;
+        const act={do:'npc',name:worker.name,role:worker.job,id:worker.id,isCareStaff:true};
+        built.walkers.push({key,act,room:roomIndex,pos,label:worker.name+' · '+worker.job});
+        built.interactables.push({key,type:'npc',label:'Speak with '+worker.name,
+          person:true,act,room:roomIndex,roomName:living.name,pos});
+        built.sceneObjects.push({type:'person',label:worker.name,room:roomIndex,
+          pos:{x:pos.x,z:pos.z},interactive:true});
+      }
     }
     attachPilotInteriorLighting(built.group,'H:'+coord);
     // Every storey shares the ground floor's frame: front door at the interior's exit, facing +z
@@ -442,7 +456,8 @@ async function start() {
     const kitchens = [...new Set(built.placedProps.filter((p) => ['stove', 'fridge', 'pantry', 'coffeeMachine'].includes(p.type)).map((p) => p.room))];
     inside.people = built.walkers.map((w, i) => {
       freeSpot(w.pos, world);
-      const walker = new Walker(makePerson(coord.charCodeAt(0) + i * 7, w.act.c ?? 0x3f6fb5, w.act.a ?? 0x2f3440), w.pos, { speed: 0.9, name: w.act.name });
+      const model=w.act?.isCareStaff?makeDistinctPerson('care-employee:'+w.act.id):makePerson(coord.charCodeAt(0) + i * 7, w.act.c ?? 0x3f6fb5, w.act.a ?? 0x2f3440);
+      const walker = new Walker(model, w.pos, { speed: 0.9, name: w.act.name });
       if (w.label) { const s = makeLabel(w.act.name || w.label, 'interactive'); s.position.set(0, 2.25, 0); s.userData.labelKind = 'interactive'; walker.group.add(s); walker.tag = s; }
       walker.room = w.room; walker.activity = 'pottering about';
       const interactable = built.interactables.find((x) => x.key === w.key);
