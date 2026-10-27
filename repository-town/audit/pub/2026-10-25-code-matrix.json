@@ -19,7 +19,7 @@
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "d0c2bf04bbb49f3e2ade6fcb44bd998543376592",
+    "repository-town/src/main.js": "0455035bf85228ff330a6afc8ed11fabb99c3b59",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -739,7 +739,7 @@
         "repository-town/src/world/townlife.js",
         "repository-town/src/main.js"
       ],
-      "finding": "No change to pub geometry, utilities, egress, service rules or RTPUB check status. life.js only adds the pub as an evening-shift dinner option; shop-interior.js, townlife.js and main.js have no pub changes. All 34 RTPUB statuses unchanged.",
+      "finding": "No change to pub geometry, utilities, egress, service rules or RTPUB check status. life.js only adds the pub as an evening-shift dinner option; shop-interior.js, townlife.js and main.js have no pub changes. All 34 RTPUB statuses unchanged. Follow-up: main.js later gained cheat-menu and map wiring only; still no pub change.",
       "evidence": "pub-venue, pub-kitchen-layout, pub-simulation-layout, pub-expansion, pub-completion, pub-utilities, pub-history, pub-physical-p0 and pub-envelope-002-024 all pass on this source."
     }
   ]
