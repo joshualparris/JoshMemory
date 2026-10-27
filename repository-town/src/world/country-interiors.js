@@ -24,9 +24,9 @@ export function countryInteriorPlan(home){
   {type:'table',x:w/2-1.17,z:.41,room:0},
   {type:'shower',x:-w/2+1.86,z:-d/2+.71,room:1},
   {type:'toilet',x:-w/2+.58,z:-d/2+.65,room:1},
-  {type:'basin',x:-w/2+.60,z:splitZ-1.05,room:1},
+  {type:'basin',x:-w/2+.85,z:splitZ-1.05,room:1},
   {type:'bed',x:w/2-1.24,z:-d/2+1.31,room:2},
-  {type:'wardrobe',x:splitX+.46,z:-d/2+.48,room:2},
+  {type:'wardrobe',x:splitX+.88,z:-d/2+.45,room:2},
  ];
  return Object.freeze({w,d,splitZ,splitX,bathDoor,bedDoor,rooms,fixtures,
    front:d/2,doorWidth:1.75,
@@ -103,7 +103,7 @@ export function buildCountryInterior(home,makeLabel=()=>new THREE.Group()){
  return {
    group,colliders,sight,doors,interactables,seats:[],furniture:[],dynamics:b.dynamics,
    rooms:plan.rooms,placedProps,sceneObjects,walkers:[],windows:[],openings:opening,
-   spawn:new THREE.Vector3(0,0,depth-1.25),exitZone:ex,
+   spawn:new THREE.Vector3(0,0,depth-1.98),exitZone:ex,
    bounds:{x0:-half,x1:half,z0:-depth,z1:depth},countryPlan:plan,people:[],
  };
 }

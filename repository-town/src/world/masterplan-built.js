@@ -81,6 +81,16 @@ export const PLAN_HOMES = Object.freeze(PLAN_PARCELS.filter((p) => p.use === 're
 if (PLAN_HOMES.length !== COUNTRY_HOMES.length)
   throw new Error('Every country must have a corresponding residential plot');
 
+export function homeWalkway(home) {
+  const p=PLAN_PARCELS.find(q=>q.id===home.parcelId);
+  const r=PLAN_ROADS.find(q=>q.id===p.roadId);
+  // Each entrance joins the centreline of the nearest existing footpath,
+  // without forcing walkers onto the eight-metre carriageway.
+  const sidewalkZ=r.a.z+Math.sign(home.frontZ-r.a.z)*(r.width/2+1.6);
+  return {x:home.x,z0:Math.min(home.frontZ,sidewalkZ),z1:Math.max(home.frontZ,sidewalkZ),
+    width:1.6,roadId:r.id,lengthM:Math.abs(home.frontZ-sidewalkZ)};
+}
+
 function buildHomes(root) {
   const colliders = [];
   for (const h of PLAN_HOMES) {
@@ -154,6 +164,14 @@ export function buildMasterplan(group, makeLabel = null) {
       s.scale.multiplyScalar(0.8); s.position.set(j.x + 6, 3.2, j.z + 6); root.add(s);
     }
   }
+  // Physical links between every home and the street footpath (the old scene
+  // had 195 front doors opening into uninterrupted grass). Merge for mobile.
+  const access=new Builder();
+  for(const h of PLAN_HOMES){
+    const w=homeWalkway(h);
+    access.box(0xd5c8b5,w.width,.045,w.lengthM+.3,w.x,.035,(w.z0+w.z1)/2);
+  }
+  root.add(access.build());
   const colliders = buildHomes(root);
   group.add(root);
   return { group: root, roads: PLAN_ROADS, parcels: PLAN_PARCELS, homes: PLAN_HOMES, colliders };
