@@ -1671,6 +1671,7 @@ async function start() {
     },
     exitShop:()=>{if(!inside?.place)return false;leave();return true;},
     life: {
+      population: () => ({...life.populationReport(),residents:(life.population?.residents||[]).map(v=>({id:v.populationId,name:v.name,age:v.age,home:v.home.coordinate,x:v.x,z:v.z,inside:v.inside,activity:v.activity}))}),
       ledger: () => life.ledger(), describe: (i) => life.describe(life.villagers[i]),
       // Jumps the clock (tests): everyone re-plans their day from scratch.
       setWeather(w) { life.civic.weather = w; },

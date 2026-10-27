@@ -1,3 +1,7 @@
+# ABS demographic implementation — started 27 October 2026
+
+Baseline 443c9a4e; branch feat/abs-dubbo-demographics-20261027. Confirmed canonical source and current 171-person payroll roster. ABS UCL112006 verified. Implement a separate whole-population register, preserve economic actors, age-aware visuals and household census ledger. Tests/release/hosted acceptance pending. No existing roadmap task marked complete. Public source/data only.
+
 # 26 October 2026 — commerce consolidation merged-tree candidate
 
 Preserves latest main d5637c6ef04b782106fca7c63d036d18159a3c3b with bus/pharmacy/front entrances, pub and fast-travel fixes. Recovers original missing General Store invoices/temperature probes/supplier credits, finite state treasury startup capital, council wage float repayments and three regression suites from PRs #126–128. Ten of eleven checks on previous equivalent commerce candidate passed; Android job still running at tree construction. This commit is not VERIFIED until its own CI and the public deployment match. Pub audit source hashes synchronised for 27 tracked sources.

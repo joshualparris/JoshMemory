@@ -1,3 +1,4 @@
+import {createPopulationView} from './population-view.js';
 import { buildPubFacade, PUB_ENVELOPE } from './pub-envelope.js';
 import { buildExpansionFacade } from './town-expansion-facades.js';
 import { buildPostFacade } from './post-facade.js';
@@ -1012,7 +1013,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
 
   // Villagers.
   const people = life.villagers.map((v, i) => {
-    const fig = makeDistinctPerson('villager:'+v.id+':'+v.name+':'+(v.job||''));
+    const fig = makeDistinctPerson('villager:'+v.id+':'+v.name+':'+(v.job||''),v);
     fig.phase = i * 1.7;
     const bike = makeBike(); bike.visible = false; fig.group.add(bike);
     const bag = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.32, 0.18), new THREE.MeshLambertMaterial({ color: [0x3a7a3a, 0xc8a878, 0x2a5a8a][i % 3] })); bag.position.set(0.36, 0.72, 0.05); bag.visible = false; fig.group.add(bag);
@@ -1020,6 +1021,8 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     fig.group.position.set(v.x, 0, v.z); group.add(fig.group);
     return { v, fig, bike, bag, tag, heading: 0, last: { x: v.x, z: v.z }, key: `villager:${i}`, pos: new THREE.Vector3(v.x, 0, v.z), talking: false };
   });
+
+  const populationView=createPopulationView(life,group,makeLabel);
 
   // Sky dressing.
   const stars = makeStars(); scene.add(stars);
@@ -1124,6 +1127,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
 
     // Moving things are only updated near the player; far ones are hidden by fog anyway.
     const near = (x, z, r) => Math.abs(x - eye.x) < r && Math.abs(z - eye.z) < r;
+    populationView.update(dt,t,eye,overview);
     for (const p of people) {
       const v = p.v, moved = Math.hypot(v.x - p.last.x, v.z - p.last.z);
       p.last.x = v.x; p.last.z = v.z; p.pos.set(v.x, 0, v.z);
