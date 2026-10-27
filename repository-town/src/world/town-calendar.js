@@ -27,6 +27,7 @@ const WEEKDAY_ONLY=new Set([
 const SATURDAY_ONLY=new Set(['greengrocer','butcher','hardware']);
 const ESSENTIAL=new Set(['police','ambulance','fire','power','waterworks','sewage',
  'hotel','depot','securityhq','sheep','dairy','coop','orchard','garden','silo','soyfarm']);
+const NON_ROTATING=new Set(['police','ambulance','fire','power','waterworks','sewage','hotel','depot','securityhq']);
 const WEEKEND_TRADERS=new Set(['store','bakery','cafe','pub','clinic']);
 export function venueHoursOnDay(place,day,baseOpens=place?.opens,baseCloses=place?.closes){
  if(!place)return null;
@@ -57,7 +58,11 @@ export function residentWorksToday(day,worker,place=null,colleagues=1){
  if(!hours)return false;
  if(!isWeekend(day))return true;
  const id=place?.id||worker?.work;
- if(ESSENTIAL.has(id)||id==='home'||worker?.job==='security guard')return true;
+ if(NON_ROTATING.has(id)||id==='home'||worker?.job==='security guard')return true;
+ if(Array.isArray(colleagues)&&colleagues.length>1){
+  const order=colleagues.findIndex(w=>w.id===worker?.id);
+  return (Math.max(0,order)%2)===(townDate(day).weekday===6?0:1);
+ }
  if(colleagues>1)return (Math.abs(worker?.id||0)%2)===(townDate(day).weekday===6?0:1);
  return true;
 }
