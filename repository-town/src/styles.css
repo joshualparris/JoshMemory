@@ -38,6 +38,12 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
 #panel-close, #help-close, #settings-close { position: absolute; top: 8px; right: 8px; padding: 4px 9px; }
 #settings { z-index: 21; }
 .speed-setting { display: grid; gap: 9px; }
+.resident-style-setting { margin: 16px 0 0; padding: 10px 12px; border: 1px solid #ffffff33; border-radius: 10px; display: grid; gap: 8px; }
+.resident-style-setting legend { font-weight: 700; padding: 0 4px; }
+#resident-style-options { display: grid; gap: 6px; }
+#resident-style-options button { text-align: left; min-height: 44px; padding: 8px 10px; }
+#resident-style-options button[aria-checked="true"] { outline: 2px solid #7fe0ff; font-weight: 700; }
+#resident-style-options small { display: block; font-weight: 400; opacity: .8; margin-top: 2px; }
 .speed-setting-heading, .speed-setting-scale { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
 .speed-setting-heading { font-weight: 700; }
 #movement-speed-value { color: var(--accent); font-variant-numeric: tabular-nums; }
