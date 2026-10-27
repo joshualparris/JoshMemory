@@ -54,9 +54,9 @@ jobs:
           done
           curl -fsSI http://127.0.0.1:8091/ > /dev/null
           node tests/recorded-dialogue-browser.mjs
+          node tests/subdivision-cheat-browser.mjs
           node tests/webgl-playtest.mjs
           node tests/movement-speed-browser.mjs
-          node tests/subdivision-cheat-browser.mjs
           node tests/exit-facing.mjs
           node tests/sleep-browser.mjs
           node tests/sleep-browser.mjs --mobile
