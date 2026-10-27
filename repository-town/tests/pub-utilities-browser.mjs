@@ -31,9 +31,14 @@ for(const mobile of [false,true]){
  await closePanel();
  // Start the movement probe in the clear aisle, not against service plant.
  await page.evaluate(()=>window.__town.place(0,-2,0));
+ // Clicking a UI button can keep keyboard focus on that button even after the
+ // panel closes. The game deliberately ignores WASD aimed at focused controls.
+ // Restore normal in-game focus before asserting the actual movement path.
+ await page.evaluate(()=>document.activeElement?.blur?.());
  const before=await page.evaluate(()=>window.__town.state().pos);
  await page.keyboard.down('s');await page.waitForTimeout(600);await page.keyboard.up('s');
- const after=await page.evaluate(()=>window.__town.state().pos);assert(Math.hypot(after.x-before.x,after.z-before.z)>.05,'keyboard movement');
+ const after=await page.evaluate(()=>window.__town.state().pos);
+ assert(Math.hypot(after.x-before.x,after.z-before.z)>.05,'keyboard movement: '+JSON.stringify({before,after}));
  assert.deepEqual(errors,[]);console.log('PASS browser '+(mobile?'emulated Android':'desktop')+': fixtures, actions, overlays, breaker, UPS/upstream, movement, no page errors');await page.close();
 }
 await browser.close();

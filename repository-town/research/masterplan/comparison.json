@@ -1,0 +1,217 @@
+[
+  {
+    "id": "A",
+    "name": "Existing twelve-reserve perimeter concept",
+    "parcels": 12,
+    "dwellings": null,
+    "roadLengthM": 2612,
+    "pavedAreaM2": 23284,
+    "graphComponents": 4,
+    "unfronted": 12,
+    "unreachable": 12,
+    "within400": 0,
+    "within800": 0,
+    "meanCentreDistance": null,
+    "roadIntrusions": 3,
+    "buildingConflicts": 0,
+    "newRailInterfaces": [
+      "west-collector",
+      "east-collector"
+    ],
+    "largestClosureDisconnection": 0,
+    "landAreaM2": 211250,
+    "residentialLotSizes": [],
+    "trafficScenarios": null,
+    "infrastructureScenarios": [
+      {
+        "assumedDollarsPerRoadMetre": 500,
+        "cost": 1306000,
+        "excludes": "land, drainage, utilities, intersections, rail"
+      },
+      {
+        "assumedDollarsPerRoadMetre": 1500,
+        "cost": 3918000,
+        "excludes": "land, drainage, utilities, intersections, rail"
+      },
+      {
+        "assumedDollarsPerRoadMetre": 3000,
+        "cost": 7836000,
+        "excludes": "land, drainage, utilities, intersections, rail"
+      }
+    ]
+  },
+  {
+    "id": "B",
+    "name": "Northern neighbourhoods and employment edge",
+    "parcels": 52,
+    "dwellings": 48,
+    "roadLengthM": 2000,
+    "pavedAreaM2": 16000,
+    "graphComponents": 1,
+    "unfronted": 0,
+    "unreachable": 0,
+    "within400": 0,
+    "within800": 50,
+    "meanCentreDistance": 619.69,
+    "roadIntrusions": 0,
+    "buildingConflicts": 0,
+    "newRailInterfaces": [],
+    "largestClosureDisconnection": 26,
+    "landAreaM2": 57600,
+    "residentialLotSizes": [
+      560,
+      700,
+      840
+    ],
+    "trafficScenarios": [
+      {
+        "tripsPerDwellingPeakHour": 0.4,
+        "peakTrips": 69.2,
+        "equalSplitThreeEntrances": 23.07
+      },
+      {
+        "tripsPerDwellingPeakHour": 0.8,
+        "peakTrips": 88.4,
+        "equalSplitThreeEntrances": 29.47
+      },
+      {
+        "tripsPerDwellingPeakHour": 1.2,
+        "peakTrips": 107.6,
+        "equalSplitThreeEntrances": 35.87
+      }
+    ],
+    "infrastructureScenarios": [
+      {
+        "assumedDollarsPerRoadMetre": 500,
+        "cost": 1000000,
+        "excludes": "land, drainage, utilities, intersections, rail"
+      },
+      {
+        "assumedDollarsPerRoadMetre": 1500,
+        "cost": 3000000,
+        "excludes": "land, drainage, utilities, intersections, rail"
+      },
+      {
+        "assumedDollarsPerRoadMetre": 3000,
+        "cost": 6000000,
+        "excludes": "land, drainage, utilities, intersections, rail"
+      }
+    ]
+  },
+  {
+    "id": "C",
+    "name": "Southern neighbourhoods and employment edge",
+    "parcels": 52,
+    "dwellings": 48,
+    "roadLengthM": 2000,
+    "pavedAreaM2": 16000,
+    "graphComponents": 1,
+    "unfronted": 0,
+    "unreachable": 0,
+    "within400": 45,
+    "within800": 52,
+    "meanCentreDistance": 297.69,
+    "roadIntrusions": 0,
+    "buildingConflicts": 0,
+    "newRailInterfaces": [],
+    "largestClosureDisconnection": 26,
+    "landAreaM2": 57600,
+    "residentialLotSizes": [
+      560,
+      700,
+      840
+    ],
+    "trafficScenarios": [
+      {
+        "tripsPerDwellingPeakHour": 0.4,
+        "peakTrips": 69.2,
+        "equalSplitThreeEntrances": 23.07
+      },
+      {
+        "tripsPerDwellingPeakHour": 0.8,
+        "peakTrips": 88.4,
+        "equalSplitThreeEntrances": 29.47
+      },
+      {
+        "tripsPerDwellingPeakHour": 1.2,
+        "peakTrips": 107.6,
+        "equalSplitThreeEntrances": 35.87
+      }
+    ],
+    "infrastructureScenarios": [
+      {
+        "assumedDollarsPerRoadMetre": 500,
+        "cost": 1000000,
+        "excludes": "land, drainage, utilities, intersections, rail"
+      },
+      {
+        "assumedDollarsPerRoadMetre": 1500,
+        "cost": 3000000,
+        "excludes": "land, drainage, utilities, intersections, rail"
+      },
+      {
+        "assumedDollarsPerRoadMetre": 3000,
+        "cost": 6000000,
+        "excludes": "land, drainage, utilities, intersections, rail"
+      }
+    ]
+  },
+  {
+    "id": "D",
+    "name": "Southern neighbourhoods with farm-clear eastern tie-in",
+    "parcels": 52,
+    "dwellings": 48,
+    "roadLengthM": 2000,
+    "pavedAreaM2": 16000,
+    "graphComponents": 1,
+    "unfronted": 0,
+    "unreachable": 0,
+    "within400": 45,
+    "within800": 52,
+    "meanCentreDistance": 297.69,
+    "roadIntrusions": 0,
+    "buildingConflicts": 0,
+    "newRailInterfaces": [],
+    "largestClosureDisconnection": 26,
+    "landAreaM2": 57600,
+    "residentialLotSizes": [
+      560,
+      700,
+      840
+    ],
+    "trafficScenarios": [
+      {
+        "tripsPerDwellingPeakHour": 0.4,
+        "peakTrips": 69.2,
+        "equalSplitThreeEntrances": 23.07
+      },
+      {
+        "tripsPerDwellingPeakHour": 0.8,
+        "peakTrips": 88.4,
+        "equalSplitThreeEntrances": 29.47
+      },
+      {
+        "tripsPerDwellingPeakHour": 1.2,
+        "peakTrips": 107.6,
+        "equalSplitThreeEntrances": 35.87
+      }
+    ],
+    "infrastructureScenarios": [
+      {
+        "assumedDollarsPerRoadMetre": 500,
+        "cost": 1000000,
+        "excludes": "land, drainage, utilities, intersections, rail"
+      },
+      {
+        "assumedDollarsPerRoadMetre": 1500,
+        "cost": 3000000,
+        "excludes": "land, drainage, utilities, intersections, rail"
+      },
+      {
+        "assumedDollarsPerRoadMetre": 3000,
+        "cost": 6000000,
+        "excludes": "land, drainage, utilities, intersections, rail"
+      }
+    ]
+  }
+]
