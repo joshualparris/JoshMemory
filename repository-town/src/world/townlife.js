@@ -1,4 +1,5 @@
 import { buildPubFacade, PUB_ENVELOPE } from './pub-envelope.js';
+import {drawPlayableSubdivision,ensureSubdivisionTitles} from './playable-subdivision.js';
 import { buildExpansionFacade } from './town-expansion-facades.js';
 import { buildPostFacade } from './post-facade.js';
 import { shopLightingOn, interiorPalette } from './lighting.js';
@@ -607,6 +608,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     if (saved.v === 1 && life.restore(saved.life)) life.speed = saved.speed || 1;
     else { saveBlocked = true; life.speed = 1; console.warn('[Repository Town] Saved town is unsupported or invalid; keeping it instead of overwriting it.'); }
   } else life.speed = 1;
+  ensureSubdivisionTitles(life); // Backfill new unserviced lots without resetting old saves.
   const save = () => { if (saveBlocked) return false; try { localStorage.setItem(STORE, JSON.stringify({ v: 1, life: life.snapshot(), speed: life.speed })); return true; } catch { return false; /* storage full or blocked */ } };
 
   const group = new THREE.Group(); town.group.add(group);
@@ -614,6 +616,9 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   const depot = life.place('depot');
   const colliders = [], spots = [], seats = [], displays = [], fields = [], labels = [];
   const statics = new Builder(); statics.glass = [];
+  // Outside the established western neighbourhood: physically driveable new streets,
+  // not an unserviced map-only drawing or a destructive redevelopment of old homes.
+  drawPlayableSubdivision(statics);
 
   // Villagers' houses: letterbox and meter box out the front; air conditioner, shed and mower,
   // rotary clothesline, vegie patch and sprinkler in the back yard, well away from the footpaths.
