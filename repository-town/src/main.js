@@ -52,6 +52,8 @@ import { separatePedestrians, steerPedestrians } from './world/pedestrian-spacin
 import { createTownLife } from './world/townlife.js';
 import { createEmergencyResponseVisuals } from './world/emergency-response-visuals.js';
 import { createPlayerDriving } from './world/player-driving.js';
+import {SUBDIVISION_START, SUBDIVISION_PARCELS,ensureSubdivisionTitles} from './world/playable-subdivision.js';
+import {CHEAT_PASSWORD,cheatClaimDeed,cheatAddFunds,cheatSpawnCar} from './world/cheat-actions.js';
 import { nearestSeat } from './world/seats.js';
 import { furniturePanel } from './ui/furniture.js';
 import { createAmbience } from './ui/ambience.js';
@@ -573,6 +575,96 @@ async function start() {
   $('btn-unstuck').onclick = () => { closePanel(); if (mode === 'house' && inside) { leave(); } else { spawn(); } save(); status('Moved to safety. Your progress is preserved.'); };
   $('btn-reset').onclick = () => { clearSave(); if (mode === 'house') leave(false); spawn(); status('Position reset.'); };
   $('panel-close').onclick = () => closePanel();
+
+  // Hidden debug console: Ctrl+Shift+9 or five taps on the HUD title,
+  // then CHEAT123. The password is client-side obfuscation, not real security.
+  let cheatsUnlocked=false,cheatHeaderTaps=0,cheatLastTap=0,chosenDeed='';
+  const cheatNames=()=>Object.values(life.civic.property.parcels)
+    .sort((a,b)=>a.address.localeCompare(b.address,'en-AU',{numeric:true}));
+  function cheatPanel(){
+    ensureSubdivisionTitles(life);
+    return {
+      title:'Developer cheat console',
+      wide:true,
+      body:'<p>Fictional debug sandbox. Property changes and vehicles affect only this save. Existing tenants and protected land-use flags remain intact.</p><div id="cheat-claim-picker"><label for="cheat-title-picker">Choose a property title</label></div><p id="cheat-result" role="status"></p>',
+      mount(root){
+        const wrapper=root.querySelector('#cheat-claim-picker');
+        const list=document.createElement('select');list.id='cheat-title-picker';
+        list.style.cssText='display:block;width:100%;max-width:100%;margin-top:8px';
+        for(const deed of cheatNames()){
+          const option=document.createElement('option');option.value=deed.id;
+          option.textContent=deed.address+' — '+(deed.owner==='visitor'?'Owned':'Claimable');
+          list.add(option);
+        }
+        list.value=chosenDeed&&life.civic.property.parcels[chosenDeed]?chosenDeed:list.options[0]?.value||'';
+        chosenDeed=list.value;
+        list.addEventListener('change',()=>{chosenDeed=list.value;});
+        wrapper.append(list);
+      },
+      actions:[
+        {label:'Travel to Wattle Street',primary:true,run:()=>{
+          if(driving.driving){status('Park the vehicle before teleporting.');return cheatPanel();}
+          if(mode==='house')leave(false);
+          setOverview(false);
+          player.place(SUBDIVISION_START.x,SUBDIVISION_START.z,SUBDIVISION_START.yaw);
+          closePanel();save();
+          status('Now on Wattle Street — driveable roads and twelve new vacant lots.');
+          return null;
+        }},
+        {label:'Summon & drive hatchback',primary:true,run:()=>{
+          if(driving.driving){status('Exit your current vehicle before summoning another.');return cheatPanel();}
+          if(mode==='house')leave(false);
+          const spawn=cheatSpawnCar(life,player.pos.x,player.pos.z,townWorld);
+          if(!spawn.ok){status(spawn.message);return cheatPanel();}
+          driving.sync();
+          // A 2.1m offset places the visitor adjacent to, not inside, the car.
+          player.place(spawn.vehicle.x+2.1,spawn.vehicle.z,Math.PI/2);
+          const started=driving.enter(spawn.vehicle);
+          townLife.save();closePanel();status(spawn.message+' '+started);
+          return null;
+        }},
+        {label:'Claim selected property immediately',run:()=>{
+          const answer=cheatClaimDeed(life,chosenDeed);townLife.save();status(answer);
+          return {...cheatPanel(),body:'<p><b>'+esc(answer)+'</b></p>'+cheatPanel().body};
+        }},
+        {label:'Add $10,000 game funds',run:()=>{
+          const answer=cheatAddFunds(life);townLife.save();status(answer);
+          return {...cheatPanel(),body:'<p><b>'+esc(answer)+'</b></p>'+cheatPanel().body};
+        }},
+        {label:'Lock console',run:()=>{cheatsUnlocked=false;closePanel();status('Cheat console locked.');return null;}}
+      ]
+    };
+  }
+  function cheatGate(){
+    if(cheatsUnlocked){openPanel(cheatPanel());return;}
+    openPanel({title:'Private game debug access',
+      body:'<p>Enter the game-only cheat password.</p><form id="cheat-unlock-form"><label for="cheat-pass">Cheat password</label><input id="cheat-pass" type="password" autocomplete="off" required maxlength="40" style="display:block;width:100%;margin:8px 0"><button type="submit">Unlock</button><p id="cheat-error" role="status"></p></form>',
+      mount(root){
+        const form=root.querySelector('#cheat-unlock-form');
+        form.addEventListener('submit',event=>{
+          event.preventDefault();
+          if(root.querySelector('#cheat-pass').value!==CHEAT_PASSWORD){
+            root.querySelector('#cheat-error').textContent='Incorrect password.';
+            root.querySelector('#cheat-pass').value='';return;
+          }
+          cheatsUnlocked=true;openPanel(cheatPanel());
+        });
+        root.querySelector('#cheat-pass').focus();
+      }
+    });
+  }
+  addEventListener('keydown',event=>{
+    if(event.ctrlKey&&event.shiftKey&&event.code==='Digit9'&&!event.repeat){
+      event.preventDefault();cheatGate();
+    }
+  },true);
+  const titleTap=document.querySelector('#hud .hud-heading h1');
+  titleTap?.addEventListener('click',()=>{
+    const now=Date.now();
+    cheatHeaderTaps=now-cheatLastTap<4000?cheatHeaderTaps+1:1;
+    cheatLastTap=now;
+    if(cheatHeaderTaps>=5){cheatHeaderTaps=0;cheatGate();}
+  });
 
   function showCard(h, insideNow = false) {
     const links = (h.links || []).map((l) => `<a href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)} ↗</a>`).join(' · ');
