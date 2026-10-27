@@ -22,9 +22,10 @@ try {
   await page.waitForFunction(() => window.__town.inventory().items.includes('torch'), null, { timeout: 4000 }).catch(() => {});
   let s = await inv();
   step(s.items.includes('torch') && s.held === 'torch' && !s.torchOn, `picked up and holding the torch (${JSON.stringify(s)})`);
-  await page.keyboard.press('f'); await page.waitForTimeout(300);
+  await page.keyboard.press('f');
+  await page.waitForFunction(() => window.__town.inventory().light > 0, null, { timeout: 4000 }).catch(() => {});
   s = await inv();
-  step(s.torchOn && s.light > 0, `F switches the torch on (light ${s.light})`);
+  step(s.torchOn && s.light > 0, `F switches the torch on and its beam lights (intensity ${s.light})`);
   await page.keyboard.press('f'); await page.waitForTimeout(300);
   step(!(await inv()).torchOn, 'F switches it off again');
   await page.keyboard.press('i');

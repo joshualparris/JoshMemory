@@ -59,6 +59,7 @@ jobs:
           node tests/exit-facing.mjs
           node tests/town-map-browser.mjs
           node tests/engine-sound-browser.mjs
+          node tests/inventory-browser.mjs
           node tests/farmers-market-browser.mjs
           node tests/climb-and-carry-browser.mjs
           node tests/off-road-browser.mjs

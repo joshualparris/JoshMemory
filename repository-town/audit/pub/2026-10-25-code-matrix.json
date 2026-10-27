@@ -19,7 +19,7 @@
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "a3e02cfea2e2835442796101977314b0009084cb",
+    "repository-town/src/main.js": "a473d0494f1ef390b04a2ea93ce82ed68e70999a",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -844,6 +844,14 @@
         "repository-town/src/main.js"
       ],
       "finding": "Market Square stalls and square entrance change; no pub change."
+    },
+    {
+      "date": "2026-10-27",
+      "by": "Claude (inventory and torch)",
+      "changedFiles": [
+        "repository-town/src/main.js"
+      ],
+      "finding": "main.js: inventory, torch and key handling; no pub change."
     }
   ]
 }

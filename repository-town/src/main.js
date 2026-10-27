@@ -671,12 +671,14 @@ async function start() {
   $('btn-townmap').onclick = () => townMap.open();
   const openBag = () => openPanel(inventoryPanel(life.civic.player, { carried: carried?.label || null }), guideSpot);
   $('btn-bag').onclick = openBag;
+  // Captured before the input handler: F is also a "use" key, so while the torch is in hand it
+  // switches the torch instead (otherwise F keeps working as use).
   addEventListener('keydown', (e) => {
     if (e.repeat || e.ctrlKey || e.metaKey || e.altKey || e.target?.closest?.('input,textarea,select,[contenteditable]')) return;
     const k = String(e.key ?? '').toLowerCase();
     if (k === 'i') { e.preventDefault(); if (panelOpen) closePanel(); else openBag(); }
-    if (k === 'f') { e.preventDefault(); status(toggleTorch(life.civic.player)); }
-  });
+    if (k === 'f' && equippedType(life.civic.player) === 'torch') { e.preventDefault(); e.stopImmediatePropagation(); status(toggleTorch(life.civic.player)); }
+  }, { capture: true });
   // Hidden playtest cheat menu (src/ui/cheat-menu.js): five taps on the HUD title or ` three times.
   const toTown = () => { if (driving.driving) return 'Park and get out first.'; if (mode === 'house') leave(false); return null; };
   const teleport = (x, z, yaw, where) => { const busy = toTown(); if (busy) return { message: busy }; player.place(x, z, yaw); return { message: 'Teleported to ' + where + '.' }; };
