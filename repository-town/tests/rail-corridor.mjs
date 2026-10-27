@@ -7,7 +7,7 @@ import {RAIL_Z,RAIL_GAUGE,RAIL_CROSSINGS,RAIL_STRUCTURE_HALF_WIDTH,
  RAIL_LAMP_MIN_DISTANCE,permittedTracksideLight,withinLevelCrossing,railCrossingClosed,railSideYardClear}
  from '../src/world/rail-corridor.js';
 
-assert.equal(RAIL_Z,132,'rail line is outside the row-8 lot boundary and pub stairs');
+assert.equal(RAIL_Z,-196,'track is outside row-1 rear lot boundary and all street traffic');
 assert.equal(lifeRail,RAIL_Z,'simulated train and drawn rails use same corridor');
 assert.equal(RAIL_GAUGE,1.435,'rail heads use standard gauge');
 assert.equal(RAIL_CROSSINGS.length,6,'each physical north/south avenue has one crossing');
@@ -17,8 +17,8 @@ assert(RAIL_STRUCTURE_HALF_WIDTH>RAIL_GAUGE);
 assert.equal(RAIL_LAMP_MIN_DISTANCE,5.5);
 const street7=6*46-3.5*46+16; // 131
 const southFootpathLamp=street7+6; // 137, old railway centre 136
-assert(Math.abs(RAIL_Z-southFootpathLamp)<RAIL_LAMP_MIN_DISTANCE,'nearby street lamp must be excluded');
-assert(!permittedTracksideLight(southFootpathLamp-0.85),'rail-adjacent lamp must be suppressed');
+assert(Math.abs(RAIL_Z-southFootpathLamp)>RAIL_LAMP_MIN_DISTANCE);
+assert(permittedTracksideLight(southFootpathLamp-0.85));
 assert(!permittedTracksideLight(RAIL_Z),'on-track lamps are prohibited');
 assert(!permittedTracksideLight(RAIL_Z+1.6));
 assert(!railSideYardClear(RAIL_Z+1.6,2.5),'detached yard objects must not intrude');
@@ -51,6 +51,10 @@ assert(scene.includes('for (const z of [-RAIL_GAUGE/2, RAIL_GAUGE/2])'),'train w
 assert(scene.includes('RAIL_GAUGE/2'),'both rails come from standard-gauge source');
 assert(scene.includes('withinLevelCrossing(x, 0.2)'),'sleepers leave crossings clear');
 assert(scene.includes('syncRailGates(m)'),'dynamic signals update every simulation tick');
-assert(scene.includes('railCrossingClosed(trainFront,gate.crossing.x,moving)'));
-assert(scene.includes('gate.pivot.rotation.z=closed?0:Math.PI/2'),'booms visually block the road when closed');
+assert(scene.includes('const state=life.railGate(gate.crossing.x)'),'the gates obey the shared road-user interlocking state');
+assert(scene.includes('railClearanceAudit([...town.colliders,...colliders])'));
+assert(scene.includes('statics.solid(len,0.25,centre,z)'),'fencing is physical, not decorative');
+assert(scene.includes('gate.pivot.rotation.z=state.arm*Math.PI/2'),'boom state reflects warning/closure/fault');
+const player=readFileSync(new URL('../src/main.js',import.meta.url),'utf8');
+assert(player.includes('townLife.railBarrierColliders(player.pos.x,player.pos.z)'),'player movement obeys rail gates');
 console.log('PASS: track reservation, lamp clearance, gauge, six road decks, timetable-coupled gate state.');

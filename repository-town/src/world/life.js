@@ -1,4 +1,4 @@
-import { RAIL_Z } from './rail-corridor.js';
+import { RAIL_Z, RAIL_CROSSINGS, railGateState, railUserBlocked, scheduledRailTrainX } from './rail-corridor.js';
 export { RAIL_Z };
 import {validPubVenue,drinkPubBeer,pubDrinkAvailable,reservePubDrink} from './pub-venue.js';
 import {validPool} from './pub-pool.js';
@@ -430,18 +430,15 @@ export function driveRoute(a, b) {
 // The freight train runs on the line behind street 8: due 6:40, at the Rail Depot
 // 7:00–7:20, gone west by 7:40. Returns its x, or null when it is not in town.
 
-export function trainX(minute, depotX) {
-  const m = minute;
-  if (m >= 400 && m < 420) return depotX + ((420 - m) / 20) * (420 - depotX);
-  if (m >= 420 && m < 440) return depotX;
-  if (m >= 440 && m < 460) return depotX - ((m - 440) / 20) * (420 + depotX);
-  return null;
-}
+export function trainX(minute,depotX){return scheduledRailTrainX(minute,depotX);}
 
 // ── The town ───────────────────────────────────────────────────────────────
 export class TownLife {
   constructor({ homes, minute = 7 * 60, seed = 20261019 }) {
     // homes: [{ coordinate, name, door: {x,z} }] — the repository houses people live in.
+    // The railway's failure switch is intentionally separate from town save
+    // schema: a maintenance/fault hold is local simulated runtime state.
+    this.railFault=false; this.railHoldDay=null; this.railHoldX=null;
     this.seed = seed >>> 0;
     this.rand = rng(this.seed);
     this.day = 1; this.minute = minute;
@@ -585,6 +582,28 @@ export class TownLife {
   dial000(type,location=null){return callTripleZero(this,type,location);}
   emergencyReport(){return caseReport(this);}
   justiceReport(){return justiceSummary(this);}
+  // Faults hold the locomotive in place for the rest of this service day,
+  // rather than allowing it to run through failed crossing equipment.
+  railTrainFront(){
+    const scheduled=scheduledRailTrainX(this.minute,this.place('depot').x);
+    if(this.railFault&&this.railHoldDay!==this.day){
+      this.railHoldDay=this.day;this.railHoldX=scheduled;
+      this.log('Rail protection failure: freight held and every crossing set to stop.');
+    }
+    return this.railHoldDay===this.day?this.railHoldX:scheduled;
+  }
+  setRailFault(fault){
+    this.railFault=!!fault;
+    if(this.railFault)this.railTrainFront();
+  }
+  railGate(crossingX){
+    this.railTrainFront(); // latch an emergency stop before assessing road movements
+    return railGateState(this.minute,this.place('depot').x,crossingX,{
+      fault:this.railFault,heldFront:this.railHoldDay===this.day?this.railHoldX:null});
+  }
+  railRoadBlocked(from,to,halfLength=0,radius=0.5){
+    return RAIL_CROSSINGS.some(c=>railUserBlocked(from,to,this.railGate(c.x),{halfLength,radius}));
+  }
   time() { return fmt(this.minute); }
   isDay() { return this.minute >= 6 * 60 && this.minute < 19 * 60; }
   // 0 at midnight, 1 at noon: drives sky colour and lights.
@@ -1162,6 +1181,9 @@ export class TownLife {
     // Signalised pedestrian crossing: physically stop before the stop line
     // rather than simply changing a decorative lamp. Let trucks already in
     // the crossing finish clearing it when lights change.
+    if(proposed&&!proposed.reverse&&this.railRoadBlocked(t,at,3.5,0.6)){
+      t.blockedBy=null;t.why='rail-protection';return true;
+    }
     if(proposed && !proposed.reverse && mustStopAtCrossing(t,at,this.minute)){
       t.blockedBy=null;t.why='signal';return true;
     }
@@ -1651,6 +1673,13 @@ export class TownLife {
           else{v.staticClear=destination;v.staticClearX=v.x;v.staticClearZ=v.z;}
         }
         const p = v.path[0], dx = p.x - v.x, dz = p.z - v.z, d = Math.hypot(dx, dz);
+        // Active warnings stop walkers/cyclists before the rail approach.
+        // Already committed users may finish clearing the tracks.
+        const moved=Math.min(budget,d);
+        const next={x:v.x+(dx/d||0)*moved,z:v.z+(dz/d||0)*moved};
+        if(this.railRoadBlocked(v,next,0,v.bike?1.16:0.59)){
+          v.activity='waiting safely at the rail crossing';break;
+        }
         if (d <= budget) { v.x = p.x; v.z = p.z; budget -= d; v.path.shift(); }
         else { v.x += (dx / d) * budget; v.z += (dz / d) * budget; budget = 0; }
         v.heading = Math.atan2(dx, dz);

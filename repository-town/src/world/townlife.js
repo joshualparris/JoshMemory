@@ -14,7 +14,7 @@ import { pose } from './npcs.js';
 import { makeDistinctPerson } from './npc-wardrobe.js';
 import { facilityAccess, openingHoursLabel } from './facility-access.js';
 import { TownLife, GOODS, RAIL_Z, trainX, FIELD_Z0, FIELD_Z1, SEC_PER_MIN, LOT_X, AVENUES } from './life.js';
-import { RAIL_GAUGE, RAIL_CROSSINGS, withinLevelCrossing, railSideYardClear, railCrossingClosed } from './rail-corridor.js';
+import { RAIL_GAUGE, RAIL_CROSSINGS, RAIL_DEPOT_PLATFORM_SETBACK, RAIL_DEPOT_PLATFORM_DEPTH, withinLevelCrossing, railSideYardClear, railGateBoxes, railClearanceAudit } from './rail-corridor.js';
 
 // Draws the town simulation (src/world/life.js): the high street and farms on street 8,
 // fields, livestock, the freight train, delivery trucks, villagers, doorstep parcels and
@@ -201,9 +201,9 @@ const BUILD = {
   depot(b) {
     b.box(0xb88a5a, 14, 5, 8, 0, 2.5, 3); b.box(0x4a3a2a, 16, 0.4, 10, 0, 5.2, 3);
     b.box(0x2a1e18, 2, 2.6, 0.06, 0, 1.3, 7.04); for (const x of [-4.5, 4.5]) b.box(GLASS, 1.6, 1.6, 0.08, x, 2, 7.04);
-    // The platform runs behind, along the railway line.
-    b.box(0xb8b0a0, 24, 0.9, 3, 0, 0.45, RAIL_Z - LOT8_Z + 3.4); b.box(0x8a6545, 10, 0.2, 2.6, 0, 3.2, RAIL_Z - LOT8_Z + 3.4);
-    for (const x of [-4.5, 4.5]) b.block(0x8a6545, 0.2, 2.3, 0.2, x, 0.9, RAIL_Z - LOT8_Z + 4.4);
+    // This historic town-centre site is now the freight dispatch warehouse.
+    // The physically connected platform is modelled at the north rail terminal
+    // instead of teleporting a 350 m long platform into this building mesh.
     return { w: 14, d: 8 };
   },
   mill(b) {
@@ -668,6 +668,40 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     }
   }
 
+  // Continuous, solid rail-side fencing with safe pedestrian/vehicle openings
+  // only at the six level crossings. End-to-end fences prevent walking onto
+  // the track between streets; fence solids share the player's collision world.
+  const fenceEnds=[-half-30,...RAIL_CROSSINGS.flatMap(c=>[c.x-6.5,c.x+6.5]),half+30];
+  for(let i=0;i+1<fenceEnds.length;i+=2){
+    const a=fenceEnds[i],b=fenceEnds[i+1],len=b-a;
+    if(len<=0)continue;
+    for(const side of [-1,1]){
+      const z=RAIL_Z+side*4.15,centre=(a+b)/2;
+      for(const y of [0.65,1.32])statics.box(0x6e7676,len,0.08,0.1,centre,y,z);
+      for(let x=a;x<=b;x+=4)statics.block(0x667274,0.12,1.48,0.14,x,0,z);
+      statics.solid(len,0.25,centre,z);
+    }
+  }
+  // Warning and road-user control gates live at the approach lines, clear of
+  // the running rail / train envelope. Pavement remains accessible when open.
+  // The real in-game train stops at the separate northern freight terminal.
+  // Warehouse/depot R8 handles onward road dispatch; trackside infrastructure
+  // is in its own world-space mesh, not merged into the R8 building shell.
+  const terminal=life.place('depot'),tx=terminal.x;
+  const apronZ=RAIL_Z+RAIL_DEPOT_PLATFORM_SETBACK;
+  statics.box(0xb8b0a0,24,0.9,RAIL_DEPOT_PLATFORM_DEPTH,tx,0.45,apronZ);
+  statics.box(0xe3c32f,24,0.025,0.14,tx,0.91,
+    apronZ-RAIL_DEPOT_PLATFORM_DEPTH/2+0.25);
+  statics.box(0x8a6545,10,0.20,2.6,tx,3.2,apronZ);
+  for(const dx of [-4.5,4.5]){
+    statics.block(0x8a6545,0.2,2.3,0.2,tx+dx,0,apronZ+1);
+    statics.solid(0.3,0.3,tx+dx,apronZ+1);
+  }
+  // Accessible grade-level maintenance route on the landward side; no
+  // platform ramp is asserted from a fictitious passenger train service.
+  statics.box(0xaaa8a0,132,0.05,1.8,tx,0.025,RAIL_Z+9.2);
+  statics.box(0x536b76,5,1.2,0.1,tx,3.5,apronZ+1.5);
+  // On-site terminal and dispatch warehouse remain functionally distinct.
   // Each civic building is its own mesh (plus one for its glass), so it can be hidden while the
   // player is inside it and looking out of its windows (src/main.js renderFrame).
   const shopGlassMat = new THREE.MeshLambertMaterial({ vertexColors: true, emissive: 0xffc070, emissiveIntensity: 0 });
@@ -930,14 +964,14 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     }
   }
   function syncRailGates(minute){
-    const trainFront=trainX(minute,depot.x);
-    const moving=trainFront!==null && (minute<420 || minute>=440);
     const flash=Math.floor(minute*8)%2===0;
     for(const gate of railGates){
-      const closed=railCrossingClosed(trainFront,gate.crossing.x,moving);
-      gate.pivot.rotation.z=closed?0:Math.PI/2;
+      // One safety state drives actual road users, the player and the booms.
+      // A fault keeps red warnings and gates down, and holds the freight train.
+      const state=life.railGate(gate.crossing.x);
+      gate.pivot.rotation.z=state.arm*Math.PI/2;
       gate.lamps.forEach((material,i)=>
-        material.emissive.setHex(closed && flash===(i===0)?gateLightOn:gateLightOff));
+        material.emissive.setHex(state.warning&&flash===(i===0)?gateLightOn:gateLightOff));
     }
   }
   syncRailGates(life.minute);
@@ -1168,7 +1202,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       hardwareFreight.group.position.set(sv.pos.x,0,sv.pos.z);
       hardwareFreight.group.rotation.y=sv.heading||0;
     }
-    const tx = trainX(m, depot.x);
+    const tx = life.railTrainFront();
     train.visible = tx !== null && !overview; if (tx !== null) train.position.x = tx;
     // Sails spin while someone works the mill; the tractor drives up and down its paddock.
     if (life.villagers.some((v) => v.work === 'mill' && v.step?.kind === 'work' && !v.path.length)) sails.rotation.z -= dt * 0.9;
@@ -1187,7 +1221,33 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     }
   }
 
-  return { life, group, colliders, spots, seats, people, update, save, events, skyColour: bg, skyParts: [stars, rain, moon], building: (id) => buildings.get(id) || [], placeFront: (id) => { const p = life.place(id); return p.side === 'north' ? { x:p.x,z:p.front.z,yaw:Math.PI } : p.side === 'south' ? { x: p.x, z: FIELD_Z0 - 4.4, yaw: Math.PI } : { x: p.x, z: LOT8_Z + 12.6, yaw: 0 }; } };
+  // Clearance diagnostics are measured from real building/prop collider AABBs.
+  // Rail-side fences sit outside the reserved envelope; crossing stop lines
+  // are excluded by the explicitly marked level crossing footprints.
+  const railClearanceConflicts=railClearanceAudit([...town.colliders,...colliders]);
+  const previousRailClosure=new Map(),railEscapePermit=new Set();
+  const railBarrierColliders=(playerX,playerZ)=>{
+    const boxes=[];
+    for(const c of RAIL_CROSSINGS){
+      const closed=life.railGate(c.x).roadStop;
+      const inside=Math.abs(playerZ-RAIL_Z)<7.3&&Math.abs(playerX-c.x)<6.2;
+      // If a person was on the crossing WHEN the warnings began, let
+      // them leave; never grant a new bypass once a closed gate is present.
+      if(closed&&!previousRailClosure.get(c.x)&&inside)railEscapePermit.add(c.x);
+      if(!closed)railEscapePermit.delete(c.x);
+      previousRailClosure.set(c.x,closed);
+      const escape=railEscapePermit.has(c.x);
+      if(escape&&(!inside&&Math.abs(playerZ-RAIL_Z)>8.0))
+        railEscapePermit.delete(c.x);
+      if(closed&&!escape)boxes.push(...railGateBoxes(c.x));
+    }
+    const front=life.railTrainFront();
+    if(Number.isFinite(front))boxes.push({
+      x0:front-6,x1:front+55,z0:RAIL_Z-1.65,z1:RAIL_Z+1.65
+    }); // real rolling-stock footprint, including wagons
+    return boxes;
+  };
+  return { railClearanceConflicts,railBarrierColliders, life, group, colliders, spots, seats, people, update, save, events, skyColour: bg, skyParts: [stars, rain, moon], building: (id) => buildings.get(id) || [], placeFront: (id) => { const p = life.place(id); return p.side === 'north' ? { x:p.x,z:p.front.z,yaw:Math.PI } : p.side === 'south' ? { x: p.x, z: FIELD_Z0 - 4.4, yaw: Math.PI } : { x: p.x, z: LOT8_Z + 12.6, yaw: 0 }; } };
 }
 
 // What a villager calls out as the player passes, from the time of day and what they're up to.
