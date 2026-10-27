@@ -1386,7 +1386,22 @@ export class TownLife {
       return this.goThen(v,home,{kind:'shower',at:'home',dur:12,activity:'taking a relaxed weekend shower'});}
     if(!v.doneToday.breakfast){v.doneToday.breakfast=true;
       const meal=this.cookable(v,'breakfast');
-      if(meal)return this.goThen(v,home,{kind:'cook',at:'home',meal,dur:30,activity:'making weekend breakfast: '+meal[0]});}
+      if(meal)return this.goThen(v,home,{kind:'cook',at:'home',meal,dur:30,activity:'making weekend breakfast: '+meal[0]});
+      const cafe=this.place('cafe'),bakery=this.place('bakery');
+      if(v.wallet>=9&&shopService(this,cafe).available)
+        return this.goThen(v,cafe.front,{kind:'eatout',at:'cafe',dur:26,activity:'having breakfast at the weekend café'});
+      if(v.wallet>=GOODS.bread.price&&shopService(this,bakery).available)
+        return this.goThen(v,bakery.front,{kind:'snack',at:'bakery',good:'bread',dur:10,activity:'picking up weekend breakfast'});
+    }
+    // On days off, ordinary people still buy groceries when their household
+    // pantry runs low. This is an actual shop visit and purchase, not free food.
+    if(!v.doneToday.weekendShopping&&m>=8*60+15&&m<15*60){
+      v.doneToday.weekendShopping=true;
+      const list=this.shoppingList(v);
+      if(list.length && (!this.cookable(v,'lunch')||!this.cookable(v,'dinner'))){
+        const trip=this.shop(v,list);if(trip)return trip;
+      }
+    }
     if(m>=9*60&&m<12*60&&!v.doneToday.weekendMorning){
       v.doneToday.weekendMorning=true;
       if(sunday)return this.goThen(v,home,{kind:'idle',at:'home',dur:65,
@@ -1396,7 +1411,13 @@ export class TownLife {
     }
     if(m>=12*60&&!v.doneToday.lunch){v.doneToday.lunch=true;
       const meal=this.cookable(v,'lunch');
-      if(meal)return this.goThen(v,home,{kind:'cook',at:'home',meal,dur:35,activity:'making weekend lunch: '+meal[0]});}
+      if(meal)return this.goThen(v,home,{kind:'cook',at:'home',meal,dur:35,activity:'making weekend lunch: '+meal[0]});
+      const cafe=this.place('cafe'),bakery=this.place('bakery');
+      if(v.wallet>=12&&shopService(this,cafe).available)
+        return this.goThen(v,cafe.front,{kind:'eatout',at:'cafe',dur:35,activity:'having lunch with neighbours'});
+      if(v.wallet>=GOODS.pie.price&&shopService(this,bakery).available)
+        return this.goThen(v,bakery.front,{kind:'snack',at:'bakery',good:'pie',dur:12,activity:'having a bakery pie for lunch'});
+    }
     if(m>=14*60&&m<17*60&&!v.doneToday.weekendAfternoon){
       v.doneToday.weekendAfternoon=true;
       if(sunday)return this.goThen(v,this.jitter(this.place('square').front,7),{
@@ -1408,7 +1429,13 @@ export class TownLife {
     }
     if(m>=17*60+30&&!v.doneToday.dinner){v.doneToday.dinner=true;
       const meal=this.cookable(v,'dinner');
-      if(meal)return this.goThen(v,home,{kind:'cook',at:'home',meal,dur:45,activity:'cooking weekend dinner: '+meal[0]});}
+      if(meal)return this.goThen(v,home,{kind:'cook',at:'home',meal,dur:45,activity:'cooking weekend dinner: '+meal[0]});
+      const pub=this.place('pub'),store=this.place('store');
+      if(v.wallet>=18&&shopService(this,pub).available)
+        return this.goThen(v,pub.front,{kind:'eatout',at:'pub',dur:50,activity:'weekend dinner at The Merged Branch'});
+      if(v.wallet>=GOODS.bread.price&&shopService(this,store).available)
+        return this.goThen(v,store.front,{kind:'snack',at:'store',good:'bread',dur:12,activity:'collecting supper from the store'});
+    }
     const task=homeTask(this,v,this.rand);
     if(task&&this.rand()<.45)return this.goThen(v,home,{...task,at:'home'});
     return this.goThen(v,home,{kind:'idle',at:'home',dur:35+this.rand()*40,
