@@ -1,3 +1,4 @@
+import {vehicleSpec,transmissionFor} from './vehicle-dynamics.js';
 // Dashboard values come from the driven car, never from an invented HUD counter.
 // Game-world metres per second become Australian km/h; 30 L is the existing refuelling capacity.
 export const FUEL_CAPACITY_L = 30;
@@ -21,24 +22,28 @@ export function updateCoolantTemperature(previous, dt, speedMs, condition=100) {
 
 export function vehicleTelemetry(vehicle) {
   if (!vehicle) return null;
-  const speedMs=finite(vehicle.speed),fuel=clamp(finite(vehicle.fuel),0,FUEL_CAPACITY_L);
+  const speedMs=finite(vehicle.speed),spec=vehicleSpec(vehicle.model),fuel=clamp(finite(vehicle.fuel),0,spec.maxFuel);
+  const transmission=transmissionFor(vehicle.model,speedMs,vehicle.speed<0?-.3:.5);
   const temp=clamp(finite(vehicle.coolantTemp,22),-10,125);
   const speedKmh=Math.round(Math.abs(speedMs)*3.6);
   return {
     registration:String(vehicle.registration||''),
-    model:String(vehicle.model||'car'),
+    model:spec.name,
     speedKmh,
     speedMs,
-    direction:speedMs < -.12?'R':'D',
-    rpm:Math.round((825+Math.abs(speedMs)*135)/50)*50, // approximate tachometer, not simulated engine revolutions
+    direction:vehicle.gear||transmission.gear,
+    rpm:Number.isFinite(vehicle.rpm)?vehicle.rpm:transmission.rpm,
     fuelLitres:Math.round(fuel*100)/100,
-    fuelPercent:Math.round(100*fuel/FUEL_CAPACITY_L),
+    fuelPercent:Math.round(100*fuel/spec.maxFuel),
+    fuelCapacityL:spec.maxFuel,
+    maxMechanicalSpeedKmh:spec.topKmh,
+    speedLimitKmh:50,
     lowFuel:fuel<=4.5,
     coolantC:Math.round(temp),
     coolantPercent:Math.round(100*clamp((temp-40)/80,0,1)),
     hotEngine:temp>=108,
     odometerKm:Math.round(finite(vehicle.odometer)*10)/10,
     conditionPercent:Math.round(clamp(finite(vehicle.condition,100),0,100)),
-    approximateRangeKm:Math.floor(fuel/3), // existing engine consumes 0.003 L per metre = 3 L per km
+    approximateRangeKm:Math.floor(fuel/(spec.kind==='bike'?1.2:spec.id==='truck'?4.5:3)), // compressed game economy
   };
 }
