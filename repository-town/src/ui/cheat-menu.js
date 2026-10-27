@@ -1,3 +1,4 @@
+import {VEHICLE_DYNAMICS} from '../world/vehicle-dynamics.js';
 // Hidden playtest cheat menu. Unlock: tap the HUD title five times in a row, or
 // press the backtick key three times; then enter the password. The game logic is in
 // src/world/cheats.js; this module only draws the panel and routes its buttons.
@@ -9,7 +10,7 @@ const CSS = `
 #cheat-menu h2{margin:0 0 8px;font-size:16px}
 #cheat-menu .row{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
 #cheat-menu button{min-height:38px;padding:6px 10px;border-radius:8px;border:1px solid #b48cff;background:#3a2a66;color:#fff;font:inherit}
-#cheat-menu input{flex:1;min-width:120px;padding:7px 9px;border-radius:7px;border:0;font:inherit}
+#cheat-menu input,#cheat-menu select{flex:1;min-width:120px;padding:7px 9px;border-radius:7px;border:0;font:inherit}
 #cheat-menu .msg{min-height:1.4em;margin-top:6px;color:#ffe08a}
 `;
 
@@ -37,7 +38,9 @@ export function createCheatMenu({ trigger, actions }) {
   }
   function renderMenu() {
     el.innerHTML = `<h2>🧪 Cheat menu</h2>
-      <div class="row"><button data-a="car">🚗 Summon car</button><button data-a="carHere">🚗 Car + drive now</button><button data-a="fix">🔧 Fix &amp; fuel cars</button></div>
+      <div class="row"><label for="cheat-vehicle">Vehicle model</label><select id="cheat-vehicle" aria-label="Vehicle to summon">${Object.entries(VEHICLE_DYNAMICS).map(([id,spec])=>'<option value="'+id+'">'+spec.name+' ('+spec.topKmh+' km/h max)'+ '</option>').join('')}</select></div>
+      <div class="row"><button data-a="car">Summon selected vehicle</button><button data-a="carHere">Drive selected vehicle now</button><button data-a="fix">Fix &amp; fuel vehicles</button></div>
+      <div class="row"><button data-a="trackMode">Toggle closed-course speed override (cheat vehicles only)</button></div>
       <div class="row"><button data-a="goNew">📍 New neighbourhood</button><button data-a="goWork">📍 Saleyards Rd</button><button data-a="goHigh">📍 High Street</button><button data-a="goGuide">📍 Town Guide</button></div>
       <div class="row"><button data-a="money">💰 +$10,000</button><button data-a="needs">🍽 Fill food &amp; rest</button></div>
       <div class="row"><button data-a="buyNear">🏠 Own nearest property</button></div>
@@ -46,12 +49,13 @@ export function createCheatMenu({ trigger, actions }) {
       <div class="row"><button data-a="map">🗺️ Open map</button><button data-a="lock">Lock</button><button data-a="close">✕ Close</button></div>
       <div class="msg"></div>`;
     el.querySelector('#cheat-prop').addEventListener('keydown', (e) => e.stopPropagation());
+    el.querySelector('#cheat-vehicle').addEventListener('keydown', (e) => e.stopPropagation());
     for (const b of el.querySelectorAll('button[data-a]')) b.onclick = () => run(b.dataset.a);
   }
   function run(a) {
     if (a === 'close') return close();
     if (a === 'lock') { unlocked = false; try { sessionStorage.removeItem('town-cheats'); } catch { /* ignore */ } renderLock(); return; }
-    const arg = a === 'buyKey' ? el.querySelector('#cheat-prop').value : undefined;
+    const arg = a === 'buyKey' ? el.querySelector('#cheat-prop').value : (a === 'car' || a === 'carHere') ? el.querySelector('#cheat-vehicle').value : undefined;
     let result;
     try { result = actions[a]?.(arg); } catch (err) { result = { message: 'Cheat failed: ' + err.message }; }
     say(result?.message || '');
