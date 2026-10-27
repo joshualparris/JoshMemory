@@ -2,6 +2,7 @@
 // and CollisionWorld as the pedestrian. Only owned, registered vehicles work.
 import * as THREE from 'three';
 import { VEHICLE_MODELS } from './vehicles.js';
+import {subdivisionRoadAllows} from './playable-subdivision.js';
 const MODEL={hatch:[1.65,3.4,0x397fbc,11],sedan:[1.84,4.4,0xb1b9c4,12],
  ute:[1.9,4.7,0xb78648,11],van:[2.05,5.4,0xe8e3d8,9],truck:[2.25,6.6,0x9a4d40,8]};
 const ROAD_Z0=-3.5*46+16;
@@ -26,7 +27,7 @@ export function roadAllows(x,z){
  // on road surfaces and marked access to the south-side dealership.
  const horizontal=Array.from({length:8},(_,i)=>Math.abs(z-(ROAD_Z0+i*46))).some(d=>d<=5);
  const vertical=[0,5,10,15,20,25].some(c=>Math.abs(x-(c-13)*26)<=5);
- return horizontal||vertical;
+ return horizontal||vertical||subdivisionRoadAllows(x,z);
 }
 export function createPlayerDriving(life,scene,collision,player,camera,input){
  const meshes=new Map();let active=null,speed=0,message='';
