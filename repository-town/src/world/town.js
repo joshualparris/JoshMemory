@@ -125,7 +125,7 @@ export function buildTown(scene, houses, streets) {
     // A single solid rectangular footprint blocked every visible front door.
     // Reserve the real 3D doorway and keep the rest of the building solid.
     colliders.push(...exteriorColliders(fp,lot.x,lot.z));
-    for (const y of fp.yard) colliders.push({ x0: lot.x + y.x0, x1: lot.x + y.x1, z0: lot.z + y.z0, z1: lot.z + y.z1 });
+    for (const y of fp.yard) colliders.push({ x0: lot.x + y.x0, x1: lot.x + y.x1, z0: lot.z + y.z0, z1: lot.z + y.z1, top: y.top ?? 1.5 });   // yard objects can be jumped onto
     const doorPos = new THREE.Vector3(lot.x + fp.door.x, 0, lot.z + fp.front);
     lots.set(h.coordinate, { house: h, lot, fp, doorPos, mesh });
   }

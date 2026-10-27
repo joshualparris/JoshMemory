@@ -59,6 +59,7 @@ jobs:
           node tests/exit-facing.mjs
           node tests/town-map-browser.mjs
           node tests/engine-sound-browser.mjs
+          node tests/climb-and-carry-browser.mjs
           node tests/off-road-browser.mjs
           node tests/cheat-menu-browser.mjs
           node tests/yeoval-browser.mjs

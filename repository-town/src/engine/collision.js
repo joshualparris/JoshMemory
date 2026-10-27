@@ -32,11 +32,15 @@ export class CollisionWorld {
     return out;
   }
 
-  hits(x, z, r) {
+  // feet: the body's height above the floor. A collider with a known top (furniture, a roof) no
+  // longer blocks once the feet are at or above it, so the player can jump onto it and walk across.
+  // Colliders without a top (walls, the world edge) block at any height.
+  hits(x, z, r, feet = 0) {
     // Dynamic AABBs (e.g. moving trucks) are queried live, not permanently
     // inserted into the static spatial index where they would leave ghosts.
     const moving = typeof this.dynamic === 'function' ? this.dynamic() : [];
     for (const c of [...this.near(x,z,r), ...moving]) {
+      if (c.top != null && feet >= c.top - 0.02) continue;
       const cx = Math.max(c.x0, Math.min(x, c.x1)), cz = Math.max(c.z0, Math.min(z, c.z1));
       if ((x - cx) ** 2 + (z - cz) ** 2 < r * r) return c;
     }
@@ -45,7 +49,7 @@ export class CollisionWorld {
 
   // Moves axis by axis so the player slides along walls instead of sticking.
   // Steps are subdivided so a fast run can never tunnel through a 0.4 m wall.
-  move(pos, dx, dz, r) {
+  move(pos, dx, dz, r, feet = 0) {
     const steps = Math.max(1, Math.ceil(Math.max(Math.abs(dx), Math.abs(dz)) / (r * 0.5)));
     const sx = dx / steps, sz = dz / steps;
     let blocked = false;
@@ -55,9 +59,9 @@ export class CollisionWorld {
       ? -Math.min(x - c.x0, c.x1 - x, z - c.z0, c.z1 - z)          // inside the box: negative depth
       : Math.hypot(x - Math.max(c.x0, Math.min(x, c.x1)), z - Math.max(c.z0, Math.min(z, c.z1)));
     const free = (x, z) => {
-      const h = this.hits(x, z, r);
+      const h = this.hits(x, z, r, feet);
       if (!h) return true;
-      const here = this.hits(pos.x, pos.z, r);
+      const here = this.hits(pos.x, pos.z, r, feet);
       return !!here && here.x0 === h.x0 && here.x1 === h.x1 && here.z0 === h.z0 && here.z1 === h.z1 && gap(h, x, z) > gap(h, pos.x, pos.z) + 1e-6;
     };
     for (let i = 0; i < steps; i++) {
@@ -65,5 +69,16 @@ export class CollisionWorld {
       if (free(pos.x, pos.z + sz)) pos.z += sz; else blocked = true;
     }
     return blocked;
+  }
+
+  // The highest top the body stands on at (x, z), at or below the feet: the floor is 0.
+  groundAt(x, z, r, feet = 0) {
+    let floor = 0;
+    for (const c of this.near(x, z, r)) {
+      if (c.top == null || c.top > feet + 0.05) continue;
+      const cx = Math.max(c.x0, Math.min(x, c.x1)), cz = Math.max(c.z0, Math.min(z, c.z1));
+      if ((x - cx) ** 2 + (z - cz) ** 2 < (r * 0.6) ** 2 && c.top > floor) floor = c.top;
+    }
+    return floor;
   }
 }

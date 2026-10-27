@@ -9,7 +9,7 @@ export function exteriorColliders(fp, x, z) {
   const half = fp.door.w / 2;
   const dLeft = Math.max(left, x + fp.door.x - half);
   const dRight = Math.min(right, x + fp.door.x + half);
-  if (dLeft >= dRight || front <= back) return [{x0:left,x1:right,z0:back,z1:front}];
+  if (dLeft >= dRight || front <= back) return [{x0:left,x1:right,z0:back,z1:front,...(Number.isFinite(fp.h)?{top:fp.h*0.75}:{})}];
   // An alcove 1.8 m deep lets the player cross the doorway's trigger plane
   // without also walking through the rest of the house.
   const rearEnd = Math.max(back,front - 1.8);
@@ -18,7 +18,10 @@ export function exteriorColliders(fp, x, z) {
     {x0:dRight,x1:right,z0:back,z1:front},
     {x0:dLeft,x1:dRight,z0:back,z1:rearEnd},
   ];
-  return parts.filter(p=>p.x1-p.x0>EPS && p.z1-p.z0>EPS);
+  // Roofs can be landed on (a big cheat jump): the top is taken at three-quarters of the overall
+  // height, roughly the middle of a pitched roof.
+  const top = Number.isFinite(fp.h) ? fp.h * 0.75 : undefined;
+  return parts.filter(p=>p.x1-p.x0>EPS && p.z1-p.z0>EPS).map(p=>top===undefined?p:{...p,top});
 }
 export function overlapping(a,b,pad=0){
   return a.x0 < b.x1+pad-EPS && a.x1 > b.x0-pad+EPS &&
