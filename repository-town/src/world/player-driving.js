@@ -164,7 +164,15 @@ export function createPlayerDriving(life,scene,collision,player,camera,input){
    // Automatic gears/RPM follow speed and throttle. Street speed limit applies to
    // all vehicles, including Ferraris, unless the user enables CHEAT closed-course.
    const throttle=-m.z;
-   const desired=intendedSpeedMs(v.model,throttle,{unrestricted:v.cheat===true&&v.cheatUnrestricted===true});
+   // Off-road is allowed (it is the driver's choice, legal or not) but slow and rough: grass, dirt and
+   // footpaths cap cars at 30 km/h and bikes at 40, with four times the wear. Buildings, walls,
+   // people and the world edge still stop the vehicle.
+   const offRoad=!roadAllows(v.x,v.z),offRoadCap=(spec.kind==='bike'?40:30)/3.6;
+   let desired=intendedSpeedMs(v.model,throttle,{unrestricted:v.cheat===true&&v.cheatUnrestricted===true});
+   if(offRoad)desired=clamp(desired,-offRoadCap*.5,offRoadCap);
+   if(offRoad&&!v.offRoad)message='Off-road: rough going and extra wear. Driving on footpaths or parks is an offence in NSW.';
+   if(!offRoad&&v.offRoad)message='Back on the road.';
+   v.offRoad=offRoad;
    const accel=throttle<-.01?Math.min(3,accelerationMs2(v.model,speed,throttle)):accelerationMs2(v.model,speed,throttle);
    const braking=throttle===0?8.5:accel;
    speed+=clamp(desired-speed,-braking*dt,braking*dt);
@@ -180,7 +188,7 @@ export function createPlayerDriving(life,scene,collision,player,camera,input){
      const nx=v.x+dx,nz=v.z+dz;
      const pedestrian=life.villagers.some(p=>!p.inside&&Math.hypot(nx-p.x,nz-p.z)<(spec.kind==='bike'?1.25:2.2));
      const parked=(life.civic.motor.owned||[]).some(o=>o!==v&&Number.isFinite(o.x)&&Math.hypot(nx-o.x,nz-o.z)<(spec.length+vehicleSpec(o.model).length)*.35);
-     if(!roadAllows(nx,nz)||pedestrian||parked||collision.hits(nx,nz,Math.min(1.15,spec.width/2+.1))){blocked=true;break;}
+     if(pedestrian||parked||collision.hits(nx,nz,Math.min(1.15,spec.width/2+.1))){blocked=true;break;}
      distance+=Math.hypot(dx,dz);v.x=nx;v.z=nz;
    }
    v.yaw=yaw;
@@ -188,9 +196,9 @@ export function createPlayerDriving(life,scene,collision,player,camera,input){
    // The original game fuel economy is highly compressed; retain save-game
    // compatibility while differentiating heavy trucks and smaller bikes.
    v.fuel=Math.max(0,(v.fuel||0)-distance*(spec.kind==='bike'?.0012:v.model==='truck'?.0045:.003));
-   v.condition=r2(Math.max(0,(v.condition||100)-distance*.00008));
+   v.condition=r2(Math.max(0,(v.condition||100)-distance*(offRoad?.00032:.00008)));
    if(v.condition<60)v.roadworthy=false;
-   if(blocked){speed=0;message='Brake! Road edge, pedestrian or obstruction.';}
+   if(blocked){speed=0;message='Brake! Pedestrian, vehicle or obstruction ahead.';}
    v.speed=speed;
    const transmission=transmissionFor(v.model,speed,throttle);
    v.gear=transmission.gear;v.rpm=transmission.rpm;v.throttle=Math.max(0,Math.min(1,throttle));   // accelerator position, for engine load in vehicle-audio.js

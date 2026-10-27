@@ -1220,7 +1220,7 @@ async function start() {
     else {
       const n=life.needsReport();
       player.speedFactor=movementSpeedFactor(movementSpeed,n.hunger,n.fatigue);
-      if(mode==='town'&&driving.driving) driving.update(dt);
+      if(mode==='town'&&driving.driving){ driving.update(dt); if(driving.message){ status(driving.message); driving.clearMessage(); } }
       else player.update(dt,input,world);
     }
     drivingDashboard.update(mode==='town'&&!overview?driving.activeVehicle():null);

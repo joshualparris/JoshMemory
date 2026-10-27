@@ -47,7 +47,7 @@ try {
     }
 
     if (!(await menu()).open) { if (mobile) await tapTitle(); else for (let i = 0; i < 3; i++) await page.keyboard.press('Backquote'); }
-    step(/Summon car/.test((await menu()).text), `${tag} menu reopens already unlocked this session`);
+    step(/Summon (car|selected vehicle)/.test((await menu()).text), `${tag} menu reopens already unlocked this session`);
     const wallet0 = await page.evaluate(() => window.__town.life.ledger().civic.player.wallet);
     await run('money');
     const wallet1 = await page.evaluate(() => window.__town.life.ledger().civic.player.wallet);
