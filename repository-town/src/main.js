@@ -61,6 +61,7 @@ import { separatePedestrians, steerPedestrians } from './world/pedestrian-spacin
 import { createTownLife } from './world/townlife.js';
 import { createEmergencyResponseVisuals } from './world/emergency-response-visuals.js';
 import { createPlayerDriving } from './world/player-driving.js';
+import { createDrivingDashboard } from './ui/driving-dashboard.js';
 import { nearestSeat } from './world/seats.js';
 import { furniturePanel } from './ui/furniture.js';
 import { createAmbience } from './ui/ambience.js';
@@ -233,6 +234,7 @@ async function start() {
   });
   showSpeedSetting();
   const driving=createPlayerDriving(life,scene,townWorld,player,camera,input);
+  const drivingDashboard=createDrivingDashboard();
   const tableOrder = document.createElement('button');
   tableOrder.id='btn-table-order';tableOrder.type='button';
   tableOrder.textContent='🍽 Order at table';
@@ -1169,8 +1171,9 @@ async function start() {
     }
     // While a game is open the town neither renders nor reacts, so the game gets the whole device.
     syncOverlayHud();
-    if (sleeping) { input.reset(); requestAnimationFrame(frame); return; }
+    if (sleeping) { drivingDashboard.update(null); input.reset(); requestAnimationFrame(frame); return; }
     if (playing) {
+      drivingDashboard.update(null);
       if (input.consume('back')) stopGame();
       input.takeLook(); for (const k of ['use', 'jump', 'map']) input.consume(k);
       requestAnimationFrame(frame);
@@ -1189,6 +1192,7 @@ async function start() {
       if(mode==='town'&&driving.driving) driving.update(dt);
       else player.update(dt,input,world);
     }
+    drivingDashboard.update(mode==='town'&&!overview?driving.activeVehicle():null);
     // Keep the table-service control in the always-visible needs strip on
     // phones with the rest of the HUD collapsed.
     tableOrder.hidden=!(player.seated && mode==='house' &&
@@ -1557,6 +1561,7 @@ async function start() {
     // Stands at the Town Guide kiosk, facing it.
     meetGuide() { if (mode === 'house') leave(false); player.place(town.guidePos.x, town.guidePos.z + 1.6, 0); return 'guide'; },
     goPlace,
+    driveDashboard:()=>drivingDashboard.getState(),
     driveDiagnostics:()=>({
       input:input.movement(),touch:input.touch,
       active:driving.activeVehicle()?.registration||null,
