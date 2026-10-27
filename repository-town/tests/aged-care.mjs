@@ -5,7 +5,7 @@ import {AGED_CARE as L} from '../src/world/aged-care-layout.js';
 import {EXPANSION_SITES} from '../src/world/town-expansion.js';
 import {expansionFootprint,buildExpansionFacade} from '../src/world/town-expansion-facades.js';
 import {buildCivicInterior} from '../src/world/shop-interior.js';
-import {Builder} from '../src/world/builder.js';
+import {Builder,animate} from '../src/world/builder.js';
 import {civicExitPose} from '../src/world/shop-exit.js';
 const site=EXPANSION_SITES.find(s=>s.id==='agedcare');
 assert(site && site.col==='P' && site.row===7 && site.side==='north' && site.taskId==='RTBUILD-016');
@@ -18,6 +18,9 @@ assert(b.glass.length>5,'glazed residential windows and entry are not an opaque 
 const label=()=>new THREE.Sprite(new THREE.SpriteMaterial());
 const room=buildCivicInterior(site,label);
 assert.equal(room.agedCareLayout,L,'must dispatch to dedicated small household');
+assert(Array.isArray(room.dynamics),'custom interior always provides animation list');
+assert.doesNotThrow(()=>animate(room.dynamics,1,new Set()));
+assert.doesNotThrow(()=>animate(undefined,1,new Set()));
 // Regression: this interior uses plain doorway metadata, not animated Three.js door meshes.
 // Previously main.js accessed d.userData.privacy on these objects and crashed immediately.
 assert(room.doors.length>0,'aged-care interior must provide room connection metadata');
