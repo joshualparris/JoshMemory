@@ -87,7 +87,7 @@ export function createDrivingDashboard(){
    text(el,'drive-speed',d.speedKmh);
    text(el,'drive-gear',d.direction);
    text(el,'drive-rpm',d.rpm+' RPM approx.');
-   text(el,'drive-fuel',d.fuelLitres.toFixed(1)+' L');
+   text(el,'drive-fuel',d.fuelLitres.toFixed(2)+' L');
    text(el,'drive-temp',d.coolantC+' °C');
    text(el,'drive-range','~'+d.approximateRangeKm+' km game range');
    text(el,'drive-odo',d.odometerKm.toFixed(1)+' km');
