@@ -28,8 +28,8 @@ export const PLANNED_ROADS=Object.freeze([
 // built master plan (masterplan-built.js) supersedes; the concept data itself stays as a record.
 export function buildOutskirts(group,{omitParcels=[],roads=true}={}){
  const plots=new THREE.Group();plots.name='Future land-use reservations (concept only)';
- const ground=new THREE.Mesh(new THREE.PlaneGeometry(1100,950),new THREE.MeshLambertMaterial({color:0x80b571}));
- ground.rotation.x=-Math.PI/2;ground.position.y=-.095;plots.add(ground);
+ const ground=new THREE.Mesh(new THREE.PlaneGeometry(2200,1150),new THREE.MeshLambertMaterial({color:0x80b571}));
+ ground.rotation.x=-Math.PI/2;ground.position.set(-490,-.095,25);plots.add(ground);
  const roadMaterial=new THREE.MeshLambertMaterial({color:0x55585a});
  for(const road of roads?PLANNED_ROADS:[]){
   const mesh=new THREE.Mesh(new THREE.BoxGeometry(road.w,.025,road.d),roadMaterial);
