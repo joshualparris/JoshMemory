@@ -22,6 +22,7 @@ import { loadSave, writeSave, clearSave } from './engine/save.js';
 import { discoveryProgress } from './ui/discovery-log.js';
 import { buildTown, streetSigns, lotPosition } from './world/town.js';
 import { buildYeovalInterior } from './world/yeoval-interior.js';
+import { buildMasterplan } from './world/masterplan-built.js';
 import { buildBrackenInterior } from './world/bracken-interior.js';
 import { houseAddress, parseTownAddress } from './world/addresses.js';
 import { buildInterior, labelVisible } from './world/interior.js';
@@ -160,6 +161,7 @@ async function start() {
   // Smooth mode draws less of the distance; phones start with it on.
   let lowPerf = touch;
   streetSigns(town.group, data.streets, makeLabel);
+  const masterplan = buildMasterplan(town.group, makeLabel);
   for (const site of town.campuses || []) {
     const sign=makeLabel(site.name+' · Aged care campus', 'house');
     sign.position.set(
@@ -169,8 +171,10 @@ async function start() {
   }
   const half = { x: town.bounds.width / 2, z: town.bounds.depth / 2 };
   const edges = [
-    { x0: -half.x - 5, x1: half.x + 5, z0: -395, z1: -390 }, { x0: -half.x - 5, x1: half.x + 5, z0: half.z, z1: half.z + 5 },
-    { x0: -half.x - 5, x1: -half.x, z0: -half.z, z1: half.z }, { x0: half.x, x1: half.x + 5, z0: -half.z, z1: half.z },
+    // The walkable world now includes the master-plan neighbourhood south of the farms and the
+    // employment lots to the east (masterplan-built.js); the ground plane spans x ±550, z ±475.
+    { x0: -545, x1: 545, z0: -395, z1: -390 }, { x0: -545, x1: 545, z0: 470, z1: 475 },
+    { x0: -545, x1: -540, z0: -395, z1: 475 }, { x0: 540, x1: 545, z0: -395, z1: 475 },
   ];
   const townWorld = new CollisionWorld([...town.colliders, ...townLife.colliders, ...edges]);
   // Dynamic vehicle footprints block player motion as well as truck movement.

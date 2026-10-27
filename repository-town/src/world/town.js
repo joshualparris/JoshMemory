@@ -35,7 +35,9 @@ export function buildTown(scene, houses, streets) {
   ground.rotation.x = -Math.PI / 2;
   ground.position.y = -0.06;
   group.add(ground);
-  const outskirts = buildOutskirts(group);
+  // Southern concept reserves and the disconnected concept strips are superseded by the built
+  // master plan (src/world/masterplan-built.js), which main.js adds with its labels.
+  const outskirts = buildOutskirts(group, { omitParcels: ['S-R1', 'S-AG1', 'S-AG2'], roads: false });
 
   const deco = new Builder();
   for (let r = 0; r < 8; r++) {
