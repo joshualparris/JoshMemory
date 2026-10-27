@@ -15,7 +15,7 @@
     "repository-town/src/world/power-grid.js": "6de3f54d8fe576117594fe36124748e36da4e255",
     "repository-town/src/world/pub-interior.js": "46396a0552d2480f3c31585e77199803433ab6b6",
     "repository-town/src/world/shop-interior.js": "8a3a2ed135b56c3b6b0baea7a38dde26addec5ce",
-    "repository-town/src/world/townlife.js": "0ff8583379639caea19c1ecf7e25938064f1b37b",
+    "repository-town/src/world/townlife.js": "a2135503bc78bad6c6880a96df9fb4d5944d26f6",
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
@@ -724,7 +724,8 @@
     "2026-10-27 PR242 integration re-audit: main.js world map display/boundary expansion and shared life.js northern footpath routing changed. Git hashes refreshed for provenance, not proof of pub code compliance, measured egress or professional certification.",
     "2026-10-27 footpath re-audit: eastbound north-side pavement lane adjusted to 5.0 m, westbound 7.05 m for cyclist separation. Does not assert pub compliance.",
     "2026-10-27 alias routing re-audit: HUD fast travel accepts the legacy 'Repo Public Library' name for the existing 'The Old Shire Library' civic site. Pure search selection change; pub geometry, operations, egress and NCC regulatory status unchanged. This fingerprint does not certify compliance.",
-    "2026-10-27 world-home ground-floor update: main.js now opens distinct country interiors without modifying any pub equipment or approvals. Source fingerprint refresh tracks code provenance only."
+    "2026-10-27 world-home ground-floor update: main.js now opens distinct country interiors without modifying any pub equipment or approvals. Source fingerprint refresh tracks code provenance only.",
+    "2026-10-27 shared townlife figure-placement normalization for cycling/storybook character compatibility. RTPUB 001-034 compliance labels remain unchanged."
   ],
   "sourceChangeReviews": {
     "2026-10-26-rail-corridor": {
@@ -741,6 +742,11 @@
       "scope": "HUD name matching for library",
       "verification": "Alias routes to existing canonical civic site via goPlace, not a new building or modified pub structure",
       "regulatoryStatus": "No change to 34 RTPUB status entries or claims of compliance."
+    },
+    "2026-10-27-bicycle-storybook": {
+      "scope": "Resident/cyclist world-space mesh y-coordinate, no pub changes",
+      "verification": "Equivalent height conditional with explicit riding case, avoids bicycles floating",
+      "regulatoryStatus": "No regulatory/structural certification asserted."
     }
   },
   "reaudits": [
@@ -880,6 +886,15 @@
         "repository-town/src/main.js"
       ],
       "finding": "townlife.js: optional rigged resident models in the villager draw loop; main.js: Settings resident-style buttons and test hook. No pub layout, service or utility change."
+    },
+    {
+      "date": "2026-10-27",
+      "by": "ChatGPT",
+      "changedFiles": [
+        "repository-town/src/world/townlife.js"
+      ],
+      "finding": "Explicit bicycle wheel-grounded height ternary equivalent to existing riding||modelled condition; no pub geometry, egress, services or regulatory classification changes.",
+      "evidence": "Source review and bicycle-clearance.mjs geometry assertion; records provenance only, does not certify the pub."
     }
   ]
 }
