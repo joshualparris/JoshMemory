@@ -26,6 +26,7 @@ import { buildMasterplan } from './world/masterplan-built.js';
 import { CORE_ROADS } from './world/masterplan-model.js';
 import { RAIL_Z } from './world/rail-corridor.js';
 import { createTownMap } from './ui/town-map.js';
+import { createCarDash } from './ui/car-dash.js';
 import { createCheatMenu } from './ui/cheat-menu.js';
 import { summonCar, claimProperty, nearestPropertyKey, planTitleKey, addMoney, refreshNeeds, fixAllCars, setClock } from './world/cheats.js';
 import { buildBrackenInterior } from './world/bracken-interior.js';
@@ -75,8 +76,11 @@ import { createExpedition } from './adventure/expedition.js';
 const $ = (id) => document.getElementById(id);
 const status = (t) => { $('status').textContent = t; };
 const fail = (e) => { $('loading').hidden = false; $('loading').classList.add('error'); $('loading-text').textContent = 'Could not start: ' + (e?.message || e); console.error(e); };
-addEventListener('error', (e) => fail(e.error || e.message));
-addEventListener('unhandledrejection', (e) => fail(e.reason));
+// Before the town is running an error is fatal; afterwards one bad action must not blank the game.
+let started = false;
+const runtimeError = (e) => { if (!started) return fail(e); console.error(e); const s = document.getElementById('status'); if (s) s.textContent = 'Something went wrong (' + (e?.message || e) + '). The town is still running.'; };
+addEventListener('error', (e) => runtimeError(e.error || e.message));
+addEventListener('unhandledrejection', (e) => runtimeError(e.reason));
 
 const SKY = 0x96c9f0, INDOOR = 0x1a1612;
 
@@ -161,6 +165,7 @@ async function start() {
   initialiseNPCWorksites(streetNPCs, town.group);
   let nearPerson = null, nearNPC = null, nearTownSeat = null;
   const ambience = createAmbience();
+  const carDash = createCarDash({ getVehicle: () => driving.activeVehicle(), isDriving: () => mode === 'town' && driving.driving, getDay: () => life.day, getLog: () => life.events.map((e) => e.text) });
   const wake = () => ambience.start();
   addEventListener('pointerdown', wake); addEventListener('keydown', wake);
   // Smooth mode draws less of the distance; phones start with it on.
@@ -645,7 +650,7 @@ async function start() {
       buyKey: (raw) => {
         const v = String(raw || '').trim(); if (!v) return { message: 'Type a house grid code like A1, or B:bakery.' };
         let key = /^[HBP]:/i.test(v) ? v[0].toUpperCase() + v.slice(1) : /^[A-Z][1-8]$/i.test(v) ? 'H:' + v.toUpperCase() : planTitleKey(v);
-        if (!key) { const p = [...life.places.values()].find((q) => q.name.toLowerCase().includes(v.toLowerCase())); key = p ? 'B:' + p.id : null; }
+        if (!key) { const p = [...life.places.values()].find((q) => String(q.name ?? '').toLowerCase().includes(v.toLowerCase())); key = p ? 'B:' + p.id : null; }
         return key ? claimProperty(life, key) : { message: `No property matches “${v}”.` };
       },
       t8: () => setClock(life, 8 * 60), t13: () => setClock(life, 13 * 60), t20: () => setClock(life, 20 * 60),
@@ -1168,6 +1173,7 @@ async function start() {
       if(mode==='town'&&driving.driving) driving.update(dt);
       else player.update(dt,input,world);
     }
+    carDash.update(dt);
     // Keep the table-service control in the always-visible needs strip on
     // phones with the rest of the HUD collapsed.
     tableOrder.hidden=!(player.seated && mode==='house' &&
@@ -1570,11 +1576,11 @@ async function start() {
     answer(i) { const b = $('panel-actions').querySelectorAll('button')[i]; if (b) b.click(); return !!b; },
     closePanel,
     townMap,
-    cheats,
+    cheats, carDash,
   };
 
   $('loading').hidden = true;
   requestAnimationFrame(frame);
 }
 
-start().catch(fail);
+start().then(() => { started = true; }, fail);

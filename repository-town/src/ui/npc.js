@@ -185,7 +185,7 @@ function townReply(t, town, pick) {
 
 // Without a model: varied, conversational replies built from the same facts.
 function scripted(house, name, f, text, role, town) {
-  const t = text.toLowerCase().trim();
+  const t = String(text ?? '').toLowerCase().trim();
   // When asked what was actually said in a yarn, quote the saved simulation
   // dialogue verbatim. Never invent an overheard exchange in the AI fallback.
   if (/yarn|overheard|what (did|were) (you|they) say|exact(ly)? what.*said|conversation with/.test(t)) {
