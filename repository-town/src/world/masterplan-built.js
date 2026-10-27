@@ -8,6 +8,9 @@
 // left and even on the right when travelling away from the datum. These are fictional
 // in-game addresses, not Geographical Names Board approvals.
 import * as THREE from 'three';
+import { Builder } from './builder.js';
+import { buildExterior } from './exterior.js';
+import { exteriorColliders } from './exterior-collision.js';
 import { SELECTED_PLAN, CORE_ROADS, planAddresses, roadRect, graph } from './masterplan-model.js';
 
 // Fictional names: native plants for residential streets, working names for the farm and
@@ -56,6 +59,45 @@ export function planJunctions() {
     const ids = new Set(n.edges.map((e) => e.roadId));
     return ids.size > 1 && [...ids].some((id) => PLAN_ROAD_NAMES[id]);
   }).map((n) => ({ x: n.x, z: n.z, roads: [...new Set(n.edges.map((e) => e.roadId))].map((id) => byId.get(id)?.name || id) }));
+}
+
+// A home on every residential lot, using the town's own house styles. Each style is chosen
+// to fit its frontage with at least 2 m side setbacks; fronts sit 6 m behind the boundary.
+const HOME_STYLES = [
+  { style: 'cottage', w: 9 }, { style: 'townhouse', w: 8 }, { style: 'cabin', w: 9 },
+  { style: 'modern', w: 11 }, { style: 'terrace', w: 12 }, { style: 'mansion', w: 14 },
+];
+const HOME_COLOURS = [
+  { walls: 0xe8dcc4, roof: 0x8b4a3c, trim: 0xffffff }, { walls: 0xc9d6cf, roof: 0x4a5560, trim: 0xf4f1e8 },
+  { walls: 0xd9b48f, roof: 0x5b3a29, trim: 0xf0e6d2 }, { walls: 0xf1ece0, roof: 0x2f4f5f, trim: 0x8a6d4b },
+  { walls: 0xb7c4a5, roof: 0x6b4b3a, trim: 0xffffff }, { walls: 0xe6c9b8, roof: 0x3d4a3f, trim: 0xf7f2e7 },
+];
+export const PLAN_HOMES = Object.freeze(PLAN_PARCELS.filter((p) => p.use === 'residential').map((p, i) => {
+  const fits = HOME_STYLES.filter((h) => h.w <= p.w - 4 && (h.style !== 'mansion' || p.w >= 24));
+  const choice = fits[(i * 7 + p.number) % fits.length];
+  const road = PLAN_ROADS.find((r) => r.id === p.roadId);
+  // Default houses face +z (south). A lot whose road is to its north turns to face it.
+  const facesNorth = road.a.z === road.b.z && road.a.z < p.z;
+  return Object.freeze({ parcelId: p.id, address: p.address, style: choice.style, colours: HOME_COLOURS[(i * 5 + 2) % HOME_COLOURS.length], facesNorth, x: p.x, frontZ: facesNorth ? p.z - p.d / 2 + 6 : p.z + p.d / 2 - 6 });
+}));
+
+function buildHomes(root) {
+  const colliders = [];
+  for (const h of PLAN_HOMES) {
+    const b = new Builder(); b.glass = [];
+    const fp = buildExterior(b, { style: h.style }, h.colours, {});
+    // Position so the front wall sits on frontZ; rotate π for north-facing lots.
+    const cz = h.facesNorth ? h.frontZ + fp.front : h.frontZ - fp.front;
+    const mesh = b.build(); mesh.position.set(h.x, 0, cz); if (h.facesNorth) mesh.rotation.y = Math.PI;
+    mesh.name = `${h.address} (${h.style})`; root.add(mesh);
+    const glass = Builder.merge(b.glass);
+    if (glass) { const g = new THREE.Mesh(glass, new THREE.MeshLambertMaterial({ vertexColors: true })); g.position.copy(mesh.position); g.rotation.y = mesh.rotation.y; root.add(g); }
+    for (const c of [...exteriorColliders(fp, 0, 0), ...fp.yard]) {
+      // Rotating π about the house origin mirrors both axes.
+      colliders.push(h.facesNorth ? { x0: h.x - c.x1, x1: h.x - c.x0, z0: cz - c.z1, z1: cz - c.z0 } : { x0: h.x + c.x0, x1: h.x + c.x1, z0: cz + c.z0, z1: cz + c.z1 });
+    }
+  }
+  return colliders;
 }
 
 export function buildMasterplan(group, makeLabel = null) {
@@ -112,6 +154,7 @@ export function buildMasterplan(group, makeLabel = null) {
       s.scale.multiplyScalar(0.8); s.position.set(j.x + 6, 3.2, j.z + 6); root.add(s);
     }
   }
+  const colliders = buildHomes(root);
   group.add(root);
-  return { group: root, roads: PLAN_ROADS, parcels: PLAN_PARCELS };
+  return { group: root, roads: PLAN_ROADS, parcels: PLAN_PARCELS, homes: PLAN_HOMES, colliders };
 }

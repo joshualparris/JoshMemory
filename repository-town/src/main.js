@@ -181,7 +181,7 @@ async function start() {
     { x0: -545, x1: 545, z0: -395, z1: -390 }, { x0: -545, x1: 545, z0: 470, z1: 475 },
     { x0: -545, x1: -540, z0: -395, z1: 475 }, { x0: 540, x1: 545, z0: -395, z1: 475 },
   ];
-  const townWorld = new CollisionWorld([...town.colliders, ...townLife.colliders, ...edges]);
+  const townWorld = new CollisionWorld([...town.colliders, ...townLife.colliders, ...masterplan.colliders, ...edges]);
   // Dynamic vehicle footprints block player motion as well as truck movement.
   // A vehicle is approx 2.2m wide and 6.6m long; use a conservative
   // rotated-axis AABB for the town's existing 2D collision engine.
@@ -602,7 +602,10 @@ async function start() {
       ];
       const fields = [...life.places.values()].filter((p) => p.field).map((p) => p.field);
       const reserves = (town.outskirts?.parcels || []).filter((r) => !['S-R1', 'S-AG1', 'S-AG2'].includes(r.id));
-      return { roads, buildings, parcels: masterplan.parcels, fields, reserves, railZ: RAIL_Z };
+      for (const h of masterplan.homes) buildings.push({ id: 'P:' + h.parcelId, name: h.address, address: `New ${h.style} home`, detail: 'Master plan D · Wattle/Banksia neighbourhood', x: h.x, z: h.facesNorth ? h.frontZ + 5 : h.frontZ - 5, w: 10, d: 9 });
+      const homeOn = new Map(masterplan.homes.map((h) => [h.parcelId, h]));
+      const parcels = masterplan.parcels.map((p) => ({ ...p, status: homeOn.has(p.id) ? `New ${homeOn.get(p.id).style} home built` : p.use === 'park' ? 'Open space' : 'Vacant site, not yet serviced' }));
+      return { roads, buildings, parcels, fields, reserves, railZ: RAIL_Z };
     },
     getPlayer: () => (mode === 'town' ? { x: player.pos.x, z: player.pos.z, yaw: player.yaw } : null),
     onOpen: () => { input.reset(); closePanel(); },

@@ -2,7 +2,8 @@
 // one connected road network tied into Street 8, bounded driving, and no overlaps.
 //   node tests/masterplan-built.mjs
 import assert from 'node:assert/strict';
-import { PLAN_ROADS, PLAN_PARCELS, PLAN_ROAD_NAMES, onPlannedOrCoreRoad, planJunctions } from '../src/world/masterplan-built.js';
+import * as THREE from 'three';
+import { PLAN_ROADS, PLAN_PARCELS, PLAN_ROAD_NAMES, PLAN_HOMES, buildMasterplan, onPlannedOrCoreRoad, planJunctions } from '../src/world/masterplan-built.js';
 import { CORE_ROADS, graph, rect, overlap, roadRect, frontage } from '../src/world/masterplan-model.js';
 import { roadAllows } from '../src/world/player-driving.js';
 
@@ -52,4 +53,18 @@ assert(!roadAllows(900, -145), 'Arcade Avenue no longer extends infinitely east'
 assert(!roadAllows(-78, 600), 'avenues no longer extend infinitely south');
 assert(!roadAllows(100, 320), 'parcels between streets are not road');
 assert.equal(onPlannedOrCoreRoad(0, 0), false, 'between streets is not road');
-console.log('PASS: 52 addressed parcels, one connected network tied into Street 8, bounded driving, no overlaps');
+// A home on every residential lot, wholly inside its own lot with its walls solid.
+assert.equal(PLAN_HOMES.length, 48, 'every residential lot has a home');
+const built = buildMasterplan(new THREE.Group());
+assert(built.colliders.length >= 48, 'homes are solid');
+for (const c of built.colliders) {
+  const lot = PLAN_PARCELS.find((p) => c.x0 >= p.x - p.w / 2 - 1e-6 && c.x1 <= p.x + p.w / 2 + 1e-6 && c.z0 >= p.z - p.d / 2 - 1e-6 && c.z1 <= p.z + p.d / 2 + 1e-6);
+  assert(lot, `house wall ${JSON.stringify(c)} lies inside a single lot`);
+  for (const r of PLAN_ROADS) assert(!overlap(c, roadRect(r, true)), `house wall intrudes into ${r.name}`);
+}
+for (const h of PLAN_HOMES) {
+  const p = PLAN_PARCELS.find((q) => q.id === h.parcelId);
+  const front = h.facesNorth ? p.z - p.d / 2 : p.z + p.d / 2;
+  assert(Math.abs(Math.abs(h.frontZ - front) - 6) < 1e-6, `${h.address} has a 6 m front setback`);
+}
+console.log('PASS: 48 homes inside their lots, 52 addressed parcels, one connected network tied into Street 8, bounded driving, no overlaps');

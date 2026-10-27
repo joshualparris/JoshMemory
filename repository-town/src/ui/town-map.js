@@ -108,7 +108,7 @@ export function createTownMap({ getData, getPlayer, onOpen, onClose }) {
     selected = item;
     if (!item) { info.hidden = true; draw(); return; }
     const lines = item.kind === 'parcel'
-      ? [`<b>${esc(item.address || item.id)}</b>`, `${esc(item.label)} · ${Math.round(item.w)} × ${Math.round(item.d)} m (${Math.round(item.w * item.d).toLocaleString('en-AU')} m²)`, `Parcel ${esc(item.id)} · master plan D · vacant, not yet serviced`]
+      ? [`<b>${esc(item.address || item.id)}</b>`, `${esc(item.label)} · ${Math.round(item.w)} × ${Math.round(item.d)} m (${Math.round(item.w * item.d).toLocaleString('en-AU')} m²)`, `Parcel ${esc(item.id)} · ${esc(item.status || 'master plan D')}`]
       : item.kind === 'building' ? [`<b>${esc(item.name)}</b>`, esc(item.address || ''), esc(item.detail || '')]
       : item.kind === 'road' ? [`<b>${esc(item.name || item.id)}</b>`, item.plan ? 'New master-plan road · driveable' : 'Existing town road']
       : [`<b>${esc(item.name)}</b>`, `Future land-use reserve (${esc(item.zone)}) · concept only, no road access yet`];

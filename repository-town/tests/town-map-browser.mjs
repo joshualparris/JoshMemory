@@ -48,9 +48,9 @@ try {
 
     // Search an address.
     const found = await page.evaluate(() => window.__town.townMap.select('2 Wattle Street'));
-    step(found?.address === '2 Wattle Street' && found.kind === 'parcel', `${tag} search finds 2 Wattle Street`);
+    step((found?.address === '2 Wattle Street' || found?.name === '2 Wattle Street'), `${tag} search finds 2 Wattle Street (${found?.kind}: ${found?.address})`);
     const infoText = await page.evaluate(() => document.querySelector('#town-map .info').innerText);
-    step(/2 Wattle Street/.test(infoText) && /m²/.test(infoText), `${tag} info card: ${infoText.replace(/\n/g, ' | ')}`);
+    step(/2 Wattle Street/.test(infoText) && /home|m²/.test(infoText), `${tag} info card: ${infoText.replace(/\n/g, ' | ')}`);
     const bank = await page.evaluate(() => window.__town.townMap.select('Community Bank'));
     step(bank?.kind === 'building' && /Bank/.test(bank.name), `${tag} search finds a town building: ${bank?.name} ${bank?.address}`);
 
