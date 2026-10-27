@@ -419,7 +419,7 @@ function buildOnce(house, makeLabel, attempt) {
 }
 
 // True when nothing in `sight` (walls, lintels, closed doors) sits between eye and label.
-export function labelVisible(eye, at, sight) {
+export function labelVisible(eye, at, sight = []) {
   const dx = at.x - eye.x, dy = at.y - eye.y, dz = at.z - eye.z;
   for (const bx of sight) {
     if (bx.door && bx.door.userData.open > 0.3) continue;

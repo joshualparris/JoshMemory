@@ -161,7 +161,7 @@ export function buildYeovalInterior(makeLabel) {
   info('evidence','Model accuracy and privacy','Exterior wing arrangement, portico, metal roof and general colours are drawn from the publicly supplied 2026 Street View and aerial screenshot. Interior wall positions are illustrative: never use the model for emergency access or resident navigation.',2.2,10.5);
   // NOTE: leave front door unblocked; the global game exit sensor uses z1.
   return {group,colliders,interactables,placedProps,sceneObjects,seats,windows,
-    rooms,doors:[],dynamics:[],walkers:[],
+    rooms,doors:[],dynamics:[],walkers:[],sight:[],
     bounds:{x0:-35.1,x1:35.1,z0:-28.6,z1:17.2},
     spawn:new THREE.Vector3(0,0,14.25),
     exitZone:{x0:-1.3,x1:1.3,z0:16.9,z1:18.6},
