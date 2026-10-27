@@ -11,6 +11,8 @@ import * as THREE from 'three';
 import { Builder } from './builder.js';
 import { COUNTRY_HOMES, countryDesign, buildCountryHome } from './country-homes.js';
 import { exteriorColliders } from './exterior-collision.js';
+import { estateStreetLightLocations } from './estate-lighting.js';
+import { lightingLevel } from './lighting.js';
 import { SELECTED_PLAN, CORE_ROADS, planAddresses, roadRect, graph } from './masterplan-model.js';
 
 // Fictional names: native plants for residential streets, working names for the farm and
@@ -29,6 +31,7 @@ export const PLAN_ROAD_NAMES = Object.freeze({
 const USE_LABEL = { residential: 'Residential lot', community: 'Community campus', park: 'Neighbourhood park', employment: 'Employment lot', buffer: 'Landscape buffer' };
 
 export const PLAN_ROADS = Object.freeze(SELECTED_PLAN.roads.map((r) => Object.freeze({ ...r, name: PLAN_ROAD_NAMES[r.id] || r.id })));
+export const ESTATE_LAMPS = estateStreetLightLocations(PLAN_ROADS);
 
 const ADDRESS_RECORDS = planAddresses(SELECTED_PLAN);
 export const PLAN_PARCELS = Object.freeze(SELECTED_PLAN.parcels.map((p) => {
@@ -172,7 +175,35 @@ export function buildMasterplan(group, makeLabel = null) {
     access.box(0xd5c8b5,w.width,.045,w.lengthM+.3,w.x,.035,(w.z0+w.z1)/2);
   }
   root.add(access.build());
-  const colliders = buildHomes(root);
+  // Every new estate road gets permanent, correctly spaced poles and a visible
+  // luminaire head. A tiny shared set of actual spotlights follows the player
+  // via town.streetLighting; the head meshes give persistent dusk illumination
+  // without 200+ expensive mobile real-time lights.
+  const poles=new Builder(), heads=new Builder();
+  const streetLampSources=[];
+  for(const l of ESTATE_LAMPS){
+    poles.cyl(0x43494d,.11,l.height,l.x,l.height/2,l.z);
+    poles.box(0x43494d,.085,.085,2.25,(l.x+l.headX)/2,l.height-.17,(l.z+l.headZ)/2,
+      Math.abs(l.headX-l.x)>0?Math.PI/2:0);
+    poles.box(0x31393e,.66,.20,.50,l.headX,l.height-.16,l.headZ,
+      Math.abs(l.headX-l.x)>0?Math.PI/2:0);
+    heads.box(0xffe4a4,.54,.075,.38,l.headX,l.height-.31,l.headZ,
+      Math.abs(l.headX-l.x)>0?Math.PI/2:0);
+    // A pole behind the 2m footpath has a real collision footprint.
+    poles.solid(.38,.38,l.x,l.z);
+    streetLampSources.push({x:l.headX,y:l.height-.36,z:l.headZ,
+      roadwardX:l.roadwardX,roadwardZ:l.roadwardZ,estate:true});
+  }
+  root.add(poles.build());
+  const lampHeads=new THREE.Mesh(Builder.merge(heads.parts),
+    new THREE.MeshLambertMaterial({vertexColors:true,emissive:0xffd78c,emissiveIntensity:0}));
+  lampHeads.name='Wattle, Banksia, Grevillea and connecting road luminaires';
+  root.add(lampHeads);
+  const setNight=(dark,powered=true)=>{
+    lampHeads.material.emissiveIntensity=powered?1.5*lightingLevel(dark):0;
+  };
+  const colliders=[...buildHomes(root),...poles.solids];
   group.add(root);
-  return { group: root, roads: PLAN_ROADS, parcels: PLAN_PARCELS, homes: PLAN_HOMES, colliders };
+  return { group: root, roads: PLAN_ROADS, parcels: PLAN_PARCELS, homes: PLAN_HOMES,
+    colliders, streetLampSources, lampHeads, setNight, lampPositions:ESTATE_LAMPS };
 }
