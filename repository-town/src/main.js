@@ -23,8 +23,11 @@ import { discoveryProgress } from './ui/discovery-log.js';
 import { buildTown, streetSigns, lotPosition } from './world/town.js';
 import { buildYeovalInterior } from './world/yeoval-interior.js';
 import { buildMasterplan } from './world/masterplan-built.js';
+import { CORE_ROADS } from './world/masterplan-model.js';
+import { RAIL_Z } from './world/rail-corridor.js';
+import { createTownMap } from './ui/town-map.js';
 import { buildBrackenInterior } from './world/bracken-interior.js';
-import { houseAddress, parseTownAddress } from './world/addresses.js';
+import { houseAddress, parseTownAddress, placeAddress } from './world/addresses.js';
 import { buildInterior, labelVisible } from './world/interior.js';
 import { honourPaulRoe } from './world/paul-roe-tribute.js';
 import { buildCivicInterior } from './world/shop-interior.js';
@@ -573,6 +576,40 @@ async function start() {
     else status(`No building matches "${$('search').value}".`);
   });
   $('btn-map').onclick = () => setOverview(!overview);
+  // Interactive 2D map (src/ui/town-map.js). Building extents are measured once from the
+  // rendered meshes, so the map matches what the player actually sees.
+  const townMap = createTownMap({
+    getData() {
+      const box = new THREE.Box3(), extent = (objs) => { box.makeEmpty(); for (const o of [objs].flat().filter(Boolean)) { o.updateWorldMatrix(true, true); box.union(new THREE.Box3().setFromObject(o)); } return box.isEmpty() ? null : { x: (box.min.x + box.max.x) / 2, z: (box.min.z + box.max.z) / 2, w: box.max.x - box.min.x, d: box.max.z - box.min.z }; };
+      const buildings = [];
+      for (const [coord, l] of town.lots) {
+        const e = extent(l.mesh) || { x: l.lot.x, z: l.doorPos.z - 7, w: 12, d: 12 };
+        buildings.push({ id: 'H:' + coord, name: l.house.name, address: `${houseAddress(coord)} (${coord})`, detail: 'House', ...e, w: Math.min(e.w, 24), d: Math.min(e.d, 30) });
+      }
+      for (const p of life.places.values()) {
+        if (p.kind === 'home' || p.kind === 'park') continue;
+        let e = null; try { e = extent(townLife.building?.(p.id)); } catch { e = null; }
+        if (!e || e.w > 120 || e.d > 120) e = { x: p.x, z: p.door.z + (p.side === 'south' || p.side === 'north' ? 6 : -6), w: 11, d: 10 };
+        let address = ''; try { address = placeAddress(p); } catch { address = ''; }
+        buildings.push({ id: 'B:' + p.id, name: p.name, address, detail: [p.kind, p.opens !== undefined ? `open ${String(Math.floor(p.opens / 60)).padStart(2, '0')}:00–${String(Math.floor(p.closes / 60)).padStart(2, '0')}:00` : ''].filter(Boolean).join(' · '), civic: true, ...e });
+      }
+      for (const c of town.campuses || []) buildings.push({ id: 'C:' + c.id, name: c.name, address: 'Aged care campus', detail: 'Walkable campus', civic: true, x: c.x, z: c.z, w: 40, d: 40 });
+      const roads = [
+        ...CORE_ROADS.map((r) => ({ ...r, name: r.id.startsWith('street-') ? data.streets[Number(r.id.slice(7)) - 1] : null })),
+        ...masterplan.roads.map((r) => ({ ...r, plan: true })),
+      ];
+      const fields = [...life.places.values()].filter((p) => p.field).map((p) => p.field);
+      const reserves = (town.outskirts?.parcels || []).filter((r) => !['S-R1', 'S-AG1', 'S-AG2'].includes(r.id));
+      return { roads, buildings, parcels: masterplan.parcels, fields, reserves, railZ: RAIL_Z };
+    },
+    getPlayer: () => (mode === 'town' ? { x: player.pos.x, z: player.pos.z, yaw: player.yaw } : null),
+    onOpen: () => { input.reset(); closePanel(); },
+  });
+  $('btn-townmap').onclick = () => townMap.open();
+  addEventListener('keydown', (e) => {
+    if (String(e.key).toLowerCase() !== 'n' || e.repeat || e.ctrlKey || e.metaKey || e.altKey || e.target.closest?.('input,textarea,select,[contenteditable]')) return;
+    if (!townMap.isOpen()) { e.preventDefault(); townMap.open(); }
+  });
   // Time of day: jumps the town clock (src/world/life.js) to the next part of the day.
   const TIMES = [[7 * 60, '🌅 Morning'], [12 * 60, '☀️ Midday'], [18 * 60 + 40, '🌇 Dusk'], [22 * 60, '🌙 Night']];
   function cycleTime() {
@@ -1486,6 +1523,7 @@ async function start() {
     stopGame: () => stopGame(),
     answer(i) { const b = $('panel-actions').querySelectorAll('button')[i]; if (b) b.click(); return !!b; },
     closePanel,
+    townMap,
   };
 
   $('loading').hidden = true;
