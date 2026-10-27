@@ -22,6 +22,7 @@ import { loadSave, writeSave, clearSave } from './engine/save.js';
 import { discoveryProgress } from './ui/discovery-log.js';
 import { buildTown, streetSigns, lotPosition } from './world/town.js';
 import { buildYeovalInterior } from './world/yeoval-interior.js';
+import { buildBrackenInterior } from './world/bracken-interior.js';
 import { houseAddress, parseTownAddress } from './world/addresses.js';
 import { buildInterior, labelVisible } from './world/interior.js';
 import { honourPaulRoe } from './world/paul-roe-tribute.js';
@@ -161,7 +162,9 @@ async function start() {
   streetSigns(town.group, data.streets, makeLabel);
   for (const site of town.campuses || []) {
     const sign=makeLabel(site.name+' · Aged care campus', 'house');
-    sign.position.set(site.entry.x,4.75,site.entry.z-2.9);
+    sign.position.set(
+      site.entry.x-(site.entryAxis==='west'?2.9:0),
+      4.75,site.entry.z-(site.entryAxis==='west'?0:2.9));
     town.group.add(sign);
   }
   const half = { x: town.bounds.width / 2, z: town.bounds.depth / 2 };
@@ -421,17 +424,17 @@ async function start() {
     const site=(town.campuses||[]).find(x=>x.id===id);
     if(!site)return false;
     const yawIn=player.yaw;
-    const built=buildYeovalInterior(makeLabel);
-    inside={house:{coordinate:'YEOVAL',name:site.name,kind:'care'},campus:site,
+    const built=site.id==='bracken-house'?buildBrackenInterior(makeLabel):buildYeovalInterior(makeLabel);
+    inside={house:{coordinate:site.id==='bracken-house'?'BRACKEN':'YEOVAL',name:site.name,kind:'care'},campus:site,
       ...built,people:[],floorIndex:0,floors:null};
     scene.add(built.group);town.group.visible=false;
     scene.background.set(INDOOR);scene.fog=null;
     world=new CollisionWorld(built.colliders);
-    player.place(built.spawn.x,built.spawn.z,keepFacing?yawIn-Math.PI:0);
+    player.place(built.spawn.x,built.spawn.z,keepFacing?yawIn-site.rotation:0);
     mode='house';player.baseHeight=0;updateFloorBadge();$('btn-exit').hidden=false;
     closePanel();npcChat.close();ambience.door();
     $('card').hidden=true;delete $('card').dataset.coord;
-    status('Inside '+site.name+'. This is an illustrative public-reference layout, not a surveyed floor plan. Return via the north entrance.');
+    status('Inside '+site.name+'. This is an illustrative public-reference layout, not a surveyed floor plan. Return via the public entrance.');
     return true;
   }
   let lastDeniedEntrance = '', lastDeniedTime = 0;
@@ -497,8 +500,11 @@ async function start() {
     town.group.visible = true; scene.background.set(SKY); scene.fog = fog;
     if (placeOutside) {
       if (campus) {
-        // Return north of the main entrance, never through a rear wall.
-        player.place(campus.entry.x,campus.entry.z-3.25,keepFacing?yawInside+Math.PI:0);
+        // The visitor emerges facing away from the same public entrance.
+        const out=campus.entryAxis==='west'
+          ?{x:campus.entry.x-3.25,z:campus.entry.z}
+          :{x:campus.entry.x,z:campus.entry.z-3.25};
+        player.place(out.x,out.z,keepFacing?yawInside+campus.rotation:Math.PI+campus.rotation);
       } else if (shop) {
         const boxes=[...townWorld.all,...townWorld.dynamic()];
         const pose=via==='secondary'&&shop.id==='pub'?pubSecondaryExitPose(shop,boxes,player.radius+.08):via==='rear'&&shop.id==='pub'?pubRearExitPose(shop,boxes,player.radius+.08):civicExitPose(shop,boxes,player.radius+0.08);
@@ -1192,10 +1198,13 @@ async function start() {
       // just in front of their door (not inside an inaccessible wall).
       if(mode==='town' && !overview && !driving.driving){
         for(const site of town.campuses || []){
-          if(Math.abs(player.pos.x-site.entry.x)<1.3 &&
-             player.pos.z<site.entry.z-.20 && player.pos.z>site.entry.z-2.6){
-            enterCampus(site.id,true);break;
-          }
+          const outsideWest=site.entryAxis==='west' &&
+            Math.abs(player.pos.z-site.entry.z)<1.3 &&
+            player.pos.x<site.entry.x-.20 && player.pos.x>site.entry.x-2.6;
+          const outsideNorth=site.entryAxis!=='west' &&
+            Math.abs(player.pos.x-site.entry.x)<1.3 &&
+            player.pos.z<site.entry.z-.20 && player.pos.z>site.entry.z-2.6;
+          if(outsideWest||outsideNorth){enterCampus(site.id,true);break;}
         }
       }
       if(mode==='town' && !overview && !driving.driving){
