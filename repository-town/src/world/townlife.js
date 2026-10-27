@@ -619,6 +619,14 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   // Outside the established western neighbourhood: physically driveable new streets,
   // not an unserviced map-only drawing or a destructive redevelopment of old homes.
   drawPlayableSubdivision(statics);
+  for(const [name,x,z] of [
+    ['Wattle Street',-465,220],['Banksia Street',-465,309],
+    ['Kurrajong Road',-536,266],['Bottlebrush Road',-416,266],
+    ['2 Wattle Street',-520,227]
+  ]){
+    const marker=makeLabel(name,'street');marker.position.set(x,2.8,z);
+    group.add(marker);labels.push(marker);
+  }
 
   // Villagers' houses: letterbox and meter box out the front; air conditioner, shed and mower,
   // rotary clothesline, vegie patch and sprinkler in the back yard, well away from the footpaths.
