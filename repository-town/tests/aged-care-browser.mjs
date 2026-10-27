@@ -17,7 +17,7 @@ try{
    await page.evaluate(()=>{window.__town.life.setTime(9*60);window.__town.life.run(90);});
    const site=await page.evaluate(()=>window.__town.shops().find(s=>s.id==='agedcare'));
    assert(site,'aged-care civic site missing');
-   await page.evaluate(s=>window.__town.place(s.door.x,s.door.z+.4,0),site);
+   await page.evaluate(s=>{ const street=(s.side==='south'||s.side==='north')?-1:1; window.__town.place(s.door.x,s.door.z+street*.4,street>0?0:Math.PI); },site);
    await page.waitForFunction(()=>window.__town.state().mode==='house',null,{timeout:12000});
    const state=await page.evaluate(()=>window.__town.state());
    assert(state.rooms>=6,'aged-care rooms missing');
@@ -32,7 +32,7 @@ try{
    const exited=await page.evaluate(()=>window.__town.exitShop());
    assert(exited,'exitShop returned false');
    assert.equal(await page.evaluate(()=>window.__town.state().mode),'town','exit did not restore town');
-   await page.evaluate(s=>window.__town.place(s.door.x,s.door.z+.4,0),site);
+   await page.evaluate(s=>{ const street=(s.side==='south'||s.side==='north')?-1:1; window.__town.place(s.door.x,s.door.z+street*.4,street>0?0:Math.PI); },site);
    await page.waitForFunction(()=>window.__town.state().mode==='house',null,{timeout:12000});
    assert.equal(errors.length,0,'uncaught browser errors: '+errors.join(' | '));
    console.log('PASS aged-care browser '+(mobile?'Android-sized touch':'desktop')+': enter, five interactions, exit, re-enter');
