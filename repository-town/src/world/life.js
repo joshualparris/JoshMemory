@@ -388,7 +388,10 @@ export function walkRoute(a, b) {
   // westbound traffic still on the outer lane (7.05 m); this preserves the
   // separate cycling directions and avoids the lamp at 6 m on either side.
   // South-side routes retain their separate lanes and shopfront clearances.
-  const lane = (row, z) => z < ROAD(row) ? (b.x>=a.x?5.0:7.05) : setback;
+  // Street 8 (row 7) north side: row-7 forecourt objects begin 7.0 m out and lamps reach 6.25 m, so
+  // its westbound lane runs between them at 6.6 m (npc-soak contacts at z≈170 otherwise), and the
+  // eastbound lane moves to 4.75 m to keep opposing cyclists more than 1.8 m apart.
+  const lane = (row, z) => z < ROAD(row) ? (row===7?(b.x>=a.x?4.75:6.6):(b.x>=a.x?5.0:7.05)) : setback;
   const sa = sideZ(ra, a.z, lane(ra,a.z)), sb = sideZ(rb, b.z, lane(rb,b.z));
   const pts = [{ x: a.x, z: sa }];
   if (!(ra === rb && sa === sb)) {
