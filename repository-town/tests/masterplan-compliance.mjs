@@ -19,5 +19,7 @@ assert(x.network.roadClosure.some(r=>r.frontingLotsOnClosedRoad>=49));
 assert(x.homes.every(h=>h.planningStatus==='UNVERIFIED'&&h.buildingStatus==='UNVERIFIED'));
 assert(x.homes.filter(h=>h.storeysModelled>1).length>0);
 assert(x.homes.filter(h=>h.storeysModelled>1).every(h=>h.storeysPlayable===1));
+assert(x.network.parkAccess.homesBeyond400mStraightLine>0,'western park-access deficit must be disclosed');
+assert(x.network.parkAccess.farthestHomeStraightLineM>900);
 assert.equal(x.stormwater.modelled,false);assert.equal(x.water.allLotsConnected,false);
 console.log('PASS: 195-lot verified geometry, traffic sensitivity recomputed, unverified statutory planning and services explicitly fail-closed');
