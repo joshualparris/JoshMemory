@@ -585,6 +585,22 @@ export class TownLife {
     this.log(`Day ${this.day} begins. The town wakes up.`);
   }
 
+  // Test hook only (__town.life.setTime): after a clock jump, anyone whose shift is under way
+  // resumes at work instead of everyone re-planning from home. New games keep real commutes.
+  startShiftsInProgress() {
+    for (const v of this.villagers) {
+      const site = v.work !== 'home' && this.places.get(v.work);
+      if (!site || !(this.minute >= v.start && this.minute < v.end) || ['student', 'retired'].includes(v.job)) continue;
+      // At the front door, walking the last few metres to their spot (routed round sheds and
+      // trees): on duty from the first frame, since staff at the door count as present.
+      // Farmhands start out in their paddock (a clear spot) rather than walking in through the
+      // building that stands in front of it.
+      const start = site.field ? this.workSpot(v) : site.front;
+      Object.assign(v, { x: start.x, z: start.z, path: [], queue: [], step: null });
+      Object.assign(v.doneToday, { shower: true, breakfast: true });
+      this.goThen(v, site.field ? start : this.workSpot(v), { kind: 'work', at: v.work, until: Math.min(v.end, this.minute + 30), activity: this.workActivity(v) });
+    }
+  }
   freshStats() { return { harvested: {}, milled: 0, baked: 0, deliveries: 0, delivered: {}, sold: {}, meals: 0, mealsOut: 0, parcels: 0, taxes: 0, wages: 0, recycled: 0, landfill: 0, letters: 0, repairs: 0, stockouts: 0, powerCutHours: 0, wasted: 0 }; }
   place(id) { return this.places.get(id); }
   // Privately owned businesses: shops, hospitality, farms, mill, hotel, foundry, trade and professional services.
