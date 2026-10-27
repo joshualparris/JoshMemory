@@ -701,8 +701,8 @@ async function start() {
   const TIMES = [[7 * 60, '🌅 Morning'], [12 * 60, '☀️ Midday'], [18 * 60 + 40, '🌇 Dusk'], [22 * 60, '🌙 Night']];
   function cycleTime() {
     const next = TIMES.find(([m]) => m > life.minute + 1) || TIMES[0];
-    if (next[0] < life.minute) { life.day++; life.newDay(); }
-    life.minute = next[0];
+    if (next[0] < life.minute) { life.day++;life.minute=next[0];life.newDay(); }
+    else life.minute=next[0];
     status(`${next[1]} — ${life.dateLabel()}, ${life.time()} (Day ${life.day}).`);
   }
   const syncTimeBtn = () => { const h = life.minute / 60; const label = h < 6 || h >= 20.5 ? '🌙 Night' : h < 9 ? '🌅 Morning' : h < 17.5 ? '☀️ Day' : '🌇 Dusk'; if ($('btn-time').textContent !== label) $('btn-time').textContent = label; };

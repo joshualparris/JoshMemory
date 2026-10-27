@@ -137,7 +137,7 @@ export const PLACE_DEFS = [
   // Across the road from the high street (south side): finance, utilities and industry.
   { col: 'G', side: 'south', id: 'bank', name: 'Community Bank', kind: 'bank', opens: 8 * 60 + 30, closes: 17 * 60 + 30 },
   { col: 'I', side: 'south', id: 'hotel', name: 'Railway Hotel', kind: 'hotel', opens: 0, closes: 24 * 60 },
-  { col: 'H', side: 'south', id: 'power', name: 'Power Station', kind: 'utility', opens: 0, closes: 24 * 60, target: { fuel: 160 } },
+  { col: 'H', side: 'south', id: 'power', name: 'Power Station', kind: 'utility', opens: 0, closes: 24 * 60, target: { fuel: 240 } },
   { col: 'J', side: 'south', id: 'waterworks', name: 'Water Works', kind: 'utility', opens: 0, closes: 24 * 60 },
   { col: 'L', side: 'south', id: 'sewage', name: 'Wastewater Works', kind: 'utility', opens: 0, closes: 24 * 60 },
   { col: 'M', side: 'south', id: 'realty', name: 'Repository Realty', kind: 'office', opens: 9 * 60, closes: 17 * 60 },
@@ -494,7 +494,9 @@ export class TownLife {
     this.place('cafe').stock.soymilk=0;
     this.place('bakery').out = { bread: 8, pie: 4 };
     this.place('depot').out = { coffee: 12, tea: 10, parcel: 6, fuel: 30, ore: 10 };
-    Object.assign(this.place('power').stock, { fuel: 120 });
+    // Two-to-three-day buffer is essential when weekend freight is disrupted.
+    // Fuel is consumed hourly; it does not regenerate or appear by magic.
+    Object.assign(this.place('power').stock, { fuel: 200 });
     this.place('waterworks').stock = { water: 160 };
     this.place('sewage').stock = { wastewater: 0 };
     this.place('recycling').stock = { recyclables: 0, scrap: 4 };
@@ -661,7 +663,7 @@ export class TownLife {
   isDay() { return this.minute >= 6 * 60 && this.minute < 19 * 60; }
   // 0 at midnight, 1 at noon: drives sky colour and lights.
   daylight() { const h = this.minute / 60; return clamp(Math.sin(((h - 6) / 13) * Math.PI) * 1.4, 0, 1); }
-  log(text) { this.events.unshift({ t: `Day ${this.day} ${fmt(this.minute)}`, text }); this.events.length = Math.min(this.events.length, 60); }
+  log(text) { this.events.unshift({ t: `Day ${this.day} · ${this.dateLabel()} · ${fmt(this.minute)}`, text }); this.events.length = Math.min(this.events.length, 60); }
   open(p) { const hours=venueHoursOnDay(p,this.day);return !!hours && this.minute >= hours[0] && this.minute < hours[1]; }
 
   // Advances the town by `minutes` of town time (call with small steps).
@@ -1325,7 +1327,10 @@ export class TownLife {
       // Soy growers always hold back two certified bags for the next sowing; a truck may not strip their seed reserve.
       const have = good==='soybeans'&&from==='soyfarm'?Math.max(0,(src.out[good]||0)-2):(src.out[good]||0), need = (dst.target?.[good] || 0) - (dst.stock[good] || 0);
       if (have < 3 || need < 3 || this.trucks.some((o) => o !== t && o.job?.to === to && o.job?.good === good)) continue;
-      const score = need / (dst.target[good] || 1) + this.rand() * 0.1 + (['store','greengrocer','butcher'].includes(to) ? 0.12 : 0);
+      // The only thermal power station must not wait behind optional consumer
+      // parcels as its reserve drops: prioritize paid, physically driven fuel.
+      const criticalFuel=good==='fuel'&&to==='power'&&dst.stock.fuel<105;
+      const score = need / (dst.target[good] || 1) + this.rand() * 0.1 + (criticalFuel?10:0) + (['store','greengrocer','butcher'].includes(to) ? 0.12 : 0);
       if (!best || score > best.score) best = { from, to, good, n: Math.min(40, have, need), score };
     }
     if (!best) { t.state = 'waiting for an order'; return; }
@@ -1375,8 +1380,12 @@ export class TownLife {
   planDayOff(v){
     const m=this.minute,home=this.doorstep(v),sunday=this.calendar().weekday===0;
     const wake=sunday?8*60+30:8*60,bed=sunday?22*60+30:23*60;
+    // Sunday night is not a Monday sleep-in: residents wake in time for the
+    // next day's real work commute, including early bakers and dairy staff.
+    const nextWake=isWeekend(this.day+1)?(sunday?8*60+30:8*60):
+      Math.max(3*60,Math.min(6*60+30,v.start-75));
     if(m< wake||m>=bed||v.fatigue>=96&&m>19*60)
-      return this.goThen(v,home,{kind:'sleep',at:'home',until:m>=bed?wake+1440:wake,
+      return this.goThen(v,home,{kind:'sleep',at:'home',until:m>=bed?nextWake+1440:wake,
         activity:'sleeping in on '+(sunday?'Sunday':'Saturday')});
     if(!v.doneToday.shower){v.doneToday.shower=true;
       return this.goThen(v,home,{kind:'shower',at:'home',dur:12,activity:'taking a relaxed weekend shower'});}
