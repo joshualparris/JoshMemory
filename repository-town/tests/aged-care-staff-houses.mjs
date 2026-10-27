@@ -7,14 +7,21 @@ import {mergeDiscovery} from '../tools/merge-discovery.mjs';
 import {buildInterior} from '../src/world/interior.js';
 import {createFloorStack} from '../src/world/multifloor.js';
 import {assignCareHousing,careStaff} from '../src/world/aged-care-operations.js';
+import {TownLife} from '../src/world/life.js';
 const inventory=loadInventory(),briefs=loadBriefs(),games=new Map();
 for(const g of JSON.parse(fs.readFileSync(new URL('../data/games.json',import.meta.url))).games){
  if(!games.has(g.repo))games.set(g.repo,[]);games.get(g.repo).push(g);
 }
 const available=inventory.projects.map(x=>x.coordinate);
-const existing=new Set(available.filter((_,i)=>i%3===0));
-const people=[...careStaff('bracken-house'),...careStaff('yeoval-aged-care')];
+const towns=new TownLife({homes:inventory.projects.map(x=>({coordinate:x.coordinate,name:x.repo,door:{x:0,z:0}}))});
+const existing=new Set(towns.villagers.map(v=>v.home.coordinate));
+assert.equal(existing.size,116,'do not overwrite 116 real existing resident households');
+const people=[...careStaff('bracken-house'),...careStaff('yeoval-aged-care')]
+  .sort((a,b)=>a.staffRoleIndex-b.staffRoleIndex||a.role.localeCompare(b.role)||a.facility.localeCompare(b.facility));
 const roster=assignCareHousing(people,available,existing);
+assert([...roster.houses.keys()].every(c=>!existing.has(c)&&Number(c.slice(1))>=6));
+assert(new Set([...roster.houses.values()].flat().map(x=>x.facility)).size===2,'both aged care sites have local resident employees');
+
 assert(roster.houses.size>0);
 let checked=0;
 for(const row of inventory.projects.filter(x=>roster.houses.has(x.coordinate)).slice(0,5)){
@@ -36,4 +43,4 @@ for(const row of inventory.projects.filter(x=>roster.houses.has(x.coordinate)).s
  checked++;
 }
 assert(checked>=3,'at least three existing southern homes walkable as staff houses');
-console.log('PASS '+checked+' representative existing southside houses support care staff private bedrooms, kitchen, laundry and living rooms');
+console.log('PASS '+checked+' southern staff houses: '+roster.houses.size+' staffed addresses, '+roster.staffHoused+' locally housed care workers/'+people.length+' total, no old households changed');
