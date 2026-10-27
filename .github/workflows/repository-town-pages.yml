@@ -1,0 +1,65 @@
+name: Repository Town — GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'repository-town/**'
+      - '.github/workflows/repository-town-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: repository-town-github-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Build and publish public Repo Town
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install dependencies
+        run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm ci --no-audit --no-fund
+      - name: Check driving dashboard and core gameplay
+        run: |
+          node tests/driving-instruments.mjs
+          node tests/aged-care.mjs
+          node tests/game-integrity.mjs
+      - name: Build publishable game and verify privacy
+        run: |
+          npm run build
+          npm run check:privacy
+          test -f dist/public/index.html
+          test -f dist/public/ui/driving-dashboard.js
+          test -f dist/public/ui/driving-dashboard.css
+          test -f dist/public/release.json
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+      - name: Upload public game only
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: repository-town/dist/public
+      - name: Publish GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
