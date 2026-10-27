@@ -8,6 +8,7 @@ import * as THREE from 'three';
 export const RESIDENT_STYLES = Object.freeze([
   { id: 'classic', label: 'Classic figures', note: 'The original block-built residents.' },
   { id: 'cartoon', label: 'Cartoon', note: 'Rounded cartoon people with hair and clothes in each resident’s own colours.' },
+  { id: 'storybook', label: 'Storybook · five characters', note: 'Five animated public-domain KayKit characters; fantasy-styled, without weapons. Nearby residents only.' },
   { id: 'mannequin', label: 'Mannequin · colourful', note: 'Smoothly animated life-size mannequins in each resident’s clothing colours; they talk, sit and drive.' },
   { id: 'mannequin-grey', label: 'Mannequin · art-class grey', note: 'The same animated mannequins in a calm neutral grey.' },
 ]);
@@ -17,9 +18,10 @@ const NEAR = 45, FAR = 52;            // metres: wear a model inside NEAR, drop 
 // What each style loads and which clip plays for each activity.
 const KINDS = {
   cartoon: { file: 'casual.glb', clips: { walk: 'Walk', carry: 'Walk_Carry', idle: 'Idle', talk: 'Idle', ride: 'Idle' }, height: 1.7 },
+  storybook: {files:['kaykit-knight.glb','kaykit-barbarian.glb','kaykit-mage.glb','kaykit-rogue.glb','kaykit-rogue-hooded.glb'],clips:{walk:'Walk',carry:'Walk',idle:'Idle',talk:'Talk',ride:'Sit'},height:1.75},
   mannequin: { file: 'mannequin.glb', clips: { walk: 'Walk_Loop', carry: 'Walk_Loop', idle: 'Idle_Loop', talk: 'Idle_Talking_Loop', ride: 'Driving_Loop' }, height: 1.74 },
 };
-const kindOf = (style) => style === 'cartoon' ? 'cartoon' : style.startsWith('mannequin') ? 'mannequin' : null;
+const kindOf = (style) => style === 'cartoon' ? 'cartoon' : style === 'storybook' ? 'storybook' : style.startsWith('mannequin') ? 'mannequin' : null;
 
 export function savedResidentStyle() {
   try { const s = localStorage.getItem(STORE); return RESIDENT_STYLES.some((x) => x.id === s) ? s : 'classic'; } catch { return 'classic'; }
@@ -32,10 +34,18 @@ const templates = new Map();   // kind -> Promise<{ scene, clips, height }>
 function loadKind(kind, base) {
   if (!templates.has(kind)) templates.set(kind, (async () => {
     const [{ GLTFLoader }] = await Promise.all([import('../vendor/GLTFLoader.js')]);
-    const gltf = await new GLTFLoader().loadAsync(base + KINDS[kind].file);
-    gltf.scene.updateMatrixWorld(true);
-    const box = new THREE.Box3().setFromObject(gltf.scene, true);
-    return { scene: gltf.scene, clips: gltf.animations, height: Math.max(0.5, box.max.y - box.min.y), floor: box.min.y };
+    const files=KINDS[kind].files||[KINDS[kind].file];
+    // The storybook pack stores idle/walking clips ONLY in the Knight donor.
+    // The other four GLBs share its bone names but contain no animation buffers.
+    const gltfs=await Promise.all(files.map(file=>new GLTFLoader().loadAsync(base+file)));
+    const variants=gltfs.map(gltf=>{
+      gltf.scene.updateMatrixWorld(true);
+      const box=new THREE.Box3().setFromObject(gltf.scene,true);
+      return {scene:gltf.scene,height:Math.max(.5,box.max.y-box.min.y),floor:box.min.y};
+    });
+    if(kind==='storybook'&& !gltfs[0].animations.some(a=>a.name==='Walk'))
+      throw new Error('KayKit storybook donor is missing Walk animation');
+    return {...variants[0],variants,clips:gltfs[0].animations};
   })());
   return templates.get(kind);
 }
@@ -82,16 +92,18 @@ export function createResidentModels({ base = 'assets/people/' } = {}) {
     for (const o of p.body) o.visible = true;
   }
   function wear(p) {
-    const root = SkeletonUtils.clone(ready.scene), look = p.fig.group.userData.residentAppearance || { seed: 1, shirt: 0x6a7a8a, trousers: 0x333a44 };
+    const look = p.fig.group.userData.residentAppearance || { seed: 1, shirt: 0x6a7a8a, trousers: 0x333a44 };
+    const variant=ready.kind==='storybook'?ready.variants[(look.seed>>>5)%ready.variants.length]:ready;
+    const root = SkeletonUtils.clone(variant.scene);
     colourModel(root, ready.kind, style, look);
     // Same height spread as the block figures' builds; their group already carries that scale.
-    const s = KINDS[ready.kind].height / ready.height;
-    root.scale.setScalar(s); root.position.y = -ready.floor * s;
+    const s = KINDS[ready.kind].height / variant.height;
+    root.scale.setScalar(s); root.position.y = -variant.floor * s;
     const mixer = new THREE.AnimationMixer(root), actions = {};
     for (const [state, name] of Object.entries(KINDS[ready.kind].clips)) {
       const clip = ready.clips.find((c) => c.name === name); if (clip) actions[state] = mixer.clipAction(clip);
     }
-    p.model = { root, mixer, actions, state: null, style };
+    p.model = { root, mixer, actions, state: null, style, variant:ready.kind==='storybook'?(look.seed>>>5)%ready.variants.length:0 };
     p.fig.group.add(root); live.add(p);
     for (const o of p.body) o.visible = false;
     // Offset the cycle so neighbours don't step in lock-step.
