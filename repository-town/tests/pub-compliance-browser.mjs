@@ -1,3 +1,4 @@
+import {pubExteriorRoute} from '../src/world/pub-physical-plan-2026.js';
 import {chromium} from 'playwright';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -44,7 +45,8 @@ try{for(const mobile of [false,true]){
  await page.evaluate(()=>window.__town.place(0,-9.3,0));await page.keyboard.down('w');await page.waitForFunction(()=>window.__town.state().mode==='town',null,{timeout:30000,polling:200});await page.keyboard.up('w');
  const outside=await page.evaluate(()=>({state:window.__town.state(),site:window.__town.shops().find(x=>x.id==='pub')}));assert(outside.state.pos.z<outside.site.door.z-18,'rear discharge is behind the building');assert(!await page.evaluate(()=>{const s=window.__town.state();return window.__town.probeStatic(s.pos.x,s.pos.z,.6);}));
  // Sample the full 1.2m-wide side route back to the street against actual town colliders.
- const x=outside.site.door.x,oz=outside.site.door.z-7.5;const points=[[x,oz-13.2],[x,oz-18.2],[x+8,oz-18.2],[x+8,oz+12.2],[x,oz+12.2],[x,oz+7.5]];
+ const x=outside.site.door.x,oz=outside.site.door.z-7.5;
+ const points=pubExteriorRoute({x,originZ:oz}).map(p=>[p.x,p.z]);
  const blocked=await page.evaluate(points=>{const hits=[];for(let i=1;i<points.length;i++){const a=points[i-1],b=points[i],n=Math.ceil(Math.hypot(b[0]-a[0],b[1]-a[1])/.2);for(let k=0;k<=n;k++){const x=a[0]+(b[0]-a[0])*k/n,z=a[1]+(b[1]-a[1])*k/n;if(window.__town.probeStatic(x,z,.6))hits.push([x,z]);}}return hits;},points);assert.deepEqual(blocked,[],'continuous street discharge route');
  await page.screenshot({path:`audit/pub/completion/${mobile?'phone':'desktop'}-rear-yard.png`});assert.deepEqual(errors,[]);console.log('PASS hosted-capable pub compliance gameplay',mobile?'phone emulation':'desktop',manifest.sourceCommit,manifest.contentHash);await page.close();
 }}finally{await browser.close();}

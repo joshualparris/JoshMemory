@@ -3,6 +3,11 @@ on:
   pull_request:
     paths:
       - 'repository-town/src/world/pub-envelope.js'
+      - 'repository-town/src/world/pub-rear-stairs.js'
+      - 'repository-town/src/world/pub-physical-plan-2026.js'
+      - 'repository-town/src/world/pub-plant.js'
+      - 'repository-town/src/main.js'
+      - 'repository-town/tests/pub-rear-stairs.mjs'
       - 'repository-town/src/world/pub-interior.js'
       - 'repository-town/src/world/townlife.js'
       - 'repository-town/tests/pub-envelope-002-024.mjs'
@@ -31,7 +36,7 @@ jobs:
       - name: Assert real facade, roof and window geometry and matched pub interior
         working-directory: repository-town
         run: |
-          node --test tests/pub-envelope-002-024.mjs tests/pub-2026-audit.mjs tests/pub-history.mjs
+          node --test tests/pub-rear-stairs.mjs tests/pub-envelope-002-024.mjs tests/pub-2026-audit.mjs tests/pub-history.mjs
           node tests/pub-utilities.mjs
           node tests/shop-interiors.mjs
       - name: Run town release, saved games and collision acceptance
@@ -49,10 +54,13 @@ jobs:
           pid=$!
           trap 'kill "$pid" 2>/dev/null || true' EXIT
           node tests/pub-utilities-browser.mjs
+          node tests/pub-expansion-browser.mjs
       - name: Keep QA browser evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: rtpub-002-024-qa
           retention-days: 30
-          path: repository-town/audit/pub-utilities/
+          path: |
+            repository-town/audit/pub-utilities/
+            repository-town/audit/pub/expansion/

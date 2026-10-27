@@ -1,3 +1,4 @@
+import {pubRearStairTop} from './pub-rear-stairs.js';
 // PUB-CODE/RTPUB-002/003/004/009/010/005: design-stage geometry and operation.
 // A modelled dimension is NOT an approved building, fire, occupancy or access certificate.
 export const PUB_PHYSICAL_PLAN_2026 = Object.freeze({
@@ -32,7 +33,7 @@ export function pubExitLayout(){
 export function pubExteriorRoute(site){
  const sign=site.side==='south'?-1:1,oz=site.originZ;
  if(!Number.isFinite(oz)||!Number.isFinite(site.x))throw new TypeError('Pub world origin required');
- return [{x:site.x,z:oz-13.2*sign},{x:site.x,z:oz-18.2*sign},{x:site.x+8*sign,z:oz-18.2*sign},{x:site.x+8*sign,z:oz+12.2*sign},{x:site.x,z:oz+12.2*sign}];
+ return [{x:site.x,z:oz-12*sign},{x:site.x-8.5*sign,z:oz-12*sign},{x:site.x-8.5*sign,z:oz+12.2*sign},{x:site.x,z:oz+12.2*sign}];
 }
 export function pubRearExitPose(site,colliders,radius=.46){
  const p=pubExteriorRoute(site)[0];
@@ -40,4 +41,8 @@ export function pubRearExitPose(site,colliders,radius=.46){
  return blocked?null:{...p,yaw:site.side==='south'?Math.PI:0};
 }
 
-export function pubSecondaryExitPose(site,colliders,radius=.46){const sign=site.side==='south'?-1:1,p={x:site.x+8*sign,z:site.originZ-12.6*sign};return (colliders||[]).some(c=>p.x>c.x0-radius&&p.x<c.x1+radius&&p.z>c.z0-radius&&p.z<c.z1+radius)?null:{...p,yaw:site.side==='south'?Math.PI:0};}
+export function pubSecondaryExitPose(site,colliders,radius=.46){
+ const p=pubRearStairTop(site);
+ return (colliders||[]).some(c=>p.x>c.x0-radius&&p.x<c.x1+radius&&p.z>c.z0-radius&&p.z<c.z1+radius)
+  ?null:{...p,yaw:site.side==='south'?Math.PI:0};
+}
