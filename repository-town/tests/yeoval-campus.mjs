@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import {YEOVAL_SITE,buildYeovalCampus,yeovalWorld} from '../src/world/yeoval-campus.js';
 import {buildYeovalInterior} from '../src/world/yeoval-interior.js';
+import {labelVisible} from '../src/world/interior.js';
 
 const near=(a,b,delta=.001)=>Math.abs(a-b)<delta;
 const hasPoint=(all,x,z,r=.35)=>all.some(s=>x+r>s.x0&&x-r<s.x1&&z+r>s.z0&&z-r<s.z1);
@@ -28,4 +29,8 @@ assert.ok(!hasPoint(i.colliders,0,-18.4,.35),'southern hallway clear');
 assert.ok(!hasPoint(i.colliders,0,16.95,.35),'interior exit usable');
 assert.ok(i.exitZone.z0>i.spawn.z,'exit at north entrance');
 assert.ok(i.group.children.filter(x=>x.isLight).length>0,'corridor is lit');
+// Regression: entering crashed the game ('sight is not iterable') when the interior had no sight list.
+assert.equal(labelVisible({x:0,y:1.6,z:14},{x:0,y:1.2,z:10},i.sight),true,'label check runs on the Yeoval interior');
+assert.equal(labelVisible({x:0,y:1.6,z:14},{x:0,y:1.2,z:10},undefined),true,'label check tolerates an interior without walls listed');
+for(const k of ['colliders','interactables','sight','doors','dynamics','seats'])assert(Array.isArray(i[k]),'Yeoval interior provides '+k);
 console.log('Yeoval campus static footprint, circulation, collision and interior checks passed.');
