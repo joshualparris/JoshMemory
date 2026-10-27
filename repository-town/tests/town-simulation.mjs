@@ -85,7 +85,8 @@ for (let d = 0; d < 14; d++) {
 assert.equal(blackout, 0, 'no blackouts while fuel deliveries keep up. FIRST_OUTAGE='+JSON.stringify(firstOutage));
 assert.ok(minMeals >= 80, `at least 80 meals a day (worst ${minMeals})`);
 assert.ok(t.civic.treasury > 1000, `the council stays solvent ($${Math.round(t.civic.treasury)})`);
-assert.ok(t.villagers.filter((v) => v.wallet < 5).length <= 6, 'most villagers can pay their way');
+const cashPoor=t.villagers.filter(v=>v.wallet<5);
+assert.ok(cashPoor.length<=6,'most villagers can pay their way. POOR_RESIDENTS='+JSON.stringify(cashPoor.map(v=>({id:v.id,job:v.job,work:v.work,day:t.day,wallet:v.wallet,savings:v.savings||0,wageArrears:v.wageArrears||0,activity:v.activity,spent:v.household?.spent})))));
 assert.ok(t.civic.letters[0].delivered, 'the posted letter was delivered');
 assert.ok(t.civic.government.elections.length>=2, 'two registered resident elections were held');
 assert.ok(t.civic.government.publicLife.contacts.length>0,'public political conversations must happen naturally during the simulated fortnight');
