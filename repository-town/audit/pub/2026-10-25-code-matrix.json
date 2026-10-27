@@ -11,8 +11,8 @@
   "sourceBlobs": {
     "repository-town/audit/electricity/coverage.json": "f80df771b893799e27b3adc98b92fe335c13f28b",
     "repository-town/src/world/interior-kit.js": "ceff1ba9e2197cb113c33760e9353f50ef1e97e3",
-    "repository-town/src/world/life.js": "a694ba38430b4bdbdcb01ca6b1b6a76dfe82efc4",
-    "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2",
+    "repository-town/src/world/life.js": "0b5a9b44f331f0492102251f7964ed5e8c67f647",
+    "repository-town/src/world/power-grid.js": "6de3f54d8fe576117594fe36124748e36da4e255",
     "repository-town/src/world/pub-interior.js": "46396a0552d2480f3c31585e77199803433ab6b6",
     "repository-town/src/world/shop-interior.js": "c577d598e833c8523ae66715e47e2b4c3e61aff2",
     "repository-town/src/world/townlife.js": "37d2041dc5fdaee714766f2e0f60c47342f3db2d",
@@ -826,6 +826,15 @@
         "repository-town/src/world/life.js"
       ],
       "finding": "Climbable collider tops and carrying in shared code; pub geometry, egress and services unchanged."
+    },
+    {
+      "date": "2026-10-27",
+      "by": "Claude (merge of main into dossier 2)",
+      "changedFiles": [
+        "repository-town/src/world/life.js",
+        "repository-town/src/world/power-grid.js"
+      ],
+      "finding": "No pub change by this branch."
     }
   ]
 }
