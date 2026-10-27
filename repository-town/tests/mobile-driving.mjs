@@ -48,6 +48,19 @@ try {
  await page.waitForFunction(reg=>window.__town.state().nearbyVehicle===reg,v.registration,{timeout:10000});
  await page.tap('#t-use');
  await page.waitForFunction(()=>!!window.__town.state().driving,null,{timeout:5000});
+ await page.waitForFunction(()=>!document.getElementById('driving-dashboard')?.hidden,null,{timeout:5000});
+ assert.equal(await page.locator('#drive-speed').innerText(),'0','speedometer begins at a stop');
+ const gaugeStart=await page.evaluate(()=>({fuel:document.getElementById('drive-fuel').textContent,temp:document.getElementById('drive-temp').textContent,registration:document.getElementById('drive-model').textContent}));
+ assert(gaugeStart.fuel.includes('20.0')&&gaugeStart.registration.includes(v.registration),'dashboard displays the actual owned car and its fuel: '+JSON.stringify(gaugeStart));
+ await page.tap('#drive-radio-power');
+ assert.equal(await page.evaluate(()=>window.__town.driveDashboard().station),1,'phone radio on button tunes Country Road FM');
+ await page.tap('#drive-radio-next');
+ assert.equal(await page.evaluate(()=>window.__town.driveDashboard().station),2,'next station control works by touch');
+ assert.match(await page.locator('#drive-radio-station').innerText(),/High Street Jazz/);
+ await page.locator('#drive-radio-volume').evaluate(el=>{el.value='60';el.dispatchEvent(new Event('input',{bubbles:true}));});
+ assert.equal(await page.evaluate(()=>window.__town.driveDashboard().volume),60,'volume changes through control');
+ await page.tap('#drive-radio-power');
+ assert.equal(await page.evaluate(()=>window.__town.driveDashboard().station),0,'radio can be switched off without affecting driving');
  // Real touch events move the on-screen joystick: the same path as Android input.
  const cdp=await ctx.newCDPSession(page);
  const x=page.viewportSize().width*.2,y=page.viewportSize().height*.7;
@@ -63,6 +76,9 @@ try {
  v=await page.evaluate(()=>window.__town.vehicles()[0]);
  const diagnosis=await page.evaluate(()=>window.__town.driveDiagnostics?.());
  assert(v.fuel<20,'mobile joystick advances vehicle and consumes fuel: '+JSON.stringify({duringTouch,diagnosis,current:v}));
+ const dash=await page.evaluate(()=>({speed:Number(document.getElementById('drive-speed').textContent),fuel:document.getElementById('drive-fuel').textContent,temp:document.getElementById('drive-temp').textContent,hidden:document.getElementById('driving-dashboard').hidden}));
+ assert(!dash.hidden&&dash.temp!=='22 °C','driving must warm the coolant gauge rather than display a static reading: '+JSON.stringify(dash));
+ assert(Number.parseFloat(dash.fuel)<20,'fuel gauge must reflect actual fuel consumption: '+JSON.stringify(dash));
  assert(v.odometer>64000,'odometer increases as vehicle travels');
  assert(!errors.length,'no browser page errors: '+errors.join('; '));
  console.log('PASS: Android viewport, full dealer purchase, physical car spawn, touch entry and joystick driving');
