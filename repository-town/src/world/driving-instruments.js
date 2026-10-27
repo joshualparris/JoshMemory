@@ -13,7 +13,10 @@ export function updateCoolantTemperature(previous, dt, speedMs, condition=100) {
   const wear = clamp(100-finite(condition,100), 0, 100);
   const target = 88 + 6*load + 0.12*wear;
   const delta = clamp(finite(dt),0,1.0);
-  return Math.round((old + (target-old)*(1-Math.exp(-delta/38)))*10)/10;
+  // Never quantise inside the simulation integrator: rounding each 0.15 s
+  // frame to 0.1°C creates a 81.8°C fixed point even when the thermostat
+  // target is above 94°C. Only round once when displaying the HUD.
+  return old + (target-old)*(1-Math.exp(-delta/38));
 }
 
 export function vehicleTelemetry(vehicle) {
