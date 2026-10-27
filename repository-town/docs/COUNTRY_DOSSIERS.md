@@ -25,6 +25,7 @@ Australia, New Zealand, Papua New Guinea, Indonesia, Fiji, then onwards.
 | # | Country | House | Household | Era |
 |---|---|---|---|---|
 | 1 | Australia | Federation weatherboard cottage: central hall, parlour, bedroom, rear kitchen, lean-to wash-house; corrugated iron roof, brick chimney, rainwater tank | Henry Lawson, Bertha Lawson, Jim and baby Bertha | Sydney, early 1900 |
+| 2 | New Zealand | Kauri bay villa after Kate Sheppard's own house (83 Clyde Road, Christchurch): hall through the middle, parlour with bay window, bedroom, dining room of the 1893 petition, kitchen with coal range; macrocarpa hedge and gates, two chimneys | Kate, Walter and Douglas Sheppard | Christchurch, 1893 |
 
 ## Not yet
 Residents stand in their rooms and can be met; they do not yet walk a daily routine through

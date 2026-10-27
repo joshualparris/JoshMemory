@@ -3,7 +3,7 @@
 // Upper levels drawn in the exterior remain inaccessible pending stairs/egress design.
 import * as THREE from 'three';
 import {Builder} from './builder.js';
-import {PROPS,standTop} from './props.js';
+import {PROPS,standTop,PORTABLE} from './props.js';
 import {dossierFor,residentPanel,housePanel} from './country-dossiers.js';
 import {makeNPC} from './npcs.js';
 
@@ -135,6 +135,14 @@ function buildDossierInterior(home,dossier,makeLabel){
  plan.fixtures.forEach((item,i)=>{
   const prop=PROPS[item.type];if(!prop)throw new Error('Missing fixture '+item.type);
   const key='country:'+home.parcelId+':'+i,rot=item.rot||0,turned=Math.abs(Math.sin(rot))>.5;
+  // Small loose things are their own mesh so they can be picked up and carried (main.js pickUp).
+  if(PORTABLE.has(item.type)){
+   const pb=new Builder();pb.at(0,0,0,0,()=>prop.build(pb,{}));const mesh=pb.build();
+   mesh.position.set(item.x,0,item.z);mesh.rotation.y=rot;group.add(mesh);
+   interactables.push({key:'carry:'+key,type:item.type,label:item.label||prop.label,act:{do:'pickup'},room:item.room,pos:mesh.position,roomName:plan.rooms[item.room].name,mesh});
+   placedProps.push({type:item.type,room:item.room});
+   return;
+  }
   b.at(item.x,0,item.z,rot,()=>prop.build(b,{key}));
   const pw=turned?prop.d:prop.w,pd=turned?prop.w:prop.d;
   if(prop.solid)colliders.push({x0:item.x-pw/2,x1:item.x+pw/2,z0:item.z-pd/2,z1:item.z+pd/2,top:standTop(item.type)});
@@ -147,7 +155,7 @@ function buildDossierInterior(home,dossier,makeLabel){
  });
  for(const r of dossier.residents){
   const npc=makeNPC({id:r.id,name:r.name,emoji:r.emoji,color:r.shirt},makeLabel);
-  if(r.child){npc.userData.body.scale.setScalar(.58);npc.userData.label?.position.set(0,1.55,0);}
+  const sc=r.scale??(r.child?.58:1);if(sc!==1){npc.userData.body.scale.setScalar(sc);npc.userData.label?.position.set(0,2.48*sc+.1,0);}
   npc.position.set(r.x,0,r.z);npc.rotation.y=r.face||0;group.add(npc);
   people.push({id:r.id,name:r.name,mesh:npc});
   const pos=new THREE.Vector3(r.x,0,r.z);
