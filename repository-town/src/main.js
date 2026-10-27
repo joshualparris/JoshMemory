@@ -1253,7 +1253,8 @@ async function start() {
     const needsText=`🍽 ${Math.round(n.hunger)}% · 💤 ${Math.round(n.fatigue)}%${car?' · 🚗 '+Math.round(Math.abs(car.speed||0)*3.6)+'km/h ⛽ '+Math.round(car.fuel||0)+'L':''}`;
     if($('needs-status').textContent!==needsText)$('needs-status').textContent=needsText;
     const civil=life.calendar();
-    const clockText = `${civil.weekdayName.slice(0,3)} ${civil.dayOfMonth} ${civil.month===10?'Oct':civil.month===11?'Nov':new Date(Date.UTC(civil.year,civil.month-1,1)).toLocaleString('en-AU',{month:'short',timeZone:'UTC'})} · ${life.time()} · Day ${life.day}${life.speed > 1 ? ` · ${life.speed}×` : ''}`;
+    const monthShort=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][civil.month-1];
+    const clockText = `${civil.weekdayName.slice(0,3)} ${civil.dayOfMonth} ${monthShort} · ${life.time()} · Day ${life.day}${life.speed > 1 ? ` · ${life.speed}×` : ''}`;
     $('clock').title=life.dateLabel()+' — Day '+life.day;
     if ($('clock').textContent !== clockText) $('clock').textContent = clockText;
     syncTimeBtn();
