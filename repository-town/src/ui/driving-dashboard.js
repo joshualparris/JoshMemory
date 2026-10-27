@@ -141,6 +141,7 @@ export function createDrivingDashboard(){
    text(el,'drive-temp-state',d.hotEngine?'HOT – stop safely':d.coolantC<70?'Warming up':'Normal');
    byId(el,'drive-fuel-fill').style.width=d.fuelPercent+'%';
    byId(el,'drive-temp-fill').style.width=d.coolantPercent+'%';
+   byId(el,'drive-fuel-meter').setAttribute('aria-valuemax',String(d.fuelCapacityL));
    byId(el,'drive-fuel-meter').setAttribute('aria-valuenow',String(d.fuelLitres));
    byId(el,'drive-temp-meter').setAttribute('aria-valuenow',String(Math.max(40,d.coolantC)));
    byId(el,'drive-fuel-container').classList.toggle('warning',d.lowFuel);
