@@ -569,7 +569,7 @@ async function start() {
     const addressed = parseTownAddress(q) || parseTownAddress(code);
     // Some civic destinations have no postal address or column. Search must never crash on missing metadata.
     const lower = (value) => String(value ?? '').toLowerCase();
-    const p = places.find((p) => lower(placeLabel(p)) === q || lower(p.name) === q || lower(p.id) === q || lower(p.address) === q || (p.side==='south' && q==='south '+lower(p.col)+'8') || (addressed && p.address===addressed.address && !byCoord.has(addressed.col+addressed.row)));
+    const p = places.find((p) => lower(placeLabel(p)) === q || lower(p.name) === q || lower(p.id) === q || lower(p.address) === q || (p.id === 'library' && /^(?:sir reginald )?repo public library$/.test(q)) || (p.side==='south' && q==='south '+lower(p.col)+'8') || (addressed && p.address===addressed.address && !byCoord.has(addressed.col+addressed.row)));
     const h = !p && (byCoord.get(code) || (addressed && addressed.side==='S' && byCoord.get(addressed.col+addressed.row)) || houses.find((h) => lower(h.name) === q || lower(h.address) === q || lower(`${h.address} · ${h.name}`) === q || lower(`${h.coordinate} · ${h.name}`) === q));
     const near = !p && !h && places.find((p) => lower(p.name).includes(q));
     const named = !p && !h && !near && houses.find((h) => lower(h.name).includes(q));
