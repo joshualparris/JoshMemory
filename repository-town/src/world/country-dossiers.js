@@ -54,13 +54,53 @@ function australiaPlan(w, d) {
   return { rooms, walls, fixtures };
 }
 
+
+// ── New Zealand: the Sheppards' kauri bay villa, Christchurch, 1893 ─────────────────────────────
+// Plan after Kate Sheppard's villa at 83 Clyde Road (built 1888): a hall bisecting the plan, front
+// parlour with the bay window and front bedroom, the dining room where the 1893 suffrage petition
+// was pasted into its 274 m roll, and the kitchen with its coal range at the back. Kauri floors,
+// double-hung sash windows, corrugated iron roof, two chimneys, macrocarpa hedge and front gates.
+function newZealandPlan(w, d) {
+  const hall = 0.95, T = 0.14;
+  const rooms = [
+    { name: 'Parlour', x0: -w / 2 + T, x1: -hall - T / 2, z0: T / 2, z1: d / 2 - T },
+    { name: 'Hall', x0: -hall + T / 2, x1: hall - T / 2, z0: -d / 2 + T, z1: d / 2 - T },
+    { name: 'Front bedroom', x0: hall + T / 2, x1: w / 2 - T, z0: T / 2, z1: d / 2 - T },
+    { name: 'Dining room', x0: -w / 2 + T, x1: -hall - T / 2, z0: -d / 2 + T, z1: -T / 2 },
+    { name: 'Kitchen', x0: hall + T / 2, x1: w / 2 - T, z0: -d / 2 + T, z1: -T / 2 },
+  ];
+  const walls = [[-w / 2, -hall, -T / 2, T / 2], [hall, w / 2, -T / 2, T / 2]];
+  for (const x of [-hall, hall]) for (const [z0, z1] of [[-d / 2, -2.3], [-1.25, 1.25], [2.3, d / 2]]) walls.push([x - T / 2, x + T / 2, z0, z1]);
+  const fixtures = [
+    { type: 'fireplace', label: 'Parlour fireplace, timber mantel', x: -w / 2 + 0.5, z: 2.4, rot: Q, room: 0 },
+    { type: 'piano', label: 'Upright piano (typical of the era)', x: -w / 2 + 1.35, z: 0.5, room: 0 },
+    { type: 'sofa', label: 'Horsehair sofa in the bay window', x: -w / 2 + 1.6, z: d / 2 - 0.75, room: 0 },
+    { type: 'lamp', label: 'Kerosene lamp', x: -1.5, z: 3.6, room: 0 },
+    { type: 'rug', label: 'Parlour rug on kauri floorboards', x: -2.9, z: 2.2, room: 0 },
+    { type: 'clock', label: 'Hall clock', x: -0.62, z: 3.4, rot: Q, room: 1 },
+    { type: 'bed', label: 'Brass bed', x: w / 2 - 1.05, z: 1.3, room: 2 },
+    { type: 'wardrobe', label: 'Kauri wardrobe', x: hall + 0.48, z: d / 2 - 1.0, rot: Q, room: 2 },
+    { type: 'cabinet', label: 'Washstand with jug and basin', x: w / 2 - 0.75, z: d / 2 - 0.45, room: 2 },
+    { type: 'table', label: 'Dining table: the 1893 suffrage petition was pasted into one roll here', x: -2.9, z: -2.2, room: 3 },
+    { type: 'chair', label: 'Dining chair', x: -4.0, z: -2.2, room: 3 },
+    { type: 'fireplace', label: 'Dining-room fireplace', x: -w / 2 + 0.5, z: -2.4, rot: Q, room: 3 },
+    { type: 'cabinet', label: 'Sideboard', x: -2.0, z: -d / 2 + 0.45, room: 3 },
+    { type: 'bookStack', label: 'Petition sheets and paste pot', x: -3.5, z: -d / 2 + 0.6, room: 3 },
+    { type: 'stove', label: 'Cast-iron coal range', x: 3.0, z: -d / 2 + 0.55, room: 4 },
+    { type: 'kitchenSink', label: 'Scullery sink', x: w / 2 - 0.55, z: -2.0, rot: Q, room: 4 },
+    { type: 'pantry', label: 'Kitchen dresser', x: 2.6, z: -0.4, room: 4 },
+    { type: 'table', label: 'Kitchen table', x: 3.0, z: -2.0, room: 4 },
+  ];
+  return { rooms, walls: walls.map(([x0, x1, z0, z1]) => ({ x0, x1, z0, z1 })), fixtures };
+}
+
 export const COUNTRY_DOSSIERS = Object.freeze({
   Australia: Object.freeze({
     country: 'Australia',
     era: 'early 1900, Sydney',
     house: 'Federation-era weatherboard cottage',
     summary: 'A four-room weatherboard cottage with a rear lean-to: central hall, front parlour and bedroom, a kitchen across the back where the family lived, and a wash-house with the tin bath and copper. Corrugated iron roof, bullnose verandah with turned posts and fretwork, brick chimney and a corrugated rainwater tank.',
-    exterior: { wall: 0xe6dcc3, roof: 0x8d9397, trim: 0x7a2e26, chimney: 0x8b4a3a, tank: 0xa7adb1 },
+    exterior: { wall: 0xe6dcc3, roof: 0x8d9397, trim: 0x7a2e26, chimney: 0x8b4a3a, tank: 0xa7adb1, chimneys: [{ side: -1, z: (d) => -d / 2 + 6.3 }] },
     plan: australiaPlan,
     residents: [
       { id: 'henry-lawson', name: 'Henry Lawson', emoji: '✒️', life: '1867–1922', age: 32, room: 0, x: -2.9, z: 3.0, face: 0, shirt: 0x2e2c31, trousers: 0x2a2a2e,
@@ -98,6 +138,49 @@ export const COUNTRY_DOSSIERS = Object.freeze({
       ['Hornsby Shire heritage information sheets', 'https://www.hornsby.nsw.gov.au/__data/assets/pdf_file/0016/130327/Heritage-Information-Sheets.pdf'],
       ['Metters Limited (Australian wood fuel stoves from 1891)', 'https://en.wikipedia.org/wiki/Metters_Limited'],
       ['Museums Victoria collections: ice chest and Coolgardie safe', 'https://collections.museumsvictoria.com.au/items/400958'],
+    ],
+  }),
+  'New Zealand': Object.freeze({
+    country: 'New Zealand',
+    era: '1893, Christchurch',
+    house: 'Kauri bay villa',
+    summary: "After Kate Sheppard's own villa at 83 Clyde Road, Christchurch (built 1888, now Te Whare Waiutuutu Kate Sheppard House): a hall bisecting the plan, parlour with a bay window, front bedroom, the dining room where the 1893 women's suffrage petition was pasted into a 274 m roll, and a kitchen with a coal range. Kauri floors, double-hung sash windows, corrugated iron roof, two chimneys, a macrocarpa hedge and front gates.",
+    exterior: { wall: 0xeee6d2, roof: 0x9a3b30, trim: 0x3f5a46, chimney: 0x8b4a3a, chimneys: [{ side: -1, z: () => 2.4 }, { side: -1, z: () => -2.4 }], bay: -1, hedge: 0x3f6b3a },
+    plan: newZealandPlan,
+    residents: [
+      { id: 'kate-sheppard', name: 'Kate Sheppard', emoji: '🗳️', life: '1847 or 1848–1934', room: 3, x: -2.9, z: -1.35, face: Math.PI, shirt: 0x2f3442, trousers: 0x2a2d38,
+        role: "Suffragist. In Repo Town she campaigns from the Town Hall and gathers signatures in the street.",
+        bio: [
+          'Born Katherine Wilson Malcolm in Liverpool on 10 March; sources give the year as 1847 or 1848. Moved to Christchurch with her family in 1868.',
+          'Married Walter Allen Sheppard, a Christchurch grocer and general merchant, on 21 July 1871.',
+          "Led the Women's Christian Temperance Union campaign for the vote. The 1893 petition, with nearly 32,000 women's signatures, was pasted together at this dining table into a roll 274 m long.",
+          'The Electoral Act became law on 19 September 1893: New Zealand women voted in that year\'s general election, the first in a self-governing country to do so.',
+          'She lived at the Clyde Road villa from 1888 to 1902 and died in Christchurch on 13 July 1934.',
+        ],
+        day: ['Morning: letters and petition sheets at the dining table', 'Late morning: a meeting at the Town Hall', 'Afternoon: collecting signatures on the High Street', 'Evening: writing articles and speeches'],
+        wears: 'Dark high-necked dress with a narrow waist, hair parted and drawn back, a white camellia (the suffragists\' emblem) on her lapel.' },
+      { id: 'walter-sheppard', name: 'Walter Sheppard', emoji: '🧾', life: 'died 1915', room: 0, x: -2.3, z: 2.9, face: Math.PI, shirt: 0x3b3a36, trousers: 0x2b2a27,
+        role: 'Grocer and general merchant. In Repo Town he works at the General Store.',
+        bio: ['Walter Allen Sheppard, a grocer and general merchant in Christchurch, married Kate on 21 July 1871.', 'Christchurch City Libraries record him as a city councillor in 1868.', 'He died in Bath, England, on 24 July 1915.'],
+        day: ['Early: opens the shop', 'Day: serving and ordering stock at the General Store', 'Evening: the newspaper in the parlour'],
+        wears: 'Dark frock coat or sack suit, waistcoat with watch chain, beard (typical of the era).' },
+      { id: 'douglas-sheppard', name: 'Douglas Sheppard', emoji: '📚', life: '1880–1910', scale: 0.82, room: 4, x: 4.2, z: -3.6, face: -Math.PI / 2, shirt: 0x34485e, trousers: 0x2b2f38,
+        role: 'Schoolboy, aged 12. In Repo Town he goes to the School.',
+        bio: ['Their only son, born in Christchurch on 8 October 1880; about seven when the family moved into the villa in 1888.', 'He died in 1910.'],
+        day: ['Morning: walks to school', 'Afternoon: home for tea in the kitchen', 'Evening: homework at the kitchen table'],
+        wears: 'Norfolk jacket, knickerbockers and long socks (typical of the era).' },
+    ],
+    babies: [],
+    caveats: "The layout follows the Sheppards' villa (hall through the middle, dining room for the petition) but is scaled to this lot; the real villa had about eight rooms and stands on an acre. Era details marked 'typical' are not documented for this family.",
+    sources: [
+      ['Te Ara: Sheppard, Katherine Wilson (Dictionary of New Zealand Biography)', 'https://teara.govt.nz/en/biographies/2s20/sheppard-katherine-wilson'],
+      ['NZHistory: Kate Sheppard', 'https://nzhistory.net.nz/people/kate-sheppard'],
+      ['Christchurch City Libraries: Kate Sheppard (1847-1934)', 'https://my.christchurchcitylibraries.com/kate-sheppard/'],
+      ['Wikipedia: Kate Sheppard', 'https://en.wikipedia.org/wiki/Kate_Sheppard'],
+      ['Heritage New Zealand List 9325: Kate Sheppard House', 'https://www.heritage.org.nz/the-list/details/9325'],
+      ['Christchurch District Plan: statement of significance, Kate Sheppard House', 'https://districtplan.ccc.govt.nz/Images/DistrictPlanImages/Statement%20of%20Significance/Christchurch/HID%20127.pdf'],
+      ['The Conversation: Kate Sheppard\'s Christchurch home opens as a museum', 'https://theconversation.com/the-epicentre-of-womens-suffrage-kate-sheppards-christchurch-home-finally-opens-as-a-public-museum-151828'],
+      ['Christchurch District Plan: 1898 bay villa (hall bisecting the plan, sash windows)', 'https://districtplan.ccc.govt.nz/Images/DistrictPlanImages/Statement%20of%20Significance/Christchurch/HID%20383.pdf'],
     ],
   }),
 });
