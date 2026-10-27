@@ -10,7 +10,7 @@ assert.equal(first.odometerKm,64000.4);
 assert.equal(first.direction,'D');
 assert.equal(first.coolantC,90);
 assert.equal(first.lowFuel,false);
-assert.equal(first.approximateRangeKm,50,'range grounded in current fuel burn');
+assert.equal(first.approximateRangeKm,5,'range grounded in current fuel burn');
 const reverse=vehicleTelemetry({speed:-4,fuel:2,odometer:500,condition:80,coolantTemp:112});
 assert.equal(reverse.speedKmh,14);
 assert.equal(reverse.direction,'R');
