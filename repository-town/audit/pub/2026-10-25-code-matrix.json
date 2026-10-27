@@ -11,7 +11,7 @@
   "sourceBlobs": {
     "repository-town/audit/electricity/coverage.json": "f80df771b893799e27b3adc98b92fe335c13f28b",
     "repository-town/src/world/interior-kit.js": "ceff1ba9e2197cb113c33760e9353f50ef1e97e3",
-    "repository-town/src/world/life.js": "213d0bb97506a1643a6b479b7f0184938b3dc7a0",
+    "repository-town/src/world/life.js": "9b41b877e4eca3d71469ee99d31095be7252e002",
     "repository-town/src/world/power-grid.js": "5afb4106939ffa4c7954f3ab1454e2a9bc357ad2",
     "repository-town/src/world/pub-interior.js": "46396a0552d2480f3c31585e77199803433ab6b6",
     "repository-town/src/world/shop-interior.js": "c577d598e833c8523ae66715e47e2b4c3e61aff2",
@@ -19,7 +19,7 @@
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "28b23c39d91401a115059bf573f6b0db854864e9",
+    "repository-town/src/main.js": "aaf972a84fbfb3de0530754b9301cac108321cc7",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -35,7 +35,7 @@
     "repository-town/src/world/pub-vertical-core.js": "0da18695fa3ad3c8cce5dabff5ed97b990df35f5",
     "repository-town/src/world/pub-floors.js": "981faf682dce84211cb05b2d9d705be2511ada5f",
     "repository-town/src/ui/pub-expansion-panel.js": "9d651e6dc73ca54600ee03072ce9f88f69f264ce",
-    "repository-town/src/world/lighting.js": "93a4e8ee973136b4ab2c0ac60529357022538165"
+    "repository-town/src/world/lighting.js": "79f3f27815c8986fc589cf0e0fad432a8ae69898"
   },
   "sources": {
     "S01": {
@@ -783,6 +783,16 @@
       ],
       "finding": "World-home door trigger and exit integration with per-home floor plans; no edits to pub physical configuration, NCC conclusions or egress. Existing 34 RTPUB statuses remain unchanged.",
       "evidence": "Main.js Git blob reconciled for source integrity, all 34 RTPUB outcomes still non-certifying; current pub/whole-town tests must remain passing."
+    },
+    {
+      "date": "2026-10-27",
+      "by": "Claude (road signs, estate services, Street 8 lane)",
+      "changedFiles": [
+        "repository-town/src/world/life.js",
+        "repository-town/src/main.js",
+        "repository-town/src/world/lighting.js"
+      ],
+      "finding": "main.js: road signs and estate services wiring; life.js: Street 8 north westbound walking lane 6.6 m. No pub geometry, service or egress change."
     }
   ]
 }

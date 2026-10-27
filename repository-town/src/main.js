@@ -62,6 +62,8 @@ import { createTownLife } from './world/townlife.js';
 import { createEmergencyResponseVisuals } from './world/emergency-response-visuals.js';
 import { createPlayerDriving } from './world/player-driving.js';
 import { createDrivingDashboard } from './ui/driving-dashboard.js';
+import { buildRoadSigns } from './world/road-signs.js';
+import { buildCivilWorks } from './world/civil-works.js';
 import { nearestSeat } from './world/seats.js';
 import { furniturePanel } from './ui/furniture.js';
 import { createAmbience } from './ui/ambience.js';
@@ -169,6 +171,14 @@ async function start() {
   let lowPerf = touch;
   streetSigns(town.group, data.streets, makeLabel);
   const masterplan = buildMasterplan(town.group, makeLabel);
+  // NSW regulatory signs from the road network (src/world/road-signs.js): GIVE WAY/STOP, 50 km/h,
+  // 40 km/h along the High Street shops and a school zone outside the school.
+  const highStreetShops = [...life.places.values()].filter((p) => p.door && Math.abs(p.door.z - 177) < 12);
+  const civilWorks = buildCivilWorks(town.group);   // estate services from the planning audit
+  const roadSigns = buildRoadSigns(town.group, {
+    highStreet: highStreetShops.length ? { z: 177, x0: Math.min(...highStreetShops.map((p) => p.x)) - 20, x1: Math.max(...highStreetShops.map((p) => p.x)) + 20 } : null,
+    schools: [life.place('school')].filter(Boolean).map((p) => ({ x: p.x, z: p.door.z })),
+  });
   town.attachEstateLighting(masterplan);
   for (const site of town.campuses || []) {
     const sign=makeLabel(site.name+' · Aged care campus', 'house');
@@ -184,7 +194,7 @@ async function start() {
     { x0: -1495, x1: 595, z0: -395, z1: -390 }, { x0: -1495, x1: 595, z0: 555, z1: 560 },
     { x0: -1495, x1: -1490, z0: -395, z1: 560 }, { x0: 590, x1: 595, z0: -395, z1: 560 },
   ];
-  const townWorld = new CollisionWorld([...town.colliders, ...townLife.colliders, ...masterplan.colliders, ...edges]);
+  const townWorld = new CollisionWorld([...town.colliders, ...townLife.colliders, ...masterplan.colliders, ...civilWorks.colliders, ...edges]);
   // Dynamic vehicle footprints block player motion as well as truck movement.
   // A vehicle is approx 2.2m wide and 6.6m long; use a conservative
   // rotated-axis AABB for the town's existing 2D collision engine.
@@ -1563,6 +1573,7 @@ async function start() {
     meetGuide() { if (mode === 'house') leave(false); player.place(town.guidePos.x, town.guidePos.z + 1.6, 0); return 'guide'; },
     goPlace,
     driveDashboard:()=>drivingDashboard.getState(),
+    roadSigns:()=>roadSigns.signs.map(({type,x,z,yaw})=>({type,x,z,yaw})),
     driveHeadlights:()=>driving.headlightStatus(),
     estateLights:()=>({count:masterplan.lampPositions.length,sourceCount:town.streetLighting.sourceCount,visible:masterplan.lampHeads.material.emissiveIntensity>0}),
     driveDiagnostics:()=>({
