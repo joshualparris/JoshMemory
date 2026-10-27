@@ -18,7 +18,7 @@ try {
     return best && { x: best.x, z: best.z };
   });
   step(!!spot, 'found residents out in the town at 08:35');
-  for (const style of ['cartoon', 'mannequin', 'mannequin-grey']) {
+  for (const style of ['cartoon', 'storybook', 'mannequin', 'mannequin-grey']) {
     await page.evaluate((s) => window.__town.residentStyle(s), style);
     const ok = await page.evaluate(() => window.__town.residentStyleReady());
     await page.evaluate((sp) => window.__town.place(sp.x, sp.z + 7, 0), spot);
@@ -32,7 +32,7 @@ try {
   step((await page.evaluate(() => window.__town.residentStyle().wearing)) === 0, 'Classic removes every model');
   await page.evaluate(() => document.getElementById('btn-settings').click());
   const ui = await page.evaluate(() => [...document.querySelectorAll('#resident-style-options button')].map((b) => ({ t: b.textContent, on: b.getAttribute('aria-checked') })));
-  step(ui.length === 4 && ui.filter((b) => b.on === 'true').length === 1 && /Classic/.test(ui.find((b) => b.on === 'true').t), `Settings lists ${ui.length} resident styles with Classic checked`);
+  step(ui.length === 5 && ui.filter((b) => b.on === 'true').length === 1 && /Classic/.test(ui.find((b) => b.on === 'true').t), `Settings lists ${ui.length} resident styles with Classic checked`);
   await page.evaluate(() => [...document.querySelectorAll('#resident-style-options button')].find((b) => /Cartoon/.test(b.textContent)).click());
   await page.waitForFunction(() => /Cartoon on/.test(document.getElementById('resident-style-status').textContent), null, { timeout: 8000 }).catch(() => {});
   step(/Cartoon on/.test(await page.evaluate(() => document.getElementById('resident-style-status').textContent)), 'choosing Cartoon in Settings confirms it is on');
