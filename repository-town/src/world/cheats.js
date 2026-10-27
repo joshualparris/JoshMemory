@@ -1,6 +1,6 @@
 // Playtest cheats (opened from the hidden HUD cheat menu, src/ui/cheat-menu.js). They change
 // game state directly and say so in the town log; nothing here touches real money or accounts.
-import { DRIVEABLE_RECTS } from './masterplan-built.js';
+import { DRIVEABLE_RECTS, PLAN_PARCELS, PLAN_HOMES } from './masterplan-built.js';
 import { registry } from './property.js';
 
 const r2 = (n) => Math.round(n * 100) / 100;
@@ -35,8 +35,26 @@ export function summonCar(life, x, z, { model = 'sedan', clear } = {}) {
 }
 
 // Transfer a title outright: no deposit, no mortgage, existing tenants keep their lease.
+// New master-plan homes become titles (P:<parcel id>) the first time they are claimed, so
+// existing saves and the normal property market are unchanged until a player asks for one.
+function ensurePlanTitle(s, key) {
+  if (s.parcels[key] || !key.startsWith('P:')) return;
+  const lot = PLAN_PARCELS.find((p) => 'P:' + p.id === key);
+  if (!lot) return;
+  const home = PLAN_HOMES.find((h) => h.parcelId === lot.id);
+  s.parcels[key] = { id: key, name: `${lot.address} · ${home ? 'new ' + home.style + ' home' : lot.label}`, address: lot.address, kind: 'house',
+    owner: 'Town Property Cooperative', tenant: null, occupants: [], jointOwners: [], occupied: false,
+    value: Math.round(lot.areaM2 * 9), rent: 0, listed: false, protected: false, condition: 100, masterPlan: true };
+}
+export function planTitleKey(text) {
+  const q = String(text || '').trim().toLowerCase();
+  const lot = PLAN_PARCELS.find((p) => p.address && p.address.toLowerCase() === q);
+  return lot ? 'P:' + lot.id : null;
+}
+
 export function claimProperty(life, key) {
-  const s = registry(life), p = s.parcels[key];
+  const s = registry(life); ensurePlanTitle(s, key);
+  const p = s.parcels[key];
   if (!p) return { ok: false, message: `No property ${key}.` };
   if (p.owner === 'visitor') return { ok: false, message: `You already own ${p.name}.` };
   const previous = p.owner;
@@ -51,7 +69,7 @@ export function nearestPropertyKey(life, x, z, positions) {
   const s = registry(life);
   let best = null, dist = Infinity;
   for (const [key, pos] of positions) {
-    if (!s.parcels[key]) continue;
+    if (!s.parcels[key] && !key.startsWith('P:')) continue;
     const d = Math.hypot(pos.x - x, pos.z - z);
     if (d < dist) { dist = d; best = key; }
   }

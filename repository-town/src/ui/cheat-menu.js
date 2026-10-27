@@ -41,7 +41,7 @@ export function createCheatMenu({ trigger, actions }) {
       <div class="row"><button data-a="goNew">📍 New neighbourhood</button><button data-a="goWork">📍 Saleyards Rd</button><button data-a="goHigh">📍 High Street</button><button data-a="goGuide">📍 Town Guide</button></div>
       <div class="row"><button data-a="money">💰 +$10,000</button><button data-a="needs">🍽 Fill food &amp; rest</button></div>
       <div class="row"><button data-a="buyNear">🏠 Own nearest property</button></div>
-      <div class="row"><input id="cheat-prop" placeholder="Property e.g. A1 or B:bakery" aria-label="Property to own"><button data-a="buyKey">Own it</button></div>
+      <div class="row"><input id="cheat-prop" placeholder="e.g. 2 Wattle Street, A1 or bakery" aria-label="Property to own"><button data-a="buyKey">Own it</button></div>
       <div class="row"><button data-a="t8">🌅 08:00</button><button data-a="t13">☀️ 13:00</button><button data-a="t20">🌙 20:00</button></div>
       <div class="row"><button data-a="map">🗺️ Open map</button><button data-a="lock">Lock</button><button data-a="close">✕ Close</button></div>
       <div class="msg"></div>`;

@@ -27,7 +27,7 @@ import { CORE_ROADS } from './world/masterplan-model.js';
 import { RAIL_Z } from './world/rail-corridor.js';
 import { createTownMap } from './ui/town-map.js';
 import { createCheatMenu } from './ui/cheat-menu.js';
-import { summonCar, claimProperty, nearestPropertyKey, addMoney, refreshNeeds, fixAllCars, setClock } from './world/cheats.js';
+import { summonCar, claimProperty, nearestPropertyKey, planTitleKey, addMoney, refreshNeeds, fixAllCars, setClock } from './world/cheats.js';
 import { buildBrackenInterior } from './world/bracken-interior.js';
 import { houseAddress, parseTownAddress, placeAddress } from './world/addresses.js';
 import { buildInterior, labelVisible } from './world/interior.js';
@@ -617,6 +617,7 @@ async function start() {
   const propertyPositions = () => new Map([
     ...[...town.lots].map(([coord, l]) => ['H:' + coord, l.doorPos]),
     ...[...life.places.values()].map((p) => ['B:' + p.id, { x: p.x, z: p.door?.z ?? p.front?.z ?? 0 }]),
+    ...masterplan.homes.map((h) => ['P:' + h.parcelId, { x: h.x, z: h.frontZ }]),
   ]);
   const cheats = createCheatMenu({
     trigger: document.querySelector('#hud h1') || document.querySelector('h1'),
@@ -643,7 +644,7 @@ async function start() {
       buyNear: () => { const key = nearestPropertyKey(life, player.pos.x, player.pos.z, propertyPositions()); return key ? claimProperty(life, key) : { message: 'No property nearby.' }; },
       buyKey: (raw) => {
         const v = String(raw || '').trim(); if (!v) return { message: 'Type a house grid code like A1, or B:bakery.' };
-        let key = /^[HB]:/i.test(v) ? v[0].toUpperCase() + v.slice(1) : /^[A-Z][1-8]$/i.test(v) ? 'H:' + v.toUpperCase() : null;
+        let key = /^[HBP]:/i.test(v) ? v[0].toUpperCase() + v.slice(1) : /^[A-Z][1-8]$/i.test(v) ? 'H:' + v.toUpperCase() : planTitleKey(v);
         if (!key) { const p = [...life.places.values()].find((q) => q.name.toLowerCase().includes(v.toLowerCase())); key = p ? 'B:' + p.id : null; }
         return key ? claimProperty(life, key) : { message: `No property matches “${v}”.` };
       },

@@ -55,6 +55,9 @@ try {
     await page.fill('#cheat-prop', 'A1'); await run('buyKey');
     const owned = await page.evaluate(() => window.__town.life.ledger().civic.property.parcels['H:A1'].owner);
     step(owned === 'visitor', `${tag} owned house A1 outright: ${(await menu()).text.split('\n').pop()}`);
+    await page.fill('#cheat-prop', '2 Wattle Street'); await run('buyKey');
+    const newHome = await page.evaluate(() => window.__town.life.ledger().civic.property.parcels['P:home-0-0-0']);
+    step(newHome?.owner === 'visitor', `${tag} owned a new master-plan home: ${newHome?.name}`);
     await run('map');
     step(await page.evaluate(() => window.__town.townMap.isOpen()), `${tag} cheat menu opens the town map`);
     step(!errors.length, `${tag} no page errors ${errors.join('; ')}`);
