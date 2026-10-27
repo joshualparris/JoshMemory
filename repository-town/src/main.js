@@ -23,6 +23,7 @@ import { discoveryProgress } from './ui/discovery-log.js';
 import { buildTown, streetSigns, lotPosition } from './world/town.js';
 import { buildYeovalInterior } from './world/yeoval-interior.js';
 import { buildMasterplan, PLAN_HOMES } from './world/masterplan-built.js';
+import { RESIDENT_STYLES } from './world/resident-models.js';
 import { buildCountryInterior,countryEntrance,countryExitPose } from './world/country-interiors.js';
 import { CORE_ROADS } from './world/masterplan-model.js';
 import { RAIL_Z } from './world/rail-corridor.js';
@@ -820,6 +821,24 @@ async function start() {
     speedSlider.focus();
   };
   $('settings-close').onclick = closeSettings;
+  // Resident style: one button per style; models load only when chosen (world/resident-models.js).
+  function renderResidentStyles(message) {
+    const current = townLife.residentModels.style(), box = $('resident-style-options');
+    box.innerHTML = '';
+    for (const st of RESIDENT_STYLES) {
+      const b = document.createElement('button'); b.type = 'button'; b.setAttribute('role', 'radio');
+      b.setAttribute('aria-checked', String(st.id === current));
+      b.innerHTML = esc(st.label) + '<small>' + esc(st.note) + '</small>';
+      b.onclick = () => {
+        townLife.residentModels.setStyle(st.id);
+        renderResidentStyles(st.id === 'classic' ? 'Classic figures restored.' : 'Loading ' + st.label + '…');
+        townLife.residentModels.whenReady().then((ok) => { if (townLife.residentModels.style() === st.id) renderResidentStyles(st.id === 'classic' ? 'Classic figures restored.' : ok ? st.label + ' on. Nearby residents now use it; people far away stay as simple figures.' : 'That style could not load, so the classic figures stay.'); });
+      };
+      box.append(b);
+    }
+    $('resident-style-status').textContent = message || 'Changes how people in the town look. Saved on this device.';
+  }
+  renderResidentStyles();
   $('btn-npcs').onclick = () => { $('npc-roster').hidden = !$('npc-roster').hidden; input.reset(); };
   $('npc-roster-close').onclick = () => { $('npc-roster').hidden = true; };
   $('help-close').onclick = () => { $('help').hidden = true; };
@@ -1757,6 +1776,8 @@ async function start() {
     stepVehicle:(seconds)=>driving.update(seconds),
     shops:()=>[...life.places.values()].map(p=>({id:p.id,name:p.name,kind:p.kind,side:p.side||'north',expansion:!!p.expansion,door:{x:p.x,z:p.door.z}})),
     enterShop,
+    residentStyle:(id)=>{ if(id){ townLife.residentModels.setStyle(id); renderResidentStyles(); } return { style: townLife.residentModels.style(), ready: townLife.residentModels.ready(), wearing: townLife.residentModels.wearing() }; },
+    residentStyleReady:()=>townLife.residentModels.whenReady(),
     enterCountryHome:(id)=>{const h=masterplan.homes.find(x=>x.parcelId===id||x.country===id||x.address===id);return h?enterCountryHome(h):false;},
     countryHomes:()=>masterplan.homes.map(h=>({id:h.parcelId,address:h.address,country:h.country,frontZ:h.frontZ,x:h.x,facesNorth:h.facesNorth})),
     setFloor:(i)=>changeFloor(i),

@@ -11,6 +11,7 @@ import { buildSignBoards } from './shop-signs.js';
 import { PROPS } from './props.js';
 import { pose } from './npcs.js';
 import { makeDistinctPerson } from './npc-wardrobe.js';
+import { createResidentModels } from './resident-models.js';
 import { facilityAccess, openingHoursLabel } from './facility-access.js';
 import { TownLife, GOODS, RAIL_Z, trainX, FIELD_Z0, FIELD_Z1, SEC_PER_MIN, LOT_X, AVENUES } from './life.js';
 import { RAIL_GAUGE, RAIL_CROSSINGS, RAIL_DEPOT_PLATFORM_SETBACK, RAIL_DEPOT_PLATFORM_DEPTH, withinLevelCrossing, railSideYardClear, railGateBoxes, railClearanceAudit } from './rail-corridor.js';
@@ -1010,14 +1011,16 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   let parcelSig = '';
 
   // Villagers.
+  const residentModels = createResidentModels();
   const people = life.villagers.map((v, i) => {
     const fig = makeDistinctPerson('villager:'+v.id+':'+v.name+':'+(v.job||''));
     fig.phase = i * 1.7;
+    const body = [...fig.group.children];   // the block figure; a chosen resident style hides it
     const bike = makeBike(); bike.visible = false; fig.group.add(bike);
     const bag = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.32, 0.18), new THREE.MeshLambertMaterial({ color: [0x3a7a3a, 0xc8a878, 0x2a5a8a][i % 3] })); bag.position.set(0.36, 0.72, 0.05); bag.visible = false; fig.group.add(bag);
     const tag = makeLabel(v.name, 'interactive'); tag.position.set(0, 2.25, 0); fig.group.add(tag);
     fig.group.position.set(v.x, 0, v.z); group.add(fig.group);
-    return { v, fig, bike, bag, tag, heading: 0, last: { x: v.x, z: v.z }, key: `villager:${i}`, pos: new THREE.Vector3(v.x, 0, v.z), talking: false };
+    return { v, fig, body, bike, bag, tag, heading: 0, last: { x: v.x, z: v.z }, key: `villager:${i}`, pos: new THREE.Vector3(v.x, 0, v.z), talking: false };
   });
 
   // Sky dressing.
@@ -1128,15 +1131,16 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       p.last.x = v.x; p.last.z = v.z; p.pos.set(v.x, 0, v.z);
       const show = !v.inside && !overview && near(v.x, v.z, 95);
       p.fig.group.visible = show;
-      if (!show) continue;
+      if (!show) { residentModels.hide(p); continue; }
       const moving = moved > 0.0005 && !v.engaged;
       if (v.engaged) { const want = Math.atan2(player.pos.x - v.x, player.pos.z - v.z); p.heading += angleDiff(want, p.heading) * Math.min(1, dt * 4); }
       else if (moving) p.heading += angleDiff(v.heading ?? p.heading, p.heading) * Math.min(1, dt * 8);
       p.bike.visible = !!v.bike && !v.engaged && v.path.length > 0;
       p.bag.visible = !!v.carrying && !p.bike.visible;
       const riding=p.bike.visible;
-      pose(p.fig, dt, t, moving&&!riding, moving || v.engaged);
-      if(riding){
+      const modelled = residentModels.update(p, { dt, dist: Math.hypot(v.x - eye.x, v.z - eye.z), moving: moving && !riding, speed: moved / Math.max(dt, 1e-3), talking: !!v.engaged, riding, carrying: p.bag.visible });
+      if (!modelled) pose(p.fig, dt, t, moving&&!riding, moving || v.engaged);
+      if(riding && !modelled){
         const pedal=Math.sin(t*8+p.fig.phase)*0.38;
         p.fig.legs[0].rotation.x=0.32+pedal;
         p.fig.legs[1].rotation.x=0.32-pedal;
@@ -1145,7 +1149,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       }
       // Bicycle wheels already rest at y=.34; lifting the whole figure
       // another 32cm made the bikes hover visibly above the street.
-      p.fig.group.position.set(v.x, riding ? 0 : moving ? Math.abs(Math.sin(t * 7 + p.fig.phase)) * 0.04 : 0, v.z);
+      p.fig.group.position.set(v.x, riding || modelled ? 0 : moving ? Math.abs(Math.sin(t * 7 + p.fig.phase)) * 0.04 : 0, v.z);
       p.fig.group.rotation.y = p.heading;
       const dist = Math.hypot(v.x - eye.x, v.z - eye.z);
       p.tag.visible = dist > 3 && !p.bubble;
@@ -1236,7 +1240,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     }); // real rolling-stock footprint, including wagons
     return boxes;
   };
-  return { railClearanceConflicts,railBarrierColliders, life, group, colliders, spots, seats, people, update, save, events, skyColour: bg, skyParts: [stars, rain, moon], building: (id) => buildings.get(id) || [], placeFront: (id) => { const p = life.place(id); return p.side === 'north' ? { x:p.x,z:p.front.z,yaw:Math.PI } : p.side === 'south' ? { x: p.x, z: FIELD_Z0 - 4.4, yaw: Math.PI } : { x: p.x, z: LOT8_Z + 12.6, yaw: 0 }; } };
+  return { railClearanceConflicts,railBarrierColliders, life, group, colliders, spots, seats, people, residentModels, update, save, events, skyColour: bg, skyParts: [stars, rain, moon], building: (id) => buildings.get(id) || [], placeFront: (id) => { const p = life.place(id); return p.side === 'north' ? { x:p.x,z:p.front.z,yaw:Math.PI } : p.side === 'south' ? { x: p.x, z: FIELD_Z0 - 4.4, yaw: Math.PI } : { x: p.x, z: LOT8_Z + 12.6, yaw: 0 }; } };
 }
 
 // What a villager calls out as the player passes, from the time of day and what they're up to.
