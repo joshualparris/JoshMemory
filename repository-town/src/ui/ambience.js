@@ -13,7 +13,7 @@ export function createAmbience() {
   let ctx = null, master = null, wind = null, street = null, rumble = null, rain = null, roof = null, cicada = null, cicadaLfo = null, water = null, engine = null, hum = null, humGain = null, murmur = null;
   let music=null,vehicleAudio=null,musicBus=null,ambienceBus=null,effectsBus=null;
   let trackIndex=-1,nextSheep=0,nextCow=0,nextCrossing=0;
-  try{const k=Number(localStorage.getItem('repository-town.music-track'));if(Number.isInteger(k)&&k>=-1&&k<MUSIC_TRACKS.length)trackIndex=k;}catch{}
+  try{const stored=localStorage.getItem('repository-town.music-track');if(stored!==null){const k=Number(stored);if(Number.isInteger(k)&&k>=-1&&k<MUSIC_TRACKS.length)trackIndex=k;}}catch{}
   let mix={master:.7,music:.35,ambience:.7,effects:.8};
   try{const stored=JSON.parse(localStorage.getItem('repository-town.audio-mix')||'{}');for(const k of Object.keys(mix))if(Number.isFinite(stored[k]))mix[k]=Math.max(0,Math.min(1,stored[k]));}catch{}
   let white = null, reverb = null, reverbSend = null, indoorsNow = false;
