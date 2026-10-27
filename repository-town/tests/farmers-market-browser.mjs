@@ -23,15 +23,15 @@ try {
     await page.evaluate((p) => window.__town.place(p.x, p.z + 0.6, 0), veg);
     await page.waitForTimeout(500);
     const prompt = await page.evaluate(() => document.getElementById('prompt').textContent);
-    step(/Macquarie Flats Growers/.test(prompt), `${tag} walking up to the fruit and veg stall: "${prompt}"`);
+    step(/Granny Smith/.test(prompt), `${tag} walking up to the fruit and veg stall: "${prompt}"`);
     await page.evaluate(() => window.__town.closePanel?.());
     if (mobile) await page.tap('#t-use'); else { await page.click('canvas'); await page.keyboard.press('e'); }
-    await page.waitForFunction(() => /Macquarie Flats/.test(document.getElementById('panel-title').textContent) && !document.getElementById('panel').hidden, null, { timeout: 4000 }).catch(() => {});
+    await page.waitForFunction(() => /Granny Smith/.test(document.getElementById('panel-title').textContent) && !document.getElementById('panel').hidden, null, { timeout: 4000 }).catch(() => {});
     const before = await page.evaluate(() => window.__town.life.ledger().civic.player.wallet);
     const bought = await page.evaluate(() => { const b = [...document.querySelectorAll('#panel-actions button')].find((x) => /Tomatoes/.test(x.textContent)); b?.click(); return !!b; });
     await page.waitForTimeout(300);
     const after = await page.evaluate(() => ({ w: window.__town.life.ledger().civic.player.wallet, body: document.getElementById('panel-body').textContent }));
-    step(bought && Math.abs(before - after.w - 6) < 0.01 && /Trish/.test(after.body), `${tag} bought tomatoes for $6 (${before} → ${after.w}): ${after.body.trim().slice(0, 70)}`);
+    step(bought && Math.abs(before - after.w - 6) < 0.01 && /Maria Ann Smith/.test(after.body), `${tag} bought tomatoes for $6 (${before} → ${after.w}): ${after.body.trim().slice(0, 70)}`);
     // A Sunday: stalls gone, the notice board says when the next market is, and the square has no door.
     await page.evaluate(() => { window.__town.closePanel?.(); const L = window.__town.life; L.setDay(14); L.setTime(10 * 60); });
     const packed = await page.waitForFunction(() => !window.__town.market().standing, null, { timeout: 5000 }).then(() => true).catch(() => false);

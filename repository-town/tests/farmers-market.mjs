@@ -33,6 +33,8 @@ for (const s of sites) {
 }
 for (let i = 0; i < sites.length; i++) for (let j = i + 1; j < sites.length; j++) assert(!overlaps(footprint(sites[i], sites[i].half), footprint(sites[j], sites[j].half)), `${sites[i].name} and ${sites[j].name} do not overlap`);
 assert.equal(L.stalls.length, 10); assert.equal(STALLS.length + FOOD.length, 12, 'twelve sites with food');
+for (const s of [...STALLS, ...FOOD].filter((x) => !x.vacant && x.bio)) assert(/\d{4}/.test(s.life) && s.src.length >= 1 && s.src.every(([t, u]) => t && /^https:\/\//.test(u)), `${s.holder}: life dates and sources`);
+assert(STALLS.filter((x) => x.vacant).every((x) => !x.items.length), 'vacant sites sell nothing');
 
 // Serving spots are clear of every market collider (built for real) and of the fountain and benches.
 const m = buildFarmersMarket(new THREE.Group(), { x: 0, z: 0 });
@@ -46,10 +48,10 @@ assert(m.colliders.every((c) => c.top < 0), 'packed-away tables do not block');
 
 // Buying.
 const logs = [], life = { day: 13, minute: 9 * 60, civic: { player: { wallet: 50, hunger: 60, fatigue: 40, bag: {} } }, log: (t) => logs.push(t) };
-assert.match(buyAtStall(life, 'veg', 0), /Trish hands you the tomatoes/);
+assert.match(buyAtStall(life, 'veg', 1), /Maria Ann Smith hands you the tomatoes/);
 assert.equal(life.civic.player.wallet, 44); assert.equal(life.civic.player.bag.veg, 1);
 buyAtStall(life, 'sizzle', 1); assert.equal(life.civic.player.hunger, 20, 'bacon and egg roll feeds you');
-buyAtStall(life, 'coffee', 0); assert.equal(life.civic.player.fatigue, 25, 'coffee perks you up');
+buyAtStall(life, 'coffee', 2); assert.equal(life.civic.player.fatigue, 25, 'coffee from Quong Tart\'s cart perks you up');
 life.civic.player.age = 16; assert.match(buyAtStall(life, 'wine', 0), /over-18s/);
 life.civic.player.wallet = 3; assert.match(buyAtStall(life, 'honey', 0), /\$12\.00; you have \$3\.00/);
 life.minute = 13 * 60; life.civic.player.wallet = 100; assert.match(buyAtStall(life, 'honey', 0), /market is closed/);

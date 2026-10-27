@@ -3,7 +3,7 @@
 // Repo Town's square fits twelve 3 m × 3 m sites, the standard stall size in NSW market packs.
 // Food stalls follow the NSW temporary-event rules those packs cite (Food Act 2003, Food
 // Authority guidance); stalls cooking with gas carry a fire extinguisher and fire blanket, and
-// every marquee is held down with leg weights. Stall businesses and stallholders are fictional;
+// every marquee is held down with leg weights. Stallholders are historical figures (see STALLS);
 // prices are illustrative 2026 prices. Pure layout and rules here; buildFarmersMarket draws it.
 import * as THREE from 'three';
 import { Builder } from './builder.js';
@@ -22,32 +22,52 @@ export function marketStanding(day, minute) { return isMarketDay(day) && minute 
 export function nextMarketDay(day) { for (let d = day; d < day + 40; d++) if (isMarketDay(d)) return d; return null; }
 
 // Item kinds: good = a town good that goes in your bag; eat = eaten now (hunger), drink = coffee (rest).
+// Stallholders are well-documented historical Australians, each selling what they were known for.
+// They are long dead: their market here is a tribute set in the present day, not a reconstruction.
+// life, bio and src come from published biographies (shown in the stall panel).
 export const STALLS = Object.freeze([
-  { id: 'veg', name: 'Macquarie Flats Growers', what: 'Seasonal fruit and vegetables', holder: 'Trish', canopy: 0xffffff, stripe: 0x2f8a46,
-    produce: [0xc0392b, 0x6aa84f, 0xe69138, 0x8e7c3c], items: [['Tomatoes, 1 kg', 6, { good: 'veg' }], ['Asparagus, bunch', 5, { good: 'veg' }], ['Strawberries, punnet', 5, { good: 'fruit' }], ['Navel oranges, 2 kg bag', 7, { good: 'fruit' }]] },
-  { id: 'herbs', name: 'Little Plains Nursery', what: 'Herbs, seedlings and plants', holder: 'Mei', canopy: 0x5fae4f,
-    produce: [0x3f8f3f, 0x6abf5a, 0x2e6b30, 0x9cc95a], items: [['Herb seedling punnet', 4.5, {}], ['Potted basil', 7, {}], ['Tomato seedlings, 6 pack', 6, {}]] },
-  { id: 'bread', name: 'Wheatbelt Sourdough', what: 'Bread from a wood-fired oven', holder: 'Callum', canopy: 0xd9b26a,
-    produce: [0xb07a3c, 0xc98d4a, 0x8d5a2b], items: [['Sourdough loaf', 9, { good: 'bread' }], ['Fruit loaf', 10, { good: 'bread' }], ['Cinnamon scroll', 5, { eat: 15 }]] },
-  { id: 'meat', name: 'Talbragar Paddock Meats', what: 'Local pork, beef and lamb (chilled)', holder: 'Ray', canopy: 0xffffff, stripe: 0xa83232,
-    produce: [0x9b2f2f, 0xc85a5a, 0x7d2424], items: [['Lamb chops, 1 kg', 24, { good: 'lamb' }], ['Pork sausages, 1 kg', 14, { good: 'lamb' }], ['Beef mince, 1 kg', 16, { good: 'lamb' }]] },
-  { id: 'oil', name: 'Orana Olive Grove', what: 'Extra virgin olive oil and olives', holder: 'Sofia', canopy: 0x7e8f3a,
-    produce: [0x9aa83a, 0x55602a, 0xc2c45a], items: [['Olive oil, 500 ml', 18, {}], ['Marinated olives, jar', 10, {}]] },
-  { id: 'jams', name: "Nan Joyce's Preserves", what: 'Jams, chutneys and marinades', holder: 'Joyce', canopy: 0xffffff, stripe: 0xc0392b,
-    produce: [0x8e1f2f, 0xe67e22, 0xb03a2e, 0xf1c40f], items: [['Apricot jam', 8, {}], ['Tomato chutney', 8, {}], ['Plum sauce', 9, {}]] },
-  { id: 'honey', name: 'Box Gum Apiary', what: 'Local honey and beeswax', holder: 'Dave', canopy: 0xf2c14e,
-    produce: [0xe0a526, 0xf4c542, 0xc98a14], items: [['Yellow box honey, 500 g', 12, {}], ['Honeycomb', 15, {}], ['Beeswax wraps', 14, {}]] },
-  { id: 'wine', name: 'Cudgegong Ridge Wines', what: 'Regional wine, tastings (18+, RSA)', holder: 'Anika', canopy: 0x6b2a3a,
-    produce: [0x4a1020, 0x7a1f35, 0xe8d9a8], items: [['Shiraz, bottle', 28, { adult: true }], ['Riesling, bottle', 24, { adult: true }]] },
-  { id: 'nuts', name: 'River Bend Pecans', what: 'Nuts and dried fruit', holder: 'George', canopy: 0x8d6e4a,
-    produce: [0x7a4f2a, 0x9c6b3c, 0xc69c6d], items: [['Pecans, 500 g', 14, {}], ['Dried apricots, 250 g', 8, {}], ['Roasted almonds, 250 g', 9, {}]] },
-  { id: 'eggs', name: 'Free Range Hill Eggs', what: 'Eggs and seasonal produce', holder: 'Bec', canopy: 0x3a7ab8,
-    produce: [0xf2e6c9, 0xd9b98f, 0xf7efe0], items: [['Free-range eggs, dozen', 8, { good: 'eggs' }], ['Duck eggs, half dozen', 7, { good: 'eggs' }]] },
+  { id: 'veg', name: "Granny Smith's orchard stall", what: 'Apples, fruit and vegetables', holder: 'Maria Ann Smith', life: 'about 1799–1870', canopy: 0xffffff, stripe: 0x2f8a46,
+    bio: 'Born Maria Ann Sherwood in Peasmarsh, Sussex; arrived in Sydney in 1838 and farmed at Eastwood, growing fruit for the Sydney markets, where she took a stall when her trees were bearing. The Granny Smith apple, from a chance seedling on her farm, is named after her.',
+    src: [['City of Ryde: Granny Smith', 'https://www.ryde.nsw.gov.au/Library/Local-and-Family-History/Historic-Ryde/Historic-Figures/Granny-Smith'], ['Wikipedia: Granny Smith', 'https://en.wikipedia.org/wiki/Granny_Smith']],
+    produce: [0x7fbf3f, 0x6aa84f, 0xc0392b, 0xe69138], items: [['Granny Smith apples, 1 kg', 6, { good: 'fruit' }], ['Tomatoes, 1 kg', 6, { good: 'veg' }], ['Pumpkin, quarter', 4, { good: 'veg' }], ['Navel oranges, 2 kg bag', 7, { good: 'fruit' }]] },
+  { id: 'herbs', name: 'Botanic Gardens seedlings and macadamias', what: 'Seedlings, herbs and macadamia nuts', holder: 'Walter Hill', life: '1820–1904', canopy: 0x5fae4f,
+    bio: 'First superintendent of the Brisbane Botanic Gardens. In 1858 he planted what is recorded as the first cultivated macadamia tree, from seed brought from near Gympie; the tree still bears nuts.',
+    src: [['Australian Dictionary of Biography: Hill, Walter', 'https://adb.anu.edu.au/biography/hill-walter-12981'], ['Australian Macadamias: the first macadamia tree', 'https://australian-macadamias.org/?p=2317']],
+    produce: [0x3f8f3f, 0x6abf5a, 0xc69c6d, 0x9c6b3c], items: [['Macadamias, 500 g', 15, {}], ['Herb seedling punnet', 4.5, {}], ['Potted basil', 7, {}]] },
+  { id: 'bread', name: "Arnott's bakery", what: 'Bread, pies and biscuits', holder: 'William Arnott', life: '1827–1901', canopy: 0xd9b26a,
+    bio: 'Born near Kirkcaldy, Fife; arrived in Sydney in 1848 and became a baker and pastry-cook in Maitland. Floods ruined his business more than once; he later repaid his 1862 Maitland creditors in full. His biscuit firm became Arnott\'s.',
+    src: [['Australian Dictionary of Biography: Arnott, William', 'https://adb.anu.edu.au/biography/arnott-william-2903']],
+    produce: [0xb07a3c, 0xc98d4a, 0xe0b878], items: [['Cottage loaf', 6, { good: 'bread' }], ['Arrowroot biscuits, packet', 4, { eat: 10 }], ['Meat pie', 6, { eat: 30 }]] },
+  { id: 'meat', name: 'Kidman station beef', what: 'Beef from the outback stations', holder: 'Sidney Kidman', life: '1857–1935', canopy: 0xffffff, stripe: 0xa83232,
+    bio: 'Born near Adelaide in 1857; left home at about thirteen with a horse and little money and built a chain of cattle stations across inland Australia, becoming known as "the Cattle King". Knighted in 1921; died at Millswood, South Australia, in 1935.',
+    src: [['Australian Dictionary of Biography: Kidman, Sir Sidney', 'https://adb.anu.edu.au/biography/kidman-sir-sidney-6948'], ['SA History Hub: Sir Sidney Kidman', 'https://sahistoryhub.history.sa.gov.au/people/sir-sidney-kidman/']],
+    produce: [0x9b2f2f, 0xc85a5a, 0x7d2424], items: [['Rump steak, 1 kg', 28, { good: 'lamb' }], ['Beef mince, 1 kg', 16, { good: 'lamb' }], ['Beef sausages, 1 kg', 14, { good: 'lamb' }]] },
+  { id: 'oil', name: 'Davenport olive oil', what: 'Virgin olive oil and olives', holder: 'Samuel Davenport', life: '1818–1906', canopy: 0x7e8f3a,
+    bio: 'Arrived in South Australia in 1843 after learning olive and vine growing in the south of France. He showed South Australian olive oil at the 1851 Great Exhibition in London and won a prize; "Sir Samuel Davenport\'s Virgin Olive Oil" later won medals in France and India.',
+    src: [['Wikipedia: Samuel Davenport', 'https://en.wikipedia.org/wiki/Samuel_Davenport_(Australian_politician)'], ['City of Burnside: Olives from the Buffalo to Beaumont', 'https://burnside.sa.gov.au/Latest-News/History-Corner/Olives-From-the-Buffalo-to-Beaumont']],
+    produce: [0x9aa83a, 0x55602a, 0xc2c45a], items: [['Virgin olive oil, 500 ml', 18, {}], ['Cured olives, jar', 10, {}]] },
+  { id: 'jams', name: 'IXL jams', what: 'Jam and preserves', holder: 'Henry Jones', life: '1862–1926', canopy: 0xffffff, stripe: 0xc0392b,
+    bio: 'Born in Hobart Town in 1862; started at George Peacock\'s jam factory pasting labels on tins, became an expert jam-boiler and took over the business. His IXL brand ("I excel") made him "Jam Tin Jones". Knighted in 1919; died in Melbourne in 1926.',
+    src: [['Australian Dictionary of Biography: Jones, Sir Henry', 'https://adb.anu.edu.au/biography/jones-sir-henry-6874'], ['Companion to Tasmanian History: Henry Jones', 'https://utas.edu.au/library/companion_to_tasmanian_history/J/Jones%20Henry.htm']],
+    produce: [0x8e1f2f, 0xe67e22, 0xb03a2e, 0xf1c40f], items: [['IXL apricot jam', 8, {}], ['IXL raspberry jam', 8, {}], ['Plum jam', 8, {}]] },
+  { id: 'honey', name: 'Italian Bee Farm honey', what: 'Honey and beeswax', holder: 'William Abram', life: 'born 1854', canopy: 0xf2c14e,
+    bio: 'German-born beekeeper who judged the Italian bee best for honey, arrived in Australia in 1880 with queen bees and set up the Italian Bee Farm at Parramatta; by 1886 he was known as a pioneer of Australian bee farming.',
+    src: [['Beecroft Cheltenham History Group: Abram, William', 'https://bchg.org.au/?p=45']],
+    produce: [0xe0a526, 0xf4c542, 0xc98a14], items: [['Honey, 500 g', 12, {}], ['Honeycomb', 15, {}], ['Beeswax candle', 9, {}]] },
+  { id: 'wine', name: 'Busby vine cuttings and wine', what: 'Wine tastings (18+, RSA) and his vine treatise', holder: 'James Busby', life: '1801–1871', canopy: 0x6b2a3a,
+    bio: 'Born in Edinburgh; arrived in New South Wales in 1824. His Treatise on the Culture of the Vine (Sydney, 1825) and the vine cuttings he imported from France laid the foundations of the Australian wine industry, earning him the title "father of Australian wine". Later British Resident in New Zealand (1832).',
+    src: [['Wikipedia: James Busby', 'https://en.wikipedia.org/wiki/James_Busby'], ['ISFAR: Busby, James (1801–1871)', 'https://www.isfar.org.au/bio/busby-james-1801-1871/']],
+    produce: [0x4a1020, 0x7a1f35, 0xe8d9a8], items: [['Hunter Valley shiraz, bottle', 28, { adult: true }], ['Semillon, bottle', 24, { adult: true }]] },
+  { id: 'nuts', name: 'Vacant site', what: 'Stall site available', vacant: true, canopy: 0xffffff, produce: [], items: [] },
+  { id: 'eggs', name: 'Vacant site', what: 'Stall site available', vacant: true, canopy: 0xffffff, produce: [], items: [] },
 ]);
-// Hot food and coffee: a coffee van and the community sausage sizzle (a fundraiser for a local club).
+// Tea and the community sausage sizzle (Lions Clubs run fundraiser barbecues; the volunteers are unnamed).
 export const FOOD = Object.freeze([
-  { id: 'coffee', name: 'Black Dog Coffee Van', what: 'Coffee from a converted van', holder: 'Jess', items: [['Flat white', 5, { drink: 15 }], ['Long black', 4.5, { drink: 15 }], ['Hot chocolate', 5, { drink: 8 }]] },
-  { id: 'sizzle', name: 'Lions Club sausage sizzle', what: 'Community fundraiser barbecue', holder: 'Bill', items: [['Sausage in bread', 4, { eat: 25 }], ['Bacon and egg roll', 10, { eat: 40 }], ['Bottle of water', 2, { drink: 3 }]] },
+  { id: 'coffee', name: "Quong Tart's tea cart", what: 'Tea, scones and cakes', holder: 'Mei Quong Tart', life: '1850–1903',
+    bio: 'Came to the New South Wales goldfields from Guangdong as a child; became a Sydney tea and silk merchant and opened what are described as Sydney\'s first tea rooms in 1882, later the Elite Hall in the Queen Victoria Markets. He campaigned against the opium trade. He died in Ashfield in 1903.',
+    src: [['Wikipedia: Mei Quong Tart', 'https://en.wikipedia.org/wiki/Mei_Quong_Tart'], ['NSW Heritage blue plaque: Quong Tart', 'https://www.environment.nsw.gov.au/topics/heritage/blue-plaques/quong-tart']],
+    items: [['Pot of tea', 4, { drink: 12 }], ['Scone with jam and cream', 6, { eat: 15 }], ['Coffee', 5, { drink: 15 }]] },
+  { id: 'sizzle', name: 'Lions Club sausage sizzle', what: 'Community fundraiser barbecue', holder: 'the Lions Club volunteers', items: [['Sausage in bread', 4, { eat: 25 }], ['Bacon and egg roll', 10, { eat: 40 }], ['Bottle of water', 2, { drink: 3 }]] },
 ]);
 
 // Square-local layout (metres; the square's centre is at its lot centre, +z towards the street).
@@ -82,7 +102,7 @@ export function buyAtStall(life, stallId, index) {
   else { me.marketGoods = me.marketGoods || {}; me.marketGoods[name] = (me.marketGoods[name] || 0) + 1; }
   life.civic.marketTakings = (life.civic.marketTakings || 0) + price;
   life.log(`A visitor bought ${name.toLowerCase()} at the ${s.name} stall.`);
-  return `${s.holder} hands you the ${name.toLowerCase()}: $${price.toFixed(2)}. ${note}`;
+  return `${s.holder[0].toUpperCase() + s.holder.slice(1)} hands you the ${name.toLowerCase()}: $${price.toFixed(2)}. ${note}`;
 }
 
 // Draws the stalls (shown only while they stand), stallholders, a few shoppers and the info tent.
@@ -90,7 +110,7 @@ export function buildFarmersMarket(group, at) {
   const L = marketLayout(), root = new THREE.Group(); root.name = "Farmers' market"; root.position.set(at.x, 0, at.z);
   const b = new Builder(), colliders = [], people = [];
   const site = (s, fn) => b.at(s.x, 0, s.z, s.yaw, fn);
-  for (const s of L.stalls) site(s, () => {
+  for (const s of L.stalls.filter((x) => !x.vacant)) site(s, () => {
     // 3 x 3 m marquee: four legs with weights, canopy (striped where the stall has a stripe), valance.
     for (const lx of [-1.45, 1.45]) for (const lz of [-1.45, 1.45]) { b.box(0xdddddd, .05, 2.35, .05, lx, 1.18, lz); b.box(0x555b60, .32, .14, .32, lx, .07, lz); }
     b.box(s.canopy, 3.1, .06, 3.1, 0, 2.4, 0);
@@ -125,16 +145,16 @@ export function buildFarmersMarket(group, at) {
   // Colliders (world): trestle tables (stand on top 0.76 m), the van body, the barbecue.
   const rot = (s, lx, lz) => ({ x: at.x + s.x + lx * Math.cos(s.yaw) + lz * Math.sin(s.yaw), z: at.z + s.z - lx * Math.sin(s.yaw) + lz * Math.cos(s.yaw) });
   const box = (s, lx, lz, hw, hd, top) => { const c = rot(s, lx, lz), turned = Math.abs(Math.sin(s.yaw)) > .5, w = turned ? hd : hw, d = turned ? hw : hd; colliders.push({ x0: c.x - w, x1: c.x + w, z0: c.z - d, z1: c.z + d, top }); };
-  for (const s of L.stalls) box(s, 0, .95, 1.3, .4, .76);
+  for (const s of L.stalls.filter((x) => !x.vacant)) box(s, 0, .95, 1.3, .4, .76);
   box(L.food[0], 0, 0, 1.0, 2.2, 2.3); box(L.food[1], 0, .3, .8, .35, .88); box(L.info, 0, .7, .8, .3, .76);
   // Stallholders behind each table; a few shoppers on market mornings.
   const person = (seed, shirt, x, z, yaw, scale = 1) => { const p = makePerson(seed, shirt, 0x2f3542); p.group.position.set(x, 0, z); p.group.rotation.y = yaw; p.group.scale.setScalar(scale); root.add(p.group); people.push(p); };
-  [...L.stalls, ...L.food].forEach((s, i) => { const c = rot(s, 0, s.van ? 0 : -0.1); person(101 + i * 17, s.stripe || s.canopy || 0x6b4f3a, c.x - at.x, c.z - at.z, s.yaw); });
+  [...L.stalls, ...L.food].filter((x) => !x.vacant).forEach((s, i) => { const c = rot(s, 0, s.van ? 0 : -0.1); person(101 + i * 17, s.stripe || s.canopy || 0x6b4f3a, c.x - at.x, c.z - at.z, s.yaw); });
   const shoppers = [[-6, -12.5, Math.PI], [-1, -12.6, Math.PI], [4.6, -12.8, Math.PI], [-7.6, -9.4, -Math.PI / 2], [7.4, .4, Math.PI / 2], [6.1, 3.4, 0], [-6.6, 3.6, 0], [2.5, -2.0, 2.2], [-2.3, 1.6, -.8]];
   shoppers.forEach(([x, z, y], i) => person(500 + i * 29, [0x3a7ab8, 0xc0392b, 0x6aa84f, 0xe69138, 0x8e44ad, 0x34495e][i % 6], x, z, y, i === 7 ? 0.6 : 1));
   group.add(root);
   root.visible = false;
-  const spots = [...L.stalls, ...L.food].map((s) => { const p = servePoint(s); return { key: 'market:' + s.id, market: s.id, pos: new THREE.Vector3(at.x + p.x, 0, at.z + p.z), label: `${s.name} · ${s.what}` }; });
+  const spots = [...L.stalls, ...L.food].filter((x) => !x.vacant).map((s) => { const p = servePoint(s); return { key: 'market:' + s.id, market: s.id, pos: new THREE.Vector3(at.x + p.x, 0, at.z + p.z), label: `${s.name} · ${s.what}` }; });
   spots.push({ key: 'market:info', market: 'info', pos: new THREE.Vector3(at.x + L.info.x, 0, at.z + L.info.z + 1.8), label: 'Market information tent' });
   return { root, colliders, spots, people, layout: L,
     // Tables block only while the stalls stand; call update each frame with the town clock.
@@ -144,12 +164,13 @@ export function buildFarmersMarket(group, at) {
 
 export function stallPanel(life, stallId, buy) {
   const all = [...STALLS, ...FOOD], s = all.find((x) => x.id === stallId);
-  if (stallId === 'info') return { title: "Repo Town Farmers' Market · information", body: `<p>Open 8 am to 12 pm on the 1st and 3rd Saturday of the month, modelled on the Dubbo Farmers Market (Macquarie Valley Food & Wine Inc., about 60 stalls). Twelve 3 × 3 m sites here; all stallholders grow, make or raise what they sell.</p><p>Bring a bag: single-use plastic bags are not provided. Hand-wash station beside this tent. Wine is sold to over-18s only.</p><p><small>Stall businesses and stallholders are fictional; prices are illustrative.</small></p>`, actions: [] };
+  if (stallId === 'info') return { title: "Repo Town Farmers' Market · information", body: `<p>Open 8 am to 12 pm on the 1st and 3rd Saturday of the month, modelled on the Dubbo Farmers Market (Macquarie Valley Food & Wine Inc., about 60 stalls). Twelve 3 × 3 m sites here; the stallholders are famous figures from Australian food history, each selling what they were known for (two sites are vacant).</p><p>Bring a bag: single-use plastic bags are not provided. Hand-wash station beside this tent. Wine is sold to over-18s only.</p><p><small>Historical figures honoured at a present-day market; prices are illustrative.</small></p>`, actions: [] };
   if (!s) return { title: 'Stall', body: '<p>Packed up.</p>', actions: [] };
-  return { title: `${s.name}`, body: `<p>${s.what}. ${s.holder} is serving.</p><p><small>Prices are illustrative 2026 prices.</small></p>`,
+  const who = s.bio ? `<p><b>${s.holder}</b> (${s.life}): ${s.bio}</p><p><small>A historical figure honoured with a stall at today's market, selling what they were known for. Sources: ${s.src.map(([t, u]) => `<a href="${u}" target="_blank" rel="noopener">${t}</a>`).join('; ')}</small></p>` : `<p>Run by ${s.holder}.</p>`;
+  return { title: `${s.name}`, body: `<p>${s.what}.</p>${who}<p><small>Prices are illustrative 2026 prices.</small></p>`,
     actions: s.items.map(([name, price], i) => ({ label: `${name} · $${price.toFixed(2)}`, run: () => ({ title: s.name, body: `<p>${buy(stallId, i)}</p>`, actions: [] }) })) };
 }
 export function marketNotice(day, minute) {
   const next = nextMarketDay(day), open = marketOpen(day, minute);
-  return { title: 'Market Square notice board', body: `<p>${open ? "The farmers' market is on now, until 12 pm." : `Next farmers' market: ${next ? townDate(next).label : 'to be announced'}, 8 am to 12 pm.`}</p><p>Every 1st and 3rd Saturday: local fruit and veg, sourdough, meat, eggs, honey, olive oil, preserves, nuts, wine tastings, coffee and the Lions sausage sizzle.</p>`, actions: [] };
+  return { title: 'Market Square notice board', body: `<p>${open ? "The farmers' market is on now, until 12 pm." : `Next farmers' market: ${next ? townDate(next).label : 'to be announced'}, 8 am to 12 pm.`}</p><p>Every 1st and 3rd Saturday: Granny Smith's apples, Arnott's bread and biscuits, Kidman beef, IXL jams, Davenport olive oil, Busby wines, Italian Bee Farm honey, Walter Hill's macadamias and seedlings, Quong Tart's tea and the Lions sausage sizzle.</p>`, actions: [] };
 }
