@@ -15,6 +15,12 @@ assert.equal(Object.values(townPowerDemands(7,0)).reduce((n,p)=>n+p.demand,0),0)
 assert.equal(Object.values(townPowerDemands(7,7)).reduce((n,p)=>n+p.demand,0),7);
 assert.throws(()=>distributePower({generation:-1,demands:townPowerDemands(9,38)}),/generation/);
 assert.throws(()=>distributePower({generation:20,demands:{broken:{demand:-1,priority:0}}}),/demand/);
+const sundayPeak=distributePower({generation:130,demands:townPowerDemands(9,130)});
+assert.equal(sundayPeak.unserved,0,'Sunday 09:00 peak must fit the electrical feeders');
+assert.equal(sundayPeak.served,130,'generation must equal delivered fictional demand');
+assert(sundayPeak.edges.find(e=>e.id==='main-feed').availableCapacity>=150);
+assert(sundayPeak.edges.find(e=>e.id==='west-feeder').availableCapacity>=65);
+assert(sundayPeak.edges.find(e=>e.id==='east-feeder').availableCapacity>=65);
 const healthy=distributePower({generation:38,demands:townPowerDemands(9,38)});
 assert.equal(healthy.demand,38);
 assert.equal(healthy.served,38);
