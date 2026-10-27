@@ -19,7 +19,7 @@
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "aae6d8c5c692dbb847b4463104db7af8040e426c",
+    "repository-town/src/main.js": "042179065ad051e673e72fe3b1b9408945205476",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -722,7 +722,8 @@
     "2026-10-26 PR237 source-provenance refresh: re-read shared shop-interior.js Git blob after concurrent main branch changes. Source remains independently checked by its shop-wide geometry/interior CI; no new pub compliance status or certificate is asserted. Post office receives its own physical playtest gate.",
     "2026-10-26 PR237 re-integrated against latest main: reconciled repository-town/src/world/shop-interior.js, repository-town/src/world/townlife.js fingerprint(s), preserved concurrent retail and service-building changes. No regulatory signoff or change to pub certification.",
     "2026-10-27 PR242 integration re-audit: main.js world map display/boundary expansion and shared life.js northern footpath routing changed. Git hashes refreshed for provenance, not proof of pub code compliance, measured egress or professional certification.",
-    "2026-10-27 footpath re-audit: eastbound north-side pavement lane adjusted to 5.0 m, westbound 7.05 m for cyclist separation. Does not assert pub compliance."
+    "2026-10-27 footpath re-audit: eastbound north-side pavement lane adjusted to 5.0 m, westbound 7.05 m for cyclist separation. Does not assert pub compliance.",
+    "2026-10-27 alias routing re-audit: HUD fast travel accepts the legacy 'Repo Public Library' name for the existing 'The Old Shire Library' civic site. Pure search selection change; pub geometry, operations, egress and NCC regulatory status unchanged. This fingerprint does not certify compliance."
   ],
   "sourceChangeReviews": {
     "2026-10-26-rail-corridor": {
@@ -734,6 +735,11 @@
       "scope": "195-country residential stage and pedestrian route clearance",
       "verification": "Reviewed changed game world map boundaries and north-side walkway choice; separate pub envelope checks still required.",
       "regulatoryStatus": "No change to any RTPUB regulatory status or certification."
+    },
+    "2026-10-27-library-alias": {
+      "scope": "HUD name matching for library",
+      "verification": "Alias routes to existing canonical civic site via goPlace, not a new building or modified pub structure",
+      "regulatoryStatus": "No change to 34 RTPUB status entries or claims of compliance."
     }
   },
   "reaudits": [
@@ -758,6 +764,15 @@
       ],
       "finding": "New residential map/search and far-west playing boundary, safer high-street north-side footpath lane. No pub egress, building envelope or services changed.",
       "evidence": "Shared source fingerprints updated; review remains non-certifying. Full current CI required."
+    },
+    {
+      "date": "2026-10-27",
+      "by": "ChatGPT",
+      "changedFiles": [
+        "repository-town/src/main.js"
+      ],
+      "finding": "Legacy public library fast-travel alias now selects the existing A7-N library place (id 'library') in HUD search; pub compliance classification remains unchanged.",
+      "evidence": "Root cause isolated to renamed library site string; GH Actions fast-travel regression provides a real browser verification."
     }
   ]
 }
