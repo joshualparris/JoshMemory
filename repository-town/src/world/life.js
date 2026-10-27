@@ -1744,8 +1744,12 @@ export class TownLife {
     if(v.fatigue>92 && v.step?.kind==='work')v.memory='struggling to stay awake at work';
     if (v.engaged) return;                   // chatting with the player: stands still
     // A stroll, a visit or the washing-up gives way to work: once it is time to set off, go.
-    if (v.step && (v.step.kind === 'idle' ? v.step.at !== 'pub' : v.step.at === 'home' && !['sleep', 'shower', 'cook'].includes(v.step.kind)) && v.work !== 'home' && !['student','retired'].includes(v.job) &&
-        this.minute >= v.start - commuteLead(v, this.places.get(v.work)) && this.minute < v.start) { v.path = []; v.step = null; this.plan(v); return; }
+    if (v.step && (v.step.kind === 'idle' ? v.step.at !== 'pub' : v.step.at === 'home' && !['sleep', 'shower', 'cook'].includes(v.step.kind)) && v.work !== 'home' && !['student','retired'].includes(v.job)) {
+      const shift=this.shiftToday(v);
+      if(shift && this.minute >= shift.start - commuteLead(v, this.places.get(v.work)) && this.minute < shift.start){
+        v.path=[];v.step=null;this.plan(v);return;
+      }
+    }
     if (v.path.length) {
       // Dismount in the final 12 m; pushing a full-size bicycle through a
       // crowded shopfront is not realistic and causes large wheel overlaps.
