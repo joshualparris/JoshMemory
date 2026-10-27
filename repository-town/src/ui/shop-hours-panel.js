@@ -49,7 +49,7 @@ export function openingHoursPanel(life, goPlace) {
     </div>`).join('');
   return {
     title: '🕒 Town opening hours', wide: true,
-    body: `<p>Today is <b>${escapeHTML(life.dateLabel())}</b>, Day ${life.day}, ${escapeHTML(life.time())}. These are <b>the town's simulated opening hours for today</b>, not real-world trading hours.</p>
+    body: `<p>Today is <b>${escapeHTML(life.dateLabel?.()||'Monday 26 October 2026')}</b>, Day ${life.day}, ${escapeHTML(life.time())}. These are <b>the town's simulated opening hours for today</b>, not real-world trading hours.</p>
       <p class="dim">A shop can be temporarily locked during its published hours when staff are travelling or off site. Workplaces may also allow employee or guest access outside visitor hours. Select <b>Go</b> to travel to the front entrance.</p>
       ${sections.map(([key, title]) => `<h3>${title}</h3><div class="hours-list">${rows(key)}</div>`).join('')}`,
     mount: (root) => {
