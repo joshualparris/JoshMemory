@@ -2,6 +2,7 @@
 // game state directly and say so in the town log; nothing here touches real money or accounts.
 import { DRIVEABLE_RECTS, PLAN_PARCELS, PLAN_HOMES } from './masterplan-built.js';
 import { registry } from './property.js';
+import {vehicleSpec,VEHICLE_DYNAMICS} from './vehicle-dynamics.js';
 
 const r2 = (n) => Math.round(n * 100) / 100;
 
@@ -21,17 +22,19 @@ export function nearestRoadPoint(x, z, clear = () => true) {
 // A registered, fuelled car parked on the road nearest (x, z).
 export function summonCar(life, x, z, { model = 'sedan', clear } = {}) {
   const motor = life.civic.motor; if (!motor) return { ok: false, message: 'Vehicles are not available in this save.' };
+  if(!Object.hasOwn(VEHICLE_DYNAMICS,model))return {ok:false,message:'Unknown vehicle model.'};
   const spot = nearestRoadPoint(x, z, clear);
   if (!spot) return { ok: false, message: 'No clear road nearby to park a car.' };
+  const spec=vehicleSpec(model);
   const vehicle = {
     stockId: 'cheat-' + motor.next, model, condition: 100, odometer: 0, price: 0,
     registration: 'CHEAT-' + String(motor.next++).padStart(3, '0'), owner: 'visitor',
     regoUntil: life.day + 365, lastService: life.day, serviceDue: life.day + 365, roadworthy: true,
-    x: spot.x, z: spot.z, yaw: spot.horizontal ? Math.PI / 2 : 0, speed: 0, fuel: 60, parkingPending: false, cheat: true,
+    x: spot.x, z: spot.z, yaw: spot.horizontal ? Math.PI / 2 : 0, speed: 0, fuel: spec.maxFuel, parkingPending: false, cheat: true, cheatUnrestricted:false,
   };
   motor.owned.push(vehicle);
   life.log(`Cheat: ${vehicle.registration} summoned.`);
-  return { ok: true, vehicle, message: `${vehicle.registration} is parked on the road beside you. Walk up and press E (or ✋) to drive.` };
+  return { ok: true, vehicle, message: `${spec.name} (${vehicle.registration}) is parked nearby. Maximum mechanical speed ${spec.topKmh} km/h; Town roads are posted at 50 km/h. Walk up and use the hand control to drive.` };
 }
 
 // Transfer a title outright: no deposit, no mortgage, existing tenants keep their lease.
@@ -89,7 +92,7 @@ export function refreshNeeds(life) {
 
 export function fixAllCars(life) {
   const owned = life.civic.motor?.owned || [];
-  for (const v of owned) Object.assign(v, { condition: 100, fuel: 60, roadworthy: true, regoUntil: life.day + 365, serviceDue: life.day + 365 });
+  for (const v of owned) Object.assign(v, { condition: 100, fuel: vehicleSpec(v.model).maxFuel, roadworthy: true, regoUntil: life.day + 365, serviceDue: life.day + 365 });
   return { ok: true, message: owned.length ? `${owned.length} car${owned.length > 1 ? 's' : ''} repaired, refuelled and registered for a year.` : 'You have no cars yet. Summon one first.' };
 }
 
