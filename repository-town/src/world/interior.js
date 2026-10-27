@@ -231,8 +231,11 @@ function buildOnce(house, makeLabel, attempt) {
   });
   // A villager's own home (house.household = their name) also gets the rooms they live in:
   // the appliances here are the ones src/world/household.js runs, and using them opens that household.
-  if(house.household && !house.memorial){
-    const use=(what)=>({do:'household',what});
+  if((house.household||house.careHousehold) && !house.memorial){
+    const use=what=>house.careHousehold?
+      {do:'info',title:'Care staff shared house · '+what,
+       text:'A fictional domestic '+what+' for off-duty aged-care employees, not a workplace or resident-care room.'}:
+      {do:'household',what};
     const have=new Set(authored.rooms.map(r=>r.name));
     const add=(name,w,d,props)=>{ if(!have.has(name))roomsWithBeds.push({name,w,d,archive:true,household:true,props}); };
     add('Kitchen',10,8,[['fridge','Fridge',use('fridge')],['pantry','Pantry',use('pantry')],['stove','Oven and cooktop',use('oven')],
@@ -241,6 +244,15 @@ function buildOnce(house, makeLabel, attempt) {
       ['washingMachine','Washing machine',use('laundry')],['freezer','Chest freezer',use('freezer')],['switchboard','Switchboard',use('power')]]);
     add('Living room',10,9,[['sofa','Couch'],['tv','Television',use('tv')],['aircon','Air conditioner',use('climate')],
       ['computer','Home computer',use('computer')],['lamp','Reading lamp']]);
+    if(house.careHousehold){
+      for(let i=0;i<house.careWorkers.length;i++){
+        const person=house.careWorkers[i];
+        add('Care-worker bedroom '+(i+1),8,8,[
+          ['bed','Private bed for '+person.name,{do:'info',title:person.name+' · private bedroom',
+            text:'Fictional '+person.job+' living in this southside share house. This is a place for rest between shifts.'}],
+          ['wardrobe','Scrubs, uniforms and personal clothing'],['lamp','Bedside light']]);
+      }
+    }
   }
   const spec={...authored,rooms:roomsWithBeds};
   const b = new Builder();
