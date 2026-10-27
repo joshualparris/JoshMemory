@@ -90,6 +90,15 @@ try {
  assert(!dash.hidden&&dash.temp!=='22 °C','driving must warm the coolant gauge rather than display a static reading: '+JSON.stringify(dash));
  assert(Number.parseFloat(dash.fuel)<20,'fuel gauge must reflect actual fuel consumption: '+JSON.stringify(dash));
  assert(v.odometer>64000,'odometer increases as vehicle travels');
+ const estate=await page.evaluate(()=>window.__town.estateLights?.());
+ assert(estate&&estate.count>90&&estate.sourceCount>estate.count,'all development streets registered for lighting: '+JSON.stringify(estate));
+ await page.evaluate(()=>window.__town.life.setTime(23*60));
+ await page.waitForFunction(()=>window.__town.driveHeadlights?.().beamsLit===2,null,{timeout:6000});
+ assert((await page.evaluate(()=>window.__town.driveHeadlights())).on,'a stopped or moving car must illuminate the night road');
+ await page.evaluate(()=>window.__town.life.setTime(12*60));
+ await page.waitForFunction(()=>window.__town.driveHeadlights?.().beamsLit===0,null,{timeout:6000});
+ assert.equal((await page.evaluate(()=>window.__town.driveHeadlights())).on,false,'headlights switch off by daylight');
+
  assert(!errors.length,'no browser page errors: '+errors.join('; '));
  console.log('PASS: Android viewport, full dealer purchase, physical car spawn, touch entry and joystick driving');
 } finally {await browser.close();}
