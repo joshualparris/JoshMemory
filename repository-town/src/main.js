@@ -30,6 +30,8 @@ import { createTownMap } from './ui/town-map.js';
 import { createCheatMenu } from './ui/cheat-menu.js';
 import { summonCar, claimProperty, nearestPropertyKey, planTitleKey, addMoney, refreshNeeds, fixAllCars, setClock } from './world/cheats.js';
 import { buildBrackenInterior } from './world/bracken-interior.js';
+import {populateCareCampus} from './world/aged-care-population.js';
+import {CARE_FACILITIES,careStaff,careResidents,careOnDuty,careDailyMetrics,assignCareHousing} from './world/aged-care-operations.js';
 import { houseAddress, parseTownAddress, placeAddress } from './world/addresses.js';
 import { buildInterior, labelVisible } from './world/interior.js';
 import { honourPaulRoe } from './world/paul-roe-tribute.js';
@@ -57,6 +59,7 @@ import { sceneFromRoom } from './ui/scene-awareness.js';
 import { mountNPCChat } from './ui/npc-chat.js';
 import { mountTownYarns } from './ui/yarns.js';
 import { makePerson, Walker, houseWander, freeSpot, placeTownNPCs, animateNPCs, initialiseNPCWorksites } from './world/npcs.js';
+import {makeDistinctPerson} from './world/npc-wardrobe.js';
 import { separatePedestrians, steerPedestrians } from './world/pedestrian-spacing.js';
 import { createTownLife } from './world/townlife.js';
 import { createEmergencyResponseVisuals } from './world/emergency-response-visuals.js';
@@ -159,6 +162,11 @@ async function start() {
   // Town life: farms, shops, trucks and 32 villagers with jobs and meals (src/world/life.js).
   const townLife = createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog });
   const life = townLife.life;
+  // Real existing southern house interiors become ordinary share-homes for fictional
+  // care employees. Leave all established villager homes and save IDs untouched.
+  const careWorkerList=[...careStaff('bracken-house'),...careStaff('yeoval-aged-care')].sort((a,b)=>a.staffRoleIndex-b.staffRoleIndex||a.role.localeCompare(b.role)||a.facility.localeCompare(b.facility));
+  const careHousing=assignCareHousing(careWorkerList,town.lots.keys(),new Set(life.villagers.map(v=>v.home.coordinate)));
+  const careHouse=coordinate=>careHousing.houses.get(coordinate)||null;
   initialiseElectricalPilot(life);
   const pilotVisuals=createElectricalPilotVisuals(town.group,life);
   const emergencyVisuals = createEmergencyResponseVisuals(life, town);
@@ -418,13 +426,42 @@ async function start() {
     // A villager's own home also has their kitchen, bathroom and laundry, and living room.
     const resident = life.villagers.find((v) => v.home.coordinate === coord);
     const base = byCoord.get(coord);
+    const careHousemates=careHouse(coord);
     // Memorial buildings are public galleries, not a randomly assigned NPC home.
     // Never append generic kitchen, bathroom/laundry or living room overlays.
     const family=life.householdMembers(coord);
-    const h=resident && !base.memorial?{...base,household:resident.name,
+    const h=careHousemates && !base.memorial?{...base,
+      name:'Care workers’ share house',careHousehold:true,
+      careWorkers:careHousemates,careRosterDate:life.dateLabel(),
+      householdResidents:careHousemates,marriedCouple:false}:
+      resident && !base.memorial?{...base,household:resident.name,
       householdResidents:family.residents,marriedCouple:family.sharedDoubleBed}:base;
     const floors = h.memorial ? null : createFloorStack(h, makeLabel);
     const built = floors ? floors.levels[0] : buildInterior(h, makeLabel);
+    if(careHousemates){
+      const people=careHousemates.map(w=>w.name+' · '+w.job+' ('+CARE_FACILITIES[w.facility].name+')').join('; ');
+      const p=built.spawn.clone();p.z-=1.4;
+      built.interactables.push({key:'care-house:'+coord,type:'civic',label:'Care staff share-house roster',
+        room:0,roomName:'Shared staff accommodation',pos:p,
+        act:{do:'info',title:'Care workers living at '+coord,
+          text:'This is a fictional shared home, with a kitchen, sleeping rooms, bathroom, laundry and off-duty living area. Residents: '+people+'. No real UPA employee names or residential addresses are represented.'}});
+      const plaque=makeLabel('CARE STAFF SHARE HOUSE · '+careHousemates.length+' housemates','interactive');
+      plaque.position.set(p.x,2.32,p.z);built.group.add(plaque);
+      const offDuty=careHousemates.filter(w=>!careOnDuty(w.facility,life.day,life.minute).some(o=>o.id===w.id));
+      const roomIndex=Math.max(0,built.rooms.findIndex(room=>room.name==='Living room'));
+      const living=built.rooms[roomIndex];
+      for(let i=0;i<offDuty.length;i++){
+        const worker=offDuty[i];
+        const pos=new THREE.Vector3((living.x0+living.x1)/2+(i-.5)*.9,0,(living.z0+living.z1)/2+(i%2)*.5);
+        const key='care-share:'+coord+':'+worker.id;
+        const act={do:'npc',name:worker.name,role:worker.job,id:worker.id,isCareStaff:true};
+        built.walkers.push({key,act,room:roomIndex,pos,label:worker.name+' · '+worker.job});
+        built.interactables.push({key,type:'npc',label:'Speak with '+worker.name,
+          person:true,act,room:roomIndex,roomName:living.name,pos});
+        built.sceneObjects.push({type:'person',label:worker.name,room:roomIndex,
+          pos:{x:pos.x,z:pos.z},interactive:true});
+      }
+    }
     attachPilotInteriorLighting(built.group,'H:'+coord);
     // Every storey shares the ground floor's frame: front door at the interior's exit, facing +z
     // like the house itself, so the windows look out on the real street (src/world/windows.js).
@@ -439,7 +476,8 @@ async function start() {
     const kitchens = [...new Set(built.placedProps.filter((p) => ['stove', 'fridge', 'pantry', 'coffeeMachine'].includes(p.type)).map((p) => p.room))];
     inside.people = built.walkers.map((w, i) => {
       freeSpot(w.pos, world);
-      const walker = new Walker(makePerson(coord.charCodeAt(0) + i * 7, w.act.c ?? 0x3f6fb5, w.act.a ?? 0x2f3440), w.pos, { speed: 0.9, name: w.act.name });
+      const model=w.act?.isCareStaff?makeDistinctPerson('care-employee:'+w.act.id):makePerson(coord.charCodeAt(0) + i * 7, w.act.c ?? 0x3f6fb5, w.act.a ?? 0x2f3440);
+      const walker = new Walker(model, w.pos, { speed: 0.9, name: w.act.name });
       if (w.label) { const s = makeLabel(w.act.name || w.label, 'interactive'); s.position.set(0, 2.25, 0); s.userData.labelKind = 'interactive'; walker.group.add(s); walker.tag = s; }
       walker.room = w.room; walker.activity = 'pottering about';
       const interactable = built.interactables.find((x) => x.key === w.key);
@@ -492,8 +530,9 @@ async function start() {
     if(!site)return false;
     const yawIn=player.yaw;
     const built=site.id==='bracken-house'?buildBrackenInterior(makeLabel):buildYeovalInterior(makeLabel);
+    const carePeople=populateCareCampus(site.id,built,life,makeLabel);
     inside={house:{coordinate:site.id==='bracken-house'?'BRACKEN':'YEOVAL',name:site.name,kind:'care'},campus:site,
-      ...built,people:[],floorIndex:0,floors:null};
+      ...built,people:carePeople,floorIndex:0,floors:null};
     scene.add(built.group);town.group.visible=false;
     scene.background.set(INDOOR);scene.fog=null;
     world=new CollisionWorld(built.colliders);
@@ -501,7 +540,7 @@ async function start() {
     mode='house';player.baseHeight=0;updateFloorBadge();$('btn-exit').hidden=false;
     closePanel();npcChat.close();ambience.door();
     $('card').hidden=true;delete $('card').dataset.coord;
-    status('Inside '+site.name+'. This is an illustrative public-reference layout, not a surveyed floor plan. Return via the public entrance.');
+    status('Inside '+site.name+'. Fictional '+careResidents(site.id).length+' residents and live shifts of nurses, carers, catering and support staff. Consult the care team noticeboard. This is not a real resident floor plan.');
     return true;
   }
   let lastDeniedEntrance = '', lastDeniedTime = 0;
@@ -1686,6 +1725,7 @@ async function start() {
     market:()=>({standing:market.root.visible,spots:market.spots.map(s=>({key:s.key,x:s.pos.x,z:s.pos.z,label:s.label}))}),
     roadSigns:()=>roadSigns.signs.map(({type,x,z,yaw})=>({type,x,z,yaw})),
     driveHeadlights:()=>driving.headlightStatus(),
+    carePopulation:(id='bracken-house')=>({residents:careResidents(id).length,onDuty:careOnDuty(id,life.day,life.minute),metrics:careDailyMetrics(id,life.day),staffHousing:careHousing.staffHoused,homes:careHousing.houses.size}),
     soundscape:()=>({track:ambience.debug.track,selectedTrack:ambience.selectedTrack,vehicle:ambience.debug.vehicle}),
     estateLights:()=>({count:masterplan.lampPositions.length,sourceCount:town.streetLighting.sourceCount,visible:masterplan.lampHeads.material.emissiveIntensity>0}),
     driveDiagnostics:()=>({

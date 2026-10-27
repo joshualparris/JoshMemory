@@ -29,6 +29,7 @@ const WEEKDAY_ONLY=new Set([
  'realty','realestate','dealership','mechanic','trades','mill','soyplant',
  'foundry','recycling','landfill','securityoffice','locksmith'
 ]);
+export function weekdayOnlyWorkplace(id){return WEEKDAY_ONLY.has(id);}
 const SATURDAY_ONLY=new Set(['greengrocer','butcher','hardware']);
 const ESSENTIAL=new Set(['police','ambulance','fire','power','waterworks','sewage',
  'hotel','depot','securityhq','sheep','dairy','coop','orchard','garden','silo','soyfarm']);
