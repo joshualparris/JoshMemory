@@ -289,7 +289,7 @@ export function createAmbience() {
     hotel: { hum: 0.01, murmur: 0.02, ev: ['tick', 'creak'], gap: [6, 12] },
     house: { hum: 0.006, murmur: 0.004, ev: ['tick', 'creak'], gap: [8, 16] },
   };
-  function roomEvent(kind) {
+  function roomEvent(kind,volume=1) {
     switch (kind) {
       case 'clink': tone(2400 + Math.random() * 900, 0.09, 0.025, 'sine'); setTimeout(() => tone(3300, 0.07, 0.015), 70); break;
       case 'till': tone(1500, 0.05, 0.03, 'square'); setTimeout(() => tone(1100, 0.12, 0.03, 'triangle'), 90); break;
@@ -298,8 +298,8 @@ export function createAmbience() {
       case 'thud': tone(95, 0.12, 0.07, 'triangle', -25); break;
       case 'page': tone(2600, 0.06, 0.012, 'sawtooth', -1500); break;
       case 'creak': tone(180, 0.35, 0.02, 'sawtooth', 70); break;
-      case 'bleat': tone(480, 0.5, 0.035, 'sawtooth', -140); break;
-      case 'low': tone(110, 0.8, 0.05, 'sawtooth', -30); break;
+      case 'bleat': tone(480, 0.5, 0.035*volume, 'sawtooth', -140); break;
+      case 'low': tone(110, 0.8, 0.05*volume, 'sawtooth', -30); break;
       case 'cluck': tone(700, 0.06, 0.03, 'square', -200); setTimeout(() => tone(620, 0.07, 0.03, 'square', -150), 90); break;
     }
   }
@@ -351,10 +351,10 @@ export function createAmbience() {
     // Hearing range attenuates continuously: livestock cannot be heard from
     // the high street, and crossing clicks only exist at the actual signal.
     if(!indoors&&sheepDistance<55&&now>nextSheep){
-      roomEvent('bleat');nextSheep=now+3.5+Math.random()*4;
+      roomEvent('bleat',Math.max(.07,1-sheepDistance/55));nextSheep=now+3.5+Math.random()*4;
     }else if(sheepDistance>=55)nextSheep=now;
     if(!indoors&&cowDistance<58&&now>nextCow){
-      roomEvent('low');nextCow=now+5+Math.random()*5;
+      roomEvent('low',Math.max(.07,1-cowDistance/58));nextCow=now+5+Math.random()*5;
     }else if(cowDistance>=58)nextCow=now;
     if(!indoors&&crossingWalk&&crossingDistance<24&&now>nextCrossing){
       tone(1580,.042,.019*Math.max(.1,1-crossingDistance/24),'square');
