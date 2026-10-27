@@ -39,7 +39,7 @@ export function masterplanComplianceEvidence(){
  const totalRoadLengthM=round(PLAN_ROADS.reduce((n,r)=>n+Math.hypot(r.b.x-r.a.x,r.b.z-r.a.z),0));
  const serviceFrontage=round(PLAN_PARCELS.filter(p=>p.use==='residential').reduce((n,p)=>n+frontage(p,PLAN_ROADS.find(r=>r.id===p.roadId)),0));
  const park=PLAN_PARCELS.find(p=>p.use==='park');
- const parkDistances=homes.map(h=>round(Math.hypot(h.country?PLAN_HOMES.find(q=>q.parcelId===h.id).x-park.x:0,PLAN_HOMES.find(q=>q.parcelId===h.id).frontZ-park.z)));
+ const parkDistances=PLAN_HOMES.map(h=>round(Math.hypot(h.x-park.x,h.frontZ-park.z)));
  const parkAccess={method:'straight-line to eastern park; NOT a footpath network or DCP-compliance test',
    parkAddress:park.address,parkAreaM2:park.areaM2,
    homesBeyond400mStraightLine:parkDistances.filter(d=>d>400).length,
