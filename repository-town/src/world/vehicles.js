@@ -1,4 +1,5 @@
 // Vehicle titles and finite inventories. Figures are fictional Town Dollars.
+import {vehicleSpec} from './vehicle-dynamics.js';
 export const VEHICLE_MODELS=Object.freeze([
  {id:'hatch',name:'Used hatchback',price:740,type:'car',service:35},
  {id:'sedan',name:'Family sedan',price:1160,type:'car',service:48},
@@ -86,7 +87,7 @@ export function motorDay(life){
 export function refuelVehicle(life,registration) {
  const state=motorReport(life),vehicle=state.owned.find(v=>v.registration===registration);
  if(!vehicle)return 'Vehicle not owned by player.';
- const need=Math.max(0,30-(vehicle.fuel??20)),litres=Math.min(10,need),price=r2(litres*3);
+ const need=Math.max(0,vehicleSpec(vehicle.model).maxFuel-(vehicle.fuel??20)),litres=Math.min(10,need),price=r2(litres*3);
  if(litres===0)return 'Fuel tank is full.';
  const depot=life.place('depot');
  const drums=Math.ceil(litres/10);
