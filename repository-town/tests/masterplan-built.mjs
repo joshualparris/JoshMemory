@@ -74,7 +74,8 @@ for (const h of PLAN_HOMES) {
 }
 const built = buildMasterplan(new THREE.Group());
 assert(built.colliders.length >= 48, 'homes are solid');
-for (const c of built.colliders) {
+assert.equal(built.homeColliders.length + built.lampColliders.length, built.colliders.length);
+for (const c of built.homeColliders) {
   const lot = PLAN_PARCELS.find((p) => c.x0 >= p.x - p.w / 2 - 1e-6 && c.x1 <= p.x + p.w / 2 + 1e-6 && c.z0 >= p.z - p.d / 2 - 1e-6 && c.z1 <= p.z + p.d / 2 + 1e-6);
   assert(lot, `house wall ${JSON.stringify(c)} lies inside a single lot`);
   for (const r of PLAN_ROADS) assert(!overlap(c, roadRect(r, true)), `house wall intrudes into ${r.name}`);
