@@ -36,6 +36,6 @@ export function vehicleTelemetry(vehicle) {
     hotEngine:temp>=108,
     odometerKm:Math.round(finite(vehicle.odometer)*10)/10,
     conditionPercent:Math.round(clamp(finite(vehicle.condition,100),0,100)),
-    approximateRangeKm:Math.floor(fuel/0.3), // existing engine consumes 0.003 L per travelled metre
+    approximateRangeKm:Math.floor(fuel/3), // existing engine consumes 0.003 L per metre = 3 L per km
   };
 }
