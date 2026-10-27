@@ -9,7 +9,7 @@
 // in-game addresses, not Geographical Names Board approvals.
 import * as THREE from 'three';
 import { Builder } from './builder.js';
-import { buildExterior } from './exterior.js';
+import { COUNTRY_HOMES, countryDesign, buildCountryHome } from './country-homes.js';
 import { exteriorColliders } from './exterior-collision.js';
 import { SELECTED_PLAN, CORE_ROADS, planAddresses, roadRect, graph } from './masterplan-model.js';
 
@@ -18,6 +18,8 @@ import { SELECTED_PLAN, CORE_ROADS, planAddresses, roadRect, graph } from './mas
 export const PLAN_ROAD_NAMES = Object.freeze({
   'local-south': 'Wattle Street',
   'local-north': 'Banksia Street',
+  'southern-edge': 'Grevillea Street',
+  'western-link': 'Acacia Road',
   'core-link-0': 'Kurrajong Road',
   'core-link-1': 'Bottlebrush Road',
   'core-link-2': 'Silo Lane',
@@ -61,35 +63,33 @@ export function planJunctions() {
   }).map((n) => ({ x: n.x, z: n.z, roads: [...new Set(n.edges.map((e) => e.roadId))].map((id) => byId.get(id)?.name || id) }));
 }
 
-// A home on every residential lot, using the town's own house styles. Each style is chosen
-// to fit its frontage with at least 2 m side setbacks; fronts sit 6 m behind the boundary.
-const HOME_STYLES = [
-  { style: 'cottage', w: 9 }, { style: 'townhouse', w: 8 }, { style: 'cabin', w: 9 },
-  { style: 'modern', w: 11 }, { style: 'terrace', w: 12 }, { style: 'mansion', w: 14 },
-];
-const HOME_COLOURS = [
-  { walls: 0xe8dcc4, roof: 0x8b4a3c, trim: 0xffffff }, { walls: 0xc9d6cf, roof: 0x4a5560, trim: 0xf4f1e8 },
-  { walls: 0xd9b48f, roof: 0x5b3a29, trim: 0xf0e6d2 }, { walls: 0xf1ece0, roof: 0x2f4f5f, trim: 0x8a6d4b },
-  { walls: 0xb7c4a5, roof: 0x6b4b3a, trim: 0xffffff }, { walls: 0xe6c9b8, roof: 0x3d4a3f, trim: 0xf7f2e7 },
-];
+// One culturally informed, distinct procedural design for every one of 195 countries.
+// The full country catalogue maps 1:1 onto exactly 195 residential parcels; all earlier
+// parcel IDs remain unchanged for game-save compatibility.
 export const PLAN_HOMES = Object.freeze(PLAN_PARCELS.filter((p) => p.use === 'residential').map((p, i) => {
-  const fits = HOME_STYLES.filter((h) => h.w <= p.w - 4 && (h.style !== 'mansion' || p.w >= 24));
-  const choice = fits[(i * 7 + p.number) % fits.length];
+  const design = countryDesign(i, p.w);
   const road = PLAN_ROADS.find((r) => r.id === p.roadId);
-  // Default houses face +z (south). A lot whose road is to its north turns to face it.
+  // Homes front a street: north-side lots face south; south-side lots face north.
   const facesNorth = road.a.z === road.b.z && road.a.z < p.z;
-  return Object.freeze({ parcelId: p.id, address: p.address, style: choice.style, colours: HOME_COLOURS[(i * 5 + 2) % HOME_COLOURS.length], facesNorth, x: p.x, frontZ: facesNorth ? p.z - p.d / 2 + 6 : p.z + p.d / 2 - 6 });
+  return Object.freeze({
+    parcelId: p.id, address: p.address,
+    country: design.country, tradition: design.tradition, region: design.region,
+    style: design.profile, design, facesNorth, x: p.x,
+    frontZ: facesNorth ? p.z - p.d / 2 + 6 : p.z + p.d / 2 - 6,
+  });
 }));
+if (PLAN_HOMES.length !== COUNTRY_HOMES.length)
+  throw new Error('Every country must have a corresponding residential plot');
 
 function buildHomes(root) {
   const colliders = [];
   for (const h of PLAN_HOMES) {
     const b = new Builder(); b.glass = [];
-    const fp = buildExterior(b, { style: h.style }, h.colours, {});
+    const fp = buildCountryHome(b, h.design);
     // Position so the front wall sits on frontZ; rotate π for north-facing lots.
     const cz = h.facesNorth ? h.frontZ + fp.front : h.frontZ - fp.front;
     const mesh = b.build(); mesh.position.set(h.x, 0, cz); if (h.facesNorth) mesh.rotation.y = Math.PI;
-    mesh.name = `${h.address} (${h.style})`; root.add(mesh);
+    mesh.name = `${h.address} · ${h.country} (${h.tradition})`; root.add(mesh);
     const glass = Builder.merge(b.glass);
     if (glass) { const g = new THREE.Mesh(glass, new THREE.MeshLambertMaterial({ vertexColors: true })); g.position.copy(mesh.position); g.rotation.y = mesh.rotation.y; root.add(g); }
     for (const c of [...exteriorColliders(fp, 0, 0), ...fp.yard]) {
