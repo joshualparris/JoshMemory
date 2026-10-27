@@ -32,8 +32,22 @@ export function modelMesh(model){
    cube(bodyMat,0,.63,d*.27,w*.44,.28,.36);
    cube(lightMat,0,.93,-d*.49,.32,.25,.14);
  } else {
-   cube(bodyMat,0,.65,0,w,.68,d);
-   cube(windowMat,0,1.19,.04,w*.85,.55,d*.47);
+   const sports=['supercar','gt','muscle'].includes(model);
+   const roofHeight=model==='supercar'?.25:sports?.42:.55;
+   cube(bodyMat,0,model==='supercar'?.55:.65,0,w,model==='supercar'?.48:.68,d);
+   cube(windowMat,0,model==='supercar'?.89:1.19,.04,w*.82,roofHeight,d*(model==='supercar'?.38:.47));
+   if(model==='supercar'){
+     // Fictional wedge silhouette, low nose, side intakes, rear diffuser and wing.
+     cube(bodyMat,0,.43,-d*.40,w*.86,.28,d*.24);
+     cube(wheelMat,0,.49,d*.48,w*.81,.19,.27);
+     cube(wheelMat,0,1.10,d*.42,w*.92,.075,.22);
+     for(const x of [-w*.43,w*.43])cube(wheelMat,x,.61,.17,.1,.24,.72);
+   } else if(model==='muscle'){
+     cube(bodyMat,0,.94,-d*.25,w*.68,.20,d*.28);
+     cube(wheelMat,0,1.48,d*.39,w*.88,.07,.20);
+   } else if(model==='gt'){
+     cube(bodyMat,0,.68,-d*.43,w*.84,.30,d*.14);
+   }
    for(const x of [-w*.49,w*.49])for(const z of [-d*.34,d*.34]){
      const wh=new THREE.Mesh(new THREE.CylinderGeometry(.36,.36,.19,10),wheelMat);
      wh.rotation.z=Math.PI/2;wh.position.set(x,.38,z);g.add(wh);
