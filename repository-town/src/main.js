@@ -176,10 +176,10 @@ async function start() {
   }
   const half = { x: town.bounds.width / 2, z: town.bounds.depth / 2 };
   const edges = [
-    // The walkable world now includes the master-plan neighbourhood south of the farms and the
-    // employment lots to the east (masterplan-built.js); the ground plane spans x ±550, z ±475.
-    { x0: -545, x1: 545, z0: -395, z1: -390 }, { x0: -545, x1: 545, z0: 470, z1: 475 },
-    { x0: -545, x1: -540, z0: -395, z1: 475 }, { x0: 540, x1: 545, z0: -395, z1: 475 },
+    // Include all 195 homes west to x -1330, and Grevillea Street at z 457.
+    // Boundaries lie beyond the drawn footpaths and extended terrain.
+    { x0: -1495, x1: 595, z0: -395, z1: -390 }, { x0: -1495, x1: 595, z0: 555, z1: 560 },
+    { x0: -1495, x1: -1490, z0: -395, z1: 560 }, { x0: 590, x1: 595, z0: -395, z1: 560 },
   ];
   const townWorld = new CollisionWorld([...town.colliders, ...townLife.colliders, ...masterplan.colliders, ...edges]);
   // Dynamic vehicle footprints block player motion as well as truck movement.
@@ -602,9 +602,9 @@ async function start() {
       ];
       const fields = [...life.places.values()].filter((p) => p.field).map((p) => p.field);
       const reserves = (town.outskirts?.parcels || []).filter((r) => !['S-R1', 'S-AG1', 'S-AG2'].includes(r.id));
-      for (const h of masterplan.homes) buildings.push({ id: 'P:' + h.parcelId, name: h.address, address: `New ${h.style} home`, detail: 'Master plan D · Wattle/Banksia neighbourhood', x: h.x, z: h.facesNorth ? h.frontZ + 5 : h.frontZ - 5, w: 10, d: 9 });
+      for (const h of masterplan.homes) buildings.push({ id: 'P:' + h.parcelId, name: h.country + ' · ' + h.address, address: h.address, detail: h.tradition + ' · 195-country neighbourhood', x: h.x, z: h.facesNorth ? h.frontZ + h.design.d / 2 : h.frontZ - h.design.d / 2, w: h.design.w, d: h.design.d });
       const homeOn = new Map(masterplan.homes.map((h) => [h.parcelId, h]));
-      const parcels = masterplan.parcels.map((p) => ({ ...p, status: homeOn.has(p.id) ? `New ${homeOn.get(p.id).style} home built` : p.use === 'park' ? 'Open space' : 'Vacant site, not yet serviced' }));
+      const parcels = masterplan.parcels.map((p) => ({ ...p, status: homeOn.has(p.id) ? `${homeOn.get(p.id).country} · ${homeOn.get(p.id).tradition}` : p.use === 'park' ? 'Open space' : 'Vacant site, not yet serviced' }));
       return { roads, buildings, parcels, fields, reserves, railZ: RAIL_Z };
     },
     getPlayer: () => (mode === 'town' ? { x: player.pos.x, z: player.pos.z, yaw: player.yaw } : null),
