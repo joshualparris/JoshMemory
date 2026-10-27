@@ -13,14 +13,15 @@ const escapeHTML = (value) => String(value).replace(/[&<>"']/g, (c) => ({
 
 export function hoursDirectoryEntries(life) {
   return [...life.places.values()].filter((p) => !!p.col).map((p) => {
-    const [start, end] = visitorHours(p);
+    const visitor=visitorHours(p,life.day);
+    const [start,end]=visitor||[null,null];
     const access = facilityAccess(life, p);
-    const hours = p.id === 'farmhouse' ? 'Visits by appointment'
+    const hours = !visitor?'Closed today':p.id === 'farmhouse' ? 'Visits by appointment'
       : p.id === 'square' ? 'Open 24 hours'
       : `${timeText(start)}–${timeText(end)}`;
     const section = SHOPS.has(p.id) ? 'shops'
       : p.kind === 'farm' || p.kind === 'industry' || p.kind === 'utility' ? 'sites' : 'services';
-    const status = p.id === 'farmhouse' ? 'By appointment'
+    const status = access.reason==='closed-day'?'Closed today':p.id === 'farmhouse' ? 'By appointment'
       : access.reason === 'closed' ? 'Closed now'
       : access.reason === 'unstaffed' ? 'Waiting for staff'
       : access.reason === 'employee' ? 'Work shift access'
@@ -48,7 +49,7 @@ export function openingHoursPanel(life, goPlace) {
     </div>`).join('');
   return {
     title: '🕒 Town opening hours', wide: true,
-    body: `<p>It's <b>${escapeHTML(life.time())}</b> in the town. These are <b>daily town-time visiting hours</b>, not real-world opening times.</p>
+    body: `<p>Today is <b>${escapeHTML(life.dateLabel())}</b>, Day ${life.day}, ${escapeHTML(life.time())}. These are <b>the town's simulated opening hours for today</b>, not real-world trading hours.</p>
       <p class="dim">A shop can be temporarily locked during its published hours when staff are travelling or off site. Workplaces may also allow employee or guest access outside visitor hours. Select <b>Go</b> to travel to the front entrance.</p>
       ${sections.map(([key, title]) => `<h3>${title}</h3><div class="hours-list">${rows(key)}</div>`).join('')}`,
     mount: (root) => {
