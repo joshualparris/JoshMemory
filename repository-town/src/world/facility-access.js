@@ -2,6 +2,7 @@ import {pubAdmission} from './pub-standards.js';
 // Public entry is different from 24-hour operations: treatment plants, emergency
 // response and utilities keep working when their front reception is locked.
 import { workingAt } from './shop-attendance.js';
+import {venueHoursOnDay} from './town-calendar.js';
 
 const RECEPTION_HOURS = Object.freeze({
   hotel: [7 * 60, 23 * 60],
@@ -20,15 +21,16 @@ const SUPERVISED = new Set([
 ]);
 const PERMANENT_HOSTS = new Set(['farmhouse','square','publicamenities','skatepark','communitygarden','busstop']); // named residents/market guides
 const CLOCK = (m) => `${String(Math.floor(m / 60)).padStart(2,'0')}:${String(m % 60).padStart(2,'0')}`;
-export function visitorHours(place) {
-  return RECEPTION_HOURS[place.id] || [place.opens, place.closes];
+export function visitorHours(place,day=null) {
+  const base=RECEPTION_HOURS[place.id] || [place.opens, place.closes];
+  return day===null?base:venueHoursOnDay(place,day,...base);
 }
 export function openingHoursLabel(place) {
   if(place.id==='square') return 'PUBLIC 24 HOURS';
   if(place.id==='busstop') return 'SHELTER 24 HOURS · HELP 08:00-17:30';
   if(place.id==='farmhouse') return 'VISITS BY APPOINTMENT';
   const [opens,closes]=visitorHours(place);
-  return `${SUPERVISED.has(place.id)||RECEPTION_HOURS[place.id]?'RECEPTION':'HOURS'} ${CLOCK(opens)}-${CLOCK(closes)}`;
+  return `${SUPERVISED.has(place.id)||RECEPTION_HOURS[place.id]?'RECEPTION':'HOURS'} ${CLOCK(opens)}-${CLOCK(closes)} · WEEKEND VARIES`;
 }
 export function onSiteWorkers(town, place) {
   return (town.villagers || []).filter(v => workingAt(v, place.id, place));
@@ -45,7 +47,9 @@ export function facilityAccess(town, place) {
   // public reception has closed; unbooked visitors must wait until morning.
   const booking = place.id === 'hotel' && town.needsReport?.()?.booking;
   if (booking) return { allowed:true, reason:'guest', message:'Your hotel room key grants access after reception closes.' };
-  const [opens,closes] = visitorHours(place);
+  const hours=visitorHours(place,town.day);
+  if(!hours)return {allowed:false,reason:'closed-day',message:`${place.name} is closed to visitors today (${town.dateLabel?.()||'weekend'}). Check Town opening hours for the next trading day.${['police','ambulance','fire'].includes(place.id)?' Emergency response remains available; use 000 (Game) for emergencies.':''}`};
+  const [opens,closes]=hours;
   if (!(town.minute >= opens && town.minute < closes))
     return { allowed:false, reason:'closed', message:`${place.name}: reception is locked. Visitor hours ${CLOCK(opens)}–${CLOCK(closes)}.${['police','ambulance','fire'].includes(place.id) ? ' Emergency services operate separately; use 000 (Game) for emergencies.' : ''}` };
   const staff = onSiteWorkers(town,place);
