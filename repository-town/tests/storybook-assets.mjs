@@ -17,7 +17,7 @@ const parse=(file)=>{
  const json=JSON.parse(data.toString('utf8',20,20+size));
  const offset=20+size;
  assert(offset+8<=data.length,'missing BIN chunk');
- assert.equal(data.toString('utf8',offset+4,offset+8),'BIN\\x00','missing BIN data');
+ assert.equal(data.readUInt32LE(offset+4),0x004E4942,'missing BIN data');
  assert(json.nodes?.length>0&&json.meshes?.length>0&&json.skins?.length>0);
  const animations=json.animations||[];
  for(const anim of animations){
