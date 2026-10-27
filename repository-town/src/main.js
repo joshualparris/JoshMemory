@@ -23,6 +23,7 @@ import { discoveryProgress } from './ui/discovery-log.js';
 import { buildTown, streetSigns, lotPosition } from './world/town.js';
 import { buildYeovalInterior } from './world/yeoval-interior.js';
 import { buildMasterplan } from './world/masterplan-built.js';
+import { buildCountryInterior,countryEntrance,countryExitPose } from './world/country-interiors.js';
 import { CORE_ROADS } from './world/masterplan-model.js';
 import { RAIL_Z } from './world/rail-corridor.js';
 import { createTownMap } from './ui/town-map.js';
@@ -433,6 +434,22 @@ async function start() {
   // The high-street buildings now have their own walkable rooms and usable
   // counters. Keep the existing villager/farm economy running in the street.
   // Purpose-built northern campus; no part of the small row-7 storefront.
+  function enterCountryHome(home, keepFacing=false) {
+    if(mode!=='town'||driving.driving) return false;
+    const yawIn=player.yaw;
+    const built=buildCountryInterior(home,makeLabel);
+    inside={house:{coordinate:'P:'+home.parcelId,name:home.country+' · '+home.tradition,address:home.address,
+      kind:'home',country:home.country},countryHome:home,...built,floorIndex:0,floors:null};
+    scene.add(built.group);town.group.visible=false;
+    scene.background.set(INDOOR);scene.fog=null;
+    world=new CollisionWorld(built.colliders);
+    player.place(built.spawn.x,built.spawn.z,keepFacing?yawIn-(home.facesNorth?Math.PI:0):0);
+    mode='house';player.baseHeight=0;updateFloorBadge();$('btn-exit').hidden=false;
+    closePanel();npcChat.close();ambience.door();
+    $('card').hidden=true;delete $('card').dataset.coord;
+    status('Inside '+home.country+' · '+home.tradition+'. Ground floor includes a bedroom, bathroom, kitchen and living area. Upper levels are not yet accessible; this is not an approved building design.');
+    return true;
+  }
   function enterCampus(id, keepFacing=false) {
     if(mode!=='town')return false;
     const site=(town.campuses||[]).find(x=>x.id===id);
@@ -501,6 +518,7 @@ async function start() {
     const coord = inside.house.coordinate;
     const shop=inside.place||null;
     const campus=inside.campus||null;
+    const countryHome=inside.countryHome||null;
     inside.bakeryImmersion?.dispose();
     inside.workplay?.dispose();
     if(inside.floors?.isPub)for(const level of inside.floors.levels)if(level.workplay!==inside.workplay)level.workplay?.dispose();
@@ -519,6 +537,9 @@ async function start() {
           ?{x:campus.entry.x-3.25,z:campus.entry.z}
           :{x:campus.entry.x,z:campus.entry.z-3.25};
         player.place(out.x,out.z,keepFacing?yawInside+campus.rotation:Math.PI+campus.rotation);
+      } else if (countryHome) {
+        const pose=countryExitPose(countryHome);
+        player.place(pose.x,pose.z,keepFacing?yawInside+(countryHome.facesNorth?Math.PI:0):pose.yaw);
       } else if (shop) {
         const boxes=[...townWorld.all,...townWorld.dynamic()];
         const pose=via==='secondary'&&shop.id==='pub'?pubSecondaryExitPose(shop,boxes,player.radius+.08):via==='rear'&&shop.id==='pub'?pubRearExitPose(shop,boxes,player.radius+.08):civicExitPose(shop,boxes,player.radius+0.08);
@@ -529,7 +550,7 @@ async function start() {
     // Close the door behind the player so the doorway does not re-trigger.
     const d = town.doors.find((d) => d.userData.coordinate === coord); if (d) d.userData.open = 0;
     ambience.door();
-    status(campus?`Back outside ${campus.name}.`:shop?`Back outside ${shop.name}.`:`Back on the street at ${coord}.`);
+    status(campus?`Back outside ${campus.name}.`:countryHome?`Back outside ${countryHome.address} · ${countryHome.country}.`:shop?`Back outside ${shop.name}.`:`Back on the street at ${coord}.`);
   }
 
   // ── Overview (bird's-eye) ────────────────────────────────────────────────
@@ -1286,6 +1307,15 @@ async function start() {
           if (d.userData.open > 0.6) { enter(z.coordinate, true); break; }
         }
       }
+      // World-homes use the SAME actual front-door plane for entry and exit.
+      // The 195 houses have compact rooms inside their exterior footprints.
+      if(mode==='town' && !overview && !driving.driving){
+        for(const home of masterplan.homes){
+          if(countryEntrance(home,player.pos)){
+            enterCountryHome(home,true); break;
+          }
+        }
+      }
       // Walk into an actual 3D shop interior when crossing the open shopfront.
       // The outside facades are collision solids, so the transition happens
       // just in front of their door (not inside an inaccessible wall).
@@ -1539,6 +1569,8 @@ async function start() {
     stepVehicle:(seconds)=>driving.update(seconds),
     shops:()=>[...life.places.values()].map(p=>({id:p.id,name:p.name,kind:p.kind,side:p.side||'north',expansion:!!p.expansion,door:{x:p.x,z:p.door.z}})),
     enterShop,
+    enterCountryHome:(id)=>{const h=masterplan.homes.find(x=>x.parcelId===id||x.country===id||x.address===id);return h?enterCountryHome(h):false;},
+    countryHomes:()=>masterplan.homes.map(h=>({id:h.parcelId,address:h.address,country:h.country,frontZ:h.frontZ,x:h.x,facesNorth:h.facesNorth})),
     setFloor:(i)=>changeFloor(i),
     // Where the town's villager figures are drawn (they keep moving while the player is indoors).
     // The named street characters: where they are and whether they are out in town.
