@@ -27,7 +27,6 @@ import { buildCountryInterior,countryEntrance,countryExitPose } from './world/co
 import { CORE_ROADS } from './world/masterplan-model.js';
 import { RAIL_Z } from './world/rail-corridor.js';
 import { createTownMap } from './ui/town-map.js';
-import { createCarDash } from './ui/car-dash.js';
 import { createCheatMenu } from './ui/cheat-menu.js';
 import { summonCar, claimProperty, nearestPropertyKey, planTitleKey, addMoney, refreshNeeds, fixAllCars, setClock } from './world/cheats.js';
 import { buildBrackenInterior } from './world/bracken-interior.js';
@@ -62,6 +61,8 @@ import { separatePedestrians, steerPedestrians } from './world/pedestrian-spacin
 import { createTownLife } from './world/townlife.js';
 import { createEmergencyResponseVisuals } from './world/emergency-response-visuals.js';
 import { createPlayerDriving } from './world/player-driving.js';
+import { createDrivingDashboard } from './ui/driving-dashboard.js';
+import { lightingLevel } from './world/lighting.js';
 import { nearestSeat } from './world/seats.js';
 import { furniturePanel } from './ui/furniture.js';
 import { createAmbience } from './ui/ambience.js';
@@ -166,13 +167,15 @@ async function start() {
   initialiseNPCWorksites(streetNPCs, town.group);
   let nearPerson = null, nearNPC = null, nearTownSeat = null;
   const ambience = createAmbience();
-  const carDash = createCarDash({ getVehicle: () => driving.activeVehicle(), isDriving: () => mode === 'town' && driving.driving, getDay: () => life.day, getLog: () => life.events.map((e) => e.text) });
   const wake = () => ambience.start();
   addEventListener('pointerdown', wake); addEventListener('keydown', wake);
   // Smooth mode draws less of the distance; phones start with it on.
   let lowPerf = touch;
   streetSigns(town.group, data.streets, makeLabel);
   const masterplan = buildMasterplan(town.group, makeLabel);
+  // The estate's street lights join the town's lamp list (one shared pool of real lights) and switch with it.
+  town.lampSources.push(...masterplan.lampSources);
+  { const townSetNight = town.setNight; town.setNight = (dark, minute, eye, powered = true, ...rest) => { masterplan.lampMat.emissiveIntensity = powered ? 1.2 * lightingLevel(dark) : 0; return townSetNight(dark, minute, eye, powered, ...rest); }; }
   for (const site of town.campuses || []) {
     const sign=makeLabel(site.name+' · Aged care campus', 'house');
     sign.position.set(
@@ -187,7 +190,7 @@ async function start() {
     { x0: -1495, x1: 595, z0: -395, z1: -390 }, { x0: -1495, x1: 595, z0: 555, z1: 560 },
     { x0: -1495, x1: -1490, z0: -395, z1: 560 }, { x0: 590, x1: 595, z0: -395, z1: 560 },
   ];
-  const townWorld = new CollisionWorld([...town.colliders, ...townLife.colliders, ...masterplan.colliders, ...edges]);
+  const townWorld = new CollisionWorld([...town.colliders, ...townLife.colliders, ...masterplan.colliders, ...masterplan.lampColliders, ...edges]);
   // Dynamic vehicle footprints block player motion as well as truck movement.
   // A vehicle is approx 2.2m wide and 6.6m long; use a conservative
   // rotated-axis AABB for the town's existing 2D collision engine.
@@ -238,6 +241,7 @@ async function start() {
   });
   showSpeedSetting();
   const driving=createPlayerDriving(life,scene,townWorld,player,camera,input);
+  const drivingDashboard=createDrivingDashboard();
   const tableOrder = document.createElement('button');
   tableOrder.id='btn-table-order';tableOrder.type='button';
   tableOrder.textContent='🍽 Order at table';
@@ -1174,8 +1178,9 @@ async function start() {
     }
     // While a game is open the town neither renders nor reacts, so the game gets the whole device.
     syncOverlayHud();
-    if (sleeping) { input.reset(); requestAnimationFrame(frame); return; }
+    if (sleeping) { drivingDashboard.update(null); input.reset(); requestAnimationFrame(frame); return; }
     if (playing) {
+      drivingDashboard.update(null);
       if (input.consume('back')) stopGame();
       input.takeLook(); for (const k of ['use', 'jump', 'map']) input.consume(k);
       requestAnimationFrame(frame);
@@ -1194,7 +1199,7 @@ async function start() {
       if(mode==='town'&&driving.driving) driving.update(dt);
       else player.update(dt,input,world);
     }
-    carDash.update(dt);
+    drivingDashboard.update(mode==='town'&&!overview?driving.activeVehicle():null);
     // Keep the table-service control in the always-visible needs strip on
     // phones with the rest of the HUD collapsed.
     tableOrder.hidden=!(player.seated && mode==='house' &&
@@ -1563,6 +1568,10 @@ async function start() {
     // Stands at the Town Guide kiosk, facing it.
     meetGuide() { if (mode === 'house') leave(false); player.place(town.guidePos.x, town.guidePos.z + 1.6, 0); return 'guide'; },
     goPlace,
+    driveDashboard:()=>drivingDashboard.getState(),
+    driveHeadlights:()=>driving.headlights,
+    estateLighting:()=>{ const sel=town.streetLighting.slots.filter(l=>l.visible&&masterplan.lampSources.some(s=>Math.hypot(s.x-l.position.x,s.z-l.position.z)<.01)).length;
+      return { poles: masterplan.lampSources.length, emissive: +masterplan.lampMat.emissiveIntensity.toFixed(2), nearbyLit: sel }; },
     driveDiagnostics:()=>({
       input:input.movement(),touch:input.touch,
       active:driving.activeVehicle()?.registration||null,
@@ -1608,7 +1617,7 @@ async function start() {
     answer(i) { const b = $('panel-actions').querySelectorAll('button')[i]; if (b) b.click(); return !!b; },
     closePanel,
     townMap,
-    cheats, carDash,
+    cheats,
   };
 
   $('loading').hidden = true;

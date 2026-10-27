@@ -19,7 +19,7 @@
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "e505c376c30d37f6ed250a1ea03192a098d85a04",
+    "repository-town/src/main.js": "9b38f93a17e573f81bb70df6a6121e385fc2b525",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -790,7 +790,7 @@
       "changedFiles": [
         "repository-town/src/main.js"
       ],
-      "finding": "main.js: driving dashboard wiring and non-fatal runtime error handler; no pub geometry, service or egress change."
+      "finding": "main.js: driving dashboard wiring and non-fatal runtime error handler; no pub geometry, service or egress change. Also: estate street-light wiring and lighting import in main.js; no pub change."
     }
   ]
 }

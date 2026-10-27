@@ -172,7 +172,37 @@ export function buildMasterplan(group, makeLabel = null) {
     access.box(0xd5c8b5,w.width,.045,w.lengthM+.3,w.x,.035,(w.z0+w.z1)/2);
   }
   root.add(access.build());
+  // Street lighting (AS/NZS 1158 category P residential: regular poles staggered either side).
+  // Poles stand in the verge behind the footpath, 7 m off the centre line and clear of junctions,
+  // with the head reaching back over the kerb. Heads share the town's night switching and its
+  // bounded pool of real lights (town.lampSources), so the estate costs no extra lights.
+  const poles = new Builder(), heads = new Builder(); heads.glass = [];
+  const lampSources = [], lampColliders = [], ROADS = [...CORE_ROADS, ...PLAN_ROADS];
+  const nearJunction = (x, z, self) => ROADS.some((o) => o !== self && (o.a.z === o.b.z
+    ? Math.abs(z - o.a.z) < 13 && x >= Math.min(o.a.x, o.b.x) - 13 && x <= Math.max(o.a.x, o.b.x) + 13
+    : Math.abs(x - o.a.x) < 13 && z >= Math.min(o.a.z, o.b.z) - 13 && z <= Math.max(o.a.z, o.b.z) + 13));
+  for (const r of PLAN_ROADS) {
+    const horizontal = r.a.z === r.b.z, len = horizontal ? Math.abs(r.b.x - r.a.x) : Math.abs(r.b.z - r.a.z);
+    const start = horizontal ? Math.min(r.a.x, r.b.x) : Math.min(r.a.z, r.b.z);
+    for (let t = 15, n = 0; t < len - 5; t += 30, n++) {
+      const side = n % 2 ? 1 : -1, along = start + t;
+      const x = horizontal ? along : r.a.x + side * 7, z = horizontal ? r.a.z + side * 7 : along;
+      if (nearJunction(x, z, r)) continue;
+      const hx = horizontal ? x : x - side * 2.2, hz = horizontal ? z - side * 2.2 : z;
+      poles.cyl(0x2f3338, 0.08, 6.5, x, 3.25, z);
+      poles.box(0x2f3338, horizontal ? 0.08 : 2.3, 0.08, horizontal ? 2.3 : 0.08, (x + hx) / 2, 6.45, (z + hz) / 2);
+      poles.box(0x2f3338, 0.55, 0.12, 0.55, hx, 6.42, hz);
+      heads.box(0x9fd3ea, 0.45, 0.06, 0.45, hx, 6.33, hz);
+      lampSources.push({ x: hx, y: 6.3, z: hz, roadward: horizontal ? -side * 2.5 : 0 });
+      lampColliders.push({ x0: x - 0.15, x1: x + 0.15, z0: z - 0.15, z1: z + 0.15 });
+    }
+  }
+  root.add(poles.build());
+  const lampMat = new THREE.MeshLambertMaterial({ color: 0xfff1c8, emissive: 0xffd27a, emissiveIntensity: 0 });
+  const headGeo = Builder.merge(heads.glass);
+  if (headGeo) root.add(new THREE.Mesh(headGeo, lampMat));
+
   const colliders = buildHomes(root);
   group.add(root);
-  return { group: root, roads: PLAN_ROADS, parcels: PLAN_PARCELS, homes: PLAN_HOMES, colliders };
+  return { group: root, roads: PLAN_ROADS, parcels: PLAN_PARCELS, homes: PLAN_HOMES, colliders, lampSources, lampColliders, lampMat };
 }

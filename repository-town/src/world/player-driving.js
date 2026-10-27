@@ -2,6 +2,7 @@
 // and CollisionWorld as the pedestrian. Only owned, registered vehicles work.
 import * as THREE from 'three';
 import { VEHICLE_MODELS } from './vehicles.js';
+import {updateCoolantTemperature} from './driving-instruments.js';
 import { onPlannedOrCoreRoad } from './masterplan-built.js';
 const MODEL={hatch:[1.65,3.4,0x397fbc,11],sedan:[1.84,4.4,0xb1b9c4,12],
  ute:[1.9,4.7,0xb78648,11],van:[2.05,5.4,0xe8e3d8,9],truck:[2.25,6.6,0x9a4d40,8]};
@@ -18,7 +19,8 @@ function modelMesh(model){
    const wh=new THREE.Mesh(new THREE.CylinderGeometry(.36,.36,.19,10),wheelMat);
    wh.rotation.z=Math.PI/2;wh.position.set(x,.38,z);g.add(wh);
  }
- for(const x of [-w*.3,w*.3])cube(lightMat,x,.7,-d*.5,.27,.16,.08);
+ g.userData.lenses=[];
+ for(const x of [-w*.3,w*.3]){cube(lightMat,x,.7,-d*.5,.27,.16,.08);g.userData.lenses.push(g.children[g.children.length-1]);}
  return g;
 }
 export function roadAllows(x,z){
@@ -28,6 +30,28 @@ export function roadAllows(x,z){
 }
 export function createPlayerDriving(life,scene,collision,player,camera,input){
  const meshes=new Map();let active=null,speed=0,message='';
+ // Headlights for the car the player drives: two real spot lights (the only extra lights, so phones
+ // keep their frame rate) switched on automatically from dusk to dawn, plus glowing lamp lenses.
+ const beams=[-1,1].map(()=>{const l=new THREE.SpotLight(0xfff4dc,0,46,.42,.45,1.4);l.castShadow=false;scene.add(l,l.target);return l;});
+ const lensOn=new THREE.MeshLambertMaterial({color:0xfff6d8,emissive:0xfff1c0,emissiveIntensity:1.6});
+ let headlightsOn=false,litMesh=null;
+ function setHeadlights(v){
+   const dark=THREE.MathUtils.clamp((.55-life.daylight())/.45,0,1);
+   headlightsOn=!!v&&dark>.15;
+   const g=v&&meshes.get(v.registration),yaw=v?.yaw||0,fx=-Math.sin(yaw),fz=-Math.cos(yaw),rx=Math.cos(yaw),rz=-Math.sin(yaw);
+   const d=(MODEL[v?.model]||MODEL.hatch)[1]/2;
+   beams.forEach((l,i)=>{
+     l.visible=headlightsOn;l.intensity=headlightsOn?140*dark:0;
+     if(!headlightsOn)return;
+     const side=(i?1:-1)*.55;
+     l.position.set(v.x+fx*d+rx*side,.75,v.z+fz*d+rz*side);
+     l.target.position.set(v.x+fx*(d+18)+rx*side,0,v.z+fz*(d+18)+rz*side);
+   });
+   const lit=headlightsOn&&g?g:null;
+   if(litMesh&&litMesh!==lit)for(const lens of litMesh.userData.lenses||[])lens.material=lens.userData.off||lens.material;
+   if(lit)for(const lens of lit.userData.lenses||[]){if(!lens.userData.off)lens.userData.off=lens.material;lens.material=lensOn;}
+   litMesh=lit;
+ }
  function siteSpawn(i,self){
    const site=life.place('dealership');
    if(!site)return null;
@@ -77,6 +101,7 @@ export function createPlayerDriving(life,scene,collision,player,camera,input){
    if(Math.hypot(player.pos.x-v.x,player.pos.z-v.z)>3.1)return 'Walk to the driver door to enter.';
    if(collision.hits(v.x,v.z,1.05))return 'The vehicle is blocked. Move it to a clear parking space before driving.';
    v.parkingPending=false;active=v.registration;speed=0;player.seated=null;input.reset();
+   if(!Number.isFinite(v.coolantTemp))v.coolantTemp=22;
    return 'Engine started. W/S or joystick forwards/back; A/D or joystick steer; E or ✋ to get out when stopped.';
  }
  function exit(){
@@ -88,14 +113,14 @@ export function createPlayerDriving(life,scene,collision,player,camera,input){
      for(let i=0;i<16;i++){
        const angle=(v.yaw||0)+Math.PI/2+i*Math.PI/8,x=v.x+Math.cos(angle)*radius,z=v.z+Math.sin(angle)*radius;
        if(!collision.hits(x,z,player.radius+.1)){
-         player.place(x,z,v.yaw);active=null;speed=0;return 'Parked, handbrake on. You got out safely.';
+         player.place(x,z,v.yaw);active=null;speed=0;setHeadlights(null);return 'Parked, handbrake on. You got out safely.';
        }
      }
    }
    return 'No clear place to exit; move to a parking bay.';
  }
  function update(dt){
-   sync();if(!active)return false;
+   sync();if(!active){if(headlightsOn)setHeadlights(null);return false;}
    const v=life.civic.motor.owned.find(x=>x.registration===active);
    if(!v){active=null;return false;}
    const m=input.movement();input.takeLook();
@@ -122,6 +147,8 @@ export function createPlayerDriving(life,scene,collision,player,camera,input){
      if(v.condition<60)v.roadworthy=false;
    }else{speed=0;message='Brake! Road edge, pedestrian or obstruction.';}
    v.speed=r2(speed);
+   setHeadlights(v);
+   v.coolantTemp=updateCoolantTemperature(v.coolantTemp,dt,speed,v.condition);
    player.pos.set(v.x,0,v.z);player.yaw=v.yaw||0;player.pitch=0;
    // Third-person trailing camera, no disembodied eye inside a dashboard.
    const follow=9+(v.model==='truck'?4:0),px=v.x+Math.sin(v.yaw||0)*follow,
@@ -131,5 +158,5 @@ export function createPlayerDriving(life,scene,collision,player,camera,input){
    return true;
  }
  function activeVehicle(){return active?life.civic.motor.owned.find(v=>v.registration===active)||null:null;}
- return {sync,nearest,enter,exit,update,activeVehicle,get driving(){return !!active;},get message(){return message;},clearMessage(){message='';}};
+ return {sync,nearest,enter,exit,update,activeVehicle,get headlights(){return headlightsOn;},get driving(){return !!active;},get message(){return message;},clearMessage(){message='';}};
 }
