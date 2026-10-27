@@ -110,16 +110,25 @@ export function buildRoadSigns(group, opts = {}) {
   const poleGeo = new THREE.CylinderGeometry(0.04, 0.04, 2.6, 6), poles = new THREE.InstancedMesh(poleGeo, new THREE.MeshLambertMaterial({ color: 0x8a8f94 }), signs.length);
   signs.forEach((s, i) => { m4.compose(new THREE.Vector3(s.x, 1.3, s.z), q.identity(), one); poles.setMatrixAt(i, m4); });
   root.add(poles);
+  const backMat = new THREE.MeshLambertMaterial({ color: 0x9aa0a6 });
   for (const type of Object.keys(FALLBACK)) {
     const list = signs.filter((s) => s.type === type); if (!list.length) continue;
     const tex = face(type);
     // Retroreflective sheeting: a little self-light keeps faces legible at dawn, dusk and under headlights.
-    const mat = new THREE.MeshLambertMaterial(tex ? { map: tex, emissiveMap: tex, emissive: 0xffffff, emissiveIntensity: 0.35, transparent: true, alphaTest: 0.3, side: THREE.DoubleSide } : { color: FALLBACK[type], side: THREE.DoubleSide });
+    const mat = new THREE.MeshLambertMaterial(tex ? { map: tex, emissiveMap: tex, emissive: 0xffffff, emissiveIntensity: 0.35, transparent: true, alphaTest: 0.3 } : { color: FALLBACK[type] });
     const size = type === 'stop' || type === 'giveway' ? 0.9 : 0.75, tall = type.startsWith('speed') || type === 'school40' ? size * 1.25 : size;
-    const mesh = new THREE.InstancedMesh(new THREE.PlaneGeometry(size, tall), mat, list.length);
-    // The face looks back at the approaching driver: rotate the plane to face -forward.
-    list.forEach((s, i) => { q.setFromAxisAngle(up, s.yaw + Math.PI); m4.compose(new THREE.Vector3(s.x, 2.45, s.z), q, one); mesh.setMatrixAt(i, m4); });
-    mesh.name = type; root.add(mesh);
+    const plate = new THREE.PlaneGeometry(size, tall);
+    const mesh = new THREE.InstancedMesh(plate, mat, list.length), back = new THREE.InstancedMesh(plate, backMat, list.length);
+    // The face looks back at the approaching driver and is bolted to the front of the pole, so
+    // the pole stays behind it; the reverse is a plain grey sheet, not a mirror-image face.
+    const n = new THREE.Vector3();
+    list.forEach((s, i) => {
+      q.setFromAxisAngle(up, s.yaw + Math.PI); n.set(0, 0, 1).applyQuaternion(q);
+      m4.compose(new THREE.Vector3(s.x + n.x * 0.06, 2.45, s.z + n.z * 0.06), q, one); mesh.setMatrixAt(i, m4);
+      q.setFromAxisAngle(up, s.yaw);
+      m4.compose(new THREE.Vector3(s.x + n.x * 0.055, 2.45, s.z + n.z * 0.055), q, one); back.setMatrixAt(i, m4);
+    });
+    mesh.name = type; back.name = type + '-back'; root.add(mesh, back);
   }
   group.add(root);
   return { group: root, signs };

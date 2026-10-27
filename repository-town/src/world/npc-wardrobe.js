@@ -89,13 +89,18 @@ export function makeDistinctPerson(identity) {
     a(head, BOX, look.accent, [.31,.03,.17], [0,.14,.19]);
   }
   if (look.glasses) {
+    // Fine wire rims round each eye and a bridge, not heavy bars across the face.
     for (const side of [-1,1]) {
-      a(head, BOX, ink, [.115,.018,.018], [side*.084,.038,.210]);
-      a(head, BOX, ink, [.018,.095,.018], [side*.14,.036,.211]);
+      a(head, BOX, ink, [.07,.007,.006], [side*.072,.052,.192]);
+      a(head, BOX, ink, [.07,.007,.006], [side*.072,.008,.192]);
+      a(head, BOX, ink, [.007,.05,.006], [side*.107,.03,.19]);
+      a(head, BOX, ink, [.007,.05,.006], [side*.037,.03,.193]);
+      a(head, BOX, ink, [.06,.006,.006], [side*.15,.04,.12]);   // arm to the ear
     }
+    a(head, BOX, ink, [.03,.006,.006], [0,.04,.195]);           // bridge
   }
   if (look.facialHair) {
-    a(head, BALL, look.hair, [.12,.052,.035], [0,-.116,.174]);
+    a(head, BALL, look.hair, [.055,.013,.014], [0,-.07,.185]); // neat moustache above the lip
   }
   // Seven strongly legible garments: apron, vest, scarf, jacket, stripe, sash or buttons.
   switch(look.clothing) {
