@@ -32,8 +32,10 @@ jobs:
           test "$(git -C /tmp/town-kaykit rev-parse HEAD)" = "672074b73ba276876a19e8816ecdc5241817ab47"
       - name: Install precise standalone model processing dependencies
         working-directory: repository-town
-        run: npm ci --legacy-peer-deps --ignore-scripts --no-audit --no-fund
+        run: |
+          npm ci --legacy-peer-deps --ignore-scripts --no-audit --no-fund
           npm install --legacy-peer-deps --ignore-scripts --no-save --package-lock=false --no-audit --no-fund '@gltf-transform/core@4.3.0' '@gltf-transform/functions@4.3.0'
+          node -e "import('@gltf-transform/core').then(() => console.log('gltf-transform is ready'))"
       - name: Remove weapons, trim shared-animation GLBs and round-trip validate
         working-directory: repository-town
         run: node tools/prepare-kaykit.mjs /tmp/town-kaykit
