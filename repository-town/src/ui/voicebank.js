@@ -1,3 +1,4 @@
+import {townRecordingFor,townRecordingURL} from './town-recordings.js';
 // Optional player-triggered speech for Repository Town residents and conversations.
 // Approved, hash-verified ElevenLabs audio is preferred only for exact lines.
 // Other text is explicitly labelled device speech; a missing ElevenLabs file must
@@ -8,6 +9,17 @@ export const ROWAN_MANIFEST = VOICEBANK_ORIGIN + '/packs/town-rowan/manifest.jso
 export const ROWAN_GREETING = 'Welcome to Repository Town! Fancy a tour, a chat, or a recommendation?';
 
 let bank=null, loading=null, rowanBank=null, rowanLoading=null, active=null, revision=0;
+let townAudio=null,finishTownAudio=null;
+function playTownRecording(clip){
+ return new Promise(resolve=>{
+  if(typeof Audio==='undefined'){resolve({status:'unavailable',source:'elevenlabs'});return;}
+  const audio=new Audio(townRecordingURL(clip));townAudio=audio;
+  const finish=status=>{if(townAudio===audio){townAudio=null;finishTownAudio=null;}audio.onended=null;audio.onerror=null;resolve({status,source:'elevenlabs'});};
+  finishTownAudio=()=>finish('cancelled');audio.volume=.85;audio.onended=()=>finish('played');audio.onerror=()=>finish('unavailable');
+  audio.play()?.catch(()=>finish('unavailable'));
+ });
+}
+
 const canonical = text => String(text || '').normalize('NFKC').toLowerCase()
   .replace(/[’]/g, "'").replace(/[^\p{L}\p{N}']/gu, ' ').replace(/\s+/g, ' ').trim();
 
@@ -43,6 +55,7 @@ export function stopTownVoice() {
   activeRecordedCue=null;
   currentCue?.reset();
   game300Module?.stopGame300();
+  if(townAudio){townAudio.pause();finishTownAudio?.();}
   bank?.stop();
   rowanBank?.stop();
   globalThis.speechSynthesis?.cancel?.();
@@ -69,7 +82,7 @@ export function toggleTownVoice(button,rawText,{npcId=''}={}) {
   stopTownVoice();
   const text=String(rawText||'').trim().slice(0,2400);
   if (!text) return Promise.resolve({status:'missing'});
-  const exactRowan=isRowanWelcome(text,npcId);
+  const exactRowan=isRowanWelcome(text,npcId),townClip=townRecordingFor(text);
   if (exactRowan && button.disabled) return Promise.resolve({status:'unavailable',source:'elevenlabs'});
   const now=revision;
   active=button; button.textContent='■ Stop';
@@ -78,7 +91,7 @@ export function toggleTownVoice(button,rawText,{npcId=''}={}) {
 
   // A ready Rowan pack must play the *exact* approved MP3.
   // No system-TTS fallback is permitted for an ElevenLabs-labelled button.
-  const speech=exactRowan
+  const speech=townClip ? playTownRecording(townClip) : exactRowan
     ? (rowanBank?Promise.resolve(rowanBank):primeTownVoice('rowan')).then(async voice=>{
         if (now!==revision) return {status:'cancelled',source:'elevenlabs'};
         if (!voice || voice.plan(text).kind!=='recording') return {status:'unavailable',source:'elevenlabs'};
@@ -89,12 +102,12 @@ export function toggleTownVoice(button,rawText,{npcId=''}={}) {
       ? bank.say(text).then(result=>({...result,source:'elevenlabs'}))
       : speakOnDevice(text);
 
-  return Promise.resolve(speech).catch(()=>({status:'unavailable',source:exactRowan?'elevenlabs':'device'}))
+  return Promise.resolve(speech).catch(()=>({status:'unavailable',source:(exactRowan||townClip)?'elevenlabs':'device'}))
     .then(result=>{
       if (now===revision && active===button) {
         resetButton(button);
         active=null;
-        if(exactRowan && result.status!=='played'){
+        if((exactRowan||townClip) && result.status!=='played'){
           button.textContent='⚠ Recording unavailable';
           button.setAttribute('title','ElevenLabs audio failed. Device speech was not substituted.');
         }
@@ -107,7 +120,7 @@ export function makeTownListenButton(text,root=document,{npcId=''}={}) {
   const button=root.createElement('button');
   button.type='button'; button.className='town-voice-button';
   const exactRowan=isRowanWelcome(text,npcId);
-  button.dataset.voiceSource=exactRowan?'elevenlabs':'device';
+  button.dataset.voiceSource=(exactRowan||townRecordingFor(text))?'elevenlabs':'device';
   resetButton(button);
   if (exactRowan) {
     button.disabled=true;
