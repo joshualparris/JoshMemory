@@ -71,6 +71,22 @@ assert.equal(afterSale.restore(soldSave),true);
 assert.equal(hasItem(afterSale.civic.player,'hatchet'),true,'hatchet persists after reload');
 console.log('✓ Monday 10:00 hardware sale charges $25, delivers hatchet and survives saved-game reload');
 
+// Previously saved staff sometimes remain incorrectly asleep at home after a
+// clock jump or an earlier release. A reload must recover a genuinely rostered
+// hardware attendant, without disturbing active commutes or other venues.
+const stale=life.snapshot();
+const hardwareIds=life.villagers.filter(v=>v.work==='hardware').map(v=>v.id);
+for(const id of hardwareIds){
+  const worker=stale.sim.villagers.find(v=>v.id===id),home=life.villagers[id].home;
+  Object.assign(worker,{x:home.door.x,z:home.door.z+2,inside:true,path:[],
+    step:{kind:'sleep',at:'home',until:360,activity:'asleep at home'}});
+}
+const reloaded=new TownLife({homes,minute:5*60,seed:20261020});
+assert.equal(reloaded.restore(stale),true);
+assert.equal(facilityAccess(reloaded,reloaded.place('hardware')).allowed,true,
+  '10am Monday hardware attendant recovers from a stale at-home save');
+console.log('✓ Hardware recovers a legitimate rostered worker from stale Monday save');
+
 // The real simulation: late afternoon, the Bakery is still open and admits customers.
 const bakery = life.place('bakery');
 while (life.minute < 16 * 60 + 30) life.tick(0.5);
