@@ -2186,6 +2186,7 @@ export class TownLife {
       // empty hardware shop until newcomers finish an entire commute.
       // Catch up ONLY workers absent from that save. Never teleport a saved
       // villager or rewrite their real position, travel or household.
+      if (s.staffRestorationVersion !== 1) {
       const restoredIds = new Set(sim.villagers.map(v => v.id));
       const catchUp = this.villagers.filter(v => {
         if (!restoredIds.has(v.id)) return true;
@@ -2198,7 +2199,8 @@ export class TownLife {
           this.minute >= shift.start + 60 && this.minute < shift.end &&
           (!v.step || (v.step.at === 'home' && ['sleep','idle','shower','cook'].includes(v.step.kind)));
       });
-      this.startShiftsInProgress(catchUp.map(v => v.id));
+      if (catchUp.length) this.startShiftsInProgress(catchUp.map(v => v.id));
+      }
     }
     for (const v of this.villagers) { if (!Array.isArray(v.larder)) v.larder = null; ensureHousehold(v); }
     if(this.marriages.length)reconcileSpouseHouseholds(this.villagers);
