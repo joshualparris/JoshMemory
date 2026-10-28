@@ -5,7 +5,7 @@
 | Role | Target | Policy |
 |---|---|---|
 | Source | `joshualparris/JoshMemory`, `repository-town/`, `main` | Feature branches and reviewed PRs; never edit generated sites |
-| Production | `repository-town-claude-complete.vercel.app` | Git main; `npm run build:release` must succeed before a release becomes live |
+| Production | `repository-town-claude-complete.vercel.app` | Git main; Vercel runs `npm run build:deploy` (release, privacy and integrity checks plus the build, about 1.5 minutes). The full `npm run build:release`, including the 8-minute town suite, must already have passed in the PR's Town Integration CI before merging |
 | Staging | `repository-town-claude-playtest.vercel.app` | One existing Vercel QA project; deploy an exact candidate commit manually before promotion |
 | Backup | `parris-tech-services.github.io/Repository-town/` | Mirror the commit and content fingerprint of the live approved production release |
 | NPC AI | `repository-town-no-code-ai.parris-neathaustralia.workers.dev` | Shared Worker, existing secret and rate limits; no duplicate AI deployment per playtest |
