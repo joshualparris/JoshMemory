@@ -8,7 +8,7 @@ try {
     const context = await browser.newContext({viewport:{width:390,height:844},hasTouch:mobile,isMobile:mobile});
     const page = await context.newPage();
     // Serve a lightweight harness at the build's origin, using its actual Input module.
-    await page.route('**/input-reset-harness.html',route=>route.fulfill({contentType:'text/html',body:'<canvas id="canvas"></canvas><div id="touch"><div id="stick"><div id="knob"></div></div><button id="t-jump"></button><button id="t-use"></button><button id="t-run"></button><button id="t-crouch"></button></div>'}));
+    await page.route('**/input-reset-harness.html',route=>route.fulfill({contentType:'text/html',body:'<meta name="viewport" content="width=device-width, initial-scale=1"><canvas id="canvas"></canvas><div id="touch"><div id="stick"><div id="knob"></div></div><button id="t-jump"></button><button id="t-use"></button><button id="t-run"></button><button id="t-crouch"></button></div>'}));
     await page.goto(new URL('input-reset-harness.html',url).href);
     const result = await page.evaluate(async () => {
       const {Input}=await import('./engine/input.js');
@@ -31,6 +31,11 @@ try {
       touch('touchmove',40,420);
       const afterBlur=input.movement().z;
       touch('touchend',40,420);
+      touch('touchstart',300,500);touch('touchmove',320,500);
+      const touchLook=input.takeLook().dx;
+      input.reset();touch('touchmove',350,500);
+      const staleTouchLook=input.takeLook().dx;
+      touch('touchend',350,500);
       canvas.dispatchEvent(new MouseEvent('mousedown',{clientX:220,clientY:400,bubbles:true}));
       dispatchEvent(new MouseEvent('mousemove',{clientX:240,clientY:400}));
       const dragging=input.takeLook().dx;
@@ -44,13 +49,15 @@ try {
       dispatchEvent(new Event('blur'));
       dispatchEvent(new MouseEvent('mousemove',{clientX:280,clientY:400}));
       const dragAfterBlur=input.takeLook().dx;
-      return {walking,stickCleared,staleFinger,freshFinger,afterBlur,dragging,staleDrag,freshDrag,dragAfterBlur};
+      return {walking,stickCleared,staleFinger,freshFinger,afterBlur,dragging,staleDrag,freshDrag,dragAfterBlur,touchLook,staleTouchLook};
     });
     assert.equal(result.walking,-1,'gesture starts walking');
     assert.equal(result.staleFinger,0,'reset must reject the old finger until a fresh touchstart');
     assert(result.stickCleared,'reset must hide and centre joystick');
     assert.equal(result.freshFinger,-1,'fresh touch still works');
     assert.equal(result.afterBlur,0,'blur must invalidate touch gesture');
+    assert.equal(result.touchLook,28,'right-side touch turns camera');
+    assert.equal(result.staleTouchLook,0,'reset must cancel touch look');
     assert.equal(result.dragging,20);
     assert.equal(result.staleDrag,0,'reset must cancel mouse drag');
     assert.equal(result.freshDrag,20,'fresh mouse drag still works');
