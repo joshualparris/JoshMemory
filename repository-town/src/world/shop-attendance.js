@@ -28,7 +28,7 @@ export function workingAt(worker, siteId, place = null) {
 export const theName = (place, capital = false) => /^the /i.test(place.name) ? place.name : (capital ? 'The ' : 'the ') + place.name;
 
 // Retail counters need an actual worker, not merely an opening-hours sign.
-const RETAIL = new Set(['store','bakery','greengrocer','butcher','cafe','pub']);
+const RETAIL = new Set(['store','bakery','greengrocer','butcher','cafe','pub','supermarket']);
 export function shopService(town, place) {
   if(place.id==='pub'){const s=pubStandards(town);if(s.alarm||s.gasLeak)return {available:false,reason:'emergency',message:'Pub service stopped for an emergency drill.'};}
   if (!town.open(place)) return {available:false, reason:'closed', message:`${place.name} is closed.`};
