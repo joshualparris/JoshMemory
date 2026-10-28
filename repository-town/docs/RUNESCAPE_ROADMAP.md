@@ -70,9 +70,13 @@ fun (instant start, smooth free walking on a phone, a believable country town).
        Walking, the camera and the town clock stay smooth and real-time.
        *Not copied:* a server. The town is single-player and saves on the device; a server only
        becomes necessary at step 6.
-2. [ ] **Grid and pathfinding.** Tap-to-walk: tap a tree, rock or shop door and walk there by an A*
-       route over a walkable grid built from the town's colliders. Most useful on phones. *Not
-       copied:* locking movement to tiles. Free walking stays; tiles are only for routing.
+2. [x] **Grid and pathfinding.** Tap-to-walk on phones: a quick tap on the view (the right-hand,
+       look side) walks you there by an A* route over a 0.5 m grid laid on the town's real colliders
+       (`src/world/tap-path.js`), smoothed to a few straight legs; it finds the level crossing round
+       the rail corridor. Tap a tree to walk up beside it and start chopping. A yellow ring marks the
+       spot; the stick or keys take over at once; a drag still just looks around. *Not copied:*
+       locking movement to tiles. Free walking stays; tiles are only for routing. Next: mouse
+       click-to-walk on desktop, and tapping shop doors and people.
 3. [ ] **Items and inventory.** Already partly built (item types, 28-slot bag, drop/pick up, equip).
        Next: one numbered item list and a 4 × 7 grid bag that looks like RuneScape's.
 4. [ ] **Skilling framework.** One action state machine (target → level check → per-tick roll →
