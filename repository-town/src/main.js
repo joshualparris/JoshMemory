@@ -1068,7 +1068,10 @@ async function start() {
         status('You pick up a torch and hold it. Press F (or open 🎒 Bag) to switch it on.'); return;
       }
       if (nearPerson?.spot?.market) { openPanel(stallPanel(life, nearPerson.spot.market, (id, i) => buyAtStall(life, id, i)), guideSpot); return; }
-      if (nearPerson?.spot?.id === 'square') { openPanel(marketNotice(life.day, life.minute), guideSpot); return; }   // an open square, not a building
+      if (nearPerson?.spot?.id === 'square') {   // an open square, not a building: the market notice and the latest town news
+        const notice = marketNotice(life.day, life.minute), clean = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+        openPanel({ ...notice, body: notice.body + `<h3>Town news</h3><ul class="news">${life.news(6).map((e) => `<li><span class="dim">${clean(e.t)}</span> ${clean(e.text)}</li>`).join('')}</ul>` }, guideSpot); return;
+      }
       if (nearPerson) { if(nearPerson.spot){enterShop(nearPerson.spot.id);return;} talkTo(nearPerson); return; }
       if (nearHouse) showCard(nearHouse.house);
       return;
@@ -1361,6 +1364,10 @@ async function start() {
     else {
       const n=life.needsReport();
       player.speedFactor=movementSpeedFactor(movementSpeed,n.hunger,n.fatigue);
+      // While driving: V (or 🎥 on phones) switches chase, rider's-eye and high views.
+      if(driving.driving&&input.consume('view'))status(driving.cycleView()); else input.consume('view');
+      // Jump, run and crouch do nothing in a vehicle: show ✋ and 🎥 only, clear of the minimap.
+      $('t-view').hidden=!driving.driving; for(const id of ['t-jump','t-run','t-crouch'])$(id).hidden=driving.driving;
       if(mode==='town'&&driving.driving){ driving.update(dt); if(driving.message){ status(driving.message); driving.clearMessage(); } }
       else player.update(dt,input,world);
     }
@@ -1473,7 +1480,8 @@ async function start() {
         if ((facing > 0.2 || d < 1.2) && score < bestP) { bestP = score; nearPerson = c; }
       };
       for (const p of townLife.people) if (!p.v.inside) consider(p, 2.6);
-      consider(guideSpot, 2.6);
+      // As keen as the torch beside it, so facing Wren talks to Wren (the torch used to win every time).
+      consider(guideSpot, 2.6, 2.0);
       // A shop door you are facing wins over a villager walking past or queuing beside it.
       for (const sp of townLife.spots) consider({ ...sp, spot: sp }, 3.2, 1.5);
       if (market.root.visible) for (const sp of market.spots) consider({ ...sp, spot: sp }, 3.6, 2.0);
@@ -1773,7 +1781,8 @@ async function start() {
     vehicles:()=>life.motorReport().owned.map(v=>({...v})),
     enterVehicle:(reg)=>driving.enter(life.motorReport().owned.find(v=>v.registration===reg)),
     leaveVehicle:()=>driving.exit(),
-    stepVehicle:(seconds)=>driving.update(seconds),
+    // A fixed step behaves like a real frame, including showing the driving message (off-road, braking).
+    stepVehicle:(seconds)=>{const moved=driving.update(seconds);if(driving.message){status(driving.message);driving.clearMessage();}return moved;},
     shops:()=>[...life.places.values()].map(p=>({id:p.id,name:p.name,kind:p.kind,side:p.side||'north',expansion:!!p.expansion,door:{x:p.x,z:p.door.z}})),
     enterShop,
     residentStyle:(id)=>{ if(id){ townLife.residentModels.setStyle(id); renderResidentStyles(); } return { style: townLife.residentModels.style(), ready: townLife.residentModels.ready(), wearing: townLife.residentModels.wearing() }; },

@@ -1460,10 +1460,13 @@ export class TownLife {
       ? Math.abs(v.home.door.x-publicSite.front.x)+Math.abs(v.home.door.z-publicSite.front.z)+25 : 0;
     const travelMinutes=Math.ceil(routeDistance/((routeDistance>160?BIKE:WALK)*SEC_PER_MIN)*1.45);
     const preOpenLead=receptionWorker?Math.min(200,Math.max(35,travelMinutes+25)):0;
-    const wake = receptionWorker && shiftStart>=6*60
+    const wake = shiftStart >= 12*60 ? Math.min(shiftStart-240,9*60+30) // evening shifts sleep in, not up at 06:30 till midnight
+      : receptionWorker && shiftStart>=6*60
       ? Math.min(shiftStart-75,6*60+30,Math.max(3*60,shiftStart-preOpenLead-40))
       : Math.min(shiftStart-75,6*60+30);
-    const asleep = m >= sleepFrom || m < wake || (v.fatigue>=94 && m >= shiftEnd);
+    // Eight hours before the alarm: a 04:45 riser was still up until 22:30 and tired at work.
+    const bedtime = shiftEnd >= 22 * 60 ? sleepFrom : Math.max(19 * 60 + 30, Math.min(sleepFrom, wake + 16 * 60));
+    const asleep = m >= bedtime || m < wake || (v.fatigue>=94 && m >= shiftEnd);
     if (asleep) return this.goThen(v, home, { kind: 'sleep', at: 'home', until: wake < m ? wake + 24 * 60 : wake, activity: 'asleep at home' });
     if (v.hunger>=82 && m>=wake && !v.doneToday.breakfast) v.memory='very hungry, looking for breakfast';
     // A shower before breakfast, when there's time before work.
@@ -1495,6 +1498,9 @@ export class TownLife {
       });
     }
     if (v.job === 'security guard' && working) {
+      // A meal break three hours into the round (guards used to patrol all shift without eating).
+      const guardMeal = shiftStart >= 14*60 ? 'dinner' : 'lunch';
+      if (!v.doneToday[guardMeal] && m >= shiftStart + 180) { v.doneToday[guardMeal] = true; this.workMeal(v, guardMeal); }
       // Paid rounds on public pavements, not police duties or unrestricted private access.
       const checkpoints = shiftStart < 12*60
         ? ['securityhq','bank','store','cafe','police','pub','securityoffice']
@@ -1517,7 +1523,13 @@ export class TownLife {
     const lateShift = shiftStart >= 14*60;
     // Long day shifts that run past 20:30 get a second, dinner break after lunch, staggered too.
     const eveningBreak = !lateShift && shiftEnd >= 20*60+30 && v.doneToday.lunch && !v.doneToday.dinner;
-    const lunchAt = lateShift ? shiftStart+180 : eveningBreak ? 18*60+rank*45 : Math.max(shiftStart+75,Math.min(shiftEnd-45,11*60+15+rank*120));
+    let lunchAt = lateShift ? shiftStart+180 : eveningBreak ? 18*60+rank*45 : Math.max(shiftStart+75,Math.min(shiftEnd-45,11*60+15+rank*120));
+    // Don't book lunch before anyone is rostered to cover it: the Security Office's 08:00 receptionist
+    // was due at 11:15, but relief starts at 12:00, so lunch was a "packed lunch" from an empty pantry.
+    if (!lateShift && !eveningBreak) {
+      const coverFrom = Math.min(...colleagues.filter(o=>o!==v && o.end>lunchAt+75 && o.start<shiftEnd-60).map(o=>o.start));
+      if (Number.isFinite(coverFrom) && coverFrom>lunchAt && coverFrom+20<=shiftEnd-60) lunchAt = coverFrom+20;
+    }
     // Lunch is not a magic instant dismissal of reception. Workers can defer
     // it when the only other employee is travelling, shopping or off duty.
     // The stagger is a preference; cover is checked against real NPC presence.
@@ -1551,8 +1563,7 @@ export class TownLife {
       // skipping lunch or locking the shop.
       if (working && lunchDue && !actualCover && m >= lunchAt + 45 && v.work !== 'home') {
         v.doneToday[mealKey] = true;
-        const meal = this.cookable(v, 'lunch');
-        if (meal) { this.eat(v, meal[0], meal[1]); v.memory = `ate ${meal[0]} behind the counter at work`; }
+        this.workMeal(v, mealKey);
       }
       if (v.work === 'home') return this.goThen(v, home, { kind: 'work', at: 'home', until: shiftEnd, activity: 'coding at home' });
       if (v.job === 'postie' && !v.doneToday.round && (this.place('post').stock.parcel || 0) > 0) return this.postRound(v);
@@ -2005,6 +2016,16 @@ export class TownLife {
   }
 
   // Buys one item and eats it on the spot (a roll for breakfast, a pie for lunch).
+  // A meal eaten on the job: something packed from the pantry, or else a roll or pie fetched from
+  // whichever food counter is open (not "lunch" from an empty lunchbox).
+  workMeal(v, mealKey) {
+    const meal = this.cookable(v, 'lunch');
+    if (meal) { this.eat(v, meal[0], meal[1]); v.memory = `ate ${meal[0]} on the job`; return; }
+    const fetch = [['bakery', 'pie'], ['bakery', 'bread'], ['store', 'bread'], ['cafe', 'bread']].find(([id, good]) =>
+      shopService(this, this.place(id)).available && ((id === 'bakery' ? this.place(id).out : this.place(id).stock)[good] || 0) > 0);
+    if (fetch && v.wallet >= GOODS[fetch[1]].price) { this.snack(v, fetch[0], fetch[1]); v.memory = `had ${fetch[1] === 'pie' ? 'a pie' : 'a roll'} from ${theName(this.place(fetch[0]))} for ${mealKey} at work`; }
+  }
+
   snack(v, shopId, good) {
     const shop = this.place(shopId), src = shopId === 'bakery' ? shop.out : shop.stock, price = GOODS[good].price;
     const service = shopService(this, shop);
