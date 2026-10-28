@@ -1836,6 +1836,25 @@ async function start() {
 
   addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
 
+  // One HUD overlay at a time. Each opener's own handler runs after this, so a
+  // second press on the same button still toggles its own overlay closed.
+  {
+    const owns = { 'btn-journal': 'journal', 'btn-npcs': 'npc-roster', 'btn-town-yarns': 'yarns', 'btn-town-dialogue-settings': 'yarns', 'btn-help': 'help', 'btn-settings': 'settings', 'town-companion-button': 'companion' };
+    const panelOpeners = new Set(['btn-000', 'btn-needs', 'btn-wallet', 'btn-bag', 'btn-skills', 'btn-townmap', 'btn-guide', 'btn-hours', 'btn-discoveries', 'btn-electrical-grid', 'btn-table-order']);
+    $('hud').addEventListener('click', (e) => {
+      const b = e.target.closest?.('button'); if (!b) return;
+      const own = owns[b.id] || (panelOpeners.has(b.id) || b === audioMixButton ? 'panel' : null);
+      if (!own) return;
+      if (own !== 'journal' && expedition.isOpen()) expedition.dismiss();
+      if (own !== 'yarns' && yarns.isOpen()) yarns.close();
+      if (own !== 'npc-roster') $('npc-roster').hidden = true;
+      if (own !== 'help') $('help').hidden = true;
+      if (own !== 'settings' && !$('settings').hidden) closeSettings();
+      if (own !== 'companion' && companion.isOpen()) companion.close();
+      if (own !== 'panel' && panelOpen) closePanel();
+    }, { capture: true });
+  }
+
   // Test hook: lets the browser test suite drive real gameplay deterministically.
   window.__town = {
     // Test harness fast-forwards genuine simulation steps, allowing attendants to

@@ -29,9 +29,16 @@ export class Input {
 
   bindKeyboard() {
     addEventListener('keydown', (e) => {
-      if (e.target.closest?.('input, textarea, select, button, a, [contenteditable]')) return;
       const k = String(e.key ?? '').toLowerCase();
       if (!k) return;
+      // Clicking a HUD button leaves focus on it, and that must not swallow Esc:
+      // otherwise Settings, the Quest Journal and Yarns cannot be closed by keyboard.
+      // Esc from text fields stays with the field (search boxes clear themselves).
+      if (k === 'escape' && !e.target.closest?.('input:not([type=range]):not([type=checkbox]):not([type=radio]), textarea, select, [contenteditable]')) {
+        if (document.pointerLockElement !== this.canvas) this.pressed.add('back');
+        return;
+      }
+      if (e.target.closest?.('input, textarea, select, button, a, [contenteditable]')) return;
       if (!this.keys.has(k)) {
         if (k === ' ') this.pressed.add('jump');
         if (k === 'e' || k === 'f' || k === 'enter') this.pressed.add('use');
