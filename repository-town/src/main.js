@@ -93,7 +93,19 @@ import { createExpedition } from './adventure/expedition.js';
 
 const $ = (id) => document.getElementById(id);
 const status = (t) => { $('status').textContent = t; };
-const fail = (e) => { $('loading').hidden = false; $('loading').classList.add('error'); $('loading-text').textContent = 'Could not start: ' + (e?.message || e); console.error(e); };
+const fail = (e) => {
+  console.error(e);
+  // A single failed click/key action after startup is not a failed startup.
+  // Keep the live town and its unsaved session visible; only startup failures
+  // should replace the entire game with the red fatal-error screen.
+  if (window.__town && $('loading').hidden) {
+    status('That action could not finish. Your town is still running; please try again.');
+    return;
+  }
+  $('loading').hidden = false;
+  $('loading').classList.add('error');
+  $('loading-text').textContent = 'Could not start: ' + (e?.message || e);
+};
 addEventListener('error', (e) => fail(e.error || e.message));
 addEventListener('unhandledrejection', (e) => fail(e.reason));
 
