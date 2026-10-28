@@ -39,6 +39,25 @@ console.log('Monday hardware 10:00:',JSON.stringify({front:hardware.front,mornin
 assert.equal(morning.allowed,true,'Hardware must be actually staffed at 10am Monday');
 console.log('✓ Hardware has a real on-site worker at 10am Monday');
 
+// An established player's save may contain only the original 38 NPCs.
+// Appended, genuinely rostered shop attendants must catch up when that save
+// is restored at 10am, without moving anybody the user previously saved.
+const oldSave = life.snapshot();
+const oldPositions = new Map(oldSave.sim.villagers.slice(0, 38).map(v => [v.id,{x:v.x,z:v.z,step:v.step}]));
+oldSave.sim.villagers = oldSave.sim.villagers.slice(0, 38);
+const migrated = new TownLife({ homes, minute: 5 * 60, seed: 20261020 });
+assert.equal(migrated.restore(oldSave), true, 'accept a valid older 38-person save');
+assert.equal(migrated.time(),'10:00');
+const restoredHardware = facilityAccess(migrated,migrated.place('hardware'));
+console.log('Migrated hardware 10:00:',JSON.stringify({access:restoredHardware,workers:migrated.villagers.filter(v=>v.work==='hardware').map(v=>({id:v.id,kind:v.step?.kind,at:v.step?.at,x:v.x,z:v.z,remaining:v.path?.length}))}));
+assert.equal(restoredHardware.allowed,true,'real newly added hardware staff attend on restoration of an old save');
+for (const [id, before] of oldPositions) {
+  const after=migrated.villagers[id];
+  assert.equal(after.x,before.x,'previously saved resident '+id+' x must remain unchanged');
+  assert.equal(after.z,before.z,'previously saved resident '+id+' z must remain unchanged');
+}
+console.log('✓ Restoring an older save catches up appended hardware staff and preserves existing villagers');
+
 // The real simulation: late afternoon, the Bakery is still open and admits customers.
 const bakery = life.place('bakery');
 while (life.minute < 16 * 60 + 30) life.tick(0.5);
