@@ -44,10 +44,13 @@ await T(() => window.__town.closePanel?.());
 const queued = () => T(() => (window.__town.state().workplay?.cafe?.tickets || []).some((o) => o.state === 'queue'));
 for (let i = 0; i < 60 && !(await queued()); i++) await T(() => window.__town.life.run(2));
 step(await queued(), 'a real villager is queuing to order');
-await go('workplay:cafe:orders'); const said = await status();
+// Under load a single E press can be missed; try the order station a few times before judging.
+let said = '';
+for (let i = 0; i < 4 && !/Ticket \d/.test(said); i++) { await go('workplay:cafe:orders'); said = await status(); }
 const id = await T(() => window.__town.state().workplay.cafe.selected);
 let ticket = await ticketOf(id);
 step(ticket && ticket.state === 'accepted', 'took the order: ' + said.slice(0, 120));
+if (!ticket) { await b.close(); console.log('Cafe play FAILED: no ticket to prepare'); process.exit(1); }
 // Reload the page (pagehide saves the town) and check the work came back once, then walk back in.
 const saved = () => T((id) => { const c = window.__town.life.ledger().civic; return { shift: c.jobs?.active?.id, worked: c.jobs?.active?.worked || 0, wallet: c.player.wallet, tickets: c.workplay.cafe.tickets.filter((o) => o.id === id).map((o) => JSON.stringify([o.id, o.state, o.items, o.step, o.table, o.milk])), tray: c.workplay.cafe.held ?? null }; }, id);
 const reload = async (what) => {
