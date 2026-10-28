@@ -18,6 +18,24 @@ try {
   const click = (re) => T((src) => { const r = new RegExp(src, 'i'); const btn = [...document.querySelectorAll('#panel-actions button')].find((x) => r.test(x.textContent)); btn?.click(); return !!btn; }, re.source);
   const use = async () => { if (mobile) await page.tap('#t-use'); else { await page.keyboard.down('e'); await page.waitForTimeout(120); await page.keyboard.up('e'); } await page.waitForTimeout(300); };
   await T(() => { window.__town.closePanel?.(); window.__town.life.setTime(10 * 60); window.__town.life.run(15); });
+  // Exercise the real HUD teleport, not just the direct test hook. Missing
+  // optional destination metadata must never send the game to its red screen.
+  await T(() => { const input = document.getElementById('search'); input.value = 'Central West Hardware & Timber'; document.getElementById('search-form').requestSubmit(); });
+  await page.waitForTimeout(400);
+  step(/Outside .*Hardware|Outside .*Timber/.test(await status()), 'HUD search teleports to the hardware store without a fatal error');
+  step(!errors.length && await T(() => document.getElementById('loading').hidden), 'teleport did not trigger the red-screen fatal overlay');
+  await T(() => dispatchEvent(new ErrorEvent('error', { error: new Error('synthetic nonfatal hardware action') })));
+  step(await T(() => document.getElementById('loading').hidden), 'nonfatal action exception cannot turn the town into a red startup screen');
+  // The hidden property lookup shares the town-place list. A non-existent name
+  // must return a refusal even if some civic records have no display name.
+  await T(() => window.__town.cheats.open());
+  await page.locator('#cheat-password').fill('CHEAT123');
+  await page.locator('#cheat-unlock').click();
+  await page.locator('#cheat-prop').fill('__not_a_real_property__');
+  await page.locator('button[data-a="buyKey"]').click();
+  const propertyMessage = await page.locator('#cheat-menu .msg').textContent();
+  step(/No property matches/.test(propertyMessage || ''), 'unnamed destination lookup fails safely: ' + propertyMessage);
+  await T(() => window.__town.cheats.close());
 
   // 1. The hardware store sells the tools; the money goes into its till.
   await T(() => window.__town.goPlace('hardware')); await page.waitForTimeout(1200);
