@@ -2187,7 +2187,17 @@ export class TownLife {
       // Catch up ONLY workers absent from that save. Never teleport a saved
       // villager or rewrite their real position, travel or household.
       const restoredIds = new Set(sim.villagers.map(v => v.id));
-      this.startShiftsInProgress(this.villagers.filter(v => !restoredIds.has(v.id)).map(v => v.id));
+      const catchUp = this.villagers.filter(v => {
+        if (!restoredIds.has(v.id)) return true;
+        // Older saves also sometimes record a scheduled shop worker still
+        // asleep at home well after opening. Resume only stale at-home shifts,
+        // never an employee genuinely en route, serving, or on a meal break.
+        if (v.work !== 'hardware' || (v.path?.length || 0) > 0) return false;
+        const shift = this.shiftToday(v);
+        return !!shift && this.minute >= shift.start + 60 && this.minute < shift.end &&
+          (!v.step || (v.step.at === 'home' && ['sleep','idle','shower','cook'].includes(v.step.kind)));
+      });
+      this.startShiftsInProgress(catchUp.map(v => v.id));
     }
     for (const v of this.villagers) { if (!Array.isArray(v.larder)) v.larder = null; ensureHousehold(v); }
     if(this.marriages.length)reconcileSpouseHouseholds(this.villagers);
