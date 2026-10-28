@@ -89,10 +89,14 @@ try {
   step(await T((id) => window.__town.skills().trees.find((t) => t.id === id).stump, yard.id), 'the yard tree fell to a stump');
   await page.screenshot({ path: `test-results/yard-stump-${mobile ? 'mobile' : 'desktop'}.png` }).catch(() => {});
 
+  // The 0.6 s game tick is running (RuneScape engine step 1).
+  const tick0 = await T(() => window.__town.skills().tick); await page.waitForTimeout(3000);
+  const tick1 = await T(() => window.__town.skills().tick);
+  step(tick1 - tick0 >= 4 && tick1 - tick0 <= 6, `game tick runs at about 0.6 s (${tick1 - tick0} ticks in 3 s)`);
   // 3. Light a fire from the bag.
   await T(() => document.getElementById('btn-bag').click()); await page.waitForTimeout(300);
   let lit = false;
-  for (let i = 0; i < 6 && !lit; i++) { await click(/Light logs here/); await page.waitForTimeout(200); lit = (await T(() => window.__town.skills().fires)) > 0; if (!lit && !(await st()).panel) await T(() => document.getElementById('btn-bag').click()); }
+  for (let i = 0; i < 6 && !lit; i++) { await click(/Light logs here/); await page.waitForFunction(() => window.__town.skills().fires > 0 || !window.__town.skills().lighting, null, { timeout: 15000 }).catch(() => {}); lit = (await T(() => window.__town.skills().fires)) > 0; if (!lit && !(await st()).panel) await T(() => document.getElementById('btn-bag').click()); }
   k = await T(() => window.__town.skills());
   step(lit && k.report.find((x) => x.id === 'firemaking').xp >= 40, `a fire is burning (${k.fires}); firemaking XP ${k.report.find((x) => x.id === 'firemaking').xp}`);
   await T(() => window.__town.closePanel?.()); await page.waitForTimeout(400);
