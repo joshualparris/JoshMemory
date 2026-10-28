@@ -99,7 +99,7 @@ const fail = (e) => {
   // Keep the live town and its unsaved session visible; only startup failures
   // should replace the entire game with the red fatal-error screen.
   if (window.__town && $('loading').hidden) {
-    status('That action could not finish. Your town is still running; please try again.');
+    status('That action could not finish. Your saved game remains available. Try again or reload if controls stop responding.');
     return;
   }
   $('loading').hidden = false;
