@@ -23,7 +23,7 @@ try {
   await T(() => { const input = document.getElementById('search'); input.value = 'Central West Hardware & Timber'; document.getElementById('search-form').requestSubmit(); });
   await page.waitForTimeout(400);
   step(/Outside .*Hardware|Outside .*Timber/.test(await status()), 'HUD search teleports to the hardware store without a fatal error');
-  step(!errors.length && document.getElementById('loading') !== null, 'teleport did not cause an uncaught page error');
+  step(!errors.length && await T(() => document.getElementById('loading').hidden), 'teleport did not trigger the red-screen fatal overlay');
   // The hidden property lookup shares the town-place list. A non-existent name
   // must return a refusal even if some civic records have no display name.
   await T(() => window.__town.cheats.open());
