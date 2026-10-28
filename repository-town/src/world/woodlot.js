@@ -39,8 +39,17 @@ export function buildWoodlot(group, makeLabel) {
   });
   // A painted sign by the road.
   const post = new THREE.Mesh(new THREE.BoxGeometry(0.12, 2.2, 0.12), mat(0x5a4632)); post.position.set(11, 1.1, -199); root.add(post);
-  if (makeLabel) { const sign = makeLabel('🪓 Town Woodlot · bring a hatchet', 'house'); sign.position.set(11, 2.6, -199); root.add(sign); }
+  if (makeLabel) { const sign = makeLabel('🪓 Town Woodlot · tools on the rack', 'house'); sign.position.set(11, 2.6, -199); root.add(sign); }
+  // A tool rack beside the sign: a hatchet and tinderbox hang there for anyone without (skills.js).
+  const rackAt = new THREE.Vector3(13.5, 0, -201.5), rackMesh = new THREE.Group(); rackMesh.position.copy(rackAt); root.add(rackMesh);
+  for (const x of [-0.7, 0.7]) { const leg = new THREE.Mesh(new THREE.BoxGeometry(0.1, 1.4, 0.1), mat(0x5a4632)); leg.position.set(x, 0.7, 0); rackMesh.add(leg); }
+  const bar = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.1, 0.12), mat(0x5a4632)); bar.position.y = 1.3; rackMesh.add(bar);
+  const handle = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.7, 0.06), mat(0x8a6a44)); handle.position.set(-0.3, 0.92, 0.08); rackMesh.add(handle);
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.14, 0.04), mat(0x9aa3a8)); head.position.set(-0.22, 0.62, 0.08); rackMesh.add(head);
+  const box = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.16, 0.2), mat(0xb08040)); box.position.set(0.35, 1.0, 0.08); rackMesh.add(box);
+  const rack = { key: 'woodlot:rack', pos: rackAt, label: '🪓 Woodlot tool rack · take a hatchet and tinderbox' };
   const colliders = trees.map((t) => { const r = LOOK[t.type].r + 0.15; return { x0: t.pos.x - r, x1: t.pos.x + r, z0: t.pos.z - r, z1: t.pos.z + r }; });
+  colliders.push({ x0: rackAt.x - 0.85, x1: rackAt.x + 0.85, z0: rackAt.z - 0.15, z1: rackAt.z + 0.15 });
 
   // Fires: a little pile of logs and a flickering flame; no real light, to stay cheap on phones.
   const fireMeshes = new Map();
@@ -106,5 +115,5 @@ export function buildWoodlot(group, makeLabel) {
       m.userData.flame.scale.set(1, 0.85 + Math.sin(t * 13 + f.id) * 0.15, 1);
     }
   }
-  return { root, trees, allTrees, colliders, update, hit, fireCount: () => fireMeshes.size };
+  return { root, trees, rack, allTrees, colliders, update, hit, fireCount: () => fireMeshes.size };
 }

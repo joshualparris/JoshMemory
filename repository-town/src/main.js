@@ -76,7 +76,7 @@ import { inventoryPanel } from './ui/inventory-panel.js';
 import { skillsPanel } from './ui/skills-panel.js';
 import { buildWoodlot } from './world/woodlot.js';
 import { createHatchetView } from './world/hatchet-view.js';
-import { canChop, swing, lightFire as lightLogs, isStump, skillsReport, TREES } from './world/skills.js';
+import { canChop, swing, lightFire as lightLogs, isStump, skillsReport, takeRackTools, TREES } from './world/skills.js';
 import { buildCivilWorks } from './world/civil-works.js';
 import { nearestSeat } from './world/seats.js';
 import { furniturePanel } from './ui/furniture.js';
@@ -93,7 +93,17 @@ import { createExpedition } from './adventure/expedition.js';
 
 const $ = (id) => document.getElementById(id);
 const status = (t) => { $('status').textContent = t; };
-const fail = (e) => { $('loading').hidden = false; $('loading').classList.add('error'); $('loading-text').textContent = 'Could not start: ' + (e?.message || e); console.error(e); };
+// Where an error came from (file:line), so a screenshot of it is enough to find the bug.
+const errorWhere = (e) => { const m = /([\w.-]+\.js):(\d+)/.exec(String(e?.stack || '')); return m ? ` (${m[1]}:${m[2]})` : ''; };
+let started = false, lastSlip = 0;
+// Before the town has started an error is fatal. After that, one bad interaction must not
+// replace the whole game with an error page: report it in the status line and keep playing.
+const fail = (e) => {
+  console.error(e);
+  const text = (e?.message || e) + errorWhere(e);
+  if (started) { const now = Date.now(); if (now - lastSlip > 4000) { lastSlip = now; status('⚠️ Something went wrong, but the game is still running: ' + text); } return; }
+  $('loading').hidden = false; $('loading').classList.add('error'); $('loading-text').textContent = 'Could not start: ' + text;
+};
 addEventListener('error', (e) => fail(e.error || e.message));
 addEventListener('unhandledrejection', (e) => fail(e.reason));
 
@@ -891,6 +901,10 @@ async function start() {
   };
   $('settings-close').onclick = closeSettings;
   $('settings-save-transfer').onclick = () => { persistItems(); };
+  // Start a new game: confirm, then reload; ui/new-game.js clears progress before the town loads.
+  $('settings-new-game').onclick = () => { $('settings-new-game-note').hidden = false; $('settings-new-game-cancel').focus(); };
+  $('settings-new-game-cancel').onclick = () => { $('settings-new-game-note').hidden = true; };
+  $('settings-new-game-confirm').onclick = () => { try { sessionStorage.setItem('repository-town.new-game', '1'); } catch { clearSave(); } location.reload(); };
   // Resident style: one button per style; models load only when chosen (world/resident-models.js).
   function renderResidentStyles(message) {
     const current = townLife.residentModels.style(), box = $('resident-style-options');
@@ -1116,6 +1130,7 @@ async function start() {
       if (treasure && treasureD <= npcD && treasureD <= personD) { expedition.use(player.pos); ambience.relic(); return; }
       if (nearNPC && npcD <= personD) { input.releaseMouse(); closePanel(); $('npc-roster').hidden = true; npcChat.show(nearNPC.npc, null); input.reset(); return; }
       if (nearPerson?.spot?.tree) { startChopping(nearPerson.spot.tree); return; }
+      if (nearPerson?.spot?.rack) { status(takeRackTools(life.civic.player).message); return; }
       if (nearPerson?.spot?.itemId) { takeGroundItem(nearPerson.spot); return; }
       if (nearPerson?.spot?.market) { openPanel(stallPanel(life, nearPerson.spot.market, (id, i) => buyAtStall(life, id, i)), guideSpot); return; }
       if (nearPerson?.spot?.id === 'square') {   // an open square, not a building: the market notice and the latest town news
@@ -1385,7 +1400,12 @@ async function start() {
     slowSeconds = 0; fastSeconds = 0; resolutionCooldown = 6;
   }
   const tmp = new THREE.Vector3();
+  // A frame that throws must not stop the loop: queue the next frame, then let the error
+  // reach the window handler (fail, above) and any test listening for page errors.
   function frame() {
+    try { frameStep(); } catch (e) { requestAnimationFrame(frame); throw e; }
+  }
+  function frameStep() {
     // Up to 0.15 s per frame keeps walking real-time on slow phones; collision subdivides the step.
     const raw = clock.getDelta(), dt = Math.min(raw, 0.15), t = clock.elapsedTime;
     floorDoorCooldown = Math.max(0, floorDoorCooldown - dt);
@@ -1538,6 +1558,7 @@ async function start() {
       for (const sp of townLife.spots) consider({ ...sp, spot: sp }, 3.2, 1.5);
       if (market.root.visible) for (const sp of market.spots) consider({ ...sp, spot: sp }, 3.6, 2.0);
       for (const sp of itemSpots) if(clearItemPath({...sp.pos,location:'town'}))consider({ ...sp, spot: sp }, ITEM_REACH, 0);
+      if (Math.abs(woodlot.rack.pos.x - player.pos.x) < 4 && Math.abs(woodlot.rack.pos.z - player.pos.z) < 4) consider({ ...woodlot.rack, spot: { rack: true } }, 2.6, 1.5);
       for (const tr of woodlot.allTrees()) if (Math.abs(tr.pos.x - player.pos.x) < 4 && Math.abs(tr.pos.z - player.pos.z) < 4) consider({ key: tr.key, pos: tr.pos, label: isStump(life, tr.id) ? `${TREES[tr.type].name} stump · it will grow back` : tr.label, spot: { tree: tr } }, 2.8, 2.0);
       nearTownSeat = !overview&&!driving.driving ? nearestSeat(townLife.seats,player.pos,player.forward(),2.4) : null;
       nearCar = !overview&&!driving.driving ? driving.nearest() : null;
@@ -1895,6 +1916,8 @@ async function start() {
   };
 
   $('loading').hidden = true;
+  started = true;
+  if (window.__townNewGame) status('New game started. Welcome to Repository Town!');
   requestAnimationFrame(frame);
 }
 

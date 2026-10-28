@@ -4,8 +4,8 @@
 import assert from 'node:assert/strict';
 import { TownLife } from '../src/world/life.js';
 import { xpForLevel, levelForXp, level, addXp, skillsReport, TREES, swing, canChop, isStump, lightFire, liveFires,
-  buyTool, sellLogs, bagUsed, BAG_SLOTS } from '../src/world/skills.js';
-import { hasItem } from '../src/world/inventory.js';
+  buyTool, sellLogs, bagUsed, BAG_SLOTS, takeRackTools } from '../src/world/skills.js';
+import { hasItem, equippedType } from '../src/world/inventory.js';
 
 assert.deepEqual([xpForLevel(1), xpForLevel(2), xpForLevel(15), xpForLevel(30), xpForLevel(99)], [0, 83, 2411, 13363, 13034431]);
 assert.equal(levelForXp(82), 1); assert.equal(levelForXp(83), 2); assert.equal(levelForXp(2e8), 99);
@@ -53,10 +53,18 @@ assert(sold.ok); assert.equal(me.logs.logs, n - Math.min(n, Math.floor(cash / 4)
 assert.equal(Math.round((me.wallet + till.cash) * 100), Math.round((wallet + cash) * 100), 'money conserved');
 const broke = { cash: 1 }; me.logs.logs = 3; assert(!sellLogs(me, 'logs', broke).ok);
 
+// The Woodlot rack hands out free starter tools at any hour (even with every shop shut), once.
+const night = new TownLife({ homes, minute: 23 * 60, seed: 5 }), nightMe = night.civic.player, cash0 = nightMe.wallet;
+const rack = takeRackTools(nightMe);
+assert(rack.ok, rack.message); assert(hasItem(nightMe, 'hatchet') && hasItem(nightMe, 'tinderbox'));
+assert.equal(equippedType(nightMe), 'hatchet', 'the rack hatchet is in hand, ready to chop');
+assert.equal(nightMe.wallet, cash0, 'rack tools cost nothing and create no money');
+assert(!takeRackTools(nightMe).ok, 'one of each: the rack cannot be farmed');
+
 // Everything saves and restores with the town.
 const u = new TownLife({ homes, minute: 10 * 60, seed: 3 });
 assert(u.restore(JSON.parse(JSON.stringify(t.snapshot()))));
 assert.deepEqual(skillsReport(u.civic.player).map((s) => [s.id, s.level]), skillsReport(me).map((s) => [s.id, s.level]));
 assert.equal(level(u.civic.player, 'woodcutting'), 15); assert(hasItem(u.civic.player, 'hatchet'));
 assert.deepEqual(u.civic.player.logs, me.logs);
-console.log('PASS: XP curve, tools from the till, chopping with levels/stumps/regrowth and a 28-slot bag, fires, conserved log sales, save and restore');
+console.log('PASS: XP curve, tools from the till or the free Woodlot rack, chopping with levels/stumps/regrowth and a 28-slot bag, fires, conserved log sales, save and restore');

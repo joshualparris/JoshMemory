@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="ui/driving-dashboard.css">
 <link rel="stylesheet" href="npc.css">
 <link rel="stylesheet" href="adventure/adventure.css">
+<script src="ui/new-game.js"></script>
 <script defer src="ui/hud-collapse.js"></script>
 <script type="importmap">{"imports":{"three":"./vendor/three.module.min.js","three/addons/utils/BufferGeometryUtils.js":"./vendor/BufferGeometryUtils.js"}}</script>
 <script defer src="ui/analytics.js" data-website-id="__UMAMI_WEBSITE_ID__" data-do-not-track="true" data-performance="true" data-exclude-hash="true" data-domains="joshualparris.github.io" data-tag="JoshMemory"></script>
@@ -76,6 +77,8 @@
   <fieldset><legend>Saved progress</legend>
     <p>Your game saves automatically on this device. No account is needed.</p>
     <a id="settings-save-transfer" class="btn-link" href="release.html" target="_blank" rel="noopener">Back up or restore your save</a>
+    <button id="settings-new-game" type="button">Start a new game</button>
+    <p id="settings-new-game-note" hidden>This clears your town, money, items, skills and quests on this device. Your settings stay. <button id="settings-new-game-confirm" type="button">Yes, start over</button> <button id="settings-new-game-cancel" type="button">Keep my game</button></p>
   </fieldset>
   <div class="speed-setting">
     <div class="speed-setting-heading"><label for="movement-speed">Movement speed</label><output id="movement-speed-value" for="movement-speed">1.0×</output></div>
