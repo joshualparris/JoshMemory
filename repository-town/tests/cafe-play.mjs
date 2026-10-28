@@ -99,8 +99,20 @@ if (reloads) await reload('the carried tray');
 // early can physically block the patron's route to their reserved chair.
 const seated = await page.waitForFunction(customer => window.__town.visitorRoutes().some(p => p.id === customer && p.state === 'seated'), ticket.customer, {timeout:60000}).then(() => true).catch(() => false);
 step(seated, 'customer physically reached the reserved café chair');
+// Assert the durable sale, not a transient toast. In a slow headless frame
+// the payment toast can be replaced by a served/clear-table message before
+// Playwright reads it, prompting a second (incorrect) delivery attempt.
+const servedBefore=(await st()).workplay.cafe.served;
 let paid = false;
-for (let i = 0; i < 30 && !paid; i++) { await go('workplay:cafe:table-' + ticket.table); paid = /paid to the café/.test(await status()); if (!paid) await T(() => window.__town.life.run(2)); }
+for (let i = 0; i < 30 && !paid; i++) {
+  await go('workplay:cafe:table-' + ticket.table);
+  paid=await T(({id,before})=>{
+    const cafe=window.__town.state().workplay.cafe;
+    const order=cafe.tickets.find(o=>o.id===id);
+    return cafe.served>before && ['served','dirty','cleared'].includes(order?.state);
+  },{id,before:servedBefore});
+  if(!paid)await T(() => window.__town.life.run(2));
+}
 if(!paid){
   const fs=await import('node:fs/promises');
   const diagnostic=await T(()=>({state:window.__town.state(),visitors:window.__town.visitorRoutes(),routes:window.__town.state().people.map(p=>({name:p.name,route:window.__town.life.route(p.name)}))}));
