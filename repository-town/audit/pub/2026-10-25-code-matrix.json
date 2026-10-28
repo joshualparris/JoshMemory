@@ -19,7 +19,7 @@
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "1856a71d8d6d71b4cebcb557d0bb221819304787",
+    "repository-town/src/main.js": "7ccce87cd5198e673c8d5b15935bff0f0e050888",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -931,6 +931,15 @@
       ],
       "finding": "Choppable scenery trees (townlife.js tree() wrapped in Builder.tree) and hatchet animation wiring (main.js); no pub geometry, egress, services or regulatory classification changes.",
       "evidence": "Source review; woodcutting-browser.mjs desktop and Android, test:town. Records provenance only, does not certify the pub."
+    },
+    {
+      "date": "2026-10-28",
+      "by": "Claude",
+      "changedFiles": [
+        "repository-town/src/main.js"
+      ],
+      "finding": "Merge of main's ground-item inventory with the woodcutting/skills wiring; no pub geometry, egress, services or regulatory classification changes.",
+      "evidence": "Merge review; tests/skills.mjs and woodcutting-browser.mjs. Records provenance only, does not certify the pub."
     }
   ]
 }
