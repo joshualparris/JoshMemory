@@ -5,6 +5,8 @@
 import assert from 'node:assert/strict';
 import { TownLife, PLACE_DEFS } from '../src/world/life.js';
 import { facilityAccess, visitorHours } from '../src/world/facility-access.js';
+import { tradeEducationPanel } from '../src/ui/trade-education-panels.js';
+import { hasItem } from '../src/world/inventory.js';
 
 const homes = [];
 for (let r = 0; r < 14; r++) for (let c = 0; c < 26; c++) homes.push({
@@ -28,6 +30,77 @@ for (const place of PLACE_DEFS) {
 }
 assert.deepEqual(gaps, [], 'every staffed venue has a rostered worker for all visitor hours');
 console.log('✓ every staffed venue is rostered across its visitor hours');
+
+// A Monday customer must be able to buy a hatchet at 10:00, not merely read
+// a roster. Actual workers must have reached the hardware counter.
+assert.equal(life.weekday(), 'Monday', 'Day 1 must be the real game calendar Monday');
+while(life.minute < 10 * 60) life.tick(0.5);
+assert.equal(life.time(), '10:00', 'check exact Monday 10am, not an adjacent slot');
+const hardware=life.place('hardware');
+const morning=facilityAccess(life,hardware);
+const hardwareWorkers=life.villagers.filter(v=>v.work==='hardware').map(v=>({name:v.name,x:v.x,z:v.z,kind:v.step?.kind,at:v.step?.at,remaining:v.path?.length,inside:v.inside}));
+console.log('Monday hardware 10:00:',JSON.stringify({front:hardware.front,morning,hardwareWorkers}));
+assert.equal(morning.allowed,true,'Hardware must be actually staffed at 10am Monday');
+console.log('✓ Hardware has a real on-site worker at 10am Monday');
+
+// An established player's save may contain only the original 38 NPCs.
+// Appended, genuinely rostered shop attendants must catch up when that save
+// is restored at 10am, without moving anybody the user previously saved.
+const oldSave = life.snapshot();
+delete oldSave.staffRestorationVersion; // genuinely old 38-worker saves predate this marker
+const oldPositions = new Map(oldSave.sim.villagers.slice(0, 38).map(v => [v.id,{x:v.x,z:v.z,step:v.step}]));
+oldSave.sim.villagers = oldSave.sim.villagers.slice(0, 38);
+const migrated = new TownLife({ homes, minute: 5 * 60, seed: 20261020 });
+assert.equal(migrated.restore(oldSave), true, 'accept a valid older 38-person save');
+assert.equal(migrated.time(),'10:00');
+const restoredHardware = facilityAccess(migrated,migrated.place('hardware'));
+console.log('Migrated hardware 10:00:',JSON.stringify({access:restoredHardware,workers:migrated.villagers.filter(v=>v.work==='hardware').map(v=>({id:v.id,kind:v.step?.kind,at:v.step?.at,x:v.x,z:v.z,remaining:v.path?.length}))}));
+assert.equal(restoredHardware.allowed,true,'real newly added hardware staff attend on restoration of an old save');
+for (const [id, before] of oldPositions) {
+  const after=migrated.villagers[id];
+  assert.equal(after.x,before.x,'previously saved resident '+id+' x must remain unchanged');
+  assert.equal(after.z,before.z,'previously saved resident '+id+' z must remain unchanged');
+}
+console.log('✓ Restoring an older save catches up appended hardware staff and preserves existing villagers');
+const sale=tradeEducationPanel(migrated,'hardware').actions.find(a=>a.label.startsWith('Buy a hatchet'));
+assert(sale,'hatchet should be advertised while hardware is physically open');
+const walletBefore=migrated.civic.player.wallet;
+sale.run();
+assert.equal(hasItem(migrated.civic.player,'hatchet'),true,'hatchet is received from staffed hardware');
+assert.equal(walletBefore-migrated.civic.player.wallet,25,'hatchet purchase debits exactly $25');
+const soldSave=migrated.snapshot();
+const afterSale=new TownLife({homes,minute:5*60,seed:20261020});
+assert.equal(afterSale.restore(soldSave),true);
+assert.equal(hasItem(afterSale.civic.player,'hatchet'),true,'hatchet persists after reload');
+console.log('✓ Monday 10:00 hardware sale charges $25, delivers hatchet and survives saved-game reload');
+
+// Previously saved staff sometimes remain incorrectly asleep at home after a
+// clock jump or an earlier release. A reload must recover a genuinely rostered
+// hardware attendant, without disturbing active commutes or other venues.
+const stale=life.snapshot();
+delete stale.staffRestorationVersion; // genuine pre-migration save from an older release
+const hardwareIds=life.villagers.filter(v=>v.work==='hardware').map(v=>v.id);
+for(const id of hardwareIds){
+  const worker=stale.sim.villagers.find(v=>v.id===id),home=life.villagers[id].home;
+  Object.assign(worker,{x:home.door.x,z:home.door.z+2,inside:true,path:[],
+    step:{kind:'sleep',at:'home',until:360,activity:'asleep at home'}});
+}
+const reloaded=new TownLife({homes,minute:5*60,seed:20261020});
+assert.equal(reloaded.restore(stale),true);
+assert.equal(facilityAccess(reloaded,reloaded.place('hardware')).allowed,true,
+  '10am Monday hardware attendant recovers from a stale at-home save');
+console.log('✓ Hardware recovers a legitimate rostered worker from stale Monday save');
+const modern = structuredClone(stale);
+modern.staffRestorationVersion=1;
+const modernReload=new TownLife({homes,minute:5*60,seed:20261020});
+assert.equal(modernReload.restore(modern),true);
+for(const id of hardwareIds){
+  const original=modern.sim.villagers.find(v=>v.id===id),got=modernReload.villagers[id];
+  assert.equal(got.x,original.x,'modern saved hardware worker must remain at saved x');
+  assert.equal(got.z,original.z,'modern saved hardware worker must remain at saved z');
+  assert.equal(got.step?.kind,'sleep','modern saved hardware worker state survives exactly');
+}
+console.log('✓ Modern saves are never silently migrated or moved on each reload');
 
 // The real simulation: late afternoon, the Bakery is still open and admits customers.
 const bakery = life.place('bakery');

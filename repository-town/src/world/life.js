@@ -598,8 +598,10 @@ export class TownLife {
 
   // Test hook only (__town.life.setTime): after a clock jump, anyone whose shift is under way
   // resumes at work instead of everyone re-planning from home. New games keep real commutes.
-  startShiftsInProgress() {
+  startShiftsInProgress(onlyIds = null) {
+    const selected = onlyIds ? new Set(onlyIds) : null;
     for (const v of this.villagers) {
+      if (selected && !selected.has(v.id)) continue;
       const site = v.work !== 'home' && this.places.get(v.work);
       const shift=this.shiftToday(v);
       if (!site || !shift || !(this.minute >= shift.start && this.minute < shift.end) || ['student', 'retired'].includes(v.job)) continue;
@@ -2126,7 +2128,7 @@ export class TownLife {
   // Saves just what matters to resume tomorrow where the town left off.
   snapshot() {
     const pick = (o, keys) => { const r = { id: o.id }; for (const k of keys) if (o[k] !== undefined) r[k] = o[k]; return r; };
-    const state = { saveVersion:2, seed: this.seed, rngState: this.rand.getState(), day: this.day, minute: this.minute, social:this.social, powerGridEvents:this.powerGridEvents, powerGridEventSeq:this.powerGridEventSeq, civic: this.civic, places: [...this.places.values()].map((p) => [p.id, p.stock, p.out, p.till, p.growth]), villagers: this.villagers.map((v) => [v.id, v.larder, v.wallet, v.lastMeal, v.meals, v.hunger, v.fatigue, v.restedMinutes, v.wageArrears || 0, v.rateArrears || 0, v.housingArrears || 0]), hotelBookings:this.place('hotel').bookings,
+    const state = { saveVersion:2, staffRestorationVersion:1, seed: this.seed, rngState: this.rand.getState(), day: this.day, minute: this.minute, social:this.social, powerGridEvents:this.powerGridEvents, powerGridEventSeq:this.powerGridEventSeq, civic: this.civic, places: [...this.places.values()].map((p) => [p.id, p.stock, p.out, p.till, p.growth]), villagers: this.villagers.map((v) => [v.id, v.larder, v.wallet, v.lastMeal, v.meals, v.hunger, v.fatigue, v.restedMinutes, v.wageArrears || 0, v.rateArrears || 0, v.housingArrears || 0]), hotelBookings:this.place('hotel').bookings,
       sim: { events: this.events, stats: this.stats, yesterday: this.yesterday || null, villagers: this.villagers.map((v) => ({ ...pick(v, SIM_VILLAGER_FIELDS), wageArrears: v.wageArrears || 0, rateArrears: v.rateArrears || 0, housingArrears: v.housingArrears || 0 })), trucks: (this.trucks || []).map((t) => pick(t, SIM_TRUCK_FIELDS)), parcels: this.parcels || [] } };
     return JSON.parse(JSON.stringify(state));
   }
@@ -2178,6 +2180,27 @@ export class TownLife {
       for (const saved of sim.villagers) { const cur = this.villagers.find((x) => x.id === saved.id); for (const k of SIM_VILLAGER_FIELDS) if (Object.prototype.hasOwnProperty.call(saved, k)) cur[k] = saved[k]; else delete cur[k]; }
       for (const saved of sim.trucks) { const cur = this.trucks.find((x) => x.id === saved.id); for (const k of SIM_TRUCK_FIELDS) if (Object.prototype.hasOwnProperty.call(saved, k)) cur[k] = saved[k]; else delete cur[k]; }
       this.parcels = sim.parcels;
+      // Older saves predate the later real, rostered shop attendants. Those
+      // appended villagers are born at home when a historical save is loaded;
+      // without catch-up a Monday 10:00 customer finds a fully rostered but
+      // empty hardware shop until newcomers finish an entire commute.
+      // Catch up ONLY workers absent from that save. Never teleport a saved
+      // villager or rewrite their real position, travel or household.
+      if (s.staffRestorationVersion !== 1) {
+      const restoredIds = new Set(sim.villagers.map(v => v.id));
+      const catchUp = this.villagers.filter(v => {
+        if (!restoredIds.has(v.id)) return true;
+        // Older saves also sometimes record a scheduled shop worker still
+        // asleep at home well after opening. Resume only stale at-home shifts,
+        // never an employee genuinely en route, serving, or on a meal break.
+        if (v.work !== 'hardware' || (v.path?.length || 0) > 0) return false;
+        const shift = this.shiftToday(v);
+        return s.staffRestorationVersion !== 1 && !!shift &&
+          this.minute >= shift.start + 60 && this.minute < shift.end &&
+          (!v.step || (v.step.at === 'home' && ['sleep','idle','shower','cook'].includes(v.step.kind)));
+      });
+      if (catchUp.length) this.startShiftsInProgress(catchUp.map(v => v.id));
+      }
     }
     for (const v of this.villagers) { if (!Array.isArray(v.larder)) v.larder = null; ensureHousehold(v); }
     if(this.marriages.length)reconcileSpouseHouseholds(this.villagers);
