@@ -39,6 +39,9 @@ for (const p of inventory.projects.filter((p) => p.visibility === 'private')) {
 }
 
 const leaks = [];
+// Josh's real home streets must never ship, including inside packed games.
+const HOME_MARKERS = [/boundary road/, /\b\d+\s+buckland st(reet)?\b/];
+for (const [f, body] of corpus) for (const re of HOME_MARKERS) if (re.test(body)) leaks.push(`${path.relative(TOWN, f)}: personal home location → ${re}`);
 for (const n of needles) {
   for (const [f, body] of corpus) {
     // Bare names are checked in content files only; engine source uses generic identifiers.
