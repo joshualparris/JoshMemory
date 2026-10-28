@@ -33,7 +33,9 @@ console.log('✓ every staffed venue is rostered across its visitor hours');
 
 // A Monday customer must be able to buy a hatchet at 10:00, not merely read
 // a roster. Actual workers must have reached the hardware counter.
+assert.equal(life.weekday(), 'Monday', 'Day 1 must be the real game calendar Monday');
 while(life.minute < 10 * 60) life.tick(0.5);
+assert.equal(life.time(), '10:00', 'check exact Monday 10am, not an adjacent slot');
 const hardware=life.place('hardware');
 const morning=facilityAccess(life,hardware);
 const hardwareWorkers=life.villagers.filter(v=>v.work==='hardware').map(v=>({name:v.name,x:v.x,z:v.z,kind:v.step?.kind,at:v.step?.at,remaining:v.path?.length,inside:v.inside}));
