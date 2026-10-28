@@ -97,7 +97,13 @@ await go('workplay:cafe:pass'); step(/Carrying/.test(await status()), 'collected
 if (reloads) await reload('the carried tray');
 let paid = false;
 for (let i = 0; i < 30 && !paid; i++) { await go('workplay:cafe:table-' + ticket.table); paid = /paid to the café/.test(await status()); if (!paid) await T(() => window.__town.life.run(2)); }
-if(!paid)await (await import('node:fs/promises')).writeFile('test-results/cafe-delivery-failure.json',JSON.stringify(await T(()=>({state:window.__town.state(),visitors:window.__town.visitorRoutes(),routes:window.__town.state().people.map(p=>({name:p.name,route:window.__town.life.route(p.name)}))})),null,2));
+if(!paid){
+  const fs=await import('node:fs/promises');
+  const diagnostic=await T(()=>({state:window.__town.state(),visitors:window.__town.visitorRoutes(),routes:window.__town.state().people.map(p=>({name:p.name,route:window.__town.life.route(p.name)}))}));
+  await fs.mkdir('test-results',{recursive:true});
+  await fs.writeFile('test-results/cafe-delivery-failure.json',JSON.stringify(diagnostic,null,2));
+  console.error('Café delivery diagnostic: '+JSON.stringify({tickets:diagnostic.state.workplay?.cafe?.tickets,visitors:diagnostic.visitors?.slice(0,20),people:diagnostic.state.people?.slice(0,15)}));
+}
 step(paid, 'delivered to table ' + ticket.table + ': ' + (await status()).slice(0, 120));
 const hud = await T(() => document.getElementById('workplay-hud')?.innerText || '');
 step(/served/.test(hud), 'HUD: ' + hud.replace(/\n/g, ' | '));
