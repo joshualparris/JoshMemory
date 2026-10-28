@@ -9,7 +9,9 @@ import { makeDistinctPerson } from './npc-wardrobe.js';
 const RADIUS = 0.35, GRID = 0.55, PERSONAL_SPACE = 0.85;
 const length = (a,b) => Math.hypot(a.x-b.x,a.z-b.z);
 const collision = (boxes,x,z,r=RADIUS) =>
-  boxes.some(b=>x+r>b.x0 && x-r<b.x1 && z+r>b.z0 && z-r<b.z1);
+  boxes.some(b=>b.radius!=null
+    ? Math.hypot(x-b.x,z-b.z)<r+b.radius
+    : x+r>b.x0 && x-r<b.x1 && z+r>b.z0 && z-r<b.z1);
 const inBounds = (b,x,z,r=RADIUS)=> x>b.x0+r && x<b.x1-r && z>b.z0+r && z<b.z1-r;
 const clear = (p,boxes,bounds,r=RADIUS) =>
   inBounds(bounds,p.x,p.z,r)&&!collision(boxes,p.x,p.z,r);
@@ -18,6 +20,12 @@ const clear = (p,boxes,bounds,r=RADIUS) =>
 export function clearWalk(from,to,boxes,bounds,r=RADIUS){
   if(!clear(from,boxes,bounds,r)||!clear(to,boxes,bounds,r))return false;
   for(const b of boxes){
+    if(b.radius!=null){
+      const dx=to.x-from.x,dz=to.z-from.z,length2=dx*dx+dz*dz;
+      const t=length2?Math.max(0,Math.min(1,((b.x-from.x)*dx+(b.z-from.z)*dz)/length2)):0;
+      if(Math.hypot(from.x+dx*t-b.x,from.z+dz*t-b.z)<r+b.radius)return false;
+      continue;
+    }
     let lo=0,hi=1,intersects=true;
     for(const axis of ['x','z']){
       const origin=from[axis],delta=to[axis]-origin;
@@ -76,15 +84,15 @@ export function routeVisitor(start,end,boxes,bounds,r=RADIUS) {
   }
   return smooth;
 }
-const nearSeat=(seat,boxes,bounds)=>{
+function* seatLandings(seat,boxes,bounds){
   for(const d of [0.78,1.05,1.35]){
     for(let i=0;i<12;i++){
       const a=i*Math.PI/6,pt={x:seat.pos.x+Math.cos(a)*d,z:seat.pos.z+Math.sin(a)*d};
-      if(clear(pt,boxes,bounds))return pt;
+      if(clear(pt,boxes,bounds))yield pt;
     }
   }
-  return null;
-};
+}
+const nearSeat=(seat,boxes,bounds)=>seatLandings(seat,boxes,bounds).next().value||null;
 export function visitorsForSite(life,siteId,staffId=null){
   return life.villagers.filter(v=>v.inside&&!v.path?.length&&v.step?.at===siteId &&
     (['buy','eatout','snack'].includes(v.step.kind) ||
@@ -131,8 +139,10 @@ export function createShopVisitors(site,life,interior,makeLabel,people){
     const blockers=[];
     const add=pos=>{
       if(!pos)return;
-      const r=PERSONAL_SPACE-RADIUS+.02;
-      blockers.push({x0:pos.x-r,x1:pos.x+r,z0:pos.z-r,z1:pos.z+r});
+      // Match actorClear's circular spacing. A square's expanded corners
+      // wrongly classified a safely stopped patron as already inside a blocker,
+      // making every subsequent route search fail at its starting point.
+      blockers.push({x:pos.x,z:pos.z,radius:PERSONAL_SPACE-RADIUS});
     };
     if(currentPlayer?.pos)add(currentPlayer.pos);
     for(const other of otherPeople(p))add(other.pos);
@@ -142,6 +152,19 @@ export function createShopVisitors(site,life,interior,makeLabel,people){
     const path=routeVisitor(p.pos,destination,[...boxes,...movingBlockers(p)],bounds);
     if(!path)return false;
     p.route=path;p.state='walking';p.retryGoal={...destination};return true;
+  };
+  const routeToSeat=(p,player)=>{
+    if(!p.seat)return false;
+    for(const landing of seatLandings(p.seat,boxes,bounds)){
+      if(!actorClear(landing,p,player))continue;
+      if(setDestination(p,landing)){
+        p.landing=landing;p.next='seating';p.standTarget=null;p.queueSlot=null;return true;
+      }
+    }
+    // Keep the chair reserved and retry when the aisle clears. A blocked
+    // approach must neither strand the patron forever nor teleport them.
+    p.route=[];p.state='waiting';p.next='seating';p.retryGoal={...p.landing};p.standTarget=null;p.queueSlot=null;
+    return false;
   };
   const vacantSeats=(reserved,playerSeat)=> (interior.seats||[]).filter(s=>
     s.key!==playerSeat && !reserved.has(s.key) && !s.occupiedBy &&
@@ -233,7 +256,8 @@ export function createShopVisitors(site,life,interior,makeLabel,people){
           // route. Waiting is safer than moving through another person.
           p.blockedFor=0;
           const destination=p.retryGoal||p.route[p.route.length-1]||p.standTarget||p.landing||counter;
-          if(!setDestination(p,destination)){
+          if(p.seat&&p.next==='seating')routeToSeat(p,player);
+          else if(!setDestination(p,destination)){
             p.retryGoal={...destination};p.route=[];p.state='waiting';
           }
         }
@@ -251,8 +275,7 @@ export function createShopVisitors(site,life,interior,makeLabel,people){
     if(p.state==='service'){
       p.serviceDelay-=dt;
       if(p.serviceDelay<=0&&!v.step?.queue){
-        if(setDestination(p,p.landing))p.next='seating';
-        else{positionAt(p,p.seat.pos);p.state='seated';}
+        routeToSeat(p,player);
       }
     }
     pose(p.fig,dt,t+p.phase,moved,false);
@@ -293,20 +316,20 @@ export function createShopVisitors(site,life,interior,makeLabel,people){
       }
       // Customers who were waiting for actual counter service must take a
       // seat after being served, not stay motionless at the till.
-      if(!p.exit&&!p.seat&&p.state==='standing'&&wantsSeat(p.v)&&
+      if(!p.exit&&!p.seat&&wantsSeat(p.v)&&
          reserveSeat(p,reserved,playerSeat)){
-        if(setDestination(p,p.landing))p.next='seating';
-        else{positionAt(p,p.seat.pos);p.state='seated';}
+        routeToSeat(p,player);
       }
       if(p.state==='waiting' && t>=(p.retryAt||0)){
         // Throttle A* on mobile; a full aisle may remain blocked for seconds.
         p.retryAt=t+.75;
         const goal=p.retryGoal||p.standTarget||(p.seat?p.landing:null)||(p.exit?entry:null);
-        if(goal && actorClear(goal,p,player) &&
+        if(p.seat&&p.next==='seating')routeToSeat(p,player);
+        else if(goal && actorClear(goal,p,player) &&
            (p.exit||!targetReserved(goal,p)))setDestination(p,goal);
       }
       if(p.state==='standing'&&p.seat&&p.next==='service'&&!p.exit){
-        if(setDestination(p,p.landing))p.next='seating';
+        routeToSeat(p,player);
       }
       const ticket=site.id==='cafe'?life.civic?.workplay?.cafe?.tickets.find(o=>o.id===p.v.step?.workTicket):null;
       if(ticket?.state==='queue'&&!p.exit){

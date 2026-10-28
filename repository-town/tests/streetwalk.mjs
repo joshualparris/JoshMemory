@@ -3,21 +3,26 @@
 // inside a collider, and photographs every house from the sidewalk for visual review.
 //   node tests/streetwalk.mjs [--url u] [--shots dir] [--rows 1,2] [--no-photos]
 import { chromium } from 'playwright';
+import fs from 'node:fs';
+import path from 'node:path';
+import {PLAN_ROADS} from '../src/world/masterplan-built.js';
 
 const args = process.argv.slice(2);
 const opt = (k, d) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : d; };
 const URL = opt('--url', 'http://localhost:8091/');
 const SHOTS = opt('--shots', null);
-const ROWS = opt('--rows', '1,2,3,4,5,6,7,8').split(',').map(Number);
-if (!ROWS.length || ROWS.some(row => !Number.isInteger(row) || row < 1 || row > 8)) throw new Error('Use --rows 1,2,...,8');
+const estate=args.includes('--estate-roads'),avenuesOnly=args.includes('--only-avenues');
+const ROWS = estate||avenuesOnly?[]:opt('--rows', '1,2,3,4,5,6,7,8').split(',').map(Number);
+if ((!ROWS.length&&!estate&&!avenuesOnly) || ROWS.some(row => !Number.isInteger(row) || row < 1 || row > 8)) throw new Error('Use --rows 1,2,...,8');
 const PHOTOS = !args.includes('--no-photos');
+const REPORT = opt('--report', null), legs = [];
 const LOT_X = 26, LOT_Z = 46, COLS = 26;
 const roadZ = (row) => (row - 1) * LOT_Z - 3.5 * LOT_Z + 16;
 const houseX = (col) => (col - (COLS - 1) / 2) * LOT_X;
 const XMIN = -(COLS / 2) * LOT_X - 4, XMAX = (COLS / 2) * LOT_X + 4;
 
 const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
-const page = await browser.newPage({ viewport: { width: 1000, height: 620 }, locale: 'en-US' });
+const page = await browser.newPage({ viewport: { width: 1000, height: 620 }, deviceScaleFactor:args.includes('--low-res') ? 0.5 : 1, locale: 'en-US' });
 const problems = [];
 page.on('pageerror', (e) => problems.push(`page error: ${e.message}`));
 await page.goto(URL);
@@ -55,6 +60,8 @@ async function walk(label, from, axis, dir, to) {
     }
   }
   await page.keyboard.up('w'); await page.keyboard.up('Shift');
+  legs.push({label,from,axis,dir,to,stuckAt});
+  if(REPORT){fs.mkdirSync(path.dirname(REPORT),{recursive:true});fs.writeFileSync(REPORT,JSON.stringify({rows:ROWS,avenues:!args.includes('--no-avenues'),complete:false,legs,problems},null,2));}
   return stuckAt;
 }
 
@@ -77,10 +84,16 @@ for (const row of ROWS) {
   console.log(`street ${row} done (${((Date.now() - t0) / 1000).toFixed(0)}s, ${problems.length} problems so far)`);
 }
 // Avenues every 5 columns, end to end.
-for (let c = 0; !args.includes('--no-avenues') && c <= COLS; c += 5) {
+for (let c = 0; !estate && !args.includes('--no-avenues') && c <= COLS; c += 5) {
   const x = (c - COLS / 2) * LOT_X;
-  await walk(`avenue x=${x}`, [x, roadZ(1) - 8], 'z', 1, roadZ(8) + 8);
+  await walk(`avenue x=${x}`, [x, -204], 'z', 1, 204);
 }
-console.log(problems.length ? `\nPROBLEMS (${problems.length}):\n` + problems.join('\n') : '\nNo problems: every street and avenue walked end to end.');
+if(estate)for(const r of PLAN_ROADS){
+  const axis=r.a.z===r.b.z?'x':'z',dir=Math.sign(r.b[axis]-r.a[axis]);
+  await walk('estate '+r.id,[r.a.x,r.a.z],axis,dir,r.b[axis]);
+  console.log('estate road '+r.id+' done');
+}
+console.log(problems.length ? `\nPROBLEMS (${problems.length}):\n` + problems.join('\n') : `\nNo problems: ${estate?'estate roads':'selected streets '+ROWS.join(', ')}${args.includes('--no-avenues')?' (avenues excluded)':' and core avenues'} walked end to end.`);
+if(REPORT)fs.writeFileSync(REPORT,JSON.stringify({rows:ROWS,avenues:!args.includes('--no-avenues'),complete:true,legs,problems},null,2));
 await browser.close();
 if (problems.length) process.exitCode = 1;
