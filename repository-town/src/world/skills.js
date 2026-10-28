@@ -4,7 +4,7 @@
 //   me.skills = { woodcutting: { xp }, firemaking: { xp } }
 //   me.logs   = { logs: n, oak_logs: n, willow_logs: n }
 //   life.civic.woodlot = { trees: { [treeId]: { stumpUntil } }, fires: [{ id, x, z, log, until }] }
-import { addItem, hasItem, items } from './inventory.js';
+import { addItem, equip, hasItem, items } from './inventory.js';
 
 export const SKILLS = Object.freeze({
   woodcutting: { name: 'Woodcutting', icon: '🪓', about: 'Chop trees at the Woodlot with a hatchet. Oaks need level 15, willows level 30.' },
@@ -138,6 +138,20 @@ export function buyTool(me, tool, till) {
   addItem(me, tool);
   till.cash = Math.round((till.cash + TOOLS[tool].price) * 100) / 100;
   return { ok: true, message: `You buy a ${tool} for $${TOOLS[tool].price}.` };
+}
+// The Woodlot tool rack, like the starter-tool spawns in Lumbridge: a free hatchet and
+// tinderbox for anyone who has none, at any hour, so woodcutting never waits for a shop.
+// Tools only, never money; one of each per player, so the rack can't be farmed for resale.
+export function takeRackTools(me) {
+  const got = [];
+  for (const tool of ['hatchet', 'tinderbox']) {
+    if (hasItem(me, tool)) continue;
+    if (bagUsed(me) >= BAG_SLOTS) return { ok: false, message: got.length ? `You take a ${got[0]}, but your bag is full.` : 'Your bag is full.' };
+    const id = addItem(me, tool); got.push(tool);
+    if (tool === 'hatchet') equip(me, id);
+  }
+  if (!got.length) return { ok: false, message: 'You already have a hatchet and a tinderbox. The rack is for anyone without.' };
+  return { ok: true, message: `You take ${got.map((t) => 'a ' + t).join(' and ')} from the Woodlot rack.${got.includes('hatchet') ? ' Hatchet in hand: walk up to a tree and chop.' : ''}` };
 }
 // The yard buys logs out of its own till: money moves, it is never created.
 export function sellLogs(me, log, till) {

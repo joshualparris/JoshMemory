@@ -6,7 +6,7 @@ export const ITEM_TYPES = Object.freeze({
   torch: { name: 'Torch', icon: '🔦', equip: true,
     about: 'A rechargeable LED torch. Equip it, then switch it on (F, or the button here) to light the way at night and in dark rooms.' },
   hatchet: { name: 'Hatchet', icon: '🪓', equip: true,
-    about: 'A steel hatchet from the hardware store. Walk up to a tree at the Woodlot (north of the railway) and press E or ✋ to chop.' },
+    about: 'A steel hatchet, bought at the hardware store or taken free from the Woodlot tool rack. Walk up to a tree at the Woodlot (north of the railway) and press E or ✋ to chop.' },
   tinderbox: { name: 'Tinderbox', icon: '🧰', equip: false,
     about: 'Flint, steel and dry tinder. Use it on logs in your bag to light a fire where you stand.' },
 });

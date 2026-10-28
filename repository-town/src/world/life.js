@@ -21,6 +21,7 @@ import { orderCafe, serveCafe } from './cafe-menu.js';
 import { bicycleClear, cyclingRoute } from './bicycle-safety.js';
 import { pedestrianDetour,canFinishNearOccupiedDoor } from './pedestrian-navigation.js';
 import { routeProgress, escapeCrowdWaypoint, clearPedestrianSegment } from './pedestrian-progress.js';
+import { callInMissingStaff } from './staff-callin.js';
 import { distributePower, townPowerDemands, POWER_LINE_IDS, GRID_FAULT_COST } from './power-grid.js';
 import { initialisePublicLife, attendPublicForum, updatePublicForum, civicDialogue } from './public-forum.js';
 import {initialEmergencyState,emergencyState,callTripleZero,advanceEmergency,caseReport,justiceSummary} from './emergency-justice.js';
@@ -680,6 +681,7 @@ export class TownLife {
     tickPubUtilities(this,minutes);
     advanceTownTradeOperations(this,minutes);
     advanceEmergency(this);
+    callInMissingStaff(this, minutes);
     for (const o of readyOrders(this)) this.collectOrder(o);
     for (const v of this.villagers) this.liveVillager(v, minutes);
     // All walkers, shop visitors and on-duty staff retain physical space.
@@ -995,6 +997,15 @@ export class TownLife {
     me[from] -= m; me[to] += m;
     noteBank(this, `${op === 'deposit' ? 'Deposited' : 'Withdrew'} $${m}.`); receipt(this, 'bank', `${op === 'deposit' ? 'Deposited' : 'Withdrew'} $${m}`, 0);
     return `${op === 'deposit' ? 'Deposited' : 'Withdrew'} $${m}. Wallet $${me.wallet}, savings $${me.bank}.`;
+  }
+  // The ATM in the bank's front wall works around the clock: withdrawals only, as in a real
+  // town, so a visitor short of cash for the hotel at night isn't stuck until 9:00.
+  atm(n) {
+    const me = this.civic.player, m = Math.min(n, me.bank || 0);
+    if (m <= 0) return `Your savings balance is $${me.bank || 0}: nothing to withdraw.`;
+    me.bank -= m; me.wallet += m;
+    noteBank(this, `ATM withdrawal $${m}.`); receipt(this, 'bank', `ATM withdrawal $${m}`, 0);
+    return `The ATM pays out $${m}. Wallet $${me.wallet}, savings $${me.bank}.`;
   }
   propertyReport() { return propertyReport(this); }
   contractQuote(id) {return contractQuote(this,id);}

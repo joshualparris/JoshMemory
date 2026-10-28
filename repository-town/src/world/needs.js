@@ -50,7 +50,7 @@ export function hotelCheckIn(t) {
   const booked=hotel.bookings||[];
   const today=booked.filter(x=>x.day===t.day);
   if(today.length>=HOTEL_ROOMS)return 'The hotel is fully booked tonight.';
-  if(p.wallet<HOTEL_RATE)return 'A room costs $'+HOTEL_RATE+'. You have $'+p.wallet+'. Withdraw savings at the Community Bank.';
+  if(p.wallet<HOTEL_RATE)return 'A room costs $'+HOTEL_RATE+'. You have $'+p.wallet+'. The 24-hour ATM outside the Community Bank pays out from your savings at any hour.';
   p.wallet-=HOTEL_RATE;
   t.sale(hotel,HOTEL_RATE);
   const room=[1,2,3,4].find(n=>!today.some(x=>x.room===n));
