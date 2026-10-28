@@ -39,6 +39,7 @@ export class Input {
         if (k === 'escape' && document.pointerLockElement !== this.canvas) this.pressed.add('back');
         if (k === 'l' && !this.touch) this.toggleMouseCapture();
         if (k === 'm') this.pressed.add('map');
+        if (k === 'v') this.pressed.add('view');   // driving camera view
       }
       this.keys.add(k);
       if ([' ', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) e.preventDefault();
@@ -140,6 +141,7 @@ export class Input {
     };
     btn('#t-jump', () => this.pressed.add('jump'));
     btn('#t-use', () => this.pressed.add('use'));
+    btn('#t-view', () => this.pressed.add('view'));
     btn('#t-run', (el) => { this.run = !this.run; if (this.run) this.crouch = false; this.sync(root); });
     btn('#t-crouch', (el) => { this.crouch = !this.crouch; if (this.crouch) this.run = false; this.sync(root); });
   }
