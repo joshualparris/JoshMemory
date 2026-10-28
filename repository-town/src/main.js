@@ -1896,7 +1896,7 @@ async function start() {
       workplay:life.civic.workplay||null,
       mode, sleeping, driving: driving.activeVehicle()?.registration||null, nearbyVehicle:nearCar?.registration||null, seated: player.seated ? {key:player.seated.key,label:player.seated.label} : null,
       seats: mode==='house' ? (inside?.seats||[]).map(x=>({key:x.key,type:x.type,label:x.label,pos:x.pos,room:x.room})) : townLife.seats.map(x=>({key:x.key,type:x.type,label:x.label,pos:x.pos})),
-      levelName:inside?.levelName||'Ground floor',floorElevation:inside?.group.position.y||0,coordinate: inside?.house.coordinate || null, floor: inside?.floorIndex || 0, windows: inside?.windows?.length || 0, floors: inside?.floors?.levels.length || 1, pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, eye: player.eye, y: player.y, fps,
+      levelName:inside?.levelName||inside?.floors?.titles?.[inside.floorIndex]||'Ground floor',floorElevation:inside?.group.position.y||0,coordinate: inside?.house.coordinate || null, floor: inside?.floorIndex || 0, windows: inside?.windows?.length || 0, floors: inside?.floors?.levels.length || 1, pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, eye: player.eye, y: player.y, fps,
       rooms: inside?.rooms.length || 0, props: inside?.placedProps.length || 0,
       interactables: inside ? inside.interactables.map((x) => ({ key: x.key, label: x.label, title: x.act.title || x.label, do: x.act.do, nav: x.floorNav || null, room: x.roomName })) : [],
       near: nearThing?.key || null, nearNPC: nearNPC?.npc.id || null, nearHouse: nearHouse?.house.coordinate || null,

@@ -30,8 +30,11 @@ try{
   }
   // Closing a conversation is idempotent. An already-hidden modal has no
   // visible Close button for Playwright to click; don't hang for 30 seconds.
-  if(await page.locator('#npc-chat').isVisible())await page.locator('#npc-close').click();
-  else assert.notEqual(await page.locator('#npc-chat').getAttribute('hidden'),null,
+  // On the NPC Lounge page the chat is a permanent pane: npc.css hides its
+  // Close button there by design, so only a modal chat needs closing.
+  const lounge=await page.evaluate(()=>document.body.classList.contains('npc-lounge'));
+  if(await page.locator('#npc-close').isVisible())await page.locator('#npc-close').click();
+  else if(!lounge)assert.notEqual(await page.locator('#npc-chat').getAttribute('hidden'),null,
     'Chat close control hidden while the conversation is still open');
  }
  assert.equal(new Set((await page.evaluate(()=>window.__recordingsPlayed)).map(u=>u.split('/').pop())).size,20);

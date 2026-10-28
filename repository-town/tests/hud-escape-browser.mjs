@@ -46,5 +46,8 @@ try {
   // The same button still toggles its own overlay closed.
   await press('btn-npcs');
   assert.deepEqual(await visible(), [], 'second press toggles the roster closed');
+  // The version/saves badge must sit under panels (it covered panel text on phones).
+  const z = await game.evaluate(() => { const badge = [...document.querySelectorAll('a')].find((a) => /^Version .* · saves$/.test(a.textContent)); return badge ? [Number(getComputedStyle(badge).zIndex), Number(getComputedStyle(document.getElementById('panel')).zIndex), Number(getComputedStyle(document.getElementById('card')).zIndex)] : null; });
+  if (z) assert.ok(z[0] < z[1] && z[0] < z[2], `version badge z-index ${z[0]} must be below panel ${z[1]} and card ${z[2]}`);
   console.log('hud-escape-browser: Esc closes every HUD overlay; overlays open one at a time.');
 } finally { await browser.close(); }

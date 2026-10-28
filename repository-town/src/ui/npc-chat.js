@@ -63,7 +63,10 @@ export function mountNPCChat(root=document, { getScene = () => null } = {}) {
   syncNpcViewport();
   input.setAttribute('enterkeyhint','send');
   input.addEventListener('focus',()=>{
-    el.classList.add('npc-typing');
+    // Typing mode makes room for an on-screen keyboard. Desktop has none, and
+    // there it hid "Try asking" and Recorded conversations whenever the chat
+    // auto-focused the composer (every NPC without a scripted conversation).
+    if(window.matchMedia('(pointer: coarse)').matches)el.classList.add('npc-typing');
     syncNpcViewport();
     // Scroll only the message list, not the entire page or a fixed dialog.
     requestAnimationFrame(()=>{

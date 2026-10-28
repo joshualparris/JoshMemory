@@ -7,6 +7,6 @@ fetch(new URL('../release.json', import.meta.url), {cache:'no-store'})
     link.href = new URL('../release.html', import.meta.url).href;
     link.textContent = `Version ${r.sourceCommit.slice(0,7)} · saves`;
     link.setAttribute('aria-label', 'View game version and transfer saved progress');
-    link.style.cssText = 'position:fixed;bottom:4px;right:8px;z-index:20;padding:3px 7px;border-radius:5px;background:#14251ee8;color:#eef7ef;font:11px system-ui;text-decoration:none';
+    link.style.cssText = 'position:fixed;bottom:4px;right:8px;z-index:8;padding:3px 7px;border-radius:5px;background:#14251ee8;color:#eef7ef;font:11px system-ui;text-decoration:none';
     document.body.append(link);
   }).catch(()=>{});
