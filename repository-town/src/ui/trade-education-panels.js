@@ -2,6 +2,8 @@ import { HARDWARE,REPAIR_TYPES,QUALIFICATIONS,TRADE_STAFF,
  tradeEducationReport,repairQuote,orderRepair,acceptRepair,cancelRepair,
  buyHardware,enrolQualification,bookHardwareDelivery,attendPlacement,sitAssessment,applyTownTradeLicence } from '../world/trade-education.js';
 import { esc } from './interactions.js';
+import { TOOLS, LOGS, buyTool, sellLogs } from '../world/skills.js';
+import { hasItem } from '../world/inventory.js';
 
 const money=n=>'$'+Math.round(n);
 const ref=l=>tradeEducationPanel(l,l.place);
@@ -23,6 +25,14 @@ export function tradeEducationPanel(life,place){
   body+='<h3>Central West Hardware & Timber</h3><p>Supplier of framing timber, plumbing components, electrical goods, fasteners, coatings and workshop parts. Each sale removes physical stock and transfers money to the supplier.</p>';
   body+=rows(Object.entries(HARDWARE).map(([id,v])=>[v.name, money(v.price)+' each · '+(state.stock[id]||0)+' in stock']));
   body+='<p><b>Hardware till:</b> '+money(state.hardwareCash)+'</p>';
+  // The timber yard: hatchets and tinderboxes for the Town Woodlot, and logs bought back from its till.
+  const till={get cash(){return state.hardwareCash;},set cash(v){state.hardwareCash=v;}};
+  body+='<h3>🪓 Timber yard</h3><p>Hatchets and tinderboxes for the Town Woodlot (north of the railway, on the north road). The yard buys logs back: '+
+   Object.values(LOGS).map(l=>l.name.toLowerCase()+' '+money(l.price)).join(', ')+' each.</p>';
+  if(open){
+   for(const tool of Object.keys(TOOLS))if(!hasItem(me,tool))actions.push(btn('Buy a '+tool+' · '+money(TOOLS[tool].price),life,place,()=>buyTool(me,tool,till).message));
+   for(const [log,l] of Object.entries(LOGS))if(me.logs?.[log]>0)actions.push(btn('Sell '+me.logs[log]+' '+l.name.toLowerCase(),life,place,()=>sellLogs(me,log,till).message));
+  }
   if(open)for(const [id,g] of Object.entries(HARDWARE)){
    actions.push(btn('Buy '+g.name+' · '+money(g.price),life,place,()=>buyHardware(life,id)));
    if((state.stock[id]||0)<g.initial/2)

@@ -5,6 +5,10 @@
 export const ITEM_TYPES = Object.freeze({
   torch: { name: 'Torch', icon: '🔦', equip: true,
     about: 'A rechargeable LED torch. Equip it, then switch it on (F, or the button here) to light the way at night and in dark rooms.' },
+  hatchet: { name: 'Hatchet', icon: '🪓', equip: true,
+    about: 'A steel hatchet from the hardware store. Walk up to a tree at the Woodlot (north of the railway) and press E or ✋ to chop.' },
+  tinderbox: { name: 'Tinderbox', icon: '🧰', equip: false,
+    about: 'Flint, steel and dry tinder. Use it on logs in your bag to light a fire where you stand.' },
 });
 
 const state = (me) => { me.items ??= []; me.equipped ??= null; me.torchOn ??= false; return me; };

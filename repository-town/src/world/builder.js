@@ -23,6 +23,11 @@ export const solidMaterial = new THREE.MeshLambertMaterial({ vertexColors: true 
 // panes aside so the town can light them at night (src/world/town.js).
 export const GLASS = 0x9fd3ea;
 
+// Every scenery tree in the town's merged meshes, so woodcutting can chop any of them: the vertices
+// each tree occupies in its merged mesh, so a felled tree can collapse to a stump and later regrow.
+const CHOPPABLE = [];
+export const choppableTrees = () => CHOPPABLE;
+
 export class Builder {
   constructor() {
     this.parts = [];
@@ -46,6 +51,13 @@ export class Builder {
 
   get matrix() {
     return this.stack[this.stack.length - 1];
+  }
+
+  // Builds a tree with `fn` and remembers which parts it is made of (type: 'tree' | 'oak' | 'willow').
+  tree(info, fn) {
+    const start = this.parts.length;
+    fn();
+    (this.trees ??= []).push({ start, end: this.parts.length, type: info.type || 'tree' });
   }
 
   // Runs `fn` in a translated/rotated frame; props are authored around their own origin.
@@ -111,10 +123,17 @@ export class Builder {
   build() {
     const group = new THREE.Group();
     if (this.parts.length) {
+      // Vertex offsets of each part in the merged mesh, for the trees recorded by tree().
+      const offsets = [0];
+      for (const p of this.parts) offsets.push(offsets.at(-1) + p.attributes.position.count);
       const merged = mergeGeometries(this.parts, false);
       for (const p of this.parts) p.dispose();
-      group.add(new THREE.Mesh(merged, solidMaterial));
+      const mesh = new THREE.Mesh(merged, solidMaterial);
+      group.add(mesh);
+      for (const t of this.trees || []) if (t.end > t.start)
+        CHOPPABLE.push({ id: 'scenery:' + CHOPPABLE.length, type: t.type, mesh, vStart: offsets[t.start], vCount: offsets[t.end] - offsets[t.start] });
     }
+    this.trees = [];
     for (const d of this.dynamics) group.add(d);
     this.parts = [];
     return group;
