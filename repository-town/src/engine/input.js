@@ -5,6 +5,7 @@ export class Input {
     this.keys = new Set();
     this.look = { dx: 0, dy: 0 };
     this.stick = { x: 0, y: 0 };
+    this.taps = []; this.auto = null;   // tap-to-walk: screen taps waiting, and the route-following move
     this.pressed = new Set();
     this.run = false;
     this.crouch = false;
@@ -18,7 +19,7 @@ export class Input {
   }
 
   reset() {
-    this.keys.clear(); this.pressed.clear(); this.stick.x = 0; this.stick.y = 0;
+    this.keys.clear(); this.pressed.clear(); this.stick.x = 0; this.stick.y = 0; this.taps = []; this.auto = null;
     // Menus and lost focus cancel the gesture itself. Otherwise a still-held
     // finger or mouse can revive movement/look after the reset.
     this.cancelTouch?.();
@@ -104,7 +105,7 @@ export class Input {
     const start = (e) => {
       for (const t of e.changedTouches) {
         const kind = t.clientX < innerWidth * 0.45 ? 'move' : 'look';
-        touches.set(t.identifier, { kind, x0: t.clientX, y0: t.clientY, x: t.clientX, y: t.clientY });
+        touches.set(t.identifier, { kind, x0: t.clientX, y0: t.clientY, x: t.clientX, y: t.clientY, t0: performance.now(), moved: 0 });
         if (kind === 'move') { stickEl.style.left = t.clientX - 55 + 'px'; stickEl.style.top = t.clientY - 55 + 'px'; stickEl.classList.add('on'); }
       }
       e.preventDefault();
@@ -112,7 +113,7 @@ export class Input {
     const move = (e) => {
       for (const t of e.changedTouches) {
         const s = touches.get(t.identifier); if (!s) continue;
-        if (s.kind === 'look') { this.look.dx += (t.clientX - s.x) * 1.4; this.look.dy += (t.clientY - s.y) * 1.4; }
+        if (s.kind === 'look') { s.moved += Math.hypot(t.clientX - s.x, t.clientY - s.y); this.look.dx += (t.clientX - s.x) * 1.4; this.look.dy += (t.clientY - s.y) * 1.4; }
         else {
           let dx = t.clientX - s.x0, dy = t.clientY - s.y0; const len = Math.hypot(dx, dy), max = 50;
           if (len > max) { dx *= max / len; dy *= max / len; }
@@ -126,6 +127,8 @@ export class Input {
       for (const t of e.changedTouches) {
         const s = touches.get(t.identifier); touches.delete(t.identifier);
         if (s?.kind === 'move') { this.stick.x = 0; this.stick.y = 0; knob.style.transform = ''; stickEl.classList.remove('on'); }
+        // A quick, still tap on the view side is tap-to-walk (main.js); a drag only looks around.
+        if (s?.kind === 'look' && e.type === 'touchend' && s.moved < 12 && performance.now() - s.t0 < 350) this.taps.push({ x: t.clientX, y: t.clientY });
       }
     };
     canvas.addEventListener('touchstart', start, { passive: false });
@@ -151,11 +154,18 @@ export class Input {
     root.querySelector('#t-crouch').setAttribute('aria-pressed', String(this.crouch));
   }
 
+  // Whether the player is steering by hand (keys or stick); that always overrides tap-to-walk.
+  steering() {
+    const k = this.keys;
+    return Math.hypot(this.stick.x, this.stick.y) > 0.15 || ['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].some((c) => k.has(c));
+  }
+  takeTaps() { const t = this.taps || []; this.taps = []; return t; }
   movement() {
     const k = this.keys;
     let x = (k.has('d') || k.has('arrowright') ? 1 : 0) - (k.has('a') || k.has('arrowleft') ? 1 : 0);
     let z = (k.has('s') || k.has('arrowdown') ? 1 : 0) - (k.has('w') || k.has('arrowup') ? 1 : 0);
     x += this.stick.x; z += this.stick.y;
+    if (!x && !z && this.auto) { x = this.auto.x; z = this.auto.z; }
     const len = Math.hypot(x, z);
     if (len > 1) { x /= len; z /= len; }
     return { x, z, running: this.run || k.has('shift'), crouching: this.crouch };

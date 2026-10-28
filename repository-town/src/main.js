@@ -76,6 +76,7 @@ import { inventoryPanel } from './ui/inventory-panel.js';
 import { skillsPanel } from './ui/skills-panel.js';
 import { buildWoodlot } from './world/woodlot.js';
 import { createGameTick, CHOP_TICKS, LIGHT_TICKS, LIGHT_GIVE_UP } from './world/game-tick.js';
+import { findPath } from './world/tap-path.js';
 import { createHatchetView } from './world/hatchet-view.js';
 import { canChop, canLight, swing, lightFire as lightLogs, isStump, skillsReport, takeRackTools, TREES } from './world/skills.js';
 import { buildCivilWorks } from './world/civil-works.js';
@@ -830,6 +831,49 @@ async function start() {
     for (let n = gameTick.advance(tickClock === null ? 0 : t - tickClock); n > 0; n--) tickActions();
     tickClock = t;
   }
+  // Tap-to-walk, as in RuneScape (engine step 2): a quick tap on the view walks you there by an
+  // A* route round walls, sheds and trees (world/tap-path.js); tap a tree to walk up to it and
+  // start chopping. The keys or the stick take over at once. A yellow ring marks the spot.
+  let autoWalk = null;
+  const tapMarker = new THREE.Mesh(new THREE.RingGeometry(0.22, 0.38, 20), new THREE.MeshBasicMaterial({ color: 0xffd23f, transparent: true, opacity: 0.9, depthWrite: false }));
+  tapMarker.rotation.x = -Math.PI / 2; tapMarker.visible = false; scene.add(tapMarker);
+  const endWalk = () => { autoWalk = null; input.auto = null; tapMarker.visible = false; };
+  function walkTo(x, z, tree = null) {
+    if (mode !== 'town' || driving.driving || overview) return 'Tap-to-walk works outdoors, on foot.';
+    if (Math.hypot(x - player.pos.x, z - player.pos.z) > 90) { status('That is too far to walk to in one go. Try the map.'); return 'far'; }
+    const blocked = (px, pz) => world.hits(px, pz, player.radius + 0.05);
+    const path = findPath(player.pos, { x, z }, blocked, { near: tree ? 1.7 : 0 });
+    if (!path) { status('You can’t reach that from here.'); return 'unreachable'; }
+    chopping = null; lighting = null;
+    autoWalk = { path, tree, last: player.pos.clone(), still: 0 };
+    tapMarker.position.set(x, 0.05, z); tapMarker.visible = true;
+    return null;
+  }
+  function tapWalk(sx, sy) {
+    const ndc = new THREE.Vector2((sx / innerWidth) * 2 - 1, -(sy / innerHeight) * 2 + 1);
+    const ray = new THREE.Raycaster(); ray.setFromCamera(ndc, camera);
+    const hit = new THREE.Vector3();
+    if (!ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0), hit)) return 'sky';
+    let tree = null, best = 2.5;
+    for (const tr of woodlot.allTrees()) { const d = Math.hypot(tr.pos.x - hit.x, tr.pos.z - hit.z); if (d < best && !isStump(life, tr.id)) { best = d; tree = tr; } }
+    return walkTo(tree ? tree.pos.x : hit.x, tree ? tree.pos.z : hit.z, tree);
+  }
+  function stepAutoWalk(dt) {
+    if (!autoWalk) { input.auto = null; return; }
+    if (input.steering() || mode !== 'town' || driving.driving) { endWalk(); return; }
+    let next = autoWalk.path[0];
+    while (next && Math.hypot(next.x - player.pos.x, next.z - player.pos.z) < 0.35) { autoWalk.path.shift(); next = autoWalk.path[0]; }
+    if (!next) { const tree = autoWalk.tree; endWalk(); if (tree) startChopping(tree); return; }
+    // Someone standing in the way: give up after a couple of seconds without progress.
+    if (player.pos.distanceTo(autoWalk.last) < 0.02) { if ((autoWalk.still += dt) > 2) { endWalk(); status('Something is in the way.'); return; } }
+    else { autoWalk.still = 0; autoWalk.last.copy(player.pos); }
+    const dx = next.x - player.pos.x, dz = next.z - player.pos.z, n = Math.hypot(dx, dz);
+    // Turn gently toward the way ahead, and steer camera-relative so the move itself is exact.
+    let turn = Math.atan2(-dx, -dz) - player.yaw; turn = Math.atan2(Math.sin(turn), Math.cos(turn));
+    player.yaw += turn * Math.min(1, 4 * dt);
+    const c = Math.cos(player.yaw), sn = Math.sin(player.yaw), ux = dx / n, uz = dz / n;
+    input.auto = { x: ux * c - uz * sn, z: ux * sn + uz * c };
+  }
   function tickActions() {
     if (chopping && ++chopping.ticks % CHOP_TICKS === 0) {
       const r = swing(life, life.civic.player, chopping.tree);
@@ -1484,7 +1528,11 @@ async function start() {
       // Jump, run and crouch do nothing in a vehicle: show ✋ and 🎥 only, clear of the minimap.
       $('t-view').hidden=!driving.driving; for(const id of ['t-jump','t-run','t-crouch'])$(id).hidden=driving.driving;
       if(mode==='town'&&driving.driving){ driving.update(dt); if(driving.message){ status(driving.message); driving.clearMessage(); } }
-      else player.update(dt,input,world);
+      else {
+        if (mode === 'town' && !overview) for (const tap of input.takeTaps()) tapWalk(tap.x, tap.y); else input.takeTaps();
+        stepAutoWalk(dt);
+        player.update(dt,input,world);
+      }
     }
     drivingDashboard.update(mode==='town'&&!overview?driving.activeVehicle():null);
     market.update(life.day, life.minute);
@@ -1929,6 +1977,8 @@ async function start() {
     streetPeople:()=>streetNPCs.map(n=>({id:n.npc.id,name:n.npc.name,x:n.pos.x,z:n.pos.z,mode:n.mode||null,visible:n.group?.visible??null})),
     townFigures:()=>townLife.people.map(p=>({key:p.key,x:p.fig.group.position.x,z:p.fig.group.position.z,visible:p.fig.group.visible})),
     // Stands 1.3 m inside window i of the current floor, looking out of it.
+    walkTo: (x, z, treeId = null) => walkTo(x, z, treeId ? woodlot.allTrees().find((t) => t.id === treeId) : null), tapWalk: (sx, sy) => tapWalk(sx, sy),
+    autoWalk: () => autoWalk && { legs: autoWalk.path.length, to: autoWalk.path.at(-1) || null, tree: autoWalk.tree?.id || null },
     atm: () => ({ x: atmSpot.pos.x, z: atmSpot.pos.z, yaw: Math.atan2(atmOut.x, atmOut.z) }),
     skills:()=>({ report: skillsReport(life.civic.player), chopping: chopping?.tree.id || null, lighting: !!lighting, tick: gameTick.count, fires: woodlot.fireCount(),
       trees: woodlot.allTrees().map((tr) => ({ id: tr.id, type: tr.type, x: tr.pos.x, z: tr.pos.z, stump: isStump(life, tr.id) })), hatchet: { visible: hatchetView.visible, angle: hatchetView.angle }, logs: { ...(life.civic.player.logs || {}) } }),
