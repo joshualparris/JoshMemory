@@ -29,6 +29,16 @@ for (const place of PLACE_DEFS) {
 assert.deepEqual(gaps, [], 'every staffed venue has a rostered worker for all visitor hours');
 console.log('✓ every staffed venue is rostered across its visitor hours');
 
+// A Monday customer must be able to buy a hatchet at 10:00, not merely read
+// a roster. Actual workers must have reached the hardware counter.
+while(life.minute < 10 * 60) life.tick(0.5);
+const hardware=life.place('hardware');
+const morning=facilityAccess(life,hardware);
+const hardwareWorkers=life.villagers.filter(v=>v.work==='hardware').map(v=>({name:v.name,x:v.x,z:v.z,kind:v.step?.kind,at:v.step?.at,remaining:v.path?.length,inside:v.inside}));
+console.log('Monday hardware 10:00:',JSON.stringify({front:hardware.front,morning,hardwareWorkers}));
+assert.equal(morning.allowed,true,'Hardware must be actually staffed at 10am Monday');
+console.log('✓ Hardware has a real on-site worker at 10am Monday');
+
 // The real simulation: late afternoon, the Bakery is still open and admits customers.
 const bakery = life.place('bakery');
 while (life.minute < 16 * 60 + 30) life.tick(0.5);
