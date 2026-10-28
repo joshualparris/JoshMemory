@@ -77,6 +77,7 @@ console.log('✓ Monday 10:00 hardware sale charges $25, delivers hatchet and su
 // clock jump or an earlier release. A reload must recover a genuinely rostered
 // hardware attendant, without disturbing active commutes or other venues.
 const stale=life.snapshot();
+delete stale.staffRestorationVersion; // genuine pre-migration save from an older release
 const hardwareIds=life.villagers.filter(v=>v.work==='hardware').map(v=>v.id);
 for(const id of hardwareIds){
   const worker=stale.sim.villagers.find(v=>v.id===id),home=life.villagers[id].home;
@@ -88,6 +89,17 @@ assert.equal(reloaded.restore(stale),true);
 assert.equal(facilityAccess(reloaded,reloaded.place('hardware')).allowed,true,
   '10am Monday hardware attendant recovers from a stale at-home save');
 console.log('✓ Hardware recovers a legitimate rostered worker from stale Monday save');
+const modern = structuredClone(stale);
+modern.staffRestorationVersion=1;
+const modernReload=new TownLife({homes,minute:5*60,seed:20261020});
+assert.equal(modernReload.restore(modern),true);
+for(const id of hardwareIds){
+  const original=modern.sim.villagers.find(v=>v.id===id),got=modernReload.villagers[id];
+  assert.equal(got.x,original.x,'modern saved hardware worker must remain at saved x');
+  assert.equal(got.z,original.z,'modern saved hardware worker must remain at saved z');
+  assert.equal(got.step?.kind,'sleep','modern saved hardware worker state survives exactly');
+}
+console.log('✓ Modern saves are never silently migrated or moved on each reload');
 
 // The real simulation: late afternoon, the Bakery is still open and admits customers.
 const bakery = life.place('bakery');
