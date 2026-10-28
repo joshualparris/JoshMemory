@@ -598,8 +598,10 @@ export class TownLife {
 
   // Test hook only (__town.life.setTime): after a clock jump, anyone whose shift is under way
   // resumes at work instead of everyone re-planning from home. New games keep real commutes.
-  startShiftsInProgress() {
+  startShiftsInProgress(onlyIds = null) {
+    const selected = onlyIds ? new Set(onlyIds) : null;
     for (const v of this.villagers) {
+      if (selected && !selected.has(v.id)) continue;
       const site = v.work !== 'home' && this.places.get(v.work);
       const shift=this.shiftToday(v);
       if (!site || !shift || !(this.minute >= shift.start && this.minute < shift.end) || ['student', 'retired'].includes(v.job)) continue;
@@ -2178,6 +2180,14 @@ export class TownLife {
       for (const saved of sim.villagers) { const cur = this.villagers.find((x) => x.id === saved.id); for (const k of SIM_VILLAGER_FIELDS) if (Object.prototype.hasOwnProperty.call(saved, k)) cur[k] = saved[k]; else delete cur[k]; }
       for (const saved of sim.trucks) { const cur = this.trucks.find((x) => x.id === saved.id); for (const k of SIM_TRUCK_FIELDS) if (Object.prototype.hasOwnProperty.call(saved, k)) cur[k] = saved[k]; else delete cur[k]; }
       this.parcels = sim.parcels;
+      // Older saves predate the later real, rostered shop attendants. Those
+      // appended villagers are born at home when a historical save is loaded;
+      // without catch-up a Monday 10:00 customer finds a fully rostered but
+      // empty hardware shop until newcomers finish an entire commute.
+      // Catch up ONLY workers absent from that save. Never teleport a saved
+      // villager or rewrite their real position, travel or household.
+      const restoredIds = new Set(sim.villagers.map(v => v.id));
+      this.startShiftsInProgress(this.villagers.filter(v => !restoredIds.has(v.id)).map(v => v.id));
     }
     for (const v of this.villagers) { if (!Array.isArray(v.larder)) v.larder = null; ensureHousehold(v); }
     if(this.marriages.length)reconcileSpouseHouseholds(this.villagers);
