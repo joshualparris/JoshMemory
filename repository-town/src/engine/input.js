@@ -19,6 +19,10 @@ export class Input {
 
   reset() {
     this.keys.clear(); this.pressed.clear(); this.stick.x = 0; this.stick.y = 0;
+    // Menus and lost focus cancel the gesture itself. Otherwise a still-held
+    // finger or mouse can revive movement/look after the reset.
+    this.cancelTouch?.();
+    this.cancelDrag?.();
     this.takeLook();
   }
 
@@ -45,6 +49,7 @@ export class Input {
 
   bindMouse(canvas) {
     let drag = null;
+    this.cancelDrag = () => { drag = null; };
     canvas.addEventListener('mousedown', (e) => { drag = { x: e.clientX, y: e.clientY }; });
     addEventListener('mouseup', () => { drag = null; });
     addEventListener('mousemove', (e) => {
@@ -90,6 +95,11 @@ export class Input {
   bindTouch(canvas, root) {
     const stickEl = root.querySelector('#stick'), knob = root.querySelector('#knob');
     const touches = new Map();
+    this.cancelTouch = () => {
+      touches.clear();
+      knob.style.transform = '';
+      stickEl.classList.remove('on');
+    };
     const start = (e) => {
       for (const t of e.changedTouches) {
         const kind = t.clientX < innerWidth * 0.45 ? 'move' : 'look';

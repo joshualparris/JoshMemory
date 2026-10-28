@@ -476,3 +476,7 @@ Final 407 browser exercised all expansion actions, then caught an actual generic
 
 ### PUB-EXP final live visual clearance
 Expansion source0c passed all seven workflows, publisher and live desktop/phone expansion including cancelled lift and both exits. Visual inspection of the actual stair-landing screenshot found the relocated ground menu board intersected a side-window opening; moved it to the clear rear-left wall. Shifted one upper wall picture off the window edge too. Added actual Three.js bounding-box regression for TV/menu/pictures versus the side-window span. Gameplay/route tests pass. Supplemental source/hosted verification remains pending; do not label the window issue fixed before the new live view is checked.
+
+
+## Walking bug sweep — 2026-10-28
+Owner Codex; branch fix/town-walkthrough-20261028; baseline 4082c3ca. Canonical source and Tier 2 confirmed; current open PRs inspected (#254 demographics, #48 industries), no overlapping scope selected. Chromium setup and public build in progress. Next: reproduce walking/entrance bugs, record narrow file scope and fix with regression evidence. No hosted acceptance yet.
