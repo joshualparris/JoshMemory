@@ -743,7 +743,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       const sign = makeLabel(p.address+' · '+p.name, 'house');
       sign.position.set(p.x, 3.85, FIELD_Z0 - 4.6);
       group.add(sign); labels.push(sign);
-      spots.push({ key: `place:${p.id}`, id: p.id, pos: new THREE.Vector3(p.x, 0, FIELD_Z0 - 2.4), label: `${p.name} — ${{ bank: 'your account', fire: 'station board', foundry: 'the works' }[p.id] || 'the plant'}` });
+      spots.push({ key: `place:${p.id}`, id: p.id, pos: new THREE.Vector3(p.x, 0, FIELD_Z0 - 2.4), label: `${p.name} — ${{ bank: 'your account', fire: 'station board', emergency: 'station board', hotel: 'reception', utility: 'the plant', industry: 'the works', farm: 'see how it\'s farmed' }[p.kind] || 'look inside'}` });
       const at = SIGN_AT[p.id];   // turned to face the road, like the building
       if (at) signs.push({place:p, text: p.name, x: p.x - at[0], y: at[1], z: FIELD_Z0 + 7 - at[2], w: at[3], h: at[4], rotY: Math.PI, bg: at[5], fg: at[6] });
       if(p.field)fields.push({p,...buildField(p,group,statics,statics.glass)});
