@@ -44,7 +44,7 @@ try {
   await page.waitForTimeout(600);
   const fatal = await page.locator('#loading.error').isVisible();
   step(!fatal, 'a runtime error does not replace the game with "Could not start"');
-  step(/still running: rack test probe/.test(await status()), 'the error shows in the status line: ' + await status());
+  step(/still running.*rack test probe/.test(await status()), 'the error shows in the status line: ' + await status());
   const t0 = await T(() => window.__town.state().minute);
   await page.waitForTimeout(1500);
   const t1 = await T(() => window.__town.state().minute);

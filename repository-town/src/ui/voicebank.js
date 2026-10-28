@@ -146,8 +146,13 @@ export function makeTownListenButton(text,root=document,{npcId=''}={}) {
 const GAME300_SPEAKERS=new Set(['rowan','pip','circuit','wren','sol','sage','spark','lyra','nova','kit']);
 const GAME300_EVENT_NAMES=new Set(['greeting','help','quest','success','retry','ambient','explore','choice','farewell','surprise']);
 let game300Module=null,activeRecordedCue=null;
-const game300Loading=import(VOICEBANK_ORIGIN+'/src/game300.js')
-  .then(module=>(game300Module=module)).catch(()=>null);
+// The 100 Game300 lines play from the game's own bundled MP3s (game300-local.js), with the VoiceBank
+// site only as a fallback, so the residents still speak when that site is slow, blocked or offline.
+const game300Loading=import('./game300-local.js')
+  .then(local=>(game300Module={
+    playGame300:(project,speaker,event,options={})=>local.playGame300(project,speaker,event,{...options,fallbackOrigin:VOICEBANK_ORIGIN}),
+    stopGame300:()=>local.stopGame300(),
+  })).catch(()=>null);
 export function hasTownRecordedEvent(npcId,event) {
   return GAME300_SPEAKERS.has(npcId) && GAME300_EVENT_NAMES.has(event);
 }

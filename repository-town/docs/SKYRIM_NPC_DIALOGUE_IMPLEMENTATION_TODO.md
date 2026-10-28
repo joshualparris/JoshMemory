@@ -78,7 +78,7 @@ Skyrim-*inspired* actor-specific dialogue branches, priorities, availability con
 
 ### Phase 5: ElevenLabs voices and audio integrity
 
-- [ ] **RTD-042** Export clip-to-actor-to-event manifest for the existing 100 Game300 recordings, ten unique voiced residents and exact VoiceBank ZIP metadata.
+- [x] **RTD-042** Export clip-to-actor-to-event manifest for the existing 100 Game300 recordings, ten unique voiced residents and exact VoiceBank ZIP metadata. *(2026-10-28: `src/ui/game300-captions.js` — 100 clips, exact captions and SHA-256 from the VoiceBank pack manifests; bundled MP3s byte-identical; `tests/game300-bundled.mjs`.)*
 - [ ] **RTD-043** Verify clip IDs, SHA-256, actual transcription, sound duration, public URL and voice assignment before attaching to graph nodes.
 - [ ] **RTD-044** Map greeting, help, exploration, ambient, choice, challenge and farewell clips only where actual words fit story context.
 - [ ] **RTD-045** Gate existing success/retry files behind real quest/repair/result states; generic AI messages must never trigger them.
