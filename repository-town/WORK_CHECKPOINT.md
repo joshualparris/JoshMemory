@@ -521,3 +521,10 @@ PUBLIC engineering/product decisions only. User redirected authorised skill work
 
 ### RPG item foundation implemented
 Pure item transfers now preserve identities and exactly one owner, reject stale/repeated/blocked/out-of-location pickups, and retain dropped equipment as saved ground objects. Existing starter torch follows those rules; old saved torch identities remain valid. Bag actions and torch toggle save immediately; Settings links to the existing save backup/restore page. Ground rendering uses unique parcel/building/floor keys and local floor height. Unit ownership/geometry refusals, old-save, render isolation and backup round trips PASS. Actual desktop and emulated-phone Use/Bag/drop/reload/recollect and interior leave/re-enter PASS with zero page errors. Final source adds immediate position persistence as well as item persistence; rebuild/replay pending. Full test:release PASS; test:integration still running. No skill/XP/accounts/multiplayer, no hosted claim. Next collect integration, final committed-source public build/privacy/integrity and desktop/phone replay, then publish review branch. Previous whole-town sweep remains incomplete and paused under user's foundation priority.
+
+## RTD-042 bundled Game300 playback — checkpoint (2026-10-28, Claude)
+
+Owner: Claude · branch `fix/game300-local-playback-20261028` · baseline main at claim commit `93170ef`.
+Done: `src/ui/game300-captions.js` (100 clips: id, speaker, event, exact caption, SHA-256 from the Parris VoiceBank `packs/game300/<voice>.zip` manifests); all 100 `src/audio/town/RT-*.mp3` verified byte-identical; `src/ui/game300-local.js` plays the bundled files with SHA-256 checks, VoiceBank site only as fallback; `voicebank.js` uses it.
+Evidence: `node tests/game300-bundled.mjs` PASS; `node tests/recorded-dialogue-browser.mjs` PASS desktop + mobile with real WebAudio in a sandbox where the VoiceBank origin is unreachable (it timed out before this change); `npm run test:integration` PASS.
+Open: RTD-043 transcription/duration/public-URL checks, RTD-044/045 context mapping and gating, hosted production playback evidence.
