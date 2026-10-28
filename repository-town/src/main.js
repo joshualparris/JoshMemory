@@ -1490,7 +1490,9 @@ async function start() {
       };
       for (const p of townLife.people) if (!p.v.inside) consider(p, 2.6);
       // As keen as the torch beside it, so facing Wren talks to Wren (the torch used to win every time).
-      consider(guideSpot, 2.6, 2.0);
+      // Keep Wren selectable when facing her, without stealing the pickup cue for the nearby torch.
+      // At the starter's pickup pose a 2.0 bonus wrongly outranked the closer, directly faced item.
+      consider(guideSpot, 2.6, 1.2);
       // A shop door you are facing wins over a villager walking past or queuing beside it.
       for (const sp of townLife.spots) consider({ ...sp, spot: sp }, 3.2, 1.5);
       if (market.root.visible) for (const sp of market.spots) consider({ ...sp, spot: sp }, 3.6, 2.0);
