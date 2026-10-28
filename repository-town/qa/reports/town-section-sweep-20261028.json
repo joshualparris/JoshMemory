@@ -27,15 +27,27 @@
     },
     {
       "id": "core-5-6",
-      "status": "in_progress"
+      "status": "checked_with_successful_retest",
+      "homesChecked": 52,
+      "civicSitesChecked": 52,
+      "walking": "Both footpaths on Streets5/6,618 seconds,zero problems",
+      "note": "One initial arts-centre exit timeout; four focused repeats pass, initial failure retained."
     },
     {
       "id": "core-7-8-civic",
-      "status": "pending"
+      "status": "passed_after_fixes",
+      "homesChecked": 32,
+      "civicSitesChecked": 46,
+      "walking": "Prior Street7/8 keyboard walk on same conversation; no outdoor movement/geometry changed",
+      "notes": [
+        "Pub ground/upper/cellar and secondary escapes exercised.",
+        "Market Square checked as outdoor notice interaction, not a building.",
+        "Job/authorisation status feedback is recorded as feedback, not completion of restricted work."
+      ]
     },
     {
       "id": "avenues-rail-farms",
-      "status": "pending"
+      "status": "in_progress"
     },
     {
       "id": "northern-campuses",
@@ -84,13 +96,13 @@
     {
       "issue": "Three staff conversation targets overlap service desks exactly",
       "status": "fixed_baseline_regression_then_unit_and_3_building_browser_pass"
+    },
+    {
+      "issue": "Caf\u00e9 patrons stuck at stale till goals or blocked chair approaches",
+      "status": "fixed_unit_baseline_reproductions_and_desktop_plus_mobile_reload_service_pass"
     }
   ],
   "openFindings": [
-    {
-      "issue": "Cafe customer never reaches table in baseline replay",
-      "status": "pending_civic_section"
-    },
     {
       "issue": "External Umami and VoiceBank module requests fail in this environment",
       "status": "diagnosed_urls_not_claimed_production_outage"

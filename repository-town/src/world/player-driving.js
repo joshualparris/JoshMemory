@@ -84,6 +84,9 @@ export function roadAllows(x,z){
 }
 export function createPlayerDriving(life,scene,collision,player,camera,input){
  const meshes=new Map();let active=null,speed=0,message='';
+ // Camera views while driving, switched with V or the 🎥 button and remembered on this device.
+ const VIEWS=['chase','rider','high'],VIEW_NAMES={chase:'Chase view',rider:"Rider's-eye view",high:'High view'};
+ let view='chase';try{const saved=localStorage.getItem('town.driveView');if(VIEWS.includes(saved))view=saved;}catch{}
  function siteSpawn(i,self){
    const site=life.place('dealership');
    if(!site)return null;
@@ -147,7 +150,7 @@ export function createPlayerDriving(life,scene,collision,player,camera,input){
      for(let i=0;i<16;i++){
        const angle=(v.yaw||0)+Math.PI/2+i*Math.PI/8,x=v.x+Math.cos(angle)*radius,z=v.z+Math.sin(angle)*radius;
        if(!collision.hits(x,z,player.radius+.1)){
-         player.place(x,z,v.yaw);setVehicleHeadlights(meshes.get(active),life.daylight(),false);
+         player.place(x,z,v.yaw);setVehicleHeadlights(meshes.get(active),life.daylight(),false);if(meshes.get(active))meshes.get(active).visible=true;
          active=null;speed=0;return 'Parked, handbrake on. You got out safely.';
        }
      }
@@ -207,16 +210,33 @@ export function createPlayerDriving(life,scene,collision,player,camera,input){
    v.gear=transmission.gear;v.rpm=transmission.rpm;v.throttle=Math.max(0,Math.min(1,throttle));   // accelerator position, for engine load in vehicle-audio.js
    v.coolantTemp=updateCoolantTemperature(v.coolantTemp,dt,speed,v.condition);
    player.pos.set(v.x,0,v.z);player.yaw=v.yaw||0;player.pitch=0;
-   // Third-person trailing camera, no disembodied eye inside a dashboard.
-   const follow=spec.kind==='bike'?6:9+(v.model==='truck'?4:0),px=v.x+Math.sin(v.yaw||0)*follow,
-     pz=v.z+Math.cos(v.yaw||0)*follow;
-   camera.position.set(px,5.6,pz);
-   camera.lookAt(v.x,1.1,v.z);
+   placeCamera(v,spec);
    return true;
+ }
+ // The camera looks well down the road, so the vehicle sits low in the frame instead of filling it
+ // (on the motorbike the rider's back used to hide where you were going).
+ function placeCamera(v,spec){
+   const sin=Math.sin(v.yaw||0),cos=Math.cos(v.yaw||0),mesh=meshes.get(v.registration);
+   if(mesh)mesh.visible=view!=='rider';
+   if(view==='rider'){
+     const eye=spec.kind==='bike'?1.55:v.model==='truck'?2.4:1.25;
+     camera.position.set(v.x-sin*.2,eye,v.z-cos*.2);
+     camera.lookAt(v.x-sin*25,eye-.6,v.z-cos*25);
+     return;
+   }
+   const high=view==='high',follow=(spec.kind==='bike'?6:9+(v.model==='truck'?4:0))*(high?1.8:1),height=high?11:spec.kind==='bike'?3.4:4.6;
+   camera.position.set(v.x+sin*follow,height,v.z+cos*follow);
+   camera.lookAt(v.x-sin*(high?14:10),high?0:1,v.z-cos*(high?14:10));
+ }
+ function cycleView(){
+   view=VIEWS[(VIEWS.indexOf(view)+1)%VIEWS.length];
+   try{localStorage.setItem('town.driveView',view);}catch{}
+   const v=activeVehicle();if(v)placeCamera(v,vehicleSpec(v.model));
+   return VIEW_NAMES[view]+' (V or 🎥 to change)';
  }
  function activeVehicle(){return active?life.civic.motor.owned.find(v=>v.registration===active)||null:null;}
  function headlightStatus(){const rig=meshes.get(active)?.userData?.headlights;
    return {active:!!active,on:!!rig&&rig.level>0.01,level:rig?.level||0,beamCount:rig?.beams.length||0,
      beamsLit:rig?.beams.filter(b=>b.intensity>0).length||0};}
- return {sync,nearest,enter,exit,update,activeVehicle,headlightStatus,get driving(){return !!active;},get message(){return message;},clearMessage(){message='';}};
+ return {sync,nearest,enter,exit,update,activeVehicle,headlightStatus,cycleView,get view(){return view;},get driving(){return !!active;},get message(){return message;},clearMessage(){message='';}};
 }

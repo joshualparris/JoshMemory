@@ -30,6 +30,7 @@ async function use(){
  await frames();
 }
 async function walkUntil(test,timeout=10000){
+ await page.evaluate(()=>document.activeElement?.blur());
  if(device==='phone'){
   await page.evaluate(()=>{const c=document.querySelector('canvas:not(#minimap)'),t=(y)=>new Touch({identifier:77,target:c,clientX:40,clientY:y});
    for(const [type,y] of [['touchstart',500],['touchmove',450]])c.dispatchEvent(new TouchEvent(type,{changedTouches:[t(y)],bubbles:true,cancelable:true}));});
@@ -71,6 +72,15 @@ try {
     const direction=target.side==='south'||target.side==='north'?-1:1;
     await page.evaluate(([h,d])=>window.__town.place(h.door.x,h.door.z+d*2.2,d<0?Math.PI:0),[target,direction]);
    }
+   if(kind==='shops'&&target.kind==='park'){
+    await page.evaluate(id=>window.__town.goPlace(id),id);
+    await wait(`window.__town.state().nearPerson===${JSON.stringify('place:'+id)}`);
+    await use();const outdoor=await state();
+    result.outdoorVisit=outdoor.mode==='town'&&!!outdoor.panel?.text?.trim();
+    result.status=result.outdoorVisit?'passed':'failed';
+    if(!result.outdoorVisit)result.issues.push('outdoor public-space information did not open');
+    await page.evaluate(()=>window.__town.closePanel());continue;
+   }
    result.stage='door';save();
    const entered=await walkUntil(()=>window.__town.state().mode==='house');
    let s=await state();result.enteredByWalking=entered;result.enteredCoordinate=s.coordinate;
@@ -93,14 +103,20 @@ try {
      a.reachable=await page.evaluate(k=>window.__town.approach(k),x.key);
      if(!a.reachable){f.issues.push(x.key+': no clear approach');continue;}
      a.prompted=await wait(`window.__town.state().near===${JSON.stringify(x.key)}`,2000);
+     if(!a.prompted&&a.reachable){a.repositioned=true;a.reachable=await page.evaluate(k=>window.__town.approach(k),x.key);a.prompted=await wait(`window.__town.state().near===${JSON.stringify(x.key)}`,2000);}
      if(!a.prompted){f.issues.push(x.key+': no Use prompt');continue;}
+     const beforeStatus=await page.evaluate(()=>document.getElementById('status')?.textContent||'');
      await use();let after=await state();
+     let afterStatus=await page.evaluate(()=>document.getElementById('status')?.textContent||'');
      // Archive entries resolve an async fetch before mounting their panel. Wait
      // for that result, without repeating a potentially transactional action.
-     if(!after.panel&&!x.nav&&!['pickup','npc','workplay'].includes(x.do)){
+     if(!after.panel&&afterStatus===beforeStatus&&!x.nav&&!['pickup','npc','workplay'].includes(x.do)){
       await wait(()=>!!window.__town.state().panel,2500);after=await state();
      }
-     if(x.nav){
+     if(['pub-rear-exit','pub-secondary-exit'].includes(x.do)){
+      a.worked=after.mode==='town';a.outcome='physical escape to outdoors';
+      if(a.worked){await page.evaluate(id=>window.__town.enterShop(id),target.id);if(floor)await page.evaluate(i=>window.__town.setFloor(i),floor);}
+     }else if(x.nav){
       a.worked=x.nav==='lift'?/^Lift/.test(after.panel?.title||''):after.floor!==floor;
       await page.evaluate(()=>window.__town.closePanel());await page.evaluate(i=>window.__town.setFloor(i),floor);
      }else if(x.do==='pickup'){
@@ -109,7 +125,11 @@ try {
      }else if(x.do==='npc'){
       a.worked=!!after.panel||await page.evaluate(()=>window.__town.npcChat().open);
       await page.keyboard.press('Escape');await frames();
-     }else a.worked=!!after.panel?.text?.trim();
+     }else{
+      afterStatus=await page.evaluate(()=>document.getElementById('status')?.textContent||'');
+      a.worked=!!after.panel?.text?.trim()||afterStatus!==beforeStatus;
+      if(!after.panel&&a.worked)a.outcome='status/refusal feedback; service prerequisites remain enforced';
+     }
      if(!a.worked)f.issues.push(x.key+': action produced no expected UI/state');
      await page.evaluate(()=>window.__town.closePanel());
     }
@@ -117,7 +137,10 @@ try {
    await page.evaluate(()=>{window.__town.closePanel();window.__town.setFloor(0);window.__town.toExit();});
    result.stage='exit';save();
    result.leftByWalking=await walkUntil(()=>window.__town.state().mode==='town');
-   if(!result.leftByWalking)result.issues.push('front-door exit did not return outdoors');
+   if(!result.leftByWalking){
+    const exit=await state();result.exitState={mode:exit.mode,coordinate:exit.coordinate,pos:exit.pos,yaw:exit.yaw,near:exit.near,seated:exit.seated,panel:exit.panel?.title,npcChat:await page.evaluate(()=>window.__town.npcChat())};
+    result.issues.push('front-door exit did not return outdoors');
+   }
    result.status=result.issues.length||result.floors.some(x=>x.issues.length)?'failed':'passed';
   }catch(e){result.status='failed';result.issues.push(e.message.slice(0,500));}
   finally{

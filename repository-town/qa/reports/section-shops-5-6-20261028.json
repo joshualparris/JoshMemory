@@ -1,0 +1,864 @@
+{
+  "kind": "shops",
+  "rows": [
+    5,
+    6
+  ],
+  "source": "d1d3069348907c28c9af39922f275233bee5cb8a",
+  "method": "Address setup via test hooks; actual front-door/exit movement; collision-clear fixture approach hook; real keyboard/touch Use; all floor fixtures unless sample-actions requested.",
+  "sampleActions": true,
+  "complete": true,
+  "pageErrors": [],
+  "networkFailures": [
+    {
+      "origin": "https://parris-voicebank.vercel.app",
+      "path": "/src/game300.js",
+      "error": "net::ERR_EMPTY_RESPONSE"
+    },
+    {
+      "origin": "https://parris-voicebank.vercel.app",
+      "path": "/src/browser.js",
+      "error": "net::ERR_EMPTY_RESPONSE"
+    }
+  ],
+  "notes": [
+    "Initial arts-centre exit timeout did not recur in four focused repeat runs. Keyboard focus is now explicitly released before synthetic held movement. No exit geometry change claimed."
+  ],
+  "cases": [
+    {
+      "id": "library",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 7,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "pharmacy",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 7,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "repotech",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 7,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "publicamenities",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "dentist",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 6,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "supermarket",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 7,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "physio",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "pathology",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 6,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "podiatry",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "optometry",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "counselling",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "gym",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "youthcentre",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "artscentre",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 10,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "communitynurse",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "agedcare",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 6,
+          "approaches": 7,
+          "actionsChecked": 2,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "disabilitysupport",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "sports",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "vet",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "stockfeed",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "farmsupplies",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "ruralrepair",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "nursery",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 7,
+          "actionsChecked": 2,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "hairdresser",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "officesupplies",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "childcare",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "clothing",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 6,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "opshop",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "florist",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "beauty",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "laundry",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "takeaway",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "newsagent",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "giftshop",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "photography",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "accountant",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "insurance",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "employment",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "cleaning",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "pestcontrol",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "courier",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "storage",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "furniture",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "bikeshop",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "homewares",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "farmcontractor",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "stockagent",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "machinery",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "irrigation",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "funeral",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "freight",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "sewing",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    }
+  ],
+  "retestedIds": [
+    "artscentre"
+  ]
+}

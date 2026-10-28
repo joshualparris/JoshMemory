@@ -1,0 +1,823 @@
+{
+  "kind": "shops",
+  "rows": [
+    7,
+    8
+  ],
+  "source": "d1d3069348907c28c9af39922f275233bee5cb8a",
+  "method": "Address setup via test hooks; actual front-door/exit movement; collision-clear fixture approach hook; real keyboard/touch Use; all floor fixtures unless sample-actions requested.",
+  "sampleActions": true,
+  "complete": true,
+  "pageErrors": [],
+  "networkFailures": [
+    {
+      "origin": "https://parris-voicebank.vercel.app",
+      "path": "/src/game300.js",
+      "error": "net::ERR_EMPTY_RESPONSE"
+    },
+    {
+      "origin": "https://parris-voicebank.vercel.app",
+      "path": "/src/browser.js",
+      "error": "net::ERR_EMPTY_RESPONSE"
+    }
+  ],
+  "cases": [
+    {
+      "id": "hall",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 12,
+          "actionsChecked": 4,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "store",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 13,
+          "actionsChecked": 4,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "bakery",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 18,
+          "actionsChecked": 7,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "cafe",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 17,
+          "actionsChecked": 4,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "greengrocer",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 6,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "butcher",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 6,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "square",
+      "status": "passed",
+      "enteredByWalking": null,
+      "leftByWalking": null,
+      "outdoorVisit": true,
+      "issues": [],
+      "floors": []
+    },
+    {
+      "id": "pub",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 5,
+          "approaches": 24,
+          "actionsChecked": 8,
+          "issues": []
+        },
+        {
+          "floor": 1,
+          "rooms": 1,
+          "approaches": 6,
+          "actionsChecked": 5,
+          "issues": []
+        },
+        {
+          "floor": 2,
+          "rooms": 1,
+          "approaches": 5,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "post",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 13,
+          "actionsChecked": 4,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "school",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 5,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "clinic",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 5,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "depot",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 11,
+          "actionsChecked": 4,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "mill",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 8,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "sheep",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 5,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "dairy",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 5,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "coop",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 8,
+          "actionsChecked": 4,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "orchard",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 5,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "garden",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 8,
+          "actionsChecked": 4,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "silo",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 5,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "farmhouse",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 10,
+          "approaches": 23,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "soyfarm",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 9,
+          "actionsChecked": 4,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "soyplant",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 12,
+          "actionsChecked": 4,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "bank",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 7,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "hotel",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 5,
+          "approaches": 10,
+          "actionsChecked": 4,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "power",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 5,
+          "approaches": 18,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "waterworks",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 5,
+          "approaches": 13,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "sewage",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 5,
+          "approaches": 15,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "realty",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 5,
+          "approaches": 17,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "fire",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 5,
+          "approaches": 20,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "police",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 5,
+          "approaches": 8,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "ambulance",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 5,
+          "approaches": 8,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "recycling",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 5,
+          "approaches": 17,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "landfill",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 10,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "foundry",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "realestate",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "dealership",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "mechanic",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "court",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 5,
+          "approaches": 8,
+          "actionsChecked": 2,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "solicitor",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 5,
+          "approaches": 8,
+          "actionsChecked": 2,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "hardware",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "trades",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 5,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "tafe",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 5,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "university",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "securityoffice",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "securityhq",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "locksmith",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "outdoorVisit": false,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    }
+  ],
+  "retestedIds": [
+    "bakery",
+    "pub",
+    "soyfarm",
+    "soyplant",
+    "power",
+    "police",
+    "ambulance"
+  ]
+}

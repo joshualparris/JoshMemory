@@ -28,7 +28,11 @@ try{
    await page.waitForFunction(id=>window.__recordingsPlayed.some(u=>u.endsWith('/'+id+'.mp3')),clip.id,{timeout:15000});
    await message.locator('button.town-voice-button').click();
   }
-  await page.locator('#npc-close').click();
+  // Closing a conversation is idempotent. An already-hidden modal has no
+  // visible Close button for Playwright to click; don't hang for 30 seconds.
+  if(await page.locator('#npc-chat').isVisible())await page.locator('#npc-close').click();
+  else assert.notEqual(await page.locator('#npc-chat').getAttribute('hidden'),null,
+    'Chat close control hidden while the conversation is still open');
  }
  assert.equal(new Set((await page.evaluate(()=>window.__recordingsPlayed)).map(u=>u.split('/').pop())).size,20);
  assert.equal(await page.evaluate(()=>window.__ttsCalls),0);

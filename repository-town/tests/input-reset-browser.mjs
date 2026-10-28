@@ -8,7 +8,7 @@ try {
     const context = await browser.newContext({viewport:{width:390,height:844},hasTouch:mobile,isMobile:mobile});
     const page = await context.newPage();
     // Serve a lightweight harness at the build's origin, using its actual Input module.
-    await page.route('**/input-reset-harness.html',route=>route.fulfill({contentType:'text/html',body:'<meta name="viewport" content="width=device-width, initial-scale=1"><canvas id="canvas"></canvas><div id="touch"><div id="stick"><div id="knob"></div></div><button id="t-jump"></button><button id="t-use"></button><button id="t-run"></button><button id="t-crouch"></button></div>'}));
+    await page.route('**/input-reset-harness.html',route=>route.fulfill({contentType:'text/html',body:'<meta name="viewport" content="width=device-width, initial-scale=1"><canvas id="canvas"></canvas><div id="touch"><div id="stick"><div id="knob"></div></div><button id="t-jump"></button><button id="t-use"></button><button id="t-view"></button><button id="t-run"></button><button id="t-crouch"></button></div>'}));
     await page.goto(new URL('input-reset-harness.html',url).href);
     const result = await page.evaluate(async () => {
       const {Input}=await import('./engine/input.js');

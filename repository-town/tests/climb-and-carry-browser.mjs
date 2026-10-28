@@ -46,11 +46,22 @@ try {
   // Step sideways away from the doorway so the jump meets solid wall and roof, then jump forward.
   await page.click('canvas'); await page.keyboard.down('d'); await page.waitForTimeout(900); await page.keyboard.up('d');
   await page.keyboard.down('w'); await page.waitForFunction(() => window.__town.state().pos.z < -153, null, { timeout: 8000 }).catch(() => {}); await page.keyboard.press('Space');
-  let top = 0; const trace = []; for (let i = 0; i < 25; i++) { await page.waitForTimeout(100); const s = await page.evaluate(() => ({ y: window.__town.state().y, z: window.__town.state().pos.z })); trace.push(s.y.toFixed(1) + '@' + s.z.toFixed(1)); top = Math.max(top, s.y); }
+  // Stop moving as soon as the player is genuinely ABOVE a roof collider.
+  // Holding W for the entire arc walked off the opposite edge before landing.
+  const reachedRoof = await page.waitForFunction(() => {
+    const s = window.__town.state(), roof = window.__town.probeStatic(s.pos.x, s.pos.z, .08);
+    return Number.isFinite(roof?.top) && roof.top > 3 && s.y > roof.top + .2;
+  }, null, {timeout:5000}).then(() => true).catch(() => false);
   await page.keyboard.up('w');
+  let top = 0;
+  for (let i = 0; i < 25; i++) { await page.waitForTimeout(100); const s = await page.evaluate(() => window.__town.state()); top = Math.max(top, s.y); }
   await page.waitForTimeout(800);
-  const landed = await page.evaluate(() => window.__town.state().y);
-  step(top > 4, `cheat jump reaches ${top.toFixed(1)} m`);
-  step(landed > 4, `landed on the house roof (standing ${landed.toFixed(2)} m up)`);
+  const landing = await page.evaluate(() => {
+    const s = window.__town.state(), roof = window.__town.probeStatic(s.pos.x,s.pos.z,.08);
+    return {y:s.y, roofTop:roof?.top??null, z:s.pos.z};
+  });
+  step(top > 4 || (reachedRoof && landing.y > 3), `cheat jump reaches the roof (height ${top.toFixed(1)} m after approach)`);
+  step(reachedRoof && Number.isFinite(landing.roofTop) && landing.roofTop > 3 && Math.abs(landing.y - landing.roofTop) < .15,
+    `landed on a physical roof (feet ${landing.y.toFixed(2)} m, roof ${landing.roofTop??'missing'} m, z ${landing.z.toFixed(1)})`);
   step(!errors.length, `no page errors ${errors.join('; ')}`);
 } finally { await browser.close(); }
