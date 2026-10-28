@@ -75,8 +75,9 @@ import { addItem, equip, toggleTorch, torchLit, equippedType } from './world/inv
 import { inventoryPanel } from './ui/inventory-panel.js';
 import { skillsPanel } from './ui/skills-panel.js';
 import { buildWoodlot } from './world/woodlot.js';
+import { createGameTick, CHOP_TICKS, LIGHT_TICKS, LIGHT_GIVE_UP } from './world/game-tick.js';
 import { createHatchetView } from './world/hatchet-view.js';
-import { canChop, swing, lightFire as lightLogs, isStump, skillsReport, takeRackTools, TREES } from './world/skills.js';
+import { canChop, canLight, swing, lightFire as lightLogs, isStump, skillsReport, takeRackTools, TREES } from './world/skills.js';
 import { buildCivilWorks } from './world/civil-works.js';
 import { nearestSeat } from './world/seats.js';
 import { furniturePanel } from './ui/furniture.js';
@@ -784,11 +785,18 @@ async function start() {
   });
   $('btn-townmap').onclick = () => townMap.open();
   // Logs are lit where you stand, a step ahead, and only outdoors.
+  // As in RuneScape, you keep striking the tinderbox once a tick until the logs catch (or you
+  // walk away); the strikes happen on the game tick in tickActions, below.
+  let lighting = null;
   const lightHere = (log) => {
     if (mode !== 'town' || driving.driving) return 'Light fires outdoors, on foot.';
-    const f = player.forward(), r = lightLogs(life, life.civic.player, log, { x: player.pos.x + f.x * 1.3, z: player.pos.z + f.z * 1.3 });
-    if (r.levelUp) ambience.levelUp();
-    return r.message;
+    const why = canLight(life.civic.player, log);
+    if (why) return why;
+    const f = player.forward();
+    lighting = { log, at: player.pos.clone(), spot: { x: player.pos.x + f.x * 1.3, z: player.pos.z + f.z * 1.3 }, ticks: 0 };
+    chopping = null;
+    status('You attempt to light the logs…');
+    return 'You attempt to light the logs…';
   };
   const openBag = () => openPanel(inventoryPanel(life.civic.player, { carried: carried?.label || null, drop:dropEquipment, onChange:persistItems, lightFire: lightHere }), guideSpot);
   $('btn-bag').onclick = openBag;
@@ -803,22 +811,39 @@ async function start() {
     if (why) { status(why); return; }
     const dx = tree.pos.x - player.pos.x, dz = tree.pos.z - player.pos.z;
     player.yaw = Math.atan2(-dx, -dz); player.pitch = 0;
-    chopping = { tree, at: player.pos.clone(), hits: 0 };
+    chopping = { tree, at: player.pos.clone(), ticks: 0 }; lighting = null;
     status(`You swing your hatchet at the ${TREES[tree.type].name.toLowerCase()}…`);
   }
+  // The hatchet animates every frame; what it achieves happens on the 0.6 s game tick.
+  // Ticks follow the real clock (t), not the per-frame step that is capped for smooth walking.
+  const gameTick = createGameTick(); let tickClock = null;
   function tickChopping(dt, t) {
-    if (chopping && (mode !== 'town' || driving.driving || player.pos.distanceTo(chopping.at) > 1.2)) chopping = null;
+    const away = (a) => mode !== 'town' || driving.driving || player.pos.distanceTo(a.at) > 1.2;
+    if (chopping && away(chopping)) chopping = null;
+    if (lighting && away(lighting)) { lighting = null; status('You stop trying to light the logs.'); }
     const impact = hatchetView.update(dt, t, { chopping: !!chopping, holding: mode === 'town' && !driving.driving && equippedType(life.civic.player) === 'hatchet' });
-    if (!chopping || !impact) return;
-    const tr = chopping.tree, d = Math.hypot(player.pos.x - tr.pos.x, player.pos.z - tr.pos.z) || 1;
-    ambience.chop(); woodlot.hit(tr.id, t);
-    hatchetView.burst({ x: tr.pos.x + (player.pos.x - tr.pos.x) / d * 0.4, z: tr.pos.z + (player.pos.z - tr.pos.z) / d * 0.4 }, { x: (player.pos.x - tr.pos.x) / d, z: (player.pos.z - tr.pos.z) / d });
-    if (++chopping.hits % 2) return;
-    const r = swing(life, life.civic.player, tr);
-    status(r.message);
-    if (r.levelUp) ambience.levelUp();
-    if (r.felled) ambience.treeFall();
-    if (r.stop) chopping = null;
+    if (chopping && impact) {
+      const tr = chopping.tree, d = Math.hypot(player.pos.x - tr.pos.x, player.pos.z - tr.pos.z) || 1;
+      ambience.chop(); woodlot.hit(tr.id, t);
+      hatchetView.burst({ x: tr.pos.x + (player.pos.x - tr.pos.x) / d * 0.4, z: tr.pos.z + (player.pos.z - tr.pos.z) / d * 0.4 }, { x: (player.pos.x - tr.pos.x) / d, z: (player.pos.z - tr.pos.z) / d });
+    }
+    for (let n = gameTick.advance(tickClock === null ? 0 : t - tickClock); n > 0; n--) tickActions();
+    tickClock = t;
+  }
+  function tickActions() {
+    if (chopping && ++chopping.ticks % CHOP_TICKS === 0) {
+      const r = swing(life, life.civic.player, chopping.tree);
+      status(r.message);
+      if (r.levelUp) ambience.levelUp();
+      if (r.felled) ambience.treeFall();
+      if (r.stop) chopping = null;
+    }
+    if (lighting && ++lighting.ticks % LIGHT_TICKS === 0) {
+      const r = lightLogs(life, life.civic.player, lighting.log, lighting.spot);
+      if (!r.ok) { status(r.message); lighting = null; }
+      else if (r.lit) { status(r.message); if (r.levelUp) ambience.levelUp(); lighting = null; }
+      else if (lighting.ticks >= LIGHT_GIVE_UP) { status('The logs just will not catch. Try again.'); lighting = null; }
+    }
   }
   // Captured before the input handler: F is also a "use" key, so while the torch is in hand it
   // switches the torch instead (otherwise F keeps working as use).
@@ -1905,7 +1930,7 @@ async function start() {
     townFigures:()=>townLife.people.map(p=>({key:p.key,x:p.fig.group.position.x,z:p.fig.group.position.z,visible:p.fig.group.visible})),
     // Stands 1.3 m inside window i of the current floor, looking out of it.
     atm: () => ({ x: atmSpot.pos.x, z: atmSpot.pos.z, yaw: Math.atan2(atmOut.x, atmOut.z) }),
-    skills:()=>({ report: skillsReport(life.civic.player), chopping: chopping?.tree.id || null, fires: woodlot.fireCount(),
+    skills:()=>({ report: skillsReport(life.civic.player), chopping: chopping?.tree.id || null, lighting: !!lighting, tick: gameTick.count, fires: woodlot.fireCount(),
       trees: woodlot.allTrees().map((tr) => ({ id: tr.id, type: tr.type, x: tr.pos.x, z: tr.pos.z, stump: isStump(life, tr.id) })), hatchet: { visible: hatchetView.visible, angle: hatchetView.angle }, logs: { ...(life.civic.player.logs || {}) } }),
     lookOut(i=0){
       const w=inside?.windows?.[i];if(!w)return false;

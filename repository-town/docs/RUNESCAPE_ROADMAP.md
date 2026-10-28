@@ -57,3 +57,30 @@ NPC, quest and dialogue work follows the existing [RTD-001–093 roadmap](SKYRIM
 
 19. [ ] Customise character in Settings: name, look and colours, any time.
 20. [ ] Optional account: sign in to keep skills across devices, built on the existing export/import save.
+
+## 5. Engine, RuneScape-style (Josh's seven steps, 28 Oct 2026)
+
+How each step of a from-scratch RuneScape engine fits Repository Town. The rule: keep what makes
+RuneScape feel like RuneScape (ticks, levels, inventory, loops), without losing what makes the town
+fun (instant start, smooth free walking on a phone, a believable country town).
+
+1. [x] **Game tick.** A global 0.6 s tick (`src/world/game-tick.js`) drives actions: a woodcutting
+       roll every 4 ticks (2.4 s), one tinderbox strike per tick until the logs catch. It follows the
+       real clock, so frame rate never changes it, and a backgrounded tab never bursts ticks on return.
+       Walking, the camera and the town clock stay smooth and real-time.
+       *Not copied:* a server. The town is single-player and saves on the device; a server only
+       becomes necessary at step 6.
+2. [ ] **Grid and pathfinding.** Tap-to-walk: tap a tree, rock or shop door and walk there by an A*
+       route over a walkable grid built from the town's colliders. Most useful on phones. *Not
+       copied:* locking movement to tiles. Free walking stays; tiles are only for routing.
+3. [ ] **Items and inventory.** Already partly built (item types, 28-slot bag, drop/pick up, equip).
+       Next: one numbered item list and a 4 × 7 grid bag that looks like RuneScape's.
+4. [ ] **Skilling framework.** One action state machine (target → level check → per-tick roll →
+       item + XP → respawn) that woodcutting and firemaking move onto; then mining, fishing and
+       cooking reuse it.
+5. [ ] **Combat.** Needs Josh's decision. It would sit outside the town's everyday life: for example,
+       a fenced training ground or a quest dungeon, not villagers on the high street.
+6. [ ] **Multiplayer, trading, banks.** The bank exists (savings, ATM). Real multiplayer needs a server
+       and accounts (Vercel functions + a database), which belongs with section 4's optional accounts.
+7. [ ] **Quests.** The Expedition Guild and the RTD quests already track progress in the save. A
+       short "first day in town" tutorial quest would exercise every system above.
