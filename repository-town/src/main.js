@@ -842,7 +842,7 @@ async function start() {
       buyKey: (raw) => {
         const v = String(raw || '').trim(); if (!v) return { message: 'Type a house grid code like A1, or B:bakery.' };
         let key = /^[HBP]:/i.test(v) ? v[0].toUpperCase() + v.slice(1) : /^[A-Z][1-8]$/i.test(v) ? 'H:' + v.toUpperCase() : planTitleKey(v);
-        if (!key) { const p = [...life.places.values()].find((q) => q.name.toLowerCase().includes(v.toLowerCase())); key = p ? 'B:' + p.id : null; }
+        if (!key) { const needle = v.toLowerCase(); const p = [...life.places.values()].find((q) => String(q?.name ?? '').toLowerCase().includes(needle)); key = p ? 'B:' + p.id : null; }
         return key ? claimProperty(life, key) : { message: `No property matches “${v}”.` };
       },
       t8: () => setClock(life, 8 * 60), t13: () => setClock(life, 13 * 60), t20: () => setClock(life, 20 * 60),
