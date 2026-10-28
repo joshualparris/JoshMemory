@@ -2,6 +2,7 @@
 // stumps and grow back, and the fires players light (rules in skills.js; main.js wires the controls).
 import * as THREE from 'three';
 import { TREES, isStump, liveFires } from './skills.js';
+import { choppableTrees } from './builder.js';
 
 // [type, x, z]: east of the north road, clear of the road and the railway fence.
 const PLANTING = [
@@ -52,13 +53,52 @@ export function buildWoodlot(group, makeLabel) {
     g.add(flame, core); g.userData.flame = flame; root.add(g); return g;
   }
 
-  // Each frame: stumps for felled trees, a little sway while being chopped, and the live fires.
+  // Every other tree in town (yard trees, square and orchard trees) is choppable too. They live
+  // inside big merged meshes, so a felled one collapses its own vertices and a stump stands in.
+  let scenery = null;
+  const stumpGeo = new THREE.CylinderGeometry(0.26, 0.3, 0.42, 8);
+  function sceneryTrees() {
+    if (scenery) return scenery;
+    const v = new THREE.Vector3();
+    scenery = choppableTrees().map((c) => {
+      const pos = c.mesh.geometry.attributes.position;
+      let x = 0, z = 0, minY = Infinity;
+      for (let i = c.vStart; i < c.vStart + c.vCount; i++) { x += pos.getX(i); z += pos.getZ(i); minY = Math.min(minY, pos.getY(i)); }
+      c.mesh.updateWorldMatrix(true, false);
+      v.set(x / c.vCount, minY, z / c.vCount).applyMatrix4(c.mesh.matrixWorld);
+      const name = TREES[c.type].name;
+      return { ...c, key: c.id, pos: new THREE.Vector3(v.x, 0, v.z), base: v.y, label: `🪓 Chop the ${name.toLowerCase()}`, felled: false, saved: null, stump: null };
+    });
+    return scenery;
+  }
+  function setFelled(tr, felled) {
+    const pos = tr.mesh.geometry.attributes.position, a = pos.array, from = tr.vStart * 3, to = (tr.vStart + tr.vCount) * 3;
+    if (felled) {
+      tr.saved ??= a.slice(from, to);
+      for (let i = from; i < to; i += 3) { a[i] = a[from]; a[i + 1] = a[from + 1]; a[i + 2] = a[from + 2]; }
+      tr.stump ??= Object.assign(new THREE.Mesh(stumpGeo, mat(0x6a4a2a)), { name: 'stump' });
+      tr.stump.position.set(tr.pos.x, tr.base + 0.21, tr.pos.z); root.add(tr.stump);
+    } else {
+      if (tr.saved) a.set(tr.saved, from);
+      if (tr.stump) root.remove(tr.stump);
+    }
+    pos.needsUpdate = true; tr.felled = felled;
+  }
+  // Every choppable tree: the woodlot's own and the town's scenery trees.
+  const allTrees = () => [...trees, ...sceneryTrees()];
+
+  // A short shudder when the hatchet bites, as in RuneScape.
+  let shake = { id: null, until: 0 };
+  const hit = (id, t) => { shake = { id, until: t + 0.25 }; };
+
+  // Each frame: stumps for felled trees, the shudder of a tree being hit, and the live fires.
   function update(life, t, choppingId = null) {
     for (const tree of trees) {
       const stump = isStump(life, tree.id);
       tree.trunk.visible = tree.crown.visible = !stump; tree.stump.visible = stump;
-      tree.crown.rotation.z = tree.id === choppingId && !stump ? Math.sin(t * 9) * 0.04 : 0;
+      tree.crown.rotation.z = tree.id === shake.id && t < shake.until && !stump ? Math.sin(t * 60) * 0.05 : 0;
     }
+    for (const tr of sceneryTrees()) { const stump = isStump(life, tr.id); if (stump !== tr.felled) setFelled(tr, stump); }
     const fires = liveFires(life), live = new Set(fires.map((f) => f.id));
     for (const [id, m] of fireMeshes) if (!live.has(id)) { root.remove(m); fireMeshes.delete(id); }
     for (const f of fires) {
@@ -66,5 +106,5 @@ export function buildWoodlot(group, makeLabel) {
       m.userData.flame.scale.set(1, 0.85 + Math.sin(t * 13 + f.id) * 0.15, 1);
     }
   }
-  return { root, trees, colliders, update, fireCount: () => fireMeshes.size };
+  return { root, trees, allTrees, colliders, update, hit, fireCount: () => fireMeshes.size };
 }

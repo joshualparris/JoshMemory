@@ -24,7 +24,8 @@ covered by a test.
 2. [x] Skills panel: a 📊 Skills button showing each skill's level, XP and progress to the next level.
 3. [x] Hatchet and tinderbox for sale at Central West Hardware & Timber.
 4. [x] The Woodlot, north of the railway: choppable trees (normal, oak at level 15, willow at level 30).
-5. [x] Woodcutting: chop with a hatchet, get logs in your bag (28-slot bag), and the tree becomes a stump
+5. [x] Woodcutting (any tree in town — yard, square and orchard trees — as well as the Woodlot; RuneScape-style
+       hatchet swing with wind-up, chop and recoil, a thunk, flying chips and a shuddering tree): chop with a hatchet, get logs in your bag (28-slot bag), and the tree becomes a stump
        that grows back later. Higher levels chop faster.
 6. [x] Firemaking: use a tinderbox on logs to light a fire that burns for a while; better logs need a
        higher level, give more XP and burn longer.

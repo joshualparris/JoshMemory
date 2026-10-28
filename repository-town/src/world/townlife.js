@@ -82,7 +82,8 @@ function shed(b, w, d, h, wall, roof, z0 = 7) {
   b.add('box', roof, r, 0.15, d + 0.8, (w / 2 + 0.4) / 2, h + 0.8, z0 - d / 2, 0, 0, -ang);
   b.box(0x3a2a1e, 2.6, 2.8, 0.06, 0, 1.4, z0 + 0.03);
 }
-function tree(b, x, z, s = 1, leaf = 0x4e8a46) { b.solid(0.6 * s, 0.6 * s, x, z); b.cyl(0x6a4a2a, 0.22 * s, 2.4 * s, x, 1.2 * s, z); b.ball(leaf, 1.5 * s, x, 3.2 * s, z); }
+// Big ones are oaks for woodcutting (skills.js); every tree here can be chopped.
+function tree(b, x, z, s = 1, leaf = 0x4e8a46) { b.solid(0.6 * s, 0.6 * s, x, z); b.tree({ type: s >= 1.05 ? 'oak' : 'tree' }, () => { b.cyl(0x6a4a2a, 0.22 * s, 2.4 * s, x, 1.2 * s, z); b.ball(leaf, 1.5 * s, x, 3.2 * s, z); }); }
 function fence(b, x0, x1, z0, z1, gateX) {
   const rail = (ax, az, bx, bz) => { b.solid(Math.max(0.3, Math.abs(bx - ax)), Math.max(0.3, Math.abs(bz - az)), (ax + bx) / 2, (az + bz) / 2); const len = Math.hypot(bx - ax, bz - az), ry = Math.atan2(bx - ax, bz - az) + Math.PI / 2; for (const y of [0.45, 0.9]) b.box(0xd8cdb8, len, 0.08, 0.06, (ax + bx) / 2, y, (az + bz) / 2, ry); for (let s = 0; s <= len; s += 2.5) b.block(0xc8bca5, 0.1, 1.05, 0.1, ax + (bx - ax) * (s / len), 0, az + (bz - az) * (s / len)); };
   rail(x0, z1, x1, z1); rail(x0, z0, x0, z1); rail(x1, z0, x1, z1);

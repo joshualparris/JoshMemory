@@ -298,7 +298,9 @@ export function buildExterior(b, ext, colors, yardLimits = {}) {
       const site = yardSite(fp,prop,preferred,occupied,yardLimits);
       if (!site) { (fp.skippedYard || (fp.skippedYard=[])).push(f); continue; }
       const {x,z,box}=site;
-      b.at(x, 0, z, x < 0 ? Math.PI / 2 : -Math.PI / 2, () => prop.build(b, { c: f === 'flag' || f === 'balloons' ? colors.trim : undefined }));
+      const build = () => prop.build(b, { c: f === 'flag' || f === 'balloons' ? colors.trim : undefined });
+      // Yard trees are choppable (skills.js), so they are recorded with b.tree().
+      b.at(x, 0, z, x < 0 ? Math.PI / 2 : -Math.PI / 2, () => (f === 'trees' && b.tree ? b.tree({ type: 'tree' }, build) : build()));
       occupied.push(box);
       if (prop.solid) yard.push(box);
     } else throw new Error('Unknown exterior feature ' + f);

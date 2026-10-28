@@ -34,6 +34,7 @@ try {
   // 2. Walk up to a normal tree at the Woodlot and chop until it falls.
   const tree = (await T(() => window.__town.skills().trees)).find((t) => t.type === 'tree');
   await T(([x, z]) => window.__town.place(x - 1.8, z, -Math.PI / 2), [tree.x, tree.z]); await page.waitForTimeout(800);
+  await page.waitForFunction(() => /Chop the tree/.test(document.getElementById('prompt')?.textContent || ''), null, { timeout: 3000 }).catch(() => {});
   step(/Chop the tree/.test(await T(() => document.getElementById('prompt')?.textContent || '')), 'prompt offers to chop the tree');
   await page.screenshot({ path: `test-results/woodlot-${mobile ? 'mobile' : 'desktop'}.png` }).catch(() => {});
   let felled = false;
@@ -48,6 +49,27 @@ try {
   await page.waitForFunction(() => /stump/.test(document.getElementById('prompt')?.textContent || ''), null, { timeout: 3000 }).catch(() => {});
   const stumpPrompt = await T(() => document.getElementById('prompt')?.textContent || '');
   step(/stump/.test(stumpPrompt), 'the stump says it will grow back: ' + stumpPrompt);
+
+  // 2b. Any tree in town can be chopped, with the hatchet swinging like RuneScape's loop.
+  const all = await T(() => window.__town.skills().trees);
+  const yard = all.find((t) => t.id.startsWith('scenery:') && !t.stump);
+  step(all.filter((t) => t.id.startsWith('scenery:')).length >= 50, `${all.length} choppable trees in town (${all.filter((t) => t.id.startsWith('scenery:')).length} scenery trees beyond the Woodlot)`);
+  // Stand on a clear side of the yard tree, facing it.
+  for (const [dx, dz] of [[-2, 0], [2, 0], [0, -2], [0, 2], [-2.4, 0], [0, 2.4]]) {
+    if (await T(([x, z]) => window.__town.probe(x, z), [yard.x + dx, yard.z + dz])) continue;
+    await T(([x, z, yaw]) => window.__town.place(x, z, yaw), [yard.x + dx, yard.z + dz, Math.atan2(dx, dz)]); break;
+  }
+  await page.waitForFunction(() => /Chop the tree/.test(document.getElementById('prompt')?.textContent || ''), null, { timeout: 3000 }).catch(() => {});
+  const angles = [];
+  await use();
+  for (let i = 0; i < 12; i++) { await page.waitForTimeout(110); const h = await T(() => window.__town.skills().hatchet); angles.push(h.angle); }
+  step((await T(() => window.__town.skills().chopping)) === yard.id, 'chopping a yard tree: ' + yard.id);
+  step(Math.max(...angles) - Math.min(...angles) > 1.2, `the hatchet swings (angle ${Math.min(...angles).toFixed(2)} → ${Math.max(...angles).toFixed(2)})`);
+  await page.screenshot({ path: `test-results/chop-${mobile ? 'mobile' : 'desktop'}.png` }).catch(() => {});
+  await page.waitForFunction((id) => !window.__town.skills().chopping || window.__town.skills().trees.find((t) => t.id === id).stump, yard.id, { timeout: 60000 }).catch(() => {});
+  if (!(await T((id) => window.__town.skills().trees.find((t) => t.id === id).stump, yard.id))) { await use(); await page.waitForFunction((id) => window.__town.skills().trees.find((t) => t.id === id).stump, yard.id, { timeout: 60000 }).catch(() => {}); }
+  step(await T((id) => window.__town.skills().trees.find((t) => t.id === id).stump, yard.id), 'the yard tree fell to a stump');
+  await page.screenshot({ path: `test-results/yard-stump-${mobile ? 'mobile' : 'desktop'}.png` }).catch(() => {});
 
   // 3. Light a fire from the bag.
   await T(() => document.getElementById('btn-bag').click()); await page.waitForTimeout(300);
