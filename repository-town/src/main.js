@@ -1077,11 +1077,14 @@ async function start() {
   // Carrying a small object picked up indoors: it floats in front of the player each frame
   // (carryFrame) and is put down where they face, on the floor or on a table top.
   let carried = null;
+  // Some legacy/interior pickup records have no display label. Never let a
+  // missing optional label turn a normal item action into a fatal red screen.
+  const carryName = (thing) => String(thing?.label || thing?.act?.title || thing?.key || 'object').toLowerCase();
   function pickUp(thing) {
     if (carried) return;
     const list = inside?.interactables, i = list ? list.indexOf(thing) : -1;
     if (i >= 0) list.splice(i, 1);
-    carried = thing; status(`Carrying the ${thing.label.toLowerCase()}. Press use (E or ✋) to put it down where you are facing.`);
+    carried = thing; status(`Carrying the ${carryName(thing)}. Press use (E or ✋) to put it down where you are facing.`);
   }
   function putDown() {
     const f = player.forward(), x = player.pos.x + f.x * 0.85, z = player.pos.z + f.z * 0.85;
@@ -1089,7 +1092,7 @@ async function start() {
     const y = world.groundAt ? world.groundAt(x, z, 0.3, player.y + 1.2) : 0;
     carried.mesh.position.set(x, y, z); carried.mesh.rotation.y = player.yaw;
     inside?.interactables?.push(carried);
-    status(`Put the ${carried.label.toLowerCase()} down${y > 0.05 ? ' on top' : ''}.`); carried = null;
+    status(`Put the ${carryName(carried)} down${y > 0.05 ? ' on top' : ''}.`); carried = null;
   }
   function carryFrame() {
     if (!carried) return;
@@ -1672,7 +1675,7 @@ async function start() {
       else {
         nearThing = player.seated ? null : pickNear();
         nearNPC = null;
-        if (carried && !panelOpen) { $('prompt').hidden = false; $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — Put down the ${carried.label.toLowerCase()}`; }
+        if (carried && !panelOpen) { $('prompt').hidden = false; $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — Put down the ${carryName(carried)}`; }
         else $('prompt').hidden = (!nearThing && !player.seated) || !!panelOpen || npcChat.isOpen() || !$('npc-roster').hidden;
         const who = nearThing?.person && inside.people?.find((p) => p.key === nearThing.key);
         if (player.seated) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — Stand up · Move or jump to stand`;
