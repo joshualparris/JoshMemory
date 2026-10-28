@@ -24,6 +24,8 @@ try {
   await page.waitForTimeout(400);
   step(/Outside .*Hardware|Outside .*Timber/.test(await status()), 'HUD search teleports to the hardware store without a fatal error');
   step(!errors.length && await T(() => document.getElementById('loading').hidden), 'teleport did not trigger the red-screen fatal overlay');
+  await T(() => dispatchEvent(new ErrorEvent('error', { error: new Error('synthetic nonfatal hardware action') })));
+  step(await T(() => document.getElementById('loading').hidden), 'nonfatal action exception cannot turn the town into a red startup screen');
   // The hidden property lookup shares the town-place list. A non-existent name
   // must return a refusal even if some civic records have no display name.
   await T(() => window.__town.cheats.open());
