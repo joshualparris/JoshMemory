@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-28",
+  "status": "in_progress",
+  "scope": "Whole-town section-by-section browser and geometry inspection; not proof of absence of every bug.",
+  "branch": "fix/town-walkthrough-20261028",
+  "pullRequest": 261,
+  "sections": [
+    {
+      "id": "core-1-2",
+      "status": "passed",
+      "homesExpected": 52,
+      "homesChecked": 52,
+      "civicSitesChecked": 3,
+      "walking": "Both footpaths on Streets 1 and 2, 575 seconds, zero reported problems",
+      "evidence": [
+        "test-results/section-homes-1-2-desktop.json",
+        "test-results/section-shops-1-2-desktop.json"
+      ]
+    },
+    {
+      "id": "core-3-4",
+      "status": "passed_after_fixes",
+      "homesChecked": 52,
+      "civicSitesChecked": 17,
+      "walking": "Both footpaths on Streets3/4,581 seconds,zero reported problems"
+    },
+    {
+      "id": "core-5-6",
+      "status": "checked_with_successful_retest",
+      "homesChecked": 52,
+      "civicSitesChecked": 52,
+      "walking": "Both footpaths on Streets5/6,618 seconds,zero problems",
+      "note": "One initial arts-centre exit timeout; four focused repeats pass, initial failure retained."
+    },
+    {
+      "id": "core-7-8-civic",
+      "status": "passed_after_fixes",
+      "homesChecked": 32,
+      "civicSitesChecked": 46,
+      "walking": "Prior Street7/8 keyboard walk on same conversation; no outdoor movement/geometry changed",
+      "notes": [
+        "Pub ground/upper/cellar and secondary escapes exercised.",
+        "Market Square checked as outdoor notice interaction, not a building.",
+        "Job/authorisation status feedback is recorded as feedback, not completion of restricted work."
+      ]
+    },
+    {
+      "id": "avenues-rail-farms",
+      "status": "in_progress"
+    },
+    {
+      "id": "northern-campuses",
+      "status": "pending"
+    },
+    {
+      "id": "estate-roads-homes",
+      "status": "pending",
+      "homesExpected": 195
+    },
+    {
+      "id": "arcade-and-feature-regressions",
+      "status": "pending"
+    }
+  ],
+  "priorEvidence": {
+    "street7and8": "Both footpaths walked, no blockages; earlier source.",
+    "firePower": "35 exhibits, front doors/exits, no page exceptions.",
+    "a1": "Desktop/touch house exhibits passed; original overall suite red for run test and network resources."
+  },
+  "fixes": [
+    {
+      "issue": "Stale touch/mouse gestures survive reset",
+      "status": "implemented_and_regression_verified"
+    },
+    {
+      "issue": "Speed check hits opposite frontage",
+      "status": "test_corrected_run_verified"
+    },
+    {
+      "issue": "Jump sampled before a slow frame",
+      "status": "test_corrected_retest_pending"
+    },
+    {
+      "issue": "QA shops hook invents north-facing side for legacy shops",
+      "status": "corrected_retest_pending"
+    },
+    {
+      "issue": "Unconfigured analytics loads external script with template ID",
+      "status": "fixed_unit_and_browser_verified_zero_external_requests"
+    },
+    {
+      "issue": "Use/sitting/furniture prompts select through walls",
+      "status": "fixed_picker_unit_and_fixture_coverage_plus_focused_browser_verified"
+    },
+    {
+      "issue": "Three staff conversation targets overlap service desks exactly",
+      "status": "fixed_baseline_regression_then_unit_and_3_building_browser_pass"
+    },
+    {
+      "issue": "Caf\u00e9 patrons stuck at stale till goals or blocked chair approaches",
+      "status": "fixed_unit_baseline_reproductions_and_desktop_plus_mobile_reload_service_pass"
+    }
+  ],
+  "openFindings": [
+    {
+      "issue": "External Umami and VoiceBank module requests fail in this environment",
+      "status": "diagnosed_urls_not_claimed_production_outage"
+    }
+  ],
+  "limits": [
+    "Fixture approach uses test hook; player-sized connected floor geometry checked separately.",
+    "Representative action of each distinct type per floor; not every game ending or every dialogue branch.",
+    "Phone checks use emulation; no physical handset.",
+    "No merge or live deployment yet."
+  ]
+}

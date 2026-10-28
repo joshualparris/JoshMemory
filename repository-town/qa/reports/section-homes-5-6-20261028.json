@@ -1,0 +1,1021 @@
+{
+  "kind": "homes",
+  "rows": [
+    5,
+    6
+  ],
+  "source": "d1d3069348907c28c9af39922f275233bee5cb8a",
+  "method": "Address setup via test hooks; actual front-door/exit movement; collision-clear fixture approach hook; real keyboard/touch Use; all floor fixtures unless sample-actions requested.",
+  "sampleActions": true,
+  "complete": true,
+  "pageErrors": [],
+  "networkFailures": [
+    {
+      "origin": "https://parris-voicebank.vercel.app",
+      "path": "/src/game300.js",
+      "error": "net::ERR_EMPTY_RESPONSE"
+    },
+    {
+      "origin": "https://parris-voicebank.vercel.app",
+      "path": "/src/browser.js",
+      "error": "net::ERR_EMPTY_RESPONSE"
+    }
+  ],
+  "notes": [],
+  "cases": [
+    {
+      "id": "A5",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 7,
+          "approaches": 30,
+          "actionsChecked": 17,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "B5",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 5,
+          "approaches": 18,
+          "actionsChecked": 17,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "C5",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 7,
+          "approaches": 31,
+          "actionsChecked": 16,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "D5",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 9,
+          "approaches": 32,
+          "actionsChecked": 17,
+          "issues": []
+        },
+        {
+          "floor": 1,
+          "rooms": 4,
+          "approaches": 7,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "E5",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 7,
+          "approaches": 16,
+          "actionsChecked": 5,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "F5",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 10,
+          "approaches": 32,
+          "actionsChecked": 18,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "G5",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 10,
+          "approaches": 36,
+          "actionsChecked": 20,
+          "issues": []
+        },
+        {
+          "floor": 1,
+          "rooms": 4,
+          "approaches": 9,
+          "actionsChecked": 3,
+          "issues": []
+        },
+        {
+          "floor": 2,
+          "rooms": 4,
+          "approaches": 10,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "H5",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 8,
+          "approaches": 20,
+          "actionsChecked": 6,
+          "issues": []
+        },
+        {
+          "floor": 1,
+          "rooms": 4,
+          "approaches": 8,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "I5",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 11,
+          "approaches": 34,
+          "actionsChecked": 7,
+          "issues": []
+        },
+        {
+          "floor": 1,
+          "rooms": 4,
+          "approaches": 9,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "J5",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 8,
+          "approaches": 22,
+          "actionsChecked": 18,
+          "issues": []
+        },
+        {
+          "floor": 1,
+          "rooms": 3,
+          "approaches": 7,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "K5",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 9,
+          "approaches": 32,
+          "actionsChecked": 17,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "L5",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 10,
+          "approaches": 31,
+          "actionsChecked": 18,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "M5",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 6,
+          "approaches": 18,
+          "actionsChecked": 16,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "N5",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 11,
+          "approaches": 36,
+          "actionsChecked": 7,
+          "issues": []
+        },
+        {
+          "floor": 1,
+          "rooms": 3,
+          "approaches": 9,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "O5",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 8,
+          "approaches": 35,
+          "actionsChecked": 19,
+          "issues": []
+        },
+        {
+          "floor": 1,
+          "rooms": 4,
+          "approaches": 9,
+          "actionsChecked": 3,
+          "issues": []
+        },
+        {
+          "floor": 2,
+          "rooms": 4,
+          "approaches": 8,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "P5",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 5,
+          "approaches": 18,
+          "actionsChecked": 17,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "Q5",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 8,
+          "approaches": 29,
+          "actionsChecked": 6,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "R5",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 6,
+          "approaches": 18,
+          "actionsChecked": 16,
+          "issues": []
+        },
+        {
+          "floor": 1,
+          "rooms": 4,
+          "approaches": 9,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "S5",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 10,
+          "approaches": 35,
+          "actionsChecked": 17,
+          "issues": []
+        },
+        {
+          "floor": 1,
+          "rooms": 4,
+          "approaches": 8,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "T5",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 9,
+          "approaches": 29,
+          "actionsChecked": 17,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "U5",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 5,
+          "approaches": 17,
+          "actionsChecked": 16,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "V5",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 8,
+          "approaches": 29,
+          "actionsChecked": 16,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "W5",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 9,
+          "approaches": 32,
+          "actionsChecked": 17,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "X5",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 6,
+          "approaches": 22,
+          "actionsChecked": 6,
+          "issues": []
+        },
+        {
+          "floor": 1,
+          "rooms": 4,
+          "approaches": 8,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "Y5",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 7,
+          "approaches": 28,
+          "actionsChecked": 15,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "Z5",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 4,
+          "approaches": 17,
+          "actionsChecked": 16,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "A6",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 9,
+          "approaches": 33,
+          "actionsChecked": 17,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "B6",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 9,
+          "approaches": 31,
+          "actionsChecked": 19,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "C6",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 12,
+          "approaches": 45,
+          "actionsChecked": 18,
+          "issues": []
+        },
+        {
+          "floor": 1,
+          "rooms": 10,
+          "approaches": 27,
+          "actionsChecked": 3,
+          "issues": []
+        },
+        {
+          "floor": 2,
+          "rooms": 10,
+          "approaches": 28,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "D6",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 9,
+          "approaches": 34,
+          "actionsChecked": 18,
+          "issues": []
+        },
+        {
+          "floor": 1,
+          "rooms": 4,
+          "approaches": 9,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "E6",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 9,
+          "approaches": 36,
+          "actionsChecked": 7,
+          "issues": []
+        },
+        {
+          "floor": 1,
+          "rooms": 4,
+          "approaches": 8,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "F6",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 11,
+          "approaches": 41,
+          "actionsChecked": 17,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "G6",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 8,
+          "approaches": 33,
+          "actionsChecked": 18,
+          "issues": []
+        },
+        {
+          "floor": 1,
+          "rooms": 4,
+          "approaches": 7,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "H6",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 10,
+          "approaches": 40,
+          "actionsChecked": 17,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "I6",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 8,
+          "approaches": 31,
+          "actionsChecked": 17,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "J6",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 9,
+          "approaches": 32,
+          "actionsChecked": 6,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "K6",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 11,
+          "approaches": 40,
+          "actionsChecked": 17,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "L6",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 7,
+          "approaches": 27,
+          "actionsChecked": 15,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "M6",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 7,
+          "approaches": 32,
+          "actionsChecked": 18,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "N6",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 12,
+          "approaches": 42,
+          "actionsChecked": 16,
+          "issues": []
+        },
+        {
+          "floor": 1,
+          "rooms": 10,
+          "approaches": 26,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "O6",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 7,
+          "approaches": 29,
+          "actionsChecked": 16,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "P6",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 12,
+          "approaches": 39,
+          "actionsChecked": 16,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "Q6",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 8,
+          "approaches": 31,
+          "actionsChecked": 6,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "R6",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 9,
+          "approaches": 35,
+          "actionsChecked": 7,
+          "issues": []
+        },
+        {
+          "floor": 1,
+          "rooms": 3,
+          "approaches": 9,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "S6",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 12,
+          "approaches": 45,
+          "actionsChecked": 6,
+          "issues": []
+        },
+        {
+          "floor": 1,
+          "rooms": 10,
+          "approaches": 28,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "T6",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 9,
+          "approaches": 31,
+          "actionsChecked": 19,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "U6",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 10,
+          "approaches": 34,
+          "actionsChecked": 20,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "V6",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 10,
+          "approaches": 41,
+          "actionsChecked": 19,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "W6",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 8,
+          "approaches": 33,
+          "actionsChecked": 18,
+          "issues": []
+        },
+        {
+          "floor": 1,
+          "rooms": 4,
+          "approaches": 7,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "X6",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 12,
+          "approaches": 40,
+          "actionsChecked": 17,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "Y6",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 10,
+          "approaches": 37,
+          "actionsChecked": 19,
+          "issues": []
+        },
+        {
+          "floor": 1,
+          "rooms": 4,
+          "approaches": 8,
+          "actionsChecked": 3,
+          "issues": []
+        },
+        {
+          "floor": 2,
+          "rooms": 4,
+          "approaches": 9,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "Z6",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 8,
+          "approaches": 34,
+          "actionsChecked": 16,
+          "issues": []
+        }
+      ]
+    }
+  ],
+  "retestedIds": []
+}

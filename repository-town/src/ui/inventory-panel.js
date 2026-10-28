@@ -1,11 +1,11 @@
 // Your bag: money, equipment you can hold (torch), food and goods, and market purchases.
 import { GOODS } from '../world/life.js';
-import { ITEM_TYPES, items, equip, unequip, equippedType, toggleTorch, torchLit, dropItem } from '../world/inventory.js';
+import { ITEM_TYPES, items, equip, unequip, equippedType, toggleTorch, torchLit } from '../world/inventory.js';
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-export function inventoryPanel(me, { carried = null } = {}) {
-  const panel = () => inventoryPanel(me, { carried });
-  const act = (label, fn) => ({ label, run: () => { const msg = fn(); const p = panel(); p.body = `<p><b>${esc(msg)}</b></p>` + p.body; return p; } });
+export function inventoryPanel(me, { carried = null, drop = null, onChange = () => {} } = {}) {
+  const panel = () => inventoryPanel(me, { carried, drop, onChange });
+  const act = (label, fn) => ({ label, run: () => { const msg = fn(); onChange(); const p = panel(); p.body = `<p><b>${esc(msg)}</b></p>` + p.body; return p; } });
   const actions = [];
   const held = equippedType(me);
   const rows = items(me).map((it) => {
@@ -14,7 +14,7 @@ export function inventoryPanel(me, { carried = null } = {}) {
       actions.push(act('Put away the ' + t.name.toLowerCase(), () => unequip(me)));
       if (it.type === 'torch') actions.push(act(torchLit(me) ? 'Switch torch off (F)' : 'Switch torch on (F)', () => toggleTorch(me)));
     } else actions.push(act('Hold the ' + t.name.toLowerCase(), () => equip(me, it.id)));
-    actions.push(act('Drop the ' + t.name.toLowerCase(), () => dropItem(me, it.id)));
+    if (drop) actions.push(act('Drop the ' + t.name.toLowerCase(), () => drop(it.id)));
     return `<li>${t.icon} <b>${t.name}</b>${isHeld ? ' · in your hand' + (it.type === 'torch' ? (torchLit(me) ? ', on' : ', off') : '') : ''}<br><small>${esc(t.about)}</small></li>`;
   });
   const goods = Object.entries(me.bag || {}).filter(([, n]) => n > 0).map(([k, n]) => `<li>${n} × ${esc(GOODS[k]?.name || k)}</li>`);

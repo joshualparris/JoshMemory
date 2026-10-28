@@ -1,0 +1,79 @@
+{
+  "kind": "shops",
+  "rows": [
+    1,
+    2
+  ],
+  "source": "fc84b7068ff12f582eb51e1ddd8a8c7999818aa3",
+  "method": "Address setup via test hooks; actual front-door/exit movement; collision-clear fixture approach hook; real keyboard/touch Use; all floor fixtures unless sample-actions requested.",
+  "sampleActions": true,
+  "complete": true,
+  "pageErrors": [],
+  "networkFailures": [
+    {
+      "origin": "https://cloud.umami.is",
+      "path": "/script.js",
+      "error": "net::ERR_EMPTY_RESPONSE"
+    },
+    {
+      "origin": "https://parris-voicebank.vercel.app",
+      "path": "/src/game300.js",
+      "error": "net::ERR_EMPTY_RESPONSE"
+    },
+    {
+      "origin": "https://parris-voicebank.vercel.app",
+      "path": "/src/browser.js",
+      "error": "net::ERR_EMPTY_RESPONSE"
+    }
+  ],
+  "cases": [
+    {
+      "id": "fuelstop",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "tyres",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    },
+    {
+      "id": "carwash",
+      "status": "passed",
+      "enteredByWalking": true,
+      "leftByWalking": true,
+      "issues": [],
+      "floors": [
+        {
+          "floor": 0,
+          "rooms": 1,
+          "approaches": 4,
+          "actionsChecked": 3,
+          "issues": []
+        }
+      ]
+    }
+  ]
+}

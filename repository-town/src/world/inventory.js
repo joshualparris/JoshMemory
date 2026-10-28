@@ -12,7 +12,11 @@ export function items(me) { return state(me).items; }
 export function hasItem(me, type) { return items(me).some((i) => i.type === type); }
 export function addItem(me, type) {
   if (!ITEM_TYPES[type]) throw new Error('Unknown item ' + type);
-  const s = state(me), id = `${type}-${s.items.length + 1}-${Date.now().toString(36)}`;
+  const s = state(me);
+  // A persisted sequence avoids reusing an identity after dropping an item.
+  const used = new Set([...s.items, ...(s.groundItems || [])].map(i => i.id));
+  s.itemSequence = Number.isSafeInteger(s.itemSequence) && s.itemSequence >= 0 && s.itemSequence < Number.MAX_SAFE_INTEGER ? s.itemSequence : 0;
+  let id; do { id = `${type}:guest:${++s.itemSequence}`; } while (used.has(id));
   s.items.push({ id, type });
   return id;
 }
@@ -31,10 +35,5 @@ export function toggleTorch(me) {
   return s.torchOn ? 'Torch on.' : 'Torch off.';
 }
 export function torchLit(me) { const s = state(me); return s.torchOn && equippedType(s) === 'torch'; }
-export function dropItem(me, id) {
-  const s = state(me), i = s.items.findIndex((x) => x.id === id);
-  if (i < 0) return 'Nothing to drop.';
-  if (s.equipped === id) unequip(s);
-  const [it] = s.items.splice(i, 1);
-  return `You leave the ${ITEM_TYPES[it.type].name.toLowerCase()} behind.`;
-}
+// Dropping requires a validated world destination; inventory alone must never delete an item.
+export function dropItem() { return 'Choose a clear world position before dropping an item.'; }
