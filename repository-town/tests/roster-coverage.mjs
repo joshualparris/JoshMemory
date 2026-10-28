@@ -47,6 +47,7 @@ console.log('✓ Hardware has a real on-site worker at 10am Monday');
 // Appended, genuinely rostered shop attendants must catch up when that save
 // is restored at 10am, without moving anybody the user previously saved.
 const oldSave = life.snapshot();
+delete oldSave.staffRestorationVersion; // genuinely old 38-worker saves predate this marker
 const oldPositions = new Map(oldSave.sim.villagers.slice(0, 38).map(v => [v.id,{x:v.x,z:v.z,step:v.step}]));
 oldSave.sim.villagers = oldSave.sim.villagers.slice(0, 38);
 const migrated = new TownLife({ homes, minute: 5 * 60, seed: 20261020 });
