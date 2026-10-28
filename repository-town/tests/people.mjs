@@ -42,9 +42,16 @@ check(inside === 0, `no villager stood inside a wall or house (${inside} overlap
 
 // 2. Walk up to a villager: you're prompted to talk. Being nearby doesn't hold anyone up (they go
 // on with their day, src/world/townlife.js); opening a chat does, and they stop while you talk.
-const key = await page.evaluate(() => window.__town.meetVillager(0));
+// A genuinely commuting villager can walk away between our teleport and the
+// next software-rendered frame. Follow another passer-by as a player would,
+// but still require a real nearby talk prompt before interacting.
+let key=null;
+for(let attempt=0;attempt<5;attempt++){
+  key=await page.evaluate((i) => window.__town.meetVillager(i),attempt);
+  const found=await page.waitForFunction(() => /^villager:/.test(window.__town.state().nearPerson || ''), null, {timeout:1600,polling:50}).then(()=>true).catch(()=>false);
+  if(found)break;
+}
 console.log(`  meeting ${key}`);
-await page.waitForFunction(() => /^villager:/.test(window.__town.state().nearPerson || ''), null, { timeout: 8000 }).catch(() => null);
 s = await st();
 check(/^villager:/.test(s.nearPerson || ''), `prompted to talk (${s.nearPerson})`);
 await shot('1-meet-villager');
