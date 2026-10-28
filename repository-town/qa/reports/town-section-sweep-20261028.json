@@ -8,16 +8,26 @@
   "sections": [
     {
       "id": "core-1-2",
-      "status": "in_progress",
-      "homesExpected": 52
+      "status": "passed",
+      "homesExpected": 52,
+      "homesChecked": 52,
+      "civicSitesChecked": 3,
+      "walking": "Both footpaths on Streets 1 and 2, 575 seconds, zero reported problems",
+      "evidence": [
+        "test-results/section-homes-1-2-desktop.json",
+        "test-results/section-shops-1-2-desktop.json"
+      ]
     },
     {
       "id": "core-3-4",
-      "status": "pending"
+      "status": "passed_after_fixes",
+      "homesChecked": 52,
+      "civicSitesChecked": 17,
+      "walking": "Both footpaths on Streets3/4,581 seconds,zero reported problems"
     },
     {
       "id": "core-5-6",
-      "status": "pending"
+      "status": "in_progress"
     },
     {
       "id": "core-7-8-civic",
@@ -62,6 +72,18 @@
     {
       "issue": "QA shops hook invents north-facing side for legacy shops",
       "status": "corrected_retest_pending"
+    },
+    {
+      "issue": "Unconfigured analytics loads external script with template ID",
+      "status": "fixed_unit_and_browser_verified_zero_external_requests"
+    },
+    {
+      "issue": "Use/sitting/furniture prompts select through walls",
+      "status": "fixed_picker_unit_and_fixture_coverage_plus_focused_browser_verified"
+    },
+    {
+      "issue": "Three staff conversation targets overlap service desks exactly",
+      "status": "fixed_baseline_regression_then_unit_and_3_building_browser_pass"
     }
   ],
   "openFindings": [

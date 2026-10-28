@@ -1,3 +1,4 @@
+import {pickInteriorInteraction} from './engine/interaction-picker.js';
 import {createPubFloorStack,pubExpansionServices} from './world/pub-floors.js';
 import {pubFloorRefusal,recordPubLiftTrip,PUB_LEVELS} from './world/pub-expansion-state.js';
 import {pubExpansionPanel} from './ui/pub-expansion-panel.js';
@@ -986,39 +987,9 @@ async function start() {
   // Chooses the exhibit the player is looking at, not merely the closest one,
   // so neighbouring exhibits can each be selected by facing them.
   function pickNear(at = player.pos, fwd = player.forward()) {
-    let pick = null, best = Infinity;
-    for (const x of inside.interactables) {
-      tmp.copy(x.pos).sub(at); tmp.y = 0; const d = tmp.length();
-      if (d > 2.6) continue;
-      const dot = d < 0.01 ? 1 : tmp.normalize().dot(fwd);
-      if (dot < 0.2 && d > 1.2) continue;
-      const score = d - 1.6 * dot;
-      if (score < best) { best = score; pick = x; }
-    }
-    // Authored interactions take priority; passive furniture and seats are
-    // selectable when the player looks at them instead of replacing exhibits.
-    const seat=nearestSeat((inside.seats||[]).filter(s=>!s.occupiedBy),at,fwd,2.6);
-    if(seat) {
-      const d=Math.hypot(seat.pos.x-at.x,seat.pos.z-at.z);
-      const facing=d<.01?1:((seat.pos.x-at.x)*fwd.x+(seat.pos.z-at.z)*fwd.z)/d;
-      // A visible seat wins when clearly nearer or better aligned than the
-      // exhibit. Otherwise keep the intentional authored exhibit.
-      if(!pick || d-.7*facing<best-.35)
-        return {...seat,act:{do:'sit',title:seat.label}};
-    }
-    if(pick)return pick;
-    const furniture=inside.furniture||[];
-    let selected=null,rank=Infinity;
-    for(const item of furniture) {
-      const dx=item.pos.x-at.x,dz=item.pos.z-at.z,d=Math.hypot(dx,dz);
-      if(d>2.4)continue;
-      const facing=d<.01?1:(dx*fwd.x+dz*fwd.z)/d;
-      if(facing<.25&&d>1.1)continue;
-      const score=d-.7*facing;
-      if(score<rank){rank=score;selected=item;}
-    }
-    return selected;
+    return pickInteriorInteraction(inside,at,fwd,player.y+player.eye);
   }
+
   // Relics, street characters, villagers, the guide and shop counters can stand close
   // together, so Use goes to whichever is nearest; everything stays reachable.
   const away = (p) => (p ? Math.hypot(player.pos.x - p.pos.x, player.pos.z - p.pos.z) : Infinity);
@@ -1712,8 +1683,8 @@ async function start() {
       const x = inside?.interactables.find((i) => i.key === key); if (!x) return false;
       const c = new THREE.Vector3((inside.rooms[x.room].x0 + inside.rooms[x.room].x1) / 2, 0, (inside.rooms[x.room].z0 + inside.rooms[x.room].z1) / 2);
       const dir = c.clone().sub(x.pos); dir.y = 0; if (dir.length() < 0.01) dir.set(0, 0, 1); dir.normalize();
-      for (const dist of [1.6, 1.9, 1.3, 2.2]) {
-        for (const turn of [0, 0.5, -0.5, 1, -1]) {
+      for (const dist of [1.6, 1.9, 1.3, 2.2, 0.9, 0.7]) {
+        for (const turn of [0, 0.5, -0.5, 1, -1, 1.5, -1.5]) {
           const v = dir.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), turn);
           const p = x.pos.clone().addScaledVector(v, dist);
           const yaw = Math.atan2(-(x.pos.x - p.x), -(x.pos.z - p.z));

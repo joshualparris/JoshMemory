@@ -15,7 +15,7 @@ let report={schemaVersion:1,kind,rows,device,source:fs.existsSync('dist/public/r
  runtimeFiles:Object.fromEntries(['main.js','engine/input.js'].map(p=>[p,crypto.createHash('sha256').update(fs.readFileSync('dist/public/'+p)).digest('hex')])),
  method:'Address setup via test hooks; actual front-door/exit movement; collision-clear fixture approach hook; real keyboard/touch Use; all floor fixtures unless sample-actions requested.',sampleActions:sample,complete:false,cases:[],pageErrors:[],networkFailures:[]};
 fs.mkdirSync(path.dirname(out),{recursive:true});
-if(args.includes('--resume')&&fs.existsSync(out)){const old=JSON.parse(fs.readFileSync(out));if(old.source===report.source&&old.kind===kind&&old.device===device&&JSON.stringify(old.rows)===JSON.stringify(rows)){report=old;report.complete=false;report.cases=report.cases.filter(x=>x.status==='passed');}}
+if(args.includes('--resume')&&fs.existsSync(out)){const old=JSON.parse(fs.readFileSync(out));if(old.source===report.source&&old.kind===kind&&old.device===device&&JSON.stringify(old.rows)===JSON.stringify(rows)){report=old;report.complete=false;report.previousAttempts=[...(report.previousAttempts||[]),...report.cases.filter(x=>x.status!=='passed')];report.cases=report.cases.filter(x=>x.status==='passed');}}
 const save=()=>fs.writeFileSync(out,JSON.stringify(report,null,2));
 const context=await browser.newContext({viewport:device==='phone'?{width:390,height:844}:{width:640,height:480},hasTouch:device==='phone',isMobile:device==='phone',deviceScaleFactor:device==='phone'?1:.5});
 const page=await context.newPage();
@@ -95,6 +95,11 @@ try {
      a.prompted=await wait(`window.__town.state().near===${JSON.stringify(x.key)}`,2000);
      if(!a.prompted){f.issues.push(x.key+': no Use prompt');continue;}
      await use();let after=await state();
+     // Archive entries resolve an async fetch before mounting their panel. Wait
+     // for that result, without repeating a potentially transactional action.
+     if(!after.panel&&!x.nav&&!['pickup','npc','workplay'].includes(x.do)){
+      await wait(()=>!!window.__town.state().panel,2500);after=await state();
+     }
      if(x.nav){
       a.worked=x.nav==='lift'?/^Lift/.test(after.panel?.title||''):after.floor!==floor;
       await page.evaluate(()=>window.__town.closePanel());await page.evaluate(i=>window.__town.setFloor(i),floor);
