@@ -17,9 +17,19 @@ try {
   // Arm the phase listener BEFORE starting the engine: the 600ms starter
   // can finish during a slow headless browser round trip on software WebGL.
   await page.evaluate(() => { window.__town.closePanel?.(); window.__town.cheats.open(); window.__town.cheats.run('goNew'); });
-  const crankWatch = waitPhase(page, 'cranking');
-  await page.evaluate(() => { window.__town.cheats.run('carHere'); window.__town.cheats.close(); });
-  const crank = await crankWatch;
+  // Start and observe the short starter phase in the same browser round trip.
+  // A slow software-rendered CI frame can otherwise exhaust the 600ms crank
+  // before the external Playwright polling callback starts.
+  const crank = await page.evaluate(async () => {
+    window.__town.cheats.run('carHere'); window.__town.cheats.close();
+    const until=performance.now()+5000;
+    while(performance.now()<until){
+      const v=window.__town.soundscape().vehicle;
+      if(v?.phase==='cranking')return v;
+      await new Promise(resolve=>requestAnimationFrame(resolve));
+    }
+    return null;
+  });
   step(!!crank, 'getting in cranks the starter');
   const idle = await waitPhase(page, 'running');
   step(!!idle && idle.rpm <= idle.idle + 50, `engine catches and settles to idle (${idle?.rpm} rpm, ${idle?.frequency?.toFixed(1)} Hz)`);
