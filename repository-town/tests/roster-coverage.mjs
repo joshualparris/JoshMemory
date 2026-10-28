@@ -5,6 +5,8 @@
 import assert from 'node:assert/strict';
 import { TownLife, PLACE_DEFS } from '../src/world/life.js';
 import { facilityAccess, visitorHours } from '../src/world/facility-access.js';
+import { tradeEducationPanel } from '../src/ui/trade-education-panels.js';
+import { hasItem } from '../src/world/inventory.js';
 
 const homes = [];
 for (let r = 0; r < 14; r++) for (let c = 0; c < 26; c++) homes.push({
@@ -57,6 +59,17 @@ for (const [id, before] of oldPositions) {
   assert.equal(after.z,before.z,'previously saved resident '+id+' z must remain unchanged');
 }
 console.log('✓ Restoring an older save catches up appended hardware staff and preserves existing villagers');
+const sale=tradeEducationPanel(migrated,'hardware').actions.find(a=>a.label.startsWith('Buy a hatchet'));
+assert(sale,'hatchet should be advertised while hardware is physically open');
+const walletBefore=migrated.civic.player.wallet;
+sale.run();
+assert.equal(hasItem(migrated.civic.player,'hatchet'),true,'hatchet is received from staffed hardware');
+assert.equal(walletBefore-migrated.civic.player.wallet,25,'hatchet purchase debits exactly $25');
+const soldSave=migrated.snapshot();
+const afterSale=new TownLife({homes,minute:5*60,seed:20261020});
+assert.equal(afterSale.restore(soldSave),true);
+assert.equal(hasItem(afterSale.civic.player,'hatchet'),true,'hatchet persists after reload');
+console.log('✓ Monday 10:00 hardware sale charges $25, delivers hatchet and survives saved-game reload');
 
 // The real simulation: late afternoon, the Bakery is still open and admits customers.
 const bakery = life.place('bakery');
