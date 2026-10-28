@@ -251,6 +251,15 @@ async function start() {
   }
   const civilWorks = buildCivilWorks(town.group);   // estate services from the planning audit
   const woodlot = buildWoodlot(town.group, makeLabel);   // choppable trees north of the railway (skills.js)
+  // A 24-hour ATM in the Community Bank's front wall, beside the door (life.atm).
+  const bankSite = life.place('bank'), atmOut = { x: bankSite.front.x - bankSite.door.x, z: bankSite.front.z - bankSite.door.z };
+  const atmN = Math.hypot(atmOut.x, atmOut.z) || 1, atmSide = { x: -atmOut.z / atmN, z: atmOut.x / atmN };
+  const atmSpot = { key: 'bank:atm', label: '🏧 24-hour ATM · withdraw cash', pos: new THREE.Vector3(bankSite.door.x + atmSide.x * 2.4 + atmOut.x / atmN * 0.9, 0, bankSite.door.z + atmSide.z * 2.4 + atmOut.z / atmN * 0.9) };
+  { const box = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.1, 0.25), new THREE.MeshLambertMaterial({ color: 0x2f4f6f, emissive: 0x0b1a2a }));
+    box.position.set(bankSite.door.x + atmSide.x * 2.4 + atmOut.x / atmN * 0.15, 1.25, bankSite.door.z + atmSide.z * 2.4 + atmOut.z / atmN * 0.15); box.rotation.y = Math.atan2(atmOut.x, atmOut.z); box.name = 'Bank ATM'; scene.add(box); }
+  const atmPanel = (msg = '') => { const me = life.civic.player; return { title: '🏧 24-hour ATM · Community Bank',
+    body: (msg ? '<p><b>' + esc(msg) + '</b></p>' : '') + `<p>Wallet $${me.wallet}, savings $${me.bank || 0}.</p><p>Withdrawals at any hour. Deposits, loans and advice at the teller counter inside (9:00–16:00).</p>`,
+    actions: [20, 50, 100].map((n) => ({ label: `Withdraw $${n}`, run: () => atmPanel(life.atm(n)) })) }; };
   const roadSigns = buildRoadSigns(town.group, {
     highStreet: highStreetShops.length ? { z: 177, x0: Math.min(...highStreetShops.map((p) => p.x)) - 20, x1: Math.max(...highStreetShops.map((p) => p.x)) + 20 } : null,
     schools: [life.place('school')].filter(Boolean).map((p) => ({ x: p.x, z: p.door.z })),
@@ -1130,6 +1139,7 @@ async function start() {
       if (treasure && treasureD <= npcD && treasureD <= personD) { expedition.use(player.pos); ambience.relic(); return; }
       if (nearNPC && npcD <= personD) { input.releaseMouse(); closePanel(); $('npc-roster').hidden = true; npcChat.show(nearNPC.npc, null); input.reset(); return; }
       if (nearPerson?.spot?.tree) { startChopping(nearPerson.spot.tree); return; }
+      if (nearPerson?.spot?.atm) { openPanel(atmPanel(), guideSpot); return; }
       if (nearPerson?.spot?.rack) { status(takeRackTools(life.civic.player).message); return; }
       if (nearPerson?.spot?.itemId) { takeGroundItem(nearPerson.spot); return; }
       if (nearPerson?.spot?.market) { openPanel(stallPanel(life, nearPerson.spot.market, (id, i) => buyAtStall(life, id, i)), guideSpot); return; }
@@ -1558,6 +1568,7 @@ async function start() {
       for (const sp of townLife.spots) consider({ ...sp, spot: sp }, 3.2, 1.5);
       if (market.root.visible) for (const sp of market.spots) consider({ ...sp, spot: sp }, 3.6, 2.0);
       for (const sp of itemSpots) if(clearItemPath({...sp.pos,location:'town'}))consider({ ...sp, spot: sp }, ITEM_REACH, 0);
+      if (Math.abs(atmSpot.pos.x - player.pos.x) < 4 && Math.abs(atmSpot.pos.z - player.pos.z) < 4) consider({ ...atmSpot, spot: { atm: true } }, 2.4, 1.5);
       if (Math.abs(woodlot.rack.pos.x - player.pos.x) < 4 && Math.abs(woodlot.rack.pos.z - player.pos.z) < 4) consider({ ...woodlot.rack, spot: { rack: true } }, 2.6, 1.5);
       for (const tr of woodlot.allTrees()) if (Math.abs(tr.pos.x - player.pos.x) < 4 && Math.abs(tr.pos.z - player.pos.z) < 4) consider({ key: tr.key, pos: tr.pos, label: isStump(life, tr.id) ? `${TREES[tr.type].name} stump · it will grow back` : tr.label, spot: { tree: tr } }, 2.8, 2.0);
       nearTownSeat = !overview&&!driving.driving ? nearestSeat(townLife.seats,player.pos,player.forward(),2.4) : null;
@@ -1883,6 +1894,7 @@ async function start() {
     streetPeople:()=>streetNPCs.map(n=>({id:n.npc.id,name:n.npc.name,x:n.pos.x,z:n.pos.z,mode:n.mode||null,visible:n.group?.visible??null})),
     townFigures:()=>townLife.people.map(p=>({key:p.key,x:p.fig.group.position.x,z:p.fig.group.position.z,visible:p.fig.group.visible})),
     // Stands 1.3 m inside window i of the current floor, looking out of it.
+    atm: () => ({ x: atmSpot.pos.x, z: atmSpot.pos.z, yaw: Math.atan2(atmOut.x, atmOut.z) }),
     skills:()=>({ report: skillsReport(life.civic.player), chopping: chopping?.tree.id || null, fires: woodlot.fireCount(),
       trees: woodlot.allTrees().map((tr) => ({ id: tr.id, type: tr.type, x: tr.pos.x, z: tr.pos.z, stump: isStump(life, tr.id) })), hatchet: { visible: hatchetView.visible, angle: hatchetView.angle }, logs: { ...(life.civic.player.logs || {}) } }),
     lookOut(i=0){

@@ -996,6 +996,15 @@ export class TownLife {
     noteBank(this, `${op === 'deposit' ? 'Deposited' : 'Withdrew'} $${m}.`); receipt(this, 'bank', `${op === 'deposit' ? 'Deposited' : 'Withdrew'} $${m}`, 0);
     return `${op === 'deposit' ? 'Deposited' : 'Withdrew'} $${m}. Wallet $${me.wallet}, savings $${me.bank}.`;
   }
+  // The ATM in the bank's front wall works around the clock: withdrawals only, as in a real
+  // town, so a visitor short of cash for the hotel at night isn't stuck until 9:00.
+  atm(n) {
+    const me = this.civic.player, m = Math.min(n, me.bank || 0);
+    if (m <= 0) return `Your savings balance is $${me.bank || 0}: nothing to withdraw.`;
+    me.bank -= m; me.wallet += m;
+    noteBank(this, `ATM withdrawal $${m}.`); receipt(this, 'bank', `ATM withdrawal $${m}`, 0);
+    return `The ATM pays out $${m}. Wallet $${me.wallet}, savings $${me.bank}.`;
+  }
   propertyReport() { return propertyReport(this); }
   contractQuote(id) {return contractQuote(this,id);}
   contractReport(id) {return contractReport(this,id);}

@@ -355,7 +355,8 @@ Newest first. Times in Australia/Sydney.
   replaces the town with "Could not start" (status line shows message + file:line; the frame loop
   keeps running). Woodlot tool rack hands out a free hatchet + tinderbox at any hour (one each).
   Shops left "Waiting for staff" for 30 min call in a rostered worker on shift (world/staff-callin.js).
-  Settings → Start a new game clears progress, keeps preferences (ui/new-game.js). Tests:
+  Settings → Start a new game clears progress, keeps preferences (ui/new-game.js). A 24-hour
+  ATM in the bank front wall withdraws savings at any hour (life.atm). Tests: atm.mjs,
   skills.mjs, woodlot-rack-browser.mjs desktop + Android.
 
 - 2026-10-19 · Codex — added a local-first village social simulation: seeded friend, enemy and

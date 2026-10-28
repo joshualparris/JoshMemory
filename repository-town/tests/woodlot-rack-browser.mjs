@@ -23,7 +23,8 @@ try {
   await T(() => window.__town.place(13.5, -199.6, 0)); await page.waitForTimeout(800);
   await page.waitForFunction(() => /tool rack/.test(document.getElementById('prompt')?.textContent || ''), null, { timeout: 4000 }).catch(() => {});
   step(/tool rack/.test(await prompt()), 'prompt offers the Woodlot tool rack: ' + await prompt());
-  await use();
+  // A tap can land between frames on a busy phone; tap again until the rack answers.
+  for (let i = 0; i < 4 && !/take a hatchet/.test(await status()); i++) await use();
   step(/take a hatchet and a tinderbox/.test(await status()), 'took the tools at 11 pm: ' + await status());
   const k = await T(() => window.__town.skills());
   step(k.hatchet.visible, 'the hatchet is in hand');
@@ -32,7 +33,7 @@ try {
   const tree = k.trees.find((t) => t.id.startsWith('woodlot:') && t.type === 'tree' && !t.stump);
   await T(([x, z]) => window.__town.place(x - 1.8, z, -Math.PI / 2), [tree.x, tree.z]); await page.waitForTimeout(800);
   await page.waitForFunction(() => /Chop the tree/.test(document.getElementById('prompt')?.textContent || ''), null, { timeout: 3000 }).catch(() => {});
-  await use();
+  for (let i = 0; i < 4 && !(await T(() => window.__town.skills().chopping)); i++) await use();
   await page.waitForFunction(() => (window.__town.skills().report.find((x) => x.id === 'woodcutting')?.xp || 0) > 0 || /logs/.test(document.getElementById('status')?.textContent || ''), null, { timeout: 60000 }).catch(() => {});
   const xp = (await T(() => window.__town.skills().report.find((x) => x.id === 'woodcutting').xp));
   step(xp > 0, `chopped with the rack hatchet (woodcutting XP ${xp})`);
@@ -50,6 +51,20 @@ try {
   step(frames0 === 5 && t1 !== t0, `the game keeps running after the error (clock ${t0} → ${t1})`);
   const unexpected = errors.filter((e) => !/rack test probe/.test(e));
   step(unexpected.length === 0, 'no other page errors' + (unexpected.length ? ': ' + unexpected.join(' | ') : ''));
+  // 11 pm, bank shut: the 24-hour ATM in its front wall still pays out from savings.
+  const atm = await T(() => window.__town.atm());
+  const before = await T(() => { const p = window.__town.life.ledger().civic.player; return { wallet: p.wallet, bank: p.bank }; });
+  // Stand at the ATM facing the bank wall (the wall is back toward the door line).
+  await T((a) => window.__town.place(a.x, a.z, a.yaw), atm);
+  await page.waitForFunction(() => /24-hour ATM/.test(document.getElementById('prompt')?.textContent || ''), null, { timeout: 4000 }).catch(() => {});
+  step(/24-hour ATM/.test(await prompt()), 'prompt offers the 24-hour ATM at 11 pm: ' + await prompt());
+  for (let i = 0; i < 4 && !/ATM/.test((await T(() => window.__town.state().panel?.title || ''))); i++) await use();
+  step(await T(() => window.__town.answer(1)), 'withdrew $50 at the ATM');
+  const after = await T(() => { const p = window.__town.life.ledger().civic.player; return { wallet: p.wallet, bank: p.bank }; });
+  const got = Math.min(50, before.bank);
+  step(after.wallet - before.wallet === got && before.bank - after.bank === got, `ATM paid $${got} from savings (wallet ${before.wallet} → ${after.wallet}, savings ${before.bank} → ${after.bank})`);
+  await T(() => window.__town.closePanel());
+
   // Settings → Start a new game wipes progress (the rack tools, the clock) but keeps preferences.
   await T(() => { localStorage.setItem('repository-town.movement-speed.v1', '1.5'); window.dispatchEvent(new Event('pagehide')); });
   await T(() => document.getElementById('btn-settings').click());
