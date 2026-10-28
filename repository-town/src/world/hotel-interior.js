@@ -5,7 +5,8 @@ export const HOTEL_ROOM_COUNT=4;
 export function buildHotelInterior(site,makeLabel){
   const rooms=[{
     name:'Reception and breakfast lounge',w:12,d:10,
-    props:[['counter','Reception desk',{do:'info',title:'Railway Hotel check-in',
+    // The desk opens the hotel's own counter, where you actually book a room.
+    props:[['counter','Reception desk · book a room',{do:'civic-ledger',title:'Railway Hotel check-in',
       text:'Book a room at the hotel reception, then sleep in your allocated guest bed.'}],
       ['cafeTable','Breakfast table'],['sofa','Guest lounge'],['bookshelf','Visitor information']]
   }];
