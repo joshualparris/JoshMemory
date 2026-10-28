@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-28",
+  "status": "in_progress",
+  "scope": "Whole-town section-by-section browser and geometry inspection; not proof of absence of every bug.",
+  "branch": "fix/town-walkthrough-20261028",
+  "pullRequest": 261,
+  "sections": [
+    {
+      "id": "core-1-2",
+      "status": "in_progress",
+      "homesExpected": 52
+    },
+    {
+      "id": "core-3-4",
+      "status": "pending"
+    },
+    {
+      "id": "core-5-6",
+      "status": "pending"
+    },
+    {
+      "id": "core-7-8-civic",
+      "status": "pending"
+    },
+    {
+      "id": "avenues-rail-farms",
+      "status": "pending"
+    },
+    {
+      "id": "northern-campuses",
+      "status": "pending"
+    },
+    {
+      "id": "estate-roads-homes",
+      "status": "pending",
+      "homesExpected": 195
+    },
+    {
+      "id": "arcade-and-feature-regressions",
+      "status": "pending"
+    }
+  ],
+  "priorEvidence": {
+    "street7and8": "Both footpaths walked, no blockages; earlier source.",
+    "firePower": "35 exhibits, front doors/exits, no page exceptions.",
+    "a1": "Desktop/touch house exhibits passed; original overall suite red for run test and network resources."
+  },
+  "fixes": [
+    {
+      "issue": "Stale touch/mouse gestures survive reset",
+      "status": "implemented_and_regression_verified"
+    },
+    {
+      "issue": "Speed check hits opposite frontage",
+      "status": "test_corrected_run_verified"
+    },
+    {
+      "issue": "Jump sampled before a slow frame",
+      "status": "test_corrected_retest_pending"
+    },
+    {
+      "issue": "QA shops hook invents north-facing side for legacy shops",
+      "status": "corrected_retest_pending"
+    }
+  ],
+  "openFindings": [
+    {
+      "issue": "Cafe customer never reaches table in baseline replay",
+      "status": "pending_civic_section"
+    },
+    {
+      "issue": "External Umami and VoiceBank module requests fail in this environment",
+      "status": "diagnosed_urls_not_claimed_production_outage"
+    }
+  ],
+  "limits": [
+    "Fixture approach uses test hook; player-sized connected floor geometry checked separately.",
+    "Representative action of each distinct type per floor; not every game ending or every dialogue branch.",
+    "Phone checks use emulation; no physical handset.",
+    "No merge or live deployment yet."
+  ]
+}

@@ -28,7 +28,11 @@ async function open(browser, ctxOpts) {
   // Fresh save state for the first load only, so the autosave check can survive a reload.
   await ctx.addInitScript(() => { try { if (!sessionStorage.getItem('e2e')) { localStorage.clear(); sessionStorage.setItem('e2e', '1'); } } catch {} });
   const page = await ctx.newPage();
-  const errors = [], warnings = [];
+  const errors = [], warnings = [], networkFailures = [];
+  page.on('requestfailed', request => {
+    const u = new globalThis.URL(request.url());
+    networkFailures.push({origin:u.origin,path:u.pathname,error:request.failure()?.errorText});
+  });
   page.on('pageerror', (e) => errors.push(e.message));
   page.on('console', (m) => {
     if (m.type() !== 'error') return;
@@ -41,7 +45,7 @@ async function open(browser, ctxOpts) {
   await page.goto(URL);
   await page.waitForFunction(() => window.__town, null, { timeout: 60000 });
   const loadingHidden = await page.evaluate(() => getComputedStyle(document.getElementById('loading')).display === 'none');
-  return { ctx, page, errors, warnings, loadingHidden };
+  return { ctx, page, errors, warnings, networkFailures, loadingHidden };
 }
 
 // Touch joystick drag via CDP: the left half of the screen is the movement stick.
@@ -147,19 +151,32 @@ async function mechanics(page, coord) {
   const out = {};
   const go = () => page.evaluate((c) => window.__town.travel(c), coord);
   await go();
-  await sleep(200);
-  const z0 = (await st(page)).pos.z;
-  await page.keyboard.down('s'); await sleep(1500); await page.keyboard.up('s');
-  const walked = Math.abs((await st(page)).pos.z - z0);
-  await go(); await sleep(200);
-  await page.keyboard.down('Shift'); await page.keyboard.down('s'); await sleep(1500); await page.keyboard.up('s'); await page.keyboard.up('Shift');
-  const ran = Math.abs((await st(page)).pos.z - z0);
+  // Walking backwards from a front door crosses the road and can hit the
+  // opposite frontage. Compare speeds on an explicitly clear lateral runway.
+  const runway = await page.evaluate(() => {
+    const t = window.__town, z0 = t.state().pos.z;
+    for (const dz of [0, 1, -1, 2, -2]) for (let x = -300; x < 280; x += 2) {
+      const z = z0 + dz;
+      if (Array.from({length:81}, (_, i) => t.probeStatic(x+i*.25,z,.5)).every(c => !c))
+        return {x,z};
+    }
+    return null;
+  });
+  if (!runway) throw new Error('No collision-clear 20m runway for speed comparison');
+  const placeRunway = () => page.evaluate(p => window.__town.place(p.x,p.z,-Math.PI/2),runway);
+  await placeRunway(); await sleep(200);
+  await page.keyboard.down('w'); await sleep(1500); await page.keyboard.up('w');
+  const walked = Math.abs((await st(page)).pos.x - runway.x);
+  await placeRunway(); await sleep(200);
+  await page.keyboard.down('Shift'); await page.keyboard.down('w'); await sleep(1500); await page.keyboard.up('w'); await page.keyboard.up('Shift');
+  const ran = Math.abs((await st(page)).pos.x - runway.x);
   out.run = ran > walked * 1.3;
+  out.runEvidence = {runway,walked,ran};
   await page.keyboard.press('c'); await sleep(400);
   out.crouch = (await st(page)).eye < 1.3;
   await page.keyboard.press('c'); await sleep(400);
-  await page.keyboard.press('Space'); await sleep(180);
-  out.jump = (await st(page)).y > 0.3;
+  await page.keyboard.press('Space');
+  out.jump = await until(page, () => window.__town.state().y > 0.3, 2500);
   await sleep(600);
   // Walk straight at a house wall for 3 s: collision must stop the player at the facade.
   await go();
@@ -197,6 +214,7 @@ const s = await st(d.page);
 results.desktop.drawCalls = s.calls;
 results.desktop.errors = d.errors;
 results.desktop.warnings = d.warnings;
+results.desktop.networkFailures = d.networkFailures;
 await d.ctx.close();
 console.log('\ndesktop done', d.errors.length, 'errors');
 
@@ -212,6 +230,7 @@ if (MOBILE) {
   }
   results.mobile.errors = m.errors;
   results.mobile.warnings = m.warnings;
+  results.mobile.networkFailures = m.networkFailures;
   results.mobile.fps = (await st(m.page)).fps;
   await m.ctx.close();
   console.log('\nmobile done', m.errors.length, 'errors');
@@ -226,4 +245,5 @@ const bad = Object.entries(results.houses).filter(([, v]) => v.desktop?.problems
 console.log(`Houses: ${Object.keys(results.houses).length} · failing: ${bad.length}`);
 for (const [c, v] of bad) console.log(c, [...(v.desktop?.problems || []), ...(v.mobile?.problems || []).map((p) => 'mobile: ' + p)].join(' | '));
 console.log('mechanics', JSON.stringify(results.desktop.mechanics), 'errors', (results.desktop.errors?.length || 0) + (results.mobile.errors?.length || 0));
-process.exit(bad.length || results.desktop.errors?.length || results.mobile.errors?.length ? 1 : 0);
+const failedMechanics = Object.values(results.desktop.mechanics || {}).some(value => value === false);
+process.exit(bad.length || failedMechanics || results.desktop.errors?.length || results.mobile.errors?.length ? 1 : 0);
