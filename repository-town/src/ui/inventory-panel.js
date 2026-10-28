@@ -1,10 +1,12 @@
 // Your bag: money, equipment you can hold (torch), food and goods, and market purchases.
 import { GOODS } from '../world/life.js';
 import { ITEM_TYPES, items, equip, unequip, equippedType, toggleTorch, torchLit, dropItem } from '../world/inventory.js';
+import { LOGS, BAG_SLOTS, bagUsed } from '../world/skills.js';
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-export function inventoryPanel(me, { carried = null } = {}) {
-  const panel = () => inventoryPanel(me, { carried });
+// lightFire(log) lights a fire where the player stands (main.js knows where that is).
+export function inventoryPanel(me, { carried = null, lightFire = null } = {}) {
+  const panel = () => inventoryPanel(me, { carried, lightFire });
   const act = (label, fn) => ({ label, run: () => { const msg = fn(); const p = panel(); p.body = `<p><b>${esc(msg)}</b></p>` + p.body; return p; } });
   const actions = [];
   const held = equippedType(me);
@@ -17,6 +19,11 @@ export function inventoryPanel(me, { carried = null } = {}) {
     actions.push(act('Drop the ' + t.name.toLowerCase(), () => dropItem(me, it.id)));
     return `<li>${t.icon} <b>${t.name}</b>${isHeld ? ' · in your hand' + (it.type === 'torch' ? (torchLit(me) ? ', on' : ', off') : '') : ''}<br><small>${esc(t.about)}</small></li>`;
   });
+  // Logs stack in the bag; each one takes a slot.
+  const logs = Object.entries(me.logs || {}).filter(([k, n]) => n > 0 && LOGS[k]).map(([k, n]) => {
+    if (lightFire) actions.push(act(`🔥 Light ${LOGS[k].name.toLowerCase()} here`, () => lightFire(k)));
+    return `<li>${LOGS[k].icon} ${n} × ${LOGS[k].name}</li>`;
+  });
   const goods = Object.entries(me.bag || {}).filter(([, n]) => n > 0).map(([k, n]) => `<li>${n} × ${esc(GOODS[k]?.name || k)}</li>`);
   const market = Object.entries(me.marketGoods || {}).filter(([, n]) => n > 0).map(([k, n]) => `<li>${n} × ${esc(k)}</li>`);
   const list = (xs, empty) => xs.length ? `<ul>${xs.join('')}</ul>` : `<p><small>${empty}</small></p>`;
@@ -24,6 +31,7 @@ export function inventoryPanel(me, { carried = null } = {}) {
     title: '🎒 Your bag',
     body: `<p>💵 Wallet: $${(me.wallet || 0).toFixed(2)}${held ? ` · holding: ${ITEM_TYPES[held].icon} ${ITEM_TYPES[held].name}` : ''}${carried ? ` · carrying: ${esc(carried)}` : ''}</p>` +
       `<h3>Equipment</h3>${list(rows, 'Nothing yet. A torch is waiting at the Town Guide kiosk.')}` +
+      `<h3>Logs · ${bagUsed(me)}/${BAG_SLOTS} slots</h3>${list(logs, 'None. Chop trees at the Town Woodlot with a hatchet; light them with a tinderbox.')}` +
       `<h3>Food and goods</h3>${list(goods, 'Empty. Shops and the farmers\' market sell food that goes in here.')}` +
       `<h3>From the market</h3>${list(market, 'Nothing yet. The market runs on the 1st and 3rd Saturday mornings.')}`,
     actions,

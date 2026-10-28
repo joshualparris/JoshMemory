@@ -70,6 +70,9 @@ import { buildRoadSigns } from './world/road-signs.js';
 import { buildFarmersMarket, stallPanel, buyAtStall, marketNotice } from './world/farmers-market.js';
 import { addItem, equip, toggleTorch, torchLit, equippedType } from './world/inventory.js';
 import { inventoryPanel } from './ui/inventory-panel.js';
+import { skillsPanel } from './ui/skills-panel.js';
+import { buildWoodlot } from './world/woodlot.js';
+import { canChop, swing, lightFire as lightLogs, isStump, skillsReport, SWING_SECONDS, TREES } from './world/skills.js';
 import { buildCivilWorks } from './world/civil-works.js';
 import { nearestSeat } from './world/seats.js';
 import { furniturePanel } from './ui/furniture.js';
@@ -207,6 +210,7 @@ async function start() {
     handTorch.visible = equippedType(me) === 'torch';
   }
   const civilWorks = buildCivilWorks(town.group);   // estate services from the planning audit
+  const woodlot = buildWoodlot(town.group, makeLabel);   // choppable trees north of the railway (skills.js)
   const roadSigns = buildRoadSigns(town.group, {
     highStreet: highStreetShops.length ? { z: 177, x0: Math.min(...highStreetShops.map((p) => p.x)) - 20, x1: Math.max(...highStreetShops.map((p) => p.x)) + 20 } : null,
     schools: [life.place('school')].filter(Boolean).map((p) => ({ x: p.x, z: p.door.z })),
@@ -226,7 +230,7 @@ async function start() {
     { x0: -1495, x1: 595, z0: -395, z1: -390 }, { x0: -1495, x1: 595, z0: 555, z1: 560 },
     { x0: -1495, x1: -1490, z0: -395, z1: 560 }, { x0: 590, x1: 595, z0: -395, z1: 560 },
   ];
-  const townWorld = new CollisionWorld([...town.colliders, ...townLife.colliders, ...masterplan.colliders, ...civilWorks.colliders, ...market.colliders, ...edges]);
+  const townWorld = new CollisionWorld([...town.colliders, ...townLife.colliders, ...masterplan.colliders, ...civilWorks.colliders, ...woodlot.colliders, ...market.colliders, ...edges]);
   // Dynamic vehicle footprints block player motion as well as truck movement.
   // A vehicle is approx 2.2m wide and 6.6m long; use a conservative
   // rotated-axis AABB for the town's existing 2D collision engine.
@@ -723,8 +727,33 @@ async function start() {
     onOpen: () => { input.reset(); closePanel(); },
   });
   $('btn-townmap').onclick = () => townMap.open();
-  const openBag = () => openPanel(inventoryPanel(life.civic.player, { carried: carried?.label || null }), guideSpot);
+  // Logs are lit where you stand, a step ahead, and only outdoors.
+  const lightHere = (log) => {
+    if (mode !== 'town' || driving.driving) return 'Light fires outdoors, on foot.';
+    const f = player.forward(), r = lightLogs(life, life.civic.player, log, { x: player.pos.x + f.x * 1.3, z: player.pos.z + f.z * 1.3 });
+    return r.message;
+  };
+  const openBag = () => openPanel(inventoryPanel(life.civic.player, { carried: carried?.label || null, lightFire: lightHere }), guideSpot);
   $('btn-bag').onclick = openBag;
+  $('btn-skills').onclick = () => openPanel(skillsPanel(life.civic.player), guideSpot);
+  // Woodcutting: E on a tree starts chopping; a swing every 2.4 s until the tree falls, the bag
+  // fills or you walk away.
+  let chopping = null;
+  function startChopping(tree) {
+    const why = canChop(life, life.civic.player, tree);
+    if (why) { status(why); return; }
+    chopping = { tree, at: player.pos.clone(), next: clock.elapsedTime + SWING_SECONDS };
+    status(`You swing your hatchet at the ${TREES[tree.type].name.toLowerCase()}…`);
+  }
+  function tickChopping(t) {
+    if (!chopping) return;
+    if (mode !== 'town' || driving.driving || player.pos.distanceTo(chopping.at) > 1.2) { chopping = null; return; }
+    if (t < chopping.next) return;
+    chopping.next = t + SWING_SECONDS;
+    const r = swing(life, life.civic.player, chopping.tree);
+    status(r.message);
+    if (r.stop) chopping = null;
+  }
   // Captured before the input handler: F is also a "use" key, so while the torch is in hand it
   // switches the torch instead (otherwise F keeps working as use).
   addEventListener('keydown', (e) => {
@@ -1062,6 +1091,7 @@ async function start() {
       const treasure = expedition.nearby(player.pos), treasureD = away(treasure), npcD = away(nearNPC), personD = away(nearPerson);
       if (treasure && treasureD <= npcD && treasureD <= personD) { expedition.use(player.pos); ambience.relic(); return; }
       if (nearNPC && npcD <= personD) { input.releaseMouse(); closePanel(); $('npc-roster').hidden = true; npcChat.show(nearNPC.npc, null); input.reset(); return; }
+      if (nearPerson?.spot?.tree) { startChopping(nearPerson.spot.tree); return; }
       if (nearPerson?.spot?.item) {
         const me = life.civic.player, sp = nearPerson.spot; me[sp.found] = true;
         const id = addItem(me, sp.item); if (!equippedType(me)) equip(me, id);
@@ -1486,6 +1516,7 @@ async function start() {
       for (const sp of townLife.spots) consider({ ...sp, spot: sp }, 3.2, 1.5);
       if (market.root.visible) for (const sp of market.spots) consider({ ...sp, spot: sp }, 3.6, 2.0);
       for (const sp of itemSpots) if (!life.civic.player[sp.found]) consider({ ...sp, spot: sp }, 2.6, 2.0);
+      for (const tr of woodlot.trees) consider({ key: tr.key, pos: tr.pos, label: isStump(life, tr.id) ? `${TREES[tr.type].name} stump · it will grow back` : tr.label, spot: { tree: tr } }, 2.8, 2.0);
       nearTownSeat = !overview&&!driving.driving ? nearestSeat(townLife.seats,player.pos,player.forward(),2.4) : null;
       nearCar = !overview&&!driving.driving ? driving.nearest() : null;
       nearHouse = null; let best = 6;
@@ -1647,6 +1678,7 @@ async function start() {
     }
     if (mode === 'town') input.consume('use');
     expedition.update(t,player,mode);
+    if (mode === 'town') { tickChopping(t); woodlot.update(life, t, chopping?.tree.id); }
     // One prompt at a time: the gold chest/relic bar only when E would open it, else the usual prompt.
     if (mode === 'town' && !$('expedition-hint').hidden) {
       const relic = expedition.nearby(player.pos), d = (o) => (o ? Math.hypot(o.pos.x - player.pos.x, o.pos.z - player.pos.z) : Infinity);
@@ -1795,6 +1827,8 @@ async function start() {
     streetPeople:()=>streetNPCs.map(n=>({id:n.npc.id,name:n.npc.name,x:n.pos.x,z:n.pos.z,mode:n.mode||null,visible:n.group?.visible??null})),
     townFigures:()=>townLife.people.map(p=>({key:p.key,x:p.fig.group.position.x,z:p.fig.group.position.z,visible:p.fig.group.visible})),
     // Stands 1.3 m inside window i of the current floor, looking out of it.
+    skills:()=>({ report: skillsReport(life.civic.player), chopping: chopping?.tree.id || null, fires: woodlot.fireCount(),
+      trees: woodlot.trees.map((tr) => ({ id: tr.id, type: tr.type, x: tr.pos.x, z: tr.pos.z, stump: isStump(life, tr.id) })), logs: { ...(life.civic.player.logs || {}) } }),
     lookOut(i=0){
       const w=inside?.windows?.[i];if(!w)return false;
       const c=(w.s+w.e)/2;
