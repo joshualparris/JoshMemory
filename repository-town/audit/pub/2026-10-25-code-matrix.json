@@ -19,7 +19,7 @@
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "8f3b31c78f738cfeb599fa76f62351363bc5aca5",
+    "repository-town/src/main.js": "1b0680265e0d16407b9812944fcb35b182827140",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -909,7 +909,7 @@
         "repository-town/src/world/life.js",
         "repository-town/src/main.js"
       ],
-      "finding": "Shared villager routine and driving-camera/prompt changes only; no pub geometry, egress, services or regulatory classification changes.",
+      "finding": "Shared villager routine and driving-camera/prompt changes only; no pub geometry, egress, services or regulatory classification changes. Includes the stepVehicle test hook surfacing driving messages.",
       "evidence": "Source review of the diff and the town/integration/browser suites; records provenance only, does not certify the pub."
     }
   ]
