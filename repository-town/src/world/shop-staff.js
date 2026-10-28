@@ -40,6 +40,21 @@ export function populateShopStaff(site,life,interior,makeLabel){
   interior.group.add(npc.group);
   npc.plan=()=>[]; // Stay at the counter instead of walking through furniture.
   const posUse=home?new THREE.Vector3(-5.10,0,-3.10):interior.staff?new THREE.Vector3(interior.staff.use.x,0,interior.staff.use.z):new THREE.Vector3(2.6,0,-5.1);
+  // Equal-position targets always select the earlier desk exhibit. Keep a
+  // separate, clear conversation spot beside that desk, preserving its service.
+  const targets=interior.interactables||[];
+  if(targets.some(x=>Math.hypot(x.pos.x-posUse.x,x.pos.z-posUse.z)<.15)){
+    for(const dx of [-.9,.9,-1.2,1.2]){
+      const x=posUse.x+dx,z=posUse.z;
+      if(targets.some(t=>Math.hypot(t.pos.x-x,t.pos.z-z)<.5))continue;
+      if((interior.colliders||[]).some(b=>{
+        const cx=Math.max(b.x0,Math.min(x,b.x1)),cz=Math.max(b.z0,Math.min(z,b.z1));
+        return (x-cx)**2+(z-cz)**2<.4**2;
+      }))continue;
+      if(interior.bounds&&(x<interior.bounds.x0+.4||x>interior.bounds.x1-.4||z<interior.bounds.z0+.4||z>interior.bounds.z1-.4))continue;
+      posUse.x=x;break;
+    }
+  }
   const hotspot={
     key:npc.key,label:'Talk to '+name,type:'npc',person:true,room:npc.room,
     roomName:interior.rooms[npc.room].name,pos:posUse,

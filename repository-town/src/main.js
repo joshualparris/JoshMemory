@@ -1,3 +1,6 @@
+import {groundItems,seedGuideTorch,pickupItem,dropOwnedItem,ITEM_REACH} from './world/item-actions.js';
+import {createGroundItemsView} from './world/ground-items-view.js';
+import {pickInteriorInteraction} from './engine/interaction-picker.js';
 import {createPubFloorStack,pubExpansionServices} from './world/pub-floors.js';
 import {pubFloorRefusal,recordPubLiftTrip,PUB_LEVELS} from './world/pub-expansion-state.js';
 import {pubExpansionPanel} from './ui/pub-expansion-panel.js';
@@ -196,15 +199,41 @@ async function start() {
   camera.add(torchLight, torchLight.target);
   const handTorch = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.045, 0.26, 10), new THREE.MeshLambertMaterial({ color: 0x2b2f36, emissive: 0x111111 }));
   handTorch.rotation.x = Math.PI / 2 - 0.2; handTorch.position.set(0.3, -0.28, -0.55); handTorch.visible = false; camera.add(handTorch);
-  // A torch to find at the Town Guide kiosk, where every game starts.
-  const kioskTorch = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 0.3, 10), new THREE.MeshLambertMaterial({ color: 0xd9a400 }));
-  kioskTorch.rotation.z = Math.PI / 2; kioskTorch.position.set(town.guidePos.x + 1.4, 0.06, town.guidePos.z + 0.7); town.group.add(kioskTorch);
-  const itemSpots = [{ key: 'item:guide-torch', item: 'torch', found: 'foundGuideTorch', mesh: kioskTorch, pos: kioskTorch.position, label: '🔦 Pick up the torch' }];
+  // The starter object and dropped equipment share the same persisted ownership rules.
+  seedGuideTorch(life.civic.player,{location:'town',x:town.guidePos.x+1.4,y:0,z:town.guidePos.z+.7});
+  const groundView=createGroundItemsView();
+  let itemSpots=[];
+  function itemLocation(){
+    if(mode==='town')return 'town';
+    const id=inside.countryHome?'country:'+inside.countryHome.parcelId:inside.campus?'campus:'+inside.campus.id:inside.place?'shop:'+inside.place.id:'house:'+inside.house.coordinate;
+    return id+':floor:'+(inside.floorIndex||0);
+  }
+  function itemActor(){return {location:itemLocation(),x:player.pos.x,y:player.y,z:player.pos.z};}
+  function clearItemPath(to){
+    const from=itemActor(),distance=Math.hypot(to.x-from.x,to.z-from.z),steps=Math.max(1,Math.ceil(distance/.1));
+    if(to.location!==from.location || distance>ITEM_REACH)return false;
+    for(let i=1;i<=steps;i++){
+      const t=i/steps;
+      if(world.hits(from.x+(to.x-from.x)*t,from.z+(to.z-from.z)*t,.04,from.y+.2))return false;
+    }
+    return true;
+  }
+  function persistItems(){
+    const positionSaved=save(),itemsSaved=townLife.save(),ok=positionSaved&&itemsSaved;
+    if(!ok)status('Progress is in memory only: browser saving is unavailable. Keep this tab open or export your save.');
+    return ok;
+  }
+  function dropEquipment(id){
+    const f=player.forward(),position={location:itemLocation(),x:player.pos.x+f.x*.85,y:player.y,z:player.pos.z+f.z*.85};
+    const result=dropOwnedItem(life.civic.player,id,position,p=>Math.abs(player.y-(world.groundAt?.(p.x,p.z,.12,player.y+.05)||0))<.1 && clearItemPath(p) && !world.hits(p.x,p.z,.18,player.y));
+    frameItems();
+    return result.message;
+  }
   function frameItems() {
-    const me = life.civic.player;
-    for (const it of itemSpots) it.mesh.visible = !me[it.found];
-    torchLight.intensity = torchLit(me) ? 75 : 0; torchLight.visible = torchLight.intensity > 0;
-    handTorch.visible = equippedType(me) === 'torch';
+    const me=life.civic.player;
+    itemSpots=groundView.update(groundItems(me),itemLocation(),mode==='town'?town.group:inside.group);
+    torchLight.intensity=torchLit(me)?75:0;torchLight.visible=torchLight.intensity>0;
+    handTorch.visible=equippedType(me)==='torch';
   }
   const civilWorks = buildCivilWorks(town.group);   // estate services from the planning audit
   const roadSigns = buildRoadSigns(town.group, {
@@ -723,7 +752,7 @@ async function start() {
     onOpen: () => { input.reset(); closePanel(); },
   });
   $('btn-townmap').onclick = () => townMap.open();
-  const openBag = () => openPanel(inventoryPanel(life.civic.player, { carried: carried?.label || null }), guideSpot);
+  const openBag = () => openPanel(inventoryPanel(life.civic.player, { carried: carried?.label || null, drop:dropEquipment, onChange:persistItems }), guideSpot);
   $('btn-bag').onclick = openBag;
   // Captured before the input handler: F is also a "use" key, so while the torch is in hand it
   // switches the torch instead (otherwise F keeps working as use).
@@ -731,7 +760,7 @@ async function start() {
     if (e.repeat || e.ctrlKey || e.metaKey || e.altKey || e.target?.closest?.('input,textarea,select,[contenteditable]')) return;
     const k = String(e.key ?? '').toLowerCase();
     if (k === 'i') { e.preventDefault(); if (panelOpen) closePanel(); else openBag(); }
-    if (k === 'f' && equippedType(life.civic.player) === 'torch') { e.preventDefault(); e.stopImmediatePropagation(); status(toggleTorch(life.civic.player)); }
+    if (k === 'f' && equippedType(life.civic.player) === 'torch') { e.preventDefault(); e.stopImmediatePropagation(); status(toggleTorch(life.civic.player));persistItems(); }
   }, { capture: true });
   // Hidden playtest cheat menu (src/ui/cheat-menu.js): five taps on the HUD title or ` three times.
   const toTown = () => { if (driving.driving) return 'Park and get out first.'; if (mode === 'house') leave(false); return null; };
@@ -821,6 +850,7 @@ async function start() {
     speedSlider.focus();
   };
   $('settings-close').onclick = closeSettings;
+  $('settings-save-transfer').onclick = () => { persistItems(); };
   // Resident style: one button per style; models load only when chosen (world/resident-models.js).
   function renderResidentStyles(message) {
     const current = townLife.residentModels.style(), box = $('resident-style-options');
@@ -986,39 +1016,9 @@ async function start() {
   // Chooses the exhibit the player is looking at, not merely the closest one,
   // so neighbouring exhibits can each be selected by facing them.
   function pickNear(at = player.pos, fwd = player.forward()) {
-    let pick = null, best = Infinity;
-    for (const x of inside.interactables) {
-      tmp.copy(x.pos).sub(at); tmp.y = 0; const d = tmp.length();
-      if (d > 2.6) continue;
-      const dot = d < 0.01 ? 1 : tmp.normalize().dot(fwd);
-      if (dot < 0.2 && d > 1.2) continue;
-      const score = d - 1.6 * dot;
-      if (score < best) { best = score; pick = x; }
-    }
-    // Authored interactions take priority; passive furniture and seats are
-    // selectable when the player looks at them instead of replacing exhibits.
-    const seat=nearestSeat((inside.seats||[]).filter(s=>!s.occupiedBy),at,fwd,2.6);
-    if(seat) {
-      const d=Math.hypot(seat.pos.x-at.x,seat.pos.z-at.z);
-      const facing=d<.01?1:((seat.pos.x-at.x)*fwd.x+(seat.pos.z-at.z)*fwd.z)/d;
-      // A visible seat wins when clearly nearer or better aligned than the
-      // exhibit. Otherwise keep the intentional authored exhibit.
-      if(!pick || d-.7*facing<best-.35)
-        return {...seat,act:{do:'sit',title:seat.label}};
-    }
-    if(pick)return pick;
-    const furniture=inside.furniture||[];
-    let selected=null,rank=Infinity;
-    for(const item of furniture) {
-      const dx=item.pos.x-at.x,dz=item.pos.z-at.z,d=Math.hypot(dx,dz);
-      if(d>2.4)continue;
-      const facing=d<.01?1:(dx*fwd.x+dz*fwd.z)/d;
-      if(facing<.25&&d>1.1)continue;
-      const score=d-.7*facing;
-      if(score<rank){rank=score;selected=item;}
-    }
-    return selected;
+    return pickInteriorInteraction(inside,at,fwd,player.y+player.eye);
   }
+
   // Relics, street characters, villagers, the guide and shop counters can stand close
   // together, so Use goes to whichever is nearest; everything stays reachable.
   const away = (p) => (p ? Math.hypot(player.pos.x - p.pos.x, player.pos.z - p.pos.z) : Infinity);
@@ -1045,6 +1045,18 @@ async function start() {
     carried.mesh.position.set(player.pos.x + f.x * 0.75, player.y + player.eye - 0.75, player.pos.z + f.z * 0.75);
     carried.mesh.rotation.y = player.yaw;
   }
+  function nearestGroundItem(){
+    const f=player.forward();
+    return itemSpots.filter(sp=>{
+      const dx=sp.pos.x-player.pos.x,dz=sp.pos.z-player.pos.z,d=Math.hypot(dx,dz);
+      return d<=ITEM_REACH && (d<1.2 || (dx*f.x+dz*f.z)/d>.2) && clearItemPath({...sp.pos,location:itemLocation()});
+    }).sort((a,b)=>away(a)-away(b))[0]||null;
+  }
+  function takeGroundItem(spot){
+    const me=life.civic.player,result=pickupItem(me,spot.itemId,itemActor(),clearItemPath);
+    if(result.ok && !equippedType(me))equip(me,result.id);
+    frameItems();status(result.message);if(result.ok)persistItems();
+  }
   function use() {
     if (carried) { putDown(); return; }
     if(driving.driving){status(driving.exit());return;}
@@ -1054,6 +1066,7 @@ async function start() {
       else status('There is no clear space to stand. Move the furniture or try again.');
       return;
     }
+    if(mode==='house' && nearestGroundItem()){takeGroundItem(nearestGroundItem());return;}
     if (mode === 'town') {
       if(nearTownSeat && player.sit(nearTownSeat,world)){
         status('Sitting on '+nearTownSeat.label+'. Look around; move, jump or use to stand.');
@@ -1062,11 +1075,7 @@ async function start() {
       const treasure = expedition.nearby(player.pos), treasureD = away(treasure), npcD = away(nearNPC), personD = away(nearPerson);
       if (treasure && treasureD <= npcD && treasureD <= personD) { expedition.use(player.pos); ambience.relic(); return; }
       if (nearNPC && npcD <= personD) { input.releaseMouse(); closePanel(); $('npc-roster').hidden = true; npcChat.show(nearNPC.npc, null); input.reset(); return; }
-      if (nearPerson?.spot?.item) {
-        const me = life.civic.player, sp = nearPerson.spot; me[sp.found] = true;
-        const id = addItem(me, sp.item); if (!equippedType(me)) equip(me, id);
-        status('You pick up a torch and hold it. Press F (or open 🎒 Bag) to switch it on.'); return;
-      }
+      if (nearPerson?.spot?.itemId) { takeGroundItem(nearPerson.spot); return; }
       if (nearPerson?.spot?.market) { openPanel(stallPanel(life, nearPerson.spot.market, (id, i) => buyAtStall(life, id, i)), guideSpot); return; }
       if (nearPerson?.spot?.id === 'square') {   // an open square, not a building: the market notice and the latest town news
         const notice = marketNotice(life.day, life.minute), clean = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -1481,11 +1490,13 @@ async function start() {
       };
       for (const p of townLife.people) if (!p.v.inside) consider(p, 2.6);
       // As keen as the torch beside it, so facing Wren talks to Wren (the torch used to win every time).
-      consider(guideSpot, 2.6, 2.0);
+      // Keep Wren selectable when facing her, without stealing the pickup cue for the nearby torch.
+      // At the starter's pickup pose a 2.0 bonus wrongly outranked the closer, directly faced item.
+      consider(guideSpot, 2.6, 1.2);
       // A shop door you are facing wins over a villager walking past or queuing beside it.
       for (const sp of townLife.spots) consider({ ...sp, spot: sp }, 3.2, 1.5);
       if (market.root.visible) for (const sp of market.spots) consider({ ...sp, spot: sp }, 3.6, 2.0);
-      for (const sp of itemSpots) if (!life.civic.player[sp.found]) consider({ ...sp, spot: sp }, 2.6, 2.0);
+      for (const sp of itemSpots) if(clearItemPath({...sp.pos,location:'town'}))consider({ ...sp, spot: sp }, ITEM_REACH, 0);
       nearTownSeat = !overview&&!driving.driving ? nearestSeat(townLife.seats,player.pos,player.forward(),2.4) : null;
       nearCar = !overview&&!driving.driving ? driving.nearest() : null;
       nearHouse = null; let best = 6;
@@ -1612,6 +1623,8 @@ async function start() {
         const who = nearThing?.person && inside.people?.find((p) => p.key === nearThing.key);
         if (player.seated) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — Stand up · Move or jump to stand`;
         else if (nearThing && !carried) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — ${nearThing.act?.do==='sit'?'Sit on ':nearThing.act?.do==='pickup'?'Pick up ':''}${nearThing.label}${who ? ` · ${who.activity}` : ''}`;
+        const groundItem=nearestGroundItem();
+        if(groundItem && !carried && !player.seated && !panelOpen && !npcChat.isOpen()){$('prompt').hidden=false;$('prompt').textContent=`${input.touch?'Tap ✋':'Press E'} — ${groundItem.label}`;}
         if (input.consume('use')) use();
         // An exit action can dispose the interior during this frame. Keep the town loop alive.
         if(inside){
@@ -1718,16 +1731,25 @@ async function start() {
     // Stands the player 1.6 m in front of an exhibit, facing it, so the test then presses Use.
     approach(key) {
       const x = inside?.interactables.find((i) => i.key === key); if (!x) return false;
-      const c = new THREE.Vector3((inside.rooms[x.room].x0 + inside.rooms[x.room].x1) / 2, 0, (inside.rooms[x.room].z0 + inside.rooms[x.room].z1) / 2);
+      const room=inside.rooms.find(r=>x.pos.x>r.x0&&x.pos.x<r.x1&&x.pos.z>r.z0&&x.pos.z<r.z1)||inside.rooms[x.room];
+      const c = new THREE.Vector3((room.x0 + room.x1) / 2, 0, (room.z0 + room.z1) / 2);
       const dir = c.clone().sub(x.pos); dir.y = 0; if (dir.length() < 0.01) dir.set(0, 0, 1); dir.normalize();
-      for (const dist of [1.6, 1.9, 1.3, 2.2]) {
-        for (const turn of [0, 0.5, -0.5, 1, -1]) {
+      // Prefer the target's own room: a pose through an open doorway can lose
+      // its prompt when that door closes or the resident changes rooms.
+      for(const sameRoom of [true,false]){
+      for (const dist of [1.6, 1.9, 1.3, 2.2, 0.9, 0.7]) {
+        for (const turn of [0, 0.5, -0.5, 1, -1, 1.5, -1.5]) {
           const v = dir.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), turn);
           const p = x.pos.clone().addScaledVector(v, dist);
+          if(sameRoom&&!(p.x>room.x0+.05&&p.x<room.x1-.05&&p.z>room.z0+.05&&p.z<room.z1-.05))continue;
+          const ex=inside.exitZone,rear=inside.rearExitZone;
+          if(ex&&Math.abs(p.x-(ex.x0+ex.x1)/2)<1.55&&p.z>inside.rooms[0].z1-1.3)continue;
+          if(rear&&p.x>rear.x0&&p.x<rear.x1&&p.z<rear.z1)continue;
           const yaw = Math.atan2(-(x.pos.x - p.x), -(x.pos.z - p.z));
           const fwd = new THREE.Vector3(-Math.sin(yaw), 0, -Math.cos(yaw));
           if (!world.hits(p.x, p.z, player.radius + 0.05) && pickNear(p, fwd) === x) { player.place(p.x, p.z, yaw); return true; }
         }
+      }
       }
       return false;
     },
@@ -1765,6 +1787,7 @@ async function start() {
     meetGuide() { if (mode === 'house') leave(false); player.place(town.guidePos.x, town.guidePos.z + 1.6, 0); return 'guide'; },
     goPlace,
     driveDashboard:()=>drivingDashboard.getState(),
+    groundItems:()=>groundItems(life.civic.player).map(i=>({...i})),
     inventory:()=>{const me=life.civic.player;return {items:(me.items||[]).map(i=>i.type),held:equippedType(me),torchOn:torchLit(me),light:torchLight.intensity};},
     market:()=>({standing:market.root.visible,spots:market.spots.map(s=>({key:s.key,x:s.pos.x,z:s.pos.z,label:s.label}))}),
     roadSigns:()=>roadSigns.signs.map(({type,x,z,yaw})=>({type,x,z,yaw})),
@@ -1783,7 +1806,7 @@ async function start() {
     leaveVehicle:()=>driving.exit(),
     // A fixed step behaves like a real frame, including showing the driving message (off-road, braking).
     stepVehicle:(seconds)=>{const moved=driving.update(seconds);if(driving.message){status(driving.message);driving.clearMessage();}return moved;},
-    shops:()=>[...life.places.values()].map(p=>({id:p.id,name:p.name,kind:p.kind,side:p.side||'north',expansion:!!p.expansion,door:{x:p.x,z:p.door.z}})),
+    shops:()=>[...life.places.values()].map(p=>({id:p.id,name:p.name,kind:p.kind,side:p.side||null,expansion:!!p.expansion,door:{x:p.x,z:p.door.z}})),
     enterShop,
     residentStyle:(id)=>{ if(id){ townLife.residentModels.setStyle(id); renderResidentStyles(); } return { style: townLife.residentModels.style(), ready: townLife.residentModels.ready(), wearing: townLife.residentModels.wearing() }; },
     residentStyleReady:()=>townLife.residentModels.whenReady(),
@@ -1803,6 +1826,7 @@ async function start() {
       return true;
     },
     exitShop:()=>{if(!inside?.place)return false;leave();return true;},
+    visitorRoutes:()=>[...(inside?.visitors?.entries?.values()||[])].map(p=>({id:p.v.id,state:p.state,next:p.next,pos:{x:p.pos.x,z:p.pos.z},landing:p.landing,goal:p.retryGoal,route:p.route,seat:p.seat?.key,queueSlot:p.queueSlot,exit:p.exit})),
     life: {
       ledger: () => life.ledger(), describe: (i) => life.describe(life.villagers[i]),
       // Jumps the clock (tests): everyone re-plans their day from scratch.
