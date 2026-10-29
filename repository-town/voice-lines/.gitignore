@@ -1,0 +1,3 @@
+# Unreviewed paid audio must not be committed or deployed automatically.
+generated/
+generated-manifest.json
