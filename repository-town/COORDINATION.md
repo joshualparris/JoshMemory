@@ -17,6 +17,9 @@ Newest first. Times in Australia/Sydney.
 
 ## In progress
 
+- 2026-10-29 · Codex Work — USER-AUTHORISED TAKEOVER: finish PR audit #278/#279/#281. Branch `integration/finish-pr-audit-20261029`; baseline main `75dc6e06a205797855b8af6110005c5fac277af5`. Preserve all three original branches and reconcile their actual changes into reviewed integration; RTD-084 (RTAC-029) regression scope only, first-day quest/performance and existing playtest fixes, not wider roadmap completion. Paths: existing PR paths plus focused `tests/woodlot-rack-browser.mjs` retry/state assertions and input only if duplication reproduces; coordination/checkpoint and audit provenance. Excludes new audio, unrelated features, mirrors and other projects. Required full release/privacy, browser desktop/phone, exact production fingerprint and hosted checks. Start checkpoint follows before implementation.
+
+
 - 2026-10-29 · ChatGPT — CLAIMED RTD-047/048/049/078 (scripts/casting/import preparation ONLY; no paid generation, no audio/UI runtime claims). Baseline main fbed2e5c99ad52f62480ab3146429128bffe9dfa; branch feat/rtd047-049-npc-voice-line-roster-20261029. Files: new repository-town/voice-lines/*, new repository-town/tools/voice-lines-* and repository-town/tests/voice-lines-*. Excludes all existing voicebank.js, npc-chat.js, recorded-dialogue.js, bundled MP3s and other agents' work. Acceptance: unique namespaced actor keys, 22 distinct named cast voices, scripts covering 22 named+99 workers+89 unassigned house slots; no false ElevenLabs playback claims. On approval, actual audio generation/import/hosted tests separately. Checkpoint: WORK_CHECKPOINT.md.
 
 
