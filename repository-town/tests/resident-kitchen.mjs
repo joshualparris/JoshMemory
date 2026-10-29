@@ -9,7 +9,23 @@ import { loadBriefs, loadInventory, toHouse, sanitise } from '../tools/lib.mjs';
 import { mergeDiscovery } from '../tools/merge-discovery.mjs';
 import { buildInterior } from '../src/world/interior.js';
 import { CollisionWorld } from '../src/engine/collision.js';
-import { houseWander, rankKitchens, freeSpot } from '../src/world/npcs.js';
+import { houseWander, rankKitchens, freeSpot, reach } from '../src/world/npcs.js';
+
+// Reproduce a room requiring several turns: no single random waypoint can
+// pass both staggered partitions. The resident must still reach the goal,
+// and every segment must keep a whole body's clearance from the furniture.
+const maze = new CollisionWorld([
+  { x0: 3, x1: 3.5, z0: 0, z1: 7 },
+  { x0: 6, x1: 6.5, z0: 3, z1: 10 },
+]);
+const route = reach({ x0: 0, x1: 10, z0: 0, z1: 10 }, maze, { x: 1.2, z: 1.2 }, { x: 8.8, z: 8.8 });
+assert.ok(route?.length > 2, 'resident routes around both staggered partitions');
+let previous = { x: 1.2, z: 1.2 };
+for (const point of route) {
+  const n = Math.ceil(Math.hypot(point.x - previous.x, point.z - previous.z) / 0.05);
+  for (let i = 0; i <= n; i++) assert.ok(!maze.hits(previous.x + (point.x - previous.x) * i / n, previous.z + (point.z - previous.z) * i / n, 0.52), 'route never crosses furniture');
+  previous = point;
+}
 
 // Unit: ranking.
 assert.deepEqual(rankKitchens([{ type: 'coffeeMachine', room: 0 }, { type: 'stove', room: 4 }, { type: 'fridge', room: 4 }]), [4, 0]);

@@ -2,6 +2,7 @@
 // CDN calls, texture downloads, or private repository data are needed.
 import * as THREE from 'three';
 import { NPCS } from '../ui/npc-data.js';
+import { findPath } from './tap-path.js';
 
 function colour(value) { return new THREE.MeshLambertMaterial({color:value}); }
 const skin = colour(0xf1c8a1), dark = colour(0x293043), black = colour(0x161b28);
@@ -578,13 +579,27 @@ function clearLine(world, a, b) {
   return !world.hits(b.x, b.z, 0.52);
 }
 // A way from `from` to `to` inside one room: straight, or via a free point that sees both.
-function reach(room, world, from, to) {
+export function reach(room, world, from, to) {
   if (clearLine(world, from, to)) return [to];
   for (let i = 0; i < 24; i++) {
     const x = room.x0 + 0.8 + Math.random() * (room.x1 - room.x0 - 1.6), z = room.z0 + 0.8 + Math.random() * (room.z1 - room.z0 - 1.6), p = { x, z };
     if (clearLine(world, from, p) && clearLine(world, p, to)) return [p, to];
   }
-  return null;
+  // Some furnished rooms require more than one turn. Random two-segment
+  // guesses can never find those routes, leaving residents outside the
+  // kitchen even after repeated dinner plans. Reuse the bounded, collision-
+  // aware walking planner as a fallback, keeping the full-body clearance.
+  const blocked = (x, z) => x < room.x0 + 0.52 || x > room.x1 - 0.52 ||
+    z < room.z0 + 0.52 || z > room.z1 - 0.52 || world.hits(x, z, 0.52);
+  const path = findPath(from, to, blocked, { maxNodes: 1600 });
+  if (!path) return null;
+  const result = [...path, to];
+  let previous = from;
+  for (const point of result) {
+    if (!clearLine(world, previous, point)) return null;
+    previous = point;
+  }
+  return result;
 }
 function freePoint(room, world, from, tries = 12) {
   for (let i = 0; i < tries; i++) {
