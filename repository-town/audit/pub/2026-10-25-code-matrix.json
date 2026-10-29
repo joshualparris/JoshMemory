@@ -19,7 +19,7 @@
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "5b85b88b6522d6c2fbb7d972a07f7e2570b75260",
+    "repository-town/src/main.js": "0a8606fbca469d4b39f04d2376668d2339e45ef1",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -993,6 +993,15 @@
       ],
       "finding": "Playtest fixes: bag-line naming for hardware materials and plural goods (life.js), south-side door prompt wording by kind (townlife.js); no pub geometry, egress, services or regulatory classification changes.",
       "evidence": "Source review; tests/bag-labels.mjs, hunger-sleep-hotel.mjs, browser playtest sweep of all 118 places on desktop and Android. Records provenance only, does not certify the pub."
+    },
+    {
+      "date": "2026-10-29",
+      "by": "Claude",
+      "changedFiles": [
+        "repository-town/src/main.js"
+      ],
+      "finding": "First-day quest card and perf readout added to main.js (HUD only); skills.js counts logs cut/sold. No pub interior, menu, staffing or service changes.",
+      "evidence": "node tests/first-day.mjs; node tests/perf-meter.mjs; node tests/skills.mjs; hud-visibility and mobile-driving browser tests pass"
     }
   ]
 }
