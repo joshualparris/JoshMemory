@@ -34,8 +34,8 @@ const source=readFileSync(new URL('../src/ui/townpanels.js',import.meta.url),'ut
 const goods={bread:{name:'bread',price:5},pie:{name:'pie',price:8},roast:{name:'roast',price:18}};
 const cafeMenu=[{id:'coffee',name:'Coffee',category:'Drinks',price:4},{id:'tea',name:'Tea',category:'Drinks',price:3}];
 const fixtureAccess = (town, p) => ({ allowed: town.open(p) && town.villagers.some(v => workingAt(v, p.id, p)), reason: town.open(p) ? 'unstaffed' : 'closed' });
-const panels=new Function('GOODS','VENUE_MENU','CAFE_MENU','cafeAvailable','workingAt','shopService','esc','amount','timeText','JOB_BOARD','COUNTERS','lineAt','pendingOrders','facilityAccess','visitorHours','pubStandards','pubStandardsAction','pubStandardsPanel',source+'\nreturn placePanel;')(
-  goods,{pub:{roast:{}}},cafeMenu,(p,item)=>item.id==='coffee',workingAt,shopService,String,(g,n)=>n+' '+g,String,[],COUNTERS,lineAt,pendingOrders,fixtureAccess,(p)=>[p.opens,p.closes],pubStandards,pubStandardsAction,pubStandardsPanel);
+const panels=new Function('servicesFor','serviceBlock','useService','GOODS','VENUE_MENU','CAFE_MENU','cafeAvailable','workingAt','shopService','esc','amount','timeText','JOB_BOARD','COUNTERS','lineAt','pendingOrders','facilityAccess','visitorHours','pubStandards','pubStandardsAction','pubStandardsPanel',source+'\nreturn placePanel;')(
+  ()=>[],()=>null,()=>'',goods,{pub:{roast:{}}},cafeMenu,(p,item)=>item.id==='coffee',workingAt,shopService,String,(g,n)=>n+' '+g,String,[],COUNTERS,lineAt,pendingOrders,fixtureAccess,(p)=>[p.opens,p.closes],pubStandards,pubStandardsAction,pubStandardsPanel);
 const site={id:'store',name:'General Store',kind:'shop',opens:480,closes:1080,stock:{bread:4,pie:2},out:{},target:{bread:8},sells:['bread'],till:0};
 let open=false;
 const town={place:()=>site,open:()=>open,time:()=>open?'10:00':'23:00',villagers:[worker],civic:{player:{wallet:20,bank:40,bag:{bread:1}}},needsReport:()=>({hunger:0,fatigue:0}),menuAvailability:()=>true};
