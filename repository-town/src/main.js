@@ -62,7 +62,7 @@ import { npcBehaviour } from './ui/npc.js';
 import { sceneFromRoom } from './ui/scene-awareness.js';
 import { mountNPCChat } from './ui/npc-chat.js';
 import { mountTownYarns } from './ui/yarns.js';
-import { makePerson, Walker, houseWander, freeSpot, placeTownNPCs, animateNPCs, initialiseNPCWorksites } from './world/npcs.js';
+import { makePerson, Walker, houseWander, rankKitchens, freeSpot, placeTownNPCs, animateNPCs, initialiseNPCWorksites } from './world/npcs.js';
 import {makeDistinctPerson} from './world/npc-wardrobe.js';
 import { separatePedestrians, steerPedestrians } from './world/pedestrian-spacing.js';
 import { createTownLife } from './world/townlife.js';
@@ -545,7 +545,7 @@ async function start() {
     world = new CollisionWorld(built.colliders);
     // Residents move between rooms, and cook in the kitchen (if the house has one) at mealtimes;
     // the interactable shares their position and tracks the room they are in.
-    const kitchens = [...new Set(built.placedProps.filter((p) => ['stove', 'fridge', 'pantry', 'coffeeMachine'].includes(p.type)).map((p) => p.room))];
+    const kitchens = rankKitchens(built.placedProps, built.rooms);
     inside.people = built.walkers.map((w, i) => {
       freeSpot(w.pos, world);
       const model=w.act?.isCareStaff?makeDistinctPerson('care-employee:'+w.act.id):makePerson(coord.charCodeAt(0) + i * 7, w.act.c ?? 0x3f6fb5, w.act.a ?? 0x2f3440);

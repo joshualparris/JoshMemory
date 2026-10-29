@@ -594,6 +594,21 @@ function freePoint(room, world, from, tries = 12) {
   return null;
 }
 
+// Rooms a resident can cook in, best first: a stove beats a fridge or pantry, which
+// beats a coffee machine; a room named Kitchen wins ties. A themed exhibit room with a
+// coffee machine (Y5's "Menu Wall") must not outrank the household's real kitchen.
+const COOKING_RANK = { stove: 0, fridge: 1, pantry: 1, coffeeMachine: 2 };
+export function rankKitchens(placedProps, rooms = []) {
+  const best = new Map();
+  for (const p of placedProps) {
+    const r = COOKING_RANK[p.type];
+    if (r === undefined || !Number.isInteger(p.room)) continue;
+    if (!best.has(p.room) || r < best.get(p.room)) best.set(p.room, r);
+  }
+  const named = (i) => /kitchen/i.test(rooms[i]?.name || '') ? 0 : 1;
+  return [...best.keys()].sort((a, b) => best.get(a) - best.get(b) || named(a) - named(b) || a - b);
+}
+
 // Indoor plan: residents potter about their room, wander through doorways to other rooms,
 // head for the kitchen at mealtimes and sit still late at night. `links` are the house's
 // internal doorways ({ rooms: [a, b], axis, at, c }); `clock()` gives the town minute;
@@ -621,7 +636,9 @@ export function houseWander(rooms, links, world, clock, kitchens = []) {
     w.activity = night ? 'dozing in an armchair' : meal ? (m < 600 ? 'making breakfast' : m < 900 ? 'making lunch' : 'cooking dinner') : 'pottering about';
     if (night) return [{ x: w.pos.x, z: w.pos.z, pause: 30 }];
     let goal = w.room;
-    if (meal && kitchens.length && !kitchens.includes(w.room)) goal = kitchens[0];
+    // kitchens is ranked best first (rankKitchens): cook in the best one, not
+    // whichever cooking-capable room the resident happens to be standing in.
+    if (meal && kitchens.length && w.room !== kitchens[0]) goal = kitchens[0];
     else if (!meal && links.length && Math.random() < 0.3) { const ls = links.filter((l) => l.rooms.includes(w.room)); const l = ls[Math.floor(Math.random() * ls.length)]; if (l) goal = l.rooms[0] === w.room ? l.rooms[1] : l.rooms[0]; }
     if (goal === w.room) { const p = freePoint(rooms[w.room], world, w.pos); return p ? [{ ...p, pause: meal ? 8 + Math.random() * 8 : 2 + Math.random() * 5 }] : []; }
     const steps = route(w.room, goal);
