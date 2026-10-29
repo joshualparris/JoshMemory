@@ -28,9 +28,13 @@ try{
    await page.waitForFunction(id=>window.__recordingsPlayed.some(u=>u.endsWith('/'+id+'.mp3')),clip.id,{timeout:15000});
    await message.locator('button.town-voice-button').click();
   }
-  // Closing a conversation is idempotent. An already-hidden modal has no
-  // visible Close button for Playwright to click; don't hang for 30 seconds.
-  if(await page.locator('#npc-chat').isVisible())await page.locator('#npc-close').click();
+  // Closing is idempotent. The NPC Lounge (people.html) keeps the conversation as a
+  // persistent side panel with no close control (npc.css hides #npc-close there), so
+  // only click Close when the page actually offers it; never wait for a hidden button.
+  if(await page.locator('#npc-close').isVisible())await page.locator('#npc-close').click();
+  else if(await page.locator('#npc-chat').isVisible())
+    assert(await page.evaluate(()=>document.body.classList.contains('npc-lounge')),
+      'An open conversation outside the NPC Lounge must offer a visible Close control');
   else assert.notEqual(await page.locator('#npc-chat').getAttribute('hidden'),null,
     'Chat close control hidden while the conversation is still open');
  }
