@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import { buildCivicInterior,CIVIC_INTERIOR_IDS } from '../src/world/shop-interior.js';
+// Furnishing count: every placed object, with instanced stock (one mesh, many items) counted per item.
+const richness=(g)=>g.children.reduce((n,o)=>n+(o.isInstancedMesh?o.count:1),0);
 const label=()=>new THREE.Sprite(new THREE.SpriteMaterial());
 assert(CIVIC_INTERIOR_IDS.length>=20,'at least 20 facility styles');
 for(const id of CIVIC_INTERIOR_IDS){
@@ -39,7 +41,7 @@ for(const id of CIVIC_INTERIOR_IDS){
     }
     assert(!hits(room.staff.use.x,room.staff.use.z,.3),id+' staff can be reached');
     assert(room.windows.length>=4,id+' windows look out on the street');
-    assert(room.group.children.length>300,id+' is richly furnished');
+    assert(richness(room.group)>300,id+' is richly furnished');
     room.group.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material?.dispose)o.material.dispose();});
   };
   if(id==='fire'){
@@ -135,7 +137,7 @@ for(const id of CIVIC_INTERIOR_IDS){
     // Researched bakery: counter, pastry case, kitchen view, bread wall and café corner.
     for(const k of ['counter','pastries','kitchen','breadwall','cafe'])assert(room.interactables.some(x=>x.key==='bakery:'+k),'bakery '+k);
     assert.equal(room.sceneObjects.length,room.interactables.length,'bakery scene-aware objects');
-    assert(room.group.children.length>400,'bakery is richly furnished');
+    assert(richness(room.group)>400,'bakery is richly furnished');
     // Every hotspot must be reachable on foot and clear of furniture.
     for(const x of room.interactables){const hit=room.colliders.some(c=>x.pos.x>c.x0-0.35&&x.pos.x<c.x1+0.35&&x.pos.z>c.z0-0.35&&x.pos.z<c.z1+0.35);assert.equal(hit,false,'bakery hotspot '+x.key+' is clear');}
     assert(room.staff.pos.z<room.staff.use.z,'baker stands behind the counter');
@@ -147,7 +149,7 @@ for(const id of CIVIC_INTERIOR_IDS){
     // Researched bank branch: counter, ATM, advice desks, private office, vault, waiting area.
     for(const k of ['counter','atm','advice','loans','vault','lounge'])assert(room.interactables.some(x=>x.key==='bank:'+k),'bank '+k);
     assert.equal(room.sceneObjects.length,room.interactables.length,'bank scene-aware objects');
-    assert(room.group.children.length>300,'bank is richly furnished');
+    assert(richness(room.group)>300,'bank is richly furnished');
     for(const x of room.interactables){const hit=room.colliders.some(c=>x.pos.x>c.x0-0.35&&x.pos.x<c.x1+0.35&&x.pos.z>c.z0-0.35&&x.pos.z<c.z1+0.35);assert.equal(hit,false,'bank hotspot '+x.key+' is clear');}
     assert(room.staff.pos.z<room.staff.use.z,'teller stands behind the counter');
     assert(room.staff.pos.z<-5.95,'teller is behind the counter line');
@@ -158,7 +160,7 @@ for(const id of CIVIC_INTERIOR_IDS){
     // Researched dedicated interiors: full-width counter, staff behind it, hotspots clear of furniture.
     assert(room.interactables.length>=4,id+' has several interactive features');
     assert.equal(room.sceneObjects.length,room.interactables.length,id+' scene-aware objects');
-    assert(room.group.children.length>250,id+' is richly furnished');
+    assert(richness(room.group)>250,id+' is richly furnished');
     assert(room.staff&&room.staff.pos.z<room.staff.use.z,id+' staff stands behind the counter');
     for(const x of room.interactables){const hit=room.colliders.some(c=>x.pos.x>c.x0-0.35&&x.pos.x<c.x1+0.35&&x.pos.z>c.z0-0.35&&x.pos.z<c.z1+0.35);assert.equal(hit,false,id+' hotspot '+x.key+' is clear');}
   } else {
@@ -173,7 +175,7 @@ for(const id of CIVIC_INTERIOR_IDS){
     assert.equal(hit,false,id+' aisle is traversable at '+JSON.stringify(p));
   }
   assert(room.interactables.some(x=>x.act.do==='civic-ledger'),id+' ledger counter');
-  assert(room.group.children.length>20,id+' has furnished meshes');
+  assert(richness(room.group)>20,id+' has furnished meshes');
   room.group.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material?.dispose)o.material.dispose();});
 }
 console.log('PASS: '+CIVIC_INTERIOR_IDS.length+' civic/farm/shop interiors, including a 10-area farmhouse');

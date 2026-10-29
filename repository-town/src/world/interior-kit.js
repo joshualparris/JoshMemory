@@ -130,3 +130,16 @@ export function createKit(site, makeLabel, roomTitle) {
   };
   return { THREE, group, colliders, interactables, sceneObjects, placedProps, mat, geo, put, model, box, cyl, ball, torus, blocker, solid, text, add, seat, shell, finish };
 }
+
+// Printed sign lettering on a plane (always readable, unlike hover labels). Skipped without a DOM.
+export function signFace(THREE,group,words,w,h,x,y,z,bg='#1e6a3a',fg='#ffffff'){
+ if(typeof document==='undefined')return;
+ const c=document.createElement('canvas');c.width=512;c.height=Math.round(512*h/w);
+ const g=c.getContext('2d');if(!g)return;
+ g.fillStyle=bg;g.fillRect(0,0,c.width,c.height);g.fillStyle=fg;
+ g.font='bold '+Math.round(c.height*.52)+'px system-ui, sans-serif';g.textAlign='center';g.textBaseline='middle';
+ g.fillText(words,c.width/2,c.height/2,c.width*.94);
+ const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;
+ const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:t}));
+ m.position.set(x,y,z);m.name='sign-face';group.add(m);
+}

@@ -176,6 +176,25 @@ Newest first. Times in Australia/Sydney.
 
 ## Done
 
+- 2026-10-29 · Claude — **Realism where players go: hardware, general store, shared office template** (branch `feat/realism-hardware-store-20261029`).
+  - **Central West Hardware & Timber** (`trade-education-interiors.js` `hardwareStore`) is rebuilt as a regional "hardware and timber" store:
+    - the garden display and the paint tin wall with tinting desk are by the door;
+    - four double-sided gondolas, with printed hanging aisle signs, line each side of a 3.9 m main aisle;
+    - the staffed trade & timber counter is at the back right (staff behind at z −9.65), with fastener drawers and a key cutter;
+    - the timber-yard cantilever rack and log stack are beside it (the first-day quest sells logs here), with the roller door for goods receiving;
+    - side-wall pegboards are hung with tools.
+  - **General Store:**
+    - each gondola's two opaque 5.4 m side panels hid all of its stock; a thin centre spine replaces them, and the collider is unchanged;
+    - stock is now two instanced meshes, so the room has **231 meshes instead of 741** with denser shelves;
+    - printed aisle signs and stocked Specials end-caps added.
+  - **Shared single-room template**, used by ten buildings (town hall, council, market, factory, farm office, park, square, security HQ and office, locksmith):
+    - a panelled counter with a staff PC, card terminal and brochure stand, and a queue rope;
+    - open steel shelving with instanced binders and boxes;
+    - a waiting area (chairs, plant, water cooler), plus framed notices and a clock on the back wall's inner face.
+  - New `signFace()` in `interior-kit.js` paints readable sign lettering.
+  - `tests/shop-interiors.mjs` now counts instanced items in its "richly furnished" checks.
+  - Not changed: the café, bank and pub (already researched and convincing; the pub is audited).
+
 - 2026-10-28 · Codex — SOURCE FIX COMPLETE / MERGE BLOCKED: PR #261 fixes stale touch movement/look and mouse drag surviving menu/reset/blur in `src/engine/input.js`; regression added to `test:browser`. Baseline fails; corrected desktop/phone DOM gesture tests pass. Streets 7/8 both footpaths keyboard-walked end-to-end, zero problems (avenues/other streets not included). Fire/power door + 35 exhibits + exits passed, no page errors. Full local `npm run build:release` passed including privacy/integrity. A1 desktop/touch exhibit round trips passed, but overall e2e RED (run-speed assertion + 8 ERR_EMPTY_RESPONSE resources). Remote complete-browser gate RED at café order-taking; original input replay also failed café delivery waiting forever for Ivo to sit. No fix to café/world claimed. Remains draft/unmerged and not deployed; checkpoint records exact evidence.
 
 - 2026-10-26 · ChatGPT — **VERIFIED MERGED AND LIVE RTBUILD-068 M5-N cemetery office**. [PR #239](https://github.com/joshualparris/JoshMemory/pull/239) squash-merged to main commit `bbe42b60916ef0f5ddc772c3a43be2e1345acd36`. Researched NSW cemetery reception with true 12×9m fictional footprint, pitched roof/verandah/landscape, physically walkable public reception, private family room and records room, eight safe info points, no actual deceased records or grave plots. All five 28-day simulations, full town safety/release/privacy gate, Android emulation, heritage and recorded desktop/Android-size WebGL door round trip **passed** at integration SHA `5006c0d610931e3fc906f37d9aff1da10ba89c87`. Production Vercel deployment `dpl_GgoMheDGk6haXuKGY4PTxh8Cwohb` **READY**, public alias `repository-town-claude-complete.vercel.app` resolves to exact merged SHA. Separate existing pub-audit-current source-hash gate red due unrelated historical changes (not modified here). No real-world cemetery certification or physical-handset claim. Research and exclusions `docs/M5_CEMETERY_OFFICE_REALISM_2026-10-26.md`.
