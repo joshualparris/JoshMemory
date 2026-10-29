@@ -11,7 +11,7 @@
   "sourceBlobs": {
     "repository-town/audit/electricity/coverage.json": "f80df771b893799e27b3adc98b92fe335c13f28b",
     "repository-town/src/world/interior-kit.js": "476414298879b8a8f80546ffc8c302b7778aa6ed",
-    "repository-town/src/world/life.js": "88b8a536a60dd96fdff12cc34b5740db43cb42d1",
+    "repository-town/src/world/life.js": "abe2085542a4f5960dac399bd961389f4e64502a",
     "repository-town/src/world/power-grid.js": "6de3f54d8fe576117594fe36124748e36da4e255",
     "repository-town/src/world/pub-interior.js": "46396a0552d2480f3c31585e77199803433ab6b6",
     "repository-town/src/world/shop-interior.js": "a558de8daf279c89b2c0cbd3ab874b8bd0960546",
@@ -19,7 +19,7 @@
     "repository-town/tests/shop-interiors.mjs": "0ca369aa2d241c152edb841c1125aa9319241a0d",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "5b85b88b6522d6c2fbb7d972a07f7e2570b75260",
+    "repository-town/src/main.js": "a8749235e538376e95c303a7ee40ad7689a59baf",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -493,7 +493,7 @@
       "priority": "P0",
       "status": "partially-represented",
       "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
-      "requiredEvidenceOrWork": "Establish actual number of usable floors; if a real upper storey exists design stairs/access and consider fire compartmentation and egress, or treat façade as explicitly decorative",
+      "requiredEvidenceOrWork": "Establish actual number of usable floors; if a real upper storey exists design stairs/access and consider fire compartmentation and egress, or treat fa\u00e7ade as explicitly decorative",
       "regulationRefs": [
         "S02"
       ],
@@ -1022,6 +1022,16 @@
       ],
       "finding": "Shared single-room template furnished (counter fittings, shelving, waiting area) on top of the staffed counters; shop-interiors counts instanced items. Pub builder, menu, staffing and service untouched.",
       "evidence": "node tests/shop-interiors.mjs, staffed-counters.mjs, hotel-lobby.mjs PASS after merging main"
+    },
+    {
+      "date": "2026-10-29",
+      "by": "Codex Work",
+      "changedFiles": [
+        "repository-town/src/world/life.js",
+        "repository-town/src/main.js"
+      ],
+      "finding": "Reviewed three-PR consolidation: overlay exclusivity/Escape and first-day/performance hooks in main; supermarket stock routing in life. Pub envelope, safety predicates, menu, service effects and clinical/compliance status unchanged. Existing pub tests remain mandatory; no compliance certification.",
+      "evidence": "Original feature commits preserved; test:release running; pub audit and full release/browser gates required before merge."
     }
   ]
 }

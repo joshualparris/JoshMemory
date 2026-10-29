@@ -97,6 +97,8 @@ export const EXPANSION_SITES=Object.freeze([
     "priority": "P1",
     "staffRole": "supermarket cashier",
     "description": "Compact independent supermarket",
+    "sells": ["eggs", "milk", "flour", "bread", "veg", "fruit", "tea", "coffee"],
+    "target": { "eggs": 8, "milk": 8, "flour": 6, "bread": 6, "veg": 8, "fruit": 8, "tea": 4, "coffee": 4 },
     "opens": 480,
     "closes": 1050,
     "expansion": true,

@@ -29,9 +29,16 @@ export class Input {
 
   bindKeyboard() {
     addEventListener('keydown', (e) => {
-      if (e.target.closest?.('input, textarea, select, button, a, [contenteditable]')) return;
       const k = String(e.key ?? '').toLowerCase();
       if (!k) return;
+      // Clicking a HUD button leaves focus on it, and that must not swallow Esc:
+      // otherwise Settings, the Quest Journal and Yarns cannot be closed by keyboard.
+      // Esc from text fields stays with the field (search boxes clear themselves).
+      if (k === 'escape' && !e.target.closest?.('input:not([type=range]):not([type=checkbox]):not([type=radio]), textarea, select, [contenteditable]')) {
+        if (document.pointerLockElement !== this.canvas) this.pressed.add('back');
+        return;
+      }
+      if (e.target.closest?.('input, textarea, select, button, a, [contenteditable]')) return;
       if (!this.keys.has(k)) {
         if (k === ' ') this.pressed.add('jump');
         if (k === 'e' || k === 'f' || k === 'enter') this.pressed.add('use');
@@ -105,7 +112,7 @@ export class Input {
     const start = (e) => {
       for (const t of e.changedTouches) {
         const kind = t.clientX < innerWidth * 0.45 ? 'move' : 'look';
-        touches.set(t.identifier, { kind, x0: t.clientX, y0: t.clientY, x: t.clientX, y: t.clientY, t0: performance.now(), moved: 0 });
+        touches.set(t.identifier, { kind, x0: t.clientX, y0: t.clientY, x: t.clientX, y: t.clientY, moved: 0 });
         if (kind === 'move') { stickEl.style.left = t.clientX - 55 + 'px'; stickEl.style.top = t.clientY - 55 + 'px'; stickEl.classList.add('on'); }
       }
       e.preventDefault();
@@ -127,8 +134,9 @@ export class Input {
       for (const t of e.changedTouches) {
         const s = touches.get(t.identifier); touches.delete(t.identifier);
         if (s?.kind === 'move') { this.stick.x = 0; this.stick.y = 0; knob.style.transform = ''; stickEl.classList.remove('on'); }
-        // A quick, still tap on the view side is tap-to-walk (main.js); a drag only looks around.
-        if (s?.kind === 'look' && e.type === 'touchend' && s.moved < 12 && performance.now() - s.t0 < 350) this.taps.push({ x: t.clientX, y: t.clientY });
+        // A stationary release acts like a mouse click. Frame stalls must not
+        // silently discard it; drags, joystick touches and cancellation never walk.
+        if (s?.kind === 'look' && e.type === 'touchend' && s.moved < 12) this.taps.push({ x: t.clientX, y: t.clientY });
       }
     };
     canvas.addEventListener('touchstart', start, { passive: false });

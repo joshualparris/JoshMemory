@@ -93,7 +93,11 @@ for (let n = 0; n < 40 && (ticket = await ticketOf(id)).state !== 'ready'; n++) 
   if (/kitchen station/i.test(await status())) station = 'kitchen'; else if (/barista station/i.test(await status())) station = 'barista'; else station = station === 'barista' ? 'kitchen' : 'barista';
 }
 step(ticket.state === 'ready', 'every item ready: ' + (ticket.items || []).join(' + ') + (milk ? ' · ' + ticket.milk + ' milk chosen' : '') + (art ? ' · latte art' : ''));
-await go('workplay:cafe:pass'); step(/Carrying/.test(await status()), 'collected the tray at the pass');
+await go('workplay:cafe:pass');
+// The ticket state is authoritative; the status line can be replaced a frame
+// later by another message (a customer arriving), so it is not proof alone.
+const collected = await page.waitForFunction((tid) => window.__town.state().workplay?.cafe?.tickets?.find((o) => o.id === tid)?.state === 'carrying', id, { timeout: 5000 }).then(() => true).catch(() => false);
+step(collected, 'collected the tray at the pass (ticket ' + (await ticketOf(id))?.state + ')');
 if (reloads) await reload('the carried tray');
 // Wait at the pass, clear of the customer aisle. Walking to the delivery table
 // early can physically block the patron's route to their reserved chair.

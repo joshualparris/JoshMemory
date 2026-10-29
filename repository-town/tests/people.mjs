@@ -55,8 +55,17 @@ console.log(`  meeting ${key}`);
 s = await st();
 check(/^villager:/.test(s.nearPerson || ''), `prompted to talk (${s.nearPerson})`);
 await shot('1-meet-villager');
-await page.keyboard.press('e');
-await page.waitForSelector('#panel .chat-input', { timeout: 8000 });
+let chatOpened = false;
+for (let attempt = 0; attempt < 5 && !chatOpened; attempt++) {
+  // A real commuter can leave the prompt between rendered frames. Re-approach
+  // a passer-by rather than treating an expired interaction as a game failure.
+  if (attempt) await page.evaluate((i) => window.__town.meetVillager(i), attempt);
+  await page.waitForFunction(() => /^villager:/.test(window.__town.state().nearPerson || ''), null, { timeout: 3000 }).catch(() => {});
+  await page.keyboard.down('e'); await page.waitForTimeout(120); await page.keyboard.up('e');
+  chatOpened = await page.waitForSelector('#panel .chat-input', { timeout: 3000 }).then(() => true).catch(() => false);
+}
+if (!chatOpened) throw new Error('Could not open a real nearby villager conversation after five approaches');
+s = await st();
 const title = await page.innerText('#panel-title');
 check(/lives at [A-Z]\d/.test(title), `chat opens: "${title}"`);
 const chatting = s.nearPerson;

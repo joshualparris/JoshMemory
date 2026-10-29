@@ -62,7 +62,7 @@ import { npcBehaviour } from './ui/npc.js';
 import { sceneFromRoom } from './ui/scene-awareness.js';
 import { mountNPCChat } from './ui/npc-chat.js';
 import { mountTownYarns } from './ui/yarns.js';
-import { makePerson, Walker, houseWander, freeSpot, placeTownNPCs, animateNPCs, initialiseNPCWorksites } from './world/npcs.js';
+import { makePerson, Walker, houseWander, rankKitchens, freeSpot, placeTownNPCs, animateNPCs, initialiseNPCWorksites } from './world/npcs.js';
 import {makeDistinctPerson} from './world/npc-wardrobe.js';
 import { separatePedestrians, steerPedestrians } from './world/pedestrian-spacing.js';
 import { createTownLife } from './world/townlife.js';
@@ -92,6 +92,8 @@ import { placePanel, ledgerPanel, guidePanel, needsPanel, relicsLeft, townContex
 import { openingHoursPanel } from './ui/shop-hours-panel.js';
 import { createSleepSession, sleepChoices } from './world/needs.js';
 import { createExpedition } from './adventure/expedition.js';
+import { createFirstDayTracker } from './ui/first-day-tracker.js';
+import { createPerfMeter } from './ui/perf-meter.js';
 
 const $ = (id) => document.getElementById(id);
 const status = (t) => { $('status').textContent = t; };
@@ -113,7 +115,12 @@ const fail = (e) => {
   $('loading').classList.add('error');
   $('loading-text').textContent = 'Could not start: ' + text;
 };
-addEventListener('error', (e) => fail(e.error || e.message));
+// A cross-origin script (e.g. a host toolbar on preview links) reports only
+// "Script error." with no details; it is not the game's action failing, so after
+// startup it goes to the console instead of telling the player their action failed.
+const foreignScriptError = (e) => !e?.error && (/^Script error\.?$/.test(String(e?.message || '')) ||
+  (!!e?.filename && !String(e.filename).startsWith(location.origin)));
+addEventListener('error', (e) => { if ((started || window.__town) && foreignScriptError(e)) { console.warn('Ignored error from another origin:', e.message, e.filename || ''); return; } fail(e.error || e.message); });
 addEventListener('unhandledrejection', (e) => fail(e.reason));
 
 const SKY = 0x96c9f0, INDOOR = 0x1a1612;
@@ -363,7 +370,7 @@ async function start() {
   floorBadge.setAttribute('aria-label', 'Choose a building floor');
   floorBadge.onclick = () => { if (inside?.floors) openLift(); };
   floorBadge.hidden = true; document.body.append(floorBadge);
-  const npcChat = mountNPCChat(document);
+  const npcChat = mountNPCChat(document, { getTown: () => life });
   let interactionRequest = 0;
 
   let mode = 'town', inside = null, world = townWorld, overview = false;
@@ -545,7 +552,7 @@ async function start() {
     world = new CollisionWorld(built.colliders);
     // Residents move between rooms, and cook in the kitchen (if the house has one) at mealtimes;
     // the interactable shares their position and tracks the room they are in.
-    const kitchens = [...new Set(built.placedProps.filter((p) => ['stove', 'fridge', 'pantry', 'coffeeMachine'].includes(p.type)).map((p) => p.room))];
+    const kitchens = rankKitchens(built.placedProps, built.rooms);
     inside.people = built.walkers.map((w, i) => {
       freeSpot(w.pos, world);
       const model=w.act?.isCareStaff?makeDistinctPerson('care-employee:'+w.act.id):makePerson(coord.charCodeAt(0) + i * 7, w.act.c ?? 0x3f6fb5, w.act.a ?? 0x2f3440);
@@ -1467,6 +1474,17 @@ async function start() {
     mctx.beginPath(); mctx.moveTo(0, -6); mctx.lineTo(4, 4); mctx.lineTo(-4, 4); mctx.fill(); mctx.restore();
   }
 
+  // ── First day in town: the guided first day under the minimap ───────────
+  const firstDay = createFirstDayTracker({ life, player, openPanel, closePanel, status,
+    targetPos: (t) => t.place ? townLife.placeFront(t.place) : t.spot ? woodlot.rack.pos : null,
+    insidePlaceId: () => mode === 'house' ? (inside?.place?.id ?? '') : null, suppressed: () => driving.driving });
+
+  // Performance readout (Settings, or ?perf): measures this device, for real-phone checks.
+  const perf = createPerfMeter({ renderer, details: () => ({ smooth: lowPerf, where: mode === 'house' ? 'indoors' : overview ? 'map' : 'outdoors' }) });
+  const syncPerfSetting = () => { $('settings-perf').setAttribute('aria-pressed', String(perf.on)); $('settings-perf').textContent = perf.on ? 'Hide performance readout' : 'Show performance readout'; };
+  $('settings-perf').onclick = () => { perf.set(!perf.on); syncPerfSetting(); };
+  syncPerfSetting();
+
   // ── Frame loop ───────────────────────────────────────────────────────────
   const clock = new THREE.Clock();
   let mapTimer = 0, frames = 0, fpsTimer = 0, fps = 0, prevX = player.pos.x, prevZ = player.pos.z;
@@ -1498,6 +1516,7 @@ async function start() {
     // Up to 0.15 s per frame keeps walking real-time on slow phones; collision subdivides the step.
     const raw = clock.getDelta(), dt = Math.min(raw, 0.15), t = clock.elapsedTime;
     floorDoorCooldown = Math.max(0, floorDoorCooldown - dt);
+    perf.frame(raw);
     frames++; fpsTimer += raw; if (fpsTimer > 1) {
       fps = frames / fpsTimer;
       adaptResolution(fpsTimer);
@@ -1826,6 +1845,7 @@ async function start() {
       if (relicWins) $('prompt').hidden = true; else $('expedition-hint').hidden = true;
     }
     mapTimer += dt; if (mapTimer > 0.2) { drawMap(); mapTimer = 0; }
+    firstDay.update(dt);
     saveTimer += dt; if (saveTimer > 3) { save(); saveTimer = 0; }
     // Apply after selecting the new nearby prompt: never let it reappear over
     // a shop menu, building card, NPC conversation or other focused interface.
@@ -1836,11 +1856,32 @@ async function start() {
 
   addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
 
+  // One HUD overlay at a time. Each opener's own handler runs after this, so a
+  // second press on the same button still toggles its own overlay closed.
+  {
+    const owns = { 'btn-journal': 'journal', 'btn-npcs': 'npc-roster', 'btn-town-yarns': 'yarns', 'btn-town-dialogue-settings': 'yarns', 'btn-help': 'help', 'btn-settings': 'settings', 'town-companion-button': 'companion' };
+    const panelOpeners = new Set(['btn-000', 'btn-needs', 'btn-wallet', 'btn-bag', 'btn-skills', 'btn-townmap', 'btn-guide', 'btn-hours', 'btn-discoveries', 'btn-electrical-grid', 'btn-table-order']);
+    $('hud').addEventListener('click', (e) => {
+      const b = e.target.closest?.('button'); if (!b) return;
+      const own = owns[b.id] || (panelOpeners.has(b.id) || b === audioMixButton ? 'panel' : null);
+      if (!own) return;
+      if (own !== 'journal' && expedition.isOpen()) expedition.dismiss();
+      if (own !== 'yarns' && yarns.isOpen()) yarns.close();
+      if (own !== 'npc-roster') $('npc-roster').hidden = true;
+      if (own !== 'help') $('help').hidden = true;
+      if (own !== 'settings' && !$('settings').hidden) closeSettings();
+      if (own !== 'companion' && companion.isOpen()) companion.close();
+      if (own !== 'panel' && panelOpen) closePanel();
+    }, { capture: true });
+  }
+
   // Test hook: lets the browser test suite drive real gameplay deterministically.
   window.__town = {
     // Test harness fast-forwards genuine simulation steps, allowing attendants to
     // commute to their workstations before the browser tries a staffed entrance.
     // Access-control decisions remain unchanged: no unlocked-door shortcut.
+    firstDay:()=>firstDay.view(),
+    perf:()=>perf.stats(),
     pilotGrid:()=>pilotReport(life),
     pilotAction:(command)=>{const answer=pilotAction(life,command);pilotVisuals.update();return answer;},
     advanceSimulation(minutes) {
@@ -1877,7 +1918,7 @@ async function start() {
       workplay:life.civic.workplay||null,
       mode, sleeping, driving: driving.activeVehicle()?.registration||null, nearbyVehicle:nearCar?.registration||null, seated: player.seated ? {key:player.seated.key,label:player.seated.label} : null,
       seats: mode==='house' ? (inside?.seats||[]).map(x=>({key:x.key,type:x.type,label:x.label,pos:x.pos,room:x.room})) : townLife.seats.map(x=>({key:x.key,type:x.type,label:x.label,pos:x.pos})),
-      levelName:inside?.levelName||'Ground floor',floorElevation:inside?.group.position.y||0,coordinate: inside?.house.coordinate || null, floor: inside?.floorIndex || 0, windows: inside?.windows?.length || 0, floors: inside?.floors?.levels.length || 1, pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, eye: player.eye, y: player.y, fps,
+      levelName:inside?.levelName||inside?.floors?.titles?.[inside.floorIndex]||'Ground floor',floorElevation:inside?.group.position.y||0,coordinate: inside?.house.coordinate || null, floor: inside?.floorIndex || 0, windows: inside?.windows?.length || 0, floors: inside?.floors?.levels.length || 1, pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, eye: player.eye, y: player.y, fps,
       rooms: inside?.rooms.length || 0, props: inside?.placedProps.length || 0,
       interactables: inside ? inside.interactables.map((x) => ({ key: x.key, label: x.label, title: x.act.title || x.label, do: x.act.do, nav: x.floorNav || null, room: x.roomName })) : [],
       near: nearThing?.key || null, nearNPC: nearNPC?.npc.id || null, nearHouse: nearHouse?.house.coordinate || null,

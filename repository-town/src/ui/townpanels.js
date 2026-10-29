@@ -16,6 +16,7 @@ import { householdReport, feederFor, TARIFF, fireDanger, season } from '../world
 import { pilotMains } from '../world/electrical-pilot.js';
 import { propertyOfficePanel, motorMarketPanel, motorWorkshopPanel } from './property-panels.js';
 import { tradeEducationPanel } from './trade-education-panels.js';
+import { servicesFor, serviceBlock, useService } from '../world/town-services.js';
 
 const list = (o) => Object.entries(o || {}).filter(([, n]) => n > 0).map(([g, n]) => amount(g, n)).join(', ') || 'nothing';
 const hours = (p) => { const [from, to] = visitorHours(p); return p.id === 'square' ? 'open all hours' : p.id === 'farmhouse' ? 'visits by appointment' : `${timeText(from)}–${timeText(to)}`; };
@@ -256,7 +257,7 @@ function placePanelBase(life, id) {
   if (id === 'cafe' || id === 'pub') for (const t of (life.civic.player.served || []).slice(0, 2)) rows.push(`<p class="dim">${esc(t)}</p>`);
   if (id === 'square' || id === 'hall') rows.push(`<h3>Town news</h3><ul class="news">${life.news(8).map((e) => `<li><span class="dim">${esc(e.t)}</span> ${esc(e.text)}</li>`).join('')}</ul>`);
   const shelves = id === 'bakery' ? p.out : p.stock;
-  const sells = { store: p.sells, bakery: p.sells, greengrocer: p.sells, butcher: p.sells, cafe: ['pie', 'bread'], pub: ['pie'] }[id] || [];
+  const sells = { store: p.sells, bakery: p.sells, greengrocer: p.sells, butcher: p.sells, supermarket: p.sells, cafe: ['pie', 'bread'], pub: ['pie'] }[id] || [];
   const prepared = id === 'cafe' ? {} : (VENUE_MENU[id] || {});
   const me = life.civic.player, again = () => placePanel(life, id);
   const act = (label, fn) => ({ label, run: () => {
@@ -265,6 +266,15 @@ function placePanelBase(life, id) {
   } });
   const actions = sells.filter(g => serving && (shelves[g] || 0) > 0)
     .map(g => act('Buy ' + GOODS[g].name + ' ($' + GOODS[g].price + ')', () => life.buyItem(id, g)));
+  // Expansion buildings' real services (src/world/town-services.js). Unavailable ones are
+  // listed with the reason, so a closed or unstaffed counter is never just empty.
+  const services = servicesFor(id);
+  if (services.length) {
+    const blocked = services.map(x => [x, serviceBlock(life, id, x)]);
+    rows.push('<h3>Services</h3><ul>' + blocked.map(([x, why]) => '<li>' + esc(x.label) + (x.price ? ' · $' + x.price : ' · free') +
+      (why ? ' <span class="dim">— ' + esc(why) + '</span>' : '') + '</li>').join('') + '</ul>');
+    for (const [x, why] of blocked) if (!why) actions.push(act(x.label + (x.price ? ' ($' + x.price + ')' : ''), () => useService(life, id, x.id)));
+  }
   if (id === 'pub') {
     if (!pubStandards(life).verifiedAdult) actions.unshift({label:'Confirm character is 18+',primary:true,run:()=>{pubStandardsAction(life,'confirm-adult');return again();}});
     actions.push({label:'Pub service controls',primary:true,run:()=>pubStandardsPanel(life,undefined,again)});

@@ -23,9 +23,21 @@ try {
   await T(() => window.__town.place(13.5, -199.6, 0)); await page.waitForTimeout(800);
   await page.waitForFunction(() => /tool rack/.test(document.getElementById('prompt')?.textContent || ''), null, { timeout: 4000 }).catch(() => {});
   step(/tool rack/.test(await prompt()), 'prompt offers the Woodlot tool rack: ' + await prompt());
-  // A tap can land between frames on a busy phone; tap again until the rack answers.
-  for (let i = 0; i < 4 && !/take a hatchet/.test(await status()); i++) await use();
-  step(/take a hatchet and a tinderbox/.test(await status()), 'took the tools at 11 pm: ' + await status());
+  // The first-day tracker can replace the status with the next goal immediately
+  // after collection. Retry only while the authoritative inventory lacks tools;
+  // waiting for transient wording can collect twice and overwrite the success.
+  const hasTools = () => T(() => {
+    const items = window.__town.inventory().items;
+    return items.includes('hatchet') && items.includes('tinderbox');
+  });
+  for (let i = 0; i < 4 && !(await hasTools()); i++) {
+    await use();
+    await page.waitForFunction(() => {
+      const items = window.__town.inventory().items;
+      return items.includes('hatchet') && items.includes('tinderbox');
+    }, null, { timeout: 2000 }).catch(() => {});
+  }
+  step(await hasTools(), 'took a hatchet and tinderbox at 11 pm: ' + await status());
   const k = await T(() => window.__town.skills());
   step(k.hatchet.visible, 'the hatchet is in hand');
 
