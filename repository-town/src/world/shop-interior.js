@@ -244,7 +244,9 @@ export function buildCivicInterior(site,makeLabel,life=null) {
     doors:[],dynamics:[],sight:[],
     bounds:{x0:-EDGE,x1:EDGE,z0:BACK,z1:FRONT},
     spawn:new THREE.Vector3(0,0,FRONT-2.25),
-    exitZone:{x0:-1.05,x1:1.05,z0:FRONT-0.1,z1:FRONT+1.2}
+    exitZone:{x0:-1.05,x1:1.05,z0:FRONT-0.1,z1:FRONT+1.2},
+    // Staff stand centred behind the counter, facing the door, so it reads as manned on the way in.
+    staff:{pos:{x:0,z:-7.55},use:{x:0,z:-4.9}}
   };
 }
 
