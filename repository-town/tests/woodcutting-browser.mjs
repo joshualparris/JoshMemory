@@ -80,8 +80,17 @@ try {
   await page.waitForFunction(() => /Chop the tree/.test(document.getElementById('prompt')?.textContent || ''), null, { timeout: 3000 }).catch(() => {});
   const angles = [];
   await use();
+  // Assert the selected target when chopping starts. A low-level tree can
+  // already be a stump by the end of the animation sampling below.
+  await page.waitForFunction((id) => {
+    const k = window.__town.skills();
+    return k.chopping === id || k.trees.find((t) => t.id === id)?.stump;
+  }, yard.id, { timeout: 4000 }).catch(() => {});
+  step(await T((id) => {
+    const k = window.__town.skills();
+    return k.chopping === id || k.trees.find((t) => t.id === id)?.stump;
+  }, yard.id), 'chopping the selected yard tree: ' + yard.id);
   for (let i = 0; i < 12; i++) { await page.waitForTimeout(110); const h = await T(() => window.__town.skills().hatchet); angles.push(h.angle); }
-  step((await T(() => window.__town.skills().chopping)) === yard.id, 'chopping a yard tree: ' + yard.id);
   step(Math.max(...angles) - Math.min(...angles) > 1.2, `the hatchet swings (angle ${Math.min(...angles).toFixed(2)} → ${Math.max(...angles).toFixed(2)})`);
   await page.screenshot({ path: `test-results/chop-${mobile ? 'mobile' : 'desktop'}.png` }).catch(() => {});
   await page.waitForFunction((id) => !window.__town.skills().chopping || window.__town.skills().trees.find((t) => t.id === id).stump, yard.id, { timeout: 60000 }).catch(() => {});
