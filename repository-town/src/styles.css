@@ -177,3 +177,28 @@ ul.news { margin: 4px 0; padding-left: 18px; font-size: 13px; }
 .hours-status{font-size:.87em;flex:0 1 auto;}
 .hours-entry button{padding:5px 12px;min-width:44px;}
 @media(max-width:600px){.hours-entry{gap:6px;padding:7px}.hours-entry-info{flex-basis:150px}.hours-status{flex-basis:auto}}
+
+/* First day in town: the guide card sits under the minimap (above it on phones). */
+#first-day { position: fixed; top: max(128px, calc(env(safe-area-inset-top) + 118px)); right: 10px; z-index: 8; width: 260px; display: grid; grid-template-columns: 1fr auto auto; align-items: center; column-gap: 6px; text-align: left; padding: 6px 10px; background: #15253bd8; border: 1px solid #8197b7; border-radius: 10px; color: #fff; font: inherit; font-size: 13px; cursor: pointer; }
+#first-day[hidden] { display: none; }
+#first-day .fd-step { grid-column: 1 / -1; font-size: 11px; opacity: .8; }
+#first-day b { grid-column: 1; }
+#first-day .fd-sub { grid-column: 1 / -1; font-size: 11px; opacity: .8; }
+#first-day .fd-arrow { display: inline-block; font-size: 18px; color: #ffd166; transition: transform .3s; }
+#first-day .fd-dist { font-size: 12px; color: #ffd166; white-space: nowrap; }
+#first-day.fd-hidden { width: auto; padding: 4px 8px; }
+#panel .first-day-steps li.done { opacity: .65; }
+#panel .first-day-steps li.current { font-weight: bold; color: #ffd166; }
+body.playing #first-day, body.overview #first-day { display: none !important; }
+@media (max-width: 700px) {
+  #first-day { top: max(80px, calc(env(safe-area-inset-top) + 70px)); width: 160px; grid-template-columns: auto 1fr; font-size: 11px; padding: 5px 8px; }
+  #first-day b { grid-column: 1 / -1; }
+  #first-day .fd-arrow { font-size: 15px; }
+}
+
+/* Performance readout (Settings → Performance, or ?perf). */
+#perf-meter { position: fixed; left: 10px; bottom: max(10px, env(safe-area-inset-bottom)); z-index: 9; max-width: 340px; text-align: left; padding: 6px 9px; background: #000c; color: #e8f1ff; border: 1px solid #ffffff44; border-radius: 8px; font: 12px/1.35 ui-monospace, monospace; cursor: pointer; }
+#perf-meter[hidden] { display: none; }
+#perf-meter .dim { opacity: .7; }
+#perf-meter .perf-smooth { color: #6fdc8c; } #perf-meter .perf-playable { color: #ffd166; } #perf-meter .perf-stutters { color: #ff7a7a; }
+@media (max-width: 700px) { #perf-meter { top: max(80px, calc(env(safe-area-inset-top) + 70px)); bottom: auto; max-width: calc(100vw - 190px); font-size: 10px; padding: 4px 6px; } }

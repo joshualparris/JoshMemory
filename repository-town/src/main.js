@@ -92,6 +92,8 @@ import { placePanel, ledgerPanel, guidePanel, needsPanel, relicsLeft, townContex
 import { openingHoursPanel } from './ui/shop-hours-panel.js';
 import { createSleepSession, sleepChoices } from './world/needs.js';
 import { createExpedition } from './adventure/expedition.js';
+import { createFirstDayTracker } from './ui/first-day-tracker.js';
+import { createPerfMeter } from './ui/perf-meter.js';
 
 const $ = (id) => document.getElementById(id);
 const status = (t) => { $('status').textContent = t; };
@@ -1467,6 +1469,17 @@ async function start() {
     mctx.beginPath(); mctx.moveTo(0, -6); mctx.lineTo(4, 4); mctx.lineTo(-4, 4); mctx.fill(); mctx.restore();
   }
 
+  // ── First day in town: the guided first day under the minimap ───────────
+  const firstDay = createFirstDayTracker({ life, player, openPanel, closePanel, status,
+    targetPos: (t) => t.place ? townLife.placeFront(t.place) : t.spot ? woodlot.rack.pos : null,
+    insidePlaceId: () => mode === 'house' ? (inside?.place?.id ?? '') : null, suppressed: () => driving.driving });
+
+  // Performance readout (Settings, or ?perf): measures this device, for real-phone checks.
+  const perf = createPerfMeter({ renderer, details: () => ({ smooth: lowPerf, where: mode === 'house' ? 'indoors' : overview ? 'map' : 'outdoors' }) });
+  const syncPerfSetting = () => { $('settings-perf').setAttribute('aria-pressed', String(perf.on)); $('settings-perf').textContent = perf.on ? 'Hide performance readout' : 'Show performance readout'; };
+  $('settings-perf').onclick = () => { perf.set(!perf.on); syncPerfSetting(); };
+  syncPerfSetting();
+
   // ── Frame loop ───────────────────────────────────────────────────────────
   const clock = new THREE.Clock();
   let mapTimer = 0, frames = 0, fpsTimer = 0, fps = 0, prevX = player.pos.x, prevZ = player.pos.z;
@@ -1498,6 +1511,7 @@ async function start() {
     // Up to 0.15 s per frame keeps walking real-time on slow phones; collision subdivides the step.
     const raw = clock.getDelta(), dt = Math.min(raw, 0.15), t = clock.elapsedTime;
     floorDoorCooldown = Math.max(0, floorDoorCooldown - dt);
+    perf.frame(raw);
     frames++; fpsTimer += raw; if (fpsTimer > 1) {
       fps = frames / fpsTimer;
       adaptResolution(fpsTimer);
@@ -1826,6 +1840,7 @@ async function start() {
       if (relicWins) $('prompt').hidden = true; else $('expedition-hint').hidden = true;
     }
     mapTimer += dt; if (mapTimer > 0.2) { drawMap(); mapTimer = 0; }
+    firstDay.update(dt);
     saveTimer += dt; if (saveTimer > 3) { save(); saveTimer = 0; }
     // Apply after selecting the new nearby prompt: never let it reappear over
     // a shop menu, building card, NPC conversation or other focused interface.
@@ -1841,6 +1856,8 @@ async function start() {
     // Test harness fast-forwards genuine simulation steps, allowing attendants to
     // commute to their workstations before the browser tries a staffed entrance.
     // Access-control decisions remain unchanged: no unlocked-door shortcut.
+    firstDay:()=>firstDay.view(),
+    perf:()=>perf.stats(),
     pilotGrid:()=>pilotReport(life),
     pilotAction:(command)=>{const answer=pilotAction(life,command);pilotVisuals.update();return answer;},
     advanceSimulation(minutes) {
