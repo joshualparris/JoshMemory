@@ -9,10 +9,10 @@ const catalog=JSON.parse(await readFile(join(root,'voice-lines/roster.json'),'ut
 const argv=process.argv.slice(2),has=name=>argv.includes('--'+name);
 function value(name,def){const i=argv.indexOf('--'+name);return i<0?def:argv[i+1];}
 function positive(x,label){const n=Number(x);if(!Number.isSafeInteger(n)||n<1)throw Error('Invalid '+label);return n;}
-if(has('help')){console.log('Dry run: node tools/voice-lines-generate.mjs [--kind named_street_actor|worker|unassigned_house_resident_alias] [--actor worker:0] [--limit N]');console.log('Paid calls: additionally --generate --confirm-paid-batch --approved-budget-chars N and ELEVENLABS_API_KEY.');process.exit(0);}
+if(has('help')){console.log('Dry run: node tools/voice-lines-generate.mjs [--kind named_street_actor|worker|unassigned_house_resident_alias|assigned_house_resident_alias] [--actor worker:0] [--limit N]');console.log('Paid calls: additionally --generate --confirm-paid-batch --approved-budget-chars N and ELEVENLABS_API_KEY.');process.exit(0);}
 for(const x of argv)if(x.startsWith('--')&&!['--kind','--actor','--limit','--generate','--confirm-paid-batch','--approved-budget-chars'].includes(x))throw Error('Unknown flag '+x);
 const kind=value('kind',null),actor=value('actor',null);
-if(kind&&!['named_street_actor','worker','unassigned_house_resident_alias'].includes(kind))throw Error('Unknown actor kind');
+if(kind&&!['named_street_actor','worker','unassigned_house_resident_alias','assigned_house_resident_alias'].includes(kind))throw Error('Unknown actor kind');
 const limit=value('limit',null)===null?Infinity:positive(value('limit',null),'limit');
 const proposed=catalog.missingAudioScripts.filter(x=>(!kind||x.kind===kind)&&(!actor||x.actorKey===actor)).slice(0,limit);
 if(!proposed.length)throw Error('No matching actors');

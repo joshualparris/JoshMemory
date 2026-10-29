@@ -6,11 +6,12 @@ const catalog = at('../voice-lines/roster.json');
 const population = at('../docs/NPC_POPULATION_INVENTORY_2026-10-24.json');
 assert.equal(catalog.schemaVersion, 1);
 const scripts = catalog.missingAudioScripts;
-assert.equal(scripts.length, 210);
+assert.equal(scripts.length, 309);
 const named = scripts.filter(x => x.kind === 'named_street_actor');
 const workers = scripts.filter(x => x.kind === 'worker');
 const homes = scripts.filter(x => x.kind === 'unassigned_house_resident_alias');
-assert.deepEqual([named.length,workers.length,homes.length],[22,99,89]);
+const assigned = scripts.filter(x => x.kind === 'assigned_house_resident_alias');
+assert.deepEqual([named.length,workers.length,homes.length,assigned.length],[22,99,89,99]);
 assert.equal(catalog.existingApprovedNamedCast.length,10);
 const unique = a => new Set(a).size === a.length;
 assert(unique(scripts.map(x=>x.actorKey)),'every actorKey must be distinct');
@@ -40,11 +41,22 @@ for (const row of homes) {
  const source=unassigned.find(x=>x.key===row.actorKey);
  assert.equal(row.name,source.name);assert.equal(row.homeCoordinate,source.coordinate);
 }
+const assignedSource=population.projectHouseResidentSlots.filter(x=>x.assignedWorkerId!==null);
+assert.deepEqual(assigned.map(x=>x.actorKey).sort(),assignedSource.map(x=>x.key).sort());
+for(const row of assigned){
+ const source=assignedSource.find(x=>x.key===row.actorKey);
+ const assignedWorker=workers.find(x=>x.actorKey==='worker:'+source.assignedWorkerId);
+ assert.equal(row.name,source.name);assert.equal(row.homeCoordinate,source.coordinate);
+ assert.equal(row.assignedWorkerId,source.assignedWorkerId);assert.equal(row.voiceId,assignedWorker.voiceId);
+}
+assert.deepEqual([...assigned,...homes].map(x=>x.actorKey).sort(), population.projectHouseResidentSlots.map(x=>x.key).sort());
 const recorded=population.namedStreetActors.filter(x=>x.voicedGame300);
 assert.deepEqual(catalog.existingApprovedNamedCast.map(x=>x.actorKey).sort(),recorded.map(x=>x.key).sort());
 assert(!catalog.existingApprovedNamedCast.some(x=>scripts.some(y=>y.actorKey===x.actorKey)));
 assert.equal(catalog.summary.total,scripts.length);
+assert.equal(catalog.summary.houseAlias,188);
+assert.equal(catalog.summary.assignedHouseAlias,99);
 assert.equal(catalog.summary.uniqueNamedVoices,new Set(named.map(x=>x.voiceId)).size);
 assert.equal(catalog.summary.uniqueClips,new Set(scripts.map(x=>x.clipId)).size);
 const characters=scripts.reduce((n,x)=>n+x.text.length,0);
-console.log('PASS RTD voice-line inventory: '+named.length+' named, '+workers.length+' workers, '+homes.length+' house aliases; '+new Set(scripts.map(x=>x.voiceId)).size+' unique voice IDs; '+characters+' proposed TTS characters; zero audio generation.');
+console.log('PASS RTD voice-line inventory: '+named.length+' named, '+workers.length+' workers, '+(homes.length+assigned.length)+' house aliases; '+new Set(scripts.map(x=>x.voiceId)).size+' unique voice IDs; '+characters+' proposed TTS characters; zero audio generation.');

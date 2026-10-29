@@ -1,15 +1,15 @@
 # Repository Town — proposed ElevenLabs NPC introductions
 
-**PARTIALLY COMPLETE: 210 distinct scripts and proposed voices; zero new MP3 recordings or live gameplay integrations.** This is RTD-047/048/049/078 preparation, not a claim that all NPCs are now audible.
+**PARTIALLY COMPLETE: 309 distinct scripts and proposed voices; zero new MP3 recordings or live gameplay integrations.** This is RTD-047/048/049/078 preparation, not a claim that all NPCs are now audible.
 
 ## Coverage
 
 - 22 currently unvoiced named street actors, each assigned a **different** candidate ElevenLabs library voice
 - 99 existing simulated workers, each named and given a job-relevant opening line
-- 89 unassigned house-resident aliases, each with a name-specific introduction
+- All 188 house-resident aliases, including 89 unassigned homes and 99 namespaced aliases for worker-occupied houses, each with a name-specific introduction
 - 10 already-voiced named actors preserved, with their existing 100 approved Game300 clips
 
-The game's 188 house aliases include 99 houses already occupied by those workers. Do not count these as extra independent people. All 210 new scripts use stable namespaced actor keys (named:..., worker:..., resident:...) and unique clip IDs.
+The game's 188 house aliases include 99 houses already occupied by workers. Their house-resident *dialogue identities* still require lines, but do not count them as 99 extra simulated people. All 309 new scripts use stable namespaced actor keys (named:..., worker:..., resident:...) and unique clip IDs.
 
 **roster.json** records each script, its actor identity, caption text, candidate voice ID and performance direction. All new entries have recordingStatus scripted_not_generated. Candidate voice IDs were sourced from ElevenLabs library search on 29 October 2026; review their licensing, current availability and permitted uses before generating.
 
