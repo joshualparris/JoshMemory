@@ -22,7 +22,7 @@ try {
   const vp = page.viewportSize();
   const start = await where();
   await page.touchscreen.tap(Math.round(vp.width * 0.62), Math.round(vp.height * 0.72));
-  await page.waitForTimeout(300);
+  await page.waitForFunction(() => !!window.__town.autoWalk(), null, { timeout: 5000 }).catch(() => {});
   const walk = await T(() => window.__town.autoWalk());
   step(!!walk, 'a tap on the ground ahead starts tap-to-walk: ' + JSON.stringify(walk));
   await page.waitForFunction(() => !window.__town.autoWalk(), null, { timeout: 20000 }).catch(() => {});
@@ -31,9 +31,10 @@ try {
 
   // 2. Tap a tree (via the same route planner): walk up to it and start chopping, as in RuneScape.
   await T(() => window.__town.place(13.5, -199.6, 0)); await page.waitForTimeout(600);
+  await page.waitForFunction(() => /tool rack/.test(document.getElementById('prompt')?.textContent || ''), null, { timeout: 5000 });
   for (let i = 0; i < 4 && !(await T(() => window.__town.inventory().items.includes('hatchet'))); i++) {
     if (desktop) { await page.keyboard.down('e'); await page.waitForTimeout(120); await page.keyboard.up('e'); } else await page.tap('#t-use');
-    await page.waitForTimeout(300);
+    await page.waitForFunction(() => window.__town.inventory().items.includes('hatchet'), null, { timeout: 3000 }).catch(() => {});
   }
   step(await T(() => window.__town.inventory().items.includes('hatchet')), 'took a hatchet from the rack');
   const trees = await T(() => window.__town.skills().trees.filter((t) => t.id.startsWith('woodlot:') && t.type === 'tree' && !t.stump));

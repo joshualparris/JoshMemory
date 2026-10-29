@@ -49,7 +49,15 @@ try {
       dispatchEvent(new Event('blur'));
       dispatchEvent(new MouseEvent('mousemove',{clientX:280,clientY:400}));
       const dragAfterBlur=input.takeLook().dx;
-      return {walking,stickCleared,staleFinger,freshFinger,afterBlur,dragging,staleDrag,freshDrag,dragAfterBlur,touchLook,staleTouchLook};
+      touch('touchstart',300,500);
+      await new Promise(resolve=>setTimeout(resolve,450));
+      touch('touchend',300,500);
+      const delayedTap=input.takeTaps().length;
+      touch('touchstart',300,500);touch('touchmove',340,500);touch('touchend',340,500);
+      const dragTaps=input.takeTaps().length;
+      touch('touchstart',300,500);touch('touchcancel',300,500);
+      const cancelledTaps=input.takeTaps().length;
+      return {walking,stickCleared,staleFinger,freshFinger,afterBlur,dragging,staleDrag,freshDrag,dragAfterBlur,touchLook,staleTouchLook,delayedTap,dragTaps,cancelledTaps};
     });
     assert.equal(result.walking,-1,'gesture starts walking');
     assert.equal(result.staleFinger,0,'reset must reject the old finger until a fresh touchstart');
@@ -62,6 +70,9 @@ try {
     assert.equal(result.staleDrag,0,'reset must cancel mouse drag');
     assert.equal(result.freshDrag,20,'fresh mouse drag still works');
     assert.equal(result.dragAfterBlur,0,'blur must cancel mouse drag');
+    assert.equal(result.delayedTap,1,'a stationary touch delayed beyond 350ms must still walk');
+    assert.equal(result.dragTaps,0,'a drag must never become tap-to-walk');
+    assert.equal(result.cancelledTaps,0,'a cancelled touch must never become tap-to-walk');
     console.log(`PASS ${mobile?'touch phone':'desktop'}: reset/blur cancel stale gestures, fresh gestures work`);
     await context.close();
   }

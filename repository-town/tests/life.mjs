@@ -170,7 +170,7 @@ if(tr){
   const dx=tr.next.x-tr.x,dz=tr.next.z-tr.z,d=Math.hypot(dx,dz);
   await T(([x,z])=>window.__town.place(x,z,0),[tr.x+dx/d*5.5,tr.z+dz/d*5.5]);
   // A truck may roll a little closer before it stops; wait for that, then it must stay stopped.
-  await page.waitForFunction((id)=>window.__town.life.trucks().find(t=>t.id===id)?.braking,tr.id,{timeout:4000}).catch(()=>{});
+  await page.waitForFunction((id)=>window.__town.life.trucks().find(t=>t.id===id)?.braking,tr.id,{timeout:10000});
   const before=(await T(()=>window.__town.life.trucks())).find(t=>t.id===tr.id);
   await page.waitForTimeout(900);
   const after=(await T(()=>window.__town.life.trucks())).find(t=>t.id===tr.id);
