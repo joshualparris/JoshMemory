@@ -92,7 +92,7 @@ export function swing(life, me, tree, rand = Math.random) {
   if (why) return { ok: false, stop: true, message: why };
   const t = TREES[tree.type];
   if (rand() >= chopChance(level(me, 'woodcutting'), t)) return { ok: true, message: `You swing your hatchet at the ${t.name.toLowerCase()}.` };
-  me.logs[t.log] = (me.logs[t.log] || 0) + 1;
+  me.logs[t.log] = (me.logs[t.log] || 0) + 1; me.logsCut = (me.logsCut || 0) + 1;
   const gain = addXp(me, 'woodcutting', t.xp), felled = rand() < t.fellChance;
   if (felled) woodlotState(life).trees[tree.id] = { stumpUntil: nowMin(life) + t.respawn };
   const full = bagUsed(me) >= BAG_SLOTS;
@@ -159,7 +159,7 @@ export function sellLogs(me, log, till) {
   if (!l || !n) return { ok: false, message: 'You have none of those to sell.' };
   const can = Math.min(n, Math.floor((till.cash || 0) / l.price));
   if (!can) return { ok: false, message: 'The timber yard cannot afford to buy logs right now.' };
-  me.logs[log] -= can;
+  me.logs[log] -= can; me.logsSold = (me.logsSold || 0) + can;
   const paid = can * l.price;
   me.wallet = Math.round(((me.wallet || 0) + paid) * 100) / 100;
   till.cash = Math.round((till.cash - paid) * 100) / 100;

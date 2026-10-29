@@ -4,6 +4,7 @@ import {recordedTopicsFor,recordedQuestion,recordedReply} from './town-recording
 // by Repository Town and no API key is ever sent to the browser.
 import { NPCS, getNPC } from './npc-data.js';
 import { answerSceneQuestion } from './scene-awareness.js';
+import { answerTownDirections } from './town-directions.js';
 import {makeTownListenButton, primeTownVoice, stopTownVoice, makeTownRecordedLines, makeTownContextCue, isRowanWelcome} from './voicebank.js';
 import {makeTownRecordedConversation} from './recorded-dialogue.js';
 
@@ -27,7 +28,7 @@ export function houseAwareReply(npc,house,question) {
     return `Have a look around ${place}! You can explore its rooms and try the interactive exhibits. I wonder which one you'll enjoy most.`;
   return null;
 }
-export function mountNPCChat(root=document, { getScene = () => null } = {}) {
+export function mountNPCChat(root=document, { getScene = () => null, getTown = () => null } = {}) {
   const el=root.getElementById('npc-chat');
   const feed=root.getElementById('npc-messages');
   const title=root.getElementById('npc-name');
@@ -63,7 +64,10 @@ export function mountNPCChat(root=document, { getScene = () => null } = {}) {
   syncNpcViewport();
   input.setAttribute('enterkeyhint','send');
   input.addEventListener('focus',()=>{
-    el.classList.add('npc-typing');
+    // Typing mode makes room for an on-screen keyboard. Desktop has none, and
+    // there it hid "Try asking" and Recorded conversations whenever the chat
+    // auto-focused the composer (every NPC without a scripted conversation).
+    if(window.matchMedia('(pointer: coarse)').matches)el.classList.add('npc-typing');
     syncNpcViewport();
     // Scroll only the message list, not the entire page or a fixed dialog.
     requestAnimationFrame(()=>{
@@ -106,7 +110,7 @@ export function mountNPCChat(root=document, { getScene = () => null } = {}) {
     activities.appendChild(makeTownRecordedLines(npc.id,root));
     const topics=recordedTopicsFor(npc);
     if(topics.length){
-      const details=root.createElement('details');
+      const details=root.createElement('details');details.className='npc-recorded-topics';
       const summary=root.createElement('summary');summary.textContent='Recorded conversations';details.appendChild(summary);
       const note=root.createElement('p');note.textContent='Ask how this character speaks in a situation. These conversations do not change jobs, orders or transport.';details.appendChild(note);
       for(const clip of topics){const button=root.createElement('button');button.type='button';button.className='npc-suggestion';button.dataset.recordedTopic=clip.id;button.textContent=clip.prompt;button.onclick=()=>{input.value=recordedQuestion(clip);form.requestSubmit();};details.appendChild(button);}
@@ -177,7 +181,7 @@ export function mountNPCChat(root=document, { getScene = () => null } = {}) {
     // Leave the keyboard closed on touch devices so quests stay visible.
     // Initial focus enters typing mode, which hides the recorded choices.
     // Keep choices visible until visitors deliberately focus the composer.
-    if(!window.matchMedia('(pointer: coarse)').matches&&!activities.querySelector('.npc-recorded-conversation'))input.focus();
+    if(!window.matchMedia('(pointer: coarse)').matches&&!activities.querySelector('.npc-recorded-conversation,.npc-recorded-topics'))input.focus();
     return true;
   }
   function close() {
@@ -203,10 +207,13 @@ export function mountNPCChat(root=document, { getScene = () => null } = {}) {
     let scene=null;
     try { scene=getScene(npc,house); } catch { scene=null; }
     const recorded=recordedReply(npc,question);
-    const grounded=recorded ?? answerSceneQuestion(scene,question,house?'resident':'villager');
+    // Shop and meal directions come from the live simulation, never the AI's guesses.
+    let directions=null;
+    try { directions=answerTownDirections(getTown(),question); } catch { directions=null; }
+    const grounded=recorded ?? answerSceneQuestion(scene,question,house?'resident':'villager') ?? directions;
     if(grounded!==null) {
       reply=grounded;
-      status.textContent=recorded?'Recorded character dialogue · ElevenLabs available':'Verified room objects · local answer';
+      status.textContent=recorded?'Recorded character dialogue · ElevenLabs available':grounded===directions?'Live town shops and opening hours · local answer':'Verified room objects · local answer';
     } else {
       controller=new AbortController();
       const timeout=setTimeout(()=>controller?.abort(),22000);

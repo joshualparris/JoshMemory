@@ -1340,7 +1340,10 @@ export class TownLife {
       ['sheep', 'lamb', 'butcher'], ['sheep', 'lamb', 'pub'], ['sheep', 'lamb', 'bakery'],
       ['depot', 'coffee', 'cafe'], ['depot', 'coffee', 'store'], ['depot', 'tea', 'store'], ['depot', 'tea', 'cafe'], ['orchard', 'fruit', 'cafe'], ['depot', 'parcel', 'post'],
       ['depot', 'fuel', 'power'], ['depot', 'ore', 'foundry'], ['recycling', 'scrap', 'foundry'], ['foundry', 'parts', 'hall'],
-    ];
+      // The Corner Grocer (F7-N): supplied from the same producers as the General Store.
+      ['dairy', 'milk', 'supermarket'], ['coop', 'eggs', 'supermarket'], ['mill', 'flour', 'supermarket'], ['bakery', 'bread', 'supermarket'],
+      ['garden', 'veg', 'supermarket'], ['orchard', 'fruit', 'supermarket'], ['depot', 'tea', 'supermarket'], ['depot', 'coffee', 'supermarket'],
+    ].filter(([from, , to]) => this.place(from) && this.place(to));
     let best = null;
     for (const [from, good, to] of routes) {
       const src = this.place(from), dst = this.place(to);

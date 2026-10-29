@@ -256,7 +256,7 @@ function placePanelBase(life, id) {
   if (id === 'cafe' || id === 'pub') for (const t of (life.civic.player.served || []).slice(0, 2)) rows.push(`<p class="dim">${esc(t)}</p>`);
   if (id === 'square' || id === 'hall') rows.push(`<h3>Town news</h3><ul class="news">${life.news(8).map((e) => `<li><span class="dim">${esc(e.t)}</span> ${esc(e.text)}</li>`).join('')}</ul>`);
   const shelves = id === 'bakery' ? p.out : p.stock;
-  const sells = { store: p.sells, bakery: p.sells, greengrocer: p.sells, butcher: p.sells, cafe: ['pie', 'bread'], pub: ['pie'] }[id] || [];
+  const sells = { store: p.sells, bakery: p.sells, greengrocer: p.sells, butcher: p.sells, supermarket: p.sells, cafe: ['pie', 'bread'], pub: ['pie'] }[id] || [];
   const prepared = id === 'cafe' ? {} : (VENUE_MENU[id] || {});
   const me = life.civic.player, again = () => placePanel(life, id);
   const act = (label, fn) => ({ label, run: () => {
