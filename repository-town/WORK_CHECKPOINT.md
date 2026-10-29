@@ -1,3 +1,7 @@
+# 29 October 2026 — RTD-047/048/049/078 NPC voice roster START / PARTIALLY COMPLETE
+
+Owner ChatGPT. Main baseline fbed2e5c99ad52f62480ab3146429128bffe9dfa; topic feat/rtd047-049-npc-voice-line-roster-20261029. Scoped to a complete actor-specific script and ElevenLabs voice casting plan, dry-run cost-aware generator and independent validation; zero recorded audio is claimed for missing actors. Excluded runtime audio/player, unmerged feature branches, existing original 100/20 clips. Canonical NPC population snapshot: 32 named (10 Game300), 99 workers, 188 house slots of which 99 map to worker homes, leaving 89 independently named/unassigned aliases. Target 22+99+89=210 new script entries, avoiding duplicate identities. START checkpoint only; test/generation/merge/deployment unverified. Next: create topic branch and line manifest; validate coverage and costs before any paid requests.
+
 # 26 October 2026 — commerce consolidation merged-tree candidate
 
 Preserves latest main d5637c6ef04b782106fca7c63d036d18159a3c3b with bus/pharmacy/front entrances, pub and fast-travel fixes. Recovers original missing General Store invoices/temperature probes/supplier credits, finite state treasury startup capital, council wage float repayments and three regression suites from PRs #126–128. Ten of eleven checks on previous equivalent commerce candidate passed; Android job still running at tree construction. This commit is not VERIFIED until its own CI and the public deployment match. Pub audit source hashes synchronised for 27 tracked sources.
