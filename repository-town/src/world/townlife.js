@@ -105,7 +105,7 @@ export const SIGN_AT = {
   power: [-2, 3.4, 7.09, 5, 0.6, '#e8c23a', '#222222'], waterworks: [-4, 2.95, 5.58, 4.4, 0.5, '#e9eef2', '#1f4a6a'],
   sewage: [0, 2.6, 7.09, 4.2, 0.45, '#e6e2d6', '#3a4a3a'], fire: [0, 5.3, 7.13, 5, 0.6, '#f2efe6', '#b83a32'],
   recycling: [0, 3.4, 7.09, 5, 0.55, '#2f5a2a', '#f2efe6'], landfill: [0, 2.1, 6.73, 3.6, 0.45, '#e6e2d6', '#3a3226'],
-  foundry: [0, 4.55, 7.09, 6.5, 0.7, '#2a2420', '#ff9a4a'], hotel: [0, 4.0, 7.26, 4.6, 0.55, '#f3dfb1', '#5a3a22'],
+  foundry: [0, 4.55, 7.09, 6.5, 0.7, '#2a2420', '#ff9a4a'], hotel: [0, 8.3, 7.12, 6.2, 0.8, '#f3dfb1', '#5a3a22'],
   realty: [0, 4.14, 7.16, 9.3, 0.62, '#234c47', '#f4e8d2'],
   realestate:[0,4.05,7.1,7.2,0.5,'#e9e1d0','#453827'],
   dealership:[0,4.05,7.1,7.2,0.5,'#c8d6e2','#1d4267'],
@@ -345,16 +345,33 @@ Object.assign(BUILD, {
     return {w:14,d:10};
   },
   hotel(b) {
-    // Road-facing south-side hotel: two floors, reception, guest-room windows.
+    // A two-storey NSW country railway hotel (like Dubbo's own, now the Civic Hotel on Talbragar and
+    // Darling Streets): rendered brick, guest rooms upstairs opening onto a first-floor balcony with a
+    // cast-iron lace balustrade, a ground-floor verandah over the footpath on slender posts, and the
+    // hotel's name painted on the parapet above, where the balcony can't hide it.
     b.box(0xd9b894,14,7,10,0,3.5,2);
     b.box(0x774b36,15,0.6,11,0,7.3,2);
     b.box(0x8b6549,15.2,0.25,11.2,0,7.65,2);
+    b.box(0xd9b894,14,1.3,0.3,0,8.3,6.95);                     // parapet carrying the name
+    b.box(0x8b6549,14.3,0.14,0.42,0,9.0,6.95);
     for(const y of [2.2,5.2])for(const x of [-5,-2.8,2.8,5])
       b.box(GLASS,1.3,1.6,0.08,x,y,7.05);
+    for(const x of [-1.6,1.6])b.box(0x4e3528,0.9,2.2,0.08,x,4.6,7.07);   // French doors onto the balcony
     b.box(0x4e3528,2.2,2.7,0.08,0,1.35,7.08);
-    b.box(0xf3dfb1,4.6,0.55,0.14,0,4.0,7.17);
     b.box(0x816044,2.5,0.17,1.7,0,0.15,8.0);
-    return {w:14,d:10};
+    // Verandah over the footpath, balcony above it.
+    const V=9.3;
+    for(const x of [-6.6,-3.6,-1.5,1.5,3.6,6.6]){b.cyl(0x2f3a33,0.07,3.4,x,1.7,V);b.cyl(0x2f3a33,0.06,2.6,x,4.9,V);}   // posts frame the doorway
+    b.box(0x9c7a58,14.4,0.18,2.4,0,3.45,8.15);                 // balcony floor = verandah ceiling
+    b.box(0x3a2a20,14.4,0.28,0.1,0,3.3,V+0.03);                // fascia
+    // Lace balustrade: top and bottom rails with close-set balusters, lace rosettes and a frieze.
+    b.box(0x2f3a33,13.4,0.06,0.06,0,4.55,V);b.box(0x2f3a33,13.4,0.05,0.05,0,3.62,V);
+    for(let x=-6.4;x<=6.45;x+=0.22)b.box(0x2f3a33,0.025,0.9,0.025,x,4.08,V);
+    for(let x=-6.4;x<=6.45;x+=0.44)b.box(0x2f3a33,0.16,0.16,0.02,x,4.08,V,Math.PI/4);
+    b.box(0x2f3a33,13.4,0.22,0.03,0,6.05,V);
+    b.box(0x6f7d74,14.6,0.1,2.6,0,6.3,8.15);                   // verandah roof (corrugated iron)
+    for(let x=-6.9;x<=6.95;x+=0.5)b.box(0x5f6d64,0.06,0.05,2.6,x,6.37,8.15);
+    return {w:14,d:10,posts:[-6.6,-3.6,-1.5,1.5,3.6,6.6].map((x)=>[x,V])};
   },
   bank(b) {
     b.box(0xd8d0c0, 14, 6, 10, 0, 3, 2); b.box(0xa89a80, 15, 0.6, 11, 0, 6.3, 2);
@@ -738,6 +755,8 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     if (p.side === 'south') {
       b.at(p.x, 0, FIELD_Z0 + 7, Math.PI, () => { fp = BUILD[p.id](b); });
       colliders.push({ x0: p.x - fp.w / 2, x1: p.x + fp.w / 2, z0: FIELD_Z0, z1: FIELD_Z0 + fp.d });
+      // Verandah posts out on the footpath are solid too (local x/z turned to face the road).
+      for (const [lx, lz] of fp.posts || []) colliders.push({ x0: p.x - lx - 0.1, x1: p.x - lx + 0.1, z0: FIELD_Z0 + 7 - lz - 0.1, z1: FIELD_Z0 + 7 - lz + 0.1 });
       // Keep the business name clear of the roofline and deep colonnades:
       // a freestanding, non-colliding sign just outside the south doorway.
       const sign = makeLabel(p.address+' · '+p.name, 'house');
