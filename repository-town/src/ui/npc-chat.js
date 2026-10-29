@@ -106,7 +106,7 @@ export function mountNPCChat(root=document, { getScene = () => null } = {}) {
     activities.appendChild(makeTownRecordedLines(npc.id,root));
     const topics=recordedTopicsFor(npc);
     if(topics.length){
-      const details=root.createElement('details');
+      const details=root.createElement('details');details.className='npc-recorded-topics';
       const summary=root.createElement('summary');summary.textContent='Recorded conversations';details.appendChild(summary);
       const note=root.createElement('p');note.textContent='Ask how this character speaks in a situation. These conversations do not change jobs, orders or transport.';details.appendChild(note);
       for(const clip of topics){const button=root.createElement('button');button.type='button';button.className='npc-suggestion';button.dataset.recordedTopic=clip.id;button.textContent=clip.prompt;button.onclick=()=>{input.value=recordedQuestion(clip);form.requestSubmit();};details.appendChild(button);}
@@ -177,7 +177,7 @@ export function mountNPCChat(root=document, { getScene = () => null } = {}) {
     // Leave the keyboard closed on touch devices so quests stay visible.
     // Initial focus enters typing mode, which hides the recorded choices.
     // Keep choices visible until visitors deliberately focus the composer.
-    if(!window.matchMedia('(pointer: coarse)').matches&&!activities.querySelector('.npc-recorded-conversation'))input.focus();
+    if(!window.matchMedia('(pointer: coarse)').matches&&!activities.querySelector('.npc-recorded-conversation,.npc-recorded-topics'))input.focus();
     return true;
   }
   function close() {
