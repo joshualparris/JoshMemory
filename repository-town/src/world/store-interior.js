@@ -1,4 +1,4 @@
-import { createKit, ROOM } from './interior-kit.js';
+import { createKit, ROOM, signFace } from './interior-kit.js';
 
 // The General Store, laid out like an Australian country general store:
 //   • A basket stack, a newspaper and magazine rack and a bright produce table just inside the door.
@@ -34,13 +34,16 @@ export function buildStoreInterior(site, makeLabel, roomTitle = 'General Store')
   const goods = Object.keys(site.target || {}), stock = site.stock || {};
   const frac = goods.length ? Math.max(0.2, Math.min(1, goods.reduce((s, g) => s + Math.min(1, (stock[g] || 0) / (site.target[g] || 1)), 0) / goods.length)) : 1;
   const PACK = [0xc9553d, 0xe3b04b, 0x4f7fa6, 0x6f9a54, 0xd8d0b8, 0x8a5a8e];
+  // Tins and packets are collected here and drawn as two instanced meshes at the end (two draw
+  // calls instead of several hundred, which matters on phones).
+  const tins = [], packs = [];
   const stockRow = (x, y, z, len, axis, i0) => {          // a row of tins/packets along a shelf, thinned when stock is low
-    const n = Math.floor(len / 0.3);
+    const n = Math.floor(len / 0.22);
     for (let i = 0; i < n; i++) {
       if ((i * 37 + Math.round(i0) * 11) % 100 / 100 > frac) continue;
-      const c = PACK[Math.abs(Math.round(i + i0)) % PACK.length], h = 0.2 + (Math.abs(Math.round(i * 7 + i0)) % 3) * 0.04;
-      const px = axis === 'x' ? x - len / 2 + 0.15 + i * 0.3 : x, pz = axis === 'z' ? z - len / 2 + 0.15 + i * 0.3 : z;
-      if (Math.round(i + i0) % 3 === 0) cyl(0.07, 0.07, h, px, y + h / 2, pz, c, {}, 8); else box(0.18, h, 0.16, px, y + h / 2, pz, c);
+      const c = PACK[Math.abs(Math.round(i * 5 + i0)) % PACK.length], h = 0.2 + (Math.abs(Math.round(i * 7 + i0)) % 3) * 0.04;
+      const px = axis === 'x' ? x - len / 2 + 0.11 + i * 0.22 : x, pz = axis === 'z' ? z - len / 2 + 0.11 + i * 0.22 : z;
+      (Math.round(i + i0) % 3 === 0 ? tins : packs).push({ x: px, y: y + h / 2, z: pz, h, c });
     }
   };
 
@@ -70,14 +73,18 @@ export function buildStoreInterior(site, makeLabel, roomTitle = 'General Store')
     // The shelf carcass used to be a solid box with four shelf slabs buried inside it.
     // Their coplanar faces fought the depth buffer (grey flashing lines). Build an
     // open-backed metal frame instead, with shelf slabs sitting clear of the uprights.
-    solid(0.10, 1.7, 5.4, gx - 0.45, 0.85, -0.2, 0x8c8f93);
-    solid(0.10, 1.7, 5.4, gx + 0.45, 0.85, -0.2, 0x8c8f93);
+    // A thin centre spine, open on both faces so the stock shows from each aisle.
+    box(0.06, 1.75, 5.3, gx, 0.88, -0.2, 0x8c8f93); k.blocker(1.0, 5.4, gx, -0.2);
     for(const ez of [-2.85,2.45])box(0.9,1.7,0.08,gx,0.85,ez,0x8c8f93);
     for (const y of [0.3, 0.75, 1.2, 1.6]) { box(0.78, 0.04, 5.16, gx, y, -0.2, 0xb4b8bc); stockRow(gx - 0.2, y + 0.02, -0.2, 5.0, 'z', gx * 3 + y * 7); stockRow(gx + 0.2, y + 0.02, -0.2, 5.0, 'z', gx * 5 + y * 3); }
     box(1.0, 0.3, 0.06, gx, 1.95, -0.2, RED);                 // end-cap header
-    solid(1.1, 0.9, 0.5, gx, 0.45, 2.75, RED); text('Specials', gx, 1.4, 2.75);
+    solid(1.1, 0.9, 0.5, gx, 0.45, 2.75, RED); stockRow(gx, 0.9, 2.75, 1.0, 'x', gx * 9); text('Specials', gx, 1.4, 2.75);
   }
-  text('Dry goods', -3.6, 2.25, -2.6); text('Pantry', 3.6, 2.25, -2.6);
+  // Hanging aisle signs, printed so they read from the door.
+  for (const [gx, words] of [[-3.6, 'Dry goods · Baking'], [3.6, 'Pantry · Tins · Tea']]) {
+    box(1.6, 0.34, 0.04, gx, 2.6, 0.2, 0x7a2f26); for (const dx of [-0.6, 0.6]) box(0.02, 1.8, 0.02, gx + dx, 3.6, 0.2, 0x777777);
+    signFace(THREE, group, words, 1.56, 0.3, gx, 2.6, 0.225, '#7a2f26');
+  }
 
   // ── produce table, basket stack, newspapers ──
   solid(2.0, 0.8, 1.0, 0, 0.4, -1.2, TIMBER);
@@ -113,5 +120,12 @@ export function buildStoreInterior(site, makeLabel, roomTitle = 'General Store')
   add('shelves', 'Pantry shelves', 'info', 'Flour, tea, coffee and tinned goods fill the gondolas and wall shelves. They thin out when a delivery is late.', -1.3, 2.6);
   add('papers', 'Papers and magazines', 'info', 'The rack by the door has the week\'s papers, magazines and a notice or two from the Town Hall.', 4.6, 3.6);
   k.placedProps.push({ type: 'noticeboard', room: 0 });
+  const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), col = new THREE.Color();
+  for (const [list, geo, name] of [[packs, new THREE.BoxGeometry(0.17, 1, 0.16), 'store-packets'], [tins, new THREE.CylinderGeometry(0.07, 0.07, 1, 10), 'store-tins']]) {
+    if (!list.length) continue;
+    const m = new THREE.InstancedMesh(geo, new THREE.MeshLambertMaterial({ color: 0xffffff }), list.length);
+    list.forEach((p, i) => { m4.compose(new THREE.Vector3(p.x, p.y, p.z), q, new THREE.Vector3(1, p.h, 1)); m.setMatrixAt(i, m4); m.setColorAt(i, col.setHex(p.c)); });
+    m.name = name; group.add(m);
+  }
   return k.finish({ staff: { pos: STORE_LAYOUT.staff, use: STORE_LAYOUT.staffUse } });
 }
