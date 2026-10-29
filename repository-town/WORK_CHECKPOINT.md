@@ -1,3 +1,7 @@
+# 29 October 2026 — RTD voice PR metadata repair and retest trigger
+
+PR [#276](https://github.com/joshualparris/JoshMemory/pull/276) opened on branch `feat/rtd047-049-npc-voice-line-roster-20261029`. The first Town safety gate on head `8762926f777ec9289a2a696f9afc3db325686c59` failed **solely at PR title/metadata validation** before gameplay checks: slash shorthand in the title meant `RTD-048` and siblings did not match exact full `RTD-NNN` tokens. Changed PR title to explicitly enumerate `RTD-047 RTD-048 RTD-049 RTD-078`; body already contains all exact RTD/RTAC mappings (RTAC-018, RTAC-002, RTAC-027). This checkpoint commit intentionally retriggers PR CI with corrected metadata. DO NOT claim the new run is green until actual results. No gameplay source touched; no paid ElevenLabs call made. Standalone in-memory actor roster validation PASS, Node test execution and production/MP3 acceptance still outstanding.
+
 # 29 October 2026 — RTD-047/048/049/078 scripts milestone — PARTIALLY COMPLETE
 
 Owner ChatGPT. Branch `feat/rtd047-049-npc-voice-line-roster-20261029`. Baseline main `fbed2e5c99ad52f62480ab3146429128bffe9dfa`; coordination main claim `8a624b84399108436fc989d17eecdc15a1495513` and start checkpoint `18b398b5040e1a384755fb14c043b6d1bafe845e`.
