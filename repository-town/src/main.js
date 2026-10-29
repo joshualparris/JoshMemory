@@ -113,7 +113,12 @@ const fail = (e) => {
   $('loading').classList.add('error');
   $('loading-text').textContent = 'Could not start: ' + text;
 };
-addEventListener('error', (e) => fail(e.error || e.message));
+// A cross-origin script (e.g. a host toolbar on preview links) reports only
+// "Script error." with no details; it is not the game's action failing, so after
+// startup it goes to the console instead of telling the player their action failed.
+const foreignScriptError = (e) => !e?.error && (/^Script error\.?$/.test(String(e?.message || '')) ||
+  (!!e?.filename && !String(e.filename).startsWith(location.origin)));
+addEventListener('error', (e) => { if ((started || window.__town) && foreignScriptError(e)) { console.warn('Ignored error from another origin:', e.message, e.filename || ''); return; } fail(e.error || e.message); });
 addEventListener('unhandledrejection', (e) => fail(e.reason));
 
 const SKY = 0x96c9f0, INDOOR = 0x1a1612;
@@ -363,7 +368,7 @@ async function start() {
   floorBadge.setAttribute('aria-label', 'Choose a building floor');
   floorBadge.onclick = () => { if (inside?.floors) openLift(); };
   floorBadge.hidden = true; document.body.append(floorBadge);
-  const npcChat = mountNPCChat(document);
+  const npcChat = mountNPCChat(document, { getTown: () => life });
   let interactionRequest = 0;
 
   let mode = 'town', inside = null, world = townWorld, overview = false;

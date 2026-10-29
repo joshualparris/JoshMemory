@@ -4,6 +4,7 @@ import {recordedTopicsFor,recordedQuestion,recordedReply} from './town-recording
 // by Repository Town and no API key is ever sent to the browser.
 import { NPCS, getNPC } from './npc-data.js';
 import { answerSceneQuestion } from './scene-awareness.js';
+import { answerTownDirections } from './town-directions.js';
 import {makeTownListenButton, primeTownVoice, stopTownVoice, makeTownRecordedLines, makeTownContextCue, isRowanWelcome} from './voicebank.js';
 import {makeTownRecordedConversation} from './recorded-dialogue.js';
 
@@ -27,7 +28,7 @@ export function houseAwareReply(npc,house,question) {
     return `Have a look around ${place}! You can explore its rooms and try the interactive exhibits. I wonder which one you'll enjoy most.`;
   return null;
 }
-export function mountNPCChat(root=document, { getScene = () => null } = {}) {
+export function mountNPCChat(root=document, { getScene = () => null, getTown = () => null } = {}) {
   const el=root.getElementById('npc-chat');
   const feed=root.getElementById('npc-messages');
   const title=root.getElementById('npc-name');
@@ -206,10 +207,13 @@ export function mountNPCChat(root=document, { getScene = () => null } = {}) {
     let scene=null;
     try { scene=getScene(npc,house); } catch { scene=null; }
     const recorded=recordedReply(npc,question);
-    const grounded=recorded ?? answerSceneQuestion(scene,question,house?'resident':'villager');
+    // Shop and meal directions come from the live simulation, never the AI's guesses.
+    let directions=null;
+    try { directions=answerTownDirections(getTown(),question); } catch { directions=null; }
+    const grounded=recorded ?? answerSceneQuestion(scene,question,house?'resident':'villager') ?? directions;
     if(grounded!==null) {
       reply=grounded;
-      status.textContent=recorded?'Recorded character dialogue · ElevenLabs available':'Verified room objects · local answer';
+      status.textContent=recorded?'Recorded character dialogue · ElevenLabs available':grounded===directions?'Live town shops and opening hours · local answer':'Verified room objects · local answer';
     } else {
       controller=new AbortController();
       const timeout=setTimeout(()=>controller?.abort(),22000);
