@@ -19,7 +19,7 @@
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "5b85b88b6522d6c2fbb7d972a07f7e2570b75260",
+    "repository-town/src/main.js": "f2c400cc9e4a074d25696ad56371d01358b2d06a",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -1020,6 +1020,15 @@
       ],
       "finding": "Corner Grocer restocking adds supermarket delivery destinations to existing pickJob truck routes and filters absent route endpoints. Pub-specific interior, structure, floor plans, classification, exits, safety approvals, services, staffing, menus and standards are not changed by this patch.",
       "evidence": "Reviewed PR #278 life.js route diff against main before resolving conflicts; CI pub audit caught the changed blob. Follow-up verification requires passing new branch CI for town/integration, recorded browser and pub audit. This is a source-provenance refresh only, not legal or operational certification."
+    },
+    {
+      "date": "2026-10-29",
+      "by": "ChatGPT",
+      "changedFiles": [
+        "repository-town/src/main.js"
+      ],
+      "finding": "PR #278 changes shared main.js overlay exclusivity and resident kitchen ranking; it does not modify the pub's building geometry, stairs, egress, plant, physical compliance evidence or operating approval status.",
+      "evidence": "Reviewed the playtest PR's main.js diff and its regression test scope; runtime and browser evidence must pass on this branch. Fingerprint update preserves provenance and is not regulatory certification."
     }
   ]
 }
