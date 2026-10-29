@@ -14,8 +14,8 @@
     "repository-town/src/world/life.js": "88b8a536a60dd96fdff12cc34b5740db43cb42d1",
     "repository-town/src/world/power-grid.js": "6de3f54d8fe576117594fe36124748e36da4e255",
     "repository-town/src/world/pub-interior.js": "46396a0552d2480f3c31585e77199803433ab6b6",
-    "repository-town/src/world/shop-interior.js": "8a3a2ed135b56c3b6b0baea7a38dde26addec5ce",
-    "repository-town/src/world/townlife.js": "bf7b5d2c8e7d28e4587343a58b84a8ccc860ad34",
+    "repository-town/src/world/shop-interior.js": "da92157c2909628f20218af356450f92de539df5",
+    "repository-town/src/world/townlife.js": "32ec80e98d31cedaebe56c852b45d1c77defd9e1",
     "repository-town/tests/shop-interiors.mjs": "cf0c7d8b6e40ca91088211e1e6d0dd7454efb25e",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
@@ -993,6 +993,24 @@
       ],
       "finding": "Playtest fixes: bag-line naming for hardware materials and plural goods (life.js), south-side door prompt wording by kind (townlife.js); no pub geometry, egress, services or regulatory classification changes.",
       "evidence": "Source review; tests/bag-labels.mjs, hunger-sleep-hotel.mjs, browser playtest sweep of all 118 places on desktop and Android. Records provenance only, does not certify the pub."
+    },
+    {
+      "date": "2026-10-29",
+      "by": "Claude",
+      "changedFiles": [
+        "repository-town/src/world/townlife.js"
+      ],
+      "finding": "Railway Hotel exterior verandah, balcony and parapet sign, verandah post colliders (townlife.js); the pub (The Merged Branch) geometry, egress, services and classification are unchanged.",
+      "evidence": "Source review; tests/hotel-lobby.mjs, shop-interiors.mjs, pedestrian-navigation.mjs, exterior-collisions.mjs and a browser footpath walk past the hotel. Records provenance only, does not certify the pub."
+    },
+    {
+      "date": "2026-10-29",
+      "by": "Claude",
+      "changedFiles": [
+        "repository-town/src/world/shop-interior.js"
+      ],
+      "finding": "Generic civic interior now returns a staff position behind its counter (shop-interior.js); the pub interior and its staff placement are unchanged.",
+      "evidence": "Source review; tests/staffed-counters.mjs and shop-interiors.mjs. Records provenance only, does not certify the pub."
     }
   ]
 }
