@@ -35,7 +35,7 @@ import { initialiseProperties, upgradePropertyAddresses, propertyReport, buyProp
 import { ensureTenancies, leaseReport, commercialRentDay, issueCommercialDisclosure, renewCommercial, reviewCommercialRent, tenancyNotice, applyTribunal, hearing, enforcePossession, leaseOverview } from './lease-law.js';
 import { exchangePurchase, rescindContract, settlePurchase, contractReport, contractQuote } from './property-contracts.js';
 import { initialiseVehicles, motorReport, buyVehicle, serviceVehicle, refuelVehicle, renewRegistration, sellVehicle, motorDay } from './vehicles.js';
-import { initialiseTradeEducation, advanceTradeEducation, advanceTownTradeOperations } from './trade-education.js';
+import { initialiseTradeEducation, advanceTradeEducation, advanceTownTradeOperations, HARDWARE } from './trade-education.js';
 import { MAYOR_CANDIDATES, createGovernment, civicElection, castCivicVote, submitRequest, requestFeeder, proposeMotion, councilMeeting, advanceCivicWork, budgetRevenue, restoreCivic, govSummary, maintainServices } from './government.js';
 // Town life simulation: the clock, farms, the mill and bakery, shops, trucks, the post,
 // and villagers with jobs, hunger, pantries, wallets and daily routines. Pure logic (no
@@ -330,7 +330,16 @@ export const VENUE_MENU = Object.freeze({
 });
 
 const plural = (unit, n) => (n === 1 ? unit : /[sx]$|ch$/.test(unit) ? `${unit}es` : unit === 'loaf' ? 'loaves' : `${unit}s`);
-export const amount = (good, n) => (GOODS[good].unit === 'dozen' ? `${n} dozen ${GOODS[good].name}` : `${n} ${plural(GOODS[good].unit, n)} of ${GOODS[good].name}`);
+// The bag also holds things from outside GOODS (building materials from the hardware counter).
+// They need a name too: one failed lookup here used to break every counter panel that lists the bag.
+const goodInfo = (good) => GOODS[good] || (HARDWARE[good] ? { name: HARDWARE[good].name.toLowerCase(), unit: 'item' } : { name: String(good).replace(/_/g, ' '), unit: 'item' });
+export const amount = (good, n) => {
+  const g = goodInfo(good);
+  if (g.unit === 'dozen') return `${n} dozen ${g.name}`;
+  // "1 pie", not "1 pie of pies", when the name is just the unit itself.
+  if (g.name === plural(g.unit, 2)) return `${n} ${plural(g.unit, n)}`;
+  return `${n} ${plural(g.unit, n)} of ${g.name}`;
+};
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 // Player money is whole cents; plain float subtraction leaves values like 1.0099999999999998.
 const cents = (n) => Math.round(n * 100) / 100;
