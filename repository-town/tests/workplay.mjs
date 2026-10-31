@@ -28,8 +28,16 @@ assert.equal(o.state,'ready');assert(!useCafe(t,'finish-step',recipe.steps.at(-1
 assert(!useCafe(t,'deliver',o.table===1?2:1).ok);assert.equal(v.wallet,money,'wrong table cannot charge');
 assert(useCafe(t,'deliver',o.table).ok);assert.equal(v.wallet,money-recipe.price-(t.civic.workplay.cafe.tips||0),'charged the price once, plus any $1 tip for quick service');assert.equal(cafe.till,till+recipe.price-Math.round(recipe.price*t.civic.taxRate*100)/100);
 assert(!useCafe(t,'deliver',o.table).ok,'cannot double-serve or double-charge');assert(!useCafe(t,'cancel').ok,'served orders cannot be cancelled');
-t.minute+=9;tickWorkplay(t);assert(useCafe(t,'clear',o.table).ok);
-const s=t.snapshot(),restored=new TownLife({homes,minute:600,seed:5});assert(restored.restore(s));assert.equal(workState(restored).cafe.served,1);
+ t.minute+=9;tickWorkplay(t);
+assert(useCafe(t,'clear',o.table).ok);
+assert.equal(workState(t).cafe.dirtyDishes,1,'clearing a served table produces a wash-up duty');
+assert.match(useCafe(t,'fridge').message,/Fridge and pantry checked/,'fridge displays actual stock');
+assert.match(useCafe(t,'dishwasher').message,/Good job! Washed 1 set/,'dishwasher washes cleared crockery');
+assert.equal(workState(t).cafe.dirtyDishes,0,'washing empties the dirty dish queue');
+assert.equal(workState(t).cafe.washed,1,'washed count is saved');
+assert.match(useCafe(t,'dishwasher').message,/dishwasher is empty/,'empty dishwasher explains why nothing happens');
+assert(!useCafe(t,'dishwasher').ok,'empty dishwasher never duplicates completed work');
+const s=t.snapshot(),restored=new TownLife({homes,minute:600,seed:5});assert(restored.restore(s));assert.equal(workState(restored).cafe.served,1);assert.equal(workState(restored).cafe.washed,1,'dishwasher progress survives saves');
 assert.notEqual(musicProfile('cafe').name,musicProfile('pub').name);assert.notEqual(musicProfile('',0,false).name,musicProfile('',1,false).name);
 // Mobile regression: inspection decisions must return visible feedback in the
 // same panel, not only a fleeting status toast obscured by the open dialogue.
@@ -69,6 +77,33 @@ assert.notEqual(musicProfile('cafe').name,musicProfile('pub').name);assert.notEq
  assert.equal(shop.civic.storeBatches.quarantine.filter(q=>!q.returned).length,0);
  returned.actions.find(a=>a.label==='Close and continue shift').run();
  assert.equal(closed,1,'player can dismiss receipt and resume normal work');
+ view.dispose();
+}
+// Mobile-style interaction: even an empty table and idle till must provide an
+// explicit reason, not a silent action or a falsely successful clearing count.
+{
+ const idle=setup('cafe','cafe-all-rounder'),messages=[];
+ const built={group:new THREE.Group(),interactables:[]};
+ let panel=null;
+ const view=installWorkplay(built,idle.place('cafe'),()=>new THREE.Group(),idle,{
+  openPanel:p=>{panel=p;},closePanel:()=>{},status:msg=>messages.push(msg),sound:()=>{},getVisitors:()=>new Map()
+ });
+ assert.match(built.interactables.find(i=>i.key==='workplay:cafe:orders').label,/TILL/i,'till has a visible world label');
+ assert(built.interactables.some(i=>i.key==='workplay:cafe:fridge'),'fridge has a playable hotspot');
+ assert(built.interactables.some(i=>i.key==='workplay:cafe:dishwasher'),'dishwasher has a playable hotspot');
+ view.use(built.interactables.find(i=>i.key==='workplay:cafe:orders'));
+ assert.match(messages.at(-1),/No customer is waiting/,'till explains an idle queue');
+ view.use(built.interactables.find(i=>i.key==='workplay:cafe:table-1'));
+ assert.match(messages.at(-1),/already empty and clean/,'clean table gives helpful feedback');
+ assert.equal(workState(idle).cafe.cleared,0,'empty table cannot be cleared twice');
+ view.use(built.interactables.find(i=>i.key==='workplay:cafe:rail'));
+ assert.equal(panel.title,'Café ticket rail');
+ assert.match(panel.body,/No active orders yet/,'empty ticket rail directs the player to the till');
+ view.use(built.interactables.find(i=>i.key==='workplay:cafe:dishwasher'));
+ assert.match(messages.at(-1),/dishwasher is empty/,'dishwasher explains its empty state');
+ view.use(built.interactables.find(i=>i.key==='workplay:cafe:fridge'));
+ assert.equal(panel.title,'Café fridge · current stock');
+ assert.match(panel.body,/Fridge and pantry checked/,'fridge shows quantities in the interaction panel');
  view.dispose();
 }
 console.log('PASS: real stock carrying, correct shelves, quarantine and count, cancellation conservation; FIFO cafe tickets, real ingredients, timed steps, correct tables, one payment, save restoration and venue music profiles.');

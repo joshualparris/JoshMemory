@@ -4,7 +4,8 @@ import {noteSpend} from './household.js';
 const result=(ok,message,extra={})=>({ok,message,...extra});
 const now=t=>t.day*1440+t.minute;
 export function workState(t){
- const s=t.civic.workplay??={version:1,store:{shelves:{},carton:null,quarantine:0,restocked:0},cafe:{next:1,tickets:[],selected:null,held:null,served:0,cleared:0}};
+ const s=t.civic.workplay??={version:1,store:{shelves:{},carton:null,quarantine:0,restocked:0},cafe:{next:1,tickets:[],selected:null,held:null,served:0,cleared:0,dirtyDishes:0,washed:0}};
+ s.cafe.dirtyDishes??=0;s.cafe.washed??=0; // Keep pre-upgrade saves playable.
  return s;
 }
 export function isWorking(t,site){const a=t.civic.jobs?.active;return !!(a&&a.site===site&&a.day===t.day&&t.playerAt===site);}
@@ -123,7 +124,7 @@ export function useCafe(t,action,arg,score){
  if(action==='select'){const chosen=c.tickets.find(x=>x.id===Number(arg)&&!['cleared','cancelled'].includes(x.state));if(!chosen)return result(false,'That ticket is no longer active.');c.selected=chosen.id;return result(true,'Ticket '+chosen.id+' selected: '+orderRecipe(chosen).name+', table '+chosen.table+'.');}
  if(action==='take'){
   const front=c.tickets.filter(x=>x.state==='queue').sort((a,b)=>a.created-b.created||a.id-b.id)[0];
-  if(!front)return result(false,'No customer is waiting to order. The town’s actual villagers join as they arrive.');
+  if(!front)return result(false,'No customer is waiting at the till yet. Villagers arrive naturally; check the fridge, wash dirty dishes or wait for the next customer.');
   if(arg!==undefined&&front.customer!==arg)return result(false,'Please take '+front.name+'’s order first; they are at the front of the queue.');
   front.state='accepted';c.selected=front.id;
   const v=t.villagers.find(v=>v.id===front.customer);
@@ -131,7 +132,18 @@ export function useCafe(t,action,arg,score){
   delete v.step.queue;v.step.food={dish:[orderRecipe(front).name,orderRecipe(front).price],ready:now(t)+100000};
   mark(t,'take-orders');return result(true,front.name+': “'+orderRecipe(front).name+', please.” Ticket '+front.id+', table '+front.table+'.');
  }
- if(!o)return result(false,'Select a ticket on the order rail first.');
+ // These appliances work between customers, even when there is no selected ticket.
+ if(action==='fridge'){
+  const goods=['milk','oatmilk','soymilk','eggs','bread','veg','fruit','pie','coffee','tea'];
+  const stock=goods.map(g=>g+': '+(p.stock[g]||0)).join(' · ');
+  return result(true,'Fridge and pantry checked. '+stock+'. Ingredients are reserved automatically when you begin preparing an accepted ticket.');
+ }
+ if(action==='dishwasher'){
+  if(!c.dirtyDishes)return result(false,'The dishwasher is empty. Clear a finished customer table first; already-clean tables need no work.');
+  const count=c.dirtyDishes;c.dirtyDishes=0;c.washed+=count;
+  return result(true,'Good job! Washed '+count+' set'+(count===1?'':'s')+' of dishes. The dishwasher is now empty. '+c.washed+' sets washed in total.');
+ }
+ if(!o)return result(false,'No ticket selected. Take the next customer order at the TILL, then choose its ticket on the ORDER RAIL before using the barista or kitchen station.');
  const r=orderRecipe(o);
  if(action==='milk'){if(!['accepted','preparing'].includes(o.state)||o.reserved)return result(false,'Milk selection is locked once preparation starts.');if(arg!==o.milk)return result(false,'Ticket requests '+o.milk+' milk. Choose that option; ingredients and wages are unchanged.');
  if(arg==='soy'&&o.diet==='soy-free')return result(false,'Soy is an allergen for this guest. Stop and request a safe alternative.');o.chosenMilk=arg;return result(true,'Correct '+arg+' milk jug selected.');}
@@ -177,7 +189,7 @@ export function useCafe(t,action,arg,score){
  if(action==='clear'){
   if(Number(arg)!==o.table||!['dirty','served'].includes(o.state))return result(false,'There are no finished dishes from this ticket at that table.');
   if(o.state==='served'&&now(t)-o.servedAt<8)return result(false,o.name+' is still eating. Clear the table afterwards.');
-  o.state='cleared';c.cleared++;t.rubbish(1);mark(t,'table-service');return result(true,'Crockery cleared. Table '+o.table+' is ready for the next customer.');
+  o.state='cleared';c.cleared++;c.dirtyDishes++;t.rubbish(1);mark(t,'table-service');return result(true,'Good job! Table '+o.table+' is clean and ready for the next customer. '+c.dirtyDishes+' set'+(c.dirtyDishes===1?'':'s')+' of dishes waiting at the dishwasher.');
  }
  if(action==='cancel'){if(['served','dirty','cleared','cancelled'].includes(o.state))return result(false,'Only unserved orders can be cancelled.');cancelCafe(t,o);return result(true,'Order cancelled; no customer was charged.');}
  return result(false,'Unknown café task.');

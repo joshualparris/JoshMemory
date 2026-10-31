@@ -22,7 +22,7 @@ export function installWorkplay(built,site,makeLabel,life,{openPanel,closePanel,
  const carriedFood=new THREE.Group();carry.add(carriedFood);
  mesh(carriedFood,new THREE.CylinderGeometry(.25,.25,.025,16),0xf2e7cf,0,-.08,0);
  const meal=mesh(carriedFood,new THREE.SphereGeometry(.17,12,7),0xd4a35e,0,0,0);meal.scale.y=.4;
- let pitcher=null,pan=null,kitchenFood=null,coffeeCup=null,liquid=null,stream=null,steam=[],ovenLight=null,animation=null,elapsed=0;
+ let pitcher=null,pan=null,kitchenFood=null,coffeeCup=null,liquid=null,stream=null,steam=[],ovenLight=null,animation=null,elapsed=0,tillMarker=null;
  const shelfMeshes={};
  if(site.id==='store'){
   add('receiving','Receiving bay · pick up / return carton',-5.2,3.3,'receiving');
@@ -42,10 +42,17 @@ export function installWorkplay(built,site,makeLabel,life,{openPanel,closePanel,
  }else{
   // Replace decorative machine hotspots with working equipment, retaining ordinary counter service.
   const old=built.interactables.findIndex(i=>i.key==='cafe:machine');if(old>=0)built.interactables.splice(old,1);
-  add('orders','Take next customer order',1.3,-3.6,'take');
+  add('orders','TILL · take next customer order',1.3,-3.6,'take');
+  // Landmark persists when proximity hotspot labels temporarily disappear.
+  tillMarker=makeLabel('TILL / TAKE ORDERS','interactive');tillMarker.position.set(1.3,2.45,-3.6);built.group.add(tillMarker);
+  box(0x263c41,.5,.3,.38,1.3,1.28,-4.05);box(0xced5cc,.32,.07,.24,1.3,1.48,-4.05);
   add('rail','Order rail · choose ticket',2.5,-4.25,'rail');
   add('barista','Grinder / espresso / tea station',-2.3,-4.2,'prepare','barista');
-  add('kitchen','Kitchen · grill and oven',4.9,-7.4,'prepare','kitchen');
+  add('kitchen','Kitchen · cook, grill and bake ticket',4.9,-7.4,'prepare','kitchen');
+  add('fridge','Fridge · inspect ingredients',3.35,-7.3,'fridge');
+  box(0x9ba9ad,.7,1.7,.65,3.35,.85,-7.95);box(0x40545a,.45,.06,.05,3.35,1.1,-7.6);
+  add('dishwasher','Dishwasher · wash dirty crockery',3.25,-5.95,'dishwasher');
+  box(0x758e93,.9,.75,.65,3.25,.38,-6.45);box(0x293a42,.65,.33,.05,3.25,.47,-6.1);
   add('pass','Kitchen pass · collect finished tray',4.8,-4.7,'collect');
   box(0x667170,1.2,1,.65,4.9,.5,-8.3);box(0x2b2c2a,1,.45,.03,4.9,.6,-7.95);
   ovenLight=box(0xd38736,.85,.08,.03,4.9,.66,-7.92);
@@ -67,7 +74,12 @@ export function installWorkplay(built,site,makeLabel,life,{openPanel,closePanel,
   });
  }
  const hud=typeof document==='undefined'?{style:{},remove(){}}:document.createElement('div');hud.id='workplay-hud';hud.style.cssText='position:fixed;left:12px;top:100px;max-width:min(310px,75vw);padding:10px 13px;background:#102c32e8;color:#f3eedc;border:1px solid #729d98;border-radius:12px;z-index:20;pointer-events:none;font:13px system-ui;white-space:pre-line';if(typeof document!=='undefined')document.body.append(hud);
- const say=r=>{status(r.message);if(r.ok)sound?.('success');return r;};
+ const feedback=typeof document==='undefined'?{hidden:true,remove(){}}:document.createElement('div');
+ feedback.id='workplay-feedback';
+ if(typeof document!=='undefined'){feedback.setAttribute('role','status');feedback.setAttribute('aria-live','polite');feedback.style.cssText='position:fixed;left:12px;right:12px;bottom:clamp(155px,22vh,240px);max-width:480px;margin:auto;padding:11px 14px;border-radius:12px;background:#152c32f2;color:#fff;border:2px solid #a6c2a8;z-index:65;pointer-events:none;font:600 14px/1.4 system-ui;box-shadow:0 3px 14px #0009';document.body.append(feedback);}
+ feedback.hidden=true;let feedbackUntil=0;
+ const notify=(message,ok=true)=>{status(message);feedback.textContent=(ok?'Done: ':'Not yet: ')+message;feedback.hidden=false;feedbackUntil=Date.now()+10000;};
+ const say=r=>{notify(r.message,r.ok);if(r.ok)sound?.('success');return r;};
  // An action inside a modal must return a visible result panel. Sending
  // status() alone leaves the old buttons on screen (and hides the answer on mobile).
  const inspectionResult=r=>{
@@ -90,7 +102,12 @@ export function installWorkplay(built,site,makeLabel,life,{openPanel,closePanel,
   ]));
  const selectOrder=()=>{
   const c=workState(life).cafe;const list=c.tickets.filter(o=>!['cancelled','cleared'].includes(o.state));
-  openPanel(choices('Café ticket rail','<p>Select a ticket. Remember its drink or meal and table number before taking the tray.</p>',list.map(o=>({label:'#'+o.id+' · '+o.name+' · '+orderRecipe(o).name+' · table '+o.table+' · '+o.state+' · '+Math.max(0,Math.ceil((o.patience||90)-(life.day*1440+life.minute-o.created)))+' min patience',run:()=>{say(useCafe(life,'select',o.id));return null;}})).concat([{label:'Cancel selected unserved order',run:()=>{say(useCafe(life,'cancel'));return null;}}])));
+  const options=list.map(o=>({label:'#'+o.id+' · '+o.name+' · '+orderRecipe(o).name+' · table '+o.table+' · '+o.state+' · '+Math.max(0,Math.ceil((o.patience||90)-(life.day*1440+life.minute-o.created)))+' min patience',run:()=>{say(useCafe(life,'select',o.id));return null;}}));
+  const selected=list.find(o=>o.id===c.selected&&!['served','dirty'].includes(o.state));
+  if(selected)options.push({label:'Cancel selected unserved order',run:()=>{say(useCafe(life,'cancel'));return null;}});
+  if(!list.length)notify('No active tickets on the rail yet. Take an order at the labelled TILL when a customer arrives.',false);
+  options.push({label:'Return to café shift',run:()=>{closePanel();return null;}});
+  openPanel(choices('Café ticket rail',list.length?'<p>Choose the ticket, then prepare it at the named kitchen or barista station.</p>':'<p>No active orders yet. The TILL is at the front service counter; villagers will queue there as they arrive.</p>',options));
  };
  function use(item){
   const{action,arg}=item.act;
@@ -106,11 +123,13 @@ export function installWorkplay(built,site,makeLabel,life,{openPanel,closePanel,
    say(useStore(life,action,arg));return;
   }
   if(action==='rail'){selectOrder();return;}
+  if(action==='fridge'){const r=say(useCafe(life,'fridge'));if(r.ok)openPanel(choices('Café fridge · current stock','<p>'+esc(r.message)+'</p><p>Stock is consumed only when you start a selected ticket at its preparation station.</p>',[{label:'Back to café',run:()=>{closePanel();return null;}}]));return;}
+  if(action==='dishwasher'){say(useCafe(life,'dishwasher'));return;}
   if(action==='take'){say(useCafe(life,'take'));return;}
   if(action==='table'){
    const c=workState(life).cafe;
-   if(c.held){const held=c.tickets.find(o=>o.id===c.held),person=getVisitors?.()?.get(held?.customer);if(person&&person.state!=='seated'){status('Wait for '+held.name+' to reach their table before delivering.');return;}say(useCafe(life,'deliver',arg));}
-   else{const o=c.tickets.find(o=>o.table===arg&&['served','dirty'].includes(o.state));if(o){c.selected=o.id;say(useCafe(life,'clear',arg));}else status('No tray for this table. Collect a ready ticket at the pass.');}
+   if(c.held){const held=c.tickets.find(o=>o.id===c.held),person=getVisitors?.()?.get(held?.customer);if(person&&person.state!=='seated'){notify('Wait for '+held.name+' to reach their table before delivering.',false);return;}say(useCafe(life,'deliver',arg));}
+   else{const o=c.tickets.find(o=>o.table===arg&&['served','dirty'].includes(o.state));if(o){c.selected=o.id;say(useCafe(life,'clear',arg));}else notify('This table is already empty and clean. No dishes to clear. Take a new order at the TILL, or collect a ready tray at the pass.',false);}
    return;
   }
   const r=say(useCafe(life,action,arg));
@@ -119,7 +138,7 @@ export function installWorkplay(built,site,makeLabel,life,{openPanel,closePanel,
    animation={kind:r.mini[0].split(':').at(-1),start:elapsed};
    openPanel(skillPanel(r.mini,score=>{
     animation=null;
-    if(score<.35){status('Outside the target zone. Retry this step; the ingredients are still at your station.');closePanel();return;}
+    if(score<.35){notify('Outside the target zone. Retry this step; the ingredients are still at your station.',false);closePanel();return;}
     const done=say(useCafe(life,'finish-step',r.mini[0],score));closePanel();
    },()=>{animation=null;},sound));
   }
@@ -128,7 +147,7 @@ export function installWorkplay(built,site,makeLabel,life,{openPanel,closePanel,
  function update(dt,player){
   if(animation&&typeof document!=='undefined'&&!document.getElementById('work-skill'))animation=null;
   elapsed+=dt;refresh-=dt;const state=workState(life),active=isWorking(life,site.id);
-  hud.hidden=!active;carry.visible=false;
+  hud.hidden=!active;carry.visible=false;if(tillMarker)tillMarker.visible=active;feedback.hidden=!active||Date.now()>feedbackUntil;
   if(site.id==='store'){
    const s=storeState(life);for(const[g,arr]of Object.entries(shelfMeshes))arr.forEach((m,i)=>m.visible=i<Math.min(6,s.shelves[g]));
    if(active&&s.carton){carry.visible=true;carton.visible=true;tray.visible=false;carriedCup.visible=false;carriedFood.visible=false;carton.material.color.set(STORE_GOODS[s.carton.good].colour);}
@@ -139,10 +158,10 @@ export function installWorkplay(built,site,makeLabel,life,{openPanel,closePanel,
    if(active&&c.held){carry.visible=true;carton.visible=false;tray.visible=true;const food=['food','oven'].includes(orderRecipe(o).kind);carriedCup.visible=!food;carriedFood.visible=food;}
    for(const a of actors)if(a.table){const ticket=c.tickets.find(o=>o.table===a.table&&['served','dirty'].includes(o.state));a.cup.visible=!!ticket;a.plate.visible=!!ticket;if(ticket)a.cup.material.color.set(ticket.state==='dirty'?0xa38b68:0xf2ecde);}
    if(coffeeCup){const preparing=!!animation;pitcher.rotation.z=preparing&&animation.kind==='pour'?-.55:0;pitcher.position.y=1.55+(preparing?Math.sin(elapsed*3)*.025:0);stream.material.color.setHex(animation?.kind==='pour'?0xf4ead2:0x99704a);pan.rotation.z=preparing&&animation.kind==='cook'?Math.sin(elapsed*4)*.04:0;kitchenFood.material.color.setHex(preparing&&['cook','bake'].includes(animation.kind)?0xc48b3f:0xe9b851);stream.visible=preparing&&['extract','pour','fill'].includes(animation.kind);liquid.scale.y=preparing?.5+(Math.sin(elapsed*2)+1)/2:1;steam.forEach((m,i)=>{m.visible=preparing&&['steam','steep'].includes(animation.kind);m.position.y=1.4+((elapsed*.4+i*.12)% .6);m.position.x=-2.3+Math.sin(elapsed*2+i)*.08;m.material.opacity=.35*(1-(m.position.y-1.4)/.6);});coffeeCup.rotation.z=preparing&&animation.kind==='pour'?Math.sin(elapsed*2)*.12:0;ovenLight.material.emissive.setHex(preparing&&['cook','bake'].includes(animation.kind)?0xff7711:0x000000);}
-   const str='CAFÉ SHIFT · '+c.tickets.filter(o=>o.state==='queue').length+' queuing\n'+(o?'#'+o.id+' '+o.name+' · '+orderRecipe(o).name+'\nTABLE '+o.table+' · '+o.state:'Take an order at the till')+'\n'+c.served+' served · '+c.cleared+' tables cleared · $'+(c.tips||0)+' tips';if(str!==hudText){hud.textContent=str;hudText=str;}
+   const str='CAFÉ SHIFT · '+c.tickets.filter(o=>o.state==='queue').length+' queuing\n'+(o?'#'+o.id+' '+o.name+' · '+orderRecipe(o).name+'\nTABLE '+o.table+' · '+o.state:'TILL at counter → wait for a customer')+'\n'+c.served+' served · '+c.cleared+' tables cleared · '+(c.dirtyDishes||0)+' dishes to wash · $'+(c.tips||0)+' tips';if(str!==hudText){hud.textContent=str;hudText=str;}
   }
   if(carry.visible){const f=player.forward();carry.position.set(player.pos.x+f.x*.72,player.eye-.55,player.pos.z+f.z*.72);carry.rotation.y=player.yaw;carry.rotation.z=Math.sin(elapsed*4)*.015;}
   for(const a of actors)if(a.tag)a.tag.visible=active&&Math.hypot(a.item.pos.x-player.pos.x,a.item.pos.z-player.pos.z)>2.3;
  }
- return {use,update,customer(v){if(site.id!=='cafe'||!isWorking(life,'cafe')||!v)return false;const c=workState(life).cafe,o=c.tickets.find(o=>o.id===v.step?.workTicket);if(!o)return false;if(o.state==='queue')say(useCafe(life,'take',v.id));else if(c.held){const person=getVisitors?.()?.get(o.customer);if(person&&person.state!=='seated')status('Let the customer reach their table first.');else say(useCafe(life,'deliver',o.table));}else{c.selected=o.id;status('#'+o.id+' · '+v.name+' · '+orderRecipe(o).name+' · table '+o.table+' · '+o.state);}return true;},dispose:()=>{hud.remove();},root};
+ return {use,update,customer(v){if(site.id!=='cafe'||!isWorking(life,'cafe')||!v)return false;const c=workState(life).cafe,o=c.tickets.find(o=>o.id===v.step?.workTicket);if(!o)return false;if(o.state==='queue')say(useCafe(life,'take',v.id));else if(c.held){const person=getVisitors?.()?.get(o.customer);if(person&&person.state!=='seated')notify('Let the customer reach their table first.',false);else say(useCafe(life,'deliver',o.table));}else{c.selected=o.id;notify('#'+o.id+' · '+v.name+' · '+orderRecipe(o).name+' · table '+o.table+' · '+o.state);}return true;},dispose:()=>{hud.remove();feedback.remove();},root};
 }
