@@ -22,7 +22,7 @@ export function installWorkplay(built,site,makeLabel,life,{openPanel,closePanel,
  const carriedFood=new THREE.Group();carry.add(carriedFood);
  mesh(carriedFood,new THREE.CylinderGeometry(.25,.25,.025,16),0xf2e7cf,0,-.08,0);
  const meal=mesh(carriedFood,new THREE.SphereGeometry(.17,12,7),0xd4a35e,0,0,0);meal.scale.y=.4;
- let pitcher=null,pan=null,kitchenFood=null,coffeeCup=null,liquid=null,stream=null,steam=[],ovenLight=null,animation=null,elapsed=0;
+ let pitcher=null,pan=null,kitchenFood=null,coffeeCup=null,liquid=null,stream=null,steam=[],ovenLight=null,animation=null,elapsed=0,tillMarker=null;
  const shelfMeshes={};
  if(site.id==='store'){
   add('receiving','Receiving bay · pick up / return carton',-5.2,3.3,'receiving');
@@ -42,10 +42,17 @@ export function installWorkplay(built,site,makeLabel,life,{openPanel,closePanel,
  }else{
   // Replace decorative machine hotspots with working equipment, retaining ordinary counter service.
   const old=built.interactables.findIndex(i=>i.key==='cafe:machine');if(old>=0)built.interactables.splice(old,1);
-  add('orders','Take next customer order',1.3,-3.6,'take');
+  add('orders','TILL · take next customer order',1.3,-3.6,'take');
+  // Landmark persists when proximity hotspot labels temporarily disappear.
+  tillMarker=makeLabel('TILL / TAKE ORDERS','interactive');tillMarker.position.set(1.3,2.45,-3.6);built.group.add(tillMarker);
+  box(0x263c41,.5,.3,.38,1.3,1.28,-4.05);box(0xced5cc,.32,.07,.24,1.3,1.48,-4.05);
   add('rail','Order rail · choose ticket',2.5,-4.25,'rail');
   add('barista','Grinder / espresso / tea station',-2.3,-4.2,'prepare','barista');
-  add('kitchen','Kitchen · grill and oven',4.9,-7.4,'prepare','kitchen');
+  add('kitchen','Kitchen · cook, grill and bake ticket',4.9,-7.4,'prepare','kitchen');
+  add('fridge','Fridge · inspect ingredients',3.35,-7.3,'fridge');
+  box(0x9ba9ad,.7,1.7,.65,3.35,.85,-7.95);box(0x40545a,.45,.06,.05,3.35,1.1,-7.6);
+  add('dishwasher','Dishwasher · wash dirty crockery',3.25,-5.95,'dishwasher');
+  box(0x758e93,.9,.75,.65,3.25,.38,-6.45);box(0x293a42,.65,.33,.05,3.25,.47,-6.1);
   add('pass','Kitchen pass · collect finished tray',4.8,-4.7,'collect');
   box(0x667170,1.2,1,.65,4.9,.5,-8.3);box(0x2b2c2a,1,.45,.03,4.9,.6,-7.95);
   ovenLight=box(0xd38736,.85,.08,.03,4.9,.66,-7.92);
@@ -67,7 +74,12 @@ export function installWorkplay(built,site,makeLabel,life,{openPanel,closePanel,
   });
  }
  const hud=typeof document==='undefined'?{style:{},remove(){}}:document.createElement('div');hud.id='workplay-hud';hud.style.cssText='position:fixed;left:12px;top:100px;max-width:min(310px,75vw);padding:10px 13px;background:#102c32e8;color:#f3eedc;border:1px solid #729d98;border-radius:12px;z-index:20;pointer-events:none;font:13px system-ui;white-space:pre-line';if(typeof document!=='undefined')document.body.append(hud);
- const say=r=>{status(r.message);if(r.ok)sound?.('success');return r;};
+ const feedback=typeof document==='undefined'?{hidden:true,remove(){}}:document.createElement('div');
+ feedback.id='workplay-feedback';
+ if(typeof document!=='undefined'){feedback.setAttribute('role','status');feedback.setAttribute('aria-live','polite');feedback.style.cssText='position:fixed;left:12px;right:12px;bottom:clamp(155px,22vh,240px);max-width:480px;margin:auto;padding:11px 14px;border-radius:12px;background:#152c32f2;color:#fff;border:2px solid #a6c2a8;z-index:65;pointer-events:none;font:600 14px/1.4 system-ui;box-shadow:0 3px 14px #0009';document.body.append(feedback);}
+ feedback.hidden=true;let feedbackUntil=0;
+ const notify=(message,ok=true)=>{status(message);feedback.textContent=(ok?'Done: ':'Not yet: ')+message;feedback.hidden=false;feedbackUntil=Date.now()+10000;};
+ const say=r=>{notify(r.message,r.ok);if(r.ok)sound?.('success');return r;};
  // An action inside a modal must return a visible result panel. Sending
  // status() alone leaves the old buttons on screen (and hides the answer on mobile).
  const inspectionResult=r=>{
@@ -90,7 +102,12 @@ export function installWorkplay(built,site,makeLabel,life,{openPanel,closePanel,
   ]));
  const selectOrder=()=>{
   const c=workState(life).cafe;const list=c.tickets.filter(o=>!['cancelled','cleared'].includes(o.state));
-  openPanel(choices('Café ticket rail','<p>Select a ticket. Remember its drink or meal and table number before taking the tray.</p>',list.map(o=>({label:'#'+o.id+' · '+o.name+' · '+orderRecipe(o).name+' · table '+o.table+' · '+o.state+' · '+Math.max(0,Math.ceil((o.patience||90)-(life.day*1440+life.minute-o.created)))+' min patience',run:()=>{say(useCafe(life,'select',o.id));return null;}})).concat([{label:'Cancel selected unserved order',run:()=>{say(useCafe(life,'cancel'));return null;}}])));
+  const options=list.map(o=>({label:'#'+o.id+' · '+o.name+' · '+orderRecipe(o).name+' · table '+o.table+' · '+o.state+' · '+Math.max(0,Math.ceil((o.patience||90)-(life.day*1440+life.minute-o.created)))+' min patience',run:()=>{say(useCafe(life,'select',o.id));return null;}}));
+  const selected=list.find(o=>o.id===c.selected&&!['served','dirty'].includes(o.state));
+  if(selected)options.push({label:'Cancel selected unserved order',run:()=>{say(useCafe(life,'cancel'));return null;}});
+  if(!list.length)notify('No active tickets on the rail yet. Take an order at the labelled TILL when a customer arrives.',false);
+  options.push({label:'Return to café shift',run:()=>{closePanel();return null;}});
+  openPanel(choices('Café ticket rail',list.length?'<p>Choose the ticket, then prepare it at the named kitchen or barista station.</p>':'<p>No active orders yet. The TILL is at the front service counter; villagers will queue there as they arrive.</p>',options));
  };
  function use(item){
   const{action,arg}=item.act;
