@@ -1114,7 +1114,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     // Solar coordinates are computed from Narromine's civil date and in-game
     // clock, NOT from the player's device time. Daylight and dawn now vary by season.
     const solar = solarPosition(townDate(life.day), m);
-    lastSolar = solar;
+    lastSolar = { ...solar, gameDay: life.day, gameMinute: m };
     const day = solarDaylight(solar.elevation), dark = THREE.MathUtils.clamp((0.55 - day) / 0.45, 0, 1);
     // Name boards and opening-hours plaques are floodlit after dark, so they stay readable.
     if (signBoards) signBoards.material.emissiveIntensity = dark * 0.55;
