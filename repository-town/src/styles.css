@@ -56,6 +56,51 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
 #panel .big { font-size: 20px; }
 #panel .dim { opacity: .7; font-size: 12px; }
 #minimap { position: fixed; top: max(10px, env(safe-area-inset-top)); right: 10px; z-index: 8; width: 260px; height: 110px; background: #15253bd0; border-radius: 10px; }
+
+/* Geographic compass: intentionally outside the minimap, upper-right, non-interactive.
+   N/E/S/W dial rotates opposite camera heading; the top triangle is forward. */
+#game-compass {
+  position: fixed;
+  top: max(10px, env(safe-area-inset-top));
+  right: max(10px, env(safe-area-inset-right));
+  z-index: 9;
+  width: 84px;
+  min-height: 92px;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  box-sizing: border-box;
+  padding: 5px 5px 6px;
+  background: #101c30ed;
+  color: #f3f8ff;
+  border: 1px solid #93a6bb;
+  border-radius: 13px;
+  pointer-events: none;
+  font: 600 11px/1.1 system-ui,sans-serif;
+  box-shadow: 0 2px 10px #0007;
+}
+#game-compass[hidden],body.playing #game-compass,body.overview #game-compass {display:none!important;}
+.compass-face {position:relative;width:65px;height:65px;border:1px solid #91a7bb;border-radius:50%;background:radial-gradient(circle,#283c4b 0,#17253b 65%,#0d1c2e 100%);}
+.compass-rose {position:absolute;inset:0;transform-origin:center;will-change:transform;}
+.compass-rose span {position:absolute;font-size:12px;line-height:1;text-shadow:0 1px 2px #000;transform:translate(-50%,-50%);}
+.compass-n {left:50%;top:13%;color:#ff817b;font-weight:900;}
+.compass-e {left:87%;top:50%;}
+.compass-s {left:50%;top:87%;}
+.compass-w {left:13%;top:50%;}
+.compass-centre {position:absolute;top:50%;left:50%;width:4px;height:4px;border-radius:50%;background:#e6edf3;transform:translate(-50%,-50%);}
+.compass-forward {position:absolute;left:50%;top:-5px;transform:translateX(-50%);width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:8px solid #ffd77b;z-index:2;}
+.compass-reading {font-size:10px;font-variant-numeric:tabular-nums;white-space:nowrap;letter-spacing:.035em;}
+#compass-setting {margin:12px 0;padding:10px 12px;border:1px solid #ffffff33;border-radius:10px;}
+#compass-setting legend{font-weight:700;padding:0 4px;}
+.compass-setting-label{display:flex;align-items:center;gap:9px;font-weight:600;}
+.compass-setting-label input{width:19px;height:19px;accent-color:#7de1db;}
+#compass-setting p{margin:8px 0 0;font-size:12px;opacity:.86;}
+@media(max-width:700px){
+  #game-compass{width:78px;min-height:84px;padding:4px 4px 5px;}
+  .compass-face{width:59px;height:59px;}
+  body.compass-on #first-day{top:max(119px,calc(env(safe-area-inset-top) + 111px));}
+}
+
 #floor-indicator { position:fixed; top:max(68px, calc(env(safe-area-inset-top) + 55px)); left:10px; z-index:9; background:#10223eea; padding:7px 12px; border-radius:9px; border:1px solid #8197b7; font-weight:600; max-width:calc(100vw - 20px); }
 @media (max-width:700px) { #floor-indicator { top:max(65px, calc(env(safe-area-inset-top) + 55px)); font-size:12px; max-width:210px; } }
 #touch { position: fixed; inset: 0; z-index: 7; pointer-events: none; }
