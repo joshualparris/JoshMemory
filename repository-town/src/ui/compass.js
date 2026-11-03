@@ -1,4 +1,5 @@
-// Camera-relative compass for the shared Republic/Repository Town and real Narromine
+import * as THREE from 'three';
+// Camera-relative compass for Repository Town and real Narromine
 // world. World -Z is geographic north, +X east. Use the *camera* look direction,
 // not the walking avatar's yaw: chase, rider and high driving views can differ.
 export const COMPASS_STORAGE_KEY = 'repository-town.compass-visible.v1';
@@ -39,7 +40,7 @@ export function createCompass({ element, checkbox, camera, storage, getView = ()
   sync();
 
   // Allocated once; called during the normal frame with no extra rendering.
-  const forward = { x: 0, y: 0, z: -1 };
+  const forward = new THREE.Vector3();
   const update = () => {
     if (!enabled || element.hidden) return;
     camera.getWorldDirection(forward);
