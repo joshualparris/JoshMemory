@@ -4,6 +4,7 @@
 // town is drawn only once the player has driven out west (update()), so it costs almost nothing
 // while you are in Repository Town.
 import * as THREE from 'three';
+import { NARROMINE_POST_OFFICE_ENTRANCE, NARROMINE_POST_OFFICE_ID } from './narromine-post-office.js';
 import { HIGHWAY, HIGHWAY_Z, REGION, CORRIDOR_HALF, STREETS, BUILDINGS, AREAS, WATER, RAIL, PLACES, FILL_SHOPS, FILL_HOUSES, FRONTAGES, DETAILED, polyRect, nearTownStreet, boundaryColliders } from './narromine-layout.js';
 
 const SHOW_WEST_OF = -1300;   // past Repository Town's last houses (x ≈ -1330)
@@ -262,6 +263,26 @@ export function buildNarromine(parent, makeLabel = null) {
     }
     for (const [tx, tz] of d.trees) { box(0x8f8577, 0.5, 4, 0.5, tx, 2, tz); const g3 = new THREE.SphereGeometry(4.2, 8, 6); g3.scale(1, 0.7, 1); g3.translate(tx, 6.5, tz); push(0x5d7d43, g3); }
   }
+  // Actual corner entrance at the Post Office's north-side steps. The external
+  // masonry stays solid, but the visible glazing is a real indoor transition:
+  // approach the door or press E/✋ at the marked threshold to enter.
+  const postalFacade=DETAILED.find(d=>d.id===NARROMINE_POST_OFFICE_ID)?.parts.find(p=>p.name==='north wing');
+  if(postalFacade){
+    const wall=along(postalFacade,[0,1]), [dx,dz]=wall.at(.655,0.20);
+    placeBox(0xf4f0ea,1.62,2.63,0.12,dx,1.32,dz,wall.yaw);
+    placeBox(0x293a48,1.39,2.31,0.13,dx+wall.ox*.08,1.17,dz+wall.oz*.08,wall.yaw);
+    placeBox(0xb74339,0.72,0.55,0.09,dx+wall.ox*.13,2.25,dz+wall.oz*.13,wall.yaw);
+    placeBox(0xb7c3c9,0.04,1.20,0.05,dx+wall.ox*.19,1.30,dz+wall.oz*.19,wall.yaw);
+  }
+  if(makeLabel){
+    const sign=makeLabel('ENTER POST OFFICE · ✋ / E','interactive');
+    sign.position.set(NARROMINE_POST_OFFICE_ENTRANCE.x,2.35,NARROMINE_POST_OFFICE_ENTRANCE.z);
+    town.add(sign);
+  }
+  spots.push({key:'narromine:post-office:entrance',label:'Enter Narromine Post Office',
+    pos:new THREE.Vector3(NARROMINE_POST_OFFICE_ENTRANCE.x,0,NARROMINE_POST_OFFICE_ENTRANCE.z),
+    narromineEnter:true});
+
   // Named places: a sign over each, and an E-prompt with what it is, its address and any history.
   for (const p of PLACES) {
     if (makeLabel) { const l = makeLabel(p.name, 'interactive'); l.position.set(p.x, 5.4, p.z); l.scale.multiplyScalar(0.8); town.add(l); }
