@@ -67,6 +67,25 @@ for (const s of STREETS) for (let i=1;i<s.pts.length;i++){
 const segDist = (x, z, s) => { const dx = s.bx - s.ax, dz = s.bz - s.az, l = dx * dx + dz * dz || 1, t = Math.max(0, Math.min(1, ((x - s.ax) * dx + (z - s.az) * dz) / l)); return Math.hypot(x - s.ax - t * dx, z - s.az - t * dz); };
 export const onTownStreet = (x, z) => (grid.get(key(Math.floor(x / CELL), Math.floor(z / CELL))) || []).some((s) => segDist(x, z, s) <= s.half);
 export const nearTownStreet = (x, z, margin) => (grid.get(key(Math.floor(x / CELL), Math.floor(z / CELL))) || []).some((s) => segDist(x, z, s) <= s.half + margin);
+const medianSegments=NSW_GIS_STREETS.filter(s=>s.divided).map(s=>{
+ const [[ax,az],[bx,bz]]=s.pts;return {ax,az,bx,bz};
+});
+export function onDandalooGardenMedian(x,z,radius=0){
+ if(!Number.isFinite(x)||!Number.isFinite(z))return false;
+ const onMedian=medianSegments.some(m=>{
+  if(x<Math.min(m.ax,m.bx)-5||x>Math.max(m.ax,m.bx)+5 ||
+     z<Math.min(m.az,m.bz)-5||z>Math.max(m.az,m.bz)+5)return false;
+  return segDist(x,z,m)<DANDALOO_HERITAGE_MEDIAN.widthEstimatedMetres/2+radius;
+ });
+ if(!onMedian)return false;
+ // An ordinary mapped cross street traversing the real Dandaloo junction must
+ // remain passable; don't accidentally obstruct the legal intersections.
+ const crossing=NSW_GIS_STREETS.some(r=>r.name!=='Dandaloo Street'&&r.pts.some(([px,pz])=>
+  Math.abs(px-x)<16&&Math.abs(pz-z)<16)&&
+  r.pts.slice(1).some(([bx,bz],i)=>segDist(x,z,{ax:r.pts[i][0],az:r.pts[i][1],bx,bz})<r.width/2+2));
+ return !crossing;
+}
+
 
 const inRect = (b, x, z) => x >= b.x0 && x <= b.x1 && z >= b.z0 && z <= b.z1;
 export const HIGHWAY_RECT = Object.freeze({ x0: HIGHWAY.x0 - 1, x1: HIGHWAY.x1, z0: HIGHWAY.z - HIGHWAY.width / 2 - 0.5, z1: HIGHWAY.z + HIGHWAY.width / 2 + 0.5 });
