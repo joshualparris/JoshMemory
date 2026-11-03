@@ -1,0 +1,50 @@
+name: Narromine Post Office Entry and Interior
+on:
+  pull_request:
+    paths:
+      - 'repository-town/src/world/narromine*'
+      - 'repository-town/src/main.js'
+      - 'repository-town/src/world/post-interior.js'
+      - 'repository-town/tests/narromine-post-office*'
+      - 'repository-town/package.json'
+      - '.github/workflows/narromine-post-office.yml'
+  push:
+    branches: [main, feat/narromine-post-office-enterable-20261103]
+    paths:
+      - 'repository-town/src/world/narromine*'
+      - 'repository-town/src/main.js'
+      - 'repository-town/src/world/post-interior.js'
+      - 'repository-town/tests/narromine-post-office*'
+      - 'repository-town/package.json'
+      - '.github/workflows/narromine-post-office.yml'
+permissions:
+  contents: read
+jobs:
+  browser:
+    name: Actual Post Office - desktop and Pixel 7
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install pinned dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Verify mapped entrance and playable interior geometry
+        run: node tests/narromine-post-office.mjs
+      - name: Build real public game
+        run: npm run build
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Walk through real Narromine PO, use counter, leave and reload
+        run: |
+          node tools/serve.mjs dist/public 8091 &
+          echo $! > /tmp/narromine-post-office-server.pid
+          trap 'kill "$(cat /tmp/narromine-post-office-server.pid)" 2>/dev/null || true' EXIT
+          node tests/narromine-post-office-browser.mjs --url http://127.0.0.1:8091/
