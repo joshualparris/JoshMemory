@@ -11,6 +11,8 @@
 import { NARROMINE_OSM as OSM } from './narromine-osm-data.js';
 export { OSM };
 import { NARROMINE_BUILDINGS } from './narromine-buildings-data.js';
+import { NARROMINE_LIDAR } from './narromine-lidar-data.js';
+const LIDAR = NARROMINE_LIDAR.heights;
 
 export const HIGHWAY_Z = -7;                 // continues Repository Town's Street 4
 export const HIGHWAY = Object.freeze({ id: 'mitchell-highway', name: 'Mitchell Highway (A32)', x0: -2870, x1: -343, z: HIGHWAY_Z, width: 9, speed: 100 });
@@ -52,13 +54,13 @@ export const onNarromineRoad = (x, z) => inRect(HIGHWAY_RECT, x, z) || (x < REGI
 // Buildings modelled in detail from aerial imagery and the cadastre (see narromine-buildings-data.js).
 const W = (pts) => pts.map(([lat, lon]) => geoToWorld(lat, lon));
 export const DETAILED = Object.freeze(NARROMINE_BUILDINGS.map((d) => Object.freeze({ ...d, boundary: W(d.boundary), trees: W(d.trees),
-  parts: d.parts.map((p) => ({ ...p, pts: W(p.pts) })), verandahs: d.verandahs.map((v) => ({ ...v, pts: W(v.pts) })),
+  parts: d.parts.map((p) => ({ ...p, pts: W(p.pts), lidar: LIDAR[d.id + '|' + p.name] || null })), verandahs: d.verandahs.map((v) => ({ ...v, pts: W(v.pts), lidar: LIDAR[d.id + '|' + v.name] || null })),
   ground: d.ground.map((g) => ({ ...g, pts: W(g.pts) })),
   // Props carry a point (at), an outline (pts) or a run between two points (a, b).
   props: (d.props || []).map((p) => ({ ...p, ...Object.fromEntries(['at', 'a', 'b'].filter((k) => p[k]).map((k) => [k, W([p[k]])[0]])), ...(p.pts ? { pts: W(p.pts) } : {}) })) })));
 // Mapped outlines whose centre lies in a detailed lot are left out: the detailed model replaces them.
 const centreOf = (pts) => [pts.reduce((s, p) => s + p[0], 0) / pts.length, pts.reduce((s, p) => s + p[1], 0) / pts.length];
-export const BUILDINGS = Object.freeze(OSM.buildings.map((b) => Object.freeze({ ...b, pts: b.pts.map(toWorld) }))
+export const BUILDINGS = Object.freeze(OSM.buildings.map((b, i) => Object.freeze({ ...b, pts: b.pts.map(toWorld), lidar: LIDAR['osm:' + i] || null }))
   .filter((b) => !DETAILED.some((d) => inPoly(...centreOf(b.pts), d.boundary))));
 export const AREAS = Object.freeze(OSM.areas.map((a) => Object.freeze({ ...a, pts: a.pts.map(toWorld) })));
 export const WATER = Object.freeze(OSM.water.map((w) => Object.freeze({ ...w, pts: w.pts.map(toWorld) })));

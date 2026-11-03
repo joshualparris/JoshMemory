@@ -295,3 +295,41 @@ Josh supplied Google Street View screenshots (June 2022, May 2023, Sept 2026). T
 **Still estimated:** the exact positions along each wall, the exact heights, and the inside.
 
 **Builder:** gains generic wall features, placed along a part edge (glazing, ribbon windows, windows with optional air-conditioners, piers, panels, flat and projecting signs). It also gains cantilevered awnings and street props (piers, lamps, hedges, steps, rails, fences).
+
+## Building heights from airborne LiDAR (NSW Spatial Services, CC BY 4.0)
+
+Josh ordered the surveys through ELVIS (Geoscience Australia) on 4 Nov 2026:
+- **MacquarieFloodplainSouth 2023:** tiles 55_6166432 and 55_6166433, 4 pts/m², GDA2020 MGA55 + AHD, about 11.4 million points.
+- **Narromine 2011:** tile 6166432, GDA94 MGA55. Used only where the 2023 survey does not reach.
+
+The raw LAZ files are not committed (about 160 MB). They are kept in Josh's Google Drive.
+
+**Method.** `tools/narromine_lidar.py` takes each building polygon and measures:
+- the surveyor-classified building points (class 6) inside it, and the ground points (class 2) within 8 m;
+- ground = median ground elevation;
+- heights above ground: eave = 5th percentile, ridge = 98th percentile, typical = median.
+
+Results go into `src/world/narromine-lidar-data.js`, keyed to every OSM building and to every detailed part and verandah.
+
+**Effect in game**
+- **Mapped buildings:** extruded to their measured median roof height wherever surveyed. 77 are measured; the others keep their tag-based guesses.
+- **Detailed parts:** wall height and roof pitch from the measurements. For a pitched roof, eave = (median − 0.3 × ridge) / 0.7.
+- **Upper-floor features:** stretched to the new wall height.
+- **Verandahs:** their measured height is used only when the survey sees them clearly. Awnings under a roof overhang, like the Post Office's, read as the roof and are ignored.
+
+**Checks against earlier estimates**
+
+| Building | Earlier estimate | LiDAR |
+|---|---|---|
+| Royal front | 4.2 m | ≈ 4.3 m eave, 6.4 m ridge |
+| Royal verandah | 3.25 m | 2.8 m |
+| Narromine Hotel | 7.6 m | ≈ 9.5 m eave, 11 m ridge |
+| Narromine Hotel verandah | 7.0 m | 7.1–7.5 m |
+| Post Office | 8.4 m | ≈ 9.7 m, near-flat roof at 10.4 m |
+| Coles halls | 7.1 m | ≈ 5.5 m eave, 7.5–7.7 m ridge |
+| Coles awning | 3.25 m | 3.3 m |
+
+**Limits**
+- Parts under about 15 m² (the Royal's lean-to) have too few points and keep their traced heights.
+- Where traced parts overlap a taller neighbour, the neighbour's roof can lift the percentiles.
+- Facades, colours and materials still come from photos; LiDAR gives only heights and roof shape.

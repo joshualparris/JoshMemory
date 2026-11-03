@@ -34,7 +34,8 @@ function speedTexture(n) {
 const ROAD_COLOUR = { trunk: 0x45484b, primary: 0x46494c, secondary: 0x47494b, tertiary: 0x4a4c4e, unclassified: 0x4d4f50, residential: 0x4f5153, service: 0x5a5b5a, living_street: 0x55575a, track: 0x9b8566 };
 const AREA_COLOUR = { park: 0x7fae64, pitch: 0x8cc06a, golf_course: 0x79ad5d, cemetery: 0x8a9a7a, school: 0xc7b88f, industrial: 0xa49c90, retail: 0xb9ada0, parking: 0x6a6b6c, sports_centre: 0x9fb8a6, swimming_pool: 0x5aa9d6, track: 0xb47a5a, farmyard: 0xb9a675, residential: null };
 const BUILDING_STYLE = (b) => {
-  const k = b.kind, base = b.levels ? b.levels * 3.4 : null;
+  // Measured LiDAR height (median roof height above ground) wins over tag- or kind-based guesses.
+  const k = b.kind, base = b.lidar ? Math.max(2.4, b.lidar[4]) : b.levels ? b.levels * 3.4 : null;
   if (k === 'hangar') return [base || 7.5, 0xb8bcbf];
   if (k === 'church') return [base || 8, 0xc2a07a];
   if (k === 'hospital') return [base || 6, 0xd9d4c8];
@@ -237,17 +238,24 @@ export function buildNarromine(parent, makeLabel = null) {
     const ROOF = 0xc8cac6, WALL = 0xe3d8c2;   // galvanised roofs as in the aerial; wall colour assumed (cream render/paint)
     for (const g of d.ground) flatPoly(GROUND[g.kind][0], g.pts, GROUND[g.kind][1]);
     for (const p of d.parts) {
-      const f = frame(p.pts), wallH = p.wall || (p.storeys === 2 ? 7.6 : 3.8);
+      const f = frame(p.pts), guessH = p.wall || (p.storeys === 2 ? 7.6 : 3.8);
+      // LiDAR: [year, ground, eave p5, ridge p98, median, n, density]. A hipped/gabled roof's median sits about 30%
+      // of the way from eave to ridge, so eave = (median - 0.3 ridge) / 0.7; flat/skillion parts use the median.
+      const Ld = p.lidar, pitched = p.roof === 'hip' || p.roof === 'gable';
+      const wallH = Ld ? Math.max(2.4, pitched ? (Ld[4] - 0.3 * Ld[3]) / 0.7 : Ld[4]) : guessH;
+      const pitch = Ld && pitched ? Math.min(0.8, Math.max(0.05, Math.atan(Math.max(0, Ld[3] - wallH) / (Math.min(f.L, f.W) / 2)))) : p.pitch;
+      // Upper-floor features were placed for the guessed height; stretch heights above the ground floor to fit.
+      const fitY = (y) => (Ld && y > 3.4 && guessH > 3.4 ? 3.4 + (y - 3.4) * (wallH - 3.4) / (guessH - 3.4) : y);
       box(p.wallColour ?? WALL, f.L, wallH, f.W, f.cx, wallH / 2, f.cz, f.yaw);
-      for (const F of p.features || []) feature(p, F);
+      for (const F of p.features || []) feature(p, { ...F, y: Array.isArray(F.y) ? F.y.map(fitY) : fitY(F.y) });
       if (p.fascia) box(0xf4f4f0, f.L + 0.5, 0.35, f.W + 0.5, f.cx, wallH - 0.05, f.cz, f.yaw);   // white roof edge
       if (p.mast) { box(0xb0b2b4, 0.1, 4, 0.1, f.cx, wallH + 2, f.cz); box(0xb0b2b4, 1.4, 0.06, 0.06, f.cx, wallH + 3.4, f.cz); }
-      if (p.roof === 'hip') hipRoof(ROOF, p.pts, wallH, p.pitch);
-      else if (p.roof === 'gable') gableRoof(ROOF, p.pts, wallH, p.pitch);
+      if (p.roof === 'hip') hipRoof(ROOF, p.pts, wallH, pitch);
+      else if (p.roof === 'gable') gableRoof(ROOF, p.pts, wallH, pitch);
       else box(ROOF, f.L + 0.4, 0.1, f.W + 0.4, f.cx, wallH + 0.1, f.cz, f.yaw);
       if (p.storeys === 2 && !p.features) for (const side of [-1, 1]) for (let t = -f.L / 2 + 1.5; t < f.L / 2 - 1; t += 3) { // upper-floor windows on the long faces
         const ox = Math.cos(-f.yaw) * t - Math.sin(-f.yaw) * side * (f.W / 2 + 0.03), oz = Math.sin(-f.yaw) * t + Math.cos(-f.yaw) * side * (f.W / 2 + 0.03);
-        box(0x34434f, 1.0, 1.6, 0.06, f.cx + ox, 5.6, f.cz + oz, f.yaw); }
+        box(0x34434f, 1.0, 1.6, 0.06, f.cx + ox, fitY(5.6), f.cz + oz, f.yaw); }
       colliders.push(polyRect(p.pts));
       if (p.roofText && typeof document !== 'undefined') {
         // Painted on the street-facing (west) slope, as seen from the air (axis-aligned front block).
@@ -263,19 +271,22 @@ export function buildNarromine(parent, makeLabel = null) {
     }
     // Verandahs: posts along the outer (kerb) edge; two-level ones get a balcony floor, balustrade and iron-lace frieze.
     for (const v of d.verandahs) {
-      const f = frame(v.pts), [oa, ob] = [v.pts[v.outer[0]], v.pts[v.outer[1]]], top = v.levels === 2 ? 7.0 : 3.25;
+      // Measured verandah roof height when the survey sees it clearly (dense points, below the main roof);
+      // awnings tucked under a roof overhang read as the roof and are ignored.
+      const Lv = v.lidar && v.lidar[6] >= 1.5 && v.lidar[4] < 8.5 ? v.lidar[4] : null;
+      const f = frame(v.pts), [oa, ob] = [v.pts[v.outer[0]], v.pts[v.outer[1]]], top = Lv ?? (v.levels === 2 ? 7.0 : 3.25);
       const vRoof = v.lace ? 0x8a6a52 : ROOF, POST = v.lace ? 0xeae6dc : 0x6f6a62;   // painted posts and lace assumed
-      if (v.cantilever) { box(v.colour ?? 0xf2f0ea, f.L, 0.3, f.W, f.cx, v.height, f.cz, f.yaw); continue; }   // cantilevered awning, no posts
+      if (v.cantilever) { box(v.colour ?? 0xf2f0ea, f.L, 0.3, f.W, f.cx, Lv ?? v.height, f.cz, f.yaw); continue; }   // cantilevered awning, no posts
       box(vRoof, f.L, 0.1, f.W, f.cx, top, f.cz, f.yaw);
       const ex = ob[0] - oa[0], ez = ob[1] - oa[1], len = Math.hypot(ex, ez), n = Math.max(2, Math.round(len / 3.2));
       const ix = (f.cx - (oa[0] + ob[0]) / 2), iz = (f.cz - (oa[1] + ob[1]) / 2), il = Math.hypot(ix, iz) || 1, inX = ix / il * 0.25, inZ = iz / il * 0.25;
       const eyaw = -Math.atan2(ez, ex), mx = (oa[0] + ob[0]) / 2 + inX, mz = (oa[1] + ob[1]) / 2 + inZ;
       for (let i = 0; i <= n; i++) { const t = i / n; box(POST, 0.14, top, 0.14, oa[0] + ex * t + inX, top / 2, oa[1] + ez * t + inZ); }
       if (v.levels === 2) {
-        box(0x7d6a55, f.L, 0.2, f.W, f.cx, 3.6, f.cz, f.yaw);                       // balcony floor
-        box(POST, len, 0.06, 0.06, mx, 4.65, mz, eyaw); box(POST, len, 0.9, 0.03, mx, 4.2, mz, eyaw); // balustrade rail and panel
+        box(0x7d6a55, f.L, 0.2, f.W, f.cx, top * 0.5, f.cz, f.yaw);                       // balcony floor
+        box(POST, len, 0.06, 0.06, mx, top * 0.5 + 1.05, mz, eyaw); box(POST, len, 0.9, 0.03, mx, top * 0.5 + 0.6, mz, eyaw); // balustrade rail and panel
       }
-      if (v.lace) { box(POST, len, 0.45, 0.03, mx, top - 0.3, mz, eyaw); box(POST, len, 0.35, 0.03, mx, 3.25, mz, eyaw); } // upper and lower lace friezes
+      if (v.lace) { box(POST, len, 0.45, 0.03, mx, top - 0.3, mz, eyaw); box(POST, len, 0.35, 0.03, mx, top * 0.5 - 0.35, mz, eyaw); } // upper and lower lace friezes
     }
     for (const g of d.ground) if (g.tables) { const cy = polyRect(g.pts);
       for (let i = 0; i < g.tables; i++) { const tx = cy.x0 + 2 + i * 3.2, tz = (cy.z0 + cy.z1) / 2; box(0x5c4632, 1.6, 0.06, 0.8, tx, 0.75, tz); box(0x5c4632, 1.6, 0.05, 0.3, tx, 0.45, tz - 0.75); box(0x5c4632, 1.6, 0.05, 0.3, tx, 0.45, tz + 0.75); } }
