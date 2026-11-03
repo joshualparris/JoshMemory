@@ -1,7 +1,7 @@
 // Playtest cheats (opened from the hidden HUD cheat menu, src/ui/cheat-menu.js). They change
 // game state directly and say so in the town log; nothing here touches real money or accounts.
 import { DRIVEABLE_RECTS, PLAN_PARCELS, PLAN_HOMES } from './masterplan-built.js';
-import { NARROMINE_ROADS } from './narromine-location.js';
+import { NARROMINE_ROADS, narromineRoadAllows } from './narromine-location.js';
 import { registry } from './property.js';
 import {vehicleSpec,VEHICLE_DYNAMICS} from './vehicle-dynamics.js';
 
@@ -10,7 +10,7 @@ const r2 = (n) => Math.round(n * 100) / 100;
 // The nearest point that is genuinely on a road (inset from the edges so the whole car fits).
 export function nearestRoadPoint(x, z, clear = () => true) {
   let best = null, dist = Infinity;
-  for (const b of [...DRIVEABLE_RECTS,...NARROMINE_ROADS]) {
+  for (const b of DRIVEABLE_RECTS) {
     const inset = 2.2, x0 = b.x0 + inset, x1 = b.x1 - inset, z0 = b.z0 + inset, z1 = b.z1 - inset;
     if (x0 > x1 || z0 > z1) continue;
     // The closest point on this road, then points further along it, so an occupied spot is skipped.
@@ -19,6 +19,24 @@ export function nearestRoadPoint(x, z, clear = () => true) {
       const p = horizontal ? { x: Math.min(x1, Math.max(x0, c.x + shift)), z: c.z } : { x: c.x, z: Math.min(z1, Math.max(z0, c.z + shift)) };
       const d = Math.hypot(p.x - x, p.z - z);
       if (d < dist && clear(p.x, p.z)) { dist = d; best = { ...p, horizontal }; }
+    }
+  }
+  // Real georeferenced Narromine roads are rotated polylines, not rectangular
+  // road reserves. Find a legal carriageway point including either Dandaloo lane.
+  for (const r of NARROMINE_ROADS) {
+    const dx=r.b.x-r.a.x,dz=r.b.z-r.a.z,length2=dx*dx+dz*dz;
+    if(length2<.01)continue;
+    const t=Math.min(1,Math.max(0,((x-r.a.x)*dx+(z-r.a.z)*dz)/length2));
+    const xx=r.a.x+dx*t,zz=r.a.z+dz*t;
+    const centreDistance=Math.hypot(x-xx,z-zz);
+    if(centreDistance>Math.min(100,dist+18))continue;
+    const len=Math.sqrt(length2),nx=dz/len,nz=-dx/len;
+    const lateral=r.name==='DANDALOO ST'?[7.5,-7.5,0]:[0,1.5,-1.5];
+    for(const side of lateral){
+      const cx=xx+nx*side,cz=zz+nz*side;
+      const d=Math.hypot(x-cx,z-cz);
+      if(d>=dist || !narromineRoadAllows(cx,cz) || !clear(cx,cz))continue;
+      dist=d;best={x:cx,z:cz,horizontal:Math.abs(dx)>Math.abs(dz),yaw:Math.atan2(-dx,-dz)};
     }
   }
   return best;
@@ -37,7 +55,7 @@ export function summonCar(life, x, z, { model = 'sedan', clear } = {}) {
     stockId: 'cheat-' + motor.next, model, condition: 100, odometer: 0, price: 0,
     registration: 'CHEAT-' + String(motor.next++).padStart(3, '0'), owner: 'visitor',
     regoUntil: life.day + 365, lastService: life.day, serviceDue: life.day + 365, roadworthy: true,
-    x: spot.x, z: spot.z, yaw: spot.horizontal ? Math.PI / 2 : 0, speed: 0, fuel: spec.maxFuel, parkingPending: false, cheat: true, cheatUnrestricted:false,
+    x: spot.x, z: spot.z, yaw: Number.isFinite(spot.yaw) ? spot.yaw : spot.horizontal ? Math.PI / 2 : 0, speed: 0, fuel: spec.maxFuel, parkingPending: false, cheat: true, cheatUnrestricted:false,
   };
   motor.owned.push(vehicle);
   life.log(`Cheat: ${vehicle.registration} summoned.`);
