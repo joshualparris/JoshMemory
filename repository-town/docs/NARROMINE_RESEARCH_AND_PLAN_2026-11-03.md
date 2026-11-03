@@ -1,6 +1,6 @@
 # Narromine: research dossier and plan to make it drivable from Repository Town
 
-Status: research and design only (no game code yet). Branch `claude/narromine`.
+Status: Phase 1 built (highway + Dandaloo Street arrival). Branch `claude/narromine`.
 Every fact below carries its source. Where sources disagree the disagreement is recorded, not
 resolved; check the primary source (ABS, council, AWM, Trove) before putting a number on screen.
 
@@ -39,10 +39,9 @@ Aboriginal community (median age 23) visible in schools, sport and the street.
   Show both meanings and say they differ.
 - The land lay within **Wangaibon** territory; in December 2021 NSW restored the name **Wambuul**
   ("winding river") for the Macquarie River ([Wikipedia](https://en.wikipedia.org/wiki/Narromine)).
-- Rule for the game: First Nations content comes only from Aboriginal-authored or
-  community-endorsed public sources; no sacred or sensitive sites; no invented Aboriginal
-  characters or stories. Before shipping any of it, ask Narromine Local Aboriginal Land Council
-  or Wiradjuri language groups for guidance (outward contact: Josh's decision, not the agent's).
+- Rule for the game: First Nations content comes only from published Aboriginal-authored
+  public sources; no sacred or sensitive sites; no invented Aboriginal characters or stories.
+  Nobody is to be contacted for guidance (Josh's decision); anything uncertain stays out.
 
 ## 4. History timeline (for in-game plaques and the museum)
 
@@ -137,10 +136,21 @@ wallet. Keep it deterministic like Repo Town so saves restore exactly.
 4. **River and civic block.** Rotary Park walk, Court House museum, visitor centre, station.
 5. **Residents and life.** Small resident roster, shop hours, trains, farm trucks, flood
    history as an optional weather event (1926/1990 plaques).
-6. **First Nations content** only after guidance from local Aboriginal organisations.
+6. **First Nations content** only from published Aboriginal-authored sources (no outreach).
 
-### Open questions for Josh
-- Compressed drive (~90 s) or a longer, more realistic one?
-- Should Trangie and Tomingley follow later in the same way?
-- Is it OK to contact Narromine Shire's Local History Room or the Local Aboriginal Land Council
-  for material and guidance? (Not done; needs your say.)
+### Decisions (Josh, 2026-11-03)
+- The compressed ~90 s drive is right.
+- **Never contact anyone on Josh's behalf.** No emails, calls or messages to the council, the
+  Local History Room, the Local Aboriginal Land Council or anyone else. First Nations content is
+  limited to published, Aboriginal-authored public sources; anything that would need community
+  guidance stays out of the game.
+
+### Phase 1 — built
+- `src/world/narromine-layout.js` (pure data: highway, region, streets, buildings, fences),
+  `src/world/narromine.js` (drawing; the corridor is always drawn, the town only west of x -1300),
+  driving on the highway/streets with a 100 km/h open-highway limit, a gap in the town's west
+  wall, E-prompt facts at each building and the Soldiers' Wall, search "Narromine".
+- Test `tests/narromine-browser.mjs`: drives a sedan from Street 4 to Dandaloo Street in 99 s
+  of game time at up to 100 km/h, never off a driveable road; town hidden at home, shown on
+  arrival; Royal Hotel fact; search teleport; no page errors.
+- Open question: should Trangie and Tomingley follow later in the same way?

@@ -628,4 +628,4 @@ Historical scope: Codex; branch feat/pub-cellar-upper-20261026; baseline f81da76
 
 ## 2026-11-03 — Narromine research + drivable-town plan (Claude, claude/narromine)
 - Docs only: docs/NARROMINE_RESEARCH_AND_PLAN_2026-11-03.md (sourced dossier + phased plan). No game code yet.
-- Next (unclaimed until Josh confirms scale): Phase 1 Mitchell Highway + Dandaloo Street arrival. Will touch src/world/player-driving.js (roadAllows), road-signs.js, a new src/world/narromine/ folder.
+- Phase 1 DONE on branch: Mitchell Highway + Dandaloo Street. Touched src/main.js (west wall gap, build/update, search, test hooks), src/world/player-driving.js (roadAllows, highway limit), src/world/vehicle-dynamics.js (limitKmh option), new src/world/narromine*.js, tests/narromine-browser.mjs. Josh: never contact anyone on his behalf.
