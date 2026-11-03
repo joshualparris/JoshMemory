@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { VEHICLE_MODELS } from './vehicles.js';
 import {updateCoolantTemperature} from './driving-instruments.js';
 import { onPlannedOrCoreRoad } from './masterplan-built.js';
-import { narromineRoadAllows } from './narromine-location.js';
+import { narromineRoadAllows, narromineMedianBlocks } from './narromine-location.js';
 import { lightingLevel } from './lighting.js';
 import { nightLightLevel } from './estate-lighting.js';
 import {vehicleSpec,intendedSpeedMs,accelerationMs2,transmissionFor,clamp as vehicleClamp} from './vehicle-dynamics.js';
@@ -195,7 +195,7 @@ export function createPlayerDriving(life,scene,collision,player,camera,input){
      const closing=(o,r)=>{const now=Math.hypot(v.x-o.x,v.z-o.z),next=Math.hypot(nx-o.x,nz-o.z);return next<r&&next<now;};
      const pedestrian=life.villagers.some(p=>!p.inside&&closing(p,spec.kind==='bike'?1.25:2.2));
      const parked=(life.civic.motor.owned||[]).some(o=>o!==v&&Number.isFinite(o.x)&&closing(o,(spec.length+vehicleSpec(o.model).length)*.35));
-     if(pedestrian||parked||collision.hits(nx,nz,Math.min(1.15,spec.width/2+.1))){blocked=true;break;}
+     if(pedestrian||parked||collision.hits(nx,nz,Math.min(1.15,spec.width/2+.1))||narromineMedianBlocks(nx,nz,spec.width/2+.1)){blocked=true;break;}
      distance+=Math.hypot(dx,dz);v.x=nx;v.z=nz;
    }
    v.yaw=yaw;
