@@ -50,6 +50,11 @@ try {
     if (i === 4 || i === geo.route.length - 1)
       await page.screenshot({ path: `${folder}/${mobile ? 'mobile' : 'desktop'}-${i === 4 ? 'courtyard' : 'rear-canopy'}.png` });
   }
+  // Turn around without changing position at the rear: verify the historically
+  // documented red/yellow shutter and the canopy as approached from the car park.
+  await page.evaluate(([x, z]) => window.__town.place(x, z, -Math.PI / 2), geo.route.at(-1));
+  await page.waitForTimeout(400);
+  await page.screenshot({ path: `${folder}/${mobile ? 'mobile' : 'desktop'}-rear-looking-in.png` });
   assert.deepEqual(errors, [], 'no browser page errors while walking arcade');
   console.log(`PASS Kierath's Shopping Square ${mobile ? 'mobile' : 'desktop'}: 10 units; live WebGL; ${geo.route.length-1} physically walked segments; front/courtyard/rear screenshots; no page errors`);
 } finally { await browser.close(); }
