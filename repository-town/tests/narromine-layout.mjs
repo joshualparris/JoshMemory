@@ -47,11 +47,15 @@ console.log(`PASS Narromine (OpenStreetMap): ${STREETS.length} street pieces, ${
   // Cadastre Shape__Area is Web Mercator; true area = value × cos²(32.24°). Royal: 3,355 → ≈2,395 m² (listing "approx 2393 sqm");
   // Narromine Hotel (Lot 13 DP519453): 2,929 → ≈2,097 m²; Post Office (Lot 2 DP814749): 1,330 → ≈952 m².
   for (const [id, want, pubName] of [['royal-hotel', 2393, 'Royal Hotel'], ['narromine-hotel', 2097, 'Narromine Hotel'],
-    ['narromine-post-office', 952, 'Narromine Post Office']]) {
+    ['narromine-post-office', 952, 'Narromine Post Office'], ['dandaloo-82', 3821, 'Coles'],
+    // The rest of the traced Dandaloo Street block: every lot gets the same placement checks.
+    ...DETAILED.filter((b) => !['royal-hotel', 'narromine-hotel', 'narromine-post-office', 'dandaloo-82'].includes(b.id)).map((b) => [b.id, 0, b.name])]) {
     const d = DETAILED.find((b) => b.id === id), area = areaOf(d.boundary);
-    assert(Math.abs(area - want) < 30, `${id} lot is the real ~${want} m² (got ${area.toFixed(0)})`);
-    const pub = PLACES.find((p) => p.name === pubName);
-    assert(inPoly(pub.x, pub.z, d.boundary) || edgeDist(d.boundary, pub.x, pub.z) < 15, `the mapped ${pubName} lies at its own lot`);
+    if (want) {
+      assert(Math.abs(area - want) < 30, `${id} lot is the real ~${want} m² (got ${area.toFixed(0)})`);
+      const pub = PLACES.find((p) => p.name === pubName);
+      assert(inPoly(pub.x, pub.z, d.boundary) || edgeDist(d.boundary, pub.x, pub.z) < 15, `the mapped ${pubName} lies at its own lot`);
+    }
     // Buildings sit on the boundary (2.5 m tolerance); verandahs overhang the footpath (6.5 m, or 9.5 m
     // at a corner, where a wrap-around verandah reaches diagonally past the lot's splayed corner).
     for (const p of d.parts) for (const [x, z] of p.pts) assert(inPoly(x, z, d.boundary) || edgeDist(d.boundary, x, z) <= 2.5, `${id} ${p.name} inside the lot`);
