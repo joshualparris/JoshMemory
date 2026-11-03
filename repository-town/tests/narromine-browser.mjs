@@ -37,7 +37,8 @@ try {
   step(trip.seconds > 70 && trip.seconds < 130, `the trip takes about 90 s (${trip.seconds.toFixed(0)} s)`);
   step(trip.maxKmh > 90 && trip.maxKmh < 102, `open highway allows 100 km/h (top ${trip.maxKmh.toFixed(0)} km/h)`);
   step(trip.offRoad === 0, `stayed on a driveable road all the way (${trip.offRoad} off-road steps; z ${trip.minZ.toFixed(1)}..${trip.maxZ.toFixed(1)})`);
-  await page.waitForTimeout(400);
+  // Software WebGL may need several frames to build/show the now-detailed real town.
+  await page.waitForFunction(() => window.__town.narromineVisible(), null, { timeout: 12000 }).catch(() => {});
   step(await page.evaluate(() => window.__town.narromineVisible()), 'Narromine is drawn on arrival');
   // Park, get out and read the Royal Hotel's fact at its door.
   await page.evaluate(() => { for (let i = 0; i < 90; i++) window.__town.stepVehicle(1 / 30); window.__town.leaveVehicle(); });
