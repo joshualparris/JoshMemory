@@ -4,7 +4,7 @@
 // town is drawn only once the player has driven out west (update()), so it costs almost nothing
 // while you are in Repository Town.
 import * as THREE from 'three';
-import { HIGHWAY, HIGHWAY_Z, REGION, CORRIDOR_HALF, STREETS, BUILDINGS, AREAS, WATER, RAIL, PLACES, FILL_SHOPS, FILL_HOUSES, FRONTAGES, DETAILED, polyRect, nearTownStreet, boundaryColliders } from './narromine-layout.js';
+import { HIGHWAY, HIGHWAY_Z, REGION, CORRIDOR_HALF, STREETS, BUILDINGS, AREAS, WATER, RAIL, PLACES, FILL_SHOPS, FILL_HOUSES, FRONTAGES, DETAILED, polyRect, nearTownStreet, nearestSegment, NSW_PUBLIC_PLACES, DANDALOO_HERITAGE_MEDIAN, boundaryColliders } from './narromine-layout.js';
 
 const SHOW_WEST_OF = -1300;   // past Repository Town's last houses (x ≈ -1330)
 
@@ -119,8 +119,20 @@ export function buildNarromine(parent, makeLabel = null) {
     const c = ROAD_COLOUR[s.kind] ?? 0x4f5153, kerbed = /trunk|primary|secondary|tertiary|residential|unclassified/.test(s.kind);
     for (let i = 1; i < s.pts.length; i++) {
       const [ax, az] = s.pts[i - 1], [bx, bz] = s.pts[i];
-      if (kerbed) strip(0xbdb6a8, ax, az, bx, bz, s.width + 5, 0.03, 0.06);   // footpaths either side
-      strip(c, ax, az, bx, bz, s.width, 0.06);
+      if(s.divided){
+        // Heritage-listed Dandaloo garden strip is real. Widths estimated.
+        const dx=bx-ax,dz=bz-az,len=Math.hypot(dx,dz),nx=dz/len,nz=-dx/len;
+        for(const side of [-1,1]){
+          const ox=nx*DANDALOO_HERITAGE_MEDIAN.laneOffsetsEstimatedMetres*side;
+          const oz=nz*DANDALOO_HERITAGE_MEDIAN.laneOffsetsEstimatedMetres*side;
+          strip(0xbdb6a8,ax+ox,az+oz,bx+ox,bz+oz,s.width+1.2,0.03,0.05);
+          strip(c,ax+ox,az+oz,bx+ox,bz+oz,s.width,0.065);
+        }
+        strip(0x73915b,ax,az,bx,bz,DANDALOO_HERITAGE_MEDIAN.widthEstimatedMetres,0.05,0.07);
+      }else{
+        if (kerbed) strip(0xbdb6a8, ax, az, bx, bz, s.width + 5, 0.03, 0.06);
+        strip(c, ax, az, bx, bz, s.width, 0.06);
+      }
     }
   }
   // Real buildings, raised from their mapped outlines.
@@ -132,6 +144,15 @@ export function buildNarromine(parent, makeLabel = null) {
     // Collide with the outline's box, unless the outline is very irregular or the box covers a street.
     const r = polyRect(b.pts), area = Math.abs(b.pts.reduce((s, p, i) => { const q = b.pts[(i + 1) % b.pts.length]; return s + p[0] * q[1] - q[0] * p[1]; }, 0) / 2);
     if (area > 0.55 * (r.x1 - r.x0) * (r.z1 - r.z0) && !nearTownStreet((r.x0 + r.x1) / 2, (r.z0 + r.z1) / 2, 0)) colliders.push(r);
+  }
+  // True cadastral lot boundaries for geocoded PUBLIC venues. These are
+  // property boundary outlines, not building walls or private ownership claims.
+  for(const place of NSW_PUBLIC_PLACES){
+    if(!place.parcel||place.parcel.length<3)continue;
+    for(let i=0;i<place.parcel.length;i++){
+      const a=place.parcel[i],end=place.parcel[(i+1)%place.parcel.length];
+      strip(0xb9a88f,...a,...end,.15,0.075,0.025);
+    }
   }
   // Stand-ins where the map has no outline (see narromine-layout.js): shopfronts with a street
   // veranda at named places, and houses with hipped roofs along residential streets.
@@ -205,7 +226,19 @@ export function buildNarromine(parent, makeLabel = null) {
   for (const p of PLACES) {
     if (makeLabel) { const l = makeLabel(p.name, 'interactive'); l.position.set(p.x, 5.4, p.z); l.scale.multiplyScalar(0.8); town.add(l); }
     const text = [p.kindLabel + (p.address ? ' · ' + p.address : ''), p.fact].filter(Boolean).join(' — ');
-    spots.push({ key: 'narromine:' + p.name, label: p.name, pos: new THREE.Vector3(p.x, 0, p.z), text });
+    // Government property points can be inside real buildings. Offer an
+    // interaction on the nearest public footpath instead of inside private land.
+    let sx=p.x,sz=p.z;
+    if(p.officialLotId){
+      const n=nearestSegment(p.x,p.z);
+      if(n&&n.d<115){
+        const dx=p.x-n.px,dz=p.z-n.pz,len=Math.hypot(dx,dz)||1,edge=(n.s.width||7)/2+2.1;
+        sx=n.px+dx/len*edge;sz=n.pz+dz/len*edge;
+      }
+    }
+    spots.push({key:'narromine:'+p.name,label:p.name,
+      pos:new THREE.Vector3(sx,0,sz),
+      text:text+(p.provenance?' · Source: '+p.provenance:'')});
   }
   pole(-2742, z - 9, 2.4); plane(boardTexture(['Map data', '© OpenStreetMap contributors'], { bg: '#ffffff', fg: '#222222', border: '#222222' }), 2.6, 1.3, -2742, 2.2, z - 9, Eb);
 
