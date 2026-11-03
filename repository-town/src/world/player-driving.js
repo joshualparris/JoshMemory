@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { VEHICLE_MODELS } from './vehicles.js';
 import {updateCoolantTemperature} from './driving-instruments.js';
 import { onPlannedOrCoreRoad } from './masterplan-built.js';
+import { onNarromineRoad, onOpenHighway, HIGHWAY } from './narromine-layout.js';
 import { lightingLevel } from './lighting.js';
 import { nightLightLevel } from './estate-lighting.js';
 import {vehicleSpec,intendedSpeedMs,accelerationMs2,transmissionFor,clamp as vehicleClamp} from './vehicle-dynamics.js';
@@ -80,7 +81,7 @@ export function setVehicleHeadlights(mesh,daylight,engineOn){
 export function roadAllows(x,z){
  // Streets, avenues and the master-plan roads, each bounded to its drawn extent: the old check
  // treated every street and avenue as infinitely long, so cars could leave the map along them.
- return onPlannedOrCoreRoad(x,z);
+ return onPlannedOrCoreRoad(x,z)||onNarromineRoad(x,z);   // + Mitchell Highway and Narromine streets
 }
 export function createPlayerDriving(life,scene,collision,player,camera,input){
  const meshes=new Map();let active=null,speed=0,message='';
@@ -171,7 +172,7 @@ export function createPlayerDriving(life,scene,collision,player,camera,input){
    // footpaths cap cars at 30 km/h and bikes at 40, with four times the wear. Buildings, walls,
    // people and the world edge still stop the vehicle.
    const offRoad=!roadAllows(v.x,v.z),offRoadCap=(spec.kind==='bike'?40:30)/3.6;
-   let desired=intendedSpeedMs(v.model,throttle,{unrestricted:v.cheat===true&&v.cheatUnrestricted===true});
+   let desired=intendedSpeedMs(v.model,throttle,{unrestricted:v.cheat===true&&v.cheatUnrestricted===true,...(onOpenHighway(v.x,v.z)?{limitKmh:HIGHWAY.speed}:{})});
    if(offRoad)desired=clamp(desired,-offRoadCap*.5,offRoadCap);
    if(offRoad&&!v.offRoad)message='Off-road: rough going and extra wear. Driving on footpaths or parks is an offence in NSW.';
    if(!offRoad&&v.offRoad)message='Back on the road.';

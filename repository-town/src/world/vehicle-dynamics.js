@@ -26,9 +26,10 @@ export function transmissionFor(model,speedMs,throttle=0){
  const rpm=Math.round(clamp(spec.idle+(.32+.68*fraction)*(spec.redline-spec.idle),spec.idle,spec.redline)/25)*25;
  return {gear:String(gearNumber),rpm,gearNumber};
 }
-export function intendedSpeedMs(model,throttle,{unrestricted=false}={}){
+export function intendedSpeedMs(model,throttle,{unrestricted=false,limitKmh=SPEED_LIMIT_TOWN_KMH}={}){
  const spec=vehicleSpec(model);
- const cap=unrestricted?spec.topKmh:SPEED_LIMIT_TOWN_KMH;
+ // The posted limit where the vehicle is (town streets, or 100 on the Mitchell Highway), never above the vehicle's top speed.
+ const cap=unrestricted?spec.topKmh:Math.min(limitKmh,spec.topKmh);
  return clamp(throttle,-.32,1)*cap/3.6;
 }
 export function accelerationMs2(model,speedMs,throttle){

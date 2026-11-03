@@ -27,6 +27,8 @@ import { buildTown, streetSigns, lotPosition } from './world/town.js';
 import { buildYeovalInterior } from './world/yeoval-interior.js';
 import { buildMasterplan, PLAN_HOMES } from './world/masterplan-built.js';
 import { RESIDENT_STYLES } from './world/resident-models.js';
+import { buildNarromine } from './world/narromine.js';
+import { ARRIVAL as NARROMINE_ARRIVAL, PLACES as NARROMINE_PLACES } from './world/narromine-layout.js';
 import { buildCountryInterior,countryEntrance,countryExitPose } from './world/country-interiors.js';
 import { CORE_ROADS } from './world/masterplan-model.js';
 import { RAIL_Z } from './world/rail-corridor.js';
@@ -67,7 +69,7 @@ import {makeDistinctPerson} from './world/npc-wardrobe.js';
 import { separatePedestrians, steerPedestrians } from './world/pedestrian-spacing.js';
 import { createTownLife } from './world/townlife.js';
 import { createEmergencyResponseVisuals } from './world/emergency-response-visuals.js';
-import { createPlayerDriving } from './world/player-driving.js';
+import { createPlayerDriving, roadAllows } from './world/player-driving.js';
 import { createDrivingDashboard } from './ui/driving-dashboard.js';
 import { buildRoadSigns } from './world/road-signs.js';
 import { buildFarmersMarket, stallPanel, buyAtStall, marketNotice } from './world/farmers-market.js';
@@ -217,6 +219,8 @@ async function start() {
   let lowPerf = touch;
   streetSigns(town.group, data.streets, makeLabel);
   const masterplan = buildMasterplan(town.group, makeLabel);
+  // Narromine, 40 km west in reality, ~90 s along the Mitchell Highway here (world/narromine.js).
+  const narromine = buildNarromine(town.group, makeLabel);
   // NSW regulatory signs from the road network (src/world/road-signs.js): GIVE WAY/STOP, 50 km/h,
   // 40 km/h along the High Street shops and a school zone outside the school.
   const highStreetShops = [...life.places.values()].filter((p) => p.door && Math.abs(p.door.z - 177) < 12);
@@ -293,9 +297,10 @@ async function start() {
     // Include all 195 homes west to x -1330, and Grevillea Street at z 457.
     // Boundaries lie beyond the drawn footpaths and extended terrain.
     { x0: -1495, x1: 595, z0: -395, z1: -390 }, { x0: -1495, x1: 595, z0: 555, z1: 560 },
-    { x0: -1495, x1: -1490, z0: -395, z1: 560 }, { x0: 590, x1: 595, z0: -395, z1: 560 },
+    // The west wall opens where the Mitchell Highway leaves for Narromine (z -52..38, fenced beyond).
+    { x0: -1495, x1: -1490, z0: -395, z1: -52 }, { x0: -1495, x1: -1490, z0: 38, z1: 560 }, { x0: 590, x1: 595, z0: -395, z1: 560 },
   ];
-  const townWorld = new CollisionWorld([...town.colliders, ...townLife.colliders, ...masterplan.colliders, ...civilWorks.colliders, ...woodlot.colliders, ...market.colliders, ...edges]);
+  const townWorld = new CollisionWorld([...town.colliders, ...townLife.colliders, ...masterplan.colliders, ...civilWorks.colliders, ...woodlot.colliders, ...market.colliders, ...narromine.colliders, ...edges]);
   // Dynamic vehicle footprints block player motion as well as truck movement.
   // A vehicle is approx 2.2m wide and 6.6m long; use a conservative
   // rotated-axis AABB for the town's existing 2D collision engine.
@@ -740,6 +745,7 @@ async function start() {
   for (const p of places) { const o = document.createElement('option'); o.value = placeLabel(p); list.append(o); }
   const homeLabel = (h) => `${h.country} · ${h.address}`;
   for (const h of PLAN_HOMES) { const o = document.createElement('option'); o.value = homeLabel(h); list.append(o); }
+  { const o = document.createElement('option'); o.value = 'Narromine · Dandaloo Street'; list.append(o); }
   $('search-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const q = $('search').value.trim().toLowerCase(); if (!q) return;
@@ -751,6 +757,7 @@ async function start() {
     const h = !p && (byCoord.get(code) || (addressed && addressed.side==='S' && byCoord.get(addressed.col+addressed.row)) || houses.find((h) => lower(h.name) === q || lower(h.address) === q || lower(`${h.address} · ${h.name}`) === q || lower(`${h.coordinate} · ${h.name}`) === q));
     const near = !p && !h && places.find((p) => lower(p.name).includes(q));
     const named = !p && !h && !near && houses.find((h) => lower(h.name).includes(q));
+    if (/^narromine\b|dandaloo/.test(q)) { if(driving.driving){status('Park and get out before fast travel.');return;} closePanel(); setOverview(false); player.place(NARROMINE_ARRIVAL.x, NARROMINE_ARRIVAL.z, NARROMINE_ARRIVAL.yaw); status('Dandaloo Street, Narromine — 40 km west of Dubbo along the Mitchell Highway (about 90 seconds by car here).'); $('search').blur(); return; }
     const homeQ = q.split(' · ')[0];
     const home = !p && !h && (PLAN_HOMES.find((x) => lower(homeLabel(x)) === q || lower(x.country) === homeQ || lower(x.address) === q) || (!near && !named && homeQ.length >= 3 && PLAN_HOMES.find((x) => lower(x.country).startsWith(homeQ))));
     if (home) { goCountryHome(home); $('search').blur(); }
@@ -1228,6 +1235,7 @@ async function start() {
       if (nearPerson?.spot?.atm) { openPanel(atmPanel(), guideSpot); return; }
       if (nearPerson?.spot?.rack) { status(takeRackTools(life.civic.player).message); return; }
       if (nearPerson?.spot?.itemId) { takeGroundItem(nearPerson.spot); return; }
+      if (nearPerson?.spot?.narromine) { const n = nearPerson.spot.narromine; openPanel({ title: n.label, body: `<p>${esc(n.text)}</p><p class="dim">Narromine, NSW · Wiradjuri Country. Sources: docs/NARROMINE_RESEARCH_AND_PLAN_2026-11-03.md</p>` }, guideSpot); return; }
       if (nearPerson?.spot?.market) { openPanel(stallPanel(life, nearPerson.spot.market, (id, i) => buyAtStall(life, id, i)), guideSpot); return; }
       if (nearPerson?.spot?.id === 'square') {   // an open square, not a building: the market notice and the latest town news
         const notice = marketNotice(life.day, life.minute), clean = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -1652,6 +1660,7 @@ async function start() {
         if (p.bubble.visible) greetingShown = true;
       }
       // Villagers, the guide kiosk and the shop counters: pick the one the player is facing.
+      narromine.update(player.pos);
       nearPerson = null; let bestP = Infinity;
       const consider = (c, reach, bonus = 0) => {
         const d = Math.hypot(c.pos.x - player.pos.x, c.pos.z - player.pos.z);
@@ -1669,6 +1678,7 @@ async function start() {
       // A shop door you are facing wins over a villager walking past or queuing beside it.
       for (const sp of townLife.spots) consider({ ...sp, spot: sp }, 3.2, 1.5);
       if (market.root.visible) for (const sp of market.spots) consider({ ...sp, spot: sp }, 3.6, 2.0);
+      if (narromine.group.visible) for (const sp of narromine.spots) consider({ ...sp, spot: { narromine: sp } }, 3.2, 1.5);
       for (const sp of itemSpots) if(clearItemPath({...sp.pos,location:'town'}))consider({ ...sp, spot: sp }, ITEM_REACH, 0);
       if (Math.abs(atmSpot.pos.x - player.pos.x) < 4 && Math.abs(atmSpot.pos.z - player.pos.z) < 4) consider({ ...atmSpot, spot: { atm: true } }, 2.4, 1.5);
       if (Math.abs(woodlot.rack.pos.x - player.pos.x) < 4 && Math.abs(woodlot.rack.pos.z - player.pos.z) < 4) consider({ ...woodlot.rack, spot: { rack: true } }, 2.6, 1.5);
@@ -2005,6 +2015,9 @@ async function start() {
     enterVehicle:(reg)=>driving.enter(life.motorReport().owned.find(v=>v.registration===reg)),
     leaveVehicle:()=>driving.exit(),
     // A fixed step behaves like a real frame, including showing the driving message (off-road, braking).
+    narromineVisible:()=>narromine.group.visible,
+    narrominePlace:(name)=>{const p=NARROMINE_PLACES.find(x=>x.name===name);return p?{x:p.x,z:p.z,kind:p.kind,address:p.address}:null;},
+    onRoad:(x,z)=>roadAllows(x,z),
     stepVehicle:(seconds)=>{const moved=driving.update(seconds);if(driving.message){status(driving.message);driving.clearMessage();}return moved;},
     shops:()=>[...life.places.values()].map(p=>({id:p.id,name:p.name,kind:p.kind,side:p.side||null,expansion:!!p.expansion,door:{x:p.x,z:p.door.z}})),
     enterShop,
