@@ -155,6 +155,31 @@ export function buildKieraths({ box, push, strip, flatPoly, plane, boardTexture,
     plane(tex, 3.75, 1.42, x - 0.25, 4.22, z - 0.04, -Math.PI / 2 + Math.atan2(dz, dx));
   }
 
+  // Historic photograph: a small grey roller shutter with a red-and-yellow
+  // Liquorland band immediately to the RIGHT of the rear canopy. Its business
+  // sign is a dated visual reference, NOT a statement about current occupancy.
+  // Placed outside the arch's pedestrian opening and inside the traced parcel.
+  const shutter = [-38.5, -26.55], rearYaw = -Math.PI / 2;
+  place(0xb0b1ae, 4.55, 4.15, 0.21, shutter, 2.07, rearYaw);
+  place(0x88949a, 3.47, 2.72, 0.26, [shutter[0]-0.13, shutter[1]], 1.57, rearYaw);
+  for (let k = 0; k < 14; k++)
+    place(k % 2 ? 0x6c7b83 : 0xc0c6c5, 3.39, 0.028, 0.03,
+      [shutter[0]-0.29, shutter[1]], 0.31 + 0.19 * k, rearYaw);
+  for (const z of [shutter[1]-1.83, shutter[1]+1.83])
+    place(0x8a8c89, 0.2, 2.9, 0.18, [shutter[0]-0.29, z], 1.52, rearYaw);
+  if (typeof document !== 'undefined') {
+    const historicalSign = boardTexture(['LIQUORLAND'], {
+      bg: '#b02525', fg: '#ffdd54', border: '#d9c14a', w: 768, h: 170
+    });
+    const [x,z] = world([shutter[0]-0.31, shutter[1]]);
+    plane(historicalSign, 3.83, 0.76, x, 3.55, z, -Math.PI / 2);
+  }
+  // The rear shutter is a wall, not a walk-through doorway. Keep its thin
+  // collision rectangle separate from the nearby open arch.
+  const [shx, shz] = world(shutter);
+  colliders.push({ x0: shx - 0.16, x1: shx + 0.16,
+    z0: shz - 2.3, z1: shz + 2.3 });
+
   // The rear-facing white Coles gable sign and metal plant visible in historic photos.
   if (typeof document !== 'undefined') {
     const tex = boardTexture(['coles'], { bg: '#f7f7f7', fg: '#cf1836', border: '#f7f7f7', w: 512, h: 180 });
