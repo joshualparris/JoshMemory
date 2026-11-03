@@ -1,41 +1,62 @@
 import assert from 'node:assert/strict';
-import { NARROMINE_REAL,NARROMINE_ROADS,NARROMINE_LANDMARKS,
-  narromineRoadAllows,nearestNarromineLandmark,inNarromine } from '../src/world/narromine-location.js';
+import {NARROMINE_REAL,NARROMINE_ROADS,NARROMINE_REAL_ROAD_COUNT,NARROMINE_ROAD_NAMES,
+ NARROMINE_APPROACH,NARROMINE_LANDMARKS,NARROMINE_UNLOCATED_SITES,
+ DANDALOO_MEDIAN_Z,nearestRegionalRoad,narromineRoadAllows,narromineMedianBlocks,
+ geoToNarromine,narromineToGeo,NARROMINE_GEO_BOUNDS,inNarromine,
+ NARROMINE_CENTERLINES} from '../src/world/narromine-location.js';
 import {onPlannedOrCoreRoad} from '../src/world/masterplan-built.js';
 
 assert.equal(NARROMINE_REAL.name,'Narromine');
-assert.equal(NARROMINE_REAL.postcode,'2821');
-assert.equal(NARROMINE_REAL.urbanCentrePopulation2021,3507);
-assert.equal(NARROMINE_REAL.shirePopulation2021,6360);
-assert.notEqual(NARROMINE_REAL.urbanCentrePopulation2021,NARROMINE_REAL.shirePopulation2021);
-assert.equal(NARROMINE_REAL.mapStatus,'representative, compressed, unsurveyed');
-
-// The same junction is part of an existing western estate road and the new
-// regional link; players can drive the full route without teleporting.
-assert.equal(onPlannedOrCoreRoad(-1330,277),true,'Existing Wattle Street terminus');
-assert.equal(narromineRoadAllows(-1330,277),true,'Connected regional westbound road');
-for(let x=-1330;x>=-2630;x-=5)
-  assert.ok(onPlannedOrCoreRoad(x,277)||narromineRoadAllows(x,277),`route break at x=${x}`);
-assert.ok(narromineRoadAllows(-2630,277),'Narromine main street crossing');
-for(let z=110;z<=488;z+=4)assert.ok(narromineRoadAllows(-2630,z),`Dandaloo street gap z=${z}`);
-assert.ok(narromineRoadAllows(-2575,440),'Museum access road');
-assert.ok(narromineRoadAllows(-2480,483),'Aerodrome access road');
-assert.equal(narromineRoadAllows(-2800,280),false,'Do not classify paddocks as road');
-assert.equal(narromineRoadAllows(NaN,277),false);
-assert.equal(inNarromine(-2650,317),true);
-assert.equal(inNarromine(-1330,277),false);
-
-// No two interaction markers share identity or site, and every panel can
-// ground its interpretive text in a public source.
+assert.equal(NARROMINE_REAL.gameScaleInsideTown,1,'1:1 game mapping in surveyed town');
+assert.equal(NARROMINE_REAL.streetViewReviewed,false,'no fabricated Street View research');
+assert.equal(NARROMINE_REAL.buildingFootprintsVerified,false,'no invented precise footprints');
+assert(NARROMINE_CENTERLINES.length>=400,'authoritative NSW road centreline feature count');
+assert(NARROMINE_REAL_ROAD_COUNT>=1000,'faithful segmented real-world curves');
+for(const name of ['DANDALOO ST','BURRAWAY ST','NYMAGEE ST','MERINGO ST','TRANGIE RD','MITCHELL HWY'])
+ assert(NARROMINE_ROAD_NAMES.includes(name),name);
 assert.equal(new Set(NARROMINE_ROADS.map(r=>r.id)).size,NARROMINE_ROADS.length);
-assert.equal(new Set(NARROMINE_LANDMARKS.map(s=>s.id)).size,NARROMINE_LANDMARKS.length);
-assert.ok(NARROMINE_LANDMARKS.length>=9);
-for(const site of NARROMINE_LANDMARKS){
-  assert.ok(site.name && site.summary && /^https:\/\//.test(site.source),site.id);
-  assert.ok(Number.isFinite(site.x)&&Number.isFinite(site.z));
-  assert.ok(site.x>=-2900&&site.x<=-2150&&site.z>=105&&site.z<=500);
-  assert.equal(nearestNarromineLandmark({x:site.x,z:site.z})?.id,site.id,site.id);
-  assert.equal(nearestNarromineLandmark({x:site.x+70,z:site.z+700}),null);
+assert.equal(onPlannedOrCoreRoad(-1330,277),true,'original estate Wattle Street remains driveable');
+assert.deepEqual(NARROMINE_APPROACH[0],{x:-1330,z:277});
+for(let i=1;i<NARROMINE_APPROACH.length;i++){
+ const a=NARROMINE_APPROACH[i-1],b=NARROMINE_APPROACH[i];
+ for(let j=0;j<=40;j++){
+  const t=j/40,x=a.x+(b.x-a.x)*t,z=a.z+(b.z-a.z)*t;
+  assert(narromineRoadAllows(x,z),`fictional connection discontinuity segment ${i} t ${t}`);
+ }
 }
-assert.equal(nearestNarromineLandmark({x:Infinity,z:1}),null);
-console.log('Narromine regional drive: connected roads, town navigation, sourced POIs, ABS locality distinction PASS');
+const last=NARROMINE_APPROACH.at(-1);
+const actual=nearestRegionalRoad(last.x,last.z,'MITCHELL HWY');
+assert(actual&&actual.d<.05,'connection must terminate at an actual govt-mapped highway point');
+for(const r of NARROMINE_ROADS.filter(r=>r.source==='nsw-centreline'&&r.name!=='DANDALOO ST')){
+ const m={x:(r.a.x+r.b.x)/2,z:(r.a.z+r.b.z)/2};
+ assert(narromineRoadAllows(m.x,m.z),`mapped street not driveable: ${r.id} ${r.name}`);
+}
+const sample=NARROMINE_ROADS.filter(r=>r.name==='DANDALOO ST'&&(r.a.z+r.b.z)/2>DANDALOO_MEDIAN_Z[0]+25&&(r.a.z+r.b.z)/2<DANDALOO_MEDIAN_Z[1]-25);
+assert(sample.length>=2,'heritage Dandaloo divided median represented');
+let lanes=0;
+for(const r of sample){
+ const x=(r.a.x+r.b.x)/2,z=(r.a.z+r.b.z)/2,len=Math.hypot(r.b.x-r.a.x,r.b.z-r.a.z);
+ const nx=(r.b.z-r.a.z)/len,nz=-(r.b.x-r.a.x)/len;
+ if(!narromineMedianBlocks(x,z,.25))continue; // mapped cross street legitimately crosses
+ assert(!narromineRoadAllows(x,z), 'garden median is not legal driving surface away from intersections');
+ assert(narromineRoadAllows(x+nx*6.8,z+nz*6.8),'one mapped Dandaloo carriageway');
+ assert(narromineRoadAllows(x-nx*6.8,z-nz*6.8),'opposite mapped Dandaloo carriageway');
+ lanes++;
+}
+assert(lanes>=1,'at least one independently checked median location');
+
+assert(NARROMINE_LANDMARKS.length>=14,'public venue addresses from NSW GURAS');
+assert(NARROMINE_UNLOCATED_SITES.length>0,'missing address points are not invented');
+assert.equal(new Set(NARROMINE_LANDMARKS.map(s=>s.id)).size,NARROMINE_LANDMARKS.length);
+for(const site of NARROMINE_LANDMARKS){
+ assert(site.source?.startsWith('https://'),site.id);
+ assert(site.address?.endsWith(' NARROMINE'),site.id);
+ assert(site.geometryAccuracy.includes('unverified facade'),site.id);
+ assert(inNarromine(site.buildingX,site.buildingZ),site.id+' has geocoded position in region');
+ const p=narromineToGeo(site.buildingX,site.buildingZ);
+ assert(Math.abs(p.lon-site.coordinates[0])<.0000002 && Math.abs(p.lat-site.coordinates[1])<.0000002,site.id+' preserves official property point');
+}
+assert(!narromineRoadAllows(NaN,277));
+assert(!inNarromine(Infinity,0));
+assert(!narromineRoadAllows(9000,9000),'no fake driveability off town map');
+console.log('PASS Narromine GIS: '+NARROMINE_CENTERLINES.length+' official paths, '+NARROMINE_REAL_ROAD_COUNT+' road segments, '+NARROMINE_ROAD_NAMES.length+' street names, '+NARROMINE_LANDMARKS.length+' NSW geocoded venues, lanes, median, rural link and geographic roundtrip');
