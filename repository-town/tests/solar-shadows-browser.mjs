@@ -30,7 +30,7 @@ try{
     await page.evaluate(([d,m])=>{window.__town.life.setDay(d);window.__town.life.setTime(m);},[day,minute]);
     await page.waitForFunction(([d,m])=>{
       const x=window.__town.solar(),v=window.__town.state();
-      return Math.abs(v.day-d)<.01&&Math.abs(v.minute-m)<5&&Number.isFinite(x.elevation);
+      return x.gameDay===d&&Math.abs(x.gameMinute-m)<5&&Number.isFinite(x.elevation);
     },[day,minute],{timeout:15000});
     return page.evaluate(()=>window.__town.solar());
   };
