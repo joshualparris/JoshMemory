@@ -36,6 +36,7 @@ import { CORE_ROADS } from './world/masterplan-model.js';
 import { RAIL_Z } from './world/rail-corridor.js';
 import { createTownMap } from './ui/town-map.js';
 import { createCompass } from './ui/compass.js';
+import { configureOutdoorShadows, createSunShadows } from './world/sun-shadows.js';
 import { createCheatMenu } from './ui/cheat-menu.js';
 import { summonCar, claimProperty, nearestPropertyKey, planTitleKey, addMoney, refreshNeeds, fixAllCars, setClock } from './world/cheats.js';
 import { buildBrackenInterior } from './world/bracken-interior.js';
@@ -158,7 +159,7 @@ async function start() {
   scene.add(camera);
   const sky = new THREE.Group();
   const hemi = new THREE.HemisphereLight(0xffffff, 0x6e856e, 2.1); sky.add(hemi);
-  const sun = new THREE.DirectionalLight(0xffe7bf, 2.0); sun.position.set(-70, 110, 55); sky.add(sun);
+  const sun = new THREE.DirectionalLight(0xffe7bf, 2.0); sun.position.set(-70, 110, 55); sky.add(sun, sun.target);
   scene.add(sky);
 
   const town = buildTown(scene, houses, data.streets);
@@ -224,6 +225,13 @@ async function start() {
   const masterplan = buildMasterplan(town.group, makeLabel);
   // Narromine, 40 km west in reality, ~90 s along the Mitchell Highway here (world/narromine.js).
   const narromine = buildNarromine(town.group, makeLabel);
+  // Real building and tree meshes cast; ground/roads/paving receive. The light
+  // follows the player, including when exploring mapped Narromine.
+  const shadowCoverage = configureOutdoorShadows(town, narromine, masterplan, townLife);
+  const sunShadows = createSunShadows({
+    renderer, scene, sun, storage: localStorage, coarse: touch,
+    select: $('settings-shadows'),
+  });
   // NSW regulatory signs from the road network (src/world/road-signs.js): GIVE WAY/STOP, 50 km/h,
   // 40 km/h along the High Street shops and a school zone outside the school.
   const highStreetShops = [...life.places.values()].filter((p) => p.door && Math.abs(p.door.z - 177) < 12);
@@ -1677,6 +1685,10 @@ async function start() {
       :[];
     const view = mode === 'house' && inside?.view ? inside.view.place(camera, outdoorCam) : null;
     townLife.update(dt, t, { player, mode, overview, camera, talkingTo, view });
+    const solar = townLife.solarState();
+    if(solar) sunShadows.update({ direction:solar.direction, elevation:solar.elevation,
+      eye:player.pos, dt, frameSeconds:raw, weather:life.civic.weather,
+      outside:mode==='town'&&!overview });
     pilotVisuals.update();
     yarns.update(dt,mode);
     inside?.soyVisuals?.();
@@ -1989,6 +2001,11 @@ async function start() {
     // Access-control decisions remain unchanged: no unlocked-door shortcut.
     firstDay:()=>firstDay.view(),
     compass:()=>({enabled:compass.enabled,heading:Number($('game-compass').dataset.heading),direction:$('game-compass').dataset.direction||'N'}),
+    solar:()=>({...(townLife.solarState()||{}), shadows:sunShadows.state,
+      sunlight:{x:sun.position.x,y:sun.position.y,z:sun.position.z,
+        target:{x:sun.target.position.x,y:sun.target.position.y,z:sun.target.position.z},
+        intensity:sun.intensity,casting:sun.castShadow,shadowMapAllocated:!!sun.shadow.map,
+        shadowMapSize:sun.shadow.mapSize.x},shadowMeshes:shadowCoverage}),
     perf:()=>perf.stats(),
     pilotGrid:()=>pilotReport(life),
     pilotAction:(command)=>{const answer=pilotAction(life,command);pilotVisuals.update();return answer;},
