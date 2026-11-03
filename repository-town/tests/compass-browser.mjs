@@ -11,10 +11,10 @@ try{
   await page.route('**/api/npc-chat',r=>r.abort('connectionrefused'));
   await page.goto(URL);
   await page.waitForFunction(()=>window.__town&&document.getElementById('loading')?.hidden,null,{timeout:90000});
-  await page.waitForFunction(()=>window.__town.compass().direction==='N',null,{timeout:12000});
+  await page.waitForFunction(()=>Number.isFinite(window.__town.compass().heading),null,{timeout:12000});
   let c=await page.evaluate(()=>window.__town.compass());
   assert(c.enabled,device+': compass defaults to on');
-  assert.equal(c.direction,'N',device+': north at initial facing');
+  assert(['N','NE','E','SE','S','SW','W','NW'].includes(c.direction),device+': initial direction follows saved/spawn camera, not assumed north');
   const positioned=await page.evaluate(()=>{
    const compass=document.getElementById('game-compass').getBoundingClientRect();
    const hud=document.getElementById('hud').getBoundingClientRect();
