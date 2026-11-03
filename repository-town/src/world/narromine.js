@@ -4,6 +4,7 @@
 // town is drawn only once the player has driven out west (update()), so it costs almost nothing
 // while you are in Repository Town.
 import * as THREE from 'three';
+import { buildKieraths } from './narromine-kieraths.js';
 import { NARROMINE_POST_OFFICE_ENTRANCE, NARROMINE_POST_OFFICE_ID } from './narromine-post-office.js';
 import { HIGHWAY, HIGHWAY_Z, REGION, CORRIDOR_HALF, STREETS, BUILDINGS, AREAS, WATER, RAIL, PLACES, FILL_SHOPS, FILL_HOUSES, FRONTAGES, DETAILED, polyRect, nearTownStreet, boundaryColliders } from './narromine-layout.js';
 
@@ -176,6 +177,25 @@ export function buildNarromine(parent, makeLabel = null) {
     const tris = alongX ? [A, P, Q, A, Q, B, B, Q, C, C, Q, P, C, P, D, D, P, A] : [A, B, P, B, Q, P, B, C, Q, C, D, Q, D, P, Q, D, A, P];
     const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(tris.flat(), 3)); g.rotateY(yaw); g.translate(cx, 0, cz); g.computeVertexNormals(); push(c, g);
   };
+  // Coles: a proper two-plane pitched roof with bright triangular gable ends,
+  // unlike the old generic flat/shallow shed volumes. Ridge runs along quad edge 0→1.
+  const gableRoof = (c, pts, wallH, pitch = 0.23) => {
+    const { L, W: w, cx, cz, yaw } = frame(pts), y1 = wallH + w * 0.5 * Math.tan(pitch);
+    const xl = -L / 2, xr = L / 2, zn = -w / 2, zs = w / 2, y0 = wallH;
+    const roofVerts = [
+      xl,y0,zn, xr,y0,zn, xr,y1,0, xl,y0,zn, xr,y1,0, xl,y1,0,
+      xl,y1,0, xr,y1,0, xr,y0,zs, xl,y1,0, xr,y0,zs, xl,y0,zs
+    ];
+    const gbVerts = [
+      xl,y0,zn, xl,y0,zs, xl,y1,0,
+      xr,y0,zs, xr,y0,zn, xr,y1,0
+    ];
+    for (const [colour, verts] of [[c, roofVerts], [0xf2f0eb, gbVerts]]) {
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+      geo.rotateY(yaw); geo.translate(cx, 0, cz); geo.computeVertexNormals(); push(colour, geo);
+    }
+  };
   // Wall features placed along one edge of a part, from street photos: t runs 0..1 from pts[edge[0]]
   // to pts[edge[1]], y is height in metres, and everything sits just proud of the wall.
   const along = (p, edge) => {
@@ -215,7 +235,9 @@ export function buildNarromine(parent, makeLabel = null) {
       for (const F of p.features || []) feature(p, F);
       if (p.fascia) box(0xf4f4f0, f.L + 0.5, 0.35, f.W + 0.5, f.cx, wallH - 0.05, f.cz, f.yaw);   // white roof edge
       if (p.mast) { box(0xb0b2b4, 0.1, 4, 0.1, f.cx, wallH + 2, f.cz); box(0xb0b2b4, 1.4, 0.06, 0.06, f.cx, wallH + 3.4, f.cz); }
-      if (p.roof === 'hip') hipRoof(ROOF, p.pts, wallH, p.pitch); else box(ROOF, f.L + 0.4, 0.1, f.W + 0.4, f.cx, wallH + 0.1, f.cz, f.yaw);
+      if (p.roof === 'hip') hipRoof(ROOF, p.pts, wallH, p.pitch);
+      else if (p.roof === 'gable') gableRoof(ROOF, p.pts, wallH, p.pitch);
+      else box(ROOF, f.L + 0.4, 0.1, f.W + 0.4, f.cx, wallH + 0.1, f.cz, f.yaw);
       if (p.storeys === 2 && !p.features) for (const side of [-1, 1]) for (let t = -f.L / 2 + 1.5; t < f.L / 2 - 1; t += 3) { // upper-floor windows on the long faces
         const ox = Math.cos(-f.yaw) * t - Math.sin(-f.yaw) * side * (f.W / 2 + 0.03), oz = Math.sin(-f.yaw) * t + Math.cos(-f.yaw) * side * (f.W / 2 + 0.03);
         box(0x34434f, 1.0, 1.6, 0.06, f.cx + ox, 5.6, f.cz + oz, f.yaw); }
@@ -283,6 +305,8 @@ export function buildNarromine(parent, makeLabel = null) {
     pos:new THREE.Vector3(NARROMINE_POST_OFFICE_ENTRANCE.x,0,NARROMINE_POST_OFFICE_ENTRANCE.z),
     narromineEnter:true});
 
+  // Main-thread batch-merged geometry; live walkable arcade, retaining Post Office entrance.
+  buildKieraths({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   // Named places: a sign over each, and an E-prompt with what it is, its address and any history.
   for (const p of PLACES) {
     if (makeLabel) { const l = makeLabel(p.name, 'interactive'); l.position.set(p.x, 5.4, p.z); l.scale.multiplyScalar(0.8); town.add(l); }
