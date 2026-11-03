@@ -51,6 +51,8 @@ export function buildNarromineRegion(parent,makeLabel){
   }
   // A town centre: generic brick and painted facades, no copied real shopfronts.
   for(let z=179;z<=365;z+=25){
+    // Never place a high-street frontage across the east/west through-road.
+    if(Math.abs(z-277)<20)continue;
     for(const side of [-1,1]){
       const x=-2630+side*31;
       if(NARROMINE_LANDMARKS.some(q=>Math.hypot(q.buildingX-x,q.buildingZ-z)<23))continue;
@@ -115,6 +117,13 @@ export function buildNarromineRegion(parent,makeLabel){
     b.box(0x737b80,108,.12,.12,-2720,.035,z);
   }
   for(let x=-2768;x<-2670;x+=4)b.box(0x79634c,2,.11,5,x,.02,119.5);
+  // Visible direction signs at the old Wattle Street edge and on approach.
+  for(const [x,labelText] of [[-1363,'← Narromine · regional road'],[-2180,'← Narromine town & aerodrome']]){
+    b.cyl(0x65635e,.18,3.2,x,1.6,265);
+    const wayfinding=makeLabel(labelText,'street');
+    wayfinding.position.set(x,4.5,265);
+    group.add(wayfinding);
+  }
   const welcome=makeLabel('Narromine NSW 2821 · regional destination','interactive');
   welcome.position.set(-2502,4.9,266);group.add(welcome);
   group.add(b.build());
