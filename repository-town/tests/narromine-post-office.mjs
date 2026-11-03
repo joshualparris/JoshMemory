@@ -27,6 +27,17 @@ assert.equal(E.returnPose.x,E.outside.x,'exit returns to same outside north-side
 const built=buildNarrominePostOfficeInterior(()=>new THREE.Sprite(new THREE.SpriteMaterial()));
 assert(built.narrominePostal);
 assert(built.group instanceof THREE.Group);
+
+// Narromine previously used an oversized sphere/cylinder placeholder. Match
+// the SAME deterministic articulated shop-worker model as Repository Town.
+const staff=built.group.getObjectByName('Illustrative postal counter staff');
+assert(staff instanceof THREE.Group, 'Narromine attendant is a real character group');
+assert.equal(staff.userData.residentAppearance?.identity,'narromine:post-office:illustrative-counter',
+  'uses Repository Town shared NPC wardrobe instead of a cylinder stand-in');
+assert(staff.children.some(part=>part.userData.isOutfit), 'detailed clothed body');
+assert(staff.children.filter(part=>part.isGroup).length>=5, 'head and limbs articulated');
+assert(staff.children.some(part=>part.position.y>1.7), 'separate detailed head');
+
 assert(built.rooms.length===1 && built.rooms[0].name.includes('Narromine'),'local post room');
 assert(built.interactables.length>=7,'counter, PO boxes, packing bench, mail and heritage');
 const counter=built.interactables.find(i=>i.key==='narromine-post-office:counter');
