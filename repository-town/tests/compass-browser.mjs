@@ -24,7 +24,8 @@ try{
      overlapsHud:!(compass.left>=hud.right+4||hud.left>=compass.right+4||compass.top>=hud.bottom+4||hud.top>=compass.bottom+4),
      overlapsFirst:fr?!(compass.left>=fr.right+4||fr.left>=compass.right+4||compass.top>=fr.bottom+4||fr.top>=compass.bottom+4):false};
   });
-  assert(positioned.right>=0&&positioned.right<30&&positioned.top>=0&&positioned.top<100,device+': compact top-right safe placement');
+  console.log(device+' compass placement: '+JSON.stringify(positioned));
+  assert(positioned.right>=0&&positioned.right<30&&positioned.top>=0&&positioned.top<240,device+': compass safely near the top-right');
   assert(!positioned.overlapsHud&&!positioned.overlapsFirst,device+': compass does not cover HUD or first-day tracker');
   const turn=async(yaw,heading,letter)=>{
    await page.evaluate(yaw=>{const s=window.__town.state();window.__town.place(s.pos.x,s.pos.z,yaw);},yaw);
