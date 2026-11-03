@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { VEHICLE_MODELS } from './vehicles.js';
 import {updateCoolantTemperature} from './driving-instruments.js';
 import { onPlannedOrCoreRoad } from './masterplan-built.js';
+import { narromineRoadAllows } from './narromine-location.js';
 import { lightingLevel } from './lighting.js';
 import { nightLightLevel } from './estate-lighting.js';
 import {vehicleSpec,intendedSpeedMs,accelerationMs2,transmissionFor,clamp as vehicleClamp} from './vehicle-dynamics.js';
@@ -80,7 +81,7 @@ export function setVehicleHeadlights(mesh,daylight,engineOn){
 export function roadAllows(x,z){
  // Streets, avenues and the master-plan roads, each bounded to its drawn extent: the old check
  // treated every street and avenue as infinitely long, so cars could leave the map along them.
- return onPlannedOrCoreRoad(x,z);
+ return onPlannedOrCoreRoad(x,z) || narromineRoadAllows(x,z);
 }
 export function createPlayerDriving(life,scene,collision,player,camera,input){
  const meshes=new Map();let active=null,speed=0,message='';
