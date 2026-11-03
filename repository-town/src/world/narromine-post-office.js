@@ -5,6 +5,7 @@
 import * as THREE from 'three';
 import { geoToWorld, DETAILED, polyRect, onTownStreet } from './narromine-layout.js';
 import { buildPostInterior, POST_LAYOUT } from './post-interior.js';
+import { makeDistinctPerson } from './npc-wardrobe.js';
 
 export const NARROMINE_POST_OFFICE_ID = 'narromine-post-office';
 export const NARROMINE_POST_OFFICE_SAVE_ID = 'NARROMINE-PO';
@@ -66,16 +67,13 @@ export function buildNarrominePostOfficeInterior(makeLabel) {
   const board=makeLabel?.('INTERPRETIVE INTERIOR · NOT A SURVEY','interactive');
   if(board){board.position.set(-2.8,2.25,2.2);built.group.add(board);}
 
-  // A stationary, anonymous staff figure makes the counter visibly staffed
-  // without inventing a real employee identity or operational opening hours.
-  const staff=new THREE.Group(),jacket=new THREE.MeshLambertMaterial({color:0xc63b38}),skin=new THREE.MeshLambertMaterial({color:0xc9a68a}),dark=new THREE.MeshLambertMaterial({color:0x26323b});
-  const part=(g,m,x,y,z)=>{const mesh=new THREE.Mesh(g,m);mesh.position.set(x,y,z);staff.add(mesh);};
-  part(new THREE.CylinderGeometry(.33,.31,.85,12),jacket,0,1.04,0);
-  part(new THREE.SphereGeometry(.23,12,9),skin,0,1.68,0);
-  for(const x of [-.14,.14])part(new THREE.BoxGeometry(.16,.7,.18),dark,x,.42,0);
-  for(const x of [-.37,.37])part(new THREE.BoxGeometry(.12,.55,.14),skin,x,1.01,0);
-  staff.position.set(POST_LAYOUT.staff.x,0,POST_LAYOUT.staff.z);
-  staff.name='Illustrative postal counter staff';
-  built.group.add(staff);
+  // Use the EXACT same articulated, face-and-hair-enabled model maker as
+  // Repository Town's indoor workers. This figure is an anonymous, illustrative
+  // counter attendant, not a claim about real Narromine postal staff or rosters.
+  const staff = makeDistinctPerson('narromine:post-office:illustrative-counter');
+  staff.group.position.set(POST_LAYOUT.staff.x, 0, POST_LAYOUT.staff.z);
+  staff.group.rotation.y = 0; // Look toward the customer on the public side.
+  staff.group.name = 'Illustrative postal counter staff';
+  built.group.add(staff.group);
   return { ...built, people:[], narrominePostal:true };
 }
