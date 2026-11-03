@@ -10,7 +10,7 @@
 // Facts and sources: docs/NARROMINE_RESEARCH_AND_PLAN_2026-11-03.md.
 import { NARROMINE_OSM as OSM } from './narromine-osm-data.js';
 export { OSM };
-import { ROYAL_HOTEL } from './narromine-royal-data.js';
+import { NARROMINE_BUILDINGS } from './narromine-buildings-data.js';
 
 export const HIGHWAY_Z = -7;                 // continues Repository Town's Street 4
 export const HIGHWAY = Object.freeze({ id: 'mitchell-highway', name: 'Mitchell Highway (A32)', x0: -2870, x1: -343, z: HIGHWAY_Z, width: 9, speed: 100 });
@@ -49,11 +49,11 @@ export const onNarromineRoad = (x, z) => inRect(HIGHWAY_RECT, x, z) || (x < REGI
 
 // Buildings in world coordinates. Unnamed outlines stay unnamed; private homes were stripped of
 // names and addresses by the converter.
-// Buildings modelled in detail from aerial imagery and the cadastre (see narromine-royal-data.js).
-export const DETAILED = Object.freeze([{ id: 'royal-hotel', name: 'Royal Hotel', address: '123 Dandaloo Street',
-  boundary: ROYAL_HOTEL.boundary.map(([lat, lon]) => geoToWorld(lat, lon)),
-  parts: Object.fromEntries(Object.entries(ROYAL_HOTEL.parts).map(([k, pts]) => [k, pts.map(([lat, lon]) => geoToWorld(lat, lon))])),
-  trees: ROYAL_HOTEL.trees.map(([lat, lon]) => geoToWorld(lat, lon)) }]);
+// Buildings modelled in detail from aerial imagery and the cadastre (see narromine-buildings-data.js).
+const W = (pts) => pts.map(([lat, lon]) => geoToWorld(lat, lon));
+export const DETAILED = Object.freeze(NARROMINE_BUILDINGS.map((d) => Object.freeze({ ...d, boundary: W(d.boundary), trees: W(d.trees),
+  parts: d.parts.map((p) => ({ ...p, pts: W(p.pts) })), verandahs: d.verandahs.map((v) => ({ ...v, pts: W(v.pts) })),
+  ground: d.ground.map((g) => ({ ...g, pts: W(g.pts) })) })));
 export const BUILDINGS = Object.freeze(OSM.buildings.map((b) => Object.freeze({ ...b, pts: b.pts.map(toWorld) })));
 export const AREAS = Object.freeze(OSM.areas.map((a) => Object.freeze({ ...a, pts: a.pts.map(toWorld) })));
 export const WATER = Object.freeze(OSM.water.map((w) => Object.freeze({ ...w, pts: w.pts.map(toWorld) })));
