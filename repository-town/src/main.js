@@ -28,6 +28,7 @@ import { buildYeovalInterior } from './world/yeoval-interior.js';
 import { buildMasterplan, PLAN_HOMES } from './world/masterplan-built.js';
 import { RESIDENT_STYLES } from './world/resident-models.js';
 import { buildNarromine } from './world/narromine.js';
+import { NARROMINE_POST_OFFICE_SAVE_ID, NARROMINE_POST_OFFICE_ENTRANCE, nearNarrominePostOfficeDoor, buildNarrominePostOfficeInterior } from './world/narromine-post-office.js';
 import { ARRIVAL as NARROMINE_ARRIVAL, PLACES as NARROMINE_PLACES } from './world/narromine-layout.js';
 import { buildCountryInterior,countryEntrance,countryExitPose } from './world/country-interiors.js';
 import { CORE_ROADS } from './world/masterplan-model.js';
@@ -628,6 +629,40 @@ async function start() {
     return true;
   }
   let lastDeniedEntrance = '', lastDeniedTime = 0;
+  // Dedicated Narromine PO ground-floor retail visit. Reuses the actual modelled
+  // postal counter, shelves and public circulation; no invented real staff names.
+  function enterNarrominePostOffice() {
+    if(mode!=='town'||driving.driving)return false;
+    const built=buildNarrominePostOfficeInterior(makeLabel);
+    inside={house:{coordinate:NARROMINE_POST_OFFICE_SAVE_ID,name:'Narromine Post Office',
+      address:'74 Dandaloo Street, Narromine NSW',kind:'post_office'},
+      ...built,floorIndex:0,floors:null};
+    scene.add(built.group);town.group.visible=false;
+    scene.background.set(INDOOR);scene.fog=null;
+    world=new CollisionWorld(built.colliders);
+    player.place(built.spawn.x,built.spawn.z,0);
+    mode='house';player.baseHeight=0;floorDoorCooldown=0.65;
+    updateFloorBadge();$('btn-exit').hidden=false;
+    closePanel();npcChat.close();ambience.door();
+    $('card').hidden=true;delete $('card').dataset.coord;
+    status('Inside Narromine Post Office · 74 Dandaloo Street. Visit the postal counter, PO boxes or packing bench. Walk back through the front doorway or tap Exit to return outside.');
+    return true;
+  }
+
+  const POSTAL_TOPICS={
+    letters:{title:'Letters and postage',body:'Ask at the counter about domestic and international letter services, stamp options, size and weight limits, and the currently posted collection times. Pricing and delivery estimates are not live in this game.'},
+    parcels:{title:'Sending parcels',body:'At a real postal counter, parcels can be weighed, packaged and checked against permitted contents before postage and tracking are arranged. This game does not create a real consignment or charge your account.'},
+    collection:{title:'Collecting parcels',body:'Real collection requires a valid collection notice and any identification requested by postal staff. The game contains no real parcel addresses or tracking details.'},
+    boxes:{title:'PO boxes',body:'Post Office boxes provide a separate, secure mailing address. Ask about availability and charges at the real location; the in-game box doors contain no private information.'},
+    services:{title:'Other counter services',body:'Many post offices offer retail stationery, money orders or bill payment services, but availability, opening hours and eligibility vary. The in-game counter is a visitor information experience, not a real financial service.'},
+  };
+  function narrominePostalCounterPanel(topic=null){
+    const t=POSTAL_TOPICS[topic];
+    return {title:'Narromine Post Office · '+(t?.title||'Service counter'),
+      body:'<p>'+esc(t?.body||'Welcome to the Narromine postal counter. Choose the service you want to learn about. The interior is an evidence-informed interpretation rather than a surveyed floor plan; no real payments, mailing, tracking or ID checks occur.')+'</p>',
+      actions:t?[{label:'← Back to services',run:()=>narrominePostalCounterPanel()}]:
+        Object.entries(POSTAL_TOPICS).map(([id,service])=>({label:service.title,run:()=>narrominePostalCounterPanel(id)}))};
+  }
   function enterShop(id, keepFacing = false) {
     if(mode!=='town'||!life.places.has(id))return false;
     const site=life.place(id), access=facilityAccess(life,site);
@@ -679,6 +714,7 @@ async function start() {
     const shop=inside.place||null;
     const campus=inside.campus||null;
     const countryHome=inside.countryHome||null;
+    const narrominePostOffice=!!inside.narrominePostal;
     inside.bakeryImmersion?.dispose();
     inside.workplay?.dispose();
     if(inside.floors?.isPub)for(const level of inside.floors.levels)if(level.workplay!==inside.workplay)level.workplay?.dispose();
@@ -691,7 +727,11 @@ async function start() {
     $('btn-exit').hidden = true;
     town.group.visible = true; scene.background.set(SKY); scene.fog = fog;
     if (placeOutside) {
-      if (campus) {
+      if (narrominePostOffice) {
+        // Return to the north-side footpath rather than inside solid exterior masonry.
+        const pose=NARROMINE_POST_OFFICE_ENTRANCE.returnPose;
+        player.place(pose.x,pose.z,pose.yaw);
+      } else if (campus) {
         // The visitor emerges facing away from the same public entrance.
         const out=campus.entryAxis==='west'
           ?{x:campus.entry.x-3.25,z:campus.entry.z}
@@ -710,7 +750,7 @@ async function start() {
     // Close the door behind the player so the doorway does not re-trigger.
     const d = town.doors.find((d) => d.userData.coordinate === coord); if (d) d.userData.open = 0;
     ambience.door();
-    status(campus?`Back outside ${campus.name}.`:countryHome?`Back outside ${countryHome.address} · ${countryHome.country}.`:shop?`Back outside ${shop.name}.`:`Back on the street at ${coord}.`);
+    status(narrominePostOffice?'Back outside Narromine Post Office · 74 Dandaloo Street.':campus?`Back outside ${campus.name}.`:countryHome?`Back outside ${countryHome.address} · ${countryHome.country}.`:shop?`Back outside ${shop.name}.`:`Back on the street at ${coord}.`);
   }
 
   // ── Overview (bird's-eye) ────────────────────────────────────────────────
@@ -746,6 +786,7 @@ async function start() {
   const homeLabel = (h) => `${h.country} · ${h.address}`;
   for (const h of PLAN_HOMES) { const o = document.createElement('option'); o.value = homeLabel(h); list.append(o); }
   { const o = document.createElement('option'); o.value = 'Narromine · Dandaloo Street'; list.append(o); }
+  { const o = document.createElement('option'); o.value = 'Narromine Post Office · 74 Dandaloo Street'; list.append(o); }
   $('search-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const q = $('search').value.trim().toLowerCase(); if (!q) return;
@@ -757,6 +798,15 @@ async function start() {
     const h = !p && (byCoord.get(code) || (addressed && addressed.side==='S' && byCoord.get(addressed.col+addressed.row)) || houses.find((h) => lower(h.name) === q || lower(h.address) === q || lower(`${h.address} · ${h.name}`) === q || lower(`${h.coordinate} · ${h.name}`) === q));
     const near = !p && !h && places.find((p) => lower(p.name).includes(q));
     const named = !p && !h && !near && houses.find((h) => lower(h.name).includes(q));
+    if (/^(?:narromine post office|post office narromine|74 dandaloo(?: street)?)(?:\\b|$)/.test(q) || q.startsWith('narromine post office ·')) {
+      if(driving.driving){status('Park and get out before fast travel.');return;}
+      if(mode==='house')leave(false);
+      closePanel();npcChat.close();setOverview(false);
+      const pose=NARROMINE_POST_OFFICE_ENTRANCE.outside;
+      player.place(pose.x,pose.z,pose.yaw);
+      status('Outside the north-side entrance to Narromine Post Office, 74 Dandaloo Street. Walk to the steps or tap ✋ to enter.');
+      $('search').blur();return;
+    }
     if (/^narromine\b|dandaloo/.test(q)) { if(driving.driving){status('Park and get out before fast travel.');return;} closePanel(); setOverview(false); player.place(NARROMINE_ARRIVAL.x, NARROMINE_ARRIVAL.z, NARROMINE_ARRIVAL.yaw); status('Dandaloo Street, Narromine — 40 km west of Dubbo along the Mitchell Highway (about 90 seconds by car here).'); $('search').blur(); return; }
     const homeQ = q.split(' · ')[0];
     const home = !p && !h && (PLAN_HOMES.find((x) => lower(homeLabel(x)) === q || lower(x.country) === homeQ || lower(x.address) === q) || (!near && !named && homeQ.length >= 3 && PLAN_HOMES.find((x) => lower(x.country).startsWith(homeQ))));
@@ -1235,6 +1285,7 @@ async function start() {
       if (nearPerson?.spot?.atm) { openPanel(atmPanel(), guideSpot); return; }
       if (nearPerson?.spot?.rack) { status(takeRackTools(life.civic.player).message); return; }
       if (nearPerson?.spot?.itemId) { takeGroundItem(nearPerson.spot); return; }
+      if (nearPerson?.spot?.narromineEnter) { enterNarrominePostOffice(); return; }
       if (nearPerson?.spot?.narromine) { const n = nearPerson.spot.narromine; openPanel({ title: n.label, body: `<p>${esc(n.text)}</p><p class="dim">Narromine, NSW · Wiradjuri Country. Sources: docs/NARROMINE_RESEARCH_AND_PLAN_2026-11-03.md</p>` }, guideSpot); return; }
       if (nearPerson?.spot?.market) { openPanel(stallPanel(life, nearPerson.spot.market, (id, i) => buyAtStall(life, id, i)), guideSpot); return; }
       if (nearPerson?.spot?.id === 'square') {   // an open square, not a building: the market notice and the latest town news
@@ -1266,6 +1317,7 @@ async function start() {
       const thing = nearThing, request = ++interactionRequest, house = inside;
       const restricted=restrictedServiceAction(life,inside?.place,thing);
       if(restricted){status(restricted);return;}
+      if(thing.act?.do==='narromine-postal-counter'){openPanel(narrominePostalCounterPanel(),thing);return;}
       if(thing.act?.do==='pub-expansion'){openPanel(pubExpansionPanel(life),thing);return;}
       if(thing.act?.do==='pub-venue'){openPanel(pubExpansionPanel(life),thing);return;}
       if(thing.act?.do==='pub-secondary-exit'){leave(true,false,'secondary');return;}
@@ -1421,7 +1473,9 @@ async function start() {
   const saved = loadSave();
   if (saved?.pos) {
     for (const c of saved.visited || []) visited.add(c);
-    if (saved.insideShop && life.places.has(saved.insideShop)) {
+    if (saved.inside===NARROMINE_POST_OFFICE_SAVE_ID) {
+      enterNarrominePostOffice();player.place(saved.pos.x,saved.pos.z,saved.yaw);
+    } else if (saved.insideShop && life.places.has(saved.insideShop)) {
       enterShop(saved.insideShop);player.place(saved.pos.x,saved.pos.z,saved.yaw);
     } else if (saved.inside && byCoord.has(saved.inside)) { enter(saved.inside); player.place(saved.pos.x, saved.pos.z, saved.yaw); }
     else player.place(saved.pos.x, saved.pos.z, saved.yaw);
@@ -1729,6 +1783,7 @@ async function start() {
           if(outsideWest||outsideNorth){enterCampus(site.id,true);break;}
         }
       }
+      if(mode==='town' && !overview && !driving.driving && nearNarrominePostOfficeDoor(player.pos)) enterNarrominePostOffice();
       if(mode==='town' && !overview && !driving.driving){
         for(const place of life.places.values()){
           if(place.kind!=='park'&&atCivicEntrance(place,player.pos)){
@@ -2016,6 +2071,8 @@ async function start() {
     leaveVehicle:()=>driving.exit(),
     // A fixed step behaves like a real frame, including showing the driving message (off-road, braking).
     narromineVisible:()=>narromine.group.visible,
+    narrominePostOfficeEntrance:()=>({...NARROMINE_POST_OFFICE_ENTRANCE, outside:{...NARROMINE_POST_OFFICE_ENTRANCE.outside},returnPose:{...NARROMINE_POST_OFFICE_ENTRANCE.returnPose}}),
+    enterNarrominePostOffice,
     narrominePlace:(name)=>{const p=NARROMINE_PLACES.find(x=>x.name===name);return p?{x:p.x,z:p.z,kind:p.kind,address:p.address}:null;},
     onRoad:(x,z)=>roadAllows(x,z),
     stepVehicle:(seconds)=>{const moved=driving.update(seconds);if(driving.message){status(driving.message);driving.clearMessage();}return moved;},
