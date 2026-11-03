@@ -16,19 +16,22 @@ function firstSunday(year, month) {
 // NSW daylight saving starts on the first Sunday of October at 02:00 standard
 // clock time, and ends on the first Sunday of April at 03:00 daylight clock time.
 // No local machine timezone, geolocation, Intl string parsing or real-world clock.
-export function nswUtcOffsetHours({ year,month,day }, minute=720) {
+export function nswUtcOffsetHours({ year,month,day,dayOfMonth }, minute=720) {
+  // townDate().day is the *ordinal game day*, NOT the civil calendar day.
+  const civilDay = dayOfMonth ?? day;
   if (month < 4 || month > 10) return 11;
   if (month > 4 && month < 10) return 10;
   if (month === 4) {
     const first = firstSunday(year,4);
-    return day < first || (day === first && minute < 180) ? 11 : 10;
+    return civilDay < first || (civilDay === first && minute < 180) ? 11 : 10;
   }
   const first = firstSunday(year,10);
-  return day > first || (day === first && minute >= 120) ? 11 : 10;
+  return civilDay > first || (civilDay === first && minute >= 120) ? 11 : 10;
 }
 
-function dayOfYear({ year,month,day }) {
-  return 1 + Math.round((Date.UTC(year,month-1,day)-Date.UTC(year,0,1))/86400000);
+function dayOfYear({ year,month,day,dayOfMonth }) {
+  const civilDay = dayOfMonth ?? day;
+  return 1 + Math.round((Date.UTC(year,month-1,civilDay)-Date.UTC(year,0,1))/86400000);
 }
 
 export function solarPosition(date, minute, site=SOLAR_SITE) {
