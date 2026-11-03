@@ -1,6 +1,7 @@
 // Playtest cheats (opened from the hidden HUD cheat menu, src/ui/cheat-menu.js). They change
 // game state directly and say so in the town log; nothing here touches real money or accounts.
 import { DRIVEABLE_RECTS, PLAN_PARCELS, PLAN_HOMES } from './masterplan-built.js';
+import { NARROMINE_ROADS } from './narromine-location.js';
 import { registry } from './property.js';
 import {vehicleSpec,VEHICLE_DYNAMICS} from './vehicle-dynamics.js';
 
@@ -9,7 +10,7 @@ const r2 = (n) => Math.round(n * 100) / 100;
 // The nearest point that is genuinely on a road (inset from the edges so the whole car fits).
 export function nearestRoadPoint(x, z, clear = () => true) {
   let best = null, dist = Infinity;
-  for (const b of DRIVEABLE_RECTS) {
+  for (const b of [...DRIVEABLE_RECTS,...NARROMINE_ROADS]) {
     const inset = 2.2, x0 = b.x0 + inset, x1 = b.x1 - inset, z0 = b.z0 + inset, z1 = b.z1 - inset;
     if (x0 > x1 || z0 > z1) continue;
     // The closest point on this road, then points further along it, so an occupied spot is skipped.
