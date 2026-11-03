@@ -1,0 +1,52 @@
+name: Town Compass Desktop and Android
+on:
+  pull_request:
+    paths:
+      - 'repository-town/src/main.js'
+      - 'repository-town/src/index.html'
+      - 'repository-town/src/styles.css'
+      - 'repository-town/src/ui/compass.js'
+      - 'repository-town/tests/compass*'
+      - 'repository-town/package.json'
+      - '.github/workflows/town-compass.yml'
+  push:
+    branches: [main, feat/town-compass-toggle-20261103]
+    paths:
+      - 'repository-town/src/main.js'
+      - 'repository-town/src/index.html'
+      - 'repository-town/src/styles.css'
+      - 'repository-town/src/ui/compass.js'
+      - 'repository-town/tests/compass*'
+      - 'repository-town/package.json'
+      - '.github/workflows/town-compass.yml'
+permissions:
+  contents: read
+jobs:
+  compass:
+    name: Compass - actual desktop + Pixel 7 browser
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install pinned dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Verify compass headings and settings preference
+        run: node tests/compass.mjs
+      - name: Build full game
+        run: npm run build
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Verify real 3D game in desktop and Android browser
+        run: |
+          node tools/serve.mjs dist/public 8091 &
+          echo $! > /tmp/town-compass-server.pid
+          trap 'kill "$(cat /tmp/town-compass-server.pid)" 2>/dev/null || true' EXIT
+          node tests/compass-browser.mjs --url http://127.0.0.1:8091/
