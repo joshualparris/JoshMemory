@@ -798,7 +798,7 @@ async function start() {
     const h = !p && (byCoord.get(code) || (addressed && addressed.side==='S' && byCoord.get(addressed.col+addressed.row)) || houses.find((h) => lower(h.name) === q || lower(h.address) === q || lower(`${h.address} · ${h.name}`) === q || lower(`${h.coordinate} · ${h.name}`) === q));
     const near = !p && !h && places.find((p) => lower(p.name).includes(q));
     const named = !p && !h && !near && houses.find((h) => lower(h.name).includes(q));
-    if (/^(?:narromine post office|post office narromine|74 dandaloo(?: street)?)(?:\\b|$)/.test(q) || q.startsWith('narromine post office ·')) {
+    if (/^(?:narromine post office|post office narromine|74 dandaloo(?: street)?)(?:\b|$)/.test(q) || q.startsWith('narromine post office ·')) {
       if(driving.driving){status('Park and get out before fast travel.');return;}
       if(mode==='house')leave(false);
       closePanel();npcChat.close();setOverview(false);
