@@ -29,6 +29,7 @@ import { buildMasterplan, PLAN_HOMES } from './world/masterplan-built.js';
 import { RESIDENT_STYLES } from './world/resident-models.js';
 import { buildNarromine } from './world/narromine.js';
 import { NARROMINE_POST_OFFICE_SAVE_ID, NARROMINE_POST_OFFICE_ENTRANCE, nearNarrominePostOfficeDoor, buildNarrominePostOfficeInterior } from './world/narromine-post-office.js';
+import { ST_MARYS_SAVE_ID, ST_MARYS_ENTRANCE, nearStMarysDoor, buildStMarysInterior } from './world/narromine-st-marys.js';
 import { ARRIVAL as NARROMINE_ARRIVAL, PLACES as NARROMINE_PLACES } from './world/narromine-layout.js';
 import { buildCountryInterior,countryEntrance,countryExitPose } from './world/country-interiors.js';
 import { CORE_ROADS } from './world/masterplan-model.js';
@@ -655,6 +656,24 @@ async function start() {
     return true;
   }
 
+  // St Mary's Anglican Church, Narromine: walk in through the porch doors on the north side.
+  function enterStMarys() {
+    if(mode!=='town'||driving.driving)return false;
+    const built=buildStMarysInterior(makeLabel);
+    inside={house:{coordinate:ST_MARYS_SAVE_ID,name:"St Mary's Anglican Church",address:'148 Dandaloo Street, Narromine NSW',kind:'place_of_worship'},
+      ...built,floorIndex:0,floors:null};
+    scene.add(built.group);town.group.visible=false;
+    scene.background.set(INDOOR);scene.fog=null;
+    world=new CollisionWorld(built.colliders);
+    player.place(built.spawn.x,built.spawn.z,0);
+    mode='house';player.baseHeight=0;floorDoorCooldown=0.65;
+    updateFloorBadge();$('btn-exit').hidden=false;
+    closePanel();npcChat.close();ambience.door();
+    $('card').hidden=true;delete $('card').dataset.coord;
+    status("Inside St Mary's Anglican Church · 148 Dandaloo Street. Walk up the tiled aisle to the chancel, sit in a pew, or read the foundation stones by the door. Walk back out through the west doorway or tap Exit.");
+    return true;
+  }
+
   const POSTAL_TOPICS={
     letters:{title:'Letters and postage',body:'Ask at the counter about domestic and international letter services, stamp options, size and weight limits, and the currently posted collection times. Pricing and delivery estimates are not live in this game.'},
     parcels:{title:'Sending parcels',body:'At a real postal counter, parcels can be weighed, packaged and checked against permitted contents before postage and tracking are arranged. This game does not create a real consignment or charge your account.'},
@@ -721,6 +740,7 @@ async function start() {
     const campus=inside.campus||null;
     const countryHome=inside.countryHome||null;
     const narrominePostOffice=!!inside.narrominePostal;
+    const narromineChurch=!!inside.narromineChurch;
     inside.bakeryImmersion?.dispose();
     inside.workplay?.dispose();
     if(inside.floors?.isPub)for(const level of inside.floors.levels)if(level.workplay!==inside.workplay)level.workplay?.dispose();
@@ -733,7 +753,10 @@ async function start() {
     $('btn-exit').hidden = true;
     town.group.visible = true; scene.background.set(SKY); scene.fog = fog;
     if (placeOutside) {
-      if (narrominePostOffice) {
+      if (narromineChurch) {
+        const pose=ST_MARYS_ENTRANCE.returnPose;
+        player.place(pose.x,pose.z,pose.yaw);
+      } else if (narrominePostOffice) {
         // Return to the north-side footpath rather than inside solid exterior masonry.
         const pose=NARROMINE_POST_OFFICE_ENTRANCE.returnPose;
         player.place(pose.x,pose.z,pose.yaw);
@@ -756,7 +779,7 @@ async function start() {
     // Close the door behind the player so the doorway does not re-trigger.
     const d = town.doors.find((d) => d.userData.coordinate === coord); if (d) d.userData.open = 0;
     ambience.door();
-    status(narrominePostOffice?'Back outside Narromine Post Office · 74 Dandaloo Street.':campus?`Back outside ${campus.name}.`:countryHome?`Back outside ${countryHome.address} · ${countryHome.country}.`:shop?`Back outside ${shop.name}.`:`Back on the street at ${coord}.`);
+    status(narromineChurch?"Back outside St Mary's Anglican Church · 148 Dandaloo Street.":narrominePostOffice?'Back outside Narromine Post Office · 74 Dandaloo Street.':campus?`Back outside ${campus.name}.`:countryHome?`Back outside ${countryHome.address} · ${countryHome.country}.`:shop?`Back outside ${shop.name}.`:`Back on the street at ${coord}.`);
   }
 
   // ── Overview (bird's-eye) ────────────────────────────────────────────────
@@ -812,6 +835,14 @@ async function start() {
       const pose=NARROMINE_POST_OFFICE_ENTRANCE.outside;
       player.place(pose.x,pose.z,pose.yaw);
       status('Outside the north-side entrance to Narromine Post Office, 74 Dandaloo Street. Walk to the steps or tap ✋ to enter.');
+      $('search').blur();return;
+    }
+    if (/^(?:st\.? mary'?s(?: anglican)?(?: church)?(?: narromine)?|148 dandaloo(?: street)?)$/.test(q)) {
+      if(driving.driving){status('Park and get out before fast travel.');return;}
+      if(mode==='house')leave(false);
+      closePanel();npcChat.close();setOverview(false);
+      const pose=ST_MARYS_ENTRANCE.outside;player.place(pose.x,pose.z,pose.yaw);
+      status("Outside the porch doors of St Mary's Anglican Church, 148 Dandaloo Street. Walk to the doors to go in.");
       $('search').blur();return;
     }
     if (/^narromine\b|dandaloo/.test(q)) { if(driving.driving){status('Park and get out before fast travel.');return;} closePanel(); setOverview(false); player.place(NARROMINE_ARRIVAL.x, NARROMINE_ARRIVAL.z, NARROMINE_ARRIVAL.yaw); status('Dandaloo Street, Narromine — 40 km west of Dubbo along the Mitchell Highway (about 90 seconds by car here).'); $('search').blur(); return; }
@@ -1482,6 +1513,8 @@ async function start() {
     for (const c of saved.visited || []) visited.add(c);
     if (saved.inside===NARROMINE_POST_OFFICE_SAVE_ID) {
       enterNarrominePostOffice();player.place(saved.pos.x,saved.pos.z,saved.yaw);
+    } else if (saved.inside===ST_MARYS_SAVE_ID) {
+      enterStMarys();player.place(saved.pos.x,saved.pos.z,saved.yaw);
     } else if (saved.insideShop && life.places.has(saved.insideShop)) {
       enterShop(saved.insideShop);player.place(saved.pos.x,saved.pos.z,saved.yaw);
     } else if (saved.inside && byCoord.has(saved.inside)) { enter(saved.inside); player.place(saved.pos.x, saved.pos.z, saved.yaw); }
@@ -1791,6 +1824,7 @@ async function start() {
         }
       }
       if(mode==='town' && !overview && !driving.driving && nearNarrominePostOfficeDoor(player.pos)) enterNarrominePostOffice();
+      if(mode==='town' && !overview && !driving.driving && nearStMarysDoor(player.pos)) enterStMarys();
       if(mode==='town' && !overview && !driving.driving){
         for(const place of life.places.values()){
           if(place.kind!=='park'&&atCivicEntrance(place,player.pos)){
@@ -2080,6 +2114,7 @@ async function start() {
     leaveVehicle:()=>driving.exit(),
     // A fixed step behaves like a real frame, including showing the driving message (off-road, braking).
     narromineVisible:()=>narromine.group.visible,
+    stMarysEntrance:()=>({...ST_MARYS_ENTRANCE,outside:{...ST_MARYS_ENTRANCE.outside},returnPose:{...ST_MARYS_ENTRANCE.returnPose}}),
     narrominePostOfficeEntrance:()=>({...NARROMINE_POST_OFFICE_ENTRANCE, outside:{...NARROMINE_POST_OFFICE_ENTRANCE.outside},returnPose:{...NARROMINE_POST_OFFICE_ENTRANCE.returnPose}}),
     enterNarrominePostOffice,
     narrominePlace:(name)=>{const p=NARROMINE_PLACES.find(x=>x.name===name);return p?{x:p.x,z:p.z,kind:p.kind,address:p.address}:null;},
