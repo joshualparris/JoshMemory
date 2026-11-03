@@ -120,3 +120,25 @@ console.log(`PASS Narromine (OpenStreetMap): ${STREETS.length} street pieces, ${
     'passage goes all the way from the rear car park to the Dandaloo frontage');
   console.log('PASS Kierath\'s Shopping Square: 10 georeferenced shop bays, curved rear canopy, round kiosk and ' + samples + ' unobstructed walkway samples');
 }
+
+// Building heights measured from NSW airborne LiDAR (tools/narromine_lidar.py).
+{
+  const { DETAILED, BUILDINGS } = await import('../src/world/narromine-layout.js');
+  const { NARROMINE_LIDAR } = await import('../src/world/narromine-lidar-data.js');
+  assert.equal(NARROMINE_LIDAR.licence, 'CC BY 4.0');
+  const areaM2 = (pts) => Math.abs(pts.reduce((s, p, i, a) => { const q = a[(i + 1) % a.length]; return s + p[0] * q[1] - q[0] * p[1]; }, 0) / 2);
+  for (const d of DETAILED) for (const p of d.parts) {
+    // Parts under 15 m² (e.g. the Royal's lean-to) can hold fewer than 8 building points at 4 pts/m²; they keep traced heights.
+    if (!p.lidar && areaM2(p.pts) < 15) continue;
+    assert(p.lidar, `${d.id} ${p.name} has a LiDAR measurement`);
+    const [year, , , ridge, median, n] = p.lidar;
+    assert(year === 2023 || year === 2011, 'survey year recorded');
+    assert(median > 1.5 && median < 15 && ridge >= median && n >= 8, `${d.id} ${p.name} heights are plausible (${median} / ${ridge} m from ${n} points)`);
+  }
+  const med = (id, part) => DETAILED.find((d) => d.id === id).parts.find((p) => p.name === part).lidar[4];
+  assert(med('narromine-hotel', 'north wing') > med('royal-hotel', 'front') + 3, 'the two-storey Narromine Hotel is measured well above the single-storey Royal');
+  assert(med('narromine-post-office', 'north wing') > 8, 'the two-storey Post Office measures over 8 m');
+  const measured = BUILDINGS.filter((b) => b.lidar).length;
+  assert(measured > 60, `mapped buildings carry LiDAR heights where surveyed (${measured})`);
+  console.log(`PASS LiDAR: every detailed part measured; ${measured} mapped buildings with surveyed heights`);
+}

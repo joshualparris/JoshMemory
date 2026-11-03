@@ -633,3 +633,6 @@ Historical scope: Codex; branch feat/pub-cellar-upper-20261026; baseline f81da76
 ## 2026-11-03 — Coles Dandaloo frontage, car park and median details (Claude, claude/narromine-coles-frontage)
 - Built on top of #299 (Kierath's arcade, untouched). Touched src/world/narromine.js (wall features now sit on the wall's box face; cantilever awning colour; bullnose, trolley bay, board, palm, statue and red-bay props) and src/world/narromine-buildings-data.js (dandaloo-82).
 - From Josh's photos: white "KIERATH, NELSON & CO. PTY. LTD." parapet over brick with a dark cantilevered awning and window band, the boutique's striped bullnose awning, rear trolley bay and Click & Collect bays, and the Dandaloo median palm and seated statue (subject not verified). Tests: narromine layout/browser, kieraths browser, map, both Post Office suites, privacy — all pass.
+
+## 2026-11-04 — Narromine building heights from LiDAR (Claude, claude/narromine-lidar)
+- New tools/narromine_lidar.py and generated src/world/narromine-lidar-data.js (NSW Spatial Services LiDAR, CC BY 4.0; raw LAZ not committed). Touched src/world/narromine-layout.js (attach heights), src/world/narromine.js (measured wall height/pitch/verandah height; features scaled), tests/narromine-layout.mjs (LiDAR checks). All Narromine/Post Office suites pass.
