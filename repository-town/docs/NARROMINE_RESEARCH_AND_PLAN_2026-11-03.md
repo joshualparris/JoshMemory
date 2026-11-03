@@ -1,6 +1,6 @@
 # Narromine: research dossier and plan to make it drivable from Repository Town
 
-Status: Phase 1 built (highway + Dandaloo Street arrival). Branch `claude/narromine`.
+Status: Phase 1 rebuilt from the real map (OpenStreetMap). Branch `claude/narromine`.
 Every fact below carries its source. Where sources disagree the disagreement is recorded, not
 resolved; check the primary source (ABS, council, AWM, Trove) before putting a number on screen.
 
@@ -154,3 +154,27 @@ wallet. Keep it deterministic like Repo Town so saves restore exactly.
   of game time at up to 100 km/h, never off a driveable road; town hidden at home, shown on
   arrival; Royal Hotel fact; search teleport; no page errors.
 - Open question: should Trangie and Tomingley follow later in the same way?
+
+
+## Real-map rebuild (2026-11-03)
+
+Josh asked for the exact real streets and shops. The hand-placed layout was replaced with an
+OpenStreetMap export of central Narromine (bbox 148.220,-32.250 → 148.262,-32.218, fetched from
+api.openstreetmap.org; map data © OpenStreetMap contributors, ODbL 1.0, credited on a sign at the
+town edge and in every place panel).
+
+- `tools/narromine-osm.mjs <map.osm>` regenerates `src/world/narromine-osm-data.js` (clips to the
+  export box; anchors the game highway at the real Mitchell Highway's eastern edge).
+- Real: 81 street names along their true lines (the Mitchell Highway becomes Dandaloo Street),
+  219 mapped building outlines raised to height, parks/sports grounds/golf/cemetery/schools,
+  river, wetlands and the Main Western line, and 94 named places at their mapped positions.
+- Main-street frontages of mapped buildings get verandas, windows and their real names.
+- Generated (not surveyed; marked `generic`): shopfronts for named places with no mapped outline,
+  and ~2,700 plain houses along residential streets, because OSM maps only 2 houses here.
+- Spelling fixes for map typos: "Aviation Muesum", "Narrmine Physiotherapy".
+- **Privacy:** the export contains a named private house; the converter strips names and
+  addresses from houses/residences and person-named businesses show their category. Tested.
+- Performance: Narromine main street ≈80 draw calls / ≈8.7k triangles (Repo Town high street
+  ≈253 / ≈559k), geometry tiled at 300 m so off-screen tiles are skipped.
+- Not yet real: building heights, colours and facade details (OSM has none for most), street
+  trees, the aerodrome's runways (outside the export box). Josh's own photos would improve facades.

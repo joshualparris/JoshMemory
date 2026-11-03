@@ -28,7 +28,7 @@ import { buildYeovalInterior } from './world/yeoval-interior.js';
 import { buildMasterplan, PLAN_HOMES } from './world/masterplan-built.js';
 import { RESIDENT_STYLES } from './world/resident-models.js';
 import { buildNarromine } from './world/narromine.js';
-import { ARRIVAL as NARROMINE_ARRIVAL } from './world/narromine-layout.js';
+import { ARRIVAL as NARROMINE_ARRIVAL, PLACES as NARROMINE_PLACES } from './world/narromine-layout.js';
 import { buildCountryInterior,countryEntrance,countryExitPose } from './world/country-interiors.js';
 import { CORE_ROADS } from './world/masterplan-model.js';
 import { RAIL_Z } from './world/rail-corridor.js';
@@ -2016,6 +2016,7 @@ async function start() {
     leaveVehicle:()=>driving.exit(),
     // A fixed step behaves like a real frame, including showing the driving message (off-road, braking).
     narromineVisible:()=>narromine.group.visible,
+    narrominePlace:(name)=>{const p=NARROMINE_PLACES.find(x=>x.name===name);return p?{x:p.x,z:p.z,kind:p.kind,address:p.address}:null;},
     onRoad:(x,z)=>roadAllows(x,z),
     stepVehicle:(seconds)=>{const moved=driving.update(seconds);if(driving.message){status(driving.message);driving.clearMessage();}return moved;},
     shops:()=>[...life.places.values()].map(p=>({id:p.id,name:p.name,kind:p.kind,side:p.side||null,expansion:!!p.expansion,door:{x:p.x,z:p.door.z}})),

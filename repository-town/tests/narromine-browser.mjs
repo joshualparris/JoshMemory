@@ -27,13 +27,13 @@ try {
       const p = window.__town.state().pos, kmh = Math.hypot(p.x - last.x, p.z - last.z) * 30 * 3.6; last = { ...p };
       out.maxKmh = Math.max(out.maxKmh, kmh); out.minZ = Math.min(out.minZ, p.z); out.maxZ = Math.max(out.maxZ, p.z);
       if (!window.__town.onRoad(p.x, p.z)) out.offRoad++;
-      if (p.x < -2900) break;
+      if (p.x < -2872) break;   // the real Mitchell Highway starts at x -2870
     }
     out.end = { ...window.__town.state().pos };
     return out;
   });
   await page.keyboard.up('w');
-  step(trip.end.x < -2900, `reached Dandaloo Street (x ${trip.end.x.toFixed(0)}) in ${trip.seconds.toFixed(0)} s of driving`);
+  step(trip.end.x < -2872, `reached Narromine's edge, where the real Mitchell Highway begins (x ${trip.end.x.toFixed(0)}), in ${trip.seconds.toFixed(0)} s`);
   step(trip.seconds > 70 && trip.seconds < 130, `the trip takes about 90 s (${trip.seconds.toFixed(0)} s)`);
   step(trip.maxKmh > 90 && trip.maxKmh < 102, `open highway allows 100 km/h (top ${trip.maxKmh.toFixed(0)} km/h)`);
   step(trip.offRoad === 0, `stayed on a driveable road all the way (${trip.offRoad} off-road steps; z ${trip.minZ.toFixed(1)}..${trip.maxZ.toFixed(1)})`);
@@ -41,7 +41,7 @@ try {
   step(await page.evaluate(() => window.__town.narromineVisible()), 'Narromine is drawn on arrival');
   // Park, get out and read the Royal Hotel's fact at its door.
   await page.evaluate(() => { for (let i = 0; i < 90; i++) window.__town.stepVehicle(1 / 30); window.__town.leaveVehicle(); });
-  await page.evaluate(() => window.__town.place(-2985, -12.5, 0));   // footpath, facing the hotel (north, -z)
+  await page.evaluate(() => { const r = window.__town.narrominePlace('Royal Hotel'); window.__town.place(r.x + 2.2, r.z, Math.PI / 2); });   // beside the mapped Royal Hotel, facing it (-x)
   await page.waitForFunction(() => /Royal Hotel/.test(document.getElementById('prompt').textContent), null, { timeout: 5000 }).catch(() => {});
   step(/Royal Hotel/.test(await page.evaluate(() => document.getElementById('prompt').textContent)), 'the Royal Hotel offers its prompt');
   await page.keyboard.press('e');
@@ -52,7 +52,8 @@ try {
   await page.fill('#search', 'Narromine'); await page.evaluate(() => document.getElementById('search-form').requestSubmit());
   await page.waitForTimeout(300);
   const after = await page.evaluate(() => window.__town.state().pos);
-  step(after.x < -2900, `search "Narromine" teleports to Dandaloo Street (${after.x.toFixed(0)},${after.z.toFixed(0)})`);
+  const royal = await page.evaluate(() => window.__town.narrominePlace('Royal Hotel'));
+  step(Math.hypot(after.x - royal.x, after.z - royal.z) < 30, `search "Narromine" lands on Dandaloo Street by the Royal Hotel (${after.x.toFixed(0)},${after.z.toFixed(0)})`);
   await page.screenshot({ path: process.env.SHOT || '/dev/null' }).catch(() => {});
   step(!errors.length, `no page errors ${errors.join('; ')}`);
 } finally { await browser.close(); }
