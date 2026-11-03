@@ -13,7 +13,16 @@ assert.equal(OSM.licence, 'ODbL 1.0'); assert.match(OSM.attribution, /OpenStreet
 // The real Mitchell Highway starts where the game highway ends, and is driveable from there.
 const mitchell = STREETS.filter((s) => s.name === 'Mitchell Highway');
 assert(mitchell.some((s) => s.pts.some(([x, z]) => Math.hypot(x - OFFSET.x, z - OFFSET.z) < 1)), 'real Mitchell Highway meets the game highway');
-for (const s of STREETS) for (const [x, z] of s.pts) if (x > REGION.x0 && x < REGION.x1) assert(onNarromineRoad(x, z), `${s.name || s.kind} driveable at its mapped point`);
+// The centre of the heritage-listed Dandaloo garden strip is NOT driveable.
+// Check actual carriageway centres on both sides rather than assuming every
+// government centreline is an asphalt surface.
+for (const s of STREETS) for (const [x, z] of s.pts) if (x > REGION.x0 && x < REGION.x1) {
+ if(s.divided){
+   const [a,b]=s.pts,len=Math.hypot(b[0]-a[0],b[1]-a[1]),nx=(b[1]-a[1])/len,nz=-(b[0]-a[0])/len;
+   assert(onNarromineRoad(x+nx*6.8,z+nz*6.8),'Dandaloo one mapped lane driveable');
+   assert(onNarromineRoad(x-nx*6.8,z-nz*6.8),'Dandaloo opposite mapped lane driveable');
+ }else assert(onNarromineRoad(x,z),`${s.name||s.kind} driveable at its mapped point`);
+}
 
 const names = new Set(STREETS.map((s) => s.name));
 for (const n of ['Dandaloo Street', 'Burraway Street', 'Cathundril Street', 'Meryula Street', 'Manildra Street', 'Merilba Street', 'Nymagee Street', 'Temoin Street'])
