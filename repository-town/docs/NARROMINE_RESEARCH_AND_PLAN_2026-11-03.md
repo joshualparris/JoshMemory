@@ -265,3 +265,13 @@ Lot 90 is a 90 m² triangle that the mapped Derribong Avenue road crosses, so it
 
 ### Heights from shadows (tried, not adopted)
 The imagery was flown on 23 July 2012. Pole shadows put the sun at 9.7° east of north and 37.1° above the horizon, so 1.32 m of shadow = 1 m of height. This is reliable only where a wall shadows open, light ground. The Royal's front block came out at 4.0 m, matching the model. On the crowded main street, most shadows fall on other roofs, verandahs, dark bitumen or trees, so the method is not used to set heights automatically.
+
+### Post Office: facade pass
+- **Sourced:** opened as the Narramine Post Office on 20 October 1882, the day the railway reached town, and renamed Narromine in November 1900 (Premier Postal, cited by Wikipedia). The construction date of the present building is not yet sourced. A 1946 newspaper index mentions a proposed two-storey post office, but it is unconfirmed.
+- **Added (generic builder features):** street facades with evenly spaced windows, a central door and a wall sign; footpath props (a post box and planter beds, the planters traced from the aerial).
+- **Assumed:**
+  - face-brick walls;
+  - the window and door positions;
+  - the sign wording;
+  - the post box position.
+- **Checked but unavailable:** no heritage listing was found. The LEP heritage schedule is behind a bot check, and Wikimedia Commons was rate-limited.

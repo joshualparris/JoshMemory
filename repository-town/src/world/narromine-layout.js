@@ -53,7 +53,8 @@ export const onNarromineRoad = (x, z) => inRect(HIGHWAY_RECT, x, z) || (x < REGI
 const W = (pts) => pts.map(([lat, lon]) => geoToWorld(lat, lon));
 export const DETAILED = Object.freeze(NARROMINE_BUILDINGS.map((d) => Object.freeze({ ...d, boundary: W(d.boundary), trees: W(d.trees),
   parts: d.parts.map((p) => ({ ...p, pts: W(p.pts) })), verandahs: d.verandahs.map((v) => ({ ...v, pts: W(v.pts) })),
-  ground: d.ground.map((g) => ({ ...g, pts: W(g.pts) })) })));
+  ground: d.ground.map((g) => ({ ...g, pts: W(g.pts) })),
+  props: (d.props || []).map((p) => (p.at ? { ...p, at: W([p.at])[0] } : { ...p, pts: W(p.pts) }))  })));
 // Mapped outlines whose centre lies in a detailed lot are left out: the detailed model replaces them.
 const centreOf = (pts) => [pts.reduce((s, p) => s + p[0], 0) / pts.length, pts.reduce((s, p) => s + p[1], 0) / pts.length];
 export const BUILDINGS = Object.freeze(OSM.buildings.map((b) => Object.freeze({ ...b, pts: b.pts.map(toWorld) }))
@@ -71,6 +72,7 @@ export function polyRect(pts) {
 const NAME_FIX = { 'Narromine Aviation Muesum': 'Narromine Aviation Museum', 'Narrmine Physiotherapy': 'Narromine Physiotherapy' };
 const FACTS = {
   'Royal Hotel': 'Built in 1890; once a Cobb & Co coach stop. (Aussietowns)',
+  'Narromine Post Office': 'Opened as the Narramine Post Office on 20 October 1882, the day the railway reached town; renamed Narromine in November 1900. (Premier Postal, via Wikipedia)',
   'Narromine Hotel': 'Built in 1901 as the Federal Hotel; known for the iron lace on its upper veranda. (Aussietowns)',
   'The Court House Hotel': 'First established by David Fitch in 1889, on the corner of Burraway and Merilba Streets. (Aussietowns)',
   'Narromine Aviation Museum': 'Opened in 2002 at the aerodrome, home of RAAF No. 5 Elementary Flying Training School (1940–44), where about 2,800 pilots trained. Exhibits include a CAC Sabre and a flying Wright Flyer replica. (Narromine Aviation Museum / AWM)',
