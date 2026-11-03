@@ -180,7 +180,7 @@ export function buildNarromine(parent, makeLabel = null) {
   };
   // Coles: a proper two-plane pitched roof with bright triangular gable ends,
   // unlike the old generic flat/shallow shed volumes. Ridge runs along quad edge 0→1.
-  const gableRoof = (c, pts, wallH, pitch = 0.23) => {
+  const gableRoof = (c, pts, wallH, pitch = 0.23, gableColour = 0xf2f0eb) => {
     const { L, W: w, cx, cz, yaw } = frame(pts), y1 = wallH + w * 0.5 * Math.tan(pitch);
     const xl = -L / 2, xr = L / 2, zn = -w / 2, zs = w / 2, y0 = wallH;
     const roofVerts = [
@@ -191,7 +191,7 @@ export function buildNarromine(parent, makeLabel = null) {
       xl,y0,zn, xl,y0,zs, xl,y1,0,
       xr,y0,zs, xr,y0,zn, xr,y1,0
     ];
-    for (const [colour, verts] of [[c, roofVerts], [0xf2f0eb, gbVerts]]) {
+    for (const [colour, verts] of [[c, roofVerts], [gableColour, gbVerts]]) {
       const geo = new THREE.BufferGeometry();
       geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
       geo.rotateY(yaw); geo.translate(cx, 0, cz); geo.computeVertexNormals(); push(colour, geo);
@@ -242,17 +242,20 @@ export function buildNarromine(parent, makeLabel = null) {
       // LiDAR: [year, ground, eave p5, ridge p98, median, n, density]. A hipped/gabled roof's median sits about 30%
       // of the way from eave to ridge, so eave = (median - 0.3 ridge) / 0.7; flat/skillion parts use the median.
       const Ld = p.lidar, pitched = p.roof === 'hip' || p.roof === 'gable';
-      const wallH = Ld ? Math.max(2.4, pitched ? (Ld[4] - 0.3 * Ld[3]) / 0.7 : Ld[4]) : guessH;
-      const pitch = Ld && pitched ? Math.min(0.8, Math.max(0.05, Math.atan(Math.max(0, Ld[3] - wallH) / (Math.min(f.L, f.W) / 2)))) : p.pitch;
+      // Parts traced straight from a LiDAR profile carry exact wall and ridge heights (p.ridgeH) and skip the estimate.
+      const wallH = p.ridgeH ? guessH : Ld ? Math.max(2.4, pitched ? (Ld[4] - 0.3 * Ld[3]) / 0.7 : Ld[4]) : guessH;
+      const ridgeTop = p.ridgeH ?? (Ld ? Ld[3] : null), span = p.roof === 'gable' ? f.W : Math.min(f.L, f.W);
+      const pitch = ridgeTop && pitched ? Math.min(0.9, Math.max(0.05, Math.atan(Math.max(0, ridgeTop - wallH) / (span / 2)))) : p.pitch;
       // Upper-floor features were placed for the guessed height; stretch heights above the ground floor to fit.
-      const fitY = (y) => (Ld && y > 3.4 && guessH > 3.4 ? 3.4 + (y - 3.4) * (wallH - 3.4) / (guessH - 3.4) : y);
+      const fitY = (y) => (Ld && !p.ridgeH && y > 3.4 && guessH > 3.4 ? 3.4 + (y - 3.4) * (wallH - 3.4) / (guessH - 3.4) : y);
       box(p.wallColour ?? WALL, f.L, wallH, f.W, f.cx, wallH / 2, f.cz, f.yaw);
       for (const F of p.features || []) feature(p, { ...F, y: Array.isArray(F.y) ? F.y.map(fitY) : fitY(F.y) });
       if (p.fascia) box(0xf4f4f0, f.L + 0.5, 0.35, f.W + 0.5, f.cx, wallH - 0.05, f.cz, f.yaw);   // white roof edge
       if (p.mast) { box(0xb0b2b4, 0.1, 4, 0.1, f.cx, wallH + 2, f.cz); box(0xb0b2b4, 1.4, 0.06, 0.06, f.cx, wallH + 3.4, f.cz); }
-      if (p.roof === 'hip') hipRoof(ROOF, p.pts, wallH, pitch);
-      else if (p.roof === 'gable') gableRoof(ROOF, p.pts, wallH, pitch);
-      else box(ROOF, f.L + 0.4, 0.1, f.W + 0.4, f.cx, wallH + 0.1, f.cz, f.yaw);
+      const RC = p.roofColour ?? ROOF;
+      if (p.roof === 'hip') hipRoof(RC, p.pts, wallH, pitch);
+      else if (p.roof === 'gable') gableRoof(RC, p.pts, wallH, pitch, p.wallColour);
+      else box(RC, f.L + 0.4, 0.1, f.W + 0.4, f.cx, wallH + 0.1, f.cz, f.yaw);
       if (p.storeys === 2 && !p.features) for (const side of [-1, 1]) for (let t = -f.L / 2 + 1.5; t < f.L / 2 - 1; t += 3) { // upper-floor windows on the long faces
         const ox = Math.cos(-f.yaw) * t - Math.sin(-f.yaw) * side * (f.W / 2 + 0.03), oz = Math.sin(-f.yaw) * t + Math.cos(-f.yaw) * side * (f.W / 2 + 0.03);
         box(0x34434f, 1.0, 1.6, 0.06, f.cx + ox, fitY(5.6), f.cz + oz, f.yaw); }

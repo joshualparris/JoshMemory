@@ -72,8 +72,11 @@ export function polyRect(pts) {
 }
 
 // Spelling corrections for the map data, and sourced history for places that have it.
-const NAME_FIX = { 'Narromine Aviation Muesum': 'Narromine Aviation Museum', 'Narrmine Physiotherapy': 'Narromine Physiotherapy' };
+const NAME_FIX = { 'Narromine Aviation Muesum': 'Narromine Aviation Museum', 'Narrmine Physiotherapy': 'Narromine Physiotherapy',
+  // OSM labels a point at 86 Dandaloo "Anglican Church"; the Churches Australia directory puts St Mary's Anglican at 148.
+  'Anglican Church': 'Church (86 Dandaloo Street, denomination unverified)' };
 const FACTS = {
+  "St Mary's Anglican Church": 'Foundation stone laid 22 May 1929 by Bishop Horace Crotty; opened 16 July 1933; a further stone laid 27 October 1959. (Churches Australia directory, from the stones)',
   'Royal Hotel': 'Built in 1890; once a Cobb & Co coach stop. (Aussietowns)',
   'Narromine Post Office': 'Opened as the Narramine Post Office on 20 October 1882, the day the railway reached town; renamed Narromine in November 1900. (Premier Postal, via Wikipedia)',
   'Narromine Hotel': 'Built in 1901 as the Federal Hotel; known for the iron lace on its upper veranda. (Aussietowns)',
@@ -86,7 +89,13 @@ export const PLACES = Object.freeze(OSM.places.map((p) => {
   const name = NAME_FIX[p.name] || p.name, [x, z] = toWorld([p.x, p.z]);
   const address = p.number && p.street ? `${p.number} ${p.street}` : p.street;
   return Object.freeze({ name, kind: p.kind, kindLabel: KIND_LABEL(p.kind), address, x, z, fact: FACTS[name] || '' });
-}));
+}).concat(EXTRA_PLACES()));
+// Places sourced outside OpenStreetMap, positioned at their detailed building (e.g. St Mary's, missing from OSM).
+function EXTRA_PLACES() {
+  const at = (id) => { const d = DETAILED.find((b) => b.id === id), p = d && d.parts[0].pts; return p && [p.reduce((s, q) => s + q[0], 0) / p.length, p.reduce((s, q) => s + q[1], 0) / p.length]; };
+  const sm = at('st-marys-anglican');
+  return sm ? [Object.freeze({ name: "St Mary's Anglican Church", kind: 'place_of_worship', kindLabel: 'Place of worship', address: '148 Dandaloo Street', x: sm[0], z: sm[1], fact: FACTS["St Mary's Anglican Church"] })] : [];
+}
 
 // Arrival: the Royal Hotel's footpath on Dandaloo Street (search "Narromine" lands here).
 const royal = PLACES.find((p) => p.name === 'Royal Hotel');
