@@ -70,3 +70,53 @@ console.log(`PASS Narromine (OpenStreetMap): ${STREETS.length} street pieces, ${
   const nh = DETAILED.find((b) => b.id === 'narromine-hotel');
   assert(nh.parts.filter((p) => p.storeys === 2).length === 3 && nh.verandahs.every((v) => v.levels === 2 && v.lace), 'Narromine Hotel: two storeys with a two-level lace verandah');
 }
+
+// Kierath's plan topology and walkability (the previous 76 building was a solid
+// placeholder that blocked the actual passage). Site-local metres are mapped onto
+// the authoritative lot: coordinates are approximate, NOT a claim of surveyed doors.
+{
+  const { geoToWorld, DETAILED, inPoly } = await import('../src/world/narromine-layout.js');
+  const { siteToGeo, KIERATHS_ROUTE, KIERATHS_SHOPS, KIERATHS_KIOSK,
+    KIERATHS_CANOPY, KIERATHS_REAR_PARKING } = await import('../src/world/narromine-kieraths-data.js');
+  const W = p => geoToWorld(...siteToGeo(p));
+  const lot76 = DETAILED.find(d => d.id === 'dandaloo-76');
+  const coles = DETAILED.find(d => d.id === 'dandaloo-82');
+  assert(lot76 && coles, '76 and 82 Dandaloo must have their original cadastre lots');
+  assert.equal(lot76.parts.length, 0, 'the mistaken solid 76 shop/shed volumes must not block the arcade');
+  assert.equal(KIERATHS_SHOPS.length, 10, 'site plan identifies ten small numbered tenancies');
+  assert.deepEqual(KIERATHS_SHOPS.map(s => s.number), [1,2,3,4,5,6,7,8,9,10]);
+  const inAny = (p, polys) => polys.some(poly => inPoly(...p, poly));
+  const edgeDist = (p, poly) => Math.min(...poly.map((a, i) => {
+    const b = poly[(i + 1) % poly.length], dx = b[0] - a[0], dz = b[1] - a[1];
+    const t = Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dz) / (dx * dx + dz * dz || 1)));
+    return Math.hypot(p[0] - a[0] - dx * t, p[1] - a[1] - dz * t);
+  }));
+  const walls = [...KIERATHS_SHOPS.map(b => b.pts.map(W)), ...coles.parts.map(b => b.pts)];
+  for (const s of KIERATHS_SHOPS) {
+    for (const pt of s.pts.map(W)) {
+      assert(inPoly(...pt, lot76.boundary) || edgeDist(pt, lot76.boundary) < 0.3,
+        'Kierath shop ' + s.number + ' must fit the mapped 76 Dandaloo lot');
+      assert(!inAny(pt, coles.parts.map(p => p.pts)), 'shop ' + s.number + ' does not duplicate Coles walls');
+    }
+  }
+  for (const pt of KIERATHS_REAR_PARKING.map(W))
+    assert(inPoly(...pt, lot76.boundary) || edgeDist(pt, lot76.boundary) < 1, 'car park inside site');
+  let samples = 0;
+  for (let i = 1; i < KIERATHS_ROUTE.length; i++) {
+    const a = KIERATHS_ROUTE[i - 1], b = KIERATHS_ROUTE[i], len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    assert(len < 15, 'arcade route must not have disconnected sections');
+    for (let d = 0; d <= len; d += 0.5) {
+      const t = d / len, p = W([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]);
+      assert(inPoly(...p, lot76.boundary) || edgeDist(p, lot76.boundary) < 0.8, 'walk route stays in shopping-square site');
+      assert(!inAny(p, walls), 'arcade route must never pass through a shop or Coles');
+      assert(Math.min(...walls.map(poly => edgeDist(p, poly))) > 0.8, 'arcade has continuous walkable clearance');
+      assert(Math.hypot(p[0] - W(KIERATHS_KIOSK.at)[0], p[1] - W(KIERATHS_KIOSK.at)[1]) > KIERATHS_KIOSK.radius + 0.8, 'round kiosk stays out of the walkway');
+      samples++;
+    }
+  }
+  assert(KIERATHS_CANOPY.width >= 7 && KIERATHS_CANOPY.crown > KIERATHS_CANOPY.eaves,
+    'the rear shopping-square shelter is a wide arched canopy, not a closed shed');
+  assert(KIERATHS_ROUTE[0][0] < -40 && KIERATHS_ROUTE.at(-1)[0] > 9,
+    'passage goes all the way from the rear car park to the Dandaloo frontage');
+  console.log('PASS Kierath\'s Shopping Square: 10 georeferenced shop bays, curved rear canopy, round kiosk and ' + samples + ' unobstructed walkway samples');
+}
