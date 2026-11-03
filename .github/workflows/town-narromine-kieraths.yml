@@ -1,0 +1,68 @@
+name: Narromine Kierath's Shopping Square 3D Acceptance
+
+on:
+  pull_request:
+    paths:
+      - 'repository-town/src/world/narromine*.js'
+      - 'repository-town/tests/narromine*.mjs'
+      - 'repository-town/docs/NARROMINE_KIERATHS_SHOPPING_SQUARE_2026-11-03.md'
+      - '.github/workflows/town-narromine-kieraths.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'repository-town/src/world/narromine*.js'
+      - 'repository-town/tests/narromine*.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  real-arcade:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install pinned dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Geometry, site plan and privacy acceptance
+        run: |
+          node --check src/world/narromine-kieraths-data.js
+          node --check src/world/narromine-kieraths.js
+          node --check src/world/narromine.js
+          node tests/narromine-layout.mjs
+          npm run check:privacy
+      - name: Build the actual game
+        run: npm run build
+      - name: Install Chromium and software renderer
+        run: npx playwright install --with-deps chromium
+      - name: Drive highway and physically walk Kierath's arcade on desktop and mobile
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          node tools/serve.mjs dist/public 8091 >/tmp/kieraths-server.log 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8091/ >/dev/null; then break; fi
+            sleep 1
+          done
+          node tests/narromine-browser.mjs --url http://127.0.0.1:8091/
+          node tests/narromine-kieraths-browser.mjs --url http://127.0.0.1:8091/
+          node tests/narromine-kieraths-browser.mjs --mobile --url http://127.0.0.1:8091/
+      - name: Upload courtyard, rear canopy and mobile screenshot evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kieraths-3d-front-courtyard-rear
+          path: repository-town/test-results/kieraths/
+          retention-days: 14
+          if-no-files-found: warn
