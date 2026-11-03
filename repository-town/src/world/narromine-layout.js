@@ -54,7 +54,8 @@ const W = (pts) => pts.map(([lat, lon]) => geoToWorld(lat, lon));
 export const DETAILED = Object.freeze(NARROMINE_BUILDINGS.map((d) => Object.freeze({ ...d, boundary: W(d.boundary), trees: W(d.trees),
   parts: d.parts.map((p) => ({ ...p, pts: W(p.pts) })), verandahs: d.verandahs.map((v) => ({ ...v, pts: W(v.pts) })),
   ground: d.ground.map((g) => ({ ...g, pts: W(g.pts) })),
-  props: (d.props || []).map((p) => (p.at ? { ...p, at: W([p.at])[0] } : { ...p, pts: W(p.pts) }))  })));
+  // Props carry a point (at), an outline (pts) or a run between two points (a, b).
+  props: (d.props || []).map((p) => ({ ...p, ...Object.fromEntries(['at', 'a', 'b'].filter((k) => p[k]).map((k) => [k, W([p[k]])[0]])), ...(p.pts ? { pts: W(p.pts) } : {}) })) })));
 // Mapped outlines whose centre lies in a detailed lot are left out: the detailed model replaces them.
 const centreOf = (pts) => [pts.reduce((s, p) => s + p[0], 0) / pts.length, pts.reduce((s, p) => s + p[1], 0) / pts.length];
 export const BUILDINGS = Object.freeze(OSM.buildings.map((b) => Object.freeze({ ...b, pts: b.pts.map(toWorld) }))
