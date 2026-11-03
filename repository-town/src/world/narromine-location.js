@@ -12,7 +12,7 @@ export const NARROMINE_REAL=Object.freeze({
   populationYear:2021,
   mapStatus:'representative, compressed, unsurveyed',
   sources:Object.freeze({
-    absUrban:'https://www.abs.gov.au/census/find-census-data/quickstats/2021/UCL115033',
+    absUrban:'https://www.abs.gov.au/census/find-census-data/quickstats/2021/UCL115111',
     council:'https://www.narromine.nsw.gov.au/',
     tourism:'https://narromineregion.com.au/things-to-see-and-do',
     museum:'https://narromineaviationmuseum.org.au/',
@@ -76,4 +76,4 @@ export function nearestNarromineLandmark(pos,range=6){
   }
   return nearest;
 }
-export function inNarromine(x,z){return Number.isFinite(x)&&Number.isFinite(z)&&x<-2500&&x>-2890&&z>90&&z<530;}
+export function inNarromine(x,z){return Number.isFinite(x)&&Number.isFinite(z)&&x<-2490&&x>-2890&&z>90&&z<530;}
