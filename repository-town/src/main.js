@@ -25,7 +25,7 @@ import { loadSave, writeSave, clearSave } from './engine/save.js';
 import { discoveryProgress } from './ui/discovery-log.js';
 import { buildTown, streetSigns, lotPosition } from './world/town.js';
 import { buildNarromineRegion } from './world/narromine-region.js';
-import { NARROMINE_LANDMARKS, NARROMINE_ROADS, nearestNarromineLandmark, inNarromine } from './world/narromine-location.js';
+import { NARROMINE_LANDMARKS, NARROMINE_ROADS, NARROMINE_APPROACH, nearestNarromineLandmark, inNarromine } from './world/narromine-location.js';
 import { buildYeovalInterior } from './world/yeoval-interior.js';
 import { buildMasterplan, PLAN_HOMES } from './world/masterplan-built.js';
 import { RESIDENT_STYLES } from './world/resident-models.js';
@@ -2032,6 +2032,7 @@ async function start() {
     roadSigns:()=>roadSigns.signs.map(({type,x,z,yaw})=>({type,x,z,yaw})),
     driveHeadlights:()=>driving.headlightStatus(),
     regionalRoads:()=>NARROMINE_ROADS.map(r=>({...r})),
+    regionalApproach:()=>NARROMINE_APPROACH.map(p=>({...p})),
     narromineSites:()=>NARROMINE_LANDMARKS.map(s=>({id:s.id,name:s.name,x:s.x,z:s.z})),
     regionAt:(x,z)=>inNarromine(x,z),
     carePopulation:(id='bracken-house')=>({residents:careResidents(id).length,onDuty:careOnDuty(id,life.day,life.minute),metrics:careDailyMetrics(id,life.day),staffHousing:careHousing.staffHoused,homes:careHousing.houses.size}),
