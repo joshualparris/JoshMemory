@@ -142,7 +142,7 @@ const datedOSM=OSM.places.map(p=>{
 export const PLACES=Object.freeze([
  ...datedOSM,
  ...NSW_PUBLIC_PLACES.map(p=>Object.freeze({...p,
-   kindLabel:KIND_LABEL(p.kind),address:p.address.replace(/ NARROMINE$/,''),
+   kindLabel:KIND_LABEL(p.kind),address:p.address.replace(/ NARROMINE$/,'').toLowerCase().replace(/\b[a-z]/g,c=>c.toUpperCase()),
    fact:FACTS[p.name]||p.fact,
    provenance:'NSW government GURAS property-address point and public visitor directory, current trade status unverified'}))
 ]);
