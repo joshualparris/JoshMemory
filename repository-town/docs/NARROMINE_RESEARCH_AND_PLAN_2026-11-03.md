@@ -178,3 +178,35 @@ town edge and in every place panel).
   ≈253 / ≈559k), geometry tiled at 300 m so off-screen tiles are skipped.
 - Not yet real: building heights, colours and facade details (OSM has none for most), street
   trees, the aerodrome's runways (outside the export box). Josh's own photos would improve facades.
+
+
+## One building true to life: the Royal Hotel, 123 Dandaloo Street (2026-11-03)
+
+Sources:
+- **NSW Spatial Services:** aerial imagery at 0.126 m per pixel, and the property boundary from the
+  NSW Land Parcel & Property theme. Both are CC BY 4.0, © State of New South Wales (Spatial Services).
+  The reference image is `docs/narromine/royal-hotel-aerial-nsw-spatial-cc-by-4.png`; the red line is
+  the lot boundary.
+- **Aussietowns and others:** built 1890, single storey, once a Cobb & Co coach stop.
+- **Sale listing:** "approx 2393 sqm".
+
+Checks against independent sources:
+- The cadastre's area of 3,355 is in Web Mercator units; corrected, the true area is ≈ 2,395 m².
+  That matches the sale listing's 2,393 m².
+- "ROYAL HOTEL" is painted on the street-facing roof slope in the aerial photo, which confirms this
+  is the right building.
+
+Traced from the aerial photo and modelled:
+- Front block 20.3 m × 7.4 m with a hipped roof whose ridge runs along the street.
+- Three wings behind it: 11.4 × 6.1 m, 11.7 × 5.4 m and 21.8 × 7.3 m.
+- A rear hipped block 11.1 × 10.4 m, and a 3.8 × 3.4 m lean-to.
+- A street verandah 23.2 m × 3.8 m over the footpath.
+- A courtyard with tables, the 60 × 20 m car park, and the back yard with its trees.
+- A galvanised roof, and "ROYAL HOTEL" painted on the street-facing slope.
+
+**Not yet true to life (cannot be seen from the air; needs ground photos):**
+- Wall colour and material (currently an assumed cream render).
+- Windows, doors and signage on the walls.
+- Verandah post spacing and lacework.
+- Exact wall height.
+- The interior, the bars and the beer-garden furniture.

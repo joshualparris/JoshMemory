@@ -4,7 +4,7 @@
 // town is drawn only once the player has driven out west (update()), so it costs almost nothing
 // while you are in Repository Town.
 import * as THREE from 'three';
-import { HIGHWAY, HIGHWAY_Z, REGION, CORRIDOR_HALF, STREETS, BUILDINGS, AREAS, WATER, RAIL, PLACES, FILL_SHOPS, FILL_HOUSES, FRONTAGES, polyRect, nearTownStreet, boundaryColliders } from './narromine-layout.js';
+import { HIGHWAY, HIGHWAY_Z, REGION, CORRIDOR_HALF, STREETS, BUILDINGS, AREAS, WATER, RAIL, PLACES, FILL_SHOPS, FILL_HOUSES, FRONTAGES, DETAILED, polyRect, nearTownStreet, boundaryColliders } from './narromine-layout.js';
 
 const SHOW_WEST_OF = -1300;   // past Repository Town's last houses (x ≈ -1330)
 
@@ -162,6 +162,44 @@ export function buildNarromine(parent, makeLabel = null) {
       const tex = boardTexture([f.name.toUpperCase()], { bg: '#f1e7cf', fg: '#3a2a1e', border: '#3a2a1e', w: 1024, h: 160 });
       const m = plane(tex, Math.min(len - 1, 11), 1.2, mx + ox * (depth + 0.05), 3.75, mz + oz * (depth + 0.05), Math.atan2(ox, oz));
     }
+  }
+  // ── Detailed buildings (traced from NSW aerial imagery; see narromine-royal-data.js) ────────
+  // A hipped roof over an axis-aligned rectangle, ridge along its long side.
+  const hipRoof = (c, pts, wallH, pitch = 0.42) => {
+    const r = polyRect(pts), w = r.x1 - r.x0, d = r.z1 - r.z0, alongX = w >= d, half = Math.min(w, d) / 2, h = half * Math.tan(pitch);
+    const cx0 = (r.x0 + r.x1) / 2, cz0 = (r.z0 + r.z1) / 2, y0 = wallH, y1 = wallH + h;
+    const ra = alongX ? [r.x0 + half, cz0] : [cx0, r.z0 + half], rb = alongX ? [r.x1 - half, cz0] : [cx0, r.z1 - half];
+    const A = [r.x0, y0, r.z0], B = [r.x1, y0, r.z0], C = [r.x1, y0, r.z1], D = [r.x0, y0, r.z1], P = [ra[0], y1, ra[1]], Q = [rb[0], y1, rb[1]];
+    const tris = alongX ? [A, P, Q, A, Q, B, B, Q, C, C, Q, P, C, P, D, D, P, A] : [A, B, P, B, Q, P, B, C, Q, C, D, Q, D, P, Q, D, A, P];
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(tris.flat(), 3)); g.computeVertexNormals(); push(c, g);
+    return { r, h, alongX };
+  };
+  const wallsOf = (c, pts, h) => { const r = polyRect(pts); box(c, r.x1 - r.x0, h, r.z1 - r.z0, (r.x0 + r.x1) / 2, h / 2, (r.z0 + r.z1) / 2); return r; };
+  for (const d of DETAILED) {
+    const P = d.parts, ROOF = 0xc8cac6, WALL = 0xe3d8c2;   // galvanised roof as in the aerial; wall colour assumed (cream render)
+    flatPoly(0x3f4244, P.carpark, 0.05); flatPoly(0x7fa65d, P.yard, 0.03); flatPoly(0xb8ac98, P.courtyard, 0.055);
+    for (const k of ['front', 'wingN', 'wingM', 'wingS', 'rearBlock']) { const r = wallsOf(WALL, P[k], k === 'front' ? 4.2 : 3.8); hipRoof(ROOF, P[k], k === 'front' ? 4.2 : 3.8); colliders.push(r); }
+    const lt = wallsOf(WALL, P.leanTo, 2.7); box(ROOF, lt.x1 - lt.x0 + 0.4, 0.1, lt.z1 - lt.z0 + 0.4, (lt.x0 + lt.x1) / 2, 2.8, (lt.z0 + lt.z1) / 2); colliders.push(lt);
+    // Street verandah over the footpath: skillion roof falling to the kerb, posts at its outer edge.
+    const v = polyRect(P.verandah), vl = v.z1 - v.z0;
+    { const g = new THREE.BoxGeometry(v.x1 - v.x0, 0.1, vl); g.rotateZ(-0.12); g.translate((v.x0 + v.x1) / 2, 3.25, (v.z0 + v.z1) / 2); push(ROOF, g); }
+    box(0x6f6a62, 0.12, 0.25, vl, v.x0 + 0.1, 3.0, (v.z0 + v.z1) / 2);
+    for (let z = v.z0 + 0.3; z <= v.z1; z += vl / 7) box(0x6f6a62, 0.12, 3.0, 0.12, v.x0 + 0.25, 1.5, z);
+    // "ROYAL HOTEL" painted on the street-facing (west) slope of the front roof, as seen from the air.
+    const f = polyRect(P.front), fh = (f.x1 - f.x0) / 2 * Math.tan(0.42);
+    if (typeof document !== 'undefined') {
+      const c = document.createElement('canvas'); c.width = 1024; c.height = 256; const g2 = c.getContext('2d');
+      g2.fillStyle = '#8e2a26'; g2.font = 'bold 150px Arial'; g2.textAlign = 'center'; g2.textBaseline = 'middle'; g2.fillText('ROYAL HOTEL', 512, 135);
+      const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+      const slope = Math.hypot((f.x1 - f.x0) / 2, fh), m = new THREE.Mesh(new THREE.PlaneGeometry((f.z1 - f.z0) * 0.8, slope * 0.75), new THREE.MeshLambertMaterial({ map: tex, transparent: true, depthWrite: false }));
+      m.position.set(f.x0 + (f.x1 - f.x0) / 4 - 0.02, 4.2 + fh / 2 + 0.05, (f.z0 + f.z1) / 2);
+      m.rotation.set(0, -Math.PI / 2, 0); m.rotateX(-(Math.PI / 2 - Math.atan2(fh, (f.x1 - f.x0) / 2)));
+      town.add(m);
+    }
+    // Courtyard tables (seen from the air) and the yard's trees.
+    const cy = polyRect(P.courtyard);
+    for (let i = 0; i < 3; i++) { const tx = cy.x0 + 2 + i * 3.2, tz = (cy.z0 + cy.z1) / 2; box(0x5c4632, 1.6, 0.06, 0.8, tx, 0.75, tz); box(0x5c4632, 1.6, 0.05, 0.3, tx, 0.45, tz - 0.75); box(0x5c4632, 1.6, 0.05, 0.3, tx, 0.45, tz + 0.75); }
+    for (const [tx, tz] of d.trees) { box(0x8f8577, 0.5, 4, 0.5, tx, 2, tz); const g3 = new THREE.SphereGeometry(4.2, 8, 6); g3.scale(1, 0.7, 1); g3.translate(tx, 6.5, tz); push(0x5d7d43, g3); }
   }
   // Named places: a sign over each, and an E-prompt with what it is, its address and any history.
   for (const p of PLACES) {
