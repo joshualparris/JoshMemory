@@ -46,6 +46,7 @@ for(const r of sample){
 assert(lanes>=1,'at least one independently checked median location');
 
 assert(NARROMINE_LANDMARKS.length>=14,'public venue addresses from NSW GURAS');
+assert(NARROMINE_LANDMARKS.every(x=>x.parcelPolygon?.length>=4&&x.officialLotId),'every located public site has a real cadastral lot outline');
 assert(NARROMINE_UNLOCATED_SITES.length>0,'missing address points are not invented');
 assert.equal(new Set(NARROMINE_LANDMARKS.map(s=>s.id)).size,NARROMINE_LANDMARKS.length);
 for(const site of NARROMINE_LANDMARKS){
