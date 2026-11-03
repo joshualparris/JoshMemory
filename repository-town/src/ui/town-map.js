@@ -1,3 +1,5 @@
+import { NARROMINE_MAP_DESTINATION, NARROMINE_MAP_SEARCH, drawNarromineMap, hitNarromineMap } from './narromine-map-layer.js';
+
 // Interactive 2D town map: pinch or wheel to zoom, drag to pan, tap for a place's name and
 // address, search by name/address, and follow the player. Works with touch, mouse and keys.
 // World units are metres (+x east, +z south), drawn north-up.
@@ -8,6 +10,7 @@ const CSS = `
 #town-map header b{margin-right:auto}
 #town-map input{flex:1 1 160px;min-width:120px;padding:7px 9px;border-radius:7px;border:0;font:inherit}
 #town-map button{min-height:38px;min-width:38px;padding:6px 10px;border-radius:7px;border:1px solid #83cbc2;background:#1d4b52;color:#fff;font:inherit}
+#town-map button.map-region{background:#24615c;font-weight:600}
 #town-map canvas{flex:1;width:100%;display:block;cursor:grab}
 #town-map .info{position:absolute;left:10px;right:10px;bottom:10px;max-width:420px;background:#fffdf6;border:1px solid #9aa58e;border-radius:10px;padding:10px 12px;box-shadow:0 2px 10px #0003}
 #town-map .info[hidden]{display:none}
@@ -21,7 +24,10 @@ export function createTownMap({ getData, getPlayer, onOpen, onClose }) {
   const el = document.createElement('div'); el.id = 'town-map'; el.hidden = true; el.setAttribute('role', 'dialog'); el.setAttribute('aria-label', 'Town map');
   el.innerHTML = `<header><b>🗺️ Repository Town map</b><input id="town-map-search" type="search" placeholder="Search a name or address" aria-label="Search the map">
     <button id="town-map-in" aria-label="Zoom in">＋</button><button id="town-map-out" aria-label="Zoom out">－</button>
-    <button id="town-map-me" title="Centre on you">📍 Me</button><button id="town-map-close" aria-label="Close map">✕</button></header>
+    <button id="town-map-me" title="Centre on you">📍 Me</button>
+    <button id="town-map-repo" class="map-region" title="Show Repository Town">Repo Town</button>
+    <button id="town-map-narromine" class="map-region" title="Show real Narromine, NSW">Narromine</button>
+    <button id="town-map-close" aria-label="Close map">✕</button></header>
     <canvas aria-label="Map of Repository Town. Pinch or scroll to zoom, drag to pan, tap a place for its address."></canvas>
     <div class="legend"><div>▬ Street / road</div><div style="color:#7b5a3a">▬ Railway</div><div style="color:#4c8a3d">■ New parcel (plan D)</div><div style="color:#8a7a5a">▢ Future reserve</div><div style="color:#c0392b">● You</div></div>
     <div class="info" hidden></div>`;
@@ -56,6 +62,8 @@ export function createTownMap({ getData, getPlayer, onOpen, onClose }) {
     size(); data ||= getData();
     const s = view.scale;
     ctx.fillStyle = '#dfe8d6'; ctx.fillRect(0, 0, W(), H());
+    // Narromine is geographically separate: draw its actual mapped features when in view.
+    drawNarromineMap(ctx, { project: toScreen, view, width: W(), height: H(), scale: s, label: text });
     for (const r of data.reserves) { rect(r.x - r.w / 2, r.z - r.d / 2, r.x + r.w / 2, r.z + r.d / 2, '#e9e3cf', '#8a7a5a'); if (r.w * s > 160) text(`${r.name} (future reserve)`, r.x, r.z, { size: 11, color: '#6b5d40' }); }
     for (const f of data.fields) rect(f.x0, f.z0, f.x1, f.z1, '#cfdba8', '#9fb06a');
     for (const p of data.parcels) {
@@ -99,6 +107,7 @@ export function createTownMap({ getData, getPlayer, onOpen, onClose }) {
     const inside = (o) => Math.abs(w.x - o.x) <= o.w / 2 + pad && Math.abs(w.z - o.z) <= o.d / 2 + pad;
     const b = data.buildings.find(inside); if (b) return { kind: 'building', ...b };
     const p = data.parcels.find(inside); if (p) return { kind: 'parcel', ...p };
+    const regional = hitNarromineMap(w.x, w.z, pad); if (regional) return regional;
     const road = data.roads.find((r) => { const x0 = Math.min(r.a.x, r.b.x) - r.width / 2 - pad, x1 = Math.max(r.a.x, r.b.x) + r.width / 2 + pad, z0 = Math.min(r.a.z, r.b.z) - r.width / 2 - pad, z1 = Math.max(r.a.z, r.b.z) + r.width / 2 + pad; return w.x >= x0 && w.x <= x1 && w.z >= z0 && w.z <= z1; });
     if (road) return { kind: 'road', ...road };
     const res = data.reserves.find(inside); if (res) return { kind: 'reserve', ...res };
@@ -110,6 +119,7 @@ export function createTownMap({ getData, getPlayer, onOpen, onClose }) {
     const lines = item.kind === 'parcel'
       ? [`<b>${esc(item.address || item.id)}</b>`, `${esc(item.label)} · ${Math.round(item.w)} × ${Math.round(item.d)} m (${Math.round(item.w * item.d).toLocaleString('en-AU')} m²)`, `Parcel ${esc(item.id)} · ${esc(item.status || 'master plan D')}`]
       : item.kind === 'building' ? [`<b>${esc(item.name)}</b>`, esc(item.address || ''), esc(item.detail || '')]
+      : item.kind === 'narromine-place' || item.kind === 'narromine-building' || item.kind === 'region' ? [`<b>${esc(item.name)}</b>`, esc(item.address || 'Narromine, NSW'), esc(item.fact || 'Real mapped Narromine landmark')]
       : item.kind === 'road' ? [`<b>${esc(item.name || item.id)}</b>`, item.plan ? 'New master-plan road · driveable' : 'Existing town road']
       : [`<b>${esc(item.name)}</b>`, `Future land-use reserve (${esc(item.zone)}) · concept only, no road access yet`];
     info.innerHTML = lines.filter(Boolean).map((l) => `<div>${l}</div>`).join('');
@@ -144,12 +154,14 @@ export function createTownMap({ getData, getPlayer, onOpen, onClose }) {
   el.querySelector('#town-map-in').onclick = () => zoomAt(1.5);
   el.querySelector('#town-map-out').onclick = () => zoomAt(1 / 1.5);
   el.querySelector('#town-map-me').onclick = () => { const me = getPlayer(); if (me) centreOn(me.x, me.z, Math.max(view.scale, 2)); };
+  el.querySelector('#town-map-repo').onclick = () => { show(null); centreOn(0, 0, 1.4); };
+  el.querySelector('#town-map-narromine').onclick = () => { centreOn(NARROMINE_MAP_DESTINATION.x, NARROMINE_MAP_DESTINATION.z, 1.8); show(NARROMINE_MAP_DESTINATION); };
   el.querySelector('#town-map-close').onclick = () => close();
   const search = el.querySelector('#town-map-search');
   search.addEventListener('keydown', (e) => {
     if (e.key !== 'Enter') return;
     const q = search.value.trim().toLowerCase(); if (!q) return;
-    const all = [...data.buildings.map((b) => ({ kind: 'building', ...b })), ...data.parcels.map((p) => ({ kind: 'parcel', ...p })), ...data.roads.filter((r) => r.name).map((r) => ({ kind: 'road', ...r, x: (r.a.x + r.b.x) / 2, z: (r.a.z + r.b.z) / 2 }))];
+    const all = [...data.buildings.map((b) => ({ kind: 'building', ...b })), ...data.parcels.map((p) => ({ kind: 'parcel', ...p })), ...data.roads.filter((r) => r.name).map((r) => ({ kind: 'road', ...r, x: (r.a.x + r.b.x) / 2, z: (r.a.z + r.b.z) / 2 })), ...NARROMINE_MAP_SEARCH];
     const found = all.find((o) => [o.name, o.address, o.id].some((v) => String(v || '').toLowerCase() === q))
       || all.find((o) => [o.name, o.address, o.id].some((v) => String(v || '').toLowerCase().includes(q)));
     if (found) { centreOn(found.x, found.z, Math.max(view.scale, 3)); show(found); } else { info.innerHTML = `<div>No place matches “${esc(search.value)}”.</div>`; info.hidden = false; }

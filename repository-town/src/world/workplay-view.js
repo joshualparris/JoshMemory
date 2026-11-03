@@ -51,7 +51,7 @@ export function installWorkplay(built,site,makeLabel,life,{openPanel,closePanel,
   add('kitchen','Kitchen · cook, grill and bake ticket',4.9,-7.4,'prepare','kitchen');
   add('fridge','Fridge · inspect ingredients',3.35,-7.3,'fridge');
   box(0x9ba9ad,.7,1.7,.65,3.35,.85,-7.95);box(0x40545a,.45,.06,.05,3.35,1.1,-7.6);
-  add('dishwasher','Dishwasher · wash dirty crockery',3.25,-5.95,'dishwasher');
+  add('dishwasher','Dishwasher · wash dirty crockery',3.25,-6.55,'dishwasher');
   box(0x758e93,.9,.75,.65,3.25,.38,-6.45);box(0x293a42,.65,.33,.05,3.25,.47,-6.1);
   add('pass','Kitchen pass · collect finished tray',4.8,-4.7,'collect');
   box(0x667170,1.2,1,.65,4.9,.5,-8.3);box(0x2b2c2a,1,.45,.03,4.9,.6,-7.95);
