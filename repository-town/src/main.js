@@ -783,9 +783,17 @@ async function start() {
         buildings.push({ id: 'B:' + p.id, name: p.name, address, detail: [p.kind, p.opens !== undefined ? `open ${String(Math.floor(p.opens / 60)).padStart(2, '0')}:00–${String(Math.floor(p.closes / 60)).padStart(2, '0')}:00` : ''].filter(Boolean).join(' · '), civic: true, ...e });
       }
       for (const c of town.campuses || []) buildings.push({ id: 'C:' + c.id, name: c.name, address: 'Aged care campus', detail: 'Walkable campus', civic: true, x: c.x, z: c.z, w: 40, d: 40 });
+      for (const site of NARROMINE_LANDMARKS) buildings.push({ id:'N:'+site.id, name:site.name, address:'Narromine NSW — representative game position', detail:site.summary, civic:true, x:site.buildingX,z:site.buildingZ,w:site.w,d:site.d });
       const roads = [
         ...CORE_ROADS.map((r) => ({ ...r, name: r.id.startsWith('street-') ? data.streets[Number(r.id.slice(7)) - 1] : null })),
         ...masterplan.roads.map((r) => ({ ...r, plan: true })),
+        ...NARROMINE_ROADS.map((r)=>{
+          const horizontal=r.x1-r.x0>=r.z1-r.z0;
+          return { id:r.id,name:r.name,plan:true,regional:true,
+            width:horizontal?r.z1-r.z0:r.x1-r.x0,
+            a:horizontal?{x:r.x0,z:(r.z0+r.z1)/2}:{x:(r.x0+r.x1)/2,z:r.z0},
+            b:horizontal?{x:r.x1,z:(r.z0+r.z1)/2}:{x:(r.x0+r.x1)/2,z:r.z1} };
+        }),
       ];
       const fields = [...life.places.values()].filter((p) => p.field).map((p) => p.field);
       const reserves = (town.outskirts?.parcels || []).filter((r) => !['S-R1', 'S-AG1', 'S-AG2'].includes(r.id));
