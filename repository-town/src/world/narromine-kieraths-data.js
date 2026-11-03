@@ -21,10 +21,10 @@ export const KIERATHS_ROUTE = Object.freeze([
 const centreZ = x => -31.0 + (x + 33) * 0.21;
 const BAYS = [
   // The plan puts the earlier units nearer Dandaloo/Coles and later units to the rear.
-  { number: 1, side: 'south', x0: 2.5, x1: 8.5, depth: 3.2 },
-  { number: 2, side: 'south', x0: -4.5, x1: 2.3, depth: 3.8 },
-  { number: 3, side: 'south', x0: -11.5, x1: -4.7, depth: 4.0 },
-  { number: 4, side: 'south', x0: -18.8, x1: -11.7, depth: 4.2 },
+  { number: 1, side: 'south', x0: 2.5, x1: 8.5, depth: 2.4 },
+  { number: 2, side: 'south', x0: -4.5, x1: 2.3, depth: 2.9 },
+  { number: 3, side: 'south', x0: -11.5, x1: -4.7, depth: 3.3 },
+  { number: 4, side: 'south', x0: -18.8, x1: -11.7, depth: 3.8 },
   { number: 5, side: 'south', x0: -28.2, x1: -19.0, depth: 4.5 },
   { number: 6, side: 'north', x0: -6.5, x1: -1.2, depth: 6.2 },
   { number: 7, side: 'north', x0: -12.6, x1: -6.7, depth: 6.1 },
