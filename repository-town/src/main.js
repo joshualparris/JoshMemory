@@ -34,6 +34,7 @@ import { buildCountryInterior,countryEntrance,countryExitPose } from './world/co
 import { CORE_ROADS } from './world/masterplan-model.js';
 import { RAIL_Z } from './world/rail-corridor.js';
 import { createTownMap } from './ui/town-map.js';
+import { createCompass } from './ui/compass.js';
 import { createCheatMenu } from './ui/cheat-menu.js';
 import { summonCar, claimProperty, nearestPropertyKey, planTitleKey, addMoney, refreshNeeds, fixAllCars, setClock } from './world/cheats.js';
 import { buildBrackenInterior } from './world/bracken-interior.js';
@@ -380,6 +381,11 @@ async function start() {
   let interactionRequest = 0;
 
   let mode = 'town', inside = null, world = townWorld, overview = false;
+  const compass = createCompass({
+    element: $('game-compass'), checkbox: $('settings-compass'), camera,
+    storage: localStorage, getView: () => inside?.view || null,
+    getPostalInterior: () => !!inside?.narrominePostal,
+  });
   const yarns=mountTownYarns({life,player,onOpen:()=>{input.releaseMouse();input.reset();npcChat.close();$('npc-roster').hidden=true;if(panelOpen)closePanel();}});
   const active = new Set();
   const visited = new Set();
@@ -758,6 +764,7 @@ async function start() {
     if (on) expedition.dismiss();
     if (on) input.releaseMouse();
     overview = on && mode === 'town';
+    document.body.classList.toggle('overview', overview);
     $('btn-map').setAttribute('aria-pressed', String(overview));
     scene.fog = overview || mode === 'house' ? null : fog;
     camera.far = overview ? 600 : (lowPerf ? 130 : 185); camera.updateProjectionMatrix();
@@ -1915,6 +1922,7 @@ async function start() {
     // Apply after selecting the new nearby prompt: never let it reappear over
     // a shop menu, building card, NPC conversation or other focused interface.
     syncOverlayHud();
+    compass.update();
     renderFrame();
     requestAnimationFrame(frame);
   }
@@ -1946,6 +1954,7 @@ async function start() {
     // commute to their workstations before the browser tries a staffed entrance.
     // Access-control decisions remain unchanged: no unlocked-door shortcut.
     firstDay:()=>firstDay.view(),
+    compass:()=>({enabled:compass.enabled,heading:Number($('game-compass').dataset.heading),direction:$('game-compass').dataset.direction||'N'}),
     perf:()=>perf.stats(),
     pilotGrid:()=>pilotReport(life),
     pilotAction:(command)=>{const answer=pilotAction(life,command);pilotVisuals.update();return answer;},

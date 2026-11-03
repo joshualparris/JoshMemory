@@ -56,6 +56,18 @@
   <p id="status" aria-live="polite"></p>
   </div>
 </header>
+<!-- Camera heading HUD: fixed 12 o'clock is where you are looking. The dial rotates to geographic north. -->
+<aside id="game-compass" role="img" aria-label="Compass: facing north, zero degrees" aria-live="off">
+  <div class="compass-face">
+    <span class="compass-forward" aria-hidden="true"></span>
+    <div class="compass-rose" aria-hidden="true">
+      <span class="compass-n">N</span><span class="compass-e">E</span>
+      <span class="compass-s">S</span><span class="compass-w">W</span>
+    </div>
+    <span class="compass-centre" aria-hidden="true"></span>
+  </div>
+  <output class="compass-reading" aria-hidden="true">N · 000°</output>
+</aside>
 <aside id="card" hidden aria-live="polite"></aside>
 <div id="prompt" hidden></div>
 <div id="sleep-screen" role="status" aria-live="polite" aria-atomic="false" hidden>
@@ -88,6 +100,10 @@
     <p id="movement-speed-description">Applies immediately to walking and the Run button, indoors and outside. Hunger and tiredness can still reduce your speed. Saved on this device.</p>
     <button id="movement-speed-reset" type="button">Reset to normal (1×)</button>
   </div>
+  <fieldset id="compass-setting"><legend>Navigation</legend>
+    <label for="settings-compass" class="compass-setting-label"><input id="settings-compass" type="checkbox" checked> Show compass in the top-right corner</label>
+    <p>A small N/E/S/W direction dial and heading, updated as you look around or drive. North is map north; the top marker shows the direction you're facing. Saved on this device.</p>
+  </fieldset>
   <fieldset id="perf-setting"><legend>Performance</legend>
     <p>Shows frame rate, the slowest frames, draw calls and your phone's graphics chip on screen. Tap the readout for a 30-second check, then screenshot it. Saved on this device.</p>
     <button id="settings-perf" type="button" aria-pressed="false">Show performance readout</button>
@@ -109,6 +125,7 @@
    <p><b>Town life:</b> the town runs on its own clock (a day lasts 72 minutes; the Town Guide kiosk near the start can speed it up). Farms on street 8 grow food, trucks deliver it to the mill, bakery and shops, and the villagers work, shop, cook, eat and sleep. Stop anyone for a chat — ask what they ate, for gossip, or for a relic hint. Shop counters, farms and the Town Hall ledger open with E.</p>
   <p><b>Driving:</b> The instrument dashboard shows live km/h, fuel, estimated range, engine coolant temperature, gear and odometer. Tap Radio ON to hear original in-game stations; use the arrows to tune and the volume slider to adjust. The dashboard closes when you get out. The coolant and RPM readings are simplified game simulations, not real vehicle diagnostics.</p>
   <p><b>Movement speed:</b> Open Settings to adjust walking and running from 0.1× to 5×, then use Reset to normal when needed. Your preference saves on this device.</p>
+  <p><b>Compass:</b> Toggle the small top-right N/E/S/W heading compass in Settings → Navigation. The fixed top pointer is where your camera is facing; the dial points to map north. Your preference saves on this device.</p>
   <p><b>Phone:</b> left thumb drags the joystick · right thumb drags to look · ⤒ jumps · ✋ uses · 🏃 and 🧎 toggle run and crouch.</p>
   <p>Walk up to a front door and it opens; keep walking to go inside. Walk back out through the door you came in by. Your position saves automatically.</p>
   <p><b>NPC conversations on phones:</b> Expand the town controls with +, then choose <b>Dialogue settings</b> to turn nearby conversation pop-ups on or off. Choose ⚡ Grid or Ask AI from that same + menu; neither stays over the game view. Tap ✕ on a pop-up to dismiss that yarn. Yarns, NPCs and Ask AI remain available whenever you choose them.</p><p><b>NPCs:</b> Approach a character and press E or ✋, or tap 💬 NPCs. Characters and villagers chat about anything through the town's AI service (no key needed); your messages are sent to it, and they answer offline when it is unavailable.</p>
