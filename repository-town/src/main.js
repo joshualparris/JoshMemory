@@ -297,8 +297,17 @@ async function start() {
   const edges = [
     // Include all 195 homes west to x -1330, and Grevillea Street at z 457.
     // Boundaries lie beyond the drawn footpaths and extended terrain.
-    { x0: -2965, x1: 595, z0: -395, z1: -390 }, { x0: -2965, x1: 595, z0: 555, z1: 560 },
-    { x0: -2965, x1: -2960, z0: -395, z1: 560 }, { x0: 590, x1: 595, z0: -395, z1: 560 },
+    // Keep the ORIGINAL town boundaries, except a narrow western gateway
+    // exactly at Wattle Street: no arbitrary opening across private houses.
+    { x0: -1505, x1: 595, z0: -395, z1: -390 },
+    { x0: -1505, x1: 595, z0: 555, z1: 560 },
+    { x0: -1505, x1: -1500, z0: -395, z1: 260 },
+    { x0: -1505, x1: -1500, z0: 296, z1: 560 },
+    { x0: 590, x1: 595, z0: -395, z1: 560 },
+    // New region holds 1:1-scale Narromine streets well beyond old town.
+    { x0: -7010, x1: -1505, z0: -1955, z1: -1950 },
+    { x0: -7010, x1: -1505, z0: 2645, z1: 2650 },
+    { x0: -7010, x1: -7005, z0: -1955, z1: 2650 },
   ];
   const townWorld = new CollisionWorld([...town.colliders, ...townLife.colliders, ...masterplan.colliders, ...civilWorks.colliders, ...woodlot.colliders, ...market.colliders, ...narromine.colliders, ...edges]);
   // Dynamic vehicle footprints block player motion as well as truck movement.
@@ -783,17 +792,12 @@ async function start() {
         buildings.push({ id: 'B:' + p.id, name: p.name, address, detail: [p.kind, p.opens !== undefined ? `open ${String(Math.floor(p.opens / 60)).padStart(2, '0')}:00–${String(Math.floor(p.closes / 60)).padStart(2, '0')}:00` : ''].filter(Boolean).join(' · '), civic: true, ...e });
       }
       for (const c of town.campuses || []) buildings.push({ id: 'C:' + c.id, name: c.name, address: 'Aged care campus', detail: 'Walkable campus', civic: true, x: c.x, z: c.z, w: 40, d: 40 });
-      for (const site of NARROMINE_LANDMARKS) buildings.push({ id:'N:'+site.id, name:site.name, address:'Narromine NSW — representative game position', detail:site.summary, civic:true, x:site.buildingX,z:site.buildingZ,w:site.w,d:site.d });
+      for (const site of NARROMINE_LANDMARKS) buildings.push({ id:'N:'+site.id, name:site.name, address:site.address.replace(' NARROMINE','')+', Narromine NSW', detail:'NSW GURAS address point; frontage/entrance approximate. '+site.summary, civic:true, x:site.buildingX,z:site.buildingZ,w:site.w,d:site.d });
       const roads = [
         ...CORE_ROADS.map((r) => ({ ...r, name: r.id.startsWith('street-') ? data.streets[Number(r.id.slice(7)) - 1] : null })),
         ...masterplan.roads.map((r) => ({ ...r, plan: true })),
-        ...NARROMINE_ROADS.map((r)=>{
-          const horizontal=r.x1-r.x0>=r.z1-r.z0;
-          return { id:r.id,name:r.name,plan:true,regional:true,
-            width:horizontal?r.z1-r.z0:r.x1-r.x0,
-            a:horizontal?{x:r.x0,z:(r.z0+r.z1)/2}:{x:(r.x0+r.x1)/2,z:r.z0},
-            b:horizontal?{x:r.x1,z:(r.z0+r.z1)/2}:{x:(r.x0+r.x1)/2,z:r.z1} };
-        }),
+        ...NARROMINE_ROADS.map((r)=>({id:r.id,name:r.name,plan:r.source==='game-compressed-link',
+          regional:true,width:r.width,a:r.a,b:r.b,source:r.source})),
       ];
       const fields = [...life.places.values()].filter((p) => p.field).map((p) => p.field);
       const reserves = (town.outskirts?.parcels || []).filter((r) => !['S-R1', 'S-AG1', 'S-AG2'].includes(r.id));
@@ -1229,7 +1233,7 @@ async function start() {
       if(regionalSite){
         input.releaseMouse();
         openPanel({title:regionalSite.name,
-          body:'<p>'+esc(regionalSite.summary)+'</p><p class="dim">Game positions and route distances are compressed, fictional and not surveyed. These are interpretive exteriors, not reproductions of current businesses or service hours.</p><p><a target="_blank" rel="noopener noreferrer" href="'+esc(regionalSite.source)+'">Local source and visitor details</a></p>',
+          body:'<p>'+esc(regionalSite.summary)+'</p><p class="dim">Narromine streets use source-government geometry at 1:1 map scale. Property points are geocoded; building footprints and shop facades are still approximate. The Wattle link is a fictional compressed journey. No service availability is guaranteed.</p><p><a target="_blank" rel="noopener noreferrer" href="'+esc(regionalSite.source)+'">Local source and visitor details</a></p>',
           actions:[]},guideSpot);
         return;
       }
