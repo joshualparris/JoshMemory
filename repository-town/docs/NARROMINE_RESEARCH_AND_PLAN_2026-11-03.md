@@ -252,3 +252,16 @@ Traced from NSW Spatial Services aerial imagery (CC BY 4.0) inside its cadastre 
 - **History:** none is sourced yet, so the in-game panel gives no fact for it.
 
 Aerial crop: `docs/narromine/narromine-post-office-aerial-nsw-spatial-cc-by-4.png`.
+
+## Dandaloo Street west side: 76, 82 (Coles), 86 (Anglican Church) and 88
+
+Traced from the same NSW aerial imagery inside their cadastre lots:
+- the shop at 76 with its rear store and curved-roof shed;
+- the Coles complex: two halls, the Dandaloo Street shop row and the footpath awning on a 3,810 m² lot, with its car park;
+- the Anglican Church (cross-shaped hipped roof) and church hall, with trees;
+- the shop at 88.
+
+Lot 90 is a 90 m² triangle that the mapped Derribong Avenue road crosses, so it is left out. All heights are assumed until the LiDAR survey (ELVIS: Macquarie Floodplain South 2023 point cloud, 4 points/m²) is available.
+
+### Heights from shadows (tried, not adopted)
+The imagery was flown on 23 July 2012. Pole shadows put the sun at 9.7° east of north and 37.1° above the horizon, so 1.32 m of shadow = 1 m of height. This is reliable only where a wall shadows open, light ground. The Royal's front block came out at 4.0 m, matching the model. On the crowded main street, most shadows fall on other roofs, verandahs, dark bitumen or trees, so the method is not used to set heights automatically.
