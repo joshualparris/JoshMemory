@@ -32,10 +32,14 @@ try{
   // The first sun-shadow shader compiles after an interior camera change,
   // especially in software Chromium. Wait until frames advance, rather than
   // measuring only a half-second window swallowed by GPU shader compilation.
-  const framesBefore=await page.evaluate(()=>window.__town.perf().frames||0);
-  await page.waitForFunction(before=>((window.__town.perf().frames||0)>before+2),
-    framesBefore,{timeout:12000}).catch(()=>{});
-  await page.waitForTimeout(800);
+  // Wait until the outdoor/interior WebGL transition and its shadow shader are
+  // rendered before measuring actual keyboard or touch movement.
+  await page.evaluate(()=>new Promise(resolve=>{
+    let frames=0;
+    const frame=()=>{if(++frames>=4)resolve();else requestAnimationFrame(frame);};
+    requestAnimationFrame(frame);
+  }));
+  await page.waitForTimeout(1200);
   const start=await page.evaluate(()=>window.__town.state().pos);
   if(mobile){
    const cdp=await context.newCDPSession(page),{width,height}=page.viewportSize(),x=width*.2,y=height*.72;
