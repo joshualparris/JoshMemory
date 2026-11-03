@@ -96,9 +96,11 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
 .compass-setting-label input{width:19px;height:19px;accent-color:#7de1db;}
 #compass-setting p{margin:8px 0 0;font-size:12px;opacity:.86;}
 @media(max-width:700px){
-  #game-compass{width:78px;min-height:84px;padding:4px 4px 5px;}
+  /* The compact top HUD fills much of a phone's width. Compass sits below
+     it instead of masking the clock/000/+ buttons or obscuring tap targets. */
+  #game-compass{top:max(98px,calc(env(safe-area-inset-top) + 88px));width:78px;min-height:84px;padding:4px 4px 5px;}
   .compass-face{width:59px;height:59px;}
-  body.compass-on #first-day{top:max(119px,calc(env(safe-area-inset-top) + 111px));}
+  body.compass-on #first-day{top:max(202px,calc(env(safe-area-inset-top) + 192px));}
 }
 
 #floor-indicator { position:fixed; top:max(68px, calc(env(safe-area-inset-top) + 55px)); left:10px; z-index:9; background:#10223eea; padding:7px 12px; border-radius:9px; border:1px solid #8197b7; font-weight:600; max-width:calc(100vw - 20px); }
