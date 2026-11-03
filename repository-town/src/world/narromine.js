@@ -175,13 +175,28 @@ export function buildNarromine(parent, makeLabel = null) {
     const tris = alongX ? [A, P, Q, A, Q, B, B, Q, C, C, Q, P, C, P, D, D, P, A] : [A, B, P, B, Q, P, B, C, Q, C, D, Q, D, P, Q, D, A, P];
     const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(tris.flat(), 3)); g.rotateY(yaw); g.translate(cx, 0, cz); g.computeVertexNormals(); push(c, g);
   };
+  // Street face of a part: evenly spaced windows, an optional central door and a name sign on the wall.
+  const facade = (p, wallH) => {
+    const { edge: [ia, ib], windows = 0, door = false, sign } = p.facade, A = p.pts[ia], B = p.pts[ib], fr = frame(p.pts);
+    const ex = B[0] - A[0], ez = B[1] - A[1], len = Math.hypot(ex, ez), mx = (A[0] + B[0]) / 2, mz = (A[1] + B[1]) / 2;
+    const ol = Math.hypot(mx - fr.cx, mz - fr.cz) || 1, ox = (mx - fr.cx) / ol, oz = (mz - fr.cz) / ol, yaw = -Math.atan2(ez, ex);
+    const at = (t, out) => [A[0] + ex * t + ox * out, A[1] + ez * t + oz * out];
+    for (let i = 0; i < windows; i++) {
+      const t = (i + 0.5) / windows; if (door && Math.abs(t - 0.5) < 0.12) continue;
+      const [x, z] = at(t, 0.06); placeBox(0x34434f, 1.4, 1.8, 0.08, x, 1.9, z, yaw); placeBox(0xece6da, 1.6, 0.12, 0.12, x, 0.95, z, yaw);
+    }
+    if (door) { const [x, z] = at(0.5, 0.07); placeBox(0x2f3a42, 2.0, 2.5, 0.1, x, 1.25, z, yaw); placeBox(0xece6da, 2.3, 0.2, 0.14, x, 2.6, z, yaw); }
+    if (sign) { const [x, z] = at(0.5, 0.1), tex = boardTexture([sign], { bg: '#f3efe6', fg: '#b3121f', border: '#b3121f', w: 1024, h: 140 });
+      plane(tex, Math.min(len - 2, 9), 0.9, x, Math.min(wallH - 0.5, 4.0), z, Math.atan2(ox, oz)); }
+  };
   const GROUND = { asphalt: [0x3f4244, 0.05], grass: [0x7fa65d, 0.03], paving: [0xb8ac98, 0.055], gravel: [0xa89a84, 0.045] };
   for (const d of DETAILED) {
     const ROOF = 0xc8cac6, WALL = 0xe3d8c2;   // galvanised roofs as in the aerial; wall colour assumed (cream render/paint)
     for (const g of d.ground) flatPoly(GROUND[g.kind][0], g.pts, GROUND[g.kind][1]);
     for (const p of d.parts) {
       const f = frame(p.pts), wallH = p.storeys === 2 ? 7.6 : (p.wall || 3.8);
-      box(WALL, f.L, wallH, f.W, f.cx, wallH / 2, f.cz, f.yaw);
+      box(p.wallColour ?? WALL, f.L, wallH, f.W, f.cx, wallH / 2, f.cz, f.yaw);
+      if (p.facade) facade(p, wallH);
       if (p.roof === 'hip') hipRoof(ROOF, p.pts, wallH); else box(ROOF, f.L + 0.4, 0.1, f.W + 0.4, f.cx, wallH + 0.1, f.cz, f.yaw);
       if (p.storeys === 2) for (const side of [-1, 1]) for (let t = -f.L / 2 + 1.5; t < f.L / 2 - 1; t += 3) { // upper-floor windows on the long faces
         const ox = Math.cos(-f.yaw) * t - Math.sin(-f.yaw) * side * (f.W / 2 + 0.03), oz = Math.sin(-f.yaw) * t + Math.cos(-f.yaw) * side * (f.W / 2 + 0.03);
@@ -216,6 +231,10 @@ export function buildNarromine(parent, makeLabel = null) {
     }
     for (const g of d.ground) if (g.tables) { const cy = polyRect(g.pts);
       for (let i = 0; i < g.tables; i++) { const tx = cy.x0 + 2 + i * 3.2, tz = (cy.z0 + cy.z1) / 2; box(0x5c4632, 1.6, 0.06, 0.8, tx, 0.75, tz); box(0x5c4632, 1.6, 0.05, 0.3, tx, 0.45, tz - 0.75); box(0x5c4632, 1.6, 0.05, 0.3, tx, 0.45, tz + 0.75); } }
+    for (const pr of d.props) {
+      if (pr.kind === 'postbox') { const [x, z] = pr.at; box(0xc8102e, 0.5, 1.05, 0.42, x, 0.53, z); box(0xa50d25, 0.58, 0.12, 0.5, x, 1.1, z); colliders.push({ x0: x - 0.3, x1: x + 0.3, z0: z - 0.3, z1: z + 0.3 }); }
+      if (pr.kind === 'planter') { const f = frame(pr.pts); box(0x9c8f7c, f.L, 0.45, f.W, f.cx, 0.22, f.cz, f.yaw); box(0x5f8a3f, f.L - 0.2, 0.08, f.W - 0.2, f.cx, 0.47, f.cz, f.yaw); }
+    }
     for (const [tx, tz] of d.trees) { box(0x8f8577, 0.5, 4, 0.5, tx, 2, tz); const g3 = new THREE.SphereGeometry(4.2, 8, 6); g3.scale(1, 0.7, 1); g3.translate(tx, 6.5, tz); push(0x5d7d43, g3); }
   }
   // Named places: a sign over each, and an E-prompt with what it is, its address and any history.
