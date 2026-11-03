@@ -58,6 +58,14 @@ export function buildNarromineRegion(parent,makeLabel){
  // Representative, explicitly NOT Street View-derived, facades at official
  // property-address points. Never fabricate other shops to fill empty blocks.
  for(const site of NARROMINE_LANDMARKS){
+   // True cadastral lot edges. The exact site is real; model dimensions aren't.
+   if(site.parcelPolygon?.length>2){
+     for(let i=1;i<site.parcelPolygon.length;i++){
+       const a=site.parcelPolygon[i-1],end=site.parcelPolygon[i];
+       const dx=end[0]-a[0],dz=end[1]-a[1],len=Math.hypot(dx,dz);
+       if(len>.15)b.box(0xd5c4a6,.14,.028,len,(a[0]+end[0])/2,.055,(a[1]+end[1])/2,Math.atan2(dx,dz));
+     }
+   }
    const {buildingX:x,buildingZ:z,w,d,h,colour}=site;
    const brick=['heritage','heritage-hotel','hotel'].includes(site.kind);
    const roof=brick?0x64564e:0x777f77;
@@ -102,5 +110,6 @@ export function buildNarromineRegion(parent,makeLabel){
  group.add(b.build());
  return {group,colliders,landmarks:NARROMINE_LANDMARKS,
   sourceRoadSegments:NARROMINE_REAL_ROAD_COUNT,realStreetNames:NARROMINE_ROAD_NAMES.length,
+  officialParcelOutlines:NARROMINE_LANDMARKS.filter(s=>s.parcelPolygon?.length>2).length,
   accuracy:'1-to-1 road centreline XY; road widths, shop facade size and entrance placement unverified'};
 }
