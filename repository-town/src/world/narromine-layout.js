@@ -10,12 +10,16 @@
 // Facts and sources: docs/NARROMINE_RESEARCH_AND_PLAN_2026-11-03.md.
 import { NARROMINE_OSM as OSM } from './narromine-osm-data.js';
 export { OSM };
+import { ROYAL_HOTEL } from './narromine-royal-data.js';
 
 export const HIGHWAY_Z = -7;                 // continues Repository Town's Street 4
 export const HIGHWAY = Object.freeze({ id: 'mitchell-highway', name: 'Mitchell Highway (A32)', x0: -2870, x1: -343, z: HIGHWAY_Z, width: 9, speed: 100 });
 // Map metres (x east, z south) → game world: the export's highway edge sits at the road's west end.
 export const OFFSET = Object.freeze({ x: HIGHWAY.x0, z: HIGHWAY_Z });
 export const toWorld = ([x, z]) => [OFFSET.x + x, OFFSET.z + z];
+// Latitude/longitude → game world, with the same projection the OpenStreetMap converter used.
+const RAD = Math.PI / 180, EARTH = 6371008.8, COS_ANCHOR = Math.cos(OSM.anchor.lat * RAD);
+export const geoToWorld = (lat, lon) => toWorld([(lon - OSM.anchor.lon) * RAD * EARTH * COS_ANCHOR, -(lat - OSM.anchor.lat) * RAD * EARTH]);
 const E = OSM.extent;
 export const REGION = Object.freeze({ x0: OFFSET.x + E.x0 - 40, x1: OFFSET.x + Math.max(E.x1, 0) + 40, z0: OFFSET.z + E.z0 - 40, z1: OFFSET.z + E.z1 + 40 });
 export const CORRIDOR_HALF = 45;             // fenced paddock strip either side of the highway
@@ -45,6 +49,11 @@ export const onNarromineRoad = (x, z) => inRect(HIGHWAY_RECT, x, z) || (x < REGI
 
 // Buildings in world coordinates. Unnamed outlines stay unnamed; private homes were stripped of
 // names and addresses by the converter.
+// Buildings modelled in detail from aerial imagery and the cadastre (see narromine-royal-data.js).
+export const DETAILED = Object.freeze([{ id: 'royal-hotel', name: 'Royal Hotel', address: '123 Dandaloo Street',
+  boundary: ROYAL_HOTEL.boundary.map(([lat, lon]) => geoToWorld(lat, lon)),
+  parts: Object.fromEntries(Object.entries(ROYAL_HOTEL.parts).map(([k, pts]) => [k, pts.map(([lat, lon]) => geoToWorld(lat, lon))])),
+  trees: ROYAL_HOTEL.trees.map(([lat, lon]) => geoToWorld(lat, lon)) }]);
 export const BUILDINGS = Object.freeze(OSM.buildings.map((b) => Object.freeze({ ...b, pts: b.pts.map(toWorld) })));
 export const AREAS = Object.freeze(OSM.areas.map((a) => Object.freeze({ ...a, pts: a.pts.map(toWorld) })));
 export const WATER = Object.freeze(OSM.water.map((w) => Object.freeze({ ...w, pts: w.pts.map(toWorld) })));
@@ -98,7 +107,8 @@ const centre = (pts) => pts.reduce((a, p) => [a[0] + p[0] / pts.length, a[1] + p
 const BUILDING_CENTRES = BUILDINGS.map((b) => ({ c: centre(b.pts), r: polyRect(b.pts), pts: b.pts }));
 const nearMapped = (x, z, d) => BUILDING_CENTRES.some((b) => x > b.r.x0 - d && x < b.r.x1 + d && z > b.r.z0 - d && z < b.r.z1 + d);
 const KEEP_CLEAR = new Set(['park', 'pitch', 'golf_course', 'cemetery', 'school', 'sports_centre', 'swimming_pool', 'track', 'parking', 'industrial', 'retail', 'farmyard']);
-const inArea = (x, z) => AREAS.some((a) => KEEP_CLEAR.has(a.kind) && inPoly(x, z, a.pts)) || WATER.some((w) => w.closed && inPoly(x, z, w.pts));
+const inDetailed = (x, z) => DETAILED.some((d) => inPoly(x, z, d.boundary));
+const inArea = (x, z) => inDetailed(x, z) || AREAS.some((a) => KEEP_CLEAR.has(a.kind) && inPoly(x, z, a.pts)) || WATER.some((w) => w.closed && inPoly(x, z, w.pts));
 export function nearestSegment(x, z) {
   let best = null;
   for (const s of STREETS) for (let i = 1; i < s.pts.length; i++) {
