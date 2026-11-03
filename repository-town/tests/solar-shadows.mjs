@@ -19,7 +19,7 @@ assert(sunSummer.elevation>75&&sunSummer.elevation<85,'summer noon elevation '+s
 assert(sunWinter.elevation>31&&sunWinter.elevation<38,'winter noon elevation '+sunWinter.elevation);
 assert(sunSummer.azimuth<30||sunSummer.azimuth>330,'summer midday sun is NORTH');
 assert(sunWinter.azimuth<30||sunWinter.azimuth>330,'winter midday sun is NORTH');
-assert(sunSummer.direction.z<-.90&&sunWinter.direction.z<-.52,'world -Z is north');
+assert(sunSummer.direction.z<-.08&&sunWinter.direction.z<-.52,'world -Z is north; summer midday light points mainly downward');
 for(const [d,h,azRange] of [[summer,6,[95,135]],[summer,19,[240,290]],[winter,8,[40,95]],[winter,16,[260,325]]]){
  const p=sp(d,h*60);
  assert(p.azimuth>azRange[0]&&p.azimuth<azRange[1],
