@@ -210,3 +210,24 @@ Traced from the aerial photo and modelled:
 - Verandah post spacing and lacework.
 - Exact wall height.
 - The interior, the bars and the beer-garden furniture.
+
+## Narromine Hotel (116 Dandaloo Street, Lot 13 DP519453)
+
+Modelled the same way as the Royal: traced from NSW Spatial Services aerial imagery (CC BY 4.0) inside its cadastre lot (about 2,097 m² true area). All detailed buildings are now data in `src/world/narromine-buildings-data.js`, drawn by one generic builder that handles rotated quads.
+
+- **Exact from the air:**
+  - the lot boundary;
+  - seven footprints: three two-storey wings in an L along Dandaloo Street and Derribong Avenue, a one-storey rear infill, the west building, the west annex and the north-west outbuilding;
+  - the roof types;
+  - the two-level verandah that wraps the corner;
+  - the gravel yards and four trees.
+- **Sourced history:** built in 1901 as the Federal Hotel; renamed the Narromine Hotel in 1948 (ANU Archives, Tooth & Co files); iron lace on the upper verandah (Aussietowns).
+- **Assumed:** the following need photos to confirm:
+  - the wall colour and material;
+  - the lace pattern;
+  - the window and door positions;
+  - the signage;
+  - the colour of the verandah roof;
+  - the interior.
+
+Aerial crop: `docs/narromine/narromine-hotel-aerial-nsw-spatial-cc-by-4.png`.

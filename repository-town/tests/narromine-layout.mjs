@@ -39,23 +39,28 @@ for (let x = -1480; x > REGION.x1 - 20; x -= 5) assert(!hit(x, HIGHWAY.z), 'fenc
 assert(hit(-2000, HIGHWAY.z - 50) && hit(-2000, HIGHWAY.z + 50), 'the corridor is fenced');
 console.log(`PASS Narromine (OpenStreetMap): ${STREETS.length} street pieces, ${BUILDINGS.length} buildings, ${PLACES.length} named places; ${names.size} street names; drive ≈${secs.toFixed(0)} s`);
 
-// The Royal Hotel, modelled from NSW aerial imagery and the cadastre.
+// Detailed buildings, modelled from NSW aerial imagery inside their cadastre lots.
 {
   const { DETAILED, FILL_SHOPS, FILL_HOUSES, polyRect, inPoly } = await import('../src/world/narromine-layout.js');
-  const royal = DETAILED.find((d) => d.id === 'royal-hotel');
-  const area = Math.abs(royal.boundary.reduce((s, p, i, a) => { const q = a[(i + 1) % a.length]; return s + p[0] * q[1] - q[0] * p[1]; }, 0) / 2);
-  // The cadastre's Shape__Area (3,355) is in Web Mercator units; true area = 3,355 × cos²(32.24°) ≈ 2,395 m²,
-  // matching the hotel's sale listing ("approx 2393 sqm").
-  assert(Math.abs(area - 2393) < 30, `Royal Hotel lot is the real ~2,393 m² (got ${area.toFixed(0)})`);
-  const pub = PLACES.find((p) => p.name === 'Royal Hotel');
-  assert(inPoly(pub.x, pub.z, royal.boundary), 'the mapped pub lies inside its own lot');
-  // Traced corners lie inside the lot or within 2.5 m of its line (buildings sit on the boundary;
-  // the verandah overhangs the footpath, so with the slanted lot line it may reach 6.5 m past it).
-  const edgeDist = (x, z) => Math.min(...royal.boundary.map((a, i, arr) => { const b = arr[(i + 1) % arr.length], dx = b[0] - a[0], dz = b[1] - a[1], l = dx * dx + dz * dz || 1, t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (z - a[1]) * dz) / l)); return Math.hypot(x - a[0] - t * dx, z - a[1] - t * dz); }));
-  for (const [k, pts] of Object.entries(royal.parts)) for (const [x, z] of pts) { const tol = k === 'verandah' ? 6.5 : 2.5; assert(inPoly(x, z, royal.boundary) || edgeDist(x, z) <= tol, `${k} inside the lot (corner ${edgeDist(x, z).toFixed(1)} m outside)`); }
-  const f = polyRect(royal.parts.front);
-  assert(Math.abs((f.z1 - f.z0) - 20.3) < 0.5 && Math.abs((f.x1 - f.x0) - 7.4) < 0.5, 'front block 20.3 m × 7.4 m as traced');
-  assert(!onNarromineRoad((f.x0 + f.x1) / 2, (f.z0 + f.z1) / 2), 'the hotel is off the road');
-  for (const g of [...FILL_SHOPS, ...FILL_HOUSES]) assert(!inPoly(g.x, g.z, royal.boundary), 'no generated building inside the Royal Hotel lot');
-  console.log('PASS Royal Hotel: lot', area.toFixed(0), 'm², front 20.3 × 7.4 m, verandah, wings, car park and yard inside the lot');
+  const areaOf = (pts) => Math.abs(pts.reduce((s, p, i, a) => { const q = a[(i + 1) % a.length]; return s + p[0] * q[1] - q[0] * p[1]; }, 0) / 2);
+  const edgeDist = (bd, x, z) => Math.min(...bd.map((a, i, arr) => { const b = arr[(i + 1) % arr.length], dx = b[0] - a[0], dz = b[1] - a[1], l = dx * dx + dz * dz || 1, t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (z - a[1]) * dz) / l)); return Math.hypot(x - a[0] - t * dx, z - a[1] - t * dz); }));
+  // Cadastre Shape__Area is Web Mercator; true area = value × cos²(32.24°). Royal: 3,355 → ≈2,395 m² (listing "approx 2393 sqm");
+  // Narromine Hotel (Lot 13 DP519453): 2,929 → ≈2,097 m².
+  for (const [id, want, pubName] of [['royal-hotel', 2393, 'Royal Hotel'], ['narromine-hotel', 2097, 'Narromine Hotel']]) {
+    const d = DETAILED.find((b) => b.id === id), area = areaOf(d.boundary);
+    assert(Math.abs(area - want) < 30, `${id} lot is the real ~${want} m² (got ${area.toFixed(0)})`);
+    const pub = PLACES.find((p) => p.name === pubName);
+    assert(inPoly(pub.x, pub.z, d.boundary) || edgeDist(d.boundary, pub.x, pub.z) < 15, `the mapped ${pubName} lies at its own lot`);
+    // Buildings sit on the boundary (2.5 m tolerance); verandahs overhang the footpath (6.5 m, or 9.5 m
+    // at a corner, where a wrap-around verandah reaches diagonally past the lot's splayed corner).
+    for (const p of d.parts) for (const [x, z] of p.pts) assert(inPoly(x, z, d.boundary) || edgeDist(d.boundary, x, z) <= 2.5, `${id} ${p.name} inside the lot`);
+    for (const v of d.verandahs) for (const [x, z] of v.pts) assert(inPoly(x, z, d.boundary) || edgeDist(d.boundary, x, z) <= 9.5, `${id} ${v.name} at the lot`);
+    for (const p of d.parts) { const r = polyRect(p.pts); assert(!onNarromineRoad((r.x0 + r.x1) / 2, (r.z0 + r.z1) / 2), `${id} ${p.name} is off the road`); }
+    for (const g of [...FILL_SHOPS, ...FILL_HOUSES]) assert(!inPoly(g.x, g.z, d.boundary), 'no generated building inside ' + id);
+    console.log(`PASS ${pubName}: lot ${area.toFixed(0)} m², ${d.parts.length} parts, ${d.verandahs.length} verandah(s) inside the lot`);
+  }
+  const f = polyRect(DETAILED[0].parts.find((p) => p.name === 'front').pts);
+  assert(Math.abs((f.z1 - f.z0) - 20.3) < 0.5 && Math.abs((f.x1 - f.x0) - 7.4) < 0.5, 'Royal front block 20.3 m × 7.4 m as traced');
+  const nh = DETAILED.find((b) => b.id === 'narromine-hotel');
+  assert(nh.parts.filter((p) => p.storeys === 2).length === 3 && nh.verandahs.every((v) => v.levels === 2 && v.lace), 'Narromine Hotel: two storeys with a two-level lace verandah');
 }
