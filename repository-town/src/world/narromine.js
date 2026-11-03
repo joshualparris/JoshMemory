@@ -175,30 +175,47 @@ export function buildNarromine(parent, makeLabel = null) {
     const tris = alongX ? [A, P, Q, A, Q, B, B, Q, C, C, Q, P, C, P, D, D, P, A] : [A, B, P, B, Q, P, B, C, Q, C, D, Q, D, P, Q, D, A, P];
     const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(tris.flat(), 3)); g.rotateY(yaw); g.translate(cx, 0, cz); g.computeVertexNormals(); push(c, g);
   };
-  // Street face of a part: evenly spaced windows, an optional central door and a name sign on the wall.
-  const facade = (p, wallH) => {
-    const { edge: [ia, ib], windows = 0, door = false, sign } = p.facade, A = p.pts[ia], B = p.pts[ib], fr = frame(p.pts);
-    const ex = B[0] - A[0], ez = B[1] - A[1], len = Math.hypot(ex, ez), mx = (A[0] + B[0]) / 2, mz = (A[1] + B[1]) / 2;
-    const ol = Math.hypot(mx - fr.cx, mz - fr.cz) || 1, ox = (mx - fr.cx) / ol, oz = (mz - fr.cz) / ol, yaw = -Math.atan2(ez, ex);
-    const at = (t, out) => [A[0] + ex * t + ox * out, A[1] + ez * t + oz * out];
-    for (let i = 0; i < windows; i++) {
-      const t = (i + 0.5) / windows; if (door && Math.abs(t - 0.5) < 0.12) continue;
-      const [x, z] = at(t, 0.06); placeBox(0x34434f, 1.4, 1.8, 0.08, x, 1.9, z, yaw); placeBox(0xece6da, 1.6, 0.12, 0.12, x, 0.95, z, yaw);
+  // Wall features placed along one edge of a part, from street photos: t runs 0..1 from pts[edge[0]]
+  // to pts[edge[1]], y is height in metres, and everything sits just proud of the wall.
+  const along = (p, edge) => {
+    const A = p.pts[edge[0]], B = p.pts[edge[1]], fr = frame(p.pts), ex = B[0] - A[0], ez = B[1] - A[1], len = Math.hypot(ex, ez);
+    const mx = (A[0] + B[0]) / 2, mz = (A[1] + B[1]) / 2, ol = Math.hypot(mx - fr.cx, mz - fr.cz) || 1, ox = (mx - fr.cx) / ol, oz = (mz - fr.cz) / ol;
+    return { len, yaw: -Math.atan2(ez, ex), face: Math.atan2(ox, oz), at: (t, out = 0.06) => [A[0] + ex * t + ox * out, A[1] + ez * t + oz * out], ox, oz };
+  };
+  const grid = (e, t0, t1, y0, y1, cols, rows, glass, frameC, out) => {
+    const w = e.len * (t1 - t0), [x, z] = e.at((t0 + t1) / 2, out), h = y1 - y0;
+    placeBox(glass, w, h, 0.08, x, y0 + h / 2, z, e.yaw);
+    for (let i = 0; i <= cols; i++) { const [qx, qz] = e.at(t0 + (t1 - t0) * i / cols, out + 0.03); placeBox(frameC, 0.09, h, 0.1, qx, y0 + h / 2, qz, e.yaw); }
+    for (let j = 0; j <= rows; j++) placeBox(frameC, w, 0.09, 0.1, x + e.ox * 0.03, y0 + h * j / rows, z + e.oz * 0.03, e.yaw);
+  };
+  const feature = (p, F) => {
+    const e = along(p, F.edge), t = F.t;
+    if (F.kind === 'glazing') grid(e, t[0], t[1], F.y[0], F.y[1], F.cols, F.rows, 0x1f272d, 0x2b2f33, 0.06);
+    if (F.kind === 'band') grid(e, t[0], t[1], F.y[0], F.y[1], F.panes, 1, 0x9fb3c2, 0xf4f4f0, 0.08);
+    if (F.kind === 'panel') { const [x, z] = e.at((t[0] + t[1]) / 2, 0.07), h = F.y[1] - F.y[0]; placeBox(F.colour, e.len * (t[1] - t[0]), h, 0.08, x, F.y[0] + h / 2, z, e.yaw); }
+    if (F.kind === 'window') { const [x, z] = e.at(t, 0.07), h = F.y[1] - F.y[0], w = F.w || 1.0;
+      placeBox(0xf4f4f0, w + 0.2, h + 0.2, 0.08, x, F.y[0] + h / 2, z, e.yaw); const [gx, gz] = e.at(t, 0.1); placeBox(0x9fb3c2, w, h, 0.06, gx, F.y[0] + h / 2, gz, e.yaw);
+      if (F.ac) { const [ax, az] = e.at(t, 0.35); placeBox(0xe6e6e2, w * 0.7, 0.45, 0.6, ax, F.y[1] - 0.35, az, e.yaw); } }
+    if (F.kind === 'pier') { const [x, z] = e.at(t, F.out ?? 0.15), h = F.y[1] - F.y[0]; placeBox(0xbdb6ad, F.w || 0.55, h, F.w || 0.55, x, F.y[0] + h / 2, z, e.yaw); }
+    if (F.kind === 'sign' && typeof document !== 'undefined') {
+      const tex = boardTexture(F.text, { bg: F.bg, fg: F.fg, border: F.bg, w: F.px || 1024, h: Math.round((F.px || 1024) * F.h / F.w) });
+      if (F.blade) { const [x, z] = e.at(t, F.out); box(F.bgHex, 0.12, F.h, F.w, x, F.y, z, e.yaw + Math.PI / 2);
+        plane(tex, F.w, F.h, x + Math.sin(e.yaw + Math.PI / 2) * 0.07, F.y, z + Math.cos(e.yaw + Math.PI / 2) * 0.07, e.face + Math.PI / 2); plane(tex, F.w, F.h, x - Math.sin(e.yaw + Math.PI / 2) * 0.07, F.y, z - Math.cos(e.yaw + Math.PI / 2) * 0.07, e.face - Math.PI / 2); }
+      else { const [x, z] = e.at(t, F.out ?? 0.1); plane(tex, F.w, F.h, x, F.y, z, e.face); }
     }
-    if (door) { const [x, z] = at(0.5, 0.07); placeBox(0x2f3a42, 2.0, 2.5, 0.1, x, 1.25, z, yaw); placeBox(0xece6da, 2.3, 0.2, 0.14, x, 2.6, z, yaw); }
-    if (sign) { const [x, z] = at(0.5, 0.1), tex = boardTexture([sign], { bg: '#f3efe6', fg: '#b3121f', border: '#b3121f', w: 1024, h: 140 });
-      plane(tex, Math.min(len - 2, 9), 0.9, x, Math.min(wallH - 0.5, 4.0), z, Math.atan2(ox, oz)); }
   };
   const GROUND = { asphalt: [0x3f4244, 0.05], grass: [0x7fa65d, 0.03], paving: [0xb8ac98, 0.055], gravel: [0xa89a84, 0.045] };
   for (const d of DETAILED) {
     const ROOF = 0xc8cac6, WALL = 0xe3d8c2;   // galvanised roofs as in the aerial; wall colour assumed (cream render/paint)
     for (const g of d.ground) flatPoly(GROUND[g.kind][0], g.pts, GROUND[g.kind][1]);
     for (const p of d.parts) {
-      const f = frame(p.pts), wallH = p.storeys === 2 ? 7.6 : (p.wall || 3.8);
+      const f = frame(p.pts), wallH = p.wall || (p.storeys === 2 ? 7.6 : 3.8);
       box(p.wallColour ?? WALL, f.L, wallH, f.W, f.cx, wallH / 2, f.cz, f.yaw);
-      if (p.facade) facade(p, wallH);
-      if (p.roof === 'hip') hipRoof(ROOF, p.pts, wallH); else box(ROOF, f.L + 0.4, 0.1, f.W + 0.4, f.cx, wallH + 0.1, f.cz, f.yaw);
-      if (p.storeys === 2) for (const side of [-1, 1]) for (let t = -f.L / 2 + 1.5; t < f.L / 2 - 1; t += 3) { // upper-floor windows on the long faces
+      for (const F of p.features || []) feature(p, F);
+      if (p.fascia) box(0xf4f4f0, f.L + 0.5, 0.35, f.W + 0.5, f.cx, wallH - 0.05, f.cz, f.yaw);   // white roof edge
+      if (p.mast) { box(0xb0b2b4, 0.1, 4, 0.1, f.cx, wallH + 2, f.cz); box(0xb0b2b4, 1.4, 0.06, 0.06, f.cx, wallH + 3.4, f.cz); }
+      if (p.roof === 'hip') hipRoof(ROOF, p.pts, wallH, p.pitch); else box(ROOF, f.L + 0.4, 0.1, f.W + 0.4, f.cx, wallH + 0.1, f.cz, f.yaw);
+      if (p.storeys === 2 && !p.features) for (const side of [-1, 1]) for (let t = -f.L / 2 + 1.5; t < f.L / 2 - 1; t += 3) { // upper-floor windows on the long faces
         const ox = Math.cos(-f.yaw) * t - Math.sin(-f.yaw) * side * (f.W / 2 + 0.03), oz = Math.sin(-f.yaw) * t + Math.cos(-f.yaw) * side * (f.W / 2 + 0.03);
         box(0x34434f, 1.0, 1.6, 0.06, f.cx + ox, 5.6, f.cz + oz, f.yaw); }
       colliders.push(polyRect(p.pts));
@@ -218,6 +235,7 @@ export function buildNarromine(parent, makeLabel = null) {
     for (const v of d.verandahs) {
       const f = frame(v.pts), [oa, ob] = [v.pts[v.outer[0]], v.pts[v.outer[1]]], top = v.levels === 2 ? 7.0 : 3.25;
       const vRoof = v.lace ? 0x8a6a52 : ROOF, POST = v.lace ? 0xeae6dc : 0x6f6a62;   // painted posts and lace assumed
+      if (v.cantilever) { box(0xf2f0ea, f.L, 0.3, f.W, f.cx, v.height, f.cz, f.yaw); continue; }   // thin concrete awning, no posts
       box(vRoof, f.L, 0.1, f.W, f.cx, top, f.cz, f.yaw);
       const ex = ob[0] - oa[0], ez = ob[1] - oa[1], len = Math.hypot(ex, ez), n = Math.max(2, Math.round(len / 3.2));
       const ix = (f.cx - (oa[0] + ob[0]) / 2), iz = (f.cz - (oa[1] + ob[1]) / 2), il = Math.hypot(ix, iz) || 1, inX = ix / il * 0.25, inZ = iz / il * 0.25;
@@ -232,7 +250,14 @@ export function buildNarromine(parent, makeLabel = null) {
     for (const g of d.ground) if (g.tables) { const cy = polyRect(g.pts);
       for (let i = 0; i < g.tables; i++) { const tx = cy.x0 + 2 + i * 3.2, tz = (cy.z0 + cy.z1) / 2; box(0x5c4632, 1.6, 0.06, 0.8, tx, 0.75, tz); box(0x5c4632, 1.6, 0.05, 0.3, tx, 0.45, tz - 0.75); box(0x5c4632, 1.6, 0.05, 0.3, tx, 0.45, tz + 0.75); } }
     for (const pr of d.props) {
-      if (pr.kind === 'postbox') { const [x, z] = pr.at; box(0xc8102e, 0.5, 1.05, 0.42, x, 0.53, z); box(0xa50d25, 0.58, 0.12, 0.5, x, 1.1, z); colliders.push({ x0: x - 0.3, x1: x + 0.3, z0: z - 0.3, z1: z + 0.3 }); }
+      if (pr.kind === 'postbox') { const [x, z] = pr.at; box(0xd4202f, 0.55, 1.3, 0.45, x, 0.65, z); box(0xd4202f, 0.6, 0.1, 0.5, x, 1.35, z); box(0xffffff, 0.3, 0.3, 0.02, x, 1.05, z + 0.24); colliders.push({ x0: x - 0.3, x1: x + 0.3, z0: z - 0.3, z1: z + 0.3 }); }
+      if (pr.kind === 'pier') { const [x, z] = pr.at; box(0xbdb6ad, 0.55, pr.h, 0.55, x, pr.h / 2, z); colliders.push({ x0: x - 0.3, x1: x + 0.3, z0: z - 0.3, z1: z + 0.3 }); }
+      if (pr.kind === 'lamp') { const [x, z] = pr.at; box(0x2f4a3c, 0.16, 6, 0.16, x, 3, z); const dx = pr.dx ?? 0.6, dz = pr.dz ?? 0; box(0x2f4a3c, 0.1 + Math.abs(dx) * 2, 0.1, 0.1 + Math.abs(dz) * 2, x + dx, 6.1, z + dz); box(0x2f4a3c, 0.5, 0.25, 0.5, x + dx * 2, 5.85, z + dz * 2); }
+      if (pr.kind === 'hedge') { const f = frame(pr.pts); flatPoly(0x8a3b2c, pr.pts, 0.06); box(0x55752f, f.L - 0.6, pr.h || 0.8, f.W - 0.6, f.cx, (pr.h || 0.8) / 2, f.cz, f.yaw); }
+      if (pr.kind === 'steps') { const f = frame(pr.pts); for (let i = 0; i < 3; i++) box(0xcfc9be, f.L, 0.15 * (i + 1), f.W * (1 - i / 3), f.cx, 0.075 * (i + 1), f.cz, f.yaw); }
+      if (pr.kind === 'fence' || pr.kind === 'rail') { const [ax, az] = pr.a, [bx, bz] = pr.b, l = Math.hypot(bx - ax, bz - az), y = -Math.atan2(bz - az, bx - ax), c = pr.kind === 'fence' ? 0xc8352e : 0xb8bcbf;
+        placeBox(c, l, 0.06, 0.06, (ax + bx) / 2, 1.0, (az + bz) / 2, y); placeBox(c, l, 0.05, 0.05, (ax + bx) / 2, 0.5, (az + bz) / 2, y);
+        for (let k = 0; k <= Math.ceil(l / (pr.kind === 'fence' ? 0.15 : 1.5)); k++) { const q = k / Math.ceil(l / (pr.kind === 'fence' ? 0.15 : 1.5)); box(c, 0.04, 1.0, 0.04, ax + (bx - ax) * q, 0.5, az + (bz - az) * q); } }
       if (pr.kind === 'planter') { const f = frame(pr.pts); box(0x9c8f7c, f.L, 0.45, f.W, f.cx, 0.22, f.cz, f.yaw); box(0x5f8a3f, f.L - 0.2, 0.08, f.W - 0.2, f.cx, 0.47, f.cz, f.yaw); }
     }
     for (const [tx, tz] of d.trees) { box(0x8f8577, 0.5, 4, 0.5, tx, 2, tz); const g3 = new THREE.SphereGeometry(4.2, 8, 6); g3.scale(1, 0.7, 1); g3.translate(tx, 6.5, tz); push(0x5d7d43, g3); }

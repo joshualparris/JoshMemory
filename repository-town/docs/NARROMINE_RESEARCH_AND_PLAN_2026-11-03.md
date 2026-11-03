@@ -275,3 +275,23 @@ The imagery was flown on 23 July 2012. Pole shadows put the sun at 9.7° east of
   - the sign wording;
   - the post box position.
 - **Checked but unavailable:** no heritage listing was found. The LEP heritage schedule is behind a bot check, and Wikimedia Commons was rate-limited.
+
+### Post Office: rebuilt from street photos (replaces the facade pass above)
+Josh supplied Google Street View screenshots (June 2022, May 2023, Sept 2026). They are used only as a visual reference and are not committed.
+
+**What the photos show and the model now has:**
+- **Building:** two storeys of red face brick, a white roof edge on a low hipped roof, and an antenna mast.
+- **Ground floor:** a thin white cantilevered concrete awning wraps the Dandaloo Street / north-side corner. It sits over speckled granite piers and dark steel-framed shop glazing.
+- **Dandaloo Street face:** a white ribbon window upstairs, the royal cypher (E II R) and a red projecting post sign.
+- **North face:**
+  - a red "Australia Post 2821" sign band;
+  - four upper windows, two with air-conditioners;
+  - small rear windows and a glass-block window;
+  - a recessed entrance with steps, ramp rails, a red rail fence, PO-box panels, a red door and a red pillar posting box.
+- **Footpath:** clipped hedges on red mulch, green crook street lamps and a street tree.
+
+**Logos:** Australia Post's logo is not reproduced; signs carry text only.
+
+**Still estimated:** the exact positions along each wall, the exact heights, and the inside.
+
+**Builder:** gains generic wall features, placed along a part edge (glazing, ribbon windows, windows with optional air-conditioners, piers, panels, flat and projecting signs). It also gains cantilevered awnings and street props (piers, lamps, hedges, steps, rails, fences).
