@@ -1,0 +1,49 @@
+# Narromine realism correction — 1:1 reconstruction acceptance contract
+
+**User requirement (3 Nov 2026):** The extension must represent **actual Narromine NSW** with the real streets, actual current shops, consistent spatial arrangement and recognisable facades. A compressed rural drive may be a *gameplay option* outside town, but **town street and shop placement cannot be invented or claimed 1:1**.
+
+## Immediate decision — NOT READY FOR LIVE RELEASE
+
+The current Narromine branch contains a driveable exploratory scene: synthetic 1.3km approach, invented rectangles for Dandaloo, invented crossings, unverified facades, generic store rows and inaccurate first-pass road topology. It **does not satisfy this requirement**. Do not merge, label as fully realistic, or publish to live production. Existing fictional Repo Town buildings must continue to function independently.
+
+**Correction:** Use the official Narromine Shire Council roads register for names, NSW Spatial Services centreline for full geometry, OSM for pedestrian/retail POIs after licence assessment, government land parcel/heritage information for footprints, official tourism/shop sites for occupants, dated street-level photos/Street View for facade and signage appearance. Explicitly keep a source and confidence level **for every property**. Do not invent opening hours, shop tenants, street junctions, facade windows, house addresses or road lengths.
+
+## Research accomplished on 3 Nov 2026
+
+1. **Official road register:** Council 2024 Roads Management Strategy, adopted 8 May 2024, Table 16 Narromine road list; transcribed **73** named street/laneway/road entries with Council road numbers into `data/narromine-authenticity-reference-2026-11-03.json`. Not a topological network or route file. Source: https://narromine.nsw.gov.au/Roads%20Management%20Strategy%202024.pdf?downloadable=1
+2. **Actual businesses and addresses:** Narromine Region tourism shopping directory lists Coles (76 Dandaloo), Country Traders (4/76), Macquarie Clothing (68), Narromine Cottage Craft (81), Vinnies (55), post office (74), Narromine Hardware (47–55 Nymagee), Soul Food Depot (1–7 Dandaloo), Style 33 (1/76), Zest by Modern Foodie (63), florists and Men's Shed. Captured **12** distinct entries. The directory is not proof each business still occupies that lot today. Source: https://narromineregion.com.au/shopping
+3. **Heritage:** NSW Narromine LEP Schedule 5 historical 2025 version lists **14** distinctive town items relevant to the geography: Dandaloo landscaped median between **Meringo and Burraway Streets** (I7), former CBC Bank at **72 Dandaloo** (I9), Hotel Narromine at 116, Abbey at 24, heritage Burraway shops/hotels/courthouse, railway station on Derribong Avenue and aerodrome. Historical schedule, must check the LEP current in force before claiming modern legal status. Source: https://legislation.nsw.gov.au/view/whole/pdf/inforce/2025-08-14/epi-2011-0648
+4. **Street character:** 2023 State Planning Portal Statement of Environmental Effects for 40–42 Dandaloo Street documents actual lot 42 width **13.7m frontage** and ~47.255m depth, building on western side, and photographs a **wide divided main street** with mature trees, palms, grassed median, clipped hedges, swan-neck lamps and low heritage-style facades; **no synthetic undivided 10m road** can accurately represent this. This document is historical and is not evidence that alterations were completed. Source: https://apps.planningportal.nsw.gov.au/prweb/PRRestService/DocMgmt/v1/PublicDocuments/DATA-WORKATTACH-FILE%20PEC-DPE-EP-WORK%20PAN-362213%2120230817T071730.702%20GMT
+5. **GIS source available:** NSW Spatial Services `RoadCentreline` ArcGIS Feature/MapServer layer (roadnamelabel, line geometry, GeoJSON query support); data is accessible via official NSW mapping services. Use official bbox and page through the API. NSW Spatial Services' general copyright notice says CC BY 4.0 unless otherwise stated; the individual dataset and any platform/cloud/data-modification terms need checking before republication. Sources: https://beta.portal.spatial.nsw.gov.au/server/rest/services/NSW_Land_Parcel_Property_Theme_A/MapServer/1 and https://www.spatial.nsw.gov.au/copyright and https://www.data.nsw.gov.au/data/dataset/1-d6cba899a13041d2a8c0eb4ca734b69e
+6. **OSM secondary source:** OpenStreetMap has actual road and POI tags, including Dandaloo Street with connected Nymagee, Meringo, Culling, Derribong, First/Second/Fourth Avenue etc. OSM derivatives require ODbL attribution and may have share-alike obligations; use authoritative NSW geometry first and fill data gaps only with correctly licensed sources.
+7. **Google Street View NOT REVIEWED.** An interactive Google Maps Street View attempt on 3 Nov 2026 was blocked before the browser session started due to the connected TinyFish wallet having insufficient credit. No Street View pano date, camera angle, visual building shape or street-level sequence has been verified. Other public photos/DA documents are **not** to be described as Google Street View. If access is restored, inspect dated Street View manually by block to record the appearance of each shop; do **not** scrape, bulk download or republish Google's protected panoramas.
+8. **Exact shop geolocation outstanding.** A valid public map reference for the post office is lat -32.23205°, lon 148.23928° (open map data; requires source provenance and coordinate precision handling). This does NOT establish all shop positions. Reference: https://mapcarta.com/N4303533604. Narromine centroid approximately -32.233°,148.233° is too coarse for storefront placement. Do not fabricate geocodes from postal street numbers.
+
+## Required construction architecture
+
+### Geometry and fidelity
+- Load source-licensed actual road-centreline polylines in WGS84/GDA2020, preserving curvature, endpoints, intersections and road name aliases. Convert coordinates to local game metres using an explicit georeference and round-trip error threshold, ideally preserving 1:1 scale **within Narromine**.
+- Distinguish divided carriageways and junction turns; verify two directions, median/park planting, street furniture, kerb parking and real crosswalks from current street-level documentation. Derive drivable collisions from road polygons, not from broad rectangles. Never drive through the heritage median, shops, gardens or rail.
+- Build true facade orientation and building placement from cadastral parcel/footprint geometry and dated street-level reference photographs. Mark facade detail as `referenceUnverified` until photo review; keep no access to private home interiors by default.
+- Join the external fictional Repo Town route to the **actual road network** via an explicitly *fictional* off-world portal/corridor; do not invent a real legal road crossing or an off-map highway interchange. If the player should physically drive the **full** road distance without loading, source the real road centerline/terrain and confirm performance.
+
+### Shops and population
+- Verify exact real name, street address, operating status and entrance side for each business (official listing plus independently dated photo/business page); retain closed former businesses only with clear era labels. **Shop names + exact placement, not just generic 'Shops' blocks.**
+- Add public government and civic structures: council, public library, post office, hospital, schools, fire/police, railway station, aviation museum, park/wetlands and actual farms/industrial geography.
+- Model public shop interiors only when verified or clearly fictionalised. Do not invent identifiable real persons, private businesses' back rooms or sensitive Indigenous cultural content.
+
+### Definition of done — all mandatory
+1. [ ] Official source-extract metadata and license for every road/parcel/POI; no anonymous coordinates.
+2. [ ] **All 73** Council-listed roads evaluated against GIS coverage (some may lie beyond the selected map bounds); every street drawn from actual geolocated polylines rather than invented shapes.
+3. [ ] Verify actual intersections, line widths, medians and legal routes; playable return drive to Repo Town and Narromine.
+4. [ ] **All 12** recorded visitor-directory shops matched to physically correct address/lot; reconcile vacancies/current business status; extend to every current publicly listed retail shop.
+5. [ ] Dandaloo between Meringo and Burraway correctly divided, with landscaped, heritage-listed median and real pedestrian crossings.
+6. [ ] Each target shop/building has dated visual provenance, including Street View *where accessible and permitted*, and modeled facade/roof/footpath alignment.
+7. [ ] Automated tests for real-road bounds, pedestrian paths, collision with median/shops, map navigation, GPS-to-world projection, reload/persistence, driving and return trip.
+8. [ ] Manual visual comparison by block and intersection for **desktop and mobile** against dated reference. A human can recognise each street and building; unmatched sections flagged as missing.
+9. [ ] Build:release, full integration, all WebGL CI, privacy and deployed commit fingerprint pass; do not confuse an exploratory prototype test with a 1:1 fidelity pass.
+
+**Explicitly NOT DONE:** Google Street View research, 1:1 road shapes, real storefront/building renders and their exact locations, 2026 shop occupancy cross-check, actual road journey from Repo Town, hosted release.
+
+## Safe next execution path
+First acquire official roads and license-check them; compare Council register to GIS. Next map each 2026 shop address/lot and reconcile tenants. Then replace `src/world/narromine-location.js` and `narromine-region.js` synthetic geometry with the sourced georeferenced road-and-building model, preserving the current car/physics/save integration. Add visual QA and merge only after 1:1 acceptance.
