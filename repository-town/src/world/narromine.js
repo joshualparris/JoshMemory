@@ -201,7 +201,14 @@ export function buildNarromine(parent, makeLabel = null) {
   const along = (p, edge) => {
     const A = p.pts[edge[0]], B = p.pts[edge[1]], fr = frame(p.pts), ex = B[0] - A[0], ez = B[1] - A[1], len = Math.hypot(ex, ez);
     const mx = (A[0] + B[0]) / 2, mz = (A[1] + B[1]) / 2, ol = Math.hypot(mx - fr.cx, mz - fr.cz) || 1, ox = (mx - fr.cx) / ol, oz = (mz - fr.cz) / ol;
-    return { len, yaw: -Math.atan2(ez, ex), face: Math.atan2(ox, oz), at: (t, out = 0.06) => [A[0] + ex * t + ox * out, A[1] + ez * t + oz * out], ox, oz };
+    // The wall is a box in the part's frame, which can stand slightly proud of a skewed traced edge;
+    // snap each feature onto the box face that this edge belongs to so nothing is buried in the wall.
+    const ux = Math.cos(-fr.yaw), uz = Math.sin(-fr.yaw), axes = [[ux, uz, fr.L / 2], [-ux, -uz, fr.L / 2], [-uz, ux, fr.W / 2], [uz, -ux, fr.W / 2]];
+    const [nx, nz, half] = axes.reduce((m, a) => (a[0] * ox + a[1] * oz > m[0] * ox + m[1] * oz ? a : m));
+    const at = (t, out = 0.06) => { const qx = A[0] + ex * t, qz = A[1] + ez * t, d = (qx - fr.cx) * nx + (qz - fr.cz) * nz, k = Math.max(0, half - d) + out; return [qx + nx * k, qz + nz * k]; };
+    // Run features along the wall face (not the skewed edge) so long bands and signs stay on the surface.
+    const sgn = Math.sign(ex * -nz + ez * nx) || 1, tx = -nz * sgn, tz = nx * sgn;
+    return { len: Math.abs(ex * tx + ez * tz), yaw: -Math.atan2(tz, tx), face: Math.atan2(nx, nz), at, ox: nx, oz: nz };
   };
   const grid = (e, t0, t1, y0, y1, cols, rows, glass, frameC, out) => {
     const w = e.len * (t1 - t0), [x, z] = e.at((t0 + t1) / 2, out), h = y1 - y0;
@@ -211,9 +218,9 @@ export function buildNarromine(parent, makeLabel = null) {
   };
   const feature = (p, F) => {
     const e = along(p, F.edge), t = F.t;
-    if (F.kind === 'glazing') grid(e, t[0], t[1], F.y[0], F.y[1], F.cols, F.rows, 0x1f272d, 0x2b2f33, 0.06);
-    if (F.kind === 'band') grid(e, t[0], t[1], F.y[0], F.y[1], F.panes, 1, 0x9fb3c2, 0xf4f4f0, 0.08);
-    if (F.kind === 'panel') { const [x, z] = e.at((t[0] + t[1]) / 2, 0.07), h = F.y[1] - F.y[0]; placeBox(F.colour, e.len * (t[1] - t[0]), h, 0.08, x, F.y[0] + h / 2, z, e.yaw); }
+    if (F.kind === 'glazing') grid(e, t[0], t[1], F.y[0], F.y[1], F.cols, F.rows, 0x1f272d, 0x2b2f33, 0.12);
+    if (F.kind === 'band') grid(e, t[0], t[1], F.y[0], F.y[1], F.panes, 1, 0x9fb3c2, 0xf4f4f0, 0.12);
+    if (F.kind === 'panel') { const [x, z] = e.at((t[0] + t[1]) / 2, 0.03 + (F.layer || 0) * 0.03), h = F.y[1] - F.y[0]; placeBox(F.colour, e.len * (t[1] - t[0]), h, 0.04, x, F.y[0] + h / 2, z, e.yaw); }
     if (F.kind === 'window') { const [x, z] = e.at(t, 0.07), h = F.y[1] - F.y[0], w = F.w || 1.0;
       placeBox(0xf4f4f0, w + 0.2, h + 0.2, 0.08, x, F.y[0] + h / 2, z, e.yaw); const [gx, gz] = e.at(t, 0.1); placeBox(0x9fb3c2, w, h, 0.06, gx, F.y[0] + h / 2, gz, e.yaw);
       if (F.ac) { const [ax, az] = e.at(t, 0.35); placeBox(0xe6e6e2, w * 0.7, 0.45, 0.6, ax, F.y[1] - 0.35, az, e.yaw); } }
@@ -222,7 +229,7 @@ export function buildNarromine(parent, makeLabel = null) {
       const tex = boardTexture(F.text, { bg: F.bg, fg: F.fg, border: F.bg, w: F.px || 1024, h: Math.round((F.px || 1024) * F.h / F.w) });
       if (F.blade) { const [x, z] = e.at(t, F.out); box(F.bgHex, 0.12, F.h, F.w, x, F.y, z, e.yaw + Math.PI / 2);
         plane(tex, F.w, F.h, x + Math.sin(e.yaw + Math.PI / 2) * 0.07, F.y, z + Math.cos(e.yaw + Math.PI / 2) * 0.07, e.face + Math.PI / 2); plane(tex, F.w, F.h, x - Math.sin(e.yaw + Math.PI / 2) * 0.07, F.y, z - Math.cos(e.yaw + Math.PI / 2) * 0.07, e.face - Math.PI / 2); }
-      else { const [x, z] = e.at(t, F.out ?? 0.1); plane(tex, F.w, F.h, x, F.y, z, e.face); }
+      else { const [x, z] = e.at(t, F.out ?? 0.16); plane(tex, F.w, F.h, x, F.y, z, e.face); }
     }
   };
   const GROUND = { asphalt: [0x3f4244, 0.05], grass: [0x7fa65d, 0.03], paving: [0xb8ac98, 0.055], gravel: [0xa89a84, 0.045] };
@@ -258,7 +265,7 @@ export function buildNarromine(parent, makeLabel = null) {
     for (const v of d.verandahs) {
       const f = frame(v.pts), [oa, ob] = [v.pts[v.outer[0]], v.pts[v.outer[1]]], top = v.levels === 2 ? 7.0 : 3.25;
       const vRoof = v.lace ? 0x8a6a52 : ROOF, POST = v.lace ? 0xeae6dc : 0x6f6a62;   // painted posts and lace assumed
-      if (v.cantilever) { box(0xf2f0ea, f.L, 0.3, f.W, f.cx, v.height, f.cz, f.yaw); continue; }   // thin concrete awning, no posts
+      if (v.cantilever) { box(v.colour ?? 0xf2f0ea, f.L, 0.3, f.W, f.cx, v.height, f.cz, f.yaw); continue; }   // cantilevered awning, no posts
       box(vRoof, f.L, 0.1, f.W, f.cx, top, f.cz, f.yaw);
       const ex = ob[0] - oa[0], ez = ob[1] - oa[1], len = Math.hypot(ex, ez), n = Math.max(2, Math.round(len / 3.2));
       const ix = (f.cx - (oa[0] + ob[0]) / 2), iz = (f.cz - (oa[1] + ob[1]) / 2), il = Math.hypot(ix, iz) || 1, inX = ix / il * 0.25, inZ = iz / il * 0.25;
@@ -281,6 +288,20 @@ export function buildNarromine(parent, makeLabel = null) {
       if (pr.kind === 'fence' || pr.kind === 'rail') { const [ax, az] = pr.a, [bx, bz] = pr.b, l = Math.hypot(bx - ax, bz - az), y = -Math.atan2(bz - az, bx - ax), c = pr.kind === 'fence' ? 0xc8352e : 0xb8bcbf;
         placeBox(c, l, 0.06, 0.06, (ax + bx) / 2, 1.0, (az + bz) / 2, y); placeBox(c, l, 0.05, 0.05, (ax + bx) / 2, 0.5, (az + bz) / 2, y);
         for (let k = 0; k <= Math.ceil(l / (pr.kind === 'fence' ? 0.15 : 1.5)); k++) { const q = k / Math.ceil(l / (pr.kind === 'fence' ? 0.15 : 1.5)); box(c, 0.04, 1.0, 0.04, ax + (bx - ax) * q, 0.5, az + (bz - az) * q); } }
+      if (pr.kind === 'bullnose') {   // curved (bullnose) shop awning with alternating stripes, from a to b, projecting d metres
+        const [ax, az] = pr.a, [bx, bz] = pr.b, l = Math.hypot(bx - ax, bz - az), ux = (bx - ax) / l, uz = (bz - az) / l, n = Math.round(l / 0.35);
+        for (let i = 0; i < n; i++) { const g = new THREE.CylinderGeometry(pr.d, pr.d, l / n, 10, 1, true, 0, Math.PI / 2);
+          g.rotateZ(Math.PI / 2); g.rotateY(-Math.atan2(uz, ux)); const t = (i + 0.5) / n;
+          g.translate(ax + (bx - ax) * t + pr.ox * 0.0, pr.y, az + (bz - az) * t); push(i % 2 ? 0xf2f2ee : 0x7f8a8f, g); } }
+      if (pr.kind === 'trolleybay') { const [ax, az] = pr.a, [bx, bz] = pr.b, l = Math.hypot(bx - ax, bz - az), y = -Math.atan2(bz - az, bx - ax);
+        for (const off of [-0.8, 0.8]) { const nx = -(bz - az) / l * off, nz = (bx - ax) / l * off; placeBox(0xb8bcbf, l, 0.06, 0.06, (ax + bx) / 2 + nx, 0.95, (az + bz) / 2 + nz, y); }
+        for (let k = 0; k < 4; k++) { const t = 0.15 + k * 0.22; box(0xb3262b, 0.55, 0.9, 0.85, ax + (bx - ax) * t, 0.5, az + (bz - az) * t); } }
+      if (pr.kind === 'board') { const [x, z] = pr.at; box(0xb8bcbf, 0.08, pr.h, 0.08, x - 0.6, pr.h / 2, z); box(0xb8bcbf, 0.08, pr.h, 0.08, x + 0.6, pr.h / 2, z);
+        if (typeof document !== 'undefined') plane(boardTexture(pr.text, { bg: pr.bg, fg: pr.fg, border: pr.bg, w: 512, h: 384 }), 1.6, 1.2, x, pr.h - 0.4, z, pr.face ?? 0); }
+      if (pr.kind === 'palm') { const [x, z] = pr.at, h = pr.h || 9; const t = new THREE.CylinderGeometry(0.35, 0.55, h, 8); t.translate(x, h / 2, z); push(0x6b5a45, t);
+        for (let k = 0; k < 14; k++) { const a = k / 14 * Math.PI * 2, g = new THREE.BoxGeometry(3.4, 0.06, 0.55); g.translate(1.7, 0, 0); g.rotateZ(-0.35 - (k % 2) * 0.25); g.rotateY(a); g.translate(x, h, z); push(0x4f6b32, g); } }
+      if (pr.kind === 'statue') { const [x, z] = pr.at; box(0x9e9b95, 1.0, 0.9, 1.0, x, 0.45, z); box(0xdedbd4, 0.5, 0.55, 0.6, x, 1.18, z); box(0xdedbd4, 0.42, 0.5, 0.35, x, 1.6, z - 0.08); const g = new THREE.SphereGeometry(0.2, 8, 6); g.translate(x, 2.0, z - 0.08); push(0xdedbd4, g); colliders.push({ x0: x - 0.5, x1: x + 0.5, z0: z - 0.5, z1: z + 0.5 }); }   // median statue; small so lanes stay clear
+      if (pr.kind === 'redbays') flatPoly(0xb3262b, pr.pts, 0.07);
       if (pr.kind === 'planter') { const f = frame(pr.pts); box(0x9c8f7c, f.L, 0.45, f.W, f.cx, 0.22, f.cz, f.yaw); box(0x5f8a3f, f.L - 0.2, 0.08, f.W - 0.2, f.cx, 0.47, f.cz, f.yaw); }
     }
     for (const [tx, tz] of d.trees) { box(0x8f8577, 0.5, 4, 0.5, tx, 2, tz); const g3 = new THREE.SphereGeometry(4.2, 8, 6); g3.scale(1, 0.7, 1); g3.translate(tx, 6.5, tz); push(0x5d7d43, g3); }

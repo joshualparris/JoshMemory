@@ -629,3 +629,7 @@ Historical scope: Codex; branch feat/pub-cellar-upper-20261026; baseline f81da76
 ## 2026-11-03 — Narromine research + drivable-town plan (Claude, claude/narromine)
 - Docs only: docs/NARROMINE_RESEARCH_AND_PLAN_2026-11-03.md (sourced dossier + phased plan). No game code yet.
 - Phase 1 DONE on branch: Mitchell Highway + Dandaloo Street. Touched src/main.js (west wall gap, build/update, search, test hooks), src/world/player-driving.js (roadAllows, highway limit), src/world/vehicle-dynamics.js (limitKmh option), new src/world/narromine*.js, tests/narromine-browser.mjs. Josh: never contact anyone on his behalf.
+
+## 2026-11-03 — Coles Dandaloo frontage, car park and median details (Claude, claude/narromine-coles-frontage)
+- Built on top of #299 (Kierath's arcade, untouched). Touched src/world/narromine.js (wall features now sit on the wall's box face; cantilever awning colour; bullnose, trolley bay, board, palm, statue and red-bay props) and src/world/narromine-buildings-data.js (dandaloo-82).
+- From Josh's photos: white "KIERATH, NELSON & CO. PTY. LTD." parapet over brick with a dark cantilevered awning and window band, the boutique's striped bullnose awning, rear trolley bay and Click & Collect bays, and the Dandaloo median palm and seated statue (subject not verified). Tests: narromine layout/browser, kieraths browser, map, both Post Office suites, privacy — all pass.
