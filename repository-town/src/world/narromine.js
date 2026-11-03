@@ -240,7 +240,7 @@ export function buildNarromine(parent, makeLabel = null) {
       pos:new THREE.Vector3(sx,0,sz),
       text:text+(p.provenance?' · Source: '+p.provenance:'')});
   }
-  pole(-2742, z - 9, 2.4); plane(boardTexture(['Map data', '© OpenStreetMap contributors'], { bg: '#ffffff', fg: '#222222', border: '#222222' }), 2.6, 1.3, -2742, 2.2, z - 9, Eb);
+  pole(-2742, z - 9, 2.4); plane(boardTexture(['Mapped streets: NSW Spatial Services', 'Buildings: © OpenStreetMap contributors'], { bg: '#ffffff', fg: '#222222', border: '#222222' }), 4.1, 1.3, -2742, 2.2, z - 9, Eb);
 
   const materials = new Map();
   const material = (c, side) => { const k = c + ':' + side; if (!materials.has(k)) materials.set(k, new THREE.MeshLambertMaterial({ color: c, side })); return materials.get(k); };
