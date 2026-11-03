@@ -625,3 +625,7 @@ Historical scope: Codex; branch feat/pub-cellar-upper-20261026; baseline f81da76
 ## 2026-10-29 — whole-town browser playtest + bug fixes (Claude, fix/playtest-bugfix-20261029)
 - PR OPEN (see PLAYTEST_2026-10-29.md). Baseline main b7f6a37. Local headless Chromium with SwiftShader WebGL renders the town here (Playwright 1.56 pointed at the installed headless shell). Scope: run every test suite individually, hands-on playtest (walk, houses, shops, driving, panels, phone viewport), fix bugs found in narrowly-scoped files with regression tests. No RTD IDs claimed; no dialogue/audio roadmap work.
 - Touched: src/engine/input.js (Esc), src/main.js (one-overlay rule, rankKitchens), src/ui/npc-chat.js (touch-only typing mode), src/ui/release.js (badge z-index), src/world/npcs.js (rankKitchens), src/world/life.js (supermarket truck routes appended), src/world/shop-attendance.js (supermarket in RETAIL), src/world/town-expansion.js (supermarket sells/target), src/ui/townpanels.js. RTBUILD-006 counter trading only; its interior acceptance remains open and unclaimed.
+
+## 2026-11-03 — Narromine research + drivable-town plan (Claude, claude/narromine)
+- Docs only: docs/NARROMINE_RESEARCH_AND_PLAN_2026-11-03.md (sourced dossier + phased plan). No game code yet.
+- Next (unclaimed until Josh confirms scale): Phase 1 Mitchell Highway + Dandaloo Street arrival. Will touch src/world/player-driving.js (roadAllows), road-signs.js, a new src/world/narromine/ folder.
