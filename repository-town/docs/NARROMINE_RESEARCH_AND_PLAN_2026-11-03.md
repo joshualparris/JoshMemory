@@ -231,3 +231,24 @@ Modelled the same way as the Royal: traced from NSW Spatial Services aerial imag
   - the interior.
 
 Aerial crop: `docs/narromine/narromine-hotel-aerial-nsw-spatial-cc-by-4.png`.
+
+## Narromine Post Office (74 Dandaloo Street, Lot 2 DP814749)
+
+Traced from NSW Spatial Services aerial imagery (CC BY 4.0) inside its cadastre lot (about 952 m² true area).
+
+- **Exact from the air:**
+  - an L-shaped hipped roof (north wing about 21 × 7 m, Dandaloo Street front about 11.5 × 18 m);
+  - two lower rear sections;
+  - a north-west outbuilding;
+  - the awning over the Dandaloo Street footpath;
+  - the rear car park and a tree.
+- **Mapped outlines:** the two OpenStreetMap outlines on this lot are no longer drawn, because the detailed model replaces them. This applies to all detailed lots.
+- **Assumed:**
+  - the storey count (one) and the wall heights;
+  - the wall colour and material;
+  - the windows and doors;
+  - the Australia Post signage;
+  - the inside.
+- **History:** none is sourced yet, so the in-game panel gives no fact for it.
+
+Aerial crop: `docs/narromine/narromine-post-office-aerial-nsw-spatial-cc-by-4.png`.

@@ -54,7 +54,10 @@ const W = (pts) => pts.map(([lat, lon]) => geoToWorld(lat, lon));
 export const DETAILED = Object.freeze(NARROMINE_BUILDINGS.map((d) => Object.freeze({ ...d, boundary: W(d.boundary), trees: W(d.trees),
   parts: d.parts.map((p) => ({ ...p, pts: W(p.pts) })), verandahs: d.verandahs.map((v) => ({ ...v, pts: W(v.pts) })),
   ground: d.ground.map((g) => ({ ...g, pts: W(g.pts) })) })));
-export const BUILDINGS = Object.freeze(OSM.buildings.map((b) => Object.freeze({ ...b, pts: b.pts.map(toWorld) })));
+// Mapped outlines whose centre lies in a detailed lot are left out: the detailed model replaces them.
+const centreOf = (pts) => [pts.reduce((s, p) => s + p[0], 0) / pts.length, pts.reduce((s, p) => s + p[1], 0) / pts.length];
+export const BUILDINGS = Object.freeze(OSM.buildings.map((b) => Object.freeze({ ...b, pts: b.pts.map(toWorld) }))
+  .filter((b) => !DETAILED.some((d) => inPoly(...centreOf(b.pts), d.boundary))));
 export const AREAS = Object.freeze(OSM.areas.map((a) => Object.freeze({ ...a, pts: a.pts.map(toWorld) })));
 export const WATER = Object.freeze(OSM.water.map((w) => Object.freeze({ ...w, pts: w.pts.map(toWorld) })));
 export const RAIL = Object.freeze(OSM.rail.map((r) => Object.freeze({ pts: r.pts.map(toWorld) })));
@@ -102,7 +105,7 @@ export function boundaryColliders() {
 //  • plain houses along residential streets, kept clear of mapped buildings, places, parks,
 //    schools, sports grounds, water and other roads.
 // These are placed from the map but are not surveyed; they are never named.
-export const inPoly = (x, z, pts) => { let c = false; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const [xi, zi] = pts[i], [xj, zj] = pts[j]; if ((zi > z) !== (zj > z) && x < (xj - xi) * (z - zi) / (zj - zi) + xi) c = !c; } return c; };
+export function inPoly(x, z, pts) { let c = false; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const [xi, zi] = pts[i], [xj, zj] = pts[j]; if ((zi > z) !== (zj > z) && x < (xj - xi) * (z - zi) / (zj - zi) + xi) c = !c; } return c; }
 const centre = (pts) => pts.reduce((a, p) => [a[0] + p[0] / pts.length, a[1] + p[1] / pts.length], [0, 0]);
 const BUILDING_CENTRES = BUILDINGS.map((b) => ({ c: centre(b.pts), r: polyRect(b.pts), pts: b.pts }));
 const nearMapped = (x, z, d) => BUILDING_CENTRES.some((b) => x > b.r.x0 - d && x < b.r.x1 + d && z > b.r.z0 - d && z < b.r.z1 + d);

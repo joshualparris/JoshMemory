@@ -45,8 +45,9 @@ console.log(`PASS Narromine (OpenStreetMap): ${STREETS.length} street pieces, ${
   const areaOf = (pts) => Math.abs(pts.reduce((s, p, i, a) => { const q = a[(i + 1) % a.length]; return s + p[0] * q[1] - q[0] * p[1]; }, 0) / 2);
   const edgeDist = (bd, x, z) => Math.min(...bd.map((a, i, arr) => { const b = arr[(i + 1) % arr.length], dx = b[0] - a[0], dz = b[1] - a[1], l = dx * dx + dz * dz || 1, t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (z - a[1]) * dz) / l)); return Math.hypot(x - a[0] - t * dx, z - a[1] - t * dz); }));
   // Cadastre Shape__Area is Web Mercator; true area = value × cos²(32.24°). Royal: 3,355 → ≈2,395 m² (listing "approx 2393 sqm");
-  // Narromine Hotel (Lot 13 DP519453): 2,929 → ≈2,097 m².
-  for (const [id, want, pubName] of [['royal-hotel', 2393, 'Royal Hotel'], ['narromine-hotel', 2097, 'Narromine Hotel']]) {
+  // Narromine Hotel (Lot 13 DP519453): 2,929 → ≈2,097 m²; Post Office (Lot 2 DP814749): 1,330 → ≈952 m².
+  for (const [id, want, pubName] of [['royal-hotel', 2393, 'Royal Hotel'], ['narromine-hotel', 2097, 'Narromine Hotel'],
+    ['narromine-post-office', 952, 'Narromine Post Office']]) {
     const d = DETAILED.find((b) => b.id === id), area = areaOf(d.boundary);
     assert(Math.abs(area - want) < 30, `${id} lot is the real ~${want} m² (got ${area.toFixed(0)})`);
     const pub = PLACES.find((p) => p.name === pubName);
@@ -57,6 +58,7 @@ console.log(`PASS Narromine (OpenStreetMap): ${STREETS.length} street pieces, ${
     for (const v of d.verandahs) for (const [x, z] of v.pts) assert(inPoly(x, z, d.boundary) || edgeDist(d.boundary, x, z) <= 9.5, `${id} ${v.name} at the lot`);
     for (const p of d.parts) { const r = polyRect(p.pts); assert(!onNarromineRoad((r.x0 + r.x1) / 2, (r.z0 + r.z1) / 2), `${id} ${p.name} is off the road`); }
     for (const g of [...FILL_SHOPS, ...FILL_HOUSES]) assert(!inPoly(g.x, g.z, d.boundary), 'no generated building inside ' + id);
+    for (const b of BUILDINGS) { const c = b.pts.reduce((s, p) => [s[0] + p[0] / b.pts.length, s[1] + p[1] / b.pts.length], [0, 0]); assert(!inPoly(c[0], c[1], d.boundary), 'no mapped outline doubles the model of ' + id); }
     console.log(`PASS ${pubName}: lot ${area.toFixed(0)} m², ${d.parts.length} parts, ${d.verandahs.length} verandah(s) inside the lot`);
   }
   const f = polyRect(DETAILED[0].parts.find((p) => p.name === 'front').pts);
