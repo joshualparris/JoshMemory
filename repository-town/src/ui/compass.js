@@ -27,6 +27,7 @@ export function createCompass({ element, checkbox, camera, storage, getView = ()
   let enabled = compassVisiblePreference(storage), last = NaN;
   checkbox.checked = enabled;
   const sync = () => {
+    element.ownerDocument.body?.classList.toggle('compass-on', enabled);
     element.hidden = !enabled;
     checkbox.checked = enabled;
     checkbox.setAttribute('aria-checked', String(enabled));
