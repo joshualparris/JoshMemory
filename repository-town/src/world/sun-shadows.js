@@ -18,7 +18,7 @@ export function loadShadowChoice(storage) {
 }
 export function shadowDefaultLevel(coarse) { return coarse?'low':'medium'; }
 
-export function configureOutdoorShadows(town,narromine) {
+export function configureOutdoorShadows(town,narromine,masterplan=null,townLife=null) {
   let casters=0,receivers=0;
   const mark = (mesh,casts,receives) => {
     if (!mesh?.isMesh) return;
@@ -34,6 +34,20 @@ export function configureOutdoorShadows(town,narromine) {
   // the enormous street mesh cast shadows from road paint or kerb tops.
   for(const o of town.group.children){
     if(o.isMesh && !o.castShadow)mark(o,false,true);
+  }
+  // All 195 new estate homes have individual local meshes, but the roads,
+  // survey plots and lamp-pole batches must never be made gigantic casters.
+  if(masterplan?.group)for(const child of masterplan.group.children){
+    const house=child.isGroup&&child.name.includes(' · ');
+    child.traverse(o=>{if(o.isMesh)mark(o,!!house,!o.material?.transparent)});
+  }
+  // The shops, pub, post office and municipal sites on original Street 8
+  // are built separately from the original 208 homes.
+  if(townLife?.life?.places)for(const place of townLife.life.places.values()){
+    const parts=townLife.building(place.id);
+    if(!parts.length)continue;
+    parts[0]?.traverse(o=>{if(o.isMesh)mark(o,true,true)});
+    for(const extra of parts.slice(1))extra.traverse(o=>{if(o.isMesh)mark(o,false,true)});
   }
   // Plot and roadside ground receivers only, never large landscape casters.
   town.outskirts?.group?.traverse(o=>{if(o.isMesh)mark(o,false,true)});
@@ -110,9 +124,9 @@ export function createSunShadows({renderer,scene,sun,storage,coarse=false,checkb
       if(!direction||!eye)return;
       // The light's *position* and *target* move together, preserving the
       // exact solar azimuth/elevation when travelling several kilometres.
-      const x=eye.x,z=eye.z, height=eye.y||0;
+      const x=eye.x,z=eye.z;
       target.position.set(x,0,z);
-      sun.position.set(x+direction.x*165, direction.y*165+height, z+direction.z*165);
+      sun.position.set(x+direction.x*165, direction.y*165, z+direction.z*165);
       const lit=outside && elevation>0.4 && weather!=='night';
       sun.castShadow=level!=='off' && lit;
       if(!sun.castShadow)return;
