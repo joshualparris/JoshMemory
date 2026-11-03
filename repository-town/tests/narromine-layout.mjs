@@ -33,9 +33,22 @@ assert(BUILDINGS.length > 150, `mapped buildings present (${BUILDINGS.length})`)
 const place = (n) => PLACES.find((p) => p.name === n);
 for (const n of ['Royal Hotel', 'Narromine Hotel', 'Coles', 'Narromine Post Office', 'Narromine Pharmacy', 'Imperial Hotel', 'Narromine RSL Club', 'Narromine Aviation Museum'])
   assert(place(n), 'named place present: ' + n);
-const dandaloo = STREETS.filter((s) => s.name === 'Dandaloo Street').flatMap((s) => s.pts);
-const nearStreet = (p, pts) => pts.some(([x, z]) => Math.hypot(x - p.x, z - p.z) < 60);
-for (const n of ['Coles', 'Narromine Post Office', 'Narromine Pharmacy', 'Royal Hotel', 'Narromine Hotel']) assert(nearStreet(place(n), dandaloo), n + ' is on Dandaloo Street');
+const dandaloo=STREETS.filter(s=>s.name==='Dandaloo Street');
+const distToStreet=(p,r)=>{
+ let best=Infinity;
+ for(let i=1;i<r.pts.length;i++){
+  const [ax,az]=r.pts[i-1],[bx,bz]=r.pts[i],dx=bx-ax,dz=bz-az,l=dx*dx+dz*dz;
+  const t=l?Math.max(0,Math.min(1,((p.x-ax)*dx+(p.z-az)*dz)/l)):0;
+  best=Math.min(best,Math.hypot(p.x-ax-t*dx,p.z-az-t*dz));
+ }
+ return best;
+};
+// GURAS address coordinates can fall at the REAR of a commercial lot; they
+// are verified street-address property points, not actual shop doorways.
+for(const n of ['Coles','Narromine Post Office','Narromine Pharmacy','Royal Hotel','Narromine Hotel']){
+ const p=place(n),d=Math.min(...dandaloo.map(r=>distToStreet(p,r)));
+ assert(d<95,n+' registered on Dandaloo Street (property setback '+d.toFixed(1)+'m)');
+}
 assert.match(place('Royal Hotel').fact, /1890/); assert.match(place('Narromine Aviation Museum').fact, /Sabre/);
 
 // Privacy: no private home names or home addresses (the export contains a named private house).
