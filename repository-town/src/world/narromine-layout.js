@@ -9,6 +9,8 @@
 // at the eastern edge of the export, from where the highway becomes Dandaloo Street.
 // Facts and sources: docs/NARROMINE_RESEARCH_AND_PLAN_2026-11-03.md.
 import { NARROMINE_OSM as OSM } from './narromine-osm-data.js';
+import {NSW_GIS_STREETS,NSW_PUBLIC_PLACES,NSW_UNLOCATED_PUBLIC_PLACES,
+  DANDALOO_HERITAGE_MEDIAN,NSW_GIS_PROVENANCE} from './narromine-nsw-mapping.js';
 export { OSM };
 import { ROYAL_HOTEL } from './narromine-royal-data.js';
 
@@ -21,21 +23,46 @@ export const toWorld = ([x, z]) => [OFFSET.x + x, OFFSET.z + z];
 const RAD = Math.PI / 180, EARTH = 6371008.8, COS_ANCHOR = Math.cos(OSM.anchor.lat * RAD);
 export const geoToWorld = (lat, lon) => toWorld([(lon - OSM.anchor.lon) * RAD * EARTH * COS_ANCHOR, -(lat - OSM.anchor.lat) * RAD * EARTH]);
 const E = OSM.extent;
-export const REGION = Object.freeze({ x0: OFFSET.x + E.x0 - 40, x1: OFFSET.x + Math.max(E.x1, 0) + 40, z0: OFFSET.z + E.z0 - 40, z1: OFFSET.z + E.z1 + 40 });
+const mappedPoints=NSW_GIS_STREETS.flatMap(r=>r.pts);
+export const REGION = Object.freeze({
+ x0:Math.min(OFFSET.x+E.x0-40,...mappedPoints.map(p=>p[0]))-40,
+ x1:OFFSET.x+Math.max(E.x1,0)+40, // keep original highway's region seam open
+ z0:Math.min(OFFSET.z+E.z0-40,...mappedPoints.map(p=>p[1]))-40,
+ z1:Math.max(OFFSET.z+E.z1+40,...mappedPoints.map(p=>p[1]))+40
+});
 export const CORRIDOR_HALF = 45;             // fenced paddock strip either side of the highway
 
 // Real streets in world coordinates, as polylines with a carriageway width.
-export const STREETS = Object.freeze(OSM.roads.map((r) => Object.freeze({ name: r.name, kind: r.kind, width: r.width, pts: r.pts.map(toWorld) })));
+// NSW authoritative centreline coordinates win over older OSM road layout.
+// Keep OSM's service lanes and tracks (missing from NSW road-centreline layer),
+// and the source OSM road edge that physically meets the compressed highway.
+const nswNames=new Set(NSW_GIS_STREETS.map(x=>x.name.toLowerCase()));
+const originalOSM=OSM.roads.filter(r=>r.kind==='service'||r.kind==='track'||
+   (!nswNames.has(String(r.name).toLowerCase())&&r.name)||
+   (r.name==='Mitchell Highway'&&r.pts.some(([x,z])=>Math.hypot(x,z)<2)))
+ .map(r=>Object.freeze({name:r.name,kind:r.kind,width:r.width,pts:r.pts.map(toWorld),source:'OpenStreetMap ODbL'}));
+export const STREETS=Object.freeze([...NSW_GIS_STREETS,...originalOSM]);
+export {NSW_GIS_STREETS,NSW_PUBLIC_PLACES,NSW_UNLOCATED_PUBLIC_PLACES,
+ DANDALOO_HERITAGE_MEDIAN,NSW_GIS_PROVENANCE};
 
 // Spatial grid of road segments so "is this point on a road?" stays cheap every frame.
 const CELL = 40, grid = new Map();
 const key = (cx, cz) => cx + ',' + cz;
-for (const s of STREETS) for (let i = 1; i < s.pts.length; i++) {
-  const [ax, az] = s.pts[i - 1], [bx, bz] = s.pts[i], pad = s.width / 2 + 1;
-  for (let cx = Math.floor((Math.min(ax, bx) - pad) / CELL); cx <= Math.floor((Math.max(ax, bx) + pad) / CELL); cx++)
-    for (let cz = Math.floor((Math.min(az, bz) - pad) / CELL); cz <= Math.floor((Math.max(az, bz) + pad) / CELL); cz++) {
-      const k = key(cx, cz); if (!grid.has(k)) grid.set(k, []); grid.get(k).push({ ax, az, bx, bz, half: s.width / 2 + 0.5 });
+for (const s of STREETS) for (let i=1;i<s.pts.length;i++){
+ const [ax,az]=s.pts[i-1],[bx,bz]=s.pts[i],len=Math.hypot(bx-ax,bz-az);
+ if(len<.01)continue;
+ const offsets=s.divided?[-DANDALOO_HERITAGE_MEDIAN.laneOffsetsEstimatedMetres,
+                             DANDALOO_HERITAGE_MEDIAN.laneOffsetsEstimatedMetres]:[0];
+ for(const offset of offsets){
+   const nx=(bz-az)/len,nz=-(bx-ax)/len;
+   const x0=ax+nx*offset,z0=az+nz*offset,x1=bx+nx*offset,z1=bz+nz*offset;
+   const pad=s.width/2+0.5;
+   for(let cx=Math.floor((Math.min(x0,x1)-pad)/CELL);cx<=Math.floor((Math.max(x0,x1)+pad)/CELL);cx++)
+    for(let cz=Math.floor((Math.min(z0,z1)-pad)/CELL);cz<=Math.floor((Math.max(z0,z1)+pad)/CELL);cz++){
+      const k=key(cx,cz);if(!grid.has(k))grid.set(k,[]);
+      grid.get(k).push({ax:x0,az:z0,bx:x1,bz:z1,half:pad,source:s.source});
     }
+ }
 }
 const segDist = (x, z, s) => { const dx = s.bx - s.ax, dz = s.bz - s.az, l = dx * dx + dz * dz || 1, t = Math.max(0, Math.min(1, ((x - s.ax) * dx + (z - s.az) * dz) / l)); return Math.hypot(x - s.ax - t * dx, z - s.az - t * dz); };
 export const onTownStreet = (x, z) => (grid.get(key(Math.floor(x / CELL), Math.floor(z / CELL))) || []).some((s) => segDist(x, z, s) <= s.half);
@@ -74,11 +101,32 @@ const FACTS = {
   'Tom Perry Park': 'Home of a Glenn McGrath statue. (Wikipedia)',
 };
 const KIND_LABEL = (k) => String(k || 'place').replace(/_/g, ' ').replace(/^\w/, (c) => c.toUpperCase());
-export const PLACES = Object.freeze(OSM.places.map((p) => {
-  const name = NAME_FIX[p.name] || p.name, [x, z] = toWorld([p.x, p.z]);
-  const address = p.number && p.street ? `${p.number} ${p.street}` : p.street;
-  return Object.freeze({ name, kind: p.kind, kindLabel: KIND_LABEL(p.kind), address, x, z, fact: FACTS[name] || '' });
-}));
+// Dated OSM named places remain available where government address data has
+// not confirmed them. Replace official-match names/positions with NSW GURAS
+// property coordinates, especially Coles (directory 76 vs older OSM 82).
+const aliases=new Map([
+ ['coles','Coles'],['narromine post office','Narromine Post Office'],
+ ['macquarie regional library','Narromine Library & Local History Room'],
+ ['narromine health centre','Narromine Health Service'],
+ ['zest','Zest by Modern Foodie'],['narromine hotel','Narromine Hotel'],
+ ['royal hotel','Royal Hotel'],['imperial hotel','Imperial Hotel'],
+ ['vinnies','Vinnies'],['narromine pharmacy','Narromine Pharmacy'],
+ ['macquarie clothing','Macquarie Clothing'],['the abbey','The Abbey']
+]);
+const currentNames=new Set(NSW_PUBLIC_PLACES.map(p=>p.name.toLowerCase()));
+const datedOSM=OSM.places.map(p=>{
+ const name=NAME_FIX[p.name]||p.name,[x,z]=toWorld([p.x,p.z]);
+ const address=p.number&&p.street?`${p.number} ${p.street}`:p.street;
+ return {name,kind:p.kind,kindLabel:KIND_LABEL(p.kind),address,x,z,fact:FACTS[name]||'',
+   provenance:'OpenStreetMap dated 2026-11-03, current operating status unverified'};
+}).filter(p=>!currentNames.has((aliases.get(p.name.toLowerCase())||p.name).toLowerCase()));
+export const PLACES=Object.freeze([
+ ...datedOSM,
+ ...NSW_PUBLIC_PLACES.map(p=>Object.freeze({...p,
+   kindLabel:KIND_LABEL(p.kind),address:p.address.replace(/ NARROMINE$/,''),
+   fact:FACTS[p.name]||p.fact,
+   provenance:'NSW government GURAS property-address point and public visitor directory, current trade status unverified'}))
+]);
 
 // Arrival: the Royal Hotel's footpath on Dandaloo Street (search "Narromine" lands here).
 const royal = PLACES.find((p) => p.name === 'Royal Hotel');
@@ -124,36 +172,11 @@ const footprint = (cx, cz, w, d, yaw) => { const c = Math.cos(yaw), s = Math.sin
 const overlapsPlaced = (r) => placed.some((q) => r.x0 < q.x1 && r.x1 > q.x0 && r.z0 < q.z1 && r.z1 > q.z0);
 const clearOfStreets = (r) => { for (let x = r.x0; x <= r.x1; x += 2) for (let z = r.z0; z <= r.z1; z += 2) if (nearTownStreet(x, z, 1.5)) return false; return true; };
 
-export const FILL_SHOPS = Object.freeze(PLACES.flatMap((p) => {
-  if (BUILDING_CENTRES.some((b) => inPoly(p.x, p.z, b.pts)) || nearMapped(p.x, p.z, 4) || inArea(p.x, p.z)) return [];
-  const n = nearestSegment(p.x, p.z); if (!n || n.d > 45) return [];
-  // Front on the property line: half the road, a 3 m footpath, then the shop 14 deep behind it.
-  const nx = (p.x - n.px) / (n.d || 1), nz = (p.z - n.pz) / (n.d || 1), set = n.s.width / 2 + 3 + 7;
-  const cx = n.px + nx * set, cz = n.pz + nz * set, yaw = -n.angle, r = footprint(cx, cz, 10, 14, yaw);
-  if (overlapsPlaced(r) || !clearOfStreets(r)) return [];
-  placed.push(r);
-  return [Object.freeze({ generic: true, name: p.name, kind: p.kind, x: cx, z: cz, w: 10, d: 14, yaw, front: Object.freeze([n.px + nx * (n.s.width / 2 + 1.5), n.pz + nz * (n.s.width / 2 + 1.5)]), rect: Object.freeze(r) })];
-}));
-
-export const FILL_HOUSES = Object.freeze((() => {
-  const out = [];
-  for (const s of STREETS) {
-    if (!/^(residential|unclassified|living_street)$/.test(s.kind)) continue;
-    for (let i = 1; i < s.pts.length; i++) {
-      const [ax, az] = s.pts[i - 1], [bx, bz] = s.pts[i], len = Math.hypot(bx - ax, bz - az); if (len < 24) continue;
-      const ux = (bx - ax) / len, uz = (bz - az) / len, angle = Math.atan2(bz - az, bx - ax);
-      for (let t = 12; t < len - 10; t += 21) for (const side of [-1, 1]) {
-        const set = s.width / 2 + 3 + 11, cx = ax + ux * t - uz * side * set, cz = az + uz * t + ux * side * set;
-        if (cx < REGION.x0 + 20 || cx > REGION.x1 - 20 || cz < REGION.z0 + 20 || cz > REGION.z1 - 20) continue;
-        const r = footprint(cx, cz, 11, 10, -angle);
-        if (nearMapped(cx, cz, 8) || inArea(cx, cz) || PLACES.some((p) => Math.hypot(p.x - cx, p.z - cz) < 20) || overlapsPlaced(r) || !clearOfStreets(r)) continue;
-        placed.push(r);
-        out.push(Object.freeze({ generic: true, x: cx, z: cz, w: 11, d: 10, yaw: -angle, rect: Object.freeze(r), tone: (Math.abs(Math.round(cx * 7 + cz * 13)) % 5) }));
-      }
-    }
-  }
-  return out;
-})());
+// Fidelity contract: do not fabricate shop buildings or private houses where
+// building outlines are missing. Only actual OSM geometry and NSW address/lot
+// references may be shown. Unmapped buildings are a documented research gap.
+export const FILL_SHOPS=Object.freeze([]);
+export const FILL_HOUSES=Object.freeze([]);
 
 // Main-street frontages of mapped buildings: the outline edge facing a through street within
 // 14 m gets a veranda; a named place inside the outline names it. Map-derived, not surveyed.
