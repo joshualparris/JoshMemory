@@ -333,3 +333,24 @@ Results go into `src/world/narromine-lidar-data.js`, keyed to every OSM building
 - Parts under about 15 m² (the Royal's lean-to) have too few points and keep their traced heights.
 - Where traced parts overlap a taller neighbour, the neighbour's roof can lift the percentiles.
 - Facades, colours and materials still come from photos; LiDAR gives only heights and roof shape.
+
+## St Mary's Anglican Church (148 Dandaloo Street)
+
+**Source:** the Churches Australia directory, transcribing the stones.
+- Foundation stone laid 22 May 1929 by Bishop Horace Crotty (K D Norman, Rector).
+- Opened 16 July 1933.
+- A further stone laid 27 October 1959 by Bishop K Leslie.
+
+**Lot 86 correction:** OpenStreetMap labels a point at 86 Dandaloo Street "Anglican Church". It is now shown as "Church (86 Dandaloo Street, denomination unverified)" until confirmed.
+
+**Geometry is measured from the 2023 LiDAR point cloud, not traced from the aerial.** The 2012 aerial shows this tall roof leaning about 4 m north because of the camera angle.
+- **Nave:** 24 × 11 m, eaves about 4.5 m. The gable ridge is 9.6 m and level along its whole length, so the ends are gables, not hips.
+- **North transept:** gable ridge 8.3 m.
+- **North lean-to:** about 4.2 m.
+- **Hall:** 27 × 8.6 m, eaves about 3.5 m, ridge about 6.3 m.
+- **Roof colour:** weathered tile, from the aerial.
+
+**Assumed until photographs arrive:**
+- face-brick walls;
+- the hall's cladding;
+- the windows, doors, porch and any cross or belfry.

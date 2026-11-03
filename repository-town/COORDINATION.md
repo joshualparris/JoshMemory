@@ -636,3 +636,6 @@ Historical scope: Codex; branch feat/pub-cellar-upper-20261026; baseline f81da76
 
 ## 2026-11-04 — Narromine building heights from LiDAR (Claude, claude/narromine-lidar)
 - New tools/narromine_lidar.py and generated src/world/narromine-lidar-data.js (NSW Spatial Services LiDAR, CC BY 4.0; raw LAZ not committed). Touched src/world/narromine-layout.js (attach heights), src/world/narromine.js (measured wall height/pitch/verandah height; features scaled), tests/narromine-layout.mjs (LiDAR checks). All Narromine/Post Office suites pass.
+
+## 2026-11-04 — St Mary's Anglican Church from LiDAR (Claude, claude/narromine-church)
+- New detailed building st-marys-anglican (148 Dandaloo) measured from LiDAR; builder accepts exact wall/ridge heights (ridgeH), roof colour and gable-end colour; lot 86 church relabelled "denomination unverified"; St Mary's added as a sourced place. Touched src/world/narromine.js, narromine-layout.js, narromine-buildings-data.js, narromine-lidar-data.js, docs.
