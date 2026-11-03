@@ -180,7 +180,7 @@ export function buildNarromine(parent, makeLabel = null) {
   };
   // Coles: a proper two-plane pitched roof with bright triangular gable ends,
   // unlike the old generic flat/shallow shed volumes. Ridge runs along quad edge 0→1.
-  const gableRoof = (c, pts, wallH, pitch = 0.23, gableColour = 0xf2f0eb) => {
+  const gableRoof = (c, pts, wallH, pitch = 0.23, gableColour = 0xf2f0eb, trim = null) => {
     const { L, W: w, cx, cz, yaw } = frame(pts), y1 = wallH + w * 0.5 * Math.tan(pitch);
     const xl = -L / 2, xr = L / 2, zn = -w / 2, zs = w / 2, y0 = wallH;
     const roofVerts = [
@@ -195,6 +195,17 @@ export function buildNarromine(parent, makeLabel = null) {
       const geo = new THREE.BufferGeometry();
       geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
       geo.rotateY(yaw); geo.translate(cx, 0, cz); geo.computeVertexNormals(); push(colour, geo);
+    }
+    if (!trim) return;
+    // Painted bargeboards on each gable end (and optional cross finials at the apex), in the roof's local frame.
+    const local = (g, x, y, z) => { g.translate(x, y, z); g.rotateY(yaw); g.translate(cx, 0, cz); return g; };
+    const rise = y1 - y0, slope = Math.hypot(w / 2, rise), a = Math.atan2(rise, w / 2);
+    for (const [end, ox] of [[xl, -0.06], [xr, 0.06]]) {
+      for (const sgn of [-1, 1]) { const g = new THREE.BoxGeometry(0.1, 0.3, slope + 0.35); g.rotateX(sgn * a); push(trim.barge ?? 0xf4f2ec, local(g, end + ox, (y0 + y1) / 2 + 0.05, sgn * w / 4)); }
+      if (trim.cross?.includes(end === xl ? 'start' : 'end')) {
+        push(trim.crossColour ?? 0xd9d2c4, local(new THREE.BoxGeometry(0.12, 1.0, 0.12), end + ox, y1 + 0.55, 0));
+        push(trim.crossColour ?? 0xd9d2c4, local(new THREE.BoxGeometry(0.12, 0.12, 0.55), end + ox, y1 + 0.75, 0));
+      }
     }
   };
   // Wall features placed along one edge of a part, from street photos: t runs 0..1 from pts[edge[0]]
@@ -225,7 +236,18 @@ export function buildNarromine(parent, makeLabel = null) {
     if (F.kind === 'window') { const [x, z] = e.at(t, 0.07), h = F.y[1] - F.y[0], w = F.w || 1.0;
       placeBox(0xf4f4f0, w + 0.2, h + 0.2, 0.08, x, F.y[0] + h / 2, z, e.yaw); const [gx, gz] = e.at(t, 0.1); placeBox(0x9fb3c2, w, h, 0.06, gx, F.y[0] + h / 2, gz, e.yaw);
       if (F.ac) { const [ax, az] = e.at(t, 0.35); placeBox(0xe6e6e2, w * 0.7, 0.45, 0.6, ax, F.y[1] - 0.35, az, e.yaw); } }
-    if (F.kind === 'pier') { const [x, z] = e.at(t, F.out ?? 0.15), h = F.y[1] - F.y[0]; placeBox(0xbdb6ad, F.w || 0.55, h, F.w || 0.55, x, F.y[0] + h / 2, z, e.yaw); }
+    if (F.kind === 'pier') { const [x, z] = e.at(t, F.out ?? 0.15), h = F.y[1] - F.y[0]; placeBox(F.colour ?? 0xbdb6ad, F.w || 0.55, h, F.d || F.w || 0.55, x, F.y[0] + h / 2, z, e.yaw); }
+    // Pointed (Gothic) openings: lancet windows and arched doors, a surround then the glass/leaf.
+    if (F.kind === 'lancet' || F.kind === 'archdoor') {
+      const door = F.kind === 'archdoor', w = F.w ?? (door ? 1.3 : 0.5), h = F.y[1] - F.y[0], peak = w * (door ? 0.45 : 0.75);
+      const shape = (ww, hh, pk) => { const sh = new THREE.Shape(); sh.moveTo(-ww / 2, 0); sh.lineTo(ww / 2, 0); sh.lineTo(ww / 2, hh);
+        sh.quadraticCurveTo(ww / 2, hh + pk * 0.75, 0, hh + pk); sh.quadraticCurveTo(-ww / 2, hh + pk * 0.75, -ww / 2, hh); return sh; };
+      const ts = Array.isArray(t) ? t : [t];
+      for (const tt of ts) for (const [ww, hh, pk, colour, out] of [[w + 0.24, h + 0.06, peak + 0.12, F.surround ?? 0xc9a27e, 0.05], [w, h, peak, door ? (F.colour ?? 0xa8262c) : (F.colour ?? 0x2b3a44), 0.09]]) {
+        const g = new THREE.ShapeGeometry(shape(ww, hh, pk), 6), [x, z] = e.at(tt, out);
+        g.rotateY(e.face); g.translate(x, F.y[0] - (ww - w) / 2 * 0, z); push(colour, g);
+      }
+    }
     if (F.kind === 'sign' && typeof document !== 'undefined') {
       const tex = boardTexture(F.text, { bg: F.bg, fg: F.fg, border: F.bg, w: F.px || 1024, h: Math.round((F.px || 1024) * F.h / F.w) });
       if (F.blade) { const [x, z] = e.at(t, F.out); box(F.bgHex, 0.12, F.h, F.w, x, F.y, z, e.yaw + Math.PI / 2);
@@ -254,7 +276,7 @@ export function buildNarromine(parent, makeLabel = null) {
       if (p.mast) { box(0xb0b2b4, 0.1, 4, 0.1, f.cx, wallH + 2, f.cz); box(0xb0b2b4, 1.4, 0.06, 0.06, f.cx, wallH + 3.4, f.cz); }
       const RC = p.roofColour ?? ROOF;
       if (p.roof === 'hip') hipRoof(RC, p.pts, wallH, pitch);
-      else if (p.roof === 'gable') gableRoof(RC, p.pts, wallH, pitch, p.wallColour);
+      else if (p.roof === 'gable') gableRoof(RC, p.pts, wallH, pitch, p.gableColour ?? p.wallColour, p.trim);
       else box(RC, f.L + 0.4, 0.1, f.W + 0.4, f.cx, wallH + 0.1, f.cz, f.yaw);
       if (p.storeys === 2 && !p.features) for (const side of [-1, 1]) for (let t = -f.L / 2 + 1.5; t < f.L / 2 - 1; t += 3) { // upper-floor windows on the long faces
         const ox = Math.cos(-f.yaw) * t - Math.sin(-f.yaw) * side * (f.W / 2 + 0.03), oz = Math.sin(-f.yaw) * t + Math.cos(-f.yaw) * side * (f.W / 2 + 0.03);
@@ -316,6 +338,27 @@ export function buildNarromine(parent, makeLabel = null) {
         for (let k = 0; k < 14; k++) { const a = k / 14 * Math.PI * 2, g = new THREE.BoxGeometry(3.4, 0.06, 0.55); g.translate(1.7, 0, 0); g.rotateZ(-0.35 - (k % 2) * 0.25); g.rotateY(a); g.translate(x, h, z); push(0x4f6b32, g); } }
       if (pr.kind === 'statue') { const [x, z] = pr.at; box(0x9e9b95, 1.0, 0.9, 1.0, x, 0.45, z); box(0xdedbd4, 0.5, 0.55, 0.6, x, 1.18, z); box(0xdedbd4, 0.42, 0.5, 0.35, x, 1.6, z - 0.08); const g = new THREE.SphereGeometry(0.2, 8, 6); g.translate(x, 2.0, z - 0.08); push(0xdedbd4, g); colliders.push({ x0: x - 0.5, x1: x + 0.5, z0: z - 0.5, z1: z + 0.5 }); }   // median statue; small so lanes stay clear
       if (pr.kind === 'redbays') flatPoly(0xb3262b, pr.pts, 0.07);
+      // Octagonal brick bellcote with a little tiled cap and cross, seated on a roof at height y.
+      if (pr.kind === 'bellcote') { const [x, z] = pr.at, y = pr.y;
+        const b = new THREE.CylinderGeometry(0.55, 0.6, 0.9, 8); b.translate(x, y + 0.45, z); push(0xa65a40, b);
+        const o = new THREE.CylinderGeometry(0.42, 0.42, 0.55, 8, 1, true); o.translate(x, y + 1.18, z); push(0x2a2522, o);
+        for (let k = 0; k < 4; k++) { const a = k * Math.PI / 2 + Math.PI / 8; box(0xa65a40, 0.14, 0.55, 0.14, x + Math.cos(a) * 0.48, y + 1.18, z + Math.sin(a) * 0.48); }
+        const c = new THREE.ConeGeometry(0.72, 0.6, 8); c.translate(x, y + 1.75, z); push(0xb5603f, c);
+        box(0xd9d2c4, 0.08, 0.6, 0.08, x, y + 2.3, z); box(0xd9d2c4, 0.34, 0.08, 0.08, x, y + 2.4, z); }
+      if (pr.kind === 'cooler') { const [x, z] = pr.at; box(0xdcdcd6, 1.1, 0.9, 1.1, x, pr.y + 0.45, z); box(0xc4c4be, 0.5, 0.35, 0.5, x, pr.y + 1.05, z); }
+      if (pr.kind === 'shed') { const f = frame(pr.pts); box(0xb9c3c9, f.L, 2.1, f.W, f.cx, 1.05, f.cz, f.yaw); box(0xa3adb3, f.L + 0.15, 0.08, f.W + 0.15, f.cx, 2.15, f.cz, f.yaw); colliders.push(polyRect(pr.pts)); }
+      // Low capped block wall with piers along a run a→b; 'gaps' are [t0,t1] fractions left open (gates, paths).
+      if (pr.kind === 'blockwall') { const [ax, az] = pr.a, [bx, bz] = pr.b, l = Math.hypot(bx - ax, bz - az), yw = -Math.atan2(bz - az, bx - ax), h = pr.h ?? 0.85;
+        const open = (q) => (pr.gaps || []).some(([g0, g1]) => q > g0 && q < g1), n = Math.max(1, Math.round(l / 0.5));
+        let start = null;
+        const flush = (q) => { if (start === null) return; const t0 = start, t1 = q, mx = ax + (bx - ax) * (t0 + t1) / 2, mz = az + (bz - az) * (t0 + t1) / 2, len = l * (t1 - t0);
+          placeBox(pr.colour ?? 0xc9a985, len, h, 0.3, mx, h / 2, mz, yw); placeBox(0xb89a78, len, 0.08, 0.38, mx, h + 0.04, mz, yw);
+          const xa = ax + (bx - ax) * t0, za = az + (bz - az) * t0, xb = ax + (bx - ax) * t1, zb = az + (bz - az) * t1;
+          // Colliders in ~1 m pieces so a slanted wall never blocks a whole axis-aligned rectangle.
+          const k = Math.max(1, Math.ceil(len)); for (let j = 0; j < k; j++) { const p0x = xa + (xb - xa) * j / k, p0z = za + (zb - za) * j / k, p1x = xa + (xb - xa) * (j + 1) / k, p1z = za + (zb - za) * (j + 1) / k;
+            colliders.push({ x0: Math.min(p0x, p1x) - 0.15, x1: Math.max(p0x, p1x) + 0.15, z0: Math.min(p0z, p1z) - 0.15, z1: Math.max(p0z, p1z) + 0.15 }); } start = null; };
+        for (let i = 0; i <= n; i++) { const q = i / n; if (open(q) || i === n) { if (i === n && !open(q) && start === null) start = q; flush(q); } else if (start === null) start = q; }
+        for (let k = 0; k <= Math.floor(l / 3.2); k++) { const q = k * 3.2 / l; if (!open(q)) box(pr.colour ?? 0xc9a985, 0.45, h + 0.25, 0.45, ax + (bx - ax) * q, (h + 0.25) / 2, az + (bz - az) * q); } }
       if (pr.kind === 'planter') { const f = frame(pr.pts); box(0x9c8f7c, f.L, 0.45, f.W, f.cx, 0.22, f.cz, f.yaw); box(0x5f8a3f, f.L - 0.2, 0.08, f.W - 0.2, f.cx, 0.47, f.cz, f.yaw); }
     }
     for (const [tx, tz] of d.trees) { box(0x8f8577, 0.5, 4, 0.5, tx, 2, tz); const g3 = new THREE.SphereGeometry(4.2, 8, 6); g3.scale(1, 0.7, 1); g3.translate(tx, 6.5, tz); push(0x5d7d43, g3); }

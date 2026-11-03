@@ -639,3 +639,6 @@ Historical scope: Codex; branch feat/pub-cellar-upper-20261026; baseline f81da76
 
 ## 2026-11-04 — St Mary's Anglican Church from LiDAR (Claude, claude/narromine-church)
 - New detailed building st-marys-anglican (148 Dandaloo) measured from LiDAR; builder accepts exact wall/ridge heights (ridgeH), roof colour and gable-end colour; lot 86 church relabelled "denomination unverified"; St Mary's added as a sourced place. Touched src/world/narromine.js, narromine-layout.js, narromine-buildings-data.js, narromine-lidar-data.js, docs.
+
+## 2026-11-04 — St Mary's Anglican Church exterior detail + walk-in nave (Claude, claude/narromine-st-marys)
+- New src/world/narromine-st-marys.js (interior, porch entrance) and tests/narromine-st-marys-browser.mjs (added to test:browser). main.js: enterStMarys, door trigger, leave/return pose, save/restore, search "St Mary's" / "148 Dandaloo", __town.stMarysEntrance. narromine.js builder: lancet/archdoor features, bargeboards + cross finials, bellcote, cooler, shed, blockwall (segmented colliders, gates). All Narromine/Post Office suites pass.

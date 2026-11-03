@@ -354,3 +354,31 @@ Results go into `src/world/narromine-lidar-data.js`, keyed to every OSM building
 - face-brick walls;
 - the hall's cladding;
 - the windows, doors, porch and any cross or belfry.
+
+### St Mary's: photographed exterior and walk-in nave
+Josh supplied 15 Google Street View frames and five published photographs, including one of the sanctuary. They are a visual reference only and are not committed.
+
+**Exterior (all positions from the LiDAR):**
+- red face-brick Arts & Crafts Gothic;
+- weathered tile roofs with white bargeboards and cross finials;
+- a five-light east window and corner buttresses on Dandaloo Street;
+- a north transept gable with a triple lancet and a red pointed door;
+- a low hipped terracotta porch with an octagonal bellcote and red arched doors;
+- paired lancets along the nave;
+- a white weatherboard hall with an evaporative cooler;
+- two Colorbond sheds;
+- the low buff block boundary wall with piers and gates on three sides;
+- a noticeboard at the corner.
+
+**Interior** (`src/world/narromine-st-marys.js`; entered by walking to the porch doors):
+- **Follows the photograph:** the pointed chancel arch with a maroon painted band and lettering, the five-light stained-glass east window with roundels, the open dark timber roof with trusses, the patterned encaustic tiles, the timber pews in two blocks, the altar with a green frontal, cross and candles, and the communion rail.
+- **Interpretive:**
+  - the glass subjects (simplified, not copied);
+  - the full inscription (reconstructed as "Glory to God in the highest");
+  - the pulpit, lectern, hymn board, font and chair positions;
+  - the interior floor length (the nave is drawn as one room).
+- **History plaque:** foundation stone 22 May 1929; opened 16 July 1933; further stone 27 October 1959.
+
+**Not modelled:** the brick building with red Colorbond trim by the west lane. It stands outside the 148 cadastre lot and is not identified.
+
+**Test:** `tests/narromine-st-marys-browser.mjs` (in `test:browser`).
