@@ -43,7 +43,8 @@ try{
   assert.equal(allocated.sunlight.shadowMapSize,device==='android'?512:1024,device+': GPU shadow texture allocated');
   await page.screenshot({path:'artifacts/sun-'+device+'-summer.png'});
   const winter=await setDate(239,12*60);
-  assert(winter.elevation>31&&winter.elevation<38,device+': winter sun much lower');
+  console.log(device+' seasonal browser sun:',JSON.stringify({summer:{day:summer.gameDay,minute:summer.gameMinute,el:summer.elevation,az:summer.azimuth},winter:{day:winter.gameDay,minute:winter.gameMinute,el:winter.elevation,az:winter.azimuth},state:await page.evaluate(()=>({day:window.__town.state().day,minute:window.__town.state().minute,date:window.__town.state().isoDate}))}));
+  assert(winter.elevation>31&&winter.elevation<38,device+': winter sun much lower '+winter.elevation);
   assert(winter.azimuth<30||winter.azimuth>330,device+': winter midday sun to north');
   assert(winter.sunlight.casting,device+': winter shadows enabled');
   await page.screenshot({path:'artifacts/sun-'+device+'-winter.png'});
