@@ -24,6 +24,8 @@ import { Player } from './engine/player.js';
 import { loadSave, writeSave, clearSave } from './engine/save.js';
 import { discoveryProgress } from './ui/discovery-log.js';
 import { buildTown, streetSigns, lotPosition } from './world/town.js';
+import { buildNarromineRegion } from './world/narromine-region.js';
+import { NARROMINE_LANDMARKS, NARROMINE_ROADS, nearestNarromineLandmark, inNarromine } from './world/narromine-location.js';
 import { buildYeovalInterior } from './world/yeoval-interior.js';
 import { buildMasterplan, PLAN_HOMES } from './world/masterplan-built.js';
 import { RESIDENT_STYLES } from './world/resident-models.js';
@@ -157,6 +159,9 @@ async function start() {
   scene.add(sky);
 
   const town = buildTown(scene, houses, data.streets);
+  // Narromine is a separate compressed regional destination attached to the
+  // same outdoor scene: it inherits existing cars, clock, save and lighting.
+  const narromine = buildNarromineRegion(town.group, makeLabel);
   // Indoors, the town is drawn first from the matching spot in the street, then the rooms on
   // top; it shows through the windows (and the open front door) and nowhere else.
   const outdoorCam = camera.clone(), roomBackground = scene.background;
@@ -292,10 +297,10 @@ async function start() {
   const edges = [
     // Include all 195 homes west to x -1330, and Grevillea Street at z 457.
     // Boundaries lie beyond the drawn footpaths and extended terrain.
-    { x0: -1495, x1: 595, z0: -395, z1: -390 }, { x0: -1495, x1: 595, z0: 555, z1: 560 },
-    { x0: -1495, x1: -1490, z0: -395, z1: 560 }, { x0: 590, x1: 595, z0: -395, z1: 560 },
+    { x0: -2965, x1: 595, z0: -395, z1: -390 }, { x0: -2965, x1: 595, z0: 555, z1: 560 },
+    { x0: -2965, x1: -2960, z0: -395, z1: 560 }, { x0: 590, x1: 595, z0: -395, z1: 560 },
   ];
-  const townWorld = new CollisionWorld([...town.colliders, ...townLife.colliders, ...masterplan.colliders, ...civilWorks.colliders, ...woodlot.colliders, ...market.colliders, ...edges]);
+  const townWorld = new CollisionWorld([...town.colliders, ...townLife.colliders, ...masterplan.colliders, ...civilWorks.colliders, ...woodlot.colliders, ...market.colliders, ...narromine.colliders, ...edges]);
   // Dynamic vehicle footprints block player motion as well as truck movement.
   // A vehicle is approx 2.2m wide and 6.6m long; use a conservative
   // rotated-axis AABB for the town's existing 2D collision engine.
@@ -374,6 +379,7 @@ async function start() {
   let interactionRequest = 0;
 
   let mode = 'town', inside = null, world = townWorld, overview = false;
+  let narromineArrival = false;
   const yarns=mountTownYarns({life,player,onOpen:()=>{input.releaseMouse();input.reset();npcChat.close();$('npc-roster').hidden=true;if(panelOpen)closePanel();}});
   const active = new Set();
   const visited = new Set();
@@ -1210,6 +1216,16 @@ async function start() {
     if (carried) { putDown(); return; }
     if(driving.driving){status(driving.exit());return;}
     if(mode==='town'&&nearCar){status(driving.enter(nearCar));return;}
+    if(mode==='town' && !driving.driving){
+      const regionalSite=nearestNarromineLandmark(player.pos,6.5);
+      if(regionalSite){
+        input.releaseMouse();
+        openPanel({title:regionalSite.name,
+          body:'<p>'+esc(regionalSite.summary)+'</p><p class="dim">Game positions and route distances are compressed, fictional and not surveyed. These are interpretive exteriors, not reproductions of current businesses or service hours.</p><p><a target="_blank" rel="noopener noreferrer" href="'+esc(regionalSite.source)+'">Local source and visitor details</a></p>',
+          actions:[]},guideSpot);
+        return;
+      }
+    }
     if(player.seated){
       if(player.stand(world))status('You stand up.');
       else status('There is no clear space to stand. Move the furniture or try again.');
@@ -1547,6 +1563,11 @@ async function start() {
       // Jump, run and crouch do nothing in a vehicle: show ✋ and 🎥 only, clear of the minimap.
       $('t-view').hidden=!driving.driving; for(const id of ['t-jump','t-run','t-crouch'])$(id).hidden=driving.driving;
       if(mode==='town'&&driving.driving){ driving.update(dt); if(driving.message){ status(driving.message); driving.clearMessage(); } }
+      if(mode==='town' && driving.driving){
+        const arrived=inNarromine(player.pos.x,player.pos.z);
+        if(arrived&&!narromineArrival)status('Welcome to Narromine NSW — slow down, park and explore the town on foot.');
+        narromineArrival=arrived;
+      }
       else {
         if (mode === 'town' && !overview) for (const tap of input.takeTaps()) tapWalk(tap.x, tap.y); else input.takeTaps();
         stepAutoWalk(dt);
@@ -1773,6 +1794,12 @@ async function start() {
         $('prompt').textContent=`${input.touch?'Tap ✋':'Press E'} — ${label}`;
       }
       else if (nearHouse) $('prompt').textContent = `${nearHouse.house.address} · ${nearHouse.house.name} — walk through the door to enter`;
+      // Regional attractions use an actual on-foot action, not a fake map pin.
+      const regionalSite=!driving.driving&&!overview?nearestNarromineLandmark(player.pos,6.5):null;
+      if(regionalSite){
+        $('prompt').hidden=!!panelOpen||npcChat.isOpen()||expedition.isOpen();
+        $('prompt').textContent=`${input.touch?'Tap ✋':'Press E'} — Explore ${regionalSite.name}`;
+      }
       if (input.consume('use')) use();
     } else {
       // Inside doors swing open for the player and for residents walking through them.
@@ -1916,7 +1943,7 @@ async function start() {
     travel,
     state: () => ({
       workplay:life.civic.workplay||null,
-      mode, sleeping, driving: driving.activeVehicle()?.registration||null, nearbyVehicle:nearCar?.registration||null, seated: player.seated ? {key:player.seated.key,label:player.seated.label} : null,
+      mode, region:inNarromine(player.pos.x,player.pos.z)?'Narromine':'Repository Town', sleeping, driving: driving.activeVehicle()?.registration||null, nearbyVehicle:nearCar?.registration||null, seated: player.seated ? {key:player.seated.key,label:player.seated.label} : null,
       seats: mode==='house' ? (inside?.seats||[]).map(x=>({key:x.key,type:x.type,label:x.label,pos:x.pos,room:x.room})) : townLife.seats.map(x=>({key:x.key,type:x.type,label:x.label,pos:x.pos})),
       levelName:inside?.levelName||inside?.floors?.titles?.[inside.floorIndex]||'Ground floor',floorElevation:inside?.group.position.y||0,coordinate: inside?.house.coordinate || null, floor: inside?.floorIndex || 0, windows: inside?.windows?.length || 0, floors: inside?.floors?.levels.length || 1, pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, eye: player.eye, y: player.y, fps,
       rooms: inside?.rooms.length || 0, props: inside?.placedProps.length || 0,
@@ -1992,6 +2019,9 @@ async function start() {
     market:()=>({standing:market.root.visible,spots:market.spots.map(s=>({key:s.key,x:s.pos.x,z:s.pos.z,label:s.label}))}),
     roadSigns:()=>roadSigns.signs.map(({type,x,z,yaw})=>({type,x,z,yaw})),
     driveHeadlights:()=>driving.headlightStatus(),
+    regionalRoads:()=>NARROMINE_ROADS.map(r=>({...r})),
+    narromineSites:()=>NARROMINE_LANDMARKS.map(s=>({id:s.id,name:s.name,x:s.x,z:s.z})),
+    regionAt:(x,z)=>inNarromine(x,z),
     carePopulation:(id='bracken-house')=>({residents:careResidents(id).length,onDuty:careOnDuty(id,life.day,life.minute),metrics:careDailyMetrics(id,life.day),staffHousing:careHousing.staffHoused,homes:careHousing.houses.size}),
     soundscape:()=>({track:ambience.debug.track,selectedTrack:ambience.selectedTrack,vehicle:ambience.debug.vehicle}),
     estateLights:()=>({count:masterplan.lampPositions.length,sourceCount:town.streetLighting.sourceCount,visible:masterplan.lampHeads.material.emissiveIntensity>0}),
