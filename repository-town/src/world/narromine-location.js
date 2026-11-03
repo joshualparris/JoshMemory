@@ -4,11 +4,12 @@
 // NSW Spatial Services (CC BY) attribution retained in source and visitor panels.
 import {NARROMINE_CENTERLINES,NARROMINE_GEO_ORIGIN,NARROMINE_GEO_BOUNDS,
   geoToNarromine,narromineToGeo,NARROMINE_ROAD_SOURCE} from './narromine-geodata.js';
+import {NARROMINE_PUBLIC_LOTS,NARROMINE_CADASTRE_SOURCE,NARROMINE_LOT_GAPS} from './narromine-public-lots.js';
 import {NARROMINE_PUBLIC_GEOCODES,NARROMINE_UNLOCATED_SITES,
   NARROMINE_ADDRESS_SOURCE} from './narromine-public-geocodes.js';
 export {NARROMINE_CENTERLINES,NARROMINE_GEO_ORIGIN,NARROMINE_GEO_BOUNDS,
   geoToNarromine,narromineToGeo,NARROMINE_ROAD_SOURCE,NARROMINE_ADDRESS_SOURCE,
-  NARROMINE_UNLOCATED_SITES};
+  NARROMINE_UNLOCATED_SITES,NARROMINE_PUBLIC_LOTS,NARROMINE_CADASTRE_SOURCE,NARROMINE_LOT_GAPS};
 
 export const NARROMINE_REAL=Object.freeze({
  name:'Narromine',state:'NSW',postcode:'2821',traditionalCountry:'Wiradjuri Country',
@@ -112,6 +113,7 @@ const addressStreet=a=>a.includes('DANDALOO STREET')?'DANDALOO ST'
  :a.includes('BURRAWAY STREET')?'BURRAWAY ST'
  :a.includes('NYMAGEE STREET')?'NYMAGEE ST'
  :a.includes('CATHUNDRIL STREET')?'CATHUNDRIL ST':'';
+const lotsBySite=new Map(NARROMINE_PUBLIC_LOTS.map(l=>[l.id,l]));
 function makeLandmark(item){
  const anchor=geoToNarromine(item.coordinates[0],item.coordinates[1]);
  const road=nearestRegionalRoad(anchor.x,anchor.z,addressStreet(item.address));
@@ -124,14 +126,19 @@ function makeLandmark(item){
  const normal=len>.4?{x:nx/len,z:nz/len}:{x:v.dz/Math.hypot(v.dx,v.dz),z:-v.dx/Math.hypot(v.dx,v.dz)};
  const roadSpace=isMedianRoad(v.road)?12:Math.max(4.5,v.road.width/2+2.0);
  const x=v.x+normal.x*roadSpace,z=v.z+normal.z*roadSpace;
+ const lot=lotsBySite.get(item.id);
+ const parcelPolygon=lot?lot.polygon.map(([longitude,latitude])=>{
+  const p=geoToNarromine(longitude,latitude);return [+(p.x.toFixed(2)),+(p.z.toFixed(2))];
+ }):null;
  return Object.freeze({...item,
+  parcelPolygon,officialLotId:lot?.nswLotId||null,
   x:+x.toFixed(2),z:+z.toFixed(2),
   buildingX:+anchor.x.toFixed(2),buildingZ:+anchor.z.toFixed(2),
   addressX:+anchor.x.toFixed(2),addressZ:+anchor.z.toFixed(2),
   buildingFacing:Math.atan2(v.dx,v.dz),colour:colours[item.kind]||0xbca98d,
   w:item.id==='coles-square'?31:14,d:item.id==='coles-square'?21:11,
   h:['hotel','heritage-hotel','heritage'].includes(item.kind)?6.9:5.1,
-  summary:item.name+' · '+item.address.replace(' NARROMINE','')+', Narromine NSW 2821. Official NSW property-address position; the low-poly facade, entrance and dimensions are still estimates, not an exact surveyed building. Business listings may change.',
+  summary:item.name+' · '+item.address.replace(' NARROMINE','')+', Narromine NSW 2821. Official NSW property-address point AND cadastral lot polygon are mapped. The low-poly building facade, entrance and height are still estimates, not surveyed. Business listings may change.',
   source:item.source,geometryAccuracy:'geocoded parcel point, unverified facade'
  });
 }
