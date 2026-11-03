@@ -12,6 +12,7 @@ assert(site.group.children.some(x=>x.children.some(c=>c.isMesh)), 'merged real-m
 assert.equal(site.landmarks.length,NARROMINE_LANDMARKS.length);
 assert.equal(site.sourceRoadSegments,NARROMINE_REAL_ROAD_COUNT);
 assert(site.realStreetNames>=70);
+assert.equal(site.officialParcelOutlines,site.landmarks.length,'all public places display real cadastral lots');
 assert(signs>=site.landmarks.length+4);
 assert(site.accuracy.includes('unverified'));
 assert.equal(site.colliders.length,0,'must not pretend synthetic facade rectangles are surveyed property collisions');
