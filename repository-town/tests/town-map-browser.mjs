@@ -54,6 +54,32 @@ try {
     const bank = await page.evaluate(() => window.__town.townMap.select('Community Bank'));
     step(bank?.kind === 'building' && /Bank/.test(bank.name), `${tag} search finds a town building: ${bank?.name} ${bank?.address}`);
 
+    // Narromine must be explicitly accessible on phones: not hidden outside the Repo Town map.
+    const narromine = await page.evaluate(() => window.__town.townMap.select('Narromine'));
+    step(narromine?.kind === 'region' && narromine.name === 'Narromine', `${tag} search finds Narromine as a destination`);
+    const coles = await page.evaluate(() => window.__town.townMap.select('Coles'));
+    step(coles?.kind === 'narromine-place' && coles.name === 'Coles', `${tag} search finds Coles in Narromine`);
+    const arcade = await page.evaluate(() => window.__town.townMap.select("Kierath's Shopping Square"));
+    step(arcade?.kind === 'narromine-place' && /approximate/i.test(arcade.fact), `${tag} arcade has a clearly approximate map marker`);
+    const regional = await page.evaluate(() => {
+      document.getElementById('town-map-narromine').click();
+      const map = window.__town.townMap, c = document.querySelector('#town-map canvas');
+      const pixels = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+      let coloured = 0;
+      for (let i = 0; i < pixels.length; i += 4 * 59)
+        if (pixels[i] !== 223 || pixels[i + 1] !== 232 || pixels[i + 2] !== 214) coloured++;
+      return { x: map.view.x, z: map.view.z, selected: map.selected()?.name,
+        width: c.width, coloured };
+    });
+    step(Math.abs(regional.x - narromine.x) < 0.1 && Math.abs(regional.z - narromine.z) < 0.1,
+      `${tag} Narromine button centres the correct regional map`);
+    step(regional.coloured > 70, `${tag} Narromine map canvas contains actual road/building pixels (${regional.coloured})`);
+    const returnTown = await page.evaluate(() => {
+      document.getElementById('town-map-repo').click();
+      return { x: window.__town.townMap.view.x, z: window.__town.townMap.view.z };
+    });
+    step(returnTown.x === 0 && returnTown.z === 0, `${tag} Repo Town button returns to the original map`);
+
     // Pinch zoom: two touch pointers spreading apart double the distance about their midpoint.
     const pinch = await page.evaluate(async () => {
       const c = document.querySelector('#town-map canvas'), r = c.getBoundingClientRect(), map = window.__town.townMap;
