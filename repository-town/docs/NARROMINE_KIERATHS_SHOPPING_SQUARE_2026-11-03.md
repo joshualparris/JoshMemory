@@ -45,3 +45,5 @@ Josh supplied a screenshot of a commercial property plan from realcommercial.com
 ### Deliberate uncertainty and remaining work
 
 The plan is schematic; it proves adjacency and unit count, not the position of every door or the building's true height. This implementation follows the cadastral position, aligns its corridor to the long axis of 76 Dandaloo and preserves the front/back exits. Individual bay sizes and appearances should be revised against measured architectural drawings or permissioned survey data. The photographed historic Coles/Liquorland signage and equipment is not evidence of 2026 tenant occupancy, so no assumed tenancies have been labelled as current. PR #289's unrelated large-area NSW GIS road changes are **not** automatically merged into this building-focused work, pending a conflict-safe separate review.
+
+- The visually documented historic **Liquorland** shutter (grey ribbed roller door and old red/yellow sign) is recreated at the rear canopy's right side in the 3D scene, with a narrow physical collider and no claim that Liquorland is still a tenant. Its relative dimensions are estimated from the supplied rear photo.
