@@ -39,9 +39,10 @@ jobs:
           node --check src/world/narromine-kieraths.js
           node --check src/world/narromine.js
           node tests/narromine-layout.mjs
-          npm run check:privacy
       - name: Build the actual game
         run: npm run build
+      - name: Check built public/private output for privacy
+        run: npm run check:privacy
       - name: Install Chromium and software renderer
         run: npx playwright install --with-deps chromium
       - name: Drive highway and physically walk Kierath's arcade on desktop and mobile
