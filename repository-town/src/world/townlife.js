@@ -1,4 +1,6 @@
 import { buildPubFacade, PUB_ENVELOPE } from './pub-envelope.js';
+import { townDate } from './town-calendar.js';
+import { solarPosition, solarDaylight, solarWarmth } from './solar-position.js';
 import { buildExpansionFacade } from './town-expansion-facades.js';
 import { buildPostFacade } from './post-facade.js';
 import { shopLightingOn, interiorPalette } from './lighting.js';
@@ -1052,7 +1054,14 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   const rain = new THREE.Points(rainGeo, new THREE.PointsMaterial({ color: 0xaac4dd, size: 0.12, transparent: true, opacity: 0.6, depthWrite: false }));
   rain.visible = false; rain.frustumCulled = false; scene.add(rain);
   const moon = new THREE.Mesh(new THREE.SphereGeometry(5, 16, 12), new THREE.MeshBasicMaterial({ color: 0xf2efe0, fog: false })); scene.add(moon);
+  // Visible, correctly positioned sun disk (the DirectionalLight alone is invisible).
+  // ~0.8° angular diameter, against the actual solar azimuth/elevation.
+  const sunDisc = new THREE.Mesh(new THREE.SphereGeometry(0.95, 12, 10),
+    new THREE.MeshBasicMaterial({ color: 0xfff0c4, fog: false, depthWrite: false }));
+  sunDisc.name = 'Astronomical sun disk (Narromine)'; sunDisc.visible = false; scene.add(sunDisc);
   const hemiDay = new THREE.Color(0xffffff), hemiNight = new THREE.Color(0x7a8ac0), bg = new THREE.Color();
+  const warmSun = new THREE.Color(0xffa25b), clearSun = new THREE.Color(0xfff3df);
+  let lastSolar = null;
 
   // Town clock face on the Town Hall: a little canvas updated once a town minute.
   const hall = life.place('hall');
@@ -1102,10 +1111,14 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     if (m >= 405 && m < 410 && hornDone !== life.day) { hornDone = life.day; events.push({ kind: 'horn', x: trainX(m, depot.x) ?? depot.x, z: RAIL_Z }); }
 
     // Sky and lights follow the clock everywhere; indoors only the town's state changes.
-    const day = life.daylight(), dark = THREE.MathUtils.clamp((0.55 - day) / 0.45, 0, 1);
+    // Solar coordinates are computed from Narromine's civil date and in-game
+    // clock, NOT from the player's device time. Daylight and dawn now vary by season.
+    const solar = solarPosition(townDate(life.day), m);
+    lastSolar = solar;
+    const day = solarDaylight(solar.elevation), dark = THREE.MathUtils.clamp((0.55 - day) / 0.45, 0, 1);
     // Name boards and opening-hours plaques are floodlit after dark, so they stay readable.
     if (signBoards) signBoards.material.emissiveIntensity = dark * 0.55;
-    const dusk = day > 0 && day < 0.6 ? Math.sin((day / 0.6) * Math.PI) * 0.55 : 0;
+    const dusk = solarWarmth(solar.elevation) * 0.50;
     bg.copy(NIGHT_SKY).lerp(DAY_SKY, day).lerp(DUSK, dusk);
     const weather = life.civic.weather, overcast = weather === 'rainy' ? 0.55 : weather === 'cloudy' ? 0.3 : 0;
     if (overcast) bg.lerp(GREY.clone().multiplyScalar(0.3 + 0.7 * day), overcast);
@@ -1113,9 +1126,15 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     else if (view) fog.color.copy(bg);
     else if (inTown) scene.background.copy(bg);
     hemi.intensity = (0.5 + 1.6 * day) * (1 - overcast * 0.35); hemi.color.copy(hemiNight).lerp(hemiDay, day);
-    const a = ((m / 60 - 6) / 24) * Math.PI * 2;      // sun rises in the east (+x) at 6:00
-    sun.position.set(Math.cos(a) * 130, Math.max(8, Math.sin(a) * 140), 50); sun.intensity = 2.0 * day;
-    sun.color.setHex(dusk > 0.25 ? 0xffb070 : 0xffe7bf);
+    // Geographic north is world -Z; sunlight travels over the *northern* sky
+    // at solar noon. A separate shadow rig relocates this directional ray
+    // near the player without changing its azimuth or elevation.
+    sun.position.set(solar.direction.x * 165, solar.direction.y * 165, solar.direction.z * 165);
+    sun.intensity = 2.15 * day * (1 - overcast * 0.72);
+    sun.color.copy(clearSun).lerp(warmSun, solarWarmth(solar.elevation) * 0.85);
+    sunDisc.visible = (inTown || !!view) && !overview && solar.elevation > -1.4 && solar.elevation < 89.9 && weather !== 'rainy';
+    if (sunDisc.visible) sunDisc.position.copy(skyCam.position).addScaledVector(
+      new THREE.Vector3(solar.direction.x, solar.direction.y, solar.direction.z), 132);
     stars.visible = moon.visible = (inTown || !!view) && dark > 0.2 && !overcast;
     rain.visible = (inTown || !!view) && !overview && weather === 'rainy';
     if (rain.visible) {
@@ -1124,7 +1143,9 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       for (let i = 0; i < a2.count; i++) { let y = a2.getY(i) - dt * 14; if (y < 0) y += 22; a2.setY(i, y); }
       a2.needsUpdate = true;
     }
-    if (stars.visible) { stars.position.copy(skyCam.position); stars.material.opacity = Math.min(1, dark * 1.2); moon.position.set(skyCam.position.x - Math.cos(a) * 140, skyCam.position.y + Math.max(30, -Math.sin(a) * 120), skyCam.position.z - 60); }
+    if (stars.visible) { stars.position.copy(skyCam.position); stars.material.opacity = Math.min(1, dark * 1.2);
+      moon.position.set(skyCam.position.x - solar.direction.x * 135,
+        skyCam.position.y + Math.max(30, -solar.direction.y * 135), skyCam.position.z - solar.direction.z * 135); }
     // A blackout puts out the windows and street lamps (src/world/life.js utilities).
     const powered = life.civic.powerGrid ? life.civic.powerGrid.served > 0 : life.civic.supply.ok; // a local fault must not darken every lamp
     town.setNight(powered ? dark : 0, m, eye, powered, id=>pilotMains(life,id) ?? powered);
@@ -1260,7 +1281,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     }); // real rolling-stock footprint, including wagons
     return boxes;
   };
-  return { railClearanceConflicts,railBarrierColliders, life, group, colliders, spots, seats, people, residentModels, update, save, events, skyColour: bg, skyParts: [stars, rain, moon], building: (id) => buildings.get(id) || [], placeFront: (id) => { const p = life.place(id); return p.side === 'north' ? { x:p.x,z:p.front.z,yaw:Math.PI } : p.side === 'south' ? { x: p.x, z: FIELD_Z0 - 4.4, yaw: Math.PI } : { x: p.x, z: LOT8_Z + 12.6, yaw: 0 }; } };
+  return { railClearanceConflicts,railBarrierColliders, life, group, colliders, spots, seats, people, residentModels, update, save, events, skyColour: bg, skyParts: [stars, rain, moon, sunDisc], solarState:()=>lastSolar, building: (id) => buildings.get(id) || [], placeFront: (id) => { const p = life.place(id); return p.side === 'north' ? { x:p.x,z:p.front.z,yaw:Math.PI } : p.side === 'south' ? { x: p.x, z: FIELD_Z0 - 4.4, yaw: Math.PI } : { x: p.x, z: LOT8_Z + 12.6, yaw: 0 }; } };
 }
 
 // What a villager calls out as the player passes, from the time of day and what they're up to.
