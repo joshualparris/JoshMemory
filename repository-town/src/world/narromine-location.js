@@ -76,4 +76,4 @@ export function nearestNarromineLandmark(pos,range=6){
   }
   return nearest;
 }
-export function inNarromine(x,z){return Number.isFinite(x)&&Number.isFinite(z)&&x<-2490&&x>-2890&&z>90&&z<530;}
+export function inNarromine(x,z){return Number.isFinite(x)&&Number.isFinite(z)&&x<-2470&&x>-2890&&z>90&&z<530;}
