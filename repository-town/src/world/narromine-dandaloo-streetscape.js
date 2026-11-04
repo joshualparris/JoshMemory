@@ -100,7 +100,7 @@ function makeWires(push, a, b) {
   }
 }
 
-export function buildDandalooStreetscape({ streets, push, box, flatPoly, strip, clear }) {
+export function buildDandalooStreetscape({ streets, push, box, flatPoly, strip, clear, excludeSouthTreeAt }) {
   const plan = planDandalooStreetscape(streets);
   // Asphalt is already produced by the exact polygon-clip road renderer; do not
   // restore the old overlapping road strips that caused z-fighting.
@@ -122,7 +122,7 @@ export function buildDandalooStreetscape({ streets, push, box, flatPoly, strip, 
   }
   for (const item of plan.lamps) makeSwanNeckLamp(push, item);
   // South of the Burraway split: kerbs, verge trees, lamps and the east-side power line.
-  const south = planDandalooSouth(streets, clear);
+  const south = planDandalooSouth(streets, clear, { excludeTreeAt: excludeSouthTreeAt });
   for (const k of south.kerbs) strip(KERB, ...k.a, ...k.b, 0.15, 0.129, 0.12);
   for (const item of south.trees) makeFloweringTree(push, item, item.kind === 'flowering');
   for (const item of south.lamps) makeSwanNeckLamp(push, item);
