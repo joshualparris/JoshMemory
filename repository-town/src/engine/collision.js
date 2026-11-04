@@ -1,6 +1,22 @@
 // Static axis-aligned collision for a flat world. Colliders are {x0,x1,z0,z1}
 // rectangles; the player is a circle. A uniform grid keeps lookups cheap with
 // thousands of colliders (188 houses plus yard props).
+// Only explicitly polygon-tagged footprints use exact OSM/cadastral geometry.
+// AABB bounds still index candidates quickly; actual contact uses the building
+// perimeter, preserving solid walls without blocking roads in unused box corners.
+export function polygonSignedDistance(x,z,points) {
+  if(!Array.isArray(points)||points.length<3)return Infinity;
+  let inside=false, nearest=Infinity;
+  for(let i=0,j=points.length-1;i<points.length;j=i++) {
+    const [ax,az]=points[j],[bx,bz]=points[i],dx=bx-ax,dz=bz-az;
+    const t=Math.max(0,Math.min(1,((x-ax)*dx+(z-az)*dz)/(dx*dx+dz*dz||1)));
+    nearest=Math.min(nearest,Math.hypot(x-(ax+dx*t),z-(az+dz*t)));
+    if((az>z)!==(bz>z)&&x<(bx-ax)*(z-az)/(bz-az)+ax)inside=!inside;
+  }
+  return inside?-nearest:nearest;
+}
+export const circleHitsPolygon=(x,z,r,points)=>polygonSignedDistance(x,z,points)<r;
+
 const CELL = 8;
 
 export class CollisionWorld {
@@ -41,6 +57,10 @@ export class CollisionWorld {
     const moving = typeof this.dynamic === 'function' ? this.dynamic() : [];
     for (const c of [...this.near(x,z,r), ...moving]) {
       if (c.top != null && feet >= c.top - 0.02) continue;
+      if (c.polygon) {
+        if (circleHitsPolygon(x,z,r,c.polygon)) return c;
+        continue;
+      }
       const cx = Math.max(c.x0, Math.min(x, c.x1)), cz = Math.max(c.z0, Math.min(z, c.z1));
       if ((x - cx) ** 2 + (z - cz) ** 2 < r * r) return c;
     }
@@ -55,7 +75,8 @@ export class CollisionWorld {
     let blocked = false;
     // Already overlapping something (a truck rolled up, or an exit point under a vehicle's box):
     // allow steps that take the player away from it, so nobody is ever pinned in place.
-    const gap = (c, x, z) => (x > c.x0 && x < c.x1 && z > c.z0 && z < c.z1)
+    const gap = (c, x, z) => c.polygon ? polygonSignedDistance(x,z,c.polygon) :
+      (x > c.x0 && x < c.x1 && z > c.z0 && z < c.z1)
       ? -Math.min(x - c.x0, c.x1 - x, z - c.z0, c.z1 - z)          // inside the box: negative depth
       : Math.hypot(x - Math.max(c.x0, Math.min(x, c.x1)), z - Math.max(c.z0, Math.min(z, c.z1)));
     const free = (x, z) => {
