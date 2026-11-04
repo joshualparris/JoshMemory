@@ -825,6 +825,15 @@ async function start() {
   for (const h of PLAN_HOMES) { const o = document.createElement('option'); o.value = homeLabel(h); list.append(o); }
   { const o = document.createElement('option'); o.value = 'Narromine · Dandaloo Street'; list.append(o); }
   { const o = document.createElement('option'); o.value = 'Narromine Post Office · 74 Dandaloo Street'; list.append(o); }
+  // A selected browser datalist suggestion should travel immediately. Unlike
+  // ordinary typed input, Chromium marks a pick as insertReplacementText.
+  // Keep form submit as the one authoritative travel path (Go/Enter/pick).
+  const searchableSuggestions = new Set([...list.options].map(o => o.value));
+  $('search').addEventListener('input', (e) => {
+    if (e.inputType === 'insertReplacementText' && searchableSuggestions.has($('search').value)) {
+      $('search-form').requestSubmit();
+    }
+  });
   $('search-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const q = $('search').value.trim().toLowerCase(); if (!q) return;
