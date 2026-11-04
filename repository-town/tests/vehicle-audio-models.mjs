@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import './vehicle-audio-rundown.mjs';
 import * as THREE from 'three';
 import {VEHICLE_DYNAMICS,vehicleSpec,transmissionFor,intendedSpeedMs,accelerationMs2} from '../src/world/vehicle-dynamics.js';
 import {modelMesh} from '../src/world/player-driving.js';
