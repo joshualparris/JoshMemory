@@ -1,3 +1,10 @@
+## 2026-11-04 — NSW GIS data salvage from #289 — START CHECKPOINT
+- Owner ChatGPT GitHub connector; branch `feat/narromine-nsw-gis-evidence-salvage-20261104` based on `9bcb364a40f20281336e0e160cce4f0682e41f69`.
+- Feature: preserve NSW Spatial Services source road centreline, PUBLIC business/property address points and lot polygon evidence for real-world Narromine reconciliation. Do NOT claim loaded or gameplay accurate: current OSM rendering and freshly merged Dandaloo streetscape remain authoritative until separately validated.
+- Scope: three new isolated pure data modules, research JSON + documentation, tests for unique IDs, polygon and geographic bounds. No current-world `src/world/narromine.js`, `narromine-layout.js`, `main.js`, renderer, collider, or private house address modifications.
+- Evidence: official NSW RoadCentreline layer at `beta.portal.spatial.nsw.gov.au/server/rest/services/NSW_Land_Parcel_Property_Theme_A/MapServer/1` and Spatial Services CC BY terms independently checked (4 November 2026); full point-by-point provenance needs a re-query/survey before declaring as-built.
+- Tests: pending. Future work: reconcile 432 road polylines with OSM and Dandaloo #336 without duplicate asphalt, resurvey entrances and visually verify.
+
 ## 2026-11-04 — ChatGPT: Dandaloo physical streetscape NR-DS-001/002/003 (PR #336)
 - **Status:** PARTIALLY COMPLETE — code and source documentation committed on `feat/narromine-dandaloo-streetscape-v2-20261104`; `main` not merged or production verified. Supersedes conflicting PR #333 without force-push.
 - **Feature claims:** z −877..−932 and −979..−1165 split Dandaloo carriageways: planted median/kerbs; angled parking separators/pavers; planted trees and heritage lamp models. The claim is feature-scoped; parallel agents may continue separate Dandaloo buildings/roads/QA. Canonical policy: `docs/PARALLEL_AGENT_COORDINATION.md`.
