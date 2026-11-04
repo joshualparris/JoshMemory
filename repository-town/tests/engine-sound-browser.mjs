@@ -42,10 +42,31 @@ try {
   step(!!pulling && pulling.frequency > idle.frequency * 1.3, `note climbs with revs: ${idle?.frequency?.toFixed(1)} → ${pulling?.frequency?.toFixed(1)} Hz at ${pulling?.rpm} rpm, gear ${pulling?.gear}, ${pulling?.speedKmh?.toFixed(0)} km/h`);
   step(!!pulling && pulling.load > 0.5, `engine under load while accelerating (load ${pulling?.load})`);
   await page.evaluate(() => { for (let i = 0; i < 120; i++) window.__town.stepVehicle(1 / 30); });
-  await page.evaluate(() => window.__town.leaveVehicle());
-  const down = await page.waitForFunction(() => { const v = window.__town.soundscape().vehicle; return v && v.phase === 'stopping' && v.rpm < v.idle * 0.9 ? v : null; }, null, { timeout: 6000, polling: 20 }).then((h) => h.jsonValue()).catch(() => null);
-  step(!!down && down.rpm < down.idle, `parking runs the engine down (${down?.rpm?.toFixed?.(0)} rpm)`);
-  const off = await page.waitForFunction(() => { const v = window.__town.soundscape().vehicle; return v && v.phase === 'off'; }, null, { timeout: 8000 }).then(() => true).catch(() => false);
-  step(off, 'engine silent after the run-down');
+  // The stop phase lasts only ~1.2 audio-clock seconds. Capture *inside the
+  // same browser round-trip* as leaveVehicle() so slow software WebGL frames
+  // cannot consume the entire transition before Playwright's next poll begins.
+  // Require an actual falling RPM in the 'stopping' phase, not just 'off'.
+  const shutdown = await page.evaluate(async () => {
+    const samples = [];
+    const deadline = performance.now() + 8000;
+    return new Promise(resolve => {
+      const sample = () => {
+        const v = window.__town.soundscape().vehicle;
+        if (v?.phase === 'stopping')
+          samples.push({ rpm: v.rpm, idle: v.idle });
+        if (v?.phase === 'off' || performance.now() > deadline) {
+          resolve({ samples, phase: v?.phase });
+          return;
+        }
+        requestAnimationFrame(sample);
+      };
+      window.__town.leaveVehicle();
+      requestAnimationFrame(sample);
+    });
+  });
+  const down = shutdown.samples.find(v => Number.isFinite(v.rpm) && v.rpm < v.idle * .9);
+  step(!!down && down.rpm < down.idle,
+    `parking runs the engine down (${down?.rpm?.toFixed?.(0)} rpm, ${shutdown.samples.length} stopping frames)`);
+  step(shutdown.phase === 'off', 'engine silent after the run-down');
   step(!errors.length, `no page errors ${errors.join('; ')}`);
 } finally { await browser.close(); }
