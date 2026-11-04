@@ -53,7 +53,7 @@ export const POSTAL_WALK_ROUTE_LOCAL=Object.freeze([
   [-1932.9,-682.4],[-1924.5,-738.8],[-1920.7,-763.7],[-1919.9,-769.3],
   [-1916.6,-791.2],[-1914.4,-806.3],[-1905.9,-846.2],[-1909.7,-858.4],
   [-1911.1,-870.2],[-1909.7,-878],[-1905.6,-906.6],[-1901.7,-934.0],
-  [-1923.4,-934.9]
+  [-1921.2,-946.6]
 ].map(p=>Object.freeze(p)));
 const HOUSE=NARROMINE_OSM.buildings[POSTAL_HOME_OSM_BUILDING_INDEX];
 if(!HOUSE || HOUSE.kind!=='house' || HOUSE.levels!==1 || HOUSE.name)
@@ -68,8 +68,8 @@ const DAILY_WORK=Object.freeze([
   row(375,400,'home','Wake, shower, put the kettle on'),
   row(400,430,'neighbourhood','Quiet morning dog walk around the neighbourhood','dog-walk'),
   row(430,460,'home','Breakfast, pack a homemade lunch and refill Mabel’s water'),
-  row(460,495,'home','Get dressed and ready; check keys and reusable shopping bag'),
-  row(495,518,'route:home-post','Walk toward Dandaloo Street on local streets','commute'),
+  row(460,502,'home','Get dressed and ready; check keys and reusable shopping bag'),
+  row(502,518,'route:home-post','Walk toward Dandaloo Street on local streets','commute'),
   row(518,540,'post-office','Arrive early; prepare the counter and check the day’s mail','setup'),
   row(540,630,'post-office','Serve customers: letters, stamps and parcels','counter'),
   row(630,640,'post-office-break','Ten-minute morning tea break; another colleague covers','break'),
@@ -93,8 +93,8 @@ function weekdayTail(weekday){
    row(1290,1320,'home','Quiet wind-down and prepare for bed'),
    row(1320,1440,'home','Sleep')
  ] : [
-   row(1032,1053,'route:post-home','Walk home along local streets','commute'),
-   row(1053,1085,'neighbourhood','Evening dog walk with Mabel','dog-walk'),
+   row(1032,1048,'route:post-home','Walk home along local streets','commute'),
+   row(1048,1085,'neighbourhood','Evening dog walk with Mabel','dog-walk'),
    row(1085,1130,'home','Cook, eat dinner and pack tomorrow’s lunch'),
    row(1130,1210,'home','Dishes, washing, gardening and a quiet cuppa'),
    row(1210,1290,'home','Read, scrapbook or phone a friend'),
