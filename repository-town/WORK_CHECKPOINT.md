@@ -1,3 +1,9 @@
+## 2026-11-04 — #319 postal fictional-character salvage — START CHECKPOINT
+- Owner: ChatGPT GitHub connector. Branch `feat/narromine-postal-character-salvage-20261104` at main `5f5a8c08a94df72f9fa930be5a374d23fc4c0ca2`.
+- Scope: preserve only fictional postal character data and schedule from stale #319 as an isolated model with no rendered gameplay/Coles interior changes. Coles floorplan is explicitly interpretive and not verified as true-to-life, so do NOT add it to current playable scene.
+- Test plan: all-day contiguous coverage over 450 days, OSM home building as anonymous footprint, unique identity and no personal residency claim. No live deployment or actual hours claimed.
+- Next: copy source, add tests and evidence limitations, run GitHub CI, merge only if clean.
+
 # 4 November 2026 — Narromine Aviation Museum & Aerodrome Precinct (`Tom Perry Drive`, `Lot 122 DP 1126499`, LEP Item `I12`) — VERIFIED COMPLETE
 
 Owner Antigravity (Agy Windows). Baseline `main` `0d49e204` (reconciled with `9bcb364a`); branch `feat/narromine-aviation-precinct-20261104`.
