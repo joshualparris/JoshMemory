@@ -147,3 +147,31 @@ online page and approves a cost disclosure before the first panorama loads.
 before using it online. Google Cloud billing budgets and alerts are not hard
 spend caps. Set appropriate API quotas and review Cloud Billing's actual SKU
 usage; the UI's cost ledger is only a first-tier estimate for this browser.
+
+
+## Duplicate Google SDK and module-loader failure
+
+For the online comparison's one-time Google connection, use Google's
+**direct async script loader with `libraries=streetView` and an explicit
+`callback`**, rather than using `script.onload` as an API-ready signal
+and then importing `streetView`. The callback only fires after Google
+has initialised its requested library. The app keeps a page-lifetime
+Promise for the single SDK load, including any failure, so retrying
+a missing panorama reuses the already-loaded API and a failed SDK load
+requires a browser refresh instead of inserting a second script.
+
+This addresses the Chrome errors:
+- `You have included the Google Maps JavaScript API multiple times on this page`
+- `Loader.provide not called by module 'streetview'`
+- `Loader.provide not called by module 'util'`
+
+The in-game view runs in its own same-origin iframe; its console messages
+can appear in the same DevTools console even though it is a separate
+JavaScript realm. Use the Console's frame selector to identify which
+document produced an error.
+
+Google source: https://developers.google.com/maps/documentation/javascript/load-maps-js-api
+
+An actual authenticated Google panorama still needs a restricted key
+entered by the user; CI intercepts the SDK request and does not make paid
+Google API calls.
