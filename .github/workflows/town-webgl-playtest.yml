@@ -122,6 +122,15 @@ jobs:
             sleep 1
           done
           curl -fsSI http://127.0.0.1:8091/ >/dev/null
-          timeout 38m npm run test:browser
+          # Run the same chain as `npm run test:browser`, one test at a time, so a failure names
+          # its test in a GitHub annotation (readable from the PR page and the API).
+          node -e "console.log(require('./package.json').scripts['test:browser'])" | tr '&' '\n' | sed 's/^ *//;/^$/d' > "$RUNNER_TEMP/browser-tests.txt"
+          deadline=$(( $(date +%s) + 38*60 ))
+          while IFS= read -r t; do
+            left=$(( deadline - $(date +%s) )); [ "$left" -gt 0 ] || { echo "::error title=browser suite::time budget exhausted before: $t"; exit 1; }
+            start=$(date +%s)
+            if ! timeout "$left" bash -c "$t"; then echo "::error title=browser test failed::$t (after $(( $(date +%s) - start ))s)"; exit 1; fi
+            echo "ok $t ($(( $(date +%s) - start ))s)"
+          done < "$RUNNER_TEMP/browser-tests.txt"
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
