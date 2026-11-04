@@ -1,3 +1,15 @@
+## 2026-11-04 — RTD-068-CORE fictional Narromine postal character salvage
+
+**Status:** PARTIALLY COMPLETE (data/tests only), PR #353 [review](https://github.com/joshualparris/JoshMemory/pull/353); cannot claim a live/visible actor. Owner: ChatGPT (cloud); branch `salvage/narromine-postal-character-20261104` based on live main after `d98319e614d1`. Individual scope **RTD-068-CORE** recorded in `COORDINATION.md`.
+
+**Exact files:** `src/world/narromine-postal-character.js`, `tests/narromine-postal-character.mjs`, `docs/NARROMINE_POSTAL_CHARACTER_SALVAGE_2026-11-04.md`, dedicated `.github/workflows/narromine-postal-character.yml`, narrow `package.json` test-gate addition, this checkpoint. No `main.js` or Kierath's, post-office model, Coles, railway, road, or unrelated simulation code changed.
+
+**Grounding:** fictional Leah Bennett only, anonymous OSM building #203 for gameplay, no real occupant, no exact private address, deterministic weekday/weekend/holiday activity schedule; dates and business hours are fictional gameplay approximations, not proof of an Australia Post staff roster.
+
+**Tests:** dedicated 450-day Node data test and privacy/nonactivation gate passed on initial PR head `4f5bba9d`. Broader Town Integration failure at that head is **metadata-only**: PR body missing canonical checkpoint path, so this entry and PR body must be updated; after that re-run full CI. Existing PR #319 remains unmerged (74 commits behind, recorded WebGL/Kierath's failed). **No live browser or production gameplay claim** for this data-only salvage.
+
+**Next:** update PR #353 metadata with canonical checkpoint path, verify acceptance gate and remaining CI, merge only source-only self-contained data when checks green, close superseded broad PR #319 and hand off Coles runtime as a separate, tested, feature-scoped task.
+
 # 4 November 2026 — North-West Dandaloo Street Heritage & Civic Block (`52–68` & `38–44 Dandaloo Street`, Screenshots `#31`–`#44` & `#47`–`#50`) — VERIFIED COMPLETE
 
 Owner Antigravity (Agy ProBook). Baseline `main` `6c853f24` (reconciled with `7dadd9cf`); branch `feat/narromine-nw-dandaloo-block-20261104` ([PR #347](https://github.com/joshualparris/JoshMemory/pull/347)).
