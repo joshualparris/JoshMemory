@@ -19,7 +19,7 @@
     "repository-town/tests/shop-interiors.mjs": "0ca369aa2d241c152edb841c1125aa9319241a0d",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "e90356dad1e89dd9a91a07ae5c33eadca0ad4161",
+    "repository-town/src/main.js": "c75ef3b03ce4abc84423bf4d49c7868d0c35fe34",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -1103,6 +1103,14 @@
         "repository-town/src/main.js"
       ],
       "finding": "main.js: Narromine Coles venue and postal resident; no pub change."
+    },
+    {
+      "date": "2026-11-04",
+      "by": "Claude (radio ducks music)",
+      "changedFiles": [
+        "repository-town/src/main.js"
+      ],
+      "finding": "main.js: car radio fades background music; no pub change."
     }
   ]
 }

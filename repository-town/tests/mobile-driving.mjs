@@ -77,6 +77,7 @@ try {
  assert(gaugeStart.fuel.includes('20.0')&&gaugeStart.registration.includes(v.registration),'dashboard displays the actual owned car and its fuel: '+JSON.stringify(gaugeStart));
  await page.tap('#drive-radio-power');
  assert.equal(await page.evaluate(()=>window.__town.driveDashboard().station),1,'phone radio on button tunes Country Road FM');
+ await page.waitForFunction(()=>window.__town.state().soundDebug.radioDucked===true,null,{timeout:3000});   // town music fades while the radio plays
  await page.tap('#drive-radio-next');
  assert.equal(await page.evaluate(()=>window.__town.driveDashboard().station),2,'next station control works by touch');
  assert.match(await page.locator('#drive-radio-station').innerText(),/High Street Jazz/);
@@ -84,6 +85,7 @@ try {
  assert.equal(await page.evaluate(()=>window.__town.driveDashboard().volume),60,'volume changes through control');
  await page.tap('#drive-radio-power');
  assert.equal(await page.evaluate(()=>window.__town.driveDashboard().station),0,'radio can be switched off without affecting driving');
+ await page.waitForFunction(()=>window.__town.state().soundDebug.radioDucked===false,null,{timeout:3000});  // and returns when it stops
  // Real touch events move the on-screen joystick: the same path as Android input.
  const cdp=await ctx.newCDPSession(page);
  const x=page.viewportSize().width*.2,y=page.viewportSize().height*.7;
