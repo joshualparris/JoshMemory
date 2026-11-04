@@ -173,7 +173,7 @@ function loadGoogleSdk(key) {
     script.src = 'https://maps.googleapis.com/maps/api/js?key=' +
       encodeURIComponent(key) + '&v=weekly&loading=async';
     script.onload = () => {
-      if (!window.google?.maps?.StreetViewPanorama) return reject(new Error('Google Street View API unavailable'));
+      if (!window.google?.maps?.importLibrary) return reject(new Error('Google Maps JavaScript API unavailable'));
       state.googleReady = true; resolve();
     };
     script.onerror = () => reject(new Error('Cannot load Google Maps JavaScript API. Check key restrictions, billing and internet connection.'));
@@ -201,11 +201,13 @@ async function connectGoogle(event) {
     await loadGoogleSdk(key);
     const preset = currentPreset();
     if (!preset) throw new Error('No location preset available');
+    log('LIBRARY LOAD', 'Import official Street View JavaScript library; no panorama created by this step', 0, false);
+    const { StreetViewPanorama } = await google.maps.importLibrary('streetView');
     log('PANORAMA CREATED',
       'One Dynamic Street View panorama instantiated; successful load counts one billable SKU event (free allowance may apply)',
       RATE_USD, true);
     // Deliberately instantiate exactly once. Reuse for all landmarks and rotations.
-    state.panorama = new google.maps.StreetViewPanorama($('streetview'), {
+    state.panorama = new StreetViewPanorama($('streetview'), {
       position: preset.geo, pov: { heading: preset.camera.heading, pitch: 0 },
       zoom: 1, addressControl: true, linksControl: true, panControl: true,
       enableCloseButton: false, showRoadLabels: true,
