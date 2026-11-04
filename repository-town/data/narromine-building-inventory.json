@@ -25,7 +25,7 @@
     "detailedVerandahsWithLidar": 6,
     "roadSegments": 236,
     "namedPlaces": 94,
-    "photoReferences": 0,
+    "photoReferences": 2,
     "visuallyVerified": 0
   },
   "coverageAudit": {
@@ -131,7 +131,7 @@
     "knownGaps": [
       "OSM footprint coverage incomplete; unrepresented real buildings need independent surveying",
       "Game has procedural filler houses and shops without verified mapped geometry",
-      "No permission-cleared ground-level photography registered",
+      "Only two 2017 permission-reviewed photo records are catalogued (one building-linked); current façade coverage remains unverified",
       "2011 height data may not reflect 2026 buildings",
       "Some OSM footprints are overlaid by a traced detailed site, not additional separate verified buildings",
       "Other Narromine precincts beyond export bounding box require a separate import"
@@ -23690,7 +23690,9 @@
         "verandahs": 1,
         "signs": []
       },
-      "photoReferences": [],
+      "photoReferences": [
+        "commons-royal-2017-001"
+      ],
       "provenance": [
         {
           "source": "NSW Spatial Services aerial/cadastre",
