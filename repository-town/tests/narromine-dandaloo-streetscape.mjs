@@ -12,8 +12,8 @@ assert(plan.medians.length >= 30, 'planted median follows the mapped split over 
 assert.equal(plan.kerbs.length, 4 * plan.medians.length, 'median and external kerb edges');
 assert.equal(plan.pavers.length, 2 * plan.medians.length, 'both shop-front footpaths');
 assert(plan.parking.length >= 60, 'angled bay markings along each block and each side');
-assert(plan.trees.length >= 10 && plan.lamps.length >= 8, 'town trees and swan-neck lamps');
-assert(plan.trees.filter(t => t.kind === 'palm').length >= 1, 'additional north median palm');
+assert.equal(plan.trees.length, 0, 'unverified north tree positions stay unrendered');
+assert.equal(plan.lamps.length, 0, 'unverified north lamp positions stay unrendered');
 assert(!plan.trees.some(t => Math.abs(t.z + 889) < 4 && t.where === 'median'),
   'do not duplicate the existing Kierath\'s median palm');
 const inBand = z => LANDSCAPED_BANDS.some(b => z <= b.upperZ && z >= b.lowerZ);
@@ -61,3 +61,6 @@ console.log('PASS Dandaloo streetscape: ' + plan.medians.length +
   assert(s.poles.every(p => p.x > roadXAtZ(road, p.z)), 'power line on the east verge');
   console.log(`PASS south Dandaloo streetscape: ${s.kerbs.length} kerb runs, ${s.trees.length} trees, ${s.lamps.length} lamps, ${s.poles.length} poles; road clear`);
 }
+
+// Exercise the renderer too: planner-only checks would miss synthetic hedge boxes.
+await import('./narromine-north-furniture-evidence.mjs');
