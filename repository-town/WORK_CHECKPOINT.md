@@ -1,3 +1,10 @@
+# 2026-11-04 — St Augustine's Catholic Church, Narromine — START CHECKPOINT
+
+Owner: ChatGPT. Branch: `feat/narromine-st-augustines-church-20261104`. Canonical coordination claim on main: `c42c69c` (date 2026-11-04).
+Specific site: 20 Dandaloo Street; existing OSM church building index 10, traced footprint; 2023 LiDAR `osm:10` eave 4.65m, ridge 10.54m; 1933 Romanesque cruciform nave, tiled roofs, front gable/Celtic cross. Independent photographic and textual sources listed in new site evidence document.
+Ownership: new `src/world/narromine-st-augustines.js`, `tests/narromine-st-augustines.mjs`, `docs/NARROMINE_ST_AUGUSTINES_EVIDENCE.md`; narrow single-feature edit to `src/world/narromine.js` (skip duplicate OSM index, integrate builder). No edits to shared road geometry, hotels, Kierath's, Railway, other churches, photo QA or core UI.
+Status: CLAIMED, implementation pending. Acceptance: one detailed building at mapped footprint, accurate survey-constrained roof heights and tile/brick/arch/gable/cross geometry, no duplicates, existing town batcher and colliders, node/geo/build/privacy checks, browser visual evidence and deployed fingerprint or explicit gaps. Next: write independent geometry builder, integrate, test.
+---
 # 4 November 2026 — Narromine Aviation Museum & Aerodrome Precinct (`Tom Perry Drive`, `Lot 122 DP 1126499`, LEP Item `I12`) — START CHECKPOINT
 
 Owner Antigravity (Agy Windows). Baseline `main` `0d49e204`; branch `feat/narromine-aviation-precinct-20261104`.
