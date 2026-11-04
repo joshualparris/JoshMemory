@@ -267,6 +267,10 @@ def scan(paths):
             extracted = scan_csv(path, s)
         elif suffix == ".json":
             extracted = scan_json(path, s)
+        elif suffix == ".html":
+            # Embedded/minified third-party libraries contain upstream TODOs;
+            # those are not actionable tasks owned by JoshMemory.
+            extracted = []
         else:
             extracted = scan_code(path, s)
         stats["extracted_source_entries"] += len(extracted)
@@ -369,8 +373,9 @@ def generated_report(rows, stats, issues):
         "| 9 | P1 | [Issue #355](https://github.com/joshualparris/JoshMemory/issues/355) | Audit Coles' real public entrance and interior evidence; avoid presenting fictional plan as true. |",
         "| 10 | P1 | [NR-REAL-003/004/005](repository-town/docs/NARROMINE_REALISM_CHECKLIST_2026-11-05.md) | Replace unsupported building stand-ins and reconcile geospatial transforms/footprint evidence before mass architecture. |",
         "| 11 | P1 | [RTGEO-005/007](repository-town/docs/REPOSITORY_TOWN_GEOGRAPHY_TODO.md) | Distinguish real flooding, water supply and ground data from fictional-world planning. |",
-        "| 12 | P2 | [PR #376](https://github.com/joshualparris/JoshMemory/pull/376) | Complete rail-yard playability and evidence-based crossing behaviour after road/navigation safety. |",
-        "| 13 | P2 | [PR #359](https://github.com/joshualparris/JoshMemory/pull/359), [Issue #157](https://github.com/joshualparris/JoshMemory/issues/157) | Finish the fictional 195-home park access / council planning evidence without claiming legal approvals. |",
+        "| 12 | P1 | JMU-00009 / JMU-00011 | Verify whether a one-call resume packet and active-agent lease registry already exist; otherwise implement without duplicating coordination services. |",
+        "| 13 | P2 | [PR #376](https://github.com/joshualparris/JoshMemory/pull/376) | Complete rail-yard playability and evidence-based crossing behaviour after road/navigation safety. |",
+        "| 14 | P2 | [PR #359](https://github.com/joshualparris/JoshMemory/pull/359), [Issue #157](https://github.com/joshualparris/JoshMemory/issues/157) | Finish the fictional 195-home park access / council planning evidence without claiming legal approvals. |",
         "",
         "### Cross-portfolio priority retained (historical as of 25 Oct)",
         "",
