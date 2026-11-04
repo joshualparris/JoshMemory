@@ -43,7 +43,10 @@ for(const ref of references.records){
  if(!ref.reviewed||!ref.sourceUrl?.startsWith('https://commons.wikimedia.org/wiki/File:')||!/^CC BY 3\.0/.test(ref.licenceOrPermission)) throw Error('Reference metadata not reviewed: '+ref.id);
  for(const id of ref.buildingIds)if(!ids.has(id))throw Error('Unknown photo building ID: '+id);
 }
-for(const building of inventory.buildings)building.photoReferences=references.records.filter(r=>r.buildingIds.includes(building.id)).map(r=>r.id);
+for(const building of inventory.buildings){
+ building.photoReferences=references.records.filter(r=>r.buildingIds.includes(building.id)).map(r=>r.id);
+ if(building.photoReferences.length)building.uncertainty=building.uncertainty.map(v=>v==='No permission-checked ground-level photos catalogued'?'Only historical 2017 licensed imagery linked; more angles and present-day façade validation needed':v);
+}
 inventory.counts.photoReferences=references.records.length;
 inventory.coverageAudit.knownGaps=inventory.coverageAudit.knownGaps.map(g=>g==='No permission-cleared ground-level photography registered'?'Only two 2017 permission-reviewed photo records are catalogued (one building-linked); current façade coverage remains unverified':g);
 const out=JSON.stringify(inventory,null,2)+'\n';
