@@ -1,0 +1,52 @@
+name: Repository Town fictional shunting yard acceptance
+on:
+  pull_request:
+    paths:
+      - 'repository-town/src/world/town-rail-*.js'
+      - 'repository-town/tests/town-rail-*.mjs'
+      - 'repository-town/src/main.js'
+      - 'repository-town/package.json'
+      - '.github/workflows/town-rail-yard-acceptance.yml'
+permissions:
+  contents: read
+jobs:
+  yard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - name: Strict isolated yard physics and persistence
+        run: node tests/town-rail-shunting.mjs
+      - name: Build and public privacy checks
+        run: npm run build && npm run check:privacy
+      - name: Verify available Chrome
+        run: google-chrome --version
+      - name: Serve real game to Playwright
+        run: |
+          node tools/serve.mjs dist/public 8091 > /tmp/town-rail-yard-server.log 2>&1 &
+          for n in $(seq 1 60); do
+            curl -fsS http://127.0.0.1:8091/ > /dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/town-rail-yard-server.log
+          exit 1
+      - name: Drive the shunter desktop and Android-size
+        env:
+          PW_CHANNEL: chrome
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: node tests/town-rail-yard-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: fictional-yard-browser-images
+          path: repository-town/test-results/town-rail-yard-*.png
+          retention-days: 7
