@@ -70,7 +70,9 @@ export const RAIL = Object.freeze(OSM.rail.map((r) => Object.freeze({ pts: r.pts
 export function polyRect(pts) {
   let x0 = Infinity, x1 = -Infinity, z0 = Infinity, z1 = -Infinity;
   for (const [x, z] of pts) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); z0 = Math.min(z0, z); z1 = Math.max(z1, z); }
-  return { x0, x1, z0, z1 };
+  // poly: the true outline. CollisionWorld uses the box to find candidates and the outline to decide,
+  // so a building at an angle to the grid no longer blocks the street beside it with its box corners.
+  return { x0, x1, z0, z1, poly: pts.map(([x, z]) => [x, z]) };
 }
 
 // Spelling corrections for the map data, and sourced history for places that have it.
@@ -156,7 +158,10 @@ export function nearestSegment(x, z) {
 }
 // Box with centre, size along/across the street, rotation (yaw about y), and its world AABB.
 const placed = [];
-const footprint = (cx, cz, w, d, yaw) => { const c = Math.cos(yaw), s = Math.sin(yaw), hx = Math.abs(c) * w / 2 + Math.abs(s) * d / 2, hz = Math.abs(s) * w / 2 + Math.abs(c) * d / 2; return { x0: cx - hx, x1: cx + hx, z0: cz - hz, z1: cz + hz }; };
+const footprint = (cx, cz, w, d, yaw) => { const c = Math.cos(yaw), s = Math.sin(yaw), hx = Math.abs(c) * w / 2 + Math.abs(s) * d / 2, hz = Math.abs(s) * w / 2 + Math.abs(c) * d / 2;
+  // Corners of the rotated box (local x along (cos, -sin), local z along (sin, cos), as placeBox rotates).
+  const poly = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([a, b]) => [cx + a * c * w / 2 + b * s * d / 2, cz - a * s * w / 2 + b * c * d / 2]);
+  return { x0: cx - hx, x1: cx + hx, z0: cz - hz, z1: cz + hz, poly }; };
 const overlapsPlaced = (r) => placed.some((q) => r.x0 < q.x1 && r.x1 > q.x0 && r.z0 < q.z1 && r.z1 > q.z0);
 const clearOfStreets = (r) => { for (let x = r.x0; x <= r.x1; x += 2) for (let z = r.z0; z <= r.z1; z += 2) if (nearTownStreet(x, z, 1.5)) return false; return true; };
 
