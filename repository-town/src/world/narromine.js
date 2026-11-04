@@ -228,6 +228,10 @@ export function buildNarromine(parent, makeLabel = null) {
     const A = [x0, y0, z0], B = [x1, y0, z0], C = [x1, y0, z1], D = [x0, y0, z1], P = [ra[0], y1, ra[1]], Q = [rb[0], y1, rb[1]];
     const tris = alongX ? [A, P, Q, A, Q, B, B, Q, C, C, Q, P, C, P, D, D, P, A] : [A, B, P, B, Q, P, B, C, Q, C, D, Q, D, P, Q, D, A, P];
     const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(tris.flat(), 3)); g.rotateY(yaw); g.translate(cx, 0, cz); g.computeVertexNormals(); push(c, g);
+    // Thin metal ridge flashing follows the measured eave/ridge profile; not an invented roof volume.
+    const ridgeLength = Math.max(L, w2) - Math.min(L, w2);
+    if (ridgeLength > 0.8) box(new THREE.Color(c).multiplyScalar(0.9).getHex(), ridgeLength + 0.12, 0.09, 0.15,
+      cx, y1 + 0.025, cz, alongX ? yaw : yaw + Math.PI / 2);
   };
   // Coles: a proper two-plane pitched roof with bright triangular gable ends,
   // unlike the old generic flat/shallow shed volumes. Ridge runs along quad edge 0→1.
@@ -247,6 +251,12 @@ export function buildNarromine(parent, makeLabel = null) {
       geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
       geo.rotateY(yaw); geo.translate(cx, 0, cz); geo.computeVertexNormals(); push(colour, geo);
     }
+    // Ridge flashing and both eave gutters track the existing pitched planes.
+    const metal = new THREE.Color(c).multiplyScalar(0.9).getHex();
+    box(metal, L + 0.16, 0.10, 0.15, cx, y1 + 0.02, cz, yaw);
+    for (const side of [-1, 1]) box(metal, L + 0.12, 0.10, 0.13,
+      cx + Math.sin(yaw) * side * w / 2, y0 + 0.025,
+      cz + Math.cos(yaw) * side * w / 2, yaw);
     if (!trim) return;
     // Painted bargeboards on each gable end (and optional cross finials at the apex), in the roof's local frame.
     const local = (g, x, y, z) => { g.translate(x, y, z); g.rotateY(yaw); g.translate(cx, 0, cz); return g; };
