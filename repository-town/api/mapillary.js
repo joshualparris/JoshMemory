@@ -6,7 +6,7 @@
 // Only small boxes inside the Narromine area are served, so the endpoint can't be used as a general proxy.
 const AREA = { minLat: -32.30, maxLat: -32.18, minLng: 148.15, maxLng: 148.33 };
 const FIELDS = {
-  images: 'id,captured_at,compass_angle,computed_geometry,thumb_1024_url,thumb_2048_url,creator,sequence',
+  images: 'id,captured_at,compass_angle,computed_compass_angle,geometry,computed_geometry,thumb_1024_url,thumb_2048_url,creator,sequence,is_pano',
   features: 'id,object_value,geometry,first_seen_at,last_seen_at',
 };
 export default async function handler(req, res) {
@@ -19,7 +19,7 @@ export default async function handler(req, res) {
   if (lat < AREA.minLat || lat > AREA.maxLat || lng < AREA.minLng || lng > AREA.maxLng) return send(400, { error: 'Only the Narromine area is served.' });
   const dLat = r / 111320, dLng = r / (111320 * Math.cos(lat * Math.PI / 180));
   const bbox = [lng - dLng, lat - dLat, lng + dLng, lat + dLat].map(v => v.toFixed(6)).join(',');
-  const api = `https://graph.mapillary.com/${kind === 'images' ? 'images' : 'map_features'}?fields=${FIELDS[kind]}&bbox=${bbox}&limit=${kind === 'images' ? 50 : 500}`;
+  const api = `https://graph.mapillary.com/${kind === 'images' ? 'images' : 'map_features'}?fields=${FIELDS[kind]}&bbox=${bbox}&limit=${kind === 'images' ? 200 : 500}`;
   try {
     const r2 = await fetch(api, { headers: { Authorization: 'OAuth ' + token } });
     const body = await r2.json();
