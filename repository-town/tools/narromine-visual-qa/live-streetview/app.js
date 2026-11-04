@@ -346,10 +346,21 @@ async function bootstrap() {
     }
     state.selected = state.meta.presets[0]?.id || null;
     $('game-frame').addEventListener('load', () => {
-      setTimeout(() => {
-        const p = currentPreset();
-        if (p) gamePose(p.camera.x, p.camera.z, p.camera.heading);
-      }, 1800);
+      // Rendering and save hydration can continue after the iframe load event.
+      // Do not rely on one fixed 1.8-second delay; apply the selected pose as
+      // soon as the actual game test hook is ready, without changing game code.
+      let attempts = 0;
+      const poll = setInterval(() => {
+        const game = browserGame();
+        if (game?.place && game?.life?.setTime) {
+          clearInterval(poll);
+          const p = currentPreset();
+          if (p) gamePose(p.camera.x, p.camera.z, p.camera.heading);
+        } else if (++attempts >= 90) {
+          clearInterval(poll);
+          status('Game did not finish loading within the expected startup window.', true);
+        }
+      }, 400);
     });
     const p = currentPreset();
     if (p) {
