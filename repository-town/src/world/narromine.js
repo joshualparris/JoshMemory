@@ -436,6 +436,14 @@ export function buildNarromine(parent, makeLabel = null) {
         for (let k = 0; k < 14; k++) { const a = k / 14 * Math.PI * 2, g = new THREE.BoxGeometry(3.4, 0.06, 0.55); g.translate(1.7, 0, 0); g.rotateZ(-0.35 - (k % 2) * 0.25); g.rotateY(a); g.translate(x, h, z); push(0x4f6b32, g); } }
       if (pr.kind === 'statue') { const [x, z] = pr.at; box(0x9e9b95, 1.0, 0.9, 1.0, x, 0.45, z); box(0xdedbd4, 0.5, 0.55, 0.6, x, 1.18, z); box(0xdedbd4, 0.42, 0.5, 0.35, x, 1.6, z - 0.08); const g = new THREE.SphereGeometry(0.2, 8, 6); g.translate(x, 2.0, z - 0.08); push(0xdedbd4, g); colliders.push({ x0: x - 0.5, x1: x + 0.5, z0: z - 0.5, z1: z + 0.5 }); }   // median statue; small so lanes stay clear
       if (pr.kind === 'redbays') flatPoly(0xb3262b, pr.pts, 0.07);
+      // Flagpole with a simple flag: 'aus' (blue ensign), 'nsw' (blue state ensign), 'aboriginal' (black, red, yellow sun).
+      if (pr.kind === 'flagpole') { const [x, z] = pr.at, h = pr.h ?? 8; box(0xe8e8e8, 0.1, h, 0.1, x, h / 2, z); colliders.push({ x0: x - 0.15, x1: x + 0.15, z0: z - 0.15, z1: z + 0.15 });
+        const fy = h - 0.6; if (pr.flag === 'aboriginal') { box(0x111111, 1.5, 0.45, 0.03, x + 0.8, fy + 0.22, z); box(0xc0262c, 1.5, 0.45, 0.03, x + 0.8, fy - 0.23, z); const sun = new THREE.CylinderGeometry(0.2, 0.2, 0.05, 12); sun.rotateX(Math.PI / 2); sun.translate(x + 0.8, fy, z); push(0xf2c21b, sun); }
+        else { box(0x1f3a8a, 1.5, 0.9, 0.03, x + 0.8, fy, z); box(0xc0262c, 0.5, 0.3, 0.035, x + 0.3, fy + 0.3, z); } }
+      // Solar array lying on a roof slope: pts = [low edge A, low edge B, high edge B, high edge A], inset from the edges.
+      if (pr.kind === 'solar') { const q = pr.pts, cx = q.reduce((s, p) => s + p[0], 0) / 4, cz = q.reduce((s, p) => s + p[1], 0) / 4, ins = (p) => [cx + (p[0] - cx) * 0.9, cz + (p[1] - cz) * 0.9];
+        const [a, b, c, d] = q.map(ins), lo = pr.yLow + 0.12, hi = pr.yHigh + 0.12, v = [a[0], lo, a[1], b[0], lo, b[1], c[0], hi, c[1], a[0], lo, a[1], c[0], hi, c[1], d[0], hi, d[1]];
+        const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(v, 3)); g.computeVertexNormals(); push(0x1d2a44, g); }
       // Brick chimney rising h metres above y, with a corbelled cap.
       if (pr.kind === 'chimney') { const [x, z] = pr.at; box(pr.colour ?? 0xa04b36, 0.7, pr.h, 0.55, x, pr.y + pr.h / 2, z); box(pr.colour ?? 0xa04b36, 0.85, 0.18, 0.7, x, pr.y + pr.h - 0.05, z); }
       // Ornamental parapet at a corner: a rendered pedestal with a scrolled pediment and crest, facing 'face'.

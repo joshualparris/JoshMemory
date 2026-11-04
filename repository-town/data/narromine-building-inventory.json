@@ -18,10 +18,10 @@
   },
   "counts": {
     "osmFootprints": 219,
-    "detailedSites": 8,
-    "registerRecords": 227,
+    "detailedSites": 10,
+    "registerRecords": 229,
     "osmWithLidar": 83,
-    "detailedPartsWithLidar": 27,
+    "detailedPartsWithLidar": 35,
     "detailedVerandahsWithLidar": 6,
     "roadSegments": 236,
     "namedPlaces": 94,
@@ -21630,8 +21630,10 @@
       "rendering": {
         "status": "Mapped",
         "tier": "C",
-        "mode": "mapped extrusion",
-        "siteIds": []
+        "mode": "covered by detailed site",
+        "siteIds": [
+          "narromine-council-corner"
+        ]
       },
       "visualQa": {
         "status": "not-reviewed"
@@ -25350,6 +25352,507 @@
         "doors": 2,
         "verandahs": 0,
         "signs": []
+      },
+      "photoReferences": [],
+      "provenance": [
+        {
+          "source": "NSW Spatial Services aerial/cadastre",
+          "licence": "CC BY 4.0"
+        },
+        {
+          "source": "Existing design notes",
+          "licence": "Photography rights unverified"
+        },
+        {
+          "source": "NSW Spatial Services LiDAR",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "rendering": {
+        "status": "Modelled",
+        "tier": "A candidate",
+        "mode": "detailed site builder",
+        "siteIds": []
+      },
+      "visualQa": {
+        "status": "not-reviewed"
+      },
+      "uncertainty": [
+        "No permission-checked ground-level photos catalogued",
+        "Current facade accuracy not visually reviewed"
+      ],
+      "nextActions": [
+        "Acquire permitted multi-angle imagery",
+        "Verify entrance, roofline and shop signage",
+        "Compare against game screenshot"
+      ]
+    },
+    {
+      "id": "NR-SITE-narromine-shire-council",
+      "siteId": "narromine-shire-council",
+      "sourceType": "detailed",
+      "name": "Narromine Shire Council",
+      "address": "124 Dandaloo Street",
+      "lot": "NSW cadastre property 124 Dandaloo Street",
+      "footprintLocal": [
+        [
+          -1961.8,
+          -621.05
+        ],
+        [
+          -2007.82,
+          -628
+        ],
+        [
+          -2014.27,
+          -584.91
+        ],
+        [
+          -1968.25,
+          -577.96
+        ],
+        [
+          -1961.8,
+          -621.05
+        ]
+      ],
+      "footprintGeo": [
+        [
+          -32.2348722,
+          148.2388725
+        ],
+        [
+          -32.2348097,
+          148.2383832
+        ],
+        [
+          -32.2351972,
+          148.2383146
+        ],
+        [
+          -32.2352597,
+          148.2388039
+        ],
+        [
+          -32.2348722,
+          148.2388725
+        ]
+      ],
+      "centreGeo": [
+        -32.2350022,
+        148.2386493
+      ],
+      "orientationDeg": 98.6,
+      "storeys": 1,
+      "roofType": "hip, gable",
+      "parts": [
+        {
+          "name": "north wing",
+          "footprintGeo": [
+            [
+              -32.2349337,
+              148.2384742
+            ],
+            [
+              -32.2349557,
+              148.2387895
+            ],
+            [
+              -32.2350327,
+              148.2387819
+            ],
+            [
+              -32.2350106,
+              148.2384667
+            ]
+          ],
+          "storeys": 1,
+          "roofType": "hip",
+          "wallHeightM": 3.2,
+          "heightEvidence": {
+            "surveyYear": 2023,
+            "groundAHDm": 238.96,
+            "eaveProxyM": 3.07,
+            "ridgeProxyM": 5.14,
+            "medianRoofM": 4.14,
+            "points": 1014,
+            "density": 3.97
+          }
+        },
+        {
+          "name": "west wing",
+          "footprintGeo": [
+            [
+              -32.2350106,
+              148.2384667
+            ],
+            [
+              -32.2350168,
+              148.2385544
+            ],
+            [
+              -32.2351047,
+              148.2385458
+            ],
+            [
+              -32.2350986,
+              148.2384581
+            ]
+          ],
+          "storeys": 1,
+          "roofType": "hip",
+          "wallHeightM": 3.2,
+          "heightEvidence": {
+            "surveyYear": 2023,
+            "groundAHDm": 238.99,
+            "eaveProxyM": 3.98,
+            "ridgeProxyM": 5.45,
+            "medianRoofM": 4.86,
+            "points": 325,
+            "density": 4.01
+          }
+        },
+        {
+          "name": "east wing (Dandaloo Street front)",
+          "footprintGeo": [
+            [
+              -32.2350238,
+              148.2386552
+            ],
+            [
+              -32.2350327,
+              148.2387819
+            ],
+            [
+              -32.2351207,
+              148.2387734
+            ],
+            [
+              -32.2351118,
+              148.2386466
+            ]
+          ],
+          "storeys": 1,
+          "roofType": "hip",
+          "wallHeightM": 3.2,
+          "heightEvidence": {
+            "surveyYear": 2023,
+            "groundAHDm": 239,
+            "eaveProxyM": 2.95,
+            "ridgeProxyM": 4.97,
+            "medianRoofM": 4.02,
+            "points": 380,
+            "density": 3.24
+          }
+        },
+        {
+          "name": "south wing",
+          "footprintGeo": [
+            [
+              -32.2350986,
+              148.2384581
+            ],
+            [
+              -32.2351207,
+              148.2387734
+            ],
+            [
+              -32.2352224,
+              148.2387634
+            ],
+            [
+              -32.2352003,
+              148.2384481
+            ]
+          ],
+          "storeys": 1,
+          "roofType": "hip",
+          "wallHeightM": 3.2,
+          "heightEvidence": {
+            "surveyYear": 2023,
+            "groundAHDm": 238.89,
+            "eaveProxyM": 3.46,
+            "ridgeProxyM": 6.27,
+            "medianRoofM": 4.77,
+            "points": 1176,
+            "density": 3.49
+          }
+        },
+        {
+          "name": "annex",
+          "footprintGeo": [
+            [
+              -32.2351695,
+              148.2386802
+            ],
+            [
+              -32.2351784,
+              148.238807
+            ],
+            [
+              -32.2352581,
+              148.2387992
+            ],
+            [
+              -32.2352492,
+              148.2386724
+            ]
+          ],
+          "storeys": 1,
+          "roofType": "gable",
+          "wallHeightM": 3,
+          "heightEvidence": {
+            "surveyYear": 2023,
+            "groundAHDm": 238.89,
+            "eaveProxyM": 3.61,
+            "ridgeProxyM": 6.34,
+            "medianRoofM": 4.71,
+            "points": 288,
+            "density": 2.71
+          }
+        },
+        {
+          "name": "works shed",
+          "footprintGeo": [
+            [
+              -32.234796,
+              148.2383666
+            ],
+            [
+              -32.2348035,
+              148.2384738
+            ],
+            [
+              -32.2350097,
+              148.2384537
+            ],
+            [
+              -32.2350022,
+              148.2383464
+            ]
+          ],
+          "storeys": 1,
+          "roofType": "gable",
+          "wallHeightM": 3.6,
+          "heightEvidence": {
+            "surveyYear": 2023,
+            "groundAHDm": 238.82,
+            "eaveProxyM": 3.5,
+            "ridgeProxyM": 4.62,
+            "medianRoofM": 4.06,
+            "points": 832,
+            "density": 3.58
+          }
+        }
+      ],
+      "verandahs": [],
+      "heightEvidence": null,
+      "facade": {
+        "materials": [],
+        "colours": [
+          "#d6c29a",
+          "#c9ccc8"
+        ],
+        "windows": null,
+        "doors": 1,
+        "verandahs": 0,
+        "signs": [
+          "NARROMINE SHIRE COUNCIL"
+        ]
+      },
+      "photoReferences": [],
+      "provenance": [
+        {
+          "source": "NSW Spatial Services aerial/cadastre",
+          "licence": "CC BY 4.0"
+        },
+        {
+          "source": "Existing design notes",
+          "licence": "Photography rights unverified"
+        },
+        {
+          "source": "NSW Spatial Services LiDAR",
+          "licence": "CC BY 4.0"
+        }
+      ],
+      "rendering": {
+        "status": "Modelled",
+        "tier": "A candidate",
+        "mode": "detailed site builder",
+        "siteIds": []
+      },
+      "visualQa": {
+        "status": "not-reviewed"
+      },
+      "uncertainty": [
+        "No permission-checked ground-level photos catalogued",
+        "Current facade accuracy not visually reviewed"
+      ],
+      "nextActions": [
+        "Acquire permitted multi-angle imagery",
+        "Verify entrance, roofline and shop signage",
+        "Compare against game screenshot"
+      ]
+    },
+    {
+      "id": "NR-SITE-narromine-council-corner",
+      "siteId": "narromine-council-corner",
+      "sourceType": "detailed",
+      "name": "Council customer service and bank (118-120 Dandaloo Street)",
+      "address": "118-120 Dandaloo Street",
+      "lot": "NSW cadastre property 118-120 Dandaloo Street",
+      "footprintLocal": [
+        [
+          -1982.35,
+          -645.58
+        ],
+        [
+          -1958.67,
+          -642
+        ],
+        [
+          -1954.46,
+          -670.18
+        ],
+        [
+          -1978.13,
+          -673.75
+        ],
+        [
+          -2000.47,
+          -677.12
+        ],
+        [
+          -2004.69,
+          -648.95
+        ],
+        [
+          -1982.35,
+          -645.58
+        ]
+      ],
+      "footprintGeo": [
+        [
+          -32.2346516,
+          148.238654
+        ],
+        [
+          -32.2346838,
+          148.2389058
+        ],
+        [
+          -32.2344303,
+          148.2389506
+        ],
+        [
+          -32.2343982,
+          148.2386989
+        ],
+        [
+          -32.2343679,
+          148.2384614
+        ],
+        [
+          -32.2346213,
+          148.2384165
+        ],
+        [
+          -32.2346516,
+          148.238654
+        ]
+      ],
+      "centreGeo": [
+        -32.2345435,
+        148.2386773
+      ],
+      "orientationDeg": 8.5,
+      "storeys": 1,
+      "roofType": "gable, skillion",
+      "parts": [
+        {
+          "name": "gabled hall",
+          "footprintGeo": [
+            [
+              -32.2344148,
+              148.2389331
+            ],
+            [
+              -32.2346583,
+              148.2389272
+            ],
+            [
+              -32.2346559,
+              148.2387904
+            ],
+            [
+              -32.2344125,
+              148.2387962
+            ]
+          ],
+          "storeys": 1,
+          "roofType": "gable",
+          "wallHeightM": 3.5,
+          "heightEvidence": {
+            "surveyYear": 2023,
+            "groundAHDm": 238.79,
+            "eaveProxyM": 3.48,
+            "ridgeProxyM": 6.22,
+            "medianRoofM": 5.11,
+            "points": 1317,
+            "density": 3.78
+          }
+        },
+        {
+          "name": "west wing",
+          "footprintGeo": [
+            [
+              -32.2344125,
+              148.2387962
+            ],
+            [
+              -32.2346559,
+              148.2387904
+            ],
+            [
+              -32.2346541,
+              148.2386853
+            ],
+            [
+              -32.2344106,
+              148.2386912
+            ]
+          ],
+          "storeys": 1,
+          "roofType": "skillion",
+          "wallHeightM": 3.9,
+          "heightEvidence": {
+            "surveyYear": 2023,
+            "groundAHDm": 238.91,
+            "eaveProxyM": 3.11,
+            "ridgeProxyM": 5.96,
+            "medianRoofM": 3.99,
+            "points": 898,
+            "density": 3.36
+          }
+        }
+      ],
+      "verandahs": [],
+      "heightEvidence": null,
+      "facade": {
+        "materials": [],
+        "colours": [
+          "#db9a63",
+          "#e9dcae"
+        ],
+        "windows": null,
+        "doors": null,
+        "verandahs": 0,
+        "signs": [
+          "NARROMINE",
+          "Narromine Shire Council",
+          "Customer Service & Payments",
+          "BANK"
+        ]
       },
       "photoReferences": [],
       "provenance": [
