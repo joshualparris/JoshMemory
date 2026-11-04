@@ -18,7 +18,14 @@ const yardB = net.nodes.find(n => Math.hypot(n.x - RAIL[2].pts[4][0], n.z - RAIL
 assert.equal(net.limitKmh(yardA, yardB), SPEED_LIMIT_KMH.yard);
 const mainA = net.nodes.find(n => Math.hypot(n.x - RAIL[7].pts[1][0], n.z - RAIL[7].pts[1][1]) < 1.6).id;
 const mainB = net.nodes.find(n => Math.hypot(n.x - RAIL[7].pts[2][0], n.z - RAIL[7].pts[2][1]) < 1.6).id;
-assert.equal(net.limitKmh(mainA, mainB), SPEED_LIMIT_KMH.main);
+assert.equal(net.limitKmh(mainA, mainB), 50, 'ARTC permanent restriction into Narromine from Dubbo');
+const nw = RAIL[1].pts, nwA = net.nodes.find(n => Math.hypot(n.x - nw[1][0], n.z - nw[1][1]) < 1.6).id, nwB = net.nodes.find(n => Math.hypot(n.x - nw[2][0], n.z - nw[2][1]) < 1.6).id;
+assert.equal(net.limitKmh(nwA, nwB), 100, 'CRN Main Western Line west: OSM maxspeed 100');
+const pk = RAIL[6].pts, pkId = (i) => net.nodes.find(n => Math.hypot(n.x - pk[i][0], n.z - pk[i][1]) < 1.6).id;
+assert.equal(net.limitKmh(pkId(1), pkId(2)), 90, 'Parkes line beyond the 55 km/h boards');
+assert.equal(net.limitKmh(pkId(pk.length - 3), pkId(pk.length - 2)), 55, 'Parkes line 55 km/h near Narromine');
+assert.equal(net.lineName(pkId(1), pkId(2)), 'Parkes - Narromine Line');
+assert.equal(net.lineName(yardA, yardB), 'Naromine Loop', 'OSM name (sic)');
 // Drive the whole Main Western line from its north-west end to the Dubbo end, then back.
 const nwEnd = net.nodes.find(n => Math.hypot(n.x - RAIL[1].pts[0][0], n.z - RAIL[1].pts[0][1]) < 1.6).id;
 const second = [...net.adj.get(nwEnd)][0];

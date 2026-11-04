@@ -11,6 +11,7 @@ await p.waitForFunction(() => window.__town?.train, null, { timeout: 90000 });
 const t0 = await p.evaluate(() => window.__town.train());
 assert.ok(t0.crossings.length >= 5, 'level crossings where mapped streets cross the track: ' + t0.crossings.length);
 assert.equal(t0.crossings.find(c => c.street === 'Dandaloo Street')?.closed, false, 'a parked train does not close Dandaloo Street');
+assert.equal(t0.crossings.filter(c => /Rail Level Crossing$/.test(c.name) && c.ref).length, 7, 'all 7 crossings carry their official names: ' + t0.crossings.map(c => c.name).join('; '));
 assert.match(await p.evaluate(() => window.__town.runFreight(0)), /Grain train/);
 await p.waitForFunction(() => { const t = window.__town.train(); return t.crossings.some(c => c.closed && c.down > 0.6); }, null, { timeout: 30000 });
 const t1 = await p.evaluate(() => window.__town.train());
