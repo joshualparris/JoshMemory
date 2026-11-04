@@ -618,63 +618,64 @@ export async function runNarromineVisualQa(options = {}) {
             _rawFrameTimes: measured.frameTimes,
             _buffer: screenshotBuffer,
           });
-        }
-      }
 
-      // Deterministic camera reproducibility check on the first desktop capture:
-      // teleport back to Repository Town (0, 0, 0), change clock, then re-place at location 1
-      // and verify pose and rendered pixels match deterministically.
-      if (vp.id === 'desktop' && selectedLocations.length > 0 && selectedLighting.length > 0) {
-        const firstLoc = selectedLocations[0];
-        const firstLight = selectedLighting[0];
-        const firstCap = captures.find(
-          (c) =>
-            c.locationId === firstLoc.id &&
-            c.viewport === 'desktop' &&
-            c.lighting === firstLight.id
-        );
-        if (firstCap) {
-          await page.evaluate(() => {
-            window.__town.life.setTime(6 * 60);
-            window.__town.place(0, 0, 0);
-          });
-          await page.waitForTimeout(80);
-          const repeatMeasured = await positionAndMeasureInPage(page, {
-            x: firstLoc.camera.x,
-            z: firstLoc.camera.z,
-            yawRad: firstLoc.camera.yawRad,
-            pitchRad: firstLoc.camera.pitchRad || 0,
-            eyeHeightM: firstLoc.camera.eyeHeightM || 1.65,
-            fovDeg: firstLoc.camera.fovDeg || 72,
-            minute: firstLight.minute,
-            weather: firstLight.weather,
-            sampleFrames: 6,
-            hideHud,
-          });
-          const repeatBuffer = await page.screenshot({ type: 'png' });
-          const cmp = compareCapturePair({
-            baselineCapture: firstCap,
-            candidateCapture: firstCap,
-            baselineBuffer: firstCap._buffer,
-            candidateBuffer: repeatBuffer,
-          });
-          const poseDelta =
-            Math.hypot(
-              repeatMeasured.state.pos.x - firstCap.camera.x,
-              repeatMeasured.state.pos.z - firstCap.camera.z
-            ) + Math.abs(repeatMeasured.state.yaw - firstCap.camera.yawRad);
+          // Deterministic camera reproducibility check directly after its first capture:
+          // move away, change clock, then re-place at location 1 before unrelated
+          // sites and live scene changes can confound the pixel-repeat assertion.
+          if (vp.id === 'desktop' && loc === selectedLocations[0] && light === selectedLighting[0]) {
+            const firstLoc = selectedLocations[0];
+            const firstLight = selectedLighting[0];
+            const firstCap = captures.find(
+              (c) =>
+                c.locationId === firstLoc.id &&
+                c.viewport === 'desktop' &&
+                c.lighting === firstLight.id
+            );
+            if (firstCap) {
+              await page.evaluate(() => {
+                window.__town.life.setTime(6 * 60);
+                window.__town.place(0, 0, 0);
+              });
+              await page.waitForTimeout(80);
+              const repeatMeasured = await positionAndMeasureInPage(page, {
+                x: firstLoc.camera.x,
+                z: firstLoc.camera.z,
+                yawRad: firstLoc.camera.yawRad,
+                pitchRad: firstLoc.camera.pitchRad || 0,
+                eyeHeightM: firstLoc.camera.eyeHeightM || 1.65,
+                fovDeg: firstLoc.camera.fovDeg || 72,
+                minute: firstLight.minute,
+                weather: firstLight.weather,
+                sampleFrames: 6,
+                hideHud,
+              });
+              const repeatBuffer = await page.screenshot({ type: 'png' });
+              const cmp = compareCapturePair({
+                baselineCapture: firstCap,
+                candidateCapture: firstCap,
+                baselineBuffer: firstCap._buffer,
+                candidateBuffer: repeatBuffer,
+              });
+              const poseDelta =
+                Math.hypot(
+                  repeatMeasured.state.pos.x - firstCap.camera.x,
+                  repeatMeasured.state.pos.z - firstCap.camera.z
+                ) + Math.abs(repeatMeasured.state.yaw - firstCap.camera.yawRad);
 
-          reproducibilityCheck = {
-            passed:
-              poseDelta < 1e-4 &&
-              cmp.metrics.rmse < 4.0 &&
-              cmp.metrics.edgeCorrelation >= 0.98,
-            locationId: firstLoc.id,
-            lighting: firstLight.id,
-            poseDelta: Number(poseDelta.toFixed(6)),
-            pixelRmse: cmp.metrics.rmse,
-            edgeCorrelation: cmp.metrics.edgeCorrelation,
-          };
+              reproducibilityCheck = {
+                passed:
+                  poseDelta < 1e-4 &&
+                  cmp.metrics.rmse < 4.0 &&
+                  cmp.metrics.edgeCorrelation >= 0.98,
+                locationId: firstLoc.id,
+                lighting: firstLight.id,
+                poseDelta: Number(poseDelta.toFixed(6)),
+                pixelRmse: cmp.metrics.rmse,
+                edgeCorrelation: cmp.metrics.edgeCorrelation,
+              };
+            }
+          }
+
         }
       }
 
