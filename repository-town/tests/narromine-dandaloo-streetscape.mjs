@@ -11,9 +11,8 @@ const plan = planDandalooStreetscape(STREETS);
 assert(plan.medians.length >= 30, 'planted median follows the mapped split over both blocks');
 assert.equal(plan.kerbs.length, 4 * plan.medians.length, 'median and external kerb edges');
 assert.equal(plan.pavers.length, 2 * plan.medians.length, 'both shop-front footpaths');
-assert(plan.parking.length >= 60, 'angled bay markings along each block and each side');
-assert(plan.trees.length >= 10 && plan.lamps.length >= 8, 'town trees and swan-neck lamps');
-assert(plan.trees.filter(t => t.kind === 'palm').length >= 1, 'additional north median palm');
+assert.equal(plan.parking.length, 0, 'no illustrative bay markings');
+assert(plan.trees.length === 0 && plan.lamps.length === 0, 'no approximate trees or lamps');
 assert(!plan.trees.some(t => Math.abs(t.z + 889) < 4 && t.where === 'median'),
   'do not duplicate the existing Kierath\'s median palm');
 const inBand = z => LANDSCAPED_BANDS.some(b => z <= b.upperZ && z >= b.lowerZ);
@@ -51,7 +50,7 @@ console.log('PASS Dandaloo streetscape: ' + plan.medians.length +
   const { onNarromineRoad } = await import('../src/world/narromine-layout.js');
   const s = planDandalooSouth(STREETS), road = findDandalooSouth(STREETS);
   assert(s.kerbs.length >= 120, 'kerbs both sides along the south stretch (' + s.kerbs.length + ')');
-  assert(s.trees.length >= 30 && s.lamps.length >= 8 && s.poles.length >= 10, `verge trees ${s.trees.length}, lamps ${s.lamps.length}, poles ${s.poles.length}`);
+  assert(s.trees.length === 0 && s.lamps.length === 0 && s.poles.length === 0 && s.kerbs.length >= 100, `no estimated features (owner direction), trees ${s.trees.length}, lamps ${s.lamps.length}, poles ${s.poles.length}`);
   for (const t of [...s.trees, ...s.lamps, ...s.poles]) {
     assert(t.z >= SOUTH_RANGE.upperZ - 6 && t.z <= SOUTH_RANGE.lowerZ + 6, 'inside the south stretch');
     const cx = roadXAtZ(road, t.z); assert(Math.abs(t.x - cx) > road.width / 2, 'verge item is off the Dandaloo carriageway at z=' + t.z.toFixed(0));
