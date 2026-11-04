@@ -906,7 +906,7 @@ async function start() {
       status('Outside the north-side entrance to Narromine Post Office, 74 Dandaloo Street. Walk to the steps or tap ✋ to enter.');
       $('search').blur();return;
     }
-    if (/^(?:coles(?: narromine)?|76 dandaloo(?: street)?)(?:\\b|$)/.test(q) || q.startsWith('coles narromine ·')) {
+    if (/^(?:coles(?: narromine)?|76 dandaloo(?: street)?)(?:\b|$)/.test(q) || q.startsWith('coles narromine ·')) {
       if(driving.driving){status('Park and get out before fast travel.');return;}
       if(mode==='house')leave(false);closePanel();npcChat.close();setOverview(false);
       const pose=NARROMINE_COLES_ENTRANCE.outside;player.place(pose.x,pose.z,pose.yaw);
@@ -920,7 +920,7 @@ async function start() {
       status('Outside Leah Bennett’s fictional home: mapped OSM house #203 near Terangion Street (West). No real household identified.');
       $('search').blur();return;
     }
-    if (/^(?:st\\.? mary'?s(?: anglican)?(?: church)?(?: narromine)?|148 dandaloo(?: street)?)$/.test(q)) {
+    if (/^(?:st\.? mary'?s(?: anglican)?(?: church)?(?: narromine)?|148 dandaloo(?: street)?)$/.test(q)) {
       if(driving.driving){status('Park and get out before fast travel.');return;}
       if(mode==='house')leave(false);
       closePanel();npcChat.close();setOverview(false);
