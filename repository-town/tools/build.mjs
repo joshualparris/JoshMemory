@@ -35,10 +35,14 @@ if (errors.length && !partial) {
   process.exit(1);
 }
 
+// A stale building register must never ship as authoritative progress information.
+import { execFileSync } from 'node:child_process';
+execFileSync(process.execPath, [path.join(TOWN, 'tools/narromine-inventory.mjs'), '--check'], { stdio: 'inherit' });
 for (const target of ['public', 'private']) {
   const out = path.join(TOWN, 'dist', target);
   fs.rmSync(out, { recursive: true, force: true });
   fs.cpSync(path.join(TOWN, 'src'), out, { recursive: true });
+  fs.copyFileSync(path.join(TOWN, 'data/narromine-building-inventory.json'), path.join(out, 'narromine-building-inventory.json'));
   // Heritage museums never receive procedurally generated modern household furniture.
   // Modify only the PUBLIC bundle; canonical private simulation code stays untouched.
   if (target === 'public') for (const [relative, before, after] of [
