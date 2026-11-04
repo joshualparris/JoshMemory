@@ -17,9 +17,9 @@ landmark sites, 8 stand-in shops and **2,665 invented stand-in houses**.
 1. [x] **Real building footprints for every building.** _Done 4 Nov 2026: 2,212 traced footprints (Microsoft Global ML Building Footprints, ODbL) replace all 2,665 invented houses; heights from its estimates (1,985 measured); 13 dropped where a mapped road runs through them. Remaining: the 8 named stand-in shops._ Replace the 2,665 invented stand-in houses
    (and 8 stand-in shops) with NSW Spatial Services building footprints: real position, outline and
    orientation for every house, shed and shop. Heights from 2023 LiDAR where measured.
-2. [ ] **LiDAR heights and roof form for all footprints.** Run `tools/narromine_lidar.py` over the
+2. [x] **LiDAR heights and roof form for all footprints.** _Done: 1,265 footprints measured from the 2023/2011 tiles on hand (eave p5, ridge p98); the rest use the footprint dataset's height. Outer areas need more LiDAR tiles._ Run `tools/narromine_lidar.py` over the
    new footprints: wall and ridge heights, flat vs pitched roofs, verandahs.
-3. [ ] **Grain silos and receival site.** Model the GrainCorp/Agrigrain silos and bunkers at the
+3. [x] **Grain silos and receival site.** _Partly done: the four round concrete silos by the station yard (OSM man_made=silo) are cylinders at their LiDAR heights (20.8 m wall, 23.4 m top); the three OSM grain bunkers are low tarped stacks. Bunker heights need a LiDAR tile covering them._ Model the GrainCorp/Agrigrain silos and bunkers at the
    Silo Access Road crossing from footprints and LiDAR heights (currently missing; the tallest
    landmark in town).
 4. [ ] **Real trees.** Place trees at LiDAR vegetation (class 3–5) clusters with their measured
@@ -34,7 +34,7 @@ landmark sites, 8 stand-in shops and **2,665 invented stand-in houses**.
    River banks and drainage channels, instead of a flat plane.
 9. [ ] **Ground cover and land use.** Paddocks, parks, sports ovals, the golf course, the
    aerodrome and industrial yards from OSM land use and aerial imagery colours.
-10. [ ] **Level-crossing protection types.** Booms vs flashing lights vs signs for all 7
+10. [x] **Level-crossing protection types.** _Done: NSW register — Dandaloo Street half booms + lights, Manildra Street lights only, five with stop signs; nine trains a day as in the register._ Booms vs flashing lights vs signs for all 7
     crossings, from the NSW "level crossings on public roads" open dataset (currently all booms).
 11. [ ] **Power lines and poles.** OSM `power=line/pole` and LiDAR wire returns; re-add the south
     Dandaloo poles at their real positions.
