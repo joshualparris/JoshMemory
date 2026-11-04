@@ -60,7 +60,7 @@ export const DETAILED = Object.freeze(NARROMINE_BUILDINGS.map((d) => Object.free
   props: (d.props || []).map((p) => ({ ...p, ...Object.fromEntries(['at', 'a', 'b'].filter((k) => p[k]).map((k) => [k, W([p[k]])[0]])), ...(p.pts ? { pts: W(p.pts) } : {}) })) })));
 // Mapped outlines whose centre lies in a detailed lot are left out: the detailed model replaces them.
 const centreOf = (pts) => [pts.reduce((s, p) => s + p[0], 0) / pts.length, pts.reduce((s, p) => s + p[1], 0) / pts.length];
-export const BUILDINGS = Object.freeze(OSM.buildings.map((b, i) => Object.freeze({ ...b, pts: b.pts.map(toWorld), lidar: LIDAR['osm:' + i] || null }))
+export const BUILDINGS = Object.freeze(OSM.buildings.map((b, i) => Object.freeze({ ...b, osmIndex: i, pts: b.pts.map(toWorld), lidar: LIDAR['osm:' + i] || null }))
   .filter((b) => !DETAILED.some((d) => inPoly(...centreOf(b.pts), d.boundary))));
 export const AREAS = Object.freeze(OSM.areas.map((a) => Object.freeze({ ...a, pts: a.pts.map(toWorld) })));
 export const WATER = Object.freeze(OSM.water.map((w) => Object.freeze({ ...w, pts: w.pts.map(toWorld) })));
@@ -83,6 +83,7 @@ const FACTS = {
   'The Court House Hotel': 'First established by David Fitch in 1889, on the corner of Burraway and Merilba Streets. (Aussietowns)',
   'Narromine Aviation Museum': 'Opened in 2002 at the aerodrome, home of RAAF No. 5 Elementary Flying Training School (1940–44), where about 2,800 pilots trained. Exhibits include a CAC Sabre and a flying Wright Flyer replica. (Narromine Aviation Museum / AWM)',
   'Tom Perry Park': 'Home of a Glenn McGrath statue. (Wikipedia)',
+  'Narromine Railway Station': 'Opened 1 May 1883 on the Main Western Line (497.554 km from Sydney); closed to regular passenger trains on 20 October 1975 and restored as an NSW TrainLink coach stop. Listed as Item I11 on the Narromine LEP 2011 Heritage Schedule (Lot 4 DP 1012153).',
 };
 const KIND_LABEL = (k) => String(k || 'place').replace(/_/g, ' ').replace(/^\w/, (c) => c.toUpperCase());
 export const PLACES = Object.freeze(OSM.places.map((p) => {
@@ -94,7 +95,9 @@ export const PLACES = Object.freeze(OSM.places.map((p) => {
 function EXTRA_PLACES() {
   const at = (id) => { const d = DETAILED.find((b) => b.id === id), p = d && d.parts[0].pts; return p && [p.reduce((s, q) => s + q[0], 0) / p.length, p.reduce((s, q) => s + q[1], 0) / p.length]; };
   const sm = at('st-marys-anglican');
-  return sm ? [Object.freeze({ name: "St Mary's Anglican Church", kind: 'place_of_worship', kindLabel: 'Place of worship', address: '148 Dandaloo Street', x: sm[0], z: sm[1], fact: FACTS["St Mary's Anglican Church"] })] : [];
+  const extra = sm ? [Object.freeze({ name: "St Mary's Anglican Church", kind: 'place_of_worship', kindLabel: 'Place of worship', address: '148 Dandaloo Street', x: sm[0], z: sm[1], fact: FACTS["St Mary's Anglican Church"] })] : [];
+  extra.push(Object.freeze({ name: 'Narromine Railway Station', kind: 'railway_station', kindLabel: 'Railway station', address: 'Derribong Avenue (Narromine Station Access)', x: -4708.8, z: -710.2, fact: FACTS['Narromine Railway Station'] }));
+  return extra;
 }
 
 // Arrival: the Royal Hotel's footpath on Dandaloo Street (search "Narromine" lands here).
