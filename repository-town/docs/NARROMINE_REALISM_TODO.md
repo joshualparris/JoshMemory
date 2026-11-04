@@ -26,9 +26,9 @@ landmark sites, 8 stand-in shops and **2,665 invented stand-in houses**.
    canopy height and spread; street trees only where LiDAR shows them.
 5. [ ] **Property boundaries and fences.** Draw cadastral lot boundaries; front fences and
    driveways only where aerial imagery shows them.
-6. [ ] **Road surfaces and markings.** Sealed vs unsealed from OSM `surface`; centre lines, edge
+6. [x] **Road surfaces and markings.** _Done from OSM tags: 26 street runs on unpaved ways drawn as gravel tracks; Australian broken centre lines (3 m line, 9 m gap) only on the 15 ways tagged with 2+ lanes. OSM maps no stop lines or road signs beyond give-way._ Sealed vs unsealed from OSM `surface`; centre lines, edge
    lines, stop/give-way lines and signs at mapped intersections; real road widths.
-7. [ ] **Kerb, gutter and footpaths.** Only on streets that have them (town centre and main
+7. [x] **Kerb, gutter and footpaths.** _Partly: unpaved roads no longer get generated footpaths or kerbs. Sealed-street footpaths still follow the road class rule; checking them against aerial imagery remains._ Only on streets that have them (town centre and main
    streets per aerial imagery); gravel verges elsewhere.
 8. [ ] **Terrain.** Use the LiDAR ground model (class 2) for gentle ground levels, the Macquarie
    River banks and drainage channels, instead of a flat plane.
