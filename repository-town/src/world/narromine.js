@@ -6,6 +6,7 @@
 import * as THREE from 'three';
 import { buildKieraths } from './narromine-kieraths.js';
 import { buildNarromineHotel, NARROMINE_HOTEL_ID } from './narromine-hotel.js';
+import { buildNarromineRoyalHotel, ROYAL_HOTEL_REPLACED_IDS } from './narromine-royal-hotel.js';
 import { buildNarromineRailwayPrecinct } from './narromine-railway-precinct.js';
 import { NARROMINE_RAILWAY_INTEGRATION_SPEC } from './narromine-railway-evidence.js';
 import { buildNarromineCourthousePrecinct } from './narromine-courthouse-precinct.js';
@@ -346,7 +347,7 @@ export function buildNarromine(parent, makeLabel = null) {
   };
   const GROUND = { asphalt: [0x3f4244, 0.05], grass: [0x7fa65d, 0.03], paving: [0xb8ac98, 0.055], gravel: [0xa89a84, 0.045] };
   for (const d of DETAILED) {
-    if (d.id === NARROMINE_HOTEL_ID) continue;
+    if (d.id === NARROMINE_HOTEL_ID || ROYAL_HOTEL_REPLACED_IDS.has(d.id)) continue;
     const ROOF = 0xc8cac6, WALL = 0xe3d8c2;   // galvanised roofs as in the aerial; wall colour assumed (cream render/paint)
     for (const g of d.ground) flatPoly(GROUND[g.kind][0], g.pts, GROUND[g.kind][1]);
     for (const p of d.parts) {
@@ -539,6 +540,7 @@ export function buildNarromine(parent, makeLabel = null) {
 
   // Main-thread batch-merged geometry; live walkable arcade, retaining Post Office entrance.
   buildNarromineHotel({ push, box, flatPoly, town, colliders });
+  buildNarromineRoyalHotel({ push, box, flatPoly, plane, boardTexture, town, colliders });
   buildKieraths({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   buildNarromineRailwayPrecinct({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   buildNarromineCourthousePrecinct({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
