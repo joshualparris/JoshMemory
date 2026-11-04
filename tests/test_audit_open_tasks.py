@@ -46,6 +46,22 @@ class TaskAuditTest(unittest.TestCase):
         self.assertEqual(result[0]["source_file"], "old.csv")
         self.assertEqual(len(mapping["ids"]), 0)
 
+    def test_reference_rows_not_mistaken_for_open_work(self):
+        old_reference = {
+            "task_id": "GRA-037",
+            "status": "REVIEWED_FINDINGS_OPEN",
+            "item_type": "REFERENCE_NOT_ACTIONABLE",
+        }
+        historic_steps = {
+            "task_id": "TR-001.01",
+            "status": "LEGACY_PARENT_TRIAGED_NOT_STEP_VERIFIED",
+            "item_type": "REFERENCE_NOT_ACTIONABLE",
+        }
+        active = {"task_id": "RTN-007", "status": "OPEN", "item_type": "ACTION"}
+        self.assertFalse(audit.master_row_is_actionable(old_reference))
+        self.assertFalse(audit.master_row_is_actionable(historic_steps))
+        self.assertTrue(audit.master_row_is_actionable(active))
+
     def test_code_todo_not_arbitrary_mentions(self):
         src = "\n".join([
             'const label = "TODO not a real code comment";',
