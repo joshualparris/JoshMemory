@@ -2,6 +2,7 @@
 // becomes Dandaloo Street; real street names, buildings and named places are present and placed
 // where the map puts them; private homes are never named; fences leave the highway open.
 import assert from 'node:assert/strict';
+import './narromine-surface-materials.mjs';
 import { HIGHWAY, REGION, OSM, STREETS, BUILDINGS, PLACES, ARRIVAL, OFFSET, onNarromineRoad, onOpenHighway, boundaryColliders } from '../src/world/narromine-layout.js';
 
 const secs = (HIGHWAY.x1 - HIGHWAY.x0) / (HIGHWAY.speed / 3.6);
