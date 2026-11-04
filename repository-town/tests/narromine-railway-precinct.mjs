@@ -5,7 +5,8 @@
 import assert from 'node:assert/strict';
 import { performance } from 'node:perf_hooks';
 import * as THREE from 'three';
-import { OSM, STREETS, toWorld } from '../src/world/narromine-layout.js';
+import { OSM, STREETS, PLACES, toWorld } from '../src/world/narromine-layout.js';
+import { buildNarromine } from '../src/world/narromine.js';
 import { NARROMINE_LIDAR } from '../src/world/narromine-lidar-data.js';
 import {
   NARROMINE_RAILWAY_HERITAGE,
@@ -222,6 +223,27 @@ assert(callbackStrips >= 10, 'integrated mode emits track/kerb strips');
 assert(callbackPolys >= 1, 'integrated mode emits forecourt polygon');
 assert.equal(integratedColliders.length, built.colliders.length, 'collider count matches standalone build');
 assert.deepEqual(NARROMINE_RAILWAY_INTEGRATION_SPEC.suppressedOsmBuildingIndices, [28, 29, 198]);
+
+// ── 7. Live Narromine World Integration & Duplicate-Suppression Checks ──────
+const stationPlace = PLACES.find((p) => p.name === 'Narromine Railway Station');
+assert(stationPlace, 'Narromine Railway Station is registered in PLACES');
+assert.equal(stationPlace.x, -4708.8);
+assert.equal(stationPlace.z, -710.2);
+
+const liveScene = new THREE.Group();
+const liveNarromine = buildNarromine(liveScene);
+assert(liveNarromine.spots.some((s) => s.label === 'Narromine Railway Station'), 'live Narromine spots include Narromine Railway Station');
+assert(liveNarromine.spots.some((s) => s.key === 'narromine:railway-station:platform'), 'live Narromine spots include Platform 1 spot');
+assert(liveNarromine.spots.some((s) => s.key === 'narromine:railway-station:coach-stop'), 'live Narromine spots include Coach Stop spot');
+
+// Verify the oversized generic OSM AABB colliders for osm:28, osm:29, osm:198 are suppressed
+// so the forecourt spot [-4708.8, -710.2] and platform spot [-4704.2, -722.6] are walkable
+const hitsLiveCollider = (x, z, r = 0.85) =>
+  liveNarromine.colliders.some((c) => x > c.x0 - r && x < c.x1 + r && z > c.z0 - r && z < c.z1 + r);
+assert(!hitsLiveCollider(-4708.8, -710.2, 0.85), 'live station forecourt spot [-4708.8, -710.2] is clear of colliders');
+assert(!hitsLiveCollider(-4703.2, -723.5, 0.85), 'live Platform 1 spot [-4703.2, -723.5] is clear of colliders');
+assert(!hitsLiveCollider(-4712.4, -710.8, 0.85), 'live Coach Stop spot [-4712.4, -710.8] is clear of colliders');
+assert(hitsLiveCollider(station.centreWorld[0], station.centreWorld[1], 0.2), 'live station building interior is solid');
 
 console.log(
   `PASS Narromine Railway Station precinct: ${NARROMINE_RAILWAY_BUILDINGS.length} surveyed LiDAR buildings ` +
