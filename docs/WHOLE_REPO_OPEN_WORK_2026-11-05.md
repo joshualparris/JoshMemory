@@ -7,9 +7,9 @@
 
 - Tracked repository files seen: **2,402**; text files scanned: **1,842**.
 - Explicit unfinished items found in tracked text files (before existing-ID reconciliation): **842**.
-- Canonical *source-reported* outstanding entries from legacy and newer registers: **2,778** (existing IDs preserved).
+- Canonical *source-reported* outstanding entries from legacy and newer registers: **2,755** (existing IDs preserved).
 - **299 NEW permanent JMU IDs** assigned to distinct formerly unnumbered explicit checkboxes, work headings, task-status rows or code comments.
-- Total uniquely keyed source-reported records in generated CSV: **3,077**. GitHub open issues and PRs are separate numbered tracks; they may overlap these tasks.
+- Total uniquely keyed source-reported records in generated CSV: **3,054**. GitHub open issues and PRs are separate numbered tracks; they may overlap these tasks.
 - Existing task IDs were not renamed, renumbered or marked complete. Generated tasks retain source file and line references.
 
 **Coverage limits:** This scans the current JoshMemory checkout, not live source trees in the 233+ other repositories referenced by the old portfolio registry. Code comments and decades-old plans are *review candidates*, not independently verified current defects. Unmarked ideas in prose, private connector-only records and untracked files cannot be guaranteed complete. The legacy master is a 25 Oct snapshot; dependency and priority changes after that date are not silently inferred.
@@ -370,7 +370,7 @@ These are task IDs, **not** claims of independently verified unresolved bugs. Do
 |---|---:|
 | P0 | 27 |
 | P1 | 148 |
-| P2 | 804 |
+| P2 | 781 |
 | P3 | 2,098 |
 | REF | 0 |
 
@@ -378,7 +378,7 @@ These are task IDs, **not** claims of independently verified unresolved bugs. Do
 
 | Source family | Count |
 |---|---:|
-| legacy_master_2026_10_25 | 2,663 |
+| legacy_master_2026_10_25 | 2,640 |
 | markdown_checkbox | 238 |
 | numbered_action_heading | 100 |
 | status_table | 47 |
