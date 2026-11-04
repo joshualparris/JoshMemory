@@ -15,6 +15,13 @@ const scenarios = [
   ['touch-tablet', { viewport:{width:820,height:1060},hasTouch:true,deviceScaleFactor:1 }],
 ];
 const placement = () => {
+  // Layout-only fixture: the game hides dashboard controls every animation
+  // frame while not driving. Re-enable them in THIS SAME evaluation as the
+  // measurements so a real browser frame cannot undo the fixture between
+  // separate Playwright round-trips. The workflow's separate mobile-driving
+  // test verifies actual vehicle entry and live button behaviour.
+  for(const id of ['drive-dash-toggle','drive-lane-toggle','driving-dashboard'])
+    document.getElementById(id).hidden=false;
   const box = id => {
     const e=document.getElementById(id);
     const r=e.getBoundingClientRect();
