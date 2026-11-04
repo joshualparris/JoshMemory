@@ -10,6 +10,7 @@ import { buildNarromineHotel, NARROMINE_HOTEL_ID } from './narromine-hotel.js';
 import { buildNarromineRoyalHotel, ROYAL_HOTEL_REPLACED_IDS } from './narromine-royal-hotel.js';
 import { buildNarromineRailwayPrecinct } from './narromine-railway-precinct.js';
 import { NARROMINE_TREES } from './narromine-trees-data.js';
+import { buildNarromineFurniture } from './narromine-furniture.js';
 import { NARROMINE_RAILWAY_INTEGRATION_SPEC } from './narromine-railway-evidence.js';
 import { buildNarromineCourthousePrecinct } from './narromine-courthouse-precinct.js';
 import { buildNarromineStAugustines, ST_AUGUSTINES_OSM_INDEX } from './narromine-st-augustines.js';
@@ -260,6 +261,8 @@ export function buildNarromine(parent, makeLabel = null) {
     const r = roofGeo(); r.scale(h.w + 0.8, roofH, h.d + 0.8); r.rotateY(h.yaw); r.translate(h.x, wall + roofH / 2, h.z); push(HOUSE_ROOFS[h.tone], r);
     colliders.push({ ...h.rect });
   }
+  // OSM power poles, transmission towers and lines, give-way signs and bus stops.
+  buildNarromineFurniture(town, colliders);
   // Real trees detected in the 2023 LiDAR (narromine-trees-data.js): one instanced trunk and crown mesh
   // each, at the measured height and crown radius. Trunks are solid; crowns are not.
   {

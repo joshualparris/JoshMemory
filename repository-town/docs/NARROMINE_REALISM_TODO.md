@@ -36,9 +36,9 @@ landmark sites, 8 stand-in shops and **2,665 invented stand-in houses**.
    aerodrome and industrial yards from OSM land use and aerial imagery colours.
 10. [x] **Level-crossing protection types.** _Done: NSW register — Dandaloo Street half booms + lights, Manildra Street lights only, five with stop signs; nine trains a day as in the register._ Booms vs flashing lights vs signs for all 7
     crossings, from the NSW "level crossings on public roads" open dataset (currently all booms).
-11. [ ] **Power lines and poles.** OSM `power=line/pole` and LiDAR wire returns; re-add the south
+11. [x] **Power lines and poles.** _Done from OSM: 33 timber poles on the 22 kV line, 17 lattice towers on the two 132 kV lines, sagging three-wire conductors. Heights are typical values (not mapped). South Dandaloo poles still need LiDAR wire returns or OSM mapping._ OSM `power=line/pole` and LiDAR wire returns; re-add the south
     Dandaloo poles at their real positions.
-12. [ ] **Street lights and signs.** OSM `highway=street_lamp`, traffic signs and the town-centre
+12. [x] **Street lights and signs.** _Done for what OSM maps: 34 give-way signs at the kerb facing approaching traffic and 9 bus stops. OSM maps no street lamps or stop signs here, so none are invented._ OSM `highway=street_lamp`, traffic signs and the town-centre
     lights; only where mapped.
 13. [ ] **Business names and land uses.** Check all 98 named places against OSM and council
     listings; remove closed businesses; keep historical names only with a date label.
