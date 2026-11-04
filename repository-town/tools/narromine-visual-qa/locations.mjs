@@ -152,7 +152,7 @@ const RAW_LOCATIONS = [
     title: 'Narromine Hotel — street-facing corner',
     shortLabel: '2. Narromine Hotel',
     category: 'landmark-hotel',
-    street: '89–93 Dandaloo Street & Derribong Avenue',
+    street: '116 Dandaloo Street & Derribong Avenue',
     buildingIds: ['NR-SITE-narromine-hotel'],
     detailedId: 'narromine-hotel',
     placeName: 'Narromine Hotel',
