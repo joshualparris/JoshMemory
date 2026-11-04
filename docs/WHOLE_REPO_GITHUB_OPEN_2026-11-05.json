@@ -2,7 +2,7 @@
   "schema_version": 1,
   "as_of_date": "2026-11-05 Australia/Sydney",
   "source_repo": "joshualparris/JoshMemory",
-  "observed_main_sha": "3b798b6858be83fe893748a7b0d531c297377aa2",
+  "observed_main_sha": "bb2028a776e7a4a0ea1b3ad0aa15d5c624cd6df4",
   "open_issues": [
     {
       "kind": "issue",
@@ -89,6 +89,22 @@
       "url": "https://github.com/joshualparris/JoshMemory/pull/377",
       "head_branch": "fix/narromine-north-evidence-20261105",
       "updated_at": "2026-11-04T21:55:25Z"
+    },
+    {
+      "kind": "pr",
+      "number": 383,
+      "title": "Audit every JoshMemory tracked task source; preserve IDs, number missing items and prioritise open work",
+      "url": "https://github.com/joshualparris/JoshMemory/pull/383",
+      "head_branch": "audit/whole-repo-open-tasks-20261105",
+      "updated_at": "2026-11-04T22:06:56Z"
+    },
+    {
+      "kind": "pr",
+      "number": 384,
+      "title": "fix(town): real engine shutdown ramp and Narromine material screenshot verification",
+      "url": "https://github.com/joshualparris/JoshMemory/pull/384",
+      "head_branch": "fix/narromine-material-qa-audio-ramp-20261105",
+      "updated_at": "2026-11-04T22:00:45Z"
     }
   ]
 }
