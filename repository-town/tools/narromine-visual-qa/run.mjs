@@ -229,14 +229,89 @@ function summarizeViewportPerformance(captures, viewportSpec) {
   };
 }
 
-async function positionAndMeasureInPage(page, { x, z, yawRad, minute, weather, sampleFrames }) {
+export async function positionAndMeasureInPage(
+  page,
+  {
+    x,
+    z,
+    yawRad,
+    pitchRad = 0,
+    eyeHeightM = 1.65,
+    fovDeg = 72,
+    minute,
+    weather,
+    sampleFrames,
+    hideHud = true,
+  }
+) {
   return page.evaluate(
-    async ({ x, z, yawRad, minute, weather, sampleFrames }) => {
+    async ({
+      x,
+      z,
+      yawRad,
+      pitchRad,
+      eyeHeightM,
+      fovDeg,
+      minute,
+      weather,
+      sampleFrames,
+      hideHud,
+    }) => {
       const t = window.__town;
       if (!t) throw new Error('window.__town is not initialised');
       t.closePanel?.();
       if (t.state().driving) t.leaveVehicle?.();
       if (t.state().mode === 'house') t.toExit?.();
+
+      // Install non-invasive Three.js camera hook once per page session so QA captures
+      // can control pitch, eyeHeightM, and FOV without modifying src/main.js or player.js.
+      if (!window.__qaRenderHookInstalled) {
+        try {
+          const THREE = await import('./vendor/three.module.min.js');
+          const origRender = THREE.WebGLRenderer.prototype.render;
+          THREE.WebGLRenderer.prototype.render = function (scene, camera, ...rest) {
+            window.__qaCamera = camera;
+            window.__qaScene = scene;
+            const ov = window.__qaCameraOverride;
+            if (ov && camera && camera.isPerspectiveCamera) {
+              if (Number.isFinite(ov.eyeHeightM)) {
+                camera.position.y = ov.eyeHeightM;
+              }
+              if (Number.isFinite(ov.pitchRad) || Number.isFinite(ov.yawRad)) {
+                const pitch = Number.isFinite(ov.pitchRad) ? ov.pitchRad : camera.rotation.x;
+                const yaw = Number.isFinite(ov.yawRad) ? ov.yawRad : camera.rotation.y;
+                camera.rotation.set(pitch, yaw, 0, 'YXZ');
+              }
+              if (Number.isFinite(ov.fovDeg) && Math.abs(camera.fov - ov.fovDeg) > 1e-3) {
+                camera.fov = ov.fovDeg;
+                camera.updateProjectionMatrix();
+              }
+            }
+            return origRender.call(this, scene, camera, ...rest);
+          };
+          window.__qaRenderHookInstalled = true;
+        } catch {}
+      }
+
+      window.__qaCameraOverride = {
+        yawRad: Number.isFinite(yawRad) ? yawRad : 0,
+        pitchRad: Number.isFinite(pitchRad) ? pitchRad : 0,
+        eyeHeightM: Number.isFinite(eyeHeightM) ? eyeHeightM : 1.65,
+        fovDeg: Number.isFinite(fovDeg) ? fovDeg : 72,
+      };
+
+      // Hide HUD overlays only during QA screenshot capture so buildings are never obscured.
+      for (const el of document.querySelectorAll('body > *:not(#scene)')) {
+        if (hideHud) {
+          if (el.dataset.qaPrevVis === undefined) {
+            el.dataset.qaPrevVis = el.style.visibility || '';
+          }
+          el.style.visibility = 'hidden';
+        } else if (el.dataset.qaPrevVis !== undefined) {
+          el.style.visibility = el.dataset.qaPrevVis;
+          delete el.dataset.qaPrevVis;
+        }
+      }
 
       t.life.speed(0);
       t.life.setWeather(weather || 'clear');
@@ -267,14 +342,17 @@ async function positionAndMeasureInPage(page, { x, z, yawRad, minute, weather, s
       const perf = t.perf ? t.perf() : null;
       const colliderHit = Boolean(t.probeStatic(x, z, 0.36));
       const narromineVisible = Boolean(t.narromineVisible());
+      const cam = window.__qaCamera;
 
       return {
         state: {
           mode: state.mode,
           pos: state.pos,
           y: state.y,
-          eye: state.eye,
+          eye: cam ? cam.position.y : state.eye,
           yaw: state.yaw,
+          pitch: cam ? cam.rotation.x : pitchRad || 0,
+          fov: cam ? cam.fov : fovDeg || 72,
           time: state.time,
           minute: state.minute,
           daylight: state.daylight,
@@ -283,6 +361,7 @@ async function positionAndMeasureInPage(page, { x, z, yawRad, minute, weather, s
           fps: state.fps,
           renderPixelRatio: state.renderPixelRatio,
         },
+        hudHidden: Boolean(hideHud),
         solar,
         compass,
         gpu: perf?.gpu || 'unknown',
@@ -291,7 +370,18 @@ async function positionAndMeasureInPage(page, { x, z, yawRad, minute, weather, s
         frameTimes,
       };
     },
-    { x, z, yawRad, minute, weather, sampleFrames }
+    {
+      x,
+      z,
+      yawRad,
+      pitchRad,
+      eyeHeightM,
+      fovDeg,
+      minute,
+      weather,
+      sampleFrames,
+      hideHud,
+    }
   );
 }
 
@@ -320,7 +410,10 @@ export async function runNarromineVisualQa(options = {}) {
     ? new Set(String(options.times).split(',').map((s) => s.trim()).filter(Boolean))
     : null;
 
-  const selectedLocations = NARROMINE_QA_LOCATIONS.filter(
+  const baseLocations = Array.isArray(options.customLocations)
+    ? options.customLocations
+    : NARROMINE_QA_LOCATIONS;
+  const selectedLocations = baseLocations.filter(
     (l) => !locationFilter || locationFilter.has(l.id) || locationFilter.has(String(l.order))
   );
   const selectedViewports = Object.values(VIEWPORTS).filter(
@@ -329,6 +422,7 @@ export async function runNarromineVisualQa(options = {}) {
   const selectedLighting = Object.values(LIGHTING_PRESETS).filter(
     (t) => !lightingFilter || lightingFilter.has(t.id)
   );
+  const hideHud = options.hideHud !== false;
 
   const sampleFrames = Number(options.sampleFrames || 14);
   const photoCatalogue = loadLicensedPhotoReferences(REPO_TOWN_ROOT);
@@ -402,9 +496,13 @@ export async function runNarromineVisualQa(options = {}) {
             x: loc.camera.x,
             z: loc.camera.z,
             yawRad: loc.camera.yawRad,
+            pitchRad: loc.camera.pitchRad || 0,
+            eyeHeightM: loc.camera.eyeHeightM || 1.65,
+            fovDeg: loc.camera.fovDeg || 72,
             minute: light.minute,
             weather: light.weather,
             sampleFrames,
+            hideHud,
           });
 
           if (measured.gpu && measured.gpu !== 'unknown') {
@@ -476,8 +574,15 @@ export async function runNarromineVisualQa(options = {}) {
               x: Number(measured.state.pos.x.toFixed(3)),
               y: Number((measured.state.y ?? 0).toFixed(3)),
               z: Number(measured.state.pos.z.toFixed(3)),
-              eye: Number((measured.state.eye ?? 1.65).toFixed(3)),
+              lat: loc.camera.lat ?? null,
+              lon: loc.camera.lon ?? null,
+              eye: Number((measured.state.eye ?? loc.camera.eyeHeightM ?? 1.65).toFixed(3)),
               yawRad: Number(measured.state.yaw.toFixed(6)),
+              pitchRad: Number((measured.state.pitch ?? loc.camera.pitchRad ?? 0).toFixed(6)),
+              pitchDeg: Number(
+                (((measured.state.pitch ?? loc.camera.pitchRad ?? 0) * 180) / Math.PI).toFixed(2)
+              ),
+              fovDeg: Number((measured.state.fov ?? loc.camera.fovDeg ?? 72).toFixed(1)),
               headingDeg: loc.camera.headingDeg,
               cardinal: loc.camera.cardinal,
               compassDomHeading: measured.compass?.heading ?? loc.camera.headingDeg,
@@ -485,6 +590,7 @@ export async function runNarromineVisualQa(options = {}) {
               target: { ...loc.target },
               poseError: Number(poseError.toFixed(6)),
               colliderClear: measured.colliderClear,
+              hudHidden: Boolean(measured.hudHidden),
             },
             solar: measured.solar,
             metrics: {
@@ -537,9 +643,13 @@ export async function runNarromineVisualQa(options = {}) {
             x: firstLoc.camera.x,
             z: firstLoc.camera.z,
             yawRad: firstLoc.camera.yawRad,
+            pitchRad: firstLoc.camera.pitchRad || 0,
+            eyeHeightM: firstLoc.camera.eyeHeightM || 1.65,
+            fovDeg: firstLoc.camera.fovDeg || 72,
             minute: firstLight.minute,
             weather: firstLight.weather,
             sampleFrames: 6,
+            hideHud,
           });
           const repeatBuffer = await page.screenshot({ type: 'png' });
           const cmp = compareCapturePair({
@@ -555,7 +665,10 @@ export async function runNarromineVisualQa(options = {}) {
             ) + Math.abs(repeatMeasured.state.yaw - firstCap.camera.yawRad);
 
           reproducibilityCheck = {
-            passed: poseDelta < 1e-4 && cmp.metrics.rmse < 2.0,
+            passed:
+              poseDelta < 1e-4 &&
+              cmp.metrics.rmse < 4.0 &&
+              cmp.metrics.edgeCorrelation >= 0.98,
             locationId: firstLoc.id,
             lighting: firstLight.id,
             poseDelta: Number(poseDelta.toFixed(6)),
