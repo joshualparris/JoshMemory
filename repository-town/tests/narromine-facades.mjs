@@ -62,7 +62,6 @@ for(const [id, part, storeys, maxVerandahGap] of plans) {
 assert.equal(landmarkFacadeSpec('narromine-post-office', 'north wing'), null, 'photo-matched post office remains unchanged');
 assert.equal(landmarkFacadeSpec('dandaloo-82', 'Coles north hall'), null, 'photo-matched Coles remains unchanged');
 assert.equal(landmarkFacadeSpec('st-marys-anglican', 'nave'), null, 'dedicated church not re-skinned');
-
 // Royal Hotel rooftop paint is no longer buried by the later LiDAR roof-pitch fit.
 // Verify its surface is 10 cm outward *along the roof normal*, even on rotated
 // buildings and at pitches other than the old 0.42 rad hard-coded value.
