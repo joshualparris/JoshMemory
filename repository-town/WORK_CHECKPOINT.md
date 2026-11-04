@@ -1,3 +1,11 @@
+# 4 November 2026 — North-West Dandaloo Street Heritage & Civic Block (`52–68` & `38–44 Dandaloo Street`, Screenshots `#31`–`#44` & `#47`–`#50`) — VERIFIED COMPLETE
+
+Owner Antigravity (Agy ProBook). Baseline `main` `6c853f24` (reconciled with `7dadd9cf`); branch `feat/narromine-nw-dandaloo-block-20261104` ([PR #347](https://github.com/joshualparris/JoshMemory/pull/347)).
+- Audited all 55 side-by-side Street View vs Repository Town comparison screenshots (`1Screenshot_20261104_152207.png`..`55Screenshot_20261104_153945.png`) in `docs/NARROMINE_55_SCREENSHOT_AUDIT_AND_NW_BLOCK_2026-11-04.md`.
+- Implemented `src/world/narromine-nw-dandaloo-evidence.js` and `src/world/narromine-nw-dandaloo-block.js` reconstructing the 8 unclaimed West Dandaloo Street buildings north of Nymagee Street: `osm:179` (`68 Dandaloo St` Former Bank / Wardi Insurance & Ag Commodities + Chill-Rite gable workshop), `osm:180` (`60–62 Dandaloo St` Macquarie Clothing), `osm:183` (`56 Dandaloo St` Narromine Men's Shed), `osm:184` (`58 Dandaloo St` Narromine USMC), `osm:185` (`52 Dandaloo St` Red-Brick Hipped Cottage), and the 3 unmapped north-west Dandaloo sites (`44 Dandaloo St` Narromine Baptist Church, `42 Dandaloo St` Narromine Battlers Mate, `38–40 Dandaloo St` Aqua West).
+- Wired `buildNarromineNwDandalooBlock` and `NARROMINE_NW_DANDALOO_INTEGRATION_SPEC` into `src/world/narromine.js`, explicitly leaving `osm:186` (`50 Dandaloo St` Narromine Physiotherapy, claimed in PR #338) and Dandaloo Street medians/kerbs/parking/lamps (PR #336) untouched.
+- Verified with `node tests/narromine-nw-dandaloo-block.mjs` (PASS — 8 buildings, 460 architectural geometries, 45 sliced colliders, unobstructed footpath/roadway), `node tests/narromine-nw-dandaloo-browser.mjs` (PASS — Desktop `1280×800` + Mobile `393×852`, 16 matched screenshots inspected, zero page errors), `node tests/narromine-royal-hotel.mjs`, `node tests/narromine-layout.mjs`, `node tools/build.mjs`, and `node tools/check_privacy.mjs`.
+
 # 4 November 2026 — Narromine Visual Realism First Verified Correction Release: Royal Hotel (`123 Dandaloo Street`) & `86–88 Dandaloo Street` — VERIFIED COMPLETE
 
 Owner Antigravity (Agy Fedora). Baseline `main` `94db8863`; branch `feat/narromine-royal-hotel-and-86-88-realism-20261104`.
