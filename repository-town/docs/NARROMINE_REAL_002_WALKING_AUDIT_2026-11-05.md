@@ -28,6 +28,19 @@ The new test at tests/narromine-real-002-walking-audit-browser.mjs opens the rea
 
 Tests run at desktop Chromium 1280×800 and Android-like Chromium 393×852. **This is twenty local segment attempts, NOT one continuous foot journey between the ten sites.** The player is placed at the beginning of each segment and must actually navigate within it. Any failed route is a documented defect/uncertainty, not evidence of success.
 
+## First run — 20 attempts on Chromium WebGL
+
+[GitHub Actions run 41925513396](https://github.com/joshualparris/JoshMemory/actions/runs/41925513396) **PASSED build, geometry, privacy, Chromium execution and report generation** at branch SHA 8165a26b2. The uploaded artifact contains audit.json and 20 game-only screenshots.
+
+- Desktop Chromium 1280×800: **9 of 10** local routes physically walked.
+- Android-size Chromium 393×852: **9 of 10** local routes physically walked.
+- **St Mary's NR-WALK-001 false alarm on both:** the test sampled narromineVisible immediately after place while scene streaming had not updated, even though screenshots show a rendered Anglican church, fencing, road and trees. Status is TEST HARNESS TIMING, **not** an independently verified blocked church entrance. First correction: wait for visibility in a later game frame before classifying.
+- Kierath's Dandaloo-to-rear through-walk completed **11 of 11 waypoint legs per viewport**. The last screenshot faced an empty adjoining lane rather than the arcade; this is a camera-evidence problem, corrected by a final in-place rotation and a separate supplementary screenshot.
+- Coles public approach was NOT directly walked in this first run. Correction: add a second independently staged local subroute (not false continuous traversal) to the actual Coles public entrance outside position.
+- No runtime/gameplay defect was independently demonstrated by this first run. A recognised heritage silhouette is not yet photographic proof; avoid closing the whole Narromine visual-realism work.
+
+The next run must include St Mary's visibility retry, the separate Coles walk and photographic evidence camera correction **on latest main**, with no claim of a full continuous inter-site journey.
+
 ## Real-world comparison
 
 Josh's privately held [55 comparison views](https://drive.google.com/drive/folders/1wgPC3JnTWJIPurRXzbW_5T5DLcn1QXJR) provide photo context for hotel and main-street views. No Google Street View pixels, API keys or paid calls enter the code or its public screenshots. Pixel comparisons need actual panorama position, capture date, camera height, heading and FOV calibration. Rendered game-only screenshots alone do not prove photorealistic accuracy.
