@@ -9,12 +9,14 @@ import { buildNarromineHotel, NARROMINE_HOTEL_ID } from './narromine-hotel.js';
 import { buildNarromineRailwayPrecinct } from './narromine-railway-precinct.js';
 import { NARROMINE_RAILWAY_INTEGRATION_SPEC } from './narromine-railway-evidence.js';
 import { buildNarromineCourthousePrecinct } from './narromine-courthouse-precinct.js';
+import { buildNarromineStAugustines, ST_AUGUSTINES_OSM_INDEX } from './narromine-st-augustines.js';
 import { NARROMINE_COURTHOUSE_INTEGRATION_SPEC } from './narromine-courthouse-evidence.js';
 import { buildNarromineAviationPrecinct } from './narromine-aviation-precinct.js';
 import { NARROMINE_AVIATION_INTEGRATION_SPEC } from './narromine-aviation-evidence.js';
 const RAILWAY_SUPPRESSED_OSM = new Set([
   ...NARROMINE_RAILWAY_INTEGRATION_SPEC.suppressedOsmBuildingIndices,
   ...NARROMINE_COURTHOUSE_INTEGRATION_SPEC.suppressedOsmBuildingIndices,
+  ST_AUGUSTINES_OSM_INDEX, // replace only the generic St Augustine's church extrusion
   ...NARROMINE_AVIATION_INTEGRATION_SPEC.suppressedOsmBuildingIndices,
 ]);
 import { estimatedShopfrontProfile, facadeBays, landmarkFacadeSpec } from './narromine-facade-profiles.js';
@@ -540,6 +542,7 @@ export function buildNarromine(parent, makeLabel = null) {
   buildKieraths({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   buildNarromineRailwayPrecinct({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   buildNarromineCourthousePrecinct({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
+  buildNarromineStAugustines({ push, colliders, spots, town });
   buildNarromineAviationPrecinct({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   // Named places: a sign over each, and an E-prompt with what it is, its address and any history.
   for (const p of PLACES) {
