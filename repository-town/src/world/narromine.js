@@ -5,6 +5,7 @@
 // while you are in Repository Town.
 import * as THREE from 'three';
 import { buildKieraths } from './narromine-kieraths.js';
+import { estimatedShopfrontProfile, facadeBays, landmarkFacadeSpec } from './narromine-facade-profiles.js';
 import { NARROMINE_POST_OFFICE_ENTRANCE, NARROMINE_POST_OFFICE_ID } from './narromine-post-office.js';
 import { HIGHWAY, HIGHWAY_Z, REGION, CORRIDOR_HALF, STREETS, BUILDINGS, AREAS, WATER, RAIL, PLACES, FILL_SHOPS, FILL_HOUSES, FRONTAGES, DETAILED, polyRect, nearTownStreet, boundaryColliders } from './narromine-layout.js';
 
@@ -136,15 +137,64 @@ export function buildNarromine(parent, makeLabel = null) {
     const r = polyRect(b.pts), area = Math.abs(b.pts.reduce((s, p, i) => { const q = b.pts[(i + 1) % b.pts.length]; return s + p[0] * q[1] - q[0] * p[1]; }, 0) / 2);
     if (area > 0.55 * (r.x1 - r.x0) * (r.z1 - r.z0) && !nearTownStreet((r.x0 + r.x1) / 2, (r.z0 + r.z1) / 2, 0)) colliders.push(r);
   }
-  // Stand-ins where the map has no outline (see narromine-layout.js): shopfronts with a street
-  // veranda at named places, and houses with hipped roofs along residential streets.
+  // Stand-ins for unmapped named places: still ESTIMATED rectangles, never survey footprints.
+  // Reusable facade elements remain batched by material/tile and have NO new collision boxes.
   const roofGeo = () => { const g = new THREE.ConeGeometry(Math.SQRT1_2, 1, 4, 1); g.rotateY(Math.PI / 4); return g; };
   const placeBox = (c, w, h, d, cx, y, cz, yaw) => { const g = new THREE.BoxGeometry(w, h, d); g.rotateY(yaw); g.translate(cx, y, cz); push(c, g); };
+  const storefront = ({ a, b, toward, name = '', profile, wallHeight = 4.6 }) => {
+    const [ax, az] = a, [bx, bz] = b, dx = bx - ax, dz = bz - az, len = Math.hypot(dx, dz);
+    if (len < 2.4) return;
+    const n = Math.hypot(...toward) || 1, nx = toward[0] / n, nz = toward[1] / n;
+    const yaw = -Math.atan2(dz, dx), height = Math.max(3.7, wallHeight);
+    const at = (t, out = 0.12) => [ax + dx * t + nx * out, az + dz * t + nz * out];
+    const facade = at(0.5, 0.10);
+    // Wall surface, pilasters, window lintel, fascia and a thin roof-edge coping.
+    placeBox(profile.wall, len - 0.04, 2.95, 0.07, ...[facade[0], 1.50, facade[1], yaw]);
+    placeBox(profile.trim, len, 0.18, 0.13, ...[facade[0], 3.02, facade[1], yaw]);
+    placeBox(profile.trim, len, 0.48, 0.12, ...[facade[0], 3.53, facade[1], yaw]);
+    const coping = at(0.5, 0.10);
+    placeBox(profile.roofEdge, len + 0.12, 0.13, 0.2, coping[0], height - 0.1, coping[1], yaw);
+    for (const t of [0.005, 0.995]) {
+      const [x, z] = at(t, 0.18);
+      placeBox(profile.pier, 0.2, 3.02, 0.13, x, 1.5, z, yaw);
+    }
+    const bays = facadeBays(len);
+    for (const bay of bays) {
+      const [x, z] = at(bay.t, 0.19), w = bay.width, y0 = 0.75, h = 1.95;
+      placeBox(profile.frame, w + 0.17, h + 0.18, 0.09, x, y0 + h / 2, z, yaw);
+      const glassAt = at(bay.t, 0.255);
+      if (bay.door) {
+        // Door is visual only; no fabricated walk-in entrance or collider.
+        placeBox(profile.door, Math.min(1.12, w - 0.1), 2.45, 0.06, glassAt[0], 1.28, glassAt[1], yaw);
+        placeBox(profile.glass, Math.min(0.88, w - 0.2), 1.14, 0.04, glassAt[0], 1.81, glassAt[1] + 0, yaw);
+        const handleAt = at(bay.t + 0.015, 0.30);
+        placeBox(profile.handle, 0.05, 0.31, 0.05, handleAt[0], 1.20, handleAt[1], yaw);
+      } else {
+        placeBox(profile.glass, w, h, 0.05, glassAt[0], y0 + h / 2, glassAt[1], yaw);
+        placeBox(profile.frame, 0.07, h, 0.08, glassAt[0], y0 + h / 2, glassAt[1], yaw);
+        placeBox(profile.frame, w, 0.06, 0.08, glassAt[0], 1.55, glassAt[1], yaw);
+        placeBox(profile.trim, w + 0.11, 0.12, 0.15, glassAt[0], y0 - 0.03, glassAt[1], yaw);
+      }
+    }
+    // Names come from OSM and can be historic; no inferred brand logos or current-tenancy claims.
+    if (name && typeof document !== 'undefined') {
+      const tex = boardTexture([name.toUpperCase()], { bg: '#e8e2d6', fg: '#33312d', border: '#59534c', w: 1024, h: 160 });
+      const [x, z] = at(0.5, 0.28);
+      plane(tex, Math.min(len - 0.6, 10), 0.37, x, 3.52, z, Math.atan2(nx, nz));
+    }
+  };
   for (const f of FILL_SHOPS) {
-    placeBox(0xc9b793, f.w, 4.6, f.d, f.x, 2.3, f.z, f.yaw); placeBox(0xece3cf, f.w + 0.3, 0.7, f.d + 0.3, f.x, 4.95, f.z, f.yaw);
-    // Veranda over the footpath, between the shop front and the kerb.
+    const profile = estimatedShopfrontProfile({ name: f.name, kind: f.kind });
+    placeBox(profile.wall, f.w, 4.6, f.d, f.x, 2.3, f.z, f.yaw);
+    placeBox(profile.trim, f.w + 0.3, 0.7, f.d + 0.3, f.x, 4.95, f.z, f.yaw);
+    // Verandah over the footpath, between the shop front and the kerb.
     const [fx, fz] = f.front, vx = (fx + f.x) / 2 + (fx - f.x) * 0.25, vz = (fz + f.z) / 2 + (fz - f.z) * 0.25;
-    placeBox(0x7d6a55, f.w, 0.12, 3, vx, 3.1, vz, f.yaw);
+    placeBox(profile.roofEdge, f.w, 0.12, 3, vx, 3.1, vz, f.yaw);
+    const direction = [fx - f.x, fz - f.z], dl = Math.hypot(...direction) || 1;
+    const nx = direction[0] / dl, nz = direction[1] / dl, ux = Math.cos(f.yaw), uz = -Math.sin(f.yaw);
+    const x = f.x + nx * (f.d / 2 + 0.02), z = f.z + nz * (f.d / 2 + 0.02);
+    storefront({ a: [x - ux * f.w / 2, z - uz * f.w / 2], b: [x + ux * f.w / 2, z + uz * f.w / 2],
+      toward: direction, name: f.name, profile, wallHeight: 4.6 });
     colliders.push({ ...f.rect });
   }
   const HOUSE_WALLS = [0xd8cdb6, 0xc9a98a, 0xbfc4bd, 0xd6c9a4, 0xa98a74], HOUSE_ROOFS = [0x6e3b32, 0x5a5f66, 0x8a8f8c, 0x7a4a3a, 0x4f5a52];
@@ -153,18 +203,19 @@ export function buildNarromine(parent, makeLabel = null) {
     const r = roofGeo(); r.scale(h.w + 0.8, 2.2, h.d + 0.8); r.rotateY(h.yaw); r.translate(h.x, 4.1, h.z); push(HOUSE_ROOFS[h.tone], r);
     colliders.push({ ...h.rect });
   }
-  // Verandas, posts, windows and name boards on mapped main-street frontages.
+  // Mapped OSM main-street facades: the EDGE is data-grounded; facade materials,
+  // mullions, piers and doors are visual approximations (see facade profiles).
   for (const f of FRONTAGES) {
     const [ax, az] = f.a, [bx, bz] = f.b, len = Math.hypot(bx - ax, bz - az), mx = (ax + bx) / 2, mz = (az + bz) / 2;
     const tl = Math.hypot(...f.toward) || 1, ox = f.toward[0] / tl, oz = f.toward[1] / tl, yaw = -Math.atan2(bz - az, bx - ax);
-    const depth = Math.min(3, Math.max(1.5, f.d - 1));
-    placeBox(0x7d6a55, len, 0.12, depth, mx + ox * depth / 2, 3.1, mz + oz * depth / 2, yaw);
-    for (let t = 0.5; t < len; t += 4) { const px = ax + (bx - ax) * t / len + ox * (depth - 0.2), pz = az + (bz - az) * t / len + oz * (depth - 0.2); box(0x8a7a66, 0.14, 3.1, 0.14, px, 1.55, pz); }
-    for (let t = 2.5; t < len - 1.5; t += 4.5) { const px = ax + (bx - ax) * t / len + ox * 0.05, pz = az + (bz - az) * t / len + oz * 0.05; placeBox(0x34434f, 2.2, 1.6, 0.06, px, 1.7, pz, yaw); }
-    if (f.name) {
-      const tex = boardTexture([f.name.toUpperCase()], { bg: '#f1e7cf', fg: '#3a2a1e', border: '#3a2a1e', w: 1024, h: 160 });
-      const m = plane(tex, Math.min(len - 1, 11), 1.2, mx + ox * (depth + 0.05), 3.75, mz + oz * (depth + 0.05), Math.atan2(ox, oz));
+    const depth = Math.min(3, Math.max(1.5, f.d - 1)), profile = estimatedShopfrontProfile({ name: f.name, street: f.street });
+    placeBox(profile.roofEdge, len, 0.12, depth, mx + ox * depth / 2, 3.1, mz + oz * depth / 2, yaw);
+    for (let t = 0.5; t < len; t += 4) {
+      const px = ax + (bx - ax) * t / len + ox * (depth - 0.2), pz = az + (bz - az) * t / len + oz * (depth - 0.2);
+      box(profile.pier, 0.14, 3.1, 0.14, px, 1.55, pz);
     }
+    storefront({ a: f.a, b: f.b, toward: f.toward, name: f.name, profile,
+      wallHeight: BUILDING_STYLE(BUILDINGS[f.building])[0] });
   }
   // ── Detailed buildings (traced quads from NSW aerial imagery; see narromine-buildings-data.js) ──
   // Each part is an oriented quad: walls are a box along its first edge, roofs are built in that frame.
@@ -177,6 +228,10 @@ export function buildNarromine(parent, makeLabel = null) {
     const A = [x0, y0, z0], B = [x1, y0, z0], C = [x1, y0, z1], D = [x0, y0, z1], P = [ra[0], y1, ra[1]], Q = [rb[0], y1, rb[1]];
     const tris = alongX ? [A, P, Q, A, Q, B, B, Q, C, C, Q, P, C, P, D, D, P, A] : [A, B, P, B, Q, P, B, C, Q, C, D, Q, D, P, Q, D, A, P];
     const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(tris.flat(), 3)); g.rotateY(yaw); g.translate(cx, 0, cz); g.computeVertexNormals(); push(c, g);
+    // Thin metal ridge flashing follows the measured eave/ridge profile; not an invented roof volume.
+    const ridgeLength = Math.max(L, w2) - Math.min(L, w2);
+    if (ridgeLength > 0.8) box(new THREE.Color(c).multiplyScalar(0.9).getHex(), ridgeLength + 0.12, 0.09, 0.15,
+      cx, y1 + 0.025, cz, alongX ? yaw : yaw + Math.PI / 2);
   };
   // Coles: a proper two-plane pitched roof with bright triangular gable ends,
   // unlike the old generic flat/shallow shed volumes. Ridge runs along quad edge 0→1.
@@ -196,6 +251,12 @@ export function buildNarromine(parent, makeLabel = null) {
       geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
       geo.rotateY(yaw); geo.translate(cx, 0, cz); geo.computeVertexNormals(); push(colour, geo);
     }
+    // Ridge flashing and both eave gutters track the existing pitched planes.
+    const metal = new THREE.Color(c).multiplyScalar(0.9).getHex();
+    box(metal, L + 0.16, 0.10, 0.15, cx, y1 + 0.02, cz, yaw);
+    for (const side of [-1, 1]) box(metal, L + 0.12, 0.10, 0.13,
+      cx + Math.sin(yaw) * side * w / 2, y0 + 0.025,
+      cz + Math.cos(yaw) * side * w / 2, yaw);
     if (!trim) return;
     // Painted bargeboards on each gable end (and optional cross finials at the apex), in the roof's local frame.
     const local = (g, x, y, z) => { g.translate(x, y, z); g.rotateY(yaw); g.translate(cx, 0, cz); return g; };
@@ -233,6 +294,12 @@ export function buildNarromine(parent, makeLabel = null) {
     if (F.kind === 'glazing') grid(e, t[0], t[1], F.y[0], F.y[1], F.cols, F.rows, 0x1f272d, 0x2b2f33, 0.12);
     if (F.kind === 'band') grid(e, t[0], t[1], F.y[0], F.y[1], F.panes, 1, 0x9fb3c2, 0xf4f4f0, 0.12);
     if (F.kind === 'panel') { const [x, z] = e.at((t[0] + t[1]) / 2, 0.03 + (F.layer || 0) * 0.03), h = F.y[1] - F.y[0]; placeBox(F.colour, e.len * (t[1] - t[0]), h, 0.04, x, F.y[0] + h / 2, z, e.yaw); }
+    if (F.kind === 'door') { const [x, z] = e.at(t, 0.12), w = F.w ?? 1.15, h = F.y[1] - F.y[0];
+      placeBox(0xe2d7c5, w + 0.18, h + 0.12, 0.08, x, F.y[0] + h / 2, z, e.yaw);
+      const [dx, dz] = e.at(t, 0.19); placeBox(F.colour ?? 0x514137, w, h, 0.08, dx, F.y[0] + h / 2, dz, e.yaw);
+      placeBox(0x526d78, w - 0.22, Math.min(0.55, h / 3), 0.09, dx, F.y[1] - 0.43, dz, e.yaw);
+      const [hx, hz] = e.at(t + 0.018, 0.26); placeBox(0xe5dbbc, 0.045, 0.25, 0.05, hx, F.y[0] + 1.0, hz, e.yaw);
+    }
     if (F.kind === 'window') { const [x, z] = e.at(t, 0.07), h = F.y[1] - F.y[0], w = F.w || 1.0;
       placeBox(0xf4f4f0, w + 0.2, h + 0.2, 0.08, x, F.y[0] + h / 2, z, e.yaw); const [gx, gz] = e.at(t, 0.1); placeBox(0x9fb3c2, w, h, 0.06, gx, F.y[0] + h / 2, gz, e.yaw);
       if (F.ac) { const [ax, az] = e.at(t, 0.35); placeBox(0xe6e6e2, w * 0.7, 0.45, 0.6, ax, F.y[1] - 0.35, az, e.yaw); } }
@@ -272,13 +339,23 @@ export function buildNarromine(parent, makeLabel = null) {
       const fitY = (y) => (Ld && !p.ridgeH && y > 3.4 && guessH > 3.4 ? 3.4 + (y - 3.4) * (wallH - 3.4) / (guessH - 3.4) : y);
       box(p.wallColour ?? WALL, f.L, wallH, f.W, f.cx, wallH / 2, f.cz, f.yaw);
       for (const F of p.features || []) feature(p, { ...F, y: Array.isArray(F.y) ? F.y.map(fitY) : fitY(F.y) });
+      // Hotel facades: the mapped street-edge and verandah are grounded, but the
+      // window and doorway positions below are explicitly ESTIMATED details.
+      const hotel = landmarkFacadeSpec(d.id, p.name);
+      if (hotel) for (const bay of facadeBays(along(p, hotel.edge).len, { maxBays: 7, targetWidth: 3.2 })) {
+        const edge = hotel.edge;
+        if (bay.door) feature(p, { kind: 'door', edge, t: bay.t, w: 1.15, y: [0.08, 2.55] });
+        else feature(p, { kind: 'window', edge, t: bay.t, w: Math.min(1.35, bay.width - 0.2), y: [1.0, 2.55] });
+        if (hotel.storeys === 2) feature(p, { kind: 'window', edge, t: bay.t,
+          w: Math.min(1.2, bay.width - 0.25), y: [fitY(4.65), fitY(6.15)] });
+      }
       if (p.fascia) box(0xf4f4f0, f.L + 0.5, 0.35, f.W + 0.5, f.cx, wallH - 0.05, f.cz, f.yaw);   // white roof edge
       if (p.mast) { box(0xb0b2b4, 0.1, 4, 0.1, f.cx, wallH + 2, f.cz); box(0xb0b2b4, 1.4, 0.06, 0.06, f.cx, wallH + 3.4, f.cz); }
       const RC = p.roofColour ?? ROOF;
       if (p.roof === 'hip') hipRoof(RC, p.pts, wallH, pitch);
       else if (p.roof === 'gable') gableRoof(RC, p.pts, wallH, pitch, p.gableColour ?? p.wallColour, p.trim);
       else box(RC, f.L + 0.4, 0.1, f.W + 0.4, f.cx, wallH + 0.1, f.cz, f.yaw);
-      if (p.storeys === 2 && !p.features) for (const side of [-1, 1]) for (let t = -f.L / 2 + 1.5; t < f.L / 2 - 1; t += 3) { // upper-floor windows on the long faces
+      if (p.storeys === 2 && !p.features && !landmarkFacadeSpec(d.id, p.name)) for (const side of [-1, 1]) for (let t = -f.L / 2 + 1.5; t < f.L / 2 - 1; t += 3) { // upper-floor windows on the long faces
         const ox = Math.cos(-f.yaw) * t - Math.sin(-f.yaw) * side * (f.W / 2 + 0.03), oz = Math.sin(-f.yaw) * t + Math.cos(-f.yaw) * side * (f.W / 2 + 0.03);
         box(0x34434f, 1.0, 1.6, 0.06, f.cx + ox, fitY(5.6), f.cz + oz, f.yaw); }
       colliders.push(polyRect(p.pts));
