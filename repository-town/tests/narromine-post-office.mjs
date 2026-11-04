@@ -30,9 +30,9 @@ assert(built.group instanceof THREE.Group);
 
 // Narromine previously used an oversized sphere/cylinder placeholder. Match
 // the SAME deterministic articulated shop-worker model as Repository Town.
-const staff=built.group.getObjectByName('Illustrative postal counter staff');
+const staff=built.group.getObjectByName('Leah Bennett · Narromine postal retail');
 assert(staff instanceof THREE.Group, 'Narromine attendant is a real character group');
-assert.equal(staff.userData.residentAppearance?.identity,'narromine:post-office:illustrative-counter',
+assert.equal(staff.userData.residentAppearance?.identity,'narromine:post-office:leah-bennett',
   'uses Repository Town shared NPC wardrobe instead of a cylinder stand-in');
 assert(staff.children.some(part=>part.userData.isOutfit), 'detailed clothed body');
 assert(staff.children.filter(part=>part.isGroup).length>=5, 'head and limbs articulated');
