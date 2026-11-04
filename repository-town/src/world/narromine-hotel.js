@@ -1195,8 +1195,12 @@ export function buildNarromineHotel({ push, box, flatPoly, town, colliders }) {
       );
     }
 
-    // Two street trees in timber tree guards along the northern Dandaloo St kerb (102250–102255)
-    for (const ts of [21.5, 33.8]) {
+    // One photographed northern-end kerb tree remains as a site-specific model.
+    // The old s=21.5 tree had NO individually verified base location and the
+    // desktop/Android WebGL screenshots showed its oversized canopy covering
+    // the actual hotel facade. Suppress until the exact base is geo-located.
+    // s=33.8 is at the northern shop/tree-guard end; geometry remains approximate.
+    for (const ts of [33.8]) {
       const tw = -5.1;
       localCyl(0x6e5a47, 0.14, 0.18, 3.4, 7, ts, 1.7, tw);
       for (const [ds, dw] of [[-0.45, -0.45], [0.45, -0.45], [0.45, 0.45], [-0.45, 0.45]]) {
