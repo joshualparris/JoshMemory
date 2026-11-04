@@ -59,7 +59,40 @@ export function churchFootprintColliders(pts, stepM = 1.25) {
   return out;
 }
 
-export function buildNarromineStAugustines({ push, colliders=[], spots=[] }={}) {
+// Entirely original tile/brick patterns: there are no sourced image pixels
+// or API requests. DataTexture also works in Node test runs without a DOM.
+export function churchMaterialTexture(kind) {
+  if(!['brick','terracotta'].includes(kind))throw new Error('Unknown church texture type');
+  const W=512,H=512,bytes=new Uint8Array(W*H*4);
+  const brick=kind==='brick',cellW=brick?32:64,cellH=brick?16:32;
+  const cols=W/cellW,rows=H/cellH,variations=brick
+    ? [[163,91,65],[172,101,73],[153,82,58],[184,107,77],[155,89,67],[176,96,69]]
+    : [[153,76,57],[160,82,63],[145,69,54],[181,101,71],[158,78,56],[168,88,64]];
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const row=Math.floor(y/cellH), offset=(row%2)*Math.floor(cellW/2);
+    const run=(x+offset)%W,col=Math.floor(run/cellW),bx=run%cellW,by=y%cellH;
+    const mortar=bx<2||by<2;
+    const index=(row*67+col*59+Math.floor(row*col/7))%variations.length;
+    const base=mortar?(brick?[190,160,134]:[88,52,42]):variations[index];
+    const grain=((x*13+y*17+row*37+col*29)%17)-8;
+    const bevel=!mortar&&(bx<=3||by<=3||by>cellH-4);
+    const shade=bevel?-13:0;
+    const k=(y*W+x)*4;
+    for(let c=0;c<3;c++)bytes[k+c]=Math.max(0,Math.min(255,base[c]+grain+shade));
+    bytes[k+3]=255;
+  }
+  const tex=new THREE.DataTexture(bytes,W,H,THREE.RGBAFormat);
+  tex.name='St Augustine original procedural '+kind;
+  tex.colorSpace=THREE.SRGBColorSpace;
+  tex.wrapS=tex.wrapT=THREE.RepeatWrapping;
+  tex.magFilter=THREE.LinearFilter;
+  tex.minFilter=THREE.LinearMipmapLinearFilter;
+  tex.generateMipmaps=true;
+  tex.needsUpdate=true;
+  return tex;
+}
+
+export function buildNarromineStAugustines({ push, colliders=[], spots=[], town=null }={}) {
   if(typeof push!=='function')throw new Error('St Augustine church requires the existing Narromine batch geometry push()');
   const evidence=stAugustinesEvidence(), pts=evidence.footprint;
   const eave=evidence.lidar.eave, ridge=evidence.lidar.ridge;
@@ -71,6 +104,41 @@ export function buildNarromineStAugustines({ push, colliders=[], spots=[] }={}) 
   const half=long/2, naveW=8.53, naveL=Math.min(18.29,long-0.6);
   const naveStart=half-naveL, transeptX=naveStart+1.6;
   let features=0;
+  const texturedMaterials = town?.add && typeof town.add === 'function' ? {
+    brick:new THREE.MeshLambertMaterial({map:churchMaterialTexture('brick'),side:THREE.DoubleSide}),
+    roof:new THREE.MeshLambertMaterial({map:churchMaterialTexture('terracotta'),side:THREE.DoubleSide}),
+  } : null;
+  let texturedSurfaces=0;
+  // Face vertices are [x,y,z] and UVs are expressed in repeat tile units;
+  // the base LiDAR model remains batched. Individual 2D texture overlays
+  // avoid an extra geometry submission for every mortar line or roof tile.
+  const textureFace=(material,points,uv,local=true)=>{
+    if(!texturedMaterials)return;
+    const v=new Float32Array([...points[0],...points[1],...points[2],
+      ...points[0],...points[2],...points[3]]);
+    const t=new Float32Array([...uv[0],...uv[1],...uv[2],
+      ...uv[0],...uv[2],...uv[3]]);
+    const geometry=new THREE.BufferGeometry();
+    geometry.setAttribute('position',new THREE.BufferAttribute(v,3));
+    geometry.setAttribute('uv',new THREE.BufferAttribute(t,2));
+    geometry.computeVertexNormals();
+    if(local)geometry.rotateY(yaw).translate(centre[0],0,centre[1]);
+    const mesh=new THREE.Mesh(geometry,texturedMaterials[material]);
+    mesh.name='St Augustine '+material+' procedural surface';
+    mesh.receiveShadow=true;mesh.castShadow=false;
+    town.add(mesh);texturedSurfaces++;
+  };
+  const textureTri=(material,points,uv)=>{
+    if(!texturedMaterials)return;
+    const geometry=new THREE.BufferGeometry();
+    geometry.setAttribute('position',new THREE.Float32BufferAttribute(points.flat(),3));
+    geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uv.flat(),2));
+    geometry.computeVertexNormals();
+    geometry.rotateY(yaw).translate(centre[0],0,centre[1]);
+    const mesh=new THREE.Mesh(geometry,texturedMaterials[material]);
+    mesh.name='St Augustine front gable brick';
+    mesh.receiveShadow=true;town.add(mesh);texturedSurfaces++;
+  };
   const submit=(colour,geometry)=>{
     geometry.rotateY(yaw);
     geometry.translate(centre[0],0,centre[1]);
@@ -93,6 +161,12 @@ export function buildNarromineStAugustines({ push, colliders=[], spots=[] }={}) 
     const re=[end,ry,0],rs=[start,ry,0];
     face(COLOUR.tile,quad(a,b,re,rs));
     face(COLOUR.tile,quad(rs,re,c,d));
+    // Independent terracotta pattern, following both real roof slopes.
+    const sloped=Math.hypot(width/2,ry-ey), tu=(end-start)/4, tv=sloped/2.65, o=.04;
+    textureFace('roof',[[start,ey+o,-width/2],[end,ey+o,-width/2],
+      [end,ry+o,0],[start,ry+o,0]],[[0,0],[tu,0],[tu,tv],[0,tv]]);
+    textureFace('roof',[[start,ry+o,0],[end,ry+o,0],
+      [end,ey+o,width/2],[start,ey+o,width/2]],[[0,0],[tu,0],[tu,tv],[0,tv]]);
     face(COLOUR.brick,tri(b,c,re));
     face(COLOUR.brick,tri(d,a,rs));
     cube(COLOUR.tileRidge,(start+end)/2,ry+0.02,0,end-start,0.11,0.14);
@@ -118,6 +192,25 @@ export function buildNarromineStAugustines({ push, colliders=[], spots=[] }={}) 
   const outline=new THREE.Shape(pts.map(([x,z])=>new THREE.Vector2(x,-z)));
   const walls=new THREE.ExtrudeGeometry(outline,{depth:eave,bevelEnabled:false,curveSegments:1});
   walls.rotateX(-Math.PI/2);push(COLOUR.brick,walls);features++;
+  // Clad the entire documented OSM perimeter without inventing a second
+  // footprint or adding opaque sheet-geometry through any neighbouring road.
+  if(texturedMaterials){
+    const mid=[pts.reduce((n,p)=>n+p[0],0)/pts.length,
+      pts.reduce((n,p)=>n+p[1],0)/pts.length];
+    for(let i=0;i<pts.length;i++){
+      const a=pts[i],b=pts[(i+1)%pts.length],
+        dx=b[0]-a[0],dz=b[1]-a[1],len=Math.hypot(dx,dz);
+      if(len<.1)continue;
+      let nx=-dz/len,nz=dx/len;
+      if((a[0]+b[0]-2*mid[0])*nx+(a[1]+b[1]-2*mid[1])*nz<0){nx=-nx;nz=-nz;}
+      const o=.055;
+      textureFace('brick',[[a[0]+nx*o,.02,a[1]+nz*o],
+        [b[0]+nx*o,.02,b[1]+nz*o],
+        [b[0]+nx*o,eave-.03,b[1]+nz*o],
+        [a[0]+nx*o,eave-.03,a[1]+nz*o]],
+      [[0,0],[len/3.84,0],[len/3.84,eave/2.368],[0,eave/2.368]],false);
+    }
+  }
   // The 1933 documented nave and transept dimensions are used as local roof
   // proportions, constrained to the measured 2023 eave/ridge envelope.
   roofX(naveStart,half,naveW+.5,eave,ridge);
@@ -127,6 +220,9 @@ export function buildNarromineStAugustines({ push, colliders=[], spots=[] }={}) 
   // recessed round-arched entrance and a small devotional statue niche.
   const frontX=half+0.06,entranceY=2.35;
   face(COLOUR.brick,tri([frontX,eave,-naveW/2],[frontX,eave,naveW/2],[frontX,ridge,0]));
+  textureTri('brick',[[frontX+.045,eave+.015,-naveW/2],
+    [frontX+.045,eave+.015,naveW/2],[frontX+.045,ridge+.015,0]],
+    [[0,0],[naveW/3.84,0],[naveW/7.68,(ridge-eave)/2.368]]);
   for(const u of [-naveW/2+.35,naveW/2-.35]){
     cube(COLOUR.brickBand,frontX+.12,2.28,u,.42,4.56,.48);
     cube(COLOUR.stone,frontX+.17,4.58,u,.54,.16,.6);
@@ -181,5 +277,6 @@ export function buildNarromineStAugustines({ push, colliders=[], spots=[] }={}) 
     pos:new THREE.Vector3(front[0]+ux*2.5,0,front[1]+uz*2.5),
     text:'20 Dandaloo Street · 1933 Inter-war Romanesque church built after the 1932 cyclone. Roof and location constrained by LiDAR and mapped footprint.'});
   return { evidence, stats:{geometryParts:features,footprintVertices:pts.length,collisionStrips:collisionStrips.length,
-    front: [...front],centre:[...centre],eaveM:eave,ridgeM:ridge,modelId:ST_AUGUSTINES_MODEL_ID} };
+    front: [...front],centre:[...centre],eaveM:eave,ridgeM:ridge,modelId:ST_AUGUSTINES_MODEL_ID,
+    texturedSurfaces} };
 }
