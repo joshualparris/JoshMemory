@@ -27,9 +27,24 @@ for(const [name,opts] of [['desktop',{viewport:{width:1280,height:800}}],['andro
     const buttons=await page.getByRole('group',{name:'Rail yard shunting controls'}).getByRole('button').count();
     assert.equal(buttons,2,'two phone-visible controls');
   }
-  await page.keyboard.down('w');await page.waitForTimeout(2400);await page.keyboard.up('w');
-  const moving=await page.evaluate(()=>window.__town.yardTrain());
-  assert(moving.x>initial.x+0.2,'shunter accelerates on its own siding');
+  // Keyboard commands must reach the canvas/game, not an autofocus search
+  // field or a button left focused by the HUD. The input handler deliberately
+  // ignores typing in text fields; exercising that is not a traction failure.
+  await page.evaluate(()=>document.activeElement?.blur?.());
+  await page.keyboard.down('w');
+  const inputReady=await page.evaluate(()=>window.__town.driveDiagnostics().input);
+  await page.waitForTimeout(2400);
+  const telemetry=await page.evaluate(()=>({
+    train:window.__town.yardTrain(),input:window.__town.driveDiagnostics().input,
+    state:window.__town.state(),focused:document.activeElement?.id||document.activeElement?.tagName,
+    prompt:document.querySelector('#prompt')?.textContent,
+  }));
+  await page.keyboard.up('w');
+  const moving=telemetry.train;
+  assert(inputReady.z<-.5 || telemetry.input.z<-.5,
+    name+' W reaches input handler: '+JSON.stringify(telemetry));
+  assert(moving.x>initial.x+0.2,
+    name+' shunter accelerates on its own siding: '+JSON.stringify(telemetry));
   assert(moving.speedKmh<=8,'8km/h yard cap');
   await page.screenshot({path:`test-results/town-rail-yard-${name}.png`});
   await page.keyboard.down(' ');await page.waitForFunction(()=>window.__town.yardTrain().speedKmh===0,null,{timeout:9000});await page.keyboard.up(' ');
