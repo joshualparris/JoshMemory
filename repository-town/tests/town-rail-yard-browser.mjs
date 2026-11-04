@@ -18,7 +18,11 @@ for(const [name,opts] of [['desktop',{viewport:{width:1280,height:800}}],['andro
   assert.equal(initial.z,-209);
   assert.equal(await page.evaluate(()=>window.__town.yardColliders().length),3,'shunter plus two solid wagons');
   await page.evaluate(()=>window.__town.place(99,-212.5,0));
-  await page.waitForFunction(()=>window.__town.yardTrain().x>80,null,{timeout:3000});
+  // A real frame must recompute nearby interactions after the test relocates
+  // the player. The old wait checked the loco's fixed x>80 (always true),
+  // then sampled a STALE Guild Chest prompt from the previous position.
+  await page.waitForFunction(()=>document.querySelector('#prompt')?.textContent?.includes('Repository Town shunter'),
+    null,{timeout:7000});
   const prompt=await page.textContent('#prompt');
   assert.match(prompt,/Repository Town shunter/,name+' boarding prompt');
   await page.evaluate(()=>window.__town.yardBoard());
