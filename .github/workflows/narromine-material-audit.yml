@@ -6,6 +6,7 @@ on:
       - 'repository-town/src/world/narromine-surface-materials.js'
       - 'repository-town/src/ui/vehicle-audio.js'
       - 'repository-town/tests/engine-sound-browser.mjs'
+      - 'repository-town/tools/narromine-visual-qa/run.mjs'
       - '.github/workflows/narromine-material-audit.yml'
   workflow_dispatch:
 
