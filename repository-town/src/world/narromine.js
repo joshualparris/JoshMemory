@@ -11,6 +11,7 @@ import { buildNarromineRoyalHotel, ROYAL_HOTEL_REPLACED_IDS } from './narromine-
 import { buildNarromineRailwayPrecinct } from './narromine-railway-precinct.js';
 import { NARROMINE_TREES } from './narromine-trees-data.js';
 import { buildNarromineFurniture } from './narromine-furniture.js';
+import { NARROMINE_FURNITURE } from './narromine-furniture-data.js';
 import { NARROMINE_RAILWAY_INTEGRATION_SPEC } from './narromine-railway-evidence.js';
 import { buildNarromineCourthousePrecinct } from './narromine-courthouse-precinct.js';
 import { buildNarromineStAugustines, ST_AUGUSTINES_OSM_INDEX } from './narromine-st-augustines.js';
@@ -156,9 +157,33 @@ export function buildNarromine(parent, makeLabel = null) {
   // and bend; their full-width footpath slabs also intersected the asphalt.
   // Split the mapped ribbons into disjoint polygons before THREE triangulation.
   // This also cuts out the always-visible highway at the Narromine town seam.
-  const roadSurfaces = buildDisjointRoadSurfaces(STREETS, { highway: HIGHWAY });
+  // OSM surface tags: a street that runs along an OSM unpaved way is drawn as a gravel track (no kerb,
+  // no generated footpath).
+  const nearLine = (lines, x, z, m) => lines.some(pts => pts.some((b, i) => { if (!i) return false; const a = pts[i - 1], dx = b[0] - a[0], dz = b[1] - a[1], l = dx * dx + dz * dz || 1;
+    const t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (z - a[1]) * dz) / l)); return Math.hypot(x - a[0] - t * dx, z - a[1] - t * dz) < m; }));
+  // Split each street into runs of segments that are wholly paved or wholly unpaved (by segment midpoint).
+  const SURFACE_STREETS = STREETS.flatMap(st => {
+    const runs = []; let cur = null;
+    for (let i = 1; i < st.pts.length; i++) {
+      const [a, b] = [st.pts[i - 1], st.pts[i]], unpaved = nearLine(NARROMINE_FURNITURE.unpaved, (a[0] + b[0]) / 2, (a[1] + b[1]) / 2, 3);
+      if (!cur || cur.unpaved !== unpaved) { cur = { unpaved, pts: [a] }; runs.push(cur); }
+      cur.pts.push(b);
+    }
+    return runs.map(r => ({ ...st, kind: r.unpaved ? 'track' : st.kind, pts: r.pts }));
+  });
+  const roadSurfaces = buildDisjointRoadSurfaces(SURFACE_STREETS, { highway: HIGHWAY });
   for (const s of roadSurfaces.footpaths) flatPoly(0xbdb6a8, s.pts, 0.076);
   for (const s of roadSurfaces.asphalt) flatPoly(ROAD_COLOUR[s.kind] ?? 0x4f5153, s.pts, 0.075);
+  // Broken centre line (3 m line, 9 m gap, the Australian standard) only on ways OSM tags with 2+ lanes.
+  for (const pts of NARROMINE_FURNITURE.laned) {
+    let carry = 0;
+    for (let i = 1; i < pts.length; i++) {
+      const [ax, az] = pts[i - 1], [bx, bz] = pts[i], len = Math.hypot(bx - ax, bz - az); if (len < 0.5) continue;
+      const ux = (bx - ax) / len, uz = (bz - az) / len, yaw = -Math.atan2(bz - az, bx - ax);
+      for (let d = carry; d + 3 <= len; d += 12) box(0xf2f0e6, 3, 0.01, 0.1, ax + ux * (d + 1.5), 0.082, az + uz * (d + 1.5), yaw);
+      carry = (carry - len) % 12; if (carry < 0) carry += 12;
+    }
+  }
   // OSM-aligned Dandaloo streetscape: no duplicate road or building geometry.
   // Verge items must not sit inside buildings, detailed lots or other roads/driveways.
   const streetscapeClear = (x, z, r) => !DETAILED.some((d) => inPoly(x, z, d.boundary)) &&
