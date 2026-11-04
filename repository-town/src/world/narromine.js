@@ -6,6 +6,7 @@
 import * as THREE from 'three';
 import { buildKieraths } from './narromine-kieraths.js';
 import { buildNarromineHotel, NARROMINE_HOTEL_ID } from './narromine-hotel.js';
+import { buildNarromineRoyalHotel, ROYAL_HOTEL_REPLACED_IDS } from './narromine-royal-hotel.js';
 import { buildNarromineRailwayPrecinct } from './narromine-railway-precinct.js';
 import { NARROMINE_RAILWAY_INTEGRATION_SPEC } from './narromine-railway-evidence.js';
 import { buildNarromineCourthousePrecinct } from './narromine-courthouse-precinct.js';
@@ -15,13 +16,17 @@ import { buildNarromineAviationPrecinct } from './narromine-aviation-precinct.js
 import { NARROMINE_AVIATION_INTEGRATION_SPEC } from './narromine-aviation-evidence.js';
 import { buildNarromineNwDandalooBlock } from './narromine-nw-dandaloo-block.js';
 import { NARROMINE_NW_DANDALOO_INTEGRATION_SPEC } from './narromine-nw-dandaloo-evidence.js';
+import { buildNarromineNwDandalooBlock } from './narromine-nw-dandaloo-block.js';
+import { NARROMINE_NW_DANDALOO_INTEGRATION_SPEC } from './narromine-nw-dandaloo-evidence.js';
 const RAILWAY_SUPPRESSED_OSM = new Set([
   ...NARROMINE_RAILWAY_INTEGRATION_SPEC.suppressedOsmBuildingIndices,
   ...NARROMINE_COURTHOUSE_INTEGRATION_SPEC.suppressedOsmBuildingIndices,
   ST_AUGUSTINES_OSM_INDEX, // replace only the generic St Augustine's church extrusion
   ...NARROMINE_AVIATION_INTEGRATION_SPEC.suppressedOsmBuildingIndices,
   ...NARROMINE_NW_DANDALOO_INTEGRATION_SPEC.suppressedOsmBuildingIndices,
+  ...NARROMINE_NW_DANDALOO_INTEGRATION_SPEC.suppressedOsmBuildingIndices,
 ]);
+const NW_DANDALOO_SUPPRESSED_FILL = new Set(NARROMINE_NW_DANDALOO_INTEGRATION_SPEC.suppressedFillShopNames);
 const NW_DANDALOO_SUPPRESSED_FILL = new Set(NARROMINE_NW_DANDALOO_INTEGRATION_SPEC.suppressedFillShopNames);
 import { estimatedShopfrontProfile, facadeBays, landmarkFacadeSpec } from './narromine-facade-profiles.js';
 import { buildDisjointRoadSurfaces } from './narromine-road-surfaces.js';
@@ -209,6 +214,7 @@ export function buildNarromine(parent, makeLabel = null) {
   };
   for (const f of FILL_SHOPS) {
     if (NW_DANDALOO_SUPPRESSED_FILL.has(f.name)) continue;
+    if (NW_DANDALOO_SUPPRESSED_FILL.has(f.name)) continue;
     const profile = estimatedShopfrontProfile({ name: f.name, kind: f.kind });
     placeBox(profile.wall, f.w, 4.6, f.d, f.x, 2.3, f.z, f.yaw);
     placeBox(profile.trim, f.w + 0.3, 0.7, f.d + 0.3, f.x, 4.95, f.z, f.yaw);
@@ -351,7 +357,7 @@ export function buildNarromine(parent, makeLabel = null) {
   };
   const GROUND = { asphalt: [0x3f4244, 0.05], grass: [0x7fa65d, 0.03], paving: [0xb8ac98, 0.055], gravel: [0xa89a84, 0.045] };
   for (const d of DETAILED) {
-    if (d.id === NARROMINE_HOTEL_ID) continue;
+    if (d.id === NARROMINE_HOTEL_ID || ROYAL_HOTEL_REPLACED_IDS.has(d.id)) continue;
     const ROOF = 0xc8cac6, WALL = 0xe3d8c2;   // galvanised roofs as in the aerial; wall colour assumed (cream render/paint)
     for (const g of d.ground) flatPoly(GROUND[g.kind][0], g.pts, GROUND[g.kind][1]);
     for (const p of d.parts) {
@@ -544,11 +550,13 @@ export function buildNarromine(parent, makeLabel = null) {
 
   // Main-thread batch-merged geometry; live walkable arcade, retaining Post Office entrance.
   buildNarromineHotel({ push, box, flatPoly, town, colliders });
+  buildNarromineRoyalHotel({ push, box, flatPoly, plane, boardTexture, town, colliders });
   buildKieraths({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   buildNarromineRailwayPrecinct({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   buildNarromineCourthousePrecinct({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   buildNarromineStAugustines({ push, colliders, spots, town });
   buildNarromineAviationPrecinct({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
+  buildNarromineNwDandalooBlock({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   buildNarromineNwDandalooBlock({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   // Named places: a sign over each, and an E-prompt with what it is, its address and any history.
   for (const p of PLACES) {
