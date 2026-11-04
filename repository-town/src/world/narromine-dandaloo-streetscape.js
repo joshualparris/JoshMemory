@@ -90,7 +90,7 @@ export function buildDandalooStreetscape({ streets, push, box, flatPoly, strip }
   // Asphalt is already produced by the exact polygon-clip road renderer; do not
   // restore the old overlapping road strips that caused z-fighting.
   for (const m of plan.medians) flatPoly(m.grass ? 0x879d5c : 0x78904c, m.pts, 0.103);
-  for (const p of plan.pavers) flatPoly(0xa77f6e, p.pts, 0.085);
+  for (const p of plan.pavers) flatPoly(0xa77f6e, p.pts, 0.112);
   for (const k of plan.kerbs) strip(KERB, ...k.a, ...k.b, 0.15, 0.129, 0.12);
   for (const p of plan.parking) strip(PARK_LINE, ...p.a, ...p.b, 0.105, 0.104, 0.022);
   // Trimmed, deliberately interrupted median hedges — never another solid wall.
