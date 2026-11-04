@@ -28,7 +28,10 @@ import { buildYeovalInterior } from './world/yeoval-interior.js';
 import { buildMasterplan, PLAN_HOMES } from './world/masterplan-built.js';
 import { RESIDENT_STYLES } from './world/resident-models.js';
 import { buildNarromine } from './world/narromine.js';
-import { NARROMINE_POST_OFFICE_SAVE_ID, NARROMINE_POST_OFFICE_ENTRANCE, nearNarrominePostOfficeDoor, buildNarrominePostOfficeInterior } from './world/narromine-post-office.js';
+import { NARROMINE_POST_OFFICE_SAVE_ID, NARROMINE_POST_OFFICE_ENTRANCE, nearNarrominePostOfficeDoor, buildNarrominePostOfficeInterior, createNarrominePostalOutdoorActor } from './world/narromine-post-office.js';
+import { NARROMINE_POSTAL_PERSON, POSTAL_WALK_ROUTE_LOCAL, postalState, postalDayPlan, postalFormatTime } from './world/narromine-postal-character.js';
+import { NARROMINE_COLES_SAVE_ID, NARROMINE_COLES_ENTRANCE, COLES_INTERPRETIVE_PLAN, nearNarromineColesDoor, colesOpen, buildNarromineColesInterior } from './world/narromine-coles.js';
+import { toWorld } from './world/narromine-layout.js';
 import { ST_MARYS_SAVE_ID, ST_MARYS_ENTRANCE, nearStMarysDoor, buildStMarysInterior } from './world/narromine-st-marys.js';
 import { ARRIVAL as NARROMINE_ARRIVAL, PLACES as NARROMINE_PLACES } from './world/narromine-layout.js';
 import { buildCountryInterior,countryEntrance,countryExitPose } from './world/country-interiors.js';
@@ -225,6 +228,14 @@ async function start() {
   const masterplan = buildMasterplan(town.group, makeLabel);
   // Narromine, 40 km west in reality, ~90 s along the Mitchell Highway here (world/narromine.js).
   const narromine = buildNarromine(town.group, makeLabel);
+  const narrominePostalOutdoor=createNarrominePostalOutdoorActor(narromine.group,makeLabel);
+  const [postalHomeX,postalHomeZ]=toWorld(POSTAL_WALK_ROUTE_LOCAL[0]);
+  narromine.spots.push({key:'narromine:leah-home',label:'Leah Bennett’s fictional home',
+    pos:new THREE.Vector3(postalHomeX,0,postalHomeZ),
+    text:'Exact single-storey mapped house near Terangion Street (West), OSM footprint #203. Fictional occupancy: not a real resident, private street number or measured home interior.'});
+  narromine.spots.push({key:'narromine:coles:entrance',label:'Enter Coles Narromine · 76 Dandaloo Street',
+    pos:new THREE.Vector3(NARROMINE_COLES_ENTRANCE.x,0,NARROMINE_COLES_ENTRANCE.z),colesEnter:true});
+
   // Real building and tree meshes cast; ground/roads/paving receive. The light
   // follows the player, including when exploring mapped Narromine.
   const shadowCoverage = configureOutdoorShadows(town, narromine, masterplan, townLife);
@@ -648,7 +659,7 @@ async function start() {
   // postal counter, shelves and public circulation; no invented real staff names.
   function enterNarrominePostOffice() {
     if(mode!=='town'||driving.driving)return false;
-    const built=buildNarrominePostOfficeInterior(makeLabel);
+    const built=buildNarrominePostOfficeInterior(makeLabel,life.day,life.minute);
     inside={house:{coordinate:NARROMINE_POST_OFFICE_SAVE_ID,name:'Narromine Post Office',
       address:'74 Dandaloo Street, Narromine NSW',kind:'post_office'},
       ...built,floorIndex:0,floors:null};
@@ -661,6 +672,32 @@ async function start() {
     closePanel();npcChat.close();ambience.door();
     $('card').hidden=true;delete $('card').dataset.coord;
     status('Inside Narromine Post Office · 74 Dandaloo Street. Visit the postal counter, PO boxes or packing bench. Walk back through the front doorway or tap Exit to return outside.');
+    return true;
+  }
+
+  function enterNarromineColes(ignoreHours=false){
+    if(mode!=='town'||driving.driving)return false;
+    const open=colesOpen(life.day,life.minute);
+    if(!ignoreHours && open!==true) {
+      const now=performance.now();
+      if(lastDeniedEntrance!=='narromine-coles'||now-lastDeniedTime>3500) {
+        status(open===null?'Coles public holiday hours are unverified. The game will not invent them.':'Coles Narromine is closed according to its published regular trading hours.');
+        lastDeniedEntrance='narromine-coles';lastDeniedTime=now;
+      }
+      return false;
+    }
+    const built=buildNarromineColesInterior(makeLabel,life.day,life.minute);
+    inside={house:{coordinate:NARROMINE_COLES_SAVE_ID,name:'Coles Narromine',address:'76 Dandaloo Street, Narromine NSW',kind:'supermarket'},
+      ...built,floorIndex:0,floors:null};
+    scene.add(built.group);town.group.visible=false;
+    scene.background.set(INDOOR);scene.fog=null;
+    world=new CollisionWorld(built.colliders);
+    player.place(built.spawn.x,built.spawn.z,0);
+    mode='house';player.baseHeight=0;floorDoorCooldown=.65;
+    updateFloorBadge();$('btn-exit').hidden=false;
+    closePanel();npcChat.close();ambience.door();
+    $('card').hidden=true;delete $('card').dataset.coord;
+    status('Inside Coles Narromine. Walk the produce section, pantry aisles, chilled cabinets and checkouts. An interpretation, not a surveyed floor plan or real payment system.');
     return true;
   }
 
@@ -689,10 +726,28 @@ async function start() {
     boxes:{title:'PO boxes',body:'Post Office boxes provide a separate, secure mailing address. Ask about availability and charges at the real location; the in-game box doors contain no private information.'},
     services:{title:'Other counter services',body:'Many post offices offer retail stationery, money orders or bill payment services, but availability, opening hours and eligibility vary. The in-game counter is a visitor information experience, not a real financial service.'},
   };
+  function narrominePostalPersonPanel(topic=null){
+    const p=NARROMINE_POSTAL_PERSON,s=postalState(life.day,life.minute);
+    const topics={work:p.conversation.work,home:p.conversation.home,family:p.conversation.family,
+      groceries:p.conversation.groceries,offDuty:p.conversation.offDuty,boundaries:p.conversation.boundaries};
+    const summary='<p><b>'+esc(p.name)+'</b> · '+p.age+' · '+esc(p.job)+'</p>'+
+      '<p><b>Currently:</b> '+esc(s.activity)+' ('+esc(s.place)+', '+postalFormatTime(s.since)+'–'+postalFormatTime(s.until)+')</p>'+
+      '<p><b>Personality:</b> '+esc(p.personality)+'</p>'+
+      '<p><b>Home:</b> one specific mapped single-storey house near Terangion Street (West), OSM #203. Fictional occupancy; no private street number claimed.</p>'+
+      '<p><b>Family:</b> single, no children; lives with Mabel, her elderly rescue kelpie-cross. Her mum and brother live in Dubbo.</p>';
+    const schedule=postalDayPlan(life.day).map(a=>'<li>'+postalFormatTime(a.start)+'–'+postalFormatTime(a.end)+' · '+esc(a.activity)+'</li>').join('');
+    const body=topic==='schedule'?summary+'<h3>Today’s complete routine</h3><ul>'+schedule+'</ul>':
+      summary+'<p>'+esc(topics[topic]||p.conversation.hello)+'</p>';
+    return {title:'Leah Bennett · fictional Narromine resident',body,
+      actions:[{label:'Today’s precise timetable',run:()=>narrominePostalPersonPanel('schedule')},
+        ...Object.keys(topics).map(id=>({label:id==='offDuty'?'Life outside work':id.charAt(0).toUpperCase()+id.slice(1),
+          run:()=>narrominePostalPersonPanel(id)}))]};
+  }
   function narrominePostalCounterPanel(topic=null){
     const t=POSTAL_TOPICS[topic];
+    const staff=postalState(life.day,life.minute);
     return {title:'Narromine Post Office · '+(t?.title||'Service counter'),
-      body:'<p>'+esc(t?.body||'Welcome to the Narromine postal counter. Choose the service you want to learn about. The interior is an evidence-informed interpretation rather than a surveyed floor plan; no real payments, mailing, tracking or ID checks occur.')+'</p>',
+      body:'<p>'+esc(staff.atCounter?'Leah Bennett is serving the counter.':staff.atPostOffice?'Leah is taking a break or working behind the scenes. Another fictional colleague covers.':'Leah is off duty. This is only an interpretive postal counter, not real trading.')+'</p><p>'+esc(t?.body||'Welcome to the Narromine postal counter. Choose the service you want to learn about. The interior is an evidence-informed interpretation rather than a surveyed floor plan; no real payments, mailing, tracking or ID checks occur.')+'</p>',
       actions:t?[{label:'← Back to services',run:()=>narrominePostalCounterPanel()}]:
         Object.entries(POSTAL_TOPICS).map(([id,service])=>({label:service.title,run:()=>narrominePostalCounterPanel(id)}))};
   }
