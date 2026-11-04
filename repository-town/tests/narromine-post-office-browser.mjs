@@ -52,6 +52,31 @@ try{
   assert.equal(state.coordinate,'NARROMINE-PO',device+': reload restores indoor postal state');
   await page.evaluate(()=>window.__town.place(0,5.15,Math.PI));
   await page.waitForFunction(()=>window.__town.state().mode==='town',null,{timeout:12000});
+  // Narromine Coles is a *separate* walk-in venue, not Repository Town's
+  // small supermarket. Verify front door, six retail zones, checkout and exit.
+  const coles=await page.evaluate(()=>window.__town.narromineColesEntrance());
+  assert(Math.hypot(coles.x-coles.outside.x,coles.z-coles.outside.z)>1.12,device+': Coles outside position is not an auto-enter trap');
+  assert(await page.evaluate(e=>!window.__town.probeStatic(e.outside.x,e.outside.z,.25),coles),
+    device+': Coles outside door is not inside a solid Narromine wall');
+  await page.evaluate(e=>window.__town.place(e.x,e.z,e.yaw),coles);
+  await page.waitForFunction(()=>window.__town.state().coordinate==='NARROMINE-COLES',null,{timeout:12000});
+  state=await page.evaluate(()=>window.__town.state());
+  assert.equal(state.coordinate,'NARROMINE-COLES',device+': enters separate real-town Coles');
+  for(const zone of ['produce','pantry','bakery','chilled','freezer','checkout'])assert(
+    state.interactables.some(e=>e.key==='narromine-coles:'+zone),device+': '+zone+' retail zone');
+  const reachable=await page.evaluate(()=>window.__town.approach('narromine-coles:checkout'));
+  assert(reachable,device+': walkable customer checkout from entry');
+  await page.evaluate(()=>window.__town.closePanel?.());
+  await page.evaluate(()=>window.__town.place(0,25.1,0));
+  await page.waitForFunction(()=>window.__town.state().mode==='town',null,{timeout:12000});
+  state=await page.evaluate(()=>window.__town.state());
+  assert(Math.hypot(state.pos.x-coles.returnPose.x,state.pos.z-coles.returnPose.z)<.2,
+    device+': Coles exit returns outside real mapped store');
+  assert(await page.evaluate(()=>!window.__town.probeStatic(window.__town.state().pos.x,window.__town.state().pos.z,.25)),
+    device+': Coles exit is not trapped in exterior walls');
+  const leah=await page.evaluate(()=>window.__town.narrominePostalResident());
+  assert.equal(leah.id,'narromine:post-office:leah-bennett',device+': unique physical Narromine worker ID');
+  assert.equal(leah.homeOsmIndex,203,device+': same mapped OSM home after Coles visit');
   assert(!errors.length,device+': no browser errors '+errors.join('; '));
   console.log('PASS '+device+': Post Office entry, service desk, footpath exit, reload, WebGL scene');
   await context.close();
