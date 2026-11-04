@@ -359,16 +359,42 @@ export function buildNarromine(parent, makeLabel = null) {
         const ox = Math.cos(-f.yaw) * t - Math.sin(-f.yaw) * side * (f.W / 2 + 0.03), oz = Math.sin(-f.yaw) * t + Math.cos(-f.yaw) * side * (f.W / 2 + 0.03);
         box(0x34434f, 1.0, 1.6, 0.06, f.cx + ox, fitY(5.6), f.cz + oz, f.yaw); }
       colliders.push(polyRect(p.pts));
-      if (p.roofText && typeof document !== 'undefined') {
-        // Painted on the street-facing (west) slope, as seen from the air (axis-aligned front block).
-        const r = polyRect(p.pts), fh = (r.x1 - r.x0) / 2 * Math.tan(0.42);
-        const c = document.createElement('canvas'); c.width = 1024; c.height = 256; const g2 = c.getContext('2d');
-        g2.fillStyle = '#8e2a26'; g2.font = 'bold 150px Arial'; g2.textAlign = 'center'; g2.textBaseline = 'middle'; g2.fillText(p.roofText, 512, 135);
-        const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
-        const slope = Math.hypot((r.x1 - r.x0) / 2, fh), m = new THREE.Mesh(new THREE.PlaneGeometry((r.z1 - r.z0) * 0.8, slope * 0.75), new THREE.MeshLambertMaterial({ map: tex, transparent: true, depthWrite: false }));
-        m.position.set(r.x0 + (r.x1 - r.x0) / 4 - 0.02, wallH + fh / 2 + 0.05, (r.z0 + r.z1) / 2);
-        m.rotation.set(0, -Math.PI / 2, 0); m.rotateX(-(Math.PI / 2 - Math.atan2(fh, (r.x1 - r.x0) / 2)));
-        town.add(m);
+      if (p.roofText && pitched && typeof document !== 'undefined') {
+        // Keep the historic roof lettering ON the actual LiDAR-adjusted hipped
+        // roof. The old sign used a fixed 0.42 rad slope and an axis-aligned
+        // rectangle, so it could become buried when the surveyed pitch changed.
+        const sideX = f.W > f.L, half = Math.min(f.L, f.W) / 2;
+        const angle = pitch ?? 0.42, rise = half * Math.tan(angle);
+        const ridgeLength = Math.abs(f.W - f.L);
+        const textSpan = Math.min(12, ridgeLength * 0.88);
+        if (textSpan > 2.5) {
+          const c = document.createElement('canvas'); c.width = 1024; c.height = 256;
+          const g2 = c.getContext('2d');
+          g2.fillStyle = '#8e2a26'; g2.font = 'bold 150px Arial';
+          g2.textAlign = 'center'; g2.textBaseline = 'middle';
+          g2.fillText(p.roofText, 512, 135);
+          const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+          // Local ridge axis u, eave-to-ridge fraction v. Offset outward along
+          // the roof normal to avoid z-fighting and clipping through the roof.
+          const cos = Math.cos(f.yaw), sin = Math.sin(f.yaw), lift = 0.10;
+          const point = (u, v) => {
+            // f.W > f.L => x slopes and z is the ridge (and vice versa).
+            const lx = sideX ? -half + half * v - Math.sin(angle) * lift : u;
+            const lz = sideX ? u : -half + half * v - Math.sin(angle) * lift;
+            return [f.cx + lx * cos + lz * sin, wallH + rise * v + Math.cos(angle) * lift,
+              f.cz - lx * sin + lz * cos];
+          };
+          const left = -textSpan / 2, right = textSpan / 2;
+          const positions = [point(left, 0.12), point(right, 0.12),
+            point(left, 0.88), point(right, 0.88)].flat();
+          const geometry = new THREE.BufferGeometry();
+          geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+          geometry.setAttribute('uv', new THREE.Float32BufferAttribute([0, 0, 1, 0, 0, 1, 1, 1], 2));
+          geometry.setIndex([0, 2, 1, 1, 2, 3]); geometry.computeVertexNormals();
+          const material = new THREE.MeshLambertMaterial({ map: tex, transparent: true,
+            depthWrite: false, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -1 });
+          town.add(new THREE.Mesh(geometry, material));
+        }
       }
     }
     // Verandahs: posts along the outer (kerb) edge; two-level ones get a balcony floor, balustrade and iron-lace frieze.
