@@ -129,9 +129,9 @@ export function findDandalooSouth(streets) {
   return { width: pieces[0].width, pts: uniq.sort((a, b) => a[1] - b[1]) };
 }
 
-// clear(x, z, r): kept for API compatibility with the renderer;
-// no furniture is returned without per-object surveyed/photo-located evidence.
-export function planDandalooSouth(streets, clear = () => true, { excludeTreeAt = () => false } = {}) {
+// clear(x, z, r): reserved for future site-specific evidenced objects; no
+// furniture is returned without a recorded position and individual evidence.
+export function planDandalooSouth(streets, clear = () => true) {
   const road = findDandalooSouth(streets), half = road.width / 2, kerbs = [], trees = [], lamps = [], poles = [];
   // Cross streets and driveways meeting Dandaloo: decorations keep 10 m away from their mouths.
   const mouths = streets.filter(s => s.name !== 'Dandaloo Street' && s.pts.some(([x, z]) => {
