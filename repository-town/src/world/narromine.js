@@ -16,17 +16,13 @@ import { buildNarromineAviationPrecinct } from './narromine-aviation-precinct.js
 import { NARROMINE_AVIATION_INTEGRATION_SPEC } from './narromine-aviation-evidence.js';
 import { buildNarromineNwDandalooBlock } from './narromine-nw-dandaloo-block.js';
 import { NARROMINE_NW_DANDALOO_INTEGRATION_SPEC } from './narromine-nw-dandaloo-evidence.js';
-import { buildNarromineNwDandalooBlock } from './narromine-nw-dandaloo-block.js';
-import { NARROMINE_NW_DANDALOO_INTEGRATION_SPEC } from './narromine-nw-dandaloo-evidence.js';
 const RAILWAY_SUPPRESSED_OSM = new Set([
   ...NARROMINE_RAILWAY_INTEGRATION_SPEC.suppressedOsmBuildingIndices,
   ...NARROMINE_COURTHOUSE_INTEGRATION_SPEC.suppressedOsmBuildingIndices,
   ST_AUGUSTINES_OSM_INDEX, // replace only the generic St Augustine's church extrusion
   ...NARROMINE_AVIATION_INTEGRATION_SPEC.suppressedOsmBuildingIndices,
   ...NARROMINE_NW_DANDALOO_INTEGRATION_SPEC.suppressedOsmBuildingIndices,
-  ...NARROMINE_NW_DANDALOO_INTEGRATION_SPEC.suppressedOsmBuildingIndices,
 ]);
-const NW_DANDALOO_SUPPRESSED_FILL = new Set(NARROMINE_NW_DANDALOO_INTEGRATION_SPEC.suppressedFillShopNames);
 const NW_DANDALOO_SUPPRESSED_FILL = new Set(NARROMINE_NW_DANDALOO_INTEGRATION_SPEC.suppressedFillShopNames);
 import { estimatedShopfrontProfile, facadeBays, landmarkFacadeSpec } from './narromine-facade-profiles.js';
 import { buildDisjointRoadSurfaces } from './narromine-road-surfaces.js';
@@ -213,7 +209,6 @@ export function buildNarromine(parent, makeLabel = null) {
     }
   };
   for (const f of FILL_SHOPS) {
-    if (NW_DANDALOO_SUPPRESSED_FILL.has(f.name)) continue;
     if (NW_DANDALOO_SUPPRESSED_FILL.has(f.name)) continue;
     const profile = estimatedShopfrontProfile({ name: f.name, kind: f.kind });
     placeBox(profile.wall, f.w, 4.6, f.d, f.x, 2.3, f.z, f.yaw);
@@ -556,7 +551,6 @@ export function buildNarromine(parent, makeLabel = null) {
   buildNarromineCourthousePrecinct({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   buildNarromineStAugustines({ push, colliders, spots, town });
   buildNarromineAviationPrecinct({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
-  buildNarromineNwDandalooBlock({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   buildNarromineNwDandalooBlock({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   // Named places: a sign over each, and an E-prompt with what it is, its address and any history.
   for (const p of PLACES) {
