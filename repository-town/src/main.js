@@ -1760,6 +1760,7 @@ async function start() {
       }
     }
     drivingDashboard.update(mode==='town'&&!overview?driving.activeVehicle():null);
+    ambience.setRadioPlaying(drivingDashboard.getState().station>0);
     market.update(life.day, life.minute);
     frameItems();
     carryFrame();
