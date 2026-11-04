@@ -1,3 +1,7 @@
+# 4 November 2026 — Narromine Post Office NPC & Coles interior (IN PROGRESS)
+
+Owner ChatGPT · Branch `feat/narromine-postal-resident-20261104`, base `09cacbcf953b4ae00f4178152683271a29cf341e`. Scoped NAR-PO-001; partial RTD-068, RTAC-002 and RTAC-009 are candidate checks, NOT yet accepted. Define a fictional, stable postal employee linked to a mapped single-storey house OSM:203 (without inventing a private address or identity), deterministic realistic clock schedule, Coles groceries, playable visual continuity with the existing Narromine post office and real Coles site. Planned `src/world/narromine-postal-character.js`, `src/world/narromine-coles.js`, targeted `narromine-post-office.js` + `main.js`, tests and notes. `narromine.js` / Kierath's claimed by PR #309: deliberately untouched. Implementation, local browser QA, production deploy NOT YET VERIFIED.
+
 # 4 November 2026 — Narromine Visual QA & Screenshot Comparison System — VERIFIED COMPLETE
 
 Owner Antigravity. Baseline `main` `09cacbcf`; branch `feat/narromine-visual-qa-20261104`.
