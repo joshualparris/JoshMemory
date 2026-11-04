@@ -10,13 +10,17 @@ import { buildNarromineRailwayPrecinct } from './narromine-railway-precinct.js';
 import { NARROMINE_RAILWAY_INTEGRATION_SPEC } from './narromine-railway-evidence.js';
 import { buildNarromineCourthousePrecinct } from './narromine-courthouse-precinct.js';
 import { NARROMINE_COURTHOUSE_INTEGRATION_SPEC } from './narromine-courthouse-evidence.js';
+import { buildNarromineAviationPrecinct } from './narromine-aviation-precinct.js';
+import { NARROMINE_AVIATION_INTEGRATION_SPEC } from './narromine-aviation-evidence.js';
 const RAILWAY_SUPPRESSED_OSM = new Set([
   ...NARROMINE_RAILWAY_INTEGRATION_SPEC.suppressedOsmBuildingIndices,
   ...NARROMINE_COURTHOUSE_INTEGRATION_SPEC.suppressedOsmBuildingIndices,
+  ...NARROMINE_AVIATION_INTEGRATION_SPEC.suppressedOsmBuildingIndices,
 ]);
 import { estimatedShopfrontProfile, facadeBays, landmarkFacadeSpec } from './narromine-facade-profiles.js';
 import { buildDisjointRoadSurfaces } from './narromine-road-surfaces.js';
 import { createNarromineSurfaceMaterial } from './narromine-surface-materials.js';
+import { buildDandalooStreetscape } from './narromine-dandaloo-streetscape.js';
 import { NARROMINE_POST_OFFICE_ENTRANCE, NARROMINE_POST_OFFICE_ID } from './narromine-post-office.js';
 import { HIGHWAY, HIGHWAY_Z, REGION, CORRIDOR_HALF, STREETS, BUILDINGS, AREAS, WATER, RAIL, PLACES, FILL_SHOPS, FILL_HOUSES, FRONTAGES, DETAILED, polyRect, nearTownStreet, boundaryColliders } from './narromine-layout.js';
 
@@ -137,6 +141,8 @@ export function buildNarromine(parent, makeLabel = null) {
   const roadSurfaces = buildDisjointRoadSurfaces(STREETS, { highway: HIGHWAY });
   for (const s of roadSurfaces.footpaths) flatPoly(0xbdb6a8, s.pts, 0.076);
   for (const s of roadSurfaces.asphalt) flatPoly(ROAD_COLOUR[s.kind] ?? 0x4f5153, s.pts, 0.075);
+  // OSM-aligned Dandaloo streetscape: no duplicate road or building geometry.
+  buildDandalooStreetscape({ streets: STREETS, push, box, flatPoly, strip });
   // Real buildings, raised from their mapped outlines.
   const colliders = [...boundaryColliders()], spots = [];
   for (const b of BUILDINGS) {
@@ -534,6 +540,7 @@ export function buildNarromine(parent, makeLabel = null) {
   buildKieraths({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   buildNarromineRailwayPrecinct({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   buildNarromineCourthousePrecinct({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
+  buildNarromineAviationPrecinct({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   // Named places: a sign over each, and an E-prompt with what it is, its address and any history.
   for (const p of PLACES) {
     if (makeLabel) { const l = makeLabel(p.name, 'interactive'); l.position.set(p.x, 5.4, p.z); l.scale.multiplyScalar(0.8); town.add(l); }

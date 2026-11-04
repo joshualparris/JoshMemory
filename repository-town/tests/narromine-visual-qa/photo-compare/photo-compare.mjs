@@ -330,7 +330,7 @@ try {
     await page.locator('button[data-viewmode="side-by-side"]').click();
 
     // Test Google Street View API connection & per-call cost banner
-    await page.locator('#input-gmaps-key').fill('AIzaSyDUMMY_TEST_KEY_FOR_COST_LEDGER');
+    await page.locator('#input-gmaps-key').fill('MOCK-ONLY-NO-REAL-API-CREDENTIAL');
     await page.locator('#btn-manual-sync-sv').click();
 
     const afterCalls = await page.locator('#cost-total-calls').textContent();
