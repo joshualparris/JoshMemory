@@ -31,10 +31,10 @@ class TaskAuditTest(unittest.TestCase):
         mapping = {"schema_version": 1, "next_number": 1, "ids": {}}
         result = audit.merge_tasks({}, items, mapping)
         self.assertEqual(len(result), 2)
-        unnumbered = next(x for x in result if x["title"].startswith("**Remaining"))
+        unnumbered = next(x for x in result if x["title"].startswith("Remaining"))
         self.assertEqual(unnumbered["task_id"], "JMU-00001")
         later = audit.merge_tasks({}, items, mapping)
-        self.assertEqual(next(x for x in later if x["title"].startswith("**Remaining"))["task_id"], "JMU-00001")
+        self.assertEqual(next(x for x in later if x["title"].startswith("Remaining"))["task_id"], "JMU-00001")
         self.assertEqual(mapping["next_number"], 2)
 
     def test_references_do_not_create_duplicates(self):
