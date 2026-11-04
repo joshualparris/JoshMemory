@@ -22,7 +22,7 @@ landmark sites, 8 stand-in shops and **2,665 invented stand-in houses**.
 3. [x] **Grain silos and receival site.** _Partly done: the four round concrete silos by the station yard (OSM man_made=silo) are cylinders at their LiDAR heights (20.8 m wall, 23.4 m top); the three OSM grain bunkers are low tarped stacks. Bunker heights need a LiDAR tile covering them._ Model the GrainCorp/Agrigrain silos and bunkers at the
    Silo Access Road crossing from footprints and LiDAR heights (currently missing; the tallest
    landmark in town).
-4. [ ] **Real trees.** Place trees at LiDAR vegetation (class 3–5) clusters with their measured
+4. [x] **Real trees.** _Done for the LiDAR-covered town centre: 6,057 trees detected in the 2023 LiDAR (tools/narromine_trees.py: canopy-height peaks ≥3.5 m) at their measured height and crown radius; none on roads, track or inside buildings. Outer areas need more LiDAR tiles._ Place trees at LiDAR vegetation (class 3–5) clusters with their measured
    canopy height and spread; street trees only where LiDAR shows them.
 5. [ ] **Property boundaries and fences.** Draw cadastral lot boundaries; front fences and
    driveways only where aerial imagery shows them.
