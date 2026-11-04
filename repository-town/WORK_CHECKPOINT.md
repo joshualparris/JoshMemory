@@ -1,3 +1,7 @@
+# 5 November 2026 — NR-REAL-002 Cloud continuation checkpoint
+
+Owner ChatGPT cloud resumes Agy ThinkPad's previously claimed NR-REAL-002 after CLI quota exhaustion. ThinkPad local two-file WIP was not pushed and cannot be recovered remotely; preserves its original branch and claim. Base `8a8f7680`, new branch `feat/narromine-real-002-walk-qa-continuation-20261105`. Only a new WebGL ten-segment physical walking harness, dedicated CI workflow and evidence note are changed, no gameplay meshes/colliders. Goal: run desktop and Android-sized Chromium, record 20 actual local walk attempts, upload JSON/screenshots and inspect defects; then fix an unclaimed reproducible defect or hand the owner an exact reproducer. **Not yet verified:** CI run, actual screenshot quality, full continuous journey, hosted production or physical Android device. See `docs/NARROMINE_REAL_002_WALKING_AUDIT_2026-11-05.md`.
+
 # 5 November 2026 — `NR-REAL-002`: Narromine Full Physical Walking Audit & Visual QA — START CHECKPOINT
 
 Owner Antigravity (Agy ThinkPad). Baseline `main` `fc5128c7`; branch `feat/narromine-real-002-walking-audit-20261105`.
