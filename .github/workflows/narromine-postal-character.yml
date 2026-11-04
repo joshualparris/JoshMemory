@@ -1,0 +1,47 @@
+name: Narromine fictional postal character data acceptance
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'repository-town/src/world/narromine-postal-character.js'
+      - 'repository-town/tests/narromine-postal-character.mjs'
+  pull_request:
+    paths:
+      - 'repository-town/src/world/narromine-postal-character.js'
+      - 'repository-town/tests/narromine-postal-character.mjs'
+      - 'repository-town/package.json'
+      - '.github/workflows/narromine-postal-character.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-data-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Verify isolated fictional roster, OSM index, and no personal address
+        run: |
+          node --check src/world/narromine-postal-character.js
+          node --check tests/narromine-postal-character.mjs
+          node tests/narromine-postal-character.mjs
+      - name: Make sure new data is not presented as deployed NPC
+        run: |
+          node - <<'NODE'
+          const fs=require('fs'),p='src/world/narromine-postal-character.js';
+          const s=fs.readFileSync(p,'utf8');
+          if(!s.includes('FICTIONAL') || !s.includes('address:null') || !s.includes("osmIndex:203"))throw Error('Missing fiction/privacy provenance');
+          const main=fs.readFileSync('src/main.js','utf8');
+          if(main.includes("from './world/narromine-postal-character.js'"))throw Error('Data-only salvage must not quietly activate NPC');
+          console.log('PASS fictional content explicit, no real address, no live activation');
+          NODE
