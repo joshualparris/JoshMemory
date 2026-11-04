@@ -281,7 +281,25 @@ export function buildNarromine(parent, makeLabel = null) {
       if (p.storeys === 2 && !p.features) for (const side of [-1, 1]) for (let t = -f.L / 2 + 1.5; t < f.L / 2 - 1; t += 3) { // upper-floor windows on the long faces
         const ox = Math.cos(-f.yaw) * t - Math.sin(-f.yaw) * side * (f.W / 2 + 0.03), oz = Math.sin(-f.yaw) * t + Math.cos(-f.yaw) * side * (f.W / 2 + 0.03);
         box(0x34434f, 1.0, 1.6, 0.06, f.cx + ox, fitY(5.6), f.cz + oz, f.yaw); }
-      colliders.push(polyRect(p.pts));
+      if (d.id === 'dandaloo-82' && p.name.startsWith('Coles ')) {
+        // Coles walls are skewed against the adjacent Kierath's arcade. A
+        // single axis-aligned bounding rectangle wrongly fills the open air
+        // passage at its diagonal NW edge, making the real courtyard unreachable.
+        // Segment the actual traced quad *edges* instead. Preserve solid walls
+        // and keep all unrelated detailed-building colliders unchanged.
+        for (let edge = 0; edge < p.pts.length; edge++) {
+          const a = p.pts[edge], b = p.pts[(edge + 1) % p.pts.length];
+          const length = Math.hypot(b[0] - a[0], b[1] - a[1]);
+          const sections = Math.max(1, Math.ceil(length / 0.48));
+          for (let i = 0; i < sections; i++) {
+            const t0 = i / sections, t1 = (i + 1) / sections;
+            const x0 = a[0] + (b[0] - a[0]) * t0, x1 = a[0] + (b[0] - a[0]) * t1;
+            const z0 = a[1] + (b[1] - a[1]) * t0, z1 = a[1] + (b[1] - a[1]) * t1;
+            colliders.push({ x0: Math.min(x0, x1) - 0.10, x1: Math.max(x0, x1) + 0.10,
+              z0: Math.min(z0, z1) - 0.10, z1: Math.max(z0, z1) + 0.10 });
+          }
+        }
+      } else colliders.push(polyRect(p.pts));
       if (p.roofText && typeof document !== 'undefined') {
         // Painted on the street-facing (west) slope, as seen from the air (axis-aligned front block).
         const r = polyRect(p.pts), fh = (r.x1 - r.x0) / 2 * Math.tan(0.42);
