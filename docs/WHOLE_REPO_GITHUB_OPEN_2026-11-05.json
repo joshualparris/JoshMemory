@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "as_of_date": "2026-11-05 Australia/Sydney",
+  "source_repo": "joshualparris/JoshMemory",
+  "observed_main_sha": "bb2028a776e7a4a0ea1b3ad0aa15d5c624cd6df4",
+  "open_issues": [
+    {
+      "kind": "issue",
+      "number": 157,
+      "title": "Repository Town Council — Independent urban audit and ten-year plan (22 Oct 2026)",
+      "url": "https://github.com/joshualparris/JoshMemory/issues/157",
+      "updated_at": "2026-11-04T08:56:26Z"
+    },
+    {
+      "kind": "issue",
+      "number": 332,
+      "title": "Narromine main-street fidelity pilot: photo-match the Mitchell Highway shopping strip",
+      "url": "https://github.com/joshualparris/JoshMemory/issues/332",
+      "updated_at": "2026-11-04T08:57:20Z"
+    },
+    {
+      "kind": "issue",
+      "number": 355,
+      "title": "Narromine Coles — verify true interior layout and improve merged interpretive model",
+      "url": "https://github.com/joshualparris/JoshMemory/issues/355",
+      "updated_at": "2026-11-04T07:59:43Z"
+    },
+    {
+      "kind": "issue",
+      "number": 381,
+      "title": "AUD-REPO-001 — audit and prioritise all unfinished JoshMemory work without renumbering existing IDs",
+      "url": "https://github.com/joshualparris/JoshMemory/issues/381",
+      "updated_at": "2026-11-04T21:54:08Z"
+    }
+  ],
+  "open_prs": [
+    {
+      "kind": "pr",
+      "number": 358,
+      "title": "Narromine #332: auditable exact frontage IDs and LiDAR/photography evidence gaps",
+      "url": "https://github.com/joshualparris/JoshMemory/pull/358",
+      "head_branch": "docs/narromine-frontage-gaps-20261104",
+      "updated_at": "2026-11-04T08:49:23Z"
+    },
+    {
+      "kind": "pr",
+      "number": 359,
+      "title": "Council #157: quantify 195-home proposed road routes to park, with limits",
+      "url": "https://github.com/joshualparris/JoshMemory/pull/359",
+      "head_branch": "audit/council-park-route-access-20261104",
+      "updated_at": "2026-11-04T09:04:31Z"
+    },
+    {
+      "kind": "pr",
+      "number": 363,
+      "title": "Driving HUD: keep compass and lane controls clear on short phones",
+      "url": "https://github.com/joshualparris/JoshMemory/pull/363",
+      "head_branch": "fix/town-driving-small-viewport-20261104",
+      "updated_at": "2026-11-04T09:22:27Z"
+    },
+    {
+      "kind": "pr",
+      "number": 366,
+      "title": "Narromine Hotel: remove one unsupported façade-blocking tree after street cleanup",
+      "url": "https://github.com/joshualparris/JoshMemory/pull/366",
+      "head_branch": "fix/narromine-hotel-kerbtree-qa-20261104",
+      "updated_at": "2026-11-04T09:55:02Z"
+    },
+    {
+      "kind": "pr",
+      "number": 371,
+      "title": "Fix invisible car wall: keep dairy/farm fences out of Repository Town avenues",
+      "url": "https://github.com/joshualparris/JoshMemory/pull/371",
+      "head_branch": "fix/town-core-avenue-farm-fence-20261104",
+      "updated_at": "2026-11-04T10:30:24Z"
+    },
+    {
+      "kind": "pr",
+      "number": 376,
+      "title": "feat(town): independent playable freight yard shunting and Narromine crossing evidence",
+      "url": "https://github.com/joshualparris/JoshMemory/pull/376",
+      "head_branch": "feat/repo-town-yard-shunting-20261104",
+      "updated_at": "2026-11-04T11:19:58Z"
+    },
+    {
+      "kind": "pr",
+      "number": 377,
+      "title": "Narromine realism checklist + NR-REAL-001 north furniture evidence correction",
+      "url": "https://github.com/joshualparris/JoshMemory/pull/377",
+      "head_branch": "fix/narromine-north-evidence-20261105",
+      "updated_at": "2026-11-04T21:55:25Z"
+    },
+    {
+      "kind": "pr",
+      "number": 383,
+      "title": "Audit every JoshMemory tracked task source; preserve IDs, number missing items and prioritise open work",
+      "url": "https://github.com/joshualparris/JoshMemory/pull/383",
+      "head_branch": "audit/whole-repo-open-tasks-20261105",
+      "updated_at": "2026-11-04T22:06:56Z"
+    },
+    {
+      "kind": "pr",
+      "number": 384,
+      "title": "fix(town): real engine shutdown ramp and Narromine material screenshot verification",
+      "url": "https://github.com/joshualparris/JoshMemory/pull/384",
+      "head_branch": "fix/narromine-material-qa-audio-ramp-20261105",
+      "updated_at": "2026-11-04T22:00:45Z"
+    }
+  ]
+}

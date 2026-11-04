@@ -8,7 +8,7 @@ import { geoToWorld, toWorld, DETAILED, polyRect } from '../src/world/narromine-
 import { NARROMINE_POSTAL_PERSON as L, POSTAL_HOME_OSM_BUILDING_INDEX as houseIndex,
   POSTAL_WALK_ROUTE_LOCAL, NSW_POSTAL_PUBLIC_HOLIDAYS, postalDayPlan, postalState } from '../src/world/narromine-postal-character.js';
 import { NARROMINE_COLES_SAVE_ID, NARROMINE_COLES_ENTRANCE as entry, COLES_INTERPRETIVE_PLAN,
-  buildNarromineColesInterior, nearNarromineColesDoor, colesOpen } from '../src/world/narromine-coles.js';
+  buildNarromineColesInterior, nearNarromineColesDoor, colesOpen, colesQuietHour } from '../src/world/narromine-coles.js';
 import { createNarrominePostalOutdoorActor } from '../src/world/narromine-post-office.js';
 
 assert.equal(L.id,'narromine:post-office:leah-bennett');
@@ -70,19 +70,33 @@ assert.equal(colesOpen(sunday,360),false);
 assert.equal(NARROMINE_COLES_SAVE_ID,'NARROMINE-COLES');
 assert.notEqual(NARROMINE_COLES_SAVE_ID,'NARROMINE-PO');
 assert.equal(COLES_INTERPRETIVE_PLAN.verifiedFloorPlan,false);
+assert.equal(COLES_INTERPRETIVE_PLAN.serviceEvidence.carryToCar,true);
+assert.match(COLES_INTERPRETIVE_PLAN.serviceEvidence.specialityTrolleys,/confirm availability/);
+assert.equal(colesQuietHour(monday,629).reducedSound,false);
+assert.deepEqual(colesQuietHour(monday,630),{reducedSound:true,reducedLighting:false});
+assert.deepEqual(colesQuietHour(tuesday,650),{reducedSound:true,reducedLighting:true});
+assert.deepEqual(colesQuietHour(thursday,689),{reducedSound:true,reducedLighting:false});
+assert.equal(colesQuietHour(thursday,690).reducedSound,false);
+assert.equal(colesQuietHour(saturday,650).reducedSound,false);
+assert.equal(colesQuietHour(sunday,650).reducedSound,false);
+assert.equal(colesQuietHour(christmasDay,650),null,'never invent official Quiet Hour on a public holiday');
 assert(COLES_INTERPRETIVE_PLAN.width*COLES_INTERPRETIVE_PLAN.depth>=1800);
 assert(nearNarromineColesDoor(entry));
 assert(!nearNarromineColesDoor(entry.returnPose));
 const built=buildNarromineColesInterior(()=>new THREE.Sprite(new THREE.SpriteMaterial()),2,1040);
 assert(built.group instanceof THREE.Group);
 assert.equal(built.narromineColes,true);
-assert.equal(built.interactables.length,6);
+assert.equal(built.interactables.length,7,'verified accessible service information is a separate reachably placed hotspot');
 assert(built.group.getObjectByName('Leah Bennett · Coles shopping')?.visible);
 assert(built.colliders.length>20 && built.group.children.length>70,'real store environment with shelves, staff area, cabinets and products');
 const world=new CollisionWorld(built.colliders);
 assert(!world.hits(built.spawn.x,built.spawn.z,.3),'entrance clear');
 assert(!world.hits(0,25.0,.3),'exit physically unobstructed');
 for(const i of built.interactables)assert(!world.hits(i.pos.x,i.pos.z,.25),i.key+' cannot be reached');
+const accessible=built.interactables.find(x=>x.key==='narromine-coles:accessibility');
+assert(accessible?.act?.text.includes('speciality trolleys'),'information stand carries verified customer support');
+assert(routeVisitor(built.spawn,accessible.pos,built.colliders,built.bounds,.27),
+  'accessibility sign reachable from lobby without clipping shelves');
 const checkout=built.interactables.find(x=>x.key==='narromine-coles:checkout');
 assert(checkout,'accessible staffed checkout demonstration');
 assert(routeVisitor(built.spawn,checkout.pos,built.colliders,built.bounds,.27),'checkout reachable from entry');

@@ -1,0 +1,60 @@
+name: Narromine-Aware Minimap Acceptance
+
+on:
+  pull_request:
+    paths:
+      - 'repository-town/src/ui/minimap-visibility.js'
+      - 'repository-town/src/ui/minimap-visibility.css'
+      - 'repository-town/src/index.html'
+      - 'repository-town/tests/narromine-minimap*.mjs'
+      - '.github/workflows/narromine-minimap-visibility.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'repository-town/src/ui/minimap-visibility.js'
+      - 'repository-town/tests/narromine-minimap*.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  narromine-minimap:
+    name: Auto-hide map, user override, browser and privacy
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install pinned dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Check syntax and unit behaviour
+        run: |
+          node --check src/ui/minimap-visibility.js
+          node tests/narromine-minimap-visibility.mjs
+      - name: Build public game and scan privacy
+        run: |
+          node tools/build.mjs
+          node tools/check_privacy.mjs
+      - name: Install real browser
+        run: npx playwright install --with-deps chromium
+      - name: Real desktop/mobile WebGL test
+        run: node tests/narromine-minimap-browser.mjs
+        env:
+          MINIMAP_SCREENSHOT_DIR: test-results/narromine-minimap
+          LIBGL_ALWAYS_SOFTWARE: '1'
+      - name: Preserve screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: narromine-minimap-desktop-mobile
+          path: repository-town/test-results/narromine-minimap/*.png
+          if-no-files-found: warn
+          retention-days: 14

@@ -60,10 +60,24 @@ try {
  assert(await page.isVisible('#driving-dashboard'),'button restores gauges immediately');
  assert.equal(await page.locator('#drive-dash-toggle').innerText(),'Hide dashboard');
  assert.equal(await page.evaluate(()=>localStorage.getItem('repository-town.car-dashboard-visible')),'true');
+ // Driving buttons sit top-left, never over the compass; lane assist toggles and persists.
+ const boxes=await page.evaluate(()=>Object.fromEntries(['drive-dash-toggle','drive-lane-toggle','game-compass','hud'].map(id=>{const e=document.getElementById(id);const r=e&&!e.hidden&&e.getBoundingClientRect();return [id,r&&r.width?{l:r.left,t:r.top,r:r.right,b:r.bottom}:null];})));
+ const overlap=(a,b)=>a&&b&&a.l<b.r&&b.l<a.r&&a.t<b.b&&b.t<a.b;
+ for(const id of ['drive-dash-toggle','drive-lane-toggle'])for(const other of ['game-compass','hud'])
+   assert(!overlap(boxes[id],boxes[other]),id+' overlaps '+other+': '+JSON.stringify(boxes));
+ assert(!overlap(boxes['drive-dash-toggle'],boxes['drive-lane-toggle']),'driving buttons overlap each other');
+ assert.equal(await page.locator('#drive-lane-toggle').innerText(),'Lane assist: OFF');
+ await page.tap('#drive-lane-toggle');
+ assert.equal(await page.locator('#drive-lane-toggle').innerText(),'Lane assist: ON');
+ assert.equal(await page.evaluate(()=>localStorage.getItem('town.laneAssist')),'on');
+ await page.screenshot({path:'test-results/lane-assist-mobile.png'});
+ await page.tap('#drive-lane-toggle');
+ assert.equal(await page.locator('#drive-lane-toggle').innerText(),'Lane assist: OFF');
  const gaugeStart=await page.evaluate(()=>({fuel:document.getElementById('drive-fuel').textContent,temp:document.getElementById('drive-temp').textContent,registration:document.getElementById('drive-model').textContent}));
  assert(gaugeStart.fuel.includes('20.0')&&gaugeStart.registration.includes(v.registration),'dashboard displays the actual owned car and its fuel: '+JSON.stringify(gaugeStart));
  await page.tap('#drive-radio-power');
  assert.equal(await page.evaluate(()=>window.__town.driveDashboard().station),1,'phone radio on button tunes Country Road FM');
+ await page.waitForFunction(()=>window.__town.state().soundDebug.radioDucked===true,null,{timeout:3000});   // town music fades while the radio plays
  await page.tap('#drive-radio-next');
  assert.equal(await page.evaluate(()=>window.__town.driveDashboard().station),2,'next station control works by touch');
  assert.match(await page.locator('#drive-radio-station').innerText(),/High Street Jazz/);
@@ -71,6 +85,7 @@ try {
  assert.equal(await page.evaluate(()=>window.__town.driveDashboard().volume),60,'volume changes through control');
  await page.tap('#drive-radio-power');
  assert.equal(await page.evaluate(()=>window.__town.driveDashboard().station),0,'radio can be switched off without affecting driving');
+ await page.waitForFunction(()=>window.__town.state().soundDebug.radioDucked===false,null,{timeout:3000});  // and returns when it stops
  // Real touch events move the on-screen joystick: the same path as Android input.
  const cdp=await ctx.newCDPSession(page);
  const x=page.viewportSize().width*.2,y=page.viewportSize().height*.7;

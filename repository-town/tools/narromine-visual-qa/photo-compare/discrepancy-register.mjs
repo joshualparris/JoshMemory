@@ -178,19 +178,20 @@ export const ARCHITECTURAL_DISCREPANCIES = Object.freeze([
       'Directly visible in the verified local NSW Spatial Services CC BY 4.0 orthophoto (docs/narromine/narromine-post-office-aerial-nsw-spatial-cc-by-4.png) and 2023 LiDAR heights.',
     suggestedCorrection:
       'Add hipped corrugated metal roof planes with diagonal hip ridges over the north wing and Dandaloo Street front part of narromine-post-office matching the orthophoto ridge geometry.',
-    responsibleFiles: ['src/world/narromine.js', 'src/world/narromine-post-office.js', 'src/world/narromine-buildings-data.js'],
-    claimedByOtherAgent: true,
+    responsibleFiles: ['src/world/narromine-post-office-roof.js', 'src/world/narromine.js'],
+    claimedByOtherAgent: false,
+    resolutionStatus: 'VERIFIED COMPLETE (src/world/narromine-post-office-roof.js)',
     agentClaimRef:
-      'PR #319 (feat/narromine-postal-resident-20261104, OPEN) — touches narromine.js for postal resident; coordinate before editing post office exterior.',
+      'RESOLVED in src/world/narromine-post-office-roof.js (feat/narromine-post-office-roof-20261105): the two intersecting per-wing hip roofs and stepped fascia boxes are replaced by one L-shaped hipped roof (six planar facets, NE hip, inner valley, ridges meeting at one point) at 2023 LiDAR eave 9.54 m / ridge 10.40 m, with hip-end insets measured on the orthophoto. PR #319 merged as #354 without touching the exterior roof.',
   },
 
-  // ── 4. NARROMINE HOTEL (89–93 Dandaloo Street — NR-SITE-narromine-hotel) ──
+  // ── 4. NARROMINE HOTEL (116 Dandaloo Street — NR-SITE-narromine-hotel) ──
   {
     id: 'DISC-NR-008',
     locationId: 'narromine-hotel-corner',
     buildingId: 'NR-SITE-narromine-hotel',
     buildingName: 'Narromine Hotel',
-    address: '89–93 Dandaloo Street & Derribong Avenue',
+    address: '116 Dandaloo Street & Derribong Avenue',
     category: 'footprint-height',
     classification: 'Insufficient evidence',
     severity: 'LOW',
