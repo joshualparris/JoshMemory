@@ -51,10 +51,14 @@ Sources:
 - https://developers.google.com/maps/billing-and-pricing/sku-details
 
 On explicit consent, the page loads Maps JavaScript API, imports the Street View library
-and constructs **exactly one** `StreetViewPanorama` object. It reuses that object when
+and checks for real Google-collected panorama coverage at **75 m**, **200 m** and **500 m**
+using `StreetViewService.getPanorama()` as needed. **Google explicitly states that
+StreetViewService is not billed**; the viewer logs each metadata query at US$0.000.
+Only if a real panorama ID is found does it construct **exactly one**
+`StreetViewPanorama` object. It reuses that object when
 moving to another landmark, thereby avoiding a new panorama instantiation per selection.
 
-The UI logs the SDK load, import, panorama creation and user-initiated viewer operations.
+The UI logs the SDK load, import, each free availability lookup and its result, panorama creation and user-initiated viewer operations. A failed lookup shows a visible 500m coverage message instead of an empty viewer, and does not create a billable panorama.
 The ledger persists **locally in this browser**, with no API key. It displays the
 **published first-paid-tier potential cost in USD** for each billable event and cumulative
 amount for loads observed in this browser.
@@ -108,7 +112,7 @@ asserts that the page starts with no network requests to Google, then that one
 consented simulated panorama creation is logged at its first-tier price, that a second
 landmark doesn't instantiate a second panorama, and that notes/export omit the key.
 
-Actual Google authentication, account billing, panorama availability and display
+Actual Google authentication, account billing, real panorama availability and display
 must additionally be verified on Fedora with the user's browser-restricted key.
 
 ## Online Vercel deployment (separate from the family game's production project)
