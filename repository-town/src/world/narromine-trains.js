@@ -22,7 +22,14 @@ export const FREIGHT_TIMETABLE = Object.freeze([
   Object.freeze({ id: 'Empty grain train to Nevertire', from: 'dubbo', at: 10 * 60 + 25, hoppers: 10 }),
   Object.freeze({ id: 'Ballast train to Dubbo', from: 'nw', at: 14 * 60 + 40, hoppers: 6 }),
   Object.freeze({ id: 'General freight to Nevertire', from: 'dubbo', at: 19 * 60 + 35, hoppers: 8 }),
+  Object.freeze({ id: 'Grain train to Dubbo', from: 'nw', at: 2 * 60 + 50, hoppers: 10 }),
+  Object.freeze({ id: 'Empty grain train to Nevertire', from: 'dubbo', at: 8 * 60 + 15, hoppers: 10 }),
+  Object.freeze({ id: 'General freight to Dubbo', from: 'nw', at: 12 * 60 + 5, hoppers: 8 }),
+  Object.freeze({ id: 'Grain train to Dubbo', from: 'nw', at: 17 * 60 + 20, hoppers: 10 }),
+  Object.freeze({ id: 'Empty grain train to Nevertire', from: 'dubbo', at: 22 * 60 + 40, hoppers: 10 }),
 ]);
+// Nine trains a day, matching the NSW level crossing register's figure for the Dandaloo Street
+// crossing on the Main Western line (Transport for NSW open data, crossing 717).
 const FREIGHT_RUN_KMH = 60, SIGNAL_GAP = 250, CROSSING_WARN = 200;
 const ACCEL = 0.32, SERVICE_BRAKE = 0.55, EMERGENCY_BRAKE = 1.1, RESISTANCE = 0.03, REVERSE_MAX = 15 / 3.6;
 
@@ -131,12 +138,16 @@ function outline({ x, z, heading, L }) {
 // approaches and flashing red lights; booms come down while any train is within 200 m.
 // Official names from OSM level_crossing nodes (sourced there from the NSW level crossings on public
 // roads open dataset; ref = operator inventory number), at their game positions.
+// Protection type per crossing from the NSW "level crossings on public roads" register (Transport
+// for NSW open data, CC BY): 717 Dandaloo Street half booms + flashing lights; 716 Manildra Street
+// flashing lights only; 718, 1107, 1108, 1109 and 1867 stop signs only.
+export const CROSSING_CONTROL = Object.freeze({ 717: 'boom', 716: 'lights', 718: 'stop', 1107: 'stop', 1108: 'stop', 1109: 'stop', 1867: 'stop' });
 export const LEVEL_CROSSING_NAMES = Object.freeze([
   [-4790, -776, 'Dandaloo Street Rail Level Crossing', '717'], [-5501, -845, 'Derribong Street (Dandaloo Road) Rail Level Crossing', '1109'],
   [-6457, -2153, 'McNamaras Lane Rail Level Crossing', '718'], [-5689, -239, 'Backwater Road Rail Level Crossing', '1108'],
   [-6119, 546, 'Wingfield Road Rail Level Crossing', '1107'], [-4052, -379, 'Manildra Street Rail Level Crossing', '716'],
   [-5488, -863, 'Silo Access Road (Dandaloo Road) Rail Level Crossing', '1867'],
-].map(([x, z, name, ref]) => Object.freeze({ x, z, name, ref })));
+].map(([x, z, name, ref]) => Object.freeze({ x, z, name, ref, control: CROSSING_CONTROL[ref] || 'stop' })));
 function findCrossings() {
   const out = [];
   const segs = RAIL.flatMap(w => w.pts.slice(1).map((b, i) => [w.pts[i], b]));
@@ -150,7 +161,7 @@ function findCrossings() {
       if (out.some(c => Math.hypot(c.x - x, c.z - z) < 12)) continue;
       const l = Math.hypot(q[0] - p[0], q[1] - p[1]), ux = (q[0] - p[0]) / l, uz = (q[1] - p[1]) / l;
       const official = LEVEL_CROSSING_NAMES.find(n => Math.hypot(n.x - x, n.z - z) < 15);
-      out.push({ x, z, ux, uz, width: st.width || 7, street: st.name || 'road', name: official?.name || (st.name || 'Road') + ' level crossing', ref: official?.ref || null });
+      out.push({ x, z, ux, uz, width: st.width || 7, street: st.name || 'road', name: official?.name || (st.name || 'Road') + ' level crossing', ref: official?.ref || null, control: official?.control || 'stop' });
     }
   }
   return out;
@@ -161,8 +172,16 @@ function buildCrossing(parent, c) {
   for (const side of [-1, 1]) {
     // Each approach: the gate stands on the driver's left (Australia drives on the left), 5.5 m from the track.
     const bx = c.x - c.ux * 5.5 * side + nx * (half + 0.6) * -side, bz = c.z - c.uz * 5.5 * side + nz * (half + 0.6) * -side;
+    if (c.control === 'stop') {                 // passive: a stop sign and a railway crossing sign on a post
+      box(parent, pole, 0.1, 2.4, 0.1, bx, 1.2, bz);
+      const sign = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 0.04, 8), new THREE.MeshLambertMaterial({ color: 0xc8202a }));
+      sign.rotation.x = Math.PI / 2; sign.rotation.z = Math.PI / 8; sign.rotation.y = Math.atan2(c.ux * side, c.uz * side); sign.position.set(bx, 2.1, bz); parent.add(sign);
+      booms.push({ pivot: null, lamps: [], bx, bz });
+      continue;
+    }
     box(parent, pole, 0.22, 3.2, 0.22, bx, 1.6, bz);
     const lamps = [box(parent, red, 0.32, 0.32, 0.12, bx, 2.7, bz), box(parent, red, 0.32, 0.32, 0.12, bx, 2.25, bz)];
+    if (c.control === 'lights') { booms.push({ pivot: null, lamps, bx, bz }); continue; }
     const pivot = new THREE.Group(); pivot.position.set(bx, 1.15, bz); pivot.rotation.order = 'YXZ';
     const dirX = nx * side, dirZ = nz * side;                 // arm reaches across the approach lanes
     pivot.rotation.y = Math.atan2(-dirZ, dirX);
@@ -230,7 +249,7 @@ export function createNarromineTrains(parent) {
       c.closed = near;
       c.down = Math.max(0, Math.min(1, c.down + (near ? 1 : -1) * dt / 6));   // booms take ~6 s
       const flash = near && Math.floor(performance.now() / 500) % 2;
-      for (const b of c.booms) { b.pivot.rotation.z = (1 - c.down) * 1.45; b.lamps[0].material.emissiveIntensity = near ? (flash ? 1.4 : 0) : 0; b.lamps[1].material.emissiveIntensity = near ? (flash ? 0 : 1.4) : 0; }
+      for (const b of c.booms) { if (b.pivot) b.pivot.rotation.z = (1 - c.down) * 1.45; if (b.lamps.length) { b.lamps[0].material.emissiveIntensity = near ? (flash ? 1.4 : 0) : 0; b.lamps[1].material.emissiveIntensity = near ? (flash ? 0 : 1.4) : 0; } }
     }
   }
   function tick(dt, clock) {
@@ -244,6 +263,7 @@ export function createNarromineTrains(parent) {
     const out = placed.map(outline);
     if (freight) out.push(...freight.placed.map(outline));
     for (const c of crossings) if (c.down > 0.6) for (const b of c.booms) {
+      if (!b.pivot) continue;          // only boom gates physically close the road
       const ex = b.bx + b.dirX * b.reach, ez = b.bz + b.dirZ * b.reach, px = -b.dirZ * 0.15, pz = b.dirX * 0.15;
       const poly = [[b.bx + px, b.bz + pz], [ex + px, ez + pz], [ex - px, ez - pz], [b.bx - px, b.bz - pz]];
       const xs = poly.map(p => p[0]), zs = poly.map(p => p[1]);
@@ -297,7 +317,7 @@ export function createNarromineTrains(parent) {
     return { driving, speedKmh: Math.round(speed * 3.6), limitKmh: limitKmh(), route: pref, line: net.lineName(p.a, p.b),
       head: { x: p.x, z: p.z }, cab: cab(), cars: cars.length, length: Math.round(CONSIST_LENGTH), track, penalty,
       freight: freight ? { id: freight.entry.id, speedKmh: Math.round(freight.speed * 3.6), held: freight.held, head: (({ x, z }) => ({ x, z }))(freight.path.pointAt(freight.path.s)) } : null,
-      crossings: crossings.map(c => ({ x: Math.round(c.x), z: Math.round(c.z), street: c.street, name: c.name, ref: c.ref, closed: !!c.closed, down: +c.down.toFixed(2) })) };
+      crossings: crossings.map(c => ({ x: Math.round(c.x), z: Math.round(c.z), street: c.street, name: c.name, ref: c.ref, control: c.control, closed: !!c.closed, down: +c.down.toFixed(2) })) };
   }
   return {
     update, tick, board, exit, near, cab, colliders, setRoute, state,

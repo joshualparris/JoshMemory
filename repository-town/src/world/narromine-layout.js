@@ -10,6 +10,7 @@
 // Facts and sources: docs/NARROMINE_RESEARCH_AND_PLAN_2026-11-03.md.
 import { NARROMINE_OSM as OSM } from './narromine-osm-data.js';
 import { NARROMINE_FOOTPRINTS } from './narromine-footprints-data.js';
+import { NARROMINE_FOOTPRINT_LIDAR } from './narromine-footprint-lidar-data.js';
 export { OSM };
 import { NARROMINE_BUILDINGS } from './narromine-buildings-data.js';
 import { NARROMINE_LIDAR } from './narromine-lidar-data.js';
@@ -200,7 +201,8 @@ export const FILL_HOUSES = Object.freeze(NARROMINE_FOOTPRINTS.flatMap(([x, z, w,
   // Already modelled: centre inside a mapped OSM outline or detailed site, or a mapped outline's centre inside this one.
   if (BUILDING_CENTRES.some((b) => inPoly(x, z, b.pts) || inPoly(b.c[0], b.c[1], r.poly)) || inDetailed(x, z) || overlapsPlaced(r)) return [];
   if (!clearOfRail(r) || crossesStreet(r)) return [];
-  return [Object.freeze({ generic: false, source: 'footprint', x, z, w, d, yaw, h, rect: Object.freeze(r), tone: (Math.abs(Math.round(x * 7 + z * 13)) % 5) })];
+  const lidar = NARROMINE_FOOTPRINT_LIDAR[x.toFixed(1) + ',' + z.toFixed(1)] || null;
+  return [Object.freeze({ generic: false, source: 'footprint', x, z, w, d, yaw, h, lidar, rect: Object.freeze(r), tone: (Math.abs(Math.round(x * 7 + z * 13)) % 5) })];
 }));
 
 // Main-street frontages of mapped buildings: the outline edge facing a through street within
