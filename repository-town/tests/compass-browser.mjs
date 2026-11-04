@@ -17,15 +17,18 @@ try{
   assert(['N','NE','E','SE','S','SW','W','NW'].includes(c.direction),device+': initial direction follows saved/spawn camera, not assumed north');
   const positioned=await page.evaluate(()=>{
    const compass=document.getElementById('game-compass').getBoundingClientRect();
+   const minimap=document.getElementById('minimap').getBoundingClientRect();
    const hud=document.getElementById('hud').getBoundingClientRect();
    const first=document.getElementById('first-day');
    const fr=first&&!first.hidden?first.getBoundingClientRect():null;
    return {right:window.innerWidth-compass.right,top:compass.top,
+     overlapsMinimap:!(compass.left>=minimap.right+4||minimap.left>=compass.right+4||compass.top>=minimap.bottom+4||minimap.top>=compass.bottom+4),
      overlapsHud:!(compass.left>=hud.right+4||hud.left>=compass.right+4||compass.top>=hud.bottom+4||hud.top>=compass.bottom+4),
      overlapsFirst:fr?!(compass.left>=fr.right+4||fr.left>=compass.right+4||compass.top>=fr.bottom+4||fr.top>=compass.bottom+4):false};
   });
   console.log(device+' compass placement: '+JSON.stringify(positioned));
-  assert(positioned.right>=0&&positioned.right<30&&positioned.top>=0&&positioned.top<240,device+': compass safely near the top-right');
+  assert(positioned.right>=0&&positioned.right<(device==='desktop'?320:30)&&positioned.top>=0&&positioned.top<240,device+': compass safely positioned');
+  assert(!positioned.overlapsMinimap,device+': compass must not cover the minimap');
   assert(!positioned.overlapsHud&&!positioned.overlapsFirst,device+': compass does not cover HUD or first-day tracker');
   const turn=async(yaw,heading,letter)=>{
    await page.evaluate(yaw=>{const s=window.__town.state();window.__town.place(s.pos.x,s.pos.z,yaw);},yaw);
