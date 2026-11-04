@@ -90,6 +90,7 @@ try {
   assert.equal(await page.evaluate(()=>window.mockPanoramaInstances),1,'changing landmarks reuses existing panorama');
   assert.equal(requests.length,1,'no new SDK request for existing panorama movement');
   assert.equal(await page.evaluate(()=>window.mockPanoramaInstances),1,'one paid viewer for all landmarks');
+  await page.waitForFunction(()=>window.mockMetadataCalls === 5);
   assert.equal(await page.evaluate(()=>window.mockMetadataCalls),5,'free metadata called on each explicit lookup');
   await page.locator('#match-heading').click();
   await page.locator('#follow-position').click();
