@@ -13,7 +13,7 @@ export const DANDALOO_STREETSCAPE_EVIDENCE = Object.freeze({
     dualRoadPosition: 'mapped',
     medianFootprint: 'derived from mapped road-edge clearance; requires survey',
     angleParkingSpacing: 'approximate, 60-degree illustrative',
-    lampsTreesPalmPositions: 'approximate photo-based visual placement',
+    lampsTreesPalmPositions: 'unverified individual positions: not rendered pending object-level evidence',
   }),
 });
 
@@ -90,22 +90,12 @@ export function planDandalooStreetscape(streets) {
         b: [b.ex + east.width / 2 - 3.87, z - 2.15], side: 'east' });
     }
   }
-  // Midpoint coordinates follow OSM. These z locations are indicative ONLY:
-  // photogrammetric tree inventories and actual bay surveys have not been done.
-  const put = (dest, z, where, kind) => {
-    const r = at(z);
-    const x = where === 'median' ? r.cx
-      : where === 'west' ? r.wx - west.width / 2 - 1.35
-      : r.ex + east.width / 2 + 1.35;
-    dest.push({ x, z, where, kind });
-  };
-  for (const z of [-1019, -1073, -1137]) put(trees, z, 'median', z === -1073 ? 'palm' : 'deciduous');
-  // Keep the existing palm/sculpture at Kierath's (~z -889) in narromine.js.
-  for (const z of [-894, -1004, -1086, -1143]) put(trees, z, 'west', 'flowering');
-  for (const z of [-916, -1038, -1114, -1155]) put(trees, z, 'east', 'deciduous');
-  for (const z of [-911, -1028, -1126]) put(lamps, z, 'median', 'swan-neck');
-  for (const z of [-902, -1048, -1140]) put(lamps, z, 'west', 'swan-neck');
-  for (const z of [-927, -1066, -1138]) put(lamps, z, 'east', 'swan-neck');
+  // NR-REAL-001: road centrelines and photographs of the general street do not
+  // establish individual object positions. The former 11 trees and nine lamps
+  // used indicative z coordinates, not a geolocated inventory. Keep these lists
+  // empty until each object has dated location-specific evidence. This is NOT a
+  // claim that real northern Dandaloo Street has no vegetation or streetlights.
+  // Separately evidenced site-owned vegetation is rendered by its own builder.
   return { medians, kerbs, pavers, parking, trees, lamps, source: DANDALOO_STREETSCAPE_EVIDENCE };
 }
 

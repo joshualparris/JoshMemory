@@ -50,7 +50,24 @@ try{
   await enterBed();
   await page.getByRole('button',{name:/Full night · 8 hours/}).click();
   await page.waitForFunction(()=>window.__town.state().sleeping,null,{timeout:5000});
-  await page.waitForFunction(()=>!window.__town.state().sleeping,null,{timeout:30000});
+  // 480 simulated minutes run 960 town ticks in software WebGL on CI. The
+  // historic 30s wall-clock assumption is not a functional sleep guarantee.
+  // Keep all assertions about real game-time progression, recovery and wakeup;
+  // on a genuine stall include the observed game time and overlay state.
+  const nightStart = performance.now();
+  try {
+    await page.waitForFunction(()=>!window.__town.state().sleeping,null,{timeout:120000,polling:100});
+  } catch (error) {
+    const stalled = await page.evaluate(() => {
+      const s=window.__town.state(), overlay=document.getElementById('sleep-screen');
+      return {day:s.day, minute:s.minute, sleeping:s.sleeping,
+        overlayHidden:overlay?.hidden, overlayDark:overlay?.classList.contains('sleep-dark')};
+    });
+    throw new Error('Eight-hour sleep did not wake in 120 seconds; state='
+      +JSON.stringify(stalled)+'; '+error.message);
+  }
+  console.log('Completed interactive eight-hour sleep in '
+    +((performance.now()-nightStart)/1000).toFixed(1)+'s');
   const full=await page.evaluate(()=>window.__town.state());
   assert(Math.abs(full.minute-((after.minute+480)%1440))<0.5,'eight-hour sleep advances town time (allowing ordinary fractional clock ticks)');
   assert(full.needs.fatigue<after.needs.fatigue,'full sleep recovers more energy');
