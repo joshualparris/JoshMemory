@@ -1,60 +1,62 @@
-// Kierath's Shopping Square, Narromine: plan-grounded approximate geometry, NOT a survey.
-// Site plan: supplied 3 Nov 2026 (Coles M01, shop units 1–10, kiosk, PO, rear P).
-// NSW aerial/cadastre in narromine-buildings-data.js fixes the real parcel and orientation.
-// Coordinates below are LOCAL METRES: x east, z south, anchored near the centre of 82 Dandaloo.
-// No photographed tenants are asserted current; no external photos/textures are embedded.
+// Kierath's Shopping Square: WGS84 anchored, plan-derived APPROXIMATE footprint.
+// The 619x459 commercial diagram was bilinearly fitted to NSW traced 76 Dandaloo
+// cadastral corners. Registration has no independent orthophoto tie-point residual;
+// all door/tenancy positions are estimates, NEVER represented as survey geometry.
+import { schematicPixelToGeo, KIERATHS_SCHEMATIC_UNITS } from './narromine-kieraths-schematic.js';
+
 export const KIERATHS_ORIGIN = Object.freeze({ lat: -32.2325, lon: 148.2392 });
 const METRES_PER_DEGREE = 111195;
 const EAST_METRES_PER_DEGREE = METRES_PER_DEGREE * Math.cos(KIERATHS_ORIGIN.lat * Math.PI / 180);
 export const siteToGeo = ([x, z]) => [KIERATHS_ORIGIN.lat - z / METRES_PER_DEGREE, KIERATHS_ORIGIN.lon + x / EAST_METRES_PER_DEGREE];
+export const geoToSite = ([lat, lon]) => [(lon - KIERATHS_ORIGIN.lon) * EAST_METRES_PER_DEGREE, (KIERATHS_ORIGIN.lat - lat) * METRES_PER_DEGREE];
+export const planPixelToSite = p => geoToSite(schematicPixelToGeo(p));
+const closedArea = pts => Math.abs(pts.reduce((sum, p, i) => {
+  const q = pts[(i + 1) % pts.length]; return sum + p[0] * q[1] - q[0] * p[1];
+}, 0) / 2);
+const centroid = pts => pts.reduce((s, p) => [s[0] + p[0] / pts.length, s[1] + p[1] / pts.length], [0,0]);
+const targetArea = Object.freeze({ 1: 34, 2: 27, 3: 22, 4: 45, 8: 20, 9: 42, 10: 49 });
+// Unit 2 = 27m² is only a visual-size estimate; the other target areas are
+// legible on the user screenshot. These do not replace a surveyed lease outline.
+// Centroid shrinking preserves approximate placement while constraining each
+// polygon's area to the printed tenancy area; no false precision on the edges.
+export const KIERATHS_SHOPS = Object.freeze(KIERATHS_SCHEMATIC_UNITS
+  .filter(s => /^\d+$/.test(s.id))
+  .map(s => {
+    const raw = s.pixel.map(planPixelToSite), c = centroid(raw);
+    const factor = Math.sqrt(targetArea[s.id] / closedArea(raw));
+    const pts = raw.map(([x, z]) => Object.freeze([c[0] + (x - c[0]) * factor, c[1] + (z - c[1]) * factor]));
+    return Object.freeze({ number: Number(s.id), pts: Object.freeze(pts), 
+      areaM2: targetArea[s.id], areaVerified: s.areaM2 !== null,
+      confidence: 'schematic-estimate', source: 'commercial diagram + NSW traced 76 Dandaloo parcel' });
+  }));
+export const KIERATHS_UNIT_IDS = Object.freeze([1,2,3,4,5,6,7,8,9,10]);
+export const KIERATHS_EMBEDDED_UNITS = Object.freeze([5,6,7]); // M01 blue zone, no independent external building meshes
 
-// The site plan establishes TOPOLOGY, but isn't a survey drawing. These aisle alignments
-// approximate the skew of the mapped 76 Dandaloo parcel and allow unobstructed walking.
-// Rear (car park) to front (Dandaloo Street), with a bend at the shop-court junction.
-export const KIERATHS_ROUTE = Object.freeze([
-  [-48, -33.6], [-42, -33.0], [-36, -32.2], [-31, -31.0],
-  [-22, -29.2], [-14, -27.7], [-9, -25.6], [0, -23.5], [10.5, -21.2],
-].map(p => Object.freeze(p)));
-
-// Quads: shop fronts face a continuous open-air passage. The ten shop identifiers are
-// unit references from the commercial diagram, not claims about current shop operators.
-const centreZ = x => -31.0 + (x + 33) * 0.21;
-const BAYS = [
-  // The plan puts the earlier units nearer Dandaloo/Coles and later units to the rear.
-  { number: 1, side: 'south', x0: 2.5, x1: 8.5, depth: 2.4 },
-  { number: 2, side: 'south', x0: -4.5, x1: 2.3, depth: 2.9 },
-  { number: 3, side: 'south', x0: -11.5, x1: -4.7, depth: 3.3 },
-  { number: 4, side: 'south', x0: -18.8, x1: -11.7, depth: 3.8 },
-  { number: 5, side: 'south', x0: -28.2, x1: -19.0, depth: 4.5 },
-  { number: 6, side: 'north', x0: -6.5, x1: -1.2, depth: 6.2 },
-  { number: 7, side: 'north', x0: -12.6, x1: -6.7, depth: 6.1 },
-  { number: 8, side: 'north', x0: -19.0, x1: -12.8, depth: 6.0 },
-  { number: 9, side: 'north', x0: -25.0, x1: -19.2, depth: 5.8 },
-  { number: 10, side: 'north', x0: -31.0, x1: -25.2, depth: 5.5 },
+// Route follows the white pedestrian circulation between the physically separate
+// shops, west-to-east: rear parking -> narrow rear passage -> offset junction ->
+// wider street forecourt. Intermediate points resolve around the angled shop 3.
+// The commercial diagram is schematic, so route widths are accessibility estimates.
+const walkPixels = [
+  [377,180],[377,220],[376,243],[376,268],[375,290],
+  [362,305],[350,319],[352,326],[373,347],[381,353],
+  [382,370],[380,387],
 ];
-const HALF_AISLE = 2.35;
-export const KIERATHS_SHOPS = Object.freeze(BAYS.map(b => {
-  const z = x => centreZ(x) + (b.side === 'south' ? HALF_AISLE : -HALF_AISLE);
-  const back = x => z(x) + (b.side === 'south' ? b.depth : -b.depth);
-  return Object.freeze({ ...b, pts: Object.freeze([
-    [b.x0, z(b.x0)], [b.x1, z(b.x1)],
-    [b.x1, back(b.x1)], [b.x0, back(b.x0)],
-  ].map(p => Object.freeze(p))) });
-}));
-
-// The small circular street-end kiosk is separate from the 10 retail bays.
-export const KIERATHS_KIOSK = Object.freeze({ at: [6.4, -29.1], radius: 1.45, height: 2.75 });
-// The arched rear canopy replaces the former mistaken "curved-roof shed" solid.
-// Spans across the rear arcade entrance; posts stay outside the walking channel.
+export const KIERATHS_ROUTE = Object.freeze(walkPixels.map(p => Object.freeze(planPixelToSite(p))));
+export const KIERATHS_COURTYARD = Object.freeze([
+  [373,350],[399,346],[420,365],[416,389],[369,389],[367,366]
+].map(p => Object.freeze(planPixelToSite(p))));
+export const KIERATHS_KIOSK = Object.freeze({ at: planPixelToSite([399,380]), radius: 1.4, height: 2.65 });
 export const KIERATHS_CANOPY = Object.freeze({
-  back: [-43.0, -33.0], front: [-32.3, -31.0], width: 8.0, eaves: 3.25, crown: 5.25,
+  back: planPixelToSite([377,179]), front: planPixelToSite([377,201]), width: 7.2, eaves: 3.1, crown: 4.8,
 });
-// Source-grounded rear car park; parking stripes / equipment positions are approximations.
+// Historical parking trace retained until photo/orthophoto registration can
+// establish actual wheel bays; not represented as a cadastral car-park survey.
 export const KIERATHS_REAR_PARKING = Object.freeze([
   [-59.5, -43.6], [-43.1, -41.1], [-43.0, -28.2], [-62.0, -30.4],
 ].map(p => Object.freeze(p)));
 export const KIERATHS_PROVENANCE = Object.freeze({
-  plan: 'Supplied commercial site plan: M01 2,157 m²; units 1–10, kiosk, Dandaloo frontage, rear parking and separate Post Office',
-  aerial: 'NSW Spatial Services aerial & cadastral tracing already in narromine-buildings-data.js; local shop footprints and heights approximate',
-  historical: 'Supplied exterior photographs, dates/current tenancy status not independently verified',
+  plan: '619x459 commercial schematic: M01 (2,157 m²), units 1–4 and 8–10 outlined, 5–7 inside blue M01; image-fit estimated',
+  aerial: 'NSW cadastral lot 76 / 82 / 74 Dandaloo outlines from narromine-buildings-data.js, original NSW aerial tracing',
+  historical: 'User-supplied street and arcade photos, mixed dates, not verified 2026 current occupancy',
+  metricAccuracy: 'unknown; provisional bilinear plan-to-lot fit, no orthophoto pixel control-point residual',
 });

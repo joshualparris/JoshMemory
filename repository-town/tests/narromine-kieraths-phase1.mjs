@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { KIERATHS_PHASE1_GEOJSON as fc, KIERATHS_PHASE1_TOPOLOGY as topo } from '../src/world/narromine-kieraths-site-audit.js';
-import { KIERATHS_SHOPS } from '../src/world/narromine-kieraths-data.js';
+import { KIERATHS_SHOPS, KIERATHS_EMBEDDED_UNITS } from '../src/world/narromine-kieraths-data.js';
 import { schematicPixelToGeo, KIERATHS_SCHEMATIC_TIES, KIERATHS_SCHEMATIC_UNITS, KIERATHS_SCHEMATIC_REGISTRATION } from '../src/world/narromine-kieraths-schematic.js';
 
 assert.equal(fc.type, 'FeatureCollection');
@@ -13,9 +13,12 @@ for (const id of ['dandaloo-76', 'dandaloo-82', 'narromine-post-office']) {
 assert.equal(topo.planRegistration.startsWith('UNREGISTERED'), true,
   'never label schematic alignment as measured until registered');
 assert.deepEqual(topo.unitIds, [1,2,3,4,5,6,7,8,9,10]);
-assert.equal(KIERATHS_SHOPS.length, 10);
+assert.equal(KIERATHS_SHOPS.length, 7);
+assert.deepEqual(topo.separateExteriorShopIds, [1,2,3,4,8,9,10]);
+assert.deepEqual(KIERATHS_EMBEDDED_UNITS, [5,6,7]);
 for (const unit of topo.unitIds) {
   const f = lookup.get('kieraths-unit-' + unit);
+  if (KIERATHS_EMBEDDED_UNITS.includes(unit)) { assert(!f, 'embedded M01 unit '+unit+' is not a fabricated exterior polygon'); continue; }
   assert.equal(f.properties.confidence, 'estimated', 'unit '+unit+' is not surveyed');
   assert.equal(f.geometry.type, 'Polygon');
 }
@@ -40,15 +43,15 @@ assert.equal(KIERATHS_SCHEMATIC_REGISTRATION.measuredRmsResidualMetres, null);
 for (const tie of KIERATHS_SCHEMATIC_TIES)
   schematicPixelToGeo(tie.pixel).forEach((value, axis) => assert(Math.abs(value - tie.geo[axis]) < 1e-9,
     'provisional parcel tie remains deterministic'));
-assert.equal(KIERATHS_SCHEMATIC_UNITS.length, 9, '8 individually outlined units plus ambiguous 6–7 zone');
+assert.equal(KIERATHS_SCHEMATIC_UNITS.length, 8, '7 outlined units plus embedded M01 5–7 zone');
 for (const u of KIERATHS_SCHEMATIC_UNITS) {
   const f = lookup.get('schematic-unit-' + u.id);
   assert(f && f.properties.confidence === 'estimated', 'schematic unit ' + u.id + ' has explicitly estimated geocoordinates');
 }
-assert(lookup.get('schematic-unit-6–7').properties.ambiguous,
-  'diagram appears to group 6–7 in blue major-tenancy area: no separate exterior units asserted');
+assert(lookup.get('schematic-unit-5–7').properties.ambiguous,
+  'diagram groups 5–7 in blue M01 major-tenancy area: no separate exterior units asserted');
 assert.equal(lookup.get('kieraths-walkway').geometry.type, 'LineString');
 assert.equal(lookup.get('kieraths-rear-arch').properties.note.includes('Distinct'), true);
 assert.equal(topo.circulation.openToSky, true);
 console.log('PASS Kieraths Phase 1: ' + fc.features.length +
-  ' WGS84 GIS features; three cadastral lot boundaries; ten explicitly estimated shop polygons; distinct rear arch and street awning.');
+  ' WGS84 GIS features; three cadastral lot boundaries; seven exterior shop polygons plus M01-embedded units 5–7; distinct rear arch and street awning.');

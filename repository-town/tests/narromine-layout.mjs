@@ -100,8 +100,8 @@ console.log(`PASS Narromine (OpenStreetMap): ${STREETS.length} street pieces, ${
   const coles = DETAILED.find(d => d.id === 'dandaloo-82');
   assert(lot76 && coles, '76 and 82 Dandaloo must have their original cadastre lots');
   assert.equal(lot76.parts.length, 0, 'the mistaken solid 76 shop/shed volumes must not block the arcade');
-  assert.equal(KIERATHS_SHOPS.length, 10, 'site plan identifies ten small numbered tenancies');
-  assert.deepEqual(KIERATHS_SHOPS.map(s => s.number), [1,2,3,4,5,6,7,8,9,10]);
+  assert.equal(KIERATHS_SHOPS.length, 7, 'commercial plan outlines seven separate arcade shop polygons');
+  assert.deepEqual(KIERATHS_SHOPS.map(s => s.number), [1,2,3,4,8,9,10]);
   const inAny = (p, polys) => polys.some(poly => inPoly(...p, poly));
   const edgeDist = (p, poly) => Math.min(...poly.map((a, i) => {
     const b = poly[(i + 1) % poly.length], dx = b[0] - a[0], dz = b[1] - a[1];
@@ -135,7 +135,7 @@ console.log(`PASS Narromine (OpenStreetMap): ${STREETS.length} street pieces, ${
     'the rear shopping-square shelter is a wide arched canopy, not a closed shed');
   assert(KIERATHS_ROUTE[0][0] < -40 && KIERATHS_ROUTE.at(-1)[0] > 9,
     'passage goes all the way from the rear car park to the Dandaloo frontage');
-  console.log('PASS Kierath\'s Shopping Square: 10 georeferenced shop bays, curved rear canopy, round kiosk and ' + samples + ' unobstructed walkway samples');
+  console.log('PASS Kierath\'s Shopping Square: 7 plan-derived exterior units (5–7 embedded within M01), curved rear canopy, round kiosk and ' + samples + ' unobstructed walkway samples');
 }
 
 // Building heights measured from NSW airborne LiDAR (tools/narromine_lidar.py).

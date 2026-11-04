@@ -1,10 +1,10 @@
 // Live Three.js geometry for Kierath's Shopping Square. The route is OPEN AIR:
-// no solid box spans the courtyard. 10 individual bays flank it, with a separate
+// no solid box spans the courtyard. seven traced exterior bays (1–4, 8–10) frame it, with a separate
 // round kiosk and a genuinely open arched rear canopy (rather than a blocked shed).
 import * as THREE from 'three';
-import { geoToWorld } from './narromine-layout.js';
+import { geoToWorld, DETAILED } from './narromine-layout.js';
 import { siteToGeo, KIERATHS_ROUTE, KIERATHS_SHOPS, KIERATHS_KIOSK,
-  KIERATHS_CANOPY, KIERATHS_REAR_PARKING } from './narromine-kieraths-data.js';
+  KIERATHS_CANOPY, KIERATHS_REAR_PARKING, KIERATHS_COURTYARD, KIERATHS_UNIT_IDS } from './narromine-kieraths-data.js';
 
 const world = p => geoToWorld(...siteToGeo(p));
 const V = p => { const [x, z] = world(p); return new THREE.Vector3(x, 0, z); };
@@ -31,6 +31,13 @@ export function buildKieraths({ box, push, strip, flatPoly, plane, boardTexture,
   };
   const wp = (p, y) => { const [x, z] = world(p); return [x, y, z]; };
 
+  // The aerial-traced 76 Dandaloo parcel is a built shopping-centre precinct,
+  // not lawns between shops. One flush base-paving polygon prevents exposed green
+  // triangles wherever the irregular arcade footprints turn or recede. Keep the
+  // later asphalt parking surface slightly above it and open passages collision-free.
+  const shoppingSite = DETAILED.find(b => b.id === 'dandaloo-76');
+  if (shoppingSite) flatPoly(0xbca28e, shoppingSite.boundary, 0.074);
+
   // Rear parking forecourt, not an extra arbitrary shopping-centre footprint.
   flatPoly(0x616366, KIERATHS_REAR_PARKING.map(world), 0.083);
   for (let k = 0; k < 3; k++) {
@@ -38,68 +45,95 @@ export function buildKieraths({ box, push, strip, flatPoly, plane, boardTexture,
     line(0xd5d2c8, [x, -40.4], [x + 1.2, -34.0], 0.13);
   }
 
-  // Offset, paved pedestrian passage: open above, with no through-wall or roof collider.
+  // Plan-fit OPEN courtyard, beside the genuinely narrow/recessed walk-through.
+  // Brick-red paving with flush joints; no floor or collider across any doorway.
+  flatPoly(0xbca28e, KIERATHS_COURTYARD.map(world), 0.088);
   for (let i = 1; i < KIERATHS_ROUTE.length; i++) {
     const a = world(KIERATHS_ROUTE[i - 1]), b = world(KIERATHS_ROUTE[i]);
-    strip(0xc1b5a5, ...a, ...b, 4.75, 0.091, 0.075);
-    strip(0xa89989, ...a, ...b, 0.10, 0.133, 0.01);
-  }
-  // Tiled strips make the court legible, but are entirely flush with the paving.
-  for (let i = 1; i < KIERATHS_ROUTE.length; i++) {
-    const a = KIERATHS_ROUTE[i - 1], b = KIERATHS_ROUTE[i], dx = b[0] - a[0], dz = b[1] - a[1], len = Math.hypot(dx, dz);
-    for (let k = 1; k < len; k += 2.15) {
-      const x = a[0] + dx * k / len, z = a[1] + dz * k / len, nx = -dz / len, nz = dx / len;
-      const p = world([x - 2.25 * nx, z - 2.25 * nz]), q = world([x + 2.25 * nx, z + 2.25 * nz]);
-      strip(0xb1a391, ...p, ...q, 0.055, 0.140, 0.005);
+    strip(0xbca28e, ...a, ...b, i < 5 ? 2.45 : 3.65, 0.092, 0.05);
+    // Paver joint: unlike the former single centre stripe these cross the path.
+    const start = KIERATHS_ROUTE[i - 1], finish = KIERATHS_ROUTE[i];
+    const dx = finish[0] - start[0], dz = finish[1] - start[1], length = Math.hypot(dx, dz);
+    for (let at = 0.65; at < length; at += 0.67) {
+      const p = [start[0] + at * dx / length, start[1] + at * dz / length];
+      const nx = -dz / length, nz = dx / length, half = i < 5 ? 1.16 : 1.72;
+      const left = world([p[0] - nx * half, p[1] - nz * half]);
+      const right = world([p[0] + nx * half, p[1] + nz * half]);
+      strip(0x9e8777, ...left, ...right, 0.018, 0.113, 0.003);
     }
   }
 
+  // Seven *physical* small shop structures match the diagram, not ten identical
+  // freestanding cuboids. Plan labels 5–7 fall within the blue Coles/M01 tenancy
+  // and are not invented as duplicate external buildings.
+  // Exact frontage positions are provisional until aerial photo tie-points exist.
+  const frontEdges = { 1: 1, 2: 2, 3: 5, 4: 4, 8: 3, 9: 3, 10: 3 };
   for (const bay of KIERATHS_SHOPS) {
-    const pts = bay.pts.map(world);
-    const shape = new THREE.Shape(pts.map(([x, z]) => new THREE.Vector2(x, -z)));
-    const mass = new THREE.ExtrudeGeometry(shape, { depth: 3.75, bevelEnabled: false });
+    const footprint = bay.pts.map(world);
+    const shape = new THREE.Shape(footprint.map(([x,z]) => new THREE.Vector2(x, -z)));
+    const wallHeight = bay.number === 10 ? 3.65 : 3.46;
+    const mass = new THREE.ExtrudeGeometry(shape, { depth: wallHeight, bevelEnabled: false });
     mass.rotateX(-Math.PI / 2); push(BRICK, mass);
-    // Individual galvanised roofs, distinct from a covered indoor shopping mall.
-    const [a, b, c, d] = bay.pts;
-    const front = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
-    const rear = [(c[0] + d[0]) / 2, (c[1] + d[1]) / 2];
-    const depth = Math.hypot(front[0] - rear[0], front[1] - rear[1]);
-    const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
-    const yaw = -Math.atan2(b[1] - a[1], b[0] - a[0]);
-    const mid = [(front[0] + rear[0]) / 2, (front[1] + rear[1]) / 2];
-    place(ROOF, len + 0.3, 0.16, depth + 0.3, mid, 3.87, yaw);
-    place(FASCIA, len + 0.08, 0.5, 0.18, front, 3.42, yaw);
-    // Glazed independent shopfronts: dark aluminium mullions and central door.
-    const glass = world(front);
-    const face = bay.side === 'north' ? 0.13 : -0.13;
-    place(GLASS, len - 0.28, 2.65, 0.14, [front[0], front[1] + face], 1.47, yaw);
-    for (let n = 0; n <= Math.max(2, Math.round(len / 1.45)); n++) {
-      const count = Math.max(2, Math.round(len / 1.45)), t = n / count;
-      place(FRAME, 0.07, 2.8, 0.13, [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t + face * 1.1], 1.45, yaw);
+    // Polygon roof follows each angled footprint; no over-wide rectangular mass.
+    const roof = new THREE.ExtrudeGeometry(shape, { depth: 0.14, bevelEnabled: false });
+    roof.rotateX(-Math.PI / 2); roof.translate(0, wallHeight + 0.02, 0);
+    push(ROOF, roof);
+    const edge = frontEdges[bay.number];
+    const a = bay.pts[edge], b = bay.pts[(edge + 1) % bay.pts.length];
+    const dx = b[0] - a[0], dz = b[1] - a[1];
+    const len = Math.hypot(dx, dz);
+    if (len < 0.9) continue;
+    const mid = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+    const nearest = KIERATHS_ROUTE.reduce((best, p) => {
+      const distance = Math.hypot(p[0]-mid[0],p[1]-mid[1]);
+      return distance < best.distance ? { p, distance } : best;
+    }, { p: KIERATHS_ROUTE[0], distance: Infinity }).p;
+    const sign = ((nearest[0]-mid[0]) * -dz + (nearest[1]-mid[1]) * dx) >= 0 ? 1 : -1;
+    const normal = [-dz / len * sign, dx / len * sign];
+    const outward = (distance) => [mid[0] + normal[0] * distance, mid[1] + normal[1] * distance];
+    const yaw = -Math.atan2(dz, dx);
+    // Photo: silver/grey fascia, glazed display, dark narrow mullions, brick piers.
+    const facadeH = Math.min(1.82, wallHeight - 1.18);
+    place(GLASS, len - 0.3, facadeH, 0.07, outward(0.09), 1.84, yaw);
+    const panes = Math.max(2, Math.round(len / 1.1));
+    for (let n = 0; n <= panes; n++) {
+      const t = n / panes;
+      const pos = [a[0] + dx*t + normal[0]*0.16, a[1] + dz*t + normal[1]*0.16];
+      place(FRAME, 0.06, facadeH + 0.1, 0.09, pos, 1.84, yaw);
     }
-    place(FRAME, len - 0.25, 0.065, 0.15, [front[0], front[1] + face], 2.73, yaw);
-    const handle = [front[0], front[1] + face * 2.0];
-    place(0xc6c9c7, 0.08, 0.38, 0.06, handle, 1.25, yaw);
-
-    // Photo evidence: narrow white/grey cantilevered shop awnings on steel posts.
-    const towardAisle = bay.side === 'north' ? 1 : -1;
-    place(FASCIA, len + 0.12, 0.12, 1.05, [front[0] - 0.10, front[1] + 0.50 * towardAisle], 3.19, yaw);
+    place(FRAME, len-0.28, 0.06, 0.1, outward(0.15), 2.77, yaw);
+    place(FASCIA, len+0.15, 0.42, 0.16, outward(0.16), wallHeight - 0.38, yaw);
+    // The visible grey awnings project out over the walkway but have no roof
+    // collisions; narrow steel supports are placed only at their end points.
+    place(ROOF, len+0.20, 0.105, 1.26, outward(0.70), 3.02, yaw);
     for (const t of [0.06, 0.94]) {
-      const p = [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t + 0.83 * towardAisle];
-      place(STEEL, 0.09, 3.05, 0.09, p, 1.53);
-      const [x, z] = world(p); colliders.push({ x0: x - 0.1, x1: x + 0.1, z0: z - 0.1, z1: z + 0.1 });
+      const p = [a[0] + dx*t + normal[0]*1.24, a[1] + dz*t + normal[1]*1.24];
+      // Narrow historic arcade passages must stay traversable. The unit 2
+      // corner post would otherwise sit 0.29m from the route centreline.
+      const edgeDistance = (v, a, b) => {
+        const ddx = b[0]-a[0], ddz = b[1]-a[1], len2 = ddx*ddx+ddz*ddz || 1;
+        const u = Math.max(0, Math.min(1, ((v[0]-a[0])*ddx+(v[1]-a[1])*ddz)/len2));
+        return Math.hypot(v[0]-a[0]-u*ddx,v[1]-a[1]-u*ddz);
+      };
+      const routeDistance = Math.min(...KIERATHS_ROUTE.slice(1).map((q,i) =>
+        edgeDistance(p, KIERATHS_ROUTE[i], q)));
+      if (routeDistance < 1.1) continue; // cantilever from wall; no obstruction
+      place(STEEL, 0.085, 2.94, 0.085, p, 1.48);
+      const [x,z] = world(p);
+      colliders.push({ x0:x-0.09, x1:x+0.09, z0:z-0.09, z1:z+0.09 });
     }
-    // Split the angled walls into short AABBs so a giant bounding rectangle
-    // cannot unexpectedly block the centre of the diagonally offset arcade.
-    const slices = Math.max(3, Math.ceil(len / 1.2));
-    for (let i = 0; i < slices; i++) {
-      const t = (i + 0.5) / slices;
-      const fx = a[0] + (b[0] - a[0]) * t, fz = a[1] + (b[1] - a[1]) * t;
-      const bx = d[0] + (c[0] - d[0]) * t, bz = d[1] + (c[1] - d[1]) * t;
-      const p = world([(fx + bx) / 2, (fz + bz) / 2]);
-      const radiusX = Math.abs(bx - fx) / 2 + Math.abs(b[0] - a[0]) / slices / 2;
-      const radiusZ = Math.abs(bz - fz) / 2 + Math.abs(b[1] - a[1]) / slices / 2;
-      colliders.push({ x0: p[0] - radiusX, x1: p[0] + radiusX, z0: p[1] - radiusZ, z1: p[1] + radiusZ });
+    // Thin wall-segment colliders follow the real polygon edges without
+    // blocking the courtyard with the shop's bounding rectangle.
+    for (let k = 0; k < bay.pts.length; k++) {
+      const p = world(bay.pts[k]), q = world(bay.pts[(k+1)%bay.pts.length]);
+      const count = Math.max(1, Math.ceil(Math.hypot(q[0]-p[0],q[1]-p[1]) / 0.65));
+      for (let j = 0; j < count; j++) {
+        const t0 = j/count, t1 = (j+1)/count;
+        const x0 = p[0]+(q[0]-p[0])*t0, x1 = p[0]+(q[0]-p[0])*t1;
+        const z0 = p[1]+(q[1]-p[1])*t0, z1 = p[1]+(q[1]-p[1])*t1;
+        colliders.push({ x0:Math.min(x0,x1)-0.12, x1:Math.max(x0,x1)+0.12,
+          z0:Math.min(z0,z1)-0.12, z1:Math.max(z0,z1)+0.12 });
+      }
     }
   }
 
@@ -159,7 +193,7 @@ export function buildKieraths({ box, push, strip, flatPoly, plane, boardTexture,
   // Liquorland band immediately to the RIGHT of the rear canopy. Its business
   // sign is a dated visual reference, NOT a statement about current occupancy.
   // Placed outside the arch's pedestrian opening and inside the traced parcel.
-  const shutter = [-38.5, -26.55], rearYaw = -Math.PI / 2;
+  const shutter = [canopy.back[0] + 4.0, canopy.back[1] - 6.8], rearYaw = -Math.PI / 2;
   place(0xb0b1ae, 4.55, 4.15, 0.21, shutter, 2.07, rearYaw);
   place(0x88949a, 3.47, 2.72, 0.26, [shutter[0]-0.13, shutter[1]], 1.57, rearYaw);
   for (let k = 0; k < 14; k++)
@@ -193,5 +227,5 @@ export function buildKieraths({ box, push, strip, flatPoly, plane, boardTexture,
 
   const [sx, sz] = world([-14, -27.4]);
   spots.push({ key: 'narromine:kieraths-shopping-square', label: "Kierath's Shopping Square",
-    pos: new THREE.Vector3(sx, 0, sz), text: "Kierath's Shopping Square · Historic open-air arcade beside Coles; ten numbered units, a round front kiosk and the arched rear-car-park entrance. Shop occupancies and exact dimensions not verified." });
+    pos: new THREE.Vector3(sx, 0, sz), text: "Kierath's Shopping Square · Historic open-air arcade beside Coles; ten numbered plan areas (seven distinct exterior units), a round front kiosk and the arched rear-car-park entrance. Shop occupancies and exact dimensions not verified." });
 }
