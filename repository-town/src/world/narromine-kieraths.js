@@ -176,7 +176,7 @@ export function buildKieraths({ box, push, strip, flatPoly, plane, boardTexture,
   // Liquorland band immediately to the RIGHT of the rear canopy. Its business
   // sign is a dated visual reference, NOT a statement about current occupancy.
   // Placed outside the arch's pedestrian opening and inside the traced parcel.
-  const shutter = [-38.5, -26.55], rearYaw = -Math.PI / 2;
+  const shutter = [canopy.back[0] + 4.0, canopy.back[1] - 6.8], rearYaw = -Math.PI / 2;
   place(0xb0b1ae, 4.55, 4.15, 0.21, shutter, 2.07, rearYaw);
   place(0x88949a, 3.47, 2.72, 0.26, [shutter[0]-0.13, shutter[1]], 1.57, rearYaw);
   for (let k = 0; k < 14; k++)
