@@ -1,3 +1,10 @@
+## 2026-11-04 — Teleport datalist salvage (#328) — START CHECKPOINT
+- Owner: ChatGPT GitHub connector. Branch `fix/narromine-teleport-suggestion-salvage-20261104` from `6c853f24bc6ca731ce3da13695c357238cf9d585`.
+- Exact feature: picking one existing `#house-list` datalist suggestion should submit `#search-form` once, but ordinary typing remains inert until Go/Enter. Existing `expedition.js` already protects against keyless keyboard events on main; do not overwrite.
+- File scope: `src/main.js` event and isolated browser regression; consider `package.json` suite registration only. Avoid changing #319 NPC and Coles integration.
+- Acceptance: browser suggestion pick, typing, explicit Go/Enter, J journal shortcut, no errors; build/privacy/CI; live deployment not yet verified.
+- Status: START; no tests yet.
+
 ## 2026-11-04 — ChatGPT: Dandaloo physical streetscape NR-DS-001/002/003 (PR #336)
 - **Status:** PARTIALLY COMPLETE — code and source documentation committed on `feat/narromine-dandaloo-streetscape-v2-20261104`; `main` not merged or production verified. Supersedes conflicting PR #333 without force-push.
 - **Feature claims:** z −877..−932 and −979..−1165 split Dandaloo carriageways: planted median/kerbs; angled parking separators/pavers; planted trees and heritage lamp models. The claim is feature-scoped; parallel agents may continue separate Dandaloo buildings/roads/QA. Canonical policy: `docs/PARALLEL_AGENT_COORDINATION.md`.
