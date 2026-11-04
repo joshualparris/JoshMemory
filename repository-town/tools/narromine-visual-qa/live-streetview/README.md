@@ -6,23 +6,23 @@ images, tiles, pixels or snapshots are stored or exported.
 
 ## Prerequisites and run
 
-Run on Fedora, in the repository's \`repository-town/\` directory:
+Run on Fedora, in the repository's `repository-town/` directory:
 
-\`\`\`bash
+```bash
 npm ci
 node tools/build.mjs
 node tools/narromine-visual-qa/live-streetview/server.mjs
-\`\`\`
+```
 
 Open **http://127.0.0.1:8092/_streetview/** on the Fedora computer. The local server binds
-only to \`127.0.0.1\`. It serves \`dist/public\` at \`/\` and the comparison page at
-\`/_streetview/\`. Game code and models remain untouched.
+only to `127.0.0.1`. It serves `dist/public` at `/` and the comparison page at
+`/_streetview/`. Game code and models remain untouched.
 
-In Google Cloud, use the **streetviewNarromine** project (\`streetviewnarromine\`):
+In Google Cloud, use the **streetviewNarromine** project (`streetviewnarromine`):
 
 1. Enable the **Maps JavaScript API** and link billing.
 2. Create a **browser-restricted** API key (do **not** create an unrestricted server key).
-3. Restrict HTTP referrers to \`http://127.0.0.1:8092/*\` (add \`http://localhost:8092/*\`
+3. Restrict HTTP referrers to `http://127.0.0.1:8092/*` (add `http://localhost:8092/*`
    only if you also use that host).
 4. Restrict allowed API usage to **Maps JavaScript API**. No Street View Static API is required.
 5. Use Google Cloud quotas/budgets to help control spend; Cloud Billing budget alerts are
@@ -51,7 +51,7 @@ Sources:
 - https://developers.google.com/maps/billing-and-pricing/sku-details
 
 On explicit consent, the page loads Maps JavaScript API, imports the Street View library
-and constructs **exactly one** \`StreetViewPanorama\` object. It reuses that object when
+and constructs **exactly one** `StreetViewPanorama` object. It reuses that object when
 moving to another landmark, thereby avoiding a new panorama instantiation per selection.
 
 The UI logs the SDK load, import, panorama creation and user-initiated viewer operations.
@@ -95,13 +95,13 @@ photo catalogues, or other agents' landmark modules.
 
 ## Verification
 
-\`\`\`bash
+```bash
 node --check tools/narromine-visual-qa/live-streetview/app.js
 node --check tools/narromine-visual-qa/live-streetview/server.mjs
 node --check tools/narromine-visual-qa/live-streetview/presets.mjs
 node tests/narromine-live-streetview.mjs
 node tools/check_privacy.mjs
-\`\`\`
+```
 
 The Playwright test mocks Google's SDK to ensure **zero real Google API calls**. It
 asserts that the page starts with no network requests to Google, then that one
