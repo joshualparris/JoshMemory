@@ -6,10 +6,10 @@
 ## Scope and what is actually numbered
 
 - Tracked repository files seen: **2,396**; text files scanned: **1,836**.
-- Explicit unfinished items found in tracked text files (before existing-ID reconciliation): **862**.
+- Explicit unfinished items found in tracked text files (before existing-ID reconciliation): **845**.
 - Canonical *source-reported* outstanding entries from legacy and newer registers: **2,778** (existing IDs preserved).
-- **313 NEW permanent JMU IDs** assigned to distinct formerly unnumbered explicit checkboxes, work headings, task-status rows or code comments.
-- Total uniquely keyed source-reported records in generated CSV: **3,091**. GitHub open issues and PRs are separate numbered tracks; they may overlap these tasks.
+- **302 NEW permanent JMU IDs** assigned to distinct formerly unnumbered explicit checkboxes, work headings, task-status rows or code comments.
+- Total uniquely keyed source-reported records in generated CSV: **3,080**. GitHub open issues and PRs are separate numbered tracks; they may overlap these tasks.
 - Existing task IDs were not renamed, renumbered or marked complete. Generated tasks retain source file and line references.
 
 **Coverage limits:** This scans the current JoshMemory checkout, not live source trees in the 233+ other repositories referenced by the old portfolio registry. Code comments and decades-old plans are *review candidates*, not independently verified current defects. Unmarked ideas in prose, private connector-only records and untracked files cannot be guaranteed complete. The legacy master is a 25 Oct snapshot; dependency and priority changes after that date are not silently inferred.
@@ -31,8 +31,9 @@ The following is the **repo-local triage order**, not a change to the permanent 
 | 9 | P1 | [Issue #355](https://github.com/joshualparris/JoshMemory/issues/355) | Audit Coles' real public entrance and interior evidence; avoid presenting fictional plan as true. |
 | 10 | P1 | [NR-REAL-003/004/005](repository-town/docs/NARROMINE_REALISM_CHECKLIST_2026-11-05.md) | Replace unsupported building stand-ins and reconcile geospatial transforms/footprint evidence before mass architecture. |
 | 11 | P1 | [RTGEO-005/007](repository-town/docs/REPOSITORY_TOWN_GEOGRAPHY_TODO.md) | Distinguish real flooding, water supply and ground data from fictional-world planning. |
-| 12 | P2 | [PR #376](https://github.com/joshualparris/JoshMemory/pull/376) | Complete rail-yard playability and evidence-based crossing behaviour after road/navigation safety. |
-| 13 | P2 | [PR #359](https://github.com/joshualparris/JoshMemory/pull/359), [Issue #157](https://github.com/joshualparris/JoshMemory/issues/157) | Finish the fictional 195-home park access / council planning evidence without claiming legal approvals. |
+| 12 | P1 | JMU-00009 / JMU-00011 | Verify whether a one-call resume packet and active-agent lease registry already exist; otherwise implement without duplicating coordination services. |
+| 13 | P2 | [PR #376](https://github.com/joshualparris/JoshMemory/pull/376) | Complete rail-yard playability and evidence-based crossing behaviour after road/navigation safety. |
+| 14 | P2 | [PR #359](https://github.com/joshualparris/JoshMemory/pull/359), [Issue #157](https://github.com/joshualparris/JoshMemory/issues/157) | Finish the fictional 195-home park access / council planning evidence without claiming legal approvals. |
 
 ### Cross-portfolio priority retained (historical as of 25 Oct)
 
@@ -259,17 +260,6 @@ These are task IDs, **not** claims of independently verified unresolved bugs. Do
 | P2 | JMU-00303 | SOURCE_REPORTED_OPEN | Use Spotify embed/deep links without assuming autoplay. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/games/midnight-line/podcasttodo.md#L10) |
 | P2 | JMU-00304 | SOURCE_REPORTED_OPEN | Hide/pause whenever game music, narration, TTS or important sound cues are active. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/games/midnight-line/podcasttodo.md#L11) |
 | P2 | JMU-00305 | SOURCE_REPORTED_OPEN | Tag episodes by narrative design, interactive fiction, story craft and indie development. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/games/midnight-line/podcasttodo.md#L12) |
-| P2 | JMU-00308 | NEEDS_REVIEW_NOT_VERIFIED_OPEN | This prevents the assignment of defaultValue to regular | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/games/multi-layer-zoom-game/index.html#L3233) |
-| P2 | JMU-00309 | NEEDS_REVIEW_NOT_VERIFIED_OPEN | Remove Update flag from before mutation phase by re-landing Visibility | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/games/multi-layer-zoom-game/index.html#L6355) |
-| P2 | JMU-00310 | NEEDS_REVIEW_NOT_VERIFIED_OPEN | Disabled elements should not respond to mouse events | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/games/multi-layer-zoom-game/index.html#L9428) |
-| P2 | JMU-00311 | NEEDS_REVIEW_NOT_VERIFIED_OPEN | ideally, we'd eventually add all events from | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/games/multi-layer-zoom-game/index.html#L9483) |
-| P2 | JMU-00312 | NEEDS_REVIEW_NOT_VERIFIED_OPEN | Only ignore them on controlled tags. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/games/multi-layer-zoom-game/index.html#L10344) |
-| P2 | JMU-00313 | NEEDS_REVIEW_NOT_VERIFIED_OPEN | Distinguish by namespace here -- for <title>, including it here | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/games/multi-layer-zoom-game/index.html#L10551) |
-| P2 | JMU-00314 | NEEDS_REVIEW_NOT_VERIFIED_OPEN | Delete this argument when we remove the legacy root API. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/games/multi-layer-zoom-game/index.html#L11833) |
-| P2 | JMU-00315 | NEEDS_REVIEW_NOT_VERIFIED_OPEN | In some cases, we'll end up checking if context has changed twice, | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/games/multi-layer-zoom-game/index.html#L16467) |
-| P2 | JMU-00316 | NEEDS_REVIEW_NOT_VERIFIED_OPEN | When we delete legacy mode, we should make this error argument | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/games/multi-layer-zoom-game/index.html#L17829) |
-| P2 | JMU-00317 | NEEDS_REVIEW_NOT_VERIFIED_OPEN | Remove this dead flag | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/games/multi-layer-zoom-game/index.html#L20119) |
-| P2 | JMU-00318 | NEEDS_REVIEW_NOT_VERIFIED_OPEN | Remove outdated deferRenderPhaseUpdateToNextBatch experiment. We | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/games/multi-layer-zoom-game/index.html#L21100) |
 | P2 | JMU-00319 | REVIEW_SOURCE_STATUS | Quest System | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/games/ptshub-newgame/GAME_IMPROVEMENTS.md#L3) |
 | P2 | JMU-00320 | REVIEW_SOURCE_STATUS | Equipment System (Weapons & Armor) | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/games/ptshub-newgame/GAME_IMPROVEMENTS.md#L19) |
 | P2 | JMU-00321 | REVIEW_SOURCE_STATUS | Magic/Spell System | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/games/ptshub-newgame/GAME_IMPROVEMENTS.md#L35) |
@@ -381,7 +371,7 @@ These are task IDs, **not** claims of independently verified unresolved bugs. Do
 |---|---:|
 | P0 | 27 |
 | P1 | 150 |
-| P2 | 816 |
+| P2 | 805 |
 | P3 | 2,098 |
 | REF | 0 |
 
@@ -394,7 +384,6 @@ These are task IDs, **not** claims of independently verified unresolved bugs. Do
 | numbered_action_heading | 100 |
 | status_table | 47 |
 | json_status | 26 |
-| code_comment | 11 |
 | status_bullet | 3 |
 
 ## Reconciliation / next review actions
