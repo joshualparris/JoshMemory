@@ -9,6 +9,7 @@ import { roofLetteringSurface } from './narromine-roof-lettering.js';
 import { buildNarromineHotel, NARROMINE_HOTEL_ID } from './narromine-hotel.js';
 import { buildNarromineRoyalHotel, ROYAL_HOTEL_REPLACED_IDS } from './narromine-royal-hotel.js';
 import { buildNarromineRailwayPrecinct } from './narromine-railway-precinct.js';
+import { NARROMINE_TREES } from './narromine-trees-data.js';
 import { NARROMINE_RAILWAY_INTEGRATION_SPEC } from './narromine-railway-evidence.js';
 import { buildNarromineCourthousePrecinct } from './narromine-courthouse-precinct.js';
 import { buildNarromineStAugustines, ST_AUGUSTINES_OSM_INDEX } from './narromine-st-augustines.js';
@@ -258,6 +259,22 @@ export function buildNarromine(parent, makeLabel = null) {
     placeBox(HOUSE_WALLS[h.tone], h.w, wall, h.d, h.x, wall / 2, h.z, h.yaw);
     const r = roofGeo(); r.scale(h.w + 0.8, roofH, h.d + 0.8); r.rotateY(h.yaw); r.translate(h.x, wall + roofH / 2, h.z); push(HOUSE_ROOFS[h.tone], r);
     colliders.push({ ...h.rect });
+  }
+  // Real trees detected in the 2023 LiDAR (narromine-trees-data.js): one instanced trunk and crown mesh
+  // each, at the measured height and crown radius. Trunks are solid; crowns are not.
+  {
+    const trunkMesh = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.5, 0.7, 1, 6), new THREE.MeshLambertMaterial({ color: 0x5b4a3a }), NARROMINE_TREES.length);
+    const crownMesh = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1, 1), new THREE.MeshLambertMaterial({ color: 0x55703f }), NARROMINE_TREES.length);
+    const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), tint = new THREE.Color();
+    NARROMINE_TREES.forEach(([x, z, h, r], i) => {
+      const trunkH = h * 0.42, trunkR = Math.min(0.45, 0.12 + h * 0.015), crownH = Math.max(1.5, h - trunkH * 0.85);
+      m4.compose(new THREE.Vector3(x, trunkH / 2, z), q, new THREE.Vector3(trunkR, trunkH, trunkR)); trunkMesh.setMatrixAt(i, m4);
+      m4.compose(new THREE.Vector3(x, h - crownH / 2, z), q, new THREE.Vector3(Math.max(1, r), crownH / 2, Math.max(1, r))); crownMesh.setMatrixAt(i, m4);
+      tint.setHSL(0.24 + ((i * 37) % 10) / 200, 0.28, 0.27 + ((i * 53) % 10) / 120); crownMesh.setColorAt(i, tint);
+      colliders.push({ x0: x - trunkR - 0.1, x1: x + trunkR + 0.1, z0: z - trunkR - 0.1, z1: z + trunkR + 0.1 });
+    });
+    trunkMesh.name = 'Narromine LiDAR trees (trunks)'; crownMesh.name = 'Narromine LiDAR trees (crowns)';
+    town.add(trunkMesh, crownMesh);
   }
   // Mapped OSM main-street facades: the EDGE is data-grounded; facade materials,
   // mullions, piers and doors are visual approximations (see facade profiles).
