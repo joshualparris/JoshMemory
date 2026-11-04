@@ -207,7 +207,27 @@ function loadMaps(key) {
     pano.addListener('status_changed', () => { if (pano.getStatus() !== 'OK') readout('Street View unavailable here.'); });
     goPreset($('preset').value);
   };
-  window.gm_authFailure = () => { $('nokey').style.display = 'flex'; readout('Google rejected the API key. Check that Maps JavaScript API is enabled and this site is allowed.'); };
+  // Google reports why a key was refused only in the console ("Google Maps JavaScript API error: XxxMapError").
+  // Catch that code and show the reason and the fix on the page.
+  const FIX = {
+    ApiNotActivatedMapError: 'The Maps JavaScript API is not enabled in this key\'s Google Cloud project. Enable it, wait a minute, then reload.',
+    BillingNotEnabledMapError: 'Billing is not linked to this Google Cloud project. Link a billing account (the 5,000 free loads still apply), then reload.',
+    RefererNotAllowedMapError: 'The key\'s website restriction does not include this page. Add https://repository-town-claude-complete.vercel.app/* under Application restrictions > Websites.',
+    InvalidKeyMapError: 'Google does not recognise this key. Copy it again from Credentials and re-enter it with "Maps API key…".',
+    ApiTargetBlockedMapError: 'The key\'s API restriction does not allow the Maps JavaScript API. Tick Maps JavaScript API under API restrictions.',
+    ExpiredKeyMapError: 'This key has expired or been deleted. Create a new one.',
+  };
+  let authCode = null;
+  const origError = console.error.bind(console);
+  console.error = (...args) => { const m = String(args[0] || '').match(/([A-Za-z]+MapError)/); if (m) { authCode = m[1]; showAuth(); } origError(...args); };
+  const showAuth = () => {
+    $('pano').style.visibility = 'hidden'; $('nokey').style.display = 'flex';
+    $('nokey').querySelector('p').innerHTML = '<strong>Google refused the API key' + (authCode ? ' (' + authCode + ')' : '') + '.</strong> ' +
+      (FIX[authCode] || 'Check that the Maps JavaScript API is enabled, billing is linked and this website is allowed for the key. Changes can take up to 5 minutes.') +
+      ' Google does not charge for refused requests.';
+    readout('Google refused the key' + (authCode ? ': ' + authCode : '') + '.');
+  };
+  window.gm_authFailure = () => setTimeout(showAuth, 50);
   apiCall('script', 'Maps JavaScript API library loaded');
   const s = document.createElement('script');
   s.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&libraries=geometry&callback=__svReady&loading=async`;
@@ -252,8 +272,13 @@ addEventListener('resize', syncGame);
 const startAt = Math.max(0, presets.findIndex((p) => /Narromine Hotel/.test(p.name)));
 $('preset').value = startAt;
 readout();
-loadMaps(store.get('svCompareKey') || '');
-if (!store.get('svCompareKey')) goPreset(startAt);
+// A key typed into this browser wins; otherwise use the site's key from the Vercel environment.
+(async () => {
+  let key = store.get('svCompareKey') || '';
+  if (!key) { try { key = (await (await fetch('./api/maps-key', { cache: 'no-store' })).json()).key || ''; } catch {} }
+  loadMaps(key);
+  if (!key) goPreset(startAt);
+})();
 </script>
 </body>
 </html>
