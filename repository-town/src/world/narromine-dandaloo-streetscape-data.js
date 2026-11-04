@@ -130,7 +130,10 @@ export function findDandalooSouth(streets) {
 }
 
 // clear(x, z, r): true when a point (with radius r) is free of buildings, lots and other roads.
-export function planDandalooSouth(streets, clear = () => true) {
+// Exclude only visually unsupported *generated* verge trees. A caller may pass an
+// exclusion predicate backed by mapped building-front geometry; all lighting,
+ // power poles, kerbs and hotel-owned/surveyed vegetation remain untouched.
+export function planDandalooSouth(streets, clear = () => true, { excludeTreeAt = () => false } = {}) {
   const road = findDandalooSouth(streets), half = road.width / 2, kerbs = [], trees = [], lamps = [], poles = [];
   // Cross streets and driveways meeting Dandaloo: decorations keep 10 m away from their mouths.
   const mouths = streets.filter(s => s.name !== 'Dandaloo Street' && s.pts.some(([x, z]) => {
@@ -150,7 +153,7 @@ export function planDandalooSouth(streets, clear = () => true) {
   let k = 0;
   for (let z = SOUTH_RANGE.upperZ + 8; z < SOUTH_RANGE.lowerZ - 4; z += 22, k++) {
     if (nearMouth(z)) continue;
-    for (const side of [-1, 1]) { const p = verge(z + (side > 0 ? 11 : 0), side, 2.2); if (p && clear(p.x, p.z, 2.4)) trees.push({ ...p, where: side < 0 ? 'west' : 'east', kind: k % 5 === 2 ? 'flowering' : 'deciduous' }); }
+    for (const side of [-1, 1]) { const p = verge(z + (side > 0 ? 11 : 0), side, 2.2); if (p && clear(p.x, p.z, 2.4) && !excludeTreeAt(p)) trees.push({ ...p, where: side < 0 ? 'west' : 'east', kind: k % 5 === 2 ? 'flowering' : 'deciduous' }); }
   }
   let alt = 0;
   for (let z = SOUTH_RANGE.upperZ + 18; z < SOUTH_RANGE.lowerZ - 4; z += 44) {
