@@ -374,6 +374,11 @@ async function start() {
   showSpeedSetting();
   const driving=createPlayerDriving(life,scene,townWorld,player,camera,input);
   const drivingDashboard=createDrivingDashboard();
+  // Lane assist on/off (also K). Lives beside the dashboard button, top-left, clear of the compass.
+  const laneBtn=document.createElement('button');laneBtn.id='drive-lane-toggle';laneBtn.type='button';laneBtn.hidden=true;
+  const showLane=()=>{laneBtn.textContent='Lane assist: '+(driving.laneAssist?'ON':'OFF');laneBtn.setAttribute('aria-pressed',String(driving.laneAssist));};
+  laneBtn.addEventListener('click',()=>{status(driving.toggleLaneAssist());showLane();});
+  document.body.appendChild(laneBtn);showLane();
   const tableOrder = document.createElement('button');
   tableOrder.id='btn-table-order';tableOrder.type='button';
   tableOrder.textContent='🍽 Order at table';
@@ -1743,6 +1748,8 @@ async function start() {
       player.speedFactor=movementSpeedFactor(movementSpeed,n.hunger,n.fatigue);
       // While driving: V (or 🎥 on phones) switches chase, rider's-eye and high views.
       if(driving.driving&&input.consume('view'))status(driving.cycleView()); else input.consume('view');
+      if(driving.driving&&input.consume('lane')){status(driving.toggleLaneAssist());showLane();} else input.consume('lane');
+      laneBtn.hidden=!driving.driving;
       // Jump, run and crouch do nothing in a vehicle: show ✋ and 🎥 only, clear of the minimap.
       $('t-view').hidden=!driving.driving; for(const id of ['t-jump','t-run','t-crouch'])$(id).hidden=driving.driving;
       if(mode==='town'&&driving.driving){ driving.update(dt); if(driving.message){ status(driving.message); driving.clearMessage(); } }
