@@ -3,6 +3,7 @@
 // estimated tenancy footprints are exported separately, never described as surveyed.
 // This file is DATA, not Three.js geometry. Consumers may show confidence/source labels.
 import { NARROMINE_BUILDINGS } from './narromine-buildings-data.js';
+import { schematicPixelToGeo, KIERATHS_SCHEMATIC_UNITS } from './narromine-kieraths-schematic.js';
 import { siteToGeo, KIERATHS_ROUTE, KIERATHS_SHOPS, KIERATHS_KIOSK,
   KIERATHS_CANOPY, KIERATHS_REAR_PARKING } from './narromine-kieraths-data.js';
 
@@ -34,6 +35,16 @@ for (const [id, label] of parcels) {
   const b = required(id);
   layer.push(feature(id, label, poly(b.boundary), 'NSW cadastral tracing in narromine-buildings-data.js', 'traced-boundary',
     { address: b.address, note: 'Original NSW lot trace; NOT the tenancies or surveyed individual doors' }));
+}
+// Schematic-derived overlay, intentionally kept SEPARATE from legacy in-game geometry.
+// This shows where the supplied diagram suggests actual tenancy shapes should lie;
+// it is not yet substituted for live geometry without aerial/photo fit verification.
+for (const unit of KIERATHS_SCHEMATIC_UNITS) {
+  layer.push(feature('schematic-unit-' + unit.id, 'Diagram unit ' + unit.id,
+    poly(unit.pixel.map(schematicPixelToGeo)),
+    'Josh-supplied commercial screenshot (visually traced) + approximate 76 parcel fit',
+    'estimated', { diagramLabel: unit.id, sourcePixels: unit.pixel,
+      ambiguous: Boolean(unit.ambiguous), note: unit.provenance + '; schematic, not surveyed or confirmed current tenant' }));
 }
 // Visual reference plan establishes number/order and connectivity, but not metric scale.
 for (const s of KIERATHS_SHOPS)
