@@ -47,7 +47,7 @@ export const KIERATHS_COURTYARD = Object.freeze([
 ].map(p => Object.freeze(planPixelToSite(p))));
 export const KIERATHS_KIOSK = Object.freeze({ at: planPixelToSite([399,380]), radius: 1.4, height: 2.65 });
 export const KIERATHS_CANOPY = Object.freeze({
-  back: planPixelToSite([377,179]), front: planPixelToSite([377,201]), width: 6.5, eaves: 3.1, crown: 4.8,
+  back: planPixelToSite([377,179]), front: planPixelToSite([377,201]), width: 7.2, eaves: 3.1, crown: 4.8,
 });
 // Historical parking trace retained until photo/orthophoto registration can
 // establish actual wheel bays; not represented as a cadastral car-park survey.
