@@ -37,7 +37,12 @@ for(const [name,opts] of [['desktop',{viewport:{width:1280,height:800}}],['andro
   await page.evaluate(()=>document.activeElement?.blur?.());
   await page.keyboard.down('w');
   const inputReady=await page.evaluate(()=>window.__town.driveDiagnostics().input);
-  await page.waitForTimeout(2400);
+  assert(inputReady.z<-.5,name+' W reaches the game input handler: '+JSON.stringify(inputReady));
+  // GitHub's SwiftShader can render at ~1.6 FPS. Frame delta is clamped to
+  // 0.15 seconds, so 2.4 *wall-clock* seconds proves almost nothing about
+  // traction. Require actual locomotion from the real animation loop instead.
+  await page.waitForFunction((startX)=>window.__town.yardTrain().x>startX+0.3,
+    initial.x,{timeout:45000,polling:200});
   const telemetry=await page.evaluate(()=>({
     train:window.__town.yardTrain(),input:window.__town.driveDiagnostics().input,
     state:window.__town.state(),focused:document.activeElement?.id||document.activeElement?.tagName,
@@ -45,10 +50,8 @@ for(const [name,opts] of [['desktop',{viewport:{width:1280,height:800}}],['andro
   }));
   await page.keyboard.up('w');
   const moving=telemetry.train;
-  assert(inputReady.z<-.5 || telemetry.input.z<-.5,
-    name+' W reaches input handler: '+JSON.stringify(telemetry));
-  assert(moving.x>initial.x+0.2,
-    name+' shunter accelerates on its own siding: '+JSON.stringify(telemetry));
+  assert(moving.x>initial.x+0.3 && moving.speedKmh>0,
+    name+' shunter genuinely accelerates on its own siding: '+JSON.stringify(telemetry));
   assert(moving.speedKmh<=8,'8km/h yard cap');
   await page.screenshot({path:`test-results/town-rail-yard-${name}.png`});
   await page.keyboard.down(' ');await page.waitForFunction(()=>window.__town.yardTrain().speedKmh===0,null,{timeout:9000});await page.keyboard.up(' ');
