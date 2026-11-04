@@ -1,3 +1,15 @@
+# 5 November 2026 — NR-REAL-002 Cloud continuation checkpoint
+
+Owner ChatGPT cloud resumes Agy ThinkPad's previously claimed NR-REAL-002 after CLI quota exhaustion. ThinkPad local two-file WIP was not pushed and cannot be recovered remotely; preserves its original branch and claim. Base `8a8f7680`, new branch `feat/narromine-real-002-walk-qa-continuation-20261105`. Only a new WebGL ten-segment physical walking harness, dedicated CI workflow and evidence note are changed, no gameplay meshes/colliders. Goal: run desktop and Android-sized Chromium, record 20 actual local walk attempts, upload JSON/screenshots and inspect defects; then fix an unclaimed reproducible defect or hand the owner an exact reproducer. **Not yet verified:** CI run, actual screenshot quality, full continuous journey, hosted production or physical Android device. See `docs/NARROMINE_REAL_002_WALKING_AUDIT_2026-11-05.md`.
+
+# 5 November 2026 — `NR-REAL-002`: Narromine Full Physical Walking Audit & Visual QA — START CHECKPOINT
+
+Owner Antigravity (Agy ThinkPad). Baseline `main` `fc5128c7`; branch `feat/narromine-real-002-walking-audit-20261105`.
+- Claimed `NR-REAL-002 — Physical Walking and Visual QA` in `COORDINATION.md` per `docs/PARALLEL_AGENT_COORDINATION.md` and `docs/NARROMINE_REALISM_CHECKLIST_2026-11-05.md` (PR #377).
+- Scope: Execute a connected 10-segment physical walking audit in real Chromium WebGL (`1. St Mary's Anglican Church & southern entry` → `2. Royal Hotel & surrounding shops` → `3. Narromine Railway Station & level crossing` → `4. Narromine Hotel` → `5. Post Office & Dandaloo Street` → `6. Coles, Kierath's Shopping Square & both arcade entrances` → `7. Northern Dandaloo Street shopping strip, both sides` → `8. Civic precinct, courthouse & police station` → `9. Representative residential streets` → `10. Narromine Aviation Museum & Aerodrome`), compare against real-world evidence & the 55 side-by-side comparison views, build a numbered defect register (`docs/NARROMINE_REAL_002_WALKING_AUDIT_2026-11-05.md`), and claim + implement the highest-impact unclaimed defect.
+- Preserves all open PR claims (`#377`, `#376`, `#371`, `#366`, `#363`, `#359`, `#358`) and existing landmark modules.
+- Next step: Commit start checkpoint, push claim to `origin`, then run the 10-segment physical walking audit in Chromium WebGL and inspect all captured frames and geometry/collision diagnostics.
+
 # 5 November 2026 — `NR-REAL-002`: Narromine Full Physical Walking Audit & Visual QA — START CHECKPOINT
 
 Owner Antigravity (Agy ThinkPad). Baseline `main` `fc5128c7`; branch `feat/narromine-real-002-walking-audit-20261105`.
