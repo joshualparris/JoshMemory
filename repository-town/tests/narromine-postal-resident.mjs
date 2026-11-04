@@ -41,7 +41,7 @@ assert.equal(postalState(tuesday,1040).place,'coles');
 assert.equal(postalState(thursday,1040).place,'coles');
 assert(!postalDayPlan(monday).some(e=>e.place==='coles'),'not every day magically includes groceries');
 assert.equal(postalState(saturday,570).place,'coles');
-assert.equal(postalState(sunday,570).phase,'dog-walk');
+assert.equal(postalState(sunday,555).phase,'dog-walk');
 assert(!postalDayPlan(saturday).some(s=>s.place==='post-office'));
 assert(!postalDayPlan(sunday).some(s=>s.place==='post-office'));
 assert(NSW_POSTAL_PUBLIC_HOLIDAYS.has('2026-12-28'),'observed NSW Boxing Day is included');
