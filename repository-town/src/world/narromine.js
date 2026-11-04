@@ -58,9 +58,15 @@ function speedTexture(n) {
 
 const ROAD_COLOUR = { trunk: 0x45484b, primary: 0x46494c, secondary: 0x47494b, tertiary: 0x4a4c4e, unclassified: 0x4d4f50, residential: 0x4f5153, service: 0x5a5b5a, living_street: 0x55575a, track: 0x9b8566 };
 const AREA_COLOUR = { park: 0x7fae64, pitch: 0x8cc06a, golf_course: 0x79ad5d, cemetery: 0x8a9a7a, school: 0xc7b88f, industrial: 0xa49c90, retail: 0xb9ada0, parking: 0x6a6b6c, sports_centre: 0x9fb8a6, swimming_pool: 0x5aa9d6, track: 0xb47a5a, farmyard: 0xb9a675, residential: null };
+// OSM buildings tagged man_made=silo: the four round bins by the station yard (osm indices 20-23).
+const SILO_CYLINDERS = new Set([20, 21, 22, 23]);
+// OSM man_made=silo outlines 90-170 m across: open grain storage bunkers (osm 15, 16, 17), drawn as
+// low tarped stacks at their LiDAR-measured height.
+const GRAIN_BUNKERS = new Set([15, 16, 17]);
 const BUILDING_STYLE = (b) => {
   // Measured LiDAR height (median roof height above ground) wins over tag- or kind-based guesses.
   const k = b.kind, base = b.lidar ? Math.max(2.4, b.lidar[4]) : b.levels ? b.levels * 3.4 : null;
+  if (GRAIN_BUNKERS.has(b.osmIndex)) return [b.lidar ? Math.max(1.5, b.lidar[4]) : 4, 0x3b4239];
   if (k === 'hangar') return [base || 7.5, 0xb8bcbf];
   if (k === 'church') return [base || 8, 0xc2a07a];
   if (k === 'hospital') return [base || 6, 0xd9d4c8];
@@ -163,6 +169,16 @@ export function buildNarromine(parent, makeLabel = null) {
   for (const b of BUILDINGS) {
     if (RAILWAY_SUPPRESSED_OSM.has(b.osmIndex)) continue;
     if (Math.abs(b.pts[0][0] - (-4813.8)) < 0.5 && Math.abs(b.pts[0][1] - (-734.3)) < 0.5) continue;
+    // Grain silos mapped in OSM (man_made=silo, ways 451700972-75): round concrete bins drawn as
+    // cylinders from their outline, wall to the LiDAR eave and a conical cap to the LiDAR ridge.
+    if (SILO_CYLINDERS.has(b.osmIndex) && b.lidar) {
+      const cx = b.pts.reduce((s, p) => s + p[0], 0) / b.pts.length, cz = b.pts.reduce((s, p) => s + p[1], 0) / b.pts.length;
+      const r = b.pts.reduce((s, p) => s + Math.hypot(p[0] - cx, p[1] - cz), 0) / b.pts.length, eave = b.lidar[2], ridge = b.lidar[3];
+      const wall = new THREE.CylinderGeometry(r, r, eave, 24); wall.translate(cx, eave / 2, cz); push(0xcfc9bd, wall);
+      const cap = new THREE.ConeGeometry(r * 1.02, Math.max(0.3, ridge - eave), 24); cap.translate(cx, eave + Math.max(0.3, ridge - eave) / 2, cz); push(0xb9b4aa, cap);
+      colliders.push(polyRect(b.pts));
+      continue;
+    }
     const [h, standardColour] = BUILDING_STYLE(b);
     // OSM:186 is a photographed white-render physiotherapy facade, not generic tan.
     const colour = b.osmIndex === PHYSIO_FACADE.osmIndex ? 0xf0eee9 : standardColour;
@@ -236,7 +252,9 @@ export function buildNarromine(parent, makeLabel = null) {
   const HOUSE_WALLS = [0xd8cdb6, 0xc9a98a, 0xbfc4bd, 0xd6c9a4, 0xa98a74], HOUSE_ROOFS = [0x6e3b32, 0x5a5f66, 0x8a8f8c, 0x7a4a3a, 0x4f5a52];
   for (const h of FILL_HOUSES) {
     // Real traced footprint; total height from its measured estimate when known (else a 3 m wall + 2.2 m roof).
-    const wall = h.h > 0 ? Math.min(10, Math.max(2.4, h.h * 0.62)) : 3.0, roofH = h.h > 0 ? Math.min(5, Math.max(0.5, h.h - wall)) : 2.2;
+    // LiDAR-measured eave and ridge win (1,265 footprints); else the footprint dataset's height estimate.
+    const wall = h.lidar ? Math.max(2.2, h.lidar[1]) : h.h > 0 ? Math.min(10, Math.max(2.4, h.h * 0.62)) : 3.0;
+    const roofH = h.lidar ? Math.max(0.25, h.lidar[2] - wall) : h.h > 0 ? Math.min(5, Math.max(0.5, h.h - wall)) : 2.2;
     placeBox(HOUSE_WALLS[h.tone], h.w, wall, h.d, h.x, wall / 2, h.z, h.yaw);
     const r = roofGeo(); r.scale(h.w + 0.8, roofH, h.d + 0.8); r.rotateY(h.yaw); r.translate(h.x, wall + roofH / 2, h.z); push(HOUSE_ROOFS[h.tone], r);
     colliders.push({ ...h.rect });
