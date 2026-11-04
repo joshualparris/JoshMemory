@@ -1,6 +1,6 @@
 # Narromine live Street View vs Repository Town (local visual QA)
 
-This **development-only**, local, side-by-side comparison viewer displays an official Google
+This **local or separately deployable**, side-by-side comparison viewer displays an official Google
 Street View JavaScript panorama next to the already-built Repository Town game. No Google
 images, tiles, pixels or snapshots are stored or exported.
 
