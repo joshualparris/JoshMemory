@@ -69,7 +69,16 @@ export function createVehicleAudio(ctx,output){
    const target=(node,v,t=.09)=>node.gain.setTargetAtTime(v,at,t);
    // Engine start/stop sequence on the audio clock: crank (diesels longer), catch with a rev flare,
    // run; leaving the car runs the engine down instead of cutting it.
-   if(vehicle&&vehicle.registration!==lastReg){phase='cranking';phaseStart=at;lastReg=vehicle.registration;}
+   if(vehicle&&vehicle.registration!==lastReg){
+     if(phase==='stopping'){
+       // Re-entering a car before the fade finishes must cancel the future
+       // sound-stop ramps, or they would silence the newly started engine.
+       for(const param of [exhaust.frequency,undertone.frequency,harmonic.frequency,
+         bus.gain,windGain.gain,tyreGain.gain,intake.g.gain,clatter.g.gain,starterGain.gain])
+         param.cancelScheduledValues(at);
+     }
+     phase='cranking';phaseStart=at;lastReg=vehicle.registration;
+   }
    if(!vehicle&&lastReg){
      phase=last?'stopping':'off';phaseStart=at;lastReg=null;
      if(last)scheduleVehicleRundown({
