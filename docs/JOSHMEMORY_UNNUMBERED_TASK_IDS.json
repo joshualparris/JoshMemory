@@ -470,6 +470,11 @@
       "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
       "title_at_allocation": "Reinforce that letters represent sounds in everyday print."
     },
+    "38b077b4e9bf2d4f8090": {
+      "id": "JMU-00447",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Ground cover and land use.** Paddocks, parks, sports ovals, the golf course, the aerodrome and industrial yards from OSM land use and aerial imagery colours."
+    },
     "38ef39327b9b5963e78d": {
       "id": "JMU-00109",
       "source_file": "repository-town/games/breach-command/codingprinciples.md",
@@ -570,6 +575,11 @@
       "source_file": "repository-town/docs/NARROMINE_RESEARCH_AND_PLAN_2026-11-03.md",
       "title_at_allocation": "People rule"
     },
+    "46ab3438267f3aafbfc4": {
+      "id": "JMU-00452",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Traffic and people at realistic levels.** Car and pedestrian numbers that match a town of about 3,400 people; trucks on the Mitchell Highway."
+    },
     "4afb3b494d26ab0ce109": {
       "id": "JMU-00210",
       "source_file": "repository-town/games/echo/codingprinciples.md",
@@ -599,6 +609,11 @@
       "id": "JMU-00347",
       "source_file": "repository-town/games/sylvie-phonetics/QA-Recommendations.md",
       "title_at_allocation": "Add movement/breathing breaks"
+    },
+    "50954a247526c3a91247": {
+      "id": "JMU-00448",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Power lines and poles.** OSM `power=line/pole` and LiDAR wire returns; re-add the south Dandaloo poles at their real positions."
     },
     "513ea49af04709d14a2f": {
       "id": "JMU-00300",
@@ -750,6 +765,11 @@
       "source_file": ".github/PULL_REQUEST_TEMPLATE/repository-town-rtd.md",
       "title_at_allocation": "Any effects/rewards are tied to authoritative committed game state; negative tests protect against fake success or replay duplication."
     },
+    "5fdd9ca57e377e1925f4": {
+      "id": "JMU-00454",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Owner by-eye review.** Josh compares each block with the Street View compare page and files differences; each becomes a numbered item here."
+    },
     "5fe19dc7362cd75e6ab8": {
       "id": "JMU-00435",
       "source_file": "repository-town/games/waypoint/podcasttodo.md",
@@ -804,6 +824,11 @@
       "id": "JMU-00125",
       "source_file": "repository-town/games/breach-command/codingprinciples.md",
       "title_at_allocation": "Non-obvious decisions recorded; docs match resulting system."
+    },
+    "633f17ed35719fddc4fb": {
+      "id": "JMU-00459",
+      "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
+      "title_at_allocation": "Multiplayer, trading, banks.** The bank exists (savings, ATM). Real multiplayer needs a server and accounts (Vercel functions + a database), which belongs with section 4's optional accounts."
     },
     "639f769d8a798bbc8cb8": {
       "id": "JMU-00369",
@@ -980,6 +1005,11 @@
       "source_file": "repository-town/games/midnight-line/podcasttodo.md",
       "title_at_allocation": "Add mobile/a11y and audio-conflict/persistence tests."
     },
+    "76be193c2800f26d7a5b": {
+      "id": "JMU-00442",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Real trees.** Place trees at LiDAR vegetation (class 3–5) clusters with their measured canopy height and spread; street trees only where LiDAR shows them."
+    },
     "76c57dfbc8e87f857a12": {
       "id": "JMU-00433",
       "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
@@ -1015,6 +1045,11 @@
       "source_file": "repository-town/games/carl/Dungeon_Crawler_Carl_Game_Build_Plan.md",
       "title_at_allocation": "Class, Race, and Progression"
     },
+    "78d9c9883c7167c9fa04": {
+      "id": "JMU-00455",
+      "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
+      "title_at_allocation": "Turn existing jobs into skills: baking, farming and café work earn Cooking and Farming XP alongside the wages."
+    },
     "794d6cb9d51539192b48": {
       "id": "JMU-00152",
       "source_file": "repository-town/games/buckland-blocks-demo/codingprinciples.md",
@@ -1045,6 +1080,11 @@
       "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
       "title_at_allocation": "Characters and accounts (Settings, optional)"
     },
+    "7d56ba9833bc11ded0ec": {
+      "id": "JMU-00449",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Street lights and signs.** OSM `highway=street_lamp`, traffic signs and the town-centre lights; only where mapped."
+    },
     "7dcfe9e053c5ed572e84": {
       "id": "JMU-00072",
       "source_file": "repository-town/docs/REPOSITORY_TOWN_GEOGRAPHY_MASTERPLAN.md",
@@ -1069,6 +1109,16 @@
       "id": "JMU-00040",
       "source_file": "repository-town/docs/NARROMINE_MATERIAL_REALISM_2026-11-04.md",
       "title_at_allocation": "Compare before and after screenshots and inspect under morning/midday/late afternoon lighting."
+    },
+    "804794693d3a2cbd8fd8": {
+      "id": "JMU-00451",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Sky, light and colour.** Correct sun position for Narromine's latitude and season, a clear inland sky, and paint/roof colours sampled from NSW aerial imagery (not Street View)."
+    },
+    "80520514c317884c7cec": {
+      "id": "JMU-00450",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Business names and land uses.** Check all 98 named places against OSM and council listings; remove closed businesses; keep historical names only with a date label."
     },
     "80db3a6f4ac1f2ca1d9d": {
       "id": "JMU-00048",
@@ -1104,6 +1154,11 @@
       "id": "JMU-00147",
       "source_file": "repository-town/games/buckland-blocks-demo/codingprinciples.md",
       "title_at_allocation": "Trust boundaries validated."
+    },
+    "83b71594721e1e5d1c91": {
+      "id": "JMU-00458",
+      "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
+      "title_at_allocation": "Combat.** Needs Josh's decision. It would sit outside the town's everyday life: for example, a fenced training ground or a quest dungeon, not villagers on the high street."
     },
     "84f112553c6ad16454a1": {
       "id": "JMU-00244",
@@ -1164,6 +1219,11 @@
       "id": "JMU-00194",
       "source_file": "repository-town/games/delve/codingprinciples.md",
       "title_at_allocation": "Affected deployment traces back to this repo/commit."
+    },
+    "8b05d55b0fe69105e8df": {
+      "id": "JMU-00456",
+      "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
+      "title_at_allocation": "Items and inventory.** Already partly built (item types, 28-slot bag, drop/pick up, equip). Next: one numbered item list and a 4 × 7 grid bag that looks like RuneScape's."
     },
     "8b6c9f9217c217ccd506": {
       "id": "JMU-00423",
@@ -1485,6 +1545,11 @@
       "source_file": "repository-town/games/breach-command/codingprinciples.md",
       "title_at_allocation": "I can state exactly what proves this change works."
     },
+    "b22bc78979a9b05c2e60": {
+      "id": "JMU-00460",
+      "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
+      "title_at_allocation": "Quests.** The Expedition Guild and the RTD quests already track progress in the save. A short \"first day in town\" tutorial quest would exercise every system above."
+    },
     "b2faf60620ef9cb100ab": {
       "id": "JMU-00305",
       "source_file": "repository-town/games/midnight-line/podcasttodo.md",
@@ -1554,6 +1619,11 @@
       "id": "JMU-00301",
       "source_file": "repository-town/games/midnight-line/podcasttodo.md",
       "title_at_allocation": "Add a collapsed bottom dock: **🎧 Listen to a different narrative-game podcast**."
+    },
+    "b8a6f3633b167a209d6b": {
+      "id": "JMU-00453",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Rail completion.** Silo sidings in use, a fictional-but-labelled link to Repository Town if wanted, and freight wagons loading at the silos."
     },
     "b8bb41c43dcdefca85a6": {
       "id": "JMU-00049",
@@ -1655,6 +1725,11 @@
       "source_file": "repository-town/games/lantern-road/story/campaign/ENDING-MATRIX.md",
       "title_at_allocation": "party relationships/personal arcs can alter epilogue tone;"
     },
+    "c37293b5461f997e36cb": {
+      "id": "JMU-00445",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Kerb, gutter and footpaths.** Only on streets that have them (town centre and main streets per aerial imagery); gravel verges elsewhere."
+    },
     "c5268c0f7d63feef161d": {
       "id": "JMU-00258",
       "source_file": "repository-town/games/hub-newgame/GAME_IMPROVEMENTS.md",
@@ -1679,6 +1754,11 @@
       "id": "JMU-00054",
       "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
       "title_at_allocation": "Traffic and people at realistic levels.** Car and pedestrian numbers that match a town"
+    },
+    "c7aa9b8ee5d6020c865c": {
+      "id": "JMU-00443",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Property boundaries and fences.** Draw cadastral lot boundaries; front fences and driveways only where aerial imagery shows them."
     },
     "c87a2b4e4f357f2c1e46": {
       "id": "JMU-00043",
@@ -1739,6 +1819,11 @@
       "id": "JMU-00035",
       "source_file": "repository-town/docs/IMPROVEMENT_PLAN_2026-10-19.md",
       "title_at_allocation": "Phone performance"
+    },
+    "d02d23ab8fbfcb5ee1ce": {
+      "id": "JMU-00457",
+      "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
+      "title_at_allocation": "Skilling framework.** One action state machine (target → level check → per-tick roll → item + XP → respawn) that woodcutting and firemaking move onto; then mining, fishing and cooking reuse it."
     },
     "d05a3ba38317c19f309d": {
       "id": "JMU-00114",
@@ -1894,6 +1979,11 @@
       "id": "JMU-00337",
       "source_file": "repository-town/games/starhaven/podcasttodo.md",
       "title_at_allocation": "Curate about 25 Spotify episodes relevant to the game's themes and design."
+    },
+    "dc23225fa1c7718b4fae": {
+      "id": "JMU-00444",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Road surfaces and markings.** Sealed vs unsealed from OSM `surface`; centre lines, edge lines, stop/give-way lines and signs at mapped intersections; real road widths."
     },
     "ddd47c88d65a63928f1b": {
       "id": "JMU-00426",
@@ -2090,6 +2180,11 @@
       "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
       "title_at_allocation": "Combat and dragons: much later, if ever."
     },
+    "f60d0fec65aede37c1c7": {
+      "id": "JMU-00446",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Terrain.** Use the LiDAR ground model (class 2) for gentle ground levels, the Macquarie River banks and drainage channels, instead of a flat plane."
+    },
     "f6100c41d0faad48786f": {
       "id": "JMU-00290",
       "source_file": "repository-town/games/lantern-road/story/campaign/ENDING-MATRIX.md",
@@ -2206,6 +2301,6 @@
       "title_at_allocation": "Important state changes tolerate retry, duplication and partial failure."
     }
   },
-  "next_number": 442,
+  "next_number": 461,
   "schema_version": 1
 }
