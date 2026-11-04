@@ -53,3 +53,15 @@ Recreate **the actual walkable Three.js scene**, not a generated illustration. P
 - No duplicate Coles/shop or Post Office geometry; no courtyard-blocking wall; correct relationship of both entrances and the street.
 - Each landmark identifies source class: cadastral boundary, aerial trace, supplied schematic, supplied photo, or estimate.
 - Tests run locally and in CI before claims of completion. Passing prior navigation tests is **not** proof of geometric accuracy.
+
+## Phase 1 supplementary evidence, 4 Nov 2026
+
+The **user-supplied 619 x 459 tenancy diagram** was inspected more closely. Its page orientation differs from map coordinates: diagram bottom = Dandaloo (geographic east side), top = rear parking (west), right = Post Office/Nymagee (geographic north). An explicit pixel-to-WGS84 bilinear fit is now encoded in `src/world/narromine-kieraths-schematic.js`, anchored approximately to four vertices of the pre-existing `dandaloo-76.boundary`.
+
+**Crucial distinction:** eight units (1–5 and 8–10) have visible individual grey/pink outlines in the screenshot, while **6–7 appears marked in the large blue Coles/major-tenancy polygon**, not as two separate retail shopfronts. The diagram does NOT support modelling ten physically separate buildings. The current live `KIERATHS_SHOPS` still does so and MUST be revised in Phase 1/3 only after confirming footprint/door orientations.
+
+The new GIS overlay publishes `schematic-unit-1` through `schematic-unit-10` with `6–7` combined, separate from the old live geometry. Digitised vertex locations are approximate from the screenshot, with pixel accuracy on the order of several screenshot pixels, not a cadastral survey. Registration is **provisional**: its ties associate schematic boundaries with lot corners, not independently surveyed same-point image controls; RMS residual is not measurable from present evidence. Do not promote these polygons to `traced-boundary` or label them precise.
+
+Public imagery verification source: NSW Spatial Services NSW Imagery Basemap, map service https://portal.spatial.nsw.gov.au/server/rest/services/NSW_Imagery_Theme/MapServer ; imagery epoch varies by location/zoom. Underlying cadastral polygons are from the existing repo aerial/cadastre tracing. No separate imagery tiles are redistributed here.
+
+**Current implementation gate:** GeoJSON exporter and tests verify deterministic coordinates, WGS84 axis order and evidence labels. This is a data registration / topology correction; the 3D geometry, player collisions and user-facing scene have NOT been updated, and they must not be reported as fixed until screenshot-matched acceptance succeeds.
