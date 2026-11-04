@@ -1,0 +1,34 @@
+name: Narromine Kierath's Phase 1 GIS evidence
+on:
+  pull_request:
+    paths:
+      - 'repository-town/src/world/narromine-kieraths-site-audit.js'
+      - 'repository-town/src/world/narromine-kieraths-data.js'
+      - 'repository-town/src/world/narromine-buildings-data.js'
+      - 'repository-town/tests/narromine-kieraths-phase1.mjs'
+      - 'repository-town/tools/kieraths-phase1-geojson.mjs'
+      - '.github/workflows/town-kieraths-phase1.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'repository-town/src/world/narromine-kieraths-site-audit.js'
+      - 'repository-town/tests/narromine-kieraths-phase1.mjs'
+      - '.github/workflows/town-kieraths-phase1.yml'
+jobs:
+  geojson:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node tests/narromine-kieraths-phase1.mjs
+      - run: node tests/narromine-layout.mjs
+      - run: node tools/kieraths-phase1-geojson.mjs > kieraths-phase1.geojson
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kieraths-phase1-wgs84-geojson
+          path: repository-town/kieraths-phase1.geojson
