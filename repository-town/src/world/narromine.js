@@ -11,12 +11,16 @@ import { buildNarromineRailwayPrecinct } from './narromine-railway-precinct.js';
 import { NARROMINE_RAILWAY_INTEGRATION_SPEC } from './narromine-railway-evidence.js';
 import { buildNarromineCourthousePrecinct } from './narromine-courthouse-precinct.js';
 import { NARROMINE_COURTHOUSE_INTEGRATION_SPEC } from './narromine-courthouse-evidence.js';
+import { buildNarromineAviationPrecinct } from './narromine-aviation-precinct.js';
+import { NARROMINE_AVIATION_INTEGRATION_SPEC } from './narromine-aviation-evidence.js';
 const RAILWAY_SUPPRESSED_OSM = new Set([
   ...NARROMINE_RAILWAY_INTEGRATION_SPEC.suppressedOsmBuildingIndices,
   ...NARROMINE_COURTHOUSE_INTEGRATION_SPEC.suppressedOsmBuildingIndices,
+  ...NARROMINE_AVIATION_INTEGRATION_SPEC.suppressedOsmBuildingIndices,
 ]);
 import { estimatedShopfrontProfile, facadeBays, landmarkFacadeSpec } from './narromine-facade-profiles.js';
 import { buildDisjointRoadSurfaces } from './narromine-road-surfaces.js';
+import { createNarromineSurfaceMaterial } from './narromine-surface-materials.js';
 import { buildDandalooStreetscape } from './narromine-dandaloo-streetscape.js';
 import { NARROMINE_POST_OFFICE_ENTRANCE, NARROMINE_POST_OFFICE_ID } from './narromine-post-office.js';
 import { HIGHWAY, HIGHWAY_Z, REGION, CORRIDOR_HALF, STREETS, BUILDINGS, AREAS, WATER, RAIL, PLACES, FILL_SHOPS, FILL_HOUSES, FRONTAGES, DETAILED, polyRect, nearTownStreet, boundaryColliders } from './narromine-layout.js';
@@ -538,6 +542,7 @@ export function buildNarromine(parent, makeLabel = null) {
   buildKieraths({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   buildNarromineRailwayPrecinct({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   buildNarromineCourthousePrecinct({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
+  buildNarromineAviationPrecinct({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   // Named places: a sign over each, and an E-prompt with what it is, its address and any history.
   for (const p of PLACES) {
     if (makeLabel) { const l = makeLabel(p.name, 'interactive'); l.position.set(p.x, 5.4, p.z); l.scale.multiplyScalar(0.8); town.add(l); }
@@ -547,7 +552,7 @@ export function buildNarromine(parent, makeLabel = null) {
   pole(-2742, z - 9, 2.4); plane(boardTexture(['Map data', '© OpenStreetMap contributors'], { bg: '#ffffff', fg: '#222222', border: '#222222' }), 2.6, 1.3, -2742, 2.2, z - 9, Eb);
 
   const materials = new Map();
-  const material = (c, side) => { const k = c + ':' + side; if (!materials.has(k)) materials.set(k, new THREE.MeshLambertMaterial({ color: c, side })); return materials.get(k); };
+  const material = (c, side) => { const k = c + ':' + side; if (!materials.has(k)) materials.set(k, createNarromineSurfaceMaterial(c, side)); return materials.get(k); };
   for (const [name, map] of Object.entries(buckets)) for (const [k, geos] of map) {
     const c = typeof k === 'string' ? Number(k.split('|')[0]) : k, geo = mergeGeos(geos); geo.computeBoundingSphere();
     const mesh = new THREE.Mesh(geo, material(c, name === 'town' ? THREE.DoubleSide : THREE.FrontSide));
