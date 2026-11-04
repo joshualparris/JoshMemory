@@ -111,14 +111,14 @@ export function planDandalooStreetscape(streets) {
 
 // ── South Dandaloo Street (single carriageway): Narromine Hotel → St Mary's ─────────────────────
 // OSM maps this stretch as one 9-m secondary road from the Burraway split (~z -853) south past
-// Derribong Avenue to Terangion Street. Kerbs follow the mapped road edge; street trees, swan-neck
-// lamps and the east-side power line are placed at regular, ESTIMATED spacing on the verges and are
-// skipped wherever a cross street, driveway, mapped building or detailed lot would be in the way.
+// Derribong Avenue to Terangion Street. Kerbs follow the mapped road edge.
+// The old unsurveyed regular rows of trees/lamps/poles were REMOVED, not moved.
+// The actual corner hotel furnishings are modelled in their site-specific builder.
 export const SOUTH_RANGE = Object.freeze({ upperZ: -846, lowerZ: -262 });
 export const SOUTH_EVIDENCE = Object.freeze({
   alignment: 'OpenStreetMap Dandaloo Street secondary centreline (2026-11-03)',
-  spacing: 'estimated: trees ~22 m, lamps ~44 m alternating, poles ~40 m on the east verge',
-  note: 'Josh compares by eye with Street View; no Street View imagery is used as data.',
+  spacing: 'no automatic furniture spacing: unsupported 22/44/40 m rows disabled',
+  note: 'Do not invent street furniture at OSM road centrelines; require an observed, located object with an evidence ID before reintroducing. No Street View imagery is used as data.',
 });
 
 export function findDandalooSouth(streets) {
@@ -129,10 +129,8 @@ export function findDandalooSouth(streets) {
   return { width: pieces[0].width, pts: uniq.sort((a, b) => a[1] - b[1]) };
 }
 
-// clear(x, z, r): true when a point (with radius r) is free of buildings, lots and other roads.
-// Exclude only visually unsupported *generated* verge trees. A caller may pass an
-// exclusion predicate backed by mapped building-front geometry; all lighting,
- // power poles, kerbs and hotel-owned/surveyed vegetation remain untouched.
+// clear(x, z, r): kept for API compatibility with the renderer;
+// no furniture is returned without per-object surveyed/photo-located evidence.
 export function planDandalooSouth(streets, clear = () => true, { excludeTreeAt = () => false } = {}) {
   const road = findDandalooSouth(streets), half = road.width / 2, kerbs = [], trees = [], lamps = [], poles = [];
   // Cross streets and driveways meeting Dandaloo: decorations keep 10 m away from their mouths.
@@ -149,20 +147,13 @@ export function planDandalooSouth(streets, clear = () => true, { excludeTreeAt =
     for (const side of [-1, 1]) kerbs.push({ a: [a.cx + side * (half + 0.08) * a.nx, z + side * (half + 0.08) * a.nz],
       b: [b.cx + side * (half + 0.08) * b.nx, zz + side * (half + 0.08) * b.nz], side: side < 0 ? 'west' : 'east' });
   }
-  const verge = (z, side, off) => { const f = frame(z); return f && { x: f.cx + side * (half + off) * f.nx, z: z + side * (half + off) * f.nz }; };
-  let k = 0;
-  for (let z = SOUTH_RANGE.upperZ + 8; z < SOUTH_RANGE.lowerZ - 4; z += 22, k++) {
-    if (nearMouth(z)) continue;
-    for (const side of [-1, 1]) { const p = verge(z + (side > 0 ? 11 : 0), side, 2.2); if (p && clear(p.x, p.z, 2.4) && !excludeTreeAt(p)) trees.push({ ...p, where: side < 0 ? 'west' : 'east', kind: k % 5 === 2 ? 'flowering' : 'deciduous' }); }
-  }
-  let alt = 0;
-  for (let z = SOUTH_RANGE.upperZ + 18; z < SOUTH_RANGE.lowerZ - 4; z += 44) {
-    if (nearMouth(z, 8)) continue; const side = alt++ % 2 ? 1 : -1, p = verge(z, side, 0.55);
-    if (p && clear(p.x, p.z, 0.6)) lamps.push({ ...p, where: side < 0 ? 'west' : 'east', kind: 'swan-neck' });
-  }
-  for (let z = SOUTH_RANGE.upperZ + 4; z < SOUTH_RANGE.lowerZ - 4; z += 40) {
-    if (nearMouth(z, 7)) continue; const p = verge(z, 1, 1.3);
-    if (p && clear(p.x, p.z, 0.5)) poles.push(p);
-  }
+  // Strict location-evidence gate (Josh, 4 Nov 2026): do NOT generate trees,
+  // lamps or utility poles at arbitrary intervals. OSM identifies road axes,
+  // not street-furniture locations; 22/44/40 m spacing was an invented pattern.
+  // Leave these lists empty until an individual object at a particular WGS84
+  // location is recorded with an observation/evidence source. Estimated size
+  // for a *real, observed object* is allowed, but an invented object is not.
+  // Hotel-specific photo-referenced trees and pole are in narromine-hotel.js;
+  // those real-site elements are not part of this global generic generator.
   return { kerbs, trees, lamps, poles, source: SOUTH_EVIDENCE };
 }
