@@ -79,6 +79,9 @@ Owner Antigravity (Agy ThinkPad). Baseline `main` `611b9515`; branch `feat/narro
   4. **49 Merilba Street (`Lot 5, Section 17, DP 758759`, `osm:174` / `NR-OSM-0175`):** **Narromine Police Station & Residence** wrapping around Lot 6 on the west and north, with surveyed 2011 NSW Spatial Services LiDAR heights (`239.40 m AHD` ground, `3.16 m` eave, `6.39 m` ridge, `4.08 m` median) plus northern police vehicle garage.
 - Implemented `src/world/narromine-courthouse-evidence.js`, `src/world/narromine-courthouse-precinct.js`, `tests/narromine-courthouse-precinct.mjs`, and `docs/NARROMINE_COURTHOUSE_RECONSTRUCTION.md`.
 - Shared files (`src/world/narromine.js`, `src/world/narromine-layout.js`, `src/world/narromine-buildings-data.js`, `src/main.js`, `package.json`) left untouched so concurrent agents can merge without conflict.
+# 4 November 2026 — Narromine Post Office NPC & Coles interior (IN PROGRESS)
+
+Owner ChatGPT · Branch `feat/narromine-postal-resident-20261104`, base `09cacbcf953b4ae00f4178152683271a29cf341e`. Scoped NAR-PO-001; partial RTD-068, RTAC-002 and RTAC-009 are candidate checks, NOT yet accepted. Define a fictional, stable postal employee linked to a mapped single-storey house OSM:203 (without inventing a private address or identity), deterministic realistic clock schedule, Coles groceries, playable visual continuity with the existing Narromine post office and real Coles site. Planned `src/world/narromine-postal-character.js`, `src/world/narromine-coles.js`, targeted `narromine-post-office.js` + `main.js`, tests and notes. `narromine.js` / Kierath's claimed by PR #309: deliberately untouched. Implementation, local browser QA, production deploy NOT YET VERIFIED.
 
 # 4 November 2026 — Narromine Visual QA & Screenshot Comparison System — VERIFIED COMPLETE
 
