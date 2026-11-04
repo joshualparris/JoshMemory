@@ -29,6 +29,8 @@ jobs:
         run: python -m unittest discover -s tests -p test_audit_open_tasks.py -v
       - name: Assign stable permanent IDs and build triage register
         run: python tools/audit_open_tasks.py --write
+      - name: Privacy scan of the public register and repository
+        run: python tools/check_privacy.py
       - name: Verify output stability and no future duplicate reassignment
         run: |
           cp docs/JOSHMEMORY_OPEN_TASK_REGISTER.csv /tmp/open-tasks-first.csv
