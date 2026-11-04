@@ -1881,6 +1881,8 @@ async function start() {
       }
       // Villagers, the guide kiosk and the shop counters: pick the one the player is facing.
       narromine.update(player.pos);
+      // Narromine sits on open inland plains with clear air: see much further there than in the town.
+      { const inNarromine = player.pos.x < -2640; fog.near = inNarromine ? 220 : 60; fog.far = inNarromine ? 650 : 170; }
       nearPerson = null; let bestP = Infinity;
       const consider = (c, reach, bonus = 0) => {
         const d = Math.hypot(c.pos.x - player.pos.x, c.pos.z - player.pos.z);
