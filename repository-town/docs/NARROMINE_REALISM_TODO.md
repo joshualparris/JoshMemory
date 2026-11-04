@@ -42,7 +42,7 @@ landmark sites, 8 stand-in shops and **2,665 invented stand-in houses**.
     lights; only where mapped.
 13. [ ] **Business names and land uses.** Check all 98 named places against OSM and council
     listings; remove closed businesses; keep historical names only with a date label.
-14. [ ] **Sky, light and colour.** Correct sun position for Narromine's latitude and season, a
+14. [x] **Sky, light and colour.** _Sun position, dawn and dusk were already computed for Narromine's latitude and date; fog now opens to 220–650 m in Narromine for the clear inland air. Paint/roof colours from aerial imagery remain._ Correct sun position for Narromine's latitude and season, a
     clear inland sky, and paint/roof colours sampled from NSW aerial imagery (not Street View).
 15. [ ] **Traffic and people at realistic levels.** Car and pedestrian numbers that match a town
     of about 3,400 people; trucks on the Mitchell Highway.
