@@ -496,6 +496,13 @@ export class TownLife {
       p.out[p.makes] = 8; p.growth = 0.5;
       const front = [...this.places.values()].find((s) => s.side === 'south' && Math.abs(s.x - p.x) < 18);
       p.field = { x0: p.x - 11, x1: p.x + 11, z0: front ? FIELD_BEHIND_Z0 : FIELD_Z0, z1: FIELD_Z1 };
+      // Farming fields and their real solid fences cannot overlap a 7-m
+      // public avenue. The U-farm fence at x=184.5 was inside avenue-4,
+      // whose centre is x=182; moving it to the verge restores car clearance.
+      for (const avenue of AVENUES) {
+        if (p.field.x0 > avenue && p.field.x0 < avenue + 5.5) p.field.x0 = avenue + 5.5;
+        if (p.field.x1 < avenue && p.field.x1 > avenue - 5.5) p.field.x1 = avenue - 5.5;
+      }
       if (front) p.field.access = { gateX: p.x, backZ: FIELD_Z0 + SOUTH_SITE_DEPTH + 1.5, aisleX: front.x + 9.5 };
     }
     this.place('mill').out.flour = 6;
