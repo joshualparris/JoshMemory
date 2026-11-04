@@ -1,3 +1,14 @@
+# 4 November 2026 — Narromine Courthouse, Police & Civic Precinct (`Section 17, DP 758759`) — STANDALONE IMPLEMENTATION COMPLETE
+
+Owner Antigravity (Agy ThinkPad). Baseline `main` `611b9515`; branch `feat/narromine-courthouse-precinct-20261104`.
+- Resolved the building & address discrepancy between **35 Burraway Street**, **37 Burraway Street**, **47 Merilba Street**, and **49 Merilba Street** using the Narromine Local Environmental Plan 2011 Schedule 5, NSW Spatial Services Cadastral Parcels (`Section 17, DP 758759`), NSW G-NAF Geocoded Address Points, 2011 NSW Spatial Services Airborne LiDAR, and NSW Spatial Services Six Maps Orthophoto:
+  1. **35 Burraway Street (`Lot 6, Section 17, DP 758759`, Narromine LEP 2011 Item `I5` — *"Courthouse (former)"*):** 1898 timber/weatherboard Former Narromine Courthouse designed under NSW Government Architect Walter Liberty Vernon (`14.95 m × 7.35 m`, hipped corrugated galvanised roof, front Burraway Street verandah) and detached 1898 square hipped-roof rear lock-up outbuilding (`7.22 m × 5.25 m`), later used as a local museum and Narromine Car Club clubrooms.
+  2. **37 Burraway Street (`Lot 2 & Lot 12, Section 17, DP 758759`):** **Hub n Spoke (`HubnSpoke`)**, Narromine Shire Council's circular radial-roofed co-working and business incubator building (`16.8 m` core diameter) built around a central open circular atrium oculus (`4.7 m` inner diameter) with curved fan-shaped outer wing roofs (`26.4 m` span). *(Previously conflated with 35 Burraway Street in `COORDINATION.md` because 35 Burraway Street was unmapped in OSM.)*
+  3. **47 Merilba Street (`Lot 10, Section 17, DP 758759`):** Operational **Narromine Courthouse (NSW Local Court)** fronting Merilba Street (`26.0 m × 11.45 m` main spine + `9.25 m × 9.15 m` eastern courtroom wing, western colonnade entry portico, raised central courtroom clerestory monitor `5.75 m`, and north-east registry/security annex).
+  4. **49 Merilba Street (`Lot 5, Section 17, DP 758759`, `osm:174` / `NR-OSM-0175`):** **Narromine Police Station & Residence** wrapping around Lot 6 on the west and north, with surveyed 2011 NSW Spatial Services LiDAR heights (`239.40 m AHD` ground, `3.16 m` eave, `6.39 m` ridge, `4.08 m` median) plus northern police vehicle garage.
+- Implemented `src/world/narromine-courthouse-evidence.js`, `src/world/narromine-courthouse-precinct.js`, `tests/narromine-courthouse-precinct.mjs`, and `docs/NARROMINE_COURTHOUSE_RECONSTRUCTION.md`.
+- Shared files (`src/world/narromine.js`, `src/world/narromine-layout.js`, `src/world/narromine-buildings-data.js`, `src/main.js`, `package.json`) left untouched so concurrent agents can merge without conflict.
+
 # 4 November 2026 — Narromine Visual QA & Screenshot Comparison System — VERIFIED COMPLETE
 
 Owner Antigravity. Baseline `main` `09cacbcf`; branch `feat/narromine-visual-qa-20261104`.
