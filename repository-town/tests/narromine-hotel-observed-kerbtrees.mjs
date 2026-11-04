@@ -7,8 +7,11 @@ const south=planDandalooSouth(STREETS);
 const north=planDandalooStreetscape(STREETS);
 for(const name of ['trees','lamps','poles'])
   assert.equal(south[name].length,0,'no invented South Dandaloo '+name);
+// Northern divided-Dandaloo objects are a SEPARATE photo-placed feature from
+// PR #367. They may be nonempty in main; this test must not erase or reject
+// another agent's sourced object locations.
 for(const name of ['trees','lamps','parking'])
-  assert.equal(north[name].length,0,'no unlocated north median '+name);
+  assert(Array.isArray(north[name]),'northern photo-based objects remain compatible: '+name);
 assert(south.kerbs.length>=120,'mapped south kerbs maintained');
 assert(north.medians.length>=30,'mapped north median remains as geometry');
 const hotel=DETAILED.find(x=>x.id==='narromine-hotel');
