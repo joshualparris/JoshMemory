@@ -168,6 +168,17 @@ async function executeRoute(page, route, tag, errors) {
     // Coles is not on the Kierath's through-walk: stage a second local
     // pedestrian subroute and do NOT count the intervening teleport as walked.
     if (route.colesOutside) {
+      // The actual rear exit was reached on foot. Rotate the camera in place
+      // toward Dandaloo and capture the arcade rather than an empty adjacent lane.
+      const rear = await page.evaluate(() => window.__town.state().pos);
+      await page.evaluate(([x,z,y]) => window.__town.place(x,z,y), [
+        rear.x,rear.z,yaw([rear.x,rear.z],route.start)
+      ]);
+      await page.waitForTimeout(200);
+      const arcadeShot=path.posix.join(outDir,tag+'-kieraths-rear-looking-back.png');
+      await page.screenshot({path:arcadeShot,timeout:15000});
+      record.supplementaryScreenshot=arcadeShot;
+      record.supplementaryScreenshotMethod='camera rotation in place after physical traverse; no teleported destination';
       const extra = {
         leg:'Coles public approach (independently staged)', stagedByTeleport:true,
         from:route.colesStart, to:route.colesOutside,
@@ -206,20 +217,6 @@ async function executeRoute(page, route, tag, errors) {
     record.defect=(record.defect?record.defect+'; ':'')+'Browser page errors: '+record.browserErrors.join('; ');
   }
   try {
-    if (route.id === 'NR-WALK-006') {
-      // Face BACK along Kierath's after successful transit; a final camera
-      // pointed at the adjacent empty lane hid the very arcade under review.
-      // Rotate only, don't move; screenshot is supplemental visual evidence.
-      const target = route.start;
-      if (record.status==='PASS_PHYSICALLY_WALKED') {
-        const actual=await page.evaluate(()=>window.__town.state().pos);
-        const lookPoint=route.colesOutside ? route.colesStart : target;
-        await page.evaluate(([x,z,y])=>window.__town.place(x,z,y),
-          [actual.x,actual.z,yaw([actual.x,actual.z],lookPoint)]);
-        record.cameraRotationOnly = true;
-        await page.waitForTimeout(200);
-      }
-    }
     await page.screenshot({path:shot,timeout:15000});
     record.screenshot=shot;
   } catch(e) {
