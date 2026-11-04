@@ -5,27 +5,47 @@ Findings are strictly categorised as **Verified mismatch**, **Likely mismatch**,
 
 ---
 
-## Highest-Priority Building for Architectural Correction
+## First Verified Correction Release (`src/world/narromine-royal-hotel.js`)
 
-**#1 Priority: `NR-SITE-royal-hotel` — Royal Hotel (`123 Dandaloo Street`) — Visual Impact Score `10/10`**
-- **Why #1:** Now that the Narromine Hotel (`NR-SITE-narromine-hotel`, PR #318), Narromine Railway Station (`PR #312/#316`), Narromine Shire Council (`124 Dandaloo Street`, PR #321), and Courthouse Precinct (`Section 17 DP 758759`, PR #320) have detailed reconstructions merged to `main`, the Royal Hotel (`123 Dandaloo Street`, the default Narromine arrival landmark) has the most visually prominent verified discrepancies between real imagery (`docs/narromine/royal-hotel-aerial-nsw-spatial-cc-by-4.png` + `File:Narromine_Royal_Hotel_001.JPG`) and the in-game model.
+The highest-impact unclaimed discrepancies identified by this register have been implemented and verified in `src/world/narromine-royal-hotel.js`:
+
+1. **`DISC-NR-001` (`10/10` Impact — VERIFIED COMPLETE):** **Royal Hotel (`123 Dandaloo Street`, `NR-SITE-royal-hotel`) Two-Line Roof Lettering (`ROYAL` / `HOTEL`) & Cadastral Alignment**
+   - Anchored all 6 surveyed Royal Hotel building wings (`front`, `wingN`, `wingM`, `wingS`, `rearBlock`, `lean-to`) and the `street verandah` to the NSW Cadastre western frontage of `123 Dandaloo Street` (`[-4807.50, -519.19]` to `[-4802.52, -552.50]`, bearing `8.51°` E of N) and 2023 NSW Spatial Services LiDAR heights (`4.26 m` eave, `6.37 m` hipped roof ridge).
+   - Reconstructed the two-line stacked **`ROYAL` / `HOTEL`** painted roof sign directly on the `26.6°` (`0.464 rad`) western corrugated roof slope (`+0.065 m` along the outward roof normal so it is never buried by the LiDAR roof slope), matching `docs/narromine/royal-hotel-aerial-nsw-spatial-cc-by-4.png`.
+2. **`DISC-NR-002` (`9/10` Impact — VERIFIED COMPLETE):** **Royal Hotel (`123 Dandaloo Street`) 1890 Country Pub Facade, Verandah & Signage**
+   - Replaced the 5 flat grey square placeholders and 1 brown door rectangle with a heritage country pub elevation: warm grey-brown masonry dado plinth (`1.02 m`), cream rendered walls (`#e3d6be`), red-brick pilaster piers, 2 recessed double-leaf panelled timber pub entrance doorways with glazed fanlights, 4 multi-pane double-hung timber sash windows with stone sills/architraves, 2 corbelled red-brick chimneys with terracotta pots, `rearBlock` central roof lantern, 8 heritage-green verandah posts on a paved concrete footpath & kerb, `ROYAL HOTEL · EST. 1890` fascia signboard, and a double-sided projecting blade sign.
+3. **`DISC-NR-003` (`7/10` Impact — PARTIALLY COMPLETE, Lot-Internal Complete):** **Royal Hotel Southern Covered Deck, 2 Rooftop AC Condensers & Beer-Garden Courtyard**
+   - Reconstructed the southern covered verandah/deck (`3.12 m` roof) with its **two white rooftop AC/evaporative condenser units** (`docs/narromine/royal-hotel-aerial-nsw-spatial-cc-by-4.png`), fenced paved beer-garden patio with 3 timber picnic tables, and road-to-kerb asphalt forecourt. (Dandaloo Street dual-carriageway medians and angled parking lines remain coordinated with PR #336.)
+4. **`DISC-NR-010` (`8/10` Impact — PARTIALLY COMPLETE, `86 & 88 Dandaloo Street` Complete):** **`86 Dandaloo Street` (`Church at 86 Dandaloo Street`) & `88 Dandaloo Street` (`His and Hers Clip Joint`)**
+   - Reconstructed `86 Dandaloo Street` (`NR-SITE-dandaloo-86`) from a windowless `6.66 m` beige box into the 2023 LiDAR-measured steep-gabled red-brick church (`3.85 m` eave, `9.35 m` pitched gable ridge, stepped brick buttresses, pointed Gothic lancet windows, cream bargeboards, east apex stone cross finial, and arched timber entrance doorway with steps on Dandaloo Street) + rear weatherboard church hall (`2.65 m` wall).
+   - Reconstructed `88 Dandaloo Street` (`NR-SITE-dandaloo-88`, `His and Hers Clip Joint`) with its 2023 LiDAR `3.95 m` wall, `4.98 m` stepped eastern parapet fascia, `3.25 m` cantilevered footpath awning, brick piers, aluminium-framed display windows, recessed glazed salon doorway, paved footpath apron, and `HIS & HERS CLIP JOINT` fascia signboard.
 
 ---
 
 ## Discrepancy Register Summary
 
-| ID | Building | Location | Category | Classification | Severity | Impact | Claimed By Other Agent? |
+| ID | Building | Location | Category | Classification | Severity | Impact | Resolution / Claim Status |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `DISC-NR-001` | **Royal Hotel** (`NR-SITE-royal-hotel`) | `royal-hotel-dandaloo` | `signage-lettering` | **Verified mismatch** | `CRITICAL` | `10/10` | **Yes — PR #313** (`fix/narromine-royal-hotel-roof-lettering-20261104`) |
-| `DISC-NR-002` | **Royal Hotel** (`NR-SITE-royal-hotel`) | `royal-hotel-dandaloo` | `windows` | **Verified mismatch** | `HIGH` | `9/10` | No (coordinate with PR #313 if editing `narromine.js`) |
-| `DISC-NR-004` | **Coles Supermarket** (`NR-SITE-dandaloo-82`) | `coles-external-frontage` | `doors-entrances` | **Verified mismatch** | `HIGH` | `9/10` | **Yes — PR #319** (`feat/narromine-postal-resident-20261104`) |
-| `DISC-NR-010` | **86–88 Dandaloo St & Retail Strip** (`NR-SITE-dandaloo-86`) | `ordinary-narromine-streets-shops` | `materials-colours` | **Likely mismatch** | `HIGH` | `8/10` | No (Phase B/C roadmap) |
-| `DISC-NR-003` | **Royal Hotel** (`NR-SITE-royal-hotel`) | `royal-hotel-dandaloo` | `streetscape-kerbs` | **Verified mismatch** | `MEDIUM` | `7/10` | No |
-| `DISC-NR-005` | **Kierath's Shopping Square** (`NR-SITE-dandaloo-82`) | `kieraths-street-frontage` | `verandahs-columns-awnings` | **Likely mismatch** | `MEDIUM` | `7/10` | **Yes — PR #309** (`feat/kieraths-live-courtyard-geometry-20261104`) |
-| `DISC-NR-007` | **Narromine Post Office** (`NR-SITE-narromine-post-office`) | `post-office-entrance` | `roof` | **Verified mismatch** | `MEDIUM` | `6/10` | **Yes — PR #319** (`feat/narromine-postal-resident-20261104`) |
-| `DISC-NR-006` | **Kierath's Courtyard** (`NR-SITE-dandaloo-82`) | `kieraths-courtyard-shopfronts` | `footprint-height` | **Insufficient evidence** | `LOW` | `4/10` | **Yes — PR #309** (`feat/kieraths-live-courtyard-geometry-20261104`) |
-| `DISC-NR-009` | **Narromine Railway Station** (`NR-OSM-0030`) | `railway-station-platform` | `materials-colours` | **Likely mismatch** | `LOW` | `4/10` | No (PR #312/#316 merged) |
-| `DISC-NR-008` | **Narromine Hotel Rear Courtyard** (`NR-SITE-narromine-hotel`) | `narromine-hotel-corner` | `footprint-height` | **Insufficient evidence** | `LOW` | `3/10` | No (PR #318 merged) |
+| `DISC-NR-001` | **Royal Hotel** (`NR-SITE-royal-hotel`) | `royal-hotel-dandaloo` | `signage-lettering` | **Verified mismatch** | `CRITICAL` | `10/10` | **VERIFIED COMPLETE** (`src/world/narromine-royal-hotel.js`) |
+| `DISC-NR-002` | **Royal Hotel** (`NR-SITE-royal-hotel`) | `royal-hotel-dandaloo` | `windows` | **Verified mismatch** | `HIGH` | `9/10` | **VERIFIED COMPLETE** (`src/world/narromine-royal-hotel.js`) |
+| `DISC-NR-004` | **Coles Supermarket** (`NR-SITE-dandaloo-82`) | `coles-external-frontage` | `doors-entrances` | **Verified mismatch** | `HIGH` | `9/10` | **Claimed — PR #319** (`feat/narromine-postal-resident-20261104`) |
+| `DISC-NR-010` | **86–88 Dandaloo St & Retail Strip** (`NR-SITE-dandaloo-86`) | `ordinary-narromine-streets-shops` | `materials-colours` | **Likely mismatch** | `HIGH` | `8/10` | **PARTIALLY COMPLETE** (`86 & 88 Dandaloo St` complete in `narromine-royal-hotel.js`; unmapped `FILL_SHOPS`/`FILL_HOUSES` open) |
+| `DISC-NR-003` | **Royal Hotel** (`NR-SITE-royal-hotel`) | `royal-hotel-dandaloo` | `streetscape-kerbs` | **Verified mismatch** | `MEDIUM` | `7/10` | **PARTIALLY COMPLETE** (lot-internal AC units/deck/beer garden complete in `narromine-royal-hotel.js`; road median in PR #336) |
+| `DISC-NR-005` | **Kierath's Shopping Square** (`NR-SITE-dandaloo-82`) | `kieraths-street-frontage` | `verandahs-columns-awnings` | **Likely mismatch** | `MEDIUM` | `7/10` | **Open** (PR #309 merged; under-awning shopfront transom/throat refinement open) |
+| `DISC-NR-007` | **Narromine Post Office** (`NR-SITE-narromine-post-office`) | `post-office-entrance` | `roof` | **Verified mismatch** | `MEDIUM` | `6/10` | **Claimed — PR #319** (`feat/narromine-postal-resident-20261104`) |
+| `DISC-NR-006` | **Kierath's Courtyard** (`NR-SITE-dandaloo-82`) | `kieraths-courtyard-shopfronts` | `footprint-height` | **Insufficient evidence** | `LOW` | `4/10` | **Open — Insufficient evidence** (awaiting walk-through courtyard photos) |
+| `DISC-NR-009` | **Narromine Railway Station** (`NR-OSM-0030`) | `railway-station-platform` | `materials-colours` | **Likely mismatch** | `LOW` | `4/10` | **Open** (PR #312/#316 merged; platform-side window bay count estimated) |
+| `DISC-NR-008` | **Narromine Hotel Rear Courtyard** (`NR-SITE-narromine-hotel`) | `narromine-hotel-corner` | `footprint-height` | **Insufficient evidence** | `LOW` | `3/10` | **Open — Insufficient evidence** (PR #318 merged; rear outbuildings occluded) |
+
+---
+
+## Next 5 Highest-Impact Uncorrected Discrepancies (Ranked Backlog)
+
+1. **`DISC-NR-004` (`9/10` Impact — Verified mismatch, Claimed in PR #319):** **Coles Supermarket (`82 Dandaloo Street`, `NR-SITE-dandaloo-82`) Western Carpark Glazed Entrance Airlock & Walkable Interior** — Adding the glazed automatic sliding entrance vestibule beside the western trolley bay (`x = -4846.5, z = -902`).
+2. **`DISC-NR-010` Remainder (`8/10` Impact — Likely mismatch, Unclaimed):** **Unmapped Dandaloo & Burraway Street Commercial Retail Strip (`FILL_SHOPS`) & Nymagee Street Houses (`FILL_HOUSES`)** — Replacing remaining procedural `FILL_SHOPS` boxes along Dandaloo/Burraway Streets with cadastre-traced, 2023 LiDAR-heighted shopfronts now that `86 & 88 Dandaloo Street` are completed.
+3. **`DISC-NR-003` Remainder (`7/10` Impact — Verified mismatch, Claimed in PR #336):** **Dandaloo Street Carriageway Planted Median Islands & 45° Angled Parking Bays Opposite 123 Dandaloo Street (`z = -555..-520`)** — Extending the Dandaloo Streetscape dual-carriageway median and angled parking markings south to the Royal Hotel block.
+4. **`DISC-NR-005` (`7/10` Impact — Likely mismatch, Unclaimed after PR #309 merge):** **Kierath's Shopping Square (`82 Dandaloo Street`) Under-Awning Shopfront Mullions & Arcade Throat Framing** — Refining the Dandaloo Street under-awning shopfront transoms and entrance throat around `KIERATHS_KIOSK`.
+5. **`DISC-NR-007` (`6/10` Impact — Verified mismatch, Coordinated with PR #319):** **Narromine Post Office (`74 Dandaloo Street`, `NR-SITE-narromine-post-office`) L-Shaped Hipped Corrugated Roof Ridge Geometry** — Adding the diagonal hipped roof planes visible in `docs/narromine/narromine-post-office-aerial-nsw-spatial-cc-by-4.png`.
 
 ---
 

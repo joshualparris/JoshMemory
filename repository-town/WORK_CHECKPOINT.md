@@ -1,3 +1,12 @@
+# 4 November 2026 — Narromine Visual Realism First Verified Correction Release: Royal Hotel (`123 Dandaloo Street`) & `86–88 Dandaloo Street` — START CHECKPOINT
+
+Owner Antigravity (Agy Fedora). Baseline `main` `87cd2824`; branch `feat/narromine-royal-hotel-and-86-88-realism-20261104`.
+- Claimed in `COORDINATION.md` per `docs/PARALLEL_AGENT_COORDINATION.md`:
+  - **Primary Correction #1 (`DISC-NR-001` `10/10`, `DISC-NR-002` `9/10`, lot-internal `DISC-NR-003` `7/10`):** Royal Hotel (`123 Dandaloo Street`, `NR-SITE-royal-hotel`) in dedicated builder `src/world/narromine-royal-hotel.js`.
+  - **Secondary Correction #2 (`DISC-NR-010` `8/10`):** `86 Dandaloo Street` (`Church at 86 Dandaloo Street`, `NR-SITE-dandaloo-86`) & `88 Dandaloo Street` (`His and Hers Clip Joint`, `NR-SITE-dandaloo-88`) in `src/world/narromine-royal-hotel.js`.
+- Preserved before-modification baseline screenshots (`royal-hotel-dandaloo__*` and `ordinary-narromine-streets-shops__*`) for side-by-side before-and-after verification.
+- Next step: Implement `src/world/narromine-royal-hotel.js`, wire 2-line hook in `src/world/narromine.js`, add `tests/narromine-royal-hotel.mjs`, update `discrepancy-register.mjs` / `DISCREPANCY_REGISTER.md`, and run before/after visual QA and Playwright verification.
+
 ## 2026-11-04 — ChatGPT: Dandaloo physical streetscape NR-DS-001/002/003 (PR #336)
 - **Status:** PARTIALLY COMPLETE — code and source documentation committed on `feat/narromine-dandaloo-streetscape-v2-20261104`; `main` not merged or production verified. Supersedes conflicting PR #333 without force-push.
 - **Feature claims:** z −877..−932 and −979..−1165 split Dandaloo carriageways: planted median/kerbs; angled parking separators/pavers; planted trees and heritage lamp models. The claim is feature-scoped; parallel agents may continue separate Dandaloo buildings/roads/QA. Canonical policy: `docs/PARALLEL_AGENT_COORDINATION.md`.

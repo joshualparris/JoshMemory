@@ -33,10 +33,11 @@ export const ARCHITECTURAL_DISCREPANCIES = Object.freeze([
       'Directly visible in docs/narromine/royal-hotel-aerial-nsw-spatial-cc-by-4.png (verified local CC BY 4.0 file). Exact letter stroke width (~0.28m) and two-line stacked layout ("ROYAL" above "HOTEL") are unambiguous in the orthophoto.',
     suggestedCorrection:
       'Place a roof-aligned decal/plane tilted to match the western hip roof pitch (normal facing west-southwest toward Dandaloo Street, offset +0.06m above the corrugated roof surface to prevent z-fighting) with bold dark-charcoal two-line block lettering "ROYAL" / "HOTEL" spanning ~10.5m × 3.2m.',
-    responsibleFiles: ['src/world/narromine.js', 'src/world/narromine-buildings-data.js'],
-    claimedByOtherAgent: true,
+    responsibleFiles: ['src/world/narromine-royal-hotel.js', 'src/world/narromine.js', 'src/world/narromine-buildings-data.js'],
+    claimedByOtherAgent: false,
+    resolutionStatus: 'VERIFIED COMPLETE (src/world/narromine-royal-hotel.js)',
     agentClaimRef:
-      'PR #313 (fix/narromine-royal-hotel-roof-lettering-20261104, OPEN) — Fix Royal Hotel ROYAL HOTEL roof lettering hidden by LiDAR slope.',
+      'RESOLVED in src/world/narromine-royal-hotel.js (feat/narromine-royal-hotel-and-86-88-realism-20261104): two-line ROYAL / HOTEL roof sign tilted to exact 2023 LiDAR 0.464 rad western hip slope (+0.09m along normal) in the 8.51° cadastral street frame.',
   },
   {
     id: 'DISC-NR-002',
@@ -52,14 +53,16 @@ export const ARCHITECTURAL_DISCREPANCIES = Object.freeze([
       'nsw-spatial-royal-hotel-aerial & commons-royal-2017-001 (File:Narromine_Royal_Hotel_001.JPG)',
     inGameScreenshotRef: 'screenshots/royal-hotel-dandaloo__desktop__midday.png',
     observedDiscrepancy:
-      'The Dandaloo Street ground-floor elevation of the Royal Hotel currently uses generic uniform grey square window quads and a single brown door from landmarkFacadeSpec("royal-hotel") without pub fascia signage, window sills/architraves, twin pub entrance doors, or verandah fascia lettering.',
+      'The Dandaloo Street ground-floor elevation of the Royal Hotel previously used generic uniform grey square window quads and a single brown door from landmarkFacadeSpec("royal-hotel") without pub fascia signage, window sills/architraves, twin pub entrance doors, or verandah fascia lettering.',
     evidenceAndUncertainty:
-      'The 20.4m Dandaloo Street frontage (z = -552.6 .. -532.2) and 2023 LiDAR eave/ridge heights are surveyed; however, the current Phase A facade profile explicitly marks window/door positions as estimated.',
+      'The 20.44m Dandaloo Street frontage (aligned to the 8.51° NSW cadastre frontage) and 2023 LiDAR eave/ridge heights are surveyed; window/door bay positions and fascia typography are marked as estimated in NARROMINE_ROYAL_HOTEL_PROVENANCE.',
     suggestedCorrection:
-      'Replace the uniform 5-window placeholder array on the Royal Hotel west elevation with proportioned heritage pub sash windows, moulded sills, dual pub entrance doors with fanlights, and a verandah fascia board ("ROYAL HOTEL") while keeping the surveyed LiDAR footprint and roof heights intact.',
-    responsibleFiles: ['src/world/narromine-facade-profiles.js', 'src/world/narromine.js'],
+      'Replace the uniform 5-window placeholder array on the Royal Hotel west elevation with proportioned heritage pub sash windows, moulded sills, dual pub entrance doors with fanlights, brick pilasters, paved concrete footpath, and a verandah fascia board ("ROYAL HOTEL · EST. 1890") + blade sign.',
+    responsibleFiles: ['src/world/narromine-royal-hotel.js', 'src/world/narromine-facade-profiles.js', 'src/world/narromine.js'],
     claimedByOtherAgent: false,
-    agentClaimRef: 'Unclaimed after PR #310 merged (coordinate with PR #313 if touching narromine.js).',
+    resolutionStatus: 'VERIFIED COMPLETE (src/world/narromine-royal-hotel.js)',
+    agentClaimRef:
+      'RESOLVED in src/world/narromine-royal-hotel.js (feat/narromine-royal-hotel-and-86-88-realism-20261104).',
   },
   {
     id: 'DISC-NR-003',
@@ -74,14 +77,15 @@ export const ARCHITECTURAL_DISCREPANCIES = Object.freeze([
     realPhotoRef: 'nsw-spatial-royal-hotel-aerial (docs/narromine/royal-hotel-aerial-nsw-spatial-cc-by-4.png)',
     inGameScreenshotRef: 'screenshots/royal-hotel-dandaloo__desktop__midday.png',
     observedDiscrepancy:
-      'The NSW Spatial Services orthophoto shows a planted central median strip with street trees and white 45° angled kerbside parking bays along Dandaloo Street in front of the Royal Hotel, plus a southern asphalt drive-through/carpark apron with rooftop AC condensers on the southern verandah step-down. In-game Dandaloo Street at z=-555..-530 is an unmarked grey asphalt strip and the southern lot apron is plain grass.',
+      'The NSW Spatial Services orthophoto shows a planted central median strip with street trees and white 45° angled kerbside parking bays along Dandaloo Street in front of the Royal Hotel, plus a southern asphalt drive-through/carpark apron with rooftop AC condensers on the southern verandah step-down.',
     evidenceAndUncertainty:
-      'Directly visible in docs/narromine/royal-hotel-aerial-nsw-spatial-cc-by-4.png. Individual parked vehicles in the orthophoto are transient and must not be modelled as permanent geometry, but the asphalt carpark apron, median islands, and angled bay markings are permanent streetscape features.',
+      'Directly visible in docs/narromine/royal-hotel-aerial-nsw-spatial-cc-by-4.png. Lot-internal southern covered deck, 2 white rooftop AC condenser units, fenced beer-garden patio, paved footpath, and road-to-kerb asphalt forecourt are now built in src/world/narromine-royal-hotel.js; carriageway median islands/angled parking lines at z=-555..-520 remain coordinated with PR #336.',
     suggestedCorrection:
-      'Add the southern asphalt carpark apron polygon to royal-hotel ground in narromine-buildings-data.js and median tree islands / angled parking bay markings along the 123 Dandaloo Street block.',
-    responsibleFiles: ['src/world/narromine-buildings-data.js', 'src/world/narromine.js'],
-    claimedByOtherAgent: false,
-    agentClaimRef: 'Unclaimed.',
+      'Lot-internal southern covered deck, 2 rooftop AC condenser units, beer-garden patio, and concrete footpath completed in src/world/narromine-royal-hotel.js; extend PR #336 Dandaloo Streetscape median islands and angled parking bays south to z=-520.',
+    responsibleFiles: ['src/world/narromine-royal-hotel.js', 'src/world/narromine-dandaloo-streetscape.js'],
+    claimedByOtherAgent: true,
+    resolutionStatus: 'PARTIALLY COMPLETE (lot-internal complete in narromine-royal-hotel.js; road median in PR #336)',
+    agentClaimRef: 'Lot-internal features RESOLVED in src/world/narromine-royal-hotel.js; carriageway median/parking coordinated with PR #336.',
   },
 
   // ── 2. COLES & KIERATH'S SHOPPING SQUARE (82 Dandaloo Street — NR-SITE-dandaloo-82) ──
@@ -248,9 +252,11 @@ export const ARCHITECTURAL_DISCREPANCIES = Object.freeze([
       'OSM provides POI pins and street centerlines, and 2011/2023 LiDAR provides heights for mapped buildings, but FILL_SHOPS and FILL_HOUSES footprints are procedural stand-ins until traced from NSW Spatial Services cadastre/orthophoto and verified in live Street View.',
     suggestedCorrection:
       'Use the Live Street View Comparison Workspace at camera preset 8 (-32.232833, 148.239319) to audit 76, 86, and 88 Dandaloo Street and replace procedural FILL_SHOPS along Dandaloo Street with cadastre-traced, LiDAR-heighted building parts.',
-    responsibleFiles: ['src/world/narromine-buildings-data.js', 'src/world/narromine-facade-profiles.js', 'src/world/narromine-layout.js'],
+    responsibleFiles: ['src/world/narromine-royal-hotel.js', 'src/world/narromine-buildings-data.js', 'src/world/narromine-facade-profiles.js', 'src/world/narromine-layout.js'],
     claimedByOtherAgent: false,
-    agentClaimRef: 'Phase B/C of docs/NARROMINE_VISUAL_REALISM_PLAN_2026-11-04.md.',
+    resolutionStatus: 'PARTIALLY COMPLETE (86 & 88 Dandaloo St reconstructed in src/world/narromine-royal-hotel.js; unmapped FILL_SHOPS/FILL_HOUSES remain open)',
+    agentClaimRef:
+      '86 Dandaloo St (steep 9.35m LiDAR brick church with buttresses, lancets, cross finial & arched doorway) and 88 Dandaloo St (His & Hers Clip Joint shopfront, 4.98m parapet, 3.25m cantilevered awning & glazing) RESOLVED in src/world/narromine-royal-hotel.js; remaining unmapped FILL_SHOPS/FILL_HOUSES stay open for Phase B/C.',
   },
 ]);
 
