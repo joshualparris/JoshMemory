@@ -58,7 +58,8 @@ try {
     'if(window.mockNoCoverage)throw {code:"ZERO_RESULTS"};'+
     'return {data:{location:{pano:"mock-official-"+window.mockMetadataCalls,'+
     'latLng:{lat:()=>request.location.lat,lng:()=>request.location.lng}}}};}'+
-    '}return {StreetViewPanorama,StreetViewService};}}};window.mockNoCoverage=true;';
+    '}return {StreetViewPanorama,StreetViewService};}}};window.mockNoCoverage=true;'+
+    'window.google.maps.importLibrary("streetView").then(function(mod){Object.assign(window.google.maps,mod);window.__repoTownStreetViewSdkReady();});';
   await page.route('https://maps.googleapis.com/maps/api/js**',route=>route.fulfill({
     status:200,contentType:'application/javascript',body:mockGoogleJs
   }));
@@ -78,12 +79,21 @@ try {
   assert.match(await page.locator('#cost-summary').textContent(),/0 panorama instantiations/);
   assert.match(await page.locator('#google-placeholder').textContent(),/within 500m/);
   assert.equal(requests.length,1, 'only explicitly authorised SDK request');
+  assert.equal(await page.locator('script[data-repo-town-street-view-sdk]').count(),1,
+    'exactly one SDK script was inserted after no coverage');
+  const sdkUrl = await page.locator('script[data-repo-town-street-view-sdk]').getAttribute('src');
+  assert.match(sdkUrl,/callback=__repoTownStreetViewSdkReady/,
+    'SDK callback, not script onload, signals module readiness');
+  assert.match(sdkUrl,/libraries=streetView/,
+    'Street View loads with the initial SDK request');
   await page.evaluate(()=>{window.mockNoCoverage=false;});
   await page.locator('#api-key').fill('fake-test-key-do-not-use');
   page.once('dialog',d=>d.accept());
   await page.locator('#connect').click();
   await page.waitForFunction(()=>window.mockPanoramaInstances===1);
   assert.equal(requests.length,1, 'one SDK request, reused when retrying after no coverage');
+  assert.equal(await page.locator('script[data-repo-town-street-view-sdk]').count(),1,
+    'retry does not inject another Maps JavaScript SDK script');
   assert.match(await page.locator('#cost-summary').textContent(),/US\$0\.014/);
   assert.equal(await page.locator('#api-key').inputValue(),'','API key cleared from input memory');
   await page.locator('#location').selectOption('post-office-entrance');
@@ -110,6 +120,26 @@ try {
   assert.equal(exported.locallyObservedGoogleActions.filter(e=>e.billableEvent).length,1);
   assert(!fs.readFileSync(file,'utf8').includes('fake-test-key-do-not-use'),'key never exported');
   assert.deepEqual(errors,[],'no browser page errors');
+  // A failed SDK download must not allow a second SDK injection in the same
+  // page: the partial Google runtime may otherwise break util/streetview.
+  const failPage = await context.newPage();
+  let failedRequests = 0;
+  await failPage.route('https://maps.googleapis.com/maps/api/js**',route=>{
+    failedRequests += 1;
+    return route.abort('failed');
+  });
+  await failPage.goto(base+'/_streetview/',{waitUntil:'domcontentloaded'});
+  await failPage.waitForFunction(()=>document.getElementById('location').options.length===6);
+  await failPage.locator('#api-key').fill('not-a-real-key');
+  failPage.once('dialog',d=>d.accept());
+  await failPage.locator('#connect').click();
+  await failPage.waitForFunction(()=>document.getElementById('status').textContent.includes('could not load'));
+  assert.equal(failedRequests,1,'one attempted failed SDK load');
+  assert.equal(await failPage.locator('#connect').isDisabled(),true,
+    'SDK failure forces page reload rather than injecting a second script');
+  assert.equal(await failPage.locator('script[data-repo-town-street-view-sdk]').count(),1,
+    'failed loader stays single instance');
+  await failPage.close();
   console.log('PASS Narromine live Street View comparison: 6 locations, no automatic Google calls,');
   console.log('  one consented panorama creation, 0 repeated billed instances, cost ledger and notes export.');
 } finally {
