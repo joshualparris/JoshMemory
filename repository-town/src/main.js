@@ -803,6 +803,7 @@ async function start() {
     const campus=inside.campus||null;
     const countryHome=inside.countryHome||null;
     const narrominePostOffice=!!inside.narrominePostal;
+    const narromineColes=!!inside.narromineColes;
     const narromineChurch=!!inside.narromineChurch;
     inside.bakeryImmersion?.dispose();
     inside.workplay?.dispose();
@@ -818,6 +819,9 @@ async function start() {
     if (placeOutside) {
       if (narromineChurch) {
         const pose=ST_MARYS_ENTRANCE.returnPose;
+        player.place(pose.x,pose.z,pose.yaw);
+      } else if (narromineColes) {
+        const pose=NARROMINE_COLES_ENTRANCE.returnPose;
         player.place(pose.x,pose.z,pose.yaw);
       } else if (narrominePostOffice) {
         // Return to the north-side footpath rather than inside solid exterior masonry.
@@ -842,7 +846,7 @@ async function start() {
     // Close the door behind the player so the doorway does not re-trigger.
     const d = town.doors.find((d) => d.userData.coordinate === coord); if (d) d.userData.open = 0;
     ambience.door();
-    status(narromineChurch?"Back outside St Mary's Anglican Church · 148 Dandaloo Street.":narrominePostOffice?'Back outside Narromine Post Office · 74 Dandaloo Street.':campus?`Back outside ${campus.name}.`:countryHome?`Back outside ${countryHome.address} · ${countryHome.country}.`:shop?`Back outside ${shop.name}.`:`Back on the street at ${coord}.`);
+    status(narromineChurch?"Back outside St Mary's Anglican Church · 148 Dandaloo Street.":narromineColes?'Back outside Coles Narromine · 76 Dandaloo Street.':narrominePostOffice?'Back outside Narromine Post Office · 74 Dandaloo Street.':campus?`Back outside ${campus.name}.`:countryHome?`Back outside ${countryHome.address} · ${countryHome.country}.`:shop?`Back outside ${shop.name}.`:`Back on the street at ${coord}.`);
   }
 
   // ── Overview (bird's-eye) ────────────────────────────────────────────────
@@ -880,6 +884,8 @@ async function start() {
   for (const h of PLAN_HOMES) { const o = document.createElement('option'); o.value = homeLabel(h); list.append(o); }
   { const o = document.createElement('option'); o.value = 'Narromine · Dandaloo Street'; list.append(o); }
   { const o = document.createElement('option'); o.value = 'Narromine Post Office · 74 Dandaloo Street'; list.append(o); }
+  { const o = document.createElement('option'); o.value = 'Coles Narromine · 76 Dandaloo Street'; list.append(o); }
+  { const o = document.createElement('option'); o.value = 'Leah Bennett’s home · Terangion Street (West)'; list.append(o); }
   $('search-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const q = $('search').value.trim().toLowerCase(); if (!q) return;
@@ -900,7 +906,21 @@ async function start() {
       status('Outside the north-side entrance to Narromine Post Office, 74 Dandaloo Street. Walk to the steps or tap ✋ to enter.');
       $('search').blur();return;
     }
-    if (/^(?:st\.? mary'?s(?: anglican)?(?: church)?(?: narromine)?|148 dandaloo(?: street)?)$/.test(q)) {
+    if (/^(?:coles(?: narromine)?|76 dandaloo(?: street)?)(?:\\b|$)/.test(q) || q.startsWith('coles narromine ·')) {
+      if(driving.driving){status('Park and get out before fast travel.');return;}
+      if(mode==='house')leave(false);closePanel();npcChat.close();setOverview(false);
+      const pose=NARROMINE_COLES_ENTRANCE.outside;player.place(pose.x,pose.z,pose.yaw);
+      status('Outside Coles Narromine, 76 Dandaloo Street. Walk in during regular trading hours.');
+      $('search').blur();return;
+    }
+    if (/^(?:leah bennett(?:’s|'s)? home|leah's house|leah’s house|terangion street west)/.test(q)) {
+      if(driving.driving){status('Park and get out before fast travel.');return;}
+      if(mode==='house')leave(false);closePanel();npcChat.close();setOverview(false);
+      player.place(postalHomeX,postalHomeZ,Math.PI);
+      status('Outside Leah Bennett’s fictional home: mapped OSM house #203 near Terangion Street (West). No real household identified.');
+      $('search').blur();return;
+    }
+    if (/^(?:st\\.? mary'?s(?: anglican)?(?: church)?(?: narromine)?|148 dandaloo(?: street)?)$/.test(q)) {
       if(driving.driving){status('Park and get out before fast travel.');return;}
       if(mode==='house')leave(false);
       closePanel();npcChat.close();setOverview(false);
@@ -1386,7 +1406,8 @@ async function start() {
       if (nearPerson?.spot?.atm) { openPanel(atmPanel(), guideSpot); return; }
       if (nearPerson?.spot?.rack) { status(takeRackTools(life.civic.player).message); return; }
       if (nearPerson?.spot?.itemId) { takeGroundItem(nearPerson.spot); return; }
-      if (nearPerson?.spot?.narromineEnter) { enterNarrominePostOffice(); return; }
+      if (nearPerson?.spot?.narromineEnter || nearPerson?.spot?.narromine?.narromineEnter) { enterNarrominePostOffice(); return; }
+      if (nearPerson?.spot?.narromine?.colesEnter) { enterNarromineColes(); return; }
       if (nearPerson?.spot?.narromine) { const n = nearPerson.spot.narromine; openPanel({ title: n.label, body: `<p>${esc(n.text)}</p><p class="dim">Narromine, NSW · Wiradjuri Country. Sources: docs/NARROMINE_RESEARCH_AND_PLAN_2026-11-03.md</p>` }, guideSpot); return; }
       if (nearPerson?.spot?.market) { openPanel(stallPanel(life, nearPerson.spot.market, (id, i) => buyAtStall(life, id, i)), guideSpot); return; }
       if (nearPerson?.spot?.id === 'square') {   // an open square, not a building: the market notice and the latest town news
@@ -1418,6 +1439,7 @@ async function start() {
       const thing = nearThing, request = ++interactionRequest, house = inside;
       const restricted=restrictedServiceAction(life,inside?.place,thing);
       if(restricted){status(restricted);return;}
+      if(thing.act?.do==='narromine-postal-person'){openPanel(narrominePostalPersonPanel(),thing);return;}
       if(thing.act?.do==='narromine-postal-counter'){openPanel(narrominePostalCounterPanel(),thing);return;}
       if(thing.act?.do==='pub-expansion'){openPanel(pubExpansionPanel(life),thing);return;}
       if(thing.act?.do==='pub-venue'){openPanel(pubExpansionPanel(life),thing);return;}
@@ -1574,7 +1596,9 @@ async function start() {
   const saved = loadSave();
   if (saved?.pos) {
     for (const c of saved.visited || []) visited.add(c);
-    if (saved.inside===NARROMINE_POST_OFFICE_SAVE_ID) {
+    if (saved.inside===NARROMINE_COLES_SAVE_ID) {
+      enterNarromineColes(true);player.place(saved.pos.x,saved.pos.z,saved.yaw);
+    } else if (saved.inside===NARROMINE_POST_OFFICE_SAVE_ID) {
       enterNarrominePostOffice();player.place(saved.pos.x,saved.pos.z,saved.yaw);
     } else if (saved.inside===ST_MARYS_SAVE_ID) {
       enterStMarys();player.place(saved.pos.x,saved.pos.z,saved.yaw);
@@ -1740,6 +1764,9 @@ async function start() {
       :[];
     const view = mode === 'house' && inside?.view ? inside.view.place(camera, outdoorCam) : null;
     townLife.update(dt, t, { player, mode, overview, camera, talkingTo, view });
+    narrominePostalOutdoor.update(life.day,life.minute,mode==='town'?player.pos:null);
+    inside?.updatePostalStaff?.(life.day,life.minute);
+    inside?.updatePostalShopper?.(life.day,life.minute);
     const solar = townLife.solarState();
     if(solar) sunShadows.update({ direction:solar.direction, elevation:solar.elevation,
       eye:player.pos, dt, frameSeconds:raw, weather:life.civic.weather,
@@ -1891,7 +1918,8 @@ async function start() {
         }
       }
       if(mode==='town' && !overview && !driving.driving && nearNarrominePostOfficeDoor(player.pos)) enterNarrominePostOffice();
-      if(mode==='town' && !overview && !driving.driving && nearStMarysDoor(player.pos)) enterStMarys();
+      if(mode==='town' && !overview && !driving.driving && nearNarromineColesDoor(player.pos)) enterNarromineColes();
+       if(mode==='town' && !overview && !driving.driving && nearStMarysDoor(player.pos)) enterStMarys();
       if(mode==='town' && !overview && !driving.driving){
         for(const place of life.places.values()){
           if(place.kind!=='park'&&atCivicEntrance(place,player.pos)){
@@ -2188,6 +2216,10 @@ async function start() {
     narromineVisible:()=>narromine.group.visible,
     stMarysEntrance:()=>({...ST_MARYS_ENTRANCE,outside:{...ST_MARYS_ENTRANCE.outside},returnPose:{...ST_MARYS_ENTRANCE.returnPose}}),
     narrominePostOfficeEntrance:()=>({...NARROMINE_POST_OFFICE_ENTRANCE, outside:{...NARROMINE_POST_OFFICE_ENTRANCE.outside},returnPose:{...NARROMINE_POST_OFFICE_ENTRANCE.returnPose}}),
+    narromineColesEntrance:()=>({...NARROMINE_COLES_ENTRANCE,outside:{...NARROMINE_COLES_ENTRANCE.outside},returnPose:{...NARROMINE_COLES_ENTRANCE.returnPose}}),
+    narrominePostalResident:()=>({...postalState(life.day,life.minute),homeOsmIndex:NARROMINE_POSTAL_PERSON.home.osmIndex,outdoorVisible:narrominePostalOutdoor.group.visible}),
+    narromineColesPlan:()=>({...COLES_INTERPRETIVE_PLAN,open:colesOpen(life.day,life.minute)}),
+    enterNarromineColes,
     enterNarrominePostOffice,
     narrominePlace:(name)=>{const p=NARROMINE_PLACES.find(x=>x.name===name);return p?{x:p.x,z:p.z,kind:p.kind,address:p.address}:null;},
     onRoad:(x,z)=>roadAllows(x,z),
