@@ -6,6 +6,7 @@
 import * as THREE from 'three';
 import { buildKieraths } from './narromine-kieraths.js';
 import { estimatedShopfrontProfile, facadeBays, landmarkFacadeSpec } from './narromine-facade-profiles.js';
+import { buildDisjointRoadSurfaces } from './narromine-road-surfaces.js';
 import { NARROMINE_POST_OFFICE_ENTRANCE, NARROMINE_POST_OFFICE_ID } from './narromine-post-office.js';
 import { HIGHWAY, HIGHWAY_Z, REGION, CORRIDOR_HALF, STREETS, BUILDINGS, AREAS, WATER, RAIL, PLACES, FILL_SHOPS, FILL_HOUSES, FRONTAGES, DETAILED, polyRect, nearTownStreet, boundaryColliders } from './narromine-layout.js';
 
@@ -119,14 +120,13 @@ export function buildNarromine(parent, makeLabel = null) {
     else for (let i = 1; i < w.pts.length; i++) strip(w.kind === 'river' ? 0x4f88a8 : 0x5c94b0, ...w.pts[i - 1], ...w.pts[i], w.kind === 'river' ? 40 : 5, 0.008, 0.02);
   }
   for (const r of RAIL) for (let i = 1; i < r.pts.length; i++) { strip(0x8c7f72, ...r.pts[i - 1], ...r.pts[i], 3.2, 0.05, 0.25); strip(0x6d6a66, ...r.pts[i - 1], ...r.pts[i], 1.6, 0.22, 0.12); }
-  for (const s of STREETS) {
-    const c = ROAD_COLOUR[s.kind] ?? 0x4f5153, kerbed = /trunk|primary|secondary|tertiary|residential|unclassified/.test(s.kind);
-    for (let i = 1; i < s.pts.length; i++) {
-      const [ax, az] = s.pts[i - 1], [bx, bz] = s.pts[i];
-      if (kerbed) strip(0xbdb6a8, ax, az, bx, bz, s.width + 5, 0.03, 0.06);   // footpaths either side
-      strip(c, ax, az, bx, bz, s.width, 0.06);
-    }
-  }
+  // The old overlapping strips had coplanar top faces at every intersection
+  // and bend; their full-width footpath slabs also intersected the asphalt.
+  // Split the mapped ribbons into disjoint polygons before THREE triangulation.
+  // This also cuts out the always-visible highway at the Narromine town seam.
+  const roadSurfaces = buildDisjointRoadSurfaces(STREETS, { highway: HIGHWAY });
+  for (const s of roadSurfaces.footpaths) flatPoly(0xbdb6a8, s.pts, 0.076);
+  for (const s of roadSurfaces.asphalt) flatPoly(ROAD_COLOUR[s.kind] ?? 0x4f5153, s.pts, 0.075);
   // Real buildings, raised from their mapped outlines.
   const colliders = [...boundaryColliders()], spots = [];
   for (const b of BUILDINGS) {
