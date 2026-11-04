@@ -2,7 +2,7 @@
 // no solid box spans the courtyard. seven traced exterior bays (1–4, 8–10) frame it, with a separate
 // round kiosk and a genuinely open arched rear canopy (rather than a blocked shed).
 import * as THREE from 'three';
-import { geoToWorld } from './narromine-layout.js';
+import { geoToWorld, DETAILED } from './narromine-layout.js';
 import { siteToGeo, KIERATHS_ROUTE, KIERATHS_SHOPS, KIERATHS_KIOSK,
   KIERATHS_CANOPY, KIERATHS_REAR_PARKING, KIERATHS_COURTYARD, KIERATHS_UNIT_IDS } from './narromine-kieraths-data.js';
 
@@ -30,6 +30,13 @@ export function buildKieraths({ box, push, strip, flatPoly, plane, boardTexture,
     push(colour, g);
   };
   const wp = (p, y) => { const [x, z] = world(p); return [x, y, z]; };
+
+  // The aerial-traced 76 Dandaloo parcel is a built shopping-centre precinct,
+  // not lawns between shops. One flush base-paving polygon prevents exposed green
+  // triangles wherever the irregular arcade footprints turn or recede. Keep the
+  // later asphalt parking surface slightly above it and open passages collision-free.
+  const shoppingSite = DETAILED.find(b => b.id === 'dandaloo-76');
+  if (shoppingSite) flatPoly(0xbca28e, shoppingSite.boundary, 0.074);
 
   // Rear parking forecourt, not an extra arbitrary shopping-centre footprint.
   flatPoly(0x616366, KIERATHS_REAR_PARKING.map(world), 0.083);
@@ -86,13 +93,13 @@ export function buildKieraths({ box, push, strip, flatPoly, plane, boardTexture,
     const outward = (distance) => [mid[0] + normal[0] * distance, mid[1] + normal[1] * distance];
     const yaw = -Math.atan2(dz, dx);
     // Photo: silver/grey fascia, glazed display, dark narrow mullions, brick piers.
-    const facadeH = Math.min(2.64, wallHeight - 0.65);
-    place(GLASS, len - 0.3, facadeH, 0.07, outward(0.09), 1.45, yaw);
+    const facadeH = Math.min(1.82, wallHeight - 1.18);
+    place(GLASS, len - 0.3, facadeH, 0.07, outward(0.09), 1.84, yaw);
     const panes = Math.max(2, Math.round(len / 1.1));
     for (let n = 0; n <= panes; n++) {
       const t = n / panes;
       const pos = [a[0] + dx*t + normal[0]*0.16, a[1] + dz*t + normal[1]*0.16];
-      place(FRAME, 0.06, facadeH + 0.1, 0.09, pos, 1.47, yaw);
+      place(FRAME, 0.06, facadeH + 0.1, 0.09, pos, 1.84, yaw);
     }
     place(FRAME, len-0.28, 0.06, 0.1, outward(0.15), 2.77, yaw);
     place(FASCIA, len+0.15, 0.42, 0.16, outward(0.16), wallHeight - 0.38, yaw);
