@@ -3,15 +3,19 @@
 // records were not available. The real site is Coles Narromine, 76–82 Dandaloo St.
 // 40 x 52 m = 2080 m² display/supply simulation, not a measured floor plan.
 import * as THREE from 'three';
-import { geoToWorld, DETAILED, polyRect } from './narromine-layout.js';
+import { geoToWorld } from './narromine-layout.js';
+import { siteToGeo } from './narromine-kieraths-data.js';
 import { makeDistinctPerson } from './npc-wardrobe.js';
 import { NARROMINE_POSTAL_PERSON, postalState, COLES_HOURS } from './narromine-postal-character.js';
 
 export const NARROMINE_COLES_SAVE_ID='NARROMINE-COLES';
 export const NARROMINE_COLES_NAME='Coles Narromine';
 export const NARROMINE_COLES_ADDRESS='76 Dandaloo Street, Narromine NSW';
-const [doorX,doorZ]=geoToWorld(-32.232316,148.239164);
-const [returnX,returnZ]=geoToWorld(-32.232304,148.239162);
+// Enter from the open-air shopping-square passage beside the actual Coles hall,
+// not through the adjacent unit 2 shell (the former entrance was INSIDE its collider).
+// Local metres refer to the same Kierath's site origin as the modelled shopping court.
+const [doorX,doorZ]=geoToWorld(...siteToGeo([-10,-25.35]));
+const [returnX,returnZ]=geoToWorld(...siteToGeo([-10,-26.85]));
 export const NARROMINE_COLES_ENTRANCE=Object.freeze({
   x:doorX,z:doorZ,yaw:Math.PI,
   outside:Object.freeze({x:returnX,z:returnZ,yaw:Math.PI}),
