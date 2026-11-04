@@ -5,6 +5,7 @@
 // while you are in Repository Town.
 import * as THREE from 'three';
 import { buildKieraths } from './narromine-kieraths.js';
+import { buildNarromineHotel, NARROMINE_HOTEL_ID } from './narromine-hotel.js';
 import { buildNarromineRailwayPrecinct } from './narromine-railway-precinct.js';
 import { NARROMINE_RAILWAY_INTEGRATION_SPEC } from './narromine-railway-evidence.js';
 const RAILWAY_SUPPRESSED_OSM = new Set(NARROMINE_RAILWAY_INTEGRATION_SPEC.suppressedOsmBuildingIndices);
@@ -134,6 +135,7 @@ export function buildNarromine(parent, makeLabel = null) {
   const colliders = [...boundaryColliders()], spots = [];
   for (const b of BUILDINGS) {
     if (RAILWAY_SUPPRESSED_OSM.has(b.osmIndex)) continue;
+    if (Math.abs(b.pts[0][0] - (-4813.8)) < 0.5 && Math.abs(b.pts[0][1] - (-734.3)) < 0.5) continue;
     const [h, colour] = BUILDING_STYLE(b);
     const shape = new THREE.Shape(b.pts.map(([x, zz]) => new THREE.Vector2(x, -zz)));
     const g = new THREE.ExtrudeGeometry(shape, { depth: h, bevelEnabled: false }); g.rotateX(-Math.PI / 2); push(colour, g);
@@ -330,6 +332,7 @@ export function buildNarromine(parent, makeLabel = null) {
   };
   const GROUND = { asphalt: [0x3f4244, 0.05], grass: [0x7fa65d, 0.03], paving: [0xb8ac98, 0.055], gravel: [0xa89a84, 0.045] };
   for (const d of DETAILED) {
+    if (d.id === NARROMINE_HOTEL_ID) continue;
     const ROOF = 0xc8cac6, WALL = 0xe3d8c2;   // galvanised roofs as in the aerial; wall colour assumed (cream render/paint)
     for (const g of d.ground) flatPoly(GROUND[g.kind][0], g.pts, GROUND[g.kind][1]);
     for (const p of d.parts) {
@@ -385,7 +388,7 @@ export function buildNarromine(parent, makeLabel = null) {
       const Lv = v.lidar && v.lidar[6] >= 1.5 && v.lidar[4] < 8.5 ? v.lidar[4] : null;
       const f = frame(v.pts), [oa, ob] = [v.pts[v.outer[0]], v.pts[v.outer[1]]], top = Lv ?? (v.levels === 2 ? 7.0 : 3.25);
       // Photographed verandahs carry their own colours (posts, balustrade/lace, roof, fascia); otherwise defaults.
-      const vRoof = v.roofColour ?? (v.lace ? 0x8a6a52 : ROOF), POST = v.postColour ?? (v.lace ? 0xeae6dc : 0x6f6a62), LACE = v.laceColour ?? POST, FASCIA = v.fasciaColour ?? LACE;
+      const vRoof = v.roofColour ?? (v.lace ? 0x8a6a52 : ROOF), POST = v.postColour ?? (v.lace ? 0xeae6dc : 0x6f6a62), LACE = v.laceColour ?? POST, FASCIA = v.fasciaColour ?? POST;
       if (v.cantilever) { box(v.colour ?? 0xf2f0ea, f.L, 0.3, f.W, f.cx, Lv ?? v.height, f.cz, f.yaw); continue; }   // cantilevered awning, no posts
       box(vRoof, f.L, 0.1, f.W, f.cx, top, f.cz, f.yaw);
       const ex = ob[0] - oa[0], ez = ob[1] - oa[1], len = Math.hypot(ex, ez), n = Math.max(2, Math.round(len / 3.2));
@@ -399,6 +402,14 @@ export function buildNarromine(parent, makeLabel = null) {
       }
       if (v.lace) { box(LACE, len, 0.45, 0.03, mx, top - 0.3, mz, eyaw); box(LACE, len, 0.35, 0.03, mx, top * 0.5 - 0.42, mz, eyaw); } // upper and lower lace friezes
       if (v.fasciaColour) box(FASCIA, len, 0.22, 0.06, mx, top + 0.05, mz, eyaw);   // roof fascia
+      if (v.signs && typeof document !== 'undefined') for (const s of v.signs) {
+        const tex = boardTexture(s.text, { bg: s.bg, fg: s.fg, border: s.border ?? s.bg, w: s.px || 1024, h: Math.round((s.px || 1024) * s.h / s.w) });
+        const sx = oa[0] + ex * s.t + inX * 0.6, sz = oa[1] + ez * s.t + inZ * 0.6, face = Math.atan2(-ix, -iz);
+        if (s.blade) { box(s.bgHex ?? 0xf4f4f0, 0.1, s.h, s.w, sx, s.y, sz, eyaw + Math.PI / 2);
+          plane(tex, s.w, s.h, sx + Math.sin(eyaw + Math.PI / 2) * 0.06, s.y, sz + Math.cos(eyaw + Math.PI / 2) * 0.06, face + Math.PI / 2);
+          plane(tex, s.w, s.h, sx - Math.sin(eyaw + Math.PI / 2) * 0.06, s.y, sz - Math.cos(eyaw + Math.PI / 2) * 0.06, face - Math.PI / 2); }
+        else plane(tex, s.w, s.h, sx, s.y, sz, face);
+      }
     }
     for (const g of d.ground) if (g.tables) { const cy = polyRect(g.pts);
       for (let i = 0; i < g.tables; i++) { const tx = cy.x0 + 2 + i * 3.2, tz = (cy.z0 + cy.z1) / 2; box(0x5c4632, 1.6, 0.06, 0.8, tx, 0.75, tz); box(0x5c4632, 1.6, 0.05, 0.3, tx, 0.45, tz - 0.75); box(0x5c4632, 1.6, 0.05, 0.3, tx, 0.45, tz + 0.75); } }
@@ -456,6 +467,13 @@ export function buildNarromine(parent, makeLabel = null) {
         for (let i = 0; i <= n; i++) { const q = i / n; if (open(q) || i === n) { if (i === n && !open(q) && start === null) start = q; flush(q); } else if (start === null) start = q; }
         for (let k = 0; k <= Math.floor(l / 3.2); k++) { const q = k * 3.2 / l; if (!open(q)) box(pr.colour ?? 0xc9a985, 0.45, h + 0.25, 0.45, ax + (bx - ax) * q, (h + 0.25) / 2, az + (bz - az) * q); } }
       if (pr.kind === 'planter') { const f = frame(pr.pts); box(0x9c8f7c, f.L, 0.45, f.W, f.cx, 0.22, f.cz, f.yaw); box(0x5f8a3f, f.L - 0.2, 0.08, f.W - 0.2, f.cx, 0.47, f.cz, f.yaw); }
+      if (pr.kind === 'chimney') { const [x, z] = pr.at, y0 = pr.y ?? 9.2, h = pr.h ?? 2.6;
+        box(pr.colour ?? 0x9e4b38, 0.75, h, 0.75, x, y0 + h / 2, z); box(0x873d2d, 0.9, 0.22, 0.9, x, y0 + h + 0.05, z); }
+      if (pr.kind === 'parapet') { const [ax, az] = pr.a, [bx, bz] = pr.b, l = Math.hypot(bx - ax, bz - az), yw = -Math.atan2(bz - az, bx - ax), mx = (ax + bx) / 2, mz = (az + bz) / 2, c = pr.colour ?? 0xe6dac2;
+        placeBox(c, l, pr.h, 0.35, mx, pr.y + pr.h / 2, mz, yw); placeBox(c, l * 0.52, pr.h * 0.55, 0.36, mx, pr.y + pr.h * 1.25, mz, yw);
+        box(c, 0.46, pr.h + 0.55, 0.46, ax, pr.y + (pr.h + 0.55) / 2, az); box(c, 0.46, pr.h + 0.55, 0.46, bx, pr.y + (pr.h + 0.55) / 2, bz);
+        if (pr.text && typeof document !== 'undefined') { const fc = pr.face ?? Math.atan2(bz - az, -(bx - ax));
+          plane(boardTexture(pr.text, { bg: pr.bg ?? '#e6dac2', fg: pr.fg ?? '#2b3a44', border: pr.border ?? '#b8aa90', w: 512, h: 256 }), l * 0.82, pr.h * 0.9, mx + Math.sin(fc) * 0.2, pr.y + pr.h * 0.62, mz + Math.cos(fc) * 0.2, fc); } }
     }
     for (const [tx, tz] of d.trees) { box(0x8f8577, 0.5, 4, 0.5, tx, 2, tz); const g3 = new THREE.SphereGeometry(4.2, 8, 6); g3.scale(1, 0.7, 1); g3.translate(tx, 6.5, tz); push(0x5d7d43, g3); }
   }
@@ -480,6 +498,7 @@ export function buildNarromine(parent, makeLabel = null) {
     narromineEnter:true});
 
   // Main-thread batch-merged geometry; live walkable arcade, retaining Post Office entrance.
+  buildNarromineHotel({ push, box, flatPoly, town, colliders });
   buildKieraths({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   buildNarromineRailwayPrecinct({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   // Named places: a sign over each, and an E-prompt with what it is, its address and any history.
