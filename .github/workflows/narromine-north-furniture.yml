@@ -4,13 +4,14 @@ on:
     paths:
       - 'repository-town/src/world/narromine-dandaloo-streetscape*.js'
       - 'repository-town/tests/narromine-north-furniture-evidence.mjs'
+      - 'repository-town/tests/narromine-north-dandaloo-browser.mjs'
       - '.github/workflows/narromine-north-furniture.yml'
 permissions:
   contents: read
 jobs:
   north-footpath:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 35
     defaults:
       run:
         working-directory: repository-town
@@ -22,16 +23,18 @@ jobs:
           cache: npm
           cache-dependency-path: repository-town/package-lock.json
       - run: npm ci --no-audit --no-fund
+      - name: Verify unchanged surfaces and zero unsurveyed furniture
+        run: node tests/narromine-north-furniture-evidence.mjs
       - run: node tests/narromine-dandaloo-streetscape.mjs
       - run: npm run build && npm run check:privacy
       - run: npx playwright install --with-deps chromium
-      - name: Walk north footpath and capture desktop and phone views
+      - name: Physically walk both north Dandaloo footpaths on desktop and phone
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
-        run: node tests/narromine-nw-dandaloo-browser.mjs
+        run: node tests/narromine-north-dandaloo-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: north-dandaloo-desktop-phone
-          path: repository-town/test-results/nw-dandaloo/
+          path: repository-town/test-results/north-dandaloo/
           retention-days: 14
