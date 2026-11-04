@@ -5,6 +5,7 @@
 import * as THREE from 'three';
 import { geoToWorld, toWorld, DETAILED, polyRect, onTownStreet } from './narromine-layout.js';
 import { NARROMINE_POSTAL_PERSON, postalState, POSTAL_WALK_ROUTE_LOCAL } from './narromine-postal-character.js';
+import { siteToGeo } from './narromine-kieraths-data.js';
 import { buildPostInterior, POST_LAYOUT } from './post-interior.js';
 import { makeDistinctPerson } from './npc-wardrobe.js';
 
@@ -127,15 +128,18 @@ export function createNarrominePostalOutdoorActor(parent,makeLabel) {
     const a=vertices[i-1],b=vertices[i];
     return {x:a[0]+(b[0]-a[0])*p,z:a[1]+(b[1]-a[1])*p,yaw:-Math.atan2(b[1]-a[1],b[0]-a[0])};
   };
-  const coles=geoToWorld(-32.232316,148.239164);
+  const coles=geoToWorld(...siteToGeo([-10,-25.35]));
   const last=route.at(-1);
-  const finish=[last,coles];
+  // Two real buildings lie between the north-side Post Office entrance and
+  // Coles. Follow the unobstructed Dandaloo Street footpath, then bend into
+  // Kierath's open-air passage. Never interpolate through postal masonry.
+  const finish=[last,...[[21,-60],[21,-34],[10.5,-21.2],[0,-23.5],[-10,-25.35]].map(p=>geoToWorld(...siteToGeo(p)))];
   const getPose=(state)=>{
     const q=(state.minute-state.since)/(state.until-state.since);
     if(state.place==='route:home-post')return interpolate(route,q);
     if(state.place==='route:post-home')return interpolate([...route].reverse(),q);
-    if(state.place==='route:home-coles')return interpolate([...route,...finish],q);
-    if(state.place==='route:coles-home')return interpolate([coles,...[...route].reverse()],q);
+    if(state.place==='route:home-coles')return interpolate([...route,...finish.slice(1)],q);
+    if(state.place==='route:coles-home')return interpolate([...finish].reverse().concat([...route].reverse().slice(1)),q);
     if(state.place==='route:post-coles')return interpolate(finish,q);
     // Outdoor walks stay in the vicinity of her mapped house, not inside walls.
     if(state.phase==='dog-walk')return interpolate([route[1],route[2],route[1]],q);
