@@ -119,10 +119,10 @@ server continues to work without any change to existing gameplay or photos.
 
 A dedicated Vercel project connects to `joshualparris/JoshMemory` with:
 
-- Project root: `repository-town`
-- Install command: `npm ci --no-audit --no-fund`
-- Build command: `node tools/build.mjs && node tools/narromine-visual-qa/live-streetview/build-online.mjs`
-- Output directory: `dist/public`
+- Project root: repository root (leave the Vercel Root Directory unset), avoiding conflict with the family game's `repository-town/vercel.json`
+- Install command: `cd repository-town && PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm ci --no-audit --no-fund`
+- Build command: `cd repository-town && node tools/build.mjs && node tools/narromine-visual-qa/live-streetview/build-online.mjs`
+- Output directory: `repository-town/dist/public`
 - Framework: Other (static)
 - Public comparison route: `/_streetview/index.html`
 - Game route: `/` (same origin, so game camera matching works)
