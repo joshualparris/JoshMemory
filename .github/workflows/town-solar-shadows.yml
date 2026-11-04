@@ -1,0 +1,63 @@
+name: Narromine Real Sun and Shadows
+on:
+  pull_request:
+    paths:
+      - 'repository-town/src/world/solar-position.js'
+      - 'repository-town/src/world/sun-shadows.js'
+      - 'repository-town/src/world/townlife.js'
+      - 'repository-town/src/main.js'
+      - 'repository-town/src/index.html'
+      - 'repository-town/tests/solar-shadows*'
+      - 'repository-town/package.json'
+      - '.github/workflows/town-solar-shadows.yml'
+  push:
+    branches: [main, feat/geographic-sun-and-adaptive-shadows-20261104]
+    paths:
+      - 'repository-town/src/world/solar-position.js'
+      - 'repository-town/src/world/sun-shadows.js'
+      - 'repository-town/src/world/townlife.js'
+      - 'repository-town/src/main.js'
+      - 'repository-town/src/index.html'
+      - 'repository-town/tests/solar-shadows*'
+      - 'repository-town/package.json'
+      - '.github/workflows/town-solar-shadows.yml'
+permissions:
+  contents: read
+jobs:
+  sun:
+    name: Seasonal solar math and real desktop/Android WebGL shadows
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install pinned dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Check astronomical position, DST, shadow caster flags and adaptive performance
+        run: node tests/solar-shadows.mjs
+      - name: Build production game
+        run: npm run build
+      - name: Check privacy
+        run: npm run check:privacy
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Render sunlight, shadows and Settings with actual Three.js WebGL
+        run: |
+          node tools/serve.mjs dist/public 8091 &
+          echo $! > /tmp/town-solar-server.pid
+          trap 'kill "$(cat /tmp/town-solar-server.pid)" 2>/dev/null || true' EXIT
+          node tests/solar-shadows-browser.mjs --url http://127.0.0.1:8091/
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: narromine-solar-screenshots
+          path: repository-town/artifacts/sun-*.png
+          if-no-files-found: ignore
+          retention-days: 7

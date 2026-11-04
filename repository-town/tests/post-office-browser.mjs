@@ -29,15 +29,26 @@ try{
   // input path; the real scene canvas must receive subsequent WASD.
   await page.keyboard.press('Escape');
   await page.locator('#scene').click({position:{x:vp.width*.50,y:vp.height*.45}});
+  // The first sun-shadow shader compiles after an interior camera change,
+  // especially in software Chromium. Wait until frames advance, rather than
+  // measuring only a half-second window swallowed by GPU shader compilation.
+  // Wait until the outdoor/interior WebGL transition and its shadow shader are
+  // rendered before measuring actual keyboard or touch movement.
+  await page.evaluate(()=>new Promise(resolve=>{
+    let frames=0;
+    const frame=()=>{if(++frames>=4)resolve();else requestAnimationFrame(frame);};
+    requestAnimationFrame(frame);
+  }));
+  await page.waitForTimeout(1200);
   const start=await page.evaluate(()=>window.__town.state().pos);
   if(mobile){
    const cdp=await context.newCDPSession(page),{width,height}=page.viewportSize(),x=width*.2,y=height*.72;
    await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y,id:1}]});
    await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x,y:y-39,id:1}]});
-   await page.waitForTimeout(420);await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+   await page.waitForTimeout(1100);await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
   }else{
    await page.evaluate(()=>document.activeElement?.blur?.());
-   await page.keyboard.down('w');await page.waitForTimeout(500);await page.keyboard.up('w');
+   await page.keyboard.down('w');await page.waitForTimeout(1550);await page.keyboard.up('w');
   }
   const diagnosis=await page.evaluate(()=>({
     input:window.__town.driveDiagnostics?.()?.input,

@@ -62,7 +62,8 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
 #game-compass {
   position: fixed;
   top: max(10px, env(safe-area-inset-top));
-  right: max(10px, env(safe-area-inset-right));
+  /* Desktop: sit to the LEFT of the 260px minimap (10px right margin + 10px gap). */
+  right: calc(280px + env(safe-area-inset-right));
   z-index: 9;
   width: 84px;
   min-height: 92px;
@@ -98,7 +99,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
 @media(max-width:700px){
   /* The compact top HUD fills much of a phone's width. Compass sits below
      it instead of masking the clock/000/+ buttons or obscuring tap targets. */
-  #game-compass{top:max(98px,calc(env(safe-area-inset-top) + 88px));width:78px;min-height:84px;padding:4px 4px 5px;}
+  #game-compass{top:max(98px,calc(env(safe-area-inset-top) + 88px));right:max(10px,env(safe-area-inset-right));width:78px;min-height:84px;padding:4px 4px 5px;}
   .compass-face{width:59px;height:59px;}
   body.compass-on #first-day{top:max(202px,calc(env(safe-area-inset-top) + 192px));}
 }
