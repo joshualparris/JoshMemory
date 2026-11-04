@@ -3,7 +3,8 @@
 // no public interior floor survey, staff roster, private mail or live Australia Post
 // integration was used. Do not claim a certified floor plan or real transactions.
 import * as THREE from 'three';
-import { geoToWorld, DETAILED, polyRect, onTownStreet } from './narromine-layout.js';
+import { geoToWorld, toWorld, DETAILED, polyRect, onTownStreet } from './narromine-layout.js';
+import { NARROMINE_POSTAL_PERSON, postalState, POSTAL_WALK_ROUTE_LOCAL } from './narromine-postal-character.js';
 import { buildPostInterior, POST_LAYOUT } from './post-interior.js';
 import { makeDistinctPerson } from './npc-wardrobe.js';
 
@@ -42,7 +43,7 @@ export function postOfficeExteriorGrounded() {
 // Reuse the game's *existing* modelled postal interior (counter, scales,
 // parcel collection, PO boxes, packing bench, back-of-house sorting).
 // Its counter is Narromine-specific and never opens Repository Town's ledger.
-export function buildNarrominePostOfficeInterior(makeLabel) {
+export function buildNarrominePostOfficeInterior(makeLabel, day = 1, minute = 540) {
   const site = { id: NARROMINE_POST_OFFICE_ID, name: NARROMINE_POST_OFFICE_NAME };
   const built = buildPostInterior(site, makeLabel, 'Narromine postal retail (illustrative)');
   const counter = built.interactables.find(i => i.key === NARROMINE_POST_OFFICE_ID + ':counter');
@@ -67,13 +68,91 @@ export function buildNarrominePostOfficeInterior(makeLabel) {
   const board=makeLabel?.('INTERPRETIVE INTERIOR · NOT A SURVEY','interactive');
   if(board){board.position.set(-2.8,2.25,2.2);built.group.add(board);}
 
-  // Use the EXACT same articulated, face-and-hair-enabled model maker as
-  // Repository Town's indoor workers. This figure is an anonymous, illustrative
-  // counter attendant, not a claim about real Narromine postal staff or rosters.
-  const staff = makeDistinctPerson('narromine:post-office:illustrative-counter');
-  staff.group.position.set(POST_LAYOUT.staff.x, 0, POST_LAYOUT.staff.z);
-  staff.group.rotation.y = 0; // Look toward the customer on the public side.
-  staff.group.name = 'Illustrative postal counter staff';
-  built.group.add(staff.group);
-  return { ...built, people:[], narrominePostal:true };
+  // Leah is completely fictional. Her stable actor ID is intentionally unrelated
+  // to Repository Town’s own postal worker and unrelated to real post-office staff.
+  const leah = makeDistinctPerson(NARROMINE_POSTAL_PERSON.id);
+  leah.group.position.set(POST_LAYOUT.staff.x, 0, POST_LAYOUT.staff.z);
+  leah.group.rotation.y = 0;
+  leah.group.name = 'Leah Bennett · Narromine postal retail';
+  built.group.add(leah.group);
+
+  // Another generic employee covers her brief paid tea breaks and meal break.
+  // No claim is made about actual staffing, shift coverage or a real employee.
+  const relief = makeDistinctPerson('narromine:post-office:fictional-relief');
+  relief.group.position.set(POST_LAYOUT.staff.x, 0, POST_LAYOUT.staff.z);
+  relief.group.rotation.y = 0;
+  relief.group.name = 'Fictional relief postal colleague';
+  built.group.add(relief.group);
+
+  const greeting = {
+    key: NARROMINE_POST_OFFICE_ID + ':leah',
+    type:'npc',person:true,label:'Talk to Leah Bennett',
+    room:0,roomName:'Narromine postal retail (illustrative)',
+    pos:new THREE.Vector3(2.9,0,-4.25),
+    act:{do:'narromine-postal-person',title:'Leah Bennett · Postal retail officer'}
+  };
+  built.interactables.push(greeting);
+  const updatePostalStaff = (d, m) => {
+    const s=postalState(d,m), at=s.atCounter;
+    leah.group.visible=at;
+    relief.group.visible=s.atPostOffice&&!at&&['break','lunch'].includes(s.phase);
+    const i=built.interactables.indexOf(greeting);
+    if(at&&i<0)built.interactables.push(greeting);
+    if(!at&&i>=0)built.interactables.splice(i,1);
+    return s;
+  };
+  updatePostalStaff(day,minute);
+  return {...built,people:[],narrominePostal:true,narrominePostalStaff:leah.group,
+    updatePostalStaff,fictionalWorkerId:NARROMINE_POSTAL_PERSON.id};
+}
+
+// Same identity in the outdoor town, shown ONLY during travel or outdoor leisure.
+// The route follows actual OSM street vertices, not a straight line through buildings.
+// There is no claim of a surveyed pedestrian route or an actual street address.
+export function createNarrominePostalOutdoorActor(parent,makeLabel) {
+  const actor=makeDistinctPerson(NARROMINE_POSTAL_PERSON.id);
+  actor.group.name='Leah Bennett · fictional Narromine resident';
+  parent.add(actor.group);
+  const tag=makeLabel?.('Leah Bennett · local postal worker','interactive');
+  if(tag){tag.position.set(0,2.25,0);actor.group.add(tag);}
+  const route=POSTAL_WALK_ROUTE_LOCAL.map(toWorld);
+  const distance=[0];
+  for(let i=1;i<route.length;i++)distance.push(distance[i-1]+Math.hypot(route[i][0]-route[i-1][0],route[i][1]-route[i-1][1]));
+  const interpolate=(vertices,t)=>{
+    const lengths=[0];
+    for(let i=1;i<vertices.length;i++)lengths.push(lengths[i-1]+Math.hypot(vertices[i][0]-vertices[i-1][0],vertices[i][1]-vertices[i-1][1]));
+    const target=lengths.at(-1)*Math.max(0,Math.min(1,t));
+    let i=1;while(i<lengths.length-1&&lengths[i]<target)i++;
+    const len=lengths[i]-lengths[i-1],p=len>0?(target-lengths[i-1])/len:0;
+    const a=vertices[i-1],b=vertices[i];
+    return {x:a[0]+(b[0]-a[0])*p,z:a[1]+(b[1]-a[1])*p,yaw:-Math.atan2(b[1]-a[1],b[0]-a[0])};
+  };
+  const coles=geoToWorld(-32.232316,148.239164);
+  const last=route.at(-1);
+  const finish=[last,coles];
+  const getPose=(state)=>{
+    const q=(state.minute-state.since)/(state.until-state.since);
+    if(state.place==='route:home-post')return interpolate(route,q);
+    if(state.place==='route:post-home')return interpolate([...route].reverse(),q);
+    if(state.place==='route:home-coles')return interpolate([...route,...finish],q);
+    if(state.place==='route:coles-home')return interpolate([coles,...[...route].reverse()],q);
+    if(state.place==='route:post-coles')return interpolate(finish,q);
+    // Outdoor walks stay in the vicinity of her mapped house, not inside walls.
+    if(state.phase==='dog-walk')return interpolate([route[1],route[2],route[1]],q);
+    if(state.phase==='leisure')return interpolate([last,route.at(-3),last],q);
+    return null;
+  };
+  const update=(day,minute,playerPos=null)=>{
+    const state=postalState(day,minute);
+    const pose=getPose(state);
+    actor.group.visible=!!pose;
+    if(pose){
+      actor.group.position.set(pose.x,0,pose.z);
+      actor.group.rotation.y=pose.yaw;
+      if(tag)tag.visible=!!playerPos&&Math.hypot(playerPos.x-pose.x,playerPos.z-pose.z)<5;
+    }
+    return state;
+  };
+  update(1,540);
+  return {group:actor.group,update,identity:NARROMINE_POSTAL_PERSON.id};
 }
