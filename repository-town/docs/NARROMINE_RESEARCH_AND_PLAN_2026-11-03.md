@@ -382,3 +382,18 @@ Josh supplied 15 Google Street View frames and five published photographs, inclu
 **Not modelled:** the brick building with red Colorbond trim by the west lane. It stands outside the 148 cadastre lot and is not identified.
 
 **Test:** `tests/narromine-st-marys-browser.mjs` (in `test:browser`).
+
+## Narromine Hotel, 86 and 88 Dandaloo Street: photographed street fronts
+
+Josh supplied 133 Google Street View frames covering Dandaloo Street from the railway and the Narromine Hotel to St Mary's. They are a visual reference only and are not committed.
+
+### Narromine Hotel (116 Dandaloo Street, corner of Derribong Avenue)
+- **Walls and roof:** two-storey cream-rendered walls with a grey ground-floor dado band and a galvanised hipped roof.
+- **Corner parapet:** a shaped cream-rendered pediment across the south-east corner (Dandaloo Street / Derribong Avenue) with side piers and `1901 / NARROMINE HOTEL` lettering.
+- **Chimneys:** three tall red-brick chimneys with corbelled tops along the main ridges.
+- **Wraparound verandah:** galvanised roof, heritage-green posts and rails, cream iron-lace balustrades and friezes, `NARROMINE HOTEL MOTEL` fascia boards at the corner and a projecting upper corner sign.
+- **Street facades:** ground-floor bar windows and dark timber doors along the three Dandaloo Street wings (~27 m frontage) and Derribong Avenue wing, a green `TAB` sign at the corner, a red `LOCAL LIQUOR` sign over the bottle-shop entrance, and upper-floor sash windows and French doors onto the balcony (two with window air-conditioners).
+
+### 86 and 88 Dandaloo Street
+- **86 Dandaloo Street:** two-storey red face-brick Georgian Revival building signed `EIGHTY SIX DANDALOO`, with a hipped tiled roof, a red-brick chimney, a white rendered upper-floor frieze, three upper windows, a central arched red door and two ground-floor windows.
+- **88 Dandaloo Street:** dark charcoal brick shopfront with a `FLORIST` parapet sign, glazed shopfront and flat cantilevered awning.
