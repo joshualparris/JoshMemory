@@ -60,6 +60,19 @@ try {
  assert(await page.isVisible('#driving-dashboard'),'button restores gauges immediately');
  assert.equal(await page.locator('#drive-dash-toggle').innerText(),'Hide dashboard');
  assert.equal(await page.evaluate(()=>localStorage.getItem('repository-town.car-dashboard-visible')),'true');
+ // Driving buttons sit top-left, never over the compass; lane assist toggles and persists.
+ const boxes=await page.evaluate(()=>Object.fromEntries(['drive-dash-toggle','drive-lane-toggle','game-compass','hud'].map(id=>{const e=document.getElementById(id);const r=e&&!e.hidden&&e.getBoundingClientRect();return [id,r&&r.width?{l:r.left,t:r.top,r:r.right,b:r.bottom}:null];})));
+ const overlap=(a,b)=>a&&b&&a.l<b.r&&b.l<a.r&&a.t<b.b&&b.t<a.b;
+ for(const id of ['drive-dash-toggle','drive-lane-toggle'])for(const other of ['game-compass','hud'])
+   assert(!overlap(boxes[id],boxes[other]),id+' overlaps '+other+': '+JSON.stringify(boxes));
+ assert(!overlap(boxes['drive-dash-toggle'],boxes['drive-lane-toggle']),'driving buttons overlap each other');
+ assert.equal(await page.locator('#drive-lane-toggle').innerText(),'Lane assist: OFF');
+ await page.tap('#drive-lane-toggle');
+ assert.equal(await page.locator('#drive-lane-toggle').innerText(),'Lane assist: ON');
+ assert.equal(await page.evaluate(()=>localStorage.getItem('town.laneAssist')),'on');
+ await page.screenshot({path:'test-results/lane-assist-mobile.png'});
+ await page.tap('#drive-lane-toggle');
+ assert.equal(await page.locator('#drive-lane-toggle').innerText(),'Lane assist: OFF');
  const gaugeStart=await page.evaluate(()=>({fuel:document.getElementById('drive-fuel').textContent,temp:document.getElementById('drive-temp').textContent,registration:document.getElementById('drive-model').textContent}));
  assert(gaugeStart.fuel.includes('20.0')&&gaugeStart.registration.includes(v.registration),'dashboard displays the actual owned car and its fuel: '+JSON.stringify(gaugeStart));
  await page.tap('#drive-radio-power');
