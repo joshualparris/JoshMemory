@@ -43,6 +43,7 @@ for (const target of ['public', 'private']) {
   fs.rmSync(out, { recursive: true, force: true });
   fs.cpSync(path.join(TOWN, 'src'), out, { recursive: true });
   fs.copyFileSync(path.join(TOWN, 'data/narromine-building-inventory.json'), path.join(out, 'narromine-building-inventory.json'));
+  fs.copyFileSync(path.join(TOWN, 'data/narromine-photo-references.json'), path.join(out, 'narromine-photo-references.json'));
   // Heritage museums never receive procedurally generated modern household furniture.
   // Modify only the PUBLIC bundle; canonical private simulation code stays untouched.
   if (target === 'public') for (const [relative, before, after] of [

@@ -37,10 +37,13 @@ for(const b of entries){
   assert(b.centreGeo[0]>=OSM.bbox.minlat-0.005&&b.centreGeo[0]<=OSM.bbox.maxlat+0.005,'latitude in export vicinity');
   assert(b.centreGeo[1]>=OSM.bbox.minlon-0.005&&b.centreGeo[1]<=OSM.bbox.maxlon+0.005,'longitude in export vicinity');
   assert.equal(b.visualQa.status,'not-reviewed','no invented visual QA');
-  assert.equal(b.photoReferences.length,0,'no unlicensed photos asserted');
+  for(const photoId of b.photoReferences)assert(photos.records.some(r=>r.id===photoId&&r.buildingIds.includes(b.id)),'only permission-reviewed building-linked photo IDs');
   assert(['Mapped','Modelled','Visual QA Passed','Verified Against Reference','Unsurveyed'].includes(b.rendering.status));
 }
-assert.equal(photos.records.length,0,'reference catalogue starts without invented photos');
+assert.equal(photos.records.length,2,'two individually verified Commons metadata references');
+assert.equal(inventory.counts.photoReferences,photos.records.length);
+assert.equal(entries.filter(b=>b.photoReferences.length).length,1,'one building now has a historical photo reference');
+for(const ref of photos.records){assert(ref.reviewed&&ref.sourceUrl.startsWith('https://commons.wikimedia.org/wiki/File:')&&ref.licenceUrl==='https://creativecommons.org/licenses/by/3.0/');assert(ref.captureDate.startsWith('2017-11-28'));assert.equal(ref.isCurrentAsOf2026,false);}
 assert.equal(inventory.counts.visuallyVerified,0);
 assert(inventory.coverageAudit.knownGaps.some(x=>x.includes('incomplete')),'coverage limitations explicitly present');
 assert(fs.readFileSync(path.join(root,'src/narromine-progress.html'),'utf8').includes('./narromine-building-inventory.json'),'map loads deployed inventory path');
