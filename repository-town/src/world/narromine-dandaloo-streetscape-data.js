@@ -12,8 +12,8 @@ export const DANDALOO_STREETSCAPE_EVIDENCE = Object.freeze({
   confidence: Object.freeze({
     dualRoadPosition: 'mapped',
     medianFootprint: 'derived from mapped road-edge clearance; requires survey',
-    angleParkingSpacing: 'removed: was illustrative (owner direction 4 Nov 2026)',
-    lampsTreesPalmPositions: 'removed: were approximate (owner direction 4 Nov 2026)',
+    angleParkingSpacing: 'approximate, 60-degree illustrative',
+    lampsTreesPalmPositions: 'approximate photo-based visual placement',
   }),
 });
 
@@ -81,7 +81,14 @@ export function planDandalooStreetscape(streets) {
         pavers.push({ pts: quad([external.x0 + offset, z], [external.x1 + offset, zz], 1.0) });
       }
     }
-    // Angle-parking bay markings were illustrative spacing; removed until surveyed.
+    for (let z = band.upperZ - 7; z > band.lowerZ + 7; z -= 6.0) {
+      const a = at(z), b = at(z - 2.15);
+      // Painted 60-degree rear-to-kerb bay separator: 3.7 m inward, 2.15 m along.
+      parking.push({ a: [a.wx - west.width / 2 + 0.17, z],
+        b: [b.wx - west.width / 2 + 3.87, z - 2.15], side: 'west' });
+      parking.push({ a: [a.ex + east.width / 2 - 0.17, z],
+        b: [b.ex + east.width / 2 - 3.87, z - 2.15], side: 'east' });
+    }
   }
   // Midpoint coordinates follow OSM. These z locations are indicative ONLY:
   // photogrammetric tree inventories and actual bay surveys have not been done.
@@ -92,8 +99,13 @@ export function planDandalooStreetscape(streets) {
       : r.ex + east.width / 2 + 1.35;
     dest.push({ x, z, where, kind });
   };
-  // Trees, lamps and palms were approximate photo-based placements; removed on the owner's
-  // direction (4 Nov 2026) until each has a surveyed position (OSM node, LiDAR or photo-match).
+  for (const z of [-1019, -1073, -1137]) put(trees, z, 'median', z === -1073 ? 'palm' : 'deciduous');
+  // Keep the existing palm/sculpture at Kierath's (~z -889) in narromine.js.
+  for (const z of [-894, -1004, -1086, -1143]) put(trees, z, 'west', 'flowering');
+  for (const z of [-916, -1038, -1114, -1155]) put(trees, z, 'east', 'deciduous');
+  for (const z of [-911, -1028, -1126]) put(lamps, z, 'median', 'swan-neck');
+  for (const z of [-902, -1048, -1140]) put(lamps, z, 'west', 'swan-neck');
+  for (const z of [-927, -1066, -1138]) put(lamps, z, 'east', 'swan-neck');
   return { medians, kerbs, pavers, parking, trees, lamps, source: DANDALOO_STREETSCAPE_EVIDENCE };
 }
 

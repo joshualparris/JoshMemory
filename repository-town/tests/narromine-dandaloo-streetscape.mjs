@@ -11,8 +11,9 @@ const plan = planDandalooStreetscape(STREETS);
 assert(plan.medians.length >= 30, 'planted median follows the mapped split over both blocks');
 assert.equal(plan.kerbs.length, 4 * plan.medians.length, 'median and external kerb edges');
 assert.equal(plan.pavers.length, 2 * plan.medians.length, 'both shop-front footpaths');
-assert.equal(plan.parking.length, 0, 'no illustrative bay markings');
-assert(plan.trees.length === 0 && plan.lamps.length === 0, 'no approximate trees or lamps');
+assert(plan.parking.length >= 60, 'angled bay markings along each block and each side');
+assert(plan.trees.length >= 10 && plan.lamps.length >= 8, 'town trees and swan-neck lamps');
+assert(plan.trees.filter(t => t.kind === 'palm').length >= 1, 'additional north median palm');
 assert(!plan.trees.some(t => Math.abs(t.z + 889) < 4 && t.where === 'median'),
   'do not duplicate the existing Kierath\'s median palm');
 const inBand = z => LANDSCAPED_BANDS.some(b => z <= b.upperZ && z >= b.lowerZ);
