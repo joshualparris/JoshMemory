@@ -127,7 +127,9 @@ def scan_markdown(path, text):
                     s += " " + following.strip()
                 else:
                     break
-            items.append(task(s, path, n, given_id=existing_task_id(s)))
+            item = task(s, path, n, given_id=existing_task_id(s))
+            item['fingerprint'] = fingerprint(path, match.group(1))  # Stable despite wrapped text
+            items.append(item)
             continue
         match = STATUS_BULLET_RE.match(line)
         if match and UNCLEAR_SOURCE_RE.search(path):
