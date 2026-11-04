@@ -4,6 +4,16 @@ Several AI sessions work on Repository Town at the same time for Josh. They cann
 message each other, so **this file and `COORDINATION.md` are how we talk**. Read both
 before changing anything, and update `COORDINATION.md` when you start and finish work.
 
+**Mandatory cross-agent coordination policy (4 November 2026):**
+[Repository Town — Parallel Agent Coordination Rules](docs/PARALLEL_AGENT_COORDINATION.md).
+All agents (Claude, Agy/Antigravity, Codex, ChatGPT and others) must read the
+canonical version on the latest `main` before taking new Narromine work or
+continuing an active PR. Claim individual features/systems, not whole streets;
+multiple agents can work on Dandaloo Street when their features and data
+ownership are distinct. Check current branches, PRs and shared interfaces,
+preserve all other agents' changes, and verify the actual integration and
+deployed result rather than treating a passing test or PR merge as complete.
+
 ## Numbered RTD dialogue work — claim and checkpoint gate
 
 Before any Skyrim-inspired NPC/dialogue, town social, quest or recorded audio implementation, consult [RTD-007 coordination and checkpoint protocol](docs/RTD_007_COORDINATION_CHECKPOINT_PROTOCOL_2026-10-24.md) and the [RTD-001–093 roadmap](docs/SKYRIM_NPC_DIALOGUE_IMPLEMENTATION_TODO.md).
