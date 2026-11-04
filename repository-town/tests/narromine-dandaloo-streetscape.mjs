@@ -51,7 +51,11 @@ console.log('PASS Dandaloo streetscape: ' + plan.medians.length +
   const { onNarromineRoad } = await import('../src/world/narromine-layout.js');
   const s = planDandalooSouth(STREETS), road = findDandalooSouth(STREETS);
   assert(s.kerbs.length >= 120, 'kerbs both sides along the south stretch (' + s.kerbs.length + ')');
-  assert(s.trees.length >= 30 && s.lamps.length >= 8 && s.poles.length >= 10, `verge trees ${s.trees.length}, lamps ${s.lamps.length}, poles ${s.poles.length}`);
+  // OSM road geometry cannot prove individual trees, lamps or power pole sites.
+  // Unsupported uniform 22/44/40-m spacing is intentionally never rendered.
+  assert.equal(s.trees.length, 0, 'no invented roadside tree rows');
+  assert.equal(s.lamps.length, 0, 'no invented swan-neck lamp rows');
+  assert.equal(s.poles.length, 0, 'no invented utility-pole rows');
   for (const t of [...s.trees, ...s.lamps, ...s.poles]) {
     assert(t.z >= SOUTH_RANGE.upperZ - 6 && t.z <= SOUTH_RANGE.lowerZ + 6, 'inside the south stretch');
     const cx = roadXAtZ(road, t.z); assert(Math.abs(t.x - cx) > road.width / 2, 'verge item is off the Dandaloo carriageway at z=' + t.z.toFixed(0));
