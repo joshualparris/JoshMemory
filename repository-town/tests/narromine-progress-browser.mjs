@@ -28,6 +28,7 @@ try {
  await page.locator('#reset').click();
  await page.locator('svg polygon.modelled').first().click({force:true});
  assert((await page.locator('#details').innerText()).includes('Evidence gaps'),'select building opens detailed record');
+assert.equal(await page.locator('#details a[href^="https://commons.wikimedia.org/"]').count(),1,'Royal Hotel has one licensed historical source link');
  assert((await page.locator('#details').innerText()).includes('not-reviewed'),'does not claim photo verification');
  await page.locator('#zoomIn').click();
  assert.equal(await page.locator('#map').evaluate(x=>x.style.width),'130%','map zoom functional');

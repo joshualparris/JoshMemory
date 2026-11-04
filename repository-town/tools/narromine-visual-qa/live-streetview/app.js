@@ -10,7 +10,8 @@ const MAX_LOCAL_EVENTS = 400;
 const RAD = Math.PI / 180;
 const state = {
   meta: null, selected: null, panorama: null, loading: false, googleReady: false,
-  notes: [], hudHidden: false, events: [], sdkScript: null,
+  notes: [], hudHidden: false, events: [], sdkScript: null, sdkPromise: null, sdkFailed: false,
+  streetViewService: null, lastPanoramaMatch: null, lookupSerial: 0,
 };
 try {
   const raw = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
@@ -119,6 +120,72 @@ function mapsLink() {
   url.searchParams.set('heading', Number(pov.heading || 0).toFixed(1));
   $('maps-link').href = url.toString();
 }
+
+// Free metadata lookup before a potentially billable panorama is created.
+// Google explicitly says StreetViewService is not billed. Never infer coverage
+// from merely constructing a StreetViewPanorama object.
+function geoDistanceMeters(a, b) {
+  const x = (b.lng - a.lng) * RAD * Math.cos((a.lat + b.lat) * RAD / 2);
+  const y = (b.lat - a.lat) * RAD;
+  return Math.round(Math.hypot(x, y) * 6371008.8);
+}
+function dataLocation(data) {
+  const point = data?.location?.latLng;
+  if (!point) return null;
+  const lat = typeof point.lat === 'function' ? point.lat() : point.lat;
+  const lng = typeof point.lng === 'function' ? point.lng() : point.lng;
+  return Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
+}
+async function findNearbyPanorama(preset) {
+  if (!state.streetViewService) throw new Error('Street View lookup service is not initialised.');
+  for (const radius of [75, 200, 500]) {
+    // Each actual API call is separately visible in the cost ledger, even
+    // though this metadata-only StreetViewService lookup is unbilled.
+    log('GOOGLE METADATA CALL', 'StreetViewService.getPanorama: ' + preset.title +
+      ', radius ' + radius + 'm; Google billing US$0.000 (unbilled service)', 0, false);
+    try {
+      const response = await state.streetViewService.getPanorama({
+        location: preset.geo, radius,
+        preference: google.maps.StreetViewPreference?.NEAREST || 'nearest',
+        sources: [google.maps.StreetViewSource?.GOOGLE || 'google'],
+      });
+      const data = response?.data;
+      const location = dataLocation(data);
+      if (!data?.location?.pano || !location) throw new Error('Metadata succeeded but returned no usable panorama ID or coordinates');
+      const distance = geoDistanceMeters(preset.geo, location);
+      log('GOOGLE METADATA RESULT', 'Found official panorama ' + data.location.pano +
+        ' at ' + distance + 'm from ' + preset.title + '; lookup US$0.000', 0, false);
+      return { id: data.location.pano, location, distance, radius };
+    } catch (error) {
+      const code = String(error?.code || error?.status || error?.message || error);
+      log('GOOGLE METADATA RESULT', preset.title + ': ' + code +
+        ' within ' + radius + 'm; lookup US$0.000', 0, false);
+      if (/ZERO_RESULTS|no results|not found/i.test(code)) continue;
+      throw new Error('Google Street View lookup failed (' + code +
+        '). Check browser console, API-key website/API restrictions and Google Cloud billing.');
+    }
+  }
+  return null;
+}
+function showNoPanorama(preset) {
+  $('google-placeholder').textContent =
+    'Google could not find an official Street View panorama within 500m of ' +
+    preset.title + '. Try another landmark, or open the viewpoint in Google Maps. ' +
+    'No Dynamic Street View viewer was created for this unsuccessful lookup.';
+  $('google-placeholder').hidden = false;
+  $('panorama-meta').textContent = 'No official Google Street View coverage found within 500m';
+  status('No panorama within 500m of ' + preset.title +
+    '. Checked three FREE Street View metadata queries; see the usage ledger. ' +
+    'You can still inspect the game and the external Google Maps link.', true);
+}
+function showPanoramaMatch(match, title) {
+  state.lastPanoramaMatch = match;
+  $('google-placeholder').hidden = true;
+  $('panorama-meta').textContent = 'Official Google Street View: ' + match.distance +
+    'm from the requested ' + title + ' camera · panorama ' + match.id +
+    (match.distance > 80 ? ' · approximate viewpoint: use Match game to current panorama location' : '');
+}
+
 function cameraFromPanorama(onlyHeading = false) {
   const preset = currentPreset();
   if (!preset || !state.panorama) {
@@ -151,35 +218,108 @@ function refreshPanoramaMetadata() {
     ' · ' + Number(pov?.heading || 0).toFixed(1) + '°';
   mapsLink();
 }
-function moveExistingPanorama() {
+async function moveExistingPanorama() {
   const preset = currentPreset();
   if (!preset) return;
+  const lookupId = ++state.lookupSerial;
   gamePose(preset.camera.x, preset.camera.z, preset.camera.heading);
-  if (state.panorama) {
-    // These update an existing viewer; they do not instantiate another billed
-    // Dynamic Street View panorama under Google's current FAQ.
-    log('VIEW CHANGE', 'Request existing Street View viewer to change landmark; no new panorama object', 0, false);
-    state.panorama.setPosition(preset.geo);
-    log('VIEW CHANGE', 'Request existing viewer to face the landmark heading', 0, false);
-    state.panorama.setPov({ heading: preset.camera.heading, pitch: 0 });
+  mapsLink();
+  if (!state.panorama) {
+    status('Game moved to ' + preset.title + '. Connect Google to check panorama availability.');
+    return;
   }
-  status('Camera reset to ' + preset.title + '. No additional panorama viewer created.');
+  status('Checking live official Street View coverage near ' + preset.title + ' using free metadata lookups…');
+  try {
+    const found = await findNearbyPanorama(preset);
+    if (lookupId !== state.lookupSerial) return; // Ignore stale overlapping selections.
+    if (!found) { showNoPanorama(preset); return; }
+    log('VIEW CHANGE', 'Reuse existing billed StreetViewPanorama; setPano(' + found.id +
+      ') to display ' + preset.title + '; no new panorama object, US$0.000', 0, false);
+    state.panorama.setPano(found.id);
+    state.panorama.setPov({ heading: preset.camera.heading, pitch: 0 });
+    state.panorama.setVisible?.(true);
+    showPanoramaMatch(found, preset.title);
+    status('Matched ' + preset.title + ' to official panorama ' + found.distance +
+      'm away. Existing viewer reused; metadata calls US$0.000.');
+  } catch (error) {
+    if (lookupId !== state.lookupSerial) return;
+    $('google-placeholder').textContent = error.message || String(error);
+    $('google-placeholder').hidden = false;
+    status(error.message || String(error), true);
+  }
 }
 function loadGoogleSdk(key) {
-  if (state.googleReady) return Promise.resolve();
-  return new Promise((resolve, reject) => {
+  // A failed asynchronous load can leave partial Google globals behind. Never
+  // insert a second Maps SDK script in the same browsing context: Google
+  // reports "included multiple times" and may break its util/streetview modules.
+  if (state.sdkPromise) return state.sdkPromise;
+  const alreadyLoaded = Boolean(window.google?.maps?.StreetViewPanorama &&
+    window.google?.maps?.StreetViewService);
+  if (alreadyLoaded) {
+    state.googleReady = true;
+    state.sdkPromise = Promise.resolve();
+    return state.sdkPromise;
+  }
+  const existingSdk = document.querySelector('script[src*="maps.googleapis.com/maps/api/js"]');
+  if (existingSdk || window.google?.maps?.importLibrary) {
+    // If a third-party already loaded it, use its loader, never inject ours.
+    if (window.google?.maps?.importLibrary) {
+      state.sdkPromise = window.google.maps.importLibrary('streetView').then(() => {
+        if (!window.google?.maps?.StreetViewService ||
+            !window.google?.maps?.StreetViewPanorama) {
+          throw new Error('Existing Google Maps SDK did not provide Street View classes.');
+        }
+        state.googleReady = true;
+      });
+      return state.sdkPromise;
+    }
+    state.sdkFailed = true;
+    state.sdkPromise = Promise.reject(new Error(
+      'Google Maps JavaScript is already loading in this page. Refresh once before connecting; the viewer must not load the SDK twice.'));
+    return state.sdkPromise;
+  }
+  // Google's documented direct loader requires callback=... when loading=async;
+  // script.onload is NOT an API-ready signal. Preload streetView in the first
+  // and ONLY SDK request, then resolve after the callback has run.
+  state.sdkPromise = new Promise((resolve, reject) => {
+    const callbackName = '__repoTownStreetViewSdkReady';
+    let settled = false;
+    const finish = (error) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeout);
+      delete window[callbackName];
+      if (error) {
+        state.sdkFailed = true;
+        reject(error);
+      } else {
+        state.googleReady = true;
+        resolve();
+      }
+    };
+    window[callbackName] = () => {
+      if (!window.google?.maps?.StreetViewPanorama ||
+          !window.google?.maps?.StreetViewService) {
+        finish(new Error('Google Maps returned without the Street View library. Refresh the page and verify Maps JavaScript API access.'));
+        return;
+      }
+      finish();
+    };
     const script = document.createElement('script');
     script.async = true;
-    script.src = 'https://maps.googleapis.com/maps/api/js?key=' +
-      encodeURIComponent(key) + '&v=weekly&loading=async';
-    script.onload = () => {
-      if (!window.google?.maps?.importLibrary) return reject(new Error('Google Maps JavaScript API unavailable'));
-      state.googleReady = true; resolve();
-    };
-    script.onerror = () => reject(new Error('Cannot load Google Maps JavaScript API. Check key restrictions, billing and internet connection.'));
-    document.head.appendChild(script);
+    script.dataset.repoTownStreetViewSdk = '1';
+    const params = new URLSearchParams({
+      key, v: 'weekly', loading: 'async', libraries: 'streetView', callback: callbackName,
+    });
+    script.src = 'https://maps.googleapis.com/maps/api/js?' + params.toString();
+    script.onerror = () => finish(new Error(
+      'Google Maps JavaScript SDK could not load. Check key restrictions, network and billing; refresh before trying another key.'));
+    const timeout = setTimeout(() => finish(new Error(
+      'Google Maps did not complete its Street View initialisation. Refresh the page before retrying.')), 25000);
     state.sdkScript = script;
+    document.head.appendChild(script);
   });
+  return state.sdkPromise;
 }
 async function connectGoogle(event) {
   event.preventDefault();
@@ -187,7 +327,7 @@ async function connectGoogle(event) {
   if (!key || state.loading || state.panorama) return;
   // One consent before any request to Google, including loading the JavaScript
   // library. No SDK, StreetViewService or panorama is initialised on page load.
-  const notice = 'This will request the Google Maps JavaScript SDK and create ONE Google StreetViewPanorama viewer.\n\n' +
+  const notice = 'This will load the Google Maps JavaScript SDK, make free Street View metadata requests to check coverage, and construct ONE Dynamic Street View panorama only when imagery is found.\n\n' +
     'Published Dynamic Street View rate: US$0.014 for the first paid tier after ' +
     MONTHLY_FREE_EVENTS.toLocaleString() + ' free events per month (global pricing).\n' +
     'Estimated gross if already past the free allowance: US$0.014.\n' +
@@ -201,18 +341,30 @@ async function connectGoogle(event) {
     await loadGoogleSdk(key);
     const preset = currentPreset();
     if (!preset) throw new Error('No location preset available');
-    log('LIBRARY LOAD', 'Import official Street View JavaScript library; no panorama created by this step', 0, false);
-    const { StreetViewPanorama } = await google.maps.importLibrary('streetView');
+    log('STREET VIEW LIBRARY', 'Street View classes preloaded with the one Google Maps SDK request (no additional SDK injection)', 0, false);
+    const { StreetViewPanorama, StreetViewService } = google.maps;
+    if (!StreetViewPanorama || !StreetViewService) {
+      throw new Error('Google Maps Street View classes missing after SDK callback. Refresh the page; do not retry loading SDK in this tab.');
+    }
+    state.streetViewService ||= new StreetViewService();
+    status('Checking Google for an official Street View panorama near ' + preset.title + '…');
+    const found = await findNearbyPanorama(preset);
+    if (!found) {
+      showNoPanorama(preset);
+      $('connect').textContent = 'Check another location';
+      return;
+    }
     log('PANORAMA CREATED',
-      'One Dynamic Street View panorama instantiated; successful load counts one billable SKU event (free allowance may apply)',
+      'One Google Dynamic Street View panorama constructed for ' + preset.title +
+      '; published first-paid-tier gross up to US$0.014 (free allowance may apply)',
       RATE_USD, true);
-    // Deliberately instantiate exactly once. Reuse for all landmarks and rotations.
+    // Construct only after verified coverage; never create another viewer when navigating.
     state.panorama = new StreetViewPanorama($('streetview'), {
-      position: preset.geo, pov: { heading: preset.camera.heading, pitch: 0 },
-      zoom: 1, addressControl: true, linksControl: true, panControl: true,
+      pano: found.id, pov: { heading: preset.camera.heading, pitch: 0 },
+      visible: true, zoom: 1, addressControl: true, linksControl: true, panControl: true,
       enableCloseButton: false, showRoadLabels: true,
     });
-    $('google-placeholder').hidden = true;
+    showPanoramaMatch(found, preset.title);
     state.panorama.addListener('pano_changed', () => {
       refreshPanoramaMetadata();
       status('Street View image changed inside the existing viewer. No additional viewer creation charge.');
@@ -224,20 +376,31 @@ async function connectGoogle(event) {
     });
     state.panorama.addListener('status_changed', () => {
       const s = state.panorama.getStatus?.();
-      if (s && s !== google.maps.StreetViewStatus.OK) status('Street View status: ' + String(s), true);
+      if (s && s !== google.maps.StreetViewStatus.OK) {
+        status('Google Street View display failed with status ' + String(s) +
+          '. Check the Maps JavaScript API key restrictions and panorama coverage.', true);
+      } else if (s === google.maps.StreetViewStatus.OK && state.lastPanoramaMatch) {
+        showPanoramaMatch(state.lastPanoramaMatch, currentPreset()?.title || 'selected location');
+      }
     });
     refreshPanoramaMetadata();
     gamePose(preset.camera.x, preset.camera.z, preset.camera.heading);
     $('connect').textContent = 'Viewer connected (one session)';
-    status('Live Street View viewer ready. One panorama creation recorded; rotations and jumps reuse it.');
+    status('Official Google Street View panorama found ' + found.distance +
+      'm from the selected camera. One viewer created; Google display status pending confirmation.');
   } catch (error) {
-    state.googleReady = false;
     status(error.message || String(error), true);
-    $('connect').disabled = false;
-    $('connect').textContent = 'Retry loading Street View';
+    $('google-placeholder').textContent = (error.message || String(error)) +
+      ' — check the Maps JavaScript API, website restrictions and billing in Google Cloud.';
+    $('google-placeholder').hidden = false;
+    $('connect').disabled = Boolean(state.sdkFailed);
+    $('connect').textContent = state.sdkFailed
+      ? 'Reload page to reconnect Google'
+      : 'Retry Street View lookup';
     log('ERROR', 'Google SDK/viewer failed: ' + (error.message || error), 0, false);
   } finally {
     $('api-key').value = '';
+    if (!state.panorama && !state.sdkFailed) $('connect').disabled = false;
     state.loading = false;
   }
 }
@@ -336,7 +499,7 @@ async function bootstrap() {
   });
   $('export-game-image').addEventListener('click', saveGameScreenshot);
   try {
-    const response = await fetch('/_streetview/api/presets', { cache: 'no-store' });
+    const response = await fetch('/_streetview/api/presets.json', { cache: 'no-store' });
     if (!response.ok) throw new Error('Local location service returned ' + response.status);
     state.meta = await response.json();
     const list = $('location'); list.replaceChildren();

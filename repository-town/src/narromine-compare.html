@@ -45,6 +45,7 @@
   <label>Lng <input id="lng" size="10" inputmode="decimal"></label>
   <button id="go">Go</button>
   <label><input type="checkbox" id="follow" checked> Game follows Street View</label>
+  <label title="When you walk in the game, Street View jumps to you once you stop (each jump is one counted load). Turning is free."><input type="checkbox" id="followGame" checked> Street View follows game</label>
   <button class="ghost" id="fromgame" title="Move Street View to where you are standing in the game">Street View ← game</button>
   <button class="ghost" id="keybtn">Maps API key…</button>
   <div id="meter" title="Every Google call this page makes is counted here and announced on screen.">
@@ -139,7 +140,7 @@ for (const p of PLACES) if (/station|court house|aviation|museum|pharmacy|bakery
 presets.sort((x, y) => x.name.localeCompare(y.name));
 for (const [i, p] of presets.entries()) $('preset').add(new Option(p.name, i));
 
-let ourPano = null, pano = null, svService = null, lastGeo = null, pov = { heading: 0, pitch: 0, zoom: 1 }, suppress = false;
+let placedAt = null, ourPano = null, pano = null, svService = null, lastGeo = null, pov = { heading: 0, pitch: 0, zoom: 1 }, suppress = false;
 const gameApi = () => { try { return $('game').contentWindow.__town || null; } catch { return null; } };
 
 function readout(extra = '') {
@@ -155,11 +156,11 @@ function syncGame() {
   const [x, z] = geoToWorld(lastGeo.lat, lastGeo.lng), frame = $('game').getBoundingClientRect();
   const hfov = Math.min(120, 180 / Math.pow(2, pov.zoom)) * Math.PI / 180, aspect = frame.width / Math.max(1, frame.height);
   const vfov = 2 * Math.atan(Math.tan(hfov / 2) / aspect) * 180 / Math.PI;
-  t.place(x, z, yawFromHeading(pov.heading));
+  t.place(x, z, yawFromHeading(pov.heading)); placedAt = { x, z, yaw: yawFromHeading(pov.heading) };
   t.view?.({ pitch: pov.pitch * Math.PI / 180, fov: vfov });
 }
 
-function goTo(lat, lng, heading) {
+function goTo(lat, lng, heading, faceTarget = false) {
   lastGeo = { lat, lng }; if (Number.isFinite(heading)) pov.heading = heading;
   $('lat').value = lat.toFixed(6); $('lng').value = lng.toFixed(6);
   if (pano && svService) {
@@ -167,7 +168,7 @@ function goTo(lat, lng, heading) {
     apiCall('meta', 'Street View metadata lookup (find nearest panorama)');
     svService.getPanorama({ location: { lat, lng }, radius: 60, source: google.maps.StreetViewSource.OUTDOOR }, (data, status) => {
       if (status !== 'OK') { readout('No Street View within 60 m; the game is at the exact spot.'); syncGame(); return; }
-      const ll = data.location.latLng, h = Number.isFinite(heading) ? google.maps.geometry.spherical.computeHeading(ll, new google.maps.LatLng(lat, lng)) : pov.heading;
+      const ll = data.location.latLng, h = faceTarget ? google.maps.geometry.spherical.computeHeading(ll, new google.maps.LatLng(lat, lng)) : (Number.isFinite(heading) ? heading : pov.heading);
       ourPano = data.location.pano; apiCall('load', 'Street View panorama loaded (jump to ' + (data.location.description || 'a new place') + ')');
       suppress = true; pano.setPano(data.location.pano); pano.setPov({ heading: h, pitch: 0 }); suppress = false;
     });
@@ -180,7 +181,7 @@ function goPreset(i) {
   const g = worldToGeo(p.at[0], p.at[1]);
   // Without Street View the game stands 25 m east of the building on Dandaloo Street side, looking at it.
   if (!pano) { const s = worldToGeo(p.at[0] + 25, p.at[1]); goTo(s.lat, s.lng, 270); return; }
-  goTo(g.lat, g.lng, 0);   // the panorama snaps to the nearest road and faces the building
+  goTo(g.lat, g.lng, 0, true);   // the panorama snaps to the nearest road and faces the building
 }
 
 function fromGame() {
@@ -205,7 +206,7 @@ function loadMaps(key) {
       apiCall('load', 'Street View panorama loaded (you moved along the street; may not be billed, counted to be safe)');
     });
     pano.addListener('status_changed', () => { if (pano.getStatus() !== 'OK') readout('Street View unavailable here.'); });
-    goPreset($('preset').value);
+    if (fromPlayer) goTo(fromPlayer.lat, fromPlayer.lng, fromPlayer.heading); else goPreset($('preset').value);
   };
   // Google reports why a key was refused only in the console ("Google Maps JavaScript API error: XxxMapError").
   // Catch that code and show the reason and the fix on the page.
@@ -248,6 +249,8 @@ $('game').addEventListener('load', () => {
 
 $('mCap').addEventListener('change', () => { capLoads = Math.max(0, parseInt($('mCap').value, 10) || 0); try { localStorage.setItem('svCompareCap', String(capLoads)); } catch {} drawMeter(); });
 drawMeter();
+// Both sync switches remember their setting in this browser.
+for (const id of ['follow', 'followGame']) { const v = store.get('svSync:' + id); if (v !== null) $(id).checked = v === '1'; $(id).addEventListener('change', () => store.set('svSync:' + id, $(id).checked ? '1' : '0')); }
 $('preset').addEventListener('change', (e) => goPreset(e.target.value));
 $('go').addEventListener('click', () => { const lat = parseFloat($('lat').value), lng = parseFloat($('lng').value); if (Number.isFinite(lat) && Number.isFinite(lng)) goTo(lat, lng); });
 $('fromgame').addEventListener('click', fromGame);
@@ -269,15 +272,43 @@ $('export').addEventListener('click', () => {
 });
 addEventListener('resize', syncGame);
 
+// Street View follows the game. Watch the player; turning updates Street View's heading at once
+// (no charge: same panorama). Walking jumps Street View only after the player has stopped for
+// 1.2 s and moved 10 m from where Street View last was, so a walk costs one load, not dozens.
+let still = null;
+setInterval(() => {
+  const t = gameApi(); if (!t?.view || !$('followGame').checked || !pano) return;
+  const v = t.view(); if (!v?.pos) return;
+  const ref = placedAt || { x: v.pos.x, z: v.pos.z, yaw: v.yaw };
+  const moved = Math.hypot(v.pos.x - ref.x, v.pos.z - ref.z);
+  const heading = headingFromYaw(v.yaw);
+  if (moved < 10) {
+    still = null;
+    if (Math.abs(((heading - pov.heading + 540) % 360) - 180) > 4) { suppress = true; pano.setPov({ heading, pitch: pov.pitch }); pov.heading = heading; suppress = false; readout(); }
+    return;
+  }
+  if (!still || Math.hypot(v.pos.x - still.x, v.pos.z - still.z) > 0.5) { still = { x: v.pos.x, z: v.pos.z, at: Date.now() }; return; }
+  if (Date.now() - still.at < 1200) return;
+  still = null; placedAt = { x: v.pos.x, z: v.pos.z, yaw: v.yaw };
+  const g = worldToGeo(v.pos.x, v.pos.z), keepGame = $('follow').checked;
+  $('follow').checked = false;                      // don't snap the game to the panorama's road position
+  goTo(g.lat, g.lng, heading);
+  setTimeout(() => { $('follow').checked = keepGame; }, 1500);
+}, 400);
+
 const startAt = Math.max(0, presets.findIndex((p) => /Narromine Hotel/.test(p.name)));
+// Opened from the game's Street View button: start where the player is standing, looking the same way.
+const qs = new URLSearchParams(location.search), qx = parseFloat(qs.get('x')), qz = parseFloat(qs.get('z')), qyaw = parseFloat(qs.get('yaw'));
+const fromPlayer = Number.isFinite(qx) && Number.isFinite(qz) ? { ...worldToGeo(qx, qz), heading: Number.isFinite(qyaw) ? headingFromYaw(qyaw) : 0 } : null;
 $('preset').value = startAt;
 readout();
 // A key typed into this browser wins; otherwise use the site's key from the Vercel environment.
 (async () => {
   let key = store.get('svCompareKey') || '';
   if (!key) { try { key = (await (await fetch('./api/maps-key', { cache: 'no-store' })).json()).key || ''; } catch {} }
+  if (fromPlayer) { pov.heading = fromPlayer.heading; lastGeo = { lat: fromPlayer.lat, lng: fromPlayer.lng }; }
   loadMaps(key);
-  if (!key) goPreset(startAt);
+  if (!key) { if (fromPlayer) goTo(fromPlayer.lat, fromPlayer.lng, fromPlayer.heading); else goPreset(startAt); }
 })();
 </script>
 </body>

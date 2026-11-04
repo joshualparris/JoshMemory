@@ -37,6 +37,18 @@ const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const file=path.join(root,'data','narromine-building-inventory.json');
 const prior=fs.existsSync(file)?JSON.parse(fs.readFileSync(file,'utf8')):null;
 const inventory=makeInventory(NARROMINE_OSM,NARROMINE_BUILDINGS,NARROMINE_LIDAR.heights,prior);
+const references=JSON.parse(fs.readFileSync(path.join(root,'data','narromine-photo-references.json'),'utf8'));
+const ids=new Set(inventory.buildings.map(b=>b.id));
+for(const ref of references.records){
+ if(!ref.reviewed||!ref.sourceUrl?.startsWith('https://commons.wikimedia.org/wiki/File:')||!/^CC BY 3\.0/.test(ref.licenceOrPermission)) throw Error('Reference metadata not reviewed: '+ref.id);
+ for(const id of ref.buildingIds)if(!ids.has(id))throw Error('Unknown photo building ID: '+id);
+}
+for(const building of inventory.buildings){
+ building.photoReferences=references.records.filter(r=>r.buildingIds.includes(building.id)).map(r=>r.id);
+ if(building.photoReferences.length)building.uncertainty=building.uncertainty.map(v=>v==='No permission-checked ground-level photos catalogued'?'Only historical 2017 licensed imagery linked; more angles and present-day façade validation needed':v);
+}
+inventory.counts.photoReferences=references.records.length;
+inventory.coverageAudit.knownGaps=inventory.coverageAudit.knownGaps.map(g=>g==='No permission-cleared ground-level photography registered'?'Only two 2017 permission-reviewed photo records are catalogued (one building-linked); current façade coverage remains unverified':g);
 const out=JSON.stringify(inventory,null,2)+'\n';
 if(process.argv.includes('--check')){
  if(!prior||fs.readFileSync(file,'utf8')!==out){console.error('Narromine inventory outdated; run node tools/narromine-inventory.mjs');process.exit(1)}

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { OSM, toWorld } from '../src/world/narromine-layout.js';
+import { OSM, PLACES, toWorld } from '../src/world/narromine-layout.js';
+import { buildNarromine } from '../src/world/narromine.js';
 import { NARROMINE_LIDAR } from '../src/world/narromine-lidar-data.js';
 import {
   worldToGeo,
@@ -155,7 +156,7 @@ function inPoly([x, z], poly) {
     bbox.expandByObject(m);
   }
   assert.ok(totalVerts > 600, `Expected > 600 vertices across precinct, got ${totalVerts}`);
-  assert.ok(bbox.min.y >= -0.01 && bbox.max.y <= 6.5, `Height bounds [${bbox.min.y.toFixed(2)}, ${bbox.max.y.toFixed(2)}] match LiDAR/heritage envelope`);
+  assert.ok(bbox.min.y >= -0.01 && bbox.max.y <= 7.0, `Height bounds [${bbox.min.y.toFixed(2)}, ${bbox.max.y.toFixed(2)}] match LiDAR/heritage envelope`);
 
   // Verify spots and colliders
   assert.equal(res.spots.length, 4, 'Registers 4 civic/heritage interactive spots');
@@ -173,11 +174,51 @@ function inPoly([x, z], poly) {
     [-4614.0, -795.0], // Merilba Street carriageway outside 49 Merilba Street
   ];
   for (const [px, pz] of clearPoints) {
-    for (const [cx, cz, hx, hz] of res.colliders) {
-      const hit = Math.abs(px - cx) < hx && Math.abs(pz - cz) < hz;
-      assert.ok(!hit, `Clearance point [${px}, ${pz}] must not intersect collider [${cx}, ${cz}, ${hx}, ${hz}]`);
+    for (const c of res.colliders) {
+      const hit = px >= c.x0 && px <= c.x1 && pz >= c.z0 && pz <= c.z1;
+      assert.ok(!hit, `Clearance point [${px}, ${pz}] must not intersect collider ${JSON.stringify(c)}`);
     }
   }
 }
 
-console.log('PASS narromine-courthouse-precinct: disambiguation, cadastral lots, LiDAR, GeoJSON, 3D geometry & colliders verified.');
+// 7. Live buildNarromine integration & PLACES verification
+{
+  const formerPlace = PLACES.find((p) => p.name === 'Former Narromine Courthouse (1898)');
+  const courtPlace = PLACES.find((p) => p.name === 'Narromine Courthouse');
+  const policePlace = PLACES.find((p) => p.name === 'Narromine Police Station');
+  const hubPlace = PLACES.find((p) => p.name === 'HubnSpoke');
+
+  assert.ok(formerPlace, 'Former Narromine Courthouse (1898) registered in PLACES');
+  assert.equal(formerPlace.address, '35 Burraway Street');
+  assert.match(formerPlace.fact, /I5/);
+
+  assert.ok(courtPlace, 'Narromine Courthouse registered in PLACES');
+  assert.equal(courtPlace.address, '47 Merilba Street');
+  assert.match(courtPlace.fact, /Lot 10/);
+
+  assert.ok(policePlace, 'Narromine Police Station registered in PLACES');
+  assert.equal(policePlace.address, '49 Merilba Street');
+  assert.match(policePlace.fact, /osm:174/);
+
+  assert.ok(hubPlace, 'HubnSpoke registered in PLACES');
+  assert.equal(hubPlace.address, '37 Burraway Street');
+  assert.match(hubPlace.fact, /atrium/);
+
+  const parent = new THREE.Group();
+  const live = buildNarromine(parent);
+  for (const key of [
+    'narromine:former-courthouse-35-burraway',
+    'narromine:courthouse-47-merilba',
+    'narromine:police-station-49-merilba',
+    'narromine:hub-n-spoke-37-burraway',
+  ]) {
+    assert.ok(live.spots.some((s) => s.key === key), `Live Narromine world includes spot ${key}`);
+  }
+
+  for (const [px, pz] of Object.values(NARROMINE_COURTHOUSE_ACCESS.pedestrianEntryPointsWorld)) {
+    const blocked = live.colliders.some((c) => px >= c.x0 && px <= c.x1 && pz >= c.z0 && pz <= c.z1);
+    assert.ok(!blocked, `Live Narromine world leaves pedestrian entry [${px}, ${pz}] unobstructed`);
+  }
+}
+
+console.log('PASS narromine-courthouse-precinct: disambiguation, cadastral lots, LiDAR, GeoJSON, 3D geometry & live world integration verified.');

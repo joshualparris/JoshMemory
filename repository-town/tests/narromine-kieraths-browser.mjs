@@ -26,7 +26,7 @@ try {
     const { geoToWorld } = await import('./world/narromine-layout.js');
     return { route: [...KIERATHS_ROUTE].reverse().map(p => geoToWorld(...siteToGeo(p))), shops: KIERATHS_SHOPS.length };
   });
-  assert.equal(geo.shops, 10, 'ten arcade units in actual served client');
+  assert.equal(geo.shops, 7, 'seven separate exterior shop polygons; M01 includes 5–7');
   await page.evaluate(([x, z]) => {
     window.__town.closePanel?.();
     window.__town.life.setTime(12 * 60);
@@ -56,5 +56,5 @@ try {
   await page.waitForTimeout(400);
   await page.screenshot({ path: `${folder}/${mobile ? 'mobile' : 'desktop'}-rear-looking-in.png` });
   assert.deepEqual(errors, [], 'no browser page errors while walking arcade');
-  console.log(`PASS Kierath's Shopping Square ${mobile ? 'mobile' : 'desktop'}: 10 units; live WebGL; ${geo.route.length-1} physically walked segments; front/courtyard/rear screenshots; no page errors`);
+  console.log(`PASS Kierath's Shopping Square ${mobile ? 'mobile' : 'desktop'}: 7 distinct exterior units; live WebGL; ${geo.route.length-1} physically walked segments; front/courtyard/rear screenshots; no page errors`);
 } finally { await browser.close(); }

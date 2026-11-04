@@ -1,6 +1,6 @@
 # Narromine live Street View vs Repository Town (local visual QA)
 
-This **development-only**, local, side-by-side comparison viewer displays an official Google
+This **local or separately deployable**, side-by-side comparison viewer displays an official Google
 Street View JavaScript panorama next to the already-built Repository Town game. No Google
 images, tiles, pixels or snapshots are stored or exported.
 
@@ -51,10 +51,14 @@ Sources:
 - https://developers.google.com/maps/billing-and-pricing/sku-details
 
 On explicit consent, the page loads Maps JavaScript API, imports the Street View library
-and constructs **exactly one** `StreetViewPanorama` object. It reuses that object when
+and checks for real Google-collected panorama coverage at **75 m**, **200 m** and **500 m**
+using `StreetViewService.getPanorama()` as needed. **Google explicitly states that
+StreetViewService is not billed**; the viewer logs each metadata query at US$0.000.
+Only if a real panorama ID is found does it construct **exactly one**
+`StreetViewPanorama` object. It reuses that object when
 moving to another landmark, thereby avoiding a new panorama instantiation per selection.
 
-The UI logs the SDK load, import, panorama creation and user-initiated viewer operations.
+The UI logs the SDK load, import, each free availability lookup and its result, panorama creation and user-initiated viewer operations. A failed lookup shows a visible 500m coverage message instead of an empty viewer, and does not create a billable panorama.
 The ledger persists **locally in this browser**, with no API key. It displays the
 **published first-paid-tier potential cost in USD** for each billable event and cumulative
 amount for loads observed in this browser.
@@ -108,5 +112,66 @@ asserts that the page starts with no network requests to Google, then that one
 consented simulated panorama creation is logged at its first-tier price, that a second
 landmark doesn't instantiate a second panorama, and that notes/export omit the key.
 
-Actual Google authentication, account billing, panorama availability and display
+Actual Google authentication, account billing, real panorama availability and display
 must additionally be verified on Fedora with the user's browser-restricted key.
+
+## Online Vercel deployment (separate from the family game's production project)
+
+The deployable version uses the **same** comparison UI, but serves a static JSON
+copy of the six camera presets in the built public bundle. The normal local
+server continues to work without any change to existing gameplay or photos.
+
+A dedicated Vercel project connects to `joshualparris/JoshMemory` with:
+
+- Project root: repository root (leave the Vercel Root Directory unset), avoiding conflict with the family game's `repository-town/vercel.json`
+- Install command: `cd repository-town && PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm ci --no-audit --no-fund`
+- Build command: `cd repository-town && node tools/build.mjs && node tools/narromine-visual-qa/live-streetview/build-online.mjs`
+- Output directory: `repository-town/dist/public`
+- Framework: Other (static)
+- Public comparison route: `/_streetview/index.html`
+- Game route: `/` (same origin, so game camera matching works)
+
+The static copy is intentionally **not** added to the main Repository Town
+Vercel site's build command. The separate online project does not alter that
+production configuration.
+
+For online use, create a browser key **restricted to that dedicated project's
+actual production hostname**, and restrict API usage to the Maps JavaScript API.
+Never use an unrestricted key or put the browser key in source, Vercel's
+public HTML, or documentation. Google Cloud API keys used client-side can be
+inspected in browser network requests; allowed-host restrictions are essential.
+The user enters the restricted key into the browser's form after opening the
+online page and approves a cost disclosure before the first panorama loads.
+
+**Security:** Any previously shared API key should be rotated and restricted
+before using it online. Google Cloud billing budgets and alerts are not hard
+spend caps. Set appropriate API quotas and review Cloud Billing's actual SKU
+usage; the UI's cost ledger is only a first-tier estimate for this browser.
+
+
+## Duplicate Google SDK and module-loader failure
+
+For the online comparison's one-time Google connection, use Google's
+**direct async script loader with `libraries=streetView` and an explicit
+`callback`**, rather than using `script.onload` as an API-ready signal
+and then importing `streetView`. The callback only fires after Google
+has initialised its requested library. The app keeps a page-lifetime
+Promise for the single SDK load, including any failure, so retrying
+a missing panorama reuses the already-loaded API and a failed SDK load
+requires a browser refresh instead of inserting a second script.
+
+This addresses the Chrome errors:
+- `You have included the Google Maps JavaScript API multiple times on this page`
+- `Loader.provide not called by module 'streetview'`
+- `Loader.provide not called by module 'util'`
+
+The in-game view runs in its own same-origin iframe; its console messages
+can appear in the same DevTools console even though it is a separate
+JavaScript realm. Use the Console's frame selector to identify which
+document produced an error.
+
+Google source: https://developers.google.com/maps/documentation/javascript/load-maps-js-api
+
+An actual authenticated Google panorama still needs a restricted key
+entered by the user; CI intercepts the SDK request and does not make paid
+Google API calls.

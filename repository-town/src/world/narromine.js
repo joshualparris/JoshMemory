@@ -6,13 +6,30 @@
 import * as THREE from 'three';
 import { buildKieraths } from './narromine-kieraths.js';
 import { buildNarromineHotel, NARROMINE_HOTEL_ID } from './narromine-hotel.js';
+import { buildNarromineRoyalHotel, ROYAL_HOTEL_REPLACED_IDS } from './narromine-royal-hotel.js';
 import { buildNarromineRailwayPrecinct } from './narromine-railway-precinct.js';
 import { NARROMINE_RAILWAY_INTEGRATION_SPEC } from './narromine-railway-evidence.js';
-const RAILWAY_SUPPRESSED_OSM = new Set(NARROMINE_RAILWAY_INTEGRATION_SPEC.suppressedOsmBuildingIndices);
+import { buildNarromineCourthousePrecinct } from './narromine-courthouse-precinct.js';
+import { buildNarromineStAugustines, ST_AUGUSTINES_OSM_INDEX } from './narromine-st-augustines.js';
+import { NARROMINE_COURTHOUSE_INTEGRATION_SPEC } from './narromine-courthouse-evidence.js';
+import { buildNarromineAviationPrecinct } from './narromine-aviation-precinct.js';
+import { NARROMINE_AVIATION_INTEGRATION_SPEC } from './narromine-aviation-evidence.js';
+import { buildNarromineNwDandalooBlock } from './narromine-nw-dandaloo-block.js';
+import { NARROMINE_NW_DANDALOO_INTEGRATION_SPEC } from './narromine-nw-dandaloo-evidence.js';
+const RAILWAY_SUPPRESSED_OSM = new Set([
+  ...NARROMINE_RAILWAY_INTEGRATION_SPEC.suppressedOsmBuildingIndices,
+  ...NARROMINE_COURTHOUSE_INTEGRATION_SPEC.suppressedOsmBuildingIndices,
+  ST_AUGUSTINES_OSM_INDEX, // replace only the generic St Augustine's church extrusion
+  ...NARROMINE_AVIATION_INTEGRATION_SPEC.suppressedOsmBuildingIndices,
+  ...NARROMINE_NW_DANDALOO_INTEGRATION_SPEC.suppressedOsmBuildingIndices,
+]);
+const NW_DANDALOO_SUPPRESSED_FILL = new Set(NARROMINE_NW_DANDALOO_INTEGRATION_SPEC.suppressedFillShopNames);
 import { estimatedShopfrontProfile, facadeBays, landmarkFacadeSpec } from './narromine-facade-profiles.js';
 import { buildDisjointRoadSurfaces } from './narromine-road-surfaces.js';
+import { createNarromineSurfaceMaterial } from './narromine-surface-materials.js';
+import { buildDandalooStreetscape } from './narromine-dandaloo-streetscape.js';
 import { NARROMINE_POST_OFFICE_ENTRANCE, NARROMINE_POST_OFFICE_ID } from './narromine-post-office.js';
-import { HIGHWAY, HIGHWAY_Z, REGION, CORRIDOR_HALF, STREETS, BUILDINGS, AREAS, WATER, RAIL, PLACES, FILL_SHOPS, FILL_HOUSES, FRONTAGES, DETAILED, polyRect, nearTownStreet, boundaryColliders } from './narromine-layout.js';
+import { HIGHWAY, HIGHWAY_Z, REGION, CORRIDOR_HALF, STREETS, BUILDINGS, AREAS, WATER, RAIL, PLACES, FILL_SHOPS, FILL_HOUSES, FRONTAGES, DETAILED, polyRect, inPoly, nearTownStreet, boundaryColliders } from './narromine-layout.js';
 
 const SHOW_WEST_OF = -1300;   // past Repository Town's last houses (x ≈ -1330)
 
@@ -131,6 +148,13 @@ export function buildNarromine(parent, makeLabel = null) {
   const roadSurfaces = buildDisjointRoadSurfaces(STREETS, { highway: HIGHWAY });
   for (const s of roadSurfaces.footpaths) flatPoly(0xbdb6a8, s.pts, 0.076);
   for (const s of roadSurfaces.asphalt) flatPoly(ROAD_COLOUR[s.kind] ?? 0x4f5153, s.pts, 0.075);
+  // OSM-aligned Dandaloo streetscape: no duplicate road or building geometry.
+  // Verge items must not sit inside buildings, detailed lots or other roads/driveways.
+  const streetscapeClear = (x, z, r) => !DETAILED.some((d) => inPoly(x, z, d.boundary)) &&
+    !BUILDINGS.some((b) => { const q = polyRect(b.pts); return x > q.x0 - r && x < q.x1 + r && z > q.z0 - r && z < q.z1 + r; }) &&
+    ![...FILL_SHOPS, ...FILL_HOUSES].some((g) => Math.hypot(g.x - x, g.z - z) < 7 + r) &&
+    !STREETS.some((st) => st.name !== 'Dandaloo Street' && st.pts.some(([sx, sz]) => Math.hypot(sx - x, sz - z) < st.width / 2 + r + 1));
+  buildDandalooStreetscape({ streets: STREETS, push, box, flatPoly, strip, clear: streetscapeClear });
   // Real buildings, raised from their mapped outlines.
   const colliders = [...boundaryColliders()], spots = [];
   for (const b of BUILDINGS) {
@@ -190,6 +214,7 @@ export function buildNarromine(parent, makeLabel = null) {
     }
   };
   for (const f of FILL_SHOPS) {
+    if (NW_DANDALOO_SUPPRESSED_FILL.has(f.name)) continue;
     const profile = estimatedShopfrontProfile({ name: f.name, kind: f.kind });
     placeBox(profile.wall, f.w, 4.6, f.d, f.x, 2.3, f.z, f.yaw);
     placeBox(profile.trim, f.w + 0.3, 0.7, f.d + 0.3, f.x, 4.95, f.z, f.yaw);
@@ -332,7 +357,7 @@ export function buildNarromine(parent, makeLabel = null) {
   };
   const GROUND = { asphalt: [0x3f4244, 0.05], grass: [0x7fa65d, 0.03], paving: [0xb8ac98, 0.055], gravel: [0xa89a84, 0.045] };
   for (const d of DETAILED) {
-    if (d.id === NARROMINE_HOTEL_ID) continue;
+    if (d.id === NARROMINE_HOTEL_ID || ROYAL_HOTEL_REPLACED_IDS.has(d.id)) continue;
     const ROOF = 0xc8cac6, WALL = 0xe3d8c2;   // galvanised roofs as in the aerial; wall colour assumed (cream render/paint)
     for (const g of d.ground) flatPoly(GROUND[g.kind][0], g.pts, GROUND[g.kind][1]);
     for (const p of d.parts) {
@@ -368,7 +393,25 @@ export function buildNarromine(parent, makeLabel = null) {
       if (p.storeys === 2 && !p.features && !landmarkFacadeSpec(d.id, p.name)) for (const side of [-1, 1]) for (let t = -f.L / 2 + 1.5; t < f.L / 2 - 1; t += 3) { // upper-floor windows on the long faces
         const ox = Math.cos(-f.yaw) * t - Math.sin(-f.yaw) * side * (f.W / 2 + 0.03), oz = Math.sin(-f.yaw) * t + Math.cos(-f.yaw) * side * (f.W / 2 + 0.03);
         box(0x34434f, 1.0, 1.6, 0.06, f.cx + ox, fitY(5.6), f.cz + oz, f.yaw); }
-      colliders.push(polyRect(p.pts));
+      if (d.id === 'dandaloo-82' && p.name.startsWith('Coles ')) {
+        // Coles walls are skewed against the adjacent Kierath's arcade. A
+        // single axis-aligned bounding rectangle wrongly fills the open air
+        // passage at its diagonal NW edge, making the real courtyard unreachable.
+        // Segment the actual traced quad *edges* instead. Preserve solid walls
+        // and keep all unrelated detailed-building colliders unchanged.
+        for (let edge = 0; edge < p.pts.length; edge++) {
+          const a = p.pts[edge], b = p.pts[(edge + 1) % p.pts.length];
+          const length = Math.hypot(b[0] - a[0], b[1] - a[1]);
+          const sections = Math.max(1, Math.ceil(length / 0.48));
+          for (let i = 0; i < sections; i++) {
+            const t0 = i / sections, t1 = (i + 1) / sections;
+            const x0 = a[0] + (b[0] - a[0]) * t0, x1 = a[0] + (b[0] - a[0]) * t1;
+            const z0 = a[1] + (b[1] - a[1]) * t0, z1 = a[1] + (b[1] - a[1]) * t1;
+            colliders.push({ x0: Math.min(x0, x1) - 0.10, x1: Math.max(x0, x1) + 0.10,
+              z0: Math.min(z0, z1) - 0.10, z1: Math.max(z0, z1) + 0.10 });
+          }
+        }
+      } else colliders.push(polyRect(p.pts));
       if (p.roofText && typeof document !== 'undefined') {
         // Painted on the street-facing (west) slope, as seen from the air (axis-aligned front block).
         const r = polyRect(p.pts), fh = (r.x1 - r.x0) / 2 * Math.tan(0.42);
@@ -507,8 +550,13 @@ export function buildNarromine(parent, makeLabel = null) {
 
   // Main-thread batch-merged geometry; live walkable arcade, retaining Post Office entrance.
   buildNarromineHotel({ push, box, flatPoly, town, colliders });
+  buildNarromineRoyalHotel({ push, box, flatPoly, plane, boardTexture, town, colliders });
   buildKieraths({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   buildNarromineRailwayPrecinct({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
+  buildNarromineCourthousePrecinct({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
+  buildNarromineStAugustines({ push, colliders, spots, town });
+  buildNarromineAviationPrecinct({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
+  buildNarromineNwDandalooBlock({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   // Named places: a sign over each, and an E-prompt with what it is, its address and any history.
   for (const p of PLACES) {
     if (makeLabel) { const l = makeLabel(p.name, 'interactive'); l.position.set(p.x, 5.4, p.z); l.scale.multiplyScalar(0.8); town.add(l); }
@@ -518,7 +566,7 @@ export function buildNarromine(parent, makeLabel = null) {
   pole(-2742, z - 9, 2.4); plane(boardTexture(['Map data', '© OpenStreetMap contributors'], { bg: '#ffffff', fg: '#222222', border: '#222222' }), 2.6, 1.3, -2742, 2.2, z - 9, Eb);
 
   const materials = new Map();
-  const material = (c, side) => { const k = c + ':' + side; if (!materials.has(k)) materials.set(k, new THREE.MeshLambertMaterial({ color: c, side })); return materials.get(k); };
+  const material = (c, side) => { const k = c + ':' + side; if (!materials.has(k)) materials.set(k, createNarromineSurfaceMaterial(c, side)); return materials.get(k); };
   for (const [name, map] of Object.entries(buckets)) for (const [k, geos] of map) {
     const c = typeof k === 'string' ? Number(k.split('|')[0]) : k, geo = mergeGeos(geos); geo.computeBoundingSphere();
     const mesh = new THREE.Mesh(geo, material(c, name === 'town' ? THREE.DoubleSide : THREE.FrontSide));

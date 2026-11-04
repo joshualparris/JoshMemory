@@ -21,7 +21,8 @@ svg .dim{opacity:.09;pointer-events:none}svg .source-bbox{fill:none;stroke:#b4c5
 .legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.83rem;margin:.6rem 0;color:#cfe1e3}
 .dot{display:inline-block;width:11px;height:11px;border-radius:2px;margin-right:4px;vertical-align:middle}
 dl{margin:0;display:grid;grid-template-columns:110px minmax(0,1fr);gap:.45rem .5rem}
-dt{color:#9fc5cf}dd{margin:0;overflow-wrap:anywhere}small{color:#b0c4cd}
+dt{color:#9fc5cf}dd{margin:0;overflow-wrap:anywhere}
+#details a[href^="https://commons.wikimedia.org/"]{display:block;margin:.6rem 0 .25rem;overflow-wrap:anywhere}#details small{display:block;line-height:1.4;margin-bottom:.6rem}small{color:#b0c4cd}
 #details{min-height:180px}#details p{overflow-wrap:anywhere}
 .notice{border-left:3px solid #d5b36b;padding:.55rem .7rem;background:#334048}
 @media(max-width:900px){main{grid-template-columns:1fr}.viewport{max-height:58vh}}
@@ -53,7 +54,7 @@ const node=(tag,attrs={},text)=>{const el=document.createElementNS(ns,tag);for(c
 const words=(el,text,tag='p')=>{const x=document.createElement(tag);x.textContent=String(text);el.append(x);return x};
 const dd=(dl,key,val)=>{const a=document.createElement('dt'),b=document.createElement('dd');a.textContent=key;b.textContent=val==null||val===''?'Not recorded':String(val);dl.append(a,b)};
 const stats=(data)=>{const root=$('stats');for(const [n,label] of [[data.counts.osmFootprints,'OSM outlines'],[data.counts.detailedSites,'detailed sites'],[data.counts.osmWithLidar,'OSM LiDAR matches'],[data.counts.visuallyVerified,'reference-verified']]){const d=document.createElement('div');d.className='stat';words(d,n,'strong');words(d,label,'small');root.append(d)}};
-let data,svg=$('map'),records=[],selected=null,scale=1;
+let data,svg=$('map'),records=[],selected=null,scale=1,photographicRefs=new Map();
 const roadLayer=node('g'),buildingLayer=node('g');svg.append(roadLayer,buildingLayer);
 function show(b){
 selected=b;for(const x of buildingLayer.children)x.classList.toggle('selected',x.dataset.id===b.id);
@@ -64,7 +65,8 @@ dd(dl,'Location',b.centreGeo.join(', '));dd(dl,'Orientation',b.orientationDeg==n
 dd(dl,'Storeys',b.storeys);dd(dl,'Roof shape',b.roofType);
 if(b.sourceType==='detailed')dd(dl,'Address',b.address);
 dd(dl,'LiDAR',b.heightEvidence?b.heightEvidence.surveyYear+': '+b.heightEvidence.medianRoofM+' m median above terrain':b.parts?b.parts.filter(p=>p.heightEvidence).length+' parts with LiDAR':'No match');
-dd(dl,'Photographs',b.photoReferences.length+' cleared for use');
+dd(dl,'Photographs',b.photoReferences.length+' permission-checked archival reference(s)');
+for(const photoId of b.photoReferences){const ref=photographicRefs.get(photoId);if(!ref)continue;const a=document.createElement('a');a.href=ref.sourceUrl;a.rel='noopener noreferrer';a.target='_blank';a.textContent='Open dated source photo — '+ref.creator+' ('+ref.captureDate.slice(0,10)+', '+ref.licenceOrPermission+')';panel.append(a);words(panel,'Historical reference only: not proof of the building’s 2026 appearance.','small');}
 dd(dl,'Visual QA',b.visualQa.status);
 dd(dl,'Facade colours',b.facade.colours.join(', ')||null);
 dd(dl,'Signs',b.facade.signs.join(' / ')||null);
@@ -80,8 +82,10 @@ polygon.classList.toggle('dim',!matches);polygon.setAttribute('aria-hidden',Stri
 $('matches').textContent=found+' records matching this selection (of '+records.length+').';
 };
 try {
-const [res,module]=await Promise.all([fetch('./narromine-building-inventory.json',{cache:'no-store'}),import('./world/narromine-osm-data.js')]);
+const [res,module,photoResponse]=await Promise.all([fetch('./narromine-building-inventory.json',{cache:'no-store'}),import('./world/narromine-osm-data.js'),fetch('./narromine-photo-references.json',{cache:'no-store'})]);
 if(!res.ok)throw Error('Inventory JSON unavailable (HTTP '+res.status+'). Run npm run build and serve dist/public.');
+if(!photoResponse.ok)throw Error('Photographic reference catalogue missing');
+photographicRefs=new Map((await photoResponse.json()).records.map(x=>[x.id,x]));
 data=await res.json();stats(data);
 const osm=module.NARROMINE_OSM,box=osm.extent,pad=32,dx=box.x1-box.x0,dz=box.z1-box.z0;
 svg.setAttribute('viewBox','0 0 '+(dx+pad*2)+' '+(dz+pad*2));

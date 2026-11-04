@@ -42,7 +42,7 @@ try {
     'if(name!=="streetView")throw Error("Unexpected library");'+
     'class StreetViewPanorama {'+
     'constructor(el,options){window.mockPanoramaInstances=(window.mockPanoramaInstances||0)+1;'+
-    'this.el=el;this.pos=options.position;this.pov=options.pov;this.listeners={};'+
+    'this.el=el;this.pos=options.position||{lat:-32.23565,lng:148.23927};this.pov=options.pov;this.listeners={};'+
     'el.textContent="Mock Street View (test only; no Google imagery)";}'+
     'addListener(key,fn){(this.listeners[key]||=([])).push(fn);}'+
     'emit(key){for(const fn of this.listeners[key]||[])fn();}'+
@@ -51,7 +51,15 @@ try {
     'getPov(){return this.pov;} getStatus(){return "OK";}'+
     'setPosition(pos){this.pos=pos;this.emit("position_changed");this.emit("pano_changed");}'+
     'setPov(pov){this.pov=pov;this.emit("pov_changed");}'+
-    '}return {StreetViewPanorama};}}};';
+    'setPano(pano){this.pano=pano;this.emit("pano_changed");}'+
+    'setVisible(flag){this.visible=flag;}'+
+    '}class StreetViewService {'+
+    'async getPanorama(request){window.mockMetadataCalls=(window.mockMetadataCalls||0)+1;'+
+    'if(window.mockNoCoverage)throw {code:"ZERO_RESULTS"};'+
+    'return {data:{location:{pano:"mock-official-"+window.mockMetadataCalls,'+
+    'latLng:{lat:()=>request.location.lat,lng:()=>request.location.lng}}}};}'+
+    '}return {StreetViewPanorama,StreetViewService};}}};window.mockNoCoverage=true;'+
+    'window.google.maps.importLibrary("streetView").then(function(mod){Object.assign(window.google.maps,mod);window.__repoTownStreetViewSdkReady();});';
   await page.route('https://maps.googleapis.com/maps/api/js**',route=>route.fulfill({
     status:200,contentType:'application/javascript',body:mockGoogleJs
   }));
@@ -63,13 +71,37 @@ try {
   await page.locator('#api-key').fill('fake-test-key-do-not-use');
   page.once('dialog',d=>d.accept());
   await page.locator('#connect').click();
+  await page.waitForFunction(()=>document.getElementById('status')?.textContent.includes('No panorama within 500m'));
+  assert.equal(await page.evaluate(()=>window.mockPanoramaInstances||0),0,
+    'no billable panorama created when Google returns ZERO_RESULTS');
+  assert.equal(await page.evaluate(()=>window.mockMetadataCalls),3,
+    'three free availability lookups at increasing radius');
+  assert.match(await page.locator('#cost-summary').textContent(),/0 panorama instantiations/);
+  assert.match(await page.locator('#google-placeholder').textContent(),/within 500m/);
+  assert.equal(requests.length,1, 'only explicitly authorised SDK request');
+  assert.equal(await page.locator('script[data-repo-town-street-view-sdk]').count(),1,
+    'exactly one SDK script was inserted after no coverage');
+  const sdkUrl = await page.locator('script[data-repo-town-street-view-sdk]').getAttribute('src');
+  assert.match(sdkUrl,/callback=__repoTownStreetViewSdkReady/,
+    'SDK callback, not script onload, signals module readiness');
+  assert.match(sdkUrl,/libraries=streetView/,
+    'Street View loads with the initial SDK request');
+  await page.evaluate(()=>{window.mockNoCoverage=false;});
+  await page.locator('#api-key').fill('fake-test-key-do-not-use');
+  page.once('dialog',d=>d.accept());
+  await page.locator('#connect').click();
   await page.waitForFunction(()=>window.mockPanoramaInstances===1);
-  assert.equal(requests.length,1, 'only explicitly authorised SDK network request');
+  assert.equal(requests.length,1, 'one SDK request, reused when retrying after no coverage');
+  assert.equal(await page.locator('script[data-repo-town-street-view-sdk]').count(),1,
+    'retry does not inject another Maps JavaScript SDK script');
   assert.match(await page.locator('#cost-summary').textContent(),/US\$0\.014/);
   assert.equal(await page.locator('#api-key').inputValue(),'','API key cleared from input memory');
   await page.locator('#location').selectOption('post-office-entrance');
   assert.equal(await page.evaluate(()=>window.mockPanoramaInstances),1,'changing landmarks reuses existing panorama');
   assert.equal(requests.length,1,'no new SDK request for existing panorama movement');
+  assert.equal(await page.evaluate(()=>window.mockPanoramaInstances),1,'one paid viewer for all landmarks');
+  await page.waitForFunction(()=>window.mockMetadataCalls === 5);
+  assert.equal(await page.evaluate(()=>window.mockMetadataCalls),5,'free metadata called on each explicit lookup');
   await page.locator('#match-heading').click();
   await page.locator('#follow-position').click();
   await page.locator('#note').fill('Compare roofline to independently obtained photographs');
@@ -88,6 +120,26 @@ try {
   assert.equal(exported.locallyObservedGoogleActions.filter(e=>e.billableEvent).length,1);
   assert(!fs.readFileSync(file,'utf8').includes('fake-test-key-do-not-use'),'key never exported');
   assert.deepEqual(errors,[],'no browser page errors');
+  // A failed SDK download must not allow a second SDK injection in the same
+  // page: the partial Google runtime may otherwise break util/streetview.
+  const failPage = await context.newPage();
+  let failedRequests = 0;
+  await failPage.route('https://maps.googleapis.com/maps/api/js**',route=>{
+    failedRequests += 1;
+    return route.abort('failed');
+  });
+  await failPage.goto(base+'/_streetview/',{waitUntil:'domcontentloaded'});
+  await failPage.waitForFunction(()=>document.getElementById('location').options.length===6);
+  await failPage.locator('#api-key').fill('not-a-real-key');
+  failPage.once('dialog',d=>d.accept());
+  await failPage.locator('#connect').click();
+  await failPage.waitForFunction(()=>document.getElementById('status').textContent.includes('could not load'));
+  assert.equal(failedRequests,1,'one attempted failed SDK load');
+  assert.equal(await failPage.locator('#connect').isDisabled(),true,
+    'SDK failure forces page reload rather than injecting a second script');
+  assert.equal(await failPage.locator('script[data-repo-town-street-view-sdk]').count(),1,
+    'failed loader stays single instance');
+  await failPage.close();
   console.log('PASS Narromine live Street View comparison: 6 locations, no automatic Google calls,');
   console.log('  one consented panorama creation, 0 repeated billed instances, cost ledger and notes export.');
 } finally {

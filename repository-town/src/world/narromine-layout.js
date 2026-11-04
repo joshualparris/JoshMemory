@@ -12,6 +12,8 @@ import { NARROMINE_OSM as OSM } from './narromine-osm-data.js';
 export { OSM };
 import { NARROMINE_BUILDINGS } from './narromine-buildings-data.js';
 import { NARROMINE_LIDAR } from './narromine-lidar-data.js';
+import { NARROMINE_COURTHOUSE_CADASTRAL_LOTS } from './narromine-courthouse-evidence.js';
+import { NARROMINE_AVIATION_CADASTRAL_LOTS } from './narromine-aviation-evidence.js';
 const LIDAR = NARROMINE_LIDAR.heights;
 
 export const HIGHWAY_Z = -7;                 // continues Repository Town's Street 4
@@ -81,14 +83,26 @@ const FACTS = {
   'Narromine Post Office': 'Opened as the Narramine Post Office on 20 October 1882, the day the railway reached town; renamed Narromine in November 1900. (Premier Postal, via Wikipedia)',
   'Narromine Hotel': 'Built in 1901 as the Federal Hotel; known for the iron lace on its upper veranda. (Aussietowns)',
   'The Court House Hotel': 'First established by David Fitch in 1889, on the corner of Burraway and Merilba Streets. (Aussietowns)',
-  'Narromine Aviation Museum': 'Opened in 2002 at the aerodrome, home of RAAF No. 5 Elementary Flying Training School (1940–44), where about 2,800 pilots trained. Exhibits include a CAC Sabre and a flying Wright Flyer replica. (Narromine Aviation Museum / AWM)',
+  'Narromine Aviation Museum': 'Opened in 2002 at the aerodrome (Lot 122 DP 1126499, Narromine LEP 2011 Item I12), home of WWII RAAF No. 5 Elementary Flying Training School (1940–44), where about 2,800 pilots trained. Exhibits include CAC Sabre A94-915, a flying 1903 Wright Flyer replica, a Corben Super Ace, a Rolls-Royce Merlin Mk 25 engine, and the RAAF No. 5 EFTS 33-plaque Memorial Wall. (Narromine Aviation Museum / AWM)',
+  'Narromine Aero Club': 'Founded in 1929 — one of Australia’s oldest regional aero clubs, visited by Sir Charles Kingsford Smith, Nancy-Bird Walton, and Jean Batten, sharing the Tom Perry Drive aerodrome terminal complex with the Narromine Aviation Museum. (Visit NSW / Wikipedia)',
+  'Narromine Gliding Club': 'Post-WWII thermal soaring and gliding centre at Narromine Aerodrome (YNRM, Lot 122 DP 1126499), hosting national and international gliding championships and weekend joy flights. (Visit NSW / Narromine Aviation Museum)',
   'Tom Perry Park': 'Home of a Glenn McGrath statue. (Wikipedia)',
   'Narromine Railway Station': 'Opened 1 May 1883 on the Main Western Line (497.554 km from Sydney); closed to regular passenger trains on 20 October 1975 and restored as an NSW TrainLink coach stop. Listed as Item I11 on the Narromine LEP 2011 Heritage Schedule (Lot 4 DP 1012153).',
+  'Former Narromine Courthouse (1898)': 'Built c. 1898 under NSW Government Architect Walter Liberty Vernon at 35 Burraway Street (Lot 6, Section 17, DP 758759; Narromine LEP 2011 Heritage Item I5 "Courthouse (former)"); later used as a local museum and Narromine Car Club clubrooms.',
+  'Narromine Courthouse': 'Operational NSW Local Court at 47 Merilba Street (Lot 10, Section 17, DP 758759), featuring a western colonnade portico, central courtroom clerestory monitor, and registry wing.',
+  'Narromine Police Station': 'Located at 49 Merilba Street on the corner of Burraway and Merilba Streets (Lot 5, Section 17, DP 758759, osm:174), wrapping around the 1898 Former Courthouse lot with surveyed 2011 NSW Spatial Services LiDAR heights (3.16 m eave, 6.39 m ridge).',
+  'HubnSpoke': 'Narromine Shire Council co-working and business incubator hub at 37 Burraway Street (Lot 2 & Lot 12, Section 17, DP 758759), housed in a circular radial-roofed building with a central open atrium oculus.',
 };
 const KIND_LABEL = (k) => String(k || 'place').replace(/_/g, ' ').replace(/^\w/, (c) => c.toUpperCase());
 export const PLACES = Object.freeze(OSM.places.map((p) => {
   const name = NAME_FIX[p.name] || p.name, [x, z] = toWorld([p.x, p.z]);
-  const address = p.number && p.street ? `${p.number} ${p.street}` : p.street;
+  const ADDRESS_FIX = {
+    'Narromine Courthouse': '47 Merilba Street',
+    'Narromine Police Station': '49 Merilba Street',
+    'Narromine Aviation Museum': 'Tom Perry Drive (Lot 122 DP 1126499)',
+    'Narromine Aero Club': 'Tom Perry Drive (Lot 122 DP 1126499)',
+  };
+  const address = (p.number && p.street ? `${p.number} ${p.street}` : p.street) || ADDRESS_FIX[name] || '';
   return Object.freeze({ name, kind: p.kind, kindLabel: KIND_LABEL(p.kind), address, x, z, fact: FACTS[name] || '' });
 }).concat(EXTRA_PLACES()));
 // Places sourced outside OpenStreetMap, positioned at their detailed building (e.g. St Mary's, missing from OSM).
@@ -97,6 +111,8 @@ function EXTRA_PLACES() {
   const sm = at('st-marys-anglican');
   const extra = sm ? [Object.freeze({ name: "St Mary's Anglican Church", kind: 'place_of_worship', kindLabel: 'Place of worship', address: '148 Dandaloo Street', x: sm[0], z: sm[1], fact: FACTS["St Mary's Anglican Church"] })] : [];
   extra.push(Object.freeze({ name: 'Narromine Railway Station', kind: 'railway_station', kindLabel: 'Railway station', address: 'Derribong Avenue (Narromine Station Access)', x: -4708.8, z: -710.2, fact: FACTS['Narromine Railway Station'] }));
+  extra.push(Object.freeze({ name: 'Former Narromine Courthouse (1898)', kind: 'historic_courthouse', kindLabel: 'Heritage former courthouse (LEP Item I5)', address: '35 Burraway Street', x: -4590.5, z: -766.5, fact: FACTS['Former Narromine Courthouse (1898)'] }));
+  extra.push(Object.freeze({ name: 'Narromine Gliding Club', kind: 'aerodrome', kindLabel: 'Gliding & soaring centre', address: 'Tom Perry Drive (Lot 122 DP 1126499)', x: -5628.4, z: -2023.2, fact: FACTS['Narromine Gliding Club'] }));
   return extra;
 }
 
@@ -127,7 +143,7 @@ const centre = (pts) => pts.reduce((a, p) => [a[0] + p[0] / pts.length, a[1] + p
 const BUILDING_CENTRES = BUILDINGS.map((b) => ({ c: centre(b.pts), r: polyRect(b.pts), pts: b.pts }));
 const nearMapped = (x, z, d) => BUILDING_CENTRES.some((b) => x > b.r.x0 - d && x < b.r.x1 + d && z > b.r.z0 - d && z < b.r.z1 + d);
 const KEEP_CLEAR = new Set(['park', 'pitch', 'golf_course', 'cemetery', 'school', 'sports_centre', 'swimming_pool', 'track', 'parking', 'industrial', 'retail', 'farmyard']);
-const inDetailed = (x, z) => DETAILED.some((d) => inPoly(x, z, d.boundary));
+const inDetailed = (x, z) => DETAILED.some((d) => inPoly(x, z, d.boundary)) || NARROMINE_COURTHOUSE_CADASTRAL_LOTS.some((l) => inPoly(x, z, l.ringWorld)) || NARROMINE_AVIATION_CADASTRAL_LOTS.some((l) => inPoly(x, z, l.ringWorld)) || (x > -4606 && x < -4568 && z > -862 && z < -814);
 const inArea = (x, z) => inDetailed(x, z) || AREAS.some((a) => KEEP_CLEAR.has(a.kind) && inPoly(x, z, a.pts)) || WATER.some((w) => w.closed && inPoly(x, z, w.pts));
 export function nearestSegment(x, z) {
   let best = null;

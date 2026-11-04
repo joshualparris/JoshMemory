@@ -147,7 +147,7 @@ export function createExpedition({town,makeLabel,openPanel,travel,releaseMouse})
   document.addEventListener('keydown',e=>{
     // Escape closes the journal, like every other window in the town.
     if(e.key==='Escape'&&isOpen()){e.preventDefault();dismiss();return;}
-    if(String(e.key ?? '').toLowerCase()!=='j'||e.repeat||e.ctrlKey||e.altKey||e.metaKey)return;
+    if(String(e.key||'').toLowerCase()!=='j'||e.repeat||e.ctrlKey||e.altKey||e.metaKey)return;
     if(e.target?.closest?.('input,textarea,select,[contenteditable],#panel,#game,#npc-chat'))return;
     e.preventDefault();toggleJournal();
   });

@@ -5,7 +5,7 @@
 import { NARROMINE_BUILDINGS } from './narromine-buildings-data.js';
 import { schematicPixelToGeo, KIERATHS_SCHEMATIC_UNITS } from './narromine-kieraths-schematic.js';
 import { siteToGeo, KIERATHS_ROUTE, KIERATHS_SHOPS, KIERATHS_KIOSK,
-  KIERATHS_CANOPY, KIERATHS_REAR_PARKING } from './narromine-kieraths-data.js';
+  KIERATHS_CANOPY, KIERATHS_REAR_PARKING, KIERATHS_UNIT_IDS, KIERATHS_EMBEDDED_UNITS, KIERATHS_COURTYARD } from './narromine-kieraths-data.js';
 
 const required = (id) => {
   const b = NARROMINE_BUILDINGS.find(b => b.id === id);
@@ -48,9 +48,12 @@ for (const unit of KIERATHS_SCHEMATIC_UNITS) {
 }
 // Visual reference plan establishes number/order and connectivity, but not metric scale.
 for (const s of KIERATHS_SHOPS)
-  layer.push(feature('kieraths-unit-' + s.number, 'Unit ' + s.number, poly(scoped(s.pts)),
+  layer.push(feature('kieraths-unit-' + s.number, 'Physical exterior unit ' + s.number, poly(scoped(s.pts)),
     'Approximation from 3 Nov commercial diagram; check against aerial/control points', 'estimated',
     { unit: s.number, side: s.side, note: 'NOT a cadastral/shop-lease survey or confirmed current tenancy' }));
+layer.push(feature('kieraths-courtyard', 'Open paved courtyard estimated boundary', poly(scoped(KIERATHS_COURTYARD)),
+  'Commercial diagram + ground-level courtyard photograph', 'estimated',
+  { note: 'Open to sky; supports walking/turning, no collider' }));
 layer.push(feature('kieraths-walkway', 'Dandaloo to rear car park pedestrian centreline',
   { type: 'LineString', coordinates: KIERATHS_ROUTE.map(p => coord(toGeo(p))) },
   'Approximate game route constrained by 76 Dandaloo cadastre', 'estimated',
@@ -80,7 +83,9 @@ export const KIERATHS_PHASE1_TOPOLOGY = Object.freeze({
   street: 'Dandaloo Street',
   sideStreet: 'Nymagee Street',
   separateParcels: ['dandaloo-76', 'dandaloo-82', 'narromine-post-office'],
-  unitIds: KIERATHS_SHOPS.map(s => s.number),
+  unitIds: KIERATHS_UNIT_IDS,
+  separateExteriorShopIds: KIERATHS_SHOPS.map(s => s.number),
+  embeddedInColes: KIERATHS_EMBEDDED_UNITS,
   circulation: { streetEnd: KIERATHS_ROUTE.at(-1), carParkEnd: KIERATHS_ROUTE[0], openToSky: true },
   canopy: { rear: 'kieraths-rear-arch', street: 'low/angular awning (image verified; not yet dimensioned)' },
   planRegistration: 'UNREGISTERED — schematic supplied without surveyed scale/control-point coordinates',

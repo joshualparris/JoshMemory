@@ -2001,6 +2001,10 @@ async function start() {
   }
 
   // Test hook: lets the browser test suite drive real gameplay deterministically.
+  // Street View button: open the comparison page at the player's current spot and heading.
+  $('btn-streetview')?.addEventListener('click', (e) => {
+    e.currentTarget.href = `narromine-compare.html?x=${player.pos.x.toFixed(1)}&z=${player.pos.z.toFixed(1)}&yaw=${player.yaw.toFixed(3)}`;
+  });
   window.__town = {
     // Test harness fast-forwards genuine simulation steps, allowing attendants to
     // commute to their workstations before the browser tries a staffed entrance.

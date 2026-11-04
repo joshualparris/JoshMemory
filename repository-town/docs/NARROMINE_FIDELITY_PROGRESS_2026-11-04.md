@@ -16,7 +16,7 @@ Do not mark the whole town as photorealistic or visually verified.
 | Phase | Status | Next evidence-based acceptance |
 | --- | --- | --- |
 | 1 — Building register/map | Implemented, pending GitHub CI and public browser verification | Verify interactive selection on desktop/mobile; audit further real buildings beyond OSM scope |
-| 2 — Reference collection | Catalogue schema implemented; **0 cleared photographs** | Obtain original/permissioned photo views with author, capture date, licence and viewpoint; review heritage dates |
+| 2 — Reference collection | Catalogue schema implemented; **two 2017 CC BY 3.0 archival metadata records (one building-linked); no current-building validation** | Obtain original/permissioned photo views with author, capture date, licence and viewpoint; review heritage dates |
 | 3 — Unique façades and architectural tiers | Existing 8 detailed sites, mapped extrusion for most others; no new verified façades this branch | Build source-controlled per-building geometry/roof details only when evidence exists; test texture rights and LOD |
 | 4 — Street-by-street fidelity | Coles/Kierath's/Post Office/Royal/Narromine Hotel/Church models already present; not newly certified | Begin with Dandaloo, shop-by-shop reference comparison; then civic/residential/industrial precincts |
 | 5 — Sun/weather/materials | Existing `src/world/sun-shadows.js` adaptive lighting preserved, unmodified | Validate local solar direction, seasonal shadow lengths, mobile frame cost and material colour management against references |
@@ -43,3 +43,14 @@ npm run serve
 Then open `/narromine-progress.html`. Browser screenshot and production deployment are still separate verification steps.
 
 **What this does not claim:** all Narromine buildings mapped; photo-realism; surveyed heights; legally approved third-party photos; correct unknown private façades; all browser tests passed; or deployed `main`.
+
+## Phase 2 pilot — source licence audit (4 November 2026)
+
+**First two real archive entries, linked by source file rather than scraping imagery:**
+
+- [Royal Hotel at Narromine, 28 November 2017](https://commons.wikimedia.org/wiki/File:Narromine_Royal_Hotel_001.JPG) — photo by **Mattinbgn**, CC BY 3.0 Unported, camera -32.235436 / 148.238908. Linked to `NR-SITE-royal-hotel` by the source description; no heading or exact camera height invented.
+- [Dandaloo Street streetscape, 28 November 2017](https://commons.wikimedia.org/wiki/File:Narromine_Dandaloo_Street_002.JPG) — photo by **Mattinbgn**, CC BY 3.0 Unported, camera -32.232833 / 148.239319. Contextual record intentionally **not** attached to individual building IDs until someone reviews the visible façades.
+
+Licence: https://creativecommons.org/licenses/by/3.0/ — appropriate credit, licence URL and indication of modifications are mandatory for reused assets. We link to the original Commons file descriptions, do not copy photos into the game, and never assume 2017 imagery proves a 2026 tenant, sign or shopfront. The register's `visualQa.status` stays `not-reviewed` even with a linked photo. Metadata verification is not a visual/architectural validation.
+
+The online survey map now displays archive references and their licence/capture date for the selected building. `tools/narromine-inventory.mjs --check` deterministically links only named references to existing stable IDs. Remaining source coverage and all visual approvals are open.
