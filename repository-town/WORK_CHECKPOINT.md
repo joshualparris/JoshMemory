@@ -1,3 +1,20 @@
+## 2026-11-04 — ChatGPT: Dandaloo physical streetscape NR-DS-001/002/003 (PR #336)
+- **Status:** PARTIALLY COMPLETE — code and source documentation committed on `feat/narromine-dandaloo-streetscape-v2-20261104`; `main` not merged or production verified. Supersedes conflicting PR #333 without force-push.
+- **Feature claims:** z −877..−932 and −979..−1165 split Dandaloo carriageways: planted median/kerbs; angled parking separators/pavers; planted trees and heritage lamp models. The claim is feature-scoped; parallel agents may continue separate Dandaloo buildings/roads/QA. Canonical policy: `docs/PARALLEL_AGENT_COORDINATION.md`.
+- **Files:** new `src/world/narromine-dandaloo-streetscape-data.js`, `src/world/narromine-dandaloo-streetscape.js`, `tests/narromine-dandaloo-streetscape.mjs`, `docs/NARROMINE_DANDALOO_STREETSCAPE_2026-11-04.md`, small `src/world/narromine.js` hook, `package.json` gate. No building/railway/post-office/Kierath's files replaced.
+- **Evidence and checks:** Josh's 55 side-by-side screenshots, council streetscape design (not as-built), actual OSM dual-carriageway data; 613 geometry assertions passed via V8 source evaluation; syntax parse PASS. 35 median polygons, 72 parking separators, 11 trees, 9 lamps. Added code avoids overlap with current detailed site tree/lamp props within 7m; median vertices maintain 0.4 m mapped asphalt clearance. These are NOT equivalent to Node/WebGL/browser/as-built acceptance.
+- **CI state at checkpoint:** eight PR #336 workflows triggered, some running; Heritage House Release Verification completed success. Full integration, WebGL, mobile, shadows and game deployment still pending. Vercel `narromine-repotown-streetview` preview is a separate QA app; not game deployment proof.
+- **Precise resumption step:** read latest main/PR #336/CI logs, fix any test failures while preserving parallel changes, visually compare matched shots at Post Office and Kierath's against Josh's Drive folder, verify mesh depth/shadows/road driveability on desktop+mobile, reconcile latest main, merge only when required checks green, then confirm production SHA and release.
+
+# 4 November 2026 — Narromine Aviation Museum & Aerodrome Precinct (`Tom Perry Drive`, `Lot 122 DP 1126499`, LEP Item `I12`) — START CHECKPOINT
+
+Owner Antigravity (Agy Windows). Baseline `main` `0d49e204`; branch `feat/narromine-aviation-precinct-20261104`.
+- Claimed in `COORDINATION.md` per `docs/PARALLEL_AGENT_COORDINATION.md`: Phase 2 Narromine Aerodrome & Aviation Museum precinct (`x ∈ [-6040, -5610], z ∈ [-2115, -1785]`).
+- Exclusive new files: `src/world/narromine-aviation-evidence.js`, `src/world/narromine-aviation-precinct.js`, `tests/narromine-aviation-precinct.mjs`, `tests/narromine-aviation-browser.mjs`, `docs/NARROMINE_AVIATION_RECONSTRUCTION.md`.
+- Narrow shared integration points: `src/world/narromine.js`, `src/world/narromine-layout.js`, `COORDINATION.md`, `WORK_CHECKPOINT.md`.
+- Scope: Replace flat generic OSM extrusions (`osm:1..8, 217, 218`) and their oversized courtyard-blocking AABB colliders with architectural & historical reconstructions of `Narromine Aviation Museum` (`osm:218` exhibition hangar with open doors and interior 1903 Wright Flyer replica, Corben Super Ace & Rolls-Royce Merlin Mk 25 engine exhibit), `Narromine Aero Club` & Museum Terminal (`osm:1`), outdoor `CAC CA-27 Sabre Mk 32 (A94-915)` gate guardian on pylon plinth, `WWII RAAF No. 5 EFTS Memorial Wall` (33 plaques), rotating `Aerodrome Beacon Tower & Windsock`, `6` surveyed aerodrome hangars (`osm:2..7`), and `Narromine Gliding Club` (`osm:8`, `osm:217`).
+- Next step: Commit start checkpoint and push branch to `origin`, then implement `src/world/narromine-aviation-evidence.js` and `src/world/narromine-aviation-precinct.js`.
+
 # 4 November 2026 — Narromine Real-World Photo Matching, Live Coordinate-Synced Street View Workspace & Per-Call API Cost Meter — VERIFIED COMPLETE
 
 Owner Antigravity (Agy Fedora). Baseline `main` `5bdfe140` (extending merged [PR #317](https://github.com/joshualparris/JoshMemory/pull/317)); branch `feat/narromine-photo-matching-20261104`.
