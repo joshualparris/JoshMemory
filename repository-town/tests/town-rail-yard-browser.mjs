@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import { chromium, devices } from 'playwright';
 const URL=process.env.TOWN_URL||'http://127.0.0.1:8091/';
 fs.mkdirSync('test-results',{recursive:true});
-const browser=await chromium.launch({args:['--use-angle=swiftshader','--enable-unsafe-swiftshader']});
+const browser=await chromium.launch({channel:process.env.PW_CHANNEL||undefined,args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
 try{
 for(const [name,opts] of [['desktop',{viewport:{width:1280,height:800}}],['android',devices['Pixel 7']]]){
   const context=await browser.newContext(opts),page=await context.newPage(),errors=[];
