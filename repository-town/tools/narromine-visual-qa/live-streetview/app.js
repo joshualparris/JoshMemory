@@ -278,7 +278,7 @@ async function saveGameScreenshot() {
     a.download = 'repo-town-game-only-' + (currentPreset()?.id || 'narromine') + '.png';
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    status('Saved GAME canvas only, never Google's panorama.');
+    status("Saved GAME canvas only, never Google's panorama.");
   } catch (e) {
     status('Could not capture game canvas: ' + e.message +
       '. Use a game-only screenshot from the existing Playwright QA pipeline.', true);
@@ -324,7 +324,7 @@ async function bootstrap() {
       schemaVersion: 1, exportedAt: new Date().toISOString(),
       project: 'RepoTown / Narromine live Street View comparison',
       photosStored: false, apiKeyStored: false,
-      note: 'Google's actual invoice is not observable here. Rates are first-tier published USD estimates only.',
+      note: "Google's actual invoice is not observable here. Rates are first-tier published USD estimates only.",
       monthlyFreeTierEvents: MONTHLY_FREE_EVENTS,
       publishedFirstPaidRateUsd: RATE_USD,
       locallyObservedGoogleActions: state.events,
