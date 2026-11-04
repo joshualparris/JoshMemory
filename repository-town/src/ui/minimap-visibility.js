@@ -6,7 +6,7 @@
   const map = document.getElementById('minimap');
   if (!map) return;
   const STORAGE_KEY = 'repository-town.minimap-hidden.v1';
-  const WESTERN_REGION_X = -2640; // Same region boundary as Narromine's outdoor fog.
+  const WESTERN_REGION_X = -1300; // Narromine scene starts here (SHOW_WEST_OF in narromine.js).
   const button = document.createElement('button');
   button.type = 'button';
   button.id = 'minimap-toggle';
