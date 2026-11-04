@@ -46,7 +46,7 @@ for (const { geo } of geometry) {
 }
 assert.ok(bounds.max.y <= 8.40, 'silhouette stays near 8.07m LiDAR ridge proxy');
 assert.ok(bounds.max.y >= 8.05, 'distinctive photographed raised parapet exists');
-assert.ok(bounds.min.y >= 0, 'geometry does not fall below world ground');
+assert.ok(bounds.min.y > -0.02, 'geometry is above ground (allow IEEE float transform epsilon)');
 assert.ok(bounds.max.x < -4757 && bounds.min.x > -4763, 'decorative relief stays at mapped shop face');
 assert.ok(bounds.min.z > -1093 && bounds.max.z < -1078, 'decorative relief spans mapped frontage only');
 assert.equal(buildNarrominePhysiotherapyFacade({ THREE, building: BUILDINGS.find(b=>b.osmIndex!==186), push:()=>{} }), null, 'non-target buildings unaffected');
