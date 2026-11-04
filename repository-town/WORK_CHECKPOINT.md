@@ -1,3 +1,12 @@
+# 4 November 2026 — Narromine Aviation Museum & Aerodrome Precinct (`Tom Perry Drive`, `Lot 122 DP 1126499`, LEP Item `I12`) — START CHECKPOINT
+
+Owner Antigravity (Agy Windows). Baseline `main` `0d49e204`; branch `feat/narromine-aviation-precinct-20261104`.
+- Claimed in `COORDINATION.md` per `docs/PARALLEL_AGENT_COORDINATION.md`: Phase 2 Narromine Aerodrome & Aviation Museum precinct (`x ∈ [-6040, -5610], z ∈ [-2115, -1785]`).
+- Exclusive new files: `src/world/narromine-aviation-evidence.js`, `src/world/narromine-aviation-precinct.js`, `tests/narromine-aviation-precinct.mjs`, `tests/narromine-aviation-browser.mjs`, `docs/NARROMINE_AVIATION_RECONSTRUCTION.md`.
+- Narrow shared integration points: `src/world/narromine.js`, `src/world/narromine-layout.js`, `COORDINATION.md`, `WORK_CHECKPOINT.md`.
+- Scope: Replace flat generic OSM extrusions (`osm:1..8, 217, 218`) and their oversized courtyard-blocking AABB colliders with architectural & historical reconstructions of `Narromine Aviation Museum` (`osm:218` exhibition hangar with open doors and interior 1903 Wright Flyer replica, Corben Super Ace & Rolls-Royce Merlin Mk 25 engine exhibit), `Narromine Aero Club` & Museum Terminal (`osm:1`), outdoor `CAC CA-27 Sabre Mk 32 (A94-915)` gate guardian on pylon plinth, `WWII RAAF No. 5 EFTS Memorial Wall` (33 plaques), rotating `Aerodrome Beacon Tower & Windsock`, `6` surveyed aerodrome hangars (`osm:2..7`), and `Narromine Gliding Club` (`osm:8`, `osm:217`).
+- Next step: Commit start checkpoint and push branch to `origin`, then implement `src/world/narromine-aviation-evidence.js` and `src/world/narromine-aviation-precinct.js`.
+
 # 4 November 2026 — Narromine Real-World Photo Matching, Live Coordinate-Synced Street View Workspace & Per-Call API Cost Meter — VERIFIED COMPLETE
 
 Owner Antigravity (Agy Fedora). Baseline `main` `5bdfe140` (extending merged [PR #317](https://github.com/joshualparris/JoshMemory/pull/317)); branch `feat/narromine-photo-matching-20261104`.
