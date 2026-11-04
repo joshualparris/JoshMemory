@@ -49,6 +49,20 @@ export function buildNarromineColesInterior(makeLabel, day=1, minute=540) {
       roomName:'Coles Narromine · interpretive retail',pos:point,
       act:{do:'info',title,text:body}});
     sceneObjects.push({type:'civic',label:title,room:0,pos:{x,z},interactive:true});};
+  // Draw thousands of packets in a handful of instanced batches rather than
+  // issuing a separate draw call for every packet on mobile/WebGL.
+  const stockBatches=new Map();
+  const stockPacket=(x,y,z,c)=>{if(!stockBatches.has(c))stockBatches.set(c,[]);
+    stockBatches.get(c).push([x,y,z]);};
+  const flushPackets=()=>{
+    const dummy=new THREE.Object3D();
+    for(const [colour,positions] of stockBatches){
+      const mesh=new THREE.InstancedMesh(geom(.31,.32,.46),mat(colour),positions.length);
+      mesh.name='Instanced supermarket pantry packets';
+      positions.forEach((p,i)=>{dummy.position.set(...p);dummy.updateMatrix();mesh.setMatrixAt(i,dummy.matrix);});
+      mesh.instanceMatrix.needsUpdate=true;group.add(mesh);
+    }
+  };
   const C={wall:0xeee9df,floor:0xb8beb8,roof:0xf5f5ed,steel:0x7b848b,checkout:0x555d60,
     frame:0x424a4b,glass:0x9fced1,produce:0x588c54,wood:0x896749,red:0xce1939,chilled:0x91b0c1};
   // Proper 40 x 52 m floor with 3.4 m front-door gap, glazed store frontage,
@@ -103,7 +117,7 @@ export function buildNarromineColesInterior(makeLabel, day=1, minute=540) {
     solid(1.42,2.12,19.8,x,1.06,-16.0,0x9fa5a3);
     for(let side of [-1,1])for(let level=0;level<4;level++){
       box(.72,.08,19.5,x+side*.46,.34+level*.49,-16,0xededeb);
-      for(let j=0;j<24;j++)box(.31,.32,.46,x+side*.82,.53+level*.47,-25.1+j*.79,products[(ai+j+level)%products.length]);
+      for(let j=0;j<24;j++)stockPacket(x+side*.82,.53+level*.47,-25.1+j*.79,products[(ai+j+level)%products.length]);
     }
     label('AISLE '+(ai+1)+' · '+aisleNames[ai],x,3.05,-5.0);
   }
@@ -123,6 +137,7 @@ export function buildNarromineColesInterior(makeLabel, day=1, minute=540) {
   }
   label('FROZEN FOOD',16.2,3.4,-17);
   hot('freezer','Browse frozen foods','Frozen food behind insulated doors. In reality, stock temperatures and handling need proper checks.',15.4,-12);
+  flushPackets();
   // Front checkout line: four recognisable checkouts, scanner and bagging shelf.
   // Queuing approaches from behind them, not through gondolas.
   for(let n=0;n<4;n++){
