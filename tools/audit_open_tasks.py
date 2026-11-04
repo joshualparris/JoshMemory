@@ -26,7 +26,7 @@ MASTER = "docs/MASTER_20_AGENT_EXECUTION_QUEUE_2026-10-25.csv"
 EXISTING_STEPS = "docs/PORTFOLIO_TRIAGE_TASK_STEPS_2026-10-25.csv"
 GITHUB_SNAPSHOT = "docs/WHOLE_REPO_GITHUB_OPEN_2026-11-05.json"
 SKIP_PATHS = {OUTPUT_CSV, OUTPUT_IDS, OUTPUT_REPORT, GITHUB_SNAPSHOT, MASTER, EXISTING_STEPS}
-SKIP_NAMES = {"COORDINATION.md", "WORK_CHECKPOINT.md", "PARALLEL_AGENT_COORDINATION.md"}
+SKIP_NAMES = {"COORDINATION.md", "WORK_CHECKPOINT.md", "PARALLEL_AGENT_COORDINATION.md", "codingprinciples.md", "CODINGPRINCIPLES.md"}
 TEXT_SUFFIXES = {".md", ".mdx", ".txt", ".csv", ".json", ".py", ".js", ".mjs", ".cjs",
                  ".ts", ".tsx", ".jsx", ".html", ".css", ".scss", ".sh",
                  ".ps1", ".yaml", ".yml", ".toml", ".sql"}
@@ -41,7 +41,7 @@ STATUS_ROW_RE = re.compile(r"\b(?:OPEN|IN PROGRESS|IN_PROGRESS|PENDING|BLOCKED|N
 HEADING_TASK_RE = re.compile(r"^\s*#{2,5}\s+\d{1,3}[.)]\s+(.+?)\s*$")
 STATUS_BULLET_RE = re.compile(r"^\s*[-*]\s+(?:\*\*)?(?:OPEN|PENDING|BLOCKED|TODO|IN PROGRESS)(?:\*\*)?[\s:—–-]+(.+)", re.I)
 UNCLEAR_SOURCE_RE = re.compile(r"(?i)TODO|TASK|BACKLOG|ROADMAP|TRIAGE|IMPROVEMENT|PLAN|NEXT_ACTION|REMAIN|WORK_QUEUE")
-SKIP_PARTS = {"node_modules", ".git", "dist", "test-results", "coverage", ".next",
+SKIP_PARTS = {"node_modules", ".git", "dist", "test-results", "coverage", ".next", "PULL_REQUEST_TEMPLATE",
               ".vercel", "vendor", "screenshots", "conversations", "output"}
 REF_STATES = {"REFERENCE_NOT_ACTIONABLE", "COMPLETED", "CLOSED", "VERIFIED_COMPLETE"}
 
@@ -116,6 +116,17 @@ def scan_markdown(path, text):
         match = CHECK_RE.match(line)
         if match:
             s = match.group(1)
+            # Continuation lines belong to the same checkbox, not new tasks.
+            # Only join indented prose and stop at headings or other list items.
+            for following in lines[n:n+5]:
+                if re.match(r"^\s*(?:[-*+]\s+|\d+[.)]\s+|#{1,6}\s+)", following):
+                    break
+                if not following.strip() or len(s) >= 480:
+                    break
+                if following.startswith("  ") or following.startswith("\t"):
+                    s += " " + following.strip()
+                else:
+                    break
             items.append(task(s, path, n, given_id=existing_task_id(s)))
             continue
         match = STATUS_BULLET_RE.match(line)
@@ -161,6 +172,7 @@ def scan_csv(path, text):
         if not title:
             continue
         rid = next((str(row.get(k) or "").strip() for k in ["task_id", "step_id", "id", "ID"] if row.get(k)), "")
+        rid = rid if ID_RE.fullmatch(rid) else ""
         items.append(task(title, path, idx, "csv_status", "SOURCE_REPORTED_OPEN", rid or existing_task_id(title),
                           str(row.get("priority") or "")))
     return items
@@ -183,6 +195,7 @@ def scan_json(path, text):
             title = next((str(node.get(k) or "").strip() for k in ("action", "task", "title", "description", "work_item", "name") if node.get(k)), "")
             if title and any(st.startswith(x.replace(" ", "_")) for x in OPEN_STATES):
                 rid = str(node.get("task_id") or node.get("id") or "")
+                rid = rid if ID_RE.fullmatch(rid) else ""
                 items.append(task(title, path, 0, "json_status", "SOURCE_REPORTED_OPEN", rid or existing_task_id(title),
                                   str(node.get("priority") or "")))
             for v in node.values():
