@@ -28,12 +28,12 @@ Untouched files:
 
 | # | Location ID | Location Title | Camera `(x, z)` | Target `(x, z)` | Yaw (rad) | Compass |
 |---|---|---|---|---|---|---|
-| 1 | `royal-hotel-dandaloo` | Royal Hotel — Dandaloo Street | `(-4825.50, -545.00)` | `(-4804.40, -542.00)` | `-1.712030` | `98.09° (E)` |
-| 2 | `narromine-hotel-corner` | Narromine Hotel — street-facing corner | `(-4795.00, -692.00)` | `(-4820.50, -712.50)` | `0.893669` | `308.8° (NW)` |
-| 3 | `post-office-entrance` | Post Office — front entrance | `(-4783.50, -960.50)` | `(-4791.22, -947.50)` | `2.605710` | `210.7° (SW)` |
-| 4 | `coles-kieraths-dandaloo` | Coles and Kierath's Dandaloo frontage | `(-4764.50, -898.00)` | `(-4794.00, -892.00)` | `1.771449` | `258.5° (W)` |
+| 1 | `royal-hotel-dandaloo` | Royal Hotel — Dandaloo Street | `(-4820.50, -543.00)` | `(-4800.00, -542.40)` | `-1.599968` | `91.68° (E)` |
+| 2 | `narromine-hotel-corner` | Narromine Hotel — street-facing corner | `(-4803.00, -703.00)` | `(-4824.50, -721.50)` | `0.859990` | `310.73° (NW)` |
+| 3 | `post-office-entrance` | Post Office — front entrance | `(-4776.50, -956.50)` | `(-4792.50, -942.00)` | `2.306609` | `227.84° (SW)` |
+| 4 | `coles-kieraths-dandaloo` | Coles and Kierath's Dandaloo frontage | `(-4776.50, -892.00)` | `(-4802.00, -894.00)` | `1.649065` | `265.52° (W)` |
 | 5 | `kieraths-arcade-courtyard` | Kierath's arcade — pedestrian courtyard | `(-4806.50, -916.60)` | `(-4828.00, -922.00)` | `1.324724` | `284.1° (W)` |
-| 6 | `ordinary-narromine-street` | A representative ordinary Narromine street (Nymagee St) | `(-4902.00, -977.50)` | `(-4945.00, -984.00)` | `1.420769` | `278.6° (W)` |
+| 6 | `ordinary-narromine-street` | A representative ordinary Narromine street (Nymagee St) | `(-4896.00, -975.00)` | `(-4945.00, -983.50)` | `1.399100` | `279.84° (W)` |
 
 Each location is captured across:
 - **Viewports:**
