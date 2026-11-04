@@ -1,0 +1,39 @@
+name: Narromine Street View Online Deployment Acceptance
+
+on:
+  pull_request:
+    paths:
+      - 'repository-town/tools/narromine-visual-qa/live-streetview/**'
+      - 'repository-town/tests/narromine-streetview-online.mjs'
+      - '.github/workflows/narromine-streetview-online.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-online:
+    name: Hosted comparison page, no automatic API usage
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install pinned dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Syntax checks
+        run: |
+          node --check tools/narromine-visual-qa/live-streetview/build-online.mjs
+          node --check tools/narromine-visual-qa/live-streetview/app.js
+          node --check tests/narromine-streetview-online.mjs
+      - name: Static hosting browser acceptance (no Google calls)
+        run: node tests/narromine-streetview-online.mjs

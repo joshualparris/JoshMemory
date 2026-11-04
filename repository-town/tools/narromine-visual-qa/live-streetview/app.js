@@ -336,7 +336,7 @@ async function bootstrap() {
   });
   $('export-game-image').addEventListener('click', saveGameScreenshot);
   try {
-    const response = await fetch('/_streetview/api/presets', { cache: 'no-store' });
+    const response = await fetch('/_streetview/api/presets.json', { cache: 'no-store' });
     if (!response.ok) throw new Error('Local location service returned ' + response.status);
     state.meta = await response.json();
     const list = $('location'); list.replaceChildren();

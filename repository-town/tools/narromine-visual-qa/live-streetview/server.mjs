@@ -51,7 +51,7 @@ export function createComparisonServer({ publicRoot = path.join(ROOT, 'dist/publ
       res.writeHead(302,{Location:'/_streetview/index.html','Cache-Control':'no-store'});
       return res.end();
     }
-    if (pathname === '/_streetview/api/presets') {
+    if (pathname === '/_streetview/api/presets' || pathname === '/_streetview/api/presets.json') {
       return send(res,200,JSON.stringify(presetProvider()),'application/json; charset=utf-8',head);
     }
     let file;
