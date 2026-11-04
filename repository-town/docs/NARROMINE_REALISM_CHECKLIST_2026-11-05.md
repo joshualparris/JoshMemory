@@ -44,4 +44,11 @@ Street View is a dated visual reference, not survey-grade geometry. Keep API cre
 
 ## First-item checkpoint
 
-NR-REAL-001 implementation pending at checklist publication. The source proves these placements are indicative; it does not prove there are no real trees or lamps in northern Dandaloo Street. Restore each object only after individual location evidence, not blanket removal of separately evidenced features.
+NR-REAL-001 source implementation and Node renderer regression PASS; browser/release/deployment acceptance still pending. Checklist was pushed before implementation (f5df515). The source proves these placements are indicative; it does not prove there are no real trees or lamps in northern Dandaloo Street. Restore each object only after individual location evidence, not blanket removal of separately evidenced features.
+
+### Evidence collected during this pass
+
+- Actual planner/renderer regression failed before the fix (194 unsupported solid geometry/box emissions), passed after suppression. Non-furniture surface SHA-256 remains `bad7de94f8604a6f971a342d9d5e5c789467a830469c56757ecdccc7011c3807`. Layout, detailed-lot boundaries, Kierath corridor and NSW evidence checks pass.
+- Three Google Street View static reference images retrieved using the user-authorised API and saved with attribution and camera metadata to the user's private Drive. Capture dates: May 2023 for the south-to-north view, September 2026 for the middle west-facing club view, May 2023 for the northern request. The northern request snapped to a rear lane: **not usable as proof of the Dandaloo frontage**. No images/keys included here.
+- The first image visibly contains real trees, decorative lamps and trimmed hedges. This supports their existence in the street, but does not validate the old individual generated coordinates. Do not cite it as evidence of absence.
+- Source inspection is not a walk-through. The live cloud browser still cannot create WebGL; the existing north-footpath desktop/mobile test is queued through the dedicated PR workflow.

@@ -720,3 +720,7 @@ Current earlier stage ed60: exact release fingerprint f172da02c105a2c0fc420df14d
 
 ## 2026-11-04 — Teleport suggestion #342 reconciled on latest main
 Owner ChatGPT · source from #328 partially salvaged: ONLY new list pick handler, test and audit source fingerprint. Existing keyboard guard retained. Latest main's changes to other `src/main.js` branches preserved. Fresh browser, pub-audit, integration and deployment acceptance pending.
+
+
+## 2026-11-05 — NR-REAL-001 north Dandaloo furniture
+Owner Codex/cloud; branch fix/narromine-north-evidence-20261105; baseline daebdd069c02b4e727efbba900e4269dc76b0743. Public 25-item realism checklist pushed first (f5df515). Exact scope: north streetscape planner's 11 indicative trees/nine lamps and renderer's four synthetic hedge sections; all separately owned landmark models preserved. Regression failed before (194 solid emissions), passes after; non-furniture geometry hash unchanged. Existing layout/Kierath/NSW checks PASS. Street View: three attributed images + metadata saved privately to Drive; 2023/2026 dates and rear-lane snap limitation recorded. No API key/image enters git. Live cloud browser failed WebGL twice; no claimed walking coverage. Full build:release running; dedicated PR desktop/mobile north-footpath workflow added. Next: collect release/CI/browser results, inspect actual screenshots, merge only accepted candidate, verify hosted source. Status PARTIALLY COMPLETE.
