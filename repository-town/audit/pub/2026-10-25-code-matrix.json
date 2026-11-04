@@ -19,7 +19,7 @@
     "repository-town/tests/shop-interiors.mjs": "0ca369aa2d241c152edb841c1125aa9319241a0d",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "6ba8fbbaed3bfbca057d6dbb8f2654b96ee5f403",
+    "repository-town/src/main.js": "2d3dbcb44acd995637feb9a40508d654f4b60e3d",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -1079,6 +1079,15 @@
         "repository-town/src/main.js"
       ],
       "finding": "main.js: __town.view({pitch,fov}) test hook for the comparison page. No pub change."
+    },
+    {
+      "date": "2026-11-04",
+      "by": "Claude",
+      "changedFiles": [
+        "repository-town/src/main.js"
+      ],
+      "finding": "Search box submits on a picked suggestion; journal shortcut tolerates key-less keydown. No pub interior, menu, staffing or service changes.",
+      "evidence": "tests/teleport-search-browser.mjs fails on main (2 page errors) and passes on the fix; fast-travel-regression, narromine-browser pass"
     }
   ]
 }
