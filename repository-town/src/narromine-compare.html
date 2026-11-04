@@ -215,7 +215,16 @@ async function mlySearch(lat, lng, force = false) {
   for (const r of [75, 220, 300]) {
     let j;
     try {
-      const res = await fetch(`./api/mapillary?kind=images&lat=${lat.toFixed(6)}&lng=${lng.toFixed(6)}&r=${r}`);
+      // On a static backup host (no /api), fall back to Mapillary directly with a token kept in this browser.
+      let res = await fetch(`./api/mapillary?kind=images&lat=${lat.toFixed(6)}&lng=${lng.toFixed(6)}&r=${r}`).catch(() => null);
+      if (!res || res.status === 404 || res.status === 405 || !(res.headers.get('content-type') || '').includes('json')) {
+        let tok = store.get('mlyToken');
+        if (!tok) { tok = (prompt('This backup site has no server, so Mapillary needs your client token (starts with MLY|). It is kept only in this browser.') || '').trim(); if (tok) store.set('mlyToken', tok); }
+        if (!tok) { if (seq === mly.seq) mlyMsg('Mapillary needs a client token on this backup site.'); return; }
+        const dLat = r / 111320, dLng = r / (111320 * Math.cos(lat * Math.PI / 180));
+        const bbox = [lng - dLng, lat - dLat, lng + dLng, lat + dLat].map((v) => v.toFixed(6)).join(',');
+        res = await fetch(`https://graph.mapillary.com/images?access_token=${encodeURIComponent(tok)}&fields=id,captured_at,compass_angle,computed_compass_angle,geometry,computed_geometry,thumb_2048_url,creator,is_pano&bbox=${bbox}&limit=200`);
+      }
       j = await res.json().catch(() => ({}));
       if (!res.ok) { if (seq === mly.seq) mlyMsg('Mapillary is unavailable (' + res.status + '): ' + (j.error || j.detail || 'try again shortly') + '.'); return; }
     } catch (e) { if (seq === mly.seq) mlyMsg('Could not reach Mapillary (' + (e.message || 'network error') + ').'); return; }
