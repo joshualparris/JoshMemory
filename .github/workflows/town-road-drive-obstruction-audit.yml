@@ -1,0 +1,55 @@
+name: Town Road & Car Collision WebGL Audit
+on:
+  push:
+    branches:
+      - fix/town-invisible-road-car-barrier-20261104
+  pull_request:
+    paths:
+      - 'repository-town/src/world/player-driving.js'
+      - 'repository-town/tests/road-drive-collisions-browser.mjs'
+      - '.github/workflows/town-road-drive-obstruction-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+jobs:
+  inspect-roads:
+    runs-on: ubuntu-latest
+    timeout-minutes: 32
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install and build the actual town
+        working-directory: repository-town
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+          npm run check:privacy
+      - name: Start game and run actual desktop and Android browser audit
+        working-directory: repository-town
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          set -euo pipefail
+          npx playwright install --with-deps chromium
+          node tools/serve.mjs dist/public 8091 >/tmp/town-road-audit.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for i in $(seq 1 45); do
+            curl -fsS http://127.0.0.1:8091/ >/dev/null && break
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:8091/release.json >/dev/null
+          node tests/road-drive-collisions-browser.mjs
+      - name: Preserve road blocker coordinates and device screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: road-drive-audit
+          path: repository-town/test-results/road-drive/
+          retention-days: 15
+          if-no-files-found: warn
