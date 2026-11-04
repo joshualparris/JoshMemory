@@ -7,7 +7,24 @@
 //   2) Integrated: `buildNarromineRailwayPrecinct({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots })`
 //      feeds directly into `src/world/narromine.js`'s spatial tile batcher.
 import * as THREE from 'three';
-import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+function mergeGeometries(geos) {
+  let n = 0;
+  for (const g of geos) n += g.index ? g.index.count : g.attributes.position.count;
+  const pos = new Float32Array(n * 3), nor = new Float32Array(n * 3);
+  let o = 0;
+  for (const g0 of geos) {
+    const g = g0.index ? g0.toNonIndexed() : g0;
+    if (!g.attributes.normal) g.computeVertexNormals();
+    pos.set(g.attributes.position.array, o);
+    nor.set(g.attributes.normal.array, o);
+    o += g.attributes.position.array.length;
+    if (g !== g0) g.dispose();
+  }
+  const m = new THREE.BufferGeometry();
+  m.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  m.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+  return m;
+}
 import {
   NARROMINE_RAILWAY_HERITAGE,
   NARROMINE_RAILWAY_BUILDINGS,
@@ -233,13 +250,13 @@ export function buildNarromineRailwayPrecinct(ctx = {}) {
     box(P.signWhite, 0.32, 2.25, 0.10, totemX, 1.15, totemZ, sf.yaw);
     box(P.coachOrange, 0.34, 0.42, 0.11, totemX, 2.02, totemZ, sf.yaw);
     box(P.coachBlue, 0.34, 0.28, 0.11, totemX, 1.65, totemZ, sf.yaw);
-    colliders.push({ x0: sf.cx - 1.2, x1: sf.cx + 1.2, z0: sf.cz - 1.2, z1: sf.cz + 1.2 });
+    // Open-front shelter remains walkable so passengers can stand under the canopy at the coach stop spot.
   }
 
   // ── 2. Passenger Side Platform 1 (`NARROMINE_RAILWAY_PLATFORM`) ───────────
   const plat = NARROMINE_RAILWAY_PLATFORM;
   const pf = quadFrame(plat.ptsWorld);
-  const platH = plat.heightM;
+  const platH = 0.42; // Visual deck height relative to y=0 player ground plane (evidence heightM=0.95m above rail)
   {
     // Main platform deck and brick trackside wall
     box(P.brick, pf.L, platH - 0.10, pf.W - 0.12, pf.cx, (platH - 0.10) / 2, pf.cz, pf.yaw);
@@ -264,17 +281,18 @@ export function buildNarromineRailwayPrecinct(ctx = {}) {
 
     // Heritage double-sided station nameboards ("NARROMINE") on white timber/steel posts
     for (const sb of plat.signboards) {
-      const [sx, sz] = sb.atWorld;
+      const sbU = sb.id?.endsWith('west') ? -15.5 : 15.5;
+      const sx = pf.cx + pf.ux * sbU - pf.nx * 0.35, sz = pf.cz + pf.uz * sbU - pf.nz * 0.35;
       for (const postOffset of [-1.35, 1.35]) {
         const px = sx + pf.ux * postOffset;
         const pz = sz + pf.uz * postOffset;
-        box(P.signWhite, 0.12, 2.35, 0.12, px, platH + 1.175, pz, pf.yaw);
-        box(P.roofTile, 0.16, 0.08, 0.16, px, platH + 2.38, pz, pf.yaw);
+        box(P.signWhite, 0.12, 1.95, 0.12, px, platH + 0.975, pz, pf.yaw);
+        box(P.roofTile, 0.16, 0.08, 0.16, px, platH + 1.98, pz, pf.yaw);
       }
       // White signboard with dark border & station name band
-      box(P.signWhite, 3.10, 0.62, 0.09, sx, platH + 1.92, sz, pf.yaw);
-      box(P.steelDark, 2.92, 0.46, 0.11, sx, platH + 1.92, sz, pf.yaw);
-      box(P.signWhite, 2.80, 0.34, 0.12, sx, platH + 1.92, sz, pf.yaw);
+      box(P.signWhite, 3.10, 0.62, 0.09, sx, platH + 1.52, sz, pf.yaw);
+      box(P.steelDark, 2.92, 0.46, 0.11, sx, platH + 1.52, sz, pf.yaw);
+      box(P.signWhite, 2.80, 0.34, 0.12, sx, platH + 1.52, sz, pf.yaw);
       if (ctx.boardTexture && ctx.plane && typeof document !== 'undefined') {
         const tex = ctx.boardTexture([sb.text, sb.subtitle], {
           bg: '#f4f1e8',
@@ -283,9 +301,9 @@ export function buildNarromineRailwayPrecinct(ctx = {}) {
           w: 1024,
           h: 220,
         });
-        const faceYaw = Math.atan2(pf.nx, pf.nz);
-        ctx.plane(tex, 2.75, 0.52, sx + pf.nx * 0.07, platH + 1.92, sz + pf.nz * 0.07, faceYaw);
-        ctx.plane(tex, 2.75, 0.52, sx - pf.nx * 0.07, platH + 1.92, sz - pf.nz * 0.07, faceYaw + Math.PI);
+        const faceYaw = pf.yaw;
+        ctx.plane(tex, 2.85, 0.54, sx - pf.nx * 0.08, platH + 1.52, sz - pf.nz * 0.08, faceYaw);
+        ctx.plane(tex, 2.85, 0.54, sx + pf.nx * 0.08, platH + 1.52, sz + pf.nz * 0.08, faceYaw + Math.PI);
       }
     }
 
@@ -497,9 +515,11 @@ export function buildNarromineRailwayPrecinct(ctx = {}) {
       const nz = ux;
       const yaw = -Math.atan2(dz, dx);
 
-      // Crushed basalt ballast shoulder
-      strip(P.ballast, ax, az, bx, bz, 3.3, 0.06, 0.12);
-      // Twin standard-gauge (1.435 m) steel running rails
+      // Crushed basalt ballast shoulder (only in standalone mode; narromine.js draws base RAIL ballast)
+      if (!ctx.push) {
+        strip(P.ballast, ax, az, bx, bz, 3.3, 0.06, 0.12);
+      }
+      // Twin standard-gauge (1.435 m) steel running rails above the rail bed
       for (const railSide of [-0.7175, 0.7175]) {
         strip(
           P.railSteel,
@@ -508,36 +528,49 @@ export function buildNarromineRailwayPrecinct(ctx = {}) {
           bx + nx * railSide,
           bz + nz * railSide,
           0.11,
-          0.24,
-          0.12
+          0.355,
+          0.07
         );
       }
       // Timber sleepers spaced every 2.2 m along precinct tracks
       for (let d = 1.0; d < len; d += 2.2) {
-        box(P.timber, 0.24, 0.11, 2.45, ax + ux * d, 0.12, az + uz * d, yaw);
+        box(P.timber, 0.24, 0.05, 2.45, ax + ux * d, 0.305, az + uz * d, yaw);
       }
     }
   }
 
   // ── 7. Information / Heritage Spots & Optional Labels ─────────────────────
+  const platformSpotPos = [-4703.2, -723.5];
+  const stationFact =
+    'Opened 1 May 1883 on the Main Western Line (497.554 km from Sydney); closed to regular passenger trains on 20 October 1975 and restored as an NSW TrainLink coach stop. Listed as Item I11 on the Narromine LEP 2011 Heritage Schedule (Lot 4 DP 1012153).';
+  const coachFact =
+    'Active regional road coach stop connecting Narromine with Dubbo, Parkes, Broken Hill and Lightning Ridge services.';
   spots.push(
     {
+      key: 'narromine:railway-station:platform',
+      label: 'Narromine Railway Station · Platform 1',
       name: 'Narromine Railway Station',
       kind: 'railway_station',
       kindLabel: 'Heritage railway station & NSW TrainLink coach stop',
       address: 'Derribong Avenue (Narromine Station Access)',
-      x: station.centreWorld[0],
-      z: station.centreWorld[1],
-      fact: 'Opened 1 May 1883 on the Main Western Line (497.554 km from Sydney); closed to regular passenger trains on 20 October 1975 and restored as an NSW TrainLink coach stop. Listed as Item I11 on the Narromine LEP 2011 Heritage Schedule (Lot 4 DP 1012153).',
+      x: platformSpotPos[0],
+      z: platformSpotPos[1],
+      pos: new THREE.Vector3(platformSpotPos[0], 0, platformSpotPos[1]),
+      fact: stationFact,
+      text: `Narromine Railway Station · Platform 1 (Main Western Line, 497.554 km) — ${stationFact}`,
     },
     {
+      key: 'narromine:railway-station:coach-stop',
+      label: 'Narromine Station Coach Stop',
       name: 'Narromine Station Coach Stop',
       kind: 'bus_stop',
       kindLabel: 'NSW TrainLink regional coach stop',
       address: 'Narromine Station Access',
       x: forecourt.coachStop.atWorld[0],
       z: forecourt.coachStop.atWorld[1],
-      fact: 'Active regional road coach stop connecting Narromine with Dubbo, Parkes, Broken Hill and Lightning Ridge services.',
+      pos: new THREE.Vector3(forecourt.coachStop.atWorld[0], 0, forecourt.coachStop.atWorld[1]),
+      fact: coachFact,
+      text: `NSW TrainLink regional coach stop · Narromine Station Access — ${coachFact}`,
     }
   );
 

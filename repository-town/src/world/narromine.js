@@ -5,6 +5,9 @@
 // while you are in Repository Town.
 import * as THREE from 'three';
 import { buildKieraths } from './narromine-kieraths.js';
+import { buildNarromineRailwayPrecinct } from './narromine-railway-precinct.js';
+import { NARROMINE_RAILWAY_INTEGRATION_SPEC } from './narromine-railway-evidence.js';
+const RAILWAY_SUPPRESSED_OSM = new Set(NARROMINE_RAILWAY_INTEGRATION_SPEC.suppressedOsmBuildingIndices);
 import { estimatedShopfrontProfile, facadeBays, landmarkFacadeSpec } from './narromine-facade-profiles.js';
 import { buildDisjointRoadSurfaces } from './narromine-road-surfaces.js';
 import { NARROMINE_POST_OFFICE_ENTRANCE, NARROMINE_POST_OFFICE_ID } from './narromine-post-office.js';
@@ -130,6 +133,7 @@ export function buildNarromine(parent, makeLabel = null) {
   // Real buildings, raised from their mapped outlines.
   const colliders = [...boundaryColliders()], spots = [];
   for (const b of BUILDINGS) {
+    if (RAILWAY_SUPPRESSED_OSM.has(b.osmIndex)) continue;
     const [h, colour] = BUILDING_STYLE(b);
     const shape = new THREE.Shape(b.pts.map(([x, zz]) => new THREE.Vector2(x, -zz)));
     const g = new THREE.ExtrudeGeometry(shape, { depth: h, bevelEnabled: false }); g.rotateX(-Math.PI / 2); push(colour, g);
@@ -206,6 +210,7 @@ export function buildNarromine(parent, makeLabel = null) {
   // Mapped OSM main-street facades: the EDGE is data-grounded; facade materials,
   // mullions, piers and doors are visual approximations (see facade profiles).
   for (const f of FRONTAGES) {
+    if (RAILWAY_SUPPRESSED_OSM.has(BUILDINGS[f.building]?.osmIndex)) continue;
     const [ax, az] = f.a, [bx, bz] = f.b, len = Math.hypot(bx - ax, bz - az), mx = (ax + bx) / 2, mz = (az + bz) / 2;
     const tl = Math.hypot(...f.toward) || 1, ox = f.toward[0] / tl, oz = f.toward[1] / tl, yaw = -Math.atan2(bz - az, bx - ax);
     const depth = Math.min(3, Math.max(1.5, f.d - 1)), profile = estimatedShopfrontProfile({ name: f.name, street: f.street });
@@ -476,6 +481,7 @@ export function buildNarromine(parent, makeLabel = null) {
 
   // Main-thread batch-merged geometry; live walkable arcade, retaining Post Office entrance.
   buildKieraths({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
+  buildNarromineRailwayPrecinct({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   // Named places: a sign over each, and an E-prompt with what it is, its address and any history.
   for (const p of PLACES) {
     if (makeLabel) { const l = makeLabel(p.name, 'interactive'); l.position.set(p.x, 5.4, p.z); l.scale.multiplyScalar(0.8); town.add(l); }

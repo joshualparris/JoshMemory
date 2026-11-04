@@ -1,13 +1,20 @@
 # 4 November 2026 — Narromine Visual QA & Screenshot Comparison System — VERIFIED COMPLETE
 
-Owner Antigravity. Baseline `main` `ca9caf58`; branch `feat/narromine-visual-qa-20261104`.
+Owner Antigravity. Baseline `main` `09cacbcf`; branch `feat/narromine-visual-qa-20261104`.
 - Implemented `tools/narromine-visual-qa/locations.mjs` (6 deterministic Narromine camera locations with exact coordinates, yaw, compass headings, `desktop` 1280×800 and `mobile` 393×852 viewports, `morning` 08:00 / `midday` 12:30 / `late-afternoon` 16:45 lighting presets, and read-only licensed reference lookup from `data/narromine-photo-references.json`).
 - Implemented `tools/narromine-visual-qa/compare.mjs` (pure Node PNG codec, Sobel edge & luminance signature analyser, daylight progression verifier, and baseline comparison classifier separating `expected-time-or-lighting-difference` and `expected-weather-difference` from genuine `rendering-regression`).
 - Implemented `tools/narromine-visual-qa/report.mjs` and `tools/narromine-visual-qa/run.mjs` (Playwright/WebGL capture engine, separated desktop/mobile frame-time distribution & draw-call/triangle diagnostics, camera reproducibility proof, `contact-sheet.png`, `manifest.json`, and self-contained `report.html`).
 - Verified on Fedora Linux via `node tools/narromine-visual-qa/run.mjs` (36/36 captures PASS, 12/12 daylight progression checks PASS, camera reproducibility `poseDelta=0`) and `node tests/narromine-visual-qa/visual-qa.mjs` (PASS), plus existing Narromine and privacy checks (`node tools/check_privacy.mjs`).
 - Shared files (`src/world/narromine.js`, `src/world/narromine-buildings-data.js`, `src/world/narromine-kieraths.js`, `src/world/narromine-layout.js`, `src/main.js`, `package.json`) and generated `test-results/` artifacts remain strictly excluded from git history.
 
-# 4 November 2026 — Narromine Railway Station precinct reconstruction — STANDALONE IMPLEMENTATION COMPLETE (live integration pending)
+# 4 November 2026 — Narromine Railway Station precinct live integration — VERIFIED COMPLETE
+
+Owner Antigravity. Baseline `main` `ca9caf58` (following merge of standalone [PR #312](https://github.com/joshualparris/JoshMemory/pull/312) as `13dba681`); branch `feat/narromine-railway-live-integration-20261104`.
+- Wired `buildNarromineRailwayPrecinct` into `src/world/narromine.js`, suppressed the 3 duplicate generic OSM building extrusions (`osm:28`, `osm:29`, `osm:198`) and their oversized AABB colliders via `NARROMINE_RAILWAY_INTEGRATION_SPEC.suppressedOsmBuildingIndices`, and registered `Narromine Railway Station` (`[-4708.8, -710.2]`, `Derribong Avenue (Narromine Station Access)`) in `src/world/narromine-layout.js` (`PLACES` / `FACTS`).
+- Replaced the unmapped `three/examples/jsm/utils/BufferGeometryUtils.js` import in `src/world/narromine-railway-precinct.js` with a native ESM-safe `mergeGeometries` helper matching `narromine.js`, aligned the double-sided `"NARROMINE"` station signboards with `pf.yaw`, and raised track sleepers (`y = 0.305`) and steel running rails (`y = 0.355`) cleanly above the base `RAIL` bed.
+- Added `tests/narromine-railway-browser.mjs` and extended `tests/narromine-railway-precinct.mjs` with live `buildNarromine` integration and collider-clearance assertions. Verified in Chromium at both desktop (`1280x800`) and mobile (`393x852`) viewports: physically walked along `Narromine Station Access` and `Platform 1`, verified the `Narromine Railway Station` interactive spot prompt, inspected 8 gameplay screenshots, and passed `narromine-railway-precinct.mjs`, `narromine-layout.mjs`, `narromine-road-surfaces.mjs`, `narromine-facades.mjs`, `narromine-inventory.mjs`, `narromine-map.mjs`, `narromine-post-office.mjs`, `z-fighting-source.mjs`, `tools/build.mjs`, and `tools/check_privacy.mjs`.
+
+# 4 November 2026 — Narromine Railway Station precinct reconstruction — STANDALONE IMPLEMENTATION COMPLETE (merged PR #312)
 
 Owner Antigravity. Baseline `main` `ef7ac49a`; branch `feat/narromine-railway-precinct-20261104` ([PR #312](https://github.com/joshualparris/JoshMemory/pull/312)).
 - Implemented `src/world/narromine-railway-evidence.js` (13-feature WGS84 GeoJSON FeatureCollection, statutory Narromine LEP 2011 Schedule 5 Item I11 / Lot 4 DP 1012153 metadata, surveyed OSM footprints & 2023/2011 NSW Spatial Services LiDAR heights for `osm:29`, `osm:28`, and `osm:198`, explicit `surveyed` / `photo-matched` / `estimated` confidence tiers, and duplicate-prevention contract `NARROMINE_RAILWAY_INTEGRATION_SPEC`).

@@ -107,3 +107,8 @@ When PR #309 and PR #310 have merged and `src/world/narromine.js` is free of con
    buildNarromineRailwayPrecinct({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
    ```
 3. **Add `node tests/narromine-railway-precinct.mjs` to `test:town` in `package.json`.**
+
+### Live Integration Status (4 November 2026)
+- **Status:** Integrated into `src/world/narromine.js` and `src/world/narromine-layout.js` on `feat/narromine-railway-live-integration-20261104`.
+- **Duplicate Suppression:** Generic OSM extrusions and AABB colliders for `osm:28`, `osm:29`, and `osm:198` are suppressed via `NARROMINE_RAILWAY_INTEGRATION_SPEC.suppressedOsmBuildingIndices`.
+- **Browser & Unit Verification:** Verified with `node tests/narromine-railway-precinct.mjs` and `node tests/narromine-railway-browser.mjs` (desktop `1280×800` and mobile `393×852` physical walks along `Narromine Station Access` and `Platform 1`, zero console/page errors).
