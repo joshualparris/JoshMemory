@@ -1,0 +1,60 @@
+name: Narromine St Augustines Church Realism
+
+on:
+  pull_request:
+    paths:
+      - 'repository-town/src/world/narromine-st-augustines.js'
+      - 'repository-town/src/world/narromine.js'
+      - 'repository-town/tests/narromine-st-augustines*.mjs'
+      - 'repository-town/docs/NARROMINE_ST_AUGUSTINES_EVIDENCE.md'
+      - '.github/workflows/narromine-st-augustines.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'repository-town/src/world/narromine-st-augustines.js'
+      - 'repository-town/tests/narromine-st-augustines*.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+jobs:
+  church-realism:
+    name: Measured church geometry, build, privacy, desktop/mobile screenshot
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install pinned dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Syntax and measured church geometry tests
+        run: |
+          node --check src/world/narromine-st-augustines.js
+          node --check src/world/narromine.js
+          node tests/narromine-st-augustines.mjs
+      - name: Build and privacy checks
+        run: |
+          node tools/build.mjs
+          node tools/check_privacy.mjs
+      - name: Install Chromium with software WebGL
+        run: npx playwright install --with-deps chromium
+      - name: Render church on desktop and phone
+        run: node tests/narromine-st-augustines-browser.mjs
+        env:
+          ST_AUGUSTINES_SCREENSHOT_DIR: test-results/narromine-st-augustines
+          LIBGL_ALWAYS_SOFTWARE: '1'
+      - name: Retain visual acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: st-augustines-church-desktop-mobile
+          path: repository-town/test-results/narromine-st-augustines/*.png
+          if-no-files-found: warn
+          retention-days: 14
