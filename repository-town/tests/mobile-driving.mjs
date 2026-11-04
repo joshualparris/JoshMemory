@@ -51,6 +51,24 @@ try {
  await page.waitForFunction(()=>!document.getElementById('driving-dashboard')?.hidden,null,{timeout:5000});
  assert.equal(await page.locator('#drive-speed').innerText(),'0','speedometer begins at a stop');
  assert(await page.isVisible('#drive-dash-toggle'),'Show/Hide toggle is accessible while driving on Android');
+ // Regression: the real in-car Show/Hide dashboard button must not cover
+ // the right-side compass, minimap, or full instrument panel.
+ const navigation=await page.evaluate(()=>{
+   const rect=id=>document.getElementById(id).getBoundingClientRect();
+   const toggle=rect('drive-dash-toggle'),compass=rect('game-compass'),
+     minimap=rect('minimap'),dash=rect('driving-dashboard');
+   const collide=(a,b)=>a.left<b.right+4&&a.right+4>b.left
+     &&a.top<b.bottom+4&&a.bottom+4>b.top;
+   return {toggleVisible:toggle.width>0&&toggle.height>0,
+     compassVisible:compass.width>0&&compass.height>0,
+     compassOverlap:collide(toggle,compass),
+     minimapOverlap:collide(toggle,minimap),
+     dashboardOverlap:collide(toggle,dash)};
+ });
+ assert(navigation.compassVisible&&navigation.toggleVisible,
+   'real Android driving exposes the compass and the dashboard toggle: '+JSON.stringify(navigation));
+ assert(!navigation.compassOverlap&&!navigation.minimapOverlap&&!navigation.dashboardOverlap,
+   'real Android driving controls must not overlap navigation: '+JSON.stringify(navigation));
  await page.tap('#drive-dash-toggle');
  assert(await page.locator('#driving-dashboard').isHidden(),'button hides full instrument panel');
  assert(await page.isVisible('#drive-dash-toggle'),'hide must NOT remove its own show control');
