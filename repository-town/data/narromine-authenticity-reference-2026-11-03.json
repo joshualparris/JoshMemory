@@ -1,0 +1,871 @@
+{
+  "snapshotDate": "2026-11-03",
+  "state": "SOURCE_GROUNDED_REFERENCE_ONLY_NOT_A_RENDERED_1_TO_1_TOWN",
+  "scope": "Narromine NSW township (NOT all shire, Trangie, Tomingley, nor Repository Town)",
+  "streetSource": {
+    "url": "https://narromine.nsw.gov.au/Roads%20Management%20Strategy%202024.pdf?downloadable=1",
+    "published": "2024-05-08",
+    "meaning": "Narromine Shire Council's road register labels. These are road names only; NOT line geometry, endpoints, road widths, or exact junction locations."
+  },
+  "streets": [
+    {
+      "councilRoadNumber": 301,
+      "name": "First Avenue",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 302,
+      "name": "Second Avenue",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 303,
+      "name": "Third Avenue",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 304,
+      "name": "Fourth Avenue",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 305,
+      "name": "Fifth Avenue",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 306,
+      "name": "Sixth Avenue",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 307,
+      "name": "A'Beckett Street",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 308,
+      "name": "Algalah Street",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 309,
+      "name": "Old Backwater Road",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 310,
+      "name": "Birch Street",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 311,
+      "name": "Booth Street",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 312,
+      "name": "Burraway Street",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 313,
+      "name": "Cathundril Street",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 314,
+      "name": "Commodore Crescent",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 315,
+      "name": "Culling Street",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 316,
+      "name": "Dandaloo Street",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 317,
+      "name": "Dappo Road",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 318,
+      "name": "Davis Drive",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 319,
+      "name": "Derribong Avenue",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 320,
+      "name": "Derribong Street",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 321,
+      "name": "Duffy Street",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 322,
+      "name": "Ellengerah Street",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 323,
+      "name": "Elm Close",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 324,
+      "name": "Garden Avenue",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 325,
+      "name": "Industry Avenue",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 326,
+      "name": "Jerry Smith Street",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 327,
+      "name": "Kurrajong Parade",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 328,
+      "name": "Macquarie Drive",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 329,
+      "name": "Manildra Street",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 330,
+      "name": "Maple Crescent",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 331,
+      "name": "Merilba Street",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 332,
+      "name": "Meringo Street",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 333,
+      "name": "Meryula Street",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 334,
+      "name": "Mingelo Street",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 335,
+      "name": "Minore Street",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 337,
+      "name": "Moss Avenue",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 338,
+      "name": "Murgah Street",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 339,
+      "name": "Nellie Vale Road",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 340,
+      "name": "Nymagee Street",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 341,
+      "name": "Oak Crescent",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 342,
+      "name": "Payton Close",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 343,
+      "name": "Pegale Place",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 344,
+      "name": "Scott Court",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 345,
+      "name": "Short Street",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 346,
+      "name": "Sungift Avenue",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 347,
+      "name": "Tancred Street",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 348,
+      "name": "Temoin Street",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 349,
+      "name": "Terangion Street",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 350,
+      "name": "Trangie Road",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 351,
+      "name": "Wattle Crescent",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 352,
+      "name": "Warren Road",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 353,
+      "name": "Wright Road",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 355,
+      "name": "Crossley Drive",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 356,
+      "name": "Bowden Fletcher Drive",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 357,
+      "name": "Tom Perry Drive",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 360,
+      "name": "Sixth Avenue Laneway",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 361,
+      "name": "Fifth Avenue Laneway",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 362,
+      "name": "Third Avenue Laneway",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 363,
+      "name": "Dandaloo Street Laneway",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 364,
+      "name": "Merilba Street Laneway",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 365,
+      "name": "Temoin Street Laneway",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 366,
+      "name": "Meryula Street Laneway",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 367,
+      "name": "Algalah Street Laneway",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 368,
+      "name": "Manildra Street Laneway",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 369,
+      "name": "Booth Street Laneway",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 370,
+      "name": "Culling Street Laneway",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 371,
+      "name": "Ellengerah Street Laneway",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 372,
+      "name": "Kingsford Smith Place",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 373,
+      "name": "Nancy Bird-Walton Drive",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 375,
+      "name": "Murgah Street Laneway",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 377,
+      "name": "Hayden Circuit",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 378,
+      "name": "Ewen Way",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    },
+    {
+      "councilRoadNumber": 379,
+      "name": "Powell Place",
+      "mapPolyline": null,
+      "geometryVerified": false,
+      "streetViewReviewed": false
+    }
+  ],
+  "shopSource": {
+    "url": "https://narromineregion.com.au/shopping",
+    "meaning": "Official Narromine Region visitor-shopping directory; entries observed at research date, but current occupancy and exact shopfront positions have NOT been independently verified."
+  },
+  "shops": [
+    {
+      "id": "coles",
+      "name": "Coles Narromine",
+      "address": "76 Dandaloo Street, Narromine NSW 2821",
+      "category": "supermarket",
+      "listedSource": "https://narromineregion.com.au/shopping",
+      "operatingAsOf2026Verified": false,
+      "lat": null,
+      "lon": null,
+      "streetViewReviewed": false,
+      "facadeMeasured": false,
+      "rendered": false
+    },
+    {
+      "id": "country-traders",
+      "name": "Country Traders Home & Life",
+      "address": "4/76 Dandaloo Street, Narromine NSW 2821",
+      "category": "homewares",
+      "listedSource": "https://narromineregion.com.au/shopping",
+      "operatingAsOf2026Verified": false,
+      "lat": null,
+      "lon": null,
+      "streetViewReviewed": false,
+      "facadeMeasured": false,
+      "rendered": false
+    },
+    {
+      "id": "macquarie-clothing",
+      "name": "Macquarie Clothing",
+      "address": "68 Dandaloo Street, Narromine NSW 2821",
+      "category": "clothing",
+      "listedSource": "https://narromineregion.com.au/shopping",
+      "operatingAsOf2026Verified": false,
+      "lat": null,
+      "lon": null,
+      "streetViewReviewed": false,
+      "facadeMeasured": false,
+      "rendered": false
+    },
+    {
+      "id": "cottage-craft",
+      "name": "Narromine Cottage Craft",
+      "address": "81 Dandaloo Street, Narromine NSW 2821",
+      "category": "craft",
+      "listedSource": "https://narromineregion.com.au/shopping",
+      "operatingAsOf2026Verified": false,
+      "lat": null,
+      "lon": null,
+      "streetViewReviewed": false,
+      "facadeMeasured": false,
+      "rendered": false
+    },
+    {
+      "id": "narromine-florist",
+      "name": "Narromine Florist",
+      "address": "720 Dappo Road, Narromine NSW 2821",
+      "category": "florist",
+      "listedSource": "https://narromineregion.com.au/shopping",
+      "operatingAsOf2026Verified": false,
+      "lat": null,
+      "lon": null,
+      "streetViewReviewed": false,
+      "facadeMeasured": false,
+      "rendered": false
+    },
+    {
+      "id": "narromine-hardware",
+      "name": "Narromine Hardware",
+      "address": "47–55 Nymagee Street, Narromine NSW 2821",
+      "category": "hardware",
+      "listedSource": "https://narromineregion.com.au/shopping",
+      "operatingAsOf2026Verified": false,
+      "lat": null,
+      "lon": null,
+      "streetViewReviewed": false,
+      "facadeMeasured": false,
+      "rendered": false
+    },
+    {
+      "id": "mens-shed",
+      "name": "Narromine Men's Shed",
+      "address": "66 Dandaloo Street, Narromine NSW 2821",
+      "category": "community",
+      "listedSource": "https://narromineregion.com.au/shopping",
+      "operatingAsOf2026Verified": false,
+      "lat": null,
+      "lon": null,
+      "streetViewReviewed": false,
+      "facadeMeasured": false,
+      "rendered": false
+    },
+    {
+      "id": "post-office",
+      "name": "Narromine Post Office",
+      "address": "74 Dandaloo Street, Narromine NSW 2821",
+      "category": "post",
+      "listedSource": "https://narromineregion.com.au/shopping",
+      "operatingAsOf2026Verified": false,
+      "lat": null,
+      "lon": null,
+      "streetViewReviewed": false,
+      "facadeMeasured": false,
+      "rendered": false
+    },
+    {
+      "id": "vinnies",
+      "name": "St Vincent de Paul Narromine",
+      "address": "55 Dandaloo Street, Narromine NSW 2821",
+      "category": "charity",
+      "listedSource": "https://narromineregion.com.au/shopping",
+      "operatingAsOf2026Verified": false,
+      "lat": null,
+      "lon": null,
+      "streetViewReviewed": false,
+      "facadeMeasured": false,
+      "rendered": false
+    },
+    {
+      "id": "soul-food",
+      "name": "Soul Food Depot & Gallery",
+      "address": "1–7 Dandaloo Street, Narromine NSW 2821",
+      "category": "cafe-gallery",
+      "listedSource": "https://narromineregion.com.au/shopping",
+      "operatingAsOf2026Verified": false,
+      "lat": null,
+      "lon": null,
+      "streetViewReviewed": false,
+      "facadeMeasured": false,
+      "rendered": false
+    },
+    {
+      "id": "style-33",
+      "name": "Style 33 Boutique",
+      "address": "1/76 Dandaloo Street, Narromine NSW 2821",
+      "category": "fashion",
+      "listedSource": "https://narromineregion.com.au/shopping",
+      "operatingAsOf2026Verified": false,
+      "lat": null,
+      "lon": null,
+      "streetViewReviewed": false,
+      "facadeMeasured": false,
+      "rendered": false
+    },
+    {
+      "id": "zest",
+      "name": "Zest by Modern Foodie",
+      "address": "63 Dandaloo Street, Narromine NSW 2821",
+      "category": "cafe",
+      "listedSource": "https://narromineregion.com.au/shopping",
+      "operatingAsOf2026Verified": false,
+      "lat": null,
+      "lon": null,
+      "streetViewReviewed": false,
+      "facadeMeasured": false,
+      "rendered": false
+    }
+  ],
+  "heritageSource": {
+    "url": "https://legislation.nsw.gov.au/view/whole/pdf/inforce/2025-08-14/epi-2011-0648",
+    "version": "Historical instrument in force 2024-08-16 to 2025-09-18; not automatically current 2026 status",
+    "meaning": "These heritage entries establish buildings/locations, not modern shop tenants or current access."
+  },
+  "heritage": [
+    {
+      "id": "imperial-hotel",
+      "name": "Imperial Hotel (heritage building)",
+      "address": "11 Burraway Street",
+      "heritageId": "I1",
+      "lat": null,
+      "lon": null,
+      "streetViewReviewed": false,
+      "facadeMeasured": false,
+      "rendered": false
+    },
+    {
+      "id": "butchers-shop",
+      "name": "Butchers shop (heritage building)",
+      "address": "15 Burraway Street",
+      "heritageId": "I2",
+      "lat": null,
+      "lon": null,
+      "streetViewReviewed": false,
+      "facadeMeasured": false,
+      "rendered": false
+    },
+    {
+      "id": "shops-burraway",
+      "name": "Shops (heritage buildings)",
+      "address": "17–21 Burraway Street",
+      "heritageId": "I3",
+      "lat": null,
+      "lon": null,
+      "streetViewReviewed": false,
+      "facadeMeasured": false,
+      "rendered": false
+    },
+    {
+      "id": "courthouse-hotel",
+      "name": "Courthouse Hotel (heritage building)",
+      "address": "23–29 Burraway Street",
+      "heritageId": "I4",
+      "lat": null,
+      "lon": null,
+      "streetViewReviewed": false,
+      "facadeMeasured": false,
+      "rendered": false
+    },
+    {
+      "id": "old-courthouse",
+      "name": "Former Courthouse",
+      "address": "35 Burraway Street",
+      "heritageId": "I5",
+      "lat": null,
+      "lon": null,
+      "streetViewReviewed": false,
+      "facadeMeasured": false,
+      "rendered": false
+    },
+    {
+      "id": "main-street-median",
+      "name": "Dandaloo Street landscaped median",
+      "address": "Dandaloo Street, between Meringo Street and Burraway Street",
+      "heritageId": "I7",
+      "lat": null,
+      "lon": null,
+      "streetViewReviewed": false,
+      "facadeMeasured": false,
+      "rendered": false
+    },
+    {
+      "id": "the-abbey",
+      "name": "The Abbey",
+      "address": "24 Dandaloo Street",
+      "heritageId": "I8",
+      "lat": null,
+      "lon": null,
+      "streetViewReviewed": false,
+      "facadeMeasured": false,
+      "rendered": false
+    },
+    {
+      "id": "cbc-bank",
+      "name": "Former CBC Bank building",
+      "address": "72 Dandaloo Street",
+      "heritageId": "I9",
+      "lat": null,
+      "lon": null,
+      "streetViewReviewed": false,
+      "facadeMeasured": false,
+      "rendered": false
+    },
+    {
+      "id": "hotel-narromine",
+      "name": "Hotel Narromine",
+      "address": "116 Dandaloo Street",
+      "heritageId": "I10",
+      "lat": null,
+      "lon": null,
+      "streetViewReviewed": false,
+      "facadeMeasured": false,
+      "rendered": false
+    },
+    {
+      "id": "railway-station",
+      "name": "Narromine Railway Station",
+      "address": "Derribong Avenue",
+      "heritageId": "I11",
+      "lat": null,
+      "lon": null,
+      "streetViewReviewed": false,
+      "facadeMeasured": false,
+      "rendered": false
+    },
+    {
+      "id": "masonic-hall",
+      "name": "Masonic Hall",
+      "address": "41 Merilba Street",
+      "heritageId": "I18",
+      "lat": null,
+      "lon": null,
+      "streetViewReviewed": false,
+      "facadeMeasured": false,
+      "rendered": false
+    },
+    {
+      "id": "aerodrome",
+      "name": "Narromine Aerodrome",
+      "address": "Mitchell Highway",
+      "heritageId": "I14",
+      "lat": null,
+      "lon": null,
+      "streetViewReviewed": false,
+      "facadeMeasured": false,
+      "rendered": false
+    },
+    {
+      "id": "house-12-nymagee",
+      "name": "House (heritage building)",
+      "address": "12 Nymagee Street",
+      "heritageId": "I16",
+      "lat": null,
+      "lon": null,
+      "streetViewReviewed": false,
+      "facadeMeasured": false,
+      "rendered": false
+    },
+    {
+      "id": "bakery-32-nymagee",
+      "name": "House and bakery (heritage building)",
+      "address": "32 Nymagee Street",
+      "heritageId": "I17",
+      "lat": null,
+      "lon": null,
+      "streetViewReviewed": false,
+      "facadeMeasured": false,
+      "rendered": false
+    }
+  ],
+  "notYetVerified": [
+    "GIS street geometries & crossings",
+    "Street View capture date and façades",
+    "Business occupancy in Nov 2026",
+    "Height, setback, roof and facade materials",
+    "Buildings and parcel boundary coordinates",
+    "Legal and visual access to imagery",
+    "Bus, parking and speed limit details by link",
+    "Real route from fictional Repository Town to Mitchell Highway"
+  ],
+  "knownGeometryTraits": [
+    {
+      "name": "Dandaloo Street divided heritage garden median",
+      "from": "Meringo Street",
+      "to": "Burraway Street",
+      "status": "Listed LEP heritage item I7. Not a 2-way undivided lane.",
+      "source": "https://legislation.nsw.gov.au/view/whole/pdf/inforce/2025-08-14/epi-2011-0648"
+    }
+  ],
+  "licenceNotes": "OpenStreetMap ODbL when actual geometry is imported; Google Maps Street View to be visually inspected subject to terms, not harvested, copied or republished as textures. Respect privacy and source licensing.",
+  "googleStreetView": {
+    "attempted": "2026-11-03",
+    "reviewed": false,
+    "reason": "Connected interactive browser could not start because TinyFish wallet had insufficient credit. Static photographs from public listing sites are NOT Google Street View and cannot substitute for a dated street-level survey."
+  }
+}
