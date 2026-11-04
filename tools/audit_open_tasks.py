@@ -219,13 +219,18 @@ def scan_code(path, text):
                               existing_task_id(s), evidence="code-comment-only"))
     return items
 
+def master_row_is_actionable(row):
+    # The 25 Oct CSV uses item_type for historical reference rows; status is
+    # sometimes LEGACY_PARENT_TRIAGED_NOT_STEP_VERIFIED even for those rows.
+    return (row.get('status') not in REF_STATES and row.get('item_type') not in REF_STATES)
+
 def load_master():
     result = {}
     with (ROOT / MASTER).open(newline="", encoding="utf-8") as f:
         for row in csv.DictReader(f):
             rid = row["task_id"]
             state = row["status"]
-            if state in REF_STATES:
+            if not master_row_is_actionable(row):
                 continue
             result[rid] = task(row["action"], MASTER, int(row["execution_rank"])+1,
                                "legacy_master_2026_10_25", "SOURCE_REPORTED_" + state,
