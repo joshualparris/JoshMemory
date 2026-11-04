@@ -5,6 +5,7 @@
 // while you are in Repository Town.
 import * as THREE from 'three';
 import { buildKieraths } from './narromine-kieraths.js';
+import { buildNarromineHotel, NARROMINE_HOTEL_ID } from './narromine-hotel.js';
 import { NARROMINE_POST_OFFICE_ENTRANCE, NARROMINE_POST_OFFICE_ID } from './narromine-post-office.js';
 import { HIGHWAY, HIGHWAY_Z, REGION, CORRIDOR_HALF, STREETS, BUILDINGS, AREAS, WATER, RAIL, PLACES, FILL_SHOPS, FILL_HOUSES, FRONTAGES, DETAILED, polyRect, nearTownStreet, boundaryColliders } from './narromine-layout.js';
 
@@ -129,6 +130,7 @@ export function buildNarromine(parent, makeLabel = null) {
   // Real buildings, raised from their mapped outlines.
   const colliders = [...boundaryColliders()], spots = [];
   for (const b of BUILDINGS) {
+    if (Math.abs(b.pts[0][0] - (-4813.8)) < 0.5 && Math.abs(b.pts[0][1] - (-734.3)) < 0.5) continue;
     const [h, colour] = BUILDING_STYLE(b);
     const shape = new THREE.Shape(b.pts.map(([x, zz]) => new THREE.Vector2(x, -zz)));
     const g = new THREE.ExtrudeGeometry(shape, { depth: h, bevelEnabled: false }); g.rotateX(-Math.PI / 2); push(colour, g);
@@ -257,6 +259,7 @@ export function buildNarromine(parent, makeLabel = null) {
   };
   const GROUND = { asphalt: [0x3f4244, 0.05], grass: [0x7fa65d, 0.03], paving: [0xb8ac98, 0.055], gravel: [0xa89a84, 0.045] };
   for (const d of DETAILED) {
+    if (d.id === NARROMINE_HOTEL_ID) continue;
     const ROOF = 0xc8cac6, WALL = 0xe3d8c2;   // galvanised roofs as in the aerial; wall colour assumed (cream render/paint)
     for (const g of d.ground) flatPoly(GROUND[g.kind][0], g.pts, GROUND[g.kind][1]);
     for (const p of d.parts) {
@@ -399,6 +402,7 @@ export function buildNarromine(parent, makeLabel = null) {
     narromineEnter:true});
 
   // Main-thread batch-merged geometry; live walkable arcade, retaining Post Office entrance.
+  buildNarromineHotel({ push, box, flatPoly, town, colliders });
   buildKieraths({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   // Named places: a sign over each, and an E-prompt with what it is, its address and any history.
   for (const p of PLACES) {

@@ -72,7 +72,20 @@ console.log(`PASS Narromine (OpenStreetMap): ${STREETS.length} street pieces, ${
   assert(nh.parts.filter((p) => p.storeys === 2).every((p) => p.features?.length >= 5), 'Narromine Hotel: all three street wings carry photographed facade features');
   assert(nh.verandahs.every((v) => v.postColour && v.laceColour && v.signs?.length), 'Narromine Hotel: verandahs carry photographed green/cream colours and signage');
   assert(nh.props.some((p) => p.kind === 'parapet' && p.text?.includes('NARROMINE HOTEL')), 'Narromine Hotel: corner parapet present');
-  assert(nh.props.filter((p) => p.kind === 'chimney').length === 3, 'Narromine Hotel: three brick chimneys present');
+  assert(nh.props.filter((p) => p.kind === 'chimney').length === 4, 'Narromine Hotel: four brick chimneys present');
+  const THREE = await import('three');
+  const { buildNarromine } = await import('../src/world/narromine.js');
+  const { hotelToWorld } = await import('../src/world/narromine-hotel.js');
+  const built = buildNarromine(new THREE.Group());
+  const hits = (x, z) => built.colliders.some((c) => x >= c.x0 && x <= c.x1 && z >= c.z0 && z <= c.z1);
+  for (let dist = 0; dist <= 26; dist += 1.0) {
+    const [ex, ez] = hotelToWorld(dist, -1.8);
+    assert(!hits(ex, ez), 'Dandaloo St verandah footpath walkable at s=' + dist);
+  }
+  for (let dist = 0; dist <= 22; dist += 1.0) {
+    const [sx, sz] = hotelToWorld(-1.8, dist);
+    assert(!hits(sx, sz), 'Derribong Ave verandah footpath walkable at w=' + dist);
+  }
 }
 
 // Kierath's plan topology and walkability (the previous 76 building was a solid

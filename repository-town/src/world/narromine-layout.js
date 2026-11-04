@@ -142,7 +142,7 @@ const overlapsPlaced = (r) => placed.some((q) => r.x0 < q.x1 && r.x1 > q.x0 && r
 const clearOfStreets = (r) => { for (let x = r.x0; x <= r.x1; x += 2) for (let z = r.z0; z <= r.z1; z += 2) if (nearTownStreet(x, z, 1.5)) return false; return true; };
 
 export const FILL_SHOPS = Object.freeze(PLACES.flatMap((p) => {
-  if (BUILDING_CENTRES.some((b) => inPoly(p.x, p.z, b.pts)) || nearMapped(p.x, p.z, 4) || inArea(p.x, p.z)) return [];
+  if (DETAILED.some((d) => d.name === p.name) || BUILDING_CENTRES.some((b) => inPoly(p.x, p.z, b.pts)) || nearMapped(p.x, p.z, 4) || inArea(p.x, p.z)) return [];
   const n = nearestSegment(p.x, p.z); if (!n || n.d > 45) return [];
   // Front on the property line: half the road, a 3 m footpath, then the shop 14 deep behind it.
   const nx = (p.x - n.px) / (n.d || 1), nz = (p.z - n.pz) / (n.d || 1), set = n.s.width / 2 + 3 + 7;
