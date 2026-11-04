@@ -1,3 +1,10 @@
+## 2026-11-04 — Royal Hotel rooftop lettering salvage (#313) — START CHECKPOINT
+- Owner: ChatGPT GitHub connector. Branch: `fix/narromine-royal-lettering-salvage-20261104` from `main` `87cd2824d49f5a8adbfc610657e8f3b006b70a69`.
+- Scope: only `ROYAL HOTEL` text projection onto existing pitched LiDAR-adjusted roof at 123 Dandaloo. Avoid modifying actual hotel roof, other structures, Kierath's/Coles, Dandaloo #336 and geometry owned by other agents.
+- Files: `src/world/narromine.js` roofText block, isolated roof letter geometry helper, existing façade tests. Precise merge strategy: carry forward source of original PR #313 onto current main; no old-branch merge or overwrite.
+- Tests/evidence: pending. Must run CI on newly prepared source, verify actual visual result and no overlap; do not call live/deployed until verified.
+- Next: implement helper + source hook, add test, open PR, inspect CI and compare production.
+
 ## 2026-11-04 — ChatGPT: Dandaloo physical streetscape NR-DS-001/002/003 (PR #336)
 - **Status:** PARTIALLY COMPLETE — code and source documentation committed on `feat/narromine-dandaloo-streetscape-v2-20261104`; `main` not merged or production verified. Supersedes conflicting PR #333 without force-push.
 - **Feature claims:** z −877..−932 and −979..−1165 split Dandaloo carriageways: planted median/kerbs; angled parking separators/pavers; planted trees and heritage lamp models. The claim is feature-scoped; parallel agents may continue separate Dandaloo buildings/roads/QA. Canonical policy: `docs/PARALLEL_AGENT_COORDINATION.md`.
