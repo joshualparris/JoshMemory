@@ -27,10 +27,12 @@ jobs:
         run: node tests/narromine-north-furniture-evidence.mjs
       - run: node tests/narromine-dandaloo-streetscape.mjs
       - run: npm run build && npm run check:privacy
-      - run: npx playwright install --with-deps chromium
+      - name: Verify runner's preinstalled Chrome (avoid stalled Chromium download)
+        run: google-chrome --version
       - name: Physically walk both north Dandaloo footpaths on desktop and phone
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
+          PW_CHANNEL: chrome
         run: node tests/narromine-north-dandaloo-browser.mjs
       - uses: actions/upload-artifact@v4
         if: always()
