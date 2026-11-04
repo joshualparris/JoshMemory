@@ -235,8 +235,10 @@ export function buildNarromine(parent, makeLabel = null) {
   }
   const HOUSE_WALLS = [0xd8cdb6, 0xc9a98a, 0xbfc4bd, 0xd6c9a4, 0xa98a74], HOUSE_ROOFS = [0x6e3b32, 0x5a5f66, 0x8a8f8c, 0x7a4a3a, 0x4f5a52];
   for (const h of FILL_HOUSES) {
-    placeBox(HOUSE_WALLS[h.tone], h.w, 3.0, h.d, h.x, 1.5, h.z, h.yaw);
-    const r = roofGeo(); r.scale(h.w + 0.8, 2.2, h.d + 0.8); r.rotateY(h.yaw); r.translate(h.x, 4.1, h.z); push(HOUSE_ROOFS[h.tone], r);
+    // Real traced footprint; total height from its measured estimate when known (else a 3 m wall + 2.2 m roof).
+    const wall = h.h > 0 ? Math.min(10, Math.max(2.4, h.h * 0.62)) : 3.0, roofH = h.h > 0 ? Math.min(5, Math.max(0.5, h.h - wall)) : 2.2;
+    placeBox(HOUSE_WALLS[h.tone], h.w, wall, h.d, h.x, wall / 2, h.z, h.yaw);
+    const r = roofGeo(); r.scale(h.w + 0.8, roofH, h.d + 0.8); r.rotateY(h.yaw); r.translate(h.x, wall + roofH / 2, h.z); push(HOUSE_ROOFS[h.tone], r);
     colliders.push({ ...h.rect });
   }
   // Mapped OSM main-street facades: the EDGE is data-grounded; facade materials,

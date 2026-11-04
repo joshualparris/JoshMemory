@@ -14,7 +14,7 @@ landmark sites, 8 stand-in shops and **2,665 invented stand-in houses**.
 
 ## Checklist (highest impact first)
 
-1. [ ] **Real building footprints for every building.** Replace the 2,665 invented stand-in houses
+1. [x] **Real building footprints for every building.** _Done 4 Nov 2026: 2,212 traced footprints (Microsoft Global ML Building Footprints, ODbL) replace all 2,665 invented houses; heights from its estimates (1,985 measured); 13 dropped where a mapped road runs through them. Remaining: the 8 named stand-in shops._ Replace the 2,665 invented stand-in houses
    (and 8 stand-in shops) with NSW Spatial Services building footprints: real position, outline and
    orientation for every house, shed and shop. Heights from 2023 LiDAR where measured.
 2. [ ] **LiDAR heights and roof form for all footprints.** Run `tools/narromine_lidar.py` over the
