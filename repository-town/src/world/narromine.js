@@ -294,15 +294,16 @@ export function buildNarromine(parent, makeLabel = null) {
     if (F.kind === 'glazing') grid(e, t[0], t[1], F.y[0], F.y[1], F.cols, F.rows, 0x1f272d, 0x2b2f33, 0.12);
     if (F.kind === 'band') grid(e, t[0], t[1], F.y[0], F.y[1], F.panes, 1, 0x9fb3c2, 0xf4f4f0, 0.12);
     if (F.kind === 'panel') { const [x, z] = e.at((t[0] + t[1]) / 2, 0.03 + (F.layer || 0) * 0.03), h = F.y[1] - F.y[0]; placeBox(F.colour, e.len * (t[1] - t[0]), h, 0.04, x, F.y[0] + h / 2, z, e.yaw); }
-    if (F.kind === 'door') { const [x, z] = e.at(t, 0.12), w = F.w ?? 1.15, h = F.y[1] - F.y[0];
-      placeBox(0xe2d7c5, w + 0.18, h + 0.12, 0.08, x, F.y[0] + h / 2, z, e.yaw);
-      const [dx, dz] = e.at(t, 0.19); placeBox(F.colour ?? 0x514137, w, h, 0.08, dx, F.y[0] + h / 2, dz, e.yaw);
-      placeBox(0x526d78, w - 0.22, Math.min(0.55, h / 3), 0.09, dx, F.y[1] - 0.43, dz, e.yaw);
-      const [hx, hz] = e.at(t + 0.018, 0.26); placeBox(0xe5dbbc, 0.045, 0.25, 0.05, hx, F.y[0] + 1.0, hz, e.yaw);
-    }
-    if (F.kind === 'window') { const [x, z] = e.at(t, 0.07), h = F.y[1] - F.y[0], w = F.w || 1.0;
-      placeBox(0xf4f4f0, w + 0.2, h + 0.2, 0.08, x, F.y[0] + h / 2, z, e.yaw); const [gx, gz] = e.at(t, 0.1); placeBox(0x9fb3c2, w, h, 0.06, gx, F.y[0] + h / 2, gz, e.yaw);
-      if (F.ac) { const [ax, az] = e.at(t, 0.35); placeBox(0xe6e6e2, w * 0.7, 0.45, 0.6, ax, F.y[1] - 0.35, az, e.yaw); } }
+    // Windows and doors: a frame, glass (or a door leaf), an optional brick head and sash bar; t may be a list.
+    if (F.kind === 'window' || F.kind === 'door') for (const tt of Array.isArray(t) ? t : [t]) {
+      const [x, z] = e.at(tt, 0.07), h = F.y[1] - F.y[0], w = F.w || 1.0, door = F.kind === 'door';
+      placeBox(F.frame ?? 0xf4f4f0, w + 0.2, h + 0.2, 0.08, x, F.y[0] + h / 2, z, e.yaw); const [gx, gz] = e.at(tt, 0.1);
+      placeBox(F.glass ?? F.colour ?? (door ? 0x514137 : 0x9fb3c2), w, h, 0.06, gx, F.y[0] + h / 2, gz, e.yaw);
+      if (door) { const [hx, hz] = e.at(tt + 0.018, 0.16); placeBox(0xe5dbbc, 0.045, 0.25, 0.05, hx, F.y[0] + 1.0, hz, e.yaw); }
+      if (F.sash && !door) placeBox(F.frame ?? 0xf4f4f0, w, 0.06, 0.08, gx, F.y[0] + h / 2, gz, e.yaw);
+      if (door && F.fanlight) placeBox(0x9fb3c2, w, 0.35, 0.07, gx, F.y[1] - 0.2, gz, e.yaw);
+      if (F.head) { const [hx, hz] = e.at(tt, 0.1); placeBox(F.head, w + 0.4, 0.28, 0.1, hx, F.y[1] + 0.24, hz, e.yaw); }
+      if (F.ac) { const [ax, az] = e.at(tt, 0.35); placeBox(0xe6e6e2, w * 0.7, 0.45, 0.6, ax, F.y[1] - 0.35, az, e.yaw); } }
     if (F.kind === 'pier') { const [x, z] = e.at(t, F.out ?? 0.15), h = F.y[1] - F.y[0]; placeBox(F.colour ?? 0xbdb6ad, F.w || 0.55, h, F.d || F.w || 0.55, x, F.y[0] + h / 2, z, e.yaw); }
     // Pointed (Gothic) openings: lancet windows and arched doors, a surround then the glass/leaf.
     if (F.kind === 'lancet' || F.kind === 'archdoor') {
@@ -342,7 +343,8 @@ export function buildNarromine(parent, makeLabel = null) {
       // Hotel facades: the mapped street-edge and verandah are grounded, but the
       // window and doorway positions below are explicitly ESTIMATED details.
       const hotel = landmarkFacadeSpec(d.id, p.name);
-      if (hotel) for (const bay of facadeBays(along(p, hotel.edge).len, { maxBays: 7, targetWidth: 3.2 })) {
+      // Photo-matched parts (p.features from Street View) supersede these estimates.
+      if (hotel && !p.features) for (const bay of facadeBays(along(p, hotel.edge).len, { maxBays: 7, targetWidth: 3.2 })) {
         const edge = hotel.edge;
         if (bay.door) feature(p, { kind: 'door', edge, t: bay.t, w: 1.15, y: [0.08, 2.55] });
         else feature(p, { kind: 'window', edge, t: bay.t, w: Math.min(1.35, bay.width - 0.2), y: [1.0, 2.55] });
@@ -377,7 +379,8 @@ export function buildNarromine(parent, makeLabel = null) {
       // awnings tucked under a roof overhang read as the roof and are ignored.
       const Lv = v.lidar && v.lidar[6] >= 1.5 && v.lidar[4] < 8.5 ? v.lidar[4] : null;
       const f = frame(v.pts), [oa, ob] = [v.pts[v.outer[0]], v.pts[v.outer[1]]], top = Lv ?? (v.levels === 2 ? 7.0 : 3.25);
-      const vRoof = v.lace ? 0x8a6a52 : ROOF, POST = v.lace ? 0xeae6dc : 0x6f6a62;   // painted posts and lace assumed
+      // Photographed verandahs carry their own colours (posts, balustrade/lace, roof, fascia); otherwise defaults.
+      const vRoof = v.roofColour ?? (v.lace ? 0x8a6a52 : ROOF), POST = v.postColour ?? (v.lace ? 0xeae6dc : 0x6f6a62), LACE = v.laceColour ?? POST, FASCIA = v.fasciaColour ?? LACE;
       if (v.cantilever) { box(v.colour ?? 0xf2f0ea, f.L, 0.3, f.W, f.cx, Lv ?? v.height, f.cz, f.yaw); continue; }   // cantilevered awning, no posts
       box(vRoof, f.L, 0.1, f.W, f.cx, top, f.cz, f.yaw);
       const ex = ob[0] - oa[0], ez = ob[1] - oa[1], len = Math.hypot(ex, ez), n = Math.max(2, Math.round(len / 3.2));
@@ -386,9 +389,11 @@ export function buildNarromine(parent, makeLabel = null) {
       for (let i = 0; i <= n; i++) { const t = i / n; box(POST, 0.14, top, 0.14, oa[0] + ex * t + inX, top / 2, oa[1] + ez * t + inZ); }
       if (v.levels === 2) {
         box(0x7d6a55, f.L, 0.2, f.W, f.cx, top * 0.5, f.cz, f.yaw);                       // balcony floor
-        box(POST, len, 0.06, 0.06, mx, top * 0.5 + 1.05, mz, eyaw); box(POST, len, 0.9, 0.03, mx, top * 0.5 + 0.6, mz, eyaw); // balustrade rail and panel
+        box(FASCIA, len, 0.08, 0.1, mx, top * 0.5 + 1.05, mz, eyaw); box(LACE, len, 0.9, 0.04, mx, top * 0.5 + 0.6, mz, eyaw); // balustrade rail and panel
+        box(FASCIA, len, 0.3, 0.06, mx, top * 0.5 - 0.05, mz, eyaw);   // balcony fascia
       }
-      if (v.lace) { box(POST, len, 0.45, 0.03, mx, top - 0.3, mz, eyaw); box(POST, len, 0.35, 0.03, mx, top * 0.5 - 0.35, mz, eyaw); } // upper and lower lace friezes
+      if (v.lace) { box(LACE, len, 0.45, 0.03, mx, top - 0.3, mz, eyaw); box(LACE, len, 0.35, 0.03, mx, top * 0.5 - 0.42, mz, eyaw); } // upper and lower lace friezes
+      if (v.fasciaColour) box(FASCIA, len, 0.22, 0.06, mx, top + 0.05, mz, eyaw);   // roof fascia
     }
     for (const g of d.ground) if (g.tables) { const cy = polyRect(g.pts);
       for (let i = 0; i < g.tables; i++) { const tx = cy.x0 + 2 + i * 3.2, tz = (cy.z0 + cy.z1) / 2; box(0x5c4632, 1.6, 0.06, 0.8, tx, 0.75, tz); box(0x5c4632, 1.6, 0.05, 0.3, tx, 0.45, tz - 0.75); box(0x5c4632, 1.6, 0.05, 0.3, tx, 0.45, tz + 0.75); } }
@@ -415,6 +420,15 @@ export function buildNarromine(parent, makeLabel = null) {
         for (let k = 0; k < 14; k++) { const a = k / 14 * Math.PI * 2, g = new THREE.BoxGeometry(3.4, 0.06, 0.55); g.translate(1.7, 0, 0); g.rotateZ(-0.35 - (k % 2) * 0.25); g.rotateY(a); g.translate(x, h, z); push(0x4f6b32, g); } }
       if (pr.kind === 'statue') { const [x, z] = pr.at; box(0x9e9b95, 1.0, 0.9, 1.0, x, 0.45, z); box(0xdedbd4, 0.5, 0.55, 0.6, x, 1.18, z); box(0xdedbd4, 0.42, 0.5, 0.35, x, 1.6, z - 0.08); const g = new THREE.SphereGeometry(0.2, 8, 6); g.translate(x, 2.0, z - 0.08); push(0xdedbd4, g); colliders.push({ x0: x - 0.5, x1: x + 0.5, z0: z - 0.5, z1: z + 0.5 }); }   // median statue; small so lanes stay clear
       if (pr.kind === 'redbays') flatPoly(0xb3262b, pr.pts, 0.07);
+      // Brick chimney rising h metres above y, with a corbelled cap.
+      if (pr.kind === 'chimney') { const [x, z] = pr.at; box(pr.colour ?? 0xa04b36, 0.7, pr.h, 0.55, x, pr.y + pr.h / 2, z); box(pr.colour ?? 0xa04b36, 0.85, 0.18, 0.7, x, pr.y + pr.h - 0.05, z); }
+      // Ornamental parapet at a corner: a rendered pedestal with a scrolled pediment and crest, facing 'face'.
+      if (pr.kind === 'pediment') { const [x, z] = pr.at, y = pr.y, fy = pr.face, c = pr.colour ?? 0xdcc9a0;
+        placeBox(c, 2.6, 1.4, 0.5, x, y + 0.7, z, fy); placeBox(c, 2.9, 0.2, 0.62, x, y + 1.45, z, fy);
+        placeBox(c, 1.6, 0.7, 0.45, x, y + 1.9, z, fy); placeBox(c, 0.7, 0.5, 0.4, x, y + 2.45, z, fy);
+        for (const s of [-1, 1]) { const sx = x + Math.cos(-fy) * s * 1.2, sz = z + Math.sin(-fy) * s * 1.2; box(c, 0.35, 0.5, 0.35, sx, y + 1.8, sz); const b = new THREE.SphereGeometry(0.2, 8, 6); b.translate(sx, y + 2.15, sz); push(c, b); } }
+      // A flat sign at a point and height, facing yaw 'face' (used for verandah name boards).
+      if (pr.kind === 'facesign' && typeof document !== 'undefined') { const [x, z] = pr.at; plane(boardTexture(pr.text, { bg: pr.bg, fg: pr.fg, border: pr.border ?? pr.bg, w: 1024, h: Math.round(1024 * pr.h / pr.w) }), pr.w, pr.h, x, pr.y, z, pr.face); }
       // Octagonal brick bellcote with a little tiled cap and cross, seated on a roof at height y.
       if (pr.kind === 'bellcote') { const [x, z] = pr.at, y = pr.y;
         const b = new THREE.CylinderGeometry(0.55, 0.6, 0.9, 8); b.translate(x, y + 0.45, z); push(0xa65a40, b);

@@ -24132,11 +24132,15 @@
       "heightEvidence": null,
       "facade": {
         "materials": [],
-        "colours": [],
-        "windows": null,
-        "doors": null,
+        "colours": [
+          "#dcc9a0"
+        ],
+        "windows": 10,
+        "doors": 3,
         "verandahs": 2,
-        "signs": []
+        "signs": [
+          "LOCAL LIQUOR"
+        ]
       },
       "photoReferences": [],
       "provenance": [
