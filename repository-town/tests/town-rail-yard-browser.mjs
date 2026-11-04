@@ -28,6 +28,12 @@ for(const [name,opts] of [['desktop',{viewport:{width:1280,height:800}}],['andro
   await page.evaluate(()=>window.__town.yardBoard());
   assert.equal(await page.evaluate(()=>window.__town.yardTrain().driving),true);
   if(name==='android'){
+    // The touch group is unhidden on the next animation frame, not during
+    // yardBoard() itself. Wait for rendered visibility before asserting it.
+    await page.waitForFunction(()=>{
+      const el=document.querySelector('[aria-label="Rail yard shunting controls"]');
+      return el && getComputedStyle(el).display==='flex';
+    },null,{timeout:15000});
     const buttons=await page.getByRole('group',{name:'Rail yard shunting controls'}).getByRole('button').count();
     assert.equal(buttons,2,'two phone-visible controls');
   }
