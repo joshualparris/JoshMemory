@@ -48,7 +48,7 @@ export const POSTAL_HOURS=Object.freeze({weekday:[9*60,17*60],weekend:null});
 export const COLES_HOURS=Object.freeze({weekday:[6*60,21*60],sunday:[7*60,21*60]});
 export const POSTAL_HOME_OSM_BUILDING_INDEX=203;
 export const POSTAL_WALK_ROUTE_LOCAL=Object.freeze([
-  [-2066.5375,-332.5875],[-2058.8,-305.5],[-2006.2,-297.6],[-1990.6,-295.3],
+  [-2067,-322.7],[-2058.8,-305.5],[-2006.2,-297.6],[-1990.6,-295.3],
   [-1960.4,-497.5],[-1951.7,-556.1],[-1950.1,-567.1],[-1945.8,-595.6],
   [-1932.9,-682.4],[-1924.5,-738.8],[-1920.7,-763.7],[-1919.9,-769.3],
   [-1916.6,-791.2],[-1914.4,-806.3],[-1905.9,-846.2],[-1909.7,-858.4],
@@ -59,7 +59,7 @@ const HOUSE=NARROMINE_OSM.buildings[POSTAL_HOME_OSM_BUILDING_INDEX];
 if(!HOUSE || HOUSE.kind!=='house' || HOUSE.levels!==1 || HOUSE.name)
   throw new Error('Leah’s exact mapped residential house OSM index changed: review the assignment before rendering.');
 const centre=HOUSE.pts.reduce((p,q)=>[p[0]+q[0]/HOUSE.pts.length,p[1]+q[1]/HOUSE.pts.length],[0,0]);
-if(Math.hypot(centre[0]-POSTAL_WALK_ROUTE_LOCAL[0][0],centre[1]-POSTAL_WALK_ROUTE_LOCAL[0][1])>2)
+if(Math.hypot(centre[0]-(-2066.5375),centre[1]-(-332.5875))>2)
   throw new Error('Leah’s mapped house location no longer matches the walking route.');
 
 const row=(start,end,place,activity,phase='personal')=>Object.freeze({start,end,place,activity,phase});
