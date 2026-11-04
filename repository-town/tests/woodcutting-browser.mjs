@@ -90,8 +90,22 @@ try {
     const k = window.__town.skills();
     return k.chopping === id || k.trees.find((t) => t.id === id)?.stump;
   }, yard.id), 'chopping the selected yard tree: ' + yard.id);
-  for (let i = 0; i < 12; i++) { await page.waitForTimeout(110); const h = await T(() => window.__town.skills().hatchet); angles.push(h.angle); }
-  step(Math.max(...angles) - Math.min(...angles) > 1.2, `the hatchet swings (angle ${Math.min(...angles).toFixed(2)} → ${Math.max(...angles).toFixed(2)})`);
+  // Observe actual animation frames, not twelve 110 ms Playwright polls.
+  // Software WebGL may render only 3 fps; polling misses the short raised or
+  // strike poses even when the player has genuinely chopped the tree.
+  angles.push(...await T(async (id) => {
+    const samples = [], until = performance.now() + 6500;
+    while (samples.length < 40 && performance.now() < until) {
+      await new Promise((resolve) => requestAnimationFrame(resolve));
+      const k = window.__town.skills();
+      if (k.chopping !== id) break;
+      samples.push(k.hatchet.angle);
+    }
+    return samples;
+  }, yard.id));
+  const swingSpan = angles.length ? Math.max(...angles) - Math.min(...angles) : 0;
+  step(angles.length >= 4 && swingSpan > 1.2,
+    `the hatchet swings across real rendered frames (${angles.length} frames, ${angles.length ? Math.min(...angles).toFixed(2) : 'n/a'} → ${angles.length ? Math.max(...angles).toFixed(2) : 'n/a'})`);
   await page.screenshot({ path: `test-results/chop-${mobile ? 'mobile' : 'desktop'}.png` }).catch(() => {});
   await page.waitForFunction((id) => !window.__town.skills().chopping || window.__town.skills().trees.find((t) => t.id === id).stump, yard.id, { timeout: 60000 }).catch(() => {});
   if (!(await T((id) => window.__town.skills().trees.find((t) => t.id === id).stump, yard.id))) { await use(); await page.waitForFunction((id) => window.__town.skills().trees.find((t) => t.id === id).stump, yard.id, { timeout: 60000 }).catch(() => {}); }
