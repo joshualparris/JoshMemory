@@ -33,4 +33,5 @@ jobs:
         run: |
           npm ci --no-audit --no-fund
           node tests/council-park-routes.mjs
+          npm run build
           node tools/check_privacy.mjs
