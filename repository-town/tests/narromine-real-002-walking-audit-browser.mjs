@@ -88,7 +88,7 @@ async function routeManifest(page) {
       { id:'NR-WALK-003', label:'Narromine Railway Station forecourt', start:[-4722.0,-711.5], points:[[-4712.4,-710.8],[-4708.8,-710.2]], source:'Railway browser test previously verified station access road', photo:null },
       { id:'NR-WALK-004', label:'Narromine Hotel streetside', start:approach(hotelTarget,5), points:[hotelTarget], source:'Named OSM hotel place + estimated nearby candidate sidewalk, not survey', photo:'Owner comparison #1' },
       { id:'NR-WALK-005', label:'Narromine Post Office approach', start:approach(postTarget,5), points:[postTarget], source:'Actual in-game public post office entrance and outside point', photo:null },
-      { id:'NR-WALK-006', label:'Kierath Square both entrances and Coles approach', start:kieraths[0], points:kieraths.slice(1), source:'Canonical KIERATHS_ROUTE Dandaloo entrance through arcade to rear', photo:'Owner 55-view main street collection; exact viewpoint calibration pending', colesOutside:colesTarget },
+      { id:'NR-WALK-006', label:'Kierath Square both entrances and Coles approach', start:kieraths[0], points:kieraths.slice(1), source:'Canonical KIERATHS_ROUTE Dandaloo entrance through arcade to rear, and independently staged Coles public approach', photo:'Owner 55-view main street collection; exact viewpoint calibration pending', colesOutside:colesTarget, colesStart:approach(colesTarget,5) },
       { id:'NR-WALK-007', label:'North-west Dandaloo footpath', start:[-4770,-980], points:[[-4768,-996]], source:'Existing north-west Dandaloo Chromium verification test', photo:'Owner comparisons #34–50' },
       { id:'NR-WALK-008', label:'Civic former courthouse approach', start:[-4595,-760], points:[[-4590.5,-766.5]], source:'Existing courthouse Chromium verification test, 35 Burraway Street', photo:null },
       residential || { id:'NR-WALK-009', label:'Residential street route candidate not found', start:[0,0], points:[], source:'No collision-clear OSM residential centreline segment located', photo:null },
@@ -110,9 +110,13 @@ async function executeRoute(page, route, tag, errors) {
   const shot = path.posix.join(outDir, name + '.png');
   try {
     if (!route.points.length) throw new Error('No evidenced residential street candidate');
+    // Scene streaming/mesh visibility updates on later animation frames.
+    // St Mary's screenshot showed actual geometry even when the same-frame
+    // narromineVisible flag was false, so wait before classifying a defect.
+    await page.evaluate(([x,z,y]) => window.__town.place(x,z,y), [...route.start, yaw(route.start,route.points[0])]);
+    await page.waitForFunction(() => window.__town.narromineVisible(), null, { timeout: 12000 }).catch(() => {});
     const initial = await page.evaluate(([x, z, y]) => {
       window.__town.closePanel?.();
-      window.__town.place(x, z, y);
       const s=window.__town.state();
       return { pos:s.pos, mode:s.mode, visible:window.__town.narromineVisible(),
         triangles:s.triangles || 0, originBlocked:!!window.__town.probeStatic(x,z,.36) };
@@ -161,6 +165,36 @@ async function executeRoute(page, route, tag, errors) {
         record.modeTransition = after.mode;
       }
     }
+    // Coles is not on the Kierath's through-walk: stage a second local
+    // pedestrian subroute and do NOT count the intervening teleport as walked.
+    if (route.colesOutside) {
+      const extra = {
+        leg:'Coles public approach (independently staged)', stagedByTeleport:true,
+        from:route.colesStart, to:route.colesOutside,
+        distance:round(Math.hypot(route.colesOutside[0]-route.colesStart[0],route.colesOutside[1]-route.colesStart[1])),
+        accepted:null, reached:false,
+      };
+      record.independentSubroute='Coles nearby footpath to actual public entrance';
+      await page.evaluate(([x,z,y])=>window.__town.place(x,z,y),[...route.colesStart,yaw(route.colesStart,route.colesOutside)]);
+      await page.waitForFunction(()=>window.__town.narromineVisible(),null,{timeout:5000}).catch(()=>{});
+      const p0=await page.evaluate(()=>window.__town.state().pos);
+      record.physicalLegsAttempted++;
+      extra.accepted=await page.evaluate(([x,z])=>window.__town.walkTo(x,z),route.colesOutside);
+      if(extra.accepted!==null) {
+        record.path.push(extra);
+        throw new Error('Coles approach refused: '+extra.accepted);
+      }
+      try {
+        await page.waitForFunction(([x,z])=>{const p=window.__town.state().pos;return Math.hypot(p.x-x,p.z-z)<1.25;},
+          route.colesOutside,{timeout:16000});
+        extra.reached=true;record.physicalLegsPassed++;
+      } catch {}
+      const p1=await page.evaluate(()=>window.__town.state().pos);
+      extra.observedMovementM=round(Math.hypot(p1.x-p0.x,p1.z-p0.z));
+      extra.finalErrorM=round(Math.hypot(p1.x-route.colesOutside[0],p1.z-route.colesOutside[1]));
+      record.path.push(extra);
+      if(!extra.reached||extra.observedMovementM<1)throw new Error('Coles public entrance approach failed: '+extra.finalErrorM+'m remaining');
+    }
     record.status='PASS_PHYSICALLY_WALKED';
   } catch(e) {
     record.status='DEFECT_OR_UNVERIFIED';
@@ -172,6 +206,20 @@ async function executeRoute(page, route, tag, errors) {
     record.defect=(record.defect?record.defect+'; ':'')+'Browser page errors: '+record.browserErrors.join('; ');
   }
   try {
+    if (route.id === 'NR-WALK-006') {
+      // Face BACK along Kierath's after successful transit; a final camera
+      // pointed at the adjacent empty lane hid the very arcade under review.
+      // Rotate only, don't move; screenshot is supplemental visual evidence.
+      const target = route.start;
+      if (record.status==='PASS_PHYSICALLY_WALKED') {
+        const actual=await page.evaluate(()=>window.__town.state().pos);
+        const lookPoint=route.colesOutside ? route.colesStart : target;
+        await page.evaluate(([x,z,y])=>window.__town.place(x,z,y),
+          [actual.x,actual.z,yaw([actual.x,actual.z],lookPoint)]);
+        record.cameraRotationOnly = true;
+        await page.waitForTimeout(200);
+      }
+    }
     await page.screenshot({path:shot,timeout:15000});
     record.screenshot=shot;
   } catch(e) {
