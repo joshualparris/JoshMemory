@@ -10,7 +10,7 @@ const MAX_LOCAL_EVENTS = 400;
 const RAD = Math.PI / 180;
 const state = {
   meta: null, selected: null, panorama: null, loading: false, googleReady: false,
-  notes: [], hudHidden: false, events: [], sdkScript: null,
+  notes: [], hudHidden: false, events: [], sdkScript: null, sdkPromise: null, sdkFailed: false,
   streetViewService: null, lastPanoramaMatch: null, lookupSerial: 0,
 };
 try {
@@ -249,20 +249,77 @@ async function moveExistingPanorama() {
   }
 }
 function loadGoogleSdk(key) {
-  if (state.googleReady) return Promise.resolve();
-  return new Promise((resolve, reject) => {
+  // A failed asynchronous load can leave partial Google globals behind. Never
+  // insert a second Maps SDK script in the same browsing context: Google
+  // reports "included multiple times" and may break its util/streetview modules.
+  if (state.sdkPromise) return state.sdkPromise;
+  const alreadyLoaded = Boolean(window.google?.maps?.StreetViewPanorama &&
+    window.google?.maps?.StreetViewService);
+  if (alreadyLoaded) {
+    state.googleReady = true;
+    state.sdkPromise = Promise.resolve();
+    return state.sdkPromise;
+  }
+  const existingSdk = document.querySelector('script[src*="maps.googleapis.com/maps/api/js"]');
+  if (existingSdk || window.google?.maps?.importLibrary) {
+    // If a third-party already loaded it, use its loader, never inject ours.
+    if (window.google?.maps?.importLibrary) {
+      state.sdkPromise = window.google.maps.importLibrary('streetView').then(() => {
+        if (!window.google?.maps?.StreetViewService ||
+            !window.google?.maps?.StreetViewPanorama) {
+          throw new Error('Existing Google Maps SDK did not provide Street View classes.');
+        }
+        state.googleReady = true;
+      });
+      return state.sdkPromise;
+    }
+    state.sdkFailed = true;
+    state.sdkPromise = Promise.reject(new Error(
+      'Google Maps JavaScript is already loading in this page. Refresh once before connecting; the viewer must not load the SDK twice.'));
+    return state.sdkPromise;
+  }
+  // Google's documented direct loader requires callback=... when loading=async;
+  // script.onload is NOT an API-ready signal. Preload streetView in the first
+  // and ONLY SDK request, then resolve after the callback has run.
+  state.sdkPromise = new Promise((resolve, reject) => {
+    const callbackName = '__repoTownStreetViewSdkReady';
+    let settled = false;
+    const finish = (error) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeout);
+      delete window[callbackName];
+      if (error) {
+        state.sdkFailed = true;
+        reject(error);
+      } else {
+        state.googleReady = true;
+        resolve();
+      }
+    };
+    window[callbackName] = () => {
+      if (!window.google?.maps?.StreetViewPanorama ||
+          !window.google?.maps?.StreetViewService) {
+        finish(new Error('Google Maps returned without the Street View library. Refresh the page and verify Maps JavaScript API access.'));
+        return;
+      }
+      finish();
+    };
     const script = document.createElement('script');
     script.async = true;
-    script.src = 'https://maps.googleapis.com/maps/api/js?key=' +
-      encodeURIComponent(key) + '&v=weekly&loading=async';
-    script.onload = () => {
-      if (!window.google?.maps?.importLibrary) return reject(new Error('Google Maps JavaScript API unavailable'));
-      state.googleReady = true; resolve();
-    };
-    script.onerror = () => reject(new Error('Cannot load Google Maps JavaScript API. Check key restrictions, billing and internet connection.'));
-    document.head.appendChild(script);
+    script.dataset.repoTownStreetViewSdk = '1';
+    const params = new URLSearchParams({
+      key, v: 'weekly', loading: 'async', libraries: 'streetView', callback: callbackName,
+    });
+    script.src = 'https://maps.googleapis.com/maps/api/js?' + params.toString();
+    script.onerror = () => finish(new Error(
+      'Google Maps JavaScript SDK could not load. Check key restrictions, network and billing; refresh before trying another key.'));
+    const timeout = setTimeout(() => finish(new Error(
+      'Google Maps did not complete its Street View initialisation. Refresh the page before retrying.')), 25000);
     state.sdkScript = script;
+    document.head.appendChild(script);
   });
+  return state.sdkPromise;
 }
 async function connectGoogle(event) {
   event.preventDefault();
@@ -284,9 +341,12 @@ async function connectGoogle(event) {
     await loadGoogleSdk(key);
     const preset = currentPreset();
     if (!preset) throw new Error('No location preset available');
-    log('LIBRARY LOAD', 'Import official Street View JavaScript library; no panorama created by this step', 0, false);
-    const { StreetViewPanorama, StreetViewService } = await google.maps.importLibrary('streetView');
-    state.streetViewService = new StreetViewService();
+    log('STREET VIEW LIBRARY', 'Street View classes preloaded with the one Google Maps SDK request (no additional SDK injection)', 0, false);
+    const { StreetViewPanorama, StreetViewService } = google.maps;
+    if (!StreetViewPanorama || !StreetViewService) {
+      throw new Error('Google Maps Street View classes missing after SDK callback. Refresh the page; do not retry loading SDK in this tab.');
+    }
+    state.streetViewService ||= new StreetViewService();
     status('Checking Google for an official Street View panorama near ' + preset.title + '…');
     const found = await findNearbyPanorama(preset);
     if (!found) {
@@ -333,12 +393,14 @@ async function connectGoogle(event) {
     $('google-placeholder').textContent = (error.message || String(error)) +
       ' — check the Maps JavaScript API, website restrictions and billing in Google Cloud.';
     $('google-placeholder').hidden = false;
-    $('connect').disabled = false;
-    $('connect').textContent = 'Retry Street View lookup';
+    $('connect').disabled = Boolean(state.sdkFailed);
+    $('connect').textContent = state.sdkFailed
+      ? 'Reload page to reconnect Google'
+      : 'Retry Street View lookup';
     log('ERROR', 'Google SDK/viewer failed: ' + (error.message || error), 0, false);
   } finally {
     $('api-key').value = '';
-    if (!state.panorama) $('connect').disabled = false;
+    if (!state.panorama && !state.sdkFailed) $('connect').disabled = false;
     state.loading = false;
   }
 }
