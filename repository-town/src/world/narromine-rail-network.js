@@ -10,20 +10,28 @@
 // - Narromine yard was upgraded under NSW Fixing Country Rail to hold 1,500 m trains.
 // - Typical traffic is grain trains of covered hopper wagons behind six-axle diesel-electrics,
 //   plus ballast and general freight workings (ARTC train alteration notices list these).
-// Track geometry is the mapped OSM centreline (ODbL). Speed limits below are game limits chosen
-// to match typical country-line freight (80 km/h) and yard working (25 km/h); they are not taken
-// from the ARTC route standards, which were not available to check.
+// Track geometry is the mapped OSM centreline (ODbL); line names and roles are the OSM tags of the
+// matching ways (downloaded 4 Nov 2026 from api.openstreetmap.org, every way matched within 0.05 m).
+// Speed limits are ARTC Route Access Standard figures (RAS section pages I4 Gap–Narwonah v2.5,
+// reviewed 3 Nov 2025, and D12 Goobang Junction–Narwonah v1.3):
+// - Main Western line from Dubbo: permanent speed restriction 50 km/h from 494.896 km into Narromine.
+// - Narromine towards Narwonah on the Parkes line: 55 km/h boards to 555.87 km, then 90 km/h.
+// - Main Western Line west of Narromine is Country Regional Network (UGL Rail), not in the ARTC
+//   pages; its OSM maxspeed tag is 100 km/h.
+// - Turnouts are generally 25 km/h (RAS introduction); the loop and sidings are entered through them.
+// - Route capacity: loaded grain hoppers (21 t axle load) are limited to 60 km/h on this section.
 export const RAIL_GAUGE_M = 1.435;
 export const RAIL_TOP_Y = 0.49;          // top of rail above ground (ballast + sleeper + rail)
-export const SPEED_LIMIT_KMH = Object.freeze({ main: 80, yard: 25 });
-// OSM way indices that are yard loops and sidings beside the station (short, joined both ends to
-// the main line); every other way is running line.
-export const YARD_WAYS = Object.freeze([2, 3, 4, 5]);
+export const SPEED_LIMIT_KMH = Object.freeze({ main: 100, yard: 25, dubboApproach: 50, parkesNear: 55, parkesBeyond: 90, loadedGrain: 60 });
+// OSM way indices that are the loop and sidings beside the station (service=siding).
+export const YARD_WAYS = Object.freeze([0, 2, 3, 4, 5]);
 export const RAIL_LINE_NAMES = Object.freeze({
-  0: 'Parkes line connection', 1: 'Main Western line (to Nevertire)', 6: 'Parkes–Narromine line',
-  7: 'Main Western line (to Dubbo)', 2: 'Narromine yard loop', 3: 'Narromine yard siding',
-  4: 'Narromine yard siding', 5: 'Narromine yard siding',
+  0: 'Narromine silo siding', 1: 'Main Western Line (west, towards Nevertire)', 6: 'Parkes - Narromine Line',
+  7: 'Main Western Line (east, towards Dubbo)', 2: 'Naromine Loop', 3: 'Narromine siding', 4: 'Narromine siding', 5: 'Narromine siding',
 });
+// Per-line limit (km/h); the Parkes line slows to 55 within 1.15 km of the Narromine junction.
+const LINE_LIMIT = { 1: SPEED_LIMIT_KMH.main, 7: SPEED_LIMIT_KMH.dubboApproach, 6: SPEED_LIMIT_KMH.parkesBeyond };
+export const PARKES_JUNCTION = Object.freeze([-4796, -780]);
 
 const key = (a, b) => (a < b ? a + ':' + b : b + ':' + a);
 
@@ -47,7 +55,11 @@ export function buildRailNetwork(rail, snap = 1.5) {
     }
   });
   const edge = (a, b) => edges.get(key(a, b));
-  const limitKmh = (a, b) => (edge(a, b)?.yard ? SPEED_LIMIT_KMH.yard : SPEED_LIMIT_KMH.main);
+  const limitKmh = (a, b) => {
+    const e = edge(a, b); if (!e || e.yard) return SPEED_LIMIT_KMH.yard;
+    if (e.way === 6 && Math.min(...[a, b].map(n => Math.hypot(nodes[n].x - PARKES_JUNCTION[0], nodes[n].z - PARKES_JUNCTION[1]))) < 1150) return SPEED_LIMIT_KMH.parkesNear;
+    return LINE_LIMIT[e.way] ?? SPEED_LIMIT_KMH.main;
+  };
   const lineName = (a, b) => RAIL_LINE_NAMES[edge(a, b)?.way] || 'Narromine railway';
   // Next node after travelling prev -> cur. Only gentle turns are real track continuations;
   // pref chooses at a junction: 'left', 'right' or 'straight'. null = end of track.

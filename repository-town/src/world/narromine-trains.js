@@ -6,7 +6,7 @@
 // narromine-rail-network.js). No operator livery or trademark is copied.
 import * as THREE from 'three';
 import { RAIL, STREETS } from './narromine-layout.js';
-import { buildRailNetwork, createTrainPath, RAIL_GAUGE_M, RAIL_TOP_Y } from './narromine-rail-network.js';
+import { buildRailNetwork, createTrainPath, RAIL_GAUGE_M, RAIL_TOP_Y, SPEED_LIMIT_KMH } from './narromine-rail-network.js';
 
 const SLEEPER_SPACING = 0.68;   // concrete sleepers, ~1,470 per km
 const LOCO = { length: 22, width: 2.95, height: 4.25 };
@@ -129,6 +129,14 @@ function outline({ x, z, heading, L }) {
 }
 // Level crossings: wherever a mapped street crosses a mapped track. Each gets a boom gate on both
 // approaches and flashing red lights; booms come down while any train is within 200 m.
+// Official names from OSM level_crossing nodes (sourced there from the NSW level crossings on public
+// roads open dataset; ref = operator inventory number), at their game positions.
+export const LEVEL_CROSSING_NAMES = Object.freeze([
+  [-4790, -776, 'Dandaloo Street Rail Level Crossing', '717'], [-5501, -845, 'Derribong Street (Dandaloo Road) Rail Level Crossing', '1109'],
+  [-6457, -2153, 'McNamaras Lane Rail Level Crossing', '718'], [-5689, -239, 'Backwater Road Rail Level Crossing', '1108'],
+  [-6119, 546, 'Wingfield Road Rail Level Crossing', '1107'], [-4052, -379, 'Manildra Street Rail Level Crossing', '716'],
+  [-5488, -863, 'Silo Access Road (Dandaloo Road) Rail Level Crossing', '1867'],
+].map(([x, z, name, ref]) => Object.freeze({ x, z, name, ref })));
 function findCrossings() {
   const out = [];
   const segs = RAIL.flatMap(w => w.pts.slice(1).map((b, i) => [w.pts[i], b]));
@@ -141,7 +149,8 @@ function findCrossings() {
       const x = p[0] + t * (q[0] - p[0]), z = p[1] + t * (q[1] - p[1]);
       if (out.some(c => Math.hypot(c.x - x, c.z - z) < 12)) continue;
       const l = Math.hypot(q[0] - p[0], q[1] - p[1]), ux = (q[0] - p[0]) / l, uz = (q[1] - p[1]) / l;
-      out.push({ x, z, ux, uz, width: st.width || 7, street: st.name || 'road' });
+      const official = LEVEL_CROSSING_NAMES.find(n => Math.hypot(n.x - x, n.z - z) < 15);
+      out.push({ x, z, ux, uz, width: st.width || 7, street: st.name || 'road', name: official?.name || (st.name || 'Road') + ' level crossing', ref: official?.ref || null });
     }
   }
   return out;
@@ -178,7 +187,8 @@ export function createNarromineTrains(parent) {
   const place = () => placeConsist(mine, path);
   let placed = place();
   const head = () => path.pointAt(path.s);
-  function limitKmh() { const p = head(); return net.limitKmh(p.a, p.b); }
+  // A loaded grain train (21 t axle load) is held to 60 km/h even where the line allows more (ARTC RAS I4).
+  function limitKmh() { const p = head(); return Math.min(net.limitKmh(p.a, p.b), SPEED_LIMIT_KMH.loadedGrain); }
   // Collision: each car's true rotated outline, so the train blocks only where it is.
   // Freight trains run by the game, and the level crossings they close.
   const endNode = (pt) => net.nodes.find(n => Math.hypot(n.x - pt[0], n.z - pt[1]) < 1.6).id;
@@ -287,7 +297,7 @@ export function createNarromineTrains(parent) {
     return { driving, speedKmh: Math.round(speed * 3.6), limitKmh: limitKmh(), route: pref, line: net.lineName(p.a, p.b),
       head: { x: p.x, z: p.z }, cab: cab(), cars: cars.length, length: Math.round(CONSIST_LENGTH), track, penalty,
       freight: freight ? { id: freight.entry.id, speedKmh: Math.round(freight.speed * 3.6), held: freight.held, head: (({ x, z }) => ({ x, z }))(freight.path.pointAt(freight.path.s)) } : null,
-      crossings: crossings.map(c => ({ x: Math.round(c.x), z: Math.round(c.z), street: c.street, closed: !!c.closed, down: +c.down.toFixed(2) })) };
+      crossings: crossings.map(c => ({ x: Math.round(c.x), z: Math.round(c.z), street: c.street, name: c.name, ref: c.ref, closed: !!c.closed, down: +c.down.toFixed(2) })) };
   }
   return {
     update, tick, board, exit, near, cab, colliders, setRoute, state,
