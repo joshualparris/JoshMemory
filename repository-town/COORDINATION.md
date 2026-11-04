@@ -686,3 +686,6 @@ Historical scope: Codex; branch feat/pub-cellar-upper-20261026; baseline f81da76
 ### 2026-11-04 — ChatGPT shared Narromine material appearance
 
 **IN PROGRESS**, branch `feat/narromine-material-realism-20261104`: seven explicitly classified surface treatments (asphalt, concrete, brick, render, roofs, glazing plus fallback). Exclusive *material appearance* scope, not ownership of any street/building. `src/world/narromine-surface-materials.js`, minimal renderer integration, focused tests, and `docs/NARROMINE_MATERIAL_REALISM_2026-11-04.md`. Exact colours/material forms are estimated where photographs do not verify them. Production and photographic before/after acceptance pending; preserve other agent features.
+
+## 2026-11-04 — DONE: South Dandaloo Street streetscape extension (Claude, claude/narromine-streetscape)
+- Extends the released Dandaloo streetscape owner (narromine-dandaloo-streetscape[-data].js) south of the Burraway split, Narromine Hotel → Terangion St (z -846..-262): kerbs both sides, verge street trees, swan-neck lamps, east-side timber power poles with sagging wires. Placement estimated; skips cross-street mouths, buildings, detailed lots and fill buildings via a `clear` check passed from narromine.js. Test added to tests/narromine-dandaloo-streetscape.mjs. No road/asphalt geometry added.
