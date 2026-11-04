@@ -368,7 +368,7 @@ const RAW_PHOTO_LOCATIONS = [
     order: 2,
     title: '2. Narromine Hotel — corner façade and verandahs',
     shortLabel: '2. Narromine Hotel',
-    street: '89–93 Dandaloo Street & Derribong Avenue',
+    street: '116 Dandaloo Street & Derribong Avenue',
     buildingIds: ['NR-SITE-narromine-hotel'],
     detailedId: 'narromine-hotel',
     placeName: 'Narromine Hotel',

@@ -8,6 +8,11 @@
 
 **Progress:** Code and tests committed on branch; browser/GitHub CI and physical screenshot review **not yet proven**. Next: open PR, run tests and collect artifact, inspect screenshots; merge only when checks pass, then verify source SHA of production Vercel and note remaining uncertainty from photo licensing.
 
+## 2026-11-05 — RT-RAIL-YARD-OPS-001 fresh-main continuation of PR #376
+- Owner: ChatGPT GitHub connector. Branch `feat/repo-town-shunting-current-main-20261105`, base `a6c603306604cf7d519830b1b1654f220e70bac7`. Old #376 deliberately left untouched aside from an added diagnostic browser assertion; do not merge stale branch.
+- Scope: only fictional Repository Town standalone yard at x=82..170, z=-209 and the narrow input/scene hooks on latest `src/main.js`. Copy isolated yard physics, visuals, tests and docs, preserve all Claude Narromine geography/rail/vegetation unchanged.
+- Failure: prior complete browser suite failed `tests/town-rail-yard-browser.mjs:32` on locomotive travel under held W, not on a Node unit test; hypothesis of focused HUD input requires actual validation, not a claim. New test proactively unfocuses HUD, verifies W reaches Input and reports runtime diagnostics if motion is blocked.
+- Acceptance: isolated shunter test, full release/privacy/integration, desktop & phone WebGL including actual acceleration/braking/coupling/storage, staging SHA and live release fingerprint. Vercel currently has HTTP 402 daily deployment cap, so do not imply production verified. Check CI on latest branch before merge. Next: port exact safe patches, open replacement PR, inspect checks and resolve failures without altering Narromine source.
 # 5 November 2026 — `NR-REAL-002`: Narromine Full Physical Walking Audit & Visual QA — START CHECKPOINT
 
 Owner Antigravity (Agy ThinkPad). Baseline `main` `fc5128c7`; branch `feat/narromine-real-002-walking-audit-20261105`.
