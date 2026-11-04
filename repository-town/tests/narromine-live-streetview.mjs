@@ -42,7 +42,7 @@ try {
     'if(name!=="streetView")throw Error("Unexpected library");'+
     'class StreetViewPanorama {'+
     'constructor(el,options){window.mockPanoramaInstances=(window.mockPanoramaInstances||0)+1;'+
-    'this.el=el;this.pos=options.position;this.pov=options.pov;this.listeners={};'+
+    'this.el=el;this.pos=options.position||{lat:-32.23565,lng:148.23927};this.pov=options.pov;this.listeners={};'+
     'el.textContent="Mock Street View (test only; no Google imagery)";}'+
     'addListener(key,fn){(this.listeners[key]||=([])).push(fn);}'+
     'emit(key){for(const fn of this.listeners[key]||[])fn();}'+
