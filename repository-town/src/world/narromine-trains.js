@@ -5,7 +5,7 @@
 // six-axle diesel-electric locomotive hauling covered grain hopper wagons (see the evidence notes in
 // narromine-rail-network.js). No operator livery or trademark is copied.
 import * as THREE from 'three';
-import { RAIL } from './narromine-layout.js';
+import { RAIL, STREETS } from './narromine-layout.js';
 import { buildRailNetwork, createTrainPath, RAIL_GAUGE_M, RAIL_TOP_Y } from './narromine-rail-network.js';
 
 const SLEEPER_SPACING = 0.68;   // concrete sleepers, ~1,470 per km
@@ -14,6 +14,16 @@ const HOPPER = { length: 15.5, width: 2.95, height: 3.9 };
 const HOPPERS = 6;
 const COUPLER_GAP = 1.0;
 export const CONSIST_LENGTH = LOCO.length + HOPPERS * (HOPPER.length + COUPLER_GAP);
+// Through freights on the Main Western line, driven by the game. Times are game times chosen to
+// spread trains through the day; real paths vary with the harvest and are published only to
+// operators (ARTC train alteration advices list grain, ballast and general freight through here).
+export const FREIGHT_TIMETABLE = Object.freeze([
+  Object.freeze({ id: 'Grain train to Dubbo', from: 'nw', at: 6 * 60 + 10, hoppers: 10 }),
+  Object.freeze({ id: 'Empty grain train to Nevertire', from: 'dubbo', at: 10 * 60 + 25, hoppers: 10 }),
+  Object.freeze({ id: 'Ballast train to Dubbo', from: 'nw', at: 14 * 60 + 40, hoppers: 6 }),
+  Object.freeze({ id: 'General freight to Nevertire', from: 'dubbo', at: 19 * 60 + 35, hoppers: 8 }),
+]);
+const FREIGHT_RUN_KMH = 60, SIGNAL_GAP = 250, CROSSING_WARN = 200;
 const ACCEL = 0.32, SERVICE_BRAKE = 0.55, EMERGENCY_BRAKE = 1.1, RESISTANCE = 0.03, REVERSE_MAX = 15 / 3.6;
 
 function trackMeshes(parent) {
@@ -98,6 +108,62 @@ function hopper(n) {
   return g;
 }
 
+function makeConsist(parent, hoppers) {
+  const cars = [locomotive(), ...Array.from({ length: hoppers }, (_, i) => hopper(i))], offsets = []; let off = 0;
+  for (const c of cars) { const L = c === cars[0] ? LOCO.length : HOPPER.length; offsets.push([off, L]); off += L + COUPLER_GAP; parent.add(c); }
+  return { cars, offsets, length: off - COUPLER_GAP };
+}
+function placeConsist(consist, path) {
+  return consist.cars.map((c, i) => {
+    const [o, L] = consist.offsets[i], f = path.pointAt(path.s - o - 2.6), r = path.pointAt(path.s - o - L + 2.6), mid = path.pointAt(path.s - o - L / 2);
+    const heading = Math.atan2(f.z - r.z, f.x - r.x);
+    c.position.set(mid.x, 0, mid.z); c.rotation.y = -heading - Math.PI / 2;
+    return { x: mid.x, z: mid.z, heading, L };
+  });
+}
+function outline({ x, z, heading, L }) {
+  const c = Math.cos(heading), s = Math.sin(heading), hw = LOCO.width / 2, hl = L / 2;
+  const poly = [[hl, hw], [-hl, hw], [-hl, -hw], [hl, -hw]].map(([a, b]) => [x + a * c - b * s, z + a * s + b * c]);
+  const xs = poly.map(p => p[0]), zs = poly.map(p => p[1]);
+  return { x0: Math.min(...xs), x1: Math.max(...xs), z0: Math.min(...zs), z1: Math.max(...zs), poly, train: true };
+}
+// Level crossings: wherever a mapped street crosses a mapped track. Each gets a boom gate on both
+// approaches and flashing red lights; booms come down while any train is within 200 m.
+function findCrossings() {
+  const out = [];
+  const segs = RAIL.flatMap(w => w.pts.slice(1).map((b, i) => [w.pts[i], b]));
+  for (const st of STREETS) for (let i = 1; i < st.pts.length; i++) {
+    const p = st.pts[i - 1], q = st.pts[i];
+    for (const [a, b] of segs) {
+      const d = (q[0] - p[0]) * (b[1] - a[1]) - (q[1] - p[1]) * (b[0] - a[0]); if (Math.abs(d) < 1e-9) continue;
+      const t = ((a[0] - p[0]) * (b[1] - a[1]) - (a[1] - p[1]) * (b[0] - a[0])) / d, u = ((a[0] - p[0]) * (q[1] - p[1]) - (a[1] - p[1]) * (q[0] - p[0])) / d;
+      if (t < 0 || t > 1 || u < 0 || u > 1) continue;
+      const x = p[0] + t * (q[0] - p[0]), z = p[1] + t * (q[1] - p[1]);
+      if (out.some(c => Math.hypot(c.x - x, c.z - z) < 12)) continue;
+      const l = Math.hypot(q[0] - p[0], q[1] - p[1]), ux = (q[0] - p[0]) / l, uz = (q[1] - p[1]) / l;
+      out.push({ x, z, ux, uz, width: st.width || 7, street: st.name || 'road' });
+    }
+  }
+  return out;
+}
+function buildCrossing(parent, c) {
+  const nx = -c.uz, nz = c.ux, half = c.width / 2, booms = [];
+  const pole = new THREE.MeshLambertMaterial({ color: 0xe8e8e8 }), armMat = new THREE.MeshLambertMaterial({ color: 0xf4f4f4 }), red = new THREE.MeshLambertMaterial({ color: 0x5a1010, emissive: 0xff2020, emissiveIntensity: 0 });
+  for (const side of [-1, 1]) {
+    // Each approach: the gate stands on the driver's left (Australia drives on the left), 5.5 m from the track.
+    const bx = c.x - c.ux * 5.5 * side + nx * (half + 0.6) * -side, bz = c.z - c.uz * 5.5 * side + nz * (half + 0.6) * -side;
+    box(parent, pole, 0.22, 3.2, 0.22, bx, 1.6, bz);
+    const lamps = [box(parent, red, 0.32, 0.32, 0.12, bx, 2.7, bz), box(parent, red, 0.32, 0.32, 0.12, bx, 2.25, bz)];
+    const pivot = new THREE.Group(); pivot.position.set(bx, 1.15, bz); pivot.rotation.order = 'YXZ';
+    const dirX = nx * side, dirZ = nz * side;                 // arm reaches across the approach lanes
+    pivot.rotation.y = Math.atan2(-dirZ, dirX);
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(c.width * 0.55 + 0.6, 0.12, 0.12), armMat); arm.position.x = (c.width * 0.55 + 0.6) / 2; pivot.add(arm);
+    parent.add(pivot);
+    booms.push({ pivot, lamps, bx, bz, dirX, dirZ, reach: c.width * 0.55 + 0.6 });
+  }
+  return { ...c, booms, down: 0 };
+}
+
 export function createNarromineTrains(parent) {
   const net = buildRailNetwork(RAIL), track = trackMeshes(parent);
   // Park facing south-east on the Narromine yard loop (OSM way 2), clear of the main line.
@@ -107,31 +173,73 @@ export function createNarromineTrains(parent) {
   const lengths = start.slice(1).reduce((a, id, i) => a.concat(a[i] + Math.hypot(net.nodes[id].x - net.nodes[start[i]].x, net.nodes[id].z - net.nodes[start[i]].z)), [0]);
   const startS = Math.min(lengths.at(-1) - 5, CONSIST_LENGTH + 40);
   const path = createTrainPath(net, start, startS);
-  const cars = [locomotive(), ...Array.from({ length: HOPPERS }, (_, i) => hopper(i))];
-  const offsets = []; let off = 0;
-  for (const c of cars) { const L = c === cars[0] ? LOCO.length : HOPPER.length; offsets.push([off, L]); off += L + COUPLER_GAP; parent.add(c); }
+  const mine = makeConsist(parent, HOPPERS), cars = mine.cars;
   let speed = 0, driving = false, pref = 'straight', message = '', penalty = false, horn = 0;
-  function place() {
-    const out = [];
-    cars.forEach((c, i) => {
-      const [o, L] = offsets[i], f = path.pointAt(path.s - o - 2.6), r = path.pointAt(path.s - o - L + 2.6), mid = path.pointAt(path.s - o - L / 2);
-      const heading = Math.atan2(f.z - r.z, f.x - r.x);
-      c.position.set(mid.x, 0, mid.z); c.rotation.y = -heading - Math.PI / 2;
-      out.push({ x: mid.x, z: mid.z, heading, L });
-    });
-    return out;
-  }
+  const place = () => placeConsist(mine, path);
   let placed = place();
   const head = () => path.pointAt(path.s);
   function limitKmh() { const p = head(); return net.limitKmh(p.a, p.b); }
   // Collision: each car's true rotated outline, so the train blocks only where it is.
+  // Freight trains run by the game, and the level crossings they close.
+  const endNode = (pt) => net.nodes.find(n => Math.hypot(n.x - pt[0], n.z - pt[1]) < 1.6).id;
+  const ENDS = { nw: endNode(RAIL[1].pts[0]), dubbo: endNode(RAIL[7].pts.at(-1)) };
+  const ranToday = new Map();
+  let freight = null;
+  const crossings = findCrossings().map(c => buildCrossing(parent, c));
+  function spawnFreight(entry) {
+    const startNode = ENDS[entry.from], nodes = [startNode, [...net.adj.get(startNode)][0]];
+    const consist = makeConsist(parent, entry.hoppers);
+    let len = 0;
+    while (len < consist.length + 10) {
+      const nx = net.next(nodes.at(-2), nodes.at(-1), 'straight'); if (nx === null) break;
+      len += Math.hypot(net.nodes[nx].x - net.nodes[nodes.at(-1)].x, net.nodes[nx].z - net.nodes[nodes.at(-1)].z); nodes.push(nx);
+    }
+    const fpath = createTrainPath(net, nodes, consist.length + 2);
+    freight = { entry, consist, path: fpath, speed: 0, placed: placeConsist(consist, fpath), held: false };
+  }
+  function despawnFreight() { for (const c of freight.consist.cars) parent.remove(c); freight = null; }
+  function freightUpdate(dt) {
+    if (!freight) return;
+    const h = freight.path.pointAt(freight.path.s);
+    // Signal protection: hold short while the player's train is within 250 m ahead or across the line.
+    const blocked = placed.some(p => Math.hypot(p.x - h.x, p.z - h.z) < SIGNAL_GAP);
+    freight.held = blocked;
+    const limit = Math.min(FREIGHT_RUN_KMH, net.limitKmh(h.a, h.b)) / 3.6, target = blocked ? 0 : limit;
+    freight.speed += Math.max(-SERVICE_BRAKE * 2 * dt, Math.min(ACCEL * dt, target - freight.speed));
+    if (freight.speed > 0.01) {
+      const r = freight.path.move(freight.speed * dt, freight.consist.length, 'straight');
+      freight.placed = placeConsist(freight.consist, freight.path);
+      if (r.blocked === 'end') despawnFreight();
+    }
+  }
+  function crossingUpdate(dt) {
+    // Close for a moving train within 200 m, or for any train standing across the road.
+    const trainsNow = [{ cars: placed, moving: Math.abs(speed) > 0.3 }].concat(freight ? [{ cars: freight.placed, moving: freight.speed > 0.3 }] : []);
+    for (const c of crossings) {
+      const near = trainsNow.some(t => t.cars.some(p => Math.hypot(p.x - c.x, p.z - c.z) < (t.moving ? CROSSING_WARN : 4) + p.L / 2));
+      c.closed = near;
+      c.down = Math.max(0, Math.min(1, c.down + (near ? 1 : -1) * dt / 6));   // booms take ~6 s
+      const flash = near && Math.floor(performance.now() / 500) % 2;
+      for (const b of c.booms) { b.pivot.rotation.z = (1 - c.down) * 1.45; b.lamps[0].material.emissiveIntensity = near ? (flash ? 1.4 : 0) : 0; b.lamps[1].material.emissiveIntensity = near ? (flash ? 0 : 1.4) : 0; }
+    }
+  }
+  function tick(dt, clock) {
+    if (clock && Number.isFinite(clock.minute)) for (const e of FREIGHT_TIMETABLE) {
+      if (!freight && ranToday.get(e.id) !== clock.day && clock.minute >= e.at && clock.minute < e.at + 90) { ranToday.set(e.id, clock.day); spawnFreight(e); }
+    }
+    freightUpdate(dt); crossingUpdate(dt);
+  }
+  // Collision: each car's true rotated outline, and booms that are down block the road.
   function colliders() {
-    return placed.map(({ x, z, heading, L }) => {
-      const c = Math.cos(heading), s = Math.sin(heading), hw = LOCO.width / 2, hl = L / 2;
-      const poly = [[hl, hw], [-hl, hw], [-hl, -hw], [hl, -hw]].map(([a, b]) => [x + a * c - b * s, z + a * s + b * c]);
+    const out = placed.map(outline);
+    if (freight) out.push(...freight.placed.map(outline));
+    for (const c of crossings) if (c.down > 0.6) for (const b of c.booms) {
+      const ex = b.bx + b.dirX * b.reach, ez = b.bz + b.dirZ * b.reach, px = -b.dirZ * 0.15, pz = b.dirX * 0.15;
+      const poly = [[b.bx + px, b.bz + pz], [ex + px, ez + pz], [ex - px, ez - pz], [b.bx - px, b.bz - pz]];
       const xs = poly.map(p => p[0]), zs = poly.map(p => p[1]);
-      return { x0: Math.min(...xs), x1: Math.max(...xs), z0: Math.min(...zs), z1: Math.max(...zs), poly, train: true };
-    });
+      out.push({ x0: Math.min(...xs), x1: Math.max(...xs), z0: Math.min(...zs), z1: Math.max(...zs), poly, boom: true });
+    }
+    return out;
   }
   function cab() { const p = placed[0]; return { x: p.x + Math.cos(p.heading) * (LOCO.length / 2 - 4.6), z: p.z + Math.sin(p.heading) * (LOCO.length / 2 - 4.6), heading: p.heading }; }
   function near(pos, range = 5) { const c = cab(); return !driving && Math.hypot(pos.x - c.x, pos.z - c.z) < range; }
@@ -177,10 +285,13 @@ export function createNarromineTrains(parent) {
   function state() {
     const p = head();
     return { driving, speedKmh: Math.round(speed * 3.6), limitKmh: limitKmh(), route: pref, line: net.lineName(p.a, p.b),
-      head: { x: p.x, z: p.z }, cab: cab(), cars: cars.length, length: Math.round(CONSIST_LENGTH), track, penalty };
+      head: { x: p.x, z: p.z }, cab: cab(), cars: cars.length, length: Math.round(CONSIST_LENGTH), track, penalty,
+      freight: freight ? { id: freight.entry.id, speedKmh: Math.round(freight.speed * 3.6), held: freight.held, head: (({ x, z }) => ({ x, z }))(freight.path.pointAt(freight.path.s)) } : null,
+      crossings: crossings.map(c => ({ x: Math.round(c.x), z: Math.round(c.z), street: c.street, closed: !!c.closed, down: +c.down.toFixed(2) })) };
   }
   return {
-    update, board, exit, near, cab, colliders, setRoute, state,
+    update, tick, board, exit, near, cab, colliders, setRoute, state,
+    runFreight(i = 0) { if (freight) despawnFreight(); spawnFreight(FREIGHT_TIMETABLE[i]); return FREIGHT_TIMETABLE[i].id; },
     sound() { horn = 1.2; return 'Horn: two long blasts.'; },
     get driving() { return driving; }, get message() { return message; }, clearMessage() { message = ''; },
     network: net,
