@@ -58,5 +58,5 @@ try {
   console.log('PASS St Augustine church desktop/mobile real WebGL screenshots:',JSON.stringify(stats));
 }finally{
   await browser.close();
-  if(server)await new Promise(resolve=>server.server?.close?server.server.close(resolve):resolve());
+  if(server)await server.close();
 }
