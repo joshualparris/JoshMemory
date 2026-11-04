@@ -535,7 +535,7 @@ export function buildNarromine(parent, makeLabel = null) {
   buildKieraths({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   buildNarromineRailwayPrecinct({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   buildNarromineCourthousePrecinct({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
-  buildNarromineStAugustines({ push, colliders, spots });
+  buildNarromineStAugustines({ push, colliders, spots, town });
   // Named places: a sign over each, and an E-prompt with what it is, its address and any history.
   for (const p of PLACES) {
     if (makeLabel) { const l = makeLabel(p.name, 'interactive'); l.position.set(p.x, 5.4, p.z); l.scale.multiplyScalar(0.8); town.add(l); }
