@@ -1,0 +1,58 @@
+name: JoshMemory Whole Repository Outstanding Task Inventory
+
+on:
+  push:
+    branches:
+      - audit/whole-repo-open-tasks-20261105
+    paths:
+      - tools/audit_open_tasks.py
+      - tests/test_audit_open_tasks.py
+      - docs/WHOLE_REPO_GITHUB_OPEN_2026-11-05.json
+      - .github/workflows/whole-repo-open-tasks.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate-canonical-id-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Run scanner behaviour tests
+        run: python -m unittest discover -s tests -p test_audit_open_tasks.py -v
+      - name: Assign stable permanent IDs and build triage register
+        run: python tools/audit_open_tasks.py --write
+      - name: Verify output stability and no future duplicate reassignment
+        run: |
+          cp docs/JOSHMEMORY_OPEN_TASK_REGISTER.csv /tmp/open-tasks-first.csv
+          cp docs/JOSHMEMORY_UNNUMBERED_TASK_IDS.json /tmp/task-ids-first.json
+          python tools/audit_open_tasks.py --write
+          cmp /tmp/open-tasks-first.csv docs/JOSHMEMORY_OPEN_TASK_REGISTER.csv
+          cmp /tmp/task-ids-first.json docs/JOSHMEMORY_UNNUMBERED_TASK_IDS.json
+      - name: Commit generated documentary inventory to audit branch only
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/JOSHMEMORY_OPEN_TASK_REGISTER.csv docs/JOSHMEMORY_UNNUMBERED_TASK_IDS.json docs/WHOLE_REPO_OPEN_WORK_2026-11-05.md
+          if ! git diff --cached --quiet; then
+            git commit -m "docs(audit): generate deduplicated task register and missing IDs"
+            git push origin "HEAD:$GITHUB_REF_NAME"
+          fi
+      - name: Preserve task-inventory artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: joshmemory-repo-task-audit
+          path: |
+            docs/JOSHMEMORY_OPEN_TASK_REGISTER.csv
+            docs/JOSHMEMORY_UNNUMBERED_TASK_IDS.json
+            docs/WHOLE_REPO_OPEN_WORK_2026-11-05.md
+          retention-days: 14
+          if-no-files-found: warn
