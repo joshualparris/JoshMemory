@@ -13,7 +13,7 @@ Where evidence is missing, **render nothing** rather than filling the scene usin
 - **OpenStreetMap**, exported 3 November 2026, supplies Dandaloo Street centreline and nominal 9-m secondary carriageway width. These do not prove footpath kerb survey tolerances or individual lamp/tree positions.
 - **NSW Spatial Services cadastral/aerial imagery** establishes the building envelope and Dandaloo-facing hotel verandah geometry; 2023 **LiDAR** informs roof elevation, **not** a complete ground-truth inventory of street trees or poles.
 - User's 4 November 2026 real-versus-game screenshots show uninterrupted sightlines at the hotel corner and multiple oversized trees in the game at those positions. Google Street View is a *human visual reference* here; its images are not copied into the repo, used as textures or redistributed.
-- In the hotel-specific detailed builder, **two street-side trees** are separately referenced to the photo set (`ts = [21.5, 33.8]`) and the hotel lot has **four aerial-traced tree locations**. These remain, with modelled canopy dimensions understood to be approximations.
+- In the hotel-specific detailed builder, **two former street-side candidates** were listed in the hotel notes (`ts = [21.5, 33.8]`). A real WebGL desktop/Android recheck found the nearer `s=21.5` tree blocking hotel windows, with no independently fixed base location. That candidate is now hidden pending proper geolocation. The farther **northern-end `s=33.8` tree** remains as an approximate model for a photo-referenced real tree, alongside **four aerial-located rear trees**.
 - The **North divided-carriageway median** currently has a separate planting scheme based on prior local streetscape comparisons. It is deliberately not changed by this southern-hotels sightline fix; individual object geolocation and dates there still require an evidence register before a survey-grade claim.
 
 ## Removed, retained, unverified
@@ -24,7 +24,7 @@ Where evidence is missing, **render nothing** rather than filling the scene usin
 | South swan-neck lamps | 8 | **0 generated** | Alternating 44-m locations were synthetic |
 | South utility poles and overhead wires | 10+ | **0 generated** | 40-m interval and sagging inter-pole cables had no individual survey |
 | South road kerb fragments | 164 | **164 retained** | Aligned to mapped street, not a standalone furniture object; road width remains nominal |
-| Hotel's site-specific street trees | 2 | **2 retained** | Site-specific photo notes; canopy geometry approximate |
+| Hotel's site-specific street trees | 2 candidates | **1 retained** | Northern-end photo-referenced tree remains; unverified inner-frontage `s=21.5` omitted |
 | Hotel's aerial-traced rear trees | 4 | **4 retained** | Local aerial photo positions |
 | Northern divided-road medians | 35 fragments | **35 unchanged** | Outside strict South branch, needs further object-level audit |
 
