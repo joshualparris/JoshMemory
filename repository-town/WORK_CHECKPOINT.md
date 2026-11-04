@@ -1,9 +1,11 @@
-# 4 November 2026 — Narromine Visual QA & Screenshot Comparison System — START
+# 4 November 2026 — Narromine Visual QA & Screenshot Comparison System — VERIFIED COMPLETE
 
-Owner Antigravity. Baseline `main` `13dba681`; branch `feat/narromine-visual-qa-20261104`.
-- Scope: `tools/narromine-visual-qa/`, `tests/narromine-visual-qa/`, `docs/narromine-visual-qa/`, `COORDINATION.md`, and `WORK_CHECKPOINT.md`.
-- Explicitly excluded: `src/world/narromine.js`, `src/world/narromine-buildings-data.js`, `src/world/narromine-kieraths.js`, `src/world/narromine-layout.js`, `src/main.js`, `package.json`, existing building inventories, façade reference catalogues, and existing screenshots belonging to other agents.
-- Next: implement deterministic camera specification for the 6 Narromine locations across desktop/mobile and morning/midday/late-afternoon lighting, Playwright/WebGL capture & diagnostic engine, contact sheet & HTML report generator, baseline comparison logic, and unit + end-to-end Fedora tests.
+Owner Antigravity. Baseline `main` `ca9caf58`; branch `feat/narromine-visual-qa-20261104`.
+- Implemented `tools/narromine-visual-qa/locations.mjs` (6 deterministic Narromine camera locations with exact coordinates, yaw, compass headings, `desktop` 1280×800 and `mobile` 393×852 viewports, `morning` 08:00 / `midday` 12:30 / `late-afternoon` 16:45 lighting presets, and read-only licensed reference lookup from `data/narromine-photo-references.json`).
+- Implemented `tools/narromine-visual-qa/compare.mjs` (pure Node PNG codec, Sobel edge & luminance signature analyser, daylight progression verifier, and baseline comparison classifier separating `expected-time-or-lighting-difference` and `expected-weather-difference` from genuine `rendering-regression`).
+- Implemented `tools/narromine-visual-qa/report.mjs` and `tools/narromine-visual-qa/run.mjs` (Playwright/WebGL capture engine, separated desktop/mobile frame-time distribution & draw-call/triangle diagnostics, camera reproducibility proof, `contact-sheet.png`, `manifest.json`, and self-contained `report.html`).
+- Verified on Fedora Linux via `node tools/narromine-visual-qa/run.mjs` (36/36 captures PASS, 12/12 daylight progression checks PASS, camera reproducibility `poseDelta=0`) and `node tests/narromine-visual-qa/visual-qa.mjs` (PASS), plus existing Narromine and privacy checks (`node tools/check_privacy.mjs`).
+- Shared files (`src/world/narromine.js`, `src/world/narromine-buildings-data.js`, `src/world/narromine-kieraths.js`, `src/world/narromine-layout.js`, `src/main.js`, `package.json`) and generated `test-results/` artifacts remain strictly excluded from git history.
 
 # 4 November 2026 — Narromine Railway Station precinct reconstruction — STANDALONE IMPLEMENTATION COMPLETE (live integration pending)
 
