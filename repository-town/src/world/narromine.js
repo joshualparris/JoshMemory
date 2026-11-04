@@ -5,6 +5,7 @@
 // while you are in Repository Town.
 import * as THREE from 'three';
 import { buildKieraths } from './narromine-kieraths.js';
+import { roofLetteringSurface } from './narromine-roof-lettering.js';
 import { buildNarromineHotel, NARROMINE_HOTEL_ID } from './narromine-hotel.js';
 import { buildNarromineRoyalHotel, ROYAL_HOTEL_REPLACED_IDS } from './narromine-royal-hotel.js';
 import { buildNarromineRailwayPrecinct } from './narromine-railway-precinct.js';
@@ -412,16 +413,33 @@ export function buildNarromine(parent, makeLabel = null) {
           }
         }
       } else colliders.push(polyRect(p.pts));
-      if (p.roofText && typeof document !== 'undefined') {
-        // Painted on the street-facing (west) slope, as seen from the air (axis-aligned front block).
-        const r = polyRect(p.pts), fh = (r.x1 - r.x0) / 2 * Math.tan(0.42);
-        const c = document.createElement('canvas'); c.width = 1024; c.height = 256; const g2 = c.getContext('2d');
-        g2.fillStyle = '#8e2a26'; g2.font = 'bold 150px Arial'; g2.textAlign = 'center'; g2.textBaseline = 'middle'; g2.fillText(p.roofText, 512, 135);
-        const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
-        const slope = Math.hypot((r.x1 - r.x0) / 2, fh), m = new THREE.Mesh(new THREE.PlaneGeometry((r.z1 - r.z0) * 0.8, slope * 0.75), new THREE.MeshLambertMaterial({ map: tex, transparent: true, depthWrite: false }));
-        m.position.set(r.x0 + (r.x1 - r.x0) / 4 - 0.02, wallH + fh / 2 + 0.05, (r.z0 + r.z1) / 2);
-        m.rotation.set(0, -Math.PI / 2, 0); m.rotateX(-(Math.PI / 2 - Math.atan2(fh, (r.x1 - r.x0) / 2)));
-        town.add(m);
+      if (p.roofText && pitched && typeof document !== 'undefined') {
+        // Align painted letters to the actual pitched LiDAR-adjusted hip face,
+        // not the former world-axis plane hard-coded to 0.42 rad.
+        const surface = roofLetteringSurface(f, wallH, pitch ?? 0.42);
+        if (surface) {
+          const canvas = document.createElement('canvas');
+          canvas.width = 1024; canvas.height = 256;
+          const ctx = canvas.getContext('2d');
+          ctx.fillStyle = '#8e2a26';
+          ctx.font = 'bold 150px Arial';
+          ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.fillText(p.roofText, 512, 135);
+          const texture = new THREE.CanvasTexture(canvas);
+          texture.colorSpace = THREE.SRGBColorSpace;
+          const geometry = new THREE.BufferGeometry();
+          geometry.setAttribute('position', new THREE.Float32BufferAttribute(surface.positions, 3));
+          geometry.setAttribute('uv', new THREE.Float32BufferAttribute(surface.uv, 2));
+          geometry.setIndex(surface.triangles);
+          geometry.computeVertexNormals();
+          const material = new THREE.MeshLambertMaterial({
+            map: texture, transparent: true, depthWrite: false,
+            side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: -1,
+          });
+          const lettering = new THREE.Mesh(geometry, material);
+          lettering.name = `${d.id}:${p.name}:roof-lettering`;
+          town.add(lettering);
+        }
       }
     }
     // Verandahs: posts along the outer (kerb) edge; two-level ones get a balcony floor, balustrade and iron-lace frieze.

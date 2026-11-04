@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import { facadeBays, estimatedShopfrontProfile, landmarkFacadeSpec } from '../src/world/narromine-facade-profiles.js';
 import { DETAILED, FILL_SHOPS, FRONTAGES, BUILDINGS } from '../src/world/narromine-layout.js';
+import { roofLetteringSurface } from '../src/world/narromine-roof-lettering.js';
 
 const a = estimatedShopfrontProfile({ name: 'Test Shop', street: 'Dandaloo Street' });
 const b = estimatedShopfrontProfile({ name: 'Test Shop', street: 'Dandaloo Street' });
@@ -61,4 +62,35 @@ for(const [id, part, storeys, maxVerandahGap] of plans) {
 assert.equal(landmarkFacadeSpec('narromine-post-office', 'north wing'), null, 'photo-matched post office remains unchanged');
 assert.equal(landmarkFacadeSpec('dandaloo-82', 'Coles north hall'), null, 'photo-matched Coles remains unchanged');
 assert.equal(landmarkFacadeSpec('st-marys-anglican', 'nave'), null, 'dedicated church not re-skinned');
+// Royal Hotel rooftop paint is no longer buried by the later LiDAR roof-pitch fit.
+// Verify its surface is 10 cm outward *along the roof normal*, even on rotated
+// buildings and at pitches other than the old 0.42 rad hard-coded value.
+{
+  const royal = DETAILED.find(d => d.id === 'royal-hotel');
+  const part = royal?.parts.find(p => p.roofText === 'ROYAL HOTEL');
+  assert(part?.roof === 'hip', 'actual mapped Royal Hotel roof has painted lettering');
+  const [a, b, , d] = part.pts;
+  const L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+  const W = Math.hypot(d[0] - a[0], d[1] - a[1]);
+  const cx = part.pts.reduce((s, p) => s + p[0] / 4, 0);
+  const cz = part.pts.reduce((s, p) => s + p[1] / 4, 0);
+  const yaw = -Math.atan2(b[1] - a[1], b[0] - a[0]);
+  assert(W > L, 'Royal sign lives on the west-facing short-pitch hip slope');
+  for (const pitch of [0.15, 0.42, 0.65]) for (const rotate of [0, 0.31]) {
+    const f = { L, W, cx, cz, yaw: yaw + rotate }, h = 4.2;
+    const surface = roofLetteringSurface(f, h, pitch);
+    assert(surface && surface.positions.length === 12 && surface.uv.length === 8);
+    assert.deepEqual(surface.triangles, [0, 2, 1, 1, 2, 3], 'visible both sides');
+    assert(surface.textSpanM < surface.ridgeLengthM, 'text ends remain before roof hips');
+    for (let i = 0; i < 4; i++) {
+      const x = surface.positions[i * 3], y = surface.positions[i * 3 + 1], z = surface.positions[i * 3 + 2];
+      const lx = (x - cx) * Math.cos(f.yaw) - (z - cz) * Math.sin(f.yaw);
+      const signedDistanceM = (y - h - (lx + L / 2) * Math.tan(pitch)) * Math.cos(pitch);
+      assert(Math.abs(signedDistanceM - 0.10) < 1e-8,
+        'lettering lies 10 cm above actual roof plane, not inside it');
+    }
+  }
+  assert.equal(roofLetteringSurface({ L: 4, W: 4, cx: 0, cz: 0, yaw: 0 }, 4, 0.42), null,
+    'near-square roofs cannot fit the word across a ridge');
+}
 console.log('PASS Narromine storefront profiles: provenance, deterministic glazing and door spacing, mapped street normals, hotel verandah faces');
