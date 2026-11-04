@@ -11,7 +11,7 @@
   "sourceBlobs": {
     "repository-town/audit/electricity/coverage.json": "f80df771b893799e27b3adc98b92fe335c13f28b",
     "repository-town/src/world/interior-kit.js": "476414298879b8a8f80546ffc8c302b7778aa6ed",
-    "repository-town/src/world/life.js": "79f18495b62a92e3584773f2856273e045a183ce",
+    "repository-town/src/world/life.js": "1ee58ec7b85f8102f4c6e650bf3399d990b47d43",
     "repository-town/src/world/power-grid.js": "6de3f54d8fe576117594fe36124748e36da4e255",
     "repository-town/src/world/pub-interior.js": "46396a0552d2480f3c31585e77199803433ab6b6",
     "repository-town/src/world/shop-interior.js": "a558de8daf279c89b2c0cbd3ab874b8bd0960546",
@@ -19,7 +19,7 @@
     "repository-town/tests/shop-interiors.mjs": "0ca369aa2d241c152edb841c1125aa9319241a0d",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "c75ef3b03ce4abc84423bf4d49c7868d0c35fe34",
+    "repository-town/src/main.js": "8ec7cea63e1c71c645c57f02652727c0eda8ba59",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -1117,6 +1117,30 @@
         "repository-town/src/main.js"
       ],
       "finding": "main.js: car radio fades background music; no pub change."
+    },
+    {
+      "date": "2026-11-04",
+      "by": "Claude (Narromine trains)",
+      "changedFiles": [
+        "repository-town/src/main.js"
+      ],
+      "finding": "main.js: drivable Narromine grain train wiring; no pub change."
+    },
+    {
+      "date": "2026-11-04",
+      "by": "Claude (freight timetable)",
+      "changedFiles": [
+        "repository-town/src/main.js"
+      ],
+      "finding": "main.js: train tick and test hooks; no pub change."
+    },
+    {
+      "date": "2026-11-04",
+      "by": "Claude (Narromine fog)",
+      "changedFiles": [
+        "repository-town/src/main.js"
+      ],
+      "finding": "main.js: Narromine fog distance only; no pub change."
     },
     {
       "date": "2026-11-04",

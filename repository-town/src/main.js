@@ -28,6 +28,7 @@ import { buildYeovalInterior } from './world/yeoval-interior.js';
 import { buildMasterplan, PLAN_HOMES } from './world/masterplan-built.js';
 import { RESIDENT_STYLES } from './world/resident-models.js';
 import { buildNarromine } from './world/narromine.js';
+import { createNarromineTrains } from './world/narromine-trains.js';
 import { NARROMINE_POST_OFFICE_SAVE_ID, NARROMINE_POST_OFFICE_ENTRANCE, nearNarrominePostOfficeDoor, buildNarrominePostOfficeInterior, createNarrominePostalOutdoorActor } from './world/narromine-post-office.js';
 import { NARROMINE_POSTAL_PERSON, POSTAL_WALK_ROUTE_LOCAL, postalState, postalDayPlan, postalFormatTime } from './world/narromine-postal-character.js';
 import { NARROMINE_COLES_SAVE_ID, NARROMINE_COLES_ENTRANCE, COLES_INTERPRETIVE_PLAN, nearNarromineColesDoor, colesOpen, buildNarromineColesInterior } from './world/narromine-coles.js';
@@ -228,6 +229,8 @@ async function start() {
   const masterplan = buildMasterplan(town.group, makeLabel);
   // Narromine, 40 km west in reality, ~90 s along the Mitchell Highway here (world/narromine.js).
   const narromine = buildNarromine(town.group, makeLabel);
+  // Narromine railway: sleepers and rails on the mapped lines and a drivable grain train in the yard.
+  const trains = createNarromineTrains(narromine.group);
   const narrominePostalOutdoor=createNarrominePostalOutdoorActor(narromine.group,makeLabel);
   const [postalHomeX,postalHomeZ]=toWorld(POSTAL_WALK_ROUTE_LOCAL[0]);
   narromine.spots.push({key:'narromine:leah-home',label:'Leah Bennett’s fictional home',
@@ -327,6 +330,7 @@ async function start() {
   // A vehicle is approx 2.2m wide and 6.6m long; use a conservative
   // rotated-axis AABB for the town's existing 2D collision engine.
   townWorld.dynamic = () => [
+    ...trains.colliders(),
     ...life.trucks.map(tr => {
       const sn = Math.abs(Math.sin(tr.heading)), cs = Math.abs(Math.cos(tr.heading));
       const hx = 1.18*cs + 3.4*sn, hz = 1.18*sn + 3.4*cs;
@@ -1402,7 +1406,9 @@ async function start() {
   function use() {
     if (carried) { putDown(); return; }
     if(driving.driving){status(driving.exit());return;}
+    if(trains.driving){status(trains.exit(player));return;}
     if(mode==='town'&&nearCar){status(driving.enter(nearCar));return;}
+    if(mode==='town'&&!driving.driving&&trains.near(player.pos)){status(trains.board());return;}
     if(player.seated){
       if(player.stand(world))status('You stand up.');
       else status('There is no clear space to stand. Move the furniture or try again.');
@@ -1753,6 +1759,13 @@ async function start() {
       // Jump, run and crouch do nothing in a vehicle: show ✋ and 🎥 only, clear of the minimap.
       $('t-view').hidden=!driving.driving; for(const id of ['t-jump','t-run','t-crouch'])$(id).hidden=driving.driving;
       if(mode==='town'&&driving.driving){ driving.update(dt); if(driving.message){ status(driving.message); driving.clearMessage(); } }
+      else if(mode==='town'&&trains.driving){
+        trains.update(dt,input); if(trains.message){ status(trains.message); trains.clearMessage(); }
+        // Chase camera behind and above the cab, looking down the line.
+        const c=trains.cab(),hx=Math.cos(c.heading),hz=Math.sin(c.heading);
+        player.pos.set(c.x,0,c.z); player.yaw=-c.heading-Math.PI/2; player.pitch=0;
+        camera.position.set(c.x-hx*16,8.5,c.z-hz*16); camera.lookAt(c.x+hx*30,1.5,c.z+hz*30);
+      }
       else {
         if (mode === 'town' && !overview) for (const tap of input.takeTaps()) tapWalk(tap.x, tap.y); else input.takeTaps();
         stepAutoWalk(dt);
@@ -1761,6 +1774,7 @@ async function start() {
     }
     drivingDashboard.update(mode==='town'&&!overview?driving.activeVehicle():null);
     ambience.setRadioPlaying(drivingDashboard.getState().station>0);
+    trains.tick(dt,{day:life.day,minute:life.minute});   // timetabled freights and level-crossing booms
     market.update(life.day, life.minute);
     frameItems();
     carryFrame();
@@ -1867,6 +1881,8 @@ async function start() {
       }
       // Villagers, the guide kiosk and the shop counters: pick the one the player is facing.
       narromine.update(player.pos);
+      // Narromine sits on open inland plains with clear air: see much further there than in the town.
+      { const inNarromine = player.pos.x < -2640; fog.near = inNarromine ? 220 : 60; fog.far = inNarromine ? 650 : 170; }
       nearPerson = null; let bestP = Infinity;
       const consider = (c, reach, bonus = 0) => {
         const d = Math.hypot(c.pos.x - player.pos.x, c.pos.z - player.pos.z);
@@ -1976,8 +1992,10 @@ async function start() {
         }
       }
       const nearRelic = expedition.nearby(player.pos), relicD = away(nearRelic), npcD = away(nearNPC), personD = away(nearPerson);
-      $('prompt').hidden = (!driving.driving && !nearCar && !player.seated && !nearTownSeat && !nearNPC && !nearPerson && !nearHouse && !nearRelic) || !!panelOpen || expedition.isOpen() || npcChat.isOpen() || !$('npc-roster').hidden;
+      $('prompt').hidden = (!driving.driving && !trains.driving && !(mode==='town'&&trains.near(player.pos)) && !nearCar && !player.seated && !nearTownSeat && !nearNPC && !nearPerson && !nearHouse && !nearRelic) || !!panelOpen || expedition.isOpen() || npcChat.isOpen() || !$('npc-roster').hidden;
       if(driving.driving)$('prompt').textContent=`${input.touch?'Tap ✋':'Press E'} — Park and get out (stop first)`;
+      else if(trains.driving){const t=trains.state();$('prompt').textContent=`🚆 ${t.speedKmh} km/h · limit ${t.limitKmh} · ${t.line} · next junction: ${t.route==='straight'?'straight':t.route} (${input.touch?'joystick ←/→':'A/D'}) · ${input.touch?'✋':'E'} step down when stopped`;}
+      else if(mode==='town'&&trains.near(player.pos))$('prompt').textContent=`${input.touch?'Tap ✋':'Press E'} — 🚆 Drive the grain train`;
       else if(nearCar)$('prompt').textContent=`${input.touch?'Tap ✋':'Press E'} — Drive ${nearCar.registration} · ${nearCar.model}`;
       else if (player.seated) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — Stand up · Move or jump to stand`;
       else if(nearTownSeat) $('prompt').textContent = `${input.touch ? 'Tap ✋' : 'Press E'} — Sit on ${nearTownSeat.label}`;
@@ -2236,6 +2254,7 @@ async function start() {
     }),
     vehicles:()=>life.motorReport().owned.map(v=>({...v})),
     enterVehicle:(reg)=>driving.enter(life.motorReport().owned.find(v=>v.registration===reg)),
+    train:()=>trains.state(), probeWithMoving:(x,z,r=.4)=>!!townWorld.hits(x,z,r), trainNear:()=>trains.near(player.pos), trainBoard:()=>trains.board(), trainExit:()=>trains.exit(player), trainRoute:(p)=>trains.setRoute(p), runFreight:(i)=>trains.runFreight(i), trainColliders:()=>trains.colliders(),
     leaveVehicle:()=>driving.exit(),
     // A fixed step behaves like a real frame, including showing the driving message (off-road, braking).
     narromineVisible:()=>narromine.group.visible,
