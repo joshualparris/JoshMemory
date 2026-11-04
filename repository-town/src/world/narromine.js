@@ -16,6 +16,7 @@ import { buildNarromineAviationPrecinct } from './narromine-aviation-precinct.js
 import { NARROMINE_AVIATION_INTEGRATION_SPEC } from './narromine-aviation-evidence.js';
 import { buildNarromineNwDandalooBlock } from './narromine-nw-dandaloo-block.js';
 import { NARROMINE_NW_DANDALOO_INTEGRATION_SPEC } from './narromine-nw-dandaloo-evidence.js';
+import { PHYSIO_FACADE, buildNarrominePhysiotherapyFacade } from './narromine-mainstreet-physio.js';
 const RAILWAY_SUPPRESSED_OSM = new Set([
   ...NARROMINE_RAILWAY_INTEGRATION_SPEC.suppressedOsmBuildingIndices,
   ...NARROMINE_COURTHOUSE_INTEGRATION_SPEC.suppressedOsmBuildingIndices,
@@ -160,7 +161,9 @@ export function buildNarromine(parent, makeLabel = null) {
   for (const b of BUILDINGS) {
     if (RAILWAY_SUPPRESSED_OSM.has(b.osmIndex)) continue;
     if (Math.abs(b.pts[0][0] - (-4813.8)) < 0.5 && Math.abs(b.pts[0][1] - (-734.3)) < 0.5) continue;
-    const [h, colour] = BUILDING_STYLE(b);
+    const [h, colourBase] = BUILDING_STYLE(b);
+    // This single OSM shell has a documented white-render facade; retain its footprint.
+    const colour = b.osmIndex === PHYSIO_FACADE.osmIndex ? 0xf0eee9 : colourBase;
     const shape = new THREE.Shape(b.pts.map(([x, zz]) => new THREE.Vector2(x, -zz)));
     const g = new THREE.ExtrudeGeometry(shape, { depth: h, bevelEnabled: false }); g.rotateX(-Math.PI / 2); push(colour, g);
     // Collide with the outline's box, unless the outline is very irregular or the box covers a street.
@@ -238,6 +241,7 @@ export function buildNarromine(parent, makeLabel = null) {
   // mullions, piers and doors are visual approximations (see facade profiles).
   for (const f of FRONTAGES) {
     if (RAILWAY_SUPPRESSED_OSM.has(BUILDINGS[f.building]?.osmIndex)) continue;
+    if (BUILDINGS[f.building]?.osmIndex === PHYSIO_FACADE.osmIndex) continue; // one bespoke frontage, no overlapping generic glazing
     const [ax, az] = f.a, [bx, bz] = f.b, len = Math.hypot(bx - ax, bz - az), mx = (ax + bx) / 2, mz = (az + bz) / 2;
     const tl = Math.hypot(...f.toward) || 1, ox = f.toward[0] / tl, oz = f.toward[1] / tl, yaw = -Math.atan2(bz - az, bx - ax);
     const depth = Math.min(3, Math.max(1.5, f.d - 1)), profile = estimatedShopfrontProfile({ name: f.name, street: f.street });
@@ -249,6 +253,17 @@ export function buildNarromine(parent, makeLabel = null) {
     storefront({ a: f.a, b: f.b, toward: f.toward, name: f.name, profile,
       wallHeight: BUILDING_STYLE(BUILDINGS[f.building])[0] });
   }
+  // Photo-interpreted curved parapet/glazing at the unique mapped physiotherapy edge.
+  // Only cosmetic geometry; preserve mapped building and all existing collider boundaries.
+  const physioBuilding = BUILDINGS.find((b) => b.osmIndex === PHYSIO_FACADE.osmIndex);
+  if (physioBuilding) buildNarrominePhysiotherapyFacade({
+    THREE, building: physioBuilding, push,
+    addSign: ({ x, z, y, width, height, normal }) => {
+      const texture = boardTexture(['NARROMINE', 'PHYSIOTHERAPY'],
+        { bg: '#397b76', fg: '#ffffff', border: '#d6e6e6', w: 768, h: 128 });
+      plane(texture, width, height, x, y, z, Math.atan2(normal[0], normal[1]));
+    },
+  });
   // ── Detailed buildings (traced quads from NSW aerial imagery; see narromine-buildings-data.js) ──
   // Each part is an oriented quad: walls are a box along its first edge, roofs are built in that frame.
   const frame = (pts) => { const [a, b, , d] = pts, L = Math.hypot(b[0] - a[0], b[1] - a[1]), Wd = Math.hypot(d[0] - a[0], d[1] - a[1]);
