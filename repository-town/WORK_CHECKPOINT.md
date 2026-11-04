@@ -1,3 +1,12 @@
+# 4 November 2026 — Narromine Visual QA & Screenshot Comparison System — VERIFIED COMPLETE
+
+Owner Antigravity. Baseline `main` `09cacbcf`; branch `feat/narromine-visual-qa-20261104`.
+- Implemented `tools/narromine-visual-qa/locations.mjs` (6 deterministic Narromine camera locations with exact coordinates, yaw, compass headings, `desktop` 1280×800 and `mobile` 393×852 viewports, `morning` 08:00 / `midday` 12:30 / `late-afternoon` 16:45 lighting presets, and read-only licensed reference lookup from `data/narromine-photo-references.json`).
+- Implemented `tools/narromine-visual-qa/compare.mjs` (pure Node PNG codec, Sobel edge & luminance signature analyser, daylight progression verifier, and baseline comparison classifier separating `expected-time-or-lighting-difference` and `expected-weather-difference` from genuine `rendering-regression`).
+- Implemented `tools/narromine-visual-qa/report.mjs` and `tools/narromine-visual-qa/run.mjs` (Playwright/WebGL capture engine, separated desktop/mobile frame-time distribution & draw-call/triangle diagnostics, camera reproducibility proof, `contact-sheet.png`, `manifest.json`, and self-contained `report.html`).
+- Verified on Fedora Linux via `node tools/narromine-visual-qa/run.mjs` (36/36 captures PASS, 12/12 daylight progression checks PASS, camera reproducibility `poseDelta=0`) and `node tests/narromine-visual-qa/visual-qa.mjs` (PASS), plus existing Narromine and privacy checks (`node tools/check_privacy.mjs`).
+- Shared files (`src/world/narromine.js`, `src/world/narromine-buildings-data.js`, `src/world/narromine-kieraths.js`, `src/world/narromine-layout.js`, `src/main.js`, `package.json`) and generated `test-results/` artifacts remain strictly excluded from git history.
+
 # 4 November 2026 — Narromine Railway Station precinct live integration — VERIFIED COMPLETE
 
 Owner Antigravity. Baseline `main` `ca9caf58` (following merge of standalone [PR #312](https://github.com/joshualparris/JoshMemory/pull/312) as `13dba681`); branch `feat/narromine-railway-live-integration-20261104`.
