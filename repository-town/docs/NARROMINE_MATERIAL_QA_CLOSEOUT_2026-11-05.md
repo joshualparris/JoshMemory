@@ -25,7 +25,21 @@ The narrow [GitHub workflow](../../.github/workflows/narromine-material-audit.ym
 - The comparison photographs [55 annotated Street View/game images](https://drive.google.com/drive/folders/1wgPC3JnTWJIPurRXzbW_5T5DLcn1QXJR?usp=sharing) remain in Drive. **No Google Street View pixels committed**, distributed as a texture, or published in the QA artifact.
 - The original photo labels in the old audit have some inconsistent street addresses and material descriptions; do not infer exact colour/brick bond/roof sheet dimensions without measured evidence.
 
-## Completion gates (pending the actual run)
+## Evidence checkpoint — 5 November 2026 (AEDT; NOT a release approval)
+
+**Status: PARTIALLY COMPLETE.** The implementation and material proof-of-concept exist on PR #384; all production acceptance gates below have **not** passed at the latest source commit.
+
+- The original recorded browser suite [41923941338](https://github.com/joshualparris/JoshMemory/actions/runs/41923941338) passed both desktop/Android-size gameplay and the full browser regression at head `aa05c543`.
+- After reconciliation with main at `a9b3081d`, core CI [41926694255](https://github.com/joshualparris/JoshMemory/actions/runs/41926694255), mobile driving [41926694498](https://github.com/joshualparris/JoshMemory/actions/runs/41926694498), heritage release [41926694259](https://github.com/joshualparris/JoshMemory/actions/runs/41926694259) and town integration [41926694473](https://github.com/joshualparris/JoshMemory/actions/runs/41926694473) passed. The recorded WebGL suite [41926694515](https://github.com/joshualparris/JoshMemory/actions/runs/41926694515) was not yet wholly finished when this checkpoint was written.
+- A previous [material A/B artifact 13368606824](https://github.com/joshualparris/JoshMemory/actions/runs/41923941415/artifacts/13368606824) contains **48 actual software-WebGL screenshots**, 24 Lambert baseline + 24 candidate; all individual capture and daylight checks passed. The candidate image-repeat check nevertheless failed (`poseDelta=0`, `pixelRmse=5.15`, edge correlation `0.9984`; required RMSE <4). This means the **entire visual QA job cannot be called passed**.
+- The subsequent [material A/B run 41926694414](https://github.com/joshualparris/JoshMemory/actions/runs/41926694414) also failed the strict image-repeat test, this time on Lambert baseline (`poseDelta=0`, `pixelRmse=5.17`), while its 24 baseline captures, daylight tests, browser errors and geometry tests all passed. That cross-material failure indicates a test reproducibility problem but does **not** prove there is no visual bug.
+- PR #384 now moves the deterministic repeat comparison directly after the first view (`tools/narromine-visual-qa/run.mjs`), **retaining** the strict pose, pixel-RMSE and structural-edge thresholds. The material workflow path filter was extended to include that QA script so edits demand new validation. **The changed code itself has no completed fresh A/B run yet**; do not merge on the prior failed screenshot run.
+- Visual review of four matched old/new views identified the most perceptible change as concrete joint definition; asphalt/brick/render differences are relatively subtle. Geometry remains simplified. These renders are **SwiftShader software-WebGL**; single-digit software FPS is not hardware-specific ProBook or real-phone performance evidence.
+- The supplied Google Drive folder holds 55 historical Street View/game comparison screenshots; reference shots must remain out of public artifacts unless publication rights are independently established. Surface materials alone cannot establish photographically true facades.
+- Vercel rejected a PR preview because its account exceeded **100 deployments/day** (`api-deployments-free-per-day`, PR comment). The most recent checked READY production deployment was sourced from `4e1fb3d9`, not the current main or PR #384. **Production is not verified for these fixes.**
+- Concurrent changes keep advancing main and coordination files. Always re-read and reconcile with the exact latest main before acceptance; preserve other agents' claims.
+
+## Completion gates (pending fresh verification)
 
 - [ ] Release/build/privacy checks pass for latest proposed source.
 - [ ] Focused AudioParam unit contract and real Chromium shutdown both pass.
