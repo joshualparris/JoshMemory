@@ -1,3 +1,7 @@
+## 2026-11-04 — Coles verified store-service slice (#355)
+
+**IN PROGRESS:** Exact claim `NR-COLES-ACCESS-001` on canonical `COORDINATION.md`, branch `feat/narromine-coles-access-evidence-20261104` cut from `main` after claim `0a458ddf`. Scope: sourced Coles Narromine Quiet Hour/accessibility, 6–9pm schedule and in-store information hotspot, simple tests and provenance doc. Does NOT claim real aisle plan, Coles purchases, changes to Kierath's, residential addresses or media rights. Official Coles links in claim. Acceptance: test `narromine-postal-resident`, full build/privacy and browser checks, merge, live release SHA. Blocker: no public measured floorplan or permissioned interior photography. **Resume:** implement isolated data/hotspot and deterministic tests, run CI, merge when green.
+
 # 4 November 2026 — North-West Dandaloo Street Heritage & Civic Block (`52–68` & `38–44 Dandaloo Street`, Screenshots `#31`–`#44` & `#47`–`#50`) — VERIFIED COMPLETE
 
 Owner Antigravity (Agy ProBook). Baseline `main` `6c853f24` (reconciled with `7dadd9cf`); branch `feat/narromine-nw-dandaloo-block-20261104` ([PR #347](https://github.com/joshualparris/JoshMemory/pull/347)).
