@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - audit/whole-repo-open-tasks-20261105
+      - fix/joshmemory-reference-only-triage-20261105
     paths:
       - tools/audit_open_tasks.py
       - tests/test_audit_open_tasks.py
