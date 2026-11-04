@@ -11,6 +11,10 @@ on:
       - .github/workflows/whole-repo-open-tasks.yml
   workflow_dispatch:
 
+concurrency:
+  group: joshmemory-open-tasks-audit-${{ github.ref_name }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
