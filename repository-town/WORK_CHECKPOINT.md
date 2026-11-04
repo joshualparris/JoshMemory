@@ -1,3 +1,10 @@
+# 4 November 2026 — Narromine Real-World Photo Matching, Coordinate-Synced Street View Workspace & Discrepancy Register — START
+
+Owner Antigravity (Agy Fedora). Baseline `main` `09cefc62`; branch `feat/narromine-photo-matching-20261104`.
+- Claimed exclusive namespace `tools/narromine-visual-qa/photo-compare/*`, `tests/narromine-visual-qa/photo-compare/*`, `docs/narromine-visual-qa/photo-compare/*`, and framing fixes in `tools/narromine-visual-qa/*` (from PR #317).
+- Zero overlap with PR #309 (`narromine-kieraths.js`), PR #311 (`data/narromine-photo-references.json`), PR #313 (`narromine.js` Royal Hotel roof lettering), PR #319 (`narromine.js` / `narromine-layout.js` postal resident), or `feat/narromine-live-streetview-compare-20261104` (`tools/narromine-visual-qa/live-streetview/*`).
+- Next step: implement HUD-clean screenshot framing across all 8 priority Narromine locations, bidirectional WGS84 <-> Repository Town coordinate sync, real-time Google Maps API Call & Cost Tracker (per-call banner + exact USD/AUD SKU cost + session budget guard), interactive side-by-side / overlay / zoom-pan / alignment-anchor comparison UI, and evidence-grounded Architectural Discrepancy Register.
+
 # 4 November 2026 — Narromine Courthouse, Police & Civic Precinct (`Section 17, DP 758759`) — STANDALONE IMPLEMENTATION COMPLETE
 
 Owner Antigravity (Agy ThinkPad). Baseline `main` `611b9515`; branch `feat/narromine-courthouse-precinct-20261104`.
