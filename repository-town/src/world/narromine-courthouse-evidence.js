@@ -437,10 +437,20 @@ export const NARROMINE_COURTHOUSE_ACCESS = Object.freeze({
     Object.freeze({
       id: 'path-35-burraway-former-courthouse',
       pts: freezePts([
-        [-4592.2, -765.2],
-        [-4588.2, -766.2],
-        [-4586.8, -768.6],
-        [-4590.8, -767.6],
+        [-4593.8, -761.6],
+        [-4590.8, -759.8],
+        [-4587.6, -767.4],
+        [-4590.6, -769.2],
+      ]),
+    }),
+    // Entry path from Merilba Street footpath into 49 Merilba Street (Narromine Police Station)
+    Object.freeze({
+      id: 'path-49-merilba-police-station',
+      pts: freezePts([
+        [-4615.0, -790.5],
+        [-4601.5, -785.5],
+        [-4600.2, -788.8],
+        [-4613.8, -793.8],
       ]),
     }),
     // Entry plaza from Burraway Street footpath into 37 Burraway Street (Hub n Spoke)
