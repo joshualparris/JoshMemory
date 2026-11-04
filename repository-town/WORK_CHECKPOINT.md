@@ -1,3 +1,11 @@
+# 4 November 2026 — Narromine Railway Station precinct reconstruction — STANDALONE IMPLEMENTATION COMPLETE (live integration pending)
+
+Owner Antigravity. Baseline `main` `ef7ac49a`; branch `feat/narromine-railway-precinct-20261104` ([PR #312](https://github.com/joshualparris/JoshMemory/pull/312)).
+- Implemented `src/world/narromine-railway-evidence.js` (13-feature WGS84 GeoJSON FeatureCollection, statutory Narromine LEP 2011 Schedule 5 Item I11 / Lot 4 DP 1012153 metadata, surveyed OSM footprints & 2023/2011 NSW Spatial Services LiDAR heights for `osm:29`, `osm:28`, and `osm:198`, explicit `surveyed` / `photo-matched` / `estimated` confidence tiers, and duplicate-prevention contract `NARROMINE_RAILWAY_INTEGRATION_SPEC`).
+- Implemented `src/world/narromine-railway-precinct.js` (reusable Three.js builder supporting both standalone batched `THREE.Group` creation and `narromine.js` tile-callback integration: 18 batched material meshes, 10,478 triangles, 45 sliced colliders with unobstructed `Narromine Station Access` roadway, platform, and track clearance).
+- Verified with `tests/narromine-railway-precinct.mjs`, `tests/narromine-layout.mjs`, `tests/narromine-inventory.mjs`, `tests/narromine-map.mjs`, `tests/narromine-post-office.mjs`, `tests/narromine-kieraths-phase1.mjs`, `tests/compass.mjs`, `tests/solar-shadows.mjs`, and `tests/rail-*.mjs`.
+- Shared files (`src/world/narromine.js`, `src/world/narromine-buildings-data.js`, `src/world/narromine-kieraths.js`, `src/main.js`, `package.json`) intentionally left untouched while PR #309 (`feat/kieraths-live-courtyard-geometry-20261104`) and `claude/narromine-hotel` hold active claims on `narromine.js`.
+
 # 29 October 2026 — NPC Lounge recorded-chat close regression (RTD-084 test support) M2: FIXED, PR pending
 
 Fix committed on fix/npc-lounge-chat-close-20261029. Evidence (local Chromium, build of this branch): tests/town-recordings-browser.mjs PASS at 1280 px and 390 px (all 20 clips, zero TTS/AI calls); recorded-dialogue-browser desktop+mobile PASS; recorded-dialogue, voicebank, town-recordings, npc, dialogue-schema, npc-viewport (assertion updated to the new line), pages-drift-guard PASS. Not claimed: RTD-084 complete (town-world approach/swap/return journeys remain), hosted/staging WebAudio (RTAC-031), handset checks. Next: PR with the RTD template, CI, merge.
