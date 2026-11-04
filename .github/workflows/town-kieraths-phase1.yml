@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'repository-town/src/world/narromine-kieraths-site-audit.js'
+      - 'repository-town/src/world/narromine-kieraths-schematic.js'
       - 'repository-town/src/world/narromine-kieraths-data.js'
       - 'repository-town/src/world/narromine-buildings-data.js'
       - 'repository-town/tests/narromine-kieraths-phase1.mjs'
@@ -12,6 +13,7 @@ on:
     branches: [main]
     paths:
       - 'repository-town/src/world/narromine-kieraths-site-audit.js'
+      - 'repository-town/src/world/narromine-kieraths-schematic.js'
       - 'repository-town/tests/narromine-kieraths-phase1.mjs'
       - '.github/workflows/town-kieraths-phase1.yml'
 jobs:
