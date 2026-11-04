@@ -114,6 +114,33 @@ export function createNarrominePostalOutdoorActor(parent,makeLabel) {
   const actor=makeDistinctPerson(NARROMINE_POSTAL_PERSON.id);
   actor.group.name='Leah Bennett · fictional Narromine resident';
   parent.add(actor.group);
+  // Mabel actually accompanies Leah on the outdoor dog-walk slots; she is
+  // hidden during work/commuting and is never left at the Coles entrance.
+  // Deliberately simple reusable meshes rather than a second fake human NPC.
+  const mabel=new THREE.Group();
+  mabel.name='Mabel · Leah Bennett’s elderly kelpie-cross';
+  mabel.position.set(.78,0,.25);
+  const fur=new THREE.MeshLambertMaterial({color:0x8b593a}),
+    dark=new THREE.MeshLambertMaterial({color:0x503828}),
+    tan=new THREE.MeshLambertMaterial({color:0xc79b66}),
+    collar=new THREE.MeshLambertMaterial({color:0x9c3c39});
+  const dogPart=(geo,material,x,y,z,parent=mabel)=>{
+    const mesh=new THREE.Mesh(geo,material);mesh.position.set(x,y,z);parent.add(mesh);return mesh;
+  };
+  dogPart(new THREE.BoxGeometry(.34,.38,.79),fur,0,.48,0);
+  dogPart(new THREE.BoxGeometry(.31,.35,.34),tan,0,.55,.4);
+  dogPart(new THREE.SphereGeometry(.20,9,7),fur,0,.71,.51);
+  dogPart(new THREE.BoxGeometry(.24,.12,.25),dark,0,.59,.72);
+  for(const x of [-.19,.19])for(const z of [-.27,.30])
+    dogPart(new THREE.CylinderGeometry(.052,.058,.46,7),fur,x,.24,z);
+  for(const x of [-.12,.12]){
+    const ear=dogPart(new THREE.ConeGeometry(.095,.24,6),dark,x,.96,.44);
+    ear.rotation.z=x<0?.2:-.2;
+  }
+  dogPart(new THREE.BoxGeometry(.36,.07,.34),collar,0,.62,.41);
+  const tail=dogPart(new THREE.CylinderGeometry(.048,.07,.44,7),fur,0,.63,-.51);
+  tail.rotation.x=-.55;
+  actor.group.add(mabel);
   const tag=makeLabel?.('Leah Bennett · local postal worker','interactive');
   if(tag){tag.position.set(0,2.25,0);actor.group.add(tag);}
   const route=POSTAL_WALK_ROUTE_LOCAL.map(toWorld);
@@ -150,6 +177,8 @@ export function createNarrominePostalOutdoorActor(parent,makeLabel) {
     const state=postalState(day,minute);
     const pose=getPose(state);
     actor.group.visible=!!pose;
+    mabel.visible=state.phase==='dog-walk';
+    if(mabel.visible)tail.rotation.z=Math.sin(state.minute*.55)*.18;
     if(pose){
       actor.group.position.set(pose.x,0,pose.z);
       actor.group.rotation.y=pose.yaw;
