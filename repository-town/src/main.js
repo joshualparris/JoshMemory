@@ -1995,6 +1995,10 @@ async function start() {
   }
 
   // Test hook: lets the browser test suite drive real gameplay deterministically.
+  // Street View button: open the comparison page at the player's current spot and heading.
+  $('btn-streetview')?.addEventListener('click', (e) => {
+    e.currentTarget.href = `narromine-compare.html?x=${player.pos.x.toFixed(1)}&z=${player.pos.z.toFixed(1)}&yaw=${player.yaw.toFixed(3)}`;
+  });
   window.__town = {
     // Test harness fast-forwards genuine simulation steps, allowing attendants to
     // commute to their workstations before the browser tries a staffed entrance.
@@ -2097,6 +2101,9 @@ async function start() {
     thing:(k)=>{const t=inside?.interactables?.find(i=>i.key===k)||(carried?.key===k?carried:null);return t?{x:t.pos.x,z:t.pos.z,y:t.mesh?.position.y??0,carried:carried===t}:null;},
     toExit() { if (!inside) return false; player.place(inside.spawn.x, inside.spawn.z, Math.PI); return true; },
     place(x, z, yaw) { player.place(x, z, yaw); },
+    // Street View comparison page (narromine-compare.html): match the game camera's pitch (radians) and
+    // vertical field of view (degrees) to the live panorama. Ordinary play never calls this.
+    view({ pitch, fov } = {}) { if (Number.isFinite(pitch)) player.pitch = Math.max(-1.35, Math.min(1.35, pitch)); if (Number.isFinite(fov)) { camera.fov = Math.max(20, Math.min(100, fov)); camera.updateProjectionMatrix(); } return { pitch: player.pitch, yaw: player.yaw, fov: camera.fov, pos: { x: player.pos.x, z: player.pos.z } }; },
     probe(x, z) { return world.hits(x, z, player.radius); },
     // Buildings and props only: moving trucks' footprints are left out.
     probeStatic(x, z, r = player.radius) { const d = world.dynamic; world.dynamic = null; try { return world.hits(x, z, r); } finally { world.dynamic = d; } },
