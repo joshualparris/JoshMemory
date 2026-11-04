@@ -23,7 +23,7 @@ body.narromine-minimap-zone #first-day { display: none !important; }
 /* When the map disappears, the compass can sit alongside the tiny toggle,
    rather than leaving an empty 260px desktop gap. */
 body.minimap-is-hidden #game-compass {
-  right: calc(108px + env(safe-area-inset-right));
+  right: calc(158px + env(safe-area-inset-right));
 }
 body.overview #minimap-toggle, body.playing #minimap-toggle {
   display: none !important;
