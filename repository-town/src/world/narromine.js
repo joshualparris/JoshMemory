@@ -142,7 +142,8 @@ export function buildNarromine(parent, makeLabel = null) {
     if (w.closed) flatPoly(0x4f88a8, w.pts, 0.01);
     else for (let i = 1; i < w.pts.length; i++) strip(w.kind === 'river' ? 0x4f88a8 : 0x5c94b0, ...w.pts[i - 1], ...w.pts[i], w.kind === 'river' ? 40 : 5, 0.008, 0.02);
   }
-  for (const r of RAIL) for (let i = 1; i < r.pts.length; i++) { strip(0x8c7f72, ...r.pts[i - 1], ...r.pts[i], 3.2, 0.05, 0.25); strip(0x6d6a66, ...r.pts[i - 1], ...r.pts[i], 1.6, 0.22, 0.12); }
+  // Ballast bed only; sleepers and steel rails are built by narromine-trains.js on the same mapped lines.
+  for (const r of RAIL) for (let i = 1; i < r.pts.length; i++) strip(0x8c7f72, ...r.pts[i - 1], ...r.pts[i], 3.2, 0.05, 0.25);
   // The old overlapping strips had coplanar top faces at every intersection
   // and bend; their full-width footpath slabs also intersected the asphalt.
   // Split the mapped ribbons into disjoint polygons before THREE triangulation.

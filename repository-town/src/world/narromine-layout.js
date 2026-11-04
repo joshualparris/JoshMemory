@@ -164,6 +164,11 @@ const footprint = (cx, cz, w, d, yaw) => { const c = Math.cos(yaw), s = Math.sin
   return { x0: cx - hx, x1: cx + hx, z0: cz - hz, z1: cz + hz, poly }; };
 const overlapsPlaced = (r) => placed.some((q) => r.x0 < q.x1 && r.x1 > q.x0 && r.z0 < q.z1 && r.z1 > q.z0);
 const clearOfStreets = (r) => { for (let x = r.x0; x <= r.x1; x += 2) for (let z = r.z0; z <= r.z1; z += 2) if (nearTownStreet(x, z, 1.5)) return false; return true; };
+// Railway corridor: invented stand-in buildings keep at least 6 m from any mapped track centreline.
+const RAIL_SEGMENTS = OSM.rail.flatMap((r) => r.pts.map(toWorld).slice(1).map((b, i, arr) => [i ? arr[i - 1] : toWorld(r.pts[0]), b]));
+const nearRail = (x, z, m) => RAIL_SEGMENTS.some(([a, b]) => { const dx = b[0] - a[0], dz = b[1] - a[1], l = dx * dx + dz * dz || 1;
+  const t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (z - a[1]) * dz) / l)); return Math.hypot(x - a[0] - t * dx, z - a[1] - t * dz) < m; });
+const clearOfRail = (r) => !(r.poly || [[r.x0, r.z0], [r.x1, r.z0], [r.x1, r.z1], [r.x0, r.z1]]).some(([x, z]) => nearRail(x, z, 6)) && !nearRail((r.x0 + r.x1) / 2, (r.z0 + r.z1) / 2, 6);
 
 export const FILL_SHOPS = Object.freeze(PLACES.flatMap((p) => {
   if (DETAILED.some((d) => d.name === p.name) || BUILDING_CENTRES.some((b) => inPoly(p.x, p.z, b.pts)) || nearMapped(p.x, p.z, 4) || inArea(p.x, p.z)) return [];
@@ -171,7 +176,7 @@ export const FILL_SHOPS = Object.freeze(PLACES.flatMap((p) => {
   // Front on the property line: half the road, a 3 m footpath, then the shop 14 deep behind it.
   const nx = (p.x - n.px) / (n.d || 1), nz = (p.z - n.pz) / (n.d || 1), set = n.s.width / 2 + 3 + 7;
   const cx = n.px + nx * set, cz = n.pz + nz * set, yaw = -n.angle, r = footprint(cx, cz, 10, 14, yaw);
-  if (overlapsPlaced(r) || !clearOfStreets(r)) return [];
+  if (overlapsPlaced(r) || !clearOfStreets(r) || !clearOfRail(r)) return [];
   placed.push(r);
   return [Object.freeze({ generic: true, name: p.name, kind: p.kind, x: cx, z: cz, w: 10, d: 14, yaw, front: Object.freeze([n.px + nx * (n.s.width / 2 + 1.5), n.pz + nz * (n.s.width / 2 + 1.5)]), rect: Object.freeze(r) })];
 }));
@@ -187,7 +192,7 @@ export const FILL_HOUSES = Object.freeze((() => {
         const set = s.width / 2 + 3 + 11, cx = ax + ux * t - uz * side * set, cz = az + uz * t + ux * side * set;
         if (cx < REGION.x0 + 20 || cx > REGION.x1 - 20 || cz < REGION.z0 + 20 || cz > REGION.z1 - 20) continue;
         const r = footprint(cx, cz, 11, 10, -angle);
-        if (nearMapped(cx, cz, 8) || inArea(cx, cz) || PLACES.some((p) => Math.hypot(p.x - cx, p.z - cz) < 20) || overlapsPlaced(r) || !clearOfStreets(r)) continue;
+        if (nearMapped(cx, cz, 8) || inArea(cx, cz) || PLACES.some((p) => Math.hypot(p.x - cx, p.z - cz) < 20) || overlapsPlaced(r) || !clearOfStreets(r) || !clearOfRail(r)) continue;
         placed.push(r);
         out.push(Object.freeze({ generic: true, x: cx, z: cz, w: 11, d: 10, yaw: -angle, rect: Object.freeze(r), tone: (Math.abs(Math.round(cx * 7 + cz * 13)) % 5) }));
       }
