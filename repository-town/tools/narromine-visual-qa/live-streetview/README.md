@@ -110,3 +110,36 @@ landmark doesn't instantiate a second panorama, and that notes/export omit the k
 
 Actual Google authentication, account billing, panorama availability and display
 must additionally be verified on Fedora with the user's browser-restricted key.
+
+## Online Vercel deployment (separate from the family game's production project)
+
+The deployable version uses the **same** comparison UI, but serves a static JSON
+copy of the six camera presets in the built public bundle. The normal local
+server continues to work without any change to existing gameplay or photos.
+
+A dedicated Vercel project connects to `joshualparris/JoshMemory` with:
+
+- Project root: `repository-town`
+- Install command: `npm ci --no-audit --no-fund`
+- Build command: `node tools/build.mjs && node tools/narromine-visual-qa/live-streetview/build-online.mjs`
+- Output directory: `dist/public`
+- Framework: Other (static)
+- Public comparison route: `/_streetview/index.html`
+- Game route: `/` (same origin, so game camera matching works)
+
+The static copy is intentionally **not** added to the main Repository Town
+Vercel site's build command. The separate online project does not alter that
+production configuration.
+
+For online use, create a browser key **restricted to that dedicated project's
+actual production hostname**, and restrict API usage to the Maps JavaScript API.
+Never use an unrestricted key or put the browser key in source, Vercel's
+public HTML, or documentation. Google Cloud API keys used client-side can be
+inspected in browser network requests; allowed-host restrictions are essential.
+The user enters the restricted key into the browser's form after opening the
+online page and approves a cost disclosure before the first panorama loads.
+
+**Security:** Any previously shared API key should be rotated and restricted
+before using it online. Google Cloud billing budgets and alerts are not hard
+spend caps. Set appropriate API quotas and review Cloud Billing's actual SKU
+usage; the UI's cost ledger is only a first-tier estimate for this browser.
