@@ -169,7 +169,8 @@ export function buildNarromine(parent, makeLabel = null) {
     const g = new THREE.ExtrudeGeometry(shape, { depth: h, bevelEnabled: false }); g.rotateX(-Math.PI / 2); push(colour, g);
     // Collide with the outline's box, unless the outline is very irregular or the box covers a street.
     const r = polyRect(b.pts), area = Math.abs(b.pts.reduce((s, p, i) => { const q = b.pts[(i + 1) % b.pts.length]; return s + p[0] * q[1] - q[0] * p[1]; }, 0) / 2);
-    if (area > 0.55 * (r.x1 - r.x0) * (r.z1 - r.z0) && !nearTownStreet((r.x0 + r.x1) / 2, (r.z0 + r.z1) / 2, 0)) colliders.push(r);
+    if (area > 0.55 * (r.x1 - r.x0) * (r.z1 - r.z0) && !nearTownStreet((r.x0 + r.x1) / 2, (r.z0 + r.z1) / 2, 0))
+      colliders.push({ ...r, polygon: b.pts }); // Broad-phase AABB; exact mapped OSM perimeter for physical collisions.
   }
   // Stand-ins for unmapped named places: still ESTIMATED rectangles, never survey footprints.
   // Reusable facade elements remain batched by material/tile and have NO new collision boxes.
