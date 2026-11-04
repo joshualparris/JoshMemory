@@ -30,8 +30,10 @@ assert.match(south.source.spacing,/no automatic furniture spacing/,
 // abandoned synthetic 22m rows, as are the lot-internal aerial-survey trees.
 assert.equal(hotel.trees.length,4,'all four independently located hotel-lot trees remain');
 const hotelSource=fs.readFileSync(new URL('../src/world/narromine-hotel.js',import.meta.url),'utf8');
-assert(hotelSource.includes('for (const ts of [21.5, 33.8])'),
-  'the two hotel-owner photo-referenced Dandaloo kerb trees remain');
+assert(hotelSource.includes('for (const ts of [33.8])'),
+  'northern/end photo-referenced tree retained with approximate dimensions');
+assert(!hotelSource.includes('for (const ts of [21.5, 33.8])'),
+  'unlocated s=21.5 frontage tree no longer occludes the real hotel');
 assert(hotelSource.includes('for (const [tx, tz] of nh.trees || [])'),
   'four aerial-based rear-lot trees remain');
 
