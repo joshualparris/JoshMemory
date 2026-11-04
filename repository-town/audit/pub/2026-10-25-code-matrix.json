@@ -11,7 +11,7 @@
   "sourceBlobs": {
     "repository-town/audit/electricity/coverage.json": "f80df771b893799e27b3adc98b92fe335c13f28b",
     "repository-town/src/world/interior-kit.js": "476414298879b8a8f80546ffc8c302b7778aa6ed",
-    "repository-town/src/world/life.js": "abe2085542a4f5960dac399bd961389f4e64502a",
+    "repository-town/src/world/life.js": "1ee58ec7b85f8102f4c6e650bf3399d990b47d43",
     "repository-town/src/world/power-grid.js": "6de3f54d8fe576117594fe36124748e36da4e255",
     "repository-town/src/world/pub-interior.js": "46396a0552d2480f3c31585e77199803433ab6b6",
     "repository-town/src/world/shop-interior.js": "a558de8daf279c89b2c0cbd3ab874b8bd0960546",
@@ -727,7 +727,8 @@
     "2026-10-27 world-home ground-floor update: main.js now opens distinct country interiors without modifying any pub equipment or approvals. Source fingerprint refresh tracks code provenance only.",
     "2026-10-27 shared townlife figure-placement normalization for cycling/storybook character compatibility. RTPUB 001-034 compliance labels remain unchanged.",
     "2026-10-28 shared town playtest fixes: life.js villager meal/sleep timing and main.js driving camera views, Town Guide prompt priority and square notice board. No pub geometry, equipment, egress or approvals changed; fingerprint refresh tracks code provenance only.",
-    "2026-10-28 skilling slice: main.js wires the Town Woodlot (north of the railway), woodcutting, firemaking and the Skills panel. No pub geometry, equipment, egress or approvals changed; fingerprint refresh tracks code provenance only."
+    "2026-10-28 skilling slice: main.js wires the Town Woodlot (north of the railway), woodcutting, firemaking and the Skills panel. No pub geometry, equipment, egress or approvals changed; fingerprint refresh tracks code provenance only.",
+    "2026-11-04: modelled dairy field fence moved outside paved avenue-4 right of way (and symmetric cases). This is a verified simulated driving geometry correction only; no pub permits, geometry, fire egress or legal compliance validated."
   ],
   "sourceChangeReviews": {
     "2026-10-26-rail-corridor": {
@@ -764,6 +765,11 @@
       "scope": "PR solar-shadow changes townlife.js shared outdoor solar azimuth, elevation and sky colours and main.js adaptive outdoor shadow rendering/Settings. Rebased onto main containing the independent St Mary's Church changes; they are preserved. No change to pub layouts, safety systems, doors, cooking operations, staff, regulatory rules or compliance conclusions.",
       "verification": "Source diff reviewed, NOAA solar/date tests and actual desktop/Android Playwright seasonal shadow/sky tests. Reconcile new Git blob SHA fingerprints; no statutory verification claims.",
       "regulatoryStatus": "All 34 RTPUB findings remain unverified or provisional, not certified."
+    },
+    "2026-11-04-farm-avenue-only-road-clearance": {
+      "scope": "Exact four-lane collision fix TOWN-DRIVE-ROAD-BARRIER-001: farmland `p.field` boundaries clamped outside AVENUES (already-present public road centreline), preventing dairy fence crossing the x=182 driveable lane. Only the simulation's external farm fence/plot boundaries change. Pub venue geometry, front door, back-of-house, roster, customers, finances, staff and regulatory properties unchanged.",
+      "verification": "Original independent real Chromium desktop+Android road scan #41811926865: 4 blocked core lane samples at x≈183.6,z201–204 from farm fence x184.35..184.65; patched scan #41813299986: zero core road blockers on both devices; source-only farm fence regression and full pub-history/release/integration checks. The independently merged #369 uses true building polygons to fix Narromine, and is retained intact.",
+      "regulatoryStatus": "All 34 RTPUB audit tasks retain preexisting non-certifying statuses. No claim of NCC or food safety approval."
     }
   },
   "reaudits": [
@@ -1135,6 +1141,14 @@
         "repository-town/src/main.js"
       ],
       "finding": "main.js: Narromine fog distance only; no pub change."
+    },
+    {
+      "date": "2026-11-04",
+      "by": "ChatGPT (road-clearance follow-up to #369)",
+      "changedFiles": [
+        "repository-town/src/world/life.js"
+      ],
+      "finding": "Reviewed exact life.js delta only: per-farm x0/x1 border clamping to existing ±5.5m avenues, no changes to source pub code or saved pub data. Static road audit before=4 core blockers and after=0 on actual WebGL Chromium desktop+mobile; no certification claim. Reconciles concurrent independently merged precise Narromine polygon collision fix #369 without altering its files. New source blob 79f18495b62a92e3584773f2856273e045a183ce"
     }
   ]
 }
