@@ -101,6 +101,16 @@ export function buildKieraths({ box, push, strip, flatPoly, plane, boardTexture,
     place(ROOF, len+0.20, 0.105, 1.26, outward(0.70), 3.02, yaw);
     for (const t of [0.06, 0.94]) {
       const p = [a[0] + dx*t + normal[0]*1.24, a[1] + dz*t + normal[1]*1.24];
+      // Narrow historic arcade passages must stay traversable. The unit 2
+      // corner post would otherwise sit 0.29m from the route centreline.
+      const edgeDistance = (v, a, b) => {
+        const ddx = b[0]-a[0], ddz = b[1]-a[1], len2 = ddx*ddx+ddz*ddz || 1;
+        const u = Math.max(0, Math.min(1, ((v[0]-a[0])*ddx+(v[1]-a[1])*ddz)/len2));
+        return Math.hypot(v[0]-a[0]-u*ddx,v[1]-a[1]-u*ddz);
+      };
+      const routeDistance = Math.min(...KIERATHS_ROUTE.slice(1).map((q,i) =>
+        edgeDistance(p, KIERATHS_ROUTE[i], q)));
+      if (routeDistance < 1.1) continue; // cantilever from wall; no obstruction
       place(STEEL, 0.085, 2.94, 0.085, p, 1.48);
       const [x,z] = world(p);
       colliders.push({ x0:x-0.09, x1:x+0.09, z0:z-0.09, z1:z+0.09 });
