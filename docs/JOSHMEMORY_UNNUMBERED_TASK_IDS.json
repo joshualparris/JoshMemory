@@ -1,0 +1,2211 @@
+{
+  "ids": {
+    "011f2780a2531cb477d4": {
+      "id": "JMU-00359",
+      "source_file": "repository-town/games/sylvie-phonetics/docs/ResearchImplementationRoadmap.md",
+      "title_at_allocation": "Strengthen Parent/Educator Notes"
+    },
+    "0126ac7fffb005c56ade": {
+      "id": "JMU-00166",
+      "source_file": "repository-town/games/carl/Dungeon_Crawler_Carl_Game_Build_Plan.md",
+      "title_at_allocation": "Party and Companion AI"
+    },
+    "012e239930efe697a3d1": {
+      "id": "JMU-00047",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Kerb, gutter and footpaths.** Only on streets that have them (town centre and main"
+    },
+    "032b37a431eebf3114a4": {
+      "id": "JMU-00397",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Add a find-more screen with multiple rounds and a counter of found items."
+    },
+    "057cc46a8db7b2ce2aee": {
+      "id": "JMU-00254",
+      "source_file": "repository-town/games/forbidden-quests/podcasttodo.md",
+      "title_at_allocation": "Hide/pause whenever narration, TTS, music or important game audio is active."
+    },
+    "07488d05264dff9099c4": {
+      "id": "JMU-00062",
+      "source_file": "repository-town/docs/NARROMINE_RESEARCH_AND_PLAN_2026-11-03.md",
+      "title_at_allocation": "Economy and land (drives farms, trucks and jobs)"
+    },
+    "089594b080189c58dc62": {
+      "id": "JMU-00328",
+      "source_file": "repository-town/games/sleepy/QA-Recommendations.md",
+      "title_at_allocation": "Improve mobile tap targets and offline fallback"
+    },
+    "089a4921b0376d8c2114": {
+      "id": "JMU-00002",
+      "source_file": ".github/PULL_REQUEST_TEMPLATE/repository-town-rtd.md",
+      "title_at_allocation": "My owner claim and M1 start checkpoint were committed **before** implementation."
+    },
+    "094d4e9ee876fc61b0fe": {
+      "id": "JMU-00185",
+      "source_file": "repository-town/games/delve/codingprinciples.md",
+      "title_at_allocation": "Important state changes tolerate retry, duplication and partial failure."
+    },
+    "09a0419151b5e4a2d675": {
+      "id": "JMU-00149",
+      "source_file": "repository-town/games/buckland-blocks-demo/codingprinciples.md",
+      "title_at_allocation": "Migration/recovery requirements satisfied."
+    },
+    "09f3c06ee55a2683a2ab": {
+      "id": "JMU-00432",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Build a mini gallery of simple labels with obvious initial sounds."
+    },
+    "0b02741e3db3f5246adb": {
+      "id": "JMU-00099",
+      "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
+      "title_at_allocation": "Skilling framework.** One action state machine (target → level check → per-tick roll →"
+    },
+    "0c7cf438d8089fca0b99": {
+      "id": "JMU-00372",
+      "source_file": "repository-town/games/sylvie-phonetics/docs/eylf-implementation-tasks.md",
+      "title_at_allocation": "Content externalisation hook (Respect for diversity — **process**, not placeholder culture)"
+    },
+    "0ca74094368310e47db4": {
+      "id": "JMU-00136",
+      "source_file": "repository-town/games/buckland-blocks-demo/OPEN_SOURCE_VOXEL_INTEGRATION_PLAN.md",
+      "title_at_allocation": "Native voxel engine improvements"
+    },
+    "0d12da4d4dc1eb3dd4cd": {
+      "id": "JMU-00057",
+      "source_file": "repository-town/docs/NARROMINE_RESEARCH_AND_PLAN_2026-11-03.md",
+      "title_at_allocation": "Why Narromine, and where it sits"
+    },
+    "0d20e6058b684e199232": {
+      "id": "JMU-00287",
+      "source_file": "repository-town/games/lantern-road/story/campaign/ENDING-MATRIX.md",
+      "title_at_allocation": "the campaign uses day windows rather than a single forced quest order;"
+    },
+    "0d51d65d402ebe74e91d": {
+      "id": "JMU-00240",
+      "source_file": "repository-town/games/elodin-deep-lore/codingprinciples.md",
+      "title_at_allocation": "I confirmed this is canonical, or its explicit non-canonical role permits the change."
+    },
+    "0f260bff2e683b7583ad": {
+      "id": "JMU-00026",
+      "source_file": "repository-town/docs/195_HOME_DUBBO_PLANNING_CODE_AUDIT_2026-10-27.md",
+      "title_at_allocation": "Every exterior door and interior visitor route manually walked on desktop and physical Android handset."
+    },
+    "0f787155a0919f490397": {
+      "id": "JMU-00076",
+      "source_file": "repository-town/docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md",
+      "title_at_allocation": "Per-actor memory, save migration and privacy (P1)"
+    },
+    "1039123e632e4031341b": {
+      "id": "JMU-00096",
+      "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
+      "title_at_allocation": "Optional account: sign in to keep skills across devices, built on the existing export/import save."
+    },
+    "1145437ccdf99115bda3": {
+      "id": "JMU-00292",
+      "source_file": "repository-town/games/lantern-road/story/campaign/ENDING-MATRIX.md",
+      "title_at_allocation": "all six current questlines can contribute a named ending callback;"
+    },
+    "11532d710f808b45078d": {
+      "id": "JMU-00124",
+      "source_file": "repository-town/games/breach-command/codingprinciples.md",
+      "title_at_allocation": "No dead code, orphaned files or abandoned commented-out implementation."
+    },
+    "1216adfa8a66708b5fcb": {
+      "id": "JMU-00366",
+      "source_file": "repository-town/games/sylvie-phonetics/docs/eylf-implementation-tasks.md",
+      "title_at_allocation": "Wellbeing micro-break interstitial (Outcome 3)"
+    },
+    "12257b8c89ea26c910f0": {
+      "id": "JMU-00038",
+      "source_file": "repository-town/docs/NARROMINE_MATERIAL_REALISM_2026-11-04.md",
+      "title_at_allocation": "Execute `node tools/build.mjs` and `node tools/check_privacy.mjs`."
+    },
+    "142178491e200e3d86b2": {
+      "id": "JMU-00027",
+      "source_file": "repository-town/docs/195_HOME_DUBBO_PLANNING_CODE_AUDIT_2026-10-27.md",
+      "title_at_allocation": "Upper storeys modelled with genuinely safe usable stairs and exits."
+    },
+    "152edd46618edfb6d068": {
+      "id": "JMU-00150",
+      "source_file": "repository-town/games/buckland-blocks-demo/codingprinciples.md",
+      "title_at_allocation": "No silent data destruction, duplication, exposure or misrepresentation."
+    },
+    "15aac19d4f5b3af14075": {
+      "id": "JMU-00408",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Apply it to word reading, word building, and sentence reading modes."
+    },
+    "15adade17205f9c131e5": {
+      "id": "JMU-00085",
+      "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
+      "title_at_allocation": "Turn existing jobs into skills: baking, farming and café work earn Cooking and Farming XP"
+    },
+    "15d356b531ef5a095e49": {
+      "id": "JMU-00186",
+      "source_file": "repository-town/games/delve/codingprinciples.md",
+      "title_at_allocation": "Migration/recovery requirements satisfied."
+    },
+    "168b13630faa80ea16cc": {
+      "id": "JMU-00113",
+      "source_file": "repository-town/games/breach-command/codingprinciples.md",
+      "title_at_allocation": "UI tells the truth; loading/failure/stale/empty are not confused."
+    },
+    "16a36bdcf955d2909962": {
+      "id": "JMU-00012",
+      "source_file": "docs/FRESH_AGENT_RESUME_ROADMAP.md",
+      "title_at_allocation": "Separate `LIVE`, `CURRENT MEMORY`, `HISTORICAL`, and `DISCREPANCY`"
+    },
+    "171ecf65aa24e1515a6d": {
+      "id": "JMU-00411",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Use a grid or card flip interface for matching pairs."
+    },
+    "17a660edef866dff5147": {
+      "id": "JMU-00361",
+      "source_file": "repository-town/games/sylvie-phonetics/docs/ResearchImplementationRoadmap.md",
+      "title_at_allocation": "Keep Cultural and Regional Context Safe"
+    },
+    "17b1c668c459b4876d7f": {
+      "id": "JMU-00041",
+      "source_file": "repository-town/docs/NARROMINE_MATERIAL_REALISM_2026-11-04.md",
+      "title_at_allocation": "Check WebGL shader compilation on real desktop/mobile devices, before merging."
+    },
+    "17b3bdb93798f77a39c8": {
+      "id": "JMU-00115",
+      "source_file": "repository-town/games/breach-command/codingprinciples.md",
+      "title_at_allocation": "No secrets entered source/client/logs; permissions not accidentally broadened."
+    },
+    "192f74837e189160f544": {
+      "id": "JMU-00299",
+      "source_file": "repository-town/games/lantern-road/story/campaign/ENDING-MATRIX.md",
+      "title_at_allocation": "exact faction names follow `docs/TERMINOLOGY.md`."
+    },
+    "198bafd4e855d646f059": {
+      "id": "JMU-00176",
+      "source_file": "repository-town/games/carl/Dungeon_Crawler_Carl_Game_Build_Plan.md",
+      "title_at_allocation": "Save System"
+    },
+    "19d960e8be83610225aa": {
+      "id": "JMU-00270",
+      "source_file": "repository-town/games/joshplatform/podcasttodo.md",
+      "title_at_allocation": "Add mobile/a11y behaviour and tests for topic switching, persistence and bad entries."
+    },
+    "1a79d482ab97a338c0c6": {
+      "id": "JMU-00122",
+      "source_file": "repository-town/games/breach-command/codingprinciples.md",
+      "title_at_allocation": "I did not silently work around a MUST."
+    },
+    "1b098fea49bac5c1b1a1": {
+      "id": "JMU-00003",
+      "source_file": ".github/PULL_REQUEST_TEMPLATE/repository-town-rtd.md",
+      "title_at_allocation": "Every named `RTD-NNN` maps to at least one `RTAC-NNN` case in the versioned contract."
+    },
+    "1c274858ab67fe0f8c8e": {
+      "id": "JMU-00271",
+      "source_file": "repository-town/games/kkc-adventure/podcasttodo.md",
+      "title_at_allocation": "Curate about 25 legitimate Spotify discussion/analysis episodes; do not use pirated audiobook sources."
+    },
+    "1cc14e27d04da5a1d659": {
+      "id": "JMU-00161",
+      "source_file": "repository-town/games/buckland-blocks-demo/codingprinciples.md",
+      "title_at_allocation": "Unsatisfied requirements were reported as blockers rather than guessed around."
+    },
+    "1ce0fb620e87ede15e67": {
+      "id": "JMU-00028",
+      "source_file": "repository-town/docs/195_HOME_DUBBO_PLANNING_CODE_AUDIT_2026-10-27.md",
+      "title_at_allocation": "Road drainage and culverts with surveyed grade/destination."
+    },
+    "1d0c3814d5d18e6f72e3": {
+      "id": "JMU-00224",
+      "source_file": "repository-town/games/echo/codingprinciples.md",
+      "title_at_allocation": "Non-obvious decisions recorded; docs match resulting system."
+    },
+    "1d6ac266d9f8fbce1a8d": {
+      "id": "JMU-00051",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Street lights and signs.** OSM `highway=street_lamp`, traffic signs and the town-centre"
+    },
+    "1e09f80a4e87a46dd283": {
+      "id": "JMU-00037",
+      "source_file": "repository-town/docs/NARROMINE_MATERIAL_REALISM_2026-11-04.md",
+      "title_at_allocation": "Execute `node tests/narromine-layout.mjs`."
+    },
+    "1f7579280c7baf1c8223": {
+      "id": "JMU-00398",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Optionally offer a real-world mode that uses pictures of spoon, sock, sun, etc."
+    },
+    "1fa3870cf187ce0963b4": {
+      "id": "JMU-00154",
+      "source_file": "repository-town/games/buckland-blocks-demo/codingprinciples.md",
+      "title_at_allocation": "Sensitive logging justified/minimised; new dependencies justified."
+    },
+    "21422544704dcd120a98": {
+      "id": "JMU-00356",
+      "source_file": "repository-town/games/sylvie-phonetics/docs/ResearchImplementationRoadmap.md",
+      "title_at_allocation": "Add Session Timing Rules"
+    },
+    "21bd09f0f9a37d5ecad2": {
+      "id": "JMU-00095",
+      "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
+      "title_at_allocation": "Customise character in Settings: name, look and colours, any time."
+    },
+    "225518234d04fb1d10ab": {
+      "id": "JMU-00107",
+      "source_file": "repository-town/games/breach-command/codingprinciples.md",
+      "title_at_allocation": "Relevant code actually ran and behaviour that matters was observed."
+    },
+    "22f39ce21b995096ce55": {
+      "id": "JMU-00324",
+      "source_file": "repository-town/games/sleepy/QA-Recommendations.md",
+      "title_at_allocation": "Replace external video embeds with local audio content"
+    },
+    "230190d2b53aeed9e95d": {
+      "id": "JMU-00346",
+      "source_file": "repository-town/games/sylvie-phonetics/QA-Recommendations.md",
+      "title_at_allocation": "Add session timer and closing ritual"
+    },
+    "239bd679e18bf436dbbc": {
+      "id": "JMU-00362",
+      "source_file": "repository-town/games/sylvie-phonetics/docs/ResearchImplementationRoadmap.md",
+      "title_at_allocation": "Add Research QA Checklist"
+    },
+    "245efa68c4226d53f8e8": {
+      "id": "JMU-00420",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Prompt the child with a sound: `Jump on the letter that says /m/`."
+    },
+    "25921f8ca291fb5dbf50": {
+      "id": "JMU-00228",
+      "source_file": "repository-town/games/elodin-deep-lore/codingprinciples.md",
+      "title_at_allocation": "Smallest complete solution; unrelated changes excluded."
+    },
+    "25b449c87f75eee8b0b0": {
+      "id": "JMU-00297",
+      "source_file": "repository-town/games/lantern-road/story/campaign/ENDING-MATRIX.md",
+      "title_at_allocation": "the ending references what the player actually did rather than inventing closure;"
+    },
+    "26116a30204df560673f": {
+      "id": "JMU-00393",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Provide a done button and reinforcement message when tracing is complete."
+    },
+    "264364c60a81d28bbee2": {
+      "id": "JMU-00243",
+      "source_file": "repository-town/games/elodin-deep-lore/codingprinciples.md",
+      "title_at_allocation": "I know the assurance tier and applied its MUSTs/overlays."
+    },
+    "277c6d8c52f9d2560709": {
+      "id": "JMU-00412",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Add audio prompts and a same-ending-sound explanation."
+    },
+    "27bdf10a0bb2a998c80d": {
+      "id": "JMU-00416",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Display a letter and animate bouncing sound icons while the app sings."
+    },
+    "27d2ae5f0054c373acc9": {
+      "id": "JMU-00108",
+      "source_file": "repository-town/games/breach-command/codingprinciples.md",
+      "title_at_allocation": "Required static checks, tests and build passed and are reported separately."
+    },
+    "29d195c767a0760fb0f0": {
+      "id": "JMU-00382",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Add a new game mode called `I Spy Sound`."
+    },
+    "2a1b1aac34ec0e12b680": {
+      "id": "JMU-00129",
+      "source_file": "repository-town/games/breach-command/podcasttodo.md",
+      "title_at_allocation": "One tap selects/loads another episode; persist recent choices and avoid immediate repeats."
+    },
+    "2a7c8ea638590591fd7f": {
+      "id": "JMU-00214",
+      "source_file": "repository-town/games/echo/codingprinciples.md",
+      "title_at_allocation": "No secrets entered source/client/logs; permissions not accidentally broadened."
+    },
+    "2b904046e1dfb6f414c3": {
+      "id": "JMU-00034",
+      "source_file": "repository-town/docs/IMPROVEMENT_PLAN_2026-10-19.md",
+      "title_at_allocation": "Fix the broken or missing games (cheap, concrete)"
+    },
+    "2bb41374030326d6cbd3": {
+      "id": "JMU-00335",
+      "source_file": "repository-town/games/sleepy/podcasttodo.md",
+      "title_at_allocation": "Never play podcast audio at the same time as a bedtime video/story."
+    },
+    "2bbeb514eedc4449d27f": {
+      "id": "JMU-00215",
+      "source_file": "repository-town/games/echo/codingprinciples.md",
+      "title_at_allocation": "Sensitive logging justified/minimised; new dependencies justified."
+    },
+    "2bf8003ce5db3ffe93ec": {
+      "id": "JMU-00168",
+      "source_file": "repository-town/games/carl/Dungeon_Crawler_Carl_Game_Build_Plan.md",
+      "title_at_allocation": "System AI and Announcements"
+    },
+    "2c249a2bc51bd8fe669f": {
+      "id": "JMU-00059",
+      "source_file": "repository-town/docs/NARROMINE_RESEARCH_AND_PLAN_2026-11-03.md",
+      "title_at_allocation": "Country and First Nations"
+    },
+    "2d2f17d134c59642284e": {
+      "id": "JMU-00341",
+      "source_file": "repository-town/games/starhaven/podcasttodo.md",
+      "title_at_allocation": "Hide/pause whenever game music, narration, TTS or important sound cues are active."
+    },
+    "2f0d15dbc980c33a029a": {
+      "id": "JMU-00044",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Real trees.** Place trees at LiDAR vegetation (class 3–5) clusters with their measured"
+    },
+    "2f10c3014c41c7027536": {
+      "id": "JMU-00010",
+      "source_file": "docs/FRESH_AGENT_RESUME_ROADMAP.md",
+      "title_at_allocation": "Add a machine-readable project registry"
+    },
+    "2f28148363635e72ae3e": {
+      "id": "JMU-00259",
+      "source_file": "repository-town/games/hub-newgame/GAME_IMPROVEMENTS.md",
+      "title_at_allocation": "Equipment System (Weapons & Armor)"
+    },
+    "2f7101b7cd5ecb82e30c": {
+      "id": "JMU-00296",
+      "source_file": "repository-town/games/lantern-road/story/campaign/ENDING-MATRIX.md",
+      "title_at_allocation": "the Fractured March still honours local successes/failures;"
+    },
+    "2fb4f6e8b3c558c5380f": {
+      "id": "JMU-00127",
+      "source_file": "repository-town/games/breach-command/podcasttodo.md",
+      "title_at_allocation": "Curate about 25 Spotify episodes relevant to tactical strategy and game design."
+    },
+    "305cfe786a192175b147": {
+      "id": "JMU-00180",
+      "source_file": "repository-town/games/delve/codingprinciples.md",
+      "title_at_allocation": "Smallest complete solution; unrelated changes excluded."
+    },
+    "30a4594ad659428d884a": {
+      "id": "JMU-00405",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "When activated, speak words in segmented form: `d - o - g` then blended: `dog`."
+    },
+    "30f35b4e821fcdb19ab0": {
+      "id": "JMU-00385",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Add logic to select a random target sound, then filter choices so only one correct option matches that initial sound."
+    },
+    "320ccaa7f149b1df44a9": {
+      "id": "JMU-00339",
+      "source_file": "repository-town/games/starhaven/podcasttodo.md",
+      "title_at_allocation": "One tap selects/loads another episode; persist recent choices and avoid immediate repeats."
+    },
+    "324ca3c07f04adf8e8b8": {
+      "id": "JMU-00308",
+      "source_file": "repository-town/games/multi-layer-zoom-game/index.html",
+      "title_at_allocation": "This prevents the assignment of defaultValue to regular"
+    },
+    "324d6c52286ba8a9f610": {
+      "id": "JMU-00249",
+      "source_file": "repository-town/games/elodin-deep-lore/codingprinciples.md",
+      "title_at_allocation": "I can state exactly what proves this change works."
+    },
+    "32713e1122e5fede75eb": {
+      "id": "JMU-00246",
+      "source_file": "repository-town/games/elodin-deep-lore/codingprinciples.md",
+      "title_at_allocation": "Unsatisfied requirements were reported as blockers rather than guessed around."
+    },
+    "32722eb343dd1e868ad2": {
+      "id": "JMU-00295",
+      "source_file": "repository-town/games/lantern-road/story/campaign/ENDING-MATRIX.md",
+      "title_at_allocation": "the Common Road remains costly and imperfect;"
+    },
+    "329239009ace65d2651f": {
+      "id": "JMU-00404",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Add a robot voice toggle/button in blending or reading games."
+    },
+    "3360eb9b951895be4e47": {
+      "id": "JMU-00333",
+      "source_file": "repository-town/games/sleepy/podcasttodo.md",
+      "title_at_allocation": "Do not expose unrestricted podcast discovery or external recommendation feeds in Kid/Sylvie mode."
+    },
+    "34324aa538f51e32dce8": {
+      "id": "JMU-00105",
+      "source_file": "repository-town/games/breach-command/codingprinciples.md",
+      "title_at_allocation": "Smallest complete solution; unrelated changes excluded."
+    },
+    "34f26884ce893de4593a": {
+      "id": "JMU-00306",
+      "source_file": "repository-town/games/midnight-line/podcasttodo.md",
+      "title_at_allocation": "Keep gameplay primary."
+    },
+    "3563713c82143778f2cb": {
+      "id": "JMU-00376",
+      "source_file": "repository-town/games/sylvie-phonetics/podcasttodo.md",
+      "title_at_allocation": "Add a simple **🎧 Listen to another reading/phonics audio** control only for approved items."
+    },
+    "35d0ebe8e8cbd5b6f5c0": {
+      "id": "JMU-00213",
+      "source_file": "repository-town/games/echo/codingprinciples.md",
+      "title_at_allocation": "Affected experience works in declared supported environments."
+    },
+    "3707df29208cd638e7e5": {
+      "id": "JMU-00326",
+      "source_file": "repository-town/games/sleepy/QA-Recommendations.md",
+      "title_at_allocation": "Add session timer and offline bedtime transition"
+    },
+    "3724fde19633612fc04d": {
+      "id": "JMU-00340",
+      "source_file": "repository-town/games/starhaven/podcasttodo.md",
+      "title_at_allocation": "Use Spotify embed/deep links without assuming autoplay."
+    },
+    "38036dd2eb80a015ea1c": {
+      "id": "JMU-00425",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Show a word and empty boxes for each sound."
+    },
+    "387cf966180fa99880e0": {
+      "id": "JMU-00434",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Reinforce that letters represent sounds in everyday print."
+    },
+    "38ef39327b9b5963e78d": {
+      "id": "JMU-00109",
+      "source_file": "repository-town/games/breach-command/codingprinciples.md",
+      "title_at_allocation": "Trust boundaries validated."
+    },
+    "3aa107e49f4a6b7fe9d6": {
+      "id": "JMU-00217",
+      "source_file": "repository-town/games/echo/codingprinciples.md",
+      "title_at_allocation": "I am not creating a second independent source of truth."
+    },
+    "3b1192d6cb24a4f87e96": {
+      "id": "JMU-00351",
+      "source_file": "repository-town/games/sylvie-phonetics/docs/ResearchImplementationRoadmap.md",
+      "title_at_allocation": "Add a \"Sylvie's Name\" Anchor"
+    },
+    "3b437993d4cc327f7647": {
+      "id": "JMU-00157",
+      "source_file": "repository-town/games/buckland-blocks-demo/codingprinciples.md",
+      "title_at_allocation": "Affected deployment traces back to this repo/commit."
+    },
+    "3c3175c8b3851350696c": {
+      "id": "JMU-00081",
+      "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
+      "title_at_allocation": "First slice: woodcutting, firemaking, XP and levels"
+    },
+    "3d00eddd0ded2181fb7a": {
+      "id": "JMU-00319",
+      "source_file": "repository-town/games/ptshub-newgame/GAME_IMPROVEMENTS.md",
+      "title_at_allocation": "Quest System"
+    },
+    "3d3574352b5f47fec439": {
+      "id": "JMU-00399",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Add a draggable block-based builder for CVC words."
+    },
+    "3db7f4215eda8d98ffcd": {
+      "id": "JMU-00371",
+      "source_file": "repository-town/games/sylvie-phonetics/docs/eylf-implementation-tasks.md",
+      "title_at_allocation": "Coach content pack — growth mindset + co-play scaffolds (Outcome 1 / Outcome 4)"
+    },
+    "3df77d11a0c34d48d92b": {
+      "id": "JMU-00267",
+      "source_file": "repository-town/games/joshplatform/podcasttodo.md",
+      "title_at_allocation": "Use Spotify embed/deep links without assuming autoplay."
+    },
+    "3e92215a53d948ee3ff9": {
+      "id": "JMU-00174",
+      "source_file": "repository-town/games/carl/Dungeon_Crawler_Carl_Game_Build_Plan.md",
+      "title_at_allocation": "Dialogue and Narrative"
+    },
+    "3edcd210b90654e0a66f": {
+      "id": "JMU-00293",
+      "source_file": "repository-town/games/lantern-road/story/campaign/ENDING-MATRIX.md",
+      "title_at_allocation": "faction standing changes tone/access rather than acting as hidden morality;"
+    },
+    "420379d43edcf37bf0ad": {
+      "id": "JMU-00368",
+      "source_file": "repository-town/games/sylvie-phonetics/docs/eylf-implementation-tasks.md",
+      "title_at_allocation": "Adult-only EYLF outcome tags on games (Transparency + educator conversations)"
+    },
+    "42594e3028d9a778b193": {
+      "id": "JMU-00142",
+      "source_file": "repository-town/games/buckland-blocks-demo/codingprinciples.md",
+      "title_at_allocation": "I understand affected data/dependencies deeply enough for this repo's risk."
+    },
+    "431bcfe5b3466c86d453": {
+      "id": "JMU-00365",
+      "source_file": "repository-town/games/sylvie-phonetics/docs/eylf-implementation-tasks.md",
+      "title_at_allocation": "Light numeracy strand — repeating patterns + sort-by-one-attribute (Outcome 4 / 5 “pattern systems”)"
+    },
+    "43b844db40cf0ac8ea44": {
+      "id": "JMU-00279",
+      "source_file": "repository-town/games/lantern-road/podcasttodo.md",
+      "title_at_allocation": "Curate about 25 Spotify episodes relevant to narrative/fantasy game craft."
+    },
+    "4488ea260483ac5d248e": {
+      "id": "JMU-00123",
+      "source_file": "repository-town/games/breach-command/codingprinciples.md",
+      "title_at_allocation": "Unsatisfied requirements were reported as blockers rather than guessed around."
+    },
+    "44d4128151825a2fc4e2": {
+      "id": "JMU-00406",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Use the same `SpeechSynthesisUtterance` path, but with short gaps between phonemes."
+    },
+    "44e6f0fef967ff4ab4f1": {
+      "id": "JMU-00088",
+      "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
+      "title_at_allocation": "Skyrim elements"
+    },
+    "458fa9d234894570cd33": {
+      "id": "JMU-00439",
+      "source_file": "repository-town/games/waypoint/podcasttodo.md",
+      "title_at_allocation": "Tag episodes by uncertainty, values, habits, courage, reversible decisions and reflection."
+    },
+    "45935842d5dd3b9471be": {
+      "id": "JMU-00063",
+      "source_file": "repository-town/docs/NARROMINE_RESEARCH_AND_PLAN_2026-11-03.md",
+      "title_at_allocation": "People rule"
+    },
+    "4afb3b494d26ab0ce109": {
+      "id": "JMU-00210",
+      "source_file": "repository-town/games/echo/codingprinciples.md",
+      "title_at_allocation": "Migration/recovery requirements satisfied."
+    },
+    "4d36366cf55dbcf013a4": {
+      "id": "JMU-00273",
+      "source_file": "repository-town/games/kkc-adventure/podcasttodo.md",
+      "title_at_allocation": "One tap selects/loads another episode; persist recent choices and avoid immediate repeats."
+    },
+    "4d5bdea31a26cfbdf7eb": {
+      "id": "JMU-00226",
+      "source_file": "repository-town/games/elodin-deep-lore/codingprinciples.md",
+      "title_at_allocation": "I can explain previous behaviour and why the change is required."
+    },
+    "4dd1d684178eaa807557": {
+      "id": "JMU-00229",
+      "source_file": "repository-town/games/elodin-deep-lore/codingprinciples.md",
+      "title_at_allocation": "Obsolete code removed; refactor and behaviour change not mixed silently."
+    },
+    "4e0b8d70c262ac8753ca": {
+      "id": "JMU-00065",
+      "source_file": "repository-town/docs/NARROMINE_RESEARCH_AND_PLAN_2026-11-03.md",
+      "title_at_allocation": "question: should Trangie and Tomingley follow later in the same way?"
+    },
+    "4e80eaa153dc3934c059": {
+      "id": "JMU-00347",
+      "source_file": "repository-town/games/sylvie-phonetics/QA-Recommendations.md",
+      "title_at_allocation": "Add movement/breathing breaks"
+    },
+    "513ea49af04709d14a2f": {
+      "id": "JMU-00300",
+      "source_file": "repository-town/games/midnight-line/podcasttodo.md",
+      "title_at_allocation": "Curate about 25 Spotify episodes relevant to the game's design/genre."
+    },
+    "51956945b5223a6c30ce": {
+      "id": "JMU-00046",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Road surfaces and markings.** Sealed vs unsealed from OSM `surface`; centre lines, edge"
+    },
+    "51fe0700fcb5771ddc38": {
+      "id": "JMU-00175",
+      "source_file": "repository-town/games/carl/Dungeon_Crawler_Carl_Game_Build_Plan.md",
+      "title_at_allocation": "UI"
+    },
+    "525c8a0429584bec5d11": {
+      "id": "JMU-00144",
+      "source_file": "repository-town/games/buckland-blocks-demo/codingprinciples.md",
+      "title_at_allocation": "Obsolete code removed; refactor and behaviour change not mixed silently."
+    },
+    "537801668043b3e73912": {
+      "id": "JMU-00196",
+      "source_file": "repository-town/games/delve/codingprinciples.md",
+      "title_at_allocation": "Any SHOULD departure is recorded durably."
+    },
+    "5397c60ebd1a544d2b36": {
+      "id": "JMU-00017",
+      "source_file": "docs/FRESH_AGENT_RESUME_ROADMAP.md",
+      "title_at_allocation": "Make `do_not_redo` first-class"
+    },
+    "539fd43b83244944719c": {
+      "id": "JMU-00151",
+      "source_file": "repository-town/games/buckland-blocks-demo/codingprinciples.md",
+      "title_at_allocation": "UI tells the truth; loading/failure/stale/empty are not confused."
+    },
+    "53c74f6a6d9484e6f725": {
+      "id": "JMU-00169",
+      "source_file": "repository-town/games/carl/Dungeon_Crawler_Carl_Game_Build_Plan.md",
+      "title_at_allocation": "Combat"
+    },
+    "548b4636da9c4414a22e": {
+      "id": "JMU-00286",
+      "source_file": "repository-town/games/lantern-road/podcasttodo.md",
+      "title_at_allocation": "Add mobile/a11y and audio-conflict/persistence tests."
+    },
+    "54c8a1df492ea9cc781e": {
+      "id": "JMU-00188",
+      "source_file": "repository-town/games/delve/codingprinciples.md",
+      "title_at_allocation": "UI tells the truth; loading/failure/stale/empty are not confused."
+    },
+    "54f4654523e6a6b4071b": {
+      "id": "JMU-00313",
+      "source_file": "repository-town/games/multi-layer-zoom-game/index.html",
+      "title_at_allocation": "Distinguish by namespace here -- for <title>, including it here"
+    },
+    "5548491044092861b028": {
+      "id": "JMU-00407",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Add a label or icon so adults know this is a blending support mode."
+    },
+    "558bdbe6b70a726b58eb": {
+      "id": "JMU-00436",
+      "source_file": "repository-town/games/waypoint/podcasttodo.md",
+      "title_at_allocation": "Add a collapsed bottom dock: **🧭 Listen to a different decision podcast**."
+    },
+    "55b472bc408a93f1edb9": {
+      "id": "JMU-00053",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Sky, light and colour.** Correct sun position for Narromine's latitude and season, a"
+    },
+    "5615affd9c0af701b3c3": {
+      "id": "JMU-00187",
+      "source_file": "repository-town/games/delve/codingprinciples.md",
+      "title_at_allocation": "No silent data destruction, duplication, exposure or misrepresentation."
+    },
+    "58972675513aefb69880": {
+      "id": "JMU-00289",
+      "source_file": "repository-town/games/lantern-road/story/campaign/ENDING-MATRIX.md",
+      "title_at_allocation": "the Moonmere chart strengthens evidence but its absence does not break the campaign;"
+    },
+    "59405576e2e745690808": {
+      "id": "JMU-00232",
+      "source_file": "repository-town/games/elodin-deep-lore/codingprinciples.md",
+      "title_at_allocation": "Trust boundaries validated."
+    },
+    "5a1ff5f0604fdd852185": {
+      "id": "JMU-00268",
+      "source_file": "repository-town/games/joshplatform/podcasttodo.md",
+      "title_at_allocation": "Hide/pause the dock in any safety-critical, child-only or competing-audio context."
+    },
+    "5a5071a262fd9369becb": {
+      "id": "JMU-00030",
+      "source_file": "repository-town/docs/195_HOME_DUBBO_PLANNING_CODE_AUDIT_2026-10-27.md",
+      "title_at_allocation": "Surveyed, map-checked LEP/DCP feasibility and formal building safety reports."
+    },
+    "5ac1d770021bfe7312e0": {
+      "id": "JMU-00004",
+      "source_file": ".github/PULL_REQUEST_TEMPLATE/repository-town-rtd.md",
+      "title_at_allocation": "For actual recorded speech, actor identity, clip hash/transcript, exact caption and appropriate gameplay state are evidenced separately."
+    },
+    "5b047ac1f5db92e4d782": {
+      "id": "JMU-00363",
+      "source_file": "repository-town/games/sylvie-phonetics/docs/ResearchImplementationRoadmap.md",
+      "title_at_allocation": "Add Gentle Progress Indicators"
+    },
+    "5b767c5d235fc7dc5a06": {
+      "id": "JMU-00360",
+      "source_file": "repository-town/games/sylvie-phonetics/docs/ResearchImplementationRoadmap.md",
+      "title_at_allocation": "Add Therapist Review Workflow"
+    },
+    "5b7e189b63ccae73441d": {
+      "id": "JMU-00266",
+      "source_file": "repository-town/games/joshplatform/podcasttodo.md",
+      "title_at_allocation": "One tap selects/loads another episode; persist current/recent selections and avoid repeats."
+    },
+    "5be8e5c99242fccea959": {
+      "id": "JMU-00377",
+      "source_file": "repository-town/games/sylvie-phonetics/podcasttodo.md",
+      "title_at_allocation": "Persist approved choices/recent items locally and avoid immediate repeats."
+    },
+    "5c42491ac1f7fa4ffc61": {
+      "id": "JMU-00070",
+      "source_file": "repository-town/docs/REPOSITORY_TOWN_GEOGRAPHY_MASTERPLAN.md",
+      "title_at_allocation": "Roads, rail, logistics and fuel"
+    },
+    "5cc698c253b21d0fa7b4": {
+      "id": "JMU-00071",
+      "source_file": "repository-town/docs/REPOSITORY_TOWN_GEOGRAPHY_MASTERPLAN.md",
+      "title_at_allocation": "Town identity and game compatibility"
+    },
+    "5d5af307d4a765f7af90": {
+      "id": "JMU-00131",
+      "source_file": "repository-town/games/breach-command/podcasttodo.md",
+      "title_at_allocation": "Hide/pause whenever game music, narration or important sound cues are active."
+    },
+    "5de2fe5f92a50d7cd7fa": {
+      "id": "JMU-00024",
+      "source_file": "docs/OPEN_SOURCE_MEMORY_BORROWING_PLAN.md",
+      "title_at_allocation": "Preserve JoshMemory's authority model"
+    },
+    "5efaa7b0740f5804dda9": {
+      "id": "JMU-00298",
+      "source_file": "repository-town/games/lantern-road/story/campaign/ENDING-MATRIX.md",
+      "title_at_allocation": "no player-facing text uses the internal term “world flag”;"
+    },
+    "5faf5f33f48284d7ffa9": {
+      "id": "JMU-00005",
+      "source_file": ".github/PULL_REQUEST_TEMPLATE/repository-town-rtd.md",
+      "title_at_allocation": "Any effects/rewards are tied to authoritative committed game state; negative tests protect against fake success or replay duplication."
+    },
+    "5fe19dc7362cd75e6ab8": {
+      "id": "JMU-00435",
+      "source_file": "repository-town/games/waypoint/podcasttodo.md",
+      "title_at_allocation": "Curate about 25 high-quality Spotify episodes on decision-making and values."
+    },
+    "5fe880be8dd1b8266159": {
+      "id": "JMU-00283",
+      "source_file": "repository-town/games/lantern-road/podcasttodo.md",
+      "title_at_allocation": "Hide/pause whenever narration, TTS, music or important sound cues are active."
+    },
+    "600cc47d10e14cb51f4f": {
+      "id": "JMU-00374",
+      "source_file": "repository-town/games/sylvie-phonetics/podcasttodo.md",
+      "title_at_allocation": "Curate a parent-reviewed bank of literacy/phonics audio or suitable Spotify episodes."
+    },
+    "60938177a168c380b6e5": {
+      "id": "JMU-00323",
+      "source_file": "repository-town/games/ptshub-newgame/GAME_IMPROVEMENTS.md",
+      "title_at_allocation": "Save/Load System & Progression Persistence"
+    },
+    "6152fe5e9bd5f847a208": {
+      "id": "JMU-00234",
+      "source_file": "repository-town/games/elodin-deep-lore/codingprinciples.md",
+      "title_at_allocation": "Migration/recovery requirements satisfied."
+    },
+    "618f797b379cd464ddcd": {
+      "id": "JMU-00140",
+      "source_file": "repository-town/games/buckland-blocks-demo/OPEN_SOURCE_VOXEL_INTEGRATION_PLAN.md",
+      "title_at_allocation": "Multiplayer and distribution boundary"
+    },
+    "61aa2250e9d1ced128fc": {
+      "id": "JMU-00116",
+      "source_file": "repository-town/games/breach-command/codingprinciples.md",
+      "title_at_allocation": "Sensitive logging justified/minimised; new dependencies justified."
+    },
+    "61ef8e96884d24d36bc2": {
+      "id": "JMU-00155",
+      "source_file": "repository-town/games/buckland-blocks-demo/codingprinciples.md",
+      "title_at_allocation": "I confirmed this is canonical, or its explicit non-canonical role permits the change."
+    },
+    "622743ea8a447b71f583": {
+      "id": "JMU-00145",
+      "source_file": "repository-town/games/buckland-blocks-demo/codingprinciples.md",
+      "title_at_allocation": "Relevant code actually ran and behaviour that matters was observed."
+    },
+    "6309d90029b3e8ff4340": {
+      "id": "JMU-00078",
+      "source_file": "repository-town/docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md",
+      "title_at_allocation": "Living NPC context, character pilots, new scripts and cast expansion (P2)"
+    },
+    "63138863ec873e1962a1": {
+      "id": "JMU-00125",
+      "source_file": "repository-town/games/breach-command/codingprinciples.md",
+      "title_at_allocation": "Non-obvious decisions recorded; docs match resulting system."
+    },
+    "639f769d8a798bbc8cb8": {
+      "id": "JMU-00369",
+      "source_file": "repository-town/games/sylvie-phonetics/docs/eylf-implementation-tasks.md",
+      "title_at_allocation": "Session handover recap — clipboard + print (Continuity / Partnerships)"
+    },
+    "648bf2ed5097aeb82207": {
+      "id": "JMU-00020",
+      "source_file": "docs/OPEN_SOURCE_MEMORY_BORROWING_PLAN.md",
+      "title_at_allocation": "Current-work leases"
+    },
+    "65183e0fe182529b0794": {
+      "id": "JMU-00121",
+      "source_file": "repository-town/games/breach-command/codingprinciples.md",
+      "title_at_allocation": "Any SHOULD departure is recorded durably."
+    },
+    "66342e6d0f78394a20cc": {
+      "id": "JMU-00391",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Play the letter sound as the child traces."
+    },
+    "66763493c4b6bb2bdaf5": {
+      "id": "JMU-00146",
+      "source_file": "repository-town/games/buckland-blocks-demo/codingprinciples.md",
+      "title_at_allocation": "Required static checks, tests and build passed and are reported separately."
+    },
+    "66a7bdf83225af578ea4": {
+      "id": "JMU-00314",
+      "source_file": "repository-town/games/multi-layer-zoom-game/index.html",
+      "title_at_allocation": "Delete this argument when we remove the legacy root API."
+    },
+    "67932fd466560fbaa028": {
+      "id": "JMU-00067",
+      "source_file": "repository-town/docs/REPOSITORY_TOWN_GEOGRAPHY_MASTERPLAN.md",
+      "title_at_allocation": "Exact climate proxy and rainfall"
+    },
+    "67b799c9169420430376": {
+      "id": "JMU-00330",
+      "source_file": "repository-town/games/sleepy/podcasttodo.md",
+      "title_at_allocation": "Add a simple collapsed **🌙 Bedtime audio** control that matches the existing curated-shelf model."
+    },
+    "681c12c4aa0c80140906": {
+      "id": "JMU-00269",
+      "source_file": "repository-town/games/joshplatform/podcasttodo.md",
+      "title_at_allocation": "Keep topic/episode data separate from UI code and easy to refresh."
+    },
+    "68a5d4f12307bbb2a111": {
+      "id": "JMU-00321",
+      "source_file": "repository-town/games/ptshub-newgame/GAME_IMPROVEMENTS.md",
+      "title_at_allocation": "Magic/Spell System"
+    },
+    "68cd34bb9b5809a02d5f": {
+      "id": "JMU-00083",
+      "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
+      "title_at_allocation": "Cooking on a fire you lit (feeds the hunger system)."
+    },
+    "68fda4f5b93c2278c419": {
+      "id": "JMU-00230",
+      "source_file": "repository-town/games/elodin-deep-lore/codingprinciples.md",
+      "title_at_allocation": "Relevant code actually ran and behaviour that matters was observed."
+    },
+    "6949008877b274a9359c": {
+      "id": "JMU-00367",
+      "source_file": "repository-town/games/sylvie-phonetics/docs/eylf-implementation-tasks.md",
+      "title_at_allocation": "Early-years context picker — state names + programme labels (Partnerships / vocabulary alignment)"
+    },
+    "695f5c8a708d1fd2ebfb": {
+      "id": "JMU-00008",
+      "source_file": ".github/PULL_REQUEST_TEMPLATE/repository-town-rtd.md",
+      "title_at_allocation": "I updated numbered tasks and checkpoint **only** for genuinely verified work."
+    },
+    "697c2a5314b45cd9cb00": {
+      "id": "JMU-00079",
+      "source_file": "repository-town/docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md",
+      "title_at_allocation": "Remaining actor presentation, optional AI and information journal (P2)"
+    },
+    "6b79c1ead0b0b9f2b30e": {
+      "id": "JMU-00101",
+      "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
+      "title_at_allocation": "Multiplayer, trading, banks.** The bank exists (savings, ATM). Real multiplayer needs a server"
+    },
+    "6baea92200ba19f95a84": {
+      "id": "JMU-00379",
+      "source_file": "repository-town/games/sylvie-phonetics/podcasttodo.md",
+      "title_at_allocation": "Never allow external feed/search browsing from the child experience."
+    },
+    "6bea855e5e4a2ebb78b1": {
+      "id": "JMU-00342",
+      "source_file": "repository-town/games/starhaven/podcasttodo.md",
+      "title_at_allocation": "Tag episodes by sci-fi, worldbuilding, story craft and game design."
+    },
+    "6cdc1a03bb61f552b87f": {
+      "id": "JMU-00204",
+      "source_file": "repository-town/games/echo/codingprinciples.md",
+      "title_at_allocation": "Smallest complete solution; unrelated changes excluded."
+    },
+    "6dd4bfe4ca69e3be32b9": {
+      "id": "JMU-00104",
+      "source_file": "repository-town/games/breach-command/codingprinciples.md",
+      "title_at_allocation": "I understand affected data/dependencies deeply enough for this repo's risk."
+    },
+    "6eac51daf358c41cfd18": {
+      "id": "JMU-00357",
+      "source_file": "repository-town/games/sylvie-phonetics/docs/ResearchImplementationRoadmap.md",
+      "title_at_allocation": "Add Co-Play Prompts"
+    },
+    "6fae4af8fcb2da02e14f": {
+      "id": "JMU-00441",
+      "source_file": "repository-town/games/waypoint/podcasttodo.md",
+      "title_at_allocation": "Add mobile/a11y and selection/persistence tests."
+    },
+    "6fd47dc58673567db235": {
+      "id": "JMU-00251",
+      "source_file": "repository-town/games/forbidden-quests/podcasttodo.md",
+      "title_at_allocation": "Add a collapsed bottom dock: **🎧 Listen to a different RPG/fantasy podcast**."
+    },
+    "70eb638b5bdf06b31769": {
+      "id": "JMU-00118",
+      "source_file": "repository-town/games/breach-command/codingprinciples.md",
+      "title_at_allocation": "I am not creating a second independent source of truth."
+    },
+    "71f0d388df3152c2a00b": {
+      "id": "JMU-00237",
+      "source_file": "repository-town/games/elodin-deep-lore/codingprinciples.md",
+      "title_at_allocation": "Affected experience works in declared supported environments."
+    },
+    "735e84b10ed61d56eb44": {
+      "id": "JMU-00384",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Show image or letter choices that begin with several sounds."
+    },
+    "73a0c6e86ef55a56c77d": {
+      "id": "JMU-00208",
+      "source_file": "repository-town/games/echo/codingprinciples.md",
+      "title_at_allocation": "Trust boundaries validated."
+    },
+    "743524c61d3881f881cd": {
+      "id": "JMU-00206",
+      "source_file": "repository-town/games/echo/codingprinciples.md",
+      "title_at_allocation": "Relevant code actually ran and behaviour that matters was observed."
+    },
+    "743c611643404149f84e": {
+      "id": "JMU-00334",
+      "source_file": "repository-town/games/sleepy/podcasttodo.md",
+      "title_at_allocation": "Keep bedtime UI low-stimulation and allow the control to be hidden entirely."
+    },
+    "7498e7814b27273af776": {
+      "id": "JMU-00418",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Include a sing-with-me prompt to reinforce auditory memory."
+    },
+    "7521400cbbbc2af11709": {
+      "id": "JMU-00029",
+      "source_file": "repository-town/docs/195_HOME_DUBBO_PLANNING_CODE_AUDIT_2026-10-27.md",
+      "title_at_allocation": "Per-lot reticulated civil/electrical designs and provider capacity approvals."
+    },
+    "755bd02f3c4a9019edd0": {
+      "id": "JMU-00219",
+      "source_file": "repository-town/games/echo/codingprinciples.md",
+      "title_at_allocation": "I know the assurance tier and applied its MUSTs/overlays."
+    },
+    "7583f37eb70f665890d1": {
+      "id": "JMU-00061",
+      "source_file": "repository-town/docs/NARROMINE_RESEARCH_AND_PLAN_2026-11-03.md",
+      "title_at_allocation": "Places to build (the first playable town)"
+    },
+    "75ef2c18269bf3b297f5": {
+      "id": "JMU-00135",
+      "source_file": "repository-town/games/buckland-blocks-demo/OPEN_SOURCE_VOXEL_INTEGRATION_PLAN.md",
+      "title_at_allocation": "Provenance and compliance"
+    },
+    "764b7c768e86fda07723": {
+      "id": "JMU-00307",
+      "source_file": "repository-town/games/midnight-line/podcasttodo.md",
+      "title_at_allocation": "Add mobile/a11y and audio-conflict/persistence tests."
+    },
+    "76c57dfbc8e87f857a12": {
+      "id": "JMU-00433",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Add a spot-the-sound prompt rather than focusing on letter names."
+    },
+    "76d2abf77b6d2ce3564e": {
+      "id": "JMU-00090",
+      "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
+      "title_at_allocation": "Lockpicking (there is now a locksmith), with legal and illegal uses."
+    },
+    "77003c42727327aa2fb6": {
+      "id": "JMU-00201",
+      "source_file": "repository-town/games/delve/codingprinciples.md",
+      "title_at_allocation": "I can state exactly what proves this change works."
+    },
+    "7754d65d66485cfa0517": {
+      "id": "JMU-00265",
+      "source_file": "repository-town/games/joshplatform/podcasttodo.md",
+      "title_at_allocation": "Seed mature topics with about 25 Spotify episodes each."
+    },
+    "778cc5abde2677fd7795": {
+      "id": "JMU-00089",
+      "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
+      "title_at_allocation": "Quest chains with townspeople, starting from the Expedition Guild relics."
+    },
+    "77f311c4beb23e0932a2": {
+      "id": "JMU-00139",
+      "source_file": "repository-town/games/buckland-blocks-demo/OPEN_SOURCE_VOXEL_INTEGRATION_PLAN.md",
+      "title_at_allocation": "Rendering, UI, audio, and assets"
+    },
+    "78174a76c57d0d32c036": {
+      "id": "JMU-00172",
+      "source_file": "repository-town/games/carl/Dungeon_Crawler_Carl_Game_Build_Plan.md",
+      "title_at_allocation": "Class, Race, and Progression"
+    },
+    "794d6cb9d51539192b48": {
+      "id": "JMU-00152",
+      "source_file": "repository-town/games/buckland-blocks-demo/codingprinciples.md",
+      "title_at_allocation": "Affected experience works in declared supported environments."
+    },
+    "7a16a71b9024e8875f01": {
+      "id": "JMU-00364",
+      "source_file": "repository-town/games/sylvie-phonetics/docs/eylf-implementation-tasks.md",
+      "title_at_allocation": "Phoneme “sound boxes” game (fixes Outcome 5 literacy depth)"
+    },
+    "7bcd879faea020d95c65": {
+      "id": "JMU-00130",
+      "source_file": "repository-town/games/breach-command/podcasttodo.md",
+      "title_at_allocation": "Use Spotify embed/deep links without assuming autoplay."
+    },
+    "7bfe5aca55bdd9a35122": {
+      "id": "JMU-00216",
+      "source_file": "repository-town/games/echo/codingprinciples.md",
+      "title_at_allocation": "I confirmed this is canonical, or its explicit non-canonical role permits the change."
+    },
+    "7c76be51c296fb6065aa": {
+      "id": "JMU-00202",
+      "source_file": "repository-town/games/echo/codingprinciples.md",
+      "title_at_allocation": "I can explain previous behaviour and why the change is required."
+    },
+    "7c826b437b9c4ba78504": {
+      "id": "JMU-00094",
+      "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
+      "title_at_allocation": "Characters and accounts (Settings, optional)"
+    },
+    "7dcfe9e053c5ed572e84": {
+      "id": "JMU-00072",
+      "source_file": "repository-town/docs/REPOSITORY_TOWN_GEOGRAPHY_MASTERPLAN.md",
+      "title_at_allocation": "No-guess engineering data acquisition"
+    },
+    "7e32d222653031054396": {
+      "id": "JMU-00281",
+      "source_file": "repository-town/games/lantern-road/podcasttodo.md",
+      "title_at_allocation": "One tap selects/loads another episode; persist recent choices and avoid immediate repeats."
+    },
+    "7e951c7c46df4ddbeb32": {
+      "id": "JMU-00209",
+      "source_file": "repository-town/games/echo/codingprinciples.md",
+      "title_at_allocation": "Important state changes tolerate retry, duplication and partial failure."
+    },
+    "7f1f0c07fb1334b208f3": {
+      "id": "JMU-00058",
+      "source_file": "repository-town/docs/NARROMINE_RESEARCH_AND_PLAN_2026-11-03.md",
+      "title_at_allocation": "Population (2021 Census, ABS — use these, not commercial profiles)"
+    },
+    "7fe9194698692069f340": {
+      "id": "JMU-00040",
+      "source_file": "repository-town/docs/NARROMINE_MATERIAL_REALISM_2026-11-04.md",
+      "title_at_allocation": "Compare before and after screenshots and inspect under morning/midday/late afternoon lighting."
+    },
+    "80db3a6f4ac1f2ca1d9d": {
+      "id": "JMU-00048",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Terrain.** Use the LiDAR ground model (class 2) for gentle ground levels, the Macquarie"
+    },
+    "813a7cc2b999debcb4a2": {
+      "id": "JMU-00137",
+      "source_file": "repository-town/games/buckland-blocks-demo/OPEN_SOURCE_VOXEL_INTEGRATION_PLAN.md",
+      "title_at_allocation": "Survival and simulation"
+    },
+    "821881cd49217aac4973": {
+      "id": "JMU-00197",
+      "source_file": "repository-town/games/delve/codingprinciples.md",
+      "title_at_allocation": "I did not silently work around a MUST."
+    },
+    "822bca87b5c716454631": {
+      "id": "JMU-00282",
+      "source_file": "repository-town/games/lantern-road/podcasttodo.md",
+      "title_at_allocation": "Use Spotify embed/deep links without assuming autoplay."
+    },
+    "82c42383b84b54171894": {
+      "id": "JMU-00276",
+      "source_file": "repository-town/games/kkc-adventure/podcasttodo.md",
+      "title_at_allocation": "Tag episodes by lore, character analysis, worldbuilding, writing craft and fantasy literature."
+    },
+    "82e9175d892dc14f0cfc": {
+      "id": "JMU-00317",
+      "source_file": "repository-town/games/multi-layer-zoom-game/index.html",
+      "title_at_allocation": "Remove this dead flag"
+    },
+    "830fc737880c4baed946": {
+      "id": "JMU-00147",
+      "source_file": "repository-town/games/buckland-blocks-demo/codingprinciples.md",
+      "title_at_allocation": "Trust boundaries validated."
+    },
+    "84f112553c6ad16454a1": {
+      "id": "JMU-00244",
+      "source_file": "repository-town/games/elodin-deep-lore/codingprinciples.md",
+      "title_at_allocation": "Any SHOULD departure is recorded durably."
+    },
+    "8519ed20c6ae248ddf7e": {
+      "id": "JMU-00011",
+      "source_file": "docs/FRESH_AGENT_RESUME_ROADMAP.md",
+      "title_at_allocation": "Add current-work leases"
+    },
+    "855c78445c37d3fad1ec": {
+      "id": "JMU-00309",
+      "source_file": "repository-town/games/multi-layer-zoom-game/index.html",
+      "title_at_allocation": "Remove Update flag from before mutation phase by re-landing Visibility"
+    },
+    "85d7f6c1a58793afe4f9": {
+      "id": "JMU-00179",
+      "source_file": "repository-town/games/delve/codingprinciples.md",
+      "title_at_allocation": "I understand affected data/dependencies deeply enough for this repo's risk."
+    },
+    "870c8d9e2b7ac7e9ec82": {
+      "id": "JMU-00331",
+      "source_file": "repository-town/games/sleepy/podcasttodo.md",
+      "title_at_allocation": "One tap may choose/load another approved item; persist favourites/recent selections and avoid immediate repeats."
+    },
+    "872a56e3975a981495da": {
+      "id": "JMU-00064",
+      "source_file": "repository-town/docs/NARROMINE_RESEARCH_AND_PLAN_2026-11-03.md",
+      "title_at_allocation": "How to make Narromine drivable — the plan"
+    },
+    "87532f088686a16c1da0": {
+      "id": "JMU-00383",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Create prompts like `I spy something that begins with /b/`."
+    },
+    "877c2e68eac429e3e76d": {
+      "id": "JMU-00255",
+      "source_file": "repository-town/games/forbidden-quests/podcasttodo.md",
+      "title_at_allocation": "Tag episodes by quests, encounters, story craft, DM advice and worldbuilding."
+    },
+    "893baf85506e0f627144": {
+      "id": "JMU-00222",
+      "source_file": "repository-town/games/echo/codingprinciples.md",
+      "title_at_allocation": "Unsatisfied requirements were reported as blockers rather than guessed around."
+    },
+    "89a05424a15e3439d907": {
+      "id": "JMU-00153",
+      "source_file": "repository-town/games/buckland-blocks-demo/codingprinciples.md",
+      "title_at_allocation": "No secrets entered source/client/logs; permissions not accidentally broadened."
+    },
+    "89ac4f42a3ed3b277619": {
+      "id": "JMU-00358",
+      "source_file": "repository-town/games/sylvie-phonetics/docs/ResearchImplementationRoadmap.md",
+      "title_at_allocation": "Add Physical Sound Hunts"
+    },
+    "8a502cc442b90bc62ce6": {
+      "id": "JMU-00194",
+      "source_file": "repository-town/games/delve/codingprinciples.md",
+      "title_at_allocation": "Affected deployment traces back to this repo/commit."
+    },
+    "8b6c9f9217c217ccd506": {
+      "id": "JMU-00423",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Provide an animated jump response and congratulatory feedback."
+    },
+    "8c0f887c3d98f101e242": {
+      "id": "JMU-00318",
+      "source_file": "repository-town/games/multi-layer-zoom-game/index.html",
+      "title_at_allocation": "Remove outdated deferRenderPhaseUpdateToNextBatch experiment. We"
+    },
+    "8c14402287133c8440ec": {
+      "id": "JMU-00221",
+      "source_file": "repository-town/games/echo/codingprinciples.md",
+      "title_at_allocation": "I did not silently work around a MUST."
+    },
+    "8ca70902fb633962160a": {
+      "id": "JMU-00055",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Rail completion.** Silo sidings in use, a fictional-but-labelled link to Repository"
+    },
+    "8d4aee9423d11d725651": {
+      "id": "JMU-00015",
+      "source_file": "docs/FRESH_AGENT_RESUME_ROADMAP.md",
+      "title_at_allocation": "Automatically include relevant portfolio context"
+    },
+    "8db7f7a7ca492fc603e9": {
+      "id": "JMU-00291",
+      "source_file": "repository-town/games/lantern-road/story/campaign/ENDING-MATRIX.md",
+      "title_at_allocation": "the final hard choice is between trade-offs, not obvious good/evil options;"
+    },
+    "8db8e208f91e2af4e05f": {
+      "id": "JMU-00200",
+      "source_file": "repository-town/games/delve/codingprinciples.md",
+      "title_at_allocation": "Non-obvious decisions recorded; docs match resulting system."
+    },
+    "8de93b8c443b5fadbe61": {
+      "id": "JMU-00320",
+      "source_file": "repository-town/games/ptshub-newgame/GAME_IMPROVEMENTS.md",
+      "title_at_allocation": "Equipment System (Weapons & Armor)"
+    },
+    "8e6c17d17f2e55d31797": {
+      "id": "JMU-00133",
+      "source_file": "repository-town/games/breach-command/podcasttodo.md",
+      "title_at_allocation": "Keep episode data separate from game logic."
+    },
+    "8f87117b42fab4a79e77": {
+      "id": "JMU-00159",
+      "source_file": "repository-town/games/buckland-blocks-demo/codingprinciples.md",
+      "title_at_allocation": "Any SHOULD departure is recorded durably."
+    },
+    "8fd1e3fd451c6a2e91c5": {
+      "id": "JMU-00274",
+      "source_file": "repository-town/games/kkc-adventure/podcasttodo.md",
+      "title_at_allocation": "Use Spotify embed/deep links without assuming autoplay."
+    },
+    "90f68de8e6e05baa4aef": {
+      "id": "JMU-00275",
+      "source_file": "repository-town/games/kkc-adventure/podcasttodo.md",
+      "title_at_allocation": "Hide/pause whenever game narration, TTS or other audio is active."
+    },
+    "91b32b186d84e22b97fc": {
+      "id": "JMU-00403",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Offer target words from the existing phonics list and gradually increase complexity."
+    },
+    "9353ab89306c096cf0c4": {
+      "id": "JMU-00192",
+      "source_file": "repository-town/games/delve/codingprinciples.md",
+      "title_at_allocation": "I confirmed this is canonical, or its explicit non-canonical role permits the change."
+    },
+    "93d659a6e85d2f8e66a6": {
+      "id": "JMU-00110",
+      "source_file": "repository-town/games/breach-command/codingprinciples.md",
+      "title_at_allocation": "Important state changes tolerate retry, duplication and partial failure."
+    },
+    "93fabd219eb79ac1b8d8": {
+      "id": "JMU-00068",
+      "source_file": "repository-town/docs/REPOSITORY_TOWN_GEOGRAPHY_MASTERPLAN.md",
+      "title_at_allocation": "Electricity: verified upstream chain and chosen simulation design"
+    },
+    "957e2287a40180e14946": {
+      "id": "JMU-00304",
+      "source_file": "repository-town/games/midnight-line/podcasttodo.md",
+      "title_at_allocation": "Hide/pause whenever game music, narration, TTS or important sound cues are active."
+    },
+    "9652a99babc0d1108c24": {
+      "id": "JMU-00014",
+      "source_file": "docs/FRESH_AGENT_RESUME_ROADMAP.md",
+      "title_at_allocation": "PR associated with current branch;"
+    },
+    "96e1dc57be6fb4a78283": {
+      "id": "JMU-00189",
+      "source_file": "repository-town/games/delve/codingprinciples.md",
+      "title_at_allocation": "Affected experience works in declared supported environments."
+    },
+    "9821356cd20637c46783": {
+      "id": "JMU-00074",
+      "source_file": "repository-town/docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md",
+      "title_at_allocation": "Conversation behaviour and accessible player controls (P1)"
+    },
+    "989536aeee51a099100c": {
+      "id": "JMU-00256",
+      "source_file": "repository-town/games/forbidden-quests/podcasttodo.md",
+      "title_at_allocation": "Keep gameplay primary."
+    },
+    "99b8f459d3bbc9d32521": {
+      "id": "JMU-00413",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Track correct rhymes and optionally introduce simple rhyme families like `-at`, `-og`, `-ip`."
+    },
+    "9aa843ad0aac001f64e9": {
+      "id": "JMU-00350",
+      "source_file": "repository-town/games/sylvie-phonetics/docs/ResearchImplementationRoadmap.md",
+      "title_at_allocation": "Make the Learning Sequence Explicit"
+    },
+    "9ae20b34ab9087afe116": {
+      "id": "JMU-00373",
+      "source_file": "repository-town/games/sylvie-phonetics/docs/eylf-implementation-tasks.md",
+      "title_at_allocation": "Extend blending scaffolding coverage (Outcome 5 — auditory discrimination & blending parity)"
+    },
+    "9b8825bbd19d875b242e": {
+      "id": "JMU-00419",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Add a game where letters appear on the floor or tiles."
+    },
+    "9c7ee1a9ed11a639a8cd": {
+      "id": "JMU-00343",
+      "source_file": "repository-town/games/starhaven/podcasttodo.md",
+      "title_at_allocation": "Keep gameplay primary."
+    },
+    "9cd0ae5c1f08b3aac8ba": {
+      "id": "JMU-00227",
+      "source_file": "repository-town/games/elodin-deep-lore/codingprinciples.md",
+      "title_at_allocation": "I understand affected data/dependencies deeply enough for this repo's risk."
+    },
+    "9d252967e631acf309e3": {
+      "id": "JMU-00388",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Add a tracing activity screen with a letter outline."
+    },
+    "9e70ee4ce4d61c8843b0": {
+      "id": "JMU-00016",
+      "source_file": "docs/FRESH_AGENT_RESUME_ROADMAP.md",
+      "title_at_allocation": "Strengthen automatic handoffs"
+    },
+    "9ef72ae025daacf6e99f": {
+      "id": "JMU-00428",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "After placement, speak each sound again and blend into the whole word."
+    },
+    "9fc4c6e3091234f7f6b9": {
+      "id": "JMU-00303",
+      "source_file": "repository-town/games/midnight-line/podcasttodo.md",
+      "title_at_allocation": "Use Spotify embed/deep links without assuming autoplay."
+    },
+    "a20ebafa1ef0a15bacd9": {
+      "id": "JMU-00409",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Add a rhyming match mode that shows word pairs."
+    },
+    "a235b6f923d10e45447e": {
+      "id": "JMU-00250",
+      "source_file": "repository-town/games/forbidden-quests/podcasttodo.md",
+      "title_at_allocation": "Curate about 25 Spotify episodes across RPG/fantasy topics."
+    },
+    "a23952d05ca2a5f4249c": {
+      "id": "JMU-00033",
+      "source_file": "repository-town/docs/IMPROVEMENT_PLAN_2026-10-19.md",
+      "title_at_allocation": "Make the good games easy to find"
+    },
+    "a280fe6031b0e49b1266": {
+      "id": "JMU-00138",
+      "source_file": "repository-town/games/buckland-blocks-demo/OPEN_SOURCE_VOXEL_INTEGRATION_PLAN.md",
+      "title_at_allocation": "Inventory, crafting, and content data"
+    },
+    "a2bb5c6b10225d32eab4": {
+      "id": "JMU-00387",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Track success and give positive feedback when the child taps the right object."
+    },
+    "a2bef4917f4e050543c3": {
+      "id": "JMU-00171",
+      "source_file": "repository-town/games/carl/Dungeon_Crawler_Carl_Game_Build_Plan.md",
+      "title_at_allocation": "Quest System"
+    },
+    "a38b2c78c8391abf94d6": {
+      "id": "JMU-00247",
+      "source_file": "repository-town/games/elodin-deep-lore/codingprinciples.md",
+      "title_at_allocation": "No dead code, orphaned files or abandoned commented-out implementation."
+    },
+    "a46a3a5e1f4a47d2dea9": {
+      "id": "JMU-00390",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Add stroke detection or trace progress when the user drags along the path."
+    },
+    "a4795c33c5b870f038ff": {
+      "id": "JMU-00007",
+      "source_file": ".github/PULL_REQUEST_TEMPLATE/repository-town-rtd.md",
+      "title_at_allocation": "I have **not** marked staging/production, handset or backup checks complete based only on local tests or HTTP 200."
+    },
+    "a4ef1865d65d85829c7f": {
+      "id": "JMU-00353",
+      "source_file": "repository-town/games/sylvie-phonetics/docs/ResearchImplementationRoadmap.md",
+      "title_at_allocation": "Add Audio-First Interaction Pattern"
+    },
+    "a71d3400db13354ce46e": {
+      "id": "JMU-00241",
+      "source_file": "repository-town/games/elodin-deep-lore/codingprinciples.md",
+      "title_at_allocation": "I am not creating a second independent source of truth."
+    },
+    "a75949ca5d43072fe38b": {
+      "id": "JMU-00381",
+      "source_file": "repository-town/games/sylvie-phonetics/podcasttodo.md",
+      "title_at_allocation": "Add parent-control, audio-conflict, a11y and persistence tests."
+    },
+    "a8a745be41584b1a3574": {
+      "id": "JMU-00164",
+      "source_file": "repository-town/games/buckland-blocks-demo/codingprinciples.md",
+      "title_at_allocation": "I can state exactly what proves this change works."
+    },
+    "a90b3b8b02b2b821bd14": {
+      "id": "JMU-00438",
+      "source_file": "repository-town/games/waypoint/podcasttodo.md",
+      "title_at_allocation": "Use Spotify embed/deep links without assuming autoplay."
+    },
+    "a98253f2489a206073ae": {
+      "id": "JMU-00025",
+      "source_file": "repository-town/docs/195_HOME_DUBBO_PLANNING_CODE_AUDIT_2026-10-27.md",
+      "title_at_allocation": "Concept only, landscape plan absent"
+    },
+    "aad4fac361c57ebeab8b": {
+      "id": "JMU-00302",
+      "source_file": "repository-town/games/midnight-line/podcasttodo.md",
+      "title_at_allocation": "One tap selects/loads another episode; persist recent choices and avoid immediate repeats."
+    },
+    "ab0d0ef489abc0d45a9c": {
+      "id": "JMU-00073",
+      "source_file": "repository-town/docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md",
+      "title_at_allocation": "Identity, deterministic director and graph integrity (P0)"
+    },
+    "ab2564a0c6815145c4dc": {
+      "id": "JMU-00022",
+      "source_file": "docs/OPEN_SOURCE_MEMORY_BORROWING_PLAN.md",
+      "title_at_allocation": "Append-only work journal"
+    },
+    "ab8b4179c70199c08e7a": {
+      "id": "JMU-00205",
+      "source_file": "repository-town/games/echo/codingprinciples.md",
+      "title_at_allocation": "Obsolete code removed; refactor and behaviour change not mixed silently."
+    },
+    "ac2d10252c21261027b5": {
+      "id": "JMU-00238",
+      "source_file": "repository-town/games/elodin-deep-lore/codingprinciples.md",
+      "title_at_allocation": "No secrets entered source/client/logs; permissions not accidentally broadened."
+    },
+    "ac5668feedc546da5ba4": {
+      "id": "JMU-00128",
+      "source_file": "repository-town/games/breach-command/podcasttodo.md",
+      "title_at_allocation": "Add a collapsed bottom dock: **🎧 Listen to a different strategy/game-design podcast**."
+    },
+    "ac57517ad2f271da03c7": {
+      "id": "JMU-00352",
+      "source_file": "repository-town/games/sylvie-phonetics/docs/ResearchImplementationRoadmap.md",
+      "title_at_allocation": "Review Decodable Word Lists"
+    },
+    "adbe8a04ec0c6a70209b": {
+      "id": "JMU-00429",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Use simple CVC words first, then longer words as difficulty increases."
+    },
+    "adcc6acc7e39d99e0e24": {
+      "id": "JMU-00184",
+      "source_file": "repository-town/games/delve/codingprinciples.md",
+      "title_at_allocation": "Trust boundaries validated."
+    },
+    "ae1592e1606ed7e4abf0": {
+      "id": "JMU-00253",
+      "source_file": "repository-town/games/forbidden-quests/podcasttodo.md",
+      "title_at_allocation": "Use Spotify embed/deep links without assuming autoplay."
+    },
+    "aeb225b7208a335bd098": {
+      "id": "JMU-00212",
+      "source_file": "repository-town/games/echo/codingprinciples.md",
+      "title_at_allocation": "UI tells the truth; loading/failure/stale/empty are not confused."
+    },
+    "af44d1cee3772145d3c6": {
+      "id": "JMU-00410",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Present one word and several choices; ask `Which word rhymes with cat?`."
+    },
+    "af94e97e050766146ff7": {
+      "id": "JMU-00052",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Business names and land uses.** Check all 98 named places against OSM and council"
+    },
+    "b046a5cfb7eba2eb0ba9": {
+      "id": "JMU-00190",
+      "source_file": "repository-town/games/delve/codingprinciples.md",
+      "title_at_allocation": "No secrets entered source/client/logs; permissions not accidentally broadened."
+    },
+    "b0518acab274ce810ce3": {
+      "id": "JMU-00338",
+      "source_file": "repository-town/games/starhaven/podcasttodo.md",
+      "title_at_allocation": "Add a collapsed bottom dock: **🚀 Listen to a different sci-fi/fantasy podcast**."
+    },
+    "b073914aaf8a7a80631e": {
+      "id": "JMU-00193",
+      "source_file": "repository-town/games/delve/codingprinciples.md",
+      "title_at_allocation": "I am not creating a second independent source of truth."
+    },
+    "b1bd8c85f563c459f3a2": {
+      "id": "JMU-00120",
+      "source_file": "repository-town/games/breach-command/codingprinciples.md",
+      "title_at_allocation": "I know the assurance tier and applied its MUSTs/overlays."
+    },
+    "b1c8fb0206b1013f3ecd": {
+      "id": "JMU-00126",
+      "source_file": "repository-town/games/breach-command/codingprinciples.md",
+      "title_at_allocation": "I can state exactly what proves this change works."
+    },
+    "b2faf60620ef9cb100ab": {
+      "id": "JMU-00305",
+      "source_file": "repository-town/games/midnight-line/podcasttodo.md",
+      "title_at_allocation": "Tag episodes by narrative design, interactive fiction, story craft and indie development."
+    },
+    "b331ebe17a852bb48ba4": {
+      "id": "JMU-00163",
+      "source_file": "repository-town/games/buckland-blocks-demo/codingprinciples.md",
+      "title_at_allocation": "Non-obvious decisions recorded; docs match resulting system."
+    },
+    "b4b8264b2ec46c5e23fc": {
+      "id": "JMU-00440",
+      "source_file": "repository-town/games/waypoint/podcasttodo.md",
+      "title_at_allocation": "Keep the five-step decision flow primary and never let audio imply the app has decided for the user."
+    },
+    "b4f0f6b528ea147861ac": {
+      "id": "JMU-00427",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Ask the child to move one counter into each box while saying each sound."
+    },
+    "b5ad74c1348139bdb11f": {
+      "id": "JMU-00336",
+      "source_file": "repository-town/games/sleepy/podcasttodo.md",
+      "title_at_allocation": "Add parent-mode, audio-conflict, a11y and persistence tests."
+    },
+    "b63fe3629a88b86c21a6": {
+      "id": "JMU-00039",
+      "source_file": "repository-town/docs/NARROMINE_MATERIAL_REALISM_2026-11-04.md",
+      "title_at_allocation": "Run desktop/mobile Chromium visual QA at hotel, Post Office, Kierath's frontage, ordinary shops and roadway."
+    },
+    "b68985f8ba5744570dba": {
+      "id": "JMU-00019",
+      "source_file": "docs/FRESH_AGENT_RESUME_ROADMAP.md",
+      "title_at_allocation": "Add a resume-quality test suite"
+    },
+    "b69a6099ec5f795e53a6": {
+      "id": "JMU-00013",
+      "source_file": "docs/FRESH_AGENT_RESUME_ROADMAP.md",
+      "title_at_allocation": "Add live GitHub/deployment checks to resume"
+    },
+    "b6a606e66a2be9855b18": {
+      "id": "JMU-00018",
+      "source_file": "docs/FRESH_AGENT_RESUME_ROADMAP.md",
+      "title_at_allocation": "Add tiny `RESUME.md` bootstrap files to major repos"
+    },
+    "b6db41e92acab918cf8a": {
+      "id": "JMU-00355",
+      "source_file": "repository-town/games/sylvie-phonetics/docs/ResearchImplementationRoadmap.md",
+      "title_at_allocation": "Add Australian Voice Guidance"
+    },
+    "b6f0425efffdab4da99b": {
+      "id": "JMU-00211",
+      "source_file": "repository-town/games/echo/codingprinciples.md",
+      "title_at_allocation": "No silent data destruction, duplication, exposure or misrepresentation."
+    },
+    "b76505b28e45b24bba36": {
+      "id": "JMU-00400",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Display letter blocks that the child can drag into a row."
+    },
+    "b83f4b72383ddacaa88c": {
+      "id": "JMU-00191",
+      "source_file": "repository-town/games/delve/codingprinciples.md",
+      "title_at_allocation": "Sensitive logging justified/minimised; new dependencies justified."
+    },
+    "b89685ca7d6b05483bd3": {
+      "id": "JMU-00301",
+      "source_file": "repository-town/games/midnight-line/podcasttodo.md",
+      "title_at_allocation": "Add a collapsed bottom dock: **🎧 Listen to a different narrative-game podcast**."
+    },
+    "b8bb41c43dcdefca85a6": {
+      "id": "JMU-00049",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Ground cover and land use.** Paddocks, parks, sports ovals, the golf course, the"
+    },
+    "b8c35394bc627e5f5de7": {
+      "id": "JMU-00344",
+      "source_file": "repository-town/games/starhaven/podcasttodo.md",
+      "title_at_allocation": "Add mobile/a11y and audio-conflict/persistence tests."
+    },
+    "b9559b29688d25154995": {
+      "id": "JMU-00141",
+      "source_file": "repository-town/games/buckland-blocks-demo/codingprinciples.md",
+      "title_at_allocation": "I can explain previous behaviour and why the change is required."
+    },
+    "b96b20d510ea4ca36abd": {
+      "id": "JMU-00402",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Add a slide-together animation to show the blocks joining into a word."
+    },
+    "b9cb2d14baa390b337d3": {
+      "id": "JMU-00327",
+      "source_file": "repository-town/games/sleepy/QA-Recommendations.md",
+      "title_at_allocation": "Add parent gate and bedtime warning"
+    },
+    "ba16e2c474c76f0a1c96": {
+      "id": "JMU-00380",
+      "source_file": "repository-town/games/sylvie-phonetics/podcasttodo.md",
+      "title_at_allocation": "Avoid competing audio during phonics exercises/read-aloud activities."
+    },
+    "bac6e50bc8121ecdf3d2": {
+      "id": "JMU-00036",
+      "source_file": "repository-town/docs/IMPROVEMENT_PLAN_2026-10-19.md",
+      "title_at_allocation": "Process"
+    },
+    "bae2370e0e2fa6d1ae5b": {
+      "id": "JMU-00431",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Show real-world word graphics and ask `What sound does this start with?`."
+    },
+    "bc44068e407393074475": {
+      "id": "JMU-00087",
+      "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
+      "title_at_allocation": "Bag capacity, banking (Community Bank) and noted or stacked goods."
+    },
+    "bcf8af7619942caafebd": {
+      "id": "JMU-00173",
+      "source_file": "repository-town/games/carl/Dungeon_Crawler_Carl_Game_Build_Plan.md",
+      "title_at_allocation": "Viewer, Sponsor, and Show Mechanics"
+    },
+    "bd71cf2e0dd75ba16bf3": {
+      "id": "JMU-00195",
+      "source_file": "repository-town/games/delve/codingprinciples.md",
+      "title_at_allocation": "I know the assurance tier and applied its MUSTs/overlays."
+    },
+    "bdab40416fddd8e3b4fc": {
+      "id": "JMU-00023",
+      "source_file": "docs/OPEN_SOURCE_MEMORY_BORROWING_PLAN.md",
+      "title_at_allocation": "Resume brief"
+    },
+    "bde08a06267a60923c16": {
+      "id": "JMU-00032",
+      "source_file": "repository-town/docs/IMPROVEMENT_PLAN_2026-10-19.md",
+      "title_at_allocation": "Add a reason to play (biggest win)"
+    },
+    "be95e42b389f36aaf026": {
+      "id": "JMU-00066",
+      "source_file": "repository-town/docs/REPOSITORY_TOWN_GEOGRAPHY_MASTERPLAN.md",
+      "title_at_allocation": "Location decisions and geometric transform"
+    },
+    "bf2778f36f6a69c6e790": {
+      "id": "JMU-00117",
+      "source_file": "repository-town/games/breach-command/codingprinciples.md",
+      "title_at_allocation": "I confirmed this is canonical, or its explicit non-canonical role permits the change."
+    },
+    "bf3615e9da71c3fd1d99": {
+      "id": "JMU-00260",
+      "source_file": "repository-town/games/hub-newgame/GAME_IMPROVEMENTS.md",
+      "title_at_allocation": "Magic/Spell System"
+    },
+    "bf86addba00d9d0584c9": {
+      "id": "JMU-00422",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Add keyboard shortcuts or touch zones for jumping."
+    },
+    "c0fbc86201d9284802c8": {
+      "id": "JMU-00075",
+      "source_file": "repository-town/docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md",
+      "title_at_allocation": "Authoritative world, quests, repairs, commerce and negative outcomes (P1)"
+    },
+    "c1503a3da12803afdf40": {
+      "id": "JMU-00178",
+      "source_file": "repository-town/games/delve/codingprinciples.md",
+      "title_at_allocation": "I can explain previous behaviour and why the change is required."
+    },
+    "c24ea95bfc2c2aac49a3": {
+      "id": "JMU-00294",
+      "source_file": "repository-town/games/lantern-road/story/campaign/ENDING-MATRIX.md",
+      "title_at_allocation": "party relationships/personal arcs can alter epilogue tone;"
+    },
+    "c5268c0f7d63feef161d": {
+      "id": "JMU-00258",
+      "source_file": "repository-town/games/hub-newgame/GAME_IMPROVEMENTS.md",
+      "title_at_allocation": "Quest System"
+    },
+    "c5e8bfd2071bb547a9c5": {
+      "id": "JMU-00006",
+      "source_file": ".github/PULL_REQUEST_TEMPLATE/repository-town-rtd.md",
+      "title_at_allocation": "Privacy and build/relevant game regressions are run for the **tested SHA** and failures are not hidden."
+    },
+    "c647e01a279ba9709513": {
+      "id": "JMU-00316",
+      "source_file": "repository-town/games/multi-layer-zoom-game/index.html",
+      "title_at_allocation": "When we delete legacy mode, we should make this error argument"
+    },
+    "c69722df2e0f30e4d568": {
+      "id": "JMU-00284",
+      "source_file": "repository-town/games/lantern-road/podcasttodo.md",
+      "title_at_allocation": "Tag episodes by story craft, interactive fiction, worldbuilding and game design."
+    },
+    "c6ac78f46bee71cb2e99": {
+      "id": "JMU-00054",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Traffic and people at realistic levels.** Car and pedestrian numbers that match a town"
+    },
+    "c87a2b4e4f357f2c1e46": {
+      "id": "JMU-00043",
+      "source_file": "repository-town/docs/NARROMINE_MATERIAL_REALISM_2026-11-04.md",
+      "title_at_allocation": "Merge PR and independently verify production `release.json`."
+    },
+    "c87ba2a14fd84e62b189": {
+      "id": "JMU-00182",
+      "source_file": "repository-town/games/delve/codingprinciples.md",
+      "title_at_allocation": "Relevant code actually ran and behaviour that matters was observed."
+    },
+    "c999a3178053b49c2627": {
+      "id": "JMU-00415",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Build short vocal loops like `What does the /s/ say? /s/ /s/ /s/`."
+    },
+    "c9fe746e97f9275fed4f": {
+      "id": "JMU-00203",
+      "source_file": "repository-town/games/echo/codingprinciples.md",
+      "title_at_allocation": "I understand affected data/dependencies deeply enough for this repo's risk."
+    },
+    "ca5b6fce8bd16e849b03": {
+      "id": "JMU-00042",
+      "source_file": "repository-town/docs/NARROMINE_MATERIAL_REALISM_2026-11-04.md",
+      "title_at_allocation": "Check draw calls, material count, frame times and shader artefacts."
+    },
+    "cb13bc025da4436462a9": {
+      "id": "JMU-00349",
+      "source_file": "repository-town/games/sylvie-phonetics/QA-Recommendations.md",
+      "title_at_allocation": "Add visible parent prompts"
+    },
+    "cb94746f27d9a60eaf6f": {
+      "id": "JMU-00225",
+      "source_file": "repository-town/games/echo/codingprinciples.md",
+      "title_at_allocation": "I can state exactly what proves this change works."
+    },
+    "cca83efd31c1762dcf22": {
+      "id": "JMU-00329",
+      "source_file": "repository-town/games/sleepy/podcasttodo.md",
+      "title_at_allocation": "Curate a parent-reviewed Spotify/audio bank appropriate for bedtime."
+    },
+    "cd8c2eb864bad12080a9": {
+      "id": "JMU-00156",
+      "source_file": "repository-town/games/buckland-blocks-demo/codingprinciples.md",
+      "title_at_allocation": "I am not creating a second independent source of truth."
+    },
+    "cdd85823f31e2e44f218": {
+      "id": "JMU-00437",
+      "source_file": "repository-town/games/waypoint/podcasttodo.md",
+      "title_at_allocation": "One tap selects/loads another episode; persist recent choices and avoid immediate repeats."
+    },
+    "cde6694e09c3e32cc5b4": {
+      "id": "JMU-00311",
+      "source_file": "repository-town/games/multi-layer-zoom-game/index.html",
+      "title_at_allocation": "ideally, we'd eventually add all events from"
+    },
+    "cf0f13000bd3c888822d": {
+      "id": "JMU-00035",
+      "source_file": "repository-town/docs/IMPROVEMENT_PLAN_2026-10-19.md",
+      "title_at_allocation": "Phone performance"
+    },
+    "d05a3ba38317c19f309d": {
+      "id": "JMU-00114",
+      "source_file": "repository-town/games/breach-command/codingprinciples.md",
+      "title_at_allocation": "Affected experience works in declared supported environments."
+    },
+    "d0679a33fb85ed8e3a45": {
+      "id": "JMU-00199",
+      "source_file": "repository-town/games/delve/codingprinciples.md",
+      "title_at_allocation": "No dead code, orphaned files or abandoned commented-out implementation."
+    },
+    "d173bf0cfd0a60b9c364": {
+      "id": "JMU-00220",
+      "source_file": "repository-town/games/echo/codingprinciples.md",
+      "title_at_allocation": "Any SHOULD departure is recorded durably."
+    },
+    "d2654dcee54cec88f52f": {
+      "id": "JMU-00370",
+      "source_file": "repository-town/games/sylvie-phonetics/docs/eylf-implementation-tasks.md",
+      "title_at_allocation": "Accessibility & equity knobs (Framework principles — equity, wellbeing, ICT safe use hints)"
+    },
+    "d27790e95faa01de196d": {
+      "id": "JMU-00106",
+      "source_file": "repository-town/games/breach-command/codingprinciples.md",
+      "title_at_allocation": "Obsolete code removed; refactor and behaviour change not mixed silently."
+    },
+    "d2c79b6cb243e6be79fb": {
+      "id": "JMU-00421",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Make the answer selection visual and active, such as big tiles or buttons arranged like stepping stones."
+    },
+    "d322570d83e79f6f354b": {
+      "id": "JMU-00322",
+      "source_file": "repository-town/games/ptshub-newgame/GAME_IMPROVEMENTS.md",
+      "title_at_allocation": "Mini-Map & Exploration System"
+    },
+    "d367896cfd374ee42076": {
+      "id": "JMU-00272",
+      "source_file": "repository-town/games/kkc-adventure/podcasttodo.md",
+      "title_at_allocation": "Add a collapsed bottom dock: **📖 Listen to a different Kingkiller/fantasy podcast**."
+    },
+    "d3e2b3306d1782f3cf53": {
+      "id": "JMU-00165",
+      "source_file": "repository-town/games/carl/Dungeon_Crawler_Carl_Game_Build_Plan.md",
+      "title_at_allocation": "Character System"
+    },
+    "d3f5c59a7f7c7d088f33": {
+      "id": "JMU-00170",
+      "source_file": "repository-town/games/carl/Dungeon_Crawler_Carl_Game_Build_Plan.md",
+      "title_at_allocation": "Loot and Inventory"
+    },
+    "d418d24dbc9e20d8b5c6": {
+      "id": "JMU-00280",
+      "source_file": "repository-town/games/lantern-road/podcasttodo.md",
+      "title_at_allocation": "Add a collapsed bottom dock: **🏮 Listen to a different storytelling/game podcast**."
+    },
+    "d41f9b0cecba2ffb333b": {
+      "id": "JMU-00080",
+      "source_file": "repository-town/docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md",
+      "title_at_allocation": "Full interactive acceptance and release across actual hosts (P3)"
+    },
+    "d49b8dd7a8c9032cbbe8": {
+      "id": "JMU-00378",
+      "source_file": "repository-town/games/sylvie-phonetics/podcasttodo.md",
+      "title_at_allocation": "Use Spotify embed/deep links without assuming autoplay."
+    },
+    "d55107e25816df782bb0": {
+      "id": "JMU-00223",
+      "source_file": "repository-town/games/echo/codingprinciples.md",
+      "title_at_allocation": "No dead code, orphaned files or abandoned commented-out implementation."
+    },
+    "d56edd1f0c4405c3f174": {
+      "id": "JMU-00092",
+      "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
+      "title_at_allocation": "A \"dungeon\" under the old mine."
+    },
+    "d589c9530a6df1e5773b": {
+      "id": "JMU-00239",
+      "source_file": "repository-town/games/elodin-deep-lore/codingprinciples.md",
+      "title_at_allocation": "Sensitive logging justified/minimised; new dependencies justified."
+    },
+    "d5b58e31cac5f9e5ddc9": {
+      "id": "JMU-00285",
+      "source_file": "repository-town/games/lantern-road/podcasttodo.md",
+      "title_at_allocation": "Keep gameplay primary."
+    },
+    "d61a36594a9c1df509f8": {
+      "id": "JMU-00417",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Add repeat and next-sound controls so the child can listen to sets of letters."
+    },
+    "d61d639ed8aaa198d803": {
+      "id": "JMU-00132",
+      "source_file": "repository-town/games/breach-command/podcasttodo.md",
+      "title_at_allocation": "Keep gameplay/strategy controls primary."
+    },
+    "d6c3b826555412c8a955": {
+      "id": "JMU-00245",
+      "source_file": "repository-town/games/elodin-deep-lore/codingprinciples.md",
+      "title_at_allocation": "I did not silently work around a MUST."
+    },
+    "d7b68ba37345e6ef053f": {
+      "id": "JMU-00100",
+      "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
+      "title_at_allocation": "Combat.** Needs Josh's decision. It would sit outside the town's everyday life: for example,"
+    },
+    "d7c06d8a99f00e829381": {
+      "id": "JMU-00264",
+      "source_file": "repository-town/games/joshplatform/podcasttodo.md",
+      "title_at_allocation": "Support topic keys so each section can request its own curated episode bank."
+    },
+    "d832f38fceede8052af2": {
+      "id": "JMU-00158",
+      "source_file": "repository-town/games/buckland-blocks-demo/codingprinciples.md",
+      "title_at_allocation": "I know the assurance tier and applied its MUSTs/overlays."
+    },
+    "d859f0f2c14eb08d8e20": {
+      "id": "JMU-00111",
+      "source_file": "repository-town/games/breach-command/codingprinciples.md",
+      "title_at_allocation": "Migration/recovery requirements satisfied."
+    },
+    "d8d5951e6a0db17460e6": {
+      "id": "JMU-00069",
+      "source_file": "repository-town/docs/REPOSITORY_TOWN_GEOGRAPHY_MASTERPLAN.md",
+      "title_at_allocation": "Water, sewer, stormwater and flooding"
+    },
+    "d8da3953819642db8d9d": {
+      "id": "JMU-00103",
+      "source_file": "repository-town/games/breach-command/codingprinciples.md",
+      "title_at_allocation": "I can explain previous behaviour and why the change is required."
+    },
+    "d909e1021052a4cb04d4": {
+      "id": "JMU-00375",
+      "source_file": "repository-town/games/sylvie-phonetics/podcasttodo.md",
+      "title_at_allocation": "Put discovery/management behind a parent surface; child-facing use should be simple and bounded."
+    },
+    "d95cecbef83ac6abeb96": {
+      "id": "JMU-00091",
+      "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
+      "title_at_allocation": "Books to find and read in houses that teach lore or grant small XP boosts."
+    },
+    "d9a245a0207aa965757d": {
+      "id": "JMU-00424",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Add a phoneme segmentation activity."
+    },
+    "da3dfc864bd92b9a8374": {
+      "id": "JMU-00218",
+      "source_file": "repository-town/games/echo/codingprinciples.md",
+      "title_at_allocation": "Affected deployment traces back to this repo/commit."
+    },
+    "dbc26e7a6136ee8c3090": {
+      "id": "JMU-00337",
+      "source_file": "repository-town/games/starhaven/podcasttodo.md",
+      "title_at_allocation": "Curate about 25 Spotify episodes relevant to the game's themes and design."
+    },
+    "ddd47c88d65a63928f1b": {
+      "id": "JMU-00426",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Provide draggable counters or dots."
+    },
+    "de654c45a2f266b46764": {
+      "id": "JMU-00242",
+      "source_file": "repository-town/games/elodin-deep-lore/codingprinciples.md",
+      "title_at_allocation": "Affected deployment traces back to this repo/commit."
+    },
+    "de80dd515ce45867b8b4": {
+      "id": "JMU-00045",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Property boundaries and fences.** Draw cadastral lot boundaries; front fences and"
+    },
+    "df018bb912ec0ba27655": {
+      "id": "JMU-00050",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Power lines and poles.** OSM `power=line/pole` and LiDAR wire returns; re-add the south"
+    },
+    "df5ca1d2cdcced0258f1": {
+      "id": "JMU-00392",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Add alternative sand, cream, or paint styles using a visual overlay and tactile-looking animation."
+    },
+    "dfb254829e3b7d8b62a6": {
+      "id": "JMU-00134",
+      "source_file": "repository-town/games/breach-command/podcasttodo.md",
+      "title_at_allocation": "Add mobile/a11y and audio-conflict/persistence tests."
+    },
+    "e142ff4a29f7e6feffce": {
+      "id": "JMU-00394",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Add a scavenger hunt mode with an initial sound target like `/s/`."
+    },
+    "e1679aaef2d36a1a2007": {
+      "id": "JMU-00248",
+      "source_file": "repository-town/games/elodin-deep-lore/codingprinciples.md",
+      "title_at_allocation": "Non-obvious decisions recorded; docs match resulting system."
+    },
+    "e2c3a76352162fe7278f": {
+      "id": "JMU-00262",
+      "source_file": "repository-town/games/hub-newgame/GAME_IMPROVEMENTS.md",
+      "title_at_allocation": "Save/Load System & Progression Persistence"
+    },
+    "e342c62cc38f8a08c0c5": {
+      "id": "JMU-00181",
+      "source_file": "repository-town/games/delve/codingprinciples.md",
+      "title_at_allocation": "Obsolete code removed; refactor and behaviour change not mixed silently."
+    },
+    "e3a490edb72c44103018": {
+      "id": "JMU-00252",
+      "source_file": "repository-town/games/forbidden-quests/podcasttodo.md",
+      "title_at_allocation": "One tap selects/loads another episode; persist recent choices and avoid immediate repeats."
+    },
+    "e5764b1b0c08ccdee239": {
+      "id": "JMU-00310",
+      "source_file": "repository-town/games/multi-layer-zoom-game/index.html",
+      "title_at_allocation": "Disabled elements should not respond to mouse events"
+    },
+    "e700215ffb573a7e48c9": {
+      "id": "JMU-00401",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "When blocks are placed into order, speak each sound separately then blend them together."
+    },
+    "e8320e9d8126bed6ae93": {
+      "id": "JMU-00261",
+      "source_file": "repository-town/games/hub-newgame/GAME_IMPROVEMENTS.md",
+      "title_at_allocation": "Mini-Map & Exploration System"
+    },
+    "e8a6fed1ad611332aaa0": {
+      "id": "JMU-00235",
+      "source_file": "repository-town/games/elodin-deep-lore/codingprinciples.md",
+      "title_at_allocation": "No silent data destruction, duplication, exposure or misrepresentation."
+    },
+    "e8ba05f66734b94a56c7": {
+      "id": "JMU-00430",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Add a mode that uses familiar logos, food labels, and signs."
+    },
+    "e8fd49be73c1b9ecc6f2": {
+      "id": "JMU-00345",
+      "source_file": "repository-town/games/sylvie-phonetics/QA-Recommendations.md",
+      "title_at_allocation": "Add scaffolded hints and error coaching"
+    },
+    "ea17e6146a7644a82535": {
+      "id": "JMU-00162",
+      "source_file": "repository-town/games/buckland-blocks-demo/codingprinciples.md",
+      "title_at_allocation": "No dead code, orphaned files or abandoned commented-out implementation."
+    },
+    "ea317f12082fd926855e": {
+      "id": "JMU-00031",
+      "source_file": "repository-town/docs/195_HOME_DUBBO_PLANNING_CODE_AUDIT_2026-10-27.md",
+      "title_at_allocation": "Professionally certified statutory approval (only relevant to an actual site, not the fictional world)."
+    },
+    "eaf7af69ce93921deacc": {
+      "id": "JMU-00183",
+      "source_file": "repository-town/games/delve/codingprinciples.md",
+      "title_at_allocation": "Required static checks, tests and build passed and are reported separately."
+    },
+    "eb3041aa5530143f3b35": {
+      "id": "JMU-00086",
+      "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
+      "title_at_allocation": "Mining and smithing at the Foundry."
+    },
+    "eb56c49c93cf03f1d0d0": {
+      "id": "JMU-00325",
+      "source_file": "repository-town/games/sleepy/QA-Recommendations.md",
+      "title_at_allocation": "Add lights-out fade and audio-only mode"
+    },
+    "ec70aae1c1d8a53e6460": {
+      "id": "JMU-00312",
+      "source_file": "repository-town/games/multi-layer-zoom-game/index.html",
+      "title_at_allocation": "Only ignore them on controlled tags."
+    },
+    "edce0b0b64f205d346f1": {
+      "id": "JMU-00332",
+      "source_file": "repository-town/games/sleepy/podcasttodo.md",
+      "title_at_allocation": "Use Spotify embed/deep links without assuming autoplay."
+    },
+    "edd95c0949517f3caab1": {
+      "id": "JMU-00231",
+      "source_file": "repository-town/games/elodin-deep-lore/codingprinciples.md",
+      "title_at_allocation": "Required static checks, tests and build passed and are reported separately."
+    },
+    "eee7c47ae7614f65c52f": {
+      "id": "JMU-00288",
+      "source_file": "repository-town/games/lantern-road/story/campaign/ENDING-MATRIX.md",
+      "title_at_allocation": "the mid-campaign revelation can be delivered through more than one plausible route;"
+    },
+    "ef6782ecd6f2fe8c9f6c": {
+      "id": "JMU-00097",
+      "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
+      "title_at_allocation": "Engine, RuneScape-style (Josh's seven steps, 28 Oct 2026)"
+    },
+    "f000bc5b9405af81c3ba": {
+      "id": "JMU-00143",
+      "source_file": "repository-town/games/buckland-blocks-demo/codingprinciples.md",
+      "title_at_allocation": "Smallest complete solution; unrelated changes excluded."
+    },
+    "f00653f42eb785e3214b": {
+      "id": "JMU-00021",
+      "source_file": "docs/OPEN_SOURCE_MEMORY_BORROWING_PLAN.md",
+      "title_at_allocation": "Trust separate from factual status"
+    },
+    "f00e1c1bf762e3aefa10": {
+      "id": "JMU-00354",
+      "source_file": "repository-town/games/sylvie-phonetics/docs/ResearchImplementationRoadmap.md",
+      "title_at_allocation": "Standardize Scaffolded Feedback"
+    },
+    "f10b2c5bace81f17ff75": {
+      "id": "JMU-00389",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Render each letter as a large touch/cursor trace path."
+    },
+    "f11084f4a5ef826b05d7": {
+      "id": "JMU-00198",
+      "source_file": "repository-town/games/delve/codingprinciples.md",
+      "title_at_allocation": "Unsatisfied requirements were reported as blockers rather than guessed around."
+    },
+    "f15cbf758de92b449ced": {
+      "id": "JMU-00277",
+      "source_file": "repository-town/games/kkc-adventure/podcasttodo.md",
+      "title_at_allocation": "Keep game/adventure interactions primary."
+    },
+    "f233d0a8017bdf6616f0": {
+      "id": "JMU-00348",
+      "source_file": "repository-town/games/sylvie-phonetics/QA-Recommendations.md",
+      "title_at_allocation": "Separate sound tasks from letter tasks"
+    },
+    "f2429fd9bc0198940957": {
+      "id": "JMU-00278",
+      "source_file": "repository-town/games/kkc-adventure/podcasttodo.md",
+      "title_at_allocation": "Add mobile/a11y and audio-conflict/persistence tests."
+    },
+    "f3a9c219d871a927b7dd": {
+      "id": "JMU-00207",
+      "source_file": "repository-town/games/echo/codingprinciples.md",
+      "title_at_allocation": "Required static checks, tests and build passed and are reported separately."
+    },
+    "f484e65f73dd3f2d1789": {
+      "id": "JMU-00098",
+      "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
+      "title_at_allocation": "Items and inventory.** Already partly built (item types, 28-slot bag, drop/pick up, equip)."
+    },
+    "f5748113ab19b654efdf": {
+      "id": "JMU-00082",
+      "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
+      "title_at_allocation": "Next skills, in order"
+    },
+    "f58d74d81f2440a3efa8": {
+      "id": "JMU-00093",
+      "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
+      "title_at_allocation": "Combat and dragons: much later, if ever."
+    },
+    "f6100c41d0faad48786f": {
+      "id": "JMU-00290",
+      "source_file": "repository-town/games/lantern-road/story/campaign/ENDING-MATRIX.md",
+      "title_at_allocation": "low renown produces reduced influence rather than a contentless failure screen;"
+    },
+    "f6ffdb0b7ba793ec9095": {
+      "id": "JMU-00236",
+      "source_file": "repository-town/games/elodin-deep-lore/codingprinciples.md",
+      "title_at_allocation": "UI tells the truth; loading/failure/stale/empty are not confused."
+    },
+    "f8517fd6c1f264c5cb1e": {
+      "id": "JMU-00386",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Add audio playback of the clue in sound-only form (`b-b-b`) and optional text."
+    },
+    "f8a40508760b51914dea": {
+      "id": "JMU-00263",
+      "source_file": "repository-town/games/joshplatform/podcasttodo.md",
+      "title_at_allocation": "Add the reusable **Josh Podcast Dock** as a global bottom component."
+    },
+    "f8b56ab14c3947f265f7": {
+      "id": "JMU-00119",
+      "source_file": "repository-town/games/breach-command/codingprinciples.md",
+      "title_at_allocation": "Affected deployment traces back to this repo/commit."
+    },
+    "f8f4d2698d68f2f048c8": {
+      "id": "JMU-00233",
+      "source_file": "repository-town/games/elodin-deep-lore/codingprinciples.md",
+      "title_at_allocation": "Important state changes tolerate retry, duplication and partial failure."
+    },
+    "f926e1cce2b64f8e6ccb": {
+      "id": "JMU-00395",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Show a set of household object pictures or names."
+    },
+    "f93cea56db288ad00f5f": {
+      "id": "JMU-00060",
+      "source_file": "repository-town/docs/NARROMINE_RESEARCH_AND_PLAN_2026-11-03.md",
+      "title_at_allocation": "History timeline (for in-game plaques and the museum)"
+    },
+    "f941e4924eb1753ef898": {
+      "id": "JMU-00160",
+      "source_file": "repository-town/games/buckland-blocks-demo/codingprinciples.md",
+      "title_at_allocation": "I did not silently work around a MUST."
+    },
+    "f9b421c1ea01ae911068": {
+      "id": "JMU-00414",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Add a song/chant mode for letter sounds."
+    },
+    "fa856905085720ec904d": {
+      "id": "JMU-00077",
+      "source_file": "repository-town/docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md",
+      "title_at_allocation": "Authentic ElevenLabs voice manifest, playback and fault recovery (P1)"
+    },
+    "fb4ee57899f05809f910": {
+      "id": "JMU-00102",
+      "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
+      "title_at_allocation": "Quests.** The Expedition Guild and the RTD quests already track progress in the save. A"
+    },
+    "fbb7c5b303e91d40984a": {
+      "id": "JMU-00315",
+      "source_file": "repository-town/games/multi-layer-zoom-game/index.html",
+      "title_at_allocation": "In some cases, we'll end up checking if context has changed twice,"
+    },
+    "fbfb34b8c54a4ff9e584": {
+      "id": "JMU-00167",
+      "source_file": "repository-town/games/carl/Dungeon_Crawler_Carl_Game_Build_Plan.md",
+      "title_at_allocation": "Dungeon Floor System"
+    },
+    "fc06067d8518bb45c073": {
+      "id": "JMU-00177",
+      "source_file": "repository-town/games/carl/Dungeon_Crawler_Carl_Game_Build_Plan.md",
+      "title_at_allocation": "grassland-style biome."
+    },
+    "fd1f9a23792b8bba76b9": {
+      "id": "JMU-00001",
+      "source_file": ".github/PULL_REQUEST_TEMPLATE/repository-town-rtd.md",
+      "title_at_allocation": "I checked latest `main`, `AGENTS.md`, `COORDINATION.md` and all overlapping open PRs."
+    },
+    "fdde46823c86968a9908": {
+      "id": "JMU-00009",
+      "source_file": "docs/FRESH_AGENT_RESUME_ROADMAP.md",
+      "title_at_allocation": "Add `resume_work`"
+    },
+    "fe67139e059d06dac2f8": {
+      "id": "JMU-00056",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Owner by-eye review.** Josh compares each block with the Street View compare page and"
+    },
+    "fee6993169b20ce1741a": {
+      "id": "JMU-00257",
+      "source_file": "repository-town/games/forbidden-quests/podcasttodo.md",
+      "title_at_allocation": "Add mobile/a11y and audio-conflict/persistence tests."
+    },
+    "fee8cd6fa5e7191ab7a6": {
+      "id": "JMU-00112",
+      "source_file": "repository-town/games/breach-command/codingprinciples.md",
+      "title_at_allocation": "No silent data destruction, duplication, exposure or misrepresentation."
+    },
+    "ff32758849407cf602ef": {
+      "id": "JMU-00084",
+      "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
+      "title_at_allocation": "Fishing at the river or dam, then cooking the catch."
+    },
+    "ff350e5c537b17068395": {
+      "id": "JMU-00396",
+      "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
+      "title_at_allocation": "Ask the child to pick every item that starts with the target sound."
+    },
+    "ffd6412bfbe413042466": {
+      "id": "JMU-00148",
+      "source_file": "repository-town/games/buckland-blocks-demo/codingprinciples.md",
+      "title_at_allocation": "Important state changes tolerate retry, duplication and partial failure."
+    }
+  },
+  "next_number": 442,
+  "schema_version": 1
+}
