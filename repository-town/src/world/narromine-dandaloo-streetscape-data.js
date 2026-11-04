@@ -12,8 +12,8 @@ export const DANDALOO_STREETSCAPE_EVIDENCE = Object.freeze({
   confidence: Object.freeze({
     dualRoadPosition: 'mapped',
     medianFootprint: 'derived from mapped road-edge clearance; requires survey',
-    angleParkingSpacing: 'removed: was illustrative (owner direction 4 Nov 2026)',
-    lampsTreesPalmPositions: 'removed: were approximate (owner direction 4 Nov 2026)',
+    angleParkingSpacing: 'approximate, 60-degree illustrative',
+    lampsTreesPalmPositions: 'unverified individual positions: not rendered pending object-level evidence',
   }),
 });
 
@@ -81,19 +81,21 @@ export function planDandalooStreetscape(streets) {
         pavers.push({ pts: quad([external.x0 + offset, z], [external.x1 + offset, zz], 1.0) });
       }
     }
-    // Angle-parking bay markings were illustrative spacing; removed until surveyed.
+    for (let z = band.upperZ - 7; z > band.lowerZ + 7; z -= 6.0) {
+      const a = at(z), b = at(z - 2.15);
+      // Painted 60-degree rear-to-kerb bay separator: 3.7 m inward, 2.15 m along.
+      parking.push({ a: [a.wx - west.width / 2 + 0.17, z],
+        b: [b.wx - west.width / 2 + 3.87, z - 2.15], side: 'west' });
+      parking.push({ a: [a.ex + east.width / 2 - 0.17, z],
+        b: [b.ex + east.width / 2 - 3.87, z - 2.15], side: 'east' });
+    }
   }
-  // Midpoint coordinates follow OSM. These z locations are indicative ONLY:
-  // photogrammetric tree inventories and actual bay surveys have not been done.
-  const put = (dest, z, where, kind) => {
-    const r = at(z);
-    const x = where === 'median' ? r.cx
-      : where === 'west' ? r.wx - west.width / 2 - 1.35
-      : r.ex + east.width / 2 + 1.35;
-    dest.push({ x, z, where, kind });
-  };
-  // Trees, lamps and palms were approximate photo-based placements; removed on the owner's
-  // direction (4 Nov 2026) until each has a surveyed position (OSM node, LiDAR or photo-match).
+  // NR-REAL-001: road centrelines and photographs of the general street do not
+  // establish individual object positions. The former 11 trees and nine lamps
+  // used indicative z coordinates, not a geolocated inventory. Keep these lists
+  // empty until each object has dated location-specific evidence. This is NOT a
+  // claim that real northern Dandaloo Street has no vegetation or streetlights.
+  // Separately evidenced site-owned vegetation is rendered by its own builder.
   return { medians, kerbs, pavers, parking, trees, lamps, source: DANDALOO_STREETSCAPE_EVIDENCE };
 }
 

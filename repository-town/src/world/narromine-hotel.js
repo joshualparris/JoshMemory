@@ -1195,10 +1195,8 @@ export function buildNarromineHotel({ push, box, flatPoly, town, colliders }) {
       );
     }
 
-    // The former s=21.5 candidate had no individually confirmed tree-base
-    // coordinate and blocked a real hotel-facing sightline in WebGL QA.
-    // One photographed northern-end kerb tree remains (s=33.8); its exact
-    // canopy geometry is approximate pending georeferenced field imagery.
+    // Suppress s=21.5: not individually located and obstructs verified hotel sightline.
+    // Keep photo-evidenced northern kerb tree at s=33.8 (canopy size approximate).
     for (const ts of [33.8]) {
       const tw = -5.1;
       localCyl(0x6e5a47, 0.14, 0.18, 3.4, 7, ts, 1.7, tw);
