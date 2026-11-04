@@ -1,0 +1,99 @@
+name: Narromine material visual A/B verification
+
+on:
+  pull_request:
+    paths:
+      - 'repository-town/src/world/narromine-surface-materials.js'
+      - 'repository-town/src/ui/vehicle-audio.js'
+      - 'repository-town/tests/engine-sound-browser.mjs'
+      - '.github/workflows/narromine-material-audit.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: narromine-material-evidence-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  material-visual-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install exact dependencies and Chromium
+        run: |
+          npm ci --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Strict material and audio source regression
+        run: |
+          node tests/vehicle-audio-rundown.mjs
+          node tests/narromine-layout.mjs
+          node tests/vehicle-audio-models.mjs
+      - name: Capture UV-free material A/B on identical map and camera code
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          set -euo pipefail
+          saved_file="$(mktemp)"
+          cp src/world/narromine.js "$saved_file"
+          trap 'cp "$saved_file" src/world/narromine.js; rm -f "$saved_file"' EXIT
+          # Comparison isolates the material change. Never rebuild an older town
+          # version and accidentally attribute unrelated geometry to materials.
+          node --input-type=module -e '
+            import fs from "node:fs";
+            const p="src/world/narromine.js",s=fs.readFileSync(p,"utf8");
+            const current="materials.set(k, createNarromineSurfaceMaterial(c, side))";
+            if(s.split(current).length !== 2)throw new Error("Material integration not found exactly once");
+            fs.writeFileSync(p,s.replace(current,"materials.set(k, new THREE.MeshLambertMaterial({ color: c, side }))"));
+          '
+          node tools/build.mjs
+          node tools/check_privacy.mjs
+          node tools/narromine-visual-qa/run.mjs --out-dir test-results/narromine-material-qa/baseline-lambert --locations narromine-hotel-corner,post-office-entrance,coles-kieraths-dandaloo,ordinary-narromine-street --viewports desktop,mobile --times morning,midday,late-afternoon --sample-frames 8
+          # Restore the unmodified branch source, not a fabricated approximation.
+          cp "$saved_file" src/world/narromine.js
+          node tools/build.mjs
+          node tools/check_privacy.mjs
+          node tools/narromine-visual-qa/run.mjs --out-dir test-results/narromine-material-qa/candidate-materials --locations narromine-hotel-corner,post-office-entrance,coles-kieraths-dandaloo,ordinary-narromine-street --viewports desktop,mobile --times morning,midday,late-afternoon --sample-frames 8
+      - name: Verify complete matched capture pairs and list changes
+        run: |
+          node --input-type=module -e '
+            import fs from "node:fs";
+            import path from "node:path";
+            import crypto from "node:crypto";
+            const root="test-results/narromine-material-qa";
+            const read=n=>JSON.parse(fs.readFileSync(path.join(root,n,"manifest.json"),"utf8"));
+            const a=read("baseline-lambert"),b=read("candidate-materials");
+            const expected=4*2*3;
+            if(a.captures.length!==expected||b.captures.length!==expected)throw new Error("Missing A/B captures");
+            const ids=new Set(a.captures.map(x=>x.id));
+            if(ids.size!==expected||b.captures.some(x=>!ids.has(x.id)))throw new Error("Unmatched viewpoints");
+            let altered=0;
+            for(const item of b.captures){
+              const match=a.captures.find(x=>x.id===item.id);
+              const file=x=>fs.readFileSync(path.join(root,x,item.file||item.path||"screenshots/"+item.id+".png"));
+              const h=v=>crypto.createHash("sha256").update(v).digest("hex");
+              if(h(file("baseline-lambert"))!==h(file("candidate-materials")))altered++;
+            }
+            if(altered<1)throw new Error("Material shaders produced no changed screenshots");
+            console.log("PASS: "+expected+" matched render captures, "+altered+" changed A/B images across four Narromine viewpoints (desktop/mobile × 3 sun positions)");
+          '
+      - name: Preserve reviewable screenshots and manifests
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: narromine-material-qa-${{ github.run_id }}
+          path: repository-town/test-results/narromine-material-qa/
+          retention-days: 14
+          if-no-files-found: warn
