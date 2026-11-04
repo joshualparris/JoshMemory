@@ -40,28 +40,65 @@ try {
     step(!!after && !after.carried && Math.hypot(after.x - before.x, after.z - before.z) > 0.5, `put it down somewhere else (moved ${after ? Math.hypot(after.x - before.x, after.z - before.z).toFixed(2) : '?'} m)`);
     await leaveHouse(page);
   }
-  // Outside: big cheat jump onto a house roof.
+  // Outside: use the actual roof collider rather than assuming a fixed street
+  // position or a certain number of rendered frames. At software-WebGL speeds a
+  // 900 ms sidestep can advance only one frame and leave us in the door sensor.
   await page.evaluate(() => { window.__town.cheats.open(); document.getElementById('cheat-jump').value = '8'; window.__town.cheats.run('jump'); window.__town.cheats.close(); });
-  await page.evaluate(() => window.__town.travel('A1')); await page.waitForTimeout(200);
-  // Step sideways away from the doorway so the jump meets solid wall and roof, then jump forward.
-  await page.click('canvas'); await page.keyboard.down('d'); await page.waitForTimeout(900); await page.keyboard.up('d');
-  await page.keyboard.down('w'); await page.waitForFunction(() => window.__town.state().pos.z < -153, null, { timeout: 8000 }).catch(() => {}); await page.keyboard.press('Space');
-  // Stop moving as soon as the player is genuinely ABOVE a roof collider.
-  // Holding W for the entire arc walked off the opposite edge before landing.
-  const reachedRoof = await page.waitForFunction(() => {
-    const s = window.__town.state(), roof = window.__town.probeStatic(s.pos.x, s.pos.z, .08);
-    return Number.isFinite(roof?.top) && roof.top > 3 && s.y > roof.top + .2;
-  }, null, {timeout:5000}).then(() => true).catch(() => false);
-  await page.keyboard.up('w');
-  let top = 0;
-  for (let i = 0; i < 25; i++) { await page.waitForTimeout(100); const s = await page.evaluate(() => window.__town.state()); top = Math.max(top, s.y); }
-  await page.waitForTimeout(800);
-  const landing = await page.evaluate(() => {
-    const s = window.__town.state(), roof = window.__town.probeStatic(s.pos.x,s.pos.z,.08);
-    return {y:s.y, roofTop:roof?.top??null, z:s.pos.z};
+  const roofStart = await page.evaluate(() => {
+    const t = window.__town;
+    if (!t.travel('A1') || t.state().mode !== 'town') return null;
+    const front = t.state().pos;
+    // Check both solid wings beyond the doorway, keeping the house entrance open
+    // and using measured collision tops, not a magic -153 world-Z threshold.
+    for (const dx of [-5.2, 5.2, -4.3, 4.3, -3.6, 3.6]) {
+      for (const back of [9, 10, 11, 12, 13, 14]) {
+        const x = front.x + dx, roofZ = front.z - back;
+        const roof = t.probeStatic(x, roofZ, 0.08);
+        if (!Number.isFinite(roof?.top) || roof.top <= 3) continue;
+        const startZ = roofZ + 3.0;
+        if (t.probeStatic(x, startZ, 0.36)) continue;
+        t.place(x, startZ, 0);
+        return { x, startZ, roofZ, roofTop: roof.top, sideOffset: dx };
+      }
+    }
+    return null;
   });
-  step(top > 4 || (reachedRoof && landing.y > 3), `cheat jump reaches the roof (height ${top.toFixed(1)} m after approach)`);
-  step(reachedRoof && Number.isFinite(landing.roofTop) && landing.roofTop > 3 && Math.abs(landing.y - landing.roofTop) < .15,
-    `landed on a physical roof (feet ${landing.y.toFixed(2)} m, roof ${landing.roofTop??'missing'} m, z ${landing.z.toFixed(1)})`);
+  step(!!roofStart, `found a solid A1 roof and clear outdoor jump approach (${JSON.stringify(roofStart)})`);
+  if (roofStart) {
+    await page.click('canvas');
+    await page.keyboard.down('w');
+    // Physically approach the solid wall from the front, without walking through
+    // the entrance: movement is position-gated, independent of runner frame rate.
+    const approached = await page.waitForFunction(
+      ({ roofZ }) => {
+        const s = window.__town.state();
+        return s.mode === 'town' && s.pos.z < roofZ + 1.15;
+      },
+      { roofZ: roofStart.roofZ }, { timeout: 16000 }
+    ).then(() => true).catch(() => false);
+    step(approached, 'walked up to the real roof wall while staying outdoors');
+    if (approached) {
+      await page.keyboard.press('Space');
+      // Release forward only when the player is genuinely over a physical roof;
+      // otherwise continued motion walks straight off the far side.
+      const reachedRoof = await page.waitForFunction(() => {
+        const s = window.__town.state(), roof = window.__town.probeStatic(s.pos.x, s.pos.z, 0.08);
+        return s.mode === 'town' && Number.isFinite(roof?.top) && roof.top > 3 && s.y > roof.top + 0.2;
+      }, null, { timeout: 16000 }).then(() => true).catch(() => false);
+      await page.keyboard.up('w');
+      const landed = reachedRoof && await page.waitForFunction(() => {
+        const s = window.__town.state(), roof = window.__town.probeStatic(s.pos.x, s.pos.z, 0.08);
+        return s.mode === 'town' && Number.isFinite(roof?.top) && roof.top > 3 && Math.abs(s.y - roof.top) < 0.15;
+      }, null, { timeout: 18000 }).then(() => true).catch(() => false);
+      const landing = await page.evaluate(() => {
+        const s = window.__town.state(), roof = window.__town.probeStatic(s.pos.x, s.pos.z, 0.08);
+        return { mode: s.mode, x: s.pos.x, y: s.y, z: s.pos.z, roofTop: roof?.top ?? null };
+      });
+      step(reachedRoof, `cheat jump crossed the real roof surface (${JSON.stringify(landing)})`);
+      step(landed, `physically landed on roof at matching height (${JSON.stringify(landing)})`);
+    } else {
+      await page.keyboard.up('w');
+    }
+  }
   step(!errors.length, `no page errors ${errors.join('; ')}`);
 } finally { await browser.close(); }
