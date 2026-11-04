@@ -5,11 +5,11 @@
 
 ## Scope and what is actually numbered
 
-- Tracked repository files seen: **2,396**; text files scanned: **1,836**.
-- Explicit unfinished items found in tracked text files (before existing-ID reconciliation): **845**.
+- Tracked repository files seen: **2,402**; text files scanned: **1,842**.
+- Explicit unfinished items found in tracked text files (before existing-ID reconciliation): **842**.
 - Canonical *source-reported* outstanding entries from legacy and newer registers: **2,778** (existing IDs preserved).
-- **302 NEW permanent JMU IDs** assigned to distinct formerly unnumbered explicit checkboxes, work headings, task-status rows or code comments.
-- Total uniquely keyed source-reported records in generated CSV: **3,080**. GitHub open issues and PRs are separate numbered tracks; they may overlap these tasks.
+- **299 NEW permanent JMU IDs** assigned to distinct formerly unnumbered explicit checkboxes, work headings, task-status rows or code comments.
+- Total uniquely keyed source-reported records in generated CSV: **3,077**. GitHub open issues and PRs are separate numbered tracks; they may overlap these tasks.
 - Existing task IDs were not renamed, renumbered or marked complete. Generated tasks retain source file and line references.
 
 **Coverage limits:** This scans the current JoshMemory checkout, not live source trees in the 233+ other repositories referenced by the old portfolio registry. Code comments and decades-old plans are *review candidates*, not independently verified current defects. Unmarked ideas in prose, private connector-only records and untracked files cannot be guaranteed complete. The legacy master is a 25 Oct snapshot; dependency and priority changes after that date are not silently inferred.
@@ -21,16 +21,16 @@ The following is the **repo-local triage order**, not a change to the permanent 
 | Order | Priority | Existing reference | Action / why now |
 |---:|:---:|---|---|
 | 1 | P0 | [PR #371](https://github.com/joshualparris/JoshMemory/pull/371) | Fix proven invisible road/farm collision barriers; verify actual driving lanes and preserve valid fences. |
-| 2 | P0 | [NR-REAL-018](repository-town/docs/NARROMINE_REALISM_CHECKLIST_2026-11-05.md) | Audit collision volumes against actual road and building polygons; keep player/vehicle routes usable. |
+| 2 | P0 | [NR-REAL-018](../repository-town/docs/NARROMINE_REALISM_CHECKLIST_2026-11-05.md) | Audit collision volumes against actual road and building polygons; keep player/vehicle routes usable. |
 | 3 | P0 | RTN-007, RTN-009, RTN-011 | Reconfirm historical crowd/NPC collision and release blockers against current main; close or correct stale status before duplicate code. |
 | 4 | P1 | [PR #363](https://github.com/joshualparris/JoshMemory/pull/363) | Phone driving HUD/compass controls must not overlap, hiding navigation. |
-| 5 | P1 | [NR-REAL-002](repository-town/docs/NARROMINE_REALISM_CHECKLIST_2026-11-05.md) | Complete actual Narromine walking/interactive WebGL playtest; a source audit is not a walk. |
+| 5 | P1 | [NR-REAL-002](../repository-town/docs/NARROMINE_REALISM_CHECKLIST_2026-11-05.md) | Complete actual Narromine walking/interactive WebGL playtest; a source audit is not a walk. |
 | 6 | P1 | [PR #377](https://github.com/joshualparris/JoshMemory/pull/377) | Remove unsupported north Dandaloo furniture *locations* without removing observed real trees/lamps. |
 | 7 | P1 | [PR #366](https://github.com/joshualparris/JoshMemory/pull/366) | Correct unsupported hotel façade-blocking tree; review photographic provenance. |
 | 8 | P1 | [Issue #332](https://github.com/joshualparris/JoshMemory/issues/332), [PR #358](https://github.com/joshualparris/JoshMemory/pull/358) | Finish the 55-view main-street building evidence register and corrected façades, one building at a time. |
 | 9 | P1 | [Issue #355](https://github.com/joshualparris/JoshMemory/issues/355) | Audit Coles' real public entrance and interior evidence; avoid presenting fictional plan as true. |
-| 10 | P1 | [NR-REAL-003/004/005](repository-town/docs/NARROMINE_REALISM_CHECKLIST_2026-11-05.md) | Replace unsupported building stand-ins and reconcile geospatial transforms/footprint evidence before mass architecture. |
-| 11 | P1 | [RTGEO-005/007](repository-town/docs/REPOSITORY_TOWN_GEOGRAPHY_TODO.md) | Distinguish real flooding, water supply and ground data from fictional-world planning. |
+| 10 | P1 | [NR-REAL-003/004/005](../repository-town/docs/NARROMINE_REALISM_CHECKLIST_2026-11-05.md) | Replace unsupported building stand-ins and reconcile geospatial transforms/footprint evidence before mass architecture. |
+| 11 | P1 | [RTGEO-005/007](../repository-town/docs/REPOSITORY_TOWN_GEOGRAPHY_TODO.md) | Distinguish real flooding, water supply and ground data from fictional-world planning. |
 | 12 | P1 | JMU-00009 / JMU-00011 | Verify whether a one-call resume packet and active-agent lease registry already exist; otherwise implement without duplicating coordination services. |
 | 13 | P2 | [PR #376](https://github.com/joshualparris/JoshMemory/pull/376) | Complete rail-yard playability and evidence-based crossing behaviour after road/navigation safety. |
 | 14 | P2 | [PR #359](https://github.com/joshualparris/JoshMemory/pull/359), [Issue #157](https://github.com/joshualparris/JoshMemory/issues/157) | Finish the fictional 195-home park access / council planning evidence without claiming legal approvals. |
@@ -48,6 +48,8 @@ The following is the **repo-local triage order**, not a change to the permanent 
 | ISSUE | [355](https://github.com/joshualparris/JoshMemory/issues/355) | P1 | Narromine Coles — verify true interior layout and improve merged interpretive model |
 | ISSUE | [332](https://github.com/joshualparris/JoshMemory/issues/332) | P1 | Narromine main-street fidelity pilot: photo-match the Mitchell Highway shopping strip |
 | ISSUE | [157](https://github.com/joshualparris/JoshMemory/issues/157) | P2 | Repository Town Council — Independent urban audit and ten-year plan (22 Oct 2026) |
+| PR | [384](https://github.com/joshualparris/JoshMemory/pull/384) | P2 | fix(town): real engine shutdown ramp and Narromine material screenshot verification |
+| PR | [383](https://github.com/joshualparris/JoshMemory/pull/383) | P2 | Audit every JoshMemory tracked task source; preserve IDs, number missing items and prioritise open work |
 | PR | [377](https://github.com/joshualparris/JoshMemory/pull/377) | P1 | Narromine realism checklist + NR-REAL-001 north furniture evidence correction |
 | PR | [376](https://github.com/joshualparris/JoshMemory/pull/376) | P2 | feat(town): independent playable freight yard shunting and Narromine crossing evidence |
 | PR | [371](https://github.com/joshualparris/JoshMemory/pull/371) | P0 | Fix invisible car wall: keep dairy/farm fences out of Repository Town avenues |
@@ -66,8 +68,6 @@ These are task IDs, **not** claims of independently verified unresolved bugs. Do
 | P1 | JMU-00035 | REVIEW_SOURCE_STATUS | Phone performance | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/IMPROVEMENT_PLAN_2026-10-19.md#L29) |
 | P1 | JMU-00039 | SOURCE_REPORTED_OPEN | Run desktop/mobile Chromium visual QA at hotel, Post Office, Kierath's frontage, ordinary shops and roadway. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_MATERIAL_REALISM_2026-11-04.md#L33) |
 | P1 | JMU-00041 | SOURCE_REPORTED_OPEN | Check WebGL shader compilation on real desktop/mobile devices, before merging. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_MATERIAL_REALISM_2026-11-04.md#L35) |
-| P1 | JMU-00044 | SOURCE_REPORTED_OPEN | Real trees.** Place trees at LiDAR vegetation (class 3–5) clusters with their measured canopy height and spread; street trees only where LiDAR shows them. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_REALISM_TODO.md#L25) |
-| P1 | JMU-00051 | SOURCE_REPORTED_OPEN | Street lights and signs.** OSM `highway=street_lamp`, traffic signs and the town-centre lights; only where mapped. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_REALISM_TODO.md#L41) |
 | P1 | JMU-00053 | SOURCE_REPORTED_OPEN | Sky, light and colour.** Correct sun position for Narromine's latitude and season, a clear inland sky, and paint/roof colours sampled from NSW aerial imagery (not Str… | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_REALISM_TODO.md#L45) |
 | P1 | JMU-00055 | SOURCE_REPORTED_OPEN | Rail completion.** Silo sidings in use, a fictional-but-labelled link to Repository Town if wanted, and freight wagons loading at the silos. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_REALISM_TODO.md#L49) |
 | P1 | JMU-00070 | REVIEW_SOURCE_STATUS | Roads, rail, logistics and fuel | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/REPOSITORY_TOWN_GEOGRAPHY_MASTERPLAN.md#L54) |
@@ -143,7 +143,6 @@ These are task IDs, **not** claims of independently verified unresolved bugs. Do
 | P2 | JMU-00047 | SOURCE_REPORTED_OPEN | Kerb, gutter and footpaths.** Only on streets that have them (town centre and main streets per aerial imagery); gravel verges elsewhere. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_REALISM_TODO.md#L31) |
 | P2 | JMU-00048 | SOURCE_REPORTED_OPEN | Terrain.** Use the LiDAR ground model (class 2) for gentle ground levels, the Macquarie River banks and drainage channels, instead of a flat plane. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_REALISM_TODO.md#L33) |
 | P2 | JMU-00049 | SOURCE_REPORTED_OPEN | Ground cover and land use.** Paddocks, parks, sports ovals, the golf course, the aerodrome and industrial yards from OSM land use and aerial imagery colours. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_REALISM_TODO.md#L35) |
-| P2 | JMU-00050 | SOURCE_REPORTED_OPEN | Power lines and poles.** OSM `power=line/pole` and LiDAR wire returns; re-add the south Dandaloo poles at their real positions. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_REALISM_TODO.md#L39) |
 | P2 | JMU-00052 | SOURCE_REPORTED_OPEN | Business names and land uses.** Check all 98 named places against OSM and council listings; remove closed businesses; keep historical names only with a date label. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_REALISM_TODO.md#L43) |
 | P2 | JMU-00054 | SOURCE_REPORTED_OPEN | Traffic and people at realistic levels.** Car and pedestrian numbers that match a town of about 3,400 people; trucks on the Mitchell Highway. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_REALISM_TODO.md#L47) |
 | P2 | JMU-00056 | SOURCE_REPORTED_OPEN | Owner by-eye review.** Josh compares each block with the Street View compare page and files differences; each becomes a numbered item here. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_REALISM_TODO.md#L51) |
@@ -370,8 +369,8 @@ These are task IDs, **not** claims of independently verified unresolved bugs. Do
 | Priority | Source-reported count |
 |---|---:|
 | P0 | 27 |
-| P1 | 150 |
-| P2 | 805 |
+| P1 | 148 |
+| P2 | 804 |
 | P3 | 2,098 |
 | REF | 0 |
 
@@ -380,7 +379,7 @@ These are task IDs, **not** claims of independently verified unresolved bugs. Do
 | Source family | Count |
 |---|---:|
 | legacy_master_2026_10_25 | 2,663 |
-| markdown_checkbox | 241 |
+| markdown_checkbox | 238 |
 | numbered_action_heading | 100 |
 | status_table | 47 |
 | json_status | 26 |
@@ -390,7 +389,7 @@ These are task IDs, **not** claims of independently verified unresolved bugs. Do
 
 1. Verify high-priority tasks on **latest** main, production SHA and real desktop/Android-sized gameplay. If already fixed, update the **canonical original tracker**, not only this mirror.
 2. Check and reconcile any reused IDs that refer to different subtasks in historic sources; never infer that two different prefixes mean the same task.
-3. Assign claims by **feature**, not geographic monopoly, under [Repository Town parallel-agent rules](repository-town/docs/PARALLEL_AGENT_COORDINATION.md). Do not overwrite other agents' branches.
+3. Assign claims by **feature**, not geographic monopoly, under [Repository Town parallel-agent rules](../repository-town/docs/PARALLEL_AGENT_COORDINATION.md). Do not overwrite other agents' branches.
 4. Review the generated JMU candidates and remove false positives only with a recorded reason. Keep allocated IDs in the ID map as reserved, even after closure, to prevent reuse.
 5. Refresh the GitHub snapshot and the underlying canonical portfolio/task sources before making future changes. The generated CSV is a **triage index**, not a replacement for source-of-truth ownership, statuses or completion evidence.
 
