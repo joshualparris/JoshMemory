@@ -1,3 +1,13 @@
+## 2026-11-05 — NR-MATERIAL-QA-002 / TOWN-AUDIO-STOP-CLOCK-002 — STARTED
+
+**Owner:** ChatGPT/cloud. **Branch:** `fix/narromine-material-qa-audio-ramp-20261105`. **Baseline:** `b0b2f2d2` on main.
+
+**Scope:** Unblock recorded WebGL CI engine shutdown audio failure by queuing real WebAudio automation independent of render frames. Preserve strict actual browser assertion and add pure audio scheduling regression. Verify previously merged Narromine procedural materials with matched Chrome/Android material-on/off screenshots and three sun positions. Do not modify Narromine street/landmark geometry or other agents' work.
+
+**Files:** `src/ui/vehicle-audio.js`, `tests/engine-sound-browser.mjs`, `tests/vehicle-audio-rundown.mjs`, `tests/vehicle-audio-models.mjs`, `.github/workflows/narromine-material-audit.yml`, `docs/NARROMINE_MATERIAL_QA_CLOSEOUT_2026-11-05.md`, coordination/checkpoint.
+
+**Progress:** Code and tests committed on branch; browser/GitHub CI and physical screenshot review **not yet proven**. Next: open PR, run tests and collect artifact, inspect screenshots; merge only when checks pass, then verify source SHA of production Vercel and note remaining uncertainty from photo licensing.
+
 # 5 November 2026 — `NR-REAL-002`: Narromine Full Physical Walking Audit & Visual QA — START CHECKPOINT
 
 Owner Antigravity (Agy ThinkPad). Baseline `main` `fc5128c7`; branch `feat/narromine-real-002-walking-audit-20261105`.
