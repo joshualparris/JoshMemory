@@ -108,3 +108,58 @@ export function planDandalooStreetscape(streets) {
   for (const z of [-927, -1066, -1138]) put(lamps, z, 'east', 'swan-neck');
   return { medians, kerbs, pavers, parking, trees, lamps, source: DANDALOO_STREETSCAPE_EVIDENCE };
 }
+
+// ── South Dandaloo Street (single carriageway): Narromine Hotel → St Mary's ─────────────────────
+// OSM maps this stretch as one 9-m secondary road from the Burraway split (~z -853) south past
+// Derribong Avenue to Terangion Street. Kerbs follow the mapped road edge; street trees, swan-neck
+// lamps and the east-side power line are placed at regular, ESTIMATED spacing on the verges and are
+// skipped wherever a cross street, driveway, mapped building or detailed lot would be in the way.
+export const SOUTH_RANGE = Object.freeze({ upperZ: -846, lowerZ: -262 });
+export const SOUTH_EVIDENCE = Object.freeze({
+  alignment: 'OpenStreetMap Dandaloo Street secondary centreline (2026-11-03)',
+  spacing: 'estimated: trees ~22 m, lamps ~44 m alternating, poles ~40 m on the east verge',
+  note: 'Josh compares by eye with Street View; no Street View imagery is used as data.',
+});
+
+export function findDandalooSouth(streets) {
+  const pieces = streets.filter(s => s.name === 'Dandaloo Street' && s.kind === 'secondary');
+  const pts = pieces.flatMap(s => s.pts).filter(p => p[1] >= SOUTH_RANGE.upperZ - 10 && p[1] <= SOUTH_RANGE.lowerZ + 160);
+  if (pts.length < 4) throw Error('South Dandaloo Street centreline not found');
+  const uniq = [...new Map(pts.map(p => [p[0].toFixed(2) + ',' + p[1].toFixed(2), p])).values()];
+  return { width: pieces[0].width, pts: uniq.sort((a, b) => a[1] - b[1]) };
+}
+
+// clear(x, z, r): true when a point (with radius r) is free of buildings, lots and other roads.
+export function planDandalooSouth(streets, clear = () => true) {
+  const road = findDandalooSouth(streets), half = road.width / 2, kerbs = [], trees = [], lamps = [], poles = [];
+  // Cross streets and driveways meeting Dandaloo: decorations keep 10 m away from their mouths.
+  const mouths = streets.filter(s => s.name !== 'Dandaloo Street' && s.pts.some(([x, z]) => {
+    const cx = roadXAtZ(road, z); return cx !== null && z >= SOUTH_RANGE.upperZ && z <= SOUTH_RANGE.lowerZ && Math.abs(x - cx) < half + 3;
+  })).map(s => s.pts.find(([x, z]) => { const cx = roadXAtZ(road, z); return cx !== null && Math.abs(x - cx) < half + 3; }));
+  const nearMouth = (z, m = 10) => mouths.some(p => Math.abs(p[1] - z) < m);
+  // Unit normal pointing east (+x side) at z, from the local road direction.
+  const frame = (z) => { const cx = roadXAtZ(road, z), cx2 = roadXAtZ(road, z + 1); if (cx === null || cx2 === null) return null;
+    const dx = cx2 - cx, l = Math.hypot(dx, 1); return { cx, nx: 1 / l, nz: -dx / l }; };
+  for (let z = SOUTH_RANGE.upperZ; z < SOUTH_RANGE.lowerZ; z += 6) {
+    const zz = Math.min(z + 6, SOUTH_RANGE.lowerZ), a = frame(z), b = frame(zz);
+    if (!a || !b || nearMouth((z + zz) / 2, 6)) continue;
+    for (const side of [-1, 1]) kerbs.push({ a: [a.cx + side * (half + 0.08) * a.nx, z + side * (half + 0.08) * a.nz],
+      b: [b.cx + side * (half + 0.08) * b.nx, zz + side * (half + 0.08) * b.nz], side: side < 0 ? 'west' : 'east' });
+  }
+  const verge = (z, side, off) => { const f = frame(z); return f && { x: f.cx + side * (half + off) * f.nx, z: z + side * (half + off) * f.nz }; };
+  let k = 0;
+  for (let z = SOUTH_RANGE.upperZ + 8; z < SOUTH_RANGE.lowerZ - 4; z += 22, k++) {
+    if (nearMouth(z)) continue;
+    for (const side of [-1, 1]) { const p = verge(z + (side > 0 ? 11 : 0), side, 2.2); if (p && clear(p.x, p.z, 2.4)) trees.push({ ...p, where: side < 0 ? 'west' : 'east', kind: k % 5 === 2 ? 'flowering' : 'deciduous' }); }
+  }
+  let alt = 0;
+  for (let z = SOUTH_RANGE.upperZ + 18; z < SOUTH_RANGE.lowerZ - 4; z += 44) {
+    if (nearMouth(z, 8)) continue; const side = alt++ % 2 ? 1 : -1, p = verge(z, side, 0.55);
+    if (p && clear(p.x, p.z, 0.6)) lamps.push({ ...p, where: side < 0 ? 'west' : 'east', kind: 'swan-neck' });
+  }
+  for (let z = SOUTH_RANGE.upperZ + 4; z < SOUTH_RANGE.lowerZ - 4; z += 40) {
+    if (nearMouth(z, 7)) continue; const p = verge(z, 1, 1.3);
+    if (p && clear(p.x, p.z, 0.5)) poles.push(p);
+  }
+  return { kerbs, trees, lamps, poles, source: SOUTH_EVIDENCE };
+}

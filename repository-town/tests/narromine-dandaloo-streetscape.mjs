@@ -44,3 +44,20 @@ assert.match(plan.source.confidence.medianFootprint, /requires survey/,
 console.log('PASS Dandaloo streetscape: ' + plan.medians.length +
   ' median polygons, ' + plan.parking.length + ' parking separators, ' +
   plan.trees.length + ' trees, ' + plan.lamps.length + ' heritage lamps; intersections clear');
+
+// South Dandaloo (single carriageway): kerbs follow the mapped edge; nothing is placed on the road.
+{
+  const { planDandalooSouth, findDandalooSouth, SOUTH_RANGE } = await import('../src/world/narromine-dandaloo-streetscape-data.js');
+  const { onNarromineRoad } = await import('../src/world/narromine-layout.js');
+  const s = planDandalooSouth(STREETS), road = findDandalooSouth(STREETS);
+  assert(s.kerbs.length >= 120, 'kerbs both sides along the south stretch (' + s.kerbs.length + ')');
+  assert(s.trees.length >= 30 && s.lamps.length >= 8 && s.poles.length >= 10, `verge trees ${s.trees.length}, lamps ${s.lamps.length}, poles ${s.poles.length}`);
+  for (const t of [...s.trees, ...s.lamps, ...s.poles]) {
+    assert(t.z >= SOUTH_RANGE.upperZ - 6 && t.z <= SOUTH_RANGE.lowerZ + 6, 'inside the south stretch');
+    const cx = roadXAtZ(road, t.z); assert(Math.abs(t.x - cx) > road.width / 2, 'verge item is off the Dandaloo carriageway at z=' + t.z.toFixed(0));
+  }
+  // Drivability: kerb-to-kerb centre line stays a road.
+  for (let z = SOUTH_RANGE.upperZ + 2; z < SOUTH_RANGE.lowerZ; z += 5) assert(onNarromineRoad(roadXAtZ(road, z), z), 'road still driveable at z=' + z);
+  assert(s.poles.every(p => p.x > roadXAtZ(road, p.z)), 'power line on the east verge');
+  console.log(`PASS south Dandaloo streetscape: ${s.kerbs.length} kerb runs, ${s.trees.length} trees, ${s.lamps.length} lamps, ${s.poles.length} poles; road clear`);
+}
