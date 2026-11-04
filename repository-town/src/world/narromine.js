@@ -156,7 +156,21 @@ export function buildNarromine(parent, makeLabel = null) {
     !BUILDINGS.some((b) => { const q = polyRect(b.pts); return x > q.x0 - r && x < q.x1 + r && z > q.z0 - r && z < q.z1 + r; }) &&
     ![...FILL_SHOPS, ...FILL_HOUSES].some((g) => Math.hypot(g.x - x, g.z - z) < 7 + r) &&
     !STREETS.some((st) => st.name !== 'Dandaloo Street' && st.pts.some(([sx, sz]) => Math.hypot(sx - x, sz - z) < st.width / 2 + r + 1));
-  buildDandalooStreetscape({ streets: STREETS, push, box, flatPoly, strip, clear: streetscapeClear });
+  // Prevent the 22 m *estimated* South Dandaloo tree rows from hiding the
+  // surveyed Narromine Hotel facade. The actual 4-point Dandaloo verandah
+  // supplies the world-space Z span; 12 m at each end covers oblique
+  // pedestrian/photo sightlines. Trees specifically modelled by the hotel
+  // (including its rear-yard tree inventory) remain unchanged.
+  const hotelFrontage = DETAILED.find(d => d.id === NARROMINE_HOTEL_ID)
+    ?.verandahs.find(v => v.name === 'Dandaloo Street verandah');
+  const hotelFrontageZ = hotelFrontage?.pts.map(([, z]) => z) || [];
+  const hotelTreeMinZ = Math.min(...hotelFrontageZ) - 12;
+  const hotelTreeMaxZ = Math.max(...hotelFrontageZ) + 12;
+  const excludeSouthTreeAt = ({ z }) => z >= hotelTreeMinZ && z <= hotelTreeMaxZ;
+  buildDandalooStreetscape({
+    streets: STREETS, push, box, flatPoly, strip,
+    clear: streetscapeClear, excludeSouthTreeAt,
+  });
   // Real buildings, raised from their mapped outlines.
   const colliders = [...boundaryColliders()], spots = [];
   for (const b of BUILDINGS) {
