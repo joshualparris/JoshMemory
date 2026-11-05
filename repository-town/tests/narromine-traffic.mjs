@@ -4,7 +4,7 @@
 //   node tests/narromine-traffic.mjs
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { createNarromineTraffic, DAILY_VEHICLES, leftLaneOffset } from '../src/world/narromine-traffic.js';
+import { createNarromineTraffic, DAILY_VEHICLES, leftLaneOffset, dividedDandalooLane } from '../src/world/narromine-traffic.js';
 import { VEHICLE_MODELS, pickVehicle } from '../src/world/narromine-vehicle-models.js';
 import fs from 'node:fs';
 // World north is negative z. Left-of-travel keeps northbound cars to the
@@ -13,7 +13,21 @@ assert.ok(leftLaneOffset(0, -1, 8).x < -1.5, 'northbound uses western lane');
 assert.ok(leftLaneOffset(0, 1, 8).x > 1.5, 'southbound uses eastern lane');
 assert.ok(leftLaneOffset(1, 0, 8).z < -1.5, 'eastbound uses northern lane');
 assert.ok(leftLaneOffset(-1, 0, 8).z > 1.5, 'westbound uses southern lane');
+// Divided main street has one directional travel lane next to the median,
+// away from the observed angled parking marking at the outer kerb.
+const west = dividedDandalooLane(-4770, -1000, 'Dandaloo Street', 'trunk');
+const east = dividedDandalooLane(-4750, -1000, 'Dandaloo Street', 'trunk');
+assert.equal(west?.direction, 'north');
+assert.equal(east?.direction, 'south');
+assert.ok(west.lateralX > 1.5 && east.lateralX < -1.5, 'traffic shifts away from angled parking');
+assert.equal(dividedDandalooLane(-4770, -1000, 'Dandaloo Street', 'secondary'), null);
 const t = createNarromineTraffic(new THREE.Group());
+assert.ok(t.edges.some(e => e.dividedLane?.direction === 'north'), 'northbound carriageway is routable');
+assert.ok(t.edges.some(e => e.dividedLane?.direction === 'south'), 'southbound carriageway is routable');
+assert.ok(t.edges.filter(e => e.dividedLane).every(e => e.dividedLane.direction === 'north'
+  ? t.edges.find(other => other.from === e.to && other.to === e.from) === undefined
+  : t.edges.find(other => other.from === e.to && other.to === e.from) === undefined),
+  'no opposing travel on the divided carriageways');
 const perKm = (name, hour) => { const es = t.edges.filter(e => e.name === name); const len = es.reduce((s, e) => s + e.len, 0); return es.reduce((s, e) => s + t.expected(e, hour), 0) / (len / 1000); };
 assert.equal(DAILY_VEHICLES['Dandaloo Street'], 7000);
 const peak = perKm('Dandaloo Street', 8), night = perKm('Dandaloo Street', 3), manildra = perKm('Manildra Street', 8);
