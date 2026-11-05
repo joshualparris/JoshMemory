@@ -24,7 +24,31 @@ assert(near > 3, 'walker is beside the road, ' + near.toFixed(1) + ' m from its 
 const school = pop.workplaces.find(x => x.name === 'Narromine High School');
 traffic.update(0.1, { x: school.x, z: school.z }, 10 * 60 + 30, 2);
 const parked = traffic.parked.filter(c => c.parked);
-let overlaps = 0; for (let i = 0; i < parked.length; i++) for (let j = i + 1; j < parked.length; j++) if (Math.hypot(parked[i].x - parked[j].x, parked[i].z - parked[j].z) < 2.4) overlaps++;   // closer than a car width plus a gap
+// Independent oriented-rectangle SAT oracle (the runtime has its own implementation).
+// Centre spacing is not an overlap test: cars have length, width and direction.
+function overlap(a, b) {
+  const ua = [Math.sin(a.yaw), Math.cos(a.yaw)], ub = [Math.sin(b.yaw), Math.cos(b.yaw)];
+  const axes = [ua, [-ua[1], ua[0]], ub, [-ub[1], ub[0]]];
+  for (const axis of axes) {
+    const project = c => {
+      const forward = [Math.sin(c.yaw), Math.cos(c.yaw)];
+      return (c.L || 4.4) / 2 * Math.abs(axis[0] * forward[0] + axis[1] * forward[1]) +
+        0.95 * Math.abs(axis[0] * forward[1] - axis[1] * forward[0]);
+    };
+    const separation = Math.abs((a.x - b.x) * axis[0] + (a.z - b.z) * axis[1]);
+    if (separation >= project(a) + project(b) + 0.1) return false;
+  }
+  return true;
+}
+assert(overlap({ x: 0, z: 0, yaw: 0, L: 4.4 }, { x: 0, z: 3, yaw: 0, L: 4.4 }),
+  'regression oracle detects cars overlapping lengthways despite centres 3 m apart');
+assert(!overlap({ x: 0, z: 0, yaw: 0, L: 4.4 }, { x: 2.9, z: 0, yaw: 0, L: 4.4 }),
+  'regression oracle accepts non-touching vehicles parked 2.9 m side-by-side');
+let overlaps = 0;
+const collisions = [];
+for (let i = 0; i < parked.length; i++) for (let j = i + 1; j < parked.length; j++) {
+  if (overlap(parked[i], parked[j])) { overlaps++; if (collisions.length < 8) collisions.push([parked[i].carId, parked[j].carId]); }
+}
 assert(parked.length > 40, 'cars are parked around the school: ' + parked.length);
-assert(overlaps <= parked.length * 0.02, 'parked cars do not stack on each other: ' + overlaps + ' overlaps of ' + parked.length);
+assert.equal(overlaps, 0, 'parked vehicle footprints overlap: ' + overlaps + ' of ' + parked.length + '; examples ' + JSON.stringify(collisions));
 console.log(`PASS Narromine pedestrians and parking: ${walks.length} weekday walks (${hours[8]} at 8 am, ${hours[15]} at 3 pm); ${parked.length} parked cars near the high school, ${overlaps} overlaps`);
