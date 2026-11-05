@@ -23,6 +23,9 @@ for (const line of fs.readFileSync(process.argv[2], 'utf8').trim().split('\n')) 
   const [lng, lat] = f.geometry.coordinates, [x, z] = geoToWorld(lat, lng);
   if (x < REGION.x0 || x > REGION.x1 || z < REGION.z0 || z > REGION.z1) continue;
   if (type === 'giveway' && NARROMINE_FURNITURE.giveway.some(([gx, gz]) => Math.hypot(gx - x, gz - z) < 12)) continue;
+  // Road paint fades or is removed: keep zebra crossings and stop lines only if seen since 2022 (a 2019
+  // zebra on Dandaloo Street is absent from a 2025 photo at the same spot).
+  if ((type === 'zebra' || type === 'stopLine') && (f.last_seen_at || '') < '2022') continue;
   const n = near(x, z); if (!n || n.d > 30) continue;
   // Road direction at the object; for signs, which way traffic sees them (keep-left: a sign on the left of
   // travel direction u faces back along -u).
