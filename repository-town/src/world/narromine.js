@@ -34,6 +34,7 @@ import { buildDisjointRoadSurfaces, kerbReturns } from './narromine-road-surface
 import { shouldRenderMappedPaint } from './narromine-road-paint-guards.js';
 import { createNarromineSurfaceMaterial } from './narromine-surface-materials.js';
 import { buildDandalooStreetscape } from './narromine-dandaloo-streetscape.js';
+import { rotatedBoxCollider } from './narromine-collision-footprints.js';
 import { NARROMINE_POST_OFFICE_ENTRANCE, NARROMINE_POST_OFFICE_ID } from './narromine-post-office.js';
 import { buildNarrominePostOfficeRoof, isPostOfficeRoofPart, POST_OFFICE_EAVE_H } from './narromine-post-office-roof.js';
 import { HIGHWAY, HIGHWAY_Z, REGION, CORRIDOR_HALF, STREETS, BUILDINGS, AREAS, WATER, RAIL, PLACES, FILL_SHOPS, FILL_HOUSES, FRONTAGES, DETAILED, polyRect, inPoly, nearTownStreet, boundaryColliders } from './narromine-layout.js';
@@ -277,7 +278,7 @@ export function buildNarromine(parent, makeLabel = null) {
     const g = new THREE.ExtrudeGeometry(shape, { depth: h, bevelEnabled: false }); g.rotateX(-Math.PI / 2); push(colour, g);
     // Collide with the outline's box, unless the outline is very irregular or the box covers a street.
     const r = polyRect(b.pts), area = Math.abs(b.pts.reduce((s, p, i) => { const q = b.pts[(i + 1) % b.pts.length]; return s + p[0] * q[1] - q[0] * p[1]; }, 0) / 2);
-    if (area > 0.55 * (r.x1 - r.x0) * (r.z1 - r.z0) && !nearTownStreet((r.x0 + r.x1) / 2, (r.z0 + r.z1) / 2, 0)) colliders.push(r);
+    if (area > 0.55 * (r.x1 - r.x0) * (r.z1 - r.z0) && !nearTownStreet((r.x0 + r.x1) / 2, (r.z0 + r.z1) / 2, 0)) colliders.push({ ...r, poly: b.pts, source: 'osm-building', osmIndex: b.osmIndex });
   }
   // Stand-ins for unmapped named places: still ESTIMATED rectangles, never survey footprints.
   // Reusable facade elements remain batched by material/tile and have NO new collision boxes.
@@ -338,7 +339,7 @@ export function buildNarromine(parent, makeLabel = null) {
     const x = f.x + nx * (f.d / 2 + 0.02), z = f.z + nz * (f.d / 2 + 0.02);
     storefront({ a: [x - ux * f.w / 2, z - uz * f.w / 2], b: [x + ux * f.w / 2, z + uz * f.w / 2],
       toward: direction, name: f.name, profile, wallHeight: 4.6 });
-    colliders.push({ ...f.rect });
+    colliders.push(rotatedBoxCollider(f, 'poi-shop'));
   }
   const HOUSE_WALLS = [0xd8cdb6, 0xc9a98a, 0xbfc4bd, 0xd6c9a4, 0xa98a74], HOUSE_ROOFS = [0x6e3b32, 0x5a5f66, 0x8a8f8c, 0x7a4a3a, 0x4f5a52];
   for (const h of FILL_HOUSES) {
@@ -348,7 +349,7 @@ export function buildNarromine(parent, makeLabel = null) {
     const roofH = h.lidar ? Math.max(0.25, h.lidar[2] - wall) : h.h > 0 ? Math.min(5, Math.max(0.5, h.h - wall)) : 2.2;
     placeBox(HOUSE_WALLS[h.tone], h.w, wall, h.d, h.x, wall / 2, h.z, h.yaw);
     const r = roofGeo(); r.scale(h.w + 0.8, roofH, h.d + 0.8); r.rotateY(h.yaw); r.translate(h.x, wall + roofH / 2, h.z); push(HOUSE_ROOFS[h.tone], r);
-    colliders.push({ ...h.rect });
+    colliders.push(rotatedBoxCollider(h, 'microsoft-footprint'));
   }
   // OSM power poles, transmission towers and lines, give-way signs and bus stops.
   buildNarromineFurniture(town, colliders);
