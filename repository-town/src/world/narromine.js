@@ -36,6 +36,7 @@ import { shouldRenderMappedPaint } from './narromine-road-paint-guards.js';
 import { createNarromineSurfaceMaterial } from './narromine-surface-materials.js';
 import { buildDandalooStreetscape } from './narromine-dandaloo-streetscape.js';
 import { rotatedBoxCollider } from './narromine-collision-footprints.js';
+import { NARROMINE_ROOF_COLOURS } from './narromine-roof-colours-data.js';
 import { NARROMINE_POST_OFFICE_ENTRANCE, NARROMINE_POST_OFFICE_ID } from './narromine-post-office.js';
 import { buildNarrominePostOfficeRoof, isPostOfficeRoofPart, POST_OFFICE_EAVE_H } from './narromine-post-office-roof.js';
 import { HIGHWAY, HIGHWAY_Z, REGION, CORRIDOR_HALF, STREETS, BUILDINGS, AREAS, WATER, RAIL, PLACES, FILL_SHOPS, FILL_HOUSES, FRONTAGES, DETAILED, polyRect, inPoly, nearTownStreet, boundaryColliders } from './narromine-layout.js';
@@ -334,6 +335,8 @@ export function buildNarromine(parent, makeLabel = null) {
     return { wall, roofH: h.lidar ? Math.max(0.25, h.lidar[2] - wall) : h.h > 0 ? Math.min(5, Math.max(0.5, h.h - wall)) : 2.2 };
   };
   const NOT_SHOPFRONT = new Set(['place_of_worship', 'guest_house']);
+  // Roof colour sampled from NSW aerial imagery (narromine-roof-colours-data.js); unreadable roofs keep a stock tone.
+  const roofColour = (h, fallback) => NARROMINE_ROOF_COLOURS[h.x.toFixed(1) + ',' + h.z.toFixed(1)] ?? fallback;
   for (const f of FILL_SHOPS) {
     if (NW_DANDALOO_SUPPRESSED_FILL.has(f.name)) continue;
     const profile = estimatedShopfrontProfile({ name: f.name, kind: f.kind });
@@ -341,7 +344,7 @@ export function buildNarromine(parent, makeLabel = null) {
       // Named place on its real traced footprint. No verandah: nothing evidences one.
       const { wall, roofH } = footprintHeights(f);
       placeBox(NOT_SHOPFRONT.has(f.kind) ? HOUSE_WALLS[0] : profile.wall, f.w, wall, f.d, f.x, wall / 2, f.z, f.yaw);
-      const r = roofGeo(); r.scale(f.w + 0.8, roofH, f.d + 0.8); r.rotateY(f.yaw); r.translate(f.x, wall + roofH / 2, f.z); push(HOUSE_ROOFS[2], r);
+      const r = roofGeo(); r.scale(f.w + 0.8, roofH, f.d + 0.8); r.rotateY(f.yaw); r.translate(f.x, wall + roofH / 2, f.z); push(roofColour(f, HOUSE_ROOFS[2]), r);
       if (!NOT_SHOPFRONT.has(f.kind)) storefront({ ...f.frontEdge, name: f.name, profile, wallHeight: wall });
       colliders.push(rotatedBoxCollider(f, 'poi-footprint'));
       continue;
@@ -363,7 +366,7 @@ export function buildNarromine(parent, makeLabel = null) {
     // LiDAR-measured eave and ridge win (1,265 footprints); else the footprint dataset's height estimate.
     const { wall, roofH } = footprintHeights(h);
     placeBox(HOUSE_WALLS[h.tone], h.w, wall, h.d, h.x, wall / 2, h.z, h.yaw);
-    const r = roofGeo(); r.scale(h.w + 0.8, roofH, h.d + 0.8); r.rotateY(h.yaw); r.translate(h.x, wall + roofH / 2, h.z); push(HOUSE_ROOFS[h.tone], r);
+    const r = roofGeo(); r.scale(h.w + 0.8, roofH, h.d + 0.8); r.rotateY(h.yaw); r.translate(h.x, wall + roofH / 2, h.z); push(roofColour(h, HOUSE_ROOFS[h.tone]), r);
     colliders.push(rotatedBoxCollider(h, 'microsoft-footprint'));
   }
   // OSM power poles, transmission towers and lines, give-way signs and bus stops.

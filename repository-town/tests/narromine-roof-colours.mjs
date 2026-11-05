@@ -1,0 +1,27 @@
+// Roof colours for traced footprints come from NSW aerial imagery, not a hash of position.
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import { NARROMINE_ROOF_COLOURS } from '../src/world/narromine-roof-colours-data.js';
+import { NARROMINE_FOOTPRINTS } from '../src/world/narromine-footprints-data.js';
+import { FILL_HOUSES } from '../src/world/narromine-layout.js';
+
+const keys = new Set(NARROMINE_FOOTPRINTS.map(([x, z]) => x.toFixed(1) + ',' + z.toFixed(1)));
+const entries = Object.entries(NARROMINE_ROOF_COLOURS);
+assert(entries.length > 0.9 * NARROMINE_FOOTPRINTS.length, 'most footprints have a sampled roof');
+for (const [k, c] of entries) {
+  assert(keys.has(k), k + ' is a real footprint key');
+  assert(Number.isInteger(c) && c >= 0 && c <= 0xffffff, k + ' is a colour');
+}
+const palette = new Set(entries.map(([, c]) => c));
+assert(palette.size <= 24, 'clustered palette keeps the town batched (one mesh per colour per tile)');
+assert(palette.size >= 12, 'a real range of roof colours, not a handful of stock tones');
+// Real Narromine roofs include terracotta tile (red-dominant) and pale Colorbond/zinc.
+assert([...palette].some(c => (c >> 16) > (c & 255) + 40), 'terracotta-type colours present');
+assert([...palette].some(c => (c >> 16) > 0xd0 && (c & 255) > 0xc0), 'pale metal roofs present');
+const drawn = FILL_HOUSES.filter(h => NARROMINE_ROOF_COLOURS[h.x.toFixed(1) + ',' + h.z.toFixed(1)] !== undefined).length;
+assert(drawn > 0.9 * FILL_HOUSES.length, `drawn houses use sampled roofs (${drawn}/${FILL_HOUSES.length})`);
+const header = fs.readFileSync(new URL('../src/world/narromine-roof-colours-data.js', import.meta.url), 'utf8').slice(0, 600);
+assert.match(header, /NSW Spatial Services/); assert.match(header, /CC BY 4\.0/);
+const src = fs.readFileSync(new URL('../src/world/narromine.js', import.meta.url), 'utf8');
+assert.match(src, /push\(roofColour\(h, HOUSE_ROOFS\[h\.tone\]\), r\)/, 'house roofs use the sampled colour, stock tone as fallback');
+console.log(`PASS roof colours: ${entries.length} footprints sampled from NSW imagery, ${palette.size}-colour palette, ${drawn}/${FILL_HOUSES.length} drawn houses coloured`);
