@@ -24,12 +24,18 @@ for (const [name, opts] of [['desktop', { viewport: { width: 1280, height: 800 }
   assert.match(await page.evaluate(() => window.__town.trainBoard()), /cab/);
   const start = await page.evaluate(() => window.__town.train().head);
   // Power for a few seconds with W, then brake with S.
-  await page.keyboard.down('w'); await page.waitForTimeout(6000); await page.keyboard.up('w');
+  // Hold power until the train reaches walking pace. Measured in simulated time, not wall time: a
+  // software-rendered test browser can run at 2 fps, and each frame is capped at 0.15 s of game time.
+  await page.keyboard.down('w');
+  await page.waitForFunction(() => window.__town.train().speedKmh >= 3, null, { timeout: 40000 }).catch(() => {});
+  await page.keyboard.up('w');
   const moving = await page.evaluate(() => window.__town.train());
   assert.ok(moving.speedKmh >= 3, 'train accelerates: ' + moving.speedKmh);
   assert.ok(moving.limitKmh === 25, 'yard limit applies on the loop: ' + moving.limitKmh);
   assert.match(await page.textContent('#prompt'), /km\/h · limit 25/);
   await page.screenshot({ path: `test-results/narromine-train-${name}.png` });
+  // Coast until the head has covered 3 m of track (simulated distance), then brake.
+  await page.waitForFunction((s0) => { const h = window.__town.train().head; return Math.hypot(h.x - s0.x, h.z - s0.z) > 3; }, start, { timeout: 60000 }).catch(() => {});
   await page.keyboard.down('s'); await page.waitForFunction(() => window.__town.train().speedKmh === 0, null, { timeout: 30000 }); await page.keyboard.up('s');
   const stopped = await page.evaluate(() => window.__town.train().head);
   assert.ok(Math.hypot(stopped.x - start.x, stopped.z - start.z) > 3, 'train moved along the track');
