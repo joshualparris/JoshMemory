@@ -1245,6 +1245,12 @@
         "repository-town/src/main.js"
       ],
       "finding": "main.js lists Narromine commuters in Repository Town workplace panels; townpanels.js shows them; no pub change."
+    },
+    {
+      "date": "2026-11-05",
+      "by": "Claude (unique Narromine interiors)",
+      "changedFiles": [],
+      "finding": "interior.js: an optional noBedroom flag stops the builder adding a bedroom to non-homes; the pub does not set it and is unchanged."
     }
   ]
 }
