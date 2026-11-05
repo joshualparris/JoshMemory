@@ -21,7 +21,10 @@ try {
     if (SHOT && mobile) { const sq = m.spots.find((s) => s.key === 'market:info'); await page.evaluate((p) => window.__town.place(p.x + 1, p.z + 7, 0.15), sq); await page.waitForTimeout(900); await page.screenshot({ path: SHOT }); }
     const veg = m.spots.find((s) => s.key === 'market:veg');
     await page.evaluate((p) => window.__town.place(p.x, p.z + 0.6, 0), veg);
-    await page.waitForTimeout(500);
+    // A teleport may render the preceding Guild Chest prompt for a frame while
+    // town interactions update under software WebGL. Require the actual stall
+    // prompt before using it; never suppress a genuinely unreachable stall.
+    await page.waitForFunction(() => /Granny Smith/.test(document.getElementById('prompt')?.textContent || ''), null, { timeout: 5000 }).catch(() => {});
     const prompt = await page.evaluate(() => document.getElementById('prompt').textContent);
     step(/Granny Smith/.test(prompt), `${tag} walking up to the fruit and veg stall: "${prompt}"`);
     await page.evaluate(() => window.__town.closePanel?.());
