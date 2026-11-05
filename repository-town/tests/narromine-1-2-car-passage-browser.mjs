@@ -96,7 +96,11 @@ try {
     await page.waitForFunction(()=>window.__town&&document.getElementById('loading')?.hidden,null,{timeout:110000});
     await page.evaluate(()=>{
       window.__town.life.setTime(13*60+15);
+      // The tested cheat contract requires choosing an existing town-road staging
+      // position before summoning. Every later Narromine drive uses a separately
+      // staged registered car and the actual vehicle controls.
       window.__town.cheats.open();
+      window.__town.cheats.run('goNew');
       const r=window.__town.cheats.run('car','sedan');
       window.__town.cheats.close();
       if(!window.__town.vehicles().some(x=>x.cheat&&x.model==='sedan'))throw Error('No registered QA sedan '+JSON.stringify(r));
