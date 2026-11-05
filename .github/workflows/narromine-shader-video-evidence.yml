@@ -23,7 +23,7 @@ jobs:
       - name: Fetch full source history to pin both shader revisions
         uses: actions/checkout@v4
         with:
-          persist-credentials: true
+          persist-credentials: false
           fetch-depth: 0
       - name: Fetch PR 408 shader candidate without changing checkout source
         run: |
