@@ -32,6 +32,7 @@ const NW_DANDALOO_SUPPRESSED_FILL = new Set(NARROMINE_NW_DANDALOO_INTEGRATION_SP
 import { estimatedShopfrontProfile, facadeBays, landmarkFacadeSpec } from './narromine-facade-profiles.js';
 import { PHYSIO_FACADE, buildNarrominePhysiotherapyFacade } from './narromine-mainstreet-physio.js';
 import { buildDisjointRoadSurfaces, kerbReturns } from './narromine-road-surfaces.js';
+import { clipFootpathsOutsideForecourt } from './narromine-forecourt-footpaths.js';
 import { shouldRenderMappedPaint } from './narromine-road-paint-guards.js';
 import { createNarromineSurfaceMaterial } from './narromine-surface-materials.js';
 import { buildDandalooStreetscape } from './narromine-dandaloo-streetscape.js';
@@ -193,7 +194,8 @@ export function buildNarromine(parent, makeLabel = null) {
   // No generic footpath across a detailed site's own sealed ground (the Narromine Hotel forecourt is
   // one sealed apron out to the street centrelines, as in the owner's Mapillary comparison).
   const HOTEL_FORECOURT = hotelForecourtPolygon();
-  for (const s of roadSurfaces.footpaths) { const cx = s.pts.reduce((a, p) => a + p[0], 0) / s.pts.length, cz = s.pts.reduce((a, p) => a + p[1], 0) / s.pts.length; if (!inPoly(cx, cz, HOTEL_FORECOURT)) flatPoly(s.paving === 'red-brick' ? 0xa4563f : 0xbdb6a8, s.pts, 0.076); }
+  for (const s of clipFootpathsOutsideForecourt(roadSurfaces.footpaths, HOTEL_FORECOURT))
+    flatPoly(s.paving === 'red-brick' ? 0xa4563f : 0xbdb6a8, s.pts, 0.076);
   for (const s of roadSurfaces.asphalt) flatPoly(ROAD_COLOUR[s.kind] ?? 0x4f5153, s.pts, 0.075);
   // Curved kerb returns at junctions, 3 mm under the carriageway so overlaps never flicker.
   for (const s of roadSurfaces.fillets) flatPoly(ROAD_COLOUR[s.kind] ?? 0x4f5153, s.pts, 0.072);
