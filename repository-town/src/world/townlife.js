@@ -9,6 +9,7 @@ import {pilotMains} from './electrical-pilot.js';
 import { makeSeat } from './seats.js';
 import { SIGNAL_CROSSINGS, crossingState } from './traffic-signals.js';
 import { Builder, GLASS } from './builder.js';
+import { civicRoofTop } from './civic-roof-height.js';
 import { buildSignBoards } from './shop-signs.js';
 import { PROPS } from './props.js';
 import { pose } from './npcs.js';
@@ -756,7 +757,9 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     // South-side civic sites face the street (−z) from across the road.
     if (p.side === 'south') {
       b.at(p.x, 0, FIELD_Z0 + 7, Math.PI, () => { fp = BUILD[p.id](b); });
-      colliders.push({ x0: p.x - fp.w / 2, x1: p.x + fp.w / 2, z0: FIELD_Z0, z1: FIELD_Z0 + fp.d });
+      const southBlock = { x0: p.x - fp.w / 2, x1: p.x + fp.w / 2, z0: FIELD_Z0, z1: FIELD_Z0 + fp.d };
+      const southRoof = civicRoofTop(b.parts, southBlock);
+      colliders.push(southRoof === null ? southBlock : { ...southBlock, top: southRoof });
       // Verandah posts out on the footpath are solid too (local x/z turned to face the road).
       for (const [lx, lz] of fp.posts || []) colliders.push({ x0: p.x - lx - 0.1, x1: p.x - lx + 0.1, z0: FIELD_Z0 + 7 - lz - 0.1, z1: FIELD_Z0 + 7 - lz + 0.1 });
       // Keep the business name clear of the roofline and deep colonnades:
@@ -775,10 +778,12 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     // Massing fits within 12 m depth between the roadway and rear of row's houses.
     if (p.side === 'north') {
       b.at(p.x,0,p.originZ,Math.PI,()=>{fp=buildExpansionFacade(b,p);});
+      const northBlock = fp ? { x0: p.x - fp.w / 2, x1: p.x + fp.w / 2,
+        z0: p.originZ - 7, z1: p.originZ - 7 + fp.d } : null;
+      const northRoof = northBlock ? civicRoofTop(b.parts, northBlock) : null;
       finish();
       // The facade front is p.originZ-7. The entire footprint stays behind it (+z).
-      if(fp)colliders.push({x0:p.x-fp.w/2,x1:p.x+fp.w/2,
-        z0:p.originZ-7,z1:p.originZ-7+fp.d});
+      if(northBlock) colliders.push(northRoof === null ? northBlock : { ...northBlock, top: northRoof });
       const marker=makeLabel(p.address+' · '+p.name,'house');
       marker.position.set(p.x,3.6,p.originZ-10.8);group.add(marker);labels.push(marker);
       // Nameboard faces northwards onto existing road; no fake new street.
@@ -797,6 +802,9 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       if (kind === 'farm') { const [w, d, h, wall, roof] = FARM_SHED[p.id]; shed(b, w, d, h, wall, roof); fp = { w, d }; if (p.id === 'silo') { for (const x of [2.5, 6]) { b.solid(2.6, 2.6, x, -9); b.cyl(0xc8c8c0, 1.4, 9, x, 4.5, -9); b.cone(0xa8a8a0, 1.6, 1.4, x, 9.7, -9); } } }
       else fp = BUILD[kind](b);
     });
+    const coreBlock = fp ? { x0: p.x - fp.w / 2, x1: p.x + fp.w / 2,
+      z0: LOT8_Z + (fp.front ?? 7) - fp.d, z1: LOT8_Z + (fp.front ?? 7) } : null;
+    const coreRoof = coreBlock ? civicRoofTop(b.parts, coreBlock) : null;
     finish();
     if (SHOPFRONT[p.id]) { const [w, h] = SHOPFRONT[p.id], [bg, fg] = SHOP_COLOURS[p.id]; signs.push({place:p, text: p.name, x: p.x, y: h - 0.55, z: LOT8_Z + 7.15, w: w * 0.6, h: 0.7, bg, fg, cross: p.id === 'clinic' }); }
     else if (SIGN_AT[p.id]) { const at = SIGN_AT[p.id]; signs.push({place:p, text: p.name, x: p.x + at[0], y: at[1], z: LOT8_Z + at[2], w: at[3], h: at[4], bg: at[5], fg: at[6] }); }
@@ -805,11 +813,12 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       const z0=LOT8_Z+(fp.front??7)-fp.d,z1=LOT8_Z+(fp.front??7);
       // Retain the outside-world solid body but leave the pub's actual front
       // doorway clear through the entry transition, including wheelchair radius.
+      const roof = coreRoof === null ? {} : { top: coreRoof };
       if(p.id==='pub')colliders.push(
-        {x0:p.x-fp.w/2,x1:p.x-1.05,z0,z1},
-        {x0:p.x+1.05,x1:p.x+fp.w/2,z0,z1},
-        {x0:p.x-1.05,x1:p.x+1.05,z0,z1:z1-.8});
-      else colliders.push({x0:p.x-fp.w/2,x1:p.x+fp.w/2,z0,z1});
+        {x0:p.x-fp.w/2,x1:p.x-1.05,z0,z1,...roof},
+        {x0:p.x+1.05,x1:p.x+fp.w/2,z0,z1,...roof},
+        {x0:p.x-1.05,x1:p.x+1.05,z0,z1:z1-.8,...roof});
+      else colliders.push({x0:p.x-fp.w/2,x1:p.x+fp.w/2,z0,z1,...roof});
     }
     if (kind === 'square') {
       colliders.push({ x0: p.x - 2.7, x1: p.x + 2.7, z0: LOT8_Z - 6.7, z1: LOT8_Z - 1.3 });
