@@ -4,9 +4,15 @@
 //   node tests/narromine-traffic.mjs
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
-import { createNarromineTraffic, DAILY_VEHICLES } from '../src/world/narromine-traffic.js';
+import { createNarromineTraffic, DAILY_VEHICLES, leftLaneOffset } from '../src/world/narromine-traffic.js';
 import { VEHICLE_MODELS, pickVehicle } from '../src/world/narromine-vehicle-models.js';
 import fs from 'node:fs';
+// World north is negative z. Left-of-travel keeps northbound cars to the
+// west and southbound cars to the east, as required on an NSW two-way street.
+assert.ok(leftLaneOffset(0, -1, 8).x < -1.5, 'northbound uses western lane');
+assert.ok(leftLaneOffset(0, 1, 8).x > 1.5, 'southbound uses eastern lane');
+assert.ok(leftLaneOffset(1, 0, 8).z < -1.5, 'eastbound uses northern lane');
+assert.ok(leftLaneOffset(-1, 0, 8).z > 1.5, 'westbound uses southern lane');
 const t = createNarromineTraffic(new THREE.Group());
 const perKm = (name, hour) => { const es = t.edges.filter(e => e.name === name); const len = es.reduce((s, e) => s + e.len, 0); return es.reduce((s, e) => s + t.expected(e, hour), 0) / (len / 1000); };
 assert.equal(DAILY_VEHICLES['Dandaloo Street'], 7000);
