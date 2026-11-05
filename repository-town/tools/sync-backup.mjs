@@ -4,6 +4,7 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import { supersedesPagesOnlyCode } from './pages-drift-guard.mjs';
+import { verifyIndependentPagesPreview } from './pages-independent-preview.mjs';
 const site=path.resolve(process.argv[2]);
 const output=path.resolve(new URL('../dist/public/',import.meta.url).pathname);
 const next=JSON.parse(fs.readFileSync(path.join(output,'release.json'),'utf8'));
@@ -11,6 +12,13 @@ if(next.sourceCommit!==process.env.EXPECTED_SOURCE_COMMIT||next.contentHash!==pr
 const git=(...args)=>execFileSync('git',['-C',site,...args],{encoding:'utf8'}).trim();
 if(git('status','--porcelain'))throw Error('Backup checkout has local changes');
 const previous=JSON.parse(fs.readFileSync(path.join(site,'release.json'),'utf8'));
+const trackedNames=git('ls-files').split('\n');
+// The independently published /latest/ QA workspace has its OWN release
+// manifest and separate validated source. Preserve it unchanged; it must
+// never block or be silently overwritten by the stable root backup.
+const independentPreview=verifyIndependentPagesPreview(site,trackedNames);
+if(independentPreview.preserve)console.log('Preserving independently verified /latest/ QA preview at '+independentPreview.sourceCommit+
+  ' ('+independentPreview.checked+' hashed files, '+independentPreview.screenshotCount+' game screenshots)');
 const keep=new Set(['README.md','AGENTS.md','CLAUDE.md','.nojekyll']);
 // Two Pages-only files were added on 24 October *after* the previous
 // release.json snapshot. Preserve their exact, individually audited Git
@@ -71,7 +79,11 @@ function exactHistoricalCopy(name){
   return !fs.existsSync(saved)||fs.readFileSync(saved).equals(fs.readFileSync(path.join(site,name)));
 }
 
-for(const name of git('ls-files').split('\n')) {
+for(const name of trackedNames) {
+  if(name.startsWith('latest/')) {
+    if(!independentPreview.preserve)throw Error('Unvalidated independently published preview: '+name);
+    continue;
+  }
   if(name.startsWith('.github/')||keep.has(name)||name==='release.json')continue;
   const expected=previous.files[name];
   if(!expected){
@@ -87,7 +99,7 @@ for(const name of git('ls-files').split('\n')) {
     console.log('Verified historical Pages-only edit preserved by immutable blob: '+name);
   }
 }
-for(const entry of fs.readdirSync(site))if(entry!=='.git'&&entry!=='.github'&&!keep.has(entry))fs.rmSync(path.join(site,entry),{recursive:true,force:true});
+for(const entry of fs.readdirSync(site))if(entry!=='.git'&&entry!=='.github'&&!(independentPreview.preserve&&entry==='latest')&&!keep.has(entry))fs.rmSync(path.join(site,entry),{recursive:true,force:true});
 fs.cpSync(output,site,{recursive:true});
 // Restore exact old bytes after replacing generated game assets. These
 // never override the canonical build and remain protected on later syncs.
