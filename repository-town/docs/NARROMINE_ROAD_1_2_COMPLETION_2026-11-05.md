@@ -1,6 +1,6 @@
 # DANDALOO-001 / 1.2 — Collision inspection, evidence and physical passage
 
-**Date:** 5 November 2026. **State:** Acceptance in progress: existing static-collision correction and walking evidence verified; the six-location car-driving evidence needs a real WebGL workflow result.
+**Date:** 5 November 2026. **State:** DANDALOO-001.2 dedicated WebGL acceptance **VERIFIED**, awaiting PR merge and backlog reconciliation. No new collision geometry changes; photo/real-world survey is not verified.
 
 ## Proven causes; do not remove actual roadside objects
 
@@ -31,8 +31,18 @@ This does **not** prove every Dandaloo intersection end-to-end, every turn, lega
 - [x] Actual false-positive footprint **source conflicts** conservatively corrected in #403, with before/after counts.
 - [x] All 52 remaining static samples classified as legitimate off-carriageway contact, based on current model provenance; no unsupported collider deletion.
 - [x] 20/20 independently staged physical pedestrian legs in existing NR-REAL-002 evidence.
-- [ ] Six named actual car drives on both browsers, the 12 screenshots, and current SHA check **pending**.
+- [x] **12/12 real sedan drives PASSED**, two browser configurations, six named sites, including the open Dandaloo rail crossing. [GitHub Actions run 41967170136](https://github.com/joshualparris/JoshMemory/actions/runs/41967170136), [JSON and 12 screenshots artifact 13387594060](https://github.com/joshualparris/JoshMemory/actions/runs/41967170136/artifacts/13387594060). Browser checkout was Actions synthetic merge SHA `da845651f39cf4a4dc510f1a48bc56a1d4706c55`, candidate branch head `0b92ffb342568128b1c272d7537525dcc70e3caa`.
 - [ ] Visual check of physical roads, parking/kerbs/ramps/paint and true-to-life public accessibility still needs dated source imagery and owner judgement.
 - [ ] Exact published production/backup source SHA cannot be claimed until verified separately.
 
 Close **only subtask 1.2** once the new physical-driving acceptance passes; DANDALOO-001/1.3+ and 1.6 remain open.
+
+## Confirmed acceptance run — 41967170136
+
+**Result: 12/12 success (6 desktop, 6 Pixel 7 Chromium emulation).** Each accepted test actually held `W` and called the in-game swept-substep `stepVehicle(1/30)` simulation. Real game car collision and dynamic actors remained active. The six accepted desktop distances were 10.17, 10.17, 10.17, 10.17, 10.17 and 18.08 metres; the mobile-sized runs yielded five 10.17–10.26 m drives and an 18.08 m crossing. **All 12 accepted drives: 0 off-road frames, 0 static-collision frames, 0 JavaScript page errors.** Screenshots are game-only frame captures **after parking**, not road-survey photo overlays or proof that the car drove between sites.
+
+The first phone-sized Burraway road-staging point was legitimately occupied by a dynamic actor: `probeStatic=false`, `probeWithMoving=true`, and the real vehicle refused to enter. The test recorded that rejected attempt and staged an independently validated second local candidate on the same road; this drove 10.17 m and parked properly. No pedestrian, parking, or building collisions were disabled or faked. In the previous run, a first-choice Burraway car stopped after 4.12 m and a first-choice Coles staging point was occupied; those remain preserved in [run 41966538702](https://github.com/joshualparris/JoshMemory/actions/runs/41966538702) as honest evidence of *dynamic* occupancy, not an invisible static wall. The test now records every rejected candidate in `report.json` and does not count any bypassed dynamic obstruction as an accepted drive.
+
+The Dandaloo crossing, NSW inventory ref **717**, was open during each accepted 18.08 m car traversal. This is *not* a test that driving into a closed boom succeeds; existing independent [freight/crossing browser test](../../tests/narromine-freight-crossings-browser.mjs) verifies boom collision while a train approaches. A 10m local straight drive does not validate turning radii, parking bay geometry, continuous town-wide access or real-life traffic safety.
+
+**Collision comparison ledger:** 239 pre-source-filter raw offset hits → 52 after the corrected Microsoft source filter; all 52 residual samples on seven 4.5m OSM service-road verges, 0 centred or full-vehicle-body-within mapped carriageway; car input-driven acceptance 12/12 at named public locations. Source conflicts require later 2026 ground-truth geospatial/photographic validation; no real building or tree is asserted absent merely because a filter withheld uncertain Microsoft data.
