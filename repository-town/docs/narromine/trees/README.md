@@ -3,7 +3,7 @@
 
 ## Verified research result
 
-**No publicly downloadable, individually georeferenced *and species-labelled* Narromine township tree register was found in the reviewed Council, NSW environment, planning and public GIS sources.** This does not prove Council has no internal register. Request its street/park tree GIS asset table, arborist inspection records and current planting list.
+**No publicly downloadable, individually georeferenced *and species-labelled* Narromine township tree register was found in the reviewed Council, NSW environment, planning and public GIS sources.** This does not prove Council has no internal register. Internal records remain unverified; this task is limited to already-public research.
 
 We **do** have direct historical/tree-count evidence: a 2022 field assessment of the aerodrome *study area* counted **7 Poplar Box, 3 Kurrajong and 6 dead stags**, and a Council report confirms **35 cemetery Kurrajongs in April 2024** (20 west avenue, 15 east). A 2018 programme replaced the **southern Dandaloo memorial Kurrajongs** with **Manchurian Pear**, while a 2019 Dandaloo *design plan* additionally lists maple, oak and palm **as designs, not verified present trees**. See [full report](RESEARCH_REPORT.md) and [Dandaloo audit](DANDALOO.md).
 
@@ -21,7 +21,6 @@ Existing game asset: **3,096** candidate canopy peaks/trees from 2023 NSW Spatia
 | [lidar-candidates-2023.geojson](lidar-candidates-2023.geojson) | 3,096 coordinate-converted canopy *candidates*, height and radius | Species null; WGS84 precision is not positional accuracy |
 | [lidar-candidates-2023.csv](lidar-candidates-2023.csv) | Same 3,096 records with game x/z coordinates | No unverified species assigned |
 | [verified-individual-trees.geojson](verified-individual-trees.geojson) | *Only* individually evidenced, species-labelled tree points | Currently empty: **0** verified species + trunk coordinate pairs from public sources |
-| [COUNCIL_DATA_REQUEST.md](COUNCIL_DATA_REQUEST.md) | Ready-to-send informal data request | Draft only, **not sent** |
 | [IMPORT_PLAN.md](IMPORT_PLAN.md) | Field/photo verification, join rules and realistic 3D implementation | Read-only recommendation: no live trees replaced |
 | [verify.mjs](verify.mjs) | Standalone Node provenance/coordinate and false-identification regression test | Run `node repository-town/docs/narromine/trees/verify.mjs`; CI on PR and main |
 
@@ -39,4 +38,8 @@ Existing game asset: **3,096** candidate canopy peaks/trees from 2023 NSW Spatia
 
 Coordinates: EPSG:4326 WGS84 `[longitude,latitude]` in GeoJSON; conversion is the exact inverse of RepoTown's `geoToWorld` equirectangular transform with 2026-11-03 OSM anchor, *not* independently certified GPS. 2023 LiDAR crowns may include canopy maxima, duplicate crowns, missed trees and changes since capture.
 
-**Priority:** Request Council's individual tree asset/GIS register; next cross-reference the 2023 LiDAR candidates with current 2026 georeferenced trunk-level photos, then field-verify unresolved Dandaloo and cemetery trees. 
+**Priority:** Cross-reference the 2023 LiDAR candidates with already-public, dated georeferenced trunk-level photographs, retaining botanical and positional uncertainty. Council contact and correspondence are excluded from this task.
+
+## Exclusion regression
+
+PR #458 included an unwanted correspondence artifact despite passing the GIS tests. The original research-only exclusion now runs before the data checks in `verify.mjs`. `node --test repository-town/docs/narromine/trees/exclusions.test.mjs` replays its filename and status metadata without recreating correspondence. The guard detects those concrete markers, including a renamed artifact; it is not a general semantic verifier.

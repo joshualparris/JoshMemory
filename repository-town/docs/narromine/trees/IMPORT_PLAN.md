@@ -40,7 +40,7 @@ This export reverses the game's *approximate* local equirectangular projection. 
 
 Use a review-based matching process, never automatic species filling.
 
-1. **Obtain authoritative point/tree ID and taxon from Council**, with coordinate CRS, survey date and current status. Map historical removals/plantings as separate observations.
+1. Use already-public authoritative point/tree ID and taxon records, where available, with coordinate CRS, survey date and current status. Map historical removals/plantings as separate observations. No Council contact is in scope.
 2. **Check photo/field evidence:** documented year/month or image capture timestamp; camera lat/lon and compass bearing alone are **not** a trunk position; require visible base, independent angle/triangulation, reference landmarks, and original source IDs.
 3. **Convert coordinates into same datum**; inspect surveyed CRS and model transform against NSW cadastral control/road edges. Correct a global offset, do not silently push individual crowns metres to the kerb.
 4. **Pair GPS trunk point to LiDAR canopy candidate** only when a reasonable crown/offset overlap and no contradictory tree exists. Canopy peak is offset from trunk in leaning/overhanging trees; nearest-neighbour alone can mispair adjacent trees. Review dense clusters and split maxima.
@@ -81,7 +81,7 @@ Use a review-based matching process, never automatic species filling.
 
 ## 5. Integration without modifying original sources yet
 
-When Council data arrives:
+If authoritative data becomes publicly available:
 - Store original raw source in an evidence-only location with its declared reuse rights.
 - Convert into `observations.geojson` using input CRS and capture dates; validate point bbox Narromine and stable IDs.
 - Create an explicit `tree-species-matches.json` keyed by **source asset ID**, matched game tree/candidate ID, spatial uncertainty, photo/record refs, and evidence A/B/C/D.
