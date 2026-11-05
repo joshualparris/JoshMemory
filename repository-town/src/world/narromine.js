@@ -748,7 +748,7 @@ export function buildNarromine(parent, makeLabel = null) {
   }
   town.visible = false;
   parent.add(root);
-  const update = (pos) => { const show = pos.x < SHOW_WEST_OF; if (town.visible !== show) town.visible = show; };
+  const update = (pos, airborne = false) => { const show = airborne || pos.x < SHOW_WEST_OF; if (town.visible !== show) town.visible = show; };
   return { group: town, root, colliders, spots, update, airfield };
 }
 
