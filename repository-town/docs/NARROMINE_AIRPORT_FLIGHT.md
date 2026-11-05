@@ -35,6 +35,8 @@ Travel with the search to Narromine Aerodrome · YNRM. Walk to the parked plane 
 
 Begin in the trainer, press R to line up, hold W to accelerate and apply gentle Arrow ↑ after approximately **100 km/h** (game physics). Landing requires returning to the ground and slowing below 2 m/s.
 
+**Phone recovery from off-runway taxi:** Holding throttle can accelerate the game plane to 245 km/h on non-runway ground, but the runway-only take-off condition will never allow a climb there. The instruments explicitly show **OFF RUNWAY**. Tap **↗ Line up 11** whenever grounded (even if moving) for an explicit arcade-assisted runway relocation and full stop, then **hold** Throttle + and ↑ Nose together to take off. This reset is not real-world aircraft behaviour, and it is not available while airborne. The interface must never disable the runway reset solely because a grounded aeroplane is moving.
+
 ## Acceptance and outstanding fidelity
 
 - Independent geometry does not overwrite original museum, roads, rail, collision, interiors, saves or other agents’ claims.
