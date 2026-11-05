@@ -225,7 +225,9 @@ function buildOnce(house, makeLabel, attempt) {
     const type=typeof e==='string'?e:e[0];
     return type==='bed'?[type,house.marriedCouple?bedLabel:typeof e==='string'?'Bed':e[1]||'Bed',{...(Array.isArray(e)?e[2]||{}:{}),do:'sleep'}]:e;
   })}));
-  if(!hasBed && !house.memorial)roomsWithBeds.push({
+  // Commercial/civic premises are not automatically someone's home. A workplace
+  // that has no actual beds must never acquire a fictional bedroom.
+  if(!hasBed && !house.memorial && !house.nonResidential)roomsWithBeds.push({
     name:'Bedroom',w:8,d:8,archive:true,
     props:[['bed',house.marriedCouple?bedLabel:'Sleep in bed',{do:'sleep'}],['wardrobe','Clothes wardrobe'],['lamp','Bedside lamp'],...(house.marriedCouple?[['lamp','Second bedside lamp']]:[])]
   });
