@@ -1049,7 +1049,9 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       const fig=makeDistinctPerson('trade-crew:'+id);
       const tag=makeLabel(id==='kai'?'Kai · apprentice':id==='mia'?'Mia · apprentice':
         id==='sam'?'Samir · plumber':id==='ella'?'Ella · electrician':
-        id==='noah'?'Noah · builder':'Ivy · IT technician','interactive');
+        id==='noah'?'Noah · builder':
+        id==='brewer'?'Maya · brewer':id==='site-builder'?'Noah · site builder':
+        id==='visiting-vet'?'Samira · vet':'Ivy · IT technician','interactive');
       tag.position.y=2.2;fig.group.add(tag);group.add(fig.group);
       crewModels.set(id,{fig,tag});
     }
@@ -1260,6 +1262,27 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
         const onScreen=!overview&&near(p.x,p.z,70);
         setCrew(job.worker,p.x+.85,p.z+.45,true,onScreen);
         if(f.apprentice)setCrew(f.apprentice,p.x-1.05,p.z+.45,true,onScreen);
+      }
+    }
+    // Regional contract crew are not fabricated extra resident households.
+    // Their presence is tied to a paid visit/shift in the real industry
+    // lifecycle. Draw them only near the viewer; job conflicts stop display.
+    const visitor=life.civic.linkedIndustries;
+    if(visitor?.version===1){
+      for(const [siteId,crewId] of [['brewery','brewer'],['buildsite','site-builder']]){
+        const site=life.place(siteId),isOnDuty=life.minute>=8*60&&life.minute<16*60&&
+          life.open(site)&&site.till>=12;
+        const busy=crewId==='site-builder'&&trade?.orders?.some(o=>o.worker==='noah'&&
+          ['assigned','in-transit','working','inspecting'].includes(o.status));
+        if(isOnDuty&&!busy&&site?.front){
+          const p=site.front;
+          setCrew(crewId,p.x+1.2,p.z+.75,true,!overview&&near(p.x,p.z,70));
+        }
+      }
+      const farm=visitor.vetContract?.farm,site=farm&&life.place(farm);
+      if(visitor.vetContract?.status==='examining'&&site){
+        const p=site.front;
+        setCrew('visiting-vet',p.x+1.2,p.z+.7,true,!overview&&near(p.x,p.z,70));
       }
     }
     const shipment=trade?.deliveries?.find(o=>o.status==='in-transit'&&o.vehicle);
