@@ -9,6 +9,13 @@ import { NARROMINE_MAPILLARY_OBJECTS as OBJ } from './narromine-mapillary-data.j
 
 const mat = (c) => new THREE.MeshLambertMaterial({ color: c });
 const textCache = new Map();
+// Mapillary geometry incorrectly put these objects on the carriageway outside Narromine Hotel.
+// Do not relocate them speculatively; restore only after verifying street-level position.
+const MISPLACED_HOTEL_ROAD_OBJECT_IDS = new Set([
+  '222123616053691', // Give Way sign
+  '1870715210337913', // bicycle rack
+  '1870715420337892', // bicycle rack
+]);
 // Australian speed sign: white panel, red ring, black number. Plain white when there is no DOM (tests).
 function speedMaterial(v) {
   if (textCache.has(v)) return textCache.get(v);
@@ -28,6 +35,7 @@ export function buildNarromineMapillaryObjects(target) {
   const post = mat(0xb8bcbf), white = mat(0xf2f0ea), add = (geo, m, x, y, z, yaw = 0) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.rotation.y = yaw; parent.add(o); return o; };
   const counts = {};
   for (const o of OBJ) {
+    if (MISPLACED_HOTEL_ROAD_OBJECT_IDS.has(o.id)) continue;
     counts[o.type] = (counts[o.type] || 0) + 1;
     // Facing: a sign's face normal points against the traffic that reads it. Road direction (ux, uz).
     const faceYaw = Math.atan2(o.ux * o.facing, o.uz * o.facing), roadYaw = -Math.atan2(o.uz, o.ux);

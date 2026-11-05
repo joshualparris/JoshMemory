@@ -11,6 +11,7 @@ import { buildNarromineRoyalHotel, ROYAL_HOTEL_REPLACED_IDS } from './narromine-
 import { buildNarromineRailwayPrecinct } from './narromine-railway-precinct.js';
 import { NARROMINE_TREES } from './narromine-trees-data.js';
 import { buildNarromineFurniture } from './narromine-furniture.js';
+import { buildNarromineLotLines } from './narromine-lot-lines.js';
 import { buildNarromineMapillaryObjects } from './narromine-mapillary-objects.js';
 import { NARROMINE_FURNITURE } from './narromine-furniture-data.js';
 import { NARROMINE_RAILWAY_INTEGRATION_SPEC } from './narromine-railway-evidence.js';
@@ -368,6 +369,7 @@ export function buildNarromine(parent, makeLabel = null) {
   }
   // OSM power poles, transmission towers and lines, give-way signs and bus stops.
   buildNarromineFurniture(town, colliders);
+  buildNarromineLotLines(town);
   // Signs, crossings, stop lines and street furniture where Mapillary photos detected them.
   buildNarromineMapillaryObjects(town);
   // Real trees detected in the 2023 LiDAR (narromine-trees-data.js): one instanced trunk and crown mesh
