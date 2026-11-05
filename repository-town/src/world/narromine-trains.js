@@ -6,7 +6,7 @@
 // narromine-rail-network.js). No operator livery or trademark is copied.
 import * as THREE from 'three';
 import { RAIL, STREETS } from './narromine-layout.js';
-import {REPO_RAIL_GAME_WAYS} from './town-rail-continuation-route.js';
+import {REPO_RAIL_GAME_WAYS,railTopAtGamePoint} from './town-rail-continuation-route.js';
 import { buildRailNetwork, createTrainPath, RAIL_GAUGE_M, RAIL_TOP_Y, SPEED_LIMIT_KMH } from './narromine-rail-network.js';
 
 const SLEEPER_SPACING = 0.68;   // concrete sleepers, ~1,470 per km
@@ -125,7 +125,7 @@ function placeConsist(consist, path) {
   return consist.cars.map((c, i) => {
     const [o, L] = consist.offsets[i], f = path.pointAt(path.s - o - 2.6), r = path.pointAt(path.s - o - L + 2.6), mid = path.pointAt(path.s - o - L / 2);
     const heading = Math.atan2(f.z - r.z, f.x - r.x);
-    c.position.set(mid.x, 0, mid.z); c.rotation.y = -heading - Math.PI / 2;
+    c.position.set(mid.x,railTopAtGamePoint(mid.x,mid.z)-RAIL_TOP_Y,mid.z); c.rotation.y = -heading - Math.PI / 2;
     return { x: mid.x, z: mid.z, heading, L };
   });
 }
