@@ -33,6 +33,7 @@ try {
     assert.equal(airport.icao,'YNRM');
     assert.deepEqual(airport.runways.map(r=>[r.id,r.length,r.width]),[['11/29',1521,30],['04/22',1100,30]]);
     assert.equal(airport.parking.length,2);
+    assert.ok(airport.flightLandscape.patches>300,device+': agricultural underlay under flight corridor');
 
     // Actual game search. Phones start with town controls minimised, so a
     // user must expand the menu before the search input becomes visible.
