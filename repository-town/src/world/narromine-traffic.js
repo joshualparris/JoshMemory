@@ -90,7 +90,7 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
   const { nodes, adj } = buildGraph();
   // Only true road junctions need conflict management; degree-two bend vertices do not.
   const junctions = new Set([...adj].filter(([, es]) => new Set(es.map(e => e.to)).size >= 3).map(([n]) => n));
-  const edges = []; for (const [from, list] of adj) for (const e of list) if (from < e.to) edges.push({ from, ...e });
+  const edges = []; for (const [from, list] of adj) for (const e of list) if (from < e.to || e.dividedLane) edges.push({ from, ...e });
   const cars = []; let serial = 0, seed = 1234567;
   const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;     // deterministic, so tests repeat
   const posOf = (c) => { const a = nodes[c.from], b = nodes[c.to], t = c.s / c.len; return { x: a.x + (b.x - a.x) * t, z: a.z + (b.z - a.z) * t, ux: (b.x - a.x) / c.len, uz: (b.z - a.z) / c.len }; };
