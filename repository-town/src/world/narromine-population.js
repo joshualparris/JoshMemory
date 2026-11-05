@@ -203,7 +203,8 @@ export function dayPlan(p, hh, weekday, workplaces) {
     return plan.map((s) => ({ ...s, from: Math.max(0, Math.min(1440, s.from)), to: Math.max(0, Math.min(1440, s.to)) })).filter((s) => s.to > s.from);
   }
   if (p.school && !weekend) {
-    plan.push({ from: 0, to: 7 * 60 + j('w', 30), at: 'home', kind: 'sleep' }, { from: plan[0].to, to: 8 * 60 + 25, at: 'home', kind: 'breakfast' },
+    const up = 7 * 60 + j('w', 30);
+    plan.push({ from: 0, to: up, at: 'home', kind: 'sleep' }, { from: up, to: 8 * 60 + 25, at: 'home', kind: 'breakfast' },
       { from: 8 * 60 + 25, to: 8 * 60 + 50, at: p.school, kind: 'travel' }, { from: 8 * 60 + 50, to: 15 * 60, at: p.school, kind: 'school' },
       { from: 15 * 60, to: 18 * 60 + 30, at: 'home', kind: 'home' }, { from: 18 * 60 + 30, to: 19 * 60 + 15, at: 'home', kind: 'dinner' }, { from: 19 * 60 + 15, to: 1440, at: 'home', kind: 'sleep' });
     return plan;
