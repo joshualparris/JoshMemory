@@ -44,7 +44,12 @@ assert(Object.values(byDriver).every(s => s.size === 1), 'each driver uses one c
 const drops = trips.filter(t => t.purpose === 'dropoff');
 assert(drops.length > 50, 'school drop-offs happen: ' + drops.length);
 for (const t of drops) { assert(t.depart === 8 * 60 + 25); for (const k of t.passengers) { const kid = P.people[+k.slice(3)]; assert(kid.age <= 11 && kid.school === t.to && kid.household === P.people[+t.person.slice(3)].household); } }
-assert(trips.filter(t => t.purpose !== 'dropoff' && t.passengers?.length).every(t => t.depart >= 15 * 60), 'children ride home only after pick-up');
+assert(trips.filter(t => t.purpose !== 'dropoff' && t.passengers?.some(id => P.people[+id.slice(3)].age < 12)).every(t => t.depart >= 15 * 60), 'children ride home only after pick-up');
+// Adults riding to work with a household member (census: 5.5% of workers travel as a car passenger).
+const riders = commute.population.people.filter(p => p.ridesWith);
+assert(riders.length > 30, 'workers riding as passengers: ' + riders.length);
+for (const r of riders.slice(0, 20)) { const d = commute.population.people[+r.ridesWith.slice(3)]; assert(d.household === r.household && d.drives && !r.drives); }
+assert(trips.some(t => t.purpose === 'travel' && t.passengers?.some(id => commute.population.people[+id.slice(3)].ridesWith)), 'riders are in the car on the way to work');
 // Between the towns: Repository Town residents drive in to Narromine jobs from the east and back; Narromine
 // residents with jobs in Repository Town have a named workplace there.
 const visitors = P.people.filter(p => p.livesIn === 'repotown');

@@ -220,6 +220,22 @@ export function createNarrominePopulation(seed = 20211810) {
       if (drivers[k]) { drivers[k].drives = true; drivers[k].car = car.id; }
     }
   });
+  // Car passengers to work: the census counts 72 of 1,301 Narromine workers (5.5%) travelling as a car
+  // passenger. Two working members of a household whose workplaces are within 3 km and open within an hour of
+  // each other share a car: one drives, the other rides, and the passenger's own car (if any) stays home. This
+  // finds about 56 such pairs, a little under the census's ~67 (not every household has two matching jobs).
+  const wById = new Map(workplaces.map((w) => [w.id, w]));
+  let riders = 0; const riderTarget = Math.round(workers.length * C.travelToWork.carPassenger / (C.labour.fullTime + C.labour.partTime + C.labour.away));
+  for (const hh of households) {
+    if (riders >= riderTarget) break;
+    const ws = hh.members.map((id) => people[+id.slice(3)]).filter((p) => wById.has(p.workplace) && p.age >= 16).sort((x, y) => (y.drives ? 1 : 0) - (x.drives ? 1 : 0));
+    if (ws.length < 2 || !ws[0].drives) continue;
+    const [a, b] = ws, wa = wById.get(a.workplace), wb = wById.get(b.workplace);
+    if (Math.hypot(wa.x - wb.x, wa.z - wb.z) > 3000 || Math.abs(wa.opens - wb.opens) > 60) continue;
+    b.ridesWith = a.id; b.drives = false;
+    if (b.car) { const c = cars.find((x) => x.id === b.car); if (c) c.driver = null; b.car = null; }
+    riders++;
+  }
   // Between the towns (the Mitchell Highway links them):
   //  - Narromine residents whose job is in Repository Town are given a real workplace there.
   //  - Repository Town residents take some staffed jobs in Narromine and drive in each shift. They live in

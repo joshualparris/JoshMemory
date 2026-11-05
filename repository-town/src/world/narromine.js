@@ -374,7 +374,7 @@ export function buildNarromine(parent, makeLabel = null) {
   }
   // OSM power poles, transmission towers and lines, give-way signs and bus stops.
   buildNarromineFurniture(town, colliders);
-  buildNarromineLotLines(town); // NSW cadastral QA overlay, only with ?lots=1; no colliders
+  buildNarromineLotLines(town); // optional ?lots=1-only NSW cadastre QA, no colliders
   // Signs, crossings, stop lines and street furniture where Mapillary photos detected them.
   buildNarromineMapillaryObjects(town);
   // 2023 NSW LiDAR locations and canopy sizes are authoritative; natural morphology is illustrative.

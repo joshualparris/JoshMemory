@@ -65,3 +65,11 @@ fitted-out workplace interiors, passengers and school drop-offs, and Repository 
   kept within the usual range for the kind. Where the mapped outline covers several shops in a row, typical
   staffing is used. Narromine station (an unstaffed coach stop since 1975) and the fire station (retained,
   on-call crew) have no daily shift. Each workplace records where its number comes from (`staffBasis`).
+
+## Passengers and Repository Town parking (5 Nov 2026)
+- **Car passengers to work**: the census counts 5.5% of Narromine workers travelling as a car passenger (72 of
+  1,301). Two working members of a household whose workplaces are within 3 km and open within an hour share a
+  car: one drives, the other rides, and the second car stays home. This finds 56 pairs, a little under the
+  census's ~67, because not every household has two matching jobs. School children ride on the school run.
+- **Parked in Repository Town**: Narromine residents who work in Repository Town park their own car at the kerb
+  outside their workplace while on shift (nearest free 6.5 m space), and are solid to the player's car.

@@ -1,0 +1,19 @@
+// Narromine residents who work in Repository Town park at their workplace only while on shift, each in their
+// own kerbside space, with their own car.
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import { TownLife } from '../src/world/life.js';
+import { createNarrominePopulation } from '../src/world/narromine-population.js';
+import { createRepoTownCommuterParking } from '../src/world/narromine-commuters-parked.js';
+const inventory = JSON.parse(fs.readFileSync(new URL('../../docs/repository-town.json', import.meta.url), 'utf8'));
+const homes = inventory.projects.map(({ coordinate }) => ({ coordinate, name: 'Home ' + coordinate, door: { x: (coordinate.charCodeAt(0) - 65 - 12.5) * 26, z: (Number(coordinate.slice(1)) - 1 - 3.5) * 46 + 3 } }));
+const pop = createNarrominePopulation(), life = new TownLife({ homes }), park = createRepoTownCommuterParking(null, pop, life, { models: false });
+const day = park.update(2, 11 * 60), night = park.update(2, 2 * 60), sunday = park.update(0, 11 * 60).length;
+assert.equal(night.length, 0, 'no Narromine commuters parked at 2 am');
+const working = park.update(2, 11 * 60);
+assert(working.length >= 20, 'Narromine commuters parked in Repository Town at 11 am Tuesday: ' + working.length);
+for (let i = 0; i < working.length; i++) for (let j = i + 1; j < working.length; j++)
+  assert(Math.hypot(working[i].x - working[j].x, working[i].z - working[j].z) > 4.6, 'parked cars do not overlap: ' + working[i].place + ' / ' + working[j].place);
+for (const c of working) { const p = pop.people.find(q => q.name === c.owner && q.repoTownJob?.name === c.place); assert(p, 'each car belongs to a commuter who works there'); assert(Math.abs(c.x - life.places.get(p.repoTownJob.id).curb.x) < 40, 'parked at their own workplace'); }
+assert(sunday < working.length, 'fewer on Sunday');
+console.log(`PASS Repository Town parking: ${working.length} Narromine commuters parked at their workplaces at 11 am Tuesday, ${sunday} on Sunday, none at 2 am`);
