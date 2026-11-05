@@ -28,6 +28,12 @@ never a house number, and no person is presented as living at a real address.
 - `narromine-traffic.js`: draws residents' cars near the player along their routes, parked cars within 300 m,
   and Mitchell Highway through traffic (half the counted highway volume).
 
+## Homes (step 2)
+Every resident household's house can be entered by walking up to its street-facing front door
+(`narromine-homes.js`). Each has a lounge (with who is home and what they are doing), kitchen (fridge, pantry,
+stove, sink), bathroom, laundry and a bed for everyone: couples share a double bed, children up to two to a room.
+The fridge shows what the household has: restocked on its last Coles trip, used up per person per day since.
+
 ## Not yet
-House interiors with fridge/bed/bathroom for Narromine homes, groceries moving from Coles into fridges,
+Coles stock and deliveries feeding household shops, visible resident figures in homes and streets,
 fitted-out workplace interiors, passengers and school drop-offs, and Repository Town residents commuting to Narromine.

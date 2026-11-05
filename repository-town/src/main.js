@@ -33,6 +33,7 @@ import { AERODROME } from './world/narromine-airfield-data.js';
 import { createNarromineTrains } from './world/narromine-trains.js';
 import { createNarromineTraffic } from './world/narromine-traffic.js';
 import { townDate } from './world/town-calendar.js';
+import { createNarromineHomeIndex, buildNarromineHomeInterior } from './world/narromine-homes.js';
 import { createTownRailYard } from './world/town-rail-yard.js';
 import { NARROMINE_POST_OFFICE_SAVE_ID, NARROMINE_POST_OFFICE_ENTRANCE, nearNarrominePostOfficeDoor, buildNarrominePostOfficeInterior, createNarrominePostalOutdoorActor } from './world/narromine-post-office.js';
 import { NARROMINE_POSTAL_PERSON, POSTAL_WALK_ROUTE_LOCAL, postalState, postalDayPlan, postalFormatTime } from './world/narromine-postal-character.js';
@@ -241,6 +242,8 @@ async function start() {
   const trains = createNarromineTrains(narromine.group);
   // Road traffic at the levels the NSW crossing register records (Dandaloo St 7,000 vehicles a day).
   const narromineTraffic = createNarromineTraffic(narromine.group, { blocked: (x, z) => trains.crossingClosedNear(x, z) });
+  // Residents' homes: walk up to a front door to go in (narromine-homes.js).
+  const narromineHomes = createNarromineHomeIndex(narromineTraffic.commute.population);
   const narrominePostalOutdoor=createNarrominePostalOutdoorActor(narromine.group,makeLabel);
   const [postalHomeX,postalHomeZ]=toWorld(POSTAL_WALK_ROUTE_LOCAL[0]);
   narromine.spots.push({key:'narromine:leah-home',label:'Leah Bennett’s fictional home',
@@ -715,6 +718,25 @@ async function start() {
     return true;
   }
 
+  // A Narromine resident's home: built from who lives there, what is in the fridge and who is home now.
+  function enterNarromineHome(d){
+    if(mode!=='town'||driving.driving)return false;
+    const pop=narromineTraffic.commute.population,built=buildNarromineHomeInterior(pop,d.home,makeLabel,life.day,life.minute),hh=built.household;
+    inside={house:{coordinate:'NARROMINE-HOME:'+d.home.id,name:'The '+hh.surname+' household',address:hh.street+', Narromine NSW',kind:'home'},
+      ...built,floorIndex:0,floors:null,narromineHome:d};
+    scene.add(built.group);town.group.visible=false;
+    scene.background.set(INDOOR);scene.fog=null;
+    world=new CollisionWorld(built.colliders);
+    player.place(built.spawn.x,built.spawn.z,0);
+    mode='house';player.baseHeight=0;floorDoorCooldown=.65;
+    updateFloorBadge();$('btn-exit').hidden=false;
+    closePanel();npcChat.close();ambience.door();
+    $('card').hidden=true;delete $('card').dataset.coord;
+    const home=built.occupants.filter(o=>o.home).map(o=>o.person.first);
+    status('Inside the '+hh.surname+' household, '+hh.street+'. '+(home.length?home.join(', ')+(home.length>1?' are':' is')+' home.':'Nobody is home.')+' Check the fridge, the bedrooms and who is home in the lounge. Walk back out the front door or tap Exit.');
+    return true;
+  }
+
   function enterNarromineColes(ignoreHours=false){
     if(mode!=='town'||driving.driving)return false;
     const open=colesOpen(life.day,life.minute);
@@ -845,6 +867,7 @@ async function start() {
     const narrominePostOffice=!!inside.narrominePostal;
     const narromineColes=!!inside.narromineColes;
     const narromineChurch=!!inside.narromineChurch;
+    const narromineHome=inside.narromineHome?{...inside.narromineHome,label:inside.house.name.replace(/^The /,'')}:null;
     inside.bakeryImmersion?.dispose();
     inside.workplay?.dispose();
     if(inside.floors?.isPub)for(const level of inside.floors.levels)if(level.workplay!==inside.workplay)level.workplay?.dispose();
@@ -857,7 +880,10 @@ async function start() {
     $('btn-exit').hidden = true;
     town.group.visible = true; scene.background.set(SKY); scene.fog = fog;
     if (placeOutside) {
-      if (narromineChurch) {
+      if (narromineHome) {
+        const o=narromineHome.door.out;
+        player.place(o.x,o.z,o.yaw);
+      } else if (narromineChurch) {
         const pose=ST_MARYS_ENTRANCE.returnPose;
         player.place(pose.x,pose.z,pose.yaw);
       } else if (narromineColes) {
@@ -886,7 +912,7 @@ async function start() {
     // Close the door behind the player so the doorway does not re-trigger.
     const d = town.doors.find((d) => d.userData.coordinate === coord); if (d) d.userData.open = 0;
     ambience.door();
-    status(narromineChurch?"Back outside St Mary's Anglican Church · 148 Dandaloo Street.":narromineColes?'Back outside Coles Narromine · 76 Dandaloo Street.':narrominePostOffice?'Back outside Narromine Post Office · 74 Dandaloo Street.':campus?`Back outside ${campus.name}.`:countryHome?`Back outside ${countryHome.address} · ${countryHome.country}.`:shop?`Back outside ${shop.name}.`:`Back on the street at ${coord}.`);
+    status(narromineHome?'Back on '+narromineHome.home.street+', outside the '+narromineHome.label+'.':narromineChurch?"Back outside St Mary's Anglican Church · 148 Dandaloo Street.":narromineColes?'Back outside Coles Narromine · 76 Dandaloo Street.':narrominePostOffice?'Back outside Narromine Post Office · 74 Dandaloo Street.':campus?`Back outside ${campus.name}.`:countryHome?`Back outside ${countryHome.address} · ${countryHome.country}.`:shop?`Back outside ${shop.name}.`:`Back on the street at ${coord}.`);
   }
 
   // ── Overview (bird's-eye) ────────────────────────────────────────────────
@@ -1666,6 +1692,9 @@ async function start() {
       enterNarromineColes(true);player.place(saved.pos.x,saved.pos.z,saved.yaw);
     } else if (saved.inside===NARROMINE_POST_OFFICE_SAVE_ID) {
       enterNarrominePostOffice();player.place(saved.pos.x,saved.pos.z,saved.yaw);
+    } else if (String(saved.inside||'').startsWith('NARROMINE-HOME:')) {
+      const d=narromineHomes.doors.find(x=>'NARROMINE-HOME:'+x.home.id===saved.inside);
+      if(d){enterNarromineHome(d);player.place(saved.pos.x,saved.pos.z,saved.yaw);}
     } else if (saved.inside===ST_MARYS_SAVE_ID) {
       enterStMarys();player.place(saved.pos.x,saved.pos.z,saved.yaw);
     } else if (saved.insideShop && life.places.has(saved.insideShop)) {
@@ -2022,6 +2051,7 @@ async function start() {
       }
       if(mode==='town' && !overview && !driving.driving && nearNarrominePostOfficeDoor(player.pos)) enterNarrominePostOffice();
       if(mode==='town' && !overview && !driving.driving && nearNarromineColesDoor(player.pos)) enterNarromineColes();
+      if(mode==='town' && !overview && !driving.driving && player.pos.x<-2640){const d=narromineHomes.near(player.pos);if(d)enterNarromineHome(d);}
        if(mode==='town' && !overview && !driving.driving && nearStMarysDoor(player.pos)) enterStMarys();
       if(mode==='town' && !overview && !driving.driving){
         for(const place of life.places.values()){
@@ -2326,7 +2356,7 @@ async function start() {
     vehicles:()=>life.motorReport().owned.map(v=>({...v})),
     enterVehicle:(reg)=>driving.enter(life.motorReport().owned.find(v=>v.registration===reg)),
     yardTrain:()=>yard.state(), yardBoard:()=>yard.board(), yardExit:()=>yard.exit(player), yardAction:(kind)=>yard.action(kind), yardColliders:()=>yard.colliders(),
-    train:()=>trains.state(), traffic:()=>({count:narromineTraffic.count,models:narromineTraffic.modelsLoaded,parked:narromineTraffic.parked.length,cars:narromineTraffic.cars.map(c=>({x:c.x,z:c.z,v:c.v,yaw:c.yaw,model:c.model,driver:c.driver,purpose:c.purpose,destination:c.destination}))}), probeWithMoving:(x,z,r=.4)=>!!townWorld.hits(x,z,r), trainNear:()=>trains.near(player.pos), trainBoard:()=>trains.board(), trainExit:()=>trains.exit(player), trainRoute:(p)=>trains.setRoute(p), runFreight:(i)=>trains.runFreight(i), trainColliders:()=>trains.colliders(),
+    train:()=>trains.state(), traffic:()=>({count:narromineTraffic.count,models:narromineTraffic.modelsLoaded,parked:narromineTraffic.parked.length,cars:narromineTraffic.cars.map(c=>({x:c.x,z:c.z,v:c.v,yaw:c.yaw,model:c.model,driver:c.driver,purpose:c.purpose,destination:c.destination}))}), probeWithMoving:(x,z,r=.4)=>!!townWorld.hits(x,z,r), trainNear:()=>trains.near(player.pos), trainBoard:()=>trains.board(), trainExit:()=>trains.exit(player), trainRoute:(p)=>trains.setRoute(p), runFreight:(i)=>trains.runFreight(i), trainColliders:()=>trains.colliders(), narromineHomeDoors:()=>narromineHomes.doors.slice(0,50).map(d=>({id:d.home.id,street:d.home.street,door:{x:d.door.x,z:d.door.z},out:d.door.out})), enterNarromineHome:(id)=>enterNarromineHome(narromineHomes.doors.find(d=>d.home.id===id)), insideInfo:()=>inside?{name:inside.house.name,address:inside.house.address,occupants:inside.occupants?.map(o=>o.person.name+': '+o.doing),fridge:inside.fridge}:null,
     leaveVehicle:()=>driving.exit(),
     // A fixed step behaves like a real frame, including showing the driving message (off-road, braking).
     narromineVisible:()=>narromine.group.visible,
