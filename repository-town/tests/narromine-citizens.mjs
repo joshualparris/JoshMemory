@@ -67,7 +67,13 @@ for(let day=1;day<=7;day++){
     }
   }
 }
-for(const person of town.citizens.slice(0,100))assert.equal(town.stateAt(person,1,1380).kind,'sleeping','night sleep');
+for(const person of town.citizens.slice(0,100)){
+  assert.equal(town.stateAt(person,1,180).kind,'sleeping','3 am sleep for day/evening workers');
+  // An evening shift can legitimately end at 11 pm; the commute home must
+  // not be hidden by an unrealistic blanket lights-out assertion.
+  assert.ok(['sleeping','travelling'].includes(town.stateAt(person,1,1380).kind),
+    '11 pm late-shift commute or sleep');
+}
 const selected=town.chooseTrip({day:1,minute:480,serial:3,fromNode:10});
 assert.ok(selected?.citizen&&selected.route.length>1,'actual traveller selected during morning commute');
 assert.equal(selected.route.at(-1),selected.trip.to.node);
