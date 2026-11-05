@@ -22,12 +22,34 @@ export function homeDoor(home) {
   return { ...door, out: { x: door.x + ux * 2.2, z: door.z + uz * 2.2, yaw: Math.atan2(-ux, -uz) } };
 }
 
+// The four wall midpoints of a footprint as door candidates, the street-facing wall first.
+export function doorCandidates(home) {
+  const c = Math.cos(home.yaw), s = Math.sin(home.yaw), ax = [[c, s, home.w / 2], [-c, -s, home.w / 2], [-s, c, home.d / 2], [s, -c, home.d / 2]];
+  const kx = home.kerb.x - home.x, kz = home.kerb.z - home.z;
+  const doors = ax.map(([ux, uz, h]) => { const door = { x: home.x + ux * h, z: home.z + uz * h }; return { ...door, out: { x: door.x + ux * 2.2, z: door.z + uz * 2.2, yaw: Math.atan2(-ux, -uz) }, facing: ux * kx + uz * kz }; });
+  doors.sort((a, b) => b.facing - a.facing);
+  return [homeDoor(home), ...doors];
+}
+// First candidate whose doorstep is free within 1.3 m and whose approach (1.5–4 m out) is clear.
+export function pickDoor(cands, probe) {
+  for (const d of cands) {
+    const ux = d.out.x - d.x, uz = d.out.z - d.z, L = Math.hypot(ux, uz) || 1;
+    let free = false; for (let t = 0; t <= 1.3 && !free; t += 0.1) free = !probe(d.x + ux / L * t, d.z + uz / L * t, 0.4);
+    if (!free) continue;
+    let clear = true; for (let t = 1.5; t <= 4 && clear; t += 0.25) clear = !probe(d.x + ux / L * t, d.z + uz / L * t, 0.4);
+    if (clear) return d;
+  }
+  return null;
+}
 export function createNarromineHomeIndex(population) {
   const CELL = 30, grid = new Map(), key = (x, z) => Math.floor(x / CELL) + ',' + Math.floor(z / CELL);
-  const doors = population.homes.map((h) => ({ home: h, door: homeDoor(h) }));
-  for (const d of doors) { const k = key(d.door.x, d.door.z); if (!grid.has(k)) grid.set(k, []); grid.get(k).push(d); }
+  let doors = population.homes.map((h) => ({ home: h, door: homeDoor(h), cands: doorCandidates(h) }));
+  const reindex = () => { grid.clear(); for (const d of doors) { const k = key(d.door.x, d.door.z); if (!grid.has(k)) grid.set(k, []); grid.get(k).push(d); } };
+  reindex();
   return {
-    doors,
+    get doors() { return doors; },
+    // Move each door to a wall the player can actually reach (probe(x, z, r) → true when blocked).
+    resolve(probe) { const before = doors.length; doors = doors.filter((d) => { const p = pickDoor(d.cands, probe); if (p) d.door = p; return !!p; }); reindex(); return { kept: doors.length, dropped: before - doors.length }; },
     // The home whose front door is within reach of this point (null if none).
     near(pos, reach = 1.4) {
       let best = null, bd = reach;
