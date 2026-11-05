@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { NARROMINE_QA_LOCATIONS, VIEWPORTS } from '../tools/narromine-visual-qa/locations.mjs';
 import {
-  BASELINE_SHA, CANDIDATE_SHA, DEFAULT_ROUTE_ID, cameraRoute, checkPairContract,
+  BASELINE_SHA, CANDIDATE_SHA, DEFAULT_ROUTE_ID, cameraRoute, checkPairContract, instrumentMainForQa,
 } from '../tools/narromine-visual-qa/compare-video.mjs';
 
 assert.match(BASELINE_SHA, /^[a-f0-9]{40}$/);
@@ -35,6 +35,14 @@ const createResult = variant => ({
 });
 const base = createResult('baseline'), candidate = createResult('candidate');
 assert.equal(checkPairContract(base, candidate), true, 'valid matched pair');
+const sceneSrc = 'const renderer = { render(){} };\n' +
+  'const camera = new THREE.PerspectiveCamera(72, innerWidth / innerHeight, 0.15, 185);\n';
+const injected = instrumentMainForQa(sceneSrc);
+assert(injected.includes('window.__qaCamera = camera'), 'direct camera instrumentation');
+assert(injected.includes('window.__qaRendererHookHits'), 'hook must count actual real render calls');
+assert.equal(instrumentMainForQa(sceneSrc), injected, 'idempotent source generation');
+assert.throws(() => instrumentMainForQa('const camera = 0;'), /unique Three.js game camera/);
+
 for (const [field, value] of [
   ['buildRevision', 'different'], ['shaderSha256', 'old'],
   ['settings', { ...settings, weather: 'rain' }], ['route', route.slice(1)],
