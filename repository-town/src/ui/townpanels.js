@@ -1,3 +1,5 @@
+import {populationHTML} from './population-panel.js';
+import {linkedIndustryPanel} from './linked-industry-panel.js';
 import {pubStandards,pubStandardsAction} from '../world/pub-standards.js';
 import {pubStandardsPanel} from './pub-standards-panel.js';
 // Panels for town life: shop counters, farms, the Town Ledger and the town guide, plus
@@ -195,7 +197,13 @@ export function hallPanel(life) {
 }
 
 export function placePanel(life, id) {
-  if(['hardware','trades','tafe','university','school'].includes(id))return tradeEducationPanel(life,id);
+  const linked=new Set(['sheep','dairy','coop','clinic','foundry','trades','hardware','pub']);
+  const enhance=panel=>{
+    if(linked.has(id))panel.actions=[...(panel.actions||[]),{
+      label:'Farm cooperative · linked industries',run:()=>linkedIndustryPanel(life,id)}];
+    return panel;
+  };
+  if(['hardware','trades','tafe','university','school'].includes(id))return enhance(tradeEducationPanel(life,id));
   if(id==='realestate')return propertyOfficePanel(life);
   if(id==='realty')return propertyOfficePanel(life);
   if(id==='dealership')return motorMarketPanel(life);
@@ -217,7 +225,7 @@ export function placePanel(life, id) {
     panel.actions=[...(panel.actions||[]),{label:here?'💼 Resume / clock out of this shift':active?'💼 View existing shift / cancel':'💼 Start work a shift here',
       run:()=>jobPanel(life,id,()=>placePanel(life,id))}];
   }
-  return panel;
+  return enhance(panel);
 }
 function placePanelBase(life, id) {
   const p = life.place(id);
@@ -336,7 +344,7 @@ export function ledgerPanel(life) {
   return {
     title: `Town Ledger · Day ${L.day}, ${L.time}`, wide: true,
     body: `<p><b>Population:</b> ${L.population} villagers · ${L.atWork} at work · ${L.asleep} asleep · ${life.homes.length} households.</p>
-      <h3>Today</h3>
+      ${populationHTML(life)}<h3>Today</h3>
       <p><b>Harvested:</b> ${n(s.harvested)}<br><b>Milled:</b> ${s.milled} bags of flour · <b>Baked:</b> ${s.baked} loaves and pies<br>
       <b>Deliveries:</b> ${s.deliveries} truckloads — ${n(s.delivered)}<br><b>Sold in shops:</b> ${n(s.sold)}<br>
       <b>Meals:</b> ${s.meals} eaten (${s.mealsOut} at the café and pub) · <b>Parcels delivered:</b> ${s.parcels}</p>
@@ -348,7 +356,8 @@ export function ledgerPanel(life) {
       ${powerNetworkHTML(L.civic)}<h3>Trucks</h3><p>${L.trucks.map((t) => esc(`${t.driver || 'Spare'}: ${t.state}`)).join('<br>')}</p>
       <h3>Resident yarns — exactly what they said</h3>${yarnHTML||'<p>No conversations recorded yet. Let the town run or visit the pub.</p>'}
       <h3>News</h3><ul class="news">${L.news.map((e) => `<li><span class="dim">${esc(e.t)}</span> ${esc(e.text)}</li>`).join('')}</ul>`,
-    actions: [{ label: '📊 Town accounts', run: () => economyPanel(life, () => ledgerPanel(life)) }],
+    actions: [{ label: '📊 Town accounts', run: () => economyPanel(life, () => ledgerPanel(life)) },
+      {label:'🐄 Cooperative, farms and brewery',run:()=>linkedIndustryPanel(life,'hall')}],
   };
 }
 
