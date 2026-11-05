@@ -1,0 +1,38 @@
+# Soul Food Depot & Gallery — named venue research and reconstruction
+Research date: **6 November 2026**. Scope **NR-SHOP-SOULFOOD-001**, 1–7 Dandaloo Street, Narromine NSW 2821.
+
+**IMPORTANT:** This is a functional, bespoke **interpretive** gameplay model, *not* an exact surveyed floor plan or a claim about the real entrance, current furniture positions or actual staff numbers. In the absence of owner-supplied drawings or an authorised dated interior walk-through, accuracy means **faithfully representing verified functions and not inventing the unverified details**.
+
+## Primary and supporting evidence
+
+| Feature | Evidence | Grounding / limit |
+| --- | --- | --- |
+| Identity, address and former citrus packing shed | [Soul Food: business history](https://www.soulfooddepot.com.au/) and [Narromine regional visitor listing](https://narromineregion.com.au/where-to-eat) | **Official/confirmed**: 1–7 Dandaloo St. Established as cafe/gallery in a former citrus packing shed in **2014**. No private dwelling mapped. |
+| Cafe and gallery | [Business history](https://www.soulfooddepot.com.au/), [official café page](https://www.soulfooddepot.com.au/cafe) | **Official**: spacious dining hall with art-lined walls, Allpress coffee, freshly made meals and baked goods. Exact wall art positions/brands not copied. |
+| Loading Dock takeaway counter | [Official business history](https://www.soulfooddepot.com.au/) | **Official service**; exterior opening side and window dimensions are **unknown**. In-game representation is a labelled service station *inside*, **not a new false exterior window**. |
+| Retail and licensed bar | [Business history and shop](https://www.soulfooddepot.com.au/) | **Official**: homewares/decor; licensed wines from Orange/Hunter Valley; display items generic, no real live inventory. |
+| On-site catering kitchen | [Official events page](https://www.soulfooddepot.com.au/functions-and-events) | **Official**: chefs and catering serving corporate/private events. Kitchen placement/equipment arrangement **inferred**, not inspected. |
+| Event hall | [Official events page](https://www.soulfooddepot.com.au/functions-and-events) | **Official**: converted warehouse event room up to **300 cocktail / 200 seated including dance floor**; concrete floors, wood-washed walls, aged zinc tin walls, recycled elm tables, white chairs, large wire pendants and fairy lights. Game uses *original abstract geometry*, not photographed source textures. Event capacity is a booking limit, **not normal daily occupancy**. |
+| Courtyard | [Official events page](https://www.soulfooddepot.com.au/functions-and-events) | **Official**: outdoor courtyard up to **70 seated / 100 cocktail** with umbrellas and festoon lights. No outdoor polygon geometry was added because its exact location is unverified. A hotspot records the feature. |
+| Meeting room | [Official venue meeting rooms page](https://www.soulfooddepot.com.au/book-our-meeting-rooms) | **Official**: up to **20 boardroom/U-shape or 30 theatre**, aircon, Wi-Fi, stainless table, chairs, whiteboard. Mock room placement **inferred**. |
+| Boardroom | [Official meeting rooms](https://www.soulfooddepot.com.au/book-our-meeting-rooms) | **Official**: 12 seats, 75-inch screen, aircon, Wi-Fi, whiteboard. Model positions approximate. |
+| Normal cafe hours | [Official venue café page](https://www.soulfooddepot.com.au/cafe) | **Official at research date**: Mon–Sat **07:30–15:00**; Sun **08:00–15:00**. **Conflict**: older [Council visitor listings](https://narromineregion.com.au/where-to-eat) show Sunday *closed*. Use current operator website for simulated regular hours; confirm before real-life travel. Catering/events hours and holidays do **not** follow ordinary cafe hours automatically. |
+| Exact geolocation | [Council March 2025 Dandaloo speed-zone report](https://www.narromine.nsw.gov.au/07.%20Reports%20to%20Council%20-%20Infrastructure%20and%20Engineering%20Services%20-%20March%202025.pdf?downloadable=1), [OSM 3 Nov 2026 data snapshot](https://www.openstreetmap.org/copyright) | **PROVISIONAL / NEEDS FIELD VERIFICATION**: Council places Soul Food *near Culling Street*. The current OSM named POI list excludes the business. A substantial eastern building polygon **OSM #195** approximately (-1776.4, -1444.1 local metres) near Dandaloo/Culling was used as a **candidate**; its tenancy/entry door have not been verified against an address parcel, aerial business signage or current owner permission. Do not call this a surveyed match. |
+| Real staff and visitors | [ABS 2021 census](https://www.abs.gov.au/census) | Town sim derives **fictional** staff through industry/footprint approximation. Census industry counts do **not** identify individual employee rosters. No real persons are represented as working here. |
+
+## Architecture and implementation
+
+- **New mapping:** one extra named POI in `EXTRA_PLACES`, sourced from the confirmed Dandaloo/Culling vicinity and explicitly carrying an unverified building note. The existing OSM shed remains the *only* outside building geometry. No new facade, photo textures, awnings, gates, signs, parking, trees or private addresses are invented.
+- **New real-place interior:** `src/world/narromine-soul-food-interior.js` supplies a named six-room **grid**: cafe/gallery, takeaway/homewares/licensed counter, food preparation/catering, the converted event room, meeting room and boardroom. The architectural arrangement is *inferred*, and room names state so explicitly.
+- **Distinct appearance:** original WebGL framing, abstract artworks (not copied artist paintings), rusticated zinc rib geometry, timber-coloured trusses and warm hanging lights; coffee/dining/catering workstations, counters, seating and real-world venue information markers.
+- **Gameplay:** full existing `buildInterior` collision and exit model, physically enterable rooms, station interactions, fictional on-duty staff, close-time refusal and source-grounded public information. Maps share the existing **single** landmark registry; no competing business mesh is created.
+- **No real hospitality operating procedures asserted:** the game does not process real payments, live menus, venue bookings, security/alcohol service or medical/dietary claims.
+
+## Acceptance stages (do not overstate)
+
+1. `node tests/narromine-soul-food.mjs`: named map marker, near documented junction, six unique rooms, no bedroom, five connected indoor doorways, real functional categories, fictional headcount label, regular hours.
+2. Existing `tests/narromine-workplaces.mjs`, `tests/narromine-layout.mjs`, `tests/narromine-residents.mjs`: preserve 70+ existing venues and resident assignments.
+3. Full release build/privacy/28-day economy; desktop and Pixel-7-size Chromium test of **actual** frontend: arrive through mapped door, visible gallery and distinct rooms, open useable service station, close/exit and save/reload, no page errors or physical clipping. Screenshots reviewed.
+4. PR reviewed/merged with exact head; main SHA verified; Vercel/Pages hosted SHA and real device physical browser playthrough separately.
+
+**Limits:** No cadastral evidence for the exact shed attribution, doorway or interior floorplan. Sunday hours conflicting. Capacity is **not** actual occupancy. Public source photographs are **not licensed for copying into this project**; all art and material geometry is original. Future owner-supplied interior permission and parcel-level verification could turn interpretive features into surveyed accurate ones. Do not extrapolate one named shop's room plan to any other venue.
