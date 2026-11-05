@@ -42,6 +42,9 @@ jobs:
           node tests/pub-completion.mjs
           node --test tests/pub-2026-audit.mjs tests/pub-history.mjs
           node tests/simulation-soak.mjs --quiet
+      - name: Build public output before checking public-asset privacy
+        working-directory: repository-town
+        run: npm run build:deploy
       - name: Validate privacy and source syntax
         working-directory: repository-town
         run: |
