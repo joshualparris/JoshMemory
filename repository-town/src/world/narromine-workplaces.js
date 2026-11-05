@@ -6,7 +6,7 @@
 import { buildInterior } from './interior.js';
 import { makePerson } from './npcs.js';
 import { NARROMINE_FOOTPRINTS } from './narromine-footprints-data.js';
-import { BUILDINGS, DETAILED } from './narromine-layout.js';
+import { BUILDINGS, DETAILED, OSM, toWorld } from './narromine-layout.js';
 import { segNearest, whoIsAt } from './narromine-population.js';
 import { homeDoor, doorCandidates, pickDoor } from './narromine-homes.js';
 import { SOUL_FOOD_EVIDENCE, soulFoodOpen, soulFoodInteriorSpec, decorateSoulFoodInterior } from './narromine-soul-food-interior.js';
@@ -43,6 +43,43 @@ const WORKSHOP_KINDS = ['agrarian', 'trade', 'hvac', 'car', 'car_wash'];
 export const OWN_INTERIOR = new Set(['supermarket', 'post_office']);          // these keep their dedicated interiors
 const fitFor = (kind) => FIT[kind] || (OFFICE_KINDS.includes(kind) ? OFFICE : WORKSHOP_KINDS.includes(kind) ? WORKSHOP : SHOP);
 
+// A DISTINCT, explicitly provisional public approach for Soul Food. Waze locates
+// its destination within the same large OSM mapped building as the McPhersons
+// Automotive POI; the generic street-centre door algorithm put both entrances
+// at exactly the same position. Select the nearest exterior WALL of that existing
+// mapped polygon to the Waze point, not an invented second building or tenancy.
+function soulFoodProvisionalDoor(w) {
+  if(w.name!=='Soul Food Depot & Gallery')return null;
+  const building=OSM.buildings[195], pts=building?.pts?.map(toWorld);
+  if(!pts || pts.length<4)return null;
+  // This guard ensures reordering/updating the OSM snapshot cannot silently
+  // relocate the venue to unrelated premises.
+  const automotive=OSM.places.find(p=>p.name==='McPhersons Automotive');
+  if(!automotive || Math.hypot(automotive.x-(-1781.8),automotive.z-(-1449.5))>10)return null;
+  const cx=pts.reduce((n,p)=>n+p[0],0)/pts.length,cz=pts.reduce((n,p)=>n+p[1],0)/pts.length;
+  if(Math.hypot(cx-w.x,cz-w.z)>38)return null;
+  let nearest=null;
+  for(let i=0;i<pts.length;i++){
+    const a=pts[i],b=pts[(i+1)%pts.length],dx=b[0]-a[0],dz=b[1]-a[1],length2=dx*dx+dz*dz;
+    if(length2<1)continue;
+    const t=Math.max(0,Math.min(1,((w.x-a[0])*dx+(w.z-a[1])*dz)/length2));
+    const bx=a[0]+t*dx,bz=a[1]+t*dz,d=Math.hypot(w.x-bx,w.z-bz);
+    if(nearest && d>=nearest.d)continue;
+    const len=Math.sqrt(length2);
+    let ux=dz/len,uz=-dx/len;
+    const midx=(a[0]+b[0])/2,midz=(a[1]+b[1])/2;
+    if(ux*(midx-cx)+uz*(midz-cz)<0){ux=-ux;uz=-uz;}
+    nearest={d,bx,bz,ux,uz,edge:i};
+  }
+  if(!nearest || nearest.d>24)return null;
+  // Slightly outside the actual polygon wall. 'out' is a walking approach, not
+  // a representation that the real door exists at this inferred edge.
+  const {bx,bz,ux,uz}=nearest;
+  return {x:bx+ux*0.75,z:bz+uz*0.75,
+    out:{x:bx+ux*3.4,z:bz+uz*3.4,yaw:Math.atan2(-ux,-uz)},
+    provisional:true,evidence:'Waze destination pin projected to nearest OSM #195 exterior wall; doorway not surveyed'};
+}
+
 // The traced building for each workplace, with a front door on its street side.
 export function createNarromineWorkplaceIndex(pop) {
   const list = [];
@@ -52,7 +89,11 @@ export function createNarromineWorkplaceIndex(pop) {
     if (!best) continue;
     const s = segNearest(best.x, best.z); if (!s) continue;
     best.kerb = { x: s.x, z: s.z };
-    list.push({ workplace: w, building: best, door: homeDoor(best), doors: doorCandidates(best) });
+    const soulDoor=soulFoodProvisionalDoor(w);
+    if(w.name==='Soul Food Depot & Gallery' && !soulDoor)continue; // never fall back to automotive's door
+    list.push({ workplace: w, building: best, door: soulDoor || homeDoor(best),
+      doors: soulDoor ? [soulDoor] : doorCandidates(best),
+      provisionalEntrance: !!soulDoor });
   }
   return {
     list,
