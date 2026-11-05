@@ -31,7 +31,8 @@ assert(byHour[7] + byHour[8] > byHour[11] && byHour[16] + byHour[17] > byHour[19
 for (const car of P.cars.slice(0, 300)) {
   const list = trips.filter(t => t.car === car.id); let at = 'home';
   for (const t of list) { assert.equal(t.from, at, car.id + ' leaves from where it parked'); at = t.to; }
-  assert.equal(commute.carState(car.id, 2, 3 * 60).parked, 'home', car.id + ' is at home at 3 am');
+  const at3 = commute.carState(car.id, 2, 3 * 60), night = list.some(t => t.depart > 21 * 60);
+  assert(at3.parked === 'home' || (night && at3.parked), car.id + ' is at home at 3 am unless its driver works nights');
 }
 const weekend = commute.trips(6);
 assert(weekend.filter(t => t.purpose === 'travel').length < trips.filter(t => t.purpose === 'travel').length / 2, 'far fewer commutes on Saturday');

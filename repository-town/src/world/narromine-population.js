@@ -59,7 +59,7 @@ export const AWAY_WORK = Object.freeze([
   { id: 'graincorp', name: 'grain receival site and rail yard', share: 0.04, opens: 6 * 60, closes: 15 * 60, weekend: false, direction: 'local' },
 ]);
 
-const segNearest = (x, z) => {
+export const segNearest = (x, z) => {
   let best = null, bd = Infinity;
   for (const s of STREETS) {
     if (!['residential', 'tertiary', 'unclassified', 'secondary', 'living_street'].includes(s.kind) || !s.name) continue;
@@ -188,7 +188,15 @@ export function dayPlan(p, hh, weekday, workplaces) {
   if (wp && (!weekend || wp.weekend)) {
     const commute = wp.direction === 'east' ? 45 : wp.direction === 'west' ? 25 : 10;
     const long = wp.closes - wp.opens > 11 * 60;                       // hospital, police, pubs: shifts
-    let start = long ? (hash(p.id + 'shift') < 0.5 ? 7 * 60 : 14 * 60 + 30) : wp.opens + j('s', 20);
+    // 24-hour workplaces (hospital, police) run day, evening and night shifts; pubs and clubs day and evening.
+    const shiftRoll = hash(p.id + 'shift'), allNight = wp.opens === 0 && wp.closes === 1440;
+    if (long && allNight && shiftRoll >= 0.85 && !(weekend && hash(p.id + 'wk' + weekday) < 0.5)) {
+      // Night shift: finishes at 7 am, sleeps through the day, drives back for 10:15 pm.
+      return [{ from: 0, to: 7 * 60, at: p.workplace, kind: 'work' }, { from: 7 * 60, to: 7 * 60 + commute, at: 'home', kind: 'home' }, { from: 7 * 60 + commute, to: 14 * 60 + 30, at: 'home', kind: 'sleep' },
+        { from: 14 * 60 + 30, to: 18 * 60, at: 'home', kind: 'home' }, { from: 18 * 60, to: 18 * 60 + 45, at: 'home', kind: 'dinner' }, { from: 18 * 60 + 45, to: 22 * 60 + 15 - commute, at: 'home', kind: 'evening' },
+        { from: 22 * 60 + 15 - commute, to: 22 * 60 + 15, at: p.workplace, kind: 'travel' }, { from: 22 * 60 + 15, to: 1440, at: p.workplace, kind: 'work' }];
+    }
+    let start = long ? (shiftRoll < (allNight ? 0.5 : 0.5) ? 7 * 60 : 14 * 60 + 30) : wp.opens + j('s', 20);
     let end = long ? start + 8 * 60 + 30 : Math.min(wp.closes + 15, start + (p.partTime ? 5 * 60 : 8 * 60 + 30));
     if (weekend && hash(p.id + 'wk' + weekday) < 0.5) return quietDay(p, weekday, hash);   // rostered off
     wake = Math.max(4 * 60 + 30, start - commute - 60 + j('b', 20));
