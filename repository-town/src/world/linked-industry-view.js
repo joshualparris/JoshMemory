@@ -36,7 +36,7 @@ export function createLinkedIndustryView(life,group){
     const offset=(i*0.61803398875)%1,second=(i*.41421356237)%1;
     const xx=(field.x0+field.x1)/2+(offset-.5)*width;
     const zz=(field.z0+field.z1)/2+(second-.5)*depth;
-    const bob=a.alive?.035*Math.sin(ftime*.015+i):0;
+    const bob=a.alive ? .035*Math.sin(ftime*.015+i) : 0;
     const base=def.bodyColour;
     xform.position.set(xx, .72*(a.species==='cow'?1:.7)+bob,zz);
     xform.rotation.set(0,(i*.49)%6.283,0);xform.scale.set(...def.body);
