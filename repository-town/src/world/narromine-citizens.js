@@ -63,9 +63,8 @@ function buildHomes(nodes, limit) {
     candidates.push({footprintIndex:i,x,z,area,node:near.node});
   }
   // Spatially spread the household sample, not a synthetic cluster around the first tiles.
-  const stride=Math.max(1,Math.floor(candidates.length/Math.max(1,limit)));
-  const homes=[];
-  for(let i=0;homes.length<limit && i<candidates.length;i+=stride)homes.push(candidates[i]);
+  const take=Math.min(limit,candidates.length), homes=[];
+  for(let i=0;i<take;i++)homes.push(candidates[Math.floor((i+0.5)*candidates.length/take)]);
   return homes.map((h,i)=>Object.freeze({
     id:'NR-H-'+String(i+1).padStart(4,'0'),
     footprintIndex:h.footprintIndex,x:h.x,z:h.z,area:h.area,node:h.node,
