@@ -38,15 +38,16 @@ try{
             const x=ax+(bx-ax)*t+perp[0]*lateral,z=az+(bz-az)*t+perp[1]*lateral;
             if(!window.__town.onRoad(x,z))continue;
             const c=window.__town.probeStatic(x,z,1.12);
-            if(c)hits.push({road:road.id,kind:road.kind,x:+x.toFixed(2),z:+z.toFixed(2),lateral,collider:{x0:c.x0,x1:c.x1,z0:c.z0,z1:c.z1}});
+            if(c)hits.push({road:road.id,kind:road.kind,x:+x.toFixed(2),z:+z.toFixed(2),lateral,collider:{x0:c.x0,x1:c.x1,z0:c.z0,z1:c.z1,source:c.source||'unclassified',osmIndex:c.osmIndex??null,hasPoly:!!c.poly}});
           }
         }
       }
     }
     const byRoad=Object.entries(hits.reduce((a,h)=>{const q=a[h.road]||={count:0,minX:Infinity,maxX:-Infinity,minZ:Infinity,maxZ:-Infinity,samples:[]};q.count++;q.minX=Math.min(q.minX,h.x);q.maxX=Math.max(q.maxX,h.x);q.minZ=Math.min(q.minZ,h.z);q.maxZ=Math.max(q.maxZ,h.z);if(q.samples.length<9)q.samples.push(h);a[h.road]=q;return a;},{})).sort((a,b)=>b[1].count-a[1].count);
+    const bySource=Object.entries(hits.reduce((acc,h)=>{const key=h.collider.source;acc[key]=(acc[key]||0)+1;return acc;},{})).sort((a,b)=>b[1]-a[1]);
     const nearShops=shops.filter(x=>/pharmacy|butcher|clinic|greengrocer/i.test(x.name)).map(s=>({...s,
       roadHits:hits.filter(h=>Math.hypot(h.x-s.door.x,h.z-s.door.z)<45).slice(0,14)}));
-    return {blockedTotal:hits.length,byRoad:byRoad.slice(0,65),nearShops,
+    return {blockedTotal:hits.length,byRoad:byRoad.slice(0,65),bySource,nearShops,
       coreStreetHits:hits.filter(h=>h.kind==='core').length,planStreetHits:hits.filter(h=>h.kind==='plan').length,
       mappedStreetHits:hits.filter(h=>h.kind==='mapped').length,
       samplePavedRoads:roads.length,time:window.__town.state()?.time};
@@ -68,6 +69,7 @@ try{
   console.log('ROAD-AUDIT '+device+' static blocked lane samples='+report.blockedTotal+
     ' core='+report.coreStreetHits+' planned='+report.planStreetHits+' mapped='+report.mappedStreetHits);
   console.log('TOP-BLOCKERS '+JSON.stringify(report.byRoad.slice(0,18)));
+  console.log('COLLIDER-SOURCES '+JSON.stringify(report.bySource));
   console.log('SHOPS '+JSON.stringify(report.nearShops));
   await ctx.close();
  }

@@ -6,6 +6,9 @@ on:
   pull_request:
     paths:
       - 'repository-town/src/world/life.js'
+      - 'repository-town/src/world/narromine.js'
+      - 'repository-town/src/world/narromine-collision-footprints.js'
+      - 'repository-town/tests/narromine-collision-footprints.mjs'
       - 'repository-town/tests/road-drive-avenue-fence.mjs'
       - 'repository-town/tests/road-drive-collisions-browser.mjs'
       - '.github/workflows/town-road-drive-obstruction-audit.yml'
