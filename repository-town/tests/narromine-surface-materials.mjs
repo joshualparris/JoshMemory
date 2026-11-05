@@ -33,6 +33,22 @@ for (const [colour, kind] of cases) {
   assert.match(shader.vertexShader, /vNarromineSurfaceNormal = normal;/);
   assert.match(shader.fragmentShader, /diffuseColor\.rgb \*= narromineSurfaceFactor\(\)/);
   assert.match(shader.fragmentShader, /fwidth\(/, 'avoid hard high-frequency aliasing');
+  // Screen-space filtering must be active in the actual compiled surface role,
+  // not merely defined in an unused helper. Material form and mesh count stay
+  // unchanged: only the fragment colour factor is filtered.
+  assert.equal(mat.customProgramCacheKey(), 'narromine-world-surface-v2:' + kind,
+    'shader cache must invalidate when the filtering implementation changes');
+  assert.match(shader.fragmentShader, /float nrFilteredNoise\(vec2 p\)/);
+  assert.match(shader.fragmentShader, /float pixelFootprint = max\(fwidth\(p\.x\), fwidth\(p\.y\)\)/);
+  assert.match(shader.fragmentShader, /1\.0 - smoothstep\(0\.45, 1\.0, pixelFootprint\)/);
+  assert.match(shader.fragmentShader, /return mix\(0\.5, nrNoise\(p\), weight\)/);
+  if (kind === 'brick') {
+    assert.match(shader.fragmentShader, /brickPixelFootprint = max\(fwidth\(bond\.x\), fwidth\(bond\.y\)\)/);
+    assert.match(shader.fragmentShader, /brickVariation = mix\(0\.5, nrHash\(/);
+  } else {
+    assert.match(shader.fragmentShader, /nrFilteredNoise\(p \* [0-9.]+\)/,
+      kind + ' must actually filter procedural noise during draw');
+  }
   assert.doesNotMatch(shader.fragmentShader, /texture2D\(/, 'no image assets required');
   mat.dispose();
 }
