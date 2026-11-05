@@ -402,7 +402,7 @@ async function start() {
   });
   showSpeedSetting();
   const driving=createPlayerDriving(life,scene,townWorld,player,camera,input);
-  const flight=createPlayerFlight({parent:town.group,player,camera,input,touch:input.touch});
+  const flight=createPlayerFlight({parent:narromine.root,player,camera,input,touch:input.touch});
   for(const parked of flight.state().parking) narromine.spots.push({
     key:'narromine:flight:'+parked.id,label:'✈ Board '+parked.name,
     pos:new THREE.Vector3(parked.x,0,parked.z),flightPlane:parked.id
