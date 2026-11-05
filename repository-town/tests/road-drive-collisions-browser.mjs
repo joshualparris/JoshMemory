@@ -13,7 +13,7 @@ const base=process.env.TOWN_URL||'http://127.0.0.1:8091/';
 const roads=[
  ...CORE_ROADS.map(r=>({id:r.id,kind:'core',a:r.a,b:r.b,width:r.width})),
  ...PLAN_ROADS.map(r=>({id:r.id,kind:'plan',a:r.a,b:r.b,width:r.width})),
- ...STREETS.map((r,i)=>({id:'narromine-'+i+':'+r.name,kind:'mapped',width:r.width,pts:r.pts}))
+ ...STREETS.map((r,i)=>({id:'narromine-'+i+':'+r.name,kind:'mapped',streetClass:r.kind,streetName:r.name,width:r.width,pts:r.pts}))
 ];
 fs.mkdirSync('test-results/road-drive',{recursive:true});
 const browser=await chromium.launch({args:['--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
@@ -38,15 +38,33 @@ try{
             const x=ax+(bx-ax)*t+perp[0]*lateral,z=az+(bz-az)*t+perp[1]*lateral;
             if(!window.__town.onRoad(x,z))continue;
             const c=window.__town.probeStatic(x,z,1.12);
-            if(c)hits.push({road:road.id,kind:road.kind,x:+x.toFixed(2),z:+z.toFixed(2),lateral,collider:{x0:c.x0,x1:c.x1,z0:c.z0,z1:c.z1}});
+            if(c)hits.push({road:road.id,kind:road.kind,streetClass:road.streetClass||road.kind,
+              streetName:road.streetName||null,roadWidth:road.width,
+              // A centre can lie on the mapped road while the 1.12 m body extends
+              // OFF its carriageway: ±1.6 m lane probes overhang a 4.5 m service
+              // way (2.72 > 2.25 m). Preserve such contacts as roadside evidence.
+              probeWithinCarriageway:Number.isFinite(road.width)&&
+                Math.abs(lateral)+1.12<=road.width/2+1e-6,
+              x:+x.toFixed(2),z:+z.toFixed(2),lateral,collider:{x0:c.x0,x1:c.x1,z0:c.z0,z1:c.z1,source:c.source||'unclassified',osmIndex:c.osmIndex??null,hasPoly:!!c.poly}});
           }
         }
       }
     }
     const byRoad=Object.entries(hits.reduce((a,h)=>{const q=a[h.road]||={count:0,minX:Infinity,maxX:-Infinity,minZ:Infinity,maxZ:-Infinity,samples:[]};q.count++;q.minX=Math.min(q.minX,h.x);q.maxX=Math.max(q.maxX,h.x);q.minZ=Math.min(q.minZ,h.z);q.maxZ=Math.max(q.maxZ,h.z);if(q.samples.length<9)q.samples.push(h);a[h.road]=q;return a;},{})).sort((a,b)=>b[1].count-a[1].count);
+    const bySource=Object.entries(hits.reduce((acc,h)=>{const key=h.collider.source;acc[key]=(acc[key]||0)+1;return acc;},{})).sort((a,b)=>b[1]-a[1]);
+    const byStreetClass=Object.entries(hits.reduce((acc,h)=>{
+      const key=h.streetClass||'unclassified';acc[key]=(acc[key]||0)+1;return acc;
+    },{})).sort((a,b)=>b[1]-a[1]);
+    const probeWithinCarriagewayHits=hits.filter(h=>h.probeWithinCarriageway).length;
+    const probeOverhangsCarriagewayHits=hits.length-probeWithinCarriagewayHits;
+    const onDandalooHits=hits.filter(h=>h.kind==='mapped'&&h.streetName==='Dandaloo Street').length;
+    const namedStreetHits=hits.filter(h=>h.kind==='mapped'&&h.streetName).length;
+    const centrelineHits=hits.filter(h=>h.lateral===0).length;
     const nearShops=shops.filter(x=>/pharmacy|butcher|clinic|greengrocer/i.test(x.name)).map(s=>({...s,
       roadHits:hits.filter(h=>Math.hypot(h.x-s.door.x,h.z-s.door.z)<45).slice(0,14)}));
-    return {blockedTotal:hits.length,byRoad:byRoad.slice(0,65),nearShops,
+    return {blockedTotal:hits.length,byRoad:byRoad.slice(0,65),bySource,byStreetClass,
+      probeWithinCarriagewayHits,probeOverhangsCarriagewayHits,onDandalooHits,namedStreetHits,
+      centrelineHits,nearShops,
       coreStreetHits:hits.filter(h=>h.kind==='core').length,planStreetHits:hits.filter(h=>h.kind==='plan').length,
       mappedStreetHits:hits.filter(h=>h.kind==='mapped').length,
       samplePavedRoads:roads.length,time:window.__town.state()?.time};
@@ -59,6 +77,14 @@ try{
   // but track that mapping defect separately rather than claiming it is fixed.
   assert.equal(report.coreStreetHits,0,device+': no invisible solid on Repository Town road lanes');
   assert.equal(report.planStreetHits,0,device+': no invisible solid on built estate road lanes');
+  // This is a Dandaloo-first acceptance invariant: a narrow service driveway is
+  // not equivalent to the main street or to a connected pedestrian walk.
+  assert.equal(report.onDandalooHits,0,device+': no modelled Dandaloo road-lane contact');
+  // Safety-critical: do not waive genuine full-body contacts just because
+  // the 4.5 m service road's shoulder probe overhangs the mapped carriageway.
+  assert.equal(report.centrelineHits,0,device+': centreline blocked by static geometry');
+  assert.equal(report.probeWithinCarriagewayHits,0,
+    device+': static collision within full mapped carriageway (see JSON byRoad)');
   assert(Number.isInteger(report.mappedStreetHits) && report.mappedStreetHits>=0,
     device+': mapped-road contacts must be recorded for follow-up');
   if(report.mappedStreetHits>0)console.warn('UNRESOLVED mapped Narromine lane contacts ('+device+'): '+report.mappedStreetHits);
@@ -68,6 +94,15 @@ try{
   console.log('ROAD-AUDIT '+device+' static blocked lane samples='+report.blockedTotal+
     ' core='+report.coreStreetHits+' planned='+report.planStreetHits+' mapped='+report.mappedStreetHits);
   console.log('TOP-BLOCKERS '+JSON.stringify(report.byRoad.slice(0,18)));
+  console.log('COLLIDER-SOURCES '+JSON.stringify(report.bySource));
+  console.log('ROAD-CLASSES '+JSON.stringify(report.byStreetClass));
+  console.log('ROAD-PROBE-FIT '+JSON.stringify({
+    fullyInsideCarriageway:report.probeWithinCarriagewayHits,
+    overhangsCarriageway:report.probeOverhangsCarriagewayHits,
+    centreline:report.centrelineHits,
+    namedStreet:report.namedStreetHits,
+    dandaloo:report.onDandalooHits
+  }));
   console.log('SHOPS '+JSON.stringify(report.nearShops));
   await ctx.close();
  }

@@ -26,9 +26,9 @@ landmark sites, 8 stand-in shops and **2,665 invented stand-in houses**.
    canopy height and spread; street trees only where LiDAR shows them.
 5. [ ] **Property boundaries and fences.** Draw cadastral lot boundaries; front fences and
    driveways only where aerial imagery shows them.
-6. [x] **Road surfaces and markings.** _Done from OSM tags: 26 street runs on unpaved ways drawn as gravel tracks; Australian broken centre lines (3 m line, 9 m gap) only on the 15 ways tagged with 2+ lanes. OSM maps no stop lines or road signs beyond give-way._ Sealed vs unsealed from OSM `surface`; centre lines, edge
+6. [x] **Road surfaces and markings.** _5 Nov 2026: white edge lines, broken centre lines and edge lines curving round kerb returns on the main roads (owner photo at the hotel). Earlier, from OSM tags: 26 street runs on unpaved ways drawn as gravel tracks; Australian broken centre lines (3 m line, 9 m gap) only on the 15 ways tagged with 2+ lanes. OSM maps no stop lines or road signs beyond give-way._ Sealed vs unsealed from OSM `surface`; centre lines, edge
    lines, stop/give-way lines and signs at mapped intersections; real road widths.
-7. [x] **Kerb, gutter and footpaths.** _Partly: unpaved roads no longer get generated footpaths or kerbs. Sealed-street footpaths still follow the road class rule; checking them against aerial imagery remains._ Only on streets that have them (town centre and main
+7. [x] **Kerb, gutter and footpaths.** _5 Nov 2026: curved kerb returns at every junction; footpaths only on main roads and town-centre streets (residential streets get verges); Derribong Ave by the hotel has its one-sided red-brick path (owner photo); no footpath across the hotel forecourt; 31 OSM footways drawn. Earlier: unpaved roads no longer get generated footpaths or kerbs. Sealed-street footpaths still follow the road class rule; checking them against aerial imagery remains._ Only on streets that have them (town centre and main
    streets per aerial imagery); gravel verges elsewhere.
 8. [ ] **Terrain.** Use the LiDAR ground model (class 2) for gentle ground levels, the Macquarie
    River banks and drainage channels, instead of a flat plane.
@@ -52,3 +52,20 @@ landmark sites, 8 stand-in shops and **2,665 invented stand-in houses**.
     files differences; each becomes a numbered item here.
 
 Progress is recorded against each item with its PR number.
+
+## Owner comparison fixes (Mapillary / Street View, 4–5 Nov 2026)
+
+- [x] No trees in front of the Narromine Hotel (PR #393).
+- [x] Arrival point no longer inside the Royal Hotel model (PR #399).
+- [x] Curved kerbs at junctions (PR #400), hotel forecourt one sealed surface (PR #401).
+- [x] Main-road line marking with curved corner lines (PR #402).
+- [x] Derribong Avenue one-sided red-brick footpath; residential verges (PR #404).
+
+## Still open, and what each needs
+
+- **3 (bunkers), 4 and 2 outside the town centre:** more NSW LiDAR tiles (only 6166432/6166433 are on hand).
+- **5 Fences and lot lines:** NSW cadastre is reachable; fences need aerial imagery or Mapillary review.
+- **8 Terrain:** LiDAR ground model, same tile limit as above.
+- **9 Land use:** OSM land-use areas are drawn; paddock/oval colours from aerial imagery still to check.
+- **13 Business names:** needs a dated check against current council/business listings.
+- **15 Traffic levels, 16 rail extras, 17 owner review:** not started.
