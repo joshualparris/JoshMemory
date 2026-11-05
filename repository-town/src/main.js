@@ -1900,7 +1900,7 @@ async function start() {
     drivingDashboard.update(mode==='town'&&!overview?driving.activeVehicle():null);
     ambience.setRadioPlaying(drivingDashboard.getState().station>0);
     trains.tick(dt,{day:life.day,minute:life.minute});   // timetabled freights and level-crossing booms
-    if(mode==='town'&&player.pos.x<-2640) {const wd=townDate(life.day).weekday;narromineTraffic.update(dt,player.pos,life.minute,wd);narrominePeople.update(dt,player.pos,wd,life.minute);}
+    if(mode==='town'&&player.pos.x<-2640) {const wd=townDate(life.day).weekday;narromineTraffic.update(dt,player.pos,life.minute,wd,life.day);narrominePeople.update(dt,player.pos,wd,life.minute);}
     market.update(life.day, life.minute);
     frameItems();
     carryFrame();
