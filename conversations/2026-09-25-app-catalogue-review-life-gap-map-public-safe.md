@@ -37,7 +37,7 @@ The catalogue included:
 - Simple RPG, Infinite Office, Null, StarHaven, Delve, Breach Command, Echo Vault
 - Takeaway Tonight, JoshSim, Parris Budget, JoshHealthHub, DrunkJoshGuardian
 - HugCoach, ClearCore, LifeHub Dashboard, Parris Piano, Parris Tech App, Parris Tech Services App
-- Boundary Road Panos, Neverwinter Tales, Wilds Sail West, Wilds Main
+- Home Panos, Neverwinter Tales, Wilds Sail West, Wilds Main
 - BucklandBlocks, JoshTapApp, JoshNFCAudio, NebulaDice, Parris Life Dashboard
 - GitHub repos across `joshualparris`, `joshuaparris-max`, and `joshuaparrisdadlan-stack`
 
@@ -201,7 +201,7 @@ Lowest group:
 19. Sleep/routine prototype apps
 20. ParrisDubboMover
 21. ClearCore / JoshHealthHub / DrunkJoshGuardian / Takeaway Tonight
-22. Boundary Road Panos
+22. Home Panos
 23. Games and lore apps
 24. Placeholder repos / duplicate mirrors / broken deployments
 
