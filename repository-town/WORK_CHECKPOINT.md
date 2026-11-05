@@ -1,3 +1,7 @@
+# 2026-11-05 — NR-AIR-FLIGHT-001 continuation
+
+ChatGPT Work; PR #415 baseline `107da416`. Browser acceptance ends airborne without landing/stop/exit; phone flight is keyboard-driven. Next: extend scoped acceptance and inspect cockpit pitch, run exact-head browser/release gates, merge and verify deployment. Current CI queued; not live complete. Unrelated work preserved.
+
 # 2026-11-05 — NR-AIR-FLIGHT-001 Narromine Airport pilotable aircraft (ChatGPT) — PR #415
 
 Working tree reconciled against main 60a5d6eb6bad without changing concurrently owned road, train or museum modules. Dedicated flight browser CI on previous topic SHA passed desktop and Android (boarding, takeoff, in-air traversal, cockpit view, exit guard). Latest full release gate still running at reconciliation. Independent inexact georeference runway/soaring strip geometry, 2 boardable trainer/sport models, flyable controls, continuous clearly illustrative farm cover and regression tests. PR must be checked again against this merge integration commit before shipping; production is NOT YET DEPLOYED. See docs/NARROMINE_AIRPORT_FLIGHT.md.
