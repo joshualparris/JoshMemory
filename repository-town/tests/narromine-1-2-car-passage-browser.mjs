@@ -101,7 +101,8 @@ try {
       // staged registered car and the actual vehicle controls.
       window.__town.cheats.open();
       window.__town.cheats.run('goNew');
-      const r=window.__town.cheats.run('carHere');
+      document.getElementById('cheat-vehicle').value='sedan';
+      window.__town.cheats.run('carHere');
       window.__town.cheats.close();
       if(!window.__town.vehicles().some(x=>x.cheat&&x.model==='sedan'))throw Error('No registered QA sedan: '+JSON.stringify({cheatMessage:document.querySelector('#cheat-menu .msg')?.textContent,vehicles:window.__town.vehicles().map(v=>({registration:v.registration,model:v.model})),state:window.__town.state().mode,cheatsUnlocked:window.__town.cheats.isUnlocked()}));
       if(window.__town.state().driving)window.__town.leaveVehicle();
