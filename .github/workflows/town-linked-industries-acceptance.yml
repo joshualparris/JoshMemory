@@ -1,0 +1,43 @@
+name: Town linked industries and saved-game compatibility
+on:
+  pull_request:
+    paths:
+      - 'repository-town/src/world/town-linked-industries-2026.js'
+      - 'repository-town/src/world/life.js'
+      - 'repository-town/src/world/townlife.js'
+      - 'repository-town/src/world/facility-access.js'
+      - 'repository-town/src/world/linked-interiors.js'
+      - 'repository-town/src/world/trade-education.js'
+      - 'repository-town/src/world/shop-interior.js'
+      - 'repository-town/src/ui/town-linked-industry-panel.js'
+      - 'repository-town/src/ui/townpanels.js'
+      - 'repository-town/tests/town-linked-industries-2026.mjs'
+      - '.github/workflows/town-linked-industries-acceptance.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  industry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Pinned Node modules
+        working-directory: repository-town
+        run: npm ci --no-audit --no-fund
+      - name: Check modern industry module, TownLife and panels
+        working-directory: repository-town
+        run: |
+          node --check src/world/town-linked-industries-2026.js
+          node --check src/world/life.js
+          node --check src/world/townlife.js
+          node --check src/world/linked-interiors.js
+          node --check src/world/shop-interior.js
+          node --check src/ui/town-linked-industry-panel.js
+          node --check src/ui/townpanels.js
+          node tests/town-linked-industries-2026.mjs
