@@ -8,8 +8,10 @@ import { dayPlan } from './narromine-population.js';
 import { townDate } from './town-calendar.js';
 import { makePerson } from './npcs.js';
 
-// A household's weekly Coles shop, per person, and what each person uses a day.
-const SHOP = { milk: 3, bread: 1, eggs: 4, meat: 3, veg: 7, fruit: 7, cereal: 0.5 };
+// What one person's share of a Coles shop is, and what each person uses a day.
+// Households shop about three times a week (including stops on the way home from work), so each shop
+// covers about 2.4 days of what a person eats (DAILY below).
+export const SHOP = { milk: 1, bread: 0.36, eggs: 1.2, meat: 1, veg: 2.4, fruit: 2.4, cereal: 0.17 };
 const DAILY = { milk: 0.4, bread: 0.15, eggs: 0.5, meat: 0.4, veg: 1, fruit: 1, cereal: 0.07 };
 const UNITS = { milk: 'L of milk', bread: 'loaves of bread', eggs: 'eggs', meat: 'meat portions', veg: 'serves of vegetables', fruit: 'pieces of fruit', cereal: 'boxes of cereal' };
 
@@ -77,7 +79,8 @@ export function fridgeAt(population, hh, day, minute) {
   const n = hh.members.length, shop = lastShop(population, hh, day, minute);
   const days = shop === null ? 4 : (day * 1440 + minute - shop) / 1440;
   const out = {};
-  for (const k of Object.keys(SHOP)) out[k] = Math.max(0, Math.round((SHOP[k] * n - DAILY[k] * n * days) * 10) / 10);
+  // After a shop the fridge holds that shop plus about two days left over from before.
+  for (const k of Object.keys(SHOP)) out[k] = Math.max(0, Math.round(((SHOP[k] + DAILY[k] * 2) * n - DAILY[k] * n * days) * 10) / 10);
   return { items: out, daysSinceShop: Math.round(days * 10) / 10, needsShop: Object.entries(out).some(([k, v]) => v < DAILY[k] * n * 1.5) };
 }
 export const describeFridge = (f) => Object.entries(f.items).map(([k, v]) => (k === 'milk' || k === 'bread' || k === 'cereal' ? v : Math.round(v)) + ' ' + UNITS[k]).join(', ');
