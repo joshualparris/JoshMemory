@@ -2329,7 +2329,8 @@ async function start() {
     leaveVehicle:()=>driving.exit(),
     // A fixed step behaves like a real frame, including showing the driving message (off-road, braking).
     narromineVisible:()=>narromine.group.visible,
-    airport:()=>({icao:AERODROME.icao,runways:narromine.airfield.runways.map(r=>({id:r.id,length:r.length,width:r.width,headingDeg:r.headingDeg})),parking:flight.state().parking}),
+    airport:()=>({icao:AERODROME.icao,runways:narromine.airfield.runways.map(r=>({id:r.id,length:r.length,width:r.width,headingDeg:r.headingDeg})),parking:flight.state().parking,
+      flightLandscape:{patches:narromine.flightLandscape.patches,evidence:narromine.flightLandscape.evidence}}),
     flight:()=>flight.state(), boardFlight:(id)=>flight.board(id),
     lineUpFlight:()=>flight.lineUp(), exitFlight:()=>flight.exit(),
     // Browser-only accelerated deterministic steps through the actual 3D flight actor;
