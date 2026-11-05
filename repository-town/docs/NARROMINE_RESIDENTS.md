@@ -50,3 +50,18 @@ fitted-out workplace interiors, passengers and school drop-offs, and Repository 
 - **Between the towns**: 58 Narromine residents work at named Repository Town workplaces (shown in those
   workplaces' panels while on shift) and drive out on the Mitchell Highway; 30 Repository Town residents (living
   in Repository Town lots) hold Narromine jobs and drive in from the east each shift.
+
+## Unique interiors and evidence-based staffing (5 Nov 2026)
+- **Homes**: no two are the same. Rooms are sized from the house's traced floor area and shape (growing only
+  as much as furniture needs), the layout suits its proportions, and walls, floors, ceiling height and doors
+  vary. Furniture follows who lives there: a cot per baby (a nursery for two or more), toys for young children,
+  a desk and computer for teenagers, a clock and radio for retirees, a study for some, a shed for tradies and
+  farm workers, and hobby items (guitar, piano, fish tank, weights, record player and so on) for some.
+- **Workplaces**: no two are the same. Sized from the building and crew, a workstation per worker on a typical
+  shift, their own colours, and the business name on the front room. Hair and beauty salons have mirrors and
+  chairs. Workplaces no longer get a spare bedroom (an old interior-builder default).
+- **Staff numbers**: census counts for schools, hospital, council, Coles and social assistance; otherwise from
+  the building's floor area at employment-density rates (Homes England / HCA Employment Density Guide, 2015),
+  kept within the usual range for the kind. Where the mapped outline covers several shops in a row, typical
+  staffing is used. Narromine station (an unstaffed coach stop since 1975) and the fire station (retained,
+  on-call crew) have no daily shift. Each workplace records where its number comes from (`staffBasis`).
