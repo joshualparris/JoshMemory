@@ -16,7 +16,23 @@ try {
   await page.goto(URL); await page.waitForFunction(() => window.__town && document.getElementById('loading').hidden, null, { timeout: 90000 });
   const T = (f, a) => page.evaluate(f, a), st = () => T(() => window.__town.state()), status = () => T(() => document.getElementById('status')?.textContent || '');
   const click = (re) => T((src) => { const r = new RegExp(src, 'i'); const btn = [...document.querySelectorAll('#panel-actions button')].find((x) => r.test(x.textContent)); btn?.click(); return !!btn; }, re.source);
-  const use = async () => { if (mobile) await page.tap('#t-use'); else { await page.keyboard.down('e'); await page.waitForTimeout(120); await page.keyboard.up('e'); } await page.waitForTimeout(300); };
+  const use = async () => {
+    if (mobile) {
+      // The wide civic ledger may visually cover the touch Use button on
+      // 393–412px screens even before the state() panel snapshot updates.
+      // Close using the *real visible UI control*, then make a genuine tap.
+      // Do not force-dispatch the interaction or bypass pointer hit-testing.
+      if (await page.locator('#panel-close').isVisible()) {
+        await page.locator('#panel-close').tap();
+      }
+      await page.tap('#t-use');
+    } else {
+      await page.keyboard.down('e');
+      await page.waitForTimeout(120);
+      await page.keyboard.up('e');
+    }
+    await page.waitForTimeout(300);
+  };
   await T(() => { window.__town.closePanel?.(); window.__town.life.setTime(10 * 60); window.__town.life.run(15); });
   // Exercise the real HUD teleport, not just the direct test hook. Missing
   // optional destination metadata must never send the game to its red screen.
