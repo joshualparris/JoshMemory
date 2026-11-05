@@ -83,6 +83,25 @@ try {
       },expected,{timeout:10000});
     }
 
+    // Reproduce the real phone report: full-throttle travel from the apron,
+    // 0 ft AGL at high speed and no runway beneath the aircraft. The pilot
+    // must be able to recover with the actual HUD even while still moving.
+    if(cdp)await touchHold(['Throttle +','↑ Nose']);
+    else {await page.keyboard.down('w');await page.keyboard.down('ArrowUp');}
+    const offRunway=await page.evaluate(()=>window.__town.stepFlight(12));
+    if(cdp)await touchHold([]);
+    else {await page.keyboard.up('w');await page.keyboard.up('ArrowUp');}
+    assert(offRunway.state.airspeed>28,device+': reproduced fast off-runway taxi');
+    assert.equal(offRunway.state.onGround,true,device+': apron does not magically permit takeoff');
+    assert.match(await page.locator('#flight-instruments').textContent(),/OFF RUNWAY/,device+': actionable HUD warning');
+    const lineup=page.getByRole('button',{name:'↗ Line up 11'});
+    assert.equal(await lineup.isDisabled(),false,device+': on-ground runway assist available while rolling');
+    await lineup.click();
+    const reset=await page.evaluate(()=>window.__town.flight().state);
+    assert.equal(reset.airspeed,0,device+': assisted runway reset stops aircraft');
+    assert.equal(reset.onGround,true,device+': reset is on ground');
+    assert.match(await page.locator('#flight-instruments').textContent(),/OFF RUNWAY|GROUND \/ TAXI/);
+
     // Real UI assisted runway alignment, then accelerated Input-driven game frames.
     await page.getByRole('button',{name:'↗ Line up 11'}).click();
     await page.waitForFunction(()=>document.querySelector('#flight-instruments').textContent.includes('Assisted game line-up'));
