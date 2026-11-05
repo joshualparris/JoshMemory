@@ -1,4 +1,5 @@
 import {tickPopulation,populationSnapshot,restorePopulation} from './population-routines.js';
+import {ensureLinkedIndustries,tickLinkedIndustries,industryReport,reportFarmIllness,bookFeedRun,bookBuildingSupplies,bookBreweryIngredients,bookBreweryToPub,animalHealthFactor} from './linked-industries.js';
 import {createPopulation,populationReport} from './population.js';
 import { RAIL_Z, RAIL_CROSSINGS, railGateState, railUserBlocked, scheduledRailTrainX } from './rail-corridor.js';
 import {townDate, townDateLabel, venueHoursOnDay, residentWorksToday, isWeekend, weekdayOnlyWorkplace} from './town-calendar.js';
@@ -610,6 +611,7 @@ export class TownLife {
     ensureTenancies(this);
     initialiseVehicles(this);
     initialiseTradeEducation(this);
+    ensureLinkedIndustries(this);
     // Civic records a new town starts with; restore() drops any others the save didn't have.
     this.baseCivic = Object.keys(this.civic);
     this.log(`Day ${this.day} begins. The town wakes up.`);
@@ -698,6 +700,7 @@ export class TownLife {
     tickElectricalPilot(this,minutes);
     tickPubUtilities(this,minutes);
     advanceTownTradeOperations(this,minutes);
+    tickLinkedIndustries(this,minutes);
     advanceEmergency(this);
     callInMissingStaff(this, minutes);
     for (const o of readyOrders(this)) this.collectOrder(o);
@@ -1087,7 +1090,7 @@ export class TownLife {
         const hands = at(p.id).length;
         // Farms stop picking once their shed is full (60), so unsold produce doesn't pile up forever.
         if (hands && this.open(p) && (p.out[p.makes] || 0) < 60) {
-          const n = Math.round((2 + 3 * p.growth) * hands * (FARM_YIELD[p.makes] || 1) * Math.max(1, this.villagers.length/38));
+          const n = Math.round((2 + 3 * p.growth) * hands * (FARM_YIELD[p.makes] || 1) * Math.max(1, this.villagers.length/38) * animalHealthFactor(this,p.id));
           p.out[p.makes] = (p.out[p.makes] || 0) + n;
           this.stats.harvested[p.makes] = (this.stats.harvested[p.makes] || 0) + n;
           if (p.makes === 'grain' && p.growth > 0.9) { p.growth = 0.3; this.log(`The wheat paddock was harvested. ${n} bags of grain went into the silo.`); }
@@ -2138,6 +2141,12 @@ export class TownLife {
 
   // ── For chat, the guide and the ledger ──
   populationReport(){return populationReport(this.population);}
+  linkedIndustriesReport(){return industryReport(this);}
+  reportFarmAnimal(farm,animalId){return reportFarmIllness(this,farm,animalId);}
+  orderIndustryFeed(farm){return bookFeedRun(this,farm);}
+  orderIndustryBuilding(){return bookBuildingSupplies(this);}
+  orderIndustryIngredients(){return bookBreweryIngredients(this);}
+  orderIndustryPubKegs(){return bookBreweryToPub(this);}
   householdMembers(coordinate){return familyMembers(this.villagers,coordinate);}
   describe(v) {
     const last = v.lastMeal ? `${v.lastMeal.name} at ${fmt(v.lastMeal.at)}${v.lastMeal.day !== this.day ? ' yesterday' : ''}` : 'nothing yet today';
@@ -2200,6 +2209,7 @@ export class TownLife {
     upgradePropertyAddresses(this);
     restoreCivic(this,s.civic?.government);
     initialiseTradeEducation(this);
+    ensureLinkedIndustries(this);
     initialisePublicLife(this);
     emergencyState(this);
     this.civic.powerLines = this.civic.powerLines && typeof this.civic.powerLines === 'object' ? this.civic.powerLines : {};
