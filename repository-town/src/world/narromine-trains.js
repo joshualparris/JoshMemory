@@ -321,6 +321,8 @@ export function createNarromineTrains(parent) {
   }
   return {
     update, tick, board, exit, near, cab, colliders, setRoute, state,
+    // True when a closed crossing's road is within 12 m of (x, z): road traffic waits there.
+    crossingClosedNear(x, z) { return crossings.some(c => c.closed && Math.hypot(c.x - x, c.z - z) < 12); },
     runFreight(i = 0) { if (freight) despawnFreight(); spawnFreight(FREIGHT_TIMETABLE[i]); return FREIGHT_TIMETABLE[i].id; },
     sound() { horn = 1.2; return 'Horn: two long blasts.'; },
     get driving() { return driving; }, get message() { return message; }, clearMessage() { message = ''; },

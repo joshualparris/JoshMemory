@@ -19,7 +19,7 @@
     "repository-town/tests/shop-interiors.mjs": "0ca369aa2d241c152edb841c1125aa9319241a0d",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "05fd29910608e7855ed4ba52a6c11f5e439c3c28",
+    "repository-town/src/main.js": "21ce269866bcb5e9a0baa1d4ab50487bc4055963",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -1149,6 +1149,14 @@
         "repository-town/src/world/life.js"
       ],
       "finding": "Reviewed exact life.js delta only: per-farm x0/x1 border clamping to existing ±5.5m avenues, no changes to source pub code or saved pub data. Static road audit before=4 core blockers and after=0 on actual WebGL Chromium desktop+mobile; no certification claim. Reconciles concurrent independently merged precise Narromine polygon collision fix #369 without altering its files. New source blob 79f18495b62a92e3584773f2856273e045a183ce"
+    },
+    {
+      "date": "2026-11-05",
+      "by": "Claude (Narromine traffic)",
+      "changedFiles": [
+        "repository-town/src/main.js"
+      ],
+      "finding": "main.js: Narromine traffic wiring; no pub change."
     }
   ]
 }
