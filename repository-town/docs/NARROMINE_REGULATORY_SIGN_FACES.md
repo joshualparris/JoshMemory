@@ -26,3 +26,9 @@ A single shared 1024×1024 atlas batches all corrected faces. Thin panels have s
 ## Remaining realism blockers
 
 The three raw main-street shells `NR-OSM-0165`, `0168`, `0169` still lack geolocated facade/roof evidence, per `NARROMINE_FRONTAGE_GAP_SURVEY_2026-11-04.md`. Windows, doors, awnings, tenants and roof profiles cannot responsibly be modelled from OSM outlines and LiDAR percentile heights alone. Need dated front/oblique reference views with camera location, height, heading/FOV and permission to derive geometry; source images need not be published. Accurate ground terrain needs aligned ground-class LiDAR/DEM and vertical control, not roof-return height percentiles. These are input-data gaps, not reasons to fabricate geometry.
+
+## Result at tested runtime source `7dea15d1`
+
+All constituent release checks completed successfully; the parent shell ended with signal 15 (143) at the final manifest step, which was rerun explicitly and passed for all 1,440 public files. Existing full-game Narromine driving/arrival/interaction/search regression passed. Baseline source `7b5369f1` was rendered at identical observation positions, camera poses and lighting: the old GIVE WAY face was a blank **upward** red triangle; the candidate is downward, white-centred, red-bordered and lettered. Reviewed matching desktop/mobile-sized captures in ignored `test-results/narromine-regulatory-signs-baseline/` and `test-results/narromine-regulatory-signs/`.
+
+PR #419 remains unmerged. The explicit staging deployment request for this source failed with HTTP 402 `api-deployments-free-per-day` (>100 deployments/day, retry in 24 hours). No local Vercel CLI is installed. Production/staging/backup readbacks were `31ae780a` / `6ab007a1` / `9bcb364a`, respectively. The feature is not verified live. No billing/plan change, quota bypass, or alternate host was created.
