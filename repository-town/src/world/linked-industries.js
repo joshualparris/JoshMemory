@@ -21,6 +21,9 @@ const STAGE_MATERIALS = [{ cement: 6, timber: 2 }, { timber: 8, fixings: 3 }, { 
 const PRICES = { feed: 2, medkit: 15, timber: 12, cement: 9, fixings: 7, steel: 14 };       // retail, per unit
 const WHOLESALE = { feed: 1, medkit: 9, timber: 7, cement: 5, fixings: 4, steel: 9 };      // what the shop pays its supplier
 const FEED_PER_DAY = { sheep: 3, dairy: 4, coop: 2 }, VET_FEE = 34, KEG_L = 50;
+// Five days without rain is normal weather, not a drought. A maintained
+// rural pasture may support livestock through several weeks without rain.
+const PASTURE_DRY_DAYS = 18, REGIONAL_FEED_ACCOUNT_LIMIT = 500;
 const clamp = (v) => Math.max(0, Math.min(100, v));
 // About one animal in 250 falls mildly ill on a given day, chosen by a fixed hash of day and animal.
 const illness = (day, id) => { let h = day * 2654435761 >>> 0; for (const c of id) h = Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0; return h % 250 === 0; };
@@ -100,7 +103,23 @@ function careDay(t, s) {
   s.dryDays = t.civic.weather === 'rainy' ? 0 : (s.dryDays || 0) + 1;
   for (const [farm, herd] of Object.entries(s.herds)) {
     const need = FEED_PER_DAY[farm], p = place(t, farm);
-    const grazing = farm !== 'coop' && s.dryDays < 5, grain = farm === 'coop' && (p?.stock.grain || 0) > 0;
+    const grazing = farm !== 'coop' && s.dryDays < PASTURE_DRY_DAYS, grain = farm === 'coop' && (p?.stock.grain || 0) > 0;
+    // Regional rural feed merchants provide a genuine 30-day trade account
+    // when the local produce store is unstaffed. A farm that exhausts both
+    // pasture and local feed may still buy seven days' feed on invoice; this
+    // stays finite and unpaid credit is a LIABILITY, not invented cash.
+    // Stock cannot appear without a recorded external supplier invoice.
+    if(!grazing&&!grain&&(s.farmFeed[farm]||0)<need){
+      const qty=need*7,cost=WHOLESALE.feed*qty,debt=s.supplierDebt[farm]||0;
+      if(p&&debt+cost<=REGIONAL_FEED_ACCOUNT_LIMIT){
+        s.farmFeed[farm]=(s.farmFeed[farm]||0)+qty;
+        s.supplierDebt[farm]=debt+cost;
+        s.invoices.unshift({day:t.day,business:farm,good:'regional emergency stock feed',
+          quantity:qty,total:cost,terms:'30-day account'});
+        s.invoices.length=Math.min(40,s.invoices.length);
+        note(t,s,`${p.name} received ${qty} feed bags from the regional rural supplier on account (${cost}).`);
+      }
+    }
     const bought = !grazing && !grain && (s.farmFeed[farm] || 0) >= need;
     if (bought) s.farmFeed[farm] -= need;
     const fed = grazing || grain || bought;
