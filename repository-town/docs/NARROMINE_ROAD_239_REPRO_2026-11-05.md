@@ -65,10 +65,10 @@ The test asserts all Repository Town **core** and **planned** road lanes are cle
 
 - [x] Feature-specific branch and coordination claim without overlapping owners.
 - [x] New read-only data-producing browser test and scoped CI workflow.
-- [ ] GitHub Actions run completed with full JSON/CSV/screenshots at exact source SHA.
-- [ ] Review by-road totals, attribution gaps, surface-vs-centreline split and rail-proximity counts.
-- [ ] PR merged safely without changes to scene/collision behaviour.
-- [ ] Mark **1.1** complete only after the real-browser evidence has been inspected and preserved.
+- [x] GitHub Actions run completed with full JSON/CSV/screenshots at exact source SHA. _(run 41947000018 at `314a8b28`, artifacts preserved; see #398.)_
+- [x] Review by-road totals, attribution gaps, surface-vs-centreline split and rail-proximity counts. _(Reviewed on #398; the post-#403 residual 52 were then classified object by object on 5 Nov.)_
+- [x] PR merged safely without changes to scene/collision behaviour. _(#406, test-only.)_
+- [x] Mark **1.1** complete only after the real-browser evidence has been inspected and preserved. _(1.1 is ticked in the street-by-street backlog.)_
 
 The next step **1.2** is a separate implementation claim for confirmed false positives and requires before/after remeasurement.
 

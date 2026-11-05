@@ -5,11 +5,11 @@
 
 ## Scope and what is actually numbered
 
-- Tracked repository files seen: **2,402**; text files scanned: **1,842**.
-- Explicit unfinished items found in tracked text files (before existing-ID reconciliation): **842**.
-- Canonical *source-reported* outstanding entries from legacy and newer registers: **2,755** (existing IDs preserved).
-- **299 NEW permanent JMU IDs** assigned to distinct formerly unnumbered explicit checkboxes, work headings, task-status rows or code comments.
-- Total uniquely keyed source-reported records in generated CSV: **3,054**. GitHub open issues and PRs are separate numbered tracks; they may overlap these tasks.
+- Tracked repository files seen: **2,523**; text files scanned: **1,918**.
+- Explicit unfinished items found in tracked text files (before existing-ID reconciliation): **892**.
+- Canonical *source-reported* outstanding entries from legacy and newer registers: **2,795** (existing IDs preserved).
+- **305 NEW permanent JMU IDs** assigned to distinct formerly unnumbered explicit checkboxes, work headings, task-status rows or code comments.
+- Total uniquely keyed source-reported records in generated CSV: **3,100**. GitHub open issues and PRs are separate numbered tracks; they may overlap these tasks.
 - Existing task IDs were not renamed, renumbered or marked complete. Generated tasks retain source file and line references.
 
 **Coverage limits:** This scans the current JoshMemory checkout, not live source trees in the 233+ other repositories referenced by the old portfolio registry. Code comments and decades-old plans are *review candidates*, not independently verified current defects. Unmarked ideas in prose, private connector-only records and untracked files cannot be guaranteed complete. The legacy master is a 25 Oct snapshot; dependency and priority changes after that date are not silently inferred.
@@ -68,7 +68,6 @@ These are task IDs, **not** claims of independently verified unresolved bugs. Do
 | P1 | JMU-00035 | REVIEW_SOURCE_STATUS | Phone performance | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/IMPROVEMENT_PLAN_2026-10-19.md#L29) |
 | P1 | JMU-00039 | SOURCE_REPORTED_OPEN | Run desktop/mobile Chromium visual QA at hotel, Post Office, Kierath's frontage, ordinary shops and roadway. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_MATERIAL_REALISM_2026-11-04.md#L33) |
 | P1 | JMU-00041 | SOURCE_REPORTED_OPEN | Check WebGL shader compilation on real desktop/mobile devices, before merging. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_MATERIAL_REALISM_2026-11-04.md#L35) |
-| P1 | JMU-00053 | SOURCE_REPORTED_OPEN | Sky, light and colour.** Correct sun position for Narromine's latitude and season, a clear inland sky, and paint/roof colours sampled from NSW aerial imagery (not Str… | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_REALISM_TODO.md#L45) |
 | P1 | JMU-00055 | SOURCE_REPORTED_OPEN | Rail completion.** Silo sidings in use, a fictional-but-labelled link to Repository Town if wanted, and freight wagons loading at the silos. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_REALISM_TODO.md#L49) |
 | P1 | JMU-00070 | REVIEW_SOURCE_STATUS | Roads, rail, logistics and fuel | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/REPOSITORY_TOWN_GEOGRAPHY_MASTERPLAN.md#L54) |
 | P1 | JMU-00100 | SOURCE_REPORTED_OPEN | Combat.** Needs Josh's decision. It would sit outside the town's everyday life: for example, a fenced training ground or a quest dungeon, not villagers on the high st… | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/RUNESCAPE_ROADMAP.md#L85) |
@@ -139,12 +138,8 @@ These are task IDs, **not** claims of independently verified unresolved bugs. Do
 | P2 | JMU-00042 | SOURCE_REPORTED_OPEN | Check draw calls, material count, frame times and shader artefacts. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_MATERIAL_REALISM_2026-11-04.md#L36) |
 | P2 | JMU-00043 | SOURCE_REPORTED_OPEN | Merge PR and independently verify production `release.json`. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_MATERIAL_REALISM_2026-11-04.md#L37) |
 | P2 | JMU-00045 | SOURCE_REPORTED_OPEN | Property boundaries and fences.** Draw cadastral lot boundaries; front fences and driveways only where aerial imagery shows them. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_REALISM_TODO.md#L27) |
-| P2 | JMU-00046 | SOURCE_REPORTED_OPEN | Road surfaces and markings.** Sealed vs unsealed from OSM `surface`; centre lines, edge lines, stop/give-way lines and signs at mapped intersections; real road widths. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_REALISM_TODO.md#L29) |
-| P2 | JMU-00047 | SOURCE_REPORTED_OPEN | Kerb, gutter and footpaths.** Only on streets that have them (town centre and main streets per aerial imagery); gravel verges elsewhere. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_REALISM_TODO.md#L31) |
-| P2 | JMU-00048 | SOURCE_REPORTED_OPEN | Terrain.** Use the LiDAR ground model (class 2) for gentle ground levels, the Macquarie River banks and drainage channels, instead of a flat plane. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_REALISM_TODO.md#L33) |
 | P2 | JMU-00049 | SOURCE_REPORTED_OPEN | Ground cover and land use.** Paddocks, parks, sports ovals, the golf course, the aerodrome and industrial yards from OSM land use and aerial imagery colours. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_REALISM_TODO.md#L35) |
 | P2 | JMU-00052 | SOURCE_REPORTED_OPEN | Business names and land uses.** Check all 98 named places against OSM and council listings; remove closed businesses; keep historical names only with a date label. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_REALISM_TODO.md#L43) |
-| P2 | JMU-00054 | SOURCE_REPORTED_OPEN | Traffic and people at realistic levels.** Car and pedestrian numbers that match a town of about 3,400 people; trucks on the Mitchell Highway. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_REALISM_TODO.md#L47) |
 | P2 | JMU-00056 | SOURCE_REPORTED_OPEN | Owner by-eye review.** Josh compares each block with the Street View compare page and files differences; each becomes a numbered item here. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_REALISM_TODO.md#L51) |
 | P2 | JMU-00057 | REVIEW_SOURCE_STATUS | Why Narromine, and where it sits | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_RESEARCH_AND_PLAN_2026-11-03.md#L7) |
 | P2 | JMU-00058 | REVIEW_SOURCE_STATUS | Population (2021 Census, ABS — use these, not commercial profiles) | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_RESEARCH_AND_PLAN_2026-11-03.md#L17) |
@@ -161,14 +156,14 @@ These are task IDs, **not** claims of independently verified unresolved bugs. Do
 | P2 | JMU-00069 | REVIEW_SOURCE_STATUS | Water, sewer, stormwater and flooding | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/REPOSITORY_TOWN_GEOGRAPHY_MASTERPLAN.md#L46) |
 | P2 | JMU-00071 | REVIEW_SOURCE_STATUS | Town identity and game compatibility | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/REPOSITORY_TOWN_GEOGRAPHY_MASTERPLAN.md#L62) |
 | P2 | JMU-00072 | REVIEW_SOURCE_STATUS | No-guess engineering data acquisition | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/REPOSITORY_TOWN_GEOGRAPHY_MASTERPLAN.md#L70) |
-| P2 | JMU-00073 | REVIEW_SOURCE_STATUS | Identity, deterministic director and graph integrity (P0) | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md#L28) |
-| P2 | JMU-00074 | REVIEW_SOURCE_STATUS | Conversation behaviour and accessible player controls (P1) | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md#L40) |
-| P2 | JMU-00075 | REVIEW_SOURCE_STATUS | Authoritative world, quests, repairs, commerce and negative outcomes (P1) | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md#L61) |
-| P2 | JMU-00076 | REVIEW_SOURCE_STATUS | Per-actor memory, save migration and privacy (P1) | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md#L80) |
-| P2 | JMU-00077 | REVIEW_SOURCE_STATUS | Authentic ElevenLabs voice manifest, playback and fault recovery (P1) | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md#L96) |
-| P2 | JMU-00078 | REVIEW_SOURCE_STATUS | Living NPC context, character pilots, new scripts and cast expansion (P2) | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md#L117) |
-| P2 | JMU-00079 | REVIEW_SOURCE_STATUS | Remaining actor presentation, optional AI and information journal (P2) | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md#L139) |
-| P2 | JMU-00080 | REVIEW_SOURCE_STATUS | Full interactive acceptance and release across actual hosts (P3) | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md#L151) |
+| P2 | JMU-00073 | REVIEW_SOURCE_STATUS | Identity, deterministic director and graph integrity (P0) | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md#L30) |
+| P2 | JMU-00074 | REVIEW_SOURCE_STATUS | Conversation behaviour and accessible player controls (P1) | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md#L42) |
+| P2 | JMU-00075 | REVIEW_SOURCE_STATUS | Authoritative world, quests, repairs, commerce and negative outcomes (P1) | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md#L63) |
+| P2 | JMU-00076 | REVIEW_SOURCE_STATUS | Per-actor memory, save migration and privacy (P1) | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md#L82) |
+| P2 | JMU-00077 | REVIEW_SOURCE_STATUS | Authentic ElevenLabs voice manifest, playback and fault recovery (P1) | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md#L98) |
+| P2 | JMU-00078 | REVIEW_SOURCE_STATUS | Living NPC context, character pilots, new scripts and cast expansion (P2) | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md#L119) |
+| P2 | JMU-00079 | REVIEW_SOURCE_STATUS | Remaining actor presentation, optional AI and information journal (P2) | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md#L141) |
+| P2 | JMU-00080 | REVIEW_SOURCE_STATUS | Full interactive acceptance and release across actual hosts (P3) | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/RTD_NEXT_TASK_TRIAGE_2026-10-25.md#L153) |
 | P2 | JMU-00081 | REVIEW_SOURCE_STATUS | First slice: woodcutting, firemaking, XP and levels | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/RUNESCAPE_ROADMAP.md#L21) |
 | P2 | JMU-00082 | REVIEW_SOURCE_STATUS | Next skills, in order | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/RUNESCAPE_ROADMAP.md#L37) |
 | P2 | JMU-00083 | SOURCE_REPORTED_OPEN | Cooking on a fire you lit (feeds the hunger system). | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/RUNESCAPE_ROADMAP.md#L39) |
@@ -363,14 +358,25 @@ These are task IDs, **not** claims of independently verified unresolved bugs. Do
 | P2 | JMU-00437 | SOURCE_REPORTED_OPEN | One tap selects/loads another episode; persist recent choices and avoid immediate repeats. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/games/waypoint/podcasttodo.md#L9) |
 | P2 | JMU-00438 | SOURCE_REPORTED_OPEN | Use Spotify embed/deep links without assuming autoplay. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/games/waypoint/podcasttodo.md#L10) |
 | P2 | JMU-00439 | SOURCE_REPORTED_OPEN | Tag episodes by uncertainty, values, habits, courage, reversible decisions and reflection. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/games/waypoint/podcasttodo.md#L11) |
+| P2 | JMU-00461 | SOURCE_REPORTED_OPEN | Unit contract PASS, real browser 24 images and metadata generated, review manifest uploaded. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_FIXED_POSE_QA_2026-11-05.md#L45) |
+| P2 | JMU-00462 | SOURCE_REPORTED_OPEN | Source build/privacy and tests PASS. Investigate any run failure rather than disabling evidence gates. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_FIXED_POSE_QA_2026-11-05.md#L46) |
+| P2 | JMU-00463 | SOURCE_REPORTED_OPEN | Review unusually changed images; preserve valid intentional redesigns, number unexpected defects. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_FIXED_POSE_QA_2026-11-05.md#L47) |
+| P2 | JMU-00464 | SOURCE_REPORTED_OPEN | Merge after checks and no cross-agent file overlap; separately verify real deployed source SHA. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_FIXED_POSE_QA_2026-11-05.md#L48) |
+| P2 | JMU-00465 | SOURCE_REPORTED_OPEN | PR merges safely after reconciling other agents' commits. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_MATERIAL_QA_CLOSEOUT_2026-11-05.md#L59) |
+| P2 | JMU-00466 | SOURCE_REPORTED_OPEN | Vercel production reports the **exact approved merged source commit** and is READY; deployed game and release fingerprint checked. | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_MATERIAL_QA_CLOSEOUT_2026-11-05.md#L60) |
+| P2 | JMU-00467 | SOURCE_REPORTED_OPEN | Terrain.** _5 Nov: measured ~1.6 m relief (p5–p95 of 25 m ground cells) across the two 2023 tiles; deferred, since the engine is a flat world and the visible gain is … | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_REALISM_TODO.md#L33) |
+| P2 | JMU-00468 | SOURCE_REPORTED_OPEN | Traffic and people at realistic levels.** _Partly done 5 Nov: cars on the left at 50 km/h at NSW-register volumes (Dandaloo 7,000/day, weekday profile; #413), Dandalo… | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_REALISM_TODO.md#L47) |
+| P2 | JMU-00469 | SOURCE_REPORTED_OPEN | Roof colours from NSW aerial imagery and roof forms from 2023 LiDAR (roofs PR, `fix/narromine-roof-colours-20261105`). The imagery is a July 2012 capture, so building… | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_REALISM_TODO.md#L70) |
+| P2 | JMU-00470 | SOURCE_REPORTED_OPEN | Reconcile the entire Dandaloo corridor's curved white markings, paved red footpaths, gravel verges, kerb ramps, road widths and junctions. #400/#401 are already merge… | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_ROAD_CLEARANCE_FIX_EVIDENCE_2026-11-05.md#L41) |
+| P2 | JMU-00471 | SOURCE_REPORTED_OPEN | Run full release/privacy/integration + browser/mobile CI, review current-main differences, merge on green and verify production/backup source SHA separately. Vercel p… | [source](https://github.com/joshualparris/JoshMemory/blob/main/repository-town/docs/NARROMINE_ROAD_CLEARANCE_FIX_EVIDENCE_2026-11-05.md#L43) |
 
 ## Audit counts and ownership
 
 | Priority | Source-reported count |
 |---|---:|
 | P0 | 27 |
-| P1 | 148 |
-| P2 | 781 |
+| P1 | 168 |
+| P2 | 807 |
 | P3 | 2,098 |
 | REF | 0 |
 
@@ -379,7 +385,7 @@ These are task IDs, **not** claims of independently verified unresolved bugs. Do
 | Source family | Count |
 |---|---:|
 | legacy_master_2026_10_25 | 2,640 |
-| markdown_checkbox | 238 |
+| markdown_checkbox | 284 |
 | numbered_action_heading | 100 |
 | status_table | 47 |
 | json_status | 26 |

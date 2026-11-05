@@ -250,6 +250,11 @@
       "source_file": "repository-town/docs/RUNESCAPE_ROADMAP.md",
       "title_at_allocation": "Customise character in Settings: name, look and colours, any time."
     },
+    "22351f1b2db71d9522b2": {
+      "id": "JMU-00467",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Terrain.** _5 Nov: measured ~1.6 m relief (p5–p95 of 25 m ground cells) across the two 2023 tiles; deferred, since the engine is a flat world and the visible gain is about a metre. River banks are outside the tiles._ Use the LiDAR ground model (class 2) for gentle ground levels, the Macquarie River banks and drainage channels, instead of a flat plane."
+    },
     "225518234d04fb1d10ab": {
       "id": "JMU-00107",
       "source_file": "repository-town/games/breach-command/codingprinciples.md",
@@ -480,6 +485,11 @@
       "source_file": "repository-town/games/breach-command/codingprinciples.md",
       "title_at_allocation": "Trust boundaries validated."
     },
+    "3a3d6bff75045ad9fde6": {
+      "id": "JMU-00465",
+      "source_file": "repository-town/docs/NARROMINE_MATERIAL_QA_CLOSEOUT_2026-11-05.md",
+      "title_at_allocation": "PR merges safely after reconciling other agents' commits."
+    },
     "3aa107e49f4a6b7fe9d6": {
       "id": "JMU-00217",
       "source_file": "repository-town/games/echo/codingprinciples.md",
@@ -610,6 +620,11 @@
       "source_file": "repository-town/games/sylvie-phonetics/QA-Recommendations.md",
       "title_at_allocation": "Add movement/breathing breaks"
     },
+    "4efdfeeef9bd4138550b": {
+      "id": "JMU-00469",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Roof colours from NSW aerial imagery and roof forms from 2023 LiDAR (roofs PR, `fix/narromine-roof-colours-20261105`). The imagery is a July 2012 capture, so buildings put up since keep a stock tone."
+    },
     "50954a247526c3a91247": {
       "id": "JMU-00448",
       "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
@@ -689,6 +704,11 @@
       "id": "JMU-00187",
       "source_file": "repository-town/games/delve/codingprinciples.md",
       "title_at_allocation": "No silent data destruction, duplication, exposure or misrepresentation."
+    },
+    "5886f965a17e5d143249": {
+      "id": "JMU-00468",
+      "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
+      "title_at_allocation": "Traffic and people at realistic levels.** _Partly done 5 Nov: cars on the left at 50 km/h at NSW-register volumes (Dandaloo 7,000/day, weekday profile; #413), Dandaloo crossing jam fixed (#416), real CC0 vehicle models (#423). Pedestrian numbers and highway trucks not yet matched._ Car and pedestrian numbers that match a town of about 3,400 people; trucks on the Mitchell Highway."
     },
     "58972675513aefb69880": {
       "id": "JMU-00289",
@@ -1200,6 +1220,11 @@
       "source_file": "repository-town/games/forbidden-quests/podcasttodo.md",
       "title_at_allocation": "Tag episodes by quests, encounters, story craft, DM advice and worldbuilding."
     },
+    "87cc5bb67eb3ea4bb80a": {
+      "id": "JMU-00470",
+      "source_file": "repository-town/docs/NARROMINE_ROAD_CLEARANCE_FIX_EVIDENCE_2026-11-05.md",
+      "title_at_allocation": "Reconcile the entire Dandaloo corridor's curved white markings, paved red footpaths, gravel verges, kerb ramps, road widths and junctions. #400/#401 are already merged; preserve them."
+    },
     "893baf85506e0f627144": {
       "id": "JMU-00222",
       "source_file": "repository-town/games/echo/codingprinciples.md",
@@ -1440,6 +1465,11 @@
       "source_file": "repository-town/games/sylvie-phonetics/podcasttodo.md",
       "title_at_allocation": "Add parent-control, audio-conflict, a11y and persistence tests."
     },
+    "a76769fb8a41461ec92a": {
+      "id": "JMU-00462",
+      "source_file": "repository-town/docs/NARROMINE_FIXED_POSE_QA_2026-11-05.md",
+      "title_at_allocation": "Source build/privacy and tests PASS. Investigate any run failure rather than disabling evidence gates."
+    },
     "a8a745be41584b1a3574": {
       "id": "JMU-00164",
       "source_file": "repository-town/games/buckland-blocks-demo/codingprinciples.md",
@@ -1489,6 +1519,11 @@
       "id": "JMU-00352",
       "source_file": "repository-town/games/sylvie-phonetics/docs/ResearchImplementationRoadmap.md",
       "title_at_allocation": "Review Decodable Word Lists"
+    },
+    "ad565bca7e1b001981d0": {
+      "id": "JMU-00471",
+      "source_file": "repository-town/docs/NARROMINE_ROAD_CLEARANCE_FIX_EVIDENCE_2026-11-05.md",
+      "title_at_allocation": "Run full release/privacy/integration + browser/mobile CI, review current-main differences, merge on green and verify production/backup source SHA separately. Vercel production may be rate-limited. _(5 Nov: #403 merged and is in production `13189a44`; the approved Pages backup is still on `9bcb364a`, so backup parity is not met.)_"
     },
     "adbe8a04ec0c6a70209b": {
       "id": "JMU-00429",
@@ -1554,6 +1589,11 @@
       "id": "JMU-00305",
       "source_file": "repository-town/games/midnight-line/podcasttodo.md",
       "title_at_allocation": "Tag episodes by narrative design, interactive fiction, story craft and indie development."
+    },
+    "b3202c26a7ab9bba7a0a": {
+      "id": "JMU-00464",
+      "source_file": "repository-town/docs/NARROMINE_FIXED_POSE_QA_2026-11-05.md",
+      "title_at_allocation": "Merge after checks and no cross-agent file overlap; separately verify real deployed source SHA."
     },
     "b331ebe17a852bb48ba4": {
       "id": "JMU-00163",
@@ -1980,6 +2020,11 @@
       "source_file": "repository-town/games/starhaven/podcasttodo.md",
       "title_at_allocation": "Curate about 25 Spotify episodes relevant to the game's themes and design."
     },
+    "dbd49c0f375f0333dcac": {
+      "id": "JMU-00461",
+      "source_file": "repository-town/docs/NARROMINE_FIXED_POSE_QA_2026-11-05.md",
+      "title_at_allocation": "Unit contract PASS, real browser 24 images and metadata generated, review manifest uploaded."
+    },
     "dc23225fa1c7718b4fae": {
       "id": "JMU-00444",
       "source_file": "repository-town/docs/NARROMINE_REALISM_TODO.md",
@@ -2045,6 +2090,11 @@
       "source_file": "repository-town/games/multi-layer-zoom-game/index.html",
       "title_at_allocation": "Disabled elements should not respond to mouse events"
     },
+    "e5e4389fca99a74ca0e3": {
+      "id": "JMU-00466",
+      "source_file": "repository-town/docs/NARROMINE_MATERIAL_QA_CLOSEOUT_2026-11-05.md",
+      "title_at_allocation": "Vercel production reports the **exact approved merged source commit** and is READY; deployed game and release fingerprint checked."
+    },
     "e700215ffb573a7e48c9": {
       "id": "JMU-00401",
       "source_file": "repository-town/games/sylvie-phonetics/suggestions.md",
@@ -2109,6 +2159,11 @@
       "id": "JMU-00231",
       "source_file": "repository-town/games/elodin-deep-lore/codingprinciples.md",
       "title_at_allocation": "Required static checks, tests and build passed and are reported separately."
+    },
+    "ee2a9ee257678281d839": {
+      "id": "JMU-00463",
+      "source_file": "repository-town/docs/NARROMINE_FIXED_POSE_QA_2026-11-05.md",
+      "title_at_allocation": "Review unusually changed images; preserve valid intentional redesigns, number unexpected defects."
     },
     "eee7c47ae7614f65c52f": {
       "id": "JMU-00288",
@@ -2301,6 +2356,6 @@
       "title_at_allocation": "Important state changes tolerate retry, duplication and partial failure."
     }
   },
-  "next_number": 461,
+  "next_number": 472,
   "schema_version": 1
 }
