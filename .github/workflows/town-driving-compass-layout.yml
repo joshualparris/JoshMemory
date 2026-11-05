@@ -1,0 +1,57 @@
+name: Town Driving Dashboard and Compass Collision (WebGL)
+
+on:
+  pull_request:
+    paths:
+      - 'repository-town/src/ui/driving-dashboard.css'
+      - 'repository-town/tests/driving-compass-layout-browser.mjs'
+      - 'repository-town/tests/mobile-driving.mjs'
+      - '.github/workflows/town-driving-compass-layout.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: town-drive-compass-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  driving-navigation-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install and run privacy-gated release build
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build:release
+          node tools/verify-release.mjs dist/public
+      - name: Chromium with software WebGL and mobile dependencies
+        run: npx playwright install --with-deps chromium
+      - name: Serve the exact verified build and test compass/dashboard layout
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          TOWN_URL: http://127.0.0.1:8091/
+        run: |
+          set -euo pipefail
+          node tools/serve.mjs dist/public 8091 >/tmp/drive-compass-8091.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for i in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8091/release.json >/dev/null; then ready=1; break; fi
+            sleep 1
+          done
+          test "$ready" = 1 || { cat /tmp/drive-compass-8091.log; exit 1; }
+          node tests/driving-compass-layout-browser.mjs
+          node tests/compass-browser.mjs
+          node tests/mobile-driving.mjs
