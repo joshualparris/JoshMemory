@@ -31,6 +31,7 @@ jobs:
         run: |
           node tests/town-rail-continuation.mjs
           node tests/town-rail-continuation-signals.mjs
+          node tests/town-rail-continuation-driving.mjs
       - name: Build playable release
         working-directory: repository-town
         run: npm run build:deploy
