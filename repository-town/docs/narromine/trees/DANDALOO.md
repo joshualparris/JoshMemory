@@ -49,7 +49,7 @@ For each individual candidate produce `site_segment, side_of_street, trunk_lat, 
 
 ## Site-to-individual evidence checklist
 
-- [ ] Council confirms 2018 southern Dandaloo **species cultivar, numbers, location and planting log**.
+- [ ] Already-public records establish 2018 southern Dandaloo **species cultivar, numbers, location and planting log**.
 - [ ] Download 2019 Dandaloo design source CAD/GIS (CRS and project control points) to reconstruct proposed locations.
 - [ ] Check as-built plan / planting completion report and any 2024–26 replacement list.
 - [ ] Verify current 2026 imagery by date and side of street.
