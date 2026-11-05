@@ -1,7 +1,7 @@
 // Fictional Repository Town links: finite farm care, real vet assignment,
 // regional brewing, hardware-paid construction and the existing licensed pub.
 // Regional contractors are NOT new resident IDs; original saves stay intact.
-import {initialiseTradeEducation, TRADE_STAFF, HARDWARE} from './trade-education.js';
+import {initialiseTradeEducation, bookHardwareDelivery, TRADE_STAFF, HARDWARE} from './trade-education.js';
 import {pubVenue} from './pub-venue.js';
 export const INDUSTRY_STAGES=Object.freeze(['foundation','framing','services','roof','commissioned']);
 export const INDUSTRY_REQUIREMENTS=Object.freeze([
@@ -188,6 +188,13 @@ export function industryHour(t,h){
  if(!Object.entries(req).every(([g,n])=>(build.stock[g]||0)>=n)){
   if(s.shipments.some(x=>x.to==='buildsite'&&x.status==='transit'))return;
   const trade=initialiseTradeEducation(t);
+  // Legacy saved games predate the cement SKU. Do not mint 24 free bags on
+  // restore: pay the supplier and await the existing animated freight van.
+  if(s.project.stage===0&&(trade.stock.cement||0)<req.cement){
+    if(!trade.deliveries?.some(o=>o.item==='cement'&&!['delivered','cancelled'].includes(o.status)))
+      bookHardwareDelivery(t,'cement',8);
+    return;
+  }
   const cost=Object.entries(req).reduce((sum,[g,n])=>sum+(HARDWARE[g]?.price??Infinity)*n,0);
   if(!Number.isFinite(cost)||build.till<cost||
       !Object.entries(req).every(([g,n])=>(trade.stock[g]||0)>=n))return;
