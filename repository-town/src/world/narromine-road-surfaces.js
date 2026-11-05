@@ -101,7 +101,7 @@ function priority(kind) {
 // between the two road edges with a circular fillet (radius KERB_RETURN_RADIUS, the usual size of an
 // urban kerb return), as a fan of small convex triangles from the corner point.
 export const KERB_RETURN_RADIUS = 9;
-export function kerbReturns(streets, radius = KERB_RETURN_RADIUS) {
+export function kerbReturns(streets, radius = KERB_RETURN_RADIUS, arcs = null) {
   const nodes = new Map(), key = ([x, z]) => Math.round(x * 2) + ',' + Math.round(z * 2);
   streets.forEach((st, si) => st.pts.forEach((p, i) => {
     const k = key(p); if (!nodes.has(k)) nodes.set(k, { p, arms: [] });
@@ -136,6 +136,7 @@ export function kerbReturns(streets, radius = KERB_RETURN_RADIUS) {
       const steps = Math.max(3, Math.ceil(Math.abs(da) / 0.26)), arc = [];
       for (let k = 0; k <= steps; k++) { const ang = a1 + da * k / steps; arc.push([O[0] + Math.cos(ang) * r, O[1] + Math.sin(ang) * r]); }
       const kind = priority(A.kind) <= priority(B.kind) ? A.kind : B.kind;
+      if (arcs) arcs.push({ O, r, a1, da, kinds: [A.kind, B.kind] });
       for (let k = 1; k < arc.length; k++) {
         const tri = [C, arc[k - 1], arc[k]];
         // counter-clockwise like roadQuad

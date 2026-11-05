@@ -30,7 +30,7 @@ const RAILWAY_SUPPRESSED_OSM = new Set([
 const NW_DANDALOO_SUPPRESSED_FILL = new Set(NARROMINE_NW_DANDALOO_INTEGRATION_SPEC.suppressedFillShopNames);
 import { estimatedShopfrontProfile, facadeBays, landmarkFacadeSpec } from './narromine-facade-profiles.js';
 import { PHYSIO_FACADE, buildNarrominePhysiotherapyFacade } from './narromine-mainstreet-physio.js';
-import { buildDisjointRoadSurfaces } from './narromine-road-surfaces.js';
+import { buildDisjointRoadSurfaces, kerbReturns } from './narromine-road-surfaces.js';
 import { createNarromineSurfaceMaterial } from './narromine-surface-materials.js';
 import { buildDandalooStreetscape } from './narromine-dandaloo-streetscape.js';
 import { NARROMINE_POST_OFFICE_ENTRANCE, NARROMINE_POST_OFFICE_ID } from './narromine-post-office.js';
@@ -188,6 +188,18 @@ export function buildNarromine(parent, makeLabel = null) {
     const MAIN = /^(trunk|primary|secondary)$/, others = STREETS.filter(s => s.pts.length > 1);
     const nearOtherStreet = (st, x, z) => others.some(o => o !== st && o.name !== st.name && o.pts.some((b, i) => { if (!i) return false; const a = o.pts[i - 1], dx = b[0] - a[0], dz = b[1] - a[1], l = dx * dx + dz * dz || 1;
       const t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (z - a[1]) * dz) / l)); return Math.hypot(x - a[0] - t * dx, z - a[1] - t * dz) < (o.width || 7) / 2 + 2.5; }));
+    // The edge line turns the corner with the kerb: follow each curved kerb return on a main road,
+    // 0.6 m in from the kerb, as in the owner's photo at the hotel corner.
+    const arcs = []; kerbReturns(SURFACE_STREETS, undefined, arcs);
+    for (const { O, r, a1, da, kinds } of arcs) {
+      if (!kinds.some(k => MAIN.test(k))) continue;
+      const R = r + 0.6, steps = Math.max(4, Math.ceil(Math.abs(da) * R / 1.2));
+      for (let k = 0; k < steps; k++) {
+        const t0 = a1 + da * k / steps, t1 = a1 + da * (k + 1) / steps;
+        const p0 = [O[0] + Math.cos(t0) * R, O[1] + Math.sin(t0) * R], p1 = [O[0] + Math.cos(t1) * R, O[1] + Math.sin(t1) * R];
+        box(0xf4f2ea, Math.hypot(p1[0] - p0[0], p1[1] - p0[1]) + 0.05, 0.01, 0.12, (p0[0] + p1[0]) / 2, 0.081, (p0[1] + p1[1]) / 2, -Math.atan2(p1[1] - p0[1], p1[0] - p0[0]));
+      }
+    }
     for (const st of STREETS) {
       if (!MAIN.test(st.kind)) continue;
       const centre = st.kind !== 'trunk' && !nearLine(NARROMINE_FURNITURE.laned, st.pts[0][0], st.pts[0][1], 3);   // trunk ways here are one-way carriageways
