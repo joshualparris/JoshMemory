@@ -6,6 +6,7 @@
 // Only the area around the player (500 m) is simulated, so phones stay smooth.
 import * as THREE from 'three';
 import { STREETS } from './narromine-layout.js';
+import { findDandalooCarriageways, roadXAtZ, LANDSCAPED_BANDS } from './narromine-dandaloo-streetscape-data.js';
 import { VEHICLE_MODELS, pickVehicle, pickPaint, loadVehicleModels } from './narromine-vehicle-models.js';
 
 export const DAILY_VEHICLES = Object.freeze({ 'Dandaloo Street': 7000, 'Manildra Street': 500, 'Derribong Street': 380, 'Dandaloo Road': 380 });
@@ -21,6 +22,20 @@ export function leftLaneOffset(ux, uz, width) {
   return { x: uz * offset, z: -ux * offset };
 }
 
+// The divided Dandaloo Street section consists of separate OSM carriageways
+// with angled parking at their outer kerbs. The western roadway goes north,
+// the eastern roadway south; the driving lane is towards the central median.
+const [WEST_DANDALOO, EAST_DANDALOO] = findDandalooCarriageways(STREETS);
+export function dividedDandalooLane(x, z, name, kind) {
+  if (name !== 'Dandaloo Street' || kind !== 'trunk' ||
+      !LANDSCAPED_BANDS.some(b => z <= b.upperZ && z >= b.lowerZ)) return null;
+  const wx = roadXAtZ(WEST_DANDALOO, z), ex = roadXAtZ(EAST_DANDALOO, z);
+  if (wx === null || ex === null) return null;
+  return Math.abs(x - wx) <= Math.abs(x - ex)
+    ? { direction: 'north', side: 'west', lateralX: 1.9 }
+    : { direction: 'south', side: 'east', lateralX: -1.9 };
+}
+
 function buildGraph() {
   const nodes = [], adj = new Map(), key = (p) => Math.round(p[0] * 2) + ',' + Math.round(p[1] * 2), index = new Map();
   const node = (p) => { const k = key(p); if (!index.has(k)) { index.set(k, nodes.length); nodes.push({ x: p[0], z: p[1] }); adj.set(nodes.length - 1, []); } return index.get(k); };
@@ -31,7 +46,20 @@ function buildGraph() {
     for (let i = 1; i < s.pts.length; i++) {
       const id = node(s.pts[i]); if (id === prev) continue;
       const len = Math.hypot(nodes[id].x - nodes[prev].x, nodes[id].z - nodes[prev].z), e = { daily, width: s.width || 7, len, name: s.name };
-      adj.get(prev).push({ to: id, ...e }); adj.get(id).push({ to: prev, ...e }); prev = id;
+      const mx = (nodes[prev].x + nodes[id].x) / 2, mz = (nodes[prev].z + nodes[id].z) / 2;
+      const lane = dividedDandalooLane(mx, mz, s.name, s.kind);
+      if (lane) {
+        // Do not treat each divided road as two-way. North is negative world z.
+        const forward = lane.direction === 'north'
+          ? nodes[id].z < nodes[prev].z : nodes[id].z > nodes[prev].z;
+        (forward ? adj.get(prev) : adj.get(id)).push({
+          to: forward ? id : prev, ...e, dividedLane: lane
+        });
+      } else {
+        adj.get(prev).push({ to: id, ...e });
+        adj.get(id).push({ to: prev, ...e });
+      }
+      prev = id;
     }
   }
   return { nodes, adj };
@@ -67,22 +95,25 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
   const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;     // deterministic, so tests repeat
   const posOf = (c) => { const a = nodes[c.from], b = nodes[c.to], t = c.s / c.len; return { x: a.x + (b.x - a.x) * t, z: a.z + (b.z - a.z) * t, ux: (b.x - a.x) / c.len, uz: (b.z - a.z) / c.len }; };
   function place(c) {
-    const p = posOf(c), side = leftLaneOffset(p.ux, p.uz, c.width);
+    const p = posOf(c), side = c.dividedLane
+      ? { x: c.dividedLane.lateralX, z: 0 }
+      : leftLaneOffset(p.ux, p.uz, c.width);
     c.x = p.x + side.x; c.z = p.z + side.z; c.yaw = Math.atan2(-p.ux, -p.uz) + Math.PI; c.ux = p.ux; c.uz = p.uz;
   }
   function nextEdge(c) {
     const options = adj.get(c.to).filter(e => e.to !== c.from);
-    if (!options.length) return adj.get(c.to)[0];                      // dead end: turn round
+    if (!options.length) return null; // never turn against one-way traffic
     // Busy roads attract through traffic: weight choices by daily volume.
     const total = options.reduce((s, e) => s + e.daily, 0); let r = rand() * total;
     for (const e of options) if ((r -= e.daily) <= 0) return e;
     return options[0];
   }
   function spawn(e, s, forward) {
+    if (e.dividedLane && !forward) return null;
     const from = forward ? e.from : e.to, to = forward ? e.to : e.from;
     const model = pickVehicle(rand), heavy = VEHICLE_MODELS[model].length > 6.5 || /tractor/.test(VEHICLE_MODELS[model].file);
     const c = { id: serial++, from, to, s, len: e.len, width: e.width, model, L: VEHICLE_MODELS[model].length, speed: SPEED * (heavy ? 0.7 : 0.85 + rand() * 0.2), v: SPEED * 0.8,
-      colour: VEHICLE_MODELS[model].paint ? pickPaint(rand) : 0xffffff, ute: /truck/.test(VEHICLE_MODELS[model].file) };
+      colour: VEHICLE_MODELS[model].paint ? pickPaint(rand) : 0xffffff, ute: /truck/.test(VEHICLE_MODELS[model].file), dividedLane: e.dividedLane ?? null };
     if (/tractor/.test(VEHICLE_MODELS[model].file)) { c.speed = 25 / 3.6; c.colour = rand() < 0.5 ? 0x2f6b2a : 0xb3262b; }
     place(c);
     // Never materialise a new vehicle on top of another one, including at junctions.
@@ -101,7 +132,7 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
       const have = onEdge.get(Math.min(e.from, e.to) + ':' + Math.max(e.from, e.to)) || 0;
       let want = expected(e, hour); want = Math.floor(want) + (rand() < want % 1 ? 1 : 0);
       for (let k = have; k < want; k++) {
-        const s = rand() * e.len, fwd = rand() < 0.5, p = { x: a.x + (b.x - a.x) * s / e.len, z: a.z + (b.z - a.z) * s / e.len };
+        const s = rand() * e.len, fwd = e.dividedLane ? true : rand() < 0.5, p = { x: a.x + (b.x - a.x) * s / e.len, z: a.z + (b.z - a.z) * s / e.len };
         if (Math.hypot(p.x - player.x, p.z - player.z) < 40) continue;          // never pop in beside the player
         spawn(e, fwd ? s : e.len - s, fwd);
       }
@@ -166,7 +197,8 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
       c.v = Math.max(0, c.v);
       const distance = Math.max(0, Math.min(c.v * dt, clearance - 2));
       c.s += distance;
-      while (c.s > c.len) { const e = nextEdge(c); c.s -= c.len; c.from = c.to; c.to = e.to; c.len = e.len; c.width = e.width; }
+      while (c.s > c.len) { const e = nextEdge(c); if (!e) { c.deadEnd = true; break; } c.s -= c.len; c.from = c.to; c.to = e.to; c.len = e.len; c.width = e.width; c.dividedLane = e.dividedLane ?? null; }
+      if (c.deadEnd) { cars.splice(i, 1); continue; }
       place(c);
     }
     draw();
