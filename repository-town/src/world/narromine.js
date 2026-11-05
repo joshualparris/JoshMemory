@@ -31,6 +31,7 @@ const NW_DANDALOO_SUPPRESSED_FILL = new Set(NARROMINE_NW_DANDALOO_INTEGRATION_SP
 import { estimatedShopfrontProfile, facadeBays, landmarkFacadeSpec } from './narromine-facade-profiles.js';
 import { PHYSIO_FACADE, buildNarrominePhysiotherapyFacade } from './narromine-mainstreet-physio.js';
 import { buildDisjointRoadSurfaces, kerbReturns } from './narromine-road-surfaces.js';
+import { shouldRenderMappedPaint } from './narromine-road-paint-guards.js';
 import { createNarromineSurfaceMaterial } from './narromine-surface-materials.js';
 import { buildDandalooStreetscape } from './narromine-dandaloo-streetscape.js';
 import { rotatedBoxCollider } from './narromine-collision-footprints.js';
@@ -241,7 +242,10 @@ export function buildNarromine(parent, makeLabel = null) {
     for (let i = 1; i < pts.length; i++) {
       const [ax, az] = pts[i - 1], [bx, bz] = pts[i], len = Math.hypot(bx - ax, bz - az); if (len < 0.5) continue;
       const ux = (bx - ax) / len, uz = (bz - az) / len, yaw = -Math.atan2(bz - az, bx - ax);
-      for (let d = carry; d + 3 <= len; d += 12) box(0xf2f0e6, 3, 0.01, 0.1, ax + ux * (d + 1.5), 0.082, az + uz * (d + 1.5), yaw);
+      for (let d = carry; d + 3 <= len; d += 12) {
+        const mx = ax + ux * (d + 1.5), mz = az + uz * (d + 1.5);
+        if (shouldRenderMappedPaint(mx, mz, REGION)) box(0xf2f0e6, 3, 0.01, 0.1, mx, 0.082, mz, yaw);
+      }
       carry = (carry - len) % 12; if (carry < 0) carry += 12;
     }
   }
