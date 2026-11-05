@@ -31,6 +31,7 @@ const NW_DANDALOO_SUPPRESSED_FILL = new Set(NARROMINE_NW_DANDALOO_INTEGRATION_SP
 import { estimatedShopfrontProfile, facadeBays, landmarkFacadeSpec } from './narromine-facade-profiles.js';
 import { PHYSIO_FACADE, buildNarrominePhysiotherapyFacade } from './narromine-mainstreet-physio.js';
 import { buildDisjointRoadSurfaces, kerbReturns } from './narromine-road-surfaces.js';
+import { shouldDrawInferredCentreDash } from './narromine-road-paint-guards.js';
 import { createNarromineSurfaceMaterial } from './narromine-surface-materials.js';
 import { buildDandalooStreetscape } from './narromine-dandaloo-streetscape.js';
 import { NARROMINE_POST_OFFICE_ENTRANCE, NARROMINE_POST_OFFICE_ID } from './narromine-post-office.js';
@@ -221,7 +222,7 @@ export function buildNarromine(parent, makeLabel = null) {
     }
     for (const st of STREETS) {
       if (!MAIN.test(st.kind)) continue;
-      const centre = st.kind !== 'trunk' && !nearLine(NARROMINE_FURNITURE.laned, st.pts[0][0], st.pts[0][1], 3);   // trunk ways here are one-way carriageways
+      // Explicitly mapped line paint takes priority at each dash, not just at the first street point.
       for (let i = 1; i < st.pts.length; i++) {
         const [ax, az] = st.pts[i - 1], [bx, bz] = st.pts[i], len = Math.hypot(bx - ax, bz - az); if (len < 1) continue;
         const ux = (bx - ax) / len, uz = (bz - az) / len, nx = -uz, nz = ux, yaw = -Math.atan2(bz - az, bx - ax), edge = st.width / 2 - 0.6;
@@ -229,7 +230,8 @@ export function buildNarromine(parent, makeLabel = null) {
           const mx = ax + ux * (d + 1.5), mz = az + uz * (d + 1.5);
           if (nearOtherStreet(st, mx, mz)) continue;
           for (const side of [-1, 1]) box(0xf4f2ea, 3, 0.01, 0.12, mx + nx * edge * side, 0.081, mz + nz * edge * side, yaw);
-          if (centre && Math.floor(d / 3) % 4 === 0) box(0xf4f2ea, 3, 0.01, 0.1, mx, 0.081, mz, yaw);
+          if (Math.floor(d / 3) % 4 === 0 && shouldDrawInferredCentreDash(st.kind, mx, mz, NARROMINE_FURNITURE.laned))
+            box(0xf4f2ea, 3, 0.01, 0.1, mx, 0.081, mz, yaw);
         }
       }
     }
