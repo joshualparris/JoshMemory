@@ -452,6 +452,9 @@ export function makePerson(seed, shirt, trousers) {
 
 // Swings limbs while walking and settles them when standing (shared by every figure).
 export function pose(p, dt, t, moving, faceForward = moving) {
+  // Detailed resident figures carry their own natural-pose controller. It keeps the
+  // same joint contract, so seating, collision, conversation and tests are unchanged.
+  if (typeof p.advancedPose === 'function') { p.advancedPose(dt, t, moving, faceForward); return; }
   // Every figure needs a finite phase. Uninitialised shop visitors previously
   // got NaN rotations, making both legs and arms disappear in WebGL.
   const phase = Number.isFinite(p.phase) ? p.phase : 0;
