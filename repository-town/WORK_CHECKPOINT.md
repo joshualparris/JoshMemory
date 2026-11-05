@@ -1,7 +1,7 @@
-## 2026-11-05 — DISC-NR-007 Post Office L-shaped hipped roof (Claude Code, Fedora) — MERGED, NOT YET LIVE
+## 2026-11-05 — DISC-NR-007 Post Office L-shaped hipped roof (Claude Code, Fedora) — LIVE, VERIFIED 13:05 AEDT
 - Merged as #392 (`0063bc81`). New `src/world/narromine-post-office-roof.js`; narrow hook in `narromine.js`. All PR checks green, except a first Chrome-regression run that timed out (exit 124 after the windows suite; rerun passed) and the rate-limited Vercel preview.
 - Deployment: production Vercel build of `0063bc81` and current main `a1cffc71` failed with "Deployment rate limited — retry in 24 hours". Live production `release.json` is still `3b798b68`; staging `6ab007a1`; approved backup `9bcb364a`. None contain the roof. The independent Pages alternate (`joshualparris/repository-town`) still has Pages disabled (API 404). Render main QA needs a user-directed trigger and had exhausted minutes. No fallback was published.
-- Next: once Vercel's limit resets, confirm production `release.json` `sourceCommit` is at or after `0063bc81` and that `/world/narromine-post-office-roof.js` returns 200, then check the Post Office roof in-game on desktop and Android.
+- Live: production `release.json` `sourceCommit` `ec085dd8` (contains `0063bc81`); `/world/narromine-post-office-roof.js` HTTP 200; `narrominePostOffice` browser test PASS against production on desktop and Pixel 7; in-game screenshot shows the continuous fascia and roof-seated mast; 0 page errors. Approved backup still on `9bcb364a` (follows production by its own sync job).
 
 ## 2026-11-05 — RT-RAIL-YARD-OPS-001 fresh-main continuation of PR #376
 - Owner: ChatGPT GitHub connector. Branch `feat/repo-town-shunting-current-main-20261105`, base `a6c603306604cf7d519830b1b1654f220e70bac7`. Old #376 deliberately left untouched aside from an added diagnostic browser assertion; do not merge stale branch.
