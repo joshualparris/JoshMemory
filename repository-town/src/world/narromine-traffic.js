@@ -13,6 +13,7 @@ const CLASS_VEHICLES = { trunk: 7000, primary: 4000, secondary: 3000, tertiary: 
 // Share of the daily total in each hour (typical Australian country-town weekday profile; sums to 1).
 const HOURLY = [.006, .004, .003, .003, .006, .016, .038, .066, .079, .068, .064, .066, .068, .066, .068, .074, .08, .072, .052, .036, .028, .022, .014, .008];
 const SPEED = 50 / 3.6, RADIUS = 500;
+const JUNCTION_APPROACH = 30, JUNCTION_STOP = 13, JUNCTION_CLEAR = 14;
 
 function buildGraph() {
   const nodes = [], adj = new Map(), key = (p) => Math.round(p[0] * 2) + ',' + Math.round(p[1] * 2), index = new Map();
@@ -53,6 +54,8 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
     bodies.count = cabins.count = n; bodies.instanceMatrix.needsUpdate = cabins.instanceMatrix.needsUpdate = true; if (bodies.instanceColor) bodies.instanceColor.needsUpdate = true;
   }
   const { nodes, adj } = buildGraph();
+  // Only true road junctions need conflict management; degree-two bend vertices do not.
+  const junctions = new Set([...adj].filter(([, es]) => new Set(es.map(e => e.to)).size >= 3).map(([n]) => n));
   const edges = []; for (const [from, list] of adj) for (const e of list) if (from < e.to) edges.push({ from, ...e });
   const cars = []; let serial = 0, seed = 1234567;
   const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;     // deterministic, so tests repeat
@@ -106,6 +109,24 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
     // Snapshot first: updating cars in an array order must not let followers drive into
     // a leader that has already moved this frame. Compare complete car lengths in lane space.
     const snapshot = cars.map(c => ({ ...c }));
+    // One vehicle at a time owns each intersection's conflict area. A car that
+    // has entered retains ownership until its rear clears the junction.
+    const junctionOwner = new Map();
+    for (const j of junctions) {
+      const centre = nodes[j];
+      const candidates = snapshot.filter(c =>
+        (c.to === j && c.len - c.s < JUNCTION_APPROACH) ||
+        (c.from === j && c.s < JUNCTION_CLEAR + c.L / 2));
+      if (!candidates.length) continue;
+      candidates.sort((a, b) => {
+        const enteredA = a.from === j ? 0 : 1, enteredB = b.from === j ? 0 : 1;
+        if (enteredA !== enteredB) return enteredA - enteredB;
+        const da = Math.hypot(a.x - centre.x, a.z - centre.z);
+        const db = Math.hypot(b.x - centre.x, b.z - centre.z);
+        return da - db || a.id - b.id;
+      });
+      junctionOwner.set(j, candidates[0].id);
+    }
     for (let i = cars.length - 1; i >= 0; i--) {
       const c = cars[i];
       if (Math.hypot(c.x - player.x, c.z - player.z) > RADIUS + 100) { cars.splice(i, 1); continue; }
@@ -131,6 +152,9 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
       // early. The hard movement clamp below prevents tunnelling at large dt.
       const safeGap = 2 + Math.max(0, c.v) * 2;
       const obstacle = blocked(p.x + p.ux * (c.L / 2 + 4), p.z + p.uz * (c.L / 2 + 4));
+      const yieldJunction = junctions.has(c.to) && junctionOwner.has(c.to) &&
+        junctionOwner.get(c.to) !== c.id && remaining < JUNCTION_APPROACH;
+      if (yieldJunction) clearance = Math.min(clearance, remaining - JUNCTION_STOP);
       const desired = obstacle || clearance <= safeGap ? 0 : Math.min(c.speed * turnSlow, (clearance - safeGap) / 2);
       c.v += Math.max(-8 * dt, Math.min(2 * dt, desired - c.v));
       c.v = Math.max(0, c.v);
