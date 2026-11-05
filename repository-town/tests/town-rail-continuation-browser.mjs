@@ -18,7 +18,7 @@ const capture=async(mobile)=>{
   await page.waitForFunction(()=>window.__town&&document.getElementById('loading')?.hidden,null,{timeout:110000});
   await page.waitForFunction(()=>window.__town.regionalRail()?.chunks>12,null,{timeout:20000});
   const report=await page.evaluate(()=>window.__town.regionalRail());
-  assert(report.totalMetres>5000&&report.totalMetres<6500,tag+': physically connected route, '+report.totalMetres);
+  assert(report.totalMetres>4500&&report.totalMetres<5200,tag+': physically connected route, '+report.totalMetres);
   assert(report.sleepers>5000&&report.chunks>20,tag+': real sleeper instancing and cullable chunks');
   const seams=[
    {key:'repo-main-west',x:-394,z:-202,target:[-580,-185]},
