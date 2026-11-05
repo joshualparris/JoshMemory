@@ -9,7 +9,7 @@ import {REGIONAL_RAIL_GEOMETRY as C, REGIONAL_RAIL_CONNECTOR as link,
   REPO_RAIL_EAST_ARC as east,REPO_RAIL_NORTH_RETURN as north,
   REPO_RAIL_WEST_ARC as west,REPO_RAIL_OVAL as oval,
   REPO_RAIL_MAIN_APPROACH as townApproach,REPO_RAIL_LOOP_TURNOUT_X as turnoutX,
-  REPO_RAIL_GAME_WAYS as extra,polylineMetres as length} from '../src/world/town-rail-continuation-route.js';
+  REPO_RAIL_GAME_WAYS as extra,polylineMetres as length,railTopAtGamePoint} from '../src/world/town-rail-continuation-route.js';
 const d=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
 const close=(a,b,msg)=>assert(d(a,b)<.002,msg+': '+a+' vs '+b);
 assert.equal(C.gauge,1.435);
@@ -19,6 +19,16 @@ assert(C.lineSpeedKmh<=40&&C.loopSpeedKmh<=40);
 assert.equal(C.mainZ,RAIL_Z);
 assert.equal(C.mainWest,-398);
 assert.equal(C.mainEast,398);
+assert.equal(railTopAtGamePoint(-5000,-780),C.narromineRailTop,
+ 'OSM railway wheel alignment must remain untouched');
+assert.equal(railTopAtGamePoint(-398,RAIL_Z),C.townRailTop,
+ 'fictional town running rail head must meet existing .277m tracks');
+assert.equal(railTopAtGamePoint(0,RAIL_Z-360),C.townRailTop,
+ 'return loop wheels must not hover above its running rails');
+assert(railTopAtGamePoint(-2100,-70)<C.narromineRailTop&&
+  railTopAtGamePoint(-2100,-70)>C.townRailTop,
+ 'intermediate connector uses a smooth descending rail-head profile');
+
 close(link[0],RAIL[7].pts.at(-1),'actual OSM railway endpoint');
 close(link.at(-1),[C.mainWest,RAIL_Z],'mapped line arrives at Repo Town');
 close(east[0],[C.mainEast,RAIL_Z],'east turn starts exactly at existing running rail');
