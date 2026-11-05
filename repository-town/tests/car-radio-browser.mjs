@@ -9,6 +9,7 @@ try{
   const page=await context.newPage();
   await page.goto(new URL('release.html',url).href);
   await page.evaluate(async()=>{
+   const NativeContext=window.AudioContext;window.AudioContext=class extends NativeContext{createGain(){const node=super.createGain();if(!window.radioMeter){window.radioMeter=super.createAnalyser();node.connect(window.radioMeter);}return node;}};
    const NativeAudio=window.Audio;window.radioAudios=[];window.Audio=class extends NativeAudio{constructor(...args){super(...args);window.radioAudios.push(this);}};
    const {createDrivingDashboard}=await import('./ui/driving-dashboard.js');
    window.dashboard=createDrivingDashboard();
@@ -20,6 +21,8 @@ try{
   await page.locator('#drive-radio-power').click();
   for(let i=0;i<3;i++){
    assert.equal(await page.evaluate(()=>window.dashboard.getState().station),i+1);
+   await page.waitForFunction(()=>{const m=window.radioMeter;if(!m)return false;const samples=new Float32Array(m.fftSize);m.getFloatTimeDomainData(samples);return samples.some(v=>Math.abs(v)>.0001);},null,{timeout:10000});
+   console.log('AUDIBLE',mobile?'mobile':'desktop',['Country Road FM','High Street Jazz','Night Drive'][i]);
    await page.locator('#drive-radio-next').click();
   }
   for(const name of stations){
