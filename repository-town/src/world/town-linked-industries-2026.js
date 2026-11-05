@@ -185,7 +185,9 @@ export function industryHour(t,h){
  if(!crewPresent(t,'buildsite')||!t.gridPowered('industry')||s.project.stage>=4)return;
  build.till-=12; // builder wage
  const req=INDUSTRY_REQUIREMENTS[s.project.stage];
- if(!Object.entries(req).every(([g,n])=>(build.stock[g]||0)>=n)){
+ // Materials are consumed at stage START, not every subsequent work hour.
+ // Rechecking after consuming them would stall every stage at hour one.
+ if(s.project.hours===0&&!Object.entries(req).every(([g,n])=>(build.stock[g]||0)>=n)){
   if(s.shipments.some(x=>x.to==='buildsite'&&x.status==='transit'))return;
   const trade=initialiseTradeEducation(t);
   // Legacy saved games predate the cement SKU. Do not mint 24 free bags on
