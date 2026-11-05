@@ -71,3 +71,30 @@ The test asserts all Repository Town **core** and **planned** road lanes are cle
 - [ ] Mark **1.1** complete only after the real-browser evidence has been inspected and preserved.
 
 The next step **1.2** is a separate implementation claim for confirmed false positives and requires before/after remeasurement.
+
+## Verified 5 November 2026 browser results
+
+**Latest complete successful run:** [41947000018](https://github.com/joshualparris/JoshMemory/actions/runs/41947000018), pinned workflow/test SHA `314a8b28554902c145506130850d0593b61efb1c`; [full JSON/CSV + 12 screenshots, GitHub artifact 13379676468](https://github.com/joshualparris/JoshMemory/actions/runs/41947000018/artifacts/13379676468). A previous run [41946906075](https://github.com/joshualparris/JoshMemory/actions/runs/41946906075) at SHA `f7ed4b3bc490354ae8cce822abe3773076debbf6` independently succeeded with identical counts. Both builds passed Node syntax, game build, privacy scan, real Chromium WebGL and desktop/Pixel7 sample parity.
+
+| Source classification (model attribution only) | Static contacts |
+| --- | ---: |
+| Microsoft traced footprint polygons | 187 |
+| Mapped OSM building polygons | 24 |
+| Detailed site parts (including works shed) | 8 |
+| LiDAR-derived model tree trunk | 1 |
+| Unattributed axis-aligned static colliders | 19 |
+| **Total mapped Narromine road contacts** | **239** |
+| Repository Town core / planned mapped roads | **0 / 0** |
+
+- **Desktop 239; Pixel 7 Playwright Chromium emulation 239**; exact individual static contact signatures match. A physical Pixel 7 was **not** tested.
+- **Every one** of the 239 contacts is at the **±1.6 m lane-offset probe**; sampled mapped street **centrelines themselves had zero contacts**. This distinction matters: a centreline may be clear while its modelled lane edges touch a 1.12m-radius vehicle.
+- **237** touches are inside renderer-derived **paved** road polygons, **2** inside renderer-derived **unsealed track** polygons; none were outside a renderer-derived carriageway in this model. These polygons are *not surveyed asphalt boundaries*.
+- **219** collision responses had polygon narrowphase; **20** lacked polygon narrowphase (19 presently unattributed, 1 LiDAR tree trunk). The 219 polygon contacts show this is **not simply 239 oversized AABB corners**.
+- The affected road records have **unnamed OSM ways** in the source: IDs such as `narromine-49:` retain their stable index but have no defensible street name. Do not invent names or claim that 239 were all on Dandaloo Street. The most affected IDs: `49` (29), `117` (23), `57` (20), `183` (17), `58` (15), `107` (15). Refer to the coordinates in the CSV for actual placement.
+- All 19 unattributed model contacts remain under investigation. Eighteen form a sequence of narrow axis-aligned colliders along `narromine-49:` near x −4937..−4929, z −244..−297; one is near x −5214.75, z −1141.25. No ground-truth classification, collision bypass, or railway-gate removal is justified.
+- **0** contacts fall within the audit's 9m proximity flag of mapped railway lines. That does **not** prove crossing safety or gate function.
+- Desktop and mobile frame captures contain actual rendered game scenery, but camera repositioning is diagnostic teleportation **not** a physical drive or walking-route acceptance test.
+
+**Implication for 1.2 owner:** the prevailing 219 polygon-aware building contacts require road/footprint alignment and clearance evidence; a box-to-polygon fix alone cannot be counted as resolving these. Preserve real walls and rail-gate physics. Re-run the same 3m / ±1.6m / r=1.12m probes before and after any change, then separately test vehicle traversal through named Dandaloo/Burraway intersections.
+
+**1.1 evidence gate PASSED at the pinned source SHA**; this is a measurement-only finding. The independent corrective issue #398 remains open.
