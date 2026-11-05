@@ -136,7 +136,10 @@ export function buildWorkplaces() {
     }
     else { staff = spec[0]; basis = 'typical for a ' + p.kind.replace(/_/g, ' ') + (building?.osm || area > 800 ? ' (its mapped outline covers several shops in a row, so floor area is not used)' : ' (no building outline mapped)'); }
     if (!staff) continue;
-    list.push({ id: 'work-' + list.length, name: p.name, kind: p.kind, x: p.x, z: p.z, staff, staffBasis: basis, area, building, opens: spec[1], closes: spec[2], weekend: spec[3] });
+    const soulFood=p.name==='Soul Food Depot & Gallery' && p.kind==='cafe';
+    list.push({ id: 'work-' + list.length, name: p.name, kind: p.kind, x: p.x, z: p.z,
+      staff, staffBasis: soulFood ? basis+'; NOT an actual Soul Food employee count or roster' : basis,
+      area, building, opens: soulFood ? 7*60+30 : spec[1], closes: spec[2], weekend: spec[3] });
   }
   return list;
 }
