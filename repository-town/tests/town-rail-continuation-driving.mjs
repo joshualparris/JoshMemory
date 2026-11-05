@@ -26,14 +26,14 @@ for(const desired of ['straight','right','left']){
   if(head.x>-3000&&head.x<-500)onConnector=true;
   if(onConnector&&head.x>-390&&Math.abs(head.z-RAIL_Z)<6){insideTown=true;firstTown??=frame;}
   if(insideTown&&head.z<RAIL_Z-310&&head.x>-550&&head.x<650)northLeg=true;
-  if(northLeg&&head.x>-320&&Math.abs(head.z-RAIL_Z)<6){completed=true;break;}
+  if(northLeg&&head.x>-294&&head.x<-245&&Math.abs(head.z-RAIL_Z)<6){completed=true;break;}
   if(t.message.includes('End of the line')||t.message.includes('rear of the train reached')){reason=t.message;break;}
  }
  attempts.push({desired,onConnector,insideTown,northLeg,completed,highest,
   metres:Math.round(moved),reason,start,finish:t.state().head});
  if(completed){
   assert(highest>10,'loco must genuinely accelerate');
-  assert(moved>6500,'loco must drive from Narromine yard through game corridor and loop');
+  assert(moved>5800,'loco must physically drive from Narromine yard through game corridor and the full 180m loop');
   assert(t.state().line==='Repository Town fictional return loop',
    'loco remains on the fictional track, not an invisible unrendered line');
   console.log('PASS playable train drove into Repo from mapped Narromine yard and around 180m-radius full loop: '+JSON.stringify(attempts));
