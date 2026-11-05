@@ -708,10 +708,18 @@ export class TownLife {
     tickPopulation(this,minutes,walkRoute);
     // All walkers, shop visitors and on-duty staff retain physical space.
     // Stationary conversations count too; no more two models in one body.
-    separatePedestrians([...this.villagers,...(this.population?.additional||[])].filter(v=>!v.inside).map(v=>({
-      id:v.id,pos:v,radius:v.bike&&v.path.length?1.16:.59,
-      fixed:!!v.engaged
-    })),{world:this.pedestrianWorld||null,gap:1.24,passes:12});
+    // Preserve the pre-population worker spacing behaviour and staffed-venue
+    // positions. New fictional residents yield to those established workers.
+    const workersOnStreet=this.villagers.filter(v=>!v.inside).map(v=>({
+      id:v.id,pos:v,radius:v.bike&&v.path.length?1.16:.59,fixed:!!v.engaged
+    }));
+    separatePedestrians(workersOnStreet,{world:this.pedestrianWorld||null,gap:1.24,passes:12});
+    const extraOnStreet=(this.population?.additional||[]).filter(v=>!v.inside).map(v=>({
+      id:v.id,pos:v,radius:.59,fixed:!!v.engaged
+    }));
+    if(extraOnStreet.length)separatePedestrians([
+      ...workersOnStreet.map(v=>({...v,fixed:true})),...extraOnStreet
+    ],{world:this.pedestrianWorld||null,gap:1.24,passes:8});
     // A crowd can nudge walkers sideways every tick while route-following
     // pulls them back towards the same obstructed point. Detect lack of NET
     // forward progress, recover via a real walkable detour, and never orbit
