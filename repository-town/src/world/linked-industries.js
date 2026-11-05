@@ -28,7 +28,7 @@ export function ensureLinkedIndustries(life){
     health:88+i%10,fed:true,watered:true,isolated:false,caseId:null,alive:true,age:2+i%5}))]));
   c.linkedIndustries={
    version:1,herds,feed:{sheep:18,dairy:18,coop:18},careDay:0,
-   vet:{name:'Dr Ada Wattle',base:'clinic',status:'at clinic',activeCase:null,travelMinutes:0,totalTravel:0,
+   vet:{name:'Dr Ada Wattle',base:'vet',status:'at clinic',activeCase:null,travelMinutes:0,totalTravel:0,
     from:null,to:null,examMinutes:0,stock:5,receipts:0},
    cases:[],visits:[],
    brewery:{name:'Cooperative Brewhouse',base:'foundry',stock:{malt:6,hops:3,yeast:3},
@@ -40,6 +40,9 @@ export function ensureLinkedIndustries(life){
   // Externally funded, explicitly recorded startup capital; none is taken
   // from existing worker wages, pub till or the hardware shop.
   for(const farm of Object.keys(INDUSTRY_FARMS))life.place(farm).till+=120;
+  // Use the pre-existing Regional Stockfeed & Produce premises, not a cloned supplier.
+  life.place('stockfeed').stock.grain=12;
+  life.place('stockfeed').till+=160;
   const depot=life.place('depot');
   for(const [good,n] of Object.entries({malt:12,hops:5,yeast:5}))
    depot.out[good]=(depot.out[good]||0)+n;
@@ -82,12 +85,12 @@ export function bookBuildingSupplies(life){
 export function bookFeedRun(life,farm){
  const s=ensureLinkedIndustries(life);if(!s.herds[farm])return 'Not a livestock farm.';
  if(!availableRun(s))return 'The cooperative van is on another delivery.';
- const source=life.place('silo'),buyer=life.place(farm),n=Math.min(9,source.out.grain||0),cost=n*2;
- if(n<3)return 'Wheat Farm needs to harvest more feed grain.';
+ const source=life.place('stockfeed'),buyer=life.place(farm),n=Math.min(9,source.stock.grain||0),cost=n*2;
+ if(n<3)return 'Regional Stockfeed & Produce needs another paid grain delivery.';
  if(buyer.till<cost)return farm+' cannot cover the $'+cost+' feed invoice.';
- source.out.grain-=n;source.till+=cost;buyer.till-=cost;
- const run=bookRun(life,'feed','silo',farm,{grain:n},cost);
- if(!run){source.out.grain+=n;source.till-=cost;buyer.till+=cost;return 'Delivery van unavailable.';}
+ source.stock.grain-=n;source.till+=cost;buyer.till-=cost;
+ const run=bookRun(life,'feed','stockfeed',farm,{grain:n},cost);
+ if(!run){source.stock.grain+=n;source.till-=cost;buyer.till+=cost;return 'Delivery van unavailable.';}
  return 'Farm paid $'+cost+' for '+n+' grain-feed units; '+run.id+' is en route.';
 }
 export function orderRegionalIngredients(life){
@@ -119,6 +122,17 @@ function advanceRegionalOrders(life){
   linkedLog(life,order.id+' regional freight received after paid transit time.');
  }
  s.regionalOrders=s.regionalOrders.slice(-30);
+}
+export function bookStockfeedRestock(life){
+ const s=ensureLinkedIndustries(life),shop=life.place('stockfeed'),farm=life.place('silo');
+ if(!availableRun(s))return 'Cooperative van occupied.';
+ const n=Math.min(16,farm.out.grain||0),cost=n;
+ if(n<4)return 'Wheat Farm must produce more grain before wholesale feed restocking.';
+ if(shop.till<cost)return 'Stockfeed supplier lacks $'+cost+' wholesale funds.';
+ farm.out.grain-=n;farm.till+=cost;shop.till-=cost;
+ const run=bookRun(life,'stockfeed','silo','stockfeed',{grain:n},cost);
+ if(!run){farm.out.grain+=n;farm.till-=cost;shop.till+=cost;return 'Delivery van unavailable.';}
+ return shop.name+' paid $'+cost+' for '+n+' grain and booked real transport '+run.id+'.';
 }
 export function bookBreweryIngredients(life){
  const s=ensureLinkedIndustries(life),brew=s.brewery,depot=life.place('depot');
@@ -172,10 +186,10 @@ function animalCareDay(life){
 }
 function progressVet(life,minutes){
  const s=ensureLinkedIndustries(life),v=s.vet;
- const shift=life.minute>=480&&life.minute<1020&&!['Saturday','Sunday'].includes(life.weekday());
+ const shift=life.minute>=480&&life.minute<1020&&!['Saturday','Sunday'].includes(life.weekday())&&life.villagers.some(w=>w.work==='vet'&&w.step?.kind==='work'&&!w.path?.length);
  if(v.status==='at clinic'&&shift){
   const c=s.cases.find(c=>c.status==='reported');
-  if(c){const from=life.place('clinic').front,to=life.place(c.farm).front;
+  if(c){const from=life.place('vet').front,to=life.place(c.farm).front;
    v.status='travelling';v.activeCase=c.id;v.from={...from};v.to={...to};
    v.totalTravel=Math.max(5,Math.hypot(to.x-from.x,to.z-from.z)/(1.4*3));
    v.travelMinutes=v.totalTravel;c.status='travelling';linkedLog(life,v.name+' walking to treat '+c.animalId+'.');}
@@ -190,11 +204,11 @@ function progressVet(life,minutes){
   const farm=life.place(c.farm),animal=s.herds[c.farm]?.find(a=>a.id===c.animalId);
   if(v.stock<1){c.status='waiting-for-kit';return;}
   if(farm.till<c.cost){c.status='waiting-for-payment';return;}
-  farm.till-=c.cost;life.place('clinic').till+=c.cost;v.stock--;v.receipts+=c.cost;
+  farm.till-=c.cost;life.place('vet').till+=c.cost;v.stock--;v.receipts+=c.cost;
   animal.health=Math.max(74,animal.health);animal.isolated=false;animal.caseId=null;
   c.status='treated';c.finishedDay=life.day;s.visits.push({caseId:c.id,day:life.day,cost:c.cost});
   linkedLog(life,v.name+' treated '+animal.id+'; farm paid the clinic $'+c.cost+'.');
-  v.status='returning';v.travelMinutes=v.totalTravel;v.from={...v.to};v.to={...life.place('clinic').front};
+  v.status='returning';v.travelMinutes=v.totalTravel;v.from={...v.to};v.to={...life.place('vet').front};
  }
  if(v.status==='returning'){
   v.travelMinutes=Math.max(0,v.travelMinutes-minutes);
@@ -211,6 +225,7 @@ function progressRuns(life,minutes){
   r.status='delivered';r.deliveredDay=life.day;
   if(r.kind==='building')for(const [g,n] of Object.entries(r.goods))s.site.stock[g]=(s.site.stock[g]||0)+n;
   if(r.kind==='feed')s.feed[r.to]+=r.goods.grain;
+  if(r.kind==='stockfeed')life.place('stockfeed').stock.grain=(life.place('stockfeed').stock.grain||0)+r.goods.grain;
   if(r.kind==='brewery')for(const [g,n] of Object.entries(r.goods))s.brewery.stock[g]=(s.brewery.stock[g]||0)+n;
   if(r.kind==='pub'){pubVenue(life).beerDepotL+=r.goods.kegs*50;s.brewery.deliveredKegs+=r.goods.kegs;}
   linkedLog(life,r.id+' delivered and recorded '+JSON.stringify(r.goods)+' to '+life.place(r.to).name+'.');
@@ -250,8 +265,9 @@ export function tickLinkedIndustries(life,minutes){
  animalCareDay(life);advanceRegionalOrders(life);progressRuns(life,minutes);progressVet(life,minutes);
  // Farm feed is automatically ordered against finite silo grain and farm cash.
  // The same single delivery van must complete each journey before the next one.
+ if(life.minute>=480&&life.minute<1020&&availableRun(s)&&(life.place('stockfeed').stock.grain||0)<9)bookStockfeedRestock(life);
  if(life.minute>=480&&life.minute<1020&&availableRun(s))for(const farm of Object.keys(INDUSTRY_FARMS)){
-  if(s.feed[farm]<6 && (life.place(farm).till||0)>=6 && (life.place('silo').out.grain||0)>=3){
+  if(s.feed[farm]<6 && (life.place(farm).till||0)>=6 && (life.place('stockfeed').stock.grain||0)>=3){
    bookFeedRun(life,farm);break;
   }
  }
