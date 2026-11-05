@@ -42,8 +42,13 @@ present(crossing,RAIL_Z,0,0,false);
 assert.equal(railGateState(600,depot,crossing).roadStop,true);
 present(crossing-140,RAIL_Z,0,0,false);
 assert.equal(connectingTrainGate(crossing),null);
+assert.notEqual(scheduledRailTrainX(timed,depot),null,
+  'a stationary train 140m west of first crossing lies outside monitored town main and does not block freight');
+present(crossing-90,RAIL_Z,0,0,false);
+assert.equal(connectingTrainGate(crossing),null,
+  'stationary wagons away from the crossing are not a reason for road closure');
 assert.equal(scheduledRailTrainX(timed,depot),null,
-  'scripted freight holds at region entry while player occupies the line');
+  'scripted freight holds when actual player consist is inside the modelled main-line block');
 setConnectingTrainPresence(null);
 assert.notEqual(scheduledRailTrainX(timed,depot),null);
 assert.equal(connectingTrainGate(crossing),null);
