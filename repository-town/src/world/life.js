@@ -1,5 +1,5 @@
 import {tickPopulation,populationSnapshot,restorePopulation} from './population-routines.js';
-import {ensureLinkedIndustries,tickLinkedIndustries,industryReport,reportFarmIllness,bookFeedRun,bookBuildingSupplies,bookBreweryIngredients,bookBreweryToPub,animalHealthFactor} from './linked-industries.js';
+import {ensureLinkedIndustries,tickLinkedIndustries,industryReport,reportFarmIllness,bookFeedRun,bookBuildingSupplies,bookBreweryIngredients,bookBreweryToPub,orderRegionalIngredients,orderVetKits,animalHealthFactor} from './linked-industries.js';
 import {createPopulation,populationReport} from './population.js';
 import { RAIL_Z, RAIL_CROSSINGS, railGateState, railUserBlocked, scheduledRailTrainX } from './rail-corridor.js';
 import {townDate, townDateLabel, venueHoursOnDay, residentWorksToday, isWeekend, weekdayOnlyWorkplace} from './town-calendar.js';
@@ -2147,6 +2147,8 @@ export class TownLife {
   orderIndustryBuilding(){return bookBuildingSupplies(this);}
   orderIndustryIngredients(){return bookBreweryIngredients(this);}
   orderIndustryPubKegs(){return bookBreweryToPub(this);}
+  orderIndustryRegionalIngredients(){return orderRegionalIngredients(this);}
+  orderIndustryMedicalKits(){return orderVetKits(this);}
   householdMembers(coordinate){return familyMembers(this.villagers,coordinate);}
   describe(v) {
     const last = v.lastMeal ? `${v.lastMeal.name} at ${fmt(v.lastMeal.at)}${v.lastMeal.day !== this.day ? ' yesterday' : ''}` : 'nothing yet today';
