@@ -19,6 +19,7 @@ import { buildNarromineStAugustines, ST_AUGUSTINES_OSM_INDEX } from './narromine
 import { NARROMINE_COURTHOUSE_INTEGRATION_SPEC } from './narromine-courthouse-evidence.js';
 import { buildNarromineAviationPrecinct } from './narromine-aviation-precinct.js';
 import { buildNarromineAirfield } from './narromine-airfield.js';
+import { buildFlightLandscape } from './narromine-flight-landscape.js';
 import { NARROMINE_AVIATION_INTEGRATION_SPEC } from './narromine-aviation-evidence.js';
 import { buildNarromineNwDandalooBlock } from './narromine-nw-dandaloo-block.js';
 import { NARROMINE_NW_DANDALOO_INTEGRATION_SPEC } from './narromine-nw-dandaloo-evidence.js';
@@ -730,6 +731,9 @@ export function buildNarromine(parent, makeLabel = null) {
   buildNarromineAviationPrecinct({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   // Complete YNRM runway surfaces live separately from the museum's verified geometry.
   const airfield = buildNarromineAirfield(town);
+  // Thin, batched agricultural underlay extends real-town visibility to the
+  // fictional settlement during aerial traversal; mapped surfaces stay above it.
+  const flightLandscape = buildFlightLandscape(root);
   buildNarromineNwDandalooBlock({ box, push, strip, flatPoly, plane, boardTexture, colliders, spots });
   // Named places: a sign over each, and an E-prompt with what it is, its address and any history.
   for (const p of PLACES) {
@@ -749,7 +753,7 @@ export function buildNarromine(parent, makeLabel = null) {
   town.visible = false;
   parent.add(root);
   const update = (pos, airborne = false) => { const show = airborne || pos.x < SHOW_WEST_OF; if (town.visible !== show) town.visible = show; };
-  return { group: town, root, colliders, spots, update, airfield };
+  return { group: town, root, colliders, spots, update, airfield, flightLandscape };
 }
 
 // Minimal geometry merge (position + normal), avoiding a dependency on BufferGeometryUtils here.
