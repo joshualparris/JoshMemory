@@ -9,8 +9,8 @@ export const AERODROME = Object.freeze({
   apron: Object.freeze({x:-5818,z:-2175}),
   entry: Object.freeze({x:-5806,z:-2174,yaw:Math.PI}),
   runways: Object.freeze([
-    Object.freeze({id:'11/29', headingDeg:121, length:1521, width:30, x:-6290, z:-2700, surface:'asphalt'}),
-    Object.freeze({id:'04/22', headingDeg:54, length:1100, width:30, x:-6290, z:-2700, surface:'asphalt'}),
+    Object.freeze({id:'11/29', headingDeg:121, length:1521, width:30, displacedStartM:0, displacedEndM:258, x:-6290, z:-2700, surface:'asphalt'}),
+    Object.freeze({id:'04/22', headingDeg:54, length:1100, width:30, displacedStartM:87, displacedEndM:0, x:-6290, z:-2700, surface:'asphalt'}),
   ]),
   grassStrips: Object.freeze([
     Object.freeze({id:'11/29 glider',headingDeg:121,length:812,width:60,x:-6445,z:-2820,surface:'grass'}),
