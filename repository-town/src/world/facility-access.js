@@ -53,6 +53,20 @@ export function facilityAccess(town, place) {
   const [opens,closes]=hours;
   if (!(town.minute >= opens && town.minute < closes))
     return { allowed:false, reason:'closed', message:`${place.name}: reception is locked. Visitor hours ${CLOCK(opens)}–${CLOCK(closes)}.${['police','ambulance','fire'].includes(place.id) ? ' Emergency services operate separately; use 000 (Game) for emergencies.' : ''}` };
+  // Independent contractor sites have no extra residential workers: their
+  // paid regional visitors unlock the public office only while on site.
+  // Workrooms remain restricted; an unfunded or unstaffed contract is not an
+  // imaginary receptionist or an always-open shop.
+  if(place.contractOnly){
+    const authorised=['brewery','buildsite'].includes(place.id)&&
+      town.civic.linkedIndustries?.version===1&&
+      town.minute>=8*60&&town.minute<16*60&&place.till>=12;
+    return authorised
+      ? {allowed:true,reason:'regional-contractor',
+          message:place.name+' visitor area is open while the paid regional contractor is on site. Workrooms are restricted.'}
+      : {allowed:false,reason:'unstaffed',
+          message:place.name+' is awaiting its paid regional contractor. The worksite is not open for unsupervised visits.'};
+  }
   const staff = onSiteWorkers(town,place);
   // These are inspectable exterior/first-fit-out shells, NOT magically staffed shops.
   // The player can inspect provisional interiors to inform later detailed builds.
