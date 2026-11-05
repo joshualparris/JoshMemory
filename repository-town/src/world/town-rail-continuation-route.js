@@ -65,10 +65,16 @@ function arc(cx,cz,from,to,steps){
 }
 const centerZ=z-R,steps=Math.ceil(Math.PI*R/7);
 export const REPO_RAIL_EAST_ARC=arc(east,centerZ,Math.PI/2,-Math.PI/2,steps);
-export const REPO_RAIL_NORTH_RETURN=Object.freeze([point(east,z-2*R),point(west,z-2*R)]);
-export const REPO_RAIL_WEST_ARC=arc(west,centerZ,-Math.PI/2,-3*Math.PI/2,steps);
+// The connector reaches the pre-existing main at x=-398; a *different*
+// correctly spaced turnout at x=-298 allows the balloon track to rejoin.
+// Older geometry made the arc and connector run 0.5m apart and the OSM snap
+// mistakenly fused them, despite no physical switch there.
+export const REPO_RAIL_LOOP_TURNOUT_X=west+100;
+export const REPO_RAIL_NORTH_RETURN=Object.freeze([point(east,z-2*R),point(REPO_RAIL_LOOP_TURNOUT_X,z-2*R)]);
+export const REPO_RAIL_WEST_ARC=arc(REPO_RAIL_LOOP_TURNOUT_X,centerZ,-Math.PI/2,-3*Math.PI/2,steps);
+export const REPO_RAIL_MAIN_APPROACH=Object.freeze([point(west,z),point(REPO_RAIL_LOOP_TURNOUT_X,z)]);
 export const REPO_RAIL_OVAL=Object.freeze([
-  point(west,z),point(east,z),
+  point(REPO_RAIL_LOOP_TURNOUT_X,z),point(east,z),
   ...REPO_RAIL_EAST_ARC.slice(1),
   ...REPO_RAIL_NORTH_RETURN.slice(1),
   ...REPO_RAIL_WEST_ARC.slice(1),
@@ -85,6 +91,9 @@ export const REPO_RAIL_ADDITIONS=Object.freeze([
 // untouched OSM ways; speed and provenance are explicit, not falsely OSM-tagged.
 export const REPO_RAIL_GAME_WAYS=Object.freeze([
   Object.freeze({pts:REGIONAL_RAIL_CONNECTOR,name:'Imagined Narromine–Repository Town connector (compressed map)',
+    gameOnly:true,limitKmh:REGIONAL_RAIL_GEOMETRY.lineSpeedKmh}),
+  Object.freeze({pts:REPO_RAIL_MAIN_APPROACH,
+    name:'Repository Town main-line approach to separated balloon turnout',
     gameOnly:true,limitKmh:REGIONAL_RAIL_GEOMETRY.lineSpeedKmh}),
   Object.freeze({pts:REPO_RAIL_OVAL,name:'Repository Town fictional return loop',
     gameOnly:true,limitKmh:REGIONAL_RAIL_GEOMETRY.loopSpeedKmh}),
