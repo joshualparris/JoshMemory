@@ -57,10 +57,13 @@ export function buildRailNetwork(rail, snap = 1.5) {
   const edge = (a, b) => edges.get(key(a, b));
   const limitKmh = (a, b) => {
     const e = edge(a, b); if (!e || e.yard) return SPEED_LIMIT_KMH.yard;
+    // Game-only tracks are not OSM railway claims and obey their own lower
+    // turnout/loop speed rather than inheriting the 100 km/h CRN through line.
+    if(Number.isFinite(rail[e.way]?.limitKmh))return rail[e.way].limitKmh;
     if (e.way === 6 && Math.min(...[a, b].map(n => Math.hypot(nodes[n].x - PARKES_JUNCTION[0], nodes[n].z - PARKES_JUNCTION[1]))) < 1150) return SPEED_LIMIT_KMH.parkesNear;
     return LINE_LIMIT[e.way] ?? SPEED_LIMIT_KMH.main;
   };
-  const lineName = (a, b) => RAIL_LINE_NAMES[edge(a, b)?.way] || 'Narromine railway';
+  const lineName = (a, b) => rail[edge(a,b)?.way]?.name || RAIL_LINE_NAMES[edge(a, b)?.way] || 'Narromine railway';
   // Next node after travelling prev -> cur. Only gentle turns are real track continuations;
   // pref chooses at a junction: 'left', 'right' or 'straight'. null = end of track.
   function next(prev, cur, pref = 'straight') {
