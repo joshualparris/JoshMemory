@@ -28,6 +28,8 @@ import { buildYeovalInterior } from './world/yeoval-interior.js';
 import { buildMasterplan, PLAN_HOMES } from './world/masterplan-built.js';
 import { RESIDENT_STYLES } from './world/resident-models.js';
 import { buildNarromine } from './world/narromine.js';
+import { createPlayerFlight } from './world/player-flight.js';
+import { AERODROME } from './world/narromine-airfield-data.js';
 import { createNarromineTrains } from './world/narromine-trains.js';
 import { createNarromineTraffic } from './world/narromine-traffic.js';
 import { createTownRailYard } from './world/town-rail-yard.js';
@@ -400,6 +402,11 @@ async function start() {
   });
   showSpeedSetting();
   const driving=createPlayerDriving(life,scene,townWorld,player,camera,input);
+  const flight=createPlayerFlight({parent:narromine.root,player,camera,input,touch:input.touch});
+  for(const parked of flight.state().parking) narromine.spots.push({
+    key:'narromine:flight:'+parked.id,label:'✈ Board '+parked.name,
+    pos:new THREE.Vector3(parked.x,0,parked.z),flightPlane:parked.id
+  });
   const drivingDashboard=createDrivingDashboard();
   // Lane assist on/off (also K). Lives beside the dashboard button, top-left, clear of the compass.
   const laneBtn=document.createElement('button');laneBtn.id='drive-lane-toggle';laneBtn.type='button';laneBtn.hidden=true;
@@ -915,6 +922,7 @@ async function start() {
   const homeLabel = (h) => `${h.country} · ${h.address}`;
   for (const h of PLAN_HOMES) { const o = document.createElement('option'); o.value = homeLabel(h); list.append(o); }
   { const o = document.createElement('option'); o.value = 'Narromine · Dandaloo Street'; list.append(o); }
+  { const o = document.createElement('option'); o.value = 'Narromine Aerodrome · YNRM'; list.append(o); }
   { const o = document.createElement('option'); o.value = 'Narromine Post Office · 74 Dandaloo Street'; list.append(o); }
   { const o = document.createElement('option'); o.value = 'Coles Narromine · 76 Dandaloo Street'; list.append(o); }
   { const o = document.createElement('option'); o.value = 'Leah Bennett’s home · Terangion Street (West)'; list.append(o); }
@@ -931,6 +939,7 @@ async function start() {
   $('search-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const q = $('search').value.trim().toLowerCase(); if (!q) return;
+    if (flight.flying) { status('Land and exit the aircraft before fast travel.'); return; }
     const code = q.split(' ')[0].toUpperCase();
     const addressed = parseTownAddress(q) || parseTownAddress(code);
     // Some civic destinations have no postal address or column. Search must never crash on missing metadata.
@@ -939,6 +948,14 @@ async function start() {
     const h = !p && (byCoord.get(code) || (addressed && addressed.side==='S' && byCoord.get(addressed.col+addressed.row)) || houses.find((h) => lower(h.name) === q || lower(h.address) === q || lower(`${h.address} · ${h.name}`) === q || lower(`${h.coordinate} · ${h.name}`) === q));
     const near = !p && !h && places.find((p) => lower(p.name).includes(q));
     const named = !p && !h && !near && houses.find((h) => lower(h.name).includes(q));
+    if (/^(?:narromine (?:aerodrome|airport)(?: · ynrm)?|ynrm|airport)$/.test(q)) {
+      if (driving.driving || yard.driving || trains.driving) { status('Stop and exit your vehicle before fast travel.'); return; }
+      if (mode === 'house') leave(false);
+      closePanel(); npcChat.close(); setOverview(false);
+      player.place(AERODROME.entry.x, AERODROME.entry.z, AERODROME.entry.yaw);
+      status('Narromine Aerodrome (YNRM). Walk to a parked plane and press E or ✋ to board.');
+      $('search').blur(); return;
+    }
     if (/^(?:narromine post office|post office narromine|74 dandaloo(?: street)?)(?:\b|$)/.test(q) || q.startsWith('narromine post office ·')) {
       if(driving.driving){status('Park and get out before fast travel.');return;}
       if(mode==='house')leave(false);
@@ -1429,8 +1446,10 @@ async function start() {
   function use() {
     if (carried) { putDown(); return; }
     if(driving.driving){status(driving.exit());return;}
+    if(flight.flying){status(flight.exit());return;}
     if(yard.driving){status(yard.exit(player));return;}
     if(trains.driving){status(trains.exit(player));return;}
+    if(mode==='town'&&!flight.flying&&flight.near(player.pos)){status(flight.board(flight.near(player.pos)));return;}
     if(mode==='town'&&!driving.driving&&yard.near(player.pos)){status(yard.board());return;}
     if(mode==='town'&&nearCar){status(driving.enter(nearCar));return;}
     if(mode==='town'&&!driving.driving&&trains.near(player.pos)){status(trains.board());return;}
@@ -1778,12 +1797,16 @@ async function start() {
       const n=life.needsReport();
       player.speedFactor=movementSpeedFactor(movementSpeed,n.hunger,n.fatigue);
       // While driving: V (or 🎥 on phones) switches chase, rider's-eye and high views.
-      if(driving.driving&&input.consume('view'))status(driving.cycleView()); else input.consume('view');
+      if(flight.flying&&input.consume('view'))status(flight.cycleView());
+      else if(driving.driving&&input.consume('view'))status(driving.cycleView());
+      else input.consume('view');
       if(driving.driving&&input.consume('lane')){status(driving.toggleLaneAssist());showLane();} else input.consume('lane');
       laneBtn.hidden=!driving.driving;
       // Jump, run and crouch do nothing in a vehicle: show ✋ and 🎥 only, clear of the minimap.
-      $('t-view').hidden=!driving.driving; for(const id of ['t-jump','t-run','t-crouch'])$(id).hidden=driving.driving;
+      $('t-view').hidden=!(driving.driving||flight.flying);
+      for(const id of ['t-jump','t-run','t-crouch'])$(id).hidden=driving.driving||flight.flying;
       if(mode==='town'&&driving.driving){ driving.update(dt); if(driving.message){ status(driving.message); driving.clearMessage(); } }
+      else if(mode==='town'&&flight.flying){ flight.update(dt); }
       else if(mode==='town'&&yard.driving){
         const q = input.keys.has('q'), r = input.keys.has('r');
         if(q&&!yardKeyQ)status(yard.action('couple'));
@@ -1919,9 +1942,15 @@ async function start() {
         if (p.bubble.visible) greetingShown = true;
       }
       // Villagers, the guide kiosk and the shop counters: pick the one the player is facing.
-      narromine.update(player.pos);
+      // Keep the distant airfield and Narromine skyline visible in the flight scene.
+      narromine.update(player.pos,flight.flying);
       // Narromine sits on open inland plains with clear air: see much further there than in the town.
-      { const inNarromine = player.pos.x < -2640; fog.near = inNarromine ? 220 : 60; fog.far = inNarromine ? 650 : 170; }
+      { const inNarromine = player.pos.x < -2640;
+        fog.near = flight.flying ? 400 : inNarromine ? 220 : 60;
+        fog.far = flight.flying ? 8500 : inNarromine ? 650 : 170;
+        const far = flight.flying ? 9500 : 185;
+        if (camera.far !== far) { camera.far=far; camera.updateProjectionMatrix(); }
+      }
       nearPerson = null; let bestP = Infinity;
       const consider = (c, reach, bonus = 0) => {
         const d = Math.hypot(c.pos.x - player.pos.x, c.pos.z - player.pos.z);
@@ -1944,8 +1973,8 @@ async function start() {
       if (Math.abs(atmSpot.pos.x - player.pos.x) < 4 && Math.abs(atmSpot.pos.z - player.pos.z) < 4) consider({ ...atmSpot, spot: { atm: true } }, 2.4, 1.5);
       if (Math.abs(woodlot.rack.pos.x - player.pos.x) < 4 && Math.abs(woodlot.rack.pos.z - player.pos.z) < 4) consider({ ...woodlot.rack, spot: { rack: true } }, 2.6, 1.5);
       for (const tr of woodlot.allTrees()) if (Math.abs(tr.pos.x - player.pos.x) < 4 && Math.abs(tr.pos.z - player.pos.z) < 4) consider({ key: tr.key, pos: tr.pos, label: isStump(life, tr.id) ? `${TREES[tr.type].name} stump · it will grow back` : tr.label, spot: { tree: tr } }, 2.8, 2.0);
-      nearTownSeat = !overview&&!driving.driving ? nearestSeat(townLife.seats,player.pos,player.forward(),2.4) : null;
-      nearCar = !overview&&!driving.driving ? driving.nearest() : null;
+      nearTownSeat = !overview&&!driving.driving&&!flight.flying ? nearestSeat(townLife.seats,player.pos,player.forward(),2.4) : null;
+      nearCar = !overview&&!driving.driving&&!flight.flying ? driving.nearest() : null;
       nearHouse = null; let best = 6;
       for (const l of town.lots.values()) {
         const d = Math.hypot(l.doorPos.x - player.pos.x, l.doorPos.z - player.pos.z);
@@ -2300,6 +2329,15 @@ async function start() {
     leaveVehicle:()=>driving.exit(),
     // A fixed step behaves like a real frame, including showing the driving message (off-road, braking).
     narromineVisible:()=>narromine.group.visible,
+    airport:()=>({icao:AERODROME.icao,runways:narromine.airfield.runways.map(r=>({id:r.id,length:r.length,width:r.width,headingDeg:r.headingDeg})),parking:flight.state().parking,
+      flightLandscape:{patches:narromine.flightLandscape.patches,evidence:narromine.flightLandscape.evidence}}),
+    flight:()=>flight.state(), boardFlight:(id)=>flight.board(id),
+    lineUpFlight:()=>flight.lineUp(), exitFlight:()=>flight.exit(),
+    // Browser-only accelerated deterministic steps through the actual 3D flight actor;
+    // user keyboard/touch state is still read from the normal Input handler.
+    stepFlight:(seconds)=>{if(!flight.flying)return null;const step=0.05;
+      for(let t=0;t<Math.max(0,Math.min(seconds,120));t+=step)flight.update(step);
+      return flight.state();},
     stMarysEntrance:()=>({...ST_MARYS_ENTRANCE,outside:{...ST_MARYS_ENTRANCE.outside},returnPose:{...ST_MARYS_ENTRANCE.returnPose}}),
     narrominePostOfficeEntrance:()=>({...NARROMINE_POST_OFFICE_ENTRANCE, outside:{...NARROMINE_POST_OFFICE_ENTRANCE.outside},returnPose:{...NARROMINE_POST_OFFICE_ENTRANCE.returnPose}}),
     narromineColesEntrance:()=>({...NARROMINE_COLES_ENTRANCE,outside:{...NARROMINE_COLES_ENTRANCE.outside},returnPose:{...NARROMINE_COLES_ENTRANCE.returnPose}}),

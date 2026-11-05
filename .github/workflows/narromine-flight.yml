@@ -1,0 +1,56 @@
+name: Narromine YNRM pilotable aircraft acceptance
+
+on:
+  pull_request:
+    paths:
+      - 'repository-town/src/world/narromine-airfield*'
+      - 'repository-town/src/world/narromine-flight-landscape.js'
+      - 'repository-town/src/world/flight-dynamics.js'
+      - 'repository-town/src/world/player-flight.js'
+      - 'repository-town/src/world/narromine.js'
+      - 'repository-town/src/main.js'
+      - 'repository-town/tests/narromine-flight*'
+      - '.github/workflows/narromine-flight.yml'
+  workflow_dispatch:
+
+jobs:
+  real-flight-desktop-phone:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - name: Source tests and parser
+        run: |
+          node --check src/world/narromine-airfield-data.js
+          node --check src/world/narromine-airfield.js
+          node --check src/world/flight-dynamics.js
+          node --check src/world/player-flight.js
+          node --check src/main.js
+          node tests/narromine-flight.mjs
+      - name: Build and privacy
+        run: |
+          npm run build
+          npm run check:privacy
+      - name: Install Chromium for game WebGL
+        run: npx playwright install --with-deps chromium
+      - name: Real browser game flight (desktop and phone)
+        env:
+          PW_CHANNEL: ''
+        run: node tests/narromine-flight-browser.mjs
+      - name: Capture screenshot evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ynrm-real-flight-desktop-mobile
+          path: repository-town/test-results/narromine-flight/
+          if-no-files-found: ignore
+          retention-days: 14

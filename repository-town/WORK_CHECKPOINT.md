@@ -18,6 +18,14 @@ Implemented 19 existing observation-sign faces in a single atlas; silhouettes, l
 
 ChatGPT Work, PR #415, latest candidate `3eb6733ab5b0a91c2cc1832843559579637b6ca3`. Corrected cockpit pitch sign and added actual Chromium touch injection plus complete ground-contact/stop/exit acceptance. Local flight geometry/dynamics tests PASS for trainer and sport. Prior candidate `78e5acdd` dedicated desktop/Android CI PASS (run 41961099901); screenshots inspected. Independent QA run 41961252012 passed full release/privacy/integrity and desktop but failed Android takeoff, so publication correctly stopped. Latest candidate adds touch-action:none and waits for rendered control layout and confirmed input delivery, requiring fresh validation. Vercel staging rejected 402 api-deployments-free-per-day. Isolated Pages workflow in Parris-Tech-Services/Repository-town-playtest is pinned to latest candidate; full gates precede publication, then exact hosted SHA and repeated browser tests. No production/QA success claimed yet. Next: inspect fresh flight and integration CI; diagnose any failure; merge only after acceptance, verify exact published source and update claim.
 
+# 2026-11-05 — NR-AIR-FLIGHT-001 continuation
+
+ChatGPT Work; PR #415 baseline `107da416`. Browser acceptance ends airborne without landing/stop/exit; phone flight is keyboard-driven. Next: extend scoped acceptance and inspect cockpit pitch, run exact-head browser/release gates, merge and verify deployment. Current CI queued; not live complete. Unrelated work preserved.
+
+# 2026-11-05 — NR-AIR-FLIGHT-001 Narromine Airport pilotable aircraft (ChatGPT) — PR #415
+
+Working tree reconciled against main 60a5d6eb6bad without changing concurrently owned road, train or museum modules. Dedicated flight browser CI on previous topic SHA passed desktop and Android (boarding, takeoff, in-air traversal, cockpit view, exit guard). Latest full release gate still running at reconciliation. Independent inexact georeference runway/soaring strip geometry, 2 boardable trainer/sport models, flyable controls, continuous clearly illustrative farm cover and regression tests. PR must be checked again against this merge integration commit before shipping; production is NOT YET DEPLOYED. See docs/NARROMINE_AIRPORT_FLIGHT.md.
+
 ## 2026-11-05 — NR-SIGN-FACES-001 start (Codex/Fedora)
 Baseline `7b5369f1`, branch `fix/narromine-observed-sign-faces-20261105`. Existing observed sign objects have blank/unrecognisable faces. Scope only recognisable regulatory faces/shape, with unchanged object positions/headings/counts and no new colliders. New module, narrow existing renderer dispatch, tests and evidence doc. Next: implement original vector faces from official NSW visual references, inspect Chromium screenshots, run release/privacy gates, publish reviewed result. No live claim.
 
