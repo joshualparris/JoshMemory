@@ -21,8 +21,12 @@ await page.evaluate(() => { localStorage.removeItem('repository-town.groq-keys')
 const st = () => page.evaluate(() => window.__town.state());
 const shot = async (n) => SHOTS && page.screenshot({ path: `${SHOTS}/people-${n}.png` });
 
-// 1. At 7:50 the town is commuting: villagers walk or cycle, never inside a building.
-await page.evaluate(() => { window.__town.life.setTime(7 * 60 + 50); window.__town.life.run(20); });
+// 1. At 7:40 we need to catch the actual school/work commute. Previously
+// setTime(07:50) + run(20) sampled 08:10, after most workers had arrived.
+// Move time only through the game's real clock/schedule, never manually move NPCs.
+await page.evaluate(() => { window.__town.life.setTime(7 * 60 + 20); window.__town.life.run(20); });
+const eligible = await page.evaluate(() => window.__town.life.villagers.filter(v => v.path?.length && !v.inside && !v.engaged).length);
+check(eligible >= 5, `${eligible} workers have physically active commuting routes at 07:40`);
 await page.waitForTimeout(2000);
 let s = await st();
 const before = s.people;
@@ -37,7 +41,7 @@ for (let i = 0; i < 12; i++) {
 }
 const after = samples.at(-1);
 const moved = after.filter((v, i) => Math.hypot(v.x - before[i].x, v.z - before[i].z) > 2).length;
-check(moved >= 5, `${moved}/${before.length} villagers moved more than 2 m in 12 s (the rest are at home or at work)`);
+check(moved >= 5, `${moved}/${before.length} workers physically advanced more than 2 m during 12 real seconds (commuters present: ${eligible})`);
 check(inside === 0, `no villager stood inside a wall or house (${inside} overlaps in ${looks} samples)`);
 
 // 2. Walk up to a villager: you're prompted to talk. Being nearby doesn't hold anyone up (they go
