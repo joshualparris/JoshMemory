@@ -10,6 +10,7 @@ import { buildNarromineHotel, NARROMINE_HOTEL_ID, hotelForecourtPolygon } from '
 import { buildNarromineRoyalHotel, ROYAL_HOTEL_REPLACED_IDS } from './narromine-royal-hotel.js';
 import { buildNarromineRailwayPrecinct } from './narromine-railway-precinct.js';
 import { NARROMINE_TREES } from './narromine-trees-data.js';
+import { createLiDARTreeForest } from './tree-models.js';
 import { buildNarromineFurniture } from './narromine-furniture.js';
 import { buildNarromineMapillaryObjects } from './narromine-mapillary-objects.js';
 import { NARROMINE_FURNITURE } from './narromine-furniture-data.js';
@@ -374,22 +375,10 @@ export function buildNarromine(parent, makeLabel = null) {
   buildNarromineFurniture(town, colliders);
   // Signs, crossings, stop lines and street furniture where Mapillary photos detected them.
   buildNarromineMapillaryObjects(town);
-  // Real trees detected in the 2023 LiDAR (narromine-trees-data.js): one instanced trunk and crown mesh
-  // each, at the measured height and crown radius. Trunks are solid; crowns are not.
-  {
-    const trunkMesh = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.5, 0.7, 1, 6), new THREE.MeshLambertMaterial({ color: 0x5b4a3a }), NARROMINE_TREES.length);
-    const crownMesh = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1, 1), new THREE.MeshLambertMaterial({ color: 0x55703f }), NARROMINE_TREES.length);
-    const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), tint = new THREE.Color();
-    NARROMINE_TREES.forEach(([x, z, h, r], i) => {
-      const trunkH = h * 0.42, trunkR = Math.min(0.45, 0.12 + h * 0.015), crownH = Math.max(1.5, h - trunkH * 0.85);
-      m4.compose(new THREE.Vector3(x, trunkH / 2, z), q, new THREE.Vector3(trunkR, trunkH, trunkR)); trunkMesh.setMatrixAt(i, m4);
-      m4.compose(new THREE.Vector3(x, h - crownH / 2, z), q, new THREE.Vector3(Math.max(1, r), crownH / 2, Math.max(1, r))); crownMesh.setMatrixAt(i, m4);
-      tint.setHSL(0.24 + ((i * 37) % 10) / 200, 0.28, 0.27 + ((i * 53) % 10) / 120); crownMesh.setColorAt(i, tint);
-      colliders.push({ x0: x - trunkR - 0.1, x1: x + trunkR + 0.1, z0: z - trunkR - 0.1, z1: z + trunkR + 0.1 });
-    });
-    trunkMesh.name = 'Narromine LiDAR trees (trunks)'; crownMesh.name = 'Narromine LiDAR trees (crowns)';
-    town.add(trunkMesh, crownMesh);
-  }
+  // 2023 NSW LiDAR locations and canopy sizes are authoritative; natural morphology is illustrative.
+  // Keep identical trunk collision footprints and no extra invented Narromine tree locations.
+  const liDARForest = createLiDARTreeForest(NARROMINE_TREES, colliders);
+  town.add(liDARForest.group);
   // Mapped OSM main-street facades: the EDGE is data-grounded; facade materials,
   // mullions, piers and doors are visual approximations (see facade profiles).
   for (const f of FRONTAGES) {
@@ -773,7 +762,11 @@ export function buildNarromine(parent, makeLabel = null) {
   }
   town.visible = false;
   parent.add(root);
-  const update = (pos, airborne = false) => { const show = airborne || pos.x < SHOW_WEST_OF; if (town.visible !== show) town.visible = show; };
+  const update = (pos, airborne = false) => {
+    const show = airborne || pos.x < SHOW_WEST_OF;
+    if (town.visible !== show) town.visible = show;
+    if (show) liDARForest.update(pos, airborne, typeof performance !== 'undefined' ? performance.now() * 0.001 : 0);
+  };
   return { group: town, root, colliders, spots, update, airfield, flightLandscape };
 }
 
