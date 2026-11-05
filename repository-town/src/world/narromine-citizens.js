@@ -104,12 +104,30 @@ function worksDay(person,day) {
 function travelMinutes(a,b) {
   return Math.max(8,Math.min(40,Math.round(dist(a,b)/125 + 6)));
 }
-function tripAt(person,day,minute,coles) {
+function tripAt(person,day,minute,coles,school) {
   const m=((Math.trunc(minute)%1440)+1440)%1440, shift=person.shift;
-  const commute=travelMinutes(person.home,person.work), workday=worksDay(person,day);
+  const weekday=townWeekday(day), commute=travelMinutes(person.home,person.work), workday=worksDay(person,day);
+  // A household with a dependent may need a school run before a later work shift.
+  // This is fictional school attendance, not a claim about actual Narromine pupils.
+  const schoolRun=school && person.seed%5===0 && weekday>=1 && weekday<=5 &&
+    (!workday || shift.start>=540);
+  if(schoolRun && m>=465 && m<505)
+    return {reason:'taking child to school',from:person.home,to:school,windowEnd:505};
+  if(schoolRun && m>=505 && m<525)
+    return {reason:workday?'continuing from school to work':'returning after school drop-off',
+      from:school,to:workday?person.work:person.home,windowEnd:525};
+  // Early supplies on one assigned weekday, only if it does not clash with a shift.
+  const suppliesToday=coles && weekday>=1 && weekday<=5 && (person.seed%5)===(weekday-1) &&
+    (!workday || shift.start>=540) && !schoolRun;
+  if(suppliesToday && m>=465 && m<500)
+    return {reason:'weekly breakfast and groceries',from:person.home,to:coles,windowEnd:500};
+  if(suppliesToday && m>=500 && m<520)
+    return {reason:'returning with groceries',from:coles,to:person.home,windowEnd:520};
   if(workday){
     const start=shift.start-commute, end=shift.end;
-    if(m>=start && m<shift.start)return {reason:'commute to work',from:person.home,to:person.work,windowEnd:shift.start};
+    if(!(schoolRun && m>=525 && m<shift.start) &&
+       m>=start && m<shift.start)
+      return {reason:'commute to work',from:person.home,to:person.work,windowEnd:shift.start};
     const groceryDay=townWeekday(day)===2||townWeekday(day)===4;
     // Staff can shop after work, never before they have finished a shift.
     if(groceryDay&&coles&&end<1180){
@@ -123,9 +141,9 @@ function tripAt(person,day,minute,coles) {
   }
   return null;
 }
-function activityAt(person,day,minute,coles) {
+function activityAt(person,day,minute,coles,school) {
   const m=((Math.trunc(minute)%1440)+1440)%1440;
-  const trip=tripAt(person,day,m,coles);
+  const trip=tripAt(person,day,m,coles,school);
   if(trip)return {kind:'travelling',detail:trip.reason,destination:trip.to.id};
   if(m<360||m>=1320)return {kind:'sleeping',detail:'at home',destination:person.home.id};
   if(m<420)return {kind:'breakfast',detail:'preparing food at home',destination:person.home.id};
@@ -182,6 +200,7 @@ export function createNarromineCitizens({nodes,adj,limit=900}){
   }).filter(p=>p.roadAccessMetres<145);
   if(!homes.length||!workplaces.length)throw new Error('Missing mapped homes or reachable workplaces');
   const coles=workplaces.find(w=>/coles/i.test(w.name))||workplaces.find(w=>w.kind==='supermarket')||null;
+  const school=workplaces.find(w=>w.name==='Narromine Public School')||workplaces.find(w=>w.kind==='school')||null;
   const households=Object.freeze(homes.map((home,i)=>{
     const familySize=1+(i%5===0?2:i%3===0?1:0);
     const surname=FAMILIES[(i*11+Math.floor(i/35))%FAMILIES.length];
@@ -206,16 +225,16 @@ export function createNarromineCitizens({nodes,adj,limit=900}){
       fictional:true,actualEmploymentUnknown:true});
   }));
   return Object.freeze({
-    households,citizens,workplaces,coles,
-    tripAt:(person,day,minute)=>tripAt(person,day,minute,coles),
-    stateAt:(person,day,minute)=>activityAt(person,day,minute,coles),
+    households,citizens,workplaces,coles,school,
+    tripAt:(person,day,minute)=>tripAt(person,day,minute,coles,school),
+    stateAt:(person,day,minute)=>activityAt(person,day,minute,coles,school),
     route:(from,to)=>routeBetween(nodes,adj,from,to),
     chooseTrip({day=1,minute=480,serial=0,activeIds=new Set(),excludedIds=new Set(),fromNode}){
       const count=citizens.length,start=((serial*59+Math.floor(minute)*17+Math.trunc(day)*31)%count+count)%count;
       for(let j=0;j<count;j++){
         const citizen=citizens[(start+j*37)%count];
         if(activeIds.has(citizen.id)||excludedIds.has(citizen.id))continue;
-        const trip=tripAt(citizen,day,minute,coles);
+        const trip=tripAt(citizen,day,minute,coles,school);
         if(!trip||trip.to.node===fromNode)continue;
         const route=routeBetween(nodes,adj,fromNode,trip.to.node);
         if(route&&route.length>1)return {citizen,trip,route};
