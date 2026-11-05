@@ -39,14 +39,25 @@ The narrow [GitHub workflow](../../.github/workflows/narromine-material-audit.ym
 - Vercel rejected a PR preview because its account exceeded **100 deployments/day** (`api-deployments-free-per-day`, PR comment). The most recent checked READY production deployment was sourced from `4e1fb3d9`, not the current main or PR #384. **Production is not verified for these fixes.**
 - Concurrent changes keep advancing main and coordination files. Always re-read and reconcile with the exact latest main before acceptance; preserve other agents' claims.
 
-## Completion gates (pending fresh verification)
+## Verified pre-merge release gate (5 November 2026)
 
-- [ ] Release/build/privacy checks pass for latest proposed source.
-- [ ] Focused AudioParam unit contract and real Chromium shutdown both pass.
-- [ ] Material A/B CI job passes with 48 screenshot captures and no WebGL shader errors.
-- [ ] An agent actually inspects the rendered screenshots (not just their hashes) and records any observed defects.
+All **17 exact-commit GitHub checks** passed for `7b59ed209ebacbed71b814c69a39999ee07e22d2`:
+
+- [Recorded actual WebGL gameplay + complete Chrome browser regression](https://github.com/joshualparris/JoshMemory/actions/runs/41936578921): **PASS**.
+- [Focused roof-jump / woodcut real Chromium acceptance](https://github.com/joshualparris/JoshMemory/actions/runs/41936579230): **PASS**. Verified feet exactly 5.25 m on a real static roof collider, and the woodcutting animation visibly traversed 2.14 rad on desktop (31 frames), 2.10 rad mobile (21 frames), with the original >1.2 rad requirement preserved.
+- [Material A/B screenshot workflow](https://github.com/joshualparris/JoshMemory/actions/runs/41936578852): **PASS**; 24 Lambert and 24 enhanced renders, all daylight/camera checks. The immediately repeated first-frame tests passed at RMSE 1.37/1.38 (strict threshold <4).
+- [CI](https://github.com/joshualparris/JoshMemory/actions/runs/41936578911), [full integration and 5 economy seeds](https://github.com/joshualparris/JoshMemory/actions/runs/41936579082), [mobile driving](https://github.com/joshualparris/JoshMemory/actions/runs/41936578943), [heritage verification](https://github.com/joshualparris/JoshMemory/actions/runs/41936578948): **PASS**.
+- Four matched old/new rendered views were visually reviewed. Stronger concrete joints are observable; the remaining brick, asphalt and façade realism does not prove real Narromine materials or photographic geometry. Prior repeat-render failures remain documented above as historical failures, not the current run's status.
+- **Not yet released at this checkpoint.** Concurrent agents advanced `main`; this branch must incorporate latest approved base without discarding their work. Then recheck new commit and verify the actual production release. Previous Vercel deployments hit the account's >100/day cap. Do not mark the live site verified on a READY deployment with a different Git SHA.
+
+## Completion gates (current verified evidence)
+
+- [x] Release/build/privacy checks pass for the last fully tested pre-merge source `7b59ed209` (must recheck after merging newer main).
+- [x] Focused AudioParam unit contract and actual Chromium shutdown pass.
+- [x] Material A/B CI job passes with 48 screenshot captures and no WebGL shader errors.
+- [x] An agent inspected the rendered screenshots and recorded visible limits (not just image hashes).
 - [ ] PR merges safely after reconciling other agents' commits.
 - [ ] Vercel production reports the **exact approved merged source commit** and is READY; deployed game and release fingerprint checked.
-- [ ] Open photographic fidelity gaps remain clearly labelled; do not claim Narromine is 100% realistic.
+- [x] Photographic fidelity gaps remain clearly labelled; do not claim Narromine is 100% realistic.
 
 All other building geometry, street alignment, collision logic and concurrent agent responsibilities are out of scope.

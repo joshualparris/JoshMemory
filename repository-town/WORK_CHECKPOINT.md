@@ -1,3 +1,9 @@
+## PR #384 — all 17 head checks passed, release awaiting merge and Vercel (5 Nov 2026)
+- Exact verified head: `7b59ed209ebacbed71b814c69a39999ee07e22d2`; all 17 GitHub commit checks SUCCESS.
+- [WebGL gameplay + full Chrome browser regression](https://github.com/joshualparris/JoshMemory/actions/runs/41936578921), [focused roof/woodcut real Chromium desktop+mobile](https://github.com/joshualparris/JoshMemory/actions/runs/41936579230), [48-frame materials A/B](https://github.com/joshualparris/JoshMemory/actions/runs/41936578852), [all integration/economy + safety](https://github.com/joshualparris/JoshMemory/actions/runs/41936579082), [mobile](https://github.com/joshualparris/JoshMemory/actions/runs/41936578943), [CI](https://github.com/joshualparris/JoshMemory/actions/runs/41936578911), [heritage](https://github.com/joshualparris/JoshMemory/actions/runs/41936578948) PASSED.
+- Roof: real collider top = feet 5.25 m in Chromium. Woodcut: >2.1 rad swing over 31 desktop / 21 mobile rendered frames, retaining >1.2 rad threshold. Lambert repeat RMSE 1.37; material repeat RMSE 1.38, both <4.
+- This branch now merges newest main but this creates a new SHA requiring exact-head follow-up verification; no production proof yet. Vercel previously reported free daily deployment limit.
+
 ## 2026-11-05 — NR-MATERIAL-QA-002 / TOWN-AUDIO-STOP-CLOCK-002 — STARTED
 
 **Owner:** ChatGPT/cloud. **Branch:** `fix/narromine-material-qa-audio-ramp-20261105`. **Baseline:** `b0b2f2d2` on main.
@@ -7,6 +13,16 @@
 **Files:** `src/ui/vehicle-audio.js`, `tests/engine-sound-browser.mjs`, `tests/vehicle-audio-rundown.mjs`, `tests/vehicle-audio-models.mjs`, `.github/workflows/narromine-material-audit.yml`, `docs/NARROMINE_MATERIAL_QA_CLOSEOUT_2026-11-05.md`, coordination/checkpoint.
 
 **Progress:** Code and tests committed on branch; browser/GitHub CI and physical screenshot review **not yet proven**. Next: open PR, run tests and collect artifact, inspect screenshots; merge only when checks pass, then verify source SHA of production Vercel and note remaining uncertainty from photo licensing.
+
+## 2026-11-05 — RT-RAIL-YARD-OPS-001 fresh-main continuation of PR #376
+- Owner: ChatGPT GitHub connector. Branch `feat/repo-town-shunting-current-main-20261105`, base `a6c603306604cf7d519830b1b1654f220e70bac7`. Old #376 deliberately left untouched aside from an added diagnostic browser assertion; do not merge stale branch.
+- Scope: only fictional Repository Town standalone yard at x=82..170, z=-209 and the narrow input/scene hooks on latest `src/main.js`. Copy isolated yard physics, visuals, tests and docs, preserve all Claude Narromine geography/rail/vegetation unchanged.
+- Failure: prior complete browser suite failed `tests/town-rail-yard-browser.mjs:32` on locomotive travel under held W, not on a Node unit test; hypothesis of focused HUD input requires actual validation, not a claim. New test proactively unfocuses HUD, verifies W reaches Input and reports runtime diagnostics if motion is blocked.
+- Acceptance: isolated shunter test, full release/privacy/integration, desktop & phone WebGL including actual acceleration/braking/coupling/storage, staging SHA and live release fingerprint. Vercel currently has HTTP 402 daily deployment cap, so do not imply production verified. Check CI on latest branch before merge. Next: port exact safe patches, open replacement PR, inspect checks and resolve failures without altering Narromine source.
+## 2026-11-05 — DISC-NR-007 Post Office L-shaped hipped roof (Claude Code, Fedora) — MERGED, NOT YET LIVE
+- Merged as #392 (`0063bc81`). New `src/world/narromine-post-office-roof.js`; narrow hook in `narromine.js`. All PR checks green, except a first Chrome-regression run that timed out (exit 124 after the windows suite; rerun passed) and the rate-limited Vercel preview.
+- Deployment: production Vercel build of `0063bc81` and current main `a1cffc71` failed with "Deployment rate limited — retry in 24 hours". Live production `release.json` is still `3b798b68`; staging `6ab007a1`; approved backup `9bcb364a`. None contain the roof. The independent Pages alternate (`joshualparris/repository-town`) still has Pages disabled (API 404). Render main QA needs a user-directed trigger and had exhausted minutes. No fallback was published.
+- Next: once Vercel's limit resets, confirm production `release.json` `sourceCommit` is at or after `0063bc81` and that `/world/narromine-post-office-roof.js` returns 200, then check the Post Office roof in-game on desktop and Android.
 
 ## 2026-11-05 — RT-RAIL-YARD-OPS-001 fresh-main continuation of PR #376
 - Owner: ChatGPT GitHub connector. Branch `feat/repo-town-shunting-current-main-20261105`, base `a6c603306604cf7d519830b1b1654f220e70bac7`. Old #376 deliberately left untouched aside from an added diagnostic browser assertion; do not merge stale branch.
