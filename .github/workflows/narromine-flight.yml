@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'repository-town/src/world/narromine-airfield*'
+      - 'repository-town/src/world/narromine-flight-landscape.js'
       - 'repository-town/src/world/flight-dynamics.js'
       - 'repository-town/src/world/player-flight.js'
       - 'repository-town/src/world/narromine.js'
