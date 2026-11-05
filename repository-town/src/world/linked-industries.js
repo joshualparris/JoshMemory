@@ -250,8 +250,13 @@ function advanceSite(life,minutes){
  const builder=TRADE_STAFF.find(x=>x.trade==='building'&&x.qualified);
  const staffed=life.villagers.some(v=>v.work==='trades'&&v.step?.kind==='work'&&!v.path?.length);
  if(!builder||!staffed||!life.gridPowered('industry'))return;
- if(!Object.entries(stage.needs).every(([g,n])=>(site.stock[g]||0)>=n))return;
- if(site.progress===0){for(const [g,n] of Object.entries(stage.needs))site.stock[g]-=n;linkedLog(life,builder.name+' started '+stage.name+' at the cooperative site.');}
+ // Materials are charged once, at stage commencement, not again on every tick.
+ // A paused site retains its already-consumed materials and accumulated progress.
+ if(site.progress===0){
+  if(!Object.entries(stage.needs).every(([g,n])=>(site.stock[g]||0)>=n))return;
+  for(const [g,n] of Object.entries(stage.needs))site.stock[g]-=n;
+  linkedLog(life,builder.name+' started '+stage.name+' at the cooperative site.');
+ }
  site.progress+=minutes;
  if(site.progress<stage.minutes)return;
  site.inspections.push({stage:stage.name,day:life.day,inspector:builder.name});
