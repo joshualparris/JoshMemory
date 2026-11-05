@@ -1,0 +1,22 @@
+{
+  "type": "FeatureCollection",
+  "name": "Narromine verified species and individual coordinates",
+  "metadata": {
+    "as_of": "2026-11-05",
+    "verified_count": 0,
+    "why_empty": "Survey and Council records confirm site-level species/counts but no site source retrieved supplied unique per-tree species-to-trunk geocoordinate pairs; a location-only LiDAR candidate is not species-labelled",
+    "suggested_source": "Council GIS tree register / arborist GPS tree inventory / georeferenced multiple dated photos with botanical identification",
+    "required_record_fields": [
+      "tree_id",
+      "scientific_name",
+      "lat",
+      "lon",
+      "date",
+      "evidence_level",
+      "source_url",
+      "position_accuracy_m",
+      "observation_type"
+    ]
+  },
+  "features": []
+}
