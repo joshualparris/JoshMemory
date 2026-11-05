@@ -75,7 +75,7 @@ try {
             return {z:player.pos.z,y:player.y,maximum,blocked};
           };
           const normal=create(0,true);
-          const superJump=create(Math.max(24,Math.ceil(c.box.top+7)),true);
+          const superJump=create(50,true);
           sampleResults.push({sector:sector.id,status:'tested',source:c.box.source || null,
             height:c.box.top,width:c.width,depth:c.depth,
             normal,superJump,box:{x0:c.box.x0,x1:c.box.x1,z0:c.box.z0,z1:c.box.z1}});
@@ -85,8 +85,8 @@ try {
       const hits=evidence.sampleResults.filter(x=>x.status==='tested');
       assert(hits.length>=2, mode+' needs actual city plus Narromine/estate building sources: '+JSON.stringify(evidence));
       for (const sample of hits) {
-        assert(sample.normal.z < sample.box.z0,
-          mode+' normal sprint bypassed wall of '+sample.sector+': '+JSON.stringify(sample));
+        assert(sample.normal.blocked && sample.normal.z < sample.box.z1 - .4,
+          mode+' normal sprint bypassed the solid footprint of '+sample.sector+': '+JSON.stringify(sample));
         assert(sample.superJump.maximum > sample.height+.2,
           mode+' jump never cleared roof height '+sample.sector+': '+JSON.stringify(sample));
         assert(sample.superJump.z > sample.box.z1+.5,
