@@ -40,7 +40,7 @@ jobs:
         working-directory: repository-town
         run: |
           node tests/pub-completion.mjs
-          node tools/audit-pub.mjs
+          node --test tests/pub-2026-audit.mjs tests/pub-history.mjs
           node tests/simulation-soak.mjs --quiet
       - name: Validate privacy and source syntax
         working-directory: repository-town
