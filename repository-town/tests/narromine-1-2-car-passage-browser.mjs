@@ -146,6 +146,7 @@ try {
       await page.keyboard.down('w');
       const trajectory=await page.evaluate(({p,target})=>{
         const t=window.__town,initial=t.state().pos,steps=[];
+        const dist=(x,z,a,b)=>Math.hypot(x-a,z-b);
         let minDistanceToRailM=Infinity,offRoadFrames=0,staticHitFrames=0;
         for(let i=0;i<180;i++){
           t.stepVehicle(1/30);
