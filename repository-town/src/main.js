@@ -235,7 +235,9 @@ async function start() {
   // Narromine, 40 km west in reality, ~90 s along the Mitchell Highway here (world/narromine.js).
   const narromine = buildNarromine(town.group, makeLabel);
   // Narromine railway: sleepers and rails on the mapped lines and a drivable grain train in the yard.
-  const trains = createNarromineTrains(narromine.group);
+  // Map track stays culled with the Narromine town, but the player-operated
+  // locomotive stays visible on the fictional connector and Repository Town loop.
+  const trains = createNarromineTrains(narromine.group,town.group);
   // Road traffic at the levels the NSW crossing register records (Dandaloo St 7,000 vehicles a day).
   const narromineTraffic = createNarromineTraffic(narromine.group, { blocked: (x, z) => trains.crossingClosedNear(x, z) });
   const narrominePostalOutdoor=createNarrominePostalOutdoorActor(narromine.group,makeLabel);
