@@ -34,8 +34,9 @@ assert(FARM_ANIMAL_SITES.every(f=>town.farmAnimals(f).every(a=>a.fed)),'farms bo
 
 // In a dry spell with no bought feed, grazing animals go hungry and output falls.
 s.farmFeed.sheep=0;s.feedDay=0;s.stock.stockfeed.feed=0;town.place('stockfeed').till=0;
+s.supplierDebt.sheep=500; // farmer's regional account at its finite credit limit
 const herd=s.herds.sheep;herd.forEach(a=>a.health=65);
-town.civic.industries.feedDay=0;town.civic.industries.dryDays=10;town.civic.weather='sunny';   // a dry spell: no pasture left
+town.civic.industries.feedDay=0;town.civic.industries.dryDays=22;town.civic.weather='sunny';   // a dry spell: no pasture left
 // careDay runs on the next hour tick
 for(let i=0;i<60;i++)town.tick(1);
 assert(herd.every(a=>!a.fed),'no feed: sheep went hungry');
