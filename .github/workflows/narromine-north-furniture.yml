@@ -1,0 +1,42 @@
+name: Narromine north furniture evidence
+on:
+  pull_request:
+    paths:
+      - 'repository-town/src/world/narromine-dandaloo-streetscape*.js'
+      - 'repository-town/tests/narromine-north-furniture-evidence.mjs'
+      - 'repository-town/tests/narromine-north-dandaloo-browser.mjs'
+      - '.github/workflows/narromine-north-furniture.yml'
+permissions:
+  contents: read
+jobs:
+  north-footpath:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - name: Verify unchanged surfaces and zero unsurveyed furniture
+        run: node tests/narromine-north-furniture-evidence.mjs
+      - run: node tests/narromine-dandaloo-streetscape.mjs
+      - run: npm run build && npm run check:privacy
+      - name: Verify runner's preinstalled Chrome (avoid stalled Chromium download)
+        run: google-chrome --version
+      - name: Physically walk both north Dandaloo footpaths on desktop and phone
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          PW_CHANNEL: chrome
+        run: node tests/narromine-north-dandaloo-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: north-dandaloo-desktop-phone
+          path: repository-town/test-results/north-dandaloo/
+          retention-days: 14

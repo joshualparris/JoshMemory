@@ -39,6 +39,13 @@ const FRAME_YAW = Math.atan2(UN_X, -UN_Z); // ~ +0.1481 rad (8.49° E of N)
 
 // Convert local hotel coordinates (s = north along Dandaloo, w = west along Derribong)
 // to world [x, z].
+// The sealed forecourt in front of the hotel (both street frontages), in world [x, z]. The general
+// street builder must not draw footpaths across it.
+export function hotelForecourtPolygon() {
+  return [hotelToWorld(-16.0, 26.0), hotelToWorld(-16.0, -20.0), hotelToWorld(46.0, -20.0), hotelToWorld(46.0, -3.75),
+    hotelToWorld(-1.10, -3.75), hotelToWorld(-3.75, -1.10), hotelToWorld(-3.75, 26.0)];
+}
+
 export function hotelToWorld(s, w) {
   return [
     C_SE[0] + s * UN_X + w * UW_X,
@@ -473,15 +480,7 @@ export function buildNarromineHotel({ push, box, flatPoly, town, colliders }) {
   }
   // Continuous road asphalt / angled-parking forecourt bridging from the hotel kerb out to
   // the Dandaloo Street and Derribong Avenue road centerlines (eliminates artificial grass gap).
-  const roadForecourtPts = [
-    hotelToWorld(-16.0, 26.0),
-    hotelToWorld(-16.0, -20.0),
-    hotelToWorld(46.0, -20.0),
-    hotelToWorld(46.0, -3.75),
-    hotelToWorld(-1.10, -3.75),
-    hotelToWorld(-3.75, -1.10),
-    hotelToWorld(-3.75, 26.0),
-  ];
+  const roadForecourtPts = hotelForecourtPolygon();
   flatPoly(0x47494b, roadForecourtPts, 0.056);
 
   // Paved footpath apron beneath the Dandaloo St and Derribong Ave verandahs
@@ -1195,8 +1194,9 @@ export function buildNarromineHotel({ push, box, flatPoly, town, colliders }) {
       );
     }
 
-    // Two street trees in timber tree guards along the northern Dandaloo St kerb (102250–102255)
-    for (const ts of [21.5, 33.8]) {
+    // Suppress s=21.5: not individually located and obstructs verified hotel sightline.
+    // Keep photo-evidenced northern kerb tree at s=33.8 (canopy size approximate).
+    for (const ts of [33.8]) {
       const tw = -5.1;
       localCyl(0x6e5a47, 0.14, 0.18, 3.4, 7, ts, 1.7, tw);
       for (const [ds, dw] of [[-0.45, -0.45], [0.45, -0.45], [0.45, 0.45], [-0.45, 0.45]]) {

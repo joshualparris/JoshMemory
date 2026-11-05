@@ -53,6 +53,14 @@ Define interfaces for road/kerb/footpath boundaries, median planting extents, po
 
 For buildings and vegetation, use real photographs, aerial imagery, cadastral data and LiDAR where available; distinguish verified geometry, estimated details and fictional gameplay elements.
 
+## 4a. Strict real-location evidence for Narromine objects (Josh, 4 Nov 2026)
+
+**A real place at a real coordinate is not permission to add objects that were never observed there.** For trees, poles, overhead wires, signs, windows, roofs, awnings, parking details and street furniture, record individual location-specific evidence before rendering a purportedly real object. `OpenStreetMap` road centrelines, generic building classes and municipal concept designs **do not** prove where every tree/lamp/awning exists. A fixed-spacing generator with no real object-level observations must not invent real-world street furniture.
+
+**Estimated dimensions are permitted when the object itself really exists at that location**, supported by dated Street View/local photos, an appropriately licensed aerial capture, NSW cadastral/LiDAR evidence or equivalent. Record coordinates, source identifier, date, confidence and which attributes are approximate. The exact shape may be an approximation; the *presence/location* cannot be made up. When evidence is absent or conflicts, leave the object unrendered or explicitly segregate it into a labelled fictional/interpretive mode rather than presenting it as real Narromine.
+
+Street View is a visual cross-check, not an unrestricted texture or data redistribution licence. Use NSW/open data for reproducible geospatial measurements and honour each source's licence. Do not blindly strip source-grounded approximations or historic features. Apply these evidence rules **per feature**, using the coordination claims and CI contracts, and preserve parallel agents' evidenced work.
+
 ## 5. Protect parallel work throughout development
 
 1. Read `AGENTS.md`, `COORDINATION.md`, `WORK_CHECKPOINT.md` and related plans; fetch `origin/main` before claiming.

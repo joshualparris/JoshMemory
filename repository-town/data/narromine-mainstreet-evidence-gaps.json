@@ -1,0 +1,273 @@
+{
+  "schemaVersion": 1,
+  "assessmentDate": "2026-11-04",
+  "issue": "https://github.com/joshualparris/JoshMemory/issues/332",
+  "purpose": "Main-street fidelity gap register: three still-generic OSM buildings; deliberately not an as-built facade or current-tenant register.",
+  "evidenceContracts": {
+    "mapped": "OSM 2026 export outline, ODbL 1.0; not a land-title survey",
+    "height": "NSW Spatial Services airborne 2023 LiDAR percentile envelope, CC BY 4.0; not a measured ridge, eave or storey height",
+    "photo": "owner comparison captures are private visual references only; zero Google Street View media pixels or derived textures embedded"
+  },
+  "integratedExistingPilot": [
+    {
+      "sourceFile": "src/world/narromine-nw-dandaloo-evidence.js",
+      "implementedBy": "src/world/narromine-nw-dandaloo-block.js",
+      "osmIndices": [
+        179,
+        180,
+        183,
+        184,
+        185
+      ],
+      "additionalUnmappedNamedSites": [
+        "Narromine Baptist Church",
+        "Narromine Battlers Mate",
+        "Aqua West"
+      ],
+      "state": "modelled, photo-interpreted; exact window and signage dimensions not surveyed"
+    },
+    {
+      "sourceFile": "src/world/narromine-mainstreet-physio.js",
+      "osmIndices": [
+        186
+      ],
+      "state": "modelled, mapped frontage with photo-interpreted curved parapet; exact geometry not surveyed"
+    }
+  ],
+  "unresolved": [
+    {
+      "stableBuildingId": "NR-OSM-0165",
+      "osmIndex": 164,
+      "sourceType": "osm",
+      "geometryFingerprint": "19a28bd2",
+      "centreWgs84": [
+        -32.2321415,
+        148.2398683
+      ],
+      "footprintVertices": 6,
+      "currentRenderTier": "C",
+      "measurements": {
+        "footprint": {
+          "tier": "mapped-OSM",
+          "source": "src/world/narromine-osm-data.js",
+          "licence": "ODbL 1.0"
+        },
+        "height": {
+          "tier": "lidar-2023-envelope",
+          "source": "src/world/narromine-lidar-data.js",
+          "year": 2023,
+          "groundAhdM": 239.02,
+          "eaveProxyM": 3.72,
+          "ridgeProxyM": 4.56,
+          "medianRoofM": 4.27,
+          "notArchitecturalSurvey": true
+        },
+        "roofGeometry": {
+          "tier": "unverified",
+          "source": null,
+          "requires": "permissioned rooftop oblique imagery or measured roof survey"
+        },
+        "wallMaterial": {
+          "tier": "unverified",
+          "source": null,
+          "requires": "dated, permissioned ground-level photograph"
+        },
+        "colour": {
+          "tier": "unverified",
+          "source": null,
+          "requires": "dated, permissioned ground-level photograph and exposure calibration"
+        },
+        "storeys": {
+          "tier": "unverified",
+          "source": null,
+          "requires": "clear elevations or surveyed levels"
+        },
+        "windowRhythm": {
+          "tier": "unverified",
+          "source": null,
+          "requires": "frontage elevation with windows counted and dimensions"
+        },
+        "doorPositions": {
+          "tier": "unverified",
+          "source": null,
+          "requires": "measured, consented doorway/frontage plan; no fabricated walking entrance"
+        },
+        "awningDepthAndSupports": {
+          "tier": "unverified",
+          "source": null,
+          "requires": "photo/measurement tied to a specific OSM edge"
+        },
+        "businessSignage": {
+          "tier": "unverified",
+          "source": null,
+          "requires": "dated tenant/sign evidence; do not assume current trade"
+        },
+        "streetViewCamera": {
+          "tier": "unverified",
+          "source": null,
+          "requires": "owner-confirmed panorama/camera position, bearing, field-of-view and date; no image pixels copied"
+        }
+      },
+      "visualQaStatus": "not-reviewed",
+      "photoLicence": "none-cleared-for-this-building",
+      "status": "unresolved-appearance",
+      "nextAction": "Take/obtain permission-cleared façade and roof oblique photos with exact location, orientation, date and rights; reconcile with NSW aerial before altering scene."
+    },
+    {
+      "stableBuildingId": "NR-OSM-0168",
+      "osmIndex": 167,
+      "sourceType": "osm",
+      "geometryFingerprint": "8dad412c",
+      "centreWgs84": [
+        -32.2327119,
+        148.2397664
+      ],
+      "footprintVertices": 7,
+      "currentRenderTier": "C",
+      "measurements": {
+        "footprint": {
+          "tier": "mapped-OSM",
+          "source": "src/world/narromine-osm-data.js",
+          "licence": "ODbL 1.0"
+        },
+        "height": {
+          "tier": "lidar-2023-envelope",
+          "source": "src/world/narromine-lidar-data.js",
+          "year": 2023,
+          "groundAhdM": 238.96,
+          "eaveProxyM": 3.19,
+          "ridgeProxyM": 5.53,
+          "medianRoofM": 4.54,
+          "notArchitecturalSurvey": true
+        },
+        "roofGeometry": {
+          "tier": "unverified",
+          "source": null,
+          "requires": "permissioned rooftop oblique imagery or measured roof survey"
+        },
+        "wallMaterial": {
+          "tier": "unverified",
+          "source": null,
+          "requires": "dated, permissioned ground-level photograph"
+        },
+        "colour": {
+          "tier": "unverified",
+          "source": null,
+          "requires": "dated, permissioned ground-level photograph and exposure calibration"
+        },
+        "storeys": {
+          "tier": "unverified",
+          "source": null,
+          "requires": "clear elevations or surveyed levels"
+        },
+        "windowRhythm": {
+          "tier": "unverified",
+          "source": null,
+          "requires": "frontage elevation with windows counted and dimensions"
+        },
+        "doorPositions": {
+          "tier": "unverified",
+          "source": null,
+          "requires": "measured, consented doorway/frontage plan; no fabricated walking entrance"
+        },
+        "awningDepthAndSupports": {
+          "tier": "unverified",
+          "source": null,
+          "requires": "photo/measurement tied to a specific OSM edge"
+        },
+        "businessSignage": {
+          "tier": "unverified",
+          "source": null,
+          "requires": "dated tenant/sign evidence; do not assume current trade"
+        },
+        "streetViewCamera": {
+          "tier": "unverified",
+          "source": null,
+          "requires": "owner-confirmed panorama/camera position, bearing, field-of-view and date; no image pixels copied"
+        }
+      },
+      "visualQaStatus": "not-reviewed",
+      "photoLicence": "none-cleared-for-this-building",
+      "status": "unresolved-appearance",
+      "nextAction": "Take/obtain permission-cleared façade and roof oblique photos with exact location, orientation, date and rights; reconcile with NSW aerial before altering scene."
+    },
+    {
+      "stableBuildingId": "NR-OSM-0169",
+      "osmIndex": 168,
+      "sourceType": "osm",
+      "geometryFingerprint": "545bf9a2",
+      "centreWgs84": [
+        -32.2327822,
+        148.2399179
+      ],
+      "footprintVertices": 5,
+      "currentRenderTier": "C",
+      "measurements": {
+        "footprint": {
+          "tier": "mapped-OSM",
+          "source": "src/world/narromine-osm-data.js",
+          "licence": "ODbL 1.0"
+        },
+        "height": {
+          "tier": "lidar-2023-envelope",
+          "source": "src/world/narromine-lidar-data.js",
+          "year": 2023,
+          "groundAhdM": 238.97,
+          "eaveProxyM": 3.36,
+          "ridgeProxyM": 5.57,
+          "medianRoofM": 4.74,
+          "notArchitecturalSurvey": true
+        },
+        "roofGeometry": {
+          "tier": "unverified",
+          "source": null,
+          "requires": "permissioned rooftop oblique imagery or measured roof survey"
+        },
+        "wallMaterial": {
+          "tier": "unverified",
+          "source": null,
+          "requires": "dated, permissioned ground-level photograph"
+        },
+        "colour": {
+          "tier": "unverified",
+          "source": null,
+          "requires": "dated, permissioned ground-level photograph and exposure calibration"
+        },
+        "storeys": {
+          "tier": "unverified",
+          "source": null,
+          "requires": "clear elevations or surveyed levels"
+        },
+        "windowRhythm": {
+          "tier": "unverified",
+          "source": null,
+          "requires": "frontage elevation with windows counted and dimensions"
+        },
+        "doorPositions": {
+          "tier": "unverified",
+          "source": null,
+          "requires": "measured, consented doorway/frontage plan; no fabricated walking entrance"
+        },
+        "awningDepthAndSupports": {
+          "tier": "unverified",
+          "source": null,
+          "requires": "photo/measurement tied to a specific OSM edge"
+        },
+        "businessSignage": {
+          "tier": "unverified",
+          "source": null,
+          "requires": "dated tenant/sign evidence; do not assume current trade"
+        },
+        "streetViewCamera": {
+          "tier": "unverified",
+          "source": null,
+          "requires": "owner-confirmed panorama/camera position, bearing, field-of-view and date; no image pixels copied"
+        }
+      },
+      "visualQaStatus": "not-reviewed",
+      "photoLicence": "none-cleared-for-this-building",
+      "status": "unresolved-appearance",
+      "nextAction": "Take/obtain permission-cleared façade and roof oblique photos with exact location, orientation, date and rights; reconcile with NSW aerial before altering scene."
+    }
+  ]
+}
