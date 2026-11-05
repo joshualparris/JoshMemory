@@ -1,0 +1,54 @@
+name: Narromine DANDALOO-001.2 physical car passage
+
+on:
+  pull_request:
+    paths:
+      - 'repository-town/tests/narromine-1-2-car-passage-browser.mjs'
+      - '.github/workflows/narromine-road-1-2-passage.yml'
+      - 'repository-town/docs/NARROMINE_ROAD_1_2_COMPLETION_2026-11-05.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  named-car-passage:
+    name: Six named sites × desktop/Pixel 7 Chromium actual sedan physics
+    runs-on: ubuntu-latest
+    timeout-minutes: 38
+    defaults:
+      run:
+        working-directory: repository-town
+    env:
+      LIBGL_ALWAYS_SOFTWARE: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install and source-syntax check
+        run: |
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm ci --no-audit --no-fund
+          node --check tests/narromine-1-2-car-passage-browser.mjs
+          node tests/narromine-collision-footprints.mjs
+          node tests/narromine-footprint-lane-clearance.mjs
+      - name: Compile current game and check private-data leaks
+        run: |
+          npm run build
+          npm run check:privacy
+      - name: Install real Chromium with software WebGL
+        run: npx playwright install --with-deps chromium
+      - name: Drive six named Narromine local segments on desktop and emulated Pixel 7
+        run: node tests/narromine-1-2-car-passage-browser.mjs
+      - name: Preserve full trajectory JSON and 12 real gameplay screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: narromine-road-1-2-physical-driving
+          path: repository-town/test-results/narromine-1-2-passage/
+          retention-days: 14
+          if-no-files-found: warn
