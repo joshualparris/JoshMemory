@@ -11,8 +11,8 @@ export function rotatedBoxFootprint(x, z, width, depth, yaw = 0) {
   ].map(([dx,dz]) => [x + c*dx + s*dz, z - s*dx + c*dz]);
 }
 
-export function rotatedBoxCollider({ x, z, w, d, yaw = 0, rect }) {
+export function rotatedBoxCollider({ x, z, w, d, yaw = 0, rect }, source = 'rotated-building') {
   if (!rect || ![rect.x0,rect.x1,rect.z0,rect.z1].every(Number.isFinite))
     throw new TypeError('rotatedBoxCollider needs the existing broadphase rect');
-  return { ...rect, poly: rotatedBoxFootprint(x, z, w, d, yaw) };
+  return { ...rect, poly: rotatedBoxFootprint(x, z, w, d, yaw), source };
 }
