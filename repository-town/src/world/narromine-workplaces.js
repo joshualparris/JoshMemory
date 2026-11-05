@@ -4,7 +4,7 @@
 // nearest the mapped place, entered through the wall facing its street. Coles, the Post Office and
 // St Mary's keep their own detailed interiors and are not rebuilt here.
 import { buildInterior } from './interior.js';
-import { makePerson } from './npcs.js';
+import { makeDistinctPerson } from './npc-wardrobe.js';
 import { NARROMINE_FOOTPRINTS } from './narromine-footprints-data.js';
 import { BUILDINGS, DETAILED } from './narromine-layout.js';
 import { segNearest, whoIsAt } from './narromine-population.js';
@@ -80,22 +80,22 @@ export function buildNarromineWorkplaceInterior(pop, entry, makeLabel, weekday, 
   const stations = built.interactables.filter((o) => o.act?.station);
   const SHIRT = { school: 0x2f5f8a, hospital: 0x4a90a4, doctors: 0x4a90a4, police: 0x1c2f4a, fire_station: 0x9b2226, pub: 0x2b2b2b, bar: 0x2b2b2b, cafe: 0x3f3f3f, bakery: 0xf2f2ee, butcher: 0xf2f2ee, pharmacy: 0xf2f2ee, bank: 0x234a6b };
   const centre = (i) => { const r = built.rooms[i]; return { x: (r.x0 + r.x1) / 2, z: (r.z0 + r.z1) / 2 }; };
-  const put = (p, at, shirt) => {
-    const f = makePerson(+p.id.slice(3) * 13 + 5, shirt, 0x2f3440).group; if (p.age < 12) f.scale.setScalar(0.72); else if (p.age < 16) f.scale.setScalar(0.88);
+  const put = (p, at, activity = 'work shift') => {
+    const f = makeDistinctPerson('narromine:' + p.id, { ...p, workplaceKind: w.kind, workplaceName: w.name }, { activity, jobKind: w.kind, minute, weather: 'sunny' }).group;
     f.position.set(at.x, 0, at.z); f.rotation.y = at.yaw; f.name = p.name; built.group.add(f);
     const l = makeLabel?.(p.first + ' ' + p.surname); if (l) { l.position.set(at.x, 2.25, at.z); built.group.add(l); }
   };
   here.staff.forEach((p, i) => {
     const s = stations[i % Math.max(1, stations.length)]; if (!s) return;
     const c = centre(s.room), dx = c.x - s.pos.x, dz = c.z - s.pos.z, D = Math.hypot(dx, dz) || 1, k = Math.floor(i / Math.max(1, stations.length));
-    put(p, { x: s.pos.x + dx / D * 1.0 + k * 0.8, z: s.pos.z + dz / D * 1.0, yaw: Math.atan2(dx, dz) + Math.PI }, SHIRT[w.kind] ?? 0x5a6b7a);
+    put(p, { x: s.pos.x + dx / D * 1.0 + k * 0.8, z: s.pos.z + dz / D * 1.0, yaw: Math.atan2(dx, dz) + Math.PI }, 'work shift');
   });
   // Pupils in class (schools): seated rows in the classrooms.
   let pupils = 0;
   if (w.kind === 'school') {
     const kids = pop.people.filter((p) => p.school === w.id && here && open && weekday > 0 && weekday < 6 && minute >= 8 * 60 + 50 && minute < 15 * 60);
     const rooms2 = built.rooms.map((r, i) => [r, i]).filter(([r]) => r.name === 'Classroom');
-    kids.slice(0, 40).forEach((p, i) => { const [r] = rooms2[i % rooms2.length]; const row = Math.floor(i / rooms2.length); put(p, { x: r.x0 + 1.5 + (row % 5) * 1.3, z: r.z0 + 2.5 + Math.floor(row / 5) * 1.4, yaw: Math.PI }, 0x2f5f8a); pupils++; });
+    kids.slice(0, 40).forEach((p, i) => { const [r] = rooms2[i % rooms2.length]; const row = Math.floor(i / rooms2.length); put(p, { x: r.x0 + 1.5 + (row % 5) * 1.3, z: r.z0 + 2.5 + Math.floor(row / 5) * 1.4, yaw: Math.PI }, 'school class'); pupils++; });
   }
   return { ...built, workplace: w, open, staff: here.staff, pupils };
 }

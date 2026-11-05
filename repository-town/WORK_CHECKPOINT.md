@@ -1,3 +1,12 @@
+# 2026-11-06 — RESIDENT-VISUAL-001 implemented and browser-verified (PR pending)
+
+Owner DeepSeek Harness (Team Lead). Branch `feat/resident-realism-vertical-slice-20261105`, baseline `c788e73e`.
+- Visual-only: deterministic identity + detailed jointed figures + activity/job/weather clothing + natural poses + LOD + standalone showcase + WebGL fallback. No schedule/needs/commute/household simulation changes.
+- Evidence: `node tests/resident-identity.mjs`, `resident-figure.mjs`, `npc-appearance.mjs`, `indoor-crowd-identity.mjs`, `abs-demographics.mjs`, `resident-identities.mjs`, `narromine-residents.mjs`, `narromine-homes.mjs`, `narromine-workplaces.mjs`, `narromine-postal-resident.mjs` all PASS. `tools/build.mjs` + `tools/check_privacy.mjs` PASS. `resident-showcase-browser.mjs` (desktop + Pixel 7) and `resident-game-browser.mjs` (Repo Town villagers, Narromine home, Coles) PASS in real Chrome; screenshots in `test-results/resident-visual/` and `test-results/resident-game/`.
+- WebGL fallback: the Studio no longer hangs when WebGL is unavailable; it retries contexts and shows 16 inline-SVG 2D portraits with a clear message (verified headless with `--disable-gpu --disable-software-rasterizer`).
+- Blocker for PR/push: no GitHub CLI/SSH/token available in this session; local commits are ready. Report this honestly rather than claiming a PR was opened.
+- Next: publish claim/push/PR when GitHub auth is available; no deployment claim made.
+
 # 2026-11-05 — RESIDENT-REALISM-001/002 visual + behavioural vertical slice — START
 
 Owner DeepSeek Harness (Team Lead), Fedora. Baseline canonical main `c788e73e`; branch `feat/resident-realism-vertical-slice-20261105`. Claimed in `COORDINATION.md`. Scope adjusted after user coordination direction: **visual-only**. Claude owns NPC schedules, needs, households, commuting, shopping and workplace behaviour. This branch delivers deterministic resident identity/appearance, detailed jointed figures, activity/job/weather clothing, natural poses (walk, turn, sit, sleep, eat, carry, work, talk), LOD and a standalone playable character showcase. Shared visual hook only in `npc-wardrobe.js` and the `pose` dispatch in `npcs.js`; no simulation, schedule, commute, traffic, home/workplace interior or `main.js` behaviour changes. Next: finish modules + unit tests, build showcase, run build/privacy, capture desktop + Pixel 7 WebGL screenshots, publish claim if auth permits, then review/PR. No completion or deployment claim yet.

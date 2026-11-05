@@ -72,8 +72,8 @@ export function buildHead(identity, { detail = true, talking = false } = {}) {
   for (const side of [-1, 1]) add(head, BALL, s.base, [w * .24 * f.cheek, h * .22, d * .38], [side * w * .52, -h * .14, d * .6]);
   // Ears, tucked against the head with a small lobe.
   for (const side of [-1, 1]) {
-    add(head, BALL, s.shade, [.031, .052, .028], [side * w * .99, -h * .04, .005]);
-    add(head, BALL, s.under, [.019, .025, .02], [side * w * 1.0, -h * .17, .01]);
+    add(head, BALL, s.shade, [.024, .041, .022], [side * w * .99, -h * .04, .005]);
+    add(head, BALL, s.under, [.014, .019, .016], [side * w * 1.0, -h * .17, .01]);
   }
   const detailGroup = new THREE.Group(); detailGroup.name = 'face-detail'; head.add(detailGroup);
   const micro = new THREE.Group(); micro.name = 'face-micro'; detailGroup.add(micro);
@@ -82,25 +82,25 @@ export function buildHead(identity, { detail = true, talking = false } = {}) {
   const ex = .072 * e.spacing, ey = .028, ez = d * .93;
   const eyeColour = e.colour;
   for (const side of [-1, 1]) {
-    add(detailGroup, BALL, 0xf6f1e7, [.027 * e.size, .0175 * e.size, .01], [side * ex, ey, ez]);
-    add(detailGroup, BALL, eyeColour, [.014 * e.size, .014 * e.size, .007], [side * ex, ey, ez + .004]);
-    add(micro, BALL, 0x141414, [.0065 * e.size, .0075 * e.size, .003], [side * ex, ey, ez + .0075]);
+    add(detailGroup, BALL, 0xf6f1e7, [.024 * e.size, .0155 * e.size, .009], [side * ex, ey, ez]);
+    add(detailGroup, BALL, eyeColour, [.0115 * e.size, .012 * e.size, .006], [side * ex, ey, ez + .004]);
+    add(micro, BALL, 0x141414, [.0052 * e.size, .0062 * e.size, .0025], [side * ex, ey, ez + .0075]);
     add(micro, BALL, 0xf8f8f2, [.0028, .0028, .0015], [side * ex - .003, ey + .003, ez + .009]);
     // Upper/lower lids and a crease; the lids are what blink.
     lids.push(add(detailGroup, BALL, s.lid, [.032 * e.size, .008 * e.lid, .012], [side * ex, ey + .014, ez + .001]));
-    add(detailGroup, BALL, s.shade, [.029 * e.size, .0045, .01], [side * ex, ey - .012, ez + .002]);
+    add(detailGroup, BALL, s.shade, [.026 * e.size, .004, .009], [side * ex, ey - .011, ez + .002]);
     add(micro, BOX, s.lid, [.028 * e.size, .0018, .002], [side * ex, ey + .022, ez + .003]);
     // Brows follow the face's brow weight and tilt.
-    const brow = add(detailGroup, BALL, identity.hair.base, [.041 * f.brow, .0065, .009], [side * ex, ey + .047 + e.tilt * .018, ez + .001]);
+    const brow = add(detailGroup, BALL, identity.hair.base, [.036 * f.brow, .0055, .008], [side * ex, ey + .044 + e.tilt * .018, ez + .001]);
     brow.rotation.z = side * e.tilt * .55 + (side < 0 ? .06 : -.06);
     add(simple, BALL, eyeColour, [.022 * e.size, .012 * e.size, .008], [side * ex, ey, ez + .002]);
   }
   // Nose: bridge, tip and two nostrils.
   add(detailGroup, BOX, s.shade, [.022 * f.noseWidth, .056 * f.noseLength, .026], [0, -.005, d * .96]);
-  add(detailGroup, BALL, s.base, [.03 * f.noseWidth, .022, .034], [0, -.043 * f.noseLength, d * 1.02]);
+  add(detailGroup, BALL, s.base, [.026 * f.noseWidth, .019, .03], [0, -.043 * f.noseLength, d * 1.02]);
   for (const side of [-1, 1]) add(micro, BALL, s.under, [.006, .004, .004], [side * .014 * f.noseWidth, -.052, d * 1.01]);
   // Lips and smile line.
-  add(detailGroup, BALL, s.lip, [.045 * f.lip, .011, .012], [0, -.088, d * .97]);
+  add(detailGroup, BALL, s.lip, [.04 * f.lip, .0095, .011], [0, -.088, d * .97]);
   add(detailGroup, BALL, s.lip, [.038 * f.lip, .008, .01], [0, -.099, d * .965]);
   add(micro, BOX, blend(s.lip, 0x4a2424, .35), [.062, .0015, .002], [0, -.096, d * .98]);
   for (const side of [-1, 1]) add(micro, BALL, s.lip, [.0045, .004, .003], [side * .034, -.084, d * .975]);
@@ -157,9 +157,11 @@ export function buildHair(identity) {
     if (style === 'undercut') add(g, BALL, hi, [w * .98, hh * .32, d * .78], [0, hh * .62, -.04]);
     return g;
   }
-  // Cap of hair over the skull, with a slight side part.
+  // Cap of hair over the skull, with a slight side part and a readable fringe.
   add(g, BALL, base, [w * 1.035, hh * .72, d * 1.02], [0, hh * .36, -.026]);
   add(g, BALL, hi, [w * .58, hh * .22, d * .7], [h.part * .045, hh * .62, -.02]);
+  add(g, BALL, base, [w * .84, hh * .18, d * .28], [h.part * .035, hh * .54, d * .62]);
+  if (style !== 'curly' && style !== 'wavy') add(g, BOX, hi, [w * .48, hh * .05, d * .08], [h.part * .05, hh * .48, d * .66], [0, 0, h.part * -.1]);
   if (style === 'short' || style === 'short-side') {
     for (const side of [-1, 1]) add(g, BALL, base, [w * .28, hh * .2, d * .42], [side * w * .72, hh * .12, -.02]);
     if (style === 'short-side') add(g, BOX, hi, [w * .62, hh * .06, d * .1], [h.part * .02, hh * .5, d * .68], [0, 0, h.part * -.08]);
@@ -205,9 +207,14 @@ function addGarment(fig, outfit, identity) {
   const s = identity.skin, b = identity.body, base = identity.clothing;
   const top = outfit.top, bottom = outfit.bottom;
   const torsoColour = top.colour;
-  // Torso overlay, slightly proud of the body.
-  add(g, BALL, torsoColour, [.245 * b.torso, .3, .16 * b.torso], [0, 1.33, 0]);
-  add(g, BALL, torsoColour, [.21 * b.torso, .28, .145 * b.torso], [0, 1.12, 0]);
+  // Torso overlay: the same sculpted profile as the body, scaled just outside it, so the
+  // garment covers the chest and waist instead of showing as a small floating medallion.
+  const torsoOverlay = new THREE.Mesh(TORSO, mat(torsoColour));
+  torsoOverlay.scale.set(b.torso * 1.045, 1.012, b.torso * 1.045);
+  torsoOverlay.position.y = .948;
+  g.add(torsoOverlay);
+  add(g, BALL, torsoColour, [.235 * b.shoulder, .095, .148], [0, 1.515, 0]);
+  if (b.belly > 0) add(g, BALL, torsoColour, [.19 * b.torso, .17 + b.belly, .158 * b.torso], [0, 1.08, .02]);
   if (top.style === 'shirt' || top.style === 'uniform' || top.style === 'polo' || top.style === 'work') {
     add(g, BOX, blend(torsoColour, 0xffffff, .18), [.2, .18, .02], [0, 1.42, .145]);
     for (let i = 0; i < 3; i++) add(g, BALL, blend(torsoColour, 0x111111, .45), [.008, .008, .006], [0, 1.34 - i * .07, .165]);
@@ -233,6 +240,7 @@ function addGarment(fig, outfit, identity) {
   // Sleeves: follow the upper arm and forearm; short sleeves stop above the elbow.
   for (const side of [-1, 1]) {
     const arm = fig.arms[side < 0 ? 0 : 1];
+    add(arm, BALL, torsoColour, [.12, .132, .125], [0, -.04, 0]);
     add(arm, CYL, torsoColour, [.15 * b.arm, .27, .15 * b.arm], [0, -.18, 0]);
     if (top.sleeves === 'long') add(fig.elbows[side < 0 ? 0 : 1], CYL, torsoColour, [.125 * b.arm, .22, .125 * b.arm], [0, -.1, 0]);
     else add(fig.elbows[side < 0 ? 0 : 1], BALL, s.base, [.052, .105, .052], [0, -.11, 0]);
@@ -253,6 +261,7 @@ function addGarment(fig, outfit, identity) {
       add(knee, CYL, s.base, [.1, .34, .1], [0, -.16, 0]);
     } else {
       add(leg, CYL, lowerColour, [.155 * b.leg, .39, .155 * b.leg], [0, -.19, 0]);
+      add(knee, BALL, lowerColour, [.092, .088, .096], [0, 0, 0]);
       add(knee, CYL, lowerColour, [.12, .36, .12], [0, -.17, 0]);
     }
     // Shoes: at the foot end of each knee group.
@@ -320,7 +329,7 @@ function buildProps(fig, identity) {
   const bag = new THREE.Group();
   add(bag, BOX, blend(identity.clothing.trousers, 0x111111, .1), [.28, .22, .18], [0, 0, 0]);
   add(bag, BOX, identity.clothing.accent, [.05, .18, .02], [0, .12, .1]);
-  bag.position.set(.27, .85, .12); bag.visible = false; props.add(bag);
+  bag.scale.setScalar(.8); bag.position.set(.27, .9, .12); bag.visible = false; props.add(bag);
   const box = new THREE.Group();
   add(box, BOX, 0xb08a5a, [.38, .3, .3], [0, 0, 0]);
   add(box, BOX, 0xe0d8c8, [.4, .025, .32], [0, .15, 0]);
@@ -350,6 +359,19 @@ export function makeResidentFigure(identityOrId, person = {}, options = {}) {
   const skin = identity.skin;
   const clothing = new THREE.Group(); clothing.name = 'clothing'; posture.add(clothing);
   const outfit = identity.outfit || outfitFor(identity, options);
+  // A deliberately cheap far-distance proxy: seven meshes, same height and palette. It keeps
+  // the street busy beyond 55 m without paying for 100 detailed parts per person.
+  const proxy = new THREE.Group(); proxy.name = 'resident-lod-proxy'; proxy.visible = false; g.add(proxy);
+  {
+    const pw = .94;
+    add(proxy, BALL, blend(outfit.top.colour, 0x111111, .18), [.24 * body.torso, .28, .15], [0, 1.36, 0]);
+    add(proxy, BALL, skin.base, [.19 * pw, .22, .18], [0, 1.82, 0]);
+    add(proxy, BALL, identity.hair.base, [.2 * pw, .1, .19], [0, 1.98, -.01]);
+    for (const side of [-1, 1]) {
+      add(proxy, 'cyl', outfit.bottom.colour, [.14, .78, .14], [side * .12, .44, 0]);
+      add(proxy, 'cyl', outfit.top.colour, [.12, .58, .12], [side * .3, 1.15, 0]);
+    }
+  }
   // Body. Height is applied by the caller (makeDistinctPerson) so age/build keep the
   // long-standing group.scale contract used by collision clearance and tests.
   add(posture, BALL, skin.base, [.195 * body.hip, .15, .145 * body.hip], [0, .95, 0]);
@@ -385,7 +407,7 @@ export function makeResidentFigure(identityOrId, person = {}, options = {}) {
   }
   const fig = {
     group: g, posture, head, legs, knees, arms, elbows, hands, clothing, face: headParts,
-    props: buildProps({ posture, arms, elbows, head }, identity),
+    props: buildProps({ posture, arms, elbows, head }, identity), proxy,
     identity, outfit, phase: (identity.seed % 997) * .137,
     activity: options.activity || 'home', lod: 0, _outfitKey: outfit.key,
     _blink: 0, _breath: 0,
@@ -410,13 +432,15 @@ export function makeResidentFigure(identityOrId, person = {}, options = {}) {
   };
   // LOD: 0 full face/hands, 1 no micro detail, 2 silhouette only. Hair and eyes remain readable.
   fig.setLod = (level = 0) => {
-    level = Math.max(0, Math.min(2, level | 0));
+    level = Math.max(0, Math.min(3, level | 0));
     if (fig.lod === level) return;
     fig.lod = level;
     fig.face.micro.visible = level < 1;
     fig.face.detail.visible = level < 2;
-    fig.face.simple.visible = level >= 2;
+    fig.face.simple.visible = level === 2;
     fig.hands.forEach((h) => { h.visible = level < 2; });
+    if (fig.proxy) fig.proxy.visible = level >= 3;
+    fig.posture.visible = level < 3;
   };
   g.userData.residentAppearance = identity;
   g.userData.setLod = fig.setLod;
@@ -485,9 +509,10 @@ export function poseResident(fig, dt, t, moving, faceForward = moving) {
   // Talking mouth: a tiny open/close on the lower lip; keep it bounded.
   const mouth = fig.face.detail.children.find((m) => m.scale.x > .03 && m.scale.x < .06 && m.position.y < -.08);
   if (mouth) mouth.scale.y = ease(mouth.scale.y, talk || eat ? .014 + Math.abs(Math.sin(t * 9 + ph)) * .012 : .008, k);
-  // Props visibility.
-  fig.props.bag.visible = !!fig.outfit.bag && !carry;
-  fig.props.box.visible = carry && !/bag|shopping/.test(fig.activity);
+  // Props visibility. A shopper carries bags; other carrying work uses the parcel box.
+  const bagCarry = carry && /bag|shopping|grocer|parcel/.test(fig.activity);
+  fig.props.bag.visible = bagCarry || (!!fig.outfit.bag && !carry);
+  fig.props.box.visible = carry && !bagCarry;
   fig.props.food.visible = eat;
   fig.props.tool.visible = work;
   fig.props.umbrella.visible = !!fig.outfit.umbrella;

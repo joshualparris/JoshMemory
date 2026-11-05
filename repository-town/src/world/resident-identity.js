@@ -89,7 +89,7 @@ export function occupationLabel(person = {}) {
     educational_institution: 'trainer', coworking: 'co-working host', animal_shelter: 'animal carer',
     sports_centre: 'sports instructor', golf_course: 'greenkeeper', railway_station: 'station assistant',
     aerodrome: 'aerodrome worker', community_centre: 'community worker', agrarian: 'farm worker', trade: 'tradesperson',
-    hvac: 'air-conditioning technician', car_wash: 'car washer', accounting: 'accountant', lawyer: 'solicitor',
+    hvac: 'air-conditioning technician', accounting: 'accountant', lawyer: 'solicitor',
   };
   if (byKind[kind]) return byKind[kind];
   if (job) return job;
@@ -160,8 +160,15 @@ export function identityFor(id, person = {}, options = {}) {
       : senior ? between(rng, 1.55, 1.85) : between(rng, 1.55, 1.98);
   const shirtHue = pick(rng, SHIRT_HUES);
   const trouserHue = pick(rng, TROUSER_HUES);
-  const hairStyleBase = pick(rng, HAIR_STYLES);
-  const hairStyle = child && ['bald', 'buzz'].includes(hairStyleBase) ? 'short' : senior && ['undercut', 'buzz'].includes(hairStyleBase) ? 'short' : hairStyleBase;
+  // Hair is weighted by age and presentation rather than picked evenly: bald and
+  // undercut silhouettes are uncommon, and most women keep long/bob/up styles.
+  const femaleStyles = ['long', 'long', 'bob', 'bob', 'ponytail', 'ponytail', 'bun', 'braids', 'wavy', 'curly', 'short', 'short-side'];
+  const maleStyles = ['short', 'short', 'short', 'short-side', 'short-side', 'buzz', 'curly', 'wavy', 'undercut', 'long', 'bald'];
+  const childStyles = ['short', 'short', 'bob', 'bob', 'ponytail', 'curly', 'braids', 'short-side'];
+  const seniorFemale = ['bob', 'bob', 'bun', 'short', 'wavy'];
+  const seniorMale = ['short', 'short', 'short-side', 'buzz', 'bald'];
+  const hairStyleBase = pick(rng, child ? childStyles : senior ? (gender === 'female' ? seniorFemale : seniorMale) : gender === 'female' ? femaleStyles : maleStyles);
+  const hairStyle = hairStyleBase;
   const beardRoll = rng();
   const facialHair = child || gender === 'female' ? 'none' : beardRoll < 0.34 ? 'none' : beardRoll < 0.52 ? 'stubble' : beardRoll < 0.72 ? 'moustache' : beardRoll < 0.9 ? 'goatee' : 'full';
   const glassesRoll = rng();
@@ -365,7 +372,7 @@ function uniformFor(identity, kind, ctx) {
   case 'bakery': case 'butcher': case 'cafe': case 'restaurant': case 'pub': case 'bar': return { top: { colour: 0x2b2b2b, style: 'tee', sleeves: 'short', collar: false, pattern: 'plain', buttons: false, tie: false, hiVis: false }, apron: { colour: kind === 'butcher' ? 0xf2f2ee : 0x3f3f3f, kind: 'apron' }, ...common, badge: true, uniform: 'hospitality' };
   case 'car_repair': case 'tyres': case 'trade': case 'hvac': case 'agrarian': case 'car': return { top: { colour: 0x2f4a5a, style: 'work', sleeves: 'long', collar: true, pattern: 'plain', buttons: true, tie: false, hiVis: true }, ...common, shoes: { colour: 0x2a2420, kind: 'boots' }, gloves: true, uniform: 'tradie' };
   case 'post_office': return { top: { colour: 0xc8202a, style: 'polo', sleeves: 'short', collar: true, pattern: 'plain', buttons: true, tie: false, hiVis: false }, ...common, badge: true, uniform: 'post' };
-  case 'bank': case 'estate_agent': case 'government': case 'townhall': case 'library': case 'courthouse': return { top: { colour: 0xe8e3d8, style: 'shirt', sleeves: 'long', collar: true, pattern: 'plain', buttons: true, tie: true, hiVis: false }, bottom: { colour: 0x2b3648, kind: 'trousers', length: 'full' }, shoes: { colour: 0x24262a, kind: 'shoes' }, outer: { colour: 0x3a4a5a, kind: 'blazer', open: true }, badge: true, uniform: 'office' };
+  case 'bank': case 'estate_agent': case 'government': case 'townhall': case 'courthouse': return { top: { colour: 0xe8e3d8, style: 'shirt', sleeves: 'long', collar: true, pattern: 'plain', buttons: true, tie: true, hiVis: false }, bottom: { colour: 0x2b3648, kind: 'trousers', length: 'full' }, shoes: { colour: 0x24262a, kind: 'shoes' }, outer: { colour: 0x3a4a5a, kind: 'blazer', open: true }, badge: true, uniform: 'office' };
   case 'library': return { top: { colour: 0x4a5a6a, style: 'cardigan', sleeves: 'long', collar: true, pattern: 'plain', buttons: true, tie: false, hiVis: false }, ...common, badge: true, uniform: 'library' };
   case 'physiotherapist': return { top: { colour: 0x3f7f8a, style: 'polo', sleeves: 'short', collar: true, pattern: 'plain', buttons: true, tie: false, hiVis: false }, ...common, badge: true, uniform: 'clinic' };
   default: return null;
