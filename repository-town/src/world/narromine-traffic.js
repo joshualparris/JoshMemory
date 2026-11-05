@@ -113,7 +113,7 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
     }
   }
   let filled = false, refill = 0;
-  function update(dt, player, minute, day=1) {
+  function update(dt, player, minute, day) {
     if (!player) return;
     const hour = Math.floor(((minute ?? 600) % 1440) / 60);
     if (!filled || (refill -= dt) <= 0) {
