@@ -34,7 +34,7 @@ import { createNarromineTrains } from './world/narromine-trains.js';
 import { createNarromineTraffic } from './world/narromine-traffic.js';
 import { townDate } from './world/town-calendar.js';
 import { createNarromineHomeIndex, buildNarromineHomeInterior } from './world/narromine-homes.js';
-import { whoIsAt } from './world/narromine-population.js';
+import { whoIsAt, narromineCommutersAt } from './world/narromine-population.js';
 import { createNarrominePedestrians } from './world/narromine-pedestrians.js';
 import { createColesSupply, COLES_STOCK } from './world/narromine-coles-supply.js';
 import { createNarromineWorkplaceIndex, buildNarromineWorkplaceInterior } from './world/narromine-workplaces.js';
@@ -249,6 +249,8 @@ async function start() {
   // Residents' homes: walk up to a front door to go in (narromine-homes.js).
   const narromineHomes = createNarromineHomeIndex(narromineTraffic.commute.population);
   const colesSupply = createColesSupply(narromineTraffic.commute.population);
+  // Repository Town workplace panels list the Narromine residents on shift there.
+  life.narromineCommuters=(id)=>narromineCommutersAt(narromineTraffic.commute.population,id,townDate(life.day).weekday,Math.floor(life.minute));
   const narrominePeople = createNarrominePedestrians(narromineTraffic.commute, narromineTraffic.graph.nodes, narromineTraffic.graph.adj, narromine.group);
   const narromineWorkplaces = createNarromineWorkplaceIndex(narromineTraffic.commute.population);
   const narrominePostalOutdoor=createNarrominePostalOutdoorActor(narromine.group,makeLabel);

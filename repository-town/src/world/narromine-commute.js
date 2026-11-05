@@ -30,7 +30,7 @@ export function createNarromineCommute(graph, { seed = 20211810 } = {}) {
   const coles = PLACES.find((p) => p.kind === 'supermarket'), station = PLACES.find((p) => p.kind === 'railway_station');
   const work = new Map(pop.workplaces.map((w) => [w.id, w]));
   const pointOf = (at, hh) => {
-    if (at === 'home') { const h = pop.homes.find((x) => x.id === hh.home); return { x: h.x, z: h.z, kerb: h.kerb }; }
+    if (at === 'home') { if (hh.livesIn === 'repotown') return { x: nodes[east].x, z: nodes[east].z, away: true }; const h = pop.homes.find((x) => x.id === hh.home); return { x: h.x, z: h.z, kerb: h.kerb }; }
     if (at === 'coles') return { x: coles.x, z: coles.z };
     if (work.has(at)) { const w = work.get(at); return { x: w.x, z: w.z }; }
     const away = AWAY_WORK.find((a) => a.id === at);
@@ -108,7 +108,7 @@ export function createNarromineCommute(graph, { seed = 20211810 } = {}) {
       if (minute < t.depart + t.duration) return { driving: t, s: (minute - t.depart) * 60 * TOWN_SPEED };
       parkedAt = t.to; dest = t.dest; last = t;
     }
-    if (parkedAt === 'home') return pop.cars[+carId.slice(4)]?.fleet ? { away: 'depot' } : { parked: 'home' };
+    if (parkedAt === 'home') { const c = pop.cars[+carId.slice(4)]; return c?.fleet ? { away: 'depot' } : c?.livesIn === 'repotown' ? { away: 'Repository Town' } : { parked: 'home' }; }
     return dest?.away ? { away: parkedAt } : { parked: parkedAt, at: dest, trip: last };
   }
   return { population: pop, trips, carState, route, nearestNode, pointOf, exits: { east, west } };
