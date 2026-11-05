@@ -35,7 +35,7 @@ assert.deepEqual([pharmacyOpeningAt(2,540),pharmacyOpeningAt(2,779),pharmacyOpen
   pharmacyOpeningAt(2,840),pharmacyOpeningAt(2,1050),pharmacyOpeningAt(6,660),
   pharmacyOpeningAt(6,720),pharmacyOpeningAt(0,660)],[true,true,false,true,false,true,false,false]);
 for(const [wd,min,expected] of [[2,630,true],[2,810,false],[2,865,true],[6,660,true],[6,750,false],[0,630,false]]){
-  const v=buildNarromineWorkplaceInterior(pop,entry,null,wd,min);
+  const v=buildNarromineWorkplaceInterior(pop,entry,label,wd,min);
   assert.equal(v.open,expected,'published opening hours for weekday '+wd+' minute '+min);
   if(!expected)assert.equal(v.staff.length,0,'no customer-facing fictional staff during closure');
 }
