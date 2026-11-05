@@ -1,4 +1,5 @@
 import {createPopulationView} from './population-view.js';
+import {createLinkedIndustryView} from './linked-industry-view.js';
 import { buildPubFacade, PUB_ENVELOPE } from './pub-envelope.js';
 import { townDate } from './town-calendar.js';
 import { solarPosition, solarDaylight, solarWarmth } from './solar-position.js';
@@ -1047,6 +1048,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   });
 
   const populationView=createPopulationView(life,group,makeLabel);
+  const linkedIndustryView=createLinkedIndustryView(life,group);
 
   // Sky dressing.
   const stars = makeStars(); scene.add(stars);
@@ -1171,6 +1173,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     // Moving things are only updated near the player; far ones are hidden by fog anyway.
     const near = (x, z, r) => Math.abs(x - eye.x) < r && Math.abs(z - eye.z) < r;
     populationView.update(dt,t,eye,overview);
+    linkedIndustryView.update(dt,t,eye,overview);
     for (const p of people) {
       const v = p.v, moved = Math.hypot(v.x - p.last.x, v.z - p.last.z);
       p.last.x = v.x; p.last.z = v.z; p.pos.set(v.x, 0, v.z);
