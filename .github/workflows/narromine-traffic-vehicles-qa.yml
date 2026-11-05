@@ -28,6 +28,12 @@ jobs:
         run: |
           npm ci --no-audit --no-fund
           npm run build:deploy
+      - name: Assert Narromine school-run pedestrians, collision-free parking and weekly trip rollover
+        working-directory: repository-town
+        run: |
+          node tests/narromine-pedestrians.mjs
+          node tests/narromine-residents.mjs
+          node tests/narromine-coles-supply.mjs
       - name: Install Chromium
         working-directory: repository-town
         run: npx playwright install --with-deps chromium
