@@ -52,21 +52,21 @@ function inputFor() {
 }
 const advance = (p,input,steps)=>{let maxY=0;for(let i=0;i<steps;i++){p.update(1/60,input,world); maxY=Math.max(maxY,p.y);}return maxY;};
 const cam = new THREE.PerspectiveCamera();
-const ordinary = new Player(cam); ordinary.place(9,-3,0);
+const ordinary = new Player(cam); ordinary.place(9,-3,Math.PI);
 let action = inputFor(); action.st.forwards=true;action.st.running=true;
 advance(ordinary,action,70);
 assert(ordinary.pos.z < -1 && ordinary.pos.z > -2, 'running at ground level remains stopped by building wall: '+ordinary.pos.z);
 
 const leaper = new Player(new THREE.PerspectiveCamera());
-leaper.place(9,-4,0); leaper.jumpSpeed=Math.sqrt(2*22*12);
+leaper.place(9,-4,Math.PI); leaper.jumpSpeed=Math.sqrt(2*22*12);
 action = inputFor();action.st.forwards=true;action.st.running=true;action.st.jump=true;
 const high=advance(leaper,action,135);
 assert(high > 11, 'super jump should reach over 11m height: '+high);
 assert(leaper.pos.z < -3 || leaper.pos.z > 11, 'long jump eventually exits the building footprint');
-assert(leaper.pos.z < -3, 'sprinting super-jump clears roof and reaches far side: '+leaper.pos.z);
+assert(leaper.pos.z > 11, 'sprinting super-jump clears roof and reaches far side: '+leaper.pos.z);
 
 const lander = new Player(new THREE.PerspectiveCamera());
-lander.place(9,-3.1,0); lander.jumpSpeed=Math.sqrt(2*22*8);
+lander.place(9,-3.1,Math.PI); lander.jumpSpeed=Math.sqrt(2*22*8);
 action = inputFor(); action.st.forwards=true;action.st.jump=true;
 advance(lander,action,50);
 action.st.forwards=false;
