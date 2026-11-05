@@ -13,7 +13,8 @@ assert.equal(life.villagers.length,171,'must not replace or duplicate 171 existi
 assert.equal(life.marriages.length,55,'must preserve existing spouses');
 assert.equal(PLACE_DEFS.filter(x=>x.id==='hardware').length,1,'reuse real hardware');
 assert.equal(PLACE_DEFS.filter(x=>x.id==='pub').length,1,'reuse real licensed pub');
-assert.equal(PLACE_DEFS.some(x=>x.id==='brewery'||x.id==='vet'||x.id==='buildsite'),false,'no duplicate site or invented address');
+assert.equal(PLACE_DEFS.filter(x=>x.id==='vet').length,1,'reuse existing town-expansion vet');
+assert.equal(PLACE_DEFS.some(x=>x.id==='brewery'||x.id==='buildsite'),false,'no duplicate brewery or building site');
 assert.deepEqual(Object.keys(INDUSTRY_FARMS),['sheep','dairy','coop']);
 assert.deepEqual([s.herds.sheep.length,s.herds.dairy.length,s.herds.coop.length],[12,7,16]);
 assert(s.herds.sheep.every(a=>a.id&&a.health>60),'animals have persistent IDs/health');
