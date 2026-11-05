@@ -37,6 +37,7 @@ import { createNarromineSurfaceMaterial } from './narromine-surface-materials.js
 import { buildDandalooStreetscape } from './narromine-dandaloo-streetscape.js';
 import { rotatedBoxCollider } from './narromine-collision-footprints.js';
 import { NARROMINE_ROOF_COLOURS } from './narromine-roof-colours-data.js';
+import { NARROMINE_ROOF_FORMS } from './narromine-roof-forms-data.js';
 import { NARROMINE_POST_OFFICE_ENTRANCE, NARROMINE_POST_OFFICE_ID } from './narromine-post-office.js';
 import { buildNarrominePostOfficeRoof, isPostOfficeRoofPart, POST_OFFICE_EAVE_H } from './narromine-post-office-roof.js';
 import { HIGHWAY, HIGHWAY_Z, REGION, CORRIDOR_HALF, STREETS, BUILDINGS, AREAS, WATER, RAIL, PLACES, FILL_SHOPS, FILL_HOUSES, FRONTAGES, DETAILED, polyRect, inPoly, nearTownStreet, boundaryColliders } from './narromine-layout.js';
@@ -337,85 +338,6 @@ export function buildNarromine(parent, makeLabel = null) {
   const NOT_SHOPFRONT = new Set(['place_of_worship', 'guest_house']);
   // Roof colour sampled from NSW aerial imagery (narromine-roof-colours-data.js); unreadable roofs keep a stock tone.
   const roofColour = (h, fallback) => NARROMINE_ROOF_COLOURS[h.x.toFixed(1) + ',' + h.z.toFixed(1)] ?? fallback;
-  for (const f of FILL_SHOPS) {
-    if (NW_DANDALOO_SUPPRESSED_FILL.has(f.name)) continue;
-    const profile = estimatedShopfrontProfile({ name: f.name, kind: f.kind });
-    if (!f.generic) {
-      // Named place on its real traced footprint. No verandah: nothing evidences one.
-      const { wall, roofH } = footprintHeights(f);
-      placeBox(NOT_SHOPFRONT.has(f.kind) ? HOUSE_WALLS[0] : profile.wall, f.w, wall, f.d, f.x, wall / 2, f.z, f.yaw);
-      const r = roofGeo(); r.scale(f.w + 0.8, roofH, f.d + 0.8); r.rotateY(f.yaw); r.translate(f.x, wall + roofH / 2, f.z); push(roofColour(f, HOUSE_ROOFS[2]), r);
-      if (!NOT_SHOPFRONT.has(f.kind)) storefront({ ...f.frontEdge, name: f.name, profile, wallHeight: wall });
-      colliders.push(rotatedBoxCollider(f, 'poi-footprint'));
-      continue;
-    }
-    placeBox(profile.wall, f.w, 4.6, f.d, f.x, 2.3, f.z, f.yaw);
-    placeBox(profile.trim, f.w + 0.3, 0.7, f.d + 0.3, f.x, 4.95, f.z, f.yaw);
-    // Verandah over the footpath, between the shop front and the kerb.
-    const [fx, fz] = f.front, vx = (fx + f.x) / 2 + (fx - f.x) * 0.25, vz = (fz + f.z) / 2 + (fz - f.z) * 0.25;
-    placeBox(profile.roofEdge, f.w, 0.12, 3, vx, 3.1, vz, f.yaw);
-    const direction = [fx - f.x, fz - f.z], dl = Math.hypot(...direction) || 1;
-    const nx = direction[0] / dl, nz = direction[1] / dl, ux = Math.cos(f.yaw), uz = -Math.sin(f.yaw);
-    const x = f.x + nx * (f.d / 2 + 0.02), z = f.z + nz * (f.d / 2 + 0.02);
-    storefront({ a: [x - ux * f.w / 2, z - uz * f.w / 2], b: [x + ux * f.w / 2, z + uz * f.w / 2],
-      toward: direction, name: f.name, profile, wallHeight: 4.6 });
-    colliders.push(rotatedBoxCollider(f, 'poi-shop'));
-  }
-  for (const h of FILL_HOUSES) {
-    // Real traced footprint; total height from its measured estimate when known (else a 3 m wall + 2.2 m roof).
-    // LiDAR-measured eave and ridge win (1,265 footprints); else the footprint dataset's height estimate.
-    const { wall, roofH } = footprintHeights(h);
-    placeBox(HOUSE_WALLS[h.tone], h.w, wall, h.d, h.x, wall / 2, h.z, h.yaw);
-    const r = roofGeo(); r.scale(h.w + 0.8, roofH, h.d + 0.8); r.rotateY(h.yaw); r.translate(h.x, wall + roofH / 2, h.z); push(roofColour(h, HOUSE_ROOFS[h.tone]), r);
-    colliders.push(rotatedBoxCollider(h, 'microsoft-footprint'));
-  }
-  // OSM power poles, transmission towers and lines, give-way signs and bus stops.
-  buildNarromineFurniture(town, colliders);
-  // Signs, crossings, stop lines and street furniture where Mapillary photos detected them.
-  buildNarromineMapillaryObjects(town);
-  // Real trees detected in the 2023 LiDAR (narromine-trees-data.js): one instanced trunk and crown mesh
-  // each, at the measured height and crown radius. Trunks are solid; crowns are not.
-  {
-    const trunkMesh = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.5, 0.7, 1, 6), new THREE.MeshLambertMaterial({ color: 0x5b4a3a }), NARROMINE_TREES.length);
-    const crownMesh = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1, 1), new THREE.MeshLambertMaterial({ color: 0x55703f }), NARROMINE_TREES.length);
-    const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), tint = new THREE.Color();
-    NARROMINE_TREES.forEach(([x, z, h, r], i) => {
-      const trunkH = h * 0.42, trunkR = Math.min(0.45, 0.12 + h * 0.015), crownH = Math.max(1.5, h - trunkH * 0.85);
-      m4.compose(new THREE.Vector3(x, trunkH / 2, z), q, new THREE.Vector3(trunkR, trunkH, trunkR)); trunkMesh.setMatrixAt(i, m4);
-      m4.compose(new THREE.Vector3(x, h - crownH / 2, z), q, new THREE.Vector3(Math.max(1, r), crownH / 2, Math.max(1, r))); crownMesh.setMatrixAt(i, m4);
-      tint.setHSL(0.24 + ((i * 37) % 10) / 200, 0.28, 0.27 + ((i * 53) % 10) / 120); crownMesh.setColorAt(i, tint);
-      colliders.push({ x0: x - trunkR - 0.1, x1: x + trunkR + 0.1, z0: z - trunkR - 0.1, z1: z + trunkR + 0.1 });
-    });
-    trunkMesh.name = 'Narromine LiDAR trees (trunks)'; crownMesh.name = 'Narromine LiDAR trees (crowns)';
-    town.add(trunkMesh, crownMesh);
-  }
-  // Mapped OSM main-street facades: the EDGE is data-grounded; facade materials,
-  // mullions, piers and doors are visual approximations (see facade profiles).
-  for (const f of FRONTAGES) {
-    if (RAILWAY_SUPPRESSED_OSM.has(BUILDINGS[f.building]?.osmIndex)) continue;
-    if (BUILDINGS[f.building]?.osmIndex === PHYSIO_FACADE.osmIndex) continue; // photo-matched, not duplicate generic frontage
-    const [ax, az] = f.a, [bx, bz] = f.b, len = Math.hypot(bx - ax, bz - az), mx = (ax + bx) / 2, mz = (az + bz) / 2;
-    const tl = Math.hypot(...f.toward) || 1, ox = f.toward[0] / tl, oz = f.toward[1] / tl, yaw = -Math.atan2(bz - az, bx - ax);
-    const depth = Math.min(3, Math.max(1.5, f.d - 1)), profile = estimatedShopfrontProfile({ name: f.name, street: f.street });
-    placeBox(profile.roofEdge, len, 0.12, depth, mx + ox * depth / 2, 3.1, mz + oz * depth / 2, yaw);
-    for (let t = 0.5; t < len; t += 4) {
-      const px = ax + (bx - ax) * t / len + ox * (depth - 0.2), pz = az + (bz - az) * t / len + oz * (depth - 0.2);
-      box(profile.pier, 0.14, 3.1, 0.14, px, 1.55, pz);
-    }
-    storefront({ a: f.a, b: f.b, toward: f.toward, name: f.name, profile,
-      wallHeight: BUILDING_STYLE(BUILDINGS[f.building])[0] });
-  }
-  // Physiotherapy: photo-matched street-facing relief on the existing OSM:186 footprint.
-  const physioBuilding = BUILDINGS.find(b => b.osmIndex === PHYSIO_FACADE.osmIndex);
-  if (physioBuilding) buildNarrominePhysiotherapyFacade({
-    THREE, building: physioBuilding, push,
-    addSign: ({ name, x, y, z, width, height, normal }) => {
-      if (typeof document === 'undefined') return;
-      const tex = boardTexture(['NARROMINE', 'PHYSIOTHERAPY'],
-        { bg: '#316e70', fg: '#f7f7ec', border: '#d4e9e5', w: 1024, h: 160 });
-      plane(tex, width, height, x, y, z, Math.atan2(normal[0], normal[1]));
-    },
-  });
   // ── Detailed buildings (traced quads from NSW aerial imagery; see narromine-buildings-data.js) ──
   // Each part is an oriented quad: walls are a box along its first edge, roofs are built in that frame.
   const frame = (pts) => { const [a, b, , d] = pts, L = Math.hypot(b[0] - a[0], b[1] - a[1]), Wd = Math.hypot(d[0] - a[0], d[1] - a[1]);
@@ -468,6 +390,120 @@ export function buildNarromine(parent, makeLabel = null) {
       }
     }
   };
+  // Roof over a traced footprint, with a 0.4 m overhang. Where the 2023 LiDAR classified the form
+  // (narromine-roof-forms-data.js) it is drawn as measured; otherwise the stock pyramid as before.
+  const footprintRoof = (colour, h, wall, roofH, wallColour) => {
+    const form = NARROMINE_ROOF_FORMS[h.x.toFixed(1) + ',' + h.z.toFixed(1)], W = h.w + 0.8, D = h.d + 0.8;
+    const c = Math.cos(h.yaw), s = Math.sin(h.yaw), at = (u, v) => [h.x + u * c + v * s, h.z - u * s + v * c];
+    const pts = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([a, b]) => at(a * W / 2, b * D / 2));
+    if (!form) { const r = roofGeo(); r.scale(W, roofH, D); r.rotateY(h.yaw); r.translate(h.x, wall + roofH / 2, h.z); push(colour, r); return; }
+    if (form === 'flat') { placeBox(colour, W, 0.15, D, h.x, wall + 0.075, h.z, h.yaw); return; }
+    if (form.startsWith('hip')) { hipRoof(colour, pts, wall, Math.atan(roofH / (Math.min(W, D) / 2))); return; }
+    if (form.startsWith('gable')) {
+      const alongW = form.endsWith('w');
+      gableRoof(colour, alongW ? pts : [pts[1], pts[2], pts[3], pts[0]], wall, Math.atan(roofH / ((alongW ? D : W) / 2)), wallColour);
+      return;
+    }
+    // Skillion: one plane rising across w or d to the high side, closed with wall-coloured ends.
+    const alongW = form.endsWith('w'), hi = form.includes('+') ? 1 : -1;
+    const y = (u, v) => wall + roofH * (((alongW ? u / W : v / D) * hi) + 0.5);
+    const P = (u, v, yy) => { const [px, pz] = at(u, v); return [px, yy ?? y(u, v), pz]; };
+    const [u0, u1, v0, v1] = [-W / 2, W / 2, -D / 2, D / 2];
+    const top = [P(u0, v0), P(u1, v0), P(u1, v1), P(u0, v0), P(u1, v1), P(u0, v1)];
+    const sides = [];
+    const quad = (a, b) => { sides.push(P(...a, wall), P(...b, wall), P(...b), P(...a, wall), P(...b), P(...a)); };
+    quad([u0, v0], [u1, v0]); quad([u1, v0], [u1, v1]); quad([u1, v1], [u0, v1]); quad([u0, v1], [u0, v0]);
+    for (const [col, tris, up] of [[colour, top, true], [wallColour, sides, false]]) {
+      const flat = [];
+      for (let i = 0; i < tris.length; i += 3) {
+        let [a, b, d] = tris.slice(i, i + 3);
+        const n = new THREE.Vector3(...b).sub(new THREE.Vector3(...a)).cross(new THREE.Vector3(...d).sub(new THREE.Vector3(...a)));
+        const out = up ? n.y : n.x * ((a[0] + b[0] + d[0]) / 3 - h.x) + n.z * ((a[2] + b[2] + d[2]) / 3 - h.z);
+        if (out < 0) [b, d] = [d, b];
+        flat.push(...a, ...b, ...d);
+      }
+      const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(flat, 3)); g.computeVertexNormals(); push(col, g);
+    }
+  };
+  for (const f of FILL_SHOPS) {
+    if (NW_DANDALOO_SUPPRESSED_FILL.has(f.name)) continue;
+    const profile = estimatedShopfrontProfile({ name: f.name, kind: f.kind });
+    if (!f.generic) {
+      // Named place on its real traced footprint. No verandah: nothing evidences one.
+      const { wall, roofH } = footprintHeights(f);
+      placeBox(NOT_SHOPFRONT.has(f.kind) ? HOUSE_WALLS[0] : profile.wall, f.w, wall, f.d, f.x, wall / 2, f.z, f.yaw);
+      footprintRoof(roofColour(f, HOUSE_ROOFS[2]), f, wall, roofH, NOT_SHOPFRONT.has(f.kind) ? HOUSE_WALLS[0] : profile.wall);
+      if (!NOT_SHOPFRONT.has(f.kind)) storefront({ ...f.frontEdge, name: f.name, profile, wallHeight: wall });
+      colliders.push(rotatedBoxCollider(f, 'poi-footprint'));
+      continue;
+    }
+    placeBox(profile.wall, f.w, 4.6, f.d, f.x, 2.3, f.z, f.yaw);
+    placeBox(profile.trim, f.w + 0.3, 0.7, f.d + 0.3, f.x, 4.95, f.z, f.yaw);
+    // Verandah over the footpath, between the shop front and the kerb.
+    const [fx, fz] = f.front, vx = (fx + f.x) / 2 + (fx - f.x) * 0.25, vz = (fz + f.z) / 2 + (fz - f.z) * 0.25;
+    placeBox(profile.roofEdge, f.w, 0.12, 3, vx, 3.1, vz, f.yaw);
+    const direction = [fx - f.x, fz - f.z], dl = Math.hypot(...direction) || 1;
+    const nx = direction[0] / dl, nz = direction[1] / dl, ux = Math.cos(f.yaw), uz = -Math.sin(f.yaw);
+    const x = f.x + nx * (f.d / 2 + 0.02), z = f.z + nz * (f.d / 2 + 0.02);
+    storefront({ a: [x - ux * f.w / 2, z - uz * f.w / 2], b: [x + ux * f.w / 2, z + uz * f.w / 2],
+      toward: direction, name: f.name, profile, wallHeight: 4.6 });
+    colliders.push(rotatedBoxCollider(f, 'poi-shop'));
+  }
+  for (const h of FILL_HOUSES) {
+    // Real traced footprint; total height from its measured estimate when known (else a 3 m wall + 2.2 m roof).
+    // LiDAR-measured eave and ridge win (1,265 footprints); else the footprint dataset's height estimate.
+    const { wall, roofH } = footprintHeights(h);
+    placeBox(HOUSE_WALLS[h.tone], h.w, wall, h.d, h.x, wall / 2, h.z, h.yaw);
+    footprintRoof(roofColour(h, HOUSE_ROOFS[h.tone]), h, wall, roofH, HOUSE_WALLS[h.tone]);
+    colliders.push(rotatedBoxCollider(h, 'microsoft-footprint'));
+  }
+  // OSM power poles, transmission towers and lines, give-way signs and bus stops.
+  buildNarromineFurniture(town, colliders);
+  // Signs, crossings, stop lines and street furniture where Mapillary photos detected them.
+  buildNarromineMapillaryObjects(town);
+  // Real trees detected in the 2023 LiDAR (narromine-trees-data.js): one instanced trunk and crown mesh
+  // each, at the measured height and crown radius. Trunks are solid; crowns are not.
+  {
+    const trunkMesh = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.5, 0.7, 1, 6), new THREE.MeshLambertMaterial({ color: 0x5b4a3a }), NARROMINE_TREES.length);
+    const crownMesh = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1, 1), new THREE.MeshLambertMaterial({ color: 0x55703f }), NARROMINE_TREES.length);
+    const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), tint = new THREE.Color();
+    NARROMINE_TREES.forEach(([x, z, h, r], i) => {
+      const trunkH = h * 0.42, trunkR = Math.min(0.45, 0.12 + h * 0.015), crownH = Math.max(1.5, h - trunkH * 0.85);
+      m4.compose(new THREE.Vector3(x, trunkH / 2, z), q, new THREE.Vector3(trunkR, trunkH, trunkR)); trunkMesh.setMatrixAt(i, m4);
+      m4.compose(new THREE.Vector3(x, h - crownH / 2, z), q, new THREE.Vector3(Math.max(1, r), crownH / 2, Math.max(1, r))); crownMesh.setMatrixAt(i, m4);
+      tint.setHSL(0.24 + ((i * 37) % 10) / 200, 0.28, 0.27 + ((i * 53) % 10) / 120); crownMesh.setColorAt(i, tint);
+      colliders.push({ x0: x - trunkR - 0.1, x1: x + trunkR + 0.1, z0: z - trunkR - 0.1, z1: z + trunkR + 0.1 });
+    });
+    trunkMesh.name = 'Narromine LiDAR trees (trunks)'; crownMesh.name = 'Narromine LiDAR trees (crowns)';
+    town.add(trunkMesh, crownMesh);
+  }
+  // Mapped OSM main-street facades: the EDGE is data-grounded; facade materials,
+  // mullions, piers and doors are visual approximations (see facade profiles).
+  for (const f of FRONTAGES) {
+    if (RAILWAY_SUPPRESSED_OSM.has(BUILDINGS[f.building]?.osmIndex)) continue;
+    if (BUILDINGS[f.building]?.osmIndex === PHYSIO_FACADE.osmIndex) continue; // photo-matched, not duplicate generic frontage
+    const [ax, az] = f.a, [bx, bz] = f.b, len = Math.hypot(bx - ax, bz - az), mx = (ax + bx) / 2, mz = (az + bz) / 2;
+    const tl = Math.hypot(...f.toward) || 1, ox = f.toward[0] / tl, oz = f.toward[1] / tl, yaw = -Math.atan2(bz - az, bx - ax);
+    const depth = Math.min(3, Math.max(1.5, f.d - 1)), profile = estimatedShopfrontProfile({ name: f.name, street: f.street });
+    placeBox(profile.roofEdge, len, 0.12, depth, mx + ox * depth / 2, 3.1, mz + oz * depth / 2, yaw);
+    for (let t = 0.5; t < len; t += 4) {
+      const px = ax + (bx - ax) * t / len + ox * (depth - 0.2), pz = az + (bz - az) * t / len + oz * (depth - 0.2);
+      box(profile.pier, 0.14, 3.1, 0.14, px, 1.55, pz);
+    }
+    storefront({ a: f.a, b: f.b, toward: f.toward, name: f.name, profile,
+      wallHeight: BUILDING_STYLE(BUILDINGS[f.building])[0] });
+  }
+  // Physiotherapy: photo-matched street-facing relief on the existing OSM:186 footprint.
+  const physioBuilding = BUILDINGS.find(b => b.osmIndex === PHYSIO_FACADE.osmIndex);
+  if (physioBuilding) buildNarrominePhysiotherapyFacade({
+    THREE, building: physioBuilding, push,
+    addSign: ({ name, x, y, z, width, height, normal }) => {
+      if (typeof document === 'undefined') return;
+      const tex = boardTexture(['NARROMINE', 'PHYSIOTHERAPY'],
+        { bg: '#316e70', fg: '#f7f7ec', border: '#d4e9e5', w: 1024, h: 160 });
+      plane(tex, width, height, x, y, z, Math.atan2(normal[0], normal[1]));
+    },
+  });
   // Wall features placed along one edge of a part, from street photos: t runs 0..1 from pts[edge[0]]
   // to pts[edge[1]], y is height in metres, and everything sits just proud of the wall.
   const along = (p, edge) => {

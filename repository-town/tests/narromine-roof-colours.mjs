@@ -23,5 +23,6 @@ assert(drawn > 0.75 * FILL_HOUSES.length, `drawn houses use sampled roofs (${dra
 const header = fs.readFileSync(new URL('../src/world/narromine-roof-colours-data.js', import.meta.url), 'utf8').slice(0, 1200);
 assert.match(header, /NSW Spatial Services/); assert.match(header, /CC BY 4\.0/); assert.match(header, /July 2012/); assert.match(header, /built since/);
 const src = fs.readFileSync(new URL('../src/world/narromine.js', import.meta.url), 'utf8');
-assert.match(src, /push\(roofColour\(h, HOUSE_ROOFS\[h\.tone\]\), r\)/, 'house roofs use the sampled colour, stock tone as fallback');
+assert.match(src, /footprintRoof\(roofColour\(h, HOUSE_ROOFS\[h\.tone\]\)/, 'house roofs use the sampled colour, stock tone as fallback');
+assert.match(src, /footprintRoof\(roofColour\(f, HOUSE_ROOFS\[2\]\)/, 'named places on footprints too');
 console.log(`PASS roof colours: ${entries.length} footprints sampled from NSW imagery, ${palette.size}-colour palette, ${drawn}/${FILL_HOUSES.length} drawn houses coloured`);
