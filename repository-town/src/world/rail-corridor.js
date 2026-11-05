@@ -25,8 +25,43 @@ export function railSideYardClear(z,depth=0){
 export function withinLevelCrossing(x,extra=0){
   return RAIL_CROSSINGS.some(c=>Math.abs(x-c.x)<CROSSING_HALF_DECK+extra);
 }
+// External, nonpersistent presence of the independently player-operated
+// Narromine grain train after it joins the fictional Repository Town tracks.
+// Shared by signal protection, physical road barriers and simulated dispatch.
+// No real railway certification, no changes to saved town resident state.
+let connectingTrain=null;
+export function setConnectingTrainPresence(train){
+  connectingTrain=train?.cars?.length?{cars:train.cars.map(c=>({
+    x:+c.x,z:+c.z,L:+c.L,heading:+c.heading})),
+    speed:+train.speed,driving:!!train.driving}:null;
+}
+export function connectingTrainGate(crossingX){
+  if(!connectingTrain||!Number.isFinite(crossingX))return null;
+  const {cars,speed,driving}=connectingTrain;
+  // Trailing wagons can occupy a crossing long after the locomotive passes.
+  const occupied=cars.some(c=>Math.abs(c.z-RAIL_Z)<4.2&&
+    Math.abs(c.x-crossingX)<=c.L/2+8);
+  const locomotive=cars[0];
+  const inLane=!!locomotive&&Math.abs(locomotive.z-RAIL_Z)<4.2;
+  const heading=locomotive?.heading??0,travelEast=Math.cos(heading)*(speed>=0?1:-1)>0;
+  const ahead=inLane&&driving&&Math.abs(speed)>.05&&
+    (travelEast?locomotive.x<=crossingX:locomotive.x>=crossingX)&&
+    Math.abs(locomotive.x-crossingX)<=180;
+  if(!occupied&&!ahead)return null;
+  // 180m approach warning at <=40km/h affords >=16s, with progressive
+  // 60m booms; road traffic is stopped from the first warning.
+  const d=Math.abs((locomotive?.x??0)-crossingX);
+  const arm=occupied||d<=120?0:.5;
+  return {phase:occupied||d<=120?'closed':'lowering',roadStop:true,
+    trainProceed:true,arm,warning:true,source:'player-operated-connected-train'};
+}
 export function scheduledRailTrainX(minute,depotX){
   if(!Number.isFinite(minute)||!Number.isFinite(depotX))return null;
+  // Automatic block occupancy: the game's single-line timetable freight
+  // holds OUTSIDE the rendered scene if the player's 120m grain consist
+  // occupies the Repository Town main. Do not spawn a ghost inside it.
+  if(connectingTrain?.cars?.some(c=>Math.abs(c.z-RAIL_Z)<4.2&&
+      c.x> -445&&c.x<455))return null;
   if(minute>=400&&minute<420)return depotX+((420-minute)/20)*(420-depotX);
   if(minute>=420&&minute<440)return depotX;
   if(minute>=440&&minute<460)return depotX-((minute-440)/20)*(420+depotX);
@@ -50,6 +85,8 @@ function approachWindows(depotX,crossingX){
 }
 export function railGateState(minute,depotX,crossingX,{fault=false,heldFront=null}={}){
   if(fault)return {phase:'fault',roadStop:true,trainProceed:false,arm:0,warning:true};
+  const live=connectingTrainGate(crossingX);
+  if(live)return live;
   if(Number.isFinite(heldFront)&&heldFront<=crossingX+6&&heldFront+54>=crossingX-6)
     return {phase:'occupied',roadStop:true,trainProceed:false,arm:0,warning:true};
   for(const w of approachWindows(depotX,crossingX)){
