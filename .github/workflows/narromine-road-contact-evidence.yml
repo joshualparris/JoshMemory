@@ -1,0 +1,85 @@
+name: Narromine 239 road-contact evidence (DANDALOO-001/1.1)
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/narromine-road-contact-evidence.yml'
+      - 'repository-town/tests/narromine-road-contact-evidence-browser.mjs'
+      - 'repository-town/docs/NARROMINE_ROAD_239_REPRO_2026-11-05.md'
+  push:
+    branches:
+      - audit/narromine-road-239-repro-20261105
+    paths:
+      - '.github/workflows/narromine-road-contact-evidence.yml'
+      - 'repository-town/tests/narromine-road-contact-evidence-browser.mjs'
+      - 'repository-town/docs/NARROMINE_ROAD_239_REPRO_2026-11-05.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pinned-road-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - name: Pin source of this immutable evidence run
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Assert pinned source SHA and audit script syntax
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          echo "Pinned source: $(git rev-parse HEAD)"
+          node --check tests/narromine-road-contact-evidence-browser.mjs
+      - name: Install dependencies
+        run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm ci --no-audit --no-fund
+      - name: Build game and scan privacy
+        run: |
+          npm run build
+          npm run check:privacy
+      - name: Install Chromium + Linux runtime
+        run: npx playwright install --with-deps chromium
+      - name: Real WebGL desktop 1280x800 and Pixel 7 emulated browser audit
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          AUDIT_PINNED_BASELINE: '11bbf2c53164c5e21a24ed9b8173e07b90148dfc'
+          TOWN_URL: http://127.0.0.1:8091/
+        run: |
+          set -euo pipefail
+          node tools/serve.mjs dist/public 8091 > /tmp/narromine-road-audit-server.log 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:8091/ >/dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:8091/ >/dev/null
+          node tests/narromine-road-contact-evidence-browser.mjs
+      - name: Upload full road-by-road contacts, classification and eye-height frames
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: narromine-239-road-contact-evidence
+          path: repository-town/test-results/narromine-road-contact-evidence/
+          retention-days: 30
+          if-no-files-found: warn
+      - name: Upload server diagnostic log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: narromine-road-audit-server-log
+          path: /tmp/narromine-road-audit-server.log
+          retention-days: 7
+          if-no-files-found: ignore
