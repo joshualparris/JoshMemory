@@ -6,6 +6,7 @@ import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { createRegulatorySignFace, REGULATORY_SIGN_TYPES } from './narromine-regulatory-signs.js';
 import { NARROMINE_MAPILLARY_OBJECTS as OBJ } from './narromine-mapillary-data.js';
+import {allowMapillarySignDisplay} from './narromine-mapillary-sign-placement.js';
 
 const mat = (c) => new THREE.MeshLambertMaterial({ color: c });
 const textCache = new Map();
@@ -27,8 +28,14 @@ export function buildNarromineMapillaryObjects(target) {
   const parent = new THREE.Group();   // built here, then merged into one mesh per material (few draw calls)
   const post = mat(0xb8bcbf), white = mat(0xf2f0ea), add = (geo, m, x, y, z, yaw = 0) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.rotation.y = yaw; parent.add(o); return o; };
   const counts = {};
+  // Normal gameplay never invents a new post location for an automatic
+  // detection that projects over a carriageway. The public audit mode
+  // ?mapillarySigns=raw restores every raw triangulated pin for comparison.
+  const rawQa=typeof location!=='undefined'&&
+    new URLSearchParams(location.search).get('mapillarySigns')==='raw';
   for (const o of OBJ) {
     counts[o.type] = (counts[o.type] || 0) + 1;
+    if(!allowMapillarySignDisplay(o,rawQa))continue;
     // Facing: a sign's face normal points against the traffic that reads it. Road direction (ux, uz).
     const faceYaw = Math.atan2(o.ux * o.facing, o.uz * o.facing), roadYaw = -Math.atan2(o.uz, o.ux);
     const sign = (geo, m, h = 2.2) => { add(new THREE.CylinderGeometry(0.04, 0.04, h, 6), post, o.x, h / 2, o.z); add(geo, m, o.x, h + 0.1, o.z, faceYaw); };
