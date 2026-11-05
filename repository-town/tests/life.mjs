@@ -3,6 +3,7 @@
 // residents moving between rooms, and sound — all with no page errors.
 //   node tests/life.mjs [--url u] [--shots dir]
 import { chromium } from 'playwright';
+import { FIELD_Z0 } from '../src/world/life.js';
 
 const args = process.argv.slice(2);
 const opt = (k, d) => { const i = args.indexOf(k); return i >= 0 ? args[i + 1] : d; };
@@ -163,14 +164,13 @@ for (const [id, re] of [['hall', /Council[\s\S]*Treasury/], ['silo', /Crop/], ['
       // may choose a 6–10m southward offset to prevent trapping the player in
       // the building; the old same-Z <4m assertion contradicted that safety rule.
       const clear = await T(({ x, z }) => !window.__town.probeStatic(x, z, 0.46), s.pos);
-      // goPlace() positions the player near the interaction zone, not exactly at
-      // the exterior doorway. Test outward direction relative to the real door,
-      // which is invariant even when a car forces civicExitPose to use a later offset.
-      const door = await T(() => window.__town.life.place('foundry')?.door);
+      // The world model exports FIELD_Z0 as the south building boundary;
+      // the strict Foundry collision unit test already requires exiting
+      // south of FIELD_Z0-1. Use that verified invariant rather than a
+      // browser-only life.place() method that is not part of __town's API.
       const distance = Math.hypot(s.pos.x - front.x, s.pos.z - front.z);
-      check(s.mode === 'town' && Number.isFinite(door?.z) &&
-        s.pos.z < door.z - 1.5 && distance < 12 && clear,
-        `Foundry game exit reaches nearby south-side collider-clear exterior (distance ${distance.toFixed(1)}m, exit z ${s.pos.z.toFixed(1)} vs door z ${door?.z?.toFixed(1)}, clear=${clear})`);
+      check(s.mode === 'town' && s.pos.z < FIELD_Z0 - 1 && distance < 12 && clear,
+        `Foundry game exit reaches nearby south-side collider-clear exterior (distance ${distance.toFixed(1)}m, exit z ${s.pos.z.toFixed(1)} vs building boundary z ${FIELD_Z0.toFixed(1)}, clear=${clear})`);
     } else {
       // All other civic frontages retain the original strict 4m return rule.
       check(s.mode === 'town' && Math.abs(s.pos.z - front.z) < 4,
