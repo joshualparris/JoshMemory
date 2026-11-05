@@ -6,7 +6,8 @@
 // Only the area around the player (500 m) is simulated, so phones stay smooth.
 import * as THREE from 'three';
 import { STREETS } from './narromine-layout.js';
-import { VEHICLE_MODELS, pickVehicle, pickPaint, loadVehicleModels } from './narromine-vehicle-models.js';
+import { VEHICLE_MODELS, pickPaint, loadVehicleModels } from './narromine-vehicle-models.js';
+import { createNarromineCitizens } from './narromine-citizens.js';
 
 export const DAILY_VEHICLES = Object.freeze({ 'Dandaloo Street': 7000, 'Manildra Street': 500, 'Derribong Street': 380, 'Dandaloo Road': 380 });
 const CLASS_VEHICLES = { trunk: 7000, primary: 4000, secondary: 3000, tertiary: 900, unclassified: 250, residential: 150, living_street: 50, service: 40, track: 15 };
@@ -55,6 +56,8 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
   const { nodes, adj } = buildGraph();
   const edges = []; for (const [from, list] of adj) for (const e of list) if (from < e.to) edges.push({ from, ...e });
   const cars = []; let serial = 0, seed = 1234567;
+  const citizens = createNarromineCitizens({ nodes, adj });
+  const tripCooldown = new Map();
   const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;     // deterministic, so tests repeat
   const posOf = (c) => { const a = nodes[c.from], b = nodes[c.to], t = c.s / c.len; return { x: a.x + (b.x - a.x) * t, z: a.z + (b.z - a.z) * t, ux: (b.x - a.x) / c.len, uz: (b.z - a.z) / c.len }; };
   function place(c) {
@@ -62,24 +65,39 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
     c.x = p.x + p.uz * off; c.z = p.z - p.ux * off; c.yaw = Math.atan2(-p.ux, -p.uz) + Math.PI; c.ux = p.ux; c.uz = p.uz;
   }
   function nextEdge(c) {
-    const options = adj.get(c.to).filter(e => e.to !== c.from);
-    if (!options.length) return adj.get(c.to)[0];                      // dead end: turn round
-    // Busy roads attract through traffic: weight choices by daily volume.
-    const total = options.reduce((s, e) => s + e.daily, 0); let r = rand() * total;
-    for (const e of options) if ((r -= e.daily) <= 0) return e;
-    return options[0];
+    // Planned shortest road-network route. Never pick a random turn at a junction.
+    if(!c.route || c.route.length < 2 || c.route[0] !== c.to)return null;
+    const edge=(adj.get(c.to)||[]).find(e=>e.to===c.route[1]);
+    if(!edge)return null; // Disconnected/malformed route: fail closed rather than roam.
+    c.route.shift();
+    return edge;
   }
-  function spawn(e, s, forward) {
+  function spawn(e, s, forward, day, minute) {
     const from = forward ? e.from : e.to, to = forward ? e.to : e.from;
-    const model = pickVehicle(rand), heavy = VEHICLE_MODELS[model].length > 6.5 || /tractor/.test(VEHICLE_MODELS[model].file);
-    const c = { id: serial++, from, to, s, len: e.len, width: e.width, model, L: VEHICLE_MODELS[model].length, speed: SPEED * (heavy ? 0.7 : 0.85 + rand() * 0.2), v: SPEED * 0.8,
-      colour: VEHICLE_MODELS[model].paint ? pickPaint(rand) : 0xffffff, ute: /truck/.test(VEHICLE_MODELS[model].file) };
-    if (/tractor/.test(VEHICLE_MODELS[model].file)) { c.speed = 25 / 3.6; c.colour = rand() < 0.5 ? 0x2f6b2a : 0xb3262b; }
-    cars.push(c); place(c); return c;
+    const activeIds=new Set(cars.map(c=>c.citizenId));
+    const excludedIds=new Set();
+    for(const [id,last] of tripCooldown)if(last.day===day && minute<last.until)excludedIds.add(id);
+    const plan=citizens.chooseTrip({day,minute,serial,activeIds,excludedIds,fromNode:to});
+    if(!plan)return null; // No fictional citizen with a genuine scheduled journey.
+    const {citizen,trip,route}=plan;
+    const model=citizen.vehicle.modelIndex;
+    const spec=VEHICLE_MODELS[model],heavy=spec.length>6.5;
+    const c={id:serial++,from,to,s,len:e.len,width:e.width,model,L:spec.length,
+      speed:SPEED*(heavy?0.7:0.83+(citizen.seed%13)*0.012),v:SPEED*0.5,
+      colour:spec.paint?pickPaint(()=>(citizen.seed*137%997)/997):0xffffff,
+      ute:/truck/.test(spec.file),route,
+      citizenId:citizen.id,citizenName:citizen.name,householdId:citizen.householdId,
+      vehicleId:citizen.vehicle.id,vehicleOwner:citizen.vehicle.ownerHouseholdId,
+      homeId:citizen.home.id,homeStreet:citizen.home.street,
+      workplaceId:citizen.work.id,workplaceName:citizen.work.name,
+      destinationId:trip.to.id,destinationName:trip.to.name||trip.to.label,
+      journeyReason:trip.reason,journeyDay:day,windowEnd:trip.windowEnd};
+    tripCooldown.set(citizen.id,{day,until:trip.windowEnd});
+    cars.push(c);place(c);return c;
   }
   // Expected cars on an edge right now: vehicles per hour per metre at town speed, both directions.
   const expected = (e, hour) => e.daily * HOURLY[hour] / (SPEED * 3600) * e.len;
-  function populate(player, hour) {
+  function populate(player, hour, day, minute) {
     // Count cars per edge once (an edge is the unordered node pair).
     const onEdge = new Map(); for (const c of cars) { const k = Math.min(c.from, c.to) + ':' + Math.max(c.from, c.to); onEdge.set(k, (onEdge.get(k) || 0) + 1); }
     for (const e of edges) {
@@ -90,15 +108,15 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
       for (let k = have; k < want; k++) {
         const s = rand() * e.len, fwd = rand() < 0.5, p = { x: a.x + (b.x - a.x) * s / e.len, z: a.z + (b.z - a.z) * s / e.len };
         if (Math.hypot(p.x - player.x, p.z - player.z) < 40) continue;          // never pop in beside the player
-        spawn(e, fwd ? s : e.len - s, fwd);
+        spawn(e, fwd ? s : e.len - s, fwd, day, minute);
       }
     }
   }
   let filled = false, refill = 0;
-  function update(dt, player, minute) {
+  function update(dt, player, minute, day=1) {
     if (!player) return;
     const hour = Math.floor(((minute ?? 600) % 1440) / 60);
-    if (!filled || (refill -= dt) <= 0) { populate(player, hour); filled = true; refill = 4; }
+    if (!filled || (refill -= dt) <= 0) { populate(player, hour, day, Math.floor(minute ?? 600)); filled = true; refill = 4; }
     // Spatial buckets (20 m) so each car only checks its neighbours for the car ahead.
     const grid = new Map();
     for (const c of cars) for (const dx of [-1, 0, 1]) for (const dz of [-1, 0, 1]) { const k = (Math.floor(c.x / 20) + dx) + ',' + (Math.floor(c.z / 20) + dz); if (!grid.has(k)) grid.set(k, []); grid.get(k).push(c); }
@@ -112,8 +130,13 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
       const target = ahead ? 0 : c.speed * turnSlow;
       c.v += Math.max(-6 * dt, Math.min(2 * dt, target - c.v));
       c.s += c.v * dt;
-      while (c.s > c.len) { const e = nextEdge(c); c.s -= c.len; c.from = c.to; c.to = e.to; c.len = e.len; c.width = e.width; }
+      while (c.s > c.len) {
+        const e=nextEdge(c);
+        if(!e){c.s=c.len;c.v=0;c.arrived=true;break;}
+        c.s-=c.len;c.from=c.to;c.to=e.to;c.len=e.len;c.width=e.width;
+      }
       place(c);
+      if(c.arrived)cars.splice(i,1);
     }
     draw();
   }
@@ -123,5 +146,5 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
     const xs = poly.map(p => p[0]), zs = poly.map(p => p[1]);
     return { x0: Math.min(...xs), x1: Math.max(...xs), z0: Math.min(...zs), z1: Math.max(...zs), poly, traffic: true };
   });
-  return { update, colliders, get count() { return cars.length; }, get modelsLoaded() { return !!real; }, cars, expected, edges };
+  return { update, colliders, get count() { return cars.length; }, get modelsLoaded() { return !!real; }, cars, expected, edges, citizens };
 }
