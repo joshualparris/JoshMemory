@@ -77,7 +77,7 @@ const airfield=readFileSync(new URL('../src/world/narromine-airfield.js',import.
 for(const token of [
   "createPlayerFlight({parent:narromine.root","flight.board(","flight.update(dt)",
   "flight.flying","AERODROME.entry.x","'Narromine Aerodrome · YNRM'",
-  "camera.far = far","airport:()=>","flight:()=>",
+  "camera.far=far","airport:()=>","flight:()=>",
 ])assert.ok(code.includes(token),'Missing flight main integration: '+token);
 assert.ok(narromine.includes("buildNarromineAirfield(town)"));
 assert.ok(aircraft.includes('setPointerCapture'),'Touch pilots need press-and-hold controls');
