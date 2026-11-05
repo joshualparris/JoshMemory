@@ -1,0 +1,44 @@
+# Narromine realism — numbered delivery backlog (5 November 2026)
+
+**Objective:** Make the *playable* Narromine geographically and visually recognisable, functional from pedestrian and driver eye height, and rigorously distinguished from approximations. **First milestone: the complete Dandaloo Street corridor, then expand street-by-street.**
+
+**State:** ACTIVE / PARTIALLY COMPLETE. This is an integration and acceptance backlog, not a claim of implementation or survey-grade reconstruction. See [25-item physical realism checklist](NARROMINE_REALISM_CHECKLIST_2026-11-05.md), [existing 4 Nov checklist](NARROMINE_REALISM_TODO.md), [Dandaloo reference](NARROMINE_DANDALOO_STREETSCAPE_2026-11-04.md), [55-photo QA register](NARROMINE_55_SCREENSHOT_AUDIT_AND_NW_BLOCK_2026-11-04.md) and [agent coordination policy](PARALLEL_AGENT_COORDINATION.md). Do not restart work already owned by another agent.
+
+## Numbered work queue (highest impact first)
+
+1. [ ] **DANDALOO-001 — Road driveability, footpaths and physical walking (FIRST).**  
+   1.1 [ ] Reproduce the [239 mapped-road static contact samples](https://github.com/joshualparris/JoshMemory/issues/398) on a pinned source SHA, desktop and Pixel 7 browser. Produce JSON/CSV by road, location, collider source and confidence; distinguish centreline samples from actual road surface and true obstacles. Do **not** suppress legitimate building walls or rail gates.  
+   1.2 [ ] Correct only demonstrably false-positive static collisions. Inspect rotated Microsoft footprint *bounding-box* collisions and irregular OSM AABBs against their actual rendered polygons, roads and real geometry. Prove pedestrian and car passage at Royal Hotel, Narromine Hotel, Post Office, Coles/Kierath's, Burraway and crossings; compare before/after counts and any residual real collisions.  
+   1.3 [ ] Review Dandaloo sealed surfaces, hotel forecourt, red-paved shop-side paths, gravel verges, kerb/gutter widths, accessible ramps and roadside shoulders against dated licence-permitted aerial or reference photos. Existing curved returns [#400](https://github.com/joshualparris/JoshMemory/pull/400) and hotel forecourt [#401](https://github.com/joshualparris/JoshMemory/pull/401) are **merged**; do not rebuild them.  
+   1.4 [ ] Validate the white edge and centre paint around curved intersections and across split carriageways. Existing curves are mathematically modelled/approximate, **not** confirmed painted-survey geometry. Prevent floating/coplanar/z-fighting paint and inventing markings on roads that do not have them.  
+   1.5 [ ] Finish the 10-area desktop/Android physical-walking evidence register through [draft #388](https://github.com/joshualparris/JoshMemory/pull/388) / NR-REAL-002. Do **not** duplicate Agy's claim or mistake between-segment teleports for a continuous walk. Turn failures into numbered, owned defects.  
+   1.6 [ ] Acceptance: full Node/build/privacy/integration suite, real WebGL drive and walk checks, eye-level screenshots on both sides of the whole corridor, collision metrics and frame times. Confirm deployed source SHA and public-backup parity before marking live.
+
+2. [ ] **DANDALOO-002 — Photographically accountable shop-by-shop façades.** Map each public frontage to its current footprint/lot and dated image; review the hotels, Post Office roof, NW block, 38–68 shops and eight remaining POI-derived stand-in shops. Correct heights, ridge lines, awnings, parapets, door/window bays, sign eras and verandah posts without inventing unknown tenants. Reuse [#332](https://github.com/joshualparris/JoshMemory/issues/332) and [#358](https://github.com/joshualparris/JoshMemory/pull/358) rather than duplicate their exact-frontage evidence work. Preserve the distinctive painted Royal Hotel roof lettering.
+
+3. [ ] **DANDALOO-003 — Kierath's, Coles and public entrances.** Match real passage shape, both pedestrian entrances, tenancy boundaries, courtyard surfaces, ramps, rear parking and public door continuity; real Coles interior plan remains unverified. Preserve [#355](https://github.com/joshualparris/JoshMemory/issues/355) and existing scripted fictional NPC ownership.
+
+4. [ ] **NARROMINE-004 — Residential and commercial footprints into faithful structures.** The 2,212 traced Microsoft buildings replaced 2,665 invented house positions; they are **not** verified façades. Add real roof outlines/height envelopes, sheds, fences, driveways, footpaths and yards from permitted source evidence. Do not reveal or fabricate private resident addresses or interiors. Check the remaining named stand-in shops against footprints.
+
+5. [ ] **NARROMINE-005 — Terrain and land cover.** Ground-class LiDAR/DEM, surveyed vertical control, Macquarie River banks, drains, parks, paddocks, sporting grounds, industry and airport surfaces. Reconcile NSW GDA2020 and game transforms before terrain changes. Roof-return LiDAR heights are not ground elevations.
+
+6. [ ] **NARROMINE-006 — Trees, plants, poles, lamps and street furniture.** Confirm object-level location/date/source; reconcile ~3,096 LiDAR-derived central trees, remove only demonstrably unsupported instances and restore verified Dandaloo hedges/lamps/trees individually. Do not confuse absence of an OSM tag with proof an object does not exist.
+
+7. [ ] **NARROMINE-007 — Railway, silos and aerodrome.** Verify crossings, real line/siding alignments, public operational rules and safety barriers, freight train movements/limitations, grain silos and bunkers, hangars, museums and airside restrictions. Keep invented timetables clearly labelled gameplay approximations.
+
+8. [ ] **NARROMINE-008 — Living town and correct public services.** Validate named businesses and dates, public hours, traffic and parked-vehicle levels, deliveries, services and plausible fictional NPC schedules. Never invent relationships/addresses for living real people.
+
+9. [ ] **NARROMINE-009 — Rendering, lighting and accessibility.** Eliminate remaining z-fighting, clipping, ghost obstacles, visual material artefacts and phone HUD overlaps. Compare sun/shadow by season and time; measure desktop/real-device frame cost and use LOD without destroying foreground silhouette or collisions.
+
+10. [ ] **NARROMINE-010 — Street-by-street expansion and evidence gate.** After Dandaloo: Derribong/railway access; Nymagee/Burraway civic area; town-centre side streets; ordinary residential blocks; highway approaches; agricultural/industrial edges; aerodrome. For each street require a numbered, geolocated discrepancy register, authorised source/date/licence, before/after matched eye-height screenshot, actual player walk/drive, tests, merged SHA, live SHA and honest confidence (surveyed/photo-matched/estimated). Do not mark all-Narromine done merely because a renderer or CI passes.
+
+## First corrective implementation — scope and coordination
+
+- **Target:** #398, specifically false positives produced when a rotated, actually rendered rectangular Microsoft building or POI shop is collided using its *axis-aligned* bounding rectangle. The collision engine already supports exact `poly` outlines; reuse that mechanism without changing footprints or allowing traversal through real building geometry. Re-measure before declaring any of the 239 resolved. Do not overwrite concurrent Dandaloo street geometry or #388's walking work.
+- **Evidence distinction:** current `FILL_HOUSES` and `FILL_SHOPS` both model yawed boxes, while `narromine.js` passes raw `rect` AABBs to `CollisionWorld`; those may block empty corners. The 239 is the *historical measured count*, not a newly measured number.
+- **Deliverable:** isolated tested footprint-to-collision helper, narrow Narromine integration, deterministic regression covering yawed wall vs empty AABB corner and zero-degree equivalence, plus real Chrome road audit and preserved actual road blockers.
+- **Release gate:** test; review with existing [parallel-agent coordination rules](PARALLEL_AGENT_COORDINATION.md); merge only green and source-verified; production/backup source SHA check. No claim that field-survey accuracy has been achieved.
+
+## Evidence rights and accountability
+
+Use NSW/OSM/Microsoft sources with their specific attributions and licences. Street View may be used as a dated visual comparison, not copied into public game assets or used as reusable derived textures. Keep user-supplied API credentials out of source, commits and logs. Record source date, confidence, unresolved questions and owners per feature.
