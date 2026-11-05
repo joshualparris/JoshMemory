@@ -1,3 +1,7 @@
+# 2026-11-05 — RESIDENT-REALISM-001/002 visual + behavioural vertical slice — START
+
+Owner DeepSeek Harness (Team Lead), Fedora. Baseline canonical main `c788e73e`; branch `feat/resident-realism-vertical-slice-20261105`. Claimed in `COORDINATION.md`. Scope: new deterministic resident identity/appearance + detailed jointed figures; activity/job/weather clothing; natural poses (walk, turn, sit, sleep, eat, carry, work); small needs-driven cohort with physical home-work-home/Coles travel and no duplicate actor; LOD; narrow integration into existing Narromine home/workplace/Coles figures and Repository Town villagers. Preserve `narromine-population.js`, `narromine-commute.js`, `narromine-traffic.js` and PR #460 ownership; no generated-site edits. Next: implement modules + unit tests, integrate, run build/privacy, capture desktop + Pixel 7 WebGL screenshots, then review/PR. No completion or deployment claim yet.
+
 ## 2026-11-05 afternoon — Narromine realism batch + documentation reconciliation (Claude Code, Fedora)
 - #398 step 1.2: the 52 residual road contacts are all real roadside objects (St Mary's boundary wall and sheds, 7 OSM buildings, 2 LiDAR trees); 0 inside any carriageway; no code change. Local audit pitfall: a stale server on port 8091 served an old build and reported 239.
 - NR-REAL-004: merged #418 (`56aab3bd`). Auto Repairs & Spares and St Andrews Uniting Church on real footprints; 3 stand-ins kept (footprints on service ways); 3 handled by the NW Dandaloo block.
