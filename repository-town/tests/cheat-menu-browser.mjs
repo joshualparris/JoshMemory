@@ -17,11 +17,30 @@ try {
     const menu = () => page.evaluate(() => { const m = document.getElementById('cheat-menu'); return { open: !m.hidden, text: m.innerText }; });
 
     step(!(await menu()).open, `${tag} cheat menu hidden by default`);
-    const tapTitle = async () => { const r = await page.evaluate(() => { const b = document.querySelector('#hud h1').getBoundingClientRect(); return { x: b.left + 30, y: b.top + b.height / 2 }; }); for (let i = 0; i < 5; i++) await page.touchscreen.tap(r.x, r.y); };
-    if (mobile) await tapTitle();
-    else { await page.click('canvas'); for (let i = 0; i < 3; i++) await page.keyboard.press('Backquote'); }
+    const tapTitle = async () => {
+      // Touch the REAL title, not the cheat API. Record browser-delivered clicks
+      // so slow SwiftShader/mobile regressions report actual event evidence.
+      const target = await page.evaluate(() => {
+        const h1 = document.querySelector('#hud h1');
+        const b = h1.getBoundingClientRect();
+        const x = b.left + b.width / 2, y = b.top + b.height / 2;
+        const hit = document.elementFromPoint(x, y);
+        window.__cheatTapObservations = [];
+        h1.addEventListener('click', () => window.__cheatTapObservations.push(performance.now()));
+        return { x, y, width: b.width, height: b.height,
+          hit: hit?.tagName, reachesTitle: hit === h1 || h1.contains(hit) };
+      });
+      if (!target.reachesTitle) throw new Error('HUD cheat title is obscured: ' + JSON.stringify(target));
+      for (let i = 0; i < 5; i++) await page.touchscreen.tap(target.x, target.y);
+      return page.evaluate(() => ({ observedClicks: window.__cheatTapObservations?.length || 0,
+        gaps: (window.__cheatTapObservations || []).slice(1).map((t,i) =>
+          Math.round(t - window.__cheatTapObservations[i])) }));
+    };
+    const tapObservations = mobile ? await tapTitle() : null;
+    if (!mobile) { await page.click('canvas'); for (let i = 0; i < 3; i++) await page.keyboard.press('Backquote'); }
     let m = await menu();
-    step(m.open && /Password|Developer/i.test(m.text) && !/Summon/.test(m.text), `${tag} secret gesture opens a password prompt, not the menu`);
+    step(m.open && /Password|Developer/i.test(m.text) && !/Summon/.test(m.text), `${tag} secret gesture opens a password prompt, not the menu ${mobile ? JSON.stringify(tapObservations) : ''}`);
+    if (!m.open) throw new Error(`${tag} five real title taps did not open the password prompt: ${JSON.stringify(tapObservations)}`);
     await page.fill('#cheat-password', 'wrong'); await page.click('#cheat-unlock');
     step(/Wrong password/.test((await menu()).text), `${tag} wrong password refused`);
     await page.fill('#cheat-password', 'CHEAT123'); await page.click('#cheat-unlock');

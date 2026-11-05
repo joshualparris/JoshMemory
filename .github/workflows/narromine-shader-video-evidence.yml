@@ -1,0 +1,72 @@
+name: Narromine pinned before/after WebGL video evidence (NR-VQA-001)
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/narromine-shader-video-evidence.yml'
+      - 'repository-town/tools/narromine-visual-qa/compare-video.mjs'
+      - 'repository-town/tests/narromine-video-comparison.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  paired-video:
+    name: Identical route, baseline vs candidate, desktop and emulated mobile
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - name: Fetch full source history to pin both shader revisions
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Fetch PR 408 shader candidate without changing checkout source
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin '+refs/pull/408/head:refs/remotes/origin/qa-material-pr408'
+          git cat-file -e 'ec085dd824be4ee0e931968e5e2e9abef5e43c38^{commit}'
+          git cat-file -e 'f2810b93242d6b2174198c65748e95e10d126809^{commit}'
+          echo "Shared game source SHA: $(git rev-parse HEAD)"
+          echo "Shaders pinned: ec085dd824be (before) and f2810b93242 (PR #408)"
+      - name: Node 22 with pinned dependency cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install dependencies
+        run: PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm ci --no-audit --no-fund
+      - name: Validate deterministic test contract and shader script syntax
+        run: |
+          node --check tools/narromine-visual-qa/compare-video.mjs
+          node --check tests/narromine-video-comparison.mjs
+          node tests/narromine-video-comparison.mjs
+      - name: Build one identical game source and scan privacy
+        run: |
+          npm run build
+          npm run check:privacy
+      - name: Install Chromium and software WebGL
+        run: npx playwright install --with-deps chromium
+      - name: Record real canvas WebM from baseline and PR 408 shader
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          node tools/narromine-visual-qa/compare-video.mjs \
+            --viewports desktop,mobile \
+            --route coles-kieraths-dandaloo \
+            --steps 36 \
+            --skip-build \
+            --out test-results/narromine-video-qa
+      - name: Upload real WebM videos, frame samples and full manifest
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: narromine-video-shader-ab
+          path: repository-town/test-results/narromine-video-qa/
+          if-no-files-found: warn
+          retention-days: 14
