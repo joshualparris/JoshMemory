@@ -18,7 +18,7 @@ concurrency:
 jobs:
   real-continuous-walk:
     name: Desktop and phone-size continuous Dandaloo walking
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 42
     defaults:
       run:
