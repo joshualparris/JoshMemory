@@ -116,7 +116,12 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
   function update(dt, player, minute, day=1) {
     if (!player) return;
     const hour = Math.floor(((minute ?? 600) % 1440) / 60);
-    if (!filled || (refill -= dt) <= 0) { populate(player, hour, day, Math.floor(minute ?? 600)); filled = true; refill = 4; }
+    if (!filled || (refill -= dt) <= 0) {
+      // The existing main.js only passes minute. Read its published game-day snapshot at the
+      // four-second refill boundary, not on every animation frame, without editing a shared hot file.
+      const gameDay=(Number.isInteger(day)?day:(typeof window!=='undefined'&&window.__town?.state?.().day))||1;
+      populate(player, hour, gameDay, Math.floor(minute ?? 600)); filled = true; refill = 4;
+    }
     // Spatial buckets (20 m) so each car only checks its neighbours for the car ahead.
     const grid = new Map();
     for (const c of cars) for (const dx of [-1, 0, 1]) for (const dz of [-1, 0, 1]) { const k = (Math.floor(c.x / 20) + dx) + ',' + (Math.floor(c.z / 20) + dz); if (!grid.has(k)) grid.set(k, []); grid.get(k).push(c); }
