@@ -6,7 +6,7 @@
 import * as THREE from 'three';
 import { buildKieraths } from './narromine-kieraths.js';
 import { roofLetteringSurface } from './narromine-roof-lettering.js';
-import { buildNarromineHotel, NARROMINE_HOTEL_ID } from './narromine-hotel.js';
+import { buildNarromineHotel, NARROMINE_HOTEL_ID, hotelForecourtPolygon } from './narromine-hotel.js';
 import { buildNarromineRoyalHotel, ROYAL_HOTEL_REPLACED_IDS } from './narromine-royal-hotel.js';
 import { buildNarromineRailwayPrecinct } from './narromine-railway-precinct.js';
 import { NARROMINE_TREES } from './narromine-trees-data.js';
@@ -173,7 +173,10 @@ export function buildNarromine(parent, makeLabel = null) {
     return runs.map(r => ({ ...st, kind: r.unpaved ? 'track' : st.kind, pts: r.pts }));
   });
   const roadSurfaces = buildDisjointRoadSurfaces(SURFACE_STREETS, { highway: HIGHWAY });
-  for (const s of roadSurfaces.footpaths) flatPoly(0xbdb6a8, s.pts, 0.076);
+  // No generic footpath across a detailed site's own sealed ground (the Narromine Hotel forecourt is
+  // one sealed apron out to the street centrelines, as in the owner's Mapillary comparison).
+  const HOTEL_FORECOURT = hotelForecourtPolygon();
+  for (const s of roadSurfaces.footpaths) { const cx = s.pts.reduce((a, p) => a + p[0], 0) / s.pts.length, cz = s.pts.reduce((a, p) => a + p[1], 0) / s.pts.length; if (!inPoly(cx, cz, HOTEL_FORECOURT)) flatPoly(0xbdb6a8, s.pts, 0.076); }
   for (const s of roadSurfaces.asphalt) flatPoly(ROAD_COLOUR[s.kind] ?? 0x4f5153, s.pts, 0.075);
   // Curved kerb returns at junctions, 3 mm under the carriageway so overlaps never flicker.
   for (const s of roadSurfaces.fillets) flatPoly(ROAD_COLOUR[s.kind] ?? 0x4f5153, s.pts, 0.072);
@@ -189,7 +192,7 @@ export function buildNarromine(parent, makeLabel = null) {
   }
   // OSM-aligned Dandaloo streetscape: no duplicate road or building geometry.
   // Verge items must not sit inside buildings, detailed lots or other roads/driveways.
-  const streetscapeClear = (x, z, r) => !DETAILED.some((d) => inPoly(x, z, d.boundary)) &&
+  const streetscapeClear = (x, z, r, mode) => mode === 'kerb' ? !inPoly(x, z, hotelForecourtPolygon()) : !DETAILED.some((d) => inPoly(x, z, d.boundary)) &&
     !BUILDINGS.some((b) => { const q = polyRect(b.pts); return x > q.x0 - r && x < q.x1 + r && z > q.z0 - r && z < q.z1 + r; }) &&
     ![...FILL_SHOPS, ...FILL_HOUSES].some((g) => Math.hypot(g.x - x, g.z - z) < 7 + r) &&
     !STREETS.some((st) => st.name !== 'Dandaloo Street' && st.pts.some(([sx, sz]) => Math.hypot(sx - x, sz - z) < st.width / 2 + r + 1));
