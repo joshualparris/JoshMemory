@@ -753,6 +753,16 @@ async function start() {
   function enterNarromineWorkplace(e){
     if(mode!=='town'||driving.driving)return false;
     const built=buildNarromineWorkplaceInterior(narromineTraffic.commute.population,e,makeLabel,townDate(life.day).weekday,Math.floor(life.minute)),w=e.workplace;
+    // The named pharmacy's public entrance does not become a 24-hour unlocked door.
+    // Other businesses retain their pre-existing navigation behaviour.
+    if (built.pharmacyEvidence && !built.open) {
+      const now=performance.now(), id='narromine-pharmacy-closed';
+      if(id!==lastDeniedEntrance || now-lastDeniedTime>3500) {
+        status('Narromine Pharmacy is closed. Published regular hours: Mon–Fri 9am–1pm, 2pm–5:30pm; Sat 9am–12pm; Sunday closed. Holiday hours are not verified.');
+        lastDeniedEntrance=id;lastDeniedTime=now;
+      }
+      return false;
+    }
     inside={house:{coordinate:'NARROMINE-WORK:'+w.id,name:w.name,address:w.name==='Narromine Pharmacy'?'53 Dandaloo Street, Narromine NSW 2821':'Narromine NSW',kind:w.kind},
       ...built,floorIndex:0,floors:null,narromineHome:{home:{street:w.name},door:e.door,work:true}};
     scene.add(built.group);town.group.visible=false;
