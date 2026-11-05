@@ -13,12 +13,16 @@ assert.equal(forest.stats.trees, NARROMINE_TREES.length);
 assert(forest.stats.tiles > 4);
 assert.equal(colliders.length, NARROMINE_TREES.length + 1, 'exactly one collision per real measured tree');
 assert.equal(before, NARROMINE_TREES.map(a => a.join(',')).join('|'), 'never change real data coordinates');
-for (const [i, [x, z, h]] of NARROMINE_TREES.entries()) {
+// Tile streaming deliberately reorders the collider entries. Compare sets by trunk coordinates,
+// not insertion order, and retain exact floating point formulas from the previous renderer.
+const colliderKey = c => [c.x0,c.x1,c.z0,c.z1].join(',');
+const expectedColliders = NARROMINE_TREES.map(([x,z,h]) => {
   assert(h > 0 && Number.isFinite(x) && Number.isFinite(z));
   const r = Math.min(0.45, 0.12 + h * 0.015);
-  assert.deepEqual(colliders[i + 1], { x0: x - r - 0.1, x1: x + r + 0.1, z0: z - r - 0.1, z1: z + r + 0.1 },
-    'trunk collision remains exactly equal to old renderer at index ' + i);
-}
+  return colliderKey({x0:x-r-0.1,x1:x+r+0.1,z0:z-r-0.1,z1:z+r+0.1});
+}).sort();
+assert.deepEqual(colliders.slice(1).map(colliderKey).sort(), expectedColliders,
+  'trunk collisions exactly preserve earlier rendering, independent of tile iteration order');
 assert(forest.group.children.length > 0);
 const detailed = forest.group.children.filter(g => g.name === 'Detailed trunks / branches / canopy');
 const low = forest.group.children.filter(g => g.name === 'Distant low-poly tree silhouettes');
