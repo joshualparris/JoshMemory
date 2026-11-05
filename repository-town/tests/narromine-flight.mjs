@@ -82,6 +82,7 @@ for(const token of [
   "camera.far=far","airport:()=>","flight:()=>",
 ])assert.ok(code.includes(token),'Missing flight main integration: '+token);
 assert.ok(narromine.includes("buildNarromineAirfield(town)"));
+assert.ok(narromine.includes("buildFlightLandscape(root)"),'Airborne terrain must cover inter-town route');
 assert.ok(aircraft.includes('setPointerCapture'),'Touch pilots need press-and-hold controls');
 assert.ok(aircraft.includes('flight-instruments'),'Accessible HUD needed');
 assert.ok(airfield.includes('runwayText('),'Runway designations must be modelled');
