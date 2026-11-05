@@ -753,7 +753,15 @@ async function start() {
   function enterNarromineWorkplace(e){
     if(mode!=='town'||driving.driving)return false;
     const built=buildNarromineWorkplaceInterior(narromineTraffic.commute.population,e,makeLabel,townDate(life.day).weekday,Math.floor(life.minute)),w=e.workplace;
-    inside={house:{coordinate:'NARROMINE-WORK:'+w.id,name:w.name,address:'Narromine NSW',kind:w.kind},
+    if(built.soulFoodEvidence && !built.open){
+      const id='soul-food-closed',now=performance.now();
+      if(id!==lastDeniedEntrance||now-lastDeniedTime>3500){
+        status('Soul Food cafe is closed according to its own published usual hours: Monday–Saturday 7:30am–3pm, Sunday 8am–3pm. Events and public holidays have separate arrangements.');
+        lastDeniedEntrance=id;lastDeniedTime=now;
+      }
+      return false;
+    }
+    inside={house:{coordinate:'NARROMINE-WORK:'+w.id,name:w.name,address:built.soulFoodEvidence?built.soulFoodEvidence.address:'Narromine NSW',kind:w.kind},
       ...built,floorIndex:0,floors:null,narromineHome:{home:{street:w.name},door:e.door,work:true}};
     scene.add(built.group);town.group.visible=false;
     scene.background.set(INDOOR);scene.fog=null;
@@ -764,6 +772,10 @@ async function start() {
     closePanel();npcChat.close();ambience.door();
     $('card').hidden=true;delete $('card').dataset.coord;
     const n=built.staff.length;
+    if(built.soulFoodEvidence){
+      status('Inside Soul Food Depot & Gallery, 1–7 Dandaloo Street. Interpretive former citrus packing shed: cafe, art gallery, Loading Dock takeaway, catering, event room and meeting rooms. The candidate mapped building and doorway are NOT confirmed; room positions are not surveyed. '+n+' fictional staff modelled; not a real roster. Walk back out or tap Exit.');
+      return true;
+    }
     status('Inside '+w.name+'. '+(built.open?(n?n+' staff on shift'+(built.pupils?', '+built.pupils+' pupils in class':'')+'.':'Open, but nobody is rostered on right now.'):'Closed now (usual hours '+String(Math.floor(w.opens/60)).padStart(2,'0')+':'+String(w.opens%60).padStart(2,'0')+'–'+String(Math.floor(w.closes/60)).padStart(2,'0')+':'+String(w.closes%60).padStart(2,'0')+').')+' Fitted out for the work done here; staff numbers are estimates. Walk back out or tap Exit.');
     return true;
   }
