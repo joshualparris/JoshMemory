@@ -101,9 +101,10 @@ try {
       // staged registered car and the actual vehicle controls.
       window.__town.cheats.open();
       window.__town.cheats.run('goNew');
-      const r=window.__town.cheats.run('car','sedan');
+      const r=window.__town.cheats.run('carHere');
       window.__town.cheats.close();
-      if(!window.__town.vehicles().some(x=>x.cheat&&x.model==='sedan'))throw Error('No registered QA sedan '+JSON.stringify(r));
+      if(!window.__town.vehicles().some(x=>x.cheat&&x.model==='sedan'))throw Error('No registered QA sedan: '+JSON.stringify({cheatMessage:document.querySelector('#cheat-menu .msg')?.textContent,vehicles:window.__town.vehicles().map(v=>({registration:v.registration,model:v.model})),state:window.__town.state().mode,cheatsUnlocked:window.__town.cheats.isUnlocked()}));
+      if(window.__town.state().driving)window.__town.leaveVehicle();
     });
     const crossing=await page.evaluate(()=>window.__town.train().crossings.find(c=>c.ref==='717'));
     const all=[...targets,{id:'dandaloo-rail-crossing',street:'Dandaloo Street',x:crossing?.x,z:crossing?.z,crossing:true}];
