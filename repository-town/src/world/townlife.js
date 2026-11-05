@@ -434,6 +434,39 @@ Object.assign(BUILD, {
     b.box(0x3f525e,13.6,.55,.1,0,4.05,7.16);
     return {w:14,d:10};
   },
+  brewery(b){
+    // Lightweight rural microbrewery: recognisable tanks, loading bay and
+    // ventilated standing-seam shed, all on a fictional Repository Town lot.
+    b.box(0xc1b9a6,13,5.5,10,0,2.75,2);
+    b.box(0x56636a,14,0.35,10.8,0,5.62,2);
+    b.box(0x41545a,13.4,.65,.18,0,4.6,7.12);
+    b.box(GLASS,2.4,2.3,.08,-3.9,2.3,7.16);
+    b.box(0x68492c,2.1,2.8,.08,0,1.4,7.16);
+    for(const x of [-5.4,5.4]){
+      b.cyl(0xadb9bc,.72,3.7,x,1.86,-2.4);
+      b.cyl(0x51616a,.18,.22,x,3.83,-2.4);
+      b.box(0x627a83,.12,3.9,.12,x-.7,1.95,-2.4);
+    }
+    // Materials and in-flight brewery deliveries remain accounted for in
+    // town-linked-industries-2026.js; these tanks are just the visual envelope.
+    return {w:13,d:10};
+  },
+  buildsite(b){
+    // Real, contained worksite office and four-stage structure shell.
+    // Avoid invented statutory works approval signs or public road closures.
+    b.box(0xc6c5bc,10,3.4,9,0,1.7,2);
+    b.box(0x4f666e,11,.26,9.7,0,3.55,2);
+    b.box(0xe2bb58,10,.38,.25,0,2.8,7.15);
+    b.box(GLASS,2.1,1.5,.07,-3.2,2,7.16);
+    b.box(0x35434b,1.6,2.3,.08,1.2,1.16,7.16);
+    // Temporary site timber, pallets and scaffold poles remain behind the
+    // building entrance; no props on the public carriageway.
+    for(const x of [-5.2,5.2])for(const z of [-2,2.5]){
+      b.block(0xa36f38,.13,4.0,.13,x,0,z);
+      b.box(0xb0ad9e,.18,.16,4.5,x,2.75,z);
+    }
+    return {w:10,d:9};
+  },
   hardware(b){
     shopfront(b,14,10,5.0,0xbca88b,0x3c5145,[0xe5b54a,0x456b57]);
     for(const x of [-5.0,-3.4,3.4,5.0]){
@@ -774,7 +807,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     // North-facing infill on an EXISTING road (e.g. Creative Court 7-N).
     // Massing fits within 12 m depth between the roadway and rear of row's houses.
     if (p.side === 'north') {
-      b.at(p.x,0,p.originZ,Math.PI,()=>{fp=buildExpansionFacade(b,p);});
+      b.at(p.x,0,p.originZ,Math.PI,()=>{fp=p.contractOnly?BUILD[p.id](b):buildExpansionFacade(b,p);});
       finish();
       // The facade front is p.originZ-7. The entire footprint stays behind it (+z).
       if(fp)colliders.push({x0:p.x-fp.w/2,x1:p.x+fp.w/2,
