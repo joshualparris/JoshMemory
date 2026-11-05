@@ -30,6 +30,15 @@ assert(authored.rooms.every(r=>/interpretive|unverified|reconstruction|inferred|
 const pop=createNarrominePopulation(),ix=createNarromineWorkplaceIndex(pop);
 const entry=ix.list.find(e=>e.workplace.name===n);
 assert(entry,'the new place has an actual mapped physical workplace entrance');
+assert(entry.provisionalEntrance,'distinct shop threshold is deliberately labelled as a provisional exterior point');
+const automotive=ix.list.find(e=>e.workplace.name==='McPhersons Automotive');
+assert(automotive,'keep the existing mapped automotive workplace and its own independent entrance');
+const entranceGap=Math.hypot(entry.door.x-automotive.door.x,entry.door.z-automotive.door.z);
+assert(entranceGap>3.5,'Soul Food and McPhersons cannot share the same auto-enter door; separation '+entranceGap);
+assert(Math.hypot(entry.workplace.x-site[0].x,entry.workplace.z-site[0].z)<0.5);
+assert(Math.hypot(entry.door.x-site[0].x,entry.door.z-site[0].z)<25,
+  'provisional doorway anchored on building wall near venue Waze pin');
+
 assert(entry.building.w>10 && entry.building.d>10,'mapped building footprint');
 assert.match(entry.workplace.staffBasis,/NOT an actual/,'never claim nominal density headcount is real');
 assert.equal(entry.workplace.opens,450,'regular cafe opening is not a generic 6:30am cafe time');
