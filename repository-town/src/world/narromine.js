@@ -271,7 +271,7 @@ export function buildNarromine(parent, makeLabel = null) {
       const r = b.pts.reduce((s, p) => s + Math.hypot(p[0] - cx, p[1] - cz), 0) / b.pts.length, eave = b.lidar[2], ridge = b.lidar[3];
       const wall = new THREE.CylinderGeometry(r, r, eave, 24); wall.translate(cx, eave / 2, cz); push(0xcfc9bd, wall);
       const cap = new THREE.ConeGeometry(r * 1.02, Math.max(0.3, ridge - eave), 24); cap.translate(cx, eave + Math.max(0.3, ridge - eave) / 2, cz); push(0xb9b4aa, cap);
-      colliders.push(polyRect(b.pts));
+      colliders.push({ ...polyRect(b.pts), top: Math.max(eave, ridge), source: 'osm-silo' });
       continue;
     }
     const [h, standardColour] = BUILDING_STYLE(b);
@@ -281,7 +281,7 @@ export function buildNarromine(parent, makeLabel = null) {
     const g = new THREE.ExtrudeGeometry(shape, { depth: h, bevelEnabled: false }); g.rotateX(-Math.PI / 2); push(colour, g);
     // Collide with the outline's box, unless the outline is very irregular or the box covers a street.
     const r = polyRect(b.pts), area = Math.abs(b.pts.reduce((s, p, i) => { const q = b.pts[(i + 1) % b.pts.length]; return s + p[0] * q[1] - q[0] * p[1]; }, 0) / 2);
-    if (area > 0.55 * (r.x1 - r.x0) * (r.z1 - r.z0) && !nearTownStreet((r.x0 + r.x1) / 2, (r.z0 + r.z1) / 2, 0)) colliders.push({ ...r, poly: b.pts, source: 'osm-building', osmIndex: b.osmIndex });
+    if (area > 0.55 * (r.x1 - r.x0) * (r.z1 - r.z0) && !nearTownStreet((r.x0 + r.x1) / 2, (r.z0 + r.z1) / 2, 0)) colliders.push({ ...r, poly: b.pts, top: h, source: 'osm-building', osmIndex: b.osmIndex });
   }
   // Stand-ins for unmapped named places: still ESTIMATED rectangles, never survey footprints.
   // Reusable facade elements remain batched by material/tile and have NO new collision boxes.
@@ -345,7 +345,7 @@ export function buildNarromine(parent, makeLabel = null) {
       placeBox(NOT_SHOPFRONT.has(f.kind) ? HOUSE_WALLS[0] : profile.wall, f.w, wall, f.d, f.x, wall / 2, f.z, f.yaw);
       const r = roofGeo(); r.scale(f.w + 0.8, roofH, f.d + 0.8); r.rotateY(f.yaw); r.translate(f.x, wall + roofH / 2, f.z); push(HOUSE_ROOFS[2], r);
       if (!NOT_SHOPFRONT.has(f.kind)) storefront({ ...f.frontEdge, name: f.name, profile, wallHeight: wall });
-      colliders.push(rotatedBoxCollider(f, 'poi-footprint'));
+      colliders.push({ ...rotatedBoxCollider(f, 'poi-footprint'), top: wall + roofH });
       continue;
     }
     placeBox(profile.wall, f.w, 4.6, f.d, f.x, 2.3, f.z, f.yaw);
@@ -358,7 +358,7 @@ export function buildNarromine(parent, makeLabel = null) {
     const x = f.x + nx * (f.d / 2 + 0.02), z = f.z + nz * (f.d / 2 + 0.02);
     storefront({ a: [x - ux * f.w / 2, z - uz * f.w / 2], b: [x + ux * f.w / 2, z + uz * f.w / 2],
       toward: direction, name: f.name, profile, wallHeight: 4.6 });
-    colliders.push(rotatedBoxCollider(f, 'poi-shop'));
+    colliders.push({ ...rotatedBoxCollider(f, 'poi-shop'), top: 5.3 });
   }
   for (const h of FILL_HOUSES) {
     // Real traced footprint; total height from its measured estimate when known (else a 3 m wall + 2.2 m roof).
@@ -366,7 +366,7 @@ export function buildNarromine(parent, makeLabel = null) {
     const { wall, roofH } = footprintHeights(h);
     placeBox(HOUSE_WALLS[h.tone], h.w, wall, h.d, h.x, wall / 2, h.z, h.yaw);
     const r = roofGeo(); r.scale(h.w + 0.8, roofH, h.d + 0.8); r.rotateY(h.yaw); r.translate(h.x, wall + roofH / 2, h.z); push(HOUSE_ROOFS[h.tone], r);
-    colliders.push(rotatedBoxCollider(h, 'microsoft-footprint'));
+    colliders.push({ ...rotatedBoxCollider(h, 'microsoft-footprint'), top: wall + roofH });
   }
   // OSM power poles, transmission towers and lines, give-way signs and bus stops.
   buildNarromineFurniture(town, colliders);
@@ -562,6 +562,11 @@ export function buildNarromine(parent, makeLabel = null) {
       if (p.storeys === 2 && !p.features && !landmarkFacadeSpec(d.id, p.name)) for (const side of [-1, 1]) for (let t = -f.L / 2 + 1.5; t < f.L / 2 - 1; t += 3) { // upper-floor windows on the long faces
         const ox = Math.cos(-f.yaw) * t - Math.sin(-f.yaw) * side * (f.W / 2 + 0.03), oz = Math.sin(-f.yaw) * t + Math.cos(-f.yaw) * side * (f.W / 2 + 0.03);
         box(0x34434f, 1.0, 1.6, 0.06, f.cx + ox, fitY(5.6), f.cz + oz, f.yaw); }
+      // The collider top is the tallest rendered roof plane (ridge for pitched,
+      // actual cap for flat). A 12/25/50m super-jump can reach/clear the building
+      // without making any ground-level doorway or road collider passable.
+      const roofTop = Math.max(wallH,
+        pitched ? (Number.isFinite(ridgeTop) ? ridgeTop : wallH + Math.tan(pitch ?? 0.42) * span / 2) : wallH + 0.15);
       if (d.id === 'dandaloo-82' && p.name.startsWith('Coles ')) {
         // Coles walls are skewed against the adjacent Kierath's arcade. A
         // single axis-aligned bounding rectangle wrongly fills the open air
@@ -577,10 +582,10 @@ export function buildNarromine(parent, makeLabel = null) {
             const x0 = a[0] + (b[0] - a[0]) * t0, x1 = a[0] + (b[0] - a[0]) * t1;
             const z0 = a[1] + (b[1] - a[1]) * t0, z1 = a[1] + (b[1] - a[1]) * t1;
             colliders.push({ x0: Math.min(x0, x1) - 0.10, x1: Math.max(x0, x1) + 0.10,
-              z0: Math.min(z0, z1) - 0.10, z1: Math.max(z0, z1) + 0.10 });
+              z0: Math.min(z0, z1) - 0.10, z1: Math.max(z0, z1) + 0.10, top: roofTop });
           }
         }
-      } else colliders.push(polyRect(p.pts));
+      } else colliders.push({ ...polyRect(p.pts), top: roofTop });
       if (p.roofText && pitched && typeof document !== 'undefined') {
         // Align painted letters to the actual pitched LiDAR-adjusted hip face,
         // not the former world-axis plane hard-coded to 0.42 rad.
