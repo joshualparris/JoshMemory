@@ -51,13 +51,14 @@ export function buildNarromineAirfield(parent) {
       mark(r.x+v.x*offset,r.z+v.z*offset,0.55,30,r.headingDeg,surfaces.white,0.124);
     for(const sign of [-1,1]){
       // Aiming/threshold bars at both ends: 8 evenly spaced white strips.
-      const base=sign<0?-r.length/2+12:r.length/2-12;
+      const displaced=sign<0?(r.displacedStartM||0):(r.displacedEndM||0);
+      const base=(sign<0?-r.length/2+12:r.length/2-12)+(sign<0?displaced:-displaced);
       for(let k=-3.5;k<=3.5;k++){
         const px=r.x+v.x*base+(-v.z)*k*3.15;
         const pz=r.z+v.z*base+v.x*k*3.15;
         mark(px,pz,1.65,24,r.headingDeg,surfaces.white,0.145);
       }
-      const t=sign<0?-r.length/2+75:r.length/2-75;
+      const t=(sign<0?-r.length/2+75:r.length/2-75)+(sign<0?displaced:-displaced);
       const label=r.id.split('/')[sign<0?0:1];
       runwayText(label,r.x+v.x*t,r.z+v.z*t,sign<0?r.headingDeg:r.headingDeg+180);
     }
