@@ -57,7 +57,7 @@ jobs:
         run: node tests/narromine-real-002-walking-audit-browser.mjs
       - name: Verify machine-readable route counts
         run: |
-          node --input-type=module -e "import fs from 'node:fs';const a=JSON.parse(fs.readFileSync('test-results/narromine-real-002/audit.json'));if(a.viewports.length!==2||a.viewports.some(v=>v.results.length!==10))throw Error('Missing one of 20 local walking attempts');console.log('Recorded '+a.passed+' walked segments, '+a.gaps+' audit gaps; not full-town continuous physical traversal');"
+          node --input-type=module -e "import fs from 'node:fs';const a=JSON.parse(fs.readFileSync('test-results/narromine-real-002/audit.json'));if(a.viewports.length!==2||a.viewports.some(v=>v.results.length!==10)||a.gaps!==0||a.passed!==20)throw Error('NR-REAL-002 failed: '+a.passed+'/20 local walks, '+a.gaps+' gaps; read uploaded audit.json');console.log('PASS '+a.passed+'/20 physically walked LOCAL segments, 0 audit gaps; not full-town continuous physical traversal');"
       - name: Preserve full JSON audit and 20 game-only screenshots
         if: always()
         uses: actions/upload-artifact@v4
