@@ -21,6 +21,7 @@ export function linkedIndustryPanel(life,site='overview',message=''){
    '<h3>Brewhouse (existing Foundry site)</h3><p>Ingredients: '+goods(b.stock)+
    ' · conditioned kegs: '+b.readyKegs+' · delivered to existing pub: '+b.deliveredKegs+
    ' · cooperative cash: $'+b.capital+'.</p>'+
+   '<p>Paid regional resupplies: '+(r.regionalOrders?.length?r.regionalOrders.map(o=>esc(o.id)+' '+esc(o.type)+' '+esc(o.status)+' due day '+o.readyDay).join(', '):'none')+'</p>'+
    '<p>Batches: '+(b.batches.length?b.batches.map(x=>esc(x.id)+' ('+esc(x.status)+', ready day '+x.readyDay+')').join(' · '):'none started')+'</p>'+
    '<h3>Cooperative workshop (existing Town Trades site)</h3><p>Stage: '+esc(stage?.name||'commissioned')+
    ' · progress '+Math.floor(build.progress)+'/'+(stage?.minutes||0)+' town minutes · budget $'+build.budget+
@@ -35,6 +36,8 @@ export function linkedIndustryPanel(life,site='overview',message=''){
  const actions=[
   take('Buy construction materials from existing hardware',()=>life.orderIndustryBuilding()),
   take('Order regional brewery ingredients',()=>life.orderIndustryIngredients()),
+  take('Buy paid two-day brewing inputs from regional supplier',()=>life.orderIndustryRegionalIngredients()),
+  take('Buy paid next-day veterinary kits',()=>life.orderIndustryMedicalKits()),
   take('Deliver conditioned kegs to existing pub',()=>life.orderIndustryPubKegs())
  ];
  for(const farm of ['sheep','dairy','coop']){
