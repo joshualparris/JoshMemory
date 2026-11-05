@@ -1,0 +1,58 @@
+name: Repository Town Narromine railway connector and return loop
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/town-rail-continuation.yml'
+      - 'repository-town/src/world/town-rail-continuation*.js'
+      - 'repository-town/src/world/town.js'
+      - 'repository-town/src/world/narromine-rail-network.js'
+      - 'repository-town/src/world/narromine-trains.js'
+      - 'repository-town/src/main.js'
+      - 'repository-town/tests/town-rail-continuation*.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install dependencies
+        working-directory: repository-town
+        run: npm ci --no-audit --no-fund
+      - name: Validate connected track graph and drivable 180 metre loop
+        working-directory: repository-town
+        run: node tests/town-rail-continuation.mjs
+      - name: Build playable release
+        working-directory: repository-town
+        run: npm run build:deploy
+      - name: Chromium software WebGL
+        working-directory: repository-town
+        run: npx playwright install --with-deps chromium
+      - name: Check game at three spatial seams desktop and phone
+        working-directory: repository-town
+        env:
+          TOWN_URL: http://127.0.0.1:8091/
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          node tools/serve.mjs dist/public 8091 >/tmp/rail-bridge-http.log 2>&1 &
+          server=$!
+          trap 'kill $server 2>/dev/null || true' EXIT
+          for i in $(seq 1 45); do
+            if curl -fsS http://127.0.0.1:8091/ >/dev/null; then break; fi
+            sleep 1
+          done
+          node tests/town-rail-continuation-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: regional-rail-loop-evidence
+          path: repository-town/test-results/regional-rail-continuation/
+          if-no-files-found: warn
+          retention-days: 14
