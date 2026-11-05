@@ -102,7 +102,26 @@ async function walk(page,label,info){
     const d=Math.hypot(before.x-target[0],before.z-target[1]);
     const item={n:i,to:target.map(rounded),from:[rounded(before.x),rounded(before.z)],directDistanceM:rounded(d),accepted:null,reached:false};
     item.accepted=await page.evaluate(p=>window.__town.walkTo(p[0],p[1]),target);
-    if(item.accepted!==null){data.steps.push(item);throw Error('walkTo rejected waypoint '+i+': '+item.accepted);}
+    if(item.accepted!==null){
+      // Diagnose a real street gap without teleporting, bypassing a collider or
+      // weakening the acceptance. Calling walkTo sets a path but does not step
+      // the player until the next animation frame; sample hit-test alternatives
+      // synchronously in one evaluate, then stop the test as a genuine GAP.
+      item.diagnostic = await page.evaluate(({target,from})=>{
+        const dx=target[0]-from[0],dz=target[1]-from[1],len=Math.hypot(dx,dz);
+        const nx=-dz/len,nz=dx/len;
+        const trials=[];
+        for(const lateral of [-6,-4,-2,0,2,4,6]){
+          const x=target[0]+nx*lateral,z=target[1]+nz*lateral;
+          const result=window.__town.walkTo(x,z);
+          trials.push({lateralM:lateral,target:[x,z],result:result===null?'path-planned':result});
+        }
+        return {current:window.__town.state().pos,trials,
+          note:'Diagnostic candidate pathfinder result only: unverified kerb/path alignment; no candidate is counted as walked'};
+      },{target,from:[before.x,before.z]});
+      data.steps.push(item);
+      throw Error('walkTo rejected waypoint '+i+': '+item.accepted);
+    }
     try{
       await page.waitForFunction(p=>{
         const s=window.__town.state(),a=s.pos;
@@ -163,7 +182,7 @@ try{
     await photoPage.waitForFunction(()=>window.__town.narromineVisible(),null,{timeout:10000}).catch(()=>{});
     await photoPage.waitForTimeout(250);
     const screenshot=output+'/'+label+'-reference-'+v.id+'.png';
-    await photoPage.screenshot({path:screenshot,timeout:15000});
+    await photoPage.screenshot({path:screenshot,timeout:7000,animations:'disabled'});
     report.referenceViews.push({viewport:label,id:v.id,world:v.world,geolocation:[v.lat,v.lon],heading:v.heading,screenshot,
       comparisonMethod:'Geocoded separately staged game camera; reference is owner 4 Nov 2026 screenshot with Street View panorama of UNCONFIRMED capture date, not raster imported into public game'});
   }
