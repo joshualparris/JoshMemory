@@ -180,6 +180,29 @@ export function buildNarromine(parent, makeLabel = null) {
   for (const s of roadSurfaces.asphalt) flatPoly(ROAD_COLOUR[s.kind] ?? 0x4f5153, s.pts, 0.075);
   // Curved kerb returns at junctions, 3 mm under the carriageway so overlaps never flicker.
   for (const s of roadSurfaces.fillets) flatPoly(ROAD_COLOUR[s.kind] ?? 0x4f5153, s.pts, 0.072);
+  // Main-road line marking as on the real A32 through town (owner's Mapillary comparison at the hotel):
+  // solid white edge lines inside each kerb, and a broken centre line on two-way main roads. Lines break
+  // where another street joins, so side streets stay open. Positions are approximate (OSM gives the
+  // centreline and width, not the paint).
+  {
+    const MAIN = /^(trunk|primary|secondary)$/, others = STREETS.filter(s => s.pts.length > 1);
+    const nearOtherStreet = (st, x, z) => others.some(o => o !== st && o.name !== st.name && o.pts.some((b, i) => { if (!i) return false; const a = o.pts[i - 1], dx = b[0] - a[0], dz = b[1] - a[1], l = dx * dx + dz * dz || 1;
+      const t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (z - a[1]) * dz) / l)); return Math.hypot(x - a[0] - t * dx, z - a[1] - t * dz) < (o.width || 7) / 2 + 2.5; }));
+    for (const st of STREETS) {
+      if (!MAIN.test(st.kind)) continue;
+      const centre = st.kind !== 'trunk' && !nearLine(NARROMINE_FURNITURE.laned, st.pts[0][0], st.pts[0][1], 3);   // trunk ways here are one-way carriageways
+      for (let i = 1; i < st.pts.length; i++) {
+        const [ax, az] = st.pts[i - 1], [bx, bz] = st.pts[i], len = Math.hypot(bx - ax, bz - az); if (len < 1) continue;
+        const ux = (bx - ax) / len, uz = (bz - az) / len, nx = -uz, nz = ux, yaw = -Math.atan2(bz - az, bx - ax), edge = st.width / 2 - 0.6;
+        for (let d = 0; d + 3 <= len; d += 3) {
+          const mx = ax + ux * (d + 1.5), mz = az + uz * (d + 1.5);
+          if (nearOtherStreet(st, mx, mz)) continue;
+          for (const side of [-1, 1]) box(0xf4f2ea, 3, 0.01, 0.12, mx + nx * edge * side, 0.081, mz + nz * edge * side, yaw);
+          if (centre && Math.floor(d / 3) % 4 === 0) box(0xf4f2ea, 3, 0.01, 0.1, mx, 0.081, mz, yaw);
+        }
+      }
+    }
+  }
   // Broken centre line (3 m line, 9 m gap, the Australian standard) only on ways OSM tags with 2+ lanes.
   for (const pts of NARROMINE_FURNITURE.laned) {
     let carry = 0;
