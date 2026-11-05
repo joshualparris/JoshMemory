@@ -31,6 +31,14 @@ PR #411 / NR-REAL-002 previously verified 20/20 **short, individually staged** l
 
 **Metadata boundary:** The game images produced by this test can be uploaded as CI artefacts. The privately sourced Street View comparison captures are read-only references and must **not** be added to public repo, screenshots of the built game or commercial image texture atlases.
 
+## 6 November 2026 diagnosis and exact source correction attempt
+
+The original real Chromium test on source `7f5eb676` performed **26/76 consecutive waypoints** (183.98 m of 509.25 m) with **0 mid-route placements** and 0.63 m maximum measured per-frame movement. It then rejected waypoint 27 (`[-4769.15, -998.49]`) with `unreachable`; screenshot showed a rendered tree directly in the paving. Checking the existing NSW Spatial Services **2023 LiDAR** dataset found a 6.2 m tall tree at `[-4769.5,-998.5]` — approximately 0.35 m horizontal displacement from the target. OSM mapped shopfront near the waypoint is Macquarie Clothing. **This is not evidence of a missing pavement or justification to delete a mapped tree.** The test's 5.8 m roadside offset was an illustrative simplification that walked through a trunk.
+
+The revised test preserves every mapped object and collider, adding a **2.3 m shop-side detour** at a waypoint that intersects a confirmed LiDAR tree, while still requiring real continuous pathfinding and on-foot travel. This detour is a **game test route**, not a survey of actual 2026 footpath width. If browser testing finds that the detour is unreachable, it remains a genuine failure to investigate; no force clicks, direct position edits or waived tests. It now logs nearby target-pathfinder results on rejection, so the underlying road/path or player clearance issue can be differentiated.
+
+A subsequent CI attempt failed before opening the game because Playwright 1.56.1 cannot install the required browser dependencies on GitHub's newly selected Ubuntu 26.04 image (see issue #455). Dedicated workflow now pins `ubuntu-24.04` without changing Playwright, test thresholds or game physics. **Do not mark complete without successful exact-head desktop and mobile WebGL evidence.**
+
 ## Next gate
 
 Review the uploaded game screenshots at five poses against their archived source reference, mark each feature `observed`, `dated/historic`, `approximate` or `unverified` in #424, then claim **only confirmed, unowned mismatches** as narrow feature repairs. Preserve other agents' road traffic, roof, frontage, railway and airport branches. Full corridor 2026 photogrammetry, all pedestrian ramps and uninterrupted walking across all ten distant Narromine audit locations remain open unless independently demonstrated.
