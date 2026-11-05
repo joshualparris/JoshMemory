@@ -4,6 +4,7 @@
 // a triangulated position can be a metre or two out, and must never become an invisible wall.
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { createRegulatorySignFace, REGULATORY_SIGN_TYPES } from './narromine-regulatory-signs.js';
 import { NARROMINE_MAPILLARY_OBJECTS as OBJ } from './narromine-mapillary-data.js';
 
 const mat = (c) => new THREE.MeshLambertMaterial({ color: c });
@@ -31,12 +32,16 @@ export function buildNarromineMapillaryObjects(target) {
     // Facing: a sign's face normal points against the traffic that reads it. Road direction (ux, uz).
     const faceYaw = Math.atan2(o.ux * o.facing, o.uz * o.facing), roadYaw = -Math.atan2(o.uz, o.ux);
     const sign = (geo, m, h = 2.2) => { add(new THREE.CylinderGeometry(0.04, 0.04, h, 6), post, o.x, h / 2, o.z); add(geo, m, o.x, h + 0.1, o.z, faceYaw); };
+    if (REGULATORY_SIGN_TYPES.includes(o.type)) {
+      const h = ['keepLeft', 'noEntry'].includes(o.type) ? 1.6 : 2.2;
+      add(new THREE.CylinderGeometry(0.04, 0.04, h, 6), post, o.x, h / 2, o.z);
+      const face = createRegulatorySignFace(o.type);
+      face.position.set(o.x, h + 0.1, o.z); face.rotation.y = faceYaw; parent.add(face);
+      continue;
+    }
     switch (o.type) {
       case 'speed': sign(new THREE.BoxGeometry(0.6, 0.75, 0.03), speedMaterial(o.value)); break;
       case 'speedEnd': sign(new THREE.BoxGeometry(0.6, 0.75, 0.03), mat(0xe8e8e2)); break;
-      case 'stop': sign(new THREE.CylinderGeometry(0.38, 0.38, 0.03, 8).rotateX(Math.PI / 2), mat(0xc8202a)); break;
-      case 'giveway': sign(new THREE.ConeGeometry(0.45, 0.06, 3).rotateX(Math.PI / 2).rotateZ(Math.PI), mat(0xc8202a)); break;
-      case 'keepLeft': case 'noEntry': sign(new THREE.BoxGeometry(0.45, 0.6, 0.03), mat(o.type === 'noEntry' ? 0xc8202a : 0xf4f4f0), 1.6); break;
       case 'warning': sign(new THREE.BoxGeometry(0.6, 0.6, 0.03).rotateZ(Math.PI / 4), mat(0xf2c230)); break;
       case 'direction': {                 // green guide sign on two posts
         for (const s of [-0.5, 0.5]) add(new THREE.CylinderGeometry(0.05, 0.05, 2.6, 6), post, o.x + Math.cos(faceYaw) * s, 1.3, o.z - Math.sin(faceYaw) * s);
@@ -63,7 +68,7 @@ export function buildNarromineMapillaryObjects(target) {
   // Bake every object's transform and merge by material: hundreds of meshes become a handful.
   parent.updateMatrixWorld(true);
   const byMat = new Map();
-  parent.traverse(o => { if (!o.isMesh) return; const key = o.material.map ? o.material.uuid : 'c' + o.material.color.getHex();
+  parent.traverse(o => { if (!o.isMesh) return; const key = o.material.map ? o.material.uuid : 'c' + o.material.color.getHex() + ':side' + o.material.side;
     if (!byMat.has(key)) byMat.set(key, { material: o.material, geos: [] });
     const g = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone(); if (!o.material.map) g.deleteAttribute('uv'); g.applyMatrix4(o.matrixWorld); byMat.get(key).geos.push(g); });
   for (const { material, geos } of byMat.values()) {
