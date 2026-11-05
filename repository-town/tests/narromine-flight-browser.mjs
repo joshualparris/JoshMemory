@@ -34,10 +34,13 @@ try {
     assert.deepEqual(airport.runways.map(r=>[r.id,r.length,r.width]),[['11/29',1521,30],['04/22',1100,30]]);
     assert.equal(airport.parking.length,2);
 
-    // Actual game search and airfield model placement, not just pure data.
+    // Actual game search. Phones start with town controls minimised, so a
+    // user must expand the menu before the search input becomes visible.
+    if(device==='android')await page.getByRole('button',{name:'Expand town controls'}).click();
     await page.locator('#search').fill('Narromine Aerodrome · YNRM');
     await page.locator('#search-form').evaluate(form=>form.requestSubmit());
     await page.waitForFunction(()=>window.__town.state().pos.x< -5700,null,{timeout:12000});
+    if(device==='android')await page.getByRole('button',{name:'Minimise town controls'}).click();
     const start=await page.evaluate(()=>window.__town.state().pos);
     assert(Math.hypot(start.x+5806,start.z+2174)<2,device+': search travels to YNRM apron');
     await page.screenshot({path:path.join(out,device+'-01-airport-apron.png')});
