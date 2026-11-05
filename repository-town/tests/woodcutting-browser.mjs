@@ -78,34 +78,55 @@ try {
     await T(([x, z, yaw]) => window.__town.place(x, z, yaw), [yard.x + dx, yard.z + dz, Math.atan2(dx, dz)]); break;
   }
   await page.waitForFunction(() => /Chop the tree/.test(document.getElementById('prompt')?.textContent || ''), null, { timeout: 3000 }).catch(() => {});
-  const angles = [];
+  // Arm the real-frame observer BEFORE the player's real touch/keyboard
+  // action. Previously we waited inside use() for 300 ms and then waited for
+  // 'chopping' again; on mobile SwiftShader that missed the initial wind-up
+  // and incorrectly claimed the full visible swing was too small.
+  await T((id) => {
+    const sample = { started: false, done: false, frames: [], startedAt: performance.now() };
+    window.__woodcutSwingSample = sample;
+    function watch(now) {
+      const state = window.__town.skills();
+      if (state.chopping === id) {
+        sample.started = true;
+        sample.frames.push({ ms: Math.round(now - sample.startedAt), angle: state.hatchet.angle });
+      }
+      if ((sample.started && state.chopping !== id) || now - sample.startedAt > 20000) {
+        sample.done = true;
+        return;
+      }
+      requestAnimationFrame(watch);
+    }
+    requestAnimationFrame(watch);
+  }, yard.id);
   await use();
-  // Assert the selected target when chopping starts. A low-level tree can
-  // already be a stump by the end of the animation sampling below.
+  // Confirm we reached the requested real tree, not merely any chopping action.
   await page.waitForFunction((id) => {
     const k = window.__town.skills();
-    return k.chopping === id || k.trees.find((t) => t.id === id)?.stump;
+    return window.__woodcutSwingSample?.started ||
+      k.chopping === id || k.trees.find((t) => t.id === id)?.stump;
   }, yard.id, { timeout: 4000 }).catch(() => {});
   step(await T((id) => {
     const k = window.__town.skills();
-    return k.chopping === id || k.trees.find((t) => t.id === id)?.stump;
+    return window.__woodcutSwingSample?.started ||
+      k.chopping === id || k.trees.find((t) => t.id === id)?.stump;
   }, yard.id), 'chopping the selected yard tree: ' + yard.id);
-  // Observe actual animation frames, not twelve 110 ms Playwright polls.
-  // Software WebGL may render only 3 fps; polling misses the short raised or
-  // strike poses even when the player has genuinely chopped the tree.
-  angles.push(...await T(async (id) => {
-    const samples = [], until = performance.now() + 6500;
-    while (samples.length < 40 && performance.now() < until) {
-      await new Promise((resolve) => requestAnimationFrame(resolve));
-      const k = window.__town.skills();
-      if (k.chopping !== id) break;
-      samples.push(k.hatchet.angle);
-    }
-    return samples;
-  }, yard.id));
+  await page.waitForFunction(() => window.__woodcutSwingSample?.done,
+    null, { timeout: 25000 }).catch(() => {});
+  const capture = await T(() => window.__woodcutSwingSample);
+  const angles = capture?.frames?.map(frame => frame.angle) || [];
   const swingSpan = angles.length ? Math.max(...angles) - Math.min(...angles) : 0;
-  step(angles.length >= 4 && swingSpan > 1.2,
+  // Keep the original strict >1.2 rad gate. This is real rAF data gathered
+  // during gameplay and is NOT an analytic/modelled animation sample.
+  step(Boolean(capture?.started && capture?.done) && angles.length >= 4 && swingSpan > 1.2,
     `the hatchet swings across real rendered frames (${angles.length} frames, ${angles.length ? Math.min(...angles).toFixed(2) : 'n/a'} → ${angles.length ? Math.max(...angles).toFixed(2) : 'n/a'})`);
+  // Preserve frame times for investigating slow GPUs; avoid hiding a bad result.
+  console.log('Woodcut rAF timing: ' + JSON.stringify({
+    mobile, observedFrames: angles.length,
+    firstMs: capture?.frames?.[0]?.ms ?? null,
+    lastMs: capture?.frames?.at(-1)?.ms ?? null,
+    spanRad: Number(swingSpan.toFixed(3)),
+  }));
   await page.screenshot({ path: `test-results/chop-${mobile ? 'mobile' : 'desktop'}.png` }).catch(() => {});
   await page.waitForFunction((id) => !window.__town.skills().chopping || window.__town.skills().trees.find((t) => t.id === id).stump, yard.id, { timeout: 60000 }).catch(() => {});
   if (!(await T((id) => window.__town.skills().trees.find((t) => t.id === id).stump, yard.id))) { await use(); await page.waitForFunction((id) => window.__town.skills().trees.find((t) => t.id === id).stump, yard.id, { timeout: 60000 }).catch(() => {}); }
