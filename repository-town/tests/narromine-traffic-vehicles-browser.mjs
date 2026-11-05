@@ -19,16 +19,16 @@ async function visit(mobile){
  await page.route('**/api/npc-chat',r=>r.abort('connectionrefused'));
  try{
   await page.goto(base,{waitUntil:'domcontentloaded'});
-  await page.waitForFunction(()=>window.__town&&document.getElementById('loading')?.hidden,{timeout:120000});
+  await page.waitForFunction(()=>window.__town&&document.getElementById('loading')?.hidden,null,{timeout:120000});
   await page.evaluate(()=>{
    window.__town.closePanel?.();
    window.__town.life.setTime(8*60);
    window.__town.place(-4805,-760,Math.PI);
   });
-  await page.waitForFunction(()=>window.__town.narromineVisible()&&window.__town.traffic().count>5,{timeout:90000});
+  await page.waitForFunction(()=>window.__town.narromineVisible()&&window.__town.traffic().count>5,null,{timeout:90000});
   // The old instanced boxes exist before models load. A positive flag proves
   // 15 GLB meshes were parsed, batched and added, not just that files exist.
-  await page.waitForFunction(()=>window.__town.traffic().models===true,{timeout:90000});
+  await page.waitForFunction(()=>window.__town.traffic().models===true,null,{timeout:90000});
   const before=await page.evaluate(()=>({cars:window.__town.traffic().cars,info:window.__town.state()}));
   await page.screenshot({path:`${dir}/${device}-live-vehicles.png`});
   await page.waitForTimeout(12000);
