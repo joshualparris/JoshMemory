@@ -39,6 +39,12 @@ The revised test preserves every mapped object and collider, adding a **2.3 m sh
 
 A subsequent CI attempt failed before opening the game because Playwright 1.56.1 cannot install the required browser dependencies on GitHub's newly selected Ubuntu 26.04 image (see issue #455). Dedicated workflow now pins `ubuntu-24.04` without changing Playwright, test thresholds or game physics. **Do not mark complete without successful exact-head desktop and mobile WebGL evidence.**
 
+### Second genuine route failure — OSM segment-normal join
+
+The first tree-detour candidate extended physical desktop travel to **50/76 waypoints, 341.36 m**, with zero mid-route teleports. It next rejected waypoint 51 `[-4781.57,-854.41]`. The preceding accepted waypoint was `[-4781.44,-851.48]`, so the *test-generated* offset line asked the player to reverse around **2.93 m south** at the join of the first and second Dandaloo OSM segments. An exact input-data calculation found this was the **only backwards-z step among 77 route points** before tree-adjustment. Probing the real in-game pathfinder from the failure position found other lateral points reachable; the overlapping join waypoint itself was rejected.
+
+The new test skips only backward-progress generated join samples and physically tests a direct, forwards-continuing link between remaining waypoints. It does **not** teleport, disable collision, move any kerb/building or claim a surveyed pavement alignment. Fail again if the remaining gap is truly unwalkable. Reverify on desktop and mobile before merging; 2026 ramp/surface material acceptance still open.
+
 ## Next gate
 
 Review the uploaded game screenshots at five poses against their archived source reference, mark each feature `observed`, `dated/historic`, `approximate` or `unverified` in #424, then claim **only confirmed, unowned mismatches** as narrow feature repairs. Preserve other agents' road traffic, roof, frontage, railway and airport branches. Full corridor 2026 photogrammetry, all pedestrian ramps and uninterrupted walking across all ten distant Narromine audit locations remain open unless independently demonstrated.
