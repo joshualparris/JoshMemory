@@ -1,3 +1,13 @@
+# NR-AIR-FLIGHT-001 — 5 November 2026 · isolated YNRM aircraft implementation checkpoint
+
+Owner: ChatGPT GitHub connector. Branch: feat/narromine-pilotable-aircraft-20261105. Start baseline: 614c9af (main coordination claim). Existing Aviation Museum/Antigravity precinct, Dandaloo streetscape, railway, road materials, driving and other agents' work untouched except additive Narromine group integration.
+
+Implemented on topic branch: auditable approximate runway and grass strip data (true published bearings and dimensions), independent 3D geometry and parking, two boardable light aircraft with animated props, arcade flying dynamics, camera/cockpit modes, keyboard and phone throttle/roll/pitch controls, assisted runway 11 lineup, search destination, E/touch interactions, altitude-specific fog/camera range, help, tests and evidence document. Files: src/world/narromine-airfield-data.js, src/world/narromine-airfield.js, src/world/flight-dynamics.js, src/world/player-flight.js, tests/narromine-flight.mjs, docs/NARROMINE_AIRPORT_FLIGHT.md, small additive integrations in src/main.js, src/world/narromine.js, src/index.html and package.json.
+
+Verification: Source-level integration checked while editing; Node tests, build, privacy and real browser NOT YET RUN. Next: open PR, inspect CI test outcomes, fix failures; desktop/mobile WebGL flight path; merge only if safe and verify live sourceCommit/deployment. Do not mistake estimated runway placement for georeferenced survey. Existing museum interiors remain; lounge and advanced flight systems are separate future fidelity tasks.
+
+---
+
 ## 2026-11-05 — DISC-NR-007 Post Office L-shaped hipped roof (Claude Code, Fedora) — LIVE, VERIFIED 13:05 AEDT
 - Merged as #392 (`0063bc81`). New `src/world/narromine-post-office-roof.js`; narrow hook in `narromine.js`. All PR checks green, except a first Chrome-regression run that timed out (exit 124 after the windows suite; rerun passed) and the rate-limited Vercel preview.
 - Deployment: production Vercel build of `0063bc81` and current main `a1cffc71` failed with "Deployment rate limited — retry in 24 hours". Live production `release.json` is still `3b798b68`; staging `6ab007a1`; approved backup `9bcb364a`. None contain the roof. The independent Pages alternate (`joshualparris/repository-town`) still has Pages disabled (API 404). Render main QA needs a user-directed trigger and had exhausted minutes. No fallback was published.
