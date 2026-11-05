@@ -142,11 +142,14 @@ export function createPlayerFlight({parent,player,camera,input,touch=false}) {
   function lineUp(){
     if(!active)return 'Board an aircraft first.';
     const s=models.get(active).s;
-    if(!s.onGround||s.airspeed>2)return 'Stop on the ground before assisted runway line-up.';
+    if(!s.onGround)return 'Land before using assisted runway line-up.';
     const r=AERODROME.runways[0],end=runwayEnd(r,true),v=runwayVector(r);
     s.x=end.x+v.x*72;s.z=end.z+v.z*72;s.heading=r.headingDeg*Math.PI/180;
-    s.throttle=0;s.airspeed=0;s.pitch=0;s.bank=0;
-    return 'Assisted game line-up: runway 11. Increase throttle with W, then gently pull up with ↑ above 100 km/h.';
+    s.throttle=0;s.airspeed=0;s.pitch=0;s.bank=0;s.verticalSpeed=0;
+    control.throttle=0;control.pitch=0;control.roll=0;
+    // This is an explicit game assist, not physical taxiing: a player who
+    // accelerated off-runway can always recover without a long ground roll.
+    return 'Assisted game line-up: runway 11 (speed reset). Hold Throttle +, then hold ↑ Nose above 100 km/h.';
   }
   function cycleView(){view=(view+1)%2;return view===1?'Cockpit view.':'Chase camera.';}
   function poseCamera(s){
@@ -182,11 +185,16 @@ export function createPlayerFlight({parent,player,camera,input,touch=false}) {
     player.pos.set(s.x,0,s.z);player.yaw=-s.heading;player.pitch=0;
     input.takeLook();input.takeTaps();
     poseCamera(s);
-    lineupButton.disabled=!s.onGround||s.airspeed>2;
+    // A moving taxi aircraft can still be relocated to the runway by an
+    // explicit user press. Disable only in flight, never trap phone players.
+    lineupButton.disabled=!s.onGround;
     instruments.textContent=FLIGHT_TYPES[s.id].name+' · YNRM\n'+
       'Speed '+Math.round(s.airspeed*3.6)+' km/h · AGL '+Math.round(s.altitude*3.28084)+' ft\n'+
       'Heading '+String(Math.round(s.heading*180/Math.PI)%360).padStart(3,'0')+'° · Power '+Math.round(s.throttle*100)+'%\n'+
-      (s.onGround?'GROUND / TAXI':'AIRBORNE')+(notice?'\n'+notice:'');
+      (s.onGround?'GROUND / TAXI':'AIRBORNE')+
+      (s.onGround&&!isRunway(s.x,s.z)?'\nOFF RUNWAY · Tap ↗ Line up 11 to reset before take-off.':'')+
+      (s.onGround&&isRunway(s.x,s.z)&&s.airspeed>=FLIGHT_TYPES[s.id].takeoffSpeed?'\nHold ↑ Nose to lift off.':'')+
+      (notice?'\n'+notice:'');
     return true;
   }
   let lastR=false;
