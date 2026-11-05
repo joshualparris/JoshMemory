@@ -12,6 +12,7 @@ for (const e of ix.list) {
   const b = buildNarromineWorkplaceInterior(pop, e, L, 2, 11 * 60);
   assert(b.interactables.some(o => o.act?.station), e.workplace.name + ' has workstations');
   assert(!b.rooms.some(r => r.name === 'Bedroom'), e.workplace.name + ' is a workplace, not an automatically invented dwelling');
+  assert(b.interactables.filter(o => o.act?.station).every(o => o.key.startsWith('NARROMINE-WORK:' + e.workplace.id + ':')), e.workplace.name + ' owns its distinct station identifiers');
   const rostered = pop.people.filter(p => p.workplace === e.workplace.id).length;
   assert(b.staff.length <= rostered, 'only its own staff');
   if (b.staff.length) staffed++;
