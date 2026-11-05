@@ -1,5 +1,6 @@
 import {pubStandards,pubStandardsAction} from '../world/pub-standards.js';
 import {pubStandardsPanel} from './pub-standards-panel.js';
+import {linkedIndustryPanel} from './town-linked-industry-panel.js';
 // Panels for town life: shop counters, farms, the Town Ledger and the town guide, plus
 // the gossip and Expedition relic hints villagers share in conversation (src/ui/npc.js).
 import { GOODS, VENUE_MENU, amount, timeText, CANDIDATES } from '../world/life.js';
@@ -195,7 +196,14 @@ export function hallPanel(life) {
 }
 
 export function placePanel(life, id) {
-  if(['hardware','trades','tafe','university','school'].includes(id))return tradeEducationPanel(life,id);
+  if(['vet','brewery','buildsite'].includes(id))return linkedIndustryPanel(life,id);
+  if(id==='hardware'){
+    const panel=tradeEducationPanel(life,id);
+    panel.actions=[...(panel.actions||[]),
+      {label:'See farm workshop construction supply contracts',run:()=>linkedIndustryPanel(life,'buildsite')}];
+    return panel;
+  }
+  if(['trades','tafe','university','school'].includes(id))return tradeEducationPanel(life,id);
   if(id==='realestate')return propertyOfficePanel(life);
   if(id==='realty')return propertyOfficePanel(life);
   if(id==='dealership')return motorMarketPanel(life);
