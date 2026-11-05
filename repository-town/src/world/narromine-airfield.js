@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import {AERODROME,runwayVector,runwayEnd,aircraftParking} from './narromine-airfield-data.js';
+import {AERODROME,runwayVector,aircraftParking} from './narromine-airfield-data.js';
 
 // Airfield drawables are deliberately separate from the existing photo-matched
 // museum/apron meshes. Source-grounded lengths and bearings, approximate
@@ -38,7 +38,7 @@ export function buildNarromineAirfield(parent) {
     const texture=new THREE.CanvasTexture(canvas);
     const m=new THREE.Mesh(new THREE.PlaneGeometry(12,14),
       new THREE.MeshBasicMaterial({map:texture,transparent:true,depthWrite:false,side:THREE.DoubleSide}));
-    m.rotation.x=-Math.PI/2;m.rotation.z=0;m.rotation.y=-h(headingDeg);
+    m.rotation.set(-Math.PI/2,-h(headingDeg),0,'YXZ');
     m.position.set(x,0.155,z);group.add(m);
   }
   function paintRunway(r) {
@@ -47,7 +47,6 @@ export function buildNarromineAirfield(parent) {
     for(let offset=-r.length/2+56;offset<r.length/2-55;offset+=60)
       mark(r.x+v.x*offset,r.z+v.z*offset,0.55,30,r.headingDeg,surfaces.white,0.124);
     for(const sign of [-1,1]){
-      const end=runwayEnd(r,sign<0);
       // Aiming/threshold bars at both ends: 8 evenly spaced white strips.
       const base=sign<0?-r.length/2+12:r.length/2-12;
       for(let k=-3.5;k<=3.5;k++){
@@ -58,15 +57,14 @@ export function buildNarromineAirfield(parent) {
       const t=sign<0?-r.length/2+75:r.length/2-75;
       const label=r.id.split('/')[sign<0?0:1];
       runwayText(label,r.x+v.x*t,r.z+v.z*t,sign<0?r.headingDeg:r.headingDeg+180);
-      // Paired edge markers; no vertical pylons to catch a taxying player.
-      for(let d=35;d<r.length-35;d+=60) {
-        const along=-r.length/2+d;
-        for(const side of [-1,1]) {
-          const off=side*(r.width/2-0.5);
-          mark(r.x+v.x*along-v.z*off,r.z+v.z*along+v.x*off,0.19,1.5,r.headingDeg,surfaces.white,0.138);
-        }
+    }
+    // Paired edge markers: exactly one mesh per position, avoiding z-fighting.
+    for(let d=35;d<r.length-35;d+=60) {
+      const along=-r.length/2+d;
+      for(const side of [-1,1]) {
+        const off=side*(r.width/2-0.5);
+        mark(r.x+v.x*along-v.z*off,r.z+v.z*along+v.x*off,0.19,1.5,r.headingDeg,surfaces.white,0.138);
       }
-      void end;
     }
   }
   // Gliding strips have orange gable markers in the real ERSA; geometry is an
