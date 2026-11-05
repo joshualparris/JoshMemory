@@ -20,6 +20,13 @@ assert.deepEqual([s.herds.sheep.length,s.herds.dairy.length,s.herds.coop.length]
 assert(s.herds.sheep.every(a=>a.id&&a.health>60),'animals have persistent IDs/health');
 assert(life.populationReport()?.population===470,'population and linked industries coexist');
 
+// Isolated industry-unit fixture: the existing vet is on a real scheduled shift.
+// Production code independently requires a rostered, physically arrived worker.
+const vetWorker=life.villagers.find(v=>v.work==='vet');
+assert.ok(vetWorker,'existing veterinary venue has a salaried rostered worker');
+vetWorker.step={kind:'work',at:'vet',until:1020};
+vetWorker.path=[];
+
 // Real animal cases lower farm output and cost farm money + clinic kit.
 // The vet travels from the existing clinic; case cannot be resolved instantly.
 const animal=s.herds.dairy[0],farm=life.place('dairy'),vet=life.place('vet');
