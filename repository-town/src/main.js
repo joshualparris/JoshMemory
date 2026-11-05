@@ -2375,6 +2375,7 @@ async function start() {
     exitShop:()=>{if(!inside?.place)return false;leave();return true;},
     visitorRoutes:()=>[...(inside?.visitors?.entries?.values()||[])].map(p=>({id:p.v.id,state:p.state,next:p.next,pos:{x:p.pos.x,z:p.pos.z},landing:p.landing,goal:p.retryGoal,route:p.route,seat:p.seat?.key,queueSlot:p.queueSlot,exit:p.exit})),
     life: {
+      population: () => ({...life.populationReport(),residents:(life.population?.residents||[]).map(v=>({id:v.populationId,name:v.name,age:v.age,home:v.home.coordinate,x:v.x,z:v.z,inside:v.inside,activity:v.activity}))}),
       ledger: () => life.ledger(), describe: (i) => life.describe(life.villagers[i]),
       // Jumps the clock (tests): everyone re-plans their day from scratch.
       setWeather(w) { life.civic.weather = w; },

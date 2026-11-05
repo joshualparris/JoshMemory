@@ -1,3 +1,4 @@
+import {createPopulationView} from './population-view.js';
 import { buildPubFacade, PUB_ENVELOPE } from './pub-envelope.js';
 import { townDate } from './town-calendar.js';
 import { solarPosition, solarDaylight, solarWarmth } from './solar-position.js';
@@ -1044,7 +1045,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
   // Villagers.
   const residentModels = createResidentModels();
   const people = life.villagers.map((v, i) => {
-    const fig = makeDistinctPerson('villager:'+v.id+':'+v.name+':'+(v.job||''));
+    const fig = makeDistinctPerson('villager:'+v.id+':'+v.name+':'+(v.job||''),v);
     fig.phase = i * 1.7;
     const body = [...fig.group.children];   // the block figure; a chosen resident style hides it
     const bike = makeBike(); bike.visible = false; fig.group.add(bike);
@@ -1053,6 +1054,8 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     fig.group.position.set(v.x, 0, v.z); group.add(fig.group);
     return { v, fig, body, bike, bag, tag, heading: 0, last: { x: v.x, z: v.z }, key: `villager:${i}`, pos: new THREE.Vector3(v.x, 0, v.z), talking: false };
   });
+
+  const populationView=createPopulationView(life,group,makeLabel);
 
   // Sky dressing.
   const stars = makeStars(); scene.add(stars);
@@ -1176,6 +1179,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
 
     // Moving things are only updated near the player; far ones are hidden by fog anyway.
     const near = (x, z, r) => Math.abs(x - eye.x) < r && Math.abs(z - eye.z) < r;
+    populationView.update(dt,t,eye,overview);
     for (const p of people) {
       const v = p.v, moved = Math.hypot(v.x - p.last.x, v.z - p.last.z);
       p.last.x = v.x; p.last.z = v.z; p.pos.set(v.x, 0, v.z);
