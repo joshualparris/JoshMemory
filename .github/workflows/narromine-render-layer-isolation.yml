@@ -1,0 +1,60 @@
+name: Narromine Render Layer Isolation (NR-VQA-005)
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/narromine-render-layer-isolation.yml'
+      - 'repository-town/tools/narromine-visual-qa/layer-ablation.mjs'
+      - 'repository-town/tools/narromine-visual-qa/layer-isolation.mjs'
+      - 'repository-town/tests/narromine-layer-isolation.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  layer-capture:
+    name: Actual WebGL road layer ablation + repeat control
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Pinned dependencies and strict QA source tests
+        run: |
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm ci --no-audit --no-fund
+          node --check tools/narromine-visual-qa/layer-ablation.mjs
+          node --check tools/narromine-visual-qa/layer-isolation.mjs
+          node --check tests/narromine-layer-isolation.mjs
+          node tests/narromine-layer-isolation.mjs
+      - name: Build identical game and scan privacy
+        run: |
+          npm run build
+          npm run check:privacy
+      - name: Install real software WebGL Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Reproduce normal, repeat, asphalt, footpath, paint, terrain and noise layer images
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          node tools/narromine-visual-qa/layer-isolation.mjs \
+            --viewports desktop,mobile \
+            --skip-build \
+            --out test-results/narromine-layer-qa
+      - name: Preserve browser screenshot artifacts and source fingerprints
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: narromine-layer-isolation-evidence
+          path: repository-town/test-results/narromine-layer-qa/
+          retention-days: 14
+          if-no-files-found: warn
