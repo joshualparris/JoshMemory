@@ -753,7 +753,7 @@ async function start() {
   function enterNarromineWorkplace(e){
     if(mode!=='town'||driving.driving)return false;
     const built=buildNarromineWorkplaceInterior(narromineTraffic.commute.population,e,makeLabel,townDate(life.day).weekday,Math.floor(life.minute)),w=e.workplace;
-    inside={house:{coordinate:'NARROMINE-WORK:'+w.id,name:w.name,address:'Narromine NSW',kind:w.kind},
+    inside={house:{coordinate:'NARROMINE-WORK:'+w.id,name:w.name,address:w.name==='Narromine Pharmacy'?'53 Dandaloo Street, Narromine NSW 2821':'Narromine NSW',kind:w.kind},
       ...built,floorIndex:0,floors:null,narromineHome:{home:{street:w.name},door:e.door,work:true}};
     scene.add(built.group);town.group.visible=false;
     scene.background.set(INDOOR);scene.fog=null;
@@ -764,7 +764,10 @@ async function start() {
     closePanel();npcChat.close();ambience.door();
     $('card').hidden=true;delete $('card').dataset.coord;
     const n=built.staff.length;
-    status('Inside '+w.name+'. '+(built.open?(n?n+' staff on shift'+(built.pupils?', '+built.pupils+' pupils in class':'')+'.':'Open, but nobody is rostered on right now.'):'Closed now (usual hours '+String(Math.floor(w.opens/60)).padStart(2,'0')+':'+String(w.opens%60).padStart(2,'0')+'–'+String(Math.floor(w.closes/60)).padStart(2,'0')+':'+String(w.closes%60).padStart(2,'0')+').')+' Fitted out for the work done here; staff numbers are estimates. Walk back out or tap Exit.');
+    const pharmacyHours = 'Mon–Fri 9am–1pm and 2pm–5:30pm; Saturday 9am–12pm; Sunday closed';
+    const regularHours = String(Math.floor(w.opens/60)).padStart(2,'0')+':'+String(w.opens%60).padStart(2,'0')+'–'+String(Math.floor(w.closes/60)).padStart(2,'0')+':'+String(w.closes%60).padStart(2,'0');
+    status('Inside '+w.name+'. '+(built.open?(n?n+' simulated staff on shift'+(built.pupils?', '+built.pupils+' pupils in class':'')+'.':'Open, but nobody is simulated on shift right now.'):'Closed now (published usual hours '+(built.pharmacyEvidence?pharmacyHours:regularHours)+').')+
+      (built.pharmacyEvidence?' This is an INTERPRETIVE layout, not the real surveyed floor plan.':' Fitted out for the work done here;')+' Staff counts and identities are fictional estimates. Walk back out or tap Exit.');
     return true;
   }
 
