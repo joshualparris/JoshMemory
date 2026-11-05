@@ -19,6 +19,22 @@ const player = { x: -4805, z: -760 };
 for (let i = 0; i < 600; i++) t.update(0.1, player, 8 * 60);
 assert.ok(t.count > 5, 'cars around the town centre at 8 am: ' + t.count);
 assert.ok(t.cars.every(c => Number.isFinite(c.x) && Number.isFinite(c.z)), 'all cars placed');
+
+ // Cars must not occupy the same same-direction lane footprint after one minute.
+ // Cars at intersections can cross at angles; check actual same-lane overlap only.
+ for (let i = 0; i < t.cars.length; i++) for (let j = i + 1; j < t.cars.length; j++) {
+   const a = t.cars[i], b = t.cars[j];
+   if (a.ux * b.ux + a.uz * b.uz < 0.95) continue;
+   const dx = b.x - a.x, dz = b.z - a.z;
+   const along = Math.abs(dx * a.ux + dz * a.uz);
+   const lateral = Math.abs(dx * a.uz - dz * a.ux);
+   assert.ok(lateral >= 1.7 || along >= (a.L + b.L) / 2 - 0.1,
+     'vehicles overlap same lane: ' + a.id + '/' + b.id);
+ }
+ // Catch respawn pile-ups during another two simulated minutes.
+ for (let i = 0; i < 1200; i++) t.update(0.1, player, 8 * 60);
+ assert.ok(t.cars.every(c => Number.isFinite(c.x) && Number.isFinite(c.z) && c.v >= 0),
+   'extended drive remains finite with no reverse speeds');
 // Vehicle mix: every model file ships, most traffic is SUVs and utes, emergency vehicles are rare.
 for (const m of VEHICLE_MODELS) assert.ok(fs.existsSync(new URL('../src/assets/vehicles/' + m.file, import.meta.url)), 'model shipped: ' + m.file);
 let seed = 7; const r = () => (seed = (seed * 16807) % 2147483647) / 2147483647, n = {};
