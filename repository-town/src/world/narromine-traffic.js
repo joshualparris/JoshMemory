@@ -75,7 +75,11 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
     const c = { id: serial++, from, to, s, len: e.len, width: e.width, model, L: VEHICLE_MODELS[model].length, speed: SPEED * (heavy ? 0.7 : 0.85 + rand() * 0.2), v: SPEED * 0.8,
       colour: VEHICLE_MODELS[model].paint ? pickPaint(rand) : 0xffffff, ute: /truck/.test(VEHICLE_MODELS[model].file) };
     if (/tractor/.test(VEHICLE_MODELS[model].file)) { c.speed = 25 / 3.6; c.colour = rand() < 0.5 ? 0x2f6b2a : 0xb3262b; }
-    cars.push(c); place(c); return c;
+    place(c);
+    // Never materialise a new vehicle on top of another one, including at junctions.
+    // The actual models can be ten metres long, so use their model lengths, not point distance.
+    if (cars.some(other => Math.hypot(other.x - c.x, other.z - c.z) < (other.L + c.L) / 2 + 3)) return null;
+    cars.push(c); return c;
   }
   // Expected cars on an edge right now: vehicles per hour per metre at town speed, both directions.
   const expected = (e, hour) => e.daily * HOURLY[hour] / (SPEED * 3600) * e.len;
@@ -99,19 +103,39 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
     if (!player) return;
     const hour = Math.floor(((minute ?? 600) % 1440) / 60);
     if (!filled || (refill -= dt) <= 0) { populate(player, hour); filled = true; refill = 4; }
-    // Spatial buckets (20 m) so each car only checks its neighbours for the car ahead.
-    const grid = new Map();
-    for (const c of cars) for (const dx of [-1, 0, 1]) for (const dz of [-1, 0, 1]) { const k = (Math.floor(c.x / 20) + dx) + ',' + (Math.floor(c.z / 20) + dz); if (!grid.has(k)) grid.set(k, []); grid.get(k).push(c); }
+    // Snapshot first: updating cars in an array order must not let followers drive into
+    // a leader that has already moved this frame. Compare complete car lengths in lane space.
+    const snapshot = cars.map(c => ({ ...c }));
     for (let i = cars.length - 1; i >= 0; i--) {
       const c = cars[i];
       if (Math.hypot(c.x - player.x, c.z - player.z) > RADIUS + 100) { cars.splice(i, 1); continue; }
-      // Stop for the player, the car ahead in the same direction, or a closed level crossing just ahead.
-      const reach = c.L / 2 + 4.5, ax = c.x + c.ux * reach, az = c.z + c.uz * reach;
-      const ahead = Math.hypot(player.x - ax, player.z - az) < 5 || (grid.get(Math.floor(ax / 20) + ',' + Math.floor(az / 20)) || []).some(o => o !== c && (o.ux * c.ux + o.uz * c.uz) > 0.7 && Math.hypot(o.x - ax, o.z - az) < o.L / 2 + 1.5) || blocked(ax, az);
-      const remaining = c.len - c.s, turnSlow = remaining < 15 ? 0.55 : 1;
-      const target = ahead ? 0 : c.speed * turnSlow;
-      c.v += Math.max(-6 * dt, Math.min(2 * dt, target - c.v));
-      c.s += c.v * dt;
+      const p = snapshot[i];
+      const remaining = c.len - c.s;
+      const turnSlow = remaining < 15 ? 0.55 : 1;
+      let clearance = Infinity;
+      // The closest vehicle ahead along the direction of travel, on the same side
+      // of the road. Avoid stopping for oncoming cars in the opposite lane.
+      for (const o of snapshot) {
+        if (o.id === c.id || o.ux * p.ux + o.uz * p.uz < 0.85) continue;
+        const dx = o.x - p.x, dz = o.z - p.z;
+        const along = dx * p.ux + dz * p.uz;
+        const lateral = Math.abs(dx * p.uz - dz * p.ux);
+        if (along > -0.2 && lateral < 2.0) clearance = Math.min(clearance, along - (c.L + o.L) / 2);
+      }
+      const playerDx = player.x - p.x, playerDz = player.z - p.z;
+      const playerAlong = playerDx * p.ux + playerDz * p.uz;
+      if (playerAlong > 0 && Math.abs(playerDx * p.uz - playerDz * p.ux) < 3) {
+        clearance = Math.min(clearance, playerAlong - c.L / 2 - 3);
+      }
+      // Use a speed-dependent following gap (2 seconds plus 2 metres), and brake
+      // early. The hard movement clamp below prevents tunnelling at large dt.
+      const safeGap = 2 + Math.max(0, c.v) * 2;
+      const obstacle = blocked(p.x + p.ux * (c.L / 2 + 4), p.z + p.uz * (c.L / 2 + 4));
+      const desired = obstacle || clearance <= safeGap ? 0 : Math.min(c.speed * turnSlow, (clearance - safeGap) / 2);
+      c.v += Math.max(-8 * dt, Math.min(2 * dt, desired - c.v));
+      c.v = Math.max(0, c.v);
+      const distance = Math.max(0, Math.min(c.v * dt, clearance - 2));
+      c.s += distance;
       while (c.s > c.len) { const e = nextEdge(c); c.s -= c.len; c.from = c.to; c.to = e.to; c.len = e.len; c.width = e.width; }
       place(c);
     }
