@@ -779,3 +779,6 @@ Owner ChatGPT/cloud. In the exact combined candidate f7e48ca, full WebGL game te
 
 ## 2026-11-06 — CLAIMED car radio playback repair (Codex/local)
 Owner Codex; branch `fix/car-radio-20261106`; baseline `468538dd`. Scope exclusively `src/ui/driving-dashboard.js`, new `src/ui/car-radio.js` if needed, focused radio tests and public technical evidence. Repair live station resolution/playback, timeouts and station-switch cancellation; no NPC/recorded audio or Narromine geometry changes. Tier 2 canonical JoshMemory source. No conflicting radio claim/open PR found. Next: verify broadcaster feeds, implement bounded recovery, run release/privacy and desktop/mobile browser checks, reviewed PR to main, verify hosted release. Status IN PROGRESS.
+
+### Car radio milestone — 2026-11-06
+Implementation complete in scoped radio module/dashboard. Node radio regressions pass; first unmocked desktop pass includes Triple M and HLS BBC Radio 1, mobile playback progressing. Full build:release running; final strengthened test requires media time advancement and includes Japanese replacement. Privacy scan passed. Release/merge/hosted interaction still pending; do not label deployed. Next: finish desktop/mobile tests, inspect full release output, reviewed PR, verify production and backup release fingerprints.
