@@ -62,7 +62,15 @@ function png(color) {
 const diff = pixelDifference(png(60), png(75));
 assert.equal(diff.wholeChangedPct, 100);
 assert.equal(diff.roadRegionChangedPct, 100);
-assert.deepEqual(pixelDifference(png(60), png(60)), {
-  wholeChangedPct: 0, roadRegionChangedPct: 0,
-});
+const unchanged = pixelDifference(png(60), png(60));
+assert.equal(unchanged.wholeChangedPct, 0);
+assert.equal(unchanged.roadRegionChangedPct, 0);
+assert.equal(unchanged.roadRegionAnyChangedPct, 0);
+assert.equal(unchanged.roadMeanMaxChannelDelta, 0);
+const subPixel = pixelDifference(png(60), png(61));
+assert.equal(subPixel.roadRegionChangedPct, 0, '3-level significance threshold is unchanged');
+assert.equal(subPixel.roadRegionAnyChangedPct, 100,
+  'low-amplitude 1-level shader variations must remain visible in report');
+assert.equal(subPixel.roadMeanMaxChannelDelta, 1);
+assert.equal(subPixel.roadMaximumDelta, 1);
 console.log('PASS NR-VQA-005: exact isolated layer source markers, unchanged normal source, screenshot pixel metrics and no threshold weakening');
