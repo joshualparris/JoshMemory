@@ -2298,6 +2298,7 @@ async function start() {
     vehicles:()=>life.motorReport().owned.map(v=>({...v})),
     enterVehicle:(reg)=>driving.enter(life.motorReport().owned.find(v=>v.registration===reg)),
     yardTrain:()=>yard.state(), yardBoard:()=>yard.board(), yardExit:()=>yard.exit(player), yardAction:(kind)=>yard.action(kind), yardColliders:()=>yard.colliders(),
+    regionalRail:()=>town.regionalRail?.stats||null,
     train:()=>trains.state(), traffic:()=>({count:narromineTraffic.count,models:narromineTraffic.modelsLoaded,cars:narromineTraffic.cars.map(c=>({x:c.x,z:c.z,v:c.v,yaw:c.yaw,model:c.model}))}), probeWithMoving:(x,z,r=.4)=>!!townWorld.hits(x,z,r), trainNear:()=>trains.near(player.pos), trainBoard:()=>trains.board(), trainExit:()=>trains.exit(player), trainRoute:(p)=>trains.setRoute(p), runFreight:(i)=>trains.runFreight(i), trainColliders:()=>trains.colliders(),
     leaveVehicle:()=>driving.exit(),
     // A fixed step behaves like a real frame, including showing the driving message (off-road, braking).
