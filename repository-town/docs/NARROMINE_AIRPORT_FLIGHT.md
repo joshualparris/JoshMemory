@@ -16,6 +16,8 @@ This independent extension adds the following:
 6. On-foot keyboard and phone touch interaction, search destination **Narromine Aerodrome · YNRM**, and eastbound flight over Narromine and fictional Repository Town.
 7. Ordinary ground-position save preserved; airborne state intentionally not persisted.
 
+**The continuous flight underlay is illustrative paddock colouring, not mapped cadastral/crop data.**
+
 **Accuracy limits:** The Airservices YNRM Runway Distance Supplement identifies runway 04’s displaced threshold at 87 m and runway 29’s displaced threshold at 258 m; these are reflected in the game threshold markings. Published runway lengths/bearings are from Australian AIP (Airservices ERSA). Exact runway threshold locations, taxiway alignments, apron dimensions, grass textures and landing approach cues are **approximated**, not surveyed. Neither model is a real aircraft or certified flight simulator; never use it for actual aviation/navigation. Source pointers: Airservices ERSA YNRM; Narromine Shire aerodrome information; existing OSM and NSW heritage evidence registry. No Google Street View key, imagery or private user data is committed.
 
 ## Controls
