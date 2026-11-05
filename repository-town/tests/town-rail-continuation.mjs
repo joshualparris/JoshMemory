@@ -8,6 +8,7 @@ import {buildRailNetwork,createTrainPath} from '../src/world/narromine-rail-netw
 import {REGIONAL_RAIL_GEOMETRY as C, REGIONAL_RAIL_CONNECTOR as link,
   REPO_RAIL_EAST_ARC as east,REPO_RAIL_NORTH_RETURN as north,
   REPO_RAIL_WEST_ARC as west,REPO_RAIL_OVAL as oval,
+  REPO_RAIL_MAIN_APPROACH as townApproach,REPO_RAIL_LOOP_TURNOUT_X as turnoutX,
   REPO_RAIL_GAME_WAYS as extra,polylineMetres as length} from '../src/world/town-rail-continuation-route.js';
 const d=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
 const close=(a,b,msg)=>assert(d(a,b)<.002,msg+': '+a+' vs '+b);
@@ -29,7 +30,8 @@ const lengths=[link,east,north,west,oval].map(length);
 assert(lengths[0]>2750&&lengths[0]<3100,'compressed link has known finite length');
 assert(Math.abs(lengths[1]-Math.PI*C.loopRadius)<1,'accurate eastern half-circle radius');
 assert(Math.abs(lengths[3]-Math.PI*C.loopRadius)<1,'accurate western half-circle radius');
-assert(Math.abs(lengths[4]-(796+2*Math.PI*C.loopRadius+796))<2,'full oval length');
+assert.equal(turnoutX,-298,'loop turnout is independently separated from connector by 100m');
+assert(Math.abs(lengths[4]-(696+2*Math.PI*C.loopRadius+696))<2,'full 180m-radius balloon-loop length');
 for(const pts of [link,east,north,west,oval])
  for(let i=1;i<pts.length;i++){
   const step=d(pts[i-1],pts[i]);
@@ -44,12 +46,20 @@ assert(Math.max(...corridor.map(p=>p[1]))<=-24,'rail must remain >=17m north of 
 assert(north.every(p=>p[1]===RAIL_Z-2*C.loopRadius));
 assert(!RAIL_CROSSINGS.some(c=>Math.abs(north[0][1]-c.z)<8),
  'return leg cannot intersect any of six existing railway crossings');
-assert.equal(extra.length,2);
-assert(extra.every(w=>w.gameOnly&&w.limitKmh<=40&&w.name.includes('fictional')||w.name.includes('Imagined')));
+assert.equal(extra.length,3);
+assert(extra.every(w=>w.gameOnly&&w.limitKmh<=40));
+close(townApproach[0],link.at(-1),'existing main rail continues from connector');
+close(townApproach.at(-1),oval[0],'balloon return has a separate turnout');
+assert.equal(d(link.at(-1),oval[0]),100,'distinct connector and return turnout');
 // Graph must really allow a train to enter from the existing OSM railway
 // and traverse the closed oval, not merely have scenery meeting at endpoints.
 const net=buildRailNetwork([...RAIL,...extra]);
 const nid=p=>net.nodes.find(v=>Math.hypot(v.x-p[0],v.z-p[1])<.002)?.id;
+const mainEntry=nid(link.at(-1)),balloonTurnout=nid(oval[0]);
+assert.equal(net.adj.get(mainEntry).size,2,
+  'connector must meet exactly one onward rail, not fuse with the returning curve');
+assert.equal(net.adj.get(balloonTurnout).size,3,
+  'return loop joins the existing main at a REAL directed turnout, not at a false snap');
 const last=RAIL[7].pts.slice(-4).map(nid);
 assert(last.every(Number.isInteger));
 const trace=createTrainPath(net,last,670);
