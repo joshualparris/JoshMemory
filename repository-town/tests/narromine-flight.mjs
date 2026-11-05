@@ -10,6 +10,8 @@ assert.equal(AERODROME.runways.length,2);
 assert.deepEqual(AERODROME.runways.map(({id,length,width})=>[id,length,width]),
   [['11/29',1521,30],['04/22',1100,30]]);
 assert.equal(AERODROME.grassStrips.length,3);
+assert.deepEqual(AERODROME.runways.map(r=>[r.displacedStartM,r.displacedEndM]),[[0,258],[87,0]],
+  'Airservices RDS: RWY29 DTHR 258m, RWY04 DTHR 87m');
 assert.equal(AERODROME.positionSource.includes('not a surveyed'),true,
   'Approximate threshold placement must never be asserted as surveyed');
 assert.equal(aircraftParking().length,2);
