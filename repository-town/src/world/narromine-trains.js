@@ -331,6 +331,10 @@ export function createNarromineTrains(parent, activeTrainParent=parent) {
   }
   return {
     update, tick, board, exit, near, cab, colliders, setRoute, state,
+    // Live, non-persisted train occupation used for Repository Town's six
+    // existing level-crossing road interlocks and single-line dispatch hold.
+    playerRailPresence:()=>({speed,driving,cars:placed.map(p=>({
+      x:p.x,z:p.z,heading:p.heading,L:p.L}))}),
     // True when a closed crossing's road is within 12 m of (x, z): road traffic waits there.
     crossingClosedNear(x, z) { return crossings.some(c => c.closed && Math.hypot(c.x - x, c.z - z) < 12); },
     runFreight(i = 0) { if (freight) despawnFreight(); spawnFreight(FREIGHT_TIMETABLE[i]); return FREIGHT_TIMETABLE[i].id; },
