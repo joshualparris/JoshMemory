@@ -16,6 +16,25 @@ import { positionAndMeasureInPage, resolveChromiumExecutable, startStaticServer 
 export const BASELINE_SHA = 'ec085dd824be4ee0e931968e5e2e9abef5e43c38';
 export const CANDIDATE_SHA = 'f2810b93242d6b2174198c65748e95e10d126809';
 export const DEFAULT_ROUTE_ID = 'coles-kieraths-dandaloo';
+export const ROAD_HORIZON_ROUTE_ID = 'dandaloo-north-long-view';
+
+// Use the existing Coles survey coordinate for a second route looking *along*
+// Dandaloo towards Nymagee/Post Office instead of sideways at the frontage.
+// Derived QA-only camera pose, not an invented geospatial feature or game edit.
+export function locateCameraRoute(routeId) {
+  const exact = NARROMINE_QA_LOCATIONS.find(location => location.id === routeId);
+  if (exact) return exact;
+  if (routeId === ROAD_HORIZON_ROUTE_ID) {
+    const anchor = NARROMINE_QA_LOCATIONS.find(location => location.id === DEFAULT_ROUTE_ID);
+    assert(anchor, 'Coles camera survey anchor missing');
+    return {
+      ...anchor, id: routeId,
+      camera: { ...anchor.camera, yawRad: 0, pitchRad: -0.03 },
+      description: 'Derived long-axis Dandaloo North QA view, not a surveyed street photograph',
+    };
+  }
+  return null;
+}
 const SHADER_PATH = 'repository-town/src/world/narromine-surface-materials.js';
 const ROUTE_MIN_STEPS = 24;
 
@@ -273,12 +292,14 @@ async function captureVersion(browser, url, outDir, config, version, shader, ins
         'player failed to match the recorded deterministic camera waypoint ' + i);
       await page.waitForTimeout(settings.recordingCadenceTargetMs);
       if (i % 2 === 0 || i === route.length - 1) {
-        const jpegPath = path.join(destDir, 'frame-' + String(i).padStart(3, '0') + '.jpg');
+        const pngPath = path.join(destDir, 'frame-' + String(i).padStart(3, '0') + '.png');
+        // Lossless samples are necessary to resolve subtle sub-pixel material
+        // differences; lossy JPEG previously quantised away most road changes.
         const shot = await page.locator('canvas#scene').screenshot({
-          path: jpegPath, type: 'jpeg', quality: 82,
+          path: pngPath, type: 'png',
         });
         assert(shot.length > 5000, 'blank or missing real WebGL frame ' + i);
-        sampleImages.push(fileRelative(outDir, jpegPath));
+        sampleImages.push(fileRelative(outDir, pngPath));
       }
     }
     const rawVideo = await stopCanvasRecorder(page);
@@ -331,7 +352,7 @@ export async function runComparison(options = {}) {
     assert(candidate.includes('float nrFilteredNoise(') &&
       candidate.includes('narromine-world-surface-v2'), 'candidate does not include PR #408 material fix');
     assert.notEqual(digest(baseline), digest(candidate), 'source pair is identical');
-    const location = NARROMINE_QA_LOCATIONS.find(x => x.id === config.route);
+    const location = locateCameraRoute(config.route);
     assert(location, 'unknown Narromine camera route ID');
     const route = cameraRoute(location, config.steps);
     const chosen = String(config.viewports).split(',').map(x => x.trim());

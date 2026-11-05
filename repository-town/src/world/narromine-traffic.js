@@ -29,16 +29,24 @@ function buildGraph() {
   return { nodes, adj };
 }
 
-function carMesh(i) {
-  const g = new THREE.Group(), colours = [0xe8e8e4, 0x9aa3ab, 0x2f3b4a, 0x7a1e1e, 0x1f3f6b, 0x3b3b3b, 0xd8d2c0, 0x5c6b52];
-  const body = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.75, 4.4), new THREE.MeshLambertMaterial({ color: colours[i % colours.length] }));
-  body.position.y = 0.65; g.add(body);
-  const cab = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.55, i % 4 === 0 ? 1.6 : 2.3), new THREE.MeshLambertMaterial({ color: 0x9dc3d4 }));
-  cab.position.set(0, 1.28, i % 4 === 0 ? 0.6 : 0.2); g.add(cab);        // every fourth vehicle is a ute
-  return g;
-}
-
+const CAR_COLOURS = [0xe8e8e4, 0x9aa3ab, 0x2f3b4a, 0x7a1e1e, 0x1f3f6b, 0x3b3b3b, 0xd8d2c0, 0x5c6b52];
+const MAX_CARS = 400;
 export function createNarromineTraffic(parent, { blocked = () => false } = {}) {
+  // All cars are drawn as two instanced meshes (bodies and cabins): two draw calls however many cars.
+  const bodies = new THREE.InstancedMesh(new THREE.BoxGeometry(1.8, 0.75, 4.4), new THREE.MeshLambertMaterial({ color: 0xffffff }), MAX_CARS);
+  const cabins = new THREE.InstancedMesh(new THREE.BoxGeometry(1.6, 0.55, 2.0), new THREE.MeshLambertMaterial({ color: 0x9dc3d4 }), MAX_CARS);
+  bodies.count = cabins.count = 0; bodies.frustumCulled = cabins.frustumCulled = false; bodies.name = 'Narromine traffic'; parent.add(bodies, cabins);
+  const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), up = new THREE.Vector3(0, 1, 0), tint = new THREE.Color();
+  function draw() {
+    const n = Math.min(cars.length, MAX_CARS);
+    for (let i = 0; i < n; i++) {
+      const c = cars[i]; q.setFromAxisAngle(up, c.yaw);
+      m4.compose(new THREE.Vector3(c.x, 0.65, c.z), q, new THREE.Vector3(1, 1, 1)); bodies.setMatrixAt(i, m4); bodies.setColorAt(i, tint.setHex(c.colour));
+      const back = c.ute ? 0.6 : 0.2;   // utes have a short cab
+      m4.compose(new THREE.Vector3(c.x + Math.sin(c.yaw) * back, 1.28, c.z + Math.cos(c.yaw) * back), q, new THREE.Vector3(1, 1, c.ute ? 0.8 : 1.15)); cabins.setMatrixAt(i, m4);
+    }
+    bodies.count = cabins.count = n; bodies.instanceMatrix.needsUpdate = cabins.instanceMatrix.needsUpdate = true; if (bodies.instanceColor) bodies.instanceColor.needsUpdate = true;
+  }
   const { nodes, adj } = buildGraph();
   const edges = []; for (const [from, list] of adj) for (const e of list) if (from < e.to) edges.push({ from, ...e });
   const cars = []; let serial = 0, seed = 1234567;
@@ -46,8 +54,7 @@ export function createNarromineTraffic(parent, { blocked = () => false } = {}) {
   const posOf = (c) => { const a = nodes[c.from], b = nodes[c.to], t = c.s / c.len; return { x: a.x + (b.x - a.x) * t, z: a.z + (b.z - a.z) * t, ux: (b.x - a.x) / c.len, uz: (b.z - a.z) / c.len }; };
   function place(c) {
     const p = posOf(c), off = Math.min(c.width / 4, 1.9);            // keep left: left of travel is (uz, -ux)
-    c.mesh.position.set(p.x + p.uz * off, 0, p.z - p.ux * off); c.mesh.rotation.y = Math.atan2(-p.ux, -p.uz) + Math.PI;
-    c.x = c.mesh.position.x; c.z = c.mesh.position.z; c.ux = p.ux; c.uz = p.uz;
+    c.x = p.x + p.uz * off; c.z = p.z - p.ux * off; c.yaw = Math.atan2(-p.ux, -p.uz) + Math.PI; c.ux = p.ux; c.uz = p.uz;
   }
   function nextEdge(c) {
     const options = adj.get(c.to).filter(e => e.to !== c.from);
@@ -59,16 +66,18 @@ export function createNarromineTraffic(parent, { blocked = () => false } = {}) {
   }
   function spawn(e, s, forward) {
     const from = forward ? e.from : e.to, to = forward ? e.to : e.from;
-    const c = { id: serial++, from, to, s, len: e.len, width: e.width, speed: SPEED * (0.85 + rand() * 0.2), v: SPEED * 0.8, mesh: carMesh(serial) };
-    parent.add(c.mesh); cars.push(c); place(c); return c;
+    const c = { id: serial++, from, to, s, len: e.len, width: e.width, speed: SPEED * (0.85 + rand() * 0.2), v: SPEED * 0.8, colour: CAR_COLOURS[serial % CAR_COLOURS.length], ute: serial % 4 === 0 };
+    cars.push(c); place(c); return c;
   }
   // Expected cars on an edge right now: vehicles per hour per metre at town speed, both directions.
   const expected = (e, hour) => e.daily * HOURLY[hour] / (SPEED * 3600) * e.len;
   function populate(player, hour) {
+    // Count cars per edge once (an edge is the unordered node pair).
+    const onEdge = new Map(); for (const c of cars) { const k = Math.min(c.from, c.to) + ':' + Math.max(c.from, c.to); onEdge.set(k, (onEdge.get(k) || 0) + 1); }
     for (const e of edges) {
       const a = nodes[e.from], b = nodes[e.to], mx = (a.x + b.x) / 2, mz = (a.z + b.z) / 2;
       if (Math.hypot(mx - player.x, mz - player.z) > RADIUS) continue;
-      const have = cars.filter(c => (c.from === e.from && c.to === e.to) || (c.from === e.to && c.to === e.from)).length;
+      const have = onEdge.get(Math.min(e.from, e.to) + ':' + Math.max(e.from, e.to)) || 0;
       let want = expected(e, hour); want = Math.floor(want) + (rand() < want % 1 ? 1 : 0);
       for (let k = have; k < want; k++) {
         const s = rand() * e.len, fwd = rand() < 0.5, p = { x: a.x + (b.x - a.x) * s / e.len, z: a.z + (b.z - a.z) * s / e.len };
@@ -82,12 +91,15 @@ export function createNarromineTraffic(parent, { blocked = () => false } = {}) {
     if (!player) return;
     const hour = Math.floor(((minute ?? 600) % 1440) / 60);
     if (!filled || (refill -= dt) <= 0) { populate(player, hour); filled = true; refill = 4; }
+    // Spatial buckets (20 m) so each car only checks its neighbours for the car ahead.
+    const grid = new Map();
+    for (const c of cars) for (const dx of [-1, 0, 1]) for (const dz of [-1, 0, 1]) { const k = (Math.floor(c.x / 20) + dx) + ',' + (Math.floor(c.z / 20) + dz); if (!grid.has(k)) grid.set(k, []); grid.get(k).push(c); }
     for (let i = cars.length - 1; i >= 0; i--) {
       const c = cars[i];
-      if (Math.hypot(c.x - player.x, c.z - player.z) > RADIUS + 100) { parent.remove(c.mesh); cars.splice(i, 1); continue; }
+      if (Math.hypot(c.x - player.x, c.z - player.z) > RADIUS + 100) { cars.splice(i, 1); continue; }
       // Stop for the player, the car ahead in the same direction, or a closed level crossing just ahead.
       const ax = c.x + c.ux * 7, az = c.z + c.uz * 7;
-      const ahead = Math.hypot(player.x - ax, player.z - az) < 5 || cars.some(o => o !== c && (o.ux * c.ux + o.uz * c.uz) > 0.7 && Math.hypot(o.x - ax, o.z - az) < CAR_GAP - 3) || blocked(ax, az);
+      const ahead = Math.hypot(player.x - ax, player.z - az) < 5 || (grid.get(Math.floor(ax / 20) + ',' + Math.floor(az / 20)) || []).some(o => o !== c && (o.ux * c.ux + o.uz * c.uz) > 0.7 && Math.hypot(o.x - ax, o.z - az) < CAR_GAP - 3) || blocked(ax, az);
       const remaining = c.len - c.s, turnSlow = remaining < 15 ? 0.55 : 1;
       const target = ahead ? 0 : c.speed * turnSlow;
       c.v += Math.max(-6 * dt, Math.min(2 * dt, target - c.v));
@@ -95,6 +107,7 @@ export function createNarromineTraffic(parent, { blocked = () => false } = {}) {
       while (c.s > c.len) { const e = nextEdge(c); c.s -= c.len; c.from = c.to; c.to = e.to; c.len = e.len; c.width = e.width; }
       place(c);
     }
+    draw();
   }
   // Solid boxes for vehicles near the player, so the player's car and the player can't drive through them.
   const colliders = (player) => cars.filter(c => Math.hypot(c.x - player.x, c.z - player.z) < 60).map(c => {

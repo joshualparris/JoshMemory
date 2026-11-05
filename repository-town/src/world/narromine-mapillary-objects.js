@@ -3,6 +3,7 @@
 // cabinets. Sign faces turn to the traffic that reads them (Australia keeps left). Nothing here is solid:
 // a triangulated position can be a metre or two out, and must never become an invisible wall.
 import * as THREE from 'three';
+import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { NARROMINE_MAPILLARY_OBJECTS as OBJ } from './narromine-mapillary-data.js';
 
 const mat = (c) => new THREE.MeshLambertMaterial({ color: c });
@@ -21,7 +22,8 @@ function speedMaterial(v) {
   textCache.set(v, m); return m;
 }
 
-export function buildNarromineMapillaryObjects(parent) {
+export function buildNarromineMapillaryObjects(target) {
+  const parent = new THREE.Group();   // built here, then merged into one mesh per material (few draw calls)
   const post = mat(0xb8bcbf), white = mat(0xf2f0ea), add = (geo, m, x, y, z, yaw = 0) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.rotation.y = yaw; parent.add(o); return o; };
   const counts = {};
   for (const o of OBJ) {
@@ -57,6 +59,15 @@ export function buildNarromineMapillaryObjects(parent) {
         add(new THREE.BoxGeometry(0.3, 0.012, o.roadW / 2 - 0.3), white, o.cx - o.uz * off, 0.083, o.cz + o.ux * off, roadYaw); break;
       }
     }
+  }
+  // Bake every object's transform and merge by material: hundreds of meshes become a handful.
+  parent.updateMatrixWorld(true);
+  const byMat = new Map();
+  parent.traverse(o => { if (!o.isMesh) return; const key = o.material.map ? o.material.uuid : 'c' + o.material.color.getHex();
+    if (!byMat.has(key)) byMat.set(key, { material: o.material, geos: [] });
+    const g = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone(); if (!o.material.map) g.deleteAttribute('uv'); g.applyMatrix4(o.matrixWorld); byMat.get(key).geos.push(g); });
+  for (const { material, geos } of byMat.values()) {
+    const merged = mergeGeometries(geos, false); if (merged) target.add(new THREE.Mesh(merged, material));
   }
   return counts;
 }

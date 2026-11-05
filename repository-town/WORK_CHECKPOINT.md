@@ -1,12 +1,9 @@
-# NR-AIR-FLIGHT-001 — 5 November 2026 · isolated YNRM aircraft implementation checkpoint
+# 2026-11-05 — NR-AIR-FLIGHT-001 Narromine Airport pilotable aircraft (ChatGPT) — PR #415
 
-Owner: ChatGPT GitHub connector. Branch: feat/narromine-pilotable-aircraft-20261105. Start baseline: 614c9af (main coordination claim). Existing Aviation Museum/Antigravity precinct, Dandaloo streetscape, railway, road materials, driving and other agents' work untouched except additive Narromine group integration.
+Working tree reconciled against main 60a5d6eb6bad without changing concurrently owned road, train or museum modules. Dedicated flight browser CI on previous topic SHA passed desktop and Android (boarding, takeoff, in-air traversal, cockpit view, exit guard). Latest full release gate still running at reconciliation. Independent inexact georeference runway/soaring strip geometry, 2 boardable trainer/sport models, flyable controls, continuous clearly illustrative farm cover and regression tests. PR must be checked again against this merge integration commit before shipping; production is NOT YET DEPLOYED. See docs/NARROMINE_AIRPORT_FLIGHT.md.
 
-Implemented on topic branch: auditable approximate runway and grass strip data (true published bearings and dimensions), independent 3D geometry and parking, two boardable light aircraft with animated props, arcade flying dynamics, camera/cockpit modes, keyboard and phone throttle/roll/pitch controls, assisted runway 11 lineup, search destination, E/touch interactions, altitude-specific fog/camera range, help, tests and evidence document. Files: src/world/narromine-airfield-data.js, src/world/narromine-airfield.js, src/world/flight-dynamics.js, src/world/player-flight.js, tests/narromine-flight.mjs, docs/NARROMINE_AIRPORT_FLIGHT.md, small additive integrations in src/main.js, src/world/narromine.js, src/index.html and package.json.
-
-Verification: Source-level integration checked while editing; Node tests, build, privacy and real browser NOT YET RUN. Next: open PR, inspect CI test outcomes, fix failures; desktop/mobile WebGL flight path; merge only if safe and verify live sourceCommit/deployment. Do not mistake estimated runway placement for georeferenced survey. Existing museum interiors remain; lounge and advanced flight systems are separate future fidelity tasks.
-
----
+## 2026-11-05 — NR-SIGN-FACES-001 start (Codex/Fedora)
+Baseline `7b5369f1`, branch `fix/narromine-observed-sign-faces-20261105`. Existing observed sign objects have blank/unrecognisable faces. Scope only recognisable regulatory faces/shape, with unchanged object positions/headings/counts and no new colliders. New module, narrow existing renderer dispatch, tests and evidence doc. Next: implement original vector faces from official NSW visual references, inspect Chromium screenshots, run release/privacy gates, publish reviewed result. No live claim.
 
 ## 2026-11-05 — DISC-NR-007 Post Office L-shaped hipped roof (Claude Code, Fedora) — LIVE, VERIFIED 13:05 AEDT
 - Merged as #392 (`0063bc81`). New `src/world/narromine-post-office-roof.js`; narrow hook in `narromine.js`. All PR checks green, except a first Chrome-regression run that timed out (exit 124 after the windows suite; rerun passed) and the rate-limited Vercel preview.

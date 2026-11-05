@@ -58,7 +58,7 @@ jobs:
         run: |
           node tools/narromine-visual-qa/compare-video.mjs \
             --viewports desktop,mobile \
-            --route coles-kieraths-dandaloo \
+            --route dandaloo-north-long-view \
             --steps 36 \
             --skip-build \
             --out test-results/narromine-video-qa
