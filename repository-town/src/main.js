@@ -29,6 +29,7 @@ import { buildMasterplan, PLAN_HOMES } from './world/masterplan-built.js';
 import { RESIDENT_STYLES } from './world/resident-models.js';
 import { buildNarromine } from './world/narromine.js';
 import { createNarromineTrains } from './world/narromine-trains.js';
+import {setConnectingTrainPresence} from './world/rail-corridor.js';
 import { createNarromineTraffic } from './world/narromine-traffic.js';
 import { createTownRailYard } from './world/town-rail-yard.js';
 import { NARROMINE_POST_OFFICE_SAVE_ID, NARROMINE_POST_OFFICE_ENTRANCE, nearNarrominePostOfficeDoor, buildNarrominePostOfficeInterior, createNarrominePostalOutdoorActor } from './world/narromine-post-office.js';
@@ -1815,6 +1816,10 @@ async function start() {
     drivingDashboard.update(mode==='town'&&!overview?driving.activeVehicle():null);
     ambience.setRadioPlaying(drivingDashboard.getState().station>0);
     trains.tick(dt,{day:life.day,minute:life.minute});   // timetabled freights and level-crossing booms
+    // Apply the user-operated Narromine grain consist to the same Repository
+    // Town road/crossing protection as the timed freight. The presence is
+    // runtime-only, preserving every older saved-game schema.
+    setConnectingTrainPresence(trains.playerRailPresence());
     if(mode==='town'&&player.pos.x<-2640) narromineTraffic.update(dt,player.pos,life.minute);
     market.update(life.day, life.minute);
     frameItems();
