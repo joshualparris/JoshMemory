@@ -15,13 +15,14 @@ Owner request, 6 Nov 2026. Work through the list top to bottom (most-visited pla
 
 Status key: `[ ]` not started · `[~]` partly evidenced (descriptions, no photos/plans) · `[x]` built from photos or plans · `[-]` searched, nothing usable
 
-Note: several listing sites (JLL, Gday Pubs) are blocked from the cloud build environment, so their photos could
-not be viewed; facts quoted in search results are used and cited.
+Note: some listing sites refuse automated requests (JLL's page has moved; Gday Pubs returns 403). The Hotel
+Conversation republishes JLL listings with photos and is reachable. Photos are viewed for reference only and not
+copied into the repository or game (copyright).
 
 | # | Status | Business | Kind | Address (OSM) | Evidence so far |
 |---|---|---|---|---|---|
 | 1 | [ ] | Imperial Hotel | pub | — |  |
-| 2 | [~] | Narromine Hotel | pub | Dandaloo Street | JLL sale listing (Oct 2022): public bar, beer garden, 20 pub rooms, 10 ensuite motel rooms, 3 gaming entitlements, 2,074 m² corner site. Gday Pubs: bistro, open fireplace, pool room, upstairs function room with balcony, drive-through bottle shop. No interior photos reachable. |
+| 2 | [~] | Narromine Hotel | pub | Dandaloo Street | JLL sale listing (Oct 2022): public bar, beer garden, 20 pub rooms, 10 ensuite motel rooms, 3 gaming entitlements, 2,074 m² corner site. Gday Pubs: bistro, open fireplace, pool room, upstairs function room with balcony, drive-through bottle shop. Public bar rebuilt from the 2022 sale photo (barrel tables, red-topped bar, memorabilia shelf, TAB, chalkboard, carpet and wall colours). Other rooms from descriptions only. |
 | 3 | [ ] | Royal Hotel | pub | — |  |
 | 4 | [ ] | The Court House Hotel | pub | — |  |
 | 5 | [ ] | Narromine RSL Club | bar | — |  |
