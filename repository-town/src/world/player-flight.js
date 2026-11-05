@@ -153,7 +153,7 @@ export function createPlayerFlight({parent,player,camera,input,touch=false}) {
     const sn=Math.sin(s.heading),cs=Math.cos(s.heading),eye=s.altitude+2.7;
     if(view===1){
       camera.position.set(s.x+sn*1.35,eye,s.z-cs*1.35);
-      camera.rotation.set(-s.pitch,-s.heading,-s.bank*0.32,'YXZ');
+      camera.rotation.set(s.pitch,-s.heading,-s.bank*0.32,'YXZ');
     }else{
       camera.position.set(s.x-sn*19,s.altitude+11.5,s.z+cs*19);
       camera.lookAt(s.x+sn*52,s.altitude+3.2+s.pitch*25,s.z-cs*52);

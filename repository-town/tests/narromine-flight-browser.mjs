@@ -59,15 +59,29 @@ try {
     }
     await page.screenshot({path:path.join(out,device+'-02-cockpit-boarding.png')});
 
+    // Chromium's touch protocol exercises held phone controls without a keyboard.
+    const cdp=device==='android'?await context.newCDPSession(page):null;
+    async function touchHold(names){
+      if(!cdp)return;
+      const points=[];
+      for(const [id,name] of names.entries()){
+        const box=await page.getByRole('button',{name,exact:true}).boundingBox();
+        assert.ok(box,'Touch control is laid out: '+name);
+        points.push({id,x:box.x+box.width/2,y:box.y+box.height/2});
+      }
+      await cdp.send('Input.dispatchTouchEvent',{type:points.length?'touchStart':'touchEnd',touchPoints:points});
+    }
+
     // Real UI assisted runway alignment, then accelerated Input-driven game frames.
     await page.getByRole('button',{name:'↗ Line up 11'}).click();
     let before=await page.evaluate(()=>window.__town.flight().state);
     assert.equal(before.onGround,true,device+': on runway');
     await page.evaluate(()=>document.activeElement?.blur?.());
-    await page.keyboard.down('w');
-    await page.keyboard.down('ArrowUp');
+    if(cdp)await touchHold(['Throttle +','↑ Nose']);
+    else { await page.keyboard.down('w'); await page.keyboard.down('ArrowUp'); }
     const airborne=await page.evaluate(()=>window.__town.stepFlight(28));
-    await page.keyboard.up('ArrowUp');
+    if(cdp)await touchHold([]);
+    else await page.keyboard.up('ArrowUp');
     assert(airborne.state.altitude>20,device+': actual browser actor takes off');
     assert(airborne.state.airspeed>=28,device+': airspeed reaches rotation velocity');
     assert(airborne.state.x>before.x+100,device+': aircraft actually travels down the runway');
@@ -84,11 +98,33 @@ try {
     await page.screenshot({path:path.join(out,device+'-04-above-repository-town-corridor.png')});
     assert.match(await page.evaluate(()=>window.__town.exitFlight()),/Land and stop/,device+': airborne exit blocked');
     // Change camera while airborne (actual keyboard event, not test hook).
-    await page.keyboard.press('v');
+    if(cdp)await page.getByRole('button',{name:/View/}).click();
+    else await page.keyboard.press('v');
     await page.waitForFunction(()=>window.__town.flight().view===1,null,{timeout:10000});
     await page.screenshot({path:path.join(out,device+'-05-cockpit-in-flight.png')});
+    // Descend through the same game dynamics, then stop and leave the plane.
+    // This tests ground contact, not a surveyed runway approach or landing skill.
+    if(cdp)await touchHold(['Throttle −','↓ Nose']);
+    else { await page.keyboard.down('s'); await page.keyboard.down('ArrowDown'); }
+    let landed;
+    for(let i=0;i<4;i++){
+      landed=await page.evaluate(()=>window.__town.stepFlight(120));
+      if(landed.state.onGround&&landed.state.airspeed<0.1)break;
+    }
+    if(cdp)await touchHold([]);
+    else { await page.keyboard.up('s'); await page.keyboard.up('ArrowDown'); }
+    assert.equal(landed.state.onGround,true,device+': landed');
+    assert.equal(landed.state.altitude,0,device+': grounded');
+    assert.ok(landed.state.airspeed<0.1,device+': stopped');
+    await page.screenshot({path:path.join(out,device+'-06-landed-stopped.png')});
+    await page.locator('#narromine-flight-hud').getByRole('button',{name:/Exit/}).click();
+    await page.waitForFunction(()=>!window.__town.flight().flying);
+    assert.equal(await page.locator('#narromine-flight-hud').isVisible(),false);
+    const parked=await page.evaluate(()=>window.__town.flight().parking.find(p=>p.id==='trainer'));
+    assert.ok(Math.hypot(parked.x-landed.state.x,parked.z-landed.state.z)<1,device+': parked at landing position');
+    await page.screenshot({path:path.join(out,device+'-07-exited.png')});
     assert.deepEqual(errors,[],device+' WebGL page errors');
-    console.log('PASS '+device+' YNRM airport search / enter / controls / takeoff / flight across corridor / cockpit / in-air exit lock');
+    console.log('PASS '+device+' YNRM airport search / enter / controls / takeoff / flight across corridor / cockpit / in-air exit lock / landing / stop / exit');
     await context.close();
   }
 }finally {
