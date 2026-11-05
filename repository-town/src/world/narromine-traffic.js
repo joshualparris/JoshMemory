@@ -187,9 +187,23 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
     parked = out;
   }
   let filled = false, refill = 0, refillParked = 0;
-  function update(dt, player, minute, weekday = 2) {
+  let lastDay = null, lastMinute = null, lastWeekday = null;
+  // A trip ID is unique within a simulated day, not for the resident's entire lifetime.
+  // On a new day (including the same weekday next week), allow that vehicle to travel
+  // again. Discard only the previous day's resident trips, keeping through traffic.
+  function update(dt, player, minute, weekday = 2, day = null) {
     if (!player) return;
     const now = (minute ?? 600) % 1440, hour = Math.floor(now / 60);
+    const dateChanged = day != null && lastDay != null && day !== lastDay;
+    const weekChanged = lastWeekday != null && weekday !== lastWeekday;
+    const clockRewound = lastMinute != null && now + 0.5 < lastMinute;
+    if (commute && (dateChanged || weekChanged || clockRewound)) {
+      live.clear();
+      for (let i = cars.length - 1; i >= 0; i--) if (cars[i].trip) cars.splice(i, 1);
+      refillParked = 0;
+    }
+    if (day != null) lastDay = day;
+    lastWeekday = weekday; lastMinute = now;
     if (!filled || (refill -= dt) <= 0) { populate(player, hour); filled = true; refill = 4; }
     if (commute) { spawnResidents(player, weekday, now); if ((refillParked -= dt) <= 0) { parkResidents(player, weekday, now); refillParked = 3; } }
     // Spatial buckets (20 m) so each car only checks its neighbours for the car ahead.
