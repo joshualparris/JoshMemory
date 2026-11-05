@@ -22,12 +22,12 @@ assert(life.populationReport()?.population===470,'population and linked industri
 
 // Real animal cases lower farm output and cost farm money + clinic kit.
 // The vet travels from the existing clinic; case cannot be resolved instantly.
-const animal=s.herds.dairy[0],farm=life.place('dairy'),clinic=life.place('clinic');
+const animal=s.herds.dairy[0],farm=life.place('dairy'),vet=life.place('vet');
 assert(animalHealthFactor(life,'dairy')===1);
 assert.match(life.reportFarmAnimal('dairy',animal.id),/VET-0001/);
 assert.match(life.reportFarmAnimal('dairy',animal.id),/Already/);
 assert(animalHealthFactor(life,'dairy')<1,'illness isolates a dairy cow from milk yield');
-const prevFarm=farm.till,prevClinic=clinic.till,prevKit=s.vet.stock;
+const prevFarm=farm.till,prevVet=vet.till,prevKit=s.vet.stock;
 tickLinkedIndustries(life,1);
 assert.equal(s.cases[0].status,'travelling');
 assert(s.vet.totalTravel>=5);
@@ -37,7 +37,7 @@ assert.equal(s.cases[0].examMinutes,0,'no instant treatment on arrival');
 tickLinkedIndustries(life,25);
 assert.equal(s.cases[0].status,'treated');
 assert.equal(farm.till,prevFarm-34);
-assert.equal(clinic.till,prevClinic+34);
+assert.equal(vet.till,prevVet+34,'existing vet service receives its visit fee');
 assert.equal(s.vet.stock,prevKit-1);
 assert(animalHealthFactor(life,'dairy')===1);
 
