@@ -534,7 +534,7 @@ const RAW_PHOTO_LOCATIONS = [
       'Disjoint asphalt carriageway, concrete kerbs, footpaths, and street tree spacing',
     ],
     responsibleFiles: ['src/world/narromine.js', 'src/world/narromine-layout.js', 'src/world/narromine-facade-profiles.js', 'src/world/narromine-road-surfaces.js'],
-    activeAgentClaims: ['PR #310 (Phase A facade profiles, MERGED) & PR #311 (licensed photo catalogue, OPEN)'],
+    activeAgentClaims: ['PR #310 (Phase A facade profiles, MERGED) & PR #311 (licensed photo catalogue, MERGED 4 Nov)'],
   },
 ];
 

@@ -1,6 +1,6 @@
 # DANDALOO-001 / 1.1 — Narromine 239-contact reproduction (5 November 2026)
 
-**Owner:** ChatGPT cloud, GitHub Actions. **Issue:** [#398](https://github.com/joshualparris/JoshMemory/issues/398). **Status:** CLAIMED / test-run evidence pending. **Pinned underlying main SHA:** `11bbf2c53164c5e21a24ed9b8173e07b90148dfc`.
+**Owner:** ChatGPT cloud, GitHub Actions. **Issue:** [#398](https://github.com/joshualparris/JoshMemory/issues/398). **Status:** DONE (1.1 evidence gate passed and test merged in #406; #398 closed 5 Nov 2026). **Pinned underlying main SHA:** `11bbf2c53164c5e21a24ed9b8173e07b90148dfc`.
 
 ## Purpose
 
@@ -97,4 +97,4 @@ The next step **1.2** is a separate implementation claim for confirmed false pos
 
 **Implication for 1.2 owner:** the prevailing 219 polygon-aware building contacts require road/footprint alignment and clearance evidence; a box-to-polygon fix alone cannot be counted as resolving these. Preserve real walls and rail-gate physics. Re-run the same 3m / ±1.6m / r=1.12m probes before and after any change, then separately test vehicle traversal through named Dandaloo/Burraway intersections.
 
-**1.1 evidence gate PASSED at the pinned source SHA**; this is a measurement-only finding. The independent corrective issue #398 remains open.
+**1.1 evidence gate PASSED at the pinned source SHA**; this is a measurement-only finding. The independent corrective issue #398 was open at the time; it closed on 5 Nov 2026 when #403 merged, and the residual 52 contacts were then classified as real roadside objects.
