@@ -19,7 +19,7 @@
     "repository-town/tests/shop-interiors.mjs": "0ca369aa2d241c152edb841c1125aa9319241a0d",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "7786ee64d8caacd7fb2562da1411eb7d18bab7b5",
+    "repository-town/src/main.js": "093da5a78281a508bd5ccac714c39a66b217c0f9",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -1251,6 +1251,14 @@
       "by": "Claude (unique Narromine interiors)",
       "changedFiles": [],
       "finding": "interior.js: an optional noBedroom flag stops the builder adding a bedroom to non-homes; the pub does not set it and is unchanged."
+    },
+    {
+      "date": "2026-11-05",
+      "by": "Claude (Narromine passengers, Repository Town parking)",
+      "changedFiles": [
+        "repository-town/src/main.js"
+      ],
+      "finding": "main.js draws Narromine commuters' parked cars in Repository Town and adds them as dynamic colliders; no pub change."
     }
   ]
 }
