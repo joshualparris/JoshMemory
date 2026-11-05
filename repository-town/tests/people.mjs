@@ -36,7 +36,9 @@ const commute = await page.evaluate(() => {
     const moving=people.filter((v,i)=>!v.inside&&
       Math.hypot(v.x-prev[i].x,v.z-prev[i].z)>2);
     if(moving.length>best.count)best={count:moving.length,at:minute};
-    if(moving.length>=8)return {found:true,at:minute,moving:moving.length,best};
+    // Earlier than 06:30 can be a clock-reset return-home movement;
+    // require the genuine weekday morning shift/school commute window.
+    if(minute>=390&&minute<=525&&moving.length>=8)return {found:true,at:minute,moving:moving.length,best};
     prev=people;
   }
   return {found:false,best};
@@ -61,6 +63,11 @@ const after = samples.at(-1);
 const moved = after.filter((v, i) => Math.hypot(v.x - before[i].x, v.z - before[i].z) > 2).length;
 check(moved >= 5, `${moved}/${before.length} workers physically advanced more than 2 m during 12 real seconds (commuters present: ${eligible})`);
 check(inside === 0, `no villager stood inside a wall or house (${inside} overlaps in ${looks} samples)`);
+// Conversations are a different acceptance: approach real workers at 08:10
+// as in the pre-existing passing test, rather than chasing off-shift walkers
+// at 04:32 when nobody is legitimately available to chat.
+await page.evaluate(() => { window.__town.life.setTime(7*60+50); window.__town.life.run(20); });
+await page.waitForTimeout(400);
 
 // 2. Walk up to a villager: you're prompted to talk. Being nearby doesn't hold anyone up (they go
 // on with their day, src/world/townlife.js); opening a chat does, and they stop while you talk.
