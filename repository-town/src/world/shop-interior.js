@@ -22,6 +22,7 @@ import { buildBankInterior } from './bank-interior.js';
 import { buildStoreInterior } from './store-interior.js';
 import { buildCafeInterior } from './cafe-interior.js';
 import { buildPubInterior } from './pub-interior.js';
+import {buildIndustryInterior} from './linked-interiors.js';
 import { buildPostInterior } from './post-interior.js';
 import { buildClinicInterior } from './clinic-interior.js';
 import { buildHallInterior } from './hall-interior.js';
@@ -99,6 +100,7 @@ const BASE_W=14, BASE_D=18, FRONT=6, BACK=-12, EDGE=7;
 
 // `life` is optional: interiors that show the town's live state (the power station's mimic panel) read it.
 export function buildCivicInterior(site,makeLabel,life=null) {
+  if(['vet','hardware','brewery','buildsite'].includes(site.id))return buildIndustryInterior(site,makeLabel);
   if(site.id==='busstop')return buildBusInterchangeInterior(site,makeLabel);
   if(site.id==='visitorcentre')return buildVisitorInformationInterior(site,makeLabel);
   if(site.id==='agedcare')return buildAgedCareInterior(site,makeLabel);
