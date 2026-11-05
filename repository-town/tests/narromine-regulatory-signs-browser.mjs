@@ -27,7 +27,7 @@ try {
    const g=canvas.getContext('2d');
    const pixel=(x,y)=>Array.from(g.getImageData(x,y,1,1).data);
    // Semantic colour anchors: stop field, give-way interior, no-entry white bar/red disk.
-   const pixels={stop:pixel(256,100),giveway:pixel(768,100),bar:pixel(768,840),disk:pixel(768,940)};
+   const pixels={stop:pixel(256,100),giveway:pixel(768,100),bar:pixel(768,682),disk:pixel(768,597)};
    window.signQA=(type,rear=false)=>{
     const o=objects.find(o=>o.type===type),yaw=Math.atan2(o.ux*o.facing,o.uz*o.facing);
     const y=(['keepLeft','noEntry'].includes(type)?1.6:2.2)+.1;

@@ -57,9 +57,9 @@ export function drawRegulatorySignAtlas(canvas) {
         // Down-left arrow, rendered on the front only (the rear is plain metal).
         polygon([[145,490],[145,330],[198,383],[365,216],[421,272],[254,439],[307,492]],BLACK);
       } else {
-        label('NO',57,66); label('ENTRY',128,66);
-        g.fillStyle=RED; g.beginPath(); g.ellipse(256,328,153,115,0,0,Math.PI*2); g.fill();
-        g.fillStyle=WHITE; g.fillRect(134,299,244,58);
+        label('NO',350,80); label('ENTRY',438,80);
+        g.fillStyle=RED; g.beginPath(); g.ellipse(256,170,170,127.5,0,0,Math.PI*2); g.fill();
+        g.fillStyle=WHITE; g.fillRect(119,147,274,46);
       }
     }
     g.restore();
