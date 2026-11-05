@@ -58,11 +58,18 @@ export function createNarrominePedestrians(commute, nodes, adj, parent = null) {
     f.group.visible = true; f.group.scale.setScalar(p.age < 12 ? 0.72 : p.age < 16 ? 0.88 : 1); f.group.name = p.name;
     return f;
   }
-  let clock = 0;
-  // A walker joins their route where the schedule puts them, then walks at real walking pace (the game clock
-  // runs faster than real time, so scheduling every frame would make people race along).
+  let clock = 0, lastWallClock = null;
+  // Render/physics dt is capped when WebGL is slow. People still need to cover
+  // physical distance in real time, rather than crawling at 0.3 m/s on phones.
+  // Clamp long background-tab pauses so returning to the tab cannot teleport
+  // a walker hundreds of metres in one frame.
   function update(dt, player, weekday, minute) {
-    clock += dt;
+    const wall = typeof performance !== 'undefined' ? performance.now() : null;
+    const realDt = wall !== null && lastWallClock !== null
+      ? Math.max(0, Math.min(1, (wall - lastWallClock) / 1000))
+      : dt;
+    lastWallClock = wall;
+    clock += realDt;
     for (const w of walks(weekday)) {
       if (active.has(w.id) || minute < w.depart || minute >= w.depart + w.duration) continue;
       const s = (minute - w.depart) * 60 * w.speed, at = placeOnRoute(w, s);
@@ -70,10 +77,10 @@ export function createNarrominePedestrians(commute, nodes, adj, parent = null) {
       const f = figureFor(w); f.walk = w; f.s = s; active.set(w.id, f);
     }
     for (const [id, f] of active) {
-      f.s += f.walk.speed * dt;
+      f.s += f.walk.speed * realDt;
       const at = placeOnRoute(f.walk, f.s);
       if (f.s >= f.walk.length || Math.hypot(at.x - player.x, at.z - player.z) > RADIUS + 40) { f.group.visible = false; pool.push(f); active.delete(id); continue; }
-      f.group.position.set(at.x, 0, at.z); f.group.rotation.y = at.yaw; if (parent) pose(f, dt, clock, true);
+      f.group.position.set(at.x, 0, at.z); f.group.rotation.y = at.yaw; if (parent) pose(f, realDt, clock, true);
     }
     return active.size;
   }
