@@ -85,24 +85,59 @@ def pixels(poly_mga, exclude=None):
             if 0 <= row < img.shape[0] and 0 <= col < img.shape[1]: out.append(img[row, col])
     return np.array(out, dtype=float)
 
-colours, skipped, newer = {}, 0, 0
-for i, (x, z, w, d, yaw, _h) in enumerate(footprints):
-    px = pixels([world_to_mga(*p) for p in outline(x, z, w, d, yaw, 0.6)])
-    if len(px) < 8: skipped += 1; continue
+def edge_dist(e, n, poly):
+    best = 1e9
+    for i in range(len(poly)):
+        (ax, ay), (bx, by) = poly[i - 1], poly[i]
+        dx, dy = bx - ax, by - ay; t = max(0, min(1, ((e - ax) * dx + (n - ay) * dy) / (dx * dx + dy * dy or 1)))
+        best = min(best, math.hypot(e - ax - t * dx, n - ay - t * dy))
+    return best
+
+def usable(px):
     r, g, b = px[:, 0], px[:, 1], px[:, 2]
-    lum = 0.299 * r + 0.587 * g + 0.114 * b
-    ok = (lum > 45) & ~((g > r + 8) & (g > b + 20))   # foliage: blue well below green; green Colorbond keeps blue near green
-    if ok.mean() < 0.35: skipped += 1; continue
-    m = np.median(px[ok], axis=0).round().astype(int)
+    # Drop shadow and foliage (blue well below green); green Colorbond keeps blue near green.
+    return (0.299 * r + 0.587 * g + 0.114 * b > 45) & ~((g > r + 8) & (g > b + 20))
+
+def sample(inner, ring):
+    """Median roof colour, or 'unreadable' / 'newer' (looks like the ground around it in 2012)."""
+    if len(inner) < 8: return 'unreadable'
+    ok = usable(inner)
+    if ok.mean() < 0.35: return 'unreadable'
+    m = np.median(inner[ok], axis=0).round().astype(int)
     # Narromine town imagery is from July 2012. A building put up since shows as ground: if the "roof"
     # matches the ground in a ring just outside the outline, there was no roof to sample.
-    ring = pixels([world_to_mga(*p) for p in outline(x, z, w + 6, d + 6, yaw)], [world_to_mga(*p) for p in outline(x, z, w + 1, d + 1, yaw)])
     if len(ring):
-        rr, rg, rb = ring[:, 0], ring[:, 1], ring[:, 2]
-        gnd = ring[(0.299 * rr + 0.587 * rg + 0.114 * rb > 45) & ~((rg > rr + 8) & (rg > rb + 20))]
-        if len(gnd) > 20 and np.linalg.norm(np.median(gnd, axis=0) - m) < 22: newer += 1; continue
-    colours[f'{x:.1f},{z:.1f}'] = int(m[0]) << 16 | int(m[1]) << 8 | int(m[2])
+        gnd = ring[usable(ring)]
+        if len(gnd) > 20 and np.linalg.norm(np.median(gnd, axis=0) - m) < 22: return 'newer'
+    return int(m[0]) << 16 | int(m[1]) << 8 | int(m[2])
+
+colours, skipped, newer = {}, 0, 0
+for i, (x, z, w, d, yaw, _h) in enumerate(footprints):
+    got = sample(pixels([world_to_mga(*p) for p in outline(x, z, w, d, yaw, 0.6)]),
+                 pixels([world_to_mga(*p) for p in outline(x, z, w + 6, d + 6, yaw)], [world_to_mga(*p) for p in outline(x, z, w + 1, d + 1, yaw)]))
+    if got == 'unreadable': skipped += 1
+    elif got == 'newer': newer += 1
+    else: colours[f'{x:.1f},{z:.1f}'] = got
     if i % 250 == 0: print(f'{i}/{len(footprints)} sampled, {len(tiles)} tiles', file=sys.stderr)
+
+# OSM building outlines (any shape), keyed "osm:<index>": pixels at least 1 m inside every edge,
+# ground ring between 1.05x and 1.3x the outline about its centroid.
+osm_sampled = 0
+for k, ob in enumerate(osm['buildings']):
+    poly = [world_to_mga(X0 + px_, Z0 + pz_) for px_, pz_ in ob['pts']]
+    if len(poly) > 2 and poly[0] == poly[-1]: poly = poly[:-1]
+    cx, cy = sum(p[0] for p in poly) / len(poly), sum(p[1] for p in poly) / len(poly)
+    grow = lambda f: [(cx + (e - cx) * f, cy + (n - cy) * f) for e, n in poly]
+    xs, ys = [p[0] for p in poly], [p[1] for p in poly]; inner = []
+    for e in np.arange(min(xs), max(xs), RES):
+        for n in np.arange(min(ys), max(ys), RES):
+            if not inpoly(e, n, poly) or edge_dist(e, n, poly) < 1.0: continue
+            tx, ty = int(e // TILE), int(n // TILE); img = tile(tx, ty)
+            col, row = int((e - tx * TILE) / RES), int((ty * TILE + TILE - n) / RES)
+            if 0 <= row < img.shape[0] and 0 <= col < img.shape[1]: inner.append(img[row, col])
+    got = sample(np.array(inner, dtype=float), pixels(grow(1.3), grow(1.05)))
+    if isinstance(got, int): colours[f'osm:{k}'] = got; osm_sampled += 1
+print(f'{osm_sampled} of {len(osm["buildings"])} OSM outlines sampled', file=sys.stderr)
 
 # Town geometry is batched one mesh per colour per tile, so ~2,300 distinct colours would mean
 # thousands of draw calls. Cluster into a palette of PALETTE real roof colours (deterministic k-means,
@@ -127,7 +162,8 @@ open(os.path.join(WORLD, 'narromine-roof-colours-data.js'), 'w', encoding='utf8'
     '// © State of New South Wales (Spatial Services), CC BY 4.0. Median of the inner 60% of each Microsoft\n'
     '// footprint outline, shadow and tree pixels dropped, then clustered into a 24-colour palette of\n'
     '// real roof colours (k-means) so the town stays batched. Keyed "x,z" like NARROMINE_FOOTPRINT_LIDAR.\n'
-    f'// {len(colours)} of {len(footprints)} footprints sampled; {skipped} unreadable (shade, trees or off-image);\n'
-    f'// {newer} look like ground in 2012 (built since), left to the stock tone.\n'
+    f'// {len(colours) - osm_sampled} of {len(footprints)} footprints sampled; {skipped} unreadable (shade, trees or off-image);\n'
+    f'// {newer} look like ground in 2012 (built since), left to the stock tone. OSM building outlines are keyed\n'
+    f'// "osm:<index>" ({osm_sampled} of {len(osm["buildings"])} sampled: inner pixels >= 1 m from every edge).\n'
     'export const NARROMINE_ROOF_COLOURS = {' + body + '};\n')
 print(f'{len(colours)} roof colours, {skipped} unreadable, {newer} newer than 2012, {len(tiles)} imagery tiles', file=sys.stderr)

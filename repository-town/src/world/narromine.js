@@ -279,6 +279,9 @@ export function buildNarromine(parent, makeLabel = null) {
     const colour = b.osmIndex === PHYSIO_FACADE.osmIndex ? 0xf0eee9 : standardColour;
     const shape = new THREE.Shape(b.pts.map(([x, zz]) => new THREE.Vector2(x, -zz)));
     const g = new THREE.ExtrudeGeometry(shape, { depth: h, bevelEnabled: false }); g.rotateX(-Math.PI / 2); push(colour, g);
+    // Roof colour sampled from NSW aerial imagery where readable: a thin cap just above the flat top.
+    const osmRoof = NARROMINE_ROOF_COLOURS['osm:' + b.osmIndex];
+    if (osmRoof !== undefined) flatPoly(osmRoof, b.pts, h + 0.05);
     // Collide with the outline's box, unless the outline is very irregular or the box covers a street.
     const r = polyRect(b.pts), area = Math.abs(b.pts.reduce((s, p, i) => { const q = b.pts[(i + 1) % b.pts.length]; return s + p[0] * q[1] - q[0] * p[1]; }, 0) / 2);
     if (area > 0.55 * (r.x1 - r.x0) * (r.z1 - r.z0) && !nearTownStreet((r.x0 + r.x1) / 2, (r.z0 + r.z1) / 2, 0)) colliders.push({ ...r, poly: b.pts, source: 'osm-building', osmIndex: b.osmIndex });

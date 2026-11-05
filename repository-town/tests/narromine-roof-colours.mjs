@@ -6,13 +6,15 @@ import { NARROMINE_FOOTPRINTS } from '../src/world/narromine-footprints-data.js'
 import { FILL_HOUSES } from '../src/world/narromine-layout.js';
 
 const keys = new Set(NARROMINE_FOOTPRINTS.map(([x, z]) => x.toFixed(1) + ',' + z.toFixed(1)));
-const entries = Object.entries(NARROMINE_ROOF_COLOURS);
+const all = Object.entries(NARROMINE_ROOF_COLOURS), entries = all.filter(([k]) => !k.startsWith('osm:'));
+const osmRoofs = all.filter(([k]) => k.startsWith('osm:'));
+assert(osmRoofs.length > 150, `OSM outlines have sampled roofs (${osmRoofs.length})`);
 assert(entries.length > 0.75 * NARROMINE_FOOTPRINTS.length, 'most footprints have a sampled roof (the rest are shaded, tree-covered or built after the 2012 imagery)');
 for (const [k, c] of entries) {
   assert(keys.has(k), k + ' is a real footprint key');
   assert(Number.isInteger(c) && c >= 0 && c <= 0xffffff, k + ' is a colour');
 }
-const palette = new Set(entries.map(([, c]) => c));
+const palette = new Set(all.map(([, c]) => c));
 assert(palette.size <= 24, 'clustered palette keeps the town batched (one mesh per colour per tile)');
 assert(palette.size >= 12, 'a real range of roof colours, not a handful of stock tones');
 // Real Narromine roofs include terracotta tile (red-dominant) and pale Colorbond/zinc.

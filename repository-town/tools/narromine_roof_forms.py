@@ -8,7 +8,7 @@ first edge, d axis = second, as in narromine-layout.js footprint()):
   "gable-w"/"-d"    along the ridge line, points at the ends stay above 70% of the rise
   "hip-w"/"-d"      ...or fall below 40% of it (the ends slope down); in between: unclassified
 The ridge axis is the one along which the top quarter of the rise (the ridge band) spreads furthest. Under 2 building points per m2 (survey is ~4):
-not classified (the renderer keeps its default roof); under 0.5/m2 is listed as a likely missing building.
+not classified (the renderer keeps its default roof); under 0.5/m2 is listed for review (in practice mostly small sheds the LiDAR building class misses).
 
 usage: python tools/narromine_roof_forms.py tile1.laz [tile2.laz ...]   (needs numpy, laspy[lazrs], pyproj)
 """
@@ -104,6 +104,7 @@ open(os.path.join(WORLD, 'narromine-roof-forms-data.js'), 'w', encoding='utf8').
     '// side along w or d), gable or hip with the ridge along w or d. Keyed "x,z" like NARROMINE_FOOTPRINT_LIDAR.\n'
     f'// {len(forms)} classified: ' + ', '.join(f'{k} {v}' for k, v in sorted(counts.items())) + '.\n'
     'export const NARROMINE_ROOF_FORMS = {' + body + '};\n'
-    '// Footprints inside the tiles with almost no building points (< 0.5/m2): likely no building in 2023. For review only.\n'
+    '// Footprints inside the tiles with almost no building points (< 0.5/m2). Checked 5 Nov 2026 against the 2012 imagery: nearly all\n'
+    '// are small sheds/garages the LiDAR building class does not label, so they stay drawn; one (-5180.3,141.3) looks like bare ground. For review only.\n'
     'export const NARROMINE_FOOTPRINTS_WITHOUT_LIDAR_ROOF = ' + json.dumps(sorted(empty)) + ';\n')
 print(len(forms), counts, 'no-roof', len(empty), file=sys.stderr)
