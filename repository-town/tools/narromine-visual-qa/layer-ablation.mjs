@@ -64,20 +64,29 @@ export function pixelDifference(reference, candidate) {
   const a = decodePng(reference), b = decodePng(candidate);
   assert.equal(a.width, b.width, 'image width mismatch');
   assert.equal(a.height, b.height, 'image height mismatch');
-  let sample = 0, changed = 0, roadSample = 0, roadChanged = 0;
+  let sample = 0, changed = 0, anyChanged = 0, roadSample = 0,
+    roadChanged = 0, roadAnyChanged = 0, roadTotalMaxDelta = 0, roadMaximumDelta = 0;
   for (let y = 0; y < a.height; y += 2) for (let x = 0; x < a.width; x += 2) {
     const i = (y * a.width + x) * 4;
     const d = Math.max(Math.abs(a.data[i] - b.data[i]),
       Math.abs(a.data[i + 1] - b.data[i + 1]),
       Math.abs(a.data[i + 2] - b.data[i + 2]));
-    sample++; if (d > 2) changed++;
+    sample++; if (d > 2) changed++; if (d > 0) anyChanged++;
     if (x >= a.width * .25 && x < a.width * .75 &&
         y >= a.height * .58 && y < a.height * .92) {
       roadSample++; if (d > 2) roadChanged++;
+      if (d > 0) roadAnyChanged++;
+      roadTotalMaxDelta += d;
+      roadMaximumDelta = Math.max(roadMaximumDelta, d);
     }
   }
   return { wholeChangedPct: +(100 * changed / sample).toFixed(3),
-    roadRegionChangedPct: +(100 * roadChanged / Math.max(1, roadSample)).toFixed(3) };
+    wholeAnyChangedPct: +(100 * anyChanged / sample).toFixed(3),
+    roadRegionChangedPct: +(100 * roadChanged / Math.max(1, roadSample)).toFixed(3),
+    roadRegionAnyChangedPct: +(100 * roadAnyChanged / Math.max(1, roadSample)).toFixed(3),
+    roadMeanMaxChannelDelta: +(roadTotalMaxDelta / Math.max(1, roadSample)).toFixed(4),
+    roadMaximumDelta };
+
 }
 
 export function ablationVerdict(referenceRepeat, layerDifference) {
