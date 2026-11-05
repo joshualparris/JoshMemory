@@ -231,6 +231,17 @@ export function createNarromineTrains(parent, activeTrainParent=parent) {
   function freightUpdate(dt) {
     if (!freight) return;
     const h = freight.path.pointAt(freight.path.s);
+    // Public OSM only tells us where the REAL line ends in this game map.
+    // Timetabled AI freights use ONLY that documented Narromine network;
+    // the non-surveyed route to fictional Repository Town is player-operated
+    // and may not be treated as a real ARTC freight working.
+    const mappedEast = RAIL[7].pts.at(-1);
+    if (freight.entry.from === 'nw' &&
+        h.x >= mappedEast[0] - 0.5 &&
+        Math.hypot(h.x - mappedEast[0],h.z - mappedEast[1]) < 6) {
+      despawnFreight();
+      return;
+    }
     // Signal protection: hold short while the player's train is within 250 m ahead or across the line.
     // Signal protection: hold only if the player's train is actually on this train's track within
     // 250 m ahead (sampled along the path), not merely nearby on the yard loop or a siding.
