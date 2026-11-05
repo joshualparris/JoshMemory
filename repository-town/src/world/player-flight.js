@@ -103,7 +103,7 @@ export function createPlayerFlight({parent,player,camera,input,touch=false}) {
       ['◀ Bank','roll',-1],['Bank ▶','roll',1],
       ['↑ Nose','pitch',1],['↓ Nose','pitch',-1]]) {
       const b=document.createElement('button');b.type='button';b.textContent=label;
-      b.style.cssText='background:#25455b;color:white;border:1px solid #718ca0;border-radius:6px;min-height:42px;padding:7px';
+      b.style.cssText='background:#25455b;color:white;border:1px solid #718ca0;border-radius:6px;min-height:42px;padding:7px;touch-action:none;user-select:none';
       const down=e=>{e.preventDefault();control[axis]=value;b.setPointerCapture?.(e.pointerId);};
       const up=e=>{e.preventDefault();if(control[axis]===value)control[axis]=0;};
       b.addEventListener('pointerdown',down);
@@ -192,7 +192,7 @@ export function createPlayerFlight({parent,player,camera,input,touch=false}) {
   let lastR=false;
   function state(){
     const s=active?models.get(active).s:null;
-    return {flying:!!active,aircraft:active,view,runways:AERODROME.runways.map(r=>({id:r.id,length:r.length,width:r.width})),
+    return {flying:!!active,aircraft:active,view,controls:{...control},runways:AERODROME.runways.map(r=>({id:r.id,length:r.length,width:r.width})),
       state:s?{...s}:null,parking:parking.map(p=>({id:p.id,name:p.name,x:models.get(p.id).s.x,z:models.get(p.id).s.z}))};
   }
   return {near:nearest,board,exit,lineUp,cycleView,update,state,

@@ -70,10 +70,22 @@ try {
         points.push({id,x:box.x+box.width/2,y:box.y+box.height/2});
       }
       await cdp.send('Input.dispatchTouchEvent',{type:points.length?'touchStart':'touchEnd',touchPoints:points});
+      const expected={throttle:0,pitch:0,roll:0};
+      for(const name of names){
+        if(name==='Throttle +')expected.throttle=1;
+        if(name==='Throttle −')expected.throttle=-1;
+        if(name==='↑ Nose')expected.pitch=1;
+        if(name==='↓ Nose')expected.pitch=-1;
+      }
+      await page.waitForFunction(expected=>{
+        const actual=window.__town.flight().controls;
+        return Object.keys(expected).every(k=>actual[k]===expected[k]);
+      },expected,{timeout:10000});
     }
 
     // Real UI assisted runway alignment, then accelerated Input-driven game frames.
     await page.getByRole('button',{name:'↗ Line up 11'}).click();
+    await page.waitForFunction(()=>document.querySelector('#flight-instruments').textContent.includes('Assisted game line-up'));
     let before=await page.evaluate(()=>window.__town.flight().state);
     assert.equal(before.onGround,true,device+': on runway');
     await page.evaluate(()=>document.activeElement?.blur?.());
