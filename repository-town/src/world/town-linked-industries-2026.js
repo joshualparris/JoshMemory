@@ -87,7 +87,10 @@ function shipment(t,from,to,item,qty,minutes,cost=0,contents=null){
  const s=industryState(t),origin=t.place(from),target=t.place(to);
  if(!origin||!target||qty<1||qty>100||target.till<cost)return false;
  if(!contents&&(origin.out[item]||0)<qty)return false;
- target.till-=cost;origin.till+=cost;
+ // Depot imports are external purchases (cash leaves town); Hardware sales
+ // go into the existing tradeEducation.hardwareCash below; only a brewery
+ // transfer puts revenue in a local producer's till. Never double-count it.
+ target.till-=cost;if(from==='brewery')origin.till+=cost;
  if(!contents)origin.out[item]-=qty;
  s.shipments.push({id:'SHIP-'+String(s.next++).padStart(5,'0'),from,to,item,qty,minutes,cost,contents,
   status:'transit',createdDay:t.day});
