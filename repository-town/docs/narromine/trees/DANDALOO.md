@@ -42,7 +42,7 @@ For each individual candidate produce `site_segment, side_of_street, trunk_lat, 
 ## Modelling instructions for current game
 
 - Do not simply replace the entire Dandaloo 2023 LiDAR set with Manchurian Pear. The documented programme covers a **specific section**, and older crowns/hotel/council trees differ.
-- Use measured 2023 canopy radius/height only for the **matching** tree, after the trunk and photo line up. A 2018 pear may not yet have the typical mature 9–12m size described in a generic nursery guide. [S19 botanical note in SOURCES]
+- Use measured 2023 canopy radius/height only for the **matching** tree, after the trunk and photo line up. A 2018 pear may not yet have the typical mature 9–12m size described in a generic nursery guide. [botanical dimensions source in SOURCES.md](SOURCES.md#additional-botanical-morphologytaxonomic-sources-not-site-observations)
 - The 2019 design's exact tree symbols can supply **proposed target planting points** with drawing/survey transformation and uncertainty, but not `existence_status: current` until verified.
 - Leaf-level LOD: pears seasonal deciduous/white blossom; Kurrajongs evergreen broader irregular; maples/oaks deciduous but only for confirmed instances; palm geometry only where an individual palm's trunk is clearly photographed/identified.
 - Do not modify current gameplay collision, planted median positions, hotel exclusions or road-paint work while collecting these facts.
