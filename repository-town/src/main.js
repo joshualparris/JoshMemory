@@ -768,7 +768,7 @@ async function start() {
     closePanel();npcChat.close();ambience.door();
     $('card').hidden=true;delete $('card').dataset.coord;
     const n=built.staff.length;
-    status('Inside '+w.name+'. '+(built.open?(n?n+' staff on shift'+(built.pupils?', '+built.pupils+' pupils in class':'')+'.':'Open, but nobody is rostered on right now.'):'Closed now (usual hours '+String(Math.floor(w.opens/60)).padStart(2,'0')+':'+String(w.opens%60).padStart(2,'0')+'–'+String(Math.floor(w.closes/60)).padStart(2,'0')+':'+String(w.closes%60).padStart(2,'0')+').')+' Fitted out for the work done here; staff numbers are estimates. Walk back out or tap Exit.');
+    status('Inside '+w.name+'. '+(built.open?(n?n+' staff on shift'+(built.pupils?', '+built.pupils+' pupils in class':'')+'.':'Open, but nobody is rostered on right now.'):'Closed now (usual hours '+String(Math.floor(w.opens/60)).padStart(2,'0')+':'+String(w.opens%60).padStart(2,'0')+'–'+String(Math.floor(w.closes/60)).padStart(2,'0')+':'+String(w.closes%60).padStart(2,'0')+').')+(built.evidence?' Fitted out from published descriptions of this business ('+built.evidence.sources.length+' sources); no interior photos were available, so layout and finishes are not evidenced.':' Generic fit-out for its kind: no evidence about this interior has been gathered yet.')+' Walk back out or tap Exit.');
     return true;
   }
 
