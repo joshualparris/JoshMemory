@@ -69,15 +69,18 @@ export function createNarromineCommute(graph, { seed = 20211810 } = {}) {
       const p = car.driver && pop.people[+car.driver.slice(3)]; if (!p) continue;
       const hh = pop.households[+car.household.slice(3)], plan = dayPlan(p, hh, weekday, pop.workplaces);
       // The car is where it was last parked; a destination within 150 m of it is walked to (the car stays).
-      let where = 'home', carAt = 'home';
+      let where = 'home', carAt = 'home', prevKind = null;
       for (const step of plan) {
+        const pk = prevKind; prevKind = step.kind;
         if (step.at === where) continue;
         where = step.at;
         if (step.at === carAt) continue;
         const a = pointOf(carAt, hh), b = pointOf(step.at, hh); if (!a || !b) continue;
         const r = route(nearestNode(a.x, a.z), nearestNode(b.x, b.z));
         if (!r || r.length <= 150) continue;
-        out.push({ id: car.id + '@' + step.from, car: car.id, person: p.id, from: carAt, to: step.at, depart: step.from, path: r.path, length: r.length, duration: r.length / TOWN_SPEED / 60, dest: b, purpose: step.kind });
+        // Children ride along to school (drop-off) and home again (after pick-up).
+        const kids = hh.schoolRun?.driver === p.id && (step.kind === 'dropoff' || (step.at === 'home' && carAt === hh.schoolRun.school && pk === 'pickup')) ? hh.schoolRun.kids : [];
+        out.push({ id: car.id + '@' + step.from, car: car.id, person: p.id, passengers: kids, from: carAt, to: step.at, depart: step.from, path: r.path, length: r.length, duration: r.length / TOWN_SPEED / 60, dest: b, purpose: step.kind });
         carAt = step.at;
       }
     }

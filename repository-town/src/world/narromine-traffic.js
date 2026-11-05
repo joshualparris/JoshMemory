@@ -119,7 +119,7 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
       const e = adj.get(t.path[i]).find(x => x.to === t.path[i + 1]); if (!e) continue;
       const car = commute.population.cars[+t.car.slice(4)], driver = commute.population.people[+t.person.slice(3)];
       const c = { id: serial++, trip: t.id, route: t.path, ri: i, from: t.path[i], to: t.path[i + 1], s: Math.min(s, e.len), len: e.len, width: e.width, model: car.model, L: car.length,
-        speed: SPEED * 0.95, v: SPEED * 0.8, colour: car.colour, ute: /truck/.test(VEHICLE_MODELS[car.model].file), carId: car.id, driver: driver.name, purpose: t.purpose, destination: t.to === 'home' ? 'home (' + commute.population.households[+car.household.slice(3)].street + ')' : t.to === 'coles' ? 'Coles' : commute.population.workplaces.find(w => w.id === t.to)?.name || t.to };
+        speed: SPEED * 0.95, v: SPEED * 0.8, colour: car.colour, ute: /truck/.test(VEHICLE_MODELS[car.model].file), carId: car.id, driver: driver.name, passengers: (t.passengers || []).map(k => commute.population.people[+k.slice(3)].first), purpose: t.purpose, destination: t.to === 'home' ? 'home (' + commute.population.households[+car.household.slice(3)].street + ')' : t.to === 'coles' ? 'Coles' : commute.population.workplaces.find(w => w.id === t.to)?.name || t.to };
       if (Math.hypot(nodes[c.from].x - player.x, nodes[c.from].z - player.z) < 40 && c.s < 5) continue;   // don't pop in beside the player
       live.add(t.id); cars.push(c); place(c);
     }

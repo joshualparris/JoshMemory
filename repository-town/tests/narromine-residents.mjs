@@ -17,7 +17,7 @@ for (const p of P.people) {
   if (p.workplace) assert(work.has(p.workplace) && p.age >= 16, 'real workplace, working age: ' + p.id);
   if (p.age >= 5 && p.age <= 17) assert(p.school, 'school-age child has a school: ' + p.name);
 }
-for (const h of P.households) { assert(!/\d/.test(h.street), 'street name only, no house number: ' + h.street); assert(h.fridge && h.members.length); }
+for (const h of P.households) { assert.equal(new Set(h.members.map(id => P.people[+id.slice(3)].first)).size, h.members.length, 'unique first names in ' + h.id); assert(!/\d/.test(h.street), 'street name only, no house number: ' + h.street); assert(h.fridge && h.members.length); }
 for (const c of P.cars) { const d = P.people[+c.driver?.slice(3)]; if (d) assert(d.age >= 18 && d.household === c.household, 'driver is an adult of the owning household'); }
 const coles = P.workplaces.find(w => w.kind === 'supermarket');
 assert.equal(P.people.filter(p => p.workplace === coles.id).length, coles.staff, 'Coles is fully staffed');
@@ -34,6 +34,15 @@ for (const car of P.cars.slice(0, 300)) {
   const at3 = commute.carState(car.id, 2, 3 * 60), night = list.some(t => t.depart > 21 * 60);
   assert(at3.parked === 'home' || (night && at3.parked), car.id + ' is at home at 3 am unless its driver works nights');
 }
+// Nobody drives two cars at once; spare cars stay home.
+const byDriver = {}; for (const t of trips) (byDriver[t.person] ??= new Set()).add(t.car);
+assert(Object.values(byDriver).every(s => s.size === 1), 'each driver uses one car');
+// School run: primary-school children are driven to their own school at 8:25 by a parent from their household.
+const drops = trips.filter(t => t.purpose === 'dropoff');
+assert(drops.length > 50, 'school drop-offs happen: ' + drops.length);
+for (const t of drops) { assert(t.depart === 8 * 60 + 25); for (const k of t.passengers) { const kid = P.people[+k.slice(3)]; assert(kid.age <= 11 && kid.school === t.to && kid.household === P.people[+t.person.slice(3)].household); } }
+assert(trips.filter(t => t.purpose !== 'dropoff' && t.passengers?.length).every(t => t.depart >= 15 * 60), 'children ride home only after pick-up');
 const weekend = commute.trips(6);
+assert.equal(weekend.filter(t => t.purpose === 'dropoff').length, 0, 'no school run on Saturday');
 assert(weekend.filter(t => t.purpose === 'travel').length < trips.filter(t => t.purpose === 'travel').length / 2, 'far fewer commutes on Saturday');
 console.log(`PASS Narromine residents: ${P.people.length} people, ${P.homes.length} homes, ${P.cars.length} cars, ${P.workers} workers, median age ${median}; ${trips.length} weekday trips (${byHour[7] + byHour[8]} at 7-9 am), ${weekend.length} on Saturday`);
