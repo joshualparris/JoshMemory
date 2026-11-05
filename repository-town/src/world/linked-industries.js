@@ -142,7 +142,7 @@ function animalCareDay(life){
 }
 function progressVet(life,minutes){
  const s=ensureLinkedIndustries(life),v=s.vet;
- const shift=life.minute>=480&&life.minute<1020&&life.weekday()!==6&&life.weekday()!==0;
+ const shift=life.minute>=480&&life.minute<1020&&!['Saturday','Sunday'].includes(life.weekday());
  if(v.status==='at clinic'&&shift){
   const c=s.cases.find(c=>c.status==='reported');
   if(c){const from=life.place('clinic').front,to=life.place(c.farm).front;
@@ -189,6 +189,8 @@ function progressRuns(life,minutes){
 function advanceBrewery(life){
  const s=ensureLinkedIndustries(life),b=s.brewery;
  if(!life.gridPowered('industry')||life.civic.supply.waterOk===false)return;
+ const staffed=life.villagers.some(v=>v.work==='foundry'&&v.step?.kind==='work'&&!v.path?.length);
+ if(!staffed)return;
  for(const batch of b.batches.filter(x=>x.status==='fermenting'&&x.readyDay<=life.day)){
   batch.status='conditioned';b.readyKegs+=3;linkedLog(life,batch.id+' conditioned three 50 L kegs after three days.');}
  if(life.minute<600||life.minute>=660||b.lastBrewDay===life.day||b.batches.filter(x=>x.status==='fermenting').length>=2)return;
@@ -201,7 +203,8 @@ function advanceSite(life,minutes){
  const s=ensureLinkedIndustries(life),site=s.site,stage=INDUSTRY_STAGES[site.stage];
  if(!stage||!life.open(life.place('trades')))return;
  const builder=TRADE_STAFF.find(x=>x.trade==='building'&&x.qualified);
- if(!builder||!life.gridPowered('industry'))return;
+ const staffed=life.villagers.some(v=>v.work==='trades'&&v.step?.kind==='work'&&!v.path?.length);
+ if(!builder||!staffed||!life.gridPowered('industry'))return;
  if(!Object.entries(stage.needs).every(([g,n])=>(site.stock[g]||0)>=n))return;
  if(site.progress===0){for(const [g,n] of Object.entries(stage.needs))site.stock[g]-=n;linkedLog(life,builder.name+' started '+stage.name+' at the cooperative site.');}
  site.progress+=minutes;
@@ -215,6 +218,13 @@ export function tickLinkedIndustries(life,minutes){
  const s=ensureLinkedIndustries(life);
  if(!Number.isFinite(minutes)||minutes<=0)return;
  animalCareDay(life);progressRuns(life,minutes);progressVet(life,minutes);
+ // Farm feed is automatically ordered against finite silo grain and farm cash.
+ // The same single delivery van must complete each journey before the next one.
+ if(life.minute>=480&&life.minute<1020&&availableRun(s))for(const farm of Object.keys(INDUSTRY_FARMS)){
+  if(s.feed[farm]<6 && (life.place(farm).till||0)>=6 && (life.place('silo').out.grain||0)>=3){
+   bookFeedRun(life,farm);break;
+  }
+ }
  advanceBrewery(life);advanceSite(life,minutes);
 }
 export function industryReport(life){
