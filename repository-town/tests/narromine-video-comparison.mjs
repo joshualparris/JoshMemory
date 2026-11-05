@@ -4,7 +4,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { NARROMINE_QA_LOCATIONS, VIEWPORTS } from '../tools/narromine-visual-qa/locations.mjs';
 import {
-  BASELINE_SHA, CANDIDATE_SHA, DEFAULT_ROUTE_ID, cameraRoute, checkPairContract, instrumentMainForQa,
+  BASELINE_SHA, CANDIDATE_SHA, DEFAULT_ROUTE_ID, ROAD_HORIZON_ROUTE_ID,
+  cameraRoute, locateCameraRoute, checkPairContract, instrumentMainForQa,
 } from '../tools/narromine-visual-qa/compare-video.mjs';
 
 assert.match(BASELINE_SHA, /^[a-f0-9]{40}$/);
@@ -13,6 +14,15 @@ assert.notEqual(BASELINE_SHA, CANDIDATE_SHA, 'two historical shader revisions');
 assert(VIEWPORTS.desktop && VIEWPORTS.mobile);
 const coles = NARROMINE_QA_LOCATIONS.find(x => x.id === DEFAULT_ROUTE_ID);
 assert(coles, 'use canonical 3D Narromine camera location');
+const northView = locateCameraRoute(ROAD_HORIZON_ROUTE_ID);
+assert(northView, 'derived long-axis road view available');
+assert.equal(northView.camera.x, coles.camera.x, 'camera x grounded in canonical survey');
+assert.equal(northView.camera.z, coles.camera.z, 'camera z grounded in canonical survey');
+assert.equal(northView.camera.yawRad, 0, 'looking along northward Dandaloo Street');
+assert.notEqual(northView.camera.yawRad, coles.camera.yawRad,
+  'long-axis route must not face across the road');
+assert.equal(cameraRoute(northView, 36).length, 36, 'real deterministic long-road pose');
+assert.equal(locateCameraRoute('invalid'), null, 'unknown places rejected');
 const route = cameraRoute(coles, 36);
 assert.deepEqual(route, cameraRoute(coles, 36), 'no camera-path randomness');
 assert.equal(route.length, 36, '36 rendered waypoints');
@@ -64,4 +74,5 @@ assert(source.includes("page.route('**/world/narromine-surface-materials.js'"),
 assert(source.includes("status: 'unverified'"),
   'video capture alone cannot declare flicker improved');
 assert(!source.includes('maps.googleapis.com'), 'no paid Google calls');
+assert(source.includes("type: 'png'"), 'subpixel QA samples must be lossless PNG');
 console.log('PASS NR-VQA-001: deterministic 36-frame moving camera, pinned shader pair and strict A/B evidence contract');
