@@ -80,6 +80,11 @@ try{
   // This is a Dandaloo-first acceptance invariant: a narrow service driveway is
   // not equivalent to the main street or to a connected pedestrian walk.
   assert.equal(report.onDandalooHits,0,device+': no modelled Dandaloo road-lane contact');
+  // Safety-critical: do not waive genuine full-body contacts just because
+  // the 4.5 m service road's shoulder probe overhangs the mapped carriageway.
+  assert.equal(report.centrelineHits,0,device+': centreline blocked by static geometry');
+  assert.equal(report.probeWithinCarriagewayHits,0,
+    device+': static collision within full mapped carriageway (see JSON byRoad)');
   assert(Number.isInteger(report.mappedStreetHits) && report.mappedStreetHits>=0,
     device+': mapped-road contacts must be recorded for follow-up');
   if(report.mappedStreetHits>0)console.warn('UNRESOLVED mapped Narromine lane contacts ('+device+'): '+report.mappedStreetHits);
