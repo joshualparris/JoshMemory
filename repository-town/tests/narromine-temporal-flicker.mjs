@@ -73,5 +73,5 @@ for (let i = 0; i < poses.length; i += 4) {
   assert.equal(poses[i].z, poses[i + 3].z);
   assert.equal(poses[i].pitchRad, poses[i + 3].pitchRad);
 }
-assert.throws(() => cameraRoute(loc, 35), /four-frame/);
+assert.throws(() => cameraRoute(loc, 35), /complete AABB cycles/);
 console.log('PASS NR-VQA-003: lossless PNG decoder, camera AABB motion, static negative control, quantitative verdict gates');
