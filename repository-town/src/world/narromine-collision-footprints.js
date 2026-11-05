@@ -14,5 +14,7 @@ export function rotatedBoxFootprint(x, z, width, depth, yaw = 0) {
 export function rotatedBoxCollider({ x, z, w, d, yaw = 0, rect }, source = 'rotated-building') {
   if (!rect || ![rect.x0,rect.x1,rect.z0,rect.z1].every(Number.isFinite))
     throw new TypeError('rotatedBoxCollider needs the existing broadphase rect');
-  return { ...rect, poly: rotatedBoxFootprint(x, z, w, d, yaw), source };
+  // The layout source already carries the measured/rendered polygon: reuse it exactly.
+  // Derive only as fallback for future POI builders that supply an AABB alone.
+  return { ...rect, poly: rect.poly || rotatedBoxFootprint(x, z, w, d, yaw), source };
 }
