@@ -6,6 +6,7 @@
 // narromine-rail-network.js). No operator livery or trademark is copied.
 import * as THREE from 'three';
 import { RAIL, STREETS } from './narromine-layout.js';
+import {REPO_RAIL_GAME_WAYS} from './town-rail-continuation-route.js';
 import { buildRailNetwork, createTrainPath, RAIL_GAUGE_M, RAIL_TOP_Y, SPEED_LIMIT_KMH } from './narromine-rail-network.js';
 
 const SLEEPER_SPACING = 0.68;   // concrete sleepers, ~1,470 per km
@@ -192,8 +193,8 @@ function buildCrossing(parent, c) {
   return { ...c, booms, down: 0 };
 }
 
-export function createNarromineTrains(parent) {
-  const net = buildRailNetwork(RAIL), track = trackMeshes(parent);
+export function createNarromineTrains(parent, activeTrainParent=parent) {
+  const net = buildRailNetwork([...RAIL,...REPO_RAIL_GAME_WAYS]), track = trackMeshes(parent);
   // Park facing south-east on the Narromine yard loop (OSM way 2), clear of the main line.
   const yard = RAIL[2].pts;
   const start = [];
@@ -201,7 +202,7 @@ export function createNarromineTrains(parent) {
   const lengths = start.slice(1).reduce((a, id, i) => a.concat(a[i] + Math.hypot(net.nodes[id].x - net.nodes[start[i]].x, net.nodes[id].z - net.nodes[start[i]].z)), [0]);
   const startS = Math.min(lengths.at(-1) - 5, CONSIST_LENGTH + 40);
   const path = createTrainPath(net, start, startS);
-  const mine = makeConsist(parent, HOPPERS), cars = mine.cars;
+  const mine = makeConsist(activeTrainParent, HOPPERS), cars = mine.cars;
   let speed = 0, driving = false, pref = 'straight', message = '', penalty = false, horn = 0;
   const place = () => placeConsist(mine, path);
   let placed = place();
