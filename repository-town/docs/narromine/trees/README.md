@@ -23,6 +23,7 @@ Existing game asset: **3,096** candidate canopy peaks/trees from 2023 NSW Spatia
 | [verified-individual-trees.geojson](verified-individual-trees.geojson) | *Only* individually evidenced, species-labelled tree points | Currently empty: **0** verified species + trunk coordinate pairs from public sources |
 | [COUNCIL_DATA_REQUEST.md](COUNCIL_DATA_REQUEST.md) | Ready-to-send informal data request | Draft only, **not sent** |
 | [IMPORT_PLAN.md](IMPORT_PLAN.md) | Field/photo verification, join rules and realistic 3D implementation | Read-only recommendation: no live trees replaced |
+| [verify.mjs](verify.mjs) | Standalone Node provenance/coordinate and false-identification regression test | Run `node repository-town/docs/narromine/trees/verify.mjs`; CI on PR and main |
 
 ## Minimum evidence rule
 
