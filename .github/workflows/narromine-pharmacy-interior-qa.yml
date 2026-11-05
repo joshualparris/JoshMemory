@@ -1,0 +1,60 @@
+name: Narromine Pharmacy evidence-specific interior acceptance
+on:
+  pull_request:
+    paths:
+      - 'repository-town/src/world/narromine-pharmacy-interior.js'
+      - 'repository-town/src/world/narromine-workplaces.js'
+      - 'repository-town/src/main.js'
+      - 'repository-town/tests/narromine-pharmacy.mjs'
+      - 'repository-town/tests/narromine-pharmacy-browser.mjs'
+      - 'repository-town/docs/narromine/interiors/NARROMINE_PHARMACY_2026-11-06.md'
+      - '.github/workflows/narromine-pharmacy-interior-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  pharmacy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install pinned packages and run the complete deploy build and privacy gate
+        working-directory: repository-town
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build:deploy
+      - name: Site-specific pharmacy Node tests
+        working-directory: repository-town
+        run: |
+          node tests/narromine-pharmacy.mjs
+          node tests/narromine-workplaces.mjs
+          node tests/narromine-homes.mjs
+      - name: Install supported Chromium
+        working-directory: repository-town
+        run: npx playwright install --with-deps chromium
+      - name: Real desktop and Pixel 7 WebGL entry, shopfloor and exit
+        working-directory: repository-town
+        env:
+          TOWN_URL: http://127.0.0.1:8091/
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          node tools/serve.mjs dist/public 8091 >/tmp/narromine-pharmacy-serve.log 2>&1 &
+          server=$!
+          trap 'kill $server 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 50); do
+            if curl -fsS http://127.0.0.1:8091/ >/dev/null; then break; fi
+            sleep 1
+          done
+          node tests/narromine-pharmacy-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: narromine-pharmacy-evidence-${{ github.run_id }}
+          path: repository-town/test-results/narromine-pharmacy/
+          retention-days: 14
+          if-no-files-found: warn
