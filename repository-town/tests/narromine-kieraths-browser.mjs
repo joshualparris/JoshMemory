@@ -32,7 +32,11 @@ try {
     window.__town.life.setTime(12 * 60);
     window.__town.place(x, z, Math.PI / 2);
   }, geo.route[0]);
-  await page.waitForTimeout(750);
+  // Software WebGL scene streaming depends on actual animation frames, not wall-clock
+  // milliseconds: 750ms incorrectly failed a visible/fully walkable arcade twice
+  // in Actions #41968960648. Do not waive the visibility or triangle assertions.
+  await page.waitForFunction(() => window.__town.narromineVisible() &&
+    window.__town.state().triangles > 1000, null, { timeout: 30000, polling: 250 });
   const start = await page.evaluate(() => ({ visible: window.__town.narromineVisible(), state: window.__town.state() }));
   assert(start.visible, 'Narromine scene is actually visible, not just defined in data');
   assert(start.state.triangles > 1000, 'the live WebGL scene drew geometry');
