@@ -108,9 +108,9 @@ export const ARCHITECTURAL_DISCREPANCIES = Object.freeze([
     suggestedCorrection:
       'Add a glazed supermarket entrance vestibule and automatic sliding doors adjacent to the western trolley bay (-4846.5, z ≈ -902) with walkable entry transition.',
     responsibleFiles: ['src/world/narromine-kieraths.js', 'src/world/narromine.js', 'src/world/narromine-layout.js'],
-    claimedByOtherAgent: true,
+    claimedByOtherAgent: false,
     agentClaimRef:
-      'PR #319 (feat/narromine-postal-resident-20261104, OPEN) — RTD-068 grounded postal resident and walkable Coles.',
+      'Claim lapsed: PR #319 closed 4 Nov 2026; its salvage #354 (merged) made Coles walkable with an interior entry lobby, but the western carpark glazed vestibule itself is not verified as built. Open and unclaimed (status checked 5 Nov 2026).',
   },
   {
     id: 'DISC-NR-005',
@@ -131,9 +131,9 @@ export const ARCHITECTURAL_DISCREPANCIES = Object.freeze([
     suggestedCorrection:
       'Refine the Dandaloo Street under-awning shopfront mullions, transoms, and arcade throat framing around KIERATHS_KIOSK without inventing unverified tenant names.',
     responsibleFiles: ['src/world/narromine-kieraths.js', 'src/world/narromine-kieraths-data.js'],
-    claimedByOtherAgent: true,
+    claimedByOtherAgent: false,
     agentClaimRef:
-      "PR #309 (feat/kieraths-live-courtyard-geometry-20261104, OPEN) — Rebuild Kierath's live 3D arcade from plan-derived shop footprints and courtyard.",
+      "PR #309 merged 4 Nov 2026 (Kierath's live 3D arcade from plan-derived shop footprints and courtyard); this under-awning mullion refinement remains open and unclaimed (status checked 5 Nov 2026).",
   },
   {
     id: 'DISC-NR-006',
@@ -154,8 +154,8 @@ export const ARCHITECTURAL_DISCREPANCIES = Object.freeze([
     suggestedCorrection:
       'Retain neutral unbranded fascias on the 10 internal arcade bays until walk-through photographs or tenancy plans are supplied.',
     responsibleFiles: ['src/world/narromine-kieraths.js'],
-    claimedByOtherAgent: true,
-    agentClaimRef: "PR #309 (feat/kieraths-live-courtyard-geometry-20261104, OPEN).",
+    claimedByOtherAgent: false,
+    agentClaimRef: "PR #309 merged 4 Nov 2026; internal arcade tenancy signage remains open pending walk-through photographs (status checked 5 Nov 2026).",
   },
 
   // ── 3. NARROMINE POST OFFICE (74 Dandaloo Street — NR-SITE-narromine-post-office) ──

@@ -2,7 +2,7 @@
 
 Date: 4 November 2026 (Australia/Sydney)  
 Branch: `feat/narromine-railway-precinct-20261104`  
-Status: **Standalone implementation complete — live integration pending** (`src/world/narromine.js` and `package.json` left untouched while PR #309, PR #310, and PR #311 hold active claims).
+Status: **Integrated and live.** Built standalone in PR #312, then wired into the live world by PR #316 (merged 4 Nov 2026; `buildNarromineRailwayPrecinct` is called from `src/world/narromine.js`). The PRs #309–#311 named below as holding claims have all merged, and #289 was closed. Status checked 5 Nov 2026; the rest of this document is the original 4 Nov record.
 
 ---
 

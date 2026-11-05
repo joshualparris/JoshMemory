@@ -1,5 +1,7 @@
 # Repository Town — numbered follow-up triage after RTD-009
 
+> **Status note (5 Nov 2026):** Recorded-audio PR #164, described below as still open, merged on 27 Oct 2026, and PR #186 was closed unmerged on 26 Oct. RTD-001–009 and RTD-042 are checked; RTD-010 is still the first open item.
+
 **Updated:** 25 October 2026 (Australia/Sydney)  
 **Canonical source:** [RTD-001–093 numbered checklist](SKYRIM_NPC_DIALOGUE_IMPLEMENTATION_TODO.md)  
 **Parent project tracker:** [JoshMemory numbered outstanding work](../../docs/OUTSTANDING_WORK_2026-10-24.md)  

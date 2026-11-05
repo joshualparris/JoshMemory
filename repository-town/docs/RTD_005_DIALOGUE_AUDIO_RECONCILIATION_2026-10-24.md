@@ -1,5 +1,7 @@
 # RTD-005 — NPC dialogue implementation, PR and audio acceptance reconciliation
 
+> **Status note (5 Nov 2026):** PR #164 (20 additional recordings, VO041–VO060), described below as still open at audit time, merged on 27 Oct 2026. The rest is the 24 Oct audit record.
+
 **Audit date:** 24 October 2026 (Australia/Sydney)  
 **Task:** [RTD-005](SKYRIM_NPC_DIALOGUE_IMPLEMENTATION_TODO.md) — compare merged PR #166, currently shipped source, the NPC choice UI, the Town checkpoint and linked audio task trackers, without duplicating or reverting existing work.  
 **Scope:** Existing GitHub source, pull requests, CI evidence and checklists. **No new recordings, gameplay changes, production promotion or fresh production audio playtest are asserted by this audit.**  

@@ -17,7 +17,7 @@ landmark sites, 8 stand-in shops and **2,665 invented stand-in houses**.
 1. [x] **Real building footprints for every building.** _Done 4 Nov 2026: 2,212 traced footprints (Microsoft Global ML Building Footprints, ODbL) replace all 2,665 invented houses; heights from its estimates (1,985 measured); 13 dropped where a mapped road runs through them. Remaining: the 8 named stand-in shops._ Replace the 2,665 invented stand-in houses
    (and 8 stand-in shops) with NSW Spatial Services building footprints: real position, outline and
    orientation for every house, shed and shop. Heights from 2023 LiDAR where measured.
-2. [x] **LiDAR heights and roof form for all footprints.** _Done: 1,265 footprints measured from the 2023/2011 tiles on hand (eave p5, ridge p98); the rest use the footprint dataset's height. Outer areas need more LiDAR tiles._ Run `tools/narromine_lidar.py` over the
+2. [x] **LiDAR heights and roof form for all footprints.** _Heights done: 1,265 footprints measured from the 2023/2011 tiles on hand (eave p5, ridge p98); the rest use the footprint dataset's height. Roof form: 427 footprints classified from the 2023 tiles (hip 239, gable 102, flat 52, skillion 34; 363 drawn houses) in the roofs PR on `fix/narromine-roof-colours-20261105`; the rest keep a stock pyramid roof. Outer areas need more LiDAR tiles._ Run `tools/narromine_lidar.py` over the
    new footprints: wall and ridge heights, flat vs pitched roofs, verandahs.
 3. [x] **Grain silos and receival site.** _Partly done: the four round concrete silos by the station yard (OSM man_made=silo) are cylinders at their LiDAR heights (20.8 m wall, 23.4 m top); the three OSM grain bunkers are low tarped stacks. Bunker heights need a LiDAR tile covering them._ Model the GrainCorp/Agrigrain silos and bunkers at the
    Silo Access Road crossing from footprints and LiDAR heights (currently missing; the tallest
@@ -30,7 +30,7 @@ landmark sites, 8 stand-in shops and **2,665 invented stand-in houses**.
    lines, stop/give-way lines and signs at mapped intersections; real road widths.
 7. [x] **Kerb, gutter and footpaths.** _5 Nov 2026: curved kerb returns at every junction; footpaths only on main roads and town-centre streets (residential streets get verges); Derribong Ave by the hotel has its one-sided red-brick path (owner photo); no footpath across the hotel forecourt; 31 OSM footways drawn. Earlier: unpaved roads no longer get generated footpaths or kerbs. Sealed-street footpaths still follow the road class rule; checking them against aerial imagery remains._ Only on streets that have them (town centre and main
    streets per aerial imagery); gravel verges elsewhere.
-8. [ ] **Terrain.** Use the LiDAR ground model (class 2) for gentle ground levels, the Macquarie
+8. [ ] **Terrain.** _5 Nov: measured ~1.6 m relief (p5–p95 of 25 m ground cells) across the two 2023 tiles; deferred, since the engine is a flat world and the visible gain is about a metre. River banks are outside the tiles._ Use the LiDAR ground model (class 2) for gentle ground levels, the Macquarie
    River banks and drainage channels, instead of a flat plane.
 9. [ ] **Ground cover and land use.** Paddocks, parks, sports ovals, the golf course, the
    aerodrome and industrial yards from OSM land use and aerial imagery colours.
@@ -38,13 +38,13 @@ landmark sites, 8 stand-in shops and **2,665 invented stand-in houses**.
     crossings, from the NSW "level crossings on public roads" open dataset (currently all booms).
 11. [x] **Power lines and poles.** _Done from OSM: 33 timber poles on the 22 kV line, 17 lattice towers on the two 132 kV lines, sagging three-wire conductors. Heights are typical values (not mapped). South Dandaloo poles still need LiDAR wire returns or OSM mapping._ OSM `power=line/pole` and LiDAR wire returns; re-add the south
     Dandaloo poles at their real positions.
-12. [x] **Street lights and signs.** _Done for what OSM maps: 34 give-way signs at the kerb facing approaching traffic and 9 bus stops. OSM maps no street lamps or stop signs here, so none are invented._ OSM `highway=street_lamp`, traffic signs and the town-centre
+12. [x] **Street lights and signs.** _Done for what OSM maps: 34 give-way signs at the kerb facing approaching traffic and 9 bus stops. OSM maps no street lamps or stop signs here, so none are invented._ OSM `highway=street_lamp`, traffic signs and the town-centre _5 Nov: plus 322 street objects at Mapillary-detected positions (#412: speed/direction/warning signs, crossings, benches, hydrants and more; non-solid) with readable regulatory signs (#419)._
     lights; only where mapped.
 13. [ ] **Business names and land uses.** Check all 98 named places against OSM and council
     listings; remove closed businesses; keep historical names only with a date label.
 14. [x] **Sky, light and colour.** _Sun position, dawn and dusk were already computed for Narromine's latitude and date; fog now opens to 220–650 m in Narromine for the clear inland air. Paint/roof colours from aerial imagery remain._ Correct sun position for Narromine's latitude and season, a
     clear inland sky, and paint/roof colours sampled from NSW aerial imagery (not Street View).
-15. [ ] **Traffic and people at realistic levels.** Car and pedestrian numbers that match a town
+15. [ ] **Traffic and people at realistic levels.** _Partly done 5 Nov: cars on the left at 50 km/h at NSW-register volumes (Dandaloo 7,000/day, weekday profile; #413), Dandaloo crossing jam fixed (#416), real CC0 vehicle models (#423). Pedestrian numbers and highway trucks not yet matched._ Car and pedestrian numbers that match a town
     of about 3,400 people; trucks on the Mitchell Highway.
 16. [ ] **Rail completion.** Silo sidings in use, a fictional-but-labelled link to Repository
     Town if wanted, and freight wagons loading at the silos.
@@ -60,12 +60,21 @@ Progress is recorded against each item with its PR number.
 - [x] Curved kerbs at junctions (PR #400), hotel forecourt one sealed surface (PR #401).
 - [x] Main-road line marking with curved corner lines (PR #402).
 - [x] Derribong Avenue one-sided red-brick footpath; residential verges (PR #404).
+- [x] Station footbridge and stale road markings from the Mapillary comparison sweep (PR #414).
+
+## Done later on 5 Nov 2026 (not in the numbered list above)
+
+- [x] Post Office L-shaped hipped roof, DISC-NR-007 (PR #392), live on production `ec085dd8`.
+- [x] Road collision audit (#398 step 1.2): the 52 contacts left after #403 are all real roadside objects; no change needed.
+- [ ] Named places on their real footprints, NR-REAL-004 (PR #418): 2 of 8 moved, 3 kept with reasons, 3 handled by the NW Dandaloo block.
+- [ ] Roof colours from NSW aerial imagery and roof forms from 2023 LiDAR (roofs PR, `fix/narromine-roof-colours-20261105`). The imagery is a July 2012 capture, so buildings put up since keep a stock tone.
 
 ## Still open, and what each needs
 
 - **3 (bunkers), 4 and 2 outside the town centre:** more NSW LiDAR tiles (only 6166432/6166433 are on hand).
 - **5 Fences and lot lines:** NSW cadastre is reachable; fences need aerial imagery or Mapillary review.
-- **8 Terrain:** LiDAR ground model, same tile limit as above.
+- **8 Terrain:** measured at ~1.6 m relief in the tiles on hand; deferred (see item 8). More tiles need an ELVIS order by Josh.
 - **9 Land use:** OSM land-use areas are drawn; paddock/oval colours from aerial imagery still to check.
 - **13 Business names:** needs a dated check against current council/business listings.
-- **15 Traffic levels, 16 rail extras, 17 owner review:** not started.
+- **15 Traffic:** cars done (#413, #416, #423); pedestrian levels and highway trucks open.
+- **16 rail extras, 17 owner review:** not started.
