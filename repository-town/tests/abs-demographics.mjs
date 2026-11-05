@@ -15,6 +15,17 @@ assert.equal(new Set(p.residents.map(v=>v.populationId)).size,470);
 assert.equal(p.households.flatMap(h=>h.members).length,470);
 for(const v of p.residents){assert.ok(Number.isInteger(v.age));assert.ok(v.home);if(v.age<18){assert.notEqual(v.maritalStatus,'married');assert.ok(v.guardianIds.length);assert.ok(p.residents.some(a=>v.guardianIds.includes(a.populationId)&&a.age>=v.age+18));}}
 assert.equal(town.villagers.length,171);assert.equal(town.marriages.length,55);
+
+// Different town seeds and the larger test-only housing grid must also work.
+// The previous greedy allocation failed roster-coverage with seed 20261020.
+for(const seed of [1,42,20261020]){
+ const residents=new TownLife({homes,seed});
+ assert.equal(residents.populationReport().population,470);
+ assert.ok(residents.population.households.filter(h=>['coupleWithChildren','oneParent'].includes(h.familyType))
+   .every(h=>h.members.some(v=>['child','adult child'].includes(v.relation))),
+   'family child allocation must remain feasible for seed '+seed);
+}
+
 for(const v of town.villagers){assert.ok(v.age>=18);if(v.marriageYear)assert.ok(v.age>=2026-v.marriageYear+18);}
 for(const h of p.households.filter(h=>h.familyType==='coupleWithChildren'||h.familyType==='oneParent'))assert.ok(h.members.some(v=>['child','adult child'].includes(v.relation)));
 const child=p.additional.find(v=>v.age===8),senior=p.additional.find(v=>v.age>=75);
