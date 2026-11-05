@@ -44,6 +44,8 @@ export function cameraRoute(location, count = 36) {
 export function checkPairContract(baseline, candidate) {
   assert.equal(baseline.variant, 'baseline');
   assert.equal(candidate.variant, 'candidate');
+  assert.equal(baseline.instrumentedMainSha256, candidate.instrumentedMainSha256,
+    'both versions must run identical QA-only camera instrumentation');
   assert.equal(baseline.buildRevision, candidate.buildRevision,
     'both variants MUST use identical game assets');
   assert.notEqual(baseline.shaderSha256, candidate.shaderSha256,
@@ -98,6 +100,33 @@ function parseArguments(argv) {
   return options;
 }
 
+// QA-only instance hook runs inside the served main module before the render loop.
+// This is needed because wrapping THREE.WebGLRenderer.prototype after bootstrap is
+// not reliable when the renderer has already bound its own render function.
+export function instrumentMainForQa(main) {
+  const marker = 'const camera = new THREE.PerspectiveCamera(72, innerWidth / innerHeight, 0.15, 185);';
+  assert.equal(main.split(marker).length, 2, 'expected unique Three.js game camera setup');
+  const hook = [
+    'window.__qaCamera = camera;',
+    'const __narromineQaOriginalRender = renderer.render.bind(renderer);',
+    'renderer.render = function(scene, camera, ...args) {',
+    '  window.__qaCamera = camera;',
+    '  window.__qaRendererHookHits = (window.__qaRendererHookHits || 0) + 1;',
+    '  const ov = window.__qaCameraOverride;',
+    '  if (ov && camera && camera.isPerspectiveCamera) {',
+    '    if (Number.isFinite(ov.eyeHeightM)) camera.position.y = ov.eyeHeightM;',
+    "    camera.rotation.set(ov.pitchRad, ov.yawRad, 0, 'YXZ');",
+    '    if (Number.isFinite(ov.fovDeg) && Math.abs(camera.fov - ov.fovDeg) > 0.001) {',
+    '      camera.fov = ov.fovDeg;',
+    '      camera.updateProjectionMatrix();',
+    '    }',
+    '  }',
+    '  return __narromineQaOriginalRender(scene, camera, ...args);',
+    '};',
+  ].join('\n');
+  return main.replace(marker, marker + '\n' + hook);
+}
+
 function fileRelative(outDir, absolute) {
   return path.relative(outDir, absolute).split(path.sep).join('/');
 }
@@ -149,7 +178,7 @@ async function stopCanvasRecorder(page) {
   });
 }
 
-async function captureVersion(browser, url, outDir, config, version, shader, vp, route) {
+async function captureVersion(browser, url, outDir, config, version, shader, instrumentedMain, vp, route) {
   const destDir = path.join(outDir, version.name, vp.id);
   fs.mkdirSync(destDir, { recursive: true });
   const settings = {
@@ -164,7 +193,7 @@ async function captureVersion(browser, url, outDir, config, version, shader, vp,
     deviceScaleFactor: vp.deviceScaleFactor, isMobile: vp.isMobile, hasTouch: vp.hasTouch,
   });
   const errors = [], external = [];
-  let shaderRequests = 0, finishDone = false;
+  let shaderRequests = 0, mainRequests = 0, finishDone = false;
   try {
     const page = await context.newPage();
     page.on('pageerror', error => errors.push(String(error.message || error)));
@@ -191,12 +220,20 @@ async function captureVersion(browser, url, outDir, config, version, shader, vp,
         body: shader,
       });
     });
+    await page.route('**/main.js', request => {
+      mainRequests++;
+      return request.fulfill({
+        status: 200, contentType: 'text/javascript; charset=utf-8',
+        body: instrumentedMain,
+      });
+    });
     await page.goto(url, { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(
       () => Boolean(window.__town) && document.getElementById('loading')?.hidden,
       null, { timeout: 90000 }
     );
     assert.equal(shaderRequests, 1, 'the intended shader module MUST be loaded exactly once');
+    assert.equal(mainRequests, 1, 'the QA-instrumented source module MUST be loaded exactly once');
     await page.evaluate(() => window.__town.life.setDay(57));
     const first = route[0];
     await positionAndMeasureInPage(page, {
@@ -210,7 +247,8 @@ async function captureVersion(browser, url, outDir, config, version, shader, vp,
       gpu: window.__town.perf?.().gpu || 'unknown',
       canvas: Boolean(window.__qaCamera?.isPerspectiveCamera),
     }));
-    assert(live.canvas, 'real Three.js perspective camera was not hooked');
+    assert(live.canvas && await page.evaluate(() => window.__qaRendererHookHits > 0),
+      'QA-only camera instance hook did not render a Three.js perspective frame');
     assert(live.visible && live.state.triangles > 1200,
       'real Narromine WebGL geometry was not displayed');
     const recorded = await startCanvasRecorder(page);
@@ -253,7 +291,8 @@ async function captureVersion(browser, url, outDir, config, version, shader, vp,
     assert.deepEqual(errors, [], 'browser page errors while recording');
     return {
       variant: version.name, shaderRevision: version.revision,
-      shaderSha256: digest(shader), buildRevision: config.buildRevision,
+      shaderSha256: digest(shader), instrumentedMainSha256: digest(instrumentedMain),
+      buildRevision: config.buildRevision,
       recordedSteps: route.length, videoBytes: videoBuffer.length,
       videoFile: fileRelative(outDir, videoFile), sampleImages,
       route, settings, narromineVisible: live.visible,
@@ -261,7 +300,7 @@ async function captureVersion(browser, url, outDir, config, version, shader, vp,
       renderer: { browserVersion: browser.version(), gpu: live.gpu,
         canvasWidth: recorded.width, canvasHeight: recorded.height,
         mimeType: rawVideo.mimeType },
-      externalRequestsBlocked: external.length, shaderRequests,
+      externalRequestsBlocked: external.length, shaderRequests, mainRequests,
       errors,
     };
   } finally {
@@ -305,6 +344,8 @@ export async function runComparison(options = {}) {
         cwd: REPO_TOWN_ROOT, stdio: 'inherit',
       });
     }
+    const originalMain = fs.readFileSync(path.join(REPO_TOWN_ROOT, 'dist/public/main.js'), 'utf8');
+    const instrumentedMain = instrumentMainForQa(originalMain);
     server = await startStaticServer(path.join(REPO_TOWN_ROOT, 'dist/public'));
     const executablePath = resolveChromiumExecutable();
     browser = await chromium.launch({
@@ -322,9 +363,9 @@ export async function runComparison(options = {}) {
     for (const name of chosen) {
       const vp = VIEWPORTS[name];
       const baselineCapture = await captureVersion(browser, server.url, outDir, config,
-        { name: 'baseline', revision: config.baselineSha }, baseline, vp, route);
+        { name: 'baseline', revision: config.baselineSha }, baseline, instrumentedMain, vp, route);
       const candidateCapture = await captureVersion(browser, server.url, outDir, config,
-        { name: 'candidate', revision: config.candidateSha }, candidate, vp, route);
+        { name: 'candidate', revision: config.candidateSha }, candidate, instrumentedMain, vp, route);
       checkPairContract(baselineCapture, candidateCapture);
       result.records.push(baselineCapture, candidateCapture);
       fs.writeFileSync(path.join(outDir, 'comparison.json'), JSON.stringify(result, null, 2) + '\n');
