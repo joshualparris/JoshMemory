@@ -275,6 +275,8 @@ try {
   await browser.close();
   if(server)await server.close();
 }
-// An audited defect should not make CI discard the report; artifact is required
-// for triage and a separate strict gate can enforce zero defects once fixed.
-// Catastrophic browser/runtime startup errors still fail via thrown assertion.
+// Preserve a complete JSON report and screenshots even on a failed walk, then
+// FAIL the CI gate so a green check cannot hide inaccessible local routes.
+// This proves only individually staged 10-area traversal, never an inter-area walk.
+assert.equal(report.viewports.length,2,'both desktop and Android-sized viewports must run');
+assert.equal(report.passed,20,`NR-REAL-002: ${report.passed}/20 local walks passed; ${report.gaps} gaps — inspect test-results/narromine-real-002/audit.json`);
