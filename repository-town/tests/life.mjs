@@ -155,7 +155,23 @@ for (const [id, re] of [['hall', /Council[\s\S]*Treasury/], ['silo', /Crop/], ['
   if (id === 'bank') { const before = (await st()).panel.text; await btn(/Withdraw/); const after = (await st()).panel.text; check(/Withdrew \$20/.test(after), `bank withdrawal works (${after.slice(0, 60)})`); }
   if (id === 'hall') { await btn(/Vote for Sadie/); check(/vote for Sadie has been recorded/i.test((await st()).panel?.text || ''), 'can vote for mayor'); }
   await T(() => window.__town.closePanel());
-  if ((await st()).mode === 'house') { await T(() => window.__town.exitShop()); s = await st(); check(s.mode === 'town' && Math.abs(s.pos.z - front.z) < 4, `walked back out of ${id} onto its footpath (z ${s.pos.z.toFixed(1)} vs ${front.z.toFixed(1)})`); }
+  if ((await st()).mode === 'house') {
+    await T(() => window.__town.exitShop());
+    s = await st();
+    if (id === 'foundry') {
+      // The south-side Foundry has a physical exterior collider. civicExitPose()
+      // may choose a 6–10m southward offset to prevent trapping the player in
+      // the building; the old same-Z <4m assertion contradicted that safety rule.
+      const clear = await T(({ x, z }) => !window.__town.probeStatic(x, z, 0.46), s.pos);
+      const distance = Math.hypot(s.pos.x - front.x, s.pos.z - front.z);
+      check(s.mode === 'town' && s.pos.z < front.z - 1.5 && distance < 12 && clear,
+        `Foundry game exit reaches nearby south-side collider-clear exterior (distance ${distance.toFixed(1)}m, z ${s.pos.z.toFixed(1)} vs ${front.z.toFixed(1)}, clear=${clear})`);
+    } else {
+      // All other civic frontages retain the original strict 4m return rule.
+      check(s.mode === 'town' && Math.abs(s.pos.z - front.z) < 4,
+        `walked back out of ${id} onto its footpath (z ${s.pos.z.toFixed(1)} vs ${front.z.toFixed(1)})`);
+    }
+  }
 }
 
 // 6. A truck brakes for a player on its real upcoming road segment.
