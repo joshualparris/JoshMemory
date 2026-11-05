@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { permittedTracksideLight } from './rail-corridor.js';
+import {buildTownRailContinuation} from './town-rail-continuation.js';
 import { createStreetLighting, lightingLevel, STREET_LIGHT_BUDGET, householdLightingOn } from './lighting.js';
 import { Builder } from './builder.js';
 import { buildExterior } from './exterior.js';
@@ -35,6 +36,7 @@ export function buildTown(scene, houses, streets) {
   ground.rotation.x = -Math.PI / 2;
   ground.position.y = -0.06;
   group.add(ground);
+  const regionalRail=buildTownRailContinuation(group);
   // Southern concept reserves and the disconnected concept strips are superseded by the built
   // master plan (src/world/masterplan-built.js), which main.js adds with its labels.
   const outskirts = buildOutskirts(group, { omitParcels: ['S-R1', 'S-AG1', 'S-AG2'], roads: false });
@@ -162,7 +164,7 @@ export function buildTown(scene, houses, streets) {
   }
 
   const campuses = [buildYeovalCampus(group, colliders),buildBrackenCampus(group,colliders)];
-  return { group, ground, colliders, campuses, lots, doors, doorZones, streets, guidePos: new THREE.Vector3(0, 0, guideZ), bounds: { width, depth }, outskirts, streetLighting, lampSources, setNight, attachEstateLighting };
+  return { group, ground, colliders, campuses, lots, doors, doorZones, streets, guidePos: new THREE.Vector3(0, 0, guideZ), bounds: { width, depth }, regionalRail, outskirts, streetLighting, lampSources, setNight, attachEstateLighting };
 }
 
 // Street-name signs at both ends of each street, plus the Town Guide sign near spawn.
