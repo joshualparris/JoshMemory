@@ -6,7 +6,7 @@
 // Only the area around the player (500 m) is simulated, so phones stay smooth.
 import * as THREE from 'three';
 import { STREETS } from './narromine-layout.js';
-import { findDandalooCarriageways, roadXAtZ, LANDSCAPED_BANDS } from './narromine-dandaloo-streetscape-data.js';
+import { findDandalooCarriageways, roadXAtZ } from './narromine-dandaloo-streetscape-data.js';
 import { VEHICLE_MODELS, pickVehicle, pickPaint, loadVehicleModels } from './narromine-vehicle-models.js';
 
 export const DAILY_VEHICLES = Object.freeze({ 'Dandaloo Street': 7000, 'Manildra Street': 500, 'Derribong Street': 380, 'Dandaloo Road': 380 });
@@ -28,7 +28,7 @@ export function leftLaneOffset(ux, uz, width) {
 const [WEST_DANDALOO, EAST_DANDALOO] = findDandalooCarriageways(STREETS);
 export function dividedDandalooLane(x, z, name, kind) {
   if (name !== 'Dandaloo Street' || kind !== 'trunk' ||
-      !LANDSCAPED_BANDS.some(b => z <= b.upperZ && z >= b.lowerZ)) return null;
+      z < -1180 || z > -846) return null;
   const wx = roadXAtZ(WEST_DANDALOO, z), ex = roadXAtZ(EAST_DANDALOO, z);
   if (wx === null || ex === null) return null;
   return Math.abs(x - wx) <= Math.abs(x - ex)
