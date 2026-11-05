@@ -52,6 +52,22 @@ function makeConnector(){
   return Object.freeze(pts);
 }
 export const REGIONAL_RAIL_CONNECTOR=makeConnector();
+/** Rail-head elevation in metres. The real mapped Narromine rails are .49m
+ * over datum, while Repository Town's existing running rails are .277m.
+ * Carry the locomotive and wagons smoothly down to the already-built gauge
+ * and avoid hovering wheels when they run the fictional balloon loop.
+ * No change to rail surveying or to the OSM terrain elevation is asserted.
+ */
+export function railTopAtGamePoint(x,z){
+ if(!Number.isFinite(x)||!Number.isFinite(z))return REGIONAL_RAIL_GEOMETRY.narromineRailTop;
+ const startX=REGIONAL_RAIL_CONNECTOR[0][0],endX=REGIONAL_RAIL_CONNECTOR.at(-1)[0];
+ if(x<=startX)return REGIONAL_RAIL_GEOMETRY.narromineRailTop;
+ if(x>=endX)return REGIONAL_RAIL_GEOMETRY.townRailTop;
+ const t=(x-startX)/(endX-startX);
+ return REGIONAL_RAIL_GEOMETRY.narromineRailTop+
+   (REGIONAL_RAIL_GEOMETRY.townRailTop-REGIONAL_RAIL_GEOMETRY.narromineRailTop)*t;
+}
+
 
 // A broad-radius (180 m) fictional "balloon" oval at the far, empty end of
 // Repository Town. The SOUTH leg is the already-built main line and must NOT
