@@ -14,6 +14,7 @@ export const TRADE_STAFF=Object.freeze([
 ]);
 export const HARDWARE=Object.freeze({
  timber:{name:'Treated framing timber',price:11,initial:18},
+ cement:{name:'Bagged concrete and cement',price:9,initial:24},
  fasteners:{name:'Fasteners and brackets',price:4,initial:30},
  pipe:{name:'Copper pipe and fittings',price:15,initial:16},
  cable:{name:'Approved wiring and fittings',price:19,initial:14},
