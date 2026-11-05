@@ -15,7 +15,7 @@
     "repository-town/src/world/power-grid.js": "6de3f54d8fe576117594fe36124748e36da4e255",
     "repository-town/src/world/pub-interior.js": "46396a0552d2480f3c31585e77199803433ab6b6",
     "repository-town/src/world/shop-interior.js": "a558de8daf279c89b2c0cbd3ab874b8bd0960546",
-    "repository-town/src/world/townlife.js": "74aaa17a715e1ae87a86daeb60143596d5064f6d",
+    "repository-town/src/world/townlife.js": "eb11ce77240f352434abdc3055d8272fcd069a3a",
     "repository-town/tests/shop-interiors.mjs": "0ca369aa2d241c152edb841c1125aa9319241a0d",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
@@ -1185,9 +1185,10 @@
       "by": "Claude (ABS population port)",
       "changedFiles": [
         "repository-town/src/main.js",
-        "repository-town/src/world/life.js"
+        "repository-town/src/world/life.js",
+        "repository-town/src/world/townlife.js"
       ],
-      "finding": "Population register, test hook and save field; no pub change."
+      "finding": "Population register (life.js), resident figures (townlife.js), test hook (main.js); no pub change."
     }
   ]
 }
