@@ -1,4 +1,6 @@
 # Narromine — Kierath’s Shopping Square evidence handover
+
+> **Status note (5 Nov 2026):** PR #289 (the NSW GIS proposal described below as open) was closed unmerged on 4 Nov 2026. Kierath's live arcade was merged in PR #309 and Coles was made walkable in #354. The rest is the original 3 Nov record.
 Date: 3 November 2026 (Australia/Sydney)
 Status: IMPLEMENTED IN FEATURE BRANCH — cadastral/path geometry and visual browser acceptance **PENDING CI/PRODUCTION VERIFICATION**
 

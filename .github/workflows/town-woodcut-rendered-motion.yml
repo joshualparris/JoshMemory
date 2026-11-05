@@ -1,0 +1,74 @@
+name: Repository Town Woodcut Rendered Motion
+
+on:
+  pull_request:
+    paths:
+      - 'repository-town/tests/woodcutting-browser.mjs'
+      - 'repository-town/src/world/hatchet-view.js'
+      - '.github/workflows/town-woodcut-rendered-motion.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'repository-town/tests/woodcutting-browser.mjs'
+      - 'repository-town/src/world/hatchet-view.js'
+      - '.github/workflows/town-woodcut-rendered-motion.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  woodcut-desktop-mobile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Dependencies, syntax and woodcut unit contracts
+        run: |
+          npm ci --no-audit --no-fund
+          node --check tests/woodcutting-browser.mjs
+          node tests/skills.mjs
+      - name: Exact source build and privacy
+        run: |
+          npm run build
+          npm run check:privacy
+      - name: Chromium SwiftShader
+        run: npx playwright install --with-deps chromium
+      - name: Real desktop and Android-size swing motion playthrough
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          set -euo pipefail
+          node tools/serve.mjs dist/public 8091 > /tmp/town-woodcut-serve.log 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          for i in $(seq 1 50); do
+            if curl -fsS http://127.0.0.1:8091/ >/dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:8091/ >/dev/null
+          mkdir -p test-results
+          node tests/woodcutting-browser.mjs
+          node tests/woodcutting-browser.mjs --mobile
+      - name: Preserve screenshots on both success and failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: town-woodcut-rendered-motion
+          path: |
+            repository-town/test-results/woodlot-*.png
+            repository-town/test-results/chop-*.png
+            repository-town/test-results/yard-stump-*.png
+            repository-town/test-results/fire-*.png
+          retention-days: 7
+          if-no-files-found: warn

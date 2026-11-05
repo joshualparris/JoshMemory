@@ -6,12 +6,13 @@
 // Only the area around the player (500 m) is simulated, so phones stay smooth.
 import * as THREE from 'three';
 import { STREETS } from './narromine-layout.js';
+import { VEHICLE_MODELS, pickVehicle, pickPaint, loadVehicleModels } from './narromine-vehicle-models.js';
 
 export const DAILY_VEHICLES = Object.freeze({ 'Dandaloo Street': 7000, 'Manildra Street': 500, 'Derribong Street': 380, 'Dandaloo Road': 380 });
 const CLASS_VEHICLES = { trunk: 7000, primary: 4000, secondary: 3000, tertiary: 900, unclassified: 250, residential: 150, living_street: 50, service: 40, track: 15 };
 // Share of the daily total in each hour (typical Australian country-town weekday profile; sums to 1).
 const HOURLY = [.006, .004, .003, .003, .006, .016, .038, .066, .079, .068, .064, .066, .068, .066, .068, .074, .08, .072, .052, .036, .028, .022, .014, .008];
-const SPEED = 50 / 3.6, RADIUS = 500, CAR_GAP = 9;
+const SPEED = 50 / 3.6, RADIUS = 500;
 
 function buildGraph() {
   const nodes = [], adj = new Map(), key = (p) => Math.round(p[0] * 2) + ',' + Math.round(p[1] * 2), index = new Map();
@@ -31,13 +32,17 @@ function buildGraph() {
 
 const CAR_COLOURS = [0xe8e8e4, 0x9aa3ab, 0x2f3b4a, 0x7a1e1e, 0x1f3f6b, 0x3b3b3b, 0xd8d2c0, 0x5c6b52];
 const MAX_CARS = 400;
-export function createNarromineTraffic(parent, { blocked = () => false } = {}) {
-  // All cars are drawn as two instanced meshes (bodies and cabins): two draw calls however many cars.
+export function createNarromineTraffic(parent, { blocked = () => false, models = typeof document !== 'undefined' } = {}) {
+  // Real vehicle models load in the background; until then (and in Node tests) cars are drawn as
+  // simple boxes: two instanced meshes, bodies and cabins.
   const bodies = new THREE.InstancedMesh(new THREE.BoxGeometry(1.8, 0.75, 4.4), new THREE.MeshLambertMaterial({ color: 0xffffff }), MAX_CARS);
   const cabins = new THREE.InstancedMesh(new THREE.BoxGeometry(1.6, 0.55, 2.0), new THREE.MeshLambertMaterial({ color: 0x9dc3d4 }), MAX_CARS);
   bodies.count = cabins.count = 0; bodies.frustumCulled = cabins.frustumCulled = false; bodies.name = 'Narromine traffic'; parent.add(bodies, cabins);
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), up = new THREE.Vector3(0, 1, 0), tint = new THREE.Color();
+  let real = null;
+  if (models) loadVehicleModels(parent).then(r => { real = r; bodies.visible = cabins.visible = false; }).catch(e => console.warn('Narromine vehicle models did not load; keeping simple cars', e));
   function draw() {
+    if (real) { real.draw(cars); return; }
     const n = Math.min(cars.length, MAX_CARS);
     for (let i = 0; i < n; i++) {
       const c = cars[i]; q.setFromAxisAngle(up, c.yaw);
@@ -66,7 +71,10 @@ export function createNarromineTraffic(parent, { blocked = () => false } = {}) {
   }
   function spawn(e, s, forward) {
     const from = forward ? e.from : e.to, to = forward ? e.to : e.from;
-    const c = { id: serial++, from, to, s, len: e.len, width: e.width, speed: SPEED * (0.85 + rand() * 0.2), v: SPEED * 0.8, colour: CAR_COLOURS[serial % CAR_COLOURS.length], ute: serial % 4 === 0 };
+    const model = pickVehicle(rand), heavy = VEHICLE_MODELS[model].length > 6.5 || /tractor/.test(VEHICLE_MODELS[model].file);
+    const c = { id: serial++, from, to, s, len: e.len, width: e.width, model, L: VEHICLE_MODELS[model].length, speed: SPEED * (heavy ? 0.7 : 0.85 + rand() * 0.2), v: SPEED * 0.8,
+      colour: VEHICLE_MODELS[model].paint ? pickPaint(rand) : 0xffffff, ute: /truck/.test(VEHICLE_MODELS[model].file) };
+    if (/tractor/.test(VEHICLE_MODELS[model].file)) { c.speed = 25 / 3.6; c.colour = rand() < 0.5 ? 0x2f6b2a : 0xb3262b; }
     cars.push(c); place(c); return c;
   }
   // Expected cars on an edge right now: vehicles per hour per metre at town speed, both directions.
@@ -98,8 +106,8 @@ export function createNarromineTraffic(parent, { blocked = () => false } = {}) {
       const c = cars[i];
       if (Math.hypot(c.x - player.x, c.z - player.z) > RADIUS + 100) { cars.splice(i, 1); continue; }
       // Stop for the player, the car ahead in the same direction, or a closed level crossing just ahead.
-      const ax = c.x + c.ux * 7, az = c.z + c.uz * 7;
-      const ahead = Math.hypot(player.x - ax, player.z - az) < 5 || (grid.get(Math.floor(ax / 20) + ',' + Math.floor(az / 20)) || []).some(o => o !== c && (o.ux * c.ux + o.uz * c.uz) > 0.7 && Math.hypot(o.x - ax, o.z - az) < CAR_GAP - 3) || blocked(ax, az);
+      const reach = c.L / 2 + 4.5, ax = c.x + c.ux * reach, az = c.z + c.uz * reach;
+      const ahead = Math.hypot(player.x - ax, player.z - az) < 5 || (grid.get(Math.floor(ax / 20) + ',' + Math.floor(az / 20)) || []).some(o => o !== c && (o.ux * c.ux + o.uz * c.uz) > 0.7 && Math.hypot(o.x - ax, o.z - az) < o.L / 2 + 1.5) || blocked(ax, az);
       const remaining = c.len - c.s, turnSlow = remaining < 15 ? 0.55 : 1;
       const target = ahead ? 0 : c.speed * turnSlow;
       c.v += Math.max(-6 * dt, Math.min(2 * dt, target - c.v));
@@ -111,9 +119,9 @@ export function createNarromineTraffic(parent, { blocked = () => false } = {}) {
   }
   // Solid boxes for vehicles near the player, so the player's car and the player can't drive through them.
   const colliders = (player) => cars.filter(c => Math.hypot(c.x - player.x, c.z - player.z) < 60).map(c => {
-    const hl = 2.3, hw = 0.95, poly = [[hl, hw], [-hl, hw], [-hl, -hw], [hl, -hw]].map(([a, b]) => [c.x + c.ux * a - c.uz * b, c.z + c.uz * a + c.ux * b]);
+    const hl = c.L / 2, hw = 0.95, poly = [[hl, hw], [-hl, hw], [-hl, -hw], [hl, -hw]].map(([a, b]) => [c.x + c.ux * a - c.uz * b, c.z + c.uz * a + c.ux * b]);
     const xs = poly.map(p => p[0]), zs = poly.map(p => p[1]);
     return { x0: Math.min(...xs), x1: Math.max(...xs), z0: Math.min(...zs), z1: Math.max(...zs), poly, traffic: true };
   });
-  return { update, colliders, get count() { return cars.length; }, cars, expected, edges };
+  return { update, colliders, get count() { return cars.length; }, get modelsLoaded() { return !!real; }, cars, expected, edges };
 }

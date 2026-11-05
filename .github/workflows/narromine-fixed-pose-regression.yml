@@ -1,0 +1,106 @@
+name: Narromine NR-VQA-002 fixed-pose WebGL baseline review
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/narromine-fixed-pose-regression.yml'
+      - 'repository-town/tools/narromine-visual-qa/fixed-pose-regression.mjs'
+      - 'repository-town/tests/narromine-fixed-pose-regression.mjs'
+      - 'repository-town/docs/NARROMINE_FIXED_POSE_QA_2026-11-05.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: narromine-fixed-pose-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  fixed-pose:
+    name: Approved baseline vs proposed source, 12 real WebGL views each
+    runs-on: ubuntu-latest
+    timeout-minutes: 58
+    env:
+      BASELINE_SHA: 614c9af27821746df7f3e95978dea177b0fad921
+      LIBGL_ALWAYS_SOFTWARE: '1'
+      CAMERA_LOCATIONS: royal-hotel-dandaloo,narromine-hotel-corner,post-office-entrance,coles-kieraths-dandaloo,kieraths-arcade-courtyard,ordinary-narromine-street
+      OUTPUT: test-results/nr-fixed-pose
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - name: Checkout exact proposed source and historical approved reference
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Pin Node and cache pinned dependencies
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Reject missing or misaligned screenshot evidence by pure regression contract
+        run: |
+          node --check tools/narromine-visual-qa/fixed-pose-regression.mjs
+          node tests/narromine-fixed-pose-regression.mjs
+      - name: Prepare immutable approved source worktree
+        run: |
+          set -euo pipefail
+          git cat-file -e "$BASELINE_SHA^{commit}"
+          git worktree add --detach "$RUNNER_TEMP/nr-fixed-approved" "$BASELINE_SHA"
+          test "$(git -C "$RUNNER_TEMP/nr-fixed-approved" rev-parse HEAD)" = "$BASELINE_SHA"
+          echo "Approved production/Pages source: $BASELINE_SHA"
+          echo "Candidate source: $(git rev-parse HEAD)"
+      - name: Install both isolated pinned source dependency trees
+        run: |
+          set -euo pipefail
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm ci --no-audit --no-fund
+          cd "$RUNNER_TEMP/nr-fixed-approved/repository-town"
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm ci --no-audit --no-fund
+      - name: Build and privacy-check approved baseline
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/nr-fixed-approved/repository-town"
+          TOWN_SOURCE_COMMIT="$BASELINE_SHA" npm run build
+          npm run check:privacy
+          node -e 'const r=require("./dist/public/release.json"); if(r.sourceCommit!==process.env.BASELINE_SHA) throw Error("Wrong approved baseline")'
+      - name: Build and privacy-check proposed source
+        run: |
+          set -euo pipefail
+          TOWN_SOURCE_COMMIT="$(git rev-parse HEAD)" npm run build
+          npm run check:privacy
+          node -e 'const r=require("./dist/public/release.json"); if(r.sourceCommit!==require("child_process").execFileSync("git",["rev-parse","HEAD"],{encoding:"utf8"}).trim())throw Error("Wrong candidate")'
+      - name: Install real Chromium and software WebGL support
+        run: npx playwright install --with-deps chromium
+      - name: Capture approved baseline at six canonical pedestrian poses, two viewport sizes
+        run: |
+          set -euo pipefail
+          mkdir -p "$GITHUB_WORKSPACE/repository-town/$OUTPUT/baseline"
+          cd "$RUNNER_TEMP/nr-fixed-approved/repository-town"
+          node tools/narromine-visual-qa/run.mjs \
+            --out-dir "$GITHUB_WORKSPACE/repository-town/$OUTPUT/baseline" \
+            --locations "$CAMERA_LOCATIONS" --viewports desktop,mobile \
+            --times midday --sample-frames 5
+      - name: Capture candidate using exactly same world coordinates and lighting
+        run: |
+          set -euo pipefail
+          node tools/narromine-visual-qa/run.mjs \
+            --out-dir "$OUTPUT/candidate" \
+            --locations "$CAMERA_LOCATIONS" --viewports desktop,mobile \
+            --times midday --sample-frames 5
+      - name: Generate strict manifest, PNG diffs and explicit manual-review verdict
+        run: |
+          set -euo pipefail
+          node tools/narromine-visual-qa/fixed-pose-regression.mjs \
+            --baseline "$OUTPUT/baseline" --candidate "$OUTPUT/candidate"
+          node -e 'const r=require("./test-results/nr-fixed-pose/candidate/fixed-pose-review.json"); console.log("Verdict:",r.status); if(!r.evidenceValid)process.exit(1); if(r.status==="review-required")console.log("NOTICE: real visual changes require human approval; no photo-accuracy claim")'
+      - name: Upload evidence regardless of failure; never publish screenshots into game assets
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nr-vqa-002-fixed-pose-${{ github.run_id }}
+          path: repository-town/test-results/nr-fixed-pose/
+          retention-days: 10
+          if-no-files-found: warn

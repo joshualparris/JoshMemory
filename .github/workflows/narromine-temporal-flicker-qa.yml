@@ -1,0 +1,76 @@
+name: Narromine Temporal Asphalt Flicker QA (NR-VQA-003)
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/narromine-temporal-flicker-qa.yml'
+      - 'repository-town/tools/narromine-visual-qa/compare-video.mjs'
+      - 'repository-town/tools/narromine-visual-qa/temporal-flicker.mjs'
+      - 'repository-town/tests/narromine-temporal-flicker.mjs'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pixel-temporal-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - name: Full history for pinned shader source refs
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Fetch original PR 408 head for exact shader comparison
+        run: |
+          set -euo pipefail
+          git fetch --no-tags origin '+refs/pull/408/head:refs/remotes/origin/qa-material-pr408'
+          git cat-file -e 'ec085dd824be4ee0e931968e5e2e9abef5e43c38^{commit}'
+          git cat-file -e 'f2810b93242d6b2174198c65748e95e10d126809^{commit}'
+          echo "One game source SHA: $(git rev-parse HEAD)"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install pinned dependencies and check contracts
+        run: |
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm ci --no-audit --no-fund
+          node --check tools/narromine-visual-qa/compare-video.mjs
+          node --check tools/narromine-visual-qa/temporal-flicker.mjs
+          node --check tests/narromine-temporal-flicker.mjs
+          node tests/narromine-video-comparison.mjs
+          node tests/narromine-temporal-flicker.mjs
+      - name: Release build and privacy scan
+        run: |
+          npm run build
+          npm run check:privacy
+      - name: Real Chromium with software WebGL
+        run: npx playwright install --with-deps chromium
+      - name: Capture baseline and candidate across controlled AABB motion
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          node tools/narromine-visual-qa/compare-video.mjs \
+            --viewports desktop,mobile \
+            --route dandaloo-temporal-asphalt-micro \
+            --steps 72 \
+            --sample-every 1 \
+            --skip-build \
+            --out test-results/narromine-temporal-qa
+      - name: Pixel-level road proxy, stationary controls, and verdict
+        run: |
+          node tools/narromine-visual-qa/temporal-flicker.mjs \
+            --dir test-results/narromine-temporal-qa
+      - name: Preserve actual source-matched WebGL videos and measured frames
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: narromine-temporal-shader-ab
+          path: repository-town/test-results/narromine-temporal-qa/
+          retention-days: 14
+          if-no-files-found: warn

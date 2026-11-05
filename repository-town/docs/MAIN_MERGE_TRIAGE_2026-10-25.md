@@ -1,5 +1,7 @@
 # Main-branch merge audit — 25 October 2026
 
+> **Status note (5 Nov 2026):** The two PRs this triage names as failing, pub #216 and safety/browser #208, both merged on 25 Oct 2026. This file is the 25 Oct triage record; check open PRs fresh before acting on it.
+
 **Canonical source:** `joshualparris/JoshMemory` `main` for `repository-town/`.  
 **Scope:** all currently open Repository Town/JoshMemory PRs and branch inventory. No claim that every branch should be merged; some are historical snapshots, staging branches, draft or superseded work. **Do not force merge, rewrite main, delete unmerged branches, or skip checks.**
 

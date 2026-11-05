@@ -1,5 +1,7 @@
 # Repository Town: safe modular integration system (20 October 2026)
 
+> **Status note (5 Nov 2026):** Draft PR #33 (snapshot integrity), described below as open at setup, has since been closed unmerged.
+
 ## Authority and scope
 Canonical source: `joshualparris/JoshMemory/repository-town/src/`. Generated public site: `Parris-Tech-Services/Repository-town` via the existing publisher. Never overwrite main with a stale feature branch or copy `src/main.js` wholesale.
 

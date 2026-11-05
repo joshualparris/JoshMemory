@@ -32,7 +32,7 @@ assert(FRONTAGES.length > 0, 'some mapped street-facing buildings have frontages
 for(const shop of FILL_SHOPS) {
   const p = estimatedShopfrontProfile({ name: shop.name, kind: shop.kind });
   assert.equal(p.evidenceLevel, 'estimated');
-  const dx = shop.front[0] - shop.x, dz = shop.front[1] - shop.z;
+  const [dx, dz] = shop.generic ? [shop.front[0] - shop.x, shop.front[1] - shop.z] : shop.frontEdge.toward;
   assert(Math.hypot(dx, dz) > 0.1, 'fill shop has a distinct street-facing normal');
 }
 for(const f of FRONTAGES) {
