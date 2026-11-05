@@ -9,6 +9,7 @@ import { NARROMINE_FOOTPRINTS } from './narromine-footprints-data.js';
 import { BUILDINGS, DETAILED } from './narromine-layout.js';
 import { segNearest, whoIsAt } from './narromine-population.js';
 import { homeDoor, doorCandidates, pickDoor } from './narromine-homes.js';
+import { NARROMINE_PHARMACY_EVIDENCE, pharmacyOpeningAt, pharmacyInteriorSpec, decorateNarrominePharmacy } from './narromine-pharmacy-interior.js';
 
 const S = (t, l) => [t, l, { do: 'info', title: l, text: 'Workstation.' , station: true }];   // a staffed station
 const FIT = {
@@ -72,10 +73,19 @@ export function createNarromineWorkplaceIndex(pop) {
 }
 
 export function buildNarromineWorkplaceInterior(pop, entry, makeLabel, weekday, minute) {
-  const w = entry.workplace, rooms = JSON.parse(JSON.stringify(fitFor(w.kind)));
-  const built = buildInterior({ repo: 'narromine-' + w.id, name: w.name, int: { layout: 'row', height: 3, rooms } }, makeLabel);
-  const open = w.opens <= minute && minute < w.closes;
+  const w = entry.workplace;
+  const researchedPharmacy = w.kind === 'pharmacy' && w.name === NARROMINE_PHARMACY_EVIDENCE.business;
+  const pharmacy = researchedPharmacy ? pharmacyInteriorSpec() : null;
+  const rooms = pharmacy ? pharmacy.rooms : JSON.parse(JSON.stringify(fitFor(w.kind)));
+  let built = buildInterior({ repo: 'narromine-' + w.id, name: w.name,
+    int: pharmacy ? pharmacy : { layout: 'row', height: 3, rooms } }, makeLabel);
+  if (researchedPharmacy) built = decorateNarrominePharmacy(built, makeLabel);
+  const open = researchedPharmacy ? pharmacyOpeningAt(weekday, minute)
+    : w.opens <= minute && minute < w.closes;
   const here = whoIsAt(pop, w.id, weekday, minute);
+  // The official Narromine Pharmacy lunch/Sunday closures override the fictional
+  // per-industry schedule; its generated workers are never an asserted real roster.
+  const staff = researchedPharmacy && !open ? [] : here.staff;
   // Staff at their stations, in order; extra staff stand beside the first stations.
   const stations = built.interactables.filter((o) => o.act?.station);
   const SHIRT = { school: 0x2f5f8a, hospital: 0x4a90a4, doctors: 0x4a90a4, police: 0x1c2f4a, fire_station: 0x9b2226, pub: 0x2b2b2b, bar: 0x2b2b2b, cafe: 0x3f3f3f, bakery: 0xf2f2ee, butcher: 0xf2f2ee, pharmacy: 0xf2f2ee, bank: 0x234a6b };
@@ -85,7 +95,7 @@ export function buildNarromineWorkplaceInterior(pop, entry, makeLabel, weekday, 
     f.position.set(at.x, 0, at.z); f.rotation.y = at.yaw; f.name = p.name; built.group.add(f);
     const l = makeLabel?.(p.first + ' ' + p.surname); if (l) { l.position.set(at.x, 2.25, at.z); built.group.add(l); }
   };
-  here.staff.forEach((p, i) => {
+  staff.forEach((p, i) => {
     const s = stations[i % Math.max(1, stations.length)]; if (!s) return;
     const c = centre(s.room), dx = c.x - s.pos.x, dz = c.z - s.pos.z, D = Math.hypot(dx, dz) || 1, k = Math.floor(i / Math.max(1, stations.length));
     put(p, { x: s.pos.x + dx / D * 1.0 + k * 0.8, z: s.pos.z + dz / D * 1.0, yaw: Math.atan2(dx, dz) + Math.PI }, SHIRT[w.kind] ?? 0x5a6b7a);
@@ -97,5 +107,5 @@ export function buildNarromineWorkplaceInterior(pop, entry, makeLabel, weekday, 
     const rooms2 = built.rooms.map((r, i) => [r, i]).filter(([r]) => r.name === 'Classroom');
     kids.slice(0, 40).forEach((p, i) => { const [r] = rooms2[i % rooms2.length]; const row = Math.floor(i / rooms2.length); put(p, { x: r.x0 + 1.5 + (row % 5) * 1.3, z: r.z0 + 2.5 + Math.floor(row / 5) * 1.4, yaw: Math.PI }, 0x2f5f8a); pupils++; });
   }
-  return { ...built, workplace: w, open, staff: here.staff, pupils };
+  return { ...built, workplace: w, open, staff, pupils };
 }
