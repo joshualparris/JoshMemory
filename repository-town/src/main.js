@@ -1942,7 +1942,8 @@ async function start() {
         if (p.bubble.visible) greetingShown = true;
       }
       // Villagers, the guide kiosk and the shop counters: pick the one the player is facing.
-      narromine.update(player.pos);
+      // Keep the distant airfield and Narromine skyline visible in the flight scene.
+      narromine.update(player.pos,flight.flying);
       // Narromine sits on open inland plains with clear air: see much further there than in the town.
       { const inNarromine = player.pos.x < -2640;
         fog.near = flight.flying ? 400 : inNarromine ? 220 : 60;
