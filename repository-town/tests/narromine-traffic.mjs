@@ -5,6 +5,8 @@
 import assert from 'node:assert/strict';
 import * as THREE from 'three';
 import { createNarromineTraffic, DAILY_VEHICLES } from '../src/world/narromine-traffic.js';
+import { VEHICLE_MODELS, pickVehicle } from '../src/world/narromine-vehicle-models.js';
+import fs from 'node:fs';
 const t = createNarromineTraffic(new THREE.Group());
 const perKm = (name, hour) => { const es = t.edges.filter(e => e.name === name); const len = es.reduce((s, e) => s + e.len, 0); return es.reduce((s, e) => s + t.expected(e, hour), 0) / (len / 1000); };
 assert.equal(DAILY_VEHICLES['Dandaloo Street'], 7000);
@@ -17,4 +19,13 @@ const player = { x: -4805, z: -760 };
 for (let i = 0; i < 600; i++) t.update(0.1, player, 8 * 60);
 assert.ok(t.count > 5, 'cars around the town centre at 8 am: ' + t.count);
 assert.ok(t.cars.every(c => Number.isFinite(c.x) && Number.isFinite(c.z)), 'all cars placed');
+// Vehicle mix: every model file ships, most traffic is SUVs and utes, emergency vehicles are rare.
+for (const m of VEHICLE_MODELS) assert.ok(fs.existsSync(new URL('../src/assets/vehicles/' + m.file, import.meta.url)), 'model shipped: ' + m.file);
+let seed = 7; const r = () => (seed = (seed * 16807) % 2147483647) / 2147483647, n = {};
+for (let i = 0; i < 20000; i++) { const f = VEHICLE_MODELS[pickVehicle(r)].file; n[f] = (n[f] || 0) + 1; }
+const share = (re) => Object.entries(n).filter(([f]) => re.test(f)).reduce((s, [, k]) => s + k, 0) / 20000;
+assert.ok(share(/suv/) > 0.45 && share(/^truck/) > 0.15, 'SUVs and utes dominate: ' + JSON.stringify(n));
+assert.ok(share(/police|ambulance|firetruck/) < 0.02, 'emergency vehicles are rare');
+assert.equal(Object.keys(n).length, VEHICLE_MODELS.length, 'every model appears');
+assert.ok(t.cars.every(c => c.L >= 4 && c.L <= 10), 'vehicle lengths are real-world');
 console.log(`PASS Narromine traffic: Dandaloo St ${peak.toFixed(1)}/km at 8 am, ${night.toFixed(2)}/km at 3 am; ${t.count} cars simulated near the hotel`);
