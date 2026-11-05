@@ -77,7 +77,7 @@ export function buildNarromineWorkplaceInterior(pop, entry, makeLabel, weekday, 
   const researchedPharmacy = w.kind === 'pharmacy' && w.name === NARROMINE_PHARMACY_EVIDENCE.business;
   const pharmacy = researchedPharmacy ? pharmacyInteriorSpec() : null;
   const rooms = pharmacy ? pharmacy.rooms : JSON.parse(JSON.stringify(fitFor(w.kind)));
-  let built = buildInterior({ repo: 'narromine-' + w.id, name: w.name,
+  let built = buildInterior({ repo: 'narromine-' + w.id, name: w.name, nonResidential: true,
     int: pharmacy ? pharmacy : { layout: 'row', height: 3, rooms } }, makeLabel);
   if (researchedPharmacy) built = decorateNarrominePharmacy(built, makeLabel);
   const open = researchedPharmacy ? pharmacyOpeningAt(weekday, minute)
