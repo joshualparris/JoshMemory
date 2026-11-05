@@ -118,21 +118,16 @@ function EXTRA_PLACES() {
   extra.push(Object.freeze({ name: 'Narromine Railway Station', kind: 'railway_station', kindLabel: 'Railway station', address: 'Derribong Avenue (Narromine Station Access)', x: -4708.8, z: -710.2, fact: FACTS['Narromine Railway Station'] }));
   extra.push(Object.freeze({ name: 'Former Narromine Courthouse (1898)', kind: 'historic_courthouse', kindLabel: 'Heritage former courthouse (LEP Item I5)', address: '35 Burraway Street', x: -4590.5, z: -766.5, fact: FACTS['Former Narromine Courthouse (1898)'] }));
   extra.push(Object.freeze({ name: 'Narromine Gliding Club', kind: 'aerodrome', kindLabel: 'Gliding & soaring centre', address: 'Tom Perry Drive (Lot 122 DP 1126499)', x: -5628.4, z: -2023.2, fact: FACTS['Narromine Gliding Club'] }));
-  // Address 1–7 Dandaloo Street is verified by the business and Council.
-  // Council's March 2025 road report puts Soul Food near the Culling Street end.
-  // The EAST-SIDE former shed polygon near that junction (OSM #195, 2026-11-03)
-  // is only a plausible footprint, not a confirmed cadastral/tenancy match.
-  // Mark the unresolved positioning visibly in its place information.
-  const candidate = OSM.buildings[195];
-  if (candidate?.pts?.length) {
-    const centroid = candidate.pts.reduce(([x,z],[px,pz])=>[x+px,z+pz],[0,0]).map(v=>v/candidate.pts.length);
-    if (Math.hypot(centroid[0]+1776.4,centroid[1]+1444.1)<25) {
-      const [x,z]=toWorld(centroid);
-      extra.push(Object.freeze({name:'Soul Food Depot & Gallery',kind:'cafe',kindLabel:'Cafe, gallery and event venue',
-        address:'1–7 Dandaloo Street',x,z,
-        fact:'Established in a former citrus packing shed in 2014, with cafe, gallery, Loading Dock takeaway, catering and events (official Soul Food website). Its exact footprint/door on this map is UNVERIFIED: OSM building #195 near Dandaloo/Culling is only a site candidate; interpretive gameplay, not a surveyed location.'}));
-    }
-  }
+  // Operator, Council and Waze agree on the named 1–7 Dandaloo St venue.
+  // Waze's *navigation destination* pin is published at -32.227273, 148.2407647.
+  // Both this and the McPhersons Automotive OSM point lie within large OSM
+  // polygon #195. This establishes a distinguishable approximate VENUE PIN, not
+  // any measured unit boundary, public doorway or private floorplan.
+  const soulPin=geoToWorld(-32.227273,148.2407647);
+  extra.push(Object.freeze({name:'Soul Food Depot & Gallery',kind:'cafe',
+    kindLabel:'Cafe, gallery and event venue',address:'1–7 Dandaloo Street',
+    x:soulPin[0],z:soulPin[1],
+    fact:'Former citrus packing shed, cafe and gallery since 2014, with Loading Dock takeaway, catering, functions, meeting rooms (official Soul Food website). Location based on Waze destination pin -32.227273,148.2407647; exact unit frontage/entrance in the shared mapped shed is UNVERIFIED, and the same OSM polygon also has a McPhersons Automotive POI. Interpretive, not a surveyed shop.'}));
   return extra;
 }
 
