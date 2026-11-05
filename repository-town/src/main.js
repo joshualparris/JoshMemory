@@ -867,7 +867,7 @@ async function start() {
     const narrominePostOffice=!!inside.narrominePostal;
     const narromineColes=!!inside.narromineColes;
     const narromineChurch=!!inside.narromineChurch;
-    const narromineHome=inside.narromineHome||null;
+    const narromineHome=inside.narromineHome?{...inside.narromineHome,label:inside.house.name.replace(/^The /,'')}:null;
     inside.bakeryImmersion?.dispose();
     inside.workplay?.dispose();
     if(inside.floors?.isPub)for(const level of inside.floors.levels)if(level.workplay!==inside.workplay)level.workplay?.dispose();
@@ -912,7 +912,7 @@ async function start() {
     // Close the door behind the player so the doorway does not re-trigger.
     const d = town.doors.find((d) => d.userData.coordinate === coord); if (d) d.userData.open = 0;
     ambience.door();
-    status(narromineChurch?"Back outside St Mary's Anglican Church · 148 Dandaloo Street.":narromineColes?'Back outside Coles Narromine · 76 Dandaloo Street.':narrominePostOffice?'Back outside Narromine Post Office · 74 Dandaloo Street.':campus?`Back outside ${campus.name}.`:countryHome?`Back outside ${countryHome.address} · ${countryHome.country}.`:shop?`Back outside ${shop.name}.`:`Back on the street at ${coord}.`);
+    status(narromineHome?'Back on '+narromineHome.home.street+', outside the '+narromineHome.label+'.':narromineChurch?"Back outside St Mary's Anglican Church · 148 Dandaloo Street.":narromineColes?'Back outside Coles Narromine · 76 Dandaloo Street.':narrominePostOffice?'Back outside Narromine Post Office · 74 Dandaloo Street.':campus?`Back outside ${campus.name}.`:countryHome?`Back outside ${countryHome.address} · ${countryHome.country}.`:shop?`Back outside ${shop.name}.`:`Back on the street at ${coord}.`);
   }
 
   // ── Overview (bird's-eye) ────────────────────────────────────────────────

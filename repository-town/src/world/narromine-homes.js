@@ -6,6 +6,7 @@
 import { buildInterior } from './interior.js';
 import { dayPlan } from './narromine-population.js';
 import { townDate } from './town-calendar.js';
+import { makePerson } from './npcs.js';
 
 // A household's weekly Coles shop, per person, and what each person uses a day.
 const SHOP = { milk: 3, bread: 1, eggs: 4, meat: 3, veg: 7, fruit: 7, cereal: 0.5 };
@@ -89,5 +90,25 @@ export function buildNarromineHomeInterior(population, home, makeLabel, day, min
   for (const p of others) rooms.push({ name: 'Bedroom ' + (rooms.length - 3), w: 7, d: 7, props: [['bed', 'Bed · ' + p.first, info(p.first + "'s bed", p.name + ', ' + p.age)], ['wardrobe', 'Wardrobe'], ['lamp', 'Lamp']] });
   const house = { repo: 'narromine-' + home.id, name: 'The ' + hh.surname + ' household', int: { layout: 'row', height: 2.7, rooms } };
   const built = buildInterior(house, makeLabel);
-  return { ...built, household: hh, fridge, occupants: who };
+  // The residents who are home, where their activity puts them: in bed asleep, in the kitchen at
+  // breakfast or dinner, otherwise in the lounge. Children are drawn smaller.
+  const roomCentre = (i) => { const r = built.rooms[i]; return { x: (r.x0 + r.x1) / 2, z: (r.z0 + r.z1) / 2 }; };
+  const find = (t, label) => built.interactables.find((o) => o.type === t && (!label || o.label.includes(label)));
+  const SHIRTS = [0x3f6fb5, 0xb5473f, 0x4f8a4b, 0xd9a441, 0x6a4c93, 0x2f7f86, 0xc96b8a, 0x8a6a4f];
+  let n = 0;
+  for (const o of who.filter((x) => x.home)) {
+    const p = o.person, seed = +p.id.slice(3), fig = makePerson(seed * 13 + 5, SHIRTS[seed % SHIRTS.length], p.age < 18 ? 0x2f4f7f : 0x2f3440).group;
+    const scale = p.age < 5 ? 0.55 : p.age < 12 ? 0.72 : p.age < 16 ? 0.88 : 1; fig.scale.setScalar(scale);
+    let at = null;
+    if (o.doing === 'sleep') {
+      const bed = find('bed', p.first);
+      if (bed) { fig.position.set(bed.pos.x + (n % 2 ? 0.45 : -0.45) * (bed.label.includes('&') ? 1 : 0), 0.62, bed.pos.z + 0.2); fig.rotation.set(-Math.PI / 2, 0, 0); built.group.add(fig); n++; continue; }
+    }
+    const anchor = o.doing === 'breakfast' || o.doing === 'dinner' ? find('fridge') : find('tv');
+    if (anchor) { const c = roomCentre(anchor.room); const dx = c.x - anchor.pos.x, dz = c.z - anchor.pos.z, D = Math.hypot(dx, dz) || 1; at = { x: anchor.pos.x + dx / D * (1.6 + (n % 3) * 0.7), z: anchor.pos.z + dz / D * (1.6 + (n % 3) * 0.7) + (n % 2 ? 0.6 : -0.6), yaw: Math.atan2(-dx, -dz) }; }
+    if (!at) continue;
+    fig.position.set(at.x, 0, at.z); fig.rotation.y = at.yaw; built.group.add(fig); n++;
+    const label = makeLabel(p.first + ' ' + p.surname + ', ' + p.age); if (label) { label.position.set(at.x, 2.15 * scale + 0.1, at.z); built.group.add(label); }
+  }
+  return { ...built, household: hh, fridge, occupants: who, figures: n };
 }
