@@ -30,6 +30,9 @@ export function buildNarromineAirfield(parent) {
     m.rotation.y=-Math.atan2(dx,-dz);m.position.set((a.x+b.x)/2,y,(a.z+b.z)/2);group.add(m);
   }
   function runwayText(str,x,z,headingDeg) {
+    // Geometry tests construct Narromine in Node without a DOM or canvas.
+    // Pavement text is a browser-only label, never a precondition for terrain.
+    if(typeof document==='undefined') return;
     const canvas=document.createElement('canvas');canvas.width=256;canvas.height=320;
     const ctx=canvas.getContext('2d');
     ctx.clearRect(0,0,256,320);ctx.fillStyle='#ffffff';
