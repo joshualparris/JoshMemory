@@ -8,6 +8,7 @@ import * as THREE from 'three';
 import { STREETS } from './narromine-layout.js';
 import { VEHICLE_MODELS, pickVehicle, pickPaint, loadVehicleModels } from './narromine-vehicle-models.js';
 import { createNarromineCommute } from './narromine-commute.js';
+import { AWAY_WORK } from './narromine-population.js';
 
 export const DAILY_VEHICLES = Object.freeze({ 'Dandaloo Street': 7000, 'Manildra Street': 500, 'Derribong Street': 380, 'Dandaloo Road': 380 });
 const CLASS_VEHICLES = { trunk: 7000, primary: 4000, secondary: 3000, tertiary: 900, unclassified: 250, residential: 150, living_street: 50, service: 40, track: 15 };
@@ -119,7 +120,7 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
       const e = adj.get(t.path[i]).find(x => x.to === t.path[i + 1]); if (!e) continue;
       const car = commute.population.cars[+t.car.slice(4)], driver = t.person ? commute.population.people[+t.person.slice(3)] : { name: t.driverName };
       const c = { id: serial++, trip: t.id, route: t.path, ri: i, from: t.path[i], to: t.path[i + 1], s: Math.min(s, e.len), len: e.len, width: e.width, model: car.model, L: car.length,
-        speed: SPEED * 0.95, v: SPEED * 0.8, colour: car.colour, ute: /truck/.test(VEHICLE_MODELS[car.model].file), carId: car.id, driver: driver.name, passengers: (t.passengers || []).map(k => commute.population.people[+k.slice(3)].first), purpose: t.purpose, destination: t.to === 'home' ? 'home (' + commute.population.households[+car.household.slice(3)].street + ')' : t.to === 'coles' ? 'Coles' : commute.population.workplaces.find(w => w.id === t.to)?.name || t.to };
+        speed: SPEED * 0.95, v: SPEED * 0.8, colour: car.colour, ute: /truck/.test(VEHICLE_MODELS[car.model].file), carId: car.id, driver: driver.name, passengers: (t.passengers || []).map(k => commute.population.people[+k.slice(3)].first), purpose: t.purpose, destination: t.to === 'home' ? 'home (' + (commute.population.households[+car.household?.slice(3)]?.street || 'out of town') + ')' : t.to === 'coles' ? 'Coles' : t.to === 'repotown' ? (driver.repoTownJob?.name || 'work') + ', Repository Town' : AWAY_WORK.some(a => a.id === t.to) ? 'work: ' + AWAY_WORK.find(a => a.id === t.to).name : commute.population.workplaces.find(w => w.id === t.to)?.name || t.to };
       if (Math.hypot(nodes[c.from].x - player.x, nodes[c.from].z - player.z) < 40 && c.s < 5) continue;   // don't pop in beside the player
       live.add(t.id); cars.push(c); place(c);
     }

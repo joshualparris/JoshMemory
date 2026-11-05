@@ -37,3 +37,16 @@ The fridge shows what the household has: restocked on its last Coles trip, used 
 ## Not yet
 Coles stock and deliveries feeding household shops, visible resident figures in homes and streets,
 fitted-out workplace interiors, passengers and school drop-offs, and Repository Town residents commuting to Narromine.
+
+## Steps 3–6 (5 Nov 2026)
+- **Workplaces**: all 78 mapped workplaces open to an interior fitted out for the work (classrooms, wards, bars,
+  counters, workshops) with the residents on shift at their stations; schools show pupils in class. 24-hour
+  workplaces run a night shift. Doors are checked against solid geometry at load.
+- **Coles**: staffed by residents on shift, with residents shopping; stock falls as households shop and is
+  refilled by a 5 am refrigerated truck and an 11 am bread-and-milk van that drive in from the east.
+- **School run**: one parent per household drives primary-school children to their school at 8:25 (and picks
+  them up at 2:50 if not working); other children walk.
+- **Walking**: residents without a car leg walk beside the road; about 1,100 walks a weekday.
+- **Between the towns**: 58 Narromine residents work at named Repository Town workplaces (shown in those
+  workplaces' panels while on shift) and drive out on the Mitchell Highway; 30 Repository Town residents (living
+  in Repository Town lots) hold Narromine jobs and drive in from the east each shift.

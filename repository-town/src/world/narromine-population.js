@@ -184,6 +184,27 @@ export function createNarrominePopulation(seed = 20211810) {
       if (drivers[k]) { drivers[k].drives = true; drivers[k].car = car.id; }
     }
   });
+  // Between the towns (the Mitchell Highway links them):
+  //  - Narromine residents whose job is in Repository Town are given a real workplace there.
+  //  - Repository Town residents take some staffed jobs in Narromine and drive in each shift. They live in
+  //    Repository Town houses (lot coordinates), so they have no Narromine home; their car comes in from the
+  //    east and goes home the same way. The Narromine residents who held those jobs drive to Dubbo instead.
+  const RT_WORK = [['cafe', 'Commit Café'], ['bakery', 'Bakery'], ['store', 'General Store'], ['bank', 'Community Bank'], ['hotel', 'Railway Hotel'], ['pub', 'The Merged Branch'],
+    ['post', 'Post Office'], ['school', 'School'], ['clinic', 'Clinic'], ['depot', 'Rail Depot'], ['mill', 'Flour Mill'], ['foundry', 'Foundry & Workshop'], ['hall', 'Town Hall'],
+    ['hardware', 'Central West Hardware & Timber'], ['power', 'Power Station'], ['waterworks', 'Water Works'], ['tafe', 'Town TAFE Trades Campus'], ['mechanic', 'Town Motor Workshop']];
+  const inTown = people.filter((p) => p.workplace && workplaces.some((w) => w.id === p.workplace && w.kind !== 'school' && w.kind !== 'hospital'));
+  const swap = inTown.filter((_, i) => i % 14 === 7).slice(0, 30);
+  for (const p of swap) {
+    const job = p.workplace;
+    const hh = { id: 'hh-' + households.length, home: null, livesIn: 'repotown', street: 'Lot ' + String.fromCharCode(65 + Math.floor(r() * 26)) + (1 + Math.floor(r() * 7)) + ', Repository Town', type: 'lone', surname: pick(SURNAMES), members: [], cars: [], fridge: null, lastShop: -1 };
+    households.push(hh);
+    const c = person(hh, 22 + Math.floor(r() * 40), 'adult');
+    c.workplace = job; c.livesIn = 'repotown'; c.drives = true;
+    const car = { id: 'car-' + cars.length, household: hh.id, home: null, livesIn: 'repotown', model: null, colour: null, driver: c.id };
+    cars.push(car); hh.cars.push(car.id); c.car = car.id;
+    p.workplace = 'dubbo';                    // the Narromine resident who held the job works in Dubbo instead
+  }
+  for (const p of people) if (p.workplace === 'repotown') { const [id, name] = RT_WORK[+p.id.slice(3) % RT_WORK.length]; p.repoTownJob = { id, name }; }
   // School run: primary-school children (5-11) are driven by one parent who drives and either stays home
   // (drops off and picks up) or starts work at 8:30 or later in town (drops off on the way). Teenagers walk.
   for (const hh of households) {
@@ -277,4 +298,12 @@ export function whoIsAt(pop, place, weekday, minute) {
     else if (step.kind === 'shop' && place === 'coles') out.visitors.push(p);
   }
   return out;
+}
+
+// Narromine residents at their Repository Town job right now (placeId is a Repository Town place id).
+export function narromineCommutersAt(pop, placeId, weekday, minute) {
+  return pop.people.filter((p) => p.repoTownJob?.id === placeId).filter((p) => {
+    const step = dayPlan(p, pop.households[+p.household.slice(3)], weekday, pop.workplaces).find((s) => minute >= s.from && minute < s.to);
+    return step?.kind === 'work';
+  });
 }

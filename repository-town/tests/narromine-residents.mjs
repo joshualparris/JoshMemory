@@ -7,17 +7,17 @@ import { createNarromineCommute } from '../src/world/narromine-commute.js';
 
 const P = createNarrominePopulation();
 assert(P.homes.length >= 1000, 'enough real houses: ' + P.homes.length);
-const ages = P.people.map(p => p.age).sort((a, b) => a - b), median = ages[ages.length >> 1];
+const residents = P.people.filter(p => !p.livesIn), ages = residents.map(p => p.age).sort((a, b) => a - b), median = ages[ages.length >> 1];
 assert(Math.abs(median - C.medianAge) <= 2, 'median age near the census 39: ' + median);
-assert(Math.abs(P.people.length / P.homes.length - 2.4) < 0.4, 'about 2.4 people per household (census): ' + (P.people.length / P.homes.length).toFixed(2));
-assert(Math.abs(P.cars.length / P.homes.length - 1.8) < 0.25, 'about 1.8 cars per dwelling (census): ' + (P.cars.length / P.homes.length).toFixed(2));
+assert(Math.abs(residents.length / P.homes.length - 2.4) < 0.4, 'about 2.4 people per household (census): ' + (residents.length / P.homes.length).toFixed(2));
+assert(Math.abs(P.cars.filter(c => !c.livesIn).length / P.homes.length - 1.8) < 0.25, 'about 1.8 cars per dwelling (census): ' + (P.cars.filter(c => !c.livesIn).length / P.homes.length).toFixed(2));
 const work = new Set([...P.workplaces.map(w => w.id), 'farm', 'dubbo', 'repotown', 'graincorp']);
 for (const p of P.people) {
   assert(p.name && p.home && P.households.some(h => h.id === p.household), 'identity and home: ' + p.id);
   if (p.workplace) assert(work.has(p.workplace) && p.age >= 16, 'real workplace, working age: ' + p.id);
   if (p.age >= 5 && p.age <= 17) assert(p.school, 'school-age child has a school: ' + p.name);
 }
-for (const h of P.households) { assert.equal(new Set(h.members.map(id => P.people[+id.slice(3)].first)).size, h.members.length, 'unique first names in ' + h.id); assert(!/\d/.test(h.street), 'street name only, no house number: ' + h.street); assert(h.fridge && h.members.length); }
+for (const h of P.households.filter(h => !h.livesIn)) { assert.equal(new Set(h.members.map(id => P.people[+id.slice(3)].first)).size, h.members.length, 'unique first names in ' + h.id); assert(!/\d/.test(h.street), 'street name only, no house number: ' + h.street); assert(h.fridge && h.members.length); }
 for (const c of P.cars) { const d = P.people[+c.driver?.slice(3)]; if (d) assert(d.age >= 18 && d.household === c.household, 'driver is an adult of the owning household'); }
 const coles = P.workplaces.find(w => w.kind === 'supermarket');
 assert.equal(P.people.filter(p => p.workplace === coles.id).length, coles.staff, 'Coles is fully staffed');
@@ -45,6 +45,14 @@ const drops = trips.filter(t => t.purpose === 'dropoff');
 assert(drops.length > 50, 'school drop-offs happen: ' + drops.length);
 for (const t of drops) { assert(t.depart === 8 * 60 + 25); for (const k of t.passengers) { const kid = P.people[+k.slice(3)]; assert(kid.age <= 11 && kid.school === t.to && kid.household === P.people[+t.person.slice(3)].household); } }
 assert(trips.filter(t => t.purpose !== 'dropoff' && t.passengers?.length).every(t => t.depart >= 15 * 60), 'children ride home only after pick-up');
+// Between the towns: Repository Town residents drive in to Narromine jobs from the east and back; Narromine
+// residents with jobs in Repository Town have a named workplace there.
+const visitors = P.people.filter(p => p.livesIn === 'repotown');
+assert(visitors.length >= 20 && visitors.every(p => P.workplaces.some(w => w.id === p.workplace)), 'Repository Town residents hold Narromine jobs');
+const rt = trips.filter(t => visitors.some(v => v.id === t.person));
+assert(rt.some(t => t.from === 'home' && t.path[0] === commute.exits.east), 'they arrive from the east');
+assert(rt.some(t => t.to === 'home' && t.dest.away), 'and drive home east again');
+assert(P.people.filter(p => p.workplace === 'repotown').every(p => p.repoTownJob?.name), 'Narromine residents working in Repository Town have a workplace there');
 const weekend = commute.trips(6);
 assert.equal(weekend.filter(t => t.purpose === 'dropoff').length, 0, 'no school run on Saturday');
 assert(weekend.filter(t => t.purpose === 'travel').length < trips.filter(t => t.purpose === 'travel').length / 2, 'far fewer commutes on Saturday');
