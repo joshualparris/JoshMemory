@@ -23,19 +23,22 @@ const coles = P.workplaces.find(w => w.kind === 'supermarket');
 assert.equal(P.people.filter(p => p.workplace === coles.id).length, coles.staff, 'Coles is fully staffed');
 
 const commute = createNarromineCommute(buildGraph()), trips = commute.trips(2);
+// Coles deliveries: the morning truck and the midday van each come in from the east and leave again.
+const deliveries = trips.filter(t => t.purpose === 'delivery');
+assert.equal(deliveries.length, 4); assert(deliveries.some(t => t.to === 'coles' && t.depart < 5 * 60) && deliveries.some(t => t.from === 'coles' && t.depart >= 11 * 60));
 assert(trips.length > 1500, 'a weekday has thousands of trips: ' + trips.length);
 const byHour = new Array(24).fill(0); for (const t of trips) byHour[Math.floor(t.depart / 60)]++;
 assert(byHour[3] === 0 && byHour[2] === 0, 'nobody drives at 2-3 am');
 assert(byHour[7] + byHour[8] > byHour[11] && byHour[16] + byHour[17] > byHour[19] + byHour[20], 'morning and afternoon peaks');
 // Each car's trips chain: it leaves from where it last parked.
-for (const car of P.cars.slice(0, 300)) {
+for (const car of P.cars.filter(c => !c.fleet).slice(0, 300)) {
   const list = trips.filter(t => t.car === car.id); let at = 'home';
   for (const t of list) { assert.equal(t.from, at, car.id + ' leaves from where it parked'); at = t.to; }
   const at3 = commute.carState(car.id, 2, 3 * 60), night = list.some(t => t.depart > 21 * 60);
   assert(at3.parked === 'home' || (night && at3.parked), car.id + ' is at home at 3 am unless its driver works nights');
 }
 // Nobody drives two cars at once; spare cars stay home.
-const byDriver = {}; for (const t of trips) (byDriver[t.person] ??= new Set()).add(t.car);
+const byDriver = {}; for (const t of trips) if (t.person) (byDriver[t.person] ??= new Set()).add(t.car);
 assert(Object.values(byDriver).every(s => s.size === 1), 'each driver uses one car');
 // School run: primary-school children are driven to their own school at 8:25 by a parent from their household.
 const drops = trips.filter(t => t.purpose === 'dropoff');

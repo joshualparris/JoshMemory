@@ -7,6 +7,7 @@
 import { createNarrominePopulation, dayPlan, AWAY_WORK } from './narromine-population.js';
 import { pickVehicle, pickPaint, VEHICLE_MODELS } from './narromine-vehicle-models.js';
 import { PLACES } from './narromine-layout.js';
+import { DELIVERIES } from './narromine-coles-supply.js';
 
 export const TOWN_SPEED = 50 / 3.6;
 
@@ -60,6 +61,9 @@ export function createNarromineCommute(graph, { seed = 20211810 } = {}) {
   // Each car's look is fixed by its id: model mix and paint as the rest of Narromine's traffic.
   pop.cars.forEach((c, i) => { let s = 1000 + i * 7919; const r = () => (s = (s * 16807) % 2147483647) / 2147483647; const m = pickVehicle(r); c.model = /police|ambulance|firetruck|garbage|delivery|tractor/.test(VEHICLE_MODELS[m].file) ? 0 : m; c.colour = pickPaint(r); c.length = VEHICLE_MODELS[c.model].length; });
 
+  // Coles delivery vehicles: they come in from the east on the Mitchell Highway, unload at Coles, and leave.
+  const deliveryModel = VEHICLE_MODELS.findIndex((m) => m.file === 'delivery.glb');
+  const fleet = DELIVERIES.map((d) => { const car = { id: 'car-' + pop.cars.length, fleet: true, name: d.name, delivery: d, household: null, home: null, driver: null, model: deliveryModel, colour: 0xf2f2ee, length: VEHICLE_MODELS[deliveryModel].length }; pop.cars.push(car); return car; });
   let planned = { key: null, trips: [] };
   // Trips for one day: every change of place by a resident who drives their own car.
   function trips(weekday) {
@@ -84,6 +88,14 @@ export function createNarromineCommute(graph, { seed = 20211810 } = {}) {
         carAt = step.at;
       }
     }
+    for (const car of fleet) {
+      const d = car.delivery, c = pointOf('coles'), toColes = route(east, nearestNode(c.x, c.z)), back = route(nearestNode(c.x, c.z), east);
+      if (!toColes || !back) continue;
+      const mins = toColes.length / TOWN_SPEED / 60;
+      out.push({ id: car.id + '@in', car: car.id, person: null, driverName: d.name + ' driver', passengers: [], from: 'home', to: 'coles', depart: d.arrive - mins, path: toColes.path, length: toColes.length, duration: mins, dest: c, purpose: 'delivery' });
+      out.push({ id: car.id + '@out', car: car.id, person: null, driverName: d.name + ' driver', passengers: [], from: 'coles', to: 'away', depart: d.arrive + d.unload, path: back.path, length: back.length, duration: back.length / TOWN_SPEED / 60, dest: { ...nodes[east], away: true }, purpose: 'delivery' });
+    }
+    out.sort((a, b) => a.depart - b.depart);
     planned = { key: weekday, trips: out };
     return out;
   }
@@ -96,7 +108,7 @@ export function createNarromineCommute(graph, { seed = 20211810 } = {}) {
       if (minute < t.depart + t.duration) return { driving: t, s: (minute - t.depart) * 60 * TOWN_SPEED };
       parkedAt = t.to; dest = t.dest; last = t;
     }
-    if (parkedAt === 'home') return { parked: 'home' };
+    if (parkedAt === 'home') return pop.cars[+carId.slice(4)]?.fleet ? { away: 'depot' } : { parked: 'home' };
     return dest?.away ? { away: parkedAt } : { parked: parkedAt, at: dest, trip: last };
   }
   return { population: pop, trips, carState, route, nearestNode, pointOf, exits: { east, west } };
