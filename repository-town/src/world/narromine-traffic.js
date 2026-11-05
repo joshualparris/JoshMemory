@@ -126,7 +126,7 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
   }
   // Parked residents' cars within 300 m: at home in the driveway, or at work, school or Coles.
   function parkResidents(player, weekday, minute) {
-    const pop = commute.population, out = [];
+    const pop = commute.population, out = [], bays = new Map(), taken = [];
     for (const car of pop.cars) {
       const st = commute.carState(car.id, weekday, minute);
       if (!st.parked) continue;
@@ -134,14 +134,24 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
       if (st.parked === 'home') {
         // On the driveway: 7.5 m in from the street centreline (past the verge), side by side, nose to the street.
         const h = pop.homes[+car.home.slice(5)], k = h.kerb, D = Math.hypot(h.x - k.x, h.z - k.z) || 1, dx = (h.x - k.x) / D, dz = (h.z - k.z) / D;
-        const n = pop.households[+car.household.slice(3)].cars.indexOf(car.id), into = Math.min(7.5, D - h.d / 2 - 1), side = (n - 0.5) * 2.6;
+        const n = pop.households[+car.household.slice(3)].cars.indexOf(car.id), into = Math.min(7.5, D - h.d / 2 - 1) + Math.floor(n / 2) * 5.5, side = (n % 2 - 0.5) * 2.9;
         x = k.x + dx * into - dz * side; z = k.z + dz * into + dx * side; yaw = Math.atan2(-dx, -dz);
       }
       else {
-        // Kerbside at the end of their route, lined up behind other parked cars (6.5 m bays).
-        const P = st.trip.path, b = nodes[P[P.length - 1]], a = nodes[P[P.length - 2]] || b, L = Math.hypot(b.x - a.x, b.z - a.z) || 1, ux = (b.x - a.x) / L, uz = (b.z - a.z) / L;
-        const e = adj.get(P[P.length - 2])?.find(q => q.to === P[P.length - 1]), off = (e?.width || 7) / 2 - 1.1, back = Math.min(L - 3, 4 + ((+car.id.slice(4)) % 8) * 6.5);
-        x = b.x - ux * back + uz * off; z = b.z - uz * back - ux * off; yaw = Math.atan2(ux, uz);
+        // Kerbside on the street they arrived by: each car takes the next free 6.5 m bay back from the
+        // destination, continuing round corners along its route, so parked cars never overlap.
+        const P = st.trip.path, endNode = P[P.length - 1];
+        for (let tries = 0; tries < 8; tries++) {
+          const bay = bays.get(endNode) || 0; bays.set(endNode, bay + 1);
+          let back = 4 + bay * 6.5, i = P.length - 1;
+          while (i > 1) { const L = Math.hypot(nodes[P[i]].x - nodes[P[i - 1]].x, nodes[P[i]].z - nodes[P[i - 1]].z); if (back < L - 2) break; back -= L; i--; }
+          const b = nodes[P[i]], a = nodes[P[i - 1]] || b, L = Math.hypot(b.x - a.x, b.z - a.z) || 1, ux = (b.x - a.x) / L, uz = (b.z - a.z) / L;
+          const e = adj.get(P[i - 1])?.find(q => q.to === P[i]), off = (e?.width || 7) / 2 - 1.1;
+          back = Math.min(back, L - 1);
+          x = b.x - ux * back + uz * off; z = b.z - uz * back - ux * off; yaw = Math.atan2(ux, uz);
+          if (!taken.some(q => Math.hypot(q.x - x, q.z - z) < 2.6)) break;   // a car from another street already has this space
+        }
+        taken.push({ x, z });
       }
       if (Math.hypot(x - player.x, z - player.z) > 300) continue;
       out.push({ x, z, yaw, model: car.model, colour: car.colour, L: car.length, ux: Math.sin(yaw), uz: Math.cos(yaw), parked: true, carId: car.id });
@@ -181,5 +191,5 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
     const xs = poly.map(p => p[0]), zs = poly.map(p => p[1]);
     return { x0: Math.min(...xs), x1: Math.max(...xs), z0: Math.min(...zs), z1: Math.max(...zs), poly, traffic: true };
   });
-  return { update, colliders, get count() { return cars.length; }, get modelsLoaded() { return !!real; }, get parked() { return parked; }, cars, expected, edges, commute };
+  return { update, colliders, get count() { return cars.length; }, get modelsLoaded() { return !!real; }, get parked() { return parked; }, cars, expected, edges, commute, graph };
 }
