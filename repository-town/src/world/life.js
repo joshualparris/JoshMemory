@@ -36,6 +36,8 @@ import { ensureTenancies, leaseReport, commercialRentDay, issueCommercialDisclos
 import { exchangePurchase, rescindContract, settlePurchase, contractReport, contractQuote } from './property-contracts.js';
 import { initialiseVehicles, motorReport, buyVehicle, serviceVehicle, refuelVehicle, renewRegistration, sellVehicle, motorDay } from './vehicles.js';
 import { initialiseTradeEducation, advanceTradeEducation, advanceTownTradeOperations, HARDWARE } from './trade-education.js';
+import {initIndustries,validIndustryState,industryMinute,industryDay,
+  industryHour,herdYield,herdReport,requestVet,industryReport} from './town-linked-industries-2026.js';
 import { MAYOR_CANDIDATES, createGovernment, civicElection, castCivicVote, submitRequest, requestFeeder, proposeMotion, councilMeeting, advanceCivicWork, budgetRevenue, restoreCivic, govSummary, maintainServices } from './government.js';
 // Town life simulation: the clock, farms, the mill and bakery, shops, trucks, the post,
 // and villagers with jobs, hunger, pantries, wallets and daily routines. Pure logic (no
@@ -160,6 +162,12 @@ export const PLACE_DEFS = [
   { col: 'A', side: 'south', id: 'securityoffice', name: 'High Street Security Office', kind: 'service', opens: 8*60, closes: 20*60 },
   { col: 'D', side: 'south', id: 'securityhq', name: 'Central West Security Headquarters', kind: 'service', opens: 7*60, closes: 22*60 },
   { col: 'Z', side: 'south', id: 'locksmith', name: 'Macquarie Locksmith & Keys', kind: 'service', opens: 8*60, closes: 18*60 },
+  // Fictional contractor-operated sites on vacant row-five NORTH plots. These
+  // are not claimed to be real Narromine businesses and do NOT add resident IDs.
+  {col:'R',row:5,side:'north',id:'brewery',name:'Macquarie Valley Microbrewery',kind:'industry',
+    opens:8*60,closes:16*60,contractOnly:true,description:'Finite paid batch production and keg freight'},
+  {col:'S',row:5,side:'north',id:'buildsite',name:'Farm Cooperative Workshop Build',kind:'industry',
+    opens:8*60,closes:16*60,contractOnly:true,description:'Fictional contractor project, staged material deliveries'},
   ...EXPANSION_SITES,
 ];
 
@@ -227,7 +235,7 @@ const RELIEF_ROLES = {
  coop:'poultry shed attendant', orchard:'orchard hand', garden:'garden produce assistant',
  silo:'grain handling operator'
 };
-export const RELIEF_SITES = PLACE_DEFS.filter(p=>!p.expansion && p.kind!=='home' && p.kind!=='park' &&
+export const RELIEF_SITES = PLACE_DEFS.filter(p=>!p.expansion && !p.contractOnly && p.kind!=='home' && p.kind!=='park' &&
  JOBS.filter(j=>j[1]===p.id && !['student','retired'].includes(j[0])).length<2).map(p=>p.id);
 for (const id of RELIEF_SITES) {
  const p=PLACE_DEFS.find(place=>place.id===id);
@@ -606,6 +614,7 @@ export class TownLife {
     ensureTenancies(this);
     initialiseVehicles(this);
     initialiseTradeEducation(this);
+    initIndustries(this);
     // Civic records a new town starts with; restore() drops any others the save didn't have.
     this.baseCivic = Object.keys(this.civic);
     this.log(`Day ${this.day} begins. The town wakes up.`);
@@ -693,6 +702,7 @@ export class TownLife {
     advanceNeeds(this,minutes);
     tickElectricalPilot(this,minutes);
     tickPubUtilities(this,minutes);
+    industryMinute(this,minutes);
     advanceTownTradeOperations(this,minutes);
     advanceEmergency(this);
     callInMissingStaff(this, minutes);
@@ -753,6 +763,7 @@ export class TownLife {
 
   newDay() {
     shopWasteDay(this);
+    industryDay(this);
     this.yesterday = this.stats;
     this.stats = this.freshStats();
     for (const v of this.villagers) v.doneToday = {};
@@ -1082,7 +1093,7 @@ export class TownLife {
         const hands = at(p.id).length;
         // Farms stop picking once their shed is full (60), so unsold produce doesn't pile up forever.
         if (hands && this.open(p) && (p.out[p.makes] || 0) < 60) {
-          const n = Math.round((2 + 3 * p.growth) * hands * (FARM_YIELD[p.makes] || 1) * Math.max(1, this.villagers.length/38));
+          const n = Math.round((2 + 3 * p.growth) * hands * (FARM_YIELD[p.makes] || 1) * Math.max(1, this.villagers.length/38) * herdYield(this,p.id));
           p.out[p.makes] = (p.out[p.makes] || 0) + n;
           this.stats.harvested[p.makes] = (this.stats.harvested[p.makes] || 0) + n;
           if (p.makes === 'grain' && p.growth > 0.9) { p.growth = 0.3; this.log(`The wheat paddock was harvested. ${n} bags of grain went into the silo.`); }
@@ -1091,6 +1102,7 @@ export class TownLife {
     }
     const h = Math.floor(this.minute / 60);
     this.utilitiesHour(h, at);
+    industryHour(this,h);
     soyHourly(this);
     const powered = this.gridPowered('bakery');
     const mill = this.place('mill');
@@ -2153,6 +2165,10 @@ export class TownLife {
       population: this.villagers.length, atWork: this.villagers.filter((v) => v.step?.kind === 'work').length, asleep: this.villagers.filter((v) => v.step?.kind === 'sleep').length };
   }
 
+  industryReport(){return industryReport(this);}
+  farmAnimals(farm){return herdReport(this,farm);}
+  reportAnimalIllness(farm,animalId){return requestVet(this,farm,animalId);}
+
   // Saves just what matters to resume tomorrow where the town left off.
   snapshot() {
     const pick = (o, keys) => { const r = { id: o.id }; for (const k of keys) if (o[k] !== undefined) r[k] = o[k]; return r; };
@@ -2171,6 +2187,7 @@ export class TownLife {
     if(s.civic?.pubStandards!==undefined&&!validPubStandards(s.civic.pubStandards))return false;
     if(s.civic?.pubUtilities!==undefined && !validPubUtilities(s.civic.pubUtilities))return false;
     if(s.civic?.electricalPilot!==undefined && !validElectricalPilotState(s.civic.electricalPilot))return false;
+    if(s.civic?.linkedIndustries!==undefined && !validIndustryState(s.civic.linkedIndustries))return false;
     if (s.places !== undefined && !Array.isArray(s.places)) return false;
     if (s.villagers !== undefined && !Array.isArray(s.villagers)) return false;
     let sim = null;
