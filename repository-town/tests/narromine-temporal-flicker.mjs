@@ -57,7 +57,8 @@ assert.equal(classifyTemporalMetrics(Array.from({ length: 16 }, () => noEffect))
   'unverified', 'zero baseline signal MUST NOT claim fix works');
 const worse = measureCycle([dark, dark, filtered, filtered], [dark, dark, bright, bright]);
 assert.equal(classifyTemporalMetrics(Array.from({ length: 16 }, () => worse)).status, 'regressed');
-const movingTraffic = measureCycle([dark, bright, dark, dark], [dark, bright, dark, dark]);
+const dynamicPixel = makeFrame(96); // 24-luma change while the pose is identical
+const movingTraffic = measureCycle([dark, dynamicPixel, dark, dark], [dark, dynamicPixel, dark, dark]);
 assert.equal(movingTraffic.usable, 0, 'changes during repeated pose must be masked');
 assert.equal(classifyTemporalMetrics(Array.from({ length: 16 }, () => movingTraffic)).status, 'unverified');
 
