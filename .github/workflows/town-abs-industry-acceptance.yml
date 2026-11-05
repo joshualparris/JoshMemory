@@ -1,0 +1,56 @@
+name: Town ABS Population and Linked Industries Acceptance
+on:
+  pull_request:
+    paths:
+      - 'repository-town/src/world/abs-dubbo.js'
+      - 'repository-town/src/world/population*.js'
+      - 'repository-town/src/world/linked-industr*.js'
+      - 'repository-town/src/world/life.js'
+      - 'repository-town/src/world/townlife.js'
+      - 'repository-town/src/ui/population-panel.js'
+      - 'repository-town/src/ui/linked-industry-panel.js'
+      - 'repository-town/tests/abs-demographics.mjs'
+      - 'repository-town/tests/linked-industries.mjs'
+      - '.github/workflows/town-abs-industry-acceptance.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  focused:
+    name: ABS/industry, privacy and release integrity
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install pinned dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Syntax-check newly integrated modules
+        run: |
+          node --check src/world/abs-dubbo.js
+          node --check src/world/population.js
+          node --check src/world/population-routines.js
+          node --check src/world/population-view.js
+          node --check src/world/linked-industries.js
+          node --check src/world/linked-industry-view.js
+          node --check src/world/life.js
+          node --check src/world/townlife.js
+          node --check src/ui/linked-industry-panel.js
+          node --check src/ui/townpanels.js
+      - name: Assert full fictional population, preserved original workers and save migration
+        run: node tests/abs-demographics.mjs
+      - name: Assert paid supply runs, vet, building, brewing and existing pub/hardware
+        run: node tests/linked-industries.mjs
+      - name: Build deployable public game
+        run: npm run build
+      - name: Reject public personal data markers
+        run: npm run check:privacy
+      - name: Verify release asset integrity
+        run: node tools/verify-release.mjs dist/public
