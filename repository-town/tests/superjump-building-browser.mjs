@@ -76,9 +76,21 @@ try {
           };
           const normal=create(0,true);
           const superJump=create(50,true);
+          // After a super-jump has risen above the roof, stepping off forward
+          // motion must settle on the actual *game collider* at its true top.
+          // Use an observed polygon-inside point, not a fabricated rectangle.
+          const lander = new Player(camera);
+          lander.place(c.x,c.z,Math.PI);
+          lander.y = c.box.top + 2.4;
+          lander.vy = 0;
+          const still={takeLook:()=>({dx:0,dy:0}),
+            movement:()=>({x:0,z:0,running:false,crouching:false}),consume:()=>false};
+          for(let frame=0;frame<170;frame++) lander.update(1/60,still,collision);
+          const landing={y:lander.y, expected:c.box.top,
+            support:collision.groundAt(c.x,c.z,.35,c.box.top+.1)};
           sampleResults.push({sector:sector.id,status:'tested',source:c.box.source || null,
             height:c.box.top,width:c.width,depth:c.depth,
-            normal,superJump,box:{x0:c.box.x0,x1:c.box.x1,z0:c.box.z0,z1:c.box.z1}});
+            normal,superJump,landing,box:{x0:c.box.x0,x1:c.box.x1,z0:c.box.z0,z1:c.box.z1}});
         }
         return {sampleResults,renderedTriangles:window.__town.state().triangles};
       });
@@ -91,6 +103,9 @@ try {
           mode+' jump never cleared roof height '+sample.sector+': '+JSON.stringify(sample));
         assert(sample.superJump.z > sample.box.z1+.5,
           mode+' sprint superjump blocked inside '+sample.sector+': '+JSON.stringify(sample));
+        assert(Math.abs(sample.landing.y-sample.height)<.03 &&
+          Math.abs(sample.landing.support-sample.height)<.03,
+          mode+' could not settle on actual roof of '+sample.sector+': '+JSON.stringify(sample));
       }
       assert.deepEqual(errors,[],mode+' browser page errors');
       console.log('PASS '+mode+' actual rendered game source and world colliders: '+JSON.stringify(evidence));
