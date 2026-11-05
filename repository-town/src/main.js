@@ -32,6 +32,7 @@ import { createPlayerFlight } from './world/player-flight.js';
 import { AERODROME } from './world/narromine-airfield-data.js';
 import { createNarromineTrains } from './world/narromine-trains.js';
 import { createNarromineTraffic } from './world/narromine-traffic.js';
+import { townDate } from './world/town-calendar.js';
 import { createTownRailYard } from './world/town-rail-yard.js';
 import { NARROMINE_POST_OFFICE_SAVE_ID, NARROMINE_POST_OFFICE_ENTRANCE, nearNarrominePostOfficeDoor, buildNarrominePostOfficeInterior, createNarrominePostalOutdoorActor } from './world/narromine-post-office.js';
 import { NARROMINE_POSTAL_PERSON, POSTAL_WALK_ROUTE_LOCAL, postalState, postalDayPlan, postalFormatTime } from './world/narromine-postal-character.js';
@@ -1836,7 +1837,7 @@ async function start() {
     drivingDashboard.update(mode==='town'&&!overview?driving.activeVehicle():null);
     ambience.setRadioPlaying(drivingDashboard.getState().station>0);
     trains.tick(dt,{day:life.day,minute:life.minute});   // timetabled freights and level-crossing booms
-    if(mode==='town'&&player.pos.x<-2640) narromineTraffic.update(dt,player.pos,life.minute);
+    if(mode==='town'&&player.pos.x<-2640) narromineTraffic.update(dt,player.pos,life.minute,townDate(life.day).weekday);
     market.update(life.day, life.minute);
     frameItems();
     carryFrame();
@@ -2325,7 +2326,7 @@ async function start() {
     vehicles:()=>life.motorReport().owned.map(v=>({...v})),
     enterVehicle:(reg)=>driving.enter(life.motorReport().owned.find(v=>v.registration===reg)),
     yardTrain:()=>yard.state(), yardBoard:()=>yard.board(), yardExit:()=>yard.exit(player), yardAction:(kind)=>yard.action(kind), yardColliders:()=>yard.colliders(),
-    train:()=>trains.state(), traffic:()=>({count:narromineTraffic.count,models:narromineTraffic.modelsLoaded,cars:narromineTraffic.cars.map(c=>({x:c.x,z:c.z,v:c.v,yaw:c.yaw,model:c.model}))}), probeWithMoving:(x,z,r=.4)=>!!townWorld.hits(x,z,r), trainNear:()=>trains.near(player.pos), trainBoard:()=>trains.board(), trainExit:()=>trains.exit(player), trainRoute:(p)=>trains.setRoute(p), runFreight:(i)=>trains.runFreight(i), trainColliders:()=>trains.colliders(),
+    train:()=>trains.state(), traffic:()=>({count:narromineTraffic.count,models:narromineTraffic.modelsLoaded,parked:narromineTraffic.parked.length,cars:narromineTraffic.cars.map(c=>({x:c.x,z:c.z,v:c.v,yaw:c.yaw,model:c.model,driver:c.driver,purpose:c.purpose,destination:c.destination}))}), probeWithMoving:(x,z,r=.4)=>!!townWorld.hits(x,z,r), trainNear:()=>trains.near(player.pos), trainBoard:()=>trains.board(), trainExit:()=>trains.exit(player), trainRoute:(p)=>trains.setRoute(p), runFreight:(i)=>trains.runFreight(i), trainColliders:()=>trains.colliders(),
     leaveVehicle:()=>driving.exit(),
     // A fixed step behaves like a real frame, including showing the driving message (off-road, braking).
     narromineVisible:()=>narromine.group.visible,
