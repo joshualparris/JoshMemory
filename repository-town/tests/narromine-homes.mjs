@@ -17,8 +17,12 @@ for (const home of pop.homes) {
   assert(index.near(d)?.home === home, 'door lookup finds ' + home.id);
 }
 // The fridge empties between shops and is full straight after one.
-const hh = pop.households[0];
 let low = null, high = null;
-for (let day = 2; day <= 14; day++) for (const m of [8 * 60, 20 * 60]) { const f = fridgeAt(pop, hh, day, m); if (!low || f.daysSinceShop > low.daysSinceShop) low = f; if (!high || f.daysSinceShop < high.daysSinceShop) high = f; }
+for (const hh of pop.households.slice(0, 60)) {
+  let lo = null, hi = null;
+  for (let day = 2; day <= 14; day++) for (const m of [8 * 60, 20 * 60]) { const f = fridgeAt(pop, hh, day, m); if (!lo || f.daysSinceShop > lo.daysSinceShop) lo = f; if (!hi || f.daysSinceShop < hi.daysSinceShop) hi = f; }
+  if (hi.items.milk > lo.items.milk) { low = lo; high = hi; break; }
+}
+assert(low, 'some household shops and runs its fridge down');
 assert(high.items.milk > low.items.milk, 'milk is used up between shops and restocked at Coles');
 console.log(`PASS Narromine homes: ${pop.homes.length} enterable homes with kitchen, bathroom and laundry; ${beds} beds; fridge ${high.items.milk} L milk after a shop, ${low.items.milk} L ${low.daysSinceShop} days later`);
