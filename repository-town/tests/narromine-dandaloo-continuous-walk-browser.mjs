@@ -26,6 +26,7 @@ const report={
 async function manifest(page){
  return page.evaluate(async()=>{
   const {STREETS,geoToWorld}=await import('./world/narromine-layout.js');
+  const {NARROMINE_TREES}=await import('./world/narromine-trees-data.js');
   const near=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1])<2;
   const find=(a,b)=>{
    const s=STREETS.find(x=>x.name==='Dandaloo Street'&&x.pts.some(p=>near(p,a))&&x.pts.some(p=>near(p,b)));
@@ -53,8 +54,22 @@ async function manifest(page){
     for(let j=i===1?0:1;j<=n;j++){
      const t=j/n,x=a[0]+t*dx,z=a[1]+t*dz;
      const p=[x-(dz/len)*offset,z+(dx/len)*offset];
+     // An OSM centreline offset is NOT a surveyed pedestrian centreline.
+     // Keep actual 2023 LiDAR tree trunks and walk around them, not through
+     // them. The west-side mapped-tree near (-4769.5,-998.5) coincided with
+     // test waypoint 27 and caused a real 'unreachable' result. Approach
+     // along the mapped shop-side strip and move 2.3m toward the shop side
+     // only for a genuinely intersected LiDAR trunk; pathfinder/collision
+     // must still accept the resulting walk. Never remove a tree to pass QA.
+     let detour=null;
+     for(const tree of NARROMINE_TREES){
+       if(Math.hypot(p[0]-tree[0],p[1]-tree[1])>=1.25)continue;
+       p[0]+=(dz/len)*2.3;p[1]-=(dx/len)*2.3;
+       detour={tree:[tree[0],tree[1]],heightM:tree[2],offsetM:2.3,source:'NSW Spatial Services 2023 LiDAR'};
+       break;
+     }
      if(points.length&&!near(points.at(-1).p,p))cumulative+=Math.hypot(points.at(-1).p[0]-p[0],points.at(-1).p[1]-p[1]);
-     if(!points.length||!near(points.at(-1).p,p))points.push({p,at:cumulative,segment:pieces.indexOf(segment)+1});
+     if(!points.length||!near(points.at(-1).p,p))points.push({p,at:cumulative,segment:pieces.indexOf(segment)+1,detour});
     }
    }
   }
