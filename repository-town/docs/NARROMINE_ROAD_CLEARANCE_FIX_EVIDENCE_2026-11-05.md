@@ -41,3 +41,26 @@ Existing OSM buildings and custom landmark solids, railway barriers, lanes, Dand
 - [ ] Reconcile the entire Dandaloo corridor's curved white markings, paved red footpaths, gravel verges, kerb ramps, road widths and junctions. #400/#401 are already merged; preserve them.
 - [ ] Coordinate, do not duplicate [#388's independently owned 10-area physical-walking audit](https://github.com/joshualparris/JoshMemory/pull/388); verify actual walk, collision and screenshot evidence.
 - [ ] Run full release/privacy/integration + browser/mobile CI, review current-main differences, merge on green and verify production/backup source SHA separately. Vercel production may be rate-limited.
+
+## Exact residual road provenance from actual CI artifact (5 November)
+
+Downloaded [WebGL run 41947966011](https://github.com/joshualparris/JoshMemory/actions/runs/41947966011), artifact `road-drive-audit` (desktop.json, android.json, summary.json, screenshot pairs). Both browser runs share **52 individual contact samples, all on seven unnamed 4.5 m OSM `service` ways**:
+
+| Generated road index | Samples | Indexed OSM building sources found | Next evidence question |
+|---|---:|---|---|
+| `narromine-49:` | 29 | None among the recorded first nine | Are linearly spaced roadside static rectangles fences, posts or LiDAR trunks; how close to the 4.5 m way? |
+| `narromine-110:` | 6 | OSM building indices 170, 171 | Is this an access drive near the actual mapped building façades? |
+| `narromine-116:` | 6 | OSM building index 178 plus other static | Does the drive stay within its 4.5 m mapped envelope? |
+| `narromine-111:` | 5 | OSM buildings 193, 194 | Are the road and building OSM geometry both correct? |
+| `narromine-184:` | 4 | OSM building 30, Narromine Hospital | Is this a private hospital service access and does the road actually cross the surveyed building? |
+| `narromine-119:` | 1 | Other static | Identify and check the isolated roadside object. |
+| `narromine-198:` | 1 | Other static | Identify and check the isolated roadside object. |
+| **Total** | **52** | **24 mapped building, 28 unclassified static** | **No named Dandaloo Street contacts in the evidence** |
+
+### Why the existing 52 must not simply be removed
+
+The browser audit uses centres `lateral = 0, ±1.6` metres and a circle **radius 1.12 m**. With a 4.5 m wide road, the extreme lane probe needs **2.72 m of lateral clearance from centreline**, but the mapped half-width is only **2.25 m**. It therefore tests **0.47 m beyond** the nominal pavement on both edges. A collision at a full-body-overhanging sample is not automatically a blocked lane; an actual centreline or fully-on-carriageway collision is much stronger evidence of a true problem.
+
+[Follow-up test PR](https://github.com/joshualparris/JoshMemory/pulls?q=is%3Aopen+narromine-road-probe-envelope) adds reproducible `byStreetClass`, `probeWithinCarriagewayHits`, `probeOverhangsCarriagewayHits`, `centrelineHits`, `namedStreetHits` and `onDandalooHits` to both real browser outputs. The test **preserves all original raw contacts and screenshots**. It asserts Dandaloo's currently observed zero contacts rather than assuming OSM service access is publicly driveable. **Actual counts of full-carriageway contacts are pending the new CI run.**
+
+**Accuracy gate:** Never change real OSM building footprints, hospital walls, gates, rail hardware or physical verges merely to satisfy an off-carriageway-radius probe. For each actual obstruction, compare the 2026 spatial source, authorised dated imagery, vehicle/footpath width, and the onscreen geometry before applying an isolated fix. No claimed 10-area contiguous walk or current red paver/white paint survey follows from this audit.
