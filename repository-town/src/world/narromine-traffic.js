@@ -14,6 +14,12 @@ const CLASS_VEHICLES = { trunk: 7000, primary: 4000, secondary: 3000, tertiary: 
 const HOURLY = [.006, .004, .003, .003, .006, .016, .038, .066, .079, .068, .064, .066, .068, .066, .068, .074, .08, .072, .052, .036, .028, .022, .014, .008];
 const SPEED = 50 / 3.6, RADIUS = 500;
 const JUNCTION_APPROACH = 30, JUNCTION_STOP = 13, JUNCTION_CLEAR = 14;
+// World axes are x=east and z=south. For a northbound car (uz < 0),
+// the Australian left lane is WEST of the street centreline (x < centre x).
+export function leftLaneOffset(ux, uz, width) {
+  const offset = Math.min(width / 4, 1.9);
+  return { x: uz * offset, z: -ux * offset };
+}
 
 function buildGraph() {
   const nodes = [], adj = new Map(), key = (p) => Math.round(p[0] * 2) + ',' + Math.round(p[1] * 2), index = new Map();
@@ -61,8 +67,8 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
   const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;     // deterministic, so tests repeat
   const posOf = (c) => { const a = nodes[c.from], b = nodes[c.to], t = c.s / c.len; return { x: a.x + (b.x - a.x) * t, z: a.z + (b.z - a.z) * t, ux: (b.x - a.x) / c.len, uz: (b.z - a.z) / c.len }; };
   function place(c) {
-    const p = posOf(c), off = Math.min(c.width / 4, 1.9);            // keep left: left of travel is (uz, -ux)
-    c.x = p.x + p.uz * off; c.z = p.z - p.ux * off; c.yaw = Math.atan2(-p.ux, -p.uz) + Math.PI; c.ux = p.ux; c.uz = p.uz;
+    const p = posOf(c), side = leftLaneOffset(p.ux, p.uz, c.width);
+    c.x = p.x + side.x; c.z = p.z + side.z; c.yaw = Math.atan2(-p.ux, -p.uz) + Math.PI; c.ux = p.ux; c.uz = p.uz;
   }
   function nextEdge(c) {
     const options = adj.get(c.to).filter(e => e.to !== c.from);
