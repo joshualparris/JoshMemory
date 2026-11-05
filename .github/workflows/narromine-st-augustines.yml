@@ -20,7 +20,7 @@ permissions:
 jobs:
   church-realism:
     name: Measured church geometry, build, privacy, desktop/mobile screenshot
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 22
     defaults:
       run:
