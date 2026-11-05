@@ -2331,6 +2331,11 @@ async function start() {
     airport:()=>({icao:AERODROME.icao,runways:narromine.airfield.runways.map(r=>({id:r.id,length:r.length,width:r.width,headingDeg:r.headingDeg})),parking:flight.state().parking}),
     flight:()=>flight.state(), boardFlight:(id)=>flight.board(id),
     lineUpFlight:()=>flight.lineUp(), exitFlight:()=>flight.exit(),
+    // Browser-only accelerated deterministic steps through the actual 3D flight actor;
+    // user keyboard/touch state is still read from the normal Input handler.
+    stepFlight:(seconds)=>{if(!flight.flying)return null;const step=0.05;
+      for(let t=0;t<Math.max(0,Math.min(seconds,120));t+=step)flight.update(step);
+      return flight.state();},
     stMarysEntrance:()=>({...ST_MARYS_ENTRANCE,outside:{...ST_MARYS_ENTRANCE.outside},returnPose:{...ST_MARYS_ENTRANCE.returnPose}}),
     narrominePostOfficeEntrance:()=>({...NARROMINE_POST_OFFICE_ENTRANCE, outside:{...NARROMINE_POST_OFFICE_ENTRANCE.outside},returnPose:{...NARROMINE_POST_OFFICE_ENTRANCE.returnPose}}),
     narromineColesEntrance:()=>({...NARROMINE_COLES_ENTRANCE,outside:{...NARROMINE_COLES_ENTRANCE.outside},returnPose:{...NARROMINE_COLES_ENTRANCE.returnPose}}),
