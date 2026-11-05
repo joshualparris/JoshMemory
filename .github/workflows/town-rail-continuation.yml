@@ -28,7 +28,9 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Validate connected track graph and drivable 180 metre loop
         working-directory: repository-town
-        run: node tests/town-rail-continuation.mjs
+        run: |
+          node tests/town-rail-continuation.mjs
+          node tests/town-rail-continuation-signals.mjs
       - name: Build playable release
         working-directory: repository-town
         run: npm run build:deploy
