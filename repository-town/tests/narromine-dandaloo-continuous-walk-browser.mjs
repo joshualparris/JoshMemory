@@ -68,6 +68,13 @@ async function manifest(page){
        detour={tree:[tree[0],tree[1]],heightM:tree[2],offsetM:2.3,source:'NSW Spatial Services 2023 LiDAR'};
        break;
      }
+     // Each OSM carriageway is individually recorded and its normal changes
+     // at the split. The join's raw 5.8m offsets can reverse z by ~3m even
+     // though the street continues north. Never command a player to walk
+     // backwards into a kerb/tree solely because two segment normals differ.
+     // Retain forward movement; this is NOT skipping physical travel or
+     // inventing an observed footpath (the interpolated join is still tested).
+     if(points.length&&p[1]<points.at(-1).p[1]-0.15)continue;
      if(points.length&&!near(points.at(-1).p,p))cumulative+=Math.hypot(points.at(-1).p[0]-p[0],points.at(-1).p[1]-p[1]);
      if(!points.length||!near(points.at(-1).p,p))points.push({p,at:cumulative,segment:pieces.indexOf(segment)+1,detour});
     }
