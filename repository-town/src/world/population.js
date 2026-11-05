@@ -54,9 +54,20 @@ export function createPopulation(homes,workers){
   for(const h of childCouples)h.familyType='coupleWithChildren';
   const childHomes=households.filter(h=>['coupleWithChildren','oneParent'].includes(h.familyType));
   for(const h of childHomes)for(const v of h.members)v.relation='parent';
-  const minors=ages.filter(a=>a<18).reverse();for(const age of minors){ages.splice(ages.indexOf(age),1);
-    const eligible=childHomes.filter(h=>h.members.some(v=>v.relation==='parent'&&v.age>=age+18&&v.age<=age+50));
-    const h=eligible.sort((a,b)=>a.members.filter(v=>v.relation==='child').length-b.members.filter(v=>v.relation==='child').length||Math.max(...a.members.filter(v=>v.relation==='parent').map(v=>v.age))-Math.max(...b.members.filter(v=>v.relation==='parent').map(v=>v.age))||stable(a,b))[0];
+  // Reserve one dependent child for each family requiring one before assigning
+  // the remaining children. Hardest-to-place (youngest-parent) homes go first,
+  // so seed-dependent worker ages cannot consume all compatible ages beforehand.
+  const parentAge=h=>Math.max(...h.members.filter(v=>v.relation==='parent').map(v=>v.age));
+  const eligibleFor=(h,age)=>h.members.some(v=>v.relation==='parent'&&v.age>=age+18&&v.age<=age+50);
+  const priorityHomes=[...childHomes].sort((a,b)=>parentAge(a)-parentAge(b)||stable(a,b));
+  for(const h of priorityHomes){
+    const idx=ages.findIndex(age=>age<18&&eligibleFor(h,age));
+    if(idx>=0)add(h,ages.splice(idx,1)[0],'child');
+  }
+  const minors=ages.filter(a=>a<18).reverse();
+  for(const age of minors){ages.splice(ages.indexOf(age),1);
+    const eligible=childHomes.filter(h=>eligibleFor(h,age));
+    const h=eligible.sort((a,b)=>a.members.filter(v=>v.relation==='child').length-b.members.filter(v=>v.relation==='child').length||parentAge(a)-parentAge(b)||stable(a,b))[0];
     if(!h)throw new Error('No age-compatible parent');add(h,age,'child');
   }
   for(const h of childHomes.filter(h=>!h.members.some(v=>v.relation==='child'))){
