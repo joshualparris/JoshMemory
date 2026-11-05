@@ -114,77 +114,115 @@ try {
     report.viewports.push(run);
     for(const target of all) {
       const opts=target.crossing?crossingCandidates(crossing):candidateRoadStarts(target);
-      const candidate=await page.evaluate((options)=>{
-        const t=window.__town;
+      const candidates=await page.evaluate((options)=>{
+        const t=window.__town,clearStarts=[];
         for(const p of options) {
           if(!t.onRoad(p.x,p.z) || t.probeStatic(p.x,p.z,1.12))continue;
+          // A no-static-hit car can still legitimately be stopped by a moving
+          // pedestrian or previously parked vehicle. Never disable either.
+          if(t.probeWithMoving(p.x,p.z,1.15))continue;
           let clear=true;
           for(let n=1;n<=20;n++){
             const x=p.x+(p.endX-p.x)*n/20,z=p.z+(p.endZ-p.z)*n/20;
-            if(!t.onRoad(x,z) || t.probeStatic(x,z,1.12)){clear=false;break;}
+            if(!t.onRoad(x,z) || t.probeStatic(x,z,1.12) || t.probeWithMoving(x,z,1.15)){
+              clear=false;break;
+            }
           }
-          if(clear)return p;
+          if(clear)clearStarts.push(p);
+          if(clearStarts.length>=7)break;
         }
-        return null;
+        return clearStarts;
       },opts);
       const result={id:target.id,site:[target.x,target.z],candidates:opts.length,
-        candidate,passed:false,blockedBy:'',distanceM:0,frames:0,offRoadFrames:0,staticHitFrames:0,
-        minDistanceToRailM:null,vehicleRegistration:null};
+        availableSafeRoutes:candidates.length,candidate:null,passed:false,blockedBy:'',distanceM:0,
+        frames:0,offRoadFrames:0,staticHitFrames:0,minDistanceToRailM:null,
+        vehicleRegistration:null,attempts:[]};
       run.results.push(result);
-      if(!candidate){result.blockedBy='no modelled 10m collision-clear mapped-street segment near site';continue;}
-      if(target.crossing&&crossing.closed){result.blockedBy='crossing closed; never drive through a closed boom';continue;}
-      // Stage a registered real car at the mapped road start. This is a test setup ONLY:
-      // player and car position are set before driving; no direct position mutations during drive.
-      const stage=await page.evaluate(p=>{
-        const t=window.__town;
-        if(t.state().driving)t.leaveVehicle();
-        const civic=t.life.ledger().civic;
-        const v=civic.motor.owned.find(x=>x.cheat&&x.model==='sedan');
-        if(!v)throw Error('missing registered QA car');
-        Object.assign(v,{x:p.x,z:p.z,yaw:p.yaw,speed:0,fuel:55,condition:100,roadworthy:true,parkingPending:false});
-        t.place(p.x,p.z,p.yaw);
-        const entered=t.enterVehicle(v.registration);
-        return {message:entered,driving:t.state().driving,registration:v.registration,
-          pos:{x:v.x,z:v.z,yaw:v.yaw},staticBlocked:!!t.probeStatic(v.x,v.z,1.12)};
-      },candidate);
-      result.stage=stage;result.vehicleRegistration=stage.registration;
-      if(!stage.driving||stage.staticBlocked) {result.blockedBy='car failed to enter at staged clear road start: '+stage.message;continue;}
-      await page.keyboard.down('w');
-      const trajectory=await page.evaluate(({p,target})=>{
-        const t=window.__town,initial=t.state().pos,steps=[];
-        const dist=(x,z,a,b)=>Math.hypot(x-a,z-b);
-        const round=n=>Math.round(n*100)/100;
-        let minDistanceToRailM=Infinity,offRoadFrames=0,staticHitFrames=0;
-        for(let i=0;i<180;i++){
-          t.stepVehicle(1/30);
-          const v=t.driveDiagnostics().vehicle,s=t.state(),onRoad=t.onRoad(s.pos.x,s.pos.z);
-          const hit=!!t.probeStatic(s.pos.x,s.pos.z,1.12);
-          if(!onRoad)offRoadFrames++;
-          if(hit)staticHitFrames++;
-          if(target.crossing)minDistanceToRailM=Math.min(minDistanceToRailM,dist(s.pos.x,s.pos.z,target.x,target.z));
-          steps.push({x:round(s.pos.x),z:round(s.pos.z),speed:round(v?.speed||0),onRoad,hit});
-          if(dist(s.pos.x,s.pos.z,initial.x,initial.z)>=(p.crossRail?18:10))break;
-          if(i>30 && (v?.speed||0)<0.02)break;
+      if(target.crossing&&crossing.closed) {result.blockedBy='crossing closed; train has priority';continue;}
+      if(!candidates.length){result.blockedBy='no currently clear modelled mapped-street segment near site';continue;}
+      for(const candidate of candidates) {
+        const attempt={candidate,entered:false,passed:false,blockedBy:''};
+        result.attempts.push(attempt);
+        // The car is staged before the journey, then moved ONLY by actual player
+        // driving physics. No collider removal, scenery teleport during a leg,
+        // immunity flags, or bypass of dynamic pedestrian and car collisions.
+        const stage=await page.evaluate(p=>{
+          const t=window.__town;
+          if(t.state().driving)throw Error('QA car did not fully park before staging next segment');
+          const civic=t.life.ledger().civic;
+          const v=civic.motor.owned.find(x=>x.cheat&&x.model==='sedan');
+          if(!v)throw Error('missing registered QA car');
+          Object.assign(v,{x:p.x,z:p.z,yaw:p.yaw,speed:0,fuel:55,condition:100,
+            roadworthy:true,parkingPending:false});
+          t.place(p.x,p.z,p.yaw);
+          const entered=t.enterVehicle(v.registration);
+          return {message:entered,driving:t.state().driving,registration:v.registration,
+            pos:{x:v.x,z:v.z,yaw:v.yaw},staticBlocked:!!t.probeStatic(v.x,v.z,1.12),
+            occupiedBeforeDrive:!!t.probeWithMoving(v.x,v.z,1.15)};
+        },candidate);
+        attempt.stage=stage;result.vehicleRegistration=stage.registration;
+        if(!stage.driving||stage.staticBlocked) {
+          attempt.blockedBy='vehicle cannot be entered at dynamically occupied road start: '+stage.message;
+          continue;
         }
-        const final=t.state().pos;
-        return {start:[initial.x,initial.z],end:[final.x,final.z],
-          distanceM:dist(initial.x,initial.z,final.x,final.z),frames:steps.length,
-          offRoadFrames,staticHitFrames,
-          minDistanceToRailM:Number.isFinite(minDistanceToRailM)?round(minDistanceToRailM):null,
-          samples:steps.filter((_,i)=>i%8===0)};
-      },{p:candidate,target});
-      await page.keyboard.up('w');
-      Object.assign(result,trajectory);
-      result.passed=trajectory.distanceM>= (target.crossing?17:9.5) &&
-        trajectory.offRoadFrames===0 && trajectory.staticHitFrames===0 &&
-        (!target.crossing||trajectory.minDistanceToRailM<2);
-      if(!result.passed)result.blockedBy='car did not physically traverse the planned road, or touched a collider/off-road patch';
+        attempt.entered=true;
+        await page.keyboard.down('w');
+        const trajectory=await page.evaluate(({p,target})=>{
+          const t=window.__town,initial=t.state().pos,steps=[];
+          const dist=(x,z,a,b)=>Math.hypot(x-a,z-b);
+          const round=n=>Math.round(n*100)/100;
+          let minDistanceToRailM=Infinity,offRoadFrames=0,staticHitFrames=0;
+          for(let i=0;i<180;i++){
+            t.stepVehicle(1/30);
+            const v=t.driveDiagnostics().vehicle,s=t.state(),onRoad=t.onRoad(s.pos.x,s.pos.z);
+            const hit=!!t.probeStatic(s.pos.x,s.pos.z,1.12);
+            if(!onRoad)offRoadFrames++;
+            if(hit)staticHitFrames++;
+            if(target.crossing)minDistanceToRailM=Math.min(minDistanceToRailM,dist(s.pos.x,s.pos.z,target.x,target.z));
+            steps.push({x:round(s.pos.x),z:round(s.pos.z),speed:round(v?.speed||0),onRoad,hit});
+            if(dist(s.pos.x,s.pos.z,initial.x,initial.z)>=(p.crossRail?18:10))break;
+            if(i>30 && (v?.speed||0)<0.02)break;
+          }
+          const final=t.state().pos;
+          return {start:[initial.x,initial.z],end:[final.x,final.z],
+            distanceM:dist(initial.x,initial.z,final.x,final.z),frames:steps.length,
+            offRoadFrames,staticHitFrames,
+            minDistanceToRailM:Number.isFinite(minDistanceToRailM)?round(minDistanceToRailM):null,
+            samples:steps.filter((_,i)=>i%8===0)};
+        },{p:candidate,target});
+        await page.keyboard.up('w');
+        Object.assign(attempt,trajectory);
+        attempt.passed=trajectory.distanceM>=(target.crossing?17:9.5) &&
+          trajectory.offRoadFrames===0 && trajectory.staticHitFrames===0 &&
+          (!target.crossing||trajectory.minDistanceToRailM<2);
+        if(!attempt.passed)attempt.blockedBy=
+          'actual sedan stopped or left lane: investigate moving actor/vehicle vs mapped static surface';
+        // Brake with real game physics. Never fake a stopped car or change its speed
+        // to bypass the game's no-exit-while-moving rule.
+        const parking=await page.evaluate(()=>{
+          const t=window.__town;
+          for(let n=0;n<75;n++)t.stepVehicle(1/30);
+          return t.leaveVehicle();
+        });
+        attempt.parking=parking;
+        if(!/^Parked,/.test(parking))throw Error('car could not stop and exit normally: '+parking);
+        if(attempt.passed) {
+          Object.assign(result,trajectory,{candidate,passed:true,blockedBy:'',stage});
+          break;
+        }
+      }
+      if(!result.passed) {
+        const last=result.attempts.at(-1);
+        result.blockedBy=last?.blockedBy||'all safe local route candidates were dynamically blocked';
+        if(last?.distanceM)Object.assign(result,{
+          candidate:last.candidate,distanceM:last.distanceM,frames:last.frames,
+          offRoadFrames:last.offRoadFrames,staticHitFrames:last.staticHitFrames});
+      }
       const screenshot=path.join(output,device+'-'+target.id+'.png');
       await page.screenshot({path:screenshot});
       result.screenshot=path.basename(screenshot);
-      await page.evaluate(()=>window.__town.leaveVehicle());
       console.log((result.passed?'PASS':'GAP')+' '+device+' '+target.id+
-        ' driven='+round(result.distanceM)+'m steps='+result.frames+
+        ' driven='+round(result.distanceM)+'m attempts='+result.attempts.length+
         ' offroad='+result.offRoadFrames+' static='+result.staticHitFrames+
         (result.blockedBy?' '+result.blockedBy:''));
     }
