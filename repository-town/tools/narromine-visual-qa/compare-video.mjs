@@ -17,6 +17,7 @@ export const BASELINE_SHA = 'ec085dd824be4ee0e931968e5e2e9abef5e43c38';
 export const CANDIDATE_SHA = 'f2810b93242d6b2174198c65748e95e10d126809';
 export const DEFAULT_ROUTE_ID = 'coles-kieraths-dandaloo';
 export const ROAD_HORIZON_ROUTE_ID = 'dandaloo-north-long-view';
+export const TEMPORAL_ROUTE_ID = 'dandaloo-temporal-asphalt-micro';
 
 // Use the existing Coles survey coordinate for a second route looking *along*
 // Dandaloo towards Nymagee/Post Office instead of sideways at the frontage.
@@ -24,6 +25,15 @@ export const ROAD_HORIZON_ROUTE_ID = 'dandaloo-north-long-view';
 export function locateCameraRoute(routeId) {
   const exact = NARROMINE_QA_LOCATIONS.find(location => location.id === routeId);
   if (exact) return exact;
+  if (routeId === TEMPORAL_ROUTE_ID) {
+    const anchor = NARROMINE_QA_LOCATIONS.find(location => location.id === DEFAULT_ROUTE_ID);
+    assert(anchor, 'Coles survey anchor missing for micro-motion road test');
+    return {
+      ...anchor, id: routeId,
+      camera: { ...anchor.camera, yawRad: 0, pitchRad: -0.12 },
+      description: 'Derived Dandaloo asphalt QA micro-motion, fixed surveyed-origin road pose',
+    };
+  }
   if (routeId === ROAD_HORIZON_ROUTE_ID) {
     const anchor = NARROMINE_QA_LOCATIONS.find(location => location.id === DEFAULT_ROUTE_ID);
     assert(anchor, 'Coles camera survey anchor missing');
@@ -46,6 +56,20 @@ export function cameraRoute(location, count = 36) {
   assert(location?.camera && Number.isInteger(count) && count >= ROUTE_MIN_STEPS && count <= 120,
     'a known camera location and 24–120 real render steps are required');
   const cam = location.camera;
+  if (location.id === TEMPORAL_ROUTE_ID) {
+    // Four-frame cycle: A,A,B,B. Same-position repeats supply a motion/noise
+    // negative control. Only the A→B step moves a few centimetres.
+    assert(count >= 48 && count % 4 === 0, 'temporal QA requires >=48 frames in complete AABB cycles');
+    return Array.from({ length: count }, (_, frame) => {
+      const offset = frame % 4 < 2 ? -1 : 1;
+      return {
+        frame, x: Number((cam.x + offset * 0.032).toFixed(6)),
+        z: Number(cam.z.toFixed(6)),
+        yawRad: Number((cam.yawRad + offset * 0.00045).toFixed(7)),
+        pitchRad: cam.pitchRad, eyeHeightM: cam.eyeHeightM, fovDeg: cam.fovDeg,
+      };
+    });
+  }
   return Array.from({ length: count }, (_, frame) => {
     const fraction = frame / (count - 1);
     return {
@@ -103,13 +127,14 @@ function currentRevision() {
 
 function parseArguments(argv) {
   const options = { out: 'test-results/narromine-video-qa', viewports: 'desktop,mobile',
-    route: DEFAULT_ROUTE_ID, steps: 36, baselineSha: BASELINE_SHA,
+    route: DEFAULT_ROUTE_ID, steps: 36, sampleEvery: 2, baselineSha: BASELINE_SHA,
     candidateSha: CANDIDATE_SHA, skipBuild: false };
   for (let i = 0; i < argv.length; i++) {
     const flag = argv[i];
     if (flag === '--out') options.out = argv[++i];
     else if (flag === '--viewports') options.viewports = argv[++i];
     else if (flag === '--route') options.route = argv[++i];
+    else if (flag === '--sample-every') options.sampleEvery = Number(argv[++i]);
     else if (flag === '--steps') options.steps = Number(argv[++i]);
     else if (flag === '--baseline-sha') options.baselineSha = argv[++i];
     else if (flag === '--candidate-sha') options.candidateSha = argv[++i];
@@ -206,6 +231,7 @@ async function captureVersion(browser, url, outDir, config, version, shader, ins
     minute: 750, day: 57, weather: 'clear', sunShadows: 'off',
     routeId: config.route, cameraHeightMetres: route[0].eyeHeightM,
     fovDeg: route[0].fovDeg, recordingCadenceTargetMs: 90,
+    sampleEvery: config.sampleEvery,
   };
   const context = await browser.newContext({
     viewport: { width: vp.width, height: vp.height },
@@ -274,6 +300,8 @@ async function captureVersion(browser, url, outDir, config, version, shader, ins
     assert(recorded.width > 0 && recorded.height > 0, 'WebGL canvas is empty');
 
     const sampleImages = [];
+    assert(Number.isInteger(config.sampleEvery) && config.sampleEvery >= 1 && config.sampleEvery <= 12,
+      'sampleEvery must be an integer from 1 to 12');
     for (let i = 0; i < route.length; i++) {
       const pose = route[i];
       const actual = await page.evaluate(async cameraPose => {
@@ -291,7 +319,7 @@ async function captureVersion(browser, url, outDir, config, version, shader, ins
       assert(actual.visible && Math.hypot(actual.x - pose.x, actual.z - pose.z) < 0.05,
         'player failed to match the recorded deterministic camera waypoint ' + i);
       await page.waitForTimeout(settings.recordingCadenceTargetMs);
-      if (i % 2 === 0 || i === route.length - 1) {
+      if (i % config.sampleEvery === 0 || i === route.length - 1) {
         const pngPath = path.join(destDir, 'frame-' + String(i).padStart(3, '0') + '.png');
         // Lossless samples are necessary to resolve subtle sub-pixel material
         // differences; lossy JPEG previously quantised away most road changes.
