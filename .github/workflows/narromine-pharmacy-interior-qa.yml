@@ -23,17 +23,18 @@ jobs:
           node-version: '22'
           cache: npm
           cache-dependency-path: repository-town/package-lock.json
-      - name: Install pinned packages and run the complete deploy build and privacy gate
+      - name: Install pinned packages
         working-directory: repository-town
-        run: |
-          npm ci --no-audit --no-fund
-          npm run build:deploy
+        run: npm ci --no-audit --no-fund
       - name: Site-specific pharmacy Node tests
         working-directory: repository-town
         run: |
           node tests/narromine-pharmacy.mjs
           node tests/narromine-workplaces.mjs
           node tests/narromine-homes.mjs
+      - name: Complete deployment build and privacy gate
+        working-directory: repository-town
+        run: npm run build:deploy
       - name: Install supported Chromium
         working-directory: repository-town
         run: npx playwright install --with-deps chromium
