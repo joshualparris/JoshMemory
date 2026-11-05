@@ -124,12 +124,28 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
       live.add(t.id); cars.push(c); place(c);
     }
   }
+  // Collision of actual oriented vehicle footprints, not a centre-distance proxy.
+  // A 4.5 m car can overlap another even when their centres are 3 m apart.
+  function parkedFootprintsOverlap(a, b) {
+    const dir = c => [Math.sin(c.yaw), Math.cos(c.yaw)];
+    const ua = dir(a), ub = dir(b);
+    const axes = [ua, [-ua[1], ua[0]], ub, [-ub[1], ub[0]]];
+    const radius = (c, axis) => {
+      const u = dir(c), v = [-u[1], u[0]];
+      return (c.L || 4.4) * 0.5 * Math.abs(axis[0] * u[0] + axis[1] * u[1]) +
+        0.95 * Math.abs(axis[0] * v[0] + axis[1] * v[1]);
+    };
+    return axes.every(axis => Math.abs((a.x - b.x) * axis[0] + (a.z - b.z) * axis[1]) <
+      radius(a, axis) + radius(b, axis) + 0.1);
+  }
   // Parked residents' cars within 300 m: at home in the driveway, or at work, school or Coles.
   function parkResidents(player, weekday, minute) {
     const pop = commute.population, out = [], bays = new Map(), taken = [];
-    for (const car of pop.cars) {
-      const st = commute.carState(car.id, weekday, minute);
-      if (!st.parked) continue;
+    // Homes are fixed, so reserve their real driveway footprints before fitting kerbside bays.
+    const parkedCars = pop.cars.map(car => ({ car, st: commute.carState(car.id, weekday, minute) }))
+      .filter(p => p.st.parked);
+    parkedCars.sort((a, b) => Number(b.st.parked === 'home') - Number(a.st.parked === 'home'));
+    for (const { car, st } of parkedCars) {
       let x, z, yaw = 0;
       if (st.parked === 'home') {
         // On the driveway: 7.5 m in from the street centreline (past the verge), side by side, nose to the street.
@@ -141,19 +157,31 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
         // Kerbside on the street they arrived by: each car takes the next free 6.5 m bay back from the
         // destination, continuing round corners along its route, so parked cars never overlap.
         const P = st.trip.path, endNode = P[P.length - 1];
-        for (let tries = 0; tries < 8; tries++) {
+        let placed = false;
+        for (let tries = 0; tries < 96; tries++) {
           const bay = bays.get(endNode) || 0; bays.set(endNode, bay + 1);
           let back = 4 + bay * 6.5, i = P.length - 1;
-          while (i > 1) { const L = Math.hypot(nodes[P[i]].x - nodes[P[i - 1]].x, nodes[P[i]].z - nodes[P[i - 1]].z); if (back < L - 2) break; back -= L; i--; }
-          const b = nodes[P[i]], a = nodes[P[i - 1]] || b, L = Math.hypot(b.x - a.x, b.z - a.z) || 1, ux = (b.x - a.x) / L, uz = (b.z - a.z) / L;
+          while (i > 1) {
+            const a = nodes[P[i - 1]], b = nodes[P[i]], L = Math.hypot(b.x - a.x, b.z - a.z);
+            if (back <= L - 1) break;
+            back -= L; i--;
+          }
+          const b = nodes[P[i]], a = nodes[P[i - 1]];
+          if (!a || !b) break;
+          const L = Math.hypot(b.x - a.x, b.z - a.z);
+          if (L < 2 || back < 1 || back > L - 1) continue;
+          const ux = (b.x - a.x) / L, uz = (b.z - a.z) / L;
           const e = adj.get(P[i - 1])?.find(q => q.to === P[i]), off = (e?.width || 7) / 2 - 1.1;
-          back = Math.min(back, L - 1);
           x = b.x - ux * back + uz * off; z = b.z - uz * back - ux * off; yaw = Math.atan2(ux, uz);
-          if (!taken.some(q => Math.hypot(q.x - x, q.z - z) < 2.6)) break;   // a car from another street already has this space
+          if (!taken.some(q => parkedFootprintsOverlap(q, { x, z, yaw, L: car.length }))) {
+            placed = true; break;
+          }
         }
-        taken.push({ x, z });
+        // If there is no genuine free bay on the route, do not render two cars in one space.
+        if (!placed) continue;
       }
       if (Math.hypot(x - player.x, z - player.z) > 300) continue;
+      taken.push({ x, z, yaw, L: car.length });
       out.push({ x, z, yaw, model: car.model, colour: car.colour, L: car.length, ux: Math.sin(yaw), uz: Math.cos(yaw), parked: true, carId: car.id });
     }
     parked = out;
