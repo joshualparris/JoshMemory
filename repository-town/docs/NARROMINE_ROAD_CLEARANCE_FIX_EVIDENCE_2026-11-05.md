@@ -64,3 +64,20 @@ The browser audit uses centres `lateral = 0, ±1.6` metres and a circle **radius
 [Follow-up test PR](https://github.com/joshualparris/JoshMemory/pulls?q=is%3Aopen+narromine-road-probe-envelope) adds reproducible `byStreetClass`, `probeWithinCarriagewayHits`, `probeOverhangsCarriagewayHits`, `centrelineHits`, `namedStreetHits` and `onDandalooHits` to both real browser outputs. The test **preserves all original raw contacts and screenshots**. It asserts Dandaloo's currently observed zero contacts rather than assuming OSM service access is publicly driveable. **Actual counts of full-carriageway contacts are pending the new CI run.**
 
 **Accuracy gate:** Never change real OSM building footprints, hospital walls, gates, rail hardware or physical verges merely to satisfy an off-carriageway-radius probe. For each actual obstruction, compare the 2026 spatial source, authorised dated imagery, vehicle/footpath width, and the onscreen geometry before applying an isolated fix. No claimed 10-area contiguous walk or current red paver/white paint survey follows from this audit.
+
+### Real-browser on-carriageway result — PR #409
+
+[Workflow 41950596852](https://github.com/joshualparris/JoshMemory/actions/runs/41950596852), head `04d4cad420127fcd233fc565d8f3a9bd82558fdf`, passed actual desktop Chromium and Android Pixel 7 emulation with two JSON reports and screenshots. **Identical results on both devices**:
+
+| Sample classification | Desktop | Android |
+| --- | ---: | ---: |
+| Raw static contacts (retained, not suppressed) | 52 | 52 |
+| Within mapped road width for whole 1.12 m radius probe | **0** | **0** |
+| Overhanging nominal service-road carriageway | 52 | 52 |
+| Road centreline collisions | **0** | **0** |
+| Named streets, including Dandaloo | **0** | **0** |
+| Repository Town core and planned roads | **0** | **0** |
+
+**Decision:** zero *sampled full-vehicle-body carriageway* blockers, but **52 roadside overlap observations** remain. No OSM building, pole, tree, barrier or actual road geometry has been removed in this test-only follow-up. The residuals fall on seven 4.5 m OSM service ways, which may be narrower than a two-lane road and may themselves have mapping error. The browser scan is a **sample-based static-geometry** acceptance, not continuous physical driving, an AS-built engineering survey, pedestrian access validation, parking/turning proof, or proof that every actual road remains unobstructed dynamically.
+
+Post-result commit adds hard guard assertions for zero centreline and zero on-carriageway contacts; its own CI must pass before merging. Continue [#398](https://github.com/joshualparris/JoshMemory/issues/398) for precise OSM service drive alignment, legit roadside objects and complete Dandaloo pedestrian/photo QA.
