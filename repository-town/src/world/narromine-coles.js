@@ -202,9 +202,10 @@ export function buildNarromineColesInterior(makeLabel, day=1, minute=540, people
   leah.group.visible=postalState(day,minute).atColes;
   // Residents on shift: the first four staff run the checkouts (standing behind them), the rest fill
   // shelves in the aisles. Shoppers walk the aisles and queue at the registers.
+  const figureIds = [], figurePositions = [];
   if(people){
     const put=(p,x,z,yaw,activity='shopping')=>{const f=makeDistinctPerson('narromine:'+p.id,{...p,workplaceKind:'supermarket',workplaceName:'Coles Narromine'},{activity,jobKind:'supermarket',minute,weather:'sunny'}).group;
-      f.position.set(x,0,z);f.rotation.y=yaw;f.name=p.name;group.add(f);
+      f.position.set(x,0,z);f.rotation.y=yaw;f.name=p.name;group.add(f);figureIds.push(p.id);figurePositions.push({id:p.id,x,z});
       const l=makeLabel?.(p.first+' '+p.surname);if(l){l.position.set(x,2.25,z);group.add(l);}};
     people.staff.forEach((p,i)=>i<4?put(p,5.7+i*3.35,16.0,0,'work shift'):put(p,-12+((i*7)%24),-14+((i*5)%26),i%2?Math.PI/2:-Math.PI/2,'work shift'));
     people.visitors.forEach((p,i)=>i<4?put(p,5.7+i*3.35,19.6,Math.PI,'shopping'):put(p,-15+((i*11)%30),-18+((i*7)%30),(i%4)*Math.PI/2,'shopping'));
@@ -214,7 +215,7 @@ export function buildNarromineColesInterior(makeLabel, day=1, minute=540, people
     {name:'Coles Narromine · interpretive retail',x0:-20,x1:20,z0:-26,z1:26,w:40,d:52,parent:-1}
   ],doors:[],dynamics:[],sight:[],bounds:{x0:-20,x1:20,z0:-26,z1:26},
     spawn:new THREE.Vector3(0,0,22.5),exitZone:{x0:-1.7,x1:1.7,z0:25.9,z1:27.5},
-    narromineColes:true,narrominePostalShopper:leah.group,
+    narromineColes:true,narrominePostalShopper:leah.group,figureIds,figurePositions,
     colesPlan:COLES_INTERPRETIVE_PLAN,
     updatePostalShopper:(day,minute)=>{leah.group.visible=postalState(day,minute).atColes;return leah.group.visible;}
   };

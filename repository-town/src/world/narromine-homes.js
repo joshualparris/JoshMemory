@@ -159,6 +159,7 @@ export function buildNarromineHomeInterior(population, home, makeLabel, day, min
   const roomCentre = (i) => { const r = built.rooms[i]; return { x: (r.x0 + r.x1) / 2, z: (r.z0 + r.z1) / 2 }; };
   const find = (t, label) => built.interactables.find((o) => o.type === t && (!label || o.label.includes(label)));
   let n = 0;
+  const figureIds = [], figurePositions = [];
   for (const o of who.filter((x) => x.home)) {
     const p = o.person;
     const activity = o.doing === 'sleep' ? 'asleep' : o.doing === 'breakfast' ? 'breakfast' : o.doing === 'dinner' ? 'dinner' : o.doing === 'evening' ? 'home' : 'home';
@@ -166,13 +167,13 @@ export function buildNarromineHomeInterior(population, home, makeLabel, day, min
     let at = null;
     if (o.doing === 'sleep') {
       const bed = find('bed', p.first);
-      if (bed) { fig.position.set(bed.pos.x + (n % 2 ? 0.45 : -0.45) * (bed.label.includes('&') ? 1 : 0), 0.62, bed.pos.z + 0.2); fig.rotation.set(-Math.PI / 2, 0, 0); built.group.add(fig); n++; continue; }
+      if (bed) { fig.position.set(bed.pos.x + (n % 2 ? 0.45 : -0.45) * (bed.label.includes('&') ? 1 : 0), 0.62, bed.pos.z + 0.2); fig.rotation.set(-Math.PI / 2, 0, 0); built.group.add(fig); figureIds.push(p.id); figurePositions.push({ id: p.id, x: fig.position.x, z: fig.position.z }); n++; continue; }
     }
     const anchor = o.doing === 'breakfast' || o.doing === 'dinner' ? find('fridge') : find('tv');
     if (anchor) { const c = roomCentre(anchor.room); const dx = c.x - anchor.pos.x, dz = c.z - anchor.pos.z, D = Math.hypot(dx, dz) || 1; at = { x: anchor.pos.x + dx / D * (1.6 + (n % 3) * 0.7), z: anchor.pos.z + dz / D * (1.6 + (n % 3) * 0.7) + (n % 2 ? 0.6 : -0.6), yaw: Math.atan2(-dx, -dz) }; }
     if (!at) continue;
-    fig.position.set(at.x, 0, at.z); fig.rotation.y = at.yaw; built.group.add(fig); n++;
+    fig.position.set(at.x, 0, at.z); fig.rotation.y = at.yaw; built.group.add(fig); figureIds.push(p.id); figurePositions.push({ id: p.id, x: at.x, z: at.z }); n++;
     const label = makeLabel(p.first + ' ' + p.surname + ', ' + p.age); if (label) { label.position.set(at.x, 2.15 * (fig.scale.y || 1) + 0.1, at.z); built.group.add(label); }
   }
-  return { ...built, household: hh, fridge, occupants: who, figures: n };
+  return { ...built, household: hh, fridge, occupants: who, figures: n, figureIds, figurePositions };
 }

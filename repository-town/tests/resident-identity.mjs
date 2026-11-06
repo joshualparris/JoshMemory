@@ -91,6 +91,30 @@ assert.equal(hashString('same'), hashString('same'));
 assert.notEqual(hashString('same'), hashString('different'));
 assert.equal(blend(0x000000, 0xffffff, .5), 0x808080);
 assert.equal(blend(0xff0000, 0x0000ff, 1), 0x0000ff);
+
+// Issue #492: pupils are pupils, not teachers; adult school staff are teachers.
+for (const [id, age] of [['demo:esme', 8], ['demo:noah', 16], ['demo:ruby', 12]]) {
+  const pupil = identityFor(id, { id, name: id, age, gender: 'female', job: 'student', workplaceKind: 'school', workplaceName: 'Narromine Public School' });
+  assert.equal(pupil.occupation, 'student', id + ' must remain a student');
+}
+assert.equal(identityFor('demo:teacher', { age: 41, job: 'teacher', workplaceKind: 'school' }).occupation, 'teacher');
+
+// Issue #492: phenotype is immutable; job/role metadata changes may not alter the face/body.
+const basePerson = { id: 'same-person', name: 'Same Person', age: 34, gender: 'female' };
+const lookups = [
+  { job: 'student', role: 'child', workplaceKind: 'school' },
+  { job: 'registered nurse', role: 'parent', workplaceKind: 'hospital' },
+  { job: 'supermarket team member', role: 'adult', workplaceKind: 'supermarket' },
+  { job: 'publican', role: 'partner', workplaceKind: 'pub' },
+];
+const phenotypes = lookups.map((meta) => identityFor('same-person', { ...basePerson, ...meta }));
+assert.equal(new Set(phenotypes.map(appearanceSignature)).size, 1, 'job/role metadata must not change phenotype');
+for (const key of ['skin', 'hair', 'eyes', 'face', 'body']) {
+  assert.deepEqual(phenotypes[0][key], phenotypes[1][key], key + ' is immutable');
+  assert.deepEqual(phenotypes[0][key], phenotypes[2][key], key + ' is immutable');
+}
+assert.notEqual(phenotypes[0].occupation, phenotypes[1].occupation, 'occupation still follows metadata');
+
 console.log(`PASS resident identity: ${people.length} fixtures, ${signatures.size}/500 unique signatures, ` +
   `${new Set(sample.map((x) => x.skin.base)).size} skin tones, ${new Set(sample.map((x) => x.hair.style)).size} hairstyles, ` +
   `${new Set(sample.map((x) => x.body.build)).size} builds, ${(heights.at(-1) - heights[0]).toFixed(2)} m adult height range; activity outfits differ.`);

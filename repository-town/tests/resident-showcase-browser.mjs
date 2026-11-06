@@ -33,6 +33,7 @@ async function run(tag, viewport, mobile) {
   assert(ids.every((x) => x.name && x.age > 0 && x.occupation), tag + ': identities have name/age/occupation');
   assert(new Set(ids.map((x) => x.occupation)).size >= 8, tag + ': varied occupations');
   assert(new Set(ids.map((x) => x.age)).size >= 6, tag + ': varied ages');
+  for (const person of ids.filter((x) => x.age < 18)) assert.equal(person.occupation, 'student', tag + ': school-age resident is a student, not staff: ' + person.name);
 
   const initial = await page.evaluate(() => window.__residentStudio.state());
   assert.equal(initial.animation, 'idle');
@@ -71,8 +72,31 @@ async function run(tag, viewport, mobile) {
   const far = await page.evaluate(() => window.__residentStudio.lod(3));
   assert(near.visibleMeshes > mid.visibleMeshes, tag + ': mid LOD is cheaper than near');
   assert(far.visibleMeshes < near.visibleMeshes * .75, tag + ': far LOD is materially cheaper: ' + near.visibleMeshes + ' → ' + far.visibleMeshes);
+  const settle = () => page.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+  await page.evaluate(() => window.__residentStudio.lod(0));
+  await settle();
+  const nearShot = await page.locator('#stage').screenshot();
   await page.screenshot({ path: `${folder}/${tag}-lod-near.png` });
   await page.evaluate(() => window.__residentStudio.lod(3));
+  await settle();
+  const farShot = await page.locator('#stage').screenshot();
+  const pixelDiff = await page.evaluate(async ({ a, b }) => {
+    const decode = async (base64) => {
+      const blob = await (await fetch('data:image/png;base64,' + base64)).blob();
+      const bitmap = await createImageBitmap(blob);
+      const canvas = document.createElement('canvas'); canvas.width = bitmap.width; canvas.height = bitmap.height;
+      const ctx = canvas.getContext('2d'); ctx.drawImage(bitmap, 0, 0);
+      return ctx.getImageData(0, 0, canvas.width, canvas.height);
+    };
+    const [na, fa] = await Promise.all([decode(a), decode(b)]);
+    let changed = 0, total = 0;
+    for (let i = 0; i < na.data.length; i += 4) {
+      if (Math.abs(na.data[i] - fa.data[i]) > 5 || Math.abs(na.data[i + 1] - fa.data[i + 1]) > 5 || Math.abs(na.data[i + 2] - fa.data[i + 2]) > 5) changed++;
+      total++;
+    }
+    return changed / total;
+  }, { a: nearShot.toString('base64'), b: farShot.toString('base64') });
+  assert(pixelDiff > .02, tag + ': far LOD changes rendered pixels meaningfully: ' + (pixelDiff * 100).toFixed(2) + '%');
   await page.screenshot({ path: `${folder}/${tag}-lod-far.png` });
   await page.evaluate(() => window.__residentStudio.lod(0));
 
