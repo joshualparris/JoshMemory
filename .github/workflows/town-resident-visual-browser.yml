@@ -1,0 +1,79 @@
+name: Repository Town Resident Studio and In-Game Visual Acceptance
+on:
+  pull_request:
+    paths:
+      - 'repository-town/src/world/resident-identity.js'
+      - 'repository-town/src/world/resident-figure.js'
+      - 'repository-town/src/world/npc-wardrobe.js'
+      - 'repository-town/src/world/npcs.js'
+      - 'repository-town/src/world/townlife.js'
+      - 'repository-town/src/world/population-view.js'
+      - 'repository-town/src/world/narromine-homes.js'
+      - 'repository-town/src/world/narromine-workplaces.js'
+      - 'repository-town/src/world/narromine-coles.js'
+      - 'repository-town/src/residents.html'
+      - 'repository-town/src/residents-showcase.js'
+      - 'repository-town/tests/resident-showcase-browser.mjs'
+      - 'repository-town/tests/resident-game-browser.mjs'
+      - '.github/workflows/town-resident-visual-browser.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'repository-town/tests/resident-showcase-browser.mjs'
+      - '.github/workflows/town-resident-visual-browser.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  resident-visual-webgl:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Dependencies and individual resident contracts
+        run: |
+          npm ci --no-audit --no-fund
+          node --check tests/resident-showcase-browser.mjs
+          node --check tests/resident-game-browser.mjs
+          node tests/resident-identity.mjs
+          node tests/resident-figure.mjs
+          node tests/npc-appearance.mjs
+          node tests/indoor-crowd-identity.mjs
+          node tests/narromine-residents.mjs
+          node tests/narromine-homes.mjs
+          node tests/narromine-workplaces.mjs
+      - name: Build actual game and check privacy
+        run: |
+          npm run build
+          npm run check:privacy
+      - name: Install real Chromium and software WebGL
+        run: npx playwright install --with-deps chromium
+      - name: Verify real desktop and Pixel 7-size Resident Studio plus in-game characters
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          set -euo pipefail
+          mkdir -p test-results/resident-visual test-results/resident-game
+          node tests/resident-showcase-browser.mjs
+          node tests/resident-game-browser.mjs
+          node tests/resident-game-browser.mjs --mobile
+      - name: Preserve studio and game scene screenshots for independent visual review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resident-visual-webgl-${{ github.run_id }}
+          path: |
+            repository-town/test-results/resident-visual/*.png
+            repository-town/test-results/resident-game/*.png
+          retention-days: 21
+          if-no-files-found: warn
