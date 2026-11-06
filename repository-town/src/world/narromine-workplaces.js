@@ -132,7 +132,7 @@ export function buildNarromineWorkplaceInterior(pop, entry, makeLabel, weekday, 
   const spec = pharmacy ? { ...pharmacy, rooms } : soulFood ? { ...soulFood, rooms } : { layout: rooms.length > 2 ? pickH('lay', ['row', 'hub', 'L']) : 'row', height: pickH('h', [3, 3.3, 3.6]), walls, floor, rooms };
   let built = null;
   for (let tries = 0; tries < 14 && !built; tries++) {
-    try { built = buildInterior({ repo: 'narromine-' + w.id, name: w.name, noBedroom: true, int: spec }, makeLabel); } catch (e) {
+    try { built = buildInterior({ repo: 'narromine-' + w.id, coordinate: 'NARROMINE-WORK:' + w.id, name: w.name, noBedroom: true, int: spec }, makeLabel); } catch (e) {
       const m = /no room for \w+ in "([^"]+)"/.exec(e.message); if (!m) throw e;
       const r = rooms.find((x) => x.name === m[1]); r.w = Math.round(r.w * 1.12 * 10) / 10; r.d = Math.round(r.d * 1.12 * 10) / 10;
     }
