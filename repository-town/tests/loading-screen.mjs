@@ -81,6 +81,6 @@ assert.ok(source.indexOf('renderFrame();', source.indexOf("stage('frame')")) < s
 const html = fs.readFileSync(new URL('../src/index.html', import.meta.url), 'utf8');
 assert.ok(html.indexOf('src="ui/loading-screen.js"') < html.indexOf('src="main.js"'));
 const loadingCss = fs.readFileSync(new URL('../src/ui/loading-screen.css', import.meta.url), 'utf8');
-assert.match(loadingCss, /#loading\\[hidden\\]\\s*\\{\\s*display:\\s*none\\s*!important;\\s*\\}/,
+assert.ok(loadingCss.includes('#loading[hidden] { display: none !important; }'),
   'the overlay must actually hide when the game is ready despite author display rules');
 console.log('PASS startup progress: real ordered stages, no timer progress, sanitized resource names, pending/background success/failure, retry, pre-module errors, timing fallback, cleanup and first-frame gate');
