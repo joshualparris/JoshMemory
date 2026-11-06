@@ -19,7 +19,7 @@
     "repository-town/tests/shop-interiors.mjs": "0ca369aa2d241c152edb841c1125aa9319241a0d",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "4e73314bc4f51daf2bc231ae46e5504bd11519b0",
+    "repository-town/src/main.js": "78102abe751193ff373d671657c433e1592b4f54",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -493,7 +493,7 @@
       "priority": "P0",
       "status": "partially-represented",
       "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
-      "requiredEvidenceOrWork": "Establish actual number of usable floors; if a real upper storey exists design stairs/access and consider fire compartmentation and egress, or treat façade as explicitly decorative",
+      "requiredEvidenceOrWork": "Establish actual number of usable floors; if a real upper storey exists design stairs/access and consider fire compartmentation and egress, or treat fa\u00e7ade as explicitly decorative",
       "regulationRefs": [
         "S02"
       ],
@@ -768,7 +768,7 @@
     },
     "2026-11-04-farm-avenue-only-road-clearance": {
       "scope": "Exact four-lane collision fix TOWN-DRIVE-ROAD-BARRIER-001: farmland `p.field` boundaries clamped outside AVENUES (already-present public road centreline), preventing dairy fence crossing the x=182 driveable lane. Only the simulation's external farm fence/plot boundaries change. Pub venue geometry, front door, back-of-house, roster, customers, finances, staff and regulatory properties unchanged.",
-      "verification": "Original independent real Chromium desktop+Android road scan #41811926865: 4 blocked core lane samples at x≈183.6,z201–204 from farm fence x184.35..184.65; patched scan #41813299986: zero core road blockers on both devices; source-only farm fence regression and full pub-history/release/integration checks. The independently merged #369 uses true building polygons to fix Narromine, and is retained intact.",
+      "verification": "Original independent real Chromium desktop+Android road scan #41811926865: 4 blocked core lane samples at x\u2248183.6,z201\u2013204 from farm fence x184.35..184.65; patched scan #41813299986: zero core road blockers on both devices; source-only farm fence regression and full pub-history/release/integration checks. The independently merged #369 uses true building polygons to fix Narromine, and is retained intact.",
       "regulatoryStatus": "All 34 RTPUB audit tasks retain preexisting non-certifying statuses. No claim of NCC or food safety approval."
     },
     "2026-11-05-civic-roof-superjump": {
@@ -779,6 +779,11 @@
     "2026-11-06-resident-villager-visual-lod": {
       "scope": "Resident visual LOD only: townlife.js updates draw detail for existing Repository Town villagers at measured player distance. No pub geometry, facade, safety, access, staffing, fire, egress, construction approvals, or physical code pathways altered.",
       "verification": "Compared audited blob eb11ce77240f352434abdc3055d8272fcd069a3a to exact PR resident visual source 59cfa742ebc1a46177818b00480cb7f06a55e695: the new change after villager movement updates invokes existing procedural figure userData.setLod using existing dist; all old town and pub structure remain. Node/build/privacy and independent resident WebGL CI must pass; this register is a code-change review, not visual or regulatory certification.",
+      "regulatoryStatus": "RTPUB-001 to RTPUB-034 prior findings and provisional code statuses unchanged; no NCC certification or safety clearance inferred."
+    },
+    "2026-11-06-resident-insideinfo-test-hook": {
+      "scope": "Resident visual proof hook only: main.js insideInfo returns the rendered Narromine figure ids/positions already created by the home/workplace/Coles visual builders. No pub geometry, facade, safety, access, staffing, fire, egress, trading or compliance behaviour altered.",
+      "verification": "Compared audited main.js blob 4e73314bc4f51daf2bc231ae46e5504bd11519b0 to resident visual source 78102abe751193ff373d671657c433e1592b4f54: the only semantic change is exposing existing figure arrays through the test hook. Node/build/privacy, pub audit and independent resident WebGL CI must pass; this register is a code-change review, not visual or regulatory certification.",
       "regulatoryStatus": "RTPUB-001 to RTPUB-034 prior findings and provisional code statuses unchanged; no NCC certification or safety clearance inferred."
     }
   },
@@ -1158,7 +1163,7 @@
       "changedFiles": [
         "repository-town/src/world/life.js"
       ],
-      "finding": "Reviewed exact life.js delta only: per-farm x0/x1 border clamping to existing ±5.5m avenues, no changes to source pub code or saved pub data. Static road audit before=4 core blockers and after=0 on actual WebGL Chromium desktop+mobile; no certification claim. Reconciles concurrent independently merged precise Narromine polygon collision fix #369 without altering its files. New source blob 79f18495b62a92e3584773f2856273e045a183ce"
+      "finding": "Reviewed exact life.js delta only: per-farm x0/x1 border clamping to existing \u00b15.5m avenues, no changes to source pub code or saved pub data. Static road audit before=4 core blockers and after=0 on actual WebGL Chromium desktop+mobile; no certification claim. Reconciles concurrent independently merged precise Narromine polygon collision fix #369 without altering its files. New source blob 79f18495b62a92e3584773f2856273e045a183ce"
     },
     {
       "date": "2026-11-05",
