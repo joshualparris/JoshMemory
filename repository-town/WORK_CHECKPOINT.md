@@ -1,3 +1,7 @@
+# 2026-11-06 — RESIDENT-VISUAL-492 COMPLETE (merged + live-alt verified)
+
+Merged #509 (`4ebdd1bf`) and pub-audit fingerprint refresh #511 (`d643ea5b`). Main = `d643ea5b`; approved Pages alt = `d643ea5b`. Live browser playtest on alt PASS: Resident Studio desktop+Pixel 7 (child occupations, manual near/far LOD with >2% real pixel difference), in-game home/Coles figure-id + close-up checks desktop+Pixel 7, Quaternius default/compare wording, pub audit 14/14 + pub utilities/shop interiors. Production Vercel remains rate-limited at `a6443493`; alternate is the verified deployment. Remaining: physical low-end FPS, everyday wardrobe/fitted hair (issue #492 scope fixed). Screenshots under `test-results/`.
+
 ## 6 November 2026 — DANDALOO-001.3 surfaces/verges/kerbs/ramps evidence review (VERIFIED COMPLETE)
 # 2026-11-06 — RESIDENT-VISUAL-492 fixes
 
