@@ -11,7 +11,9 @@ export function createPopulationView(life,group,makeLabel){
     for(const v of visible){let p=models.get(v.id);
       if(!p){const fig=makeDistinctPerson(v.populationId+':'+v.name,v),label=makeLabel(v.name+' · '+v.age,'interactive');label.position.set(0,2.4,0);fig.group.add(label);group.add(fig.group);p={fig,label};models.set(v.id,p);}
       p.fig.group.visible=true;p.fig.group.position.set(v.x,0,v.z);p.fig.group.rotation.y=v.heading;
-      p.label.visible=Math.hypot(v.x-eye.x,v.z-eye.z)<14;pose(p.fig,dt,t,v.path.length>0);
+      const dist=Math.hypot(v.x-eye.x,v.z-eye.z);
+      p.fig.group.userData.setLod?.(dist>45?3:dist>22?2:dist>10?1:0);
+      p.label.visible=dist<14;pose(p.fig,dt,t,v.path.length>0);
     }
   }};
 }

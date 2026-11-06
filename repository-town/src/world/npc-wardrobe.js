@@ -1,7 +1,8 @@
 // Stable, lightweight resident styling. Shared meshes/materials keep this cheap on phones.
 // Does not mutate the simulation, saved records, NPC keys or dialogue voices.
 import * as THREE from 'three';
-import { makePerson } from './npcs.js';
+import { identityFor, outfitFor, appearanceSignature } from './resident-identity.js';
+import { makeResidentFigure } from './resident-figure.js';
 
 const BOX = new THREE.BoxGeometry(1, 1, 1);
 const BALL = new THREE.SphereGeometry(1, 9, 7);
@@ -48,91 +49,26 @@ export function appearanceFor(identity) {
     build: (seed >>> 25) % 6,
   };
 }
-export function makeDistinctPerson(identity, resident = null) {
-  const look = appearanceFor(identity);
-  const age=Number.isFinite(resident?.age)?resident.age:null;
-  if(age!==null&&age<18)look.facialHair=false;
-  if(age!==null&&age>=65)look.hair=0xb9b5ae;
-  const p = makePerson(look.seed, look.shirt, look.trousers);
-  const head = p.head;
-  const outfit = p.group.children.find(child => child.userData.isOutfit);
-  const a = (parent, geo, colour, size, pos) => add(parent, geo, colour, size, pos);
-  // Shape and height variations keep people distinguishable in silhouette.
-  const widths = [.92, 1, 1.06, .96, 1.09, .98];
-  const heights = [.95, 1.03, 1, 1.07, .97, 1.04];
-  p.group.scale.set(widths[look.build], heights[look.build], widths[look.build]);
-  if(age!==null){
-    const scale=age<5?.42+age*.045:age<13?.64+(age-5)*.028:age<18?.86+(age-13)*.025:1;
-    p.group.scale.multiplyScalar(scale);
-    if(age<13)p.head.scale.setScalar(1.12);
-  }
-  // Eight recognisable hair/headwear silhouettes rather than just recoloured caps.
-  switch (look.hairStyle) {
-  case 0: // bun
-    a(head, BALL, look.hair, [.18,.18,.18], [0,.27,-.13]);
-    break;
-  case 1: // long hair at the sides
-    for (const side of [-1,1]) a(head, BALL, look.hair, [.08,.21,.16], [side*.20,-.075,-.05]);
-    break;
-  case 2: // beanie
-    a(head, BALL, look.accent, [.245,.12,.22], [0,.215,0]);
-    a(head, CYL, look.accent, [.49,.06,.46], [0,.16,0]);
-    break;
-  case 3: // brimmed hat
-    a(head, CYL, look.hair, [.73,.05,.65], [0,.24,0]);
-    a(head, CYL, look.hair, [.35,.21,.33], [0,.36,0]);
-    break;
-  case 4: // ponytail
-    a(head, BALL, look.hair, [.13,.25,.12], [0,-.025,-.23]);
-    a(head, BALL, look.accent, [.075,.04,.07], [0,.08,-.26]);
-    break;
-  case 5: // short spiked cut
-    for (let n=-2;n<=2;n++) a(head, BALL, look.hair, [.067,.115,.09], [n*.077,.23-Math.abs(n)*.015,0]);
-    break;
-  case 6: // headband
-    a(head, BOX, look.accent, [.415,.055,.33], [0,.17,.03]);
-    break;
-  default: // flat cap with a projecting peak
-    a(head, BALL, look.hair, [.24,.105,.20], [0,.20,-.01]);
-    a(head, BOX, look.accent, [.31,.03,.17], [0,.14,.19]);
-  }
-  if (look.glasses) {
-    // Fine wire rims round each eye and a bridge, not heavy bars across the face.
-    for (const side of [-1,1]) {
-      a(head, BOX, ink, [.07,.007,.006], [side*.072,.052,.192]);
-      a(head, BOX, ink, [.07,.007,.006], [side*.072,.008,.192]);
-      a(head, BOX, ink, [.007,.05,.006], [side*.107,.03,.19]);
-      a(head, BOX, ink, [.007,.05,.006], [side*.037,.03,.193]);
-      a(head, BOX, ink, [.06,.006,.006], [side*.15,.04,.12]);   // arm to the ear
-    }
-    a(head, BOX, ink, [.03,.006,.006], [0,.04,.195]);           // bridge
-  }
-  if (look.facialHair) {
-    a(head, BALL, look.hair, [.055,.013,.014], [0,-.07,.185]); // neat moustache above the lip
-  }
-  // Seven strongly legible garments: apron, vest, scarf, jacket, stripe, sash or buttons.
-  switch(look.clothing) {
-  case 0:
-    a(outfit, BOX, look.accent, [.32,.48,.023], [0,1.19,.156]); // apron
-    break;
-  case 1:
-    for (const side of [-1,1]) a(outfit, BOX, look.accent, [.088,.43,.028], [side*.155,1.22,.161]); // vest
-    break;
-  case 2:
-    a(outfit, BOX, look.accent, [.45,.10,.09], [0,1.57,.075]); // scarf
-    break;
-  case 3:
-    for (const side of [-1,1]) a(outfit, BOX, look.accent, [.12,.54,.027], [side*.19,1.22,.154]); // jacket
-    break;
-  case 4:
-    a(outfit, BOX, look.accent, [.45,.11,.024], [0,1.27,.158]); // broad stripe
-    break;
-  case 5:
-    a(outfit, BOX, look.accent, [.12,.58,.032], [0,1.24,.166]).rotation.z=-.60; // sash
-    break;
-  default:
-    for (const y of [1.10,1.28,1.43]) a(outfit, BALL, look.accent, [.028,.028,.024], [0,y,.17]); // buttons
-  }
-  p.group.userData.residentAppearance = { ...look, identity: String(identity), age };
-  return p;
+export function makeDistinctPerson(identity, resident = null, context = {}) {
+  const key = String(identity ?? resident?.populationId ?? resident?.id ?? 'resident');
+  const face = identityFor(key, resident || {}, context);
+  const look = appearanceFor(key, resident);
+  const age = Number.isFinite(resident?.age) ? resident.age : face.age;
+  if (age < 18) look.facialHair = false;
+  if (age >= 65) look.hair = 0xb9b5ae;
+  const fig = makeResidentFigure(face, resident || {}, { ...context, activity: context.activity || 'home' });
+  // Keep the established clearance/scale contract: adults stay near 1.0 wide; children
+  // and teens are shorter. The detailed figure itself carries the individual proportions.
+  const buildWidth = { slim: .94, athletic: 1.02, average: 1, solid: 1.06, round: 1.08, 'tall-lean': .96 }[face.body.build] || 1;
+  const ageScale = face.body.height / 1.82;
+  fig.group.scale.set(buildWidth, ageScale, buildWidth);
+  // A stable direct-child outfit marker preserves the existing renderer contract. The real
+  // clothing is nested under the posture group so it can sit, lie and turn with the body.
+  const anchor = new THREE.Group(); anchor.userData.isOutfit = true; anchor.userData.anchor = true; fig.group.add(anchor);
+  fig.group.userData.residentAppearance = {
+    ...look, identity: key, age, descriptor: face,
+    height: face.body.height, build: face.body.build, hairStyle: face.hair.style,
+    clothingStyle: face.clothing.style, signature: appearanceSignature(face),
+  };
+  return fig;
 }

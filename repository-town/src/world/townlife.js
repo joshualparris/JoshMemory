@@ -1206,6 +1206,10 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       p.fig.group.position.set(v.x, riding ? 0 : modelled ? 0 : moving ? Math.abs(Math.sin(t * 7 + p.fig.phase)) * 0.04 : 0, v.z);
       p.fig.group.rotation.y = p.heading;
       const dist = Math.hypot(v.x - eye.x, v.z - eye.z);
+      // This is the actual Repository Town villager renderer, not only the
+      // separate population-view path. Without distance LOD, every visible
+      // procedural resident retains its ~145 near-face meshes out to 95 m.
+      p.fig.group.userData.setLod?.(dist > 45 ? 3 : dist > 22 ? 2 : dist > 10 ? 1 : 0);
       p.tag.visible = dist > 3 && !p.bubble;
       // A passing hello: a speech bubble for a few seconds, then quiet for a while.
       if (p.bubble && (p.bubbleT -= dt) <= 0) { p.fig.group.remove(p.bubble); p.bubble.material.map.dispose(); p.bubble.material.dispose(); p.bubble = null; }
