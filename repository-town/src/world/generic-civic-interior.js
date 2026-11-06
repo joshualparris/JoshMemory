@@ -5,7 +5,7 @@ import { GENERIC_PROFILES, genericProfileForSite } from './generic-business-fito
 
 // This builder is reached only AFTER every bespoke dispatcher has returned.
 // Same door, bounds and staff/use contract as the previous fallback office.
-export function buildGenericCivicInterior(site,makeLabel) {
+export function buildGenericCivicInterior(site,makeLabel,legacyFittings=null) {
   const key=genericProfileForSite(site);
   if(!key)return null;
   const profile=GENERIC_PROFILES[key],k=createKit(site,makeLabel,site.name),b=new Builder();
@@ -103,8 +103,16 @@ export function buildGenericCivicInterior(site,makeLabel) {
   signFace(k.THREE,k.group,rearTitle,3.7,.36,-4.1,2.5,-7.05,'#53675e');
   signFace(k.THREE,k.group,profile.title.toUpperCase(),3.7,.36,4.1,2.5,-7.05,'#53675e');
   k.text(site.name,0,3.8,-6.95,'room');
-  k.add('counter','Reception and service','civic-ledger','Ask about '+site.name+'. Existing town services and transactions are unchanged.',3.8,3.9);
-  k.add('fitout',profile.title+' fixtures','info','A type-specific fit-out for this fictional Repository Town business, with a clear public aisle and separate working/storage area.',-3.5,-1.7);
-  return k.finish({genericFitout:{key,evidenceLevel:'fictional-gameplay',placements},
+  k.add('counter',legacyFittings?.[1]||'Reception and service','civic-ledger',
+    legacyFittings?.[2]||'Ask about '+site.name+'. Existing town services and transactions are unchanged.',3.8,3.9);
+  k.add(legacyFittings?'display':'fitout',legacyFittings?.[3]||profile.title+' fixtures','info',
+    legacyFittings?.[4]||'A type-specific fit-out for this fictional Repository Town business, with a clear public aisle and separate working/storage area.',-3.5,-1.7);
+  if(legacyFittings)k.add('notices','Town noticeboard','info',
+    'Ask the staff about '+site.name+'. Visit the service counter to open the Town Ledger.',-2.2,-6.2);
+  const result=k.finish({genericFitout:{key,evidenceLevel:'fictional-gameplay',placements},
     staff:{pos:{x:3.8,z:1.5},use:{x:3.8,z:3.9}}});
+  // Legacy consumers expect exactly the original three scene-aware service
+  // objects. Physical fixtures remain in placedProps/genericFitout.placements.
+  if(legacyFittings)result.sceneObjects=result.sceneObjects.filter(o=>o.interactive);
+  return result;
 }

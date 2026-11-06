@@ -67,6 +67,13 @@ else{
   assert.equal(Object.keys(expected.geometry).length,145);
   assert.equal(intentional.size,3);
   for(const key of intentional)assert.notEqual(actual[key],expected.geometry[key],key+' should now be purpose-specific');
+  for(const id of Object.keys(LEGACY_GENERIC_CIVIC_SITES)){
+    const built=buildCivicInterior({id,name:id},label);
+    assert.deepEqual(built.interactables.map(x=>x.key),['counter','display','notices'].map(key=>id+':'+key));
+    assert.equal(built.sceneObjects.length,3,'legacy scene-aware service contract');
+    for(const i of built.interactables)assert(!built.colliders.some(c=>
+      i.pos.x>c.x0-.35&&i.pos.x<c.x1+.35&&i.pos.z>c.z0-.35&&i.pos.z<c.z1+.35),id+' '+i.key+' remains reachable');
+  }
   assert.deepEqual(preserved(actual),preserved(expected.geometry),'a preserved component changed');
   assert.deepEqual(country,JSON.parse(fs.readFileSync(countryPath,'utf8')).geometry,'a country exterior or researched room changed');
   let finishedHomes=0;
