@@ -44,6 +44,9 @@ try{
   await page.waitForFunction(()=>/From citrus packing shed to gallery/.test(window.__town.state().panel?.title||''),null,{timeout:8000});
   assert(/2014/.test(await page.evaluate(()=>document.body.innerText)),device+': public venue history shown');
   await page.evaluate(()=>window.__town.closePanel?.());
+  // Phones start with a collapsed HUD. Open the real controls before tapping Exit.
+  if (await page.locator('#hud').evaluate(h=>h.classList.contains('hud-minimised')))
+    await page.locator('#btn-hud-toggle').click();
   await page.locator('#btn-exit').click();
   await page.waitForFunction(()=>window.__town.state().mode==='town',null,{timeout:16000});
   state=await page.evaluate(()=>window.__town.state());
