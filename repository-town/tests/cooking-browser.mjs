@@ -15,7 +15,23 @@ const step = (ok, what) => { console.log((ok ? '✓ ' : '✗ ') + what); if (!ok
 try {
   await page.goto(URL); await page.waitForFunction(() => window.__town && document.getElementById('loading').hidden, null, { timeout: 90000 });
   const T = (f, a) => page.evaluate(f, a), st = () => T(() => window.__town.state());
-  const click = (re) => T((src) => { const r = new RegExp(src, 'i'); const btn = [...document.querySelectorAll('#panel-actions button')].find((x) => r.test(x.textContent)); btn?.click(); return !!btn; }, re.source);
+  // Use physical Chromium pointer/touch hit testing for gameplay actions; a JS
+  // element.click() would incorrectly pass when another panel masks a control.
+  const press = async locator => mobile ? locator.tap({timeout:12000}) : locator.click({timeout:12000});
+  const click = async re => {
+    const target = page.locator('#panel-actions button').filter({hasText:re}).first();
+    if (!await target.count()) return false;
+    await press(target);
+    return true;
+  };
+  const nav = async id => {
+    const panel = page.locator('#panel');
+    if (await panel.isVisible()) {
+      await press(page.locator('#panel-close'));
+      await panel.waitFor({state:'hidden',timeout:10000});
+    }
+    await press(page.locator(id));
+  };
   // Deterministic setup through the exposed live simulation: a tinderbox, logs and lamb.
   await T(() => {
     window.__town.closePanel?.();
@@ -28,7 +44,7 @@ try {
   });
   // Stand in a clear spot at the Woodlot and light a fire from the bag.
   await T(() => window.__town.place(12, -206, 0)); await page.waitForTimeout(400);
-  await T(() => document.getElementById('btn-bag').click()); await page.waitForTimeout(200);
+  await nav('#btn-bag'); await page.waitForTimeout(200);
   let lit = false;
   for (let i = 0; i < 6 && !lit; i++) {
     await click(/Light logs here/);
@@ -37,8 +53,10 @@ try {
     if (!lit) await T(() => document.getElementById('btn-bag').click());
   }
   step(lit, 'a fire is burning beside the player');
-  // Raise the cooking level so burns are rare, then cook lamb at the fire via the real bag action.
+  // Seed a high level only to suppress random flakiness. Prove *new* XP is
+  // earned after real touch, not just that the preloaded XP remains nonzero.
   await T(() => { const me = window.__town.life.ledger().civic.player; me.skills = { ...(me.skills || {}), cooking: { xp: 500000 } }; });
+  const xpBefore = await T(() => window.__town.skills().report.find(x=>x.id==='cooking').xp);
   let cooked = (await T(() => (window.__town.life.ledger().civic.player.bag || {}).cooked_lamb || 0)) > 0;
   for (let i = 0; i < 5 && !cooked; i++) {
     await T(() => document.getElementById('btn-bag').click()); await page.waitForTimeout(150);
@@ -47,16 +65,16 @@ try {
   }
   step(cooked, 'cooked roast lamb from the bag at the fire');
   const cookXp = await T(() => window.__town.skills().report.find((x) => x.id === 'cooking').xp);
-  step(cookXp >= 30, 'Cooking XP awarded (' + cookXp + ')');
+  step(cookXp >= xpBefore + 30, 'Cooking XP gained from the actual cooked meal (' + xpBefore + ' → ' + cookXp + ')');
   // Skills panel lists Cooking.
   await T(() => window.__town.closePanel?.());
-  await T(() => document.getElementById('btn-skills').click()); await page.waitForTimeout(300);
+  await nav('#btn-skills'); await page.waitForTimeout(300);
   const skillText = (await st()).panel?.text || '';
   step(/Cooking · level/.test(skillText), 'Skills panel lists Cooking');
   await T(() => window.__town.closePanel?.());
   // Eat the roast lamb and confirm hunger falls.
   const hunger0 = (await st()).needs.hunger;
-  await T(() => document.getElementById('btn-needs').click()); await page.waitForTimeout(300);
+  await nav('#btn-needs'); await page.waitForTimeout(300);
   const ate = await click(/Eat cooked_lamb/);
   step(ate, 'needs panel offers the cooked meal');
   const hunger1 = (await st()).needs.hunger;
