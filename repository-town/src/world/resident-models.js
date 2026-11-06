@@ -7,12 +7,12 @@ import * as THREE from 'three';
 import { loadQuaterniusTemplate, createQuaterniusFigure } from './resident-quaternius.js';
 
 export const RESIDENT_STYLES = Object.freeze([
-  { id: 'classic', label: 'Classic figures', note: 'The original block-built residents.' },
+  { id: 'quaternius', label: 'Quaternius rigged · default', note: 'Rigged male/female Universal Base Characters with Universal Animation Library walk, talk, sit and driving clips. The default resident style; compare it with Classic on the resident model review page.' },
+  { id: 'classic', label: 'Classic figures · optional', note: 'The original block-built residents, kept as an optional lighter style.' },
   { id: 'cartoon', label: 'Cartoon', note: 'Rounded cartoon people with hair and clothes in each resident’s own colours.' },
   { id: 'storybook', label: 'Storybook · five characters', note: 'Five animated public-domain KayKit characters; fantasy-styled, without weapons. Nearby residents only.' },
   { id: 'mannequin', label: 'Mannequin · colourful', note: 'Smoothly animated life-size mannequins in each resident’s clothing colours; they talk, sit and drive.' },
   { id: 'mannequin-grey', label: 'Mannequin · art-class grey', note: 'The same animated mannequins in a calm neutral grey.' },
-  { id: 'quaternius', label: 'Quaternius rigged · new', note: 'Rigged male/female Universal Base Characters with Universal Animation Library walk, talk, sit and driving clips. Experimental: review the side-by-side comparison before choosing it as the default.' },
 ]);
 const STORE = 'town-resident-style';
 const NEAR = 45, FAR = 52;            // metres: wear a model inside NEAR, drop it beyond FAR
@@ -26,7 +26,7 @@ const KINDS = {
 const kindOf = (style) => style === 'cartoon' ? 'cartoon' : style === 'storybook' ? 'storybook' : style.startsWith('mannequin') ? 'mannequin' : style === 'quaternius' ? 'quaternius' : null;
 
 export function savedResidentStyle() {
-  try { const s = localStorage.getItem(STORE); return RESIDENT_STYLES.some((x) => x.id === s) ? s : 'classic'; } catch { return 'classic'; }
+  try { const s = localStorage.getItem(STORE); return RESIDENT_STYLES.some((x) => x.id === s) ? s : 'quaternius'; } catch { return 'quaternius'; }
 }
 export function saveResidentStyle(id) {
   try { localStorage.setItem(STORE, id); } catch { /* private mode: the choice lasts this visit */ }

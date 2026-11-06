@@ -26,9 +26,10 @@ workplace behaviour remain owned by other agents and are untouched.
   chest bone, and drives the animation mixer. Returns a small controller with `setState`,
   `update`, `setLod` and `dispose`.
 - `src/world/resident-models.js` — new **Quaternius rigged · new** style in
-  Settings → Resident style. It is **experimental and not the default**; the procedural figure
-  remains the default until the comparison is reviewed. Distance LOD still applies (rigged
-  model near, procedural figure far).
+  Settings → Resident style. **Quaternius rigged is now the default** for a new installation;
+  the original procedural figures remain available as the optional **Classic figures** style.
+  A previously saved style (including Classic) is respected. Distance LOD still applies (rigged
+  model near, procedural figure far beyond the model draw radius).
 - `src/resident-compare.html` / `resident-compare.js` / `resident-compare.css` — side-by-side
   browser comparison of the same persistent identity: procedural on the left, Quaternius on the
   right, with idle/walk/talk/sit animation controls, identity switching, live draw-call and
@@ -54,11 +55,16 @@ workplace behaviour remain owned by other agents and are untouched.
 - Hairstyle variation is currently tint/hide of the base hair mesh, not a library of fitted
   hairstyles; the rigged hairstyle GLTFs are not yet attached.
 - Faces are Quaternius' low-poly sculpts, not scanned or MakeHuman-quality faces.
-- MakeHuman assets were downloaded and inspected but not integrated in this slice. The next
-  evaluation step is a MakeHuman/MPFB export (nude base + separate clothes/hair) if the
-  Quaternius body/wardrobe gap cannot be closed cleanly.
-- The **default has not been switched**. The comparison page exists precisely so the owner can
-  judge before a default change.
+- MakeHuman evaluation (downloaded, not integrated): the CC0/CC-BY system assets, poses,
+  clothes and hair materials provide a genuinely nude base mesh with separate clothing/hair,
+  which is a better fit for a varied everyday wardrobe than the Quaternius superhero body.
+  However it needs a Blender/MPFB export pipeline, material/UV conversion and a larger review
+  surface; it is the next step if the Quaternius wardrobe gap cannot be closed. The Quaternius
+  path fits the existing GLTFLoader/SkeletonUtils pipeline and was chosen for this default
+  switch after the side-by-side review.
+- The default is now Quaternius. The 7 MB asset set loads once on first use; the procedural
+  path remains the fallback if assets fail and the optional lower-footprint style. Physical
+  low-end laptop/mobile FPS still needs a human measurement.
 - Headless Chrome can throttle `requestAnimationFrame`; the FPS readout is indicative only.
   Physical laptop/mobile performance still needs a human measurement.
 - No deployment claim: this branch is source + local browser evidence only.

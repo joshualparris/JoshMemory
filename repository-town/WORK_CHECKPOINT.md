@@ -1,3 +1,7 @@
+# 2026-11-06 — RESIDENT-MODELS-DEFAULT-001 — Quaternius becomes default
+
+Owner DeepSeek Harness, branch `feat/resident-quaternius-default-20261106` from `92c2f6ec`. `savedResidentStyle()` default changed from `classic` to `quaternius`; `classic` remains optional and saved choices are respected. Only resident-model selection, its browser test, docs and coordination/checkpoint changed. Local evidence: build/privacy PASS; `resident-quaternius-browser` PASS (new default assertion, 4 rigged vs 127 procedural meshes, 116 calls/28,730 triangles, in-game wearing=4); showcase and game desktop/Pixel 7 PASS. Remaining: 7 MB first-load cost and physical low-end FPS; everyday wardrobe/fitted hair still limited. Next: PR, merge, verify production serves default and comparison.
+
 # 2026-11-06 — RESIDENT-MODELS-QUATERNIUS-001 start/implementation
 
 Owner DeepSeek Harness. Branch `feat/resident-quaternius-20261106`, based on the PR #483 visual slice. Imported Quaternius Universal Base Characters (male/female) and trimmed Universal Animation Library (CC0); added `resident-quaternius.js`, a new experimental `quaternius` resident style and `resident-compare.html` side-by-side review; procedural figure remains default. Evidence: `tests/resident-quaternius-browser.mjs`, build/privacy PASS, screenshots. Not touching Claude-owned simulation logic. Default switch pending owner review; MakeHuman and full everyday wardrobe/fitted hair remain future work. No deployment claim.
