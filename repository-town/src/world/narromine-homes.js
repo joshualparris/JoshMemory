@@ -17,20 +17,35 @@ const UNITS = { milk: 'L of milk', bread: 'loaves of bread', eggs: 'eggs', meat:
 
 // Front door: the footprint edge facing the street, and where you stand when you come back out.
 export function homeDoor(home) {
-  const dx = home.kerb.x - home.x, dz = home.kerb.z - home.z, D = Math.hypot(dx, dz) || 1, ux = dx / D, uz = dz / D;
+  // The actual rendered footprint uses local X=(cos,-sin), Z=(sin,cos).
+  // Choose the wall intersected by the street-facing ray, then put the
+  // doorway at that wall's MIDPOINT. The old support-function calculation
+  // could place its sensor beyond the wall, particularly on angled houses.
   const c = Math.cos(home.yaw), s = Math.sin(home.yaw);
-  const half = Math.abs(ux * c + uz * s) * home.w / 2 + Math.abs(-ux * s + uz * c) * home.d / 2;
-  const door = { x: home.x + ux * half, z: home.z + uz * half };
-  return { ...door, out: { x: door.x + ux * 2.2, z: door.z + uz * 2.2, yaw: Math.atan2(-ux, -uz) } };
+  const dx = home.kerb.x - home.x, dz = home.kerb.z - home.z;
+  const u = dx * c - dz * s, v = dx * s + dz * c;
+  const width = Math.abs(u) / Math.max(.1, home.w / 2);
+  const depth = Math.abs(v) / Math.max(.1, home.d / 2);
+  const nx = width > depth ? Math.sign(u || 1) * c : Math.sign(v || 1) * s;
+  const nz = width > depth ? -Math.sign(u || 1) * s : Math.sign(v || 1) * c;
+  const half = width > depth ? home.w / 2 : home.d / 2;
+  const door = { x: home.x + nx * half, z: home.z + nz * half };
+  return { ...door, out: { x: door.x + nx * 2.2, z: door.z + nz * 2.2, yaw: Math.atan2(-nx, -nz) } };
 }
 
-// The four wall midpoints of a footprint as door candidates, the street-facing wall first.
+// Candidate midpoints of the four ACTUAL rotated walls, street-facing first.
+// The ray-selected facade threshold takes precedence, so its visible door,
+// collision sensor and exit pose cannot point to different walls.
 export function doorCandidates(home) {
-  const c = Math.cos(home.yaw), s = Math.sin(home.yaw), ax = [[c, s, home.w / 2], [-c, -s, home.w / 2], [-s, c, home.d / 2], [s, -c, home.d / 2]];
+  const c = Math.cos(home.yaw), s = Math.sin(home.yaw);
+  const axes = [[c, -s, home.w / 2], [-c, s, home.w / 2], [s, c, home.d / 2], [-s, -c, home.d / 2]];
   const kx = home.kerb.x - home.x, kz = home.kerb.z - home.z;
-  const doors = ax.map(([ux, uz, h]) => { const door = { x: home.x + ux * h, z: home.z + uz * h }; return { ...door, out: { x: door.x + ux * 2.2, z: door.z + uz * 2.2, yaw: Math.atan2(-ux, -uz) }, facing: ux * kx + uz * kz }; });
+  const doors = axes.map(([ux, uz, h]) => {
+    const door = { x: home.x + ux * h, z: home.z + uz * h };
+    return { ...door, out: { x: door.x + ux * 2.2, z: door.z + uz * 2.2, yaw: Math.atan2(-ux, -uz) }, facing: ux * kx + uz * kz };
+  });
   doors.sort((a, b) => b.facing - a.facing);
-  return [homeDoor(home), ...doors];
+  return [homeDoor(home), ...doors.filter((d) => Math.hypot(d.x - homeDoor(home).x, d.z - homeDoor(home).z) > .05)];
 }
 // First candidate whose doorstep is free within 1.3 m and whose approach (1.5–4 m out) is clear.
 export function pickDoor(cands, probe) {
@@ -141,7 +156,13 @@ export function buildNarromineHomeInterior(population, home, makeLabel, day, min
   for (const p of others) rooms.push({ name: p.first + "'s room", ...size(bed(0), 'o' + p.id), walls, floor, props: [['bed', 'Bed · ' + p.first, info(p.first + "'s bed", p.name + ', ' + p.age)], ['wardrobe', 'Wardrobe'], p.age >= 67 ? ['radio', 'Radio'] : p.age < 30 ? ['computer', 'Laptop and desk'] : ['lamp', 'Lamp']] });
   // A study for a household with someone working office hours from home; a shed for tradies and farm workers.
   if (people.some((p) => p.workplace && (H('wfh' + p.id) < 0.12))) rooms.push({ name: 'Study', ...size(30, 's'), walls, floor, props: [['desk', 'Desk'], ['computer', 'Computer'], ['filingCabinet', 'Filing cabinet'], ['bookshelf', 'Bookshelf']] });
-  if (trade || H('shed') < 0.25) rooms.push({ name: trade ? 'Shed and workshop' : 'Garage', ...size(40, 'g'), walls: 0xc7c2b8, floor: 0x9a968e, props: [['workbench', 'Workbench'], ['toolWall', 'Tools'], ...(trade ? [['partsBins', 'Parts bins']] : [['bicycle', 'Bicycle']]), ...(H('mow') < 0.6 ? [['mower', 'Lawn mower']] : [])] });
+  // A garage or shed is a DETACHED outbuilding, not a room in the dwelling.
+  // Keep its inventory separate until a surveyed, clear yard placement exists;
+  // never spawn the mower/workbench through a family-room wall.
+  const outbuilding = trade || H('shed') < 0.25
+    ? { name: trade ? 'Detached shed and workshop' : 'Detached garage', stored: [
+      'workbench', 'tools', trade ? 'parts bins' : 'bicycle', ...(H('mow') < 0.6 ? ['lawn mower'] : [])
+    ], modelledOutside: false } : null;
   // Layout by shape: long narrow houses run rooms in a row or deep; squarer ones gather round a hall.
   const layout = aspect > 1.7 ? pickH('lay', ['row', 'deep']) : pickH('lay', ['hub', 'grid', 'L', 'row']);
   const house = { repo: 'narromine-' + home.id, name: 'The ' + hh.surname + ' household', int: { layout, height: pickH('ht', [2.4, 2.7, 3.0, 3.3]), walls, floor, doors: pickH('dr', [0x7a5a3c, 0xf2efe8, 0x5a4634, 0xd8cfc0]), rooms } };
@@ -175,5 +196,5 @@ export function buildNarromineHomeInterior(population, home, makeLabel, day, min
     fig.position.set(at.x, 0, at.z); fig.rotation.y = at.yaw; built.group.add(fig); figureIds.push(p.id); figurePositions.push({ id: p.id, x: at.x, z: at.z }); n++;
     const label = makeLabel(p.first + ' ' + p.surname + ', ' + p.age); if (label) { label.position.set(at.x, 2.15 * (fig.scale.y || 1) + 0.1, at.z); built.group.add(label); }
   }
-  return { ...built, household: hh, fridge, occupants: who, figures: n, figureIds, figurePositions };
+  return { ...built, household: hh, fridge, occupants: who, figures: n, figureIds, figurePositions, outbuilding };
 }
