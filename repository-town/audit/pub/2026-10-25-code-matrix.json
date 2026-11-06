@@ -19,7 +19,7 @@
     "repository-town/tests/shop-interiors.mjs": "0ca369aa2d241c152edb841c1125aa9319241a0d",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "48aa7cc299ba2a8c8f6bdfea0f87c7dfb4670ee9",
+    "repository-town/src/main.js": "59056be7d6eedf33f537eb956b89a9d741239e00",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -790,6 +790,11 @@
       "scope": "Repository Town action tick clock only: main.js passes the document visibility flag to the pure 0.6-second game-tick accumulator. During short foreground software-WebGL frame stalls, up to four earned game ticks are recovered; background and long pauses still avoid action bursts. No modification to pub structures, wall/door colliders, geometry, staffing, utility equipment, service rules, evacuation, licensing or physical building-compliance logic.",
       "verification": "Reviewed only the incremental main.js tickChopping change against the already independently reviewed #514 household population collision integration. Exact audited main.js Git blob updated 8196f73780db2404108667ce505fc493152f04bd → 48aa7cc299ba2a8c8f6bdfea0f87c7dfb4670ee9. Focused tests/game-tick.mjs now covers foreground stalls and background no-burst; full release/build and pub/WebGL checks must pass before merge. This register acknowledges source change and is not a code certification.",
       "regulatoryStatus": "RTPUB-001 through RTPUB-034 provisional findings remain unchanged; no NCC certification, building safety or emergency-egress approval implied."
+    },
+    "2026-11-06-commuter-bay-world-geometry-check": {
+      "scope": "Main.js adds an import for the pure 2D vehicle footprint SAT helper and passes an actual static CollisionWorld.near lookup to createRepoTownCommuterParking. Each modelled perpendicular commuter parking bay is rejected if its full footprint touches a fixed building, pole, fence, doorway obstruction or outdoor static collider. No pub facade, room plan, code classification, staffing, licensing, utilities, RSA, fire or egress logic is changed.",
+      "verification": "Scoped source diff independently compared to audited main.js blob 48aa7cc299ba2a8c8f6bdfea0f87c7dfb4670ee9; updated to exact branch blob 59056be7d6eedf33f537eb956b89a9d741239e00. Node parking, traffic and source audit checks and desktop/Android browser tests are required to pass before merge. The new parking clearance is fictional geometric gameplay validation, not building-code certification.",
+      "regulatoryStatus": "Existing RTPUB-001..034 findings and unresolved egress obligations unchanged; no NCC or real-world safety certification inferred."
     }
   },
   "reaudits": [
@@ -1336,6 +1341,14 @@
         "repository-town/tests/game-tick.mjs"
       ],
       "finding": "Reviewed main.js bounded foreground-only game tick call and pure tick recovery for software-WebGL stalls; pub envelope, egress, safety and services unchanged. Scope limited to simulation clock, independent full browser and pub checks remain required."
+    },
+    {
+      "date": "2026-11-06",
+      "by": "ChatGPT (#503 commuter parking clearance integration)",
+      "changedFiles": [
+        "repository-town/src/main.js"
+      ],
+      "finding": "Changes solely integrate static physics-based verification for off-road commuter parking bays; no pub physical layout or safety assertions altered. Pub audit fingerprint updated to exact code review SHA; all tests remain required."
     }
   ]
 }
