@@ -40,6 +40,19 @@ Applies to DeepSeek agents working in `JoshMemory`, including the ProBook and Le
 - Make the smallest coherent PR; review differences and tests, merge **only when safe and required checks pass**, and release the claim according to the existing rules. No blind auto-merge, force push or unauthorized production changes.
 - Completion report must be short and evidence-based: **user-visible change; PR + merged SHA; test commands/results; live URL + deployed SHA + tested interaction where applicable; remaining failures**. Status must be **VERIFIED COMPLETE**, **PARTIALLY COMPLETE** or **BLOCKED**, based on observed facts. Do not call a coding task finished because its branch or PR exists.
 
+## 6. Caching, context and CI discipline (measured, 6 Nov 2026)
+
+A deterministic audit (`tools/dsh-usage-report.mjs`) of the ProBook session found the headline token count is mostly cheap cache: **126.2M processed tokens, 98.5% cached input, $0.85 off-peak**. Cost split: cached 43.6% · uncached 33.8% · output 22.7%. Two turn-boundary cache misses (≈652k and ≈523k uncached tokens across 2–4 calls) cost ≈$0.20 (22% of the session), and repeated CI polling in one long turn cost ≈$0.44 (52%). Optimise **verified delivery per USD**, not raw token count:
+
+1. **Never dump large payloads into context.** Use `rg`, bounded line ranges, `tail` and filters; keep whole files, JSON, logs and histories out of the prompt. A single 500k+ uncached turn is avoidable spend.
+2. **Keep the cache prefix stable.** Reusable instructions first, changing task detail last; avoid mid-session rewrites of early system/context that invalidate the prefix.
+3. **One task per session.** Checkpoint to the existing `WORK_CHECKPOINT.md`/`COORDINATION.md`, then start a fresh task-scoped session when context becomes unwieldy.
+4. **One CI watcher per gate, not repeated polling.** Watch the specific gate until it settles; never re-run an unchanged failing pipeline in a loop.
+5. **Record measured cost per verified task** in the completion report: cached/uncached/output tokens and USD from the analyser, plus the PR + merged SHA and test evidence.
+6. **Preserve every existing test, privacy, safety and completion gate.** Efficiency never weakens acceptance.
+
+Run it anywhere the DSH harness stores transcripts: `node tools/dsh-usage-report.mjs` (defaults to `~/.dsh/sessions`; `--peak` doubles the off-peak prices). The same command runs on the Lenovo exports; do not assume those files are local.
+
 ## Reusable one-line task bootstrapping
 
 `Read AGENTS.md and repository-town/AGENTS.md, then follow repository-town/docs/DEEPSEEK_TOKEN_EFFICIENCY.md. Reconcile active ownership claims; finish one narrow user-visible task end-to-end, test, safely merge and verify, with concise tool output and no repeated full-context reads.`
