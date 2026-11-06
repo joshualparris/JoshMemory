@@ -204,7 +204,9 @@ try{
     await photoPage.waitForFunction(()=>window.__town.narromineVisible(),null,{timeout:10000}).catch(()=>{});
     await photoPage.waitForTimeout(250);
     const screenshot=output+'/'+label+'-reference-'+v.id+'.png';
-    await photoPage.screenshot({path:screenshot,timeout:7000,animations:'disabled'});
+    // Software WebGL can need >7 seconds to read back a still frame on CI.
+    // Preserve every real-walk/teleport assertion; extend only screenshot capture time.
+    await photoPage.screenshot({path:screenshot,timeout:45000,animations:'disabled'});
     report.referenceViews.push({viewport:label,id:v.id,world:v.world,geolocation:[v.lat,v.lon],heading:v.heading,screenshot,
       comparisonMethod:'Geocoded separately staged game camera; reference is owner 4 Nov 2026 screenshot with Street View panorama of UNCONFIRMED capture date, not raster imported into public game'});
   }
