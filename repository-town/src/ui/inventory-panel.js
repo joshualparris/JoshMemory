@@ -1,13 +1,13 @@
 // Your bag: money, equipment you can hold (torch), food and goods, and market purchases.
 import { GOODS } from '../world/life.js';
 import { ITEM_TYPES, items, equip, unequip, equippedType, toggleTorch, torchLit } from '../world/inventory.js';
-import { LOGS, BAG_SLOTS, bagUsed } from '../world/skills.js';
+import { LOGS, RECIPES, BAG_SLOTS, bagUsed } from '../world/skills.js';
 import { HARDWARE } from '../world/trade-education.js';
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 // lightFire(log) lights a fire where the player stands (main.js knows where that is).
-export function inventoryPanel(me, { carried = null, drop = null, onChange = () => {}, lightFire = null } = {}) {
-  const panel = () => inventoryPanel(me, { carried, drop, onChange, lightFire });
+export function inventoryPanel(me, { carried = null, drop = null, onChange = () => {}, lightFire = null, cook = null } = {}) {
+  const panel = () => inventoryPanel(me, { carried, drop, onChange, lightFire, cook });
   const act = (label, fn) => ({ label, run: () => { const msg = fn(); onChange(); const p = panel(); p.body = `<p><b>${esc(msg)}</b></p>` + p.body; return p; } });
   const actions = [];
   const held = equippedType(me);
@@ -25,7 +25,10 @@ export function inventoryPanel(me, { carried = null, drop = null, onChange = () 
     if (lightFire) actions.push(act(`🔥 Light ${LOGS[k].name.toLowerCase()} here`, () => lightFire(k)));
     return `<li>${LOGS[k].icon} ${n} × ${LOGS[k].name}</li>`;
   });
-  const goods = Object.entries(me.bag || {}).filter(([, n]) => n > 0).map(([k, n]) => `<li>${n} × ${esc(GOODS[k]?.name || HARDWARE[k]?.name || k)}</li>`);
+  const goods = Object.entries(me.bag || {}).filter(([, n]) => n > 0).map(([k, n]) => {
+    if (cook && RECIPES[k]) actions.push(act(`🍳 Cook ${RECIPES[k].name} here`, () => cook(k)));
+    return `<li>${n} × ${esc(GOODS[k]?.name || HARDWARE[k]?.name || k)}</li>`;
+  });
   const market = Object.entries(me.marketGoods || {}).filter(([, n]) => n > 0).map(([k, n]) => `<li>${n} × ${esc(k)}</li>`);
   const list = (xs, empty) => xs.length ? `<ul>${xs.join('')}</ul>` : `<p><small>${empty}</small></p>`;
   return {
