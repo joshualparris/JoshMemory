@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-11-06",
+  "policy": "Records which bespoke renderer owns each traced detailed site and each suppressed/replaced OpenStreetMap outline. Renderer module names are source-verified against narromine.js buildNarromine(); owner attribution is best-effort from COORDINATION.md/WORK_CHECKPOINT.md. This register must NOT promote any building to 'Verified Against Reference': rendering.status stays 'Mapped'/'Modelled' and visuallyVerified stays 0.",
+  "detailedSites": {
+    "royal-hotel": {
+      "renderers": ["narromine-royal-hotel.js"],
+      "owner": "Antigravity (Agy Fedora)",
+      "mechanism": "Dedicated builder; generic DETAILED loop skips royal-hotel/dandaloo-86/dandaloo-88 via ROYAL_HOTEL_REPLACED_IDS.",
+      "uncertainty": ["Facade accuracy not visually reviewed against ground-level photography"]
+    },
+    "narromine-hotel": {
+      "renderers": ["narromine-hotel.js"],
+      "owner": "Claude Code (Fedora)",
+      "mechanism": "Dedicated builder; generic DETAILED loop skips NARROMINE_HOTEL_ID.",
+      "uncertainty": ["Verandah lacework is procedural; rear outbuildings use LiDAR/aerial footprints without Street View visibility"]
+    },
+    "narromine-post-office": {
+      "renderers": ["narromine.js (generic detailed loop)", "narromine-post-office-roof.js", "narromine-post-office.js"],
+      "owner": "Claude Code (Fedora) roof; entrance/interior shared",
+      "mechanism": "Generic walls/parts plus dedicated L-shaped roof overlay and entrance/interior module.",
+      "uncertainty": ["Window/door/colour details estimated; facade not visually reviewed"]
+    },
+    "dandaloo-76": {
+      "renderers": ["narromine.js (generic detailed loop)", "narromine-kieraths.js"],
+      "owner": "Multiple agents (Kierath's reconstruction)",
+      "mechanism": "Custom passage/courtyard builder layered on the generic detailed shell.",
+      "uncertainty": ["Interior plan remains an identified gameplay approximation"]
+    },
+    "dandaloo-82": {
+      "renderers": ["narromine.js (generic detailed loop)", "narromine-coles.js"],
+      "owner": "ChatGPT (Coles interior)",
+      "mechanism": "Generic shell with dedicated gable roof + edge-segmented colliders; interior from narromine-coles.js.",
+      "uncertainty": ["No permissioned measured floorplan; interior is interpretive"]
+    },
+    "dandaloo-86": {
+      "renderers": ["narromine-royal-hotel.js"],
+      "owner": "Antigravity (Agy Fedora)",
+      "mechanism": "Church at 86 Dandaloo St built by the Royal Hotel module (86 & 88 together).",
+      "uncertainty": ["Window bay spacing and brick buttresses estimated"]
+    },
+    "dandaloo-88": {
+      "renderers": ["narromine-royal-hotel.js"],
+      "owner": "Antigravity (Agy Fedora)",
+      "mechanism": "His and Hers Clip Joint built by the Royal Hotel module (86 & 88 together).",
+      "uncertainty": ["Shopfront glazing and fascia lettering estimated"]
+    },
+    "st-marys-anglican": {
+      "renderers": ["narromine.js (generic detailed loop)", "narromine-st-marys.js"],
+      "owner": "Unrecorded in COORDINATION.md",
+      "mechanism": "Generic detailed shell plus dedicated entrance/interior module.",
+      "uncertainty": ["Facade accuracy not visually reviewed; owner attribution not recorded"]
+    },
+    "narromine-shire-council": {
+      "renderers": ["narromine.js (generic detailed loop)"],
+      "owner": "Repository Town generic renderer (no dedicated builder)",
+      "mechanism": "Drawn only by the generic DETAILED loop from narromine-buildings-data.js parts.",
+      "uncertainty": ["No dedicated builder or visual review"]
+    },
+    "narromine-council-corner": {
+      "renderers": ["narromine.js (generic detailed loop)"],
+      "owner": "Repository Town generic renderer (no dedicated builder)",
+      "mechanism": "Drawn only by the generic DETAILED loop from narromine-buildings-data.js parts.",
+      "uncertainty": ["No dedicated builder or visual review"]
+    }
+  },
+  "osmReplacement": {
+    "1": { "renderer": "narromine-aviation-precinct.js", "precinct": "Narromine Aviation Museum & Aerodrome precinct", "owner": "Antigravity (Agy Windows/ProBook)", "mechanism": "NARROMINE_AVIATION_INTEGRATION_SPEC.suppressedOsmBuildingIndices" },
+    "2": { "renderer": "narromine-aviation-precinct.js", "precinct": "Narromine Aviation Museum & Aerodrome precinct", "owner": "Antigravity (Agy Windows/ProBook)", "mechanism": "NARROMINE_AVIATION_INTEGRATION_SPEC.suppressedOsmBuildingIndices" },
+    "3": { "renderer": "narromine-aviation-precinct.js", "precinct": "Narromine Aviation Museum & Aerodrome precinct", "owner": "Antigravity (Agy Windows/ProBook)", "mechanism": "NARROMINE_AVIATION_INTEGRATION_SPEC.suppressedOsmBuildingIndices" },
+    "4": { "renderer": "narromine-aviation-precinct.js", "precinct": "Narromine Aviation Museum & Aerodrome precinct", "owner": "Antigravity (Agy Windows/ProBook)", "mechanism": "NARROMINE_AVIATION_INTEGRATION_SPEC.suppressedOsmBuildingIndices" },
+    "5": { "renderer": "narromine-aviation-precinct.js", "precinct": "Narromine Aviation Museum & Aerodrome precinct", "owner": "Antigravity (Agy Windows/ProBook)", "mechanism": "NARROMINE_AVIATION_INTEGRATION_SPEC.suppressedOsmBuildingIndices" },
+    "6": { "renderer": "narromine-aviation-precinct.js", "precinct": "Narromine Aviation Museum & Aerodrome precinct", "owner": "Antigravity (Agy Windows/ProBook)", "mechanism": "NARROMINE_AVIATION_INTEGRATION_SPEC.suppressedOsmBuildingIndices" },
+    "7": { "renderer": "narromine-aviation-precinct.js", "precinct": "Narromine Aviation Museum & Aerodrome precinct", "owner": "Antigravity (Agy Windows/ProBook)", "mechanism": "NARROMINE_AVIATION_INTEGRATION_SPEC.suppressedOsmBuildingIndices" },
+    "8": { "renderer": "narromine-aviation-precinct.js", "precinct": "Narromine Aviation Museum & Aerodrome precinct", "owner": "Antigravity (Agy Windows/ProBook)", "mechanism": "NARROMINE_AVIATION_INTEGRATION_SPEC.suppressedOsmBuildingIndices" },
+    "10": { "renderer": "narromine-st-augustines.js", "precinct": "St Augustine's Catholic Church (20 Dandaloo St)", "owner": "ChatGPT (PR #345)", "mechanism": "ST_AUGUSTINES_OSM_INDEX suppression in narromine.js" },
+    "28": { "renderer": "narromine-railway-precinct.js", "precinct": "Narromine Railway Station precinct", "owner": "Antigravity (Agy ThinkPad)", "mechanism": "NARROMINE_RAILWAY_INTEGRATION_SPEC.suppressedOsmBuildingIndices" },
+    "29": { "renderer": "narromine-railway-precinct.js", "precinct": "Narromine Railway Station precinct", "owner": "Antigravity (Agy ThinkPad)", "mechanism": "NARROMINE_RAILWAY_INTEGRATION_SPEC.suppressedOsmBuildingIndices" },
+    "174": { "renderer": "narromine-courthouse-precinct.js", "precinct": "Narromine Courthouse, Police & Civic precinct", "owner": "Antigravity (Agy ThinkPad)", "mechanism": "NARROMINE_COURTHOUSE_INTEGRATION_SPEC.suppressedOsmBuildingIndices" },
+    "179": { "renderer": "narromine-nw-dandaloo-block.js", "precinct": "NW Dandaloo Street heritage & civic block", "owner": "Antigravity (Agy ProBook)", "mechanism": "NARROMINE_NW_DANDALOO_INTEGRATION_SPEC.suppressedOsmBuildingIndices" },
+    "180": { "renderer": "narromine-nw-dandaloo-block.js", "precinct": "NW Dandaloo Street heritage & civic block", "owner": "Antigravity (Agy ProBook)", "mechanism": "NARROMINE_NW_DANDALOO_INTEGRATION_SPEC.suppressedOsmBuildingIndices" },
+    "183": { "renderer": "narromine-nw-dandaloo-block.js", "precinct": "NW Dandaloo Street heritage & civic block", "owner": "Antigravity (Agy ProBook)", "mechanism": "NARROMINE_NW_DANDALOO_INTEGRATION_SPEC.suppressedOsmBuildingIndices" },
+    "184": { "renderer": "narromine-nw-dandaloo-block.js", "precinct": "NW Dandaloo Street heritage & civic block", "owner": "Antigravity (Agy ProBook)", "mechanism": "NARROMINE_NW_DANDALOO_INTEGRATION_SPEC.suppressedOsmBuildingIndices" },
+    "185": { "renderer": "narromine-nw-dandaloo-block.js", "precinct": "NW Dandaloo Street heritage & civic block", "owner": "Antigravity (Agy ProBook)", "mechanism": "NARROMINE_NW_DANDALOO_INTEGRATION_SPEC.suppressedOsmBuildingIndices" },
+    "186": { "renderer": "narromine-mainstreet-physio.js", "precinct": "Narromine Physiotherapy (50 Dandaloo St)", "owner": "ChatGPT (PR #352)", "mechanism": "Photo-matched facade overlay; footprint retained (facade only, not a full replacement)" },
+    "198": { "renderer": "narromine-railway-precinct.js", "precinct": "Narromine Railway Station precinct", "owner": "Antigravity (Agy ThinkPad)", "mechanism": "NARROMINE_RAILWAY_INTEGRATION_SPEC.suppressedOsmBuildingIndices" },
+    "217": { "renderer": "narromine-aviation-precinct.js", "precinct": "Narromine Aviation Museum & Aerodrome precinct", "owner": "Antigravity (Agy Windows/ProBook)", "mechanism": "NARROMINE_AVIATION_INTEGRATION_SPEC.suppressedOsmBuildingIndices" },
+    "218": { "renderer": "narromine-aviation-precinct.js", "precinct": "Narromine Aviation Museum & Aerodrome precinct", "owner": "Antigravity (Agy Windows/ProBook)", "mechanism": "NARROMINE_AVIATION_INTEGRATION_SPEC.suppressedOsmBuildingIndices" }
+  }
+}

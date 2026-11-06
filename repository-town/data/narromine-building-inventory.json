@@ -26,7 +26,9 @@
     "roadSegments": 236,
     "namedPlaces": 94,
     "photoReferences": 2,
-    "visuallyVerified": 0
+    "visuallyVerified": 0,
+    "rendererOwnedSites": 10,
+    "rendererReplacedOsm": 21
   },
   "coverageAudit": {
     "grid4x4": [
@@ -437,8 +439,16 @@
       "rendering": {
         "status": "Mapped",
         "tier": "C",
-        "mode": "mapped extrusion",
-        "siteIds": []
+        "mode": "replaced by bespoke builder",
+        "siteIds": [],
+        "renderer": [
+          "narromine-aviation-precinct.js"
+        ],
+        "owner": "Antigravity (Agy Windows/ProBook)",
+        "replacedBy": {
+          "precinct": "Narromine Aviation Museum & Aerodrome precinct",
+          "mechanism": "NARROMINE_AVIATION_INTEGRATION_SPEC.suppressedOsmBuildingIndices"
+        }
       },
       "visualQa": {
         "status": "not-reviewed"
@@ -524,8 +534,16 @@
       "rendering": {
         "status": "Mapped",
         "tier": "C",
-        "mode": "mapped extrusion",
-        "siteIds": []
+        "mode": "replaced by bespoke builder",
+        "siteIds": [],
+        "renderer": [
+          "narromine-aviation-precinct.js"
+        ],
+        "owner": "Antigravity (Agy Windows/ProBook)",
+        "replacedBy": {
+          "precinct": "Narromine Aviation Museum & Aerodrome precinct",
+          "mechanism": "NARROMINE_AVIATION_INTEGRATION_SPEC.suppressedOsmBuildingIndices"
+        }
       },
       "visualQa": {
         "status": "not-reviewed"
@@ -611,8 +629,16 @@
       "rendering": {
         "status": "Mapped",
         "tier": "C",
-        "mode": "mapped extrusion",
-        "siteIds": []
+        "mode": "replaced by bespoke builder",
+        "siteIds": [],
+        "renderer": [
+          "narromine-aviation-precinct.js"
+        ],
+        "owner": "Antigravity (Agy Windows/ProBook)",
+        "replacedBy": {
+          "precinct": "Narromine Aviation Museum & Aerodrome precinct",
+          "mechanism": "NARROMINE_AVIATION_INTEGRATION_SPEC.suppressedOsmBuildingIndices"
+        }
       },
       "visualQa": {
         "status": "not-reviewed"
@@ -698,8 +724,16 @@
       "rendering": {
         "status": "Mapped",
         "tier": "C",
-        "mode": "mapped extrusion",
-        "siteIds": []
+        "mode": "replaced by bespoke builder",
+        "siteIds": [],
+        "renderer": [
+          "narromine-aviation-precinct.js"
+        ],
+        "owner": "Antigravity (Agy Windows/ProBook)",
+        "replacedBy": {
+          "precinct": "Narromine Aviation Museum & Aerodrome precinct",
+          "mechanism": "NARROMINE_AVIATION_INTEGRATION_SPEC.suppressedOsmBuildingIndices"
+        }
       },
       "visualQa": {
         "status": "not-reviewed"
@@ -785,8 +819,16 @@
       "rendering": {
         "status": "Mapped",
         "tier": "C",
-        "mode": "mapped extrusion",
-        "siteIds": []
+        "mode": "replaced by bespoke builder",
+        "siteIds": [],
+        "renderer": [
+          "narromine-aviation-precinct.js"
+        ],
+        "owner": "Antigravity (Agy Windows/ProBook)",
+        "replacedBy": {
+          "precinct": "Narromine Aviation Museum & Aerodrome precinct",
+          "mechanism": "NARROMINE_AVIATION_INTEGRATION_SPEC.suppressedOsmBuildingIndices"
+        }
       },
       "visualQa": {
         "status": "not-reviewed"
@@ -872,8 +914,16 @@
       "rendering": {
         "status": "Mapped",
         "tier": "C",
-        "mode": "mapped extrusion",
-        "siteIds": []
+        "mode": "replaced by bespoke builder",
+        "siteIds": [],
+        "renderer": [
+          "narromine-aviation-precinct.js"
+        ],
+        "owner": "Antigravity (Agy Windows/ProBook)",
+        "replacedBy": {
+          "precinct": "Narromine Aviation Museum & Aerodrome precinct",
+          "mechanism": "NARROMINE_AVIATION_INTEGRATION_SPEC.suppressedOsmBuildingIndices"
+        }
       },
       "visualQa": {
         "status": "not-reviewed"
@@ -959,8 +1009,16 @@
       "rendering": {
         "status": "Mapped",
         "tier": "C",
-        "mode": "mapped extrusion",
-        "siteIds": []
+        "mode": "replaced by bespoke builder",
+        "siteIds": [],
+        "renderer": [
+          "narromine-aviation-precinct.js"
+        ],
+        "owner": "Antigravity (Agy Windows/ProBook)",
+        "replacedBy": {
+          "precinct": "Narromine Aviation Museum & Aerodrome precinct",
+          "mechanism": "NARROMINE_AVIATION_INTEGRATION_SPEC.suppressedOsmBuildingIndices"
+        }
       },
       "visualQa": {
         "status": "not-reviewed"
@@ -1046,8 +1104,16 @@
       "rendering": {
         "status": "Mapped",
         "tier": "C",
-        "mode": "mapped extrusion",
-        "siteIds": []
+        "mode": "replaced by bespoke builder",
+        "siteIds": [],
+        "renderer": [
+          "narromine-aviation-precinct.js"
+        ],
+        "owner": "Antigravity (Agy Windows/ProBook)",
+        "replacedBy": {
+          "precinct": "Narromine Aviation Museum & Aerodrome precinct",
+          "mechanism": "NARROMINE_AVIATION_INTEGRATION_SPEC.suppressedOsmBuildingIndices"
+        }
       },
       "visualQa": {
         "status": "not-reviewed"
@@ -1355,8 +1421,16 @@
       "rendering": {
         "status": "Mapped",
         "tier": "C",
-        "mode": "mapped extrusion",
-        "siteIds": []
+        "mode": "replaced by bespoke builder",
+        "siteIds": [],
+        "renderer": [
+          "narromine-st-augustines.js"
+        ],
+        "owner": "ChatGPT (PR #345)",
+        "replacedBy": {
+          "precinct": "St Augustine's Catholic Church (20 Dandaloo St)",
+          "mechanism": "ST_AUGUSTINES_OSM_INDEX suppression in narromine.js"
+        }
       },
       "visualQa": {
         "status": "not-reviewed"
@@ -3934,8 +4008,16 @@
       "rendering": {
         "status": "Mapped",
         "tier": "C",
-        "mode": "mapped extrusion",
-        "siteIds": []
+        "mode": "replaced by bespoke builder",
+        "siteIds": [],
+        "renderer": [
+          "narromine-railway-precinct.js"
+        ],
+        "owner": "Antigravity (Agy ThinkPad)",
+        "replacedBy": {
+          "precinct": "Narromine Railway Station precinct",
+          "mechanism": "NARROMINE_RAILWAY_INTEGRATION_SPEC.suppressedOsmBuildingIndices"
+        }
       },
       "visualQa": {
         "status": "not-reviewed"
@@ -4064,8 +4146,16 @@
       "rendering": {
         "status": "Mapped",
         "tier": "C",
-        "mode": "mapped extrusion",
-        "siteIds": []
+        "mode": "replaced by bespoke builder",
+        "siteIds": [],
+        "renderer": [
+          "narromine-railway-precinct.js"
+        ],
+        "owner": "Antigravity (Agy ThinkPad)",
+        "replacedBy": {
+          "precinct": "Narromine Railway Station precinct",
+          "mechanism": "NARROMINE_RAILWAY_INTEGRATION_SPEC.suppressedOsmBuildingIndices"
+        }
       },
       "visualQa": {
         "status": "not-reviewed"
@@ -18518,8 +18608,16 @@
       "rendering": {
         "status": "Mapped",
         "tier": "C",
-        "mode": "mapped extrusion",
-        "siteIds": []
+        "mode": "replaced by bespoke builder",
+        "siteIds": [],
+        "renderer": [
+          "narromine-courthouse-precinct.js"
+        ],
+        "owner": "Antigravity (Agy ThinkPad)",
+        "replacedBy": {
+          "precinct": "Narromine Courthouse, Police & Civic precinct",
+          "mechanism": "NARROMINE_COURTHOUSE_INTEGRATION_SPEC.suppressedOsmBuildingIndices"
+        }
       },
       "visualQa": {
         "status": "not-reviewed"
@@ -19048,8 +19146,16 @@
       "rendering": {
         "status": "Mapped",
         "tier": "C",
-        "mode": "mapped extrusion",
-        "siteIds": []
+        "mode": "replaced by bespoke builder",
+        "siteIds": [],
+        "renderer": [
+          "narromine-nw-dandaloo-block.js"
+        ],
+        "owner": "Antigravity (Agy ProBook)",
+        "replacedBy": {
+          "precinct": "NW Dandaloo Street heritage & civic block",
+          "mechanism": "NARROMINE_NW_DANDALOO_INTEGRATION_SPEC.suppressedOsmBuildingIndices"
+        }
       },
       "visualQa": {
         "status": "not-reviewed"
@@ -19146,8 +19252,16 @@
       "rendering": {
         "status": "Mapped",
         "tier": "C",
-        "mode": "mapped extrusion",
-        "siteIds": []
+        "mode": "replaced by bespoke builder",
+        "siteIds": [],
+        "renderer": [
+          "narromine-nw-dandaloo-block.js"
+        ],
+        "owner": "Antigravity (Agy ProBook)",
+        "replacedBy": {
+          "precinct": "NW Dandaloo Street heritage & civic block",
+          "mechanism": "NARROMINE_NW_DANDALOO_INTEGRATION_SPEC.suppressedOsmBuildingIndices"
+        }
       },
       "visualQa": {
         "status": "not-reviewed"
@@ -19512,8 +19626,16 @@
       "rendering": {
         "status": "Mapped",
         "tier": "C",
-        "mode": "mapped extrusion",
-        "siteIds": []
+        "mode": "replaced by bespoke builder",
+        "siteIds": [],
+        "renderer": [
+          "narromine-nw-dandaloo-block.js"
+        ],
+        "owner": "Antigravity (Agy ProBook)",
+        "replacedBy": {
+          "precinct": "NW Dandaloo Street heritage & civic block",
+          "mechanism": "NARROMINE_NW_DANDALOO_INTEGRATION_SPEC.suppressedOsmBuildingIndices"
+        }
       },
       "visualQa": {
         "status": "not-reviewed"
@@ -19610,8 +19732,16 @@
       "rendering": {
         "status": "Mapped",
         "tier": "C",
-        "mode": "mapped extrusion",
-        "siteIds": []
+        "mode": "replaced by bespoke builder",
+        "siteIds": [],
+        "renderer": [
+          "narromine-nw-dandaloo-block.js"
+        ],
+        "owner": "Antigravity (Agy ProBook)",
+        "replacedBy": {
+          "precinct": "NW Dandaloo Street heritage & civic block",
+          "mechanism": "NARROMINE_NW_DANDALOO_INTEGRATION_SPEC.suppressedOsmBuildingIndices"
+        }
       },
       "visualQa": {
         "status": "not-reviewed"
@@ -19708,8 +19838,16 @@
       "rendering": {
         "status": "Mapped",
         "tier": "C",
-        "mode": "mapped extrusion",
-        "siteIds": []
+        "mode": "replaced by bespoke builder",
+        "siteIds": [],
+        "renderer": [
+          "narromine-nw-dandaloo-block.js"
+        ],
+        "owner": "Antigravity (Agy ProBook)",
+        "replacedBy": {
+          "precinct": "NW Dandaloo Street heritage & civic block",
+          "mechanism": "NARROMINE_NW_DANDALOO_INTEGRATION_SPEC.suppressedOsmBuildingIndices"
+        }
       },
       "visualQa": {
         "status": "not-reviewed"
@@ -19806,8 +19944,16 @@
       "rendering": {
         "status": "Mapped",
         "tier": "C",
-        "mode": "mapped extrusion",
-        "siteIds": []
+        "mode": "replaced by bespoke builder",
+        "siteIds": [],
+        "renderer": [
+          "narromine-mainstreet-physio.js"
+        ],
+        "owner": "ChatGPT (PR #352)",
+        "replacedBy": {
+          "precinct": "Narromine Physiotherapy (50 Dandaloo St)",
+          "mechanism": "Photo-matched facade overlay; footprint retained (facade only, not a full replacement)"
+        }
       },
       "visualQa": {
         "status": "not-reviewed"
@@ -21262,8 +21408,16 @@
       "rendering": {
         "status": "Mapped",
         "tier": "C",
-        "mode": "mapped extrusion",
-        "siteIds": []
+        "mode": "replaced by bespoke builder",
+        "siteIds": [],
+        "renderer": [
+          "narromine-railway-precinct.js"
+        ],
+        "owner": "Antigravity (Agy ThinkPad)",
+        "replacedBy": {
+          "precinct": "Narromine Railway Station precinct",
+          "mechanism": "NARROMINE_RAILWAY_INTEGRATION_SPEC.suppressedOsmBuildingIndices"
+        }
       },
       "visualQa": {
         "status": "not-reviewed"
@@ -23260,8 +23414,16 @@
       "rendering": {
         "status": "Mapped",
         "tier": "C",
-        "mode": "mapped extrusion",
-        "siteIds": []
+        "mode": "replaced by bespoke builder",
+        "siteIds": [],
+        "renderer": [
+          "narromine-aviation-precinct.js"
+        ],
+        "owner": "Antigravity (Agy Windows/ProBook)",
+        "replacedBy": {
+          "precinct": "Narromine Aviation Museum & Aerodrome precinct",
+          "mechanism": "NARROMINE_AVIATION_INTEGRATION_SPEC.suppressedOsmBuildingIndices"
+        }
       },
       "visualQa": {
         "status": "not-reviewed"
@@ -23371,8 +23533,16 @@
       "rendering": {
         "status": "Mapped",
         "tier": "C",
-        "mode": "mapped extrusion",
-        "siteIds": []
+        "mode": "replaced by bespoke builder",
+        "siteIds": [],
+        "renderer": [
+          "narromine-aviation-precinct.js"
+        ],
+        "owner": "Antigravity (Agy Windows/ProBook)",
+        "replacedBy": {
+          "precinct": "Narromine Aviation Museum & Aerodrome precinct",
+          "mechanism": "NARROMINE_AVIATION_INTEGRATION_SPEC.suppressedOsmBuildingIndices"
+        }
       },
       "visualQa": {
         "status": "not-reviewed"
@@ -23713,14 +23883,19 @@
         "status": "Modelled",
         "tier": "A candidate",
         "mode": "detailed site builder",
-        "siteIds": []
+        "siteIds": [],
+        "renderer": [
+          "narromine-royal-hotel.js"
+        ],
+        "owner": "Antigravity (Agy Fedora)"
       },
       "visualQa": {
         "status": "not-reviewed"
       },
       "uncertainty": [
         "Only historical 2017 licensed imagery linked; more angles and present-day façade validation needed",
-        "Current facade accuracy not visually reviewed"
+        "Current facade accuracy not visually reviewed",
+        "Facade accuracy not visually reviewed against ground-level photography"
       ],
       "nextActions": [
         "Acquire permitted multi-angle imagery",
@@ -24166,14 +24341,19 @@
         "status": "Modelled",
         "tier": "A candidate",
         "mode": "detailed site builder",
-        "siteIds": []
+        "siteIds": [],
+        "renderer": [
+          "narromine-hotel.js"
+        ],
+        "owner": "Claude Code (Fedora)"
       },
       "visualQa": {
         "status": "not-reviewed"
       },
       "uncertainty": [
         "No permission-checked ground-level photos catalogued",
-        "Current facade accuracy not visually reviewed"
+        "Current facade accuracy not visually reviewed",
+        "Verandah lacework is procedural; rear outbuildings use LiDAR/aerial footprints without Street View visibility"
       ],
       "nextActions": [
         "Acquire permitted multi-angle imagery",
@@ -24467,14 +24647,21 @@
         "status": "Modelled",
         "tier": "A candidate",
         "mode": "detailed site builder",
-        "siteIds": []
+        "siteIds": [],
+        "renderer": [
+          "narromine.js (generic detailed loop)",
+          "narromine-post-office-roof.js",
+          "narromine-post-office.js"
+        ],
+        "owner": "Claude Code (Fedora) roof; entrance/interior shared"
       },
       "visualQa": {
         "status": "not-reviewed"
       },
       "uncertainty": [
         "No permission-checked ground-level photos catalogued",
-        "Current facade accuracy not visually reviewed"
+        "Current facade accuracy not visually reviewed",
+        "Window/door/colour details estimated; facade not visually reviewed"
       ],
       "nextActions": [
         "Acquire permitted multi-angle imagery",
@@ -24582,14 +24769,20 @@
         "status": "Modelled",
         "tier": "A candidate",
         "mode": "Kierath custom passage builder",
-        "siteIds": []
+        "siteIds": [],
+        "renderer": [
+          "narromine.js (generic detailed loop)",
+          "narromine-kieraths.js"
+        ],
+        "owner": "Multiple agents (Kierath's reconstruction)"
       },
       "visualQa": {
         "status": "not-reviewed"
       },
       "uncertainty": [
         "No permission-checked ground-level photos catalogued",
-        "Current facade accuracy not visually reviewed"
+        "Current facade accuracy not visually reviewed",
+        "Interior plan remains an identified gameplay approximation"
       ],
       "nextActions": [
         "Acquire permitted multi-angle imagery",
@@ -24820,14 +25013,20 @@
         "status": "Modelled",
         "tier": "A candidate",
         "mode": "detailed site builder",
-        "siteIds": []
+        "siteIds": [],
+        "renderer": [
+          "narromine.js (generic detailed loop)",
+          "narromine-coles.js"
+        ],
+        "owner": "ChatGPT (Coles interior)"
       },
       "visualQa": {
         "status": "not-reviewed"
       },
       "uncertainty": [
         "No permission-checked ground-level photos catalogued",
-        "Current facade accuracy not visually reviewed"
+        "Current facade accuracy not visually reviewed",
+        "No permissioned measured floorplan; interior is interpretive"
       ],
       "nextActions": [
         "Acquire permitted multi-angle imagery",
@@ -24998,14 +25197,19 @@
         "status": "Modelled",
         "tier": "A candidate",
         "mode": "detailed site builder",
-        "siteIds": []
+        "siteIds": [],
+        "renderer": [
+          "narromine-royal-hotel.js"
+        ],
+        "owner": "Antigravity (Agy Fedora)"
       },
       "visualQa": {
         "status": "not-reviewed"
       },
       "uncertainty": [
         "No permission-checked ground-level photos catalogued",
-        "Current facade accuracy not visually reviewed"
+        "Current facade accuracy not visually reviewed",
+        "Window bay spacing and brick buttresses estimated"
       ],
       "nextActions": [
         "Acquire permitted multi-angle imagery",
@@ -25135,14 +25339,19 @@
         "status": "Modelled",
         "tier": "A candidate",
         "mode": "detailed site builder",
-        "siteIds": []
+        "siteIds": [],
+        "renderer": [
+          "narromine-royal-hotel.js"
+        ],
+        "owner": "Antigravity (Agy Fedora)"
       },
       "visualQa": {
         "status": "not-reviewed"
       },
       "uncertainty": [
         "No permission-checked ground-level photos catalogued",
-        "Current facade accuracy not visually reviewed"
+        "Current facade accuracy not visually reviewed",
+        "Shopfront glazing and fascia lettering estimated"
       ],
       "nextActions": [
         "Acquire permitted multi-angle imagery",
@@ -25374,14 +25583,20 @@
         "status": "Modelled",
         "tier": "A candidate",
         "mode": "detailed site builder",
-        "siteIds": []
+        "siteIds": [],
+        "renderer": [
+          "narromine.js (generic detailed loop)",
+          "narromine-st-marys.js"
+        ],
+        "owner": "Unrecorded in COORDINATION.md"
       },
       "visualQa": {
         "status": "not-reviewed"
       },
       "uncertainty": [
         "No permission-checked ground-level photos catalogued",
-        "Current facade accuracy not visually reviewed"
+        "Current facade accuracy not visually reviewed",
+        "Facade accuracy not visually reviewed; owner attribution not recorded"
       ],
       "nextActions": [
         "Acquire permitted multi-angle imagery",
@@ -25681,14 +25896,19 @@
         "status": "Modelled",
         "tier": "A candidate",
         "mode": "detailed site builder",
-        "siteIds": []
+        "siteIds": [],
+        "renderer": [
+          "narromine.js (generic detailed loop)"
+        ],
+        "owner": "Repository Town generic renderer (no dedicated builder)"
       },
       "visualQa": {
         "status": "not-reviewed"
       },
       "uncertainty": [
         "No permission-checked ground-level photos catalogued",
-        "Current facade accuracy not visually reviewed"
+        "Current facade accuracy not visually reviewed",
+        "No dedicated builder or visual review"
       ],
       "nextActions": [
         "Acquire permitted multi-angle imagery",
@@ -25875,14 +26095,19 @@
         "status": "Modelled",
         "tier": "A candidate",
         "mode": "detailed site builder",
-        "siteIds": []
+        "siteIds": [],
+        "renderer": [
+          "narromine.js (generic detailed loop)"
+        ],
+        "owner": "Repository Town generic renderer (no dedicated builder)"
       },
       "visualQa": {
         "status": "not-reviewed"
       },
       "uncertainty": [
         "No permission-checked ground-level photos catalogued",
-        "Current facade accuracy not visually reviewed"
+        "Current facade accuracy not visually reviewed",
+        "No dedicated builder or visual review"
       ],
       "nextActions": [
         "Acquire permitted multi-angle imagery",
