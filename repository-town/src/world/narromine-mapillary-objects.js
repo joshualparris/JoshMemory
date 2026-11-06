@@ -10,6 +10,9 @@ import {allowMapillarySignDisplay} from './narromine-mapillary-sign-placement.js
 
 const mat = (c) => new THREE.MeshLambertMaterial({ color: c });
 const textCache = new Map();
+// PR #441: camera-detected objects projected onto the Narromine Hotel carriageway.
+// Preserve the raw observation counts, but do not render without measured positions.
+export const MISPLACED_HOTEL_ROAD_OBJECT_IDS = new Set(['222123616053691', '1870715210337913', '1870715420337892']);
 // Australian speed sign: white panel, red ring, black number. Plain white when there is no DOM (tests).
 function speedMaterial(v) {
   if (textCache.has(v)) return textCache.get(v);
@@ -35,6 +38,7 @@ export function buildNarromineMapillaryObjects(target) {
     new URLSearchParams(location.search).get('mapillarySigns')==='raw';
   for (const o of OBJ) {
     counts[o.type] = (counts[o.type] || 0) + 1;
+    if (MISPLACED_HOTEL_ROAD_OBJECT_IDS.has(o.id)) continue;
     if(!allowMapillarySignDisplay(o,rawQa))continue;
     // Facing: a sign's face normal points against the traffic that reads it. Road direction (ux, uz).
     const faceYaw = Math.atan2(o.ux * o.facing, o.uz * o.facing), roadYaw = -Math.atan2(o.uz, o.ux);
