@@ -11,6 +11,7 @@ for (const e of ix.list) {
   assert(!OWN_INTERIOR.has(e.workplace.kind));
   const b = buildNarromineWorkplaceInterior(pop, e, L, 2, 11 * 60);
   assert(b.interactables.some(o => o.act?.station), e.workplace.name + ' has workstations');
+  assert(!b.rooms.some(r => r.name === 'Bedroom'), 'Workplace must not inherit a fictional residential bedroom');
   const rostered = pop.people.filter(p => p.workplace === e.workplace.id).length;
   assert(b.staff.length <= rostered, 'only its own staff');
   if (b.staff.length) staffed++;
