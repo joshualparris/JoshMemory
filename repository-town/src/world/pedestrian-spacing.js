@@ -82,6 +82,10 @@ export function steerPedestrians(people,{world=null,dt=1/60}={}) {
   const step=Math.max(0,Math.min(0.1,dt));
   if(!step)return 0;
   let steered=0;
+  const cellSize=6, cells=new Map();
+  const key=(x,z)=>Math.floor(x/cellSize)+','+Math.floor(z/cellSize);
+  const place=p=>{const k=key(p.pos.x,p.pos.z);if(!cells.has(k))cells.set(k,[]);cells.get(k).push(p);};
+  for(const p of people)if(p?.pos&&Number.isFinite(p.pos.x)&&Number.isFinite(p.pos.z))place(p);
   for(const a of people){
     if(a.fixed||!a.goal||!Number.isFinite(a.goal.x)||!Number.isFinite(a.goal.z))continue;
     const gx=a.goal.x-a.pos.x,gz=a.goal.z-a.pos.z,remaining=Math.hypot(gx,gz);
@@ -92,7 +96,10 @@ export function steerPedestrians(people,{world=null,dt=1/60}={}) {
     const right={x:forward.z,z:-forward.x};
     const sight=a.speed>3?5.0:3.0;
     let threat=null,best=Infinity;
-    for(const b of people){
+    const cx=Math.floor(a.pos.x/cellSize),cz=Math.floor(a.pos.z/cellSize);
+    const nearby=[];
+    for(let ix=cx-1;ix<=cx+1;ix++)for(let iz=cz-1;iz<=cz+1;iz++)nearby.push(...(cells.get(ix+','+iz)||[]));
+    for(const b of nearby){
       if(b===a||!b.pos||!Number.isFinite(b.pos.x)||!Number.isFinite(b.pos.z))continue;
       const dx=b.pos.x-a.pos.x,dz=b.pos.z-a.pos.z;
       const ahead=dx*forward.x+dz*forward.z;
@@ -123,7 +130,10 @@ export function steerPedestrians(people,{world=null,dt=1/60}={}) {
         (Math.sign(oldKerb)!==Math.sign(newKerb)||Math.abs(newKerb)<3.7))continue;
       const nextDistance=Math.hypot(x-threat.pos.x,z-threat.pos.z);
       if(currentDistance>1.4&&nextDistance<1.25)continue;
-      a.pos.x=x;a.pos.z=z;steered++;break;
+      const before=key(a.pos.x,a.pos.z);
+      a.pos.x=x;a.pos.z=z;
+      if(before!==key(x,z)){const bucket=cells.get(before);const i=bucket?.indexOf(a)??-1;if(i>=0)bucket.splice(i,1);place(a);}
+      steered++;break;
     }
   }
   return steered;
