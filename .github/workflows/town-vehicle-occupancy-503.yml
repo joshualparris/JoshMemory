@@ -7,13 +7,14 @@ on:
       - 'repository-town/src/world/narromine-traffic.js'
       - 'repository-town/src/world/vehicle-occupancy.js'
       - 'repository-town/tests/vehicle-occupancy.mjs'
+      - 'repository-town/tests/vehicle-occupancy-browser.mjs'
       - '.github/workflows/town-vehicle-occupancy-503.yml'
 permissions:
   contents: read
 jobs:
   verify:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 55
     defaults:
       run:
         working-directory: repository-town
@@ -35,3 +36,26 @@ jobs:
           node tests/narromine-repotown-parking.mjs
       - name: Build public game
         run: npm run build
+      - name: Browser dependencies for real moving and parked 3D traffic
+        run: npx playwright install --with-deps chromium
+      - name: Actual moving-car and off-road commuter parking WebGL checks
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          node tools/serve.mjs dist/public 8091 > /tmp/traffic-503-serve.log 2>&1 &
+          server=$!
+          trap 'kill $server 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8091/ >/dev/null; then break; fi
+            sleep 1
+          done
+          node tests/vehicle-occupancy-browser.mjs
+      - name: Preserve actual WebGL car/parking screenshots and overlap telemetry
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: town-traffic-503-desktop-android
+          path: repository-town/test-results/vehicle-occupancy-webgl/
+          retention-days: 14
+          if-no-files-found: warn
+
