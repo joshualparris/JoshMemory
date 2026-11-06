@@ -13,6 +13,7 @@ import { homeDoor, doorCandidates, pickDoor } from './narromine-homes.js';
 import { SOUL_FOOD_EVIDENCE, soulFoodOpen, soulFoodInteriorSpec, decorateSoulFoodInterior } from './narromine-soul-food-interior.js';
 import { NARROMINE_PHARMACY_EVIDENCE, pharmacyOpeningAt, pharmacyInteriorSpec, decorateNarrominePharmacy } from './narromine-pharmacy-interior.js';
 import { INTERIOR_EVIDENCE } from './narromine-interior-evidence.js';
+import { GENERIC_PROFILES, genericProfileForKind } from './generic-business-fitouts.js';
 
 const S = (t, l) => [t, l, { do: 'info', title: l, text: 'Workstation.' , station: true }];   // a staffed station
 const FIT = {
@@ -111,7 +112,10 @@ export function buildNarromineWorkplaceInterior(pop, entry, makeLabel, weekday, 
   const pharmacy = researchedPharmacy ? pharmacyInteriorSpec() : null;
   const namedSoulFood = w.kind==='cafe' && w.name===SOUL_FOOD_EVIDENCE.name;
   const soulFood = namedSoulFood ? soulFoodInteriorSpec() : null;
-  const rooms = JSON.parse(JSON.stringify(pharmacy ? pharmacy.rooms : (soulFood ? soulFood.rooms : (evidence ? evidence.rooms : fitFor(w.kind)))));
+  // Do not replace named/evidenced interiors or even existing FIT templates.
+  const genericKey=!pharmacy&&!soulFood&&!evidence&&!FIT[w.kind] ? genericProfileForKind(w.kind) : null;
+  const generic=genericKey?GENERIC_PROFILES[genericKey]:null;
+  const rooms = JSON.parse(JSON.stringify(pharmacy ? pharmacy.rooms : (soulFood ? soulFood.rooms : (evidence ? evidence.rooms : (generic?.rooms||fitFor(w.kind))))));
   // Each business is its own place: rooms sized for its building and staff, a station per worker on a
   // typical shift, its own colours, and its name over the front room.
   const H = (k) => { let h = 2166136261; for (const c of w.name + k) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return (h >>> 0) / 4294967296; };
@@ -122,8 +126,8 @@ export function buildNarromineWorkplaceInterior(pop, entry, makeLabel, weekday, 
   const main = rooms.find((r) => r.props.some((p) => Array.isArray(p) && p[2]?.station));
   const proto = main.props.find((p) => Array.isArray(p) && p[2]?.station);
   for (let k = stationCount; !namedSoulFood && k < Math.min(onShift, 10); k++) main.props.push([proto[0], proto[1] + ' ' + (k + 1), proto[2]]);
-  if (/hair|clip/i.test(w.name)) main.props.push(['mirror', 'Styling mirror'], ['chair', 'Salon chair'], ['chair', 'Salon chair']);
-  if (/beauty|belladonna/i.test(w.name)) main.props.push(['mirror', 'Mirror'], ['bed', 'Treatment bed']);
+  if (!generic && /hair|clip/i.test(w.name)) main.props.push(['mirror', 'Styling mirror'], ['chair', 'Salon chair'], ['chair', 'Salon chair']);
+  if (!generic && /beauty|belladonna/i.test(w.name)) main.props.push(['mirror', 'Mirror'], ['bed', 'Treatment bed']);
   if (!researchedPharmacy && !namedSoulFood) {
     const scale = w.area && w.area <= 800 ? Math.max(0.9, Math.min(1.6, Math.sqrt(w.area / 150))) : 1 + H('sz') * 0.3;
     for (const r of rooms) { r.w = Math.round(r.w * scale * (0.9 + H('w' + r.name) * 0.2) * 10) / 10; r.d = Math.round(r.d * scale * (0.9 + H('d' + r.name) * 0.2) * 10) / 10; }
@@ -131,6 +135,7 @@ export function buildNarromineWorkplaceInterior(pop, entry, makeLabel, weekday, 
   }
   const walls = pickH('wall', [0xf2f0ea, 0xe6e1d6, 0xdfe6e3, 0xe9dfd0, 0xd3dce2, 0xefe7d8, 0xcfd6cc]), floor = pickH('floor', [0xb9b2a7, 0x9c8f7d, 0x8a8f94, 0xc7bfae, 0x7b6a58, 0xa7a59e]);
   const spec = pharmacy ? { ...pharmacy, rooms } : soulFood ? { ...soulFood, rooms } : { layout: rooms.length > 2 ? pickH('lay', ['row', 'hub', 'L']) : 'row', height: pickH('h', [3, 3.3, 3.6]), walls, floor, rooms };
+  if(generic)Object.assign(spec,{layout:'row',walls:generic.walls,floor:generic.floor});
   let built = null;
   for (let tries = 0; tries < 14 && !built; tries++) {
     try { built = buildInterior({ repo: 'narromine-' + w.id, coordinate: 'NARROMINE-WORK:' + w.id, name: w.name, noBedroom: true, int: spec }, makeLabel); } catch (e) {
@@ -182,5 +187,6 @@ export function buildNarromineWorkplaceInterior(pop, entry, makeLabel, weekday, 
     });
   }
   animateNarromineResidents(built, actors, makeLabel, () => minute);
-  return { ...built, workplace: w, open, staff, pupils, evidence, figureIds, figurePositions };
+  return { ...built, workplace: w, open, staff, pupils, evidence, figureIds, figurePositions,
+    ...(generic?{genericFitout:{key:genericKey,evidenceLevel:'interpretive-not-surveyed'}}:{}) };
 }

@@ -3,6 +3,10 @@ Original prompt: Make the simulation less crowded, less traffic, easier and more
 ## Active request: 7 November 2026
 Make generic building interiors and exteriors more realistic. User explicitly says not to edit any handcrafted buildings. Dedicated/evidence-backed builders are protected; work only on fallback-generated building types and fictional-town generic facade details.
 
+- Generic-only implementation milestone: nine opt-in civic interiors/facades plus nine workplace category profiles; additive salon/laundry/clothing/rural-supply/office fixtures. Actual dispatch excludes every existing FIT template and named evidence.
+- PASS fixture geometry footprint, central aisle/exit, staff/use clearance, pairwise placement, category/exclusion checks and 48 protected geometry signatures. The same snapshot fixture also passes against independently extracted source baseline `66561b06`; it was not refreshed for the implementation.
+- PASS existing Narromine workplaces and indoor-life suites. Initial build passes. Browser QA and full release gate remain pending; no new building release is published.
+
 - Baseline inspected in Chromium and canonical source located in JoshMemory/repository-town.
 - Existing main already contains spatial crowd repair; this change adds a reversible activity preference, not a replacement collision system.
 - Main flow inventory is outside the deployment folder in workspace/narromine.FLOWS.md.
