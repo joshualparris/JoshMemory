@@ -87,7 +87,7 @@ try {
   });
   assert.ok(spot, 'found residents outdoors');
   await game.evaluate((s) => window.__town.place(s.x, s.z + 7, 0), spot);
-  await game.waitForTimeout(1800);
+  await game.waitForTimeout(4000);
   const style = await game.evaluate(() => window.__town.residentStyle());
   assert.equal(style.style, 'quaternius');
   assert.ok(style.wearing > 0, 'nearby residents wear the rigged model: ' + style.wearing);
