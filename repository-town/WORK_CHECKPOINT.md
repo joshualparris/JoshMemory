@@ -1,3 +1,7 @@
+# Narromine indoor runtime repair — START 2026-11-06
+
+Codex Work cloud; baseline 409ae5c2; branch fix/narromine-interior-life-20261106. Static actors bypass indoor movement/style system; Narromine entry omits townView. Inspect room overlap, prop clearance and door anchors. Tests and deployment pending.
+
 ## 6 November 2026 — mobile crowd repair #514 in progress
 
 Codex Work cloud, branch `fix/mobile-crowd-514`. Implemented mutable spatial broad phase for separation AND steering; updates moved buckets and retains original caller ordering. 150 seeded differential crowd cases match baseline exactly; 1000-person sparse separation benchmark 174.1ms -> 44.6ms for 20 calls (CPU only, not handset FPS). New spatial regression: 34,125 coordinate reads for 1,000 actors, dense overlap recovery, negative bucket boundaries and large radii. Existing pedestrian-spacing/orbit tests pass. Commuter parking now excludes whole-car junction overlaps, uses actual lengths, and never falls back onto occupied space; 45-car parking test passes. Baseline build/privacy passed; candidate full release/browser verification pending. Live Vercel still a6443493, Pages alternate d643ea5b. No completion/deployment claim; #514 remains open. Next: complete candidate build, browser crowd soak, CI/review, merge and verify exact hosted release.
