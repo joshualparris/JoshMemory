@@ -14,17 +14,49 @@ on:
       - 'repository-town/package.json'
       - '.github/workflows/town-webgl-playtest.yml'
   workflow_dispatch:
+  schedule:
+    # Overnight full browser evidence; UTC (02:17 AEST / 03:17 AEDT).
+    - cron: '17 16 * * *'
 
 permissions:
   contents: read
 
 concurrency:
   group: town-recorded-webgl-${{ github.ref }}
-  cancel-in-progress: true
+  # Never cancel main/release or scheduled evidence runs.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  classify:
+    name: Decide PR visual testing scope
+    runs-on: ubuntu-latest
+    outputs:
+      high_risk: ${{ steps.scope.outputs.high_risk }}
+      narromine: ${{ steps.scope.outputs.narromine }}
+    steps:
+      - id: scope
+        uses: actions/github-script@v7
+        with:
+          script: |
+            if (context.eventName !== 'pull_request') {
+              core.setOutput('high_risk','true');
+              core.setOutput('narromine','true');
+              return;
+            }
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              ...context.repo, pull_number: context.issue.number, per_page: 100
+            });
+            const names = files.map(f => f.filename);
+            const high = names.some(p => /^repository-town\/(src\/(world|ui|game|simulation)\/|tools\/(build|check_privacy)|package(-lock)?\.json|tests\/(webgl-playtest|recorded-dialogue-browser|movement-speed-browser))/.test(p)) ||
+              names.some(p => /^\.github\/workflows\/town-(webgl-playtest|integration)\.yml$/.test(p)) ||
+              (context.payload.pull_request.labels || []).some(l => l.name === 'town-full-playtest');
+            core.setOutput('high_risk', String(high));
+            core.setOutput('narromine', String(names.some(p => /narromine|roof|street|building|interior/i.test(p))));
+            core.info(`Full PR test: ${high}; Narromine focus: ${names.some(p => /narromine|roof|street|building|interior/i.test(p))}`);
+
   playable-3d:
     name: Desktop + Android-size recorded WebGL gameplay
+    needs: classify
     runs-on: ubuntu-24.04
     timeout-minutes: 28
     defaults:
@@ -39,8 +71,17 @@ jobs:
           cache-dependency-path: repository-town/package-lock.json
       - name: Install pinned dependencies
         run: npm ci --no-audit --no-fund
-      - name: Install Chromium and software rendering libraries
-        run: npx playwright install --with-deps chromium
+      - name: Cache Playwright Chromium
+        id: browser-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-1.56.1
+      - name: Install system WebGL libraries
+        run: npx playwright install-deps chromium
+      - name: Install Chromium when uncached
+        if: steps.browser-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium
       - name: Build actual playable site
         run: npm run build
       - name: Play and record 3D game, fail on missing WebGL
@@ -53,20 +94,26 @@ jobs:
             sleep 1
           done
           curl -fsSI http://127.0.0.1:8091/ > /dev/null
-          node tests/recorded-dialogue-browser.mjs
+          # The recorded desktop+mobile WebGL smoke is the mandatory PR baseline.
           node tests/webgl-playtest.mjs
-          node tests/movement-speed-browser.mjs
-          node tests/exit-facing.mjs
-          node tests/town-map-browser.mjs
-          node tests/engine-sound-browser.mjs
-          node tests/inventory-browser.mjs
-          node tests/farmers-market-browser.mjs
-          node tests/climb-and-carry-browser.mjs
-          node tests/off-road-browser.mjs
-          node tests/cheat-menu-browser.mjs
-          node tests/yeoval-browser.mjs
-          node tests/sleep-browser.mjs
-          node tests/sleep-browser.mjs --mobile
+          if [[ "${{ github.event_name }}" != 'pull_request' || "${{ needs.classify.outputs.high_risk }}" == 'true' ]]; then
+            node tests/recorded-dialogue-browser.mjs
+            node tests/movement-speed-browser.mjs
+            node tests/exit-facing.mjs
+            node tests/town-map-browser.mjs
+            node tests/engine-sound-browser.mjs
+            node tests/inventory-browser.mjs
+            node tests/farmers-market-browser.mjs
+            node tests/climb-and-carry-browser.mjs
+            node tests/off-road-browser.mjs
+            node tests/cheat-menu-browser.mjs
+            node tests/yeoval-browser.mjs
+            node tests/sleep-browser.mjs
+            node tests/sleep-browser.mjs --mobile
+          fi
+          if [[ "${{ github.event_name }}" == 'pull_request' && "${{ needs.classify.outputs.narromine }}" == 'true' ]]; then
+            node tests/narromine-post-office-browser.mjs
+          fi
         env:
           TOWN_PLAYTEST_URL: http://127.0.0.1:8091/
           LIBGL_ALWAYS_SOFTWARE: '1'
@@ -93,7 +140,8 @@ jobs:
 
   full-browser:
     name: Complete Chrome browser regression (bounded)
-    if: github.event_name == 'pull_request'
+    needs: classify
+    if: github.event_name != 'pull_request' || needs.classify.outputs.high_risk == 'true'
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     defaults:
@@ -108,8 +156,17 @@ jobs:
           cache-dependency-path: repository-town/package-lock.json
       - name: Install pinned dependencies
         run: npm ci --no-audit --no-fund
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Cache Playwright Chromium
+        id: browser-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-1.56.1
+      - name: Install system WebGL libraries
+        run: npx playwright install-deps chromium
+      - name: Install Chromium when uncached
+        if: steps.browser-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium
       - name: Build exact proposed source
         run: npm run build
       - name: Run complete browser suite with bounded execution
