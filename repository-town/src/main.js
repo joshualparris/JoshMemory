@@ -28,6 +28,7 @@ import { buildYeovalInterior } from './world/yeoval-interior.js';
 import { buildMasterplan, PLAN_HOMES } from './world/masterplan-built.js';
 import { RESIDENT_STYLES } from './world/resident-models.js';
 import { buildNarromine } from './world/narromine.js';
+import { addNarromineResidentialFacades } from './world/narromine-residential-facades.js';
 import { createPlayerFlight } from './world/player-flight.js';
 import { AERODROME } from './world/narromine-airfield-data.js';
 import { createNarromineTrains } from './world/narromine-trains.js';
@@ -71,6 +72,7 @@ import { populateShopStaff } from './world/shop-staff.js';
 import { facilityAccess, restrictedServiceAction } from './world/facility-access.js';
 import { atCivicEntrance, closedCivicDoorPose, civicStreetDirection } from './world/civic-entrance.js';
 import { createShopVisitors } from './world/shop-visitors.js';
+import { createIndoorResidentStyles } from './world/indoor-resident-styles.js';
 import { loadFurniture } from './world/furniture.js';
 import { createFloorStack, FLOOR_HEIGHT } from './world/multifloor.js';
 import { townView } from './world/windows.js';
@@ -216,6 +218,7 @@ async function start() {
   }
   // Town life: farms, shops, trucks and 32 villagers with jobs and meals (src/world/life.js).
   const townLife = createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog });
+  const indoorResidentStyles = createIndoorResidentStyles(townLife.residentModels);
   const life = townLife.life;
   // Separate fictional shunting siding: never controls Narromine freight or town main-line gates.
   const yard = createTownRailYard(town.group, life);
@@ -355,6 +358,10 @@ async function start() {
   // Doors must be reachable: test each against the town's solid geometry once, at load.
   const narromineDoorProbe=(x,z,r)=>!!townWorld.hits(x,z,r);
   const narromineDoorCheck={homes:narromineHomes.resolve(narromineDoorProbe),workplaces:narromineWorkplaces.resolve(narromineDoorProbe)};
+  // Attach cosmetic doors only after resolving reachable home thresholds, so a
+  // walk-in house's visible door agrees with its existing entry/return sensor.
+  const narromineFacadeAudit = addNarromineResidentialFacades(
+    narromine.group, undefined, undefined, narromineHomes.doors);
   // Dynamic vehicle footprints block player motion as well as truck movement.
   // A vehicle is approx 2.2m wide and 6.6m long; use a conservative
   // rotated-axis AABB for the town's existing 2D collision engine.
@@ -562,6 +569,7 @@ async function start() {
     if(!floors.isPub)inside.workplay?.dispose();
     inside.bakeryImmersion?.dispose();
     if(floors.isPub)Object.assign(floors.levels[inside.floorIndex],{people:inside.people,visitors:inside.visitors,workplay:inside.workplay});
+    indoorResidentStyles.clear();
     scene.remove(inside.group);
     const next = floors.levels[target];
     inside = { house, ...next, place:inside.place,floorIndex:target, floors, people:next.people || [], view:inside.view, ownMeshes:inside.ownMeshes };
@@ -925,6 +933,7 @@ async function start() {
     inside.bakeryImmersion?.dispose();
     inside.workplay?.dispose();
     if(inside.floors?.isPub)for(const level of inside.floors.levels)if(level.workplay!==inside.workplay)level.workplay?.dispose();
+    indoorResidentStyles.clear();
     scene.remove(inside.group);
     for (const group of (inside.floors ? inside.floors.levels.map(x => x.group) : [inside.group])) {
       group.traverse((o) => { if (o.isSprite) disposeLabel(o); else if (o.geometry && o.geometry.type !== 'BoxGeometry') o.geometry.dispose(); });
@@ -2223,6 +2232,9 @@ async function start() {
         // Shop patrons are synchronised with the authoritative town economy
         // above; they have their own movement and seated animation.
         for (const p of inside.people || []) if(!p.key?.startsWith('visitor:'))p.update(dt,t,player,p.plan);
+        // Reuse the outdoor renderer for already-spawned indoor staff and patrons.
+        // Style changes now take effect in the current room after model loading.
+        indoorResidentStyles.sync(inside.people, dt);
         inside.afterPeople?.(life,dt,t);
         if (cardTimer > 0 && (cardTimer -= dt) <= 0) $('card').hidden = true;
         // A single short label may identify the object directly ahead;
@@ -2450,8 +2462,9 @@ async function start() {
     stepVehicle:(seconds)=>{const moved=driving.update(seconds);if(driving.message){status(driving.message);driving.clearMessage();}return moved;},
     shops:()=>[...life.places.values()].map(p=>({id:p.id,name:p.name,kind:p.kind,side:p.side||null,expansion:!!p.expansion,door:{x:p.x,z:p.door.z}})),
     enterShop,
-    residentStyle:(id)=>{ if(id){ townLife.residentModels.setStyle(id); renderResidentStyles(); } return { style: townLife.residentModels.style(), ready: townLife.residentModels.ready(), wearing: townLife.residentModels.wearing() }; },
+    residentStyle:(id)=>{ if(id){ townLife.residentModels.setStyle(id); renderResidentStyles(); } return { style: townLife.residentModels.style(), ready: townLife.residentModels.ready(), wearing: townLife.residentModels.wearing(), indoors: indoorResidentStyles.wearing() }; },
     residentStyleReady:()=>townLife.residentModels.whenReady(),
+    narromineResidentialFacades:()=>narromineFacadeAudit,
     enterCountryHome:(id)=>{const h=masterplan.homes.find(x=>x.parcelId===id||x.country===id||x.address===id);return h?enterCountryHome(h):false;},
     countryHomes:()=>masterplan.homes.map(h=>({id:h.parcelId,address:h.address,country:h.country,frontZ:h.frontZ,x:h.x,facesNorth:h.facesNorth})),
     setFloor:(i)=>changeFloor(i),

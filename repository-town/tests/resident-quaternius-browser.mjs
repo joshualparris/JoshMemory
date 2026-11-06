@@ -94,6 +94,24 @@ try {
   assert.equal(style.style, 'quaternius');
   assert.ok(style.wearing > 0, 'nearby residents wear the rigged model: ' + style.wearing);
   await game.screenshot({ path: `${folder}/game-quaternius-residents.png` });
+  // The previous browser test checked ONLY outdoors. A library patron/staff member
+  // must use the same rigged style, including after changing the option in-room.
+  const facadeAudit = await game.evaluate(() => window.__town.narromineResidentialFacades());
+  assert.ok(facadeAudit.facades > 500, 'hundreds of Narromine mapped homes have visible front doors');
+  assert.equal(facadeAudit.doors, facadeAudit.facades);
+  await game.evaluate(() => { window.__town.closePanel?.(); window.__town.life.setTime(10 * 60); window.__town.life.run(20); });
+  const enteredLibrary = await game.evaluate(() => window.__town.enterShop('library'));
+  assert.equal(enteredLibrary, true, 'walk into an open library with on-duty staff');
+  await game.waitForFunction(() => window.__town.residentStyle().indoors > 0, null, { timeout: 15000 });
+  await game.screenshot({ path: `${folder}/game-quaternius-library.png` });
+  await game.evaluate(() => window.__town.residentStyle('classic'));
+  await game.waitForFunction(() => window.__town.residentStyle().style === 'classic' &&
+    window.__town.residentStyle().indoors === 0, null, { timeout: 8000 });
+  await game.screenshot({ path: `${folder}/game-classic-library.png` });
+  await game.evaluate(() => window.__town.residentStyle('quaternius'));
+  assert.equal(await game.evaluate(() => window.__town.residentStyleReady()), true);
+  await game.waitForFunction(() => window.__town.residentStyle().indoors > 0, null, { timeout: 15000 });
+  await game.screenshot({ path: `${folder}/game-quaternius-library-after-switch.png` });
   assert.deepEqual(errors, [], 'zero page errors across comparison and game: ' + errors.join('; '));
   console.log(`PASS Quaternius resident comparison and in-game style: procedural ${initial.proceduralMeshes} meshes vs rigged ${initial.quaterniusMeshes}; ${initial.calls} calls/${initial.triangles} triangles; ${style.wearing} in-game models; screenshots in ${folder}/`);
 } finally {
