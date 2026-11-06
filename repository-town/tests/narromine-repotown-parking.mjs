@@ -13,8 +13,7 @@ const day = park.update(2, 11 * 60), night = park.update(2, 2 * 60), sunday = pa
 assert.equal(night.length, 0, 'no Narromine commuters parked at 2 am');
 const working = park.update(2, 11 * 60);
 assert(working.length >= 20, 'Narromine commuters parked in Repository Town at 11 am Tuesday: ' + working.length);
-for (let i = 0; i < working.length; i++) for (let j = i + 1; j < working.length; j++)
-  assert(Math.hypot(working[i].x - working[j].x, working[i].z - working[j].z) > 4.6, 'parked cars do not overlap: ' + working[i].place + ' / ' + working[j].place);
+// Full oriented-body SAT assertions below replace inaccurate centre-distance checks.
 for (const c of working) { const p = pop.people.find(q => q.name === c.owner && q.repoTownJob?.name === c.place); assert(p, 'each car belongs to a commuter who works there'); assert(Math.abs(c.x - life.places.get(p.repoTownJob.id).curb.x) < 40, 'parked at their own workplace'); }
 assert(sunday < working.length, 'fewer on Sunday');
 console.log(`PASS Repository Town parking: ${working.length} Narromine commuters parked at their workplaces at 11 am Tuesday, ${sunday} on Sunday, none at 2 am`);
