@@ -76,6 +76,8 @@ try {
   await game.route('**/api/npc-chat', (r) => r.abort('connectionrefused'));
   await game.goto(base);
   await game.waitForFunction(() => window.__town && document.getElementById('loading').hidden, null, { timeout: 90000 });
+  const initialStyle = await game.evaluate(() => window.__town.residentStyle());
+  assert.equal(initialStyle.style, 'quaternius', 'a new installation defaults to the rigged resident style');
   await game.evaluate(() => { window.__town.closePanel?.(); window.__town.residentStyle('quaternius'); window.__town.life.setTime(8 * 60 + 20); window.__town.life.run(15); });
   const ready = await game.evaluate(() => window.__town.residentStyleReady());
   assert.equal(ready, true, 'Quaternius style loads in-game');
