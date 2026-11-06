@@ -30,12 +30,17 @@ const geo = (kind) => {
   return geometries.get(kind);
 };
 const BOX = 'box', BALL = 'ball', CYL = 'cyl', CAP = 'capsule', CONE = 'cone';
+// While an outfit is being rebuilt every garment mesh (including sleeves attached to arm
+// bones, legwear on knee bones and hats on the head) is recorded here so the next outfit can
+// remove all of it. Without this, switching home/work/rain repeatedly accumulated geometry.
+let garmentCollector = null;
 function add(parent, kind, colour, size, pos, rot = null, opts = null) {
   const m = new THREE.Mesh(geo(kind), mat(colour, opts));
   m.scale.set(...size);
   m.position.set(...pos);
   if (rot) m.rotation.set(...rot);
   parent.add(m);
+  if (garmentCollector) garmentCollector.push(m);
   return m;
 }
 const ring = (parent, colour, size, pos, rot, opts) => add(parent, 'cyl', colour, size, pos, rot, opts);
@@ -204,6 +209,9 @@ export function buildHair(identity) {
 function addGarment(fig, outfit, identity) {
   const g = fig.clothing;
   while (g.children.length) g.remove(g.children[0]);
+  if (fig._garmentParts) for (const part of fig._garmentParts) part.parent?.remove(part);
+  fig._garmentParts = [];
+  garmentCollector = fig._garmentParts;
   const s = identity.skin, b = identity.body, base = identity.clothing;
   const top = outfit.top, bottom = outfit.bottom;
   const torsoColour = top.colour;
@@ -322,6 +330,7 @@ function addGarment(fig, outfit, identity) {
       add(fig.head, 'cyl', hw.colour, [.23, .17, .21], [0, .36, 0]);
     }
   }
+  garmentCollector = null;
 }
 
 function buildProps(fig, identity) {
@@ -431,7 +440,9 @@ export function makeResidentFigure(identityOrId, person = {}, options = {}) {
     }
   };
   // LOD: 0 full face/hands, 1 no micro detail, 2 silhouette only. Hair and eyes remain readable.
-  fig.setLod = (level = 0) => {
+  // Manual calls (Studio, screenshots) take precedence over the automatic distance sensor.
+  fig.setLod = (level = 0, { manual = true } = {}) => {
+    if (manual) fig.lodMode = 'manual';
     level = Math.max(0, Math.min(3, level | 0));
     if (fig.lod === level) return;
     fig.lod = level;
@@ -456,9 +467,10 @@ export function makeResidentFigure(identityOrId, person = {}, options = {}) {
   sensor.name = 'resident-lod-sensor'; sensor.frustumCulled = false; sensor.renderOrder = 999; g.add(sensor);
   const sensorWorld = new THREE.Vector3();
   sensor.onBeforeRender = (renderer, scene, camera) => {
+    if (fig.lodMode === 'manual') return;
     sensor.getWorldPosition(sensorWorld);
     const d = sensorWorld.distanceTo(camera.position);
-    fig.setLod(d > 48 ? 3 : d > 24 ? 2 : d > 12 ? 1 : 0);
+    fig.setLod(d > 48 ? 3 : d > 24 ? 2 : d > 12 ? 1 : 0, { manual: false });
   };
   // Apply the initial outfit key and initial pose.
   fig.props.bag.visible = !!outfit.bag;
