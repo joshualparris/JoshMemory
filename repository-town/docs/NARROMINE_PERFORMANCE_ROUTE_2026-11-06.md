@@ -4,7 +4,7 @@ Status: **measurement only.** No game source, rendering, LOD, collision or geome
 
 ## What it measures
 
-`tools/narromine-visual-qa/perf-route.mjs` walks the already-merged, deterministic `NARROMINE_QA_LOCATIONS` poses — the eight priority Narromine viewpoints (Royal Hotel, Narromine Hotel, Post Office, Coles & Kierath's, and the rest of the corridor) — and at each stop records:
+`tools/narromine-visual-qa/perf-route.mjs` walks the already-merged, deterministic `NARROMINE_QA_LOCATIONS` poses — the six priority Narromine viewpoints (Royal Hotel, Narromine Hotel, Post Office, Coles & Kierath's, Kierath's arcade courtyard and an ordinary street) — and at each stop records:
 
 - real `requestAnimationFrame` frame times, summarised as average fps, 1% low, p95, worst frame and the count of >50 ms hitches (via the shared `src/ui/perf-meter.js` `frameStats`);
 - draw calls, triangles and render pixel ratio from the live renderer (`window.__town.state()`);
@@ -25,6 +25,10 @@ node tools/narromine-visual-qa/perf-route.mjs --viewports desktop
 ```
 
 The `Narromine Performance Route (desktop + Android emulation)` workflow runs the same command on `ubuntu-24.04` and uploads the JSON/CSV artifact.
+
+## Reference run (2026-11-06, local software WebGL)
+
+A full local run produced 12 stop-measurements (6 stops × desktop + Android emulation), all reporting rendered Narromine geometry. Mean per stop: desktop ~251 draw calls / ~1.24M triangles; Android emulation ~129 draw calls / ~1.06M triangles. Average fps was ~1.5 (desktop) and ~3.0 (Android) **because this machine and the CI job use software SwiftShader**, so treat fps as a relative cost signal, not a device frame rate. The draw-call and triangle counts are the useful cross-stop comparison; the CI workflow uploads the exact `perf-route.json`/`.csv` artifact for the authoritative run.
 
 ## Method and honesty
 
