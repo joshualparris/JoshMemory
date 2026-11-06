@@ -39,6 +39,7 @@ import { whoIsAt, narromineCommutersAt } from './world/narromine-population.js';
 import { createNarrominePedestrians } from './world/narromine-pedestrians.js';
 import { createColesSupply, COLES_STOCK } from './world/narromine-coles-supply.js';
 import { createRepoTownCommuterParking } from './world/narromine-commuters-parked.js';
+import { vehicleFootprintsOverlap } from './world/vehicle-occupancy.js';
 import { createNarromineWorkplaceIndex, buildNarromineWorkplaceInterior } from './world/narromine-workplaces.js';
 import { createTownRailYard } from './world/town-rail-yard.js';
 import { NARROMINE_POST_OFFICE_SAVE_ID, NARROMINE_POST_OFFICE_ENTRANCE, nearNarrominePostOfficeDoor, buildNarrominePostOfficeInterior, createNarrominePostalOutdoorActor } from './world/narromine-post-office.js';
@@ -254,7 +255,25 @@ async function start() {
   const narromineHomes = createNarromineHomeIndex(narromineTraffic.commute.population);
   const colesSupply = createColesSupply(narromineTraffic.commute.population);
   // Narromine commuters' cars parked at their Repository Town workplaces while they are on shift.
-  const rtCommuterParking = createRepoTownCommuterParking(town.group, narromineTraffic.commute.population, life);
+  const rtCommuterParking = createRepoTownCommuterParking(
+    town.group,narromineTraffic.commute.population,life,{
+      // The CollisionWorld static spatial index already contains the true lot
+      // buildings, doors, poles, vegetation and civic blockers. Validate the
+      // whole perpendicular parked body, never just its centre point.
+      parkingClear: candidate=>{
+        const radius=candidate.L/2+2;
+        for(const solid of townWorld.near(candidate.x,candidate.z,radius)){
+          const w=solid.x1-solid.x0,d=solid.z1-solid.z0;
+          if(w<=0||d<=0)continue;
+          if(vehicleFootprintsOverlap(candidate,{
+            x:(solid.x0+solid.x1)/2,z:(solid.z0+solid.z1)/2,
+            yaw:0,L:d,widthM:w
+          },0.2))return false;
+        }
+        return true;
+      },
+    }
+  );
   let rtParkingTimer = 0;
   // Repository Town workplace panels list the Narromine residents on shift there.
   life.narromineCommuters=(id)=>narromineCommutersAt(narromineTraffic.commute.population,id,townDate(life.day).weekday,Math.floor(life.minute));
