@@ -900,3 +900,8 @@ Hosted desktop PASS: fresh Calm/compact defaults; Standard/Calm switching; retur
 Initial immediately-after-deploy desktop cold load encountered three transient GitHub Pages 503 module responses. Each subsequently returned HTTP 200; one reload started the town successfully. Fresh phone cold load then succeeded without retry. Keep this transient in the evidence rather than claiming every initial request was clean.
 
 Complete within approved separate-QA scope. Draft source PR remains available for overlap review with #515/#518; production promotion, physical-handset/FPS acceptance and long-session hosted traffic testing are not claimed.
+# Generic-only building fit-outs start: 7 November 2026
+
+Owner Perplexity Computer cloud; branch `feat/generic-building-fitouts-20261107`, integration baseline `66561b06`. Original request: more realistic building interiors/exteriors. Latest clarification: do NOT edit handcrafted buildings, only generic ones. Preserve #520 upstream safety fixes and Calm playtest features; no stale whole-file replacement.
+
+Claimed purpose-specific generic modules, additive prop types and minimal fallback-only dispatch hooks. Explicit generic expansion-site allowlist; Narromine fallback kinds only when no FIT/evidence/dedicated interior exists. Existing handcrafted exterior/interior geometry must compare identically against baseline. No real-location exterior objects added without evidence. First: browser sample existing generic salon/laundry and protect current bespoke output fixtures; then implement, test and prepare review. Publication requires separate approval.
