@@ -1,5 +1,10 @@
 # Workspace engineering rules
 
+## DeepSeek / Repository Town efficiency
+
+When DeepSeek (Lenovo or ProBook harness) works on Repository Town, **first read** [the token-efficiency guide](repository-town/docs/DEEPSEEK_TOKEN_EFFICIENCY.md) and the applicable [Repository Town agent rules](repository-town/AGENTS.md). Do not repeatedly ingest the huge coordination/checkpoint logs; search relevant entries by task ID/feature. This is an efficiency supplement, never a waiver of existing privacy, cross-agent ownership, tests, merge or deployment verification.
+
+
 All coding-agent work under `/home/josh` follows [ENGINEERING_PRINCIPLES_v5.1.md](/home/josh/ENGINEERING_PRINCIPLES_v5.1.md).
 
 Before changing a repository:
