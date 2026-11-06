@@ -11,7 +11,7 @@
   "sourceBlobs": {
     "repository-town/audit/electricity/coverage.json": "f80df771b893799e27b3adc98b92fe335c13f28b",
     "repository-town/src/world/interior-kit.js": "476414298879b8a8f80546ffc8c302b7778aa6ed",
-    "repository-town/src/world/life.js": "26ded9ee7da42a8a4b1f00fd20519d61e2f89dd8",
+    "repository-town/src/world/life.js": "2c97809422dd4be55672d31e07f305092ce9efad",
     "repository-town/src/world/power-grid.js": "6de3f54d8fe576117594fe36124748e36da4e255",
     "repository-town/src/world/pub-interior.js": "46396a0552d2480f3c31585e77199803433ab6b6",
     "repository-town/src/world/shop-interior.js": "a558de8daf279c89b2c0cbd3ab874b8bd0960546",
@@ -1275,6 +1275,16 @@
         "repository-town/src/main.js"
       ],
       "finding": "main.js workplace entry message wording; no pub change."
+    },
+    {
+      "date": "2026-11-06",
+      "by": "ChatGPT (reconciled Claude linked industries PR #457 to current main)",
+      "changedFiles": [
+        "repository-town/src/world/life.js",
+        "repository-town/src/ui/townpanels.js",
+        "repository-town/src/world/linked-industries.js"
+      ],
+      "finding": "Restored finite grazing, vet care, hardware materials, stockfeed and existing pub's external four-keg invoice. Existing licensed pub RSA and age/service rules unchanged, source registered; 171 worker IDs and separate ABS 470 resident register preserved."
     },
     {
       "date": "2026-11-06",

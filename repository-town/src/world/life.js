@@ -13,6 +13,7 @@ import { tickElectricalPilot, validElectricalPilotState } from './electrical-pil
 import {workAssetFault} from './occupation-work.js';
 import { placeAddress } from './addresses.js';
 import {soyState,soyAction,soyHourly,soyReport,takeSoyShipment,deliverSoyShipment} from './soy-chain.js';
+import {industries,industriesHour,industryReport,herdReport,reportSickAnimal,animalProductionFactor} from './linked-industries.js';
 import { shopService, theName } from './shop-attendance.js';
 import { coldChainHour, shopWasteDay } from './cold-chain.js';
 import { COUNTERS, joinLine, tickCounter, placeOrder, readyOrders } from './counter-queue.js';
@@ -600,6 +601,7 @@ export class TownLife {
     this.obstacles = []; // set by the renderer each frame: [{x, z}] (the player)
     for (const t of this.trucks) t.driver = this.villagers.find((v) => v.job === 'truck driver' && !this.trucks.some((o) => o.driver === v)) || null;
     soyState(this);
+    industries(this);
     this.place('soyfarm').till=200;
     this.place('soyplant').till=300;
     createGovernment(this);
@@ -996,6 +998,9 @@ export class TownLife {
   eatItem(good) { if(['pub_beer','pub_bottled_beer'].includes(good))return drinkPubBeer(this,good);return eatPlayer(this,good); }
   soyAction(site,action){return soyAction(this,site,action);}
   soyReport(){return soyReport(this);}
+  industryReport(){return industryReport(this);}
+  farmAnimals(farm){return herdReport(this,farm);}
+  reportAnimalIllness(farm,id){return reportSickAnimal(this,farm,id);}
   orderCafe(itemId) { return orderCafe(this,itemId); }
   // The visitor's ticket is called: a café order is brought to the table, a menu dish goes in the bag.
   collectOrder(o) {
@@ -1088,7 +1093,7 @@ export class TownLife {
         const hands = at(p.id).length;
         // Farms stop picking once their shed is full (60), so unsold produce doesn't pile up forever.
         if (hands && this.open(p) && (p.out[p.makes] || 0) < 60) {
-          const n = Math.round((2 + 3 * p.growth) * hands * (FARM_YIELD[p.makes] || 1) * Math.max(1, this.villagers.length/38));
+          const n = Math.round((2 + 3 * p.growth) * hands * (FARM_YIELD[p.makes] || 1) * Math.max(1, this.villagers.length/38) * animalProductionFactor(this, p.id));
           p.out[p.makes] = (p.out[p.makes] || 0) + n;
           this.stats.harvested[p.makes] = (this.stats.harvested[p.makes] || 0) + n;
           if (p.makes === 'grain' && p.growth > 0.9) { p.growth = 0.3; this.log(`The wheat paddock was harvested. ${n} bags of grain went into the silo.`); }
@@ -1098,6 +1103,7 @@ export class TownLife {
     const h = Math.floor(this.minute / 60);
     this.utilitiesHour(h, at);
     soyHourly(this);
+    industriesHour(this, h);
     const powered = this.gridPowered('bakery');
     const mill = this.place('mill');
     const batch = Math.min(2, Math.floor((mill.stock.grain || 0) / 3));
