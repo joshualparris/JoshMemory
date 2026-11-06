@@ -15,6 +15,13 @@ import {PLAN_HOMES} from '../src/world/masterplan-built.js';
 import {dossierFor} from '../src/world/country-dossiers.js';
 const label=()=>new THREE.Object3D();
 const pop=createNarrominePopulation(),index=createNarromineWorkplaceIndex(pop);
+const doorGroups=new Map();
+for(const e of index.list){
+  const key=e.door.x.toFixed(3)+','+e.door.z.toFixed(3);
+  if(!doorGroups.has(key))doorGroups.set(key,[]);
+  doorGroups.get(key).push({id:e.workplace.id,name:e.workplace.name});
+}
+const sharedEntrances=[...doorGroups.values()].filter(g=>g.length>1);
 const workplaceSource=fs.readFileSync(new URL('../src/world/narromine-workplaces.js',import.meta.url),'utf8');
 const fitKinds=new Set([...workplaceSource.match(/const FIT = \{([\s\S]*?)\n\};/)[1].matchAll(/^\s{2}(\w+):/gm)].map(m=>m[1]));
 const civic=EXPANSION_SITES.map(s=>{
@@ -36,7 +43,8 @@ const workplaces=index.list.map(e=>{
   return {id:w.id,name:w.name,kind:w.kind,passTwo:!!REMAINING_KIND_PROFILES[w.kind],
     interior:built.genericFitout?.key||'dedicated-template-or-evidence-preserved',
     rooms:built.rooms.map(r=>r.name),evidence:built.genericFitout?.evidenceLevel||'existing',
-    unresolvedFallback:!built.genericFitout&&!fitKinds.has(w.kind)};
+    unresolvedFallback:!built.genericFitout&&!fitKinds.has(w.kind),
+    sharedEntranceWith:sharedEntrances.find(g=>g.some(x=>x.id===w.id))?.filter(x=>x.id!==w.id)||[]};
 });
 const countries=PLAN_HOMES.map(h=>({country:h.design.country,parcelId:h.parcelId,
   interior:dossierFor(h.design.country)?'researched-preserved':'generic-finish-layer',
@@ -49,12 +57,14 @@ const data={asOf:'2026-11-07',baseline:'f5502d24',publication:'not published; ap
     remainingLiveLegacyPlaceholders:legacy.filter(x=>x.liveIndoor&&x.interior==='legacy-shared-office').length,
     mappedWalkInWorkplaces:workplaces.length,newMappedWorkplaces:workplaces.filter(x=>x.passTwo).length,
     unresolvedMappedFallbacks:workplaces.filter(x=>x.unresolvedFallback).length,
+    sharedMappedEntranceGroups:sharedEntrances.length,
+    mappedWorkplacesAtSharedEntrances:sharedEntrances.reduce((n,g)=>n+g.length,0),
     newCountryFinishes:countries.filter(x=>x.interior==='generic-finish-layer').length,
     protectedCountryDossiers:countries.filter(x=>x.interior==='researched-preserved').length,
     allCountryExteriors:countries.length,narromineHouseholdInteriors:pop.homes.length,
     narromineFillHouses:FILL_HOUSES.length,narromineBoxBuildings:BUILDINGS.length,
     narromineFillShops:FILL_SHOPS.length,narromineFrontages:FRONTAGES.length},
-  civic,legacy,workplaces,countries};
+  civic,legacy,workplaces,countries,sharedEntrances};
 if(!process.argv.includes('--markdown'))console.log(JSON.stringify(data,null,2));
 else{
   const s=data.summary;
@@ -76,13 +86,16 @@ else{
   lines.push('',
     '## Narromine fallback inventory','','All rows below are interpretive interiors, not surveyed floor plans. No real-location exterior geometry was changed.','',
     '| Location | Kind | New category |','|---|---|---|');
-  for(const x of workplaces.filter(x=>x.passTwo))lines.push(`| ${x.name.replaceAll('|','/')} | \`${x.kind}\` | ${GENERIC_PROFILES[x.interior].title} |`);
+  for(const x of workplaces.filter(x=>x.passTwo))lines.push(`| ${x.name.replaceAll('|','/')}${x.sharedEntranceWith.length?' (shared entrance)':''} | \`${x.kind}\` | ${GENERIC_PROFILES[x.interior].title} |`);
   lines.push('','## Wider generator audit and remaining limits','',
     `- **Narromine homes:** ${s.narromineHouseholdInteriors} occupied home entries use household-specific lounge/kitchen, bathroom, laundry and age-specific bedrooms. These are not the business placeholder and were not changed. They remain procedural and unmeasured; the count is not a claim that every home has unique architecture.`,
     `- **Narromine exterior generators:** ${s.narromineFillHouses} fill-house records, ${s.narromineBoxBuildings} box-building records, ${s.narromineFillShops} fill-shop records and ${s.narromineFrontages} frontage records were inventoried. These collections overlap and are not unique-building totals. Estimated shopfront and residential-facade generators remain interpretive; they need address-specific evidence before further real-location additions.`,
     '- **Repository houses:** the 188 authored repository briefs and their 34 exterior-style system remain untouched. Packed arcade games are separate applications, not town building fallbacks.',
     '- **Country-house limits:** the 193 fallback plans still share a compact three-room organisation. Better finishes do not make them country-specific surveyed architecture. Upper floors drawn outside remain inaccessible, as before; the dedicated researched dossiers are the route for deeper historical accuracy.',
     '- **Gameplay limits:** decorative equipment does not introduce new clinical treatment, childcare, animal-care, vehicle-washing or workshop gameplay. The existing ledger/workstation actions are retained. No compliance certification, physical-phone performance, production merge or live acceptance is claimed.','',
+    '## Shared-door limitation found during playtesting','',
+    `The current inherited door index has ${s.sharedMappedEntranceGroups} shared primary-door groups involving ${s.mappedWorkplacesAtSharedEntrances} workplace records. These are not unique physical building counts. Walking into the shared Photographer/Land Council/Butchery/Martin Schute Bell entrance selected Land Council, the first record, rather than Photographer. The new Photographer interior can be built and inspected directly, but this does not prove it is independently reachable by walking. This pass does not move surveyed/inferred entrances or change handcrafted tenants. A shared-entrance tenant selector is a separate gameplay follow-up; no claim of universal doorway accessibility is made.`,``,
+    ...sharedEntrances.map(g=>'- '+g.map(x=>x.name).join('; ')), '',
     '## Verification','',
     'Automated gates check fixture geometry extents, pairwise placement, centre-aisle/exit clearance, staff/service positions, workplace fixture containment, dispatch exclusions, placeholder coverage and frozen components. Browser QA must additionally inspect actual 3D results and keyboard/touch entry, service and exit, saved state and existing UI flows. Local release/privacy/integrity gates and any hosted acceptance are separate records in WORK_CHECKPOINT and progress.md.','',
     '## Reproduce','',

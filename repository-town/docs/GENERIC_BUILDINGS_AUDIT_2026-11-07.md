@@ -89,23 +89,23 @@ All rows below are interpretive interiors, not surveyed floor plans. No real-loc
 
 | Location | Kind | New category |
 |---|---|---|
-| Chill-Rite | `hvac` | Field-service depot |
+| Chill-Rite (shared entrance) | `hvac` | Field-service depot |
 | Narromine Tourist Park | `camp_site` | Visitor and park reception |
-| Narromine Aviation Museum | `museum` | Museum gallery |
+| Narromine Aviation Museum (shared entrance) | `museum` | Museum gallery |
 | HubnSpoke | `coworking` | Tutoring and shared work |
 | Narromine Courthouse | `courthouse` | Court reception and hearing room |
 | Narromine Animal Shelter | `animal_shelter` | Animal care |
-| Narromine Chiropractic | `alternative` | Wellbeing consultation |
-| B2B Abilities | `social_facility` | Accessible support centre |
-| Narromine Tobacco House | `tobacco` | Specialist retail |
-| Smokemart | `tobacco` | Specialist retail |
-| Narromine Mens Shed | `community_centre` | Repairs and parts |
-| Narromine Physiotherapy | `physiotherapist` | Physiotherapy and rehabilitation |
+| Narromine Chiropractic (shared entrance) | `alternative` | Wellbeing consultation |
+| B2B Abilities (shared entrance) | `social_facility` | Accessible support centre |
+| Narromine Tobacco House (shared entrance) | `tobacco` | Specialist retail |
+| Smokemart (shared entrance) | `tobacco` | Specialist retail |
+| Narromine Mens Shed (shared entrance) | `community_centre` | Repairs and parts |
+| Narromine Physiotherapy (shared entrance) | `physiotherapist` | Physiotherapy and rehabilitation |
 | The Abbey | `guest_house` | Visitor and park reception |
-| All Occassions | `jewelry` | Gifts and jewellery |
-| Photographer | `photographer` | Photography and framing |
-| Central West Tutoring | `educational_institution` | Tutoring and shared work |
-| Bottlemart | `alcohol` | Packaged beverages |
+| All Occassions (shared entrance) | `jewelry` | Gifts and jewellery |
+| Photographer (shared entrance) | `photographer` | Photography and framing |
+| Central West Tutoring (shared entrance) | `educational_institution` | Tutoring and shared work |
+| Bottlemart (shared entrance) | `alcohol` | Packaged beverages |
 | Narromine Car Wash | `car_wash` | Wash-bay equipment |
 | Mahindra Narromine | `car` | Vehicle sales and service |
 | Narromine Golf Club | `golf_course` | Sporting club lounge |
@@ -119,6 +119,26 @@ All rows below are interpretive interiors, not surveyed floor plans. No real-loc
 - **Repository houses:** the 188 authored repository briefs and their 34 exterior-style system remain untouched. Packed arcade games are separate applications, not town building fallbacks.
 - **Country-house limits:** the 193 fallback plans still share a compact three-room organisation. Better finishes do not make them country-specific surveyed architecture. Upper floors drawn outside remain inaccessible, as before; the dedicated researched dossiers are the route for deeper historical accuracy.
 - **Gameplay limits:** decorative equipment does not introduce new clinical treatment, childcare, animal-care, vehicle-washing or workshop gameplay. The existing ledger/workstation actions are retained. No compliance certification, physical-phone performance, production merge or live acceptance is claimed.
+
+## Shared-door limitation found during playtesting
+
+The current inherited door index has 15 shared primary-door groups involving 43 workplace records. These are not unique physical building counts. Walking into the shared Photographer/Land Council/Butchery/Martin Schute Bell entrance selected Land Council, the first record, rather than Photographer. The new Photographer interior can be built and inspected directly, but this does not prove it is independently reachable by walking. This pass does not move surveyed/inferred entrances or change handcrafted tenants. A shared-entrance tenant selector is a separate gameplay follow-up; no claim of universal doorway accessibility is made.
+
+- Chill-Rite; Macquarie Clothing; Narromine Mens Shed
+- Narromine Aviation Museum; Narromine Aero Club
+- Macquarie Regional Library; B2B Abilities; Verto; Joblink Plus
+- Narromine Hotel; Mirror Hair Lounge; BellaDonna
+- Narromine Shire Offices Customer Service and Payments; Regional Australia Bank
+- Imperial Hotel; Rain Agribusiness; All Occassions; Classic Catch Cafe; Rosie & Toots Vintage & Art; Hairdresser
+- Narromine RSL Club; Narromine USMC
+- The Court House Hotel; Central West Tutoring; Bottlemart
+- Vinnies; Zest; LJ Hooker
+- JBs's Bakery; Narromine Tobacco House; Beauty
+- Narromine Chiropractic; BEST Employment
+- AG n VET Services; Darling Irrigation
+- Country Traders - Home and Life; Smokemart
+- Narromine Physiotherapy; Narromine Battlers Mate
+- Narromine Local Aboriginal Land Council; Monaghan's Butchery; Martin Schute Bell; Photographer
 
 ## Verification
 
