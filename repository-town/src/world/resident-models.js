@@ -131,13 +131,13 @@ export function createResidentModels({ base = 'assets/people/' } = {}) {
     mixer.setTime(((look.seed >>> 7) % 100) / 37);
   }
   // Called once per frame per visible resident. Returns true when the model is drawing them.
-  function update(p, { dt, dist, moving, speed, talking, riding, carrying }) {
+  function update(p, { dt, dist, moving, speed, talking, riding, carrying, seated = false }) {
     if (p.model && (p.model.style !== style || !ready)) drop(p);
     if (!ready) return false;
     if (!p.model && dist > NEAR) return false;
     if (p.model && dist > FAR) { drop(p); return false; }
     if (!p.model) wear(p);
-    const m = p.model, want = riding ? 'ride' : moving ? (carrying ? 'carry' : 'walk') : talking ? 'talk' : 'idle';
+    const m = p.model, want = riding ? 'ride' : seated ? 'sit' : moving ? (carrying ? 'carry' : 'walk') : talking ? 'talk' : 'idle';
     if (m.quat) {
       m.quat.setState(want === 'ride' ? 'drive' : want);
       m.quat.update(dt);
