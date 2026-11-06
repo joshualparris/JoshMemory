@@ -10,6 +10,8 @@ import { chromium } from 'playwright';
 import { startStaticServer } from '../tools/narromine-visual-qa/run.mjs';
 
 const folder = process.env.RESIDENT_SCREENSHOT_DIR || 'test-results/resident-game';
+const mobile = process.argv.includes('--mobile');
+const tag = mobile ? 'phone-' : 'desktop-';
 fs.mkdirSync(folder, { recursive: true });
 const explicitUrl = process.argv.includes('--url') ? process.argv[process.argv.indexOf('--url') + 1] : process.env.TOWN_URL || '';
 let server = null, url = explicitUrl;
@@ -17,7 +19,7 @@ if (!url) { server = await startStaticServer(path.resolve('dist/public')); url =
 const browser = await chromium.launch({ channel: 'chrome', args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--no-sandbox'] });
 
 try {
-  const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  const page = await browser.newPage(mobile ? { viewport: { width: 393, height: 852 }, hasTouch: true, isMobile: true, deviceScaleFactor: 1 } : { viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1 });
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   page.on('console', (m) => { if (m.type() === 'error' && !/npc-chat|favicon|WebGL context could not/i.test(m.text())) errors.push(m.text()); });
@@ -25,6 +27,7 @@ try {
   await page.route('**/api/npc-chat', (r) => r.abort('connectionrefused'));
   await page.goto(url);
   await page.waitForFunction(() => window.__town && document.getElementById('loading').hidden, null, { timeout: 90000 });
+  await page.waitForFunction(() => window.__town.state().triangles > 1000, null, { timeout: 30000 });
 
   // Repository Town villagers carry the new detailed figure.
   await page.evaluate(() => { window.__town.closePanel?.(); window.__town.residentStyle('classic'); window.__town.life.setTime(8 * 60 + 20); window.__town.life.run(15); });
@@ -37,7 +40,7 @@ try {
   assert.ok(spot, 'found Repository Town villagers outdoors at 08:35');
   await page.evaluate((s) => window.__town.place(s.x, s.z + 8, 0), spot);
   await page.waitForTimeout(700);
-  await page.screenshot({ path: `${folder}/repo-town-villagers.png` });
+  await page.screenshot({ path: `${folder}/${tag}repo-town-villagers.png` });
   const townFigureCount = await page.evaluate(() => window.__town.townFigures().filter((f) => f.visible).length);
   assert.ok(townFigureCount > 0, 'Repository Town villagers are drawn');
 
@@ -51,7 +54,7 @@ try {
   await page.waitForTimeout(400);
   const homeInfo = await page.evaluate(() => window.__town.insideInfo());
   assert.ok(homeInfo && homeInfo.occupants, 'household interior built with occupants');
-  await page.screenshot({ path: `${folder}/narromine-home.png` });
+  await page.screenshot({ path: `${folder}/${tag}narromine-home.png` });
   await page.evaluate(() => document.getElementById('btn-exit').click());
   await page.waitForFunction(() => window.__town.narromineVisible(), null, { timeout: 15000 });
 
@@ -61,12 +64,12 @@ try {
   const enteredColes = await page.evaluate(() => window.__town.enterNarromineColes());
   assert.equal(enteredColes, true, 'entered Coles Narromine');
   await page.waitForTimeout(500);
-  await page.screenshot({ path: `${folder}/narromine-coles.png` });
+  await page.screenshot({ path: `${folder}/${tag}narromine-coles.png` });
 
   const hasCanvas = await page.evaluate(() => !!document.querySelector('canvas'));
   assert(hasCanvas, 'game canvas present');
   assert.deepEqual(errors, [], 'zero page errors during game verification: ' + errors.join('; '));
-  console.log(`PASS Resident figures in-game (Repo Town villagers, Narromine home, Coles); screenshots in ${folder}/`);
+  console.log(`PASS Resident figures in-game (${mobile ? 'Pixel 7-size' : 'desktop'}): Repo Town villagers, Narromine home, Coles; rendered WebGL screenshots in ${folder}/`);
 } finally {
   await browser.close();
   if (server) await server.close();
