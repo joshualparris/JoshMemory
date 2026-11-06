@@ -1192,11 +1192,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       p.bike.visible = !!v.bike && !v.engaged && v.path.length > 0;
       p.bag.visible = !!v.carrying && !p.bike.visible;
       const riding=p.bike.visible;
-      const distToEye = Math.hypot(v.x - eye.x, v.z - eye.z);
-      // Visual LOD: detailed faces near, a simplified head at middle distance and a
-      // seven-mesh street proxy far away. This is render-only; simulation is unchanged.
-      p.fig.group.userData.setLod?.(distToEye > 48 ? 3 : distToEye > 24 ? 2 : distToEye > 12 ? 1 : 0);
-      const modelled = residentModels.update(p, { dt, dist: distToEye, moving: moving && !riding, speed: moved / Math.max(dt, 1e-3), talking: !!v.engaged, riding, carrying: p.bag.visible });
+      const modelled = residentModels.update(p, { dt, dist: Math.hypot(v.x - eye.x, v.z - eye.z), moving: moving && !riding, speed: moved / Math.max(dt, 1e-3), talking: !!v.engaged, riding, carrying: p.bag.visible });
       if (!modelled) pose(p.fig, dt, t, moving&&!riding, moving || v.engaged);
       if(riding && !modelled){
         const pedal=Math.sin(t*8+p.fig.phase)*0.38;
@@ -1209,7 +1205,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
       // another 32cm made the bikes hover visibly above the street.
       p.fig.group.position.set(v.x, riding ? 0 : modelled ? 0 : moving ? Math.abs(Math.sin(t * 7 + p.fig.phase)) * 0.04 : 0, v.z);
       p.fig.group.rotation.y = p.heading;
-      const dist = distToEye;
+      const dist = Math.hypot(v.x - eye.x, v.z - eye.z);
       p.tag.visible = dist > 3 && !p.bubble;
       // A passing hello: a speech bubble for a few seconds, then quiet for a while.
       if (p.bubble && (p.bubbleT -= dt) <= 0) { p.fig.group.remove(p.bubble); p.bubble.material.map.dispose(); p.bubble.material.dispose(); p.bubble = null; }

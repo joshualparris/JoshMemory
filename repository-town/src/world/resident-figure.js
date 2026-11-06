@@ -448,6 +448,18 @@ export function makeResidentFigure(identityOrId, person = {}, options = {}) {
   g.userData.setOutfit = fig.setOutfit;
   g.userData.isResidentFigure = true;
   g.userData.advancedPose = (dt, t, moving, faceForward) => poseResident(fig, dt, t, moving, faceForward);
+  // Automatic distance LOD without any renderer edits: one invisible sensor mesh reports
+  // its distance to the active camera each frame and picks the LOD tier. This keeps the
+  // busy street cheap (proxy far away, full face near) while leaving pub-audited renderer
+  // files untouched. The sensor is one negligible draw call per visible person.
+  const sensor = new THREE.Mesh(new THREE.SphereGeometry(.001, 2, 2), new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false, depthTest: false }));
+  sensor.name = 'resident-lod-sensor'; sensor.frustumCulled = false; sensor.renderOrder = 999; g.add(sensor);
+  const sensorWorld = new THREE.Vector3();
+  sensor.onBeforeRender = (renderer, scene, camera) => {
+    sensor.getWorldPosition(sensorWorld);
+    const d = sensorWorld.distanceTo(camera.position);
+    fig.setLod(d > 48 ? 3 : d > 24 ? 2 : d > 12 ? 1 : 0);
+  };
   // Apply the initial outfit key and initial pose.
   fig.props.bag.visible = !!outfit.bag;
   poseResident(fig, 1 / 60, 0, false, false);
