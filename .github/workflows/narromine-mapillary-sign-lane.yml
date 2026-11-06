@@ -1,0 +1,37 @@
+name: Narromine Mapillary on-road sign evidence
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/narromine-mapillary-sign-lane.yml'
+      - 'repository-town/src/world/narromine-mapillary-sign-placement.js'
+      - 'repository-town/src/world/narromine-mapillary-objects.js'
+      - 'repository-town/tests/narromine-mapillary-sign-lane.mjs'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  safe-observation-geometry:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install pinned dependencies
+        working-directory: repository-town
+        run: npm ci --no-audit --no-fund
+      - name: Verify source records, original NSW regulatory faces and review mode
+        working-directory: repository-town
+        run: |
+          node --check src/world/narromine-mapillary-sign-placement.js
+          node --check src/world/narromine-mapillary-objects.js
+          node tests/narromine-mapillary-sign-lane.mjs
+          node tests/narromine-regulatory-signs.mjs
+      - name: Build real source and verify no secrets in public assets
+        working-directory: repository-town
+        run: |
+          npm run build:deploy
+          npm run check:privacy
