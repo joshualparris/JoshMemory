@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import { TownLife } from '../src/world/life.js';
 import { xpForLevel, levelForXp, level, addXp, skillsReport, TREES, swing, canChop, isStump, lightFire, liveFires,
-  buyTool, sellLogs, bagUsed, BAG_SLOTS, takeRackTools } from '../src/world/skills.js';
+  buyTool, sellLogs, bagUsed, BAG_SLOTS, takeRackTools, canCook, cookFood } from '../src/world/skills.js';
 import { hasItem, equippedType } from '../src/world/inventory.js';
 
 assert.deepEqual([xpForLevel(1), xpForLevel(2), xpForLevel(15), xpForLevel(30), xpForLevel(99)], [0, 83, 2411, 13363, 13034431]);
@@ -67,4 +67,30 @@ assert(u.restore(JSON.parse(JSON.stringify(t.snapshot()))));
 assert.deepEqual(skillsReport(u.civic.player).map((s) => [s.id, s.level]), skillsReport(me).map((s) => [s.id, s.level]));
 assert.equal(level(u.civic.player, 'woodcutting'), 15); assert(hasItem(u.civic.player, 'hatchet'));
 assert.deepEqual(u.civic.player.logs, me.logs);
-console.log('PASS: XP curve, tools from the till or the free Woodlot rack, chopping with levels/stumps/regrowth and a 28-slot bag, fires, conserved log sales, save and restore');
+
+// ── Cooking (docs/RUNESCAPE_ROADMAP.md item 9): raw bag goods cook on a fire into
+// meals that feed the hunger system; a burn wastes the ingredient. ──
+const ct = new TownLife({ homes, minute: 10 * 60, seed: 7 }), cMe = ct.civic.player;
+cMe.bag = { lamb: 2, veg: 1 };
+assert.match(canCook(cMe, 'veg'), /Cooking level 8/, 'vegetables need Cooking 8');
+assert.equal(canCook(cMe, 'lamb'), null, 'lamb can be cooked at level 1');
+assert.match(canCook(cMe, 'pie'), /cannot be cooked/, 'only recipes can be cooked');
+// A forced burn consumes the lamb and gives no XP.
+const burnt = cookFood(cMe, 'lamb', () => 0);
+assert(burnt.ok && burnt.burned); assert.equal(cMe.bag.lamb, 1); assert.equal(cMe.skills.cooking.xp, 0);
+// A successful cook turns it into roast lamb and grants Cooking XP.
+const cooked = cookFood(cMe, 'lamb', () => 0.999);
+assert(cooked.ok && cooked.cooked === 'cooked_lamb'); assert.equal(cMe.bag.lamb, 0); assert.equal(cMe.bag.cooked_lamb, 1);
+assert.equal(cMe.skills.cooking.xp, 30); assert.equal(level(cMe, 'cooking'), 1);
+// Reaching Cooking 8 unlocks vegetables (the level-up note says so).
+const upCook = addXp(cMe, 'cooking', xpForLevel(8) - cMe.skills.cooking.xp);
+assert(upCook.level >= 8 && /You can now cook vegetables/.test(upCook.message));
+assert.equal(canCook(cMe, 'veg'), null, 'vegetables are cookable at level 8');
+// Eating the cooked meal feeds the hunger system (FOOD_ENERGY 85).
+cMe.hunger = 90; const ate = ct.eatItem('cooked_lamb');
+assert(/Hunger is now 5%/.test(ate), ate); assert.equal(cMe.bag.cooked_lamb, 0); assert.equal(Math.round(cMe.hunger), 5);
+// Cooking XP and the cooked-meal bag save and restore with the town.
+const cu = new TownLife({ homes, minute: 10 * 60, seed: 7 });
+assert(cu.restore(JSON.parse(JSON.stringify(ct.snapshot()))));
+assert.equal(cu.civic.player.skills.cooking.xp, cMe.skills.cooking.xp);
+console.log('PASS: XP curve, tools from the till or the free Woodlot rack, chopping with levels/stumps/regrowth and a 28-slot bag, fires, conserved log sales, cooking with burns/levels/XP and hunger, save and restore');

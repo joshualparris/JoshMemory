@@ -99,7 +99,7 @@ import { buildWoodlot } from './world/woodlot.js';
 import { createGameTick, CHOP_TICKS, LIGHT_TICKS, LIGHT_GIVE_UP } from './world/game-tick.js';
 import { findPath } from './world/tap-path.js';
 import { createHatchetView } from './world/hatchet-view.js';
-import { canChop, canLight, swing, lightFire as lightLogs, isStump, skillsReport, takeRackTools, TREES } from './world/skills.js';
+import { canChop, canLight, swing, lightFire as lightLogs, cookFood, liveFires, isStump, skillsReport, takeRackTools, TREES } from './world/skills.js';
 import { buildCivilWorks } from './world/civil-works.js';
 import { nearestSeat } from './world/seats.js';
 import { furniturePanel } from './ui/furniture.js';
@@ -1107,7 +1107,18 @@ async function start() {
     status('You attempt to light the logs…');
     return 'You attempt to light the logs…';
   };
-  const openBag = () => openPanel(inventoryPanel(life.civic.player, { carried: carried?.label || null, drop:dropEquipment, onChange:persistItems, lightFire: lightHere }), guideSpot);
+  // Cooking (RUNESCAPE_ROADMAP.md item 9): cook a raw bag good only while standing
+  // beside a fire the player lit. One attempt per action, like RuneScape's cook.
+  const cookHere = (recipe) => {
+    if (mode !== 'town' || driving.driving) return 'Cook on a fire outdoors, on foot.';
+    const near = liveFires(life).some((f) => Math.hypot(f.x - player.pos.x, f.z - player.pos.z) <= 2.5);
+    if (!near) return 'Stand beside a lit fire to cook.';
+    const r = cookFood(life.civic.player, recipe);
+    persistItems();
+    if (r.levelUp) ambience.levelUp();
+    return r.message;
+  };
+  const openBag = () => openPanel(inventoryPanel(life.civic.player, { carried: carried?.label || null, drop:dropEquipment, onChange:persistItems, lightFire: lightHere, cook: cookHere }), guideSpot);
   $('btn-bag').onclick = openBag;
   $('btn-skills').onclick = () => openPanel(skillsPanel(life.civic.player), guideSpot);
   // Woodcutting, as in RuneScape: E on any tree turns you to face it and you keep swinging the
