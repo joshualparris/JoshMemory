@@ -32,14 +32,13 @@ try {
       await press(page.locator('#panel-close'));
       await panel.waitFor({state:'hidden',timeout:10000});
     }
-    // On phones the HUD starts minimised, hiding #hud-details (bag and skills).
-    // Expand it with the visible + control before the real tap.
-    const target = page.locator(id);
-    if (!(await target.isVisible())) {
-      const expand = page.locator('#btn-hud-toggle');
-      if (await expand.isVisible()) await press(expand);
+    // On phones the HUD intentionally starts minimised. Open it via the
+    // real touch toggle before tapping Bag/Skills; synthetic .click() hid this.
+    if (await page.locator('#hud').evaluate(el => el.classList.contains('hud-minimised'))) {
+      await press(page.locator('#btn-hud-toggle'));
+      await page.waitForFunction(() => !document.getElementById('hud').classList.contains('hud-minimised'));
     }
-    await press(target);
+    await press(page.locator(id));
   };
   // Deterministic setup through the exposed live simulation: a tinderbox, logs and lamb.
   await T(() => {
