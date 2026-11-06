@@ -108,4 +108,25 @@ const b = makeDistinctPerson('persist:1', { age: 30, gender: 'female' });
 const c = makeDistinctPerson('persist:2', { age: 30, gender: 'female' });
 assert.equal(a.group.userData.residentAppearance.signature, b.group.userData.residentAppearance.signature);
 assert.notEqual(a.group.userData.residentAppearance.signature, c.group.userData.residentAppearance.signature);
+
+// Issue #492: repeated outfit switching must not accumulate sleeve/leg/hat geometry.
+const outfitFig = makeResidentFigure(identityFor('outfit:leak', { age: 38, gender: 'female', job: 'nurse', workplaceKind: 'hospital' }));
+const meshCount = () => { let n = 0; outfitFig.group.traverse((o) => { if (o.isMesh) n++; }); return n; };
+const countsByOutfit = new Map();
+for (const activity of ['work shift', 'home', 'walk', 'home', 'work shift', 'asleep', 'work shift', 'walk', 'home']) {
+  outfitFig.setActivity(activity, { mode: activity === 'work shift' ? 'work' : 'home', minute: 600, weather: 'sunny', jobKind: 'hospital' });
+  const key = outfitFig._outfitKey;
+  const count = meshCount();
+  if (countsByOutfit.has(key)) assert.equal(count, countsByOutfit.get(key), 'outfit switch must replace, not accumulate: ' + activity);
+  else countsByOutfit.set(key, count);
+}
+assert.ok(outfitFig.group.getObjectByName('resident-lod-sensor'), 'LOD sensor still present');
+// Issue #492: manual LOD must not be overwritten by the automatic sensor.
+outfitFig.setLod(3);
+const sensor = outfitFig.group.getObjectByName('resident-lod-sensor');
+sensor.onBeforeRender(null, null, { position: new THREE.Vector3(100, 0, 0) });
+assert.equal(outfitFig.lod, 3, 'manual far LOD survives an automatic sensor update');
+outfitFig.setLod(0);
+assert.equal(outfitFig.lod, 0);
+
 console.log(`PASS resident figures: 36 detailed identities (${figures[0].identity.name}…), ${figures.reduce((n, f) => { let c = 0; f.group.traverse((o) => { if (o.isMesh) c++; }); return n + c; }, 0)} meshes checked; activity poses finite; sit/sleep/carry/work/eat props; LOD ${full}→${proxyMeshes} meshes; persistent signatures.`);

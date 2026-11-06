@@ -57,7 +57,15 @@ try {
   await page.waitForTimeout(400);
   const homeInfo = await page.evaluate(() => window.__town.insideInfo());
   assert.ok(homeInfo && homeInfo.occupants, 'household interior built with occupants');
+  assert.ok(homeInfo.figureIds?.length > 0, 'home interior exposes rendered resident ids');
+  assert.equal(new Set(homeInfo.figureIds).size, homeInfo.figureIds.length, 'home resident ids are unique');
   await page.screenshot({ path: `${folder}/${tag}narromine-home.png` });
+  const homeFigure = homeInfo.figurePositions[0];
+  if (homeFigure) {
+    await page.evaluate((f) => window.__town.place(f.x, f.z + 1.25, Math.atan2(0, -1)), homeFigure);
+    await page.waitForTimeout(250);
+    await page.screenshot({ path: `${folder}/${tag}narromine-home-closeup.png` });
+  }
   await page.evaluate(() => document.getElementById('btn-exit').click());
   await page.waitForFunction(() => window.__town.narromineVisible(), null, { timeout: 15000 });
 
@@ -67,7 +75,16 @@ try {
   const enteredColes = await page.evaluate(() => window.__town.enterNarromineColes());
   assert.equal(enteredColes, true, 'entered Coles Narromine');
   await page.waitForTimeout(500);
+  const colesInfo = await page.evaluate(() => window.__town.insideInfo());
+  assert.ok(colesInfo?.figureIds?.length > 0, 'Coles exposes rendered staff/shopper ids');
+  assert.equal(new Set(colesInfo.figureIds).size, colesInfo.figureIds.length, 'Coles figure ids are unique');
   await page.screenshot({ path: `${folder}/${tag}narromine-coles.png` });
+  const colesFigure = colesInfo.figurePositions[0];
+  if (colesFigure) {
+    await page.evaluate((f) => window.__town.place(f.x, f.z + 1.3, Math.atan2(0, -1)), colesFigure);
+    await page.waitForTimeout(250);
+    await page.screenshot({ path: `${folder}/${tag}narromine-coles-closeup.png` });
+  }
 
   const hasCanvas = await page.evaluate(() => !!document.querySelector('canvas'));
   assert(hasCanvas, 'game canvas present');

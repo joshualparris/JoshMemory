@@ -1,4 +1,9 @@
 ## 6 November 2026 — DANDALOO-001.3 surfaces/verges/kerbs/ramps evidence review (VERIFIED COMPLETE)
+# 2026-11-06 — RESIDENT-VISUAL-492 fixes
+
+Branch `fix/resident-visual-492-20261106` from main after #499. Fixes outfit geometry accumulation, manual LOD overriding, child occupations, id-only immutable phenotype, in-game figure-id/close-up evidence, outdated comparison wording, and pins pub-envelope/pub-p0 Playwright workflows to ubuntu-24.04. Evidence: identity/figure/showcase/game browser tests, build/privacy/pub audit; details `docs/RESIDENT_VISUAL_492_FIXES_2026-11-06.md`. PR pending; no deployment claim yet.
+
+## 6 November 2026 — DANDALOO-001.3 surfaces/verges/kerbs/ramps evidence review (START)
 
 Owner: DeepSeek (ProBook). Baseline `main` `c540f7d7`; branch `audit/dandaloo-surfaces-verges-ramps-20261106`. Read-only evidence review of the Dandaloo corridor surfaces — sealed asphalt, red shop-side paths, gravel verges, kerb/gutter widths, accessible ramps and roadside shoulders — against the already-documented dated NSW/OSM evidence. Deliverable: a numbered, geolocated defect register with per-item confidence and source in a new doc. Do not rebuild the merged curved returns (#400) or hotel forecourt (#401); no other agents' road/collision/traffic files. Narrowly-proven corrections only if the evidence supports them. Merged as PR #502 (squash) → main `42bd13c4`. Deliverable: `docs/NARROMINE_DANDALOO_SURFACES_001_3_2026-11-06.md` — ten-class defect register; six verified/evidence-backed, four honest gaps (verge material, kerb/gutter width, tactile ramps, shoulders) left unrendered. `narromine-road-surfaces.mjs` and `narromine-forecourt-footpaths.mjs` PASS; build + privacy PASS; Town safety gate, heritage, economy and Desktop+Android WebGL green. No gameplay source change.
 

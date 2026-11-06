@@ -75,6 +75,12 @@ export function occupationLabel(person = {}) {
   const kind = String(person.workplaceKind || person.kind || '').toLowerCase();
   const job = String(person.job || '').toLowerCase();
   const name = String(person.workplaceName || person.workplace || '');
+  const age = Number.isFinite(person.age) ? person.age : null;
+  // Pupils are pupils regardless of the building they attend. A school workplace must
+  // never turn an 8-year-old into a teacher.
+  if (person.role === 'child' || (age !== null && age < 18)) return age !== null && age < 5 ? 'preschool child' : 'student';
+  if (/student|pupil|school child/.test(job)) return 'student';
+  if (job === 'retired' || job === 'retiree') return 'retired';
   const byKind = {
     supermarket: 'supermarket team member', school: 'teacher', hospital: 'nurse', townhall: 'council officer',
     government: 'public servant', social_facility: 'support worker', doctors: 'doctor', pharmacy: 'pharmacist',
@@ -146,7 +152,9 @@ function inferGender(person, rng) {
 // Main identity record. `person` is optional; ids alone still produce a stable, plausible adult.
 export function identityFor(id, person = {}, options = {}) {
   const key = String(id ?? person.id ?? person.populationId ?? person.name ?? 'resident');
-  const rng = seededRandom(hashString(key + ':' + (person.role || '') + ':' + (person.job || '')));
+  // Phenotype is immutable: only the stable id seeds skin, hair, eyes, face and body.
+  // Role/job/workplace changes may change clothing and occupation, never the person's look.
+  const rng = seededRandom(hashString(key));
   const age = clamp(Math.round(inferAge(person)), 0, 100);
   const gender = inferGender(person, rng);
   const child = age < 13, teen = age >= 13 && age < 18, senior = age >= 68;
