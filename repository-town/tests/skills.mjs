@@ -89,8 +89,14 @@ assert.equal(canCook(cMe, 'veg'), null, 'vegetables are cookable at level 8');
 // Eating the cooked meal feeds the hunger system (FOOD_ENERGY 85).
 cMe.hunger = 90; const ate = ct.eatItem('cooked_lamb');
 assert(/Hunger is now 5%/.test(ate), ate); assert.equal(cMe.bag.cooked_lamb, 0); assert.equal(Math.round(cMe.hunger), 5);
+// Save a genuinely uneaten cooked meal; a zero count after eating cannot
+// prove that the new good persists across restart.
+const cookedVeg = cookFood(cMe, 'veg', () => .999);
+assert(cookedVeg.ok && cookedVeg.cooked === 'cooked_veg');
+assert.equal(cMe.bag.cooked_veg, 1);
 // Cooking XP and the cooked-meal bag save and restore with the town.
 const cu = new TownLife({ homes, minute: 10 * 60, seed: 7 });
 assert(cu.restore(JSON.parse(JSON.stringify(ct.snapshot()))));
 assert.equal(cu.civic.player.skills.cooking.xp, cMe.skills.cooking.xp);
+assert.equal(cu.civic.player.bag.cooked_veg, 1, 'uneaten cooked food persists through save/restore');
 console.log('PASS: XP curve, tools from the till or the free Woodlot rack, chopping with levels/stumps/regrowth and a 28-slot bag, fires, conserved log sales, cooking with burns/levels/XP and hunger, save and restore');
