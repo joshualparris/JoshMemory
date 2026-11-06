@@ -732,6 +732,19 @@ async function start() {
     status('Inside '+site.name+'. Fictional '+careResidents(site.id).length+' residents and live shifts of nurses, carers, catering and support staff. Consult the care team noticeboard. This is not a real resident floor plan.');
     return true;
   }
+  // Match Narromine's generated interior front door to its ACTUAL mapped
+  // street threshold. Translate the outside camera a little in front of the
+  // facade so the physical building does not occlude its own window view.
+  function narromineExteriorView(built, entry) {
+    if (!built?.exitZone || !entry) return null;
+    const ex = built.exitZone, outside = entry.out || entry.outside;
+    let nx = outside ? outside.x - entry.x : Math.sin(entry.yaw || 0);
+    let nz = outside ? outside.z - entry.z : Math.cos(entry.yaw || 0);
+    const len = Math.hypot(nx, nz) || 1; nx /= len; nz /= len;
+    return townView({ x: (ex.x0 + ex.x1) / 2, z: ex.z0 - 0.1 },
+      { x: entry.x + nx * 2.3, z: entry.z + nz * 2.3 },
+      Math.atan2(nx, nz));
+  }
   let lastDeniedEntrance = '', lastDeniedTime = 0;
   // Dedicated Narromine PO ground-floor retail visit. Reuses the actual modelled
   // postal counter, shelves and public circulation; no invented real staff names.
@@ -758,7 +771,8 @@ async function start() {
     if(mode!=='town'||driving.driving)return false;
     const pop=narromineTraffic.commute.population,built=buildNarromineHomeInterior(pop,d.home,makeLabel,life.day,life.minute),hh=built.household;
     inside={house:{coordinate:'NARROMINE-HOME:'+d.home.id,name:'The '+hh.surname+' household',address:hh.street+', Narromine NSW',kind:'home'},
-      ...built,floorIndex:0,floors:null,narromineHome:d};
+      ...built,floorIndex:0,floors:null,narromineHome:d,
+      view:narromineExteriorView(built,d.door)};
     scene.add(built.group);town.group.visible=false;
     scene.background.set(INDOOR);scene.fog=null;
     world=new CollisionWorld(built.colliders);
@@ -790,7 +804,8 @@ async function start() {
       return false;
     }
     inside={house:{coordinate:'NARROMINE-WORK:'+w.id,name:w.name,address:built.soulFoodEvidence?built.soulFoodEvidence.address:built.pharmacyEvidence?'53 Dandaloo Street, Narromine NSW 2821':'Narromine NSW',kind:w.kind},
-      ...built,floorIndex:0,floors:null,narromineHome:{home:{street:w.name},door:e.door,work:true}};
+      ...built,floorIndex:0,floors:null,narromineHome:{home:{street:w.name},door:e.door,work:true},
+      view:narromineExteriorView(built,e.door)};
     scene.add(built.group);town.group.visible=false;
     scene.background.set(INDOOR);scene.fog=null;
     world=new CollisionWorld(built.colliders);
@@ -821,7 +836,8 @@ async function start() {
     }
     const built=buildNarromineColesInterior(makeLabel,life.day,life.minute,whoIsAt(narromineTraffic.commute.population,'coles',townDate(life.day).weekday,Math.floor(life.minute)));
     inside={house:{coordinate:NARROMINE_COLES_SAVE_ID,name:'Coles Narromine',address:'76 Dandaloo Street, Narromine NSW',kind:'supermarket'},
-      ...built,floorIndex:0,floors:null};
+      ...built,floorIndex:0,floors:null,
+      view:narromineExteriorView(built,NARROMINE_COLES_ENTRANCE)};
     scene.add(built.group);town.group.visible=false;
     scene.background.set(INDOOR);scene.fog=null;
     world=new CollisionWorld(built.colliders);
