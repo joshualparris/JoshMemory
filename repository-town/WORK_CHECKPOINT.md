@@ -860,3 +860,17 @@ All 14 live stations passed unmocked Chromium playback with decoded media time a
 ## 6 November 2026: calm activity preference start
 
 Perplexity Computer cloud, `fix/calm-town-activity-20261106`, baseline `409ae5c2`. Scope: reversible Calm/Standard setting, fewer outdoor background actors and admitted traffic, compact HUD. Preserve all resident identities, jobs, simulation schedules, saves and geometry. Active PRs #515/#518 own spatial/vehicle collision work; do not replace their algorithms. Next: implement additive policy and test local desktop/mobile, build/privacy/integrity, isolated preview. No public release or physical-handset acceptance claimed.
+
+### Calm activity implementation and local acceptance
+
+Draft PR: https://github.com/joshualparris/JoshMemory/pull/519. M1 claim `6e65a5cd`, M2 implementation `d87fac50`. Latest main rechecked as `409ae5c2`.
+
+PASS: `npm run test:activity`, population-collision-sync, pedestrian-spatial, Narromine pedestrians and Repo Town commuter parking. Sampling admits 242/1,000 synthetic IDs; commuter simulation retains 3,274 people; school parked actors are 40 Calm vs 181 Standard. Engaged speakers retained and resident state not mutated.
+
+PASS: build, privacy scan (996 files, 1,116 markers), 1,518-file release fingerprint on `d87fac50`. Full release command is still running its broader simulation suite; no complete-release claim yet. Initial sparse checkout omitted docs/PR template; checkout repaired and suite restarted rather than concealing those initial setup failures.
+
+PASS desktop Chromium 1280×800: mode toggles, persisted Standard, Help/Bag/Map/Guide/Settings, Unstuck, focused-button keyboard movement, legitimately staffed General Store entry/exit after real simulation catch-up. PASS touch-emulated 375×812: Calm/compact defaults, 292×44 selector, no horizontal document overflow, Settings close, real CDP joystick movement, saved Calm and position reload. No page errors. This is not physical Android or FPS acceptance.
+
+Additional mobile source-CSS fix: expanded HUD title gets its own row, preserving the collapse button within panel bounds; expanded/collapse retested in Chromium. Game client smoke captured Calm state and screenshot; one console 404 was captured, with no failed game asset response in a separate fresh-context audit. Do not describe that client log as fully clean.
+
+`deploy_website` was attempted on the exact static build and rejected existing save/Pointer Lock APIs plus unchanged bundled arcade APIs. No APIs were stripped and no preview-host restriction bypassed. Next: complete release-suite result, retain draft PR pending overlap review, seek owner approval for deploying source branch to existing `qa/narromine/` staging, then test actual hosted version. Production/old links remain untouched.

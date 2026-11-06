@@ -3,3 +3,9 @@ Original prompt: Make the simulation less crowded, less traffic, easier and more
 - Baseline inspected in Chromium and canonical source located in JoshMemory/repository-town.
 - Existing main already contains spatial crowd repair; this change adds a reversible activity preference, not a replacement collision system.
 - Main flow inventory is outside the deployment folder in workspace/narromine.FLOWS.md.
+- Implemented Calm/Standard activity policy, stable quarter identity sampling, local crowd budget, lower moving/parked traffic admission, compact default HUD, and focused-button WASD repair.
+- PASS new activity/input regressions; existing pedestrian spatial/collision, commute walkers and parking regressions; desktop menu, movement and legitimately staffed shop entry/exit; touch-emulated 375×812 movement and persisted save/settings.
+- Phone expanded-HUD QA found an existing horizontally clipped collapse button; dedicated title row fixes it. Actual source stylesheet was tested in-browser; button fully inside HUD (x194–232 within x10–240), collapse works.
+- PASS build, privacy scan and release fingerprint on implementation d87fac50. Full release suite running separately.
+- Required game client captured screenshot and structured state (Calm, 14 visible outdoor residents); one console resource 404 was captured, no page exception. Separate fresh-context network audit found no failed game asset responses.
+- Perplexity preview deployment was attempted and blocked by unsupported existing save/Pointer Lock APIs plus bundled arcade APIs. Preserve saves and existing games; no bypass or degraded preview. GitHub draft PR #519 contains the change; normal staging publication needs owner approval.

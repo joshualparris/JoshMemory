@@ -150,6 +150,8 @@ body.playing #hud, body.playing #touch, body.playing #minimap, body.playing #pro
      Keep gameplay visible and the + / − control reachable while scrolling. */
   #hud:not(.hud-minimised) { max-height: min(74dvh, calc(100dvh - 20px)); overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
   #hud:not(.hud-minimised) .hud-heading { position: sticky; top: 0; z-index: 1; background: #101a2c; padding-bottom: 5px; }
+  #hud:not(.hud-minimised) .hud-heading { flex-wrap: wrap; }
+  #hud:not(.hud-minimised) .hud-heading h1 { flex: 1 0 100%; min-width: 0; }
   #hud button, #hud .btn-link { min-height: 40px; }
   #minimap { top: auto; bottom: 165px; width: 110px; height: 47px; pointer-events: none; }
   #card { top: auto; bottom: 165px; max-width: calc(100vw - 145px); max-height: 28dvh; overflow: auto; }

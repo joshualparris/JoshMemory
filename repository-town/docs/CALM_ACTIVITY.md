@@ -17,5 +17,7 @@ The policy does not alter collision or pedestrian spatial algorithms. Integrate 
 ## Focus repair
 WASD/arrow movement works when a HUD button retains focus. Text inputs and selects still consume keyboard input. Space/Enter keep their native button behaviour, Escape closes panels, and opening a modal still resets game movement.
 
+On narrow screens the expanded HUD heading wraps onto a dedicated title row. This keeps its collapse button inside the scrollable panel rather than clipping it horizontally.
+
 ## Validation
 Run `npm run test:activity`, existing pedestrian/parking/spatial tests, and `npm run build:release`. Browser QA must cover desktop and touch-emulated mobile, preference reload, menu return to walking, town map and shop entry/exit. Physical Android performance and long-session traffic testing remain separate release acceptance gates.
