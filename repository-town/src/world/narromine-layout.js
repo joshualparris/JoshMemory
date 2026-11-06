@@ -122,7 +122,7 @@ function EXTRA_PLACES() {
   const soulPin=geoToWorld(-32.227273,148.2407647);
   extra.push(Object.freeze({name:'Soul Food Depot & Gallery',kind:'cafe',kindLabel:'Cafe, gallery and event venue',
     address:'1–7 Dandaloo Street',x:soulPin[0],z:soulPin[1],
-    fact:'Former citrus packing shed, cafe and gallery since 2014, Loading Dock takeaway, catering and meeting rooms. Waze destination pin; actual tenancy frontage and doorway are unverified.'}));
+    fact:'Former citrus packing shed, cafe and gallery since 2014, Loading Dock takeaway, catering and meeting rooms. Waze destination pin; actual tenancy frontage and doorway are UNVERIFIED.'}));
   return extra;
 }
 
