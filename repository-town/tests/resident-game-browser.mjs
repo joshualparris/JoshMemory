@@ -16,7 +16,10 @@ fs.mkdirSync(folder, { recursive: true });
 const explicitUrl = process.argv.includes('--url') ? process.argv[process.argv.indexOf('--url') + 1] : process.env.TOWN_URL || '';
 let server = null, url = explicitUrl;
 if (!url) { server = await startStaticServer(path.resolve('dist/public')); url = server.url; }
-const browser = await chromium.launch({ channel: 'chrome', args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--no-sandbox'] });
+// Prefer Playwright's installed Chromium (CI and most Linux desktops); fall back to the
+// system Chrome channel on machines where the Playwright browser is not downloaded.
+const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--no-sandbox'] })
+  .catch(() => chromium.launch({ channel: 'chrome', args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--no-sandbox'] }));
 
 try {
   const page = await browser.newPage(mobile ? { viewport: { width: 393, height: 852 }, hasTouch: true, isMobile: true, deviceScaleFactor: 1 } : { viewport: { width: 1280, height: 800 }, deviceScaleFactor: 1 });
