@@ -1,0 +1,61 @@
+name: Narromine public cadastral lot overlay — evidence QA
+on:
+  pull_request:
+    paths:
+      - .github/workflows/narromine-lots-qa.yml
+      - repository-town/src/world/narromine-lots*.js
+      - repository-town/src/world/narromine-lot-lines.js
+      - repository-town/src/world/narromine.js
+      - repository-town/tools/narromine-lots.mjs
+      - repository-town/tests/narromine-lots*.mjs
+      - repository-town/package.json
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install dependencies
+        working-directory: repository-town
+        run: npm ci --no-audit --no-fund
+      - name: Verify cadastral geometry, 16 public-venue matches, no normal-game meshes
+        working-directory: repository-town
+        run: node tests/narromine-lots.mjs
+      - name: Build actual deployable release
+        working-directory: repository-town
+        run: npm run build:deploy
+      - name: Verify no private repository data enters the build
+        working-directory: repository-town
+        run: node tools/check_privacy.mjs
+      - name: Install desktop and mobile Chromium
+        working-directory: repository-town
+        run: npx playwright install --with-deps chromium
+      - name: Capture ?lots=1 versus normal game at Narromine
+        working-directory: repository-town
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          TOWN_URL: http://127.0.0.1:8091/
+        run: |
+          node tools/serve.mjs dist/public 8091 >/tmp/narromine-lots-server.log 2>&1 &
+          pid=$!
+          trap 'kill $pid 2>/dev/null || true' EXIT
+          for i in $(seq 1 45); do
+            if curl -fsS http://127.0.0.1:8091/ >/dev/null; then break; fi
+            sleep 1
+          done
+          node tests/narromine-lots-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: narromine-cadastre-overlay-evidence
+          path: repository-town/test-results/narromine-lots/
+          if-no-files-found: warn
+          retention-days: 14

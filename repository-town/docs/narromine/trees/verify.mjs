@@ -1,11 +1,33 @@
 #!/usr/bin/env node
 // NR-TREE-SURVEY-RESEARCH-001; self-contained, read-only data provenance checks.
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
+import { basename, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { NARROMINE_TREES } from '../../../src/world/narromine-trees-data.js';
 import { NARROMINE_OSM } from '../../../src/world/narromine-osm-data.js';
 const at = (name) => fileURLToPath(new URL(name, import.meta.url));
+// Original user exclusion, violated by PR #458: research only; no Council
+// contact or correspondence deliverables. Technical GIS success cannot override it.
+// This deterministic guard recognises the historical artifact and correspondence
+// markers; it does not claim general natural-language intent verification.
+export function assertResearchOnly(files) {
+ for (const {name, content = ''} of files) {
+  assert(!/(?:council[_ -]data[_ -]request|(?:council|contact|email|correspondence)[_ -].*(?:draft|request|enquir)|(?:draft|request|enquir).*(?:council|email|correspondence))/i.test(basename(name)),
+   'Excluded correspondence deliverable: '+name);
+  assert(!/ready[ -]to[ -]send|suggested\s+subject\s*:|^\s*(?:hello|dear)\s+[^\n]*council|^\s*(?:to|recipient|subject)\s*:/im.test(content),
+   'Excluded correspondence content: '+name);
+ }
+}
+function researchDocuments(dir) {
+ return readdirSync(dir, {withFileTypes:true}).flatMap(entry => {
+  const name=join(dir,entry.name);
+  assert(!entry.isSymbolicLink(), 'Uninspectable research symlink: '+name);
+  if(entry.isDirectory())return researchDocuments(name);
+  return [{name,content:/\.(?:md|txt|html|eml)$/i.test(name) ? readFileSync(name,'utf8') : ''}];
+ });
+}
+assertResearchOnly(researchDocuments(at('./')));
 const readJson = name => JSON.parse(readFileSync(at(name), 'utf8'));
 const candidates = readJson('./lidar-candidates-2023.geojson');
 const confirmed = readJson('./verified-individual-trees.geojson');

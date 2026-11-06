@@ -37,3 +37,39 @@ The fridge shows what the household has: restocked on its last Coles trip, used 
 ## Not yet
 Coles stock and deliveries feeding household shops, visible resident figures in homes and streets,
 fitted-out workplace interiors, passengers and school drop-offs, and Repository Town residents commuting to Narromine.
+
+## Steps 3–6 (5 Nov 2026)
+- **Workplaces**: all 78 mapped workplaces open to an interior fitted out for the work (classrooms, wards, bars,
+  counters, workshops) with the residents on shift at their stations; schools show pupils in class. 24-hour
+  workplaces run a night shift. Doors are checked against solid geometry at load.
+- **Coles**: staffed by residents on shift, with residents shopping; stock falls as households shop and is
+  refilled by a 5 am refrigerated truck and an 11 am bread-and-milk van that drive in from the east.
+- **School run**: one parent per household drives primary-school children to their school at 8:25 (and picks
+  them up at 2:50 if not working); other children walk.
+- **Walking**: residents without a car leg walk beside the road; about 1,100 walks a weekday.
+- **Between the towns**: 58 Narromine residents work at named Repository Town workplaces (shown in those
+  workplaces' panels while on shift) and drive out on the Mitchell Highway; 30 Repository Town residents (living
+  in Repository Town lots) hold Narromine jobs and drive in from the east each shift.
+
+## Unique interiors and evidence-based staffing (5 Nov 2026)
+- **Homes**: no two are the same. Rooms are sized from the house's traced floor area and shape (growing only
+  as much as furniture needs), the layout suits its proportions, and walls, floors, ceiling height and doors
+  vary. Furniture follows who lives there: a cot per baby (a nursery for two or more), toys for young children,
+  a desk and computer for teenagers, a clock and radio for retirees, a study for some, a shed for tradies and
+  farm workers, and hobby items (guitar, piano, fish tank, weights, record player and so on) for some.
+- **Workplaces**: no two are the same. Sized from the building and crew, a workstation per worker on a typical
+  shift, their own colours, and the business name on the front room. Hair and beauty salons have mirrors and
+  chairs. Workplaces no longer get a spare bedroom (an old interior-builder default).
+- **Staff numbers**: census counts for schools, hospital, council, Coles and social assistance; otherwise from
+  the building's floor area at employment-density rates (Homes England / HCA Employment Density Guide, 2015),
+  kept within the usual range for the kind. Where the mapped outline covers several shops in a row, typical
+  staffing is used. Narromine station (an unstaffed coach stop since 1975) and the fire station (retained,
+  on-call crew) have no daily shift. Each workplace records where its number comes from (`staffBasis`).
+
+## Passengers and Repository Town parking (5 Nov 2026)
+- **Car passengers to work**: the census counts 5.5% of Narromine workers travelling as a car passenger (72 of
+  1,301). Two working members of a household whose workplaces are within 3 km and open within an hour share a
+  car: one drives, the other rides, and the second car stays home. This finds 56 pairs, a little under the
+  census's ~67, because not every household has two matching jobs. School children ride on the school run.
+- **Parked in Repository Town**: Narromine residents who work in Repository Town park their own car at the kerb
+  outside their workplace while on shift (nearest free 6.5 m space), and are solid to the player's car.

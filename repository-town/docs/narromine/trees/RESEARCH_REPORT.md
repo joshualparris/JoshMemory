@@ -7,7 +7,7 @@
 2. **What is genuinely documented?** (a) In the **aerodrome's smaller study area**, an ecologist counted **7 `Eucalyptus populnea` (Poplar Box), 3 `Brachychiton populneus` (Kurrajong) and 6 dead stags** during the 9 Feb 2022 survey. It was a 28-ha study area within the ~295-ha aerodrome subject area, **not all airport trees**. [S05] (b) Council's 13 Aug 2025 business paper records an **April 2024 count of 35 Kurrajong** (20 western cemetery avenue, 15 eastern avenue). It says there was **no 2025/26 replacement budget** and describes two possible future replacement approaches. This is **not** a 2026 tree-by-tree inventory. [S04] (c) The NSW War Memorials Register records **Kurrajong to Manchurian Pear** replacement on southern Dandaloo in **2018**, with northern Dandaloo Kurrajongs previously removed in 1934–35. [S06]
 3. **What exists as a spatial starting layer?** The already checked-in game has **3,096** auto-extracted 2023 LiDAR-derived canopy candidates from Spatial Services MacquarieFloodplainSouth tiles **6166432 / 6166433**. These have game x/z and estimated canopy height/crown radius **but no species**. They are not necessarily exact trunks, separate surviving individuals, nor an authoritative survey of today's planting. [R01] [R02] [R03]
 4. **How many current trees have both defensible individual species and a usable individual geographic point from this research?** **0 verified individual matches so far.** This is a measurement of linked data acquired in this investigation, **not** a claim no identifiable trees exist. The aerodrome 10 and cemetery 35 records are **group/area-specific historical observations without per-tree GPS**, and the 3,096 candidates have **position and shape but no species**.
-5. **Best next step:** Seek Council's tree register / asset GIS export / dated arborist inspection inventory, then match it spatially with the existing 3,096 canopy candidates; where no official ID exists, triangulate photographs and have botanical uncertainty reviewed. [S03]
+5. **Best next step within this research-only scope:** Cross-reference the existing 3,096 canopy candidates with already-public dated photographs and retain botanical uncertainty. Internal asset-record availability remains unknown. [S03]
 
 ## Research method, evidence hierarchy and limits
 
@@ -54,11 +54,9 @@ See [DANDALOO.md](DANDALOO.md) for segment-by-segment chronology and proposed ve
 - A 2020 report discusses peppercorn tree distress in the Narromine district; this is district-level evidence for peppercorn trees, not street-specific planting, and a reported cause was not established. [S16]
 - The 2022 aerodrome ecological assessment notes a possible nearby landscape `Poplar Box` PCT, **but does not assign that PCT to its heavily modified survey site**. [S05]
 
-### Council: inventory, GIS and request route
+### Council: published inventory and GIS evidence
 
-Narromine's 2021 tree policy explicitly covers public roadside tree management and inspections, while its asset strategy states it uses **Intramaps and QGIS**. Neither proves a downloadable point inventory. A more recent **2025 Nature Strips and Road Verge Policy** was considered by Council; verify current version and which operational team records inspections before requesting records. The correct service address is the Council contact page; the general contact email is `mail@narromine.nsw.gov.au`. [S02] [S03] [S17]
-
-Request **species + coordinates/asset ID**, not only a planting palette. Ask for shapefiles/GeoPackage/CSV/GeoJSON and *data dictionary, capture date, surveyed datum and CRS, licence, field-inspection dates, planting/removal status and tree photographs* where public release is possible. See [COUNCIL_DATA_REQUEST.md](COUNCIL_DATA_REQUEST.md). No request has been sent.
+The published tree policy covers public roadside management and inspections, while the asset strategy names **Intramaps and QGIS**. Neither proves a downloadable point inventory. Internal layers, export availability and currency remain unknown. Only already-public records are in scope; no contact or correspondence is authorised. [S02] [S03] [S17]
 
 ### GIS searches: false positives prevented
 
@@ -93,4 +91,4 @@ New [GeoJSON](lidar-candidates-2023.geojson) and [CSV](lidar-candidates-2023.csv
 - **Biggest limitations:** Council data access, surveys/maps with no individual coordinates, imagery timestamps and camera/trunk matching, split crowns and LiDAR-versus-real-tree differences, specialist taxonomy, historic-versus-current planting.
 - **No live gameplay changes** were made by this research branch.
 
-**References:** [SOURCES.md](SOURCES.md) links all external source documents; repo references [R01–R03] identify current code/data and provenance. 
+**References:** [SOURCES.md](SOURCES.md) links all external source documents; repo references [R01–R03] identify current code/data and provenance.

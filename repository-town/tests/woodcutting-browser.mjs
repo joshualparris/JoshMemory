@@ -16,16 +16,60 @@ try {
   await page.goto(URL); await page.waitForFunction(() => window.__town && document.getElementById('loading').hidden, null, { timeout: 90000 });
   const T = (f, a) => page.evaluate(f, a), st = () => T(() => window.__town.state()), status = () => T(() => document.getElementById('status')?.textContent || '');
   const click = (re) => T((src) => { const r = new RegExp(src, 'i'); const btn = [...document.querySelectorAll('#panel-actions button')].find((x) => r.test(x.textContent)); btn?.click(); return !!btn; }, re.source);
+  // Playwright must never force a tap through an open dialog. A touch Use
+  // interaction may open the full-width civic ledger *during* the 4-step
+  // counter interaction sequence. DOM panel state is authoritative; the
+  // simulation state() panel snapshot can lag a rendered frame.
+  const useHitState = () => T(() => {
+    const panel = document.getElementById('panel');
+    const button = document.getElementById('t-use');
+    const rect = button.getBoundingClientRect();
+    const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+    return {
+      panelVisible: !panel.hidden && getComputedStyle(panel).display !== 'none',
+      panelTitle: document.getElementById('panel-title')?.textContent || '',
+      panelClass: panel.className,
+      hitTag: hit?.tagName || null,
+      hitId: hit?.id || null,
+      hitInsidePanel: !!hit?.closest('#panel'),
+      useHit: hit === button || button.contains(hit),
+    };
+  });
   const use = async () => {
     if (mobile) {
-      // The wide civic ledger may visually cover the touch Use button on
-      // 393–412px screens even before the state() panel snapshot updates.
-      // Close using the *real visible UI control*, then make a genuine tap.
-      // Do not force-dispatch the interaction or bypass pointer hit-testing.
-      if (await page.locator('#panel-close').isVisible()) {
-        await page.locator('#panel-close').tap();
+      let tapped = false;
+      for (let attempt = 1; attempt <= 4; attempt++) {
+        const before = await useHitState();
+        if (before.panelVisible) {
+          // Real UI tap, no direct closePanel hook, forced tap or synthetic Use.
+          console.log('Mobile Use dialog close ' + JSON.stringify({ attempt, ...before }));
+          await page.locator('#panel-close').tap({ timeout: 5000 });
+          await page.waitForFunction(() => document.getElementById('panel').hidden,
+            null, { timeout: 4000 });
+        }
+        try {
+          // Verify actual centre-point pointer ownership, not only visibility.
+          await page.waitForFunction(() => {
+            const panel = document.getElementById('panel'), button = document.getElementById('t-use');
+            const rect = button.getBoundingClientRect();
+            const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+            return panel.hidden && (hit === button || button.contains(hit));
+          }, null, { timeout: 4000 });
+          await page.locator('#t-use').tap({ timeout: 5000 });
+          tapped = true;
+          break;
+        } catch (err) {
+          const after = await useHitState();
+          console.log('Mobile Use hit-test retry ' + JSON.stringify({ attempt, ...after, error: String(err).slice(0, 400) }));
+          if (attempt === 4 || !after.panelVisible) {
+            await page.screenshot({ path: 'test-results/woodcut-mobile-use-intercept.png' }).catch(() => {});
+            throw err;
+          }
+          // A panel reopened between hit test and the tap. Only retry after
+          // genuinely closing that visible panel through its own close button.
+        }
       }
-      await page.tap('#t-use');
+      if (!tapped) throw Error('Mobile Use never became touch-hit-testable');
     } else {
       await page.keyboard.down('e');
       await page.waitForTimeout(120);

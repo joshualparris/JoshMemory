@@ -19,7 +19,7 @@
     "repository-town/tests/shop-interiors.mjs": "0ca369aa2d241c152edb841c1125aa9319241a0d",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "f06f2bdd460aeff0a4c6b61797871579a34bca9d",
+    "repository-town/src/main.js": "c7c82337447a38bd6b80031f447484490c211348",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -1221,6 +1221,60 @@
         "repository-town/src/main.js"
       ],
       "finding": "main.js enters Narromine workplaces and checks door reachability at load; no pub change."
+    },
+    {
+      "date": "2026-11-05",
+      "by": "Claude (Narromine school run)",
+      "changedFiles": [
+        "repository-town/src/main.js"
+      ],
+      "finding": "main.js test hook shows car passengers; no pub change. Walkers updated beside Narromine traffic. Coles stock message on entering Coles."
+    },
+    {
+      "date": "2026-11-05",
+      "by": "Claude (audit refresh after #465)",
+      "changedFiles": [
+        "repository-town/src/main.js"
+      ],
+      "finding": "main.js passes the game day to Narromine traffic (#465 parking recovery); no pub change."
+    },
+    {
+      "date": "2026-11-05",
+      "by": "Claude (Narromine cross-town commuters)",
+      "changedFiles": [
+        "repository-town/src/main.js"
+      ],
+      "finding": "main.js lists Narromine commuters in Repository Town workplace panels; townpanels.js shows them; no pub change."
+    },
+    {
+      "date": "2026-11-05",
+      "by": "Claude (unique Narromine interiors)",
+      "changedFiles": [],
+      "finding": "interior.js: an optional noBedroom flag stops the builder adding a bedroom to non-homes; the pub does not set it and is unchanged."
+    },
+    {
+      "date": "2026-11-05",
+      "by": "Claude (Narromine passengers, Repository Town parking)",
+      "changedFiles": [
+        "repository-town/src/main.js"
+      ],
+      "finding": "main.js draws Narromine commuters' parked cars in Repository Town and adds them as dynamic colliders; no pub change."
+    },
+    {
+      "date": "2026-11-06",
+      "by": "Claude (Narromine interior evidence)",
+      "changedFiles": [
+        "repository-town/src/main.js"
+      ],
+      "finding": "main.js workplace entry message names the evidence basis; no pub change (Narromine Hotel is a separate Narromine building, not the Repository Town pub)."
+    },
+    {
+      "date": "2026-11-06",
+      "by": "Claude (Narromine Hotel public bar)",
+      "changedFiles": [
+        "repository-town/src/main.js"
+      ],
+      "finding": "main.js workplace entry message wording; no pub change."
     }
   ]
 }

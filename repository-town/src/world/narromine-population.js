@@ -6,7 +6,7 @@
 // Workplaces are the town's mapped businesses and services (OpenStreetMap); staff numbers per workplace
 // are estimates, calibrated where the census gives an industry count (schools, hospital, council, Coles,
 // social assistance). Pure logic and deterministic: the same town every load. No three.js.
-import { PLACES, STREETS } from './narromine-layout.js';
+import { PLACES, STREETS, BUILDINGS, DETAILED } from './narromine-layout.js';
 import { NARROMINE_FOOTPRINTS } from './narromine-footprints-data.js';
 
 export const NARROMINE_CENSUS = Object.freeze({
@@ -30,8 +30,16 @@ export function apportion(total, weights) {
   return out;
 }
 
-const FIRST = { male: ['Jack', 'Noah', 'Oliver', 'William', 'Lachlan', 'Thomas', 'James', 'Cooper', 'Riley', 'Harrison', 'Ethan', 'Mason', 'Liam', 'Hamish', 'Angus', 'Tom', 'Matt', 'Ben', 'Sam', 'Luke', 'Daniel', 'Josh', 'Adam', 'Brett', 'Craig', 'Darren', 'Glenn', 'Scott', 'Shane', 'Wayne', 'Peter', 'Graham', 'Kevin', 'Ross', 'Bruce', 'Ian', 'Keith', 'Barry', 'Neville', 'Ken', 'Colin', 'Reg'],
-  female: ['Charlotte', 'Olivia', 'Amelia', 'Isla', 'Mia', 'Ava', 'Grace', 'Matilda', 'Ruby', 'Chloe', 'Emily', 'Sophie', 'Jessica', 'Hannah', 'Sarah', 'Kate', 'Emma', 'Lauren', 'Rebecca', 'Megan', 'Kylie', 'Nicole', 'Lisa', 'Michelle', 'Tracey', 'Donna', 'Karen', 'Leanne', 'Julie', 'Debbie', 'Sharon', 'Wendy', 'Helen', 'Robyn', 'Jenny', 'Margaret', 'Judith', 'Lorraine', 'Beverley', 'Dorothy', 'Joan', 'Shirley'] };
+// First names popular in NSW in the decade each person was born (people born in 2010s get 2010s names).
+const FIRST = {
+  male: { young: ['Jack', 'Noah', 'Oliver', 'William', 'Lachlan', 'Thomas', 'Cooper', 'Riley', 'Harrison', 'Ethan', 'Mason', 'Liam', 'Hamish', 'Angus', 'Lucas', 'Charlie', 'Archie', 'Hudson', 'Henry', 'Leo'],
+    adult: ['Matthew', 'Daniel', 'Josh', 'Luke', 'Ben', 'Sam', 'Adam', 'Michael', 'Andrew', 'Chris', 'Nathan', 'Jason', 'Mark', 'Brett', 'Craig', 'Scott', 'Shane', 'Ryan', 'Tim', 'Aaron'],
+    older: ['Darren', 'Glenn', 'Wayne', 'Peter', 'Graham', 'Kevin', 'Ross', 'Bruce', 'Ian', 'Keith', 'Barry', 'Neville', 'Ken', 'Colin', 'Reg', 'Gary', 'Robert', 'John', 'Brian', 'Allan'] },
+  female: { young: ['Charlotte', 'Olivia', 'Amelia', 'Isla', 'Mia', 'Ava', 'Grace', 'Matilda', 'Ruby', 'Chloe', 'Harper', 'Willow', 'Ella', 'Zoe', 'Evie', 'Sienna', 'Lily', 'Ivy', 'Sophie', 'Emily'],
+    adult: ['Jessica', 'Sarah', 'Rebecca', 'Emma', 'Lauren', 'Megan', 'Kate', 'Hannah', 'Amy', 'Rachel', 'Kylie', 'Nicole', 'Lisa', 'Michelle', 'Melissa', 'Natalie', 'Kristy', 'Belinda', 'Renee', 'Danielle'],
+    older: ['Tracey', 'Donna', 'Karen', 'Leanne', 'Julie', 'Debbie', 'Sharon', 'Wendy', 'Helen', 'Robyn', 'Jenny', 'Margaret', 'Judith', 'Lorraine', 'Beverley', 'Dorothy', 'Joan', 'Shirley', 'Pamela', 'Carol'] },
+};
+const era = (age) => age < 22 ? 'young' : age < 48 ? 'adult' : 'older';
 const SURNAMES = ['Smith', 'Jones', 'Williams', 'Brown', 'Wilson', 'Taylor', 'Johnson', 'White', 'Martin', 'Anderson', 'Thompson', 'Walker', 'Harris', 'Lee', 'Ryan', 'Robinson', 'Kelly', 'King', 'Campbell', 'Clarke', 'Mitchell', 'Young', 'Hughes', 'Wright', "O'Brien", 'Murphy', 'Cooper', 'Ward', 'Morris', 'Edwards', 'Turner', 'Stewart', 'Hall', 'Wood', 'Baker', 'Green', 'Russell', 'Watson', 'Hill', 'Lewis', 'Bell', 'Kennedy', 'Moore', 'Scott', 'Graham', 'Bennett', 'Fraser', 'Reid', 'Hamilton', 'McDonald', 'Gordon', 'Sullivan', 'Mason', 'Hunter', 'Payne', 'Doyle', 'Byrne', 'Quinn', 'Nolan', 'Dwyer', 'Ferguson', 'Gibson', 'Lawson', 'Hayes', 'Carey', 'Barnes', 'Fisher', 'Webb', 'Kent', 'Dunn'];
 
 // Staff estimates per mapped workplace kind: [staff, opens, closes, weekend?]. Hours are typical for the kind.
@@ -86,13 +94,49 @@ export function residentialHomes() {
   return out;
 }
 
+// The building a mapped place is in: the nearest traced footprint (within 45 m), or for main-street
+// businesses drawn from detailed or OSM outlines, that outline as a rotated box.
+export function workplaceBuilding(w) {
+  let best = null, bd = 45;
+  for (const [x, z, fw, fd, yaw] of NARROMINE_FOOTPRINTS) { if (fw * fd < 40) continue; const d = Math.hypot(x - w.x, z - w.z); if (d < bd) { bd = d; best = { x, z, w: fw, d: fd, yaw }; } }
+  if (!best) for (const bl of [...DETAILED.filter((x) => x.boundary?.length).map((x) => ({ pts: x.boundary })), ...BUILDINGS]) {
+    const xs = bl.pts.map((p) => p[0]), zs = bl.pts.map((p) => p[1]), cx = (Math.min(...xs) + Math.max(...xs)) / 2, cz = (Math.min(...zs) + Math.max(...zs)) / 2, d = Math.hypot(cx - w.x, cz - w.z);
+    if (d >= 35 || (best && d >= best.dist)) continue;
+    let L = 0, yaw = 0; for (let i = 1; i < bl.pts.length; i++) { const dx = bl.pts[i][0] - bl.pts[i - 1][0], dz = bl.pts[i][1] - bl.pts[i - 1][1], l = Math.hypot(dx, dz); if (l > L) { L = l; yaw = -Math.atan2(dz, dx); } }
+    const c = Math.cos(yaw), sn = Math.sin(yaw), u = bl.pts.map(([x, z]) => (x - cx) * c - (z - cz) * sn), v = bl.pts.map(([x, z]) => (x - cx) * sn + (z - cz) * c);
+    best = { x: cx, z: cz, w: Math.max(...u) - Math.min(...u), d: Math.max(...v) - Math.min(...v), yaw, dist: d, osm: true };
+  }
+  return best;
+}
+// Floor area per worker by kind of business (m² of floor per full-time-equivalent worker), from the Homes
+// England / HCA Employment Density Guide (3rd ed., 2015): high-street retail 15–20, food and drink 15–20,
+// general office 10–13, light industrial and workshops ~47, storage/agricultural yards higher. Our footprints are
+// gross areas including storage and plant, so the upper ends are used. Part-timers make headcount ~1.3 × FTE.
+const M2_PER_WORKER = { office: 13, retail: 20, food: 18, workshop: 47, yard: 80, care: 15, venue: 40 };
+const DENSITY_KIND = { cafe: 'food', restaurant: 'food', bakery: 'food', pub: 'food', bar: 'food', butcher: 'retail', pharmacy: 'retail', fuel: 'retail', clothes: 'retail', fashion_accessories: 'retail', houseware: 'retail', tobacco: 'retail', alcohol: 'retail', charity: 'retail', second_hand: 'retail', jewelry: 'retail', laundry: 'retail', hairdresser: 'retail', beauty: 'retail',
+  car_repair: 'workshop', tyres: 'workshop', trade: 'workshop', hvac: 'workshop', car: 'workshop', car_wash: 'workshop', agrarian: 'yard', caravan: 'yard', doctors: 'care', physiotherapist: 'care', alternative: 'care', animal_shelter: 'yard',
+  sports_centre: 'venue', golf_course: 'venue', museum: 'venue', camp_site: 'venue', guest_house: 'venue', aerodrome: 'venue', community_centre: 'venue', railway_station: 'venue', fire_station: 'venue' };
+// Census-counted industries keep their census staff (spread across their workplaces).
+// Places with no daily staff: Narromine station closed to passenger trains in 1975 and is an unstaffed coach
+// stop; the fire station is crewed by Fire and Rescue NSW retained (on-call) firefighters who have other jobs.
+const NIL_STAFF = { railway_station: 'unstaffed coach stop (station closed to passenger trains in 1975)', fire_station: 'retained (on-call) Fire and Rescue NSW crew; no daily shift' };
+const CENSUS_KINDS = new Set(['school', 'hospital', 'supermarket', 'townhall', 'social_facility']);
 export function buildWorkplaces() {
   const list = [];
   for (const p of PLACES) {
     const spec = WORK[p.kind]; if (!spec) continue;
-    const staff = p.kind === 'school' ? SCHOOL_STAFF[p.name] || 8 : spec[0];
+    const building = workplaceBuilding(p), area = building ? Math.round(building.w * building.d) : null;
+    let staff, basis;
+    if (CENSUS_KINDS.has(p.kind)) { staff = p.kind === 'school' ? SCHOOL_STAFF[p.name] || 8 : spec[0]; basis = 'ABS 2021 census industry count for Narromine'; }
+    else if (NIL_STAFF[p.kind]) { staff = 0; basis = NIL_STAFF[p.kind]; }
+    else if (area && !building.osm && (area <= 800 || ['yard', 'venue', 'workshop'].includes(DENSITY_KIND[p.kind]))) {
+      // Traced single building: floor area sets staff, kept within half to one-and-a-half times typical.
+      const m2 = M2_PER_WORKER[DENSITY_KIND[p.kind] || 'office'], raw = Math.round(area / m2 * 1.3);
+      staff = Math.max(1, Math.round(spec[0] * 0.5), Math.min(Math.round(spec[0] * 1.5), raw)); basis = area + ' m² building at ' + m2 + ' m² per worker (employment density guide), within the usual range for its kind';
+    }
+    else { staff = spec[0]; basis = 'typical for a ' + p.kind.replace(/_/g, ' ') + (building?.osm || area > 800 ? ' (its mapped outline covers several shops in a row, so floor area is not used)' : ' (no building outline mapped)'); }
     if (!staff) continue;
-    list.push({ id: 'work-' + list.length, name: p.name, kind: p.kind, x: p.x, z: p.z, staff, opens: spec[1], closes: spec[2], weekend: spec[3] });
+    list.push({ id: 'work-' + list.length, name: p.name, kind: p.kind, x: p.x, z: p.z, staff, staffBasis: basis, area, building, opens: spec[1], closes: spec[2], weekend: spec[3] });
   }
   return list;
 }
@@ -117,7 +161,9 @@ export function createNarrominePopulation(seed = 20211810) {
   const typeOrder = [...types].sort((a, b) => ['coupleKids', 'oneParent', 'other', 'group', 'coupleNoKids', 'lone'].indexOf(a) - ['coupleKids', 'oneParent', 'other', 'group', 'coupleNoKids', 'lone'].indexOf(b));
   const person = (hh, age, role, gender) => {
     gender ??= r() < 0.489 ? 'male' : 'female';
-    const p = { id: 'nr-' + people.length, first: pick(FIRST[gender]), surname: hh.surname, gender, age, role, home: hh.id, household: hh.id, job: null, workplace: null, school: null, drives: false, car: null };
+    let first = pick(FIRST[gender][era(age)]);
+    for (let k = 0; k < 12 && hh.members.some((id) => people[+id.slice(3)].first === first); k++) first = pick(FIRST[gender][era(age)]);   // no two in a home share a name
+    const p = { id: 'nr-' + people.length, first, surname: hh.surname, gender, age, role, home: hh.id, household: hh.id, job: null, workplace: null, school: null, drives: false, car: null };
     p.name = p.first + ' ' + p.surname; people.push(p); hh.members.push(p.id); return p;
   };
   order.forEach((homeIndex, k) => {
@@ -169,11 +215,59 @@ export function createNarrominePopulation(seed = 20211810) {
     const n = carsFor[i] ?? 1;
     const drivers = hh.members.map((id) => people[+id.slice(3)]).filter((p) => p.age >= 18 && p.age < 90).sort((a, b) => (b.workplace ? 1 : 0) - (a.workplace ? 1 : 0));
     for (let k = 0; k < n; k++) {
-      const car = { id: 'car-' + cars.length, household: hh.id, home: hh.home, model: null, colour: null, driver: drivers[k]?.id || drivers[0]?.id || null };
+      const car = { id: 'car-' + cars.length, household: hh.id, home: hh.home, model: null, colour: null, driver: drivers[k]?.id || null };          // a spare car (more cars than drivers) stays parked at home
       cars.push(car); hh.cars.push(car.id);
       if (drivers[k]) { drivers[k].drives = true; drivers[k].car = car.id; }
     }
   });
+  // Car passengers to work: the census counts 72 of 1,301 Narromine workers (5.5%) travelling as a car
+  // passenger. Two working members of a household whose workplaces are within 3 km and open within an hour of
+  // each other share a car: one drives, the other rides, and the passenger's own car (if any) stays home. This
+  // finds about 56 such pairs, a little under the census's ~67 (not every household has two matching jobs).
+  const wById = new Map(workplaces.map((w) => [w.id, w]));
+  let riders = 0; const riderTarget = Math.round(workers.length * C.travelToWork.carPassenger / (C.labour.fullTime + C.labour.partTime + C.labour.away));
+  for (const hh of households) {
+    if (riders >= riderTarget) break;
+    const ws = hh.members.map((id) => people[+id.slice(3)]).filter((p) => wById.has(p.workplace) && p.age >= 16).sort((x, y) => (y.drives ? 1 : 0) - (x.drives ? 1 : 0));
+    if (ws.length < 2 || !ws[0].drives) continue;
+    const [a, b] = ws, wa = wById.get(a.workplace), wb = wById.get(b.workplace);
+    if (Math.hypot(wa.x - wb.x, wa.z - wb.z) > 3000 || Math.abs(wa.opens - wb.opens) > 60) continue;
+    b.ridesWith = a.id; b.drives = false;
+    if (b.car) { const c = cars.find((x) => x.id === b.car); if (c) c.driver = null; b.car = null; }
+    riders++;
+  }
+  // Between the towns (the Mitchell Highway links them):
+  //  - Narromine residents whose job is in Repository Town are given a real workplace there.
+  //  - Repository Town residents take some staffed jobs in Narromine and drive in each shift. They live in
+  //    Repository Town houses (lot coordinates), so they have no Narromine home; their car comes in from the
+  //    east and goes home the same way. The Narromine residents who held those jobs drive to Dubbo instead.
+  const RT_WORK = [['cafe', 'Commit Café'], ['bakery', 'Bakery'], ['store', 'General Store'], ['bank', 'Community Bank'], ['hotel', 'Railway Hotel'], ['pub', 'The Merged Branch'],
+    ['post', 'Post Office'], ['school', 'School'], ['clinic', 'Clinic'], ['depot', 'Rail Depot'], ['mill', 'Flour Mill'], ['foundry', 'Foundry & Workshop'], ['hall', 'Town Hall'],
+    ['hardware', 'Central West Hardware & Timber'], ['power', 'Power Station'], ['waterworks', 'Water Works'], ['tafe', 'Town TAFE Trades Campus'], ['mechanic', 'Town Motor Workshop']];
+  const inTown = people.filter((p) => p.workplace && workplaces.some((w) => w.id === p.workplace && w.kind !== 'school' && w.kind !== 'hospital'));
+  const swap = inTown.filter((_, i) => i % 14 === 7).slice(0, 30);
+  for (const p of swap) {
+    const job = p.workplace;
+    const hh = { id: 'hh-' + households.length, home: null, livesIn: 'repotown', street: 'Lot ' + String.fromCharCode(65 + Math.floor(r() * 26)) + (1 + Math.floor(r() * 7)) + ', Repository Town', type: 'lone', surname: pick(SURNAMES), members: [], cars: [], fridge: null, lastShop: -1 };
+    households.push(hh);
+    const c = person(hh, 22 + Math.floor(r() * 40), 'adult');
+    c.workplace = job; c.livesIn = 'repotown'; c.drives = true;
+    const car = { id: 'car-' + cars.length, household: hh.id, home: null, livesIn: 'repotown', model: null, colour: null, driver: c.id };
+    cars.push(car); hh.cars.push(car.id); c.car = car.id;
+    p.workplace = 'dubbo';                    // the Narromine resident who held the job works in Dubbo instead
+  }
+  for (const p of people) if (p.workplace === 'repotown') { const [id, name] = RT_WORK[+p.id.slice(3) % RT_WORK.length]; p.repoTownJob = { id, name }; }
+  // School run: primary-school children (5-11) are driven by one parent who drives and either stays home
+  // (drops off and picks up) or starts work at 8:30 or later in town (drops off on the way). Teenagers walk.
+  for (const hh of households) {
+    const kids = hh.members.map((id) => people[+id.slice(3)]).filter((p) => p.age >= 5 && p.age <= 11 && p.school);
+    if (!kids.length) continue;
+    const adults = hh.members.map((id) => people[+id.slice(3)]).filter((p) => p.drives && p.age >= 18);
+    const wpOf = (p) => workplaces.find((w) => w.id === p.workplace);
+    const home = adults.find((p) => !p.workplace), late = adults.find((p) => wpOf(p) && wpOf(p).opens >= 8 * 60 + 30 && wpOf(p).closes - wpOf(p).opens <= 11 * 60);
+    const driver = home || late;
+    if (driver) hh.schoolRun = { driver: driver.id, school: kids[0].school, kids: kids.filter((k) => k.school === kids[0].school).map((k) => k.id), pickup: driver === home };
+  }
   return { census: C, homes: usable, allHomes: homes.length, households, people, workplaces, cars, scale, workers: workers.length };
 }
 
@@ -198,10 +292,14 @@ export function dayPlan(p, hh, weekday, workplaces) {
     }
     let start = long ? (shiftRoll < (allNight ? 0.5 : 0.5) ? 7 * 60 : 14 * 60 + 30) : wp.opens + j('s', 20);
     let end = long ? start + 8 * 60 + 30 : Math.min(wp.closes + 15, start + (p.partTime ? 5 * 60 : 8 * 60 + 30));
-    if (weekend && hash(p.id + 'wk' + weekday) < 0.5) return quietDay(p, weekday, hash);   // rostered off
-    wake = Math.max(4 * 60 + 30, start - commute - 60 + j('b', 20));
-    plan.push({ from: 0, to: wake, at: 'home', kind: 'sleep' }, { from: wake, to: start - commute, at: 'home', kind: 'breakfast' });
-    plan.push({ from: start - commute, to: start, at: p.workplace, kind: 'travel' }, { from: start, to: end, at: p.workplace, kind: 'work' });
+    if (weekend && hash(p.id + 'wk' + weekday) < 0.5) return quietDay(p, weekday, hash, hh);   // rostered off
+    const run = !weekend && hh.schoolRun?.driver === p.id && !long ? hh.schoolRun : null;
+    if (run) { start = Math.max(start, 8 * 60 + 40 + commute); end = Math.max(end, start + (p.partTime ? 5 * 60 : 8 * 60)); }
+    wake = Math.max(4 * 60 + 30, (run ? 8 * 60 + 25 : start - commute) - 60 + j('b', 20));
+    if (run) plan.push({ from: 0, to: wake, at: 'home', kind: 'sleep' }, { from: wake, to: 8 * 60 + 25, at: 'home', kind: 'breakfast' },
+      { from: 8 * 60 + 25, to: 8 * 60 + 40, at: run.school, kind: 'dropoff' }, { from: 8 * 60 + 40, to: start, at: p.workplace, kind: 'travel' });
+    else plan.push({ from: 0, to: wake, at: 'home', kind: 'sleep' }, { from: wake, to: start - commute, at: 'home', kind: 'breakfast' }, { from: start - commute, to: start, at: p.workplace, kind: 'travel' });
+    plan.push({ from: start, to: end, at: p.workplace, kind: 'work' });
     let t = end;
     if (hash(hh.id + 'shop' + weekday) < 0.3 && end < 19 * 60) { plan.push({ from: t, to: t + 35, at: 'coles', kind: 'shop' }); t += 35; }
     plan.push({ from: t, to: 18 * 60 + 30 + j('d', 40), at: 'home', kind: 'home' });
@@ -214,18 +312,26 @@ export function dayPlan(p, hh, weekday, workplaces) {
     const up = 7 * 60 + j('w', 30);
     plan.push({ from: 0, to: up, at: 'home', kind: 'sleep' }, { from: up, to: 8 * 60 + 25, at: 'home', kind: 'breakfast' },
       { from: 8 * 60 + 25, to: 8 * 60 + 50, at: p.school, kind: 'travel' }, { from: 8 * 60 + 50, to: 15 * 60, at: p.school, kind: 'school' },
-      { from: 15 * 60, to: 18 * 60 + 30, at: 'home', kind: 'home' }, { from: 18 * 60 + 30, to: 19 * 60 + 15, at: 'home', kind: 'dinner' }, { from: 19 * 60 + 15, to: 1440, at: 'home', kind: 'sleep' });
+      { from: 15 * 60, to: 18 * 60 + 30, at: 'home', kind: 'home' }, { from: 18 * 60 + 30, to: 19 * 60 + 15, at: 'home', kind: 'dinner' }, { from: 19 * 60 + 15, to: p.age < 13 ? 20 * 60 + 30 : 21 * 60 + 45, at: 'home', kind: 'evening' }, { from: p.age < 13 ? 20 * 60 + 30 : 21 * 60 + 45, to: 1440, at: 'home', kind: 'sleep' });
     return plan;
   }
-  return quietDay(p, weekday, hash);
+  return quietDay(p, weekday, hash, hh);
 }
-function quietDay(p, weekday, hash) {
+function quietDay(p, weekday, hash, hh) {
   const wake = (p.age > 65 ? 6 * 60 : p.age < 5 ? 6 * 60 + 30 : 7 * 60 + 30) + Math.round((hash(p.id + 'q' + weekday) - 0.5) * 60);
   const plan = [{ from: 0, to: wake, at: 'home', kind: 'sleep' }, { from: wake, to: wake + 45, at: 'home', kind: 'breakfast' }];
   let t = wake + 45;
+  const run = weekday > 0 && weekday < 6 && hh?.schoolRun?.driver === p.id ? hh.schoolRun : null;
+  if (run) {
+    plan[0].to = Math.min(wake, 7 * 60 + 15); plan[1].from = plan[0].to; plan[1].to = 8 * 60 + 25;
+    plan.push({ from: 8 * 60 + 25, to: 8 * 60 + 40, at: run.school, kind: 'dropoff' }, { from: 8 * 60 + 40, to: 14 * 60 + 50, at: 'home', kind: 'home' },
+      { from: 14 * 60 + 50, to: 15 * 60 + 10, at: run.school, kind: 'pickup' });
+    t = 15 * 60 + 10;
+  }
   // One household member does the shop (about two shops a week), spread from 8 am to 6 pm.
   if (p.age >= 18 && hash(p.household + 'shop' + weekday) < 0.28 && hash(p.household + 'who' + weekday) * 3 < 1 + (p.role === 'partner' || p.role === 'parent' || p.role === 'adult' ? 1 : 0)) { const s = Math.max(t, 8 * 60 + Math.round(hash(p.household + 'sh' + weekday) * 600)); plan.push({ from: t, to: s, at: 'home', kind: 'home' }, { from: s, to: s + 40, at: 'coles', kind: 'shop' }); t = s + 40; }
-  plan.push({ from: t, to: 18 * 60, at: 'home', kind: 'home' }, { from: 18 * 60, to: 18 * 60 + 45, at: 'home', kind: 'dinner' }, { from: 18 * 60 + 45, to: 1440, at: 'home', kind: 'sleep' });
+  const bed = p.age < 5 ? 19 * 60 + 30 : p.age < 13 ? 20 * 60 + 30 + Math.round(hash(p.id + 'b' + weekday) * 30) : p.age > 70 ? 21 * 60 + Math.round(hash(p.id + 'b' + weekday) * 60) : 22 * 60 + Math.round((hash(p.id + 'b' + weekday) - 0.3) * 90);
+  plan.push({ from: t, to: 18 * 60, at: 'home', kind: 'home' }, { from: 18 * 60, to: 18 * 60 + 45, at: 'home', kind: 'dinner' }, { from: 18 * 60 + 45, to: bed, at: 'home', kind: 'evening' }, { from: bed, to: 1440, at: 'home', kind: 'sleep' });
   return plan;
 }
 
@@ -244,4 +350,12 @@ export function whoIsAt(pop, place, weekday, minute) {
     else if (step.kind === 'shop' && place === 'coles') out.visitors.push(p);
   }
   return out;
+}
+
+// Narromine residents at their Repository Town job right now (placeId is a Repository Town place id).
+export function narromineCommutersAt(pop, placeId, weekday, minute) {
+  return pop.people.filter((p) => p.repoTownJob?.id === placeId).filter((p) => {
+    const step = dayPlan(p, pop.households[+p.household.slice(3)], weekday, pop.workplaces).find((s) => minute >= s.from && minute < s.to);
+    return step?.kind === 'work';
+  });
 }

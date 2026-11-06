@@ -24,5 +24,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Replay historical unwanted-deliverable regressions
+        run: node --test repository-town/docs/narromine/trees/exclusions.test.mjs
       - name: Validate provenance, WGS84, counts and no invented species
         run: node repository-town/docs/narromine/trees/verify.mjs

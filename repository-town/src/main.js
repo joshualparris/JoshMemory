@@ -34,7 +34,10 @@ import { createNarromineTrains } from './world/narromine-trains.js';
 import { createNarromineTraffic } from './world/narromine-traffic.js';
 import { townDate } from './world/town-calendar.js';
 import { createNarromineHomeIndex, buildNarromineHomeInterior } from './world/narromine-homes.js';
-import { whoIsAt } from './world/narromine-population.js';
+import { whoIsAt, narromineCommutersAt } from './world/narromine-population.js';
+import { createNarrominePedestrians } from './world/narromine-pedestrians.js';
+import { createColesSupply, COLES_STOCK } from './world/narromine-coles-supply.js';
+import { createRepoTownCommuterParking } from './world/narromine-commuters-parked.js';
 import { createNarromineWorkplaceIndex, buildNarromineWorkplaceInterior } from './world/narromine-workplaces.js';
 import { createTownRailYard } from './world/town-rail-yard.js';
 import { NARROMINE_POST_OFFICE_SAVE_ID, NARROMINE_POST_OFFICE_ENTRANCE, nearNarrominePostOfficeDoor, buildNarrominePostOfficeInterior, createNarrominePostalOutdoorActor } from './world/narromine-post-office.js';
@@ -246,6 +249,13 @@ async function start() {
   const narromineTraffic = createNarromineTraffic(narromine.group, { blocked: (x, z) => trains.crossingClosedNear(x, z) });
   // Residents' homes: walk up to a front door to go in (narromine-homes.js).
   const narromineHomes = createNarromineHomeIndex(narromineTraffic.commute.population);
+  const colesSupply = createColesSupply(narromineTraffic.commute.population);
+  // Narromine commuters' cars parked at their Repository Town workplaces while they are on shift.
+  const rtCommuterParking = createRepoTownCommuterParking(town.group, narromineTraffic.commute.population, life);
+  let rtParkingTimer = 0;
+  // Repository Town workplace panels list the Narromine residents on shift there.
+  life.narromineCommuters=(id)=>narromineCommutersAt(narromineTraffic.commute.population,id,townDate(life.day).weekday,Math.floor(life.minute));
+  const narrominePeople = createNarrominePedestrians(narromineTraffic.commute, narromineTraffic.graph.nodes, narromineTraffic.graph.adj, narromine.group);
   const narromineWorkplaces = createNarromineWorkplaceIndex(narromineTraffic.commute.population);
   const narrominePostalOutdoor=createNarrominePostalOutdoorActor(narromine.group,makeLabel);
   const [postalHomeX,postalHomeZ]=toWorld(POSTAL_WALK_ROUTE_LOCAL[0]);
@@ -350,7 +360,7 @@ async function start() {
   // rotated-axis AABB for the town's existing 2D collision engine.
   townWorld.dynamic = () => [
     ...trains.colliders(),
-    ...(player.pos.x < -2640 ? narromineTraffic.colliders(player.pos) : []),
+    ...(player.pos.x < -2640 ? narromineTraffic.colliders(player.pos) : rtCommuterParking.colliders(player.pos)),
     ...yard.colliders(),
     ...life.trucks.map(tr => {
       const sn = Math.abs(Math.sin(tr.heading)), cs = Math.abs(Math.cos(tr.heading));
@@ -758,7 +768,7 @@ async function start() {
     closePanel();npcChat.close();ambience.door();
     $('card').hidden=true;delete $('card').dataset.coord;
     const n=built.staff.length;
-    status('Inside '+w.name+'. '+(built.open?(n?n+' staff on shift'+(built.pupils?', '+built.pupils+' pupils in class':'')+'.':'Open, but nobody is rostered on right now.'):'Closed now (usual hours '+String(Math.floor(w.opens/60)).padStart(2,'0')+':'+String(w.opens%60).padStart(2,'0')+'–'+String(Math.floor(w.closes/60)).padStart(2,'0')+':'+String(w.closes%60).padStart(2,'0')+').')+' Fitted out for the work done here; staff numbers are estimates. Walk back out or tap Exit.');
+    status('Inside '+w.name+'. '+(built.open?(n?n+' staff on shift'+(built.pupils?', '+built.pupils+' pupils in class':'')+'.':'Open, but nobody is rostered on right now.'):'Closed now (usual hours '+String(Math.floor(w.opens/60)).padStart(2,'0')+':'+String(w.opens%60).padStart(2,'0')+'–'+String(Math.floor(w.closes/60)).padStart(2,'0')+':'+String(w.closes%60).padStart(2,'0')+').')+(built.evidence?' Fitted out from '+built.evidence.sources.length+' published sources about this business. '+built.evidence.unknown:' Generic fit-out for its kind: no evidence about this interior has been gathered yet.')+' Walk back out or tap Exit.');
     return true;
   }
 
@@ -784,7 +794,9 @@ async function start() {
     updateFloorBadge();$('btn-exit').hidden=false;
     closePanel();npcChat.close();ambience.door();
     $('card').hidden=true;delete $('card').dataset.coord;
-    status('Inside Coles Narromine. Walk the produce section, pantry aisles, chilled cabinets and checkouts. An interpretation, not a surveyed floor plan or real payment system.');
+    const wd=townDate(life.day).weekday,m=Math.floor(life.minute),st=colesSupply.stockAt(wd,m),next=colesSupply.deliveries.find(d=>d.arrive>m);
+    const low=Object.keys(st).filter(k=>st[k]<colesSupply.capacity[k]*0.15).map(k=>COLES_STOCK[k].label);
+    status('Inside Coles Narromine. On the shelves: '+Object.keys(st).map(k=>st[k].toLocaleString()+' '+(COLES_STOCK[k].unit===COLES_STOCK[k].label?COLES_STOCK[k].label:COLES_STOCK[k].unit+' '+COLES_STOCK[k].label)).join(', ')+'.'+(low.length?' Running low: '+low.join(', ')+'.':'')+' Next delivery: '+(next?next.name+' at '+String(Math.floor(next.arrive/60)).padStart(2,'0')+':'+String(next.arrive%60).padStart(2,'0'):'the refrigerated truck before opening tomorrow')+'. An interpretation, not a surveyed floor plan or real payment system.');
     return true;
   }
 
@@ -1894,7 +1906,8 @@ async function start() {
     drivingDashboard.update(mode==='town'&&!overview?driving.activeVehicle():null);
     ambience.setRadioPlaying(drivingDashboard.getState().station>0);
     trains.tick(dt,{day:life.day,minute:life.minute});   // timetabled freights and level-crossing booms
-    if(mode==='town'&&player.pos.x<-2640) narromineTraffic.update(dt,player.pos,life.minute,townDate(life.day).weekday);
+    if(mode==='town'&&player.pos.x>=-2640&&(rtParkingTimer-=dt)<=0){rtParkingTimer=1;rtCommuterParking.update(townDate(life.day).weekday,Math.floor(life.minute));}
+    if(mode==='town'&&player.pos.x<-2640) {const wd=townDate(life.day).weekday;narromineTraffic.update(dt,player.pos,life.minute,wd,life.day);narrominePeople.update(dt,player.pos,wd,life.minute);}
     market.update(life.day, life.minute);
     frameItems();
     carryFrame();
@@ -2384,7 +2397,7 @@ async function start() {
     vehicles:()=>life.motorReport().owned.map(v=>({...v})),
     enterVehicle:(reg)=>driving.enter(life.motorReport().owned.find(v=>v.registration===reg)),
     yardTrain:()=>yard.state(), yardBoard:()=>yard.board(), yardExit:()=>yard.exit(player), yardAction:(kind)=>yard.action(kind), yardColliders:()=>yard.colliders(),
-    train:()=>trains.state(), traffic:()=>({count:narromineTraffic.count,models:narromineTraffic.modelsLoaded,parked:narromineTraffic.parked.length,cars:narromineTraffic.cars.map(c=>({x:c.x,z:c.z,v:c.v,yaw:c.yaw,model:c.model,driver:c.driver,purpose:c.purpose,destination:c.destination}))}), probeWithMoving:(x,z,r=.4)=>!!townWorld.hits(x,z,r), trainNear:()=>trains.near(player.pos), trainBoard:()=>trains.board(), trainExit:()=>trains.exit(player), trainRoute:(p)=>trains.setRoute(p), runFreight:(i)=>trains.runFreight(i), trainColliders:()=>trains.colliders(), narromineHomeDoors:()=>narromineHomes.doors.slice(0,50).map(d=>({id:d.home.id,street:d.home.street,door:{x:d.door.x,z:d.door.z},out:d.door.out})), enterNarromineColes:()=>enterNarromineColes(true), setClockMinute:(m)=>setClock(life,m), narromineDoorCheck:()=>narromineDoorCheck, narromineWorkplaceDoors:()=>narromineWorkplaces.list.map(e=>({id:e.workplace.id,name:e.workplace.name,kind:e.workplace.kind,door:{x:e.door.x,z:e.door.z},out:e.door.out})), enterNarromineWorkplace:(id)=>enterNarromineWorkplace(narromineWorkplaces.list.find(e=>e.workplace.id===id)), enterNarromineHome:(id)=>enterNarromineHome(narromineHomes.doors.find(d=>d.home.id===id)), insideInfo:()=>inside?{name:inside.house.name,address:inside.house.address,occupants:inside.occupants?.map(o=>o.person.name+': '+o.doing),fridge:inside.fridge}:null,
+    train:()=>trains.state(), traffic:()=>({count:narromineTraffic.count,models:narromineTraffic.modelsLoaded,parked:narromineTraffic.parked.length,cars:narromineTraffic.cars.map(c=>({x:c.x,z:c.z,v:c.v,yaw:c.yaw,model:c.model,driver:c.driver,passengers:c.passengers,purpose:c.purpose,destination:c.destination}))}), probeWithMoving:(x,z,r=.4)=>!!townWorld.hits(x,z,r), trainNear:()=>trains.near(player.pos), trainBoard:()=>trains.board(), trainExit:()=>trains.exit(player), trainRoute:(p)=>trains.setRoute(p), runFreight:(i)=>trains.runFreight(i), trainColliders:()=>trains.colliders(), narromineHomeDoors:()=>narromineHomes.doors.slice(0,50).map(d=>({id:d.home.id,street:d.home.street,door:{x:d.door.x,z:d.door.z},out:d.door.out})), enterNarromineColes:()=>enterNarromineColes(true), setClockMinute:(m)=>setClock(life,m), narromineDoorCheck:()=>narromineDoorCheck, narromineWalkers:()=>narrominePeople.visible(), rtCommuterCarsNow:()=>{try{return rtCommuterParking.update(townDate(life.day).weekday,Math.floor(life.minute)).length}catch(e){return 'ERR '+e.message}}, rtCommuterCars:()=>rtCommuterParking.parked.map(c=>({x:c.x,z:c.z,owner:c.owner,place:c.place})), colesStock:()=>{const wd=townDate(life.day).weekday;return colesSupply.stockAt(wd,Math.floor(life.minute));}, narromineWorkplaceDoors:()=>narromineWorkplaces.list.map(e=>({id:e.workplace.id,name:e.workplace.name,kind:e.workplace.kind,door:{x:e.door.x,z:e.door.z},out:e.door.out})), enterNarromineWorkplace:(id)=>enterNarromineWorkplace(narromineWorkplaces.list.find(e=>e.workplace.id===id)), enterNarromineHome:(id)=>enterNarromineHome(narromineHomes.doors.find(d=>d.home.id===id)), insideInfo:()=>inside?{name:inside.house.name,address:inside.house.address,occupants:inside.occupants?.map(o=>o.person.name+': '+o.doing),fridge:inside.fridge}:null,
     leaveVehicle:()=>driving.exit(),
     // A fixed step behaves like a real frame, including showing the driving message (off-road, braking).
     narromineVisible:()=>narromine.group.visible,
