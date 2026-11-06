@@ -122,10 +122,13 @@ export function buildNarromineWorkplaceInterior(pop, entry, makeLabel, weekday, 
   const pickH = (k, list) => list[Math.floor(H(k) * list.length)];
   const onShift = Math.max(1, Math.ceil(w.staff / ((w.closes - w.opens) > 11 * 60 ? 3 : 1.4)));
   const stationCount = rooms.reduce((n, r) => n + r.props.filter((p) => Array.isArray(p) && p[2]?.station).length, 0);
-  // Extra stations for bigger crews, in the room that has the first station (e.g. more counters or desks).
+  // Preserve existing templates. New pass-two plans have ONE public reception
+  // and a separate working room: extra crew belong at working stations, not in
+  // a row of duplicated reception counters in the public waiting area.
   const main = rooms.find((r) => r.props.some((p) => Array.isArray(p) && p[2]?.station));
-  const proto = main.props.find((p) => Array.isArray(p) && p[2]?.station);
-  for (let k = stationCount; !namedSoulFood && k < Math.min(onShift, 10); k++) main.props.push([proto[0], proto[1] + ' ' + (k + 1), proto[2]]);
+  const extraRoom = generic?.plan ? [...rooms].reverse().find(r=>r.props.some(p=>Array.isArray(p)&&p[2]?.station)) : main;
+  const proto = extraRoom.props.find((p) => Array.isArray(p) && p[2]?.station);
+  for (let k = stationCount; !namedSoulFood && k < Math.min(onShift, 10); k++) extraRoom.props.push([proto[0], proto[1] + ' ' + (k + 1), proto[2]]);
   if (!generic && /hair|clip/i.test(w.name)) main.props.push(['mirror', 'Styling mirror'], ['chair', 'Salon chair'], ['chair', 'Salon chair']);
   if (!generic && /beauty|belladonna/i.test(w.name)) main.props.push(['mirror', 'Mirror'], ['bed', 'Treatment bed']);
   if (!researchedPharmacy && !namedSoulFood) {

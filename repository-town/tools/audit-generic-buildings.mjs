@@ -84,7 +84,7 @@ else{
     '## Legacy High Street routes','','| ID | Status | Interior |','|---|---|---|');
   for(const x of legacy.filter(x=>x.passTwo||x.interior==='legacy-shared-office'))lines.push(`| \`${x.id}\` | ${x.classification} | ${x.passTwo?GENERIC_PROFILES[x.interior].title:'Preserved inactive/outdoor fallback, not a playable indoor destination'} |`);
   lines.push('',
-    '## Narromine fallback inventory','','All rows below are interpretive interiors, not surveyed floor plans. No real-location exterior geometry was changed.','',
+    '## Narromine fallback inventory','','All rows below are interpretive interiors, not surveyed floor plans. No real-location exterior geometry was changed. New profiles keep one public reception station; additional crew stations go into the working room instead of duplicating reception counters. Staff counts and earlier templates are unchanged.','',
     '| Location | Kind | New category |','|---|---|---|');
   for(const x of workplaces.filter(x=>x.passTwo))lines.push(`| ${x.name.replaceAll('|','/')}${x.sharedEntranceWith.length?' (shared entrance)':''} | \`${x.kind}\` | ${GENERIC_PROFILES[x.interior].title} |`);
   lines.push('','## Wider generator audit and remaining limits','',

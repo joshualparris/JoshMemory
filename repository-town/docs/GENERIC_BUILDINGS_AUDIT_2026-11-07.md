@@ -85,7 +85,7 @@ The new health/animal-care/counselling/memorial layouts have physical privacy sc
 
 ## Narromine fallback inventory
 
-All rows below are interpretive interiors, not surveyed floor plans. No real-location exterior geometry was changed.
+All rows below are interpretive interiors, not surveyed floor plans. No real-location exterior geometry was changed. New profiles keep one public reception station; additional crew stations go into the working room instead of duplicating reception counters. Staff counts and earlier templates are unchanged.
 
 | Location | Kind | New category |
 |---|---|---|

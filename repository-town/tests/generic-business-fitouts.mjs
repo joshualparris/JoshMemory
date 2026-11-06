@@ -64,6 +64,11 @@ for(const entry of ix.list){
   const built=buildNarromineWorkplaceInterior(pop,entry,label,2,660);
   if(!built.genericFitout)continue;
   seen.add(built.genericFitout.key);
+  if(REMAINING_PROFILES[built.genericFitout.key]){
+    const stations=built.interactables.filter(x=>x.act?.station);
+    assert.equal(stations.filter(x=>x.room===0).length,1,entry.workplace.name+' keeps one public reception station');
+    assert(stations.some(x=>x.room>0),entry.workplace.name+' has a separate working-room station');
+  }
   assert.equal(built.genericFitout.evidenceLevel,'interpretive-not-surveyed');
   assert(!built.rooms.some(r=>/bedroom/i.test(r.name)));
   assert(built.interactables.some(i=>i.act?.station),'retains work stations');
