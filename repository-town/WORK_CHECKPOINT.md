@@ -1,3 +1,11 @@
+# Generic-only business realism — implementation checkpoint 2026-11-07
+
+Owner Perplexity Computer cloud. GENERIC-FITOUT-001, branch `feat/generic-building-fitouts-20261107`; baseline `66561b06` (main #520 integrated with Calm), implementation `76e5fb68`. User expressly excludes handcrafted buildings. New modules: generic-business-props/fitouts, generic-civic-interior, generic-facade-details; only fallback-tail hooks in props/shop-interior/narromine-workplaces/town-expansion-facades. Nine civic IDs and nine workplace profiles; no real-location facade changes. Specific claim and start checkpoint were published in `487ec72c`; this section records the current continuation.
+
+PASS new fixture bounds, placement/aisle/exit/staff/use/exclusion tests, existing workplaces and indoor-life tests, initial build. Forty-eight bespoke signatures pass both independently extracted baseline source and implementation without regenerating their fixture. Local Chromium shows salon, beauty, laundry, clothing, rural supplies, irrigation, employment and homewares layouts; salon street front inspected. Actual keyboard forward movement crossed the rear passage; actual E opened the retained service panel; actual walk-out returns to town. Clock-skipping can leave a legitimate worker travelling, so panel availability is not a completed transaction claim.
+
+INCOMPLETE: touch-emulated phone controls/save checks, Narromine category rendered check, full release/privacy/integrity currently running (`/tmp/generic-buildings-release.log`), client smoke, draft PR, review screenshots. No building changes published; existing approved Calm live site untouched. Next: finish browser matrix, inspect screenshots, resolve failures, verify exact committed build/fingerprint, push topic branch and draft PR for review. Separate publication approval required.
+
 # Narromine indoor runtime repair — START 2026-11-06
 
 Codex Work cloud; baseline 409ae5c2; branch fix/narromine-interior-life-20261106. Static actors bypass indoor movement/style system; Narromine entry omits townView. Inspect room overlap, prop clearance and door anchors. Tests and deployment pending.
