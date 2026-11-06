@@ -38,8 +38,9 @@ body.overview #minimap-toggle, body.playing #minimap-toggle {
   body.minimap-is-hidden #game-compass {
     right: max(10px, env(safe-area-inset-right));
   }
-}
-@media (max-width: 370px) {
+  /* The collapsed phone HUD (including 000 Game) spans the top row.
+     Place the hidden-map toggle below it and below the 98px-tall compass,
+     so a real tap is not intercepted on 371–700px-wide phones. */
   body.minimap-is-hidden #minimap-toggle {
     top: max(192px, calc(env(safe-area-inset-top) + 182px));
   }
