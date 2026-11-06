@@ -1,4 +1,6 @@
 :root { --panel: #101a2cee; --line: #8197b7; --ink: #fff; --accent: #7fe0ff; }
+#town-activity { display:block; width:100%; min-height:44px; margin-top:8px; padding:8px 10px; font:inherit; color:var(--ink); background:#1d344d; border:1px solid var(--line); border-radius:8px; }
+#town-activity:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
 [hidden] { display: none !important; }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; overflow: hidden; background: #90c8ef; color: var(--ink); font: 14px/1.4 system-ui, sans-serif; }

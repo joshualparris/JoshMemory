@@ -7,8 +7,8 @@
   const key = 'repository-town.hud-minimised.v1';
   let saved = null;
   try { saved = localStorage.getItem(key); } catch { /* storage may be blocked */ }
-  // Start compact on phones to maximise the playable area. Respect an existing preference.
-  let minimised = saved === '1' || (saved === null && matchMedia('(max-width: 700px)').matches);
+  // Start compact on every screen to maximise the playable area. Respect an existing preference.
+  let minimised = saved !== '0';
   const render = () => {
     hud.classList.toggle('hud-minimised', minimised);
     toggle.textContent = minimised ? '+' : '−';

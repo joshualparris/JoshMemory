@@ -89,6 +89,7 @@ import { makePerson, Walker, houseWander, rankKitchens, freeSpot, placeTownNPCs,
 import {makeDistinctPerson} from './world/npc-wardrobe.js';
 import { separatePedestrians, steerPedestrians } from './world/pedestrian-spacing.js';
 import { createTownLife } from './world/townlife.js';
+import { createTownActivity } from './world/town-activity.js';
 import { createEmergencyResponseVisuals } from './world/emergency-response-visuals.js';
 import { createPlayerDriving, roadAllows } from './world/player-driving.js';
 import { createDrivingDashboard } from './ui/driving-dashboard.js';
@@ -217,7 +218,17 @@ async function start() {
     own.forEach((m, i) => { m.visible = ownShown[i]; });
   }
   // Town life: farms, shops, trucks and 32 villagers with jobs and meals (src/world/life.js).
-  const townLife = createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog });
+  let activityStorage;
+  try { activityStorage = window.localStorage; } catch {}
+  const activity = createTownActivity(activityStorage);
+  const activitySelect = $('town-activity');
+  activitySelect.value = activity.mode;
+  activitySelect.addEventListener('change', () => {
+    activity.set(activitySelect.value);
+    activitySelect.blur();
+    status(activity.mode === 'calm' ? 'Calm town: fewer people and cars. Your progress and town services are unchanged.' : 'Standard town activity restored.');
+  });
+  const townLife = createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog, activity });
   const indoorResidentStyles = createIndoorResidentStyles(townLife.residentModels);
   const life = townLife.life;
   // Separate fictional shunting siding: never controls Narromine freight or town main-line gates.
@@ -249,16 +260,16 @@ async function start() {
   // Narromine railway: sleepers and rails on the mapped lines and a drivable grain train in the yard.
   const trains = createNarromineTrains(narromine.group);
   // Road traffic at the levels the NSW crossing register records (Dandaloo St 7,000 vehicles a day).
-  const narromineTraffic = createNarromineTraffic(narromine.group, { blocked: (x, z) => trains.crossingClosedNear(x, z) });
+  const narromineTraffic = createNarromineTraffic(narromine.group, { blocked: (x, z) => trains.crossingClosedNear(x, z), activity });
   // Residents' homes: walk up to a front door to go in (narromine-homes.js).
   const narromineHomes = createNarromineHomeIndex(narromineTraffic.commute.population);
   const colesSupply = createColesSupply(narromineTraffic.commute.population);
   // Narromine commuters' cars parked at their Repository Town workplaces while they are on shift.
-  const rtCommuterParking = createRepoTownCommuterParking(town.group, narromineTraffic.commute.population, life);
+  const rtCommuterParking = createRepoTownCommuterParking(town.group, narromineTraffic.commute.population, life, { activity });
   let rtParkingTimer = 0;
   // Repository Town workplace panels list the Narromine residents on shift there.
   life.narromineCommuters=(id)=>narromineCommutersAt(narromineTraffic.commute.population,id,townDate(life.day).weekday,Math.floor(life.minute));
-  const narrominePeople = createNarrominePedestrians(narromineTraffic.commute, narromineTraffic.graph.nodes, narromineTraffic.graph.adj, narromine.group);
+  const narrominePeople = createNarrominePedestrians(narromineTraffic.commute, narromineTraffic.graph.nodes, narromineTraffic.graph.adj, narromine.group, { activity });
   const narromineWorkplaces = createNarromineWorkplaceIndex(narromineTraffic.commute.population);
   const narrominePostalOutdoor=createNarrominePostalOutdoorActor(narromine.group,makeLabel);
   const [postalHomeX,postalHomeZ]=toWorld(POSTAL_WALK_ROUTE_LOCAL[0]);
@@ -2077,7 +2088,7 @@ async function start() {
         const score = d - 1.6 * facing - (facing > 0.5 ? bonus : 0);
         if ((facing > 0.2 || d < 1.2) && score < bestP) { bestP = score; nearPerson = c; }
       };
-      for (const p of townLife.people) if (!p.v.inside) consider(p, 2.6);
+      for (const p of townLife.people) if (!p.v.inside && p.fig.group.visible) consider(p, 2.6);
       // As keen as the torch beside it, so facing Wren talks to Wren (the torch used to win every time).
       // Keep Wren selectable when facing her, without stealing the pickup cue for the nearby torch.
       // At the starter's pickup pose a 2.0 bonus wrongly outranked the closer, directly faced item.
@@ -2310,6 +2321,9 @@ async function start() {
     e.currentTarget.href = `narromine-compare.html?x=${player.pos.x.toFixed(1)}&z=${player.pos.z.toFixed(1)}&yaw=${player.yaw.toFixed(3)}`;
   });
   window.__town = {
+    activity: () => ({ mode: activity.mode, ...activity.limits,
+      visibleResidents: townLife.people.filter(p=>p.fig.group.visible).length +
+        [...townLife.populationView.models.values()].filter(p=>p.fig.group.visible).length }),
     // Test harness fast-forwards genuine simulation steps, allowing attendants to
     // commute to their workstations before the browser tries a staffed entrance.
     // Access-control decisions remain unchanged: no unlocked-door shortcut.
@@ -2519,6 +2533,13 @@ async function start() {
   };
 
   $('loading').hidden = true;
+  window.render_game_to_text = () => {
+    const s = window.__town.state();
+    return JSON.stringify({ coordinates: 'metres; x east, z south; y up', mode: s.mode,
+      player: s.pos, heading: s.yaw, activity: window.__town.activity(),
+      time: s.time, prompt: $('prompt').hidden ? null : $('prompt').textContent,
+      panel: s.panel, needs: s.needs, traffic: narromineTraffic.count });
+  };
   started = true;
   if (window.__townNewGame) status('New game started. Welcome to Repository Town!');
   requestAnimationFrame(frame);

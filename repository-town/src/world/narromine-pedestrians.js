@@ -10,7 +10,7 @@ import { makePerson, pose } from './npcs.js';
 const WALK = 1.3, MAX_WALK_M = 2500, RADIUS = 220, MAX_FIGURES = 36;
 const SHIRTS = [0x3f6fb5, 0xb5473f, 0x4f8a4b, 0xd9a441, 0x6a4c93, 0x2f7f86, 0xc96b8a, 0x8a6a4f, 0x2f5f8a];
 
-export function createNarrominePedestrians(commute, nodes, adj, parent = null) {
+export function createNarrominePedestrians(commute, nodes, adj, parent = null, { activity } = {}) {
   const pop = commute.population;
   let planned = { key: null, walks: [] };
   // Every walk for a weekday: legs that are not covered by a car trip (as driver or passenger).
@@ -72,9 +72,10 @@ export function createNarrominePedestrians(commute, nodes, adj, parent = null) {
     lastWallClock = wall;
     clock += realDt;
     for (const w of walks(weekday)) {
+      if (activity && !activity.admits(w.person)) continue;
       if (active.has(w.id) || minute < w.depart || minute >= w.depart + w.duration) continue;
       const s = (minute - w.depart) * 60 * w.speed, at = placeOnRoute(w, s);
-      if (Math.hypot(at.x - player.x, at.z - player.z) > RADIUS || active.size >= MAX_FIGURES) continue;
+      if (Math.hypot(at.x - player.x, at.z - player.z) > RADIUS || active.size >= (activity?.limits.walkers ?? MAX_FIGURES)) continue;
       const f = figureFor(w); f.walk = w; f.s = s; active.set(w.id, f);
     }
     for (const [id, f] of active) {

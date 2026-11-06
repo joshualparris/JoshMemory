@@ -4,6 +4,7 @@
   "type": "module",
   "description": "Walkable 3D town of Josh's repositories; each house designed from its repository.",
   "scripts": {
+    "test:activity": "node tests/town-activity.mjs && node tests/input-hud-focus.mjs",
     "build": "node tools/build.mjs",
     "check": "node tools/check.mjs",
     "check:privacy": "node tools/check_privacy.mjs",

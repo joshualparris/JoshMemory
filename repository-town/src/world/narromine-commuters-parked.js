@@ -4,7 +4,7 @@
 import { loadVehicleModels, VEHICLE_MODELS } from './narromine-vehicle-models.js';
 import { dayPlan } from './narromine-population.js';
 
-export function createRepoTownCommuterParking(parent, pop, life, { models = typeof document !== 'undefined' } = {}) {
+export function createRepoTownCommuterParking(parent, pop, life, { models = typeof document !== 'undefined', activity } = {}) {
   let real = null, parked = [];
   if (models) loadVehicleModels(parent, { max: 40 }).then((r) => { real = r; real.draw(parked); }).catch(() => {});
   const commuters = pop.people.filter((p) => p.repoTownJob && p.car);
@@ -12,6 +12,8 @@ export function createRepoTownCommuterParking(parent, pop, life, { models = type
   function update(weekday, minute) {
     const out = [];
     for (const p of commuters) {
+      if (out.length >= (activity?.limits.parkedCars ?? Infinity)) break;
+      if (activity && !activity.admits(p.car)) continue;
       const step = dayPlan(p, pop.households[+p.household.slice(3)], weekday, pop.workplaces).find((s) => minute >= s.from && minute < s.to);
       if (step?.kind !== 'work') continue;
       const place = life.places.get(p.repoTownJob.id); if (!place?.curb) continue;
