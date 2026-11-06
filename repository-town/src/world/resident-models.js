@@ -4,6 +4,7 @@
 // looks the same every visit. Models are loaded only when a style needs them, and only residents
 // near the player wear one (far away the block figure stands in), so phones stay smooth.
 import * as THREE from 'three';
+import { loadQuaterniusTemplate, createQuaterniusFigure } from './resident-quaternius.js';
 
 export const RESIDENT_STYLES = Object.freeze([
   { id: 'classic', label: 'Classic figures', note: 'The original block-built residents.' },
@@ -11,6 +12,7 @@ export const RESIDENT_STYLES = Object.freeze([
   { id: 'storybook', label: 'Storybook · five characters', note: 'Five animated public-domain KayKit characters; fantasy-styled, without weapons. Nearby residents only.' },
   { id: 'mannequin', label: 'Mannequin · colourful', note: 'Smoothly animated life-size mannequins in each resident’s clothing colours; they talk, sit and drive.' },
   { id: 'mannequin-grey', label: 'Mannequin · art-class grey', note: 'The same animated mannequins in a calm neutral grey.' },
+  { id: 'quaternius', label: 'Quaternius rigged · new', note: 'Rigged male/female Universal Base Characters with Universal Animation Library walk, talk, sit and driving clips. Experimental: review the side-by-side comparison before choosing it as the default.' },
 ]);
 const STORE = 'town-resident-style';
 const NEAR = 45, FAR = 52;            // metres: wear a model inside NEAR, drop it beyond FAR
@@ -21,7 +23,7 @@ const KINDS = {
   storybook: {files:['kaykit-knight.glb','kaykit-barbarian.glb','kaykit-mage.glb','kaykit-rogue.glb','kaykit-rogue-hooded.glb'],clips:{walk:'Walk',carry:'Walk',idle:'Idle',talk:'Talk',ride:'Sit'},height:1.75},
   mannequin: { file: 'mannequin.glb', clips: { walk: 'Walk_Loop', carry: 'Walk_Loop', idle: 'Idle_Loop', talk: 'Idle_Talking_Loop', ride: 'Driving_Loop' }, height: 1.74 },
 };
-const kindOf = (style) => style === 'cartoon' ? 'cartoon' : style === 'storybook' ? 'storybook' : style.startsWith('mannequin') ? 'mannequin' : null;
+const kindOf = (style) => style === 'cartoon' ? 'cartoon' : style === 'storybook' ? 'storybook' : style.startsWith('mannequin') ? 'mannequin' : style === 'quaternius' ? 'quaternius' : null;
 
 export function savedResidentStyle() {
   try { const s = localStorage.getItem(STORE); return RESIDENT_STYLES.some((x) => x.id === s) ? s : 'classic'; } catch { return 'classic'; }
@@ -77,6 +79,11 @@ export function createResidentModels({ base = 'assets/people/' } = {}) {
     const kind = kindOf(style); if (!kind) { ready = null; return; }
     const v = ++version;
     try {
+      if (kind === 'quaternius') {
+        const t = await loadQuaterniusTemplate(base + 'quaternius/');
+        if (v === version) ready = { kind, ...t };
+        return;
+      }
       SkeletonUtils ||= await import('../vendor/SkeletonUtils.js');
       const t = await loadKind(kind, base);
       if (v === version) ready = { kind, ...t };
@@ -87,12 +94,26 @@ export function createResidentModels({ base = 'assets/people/' } = {}) {
   }
   function drop(p) {
     if (!p.model) return;
-    p.model.mixer.stopAllAction(); p.fig.group.remove(p.model.root);
+    if (p.model.quat) p.model.quat.dispose();
+    else { p.model.mixer.stopAllAction(); p.fig.group.remove(p.model.root); }
     p.model = null; live.delete(p);
     for (const o of p.body) o.visible = true;
   }
   function wear(p) {
     const look = p.fig.group.userData.residentAppearance || { seed: 1, shirt: 0x6a7a8a, trousers: 0x333a44 };
+    if (ready.kind === 'quaternius') {
+      const identity = look.descriptor;
+      if (!identity) return;
+      const q = createQuaterniusFigure(identity, ready);
+      // The procedural group carries the age/build scale. Divide it out so the rigged
+      // model is exactly the identity's height rather than double-shrunk for children.
+      const pg = p.fig.group.scale;
+      q.root.scale.set(q.root.scale.x / (pg.x || 1), q.root.scale.y / (pg.y || 1), q.root.scale.z / (pg.z || 1));
+      p.model = { root: q.root, mixer: q.mixer, actions: q.actions, state: null, style, quat: q };
+      p.fig.group.add(q.root); live.add(p);
+      for (const o of p.body) o.visible = false;
+      return;
+    }
     const variant=ready.kind==='storybook'?ready.variants[(look.seed>>>5)%ready.variants.length]:ready;
     const root = SkeletonUtils.clone(variant.scene);
     colourModel(root, ready.kind, style, look);
@@ -117,6 +138,11 @@ export function createResidentModels({ base = 'assets/people/' } = {}) {
     if (p.model && dist > FAR) { drop(p); return false; }
     if (!p.model) wear(p);
     const m = p.model, want = riding ? 'ride' : moving ? (carrying ? 'carry' : 'walk') : talking ? 'talk' : 'idle';
+    if (m.quat) {
+      m.quat.setState(want === 'ride' ? 'drive' : want);
+      m.quat.update(dt);
+      return true;
+    }
     const next = m.actions[want] || m.actions.idle;
     if (m.state !== want && next) {
       const prev = m.current; next.reset().setEffectiveWeight(1).fadeIn(0.25).play();
