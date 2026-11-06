@@ -19,7 +19,7 @@
     "repository-town/tests/shop-interiors.mjs": "0ca369aa2d241c152edb841c1125aa9319241a0d",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "78102abe751193ff373d671657c433e1592b4f54",
+    "repository-town/src/main.js": "5c30b1d176c4737e8d9c5c9ef88edba7c111217a",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -1320,6 +1320,14 @@
         "repository-town/src/world/townlife.js"
       ],
       "finding": "Scoped source review: removed a redundant direct .material access on signBoards because the renderer can return a THREE.Group with multiple atlas meshes above 32 signs. Its existing setLighting callback still lights all batches every game minute. Pub floor plan, egress, licensing, RSA and non-certifying status are unchanged. Dedicated browser and release tests required."
+    },
+    {
+      "date": "2026-11-06",
+      "by": "ChatGPT (post-merge scoped review of PR #508 main.js)",
+      "changedFiles": [
+        "repository-town/src/main.js"
+      ],
+      "finding": "Compared #508 indoor-resident rendering and Narromine home-door wiring against prior main. Changes initialise and clean up selected indoor figure styles and pass the existing reachable-door thresholds to interpretive facades; they do not alter the fictional Merged Branch pub floorplan, accessible routes, stairs, pub operations, services, venue dimensions, RSA or regulatory claims. Main was left with a stale source hash after #508; this review updates the main.js pin while retaining all non-certifying pub findings. Exact merged-source CI remains mandatory."
     }
   ]
 }
