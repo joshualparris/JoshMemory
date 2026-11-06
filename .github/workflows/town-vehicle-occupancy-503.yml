@@ -1,0 +1,37 @@
+name: Town full-body moving traffic collision acceptance
+on:
+  push:
+    branches: [fix/vehicle-occupancy-503-20261106]
+  pull_request:
+    paths:
+      - 'repository-town/src/world/narromine-traffic.js'
+      - 'repository-town/src/world/vehicle-occupancy.js'
+      - 'repository-town/tests/vehicle-occupancy.mjs'
+      - '.github/workflows/town-vehicle-occupancy-503.yml'
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Pinned dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Vehicle moving-body, parking and junction regression
+        run: node tests/vehicle-occupancy.mjs
+      - name: Existing traffic and motor insurance regressions
+        run: |
+          node tests/traffic-and-shop-exits.mjs
+          node tests/narromine-pedestrians.mjs
+          node tests/narromine-repotown-parking.mjs
+      - name: Build public game
+        run: npm run build
