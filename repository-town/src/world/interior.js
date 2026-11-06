@@ -34,11 +34,11 @@ function placeRooms(rooms, layout, skip = 0) {
     let back = r0.z0;
     R.slice(1).forEach((r, k) => { put(r, -r.w / 2, back - r.d); back = r.z0; r.parent = k; });
   } else if (layout === 'hub') {
-    const spots = [(r) => put(r, r0.x0 - r.w, r0.z0 + (r0.d - r.d) / 2), (r) => put(r, r0.x1, r0.z0 + (r0.d - r.d) / 2), (r) => put(r, -r.w / 2, r0.z0 - r.d)];
-    R.slice(1).forEach((r, k) => {
-      if (k < 3) { spots[k](r); r.parent = 0; }
-      else { const p = R[3]; put(r, k === 3 ? p.x0 - r.w : p.x1, p.z0 + (p.d - r.d) / 2); r.parent = 3; }
-    });
+    // A hub may have far more than five rooms. Previously all rooms after the
+    // fourth extension reused one coordinate and overlapped furniture/walls.
+    // Place each new room against a clear shared wall of an already placed room.
+    const placed = [r0];
+    for (const r of R.slice(1)) attachRoom(placed, r, put, 0);
   } else if (layout === 'grid') {
     const cols = R.length > 4 ? 3 : 2;
     const cw = [], rd = [];
