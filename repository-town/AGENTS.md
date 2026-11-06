@@ -1,5 +1,8 @@
 # Repository Town — instructions for every agent (Claude, Codex, ChatGPT, Copilot …)
 
+**DeepSeek harness on Lenovo/ProBook:** read [Token-efficient DeepSeek working rules](docs/DEEPSEEK_TOKEN_EFFICIENCY.md) **before** any task. Keep tool output bounded, search the massive coordination/checkpoint histories instead of dumping them, use Flash High by default, and finish with independent test/merge/live evidence. The guide **does not weaken** any requirements below.
+
+
 Several AI sessions work on Repository Town at the same time for Josh. They cannot
 message each other, so **this file and `COORDINATION.md` are how we talk**. Read both
 before changing anything, and update `COORDINATION.md` when you start and finish work.
