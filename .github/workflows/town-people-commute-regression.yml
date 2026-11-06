@@ -1,0 +1,42 @@
+name: Town real commuting NPC browser check
+on:
+  pull_request:
+    paths:
+      - 'repository-town/tests/people.mjs'
+      - '.github/workflows/town-people-commute-regression.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  physical-commuting:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install project dependencies
+        working-directory: repository-town
+        run: npm ci --no-audit --no-fund
+      - name: Install Chromium for real WebGL
+        working-directory: repository-town
+        run: npx playwright install --with-deps chromium
+      - name: Build game
+        working-directory: repository-town
+        run: npm run build
+      - name: Walk actual NPC paths and complete human conversation
+        working-directory: repository-town
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          node tools/serve.mjs dist/public 8091 >/tmp/commute-http.log 2>&1 &
+          server=$!
+          trap 'kill $server 2>/dev/null || true' EXIT
+          for i in $(seq 1 45); do
+            if curl -fsS http://127.0.0.1:8091/ >/dev/null; then break; fi
+            sleep 1
+          done
+          node tests/people.mjs
