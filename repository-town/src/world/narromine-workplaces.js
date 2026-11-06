@@ -6,9 +6,11 @@
 import { buildInterior } from './interior.js';
 import { makeDistinctPerson } from './npc-wardrobe.js';
 import { NARROMINE_FOOTPRINTS } from './narromine-footprints-data.js';
-import { BUILDINGS, DETAILED } from './narromine-layout.js';
+import { BUILDINGS, DETAILED, OSM, toWorld } from './narromine-layout.js';
 import { segNearest, whoIsAt } from './narromine-population.js';
 import { homeDoor, doorCandidates, pickDoor } from './narromine-homes.js';
+import { SOUL_FOOD_EVIDENCE, soulFoodOpen, soulFoodInteriorSpec, decorateSoulFoodInterior } from './narromine-soul-food-interior.js';
+import { NARROMINE_PHARMACY_EVIDENCE, pharmacyOpeningAt, pharmacyInteriorSpec, decorateNarrominePharmacy } from './narromine-pharmacy-interior.js';
 import { INTERIOR_EVIDENCE } from './narromine-interior-evidence.js';
 
 const S = (t, l) => [t, l, { do: 'info', title: l, text: 'Workstation.' , station: true }];   // a staffed station
@@ -43,6 +45,44 @@ const WORKSHOP_KINDS = ['agrarian', 'trade', 'hvac', 'car', 'car_wash'];
 export const OWN_INTERIOR = new Set(['supermarket', 'post_office']);          // these keep their dedicated interiors
 const fitFor = (kind) => FIT[kind] || (OFFICE_KINDS.includes(kind) ? OFFICE : WORKSHOP_KINDS.includes(kind) ? WORKSHOP : SHOP);
 
+// A DISTINCT, explicitly provisional public approach for Soul Food. Waze locates
+// its destination within the same large OSM mapped building as the McPhersons
+// Automotive POI; the generic street-centre door algorithm put both entrances
+// at exactly the same position. Select the nearest exterior WALL of that existing
+// mapped polygon to the Waze point, not an invented second building or tenancy.
+function soulFoodProvisionalDoor(w) {
+  if(w.name!=='Soul Food Depot & Gallery')return null;
+  const building=OSM.buildings[195], pts=building?.pts?.map(toWorld);
+  if(!pts || pts.length<4)return null;
+  // This guard ensures reordering/updating the OSM snapshot cannot silently
+  // relocate the venue to unrelated premises.
+  const automotive=OSM.places.find(p=>p.name==='McPhersons Automotive');
+  if(!automotive || Math.hypot(automotive.x-(-1781.8),automotive.z-(-1449.5))>10)return null;
+  const cx=pts.reduce((n,p)=>n+p[0],0)/pts.length,cz=pts.reduce((n,p)=>n+p[1],0)/pts.length;
+  if(Math.hypot(cx-w.x,cz-w.z)>38)return null;
+  let nearest=null;
+  for(let i=0;i<pts.length;i++){
+    const a=pts[i],b=pts[(i+1)%pts.length],dx=b[0]-a[0],dz=b[1]-a[1],length2=dx*dx+dz*dz;
+    if(length2<1)continue;
+    const t=Math.max(0,Math.min(1,((w.x-a[0])*dx+(w.z-a[1])*dz)/length2));
+    const bx=a[0]+t*dx,bz=a[1]+t*dz,d=Math.hypot(w.x-bx,w.z-bz);
+    if(nearest && d>=nearest.d)continue;
+    const len=Math.sqrt(length2);
+    let ux=dz/len,uz=-dx/len;
+    const midx=(a[0]+b[0])/2,midz=(a[1]+b[1])/2;
+    if(ux*(midx-cx)+uz*(midz-cz)<0){ux=-ux;uz=-uz;}
+    nearest={d,bx,bz,ux,uz,edge:i};
+  }
+  if(!nearest || nearest.d>24)return null;
+  // Slightly outside the actual polygon wall. 'out' is a walking approach, not
+  // a representation that the real door exists at this inferred edge.
+  const {bx,bz,ux,uz}=nearest;
+  return {x:bx+ux*0.75,z:bz+uz*0.75,
+    out:{x:bx+ux*3.4,z:bz+uz*3.4,yaw:Math.atan2(-ux,-uz)},
+    provisional:true,evidence:'Waze destination pin projected to nearest OSM #195 exterior wall; doorway not surveyed'};
+}
+
+
 // The traced building for each workplace, with a front door on its street side.
 export function createNarromineWorkplaceIndex(pop) {
   const list = [];
@@ -52,7 +92,9 @@ export function createNarromineWorkplaceIndex(pop) {
     if (!best) continue;
     const s = segNearest(best.x, best.z); if (!s) continue;
     best.kerb = { x: s.x, z: s.z };
-    list.push({ workplace: w, building: best, door: homeDoor(best), doors: doorCandidates(best) });
+    const soulDoor=soulFoodProvisionalDoor(w);
+    if(w.name==='Soul Food Depot & Gallery' && !soulDoor)continue;
+    list.push({ workplace:w, building:best, door:soulDoor||homeDoor(best), doors:soulDoor?[soulDoor]:doorCandidates(best), provisionalEntrance:!!soulDoor });
   }
   return {
     list,
@@ -63,7 +105,12 @@ export function createNarromineWorkplaceIndex(pop) {
 }
 
 export function buildNarromineWorkplaceInterior(pop, entry, makeLabel, weekday, minute) {
-  const w = entry.workplace, evidence = INTERIOR_EVIDENCE[w.name] || null, rooms = JSON.parse(JSON.stringify(evidence ? evidence.rooms : fitFor(w.kind)));
+  const w = entry.workplace, evidence = INTERIOR_EVIDENCE[w.name] || null;
+  const researchedPharmacy = w.kind === 'pharmacy' && w.name === NARROMINE_PHARMACY_EVIDENCE.business;
+  const pharmacy = researchedPharmacy ? pharmacyInteriorSpec() : null;
+  const namedSoulFood = w.kind==='cafe' && w.name===SOUL_FOOD_EVIDENCE.name;
+  const soulFood = namedSoulFood ? soulFoodInteriorSpec() : null;
+  const rooms = JSON.parse(JSON.stringify(pharmacy ? pharmacy.rooms : (soulFood ? soulFood.rooms : (evidence ? evidence.rooms : fitFor(w.kind)))));
   // Each business is its own place: rooms sized for its building and staff, a station per worker on a
   // typical shift, its own colours, and its name over the front room.
   const H = (k) => { let h = 2166136261; for (const c of w.name + k) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return (h >>> 0) / 4294967296; };
@@ -73,24 +120,29 @@ export function buildNarromineWorkplaceInterior(pop, entry, makeLabel, weekday, 
   // Extra stations for bigger crews, in the room that has the first station (e.g. more counters or desks).
   const main = rooms.find((r) => r.props.some((p) => Array.isArray(p) && p[2]?.station));
   const proto = main.props.find((p) => Array.isArray(p) && p[2]?.station);
-  for (let k = stationCount; k < Math.min(onShift, 10); k++) main.props.push([proto[0], proto[1] + ' ' + (k + 1), proto[2]]);
+  for (let k = stationCount; !namedSoulFood && k < Math.min(onShift, 10); k++) main.props.push([proto[0], proto[1] + ' ' + (k + 1), proto[2]]);
   if (/hair|clip/i.test(w.name)) main.props.push(['mirror', 'Styling mirror'], ['chair', 'Salon chair'], ['chair', 'Salon chair']);
   if (/beauty|belladonna/i.test(w.name)) main.props.push(['mirror', 'Mirror'], ['bed', 'Treatment bed']);
-  const scale = w.area && w.area <= 800 ? Math.max(0.9, Math.min(1.6, Math.sqrt(w.area / 150))) : 1 + H('sz') * 0.3;
-  for (const r of rooms) { r.w = Math.round(r.w * scale * (0.9 + H('w' + r.name) * 0.2) * 10) / 10; r.d = Math.round(r.d * scale * (0.9 + H('d' + r.name) * 0.2) * 10) / 10; }
-  rooms[0].name = w.name + ' · ' + rooms[0].name.toLowerCase();
+  if (!researchedPharmacy && !namedSoulFood) {
+    const scale = w.area && w.area <= 800 ? Math.max(0.9, Math.min(1.6, Math.sqrt(w.area / 150))) : 1 + H('sz') * 0.3;
+    for (const r of rooms) { r.w = Math.round(r.w * scale * (0.9 + H('w' + r.name) * 0.2) * 10) / 10; r.d = Math.round(r.d * scale * (0.9 + H('d' + r.name) * 0.2) * 10) / 10; }
+    rooms[0].name = w.name + ' · ' + rooms[0].name.toLowerCase();
+  }
   const walls = pickH('wall', [0xf2f0ea, 0xe6e1d6, 0xdfe6e3, 0xe9dfd0, 0xd3dce2, 0xefe7d8, 0xcfd6cc]), floor = pickH('floor', [0xb9b2a7, 0x9c8f7d, 0x8a8f94, 0xc7bfae, 0x7b6a58, 0xa7a59e]);
-  const spec = { layout: rooms.length > 2 ? pickH('lay', ['row', 'hub', 'L']) : 'row', height: pickH('h', [3, 3.3, 3.6]), walls, floor, rooms };
+  const spec = pharmacy ? { ...pharmacy, rooms } : soulFood ? { ...soulFood, rooms } : { layout: rooms.length > 2 ? pickH('lay', ['row', 'hub', 'L']) : 'row', height: pickH('h', [3, 3.3, 3.6]), walls, floor, rooms };
   let built = null;
   for (let tries = 0; tries < 14 && !built; tries++) {
-    try { built = buildInterior({ repo: 'narromine-' + w.id, name: w.name, noBedroom: true, int: spec }, makeLabel); } catch (e) {
+    try { built = buildInterior({ repo: 'narromine-' + w.id, coordinate: 'NARROMINE-WORK:' + w.id, name: w.name, noBedroom: true, int: spec }, makeLabel); } catch (e) {
       const m = /no room for \w+ in "([^"]+)"/.exec(e.message); if (!m) throw e;
       const r = rooms.find((x) => x.name === m[1]); r.w = Math.round(r.w * 1.12 * 10) / 10; r.d = Math.round(r.d * 1.12 * 10) / 10;
     }
   }
   if (!built) throw new Error(w.name + ': could not fit the fit-out');
-  const open = w.opens <= minute && minute < w.closes;
+  if (researchedPharmacy) built = decorateNarrominePharmacy(built, makeLabel);
+  if (namedSoulFood) built = decorateSoulFoodInterior(built, makeLabel);
+  const open = namedSoulFood ? soulFoodOpen(weekday, minute) : researchedPharmacy ? pharmacyOpeningAt(weekday, minute) : w.opens <= minute && minute < w.closes;
   const here = whoIsAt(pop, w.id, weekday, minute);
+  const staff = (researchedPharmacy || namedSoulFood) && !open ? [] : here.staff;
   // Staff at their stations, in order; extra staff stand beside the first stations.
   const stations = built.interactables.filter((o) => o.act?.station);
   const SHIRT = { school: 0x2f5f8a, hospital: 0x4a90a4, doctors: 0x4a90a4, police: 0x1c2f4a, fire_station: 0x9b2226, pub: 0x2b2b2b, bar: 0x2b2b2b, cafe: 0x3f3f3f, bakery: 0xf2f2ee, butcher: 0xf2f2ee, pharmacy: 0xf2f2ee, bank: 0x234a6b };
@@ -100,7 +152,7 @@ export function buildNarromineWorkplaceInterior(pop, entry, makeLabel, weekday, 
     f.position.set(at.x, 0, at.z); f.rotation.y = at.yaw; f.name = p.name; built.group.add(f);
     const l = makeLabel?.(p.first + ' ' + p.surname); if (l) { l.position.set(at.x, 2.25, at.z); built.group.add(l); }
   };
-  here.staff.forEach((p, i) => {
+  staff.forEach((p, i) => {
     const s = stations[i % Math.max(1, stations.length)]; if (!s) return;
     const c = centre(s.room), dx = c.x - s.pos.x, dz = c.z - s.pos.z, D = Math.hypot(dx, dz) || 1, k = Math.floor(i / Math.max(1, stations.length));
     put(p, { x: s.pos.x + dx / D * 1.0 + k * 0.8, z: s.pos.z + dz / D * 1.0, yaw: Math.atan2(dx, dz) + Math.PI }, 'work shift');
@@ -112,5 +164,5 @@ export function buildNarromineWorkplaceInterior(pop, entry, makeLabel, weekday, 
     const rooms2 = built.rooms.map((r, i) => [r, i]).filter(([r]) => r.name === 'Classroom');
     kids.slice(0, 40).forEach((p, i) => { const [r] = rooms2[i % rooms2.length]; const row = Math.floor(i / rooms2.length); put(p, { x: r.x0 + 1.5 + (row % 5) * 1.3, z: r.z0 + 2.5 + Math.floor(row / 5) * 1.4, yaw: Math.PI }, 'school class'); pupils++; });
   }
-  return { ...built, workplace: w, open, staff: here.staff, pupils, evidence };
+  return { ...built, workplace: w, open, staff, pupils, evidence };
 }

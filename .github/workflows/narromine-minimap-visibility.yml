@@ -21,7 +21,7 @@ permissions:
 jobs:
   narromine-minimap:
     name: Auto-hide map, user override, browser and privacy
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 22
     defaults:
       run:

@@ -757,7 +757,20 @@ async function start() {
   function enterNarromineWorkplace(e){
     if(mode!=='town'||driving.driving)return false;
     const built=buildNarromineWorkplaceInterior(narromineTraffic.commute.population,e,makeLabel,townDate(life.day).weekday,Math.floor(life.minute)),w=e.workplace;
-    inside={house:{coordinate:'NARROMINE-WORK:'+w.id,name:w.name,address:'Narromine NSW',kind:w.kind},
+    if (built.pharmacyEvidence && !built.open) {
+      const now=performance.now(), id='narromine-pharmacy-closed';
+      if(id!==lastDeniedEntrance || now-lastDeniedTime>3500) {
+        status('Narromine Pharmacy is closed. Regular published hours: Mon–Fri 9am–1pm, 2pm–5:30pm; Sat 9am–12pm; Sunday closed. Holiday hours are unverified.');
+        lastDeniedEntrance=id;lastDeniedTime=now;
+      }
+      return false;
+    }
+    if (built.soulFoodEvidence && !built.open) {
+      const now=performance.now(),id='soul-food-closed';
+      if(id!==lastDeniedEntrance||now-lastDeniedTime>3500){status('Soul Food cafe is closed according to usual published hours. Events and holiday hours may differ.');lastDeniedEntrance=id;lastDeniedTime=now;}
+      return false;
+    }
+    inside={house:{coordinate:'NARROMINE-WORK:'+w.id,name:w.name,address:built.soulFoodEvidence?built.soulFoodEvidence.address:built.pharmacyEvidence?'53 Dandaloo Street, Narromine NSW 2821':'Narromine NSW',kind:w.kind},
       ...built,floorIndex:0,floors:null,narromineHome:{home:{street:w.name},door:e.door,work:true}};
     scene.add(built.group);town.group.visible=false;
     scene.background.set(INDOOR);scene.fog=null;
@@ -768,7 +781,11 @@ async function start() {
     closePanel();npcChat.close();ambience.door();
     $('card').hidden=true;delete $('card').dataset.coord;
     const n=built.staff.length;
-    status('Inside '+w.name+'. '+(built.open?(n?n+' staff on shift'+(built.pupils?', '+built.pupils+' pupils in class':'')+'.':'Open, but nobody is rostered on right now.'):'Closed now (usual hours '+String(Math.floor(w.opens/60)).padStart(2,'0')+':'+String(w.opens%60).padStart(2,'0')+'–'+String(Math.floor(w.closes/60)).padStart(2,'0')+':'+String(w.closes%60).padStart(2,'0')+').')+(built.evidence?' Fitted out from '+built.evidence.sources.length+' published sources about this business. '+built.evidence.unknown:' Generic fit-out for its kind: no evidence about this interior has been gathered yet.')+' Walk back out or tap Exit.');
+    if(built.soulFoodEvidence){
+      status('Inside Soul Food Depot & Gallery, 1–7 Dandaloo Street. The cafe, gallery, takeaway, catering and meeting rooms are interpreted from published services, not a measured interior or verified doorway. '+n+' fictional staff modelled.');
+      return true;
+    }
+    status('Inside '+w.name+'. '+(built.open?(n?n+' staff on shift'+(built.pupils?', '+built.pupils+' pupils in class':'')+'.':'Open, but nobody is rostered on right now.'):'Closed now (usual hours '+String(Math.floor(w.opens/60)).padStart(2,'0')+':'+String(w.opens%60).padStart(2,'0')+'–'+String(Math.floor(w.closes/60)).padStart(2,'0')+':'+String(w.closes%60).padStart(2,'0')+').')+(built.pharmacyEvidence?' Pharmacy interior is an interpretive arrangement based on the published services and an undated photograph; real floor plan unknown.':(built.evidence?' Fitted out from '+built.evidence.sources.length+' published sources about this business. '+built.evidence.unknown:' Generic fit-out for its kind: no evidence about this interior has been gathered yet.'))+' Walk back out or tap Exit.');
     return true;
   }
 
