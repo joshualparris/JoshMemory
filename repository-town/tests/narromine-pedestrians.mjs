@@ -51,4 +51,22 @@ for (let i = 0; i < parked.length; i++) for (let j = i + 1; j < parked.length; j
 }
 assert(parked.length > 40, 'cars are parked around the school: ' + parked.length);
 assert.equal(overlaps, 0, 'parked vehicle footprints overlap: ' + overlaps + ' of ' + parked.length + '; examples ' + JSON.stringify(collisions));
+// Same-weekday next week must allow the same household car to run the new day's
+// trip; a stale trip-ID Set used to make cars disappear forever after day one.
+const rollover = createNarromineTraffic(new THREE.Group(), { models: false });
+const chosen = rollover.commute.trips(2).find(t => t.purpose === 'dropoff' && t.length > 500);
+assert(chosen, 'an actual primary-school drop-off with a route longer than 500 m');
+const origin = rollover.graph.nodes[chosen.path[0]];
+const time = chosen.depart + 0.25; // first 15 seconds of its genuine road journey
+const observer = { x: origin.x, z: origin.z };
+rollover.update(0.1, observer, time, 2, 2);
+const first = rollover.cars.find(c => c.trip === chosen.id);
+assert(first, 'school-run car spawns on the first Tuesday');
+rollover.update(0.1, observer, time, 2, 9);
+const second = rollover.cars.filter(c => c.trip === chosen.id);
+assert.equal(second.length, 1, 'same car trip reappears exactly once on the following Tuesday');
+assert.notEqual(second[0].id, first.id, 'the new day spawns a fresh physical vehicle');
+rollover.update(0.1, observer, time, 2, 9);
+assert.equal(rollover.cars.filter(c => c.trip === chosen.id).length, 1,
+  'same-day repeated frames never create a duplicate car');
 console.log(`PASS Narromine pedestrians and parking: ${walks.length} weekday walks (${hours[8]} at 8 am, ${hours[15]} at 3 pm); ${parked.length} parked cars near the high school, ${overlaps} overlaps`);

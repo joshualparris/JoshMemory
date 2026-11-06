@@ -58,15 +58,31 @@ async function visit(mobile){
   const walkersBefore=await page.evaluate(()=>window.__town.narromineWalkers());
   const onScene=walkersBefore.filter(w=>w.shown&&w.inScene&&w.parentShown&&w.kids>0);
   assert(onScene.length>0,device+': school walkers must be visibly attached to scene (not just counted in a timetable)');
+  // Sample real requestAnimationFrame positions *before* the slow screenshot,
+  // so arrivals that reach school during capture are not wrongly discarded.
+  const tracks=await page.evaluate(()=>new Promise(resolve=>{
+    const started=performance.now(), found=new Map();
+    function sample(now){
+      for(const w of window.__town.narromineWalkers()){
+        if(!w.shown||!w.inScene||!w.parentShown||w.kids<=0)continue;
+        if(!found.has(w.id))found.set(w.id,[]);
+        found.get(w.id).push({t:now,x:w.x,z:w.z});
+      }
+      if(now-started<2200)requestAnimationFrame(sample);
+      else resolve([...found].map(([id,positions])=>{
+        const first=positions[0],last=positions.at(-1),seconds=(last.t-first.t)/1000;
+        const metres=Math.hypot(last.x-first.x,last.z-first.z);
+        return {id,frames:positions.length,seconds,metres,speed:seconds>0?metres/seconds:0};
+      }));
+    }
+    requestAnimationFrame(sample);
+  }));
+  const moving=tracks.filter(t=>t.frames>=3&&t.seconds>=0.25&&t.metres>0.25&&t.speed>=0.6&&t.speed<=2.0);
+  console.log('NARROMINE-SCHOOL-WALKERS '+JSON.stringify({device,visible:onScene.length,tracks:tracks.slice(0,12),moving:moving.length}));
   await page.screenshot({path:`${dir}/${device}-school-walkers.png`});
-  await page.waitForTimeout(2500);
-  const walkersAfter=await page.evaluate(()=>window.__town.narromineWalkers());
-  const continuing=onScene.map(w=>[w,walkersAfter.find(n=>n.id===w.id)]).filter(([,n])=>n&&n.shown);
-  const distances=continuing.map(([w,n])=>Math.hypot(n.x-w.x,n.z-w.z));
-  assert(distances.some(d=>d>1.0&&d<7.0),
-    device+': at least one visibly rendered walker travels ~1.1–1.3 m/s in real frames; observed '+JSON.stringify(distances.slice(0,10)));
-  const walkProof={visible:onScene.length,moving:distances.filter(d=>d>1&&d<7).length,
-   sampleMetres:distances.slice(0,10).map(d=>+d.toFixed(2))};
+  assert(moving.length>0,device+': no physically moving scene walker at realistic speed during actual WebGL frames');
+  const walkProof={visible:onScene.length,moving:moving.length,
+   sampleMetres:moving.slice(0,10).map(t=>+t.metres.toFixed(2)),speeds:moving.slice(0,10).map(t=>+t.speed.toFixed(2))};
 
   assert.deepEqual(errors,[],device+': zero JS page errors');
   const report={device,modelsLoaded:true,countBefore:before.cars.length,countAfter:after.cars.length,
