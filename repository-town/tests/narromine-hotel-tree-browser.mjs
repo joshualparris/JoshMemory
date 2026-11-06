@@ -11,8 +11,10 @@ const dest = process.env.NARROMINE_HOTEL_TREE_QA_DIR || 'test-results/narromine-
 fs.mkdirSync(dest, { recursive: true });
 const browser = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] });
 const server = await startStaticServer(path.resolve('dist/public'));
+// Baseline #489 mobile screenshot was almost entirely the near wall (22 KB); roof branch 17 KB.
+// Move this staged viewpoint 12 m east to the open street approach without relaxing image acceptance.
 const cameraLocations = [
-  { id: 'south-east-corner', x: -4803, z: -703, targetX: -4824.5, targetZ: -721.5 },
+  { id: 'south-east-corner', x: -4791, z: -703, targetX: -4824.5, targetZ: -721.5 },
   { id: 'hotel-dandaloo-front', x: -4800, z: -716, targetX: -4825, targetZ: -716 },
   { id: 'hotel-dandaloo-north', x: -4802, z: -729, targetX: -4825, targetZ: -729 },
 ];
