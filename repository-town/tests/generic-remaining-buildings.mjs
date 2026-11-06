@@ -70,6 +70,9 @@ else{
   for(const id of Object.keys(LEGACY_GENERIC_CIVIC_SITES)){
     const built=buildCivicInterior({id,name:id},label);
     assert.deepEqual(built.interactables.map(x=>x.key),['counter','display','notices'].map(key=>id+':'+key));
+    const original=JSON.parse(fs.readFileSync(new URL('./fixtures/generic-legacy-service-contract.json',import.meta.url),'utf8'));
+    assert.deepEqual(built.interactables.map(x=>({key:x.key,label:x.label,act:x.act})),original.records[id],
+      id+' retains all pre-audit service keys, labels, action types, titles and descriptions');
     assert.equal(built.sceneObjects.length,3,'legacy scene-aware service contract');
     for(const i of built.interactables)assert(!built.colliders.some(c=>
       i.pos.x>c.x0-.35&&i.pos.x<c.x1+.35&&i.pos.z>c.z0-.35&&i.pos.z<c.z1+.35),id+' '+i.key+' remains reachable');
