@@ -51,6 +51,7 @@ try {
     await page.waitForTimeout(120);
   }
   assert.deepEqual(errors, [], 'comparison page has zero errors: ' + errors.join('; '));
+  await page.close();
 
   // ---------- mobile comparison ----------
   const mobile = await browser.newPage({ viewport: { width: 393, height: 852 }, isMobile: true, hasTouch: true, deviceScaleFactor: 1 });
