@@ -1,3 +1,7 @@
+## 6 November 2026 — NR-REAL-023 performance benchmark along the Narromine route (START)
+
+Owner: DeepSeek (ProBook). Baseline `main` `0eec3adb`; branch `test/narromine-perf-route-20261106`. QA-only additive deliverable: `tools/narromine-visual-qa/perf-route.mjs` reuses the existing QA capture helper and `NARROMINE_QA_LOCATIONS` to measure real rAF frame times (fps / 1% low / p95 / worst / >50 ms hitches), draw calls, triangles, render pixel ratio and GPU per stop on desktop (1280×800) and Android (412×915) emulation, with viewport/UA details; emits JSON + CSV under `test-results/narromine-perf/`. New `.github/workflows/narromine-perf-route.yml` (ubuntu-24.04) and `docs/NARROMINE_PERFORMANCE_ROUTE_2026-11-06.md`. No game/rendering/LOD/collision/geometry changes; independent of PR #448's continuous-walk acceptance (performance only). Next: implement tool + workflow + doc, run locally desktop+mobile, PR, CI, merge, release claim.
+
 # 2026-11-06 — RESIDENT-VISUAL-001 implemented and browser-verified (PR pending)
 
 Owner DeepSeek Harness (Team Lead). Branch `feat/resident-realism-vertical-slice-20261105`, baseline `c788e73e`.
