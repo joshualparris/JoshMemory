@@ -246,9 +246,6 @@ async function start() {
   const masterplan = buildMasterplan(town.group, makeLabel);
   // Narromine, 40 km west in reality, ~90 s along the Mitchell Highway here (world/narromine.js).
   const narromine = buildNarromine(town.group, makeLabel);
-  // Traced walls/roofs previously had no door or window geometry. These are
-  // explicitly interpretive details, not surveyed private entrance locations.
-  const narromineFacadeAudit = addNarromineResidentialFacades(narromine.group);
   // Narromine railway: sleepers and rails on the mapped lines and a drivable grain train in the yard.
   const trains = createNarromineTrains(narromine.group);
   // Road traffic at the levels the NSW crossing register records (Dandaloo St 7,000 vehicles a day).
@@ -361,6 +358,10 @@ async function start() {
   // Doors must be reachable: test each against the town's solid geometry once, at load.
   const narromineDoorProbe=(x,z,r)=>!!townWorld.hits(x,z,r);
   const narromineDoorCheck={homes:narromineHomes.resolve(narromineDoorProbe),workplaces:narromineWorkplaces.resolve(narromineDoorProbe)};
+  // Attach cosmetic doors only after resolving reachable home thresholds, so a
+  // walk-in house's visible door agrees with its existing entry/return sensor.
+  const narromineFacadeAudit = addNarromineResidentialFacades(
+    narromine.group, undefined, undefined, narromineHomes.doors);
   // Dynamic vehicle footprints block player motion as well as truck movement.
   // A vehicle is approx 2.2m wide and 6.6m long; use a conservative
   // rotated-axis AABB for the town's existing 2D collision engine.
