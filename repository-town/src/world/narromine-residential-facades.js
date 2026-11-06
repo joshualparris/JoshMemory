@@ -24,7 +24,12 @@ export function houseStreetFacade(h, nearest) {
   };
 }
 
-export function addNarromineResidentialFacades(group, homes = FILL_HOUSES, nearest = nearestSegment) {
+export function addNarromineResidentialFacades(group, homes = FILL_HOUSES, nearest = nearestSegment, resolvedDoors = []) {
+  // When the simulation has already resolved a walk-in household entrance, use
+  // THAT exact threshold for its visible door; do not paint a second, unusable door.
+  const accessible = new Map(resolvedDoors.map(({ home, door }) => [
+    home.x.toFixed(1) + ',' + home.z.toFixed(1), door,
+  ]));
   const max = homes.length, box = new THREE.BoxGeometry(1, 1, 1);
   const mesh = (name, colour, capacity) => {
     const m = new THREE.InstancedMesh(box, new THREE.MeshLambertMaterial({ color: colour }), capacity);
@@ -45,8 +50,15 @@ export function addNarromineResidentialFacades(group, homes = FILL_HOUSES, neare
   };
   let frontageCount = 0;
   for (const home of homes) {
-    const front = houseStreetFacade(home, nearest(home.x, home.z));
+    let front = houseStreetFacade(home, nearest(home.x, home.z));
     if (!front) continue;
+    const actual = accessible.get(home.x.toFixed(1) + ',' + home.z.toFixed(1));
+    if (actual?.out) {
+      const dx = actual.out.x - actual.x, dz = actual.out.z - actual.z;
+      const length = Math.hypot(dx, dz) || 1, nx = dx / length, nz = dz / length;
+      front = { ...front, x: actual.x + nx * .12, z: actual.z + nz * .12,
+        yaw: Math.atan2(nx, nz) };
+    }
     const { x, z, yaw, span } = front;
     const nx = Math.sin(yaw), nz = Math.cos(yaw);
     const tx = Math.cos(yaw), tz = -Math.sin(yaw);
