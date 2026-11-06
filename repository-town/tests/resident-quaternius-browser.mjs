@@ -52,6 +52,21 @@ try {
   }
   assert.deepEqual(errors, [], 'comparison page has zero errors: ' + errors.join('; '));
 
+  // ---------- mobile comparison ----------
+  const mobile = await browser.newPage({ viewport: { width: 393, height: 852 }, isMobile: true, hasTouch: true, deviceScaleFactor: 1 });
+  mobile.on('pageerror', (e) => errors.push(e.message));
+  await mobile.goto(base + 'resident-compare.html');
+  await mobile.waitForFunction(() => window.__residentCompare?.ready === true, null, { timeout: 90000 });
+  await mobile.waitForFunction(() => window.__residentCompare.state().quaterniusLoaded === true, null, { timeout: 60000 });
+  await mobile.waitForTimeout(700);
+  const mobileState = await mobile.evaluate(() => window.__residentCompare.state());
+  assert.equal(mobileState.quaterniusLoaded, true, 'mobile comparison loads the rigged model');
+  assert.ok(mobileState.calls < 220, 'mobile draw calls bounded: ' + mobileState.calls);
+  await mobile.evaluate(() => window.__residentCompare.animation('walk'));
+  await mobile.waitForTimeout(250);
+  await mobile.screenshot({ path: `${folder}/compare-mobile-walk.png` });
+  await mobile.close();
+
   // ---------- in-game style ----------
   const game = await browser.newPage({ viewport: { width: 1100, height: 700 } });
   game.on('pageerror', (e) => errors.push(e.message));

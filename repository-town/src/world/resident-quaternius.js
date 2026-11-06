@@ -85,6 +85,7 @@ export function createQuaterniusFigure(identity, template, options = {}) {
     const mats = Array.isArray(o.material) ? o.material : [o.material];
     o.material = mats.map((m) => {
       const n = String(m.name || '');
+      if (/hair|eyebrow/i.test(n) && identity.hair.style === 'bald') o.visible = false;
       if (/superhero/i.test(n) && bodyTexture) { const c = m.clone(); c.map = bodyTexture; c.needsUpdate = true; return c; }
       return tintMaterial(m, identity, options);
     });
