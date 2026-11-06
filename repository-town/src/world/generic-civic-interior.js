@@ -24,11 +24,27 @@ export function buildGenericCivicInterior(site,makeLabel) {
   for(const x of [-4.2,4.2])k.solid(5.6,3.45,.14,x,1.725,-7.15,profile.walls);
   k.box(2.8,.45,.14,0,3.225,-7.15,profile.walls);
   k.box(13.6,.014,.13,0,.012,-7.15,0x817969);
+  // Privacy is physical geometry, not a room-name claim. Open-front treatment
+  // screens preserve a >1m route beside the couch and the central public aisle.
+  if(['rehabilitation','counselling','veterinary','funeral'].includes(key)){
+    k.solid(.1,2.15,3.5,-3.1,1.075,2.35,profile.walls);
+    k.solid(3.5,2.15,.1,-4.9,1.075,.55,profile.walls);
+  }
+  if(key==='amenities'){
+    // Two real cubicles, side entries 1.3m wide; hand basins stay outside.
+    for(const [x,z] of [[-5.2,2.5],[5.2,-1.2]]){
+      for(const dz of [-1.4,1.4])k.solid(3.3,2.2,.1,x,1.1,z+dz,profile.walls);
+      const inner=x<0?-3.5:3.5;
+      for(const dz of [-1.05,1.05])k.solid(.1,2.2,.7,inner,1.1,z+dz,profile.walls);
+    }
+  }
   // Counter stays out of the central 2.8m circulation spine.
   fixture('cashRegister',3.8,2.7,0,'Reception and collection');
   const left=(type,z,label)=>fixture(type,-5.4,z,Math.PI/2,label);
   const right=(type,z,label)=>fixture(type,5.4,z,-Math.PI/2,label);
-  if(key==='salon'){
+  if(profile.plan){
+    for(const [type,x,z,yaw] of profile.plan)fixture(type,x,z,yaw);
+  }else if(key==='salon'){
     left('salonStation',2.7);left('salonStation',-3.9);
     right('salonWash',-1.1);right('salonWash',-4.5);
     fixture('foldingBench',-4.6,-10.3);fixture('washingMachine',4.8,-10.4);
@@ -69,8 +85,8 @@ export function buildGenericCivicInterior(site,makeLabel) {
     fixture('workbench',-4.5,-10.3);fixture('crates',4.7,-10.3);
   }
   k.group.add(b.build());
-  const rearTitle=key==='salon'?'LINEN & STAFF':key==='laundry'?'FOLDING & COLLECTION':
-    ['employment','property'].includes(key)?'CONSULTATION & RECORDS':'STOCK & PREPARATION';
+  const rearTitle=profile.rearTitle||(key==='salon'?'LINEN & STAFF':key==='laundry'?'FOLDING & COLLECTION':
+    ['employment','property'].includes(key)?'CONSULTATION & RECORDS':'STOCK & PREPARATION');
   signFace(k.THREE,k.group,rearTitle,3.7,.36,-4.1,2.5,-7.05,'#53675e');
   signFace(k.THREE,k.group,profile.title.toUpperCase(),3.7,.36,4.1,2.5,-7.05,'#53675e');
   k.text(site.name,0,3.8,-6.95,'room');

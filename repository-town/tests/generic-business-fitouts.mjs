@@ -9,6 +9,7 @@ import { addGenericFacadeDetails } from '../src/world/generic-facade-details.js'
 import { EXPANSION_SITES } from '../src/world/town-expansion.js';
 import { createNarrominePopulation } from '../src/world/narromine-population.js';
 import { createNarromineWorkplaceIndex, buildNarromineWorkplaceInterior } from '../src/world/narromine-workplaces.js';
+import {REMAINING_PROFILES,REMAINING_CIVIC_SITES} from '../src/world/generic-remaining-fitouts.js';
 const label=()=>new THREE.Object3D();
 const clear=(built,x,z,r=.32)=>!built.colliders.some(c=>x+r>c.x0&&x-r<c.x1&&z+r>c.z0&&z-r<c.z1);
 const overlap=(a,b)=>a.x-a.w/2<b.x+b.w/2-.01&&a.x+a.w/2>b.x-b.w/2+.01&&a.z-a.d/2<b.z+b.d/2-.01&&a.z+a.d/2>b.z-b.d/2+.01;
@@ -45,7 +46,8 @@ for(const [id,key] of Object.entries(GENERIC_CIVIC_SITES)){
     for(const q of fit.placements)if(p!==q)assert(!overlap(p,q),id+' fixtures overlap '+p.type+' / '+q.type);
   }
   const b=new Builder(),facade=buildExpansionFacade(b,site);
-  assert.equal(facade.genericFacade,key,id+' facade opt-in');
+  const protectedStyle=['park','nursery','fuel','carwash','sports'].includes(site.style);
+  assert.equal(facade.genericFacade,protectedStyle?undefined:key,id+' facade opt-in preserves dedicated styles');
   assert.deepEqual({w:facade.w,d:facade.d},expansionFootprint(site.style),'same footprint');
   assert.equal(facade.front,7,'same entrance alignment');
   assert.equal(b.solids.length,0,'no new sidewalk collision');
@@ -66,5 +68,6 @@ for(const entry of ix.list){
   }
 }
 assert(seen.size>=5,'generic workplaces actually use varied profiles');
-assert.equal(Object.keys(GENERIC_PROFILES).length,9);
+assert.equal(Object.keys(GENERIC_PROFILES).length,9+Object.keys(REMAINING_PROFILES).length);
+assert.equal(Object.keys(REMAINING_CIVIC_SITES).length,50,'all inventoried legacy expansion shells have a typed plan');
 console.log(`PASS generic fitouts: ${Object.keys(GENERIC_CIVIC_SITES).length} civic interiors/facades; ${seen.size} mapped workplace profiles; additive fixture bounds, aisle, staff/use, exclusion and collision checks`);

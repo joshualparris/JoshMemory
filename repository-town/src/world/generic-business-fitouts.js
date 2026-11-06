@@ -1,8 +1,10 @@
 // Opt-in category plans replacing ONLY the old SHOP/OFFICE/WORKSHOP fallback.
 // Interpretive game layouts, not surveyed interiors of real Narromine businesses.
+import {REMAINING_PROFILES,REMAINING_CIVIC_SITES,REMAINING_KIND_PROFILES} from './generic-remaining-fitouts.js';
 const S=(type,label)=>[type,label,{do:'info',title:label,text:'Type-appropriate simulated workstation; the real premises have not been surveyed.',station:true}];
 const room=(name,props,w=10,d=8)=>({name,w,d,props});
 export const GENERIC_PROFILES=Object.freeze({
+  ...REMAINING_PROFILES,
   salon:{title:'Styling salon',floor:0xb6a796,walls:0xe9e1d4,accent:0x566e68,
     rooms:[room('Styling floor',[S('salonStation','Styling station'),'salonStation','salonStation','mirror','cashRegister','chair'],12,10),
       room('Wash and colour',[S('salonWash','Wash station'),'salonWash','basin','cabinet','foldingBench']),
@@ -40,12 +42,12 @@ export const GENERIC_PROFILES=Object.freeze({
       room('Furniture and textiles',['sofa','garmentRail','cabinet','foldingBench'],10,9),
       room('Stock and packing',[S('workbench','Packing bench'),'shelf','crates'],9,8)]},
 });
-const KIND_PROFILE=Object.freeze({hairdresser:'salon',beauty:'beauty',clothes:'clothing',
+const KIND_PROFILE=Object.freeze({...REMAINING_KIND_PROFILES,hairdresser:'salon',beauty:'beauty',clothes:'clothing',
   fashion_accessories:'clothing',laundry:'laundry',estate_agent:'property',employment_agency:'employment',
   agrarian:'rural',trade:'irrigation',houseware:'homewares',second_hand:'homewares',charity:'homewares'});
 // These expansion IDs were using the same generic office shell. Nothing else
 // is eligible, even when a dedicated facade happens to share a style/kind.
-export const GENERIC_CIVIC_SITES=Object.freeze({hairdresser:'salon',beauty:'beauty',laundry:'laundry',
+export const GENERIC_CIVIC_SITES=Object.freeze({...REMAINING_CIVIC_SITES,hairdresser:'salon',beauty:'beauty',laundry:'laundry',
   opshop:'clothing',farmsupplies:'rural',stockfeed:'rural',irrigation:'irrigation',
   employment:'employment',homewares:'homewares'});
 export const genericProfileForKind=kind=>KIND_PROFILE[kind]||null;

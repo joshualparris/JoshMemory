@@ -1,5 +1,6 @@
 import { genericProfileForSite } from './generic-business-fitouts.js';
 import { GLASS } from './builder.js';
+import { REMAINING_PROFILES } from './generic-remaining-fitouts.js';
 // FICTIONAL Repository Town only; never imported by real Narromine facades.
 // Called at the very end of the generic facade, after all bespoke returns.
 export function addGenericFacadeDetails(b,site,{w,h,face,trim,accent}) {
@@ -53,6 +54,47 @@ export function addGenericFacadeDetails(b,site,{w,h,face,trim,accent}) {
     for(const cx of [-4,4])for(const x of [-.65,.1,.7]){
       b.box(0xbca17e,.35,.32,.08,cx+x,1.35,face+.22);
       b.box(accent,.45,.14,.1,cx+x,1.59,face+.22);
+    }
+  }else if(REMAINING_PROFILES[key]){
+    // Respect the actual bays: workshop/rural has ONE window, not two.
+    // All details remain shallow and collision-free; no garage/door relocation.
+    const privateService=['rehabilitation','optical','counselling','support','veterinary','funeral','amenities'].includes(key);
+    for(const v of windows){
+      if(privateService){
+        b.box(0xa8c3bf,v.half*2-.12,.78,.035,v.x,1.55,face+.235);
+        b.box(accent,.48,.12,.045,v.x,2.25,face+.245);
+      }else if(['workshop','fieldservice','vehicle','wash','logistics'].includes(key)){
+        b.box(metal,2.4,.07,.1,v.x,1.38,face+.23);
+        for(let i=0;i<3;i++){
+          const x=v.x-.8+i*.8;
+          if(key==='workshop'||key==='vehicle'){
+            b.cyl(0x35444a,.25,.07,x,1.69,face+.26,Math.PI/2);
+            b.cyl(metal,.1,.08,x,1.69,face+.28,Math.PI/2);
+          }else{
+            b.box(0xb5a184,.55,.45,.08,x,1.65,face+.24);
+            b.box(frame,.18,.12,.025,x,1.67,face+.29);
+          }
+        }
+      }else if(['museum','gifts','specialistRetail','photography'].includes(key)){
+        for(const dx of [-.72,.72]){
+          b.box(base,.58,.26,.09,v.x+dx,1.13,face+.23);
+          b.box([accent,0xab8f69][dx>0?1:0],.35,.44,.08,v.x+dx,1.48,face+.24);
+          b.box(frame,.35,.09,.025,v.x+dx,1.88,face+.25);
+        }
+      }else if(key==='florist'){
+        for(const dx of [-.75,0,.75]){
+          b.box(base,.32,.32,.09,v.x+dx,1.14,face+.23);
+          b.box(0x668257,.055,.45,.07,v.x+dx,1.49,face+.24);
+          b.box(0xc99794,.29,.2,.08,v.x+dx,1.72,face+.25);
+        }
+      }else{
+        // Legible opening-hours/service cards with a clear upper daylight bay.
+        for(const dx of [-.65,.65]){
+          b.box(frame,.85,.82,.045,v.x+dx,1.78,face+.23);
+          for(let i=0;i<3;i++)b.box(accent,.53,.035,.02,v.x+dx,1.97-i*.17,face+.26);
+        }
+      }
+      b.box(trim,v.half*2+.18,.11,.22,v.x,v.bottom-.04,face+.17);
     }
   }
   return key;

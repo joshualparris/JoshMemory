@@ -61,6 +61,14 @@ else{
   const expected=JSON.parse(fs.readFileSync(path,'utf8'));
   assert.deepEqual(actual,expected.geometry,'pass two changed an existing dedicated or previously upgraded component');
   assert.deepEqual(country,JSON.parse(fs.readFileSync(countryPath,'utf8')).geometry,'a country exterior or researched room changed');
+  let finishedHomes=0;
+  for(const home of PLAN_HOMES)if(!dossierFor(home.design.country)){
+    const built=buildCountryInterior(home,label);finishedHomes++;
+    assert.equal(built.genericCountryFinish?.layoutChanged,false);
+    assert.equal(built.genericCountryFinish.finishes.length,3);
+    assert.equal(built.countryPlan.fixtures.length,10,'existing home fixtures preserved');
+  }
+  assert.equal(finishedHomes,193,'every non-dossier country interior receives the finish layer');
   for(const s of EXPANSION_SITES){
     const built=buildCivicInterior(s,label);
     assert(!built.group.getObjectByName('office-shelf-stock'),s.id+' still has placeholder office stock');

@@ -1,5 +1,10 @@
 Original prompt: Make the simulation less crowded, less traffic, easier and more fun to play; playtest newest Narromine build.
 
+## Remaining generic audit: implementation milestone
+- Direct inventory: 50 additional fictional civic interiors, 39 eligible generic fictional exteriors, 22 mapped Narromine interiors, 193 country fallback finish layers. Existing dedicated ID/style returns, FIT/evidence, 188 repository briefs and real Narromine facades preserved.
+- PASS original 48 protection signatures plus separately recorded 145 business and 197 country component signatures. PASS 195-country layout tests, mapped workplace and indoor-life tests. No existing baseline regenerated.
+- Before/after actual 3D Physio room inspected locally. Final browser/phone-emulation and release gates pending; no second-pass publication approval. Country layouts still generic and upper floors inaccessible; real-location exterior evidence remains a follow-up.
+
 ## Active request: 7 November 2026
 Make generic building interiors and exteriors more realistic. User explicitly says not to edit any handcrafted buildings. Dedicated/evidence-backed builders are protected; work only on fallback-generated building types and fictional-town generic facade details.
 

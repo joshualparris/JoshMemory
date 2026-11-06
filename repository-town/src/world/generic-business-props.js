@@ -1,8 +1,10 @@
 // New, opt-in fixtures for generic fit-outs only. Never replace existing props.
 // All geometry is authored locally; no photographs or surveyed-location claims.
+import {GENERIC_REMAINING_PROPS} from './generic-remaining-props.js';
 const STEEL=0x939b9b, DARK=0x303a3c, CREAM=0xe7e0d2, WOOD=0x967252;
 const make=(type,label,w,d,build)=>({type,label,w,d,solid:true,build});
 export const GENERIC_BUSINESS_PROPS={
+  ...GENERIC_REMAINING_PROPS,
   treatmentCouch:make('treatmentCouch','Treatment couch',.95,1.9,(b)=>{
     for(const x of [-.33,.33])for(const z of [-.72,.72])b.block(STEEL,.06,.62,.06,x,0,z);
     b.box(CREAM,.86,.15,1.7,0,.7,0);b.add('box',CREAM,.86,.1,.55,0,.86,-.62,-.35);
