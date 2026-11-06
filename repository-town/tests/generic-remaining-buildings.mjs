@@ -9,6 +9,10 @@ import {buildCivicInterior,CIVIC_INTERIOR_IDS} from '../src/world/shop-interior.
 import {buildExpansionFacade} from '../src/world/town-expansion-facades.js';
 import {createNarrominePopulation} from '../src/world/narromine-population.js';
 import {createNarromineWorkplaceIndex,buildNarromineWorkplaceInterior} from '../src/world/narromine-workplaces.js';
+import {PLAN_HOMES} from '../src/world/masterplan-built.js';
+import {buildCountryHome} from '../src/world/country-homes.js';
+import {dossierFor} from '../src/world/country-dossiers.js';
+import {buildCountryInterior} from '../src/world/country-interiors.js';
 
 const label=()=>new THREE.Object3D();
 const targetKinds=new Set(['hvac','camp_site','museum','coworking','courthouse','animal_shelter',
@@ -44,10 +48,19 @@ for(const entry of index.list)if(!targetKinds.has(entry.workplace.kind)){
   actual['workplace:'+entry.workplace.id]=signature(buildNarromineWorkplaceInterior(pop,entry,label,2,660));
 }
 const path=new URL('./fixtures/generic-pass-two-protected.json',import.meta.url);
-if(process.argv.includes('--record'))console.log(JSON.stringify({baseline:'0cfa7911',geometry:actual},null,2));
+const country={};
+for(const home of PLAN_HOMES){
+  const b=new Builder();buildCountryHome(b,home.design);
+  country['exterior:'+home.design.country]=signature(b);
+  if(dossierFor(home.design.country))country['researched:'+home.design.country]=signature(buildCountryInterior(home,label));
+}
+const countryPath=new URL('./fixtures/generic-country-protected.json',import.meta.url);
+if(process.argv.includes('--record-country'))console.log(JSON.stringify({baseline:'45f2b632 plus business-only working changes; country sources unchanged',geometry:country},null,2));
+else if(process.argv.includes('--record'))console.log(JSON.stringify({baseline:'0cfa7911',geometry:actual},null,2));
 else{
   const expected=JSON.parse(fs.readFileSync(path,'utf8'));
   assert.deepEqual(actual,expected.geometry,'pass two changed an existing dedicated or previously upgraded component');
+  assert.deepEqual(country,JSON.parse(fs.readFileSync(countryPath,'utf8')).geometry,'a country exterior or researched room changed');
   for(const s of EXPANSION_SITES){
     const built=buildCivicInterior(s,label);
     assert(!built.group.getObjectByName('office-shelf-stock'),s.id+' still has placeholder office stock');
@@ -56,5 +69,5 @@ else{
     const built=buildNarromineWorkplaceInterior(pop,entry,label,2,660);
     assert(built.genericFitout,entry.workplace.name+' still has an untyped fallback');
   }
-  console.log(`PASS remaining-building coverage and ${Object.keys(actual).length} additional frozen component signatures`);
+  console.log(`PASS remaining-building coverage and ${Object.keys(actual).length} additional business / ${Object.keys(country).length} country frozen component signatures`);
 }
