@@ -19,7 +19,7 @@
     "repository-town/tests/shop-interiors.mjs": "0ca369aa2d241c152edb841c1125aa9319241a0d",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "ad23fa855bfb3efec86d9e11c18f0bb1847b3042",
+    "repository-town/src/main.js": "565c67446026acf7b754e0db396d29c49de21452",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -1346,6 +1346,12 @@
         "repository-town/src/main.js"
       ],
       "finding": "Reviewed complete diffs from the previously audited blobs. The generic shop import/hook is after the unchanged pub early return. main/townlife changes add Calm outdoor visibility, traffic configuration, visible-person selection and debug state only. Pub builders, envelope, equipment, service logic, egress and standards modules remain unchanged. All 48 protected geometry/layout signatures, including the pub interior, match independently extracted integration baseline 66561b06 without refreshing their fixture. Source fingerprints updated after impact review only; no regulatory conclusion, task completion, historical fact, certificate, physical egress or hosted-acceptance claim is upgraded."
+    },
+    {
+      "date": "2026-11-07",
+      "by": "Perplexity Computer STARTUP-PROGRESS-001 source-impact review",
+      "changedFiles": ["repository-town/src/main.js"],
+      "finding": "Reviewed diff against 00a9e7df: ordered startup stage/yield calls, observational Three.js default loading-manager wrappers preserving callbacks, fatal loading UI forwarding, and first-frame render before dismissing the loader. No pub builders, service handlers, floor routes, equipment, envelope, egress or simulation rules changed. Main source fingerprint refreshed for provenance only; no engineering, regulatory, production or performance acceptance upgraded."
     }
   ]
 }

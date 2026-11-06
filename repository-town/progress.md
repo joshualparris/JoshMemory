@@ -1,5 +1,10 @@
 Original prompt: Make the simulation less crowded, less traffic, easier and more fun to play; playtest newest Narromine build.
 
+## Latest request: actual startup loading progress
+- Separate stacked branch from generic runtime `00a9e7df`: early bootstrap UI, 12 real startup stages, stage timings, observed file requests and optional-model progress; no fake download percentage or countdown.
+- Yield before synchronous scene phases and render the first frame before hiding startup. Preserve saves and simple-model fallbacks; no geometry edits.
+- PASS loader behavioral tests, runtime lifecycle and 10/10 pub P0/envelope. Final desktop/phone, failure/retry, build/privacy and release acceptance pending. No new publication approval.
+
 ## Remaining generic audit: implementation milestone
 - Final scope correction: three live legacy offices also replaced (security HQ, field office, locksmith), with exteriors preserved. Original 145-entry before fixture retained; three explicit intended changes leave 142 unchanged business signatures. Pub source hash-only review and 10 P0/envelope cases pass. Final runtime adds type-appropriate palettes, floor zoning and waiting seats only to new profiles. The interrupted early release run is not acceptance.
 - Direct inventory: 50 additional fictional civic interiors, 39 eligible generic fictional exteriors, 22 mapped Narromine interiors, 193 country fallback finish layers. Existing dedicated ID/style returns, FIT/evidence, 188 repository briefs and real Narromine facades preserved.
