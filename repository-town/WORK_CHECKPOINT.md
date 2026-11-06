@@ -882,3 +882,17 @@ Additional mobile source-CSS fix: expanded HUD title gets its own row, preservin
 Browser main-flow follow-up: search for General Store reached its real exterior at H8-S; bird's-eye control round-trip was exercised. Expanded phone HUD collapse button fits wholly in panel bounds and collapses correctly. Final phone screenshot visually inspected.
 
 Remote PR checks are not local acceptance: many remain queued/pending. Vercel automatic preview failed specifically with build-rate-limit/retry-in-24-hours status, not a local code/test failure. Keep draft; hosted playtest and physical Android gates remain incomplete. Owner approval is required before replacing the existing `qa/narromine/` staging path. No workflow dispatch, merge or live publication performed.
+
+### Approved separate hosted playtest complete
+
+Owner approved publishing the tested build to a NEW path, not overwriting existing Narromine: https://parris-tech-services.github.io/Repository-town-playtest/qa/calm-town-20261106/ .
+
+Site commit `2918e8bf9e79d65b3eb047312793b8beff18b9c8` changes only `qa/calm-town-20261106/` (1,519 files including release manifest). GitHub Pages run succeeded: https://github.com/Parris-Tech-Services/Repository-town-playtest/actions/runs/42196105081 . No source-main merge, existing-page replacement, Vercel change or API stripping.
+
+Public release metadata: https://parris-tech-services.github.io/Repository-town-playtest/qa/calm-town-20261106/release.json . Exact source `ec5ba10514438dd6182227163b5fa9e4ca9cd2c9`; content hash `c54a6e803ae03aff3e3488395ae141c9117356630f5972df29276c7e2690835c`. Browser SHA-256 verification matched all seven sampled critical files: main, index, styles, activity policy, traffic, input and HUD collapse.
+
+Hosted desktop PASS: fresh Calm/compact defaults; Standard/Calm switching; returning from Settings and walking while close-button focus remains; Bag and town-map open/close; search reaches General Store; saved Calm and position reload. Hosted fresh touch-emulated 375×812 PASS: no horizontal overflow, expanded collapse button inside panel, Settings toggles, real CDP joystick movement, compact controls, saved Calm and position on reload. Screenshots inspected. Fresh phone and final desktop reloads have no page exceptions or failed asset responses.
+
+Initial immediately-after-deploy desktop cold load encountered three transient GitHub Pages 503 module responses. Each subsequently returned HTTP 200; one reload started the town successfully. Fresh phone cold load then succeeded without retry. Keep this transient in the evidence rather than claiming every initial request was clean.
+
+Complete within approved separate-QA scope. Draft source PR remains available for overlap review with #515/#518; production promotion, physical-handset/FPS acceptance and long-session hosted traffic testing are not claimed.
