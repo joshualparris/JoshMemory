@@ -9,6 +9,7 @@ import { addItem, equip, hasItem, items } from './inventory.js';
 export const SKILLS = Object.freeze({
   woodcutting: { name: 'Woodcutting', icon: '🪓', about: 'Chop trees at the Woodlot with a hatchet. Oaks need level 15, willows level 30.' },
   firemaking: { name: 'Firemaking', icon: '🔥', about: 'Light logs with a tinderbox. Better logs need a higher level and burn longer.' },
+  cooking: { name: 'Cooking', icon: '🍳', about: 'Cook raw food on a fire you lit. Higher levels burn food less and unlock better meals.' },
 });
 export const MAX_LEVEL = 99;
 export const BAG_SLOTS = 28;
@@ -37,9 +38,12 @@ export function addXp(me, skill, xp) {
     message: after > before ? `🎉 ${SKILLS[skill].icon} ${SKILLS[skill].name} level ${after}!${unlockNote(skill, after, before)}` : '' };
 }
 function unlockNote(skill, after, before) {
-  const unlocks = skill === 'woodcutting' ? Object.values(TREES) : Object.values(LOGS).map((l) => ({ name: l.name, level: l.fireLevel }));
+  const unlocks = skill === 'woodcutting' ? Object.values(TREES)
+    : skill === 'cooking' ? Object.values(RECIPES).map((r) => ({ name: r.name, level: r.level }))
+    : Object.values(LOGS).map((l) => ({ name: l.name, level: l.fireLevel }));
+  const verb = skill === 'woodcutting' ? 'chop' : skill === 'cooking' ? 'cook' : 'burn';
   const got = unlocks.filter((u) => u.level > before && u.level <= after).map((u) => u.name.toLowerCase());
-  return got.length ? ` You can now ${skill === 'woodcutting' ? 'chop' : 'burn'} ${got.join(' and ')}.` : '';
+  return got.length ? ` You can now ${verb} ${got.join(' and ')}.` : '';
 }
 
 export function skillsReport(me) {
@@ -61,6 +65,35 @@ export const LOGS = Object.freeze({
   oak_logs: { name: 'Oak logs', icon: '🪵', fireLevel: 15, xp: 60, burn: 45, price: 9 },
   willow_logs: { name: 'Willow logs', icon: '🪵', fireLevel: 30, xp: 90, burn: 60, price: 16 },
 });
+
+// ── Cooking (docs/RUNESCAPE_ROADMAP.md item 9) ───────────────────────────────
+// Cook a raw bag good on a fire you lit. The raw ingredient is consumed; a bad
+// roll burns it and wastes it; success turns it into a cooked meal that feeds
+// the player's hunger through needs.js FOOD_ENERGY.
+export const RECIPES = Object.freeze({
+  lamb: { name: 'lamb', icon: '🍖', level: 1, xp: 30, burnBase: 0.30, output: 'cooked_lamb', cookedName: 'roast lamb' },
+  veg: { name: 'vegetables', icon: '🥕', level: 8, xp: 40, burnBase: 0.22, output: 'cooked_veg', cookedName: 'roast vegetables' },
+});
+export const burnChance = (recipe, cookingLevel) => Math.min(0.9, Math.max(0.02, recipe.burnBase - (cookingLevel - 1) * 0.006));
+export function canCook(me, recipeId) {
+  const r = RECIPES[recipeId];
+  if (!r) return 'That cannot be cooked.';
+  if (level(me, 'cooking') < r.level) return `You need Cooking level ${r.level} to cook ${r.name}.`;
+  if (!(me.bag?.[recipeId] > 0)) return `You have no ${r.name} to cook.`;
+  return null;
+}
+// One attempt at a fire; the caller (main.js) first checks the player stands
+// beside a live fire. Pure rules here, so it tests and saves deterministically.
+export function cookFood(me, recipeId, rand = Math.random) {
+  const why = canCook(me, recipeId);
+  if (why) return { ok: false, message: why };
+  const r = RECIPES[recipeId];
+  me.bag[recipeId]--;
+  if (rand() < burnChance(r, level(me, 'cooking'))) return { ok: true, burned: true, message: `You burn the ${r.name}. Try again.` };
+  me.bag[r.output] = (me.bag[r.output] || 0) + 1;
+  const gain = addXp(me, 'cooking', r.xp);
+  return { ok: true, cooked: r.output, levelUp: gain.levelUp, message: gain.message || `You cook the ${r.name} into ${r.cookedName}. +${r.xp} Cooking XP` };
+}
 // Swings every 2.4 seconds, as in RuneScape; this is the chance one swing gets a log.
 export const SWING_SECONDS = 2.4;
 export function chopChance(lv, tree) { return Math.max(0.08, Math.min(0.9, (0.35 + (lv - tree.level) * 0.012) / tree.difficulty)); }

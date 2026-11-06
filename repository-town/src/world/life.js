@@ -81,6 +81,8 @@ export const GOODS = {
   eggs: { name: 'eggs', unit: 'dozen', price: 6 },
   milk: { name: 'milk', unit: 'bottle', price: 3 },
   lamb: { name: 'lamb', unit: 'cut', price: 12 },
+  cooked_lamb: { name: 'roast lamb', unit: 'serve', price: 16 },
+  cooked_veg: { name: 'roast vegetables', unit: 'serve', price: 9 },
   coffee: { name: 'coffee beans', unit: 'bag', price: 9 },
   tea: { name: 'tea', unit: 'tin', price: 6 },
   parcel: { name: 'parcels', unit: 'parcel', price: 0 },

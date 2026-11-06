@@ -36,7 +36,7 @@ covered by a test.
 
 ## 2. Next skills, in order
 
-9. [ ] Cooking on a fire you lit (feeds the hunger system).
+9. [x] Cooking on a fire you lit (feeds the hunger system). _6 Nov: merged PR #486 (`eba6e51a`). New `cooking` skill with `RECIPES` (lamb→roast lamb, lvl 1; vegetables→roast vegetables, lvl 8), a burn chance that falls with level, a real bag Cook action beside a lit fire, `cooked_lamb`/`cooked_veg` feeding `FOOD_ENERGY`, and save/restore. Node rules test plus a real desktop + phone-touch Chromium playthrough (`tests/cooking-browser.mjs`); item 10 fishing can add raw fish as a second recipe source._
 10. [ ] Fishing at the river or dam, then cooking the catch.
 11. [ ] Turn existing jobs into skills: baking, farming and café work earn Cooking and Farming XP
         alongside the wages.
