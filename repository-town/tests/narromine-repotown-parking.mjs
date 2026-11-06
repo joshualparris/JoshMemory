@@ -17,3 +17,9 @@ for (let i = 0; i < working.length; i++) for (let j = i + 1; j < working.length;
 for (const c of working) { const p = pop.people.find(q => q.name === c.owner && q.repoTownJob?.name === c.place); assert(p, 'each car belongs to a commuter who works there'); assert(Math.abs(c.x - life.places.get(p.repoTownJob.id).curb.x) < 40, 'parked at their own workplace'); }
 assert(sunday < working.length, 'fewer on Sunday');
 console.log(`PASS Repository Town parking: ${working.length} Narromine commuters parked at their workplaces at 11 am Tuesday, ${sunday} on Sunday, none at 2 am`);
+
+for(const c of working)for(let i=0;i<6;i++)
+  assert(Math.abs(c.x-(i*5-13)*26)>=3.5+c.L/2+1.5,'parked car blocks cross avenue');
+for(let i=0;i<working.length;i++)for(let j=i+1;j<working.length;j++)
+  if(Math.abs(working[i].z-working[j].z)<2)
+    assert(Math.abs(working[i].x-working[j].x)>=(working[i].L+working[j].L)/2+1,'full vehicle footprints overlap');
