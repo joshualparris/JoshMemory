@@ -14,12 +14,12 @@
     "repository-town/src/world/life.js": "2c97809422dd4be55672d31e07f305092ce9efad",
     "repository-town/src/world/power-grid.js": "6de3f54d8fe576117594fe36124748e36da4e255",
     "repository-town/src/world/pub-interior.js": "46396a0552d2480f3c31585e77199803433ab6b6",
-    "repository-town/src/world/shop-interior.js": "a558de8daf279c89b2c0cbd3ab874b8bd0960546",
-    "repository-town/src/world/townlife.js": "421bd54cb405830c290fed3ac589a42eaf81bf7d",
+    "repository-town/src/world/shop-interior.js": "d2626262d1a9080a786b282b6b3588639b88dfa4",
+    "repository-town/src/world/townlife.js": "49ae4d248fccfcbdf6285927accd0e150aa6517e",
     "repository-town/tests/shop-interiors.mjs": "0ca369aa2d241c152edb841c1125aa9319241a0d",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "0be950095f4cc65f65a5b18a15a26a182690b6e2",
+    "repository-town/src/main.js": "ad23fa855bfb3efec86d9e11c18f0bb1847b3042",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -1336,6 +1336,16 @@
         "repository-town/tests/game-tick.mjs"
       ],
       "finding": "Reviewed main.js bounded foreground-only game tick call and pure tick recovery for software-WebGL stalls; pub envelope, egress, safety and services unchanged. Scope limited to simulation clock, independent full browser and pub checks remain required."
+    },
+    {
+      "date": "2026-11-07",
+      "by": "Perplexity Computer GENERIC-FITOUT-001 source-impact review",
+      "changedFiles": [
+        "repository-town/src/world/shop-interior.js",
+        "repository-town/src/world/townlife.js",
+        "repository-town/src/main.js"
+      ],
+      "finding": "Reviewed complete diffs from the previously audited blobs. The generic shop import/hook is after the unchanged pub early return. main/townlife changes add Calm outdoor visibility, traffic configuration, visible-person selection and debug state only. Pub builders, envelope, equipment, service logic, egress and standards modules remain unchanged. All 48 protected geometry/layout signatures, including the pub interior, match independently extracted integration baseline 66561b06 without refreshing their fixture. Source fingerprints updated after impact review only; no regulatory conclusion, task completion, historical fact, certificate, physical egress or hosted-acceptance claim is upgraded."
     }
   ]
 }
