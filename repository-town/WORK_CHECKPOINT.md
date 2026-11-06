@@ -1,3 +1,15 @@
+## 6 November 2026 — DeepSeek usage audit + deterministic analyser (VERIFIED)
+
+Owner: DeepSeek (ProBook). Deterministic analyser `tools/dsh-usage-report.mjs` reads the DSH session transcripts (`~/.dsh/sessions/**/session.v4.jsonl.zstd`, per-call `data.usage`: `inputTokens` = uncached, `cacheReadTokens`, `outputTokens`) and reconciles by-model/by-turn totals against the single-pass total.
+
+**Verified snapshot (current ProBook session, Flash off-peak):** 291 calls; cached 123,932,800 (98.5% of input), uncached 1,905,613, output 325,323; processed 126,163,736; **$0.852834**; `reconcile OK` (total = byModel = byTurn). Cost split: cached $0.3718, uncached $0.2858, output $0.1952. By model: flash $0.3869, flash/low $0.3354, v4-pro $0.1305. Top turn 2 $0.4435 (211 calls); two turn-boundary cache misses — turn 4 652k uncached / 4 calls ($0.1059) and turn 7 523k uncached / 4 calls ($0.0900). Second local session $0.0207; **both local = 127.3M tokens, $0.8735**.
+
+**Earlier $0.758/$0.806/$0.862/$0.779 mismatch was a calculation bug**, not scope/pricing: subtotal accumulators double-counted the first call of each model/turn. The single-pass total was correct and every total now reconciles exactly from the raw per-call records.
+
+**Limits:** local transcripts cover 2 sessions (~127M tokens); the ~270M dashboard figure includes non-local (Lenovo) sessions not on this machine. Cost uses the Flash off-peak table for every call (v4-pro could differ) — a consistent lower-bound estimate, not a billing statement. The same analyser runs on Lenovo transcripts when provided; their files are not assumed present.
+
+**Actions:** added `tools/dsh-usage-report.mjs`; updated `docs/DEEPSEEK_TOKEN_EFFICIENCY.md` §6 (no large context dumps, stable cache prefix, task-scoped sessions, CI watchers, cost per verified task, preserve all gates). No game source changed.
+
 # 2026-11-06 — RESIDENT-VISUAL-492 COMPLETE (merged + live-alt verified)
 
 Merged #509 (`4ebdd1bf`) and pub-audit fingerprint refresh #511 (`d643ea5b`). Main = `d643ea5b`; approved Pages alt = `d643ea5b`. Live browser playtest on alt PASS: Resident Studio desktop+Pixel 7 (child occupations, manual near/far LOD with >2% real pixel difference), in-game home/Coles figure-id + close-up checks desktop+Pixel 7, Quaternius default/compare wording, pub audit 14/14 + pub utilities/shop interiors. Production Vercel remains rate-limited at `a6443493`; alternate is the verified deployment. Remaining: physical low-end FPS, everyday wardrobe/fitted hair (issue #492 scope fixed). Screenshots under `test-results/`.
