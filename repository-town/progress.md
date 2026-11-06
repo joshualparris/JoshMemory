@@ -6,6 +6,9 @@ Make generic building interiors and exteriors more realistic. User explicitly sa
 - Generic-only implementation milestone: nine opt-in civic interiors/facades plus nine workplace category profiles; additive salon/laundry/clothing/rural-supply/office fixtures. Actual dispatch excludes every existing FIT template and named evidence.
 - PASS fixture geometry footprint, central aisle/exit, staff/use clearance, pairwise placement, category/exclusion checks and 48 protected geometry signatures. The same snapshot fixture also passes against independently extracted source baseline `66561b06`; it was not refreshed for the implementation.
 - PASS existing Narromine workplaces and indoor-life suites. Initial build passes. Browser QA and full release gate remain pending; no new building release is published.
+- Browser correction: new workplace fixtures were centred on a wall line, clipping salon mirrors/counters. Added opt-in `spec.insetWallProps` only to new generic plans; no change to default/bespoke allocator. PASS new actual fixture footprint-in-room checks, all 48 protection snapshots, 77 workplace and indoor-life tests after correction.
+- Local Chromium desktop: eight generic layouts and salon exterior inspected, actual keyboard movement across rear passage, service panel and exit; phone 375×812 emulation: laundry rendered, joystick movement and exit, settings open/close, no overflow or page errors. Phone is emulation, not physical hardware.
+- Perplexity iframe preview remains blocked by the existing game's saves/Pointer Lock/packed arcade APIs. Do not remove persistence or bypass host restrictions. New building code is not published.
 
 - Baseline inspected in Chromium and canonical source located in JoshMemory/repository-town.
 - Existing main already contains spatial crowd repair; this change adds a reversible activity preference, not a replacement collision system.

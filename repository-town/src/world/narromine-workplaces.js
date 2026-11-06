@@ -135,7 +135,7 @@ export function buildNarromineWorkplaceInterior(pop, entry, makeLabel, weekday, 
   }
   const walls = pickH('wall', [0xf2f0ea, 0xe6e1d6, 0xdfe6e3, 0xe9dfd0, 0xd3dce2, 0xefe7d8, 0xcfd6cc]), floor = pickH('floor', [0xb9b2a7, 0x9c8f7d, 0x8a8f94, 0xc7bfae, 0x7b6a58, 0xa7a59e]);
   const spec = pharmacy ? { ...pharmacy, rooms } : soulFood ? { ...soulFood, rooms } : { layout: rooms.length > 2 ? pickH('lay', ['row', 'hub', 'L']) : 'row', height: pickH('h', [3, 3.3, 3.6]), walls, floor, rooms };
-  if(generic)Object.assign(spec,{layout:'row',walls:generic.walls,floor:generic.floor});
+  if(generic)Object.assign(spec,{layout:'row',walls:generic.walls,floor:generic.floor,insetWallProps:true});
   let built = null;
   for (let tries = 0; tries < 14 && !built; tries++) {
     try { built = buildInterior({ repo: 'narromine-' + w.id, coordinate: 'NARROMINE-WORK:' + w.id, name: w.name, noBedroom: true, int: spec }, makeLabel); } catch (e) {

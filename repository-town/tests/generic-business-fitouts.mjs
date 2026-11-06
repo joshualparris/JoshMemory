@@ -59,6 +59,11 @@ for(const entry of ix.list){
   assert(!built.rooms.some(r=>/bedroom/i.test(r.name)));
   assert(built.interactables.some(i=>i.act?.station),'retains work stations');
   assert(clear(built,built.spawn.x,built.spawn.z),'clear workplace spawn');
+  for(const obj of built.sceneObjects.filter(o=>o.footprint)){
+    const r=built.rooms[obj.room],{w,d}=obj.footprint;
+    assert(obj.pos.x-w/2>=r.x0+.1&&obj.pos.x+w/2<=r.x1-.1,entry.id+' '+obj.type+' not clipped through side wall');
+    assert(obj.pos.z-d/2>=r.z0+.1&&obj.pos.z+d/2<=r.z1-.1,entry.id+' '+obj.type+' not clipped through end wall');
+  }
 }
 assert(seen.size>=5,'generic workplaces actually use varied profiles');
 assert.equal(Object.keys(GENERIC_PROFILES).length,9);
