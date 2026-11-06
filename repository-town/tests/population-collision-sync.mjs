@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import * as THREE from 'three';
+import {createPopulationView} from '../src/world/population-view.js';
+import {separatePedestrians} from '../src/world/pedestrian-spacing.js';
+const v={id:900,populationId:'resident:900',name:'Test resident',age:30,x:0,z:0,heading:0,inside:false,path:[]};
+const view=createPopulationView({population:{additional:[v]}},new THREE.Group(),()=>new THREE.Group());
+view.update(.016,1,{x:0,z:0},false);
+const worker={x:0,z:0},player={x:0,z:0};
+for(let i=0;i<10;i++)separatePedestrians([{id:'worker',pos:worker},{id:'resident',pos:v},{id:'player',pos:player,fixed:true}]);
+view.syncPositions();
+const model=view.models.get(v.id).fig.group;
+assert.equal(model.position.x,v.x);assert.equal(model.position.z,v.z);
+assert(Math.hypot(v.x-player.x,v.z-player.z)>1.24);
+assert(Math.hypot(v.x-worker.x,v.z-worker.z)>1.24);
+assert.deepEqual(player,{x:0,z:0});
+console.log('PASS additional resident mesh follows resolved position beside worker and player');

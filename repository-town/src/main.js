@@ -1173,7 +1173,12 @@ async function start() {
       ambience.chop(); woodlot.hit(tr.id, t);
       hatchetView.burst({ x: tr.pos.x + (player.pos.x - tr.pos.x) / d * 0.4, z: tr.pos.z + (player.pos.z - tr.pos.z) / d * 0.4 }, { x: (player.pos.x - tr.pos.x) / d, z: (player.pos.z - tr.pos.z) / d });
     }
-    for (let n = gameTick.advance(tickClock === null ? 0 : t - tickClock); n > 0; n--) tickActions();
+    // Rendering may block for more than 0.6 s on low-end mobiles; catch up
+    // a bounded number of foreground action ticks without advancing a
+    // backgrounded tab while the player is away.
+    for (let n = gameTick.advance(tickClock === null ? 0 : t - tickClock, {
+      catchUp: document.visibilityState === 'visible',
+    }); n > 0; n--) tickActions();
     tickClock = t;
   }
   // Tap-to-walk, as in RuneScape (engine step 2): a quick tap on the view walks you there by an
@@ -2020,6 +2025,9 @@ async function start() {
         ...nearbyPeople.map(p=>({id:'resident:'+p.v.id,pos:p.v,
           radius:p.v.bike&&p.v.path?.length?1.16:.61,
           goal:p.v.path?.[0]||null,speed:p.v.bike?4.5:1.5,fixed:!!p.v.engaged})),
+        ...(life.population?.additional||[]).filter(v=>!v.inside &&
+          Math.abs(v.x-player.pos.x)<95 && Math.abs(v.z-player.pos.z)<95)
+          .map(v=>({id:'population:'+v.id,pos:v,radius:.61,goal:v.path?.[0]||null,speed:1.4})),
         ...nearbyCharacters.map(n=>({id:'character:'+n.npc.id,pos:n.pos,radius:.66,
           goal:n.activity==='walk'?{x:n.targetX,z:n.targetZ}:null,speed:.65,
           fixed:npcChat.isOpen()&&npcChat.active()===n.npc.id})),
@@ -2035,6 +2043,7 @@ async function start() {
         p.pos.set(p.v.x,0,p.v.z);
         p.fig.group.position.x=p.v.x;p.fig.group.position.z=p.v.z;
       }
+      townLife.populationView.syncPositions();
       // The nearby-action HUD, not dozens of world-space nameplates, identifies
       // town residents. Keep animated characters visible but mute their billboards.
       for (const p of townLife.people) if (p.tag) p.tag.visible = false;

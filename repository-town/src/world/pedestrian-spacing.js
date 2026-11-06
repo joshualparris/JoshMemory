@@ -5,6 +5,28 @@
 export const PEDESTRIAN_RADIUS = 0.61;
 export const PEDESTRIAN_GAP = 1.28;
 
+// Mutable broad phase: update buckets after every correction, including across
+// negative cell boundaries. Preserve caller order so crowd resolution stays stable.
+function pedestrianGrid(entries, cellSize=6) {
+  const cells=new Map(), keys=new Map();
+  const key=p=>`${Math.floor(p.x/cellSize)},${Math.floor(p.z/cellSize)}`;
+  function update(i){
+    const k=key(entries[i].pos),old=keys.get(i);
+    if(k===old)return false;
+    if(old!==undefined){const bucket=cells.get(old);bucket.delete(i);if(!bucket.size)cells.delete(old);}
+    if(!cells.has(k))cells.set(k,new Set());
+    cells.get(k).add(i);keys.set(i,k);return true;
+  }
+  entries.forEach((_,i)=>update(i));
+  return {crowded:[...cells.values()].some(bucket=>bucket.size>12),update,near(pos,r,min=0){
+    const found=[];
+    for(let x=Math.floor((pos.x-r)/cellSize);x<=Math.floor((pos.x+r)/cellSize);x++)
+      for(let z=Math.floor((pos.z-r)/cellSize);z<=Math.floor((pos.z+r)/cellSize);z++)
+        for(const i of cells.get(`${x},${z}`)||[])if(i>=min)found.push(i);
+    return found.sort((a,b)=>a-b);
+  }};
+}
+
 function fallbackDirection(a,b) {
   // Two NPCs can load at exactly the same position. A stable identity-based
   // angle prevents NaNs and random jitter across frames and game saves.
@@ -43,11 +65,17 @@ function move(item,dx,dz,world) {
 // are included so standing workers aren't allowed to merge with visitors.
 export function separatePedestrians(people,{world=null,gap=PEDESTRIAN_GAP,passes=5}={}) {
   const entries=people.filter(p=>p?.pos&&Number.isFinite(p.pos.x)&&Number.isFinite(p.pos.z));
+  let grid=entries.length>=64?pedestrianGrid(entries):null;
+  if(grid?.crowded)grid=null; // Dense piles benefit from the simple pair loop until dispersed.
+  const maxRadius=Math.max(PEDESTRIAN_RADIUS,...entries.map(p=>p.radius??PEDESTRIAN_RADIUS));
   let corrected=0;
   for(let pass=0;pass<passes;pass++){
     let touched=false;
-    for(let i=0;i<entries.length;i++)for(let j=i+1;j<entries.length;j++){
-      const a=entries[i],b=entries[j];
+    for(let i=0;i<entries.length;i++){
+      const a=entries[i],reach=Math.max(gap,(a.radius??PEDESTRIAN_RADIUS)+maxRadius+.05);
+      let candidates=grid?.near(a.pos,reach,i+1),cursor=i+1;
+      while(grid?candidates.length:cursor<entries.length){
+      const j=grid?candidates.shift():cursor++,b=entries[j];
       if(a.fixed&&b.fixed)continue;
       const target=Math.max(gap,(a.radius??PEDESTRIAN_RADIUS)+(b.radius??PEDESTRIAN_RADIUS)+.05);
       const dx=b.pos.x-a.pos.x,dz=b.pos.z-a.pos.z;
@@ -66,7 +94,14 @@ export function separatePedestrians(people,{world=null,gap=PEDESTRIAN_GAP,passes
         if(!a.fixed)moved+=move(a,-n.x*push*.9,-n.z*push*.9,world);
         if(moved<push*.45&&!b.fixed)moved+=move(b,n.x*push*.9,n.z*push*.9,world);
       }
-      if(moved>1e-5){corrected++;touched=true;}
+      if(moved>1e-5){
+        corrected++;touched=true;
+        if(grid){grid.update(i);grid.update(j);
+        // A correction can bring a later pair into range in this same pass.
+        candidates=grid.near(a.pos,reach,j+1);
+        }
+      }
+      }
     }
     if(!touched)break;
   }
@@ -81,8 +116,12 @@ export function separatePedestrians(people,{world=null,gap=PEDESTRIAN_GAP,passes
 export function steerPedestrians(people,{world=null,dt=1/60}={}) {
   const step=Math.max(0,Math.min(0.1,dt));
   if(!step)return 0;
+  const entries=people.filter(p=>p?.pos&&Number.isFinite(p.pos.x)&&Number.isFinite(p.pos.z));
+  const grid=pedestrianGrid(entries);
+  const maxRadius=Math.max(PEDESTRIAN_RADIUS,...entries.map(p=>p.radius??PEDESTRIAN_RADIUS));
   let steered=0;
-  for(const a of people){
+  for(let i=0;i<entries.length;i++){
+    const a=entries[i];
     if(a.fixed||!a.goal||!Number.isFinite(a.goal.x)||!Number.isFinite(a.goal.z))continue;
     const gx=a.goal.x-a.pos.x,gz=a.goal.z-a.pos.z,remaining=Math.hypot(gx,gz);
     if(remaining<0.18)continue;
@@ -92,7 +131,9 @@ export function steerPedestrians(people,{world=null,dt=1/60}={}) {
     const right={x:forward.z,z:-forward.x};
     const sight=a.speed>3?5.0:3.0;
     let threat=null,best=Infinity;
-    for(const b of people){
+    const reach=Math.hypot(sight,(a.radius??PEDESTRIAN_RADIUS)+maxRadius+.55);
+    for(const j of grid.near(a.pos,reach)){
+      const b=entries[j];
       if(b===a||!b.pos||!Number.isFinite(b.pos.x)||!Number.isFinite(b.pos.z))continue;
       const dx=b.pos.x-a.pos.x,dz=b.pos.z-a.pos.z;
       const ahead=dx*forward.x+dz*forward.z;
@@ -123,7 +164,7 @@ export function steerPedestrians(people,{world=null,dt=1/60}={}) {
         (Math.sign(oldKerb)!==Math.sign(newKerb)||Math.abs(newKerb)<3.7))continue;
       const nextDistance=Math.hypot(x-threat.pos.x,z-threat.pos.z);
       if(currentDistance>1.4&&nextDistance<1.25)continue;
-      a.pos.x=x;a.pos.z=z;steered++;break;
+      a.pos.x=x;a.pos.z=z;grid.update(i);steered++;break;
     }
   }
   return steered;

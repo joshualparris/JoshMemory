@@ -140,12 +140,17 @@ jobs:
           retention-days: 14
           if-no-files-found: warn
 
-  full-browser:
-    name: Complete Chrome browser regression (bounded)
+
+  browser-shards:
+    name: Complete Chrome suite / shard ${{ matrix.shard }}
     needs: classify
     if: github.event_name != 'pull_request' || needs.classify.outputs.high_risk == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2]
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 55
     defaults:
       run:
         working-directory: repository-town
@@ -171,7 +176,9 @@ jobs:
         run: npx playwright install chromium
       - name: Build exact proposed source
         run: npm run build
-      - name: Run complete browser suite with bounded execution
+      - name: Verify all browser tests are represented once
+        run: node tools/browser-shards.mjs --check
+      - name: Run assigned Chrome browser tests (bounded)
         run: |
           node tools/serve.mjs dist/public 8091 > /tmp/town-full-browser.log 2>&1 &
           server=$!
@@ -181,6 +188,16 @@ jobs:
             sleep 1
           done
           curl -fsSI http://127.0.0.1:8091/ >/dev/null
-          timeout 38m npm run test:browser
+          timeout 45m node tools/browser-shards.mjs ${{ matrix.shard }}
         env:
           LIBGL_ALWAYS_SOFTWARE: '1'
+
+  full-browser:
+    name: Complete Chrome browser regression (bounded)
+    needs: [classify, browser-shards]
+    if: always() && (github.event_name != 'pull_request' || needs.classify.outputs.high_risk == 'true')
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: All three browser test shards must pass
+        run: test "${{ needs.browser-shards.result }}" = "success"

@@ -1298,7 +1298,7 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
     }); // real rolling-stock footprint, including wagons
     return boxes;
   };
-  return { railClearanceConflicts,railBarrierColliders, life, group, colliders, spots, seats, people, residentModels, update, save, events, skyColour: bg, skyParts: [stars, rain, moon, sunDisc], solarState:()=>lastSolar, building: (id) => buildings.get(id) || [], placeFront: (id) => { const p = life.place(id); return p.side === 'north' ? { x:p.x,z:p.front.z,yaw:Math.PI } : p.side === 'south' ? { x: p.x, z: FIELD_Z0 - 4.4, yaw: Math.PI } : { x: p.x, z: LOT8_Z + 12.6, yaw: 0 }; } };
+  return { railClearanceConflicts,railBarrierColliders, life, group, colliders, spots, seats, people, populationView, residentModels, update, save, events, skyColour: bg, skyParts: [stars, rain, moon, sunDisc], solarState:()=>lastSolar, building: (id) => buildings.get(id) || [], placeFront: (id) => { const p = life.place(id); return p.side === 'north' ? { x:p.x,z:p.front.z,yaw:Math.PI } : p.side === 'south' ? { x: p.x, z: FIELD_Z0 - 4.4, yaw: Math.PI } : { x: p.x, z: LOT8_Z + 12.6, yaw: 0 }; } };
 }
 
 // What a villager calls out as the player passes, from the time of day and what they're up to.
