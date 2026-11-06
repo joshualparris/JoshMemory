@@ -30,7 +30,14 @@ try {
       await press(page.locator('#panel-close'));
       await panel.waitFor({state:'hidden',timeout:10000});
     }
-    await press(page.locator(id));
+    // On phones the HUD starts minimised, hiding #hud-details (bag and skills).
+    // Expand it with the visible + control before the real tap.
+    const target = page.locator(id);
+    if (!(await target.isVisible())) {
+      const expand = page.locator('#btn-hud-toggle');
+      if (await expand.isVisible()) await press(expand);
+    }
+    await press(target);
   };
   // Deterministic setup through the exposed live simulation: a tinderbox, logs and lamb.
   await T(() => {
@@ -50,7 +57,7 @@ try {
     await click(/Light logs here/);
     await page.waitForFunction(() => window.__town.skills().fires > 0 || !window.__town.skills().lighting, null, { timeout: 15000 }).catch(() => {});
     lit = (await T(() => window.__town.skills().fires)) > 0;
-    if (!lit) await T(() => document.getElementById('btn-bag').click());
+    if (!lit) await nav('#btn-bag');
   }
   step(lit, 'a fire is burning beside the player');
   // Seed a high level only to suppress random flakiness. Prove *new* XP is
@@ -59,7 +66,7 @@ try {
   const xpBefore = await T(() => window.__town.skills().report.find(x=>x.id==='cooking').xp);
   let cooked = (await T(() => (window.__town.life.ledger().civic.player.bag || {}).cooked_lamb || 0)) > 0;
   for (let i = 0; i < 5 && !cooked; i++) {
-    await T(() => document.getElementById('btn-bag').click()); await page.waitForTimeout(150);
+    await nav('#btn-bag'); await page.waitForTimeout(150);
     await click(/Cook lamb here/); await page.waitForTimeout(200);
     cooked = (await T(() => (window.__town.life.ledger().civic.player.bag || {}).cooked_lamb || 0)) > 0;
   }
