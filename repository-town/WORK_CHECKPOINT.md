@@ -1,3 +1,7 @@
+# 2026-11-06 — RESIDENT-MODELS-QUATERNIUS-001 start/implementation
+
+Owner DeepSeek Harness. Branch `feat/resident-quaternius-20261106`, based on the PR #483 visual slice. Imported Quaternius Universal Base Characters (male/female) and trimmed Universal Animation Library (CC0); added `resident-quaternius.js`, a new experimental `quaternius` resident style and `resident-compare.html` side-by-side review; procedural figure remains default. Evidence: `tests/resident-quaternius-browser.mjs`, build/privacy PASS, screenshots. Not touching Claude-owned simulation logic. Default switch pending owner review; MakeHuman and full everyday wardrobe/fitted hair remain future work. No deployment claim.
+
 # 2026-11-06 — RESIDENT-VISUAL-001 implemented and browser-verified (PR pending)
 
 Owner DeepSeek Harness (Team Lead). Branch `feat/resident-realism-vertical-slice-20261105`, baseline `c788e73e`.
