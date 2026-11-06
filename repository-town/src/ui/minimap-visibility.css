@@ -6,7 +6,7 @@ body.narromine-minimap-zone #first-day { display: none !important; }
   position: fixed;
   top: max(15px, calc(env(safe-area-inset-top) + 5px));
   right: max(14px, env(safe-area-inset-right));
-  z-index: 12;
+  z-index: 9;
   min-height: 34px;
   min-width: 66px;
   padding: 5px 9px;
