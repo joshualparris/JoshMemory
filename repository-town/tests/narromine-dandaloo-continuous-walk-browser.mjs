@@ -161,7 +161,7 @@ async function walk(page,label,info){
     data.completed=i;data.coveredM=rounded(info.points[i].at);
     if(i===Math.round(info.points.length*.25)||i===Math.round(info.points.length*.5)||i===Math.round(info.points.length*.75)){
       const shot=output+'/'+label+'-walk-'+i+'.png';
-      await page.screenshot({path:shot,timeout:15000});data.screenshots.push(shot);
+      await page.screenshot({path:shot,timeout:60000,animations:'disabled'});data.screenshots.push(shot);
     }
   }
   data.status='PASS_CONTINUOUS_WALK';
@@ -194,6 +194,9 @@ try{
   const walked=await walk(page,label,info);
   report.viewports.push(walked);
   console.log(label+' '+walked.status+' '+walked.completed+'/'+(info.points.length-1)+' waypoints, '+walked.coveredM+'m / '+rounded(info.length)+'m '+(walked.error||''));
+  // Close walking WebGL first to avoid competing contexts and screenshot stalls.
+  // The complete physical movement and collision telemetry is already recorded.
+  await page.close();
   // Independent fixed-pose visual captures; these DO teleport. They do NOT
   // count towards the continuous walking record above.
   const photoPage=await context.newPage();
