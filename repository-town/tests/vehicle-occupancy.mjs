@@ -80,4 +80,11 @@ const c1=make(u.to,j,u.len-11,10),c2=make(v.to,j,v.len-11,10);
 c1.route=[u.to,j,v.to];c1.ri=0;
 c2.route=[v.to,j,u.to];c2.ri=0;
 cars.push(c1,c2);assertClear('junction approach');tick(50);
+// If all physical bays fail building/sidewalk clearance, never fall back into
+// a live traffic lane. The parked vehicle remains simulated, not falsely drawn.
+const noBay=createNarromineTraffic(new THREE.Group(),{models:false,parkingClear:()=>false});
+const school=noBay.commute.population.workplaces.find(w=>/school/i.test(w.name));
+assert(school,'fixture needs a school workplace');
+noBay.update(.1,{x:school.x,z:school.z},9*60,2,2);
+assert.equal(noBay.parked.length,0,'invalid bays are omitted rather than rendered in traffic lanes');
 console.log('PASS vehicle occupancy: oriented turns, stationary/parked following, opposing lanes and junction, no body overlap');
