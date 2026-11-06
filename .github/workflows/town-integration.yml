@@ -2,6 +2,7 @@ name: Repository Town Integration
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
     paths:
       - 'repository-town/**'
       - '.github/workflows/town-*.yml'
@@ -14,14 +15,37 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
   group: town-gate-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  # Preserve main/release verification even if another push arrives.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  classify:
+    name: Identify mandatory full release checks
+    runs-on: ubuntu-latest
+    outputs:
+      high_risk: ${{ steps.risk.outputs.high_risk }}
+    steps:
+      - id: risk
+        uses: actions/github-script@v7
+        with:
+          script: |
+            if (context.eventName !== 'pull_request') {
+              core.setOutput('high_risk','true'); return;
+            }
+            const files = await github.paginate(github.rest.pulls.listFiles,
+              {...context.repo,pull_number:context.issue.number,per_page:100});
+            const high = files.some(f => /^repository-town\/(src\/(world|ui|game|simulation)\/|src\/(main|engine|state|input|physics|save|economy)(\/|\.)|tools\/(build|check_privacy)|package(-lock)?\.json|tests\/(webgl-playtest|recorded-dialogue-browser|movement-speed-browser))/.test(f.filename) ||
+              /^\.github\/workflows\/town-(integration|webgl-playtest)\.yml$/.test(f.filename)) ||
+              (context.payload.pull_request.labels || []).some(l => l.name === 'town-full-playtest');
+            core.setOutput('high_risk',String(high));
+
   town-safety-gate:
     name: Town safety gate
+    needs: classify
     if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     runs-on: ubuntu-24.04
     timeout-minutes: 25
@@ -47,10 +71,47 @@ jobs:
         run: node tests/rtd-acceptance-contract.mjs --pr
       - name: Aged-care doorway crash and walkability regression
         run: node tests/aged-care.mjs
+      - name: Fast PR build, privacy and focused game logic
+        run: |
+          npm run build
+          npm run check:privacy
+          node tests/runtime.mjs
+          node tests/game-tick.mjs
+          node tests/finance.mjs
+          node tests/narromine-roof-colours.mjs
+          node tests/narromine-roof-forms.mjs
+
+  town-full-release:
+    name: Full release, integrity and mobile entry acceptance
+    needs: [classify, town-safety-gate]
+    if: github.event_name != 'pull_request' || needs.classify.outputs.high_risk == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install pinned Node dependencies
+        run: npm ci --no-audit --no-fund
       - name: Full release build, integration, geometry, privacy and integrity
         run: npm run build:release
-      - name: Install Playwright Chromium
-        run: npx playwright install --with-deps chromium
+      - name: Cache Playwright Chromium
+        id: browser-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-${{ runner.os }}-1.56.1
+      - name: Install system WebGL libraries
+        run: npx playwright install-deps chromium
+      - name: Install Chromium when uncached
+        if: steps.browser-cache.outputs.cache-hit != 'true'
+        run: npx playwright install chromium
       - name: Chromium aged-care entry and exit smoke test (desktop and mobile)
         run: |
           node tools/serve.mjs dist/public 8091 &
@@ -60,6 +121,8 @@ jobs:
 
   town-28-day-multi-seed:
     name: 28-day economy simulation (seed ${{ matrix.seed }})
+    needs: classify
+    if: github.event_name != 'pull_request' || needs.classify.outputs.high_risk == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 25
     strategy:
