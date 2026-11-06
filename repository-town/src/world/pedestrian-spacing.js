@@ -12,13 +12,13 @@ function pedestrianGrid(entries, cellSize=6) {
   const key=p=>`${Math.floor(p.x/cellSize)},${Math.floor(p.z/cellSize)}`;
   function update(i){
     const k=key(entries[i].pos),old=keys.get(i);
-    if(k===old)return;
+    if(k===old)return false;
     if(old!==undefined){const bucket=cells.get(old);bucket.delete(i);if(!bucket.size)cells.delete(old);}
     if(!cells.has(k))cells.set(k,new Set());
-    cells.get(k).add(i);keys.set(i,k);
+    cells.get(k).add(i);keys.set(i,k);return true;
   }
   entries.forEach((_,i)=>update(i));
-  return {update,near(pos,r,min=0){
+  return {crowded:[...cells.values()].some(bucket=>bucket.size>12),update,near(pos,r,min=0){
     const found=[];
     for(let x=Math.floor((pos.x-r)/cellSize);x<=Math.floor((pos.x+r)/cellSize);x++)
       for(let z=Math.floor((pos.z-r)/cellSize);z<=Math.floor((pos.z+r)/cellSize);z++)
@@ -65,16 +65,17 @@ function move(item,dx,dz,world) {
 // are included so standing workers aren't allowed to merge with visitors.
 export function separatePedestrians(people,{world=null,gap=PEDESTRIAN_GAP,passes=5}={}) {
   const entries=people.filter(p=>p?.pos&&Number.isFinite(p.pos.x)&&Number.isFinite(p.pos.z));
-  const grid=pedestrianGrid(entries);
+  let grid=entries.length>=64?pedestrianGrid(entries):null;
+  if(grid?.crowded)grid=null; // Dense piles benefit from the simple pair loop until dispersed.
   const maxRadius=Math.max(PEDESTRIAN_RADIUS,...entries.map(p=>p.radius??PEDESTRIAN_RADIUS));
   let corrected=0;
   for(let pass=0;pass<passes;pass++){
     let touched=false;
     for(let i=0;i<entries.length;i++){
       const a=entries[i],reach=Math.max(gap,(a.radius??PEDESTRIAN_RADIUS)+maxRadius+.05);
-      let candidates=grid.near(a.pos,reach,i+1);
-      while(candidates.length){
-      const j=candidates.shift(),b=entries[j];
+      let candidates=grid?.near(a.pos,reach,i+1),cursor=i+1;
+      while(grid?candidates.length:cursor<entries.length){
+      const j=grid?candidates.shift():cursor++,b=entries[j];
       if(a.fixed&&b.fixed)continue;
       const target=Math.max(gap,(a.radius??PEDESTRIAN_RADIUS)+(b.radius??PEDESTRIAN_RADIUS)+.05);
       const dx=b.pos.x-a.pos.x,dz=b.pos.z-a.pos.z;
@@ -94,9 +95,11 @@ export function separatePedestrians(people,{world=null,gap=PEDESTRIAN_GAP,passes
         if(moved<push*.45&&!b.fixed)moved+=move(b,n.x*push*.9,n.z*push*.9,world);
       }
       if(moved>1e-5){
-        corrected++;touched=true;grid.update(i);grid.update(j);
+        corrected++;touched=true;
+        if(grid){grid.update(i);grid.update(j);
         // A correction can bring a later pair into range in this same pass.
         candidates=grid.near(a.pos,reach,j+1);
+        }
       }
       }
     }
