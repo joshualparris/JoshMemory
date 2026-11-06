@@ -9,7 +9,7 @@ import { addGenericFacadeDetails } from '../src/world/generic-facade-details.js'
 import { EXPANSION_SITES } from '../src/world/town-expansion.js';
 import { createNarrominePopulation } from '../src/world/narromine-population.js';
 import { createNarromineWorkplaceIndex, buildNarromineWorkplaceInterior } from '../src/world/narromine-workplaces.js';
-import {REMAINING_PROFILES,REMAINING_CIVIC_SITES} from '../src/world/generic-remaining-fitouts.js';
+import {REMAINING_PROFILES,REMAINING_CIVIC_SITES,LEGACY_GENERIC_CIVIC_SITES} from '../src/world/generic-remaining-fitouts.js';
 const label=()=>new THREE.Object3D();
 const clear=(built,x,z,r=.32)=>!built.colliders.some(c=>x+r>c.x0&&x-r<c.x1&&z+r>c.z0&&z-r<c.z1);
 const overlap=(a,b)=>a.x-a.w/2<b.x+b.w/2-.01&&a.x+a.w/2>b.x-b.w/2+.01&&a.z-a.d/2<b.z+b.d/2-.01&&a.z+a.d/2>b.z-b.d/2+.01;
@@ -30,8 +30,10 @@ assert.equal(genericProfileForSite({id:'hairdresser'}),null,'not a fictional exp
 const rejected=new Builder();
 assert.equal(addGenericFacadeDetails(rejected,{id:'hairdresser'},{}),null);
 assert.equal(rejected.parts.length,0,'non-expansion facade receives no geometry');
-for(const [id,key] of Object.entries(GENERIC_CIVIC_SITES)){
-  const site=EXPANSION_SITES.find(s=>s.id===id);assert(site,id);
+const testedSites=[...Object.entries(GENERIC_CIVIC_SITES).map(([id,key])=>[EXPANSION_SITES.find(s=>s.id===id),key]),
+  ...Object.entries(LEGACY_GENERIC_CIVIC_SITES).map(([id,key])=>[{id,name:id},key])];
+for(const [site,key] of testedSites){
+  assert(site);const {id}=site;
   const built=buildCivicInterior(site,label),fit=built.genericFitout;
   assert.equal(fit?.key,key,id+' routed through generic fitout');
   assert.deepEqual(built.bounds,{x0:-7,x1:7,z0:-12,z1:6});
@@ -45,7 +47,12 @@ for(const [id,key] of Object.entries(GENERIC_CIVIC_SITES)){
     assert(p.z-p.d/2>=-11.85&&p.z+p.d/2<=5.85,id+' '+p.type+' inside end walls');
     for(const q of fit.placements)if(p!==q)assert(!overlap(p,q),id+' fixtures overlap '+p.type+' / '+q.type);
   }
-  const b=new Builder(),facade=buildExpansionFacade(b,site);
+  const b=new Builder();
+  if(!site.expansion){
+    assert.equal(addGenericFacadeDetails(b,site,{}),null,'legacy exterior excluded');
+    assert.equal(b.parts.length,0);continue;
+  }
+  const facade=buildExpansionFacade(b,site);
   const protectedStyle=['park','nursery','fuel','carwash','sports'].includes(site.style);
   assert.equal(facade.genericFacade,protectedStyle?undefined:key,id+' facade opt-in preserves dedicated styles');
   assert.deepEqual({w:facade.w,d:facade.d},expansionFootprint(site.style),'same footprint');
@@ -70,4 +77,4 @@ for(const entry of ix.list){
 assert(seen.size>=5,'generic workplaces actually use varied profiles');
 assert.equal(Object.keys(GENERIC_PROFILES).length,9+Object.keys(REMAINING_PROFILES).length);
 assert.equal(Object.keys(REMAINING_CIVIC_SITES).length,50,'all inventoried legacy expansion shells have a typed plan');
-console.log(`PASS generic fitouts: ${Object.keys(GENERIC_CIVIC_SITES).length} civic interiors/facades; ${seen.size} mapped workplace profiles; additive fixture bounds, aisle, staff/use, exclusion and collision checks`);
+console.log(`PASS generic fitouts: ${Object.keys(GENERIC_CIVIC_SITES).length} expansion + ${Object.keys(LEGACY_GENERIC_CIVIC_SITES).length} legacy interiors; ${seen.size} mapped workplace profiles; additive fixture bounds, aisle, staff/use, exclusion and collision checks`);

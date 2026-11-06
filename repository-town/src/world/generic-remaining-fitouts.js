@@ -3,7 +3,14 @@ const S=(type,label)=>[type,label,{do:'info',title:label,text:'Interpretive work
 const R=(name,props,w=11,d=9)=>({name,props,w,d});
 function plan(title,items,{rear='STAFF & PREPARATION',accent=0x617e7c,rooms=null,placements=null}={}){
   const [a,b,c,d,e,f]=items;
-  return {title,rearTitle:rear,accent,walls:0xe7e5db,floor:0xb1aaa0,
+  const clinical=/Physiotherapy|Optical|counselling|support|Animal/.test(title);
+  const industrial=/Repairs|Wash|Field-service|Parcels|Vehicle|Key-cutting/.test(title);
+  const learning=/learning|Tutoring|activity/.test(title);
+  const gallery=/Museum|Photography|chapel|Memorial/.test(title);
+  const walls=clinical?0xe3ece7:industrial?0xd6dcd8:learning?0xf0e4cd:gallery?0xe8e0d2:0xe7e5db;
+  const floor=clinical?0xa6bbb5:industrial?0x8c9693:learning?0xc5ae88:gallery?0xaf987b:0xb1aaa0;
+  return {title,rearTitle:rear,accent,walls,floor,zone:clinical?0xcbd8d1:industrial?0xabb2aa:0xcbbca7,
+    waiting:clinical||/Professional|Visitor|Court|Security/.test(title),
     plan:placements||[[a,-5.2,2.5,Math.PI/2],[b,-5.2,-3.4,Math.PI/2],
       [c,5.2,-1.2,-Math.PI/2],[d,5.2,-4.7,-Math.PI/2],[e,-4.5,-10.3,0],[f,4.5,-10.3,0]],
     rooms:rooms||[R(title,[S('counter',title+' reception'),a,b,'chair','noticeBoard']),
@@ -50,7 +57,12 @@ export const REMAINING_PROFILES={
   beverages:plan('Packaged beverages',['shelf','fridge','shelf','cashRegister','crates','cabinet'],{rear:'DELIVERIES & STOCK'}),
   specialistRetail:plan('Specialist retail',['exhibitCase','shelf','exhibitCase','cabinet','safe','crates'],{rear:'SECURE STOCK'}),
   justice:plan('Court reception and hearing room',['noticeBoard','bench','lectern','pews','desk','filingCabinet'],{rear:'HEARING & RECORDS'}),
+  security:plan('Security operations',['consolePanel','noticeBoard','monitorWall','filingCabinet','safe','radio'],{rear:'OPERATIONS & SECURE RECORDS'}),
+  locksmith:plan('Key-cutting and lock repairs',['keyCuttingBench','partsBins','toolWall','exhibitCase','safe','workbench'],{rear:'REPAIRS & SECURE STOCK'}),
 };
+// Verified live legacy entries: shared office with text-only FITTINGS metadata,
+// not dedicated builders. Their exterior builders remain completely untouched.
+export const LEGACY_GENERIC_CIVIC_SITES=Object.freeze({securityhq:'security',securityoffice:'security',locksmith:'locksmith'});
 export const REMAINING_CIVIC_SITES={
   publicamenities:'amenities',physio:'rehabilitation',podiatry:'rehabilitation',optometry:'optical',
   counselling:'counselling',gym:'fitness',youthcentre:'activity',communitynurse:'rehabilitation',

@@ -1,6 +1,7 @@
 Original prompt: Make the simulation less crowded, less traffic, easier and more fun to play; playtest newest Narromine build.
 
 ## Remaining generic audit: implementation milestone
+- Final scope correction: three live legacy offices also replaced (security HQ, field office, locksmith), with exteriors preserved. Original 145-entry before fixture retained; three explicit intended changes leave 142 unchanged business signatures. Pub source hash-only review and 10 P0/envelope cases pass. Final runtime adds type-appropriate palettes, floor zoning and waiting seats only to new profiles. The interrupted early release run is not acceptance.
 - Direct inventory: 50 additional fictional civic interiors, 39 eligible generic fictional exteriors, 22 mapped Narromine interiors, 193 country fallback finish layers. Existing dedicated ID/style returns, FIT/evidence, 188 repository briefs and real Narromine facades preserved.
 - PASS original 48 protection signatures plus separately recorded 145 business and 197 country component signatures. PASS 195-country layout tests, mapped workplace and indoor-life tests. No existing baseline regenerated.
 - Before/after actual 3D Physio room inspected locally. Final browser/phone-emulation and release gates pending; no second-pass publication approval. Country layouts still generic and upper floors inaccessible; real-location exterior evidence remains a follow-up.

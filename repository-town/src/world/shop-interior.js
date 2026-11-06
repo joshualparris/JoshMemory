@@ -152,7 +152,7 @@ export function buildCivicInterior(site,makeLabel,life=null) {
   if(site.id==='power')return buildPowerInterior(site,makeLabel,roomTitle,life);
   if(FARM_SHED_IDS.includes(site.id))return buildFarmInterior(site,makeLabel,roomTitle);
   // Opt-in fallback only. Every handcrafted dispatcher above keeps priority.
-  if(site.expansion && !FITTINGS[site.id]) {
+  if((site.expansion && !FITTINGS[site.id]) || ['securityhq','securityoffice','locksmith'].includes(site.id)) {
     const generic=buildGenericCivicInterior(site,makeLabel);
     if(generic)return generic;
   }

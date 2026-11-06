@@ -10,6 +10,14 @@ export function buildGenericCivicInterior(site,makeLabel) {
   if(!key)return null;
   const profile=GENERIC_PROFILES[key],k=createKit(site,makeLabel,site.name),b=new Builder();
   k.shell({wall:profile.walls,floor:profile.floor,ceiling:0xf0ece2});
+  if(profile.plan){
+    // Two readable working zones frame, rather than fill, the public aisle.
+    for(const x of [-4.75,4.75]){
+      k.box(3.85,.008,11.1,x,.012,-1.3,profile.zone);
+      k.box(.055,.01,11.1,x<0?-2.8:2.8,.014,-1.3,profile.accent);
+    }
+    k.box(2.25,.012,.75,0,.012,4.65,profile.accent);
+  }
   const placements=[];
   function fixture(type,x,z,yaw=0,label=PROPS[type].label) {
     const p=PROPS[type],quarter=Math.abs(Math.sin(yaw))>.5;
@@ -39,11 +47,16 @@ export function buildGenericCivicInterior(site,makeLabel) {
     }
   }
   // Counter stays out of the central 2.8m circulation spine.
-  fixture('cashRegister',3.8,2.7,0,'Reception and collection');
+  fixture(key==='amenities'?'noticeBoard':'cashRegister',3.8,2.7,0,
+    key==='amenities'?'Cleaning and public information':'Reception and collection');
   const left=(type,z,label)=>fixture(type,-5.4,z,Math.PI/2,label);
   const right=(type,z,label)=>fixture(type,5.4,z,-Math.PI/2,label);
   if(profile.plan){
     for(const [type,x,z,yaw] of profile.plan)fixture(type,x,z,yaw);
+    if(profile.waiting){
+      fixture('chair',-2.25,3.4,Math.PI/2,'Waiting chair');
+      fixture('chair',-2.25,1.8,Math.PI/2,'Waiting chair');
+    }
   }else if(key==='salon'){
     left('salonStation',2.7);left('salonStation',-3.9);
     right('salonWash',-1.1);right('salonWash',-4.5);

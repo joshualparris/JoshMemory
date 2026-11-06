@@ -3,6 +3,18 @@ import {GLASS} from './builder.js';
 const STEEL=0x929c9b,DARK=0x34444a,WHITE=0xe8e5dc,WOOD=0x9c7957;
 const prop=(type,label,w,d,build)=>({type,label,w,d,solid:true,build});
 export const GENERIC_REMAINING_PROPS={
+  keyCuttingBench:prop('keyCuttingBench','Key-cutting machine and blank-key board',2.1,1.05,b=>{
+    for(const x of [-.9,.9])b.block(STEEL,.08,.86,.9,x,0,0);
+    b.box(WOOD,2.05,.1,1,0,.9,0);
+    b.block(0x697f79,.75,.2,.45,-.2,.95,.12);
+    b.cyl(STEEL,.13,.065,-.3,1.28,.2,Math.PI/2);
+    b.box(DARK,.22,.1,.17,.15,1.15,.28);
+    b.box(WOOD,2,1.1,.055,0,1.6,-.45);
+    for(const y of [1.3,1.65,1.95])for(const x of [-.7,-.35,0,.35,.7]){
+      b.cyl(0xc7ad68,.045,.025,x,y,-.405,Math.PI/2);
+      b.box(0xc7ad68,.025,.12,.025,x,y-.09,-.405);
+    }
+  }),
   opticalDisplay:prop('opticalDisplay','Spectacle frames and dispensing display',2,.65,b=>{
     b.block(WHITE,1.95,1.9,.5,0,0,0);
     for(const y of [.8,1.15,1.5])for(const x of [-.65,0,.65]){

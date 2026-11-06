@@ -1,6 +1,6 @@
 // Opt-in category plans replacing ONLY the old SHOP/OFFICE/WORKSHOP fallback.
 // Interpretive game layouts, not surveyed interiors of real Narromine businesses.
-import {REMAINING_PROFILES,REMAINING_CIVIC_SITES,REMAINING_KIND_PROFILES} from './generic-remaining-fitouts.js';
+import {REMAINING_PROFILES,REMAINING_CIVIC_SITES,REMAINING_KIND_PROFILES,LEGACY_GENERIC_CIVIC_SITES} from './generic-remaining-fitouts.js';
 const S=(type,label)=>[type,label,{do:'info',title:label,text:'Type-appropriate simulated workstation; the real premises have not been surveyed.',station:true}];
 const room=(name,props,w=10,d=8)=>({name,w,d,props});
 export const GENERIC_PROFILES=Object.freeze({
@@ -51,4 +51,5 @@ export const GENERIC_CIVIC_SITES=Object.freeze({...REMAINING_CIVIC_SITES,hairdre
   opshop:'clothing',farmsupplies:'rural',stockfeed:'rural',irrigation:'irrigation',
   employment:'employment',homewares:'homewares'});
 export const genericProfileForKind=kind=>KIND_PROFILE[kind]||null;
-export const genericProfileForSite=site=>site.expansion===true ? GENERIC_CIVIC_SITES[site.id]||null : null;
+export const genericProfileForSite=site=>LEGACY_GENERIC_CIVIC_SITES[site.id]||
+  (site.expansion===true ? GENERIC_CIVIC_SITES[site.id]||null : null);

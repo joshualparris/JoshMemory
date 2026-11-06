@@ -6,9 +6,10 @@
 
 - **Fictional expansion interiors:** 50 remaining placeholder office shells replaced. The other 22 sites retain 13 dedicated interiors and nine first-pass improvements. None of the 72 expansion interiors retains the old office-stock placeholder.
 - **Fictional expansion exteriors:** 39 additional generic facades detailed. Existing ID-specific and park/nursery/fuel/carwash/sports facade builders take precedence and remain unchanged, including where their interior was generic.
+- **Legacy High Street:** 3 live generic interiors replaced: both security offices and the locksmith. Their exteriors are preserved. 0 live legacy office placeholders remain; inactive/outdoor legacy routes are listed separately below.
 - **Mapped Narromine workplaces:** 22 additional locations receive category-specific rooms instead of untyped shop/office/workshop fallbacks. Across 77 indexed walk-ins, 0 untyped fallbacks remain. Existing FIT and evidence-backed rooms stay unchanged.
 - **Country homes:** 193 shared fallback interiors receive distinct wet-area tile, living/bedroom finishes, ceiling fittings, splashbacks, skirting and doorway trim. Room plans, fixtures and access stay unchanged. Both researched interiors and all 195 authored country exteriors are preserved.
-- **Handcrafted protection:** the original 48 geometry signatures are unchanged. Additional frozen fixtures cover 145 existing business components and 197 country components (195 exteriors plus two researched interiors). These counts overlap with the original fixture and must not be added as unique buildings.
+- **Handcrafted protection:** the original 48 geometry signatures are unchanged. Additional frozen fixtures verify 142 existing business components and 197 country components (195 exteriors plus two researched interiors). The original 145-entry business fixture is retained without regeneration: three explicitly named shared-office replacements are excluded from equality comparison and asserted to have changed. These counts overlap with the original fixture and must not be added as unique buildings.
 
 ## Fictional fallback inventory
 
@@ -66,6 +67,21 @@
 | `scouts` | Repository Youth & Scouts Hall | Community activity hall | Generic finish, bay frames and matching display/privacy detail |
 
 The new health/animal-care/counselling/memorial layouts have physical privacy screens; public amenities have two actual cubicles. The teaching pool is a small non-swimmable gameplay model, not an Olympic pool or a new swimming mechanic. Activity/court interiors are support rooms, not recreations of the outdoor sports area. Existing civic services remain available at the counter.
+
+## Legacy High Street routes
+
+| ID | Status | Interior |
+|---|---|---|
+| `square` | outdoor-not-an-indoor-destination | Preserved inactive/outdoor fallback, not a playable indoor destination |
+| `town-hall` | inactive-legacy-id | Preserved inactive/outdoor fallback, not a playable indoor destination |
+| `market` | inactive-legacy-id | Preserved inactive/outdoor fallback, not a playable indoor destination |
+| `factory` | inactive-legacy-id | Preserved inactive/outdoor fallback, not a playable indoor destination |
+| `farm` | inactive-legacy-id | Preserved inactive/outdoor fallback, not a playable indoor destination |
+| `park` | inactive-legacy-id | Preserved inactive/outdoor fallback, not a playable indoor destination |
+| `council` | inactive-legacy-id | Preserved inactive/outdoor fallback, not a playable indoor destination |
+| `securityhq` | live-indoor | Security operations |
+| `securityoffice` | live-indoor | Security operations |
+| `locksmith` | live-indoor | Key-cutting and lock repairs |
 
 ## Narromine fallback inventory
 

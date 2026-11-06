@@ -4,6 +4,7 @@ import { REMAINING_PROFILES } from './generic-remaining-fitouts.js';
 // FICTIONAL Repository Town only; never imported by real Narromine facades.
 // Called at the very end of the generic facade, after all bespoke returns.
 export function addGenericFacadeDetails(b,site,{w,h,face,trim,accent}) {
+  if(site.expansion!==true)return null;
   const key=genericProfileForSite(site);
   if(!key)return null;
   const frame=0xd9d6c9,metal=0x65716d,base=0x827565;

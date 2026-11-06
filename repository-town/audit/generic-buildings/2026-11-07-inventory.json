@@ -7,6 +7,8 @@
     "newCivicInteriors": 50,
     "newCivicExteriors": 39,
     "remainingExpansionPlaceholders": 0,
+    "newLegacyInteriors": 3,
+    "remainingLiveLegacyPlaceholders": 0,
     "mappedWalkInWorkplaces": 77,
     "newMappedWorkplaces": 22,
     "unresolvedMappedFallbacks": 0,
@@ -667,6 +669,413 @@
       "interior": "activity",
       "placeholder": false,
       "exterior": "activity"
+    }
+  ],
+  "legacy": [
+    {
+      "id": "hotel",
+      "name": "Railway Hotel",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "hall",
+      "name": "Town Hall",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "store",
+      "name": "General Store",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "greengrocer",
+      "name": "Greengrocer",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "butcher",
+      "name": "Butcher",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "pub",
+      "name": "The Merged Branch",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "square",
+      "name": "Market Square",
+      "liveIndoor": false,
+      "passTwo": false,
+      "interior": "legacy-shared-office",
+      "exterior": "preserved",
+      "classification": "outdoor-not-an-indoor-destination"
+    },
+    {
+      "id": "sheep",
+      "name": "Sheep Station",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "dairy",
+      "name": "Dairy",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "coop",
+      "name": "Chook Shed",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "orchard",
+      "name": "Orchard",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "garden",
+      "name": "Market Garden",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "silo",
+      "name": "Wheat Farm",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "farmhouse",
+      "name": "Farmhouse",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "town-hall",
+      "name": "town-hall",
+      "liveIndoor": false,
+      "passTwo": false,
+      "interior": "legacy-shared-office",
+      "exterior": "preserved",
+      "classification": "inactive-legacy-id"
+    },
+    {
+      "id": "bank",
+      "name": "Community Bank",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "realty",
+      "name": "Repository Realty",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "police",
+      "name": "Repository Town Police Station",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "ambulance",
+      "name": "NSW Ambulance Station",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "court",
+      "name": "Repository Town Local Court",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "solicitor",
+      "name": "High Street Solicitors & Legal Aid Enquiries",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "post",
+      "name": "Post Office",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "market",
+      "name": "market",
+      "liveIndoor": false,
+      "passTwo": false,
+      "interior": "legacy-shared-office",
+      "exterior": "preserved",
+      "classification": "inactive-legacy-id"
+    },
+    {
+      "id": "bakery",
+      "name": "Bakery",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "mill",
+      "name": "Flour Mill",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "clinic",
+      "name": "Clinic",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "school",
+      "name": "School",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "power",
+      "name": "Power Station",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "waterworks",
+      "name": "Water Works",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "sewage",
+      "name": "Wastewater Works",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "depot",
+      "name": "Rail Depot",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "recycling",
+      "name": "Recycling Centre",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "landfill",
+      "name": "Waste Depot",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "factory",
+      "name": "factory",
+      "liveIndoor": false,
+      "passTwo": false,
+      "interior": "legacy-shared-office",
+      "exterior": "preserved",
+      "classification": "inactive-legacy-id"
+    },
+    {
+      "id": "farm",
+      "name": "farm",
+      "liveIndoor": false,
+      "passTwo": false,
+      "interior": "legacy-shared-office",
+      "exterior": "preserved",
+      "classification": "inactive-legacy-id"
+    },
+    {
+      "id": "park",
+      "name": "park",
+      "liveIndoor": false,
+      "passTwo": false,
+      "interior": "legacy-shared-office",
+      "exterior": "preserved",
+      "classification": "inactive-legacy-id"
+    },
+    {
+      "id": "fire",
+      "name": "Fire & Rescue",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "cafe",
+      "name": "Commit Café",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "council",
+      "name": "council",
+      "liveIndoor": false,
+      "passTwo": false,
+      "interior": "legacy-shared-office",
+      "exterior": "preserved",
+      "classification": "inactive-legacy-id"
+    },
+    {
+      "id": "realestate",
+      "name": "Central West Property & Land",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "dealership",
+      "name": "High Street Motors",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "mechanic",
+      "name": "Town Motor Workshop",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "securityhq",
+      "name": "Central West Security Headquarters",
+      "liveIndoor": true,
+      "passTwo": true,
+      "interior": "security",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "securityoffice",
+      "name": "High Street Security Office",
+      "liveIndoor": true,
+      "passTwo": true,
+      "interior": "security",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "locksmith",
+      "name": "Macquarie Locksmith & Keys",
+      "liveIndoor": true,
+      "passTwo": true,
+      "interior": "locksmith",
+      "exterior": "preserved",
+      "classification": "live-indoor"
     }
   ],
   "workplaces": [

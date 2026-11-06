@@ -3,10 +3,11 @@ import fs from 'node:fs';
 import * as THREE from 'three';
 import {Builder} from '../src/world/builder.js';
 import {EXPANSION_SITES} from '../src/world/town-expansion.js';
-import {buildCivicInterior} from '../src/world/shop-interior.js';
+import {buildCivicInterior,CIVIC_INTERIOR_IDS} from '../src/world/shop-interior.js';
 import {buildExpansionFacade} from '../src/world/town-expansion-facades.js';
 import {GENERIC_PROFILES} from '../src/world/generic-business-fitouts.js';
-import {REMAINING_CIVIC_SITES,REMAINING_KIND_PROFILES} from '../src/world/generic-remaining-fitouts.js';
+import {REMAINING_CIVIC_SITES,REMAINING_KIND_PROFILES,LEGACY_GENERIC_CIVIC_SITES} from '../src/world/generic-remaining-fitouts.js';
+import {PLACE_DEFS} from '../src/world/life.js';
 import {createNarrominePopulation} from '../src/world/narromine-population.js';
 import {createNarromineWorkplaceIndex,buildNarromineWorkplaceInterior} from '../src/world/narromine-workplaces.js';
 import {BUILDINGS,FILL_HOUSES,FILL_SHOPS,FRONTAGES} from '../src/world/narromine-layout.js';
@@ -23,6 +24,13 @@ const civic=EXPANSION_SITES.map(s=>{
     placeholder:!!built.group.getObjectByName('office-shelf-stock'),
     exterior:facade.genericFacade||'dedicated-id-or-style-preserved'};
 });
+const legacy=CIVIC_INTERIOR_IDS.filter(id=>!EXPANSION_SITES.some(s=>s.id===id)).map(id=>{
+  const site=PLACE_DEFS.find(s=>s.id===id),built=buildCivicInterior(site||{id,name:id},label);
+  return {id,name:site?.name||id,liveIndoor:!!site&&site.kind!=='park',
+    passTwo:!!LEGACY_GENERIC_CIVIC_SITES[id],
+    interior:built.genericFitout?.key||(built.group.getObjectByName('office-shelf-stock')?'legacy-shared-office':'dedicated-preserved'),
+    exterior:'preserved',classification:!site?'inactive-legacy-id':site.kind==='park'?'outdoor-not-an-indoor-destination':'live-indoor'};
+});
 const workplaces=index.list.map(e=>{
   const w=e.workplace,built=buildNarromineWorkplaceInterior(pop,e,label,2,660);
   return {id:w.id,name:w.name,kind:w.kind,passTwo:!!REMAINING_KIND_PROFILES[w.kind],
@@ -37,6 +45,8 @@ const data={asOf:'2026-11-07',baseline:'f5502d24',publication:'not published; ap
   summary:{expansionTotal:civic.length,newCivicInteriors:civic.filter(x=>x.passTwo).length,
     newCivicExteriors:civic.filter(x=>x.passTwo&&x.exterior!=='dedicated-id-or-style-preserved').length,
     remainingExpansionPlaceholders:civic.filter(x=>x.placeholder).length,
+    newLegacyInteriors:legacy.filter(x=>x.passTwo).length,
+    remainingLiveLegacyPlaceholders:legacy.filter(x=>x.liveIndoor&&x.interior==='legacy-shared-office').length,
     mappedWalkInWorkplaces:workplaces.length,newMappedWorkplaces:workplaces.filter(x=>x.passTwo).length,
     unresolvedMappedFallbacks:workplaces.filter(x=>x.unresolvedFallback).length,
     newCountryFinishes:countries.filter(x=>x.interior==='generic-finish-layer').length,
@@ -44,7 +54,7 @@ const data={asOf:'2026-11-07',baseline:'f5502d24',publication:'not published; ap
     allCountryExteriors:countries.length,narromineHouseholdInteriors:pop.homes.length,
     narromineFillHouses:FILL_HOUSES.length,narromineBoxBuildings:BUILDINGS.length,
     narromineFillShops:FILL_SHOPS.length,narromineFrontages:FRONTAGES.length},
-  civic,workplaces,countries};
+  civic,legacy,workplaces,countries};
 if(!process.argv.includes('--markdown'))console.log(JSON.stringify(data,null,2));
 else{
   const s=data.summary;
@@ -53,13 +63,17 @@ else{
     '## Findings and scope','',
     `- **Fictional expansion interiors:** ${s.newCivicInteriors} remaining placeholder office shells replaced. The other 22 sites retain 13 dedicated interiors and nine first-pass improvements. None of the 72 expansion interiors retains the old office-stock placeholder.`,
     `- **Fictional expansion exteriors:** ${s.newCivicExteriors} additional generic facades detailed. Existing ID-specific and park/nursery/fuel/carwash/sports facade builders take precedence and remain unchanged, including where their interior was generic.`,
+    `- **Legacy High Street:** ${s.newLegacyInteriors} live generic interiors replaced: both security offices and the locksmith. Their exteriors are preserved. ${s.remainingLiveLegacyPlaceholders} live legacy office placeholders remain; inactive/outdoor legacy routes are listed separately below.`,
     `- **Mapped Narromine workplaces:** ${s.newMappedWorkplaces} additional locations receive category-specific rooms instead of untyped shop/office/workshop fallbacks. Across ${s.mappedWalkInWorkplaces} indexed walk-ins, ${s.unresolvedMappedFallbacks} untyped fallbacks remain. Existing FIT and evidence-backed rooms stay unchanged.`,
     `- **Country homes:** ${s.newCountryFinishes} shared fallback interiors receive distinct wet-area tile, living/bedroom finishes, ceiling fittings, splashbacks, skirting and doorway trim. Room plans, fixtures and access stay unchanged. Both researched interiors and all ${s.allCountryExteriors} authored country exteriors are preserved.`,
-    '- **Handcrafted protection:** the original 48 geometry signatures are unchanged. Additional frozen fixtures cover 145 existing business components and 197 country components (195 exteriors plus two researched interiors). These counts overlap with the original fixture and must not be added as unique buildings.','',
+    '- **Handcrafted protection:** the original 48 geometry signatures are unchanged. Additional frozen fixtures verify 142 existing business components and 197 country components (195 exteriors plus two researched interiors). The original 145-entry business fixture is retained without regeneration: three explicitly named shared-office replacements are excluded from equality comparison and asserted to have changed. These counts overlap with the original fixture and must not be added as unique buildings.','',
     '## Fictional fallback inventory','',
     '| ID | Location | Interior improvement | Exterior |','|---|---|---|---|'];
   for(const x of civic.filter(x=>x.passTwo))lines.push(`| \`${x.id}\` | ${x.name.replaceAll('|','/')} | ${GENERIC_PROFILES[x.interior].title} | ${x.exterior==='dedicated-id-or-style-preserved'?'Existing dedicated/style design preserved':'Generic finish, bay frames and matching display/privacy detail'} |`);
   lines.push('','The new health/animal-care/counselling/memorial layouts have physical privacy screens; public amenities have two actual cubicles. The teaching pool is a small non-swimmable gameplay model, not an Olympic pool or a new swimming mechanic. Activity/court interiors are support rooms, not recreations of the outdoor sports area. Existing civic services remain available at the counter.','',
+    '## Legacy High Street routes','','| ID | Status | Interior |','|---|---|---|');
+  for(const x of legacy.filter(x=>x.passTwo||x.interior==='legacy-shared-office'))lines.push(`| \`${x.id}\` | ${x.classification} | ${x.passTwo?GENERIC_PROFILES[x.interior].title:'Preserved inactive/outdoor fallback, not a playable indoor destination'} |`);
+  lines.push('',
     '## Narromine fallback inventory','','All rows below are interpretive interiors, not surveyed floor plans. No real-location exterior geometry was changed.','',
     '| Location | Kind | New category |','|---|---|---|');
   for(const x of workplaces.filter(x=>x.passTwo))lines.push(`| ${x.name.replaceAll('|','/')} | \`${x.kind}\` | ${GENERIC_PROFILES[x.interior].title} |`);

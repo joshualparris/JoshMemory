@@ -13,6 +13,7 @@ import {PLAN_HOMES} from '../src/world/masterplan-built.js';
 import {buildCountryHome} from '../src/world/country-homes.js';
 import {dossierFor} from '../src/world/country-dossiers.js';
 import {buildCountryInterior} from '../src/world/country-interiors.js';
+import {LEGACY_GENERIC_CIVIC_SITES} from '../src/world/generic-remaining-fitouts.js';
 
 const label=()=>new THREE.Object3D();
 const targetKinds=new Set(['hvac','camp_site','museum','coworking','courthouse','animal_shelter',
@@ -59,7 +60,14 @@ if(process.argv.includes('--record-country'))console.log(JSON.stringify({baselin
 else if(process.argv.includes('--record'))console.log(JSON.stringify({baseline:'0cfa7911',geometry:actual},null,2));
 else{
   const expected=JSON.parse(fs.readFileSync(path,'utf8'));
-  assert.deepEqual(actual,expected.geometry,'pass two changed an existing dedicated or previously upgraded component');
+  // Keep the original 145-entry BEFORE fixture intact. These three verified
+  // generic offices are intentional replacements, not silently refreshed hashes.
+  const intentional=new Set(Object.keys(LEGACY_GENERIC_CIVIC_SITES).map(id=>'civic:'+id));
+  const preserved=records=>Object.fromEntries(Object.entries(records).filter(([key])=>!intentional.has(key)));
+  assert.equal(Object.keys(expected.geometry).length,145);
+  assert.equal(intentional.size,3);
+  for(const key of intentional)assert.notEqual(actual[key],expected.geometry[key],key+' should now be purpose-specific');
+  assert.deepEqual(preserved(actual),preserved(expected.geometry),'a preserved component changed');
   assert.deepEqual(country,JSON.parse(fs.readFileSync(countryPath,'utf8')).geometry,'a country exterior or researched room changed');
   let finishedHomes=0;
   for(const home of PLAN_HOMES)if(!dossierFor(home.design.country)){
@@ -77,5 +85,5 @@ else{
     const built=buildNarromineWorkplaceInterior(pop,entry,label,2,660);
     assert(built.genericFitout,entry.workplace.name+' still has an untyped fallback');
   }
-  console.log(`PASS remaining-building coverage and ${Object.keys(actual).length} additional business / ${Object.keys(country).length} country frozen component signatures`);
+  console.log(`PASS remaining-building coverage and ${Object.keys(actual).length-intentional.size} additional business / ${Object.keys(country).length} country frozen component signatures (three explicit generic replacements; original fixture retained)`);
 }
