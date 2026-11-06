@@ -2,6 +2,7 @@ name: Repository Town Recorded WebGL Playtest
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
     paths:
       - 'repository-town/**'
       - '.github/workflows/town-webgl-playtest.yml'
@@ -48,7 +49,7 @@ jobs:
               ...context.repo, pull_number: context.issue.number, per_page: 100
             });
             const names = files.map(f => f.filename);
-            const high = names.some(p => /^repository-town\/(src\/(world|ui|game|simulation)\/|tools\/(build|check_privacy)|package(-lock)?\.json|tests\/(webgl-playtest|recorded-dialogue-browser|movement-speed-browser))/.test(p)) ||
+            const high = names.some(p => /^repository-town\/(src\/(world|ui|game|simulation)\/|src\/(main|engine|state|input|physics|save|economy)(\/|\.)|tools\/(build|check_privacy)|package(-lock)?\.json|tests\/(webgl-playtest|recorded-dialogue-browser|movement-speed-browser))/.test(p)) ||
               names.some(p => /^\.github\/workflows\/town-(webgl-playtest|integration)\.yml$/.test(p)) ||
               (context.payload.pull_request.labels || []).some(l => l.name === 'town-full-playtest');
             core.setOutput('high_risk', String(high));
