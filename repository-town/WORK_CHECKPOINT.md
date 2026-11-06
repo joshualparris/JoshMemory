@@ -874,3 +874,11 @@ PASS desktop Chromium 1280×800: mode toggles, persisted Standard, Help/Bag/Map/
 Additional mobile source-CSS fix: expanded HUD title gets its own row, preserving the collapse button within panel bounds; expanded/collapse retested in Chromium. Game client smoke captured Calm state and screenshot; one console 404 was captured, with no failed game asset response in a separate fresh-context audit. Do not describe that client log as fully clean.
 
 `deploy_website` was attempted on the exact static build and rejected existing save/Pointer Lock APIs plus unchanged bundled arcade APIs. No APIs were stripped and no preview-host restriction bypassed. Next: complete release-suite result, retain draft PR pending overlap review, seek owner approval for deploying source branch to existing `qa/narromine/` staging, then test actual hosted version. Production/old links remain untouched.
+
+### Local release gate complete
+
+`npm run build:release` exited 0. Final release fingerprint verifies 1,518 files for `ec5ba10514438dd6182227163b5fa9e4ca9cd2c9`. Complete release/integration/town/expedition/runtime/geometry/interior/game-integrity and privacy gates passed; the multi-day truck run reported zero deadlocks. New `test:activity` also passed separately. Source contains all final gameplay/CSS changes; subsequent handover edits are documentation only.
+
+Browser main-flow follow-up: search for General Store reached its real exterior at H8-S; bird's-eye control round-trip was exercised. Expanded phone HUD collapse button fits wholly in panel bounds and collapses correctly. Final phone screenshot visually inspected.
+
+Remote PR checks are not local acceptance: many remain queued/pending. Vercel automatic preview failed specifically with build-rate-limit/retry-in-24-hours status, not a local code/test failure. Keep draft; hosted playtest and physical Android gates remain incomplete. Owner approval is required before replacing the existing `qa/narromine/` staging path. No workflow dispatch, merge or live publication performed.
