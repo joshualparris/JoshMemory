@@ -9,6 +9,7 @@ import { STREETS } from './narromine-layout.js';
 import { VEHICLE_MODELS, pickVehicle, pickPaint, loadVehicleModels } from './narromine-vehicle-models.js';
 import { createNarromineCommute } from './narromine-commute.js';
 import { AWAY_WORK } from './narromine-population.js';
+import { vehicleFootprintsOverlap, carIncreasingSeparation } from './vehicle-occupancy.js';
 
 export const DAILY_VEHICLES = Object.freeze({ 'Dandaloo Street': 7000, 'Manildra Street': 500, 'Derribong Street': 380, 'Dandaloo Road': 380 });
 const CLASS_VEHICLES = { trunk: 7000, primary: 4000, secondary: 3000, tertiary: 900, unclassified: 250, residential: 150, living_street: 50, service: 40, track: 15 };
@@ -88,7 +89,12 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
     const c = { id: serial++, from, to, s, len: e.len, width: e.width, model, L: VEHICLE_MODELS[model].length, speed: SPEED * (heavy ? 0.7 : 0.85 + rand() * 0.2), v: SPEED * 0.8,
       colour: VEHICLE_MODELS[model].paint ? pickPaint(rand) : 0xffffff, ute: /truck/.test(VEHICLE_MODELS[model].file) };
     if (/tractor/.test(VEHICLE_MODELS[model].file)) { c.speed = 25 / 3.6; c.colour = rand() < 0.5 ? 0x2f6b2a : 0xb3262b; }
-    cars.push(c); place(c); return c;
+    // Random traffic must never materialise already inside another vehicle.
+    // If an edge is full, leave capacity unmet until the next refill instead.
+    place(c);
+    if (cars.some(o=>vehicleFootprintsOverlap(c,o,0.5)) ||
+        parked.some(o=>vehicleFootprintsOverlap(c,o,0.5))) return null;
+    cars.push(c); return c;
   }
   // Expected cars on an edge right now: vehicles per hour per metre at town speed, both directions.
   const expected = (e, hour) => e.daily * HOURLY[hour] / (SPEED * 3600) * e.len;
@@ -122,7 +128,10 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
       const c = { id: serial++, trip: t.id, route: t.path, ri: i, from: t.path[i], to: t.path[i + 1], s: Math.min(s, e.len), len: e.len, width: e.width, model: car.model, L: car.length,
         speed: SPEED * 0.95, v: SPEED * 0.8, colour: car.colour, ute: /truck/.test(VEHICLE_MODELS[car.model].file), carId: car.id, driver: driver.name, passengers: (t.passengers || []).map(k => commute.population.people[+k.slice(3)].first), purpose: t.purpose, destination: t.to === 'home' ? 'home (' + (commute.population.households[+car.household?.slice(3)]?.street || 'out of town') + ')' : t.to === 'coles' ? 'Coles' : t.to === 'repotown' ? (driver.repoTownJob?.name || 'work') + ', Repository Town' : AWAY_WORK.some(a => a.id === t.to) ? 'work: ' + AWAY_WORK.find(a => a.id === t.to).name : commute.population.workplaces.find(w => w.id === t.to)?.name || t.to };
       if (Math.hypot(nodes[c.from].x - player.x, nodes[c.from].z - player.z) < 40 && c.s < 5) continue;   // don't pop in beside the player
-      live.add(t.id); cars.push(c); place(c);
+      place(c);
+      if (cars.some(o=>vehicleFootprintsOverlap(c,o,0.5)) ||
+          parked.some(o=>vehicleFootprintsOverlap(c,o,0.5))) continue;
+      live.add(t.id); cars.push(c);
     }
   }
   // Collision of actual oriented vehicle footprints, not a centre-distance proxy.
@@ -210,6 +219,37 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
     // Spatial buckets (20 m) so each car only checks its neighbours for the car ahead.
     const grid = new Map();
     for (const c of cars) for (const dx of [-1, 0, 1]) for (const dz of [-1, 0, 1]) { const k = (Math.floor(c.x / 20) + dx) + ',' + (Math.floor(c.z / 20) + dz); if (!grid.has(k)) grid.set(k, []); grid.get(k).push(c); }
+    // Mutable actors stay in the grid by reference; compare the whole oriented
+    // body, not just the bumper point. Nearby parked cars use the same buckets.
+    const parkedGrid=new Map();
+    for(const c of parked)for(const dx of [-1,0,1])for(const dz of [-1,0,1]){
+      const k=(Math.floor(c.x/20)+dx)+','+(Math.floor(c.z/20)+dz);
+      if(!parkedGrid.has(k))parkedGrid.set(k,[]);
+      parkedGrid.get(k).push(c);
+    }
+    function occupied(candidate,before) {
+      const key=Math.floor(candidate.x/20)+','+Math.floor(candidate.z/20);
+      for(const actor of [...(grid.get(key)||[]),...(parkedGrid.get(key)||[])]){
+        if(actor===candidate)continue;
+        const reach=(candidate.L+actor.L)/2+3;
+        if(Math.abs(candidate.x-actor.x)>reach||Math.abs(candidate.z-actor.z)>reach)continue;
+        if(!vehicleFootprintsOverlap(candidate,actor,0.25))continue;
+        // A preexisting overlap can escape only by increasing centre separation.
+        if(before&&vehicleFootprintsOverlap(before,actor,0.25)&&
+           carIncreasingSeparation(before,candidate,actor))continue;
+        return true;
+      }
+      return false;
+    }
+    // When one car moves into a different bucket, keep the neighbours' lookup
+    // current for later cars in this frame; Map sets avoid repeated references.
+    function register(c){
+      for(const dx of [-1,0,1])for(const dz of [-1,0,1]){
+        const key=(Math.floor(c.x/20)+dx)+','+(Math.floor(c.z/20)+dz);
+        if(!grid.has(key))grid.set(key,[]);
+        if(!grid.get(key).includes(c))grid.get(key).push(c);
+      }
+    }
     for (let i = cars.length - 1; i >= 0; i--) {
       const c = cars[i];
       if (Math.hypot(c.x - player.x, c.z - player.z) > RADIUS + 100) { cars.splice(i, 1); continue; }
@@ -218,12 +258,34 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
       const ahead = Math.hypot(player.x - ax, player.z - az) < 5 || (grid.get(Math.floor(ax / 20) + ',' + Math.floor(az / 20)) || []).some(o => o !== c && (o.ux * c.ux + o.uz * c.uz) > 0.7 && Math.hypot(o.x - ax, o.z - az) < o.L / 2 + 1.5) || blocked(ax, az);
       const remaining = c.len - c.s, turnSlow = remaining < 15 ? 0.55 : 1;
       const target = ahead ? 0 : c.speed * turnSlow;
-      c.v += Math.max(-6 * dt, Math.min(2 * dt, target - c.v));
-      c.s += c.v * dt;
-      let arrived = false;
-      while (c.s > c.len) { const e = nextEdge(c); if (!e) { arrived = true; break; } c.s -= c.len; c.from = c.to; c.to = e.to; c.len = e.len; c.width = e.width; }
-      if (arrived) { cars.splice(i, 1); continue; }               // reached their destination: the parked car takes over
-      place(c);
+      const stepTime=Math.max(0,Math.min(dt,0.25));
+      c.v += Math.max(-6 * stepTime, Math.min(2 * stepTime, target - c.v));
+      // Substeps avoid a fast crossing car tunnelling through a stationary or
+      // moving body. Restore road segment and route index if the next step is occupied.
+      const travel=Math.max(0,c.v*stepTime);
+      const steps=Math.max(1,Math.ceil(travel/0.65));
+      let arrived=false;
+      c.braking=!!ahead;
+      for(let step=0;step<steps;step++){
+        const before={x:c.x,z:c.z,yaw:c.yaw,L:c.L,widthM:c.widthM??1.9};
+        const snapshot={s:c.s,from:c.from,to:c.to,len:c.len,width:c.width,ri:c.ri};
+        c.s+=travel/steps;
+        while(c.s>c.len){
+          const e=nextEdge(c);
+          if(!e){arrived=true;break;}
+          c.s-=c.len;c.from=c.to;c.to=e.to;c.len=e.len;c.width=e.width;
+        }
+        if(arrived)break;
+        place(c);
+        if(occupied(c,before)){
+          Object.assign(c,snapshot);
+          place(c);
+          c.v=0;c.braking=true;
+          break;
+        }
+      }
+      if(arrived){cars.splice(i,1);continue;}                 // parked version takes over at destination
+      register(c);
     }
     draw();
   }
