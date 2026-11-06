@@ -7,6 +7,7 @@ import { buildInterior } from './interior.js';
 import { dayPlan } from './narromine-population.js';
 import { townDate } from './town-calendar.js';
 import { makeDistinctPerson } from './npc-wardrobe.js';
+import { animateNarromineResidents } from './narromine-indoor-life.js';
 
 // What one person's share of a Coles shop is, and what each person uses a day.
 // Households shop about three times a week (including stops on the way home from work), so each shop
@@ -180,21 +181,41 @@ export function buildNarromineHomeInterior(population, home, makeLabel, day, min
   const roomCentre = (i) => { const r = built.rooms[i]; return { x: (r.x0 + r.x1) / 2, z: (r.z0 + r.z1) / 2 }; };
   const find = (t, label) => built.interactables.find((o) => o.type === t && (!label || o.label.includes(label)));
   let n = 0;
-  const figureIds = [], figurePositions = [];
+  const figureIds = [], figurePositions = [], awake = [];
   for (const o of who.filter((x) => x.home)) {
     const p = o.person;
-    const activity = o.doing === 'sleep' ? 'asleep' : o.doing === 'breakfast' ? 'breakfast' : o.doing === 'dinner' ? 'dinner' : o.doing === 'evening' ? 'home' : 'home';
-    const fig = makeDistinctPerson('narromine:' + p.id, p, { activity, minute, weather: 'sunny' }).group;
-    let at = null;
+    const activity = o.doing === 'sleep' ? 'asleep' : o.doing === 'breakfast' ? 'breakfast' : o.doing === 'dinner' ? 'dinner' : 'home';
+    const figure = makeDistinctPerson('narromine:' + p.id, p, { activity, minute, weather: 'sunny' });
+    const fig = figure.group;
     if (o.doing === 'sleep') {
       const bed = find('bed', p.first);
-      if (bed) { fig.position.set(bed.pos.x + (n % 2 ? 0.45 : -0.45) * (bed.label.includes('&') ? 1 : 0), 0.62, bed.pos.z + 0.2); fig.rotation.set(-Math.PI / 2, 0, 0); built.group.add(fig); figureIds.push(p.id); figurePositions.push({ id: p.id, x: fig.position.x, z: fig.position.z }); n++; continue; }
+      if (bed) {
+        fig.position.set(bed.pos.x + (n % 2 ? 0.45 : -0.45) * (bed.label.includes('&') ? 1 : 0), 0.62, bed.pos.z + 0.2);
+        fig.rotation.set(-Math.PI / 2, 0, 0);
+        built.group.add(fig);
+        figureIds.push(p.id);
+        figurePositions.push({ id: p.id, x: fig.position.x, z: fig.position.z });
+        n++;
+        continue;
+      }
     }
     const anchor = o.doing === 'breakfast' || o.doing === 'dinner' ? find('fridge') : find('tv');
-    if (anchor) { const c = roomCentre(anchor.room); const dx = c.x - anchor.pos.x, dz = c.z - anchor.pos.z, D = Math.hypot(dx, dz) || 1; at = { x: anchor.pos.x + dx / D * (1.6 + (n % 3) * 0.7), z: anchor.pos.z + dz / D * (1.6 + (n % 3) * 0.7) + (n % 2 ? 0.6 : -0.6), yaw: Math.atan2(-dx, -dz) }; }
-    if (!at) continue;
-    fig.position.set(at.x, 0, at.z); fig.rotation.y = at.yaw; built.group.add(fig); figureIds.push(p.id); figurePositions.push({ id: p.id, x: at.x, z: at.z }); n++;
-    const label = makeLabel(p.first + ' ' + p.surname + ', ' + p.age); if (label) { label.position.set(at.x, 2.15 * (fig.scale.y || 1) + 0.1, at.z); built.group.add(label); }
+    let at = null;
+    if (anchor) {
+      const c = roomCentre(anchor.room), dx = c.x - anchor.pos.x, dz = c.z - anchor.pos.z;
+      const D = Math.hypot(dx, dz) || 1;
+      at = { x: anchor.pos.x + dx / D * (1.6 + (n % 3) * 0.7),
+        z: anchor.pos.z + dz / D * (1.6 + (n % 3) * 0.7) + (n % 2 ? 0.6 : -0.6),
+        yaw: Math.atan2(-dx, -dz) };
+    }
+    if (!at) { const c = roomCentre(0); at = { ...c, yaw: 0 }; }
+    const record = { id: p.id, x: at.x, z: at.z };
+    figureIds.push(p.id); figurePositions.push(record);
+    awake.push({ figure, id: p.id, name: p.name, label: p.first + ' ' + p.surname + ', ' + p.age,
+      ...at, activity: o.doing === 'breakfast' || o.doing === 'dinner' ? 'preparing a meal' : 'relaxing at home',
+      domestic: true, roam: true, record });
+    n++;
   }
+  animateNarromineResidents(built, awake, makeLabel, () => minute);
   return { ...built, household: hh, fridge, occupants: who, figures: n, figureIds, figurePositions, outbuilding };
 }
