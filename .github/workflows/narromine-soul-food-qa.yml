@@ -1,0 +1,63 @@
+name: Soul Food Depot evidence-first interior acceptance
+on:
+  pull_request:
+    paths:
+      - 'repository-town/src/world/narromine-soul-food-interior.js'
+      - 'repository-town/src/world/narromine-workplaces.js'
+      - 'repository-town/src/world/narromine-population.js'
+      - 'repository-town/src/world/narromine-layout.js'
+      - 'repository-town/src/main.js'
+      - 'repository-town/tests/narromine-soul-food.mjs'
+      - 'repository-town/tests/narromine-soul-food-browser.mjs'
+      - '.github/workflows/narromine-soul-food-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  soulfood:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install pinned packages
+        working-directory: repository-town
+        run: npm ci --no-audit --no-fund
+      - name: Named cafe, galleries and neighbouring workplace Node contracts
+        working-directory: repository-town
+        run: |
+          node tests/narromine-soul-food.mjs
+          node tests/narromine-workplaces.mjs
+          node tests/narromine-layout.mjs
+          node tests/narromine-residents.mjs
+      - name: Build public distribution and run privacy scan
+        working-directory: repository-town
+        run: npm run build:deploy
+      - name: Install supported Chromium
+        working-directory: repository-town
+        run: npx playwright install --with-deps chromium
+      - name: Physically enter gallery and return to mapped approach on desktop and phone
+        working-directory: repository-town
+        env:
+          TOWN_URL: http://127.0.0.1:8091/
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          node tools/serve.mjs dist/public 8091 >/tmp/soul-food-server.log 2>&1 &
+          server=$!
+          trap 'kill $server 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 50); do
+            if curl -fsS http://127.0.0.1:8091/ >/dev/null; then break; fi
+            sleep 1
+          done
+          node tests/narromine-soul-food-browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: soul-food-gallery-evidence-${{ github.run_id }}
+          path: repository-town/test-results/narromine-soul-food/
+          retention-days: 14
+          if-no-files-found: warn

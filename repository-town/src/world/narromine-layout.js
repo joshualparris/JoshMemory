@@ -118,6 +118,11 @@ function EXTRA_PLACES() {
   extra.push(Object.freeze({ name: 'Narromine Railway Station', kind: 'railway_station', kindLabel: 'Railway station', address: 'Derribong Avenue (Narromine Station Access)', x: -4708.8, z: -710.2, fact: FACTS['Narromine Railway Station'] }));
   extra.push(Object.freeze({ name: 'Former Narromine Courthouse (1898)', kind: 'historic_courthouse', kindLabel: 'Heritage former courthouse (LEP Item I5)', address: '35 Burraway Street', x: -4590.5, z: -766.5, fact: FACTS['Former Narromine Courthouse (1898)'] }));
   extra.push(Object.freeze({ name: 'Narromine Gliding Club', kind: 'aerodrome', kindLabel: 'Gliding & soaring centre', address: 'Tom Perry Drive (Lot 122 DP 1126499)', x: -5628.4, z: -2023.2, fact: FACTS['Narromine Gliding Club'] }));
+  // Published public destination pin, not surveyed entrance or floor plan.
+  const soulPin=geoToWorld(-32.227273,148.2407647);
+  extra.push(Object.freeze({name:'Soul Food Depot & Gallery',kind:'cafe',kindLabel:'Cafe, gallery and event venue',
+    address:'1–7 Dandaloo Street',x:soulPin[0],z:soulPin[1],
+    fact:'Former citrus packing shed, cafe and gallery since 2014, Loading Dock takeaway, catering and meeting rooms. Waze destination pin; actual tenancy frontage and doorway are unverified.'}));
   return extra;
 }
 
