@@ -210,6 +210,9 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
     if (commute && (dateChanged || weekChanged || clockRewound)) {
       live.clear();
       for (let i = cars.length - 1; i >= 0; i--) if (cars[i].trip) cars.splice(i, 1);
+      // Parked vehicles belong to the prior day too. Clear their old snapshots
+      // before generating this morning's journeys, then replenish after spawn.
+      parked = [];
       refillParked = 0;
     }
     if (day != null) lastDay = day;
