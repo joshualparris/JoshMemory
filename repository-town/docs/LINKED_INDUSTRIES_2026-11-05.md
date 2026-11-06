@@ -20,3 +20,7 @@ Limits: prices and quantities are game values, not market data; the vet does not
 (treatment is logged as a visiting-vet call so the surgery stays staffed for its advertised hours).
 
 Tests: `tests/linked-industries.mjs`; `tests/simulation-soak.mjs` (28 days: money conserved, town content, shops stocked).
+
+## 6 November 2026 release gate
+
+This candidate has passed dedicated farm/veterinary/brewery/construction acceptance, five 28-day finance/economy seeds, pub-audit current-source validation and desktop/mobile WebGL tests on its exact branch commit. The previous full 38-minute browser regression stopped on the unrelated woodcutting playthrough; it was **not** a passed full-browser result. Draft review was removed at Josh's request to merge as many safe PRs as possible; this documentation sync intentionally triggers the full current-head town safety gate again. Do not merge until the non-draft full town safety gate, source checks, compatibility with current 470-resident main and live build metadata have been explicitly reviewed. Older #435/#442/#445/#457 overlap and must not be merged in addition.
