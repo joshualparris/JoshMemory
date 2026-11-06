@@ -1,0 +1,80 @@
+name: Repository Town Cooking Real WebGL Acceptance
+on:
+  pull_request:
+    paths:
+      - 'repository-town/src/world/skills.js'
+      - 'repository-town/src/world/needs.js'
+      - 'repository-town/src/world/life.js'
+      - 'repository-town/src/main.js'
+      - 'repository-town/src/ui/inventory-panel.js'
+      - 'repository-town/src/ui/townpanels.js'
+      - 'repository-town/tests/cooking-browser.mjs'
+      - 'repository-town/tests/skills.mjs'
+      - '.github/workflows/town-cooking-browser.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'repository-town/tests/cooking-browser.mjs'
+      - '.github/workflows/town-cooking-browser.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cooking-desktop-phone:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 32
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install and check cooking rules
+        run: |
+          npm ci --no-audit --no-fund
+          node --check tests/cooking-browser.mjs
+          node tests/skills.mjs
+          node tests/game-tick.mjs
+          node tests/hunger-sleep-hotel.mjs
+      - name: Build real game and check privacy
+        run: |
+          npm run build
+          npm run check:privacy
+      - name: Install real Chromium with SwiftShader dependencies
+        run: npx playwright install --with-deps chromium
+      - name: Cook and eat using actual desktop and touch UI in rendered WebGL
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          set -euo pipefail
+          node tools/serve.mjs dist/public 8091 > /tmp/town-cook-server.log 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          for i in $(seq 1 50); do
+            if curl -fsS http://127.0.0.1:8091/ >/dev/null; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:8091/ >/dev/null
+          mkdir -p test-results
+          node tests/cooking-browser.mjs
+          node tests/cooking-browser.mjs --mobile
+          node tests/woodcutting-browser.mjs
+          node tests/woodcutting-browser.mjs --mobile
+      - name: Preserve actual desktop/mobile screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cooking-webgl-desktop-phone-${{ github.run_id }}
+          path: |
+            repository-town/test-results/cooking-*.png
+            repository-town/test-results/woodlot-*.png
+            repository-town/test-results/chop-*.png
+            repository-town/test-results/fire-*.png
+          retention-days: 14
+          if-no-files-found: warn
