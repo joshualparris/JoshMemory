@@ -1,0 +1,54 @@
+name: Linked industries current-main safety acceptance
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/town-linked-industries-v2.yml'
+      - 'repository-town/src/world/linked-industries.js'
+      - 'repository-town/src/world/life.js'
+      - 'repository-town/src/ui/townpanels.js'
+      - 'repository-town/tests/linked-industries.mjs'
+      - 'repository-town/tests/simulation-soak.mjs'
+      - 'repository-town/audit/pub/2026-10-25-code-matrix.json'
+      - 'repository-town/package.json'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  farm-vet-brewery-construction:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 28
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install pinned dependency set
+        working-directory: repository-town
+        run: npm ci --no-audit --no-fund
+      - name: Farm welfare, veterinarian, grazing, construction, pub stock & save regression
+        working-directory: repository-town
+        run: node tests/linked-industries.mjs
+      - name: ABS population and 171 worker preservation
+        working-directory: repository-town
+        run: |
+          node tests/abs-demographics.mjs
+          node tests/npc-population-inventory.mjs
+          node tests/married-households.mjs
+      - name: Pub compliance & independent accounting
+        working-directory: repository-town
+        run: |
+          node tests/pub-completion.mjs
+          node --test tests/pub-2026-audit.mjs tests/pub-history.mjs
+          node tests/simulation-soak.mjs --quiet
+      - name: Build public output before checking public-asset privacy
+        working-directory: repository-town
+        run: npm run build:deploy
+      - name: Validate privacy and source syntax
+        working-directory: repository-town
+        run: |
+          node --check src/world/life.js
+          node --check src/world/linked-industries.js
+          node --check src/ui/townpanels.js
+          npm run check:privacy
