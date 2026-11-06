@@ -39,7 +39,7 @@ const MAX_CARS = 400;
 // destination, then parks. Only Mitchell Highway (trunk) traffic is through traffic: trucks and travellers
 // passing through, about half of the highway's counted volume.
 const THROUGH_SHARE = 0.5;
-export function createNarromineTraffic(parent, { blocked = () => false, models = typeof document !== 'undefined', residents = true } = {}) {
+export function createNarromineTraffic(parent, { blocked = () => false, parkingClear = () => true, models = typeof document !== 'undefined', residents = true } = {}) {
   // Real vehicle models load in the background; until then (and in Node tests) cars are drawn as
   // simple boxes: two instanced meshes, bodies and cabins.
   const bodies = new THREE.InstancedMesh(new THREE.BoxGeometry(1.8, 0.75, 4.4), new THREE.MeshLambertMaterial({ color: 0xffffff }), MAX_CARS);
@@ -156,6 +156,12 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
       .filter(p => p.st.parked);
     parkedCars.sort((a, b) => Number(b.st.parked === 'home') - Number(a.st.parked === 'home'));
     for (const { car, st } of parkedCars) {
+      // Only allocate a real parking mesh close to the player. Previously we
+      // searched all ~1900 cars' routes every three seconds on Android.
+      const destination=st.parked==='home'
+        ?pop.homes[+car.home.slice(5)]
+        :nodes[st.trip?.path?.at(-1)];
+      if(!destination || Math.hypot(destination.x-player.x,destination.z-player.z)>330)continue;
       let x, z, yaw = 0;
       if (st.parked === 'home') {
         // On the driveway: 7.5 m in from the street centreline (past the verge), side by side, nose to the street.
@@ -181,9 +187,14 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
           const L = Math.hypot(b.x - a.x, b.z - a.z);
           if (L < 2 || back < 1 || back > L - 1) continue;
           const ux = (b.x - a.x) / L, uz = (b.z - a.z) / L;
-          const e = adj.get(P[i - 1])?.find(q => q.to === P[i]), off = (e?.width || 7) / 2 - 1.1;
+          // A true full-width vehicle needs a bay BEYOND both carriageway and
+          // footpath (pedestrian centre = road half-width + 1.6 m), not its
+          // centre on the white road-edge line.
+          const e = adj.get(P[i - 1])?.find(q => q.to === P[i]), off = (e?.width || 7) / 2 + 3.6;
           x = b.x - ux * back + uz * off; z = b.z - uz * back - ux * off; yaw = Math.atan2(ux, uz);
-          if (!taken.some(q => parkedFootprintsOverlap(q, { x, z, yaw, L: car.length }))) {
+          if (!taken.some(q => parkedFootprintsOverlap(q, { x, z, yaw, L: car.length })) &&
+              !cars.some(q => vehicleFootprintsOverlap(q,{x,z,yaw,L:car.length},0.35)) &&
+              parkingClear({x,z,yaw,L:car.length})) {
             placed = true; break;
           }
         }
@@ -191,6 +202,9 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
         if (!placed) continue;
       }
       if (Math.hypot(x - player.x, z - player.z) > 300) continue;
+      if (st.parked==='home' && (cars.some(q=>vehicleFootprintsOverlap(q,{x,z,yaw,L:car.length},0.35)) ||
+          taken.some(q=>parkedFootprintsOverlap(q,{x,z,yaw,L:car.length})) ||
+          !parkingClear({x,z,yaw,L:car.length})))continue;
       taken.push({ x, z, yaw, L: car.length });
       out.push({ x, z, yaw, model: car.model, colour: car.colour, L: car.length, ux: Math.sin(yaw), uz: Math.cos(yaw), parked: true, carId: car.id });
     }
