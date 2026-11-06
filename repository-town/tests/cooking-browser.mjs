@@ -14,6 +14,8 @@ await page.route('**/api/npc-chat', (r) => r.abort('connectionrefused'));
 const step = (ok, what) => { console.log((ok ? '✓ ' : '✗ ') + what); if (!ok) process.exitCode = 1; };
 try {
   await page.goto(URL); await page.waitForFunction(() => window.__town && document.getElementById('loading').hidden, null, { timeout: 90000 });
+  await page.waitForFunction(() => window.__town.state().triangles > 1000, null, {timeout:30000});
+  step(true, 'actual rendered WebGL scene contains more than 1000 triangles');
   const T = (f, a) => page.evaluate(f, a), st = () => T(() => window.__town.state());
   // Use physical Chromium pointer/touch hit testing for gameplay actions; a JS
   // element.click() would incorrectly pass when another panel masks a control.
