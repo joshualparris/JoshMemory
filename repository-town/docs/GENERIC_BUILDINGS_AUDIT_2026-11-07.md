@@ -17,12 +17,12 @@
 |---|---|---|---|
 | `publicamenities` | Creative Court Public Toilets & Playground | Public amenities | Existing dedicated/style design preserved |
 | `physio` | Ironbark Physio | Physiotherapy and rehabilitation | Generic finish, bay frames and matching display/privacy detail |
-| `podiatry` | Creative Court Podiatry | Physiotherapy and rehabilitation | Generic finish, bay frames and matching display/privacy detail |
+| `podiatry` | Creative Court Podiatry | Podiatry and foot care | Generic finish, bay frames and matching display/privacy detail |
 | `optometry` | Clearview Optometrists | Optical dispensing | Generic finish, bay frames and matching display/privacy detail |
 | `counselling` | Repository Counselling & Wellbeing | Private counselling | Generic finish, bay frames and matching display/privacy detail |
 | `gym` | The Yard Fitness | Exercise studio | Existing dedicated/style design preserved |
 | `youthcentre` | Creative Court Youth Hub | Community activity hall | Generic finish, bay frames and matching display/privacy detail |
-| `communitynurse` | Community Nursing & Home Care | Physiotherapy and rehabilitation | Generic finish, bay frames and matching display/privacy detail |
+| `communitynurse` | Community Nursing & Home Care | Community nursing clinic | Generic finish, bay frames and matching display/privacy detail |
 | `disabilitysupport` | Repository Disability Support | Accessible support centre | Generic finish, bay frames and matching display/privacy detail |
 | `sports` | Creative Court Sports Pavilion | Sports changing and equipment | Existing dedicated/style design preserved |
 | `vet` | Repository Veterinary Surgery | Animal care | Generic finish, bay frames and matching display/privacy detail |
@@ -95,7 +95,7 @@ All rows below are interpretive interiors, not surveyed floor plans. No real-loc
 | HubnSpoke | `coworking` | Tutoring and shared work |
 | Narromine Courthouse | `courthouse` | Court reception and hearing room |
 | Narromine Animal Shelter | `animal_shelter` | Animal care |
-| Narromine Chiropractic | `alternative` | Physiotherapy and rehabilitation |
+| Narromine Chiropractic | `alternative` | Wellbeing consultation |
 | B2B Abilities | `social_facility` | Accessible support centre |
 | Narromine Tobacco House | `tobacco` | Specialist retail |
 | Smokemart | `tobacco` | Specialist retail |

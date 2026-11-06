@@ -99,9 +99,9 @@
       "name": "Creative Court Podiatry",
       "style": "health",
       "passTwo": true,
-      "interior": "rehabilitation",
+      "interior": "podiatry",
       "placeholder": false,
-      "exterior": "rehabilitation"
+      "exterior": "podiatry"
     },
     {
       "id": "optometry",
@@ -153,9 +153,9 @@
       "name": "Community Nursing & Home Care",
       "style": "health",
       "passTwo": true,
-      "interior": "rehabilitation",
+      "interior": "nursing",
       "placeholder": false,
-      "exterior": "rehabilitation"
+      "exterior": "nursing"
     },
     {
       "id": "agedcare",
@@ -1445,10 +1445,10 @@
       "name": "Narromine Chiropractic",
       "kind": "alternative",
       "passTwo": true,
-      "interior": "rehabilitation",
+      "interior": "wellbeing",
       "rooms": [
-        "Narromine Chiropractic · physiotherapy and rehabilitation",
-        "LINEN & CLINICAL SUPPORT"
+        "Narromine Chiropractic · wellbeing consultation",
+        "PRIVATE CONSULTATION"
       ],
       "evidence": "interpretive-not-surveyed",
       "unresolvedFallback": false

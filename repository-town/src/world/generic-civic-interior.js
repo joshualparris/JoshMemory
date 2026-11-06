@@ -34,7 +34,7 @@ export function buildGenericCivicInterior(site,makeLabel,legacyFittings=null) {
   k.box(13.6,.014,.13,0,.012,-7.15,0x817969);
   // Privacy is physical geometry, not a room-name claim. Open-front treatment
   // screens preserve a >1m route beside the couch and the central public aisle.
-  if(['rehabilitation','counselling','veterinary','funeral'].includes(key)){
+  if(['rehabilitation','podiatry','nursing','wellbeing','counselling','veterinary','funeral'].includes(key)){
     k.solid(.1,2.15,3.5,-3.1,1.075,2.35,profile.walls);
     k.solid(3.5,2.15,.1,-4.9,1.075,.55,profile.walls);
   }

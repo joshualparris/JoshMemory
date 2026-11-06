@@ -59,7 +59,7 @@ export function addGenericFacadeDetails(b,site,{w,h,face,trim,accent}) {
   }else if(REMAINING_PROFILES[key]){
     // Respect the actual bays: workshop/rural has ONE window, not two.
     // All details remain shallow and collision-free; no garage/door relocation.
-    const privateService=['rehabilitation','optical','counselling','support','veterinary','funeral','amenities'].includes(key);
+    const privateService=['rehabilitation','podiatry','nursing','wellbeing','optical','counselling','support','veterinary','funeral','amenities'].includes(key);
     for(const v of windows){
       if(privateService){
         b.box(0xa8c3bf,v.half*2-.12,.78,.035,v.x,1.55,face+.235);

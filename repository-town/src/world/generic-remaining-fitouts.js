@@ -3,7 +3,7 @@ const S=(type,label)=>[type,label,{do:'info',title:label,text:'Interpretive work
 const R=(name,props,w=11,d=9)=>({name,props,w,d});
 function plan(title,items,{rear='STAFF & PREPARATION',accent=0x617e7c,rooms=null,placements=null}={}){
   const [a,b,c,d,e,f]=items;
-  const clinical=/Physiotherapy|Optical|counselling|support|Animal/.test(title);
+  const clinical=/Physiotherapy|Podiatry|nursing|Wellbeing|Optical|counselling|support|Animal/.test(title);
   const industrial=/Repairs|Wash|Field-service|Parcels|Vehicle|Key-cutting/.test(title);
   const learning=/learning|Tutoring|activity/.test(title);
   const gallery=/Museum|Photography|chapel|Memorial/.test(title);
@@ -18,6 +18,9 @@ function plan(title,items,{rear='STAFF & PREPARATION',accent=0x617e7c,rooms=null
 }
 export const REMAINING_PROFILES={
   rehabilitation:plan('Physiotherapy and rehabilitation',['treatmentCouch','rehabSteps','treatmentCouch','basin','cabinet','foldingBench'],{rear:'LINEN & CLINICAL SUPPORT'}),
+  podiatry:plan('Podiatry and foot care',['treatmentCouch','chair','cabinet','basin','medicineCabinet','foldingBench'],{rear:'INSTRUMENTS & CLINICAL SUPPORT'}),
+  nursing:plan('Community nursing clinic',['treatmentCouch','medicineCabinet','basin','cabinet','desk','foldingBench'],{rear:'LINEN & CLINICAL SUPPORT'}),
+  wellbeing:plan('Wellbeing consultation',['treatmentCouch','yogaMat','sofa','basin','cabinet','foldingBench'],{rear:'PRIVATE CONSULTATION'}),
   optical:plan('Optical dispensing',['opticalDisplay','opticalDisplay','chair','mirror','desk','cabinet'],{rear:'CONSULTATION & DISPENSING'}),
   counselling:plan('Private counselling',['sofa','chair','bookshelf','plant','desk','filingCabinet'],{rear:'PRIVATE CONSULTATION'}),
   fitness:plan('Exercise studio',['treadmill','dumbbells','yogaMat','bench','cabinet','basin'],{rear:'CHANGE & STORAGE'}),
@@ -64,8 +67,8 @@ export const REMAINING_PROFILES={
 // not dedicated builders. Their exterior builders remain completely untouched.
 export const LEGACY_GENERIC_CIVIC_SITES=Object.freeze({securityhq:'security',securityoffice:'security',locksmith:'locksmith'});
 export const REMAINING_CIVIC_SITES={
-  publicamenities:'amenities',physio:'rehabilitation',podiatry:'rehabilitation',optometry:'optical',
-  counselling:'counselling',gym:'fitness',youthcentre:'activity',communitynurse:'rehabilitation',
+  publicamenities:'amenities',physio:'rehabilitation',podiatry:'podiatry',optometry:'optical',
+  counselling:'counselling',gym:'fitness',youthcentre:'activity',communitynurse:'nursing',
   disabilitysupport:'support',sports:'courts',vet:'veterinary',ruralrepair:'workshop',officesupplies:'print',
   childcare:'childcare',fuelstop:'convenience',tyres:'workshop',carwash:'wash',florist:'florist',
   takeaway:'takeaway',newsagent:'news',giftshop:'gifts',photography:'photography',accountant:'professional',
@@ -78,7 +81,7 @@ export const REMAINING_CIVIC_SITES={
 };
 export const REMAINING_KIND_PROFILES={
   hvac:'fieldservice',camp_site:'visitor',museum:'museum',coworking:'study',courthouse:'justice',
-  animal_shelter:'veterinary',alternative:'rehabilitation',social_facility:'support',tobacco:'specialistRetail',
+  animal_shelter:'veterinary',alternative:'wellbeing',social_facility:'support',tobacco:'specialistRetail',
   community_centre:'workshop',physiotherapist:'rehabilitation',guest_house:'visitor',jewelry:'gifts',
   photographer:'photography',educational_institution:'study',alcohol:'beverages',car_wash:'wash',
   car:'vehicle',golf_course:'club',caravan:'vehicle',aerodrome:'aviation',
