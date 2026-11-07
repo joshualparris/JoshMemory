@@ -85,6 +85,25 @@ function soulFoodProvisionalDoor(w) {
 }
 
 
+// Never silently pick the first tenant when multiple mapped records use one
+// game doorway. Compare the ACTUAL resolved door locations; nearby but distinct
+// shop doors are not a shared entrance. IDs/geometry remain unchanged.
+export function workplaceEntranceTargets(entries, pos, reach = 1.4, tolerance = 0.18) {
+  if (!pos || !Number.isFinite(pos.x) || !Number.isFinite(pos.z)) return [];
+  const candidates = entries.filter(e => e?.door &&
+    Math.hypot(pos.x - e.door.x, pos.z - e.door.z) < reach);
+  if (!candidates.length) return [];
+  candidates.sort((a, b) => {
+    const d = Math.hypot(pos.x - a.door.x, pos.z - a.door.z) -
+      Math.hypot(pos.x - b.door.x, pos.z - b.door.z);
+    return Math.abs(d) > 1e-7 ? d : String(a.workplace.id).localeCompare(String(b.workplace.id));
+  });
+  const door = candidates[0].door;
+  return candidates.filter(e => Math.hypot(e.door.x - door.x, e.door.z - door.z) <= tolerance)
+    .sort((a, b) => a.workplace.name.localeCompare(b.workplace.name) ||
+      String(a.workplace.id).localeCompare(String(b.workplace.id)));
+}
+
 // The traced building for each workplace, with a front door on its street side.
 export function createNarromineWorkplaceIndex(pop) {
   const list = [];
@@ -103,6 +122,7 @@ export function createNarromineWorkplaceIndex(pop) {
     // Keep only doors the player can walk up to (probe(x, z, r) → true when blocked), trying all four walls.
     resolve(probe) { for (let i = list.length - 1; i >= 0; i--) { const d = pickDoor(list[i].doors, probe); if (d) list[i].door = d; else list.splice(i, 1); } return list.length; },
     near(pos, reach = 1.4) { let b = null, bd = reach; for (const e of list) { const d = Math.hypot(pos.x - e.door.x, pos.z - e.door.z); if (d < bd) { bd = d; b = e; } } return b; },
+    entranceTargets(pos, reach = 1.4) { return workplaceEntranceTargets(list, pos, reach); },
   };
 }
 

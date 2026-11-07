@@ -784,6 +784,37 @@ async function start() {
       Math.atan2(nx, nz));
   }
   let lastDeniedEntrance = '', lastDeniedTime = 0;
+  let sharedWorkplaceEntranceHeld = null;
+  // Shared mapped game thresholds are not evidence of a shared real-world door.
+  // Keep every tenant's own interior, name, hours, saving and return street pose.
+  function approachNarromineWorkplace() {
+    const choices = narromineWorkplaces.entranceTargets(player.pos);
+    if (!choices.length) { sharedWorkplaceEntranceHeld = null; return; }
+    if (choices.length === 1) {
+      sharedWorkplaceEntranceHeld = null;
+      if (!panelOpen) enterNarromineWorkplace(choices[0]);
+      return;
+    }
+    const key = choices.map(e => e.workplace.id).join('|');
+    // A cancelled dialog must not reopen 60 times a second while stationary.
+    // Walk away from the entrance and approach again to reopen it.
+    if (panelOpen || sharedWorkplaceEntranceHeld === key) return;
+    sharedWorkplaceEntranceHeld = key;
+    openPanel({
+      title: 'Choose a Narromine business',
+      body: '<p>Several mapped businesses currently share this game entrance. Their real individual door locations are not verified. Choose the business you want to enter, or cancel and walk away.</p>',
+      actions: [
+        ...choices.map(e => ({
+          label: e.workplace.name,
+          run: () => { enterNarromineWorkplace(e); return null; },
+        })),
+        { label: 'Cancel', run: () => { closePanel(); return null; } },
+      ],
+    });
+    // Buttons are real native controls; Tab/Enter and phone touch both work.
+    $('panel-actions').querySelector('button')?.focus();
+  }
+
   // Dedicated Narromine PO ground-floor retail visit. Reuses the actual modelled
   // postal counter, shelves and public circulation; no invented real staff names.
   function enterNarrominePostOffice() {
@@ -2204,7 +2235,7 @@ async function start() {
       }
       if(mode==='town' && !overview && !driving.driving && nearNarrominePostOfficeDoor(player.pos)) enterNarrominePostOffice();
       if(mode==='town' && !overview && !driving.driving && nearNarromineColesDoor(player.pos)) enterNarromineColes();
-      if(mode==='town' && !overview && !driving.driving && player.pos.x<-2640){const d=narromineHomes.near(player.pos);if(d)enterNarromineHome(d);else{const w=narromineWorkplaces.near(player.pos);if(w)enterNarromineWorkplace(w);}}
+      if(mode==='town' && !overview && !driving.driving && player.pos.x<-2640){const d=narromineHomes.near(player.pos);if(d)enterNarromineHome(d);else approachNarromineWorkplace();}
        if(mode==='town' && !overview && !driving.driving && nearStMarysDoor(player.pos)) enterStMarys();
       if(mode==='town' && !overview && !driving.driving){
         for(const place of life.places.values()){
