@@ -1,0 +1,101 @@
+{
+  "baseline": "f5502d24",
+  "records": {
+    "securityhq": [
+      {
+        "key": "securityhq:counter",
+        "label": "Operations desk",
+        "act": {
+          "do": "civic-ledger",
+          "title": "Operations desk",
+          "text": "Ask for the duty supervisor",
+          "civicId": "securityhq"
+        }
+      },
+      {
+        "key": "securityhq:display",
+        "label": "Patrol assignments",
+        "act": {
+          "do": "info",
+          "title": "Patrol assignments",
+          "text": "Licensed private security workers patrol public shopfronts. Police handle crime and investigations.",
+          "civicId": "securityhq"
+        }
+      },
+      {
+        "key": "securityhq:notices",
+        "label": "Town noticeboard",
+        "act": {
+          "do": "info",
+          "title": "Town noticeboard",
+          "text": "Ask the staff about securityhq. Visit the service counter to open the Town Ledger.",
+          "civicId": "securityhq"
+        }
+      }
+    ],
+    "securityoffice": [
+      {
+        "key": "securityoffice:counter",
+        "label": "Duty desk",
+        "act": {
+          "do": "civic-ledger",
+          "title": "Duty desk",
+          "text": "Check field assignments",
+          "civicId": "securityoffice"
+        }
+      },
+      {
+        "key": "securityoffice:display",
+        "label": "Key and incident register",
+        "act": {
+          "do": "info",
+          "title": "Key and incident register",
+          "text": "Guards check shuttered shops and report broken doors without entering private premises.",
+          "civicId": "securityoffice"
+        }
+      },
+      {
+        "key": "securityoffice:notices",
+        "label": "Town noticeboard",
+        "act": {
+          "do": "info",
+          "title": "Town noticeboard",
+          "text": "Ask the staff about securityoffice. Visit the service counter to open the Town Ledger.",
+          "civicId": "securityoffice"
+        }
+      }
+    ],
+    "locksmith": [
+      {
+        "key": "locksmith:counter",
+        "label": "Service counter",
+        "act": {
+          "do": "civic-ledger",
+          "title": "Service counter",
+          "text": "Ask about lock changes",
+          "civicId": "locksmith"
+        }
+      },
+      {
+        "key": "locksmith:display",
+        "label": "Key-cutting bench",
+        "act": {
+          "do": "info",
+          "title": "Key-cutting bench",
+          "text": "Key cutting, repairs, rekeying and replacement locks require an owner or authorised tenant.",
+          "civicId": "locksmith"
+        }
+      },
+      {
+        "key": "locksmith:notices",
+        "label": "Town noticeboard",
+        "act": {
+          "do": "info",
+          "title": "Town noticeboard",
+          "text": "Ask the staff about locksmith. Visit the service counter to open the Town Ledger.",
+          "civicId": "locksmith"
+        }
+      }
+    ]
+  }
+}

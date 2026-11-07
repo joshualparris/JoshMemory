@@ -1,0 +1,38 @@
+Original prompt: Make the simulation less crowded, less traffic, easier and more fun to play; playtest newest Narromine build.
+
+## Latest request: actual startup loading progress
+- Separate stacked branch from generic runtime `00a9e7df`: early bootstrap UI, 12 real startup stages, stage timings, observed file requests and optional-model progress; no fake download percentage or countdown.
+- Yield before synchronous scene phases and render the first frame before hiding startup. Preserve saves and simple-model fallbacks; no geometry edits.
+- PASS loader behavioral tests, runtime lifecycle and 10/10 pub P0/envelope. Final desktop/phone, failure/retry, build/privacy and release acceptance pending. No new publication approval.
+
+## Remaining generic audit: implementation milestone
+- Final scope correction: three live legacy offices also replaced (security HQ, field office, locksmith), with exteriors preserved. Original 145-entry before fixture retained; three explicit intended changes leave 142 unchanged business signatures. Pub source hash-only review and 10 P0/envelope cases pass. Final runtime adds type-appropriate palettes, floor zoning and waiting seats only to new profiles. The interrupted early release run is not acceptance.
+- Direct inventory: 50 additional fictional civic interiors, 39 eligible generic fictional exteriors, 22 mapped Narromine interiors, 193 country fallback finish layers. Existing dedicated ID/style returns, FIT/evidence, 188 repository briefs and real Narromine facades preserved.
+- PASS original 48 protection signatures plus separately recorded 145 business and 197 country component signatures. PASS 195-country layout tests, mapped workplace and indoor-life tests. No existing baseline regenerated.
+- Before/after actual 3D Physio room inspected locally. Final browser/phone-emulation and release gates pending; no second-pass publication approval. Country layouts still generic and upper floors inaccessible; real-location exterior evidence remains a follow-up.
+
+## Active request: 7 November 2026
+Make generic building interiors and exteriors more realistic. User explicitly says not to edit any handcrafted buildings. Dedicated/evidence-backed builders are protected; work only on fallback-generated building types and fictional-town generic facade details.
+
+- Generic-only implementation milestone: nine opt-in civic interiors/facades plus nine workplace category profiles; additive salon/laundry/clothing/rural-supply/office fixtures. Actual dispatch excludes every existing FIT template and named evidence.
+- PASS fixture geometry footprint, central aisle/exit, staff/use clearance, pairwise placement, category/exclusion checks and 48 protected geometry signatures. The same snapshot fixture also passes against independently extracted source baseline `66561b06`; it was not refreshed for the implementation.
+- PASS existing Narromine workplaces and indoor-life suites. Initial build passes. Browser QA and full release gate remain pending; no new building release is published.
+- Browser correction: new workplace fixtures were centred on a wall line, clipping salon mirrors/counters. Added opt-in `spec.insetWallProps` only to new generic plans; no change to default/bespoke allocator. PASS new actual fixture footprint-in-room checks, all 48 protection snapshots, 77 workplace and indoor-life tests after correction.
+- Local Chromium desktop: eight generic layouts and salon exterior inspected, actual keyboard movement across rear passage, service panel and exit; phone 375×812 emulation: laundry rendered, joystick movement and exit, settings open/close, no overflow or page errors. Phone is emulation, not physical hardware.
+- Perplexity iframe preview remains blocked by the existing game's saves/Pointer Lock/packed arcade APIs. Do not remove persistence or bypass host restrictions. New building code is not published.
+- Final corrected full `npm run build:release` PASS (exit 0): release/integration, simulation, geometry/picking, privacy, packed-game integrity and 1,523-file verification. Frozen release `2eada8d7`, content `e01a264720a60f920752efbfefa43625ad292efc1215c344013ad609dd75c186`. Protected signatures rerun PASS; pub impact/envelope PASS 9/9.
+- Actual street walk-in/out, staffed salon service panel and exact-position indoor reload confirmed. Review PR #521 remains draft: older browser CI scripts assume expanded HUD; some runs failed/cancelled, so no all-green/production claim. Await publication approval for separate `qa/generic-buildings-20261107/` path; all existing sites remain unchanged.
+- Approved by Joshua at 08:56 AEDT and published ONLY to https://parris-tech-services.github.io/Repository-town-playtest/qa/generic-buildings-20261107/ . Site commit `27d111d`, Pages run `42300839865` SUCCESS. Hosted release/fingerprint and ten key source asset hashes match. Fresh desktop actual entry/service/exit/save reload and phone-emulated actual touch entry/exit PASS; no HTTP errors, page exceptions or viewport overflow observed. Live screenshots reviewed. Other paths unchanged; previous Calm fingerprint independently unchanged. PR #521 still draft, no production promotion. This supersedes earlier pending-publication notes.
+
+- Baseline inspected in Chromium and canonical source located in JoshMemory/repository-town.
+- Existing main already contains spatial crowd repair; this change adds a reversible activity preference, not a replacement collision system.
+- Main flow inventory is outside the deployment folder in workspace/narromine.FLOWS.md.
+- Implemented Calm/Standard activity policy, stable quarter identity sampling, local crowd budget, lower moving/parked traffic admission, compact default HUD, and focused-button WASD repair.
+- PASS new activity/input regressions; existing pedestrian spatial/collision, commute walkers and parking regressions; desktop menu, movement and legitimately staffed shop entry/exit; touch-emulated 375×812 movement and persisted save/settings.
+- Phone expanded-HUD QA found an existing horizontally clipped collapse button; dedicated title row fixes it. Actual source stylesheet was tested in-browser; button fully inside HUD (x194–232 within x10–240), collapse works.
+- PASS build, privacy scan and release fingerprint on implementation d87fac50. Full release suite running separately.
+- Required game client captured screenshot and structured state (Calm, 14 visible outdoor residents); one console resource 404 was captured, no page exception. Separate fresh-context network audit found no failed game asset responses.
+- Perplexity preview deployment was attempted and blocked by unsupported existing save/Pointer Lock APIs plus bundled arcade APIs. Preserve saves and existing games; no bypass or degraded preview. GitHub draft PR #519 contains the change; normal staging publication needs owner approval.
+- COMPLETE local release gate: `npm run build:release` exit 0; privacy clean and all 1,518 release files verified for final gameplay commit ec5ba105. Source/CSS complete; handover-only documentation follows. Remote CI still pending; Vercel automatic build rate-limited. No live deployment or merge.
+- Owner approved separate QA publication. Published only `qa/calm-town-20261106/` in site commit 2918e8b; Pages run 42196105081 succeeded. Hosted release metadata and seven critical file hashes match ec5ba105.
+- HOSTED PASS desktop and fresh touch-emulated phone: load, Calm default, mode switches, HUD collapse, menus, movement after menus, CDP joystick, search, save and preference reload. Initial desktop CDN 503s resolved before retry; final desktop and first fresh phone load are clean. Physical handset/FPS and production promotion remain out of scope.

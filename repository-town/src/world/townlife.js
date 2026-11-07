@@ -619,7 +619,7 @@ function makeStars() {
   return new THREE.Points(g, new THREE.PointsMaterial({ color: 0xffffff, size: 1.6, sizeAttenuation: false, fog: false, transparent: true, depthWrite: false }));
 }
 
-export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) {
+export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog, activity }) {
   const homes = [...town.lots.values()].map((l) => ({ coordinate: l.house.coordinate, name: l.house.name, door: { x: l.doorPos.x, z: l.doorPos.z } }));
   const life = new TownLife({ homes });
   let saved = null; try { saved = JSON.parse(localStorage.getItem(STORE)); } catch { /* blocked storage */ }
@@ -1179,11 +1179,12 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog }) 
 
     // Moving things are only updated near the player; far ones are hidden by fog anyway.
     const near = (x, z, r) => Math.abs(x - eye.x) < r && Math.abs(z - eye.z) < r;
-    populationView.update(dt,t,eye,overview);
+    const outdoorSelection = activity?.outdoor([...people.map(p=>p.v), ...(life.population?.additional||[])], eye);
+    populationView.update(dt,t,eye,overview,outdoorSelection);
     for (const p of people) {
       const v = p.v, moved = Math.hypot(v.x - p.last.x, v.z - p.last.z);
       p.last.x = v.x; p.last.z = v.z; p.pos.set(v.x, 0, v.z);
-      const show = !v.inside && !overview && near(v.x, v.z, 95);
+      const show = !v.inside && !overview && near(v.x, v.z, 95) && (!outdoorSelection || outdoorSelection.has(v));
       p.fig.group.visible = show;
       if (!show) { residentModels.hide(p); continue; }
       const moving = moved > 0.0005 && !v.engaged;

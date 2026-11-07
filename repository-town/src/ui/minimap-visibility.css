@@ -38,6 +38,18 @@ body.overview #minimap-toggle, body.playing #minimap-toggle {
   body.minimap-is-hidden #game-compass {
     right: max(10px, env(safe-area-inset-right));
   }
+  /* The compact HUD (including its 000 button) occupies the phone's top row.
+     Keep the hidden-map restore button below the geographic compass, not
+     behind that HUD: an actual Chromium tap must reach this control. */
+  body.minimap-is-hidden #minimap-toggle {
+    top: max(192px, calc(env(safe-area-inset-top) + 182px));
+    bottom: auto;
+  }
+  /* Avoid placing the ordinary Repository Town first-day card over the toggle.
+     In Narromine that card is deliberately hidden. */
+  body.minimap-is-hidden.compass-on #first-day {
+    top: max(248px, calc(env(safe-area-inset-top) + 238px));
+  }
 }
 @media (max-width: 370px) {
   body.minimap-is-hidden #minimap-toggle {

@@ -315,6 +315,13 @@ function buildOnce(house, makeLabel, attempt) {
       }
       if (!spot) { const w = slots.wall(Math.max(prop.w, 0.6)); spot = w ? { ...w, onWall: true } : (cells.length ? { ...cells.shift(), rot: 0 } : null); }
       if (!spot) throw Object.assign(new Error(`${house.repo}: no room for ${type} in "${r.name}" — enlarge the room`), { crowded: spec.rooms.some((x) => x.archive) });
+      // Opt-in for new generic workplace plans only. Legacy/bespoke placement
+      // stays identical; centred generic fixtures must sit inside the wall.
+      if (spec.insetWallProps && spot.onWall) {
+        const inset = prop.d / 2 + 0.06;
+        spot.x += Math.sin(spot.rot) * inset;
+        spot.z += Math.cos(spot.rot) * inset;
+      }
       const key = act && act.do ? `${house.coordinate}:${ri}:${pi}` : null;
       // Residents are people, not furniture: main.js gives them a moving body (src/world/npcs.js).
       if (prop.walker) {
@@ -338,7 +345,8 @@ function buildOnce(house, makeLabel, attempt) {
       const fw = sideways ? prop.d : prop.w, fd = sideways ? prop.w : prop.d;
       if (prop.solid) colliders.push({ x0: spot.x - fw / 2, x1: spot.x + fw / 2, z0: spot.z - fd / 2, z1: spot.z + fd / 2, top: standTop(type) });
       placedProps.push({ type, room: ri });
-      sceneObjects.push({ type, label: label || prop.label, room: ri, pos: { x: spot.x, z: spot.z }, interactive: !!key });
+      sceneObjects.push({ type, label: label || prop.label, room: ri, pos: { x: spot.x, z: spot.z }, interactive: !!key,
+        ...(spec.insetWallProps ? { footprint: { w: fw, d: fd } } : {}) });
       const pos = new THREE.Vector3(spot.x, 0, spot.z);
       // Wall props get their label pushed out into the room so it never sits inside the wall.
       const out = spot.onWall ? LABEL_INSET : 0;

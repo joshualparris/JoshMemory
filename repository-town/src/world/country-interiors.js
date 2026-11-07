@@ -6,6 +6,7 @@ import {Builder} from './builder.js';
 import {PROPS,standTop,PORTABLE} from './props.js';
 import {dossierFor,residentPanel,housePanel} from './country-dossiers.js';
 import {makeNPC} from './npcs.js';
+import {addGenericCountryDetails} from './generic-country-details.js';
 
 const WALL=0.18, OPEN=1.12;
 export function countryInteriorPlan(home){
@@ -100,6 +101,7 @@ export function buildCountryInterior(home,makeLabel=()=>new THREE.Group()){
   placedProps.push({type:item.type,room:item.room});
   sceneObjects.push({type:item.type,label,room:item.room,pos:{x:item.x,z:item.z},interactive:true});
  }
+ const genericCountryFinish=addGenericCountryDetails(b,home,plan);
  group.add(b.build(),new THREE.HemisphereLight(0xffffff,0x77705a,1.15));
  const doors=[];
  const ex={x0:-.875,x1:.875,z0:depth-.3,z1:depth+.75};
@@ -108,7 +110,7 @@ export function buildCountryInterior(home,makeLabel=()=>new THREE.Group()){
    group,colliders,sight,doors,interactables,seats:[],furniture:[],dynamics:b.dynamics,
    rooms:plan.rooms,placedProps,sceneObjects,walkers:[],windows:[],openings:opening,
    spawn:new THREE.Vector3(0,0,depth-1.98),exitZone:ex,
-   bounds:{x0:-half,x1:half,z0:-depth,z1:depth},countryPlan:plan,people:[],
+   bounds:{x0:-half,x1:half,z0:-depth,z1:depth},countryPlan:plan,genericCountryFinish,people:[],
  };
 }
 

@@ -41,6 +41,7 @@ import { buildFarmInterior, FARM_SHED_IDS } from './farm-interior.js';
 import {buildSoyInterior} from './soy-interior.js';
 import { buildTradeInterior } from './trade-interiors.js';
 import { buildTradeEducationInterior, TRADE_EDUCATION_INTERIORS } from './trade-education-interiors.js';
+import { buildGenericCivicInterior } from './generic-civic-interior.js';
 
 // The twenty high-street services share a safe walkable plan, with different
 // fixtures, colours and exhibits. They are built only while the player is inside.
@@ -150,6 +151,11 @@ export function buildCivicInterior(site,makeLabel,life=null) {
   if(site.id==='fire')return buildFireInterior(site,makeLabel,roomTitle);
   if(site.id==='power')return buildPowerInterior(site,makeLabel,roomTitle,life);
   if(FARM_SHED_IDS.includes(site.id))return buildFarmInterior(site,makeLabel,roomTitle);
+  // Opt-in fallback only. Every handcrafted dispatcher above keeps priority.
+  if((site.expansion && !FITTINGS[site.id]) || ['securityhq','securityoffice','locksmith'].includes(site.id)) {
+    const generic=buildGenericCivicInterior(site,makeLabel,FITTINGS[site.id]);
+    if(generic)return generic;
+  }
   const group=new THREE.Group();
   group.name='Inside '+site.name;
   const colliders=[],interactables=[],sceneObjects=[],placedProps=[];
