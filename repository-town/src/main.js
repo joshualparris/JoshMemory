@@ -2241,7 +2241,7 @@ async function start() {
         // outside the held doorway and returns.
         if(sharedWorkplaceEntranceHeld && Math.hypot(
           player.pos.x-sharedWorkplaceEntranceHeld.x,
-          player.pos.z-sharedWorkplaceEntranceHeld.z)>2.4)sharedWorkplaceEntranceHeld=null;
+          player.pos.z-sharedWorkplaceEntranceHeld.z)>1.7)sharedWorkplaceEntranceHeld=null;
         const d=narromineHomes.near(player.pos);
         if(d)enterNarromineHome(d);else approachNarromineWorkplace();
       }
