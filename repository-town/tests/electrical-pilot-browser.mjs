@@ -32,8 +32,12 @@ try{
     if(viewport.width<=700){
       assert.equal(await grid.isVisible(),false,'Grid must not float over collapsed phone controls');
       assert.equal(await ask.isVisible(),false,'Ask AI must not float over collapsed phone controls');
-      await menu.click();
     }
+    // Calm now starts with the same compact HUD on desktop as on phones.
+    // Expand through the actual visible toggle instead of assuming desktop
+    // buttons are shown; preserve an already expanded saved preference.
+    if(await menu.getAttribute('aria-expanded')==='false')
+      await page.getByRole('button',{name:'Expand town controls'}).click();
     assert(await grid.isVisible()&&await ask.isVisible(), 'Both controls must show inside expanded menu');
     // Real on-screen AI launcher works and collapses the huge menu behind the dialog.
     await ask.click();
