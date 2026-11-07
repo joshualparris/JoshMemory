@@ -39,6 +39,20 @@ try{
  assert(n.getZ(0)<-.9,'south-side sign must face the player on the road');
  assert.equal(mesh.material.map.image.height,96*sites.length,
    'both names must be painted into the texture atlas');
+ const many=Array.from({length:230},(_,i)=>({...authored[i%authored.length],text:'Shop '+i}));
+ const group=buildSignBoards(many);
+ assert(group.isGroup,'large signage should be split into a group of batches');
+ assert.equal(group.children.length,Math.ceil(many.length/32));
+ assert.equal(typeof group.userData.setLighting,'function','townlife lighting API must remain available');
+ let total=0;
+ for(const batch of group.children){
+   assert(batch.isMesh);
+   assert(batch.material.map.image.height<=4096,'paint atlas exceeds minimum WebGL texture size');
+   assert(batch.material.emissiveMap.image.height<=4096,'lighting atlas exceeds minimum WebGL texture size');
+   total+=batch.geometry.attributes.position.count/4;
+   batch.geometry.dispose();batch.material.map.dispose();batch.material.emissiveMap.dispose();batch.material.dispose();
+ }
+ assert.equal(total,many.length,'each shop must retain its own sign');
  mesh.geometry.dispose();mesh.material.map.dispose();mesh.material.dispose();
 }finally{globalThis.document=prev;}
 console.log('PASS: both soy sites have contrasting physical nameplates on the correct outward-facing building fascia');

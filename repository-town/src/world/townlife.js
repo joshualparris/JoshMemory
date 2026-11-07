@@ -1129,7 +1129,8 @@ export function createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog, ac
     lastSolar = { ...solar, gameDay: life.day, gameMinute: m };
     const day = solarDaylight(solar.elevation), dark = THREE.MathUtils.clamp((0.55 - day) / 0.45, 0, 1);
     // Name boards and opening-hours plaques are floodlit after dark, so they stay readable.
-    if (signBoards) signBoards.material.emissiveIntensity = dark * 0.55;
+    // All single-mesh and batched sign atlases are lit by setLighting below.
+    // A batched atlas is a THREE.Group, with no .material of its own.
     const dusk = solarWarmth(solar.elevation) * 0.50;
     bg.copy(NIGHT_SKY).lerp(DAY_SKY, day).lerp(DUSK, dusk);
     const weather = life.civic.weather, overcast = weather === 'rainy' ? 0.55 : weather === 'cloudy' ? 0.3 : 0;

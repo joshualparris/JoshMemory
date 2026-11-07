@@ -7,7 +7,28 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 // signs: [{ text, x, y, z, w, h, rotY = 0, bg = '#f3ead2', fg = '#2b2118', cross = false }]
 // (x, y, z) is the board centre in town coordinates; it faces +z before rotY is applied.
 const ROW = 96, WIDTH = 1024;
+// WebGL's minimum guaranteed MAX_TEXTURE_SIZE is 4096. A single canvas for
+// every shop previously grew to 22080 pixels and was silently downscaled.
+// Keep each colour and lighting atlas below that hardware limit.
+const MAX_SIGNS_PER_ATLAS = 32;
 export function buildSignBoards(signs) {
+  if (!signs.length || typeof document === 'undefined') return null;
+  if (signs.length <= MAX_SIGNS_PER_ATLAS) return buildSignBoardBatch(signs);
+  const group = new THREE.Group();
+  group.name = 'shop signs';
+  const batches = [];
+  for (let i = 0; i < signs.length; i += MAX_SIGNS_PER_ATLAS) {
+    const batch = buildSignBoardBatch(signs.slice(i, i + MAX_SIGNS_PER_ATLAS));
+    group.add(batch);
+    batches.push(batch);
+  }
+  // townlife.js updates the same public lighting callback each game minute.
+  group.userData.setLighting = (...args) => {
+    for (const batch of batches) batch.userData.setLighting(...args);
+  };
+  return group;
+}
+function buildSignBoardBatch(signs) {
   if (!signs.length || typeof document === 'undefined') return null;
   const canvas = document.createElement('canvas');
   canvas.width = WIDTH; canvas.height = ROW * signs.length;
