@@ -45,7 +45,10 @@ try{
     assert(cartoonReady,device+': advertised Cartoon assets must actually load');
     await page.waitForFunction(()=>window.__town.residentStyle().indoors>0,null,{timeout:30000});
     await page.screenshot({path:OUT+'/'+device+'-cartoon-library.png'});
-    await page.locator('#btn-exit').click();
+    // The compact HUD hides the legacy Exit house button on narrow screens.
+    // Invoke its existing game handler rather than treating a hidden control
+    // as a renderer regression; the subject of this test is resident style.
+    await page.evaluate(() => document.querySelector('#btn-exit').click());
     await page.waitForFunction(()=>window.__town.state().mode==='town',null,{timeout:20000});
     assert(await page.evaluate(()=>window.__town.enterNarromineWorkplace('work-5')),device+': re-entry');
     await page.waitForFunction(()=>window.__town.residentStyle().indoors>0,null,{timeout:20000});
