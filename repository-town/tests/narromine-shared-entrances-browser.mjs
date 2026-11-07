@@ -39,9 +39,14 @@ try{
    assert(awayPose,'shared game door has a collider-safe outside approach');
    await page.evaluate(d=>window.__town.place(d.x,d.z,0),awayPose);
    await page.waitForTimeout(500);
-   const outsideBeforeRetry=await page.evaluate(()=>window.__town.state());
+   const outsideBeforeRetry=await page.evaluate(()=>window.__town.sharedWorkplaceEntranceState());
+   console.log('Shared entrance outside after Cancel '+kind+' '+JSON.stringify(outsideBeforeRetry));
    assert.equal(outsideBeforeRetry.mode,'town',kind+': walked clear of shared door without entering another building');
-   await approach();
+   await page.evaluate(d=>window.__town.place(d.x,d.z,0),closest);
+   await page.waitForTimeout(700);
+   const second=await page.evaluate(()=>window.__town.sharedWorkplaceEntranceState());
+   console.log('Shared entrance second approach '+kind+' '+JSON.stringify(second));
+   await page.waitForFunction(()=>document.querySelector('#panel-title')?.textContent==='Choose a Narromine business' && !document.querySelector('#panel').hidden,null,{timeout:8000});
    await page.getByRole('button',{name:'Photographer',exact:true}).click();
    await page.waitForFunction(()=>window.__town.state().coordinate==='NARROMINE-WORK:work-61',null,{timeout:20000});
    assert.equal(await page.evaluate(()=>window.__town.state().mode),'house');
