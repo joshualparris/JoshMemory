@@ -90,6 +90,7 @@ import { makePerson, Walker, houseWander, rankKitchens, freeSpot, placeTownNPCs,
 import {makeDistinctPerson} from './world/npc-wardrobe.js';
 import { separatePedestrians, steerPedestrians } from './world/pedestrian-spacing.js';
 import { createTownLife } from './world/townlife.js';
+import { createTownActivity } from './world/town-activity.js';
 import { createEmergencyResponseVisuals } from './world/emergency-response-visuals.js';
 import { createPlayerDriving, roadAllows } from './world/player-driving.js';
 import { createDrivingDashboard } from './ui/driving-dashboard.js';
@@ -120,6 +121,7 @@ import { createFirstDayTracker } from './ui/first-day-tracker.js';
 import { createPerfMeter } from './ui/perf-meter.js';
 
 const $ = (id) => document.getElementById(id);
+const loading = window.TownLoading;
 const status = (t) => { $('status').textContent = t; };
 // Where an error came from (file:line), so a screenshot of it is enough to find the bug.
 const errorWhere = (e) => { const m = /([\w.-]+\.js):(\d+)/.exec(String(e?.stack || '')); return m ? ` (${m[1]}:${m[2]})` : ''; };
@@ -138,6 +140,7 @@ const fail = (e) => {
   $('loading').hidden = false;
   $('loading').classList.add('error');
   $('loading-text').textContent = 'Could not start: ' + text;
+  loading?.fail(text);
 };
 // A cross-origin script (e.g. a host toolbar on preview links) reports only
 // "Script error." with no details; it is not the game's action failing, so after
@@ -150,6 +153,7 @@ addEventListener('unhandledrejection', (e) => fail(e.reason));
 const SKY = 0x96c9f0, INDOOR = 0x1a1612;
 
 async function start() {
+  await loading?.stage('data');
   // The standalone single-file build embeds the data so it runs from file:// with no server.
   const data = window.__HOUSES__ || await (await fetch('houses.json')).json();
   // Archive contents (READMEs, file lists) are large, so they load on first use.
@@ -158,6 +162,18 @@ async function start() {
   const houses = data.houses.map(honourPaulRoe).map(h => ({ ...h, address: houseAddress(h.coordinate) }));
   const byCoord = new Map(houses.map((h) => [h.coordinate, h]));
 
+  await loading?.stage('graphics');
+  // Observe optional Three.js assets without waiting for them or replacing
+  // their existing completion/error callbacks and graceful fallback behavior.
+  const manager = THREE.DefaultLoadingManager;
+  for (const [name, kind] of [['itemStart', 'start'], ['itemEnd', 'end'], ['itemError', 'error']]) {
+    const original = manager[name];
+    manager[name] = function (url) { loading?.assets(kind, url); return original.apply(this, arguments); };
+  }
+  for (const name of ['onStart', 'onProgress']) {
+    const original = manager[name];
+    manager[name] = function (url, loaded, total) { loading?.assets('progress', url, loaded, total); return original?.apply(this, arguments); };
+  }
   const touch = matchMedia('(pointer: coarse)').matches;
   const renderer = new THREE.WebGLRenderer({ antialias: !touch, powerPreference: 'high-performance' });
   const preferredPixelRatio = Math.min(devicePixelRatio, touch ? 1 : 1.5);
@@ -180,6 +196,7 @@ async function start() {
   const sun = new THREE.DirectionalLight(0xffe7bf, 2.0); sun.position.set(-70, 110, 55); sky.add(sun, sun.target);
   scene.add(sky);
 
+  await loading?.stage('town');
   const town = buildTown(scene, houses, data.streets);
   // Indoors, the town is drawn first from the matching spot in the street, then the rooms on
   // top; it shows through the windows (and the open front door) and nowhere else.
@@ -218,7 +235,18 @@ async function start() {
     own.forEach((m, i) => { m.visible = ownShown[i]; });
   }
   // Town life: farms, shops, trucks and 32 villagers with jobs and meals (src/world/life.js).
-  const townLife = createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog });
+  let activityStorage;
+  try { activityStorage = window.localStorage; } catch {}
+  const activity = createTownActivity(activityStorage);
+  const activitySelect = $('town-activity');
+  activitySelect.value = activity.mode;
+  activitySelect.addEventListener('change', () => {
+    activity.set(activitySelect.value);
+    activitySelect.blur();
+    status(activity.mode === 'calm' ? 'Calm town: fewer people and cars. Your progress and town services are unchanged.' : 'Standard town activity restored.');
+  });
+  await loading?.stage('life');
+  const townLife = createTownLife({ scene, town, makeLabel, sky, hemi, sun, fog, activity });
   const indoorResidentStyles = createIndoorResidentStyles(townLife.residentModels);
   const life = townLife.life;
   // Separate fictional shunting siding: never controls Narromine freight or town main-line gates.
@@ -244,40 +272,40 @@ async function start() {
   // Smooth mode draws less of the distance; phones start with it on.
   let lowPerf = touch;
   streetSigns(town.group, data.streets, makeLabel);
+  await loading?.stage('estate');
   const masterplan = buildMasterplan(town.group, makeLabel);
   // Narromine, 40 km west in reality, ~90 s along the Mitchell Highway here (world/narromine.js).
+  await loading?.stage('narromine');
   const narromine = buildNarromine(town.group, makeLabel);
   // Narromine railway: sleepers and rails on the mapped lines and a drivable grain train in the yard.
+  await loading?.stage('travel');
   const trains = createNarromineTrains(narromine.group);
   // Road traffic at the levels the NSW crossing register records (Dandaloo St 7,000 vehicles a day).
-  const narromineTraffic = createNarromineTraffic(narromine.group, { blocked: (x, z) => trains.crossingClosedNear(x, z) });
+  const narromineTraffic = createNarromineTraffic(narromine.group, { blocked: (x, z) => trains.crossingClosedNear(x, z), activity });
   // Residents' homes: walk up to a front door to go in (narromine-homes.js).
   const narromineHomes = createNarromineHomeIndex(narromineTraffic.commute.population);
   const colesSupply = createColesSupply(narromineTraffic.commute.population);
   // Narromine commuters' cars parked at their Repository Town workplaces while they are on shift.
-  const rtCommuterParking = createRepoTownCommuterParking(
-    town.group,narromineTraffic.commute.population,life,{
-      // The CollisionWorld static spatial index already contains the true lot
-      // buildings, doors, poles, vegetation and civic blockers. Validate the
-      // whole perpendicular parked body, never just its centre point.
-      parkingClear: candidate=>{
-        const radius=candidate.L/2+2;
-        for(const solid of townWorld.near(candidate.x,candidate.z,radius)){
-          const w=solid.x1-solid.x0,d=solid.z1-solid.z0;
-          if(w<=0||d<=0)continue;
-          if(vehicleFootprintsOverlap(candidate,{
-            x:(solid.x0+solid.x1)/2,z:(solid.z0+solid.z1)/2,
-            yaw:0,L:d,widthM:w
-          },0.2))return false;
-        }
-        return true;
-      },
-    }
-  );
+  const rtCommuterParking = createRepoTownCommuterParking(town.group, narromineTraffic.commute.population, life, {
+    activity,
+    parkingClear: candidate => {
+      // Keep full parked body out of the game's existing static collision world.
+      const radius = candidate.L / 2 + 2;
+      for (const solid of townWorld.near(candidate.x, candidate.z, radius)) {
+        const w = solid.x1 - solid.x0, d = solid.z1 - solid.z0;
+        if (w <= 0 || d <= 0) continue;
+        if (vehicleFootprintsOverlap(candidate, {
+          x: (solid.x0 + solid.x1) / 2, z: (solid.z0 + solid.z1) / 2,
+          yaw: 0, L: d, widthM: w,
+        }, 0.2)) return false;
+      }
+      return true;
+    },
+  });
   let rtParkingTimer = 0;
   // Repository Town workplace panels list the Narromine residents on shift there.
   life.narromineCommuters=(id)=>narromineCommutersAt(narromineTraffic.commute.population,id,townDate(life.day).weekday,Math.floor(life.minute));
-  const narrominePeople = createNarrominePedestrians(narromineTraffic.commute, narromineTraffic.graph.nodes, narromineTraffic.graph.adj, narromine.group);
+  const narrominePeople = createNarrominePedestrians(narromineTraffic.commute, narromineTraffic.graph.nodes, narromineTraffic.graph.adj, narromine.group, { activity });
   const narromineWorkplaces = createNarromineWorkplaceIndex(narromineTraffic.commute.population);
   const narrominePostalOutdoor=createNarrominePostalOutdoorActor(narromine.group,makeLabel);
   const [postalHomeX,postalHomeZ]=toWorld(POSTAL_WALK_ROUTE_LOCAL[0]);
@@ -373,6 +401,7 @@ async function start() {
     // The west wall opens where the Mitchell Highway leaves for Narromine (z -52..38, fenced beyond).
     { x0: -1495, x1: -1490, z0: -395, z1: -52 }, { x0: -1495, x1: -1490, z0: 38, z1: 560 }, { x0: 590, x1: 595, z0: -395, z1: 560 },
   ];
+  await loading?.stage('doors');
   const townWorld = new CollisionWorld([...town.colliders, ...townLife.colliders, ...masterplan.colliders, ...civilWorks.colliders, ...woodlot.colliders, ...market.colliders, ...narromine.colliders, ...edges]);
   // Doors must be reachable: test each against the town's solid geometry once, at load.
   const narromineDoorProbe=(x,z,r)=>!!townWorld.hits(x,z,r);
@@ -398,6 +427,7 @@ async function start() {
     ...townLife.railBarrierColliders(player.pos.x,player.pos.z)
   ];
 
+  await loading?.stage('controls');
   const input = new Input(renderer.domElement, $('touch'));
   const captureButton = $('btn-capture');
   captureButton.hidden = input.touch || typeof renderer.domElement.requestPointerLock !== 'function';
@@ -740,6 +770,19 @@ async function start() {
     status('Inside '+site.name+'. Fictional '+careResidents(site.id).length+' residents and live shifts of nurses, carers, catering and support staff. Consult the care team noticeboard. This is not a real resident floor plan.');
     return true;
   }
+  // Match Narromine's generated interior front door to its ACTUAL mapped
+  // street threshold. Translate the outside camera a little in front of the
+  // facade so the physical building does not occlude its own window view.
+  function narromineExteriorView(built, entry) {
+    if (!built?.exitZone || !entry) return null;
+    const ex = built.exitZone, outside = entry.out || entry.outside;
+    let nx = outside ? outside.x - entry.x : Math.sin(entry.yaw || 0);
+    let nz = outside ? outside.z - entry.z : Math.cos(entry.yaw || 0);
+    const len = Math.hypot(nx, nz) || 1; nx /= len; nz /= len;
+    return townView({ x: (ex.x0 + ex.x1) / 2, z: ex.z0 - 0.1 },
+      { x: entry.x + nx * 2.3, z: entry.z + nz * 2.3 },
+      Math.atan2(nx, nz));
+  }
   let lastDeniedEntrance = '', lastDeniedTime = 0;
   // Dedicated Narromine PO ground-floor retail visit. Reuses the actual modelled
   // postal counter, shelves and public circulation; no invented real staff names.
@@ -766,7 +809,8 @@ async function start() {
     if(mode!=='town'||driving.driving)return false;
     const pop=narromineTraffic.commute.population,built=buildNarromineHomeInterior(pop,d.home,makeLabel,life.day,life.minute),hh=built.household;
     inside={house:{coordinate:'NARROMINE-HOME:'+d.home.id,name:'The '+hh.surname+' household',address:hh.street+', Narromine NSW',kind:'home'},
-      ...built,floorIndex:0,floors:null,narromineHome:d};
+      ...built,floorIndex:0,floors:null,narromineHome:d,
+      view:narromineExteriorView(built,d.door)};
     scene.add(built.group);town.group.visible=false;
     scene.background.set(INDOOR);scene.fog=null;
     world=new CollisionWorld(built.colliders);
@@ -798,7 +842,8 @@ async function start() {
       return false;
     }
     inside={house:{coordinate:'NARROMINE-WORK:'+w.id,name:w.name,address:built.soulFoodEvidence?built.soulFoodEvidence.address:built.pharmacyEvidence?'53 Dandaloo Street, Narromine NSW 2821':'Narromine NSW',kind:w.kind},
-      ...built,floorIndex:0,floors:null,narromineHome:{home:{street:w.name},door:e.door,work:true}};
+      ...built,floorIndex:0,floors:null,narromineHome:{home:{street:w.name},door:e.door,work:true},
+      view:narromineExteriorView(built,e.door)};
     scene.add(built.group);town.group.visible=false;
     scene.background.set(INDOOR);scene.fog=null;
     world=new CollisionWorld(built.colliders);
@@ -829,7 +874,8 @@ async function start() {
     }
     const built=buildNarromineColesInterior(makeLabel,life.day,life.minute,whoIsAt(narromineTraffic.commute.population,'coles',townDate(life.day).weekday,Math.floor(life.minute)));
     inside={house:{coordinate:NARROMINE_COLES_SAVE_ID,name:'Coles Narromine',address:'76 Dandaloo Street, Narromine NSW',kind:'supermarket'},
-      ...built,floorIndex:0,floors:null};
+      ...built,floorIndex:0,floors:null,
+      view:narromineExteriorView(built,NARROMINE_COLES_ENTRANCE)};
     scene.add(built.group);town.group.visible=false;
     scene.background.set(INDOOR);scene.fog=null;
     world=new CollisionWorld(built.colliders);
@@ -1783,6 +1829,7 @@ async function start() {
 
   // ── Persistence ──────────────────────────────────────────────────────────
   function spawn() { player.place(0, lotPosition('M4').z + 16, Math.PI); player.yaw = Math.PI / 2; }
+  await loading?.stage('save');
   const saved = loadSave();
   if (saved?.pos) {
     for (const c of saved.visited || []) visited.add(c);
@@ -2096,7 +2143,7 @@ async function start() {
         const score = d - 1.6 * facing - (facing > 0.5 ? bonus : 0);
         if ((facing > 0.2 || d < 1.2) && score < bestP) { bestP = score; nearPerson = c; }
       };
-      for (const p of townLife.people) if (!p.v.inside) consider(p, 2.6);
+      for (const p of townLife.people) if (!p.v.inside && p.fig.group.visible) consider(p, 2.6);
       // As keen as the torch beside it, so facing Wren talks to Wren (the torch used to win every time).
       // Keep Wren selectable when facing her, without stealing the pickup cue for the nearby torch.
       // At the starter's pickup pose a 2.0 bonus wrongly outranked the closer, directly faced item.
@@ -2329,6 +2376,9 @@ async function start() {
     e.currentTarget.href = `narromine-compare.html?x=${player.pos.x.toFixed(1)}&z=${player.pos.z.toFixed(1)}&yaw=${player.yaw.toFixed(3)}`;
   });
   window.__town = {
+    activity: () => ({ mode: activity.mode, ...activity.limits,
+      visibleResidents: townLife.people.filter(p=>p.fig.group.visible).length +
+        [...townLife.populationView.models.values()].filter(p=>p.fig.group.visible).length }),
     // Test harness fast-forwards genuine simulation steps, allowing attendants to
     // commute to their workstations before the browser tries a staffed entrance.
     // Access-control decisions remain unchanged: no unlocked-door shortcut.
@@ -2537,8 +2587,22 @@ async function start() {
     cheats,
   };
 
-  $('loading').hidden = true;
+  await loading?.stage('frame');
+  // Draw the actual restored scene, including first-use shader preparation,
+  // before calling startup complete. Background models remain optional.
+  camera.position.set(player.pos.x, player.baseHeight + player.y + player.eye, player.pos.z);
+  camera.rotation.set(player.pitch, player.yaw, 0, 'YXZ');
+  renderFrame();
+  window.render_game_to_text = () => {
+    const s = window.__town.state();
+    return JSON.stringify({ coordinates: 'metres; x east, z south; y up', mode: s.mode,
+      player: s.pos, heading: s.yaw, activity: window.__town.activity(),
+      time: s.time, prompt: $('prompt').hidden ? null : $('prompt').textContent,
+      panel: s.panel, needs: s.needs, traffic: narromineTraffic.count });
+  };
   started = true;
+  if (loading) await loading.finish();
+  else $('loading').hidden = true;
   if (window.__townNewGame) status('New game started. Welcome to Repository Town!');
   requestAnimationFrame(frame);
 }

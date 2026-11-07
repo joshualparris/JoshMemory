@@ -15,7 +15,7 @@ export const PARKING_NEAR_BUMPER_M=7.8;
 const GAPS=[9.0,11.5,14.0,16.5];
 const LOT_SHIFTS=[0,-1,1,-2,2];
 
-export function createRepoTownCommuterParking(parent,pop,life,{models=typeof document!=='undefined',parkingClear=()=>true}={}){
+export function createRepoTownCommuterParking(parent,pop,life,{models=typeof document!=='undefined',parkingClear=()=>true,activity}={}){
   const commuters=pop.people.filter(p=>p.repoTownJob&&p.car);
   let real=null,parked=[];
   if(models)loadVehicleModels(parent,{max:Math.max(64,commuters.length)})
@@ -25,6 +25,8 @@ export function createRepoTownCommuterParking(parent,pop,life,{models=typeof doc
   function update(weekday,minute){
     const out=[];
     for(const person of commuters){
+      if(out.length >= (activity?.limits.parkedCars ?? Infinity)) break;
+      if(activity && !activity.admits(person.car)) continue;
       const household=pop.households[+person.household.slice(3)];
       const step=dayPlan(person,household,weekday,pop.workplaces)
         .find(s=>minute>=s.from&&minute<s.to);

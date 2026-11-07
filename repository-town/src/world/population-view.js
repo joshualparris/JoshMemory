@@ -5,10 +5,10 @@ export function createPopulationView(life,group,makeLabel){
   const models=new Map();
   return {models,syncPositions(){
     for(const p of models.values())if(p.fig.group.visible)p.fig.group.position.set(p.v.x,0,p.v.z);
-  },update(dt,t,eye,overview){
+  },update(dt,t,eye,overview,selection=null){
     for(const p of models.values())p.fig.group.visible=false;
     if(overview)return;
-    const visible=(life.population?.additional||[]).filter(v=>!v.inside&&Math.hypot(v.x-eye.x,v.z-eye.z)<65)
+    const visible=(life.population?.additional||[]).filter(v=>!v.inside&&(!selection||selection.has(v))&&Math.hypot(v.x-eye.x,v.z-eye.z)<65)
       .sort((a,b)=>Math.hypot(a.x-eye.x,a.z-eye.z)-Math.hypot(b.x-eye.x,b.z-eye.z)).slice(0,48);
     for(const v of visible){let p=models.get(v.id);
       if(!p){const fig=makeDistinctPerson(v.populationId+':'+v.name,v),label=makeLabel(v.name+' · '+v.age,'interactive');label.position.set(0,2.4,0);fig.group.add(label);group.add(fig.group);p={fig,label,v};models.set(v.id,p);}

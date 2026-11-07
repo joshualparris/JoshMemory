@@ -7,6 +7,7 @@ import { buildInterior } from './interior.js';
 import { dayPlan } from './narromine-population.js';
 import { townDate } from './town-calendar.js';
 import { makeDistinctPerson } from './npc-wardrobe.js';
+import { animateNarromineResidents } from './narromine-indoor-life.js';
 
 // What one person's share of a Coles shop is, and what each person uses a day.
 // Households shop about three times a week (including stops on the way home from work), so each shop
@@ -17,20 +18,35 @@ const UNITS = { milk: 'L of milk', bread: 'loaves of bread', eggs: 'eggs', meat:
 
 // Front door: the footprint edge facing the street, and where you stand when you come back out.
 export function homeDoor(home) {
-  const dx = home.kerb.x - home.x, dz = home.kerb.z - home.z, D = Math.hypot(dx, dz) || 1, ux = dx / D, uz = dz / D;
+  // The actual rendered footprint uses local X=(cos,-sin), Z=(sin,cos).
+  // Choose the wall intersected by the street-facing ray, then put the
+  // doorway at that wall's MIDPOINT. The old support-function calculation
+  // could place its sensor beyond the wall, particularly on angled houses.
   const c = Math.cos(home.yaw), s = Math.sin(home.yaw);
-  const half = Math.abs(ux * c + uz * s) * home.w / 2 + Math.abs(-ux * s + uz * c) * home.d / 2;
-  const door = { x: home.x + ux * half, z: home.z + uz * half };
-  return { ...door, out: { x: door.x + ux * 2.2, z: door.z + uz * 2.2, yaw: Math.atan2(-ux, -uz) } };
+  const dx = home.kerb.x - home.x, dz = home.kerb.z - home.z;
+  const u = dx * c - dz * s, v = dx * s + dz * c;
+  const width = Math.abs(u) / Math.max(.1, home.w / 2);
+  const depth = Math.abs(v) / Math.max(.1, home.d / 2);
+  const nx = width > depth ? Math.sign(u || 1) * c : Math.sign(v || 1) * s;
+  const nz = width > depth ? -Math.sign(u || 1) * s : Math.sign(v || 1) * c;
+  const half = width > depth ? home.w / 2 : home.d / 2;
+  const door = { x: home.x + nx * half, z: home.z + nz * half };
+  return { ...door, out: { x: door.x + nx * 2.2, z: door.z + nz * 2.2, yaw: Math.atan2(-nx, -nz) } };
 }
 
-// The four wall midpoints of a footprint as door candidates, the street-facing wall first.
+// Candidate midpoints of the four ACTUAL rotated walls, street-facing first.
+// The ray-selected facade threshold takes precedence, so its visible door,
+// collision sensor and exit pose cannot point to different walls.
 export function doorCandidates(home) {
-  const c = Math.cos(home.yaw), s = Math.sin(home.yaw), ax = [[c, s, home.w / 2], [-c, -s, home.w / 2], [-s, c, home.d / 2], [s, -c, home.d / 2]];
+  const c = Math.cos(home.yaw), s = Math.sin(home.yaw);
+  const axes = [[c, -s, home.w / 2], [-c, s, home.w / 2], [s, c, home.d / 2], [-s, -c, home.d / 2]];
   const kx = home.kerb.x - home.x, kz = home.kerb.z - home.z;
-  const doors = ax.map(([ux, uz, h]) => { const door = { x: home.x + ux * h, z: home.z + uz * h }; return { ...door, out: { x: door.x + ux * 2.2, z: door.z + uz * 2.2, yaw: Math.atan2(-ux, -uz) }, facing: ux * kx + uz * kz }; });
+  const doors = axes.map(([ux, uz, h]) => {
+    const door = { x: home.x + ux * h, z: home.z + uz * h };
+    return { ...door, out: { x: door.x + ux * 2.2, z: door.z + uz * 2.2, yaw: Math.atan2(-ux, -uz) }, facing: ux * kx + uz * kz };
+  });
   doors.sort((a, b) => b.facing - a.facing);
-  return [homeDoor(home), ...doors];
+  return [homeDoor(home), ...doors.filter((d) => Math.hypot(d.x - homeDoor(home).x, d.z - homeDoor(home).z) > .05)];
 }
 // First candidate whose doorstep is free within 1.3 m and whose approach (1.5–4 m out) is clear.
 export function pickDoor(cands, probe) {
@@ -141,7 +157,13 @@ export function buildNarromineHomeInterior(population, home, makeLabel, day, min
   for (const p of others) rooms.push({ name: p.first + "'s room", ...size(bed(0), 'o' + p.id), walls, floor, props: [['bed', 'Bed · ' + p.first, info(p.first + "'s bed", p.name + ', ' + p.age)], ['wardrobe', 'Wardrobe'], p.age >= 67 ? ['radio', 'Radio'] : p.age < 30 ? ['computer', 'Laptop and desk'] : ['lamp', 'Lamp']] });
   // A study for a household with someone working office hours from home; a shed for tradies and farm workers.
   if (people.some((p) => p.workplace && (H('wfh' + p.id) < 0.12))) rooms.push({ name: 'Study', ...size(30, 's'), walls, floor, props: [['desk', 'Desk'], ['computer', 'Computer'], ['filingCabinet', 'Filing cabinet'], ['bookshelf', 'Bookshelf']] });
-  if (trade || H('shed') < 0.25) rooms.push({ name: trade ? 'Shed and workshop' : 'Garage', ...size(40, 'g'), walls: 0xc7c2b8, floor: 0x9a968e, props: [['workbench', 'Workbench'], ['toolWall', 'Tools'], ...(trade ? [['partsBins', 'Parts bins']] : [['bicycle', 'Bicycle']]), ...(H('mow') < 0.6 ? [['mower', 'Lawn mower']] : [])] });
+  // A garage or shed is a DETACHED outbuilding, not a room in the dwelling.
+  // Keep its inventory separate until a surveyed, clear yard placement exists;
+  // never spawn the mower/workbench through a family-room wall.
+  const outbuilding = trade || H('shed') < 0.25
+    ? { name: trade ? 'Detached shed and workshop' : 'Detached garage', stored: [
+      'workbench', 'tools', trade ? 'parts bins' : 'bicycle', ...(H('mow') < 0.6 ? ['lawn mower'] : [])
+    ], modelledOutside: false } : null;
   // Layout by shape: long narrow houses run rooms in a row or deep; squarer ones gather round a hall.
   const layout = aspect > 1.7 ? pickH('lay', ['row', 'deep']) : pickH('lay', ['hub', 'grid', 'L', 'row']);
   const house = { repo: 'narromine-' + home.id, name: 'The ' + hh.surname + ' household', int: { layout, height: pickH('ht', [2.4, 2.7, 3.0, 3.3]), walls, floor, doors: pickH('dr', [0x7a5a3c, 0xf2efe8, 0x5a4634, 0xd8cfc0]), rooms } };
@@ -159,21 +181,41 @@ export function buildNarromineHomeInterior(population, home, makeLabel, day, min
   const roomCentre = (i) => { const r = built.rooms[i]; return { x: (r.x0 + r.x1) / 2, z: (r.z0 + r.z1) / 2 }; };
   const find = (t, label) => built.interactables.find((o) => o.type === t && (!label || o.label.includes(label)));
   let n = 0;
-  const figureIds = [], figurePositions = [];
+  const figureIds = [], figurePositions = [], awake = [];
   for (const o of who.filter((x) => x.home)) {
     const p = o.person;
-    const activity = o.doing === 'sleep' ? 'asleep' : o.doing === 'breakfast' ? 'breakfast' : o.doing === 'dinner' ? 'dinner' : o.doing === 'evening' ? 'home' : 'home';
-    const fig = makeDistinctPerson('narromine:' + p.id, p, { activity, minute, weather: 'sunny' }).group;
-    let at = null;
+    const activity = o.doing === 'sleep' ? 'asleep' : o.doing === 'breakfast' ? 'breakfast' : o.doing === 'dinner' ? 'dinner' : 'home';
+    const figure = makeDistinctPerson('narromine:' + p.id, p, { activity, minute, weather: 'sunny' });
+    const fig = figure.group;
     if (o.doing === 'sleep') {
       const bed = find('bed', p.first);
-      if (bed) { fig.position.set(bed.pos.x + (n % 2 ? 0.45 : -0.45) * (bed.label.includes('&') ? 1 : 0), 0.62, bed.pos.z + 0.2); fig.rotation.set(-Math.PI / 2, 0, 0); built.group.add(fig); figureIds.push(p.id); figurePositions.push({ id: p.id, x: fig.position.x, z: fig.position.z }); n++; continue; }
+      if (bed) {
+        fig.position.set(bed.pos.x + (n % 2 ? 0.45 : -0.45) * (bed.label.includes('&') ? 1 : 0), 0.62, bed.pos.z + 0.2);
+        fig.rotation.set(-Math.PI / 2, 0, 0);
+        built.group.add(fig);
+        figureIds.push(p.id);
+        figurePositions.push({ id: p.id, x: fig.position.x, z: fig.position.z });
+        n++;
+        continue;
+      }
     }
     const anchor = o.doing === 'breakfast' || o.doing === 'dinner' ? find('fridge') : find('tv');
-    if (anchor) { const c = roomCentre(anchor.room); const dx = c.x - anchor.pos.x, dz = c.z - anchor.pos.z, D = Math.hypot(dx, dz) || 1; at = { x: anchor.pos.x + dx / D * (1.6 + (n % 3) * 0.7), z: anchor.pos.z + dz / D * (1.6 + (n % 3) * 0.7) + (n % 2 ? 0.6 : -0.6), yaw: Math.atan2(-dx, -dz) }; }
-    if (!at) continue;
-    fig.position.set(at.x, 0, at.z); fig.rotation.y = at.yaw; built.group.add(fig); figureIds.push(p.id); figurePositions.push({ id: p.id, x: at.x, z: at.z }); n++;
-    const label = makeLabel(p.first + ' ' + p.surname + ', ' + p.age); if (label) { label.position.set(at.x, 2.15 * (fig.scale.y || 1) + 0.1, at.z); built.group.add(label); }
+    let at = null;
+    if (anchor) {
+      const c = roomCentre(anchor.room), dx = c.x - anchor.pos.x, dz = c.z - anchor.pos.z;
+      const D = Math.hypot(dx, dz) || 1;
+      at = { x: anchor.pos.x + dx / D * (1.6 + (n % 3) * 0.7),
+        z: anchor.pos.z + dz / D * (1.6 + (n % 3) * 0.7) + (n % 2 ? 0.6 : -0.6),
+        yaw: Math.atan2(-dx, -dz) };
+    }
+    if (!at) { const c = roomCentre(0); at = { ...c, yaw: 0 }; }
+    const record = { id: p.id, x: at.x, z: at.z };
+    figureIds.push(p.id); figurePositions.push(record);
+    awake.push({ figure, id: p.id, name: p.name, label: p.first + ' ' + p.surname + ', ' + p.age,
+      ...at, activity: o.doing === 'breakfast' || o.doing === 'dinner' ? 'preparing a meal' : 'relaxing at home',
+      domestic: true, roam: true, record });
+    n++;
   }
-  return { ...built, household: hh, fridge, occupants: who, figures: n, figureIds, figurePositions };
+  animateNarromineResidents(built, awake, makeLabel, () => minute);
+  return { ...built, household: hh, fridge, occupants: who, figures: n, figureIds, figurePositions, outbuilding };
 }

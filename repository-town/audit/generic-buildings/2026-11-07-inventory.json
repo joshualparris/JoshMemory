@@ -1,0 +1,4212 @@
+{
+  "asOf": "2026-11-07",
+  "baseline": "f5502d24",
+  "publication": "not published; approval required",
+  "summary": {
+    "expansionTotal": 72,
+    "newCivicInteriors": 50,
+    "newCivicExteriors": 39,
+    "remainingExpansionPlaceholders": 0,
+    "newLegacyInteriors": 3,
+    "remainingLiveLegacyPlaceholders": 0,
+    "mappedWalkInWorkplaces": 77,
+    "newMappedWorkplaces": 22,
+    "unresolvedMappedFallbacks": 0,
+    "sharedMappedEntranceGroups": 15,
+    "mappedWorkplacesAtSharedEntrances": 43,
+    "newCountryFinishes": 193,
+    "protectedCountryDossiers": 2,
+    "allCountryExteriors": 195,
+    "narromineHouseholdInteriors": 1171,
+    "narromineFillHouses": 2131,
+    "narromineBoxBuildings": 212,
+    "narromineFillShops": 8,
+    "narromineFrontages": 18
+  },
+  "civic": [
+    {
+      "id": "library",
+      "name": "The Old Shire Library",
+      "style": "heritage",
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "placeholder": false,
+      "exterior": "dedicated-id-or-style-preserved"
+    },
+    {
+      "id": "pharmacy",
+      "name": "Creative Court Pharmacy",
+      "style": "health",
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "placeholder": false,
+      "exterior": "dedicated-id-or-style-preserved"
+    },
+    {
+      "id": "repotech",
+      "name": "Copperline Computers",
+      "style": "tech",
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "placeholder": false,
+      "exterior": "dedicated-id-or-style-preserved"
+    },
+    {
+      "id": "publicamenities",
+      "name": "Creative Court Public Toilets & Playground",
+      "style": "park",
+      "passTwo": true,
+      "interior": "amenities",
+      "placeholder": false,
+      "exterior": "dedicated-id-or-style-preserved"
+    },
+    {
+      "id": "dentist",
+      "name": "Wattle Street Dental",
+      "style": "health",
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "placeholder": false,
+      "exterior": "dedicated-id-or-style-preserved"
+    },
+    {
+      "id": "supermarket",
+      "name": "The Corner Grocer",
+      "style": "retail",
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "placeholder": false,
+      "exterior": "dedicated-id-or-style-preserved"
+    },
+    {
+      "id": "physio",
+      "name": "Ironbark Physio",
+      "style": "health",
+      "passTwo": true,
+      "interior": "rehabilitation",
+      "placeholder": false,
+      "exterior": "rehabilitation"
+    },
+    {
+      "id": "pathology",
+      "name": "Riverbend Pathology",
+      "style": "health",
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "placeholder": false,
+      "exterior": "dedicated-id-or-style-preserved"
+    },
+    {
+      "id": "podiatry",
+      "name": "Creative Court Podiatry",
+      "style": "health",
+      "passTwo": true,
+      "interior": "podiatry",
+      "placeholder": false,
+      "exterior": "podiatry"
+    },
+    {
+      "id": "optometry",
+      "name": "Clearview Optometrists",
+      "style": "health",
+      "passTwo": true,
+      "interior": "optical",
+      "placeholder": false,
+      "exterior": "optical"
+    },
+    {
+      "id": "counselling",
+      "name": "Repository Counselling & Wellbeing",
+      "style": "health",
+      "passTwo": true,
+      "interior": "counselling",
+      "placeholder": false,
+      "exterior": "counselling"
+    },
+    {
+      "id": "gym",
+      "name": "The Yard Fitness",
+      "style": "sports",
+      "passTwo": true,
+      "interior": "fitness",
+      "placeholder": false,
+      "exterior": "dedicated-id-or-style-preserved"
+    },
+    {
+      "id": "youthcentre",
+      "name": "Creative Court Youth Hub",
+      "style": "civic",
+      "passTwo": true,
+      "interior": "activity",
+      "placeholder": false,
+      "exterior": "activity"
+    },
+    {
+      "id": "artscentre",
+      "name": "Repository Arts & Makers Studio",
+      "style": "heritage",
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "placeholder": false,
+      "exterior": "dedicated-id-or-style-preserved"
+    },
+    {
+      "id": "communitynurse",
+      "name": "Community Nursing & Home Care",
+      "style": "health",
+      "passTwo": true,
+      "interior": "nursing",
+      "placeholder": false,
+      "exterior": "nursing"
+    },
+    {
+      "id": "agedcare",
+      "name": "Seniors & Aged-Care Services",
+      "style": "agedcare",
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "placeholder": false,
+      "exterior": "dedicated-id-or-style-preserved"
+    },
+    {
+      "id": "disabilitysupport",
+      "name": "Repository Disability Support",
+      "style": "civic",
+      "passTwo": true,
+      "interior": "support",
+      "placeholder": false,
+      "exterior": "support"
+    },
+    {
+      "id": "sports",
+      "name": "Creative Court Sports Pavilion",
+      "style": "sports",
+      "passTwo": true,
+      "interior": "courts",
+      "placeholder": false,
+      "exterior": "dedicated-id-or-style-preserved"
+    },
+    {
+      "id": "vet",
+      "name": "Repository Veterinary Surgery",
+      "style": "health",
+      "passTwo": true,
+      "interior": "veterinary",
+      "placeholder": false,
+      "exterior": "veterinary"
+    },
+    {
+      "id": "stockfeed",
+      "name": "Regional Stockfeed & Produce",
+      "style": "rural",
+      "passTwo": false,
+      "interior": "rural",
+      "placeholder": false,
+      "exterior": "rural"
+    },
+    {
+      "id": "farmsupplies",
+      "name": "Macquarie Rural Supplies",
+      "style": "rural",
+      "passTwo": false,
+      "interior": "rural",
+      "placeholder": false,
+      "exterior": "rural"
+    },
+    {
+      "id": "ruralrepair",
+      "name": "Country Equipment Repairs",
+      "style": "workshop",
+      "passTwo": true,
+      "interior": "workshop",
+      "placeholder": false,
+      "exterior": "workshop"
+    },
+    {
+      "id": "nursery",
+      "name": "Wambuul Nursery & Garden Centre",
+      "style": "nursery",
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "placeholder": false,
+      "exterior": "dedicated-id-or-style-preserved"
+    },
+    {
+      "id": "hairdresser",
+      "name": "Repository Hair & Barber",
+      "style": "retail",
+      "passTwo": false,
+      "interior": "salon",
+      "placeholder": false,
+      "exterior": "salon"
+    },
+    {
+      "id": "officesupplies",
+      "name": "Repo Office & Print",
+      "style": "tech",
+      "passTwo": true,
+      "interior": "print",
+      "placeholder": false,
+      "exterior": "print"
+    },
+    {
+      "id": "childcare",
+      "name": "Creative Court Early Learning",
+      "style": "school",
+      "passTwo": true,
+      "interior": "childcare",
+      "placeholder": false,
+      "exterior": "childcare"
+    },
+    {
+      "id": "fuelstop",
+      "name": "Western Approach Fuel & Convenience",
+      "style": "fuel",
+      "passTwo": true,
+      "interior": "convenience",
+      "placeholder": false,
+      "exterior": "dedicated-id-or-style-preserved"
+    },
+    {
+      "id": "tyres",
+      "name": "Western Tyre & Battery",
+      "style": "workshop",
+      "passTwo": true,
+      "interior": "workshop",
+      "placeholder": false,
+      "exterior": "workshop"
+    },
+    {
+      "id": "carwash",
+      "name": "Western Wash Bays",
+      "style": "carwash",
+      "passTwo": true,
+      "interior": "wash",
+      "placeholder": false,
+      "exterior": "dedicated-id-or-style-preserved"
+    },
+    {
+      "id": "clothing",
+      "name": "Gumleaf Outfitters",
+      "style": "retail",
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "placeholder": false,
+      "exterior": "dedicated-id-or-style-preserved"
+    },
+    {
+      "id": "opshop",
+      "name": "Second Life Opportunity Shop",
+      "style": "retail",
+      "passTwo": false,
+      "interior": "clothing",
+      "placeholder": false,
+      "exterior": "clothing"
+    },
+    {
+      "id": "florist",
+      "name": "Wambuul Flowers",
+      "style": "nursery",
+      "passTwo": true,
+      "interior": "florist",
+      "placeholder": false,
+      "exterior": "dedicated-id-or-style-preserved"
+    },
+    {
+      "id": "beauty",
+      "name": "Creative Court Beauty Studio",
+      "style": "retail",
+      "passTwo": false,
+      "interior": "beauty",
+      "placeholder": false,
+      "exterior": "beauty"
+    },
+    {
+      "id": "laundry",
+      "name": "Repository Laundry & Dry Cleaning Agent",
+      "style": "workshop",
+      "passTwo": false,
+      "interior": "laundry",
+      "placeholder": false,
+      "exterior": "laundry"
+    },
+    {
+      "id": "takeaway",
+      "name": "High Street Fish & Chips",
+      "style": "retail",
+      "passTwo": true,
+      "interior": "takeaway",
+      "placeholder": false,
+      "exterior": "takeaway"
+    },
+    {
+      "id": "newsagent",
+      "name": "Repository News & Lotto",
+      "style": "retail",
+      "passTwo": true,
+      "interior": "news",
+      "placeholder": false,
+      "exterior": "news"
+    },
+    {
+      "id": "giftshop",
+      "name": "Repository Gifts & Home",
+      "style": "retail",
+      "passTwo": true,
+      "interior": "gifts",
+      "placeholder": false,
+      "exterior": "gifts"
+    },
+    {
+      "id": "photography",
+      "name": "Creative Photography & Framing",
+      "style": "heritage",
+      "passTwo": true,
+      "interior": "photography",
+      "placeholder": false,
+      "exterior": "photography"
+    },
+    {
+      "id": "accountant",
+      "name": "Repo Accounting & Bookkeeping",
+      "style": "civic",
+      "passTwo": true,
+      "interior": "professional",
+      "placeholder": false,
+      "exterior": "professional"
+    },
+    {
+      "id": "insurance",
+      "name": "Central West Insurance Brokers",
+      "style": "civic",
+      "passTwo": true,
+      "interior": "professional",
+      "placeholder": false,
+      "exterior": "professional"
+    },
+    {
+      "id": "employment",
+      "name": "Repository Jobs & Training",
+      "style": "civic",
+      "passTwo": false,
+      "interior": "employment",
+      "placeholder": false,
+      "exterior": "employment"
+    },
+    {
+      "id": "cleaning",
+      "name": "Central West Cleaning Services",
+      "style": "workshop",
+      "passTwo": true,
+      "interior": "fieldservice",
+      "placeholder": false,
+      "exterior": "fieldservice"
+    },
+    {
+      "id": "pestcontrol",
+      "name": "Repository Pest Management",
+      "style": "workshop",
+      "passTwo": true,
+      "interior": "fieldservice",
+      "placeholder": false,
+      "exterior": "fieldservice"
+    },
+    {
+      "id": "courier",
+      "name": "Western Courier & Parcels",
+      "style": "workshop",
+      "passTwo": true,
+      "interior": "logistics",
+      "placeholder": false,
+      "exterior": "logistics"
+    },
+    {
+      "id": "storage",
+      "name": "Repository Secure Storage",
+      "style": "workshop",
+      "passTwo": true,
+      "interior": "logistics",
+      "placeholder": false,
+      "exterior": "logistics"
+    },
+    {
+      "id": "furniture",
+      "name": "Country Furniture & Bedding",
+      "style": "retail",
+      "passTwo": true,
+      "interior": "furniture",
+      "placeholder": false,
+      "exterior": "furniture"
+    },
+    {
+      "id": "bikeshop",
+      "name": "Creative Cycles",
+      "style": "tech",
+      "passTwo": true,
+      "interior": "workshop",
+      "placeholder": false,
+      "exterior": "workshop"
+    },
+    {
+      "id": "homewares",
+      "name": "Repository Homewares",
+      "style": "retail",
+      "passTwo": false,
+      "interior": "homewares",
+      "placeholder": false,
+      "exterior": "homewares"
+    },
+    {
+      "id": "farmcontractor",
+      "name": "Macquarie Farm Contracting",
+      "style": "rural",
+      "passTwo": true,
+      "interior": "fieldservice",
+      "placeholder": false,
+      "exterior": "fieldservice"
+    },
+    {
+      "id": "stockagent",
+      "name": "Western Livestock & Property Agency",
+      "style": "rural",
+      "passTwo": true,
+      "interior": "professional",
+      "placeholder": false,
+      "exterior": "professional"
+    },
+    {
+      "id": "machinery",
+      "name": "Macquarie Agricultural Machinery",
+      "style": "rural",
+      "passTwo": true,
+      "interior": "workshop",
+      "placeholder": false,
+      "exterior": "workshop"
+    },
+    {
+      "id": "irrigation",
+      "name": "Central West Irrigation Services",
+      "style": "rural",
+      "passTwo": false,
+      "interior": "irrigation",
+      "placeholder": false,
+      "exterior": "irrigation"
+    },
+    {
+      "id": "funeral",
+      "name": "Repository Funeral Services",
+      "style": "heritage",
+      "passTwo": true,
+      "interior": "funeral",
+      "placeholder": false,
+      "exterior": "funeral"
+    },
+    {
+      "id": "freight",
+      "name": "Regional Freight Forwarders",
+      "style": "workshop",
+      "passTwo": true,
+      "interior": "logistics",
+      "placeholder": false,
+      "exterior": "logistics"
+    },
+    {
+      "id": "sewing",
+      "name": "Creative Court Alterations",
+      "style": "retail",
+      "passTwo": true,
+      "interior": "sewing",
+      "placeholder": false,
+      "exterior": "sewing"
+    },
+    {
+      "id": "mensshed",
+      "name": "Repository Men's Shed",
+      "style": "workshop",
+      "passTwo": true,
+      "interior": "workshop",
+      "placeholder": false,
+      "exterior": "workshop"
+    },
+    {
+      "id": "repaircafe",
+      "name": "Repository Repair Café",
+      "style": "workshop",
+      "passTwo": true,
+      "interior": "workshop",
+      "placeholder": false,
+      "exterior": "workshop"
+    },
+    {
+      "id": "communitygarden",
+      "name": "Creative Court Community Garden",
+      "style": "nursery",
+      "passTwo": true,
+      "interior": "florist",
+      "placeholder": false,
+      "exterior": "dedicated-id-or-style-preserved"
+    },
+    {
+      "id": "museum",
+      "name": "Repository Heritage Museum",
+      "style": "heritage",
+      "passTwo": true,
+      "interior": "museum",
+      "placeholder": false,
+      "exterior": "museum"
+    },
+    {
+      "id": "church",
+      "name": "Repository Community Church",
+      "style": "heritage",
+      "passTwo": true,
+      "interior": "chapel",
+      "placeholder": false,
+      "exterior": "chapel"
+    },
+    {
+      "id": "skatepark",
+      "name": "Repository Skate Plaza",
+      "style": "park",
+      "passTwo": true,
+      "interior": "courts",
+      "placeholder": false,
+      "exterior": "dedicated-id-or-style-preserved"
+    },
+    {
+      "id": "tennis",
+      "name": "Repository Tennis Practice Courts",
+      "style": "sports",
+      "passTwo": true,
+      "interior": "courts",
+      "placeholder": false,
+      "exterior": "dedicated-id-or-style-preserved"
+    },
+    {
+      "id": "netball",
+      "name": "Repository Netball Training",
+      "style": "sports",
+      "passTwo": true,
+      "interior": "courts",
+      "placeholder": false,
+      "exterior": "dedicated-id-or-style-preserved"
+    },
+    {
+      "id": "pool",
+      "name": "Repository Learn-to-Swim Centre",
+      "style": "pool",
+      "passTwo": true,
+      "interior": "pool",
+      "placeholder": false,
+      "exterior": "pool"
+    },
+    {
+      "id": "sportsclub",
+      "name": "Repository Sporting Club",
+      "style": "sports",
+      "passTwo": true,
+      "interior": "club",
+      "placeholder": false,
+      "exterior": "dedicated-id-or-style-preserved"
+    },
+    {
+      "id": "caravanpark",
+      "name": "Western Caravan Park Reception",
+      "style": "heritage",
+      "passTwo": true,
+      "interior": "visitor",
+      "placeholder": false,
+      "exterior": "visitor"
+    },
+    {
+      "id": "showground",
+      "name": "Repository Showground Office",
+      "style": "rural",
+      "passTwo": true,
+      "interior": "showground",
+      "placeholder": false,
+      "exterior": "showground"
+    },
+    {
+      "id": "cemetery",
+      "name": "Repository Cemetery Memorial Office",
+      "style": "heritage",
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "placeholder": false,
+      "exterior": "dedicated-id-or-style-preserved"
+    },
+    {
+      "id": "busstop",
+      "name": "Repository Community Bus Interchange",
+      "style": "park",
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "placeholder": false,
+      "exterior": "dedicated-id-or-style-preserved"
+    },
+    {
+      "id": "visitorcentre",
+      "name": "Repository Visitor Information",
+      "style": "heritage",
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "placeholder": false,
+      "exterior": "dedicated-id-or-style-preserved"
+    },
+    {
+      "id": "theatre",
+      "name": "Repository Community Theatre",
+      "style": "heritage",
+      "passTwo": true,
+      "interior": "theatre",
+      "placeholder": false,
+      "exterior": "theatre"
+    },
+    {
+      "id": "scouts",
+      "name": "Repository Youth & Scouts Hall",
+      "style": "heritage",
+      "passTwo": true,
+      "interior": "activity",
+      "placeholder": false,
+      "exterior": "activity"
+    }
+  ],
+  "legacy": [
+    {
+      "id": "hotel",
+      "name": "Railway Hotel",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "hall",
+      "name": "Town Hall",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "store",
+      "name": "General Store",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "greengrocer",
+      "name": "Greengrocer",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "butcher",
+      "name": "Butcher",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "pub",
+      "name": "The Merged Branch",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "square",
+      "name": "Market Square",
+      "liveIndoor": false,
+      "passTwo": false,
+      "interior": "legacy-shared-office",
+      "exterior": "preserved",
+      "classification": "outdoor-not-an-indoor-destination"
+    },
+    {
+      "id": "sheep",
+      "name": "Sheep Station",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "dairy",
+      "name": "Dairy",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "coop",
+      "name": "Chook Shed",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "orchard",
+      "name": "Orchard",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "garden",
+      "name": "Market Garden",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "silo",
+      "name": "Wheat Farm",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "farmhouse",
+      "name": "Farmhouse",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "town-hall",
+      "name": "town-hall",
+      "liveIndoor": false,
+      "passTwo": false,
+      "interior": "legacy-shared-office",
+      "exterior": "preserved",
+      "classification": "inactive-legacy-id"
+    },
+    {
+      "id": "bank",
+      "name": "Community Bank",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "realty",
+      "name": "Repository Realty",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "police",
+      "name": "Repository Town Police Station",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "ambulance",
+      "name": "NSW Ambulance Station",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "court",
+      "name": "Repository Town Local Court",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "solicitor",
+      "name": "High Street Solicitors & Legal Aid Enquiries",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "post",
+      "name": "Post Office",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "market",
+      "name": "market",
+      "liveIndoor": false,
+      "passTwo": false,
+      "interior": "legacy-shared-office",
+      "exterior": "preserved",
+      "classification": "inactive-legacy-id"
+    },
+    {
+      "id": "bakery",
+      "name": "Bakery",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "mill",
+      "name": "Flour Mill",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "clinic",
+      "name": "Clinic",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "school",
+      "name": "School",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "power",
+      "name": "Power Station",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "waterworks",
+      "name": "Water Works",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "sewage",
+      "name": "Wastewater Works",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "depot",
+      "name": "Rail Depot",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "recycling",
+      "name": "Recycling Centre",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "landfill",
+      "name": "Waste Depot",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "factory",
+      "name": "factory",
+      "liveIndoor": false,
+      "passTwo": false,
+      "interior": "legacy-shared-office",
+      "exterior": "preserved",
+      "classification": "inactive-legacy-id"
+    },
+    {
+      "id": "farm",
+      "name": "farm",
+      "liveIndoor": false,
+      "passTwo": false,
+      "interior": "legacy-shared-office",
+      "exterior": "preserved",
+      "classification": "inactive-legacy-id"
+    },
+    {
+      "id": "park",
+      "name": "park",
+      "liveIndoor": false,
+      "passTwo": false,
+      "interior": "legacy-shared-office",
+      "exterior": "preserved",
+      "classification": "inactive-legacy-id"
+    },
+    {
+      "id": "fire",
+      "name": "Fire & Rescue",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "cafe",
+      "name": "Commit Café",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "council",
+      "name": "council",
+      "liveIndoor": false,
+      "passTwo": false,
+      "interior": "legacy-shared-office",
+      "exterior": "preserved",
+      "classification": "inactive-legacy-id"
+    },
+    {
+      "id": "realestate",
+      "name": "Central West Property & Land",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "dealership",
+      "name": "High Street Motors",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "mechanic",
+      "name": "Town Motor Workshop",
+      "liveIndoor": true,
+      "passTwo": false,
+      "interior": "dedicated-preserved",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "securityhq",
+      "name": "Central West Security Headquarters",
+      "liveIndoor": true,
+      "passTwo": true,
+      "interior": "security",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "securityoffice",
+      "name": "High Street Security Office",
+      "liveIndoor": true,
+      "passTwo": true,
+      "interior": "security",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    },
+    {
+      "id": "locksmith",
+      "name": "Macquarie Locksmith & Keys",
+      "liveIndoor": true,
+      "passTwo": true,
+      "interior": "locksmith",
+      "exterior": "preserved",
+      "classification": "live-indoor"
+    }
+  ],
+  "workplaces": [
+    {
+      "id": "work-0",
+      "name": "Chill-Rite",
+      "kind": "hvac",
+      "passTwo": true,
+      "interior": "fieldservice",
+      "rooms": [
+        "Chill-Rite · field-service depot",
+        "EQUIPMENT & DISPATCH"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-45",
+          "name": "Macquarie Clothing"
+        },
+        {
+          "id": "work-46",
+          "name": "Narromine Mens Shed"
+        }
+      ]
+    },
+    {
+      "id": "work-1",
+      "name": "Narromine Tourist Park",
+      "kind": "camp_site",
+      "passTwo": true,
+      "interior": "visitor",
+      "rooms": [
+        "Narromine Tourist Park · visitor and park reception",
+        "BOOKINGS & INFORMATION"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-2",
+      "name": "Narromine Aviation Museum",
+      "kind": "museum",
+      "passTwo": true,
+      "interior": "museum",
+      "rooms": [
+        "Narromine Aviation Museum · museum gallery",
+        "COLLECTIONS & RESEARCH"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-68",
+          "name": "Narromine Aero Club"
+        }
+      ]
+    },
+    {
+      "id": "work-3",
+      "name": "HubnSpoke",
+      "kind": "coworking",
+      "passTwo": true,
+      "interior": "study",
+      "rooms": [
+        "HubnSpoke · tutoring and shared work",
+        "STUDY & RESOURCES"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-5",
+      "name": "Macquarie Regional Library",
+      "kind": "library",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "Macquarie Regional Library · library"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-31",
+          "name": "B2B Abilities"
+        },
+        {
+          "id": "work-32",
+          "name": "Verto"
+        },
+        {
+          "id": "work-67",
+          "name": "Joblink Plus"
+        }
+      ]
+    },
+    {
+      "id": "work-6",
+      "name": "Inland Petroleum",
+      "kind": "fuel",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "Inland Petroleum · service station shop"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-7",
+      "name": "Narromine Hotel",
+      "kind": "pub",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "Narromine Hotel · public bar",
+        "Bistro",
+        "Kitchen",
+        "Gaming room",
+        "Pool room",
+        "Drive-through bottle shop",
+        "Function room (upstairs, opens to the balcony)",
+        "Upstairs accommodation hallway"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-39",
+          "name": "Mirror Hair Lounge"
+        },
+        {
+          "id": "work-40",
+          "name": "BellaDonna"
+        }
+      ]
+    },
+    {
+      "id": "work-8",
+      "name": "Royal Hotel",
+      "kind": "pub",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "Royal Hotel · front bar",
+        "Dining room",
+        "Kitchen"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-9",
+      "name": "Narromine Health Centre",
+      "kind": "doctors",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "Narromine Health Centre · waiting room",
+        "Consulting room"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-10",
+      "name": "Narromine Shire Offices Customer Service and Payments",
+      "kind": "government",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "Narromine Shire Offices Customer Service and Payments · front counter",
+        "Office"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-15",
+          "name": "Regional Australia Bank"
+        }
+      ]
+    },
+    {
+      "id": "work-12",
+      "name": "Narromine Police Station",
+      "kind": "police",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "Narromine Police Station · front counter",
+        "Office"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-13",
+      "name": "Imperial Hotel",
+      "kind": "pub",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "Imperial Hotel · front bar",
+        "Dining room",
+        "Kitchen"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-35",
+          "name": "Rain Agribusiness"
+        },
+        {
+          "id": "work-54",
+          "name": "All Occassions"
+        },
+        {
+          "id": "work-55",
+          "name": "Classic Catch Cafe"
+        },
+        {
+          "id": "work-56",
+          "name": "Rosie & Toots Vintage & Art"
+        },
+        {
+          "id": "work-57",
+          "name": "Hairdresser"
+        }
+      ]
+    },
+    {
+      "id": "work-14",
+      "name": "BP",
+      "kind": "fuel",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "BP · service station shop"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-15",
+      "name": "Regional Australia Bank",
+      "kind": "bank",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "Regional Australia Bank · banking hall",
+        "Office"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-10",
+          "name": "Narromine Shire Offices Customer Service and Payments"
+        }
+      ]
+    },
+    {
+      "id": "work-16",
+      "name": "Narromine RSL Club",
+      "kind": "bar",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "Narromine RSL Club · club bar",
+        "Bistro"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-47",
+          "name": "Narromine USMC"
+        }
+      ]
+    },
+    {
+      "id": "work-17",
+      "name": "Narromine Courthouse",
+      "kind": "courthouse",
+      "passTwo": true,
+      "interior": "justice",
+      "rooms": [
+        "Narromine Courthouse · court reception and hearing room",
+        "HEARING & RECORDS"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-18",
+      "name": "The Court House Hotel",
+      "kind": "pub",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "The Court House Hotel · front bar",
+        "Dining room",
+        "Kitchen"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-62",
+          "name": "Central West Tutoring"
+        },
+        {
+          "id": "work-63",
+          "name": "Bottlemart"
+        }
+      ]
+    },
+    {
+      "id": "work-19",
+      "name": "Liberty",
+      "kind": "fuel",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "Liberty · service station shop"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-20",
+      "name": "Narromine Coin Laundry",
+      "kind": "laundry",
+      "passTwo": false,
+      "interior": "laundry",
+      "rooms": [
+        "Narromine Coin Laundry · wash and dry",
+        "Folding and collection",
+        "Service and supplies"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-21",
+      "name": "McPhersons Automotive",
+      "kind": "car_repair",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "McPhersons Automotive · workshop",
+        "Service desk"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-22",
+      "name": "Vinnies",
+      "kind": "charity",
+      "passTwo": false,
+      "interior": "homewares",
+      "rooms": [
+        "Vinnies · homewares displays",
+        "Furniture and textiles",
+        "Stock and packing"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-23",
+          "name": "Zest"
+        },
+        {
+          "id": "work-33",
+          "name": "LJ Hooker"
+        }
+      ]
+    },
+    {
+      "id": "work-23",
+      "name": "Zest",
+      "kind": "cafe",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "Zest · café",
+        "Kitchen"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-22",
+          "name": "Vinnies"
+        },
+        {
+          "id": "work-33",
+          "name": "LJ Hooker"
+        }
+      ]
+    },
+    {
+      "id": "work-24",
+      "name": "JBs's Bakery",
+      "kind": "bakery",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "JBs's Bakery · shop",
+        "Bakehouse"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-34",
+          "name": "Narromine Tobacco House"
+        },
+        {
+          "id": "work-53",
+          "name": "Beauty"
+        }
+      ]
+    },
+    {
+      "id": "work-25",
+      "name": "Narromine Pharmacy",
+      "kind": "pharmacy",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "Narromine Pharmacy · retail and prescriptions (interpretive)",
+        "Vaccination and medicine consultation · layout unverified",
+        "Dispensary and dose-packing · staff-zone interpretation",
+        "Sleep health and CPAP support · layout unverified"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-26",
+      "name": "Commonwealth Bank",
+      "kind": "bank",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "Commonwealth Bank · banking hall",
+        "Office"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-27",
+      "name": "Narromine Animal Shelter",
+      "kind": "animal_shelter",
+      "passTwo": true,
+      "interior": "veterinary",
+      "rooms": [
+        "Narromine Animal Shelter · animal care",
+        "ANIMAL CARE & PREPARATION"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-28",
+      "name": "Listers Machinery",
+      "kind": "agrarian",
+      "passTwo": false,
+      "interior": "rural",
+      "rooms": [
+        "Listers Machinery · feed and farm supplies",
+        "Equipment and fittings",
+        "Stock and dispatch"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-29",
+      "name": "Narromine Chiropractic",
+      "kind": "alternative",
+      "passTwo": true,
+      "interior": "wellbeing",
+      "rooms": [
+        "Narromine Chiropractic · wellbeing consultation",
+        "PRIVATE CONSULTATION"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-30",
+          "name": "BEST Employment"
+        }
+      ]
+    },
+    {
+      "id": "work-30",
+      "name": "BEST Employment",
+      "kind": "employment_agency",
+      "passTwo": false,
+      "interior": "employment",
+      "rooms": [
+        "BEST Employment · reception and waiting",
+        "Private interview",
+        "Job-search and training"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-29",
+          "name": "Narromine Chiropractic"
+        }
+      ]
+    },
+    {
+      "id": "work-31",
+      "name": "B2B Abilities",
+      "kind": "social_facility",
+      "passTwo": true,
+      "interior": "support",
+      "rooms": [
+        "B2B Abilities · accessible support centre",
+        "PRIVATE SUPPORT"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-5",
+          "name": "Macquarie Regional Library"
+        },
+        {
+          "id": "work-32",
+          "name": "Verto"
+        },
+        {
+          "id": "work-67",
+          "name": "Joblink Plus"
+        }
+      ]
+    },
+    {
+      "id": "work-32",
+      "name": "Verto",
+      "kind": "employment_agency",
+      "passTwo": false,
+      "interior": "employment",
+      "rooms": [
+        "Verto · reception and waiting",
+        "Private interview",
+        "Job-search and training"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-5",
+          "name": "Macquarie Regional Library"
+        },
+        {
+          "id": "work-31",
+          "name": "B2B Abilities"
+        },
+        {
+          "id": "work-67",
+          "name": "Joblink Plus"
+        }
+      ]
+    },
+    {
+      "id": "work-33",
+      "name": "LJ Hooker",
+      "kind": "estate_agent",
+      "passTwo": false,
+      "interior": "property",
+      "rooms": [
+        "LJ Hooker · listings and reception",
+        "Private consultation",
+        "Records and staff"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-22",
+          "name": "Vinnies"
+        },
+        {
+          "id": "work-23",
+          "name": "Zest"
+        }
+      ]
+    },
+    {
+      "id": "work-34",
+      "name": "Narromine Tobacco House",
+      "kind": "tobacco",
+      "passTwo": true,
+      "interior": "specialistRetail",
+      "rooms": [
+        "Narromine Tobacco House · specialist retail",
+        "SECURE STOCK"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-24",
+          "name": "JBs's Bakery"
+        },
+        {
+          "id": "work-53",
+          "name": "Beauty"
+        }
+      ]
+    },
+    {
+      "id": "work-35",
+      "name": "Rain Agribusiness",
+      "kind": "agrarian",
+      "passTwo": false,
+      "interior": "rural",
+      "rooms": [
+        "Rain Agribusiness · feed and farm supplies",
+        "Equipment and fittings",
+        "Stock and dispatch"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-13",
+          "name": "Imperial Hotel"
+        },
+        {
+          "id": "work-54",
+          "name": "All Occassions"
+        },
+        {
+          "id": "work-55",
+          "name": "Classic Catch Cafe"
+        },
+        {
+          "id": "work-56",
+          "name": "Rosie & Toots Vintage & Art"
+        },
+        {
+          "id": "work-57",
+          "name": "Hairdresser"
+        }
+      ]
+    },
+    {
+      "id": "work-36",
+      "name": "AG n VET Services",
+      "kind": "agrarian",
+      "passTwo": false,
+      "interior": "rural",
+      "rooms": [
+        "AG n VET Services · feed and farm supplies",
+        "Equipment and fittings",
+        "Stock and dispatch"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-37",
+          "name": "Darling Irrigation"
+        }
+      ]
+    },
+    {
+      "id": "work-37",
+      "name": "Darling Irrigation",
+      "kind": "trade",
+      "passTwo": false,
+      "interior": "irrigation",
+      "rooms": [
+        "Darling Irrigation · pumps and fittings",
+        "Service workshop",
+        "Parts store"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-36",
+          "name": "AG n VET Services"
+        }
+      ]
+    },
+    {
+      "id": "work-38",
+      "name": "Narromine Shire Council",
+      "kind": "townhall",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "Narromine Shire Council · customer service",
+        "Offices",
+        "Meeting room"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-39",
+      "name": "Mirror Hair Lounge",
+      "kind": "hairdresser",
+      "passTwo": false,
+      "interior": "salon",
+      "rooms": [
+        "Mirror Hair Lounge · styling floor",
+        "Wash and colour",
+        "Staff and linen"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-7",
+          "name": "Narromine Hotel"
+        },
+        {
+          "id": "work-40",
+          "name": "BellaDonna"
+        }
+      ]
+    },
+    {
+      "id": "work-40",
+      "name": "BellaDonna",
+      "kind": "beauty",
+      "passTwo": false,
+      "interior": "beauty",
+      "rooms": [
+        "BellaDonna · reception and consultation",
+        "Private treatment room",
+        "Clean linen and preparation"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-7",
+          "name": "Narromine Hotel"
+        },
+        {
+          "id": "work-39",
+          "name": "Mirror Hair Lounge"
+        }
+      ]
+    },
+    {
+      "id": "work-41",
+      "name": "His and Hers Clip Joint",
+      "kind": "hairdresser",
+      "passTwo": false,
+      "interior": "salon",
+      "rooms": [
+        "His and Hers Clip Joint · styling floor",
+        "Wash and colour",
+        "Staff and linen"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-42",
+      "name": "Style 33 Boutique",
+      "kind": "fashion_accessories",
+      "passTwo": false,
+      "interior": "clothing",
+      "rooms": [
+        "Style 33 Boutique · clothing showroom",
+        "Fitting room",
+        "Stock and dispatch"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-43",
+      "name": "Country Traders - Home and Life",
+      "kind": "houseware",
+      "passTwo": false,
+      "interior": "homewares",
+      "rooms": [
+        "Country Traders - Home and Life · homewares displays",
+        "Furniture and textiles",
+        "Stock and packing"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-44",
+          "name": "Smokemart"
+        }
+      ]
+    },
+    {
+      "id": "work-44",
+      "name": "Smokemart",
+      "kind": "tobacco",
+      "passTwo": true,
+      "interior": "specialistRetail",
+      "rooms": [
+        "Smokemart · specialist retail",
+        "SECURE STOCK"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-43",
+          "name": "Country Traders - Home and Life"
+        }
+      ]
+    },
+    {
+      "id": "work-45",
+      "name": "Macquarie Clothing",
+      "kind": "clothes",
+      "passTwo": false,
+      "interior": "clothing",
+      "rooms": [
+        "Macquarie Clothing · clothing showroom",
+        "Fitting room",
+        "Stock and dispatch"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-0",
+          "name": "Chill-Rite"
+        },
+        {
+          "id": "work-46",
+          "name": "Narromine Mens Shed"
+        }
+      ]
+    },
+    {
+      "id": "work-46",
+      "name": "Narromine Mens Shed",
+      "kind": "community_centre",
+      "passTwo": true,
+      "interior": "workshop",
+      "rooms": [
+        "Narromine Mens Shed · repairs and parts",
+        "TOOLS & PARTS"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-0",
+          "name": "Chill-Rite"
+        },
+        {
+          "id": "work-45",
+          "name": "Macquarie Clothing"
+        }
+      ]
+    },
+    {
+      "id": "work-47",
+      "name": "Narromine USMC",
+      "kind": "restaurant",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "Narromine USMC · dining room",
+        "Kitchen"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-16",
+          "name": "Narromine RSL Club"
+        }
+      ]
+    },
+    {
+      "id": "work-48",
+      "name": "Narromine Physiotherapy",
+      "kind": "physiotherapist",
+      "passTwo": true,
+      "interior": "rehabilitation",
+      "rooms": [
+        "Narromine Physiotherapy · physiotherapy and rehabilitation",
+        "LINEN & CLINICAL SUPPORT"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-49",
+          "name": "Narromine Battlers Mate"
+        }
+      ]
+    },
+    {
+      "id": "work-49",
+      "name": "Narromine Battlers Mate",
+      "kind": "second_hand",
+      "passTwo": false,
+      "interior": "homewares",
+      "rooms": [
+        "Narromine Battlers Mate · homewares displays",
+        "Furniture and textiles",
+        "Stock and packing"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-48",
+          "name": "Narromine Physiotherapy"
+        }
+      ]
+    },
+    {
+      "id": "work-50",
+      "name": "Aqua West",
+      "kind": "trade",
+      "passTwo": false,
+      "interior": "irrigation",
+      "rooms": [
+        "Aqua West · pumps and fittings",
+        "Service workshop",
+        "Parts store"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-51",
+      "name": "Narromine Auto Repairs & Spares",
+      "kind": "car_repair",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "Narromine Auto Repairs & Spares · workshop",
+        "Service desk"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-52",
+      "name": "The Abbey",
+      "kind": "guest_house",
+      "passTwo": true,
+      "interior": "visitor",
+      "rooms": [
+        "The Abbey · visitor and park reception",
+        "BOOKINGS & INFORMATION"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-53",
+      "name": "Beauty",
+      "kind": "beauty",
+      "passTwo": false,
+      "interior": "beauty",
+      "rooms": [
+        "Beauty · reception and consultation",
+        "Private treatment room",
+        "Clean linen and preparation"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-24",
+          "name": "JBs's Bakery"
+        },
+        {
+          "id": "work-34",
+          "name": "Narromine Tobacco House"
+        }
+      ]
+    },
+    {
+      "id": "work-54",
+      "name": "All Occassions",
+      "kind": "jewelry",
+      "passTwo": true,
+      "interior": "gifts",
+      "rooms": [
+        "All Occassions · gifts and jewellery",
+        "STOCK & WRAPPING"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-13",
+          "name": "Imperial Hotel"
+        },
+        {
+          "id": "work-35",
+          "name": "Rain Agribusiness"
+        },
+        {
+          "id": "work-55",
+          "name": "Classic Catch Cafe"
+        },
+        {
+          "id": "work-56",
+          "name": "Rosie & Toots Vintage & Art"
+        },
+        {
+          "id": "work-57",
+          "name": "Hairdresser"
+        }
+      ]
+    },
+    {
+      "id": "work-55",
+      "name": "Classic Catch Cafe",
+      "kind": "cafe",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "Classic Catch Cafe · café",
+        "Kitchen"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-13",
+          "name": "Imperial Hotel"
+        },
+        {
+          "id": "work-35",
+          "name": "Rain Agribusiness"
+        },
+        {
+          "id": "work-54",
+          "name": "All Occassions"
+        },
+        {
+          "id": "work-56",
+          "name": "Rosie & Toots Vintage & Art"
+        },
+        {
+          "id": "work-57",
+          "name": "Hairdresser"
+        }
+      ]
+    },
+    {
+      "id": "work-56",
+      "name": "Rosie & Toots Vintage & Art",
+      "kind": "clothes",
+      "passTwo": false,
+      "interior": "clothing",
+      "rooms": [
+        "Rosie & Toots Vintage & Art · clothing showroom",
+        "Fitting room",
+        "Stock and dispatch"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-13",
+          "name": "Imperial Hotel"
+        },
+        {
+          "id": "work-35",
+          "name": "Rain Agribusiness"
+        },
+        {
+          "id": "work-54",
+          "name": "All Occassions"
+        },
+        {
+          "id": "work-55",
+          "name": "Classic Catch Cafe"
+        },
+        {
+          "id": "work-57",
+          "name": "Hairdresser"
+        }
+      ]
+    },
+    {
+      "id": "work-57",
+      "name": "Hairdresser",
+      "kind": "hairdresser",
+      "passTwo": false,
+      "interior": "salon",
+      "rooms": [
+        "Hairdresser · styling floor",
+        "Wash and colour",
+        "Staff and linen"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-13",
+          "name": "Imperial Hotel"
+        },
+        {
+          "id": "work-35",
+          "name": "Rain Agribusiness"
+        },
+        {
+          "id": "work-54",
+          "name": "All Occassions"
+        },
+        {
+          "id": "work-55",
+          "name": "Classic Catch Cafe"
+        },
+        {
+          "id": "work-56",
+          "name": "Rosie & Toots Vintage & Art"
+        }
+      ]
+    },
+    {
+      "id": "work-58",
+      "name": "Narromine Local Aboriginal Land Council",
+      "kind": "government",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "Narromine Local Aboriginal Land Council · front counter",
+        "Office"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-59",
+          "name": "Monaghan's Butchery"
+        },
+        {
+          "id": "work-60",
+          "name": "Martin Schute Bell"
+        },
+        {
+          "id": "work-61",
+          "name": "Photographer"
+        }
+      ]
+    },
+    {
+      "id": "work-59",
+      "name": "Monaghan's Butchery",
+      "kind": "butcher",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "Monaghan's Butchery · shop",
+        "Cutting room"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-58",
+          "name": "Narromine Local Aboriginal Land Council"
+        },
+        {
+          "id": "work-60",
+          "name": "Martin Schute Bell"
+        },
+        {
+          "id": "work-61",
+          "name": "Photographer"
+        }
+      ]
+    },
+    {
+      "id": "work-60",
+      "name": "Martin Schute Bell",
+      "kind": "estate_agent",
+      "passTwo": false,
+      "interior": "property",
+      "rooms": [
+        "Martin Schute Bell · listings and reception",
+        "Private consultation",
+        "Records and staff"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-58",
+          "name": "Narromine Local Aboriginal Land Council"
+        },
+        {
+          "id": "work-59",
+          "name": "Monaghan's Butchery"
+        },
+        {
+          "id": "work-61",
+          "name": "Photographer"
+        }
+      ]
+    },
+    {
+      "id": "work-61",
+      "name": "Photographer",
+      "kind": "photographer",
+      "passTwo": true,
+      "interior": "photography",
+      "rooms": [
+        "Photographer · photography and framing",
+        "FRAMING & FINISHING"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-58",
+          "name": "Narromine Local Aboriginal Land Council"
+        },
+        {
+          "id": "work-59",
+          "name": "Monaghan's Butchery"
+        },
+        {
+          "id": "work-60",
+          "name": "Martin Schute Bell"
+        }
+      ]
+    },
+    {
+      "id": "work-62",
+      "name": "Central West Tutoring",
+      "kind": "educational_institution",
+      "passTwo": true,
+      "interior": "study",
+      "rooms": [
+        "Central West Tutoring · tutoring and shared work",
+        "STUDY & RESOURCES"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-18",
+          "name": "The Court House Hotel"
+        },
+        {
+          "id": "work-63",
+          "name": "Bottlemart"
+        }
+      ]
+    },
+    {
+      "id": "work-63",
+      "name": "Bottlemart",
+      "kind": "alcohol",
+      "passTwo": true,
+      "interior": "beverages",
+      "rooms": [
+        "Bottlemart · packaged beverages",
+        "DELIVERIES & STOCK"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-18",
+          "name": "The Court House Hotel"
+        },
+        {
+          "id": "work-62",
+          "name": "Central West Tutoring"
+        }
+      ]
+    },
+    {
+      "id": "work-64",
+      "name": "Narromine Car Wash",
+      "kind": "car_wash",
+      "passTwo": true,
+      "interior": "wash",
+      "rooms": [
+        "Narromine Car Wash · wash-bay equipment",
+        "SERVICE EQUIPMENT"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-65",
+      "name": "Mahindra Narromine",
+      "kind": "car",
+      "passTwo": true,
+      "interior": "vehicle",
+      "rooms": [
+        "Mahindra Narromine · vehicle sales and service",
+        "SERVICE & PARTS"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-66",
+      "name": "Walkers Tyres",
+      "kind": "tyres",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "Walkers Tyres · workshop",
+        "Counter"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-67",
+      "name": "Joblink Plus",
+      "kind": "employment_agency",
+      "passTwo": false,
+      "interior": "employment",
+      "rooms": [
+        "Joblink Plus · reception and waiting",
+        "Private interview",
+        "Job-search and training"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-5",
+          "name": "Macquarie Regional Library"
+        },
+        {
+          "id": "work-31",
+          "name": "B2B Abilities"
+        },
+        {
+          "id": "work-32",
+          "name": "Verto"
+        }
+      ]
+    },
+    {
+      "id": "work-68",
+      "name": "Narromine Aero Club",
+      "kind": "restaurant",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "Narromine Aero Club · dining room",
+        "Kitchen"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": [
+        {
+          "id": "work-2",
+          "name": "Narromine Aviation Museum"
+        }
+      ]
+    },
+    {
+      "id": "work-69",
+      "name": "Narromine Golf Club",
+      "kind": "golf_course",
+      "passTwo": true,
+      "interior": "club",
+      "rooms": [
+        "Narromine Golf Club · sporting club lounge",
+        "MEMBERS & PREPARATION"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-70",
+      "name": "Narromine High School",
+      "kind": "school",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "Narromine High School · classroom",
+        "Classroom",
+        "Staff room",
+        "Front office"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-71",
+      "name": "Narromine Public School",
+      "kind": "school",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "Narromine Public School · classroom",
+        "Classroom",
+        "Staff room",
+        "Front office"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-72",
+      "name": "Narromine Health Service",
+      "kind": "hospital",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "Narromine Health Service · emergency and reception",
+        "Ward",
+        "Nurses' station"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-73",
+      "name": "Narromine Christian School",
+      "kind": "school",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "Narromine Christian School · classroom",
+        "Classroom",
+        "Staff room",
+        "Front office"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-74",
+      "name": "Narromine Aquatic Centre",
+      "kind": "sports_centre",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "Narromine Aquatic Centre · reception",
+        "Gym"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-75",
+      "name": "Narromine RV Centre",
+      "kind": "caravan",
+      "passTwo": true,
+      "interior": "vehicle",
+      "rooms": [
+        "Narromine RV Centre · vehicle sales and service",
+        "SERVICE & PARTS"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-76",
+      "name": "St Augustines Parish School",
+      "kind": "school",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "St Augustines Parish School · classroom",
+        "Classroom",
+        "Staff room",
+        "Front office"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-77",
+      "name": "Narromine Gliding Club",
+      "kind": "aerodrome",
+      "passTwo": true,
+      "interior": "aviation",
+      "rooms": [
+        "Narromine Gliding Club · flying club briefing",
+        "FLIGHT PLANNING"
+      ],
+      "evidence": "interpretive-not-surveyed",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    },
+    {
+      "id": "work-78",
+      "name": "Soul Food Depot & Gallery",
+      "kind": "cafe",
+      "passTwo": false,
+      "interior": "dedicated-template-or-evidence-preserved",
+      "rooms": [
+        "Soul Food · coffee and art-lined gallery (interpretive)",
+        "Homewares, takeaway and licensed bar · locations unverified",
+        "Commercial kitchen and catering · no measured plan",
+        "Converted citrus-shed event room · reconstruction",
+        "Meeting room · capacity 20 advertised; layout inferred",
+        "Boardroom · capacity 12 advertised; layout inferred"
+      ],
+      "evidence": "existing",
+      "unresolvedFallback": false,
+      "sharedEntranceWith": []
+    }
+  ],
+  "countries": [
+    {
+      "country": "Algeria",
+      "parcelId": "home-0-0-0",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Angola",
+      "parcelId": "home-0-0-1",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Benin",
+      "parcelId": "home-0-0-2",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Botswana",
+      "parcelId": "home-0-0-3",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Burkina Faso",
+      "parcelId": "home-0-0-4",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Burundi",
+      "parcelId": "home-0-0-5",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Cabo Verde",
+      "parcelId": "home-0-0-6",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Cameroon",
+      "parcelId": "home-0-0-7",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Central African Republic",
+      "parcelId": "home-0-0-8",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Chad",
+      "parcelId": "home-0-0-9",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Comoros",
+      "parcelId": "home-0-0-10",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Congo",
+      "parcelId": "home-0-0-11",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Côte d'Ivoire",
+      "parcelId": "home-0-1-0",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Democratic Republic of the Congo",
+      "parcelId": "home-0-1-1",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Djibouti",
+      "parcelId": "home-0-1-2",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Egypt",
+      "parcelId": "home-0-1-3",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Equatorial Guinea",
+      "parcelId": "home-0-1-4",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Eritrea",
+      "parcelId": "home-0-1-5",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Eswatini",
+      "parcelId": "home-0-1-6",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Ethiopia",
+      "parcelId": "home-0-1-7",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Gabon",
+      "parcelId": "home-0-1-8",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Gambia",
+      "parcelId": "home-0-1-9",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Ghana",
+      "parcelId": "home-0-1-10",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Guinea",
+      "parcelId": "home-0-1-11",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Guinea-Bissau",
+      "parcelId": "home-1-0-0",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Kenya",
+      "parcelId": "home-1-0-1",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Lesotho",
+      "parcelId": "home-1-0-2",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Liberia",
+      "parcelId": "home-1-0-3",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Libya",
+      "parcelId": "home-1-0-4",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Madagascar",
+      "parcelId": "home-1-0-5",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Malawi",
+      "parcelId": "home-1-0-6",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Mali",
+      "parcelId": "home-1-0-7",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Mauritania",
+      "parcelId": "home-1-0-8",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Mauritius",
+      "parcelId": "home-1-0-9",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Morocco",
+      "parcelId": "home-1-0-10",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Mozambique",
+      "parcelId": "home-1-0-11",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Namibia",
+      "parcelId": "home-1-1-0",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Niger",
+      "parcelId": "home-1-1-1",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Nigeria",
+      "parcelId": "home-1-1-2",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Rwanda",
+      "parcelId": "home-1-1-3",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "São Tomé and Príncipe",
+      "parcelId": "home-1-1-4",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Senegal",
+      "parcelId": "home-1-1-5",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Seychelles",
+      "parcelId": "home-1-1-6",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Sierra Leone",
+      "parcelId": "home-1-1-7",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Somalia",
+      "parcelId": "home-1-1-8",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "South Africa",
+      "parcelId": "home-1-1-9",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "South Sudan",
+      "parcelId": "home-1-1-10",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Sudan",
+      "parcelId": "home-1-1-11",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Tanzania",
+      "parcelId": "wattle-west-01",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Togo",
+      "parcelId": "wattle-west-02",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Tunisia",
+      "parcelId": "wattle-west-03",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Uganda",
+      "parcelId": "wattle-west-04",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Zambia",
+      "parcelId": "wattle-west-05",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Zimbabwe",
+      "parcelId": "wattle-west-06",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Afghanistan",
+      "parcelId": "wattle-west-07",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Armenia",
+      "parcelId": "wattle-west-08",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Azerbaijan",
+      "parcelId": "wattle-west-09",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Bahrain",
+      "parcelId": "wattle-west-10",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Bangladesh",
+      "parcelId": "wattle-west-11",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Bhutan",
+      "parcelId": "wattle-west-12",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Brunei",
+      "parcelId": "wattle-west-13",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Cambodia",
+      "parcelId": "wattle-west-14",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "China",
+      "parcelId": "wattle-west-15",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Cyprus",
+      "parcelId": "wattle-west-16",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Georgia",
+      "parcelId": "wattle-west-17",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "India",
+      "parcelId": "wattle-west-18",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Indonesia",
+      "parcelId": "wattle-west-19",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Iran",
+      "parcelId": "wattle-west-20",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Iraq",
+      "parcelId": "wattle-west-21",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Israel",
+      "parcelId": "wattle-west-22",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Japan",
+      "parcelId": "wattle-west-23",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Jordan",
+      "parcelId": "wattle-west-24",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Kazakhstan",
+      "parcelId": "wattle-west-25",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Kuwait",
+      "parcelId": "wattle-west-26",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Kyrgyzstan",
+      "parcelId": "wattle-west-27",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Laos",
+      "parcelId": "wattle-west-28",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Lebanon",
+      "parcelId": "wattle-west-29",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Malaysia",
+      "parcelId": "wattle-west-30",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Maldives",
+      "parcelId": "wattle-west-31",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Mongolia",
+      "parcelId": "wattle-west-32",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Myanmar",
+      "parcelId": "wattle-west-33",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Nepal",
+      "parcelId": "wattle-west-34",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "North Korea",
+      "parcelId": "wattle-west-35",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Oman",
+      "parcelId": "wattle-west-36",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Pakistan",
+      "parcelId": "wattle-west-37",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Palestine",
+      "parcelId": "wattle-west-38",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Philippines",
+      "parcelId": "wattle-west-39",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Qatar",
+      "parcelId": "wattle-west-40",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Saudi Arabia",
+      "parcelId": "wattle-west-41",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Singapore",
+      "parcelId": "wattle-west-42",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "South Korea",
+      "parcelId": "wattle-west-43",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Sri Lanka",
+      "parcelId": "wattle-west-44",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Syria",
+      "parcelId": "wattle-west-45",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Tajikistan",
+      "parcelId": "wattle-west-46",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Thailand",
+      "parcelId": "wattle-west-47",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Timor-Leste",
+      "parcelId": "wattle-west-48",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Türkiye",
+      "parcelId": "wattle-west-49",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Turkmenistan",
+      "parcelId": "banksia-west-01",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "United Arab Emirates",
+      "parcelId": "banksia-west-02",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Uzbekistan",
+      "parcelId": "banksia-west-03",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Vietnam",
+      "parcelId": "banksia-west-04",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Yemen",
+      "parcelId": "banksia-west-05",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Albania",
+      "parcelId": "banksia-west-06",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Andorra",
+      "parcelId": "banksia-west-07",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Austria",
+      "parcelId": "banksia-west-08",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Belarus",
+      "parcelId": "banksia-west-09",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Belgium",
+      "parcelId": "banksia-west-10",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Bosnia and Herzegovina",
+      "parcelId": "banksia-west-11",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Bulgaria",
+      "parcelId": "banksia-west-12",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Croatia",
+      "parcelId": "banksia-west-13",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Czechia",
+      "parcelId": "banksia-west-14",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Denmark",
+      "parcelId": "banksia-west-15",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Estonia",
+      "parcelId": "banksia-west-16",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Finland",
+      "parcelId": "banksia-west-17",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "France",
+      "parcelId": "banksia-west-18",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Germany",
+      "parcelId": "banksia-west-19",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Greece",
+      "parcelId": "banksia-west-20",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Holy See",
+      "parcelId": "banksia-west-21",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Hungary",
+      "parcelId": "banksia-west-22",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Iceland",
+      "parcelId": "banksia-west-23",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Ireland",
+      "parcelId": "banksia-west-24",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Italy",
+      "parcelId": "banksia-west-25",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Latvia",
+      "parcelId": "banksia-west-26",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Liechtenstein",
+      "parcelId": "banksia-west-27",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Lithuania",
+      "parcelId": "banksia-west-28",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Luxembourg",
+      "parcelId": "banksia-west-29",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Malta",
+      "parcelId": "banksia-west-30",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Moldova",
+      "parcelId": "banksia-west-31",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Monaco",
+      "parcelId": "banksia-west-32",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Montenegro",
+      "parcelId": "banksia-west-33",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Netherlands",
+      "parcelId": "banksia-west-34",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "North Macedonia",
+      "parcelId": "banksia-west-35",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Norway",
+      "parcelId": "banksia-west-36",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Poland",
+      "parcelId": "banksia-west-37",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Portugal",
+      "parcelId": "banksia-west-38",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Romania",
+      "parcelId": "banksia-west-39",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Russia",
+      "parcelId": "banksia-west-40",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "San Marino",
+      "parcelId": "banksia-west-41",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Serbia",
+      "parcelId": "banksia-west-42",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Slovakia",
+      "parcelId": "banksia-west-43",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Slovenia",
+      "parcelId": "banksia-west-44",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Spain",
+      "parcelId": "banksia-west-45",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Sweden",
+      "parcelId": "banksia-west-46",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Switzerland",
+      "parcelId": "banksia-west-47",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Ukraine",
+      "parcelId": "banksia-west-48",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "United Kingdom",
+      "parcelId": "banksia-west-49",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Antigua and Barbuda",
+      "parcelId": "grevillea-west-01",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Argentina",
+      "parcelId": "grevillea-west-02",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Bahamas",
+      "parcelId": "grevillea-west-03",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Barbados",
+      "parcelId": "grevillea-west-04",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Belize",
+      "parcelId": "grevillea-west-05",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Bolivia",
+      "parcelId": "grevillea-west-06",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Brazil",
+      "parcelId": "grevillea-west-07",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Canada",
+      "parcelId": "grevillea-west-08",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Chile",
+      "parcelId": "grevillea-west-09",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Colombia",
+      "parcelId": "grevillea-west-10",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Costa Rica",
+      "parcelId": "grevillea-west-11",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Cuba",
+      "parcelId": "grevillea-west-12",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Dominica",
+      "parcelId": "grevillea-west-13",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Dominican Republic",
+      "parcelId": "grevillea-west-14",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Ecuador",
+      "parcelId": "grevillea-west-15",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "El Salvador",
+      "parcelId": "grevillea-west-16",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Grenada",
+      "parcelId": "grevillea-west-17",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Guatemala",
+      "parcelId": "grevillea-west-18",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Guyana",
+      "parcelId": "grevillea-west-19",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Haiti",
+      "parcelId": "grevillea-west-20",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Honduras",
+      "parcelId": "grevillea-west-21",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Jamaica",
+      "parcelId": "grevillea-west-22",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Mexico",
+      "parcelId": "grevillea-west-23",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Nicaragua",
+      "parcelId": "grevillea-west-24",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Panama",
+      "parcelId": "grevillea-west-25",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Paraguay",
+      "parcelId": "grevillea-west-26",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Peru",
+      "parcelId": "grevillea-west-27",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Saint Kitts and Nevis",
+      "parcelId": "grevillea-west-28",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Saint Lucia",
+      "parcelId": "grevillea-west-29",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Saint Vincent and the Grenadines",
+      "parcelId": "grevillea-west-30",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Suriname",
+      "parcelId": "grevillea-west-31",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Trinidad and Tobago",
+      "parcelId": "grevillea-west-32",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "United States",
+      "parcelId": "grevillea-west-33",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Uruguay",
+      "parcelId": "grevillea-west-34",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Venezuela",
+      "parcelId": "grevillea-west-35",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Australia",
+      "parcelId": "grevillea-west-36",
+      "interior": "researched-preserved",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Fiji",
+      "parcelId": "grevillea-west-37",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Kiribati",
+      "parcelId": "grevillea-west-38",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Marshall Islands",
+      "parcelId": "grevillea-west-39",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Micronesia",
+      "parcelId": "grevillea-west-40",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Nauru",
+      "parcelId": "grevillea-west-41",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "New Zealand",
+      "parcelId": "grevillea-west-42",
+      "interior": "researched-preserved",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Palau",
+      "parcelId": "grevillea-west-43",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Papua New Guinea",
+      "parcelId": "grevillea-west-44",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Samoa",
+      "parcelId": "grevillea-west-45",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Solomon Islands",
+      "parcelId": "grevillea-west-46",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Tonga",
+      "parcelId": "grevillea-west-47",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Tuvalu",
+      "parcelId": "grevillea-west-48",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    },
+    {
+      "country": "Vanuatu",
+      "parcelId": "grevillea-west-49",
+      "interior": "generic-finish-layer",
+      "floorplanChanged": false,
+      "exterior": "authored-country-style-preserved"
+    }
+  ],
+  "sharedEntrances": [
+    [
+      {
+        "id": "work-0",
+        "name": "Chill-Rite"
+      },
+      {
+        "id": "work-45",
+        "name": "Macquarie Clothing"
+      },
+      {
+        "id": "work-46",
+        "name": "Narromine Mens Shed"
+      }
+    ],
+    [
+      {
+        "id": "work-2",
+        "name": "Narromine Aviation Museum"
+      },
+      {
+        "id": "work-68",
+        "name": "Narromine Aero Club"
+      }
+    ],
+    [
+      {
+        "id": "work-5",
+        "name": "Macquarie Regional Library"
+      },
+      {
+        "id": "work-31",
+        "name": "B2B Abilities"
+      },
+      {
+        "id": "work-32",
+        "name": "Verto"
+      },
+      {
+        "id": "work-67",
+        "name": "Joblink Plus"
+      }
+    ],
+    [
+      {
+        "id": "work-7",
+        "name": "Narromine Hotel"
+      },
+      {
+        "id": "work-39",
+        "name": "Mirror Hair Lounge"
+      },
+      {
+        "id": "work-40",
+        "name": "BellaDonna"
+      }
+    ],
+    [
+      {
+        "id": "work-10",
+        "name": "Narromine Shire Offices Customer Service and Payments"
+      },
+      {
+        "id": "work-15",
+        "name": "Regional Australia Bank"
+      }
+    ],
+    [
+      {
+        "id": "work-13",
+        "name": "Imperial Hotel"
+      },
+      {
+        "id": "work-35",
+        "name": "Rain Agribusiness"
+      },
+      {
+        "id": "work-54",
+        "name": "All Occassions"
+      },
+      {
+        "id": "work-55",
+        "name": "Classic Catch Cafe"
+      },
+      {
+        "id": "work-56",
+        "name": "Rosie & Toots Vintage & Art"
+      },
+      {
+        "id": "work-57",
+        "name": "Hairdresser"
+      }
+    ],
+    [
+      {
+        "id": "work-16",
+        "name": "Narromine RSL Club"
+      },
+      {
+        "id": "work-47",
+        "name": "Narromine USMC"
+      }
+    ],
+    [
+      {
+        "id": "work-18",
+        "name": "The Court House Hotel"
+      },
+      {
+        "id": "work-62",
+        "name": "Central West Tutoring"
+      },
+      {
+        "id": "work-63",
+        "name": "Bottlemart"
+      }
+    ],
+    [
+      {
+        "id": "work-22",
+        "name": "Vinnies"
+      },
+      {
+        "id": "work-23",
+        "name": "Zest"
+      },
+      {
+        "id": "work-33",
+        "name": "LJ Hooker"
+      }
+    ],
+    [
+      {
+        "id": "work-24",
+        "name": "JBs's Bakery"
+      },
+      {
+        "id": "work-34",
+        "name": "Narromine Tobacco House"
+      },
+      {
+        "id": "work-53",
+        "name": "Beauty"
+      }
+    ],
+    [
+      {
+        "id": "work-29",
+        "name": "Narromine Chiropractic"
+      },
+      {
+        "id": "work-30",
+        "name": "BEST Employment"
+      }
+    ],
+    [
+      {
+        "id": "work-36",
+        "name": "AG n VET Services"
+      },
+      {
+        "id": "work-37",
+        "name": "Darling Irrigation"
+      }
+    ],
+    [
+      {
+        "id": "work-43",
+        "name": "Country Traders - Home and Life"
+      },
+      {
+        "id": "work-44",
+        "name": "Smokemart"
+      }
+    ],
+    [
+      {
+        "id": "work-48",
+        "name": "Narromine Physiotherapy"
+      },
+      {
+        "id": "work-49",
+        "name": "Narromine Battlers Mate"
+      }
+    ],
+    [
+      {
+        "id": "work-58",
+        "name": "Narromine Local Aboriginal Land Council"
+      },
+      {
+        "id": "work-59",
+        "name": "Monaghan's Butchery"
+      },
+      {
+        "id": "work-60",
+        "name": "Martin Schute Bell"
+      },
+      {
+        "id": "work-61",
+        "name": "Photographer"
+      }
+    ]
+  ]
+}

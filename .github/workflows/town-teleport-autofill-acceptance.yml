@@ -1,0 +1,54 @@
+name: Repository Town real autocomplete and compact HUD acceptance
+on:
+  pull_request:
+    paths:
+      - 'repository-town/tests/teleport-search-browser.mjs'
+      - '.github/workflows/town-teleport-autofill-acceptance.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'repository-town/tests/teleport-search-browser.mjs'
+      - '.github/workflows/town-teleport-autofill-acceptance.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-autocomplete:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 22
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Pinned dependencies and syntax
+        run: |
+          npm ci --no-audit --no-fund
+          node --check tests/teleport-search-browser.mjs
+      - name: Build real game and check privacy
+        run: |
+          npm run build
+          npm run check:privacy
+      - name: Install real Chromium and software WebGL
+        run: npx playwright install --with-deps chromium
+      - name: Exercise visible search, datalist, save-safe teleport and keyboard journal
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          set -euo pipefail
+          node tools/serve.mjs dist/public 8091 >/tmp/town-search-serve.log 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:8091/ >/dev/null 2>&1; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:8091/ >/dev/null
+          node tests/teleport-search-browser.mjs

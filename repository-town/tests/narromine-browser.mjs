@@ -50,6 +50,7 @@ try {
   step(/1890/.test(await page.evaluate(() => document.getElementById('panel-body').textContent)), 'its panel gives the sourced 1890 Cobb & Co fact');
   // Search fast-travels too.
   await page.evaluate(() => { window.__town.closePanel?.(); window.__town.place(0, 0, 0); });
+  if (!(await page.locator('#search').isVisible())) await page.getByRole('button', { name: 'Expand town controls' }).click();
   await page.fill('#search', 'Narromine'); await page.evaluate(() => document.getElementById('search-form').requestSubmit());
   await page.waitForTimeout(300);
   const after = await page.evaluate(() => window.__town.state().pos);

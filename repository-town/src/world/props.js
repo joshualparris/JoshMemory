@@ -5,6 +5,7 @@
 // `o.c` is the brief's colour override, `o.a` its accent, `o.key` the interaction key
 // that animated parts respond to.
 
+import { GENERIC_BUSINESS_PROPS } from './generic-business-props.js';
 const WOOD = 0x8a6545, DARK = 0x3b3f46, METAL = 0x9aa3ad, WHITE = 0xe9e6dd, SCREEN = 0x56c8e8, GREEN = 0x5d9a55, RED = 0xb8504a, GOLD = 0xd8b44a;
 
 const P = {};
@@ -261,6 +262,11 @@ def('anvil', 'Anvil & forge', 1.6, 1.0, (b, o) => { b.block(0x5a5a62, 0.8, 0.8, 
 def('loom', 'Weaving loom', 1.6, 0.8, (b, o) => { for (const x of [-0.7, 0.7]) b.block(WOOD, 0.08, 1.6, 0.6, x, 0, 0); b.block(WOOD, 1.5, 0.08, 0.08, 0, 1.5, 0); for (let i = 0; i < 10; i++) b.box([o.c || 0xc85a5a, GOLD, 0x5a7ac8][i % 3], 0.1, 1.0, 0.02, -0.55 + i * 0.12, 0.95, 0); });
 def('gearWall', 'Gear mechanism', 2.0, 0.3, (b, o) => { b.block(0x5a5048, 2.0, 2.0, 0.05, 0, 0.3, -0.05); for (let i = 0; i < 4; i++) dyn(b, o, 'torus', [GOLD, METAL, 0xb87333, GOLD][i], [0.6 - i * 0.08, 0.6 - i * 0.08, 0.6], [-0.65 + i * 0.45, 1.3 + (i % 2) * 0.45, 0.03], 'spin', { speed: i % 2 ? -1.5 : 1.5, always: !o.key }); }, { solid: false });
 
+// Additive names only: no existing prop or bespoke geometry is replaced.
+for (const [key, value] of Object.entries(GENERIC_BUSINESS_PROPS)) {
+  if (P[key]) throw new Error('Generic fixture must not replace existing prop: '+key);
+  P[key]=value;
+}
 export const PROPS = P;
 export const PROP_TYPES = Object.keys(P);
 
