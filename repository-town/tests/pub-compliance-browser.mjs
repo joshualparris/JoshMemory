@@ -41,7 +41,17 @@ try{for(const mobile of [false,true]){
  await page.getByRole('button',{name:'Confirm character is 18+',exact:true}).click();await page.getByRole('button',{name:'Flag / clear intoxication',exact:true}).click();assert((await page.locator('#panel-body').innerText()).includes('refuse service'));
  await page.getByRole('button',{name:'Start evacuation drill',exact:true}).click();assert((await page.locator('#panel-body').innerText()).includes('ACTIVE'));await page.screenshot({path:`audit/pub/completion/${mobile?'phone':'desktop'}-safety.png`});await page.getByRole('button',{name:'Clear emergency after assessment',exact:true}).click();await press('Escape');
  // Actual keyboard rear-exit transition, not merely a successful test-hook return.
- await page.evaluate(()=>window.__town.place(0,-9.3,0));await page.keyboard.down('w');await page.waitForFunction(()=>window.__town.state().mode==='town',null,{timeout:30000,polling:200});await page.keyboard.up('w');
+ // Restore focus to the playable 3D scene after the user clicked panel safety controls.
+ // Keyboard navigation deliberately ignores keypresses while a HUD button holds focus.
+ await page.evaluate(()=>{window.__town.place(0,-9.3,0);document.activeElement?.blur?.();});
+ const beginRear=await page.evaluate(()=>({pos:window.__town.state().pos,active:document.activeElement?.tagName}));
+ await page.keyboard.down('w');
+ try {
+   await page.waitForFunction(()=>window.__town.state().mode==='town',null,{timeout:30000,polling:200});
+ } catch(err) {
+   const current=await page.evaluate(()=>({mode:window.__town.state().mode,pos:window.__town.state().pos,active:document.activeElement?.tagName}));
+   throw new Error('Rear exit movement failure: '+JSON.stringify({beginRear,current})+'; '+err.message);
+ } finally {await page.keyboard.up('w');}
  const outside=await page.evaluate(()=>({state:window.__town.state(),site:window.__town.shops().find(x=>x.id==='pub')}));assert(outside.state.pos.z<outside.site.door.z-18,'rear discharge is behind the building');assert(!await page.evaluate(()=>{const s=window.__town.state();return window.__town.probeStatic(s.pos.x,s.pos.z,.6);}));
  // Sample the full 1.2m-wide side route back to the street against actual town colliders.
  const x=outside.site.door.x,oz=outside.site.door.z-7.5;const points=[[x,oz-13.2],[x,oz-18.2],[x+8,oz-18.2],[x+8,oz+12.2],[x,oz+12.2],[x,oz+7.5]];

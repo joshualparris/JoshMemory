@@ -38,7 +38,7 @@ const MAX_CARS = 400;
 // destination, then parks. Only Mitchell Highway (trunk) traffic is through traffic: trucks and travellers
 // passing through, about half of the highway's counted volume.
 const THROUGH_SHARE = 0.5;
-export function createNarromineTraffic(parent, { blocked = () => false, models = typeof document !== 'undefined', residents = true } = {}) {
+export function createNarromineTraffic(parent, { blocked = () => false, models = typeof document !== 'undefined', residents = true, activity } = {}) {
   // Real vehicle models load in the background; until then (and in Node tests) cars are drawn as
   // simple boxes: two instanced meshes, bodies and cabins.
   const bodies = new THREE.InstancedMesh(new THREE.BoxGeometry(1.8, 0.75, 4.4), new THREE.MeshLambertMaterial({ color: 0xffffff }), MAX_CARS);
@@ -100,8 +100,9 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
       if (Math.hypot(mx - player.x, mz - player.z) > RADIUS) continue;
       if (commute && e.daily < 7000 && !/trunk/.test(e.kind || '')) continue;     // side streets carry residents only
       const have = onEdge.get(Math.min(e.from, e.to) + ':' + Math.max(e.from, e.to)) || 0;
-      let want = expected(e, hour) * (commute ? THROUGH_SHARE : 1); want = Math.floor(want) + (rand() < want % 1 ? 1 : 0);
+      let want = expected(e, hour) * (commute ? THROUGH_SHARE : 1) * (activity?.limits.share ?? 1); want = Math.floor(want) + (rand() < want % 1 ? 1 : 0);
       for (let k = have; k < want; k++) {
+        if (cars.length >= (activity?.limits.movingCars ?? MAX_CARS)) break;
         const s = rand() * e.len, fwd = rand() < 0.5, p = { x: a.x + (b.x - a.x) * s / e.len, z: a.z + (b.z - a.z) * s / e.len };
         if (Math.hypot(p.x - player.x, p.z - player.z) < 40) continue;          // never pop in beside the player
         spawn(e, fwd ? s : e.len - s, fwd);
@@ -112,6 +113,8 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
   const live = new Set();
   function spawnResidents(player, weekday, minute) {
     for (const t of commute.trips(weekday)) {
+      if (cars.length >= (activity?.limits.movingCars ?? MAX_CARS)) break;
+      if (activity && !activity.admits(t.car)) continue;
       if (minute < t.depart || minute >= t.depart + t.duration || live.has(t.id)) continue;
       let s = (minute - t.depart) * 60 * (50 / 3.6), i = 0;
       while (i < t.path.length - 2) { const a = nodes[t.path[i]], b = nodes[t.path[i + 1]], L = Math.hypot(b.x - a.x, b.z - a.z); if (s < L) break; s -= L; i++; }
@@ -147,6 +150,8 @@ export function createNarromineTraffic(parent, { blocked = () => false, models =
       .filter(p => p.st.parked);
     parkedCars.sort((a, b) => Number(b.st.parked === 'home') - Number(a.st.parked === 'home'));
     for (const { car, st } of parkedCars) {
+      if (out.length >= (activity?.limits.parkedCars ?? Infinity)) break;
+      if (activity && !activity.admits(car.id)) continue;
       let x, z, yaw = 0;
       if (st.parked === 'home') {
         // On the driveway: 7.5 m in from the street centreline (past the verge), side by side, nose to the street.

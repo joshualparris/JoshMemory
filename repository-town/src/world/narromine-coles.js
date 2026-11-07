@@ -6,6 +6,7 @@ import * as THREE from 'three';
 import { geoToWorld } from './narromine-layout.js';
 import { siteToGeo } from './narromine-kieraths-data.js';
 import { makeDistinctPerson } from './npc-wardrobe.js';
+import { animateNarromineResidents } from './narromine-indoor-life.js';
 import { NARROMINE_POSTAL_PERSON, postalState, COLES_HOURS } from './narromine-postal-character.js';
 
 export const NARROMINE_COLES_SAVE_ID='NARROMINE-COLES';
@@ -66,7 +67,10 @@ export function colesQuietHour(day, minute) {
 // people: {staff, visitors} residents (narromine-population.js whoIsAt) shown at checkouts, in the aisles and shopping.
 export function buildNarromineColesInterior(makeLabel, day=1, minute=540, people=null) {
   const group=new THREE.Group();group.name='Narromine Coles · interpretive supermarket';
-  const colliders=[],interactables=[],sceneObjects=[],windows=[];
+  const colliders=[],interactables=[],sceneObjects=[],windows=[
+    {axis:'z',at:26,s:-19.8,e:-1.75,out:1},
+    {axis:'z',at:26,s:1.75,e:19.8,out:1}
+  ];
   const materials=new Map(),geos=new Map();
   const mat=(colour,opacity=1)=>{const key=colour+':'+opacity;if(!materials.has(key))
     materials.set(key,new THREE.MeshLambertMaterial({color:colour,transparent:opacity<1,opacity,side:THREE.FrontSide}));return materials.get(key);};
@@ -202,16 +206,31 @@ export function buildNarromineColesInterior(makeLabel, day=1, minute=540, people
   leah.group.visible=postalState(day,minute).atColes;
   // Residents on shift: the first four staff run the checkouts (standing behind them), the rest fill
   // shelves in the aisles. Shoppers walk the aisles and queue at the registers.
-  const figureIds = [], figurePositions = [];
-  if(people){
-    const put=(p,x,z,yaw,activity='shopping')=>{const f=makeDistinctPerson('narromine:'+p.id,{...p,workplaceKind:'supermarket',workplaceName:'Coles Narromine'},{activity,jobKind:'supermarket',minute,weather:'sunny'}).group;
-      f.position.set(x,0,z);f.rotation.y=yaw;f.name=p.name;group.add(f);figureIds.push(p.id);figurePositions.push({id:p.id,x,z});
-      const l=makeLabel?.(p.first+' '+p.surname);if(l){l.position.set(x,2.25,z);group.add(l);}};
-    people.staff.forEach((p,i)=>i<4?put(p,5.7+i*3.35,16.0,0,'work shift'):put(p,-12+((i*7)%24),-14+((i*5)%26),i%2?Math.PI/2:-Math.PI/2,'work shift'));
-    people.visitors.forEach((p,i)=>i<4?put(p,5.7+i*3.35,19.6,Math.PI,'shopping'):put(p,-15+((i*11)%30),-18+((i*7)%30),(i%4)*Math.PI/2,'shopping'));
+  const figureIds = [], figurePositions = [], actors = [];
+  if (people) {
+    const put = (p, x, z, yaw, activity = 'shopping', roam = true) => {
+      const figure = makeDistinctPerson('narromine:' + p.id,
+        { ...p, workplaceKind: 'supermarket', workplaceName: 'Coles Narromine' },
+        { activity, jobKind: 'supermarket', minute, weather: 'sunny' });
+      figure.group.name = p.name;
+      const record = { id: p.id, x, z };
+      figureIds.push(p.id); figurePositions.push(record);
+      actors.push({ figure, id: p.id, name: p.name, label: p.first + ' ' + p.surname,
+        x, z, yaw, activity, roam, record });
+    };
+    // Checkouts are staffed; shelf fillers and shoppers actually move through
+    // the aisles, following a route checked against the same shelf colliders.
+    people.staff.forEach((p, i) => i < 4
+      ? put(p, 5.7 + i * 3.35, 16.0, 0, 'serving at checkout', false)
+      : put(p, -12 + ((i * 7) % 24), -14 + ((i * 5) % 26),
+          i % 2 ? Math.PI / 2 : -Math.PI / 2, 'restocking shelves', true));
+    people.visitors.forEach((p, i) => i < 4
+      ? put(p, 5.7 + i * 3.35, 19.6, Math.PI, 'shopping and queueing', true)
+      : put(p, -15 + ((i * 11) % 30), -18 + ((i * 7) % 30),
+          (i % 4) * Math.PI / 2, 'browsing groceries', true));
   }
   label('EXIT',0,3.5,25.45);
-  return {group,colliders,interactables,sceneObjects,placedProps:[],seats:[],windows,rooms:[
+  const built = {group,colliders,interactables,sceneObjects,placedProps:[],seats:[],windows,rooms:[
     {name:'Coles Narromine · interpretive retail',x0:-20,x1:20,z0:-26,z1:26,w:40,d:52,parent:-1}
   ],doors:[],dynamics:[],sight:[],bounds:{x0:-20,x1:20,z0:-26,z1:26},
     spawn:new THREE.Vector3(0,0,22.5),exitZone:{x0:-1.7,x1:1.7,z0:25.9,z1:27.5},
@@ -219,4 +238,6 @@ export function buildNarromineColesInterior(makeLabel, day=1, minute=540, people
     colesPlan:COLES_INTERPRETIVE_PLAN,
     updatePostalShopper:(day,minute)=>{leah.group.visible=postalState(day,minute).atColes;return leah.group.visible;}
   };
+  animateNarromineResidents(built, actors, makeLabel, () => minute);
+  return built;
 }

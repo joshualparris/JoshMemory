@@ -7,6 +7,8 @@
 <title>Repository Town 3D</title>
 <meta name="description" content="Walk a town of 188 houses, each designed from a real GitHub repository.">
 <link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="ui/loading-screen.css">
+<script defer src="ui/loading-screen.js"></script>
 <link rel="stylesheet" href="ui/driving-dashboard.css">
 <link rel="stylesheet" href="ui/minimap-visibility.css">
 <link rel="stylesheet" href="npc.css">
@@ -18,7 +20,26 @@
 <script defer src="ui/analytics.js" data-website-id="__UMAMI_WEBSITE_ID__" data-do-not-track="true" data-performance="true" data-exclude-hash="true" data-domains="joshualparris.github.io" data-tag="JoshMemory"></script>
 </head>
 <body>
-<div id="loading" role="status"><h1>Repository Town</h1><p id="loading-text">Loading the town…</p><p><a href="arcade.html">Open arcade library without 3D →</a></p></div>
+<div id="loading" aria-labelledby="loading-title">
+  <section class="loading-card">
+    <p class="loading-eyebrow">Preparing your world</p>
+    <h1 id="loading-title">Repository Town</h1>
+    <p id="loading-text" role="status" aria-live="polite">Downloading JavaScript and the 3D engine.</p>
+    <progress id="loading-progress" value="0" max="12" aria-label="Startup stages completed"></progress>
+    <div class="loading-meta"><span id="loading-count">0 of 12 stages complete</span><span id="loading-elapsed">0s elapsed</span></div>
+    <ol id="loading-steps" aria-label="Behind the scenes"></ol>
+    <div class="loading-downloads"><span id="loading-network">Waiting for game files…</span><span id="loading-file"></span></div>
+    <p class="loading-explanation">The bar counts completed startup stages, not download bytes. Some stages take longer than others. Optional models can keep loading while you play.</p>
+    <p id="loading-slow" hidden>Still working on this step. Building the 3D scene can take longer on slower devices.</p>
+    <p id="loading-error" role="alert" hidden></p>
+    <div class="loading-footer"><button id="loading-retry" type="button" hidden>Retry loading</button><a href="arcade.html">Open the arcade without 3D</a></div>
+    <noscript><p>JavaScript is required for the 3D town. You can still open the arcade library.</p></noscript>
+  </section>
+</div>
+<aside id="loading-background" hidden aria-label="Optional background downloads">
+  <button id="loading-background-close" type="button" aria-label="Dismiss background download status">×</button>
+  <p id="loading-background-text" role="status" aria-live="polite"></p><span id="loading-background-file"></span>
+</aside>
 <header id="hud">
   <div class="hud-heading">
     <h1>🏘 <span class="hud-title-full">Repository Town</span><span class="hud-title-short">Town</span> <span id="clock" aria-live="off"></span></h1>
@@ -91,6 +112,14 @@
 <section id="settings" role="dialog" aria-labelledby="settings-title" aria-modal="false" hidden>
   <button id="settings-close" type="button" aria-label="Close settings">✕</button>
   <h2 id="settings-title">Settings</h2>
+  <fieldset><legend>Town activity</legend>
+    <label for="town-activity">People and traffic</label>
+    <select id="town-activity" aria-describedby="town-activity-description">
+      <option value="calm">Calm (recommended)</option>
+      <option value="standard">Standard (busier)</option>
+    </select>
+    <p id="town-activity-description">Calm gives you more space: fewer background people, cars and parked vehicles. Shops, staff, quests and saved progress stay intact. Existing cars finish their journeys; parked traffic updates within a few seconds. Saved on this device.</p>
+  </fieldset>
   <fieldset><legend>Saved progress</legend>
     <p>Your game saves automatically on this device. No account is needed.</p>
     <a id="settings-save-transfer" class="btn-link" href="release.html" target="_blank" rel="noopener">Back up or restore your save</a>
@@ -193,4 +222,3 @@
 <script type="module" src="ui/release.js"></script>
 </body>
 </html>
-

@@ -38,7 +38,11 @@ export class Input {
         if (document.pointerLockElement !== this.canvas) this.pressed.add('back');
         return;
       }
-      if (e.target.closest?.('input, textarea, select, button, a, [contenteditable]')) return;
+      if (e.target.closest?.('input, textarea, select, [contenteditable]')) return;
+      // HUD buttons keep focus after closing a menu. Let movement resume from
+      // those controls, but preserve Space/Enter activation and editable fields.
+      if (e.target.closest?.('button, a') &&
+          !['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright','shift','control'].includes(k)) return;
       if (!this.keys.has(k)) {
         if (k === ' ') this.pressed.add('jump');
         if (k === 'e' || k === 'f' || k === 'enter') this.pressed.add('use');
@@ -183,4 +187,3 @@ export class Input {
   consume(name) { const had = this.pressed.has(name); this.pressed.delete(name); return had; }
   takeLook() { const l = { ...this.look }; this.look.dx = 0; this.look.dy = 0; return l; }
 }
-

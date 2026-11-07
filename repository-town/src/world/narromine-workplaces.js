@@ -5,6 +5,7 @@
 // St Mary's keep their own detailed interiors and are not rebuilt here.
 import { buildInterior } from './interior.js';
 import { makeDistinctPerson } from './npc-wardrobe.js';
+import { animateNarromineResidents } from './narromine-indoor-life.js';
 import { NARROMINE_FOOTPRINTS } from './narromine-footprints-data.js';
 import { BUILDINGS, DETAILED, OSM, toWorld } from './narromine-layout.js';
 import { segNearest, whoIsAt } from './narromine-population.js';
@@ -12,6 +13,7 @@ import { homeDoor, doorCandidates, pickDoor } from './narromine-homes.js';
 import { SOUL_FOOD_EVIDENCE, soulFoodOpen, soulFoodInteriorSpec, decorateSoulFoodInterior } from './narromine-soul-food-interior.js';
 import { NARROMINE_PHARMACY_EVIDENCE, pharmacyOpeningAt, pharmacyInteriorSpec, decorateNarrominePharmacy } from './narromine-pharmacy-interior.js';
 import { INTERIOR_EVIDENCE } from './narromine-interior-evidence.js';
+import { GENERIC_PROFILES, genericProfileForKind } from './generic-business-fitouts.js';
 
 const S = (t, l) => [t, l, { do: 'info', title: l, text: 'Workstation.' , station: true }];   // a staffed station
 const FIT = {
@@ -110,19 +112,25 @@ export function buildNarromineWorkplaceInterior(pop, entry, makeLabel, weekday, 
   const pharmacy = researchedPharmacy ? pharmacyInteriorSpec() : null;
   const namedSoulFood = w.kind==='cafe' && w.name===SOUL_FOOD_EVIDENCE.name;
   const soulFood = namedSoulFood ? soulFoodInteriorSpec() : null;
-  const rooms = JSON.parse(JSON.stringify(pharmacy ? pharmacy.rooms : (soulFood ? soulFood.rooms : (evidence ? evidence.rooms : fitFor(w.kind)))));
+  // Do not replace named/evidenced interiors or even existing FIT templates.
+  const genericKey=!pharmacy&&!soulFood&&!evidence&&!FIT[w.kind] ? genericProfileForKind(w.kind) : null;
+  const generic=genericKey?GENERIC_PROFILES[genericKey]:null;
+  const rooms = JSON.parse(JSON.stringify(pharmacy ? pharmacy.rooms : (soulFood ? soulFood.rooms : (evidence ? evidence.rooms : (generic?.rooms||fitFor(w.kind))))));
   // Each business is its own place: rooms sized for its building and staff, a station per worker on a
   // typical shift, its own colours, and its name over the front room.
   const H = (k) => { let h = 2166136261; for (const c of w.name + k) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return (h >>> 0) / 4294967296; };
   const pickH = (k, list) => list[Math.floor(H(k) * list.length)];
   const onShift = Math.max(1, Math.ceil(w.staff / ((w.closes - w.opens) > 11 * 60 ? 3 : 1.4)));
   const stationCount = rooms.reduce((n, r) => n + r.props.filter((p) => Array.isArray(p) && p[2]?.station).length, 0);
-  // Extra stations for bigger crews, in the room that has the first station (e.g. more counters or desks).
+  // Preserve existing templates. New pass-two plans have ONE public reception
+  // and a separate working room: extra crew belong at working stations, not in
+  // a row of duplicated reception counters in the public waiting area.
   const main = rooms.find((r) => r.props.some((p) => Array.isArray(p) && p[2]?.station));
-  const proto = main.props.find((p) => Array.isArray(p) && p[2]?.station);
-  for (let k = stationCount; !namedSoulFood && k < Math.min(onShift, 10); k++) main.props.push([proto[0], proto[1] + ' ' + (k + 1), proto[2]]);
-  if (/hair|clip/i.test(w.name)) main.props.push(['mirror', 'Styling mirror'], ['chair', 'Salon chair'], ['chair', 'Salon chair']);
-  if (/beauty|belladonna/i.test(w.name)) main.props.push(['mirror', 'Mirror'], ['bed', 'Treatment bed']);
+  const extraRoom = generic?.plan ? [...rooms].reverse().find(r=>r.props.some(p=>Array.isArray(p)&&p[2]?.station)) : main;
+  const proto = extraRoom.props.find((p) => Array.isArray(p) && p[2]?.station);
+  for (let k = stationCount; !namedSoulFood && k < Math.min(onShift, 10); k++) extraRoom.props.push([proto[0], proto[1] + ' ' + (k + 1), proto[2]]);
+  if (!generic && /hair|clip/i.test(w.name)) main.props.push(['mirror', 'Styling mirror'], ['chair', 'Salon chair'], ['chair', 'Salon chair']);
+  if (!generic && /beauty|belladonna/i.test(w.name)) main.props.push(['mirror', 'Mirror'], ['bed', 'Treatment bed']);
   if (!researchedPharmacy && !namedSoulFood) {
     const scale = w.area && w.area <= 800 ? Math.max(0.9, Math.min(1.6, Math.sqrt(w.area / 150))) : 1 + H('sz') * 0.3;
     for (const r of rooms) { r.w = Math.round(r.w * scale * (0.9 + H('w' + r.name) * 0.2) * 10) / 10; r.d = Math.round(r.d * scale * (0.9 + H('d' + r.name) * 0.2) * 10) / 10; }
@@ -130,6 +138,7 @@ export function buildNarromineWorkplaceInterior(pop, entry, makeLabel, weekday, 
   }
   const walls = pickH('wall', [0xf2f0ea, 0xe6e1d6, 0xdfe6e3, 0xe9dfd0, 0xd3dce2, 0xefe7d8, 0xcfd6cc]), floor = pickH('floor', [0xb9b2a7, 0x9c8f7d, 0x8a8f94, 0xc7bfae, 0x7b6a58, 0xa7a59e]);
   const spec = pharmacy ? { ...pharmacy, rooms } : soulFood ? { ...soulFood, rooms } : { layout: rooms.length > 2 ? pickH('lay', ['row', 'hub', 'L']) : 'row', height: pickH('h', [3, 3.3, 3.6]), walls, floor, rooms };
+  if(generic)Object.assign(spec,{layout:'row',walls:generic.walls,floor:generic.floor,insetWallProps:true});
   let built = null;
   for (let tries = 0; tries < 14 && !built; tries++) {
     try { built = buildInterior({ repo: 'narromine-' + w.id, coordinate: 'NARROMINE-WORK:' + w.id, name: w.name, noBedroom: true, int: spec }, makeLabel); } catch (e) {
@@ -147,23 +156,40 @@ export function buildNarromineWorkplaceInterior(pop, entry, makeLabel, weekday, 
   const stations = built.interactables.filter((o) => o.act?.station);
   const SHIRT = { school: 0x2f5f8a, hospital: 0x4a90a4, doctors: 0x4a90a4, police: 0x1c2f4a, fire_station: 0x9b2226, pub: 0x2b2b2b, bar: 0x2b2b2b, cafe: 0x3f3f3f, bakery: 0xf2f2ee, butcher: 0xf2f2ee, pharmacy: 0xf2f2ee, bank: 0x234a6b };
   const centre = (i) => { const r = built.rooms[i]; return { x: (r.x0 + r.x1) / 2, z: (r.z0 + r.z1) / 2 }; };
-  const figureIds = [], figurePositions = [];
-  const put = (p, at, activity = 'work shift') => {
-    const f = makeDistinctPerson('narromine:' + p.id, { ...p, workplaceKind: w.kind, workplaceName: w.name }, { activity, jobKind: w.kind, minute, weather: 'sunny' }).group;
-    f.position.set(at.x, 0, at.z); f.rotation.y = at.yaw; f.name = p.name; built.group.add(f); figureIds.push(p.id); figurePositions.push({ id: p.id, x: at.x, z: at.z });
-    const l = makeLabel?.(p.first + ' ' + p.surname); if (l) { l.position.set(at.x, 2.25, at.z); built.group.add(l); }
+  const figureIds = [], figurePositions = [], actors = [];
+  const put = (p, at, activity = 'work shift', roam = true) => {
+    const figure = makeDistinctPerson('narromine:' + p.id,
+      { ...p, workplaceKind: w.kind, workplaceName: w.name },
+      { activity, jobKind: w.kind, minute, weather: 'sunny' });
+    figure.group.name = p.name;
+    const record = { id: p.id, x: at.x, z: at.z };
+    figureIds.push(p.id); figurePositions.push(record);
+    actors.push({ figure, id: p.id, name: p.name, label: p.first + ' ' + p.surname,
+      ...at, activity, roam, record });
   };
   staff.forEach((p, i) => {
     const s = stations[i % Math.max(1, stations.length)]; if (!s) return;
-    const c = centre(s.room), dx = c.x - s.pos.x, dz = c.z - s.pos.z, D = Math.hypot(dx, dz) || 1, k = Math.floor(i / Math.max(1, stations.length));
-    put(p, { x: s.pos.x + dx / D * 1.0 + k * 0.8, z: s.pos.z + dz / D * 1.0, yaw: Math.atan2(dx, dz) + Math.PI }, 'work shift');
+    const c = centre(s.room), dx = c.x - s.pos.x, dz = c.z - s.pos.z, D = Math.hypot(dx, dz) || 1;
+    const k = Math.floor(i / Math.max(1, stations.length));
+    put(p, { x: s.pos.x + dx / D * 1.0 + k * 0.8, z: s.pos.z + dz / D * 1.0,
+      yaw: Math.atan2(dx, dz) + Math.PI }, 'working at ' + w.name, true);
   });
-  // Pupils in class (schools): seated rows in the classrooms.
+  // Pupils stay in their classroom during a scheduled lesson instead of
+  // aimlessly wandering outside; the pose controller still animates them.
   let pupils = 0;
   if (w.kind === 'school') {
-    const kids = pop.people.filter((p) => p.school === w.id && here && open && weekday > 0 && weekday < 6 && minute >= 8 * 60 + 50 && minute < 15 * 60);
+    const kids = pop.people.filter((p) => p.school === w.id && here && open &&
+      weekday > 0 && weekday < 6 && minute >= 8 * 60 + 50 && minute < 15 * 60);
     const rooms2 = built.rooms.map((r, i) => [r, i]).filter(([r]) => r.name === 'Classroom');
-    kids.slice(0, 40).forEach((p, i) => { const [r] = rooms2[i % rooms2.length]; const row = Math.floor(i / rooms2.length); put(p, { x: r.x0 + 1.5 + (row % 5) * 1.3, z: r.z0 + 2.5 + Math.floor(row / 5) * 1.4, yaw: Math.PI }, 'school class'); pupils++; });
+    kids.slice(0, 40).forEach((p, i) => {
+      const [r] = rooms2[i % rooms2.length];
+      const row = Math.floor(i / rooms2.length);
+      put(p, { x: r.x0 + 1.5 + (row % 5) * 1.3,
+        z: r.z0 + 2.5 + Math.floor(row / 5) * 1.4, yaw: Math.PI }, 'school class', false);
+      pupils++;
+    });
   }
-  return { ...built, workplace: w, open, staff, pupils, evidence, figureIds, figurePositions };
+  animateNarromineResidents(built, actors, makeLabel, () => minute);
+  return { ...built, workplace: w, open, staff, pupils, evidence, figureIds, figurePositions,
+    ...(generic?{genericFitout:{key:genericKey,evidenceLevel:'interpretive-not-surveyed'}}:{}) };
 }

@@ -34,11 +34,11 @@ function placeRooms(rooms, layout, skip = 0) {
     let back = r0.z0;
     R.slice(1).forEach((r, k) => { put(r, -r.w / 2, back - r.d); back = r.z0; r.parent = k; });
   } else if (layout === 'hub') {
-    const spots = [(r) => put(r, r0.x0 - r.w, r0.z0 + (r0.d - r.d) / 2), (r) => put(r, r0.x1, r0.z0 + (r0.d - r.d) / 2), (r) => put(r, -r.w / 2, r0.z0 - r.d)];
-    R.slice(1).forEach((r, k) => {
-      if (k < 3) { spots[k](r); r.parent = 0; }
-      else { const p = R[3]; put(r, k === 3 ? p.x0 - r.w : p.x1, p.z0 + (p.d - r.d) / 2); r.parent = 3; }
-    });
+    // A hub may have far more than five rooms. Previously all rooms after the
+    // fourth extension reused one coordinate and overlapped furniture/walls.
+    // Place each new room against a clear shared wall of an already placed room.
+    const placed = [r0];
+    for (const r of R.slice(1)) attachRoom(placed, r, put, 0);
   } else if (layout === 'grid') {
     const cols = R.length > 4 ? 3 : 2;
     const cw = [], rd = [];
@@ -315,6 +315,13 @@ function buildOnce(house, makeLabel, attempt) {
       }
       if (!spot) { const w = slots.wall(Math.max(prop.w, 0.6)); spot = w ? { ...w, onWall: true } : (cells.length ? { ...cells.shift(), rot: 0 } : null); }
       if (!spot) throw Object.assign(new Error(`${house.repo}: no room for ${type} in "${r.name}" — enlarge the room`), { crowded: spec.rooms.some((x) => x.archive) });
+      // Opt-in for new generic workplace plans only. Legacy/bespoke placement
+      // stays identical; centred generic fixtures must sit inside the wall.
+      if (spec.insetWallProps && spot.onWall) {
+        const inset = prop.d / 2 + 0.06;
+        spot.x += Math.sin(spot.rot) * inset;
+        spot.z += Math.cos(spot.rot) * inset;
+      }
       const key = act && act.do ? `${house.coordinate}:${ri}:${pi}` : null;
       // Residents are people, not furniture: main.js gives them a moving body (src/world/npcs.js).
       if (prop.walker) {
@@ -338,7 +345,8 @@ function buildOnce(house, makeLabel, attempt) {
       const fw = sideways ? prop.d : prop.w, fd = sideways ? prop.w : prop.d;
       if (prop.solid) colliders.push({ x0: spot.x - fw / 2, x1: spot.x + fw / 2, z0: spot.z - fd / 2, z1: spot.z + fd / 2, top: standTop(type) });
       placedProps.push({ type, room: ri });
-      sceneObjects.push({ type, label: label || prop.label, room: ri, pos: { x: spot.x, z: spot.z }, interactive: !!key });
+      sceneObjects.push({ type, label: label || prop.label, room: ri, pos: { x: spot.x, z: spot.z }, interactive: !!key,
+        ...(spec.insetWallProps ? { footprint: { w: fw, d: fd } } : {}) });
       const pos = new THREE.Vector3(spot.x, 0, spot.z);
       // Wall props get their label pushed out into the room so it never sits inside the wall.
       const out = spot.onWall ? LABEL_INSET : 0;

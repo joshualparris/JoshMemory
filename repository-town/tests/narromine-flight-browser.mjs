@@ -35,13 +35,15 @@ try {
     assert.equal(airport.parking.length,2);
     assert.ok(airport.flightLandscape.patches>300,device+': agricultural underlay under flight corridor');
 
-    // Actual game search. Phones start with town controls minimised, so a
-    // user must expand the menu before the search input becomes visible.
-    if(device==='android')await page.getByRole('button',{name:'Expand town controls'}).click();
+    // Calm mode minimises the town controls on both desktop and phone.
+    // Exercise the real expand control before searching, without overriding
+    // a previously expanded HUD preference.
+    const searchWasHidden=!(await page.locator('#search').isVisible());
+    if(searchWasHidden)await page.getByRole('button',{name:'Expand town controls'}).click();
     await page.locator('#search').fill('Narromine Aerodrome · YNRM');
     await page.locator('#search-form').evaluate(form=>form.requestSubmit());
     await page.waitForFunction(()=>window.__town.state().pos.x< -5700,null,{timeout:12000});
-    if(device==='android')await page.getByRole('button',{name:'Minimise town controls'}).click();
+    if(searchWasHidden)await page.getByRole('button',{name:'Minimise town controls'}).click();
     const start=await page.evaluate(()=>window.__town.state().pos);
     assert(Math.hypot(start.x+5806,start.z+2174)<2,device+': search travels to YNRM apron');
     await page.screenshot({path:path.join(out,device+'-01-airport-apron.png')});

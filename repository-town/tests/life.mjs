@@ -277,9 +277,14 @@ await shot('resident-kitchen');
 await T(() => window.__town.toExit());
 
 // 10. Sound remains opt-in; two clicks return to the original setting.
+// Calm mode intentionally minimises the HUD at startup. Use the genuine expand
+// control before interacting, then restore its original state (no force click).
+const soundHudWasMinimised=await page.locator('#btn-hud-toggle').getAttribute('aria-expanded')==='false';
+if(soundHudWasMinimised)await page.getByRole('button',{name:'Expand town controls'}).click();
 const initialSound=(await st()).sound;
-await page.click('#btn-sound'); const changedSound=(await st()).sound;
-await page.click('#btn-sound'); s=await st();
+await page.locator('#btn-sound').click(); const changedSound=(await st()).sound;
+await page.locator('#btn-sound').click(); s=await st();
+if(soundHudWasMinimised)await page.getByRole('button',{name:'Minimise town controls'}).click();
 check(changedSound===!initialSound&&s.sound===initialSound,'sound button toggles');
 await page.waitForTimeout(1500);
 

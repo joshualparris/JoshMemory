@@ -6,6 +6,8 @@ import { buildAgedCareFacade } from './aged-care-facade.js';
 import { buildBusInterchangeFacade } from './bus-interchange-facade.js';
 import { buildVisitorInformationFacade } from './visitor-information-facade.js';
 import { buildCemeteryOfficeFacade } from './cemetery-office-facade.js';
+import { addGenericFacadeDetails } from './generic-facade-details.js';
+import { genericProfileForSite } from './generic-business-fitouts.js';
 const styles=Object.freeze({
  heritage:[0xbb8d72,0x755340,0x7e3c31],
  civic:[0xc8bda7,0x546873,0x334d60],
@@ -226,12 +228,16 @@ export function buildExpansionFacade(b,site){
      b.box(trim,.12,2.5,.10,x,2.1,face+.12);
      b.box(trim,2.76,.1,.1,x,.85,face+.12);
    }
-   b.box(GLASS,1.75,2.9,.09,0,1.5,face+.10);
-   b.box(trim,.12,.4,.14,.7,1.5,face+.2);
+   if(!genericProfileForSite(site)){
+     b.box(GLASS,1.75,2.9,.09,0,1.5,face+.10);
+     b.box(trim,.12,.4,.14,.7,1.5,face+.2);
+   }
  }
  if(site.style==='tech')for(const x of [-4,4])b.box(0x2e6073,1.5,.65,.1,x,2.5,face+.19);
  if(site.style==='health')b.box(0x4e9688,.62,.62,.10,-5.3,3.6,face+.21);
  if(site.style==='school')for(const x of [-5,5])b.box(0x7b977c,.12,2.0,.12,x,1,face+1.6);
  if(site.style==='pool')b.box(0x4d9cbd,4,.14,1.3,0,.1,face+1.6);
- return {w,d,front:7};
+ // Explicit allowlist at fallback tail: never touches a bespoke facade above.
+ const genericFacade=addGenericFacadeDetails(b,site,{w,h,face,trim,accent});
+ return {w,d,front:7,...(genericFacade?{genericFacade}:{})};
 }
