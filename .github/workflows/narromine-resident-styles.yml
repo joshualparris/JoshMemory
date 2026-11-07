@@ -1,0 +1,47 @@
+name: Narromine live indoor resident style acceptance
+on:
+  pull_request:
+    paths:
+      - 'repository-town/src/world/indoor-resident-styles.js'
+      - 'repository-town/src/world/narromine-indoor-life.js'
+      - 'repository-town/src/world/resident-models.js'
+      - 'repository-town/tests/narromine-resident-styles-browser.mjs'
+      - '.github/workflows/narromine-resident-styles.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 50
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Actual Narromine indoor style switching/reload on desktop and phone-size Chromium
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          node tools/serve.mjs dist/public 8091 >/tmp/styles-505.log 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8091/ >/dev/null; then break; fi
+            sleep 1
+          done
+          node tests/narromine-resident-styles-browser.mjs
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: narromine-indoor-resident-style-visual-proof
+          path: repository-town/test-results/narromine-resident-styles/
+          retention-days: 7
