@@ -1,0 +1,59 @@
+name: Narromine Dandaloo Continuous Walking and Photo View Audit
+
+on:
+  pull_request:
+    paths:
+      - 'repository-town/tests/narromine-dandaloo-continuous-walk-browser.mjs'
+      - 'repository-town/docs/NARROMINE_DANDALOO_CONTINUOUS_PHOTO_AUDIT_2026-11-05.md'
+      - '.github/workflows/narromine-dandaloo-continuous.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dandaloo-continuous-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  real-continuous-walk:
+    name: Desktop and phone-size continuous Dandaloo walking
+    runs-on: ubuntu-24.04
+    timeout-minutes: 42
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Validate test source and mapped roads
+        run: |
+          node --check tests/narromine-dandaloo-continuous-walk-browser.mjs
+          node tests/narromine-layout.mjs
+          node tests/narromine-road-surfaces.mjs
+          node tests/narromine-dandaloo-streetscape.mjs
+      - name: Build playable world and check privacy
+        run: |
+          npm run build
+          npm run check:privacy
+      - name: Install Chromium WebGL
+        run: npx playwright install --with-deps chromium
+      - name: One uninterrupted west Dandaloo corridor walk and five geocoded camera views per viewport
+        run: node tests/narromine-dandaloo-continuous-walk-browser.mjs
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+          SOURCE_SHA: ${{ github.sha }}
+      - name: Upload all movement telemetry and original game-only screenshots on failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dandaloo-continuous-walk-and-five-photo-poses-${{ github.run_id }}
+          path: repository-town/test-results/narromine-dandaloo-continuous/
+          retention-days: 28
+          if-no-files-found: warn
