@@ -3,11 +3,8 @@ import * as THREE from 'three';
 import {buildCivicInterior} from '../src/world/shop-interior.js';
 import {LINKED_SERVICE_INTERIORS} from '../src/world/linked-service-interiors.js';
 const label=()=>new THREE.Sprite(new THREE.SpriteMaterial());
-const expected={
- vet:['Veterinary reception','Veterinary examination room','Veterinary medicines and clean storage'],
- hardware:['Trade hardware counter','Timber and building supplies','Warehouse and goods receiving']
-};
-assert.deepEqual([...LINKED_SERVICE_INTERIORS].sort(),['hardware','vet']);
+const expected={vet:['Veterinary reception','Veterinary examination room','Veterinary medicines and clean storage']};
+assert.deepEqual([...LINKED_SERVICE_INTERIORS],['vet']);
 for(const id of LINKED_SERVICE_INTERIORS){
  const built=buildCivicInterior({id,name:id==='vet'?'Repository Veterinary Surgery':'Central West Hardware & Timber',expansion:true},label);
  assert.equal(built.linkedServiceLayout?.id,id,id+': must use dedicated layout');
@@ -23,4 +20,13 @@ for(const id of LINKED_SERVICE_INTERIORS){
  for(const room of built.rooms)assert(room.x1>room.x0&&room.z1>room.z0,id+': valid room bounds');
  built.group.traverse(o=>{if(o.geometry?.dispose)o.geometry.dispose();if(o.material?.dispose)o.material.dispose();});
 }
-console.log('PASS #439: existing veterinary and trade hardware sites have purpose-built three-room walkable, non-residential interiors; no additional fictional businesses or duplicate simulation');
+// Existing hardware is an independently authored hardware/timber shop and
+// MUST NOT be replaced by the older PR #442's small generic room.
+const hardware=buildCivicInterior({id:'hardware',name:'Central West Hardware & Timber',expansion:true},label);
+assert(!hardware.linkedServiceLayout,'handcrafted hardware store preserved');
+let stockMeshes=0;
+hardware.group.traverse(o=>{if(o.name==='hardware-stock')stockMeshes++;});
+assert(stockMeshes>0,'actual modelled hardware store stock remains visible');
+assert(hardware.interactables.length>=3,'hardware counter and shelves remain playable');
+hardware.group.traverse(o=>{if(o.geometry?.dispose)o.geometry.dispose();if(o.material?.dispose)o.material.dispose();});
+console.log('PASS #439: bespoke 3-room vet surgery; existing detailed hardware store protected; no added businesses or duplicate economic simulation');

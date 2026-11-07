@@ -120,7 +120,7 @@ export function buildCivicInterior(site,makeLabel,life=null) {
   if(site.id==='clothing')return buildClothingInterior(site,makeLabel);
   if(site.id==='nursery')return buildNurseryInterior(site,makeLabel);
   if(['realestate','dealership','mechanic'].includes(site.id))return buildTradeInterior(site,makeLabel);
-  if(['vet','hardware'].includes(site.id))return buildLinkedServiceInterior(site,makeLabel);
+  if(site.id==='vet')return buildLinkedServiceInterior(site,makeLabel);
   const [roomTitle,deskName,featureName,accent,deskInfo,featureInfo] =
     FITTINGS[site.id] || (site.expansion
       ? [site.name,'Service reception','Workplace & displays',

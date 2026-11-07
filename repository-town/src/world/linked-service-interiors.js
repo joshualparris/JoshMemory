@@ -4,7 +4,7 @@
 // Every room is interpretive. Real-world designs/certifications are not implied.
 import { buildInterior } from './interior.js';
 
-export const LINKED_SERVICE_INTERIORS = Object.freeze(['vet', 'hardware']);
+export const LINKED_SERVICE_INTERIORS = Object.freeze(['vet']);
 const ROOMS = {
   vet: [
     {name:'Veterinary reception',w:12,d:11,props:[
@@ -16,17 +16,6 @@ const ROOMS = {
     {name:'Veterinary medicines and clean storage',w:10,d:9,props:[
       ['fridge','Temperature-controlled medicine storage'],['cabinet','Clean treatment kits'],
       ['shelf','Sample container rack'],['filingCabinet','Supply and appointment records']]}
-  ],
-  hardware: [
-    {name:'Trade hardware counter',w:12,d:11,props:[
-      ['counter','Building-materials order desk',{do:'info',title:'Hardware orders',text:'The town trades and construction system pays for actual stock of timber, cement and fixings; this showroom does not create free supplies.'}],
-      ['cashRegister','Trade counter till'],['bookshelf','Supplier catalogues'],['chair','Customer chair']]},
-    {name:'Timber and building supplies',w:12,d:10,props:[
-      ['shelf','Timber and sheet stock'],['crates','Bagged cement and fixings'],
-      ['trolley','Material hand trolley'],['workbench','Hand tool demonstrations']]},
-    {name:'Warehouse and goods receiving',w:11,d:10,props:[
-      ['crates','Delivery pallets'],['shelf','Hardware stock bins'],
-      ['trolley','Warehouse pallet trolley'],['filingCabinet','Supplier invoices']]}
   ]
 };
 export function buildLinkedServiceInterior(site, makeLabel) {
