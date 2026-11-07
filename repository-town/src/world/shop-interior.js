@@ -42,6 +42,7 @@ import {buildSoyInterior} from './soy-interior.js';
 import { buildTradeInterior } from './trade-interiors.js';
 import { buildTradeEducationInterior, TRADE_EDUCATION_INTERIORS } from './trade-education-interiors.js';
 import { buildGenericCivicInterior } from './generic-civic-interior.js';
+import { buildLinkedServiceInterior } from './linked-service-interiors.js';
 
 // The twenty high-street services share a safe walkable plan, with different
 // fixtures, colours and exhibits. They are built only while the player is inside.
@@ -119,6 +120,7 @@ export function buildCivicInterior(site,makeLabel,life=null) {
   if(site.id==='clothing')return buildClothingInterior(site,makeLabel);
   if(site.id==='nursery')return buildNurseryInterior(site,makeLabel);
   if(['realestate','dealership','mechanic'].includes(site.id))return buildTradeInterior(site,makeLabel);
+  if(['vet','hardware'].includes(site.id))return buildLinkedServiceInterior(site,makeLabel);
   const [roomTitle,deskName,featureName,accent,deskInfo,featureInfo] =
     FITTINGS[site.id] || (site.expansion
       ? [site.name,'Service reception','Workplace & displays',
