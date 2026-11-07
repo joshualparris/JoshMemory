@@ -11,6 +11,10 @@ on:
       - repository-town/src/ui/hud-visibility.js
       - repository-town/tests/electrical-pilot-browser.mjs
       - .github/workflows/rtu-compact-menu.yml
+  pull_request:
+    paths:
+      - 'repository-town/tests/electrical-pilot-browser.mjs'
+      - '.github/workflows/rtu-compact-menu.yml'
   workflow_dispatch:
 permissions:
   contents: read
