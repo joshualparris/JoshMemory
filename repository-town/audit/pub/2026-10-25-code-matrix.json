@@ -19,7 +19,7 @@
     "repository-town/tests/shop-interiors.mjs": "0ca369aa2d241c152edb841c1125aa9319241a0d",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "d251b9da121a59f86650e040bab8d9204f4405e0",
+    "repository-town/src/main.js": "57ccc3b8c1e49acf5fd75d2f30f55541ae57c33c",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -1381,7 +1381,7 @@
         "repository-town/src/main.js",
         "repository-town/src/world/narromine-workplaces.js"
       ],
-      "finding": "Only Narromine's shared-mapped-workplace threshold logic and user choice panel change; all 15 entrance groups/43 identifiers preserved. No real door relocation, pub geometry, physical egress or building-code finding changed. Reviewed narrow main.js diff; audited blob 38ec30d8adb44c7dd41cdcd2521dd840ae635f9a -> d251b9da121a59f86650e040bab8d9204f4405e0. Regression and actual WebGL checks required; no production claim."
+      "finding": "Only Narromine's shared-mapped-workplace threshold logic and user choice panel change; all 15 entrance groups/43 identifiers preserved. No real door relocation, pub geometry, physical egress or building-code finding changed. Reviewed narrow main.js diff; audited blob 38ec30d8adb44c7dd41cdcd2521dd840ae635f9a -> d251b9da121a59f86650e040bab8d9204f4405e0. Regression and actual WebGL checks required. Follow-up keeps cancelled chooser disarmed until player clears the held door by 2.4 m, including overlapping home sensors; reviewed exact source blob 57ccc3b8c1e49acf5fd75d2f30f55541ae57c33c. No production claim."
     }
   ]
 }

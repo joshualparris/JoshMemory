@@ -35,8 +35,11 @@ try{
    assert(await page.locator('#panel').isHidden(),kind+': cancel closes chooser');
    await page.waitForTimeout(250);
    assert(await page.locator('#panel').isHidden(),kind+': cancel must not reopen each tick');
-   await page.evaluate(d=>window.__town.place(d.x+18,d.z+18,0),closest);
-   await page.waitForTimeout(200);
+   assert(closest.out,'shared game door has a collider-safe outside approach');
+   await page.evaluate(d=>window.__town.place(d.out.x,d.out.z,0),closest);
+   await page.waitForTimeout(500);
+   const outsideBeforeRetry=await page.evaluate(()=>window.__town.state());
+   assert.equal(outsideBeforeRetry.mode,'town',kind+': walked clear of shared door without entering another building');
    await approach();
    await page.getByRole('button',{name:'Photographer',exact:true}).click();
    await page.waitForFunction(()=>window.__town.state().coordinate==='NARROMINE-WORK:work-61',null,{timeout:20000});

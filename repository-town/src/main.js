@@ -798,8 +798,8 @@ async function start() {
     const key = choices.map(e => e.workplace.id).join('|');
     // A cancelled dialog must not reopen 60 times a second while stationary.
     // Walk away from the entrance and approach again to reopen it.
-    if (panelOpen || sharedWorkplaceEntranceHeld === key) return;
-    sharedWorkplaceEntranceHeld = key;
+    if (panelOpen || sharedWorkplaceEntranceHeld?.key === key) return;
+    sharedWorkplaceEntranceHeld = { key, x: choices[0].door.x, z: choices[0].door.z };
     openPanel({
       title: 'Choose a Narromine business',
       body: '<p>Several mapped businesses currently share this game entrance. Their real individual door locations are not verified. Choose the business you want to enter, or cancel and walk away.</p>',
@@ -2235,7 +2235,16 @@ async function start() {
       }
       if(mode==='town' && !overview && !driving.driving && nearNarrominePostOfficeDoor(player.pos)) enterNarrominePostOffice();
       if(mode==='town' && !overview && !driving.driving && nearNarromineColesDoor(player.pos)) enterNarromineColes();
-      if(mode==='town' && !overview && !driving.driving && player.pos.x<-2640){const d=narromineHomes.near(player.pos);if(d)enterNarromineHome(d);else approachNarromineWorkplace();}
+      if(mode==='town' && !overview && !driving.driving && player.pos.x<-2640){
+        // Rearm even when a nearby home sensor wins over the workplace sensor.
+        // A cancelled chooser must remain dismissed until the player walks
+        // outside the held doorway and returns.
+        if(sharedWorkplaceEntranceHeld && Math.hypot(
+          player.pos.x-sharedWorkplaceEntranceHeld.x,
+          player.pos.z-sharedWorkplaceEntranceHeld.z)>2.4)sharedWorkplaceEntranceHeld=null;
+        const d=narromineHomes.near(player.pos);
+        if(d)enterNarromineHome(d);else approachNarromineWorkplace();
+      }
        if(mode==='town' && !overview && !driving.driving && nearStMarysDoor(player.pos)) enterStMarys();
       if(mode==='town' && !overview && !driving.driving){
         for(const place of life.places.values()){
