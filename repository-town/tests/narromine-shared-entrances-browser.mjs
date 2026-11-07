@@ -35,8 +35,9 @@ try{
    assert(await page.locator('#panel').isHidden(),kind+': cancel closes chooser');
    await page.waitForTimeout(250);
    assert(await page.locator('#panel').isHidden(),kind+': cancel must not reopen each tick');
-   assert(closest.out,'shared game door has a collider-safe outside approach');
-   await page.evaluate(d=>window.__town.place(d.out.x,d.out.z,0),closest);
+   const awayPose=targets[0].out;
+   assert(awayPose,'shared game door has a collider-safe outside approach');
+   await page.evaluate(d=>window.__town.place(d.x,d.z,0),awayPose);
    await page.waitForTimeout(500);
    const outsideBeforeRetry=await page.evaluate(()=>window.__town.state());
    assert.equal(outsideBeforeRetry.mode,'town',kind+': walked clear of shared door without entering another building');
