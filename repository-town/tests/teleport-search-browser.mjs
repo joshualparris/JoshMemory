@@ -13,6 +13,12 @@ try {
   await page.route('**/api/npc-chat', (r) => r.abort('connectionrefused'));
   await page.goto(url);
   await page.waitForFunction(() => window.__town && document.getElementById('loading').hidden, null, { timeout: 150000 });
+  // Calm mode defaults to a deliberately compact HUD. Test the real user flow:
+  // expand using the visible control before interacting with search; never force
+  // the hidden input, and preserve pre-existing expanded preferences.
+  const hudWasMinimised = await page.locator('#btn-hud-toggle').getAttribute('aria-expanded') === 'false';
+  if (hudWasMinimised) await page.getByRole('button', { name: 'Expand town controls' }).click();
+  assert.equal(await page.locator('#search').isVisible(), true, 'Find a building is genuinely reachable');
   const where = () => page.evaluate(() => window.__town.state().pos);
   for (const dest of ['Narromine · Dandaloo Street', 'Commit Café']) {
     const before = await where();
