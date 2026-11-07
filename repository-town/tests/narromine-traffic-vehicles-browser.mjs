@@ -68,7 +68,11 @@ async function visit(mobile){
         if(!found.has(w.id))found.set(w.id,[]);
         found.get(w.id).push({t:now,x:w.x,z:w.z});
       }
-      if(now-started<2200)requestAnimationFrame(sample);
+      // Software-rendered CI can process fewer than three actual 3D frames
+      // in 2.2 s. Require real third-frame evidence, without accepting a
+      // static screenshot or indefinite timeout: keep sampling up to 7.5 s.
+      const haveThree=[...found.values()].some(points=>points.length>=3);
+      if((now-started<2200 || !haveThree) && now-started<7500)requestAnimationFrame(sample);
       else resolve([...found].map(([id,positions])=>{
         const first=positions[0],last=positions.at(-1),seconds=(last.t-first.t)/1000;
         const metres=Math.hypot(last.x-first.x,last.z-first.z);

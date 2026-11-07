@@ -19,7 +19,7 @@
     "repository-town/tests/shop-interiors.mjs": "0ca369aa2d241c152edb841c1125aa9319241a0d",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "565c67446026acf7b754e0db396d29c49de21452",
+    "repository-town/src/main.js": "38ec30d8adb44c7dd41cdcd2521dd840ae635f9a",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -1363,6 +1363,16 @@
         "repository-town/src/arcade.html"
       ],
       "finding": "Reviewed merged batched 32-sign (3072px) texture and emissive atlas, preserving sign lighting callback on groups, avoiding material access on THREE.Group, and preserving current-main minimap repair; iframe allowfullscreen warning removed and SVG favicon installed. Audited townlife blob 406bd0f056bf6d6385d4dd820bd49f4b24070574. All pub geometry, classification and egress findings remain provisional; full release and WebGL testing required."
+    },
+    {
+      "date": "2026-11-07",
+      "by": "ChatGPT (#518 rebase and source impact reconciliation)",
+      "changedFiles": [
+        "repository-town/src/main.js",
+        "repository-town/src/world/narromine-commuters-parked.js",
+        "repository-town/src/world/narromine-traffic.js"
+      ],
+      "finding": "Merged full oriented-vehicle SAT collision, bounded movement substeps, spawn safety, parking beyond carriageway/footpaths and static colliders while preserving latest Calm activity limits and resident visual models. Exact audited main.js Git blob updated 565c67446026acf7b754e0db396d29c49de21452 -> 38ec30d8adb44c7dd41cdcd2521dd840ae635f9a. No pub envelope, indoor egress, RSA, licensing or physical compliance conclusions changed; comprehensive WebGL/integration release checks still required."
     }
   ]
 }
