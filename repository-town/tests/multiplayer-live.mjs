@@ -40,7 +40,11 @@ const users=[
 ];
 const sockets=[];
 try{
-  assert.deepEqual((await api('/health')).body,{ok:true,service:'repo-town-multiplayer',protocol:1});
+  assert.deepEqual((await api('/health')).body,{ok:true,service:'repo-town-multiplayer',protocol:2});
+  const readiness=await api('/ready');
+  assert.equal(readiness.status,200,'readiness should check both Durable Objects');
+  assert.equal(readiness.body.ok,true);
+  assert.equal(readiness.body.capacity,80);
   assert.equal((await api('/register',{username:'attacker',password:'not_long_enough'},null,'https://not-repotown.example')).status,403);
   const registrations=await Promise.all(users.map(({username,password})=>api('/register',{username,password})));
   for(const [i,result] of registrations.entries()){
@@ -62,24 +66,38 @@ try{
   b.send(JSON.stringify({type:'hello',token:users[1].token}));
   const bWelcome=await bHello;
   assert.equal(bWelcome.name,users[1].username);
-  assert(bWelcome.players.some(p=>p.id===aWelcome.id && p.x===5),'second computer must see first computer in snapshot');
+  assert.equal(bWelcome.protocol,2,'v2 does not leak unrelated player locations at login');
+  assert.deepEqual(bWelcome.players,[]);
   const aJoin=next(a,v=>v.type==='join' && v.id===bWelcome.id);
+  const bJoin=next(b,v=>v.type==='join' && v.id===aWelcome.id);
   b.send(JSON.stringify({type:'state',zone:'town',x:5.2,y:0,z:9,yaw:0}));
-  const join=await aJoin;
+  const [join,reverseJoin]=await Promise.all([aJoin,bJoin]);
   assert.equal(join.name,users[1].username);
+  assert.equal(reverseJoin.name,users[0].username);
   await new Promise(r=>setTimeout(r,180));
   const bMove=next(b,v=>v.type==='state' && v.id===aWelcome.id && v.x===7);
   a.send(JSON.stringify({type:'state',zone:'town',x:7,y:0,z:9,yaw:1.4,name:'spoof'}));
   const moved=await bMove;
   assert.equal(moved.name,users[0].username,'client cannot spoof a server-controlled player name');
+  // Far-away players receive leave events (AOI), and return on approach.
+  await new Promise(r=>setTimeout(r,180));
+  const bFar=next(b,v=>v.type==='leave' && v.id===aWelcome.id);
+  a.send(JSON.stringify({type:'state',zone:'town',x:900,y:0,z:900,yaw:1.4}));
+  await bFar;
+  await new Promise(r=>setTimeout(r,180));
+  const bReturn=next(b,v=>v.type==='join' && v.id===aWelcome.id);
+  a.send(JSON.stringify({type:'state',zone:'town',x:7,y:0,z:9,yaw:1.4}));
+  await bReturn;
   const aLeave=next(a,v=>v.type==='leave' && v.id===bWelcome.id);
   b.close();
   await aLeave;
-  a.close();
+  // A signed-out session must lose its already-open socket immediately.
+  const revokeNotice=next(a,v=>v.type==='session-revoked');
   assert.equal((await api('/logout',{},users[0].token)).status,200);
+  await revokeNotice;
   assert.equal((await api('/me',null,users[0].token)).status,401,'logout must revoke bearer');
   assert.equal((await api('/logout',{},users[1].token)).status,200);
-  console.log('PASS: two accounts, authentication, independent WebSockets, presence, movement, spoof protection, disconnect and logout');
+  console.log('PASS: two accounts, SQL-backed auth, readiness, reciprocal AOI, movement, range filtering, revocation, disconnect');
 }finally{
   for(const ws of sockets)try{ws.close();}catch{}
 }
