@@ -295,7 +295,7 @@ export class World {
     this.syncPeers(ws, meta, moved);
   }
   webSocketClose(ws) { this.remove(ws); }
-  webSocketError(ws) { this.remove(ws); }
+  webSocketError(ws) { this.close(ws, 1011, 'WebSocket error'); }
 }
 
 export default {
@@ -343,8 +343,14 @@ export default {
     if (url.pathname === '/logout' && response.ok) {
       const token = request.headers.get('authorization')?.replace(/^Bearer /i,'');
       if (token && /^[a-f0-9]{64}$/.test(token)) {
-        await env.WORLD.get(env.WORLD.idFromName('repo-town-shared-v1')).fetch(
-          'https://world.internal/revoke', {headers:{'x-session-hash':await hash(token)}});
+        try {
+          await env.WORLD.get(env.WORLD.idFromName('repo-town-shared-v1')).fetch(
+            'https://world.internal/revoke', {headers:{'x-session-hash':await hash(token)}});
+        } catch {
+          // Authentication DB is already revoked. A brief World outage should
+          // not turn a successful sign-out into a failure; next socket auth
+          // recheck blocks the revoked token.
+        }
       }
     }
     const headers = new Headers(response.headers);
