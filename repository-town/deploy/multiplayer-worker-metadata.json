@@ -1,0 +1,25 @@
+{
+  "main_module": "multiplayer-worker.js",
+  "compatibility_date": "2026-10-24",
+  "bindings": [
+    {
+      "type": "durable_object_namespace",
+      "name": "ACCOUNTS",
+      "class_name": "Accounts"
+    },
+    {
+      "type": "durable_object_namespace",
+      "name": "WORLD",
+      "class_name": "World"
+    }
+  ],
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "Accounts",
+        "World"
+      ]
+    }
+  ]
+}
