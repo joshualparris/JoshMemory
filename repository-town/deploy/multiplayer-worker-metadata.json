@@ -13,13 +13,11 @@
       "class_name": "World"
     }
   ],
-  "migrations": [
-    {
-      "tag": "v1",
-      "new_sqlite_classes": [
-        "Accounts",
-        "World"
-      ]
-    }
-  ]
+  "migrations": {
+    "new_tag": "v1",
+    "new_sqlite_classes": [
+      "Accounts",
+      "World"
+    ]
+  }
 }
