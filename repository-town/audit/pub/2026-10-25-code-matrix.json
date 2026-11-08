@@ -19,7 +19,7 @@
     "repository-town/tests/shop-interiors.mjs": "0ca369aa2d241c152edb841c1125aa9319241a0d",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "52bd9d049e7a2ed055dfb1d17b21ffc2c644d581",
+    "repository-town/src/main.js": "c69b06e12777157ae5d1551b9b9562801435b991",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -493,7 +493,7 @@
       "priority": "P0",
       "status": "partially-represented",
       "sourceObservation": "Historical baseline retained in earlier audit revisions. Current implementation: see the per-system completion report; independent regulatory assessment and approvals remain unverified.",
-      "requiredEvidenceOrWork": "Establish actual number of usable floors; if a real upper storey exists design stairs/access and consider fire compartmentation and egress, or treat façade as explicitly decorative",
+      "requiredEvidenceOrWork": "Establish actual number of usable floors; if a real upper storey exists design stairs/access and consider fire compartmentation and egress, or treat fa\u00e7ade as explicitly decorative",
       "regulationRefs": [
         "S02"
       ],
@@ -728,7 +728,8 @@
     "2026-10-27 shared townlife figure-placement normalization for cycling/storybook character compatibility. RTPUB 001-034 compliance labels remain unchanged.",
     "2026-10-28 shared town playtest fixes: life.js villager meal/sleep timing and main.js driving camera views, Town Guide prompt priority and square notice board. No pub geometry, equipment, egress or approvals changed; fingerprint refresh tracks code provenance only.",
     "2026-10-28 skilling slice: main.js wires the Town Woodlot (north of the railway), woodcutting, firemaking and the Skills panel. No pub geometry, equipment, egress or approvals changed; fingerprint refresh tracks code provenance only.",
-    "2026-11-04: modelled dairy field fence moved outside paved avenue-4 right of way (and symmetric cases). This is a verified simulated driving geometry correction only; no pub permits, geometry, fire egress or legal compliance validated."
+    "2026-11-04: modelled dairy field fence moved outside paved avenue-4 right of way (and symmetric cases). This is a verified simulated driving geometry correction only; no pub permits, geometry, fire egress or legal compliance validated.",
+    "2026-11-08 PR532 provenance-only shared-file update: src/main.js blob hash re-recorded after two narrow multiplayer additions (multiplayer.isTyping() in blockingHudOverlays panel flag and in the input.reset() overlay condition) that hide the floating launcher and suppress game input while the optional multiplayer chat box is open. No pub route, action handler, geometry, lighting, engineering or compliance field changed; all other audited blobs untouched. Pub P0/source-impact/envelope gates rerun after this update."
   ],
   "sourceChangeReviews": {
     "2026-10-26-rail-corridor": {
@@ -768,7 +769,7 @@
     },
     "2026-11-04-farm-avenue-only-road-clearance": {
       "scope": "Exact four-lane collision fix TOWN-DRIVE-ROAD-BARRIER-001: farmland `p.field` boundaries clamped outside AVENUES (already-present public road centreline), preventing dairy fence crossing the x=182 driveable lane. Only the simulation's external farm fence/plot boundaries change. Pub venue geometry, front door, back-of-house, roster, customers, finances, staff and regulatory properties unchanged.",
-      "verification": "Original independent real Chromium desktop+Android road scan #41811926865: 4 blocked core lane samples at x≈183.6,z201–204 from farm fence x184.35..184.65; patched scan #41813299986: zero core road blockers on both devices; source-only farm fence regression and full pub-history/release/integration checks. The independently merged #369 uses true building polygons to fix Narromine, and is retained intact.",
+      "verification": "Original independent real Chromium desktop+Android road scan #41811926865: 4 blocked core lane samples at x\u2248183.6,z201\u2013204 from farm fence x184.35..184.65; patched scan #41813299986: zero core road blockers on both devices; source-only farm fence regression and full pub-history/release/integration checks. The independently merged #369 uses true building polygons to fix Narromine, and is retained intact.",
       "regulatoryStatus": "All 34 RTPUB audit tasks retain preexisting non-certifying statuses. No claim of NCC or food safety approval."
     },
     "2026-11-05-civic-roof-superjump": {
@@ -788,7 +789,7 @@
     },
     "2026-11-06-mobile-action-tick-foreground-bounded-catchup": {
       "scope": "Repository Town action tick clock only: main.js passes the document visibility flag to the pure 0.6-second game-tick accumulator. During short foreground software-WebGL frame stalls, up to four earned game ticks are recovered; background and long pauses still avoid action bursts. No modification to pub structures, wall/door colliders, geometry, staffing, utility equipment, service rules, evacuation, licensing or physical building-compliance logic.",
-      "verification": "Reviewed only the incremental main.js tickChopping change against the already independently reviewed #514 household population collision integration. Exact audited main.js Git blob updated 8196f73780db2404108667ce505fc493152f04bd → 48aa7cc299ba2a8c8f6bdfea0f87c7dfb4670ee9. Focused tests/game-tick.mjs now covers foreground stalls and background no-burst; full release/build and pub/WebGL checks must pass before merge. This register acknowledges source change and is not a code certification.",
+      "verification": "Reviewed only the incremental main.js tickChopping change against the already independently reviewed #514 household population collision integration. Exact audited main.js Git blob updated 8196f73780db2404108667ce505fc493152f04bd \u2192 48aa7cc299ba2a8c8f6bdfea0f87c7dfb4670ee9. Focused tests/game-tick.mjs now covers foreground stalls and background no-burst; full release/build and pub/WebGL checks must pass before merge. This register acknowledges source change and is not a code certification.",
       "regulatoryStatus": "RTPUB-001 through RTPUB-034 provisional findings remain unchanged; no NCC certification, building safety or emergency-egress approval implied."
     }
   },
@@ -1168,7 +1169,7 @@
       "changedFiles": [
         "repository-town/src/world/life.js"
       ],
-      "finding": "Reviewed exact life.js delta only: per-farm x0/x1 border clamping to existing ±5.5m avenues, no changes to source pub code or saved pub data. Static road audit before=4 core blockers and after=0 on actual WebGL Chromium desktop+mobile; no certification claim. Reconciles concurrent independently merged precise Narromine polygon collision fix #369 without altering its files. New source blob 79f18495b62a92e3584773f2856273e045a183ce"
+      "finding": "Reviewed exact life.js delta only: per-farm x0/x1 border clamping to existing \u00b15.5m avenues, no changes to source pub code or saved pub data. Static road audit before=4 core blockers and after=0 on actual WebGL Chromium desktop+mobile; no certification claim. Reconciles concurrent independently merged precise Narromine polygon collision fix #369 without altering its files. New source blob 79f18495b62a92e3584773f2856273e045a183ce"
     },
     {
       "date": "2026-11-05",
@@ -1350,7 +1351,9 @@
     {
       "date": "2026-11-07",
       "by": "Perplexity Computer STARTUP-PROGRESS-001 source-impact review",
-      "changedFiles": ["repository-town/src/main.js"],
+      "changedFiles": [
+        "repository-town/src/main.js"
+      ],
       "finding": "Reviewed diff against 00a9e7df: ordered startup stage/yield calls, observational Three.js default loading-manager wrappers preserving callbacks, fatal loading UI forwarding, and first-frame render before dismissing the loader. No pub builders, service handlers, floor routes, equipment, envelope, egress or simulation rules changed. Main source fingerprint refreshed for provenance only; no engineering, regulatory, production or performance acceptance upgraded."
     },
     {

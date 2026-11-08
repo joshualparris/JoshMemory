@@ -1,4 +1,4 @@
-# Repo Town multiplayer v1
+# Repo Town multiplayer v1 (presence) + v2 (resilience) + v3 (social layer)
 
 This feature adds live account-based **player presence** to the existing static three.js game using a separate Cloudflare Worker and two SQLite-backed Durable Objects. It does not migrate or expose local saves/private repository data.
 
@@ -48,3 +48,21 @@ The current max remains **80 WebSocket connections in one global room**. This is
 5. **Operational resilience:** repeatable staging/rollback, load/soak benchmarks (10/30/80 concurrent players), alerts, latency/packet-loss measures, failure injection, backups and defined uptime and recovery targets.
 
 Acceptance for claiming parity with established online games would require a sustained measured load target, monitored real-world uptime, independent shared simulation, account recovery, data-restoration rehearsal and user-visible cross-device progression. Those are **not yet delivered**.
+
+## Social layer v3 (8 November 2026)
+
+Protocol 3 adds the social features players expect from RuneScape/Minecraft/Roblox-style town play, on top of the v2 resilience worker. The client feature-detects `/health` `protocol >= 3` and silently stays presence-only against an older deployed worker, so the game and worker can be deployed in either order.
+
+- **Chat:** press **T** (or **/** for commands) to open the chat dock. Channels are **Local** (same area, within 70 m — distance-filtered server-side) and **Global** (everyone). Speech bubbles float above speakers' avatars for six seconds; the log keeps the last 60 lines. `/g text` and `/l text` force a channel.
+- **Whispers:** `/w name message` (also `/whisper`, `/tell`) delivers only to that player, with a delivery receipt for the sender and an offline notice when the name is not connected.
+- **Emotes:** `/wave`, `/dance`, `/point`, `/cheer`, `/sit`, `/bow` play procedural animations on the sender's remote avatar for everyone nearby (1.5 s cooldown).
+- **Roster:** the multiplayer panel lists every connected player name; the server broadcasts roster updates on join/leave.
+- **Avatars:** remote players are now articulated figures (torso, head, pivoting arms and legs) with a speed-driven walk cycle, replacing the v1 capsule.
+- **Safety:** chat is collapsed/truncated to 200 characters, profanity-masked server-side, rate-limited to 6 messages per 10 s per socket (`chaterr` notice on excess), emote allowlisted, and everything remains origin-allowlisted and account-gated. History replays the last 25 global messages to joiners (memory only, cleared by hibernation).
+- **Still not shared:** NPCs, traffic, economy, inventory, quests, saves. Chat is social presence, not a synchronised world.
+
+### Deploy order and acceptance
+1. Merge the client; the published game keeps working against the current protocol 2 worker (chat stays hidden).
+2. Upload the updated `deploy/multiplayer-worker.js` to `repo-town-multiplayer` (and staging) via the Cloudflare script API, preserving migration tag v1. `/health` then reports `protocol:3`.
+3. Two computers: both see the roster, T-chat reaches the other player within a second, bubbles appear over avatars, `/wave` animates, `/w` delivers privately, and a player 200 m away receives Global but not Local chat.
+4. `node tests/multiplayer-worker-protocol.mjs` (offline, in `npm run test:multiplayer` and the release gate) plus `node --experimental-websocket tests/multiplayer-live.mjs` and `node tests/multiplayer-browser.mjs` verify the same against the deployed worker and real browsers.

@@ -40,7 +40,13 @@ const users=[
 ];
 const sockets=[];
 try{
-  assert.deepEqual((await api('/health')).body,{ok:true,service:'repo-town-multiplayer',protocol:2});
+  // Protocol 2 = AOI/resilience; 3 adds chat, emotes and roster. Older deployed
+  // workers still pass everything except the social section below.
+  const healthBody=(await api('/health')).body;
+  assert.equal(healthBody.ok,true);
+  assert.equal(healthBody.service,'repo-town-multiplayer');
+  assert.ok(Number(healthBody.protocol)>=2,'server must speak at least protocol 2');
+  const social=Number(healthBody.protocol)>=3;
   const readiness=await api('/ready');
   assert.equal(readiness.status,200,'readiness should check both Durable Objects');
   assert.equal(readiness.body.ok,true);
@@ -66,7 +72,7 @@ try{
   b.send(JSON.stringify({type:'hello',token:users[1].token}));
   const bWelcome=await bHello;
   assert.equal(bWelcome.name,users[1].username);
-  assert.equal(bWelcome.protocol,2,'v2 does not leak unrelated player locations at login');
+  assert.ok(bWelcome.protocol>=2,'v2 does not leak unrelated player locations at login');
   assert.deepEqual(bWelcome.players,[]);
   const aJoin=next(a,v=>v.type==='join' && v.id===bWelcome.id);
   const bJoin=next(b,v=>v.type==='join' && v.id===aWelcome.id);
@@ -88,6 +94,35 @@ try{
   const bReturn=next(b,v=>v.type==='join' && v.id===aWelcome.id);
   a.send(JSON.stringify({type:'state',zone:'town',x:7,y:0,z:9,yaw:1.4}));
   await bReturn;
+  if(social){
+    // Social layer (protocol 3): global chat, whisper, emote and local distance
+    // filtering against the live deployed server.
+    const chatSeen=b.next(v=>v.type==='chat' && v.channel==='global' && v.text==='live global hello' && v.name===aWelcome.name);
+    a.send(JSON.stringify({type:'chat',channel:'global',text:'live global hello'}));
+    const globalChat=await chatSeen;
+    assert.equal(globalChat.name,users[0].username,'chat carries the server-controlled name');
+    const whisperSeen=b.next(v=>v.type==='chat' && v.channel==='whisper' && v.from===users[0].username && v.text==='psst');
+    a.send(JSON.stringify({type:'chat',to:users[1].username,text:'psst'}));
+    const whisper=await whisperSeen;
+    assert.equal(whisper.to,users[1].username);
+    const emoteSeen=b.next(v=>v.type==='emote' && v.id===aWelcome.id && v.emote==='wave');
+    a.send(JSON.stringify({type:'emote',name:'wave'}));
+    await emoteSeen;
+    // Local chat is distance-filtered: B moves 200 m away and must not receive it.
+    await new Promise(r=>setTimeout(r,200));
+    b.send(JSON.stringify({type:'state',zone:'town',x:205,y:0,z:9,yaw:0}));
+    await new Promise(r=>setTimeout(r,250));
+    let farChat=null;
+    b.addEventListener('message',e=>{const v=JSON.parse(e.data);if(v.type==='chat'&&v.text==='far local hello')farChat=v;});
+    a.send(JSON.stringify({type:'chat',channel:'local',text:'far local hello'}));
+    await new Promise(r=>setTimeout(r,900));
+    assert.equal(farChat,null,'local chat must not reach a player 200 m away');
+    await new Promise(r=>setTimeout(r,200));
+    b.send(JSON.stringify({type:'state',zone:'town',x:5.2,y:0,z:9,yaw:0}));
+    await new Promise(r=>setTimeout(r,250));
+  } else {
+    console.log('SKIP: chat/emote live checks need the deployed multiplayer worker v3');
+  }
   const aLeave=next(a,v=>v.type==='leave' && v.id===bWelcome.id);
   b.close();
   await aLeave;

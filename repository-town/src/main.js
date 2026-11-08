@@ -539,7 +539,7 @@ async function start() {
   // the bottom interaction hint. This also handles the small building card.
   function blockingHudOverlays(){
     return {
-      panel:!!panelOpen||!$('panel').hidden||$('multiplayer-overlay')?.hidden===false,
+      panel:!!panelOpen||!$('panel').hidden||$('multiplayer-overlay')?.hidden===false||multiplayer.isTyping(),
       buildingCard:!$('card').hidden,
       npcDialogue:npcChat.isOpen(),
       expedition:expedition.isOpen(),
@@ -2011,7 +2011,7 @@ async function start() {
     if (overview) {
       camera.position.set(player.pos.x, 150, player.pos.z + 95); camera.lookAt(player.pos.x, 0, player.pos.z);
       input.takeLook(); input.consume('jump');
-    } else if (multiplayer.isOpen() || companion.isOpen() || expedition.isOpen() || panelOpen || npcChat.isOpen() || yarns.isOpen() || !$('npc-roster').hidden || !$('help').hidden || !$('settings').hidden) input.reset();
+    } else if (multiplayer.isOpen() || multiplayer.isTyping() || companion.isOpen() || expedition.isOpen() || panelOpen || npcChat.isOpen() || yarns.isOpen() || !$('npc-roster').hidden || !$('help').hidden || !$('settings').hidden) input.reset();
     else {
       const n=life.needsReport();
       player.speedFactor=movementSpeedFactor(movementSpeed,n.hunger,n.fatigue);

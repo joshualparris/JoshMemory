@@ -18,3 +18,27 @@
 .rt-mp-info{background:#243b4c;padding:9px 11px;border-radius:7px}
 .rt-mp-info[data-error="true"]{color:#ffcfbd}
 #rt-mp-close{background:#294557;color:#fff}
+/* v2 chat dock: passive log bottom-left, typing row with channel picker. */
+#rt-chat[hidden]{display:none!important}
+#rt-chat{position:fixed;left:10px;bottom:max(10px,env(safe-area-inset-bottom));z-index:1004;
+  width:min(400px,calc(100vw - 20px));font:14px system-ui;pointer-events:none}
+#rt-chat-log{display:flex;flex-direction:column;gap:3px;max-height:30vh;overflow-y:auto;
+  padding:6px 8px;border-radius:10px;background:rgba(10,22,33,.72);scrollbar-width:thin}
+.rt-chat-line{color:#eaf4f8;text-shadow:0 1px 2px #000a;word-break:break-word;line-height:1.35}
+.rt-chat-line strong{color:#9fe8d8}
+.rt-chat-history{color:#9db4c4}
+.rt-chat-history strong{color:#7fa9a0}
+.rt-chat-whisper-in{color:#ffd9a8}.rt-chat-whisper-in strong{color:#ffc37e}
+.rt-chat-whisper-out{color:#cfe0ff}.rt-chat-whisper-out strong{color:#a9c6ff}
+.rt-chat-system{color:#f3b0a0;font-style:italic}
+#rt-chat-row{display:flex;gap:6px;margin-top:6px;pointer-events:auto}
+#rt-chat-row[hidden]{display:none!important}
+#rt-chat-row select,#rt-chat-row input{border-radius:8px;border:1px solid #648b9b;
+  background:#0c1c27;color:#fff;padding:9px;font:inherit;min-height:40px}
+#rt-chat-row select{flex:0 0 auto}
+#rt-chat-row input{flex:1;min-width:0}
+#rt-chat-row button{border:0;border-radius:8px;background:#8ee0ce;color:#10252d;
+  font-weight:700;padding:9px 14px;cursor:pointer;min-height:40px}
+#rt-mp-roster{margin:6px 0 0;padding-left:18px;color:#cde7f0}
+#rt-mp-roster li{margin:2px 0}
+@media (max-height:560px){#rt-chat-log{max-height:20vh}}
