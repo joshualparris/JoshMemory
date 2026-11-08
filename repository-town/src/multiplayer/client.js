@@ -54,7 +54,13 @@ export function createMultiplayer({THREE,townGroup,getScene,getLocation}){
     '<button id="rt-mp-register" type="button">Create account</button></div>',
     '<small>Passwords cannot currently be reset. Other players can see your username.</small></div>',
     '<div id="rt-mp-profile" hidden><p>Signed in as <strong id="rt-mp-name"></strong></p>',
-    '<p id="rt-mp-count"></p><button id="rt-mp-logout" type="button">Sign out</button></div>',
+    '<p id="rt-mp-count"></p><button id="rt-mp-logout" type="button">Sign out</button>',
+    '<button id="rt-mp-delete" type="button">Delete online account…</button>',
+    '<div id="rt-mp-delete-box" hidden><p><strong>Delete your online account permanently?</strong></p>',
+    '<p>All online sessions will be revoked. The username will be released. Your local game save stays on your device.</p>',
+    '<label>Confirm password<input id="rt-mp-delete-password" type="password" autocomplete="current-password"></label>',
+    '<div class="rt-mp-actions"><button id="rt-mp-delete-confirm" type="button">Permanently delete account</button>',
+    '<button id="rt-mp-delete-cancel" type="button">Cancel</button></div></div></div>',
     '<p class="rt-mp-hint">Your characters and positions are shared. NPCs, cars, money and saves still run locally.</p>',
     '</section>'
   ].join('');
@@ -184,6 +190,33 @@ export function createMultiplayer({THREE,townGroup,getScene,getLocation}){
     const previous=token;close();token=null;username='';storage.clear();
     message('Signed out');refresh();
     if(previous)try{await api('/logout',{},previous);}catch{}
+  });
+  el('rt-mp-delete').addEventListener('click',()=>{
+    el('rt-mp-delete-box').hidden=false;
+    el('rt-mp-delete-password').value='';
+    el('rt-mp-delete-password').focus();
+  });
+  el('rt-mp-delete-cancel').addEventListener('click',()=>{
+    el('rt-mp-delete-password').value='';
+    el('rt-mp-delete-box').hidden=true;
+    el('rt-mp-delete').focus();
+  });
+  el('rt-mp-delete-confirm').addEventListener('click',async()=>{
+    const confirmation=el('rt-mp-delete-password');
+    const password=confirmation.value;
+    confirmation.value='';
+    if(!password){message('Enter your current password to delete your online account.',true);return;}
+    const button=el('rt-mp-delete-confirm');
+    button.disabled=true;
+    message('Deleting your online account…');
+    try{
+      await api('/delete-account',{password},token);
+      close();token=null;username='';storage.clear();
+      el('rt-mp-delete-box').hidden=true;
+      message('Online account permanently deleted. Your local saved game is unchanged.');
+      refresh();
+    }catch(e){message(e.message,true);}
+    finally{button.disabled=false;}
   });
   if(token)api('/me',null,token).then(data=>{if(!disposed){username=data.username;refresh();connect();}})
     .catch(()=>{token=null;storage.clear();message('Please sign in to play online.');refresh();});
