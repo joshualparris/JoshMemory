@@ -66,8 +66,8 @@ export function createMultiplayer({THREE,townGroup,getScene,getLocation}){
   const refresh=()=>{
     authBox.hidden=!!username;profile.hidden=!username;
     el('rt-mp-name').textContent=username;
-    el('rt-mp-count').textContent=ready?count()+' connected player(s)':'Connecting to server…';
-    button.textContent=ready?'👥 Online '+count():username?'👥 Reconnecting':'👥 Multiplayer';
+    el('rt-mp-count').textContent=ready?count()+' player(s) nearby, including you':'Connecting to server…';
+    button.textContent=ready?'👥 Nearby '+count():username?'👥 Reconnecting':'👥 Multiplayer';
   };
   const hide=()=>{open=false;overlay.hidden=true;button.focus();};
   const show=()=>{open=true;overlay.hidden=false;refresh();(username?el('rt-mp-logout'):uname).focus();};
@@ -105,7 +105,10 @@ export function createMultiplayer({THREE,townGroup,getScene,getLocation}){
     const now=Date.now(),moved=!lastSent||p.zone!==lastSent.zone||
       Math.hypot(p.x-lastSent.x,p.y-lastSent.y,p.z-lastSent.z)>.06||
       Math.abs(p.yaw-lastSent.yaw)>.06;
-    if((moved&&now-lastTime<200)||(!moved&&now-lastTime<4000))return;
+    // No need for 5 Hz coordinate traffic when nobody else is nearby.
+    // Reduces metered DO messages on sparse worlds without delaying new arrivals.
+    const interval=peers.size?200:1000;
+    if((moved&&now-lastTime<interval)||(!moved&&now-lastTime<4000))return;
     socket.send(JSON.stringify({type:'state',zone:p.zone,x:p.x,y:p.y,z:p.z,yaw:p.yaw}));
     lastSent={...p};lastTime=now;
   }
@@ -210,6 +213,7 @@ export function createMultiplayer({THREE,townGroup,getScene,getLocation}){
     else sendState();
   };
   addEventListener('online',onOnline);
+  addEventListener('pageshow',onOnline);
   addEventListener('visibilitychange',onVisible);
   addEventListener('pagehide',close);
   return{
@@ -231,7 +235,8 @@ export function createMultiplayer({THREE,townGroup,getScene,getLocation}){
     },
     destroy(){
       disposed=true;clearInterval(heartbeat);removeEventListener('online',onOnline);
-      removeEventListener('visibilitychange',onVisible);removeEventListener('pagehide',close);
+      removeEventListener('visibilitychange',onVisible);removeEventListener('pageshow',onOnline);
+      removeEventListener('pagehide',close);
       close();clear();button.remove();overlay.remove();
       bodyGeometry.dispose();headGeometry.dispose();
     }
