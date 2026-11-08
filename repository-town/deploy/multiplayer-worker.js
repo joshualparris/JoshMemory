@@ -88,6 +88,27 @@ export class Accounts {
       }
       return reply({ok:true});
     }
+    if (path === '/delete-account') {
+      const token = request.headers.get('authorization')?.replace(/^Bearer /i, '');
+      if (!token || !/^[a-f0-9]{64}$/.test(token))
+        return reply({error:'Sign in to delete your account'}, 401);
+      const tokenHash = await hash(token);
+      const row = this.sql.exec(
+        'SELECT a.id, a.salt, a.password_hash FROM sessions s JOIN accounts a ON a.id = s.account_id WHERE s.hash = ? AND s.expires_at > ? LIMIT 1',
+        tokenHash, Date.now()
+      ).toArray()[0];
+      if (!row) return reply({error:'Session expired'}, 401);
+      if (!await this.limit(request))return reply({error:'Too many attempts. Try again in a minute.'}, 429);
+      let fields;try{fields=await parse(request);}catch{return reply({error:'Invalid request'},400);}
+      if (!safePassword(fields?.password))return reply({error:'Confirm your account password'},400);
+      const attempt=await passwordHash(fields.password,row.salt);
+      if (!equalHex(attempt,row.password_hash))return reply({error:'Incorrect password'},401);
+      this.ctx.storage.transactionSync(()=>{
+        this.sql.exec('DELETE FROM sessions WHERE account_id = ?',row.id);
+        this.sql.exec('DELETE FROM accounts WHERE id = ?',row.id);
+      });
+      return reply({ok:true,deleted:true,accountId:row.id});
+    }
     if (path !== '/register' && path !== '/login') return reply({error:'Not found'}, 404);
     if (!await this.limit(request)) return reply({error:'Too many attempts. Try again in a minute.'}, 429);
     let fields;
@@ -188,6 +209,19 @@ export class World {
         }
       }
       return reply({ok:true, closed});
+    }
+    if (path === '/revoke-account') {
+      const accountId=request.headers.get('x-account-id');
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(accountId||''))
+        return reply({error:'Invalid account'},400);
+      let closed=0;
+      for(const socket of this.connections()){
+        if(socket.deserializeAttachment()?.id!==accountId)continue;
+        send(socket,{type:'session-revoked'});
+        this.close(socket,1008,'Account deleted');
+        closed++;
+      }
+      return reply({ok:true,closed});
     }
     if (request.headers.get('upgrade')?.toLowerCase() !== 'websocket')
       return reply({error:'WebSocket required'}, 426);
@@ -326,8 +360,8 @@ export default {
     if (url.pathname === '/ws') {
       return env.WORLD.get(env.WORLD.idFromName('repo-town-shared-v1')).fetch(request);
     }
-    if (!['/register','/login','/logout','/me'].includes(url.pathname)) return new Response(JSON.stringify({error:'Not found'}),{status:404,headers:{...JSON_HEADERS,...cors}});
-    if ((url.pathname === '/register' || url.pathname === '/login' || url.pathname === '/logout') && request.method !== 'POST') {
+    if (!['/register','/login','/logout','/me','/delete-account'].includes(url.pathname)) return new Response(JSON.stringify({error:'Not found'}),{status:404,headers:{...JSON_HEADERS,...cors}});
+    if ((url.pathname === '/register' || url.pathname === '/login' || url.pathname === '/logout' || url.pathname === '/delete-account') && request.method !== 'POST') {
       return new Response(JSON.stringify({error:'Method not allowed'}),{status:405,headers:{...JSON_HEADERS,...cors}});
     }
     const internal = new Request('https://accounts.internal'+(url.pathname === '/me'?'/verify':url.pathname), {
@@ -353,6 +387,21 @@ export default {
           // recheck blocks the revoked token.
         }
       }
+    }
+    if (url.pathname === '/delete-account' && response.ok) {
+      const result=await response.json();
+      if (result.deleted && /^[0-9a-f-]{36}$/i.test(result.accountId||'')) {
+        try {
+          await env.WORLD.get(env.WORLD.idFromName('repo-town-shared-v1')).fetch(
+            'https://world.internal/revoke-account',{headers:{'x-account-id':result.accountId}});
+        }catch{
+          // All account sessions are already deleted transactionally. An
+          // unavailable World cannot restore the deleted account. Socket auth
+          // recheck also detects the missing sessions.
+        }
+      }
+      return new Response(JSON.stringify({ok:true,deleted:true}),
+        {headers:{...JSON_HEADERS,...cors}});
     }
     const headers = new Headers(response.headers);
     for (const [key,value] of Object.entries(cors)) headers.set(key,value);
