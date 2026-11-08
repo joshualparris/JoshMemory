@@ -4,6 +4,7 @@
 const ORIGINS = new Set([
   'https://repository-town-claude-complete.vercel.app',
   'https://repository-town-claude-playtest.vercel.app',
+  'https://repotown-desktop-preview.vercel.app',
   'https://parris-tech-services.github.io',
   'https://joshualparris.github.io',
   'https://repository-town-main-qa.onrender.com',
