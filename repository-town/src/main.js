@@ -539,7 +539,7 @@ async function start() {
   // the bottom interaction hint. This also handles the small building card.
   function blockingHudOverlays(){
     return {
-      panel:!!panelOpen||!$('panel').hidden,
+      panel:!!panelOpen||!$('panel').hidden||$('multiplayer-overlay')?.hidden===false,
       buildingCard:!$('card').hidden,
       npcDialogue:npcChat.isOpen(),
       expedition:expedition.isOpen(),
