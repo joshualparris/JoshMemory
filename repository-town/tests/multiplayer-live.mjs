@@ -41,6 +41,7 @@ const users=[
 const sockets=[];
 try{
   assert.deepEqual((await api('/health')).body,{ok:true,service:'repo-town-multiplayer',protocol:2});
+  assert.equal((await api('/health',null,null,'https://repotown-desktop-preview.vercel.app')).status,200,'Desktop preview origin must be allowlisted');
   const readiness=await api('/ready');
   assert.equal(readiness.status,200,'readiness should check both Durable Objects');
   assert.equal(readiness.body.ok,true);
