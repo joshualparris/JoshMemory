@@ -201,7 +201,8 @@ export default {
         'x-real-player-ip':request.headers.get('CF-Connecting-IP') || 'unknown',
         'content-type':'application/json'
       },
-      body:request.method === 'POST'?request.body:null
+      // Buffer the small JSON request before forwarding into the accounts Durable Object.
+      body:request.method === 'POST'?await request.text():null
     });
     const response = await env.ACCOUNTS.get(env.ACCOUNTS.idFromName('accounts-v1')).fetch(internal);
     const headers = new Headers(response.headers);
