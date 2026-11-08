@@ -40,7 +40,7 @@ const users=[
 ];
 const sockets=[];
 try{
-  assert.deepEqual((await api('/health')).body,{ok:true,service:'repo-town-multiplayer',protocol:1});
+  assert.deepEqual((await api('/health')).body,{ok:true,service:'repo-town-multiplayer',protocol:2});
   assert.equal((await api('/register',{username:'attacker',password:'not_long_enough'},null,'https://not-repotown.example')).status,403);
   const registrations=await Promise.all(users.map(({username,password})=>api('/register',{username,password})));
   for(const [i,result] of registrations.entries()){
@@ -72,6 +72,27 @@ try{
   a.send(JSON.stringify({type:'state',zone:'town',x:7,y:0,z:9,yaw:1.4,name:'spoof'}));
   const moved=await bMove;
   assert.equal(moved.name,users[0].username,'client cannot spoof a server-controlled player name');
+  // v2 social layer: global chat, whisper, emote and roster over the live server.
+  const chatSeen=b.next(v=>v.type==='chat' && v.channel==='global' && v.text==='live global hello' && v.name===aWelcome.name);
+  a.send(JSON.stringify({type:'chat',channel:'global',text:'live global hello'}));
+  const globalChat=await chatSeen;
+  assert.equal(globalChat.name,users[0].username,'chat carries the server-controlled name');
+  const whisperSeen=b.next(v=>v.type==='chat' && v.channel==='whisper' && v.from===users[0].username && v.text==='psst');
+  a.send(JSON.stringify({type:'chat',to:users[1].username,text:'psst'}));
+  const whisper=await whisperSeen;
+  assert.equal(whisper.to,users[1].username);
+  const emoteSeen=b.next(v=>v.type==='emote' && v.id===aWelcome.id && v.emote==='wave');
+  a.send(JSON.stringify({type:'emote',name:'wave'}));
+  await emoteSeen;
+  // Local chat is distance-filtered: B moves 200 m away and must not receive it.
+  await new Promise(r=>setTimeout(r,200));
+  b.send(JSON.stringify({type:'state',zone:'town',x:205,y:0,z:9,yaw:0}));
+  await new Promise(r=>setTimeout(r,250));
+  let farChat=null;
+  b.addEventListener('message',e=>{const v=JSON.parse(e.data);if(v.type==='chat'&&v.text==='far local hello')farChat=v;},{once:false});
+  a.send(JSON.stringify({type:'chat',channel:'local',text:'far local hello'}));
+  await new Promise(r=>setTimeout(r,900));
+  assert.equal(farChat,null,'local chat must not reach a player 200 m away');
   const aLeave=next(a,v=>v.type==='leave' && v.id===bWelcome.id);
   b.close();
   await aLeave;
@@ -79,7 +100,7 @@ try{
   assert.equal((await api('/logout',{},users[0].token)).status,200);
   assert.equal((await api('/me',null,users[0].token)).status,401,'logout must revoke bearer');
   assert.equal((await api('/logout',{},users[1].token)).status,200);
-  console.log('PASS: two accounts, authentication, independent WebSockets, presence, movement, spoof protection, disconnect and logout');
+  console.log('PASS: two accounts, authentication, independent WebSockets, presence, movement, spoof protection, chat, whisper, emote, distance-filtered local chat, disconnect and logout');
 }finally{
   for(const ws of sockets)try{ws.close();}catch{}
 }

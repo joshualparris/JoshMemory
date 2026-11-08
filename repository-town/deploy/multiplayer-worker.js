@@ -1,5 +1,5 @@
-// Repo Town multiplayer v1. Cloudflare Worker + two SQLite-backed Durable Objects.
-// Public static game remains separate; only signed-in player presence is transmitted.
+// Repo Town multiplayer v2. Cloudflare Worker + two SQLite-backed Durable Objects.
+// Public static game remains separate; signed-in presence, chat, emotes and roster only.
 // Deploy with metadata in deploy/multiplayer-worker-metadata.json. No secrets in source.
 const ORIGINS = new Set([
   'https://repository-town-claude-complete.vercel.app',
@@ -117,8 +117,28 @@ const validZone = value => typeof value === 'string' &&
 const finite = (n, limit) => typeof n === 'number' && Number.isFinite(n) && Math.abs(n) <= limit;
 const send = (ws, data) => { try { ws.send(JSON.stringify(data)); } catch {} };
 
+// v2 social layer: chat, emotes and roster. Chat is capped, collapsed, masked and
+// rate-limited per socket; local chat is distance-filtered server-side.
+const PROTOCOL = 2;
+const EMOTES = new Set(['wave', 'dance', 'point', 'cheer', 'sit', 'bow']);
+const PROFANITY = /\b(f+u+c+k+|fuc[k1]+|shit+|bitch|cunt|asshole|bastard|slut|whore|wanker|nigg+er?|faggot+)\b/gi;
+const LOCAL_CHAT_RANGE = 70;       // metres, matches the avatar visibility radius style
+const CHAT_WINDOW_MS = 10000;      // per-socket chat budget window
+const CHAT_WINDOW_MAX = 6;         // messages per window
+const EMOTE_MIN_GAP_MS = 1500;
+const HISTORY_LIMIT = 25;          // recent global messages replayed on join (memory only)
+function cleanChat(value) {
+  if (typeof value !== 'string') return '';
+  return value.replace(/\s+/g, ' ').trim().slice(0, 200).replace(PROFANITY, match => '*'.repeat(match.length));
+}
+
 export class World {
-  constructor(ctx, env) { this.ctx = ctx; this.env = env; }
+  constructor(ctx, env) {
+    this.ctx = ctx; this.env = env;
+    // Best-effort recent global chat replayed to joining players. Instance memory
+    // only: hibernation clears it, which is acceptable for a casual town.
+    this.history = [];
+  }
   sockets() { return this.ctx.getWebSockets(); }
   broadcast(message, except = null) {
     const json = JSON.stringify(message);
@@ -126,6 +146,17 @@ export class World {
       if (socket === except || !socket.deserializeAttachment()?.id) continue;
       try { socket.send(json); } catch {}
     }
+  }
+  roster() {
+    return this.sockets().map(s => s.deserializeAttachment())
+      .filter(p => p?.ready).map(p => ({ id: p.id, name: p.name }));
+  }
+  broadcastRoster() { this.broadcast({ type: 'players', players: this.roster() }); }
+  chatBudget(meta, now) {
+    const recent = (meta.chats || []).filter(t => now - t < CHAT_WINDOW_MS);
+    if (recent.length >= CHAT_WINDOW_MAX) return null;
+    recent.push(now);
+    return recent;
   }
   async fetch(request) {
     if (request.headers.get('upgrade')?.toLowerCase() !== 'websocket') return reply({error:'WebSocket required'}, 426);
@@ -154,9 +185,58 @@ export class World {
       const players = this.sockets().filter(s => s !== ws).map(s => s.deserializeAttachment())
         .filter(p => p?.id && p.ready).map(({id,name,zone,x,y,z,yaw})=>({id,name,zone,x,y,z,yaw}));
       send(ws, {type:'welcome', id, name:user.username, players});
+      send(ws, {type:'history', messages:this.history.slice(-HISTORY_LIMIT)});
       return;
     }
     if (Date.now() > meta.expiresAt) { ws.close(1008, 'Session expired'); return; }
+    if (data?.type === 'chat') {
+      const text = cleanChat(data.text);
+      if (!text) return;
+      const now = Date.now();
+      const chats = this.chatBudget(meta, now);
+      if (!chats) { send(ws, {type:'chaterr', error:'You are chatting too quickly. Wait a moment.'}); return; }
+      meta.chats = chats; ws.serializeAttachment(meta);
+      const target = typeof data.to === 'string' ? data.to.trim().toLowerCase().slice(0, 24) : '';
+      if (target) {
+        // Whisper: delivered only to the named player and echoed to the sender.
+        let delivered = false;
+        for (const socket of this.sockets()) {
+          const other = socket.deserializeAttachment();
+          if (other?.ready && other.name === target) {
+            send(socket, {type:'chat', channel:'whisper', from:meta.name, to:target, text});
+            delivered = true;
+          }
+        }
+        send(ws, {type:'chat', channel:'whisper', from:meta.name, to:target, text, delivered});
+        return;
+      }
+      const channel = data.channel === 'global' ? 'global' : 'local';
+      const message = {type:'chat', id:meta.id, name:meta.name, channel, text,
+        zone:meta.zone, x:meta.x, z:meta.z};
+      if (channel === 'global') {
+        this.history.push({name:meta.name, text, at:now});
+        if (this.history.length > HISTORY_LIMIT) this.history.shift();
+        this.broadcast(message);
+      } else {
+        // Local chat reaches only players in the same zone within talking range.
+        for (const socket of this.sockets()) {
+          const other = socket.deserializeAttachment();
+          if (!other?.ready) continue;
+          if (socket === ws || (other.zone === meta.zone &&
+              Math.hypot(other.x - meta.x, other.z - meta.z) <= LOCAL_CHAT_RANGE)) send(socket, message);
+        }
+      }
+      return;
+    }
+    if (data?.type === 'emote') {
+      const emote = typeof data.name === 'string' ? data.name : '';
+      if (!EMOTES.has(emote)) return;
+      const now = Date.now();
+      if (now - (meta.emoteAt || 0) < EMOTE_MIN_GAP_MS) return;
+      meta.emoteAt = now; ws.serializeAttachment(meta);
+      this.broadcast({type:'emote', id:meta.id, name:meta.name, emote});
+      return;
+    }
     if (data?.type !== 'state') return;
     const {zone,x,y,z,yaw} = data;
     if (!validZone(zone) || !finite(x,12000) || !finite(z,12000) ||
@@ -167,10 +247,14 @@ export class World {
     meta = {...meta,zone,x,y,z,yaw,last:now,ready:true};
     ws.serializeAttachment(meta);
     this.broadcast({type:first?'join':'state',id:meta.id,name:meta.name,zone,x,y,z,yaw}, ws);
+    if (first) this.broadcastRoster();
   }
   webSocketClose(ws) {
     const meta = ws.deserializeAttachment();
-    if (meta?.id && meta.ready) this.broadcast({type:'leave',id:meta.id}, ws);
+    if (meta?.id && meta.ready) {
+      this.broadcast({type:'leave',id:meta.id}, ws);
+      this.broadcastRoster();
+    }
   }
   webSocketError(ws) { this.webSocketClose(ws); }
 }
@@ -186,7 +270,7 @@ export default {
       'access-control-allow-methods':'GET,POST,OPTIONS', 'vary':'Origin'
     } : {};
     if (request.method === 'OPTIONS') return new Response(null,{status:204,headers:cors});
-    if (url.pathname === '/health') return new Response(JSON.stringify({ok:true,service:'repo-town-multiplayer',protocol:1}),{headers:{...JSON_HEADERS,...cors}});
+    if (url.pathname === '/health') return new Response(JSON.stringify({ok:true,service:'repo-town-multiplayer',protocol:PROTOCOL}),{headers:{...JSON_HEADERS,...cors}});
     if (url.pathname === '/ws') {
       return env.WORLD.get(env.WORLD.idFromName('repo-town-shared-v1')).fetch(request);
     }

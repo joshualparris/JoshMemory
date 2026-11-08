@@ -63,6 +63,26 @@ try{
       'account token must not leak into persistent guest game save');
     assert.equal(item.errors.length,0,'no page errors: '+item.errors.join('; '));
   }
+  // v2 social layer: chat log, speech bubble, emote and roster in real browsers.
+  const health=await fetch('https://repo-town-multiplayer.parris-neathaustralia.workers.dev/health',
+    {headers:{origin:'https://repository-town-claude-complete.vercel.app'}}).then(r=>r.json()).catch(()=>null);
+  if(!health||Number(health.protocol)<2){
+    console.log('SKIP: chat/emote browser checks need the deployed multiplayer worker v2 (health says protocol '+(health?.protocol??'unreachable')+')');
+  }else{
+    await users[0].page.keyboard.press('t');
+    await users[0].page.locator('#rt-chat-input').fill('browser chat hello');
+    await users[0].page.keyboard.press('Enter');
+    await users[1].page.waitForFunction(()=>document.querySelector('#rt-chat-log')?.textContent?.includes('browser chat hello'),null,{timeout:15000});
+    await users[1].page.waitForFunction(()=>window.__town.multiplayer().bubbling?.length===1,null,{timeout:15000});
+    await users[0].page.keyboard.press('t');
+    await users[0].page.locator('#rt-chat-input').fill('/wave');
+    await users[0].page.keyboard.press('Enter');
+    await users[1].page.waitForFunction(info=>info.emoting?.length===1,()=>window.__town.multiplayer(),{timeout:15000});
+    await users[1].page.locator('#btn-multiplayer').click();
+    assert.equal(await users[1].page.locator('#rt-mp-roster li').count(),2,'roster lists both online players');
+    await users[1].page.locator('#rt-mp-close').click();
+    console.log('PASS: chat log, speech bubble, emote animation and roster in two browsers');
+  }
   await users[1].context.close();
   await users[0].page.waitForFunction(()=>window.__town.multiplayer().players===1,null,{timeout:15000});
   assert.equal(await users[0].page.evaluate(()=>window.__town.multiplayer().visible),0,'disconnected avatar disappears');
