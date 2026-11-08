@@ -26,6 +26,7 @@ function colour(name){
 export function createMultiplayer({THREE,townGroup,getScene,getLocation}){
   let token=storage.get(), username='', myId='',socket=null,ready=false,open=false;
   let lastSent=null,lastTime=0,retry=null,disposed=false;
+  let retryAttempt=0,lastPongAt=0,lastPingAt=0,pingStartedAt=0,latencyMs=null;
   const peers=new Map();
   const bodyGeometry=new THREE.CylinderGeometry(.23,.30,1,6);
   const headGeometry=new THREE.SphereGeometry(.26,8,6);
@@ -104,24 +105,39 @@ export function createMultiplayer({THREE,townGroup,getScene,getLocation}){
     lastSent={...p};lastTime=now;
   }
   function disconnected(){
-    ready=false;myId='';lastSent=null;clear();refresh();
+    ready=false;myId='';lastSent=null;lastPongAt=0;lastPingAt=0;latencyMs=null;clear();refresh();
   }
   function close(){
     if(retry){clearTimeout(retry);retry=null;}
     if(socket){const s=socket;socket=null;s.onclose=null;s.onerror=null;s.onmessage=null;s.close();}
     disconnected();
   }
+  function scheduleRetry(){
+    if(!token||!username||disposed||retry)return;
+    // Backoff prevents a fleet of clients hammering a recovering service.
+    const delay=Math.min(30000,1000*2**Math.min(retryAttempt++,5));
+    const jitter=Math.round(delay*(0.8+Math.random()*.4));
+    retry=setTimeout(()=>{retry=null;connect();},jitter);
+    message('Reconnecting automatically…',true);
+  }
   function connect(){
     if(!token||!username||disposed||socket)return;
-    const s=new WebSocket(API.replace('https://','wss://')+'/ws');
+    if(navigator.onLine===false){scheduleRetry();return;}
+    let s;
+    try{s=new WebSocket(API.replace('https://','wss://')+'/ws');}
+    catch{scheduleRetry();return;}
     socket=s;refresh();
     s.onopen=()=>s.send(JSON.stringify({type:'hello',token}));
     s.onmessage=e=>{
       let msg;try{msg=JSON.parse(e.data);}catch{return;}
       if(msg.type==='welcome'){
-        ready=true;myId=msg.id;clear();
+        ready=true;myId=msg.id;retryAttempt=0;lastPongAt=Date.now();clear();
         for(const p of msg.players||[])peer(p);
         message('Connected to the shared town');refresh();sendState();
+      }else if(msg.type==='pong'){
+        lastPongAt=Date.now();latencyMs=pingStartedAt?lastPongAt-pingStartedAt:null;
+      }else if(msg.type==='session-revoked'){
+        message('Your session was signed out. Please sign in again.',true);
       }else if(msg.type==='join'||msg.type==='state')peer(msg);
       else if(msg.type==='leave'){remove(msg.id);refresh();}
     };
@@ -129,7 +145,7 @@ export function createMultiplayer({THREE,townGroup,getScene,getLocation}){
       if(socket!==s)return;
       socket=null;disconnected();
       if(e.code===1008){token=null;username='';storage.clear();message('Session expired. Sign in again.',true);refresh();return;}
-      if(token&&!disposed){message('Connection lost. Reconnecting…',true);retry=setTimeout(()=>{retry=null;connect();},2500);}
+      if(token&&!disposed)scheduleRetry();
     };
     s.onerror=()=>message('Cannot contact multiplayer server.',true);
   }
@@ -164,11 +180,37 @@ export function createMultiplayer({THREE,townGroup,getScene,getLocation}){
   if(token)api('/me',null,token).then(data=>{if(!disposed){username=data.username;refresh();connect();}})
     .catch(()=>{token=null;storage.clear();message('Please sign in to play online.');refresh();});
   else refresh();
-  const heartbeat=setInterval(()=>{if(document.hidden)sendState();},4000);
+  const heartbeat=setInterval(()=>{
+    if(!ready||socket?.readyState!==WebSocket.OPEN)return;
+    const now=Date.now();
+    if(lastPingAt && now-lastPongAt>60000){
+      // A connection may appear OPEN after a router/network outage.
+      // Closing it causes the normal reconnect path to run.
+      try{socket.close(4000,'Heartbeat timed out');}catch{}
+      return;
+    }
+    if(now-lastPingAt>=20000){
+      lastPingAt=now;pingStartedAt=now;
+      socket.send(JSON.stringify({type:'ping'}));
+    }
+    // Keep presence alive during sleep, mini-games and background tabs, where
+    // the render-frame hook may stop executing.
+    sendState();
+  },4000);
+  const onOnline=()=>{
+    if(!disposed&&token&&!socket){if(retry){clearTimeout(retry);retry=null;}connect();}
+  };
+  const onVisible=()=>{
+    if(!document.hidden)onOnline();
+    else sendState();
+  };
+  addEventListener('online',onOnline);
+  addEventListener('visibilitychange',onVisible);
   addEventListener('pagehide',close);
   return{
     isOpen:()=>open,close:hide,
-    info:()=>({connected:ready,username,players:count(),visible:[...peers.values()].filter(p=>p.root.visible).length}),
+    info:()=>({connected:ready,username,players:count(),visible:[...peers.values()].filter(p=>p.root.visible).length,
+      latencyMs, retryAttempt, transport:socket?.readyState===WebSocket.OPEN?'open':'disconnected'}),
     update(dt){
       if(!ready)return;
       const self=getLocation(),parent=getScene()||townGroup;
@@ -183,7 +225,9 @@ export function createMultiplayer({THREE,townGroup,getScene,getLocation}){
       sendState();
     },
     destroy(){
-      disposed=true;clearInterval(heartbeat);close();clear();button.remove();overlay.remove();
+      disposed=true;clearInterval(heartbeat);removeEventListener('online',onOnline);
+      removeEventListener('visibilitychange',onVisible);removeEventListener('pagehide',close);
+      close();clear();button.remove();overlay.remove();
       bodyGeometry.dispose();headGeometry.dispose();
     }
   };
