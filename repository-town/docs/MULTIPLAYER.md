@@ -26,3 +26,25 @@ This feature adds live account-based **player presence** to the existing static 
 
 ## Cost boundary
 Designed to fit Cloudflare Workers/Durable Objects Free allowances; frequent socket messages still use quotas, and excess requests on free plans fail rather than silently increasing a free-plan bill. Monitor limits before expanding beyond a small group.
+
+## Multiplayer resilience v2 (8 November 2026)
+
+This is a hardening increment, NOT an MMO conversion:
+- **Session protection:** sign-out revokes the active WebSocket immediately; each active WebSocket also checks its session periodically. Auth throttles are stored in SQLite so application hibernation/restart cannot reset the limit.
+- **Automatic recovery:** the browser sends heartbeat pings and confirms pongs, detects half-open connections and reconnects with capped exponential backoff and random jitter. Network/foreground changes resume retrying. Offline single-player remains available.
+- **Ghost player cleanup:** the hibernating room Durable Object sweeps connections every 30 seconds; unauthenticated sockets time out after 15 seconds and inactive signed-in sockets after 75 seconds. Close/error removes nearby avatars.
+- **Nearby interest management:** each player receives position updates only for other players within 115 metres of their location in the same area. New joins and moving out of range have symmetric events. This reduces unnecessary messages and protects slower devices; the renderer itself uses 90 metres.
+- **Readiness and monitoring:** \`/health\` is a lightweight edge check; \`/ready\` verifies both Durable Objects and reports an aggregate current player count/capacity without player names. The existing GitHub workflow runs a daily two-account synthetic test and tests PRs against a separate staging Worker.
+- **Preservation:** existing account IDs, SQLite databases, guest progress, live Worker script name, the v1 migration tag and the existing web hosting remain unchanged.
+
+The current max remains **80 WebSocket connections in one global room**. This is an application cap, not a tested 80-player performance benchmark. Cloudflare Workers Free/Durable Objects request and compute quotas can interrupt service even below this cap. See [Cloudflare Durable Objects pricing](https://developers.cloudflare.com/durable-objects/platform/pricing/) for the plan's current limits; incoming WebSocket messages are metered at an effective 20:1 ratio for compute request billing. This is **not** a 24/7 uptime SLA.
+
+### World-class multiplayer requires separate follow-on systems
+
+1. **Server-authoritative world state:** synchronise NPC jobs/routines, clock, vehicles, interaction collisions, building doors and civic services. Clients become viewers/input controllers rather than independent town simulators.
+2. **Persistent player data:** server-owned inventories, quest progression, housing, bank/money and character metadata, versioned schema, backup/export and account recovery. Migrate current local saves only with explicit user action and validation.
+3. **Zoning and capacity:** world instances, spatial ownership/sharding, position handover, load/admission queues, regional routing, reconnect resume and realistic capacity tests. Consider one Durable Object per area, not a single global room.
+4. **Security and child safety:** authoritative movement/action validation, rate caps, transaction atomicity, anti-cheat, reporting/moderation and privacy defaults (especially before open chat is enabled).
+5. **Operational resilience:** repeatable staging/rollback, load/soak benchmarks (10/30/80 concurrent players), alerts, latency/packet-loss measures, failure injection, backups and defined uptime and recovery targets.
+
+Acceptance for claiming parity with established online games would require a sustained measured load target, monitored real-world uptime, independent shared simulation, account recovery, data-restoration rehearsal and user-visible cross-device progression. Those are **not yet delivered**.

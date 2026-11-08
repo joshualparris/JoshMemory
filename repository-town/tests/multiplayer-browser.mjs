@@ -15,6 +15,8 @@ const contexts=[];
 try{
   for(const item of users){
     item.context=await browser.newContext({viewport:{width:1100,height:740}});
+    if((process.env.MULTIPLAYER_URL || '').includes('-staging.'))
+      await item.context.addInitScript(()=>{window.__TOWN_MULTIPLAYER_STAGING=true;});
     contexts.push(item.context);
     item.page=await item.context.newPage();
     item.errors=[];

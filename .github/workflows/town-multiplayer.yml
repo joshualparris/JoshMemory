@@ -9,6 +9,8 @@ on:
       - 'repository-town/src/main.js'
       - '.github/workflows/town-multiplayer.yml'
   workflow_dispatch:
+  schedule:
+    - cron: '0 18 * * *'
 permissions:
   contents: read
 jobs:
@@ -31,7 +33,7 @@ jobs:
           node --check tests/multiplayer-live.mjs
       - name: Exercise two different accounts on actual deployed WebSocket server
         env:
-          MULTIPLAYER_URL: https://repo-town-multiplayer.parris-neathaustralia.workers.dev
+          MULTIPLAYER_URL: ${{ github.event_name == 'pull_request' && 'https://repo-town-multiplayer-staging.parris-neathaustralia.workers.dev' || 'https://repo-town-multiplayer.parris-neathaustralia.workers.dev' }}
         run: node tests/multiplayer-live.mjs
 
   two-browser-avatars:
@@ -54,6 +56,8 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
       - name: Independent real browser avatars (two accounts)
+        env:
+          MULTIPLAYER_URL: ${{ github.event_name == 'pull_request' && 'https://repo-town-multiplayer-staging.parris-neathaustralia.workers.dev' || 'https://repo-town-multiplayer.parris-neathaustralia.workers.dev' }}
         run: |
           node tools/serve.mjs dist/public 8091 &
           SERVER_PID=$!
