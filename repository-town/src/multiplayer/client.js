@@ -1,5 +1,10 @@
 // Lightweight optional account-based presence. Existing local progress stays local.
-const API='https://repo-town-multiplayer.parris-neathaustralia.workers.dev';
+// Only local test builds can target staging; published game always uses production.
+const API=(
+  ['localhost','127.0.0.1'].includes(location.hostname) &&
+  window.__TOWN_MULTIPLAYER_STAGING===true
+) ? 'https://repo-town-multiplayer-staging.parris-neathaustralia.workers.dev'
+  : 'https://repo-town-multiplayer.parris-neathaustralia.workers.dev';
 const KEY='repo-town-multiplayer-session-v1';
 const el=id=>document.getElementById(id);
 const storage={
