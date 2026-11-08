@@ -13,7 +13,8 @@ async function api(path,body,token,overrideOrigin=origin){
     headers:{origin:overrideOrigin,...(body?{'content-type':'application/json'}:{}),...(token?{authorization:'Bearer '+token}:{})},
     ...(body?{body:JSON.stringify(body)}:{})
   });
-  return {status:res.status,body:await res.json()};
+  const raw=await res.text();let body;try{body=JSON.parse(raw);}catch{throw Error('API '+path+' returned non-JSON HTTP '+res.status+': '+raw.slice(0,400));}
+  return {status:res.status,body};
 }
 function next(ws,test,timeout=10000){
   return new Promise((resolve,reject)=>{
