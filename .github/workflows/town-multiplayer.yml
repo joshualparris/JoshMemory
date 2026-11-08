@@ -8,6 +8,14 @@ on:
       - 'repository-town/deploy/multiplayer-worker*'
       - 'repository-town/src/main.js'
       - '.github/workflows/town-multiplayer.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'repository-town/deploy/multiplayer-worker*'
+      - 'repository-town/src/multiplayer/**'
+      - 'repository-town/tests/multiplayer-live.mjs'
+      - 'repository-town/tests/multiplayer-browser.mjs'
+      - '.github/workflows/town-multiplayer.yml'
   workflow_dispatch:
   schedule:
     - cron: '0 18 * * *'
