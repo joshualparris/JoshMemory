@@ -1,0 +1,61 @@
+name: Repo Town multiplayer two-account protocol
+on:
+  pull_request:
+    paths:
+      - 'repository-town/src/multiplayer/**'
+      - 'repository-town/tests/multiplayer-live.mjs'
+      - 'repository-town/tests/multiplayer-browser.mjs'
+      - 'repository-town/deploy/multiplayer-worker*'
+      - 'repository-town/src/main.js'
+      - '.github/workflows/town-multiplayer.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  live-two-clients:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check browser, server and game imports syntax
+        run: |
+          node --check src/multiplayer/client.js
+          node --check src/main.js
+          node --check deploy/multiplayer-worker.js
+          node --check tests/multiplayer-live.mjs
+      - name: Exercise two different accounts on actual deployed WebSocket server
+        env:
+          MULTIPLAYER_URL: https://repo-town-multiplayer.parris-neathaustralia.workers.dev
+        run: node tests/multiplayer-live.mjs
+
+  two-browser-avatars:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - name: Install pinned game dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Build real game assets
+        run: npm run build
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Independent real browser avatars (two accounts)
+        run: |
+          node tools/serve.mjs dist/public 8091 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID" 2>/dev/null || true' EXIT
+          node tests/multiplayer-browser.mjs --url http://127.0.0.1:8091/

@@ -119,6 +119,7 @@ import { createSleepSession, sleepChoices } from './world/needs.js';
 import { createExpedition } from './adventure/expedition.js';
 import { createFirstDayTracker } from './ui/first-day-tracker.js';
 import { createPerfMeter } from './ui/perf-meter.js';
+import { createMultiplayer } from './multiplayer/client.js';
 
 const $ = (id) => document.getElementById(id);
 const loading = window.TownLoading;
@@ -538,7 +539,7 @@ async function start() {
   // the bottom interaction hint. This also handles the small building card.
   function blockingHudOverlays(){
     return {
-      panel:!!panelOpen||!$('panel').hidden,
+      panel:!!panelOpen||!$('panel').hidden||$('multiplayer-overlay')?.hidden===false,
       buildingCard:!$('card').hidden,
       npcDialogue:npcChat.isOpen(),
       expedition:expedition.isOpen(),
@@ -1886,6 +1887,15 @@ async function start() {
   syncDiscoveryCount();
   let saveTimer = 0;
   const save = () => writeSave({ pos: { x: player.pos.x, z: player.pos.z }, yaw: player.yaw, inside: inside&&!inside.place?inside.house.coordinate:null, insideShop:inside?.place?.id||null, visited: [...visited] });
+  // Optional server presence, never a source of truth for local NPCs or saves.
+  const multiplayer=createMultiplayer({
+    THREE,townGroup:town.group,
+    getScene:()=>mode==='house'&&inside?.group?inside.group:town.group,
+    getLocation:()=>({
+      zone:mode==='house'?'house:'+String(inside?.house?.coordinate||inside?.place?.id||'unknown'):'town',
+      x:player.pos.x,y:player.y,z:player.pos.z,yaw:player.yaw
+    })
+  });
   addEventListener('visibilitychange', () => { if (document.hidden) { save(); townLife.save(); } });
   addEventListener('pagehide', () => { save(); townLife.save(); });
   const syncSound = () => { $('btn-sound').textContent = ambience.on ? '🔊 Sound' : '🔇 Sound'; $('btn-sound').setAttribute('aria-pressed', String(ambience.on)); };
@@ -1996,12 +2006,12 @@ async function start() {
       return;
     }
     if (input.consume('map')) setOverview(!overview);
-    if (input.consume('back')) { if (companion.isOpen()) companion.close(); else if (expedition.isOpen()) expedition.dismiss(); else if (npcChat.isOpen()) npcChat.close(); else if (yarns.isOpen()) yarns.close(); else if (!$('npc-roster').hidden) $('npc-roster').hidden = true; else if (panelOpen) closePanel(); else if (!$('settings').hidden) closeSettings(); else if (!$('help').hidden) $('help').hidden = true; else setOverview(false); }
+    if (input.consume('back')) { if (multiplayer.isOpen()) multiplayer.close(); else if (companion.isOpen()) companion.close(); else if (expedition.isOpen()) expedition.dismiss(); else if (npcChat.isOpen()) npcChat.close(); else if (yarns.isOpen()) yarns.close(); else if (!$('npc-roster').hidden) $('npc-roster').hidden = true; else if (panelOpen) closePanel(); else if (!$('settings').hidden) closeSettings(); else if (!$('help').hidden) $('help').hidden = true; else setOverview(false); }
     if(expedition.isOpen()){input.keys.clear();input.takeLook();input.pressed.delete('use');}
     if (overview) {
       camera.position.set(player.pos.x, 150, player.pos.z + 95); camera.lookAt(player.pos.x, 0, player.pos.z);
       input.takeLook(); input.consume('jump');
-    } else if (companion.isOpen() || expedition.isOpen() || panelOpen || npcChat.isOpen() || yarns.isOpen() || !$('npc-roster').hidden || !$('help').hidden || !$('settings').hidden) input.reset();
+    } else if (multiplayer.isOpen() || companion.isOpen() || expedition.isOpen() || panelOpen || npcChat.isOpen() || yarns.isOpen() || !$('npc-roster').hidden || !$('help').hidden || !$('settings').hidden) input.reset();
     else {
       const n=life.needsReport();
       player.speedFactor=movementSpeedFactor(movementSpeed,n.hunger,n.fatigue);
@@ -2385,6 +2395,7 @@ async function start() {
     // a shop menu, building card, NPC conversation or other focused interface.
     syncOverlayHud();
     compass.update();
+    multiplayer.update(dt);
     renderFrame();
     requestAnimationFrame(frame);
   }
@@ -2416,6 +2427,7 @@ async function start() {
     e.currentTarget.href = `narromine-compare.html?x=${player.pos.x.toFixed(1)}&z=${player.pos.z.toFixed(1)}&yaw=${player.yaw.toFixed(3)}`;
   });
   window.__town = {
+    multiplayer:()=>multiplayer.info(),
     activity: () => ({ mode: activity.mode, ...activity.limits,
       visibleResidents: townLife.people.filter(p=>p.fig.group.visible).length +
         [...townLife.populationView.models.values()].filter(p=>p.fig.group.visible).length }),
