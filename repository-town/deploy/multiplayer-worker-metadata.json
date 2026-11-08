@@ -14,10 +14,7 @@
     }
   ],
   "migrations": {
-    "new_tag": "v1",
-    "new_sqlite_classes": [
-      "Accounts",
-      "World"
-    ]
+    "old_tag": "v1",
+    "new_tag": "v1"
   }
 }
