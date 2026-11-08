@@ -26,7 +26,7 @@ assert(main.includes('isBlocked:()=>isHudBlocked(blockingHudOverlays())'),
   'keyboard and button clicks must check live overlay state');
 assert(main.includes('if(blocked)$(\'prompt\').hidden=true'),
   'interaction hint must also hide under overlays');
-assert(/syncOverlayHud\(\);\s*(?:compass\.update\(\);\s*)?renderFrame\(\);/.test(main),
+assert(/syncOverlayHud\(\);\s*(?:compass\.update\(\);\s*)?(?:multiplayer\.update\(dt\);\s*)?renderFrame\(\);/.test(main),
   'game loop must hide buttons after interaction selection');
 assert(companion.includes('#town-companion-button[hidden]{display:none!important}'),
   'button must obey hidden even with its own styling');
