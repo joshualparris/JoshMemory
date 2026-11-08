@@ -1,9 +1,11 @@
-// Optional account-based multiplayer: presence (v1) plus chat, emotes and roster (v2).
-// Existing local progress stays local; the server never becomes a source of truth.
-const API='https://repo-town-multiplayer.parris-neathaustralia.workers.dev';
+// Lightweight optional account-based presence. Existing local progress stays local.
+// Only local test builds can target staging; published game always uses production.
+const API=(
+  ['localhost','127.0.0.1'].includes(location.hostname) &&
+  window.__TOWN_MULTIPLAYER_STAGING===true
+) ? 'https://repo-town-multiplayer-staging.parris-neathaustralia.workers.dev'
+  : 'https://repo-town-multiplayer.parris-neathaustralia.workers.dev';
 const KEY='repo-town-multiplayer-session-v1';
-const EMOTES=['wave','dance','point','cheer','sit','bow'];
-const EMOTE_MS={wave:2600,dance:3200,point:2600,cheer:2600,sit:8000,bow:2200};
 const el=id=>document.getElementById(id);
 const storage={
   get(){try{return sessionStorage.getItem(KEY);}catch{return null;}},
@@ -22,6 +24,12 @@ function nameTag(THREE,name){
   sprite.scale.set(2.1,.53,1);sprite.position.y=2.23;
   return sprite;
 }
+function colour(name){
+  let h=0;for(const c of name)h=((h*33)^c.charCodeAt(0))>>>0;
+  return [0x52c6b5,0xffb264,0x91b8f2,0xee9fd4,0xc5d779][h%5];
+}
+const EMOTES=['wave','dance','point','cheer','sit','bow'];
+const EMOTE_MS={wave:2600,dance:3200,point:2600,cheer:2600,sit:8000,bow:2200};
 function speechBubble(THREE,text){
   const canvas=document.createElement('canvas');canvas.width=512;canvas.height=160;
   const context=canvas.getContext('2d');
@@ -47,10 +55,6 @@ function speechBubble(THREE,text){
   sprite.scale.set(2.8,.88,1);sprite.position.y=3.05;sprite.visible=false;
   return sprite;
 }
-function colour(name){
-  let h=0;for(const c of name)h=((h*33)^c.charCodeAt(0))>>>0;
-  return [0x52c6b5,0xffb264,0x91b8f2,0xee9fd4,0xc5d779][h%5];
-}
 // Articulated remote avatar: torso, head, pivoting arms and legs, name tag and chat bubble.
 function buildAvatar(THREE,name){
   const shade=colour(name||'player');
@@ -60,8 +64,8 @@ function buildAvatar(THREE,name){
   torso.position.y=1.06;body.add(torso);
   const head=new THREE.Mesh(new THREE.SphereGeometry(.26,10,8),new THREE.MeshBasicMaterial({color:0xf5c9ab}));
   head.position.y=1.66;body.add(head);
-  const limb=(x,y,upper,offset)=>{const pivot=new THREE.Group();pivot.position.set(x,y,0);
-    const mesh=new THREE.Mesh(upper,new THREE.MeshBasicMaterial({color:shade}));
+  const limb=(x,y,geometry,offset)=>{const pivot=new THREE.Group();pivot.position.set(x,y,0);
+    const mesh=new THREE.Mesh(geometry,new THREE.MeshBasicMaterial({color:shade}));
     mesh.position.y=offset;pivot.add(mesh);return pivot;};
   const armLeft=limb(-.34,1.32,new THREE.BoxGeometry(.13,.52,.13),-.24);
   const armRight=limb(.34,1.32,new THREE.BoxGeometry(.13,.52,.13),-.24);
@@ -75,7 +79,7 @@ function buildAvatar(THREE,name){
 function disposeAvatar(p){
   p.root.traverse(node=>{
     node.geometry?.dispose?.();
-    if(node.material?.map&&node.material.map!==null)node.material.map.dispose?.();
+    if(node.material?.map)node.material.map.dispose?.();
     node.material?.dispose?.();
   });
   p.root.removeFromParent();
@@ -83,6 +87,7 @@ function disposeAvatar(p){
 export function createMultiplayer({THREE,townGroup,getScene,getLocation}){
   let token=storage.get(), username='', myId='',socket=null,ready=false,open=false;
   let lastSent=null,lastTime=0,retry=null,disposed=false;
+  let retryAttempt=0,lastPongAt=0,lastPingAt=0,pingStartedAt=0,latencyMs=null;
   let chatSupported=false,typing=false;
   const peers=new Map();const roster=new Map(); // roster: id -> name
   const button=document.createElement('button');
@@ -125,10 +130,10 @@ export function createMultiplayer({THREE,townGroup,getScene,getLocation}){
     '<button id="rt-chat-send" type="button">Send</button></div>'
   ].join('');
   document.body.appendChild(chat);
+  const chatLog=el('rt-chat-log'),chatRow=el('rt-chat-row'),chatInput=el('rt-chat-input');
+  const chatChannel=el('rt-chat-channel');
   const info=el('rt-mp-info'), authBox=el('rt-mp-auth'), profile=el('rt-mp-profile');
   const uname=el('rt-mp-username'), pass=el('rt-mp-password');
-  const chatLog=el('rt-chat-log'), chatRow=el('rt-chat-row'), chatInput=el('rt-chat-input');
-  const chatChannel=el('rt-chat-channel');
   const message=(text,error=false)=>{info.textContent=text;info.dataset.error=String(error);};
   const count=()=>ready?peers.size+1:0;
   const refreshRoster=()=>{
@@ -146,8 +151,8 @@ export function createMultiplayer({THREE,townGroup,getScene,getLocation}){
   const refresh=()=>{
     authBox.hidden=!!username;profile.hidden=!username;
     el('rt-mp-name').textContent=username;
-    el('rt-mp-count').textContent=ready?count()+' connected player(s)':'Connecting to server…';
-    button.textContent=ready?'👥 Online '+count():username?'👥 Reconnecting':'👥 Multiplayer';
+    el('rt-mp-count').textContent=ready?count()+' player(s) nearby, including you':'Connecting to server…';
+    button.textContent=ready?'👥 Nearby '+count():username?'👥 Reconnecting':'👥 Multiplayer';
     chat.hidden=!(ready&&chatSupported);
     refreshRoster();
   };
@@ -209,7 +214,6 @@ export function createMultiplayer({THREE,townGroup,getScene,getLocation}){
     if(text)socket.send(JSON.stringify({type:'chat',channel,text}));
     closeChat();
   }
-  // ---- peers ----
   function remove(id){
     const p=peers.get(id);if(!p)return;
     disposeAvatar(p);peers.delete(id);
@@ -232,37 +236,15 @@ export function createMultiplayer({THREE,townGroup,getScene,getLocation}){
   }
   function showBubble(p,text){
     if(!p.bubble)return;
-    const fresh=p.bubbleText!==text;
-    if(fresh){
+    if(p.bubbleText!==text){
       p.bubble.material.map.dispose();
       p.bubble.material.map=speechBubble(THREE,text).material.map;
       p.bubbleText=text;
     }
     p.bubble.visible=true;p.bubbleUntil=performance.now()+6000;
   }
-  function sendState(){
-    if(!ready||socket?.readyState!==WebSocket.OPEN)return;
-    const p=getLocation();
-    if(!p||![p.x,p.y,p.z,p.yaw].every(Number.isFinite))return;
-    const now=Date.now(),moved=!lastSent||p.zone!==lastSent.zone||
-      Math.hypot(p.x-lastSent.x,p.y-lastSent.y,p.z-lastSent.z)>.06||
-      Math.abs(p.yaw-lastSent.yaw)>.06;
-    if((moved&&now-lastTime<200)||(!moved&&now-lastTime<4000))return;
-    socket.send(JSON.stringify({type:'state',zone:p.zone,x:p.x,y:p.y,z:p.z,yaw:p.yaw}));
-    lastSent={...p};lastTime=now;
-  }
-  function disconnected(){
-    ready=false;myId='';lastSent=null;clear();roster.clear();refreshRoster();refresh();
-  }
-  function close(){
-    if(retry){clearTimeout(retry);retry=null;}
-    if(socket){const s=socket;socket=null;s.onclose=null;s.onerror=null;s.onmessage=null;s.close();}
-    disconnected();
-  }
-  function handleServerMessage(msg){
-    if(msg.type==='join'||msg.type==='state')peer(msg);
-    else if(msg.type==='leave'){remove(msg.id);roster.delete(msg.id);refresh();}
-    else if(msg.type==='players'){
+  function handleSocial(msg){
+    if(msg.type==='players'){
       roster.clear();for(const player of msg.players||[])roster.set(player.id,player.name);
       refreshRoster();
     }
@@ -285,25 +267,65 @@ export function createMultiplayer({THREE,townGroup,getScene,getLocation}){
     }
     else if(msg.type==='chaterr')log('system',null,msg.error||'Message not sent.');
   }
+  function sendState(){
+    if(!ready||socket?.readyState!==WebSocket.OPEN)return;
+    const p=getLocation();
+    if(!p||![p.x,p.y,p.z,p.yaw].every(Number.isFinite))return;
+    const now=Date.now(),moved=!lastSent||p.zone!==lastSent.zone||
+      Math.hypot(p.x-lastSent.x,p.y-lastSent.y,p.z-lastSent.z)>.06||
+      Math.abs(p.yaw-lastSent.yaw)>.06;
+    // No need for 5 Hz coordinate traffic when nobody else is nearby.
+    // Reduces metered DO messages on sparse worlds without delaying new arrivals.
+    const interval=peers.size?200:1000;
+    if((moved&&now-lastTime<interval)||(!moved&&now-lastTime<4000))return;
+    socket.send(JSON.stringify({type:'state',zone:p.zone,x:p.x,y:p.y,z:p.z,yaw:p.yaw}));
+    lastSent={...p};lastTime=now;
+  }
+  function disconnected(){
+    ready=false;myId='';lastSent=null;lastPongAt=0;lastPingAt=0;latencyMs=null;clear();
+    roster.clear();refreshRoster();refresh();
+  }
+  function close(){
+    if(retry){clearTimeout(retry);retry=null;}
+    if(socket){const s=socket;socket=null;s.onclose=null;s.onerror=null;s.onmessage=null;s.close();}
+    disconnected();
+  }
+  function scheduleRetry(){
+    if(!token||!username||disposed||retry)return;
+    // Backoff prevents a fleet of clients hammering a recovering service.
+    const delay=Math.min(30000,1000*2**Math.min(retryAttempt++,5));
+    const jitter=Math.round(delay*(0.8+Math.random()*.4));
+    retry=setTimeout(()=>{retry=null;connect();},jitter);
+    message('Reconnecting automatically…',true);
+  }
   function connect(){
     if(!token||!username||disposed||socket)return;
-    const s=new WebSocket(API.replace('https://','wss://')+'/ws');
+    if(navigator.onLine===false){scheduleRetry();return;}
+    let s;
+    try{s=new WebSocket(API.replace('https://','wss://')+'/ws');}
+    catch{scheduleRetry();return;}
     socket=s;refresh();
     s.onopen=()=>s.send(JSON.stringify({type:'hello',token}));
     s.onmessage=e=>{
       let msg;try{msg=JSON.parse(e.data);}catch{return;}
       if(msg.type==='welcome'){
-        ready=true;myId=msg.id;clear();
-        for(const p of msg.players||[])peer(p);
+        ready=true;myId=msg.id;retryAttempt=0;lastPongAt=Date.now();clear();
         roster.clear();roster.set(msg.id,msg.name);
+        for(const p of msg.players||[])peer(p);
         message('Connected to the shared town');refresh();sendState();
-      }else handleServerMessage(msg);
+      }else if(msg.type==='pong'){
+        lastPongAt=Date.now();latencyMs=pingStartedAt?lastPongAt-pingStartedAt:null;
+      }else if(msg.type==='session-revoked'){
+        message('Your session was signed out. Please sign in again.',true);
+      }else if(msg.type==='join'||msg.type==='state')peer(msg);
+      else if(msg.type==='leave'){remove(msg.id);refresh();}
+      else handleSocial(msg);
     };
     s.onclose=e=>{
       if(socket!==s)return;
       socket=null;disconnected();
       if(e.code===1008){token=null;username='';storage.clear();message('Session expired. Sign in again.',true);refresh();return;}
-      if(token&&!disposed){message('Connection lost. Reconnecting…',true);retry=setTimeout(()=>{retry=null;connect();},2500);}
+      if(token&&!disposed)scheduleRetry();
     };
     s.onerror=()=>message('Cannot contact multiplayer server.',true);
   }
@@ -338,12 +360,38 @@ export function createMultiplayer({THREE,townGroup,getScene,getLocation}){
   if(token)api('/me',null,token).then(data=>{if(!disposed){username=data.username;refresh();connect();}})
     .catch(()=>{token=null;storage.clear();message('Please sign in to play online.');refresh();});
   else refresh();
-  // Chat and roster need the v2 server; older deployments stay presence-only.
+  // Chat and roster need the protocol 3 server; older deployments stay presence-only.
   fetch(API+'/health').then(r=>r.json()).then(d=>{
     if(disposed)return;
-    chatSupported=!!d?.ok&&Number(d.protocol)>=2;refresh();
+    chatSupported=!!d?.ok&&Number(d.protocol)>=3;refresh();
   }).catch(()=>{});
-  const heartbeat=setInterval(()=>{if(document.hidden)sendState();},4000);
+  const heartbeat=setInterval(()=>{
+    if(!ready||socket?.readyState!==WebSocket.OPEN)return;
+    const now=Date.now();
+    if(lastPingAt && now-lastPongAt>60000){
+      // A connection may appear OPEN after a router/network outage.
+      // Closing it causes the normal reconnect path to run.
+      try{socket.close(4000,'Heartbeat timed out');}catch{}
+      return;
+    }
+    if(now-lastPingAt>=20000){
+      lastPingAt=now;pingStartedAt=now;
+      socket.send(JSON.stringify({type:'ping'}));
+    }
+    // Keep presence alive during sleep, mini-games and background tabs, where
+    // the render-frame hook may stop executing.
+    sendState();
+  },4000);
+  const onOnline=()=>{
+    if(!disposed&&token&&!socket){if(retry){clearTimeout(retry);retry=null;}connect();}
+  };
+  const onVisible=()=>{
+    if(!document.hidden)onOnline();
+    else sendState();
+  };
+  addEventListener('online',onOnline);
+  addEventListener('pageshow',onOnline);
+  addEventListener('visibilitychange',onVisible);
   addEventListener('pagehide',close);
   // Emote pose overrides; returns to the walk cycle afterwards.
   function animate(p,dt,now){
@@ -388,6 +436,7 @@ export function createMultiplayer({THREE,townGroup,getScene,getLocation}){
     isTyping:()=>typing,
     chatSupported:()=>chatSupported,
     info:()=>({connected:ready,username,players:count(),visible:[...peers.values()].filter(p=>p.root.visible).length,
+      latencyMs, retryAttempt, transport:socket?.readyState===WebSocket.OPEN?'open':'disconnected',
       chat:chatSupported,typing,roster:[...roster.values()],
       emoting:[...peers.values()].filter(p=>p.emote).map(p=>p.name),
       bubbling:[...peers.values()].filter(p=>p.bubble?.visible).map(p=>p.name)}),
@@ -406,7 +455,10 @@ export function createMultiplayer({THREE,townGroup,getScene,getLocation}){
       sendState();
     },
     destroy(){
-      disposed=true;clearInterval(heartbeat);close();clear();button.remove();overlay.remove();chat.remove();
+      disposed=true;clearInterval(heartbeat);removeEventListener('online',onOnline);
+      removeEventListener('visibilitychange',onVisible);removeEventListener('pageshow',onOnline);
+      removeEventListener('pagehide',close);
+      close();clear();button.remove();overlay.remove();chat.remove();
     }
   };
 }

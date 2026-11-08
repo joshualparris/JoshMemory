@@ -15,6 +15,8 @@ const contexts=[];
 try{
   for(const item of users){
     item.context=await browser.newContext({viewport:{width:1100,height:740}});
+    if((process.env.MULTIPLAYER_URL || '').includes('-staging.'))
+      await item.context.addInitScript(()=>{window.__TOWN_MULTIPLAYER_STAGING=true;});
     contexts.push(item.context);
     item.page=await item.context.newPage();
     item.errors=[];
@@ -63,11 +65,12 @@ try{
       'account token must not leak into persistent guest game save');
     assert.equal(item.errors.length,0,'no page errors: '+item.errors.join('; '));
   }
-  // v2 social layer: chat log, speech bubble, emote and roster in real browsers.
-  const health=await fetch('https://repo-town-multiplayer.parris-neathaustralia.workers.dev/health',
+  // v3 social layer: chat log, speech bubble, emote and roster in real browsers.
+  const healthHost=process.env.MULTIPLAYER_URL || 'https://repo-town-multiplayer.parris-neathaustralia.workers.dev';
+  const health=await fetch(healthHost+'/health',
     {headers:{origin:'https://repository-town-claude-complete.vercel.app'}}).then(r=>r.json()).catch(()=>null);
-  if(!health||Number(health.protocol)<2){
-    console.log('SKIP: chat/emote browser checks need the deployed multiplayer worker v2 (health says protocol '+(health?.protocol??'unreachable')+')');
+  if(!health||Number(health.protocol)<3){
+    console.log('SKIP: chat/emote browser checks need the deployed multiplayer worker v3 (health says protocol '+(health?.protocol??'unreachable')+')');
   }else{
     await users[0].page.keyboard.press('t');
     await users[0].page.locator('#rt-chat-input').fill('browser chat hello');

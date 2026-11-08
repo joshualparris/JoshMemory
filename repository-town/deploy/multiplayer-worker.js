@@ -1,5 +1,5 @@
-// Repo Town multiplayer v2. Cloudflare Worker + two SQLite-backed Durable Objects.
-// Public static game remains separate; signed-in presence, chat, emotes and roster only.
+// Repo Town multiplayer v1. Cloudflare Worker + two SQLite-backed Durable Objects.
+// Public static game remains separate; only signed-in player presence is transmitted.
 // Deploy with metadata in deploy/multiplayer-worker-metadata.json. No secrets in source.
 const ORIGINS = new Set([
   'https://repository-town-claude-complete.vercel.app',
@@ -46,17 +46,19 @@ export class Accounts {
     this.sql = ctx.storage.sql;
     this.sql.exec('CREATE TABLE IF NOT EXISTS accounts (id TEXT PRIMARY KEY, username TEXT NOT NULL UNIQUE, salt TEXT NOT NULL, password_hash TEXT NOT NULL, created_at INTEGER NOT NULL)');
     this.sql.exec('CREATE TABLE IF NOT EXISTS sessions (hash TEXT PRIMARY KEY, account_id TEXT NOT NULL, expires_at INTEGER NOT NULL)');
-    this.attempts = new Map();
+    // Persistent rather than in-memory limits; DOs can restart between requests.
+    this.sql.exec('CREATE TABLE IF NOT EXISTS login_limits (ip_hash TEXT PRIMARY KEY, minute INTEGER NOT NULL, tries INTEGER NOT NULL)');
+    this.rateChecks = 0;
   }
-  limit(request) {
+  async limit(request) {
+    // Store hashes, never raw addresses. SQLite survives process eviction.
     const ip = request.headers.get('x-real-player-ip') || 'unknown';
-    const now = Date.now();
-    const previous = this.attempts.get(ip) || [];
-    const recent = previous.filter(t => now - t < 60000);
-    recent.push(now);
-    this.attempts.set(ip, recent);
-    if (this.attempts.size > 2000) this.attempts.clear();
-    return recent.length <= 12;
+    const key = await hash(ip);
+    const minute = Math.floor(Date.now() / 60000);
+    this.sql.exec('INSERT INTO login_limits (ip_hash, minute, tries) VALUES (?, ?, 1) ON CONFLICT(ip_hash) DO UPDATE SET minute = excluded.minute, tries = CASE WHEN minute = excluded.minute THEN tries + 1 ELSE 1 END', key, minute);
+    const row = this.sql.exec('SELECT tries FROM login_limits WHERE ip_hash = ?', key).toArray()[0];
+    if (++this.rateChecks % 100 === 0) this.sql.exec('DELETE FROM login_limits WHERE minute < ?', minute - 2);
+    return row.tries <= 12;
   }
   async verify(request) {
     const token = request.headers.get('authorization')?.replace(/^Bearer /i, '');
@@ -69,6 +71,15 @@ export class Accounts {
   async fetch(request) {
     const path = new URL(request.url).pathname;
     if (path === '/verify') return this.verify(request);
+    if (path === '/ping') { this.sql.exec('SELECT 1'); return reply({ok:true}); }
+    // Internal namespace-only endpoint: World periodically checks sessions and
+    // immediately stops accepting broadcasts from signed-out or expired users.
+    if (path === '/active') {
+      const key = request.headers.get('x-session-hash');
+      if (!/^[a-f0-9]{64}$/.test(key || '')) return reply({active:false}, 401);
+      const row = this.sql.exec('SELECT expires_at FROM sessions WHERE hash = ? LIMIT 1', key).toArray()[0];
+      return row && row.expires_at > Date.now() ? reply({active:true}) : reply({active:false}, 401);
+    }
     if (path === '/logout') {
       const token = request.headers.get('authorization')?.replace(/^Bearer /i, '');
       if (token && /^[a-f0-9]{64}$/.test(token)) {
@@ -77,7 +88,7 @@ export class Accounts {
       return reply({ok:true});
     }
     if (path !== '/register' && path !== '/login') return reply({error:'Not found'}, 404);
-    if (!this.limit(request)) return reply({error:'Too many attempts. Try again in a minute.'}, 429);
+    if (!await this.limit(request)) return reply({error:'Too many attempts. Try again in a minute.'}, 429);
     let fields;
     try { fields = await parse(request); } catch { return reply({error:'Invalid request'}, 400); }
     const username = String(fields.username || '').trim().toLowerCase();
@@ -117,12 +128,12 @@ const validZone = value => typeof value === 'string' &&
 const finite = (n, limit) => typeof n === 'number' && Number.isFinite(n) && Math.abs(n) <= limit;
 const send = (ws, data) => { try { ws.send(JSON.stringify(data)); } catch {} };
 
-// v2 social layer: chat, emotes and roster. Chat is capped, collapsed, masked and
-// rate-limited per socket; local chat is distance-filtered server-side.
-const PROTOCOL = 2;
+// Social layer (protocol 3): chat, emotes and roster. Chat is capped, collapsed,
+// masked and rate-limited per socket; local chat is distance-filtered server-side.
+const PROTOCOL = 3;
 const EMOTES = new Set(['wave', 'dance', 'point', 'cheer', 'sit', 'bow']);
 const PROFANITY = /\b(f+u+c+k+|fuc[k1]+|shit+|bitch|cunt|asshole|bastard|slut|whore|wanker|nigg+er?|faggot+)\b/gi;
-const LOCAL_CHAT_RANGE = 70;       // metres, matches the avatar visibility radius style
+const LOCAL_CHAT_RANGE = 70;       // metres; talking range is shorter than avatar visibility
 const CHAT_WINDOW_MS = 10000;      // per-socket chat budget window
 const CHAT_WINDOW_MAX = 6;         // messages per window
 const EMOTE_MIN_GAP_MS = 1500;
@@ -139,124 +150,247 @@ export class World {
     // only: hibernation clears it, which is acceptable for a casual town.
     this.history = [];
   }
-  sockets() { return this.ctx.getWebSockets(); }
-  broadcast(message, except = null) {
-    const json = JSON.stringify(message);
-    for (const socket of this.sockets()) {
-      if (socket === except || !socket.deserializeAttachment()?.id) continue;
-      try { socket.send(json); } catch {}
-    }
+  // CLOSE_PENDING sockets are excluded from capacity and peer broadcasts.
+  sockets() { return this.ctx.getWebSockets().filter(s => s.readyState === WebSocket.OPEN); }
+  connections() { return this.sockets().filter(s => s.deserializeAttachment()?.ready); }
+  profile(m) {
+    return {id:m.id, name:m.name, zone:m.zone, x:m.x, y:m.y, z:m.z, yaw:m.yaw};
+  }
+  nearby(a, b) {
+    return a.ready && b.ready && a.zone === b.zone &&
+      Math.hypot(a.x - b.x, a.z - b.z) <= 115; // Client renders within 90 m.
   }
   roster() {
-    return this.sockets().map(s => s.deserializeAttachment())
-      .filter(p => p?.ready).map(p => ({ id: p.id, name: p.name }));
+    return this.connections().map(s => s.deserializeAttachment())
+      .map(m => ({ id: m.id, name: m.name }));
   }
-  broadcastRoster() { this.broadcast({ type: 'players', players: this.roster() }); }
+  broadcastRoster() {
+    const players = this.roster();
+    for (const socket of this.connections()) send(socket, { type: 'players', players });
+  }
   chatBudget(meta, now) {
     const recent = (meta.chats || []).filter(t => now - t < CHAT_WINDOW_MS);
     if (recent.length >= CHAT_WINDOW_MAX) return null;
     recent.push(now);
     return recent;
   }
+  handleChat(ws, meta, data, now) {
+    const text = cleanChat(data.text);
+    if (!text) return meta;
+    const chats = this.chatBudget(meta, now);
+    if (!chats) { send(ws, { type: 'chaterr', error: 'You are chatting too quickly. Wait a moment.' }); return meta; }
+    meta.chats = chats;
+    const target = typeof data.to === 'string' ? data.to.trim().toLowerCase().slice(0, 24) : '';
+    if (target) {
+      // Whisper: delivered only to the named player and echoed to the sender.
+      let delivered = false;
+      for (const socket of this.connections()) {
+        const other = socket.deserializeAttachment();
+        if (other?.ready && other.name === target) {
+          send(socket, { type: 'chat', channel: 'whisper', from: meta.name, to: target, text });
+          delivered = true;
+        }
+      }
+      send(ws, { type: 'chat', channel: 'whisper', from: meta.name, to: target, text, delivered });
+      return meta;
+    }
+    const channel = data.channel === 'global' ? 'global' : 'local';
+    if (channel === 'global') {
+      this.history.push({ name: meta.name, text, at: now });
+      if (this.history.length > HISTORY_LIMIT) this.history.shift();
+      const message = { type: 'chat', id: meta.id, name: meta.name, channel, text };
+      for (const socket of this.connections()) send(socket, message);
+    } else {
+      // Local chat reaches only players in the same zone within talking range.
+      const message = { type: 'chat', id: meta.id, name: meta.name, channel, text };
+      for (const socket of this.sockets()) {
+        const other = socket.deserializeAttachment();
+        if (!other?.ready) continue;
+        if (socket === ws || (other.zone === meta.zone &&
+            Math.hypot(other.x - meta.x, other.z - meta.z) <= LOCAL_CHAT_RANGE)) send(socket, message);
+      }
+    }
+    return meta;
+  }
+  async scheduleSweep() {
+    if ((await this.ctx.storage.getAlarm()) === null)
+      await this.ctx.storage.setAlarm(Date.now() + 30000);
+  }
+  remove(ws) {
+    const m = ws.deserializeAttachment();
+    if (!m?.ready) return;
+    // Removal is idempotent, including on concurrent error+close callbacks.
+    ws.serializeAttachment({...m, ready:false, visible:[]});
+    for (const other of this.connections()) {
+      if (other === ws) continue;
+      const p = other.deserializeAttachment();
+      if (!(p.visible || []).includes(m.id)) continue;
+      send(other, {type:'leave', id:m.id});
+      other.serializeAttachment({...p, visible:p.visible.filter(id => id !== m.id)});
+    }
+    this.broadcastRoster();
+  }
+  close(ws, code, reason) {
+    this.remove(ws);
+    try { ws.close(code, reason); } catch {}
+  }
+  async alarm() {
+    const now = Date.now();
+    for (const socket of this.sockets()) {
+      const m = socket.deserializeAttachment() || {};
+      const limit = m.ready ? 75000 : 15000;
+      if (now - (m.lastSeen || m.connectedAt || 0) > limit) this.close(socket, 1001, 'Inactive connection');
+    }
+    if (this.sockets().length) await this.ctx.storage.setAlarm(Date.now() + 30000);
+  }
   async fetch(request) {
-    if (request.headers.get('upgrade')?.toLowerCase() !== 'websocket') return reply({error:'WebSocket required'}, 426);
+    const path = new URL(request.url).pathname;
+    // These paths are accessible only through the Worker namespace binding,
+    // not through the public URL dispatcher.
+    if (path === '/stats') return reply({online:this.connections().length, capacity:80, protocol:PROTOCOL});
+    if (path === '/revoke') {
+      const sessionHash = request.headers.get('x-session-hash');
+      if (!/^[a-f0-9]{64}$/.test(sessionHash || '')) return reply({error:'Invalid session'}, 400);
+      let closed = 0;
+      for (const socket of this.connections()) {
+        if (socket.deserializeAttachment()?.sessionHash === sessionHash) {
+          send(socket, {type:'session-revoked'});
+          this.close(socket, 1008, 'Session revoked');
+          closed++;
+        }
+      }
+      return reply({ok:true, closed});
+    }
+    if (request.headers.get('upgrade')?.toLowerCase() !== 'websocket')
+      return reply({error:'WebSocket required'}, 426);
     if (this.sockets().length >= 80) return reply({error:'Town server is full'}, 503);
     const pair = new WebSocketPair();
     const client = pair[0], server = pair[1];
     this.ctx.acceptWebSocket(server);
-    server.serializeAttachment({});
+    server.serializeAttachment({connectedAt:Date.now(), lastSeen:Date.now(), ready:false});
+    await this.scheduleSweep();
     return new Response(null, {status:101, webSocket:client});
   }
+  async stillActive(meta) {
+    const auth = this.env.ACCOUNTS.get(this.env.ACCOUNTS.idFromName('accounts-v1'));
+    const response = await auth.fetch('https://accounts.internal/active', {
+      headers:{'x-session-hash':meta.sessionHash}
+    });
+    return response.ok;
+  }
+  syncPeers(ws, meta, moved) {
+    // Two-way interest sets remain in attachments across DO hibernation.
+    const oldVisible = new Set(meta.visible || []);
+    const newVisible = [];
+    for (const other of this.connections()) {
+      if (other === ws) continue;
+      const peer = other.deserializeAttachment();
+      const inRange = this.nearby(meta, peer);
+      const peerVisible = new Set(peer.visible || []);
+      if (inRange) {
+        newVisible.push(peer.id);
+        if (!oldVisible.has(peer.id)) send(ws, {type:'join', ...this.profile(peer)});
+        if (!peerVisible.has(meta.id)) {
+          peerVisible.add(meta.id);
+          send(other, {type:'join', ...this.profile(meta)});
+          other.serializeAttachment({...peer, visible:[...peerVisible]});
+        } else if (moved) send(other, {type:'state', ...this.profile(meta)});
+      } else {
+        if (oldVisible.has(peer.id)) send(ws, {type:'leave', id:peer.id});
+        if (peerVisible.delete(meta.id)) {
+          send(other, {type:'leave', id:meta.id});
+          other.serializeAttachment({...peer, visible:[...peerVisible]});
+        }
+      }
+    }
+    ws.serializeAttachment({...meta, visible:newVisible});
+  }
   async webSocketMessage(ws, raw) {
-    if (typeof raw !== 'string' || raw.length > 800) { ws.close(1009, 'Message too large'); return; }
+    if (typeof raw !== 'string' || raw.length > 800) {
+      this.close(ws, 1009, 'Message too large'); return;
+    }
     let data;
-    try { data = JSON.parse(raw); } catch { ws.close(1003, 'Invalid message'); return; }
+    try { data = JSON.parse(raw); } catch { this.close(ws, 1003, 'Invalid message'); return; }
     let meta = ws.deserializeAttachment() || {};
+    const now = Date.now();
     if (!meta.id) {
-      if (data?.type !== 'hello' || typeof data.token !== 'string') { ws.close(1008, 'Sign in first'); return; }
+      if (data?.type !== 'hello' || typeof data.token !== 'string' ||
+          !/^[a-f0-9]{64}$/.test(data.token)) {
+        this.close(ws, 1008, 'Sign in first'); return;
+      }
       const auth = this.env.ACCOUNTS.get(this.env.ACCOUNTS.idFromName('accounts-v1'));
-      const check = await auth.fetch('https://accounts.internal/verify', {headers:{authorization:'Bearer '+data.token}});
-      if (!check.ok) { ws.close(1008, 'Session expired'); return; }
+      const check = await auth.fetch('https://accounts.internal/verify', {
+        headers:{authorization:'Bearer '+data.token}
+      });
+      if (!check.ok) { this.close(ws, 1008, 'Session expired'); return; }
       const user = await check.json();
-      const id = crypto.randomUUID();
-      meta = {id, accountId:user.id, name:user.username, expiresAt:user.expiresAt,
-        zone:'town', x:0, y:0, z:0, yaw:0, last:0, ready:false};
+      meta = {
+        id:crypto.randomUUID(), accountId:user.id, name:user.username,
+        sessionHash:await hash(data.token), expiresAt:user.expiresAt,
+        zone:'town', x:0, y:0, z:0, yaw:0,
+        connectedAt:meta.connectedAt || now, lastSeen:now,
+        lastAuth:now, last:0, ready:false, visible:[]
+      };
       ws.serializeAttachment(meta);
-      const players = this.sockets().filter(s => s !== ws).map(s => s.deserializeAttachment())
-        .filter(p => p?.id && p.ready).map(({id,name,zone,x,y,z,yaw})=>({id,name,zone,x,y,z,yaw}));
-      send(ws, {type:'welcome', id, name:user.username, players});
+      // No position is trusted until this client sends its first valid state.
+      send(ws, {type:'welcome', id:meta.id, name:meta.name, players:[], protocol:PROTOCOL});
       send(ws, {type:'history', messages:this.history.slice(-HISTORY_LIMIT)});
       return;
     }
-    if (Date.now() > meta.expiresAt) { ws.close(1008, 'Session expired'); return; }
-    if (data?.type === 'chat') {
-      const text = cleanChat(data.text);
-      if (!text) return;
-      const now = Date.now();
-      const chats = this.chatBudget(meta, now);
-      if (!chats) { send(ws, {type:'chaterr', error:'You are chatting too quickly. Wait a moment.'}); return; }
-      meta.chats = chats; ws.serializeAttachment(meta);
-      const target = typeof data.to === 'string' ? data.to.trim().toLowerCase().slice(0, 24) : '';
-      if (target) {
-        // Whisper: delivered only to the named player and echoed to the sender.
-        let delivered = false;
-        for (const socket of this.sockets()) {
-          const other = socket.deserializeAttachment();
-          if (other?.ready && other.name === target) {
-            send(socket, {type:'chat', channel:'whisper', from:meta.name, to:target, text});
-            delivered = true;
-          }
-        }
-        send(ws, {type:'chat', channel:'whisper', from:meta.name, to:target, text, delivered});
+    if (now > meta.expiresAt) {
+      this.close(ws, 1008, 'Session expired'); return;
+    }
+    if (now - (meta.lastAuth || 0) >= 60000) {
+      if (!await this.stillActive(meta)) {
+        send(ws, {type:'session-revoked'});
+        this.close(ws, 1008, 'Session revoked');
         return;
       }
-      const channel = data.channel === 'global' ? 'global' : 'local';
-      const message = {type:'chat', id:meta.id, name:meta.name, channel, text,
-        zone:meta.zone, x:meta.x, z:meta.z};
-      if (channel === 'global') {
-        this.history.push({name:meta.name, text, at:now});
-        if (this.history.length > HISTORY_LIMIT) this.history.shift();
-        this.broadcast(message);
-      } else {
-        // Local chat reaches only players in the same zone within talking range.
-        for (const socket of this.sockets()) {
-          const other = socket.deserializeAttachment();
-          if (!other?.ready) continue;
-          if (socket === ws || (other.zone === meta.zone &&
-              Math.hypot(other.x - meta.x, other.z - meta.z) <= LOCAL_CHAT_RANGE)) send(socket, message);
-        }
+      meta.lastAuth = now;
+    }
+    meta.lastSeen = now;
+    if (data?.type === 'ping') {
+      // Respond even while the game is paused; no fake movement is created.
+      if (now - (meta.lastPing || 0) >= 1000) {
+        meta.lastPing = now;
+        send(ws, {type:'pong', at:now});
       }
+      ws.serializeAttachment(meta);
+      return;
+    }
+    if (data?.type === 'chat') {
+      meta = this.handleChat(ws, meta, data, now);
+      ws.serializeAttachment(meta);
       return;
     }
     if (data?.type === 'emote') {
       const emote = typeof data.name === 'string' ? data.name : '';
-      if (!EMOTES.has(emote)) return;
-      const now = Date.now();
-      if (now - (meta.emoteAt || 0) < EMOTE_MIN_GAP_MS) return;
-      meta.emoteAt = now; ws.serializeAttachment(meta);
-      this.broadcast({type:'emote', id:meta.id, name:meta.name, emote});
+      if (EMOTES.has(emote) && now - (meta.emoteAt || 0) >= EMOTE_MIN_GAP_MS) {
+        meta.emoteAt = now;
+        // Visual emotes only matter to players who can see the sender.
+        for (const socket of this.connections()) {
+          const other = socket.deserializeAttachment();
+          if (socket === ws || this.nearby(meta, other))
+            send(socket, {type:'emote', id:meta.id, name:meta.name, emote});
+        }
+      }
+      ws.serializeAttachment(meta);
       return;
     }
-    if (data?.type !== 'state') return;
+    if (data?.type !== 'state') { ws.serializeAttachment(meta); return; }
     const {zone,x,y,z,yaw} = data;
     if (!validZone(zone) || !finite(x,12000) || !finite(z,12000) ||
-        !finite(y,500) || !finite(yaw,1000)) return;
-    const now = Date.now();
-    if (now - meta.last < 120) return; // 8 updates/second max per client
+        !finite(y,500) || !finite(yaw,1000)) { ws.serializeAttachment(meta); return; }
+    if (now - meta.last < 120) { ws.serializeAttachment(meta); return; }
+    const moved = !meta.ready || zone !== meta.zone ||
+      Math.hypot(x-meta.x,y-meta.y,z-meta.z) > .01 || Math.abs(yaw-meta.yaw) > .01;
     const first = !meta.ready;
     meta = {...meta,zone,x,y,z,yaw,last:now,ready:true};
-    ws.serializeAttachment(meta);
-    this.broadcast({type:first?'join':'state',id:meta.id,name:meta.name,zone,x,y,z,yaw}, ws);
+    this.syncPeers(ws, meta, moved);
     if (first) this.broadcastRoster();
   }
-  webSocketClose(ws) {
-    const meta = ws.deserializeAttachment();
-    if (meta?.id && meta.ready) {
-      this.broadcast({type:'leave',id:meta.id}, ws);
-      this.broadcastRoster();
-    }
-  }
-  webSocketError(ws) { this.webSocketClose(ws); }
+  webSocketClose(ws) { this.remove(ws); }
+  webSocketError(ws) { this.close(ws, 1011, 'WebSocket error'); }
 }
 
 export default {
@@ -271,6 +405,18 @@ export default {
     } : {};
     if (request.method === 'OPTIONS') return new Response(null,{status:204,headers:cors});
     if (url.pathname === '/health') return new Response(JSON.stringify({ok:true,service:'repo-town-multiplayer',protocol:PROTOCOL}),{headers:{...JSON_HEADERS,...cors}});
+    if (url.pathname === '/ready') {
+      try {
+        const [a,w] = await Promise.all([
+          env.ACCOUNTS.get(env.ACCOUNTS.idFromName('accounts-v1')).fetch('https://accounts.internal/ping'),
+          env.WORLD.get(env.WORLD.idFromName('repo-town-shared-v1')).fetch('https://world.internal/stats')
+        ]);
+        if (!a.ok || !w.ok) return new Response(JSON.stringify({ok:false}),{status:503,headers:{...JSON_HEADERS,...cors}});
+        return new Response(JSON.stringify({ok:true,service:'repo-town-multiplayer',...(await w.json())}),{headers:{...JSON_HEADERS,...cors}});
+      } catch {
+        return new Response(JSON.stringify({ok:false,service:'repo-town-multiplayer'}),{status:503,headers:{...JSON_HEADERS,...cors}});
+      }
+    }
     if (url.pathname === '/ws') {
       return env.WORLD.get(env.WORLD.idFromName('repo-town-shared-v1')).fetch(request);
     }
@@ -289,6 +435,19 @@ export default {
       body:request.method === 'POST'?await request.text():null
     });
     const response = await env.ACCOUNTS.get(env.ACCOUNTS.idFromName('accounts-v1')).fetch(internal);
+    if (url.pathname === '/logout' && response.ok) {
+      const token = request.headers.get('authorization')?.replace(/^Bearer /i,'');
+      if (token && /^[a-f0-9]{64}$/.test(token)) {
+        try {
+          await env.WORLD.get(env.WORLD.idFromName('repo-town-shared-v1')).fetch(
+            'https://world.internal/revoke', {headers:{'x-session-hash':await hash(token)}});
+        } catch {
+          // Authentication DB is already revoked. A brief World outage should
+          // not turn a successful sign-out into a failure; next socket auth
+          // recheck blocks the revoked token.
+        }
+      }
+    }
     const headers = new Headers(response.headers);
     for (const [key,value] of Object.entries(cors)) headers.set(key,value);
     headers.set('cache-control','no-store');
