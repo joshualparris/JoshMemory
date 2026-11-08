@@ -91,6 +91,23 @@ try{
   const aLeave=next(a,v=>v.type==='leave' && v.id===bWelcome.id);
   b.close();
   await aLeave;
+  // Short 10-socket concurrency smoke. These sockets use the same temporary
+  // test account, so CI does not create ten throwaway permanent accounts.
+  const extras=await Promise.all(Array.from({length:9},()=>open()));
+  sockets.push(...extras);
+  for(const [index,client] of extras.entries()){
+    const welcome=next(client,v=>v.type==='welcome');
+    client.send(JSON.stringify({type:'hello',token:users[0].token}));
+    await welcome;
+    client.send(JSON.stringify({type:'state',zone:'town',x:7+index*.5,y:0,z:9,yaw:0}));
+  }
+  await new Promise(resolve=>setTimeout(resolve,400));
+  const active=await api('/ready');
+  assert.equal(active.status,200);
+  assert.equal(active.body.online,10,'one existing player plus nine independent authenticated sockets');
+  for(const client of extras)client.close();
+  await new Promise(resolve=>setTimeout(resolve,350));
+  assert.equal((await api('/ready')).body.online,1,'extra player slots cleaned up promptly');
   // A signed-out session must lose its already-open socket immediately.
   const revokeNotice=next(a,v=>v.type==='session-revoked');
   assert.equal((await api('/logout',{},users[0].token)).status,200);
