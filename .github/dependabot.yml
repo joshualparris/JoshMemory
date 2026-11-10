@@ -1,5 +1,6 @@
 # AutoPatch — dependency update PRs for the explicitly enrolled Repository Town project.
-# These settings open PRs only; no automatic merge or deployment.
+# These settings open PRs and maintain lockfiles; merging and deployment require independent CI/verification.
+# Scope: owned Repository Town only. No work/client repositories.
 version: 2
 updates:
   - package-ecosystem: npm
@@ -15,6 +16,72 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    open-pull-requests-limit: 2
+    labels:
+      - dependencies
+    commit-message:
+      prefix: "chore(autopatch)"
+
+  # AutoPatch: nested package-lock.json has real Dependabot advisories.
+  - package-ecosystem: npm
+    directory: /repository-town/games/joshplatform
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 2
+    labels:
+      - dependencies
+    commit-message:
+      prefix: "chore(autopatch)"
+
+  # AutoPatch: nested package-lock.json has real Dependabot advisories.
+  - package-ecosystem: npm
+    directory: /repository-town/games/kkc-adventure/kkc-adventure
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 2
+    labels:
+      - dependencies
+    commit-message:
+      prefix: "chore(autopatch)"
+
+  # AutoPatch: nested package-lock.json has real Dependabot advisories.
+  - package-ecosystem: npm
+    directory: /repository-town/games/midnight-line
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 2
+    labels:
+      - dependencies
+    commit-message:
+      prefix: "chore(autopatch)"
+
+  # AutoPatch: nested package-lock.json has real Dependabot advisories.
+  - package-ecosystem: npm
+    directory: /repository-town/games/sylvie-phonetics
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 2
+    labels:
+      - dependencies
+    commit-message:
+      prefix: "chore(autopatch)"
+
+  # AutoPatch: nested package-lock.json has real Dependabot advisories.
+  - package-ecosystem: npm
+    directory: /repository-town/games/sleepy
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 2
+    labels:
+      - dependencies
+    commit-message:
+      prefix: "chore(autopatch)"
+
+  # AutoPatch: nested package-lock.json has real Dependabot advisories.
+  - package-ecosystem: npm
+    directory: /repository-town/games/zoom-game
+    schedule:
+      interval: daily
     open-pull-requests-limit: 2
     labels:
       - dependencies
