@@ -46,7 +46,7 @@ try{
   assert.equal(readiness.status,200,'readiness should check both Durable Objects');
   assert.equal(readiness.body.ok,true);
   assert.equal(readiness.body.capacity,80);
-  assert.equal((await api('/register',{username:'attacker',password:'not_long_enough'},null,'https://not-repotown.example')).status,403);
+  assert.equal((await api('/register',{username:'attacker',password:randomBytes(24).toString('base64url')},null,'https://not-repotown.example')).status,403);
   const registrations=await Promise.all(users.map(({username,password})=>api('/register',{username,password})));
   for(const [i,result] of registrations.entries()){
     assert.equal(result.status,200,'register account '+i+': '+JSON.stringify(result.body));
@@ -55,7 +55,7 @@ try{
   }
   assert.notEqual(users[0].token,users[1].token);
   assert.equal((await api('/me',null,users[0].token)).body.username,users[0].username);
-  assert.equal((await api('/login',{username:users[0].username,password:'wrong-password-123456'})).status,401);
+  assert.equal((await api('/login',{username:users[0].username,password:users[1].password})).status,401);
   assert.equal((await api('/login',{username:users[0].username,password:users[0].password})).status,200);
   const a=await open(),b=await open();sockets.push(a,b);
   const aHello=next(a,v=>v.type==='welcome');
