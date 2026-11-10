@@ -1,0 +1,80 @@
+name: AutoPatch nested npm lockfile validation
+
+# The main Python CI intentionally excludes repository-town changes.
+# This dedicated workflow verifies nested npm update PRs without elevated tokens.
+on:
+  pull_request:
+    paths:
+      - 'repository-town/games/**/package.json'
+      - 'repository-town/games/**/package-lock.json'
+      - '.github/workflows/autopatch-nested-npm.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  nested-package:
+    name: Validate npm (${{ matrix.name }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: joshplatform
+            dir: repository-town/games/joshplatform
+          - name: kkc-adventure
+            dir: repository-town/games/kkc-adventure/kkc-adventure
+          - name: midnight-line
+            dir: repository-town/games/midnight-line
+          - name: sylvie-phonetics
+            dir: repository-town/games/sylvie-phonetics
+          - name: sleepy
+            dir: repository-town/games/sleepy
+          - name: zoom-game
+            dir: repository-town/games/zoom-game
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Identify changed package
+        id: changed
+        shell: bash
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+          DIR: ${{ matrix.dir }}
+          EVENT: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT" = workflow_dispatch ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          elif git diff --name-only "$BASE" "$HEAD" | grep -Eq "^$DIR/package(-lock)?\\.json$"; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=false" >> "$GITHUB_OUTPUT"
+            echo "No package manifest/lockfile change in $DIR"
+          fi
+      - uses: actions/setup-node@v4
+        if: steps.changed.outputs.run == 'true'
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: ${{ matrix.dir }}/package-lock.json
+      - name: Verify lockfile integrity with fresh dependency installation
+        if: steps.changed.outputs.run == 'true'
+        working-directory: ${{ matrix.dir }}
+        run: npm ci --no-fund
+      - name: Build if supported by the project
+        if: steps.changed.outputs.run == 'true'
+        working-directory: ${{ matrix.dir }}
+        run: npm run build --if-present
+      - name: Run KKC Adventure unit tests
+        if: steps.changed.outputs.run == 'true' && matrix.name == 'kkc-adventure'
+        working-directory: ${{ matrix.dir }}
+        run: CI=true npm test -- --runInBand
+      - name: Run JoshPlatform typecheck
+        if: steps.changed.outputs.run == 'true' && matrix.name == 'joshplatform'
+        working-directory: ${{ matrix.dir }}
+        run: npm run check --if-present
