@@ -50,7 +50,7 @@ jobs:
         run: |
           if [ "$EVENT" = workflow_dispatch ]; then
             echo "run=true" >> "$GITHUB_OUTPUT"
-          elif git diff --name-only "$BASE" "$HEAD" | grep -Eq "^$DIR/package(-lock)?\\.json$"; then
+          elif git diff --name-only "$BASE" "$HEAD" | grep -Eq "^$DIR/package(-lock)?\.json$"; then
             echo "run=true" >> "$GITHUB_OUTPUT"
           else
             echo "run=false" >> "$GITHUB_OUTPUT"
