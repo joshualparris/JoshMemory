@@ -25,6 +25,12 @@ updates:
   # AutoPatch: nested package-lock.json has real Dependabot advisories.
   - package-ecosystem: npm
     directory: /repository-town/games/joshplatform
+    # Routine version updates stay minor/patch; security updates are never restricted.
+    allow:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
     schedule:
       interval: daily
     open-pull-requests-limit: 2
@@ -36,6 +42,12 @@ updates:
   # AutoPatch: nested package-lock.json has real Dependabot advisories.
   - package-ecosystem: npm
     directory: /repository-town/games/kkc-adventure/kkc-adventure
+    # Routine version updates stay minor/patch; security updates are never restricted.
+    allow:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
     schedule:
       interval: daily
     open-pull-requests-limit: 2
@@ -47,6 +59,12 @@ updates:
   # AutoPatch: nested package-lock.json has real Dependabot advisories.
   - package-ecosystem: npm
     directory: /repository-town/games/midnight-line
+    # Routine version updates stay minor/patch; security updates are never restricted.
+    allow:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
     schedule:
       interval: daily
     open-pull-requests-limit: 2
@@ -58,6 +76,12 @@ updates:
   # AutoPatch: nested package-lock.json has real Dependabot advisories.
   - package-ecosystem: npm
     directory: /repository-town/games/sylvie-phonetics
+    # Routine version updates stay minor/patch; security updates are never restricted.
+    allow:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
     schedule:
       interval: daily
     open-pull-requests-limit: 2
@@ -69,6 +93,12 @@ updates:
   # AutoPatch: nested package-lock.json has real Dependabot advisories.
   - package-ecosystem: npm
     directory: /repository-town/games/sleepy
+    # Routine version updates stay minor/patch; security updates are never restricted.
+    allow:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
     schedule:
       interval: daily
     open-pull-requests-limit: 2
@@ -80,6 +110,12 @@ updates:
   # AutoPatch: nested package-lock.json has real Dependabot advisories.
   - package-ecosystem: npm
     directory: /repository-town/games/zoom-game
+    # Routine version updates stay minor/patch; security updates are never restricted.
+    allow:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
     schedule:
       interval: daily
     open-pull-requests-limit: 2
