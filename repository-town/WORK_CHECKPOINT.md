@@ -1,3 +1,11 @@
+## 2026-11-11 — SEC-NPC-20261111 security start checkpoint
+
+- Owner: ChatGPT · branch `fix/npc-chat-unhandled-rejection-20261111` · base `e247e00293c1dc4e8c09c3649c870789c57e1776`.
+- Scope: validate and fail-close malformed NPC resident POST JSON and rejected async route handler. No feature additions, RTD numbering, production calls, real keys or remote requests.
+- Initial evidence: JSON member `toString` set to a non-callable value raises TypeError when coerced with `String()`; current `residentPrompt()` performs such a conversion and `serve.mjs` does not await/catch `npcChatHandler()`. Runtime exploitability and severity still UNVALIDATED.
+- Planned gates: fail-before/green-after Node handler test, localhost HTTP server remains responsive, existing NPC contract, Node syntax, privacy/CI, independent review. No outbound notification.
+- Status: STARTED, not confirmed vulnerability, not deployed. Review on this branch before merge.
+
 # Generic-only business realism — implementation checkpoint 2026-11-07
 
 APPROVED QA RELEASE DEPLOYED AND VERIFIED: Joshua approved the exact separate path at 08:56 AEDT 2026-11-07. Live https://parris-tech-services.github.io/Repository-town-playtest/qa/generic-buildings-20261107/ ; generated-site commit `27d111d7187480d8dc8b4e9b99a0fb96a26316bb`, successful Pages run https://github.com/Parris-Tech-Services/Repository-town-playtest/actions/runs/42300839865 . Hosted release source `2eada8d7a88a0ab2a7820f0a144b56b25fbfd07a` and content `e01a264720a60f920752efbfefa43625ad292efc1215c344013ad609dd75c186` match the approved immutable snapshot. Ten key hosted runtime assets SHA-256-match their release entries. Fresh desktop: actual salon street walk-in, E service panel, walk-out and same-position indoor reload PASS. Fresh 375×812 touch emulation: actual joystick entry into laundry and exit back to town PASS; Calm selected, no overflow, no page exceptions or HTTP failures in either hosted context. Screenshots inspected. This is NOT physical-handset/FPS certification or production acceptance.
