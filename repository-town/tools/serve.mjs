@@ -24,7 +24,16 @@ http.createServer((req, res) => {
     let raw = '';
     req.setEncoding('utf8');
     req.on('data', (c) => { if (raw.length < 32768) raw += c; });
-    req.on('end', () => { req.body = raw; npcChatHandler(req, res); });
+    req.on('end', () => {
+      req.body = raw;
+      // Catch both a synchronous throw and a rejected async handler promise.
+      // Otherwise an unhandled rejection can terminate the local Node process.
+      Promise.resolve().then(() => npcChatHandler(req, res)).catch(() => {
+        if (res.writableEnded) return;
+        if (res.headersSent) res.destroy();
+        else { res.writeHead(500); res.end('NPC request failed'); }
+      });
+    });
     return;
   }
   // A string prefix is not a directory boundary: public-backup is NOT public.

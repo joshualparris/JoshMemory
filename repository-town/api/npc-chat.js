@@ -72,7 +72,12 @@ export default async function handler(req,res){
   const messages=raw.slice(-8).map(m=>({role:m?.role,content:safeText(m?.content,850)}));
   if(messages.some(m=>!['user','assistant'].includes(m.role)||!m.content)||messages[messages.length-1].role!=='user')
     return reply(res,400,{error:'Please enter a message.'});
-  const guide=npc?creaturePrompt(npc):residentPrompt(resInfo);
+  // Resident metadata is caller-provided JSON. A non-callable toString/valueOf
+  // member can throw during String() coercion inside residentPrompt(). Reject it
+  // before the proxy attempts any upstream request; never let the async handler reject.
+  let guide;
+  try { guide=npc?creaturePrompt(npc):residentPrompt(resInfo); }
+  catch { return reply(res,400,{error:'Invalid resident data.'}); }
   const npcId=npc?npc.id:safeText(body.npcId||resInfo.coordinate||'resident',60);
   const model=process.env.GROQ_MODEL||'openai/gpt-oss-20b';
   try {
