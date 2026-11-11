@@ -31,13 +31,15 @@ await new Promise((resolve) => allocator.close(resolve));
 let stderr = '';
 const server = spawn(process.execPath, [SERVER, publicRoot, String(port)], {
   cwd: TOWN, stdio: ['ignore', 'ignore', 'pipe'],
+  env: { GROQ_API_KEY: 'LOCAL_SYNTHETIC_KEY_NOT_REAL', TOWN_NPC_PIN: 'LOCAL_SYNTHETIC_PIN_NOT_REAL' },
 });
 server.stderr.on('data', chunk => { stderr = (stderr + chunk.toString()).slice(-2500); });
 
-function request(requestPath) {
+function request(requestPath, method = 'GET', body = '') {
   return new Promise((resolve, reject) => {
     const req = http.request({
-      hostname: '127.0.0.1', port, method: 'GET', path: requestPath, timeout: 1200,
+      hostname: '127.0.0.1', port, method, path: requestPath, timeout: 1200,
+      headers: method === 'POST' ? { 'content-type': 'application/json', 'x-npc-code': 'LOCAL_SYNTHETIC_PIN_NOT_REAL' } : undefined,
       agent: false,
     }, res => {
       let body = '';
@@ -47,7 +49,7 @@ function request(requestPath) {
     });
     req.on('timeout', () => req.destroy(new Error('local HTTP request timed out')));
     req.on('error', reject);
-    req.end();
+    req.end(body);
   });
 }
 async function ready() {
@@ -83,6 +85,10 @@ try {
   assert.equal(malformed.status, 400, 'invalid encoding must return HTTP 400, not crash');
   assert.equal((await request('/')).status, 200, 'server must survive a malformed URL');
   assert.equal((await request('/missing.txt')).status, 404);
+  const invalidResident = JSON.stringify({npcId: 'unknown', resident: {name: {toString: 'not-callable'}}, messages: [{role: 'user', content: 'Hi'}]});
+  const failedClosed = await request('/api/npc-chat', 'POST', invalidResident);
+  assert.equal(failedClosed.status, 400, 'malformed resident metadata must be rejected, not crash the server');
+  assert.equal((await request('/')).status, 200, 'server remains healthy after malformed NPC request');
   console.log('PASS: real localhost HTTP server blocked sibling traversal, symlink escape, malformed URL crash; ordinary assets served');
 } finally {
   server.kill('SIGTERM');

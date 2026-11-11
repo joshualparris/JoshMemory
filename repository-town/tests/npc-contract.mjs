@@ -61,6 +61,10 @@ const allowed=await respond(req('fake-code-for-test'));
 assert.equal(allowed.statusCode,200);assert.equal(allowed.data.reply,'NPC reply');assert.equal(usedKeys.length,1);
 const residentAllowed=await respond(req('fake-code-for-test',{npcId:'H1',resident:{name:'Ada',role:'resident',coordinate:'H1',street:'First Avenue',houseName:'JoshHub',kind:'hub',summary:'Game hub',isPublic:true,rooms:['Foyer','Arcade']}}));
 assert.equal(residentAllowed.statusCode,200);assert.equal(residentAllowed.data.reply,'NPC reply');
+// Synthetic malformed resident metadata must be rejected without throwing or contacting Groq.
+const malformedResident=await respond(req('fake-code-for-test',{npcId:'unknown',resident:{name:{toString:'not-callable'}}}));
+assert.equal(malformedResident.statusCode,400,'malformed resident data must fail closed');
+assert.equal(usedKeys.length,3,'malformed metadata must not reach Groq');
 assert.deepEqual(usedKeys,['fake-key-1','fake-key-1','fake-key-2'],'Server proxy rotates comma-separated GROQ_API_KEY on 429');
 globalThis.fetch=oldFetch;
 console.log('PASS: 32 NPCs, 20 distinct creature models and quests, 3D placement, guarded server-only Groq proxy');
