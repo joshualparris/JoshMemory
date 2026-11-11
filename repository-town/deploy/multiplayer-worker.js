@@ -25,7 +25,7 @@ const safePassword = value => typeof value === 'string' && value.length >= 12 &&
 // deliberate: Unicode input must not bypass a character-only size check.
 async function readBoundedBody(request, maxBytes = 1000) {
   const declared = request.headers.get('content-length');
-  if (declared && /^\\d+$/.test(declared) && Number(declared) > maxBytes) return null;
+  if (declared && /^\d+$/.test(declared) && Number(declared) > maxBytes) return null;
   if (!request.body) return '';
   const reader = request.body.getReader();
   const decoder = new TextDecoder();
