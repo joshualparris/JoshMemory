@@ -32,7 +32,7 @@ jobs:
           git cat-file -e 'ec085dd824be4ee0e931968e5e2e9abef5e43c38^{commit}'
           git cat-file -e 'f2810b93242d6b2174198c65748e95e10d126809^{commit}'
           echo "One game source SHA: $(git rev-parse HEAD)"
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '22'
           cache: npm
