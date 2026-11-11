@@ -9,7 +9,7 @@
     "sync": "node scripts/sync-library.mjs"
   },
   "devDependencies": {
-    "@playwright/test": "^1.62.1",
+    "@playwright/test": "^1.65.0",
     "http-server": "^14.1.1"
   }
 }
