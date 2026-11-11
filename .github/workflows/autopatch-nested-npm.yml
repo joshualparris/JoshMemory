@@ -67,14 +67,27 @@ jobs:
         working-directory: ${{ matrix.dir }}
         run: npm ci --no-fund
       - name: Build if supported by the project
-        if: steps.changed.outputs.run == 'true'
+        if: steps.changed.outputs.run == 'true' && matrix.name != 'joshplatform'
         working-directory: ${{ matrix.dir }}
         run: npm run build --if-present
+      - name: Validate JoshPlatform static snapshot
+        if: steps.changed.outputs.run == 'true' && matrix.name == 'joshplatform'
+        working-directory: ${{ matrix.dir }}
+        run: |
+          set -euo pipefail
+          node -e "const fs=require('fs');const p=require('./package.json');if(!p.name)throw new Error('package.json has no name');for(const f of ['index.html','showcase.html']){if(!fs.existsSync(f))throw new Error('missing static entry: '+f)}"
+          {
+            echo "### JoshPlatform is a static snapshot"
+            echo ""
+            echo "This directory tracks only static entry points and package metadata."
+            echo "\`client/\`, \`server/\`, \`script/\` and \`tsconfig.json\` were never committed"
+            echo "in this repository's history, so the declared \`build\` and \`check\` scripts"
+            echo "cannot run here. Application build and runtime verification are"
+            echo "**unavailable** for this directory."
+            echo ""
+            echo "Verified instead: lockfile integrity (\`npm ci\`) and the static entry points."
+          } >> "$GITHUB_STEP_SUMMARY"
       - name: Run KKC Adventure unit tests
         if: steps.changed.outputs.run == 'true' && matrix.name == 'kkc-adventure'
         working-directory: ${{ matrix.dir }}
         run: CI=true npm test -- --runInBand
-      - name: Run JoshPlatform typecheck
-        if: steps.changed.outputs.run == 'true' && matrix.name == 'joshplatform'
-        working-directory: ${{ matrix.dir }}
-        run: npm run check --if-present
