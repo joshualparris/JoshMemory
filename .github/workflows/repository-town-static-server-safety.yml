@@ -4,12 +4,16 @@ on:
     paths:
       - 'repository-town/tools/serve.mjs'
       - 'repository-town/tests/static-server-security.mjs'
+      - 'repository-town/api/npc-chat.js'
+      - 'repository-town/tests/npc-chat-error-boundary.mjs'
       - '.github/workflows/repository-town-static-server-safety.yml'
   push:
     branches: [main]
     paths:
       - 'repository-town/tools/serve.mjs'
       - 'repository-town/tests/static-server-security.mjs'
+      - 'repository-town/api/npc-chat.js'
+      - 'repository-town/tests/npc-chat-error-boundary.mjs'
       - '.github/workflows/repository-town-static-server-safety.yml'
   workflow_dispatch:
 
@@ -32,6 +36,11 @@ jobs:
         run: |
           node --check tools/serve.mjs
           node --check tests/static-server-security.mjs
+          node --check api/npc-chat.js
+          node --check tests/npc-chat-error-boundary.mjs
       - name: Verify actual localhost HTTP file serving and fail-closed boundaries
         working-directory: repository-town
         run: node tests/static-server-security.mjs
+      - name: Verify malformed NPC JSON is rejected and Node remains responsive
+        working-directory: repository-town
+        run: node tests/npc-chat-error-boundary.mjs
