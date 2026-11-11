@@ -191,7 +191,13 @@ export class World {
     }
     if (request.headers.get('upgrade')?.toLowerCase() !== 'websocket')
       return reply({error:'WebSocket required'}, 426);
-    if (this.sockets().length >= 80) return reply({error:'Town server is full'}, 503);
+    const sockets = this.sockets();
+    if (sockets.length >= 80) return reply({error:'Town server is full'}, 503);
+    // Keep most capacity available for authenticated players. WebSockets do not
+    // acquire identity until the hello token is verified; cap those pending slots.
+    // This is defence-in-depth, not a replacement for edge-level rate limiting.
+    const pending = sockets.filter(socket => !socket.deserializeAttachment()?.id).length;
+    if (pending >= 8) return reply({error:'Too many connections awaiting sign-in'}, 503);
     const pair = new WebSocketPair();
     const client = pair[0], server = pair[1];
     this.ctx.acceptWebSocket(server);
