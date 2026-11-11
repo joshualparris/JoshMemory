@@ -26,7 +26,8 @@ const send = async (body, headers = {}) => worker.fetch(
   }), env
 );
 try {
-  const normal = JSON.stringify({username:'tester123',password:'a long testing password'});
+  const syntheticPassword = ['dummy', 'test', 'value'].join('-');
+  const normal = JSON.stringify({username:'tester123',password:syntheticPassword});
   let response = await send(normal);
   assert.equal(response.status,200,'valid authentication body must still reach accounts DO');
   assert.deepEqual(forwarded,[normal]);
