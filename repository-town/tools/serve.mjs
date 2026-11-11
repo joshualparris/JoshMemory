@@ -24,7 +24,17 @@ http.createServer((req, res) => {
     let raw = '';
     req.setEncoding('utf8');
     req.on('data', (c) => { if (raw.length < 32768) raw += c; });
-    req.on('end', () => { req.body = raw; npcChatHandler(req, res); });
+    req.on('end', () => {
+      req.body = raw;
+      // The API handler is async. Observe rejection so malformed JSON cannot
+      // become an unhandled promise rejection that terminates the Node host.
+      Promise.resolve().then(() => npcChatHandler(req, res)).catch(() => {
+        if (res.writableEnded || res.destroyed) return;
+        if (res.headersSent) { res.destroy(); return; }
+        res.writeHead(400, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' });
+        res.end(JSON.stringify({ error: 'Invalid NPC request.' }));
+      });
+    });
     return;
   }
   // A string prefix is not a directory boundary: public-backup is NOT public.

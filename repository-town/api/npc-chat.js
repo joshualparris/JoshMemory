@@ -72,7 +72,12 @@ export default async function handler(req,res){
   const messages=raw.slice(-8).map(m=>({role:m?.role,content:safeText(m?.content,850)}));
   if(messages.some(m=>!['user','assistant'].includes(m.role)||!m.content)||messages[messages.length-1].role!=='user')
     return reply(res,400,{error:'Please enter a message.'});
-  const guide=npc?creaturePrompt(npc):residentPrompt(resInfo);
+  // A supplied resident profile is JSON, not a trusted in-process object.
+  // Malformed primitive coercion (e.g. an own non-callable toString field)
+  // must not reject the async handler and crash the local Node server.
+  let guide;
+  try { guide=npc?creaturePrompt(npc):residentPrompt(resInfo); }
+  catch { return reply(res,400,{error:'Invalid resident profile.'}); }
   const npcId=npc?npc.id:safeText(body.npcId||resInfo.coordinate||'resident',60);
   const model=process.env.GROQ_MODEL||'openai/gpt-oss-20b';
   try {
