@@ -1,10 +1,11 @@
 """Ensure synthetic authentication tests do not weaken the public privacy gate."""
 from pathlib import Path
+import sys
 import tempfile
 
-from tools.check_privacy import scan_file
-
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / 'tools'))
+from check_privacy import scan_file
 
 
 def test_multiplayer_fixture_has_no_hardcoded_credential_pattern():
