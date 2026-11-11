@@ -20,6 +20,33 @@ const randomHex = n => hex(crypto.getRandomValues(new Uint8Array(n)));
 const hash = async input => hex(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(input))));
 const safeUsername = value => typeof value === 'string' && /^[a-zA-Z0-9_]{3,24}$/.test(value);
 const safePassword = value => typeof value === 'string' && value.length >= 12 && value.length <= 128;
+// Reject untrusted bodies at the public Worker boundary before buffering or
+// forwarding them to the persistent Accounts Durable Object. Byte limit is
+// deliberate: Unicode input must not bypass a character-only size check.
+async function readBoundedBody(request, maxBytes = 1000) {
+  const declared = request.headers.get('content-length');
+  if (declared && /^\d+$/.test(declared) && Number(declared) > maxBytes) return null;
+  if (!request.body) return '';
+  const reader = request.body.getReader();
+  const decoder = new TextDecoder();
+  let bytes = 0, text = '';
+  try {
+    while (true) {
+      const {value, done} = await reader.read();
+      if (done) break;
+      bytes += value.byteLength;
+      if (bytes > maxBytes) {
+        await reader.cancel('Request too large');
+        return null;
+      }
+      text += decoder.decode(value, {stream:true});
+    }
+    return text + decoder.decode();
+  } finally {
+    reader.releaseLock();
+  }
+}
+
 const parse = async request => {
   const body = await request.text();
   if (body.length > 1000) throw new Error('Request too large');
@@ -336,6 +363,11 @@ export default {
     if ((url.pathname === '/register' || url.pathname === '/login' || url.pathname === '/logout') && request.method !== 'POST') {
       return new Response(JSON.stringify({error:'Method not allowed'}),{status:405,headers:{...JSON_HEADERS,...cors}});
     }
+    // The DO's own 1000-character JSON check remains a second defence.
+    // Never read unlimited request.text() at this public, unauthenticated edge.
+    const body = request.method === 'POST' ? await readBoundedBody(request) : null;
+    if (request.method === 'POST' && body === null)
+      return reply({error:'Request too large'}, 413);
     const internal = new Request('https://accounts.internal'+(url.pathname === '/me'?'/verify':url.pathname), {
       method:url.pathname === '/me'?'GET':request.method,
       headers:{
@@ -344,7 +376,7 @@ export default {
         'content-type':'application/json'
       },
       // Buffer the small JSON request before forwarding into the accounts Durable Object.
-      body:request.method === 'POST'?await request.text():null
+      body
     });
     const response = await env.ACCOUNTS.get(env.ACCOUNTS.idFromName('accounts-v1')).fetch(internal);
     if (url.pathname === '/logout' && response.ok) {
