@@ -1,6 +1,7 @@
 // Isolated Node 22 localhost contract: untrusted NPC JSON must not kill the server.
 // Fake PIN/Groq credentials only; malformed profiles are rejected BEFORE any provider request.
 import assert from 'node:assert/strict';
+import {residentPrompt} from '../src/ui/npc-prompt.js';
 import fs from 'node:fs';
 import http from 'node:http';
 import net from 'node:net';
@@ -64,6 +65,8 @@ try {
     resident:{name:{toString:'not-a-function'},coordinate:'M4',role:'villager'},
     messages:[{role:'user',content:'hello'}],
   };
+  assert.throws(() => residentPrompt(malformed.resident), TypeError,
+    'the original unguarded prompt builder must genuinely reject malformed JSON');
   const response = await request('/api/npc-chat','POST',malformed);
   assert.equal(response.status,400,'malformed NPC JSON must receive HTTP 400');
   assert.doesNotMatch(response.body,/test-only-never-a-provider-key|local-test-pin/);
