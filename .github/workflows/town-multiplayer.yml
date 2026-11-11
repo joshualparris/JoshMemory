@@ -5,6 +5,7 @@ on:
       - 'repository-town/src/multiplayer/**'
       - 'repository-town/tests/multiplayer-live.mjs'
       - 'repository-town/tests/multiplayer-admission.mjs'
+      - 'repository-town/tests/multiplayer-body-limit.mjs'
       - 'repository-town/tests/multiplayer-browser.mjs'
       - 'repository-town/deploy/multiplayer-worker*'
       - 'repository-town/src/main.js'
@@ -16,6 +17,7 @@ on:
       - 'repository-town/src/multiplayer/**'
       - 'repository-town/tests/multiplayer-live.mjs'
       - 'repository-town/tests/multiplayer-admission.mjs'
+      - 'repository-town/tests/multiplayer-body-limit.mjs'
       - 'repository-town/tests/multiplayer-browser.mjs'
       - '.github/workflows/town-multiplayer.yml'
   workflow_dispatch:
@@ -42,8 +44,11 @@ jobs:
           node --check deploy/multiplayer-worker.js
           node --check tests/multiplayer-live.mjs
           node --check tests/multiplayer-admission.mjs
+          node --check tests/multiplayer-body-limit.mjs
       - name: Verify Worker pending-connection limit using only in-memory sockets
         run: node tests/multiplayer-admission.mjs
+      - name: Verify local authentication body limits (no network)
+        run: node tests/multiplayer-body-limit.mjs
       - name: Exercise two different accounts on actual deployed WebSocket server
         env:
           MULTIPLAYER_URL: ${{ github.event_name == 'pull_request' && 'https://repo-town-multiplayer-staging.parris-neathaustralia.workers.dev' || 'https://repo-town-multiplayer.parris-neathaustralia.workers.dev' }}
