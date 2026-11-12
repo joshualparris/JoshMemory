@@ -37,7 +37,7 @@ jobs:
       - name: Validate shell deploy scripts
         run: bash -n deploy/*.sh
       - name: Test
-        run: python -m pytest -q
+        run: pytest -q
 
   cloud-container:
     runs-on: ubuntu-latest
