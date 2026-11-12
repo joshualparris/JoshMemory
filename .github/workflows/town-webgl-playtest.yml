@@ -11,6 +11,7 @@ on:
     paths:
       - 'repository-town/src/**'
       - 'repository-town/tests/webgl-playtest.mjs'
+      - 'repository-town/tests/life.mjs'
       - 'repository-town/tools/**'
       - 'repository-town/package.json'
       - '.github/workflows/town-webgl-playtest.yml'
