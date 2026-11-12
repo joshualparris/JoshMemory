@@ -204,18 +204,23 @@ if(tr){
 await T(() => window.__town.life.setTime(12 * 60 + 40));
 await T(() => window.__town.life.run(20));
 // A villager with no street character closer, so E (like the prompt) talks to the villager.
-let key = null;
-for (let i = 2; i < 14 && !key; i++) {
-  const k = await T((n) => window.__town.meetVillager(n), i);
+let openedVillagerChat = false;
+for (let candidate = 2; candidate < 14; candidate++) {
+  await T((index) => window.__town.meetVillager(index), candidate);
   await nearTo(/^villager:/);
   s = await st();
-  if (!s.nearNPC) key = k;
+  if (!/^villager:/.test(s.nearPerson || '') || s.nearNPC) continue;
+  await press('e');
+  s = await st();
+  if (/lives at/.test(s.panel?.title || '')) {
+    openedVillagerChat = true;
+    break;
+  }
+  // Walking residents can leave interaction range before the next input frame.
+  if (s.panel) await T(() => window.__town.closePanel());
 }
-s = await st();
-check(/^villager:/.test(s.nearPerson || ''), `standing by a villager (${s.nearPerson}; asked for ${key})`);
-await press('e');
-s = await st();
-check(/lives at/.test(s.panel?.title || ''), `villager chat: ${s.panel?.title} (near ${s.nearPerson}, street character ${s.nearNPC})`);
+if (!openedVillagerChat) throw new Error('Could not open a nearby villager conversation with E');
+check(openedVillagerChat, `villager chat: ${s.panel.title}`);
 const ask = async (q) => {
   await T((q) => { const b = [...document.querySelectorAll('.chat-chip')].find((x) => x.dataset.ask === q); b.click(); }, q);
   await page.waitForFunction(() => !document.querySelector('.thinking'), null, { timeout: 15000 });
