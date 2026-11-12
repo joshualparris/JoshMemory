@@ -30,7 +30,19 @@ try{
   });
   const enterBed=async()=>{
     assert(await page.evaluate(k=>window.__town.approach(k),bed.key),'approach the actual bed safely');
-    await page.waitForFunction(k=>window.__town.state().near===k,bed.key,{timeout:5000});
+    // Software WebGL can render very slowly in hosted Chromium. Wait for the
+    // actual player-facing interaction to register; do not bypass the 3D target.
+    try {
+      await page.waitForFunction(k=>window.__town.state().near===k,bed.key,{timeout:20000,polling:100});
+    } catch (error) {
+      const observed=await page.evaluate(k=>{
+        const s=window.__town.state();
+        return {expected:k,near:s.near,pos:s.pos,mode:s.mode,
+          interactable:s.interactables.find(x=>x.key===k)||null};
+      },bed.key);
+      throw new Error('Hotel bed could not be approached in real browser: '
+        +JSON.stringify(observed)+'; '+error.message);
+    }
     await page.keyboard.press('e');
     await page.waitForFunction(()=>window.__town.state().panel?.buttons?.some(b=>b.includes('30 minutes')),null,{timeout:5000});
   };
