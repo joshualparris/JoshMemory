@@ -26,10 +26,10 @@
   },
   "devDependencies": {
     "brython": "^3.12.4",
-    "esbuild": "^0.23.1",
+    "esbuild": "^0.28.2",
     "playwright": "1.56.1",
     "sql.js": "^1.10.3",
     "three": "0.160.1",
-    "vite-plugin-singlefile": "^2.0.3"
+    "vite-plugin-singlefile": "^2.3.4"
   }
 }
