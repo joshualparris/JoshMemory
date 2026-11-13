@@ -88,7 +88,7 @@ If the development computer already has GitHub access, JoshMemory looks for a us
 1. `JOSHMEMORY_GITHUB_TOKEN`
 2. `GH_TOKEN`
 3. `GITHUB_TOKEN`
-4. `gh auth token`
+4. the backing-store owner's saved `gh` account, then the active account for organization-owned stores
 5. the configured Git credential helper for `github.com`
 
 It never stores the discovered credential in JoshMemory or commits it to GitHub.
@@ -109,7 +109,10 @@ Optional overrides:
 export JOSHMEMORY_GITHUB_STORE_REPO="owner/private-memory-repo"
 export JOSHMEMORY_GITHUB_STORE_BRANCH="main"
 export JOSHMEMORY_GITHUB_STORE_ROOT="joshmemory-cloud/v1"
+export JOSHMEMORY_GITHUB_ACCOUNT="github-login-with-access" # optional: pin a CLI account
 ```
+
+If shared memory returns HTTP 404 while the private repository exists, check the local GitHub account's access. GitHub masks inaccessible private repositories as not found. Sign in with an account that can access the store (`gh auth login --hostname github.com --web`). JoshMemory prefers the saved backing-store owner's login so changing the CLI's active account for another project does not silently select an unrelated credential. For organization-owned stores, set `JOSHMEMORY_GITHUB_ACCOUNT` to the authorized member login. Explicit token environment variables continue to take precedence. Do not disable cloud memory to hide an access error or redirect writes to a public repository.
 
 To deliberately disable automatic GitHub storage and keep the shared operations local:
 

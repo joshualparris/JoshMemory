@@ -55,17 +55,25 @@ def _now() -> str:
 
 
 def _token_from_gh() -> str:
-    try:
-        completed = subprocess.run(
-            ["gh", "auth", "token"],
-            capture_output=True,
-            text=True,
-            timeout=3,
-            check=False,
-        )
-    except (FileNotFoundError, subprocess.SubprocessError, OSError):
-        return ""
-    return completed.stdout.strip() if completed.returncode == 0 else ""
+    # A developer can switch the CLI's active account for unrelated repository
+    # work. Prefer the backing-store owner's saved login instead of accidentally
+    # sending a different account's credential to a private store.
+    account = os.environ.get("JOSHMEMORY_GITHUB_ACCOUNT", "").strip()
+    preferred = account or _repo().partition("/")[0]
+    commands = [["gh", "auth", "token", "--hostname", "github.com", "--user", preferred]]
+    if not account:
+        # Organization-owned stores may use a member's active account.
+        commands.append(["gh", "auth", "token", "--hostname", "github.com"])
+    for command in commands:
+        try:
+            completed = subprocess.run(
+                command, capture_output=True, text=True, timeout=3, check=False,
+            )
+        except (FileNotFoundError, subprocess.SubprocessError, OSError):
+            continue
+        if completed.returncode == 0 and completed.stdout.strip():
+            return completed.stdout.strip()
+    return ""
 
 
 def _token_from_git_credential() -> str:
@@ -102,7 +110,10 @@ def github_token() -> str:
         value = os.environ.get(name, "").strip()
         if value:
             return value
-    return _token_from_gh() or _token_from_git_credential()
+    cli_token = _token_from_gh()
+    if cli_token or os.environ.get("JOSHMEMORY_GITHUB_ACCOUNT", "").strip():
+        return cli_token
+    return _token_from_git_credential()
 
 
 def enabled() -> bool:
@@ -144,7 +155,10 @@ def _api_request(method: str, endpoint: str, payload: dict[str, Any] | None = No
             detail = json.loads(exc.read().decode("utf-8")).get("message", str(exc))
         except Exception:
             detail = str(exc)
-        raise GitHubStoreError(f"GitHub shared memory HTTP {exc.code}: {detail}") from exc
+        context = f" (store {_repo()}, branch {_branch()})"
+        if exc.code == 404:
+            context += "; verify repository/ref existence and private-repository access for the selected GitHub account"
+        raise GitHubStoreError(f"GitHub shared memory HTTP {exc.code}: {detail}{context}") from exc
     except (error.URLError, TimeoutError, OSError, json.JSONDecodeError) as exc:
         raise GitHubStoreError(f"GitHub shared memory unavailable: {exc}") from exc
 

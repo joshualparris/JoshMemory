@@ -4,10 +4,12 @@ import os
 @pytest.fixture(autouse=True)
 def prevent_production_db_pollution(tmp_path, monkeypatch):
     '''
-    Enforce that no test can accidentally read/write the user's real JoshMemory SQLite DB.
-    This protects ~/.local/share/joshmemory/memory.sqlite by redirecting the home dir.
+    Isolate both SQLite and automatic shared storage from the user's real memory.
+    Backend-specific tests can explicitly enable their mocked/local test backend.
     '''
     isolated_home = tmp_path / "isolated_joshmemory_home"
     isolated_home.mkdir(exist_ok=True)
     monkeypatch.setenv("JOSHMEMORY_HOME", str(isolated_home))
+    monkeypatch.setenv("JOSHMEMORY_GITHUB_STORE_AUTO", "0")
+    monkeypatch.delenv("JOSHMEMORY_REMOTE_URL", raising=False)
     yield
