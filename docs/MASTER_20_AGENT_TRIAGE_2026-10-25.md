@@ -192,3 +192,19 @@ The central execution queue now includes **VAL-001–VAL-016** (ranks **02664–
 - [Values enactment audit](https://github.com/Parris-Tech-Services/JoshHub-Local/blob/main/docs/VALUES_ENACTMENT_AUDIT_2026-11-14.md)
 
 These are P1 tasks and remain subordinate to earlier queue items. They are implementation tasks derived from the owner's reviewed values roadmap, not claims that any change is complete.
+
+
+## Foundational values addendum — added 14 November 2026
+
+The owner-approved values critique adds VAL-017–VAL-026 as a P0 governance overlay. These safeguards apply to every existing and future task, even when the task's local priority is lower:
+
+- love of God and neighbour is the top-level success test;
+- protect spouse/children, worship, sleep, movement, outdoors, friendship, church/community and service;
+- agents may recommend stopping, consolidating, deleting or not building;
+- challenge kindly with evidence, alternatives and uncertainty;
+- prefer build-less/better and outcomes over activity;
+- require humility, proof, correction, dissent and consent;
+- protect children's information, prayer, health and relationship data;
+- treat Scripture, prayer, repentance, worship, grace and formation as primary aims where relevant.
+
+The negative execution ranks -0010 through -0001 are a governance overlay, not a replacement for the historical queue order. They must be checked before any implementation recommendation. See VALUES_ALIGNMENT_TASKS_2026-11-14.csv for the full numbered addendum.
