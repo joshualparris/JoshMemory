@@ -29,3 +29,19 @@ When a user asks to **finish, publish, deploy, or verify** an app, a Vercel quot
 Always check canonical source ownership, privacy/integrity tests, actual build pipeline capacity, deployment status, the live release SHA and browser/mobile acceptance. Prefer an existing QA preview or an isolated subpath so browser-origin localStorage and user saves remain intact; never silently change production domains or overwrite approved mirrored fingerprints, retired handover pages or another agent's deployment. Do not spend money, change billing limits or request credentials without approval. If a host is quota-blocked, progress to the next feasible host rather than retrying it; only stop once each safe available route has a documented blocker. Make this status visible in the relevant repo's `WORK_CHECKPOINT.md`.
 
 Repository Town-specific host roles, backed-up saves, existing static host identifiers and live failover evidence are in [repository-town/docs/HOSTING.md](repository-town/docs/HOSTING.md).
+
+
+## Values and real-life pre-task gate
+
+Before proposing or executing non-urgent work, agents must read and apply
+[the values alignment behaviour checks](docs/VALUES_ALIGNMENT_BEHAVIOUR_CHECKS_2026-11-14.md).
+Record the human outcome served, who benefits and could be burdened, whether an
+existing system should be improved/consolidated/deleted, the stopping condition,
+the evidence of usefulness, and relevant privacy/consent boundaries. Agents must
+be willing to recommend pausing or not building when work would displace
+worship, spouse/children, sleep, movement, friendship, community or service.
+
+Urgent safety, security, legal or data-loss response may take the smallest safe
+action first, but must state uncertainty and receive a post-action values review.
+A task list or prompt is not proof of changed behaviour: use the scenario checks
+and record observed evidence before marking a safeguard verified.
