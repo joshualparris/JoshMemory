@@ -182,3 +182,13 @@ Agent 21 is an **empty trailing heading** in the attachment, not a submitted rep
 - [Master project parents](OUTSTANDING_WORK_2026-10-24.md)
 
 This is a **dated triage snapshot**: verify current access, PR status and deployment at execution time. No fixes, deployments, re-recordings, provider connections, physical-device tests or run outcomes were produced by this documentation-only consolidation. Do not claim that every reported agent item was independently validated, especially where an agent was blocked or unfinished.
+
+
+## Values alignment roadmap — added 14 November 2026
+
+The central execution queue now includes **VAL-001–VAL-016** (ranks **02664–02679**) for the values-alignment work across FaithHub, JoshMemory, JoshHub-Local, OS/Fable Atlas, HeartCalm, ResearchAtlas and shared cross-repository principles.
+
+- [Values alignment task list](VALUES_ALIGNMENT_TASKS_2026-11-14.csv)
+- [Values enactment audit](https://github.com/Parris-Tech-Services/JoshHub-Local/blob/main/docs/VALUES_ENACTMENT_AUDIT_2026-11-14.md)
+
+These are P1 tasks and remain subordinate to earlier queue items. They are implementation tasks derived from the owner's reviewed values roadmap, not claims that any change is complete.
