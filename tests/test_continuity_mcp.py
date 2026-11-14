@@ -35,3 +35,25 @@ def test_resume_tool_serializes_result():
         )
     text = response["result"]["content"][0]["text"]
     assert json.loads(text) == expected
+
+
+def test_resume_delivers_values_gate_through_real_handler(tmp_path):
+    # Only storage/context boundaries are isolated; the resume builder and MCP
+    # handler execute together, so omitting the gate from either breaks this.
+    with (
+        patch("joshmemory.continuity.get_project_context", return_value={}),
+        patch("joshmemory.continuity.get_active_lease", return_value=None),
+        patch("joshmemory.continuity.list_work_events", return_value=[]),
+    ):
+        response = continuity_mcp.handle({
+            "jsonrpc": "2.0", "id": 8, "method": "tools/call",
+            "params": {"name": "resume_brief", "arguments": {"project": "Example"}},
+        })
+    brief = json.loads(response["result"]["content"][0]["text"])
+    gate = brief["values_pre_task_gate"]
+    assert gate["task_ids"] == ["VAL-018", "VAL-019", "VAL-022"]
+    assert gate["required_before_optional_work"] is True
+    assert "values pre-task gate" in brief["resume_rule"]
+    assert "informed choice" in gate["agency"]
+    assert "smallest" in gate["urgent_exception"]
+    assert "does not prove" in gate["verification"]
