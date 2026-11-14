@@ -4,7 +4,11 @@
 **Source:** User-supplied 20-page report PDF and live checked source trackers on GitHub.  
 **Authority:** This file is the **cross-project priority entry point**, not a replacement for each repository's canonical checklist or an authorisation to change production.
 
-## The precise next task — SylvieApp first
+## First apply the P0 governance gate
+
+**Ranks -10 through -1 (VAL-017–VAL-026) are the first ten CSV rows** and must be checked before any non-urgent implementation. They are operating constraints, not ten separate coding jobs to complete before useful work. Apply [the mandatory pre-task gate](VALUES_PRETASK_GATE.md), with the documented urgent safety/security/data-loss exception. [The monthly outcomes review](MONTHLY_VALUES_OUTCOMES_REVIEW.md) is a voluntary, private-first reflection, not another dashboard or a claim that human outcomes are already improved.
+
+## The precise next implementation task — SylvieApp first
 
 > **Rank 00001 — SVA-008:** Identify missing, damaged, mismatched or unsuitable ElevenLabs clips and record exceptions against the current source. **Rank 00002 — SVA-012:** Implement and verify the common recorded-audio controller across SylvieApp activities. Start with the first eligible unclaimed row after reading the current repo coordination and checkpoint.
 
@@ -16,7 +20,7 @@ Mixed `GRC-005` covers other non-DCS findings and remains in the active queue; i
 
 ## Canonical machine-readable order
 
-[**MASTER 20-agent execution queue — 2,663 unique IDs, full ordered CSV**](MASTER_20_AGENT_EXECUTION_QUEUE_2026-10-25.csv)
+[**MASTER 20-agent execution queue — 2,689 unique IDs, full ordered CSV**](MASTER_20_AGENT_EXECUTION_QUEUE_2026-10-25.csv)
 
 **Rows 00001–02640** form the actionable/blocked queue, including **45 provider-access blocked Greptile reviews, two physical-device gates and report-intake blockers**. A blocked row retains its priority and an explicit blocker, but must not halt an unrelated eligible task. **Rows 02641–02663** are historical or already-reviewed **reference only**, not a command to repeat work. The `execution_rank` is the definitive cross-portfolio sequence and is different from the permanent `task_id`. Each permanent ID occurs **exactly once**. It is deliberately a *serial sorting rule*, not a claim that one agent can physically execute 2,640 tasks in one session.
 
@@ -107,7 +111,7 @@ Scope totals: 1,864 named `TR-xxx.yy` review subtasks (1,848 open; 16 reference-
 | **02641–02662** | 22 historical/reviewed non-DCS reference entries. |
 | **02663** | Historical DCSCompanion `GRA-037` review reference only. |
 
-Use the accompanying [2,663-row CSV](MASTER_20_AGENT_EXECUTION_QUEUE_2026-10-25.csv) as the **exact single ordering source**. `execution_rank` is a *user preference and scheduling number*, not a permanent task ID, security severity, proof of a fix or authority to access a former employer's accounts. Original risk labels and status are preserved in each row. Local canonical checklists keep their own status and within-repository ordering.
+Use the accompanying [2,689-row CSV](MASTER_20_AGENT_EXECUTION_QUEUE_2026-10-25.csv) as the **exact single ordering source**. `execution_rank` is a *user preference and scheduling number*, not a permanent task ID, security severity, proof of a fix or authority to access a former employer's accounts. Original risk labels and status are preserved in each row. Local canonical checklists keep their own status and within-repository ordering.
 
 ## Canonical ID reconciliation — Agent 2 vs Agent 4
 
@@ -207,7 +211,7 @@ The owner-requested values review adds VAL-017–VAL-026 as a P0 governance over
 - protect children's information, prayer, health and relationship data;
 - treat Scripture, prayer, repentance, worship, grace and formation as primary aims where relevant.
 
-The negative execution ranks -0010 through -0001 are a governance overlay, not a replacement for the historical queue order. They must be checked before any implementation recommendation. See VALUES_ALIGNMENT_TASKS_2026-11-14.csv for the full numbered addendum.
+The negative execution ranks -10 through -1 are a governance overlay, not a replacement for the historical queue order. They must be checked before any implementation recommendation. See VALUES_ALIGNMENT_TASKS_2026-11-14.csv for the full numbered addendum.
 
 
 ## Behaviour verification
