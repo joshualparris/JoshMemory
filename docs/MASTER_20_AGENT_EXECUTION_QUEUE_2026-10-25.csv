@@ -2662,7 +2662,6 @@ execution_rank,task_id,priority,workstream,action,status,dependency_ids,item_typ
 02661,TR-002.07,REF,Portfolio triage,"Verify committed documentation and numbering (review TR-002, joshualparris/Whispering-Wilds, step 07)",LEGACY_PARENT_TRIAGED_NOT_STEP_VERIFIED,TR-002.06,REFERENCE_NOT_ACTIONABLE,JoshMemory 233-repo TR 1864-step registry
 02662,TR-002.08,REF,Portfolio triage,"Advance central portfolio registry (review TR-002, joshualparris/Whispering-Wilds, step 08)",LEGACY_PARENT_TRIAGED_NOT_STEP_VERIFIED,TR-002.07,REFERENCE_NOT_ACTIONABLE,JoshMemory 233-repo TR 1864-step registry
 02663,GRA-037,REF,Greptile repository reviews,Review repository parris-tech-services/dcscompanion via Greptile; convert verified findings into source-owned tasks.,REVIEWED_FINDINGS_OPEN,,REFERENCE_NOT_ACTIONABLE,RepoClean 208-entry GRA audit queue
-
 02664,VAL-001,P1,FaithHub,"Add a presence-over-performance mode: hide streaks, completion pressure and scoring by default",OPEN,,ACTION,Values alignment roadmap 2026-11-14
 02665,VAL-002,P1,FaithHub,"Add Sabbath/rest and silence flows that do not require logging or completion",OPEN,VAL-001,ACTION,Values alignment roadmap 2026-11-14
 02666,VAL-003,P1,FaithHub,"Audit private prayer, export, analytics and family/community consent boundaries",OPEN,,ACTION,Values alignment roadmap 2026-11-14
@@ -2679,7 +2678,6 @@ execution_rank,task_id,priority,workstream,action,status,dependency_ids,item_typ
 02677,VAL-014,P1,ResearchAtlas,"Link research to real projects, conversations, habits and service outcomes",OPEN,VAL-013,ACTION,Values alignment roadmap 2026-11-14
 02678,VAL-015,P1,Cross-repository,"Adopt shared metadata: value_served,human_benefit,risk_of_distortion,evidence_source,confidence,review_by,must_not_do",OPEN,,ACTION,Values alignment roadmap 2026-11-14
 02679,VAL-016,P1,Cross-repository,"Publish shared principles: dignity over optimization; truth over reassurance; faithfulness over performance; agency over dependence; stewardship over accumulation",OPEN,VAL-015,ACTION,Values alignment roadmap 2026-11-14
-
 -10,VAL-017,P0,All agents and projects,"Make love of God and love of neighbour the top-level success test; require a human correction before durable value claims",OPEN,,GOVERNANCE,Values alignment addendum 2026-11-14
 -9,VAL-018,P0,All agents and projects,"Protect real-life commitments: spouse/children, worship, sleep, movement, outdoors, friendship, church/community and service must outrank optional software work",OPEN,VAL-017,GOVERNANCE,Values alignment addendum 2026-11-14
 -8,VAL-019,P0,All agents and projects,"Add stopping rules: agents must be able to recommend not building, pausing, consolidating or deleting work when marginal value is low",OPEN,VAL-017,GOVERNANCE,Values alignment addendum 2026-11-14
