@@ -1,0 +1,17 @@
+task_id,priority,workstream,action,status,dependency_ids,item_type,source_registry
+VAL-001,P1,FaithHub,"Add a presence-over-performance mode: hide streaks, completion pressure and scoring by default",OPEN,,ACTION,Values alignment roadmap 2026-11-14
+VAL-002,P1,FaithHub,"Add Sabbath/rest and silence flows that do not require logging or completion",OPEN,VAL-001,ACTION,Values alignment roadmap 2026-11-14
+VAL-003,P1,FaithHub,"Audit private prayer, export, analytics and family/community consent boundaries",OPEN,,ACTION,Values alignment roadmap 2026-11-14
+VAL-004,P1,JoshMemory,"Add provenance, date, confidence, expiry and user-correction states to durable facts and interpretations",OPEN,,ACTION,Values alignment roadmap 2026-11-14
+VAL-005,P1,JoshMemory,"Create a do-not-infer register for family, health, faith, identity and sensitive relationships",OPEN,VAL-004,ACTION,Values alignment roadmap 2026-11-14
+VAL-006,P1,JoshMemory,"Separate facts, interpretations, commitments and unresolved tensions in resume outputs",OPEN,VAL-004,ACTION,Values alignment roadmap 2026-11-14
+VAL-007,P1,JoshHub-Local,"Add a faithful-next-step home surface balancing rest, relationships, health, prayer, learning and work",OPEN,,ACTION,Values alignment roadmap 2026-11-14
+VAL-008,P1,JoshHub-Local,"Add release/not-now states and value/why context so the dashboard does not turn every concern into a task",OPEN,VAL-007,ACTION,Values alignment roadmap 2026-11-14
+VAL-009,P1,OS,"Require evidence, alternative explanations, contradictions and human confirmation for portrait interpretations",OPEN,,ACTION,Values alignment roadmap 2026-11-14
+VAL-010,P1,OS,"Distinguish observed behavior, inferred motive, coping strategy and aspirational value",OPEN,VAL-009,ACTION,Values alignment roadmap 2026-11-14
+VAL-011,P1,HeartCalm,"Add a person/contact support pathway and preserve interruptible red-flag escalation during active episodes",OPEN,,ACTION,Values alignment roadmap 2026-11-14
+VAL-012,P1,HeartCalm,"Separate recorded facts, user interpretations and generated suggestions in logs and GP summaries",OPEN,,ACTION,Values alignment roadmap 2026-11-14
+VAL-013,P1,ResearchAtlas,"Add application, synthesis, disconfirming-evidence and stopping-rule fields to research items",OPEN,,ACTION,Values alignment roadmap 2026-11-14
+VAL-014,P1,ResearchAtlas,"Link research to real projects, conversations, habits and service outcomes",OPEN,VAL-013,ACTION,Values alignment roadmap 2026-11-14
+VAL-015,P1,Cross-repository,"Adopt shared metadata: value_served,human_benefit,risk_of_distortion,evidence_source,confidence,review_by,must_not_do",OPEN,,ACTION,Values alignment roadmap 2026-11-14
+VAL-016,P1,Cross-repository,"Define and publish shared principles: dignity over optimization, truth over reassurance, faithfulness over performance, agency over dependence, stewardship over accumulation",OPEN,VAL-015,ACTION,Values alignment roadmap 2026-11-14
