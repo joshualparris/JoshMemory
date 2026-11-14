@@ -60,3 +60,7 @@ The gate record belongs in the relevant checkpoint or task handoff. Leave the
 work unstarted when the record cannot be completed safely. Urgent safety,
 security, legal or data-loss work may use the documented exception, followed by
 an after-action review.
+
+### Monthly outcomes review
+
+Follow [the 10-minute values and outcomes review](docs/MONTHLY_VALUES_OUTCOMES_REVIEW.md) for occasional portfolio reflection. This is read-only by default, may conclude that no new work is needed, and must never treat commits or automation counts as human benefit. Ask Josh about personal outcomes rather than inferring relationships, wellbeing or faith; keep private answers out of public repositories.
