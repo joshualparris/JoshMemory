@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#080d17" />
+  <meta name="description" content="OmniCode: a living experiment in making programming languages work together." />
+  <title>OmniCode — Every language. One living system.</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <header class="topbar shell">
+    <a class="brand" href="#top" aria-label="OmniCode home"><span class="brand-icon">&lt;/&gt;</span><span>OMNI<span class="accent-text">CODE</span></span><small>EXPERIMENT 001</small></a>
+    <nav class="mainnav" aria-label="Main navigation"><a href="#pipeline">Pipeline</a><a href="#playground">Playground</a><a href="#roadmap">Roadmap</a></nav>
+    <a class="repo-link" target="_blank" rel="noreferrer" href="https://github.com/joshualparris/JoshMemory/tree/main/omnicode">View source <span aria-hidden="true">↗</span></a>
+  </header>
+  <main id="top">
+    <section class="hero shell">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="signal"></span> THE POLYGLOT DATA PIPELINE <span class="eyebrow-trail">/ v0.1</span></div>
+        <h1>Every language.<br/><span>One living system.</span></h1>
+        <p class="lede">An ambitious, slightly ridiculous and very real experiment: make programming languages work <em>together</em> on the same transaction. Not just hello-world files. An actual chain of execution.</p>
+        <div class="hero-actions"><a class="btn btn-primary" href="#playground">Try an audit <span aria-hidden="true">↗</span></a><a class="btn btn-ghost" href="#pipeline">Explore the architecture <span aria-hidden="true">↓</span></a></div>
+        <div class="hero-caption"><span class="mini-led"></span> Built from the original December 2025 plan · Reborn November 2026</div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="art-upper"><span>OMNICODE / RUNTIME GRAPH</span><span>SYS : ONLINE</span></div>
+        <div class="orbit orbit-a"></div><div class="orbit orbit-b"></div>
+        <div class="orbit-center"><span>OC</span><small>ORCHESTRATOR</small></div>
+        <div class="orbit-chip chip-one">PY <small>01</small></div><div class="orbit-chip chip-two">GO <small>02</small></div><div class="orbit-chip chip-three">C <small>03</small></div><div class="orbit-chip chip-four">JS <small>04</small></div><div class="orbit-chip chip-five">AWK <small>05</small></div><div class="orbit-chip chip-six">JAVA <small>06</small></div>
+        <div class="art-bottom"><span class="art-pulse"></span> MULTI-RUNTIME / PROVEN LOCALLY <span>9 STAGES</span></div>
+      </div>
+    </section>
+    <div class="metrics-shell shell"><div class="metrics">
+      <div class="metric"><strong>09<span> / ∞</span></strong><small>Executed languages <em>locally</em></small></div>
+      <div class="metric"><strong>01<span> / 09</span></strong><small>Cloud demo runtime</small></div>
+      <div class="metric"><strong>50<span> → 100+</span></strong><small>Next milestones</small></div>
+      <div class="metric stat-wide"><span class="metric-mark">↳</span><p><b>No pretend integrations.</b><br />A language only counts when its code actually runs and its result is tested.</p></div>
+    </div></div>
+    <section id="pipeline" class="section shell">
+      <div class="section-heading"><div><div class="kicker">01 / SYSTEM ARCHITECTURE</div><h2>One request. Nine languages.</h2><p>The same example email moves through distinct, working adapters. Go coordinates the local chain; each stage performs a real operation.</p></div><span class="outline-tag">LOCAL FULL PIPELINE</span></div>
+      <div id="stage-grid" class="stage-grid" aria-label="Pipeline stages"></div>
+      <p class="note"><b>Scope:</b> The nine-stage pipeline runs on a machine with the listed runtimes installed. The hosted playground demonstrates a single Node.js API, and does not claim to execute all nine remotely.</p>
+    </section>
+    <section id="playground" class="section playground-section shell">
+      <div class="section-heading"><div><div class="kicker">02 / LIVE PLAYGROUND</div><h2>Put it to work.</h2><p>Run a harmless example login-audit transaction. Use a made-up address; this is a developer demo, not a real authentication service.</p></div><span class="outline-tag" id="runtime-tag">CHECKING RUNTIME…</span></div>
+      <div class="playground-layout">
+        <div class="runner card-surface">
+          <div class="runner-title"><span class="tiny-hex">⌘</span> AUDIT WORKBENCH <span class="runner-number">TX / 001</span></div>
+          <label for="email">Example email</label>
+          <form id="audit-form" class="audit-form"><input id="email" name="email" type="email" autocomplete="off" spellcheck="false" value="alex@example.com" maxlength="254" required aria-describedby="privacy-note"/><button class="btn btn-primary" id="run-button" type="submit">Execute <span aria-hidden="true">↗</span></button></form>
+          <div class="preset-label">QUICK INPUTS</div>
+          <div class="presets"><button type="button" data-email="alex@example.com">example.com</button><button type="button" data-email="jane@outlook.com">outlook.com</button><button type="button" data-email="developer@omnicode.dev">omnicode.dev</button></div>
+          <p id="privacy-note" class="privacy">No email is stored by this app. Avoid real credentials or sensitive data.</p>
+          <div class="execution-state"><span id="state-led" class="state-led"></span><span id="state-text" role="status" aria-live="polite">Ready to execute</span><span id="execution-time">—</span></div>
+        </div>
+        <div class="output card-surface">
+          <div class="runner-title"><span class="tiny-hex">{ }</span> RESPONSE INSPECTOR <button type="button" id="copy-json" disabled>Copy JSON</button></div>
+          <div id="response-summary" class="response-summary"><div class="empty-output"><span>›_</span><p>Your output will appear here after you execute a transaction.</p></div></div>
+          <div class="code-bar"><span>application/json</span><span id="result-mode">AWAITING INPUT</span></div>
+          <pre id="response-json" class="json-output" tabindex="0" aria-label="JSON response">// Waiting for execution…</pre>
+        </div>
+      </div>
+      <div id="trace-wrap" class="trace-wrap" hidden><h3>Execution trace <small id="trace-label"></small></h3><div id="trace-list" class="trace-list"></div></div>
+    </section>
+    <section id="roadmap" class="section shell roadmap-section">
+      <div class="section-heading"><div><div class="kicker">03 / EXPANSION PROTOCOL</div><h2>From nine to everywhere.</h2><p>The future is earned stage by stage. Each addition must build, execute and pass real tests before it counts.</p></div></div>
+      <div class="roadmap-grid"><div class="roadmap-card milestone-done"><span class="roadmap-index">PHASE 01 <em>BUILT</em></span><h3>Foundation</h3><strong>9 languages</strong><p>Working local transaction pipeline and browser playground, with validation and integration tests.</p><div class="progressbar"><i style="width:100%"></i></div></div><div class="roadmap-card"><span class="roadmap-index">PHASE 02 <em>UP NEXT</em></span><h3>Expansion</h3><strong>50 technologies</strong><p>COBOL, Rust, Ruby, SQL, GraphQL, Docker, Terraform, React and more, each with a meaningful role.</p><div class="progressbar"><i style="width:18%"></i></div></div><div class="roadmap-card"><span class="roadmap-index">PHASE 03 <em>VISION</em></span><h3>The long tail</h3><strong>100+ languages</strong><p>Historical, specialised, functional and experimental languages, with reproducible test runners.</p><div class="progressbar"><i style="width:2%"></i></div></div></div>
+    </section>
+  </main>
+  <footer class="footer shell"><div><span class="brand-small">&lt;/&gt; OMNICODE</span><p>One system, a thousand ways to think.</p></div><span>Made to learn, built to prove. <a href="https://github.com/joshualparris/JoshMemory/tree/main/omnicode" target="_blank" rel="noreferrer">Source code ↗</a></span></footer>
+</body>
+</html>
