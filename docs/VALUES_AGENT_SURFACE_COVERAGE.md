@@ -10,13 +10,14 @@ produces evidence for the scenarios below.
 | Checkout | Entry point | Additional agent path | Current delivery |
 |---|---|---|---|
 | JoshMemory | `AGENTS.md` | Resume response includes a structured gate | Runtime integration merged in PR #592; coverage/coordination record in PR #593 |
-| JoshHub | `AGENTS.md` | `.github/copilot-instructions.md` directs agents to `AGENTS.md`; protocol names ChatGPT, Claude, Codex, Antigravity and Copilot | Proposed in [PR #12](https://github.com/joshualparris/JoshHub/pull/12) |
-| JoshBooksOnline | `AGENTS.md` | `CLAUDE.md` contains `@AGENTS.md`; generated Next.js guidance is retained | Proposed in [PR #7](https://github.com/Parris-Tech-Services/JoshBooksOnline/pull/7) |
-| Money | `AGENTS.md` | `CLAUDE.md` contains `@AGENTS.md`; generated Next.js guidance is retained | Proposed in [PR #14](https://github.com/parristechservices-prog/money1/pull/14) |
+| JoshHub | `AGENTS.md` | `.github/copilot-instructions.md` directs agents to `AGENTS.md`; protocol names ChatGPT, Claude, Codex, Antigravity and Copilot | Merged via [PR #12](https://github.com/joshualparris/JoshHub/pull/12), commit [`8bb98be`](https://github.com/joshualparris/JoshHub/commit/8bb98be305ad5a9568b5d0f575f7c87c57e4fc06) |
+| JoshBooksOnline | `AGENTS.md` | `CLAUDE.md` contains `@AGENTS.md`; generated Next.js guidance is retained | Merged via [PR #7](https://github.com/Parris-Tech-Services/JoshBooksOnline/pull/7), commit [`1c79479`](https://github.com/Parris-Tech-Services/JoshBooksOnline/commit/1c7947999f1b8f55d85d49eac129d1e0b003770d) |
+| Money | `AGENTS.md` | `CLAUDE.md` contains `@AGENTS.md`; generated Next.js guidance is retained | Merged via [PR #14](https://github.com/parristechservices-prog/money1/pull/14), commit [`9472dee`](https://github.com/parristechservices-prog/money1/commit/9472dee205985b5b01f714c0e147c0e5da843d87) |
 
-The three repository PRs are open and unmerged. Their instruction paths have
-been inspected on the proposed branches; do not describe them as deployed on
-default branches until merged. These four checkouts are a verified initial
+The three repository PRs are merged. Their instruction paths are present on
+the default branches, and each agent-specific include path was inspected. This
+confirms instruction reachability for those configurations, not that every
+installed agent loads the rules at runtime. These four checkouts are a verified initial
 set, not a claim that all of Josh's repositories or installed agent tools are
 covered. Do not infer that another agent reads these files unless its
 configuration or a live session confirms it.
@@ -48,8 +49,8 @@ or this test template alone.
 
 ## Current status
 
-- Instruction reachability: verified on the JoshMemory merged path and on the
-  proposed branches for JoshHub, JoshBooksOnline and Money.
+- Instruction reachability: verified on the JoshMemory, JoshHub,
+  JoshBooksOnline and Money default branches.
 - JoshMemory resume response: merged and covered by MCP integration tests
   (131 tests reported at merge).
 - Separate live behavior on Claude, Copilot, Antigravity or other installed
@@ -58,8 +59,8 @@ or this test template alone.
   inventory contained no open apps or browser sessions, so Claude, Copilot,
   Antigravity and other separately installed agents could not be launched for
   independent live checks in this environment.
-- Next concrete verification: after the three repository PRs merge, run the
-  scenarios in fresh sessions for each accessible agent surface and record
-  only observed evidence. Where an agent surface cannot be launched here,
-  retain the explicit `UNVERIFIED` status. The current Codex session is not
-  counted as independent validation of those external agents.
+- Next concrete verification: run the scenarios in fresh sessions for each
+  accessible agent surface and record only observed evidence. Where an agent
+  surface cannot be launched here, retain the explicit `UNVERIFIED` status.
+  The current Codex session is not counted as independent validation of those
+  external agents.
