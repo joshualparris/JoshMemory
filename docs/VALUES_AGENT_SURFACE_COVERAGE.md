@@ -54,8 +54,12 @@ or this test template alone.
   (131 tests reported at merge).
 - Separate live behavior on Claude, Copilot, Antigravity or other installed
   agent sessions: `UNVERIFIED`.
-- New-session scenario runs: not yet recorded.
+- New-session scenario runs: not yet recorded. The current computer-use
+  inventory contained no open apps or browser sessions, so Claude, Copilot,
+  Antigravity and other separately installed agents could not be launched for
+  independent live checks in this environment.
 - Next concrete verification: after the three repository PRs merge, run the
   scenarios in fresh sessions for each accessible agent surface and record
   only observed evidence. Where an agent surface cannot be launched here,
-  retain the explicit `UNVERIFIED` status.
+  retain the explicit `UNVERIFIED` status. The current Codex session is not
+  counted as independent validation of those external agents.
