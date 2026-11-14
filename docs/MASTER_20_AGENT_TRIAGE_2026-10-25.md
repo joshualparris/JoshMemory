@@ -196,7 +196,7 @@ These are P1 tasks and remain subordinate to earlier queue items. They are imple
 
 ## Foundational values addendum — added 14 November 2026
 
-The owner-approved values critique adds VAL-017–VAL-026 as a P0 governance overlay. These safeguards apply to every existing and future task, even when the task's local priority is lower:
+The owner-requested values review adds VAL-017–VAL-026 as a P0 governance overlay. These safeguards apply to every existing and future task, even when the task's local priority is lower:
 
 - love of God and neighbour is the top-level success test;
 - protect spouse/children, worship, sleep, movement, outdoors, friendship, church/community and service;
@@ -208,3 +208,8 @@ The owner-approved values critique adds VAL-017–VAL-026 as a P0 governance ove
 - treat Scripture, prayer, repentance, worship, grace and formation as primary aims where relevant.
 
 The negative execution ranks -0010 through -0001 are a governance overlay, not a replacement for the historical queue order. They must be checked before any implementation recommendation. See VALUES_ALIGNMENT_TASKS_2026-11-14.csv for the full numbered addendum.
+
+
+## Behaviour verification
+
+The governance overlay is not considered operational merely because task rows or documentation exist. Agents must apply the [pre-task gate and scenario checks](VALUES_ALIGNMENT_BEHAVIOUR_CHECKS_2026-11-14.md), recording observed evidence before marking a safeguard verified. Urgent safety, security, legal or data-loss work is exempt from delaying action but requires the smallest safe response and post-action review.
