@@ -1,0 +1,3 @@
+# Gemini / Antigravity instructions
+
+Use [AGENTS.md](AGENTS.md) as the canonical repository-wide engineering and privacy instructions, alongside relevant subproject rules. Before proposing or implementing non-urgent changes, apply [docs/VALUES_PRETASK_GATE.md](docs/VALUES_PRETASK_GATE.md). Consider whether existing tools can be improved or retired instead; protect stated real-life commitments and define a small, evidence-backed human outcome and stop condition. Disagree respectfully where warranted, preserve user choice, do not infer sensitive personal information, and use the urgent safety/security/data-loss exception when necessary. Do not report values compliance as verified without observed behaviour.
