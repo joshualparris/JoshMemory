@@ -6,6 +6,51 @@ from joshmemory import github_store
 from joshmemory.central import remote_call, remote_enabled, storage_mode
 
 
+def test_load_records_fetches_raw_contents_concurrently_and_preserves_tree_order(monkeypatch):
+    payloads = {"a.json": b'{"id":"a"}', "b.json": b'{"id":"b"}'}
+    calls = []
+
+    def api(method, endpoint, payload=None):
+        calls.append(endpoint)
+        if endpoint.startswith("/git/trees/"):
+            return {"tree": [
+                {"type": "blob", "path": "joshmemory-cloud/v1/project_facts/b.json", "sha": "blob-b"},
+                {"type": "blob", "path": "joshmemory-cloud/v1/project_facts/a.json", "sha": "blob-a"},
+                {"type": "blob", "path": "elsewhere/no.json", "sha": "ignored"},
+            ]}
+        raise AssertionError(f"unexpected API request: {endpoint}")
+
+    monkeypatch.setattr(github_store, "_api_request", api)
+    monkeypatch.setattr(github_store, "_raw_blob", lambda path: payloads[path.rsplit("/", 1)[-1]])
+    assert github_store._load_records("project_facts") == [{"id": "a"}, {"id": "b"}]
+    assert calls[0] == "/git/trees/main?recursive=1"
+    assert len(calls) == 1
+
+
+def test_load_records_falls_back_to_contents_api_when_raw_is_missing(monkeypatch):
+    calls = []
+
+    def api(method, endpoint, payload=None):
+        calls.append(endpoint)
+        if endpoint.startswith("/git/trees/"):
+            return {"tree": [{
+                "type": "blob",
+                "path": "joshmemory-cloud/v1/project_facts/one.json",
+            }]}
+        return {"content": "eyJpZCI6ICJvbmUifQ==\n"}
+
+    def raw(_path):
+        raise github_store.GitHubStoreError("raw content unavailable: HTTP Error 404")
+
+    monkeypatch.setattr(github_store, "_api_request", api)
+    monkeypatch.setattr(github_store, "_raw_blob", raw)
+    assert github_store._load_records("project_facts") == [{"id": "one"}]
+    assert calls == [
+        "/git/trees/main?recursive=1",
+        "/contents/joshmemory-cloud/v1/project_facts/one.json?ref=main",
+    ]
+
+
 def _memory_store(monkeypatch):
     records: dict[str, list[dict]] = {"project_facts": [], "accountability": []}
 

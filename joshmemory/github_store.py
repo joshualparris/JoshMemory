@@ -7,6 +7,7 @@ import re
 import socket
 import subprocess
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from typing import Any
 from urllib import error, parse, request
@@ -149,6 +150,22 @@ def _api_request(method: str, endpoint: str, payload: dict[str, Any] | None = No
         raise GitHubStoreError(f"GitHub shared memory unavailable: {exc}") from exc
 
 
+def _raw_blob(path: str) -> bytes:
+    """Read a Git object through raw.githubusercontent.com, outside API quota."""
+    token = github_token()
+    if not token:
+        raise GitHubStoreError("GitHub shared memory is configured but no existing GitHub credential was found")
+    req = request.Request(
+        f"https://raw.githubusercontent.com/{_repo()}/{parse.quote(_branch(), safe='')}/{parse.quote(path, safe='/')}",
+        headers={"Authorization": f"Bearer {token}", "User-Agent": "JoshMemory"},
+    )
+    try:
+        with request.urlopen(req, timeout=float(os.environ.get("JOSHMEMORY_GITHUB_TIMEOUT", "10"))) as response:
+            return response.read()
+    except (error.URLError, TimeoutError, OSError) as exc:
+        raise GitHubStoreError(f"GitHub shared memory raw content unavailable: {exc}") from exc
+
+
 def _record_prefix(kind: str) -> str:
     return f"{_root()}/{kind}/"
 
@@ -157,32 +174,47 @@ def _load_records(kind: str) -> list[dict[str, Any]]:
     branch = parse.quote(_branch(), safe="")
     tree = _api_request("GET", f"/git/trees/{branch}?recursive=1") or {}
     prefix = _record_prefix(kind)
-    paths = sorted(
-        entry.get("path", "")
-        for entry in tree.get("tree", [])
-        if entry.get("type") == "blob"
-        and entry.get("path", "").startswith(prefix)
-        and entry.get("path", "").endswith(".json")
+    entries = sorted(
+        (entry for entry in tree.get("tree", [])
+         if entry.get("type") == "blob"
+         and entry.get("path", "").startswith(prefix)
+         and entry.get("path", "").endswith(".json")),
+        key=lambda entry: entry.get("path", ""),
     )
 
-    records: list[dict[str, Any]] = []
-    for path in paths:
-        encoded_path = parse.quote(path, safe="/")
-        ref = parse.quote(_branch(), safe="")
-        payload = _api_request("GET", f"/contents/{encoded_path}?ref={ref}") or {}
-        encoded = str(payload.get("content") or "").replace("\n", "")
-        if not encoded:
-            continue
+    def load_entry(entry: dict[str, Any]) -> list[dict[str, Any]]:
+        path = entry.get("path", "")
         try:
-            decoded = base64.b64decode(encoded).decode("utf-8")
-            record = json.loads(decoded)
+            raw = _raw_blob(path)
+        except GitHubStoreError as exc:
+            # Keep compatibility with GitHub Enterprise or proxies that do not
+            # serve raw content; fall back to the standard Contents endpoint.
+            if "404" not in str(exc):
+                raise
+            encoded_path = parse.quote(path, safe="/")
+            ref = parse.quote(_branch(), safe="")
+            payload = _api_request("GET", f"/contents/{encoded_path}?ref={ref}") or {}
+            encoded = str(payload.get("content") or "").replace("\n", "")
+            if not encoded:
+                return []
+            raw = base64.b64decode(encoded)
+        if not raw:
+            return []
+        try:
+            record = json.loads(raw.decode("utf-8"))
         except (ValueError, UnicodeDecodeError, json.JSONDecodeError) as exc:
             raise GitHubStoreError(f"Invalid JoshMemory cloud record at {path}: {exc}") from exc
         if isinstance(record, dict):
-            records.append(record)
-        elif isinstance(record, list):
-            records.extend(item for item in record if isinstance(item, dict))
-    return records
+            return [record]
+        if isinstance(record, list):
+            return [item for item in record if isinstance(item, dict)]
+        return []
+
+    # A recursive tree gives us paths. Fetch raw file URLs concurrently to avoid
+    # spending one GitHub REST API quota unit per record. Bound concurrency.
+    with ThreadPoolExecutor(max_workers=min(12, max(1, len(entries)))) as pool:
+        batches = list(pool.map(load_entry, entries))
+    return [record for batch in batches for record in batch]
 
 
 def _append_record(kind: str, record: dict[str, Any]) -> None:
