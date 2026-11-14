@@ -2662,3 +2662,20 @@ execution_rank,task_id,priority,workstream,action,status,dependency_ids,item_typ
 02661,TR-002.07,REF,Portfolio triage,"Verify committed documentation and numbering (review TR-002, joshualparris/Whispering-Wilds, step 07)",LEGACY_PARENT_TRIAGED_NOT_STEP_VERIFIED,TR-002.06,REFERENCE_NOT_ACTIONABLE,JoshMemory 233-repo TR 1864-step registry
 02662,TR-002.08,REF,Portfolio triage,"Advance central portfolio registry (review TR-002, joshualparris/Whispering-Wilds, step 08)",LEGACY_PARENT_TRIAGED_NOT_STEP_VERIFIED,TR-002.07,REFERENCE_NOT_ACTIONABLE,JoshMemory 233-repo TR 1864-step registry
 02663,GRA-037,REF,Greptile repository reviews,Review repository parris-tech-services/dcscompanion via Greptile; convert verified findings into source-owned tasks.,REVIEWED_FINDINGS_OPEN,,REFERENCE_NOT_ACTIONABLE,RepoClean 208-entry GRA audit queue
+
+02664,VAL-001,P1,FaithHub,"Add a presence-over-performance mode: hide streaks, completion pressure and scoring by default",OPEN,,ACTION,Values alignment roadmap 2026-11-14
+02665,VAL-002,P1,FaithHub,"Add Sabbath/rest and silence flows that do not require logging or completion",OPEN,VAL-001,ACTION,Values alignment roadmap 2026-11-14
+02666,VAL-003,P1,FaithHub,"Audit private prayer, export, analytics and family/community consent boundaries",OPEN,,ACTION,Values alignment roadmap 2026-11-14
+02667,VAL-004,P1,JoshMemory,"Add provenance, date, confidence, expiry and user-correction states to durable facts and interpretations",OPEN,,ACTION,Values alignment roadmap 2026-11-14
+02668,VAL-005,P1,JoshMemory,"Create a do-not-infer register for family, health, faith, identity and sensitive relationships",OPEN,VAL-004,ACTION,Values alignment roadmap 2026-11-14
+02669,VAL-006,P1,JoshMemory,"Separate facts, interpretations, commitments and unresolved tensions in resume outputs",OPEN,VAL-004,ACTION,Values alignment roadmap 2026-11-14
+02670,VAL-007,P1,JoshHub-Local,"Add a faithful-next-step home surface balancing rest, relationships, health, prayer, learning and work",OPEN,,ACTION,Values alignment roadmap 2026-11-14
+02671,VAL-008,P1,JoshHub-Local,"Add release/not-now states and value/why context so the dashboard does not turn every concern into a task",OPEN,VAL-007,ACTION,Values alignment roadmap 2026-11-14
+02672,VAL-009,P1,OS,"Require evidence, alternative explanations, contradictions and human confirmation for portrait interpretations",OPEN,,ACTION,Values alignment roadmap 2026-11-14
+02673,VAL-010,P1,OS,"Distinguish observed behavior, inferred motive, coping strategy and aspirational value",OPEN,VAL-009,ACTION,Values alignment roadmap 2026-11-14
+02674,VAL-011,P1,HeartCalm,"Add a person/contact support pathway and preserve interruptible red-flag escalation during active episodes",OPEN,,ACTION,Values alignment roadmap 2026-11-14
+02675,VAL-012,P1,HeartCalm,"Separate recorded facts, user interpretations and generated suggestions in logs and GP summaries",OPEN,,ACTION,Values alignment roadmap 2026-11-14
+02676,VAL-013,P1,ResearchAtlas,"Add application, synthesis, disconfirming-evidence and stopping-rule fields to research items",OPEN,,ACTION,Values alignment roadmap 2026-11-14
+02677,VAL-014,P1,ResearchAtlas,"Link research to real projects, conversations, habits and service outcomes",OPEN,VAL-013,ACTION,Values alignment roadmap 2026-11-14
+02678,VAL-015,P1,Cross-repository,"Adopt shared metadata: value_served,human_benefit,risk_of_distortion,evidence_source,confidence,review_by,must_not_do",OPEN,,ACTION,Values alignment roadmap 2026-11-14
+02679,VAL-016,P1,Cross-repository,"Publish shared principles: dignity over optimization; truth over reassurance; faithfulness over performance; agency over dependence; stewardship over accumulation",OPEN,VAL-015,ACTION,Values alignment roadmap 2026-11-14
