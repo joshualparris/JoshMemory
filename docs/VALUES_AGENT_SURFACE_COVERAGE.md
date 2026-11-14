@@ -2,21 +2,24 @@
 
 This record tracks where the VAL-018, VAL-019 and VAL-022 gate is available to
 agents. Presence in an instruction file establishes reachability, not reliable
-behavior. Keep behavioral status `UNVERIFIED` until an actual agent session
+behavior. Keep behavioral status `UNVERIFIED` until a fresh agent session
 produces evidence for the scenarios below.
 
-## Verified instruction paths
+## Verified instruction paths and delivery
 
-| Checkout | Entry point | Additional agent path | Reachability |
+| Checkout | Entry point | Additional agent path | Current delivery |
 |---|---|---|---|
-| JoshMemory | `AGENTS.md` | JoshMemory resume response includes a structured gate | Verified at `origin/main`; integration is merged |
-| JoshHub | `AGENTS.md` | `.github/copilot-instructions.md` directs agents to `AGENTS.md`; protocol names ChatGPT, Claude, Codex, Antigravity and Copilot | Verified in local checkout |
-| JoshBooksOnline | `AGENTS.md` | `CLAUDE.md` contains `@AGENTS.md`; generated Next.js guidance is retained | Verified in local checkout |
-| Money | `AGENTS.md` | `CLAUDE.md` contains `@AGENTS.md`; generated Next.js guidance is retained | Verified in local checkout |
+| JoshMemory | `AGENTS.md` | Resume response includes a structured gate | Runtime integration merged in PR #592; coverage/coordination record in PR #593 |
+| JoshHub | `AGENTS.md` | `.github/copilot-instructions.md` directs agents to `AGENTS.md`; protocol names ChatGPT, Claude, Codex, Antigravity and Copilot | Proposed in [PR #12](https://github.com/joshualparris/JoshHub/pull/12) |
+| JoshBooksOnline | `AGENTS.md` | `CLAUDE.md` contains `@AGENTS.md`; generated Next.js guidance is retained | Proposed in [PR #7](https://github.com/Parris-Tech-Services/JoshBooksOnline/pull/7) |
+| Money | `AGENTS.md` | `CLAUDE.md` contains `@AGENTS.md`; generated Next.js guidance is retained | Proposed in [PR #14](https://github.com/parristechservices-prog/money1/pull/14) |
 
-These four checkouts are a verified initial set, not a claim that all of Josh's
-repositories or installed agent tools are covered. Do not infer that another
-agent reads these files unless its configuration or a live session confirms it.
+The three repository PRs are open and unmerged. Their instruction paths have
+been inspected on the proposed branches; do not describe them as deployed on
+default branches until merged. These four checkouts are a verified initial
+set, not a claim that all of Josh's repositories or installed agent tools are
+covered. Do not infer that another agent reads these files unless its
+configuration or a live session confirms it.
 
 ## Repeatable live-session scenarios
 
@@ -45,8 +48,14 @@ or this test template alone.
 
 ## Current status
 
-- Instruction reachability: verified for the four checkouts above.
-- JoshMemory resume response: merged and covered by MCP integration test.
-- Live behavior on separately installed Claude, Copilot, Antigravity or other
+- Instruction reachability: verified on the JoshMemory merged path and on the
+  proposed branches for JoshHub, JoshBooksOnline and Money.
+- JoshMemory resume response: merged and covered by MCP integration tests
+  (131 tests reported at merge).
+- Separate live behavior on Claude, Copilot, Antigravity or other installed
   agent sessions: `UNVERIFIED`.
 - New-session scenario runs: not yet recorded.
+- Next concrete verification: after the three repository PRs merge, run the
+  scenarios in fresh sessions for each accessible agent surface and record
+  only observed evidence. Where an agent surface cannot be launched here,
+  retain the explicit `UNVERIFIED` status.
