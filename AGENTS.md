@@ -45,3 +45,17 @@ Urgent safety, security, legal or data-loss response may take the smallest safe
 action first, but must state uncertainty and receive a post-action values review.
 A task list or prompt is not proof of changed behaviour: use the scenario checks
 and record observed evidence before marking a safeguard verified.
+
+
+### Mandatory three-task gate
+
+For every non-urgent task, apply [VALUES_PRETASK_GATE.md](docs/VALUES_PRETASK_GATE.md) before planning or editing. This operationalises VAL-018, VAL-019 and VAL-022:
+
+- protect real-life commitments before optional software work;
+- check consolidate, reduce, defer, delete or do-not-build options;
+- name a human outcome and evidence, rather than treating activity as value.
+
+The gate record belongs in the relevant checkpoint or task handoff. Leave the
+work unstarted when the record cannot be completed safely. Urgent safety,
+security, legal or data-loss work may use the documented exception, followed by
+an after-action review.
