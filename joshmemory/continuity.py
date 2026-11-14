@@ -669,7 +669,24 @@ def get_resume_brief(
         "recent_work": recent_events,
         "precedence_note": context.get("precedence_note"),
         "resume_rule": (
-            "Verify live Git/API/machine state first; then continue the first still-valid next action. "
+            "Verify live Git/API/machine state first; then apply the values pre-task gate "
+            "before continuing the first still-valid next action. "
             "Do not redo completed work merely because a new agent lacks conversational context."
         ),
+        "values_pre_task_gate": {
+            "policy": "docs/VALUES_PRETASK_GATE.md",
+            "task_ids": ["VAL-018", "VAL-019", "VAL-022"],
+            "required_before_optional_work": True,
+            "checks": [
+                "Protect stated real-life commitments; do not invent a conflict or schedule.",
+                "Consider reuse, consolidation, reduced scope, deferral or no build.",
+                "Name the human benefit, evidence of usefulness and stopping condition.",
+            ],
+            "agency": "Offer reasons and alternatives; respect the user's informed choice.",
+            "urgent_exception": (
+                "For urgent safety, security, legal or data-loss work, take the smallest "
+                "safe action and review afterwards."
+            ),
+            "verification": "Policy delivery does not prove downstream agent compliance.",
+        },
     }
