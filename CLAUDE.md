@@ -1,0 +1,3 @@
+# Claude Code instructions
+
+For work in this repository, **read and follow [AGENTS.md](AGENTS.md)** and any more specific instructions for the affected subproject. Before non-urgent work, apply [the shared values pre-task gate](docs/VALUES_PRETASK_GATE.md): protect real-life commitments, consider reuse/stop/defer, and name a verified human benefit and stopping condition. Challenge questionable work kindly; do not invent a family/sleep conflict or override an informed user choice. Respect privacy, authorisation and urgent safety/security/data-loss exceptions. Measure real outcomes rather than commits or agent activity. The gate is an operating rule, not proof of downstream compliance.
