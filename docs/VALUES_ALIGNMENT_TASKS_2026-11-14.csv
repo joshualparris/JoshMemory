@@ -15,3 +15,13 @@ VAL-013,P1,ResearchAtlas,"Add application, synthesis, disconfirming-evidence and
 VAL-014,P1,ResearchAtlas,"Link research to real projects, conversations, habits and service outcomes",OPEN,VAL-013,ACTION,Values alignment roadmap 2026-11-14
 VAL-015,P1,Cross-repository,"Adopt shared metadata: value_served,human_benefit,risk_of_distortion,evidence_source,confidence,review_by,must_not_do",OPEN,,ACTION,Values alignment roadmap 2026-11-14
 VAL-016,P1,Cross-repository,"Define and publish shared principles: dignity over optimization, truth over reassurance, faithfulness over performance, agency over dependence, stewardship over accumulation",OPEN,VAL-015,ACTION,Values alignment roadmap 2026-11-14
+VAL-017,P0,All agents and projects,"Make love of God and love of neighbour the top-level success test; require human correction before durable value claims",OPEN,,GOVERNANCE,Values alignment addendum
+VAL-018,P0,All agents and projects,"Protect spouse/children, worship, sleep, movement, outdoors, friendship, church/community and service ahead of optional software work",OPEN,VAL-017,GOVERNANCE,Values alignment addendum
+VAL-019,P0,All agents and projects,"Add stopping rules: recommend not building, pausing, consolidating or deleting when marginal value is low",OPEN,VAL-017,GOVERNANCE,Values alignment addendum
+VAL-020,P0,All agents and projects,"Require kindness-plus-challenge reviews with disagreement, alternatives, uncertainty and likely costs",OPEN,VAL-017,GOVERNANCE,Values alignment addendum
+VAL-021,P0,All agents and projects,"Prefer consolidate/reuse/delete/finish existing systems before starting new projects",OPEN,VAL-019,GOVERNANCE,Values alignment addendum
+VAL-022,P0,All agents and projects,"Measure increased freedom, presence, relationship, service, health, faithfulness and reduced burden—not activity",OPEN,VAL-017,GOVERNANCE,Values alignment addendum
+VAL-023,P0,All agents and projects,"Require humility/accountability gates: admit uncertainty, prove work, accept correction and preserve dissent",OPEN,VAL-020,GOVERNANCE,Values alignment addendum
+VAL-024,P0,All agents and projects,"Protect children's information, prayer records, health data and relationship interpretations with consent and deletion",OPEN,VAL-023,GOVERNANCE,Values alignment addendum
+VAL-025,P0,FaithHub and agent ecosystem,"Make Scripture, prayer, repentance, worship, grace and spiritual formation primary aims",OPEN,VAL-017,GOVERNANCE,Values alignment addendum
+VAL-026,P0,JoshHub-Local and agent ecosystem,"Ask whether recommended work helps Josh become the husband, father, follower of Jesus and person he wants to be",OPEN,VAL-018,GOVERNANCE,Values alignment addendum
