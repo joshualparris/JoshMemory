@@ -36,6 +36,8 @@ jobs:
         run: python tools/check_privacy.py
       - name: Validate shell deploy scripts
         run: bash -n deploy/*.sh
+      - name: Validate values execution queue
+        run: python tools/validate_values_alignment.py
       - name: Test
         run: pytest -q
 
