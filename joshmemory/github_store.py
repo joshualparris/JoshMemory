@@ -6,8 +6,11 @@ import os
 import re
 import socket
 import subprocess
+import time
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 from urllib import error, parse, request
 
@@ -102,7 +105,25 @@ def github_token() -> str:
         value = os.environ.get(name, "").strip()
         if value:
             return value
-    return _token_from_gh() or _token_from_git_credential()
+    return _external_token()
+
+
+# The gh / git-credential lookups spawn subprocesses. A shared-memory read makes
+# hundreds of API calls, so resolve the credential once and reuse it briefly.
+# Only a found token is cached (in memory, never on disk) so a later login is
+# still noticed.
+_TOKEN_TTL_SECONDS = 300.0
+_token_cache: tuple[str, float] | None = None
+
+
+def _external_token() -> str:
+    global _token_cache
+    now = time.monotonic()
+    if _token_cache and now < _token_cache[1]:
+        return _token_cache[0]
+    value = _token_from_gh() or _token_from_git_credential()
+    _token_cache = (value, now + _TOKEN_TTL_SECONDS) if value else None
+    return value
 
 
 def enabled() -> bool:
@@ -153,6 +174,96 @@ def _record_prefix(kind: str) -> str:
     return f"{_root()}/{kind}/"
 
 
+_SHA_RE = re.compile(r"[0-9a-f]{40}|[0-9a-f]{64}")
+
+
+def _worker_count() -> int:
+    try:
+        return max(1, min(16, int(os.environ.get("JOSHMEMORY_GITHUB_WORKERS", "8"))))
+    except ValueError:
+        return 8
+
+
+def _cache_dir() -> Path | None:
+    """On-disk cache of record contents, or None if disabled.
+
+    Records are append-only and the key is the git blob SHA, which identifies the
+    exact bytes, so a cached entry can never be stale. Set JOSHMEMORY_GITHUB_CACHE=0
+    to disable.
+    """
+    if os.environ.get("JOSHMEMORY_GITHUB_CACHE", "1").strip().lower() in {"0", "false", "no", "off"}:
+        return None
+    from .paths import default_data_dir
+
+    return default_data_dir() / "github-record-cache" / re.sub(r"[^A-Za-z0-9_.-]+", "_", _repo())
+
+
+def _cache_read(sha: str) -> str | None:
+    folder = _cache_dir()
+    if folder is None or not _SHA_RE.fullmatch(sha):
+        return None
+    try:
+        return (folder / f"{sha}.json").read_text(encoding="utf-8")
+    except OSError:
+        return None
+
+
+def _cache_write(sha: str, text: str) -> None:
+    folder = _cache_dir()
+    if folder is None or not _SHA_RE.fullmatch(sha):
+        return
+    try:
+        folder.mkdir(parents=True, exist_ok=True)
+        tmp = folder / f"{sha}.{os.getpid()}.{uuid.uuid4().hex}.tmp"
+        tmp.write_text(text, encoding="utf-8")
+        os.replace(tmp, folder / f"{sha}.json")
+    except OSError:
+        pass  # the cache is an optimisation; never fail a read because of it
+
+
+def _cache_discard(sha: str) -> None:
+    folder = _cache_dir()
+    if folder is None or not _SHA_RE.fullmatch(sha):
+        return
+    try:
+        (folder / f"{sha}.json").unlink()
+    except OSError:
+        pass
+
+
+def _decode_blob(payload: dict[str, Any], path: str) -> str:
+    encoded = str(payload.get("content") or "").replace("\n", "")
+    if not encoded:
+        return ""
+    try:
+        return base64.b64decode(encoded).decode("utf-8")
+    except (ValueError, UnicodeDecodeError) as exc:
+        raise GitHubStoreError(f"Invalid JoshMemory cloud record at {path}: {exc}") from exc
+
+
+def _record_text(path: str, sha: str) -> str:
+    """Return one record's text: from cache, else by blob SHA, else by path."""
+    if _SHA_RE.fullmatch(sha):
+        cached = _cache_read(sha)
+        if cached is not None:
+            try:
+                json.loads(cached)
+                return cached
+            except json.JSONDecodeError:
+                _cache_discard(sha)  # damaged entry: fall through and re-download
+        text = _decode_blob(_api_request("GET", f"/git/blobs/{sha}") or {}, path)
+        if text:
+            try:
+                json.loads(text)
+            except json.JSONDecodeError:
+                return text  # let the caller report it; never cache a bad record
+            _cache_write(sha, text)
+        return text
+    encoded_path = parse.quote(path, safe="/")
+    ref = parse.quote(_branch(), safe="")
+    return _decode_blob(_api_request("GET", f"/contents/{encoded_path}?ref={ref}") or {}, path)
+
+
 def _load_records(kind: str) -> list[dict[str, Any]]:
     branch = parse.quote(_branch(), safe="")
     tree = _api_request("GET", f"/git/trees/{branch}?recursive=1") or {}
@@ -165,18 +276,29 @@ def _load_records(kind: str) -> list[dict[str, Any]]:
         and entry.get("path", "").endswith(".json")
     )
 
+    shas = {
+        entry.get("path", ""): str(entry.get("sha") or "")
+        for entry in tree.get("tree", [])
+        if entry.get("type") == "blob"
+    }
+
+    def fetch(path: str) -> str:
+        return _record_text(path, shas.get(path, ""))
+
+    workers = _worker_count()
+    if workers > 1 and len(paths) > 1:
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            texts = list(pool.map(fetch, paths))  # map() keeps path order
+    else:
+        texts = [fetch(path) for path in paths]
+
     records: list[dict[str, Any]] = []
-    for path in paths:
-        encoded_path = parse.quote(path, safe="/")
-        ref = parse.quote(_branch(), safe="")
-        payload = _api_request("GET", f"/contents/{encoded_path}?ref={ref}") or {}
-        encoded = str(payload.get("content") or "").replace("\n", "")
-        if not encoded:
+    for path, decoded in zip(paths, texts):
+        if not decoded:
             continue
         try:
-            decoded = base64.b64decode(encoded).decode("utf-8")
             record = json.loads(decoded)
-        except (ValueError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        except json.JSONDecodeError as exc:
             raise GitHubStoreError(f"Invalid JoshMemory cloud record at {path}: {exc}") from exc
         if isinstance(record, dict):
             records.append(record)
