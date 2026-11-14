@@ -38,7 +38,7 @@ The following is the **repo-local triage order**, not a change to the permanent 
 ### Cross-portfolio priority retained (historical as of 25 Oct)
 
 - The [existing 2,663-ID cross-portfolio master](MASTER_20_AGENT_TRIAGE_2026-10-25.md) places SylvieApp recorded-audio tasks **SVA-008** and **SVA-012** first at Josh's previous request; retain those IDs and priority *for that separate project*. Its 2,640 actionable/blocked rows do not equate to 2,640 confirmed code defects.
-- Do not shift restricted/private repository names into this public register. Live external repository statuses need their own connector or repo verification.
+- Repository names (including private repositories) are permitted in public registers per owner policy (updated 2026-11-14), while sensitive repository contents and credentials remain private. Live external repository statuses still need their own connector or repo verification.
 
 ## Current GitHub open issue/PR queue (snapshot)
 

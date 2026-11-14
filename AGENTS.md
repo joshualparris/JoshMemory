@@ -20,6 +20,7 @@ If canonical ownership, required context, or a safe interpretation is unclear, s
 > Public GitHub repositories are NOT a general-purpose memory store. Before committing any remembered fact, timeline, chat summary or generated document, classify it as PUBLIC or PRIVATE. Personal/family/health/location/tenancy/employment-client information defaults to PRIVATE and must never be pushed publicly without explicit approval from Josh.
 
 **EXCEPTIONS:**
+* **Repository names & identifiers (`owner/repo` and GitHub repo URLs, public or private)**: Naming repositories is **permitted** in public documentation, triage queues, logs, and portfolio analyses. Do **not** treat repository names themselves as restricted data; protect the *sensitive contents* inside them (personal/family/health/location/tenancy/employment-client data, private documents, and secrets/credentials).
 * **`joshualparris/Paul-Roe`**: This repository is a deliberately curated memorial/archive. It has explicit family approval to contain names, emails, and historical archives. **DO NOT edit, change, redact, delete, or modify the `Paul-Roe` repository at all.** It is entirely exempt from privacy-scrubbing actions.
 
 ## Deployment failover: do not stop at the first hosting provider

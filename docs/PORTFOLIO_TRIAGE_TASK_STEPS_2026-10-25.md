@@ -47,7 +47,7 @@ Each step has a **unique concrete ID when paired with its parent**; for instance
 - `LEGACY_PARENT_TRIAGED_NOT_STEP_VERIFIED`: review already completed before individual step tracking was introduced; do not fabricate detailed evidence.
 - Keep repository-level triage completion separate from individual coding, release, audio and playtest tasks.
 - Preserve every existing `RT-...`, `TR-...`, `TASK-...`, `SVA-...`, `AU...`, `RTD-...` and numbered audio identifier. Never renumber a live task because priorities change; publish a new dated queue when necessary.
-- The public CSV masks private repo names. Resolve those with authorised access to the separate restricted **Parris-Tech-Services/OS** inventory, and never leak private repository names into public task records.
+- The 2026-10-25 CSV snapshot masked some private repo names historically (resolvable via the **Parris-Tech-Services/OS** inventory). Per owner policy updated 2026-11-14, naming private repositories in public task records is permitted; never leak sensitive repository contents, personal/client details or credentials.
 - When new repos are discovered, use fresh unused permanent `RT-U###` identities and the next free parent `TR-###` plus eight numbered child tasks. Do not reuse any existing ID.
 
 **Scope:** These are explicitly eight steps for **each portfolio repository triage**, not the coding backlog of the app itself. Coding task identifiers remain in each project checklist.

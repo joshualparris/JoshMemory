@@ -4,7 +4,7 @@
 
 - **Source of order:** [Portfolio triage route](PORTFOLIO_TRIAGE_2026-10-24.md)
 - **Full 233-row public-safe queue:** [Portfolio triage CSV](PORTFOLIO_TRIAGE_REGISTRY_2026-10-24.csv)
-- **Authorised restricted full name mapping:** `Parris-Tech-Services/OS/docs/portfolio/REPO_TRIAGE_REGISTRY_2026-10-24.csv`; do **not** paste private repo identifiers into public logs or commits.
+- **Full name mapping:** `Parris-Tech-Services/OS/docs/portfolio/REPO_TRIAGE_REGISTRY_2026-10-24.csv` (note: per owner policy updated 2026-11-14, naming private repositories/identifiers in public logs and commits is permitted; keep sensitive contents, personal/client details and secrets private).
 - **TR-001 / RT-K2:** TRIAGED_DOCS. Browser Whispering Wilds handoff committed.
 - **TR-002 / RT-H1:** TRIAGED_DOCS. Python Whispering Wilds handoff committed.
 - **NEXT:** **TR-003 / RT-U032** — NOT_TRIAGED, no active claim recorded. Authorised agent should resolve the restricted repo identity and check its live state before starting.

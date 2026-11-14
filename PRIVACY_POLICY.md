@@ -3,6 +3,7 @@
 **Never push personal, family, household, health, tenancy, employment-client, credential, or identifying private information to a PUBLIC repository unless explicitly approved by Josh.**
 
 **APPROVED EXCEPTIONS:**
+* **Repository names & identifiers (`owner/repo` and GitHub repo URLs, including private repositories)**: Naming or listing repositories in public indexes, triage logs, and portfolio documentation is explicitly approved by Josh. Protect *sensitive repository contents*, personal/client details, and credentials—not repository names.
 * **`joshualparris/Paul-Roe`**: A deliberately curated family memorial. Do not edit, change, delete, or modify this repository at all. It is explicitly approved to contain historical personal/family material.
 
 ### What is PRIVATE by default:

@@ -167,7 +167,7 @@ Agent 21 is an **empty trailing heading** in the attachment, not a submitted rep
 
 **Deferred DCS rule:** Do not resume work in DCS/school repos without current authorisation. If an actual sensitive-data or credential risk is confirmed, route it to an authorised maintainer without disclosing secrets in public docs.
 
-**Risk-specific rule:** Public documentation must not expose the actual suspected API key, workplace-network details, school data, private repo names or account credentials. Some agent reports have not completed; preserve **unknown** rather than create speculative bug descriptions.
+**Risk-specific rule:** Public documentation must not expose the actual suspected API key, workplace-network details, school data or account credentials (naming repositories themselves is permitted per owner policy). Some agent reports have not completed; preserve **unknown** rather than create speculative bug descriptions.
 
 ## Source links / historical snapshot caveat
 

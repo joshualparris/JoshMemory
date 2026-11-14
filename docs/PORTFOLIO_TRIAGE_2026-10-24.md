@@ -26,7 +26,7 @@ The unique child-task register is [PORTFOLIO_TRIAGE_TASK_STEPS_2026-10-25.csv](P
 5. Produce or improve `TASK_TRIAGE.md`, `AGENTS.md`, `WORK_CHECKPOINT.md` (respecting stronger existing coordination rules). State **exactly one next executable task**, its prerequisites, estimated validation steps, acceptance criteria, and a fallback if blocked. Link the triage from README and existing master tracker.
 6. Commit and fetch back the docs. Verify stable numbering, links, source branch and cross-repo task references. Mark `TRIAGED_DOCS` only with a verified commit, not after a proposed plan. Do not conflate triage completion with fixes/builds/deployment being complete.
 7. Update central route/checkpoint after each repository. If one is inaccessible, document the error, reserve its designation and move on. Add future discoveries with fresh nonreused `RT-U###`; don't reshuffle permanent designations.
-8. Cross-account privacy: the public inventory **redacts private repository names**, even when Town previously listed them. Use the complete restricted registry only when connected permissions allow it. Do not paste private repo names, sensitive code or CI secrets into public records.
+8. Cross-account privacy: naming repositories (including private repository names and `owner/repo` slugs) is permitted in public records per owner policy (updated 2026-11-14; the 2026-10-24 CSV snapshot masked some rows historically). Do not paste sensitive code, personal/family/health/client details or CI secrets into public records.
 
 ## Starting links
 
