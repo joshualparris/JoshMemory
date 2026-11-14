@@ -1,7 +1,7 @@
 task_id,priority,workstream,action,status,dependency_ids,item_type,source_registry
-VAL-001,P1,FaithHub,"Add a presence-over-performance mode: hide streaks, completion pressure and scoring by default",OPEN,,ACTION,Values alignment roadmap 2026-11-14
-VAL-002,P1,FaithHub,"Add Sabbath/rest and silence flows that do not require logging or completion",OPEN,VAL-001,ACTION,Values alignment roadmap 2026-11-14
-VAL-003,P1,FaithHub,"Audit private prayer, export, analytics and family/community consent boundaries",OPEN,,ACTION,Values alignment roadmap 2026-11-14
+VAL-001,P1,FaithHub,"Add a presence-over-performance mode: hide streaks, completion pressure and scoring by default",VERIFIED_COMPLETE,,ACTION,Values alignment roadmap 2026-11-14
+VAL-002,P1,FaithHub,"Add Sabbath/rest and silence flows that do not require logging or completion",VERIFIED_COMPLETE,VAL-001,ACTION,Values alignment roadmap 2026-11-14
+VAL-003,P1,FaithHub,"Audit private prayer, export, analytics and family/community consent boundaries",VERIFIED_COMPLETE,,ACTION,Values alignment roadmap 2026-11-14
 VAL-004,P1,JoshMemory,"Add provenance, date, confidence, expiry and user-correction states to durable facts and interpretations",OPEN,,ACTION,Values alignment roadmap 2026-11-14
 VAL-005,P1,JoshMemory,"Create a do-not-infer register for family, health, faith, identity and sensitive relationships",OPEN,VAL-004,ACTION,Values alignment roadmap 2026-11-14
 VAL-006,P1,JoshMemory,"Separate facts, interpretations, commitments and unresolved tensions in resume outputs",OPEN,VAL-004,ACTION,Values alignment roadmap 2026-11-14
