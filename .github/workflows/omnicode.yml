@@ -24,4 +24,4 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends php-cli default-jdk build-essential perl gawk
       - name: Build adapters and run full integration tests
         working-directory: omnicode
-        run: bash scripts/build.sh && go test ./... -v && node --check site/app.js && node --check site/api/audit.js && node --check site/api/health.js && node --check site/catalogue.js && node --test site/catalogue.test.cjs
+        run: bash scripts/build.sh && go test ./... -v && node --check site/app.js && node --check site/api/audit.js && node --check site/api/health.js && node --check site/catalogue.js && node --test site/catalogue.test.cjs && node --check site/api/translate.js && node --check site/translator.js && node --test tests/*.test.js
