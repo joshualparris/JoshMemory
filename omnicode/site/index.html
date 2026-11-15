@@ -8,21 +8,22 @@
   <title>OmniCode — Every language. One living system.</title>
   <link rel="stylesheet" href="/styles.css" />
   <script src="/app.js" defer></script>
+  <script src="/translator.js" defer></script>
 </head>
 <body>
   <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
   <header class="topbar shell">
-    <a class="brand" href="#top" aria-label="OmniCode home"><span class="brand-icon">&lt;/&gt;</span><span>OMNI<span class="accent-text">CODE</span></span><small>EXPERIMENT 001</small></a>
-    <nav class="mainnav" aria-label="Main navigation"><a href="#pipeline">Pipeline</a><a href="#playground">Playground</a><a href="#roadmap">Roadmap</a></nav>
+    <a class="brand" href="#top" aria-label="OmniCode home"><span class="brand-icon">&lt;/&gt;</span><span>OMNI<span class="accent-text">CODE</span></span><small>LANGUAGE LAB</small></a>
+    <nav class="mainnav" aria-label="Main navigation"><a href="#translator">50 Languages</a><a href="#pipeline">Pipeline</a><a href="#playground">Playground</a></nav>
     <a class="repo-link" target="_blank" rel="noreferrer" href="https://github.com/joshualparris/JoshMemory/tree/main/omnicode">View source <span aria-hidden="true">↗</span></a>
   </header>
   <main id="top">
     <section class="hero shell">
       <div class="hero-copy">
-        <div class="eyebrow"><span class="signal"></span> THE POLYGLOT DATA PIPELINE <span class="eyebrow-trail">/ v0.1</span></div>
+        <div class="eyebrow"><span class="signal"></span> THE POLYGLOT DATA PIPELINE <span class="eyebrow-trail">/ v0.2 LIVE</span></div>
         <h1>Every language.<br/><span>One living system.</span></h1>
         <p class="lede">An ambitious, slightly ridiculous and very real experiment: make programming languages work <em>together</em> on the same transaction. Not just hello-world files. An actual chain of execution.</p>
-        <div class="hero-actions"><a class="btn btn-primary" href="#playground">Try an audit <span aria-hidden="true">↗</span></a><a class="btn btn-ghost" href="#pipeline">Explore the architecture <span aria-hidden="true">↓</span></a></div>
+        <div class="hero-actions"><a class="btn btn-primary" href="#translator">Watch 50 languages <span aria-hidden="true">↗</span></a><a class="btn btn-ghost" href="#pipeline">Explore the architecture <span aria-hidden="true">↓</span></a></div>
         <div class="hero-caption"><span class="mini-led"></span> Built from the original December 2025 plan · Reborn November 2026</div>
       </div>
       <div class="hero-art" aria-hidden="true">
@@ -35,14 +36,48 @@
     </section>
     <div class="metrics-shell shell"><div class="metrics">
       <div class="metric"><strong>09<span> / ∞</span></strong><small>Executed languages <em>locally</em></small></div>
-      <div class="metric"><strong>01<span> / 09</span></strong><small>Cloud demo runtime</small></div>
-      <div class="metric"><strong>50<span> → 100+</span></strong><small>Next milestones</small></div>
-      <div class="metric stat-wide"><span class="metric-mark">↳</span><p><b>No pretend integrations.</b><br />A language only counts when its code actually runs and its result is tested.</p></div>
+      <div class="metric"><strong>03<span> / 50</span></strong><small>Executed hosted translation targets</small></div>
+      <div class="metric"><strong>50<span> / 50</span></strong><small>Source-language generators available</small></div>
+      <div class="metric stat-wide"><span class="metric-mark">↳</span><p><b>No pretend integrations.</b><br />We separate generated code from code that actually executes.</p></div>
     </div></div>
+
+    <section id="translator" class="section translator-section shell" aria-labelledby="translator-heading">
+      <div class="section-heading">
+        <div><div class="kicker">00 / THE LIVE TRANSLATOR</div><h2 id="translator-heading">Watch one idea become <span class="glow">50 languages.</span></h2>
+          <p>We compile a small, safe specification — <code>EMIT("OMNI:" + value)</code> — into 50 different programming-language source files, one after another. Select any stage to see its code appear.</p></div>
+        <span class="outline-tag">LIVE SOURCE GENERATION</span>
+      </div>
+      <div class="translator-disclosure"><span class="disclosure-signal"></span><p><strong>What's real:</strong> 50 language-specific programs are generated on the server during each run. Node.js, Brainfuck and a limited Befunge-98 interpreter execute their generated programs and compare output. The other 47 are <em>generated, not compiled or executed</em>. This is not yet a general-purpose code translator or a 50-runtime build farm.</p></div>
+      <div class="translator-console">
+        <div class="translator-toolbar">
+          <div class="toolbar-heading"><span class="toolbar-traffic"><i></i><i></i><i></i></span><span>OMNICODE / TRANSLATION LAB</span><small>50 TARGETS</small></div>
+          <form id="translation-form" class="translate-form">
+            <label for="translation-input">Demo payload</label>
+            <input id="translation-input" value="alex@example.com" maxlength="70" pattern="[a-zA-Z0-9._@+\-]+" autocomplete="off" spellcheck="false" aria-describedby="translation-hint" />
+            <button class="btn btn-primary" id="translate-run" type="submit">▶ Run 50 translations</button>
+            <button class="stop-button" id="translate-stop" type="button" disabled>Stop</button>
+          </form>
+          <div class="translation-progress-meta"><strong id="translation-status" role="status" aria-live="polite">Ready — press Run to watch the code appear.</strong><span id="translation-count">0 / 50 translated</span><span id="translation-proof">0 executed</span></div>
+          <div class="progress-track" role="progressbar" id="translation-progress" aria-valuemin="0" aria-valuemax="50" aria-valuenow="0" aria-label="Generated language targets"><div id="translation-bar"></div></div>
+          <p id="translation-hint" class="translation-hint">Try a harmless example such as <code>alex@example.com</code>. No arbitrary submitted code runs. Scroll the language list or click a stage to inspect its actual generated source.</p>
+        </div>
+        <div class="live-grid">
+          <div class="language-rail"><div class="panel-label"><span>LANGUAGE STREAM</span><span id="translation-rail-label">AWAITING RUN</span></div><div class="language-scroll" id="language-stream" aria-label="50 translation stages"><p class="empty-rail">The 50-stage translation stream will appear here.</p></div></div>
+          <div class="code-inspector">
+            <div class="panel-label"><span id="selected-language">GENERATED CODE</span><span id="selected-proof">WAITING</span></div>
+            <div class="editor-tabs"><span id="selected-file">omni_stage.*</span><div><button type="button" id="copy-source" disabled>Copy code</button><button type="button" id="download-source" disabled>Save file</button></div></div>
+            <div class="editor-body"><div id="editor-line-numbers" class="editor-lines" aria-hidden="true">1</div><pre id="selected-code" tabindex="0">// Press Run to translate one spec into 50 real source files.
+// Every translated program is available to inspect.</pre></div>
+            <div class="execution-proof"><div class="proof-heading"><span>OUTPUT VERIFICATION</span><span id="selected-exec-badge">NOT STARTED</span></div><div class="proof-io"><span>Expected</span><code id="selected-expected">—</code><span>Actual</span><code id="selected-actual">—</code></div><p id="selected-explanation">Only green stages were actually executed here; amber stages show generated source only.</p></div>
+          </div>
+        </div>
+        <div class="translator-footer"><span id="translation-elapsed">00:00.0</span><span>Generator is source-code lowering, not LLM improvisation</span><button type="button" id="export-translations" disabled>Export all 50 (JSON)</button></div>
+      </div>
+    </section>
     <section id="pipeline" class="section shell">
       <div class="section-heading"><div><div class="kicker">01 / SYSTEM ARCHITECTURE</div><h2>One request. Nine languages.</h2><p>The same example email moves through distinct, working adapters. Go coordinates the local chain; each stage performs a real operation.</p></div><span class="outline-tag">LOCAL FULL PIPELINE</span></div>
       <div id="stage-grid" class="stage-grid" aria-label="Pipeline stages"></div>
-      <p class="note"><b>Scope:</b> The nine-stage pipeline runs on a machine with the listed runtimes installed. The hosted playground demonstrates a single Node.js API, and does not claim to execute all nine remotely.</p>
+      <p class="note"><b>Scope:</b> The nine-stage pipeline runs on a machine with the listed runtimes installed. The hosted audit playground demonstrates a single Node.js API. The separate translator above executes Node.js and two esoteric-language interpreters, but does not run all 50 targets.</p>
     </section>
     <section id="playground" class="section playground-section shell">
       <div class="section-heading"><div><div class="kicker">02 / LIVE PLAYGROUND</div><h2>Put it to work.</h2><p>Run a harmless example login-audit transaction. Use a made-up address; this is a developer demo, not a real authentication service.</p></div><span class="outline-tag" id="runtime-tag">CHECKING RUNTIME…</span></div>
@@ -67,7 +102,7 @@
     </section>
     <section id="roadmap" class="section shell roadmap-section">
       <div class="section-heading"><div><div class="kicker">03 / EXPANSION PROTOCOL</div><h2>From nine to everywhere.</h2><p>The future is earned stage by stage. Each addition must build, execute and pass real tests before it counts.</p></div></div>
-      <div class="roadmap-grid"><div class="roadmap-card milestone-done"><span class="roadmap-index">PHASE 01 <em>BUILT</em></span><h3>Foundation</h3><strong>9 languages</strong><p>Working local transaction pipeline and browser playground, with validation and integration tests.</p><div class="progressbar"><i style="width:100%"></i></div></div><div class="roadmap-card"><span class="roadmap-index">PHASE 02 <em>UP NEXT</em></span><h3>Expansion</h3><strong>50 technologies</strong><p>COBOL, Rust, Ruby, SQL, GraphQL, Docker, Terraform, React and more, each with a meaningful role.</p><div class="progressbar"><i style="width:18%"></i></div></div><div class="roadmap-card"><span class="roadmap-index">PHASE 03 <em>VISION</em></span><h3>The long tail</h3><strong>100+ languages</strong><p>Historical, specialised, functional and experimental languages, with reproducible test runners.</p><div class="progressbar"><i style="width:2%"></i></div></div></div>
+      <div class="roadmap-grid"><div class="roadmap-card milestone-done"><span class="roadmap-index">PHASE 01 <em>BUILT</em></span><h3>Foundation</h3><strong>9 local runtimes</strong><p>Working local transaction pipeline and browser playground, with validation and integration tests.</p><div class="progressbar"><i style="width:100%"></i></div></div><div class="roadmap-card"><span class="roadmap-index">PHASE 02 <em>GENERATING</em></span><h3>Expansion</h3><strong>50 source targets</strong><p>50 different source templates now generate in real time. Next: compile and execute them in an isolated build farm.</p><div class="progressbar"><i style="width:100%"></i></div></div><div class="roadmap-card"><span class="roadmap-index">PHASE 03 <em>VISION</em></span><h3>The long tail</h3><strong>100+ languages</strong><p>Historical, specialised, functional and experimental languages, with reproducible test runners.</p><div class="progressbar"><i style="width:2%"></i></div></div></div>
     </section>
   </main>
   <footer class="footer shell"><div><span class="brand-small">&lt;/&gt; OMNICODE</span><p>One system, a thousand ways to think.</p></div><span>Made to learn, built to prove. <a href="https://github.com/joshualparris/JoshMemory/tree/main/omnicode" target="_blank" rel="noreferrer">Source code ↗</a></span></footer>

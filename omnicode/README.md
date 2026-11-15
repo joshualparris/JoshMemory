@@ -66,3 +66,22 @@ curl -fsS -X POST http://localhost:8080/api/audit -H 'content-type: application/
 ## Original provenance
 
 The plan was recovered in `joshmemory-cloud/private-view/reconstructed-2025-post-export.md` in `joshualparris/JoshDashboard4` (12 December 2025). This code is a fresh implementation that preserves the polyglot pipeline concept.
+
+## Live 50-language source translator (November 2026)
+
+The homepage now includes an actual **NDJSON streamed code generator**. When you type a harmless payload and press Run, the server lowers the same simple canonical operation, `EMIT("OMNI:" + value)`, into **50 distinct language-specific programs**, generating each file during the stream. Click any stage to inspect, copy or download source. You can export all 50 source records in JSON. This is deliberately a simple **source translation lab**, not a general-purpose translator for arbitrary programs.
+
+Each stage reports a proof status:
+
+- **Executed (3 of 50):** The generated JavaScript runs in an isolated Node VM context; Brainfuck runs in an instruction-limited interpreter; a straight-line **subset** of Befunge-98 runs in a separate bounded interpreter. Each output is checked against the canonical expected string. These interpreters are not general-purpose sandbox services.
+- **Source only (47 of 50):** The corresponding source file was generated but **not** compiled or executed on the hosted service. Having generated source is **not** evidence that the code will compile or that it behaves correctly on the target runtime. The existing **9-language Go local audit** is a separate tested pipeline, not nine additional public cloud workers.
+
+Run and verify locally:
+
+```bash
+node --test tests/translate.test.js
+node scripts/serve-hosted-preview.mjs
+# Visit http://127.0.0.1:8181 and watch /api/translate stream in real time
+```
+
+Limitations and next steps: implement secure remote compile/execute workers with resource caps and runtime pinning; add target-specific conformance tests for all 50 generated source files; support a richer structured intermediate representation and true handoff of **executed** output between worker languages. None of these future capabilities is presently claimed as complete. Never send real secrets or arbitrary code to the demo.
