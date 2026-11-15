@@ -85,3 +85,21 @@ node scripts/serve-hosted-preview.mjs
 ```
 
 Limitations and next steps: implement secure remote compile/execute workers with resource caps and runtime pinning; add target-specific conformance tests for all 50 generated source files; support a richer structured intermediate representation and true handoff of **executed** output between worker languages. None of these future capabilities is presently claimed as complete. Never send real secrets or arbitrary code to the demo.
+
+## Original 50-technology field guide
+
+The hosted website also has a searchable, responsive [50-technology comparison](/languages.html), with a strength and a weakness for every entry from the original list. It explicitly distinguishes languages, frameworks, databases, tools, web formats and runtimes, and preserves the duplicate COBOL entry (#43) for provenance. This is educational reference, **not** a claim that all 50 technologies are executing. The 50 generated source-language targets in the translator are a separate set.
+
+Testing: `node --check site/catalogue.js && node --test site/catalogue.test.cjs`.
+
+### Scope and values gate (15 November 2026)
+
+- Real-life value protected: learning without extra busywork; one existing site, not another app.
+- Possible displacement: spending excessive time expanding a reference guide; keep the change small and bounded.
+- Existing system checked: OmniCode's existing main page and working translation lab.
+- Smallest useful action: one linked, searchable reference page; no new runtime or hosting accounts.
+- Stop condition: all 50 original entries present, unit tests green, current production page reachable.
+- Human outcome: a practical way to understand trade-offs and choose technologies.
+- Evidence: catalogue count and duplicate check, CI, and live page response.
+- Privacy: generic public technology facts only; no family, health, employment or private documents.
+- Decision: consolidate into existing OmniCode site.

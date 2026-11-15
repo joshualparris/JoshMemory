@@ -1,0 +1,47 @@
+
+/* OmniCode comparison guide: uses the existing site design tokens. */
+.catalogue-hero{padding-top:80px;padding-bottom:44px}
+.catalogue-hero h1{font-size:clamp(40px,6vw,76px);letter-spacing:-3px;line-height:1.12;margin:25px 0}
+.catalogue-hero h1 span{background:linear-gradient(100deg,#80f4df,#9b93f5);color:transparent;background-clip:text}
+.catalogue-hero>p:not(.catalogue-disclosure){max-width:780px;color:#b4c2d4;font-size:16px;line-height:1.8}
+.catalogue-stats{display:flex;flex-wrap:wrap;gap:12px;margin:27px 0 25px}
+.catalogue-stats span{display:flex;gap:9px;align-items:baseline;border:1px solid #355066;background:#111d2e;padding:12px 16px;border-radius:9px;color:#9fb1c5;font:11px var(--mono)}
+.catalogue-stats strong{font-size:22px;color:var(--teal)}
+.catalogue-disclosure{max-width:960px;background:#1c2230;border:1px solid #6b6143;border-radius:9px;padding:17px 21px;font-size:13px;color:#c6cdd7;line-height:1.8}
+.catalogue-disclosure strong{color:#f5d992}.catalogue-disclosure a,.catalogue-footnote a{color:var(--teal);text-decoration:underline}
+.catalogue-section{padding-top:35px}.catalogue-controls{padding:22px;background:#111c2b;border:1px solid #32445c;border-radius:12px;margin-bottom:20px}
+.catalogue-controls label{display:block;font-size:12px;font-weight:700;color:#dce8f4;margin-bottom:10px}
+#technology-search{width:100%;max-width:650px;padding:14px 16px;border-radius:8px;border:1px solid #4a6481;background:#0a1422;color:#eef8ff;font-size:15px;outline:none}
+#technology-search:focus-visible{border-color:var(--teal);box-shadow:0 0 0 2px #7bf1df2a}
+.catalogue-filters{display:flex;gap:8px;flex-wrap:wrap;margin-top:17px}
+.catalogue-filters button{font:11px var(--mono);color:#bfd0de;background:#17273a;border:1px solid #3c526b;border-radius:100px;padding:9px 13px;transition:background .15s,border-color .15s}
+.catalogue-filters button:hover,.catalogue-filters button:focus-visible{border-color:var(--teal)}
+.catalogue-filters button.active{background:#224a4d;border-color:#67cfc4;color:#e2fff9}
+.catalogue-count{color:#a6baca;font:11px var(--mono);margin:19px 0 0}
+.technology-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.technology-card{background:linear-gradient(145deg,#172337,#101b2b);border:1px solid #314158;border-radius:12px;padding:23px 24px;min-width:0}
+.technology-card:hover{border-color:#5a8c99}
+.technology-eyebrow{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.technology-number{font:12px var(--mono);color:var(--teal)}
+.technology-type{font:10px var(--mono);color:#a9b4f2;border:1px solid #4b4d73;padding:5px 8px;border-radius:5px}
+.technology-card h3{font-size:21px;letter-spacing:-.5px;margin:16px 0 20px;overflow-wrap:anywhere}
+.technology-detail{border-top:1px solid #2c3c51;padding-top:13px;margin-top:13px}
+.technology-detail h4{font:700 11px var(--mono);letter-spacing:.4px;margin:0 0 5px}
+.strength-title{color:#8ff0cf}.weakness-title{color:#e5b7a5}
+.technology-detail p{font-size:13px;line-height:1.75;color:#becbdc;margin:0}
+.technology-empty{grid-column:1/-1;padding:45px;text-align:center;border:1px dashed #455c76;border-radius:10px;color:#bac9d6}
+.approaches-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.approach-card{border:1px solid #374961;background:#111d2e;border-radius:13px;padding:25px}
+.approach-card>span{font:10px var(--mono);letter-spacing:1.2px;color:var(--teal)}
+.approach-card h3{font-size:21px;margin:20px 0 10px}
+.approach-card p{font-size:13px;line-height:1.8;color:#a9b9cd}
+.approach-card a{display:inline-block;font:12px var(--mono);color:var(--teal);margin-top:13px}
+.catalogue-footnote{color:#8da0b5;font-size:12px;line-height:1.8;margin-top:20px}
+@media(max-width:700px){
+.catalogue-hero{padding-top:56px;padding-bottom:25px}
+.catalogue-hero h1{font-size:43px;letter-spacing:-2px}
+.catalogue-stats span{flex:1 1 130px}
+.technology-grid,.approaches-grid{grid-template-columns:1fr}
+.technology-card{padding:20px}
+.catalogue-controls{padding:16px}
+}

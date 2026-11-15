@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#080d17" />
+  <meta name="description" content="Compare the strengths, weaknesses and uses of the 50 technologies in OmniCode's original roadmap." />
+  <title>50 Technologies Compared — OmniCode</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/catalogue.css" />
+  <script src="/catalogue.js" defer></script>
+</head>
+<body>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <header class="topbar shell">
+    <a class="brand" href="/" aria-label="OmniCode home"><span class="brand-icon">&lt;/&gt;</span><span>OMNI<span class="accent-text">CODE</span></span><small>FIELD GUIDE</small></a>
+    <nav class="mainnav" aria-label="Main navigation"><a href="/">Translator</a><a href="#catalogue">Compare 50</a><a href="#approaches">How they work together</a></nav>
+    <a class="repo-link" href="/" aria-label="Back to OmniCode translator">Back to lab ↗</a>
+  </header>
+  <main>
+    <section class="catalogue-hero shell" aria-labelledby="catalogue-heading">
+      <div class="eyebrow"><span class="signal"></span> OMNICODE / TECHNOLOGY FIELD GUIDE <span class="eyebrow-trail">/ 2026</span></div>
+      <h1 id="catalogue-heading">50 technologies.<br><span>Different superpowers.</span></h1>
+      <p>Explore what each technology does well, where it struggles and why you might choose it. Search any term or filter by type to compare all 50 entries from OmniCode's original roadmap.</p>
+      <div class="catalogue-stats"><span><strong>50</strong> original entries</span><span><strong>49</strong> distinct entries</span><span><strong>6</strong> categories + duplicate</span></div>
+      <p class="catalogue-disclosure"><strong>Important:</strong> This is the original 50-<em>technology</em> list, not 50 distinct programming languages. It includes frameworks, databases, tools, platforms and a repeated COBOL entry. It is also different from the <a href="/#translator">50 source-language targets</a> in the live translation lab; appearing here does not mean a technology is installed or executing.</p>
+    </section>
+    <section id="catalogue" class="section shell catalogue-section" aria-labelledby="catalogue-list-heading">
+      <div class="section-heading"><div><div class="kicker">01 / THE COMPARISON</div><h2 id="catalogue-list-heading">Find the right tool for the job.</h2><p>Every entry has practical strengths and trade-offs. A weakness here doesn't make something bad; it just affects when it is useful.</p></div></div>
+      <div class="catalogue-controls">
+        <label for="technology-search">Search technologies and capabilities</label>
+        <input id="technology-search" type="search" placeholder="Try: AI, fast, Android, security, web…" autocomplete="off" />
+        <div class="catalogue-filters" role="group" aria-label="Filter by technology type">
+          <button type="button" data-type="All" aria-pressed="true">All</button>
+          <button type="button" data-type="Language" aria-pressed="false">Languages</button>
+          <button type="button" data-type="Framework" aria-pressed="false">Frameworks</button>
+          <button type="button" data-type="Database" aria-pressed="false">Databases</button>
+          <button type="button" data-type="Tooling" aria-pressed="false">Tooling</button>
+          <button type="button" data-type="Web / API" aria-pressed="false">Web / API</button>
+          <button type="button" data-type="Runtime" aria-pressed="false">Runtimes</button>
+          <button type="button" data-type="Duplicate" aria-pressed="false">Duplicate</button>
+        </div>
+        <p id="technology-count" class="catalogue-count" role="status" aria-live="polite">Loading 50 comparisons…</p>
+      </div>
+      <div id="technology-grid" class="technology-grid" aria-label="Technology strengths and weaknesses"></div>
+      <noscript><p>Enable JavaScript to browse the 50-item comparison. The working OmniCode translator is available on the home page.</p></noscript>
+    </section>
+    <section id="approaches" class="section shell approaches-section">
+      <div class="section-heading"><div><div class="kicker">02 / TWO WAYS TO LEARN</div><h2>Same idea, two experiments.</h2><p>Both approaches are useful, but they prove different things.</p></div></div>
+      <div class="approaches-grid">
+        <article class="approach-card"><span>MODE A / TRANSLATE</span><h3>One algorithm, many languages.</h3><p>Generate equivalent source across languages, then compile, run and compare outputs wherever real executors exist. This teaches syntax, semantics and performance.</p><a href="/#translator">Open the live source translator ↗</a></article>
+        <article class="approach-card"><span>MODE B / INTEGRATE</span><h3>Many technologies, one system.</h3><p>Use Python for analysis, Rust for safe processing, Go for services, SQL for storage and TypeScript for an interface. This teaches how software components cooperate.</p><a href="/#pipeline">See the existing nine-stage local pipeline ↗</a></article>
+      </div>
+      <p class="catalogue-footnote">Honest status: the hosted translation lab generates 50 source programs, but only three are executed there; the separate nine-language local pipeline is verified by integration tests. The 50-item guide is educational reference material, not evidence of new runtimes.</p>
+    </section>
+  </main>
+  <footer class="footer shell"><div><span class="brand-small">&lt;/&gt; OMNICODE</span><p>One system, a thousand ways to think.</p></div><span>Learn the trade-offs, then build what works. <a href="/">Return to lab ↗</a></span></footer>
+</body>
+</html>
