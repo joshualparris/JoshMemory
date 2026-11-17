@@ -1415,6 +1415,29 @@ h2 { font-size: clamp(30px, 8vw, 42px); }
       ctx.fillRect(bx, by, bw * Math.max(0, g.boss.hp / g.boss.maxHp), 8);
       ctx.font = `600 11px ${FONT_MONO}`;
       ctx.fillText('ZERO-DAY', cx, by + 13);
+      // Off-screen pointer, so the Zero-Day can always be found.
+      const ox = g.boss.x - p.x + W / 2, oy = g.boss.y - p.y + H / 2, pad = g.boss.r;
+      if (ox < -pad || ox > W + pad || oy < -pad || oy > H + pad) {
+        const ang = Math.atan2(g.boss.y - p.y, g.boss.x - p.x), c = Math.cos(ang), s = Math.sin(ang);
+        const left = safe.l + 30, right = W - safe.r - 30, top = safe.t + 96, bottom = H - safe.b - 30;
+        let k = Infinity;
+        if (c > 0.001) k = Math.min(k, (right - W / 2) / c);
+        if (c < -0.001) k = Math.min(k, (left - W / 2) / c);
+        if (s > 0.001) k = Math.min(k, (bottom - H / 2) / s);
+        if (s < -0.001) k = Math.min(k, (top - H / 2) / s);
+        if (Number.isFinite(k) && k > 0) {
+          const ix = W / 2 + c * k, iy = H / 2 + s * k;
+          ctx.save();
+          ctx.translate(ix, iy);
+          ctx.rotate(ang);
+          ctx.fillStyle = COL.void;
+          ctx.beginPath(); ctx.moveTo(14, 0); ctx.lineTo(-8, -10); ctx.lineTo(-8, 10); ctx.closePath(); ctx.fill();
+          ctx.restore();
+          ctx.textBaseline = 'middle';
+          ctx.fillText(`ZERO-DAY ${Math.round(Math.hypot(g.boss.x - p.x, g.boss.y - p.y) / 10)}m`, ix - c * 46, iy - s * 30);
+          ctx.textBaseline = 'top';
+        }
+      }
     }
 
     if (g.banner) {
