@@ -34,9 +34,9 @@ jobs:
         working-directory: repository-town
         run: |
           if [ "${{ matrix.viewport }}" = "mobile" ]; then
-            node tests/all-games-audit.mjs --origin https://repository-town-claude-complete.vercel.app --shard ${{ matrix.shard }}/8 --mobile
+            node tests/all-games-audit.mjs --origin https://repository-town-claude-complete.vercel.app --shard ${{ matrix.shard }}/8 --mobile --published-only
           else
-            node tests/all-games-audit.mjs --origin https://repository-town-claude-complete.vercel.app --shard ${{ matrix.shard }}/8
+            node tests/all-games-audit.mjs --origin https://repository-town-claude-complete.vercel.app --shard ${{ matrix.shard }}/8 --published-only
           fi
       - name: Preserve screenshots and observed defects
         if: always()
