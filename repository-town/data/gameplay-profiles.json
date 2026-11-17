@@ -58,10 +58,40 @@
         "breach-command: Breach Command is turn-based combat on a grid; Throughput is real-time logistics with no enemies."
       ],
       "playtestEvidence": [
-        "Automated in Chromium (Playwright): game-src/throughput/index.html?demo&ff=40 prebuilds two iron lines (miners, smelters, a gear assembler, belts into the hub) and fast-forwards 40 seconds; observed plates and gears arriving (hub at 8 of 30 gears for milestone 3; 24.2 iron plates and 11.4 gears a minute), amber and red status lights on the starved assembler and a blocked miner, and no page or console errors.",
+        "node tests/playtest-throughput.mjs plays the packed game through its real UI in Chromium (tool keys, rotation, clicks, belt drags, Select to verify each placement) with a virtual clock: all seven milestones cleared in about 7.5 minutes of game time (11, 34, 99, 38, 71, 72 and 111 seconds), then the win screen, sandbox, and a reload where Continue restores the factory.",
+        "Phone (390x844, touch): tapping tools, placing a belt by tap and dragging the floor all work.",
         "node tests/games.mjs --only throughput loads the packed game from file:// without errors.",
-        "Phone-width title screen renders cleanly.",
-        "Not yet playtested by a person: milestone pacing and the final quota are unverified."
+        "Not yet playtested by a person: how long a first-time player needs per milestone is unverified."
+      ]
+    },
+    "kettle-cove": {
+      "genre": "Time-loop dialogue RPG on a walkable tile map",
+      "playerActions": [
+        "Walk the harbour with arrow keys, WASD or tap-to-move",
+        "Talk to villagers and examine objects, choosing replies by number or tap",
+        "Attempt Charm, Wits and Grit checks rolled on 2d6 with the odds shown",
+        "Spend levels on skills, read the notebook, and wait for the next bell"
+      ],
+      "coreLoop": "Within one eight-bell day, decide who to talk to and in what order (each new topic costs a bell), collect clues and items, and use what earlier days taught you to unlock new replies before midnight resets the cove.",
+      "objective": "Mend the lighthouse lens, get the lighthouse key and light the lamp before midnight; bring the missing keeper home as well for the best ending.",
+      "progression": "Twelve clues and experience persist across days; levels raise Charm, Wits and Grit so failed checks become likelier to pass on a later day. Clues open alternative routes, such as Nell's key or the spare key under the anchor stone.",
+      "failureState": "Midnight with the lamp dark resets the day: items, promises and trust are lost and you wake on the morning ferry, keeping only the notebook, skills and experience. A failed skill check is locked until the next day.",
+      "distinctiveMechanics": [
+        "A single repeating day where only knowledge and skills carry over",
+        "Six villagers on bell-by-bell schedules (the ferryman only in the morning, Wren in three different places)",
+        "Conversations spend time: a new topic costs one of eight bells, so the order of visits matters",
+        "Visible-odds 2d6 skill checks that lock for the day on failure",
+        "Two endings depending on whether the hidden keeper is found and persuaded"
+      ],
+      "comparison": [
+        "neathbound: NeathBound is open-ended city exploration with quests, inventory and dice; Kettle Cove is one small harbour replayed as a single repeating day in which only knowledge and skills carry over and every new conversation spends one of eight bells.",
+        "lantern-road: Lantern Road is a hex-map road campaign with a party and combat; Kettle Cove has no combat or party and is solved by talking, timing and memory across days.",
+        "ptshub-wilds-main: Whispering Wilds is a typed-command text adventure with attack and rest; Kettle Cove is a walkable tile map with menu dialogue, NPC schedules and no combat."
+      ],
+      "playtestEvidence": [
+        "node tests/playtest-kettle-cove.mjs drives the real UI in Chromium (arrow keys, E, number keys) with a virtual clock: Day 1 talks to the ferryman, Ada, Wren (twice), the cottage, Teodor and Dot, reaching 10 of 12 clues by bell 8; waiting past bell 8 shows the midnight screen and Day 2 starts on the ferry with items reset.",
+        "Day 2: the whistle reveals that Old Mosk is Gus, who agrees to come home; Wren, the cottage, Teodor's two-bell lens, Nell's key and the lighthouse lead to 'The Keeper Comes Home' with 11 of 12 clues at level 5. No page or console errors.",
+        "Not yet playtested by a person: pacing and how clear the hints are remain unverified."
       ]
     }
   }
