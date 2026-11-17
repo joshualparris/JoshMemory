@@ -212,6 +212,11 @@ async function makePlayable(dir, entry = 'index.html', opts = {}) {
   // Scripts that use import/export but are loaded as classic scripts (opts.moduleScripts).
   for (const src of opts.moduleScripts || []) html = html.replace(new RegExp(`<script\\s+src=["']${src.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}["']`), `<script type="module" src="${src}"`);
   html = html.replace(/<link\b[^>]*href=["'][^"']*(parris-network|portal-adapter)[^"']*["'][^>]*>/gi, '');
+  // The JoshHub global header belongs to its source site, not to a game iframe.
+  // Those /css and /js absolute requests are 404s inside Repository Town.
+  html = html.replace(/<link\b[^>]*href=["']\/css\/joshhub-header\.css["'][^>]*>/gi, '');
+  html = html.replace(/<script\b[^>]*src=["']\/js\/joshhub-header\.js["'][^>]*>\s*<\/script>/gi, '');
+
   // file:// pages have an opaque origin, so CORS-mode (crossorigin) loads of local files fail.
   html = html.replace(/(<(?:link|script)\b[^>]*?)\s+crossorigin(=["'][^"']*["'])?/gi, '$1');
   // Root-absolute paths ("/assets/x.js", "/games/x/a.png") point at a site root that a packed
