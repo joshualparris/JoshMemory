@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0e141d">
+<meta name="description" content="Iron & Logic — build a working, automated factory in your browser. Six contracts, real conveyor logistics, research, upgrades and persistent saves.">
+<title>Iron & Logic · Factory Automation</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230e141d'/%3E%3Ctext x='32' y='46' text-anchor='middle' font-size='46'%3E%E2%9A%99%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="./style.css">
+<script type="module" src="./app.mjs"></script>
+</head>
+<body>
+<header class="topbar">
+ <div class="brand"><div class="brandmark">⬡</div><div><span class="eyebrow">AUTOMATION WORKS / CAMPAIGN 01</span><h1>IRON <span>&</span> LOGIC</h1></div></div>
+ <div class="header-stats">
+  <div class="stat"><span>CREDITS</span><strong id="credits">$440</strong></div>
+  <div class="stat"><span>POWER</span><strong id="power">16 / 5</strong></div>
+  <div class="stat"><span>SHIFT</span><strong id="shift">01:00</strong></div>
+ </div>
+ <button id="helpButton" class="outline small" aria-controls="guide">How to play <span>?</span></button>
+</header>
+<div class="layout">
+ <aside class="sidebar left">
+  <div class="panel mission">
+   <div class="labelrow"><span class="eyebrow">ACTIVE CONTRACT</span><span id="stageNumber" class="tag">01 / 06</span></div>
+   <h2 id="contractTitle">First Light</h2><p id="contractBrief"></p>
+   <div id="objectives"></div>
+   <p id="reward" class="reward"></p>
+   <div class="chapterbar"><span id="chapterFill"></span></div>
+  </div>
+  <div class="panel">
+   <div class="labelrow"><span class="eyebrow">CONSTRUCTION</span><span class="shortcut">1–8 select · R rotate</span></div>
+   <div class="toolbox" id="tools"></div>
+   <div class="direction"><span>PLACEMENT DIRECTION</span><button id="rotateTool" class="outline" aria-label="Rotate selected building">↻ <strong id="dirLabel">EAST →</strong></button></div>
+   <button id="removeTool" class="outline remove">⌫ Dismantle / refund 50%</button>
+  </div>
+  <div class="panel tiny"><div class="eyebrow">FACTORY GUIDANCE</div><p id="tip">Click an empty square to build. Right-click a machine to rotate its output.</p></div>
+ </aside>
+ <main class="main">
+  <div class="floorhead">
+   <div><span class="eyebrow">IRON VALLEY INDUSTRIAL PARK · SECTOR A</span><h2>Production floor <small id="floorSummary">LIVE SIMULATION</small></h2></div>
+   <div class="controls">
+    <button id="pauseButton" class="primary">Ⅱ Pause</button>
+    <button id="speedButton" class="outline" title="Change simulation speed">1× speed</button>
+    <button id="undoButton" class="outline" title="Undo construction (Z)">↶ Undo</button>
+   </div>
+  </div>
+  <div class="board-scroll">
+   <div id="board" role="grid" aria-label="Interactive factory grid. Select a construction tool then click a square." class="board"></div>
+  </div>
+  <div class="floorfoot">
+   <div class="legend"><span><i class="dot iron"></i> IRON</span><span><i class="dot copper"></i> COPPER</span><span><i class="dot delivered"></i> SHIPPING</span><span class="hint">Right-click = rotate machine</span></div>
+   <div class="live"><span class="pulse"></span> <span id="simState">FACTORY ONLINE</span></div>
+  </div>
+  <div class="lower">
+   <div class="panel inspect"><span class="eyebrow">INSPECTOR / SELECTED TILE</span><h3 id="inspectHeading">Nothing selected</h3><p id="inspectText">Select a tile to inspect its machine, inventory or resource.</p><p class="inspect-note" id="selectedCoords">TIP: Power is shared across the whole factory.</p></div>
+   <div class="panel log"><div class="labelrow"><span class="eyebrow">SHIFT LOG</span><span class="shortcut">Live events</span></div><ol id="events"></ol></div>
+  </div>
+ </main>
+ <aside class="sidebar right">
+  <div class="panel"><div class="eyebrow">PRODUCTION TELEMETRY</div><div id="production"></div></div>
+  <div class="panel"><div class="eyebrow">FACTORY FILES</div><p class="microcopy">Your entire factory autosaves in this browser.</p>
+   <div class="filebuttons"><button id="saveButton" class="outline">↓ Export save</button><button id="importButton" class="outline">↑ Import save</button><input id="saveInput" type="file" accept=".json,application/json" hidden></div>
+   <button id="newButton" class="quiet">↺ Start fresh campaign</button>
+   <div id="saveStatus" class="microcopy">Autosave on</div>
+  </div>
+  <div class="panel campaign"><span class="eyebrow">THE ROAD TO MASTERY</span><div id="campaign"></div></div>
+  <div class="panel callout"><span class="eyebrow">DESIGN PRINCIPLE</span><p>Every product must physically travel through the factory. Make something work. Then make it better.</p></div>
+ </aside>
+</div>
+<dialog id="guide">
+ <div class="guidehead"><div><span class="eyebrow">OPERATIONS MANUAL // REV 01</span><h2>Build the line. Own the flow.</h2></div><button id="closeGuide" class="outline">✕ Close</button></div>
+ <div class="guidegrid">
+ <section><span class="bigstep">01</span><h3>Watch the starter line</h3><p>You're already mining and smelting iron. Ore moves along the arrows, enters a furnace, becomes plates and travels to the green shipping dock on the far right. Earn credits by shipping products.</p></section>
+ <section><span class="bigstep">02</span><h3>Build a copper line</h3><p>Select a drill (2), click the copper deposit at the lower left, then add a conveyor (1), a smelter (3), and east-facing conveyors towards the lower shipping dock. Rotate a planned building with R. Right-click existing belts or machines to rotate.</p></section>
+ <section><span class="bigstep">03</span><h3>Make complex products</h3><p>New machines unlock as contracts finish. Gear presses consume <b>two iron plates</b>. Circuit benches consume <b>one iron and one copper plate</b> from any side. Research labs consume <b>one gear and one circuit</b>. All machines output in the direction of their arrow.</p></section>
+ <section><span class="bigstep">04</span><h3>Manage power and money</h3><p>Solar arrays provide 16 power each. Machines draw power while running; add more arrays if demand exceeds supply. Every delivered product earns credits. Clearing a building refunds half the purchase price. Use Z to undo a build, or export a portable save.</p></section>
+ </div>
+ <div class="guidebottom"><p>Keyboard: 1–8 select tools · R turn build direction · Delete dismantle · Z undo · Space pause · Esc close.</p><button id="startPlaying" class="primary">Let's build →</button></div>
+</dialog>
+<div id="toast" role="status" aria-live="polite"></div>
+<noscript>Iron & Logic needs JavaScript enabled to play.</noscript>
+</body>
+</html>
