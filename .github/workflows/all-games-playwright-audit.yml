@@ -1,0 +1,68 @@
+name: Full arcade Playwright audit — 79 catalogue entries
+on:
+  push:
+    branches: [fix/arcade-all-games-playwright-20261118]
+    paths:
+      - '.github/workflows/all-games-playwright-audit.yml'
+      - 'repository-town/tests/all-games-audit.mjs'
+      - 'repository-town/data/games.json'
+      - 'repository-town/src/arcade.js'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-audit:
+    name: ${{ matrix.viewport }} / shard ${{ matrix.shard }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        viewport: [desktop, mobile]
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned Playwright and browser
+        working-directory: repository-town
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Run actual browser against every assigned game
+        working-directory: repository-town
+        run: |
+          if [ "${{ matrix.viewport }}" = "mobile" ]; then
+            node tests/all-games-audit.mjs --origin https://repository-town-claude-complete.vercel.app --shard ${{ matrix.shard }}/8 --mobile
+          else
+            node tests/all-games-audit.mjs --origin https://repository-town-claude-complete.vercel.app --shard ${{ matrix.shard }}/8
+          fi
+      - name: Preserve screenshots and observed defects
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: arcade-${{ matrix.viewport }}-${{ matrix.shard }}
+          path: repository-town/test-results/all-games/
+          if-no-files-found: warn
+          retention-days: 14
+  standalone:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright and Chromium
+        run: |
+          mkdir -p /tmp/arcade-browser
+          npm install --no-save --prefix /tmp/arcade-browser playwright@1.56.1
+          /tmp/arcade-browser/node_modules/.bin/playwright install --with-deps chromium
+      - name: Verify Patch Tuesday and Throughput
+        run: node .github/scripts/standalone-arcade-smoke.cjs
+      - name: Verify Iron & Logic production
+        run: |
+          cd factory-flow
+          npm install --no-save playwright@1.56.1
+          FACTORY_URL=https://iron-and-logic.vercel.app/ node browser-smoke.mjs
