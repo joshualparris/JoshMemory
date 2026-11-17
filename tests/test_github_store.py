@@ -363,3 +363,28 @@ def test_missing_token_is_not_cached(monkeypatch):
 
     assert github_store.github_token() == ""
     assert github_store.github_token() == "synthetic-token"  # a later login is noticed
+
+
+
+def test_private_cache_permissions_are_owner_only(fake_github):
+    import os
+    import stat
+    import pytest
+
+    if os.name == "nt":
+        pytest.skip("POSIX file mode regression; Windows uses per-profile ACLs")
+
+    fake_github.add("project_facts", "confidential", 41, {"id": "confidential", "data": "private fixture"})
+    assert github_store._load_records("project_facts")[0]["id"] == "confidential"
+
+    folder = github_store._cache_dir()
+    target = folder / f"{_sha(41)}.json"
+    assert stat.S_IMODE(folder.stat().st_mode) == 0o700
+    assert stat.S_IMODE(target.stat().st_mode) == 0o600
+
+    # Restore permissions on accidentally over-broad pre-existing caches.
+    folder.chmod(0o755)
+    target.chmod(0o644)
+    assert github_store._load_records("project_facts")[0]["id"] == "confidential"
+    assert stat.S_IMODE(folder.stat().st_mode) == 0o700
+    assert stat.S_IMODE(target.stat().st_mode) == 0o600
