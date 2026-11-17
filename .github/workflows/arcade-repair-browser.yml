@@ -20,6 +20,9 @@ jobs:
         run: |
           npm ci --ignore-scripts --no-audit --no-fund
           npx playwright install --with-deps chromium
+      - name: Validate packer syntax
+        working-directory: repository-town
+        run: node --check tools/pack_games.mjs
       - name: Verify fixed games
         working-directory: repository-town
         run: |
