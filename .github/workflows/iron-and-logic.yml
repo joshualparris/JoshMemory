@@ -1,0 +1,51 @@
+name: Iron & Logic factory full playthrough
+on:
+  pull_request:
+    paths:
+      - 'factory-flow/**'
+      - '.github/workflows/iron-and-logic.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'factory-flow/**'
+      - '.github/workflows/iron-and-logic.yml'
+permissions:
+  contents: read
+jobs:
+  factory-test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate JavaScript syntax
+        run: |
+          node --check factory-flow/core.mjs
+          node --check factory-flow/app.mjs
+          node --check factory-flow/browser-smoke.mjs
+          node --check factory-flow/test.mjs
+      - name: Complete all six factory contracts
+        run: node factory-flow/test.mjs
+      - name: Check web assets exist
+        run: |
+          test -s factory-flow/index.html
+          test -s factory-flow/style.css
+          grep -q 'src="./app.mjs"' factory-flow/index.html
+          grep -q 'from "./core.mjs"' factory-flow/app.mjs
+      - name: Install browser automation
+        working-directory: factory-flow
+        run: |
+          npm install --no-save playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Real-browser interactive smoke test
+        run: |
+          python3 -m http.server 8732 --directory factory-flow >/tmp/factory-http.log 2>&1 &
+          node factory-flow/browser-smoke.mjs
+      - name: Live production HTTP smoke test
+        if: github.ref == 'refs/heads/main'
+        run: |
+          curl -fsSL --retry 4 --retry-delay 3 'https://iron-and-logic.vercel.app/' | grep -q 'IRON'
+          curl -fsSL --retry 4 --retry-delay 3 'https://iron-and-logic.vercel.app/core.mjs' | grep -q 'export const CONTRACTS'
+          curl -fsSL --retry 4 --retry-delay 3 'https://iron-and-logic.vercel.app/app.mjs' | grep -q 'function render'
