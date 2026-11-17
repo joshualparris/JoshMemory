@@ -325,7 +325,7 @@ async function I(e) {
 }
 (async () => {
   try {
-    await $(), document.getElementById("btn-start").addEventListener("click", () => I(false)), document.getElementById("btn-continue").addEventListener("click", () => I(true)), M() && (document.getElementById("btn-continue").style.display = "inline-block");
+    await $(), window.gameInitialized = true, document.getElementById("btn-start").addEventListener("click", () => I(false)), document.getElementById("btn-continue").addEventListener("click", () => I(true)), M() && (document.getElementById("btn-continue").style.display = "inline-block");
   } catch (e) {
     console.error("Failed to initialize:", e), x("Failed to load game: " + e.message);
   }
