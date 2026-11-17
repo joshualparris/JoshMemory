@@ -1,0 +1,27 @@
+name: Arcade asset and map repairs
+on:
+  push:
+    branches: [fix/arcade-all-games-playwright-20261118]
+    paths: ['.github/workflows/arcade-repair-browser.yml','repository-town/tests/arcade-repair-browser.mjs','repository-town/games/**']
+  pull_request:
+    paths: ['.github/workflows/arcade-repair-browser.yml','repository-town/tests/arcade-repair-browser.mjs','repository-town/games/**']
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - name: Install Chromium
+        working-directory: repository-town
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Verify fixed games
+        working-directory: repository-town
+        run: |
+          python3 -m http.server 8733 >/tmp/arcade-repair-server.log 2>&1 &
+          node tests/arcade-repair-browser.mjs
