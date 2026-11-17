@@ -1,0 +1,10 @@
+{
+  "name": "iron-and-logic",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A fully playable factory automation game",
+  "scripts": {
+    "test": "node test.mjs"
+  }
+}
