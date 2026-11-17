@@ -1,0 +1,28 @@
+name: Verify standalone arcade live games
+on:
+  push:
+    branches: [feat/arcade-patch-tuesday, main]
+    paths:
+      - '.github/workflows/standalone-arcade-live.yml'
+      - '.github/scripts/standalone-arcade-smoke.cjs'
+      - 'repository-town/game-src/patch-tuesday/**'
+      - 'repository-town/game-src/throughput/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  smoke:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Fetch browser automation
+        run: |
+          mkdir -p /tmp/arcade-browser
+          npm install --no-save --prefix /tmp/arcade-browser playwright@1.56.1
+          /tmp/arcade-browser/node_modules/.bin/playwright install --with-deps chromium
+      - name: Verify both live games and gameplay buttons
+        run: node .github/scripts/standalone-arcade-smoke.cjs
