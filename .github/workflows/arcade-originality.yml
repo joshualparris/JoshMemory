@@ -1,0 +1,28 @@
+name: Arcade originality gate
+on:
+  pull_request:
+    paths:
+      - 'repository-town/data/games.json'
+      - 'repository-town/data/gameplay-profiles.json'
+      - 'repository-town/data/game-originality-baseline.json'
+      - 'repository-town/tools/audit_game_originality.mjs'
+      - '.github/workflows/arcade-originality.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'repository-town/data/games.json'
+      - 'repository-town/data/gameplay-profiles.json'
+      - 'repository-town/data/game-originality-baseline.json'
+      - 'repository-town/tools/audit_game_originality.mjs'
+      - '.github/workflows/arcade-originality.yml'
+jobs:
+  originality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check game design differentiation
+        working-directory: repository-town
+        run: node tools/audit_game_originality.mjs
