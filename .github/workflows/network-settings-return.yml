@@ -3,13 +3,17 @@ on:
   pull_request:
     paths:
       - 'repository-town/games/whirring-wilderness/network/settings.html'
+      - 'repository-town/games/whirring-wilderness/network/portal.html'
       - 'repository-town/tests/network-settings-return.mjs'
+      - 'repository-town/tests/network-portal-destinations.mjs'
       - '.github/workflows/network-settings-return.yml'
   push:
     branches: [main]
     paths:
       - 'repository-town/games/whirring-wilderness/network/settings.html'
+      - 'repository-town/games/whirring-wilderness/network/portal.html'
       - 'repository-town/tests/network-settings-return.mjs'
+      - 'repository-town/tests/network-portal-destinations.mjs'
       - '.github/workflows/network-settings-return.yml'
 permissions:
   contents: read
@@ -26,4 +30,4 @@ jobs:
           node-version: '20'
       - name: Test only owned-page return navigation in a mocked browser
         working-directory: repository-town
-        run: node --test tests/network-settings-return.mjs
+        run: node --test tests/network-*.mjs
