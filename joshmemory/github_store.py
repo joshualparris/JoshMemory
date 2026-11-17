@@ -203,7 +203,16 @@ def _cache_read(sha: str) -> str | None:
     if folder is None or not _SHA_RE.fullmatch(sha):
         return None
     try:
-        return (folder / f"{sha}.json").read_text(encoding="utf-8")
+        # Cache entries contain private continuity records. Keep an existing
+        # cache directory and file private, including on repeat reads.
+        if folder.is_symlink():
+            return None
+        folder.chmod(0o700)
+        path = folder / f"{sha}.json"
+        if path.is_symlink():
+            return None
+        path.chmod(0o600)
+        return path.read_text(encoding="utf-8")
     except OSError:
         return None
 
@@ -212,13 +221,31 @@ def _cache_write(sha: str, text: str) -> None:
     folder = _cache_dir()
     if folder is None or not _SHA_RE.fullmatch(sha):
         return
+    tmp = None
     try:
-        folder.mkdir(parents=True, exist_ok=True)
+        if folder.is_symlink():
+            return
+        folder.mkdir(mode=0o700, parents=True, exist_ok=True)
+        folder.chmod(0o700)
         tmp = folder / f"{sha}.{os.getpid()}.{uuid.uuid4().hex}.tmp"
-        tmp.write_text(text, encoding="utf-8")
-        os.replace(tmp, folder / f"{sha}.json")
+        # pathlib.write_text honours umask and may create world-readable
+        # private records; O_EXCL + mode 0600 makes that impossible on POSIX.
+        fd = os.open(tmp, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(fd, "w", encoding="utf-8") as out:
+            out.write(text)
+        target = folder / f"{sha}.json"
+        if target.is_symlink():
+            return
+        os.replace(tmp, target)
+        target.chmod(0o600)
     except OSError:
-        pass  # the cache is an optimisation; never fail a read because of it
+        pass  # cache errors must never break the authoritative remote read
+    finally:
+        if tmp is not None:
+            try:
+                tmp.unlink(missing_ok=True)
+            except OSError:
+                pass
 
 
 def _cache_discard(sha: str) -> None:
