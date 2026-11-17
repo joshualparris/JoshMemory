@@ -1,0 +1,36 @@
+name: Full local catalogue Playwright audit
+on:
+  push:
+    branches: [fix/arcade-all-games-playwright-20261118]
+    paths: ['.github/workflows/all-games-local-playwright.yml','repository-town/tests/all-games-audit.mjs','repository-town/games/hub-amodule-dnd/**']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  local-browser-audit:
+    name: local ${{ matrix.viewport }} / ${{ matrix.shard }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        viewport: [desktop, mobile]
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - name: Install Playwright Chromium
+        working-directory: repository-town
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Test packed games from checked-out source
+        working-directory: repository-town
+        run: |
+          python3 -m http.server 8733 >/tmp/arcade-source-server.log 2>&1 &
+          if [ "${{ matrix.viewport }}" = "mobile" ]; then
+            node tests/all-games-audit.mjs --origin http://127.0.0.1:8733 --shard ${{ matrix.shard }}/8 --mobile
+          else
+            node tests/all-games-audit.mjs --origin http://127.0.0.1:8733 --shard ${{ matrix.shard }}/8
+          fi
