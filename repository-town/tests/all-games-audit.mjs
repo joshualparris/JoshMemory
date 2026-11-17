@@ -16,6 +16,16 @@ const size=mobile?{width:390,height:844}:{width:1280,height:900};
 const origin=arg('--origin','https://repository-town-claude-complete.vercel.app').replace(/\/$/,'');
 const all=JSON.parse(await fs.readFile(path.join(root,'data','games.json'),'utf8')).games;
 const games=all.filter((_,i)=>i%total===part);
+const publishedOnly=argv.includes('--published-only');
+let published=null;
+if(publishedOnly){
+ const response=await fetch(origin+'/houses.json');
+ if(!response.ok)throw Error('Cannot verify published games: houses.json HTTP '+response.status);
+ const body=await response.json();
+ published=new Set((body.houses||[]).flatMap(h=>(h.int?.rooms||[])
+  .flatMap(r=>(r.props||[]).filter(p=>p[2]?.do==='game').map(p=>p[2].game))));
+}
+
 const folder=path.join(root,'test-results','all-games',mobile?'mobile':'desktop',String(part));
 await fs.mkdir(folder,{recursive:true});
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader','--ignore-gpu-blocklist']});
@@ -23,6 +33,7 @@ const records=[];
 for(const g of games){
  const record={id:g.id,title:g.title,kind:g.kind,platform:mobile?'mobile':'desktop',status:'UNKNOWN',url:origin+'/games/'+encodeURIComponent(g.id)+'/index.html',
    errors:[],warnings:[],steps:[],initial:{},final:{},http:[],screenshots:[]};
+ if(published&&!published.has(g.id)){record.status='UNPUBLISHED';record.warnings.push('Not part of deployed public-house game set; audited via local source suite.');records.push(record);console.log('GAME '+JSON.stringify({id:record.id,platform:record.platform,status:record.status}));continue;}
  const page=await browser.newPage({viewport:size,deviceScaleFactor:1,hasTouch:mobile,isMobile:mobile,locale:'en-AU',reducedMotion:'reduce'});
  const pageErrors=new Set(),failures=new Set();
  page.on('pageerror',err=>pageErrors.add(err.message.slice(0,300)));
@@ -91,8 +102,8 @@ for(const g of games){
 }
 await browser.close();
 const report={generatedAt:new Date().toISOString(),origin,part,total,platform:mobile?'mobile':'desktop',
- catalogEntries:all.length,checked:games.length,passed:records.filter(x=>x.status==='SMOKE_PASS').length,
+ catalogEntries:all.length,assigned:games.length,checked:records.filter(x=>x.status!=='UNPUBLISHED').length,skipped:records.filter(x=>x.status==='UNPUBLISHED').length,passed:records.filter(x=>x.status==='SMOKE_PASS').length,
  failed:records.filter(x=>x.status==='FAIL').length,games:records};
 await fs.writeFile(path.join(folder,'report.json'),JSON.stringify(report,null,2)+'\n');
-console.log('SHARD '+JSON.stringify({platform:report.platform,part,checked:report.checked,passed:report.passed,failed:report.failed}));
+console.log('SHARD '+JSON.stringify({platform:report.platform,part,assigned:report.assigned,checked:report.checked,skipped:report.skipped,passed:report.passed,failed:report.failed}));
 if(report.failed)process.exitCode=1;
