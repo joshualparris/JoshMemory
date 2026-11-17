@@ -6547,7 +6547,7 @@ var Ve = {};
 })(Ve);
 var rp = class {
   constructor() {
-    this.musicHowl = null, this.ambientHowls = { train_hum: new Ve.Howl({ src: ["/audio/ambient_train.mp3"], loop: true }), station_echo: new Ve.Howl({ src: ["/audio/ambient_echo.mp3"], loop: true }), wind: new Ve.Howl({ src: ["/audio/ambient_wind.mp3"], loop: true }), silence: new Ve.Howl({ src: [""], loop: true }) }, this.sfxVolume = 0.5, this.musicVolume = 0.7, this.masterVolume = 1;
+    this.musicHowl = null, this.ambientHowls = {}, this.sfxVolume = 0.5, this.musicVolume = 0.7, this.masterVolume = 1;
   }
   playMusic(t, n = false) {
     this.musicHowl && (n ? (this.musicHowl.fade(this.musicVolume, 0, 500), setTimeout(() => {
@@ -6591,9 +6591,9 @@ var rp = class {
   }
 };
 var Qu = new rp();
-var lp = { train_hub: "/audio/train_hub.mp3", station_regret: "/audio/station_regret.mp3", station_unsent: "/audio/station_unsent.mp3", station_beginning: "/audio/station_beginning.mp3", title: "/audio/title.mp3", epilogue: "/audio/epilogue.mp3" };
-var op = { choice_select: "/audio/sfx_choice.mp3", train_depart: "/audio/sfx_depart.mp3", heart_open: "/audio/sfx_heart_open.mp3", heart_close: "/audio/sfx_heart_close.mp3", station_arrival: "/audio/sfx_arrival.mp3", transition: "/audio/sfx_transition.mp3" };
-var Ku = { train_hum: "/audio/ambient_train.mp3", station_echo: "/audio/ambient_echo.mp3", wind: "/audio/ambient_wind.mp3", silence: "" };
+var lp = { train_hub: "", station_regret: "", station_unsent: "", station_beginning: "", title: "", epilogue: "" };
+var op = { choice_select: "", train_depart: "", heart_open: "", heart_close: "", station_arrival: "", transition: "" };
+var Ku = { train_hum: "", station_echo: "", wind: "", silence: "" };
 function ip({ backgroundSrc: e, parallaxLayers: t }) {
   return S.jsxs("div", { className: "scene-background", children: [e && S.jsx("img", { src: e, alt: "background", className: "background-main" }), t == null ? void 0 : t.map((n, r) => S.jsx("img", { src: n, alt: `layer-${r}`, className: "background-parallax-layer" }, r)), S.jsx("div", { className: "background-dim" })] });
 }
