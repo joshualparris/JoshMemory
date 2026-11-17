@@ -208,10 +208,18 @@ async function makePlayable(dir, entry = 'index.html', opts = {}) {
   html = html.replace(/<script\s+defer\s+src=["'](https:\/\/pyscript\.net\/releases\/2024[^"']+\/core\.js)["']\s*><\/script>/gi, '<script type="module" src="$1"></script>');
   html = html.replace('<py-script>\nimport random', '<script type="py">\nimport random\nfrom js import document').replace('</py-script>', '</script>').replace('.itecare2()', '.items()');
   html = html.replace('three@0.160.0/build/three.min.js', 'three@0.105.2/build/three.min.js').replace("return '/panos/placeholder.svg';", "return 'data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"2048\" height=\"1024\"><rect width=\"100%\" height=\"100%\" fill=\"#161922\"/><text x=\"50%\" y=\"50%\" fill=\"#7cd2ff\" font-family=\"sans-serif\" font-size=\"48\" text-anchor=\"middle\">Home Panorama</text></svg>');");
+  // Public Repository Town uses placeholder panoramas; probing /panos/*.jpg
+  // causes needless 404s and must not publish private house photographs.
+  html = html.replace(/const url = `\/panos\/\$\{filename\}`;\s*try\s*\{\s*const res = await fetch\(url, \{ method: 'HEAD' \}\);\s*if\(res.ok\) return url;\s*\}catch\(e\)\{\}/g, '');
   html = html.replace(/document\.getElementById\("(prev|next)"\)\.addEventListener/g, 'document.getElementById("$1")?.addEventListener');
   // Scripts that use import/export but are loaded as classic scripts (opts.moduleScripts).
   for (const src of opts.moduleScripts || []) html = html.replace(new RegExp(`<script\\s+src=["']${src.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}["']`), `<script type="module" src="${src}"`);
   html = html.replace(/<link\b[^>]*href=["'][^"']*(parris-network|portal-adapter)[^"']*["'][^>]*>/gi, '');
+  // The JoshHub global header belongs to its source site, not to a game iframe.
+  // Those /css and /js absolute requests are 404s inside Repository Town.
+  html = html.replace(/<link\b[^>]*href=["']\/css\/joshhub-header\.css["'][^>]*>/gi, '');
+  html = html.replace(/<script\b[^>]*src=["']\/js\/joshhub-header\.js["'][^>]*>\s*<\/script>/gi, '');
+
   // file:// pages have an opaque origin, so CORS-mode (crossorigin) loads of local files fail.
   html = html.replace(/(<(?:link|script)\b[^>]*?)\s+crossorigin(=["'][^"']*["'])?/gi, '$1');
   // Root-absolute paths ("/assets/x.js", "/games/x/a.png") point at a site root that a packed

@@ -41,6 +41,8 @@ A model cannot approve its own fix. Logs, issue bodies, README files, external a
 
 ## First practical experiment
 
+Track implementation using the [discovery-to-deployment checklist](AUTOPATCH_DISCOVERY_TO_DEPLOYMENT_TODO.md). It defines stable task IDs, milestone acceptance criteria, protected evidence requirements, and the boundary between a tested patch and verified runtime remediation.
+
 Use one isolated, already-disclosed or synthetic test vulnerability in a disposable Node game fixture. Benchmark two paths **under an explicit cost cap**: deterministic scanner + Dependabot version bump versus LLM-suggested narrowly scoped patch. Both must have a failing-before/passing-after regression and independent review. Compare time, true-positive proof, CI regressions and verified fix cost. **Do not ship the fixture into a game build.**
 
 For research context, see [OpenAI Codex Security](https://help.openai.com/en/articles/20001107-codex-security), [Google OSV-Scanner](https://github.com/google/osv-scanner/blob/main/docs/scan-source.md), and [GitHub's Dependabot security update behaviour](https://docs.github.com/en/code-security/concepts/supply-chain-security/dependabot-security-updates).

@@ -1,0 +1,28 @@
+name: Tile RPG gameplay regression
+on:
+  push:
+    branches: [fix/arcade-all-games-playwright-20261118]
+    paths: ['repository-town/games/hub-amodule-dnd/**','repository-town/tests/tile-rpg-browser.mjs','.github/workflows/tile-rpg-test.yml']
+  pull_request:
+    paths: ['repository-town/games/hub-amodule-dnd/**','repository-town/tests/tile-rpg-browser.mjs','.github/workflows/tile-rpg-test.yml']
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Chromium
+        working-directory: repository-town
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Test playable map and controls
+        working-directory: repository-town
+        run: |
+          python3 -m http.server 8733 >/tmp/arcade-local-server.log 2>&1 &
+          node tests/tile-rpg-browser.mjs
