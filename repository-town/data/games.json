@@ -651,6 +651,24 @@
       "entry": "standalone.html",
       "public": true,
       "about": "A blue-team awareness game: you are the defender at reception, the mantrap and the SOC console. Spot the pressure, refuse, verify out-of-band and report. All data is fictional."
+    },
+    {
+      "id": "patch-tuesday",
+      "repo": "joshualparris/JoshMemory",
+      "title": "Patch Tuesday",
+      "kind": "static",
+      "dir": "repository-town/game-src/patch-tuesday",
+      "public": true,
+      "about": "An original neon arcade survivor made for the town. Hold a three-minute overnight maintenance window against bugs, worms and ransomware, approve upgrades as you level up, then take down the Zero-Day. Keyboard or touch."
+    },
+    {
+      "id": "throughput",
+      "repo": "joshualparris/JoshMemory",
+      "title": "Throughput",
+      "kind": "static",
+      "dir": "repository-town/game-src/throughput",
+      "public": true,
+      "about": "An original factory automation game made for the town. Mine ore, lay conveyor belts, smelt plates and assemble gears, wire, circuits and motors across seven milestones, ending with a production quota you only hit by finding the bottleneck. Mouse, keyboard or touch; saves in your browser."
     }
   ]
 }

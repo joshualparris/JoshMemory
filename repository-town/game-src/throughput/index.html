@@ -1,0 +1,1085 @@
+<!doctype html>
+<!-- Throughput: an original factory-automation game written for Repository Town.
+     Source of truth: repository-town/game-src/throughput/ (packed into games/throughput/
+     by tools/pack_games.mjs). Self-contained and offline: no network requests, local fonts only. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Throughput</title>
+<style>
+/* Layout: full-bleed factory floor on a canvas; tool rail along the bottom, goal and rate panels at the top.
+   One deliberate look: daylight concrete, safety yellow and engineering blue. */
+:root {
+  --floor: #e7e3da;
+  --panel: #fbfaf7;
+  --ink: #1f2933;
+  --ink-soft: #5b6670;
+  --line: #cfc9bd;
+  --accent: #f2b705;
+  --blue: #2f5d8a;
+  --ok: #2e8b57;
+  --warn: #c77c0e;
+  --bad: #c0392b;
+  --shadow: rgba(31, 41, 51, 0.18);
+  --scrim: rgba(31, 41, 51, 0.45);
+  --font-ui: "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-num: "Cascadia Mono", ui-monospace, Consolas, "Courier New", monospace;
+  color-scheme: light;
+}
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  margin: 0; background: var(--floor); color: var(--ink); font-family: var(--font-ui); font-size: 14px;
+  overflow: hidden; overscroll-behavior: none; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent;
+}
+#floor { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: 0 4px 14px var(--shadow); }
+#goal {
+  position: fixed; z-index: 3; top: calc(env(safe-area-inset-top, 0px) + 10px); left: max(12px, env(safe-area-inset-left, 0px));
+  width: min(22rem, calc(100% - 24px)); padding: 10px 12px; display: grid; gap: 6px;
+}
+#goalHead { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+#goalStep { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--blue); font-weight: 700; }
+#goalTitle { font-size: 17px; font-weight: 700; }
+.need { display: grid; gap: 3px; }
+.need-row { display: flex; justify-content: space-between; font-size: 13px; font-variant-numeric: tabular-nums; }
+.bar { height: 6px; border-radius: 999px; background: #ece8df; overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--accent); }
+#goalHint { margin: 0; font-size: 13px; line-height: 1.45; color: var(--ink-soft); }
+#hintToggle { justify-self: start; font: inherit; font-size: 12px; color: var(--blue); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; }
+#rates {
+  position: fixed; z-index: 3; top: calc(env(safe-area-inset-top, 0px) + 10px); right: max(12px, env(safe-area-inset-right, 0px));
+  padding: 8px 12px; min-width: 11rem; display: grid; gap: 4px; font-size: 13px;
+}
+#rates h2 { margin: 0; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); }
+.rate-row { display: flex; justify-content: space-between; gap: 12px; font-family: var(--font-num); font-size: 12px; }
+#tools {
+  position: fixed; z-index: 3; bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+  left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px));
+  margin: 0 auto; width: max-content; max-width: calc(100% - 24px); overflow-x: auto;
+  display: flex; gap: 6px; padding: 6px;
+}
+.tool {
+  flex: none; display: grid; justify-items: center; gap: 2px; min-width: 64px; padding: 6px 8px; border-radius: 6px;
+  border: 1.5px solid transparent; background: transparent; color: var(--ink); font: inherit; font-size: 12px; cursor: pointer; touch-action: manipulation;
+}
+.tool canvas { width: 28px; height: 28px; }
+.tool kbd { font-family: var(--font-num); font-size: 10px; color: var(--ink-soft); }
+.tool:hover:not(:disabled) { background: #f1ede4; }
+.tool[aria-pressed="true"] { border-color: var(--blue); background: #e8eef5; }
+.tool:disabled { opacity: 0.38; cursor: not-allowed; }
+.tool:focus-visible, .btn:focus-visible, .recipe:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.sep { flex: none; width: 1px; background: var(--line); margin: 4px 2px; }
+#info {
+  position: fixed; z-index: 3; left: max(12px, env(safe-area-inset-left, 0px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 96px);
+  width: min(20rem, calc(100% - 24px)); padding: 10px 12px; display: grid; gap: 6px;
+}
+#infoTitle { font-weight: 700; font-size: 15px; }
+#infoStatus { font-size: 13px; color: var(--ink-soft); }
+#infoBody { font-size: 13px; font-family: var(--font-num); color: var(--ink-soft); }
+.recipes { display: flex; flex-wrap: wrap; gap: 6px; }
+.recipe { font: inherit; font-size: 12px; padding: 5px 9px; border-radius: 6px; border: 1.5px solid var(--line); background: var(--panel); cursor: pointer; }
+.recipe[aria-pressed="true"] { border-color: var(--blue); background: #e8eef5; font-weight: 700; }
+.recipe:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn { font: inherit; font-weight: 600; font-size: 14px; padding: 9px 16px; border-radius: 6px; border: 1.5px solid var(--ink); background: var(--panel); color: var(--ink); cursor: pointer; touch-action: manipulation; }
+.btn.primary { background: var(--ink); color: var(--panel); }
+#banner {
+  position: fixed; z-index: 6; top: 30%; left: 50%; transform: translateX(-50%); width: min(26rem, calc(100% - 32px));
+  padding: 14px 18px; display: grid; gap: 4px; text-align: center; border-top: 5px solid var(--accent); pointer-events: none;
+}
+#bannerTitle { font-size: 20px; font-weight: 800; }
+#bannerText { font-size: 14px; color: var(--ink-soft); }
+.screen {
+  position: fixed; inset: 0; z-index: 8; display: flex; overflow-y: auto; background: var(--scrim);
+  padding-block: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.card { margin: auto; width: min(36rem, 100%); padding: clamp(20px, 4vw, 30px); display: grid; gap: 14px; }
+.eyebrow { font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; color: var(--blue); }
+h1, h2 { margin: 0; line-height: 1.05; text-wrap: balance; }
+h1 { font-size: clamp(42px, 10vw, 68px); font-weight: 800; letter-spacing: -0.02em; }
+h1 span { background: linear-gradient(transparent 62%, var(--accent) 62%); }
+.lede { margin: 0; font-size: 16px; line-height: 1.5; color: var(--ink-soft); }
+.howto { margin: 0; padding-left: 1.1em; display: grid; gap: 4px; font-size: 14px; line-height: 1.45; }
+.row { display: flex; flex-wrap: wrap; gap: 10px; }
+.small { margin: 0; font-size: 12px; color: var(--ink-soft); }
+#err {
+  position: fixed; z-index: 9; left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px));
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); padding: 10px 14px; font-size: 13px; background: var(--panel);
+  border: 2px solid var(--bad); border-radius: 8px; -webkit-user-select: text; user-select: text;
+}
+@media (max-width: 620px) {
+  #rates { display: none; }
+  #info { bottom: calc(env(safe-area-inset-bottom, 0px) + 92px); }
+  .tool { min-width: 54px; padding: 5px 6px; }
+}
+</style>
+</head>
+<body>
+
+<canvas id="floor" aria-label="Factory floor"></canvas>
+
+<section id="goal" class="panel" hidden aria-live="polite">
+  <div id="goalHead"><span id="goalStep">Milestone 1 of 7</span></div>
+  <div id="goalTitle"></div>
+  <div id="goalNeed" class="need"></div>
+  <p id="goalHint"></p>
+  <button id="hintToggle" type="button">Hide hint</button>
+</section>
+
+<section id="rates" class="panel" hidden aria-label="Delivered per minute">
+  <h2>Into the hub, per minute</h2>
+  <div id="rateRows"></div>
+</section>
+
+<section id="info" class="panel" hidden>
+  <div id="infoTitle"></div>
+  <div id="infoStatus"></div>
+  <div id="infoBody"></div>
+  <div id="infoRecipes" class="recipes"></div>
+</section>
+
+<nav id="tools" class="panel" hidden aria-label="Build tools"></nav>
+
+<div id="banner" class="panel" hidden><div id="bannerTitle"></div><div id="bannerText"></div></div>
+
+<section id="titleScreen" class="screen" aria-labelledby="titleHeading">
+  <div class="card panel">
+    <div class="eyebrow">A factory automation game</div>
+    <h1 id="titleHeading"><span>Throughput</span></h1>
+    <p class="lede">Mine ore, run conveyor belts, smelt plates and assemble gears, wire, circuits and motors. Every milestone asks for more, and the last one asks for a steady rate. Find the bottleneck and fix it.</p>
+    <ul class="howto">
+      <li>Pick a building from the tool rail (keys 1 to 5), press R to rotate it, then click to place. Its arrow is where it pushes items out.</li>
+      <li>Drag with the Belt tool to lay a whole line of conveyor at once.</li>
+      <li>Right-click or use Delete (X) to remove. Drag the empty floor to look around; scroll or use + and − to zoom.</li>
+      <li>Click a building with the Select tool (Q) to see what it is waiting for, and to choose an assembler's recipe.</li>
+    </ul>
+    <div class="row">
+      <button id="continueBtn" class="btn primary" type="button" hidden>Continue</button>
+      <button id="newBtn" class="btn primary" type="button">Start a new factory</button>
+      <button id="soundBtn" class="btn" type="button" aria-pressed="true">Sound: on</button>
+    </div>
+    <p id="titleNote" class="small">Your factory saves itself in this browser.</p>
+  </div>
+</section>
+
+<section id="winScreen" class="screen" aria-labelledby="winHeading" hidden>
+  <div class="card panel">
+    <div class="eyebrow">All seven milestones</div>
+    <h2 id="winHeading">Factory certified</h2>
+    <p class="lede" id="winText"></p>
+    <div class="row"><button id="keepBtn" class="btn primary" type="button">Keep building</button></div>
+  </div>
+</section>
+
+<div id="err" role="alert" hidden></div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* ---------- errors show on screen instead of freezing silently ---------- */
+  const errBox = document.getElementById('err');
+  let errShown = false;
+  function showError(msg) {
+    if (errShown) return;
+    errShown = true;
+    errBox.hidden = false;
+    errBox.textContent = `Game error: ${msg}. Reload the page to try again.`;
+  }
+  window.addEventListener('error', (e) => showError(e.message || 'unknown error'));
+  window.addEventListener('unhandledrejection', (e) => showError(String(e.reason)));
+
+  /* ---------- local test hooks: ?demo (prebuilt factory) &ff=seconds, ?autostart ---------- */
+  const params = new URLSearchParams(location.search);
+  const DEMO = params.has('demo');
+  const FF = Math.max(0, Math.min(600, Number(params.get('ff')) || 0));
+  const TESTING = DEMO || params.has('autostart');
+
+  const $ = (id) => document.getElementById(id);
+  const TAU = Math.PI * 2;
+  function el(tag, cls, text) {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function hash(x, y, s = 0) {
+    let h = (x * 374761393 + y * 668265263 + s * 1442695041) | 0;
+    h = Math.imul(h ^ (h >>> 13), 1274126177);
+    h ^= h >>> 16;
+    return (h >>> 0) / 4294967296;
+  }
+  function rr(g, x, y, w, h, r) { g.beginPath(); if (g.roundRect) g.roundRect(x, y, w, h, r); else g.rect(x, y, w, h); }
+
+  /* ---------- rules ---------- */
+  const TILE = 40, MW = 40, MH = 28;
+  const DIRS = [[1, 0], [0, 1], [-1, 0], [0, -1]];
+  const DIR_NAME = ['east', 'south', 'west', 'north'];
+  const opposite = (d) => (d + 2) % 4;
+  const MINER_TIME = 2.0, SMELT_TIME = 1.6;
+  const ITEMS = {
+    iron_ore: 'Iron ore', copper_ore: 'Copper ore', iron: 'Iron plate', copper: 'Copper plate',
+    gear: 'Gear', wire: 'Wire', circuit: 'Circuit', motor: 'Motor',
+  };
+  const SMELT = { iron_ore: 'iron', copper_ore: 'copper' };
+  const RECIPES = {
+    gear: { label: 'Gear', need: 'assembler', in: { iron: 2 }, out: 'gear', n: 1, time: 1.0 },
+    wire: { label: 'Wire', need: 'wire', in: { copper: 1 }, out: 'wire', n: 2, time: 0.8 },
+    circuit: { label: 'Circuit', need: 'circuit', in: { iron: 1, wire: 3 }, out: 'circuit', n: 1, time: 1.5 },
+    motor: { label: 'Motor', need: 'motor', in: { gear: 1, circuit: 1, iron: 1 }, out: 'motor', n: 1, time: 3.0 },
+  };
+  for (const r of Object.values(RECIPES)) r.list = Object.entries(r.in);
+  const BUILD = {
+    belt: { label: 'Belt', key: '1', tip: 'Moves items one tile at a time toward its arrow. Belts merge when one runs into the side of another.' },
+    miner: { label: 'Miner', key: '2', tip: 'Place on iron or copper ore. Digs one ore every 2 seconds.' },
+    smelter: { label: 'Smelter', key: '3', tip: 'Turns ore into plates, one every 1.6 seconds.' },
+    assembler: { label: 'Assembler', key: '4', tip: 'Builds the recipe you choose from the items belted into it.' },
+    splitter: { label: 'Splitter', key: '5', tip: 'Takes items in from behind and deals them out left, ahead and right in turn.' },
+  };
+  const MILESTONES = [
+    { title: 'Strike iron', want: { iron_ore: 10 }, unlock: ['smelter'], reward: 'Unlocked: Smelter',
+      hint: 'Pick the Miner (2), turn it with R so its arrow points toward the hub, and place it on the grey-blue iron ore. Then drag a line of Belt (1) from the miner into the hub in the middle.' },
+    { title: 'Make plates', want: { iron: 20 }, unlock: ['assembler'], reward: 'Unlocked: Assembler, with the Gear recipe',
+      hint: 'Put a Smelter (3) in the belt line between the miner and the hub, arrow pointing on toward the hub. Ore goes in, plates come out of the arrow side.' },
+    { title: 'Gears for days', want: { gear: 30 }, unlock: ['splitter', 'wire'], reward: 'Unlocked: Splitter, and the Wire recipe',
+      hint: 'An Assembler (4) set to Gear needs 2 iron plates for each gear. One smelter feeds it slowly; two miners and two smelters merging onto one belt do better.' },
+    { title: 'Copper, coiled', want: { wire: 60 }, unlock: ['circuit'], reward: 'Unlocked: the Circuit recipe',
+      hint: 'Mine the orange copper ore, smelt it into copper plates and set an Assembler to Wire. Each copper plate makes 2 wire. A Splitter (5) shares one belt between several machines.' },
+    { title: 'First circuits', want: { circuit: 40 }, unlock: ['fastbelt', 'motor'], reward: 'Unlocked: express belts (every belt now runs twice as fast) and the Motor recipe',
+      hint: 'A circuit takes 1 iron plate and 3 wire. Assemblers take inputs from any side except their arrow, so bring iron in from one side and wire from another.' },
+    { title: 'Motor works', want: { motor: 20 }, unlock: [], reward: 'One milestone left',
+      hint: 'A motor takes 1 gear, 1 circuit and 1 iron plate. Click machines with Select (Q): the ones saying "waiting" are starved, and the ones saying "blocked" are backed up.' },
+    { title: 'Hit the quota', rate: { circuit: 30 }, hold: 60, unlock: [], reward: '',
+      hint: 'Keep 30 circuits a minute flowing into the hub for a full minute. One circuit assembler can just about manage it if it never waits: it needs half an iron plate and one and a half wire every second.' },
+  ];
+
+  /* ---------- map ---------- */
+  const NONE = 0, IRON = 1, COPPER = 2, ROCK = 3;
+  const ground = new Uint8Array(MW * MH);
+  const HUB = { x: 18, y: 12, w: 3, h: 3 };
+  const inMap = (x, y) => x >= 0 && y >= 0 && x < MW && y < MH;
+  const inHub = (x, y) => x >= HUB.x && x < HUB.x + HUB.w && y >= HUB.y && y < HUB.y + HUB.h;
+  function buildMap() {
+    const patches = [[10, 8, IRON, 2.7], [29, 19, IRON, 2.5], [28, 6, COPPER, 2.7], [9, 20, COPPER, 2.6], [35, 3, IRON, 2.0], [4, 4, COPPER, 1.9], [34, 24, COPPER, 1.8]];
+    for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) {
+      let t = NONE;
+      patches.forEach(([px, py, kind, r], i) => { if (Math.hypot(x - px, y - py) + (hash(x, y, i) - 0.5) * 1.3 < r) t = kind; });
+      if (t === NONE && hash(x, y, 99) < 0.03 && Math.hypot(x - 19, y - 13) > 5) t = ROCK;
+      ground[y * MW + x] = t;
+    }
+  }
+
+  /* ---------- entities ---------- */
+  const grid = new Array(MW * MH).fill(null);
+  const ents = new Set();
+  const hub = { type: 'hub', x: HUB.x, y: HUB.y };
+  for (let y = HUB.y; y < HUB.y + HUB.h; y++) for (let x = HUB.x; x < HUB.x + HUB.w; x++) grid[y * MW + x] = hub;
+  const entAt = (x, y) => (inMap(x, y) ? grid[y * MW + x] : null);
+  let lastRecipe = 'gear';
+  function removeEnt(e) {
+    if (!e || e.type === 'hub') return;
+    grid[e.y * MW + e.x] = null;
+    ents.delete(e);
+    if (selected === e) selectEnt(null);
+  }
+  function make(type, x, y, dir) {
+    const e = { type, x, y, dir };
+    if (type === 'belt' || type === 'splitter') { e.item = null; e.next = 0; }
+    if (type === 'miner') { e.timer = 0; e.out = null; }
+    if (type === 'smelter') { e.inbuf = []; e.cur = null; e.timer = 0; e.out = []; }
+    if (type === 'assembler') { e.recipe = recipeOpen(lastRecipe) ? lastRecipe : 'gear'; e.inv = {}; e.crafting = false; e.timer = 0; e.out = []; }
+    return e;
+  }
+  function canPlace(type, x, y) {
+    if (!inMap(x, y) || inHub(x, y)) return false;
+    const g = ground[y * MW + x];
+    if (g === ROCK) return false;
+    if (type === 'miner') return g === IRON || g === COPPER;
+    return true;
+  }
+  function place(type, x, y, dir) {
+    if (!canPlace(type, x, y)) return null;
+    const old = entAt(x, y);
+    if (old && old.type === type && type === 'belt') { old.dir = dir; return old; }
+    if (old) removeEnt(old);
+    const e = make(type, x, y, dir);
+    grid[y * MW + x] = e;
+    ents.add(e);
+    dirty = true;
+    return e;
+  }
+
+  /* ---------- progress ---------- */
+  const unlocked = { belt: true, miner: true };
+  let msIndex = 0;
+  let msBase = {};
+  const delivered = {};
+  let holdSec = 0;
+  let finished = false;
+  let simTime = 0;
+  const recipeOpen = (id) => !!unlocked[RECIPES[id].need];
+  const buckets = [];
+  let curBucket = {}, curSec = 0;
+  function rateTick() {
+    const s = Math.floor(simTime);
+    if (s === curSec) return;
+    buckets.push(curBucket);
+    if (buckets.length > 60) buckets.shift();
+    curBucket = {};
+    curSec = s;
+    const m = MILESTONES[msIndex];
+    if (m && m.rate) {
+      const ok = Object.entries(m.rate).every(([k, n]) => ratePerMin(k) >= n);
+      holdSec = ok ? holdSec + 1 : 0;
+    }
+  }
+  function ratePerMin(t) {
+    let n = curBucket[t] || 0;
+    for (const b of buckets) n += b[t] || 0;
+    const covered = buckets.length + (simTime - curSec);
+    return (n * 60) / Math.max(10, Math.min(60, covered));
+  }
+  function deliver(t) {
+    delivered[t] = (delivered[t] || 0) + 1;
+    curBucket[t] = (curBucket[t] || 0) + 1;
+  }
+  const progressOf = (k) => (delivered[k] || 0) - (msBase[k] || 0);
+  function checkGoal() {
+    const m = MILESTONES[msIndex];
+    if (!m) return;
+    const done = m.want ? Object.entries(m.want).every(([k, n]) => progressOf(k) >= n) : holdSec >= m.hold;
+    if (!done) return;
+    for (const u of m.unlock) unlocked[u] = true;
+    msIndex++;
+    msBase = { ...delivered };
+    holdSec = 0;
+    sfx('milestone');
+    if (msIndex >= MILESTONES.length) { finished = true; showWin(); }
+    else showBanner(`Milestone ${msIndex} complete`, m.reward);
+    renderTools();
+    renderGoal(true);
+    save();
+  }
+
+  /* ---------- simulation ---------- */
+  function offer(x, y, dir, t) {
+    const tx = x + DIRS[dir][0], ty = y + DIRS[dir][1];
+    const e = entAt(tx, ty);
+    if (!e) return false;
+    const entry = opposite(dir);
+    switch (e.type) {
+      case 'hub': deliver(t); return true;
+      case 'belt':
+        if (e.item || entry === e.dir) return false;
+        e.item = { t, prog: 0, from: dir };
+        return true;
+      case 'splitter':
+        if (e.item || dir !== e.dir) return false;
+        e.item = { t, prog: 0, from: dir };
+        return true;
+      case 'smelter':
+        if (entry === e.dir || !SMELT[t] || e.inbuf.length >= 4) return false;
+        e.inbuf.push(t);
+        return true;
+      case 'assembler': {
+        if (entry === e.dir) return false;
+        const r = RECIPES[e.recipe];
+        if (!r || !r.in[t] || (e.inv[t] || 0) >= r.in[t] * 2) return false;
+        e.inv[t] = (e.inv[t] || 0) + 1;
+        return true;
+      }
+      default: return false;
+    }
+  }
+  function tick(dt) {
+    simTime += dt;
+    rateTick();
+    const step = (unlocked.fastbelt ? 4 : 2) * dt;
+    for (const e of ents) {
+      switch (e.type) {
+        case 'belt':
+        case 'splitter': {
+          const it = e.item;
+          if (!it) break;
+          if (it.prog < 1) { it.prog = Math.min(1, it.prog + step); if (it.prog < 1) break; }
+          if (e.type === 'belt') { if (offer(e.x, e.y, e.dir, it.t)) e.item = null; break; }
+          const outs = [(e.dir + 3) % 4, e.dir, (e.dir + 1) % 4];
+          for (let k = 0; k < 3; k++) {
+            const d = outs[(e.next + k) % 3];
+            if (offer(e.x, e.y, d, it.t)) { e.item = null; e.next = (e.next + k + 1) % 3; break; }
+          }
+          break;
+        }
+        case 'miner':
+          if (!e.out) {
+            e.timer += dt;
+            if (e.timer >= MINER_TIME) { e.timer = 0; e.out = ground[e.y * MW + e.x] === IRON ? 'iron_ore' : 'copper_ore'; }
+          }
+          if (e.out && offer(e.x, e.y, e.dir, e.out)) e.out = null;
+          break;
+        case 'smelter':
+          if (!e.cur && e.inbuf.length) { e.cur = e.inbuf.shift(); e.timer = 0; }
+          if (e.cur) {
+            e.timer = Math.min(SMELT_TIME, e.timer + dt);
+            if (e.timer >= SMELT_TIME && e.out.length < 2) { e.out.push(SMELT[e.cur]); e.cur = null; }
+          }
+          if (e.out.length && offer(e.x, e.y, e.dir, e.out[0])) e.out.shift();
+          break;
+        case 'assembler': {
+          const r = RECIPES[e.recipe];
+          if (r) {
+            if (!e.crafting && e.out.length + r.n <= Math.max(2, r.n * 2) && r.list.every(([k, n]) => (e.inv[k] || 0) >= n)) {
+              for (const [k, n] of r.list) e.inv[k] -= n;
+              e.crafting = true;
+              e.timer = 0;
+            }
+            if (e.crafting) {
+              e.timer += dt;
+              if (e.timer >= r.time) { for (let i = 0; i < r.n; i++) e.out.push(r.out); e.crafting = false; }
+            }
+          }
+          if (e.out.length && offer(e.x, e.y, e.dir, e.out[0])) e.out.shift();
+          break;
+        }
+        default: break;
+      }
+    }
+    checkGoal();
+  }
+  function statusOf(e) {
+    switch (e.type) {
+      case 'hub': return ['ok', 'Accepts anything belted into it, from any side.'];
+      case 'belt': return e.item ? (e.item.prog >= 1 ? ['bad', `Holding ${ITEMS[e.item.t].toLowerCase()}: the next tile is not taking it`] : ['ok', `Carrying ${ITEMS[e.item.t].toLowerCase()}`]) : ['idle', 'Empty'];
+      case 'splitter': return e.item && e.item.prog >= 1 ? ['bad', 'Blocked: nowhere to send the next item'] : ['ok', e.item ? `Passing ${ITEMS[e.item.t].toLowerCase()}` : 'Waiting for items from behind'];
+      case 'miner': return e.out ? ['bad', `Blocked: nothing is taking the ${ITEMS[e.out].toLowerCase()} from its arrow side`] : ['ok', `Mining ${ground[e.y * MW + e.x] === IRON ? 'iron' : 'copper'} ore`];
+      case 'smelter':
+        if (e.out.length >= 2 || (e.cur && e.timer >= SMELT_TIME)) return ['bad', 'Blocked: plates are backing up at the arrow side'];
+        return e.cur ? ['ok', `Smelting ${ITEMS[e.cur].toLowerCase()}`] : ['warn', 'Waiting for ore'];
+      case 'assembler': {
+        const r = RECIPES[e.recipe];
+        if (!r) return ['warn', 'Choose a recipe'];
+        if (e.crafting && e.timer >= r.time) return ['bad', 'Blocked: output is backing up'];
+        if (e.crafting) return ['ok', `Making ${r.label.toLowerCase()}`];
+        if (e.out.length + r.n > Math.max(2, r.n * 2)) return ['bad', 'Blocked: output is backing up'];
+        const missing = r.list.filter(([k, n]) => (e.inv[k] || 0) < n).map(([k]) => ITEMS[k].toLowerCase());
+        return ['warn', `Waiting for ${missing.join(' and ')}`];
+      }
+      default: return ['idle', ''];
+    }
+  }
+
+  /* ---------- sound ---------- */
+  let actx = null, muted = false;
+  try { muted = JSON.parse(localStorage.getItem('throughput:prefs') || '{}').muted === true; } catch (_) { /* ignore */ }
+  function ensureAudio() {
+    if (muted) return;
+    if (!actx) { const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return; try { actx = new AC(); } catch (_) { return; } }
+    if (actx.state === 'suspended') { const r = actx.resume(); if (r && r.catch) r.catch(() => {}); }
+  }
+  function tone(f, v, d, delay, type) {
+    const t = actx.currentTime + (delay || 0), o = actx.createOscillator(), g = actx.createGain();
+    o.type = type || 'square'; o.frequency.setValueAtTime(f, t);
+    g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + d);
+    o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + d + 0.03);
+  }
+  function sfx(name) {
+    if (!actx || muted || TESTING) return;
+    if (name === 'place') tone(420, 0.025, 0.05);
+    else if (name === 'remove') tone(220, 0.025, 0.06);
+    else if (name === 'milestone') [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.04, 0.22, i * 0.09, 'triangle'));
+  }
+  function setSound(on) {
+    muted = !on;
+    try { localStorage.setItem('throughput:prefs', JSON.stringify({ muted })); } catch (_) { /* ignore */ }
+    if (!muted) ensureAudio();
+    $('soundBtn').textContent = `Sound: ${muted ? 'off' : 'on'}`;
+    $('soundBtn').setAttribute('aria-pressed', String(!muted));
+  }
+
+  /* ---------- save ---------- */
+  const SAVE_KEY = 'throughput:v1';
+  const CODES = ['belt', 'miner', 'smelter', 'assembler', 'splitter'];
+  let started = false, dirty = false;
+  function save() {
+    if (!started || TESTING) return;
+    const list = [];
+    for (const e of ents) list.push([CODES.indexOf(e.type), e.x, e.y, e.dir, e.recipe || '']);
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify({ v: 1, msIndex, msBase, delivered, unlocked, finished, list, cam: [camX, camY, zoom], lastRecipe })); } catch (_) { /* ignore */ }
+    dirty = false;
+  }
+  function loadSave() {
+    try {
+      const s = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
+      if (s && s.v === 1 && Array.isArray(s.list)) return s;
+    } catch (_) { /* ignore */ }
+    return null;
+  }
+  function applySave(s) {
+    msIndex = Math.min(MILESTONES.length, s.msIndex | 0);
+    Object.assign(msBase, s.msBase || {});
+    Object.assign(delivered, s.delivered || {});
+    Object.assign(unlocked, s.unlocked || {});
+    finished = !!s.finished;
+    if (s.lastRecipe && RECIPES[s.lastRecipe]) lastRecipe = s.lastRecipe;
+    for (const [code, x, y, dir, recipe] of s.list) {
+      const type = CODES[code];
+      if (!type) continue;
+      const e = place(type, x, y, dir & 3);
+      if (e && type === 'assembler' && RECIPES[recipe]) e.recipe = recipe;
+    }
+    if (Array.isArray(s.cam)) { camX = +s.cam[0] || camX; camY = +s.cam[1] || camY; zoom = clampZoom(+s.cam[2] || 1); }
+  }
+
+  /* ---------- canvas, camera, sprites ---------- */
+  const canvas = $('floor');
+  const ctx = canvas.getContext('2d');
+  let W = 0, H = 0, DPR = 1;
+  let camX = 0, camY = 0, zoom = 1;
+  const clampZoom = (z) => Math.max(0.45, Math.min(1.8, z));
+  let bg = null, BGS = 1;
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = canvas.clientWidth || window.innerWidth;
+    H = canvas.clientHeight || window.innerHeight;
+    canvas.width = Math.max(1, Math.round(W * DPR));
+    canvas.height = Math.max(1, Math.round(H * DPR));
+    const want = Math.min(DPR, 1.5);
+    if (!bg || want !== BGS) { BGS = want; paintFloor(); }
+    clampCam();
+  }
+  window.addEventListener('resize', resize);
+  function clampCam() {
+    const vw = W / zoom, vh = H / zoom, ww = MW * TILE, wh = MH * TILE, pad = 120;
+    camX = vw >= ww + pad * 2 ? (ww - vw) / 2 : Math.max(-pad, Math.min(ww + pad - vw, camX));
+    camY = vh >= wh + pad * 2 ? (wh - vh) / 2 : Math.max(-pad, Math.min(wh + pad - vh, camY));
+  }
+  function centreOn(wx, wy) { camX = wx - W / zoom / 2; camY = wy - H / zoom / 2; clampCam(); }
+  function paintFloor() {
+    bg = document.createElement('canvas');
+    bg.width = MW * TILE * BGS; bg.height = MH * TILE * BGS;
+    const g = bg.getContext('2d');
+    g.scale(BGS, BGS);
+    g.fillStyle = '#e7e3da'; g.fillRect(0, 0, MW * TILE, MH * TILE);
+    for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) {
+      const t = ground[y * MW + x], px = x * TILE, py = y * TILE;
+      g.fillStyle = `rgba(120,110,95,${0.04 + hash(x, y, 4) * 0.05})`;
+      g.fillRect(px, py, TILE, TILE);
+      if (t === IRON || t === COPPER) {
+        g.fillStyle = t === IRON ? '#c9d2dc' : '#ecc9a6';
+        g.fillRect(px, py, TILE, TILE);
+        for (let i = 0; i < 6; i++) {
+          g.fillStyle = t === IRON ? (i % 2 ? '#6f8297' : '#8c9db0') : (i % 2 ? '#b0602e' : '#cf8048');
+          g.beginPath();
+          g.ellipse(px + 6 + hash(x, y, i) * 28, py + 6 + hash(x, y, i + 7) * 28, 3 + hash(x, y, i + 3) * 3, 2.5 + hash(x, y, i + 5) * 2, hash(x, y, i + 9) * 3, 0, TAU);
+          g.fill();
+        }
+      } else if (t === ROCK) {
+        g.fillStyle = '#8b857a'; g.beginPath(); g.ellipse(px + 20, py + 22, 15, 12, 0.3, 0, TAU); g.fill();
+        g.fillStyle = '#a39d91'; g.beginPath(); g.ellipse(px + 16, py + 18, 8, 6, 0.3, 0, TAU); g.fill();
+      }
+    }
+    g.strokeStyle = 'rgba(90,80,65,0.13)'; g.lineWidth = 1; g.beginPath();
+    for (let x = 0; x <= MW; x++) { g.moveTo(x * TILE + 0.5, 0); g.lineTo(x * TILE + 0.5, MH * TILE); }
+    for (let y = 0; y <= MH; y++) { g.moveTo(0, y * TILE + 0.5); g.lineTo(MW * TILE, y * TILE + 0.5); }
+    g.stroke();
+    g.strokeStyle = 'rgba(31,41,51,0.5)'; g.lineWidth = 3; g.strokeRect(1.5, 1.5, MW * TILE - 3, MH * TILE - 3);
+  }
+  function drawItem(g, t, x, y, s) {
+    g.save(); g.translate(x, y); g.scale(s / 16, s / 16);
+    switch (t) {
+      case 'iron_ore': case 'copper_ore':
+        g.fillStyle = t === 'iron_ore' ? '#6f8297' : '#c06a33';
+        g.beginPath(); g.moveTo(-6, 3); g.lineTo(-4, -5); g.lineTo(3, -6); g.lineTo(7, 0); g.lineTo(4, 6); g.lineTo(-3, 6); g.closePath(); g.fill();
+        g.fillStyle = 'rgba(255,255,255,0.35)'; g.beginPath(); g.arc(-1, -2, 2, 0, TAU); g.fill();
+        break;
+      case 'iron': case 'copper':
+        g.fillStyle = t === 'iron' ? '#aeb8c3' : '#d9824a'; rr(g, -6.5, -6.5, 13, 13, 2.5); g.fill();
+        g.strokeStyle = t === 'iron' ? '#7d8894' : '#a85a2c'; g.lineWidth = 1.2; g.stroke();
+        g.fillStyle = 'rgba(255,255,255,0.45)'; g.fillRect(-4.5, -4.5, 4, 2);
+        break;
+      case 'gear':
+        g.fillStyle = '#7d8894';
+        for (let i = 0; i < 8; i++) { g.save(); g.rotate((i / 8) * TAU); g.fillRect(-1.6, -7.5, 3.2, 3.5); g.restore(); }
+        g.beginPath(); g.arc(0, 0, 5.2, 0, TAU); g.fill();
+        g.fillStyle = '#e7e3da'; g.beginPath(); g.arc(0, 0, 2, 0, TAU); g.fill();
+        break;
+      case 'wire':
+        g.strokeStyle = '#c8702f'; g.lineWidth = 1.8;
+        for (let i = -1; i <= 1; i++) { g.beginPath(); g.ellipse(i * 3.2, 0, 2.6, 5.5, 0, 0, TAU); g.stroke(); }
+        break;
+      case 'circuit':
+        g.fillStyle = '#2e7d4f'; rr(g, -6.5, -6.5, 13, 13, 1.5); g.fill();
+        g.strokeStyle = '#f2c14e'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(-4, -3); g.lineTo(0, -3); g.lineTo(2, 0); g.lineTo(4, 0); g.moveTo(-4, 3); g.lineTo(3, 3); g.stroke();
+        g.fillStyle = '#1b1f24'; g.fillRect(-1.5, -1.5, 3, 3);
+        break;
+      case 'motor':
+        g.fillStyle = '#2f5d8a'; rr(g, -7, -5, 14, 10, 3); g.fill();
+        g.fillStyle = '#d9824a'; g.fillRect(-2, -5, 4, 10);
+        g.fillStyle = '#1f2933'; g.fillRect(7, -1.5, 2, 3);
+        break;
+      default: break;
+    }
+    g.restore();
+  }
+  const COLORS = { miner: '#2a9d8f', smelter: '#e76f51', assembler: '#3d5a80', splitter: '#7b5ea7' };
+  function drawArrow(g, cx, cy, dir, size, color) {
+    g.save(); g.translate(cx, cy); g.rotate(dir * Math.PI / 2);
+    g.fillStyle = color; g.beginPath(); g.moveTo(size, 0); g.lineTo(size - 7, -6); g.lineTo(size - 7, 6); g.closePath(); g.fill();
+    g.restore();
+  }
+  function drawBelt(g, e, t, ghost) {
+    const px = e.x * TILE, py = e.y * TILE, cx = px + 20, cy = py + 20;
+    g.save(); g.translate(cx, cy); g.rotate(e.dir * Math.PI / 2);
+    g.fillStyle = ghost ? 'rgba(58,63,69,0.55)' : '#3a3f45'; g.fillRect(-20, -15, 40, 30);
+    g.fillStyle = '#23272b'; g.fillRect(-20, -15, 40, 3); g.fillRect(-20, 12, 40, 3);
+    g.strokeStyle = 'rgba(242,193,78,0.85)'; g.lineWidth = 2.5; g.beginPath();
+    const off = ghost ? 0 : ((t * (unlocked.fastbelt ? 4 : 2) * TILE) % 13);
+    for (let s = -26 + off; s < 20; s += 13) { if (s < -20 || s > 14) continue; g.moveTo(s - 3, -6); g.lineTo(s + 3, 0); g.lineTo(s - 3, 6); }
+    g.stroke();
+    g.restore();
+  }
+  function itemPos(e) {
+    const it = e.item, cx = e.x * TILE + 20, cy = e.y * TILE + 20;
+    if (it.prog < 0.5) {
+      const [fx, fy] = DIRS[it.from], k = it.prog / 0.5;
+      return [cx - fx * 20 * (1 - k), cy - fy * 20 * (1 - k)];
+    }
+    const [dx, dy] = DIRS[e.dir], k = (it.prog - 0.5) / 0.5;
+    return [cx + dx * 20 * k, cy + dy * 20 * k];
+  }
+  function drawMachine(g, e, t, ghost) {
+    const px = e.x * TILE, py = e.y * TILE, cx = px + 20, cy = py + 20;
+    g.save();
+    if (ghost) g.globalAlpha = 0.6;
+    g.fillStyle = 'rgba(31,41,51,0.18)'; rr(g, px + 4, py + 6, 34, 34, 7); g.fill();
+    g.fillStyle = COLORS[e.type]; rr(g, px + 2, py + 2, 36, 36, 7); g.fill();
+    g.strokeStyle = 'rgba(0,0,0,0.25)'; g.lineWidth = 1.5; g.stroke();
+    const [state] = ghost ? ['idle'] : statusOf(e);
+    const working = state === 'ok';
+    switch (e.type) {
+      case 'miner': {
+        g.fillStyle = '#1f2933'; g.beginPath(); g.arc(cx, cy, 10, 0, TAU); g.fill();
+        g.save(); g.translate(cx, cy); g.rotate(working ? t * 6 : 0);
+        g.strokeStyle = '#e7e3da'; g.lineWidth = 2.5; g.beginPath(); g.moveTo(-7, 0); g.lineTo(7, 0); g.moveTo(0, -7); g.lineTo(0, 7); g.stroke();
+        g.restore();
+        break;
+      }
+      case 'smelter': {
+        g.fillStyle = '#5a2a1c'; rr(g, cx - 10, cy - 6, 20, 14, 4); g.fill();
+        const heat = working ? 0.7 + Math.sin(t * 9) * 0.25 : 0.25;
+        g.fillStyle = `rgba(255,${Math.round(170 + heat * 60)},60,${heat})`; rr(g, cx - 7, cy - 3, 14, 8, 3); g.fill();
+        g.fillStyle = '#2b1810'; g.fillRect(cx + 4, py + 4, 6, 8);
+        break;
+      }
+      case 'assembler': {
+        g.save(); g.translate(cx - 4, cy - 2); g.rotate(working ? t * 3 : 0);
+        g.fillStyle = '#e7e3da';
+        for (let i = 0; i < 8; i++) { g.save(); g.rotate((i / 8) * TAU); g.fillRect(-1.8, -11, 3.6, 4); g.restore(); }
+        g.beginPath(); g.arc(0, 0, 8, 0, TAU); g.fill();
+        g.fillStyle = COLORS.assembler; g.beginPath(); g.arc(0, 0, 3, 0, TAU); g.fill();
+        g.restore();
+        if (e.recipe) { g.fillStyle = '#fbfaf7'; rr(g, px + 22, py + 20, 15, 15, 3); g.fill(); drawItem(g, RECIPES[e.recipe].out, px + 29.5, py + 27.5, 12); }
+        break;
+      }
+      case 'splitter': {
+        g.strokeStyle = '#fbfaf7'; g.lineWidth = 2.5;
+        g.save(); g.translate(cx, cy); g.rotate(e.dir * Math.PI / 2);
+        g.beginPath(); g.moveTo(-10, 0); g.lineTo(2, 0); g.moveTo(2, 0); g.lineTo(9, -8); g.moveTo(2, 0); g.lineTo(9, 8); g.moveTo(2, 0); g.lineTo(10, 0); g.stroke();
+        g.restore();
+        break;
+      }
+      default: break;
+    }
+    drawArrow(g, cx, cy, e.dir, 19, '#fbfaf7');
+    if (!ghost && state !== 'idle') {
+      g.fillStyle = state === 'ok' ? '#2e8b57' : state === 'warn' ? '#e0a21b' : '#c0392b';
+      g.beginPath(); g.arc(px + 9, py + 9, 4, 0, TAU); g.fill();
+      g.strokeStyle = '#fbfaf7'; g.lineWidth = 1.5; g.stroke();
+    }
+    g.restore();
+  }
+  function drawHub(g, t) {
+    const px = HUB.x * TILE, py = HUB.y * TILE, w = HUB.w * TILE, h = HUB.h * TILE;
+    g.fillStyle = 'rgba(31,41,51,0.2)'; rr(g, px + 5, py + 8, w - 4, h - 4, 10); g.fill();
+    g.fillStyle = '#264653'; rr(g, px + 3, py + 3, w - 6, h - 6, 10); g.fill();
+    g.save(); rr(g, px + 3, py + 3, w - 6, h - 6, 10); g.clip();
+    g.fillStyle = '#f2b705';
+    for (let s = -h; s < w; s += 16) { g.beginPath(); g.moveTo(px + s, py + 3); g.lineTo(px + s + 8, py + 3); g.lineTo(px + s + 8 - 10, py + 13); g.lineTo(px + s - 10, py + 13); g.closePath(); g.fill(); }
+    g.restore();
+    g.fillStyle = '#fbfaf7'; g.font = '800 20px "Segoe UI", system-ui, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText('HUB', px + w / 2, py + h / 2 - 8);
+    const m = MILESTONES[msIndex];
+    g.font = '600 12px "Cascadia Mono", Consolas, monospace';
+    let label = finished ? 'certified' : '';
+    if (m && m.want) { const [k, n] = Object.entries(m.want)[0]; label = `${Math.min(n, progressOf(k))} / ${n}`; }
+    else if (m && m.rate) label = `${Math.round(ratePerMin('circuit'))}/min`;
+    g.fillText(label, px + w / 2, py + h / 2 + 14);
+    const pulse = (Math.sin(t * 3) + 1) / 2;
+    g.strokeStyle = `rgba(242,183,5,${0.25 + pulse * 0.35})`; g.lineWidth = 3; rr(g, px + 1, py + 1, w - 2, h - 2, 12); g.stroke();
+  }
+
+  /* ---------- tools and selection ---------- */
+  let tool = 'select';
+  let rot = 0;
+  let selected = null;
+  let hover = null;
+  const TOOL_LIST = ['select', 'belt', 'miner', 'smelter', 'assembler', 'splitter', 'delete'];
+  const TOOL_INFO = {
+    select: { label: 'Select', key: 'Q' }, belt: { label: 'Belt', key: '1' }, miner: { label: 'Miner', key: '2' },
+    smelter: { label: 'Smelter', key: '3' }, assembler: { label: 'Assembler', key: '4' }, splitter: { label: 'Splitter', key: '5' },
+    delete: { label: 'Delete', key: 'X' },
+  };
+  function toolIcon(id) {
+    const c = document.createElement('canvas');
+    const d = Math.min(window.devicePixelRatio || 1, 2);
+    c.width = c.height = 28 * d;
+    const g = c.getContext('2d');
+    g.scale((28 * d) / 40, (28 * d) / 40);
+    if (id === 'belt') drawBelt(g, { x: 0, y: 0, dir: 0 }, 0, false);
+    else if (COLORS[id]) drawMachine(g, { x: 0, y: 0, dir: 0, type: id, recipe: 'gear' }, 0, true);
+    else if (id === 'delete') { g.strokeStyle = '#c0392b'; g.lineWidth = 5; g.beginPath(); g.moveTo(10, 10); g.lineTo(30, 30); g.moveTo(30, 10); g.lineTo(10, 30); g.stroke(); }
+    else { g.fillStyle = '#1f2933'; g.beginPath(); g.moveTo(12, 6); g.lineTo(12, 32); g.lineTo(18, 26); g.lineTo(23, 35); g.lineTo(27, 33); g.lineTo(22, 24); g.lineTo(30, 24); g.closePath(); g.fill(); }
+    return c;
+  }
+  function renderTools() {
+    const nav = $('tools');
+    nav.replaceChildren();
+    TOOL_LIST.forEach((id, i) => {
+      if (i === 1 || id === 'delete') nav.append(el('span', 'sep'));
+      const b = el('button', 'tool');
+      b.type = 'button';
+      const locked = BUILD[id] && !unlocked[id];
+      b.disabled = locked;
+      b.setAttribute('aria-pressed', String(tool === id));
+      b.title = locked ? 'Locked: finish more milestones' : (BUILD[id] ? BUILD[id].tip : id === 'select' ? 'Inspect machines and choose recipes. Drag to look around.' : 'Remove buildings. Right-click works too.');
+      b.append(toolIcon(id), el('span', '', locked ? 'Locked' : TOOL_INFO[id].label), el('kbd', '', TOOL_INFO[id].key));
+      b.addEventListener('click', () => setTool(id));
+      nav.append(b);
+    });
+    nav.append(el('span', 'sep'));
+    const rb = el('button', 'tool'); rb.type = 'button'; rb.title = 'Rotate what you are about to place (or the selected machine)';
+    rb.append(el('span', '', ['→', '↓', '←', '↑'][rot]), el('span', '', 'Rotate'), el('kbd', '', 'R'));
+    rb.addEventListener('click', () => rotate());
+    nav.append(rb);
+    for (const [label, dz] of [['−', 1 / 1.2], ['+', 1.2]]) {
+      const zb = el('button', 'tool'); zb.type = 'button'; zb.title = dz > 1 ? 'Zoom in' : 'Zoom out';
+      zb.append(el('span', '', label), el('span', '', dz > 1 ? 'Zoom in' : 'Zoom out'));
+      zb.addEventListener('click', () => zoomAt(W / 2, H / 2, dz));
+      nav.append(zb);
+    }
+  }
+  function setTool(id) {
+    if (BUILD[id] && !unlocked[id]) return;
+    tool = id;
+    if (id !== 'select') selectEnt(null);
+    renderTools();
+  }
+  function rotate() {
+    if (tool === 'select' && selected && selected.type !== 'hub') { selected.dir = (selected.dir + 1) % 4; dirty = true; renderInfo(); return; }
+    rot = (rot + 1) % 4;
+    renderTools();
+  }
+  function selectEnt(e) {
+    selected = e;
+    renderInfo();
+  }
+  function renderInfo() {
+    const box = $('info');
+    if (!selected || !started) { box.hidden = true; return; }
+    box.hidden = false;
+    const e = selected;
+    $('infoTitle').textContent = e.type === 'hub' ? 'The hub' : `${BUILD[e.type].label}, facing ${DIR_NAME[e.dir]}`;
+    const [state, text] = statusOf(e);
+    $('infoStatus').textContent = text;
+    $('infoStatus').style.color = state === 'bad' ? 'var(--bad)' : state === 'warn' ? 'var(--warn)' : state === 'ok' ? 'var(--ok)' : 'var(--ink-soft)';
+    let body = '';
+    if (e.type === 'smelter') body = `Ore waiting: ${e.inbuf.length}/4 · plates ready: ${e.out.length}/2`;
+    if (e.type === 'assembler' && RECIPES[e.recipe]) {
+      const r = RECIPES[e.recipe];
+      body = r.list.map(([k, n]) => `${ITEMS[k]} ${e.inv[k] || 0}/${n}`).join(' · ') + ` → ${r.n} ${ITEMS[r.out].toLowerCase()} every ${r.time}s`;
+    }
+    if (e.type === 'hub') body = Object.keys(ITEMS).filter((k) => delivered[k]).map((k) => `${ITEMS[k]} ${delivered[k]}`).join(' · ') || 'Nothing delivered yet.';
+    $('infoBody').textContent = body;
+    const rbox = $('infoRecipes');
+    rbox.replaceChildren();
+    if (e.type === 'assembler') {
+      for (const [id, r] of Object.entries(RECIPES)) {
+        const b = el('button', 'recipe', recipeOpen(id) ? r.label : `${r.label} (locked)`);
+        b.type = 'button';
+        b.disabled = !recipeOpen(id);
+        b.setAttribute('aria-pressed', String(e.recipe === id));
+        b.addEventListener('click', () => { if (e.recipe !== id) { e.recipe = id; lastRecipe = id; e.inv = {}; e.out = []; e.crafting = false; dirty = true; } renderInfo(); });
+        rbox.append(b);
+      }
+    }
+  }
+  function renderGoal(force) {
+    const m = MILESTONES[msIndex];
+    $('goalStep').textContent = finished ? 'Sandbox' : `Milestone ${msIndex + 1} of ${MILESTONES.length}`;
+    $('goalTitle').textContent = finished ? 'Factory certified. Build whatever you like.' : m.title;
+    const need = $('goalNeed');
+    need.replaceChildren();
+    if (!finished && m.want) {
+      for (const [k, n] of Object.entries(m.want)) {
+        const have = Math.min(n, progressOf(k));
+        const row = el('div', 'need-row'); row.append(el('span', '', ITEMS[k]), el('span', '', `${have} / ${n}`));
+        const bar = el('div', 'bar'); const fillBar = el('i'); fillBar.style.width = `${(have / n) * 100}%`; bar.append(fillBar);
+        need.append(row, bar);
+      }
+    } else if (!finished && m.rate) {
+      const [k, n] = Object.entries(m.rate)[0];
+      const rate = Math.round(ratePerMin(k));
+      const row = el('div', 'need-row'); row.append(el('span', '', `${ITEMS[k]} per minute`), el('span', '', `${rate} / ${n}`));
+      const row2 = el('div', 'need-row'); row2.append(el('span', '', 'Held at quota'), el('span', '', `${holdSec} / ${m.hold} s`));
+      const bar = el('div', 'bar'); const fillBar = el('i'); fillBar.style.width = `${Math.min(100, (holdSec / m.hold) * 100)}%`; bar.append(fillBar);
+      need.append(row, row2, bar);
+    }
+    if (force) $('goalHint').textContent = finished ? 'Every recipe and building is unlocked. Try a factory that makes motors at 10 a minute.' : m.hint;
+  }
+  function renderRates() {
+    const rows = $('rateRows');
+    rows.replaceChildren();
+    const keys = Object.keys(ITEMS).filter((k) => delivered[k]);
+    if (!keys.length) { rows.append(el('div', 'small', 'Nothing delivered yet.')); return; }
+    for (const k of keys) { const r = el('div', 'rate-row'); r.append(el('span', '', ITEMS[k]), el('span', '', `${ratePerMin(k).toFixed(1)}`)); rows.append(r); }
+  }
+  let bannerTimer = 0;
+  function showBanner(title, text) {
+    $('bannerTitle').textContent = title;
+    $('bannerText').textContent = text;
+    $('banner').hidden = false;
+    clearTimeout(bannerTimer);
+    bannerTimer = setTimeout(() => { $('banner').hidden = true; }, 4200);
+  }
+  function showWin() {
+    $('winText').textContent = `You held 30 circuits a minute for a full minute. In total the hub took ${delivered.circuit || 0} circuits, ${delivered.gear || 0} gears, ${delivered.wire || 0} wire and ${delivered.motor || 0} motors from ${ents.size} buildings.`;
+    $('winScreen').hidden = false;
+    $('keepBtn').focus({ preventScroll: true });
+  }
+
+  /* ---------- input ---------- */
+  const toWorld = (sx, sy) => [sx / zoom + camX, sy / zoom + camY];
+  const tileAt = (sx, sy) => { const [wx, wy] = toWorld(sx, sy); return [Math.floor(wx / TILE), Math.floor(wy / TILE)]; };
+  function zoomAt(sx, sy, factor) {
+    const [wx, wy] = toWorld(sx, sy);
+    zoom = clampZoom(zoom * factor);
+    camX = wx - sx / zoom; camY = wy - sy / zoom;
+    clampCam();
+  }
+  let drag = null;
+  function removeAt(x, y) {
+    const e = entAt(x, y);
+    if (e && e.type !== 'hub') { removeEnt(e); dirty = true; sfx('remove'); }
+  }
+  function beltTo(tx, ty) {
+    let guard = 0;
+    while ((drag.last[0] !== tx || drag.last[1] !== ty) && guard++ < 200) {
+      const [lx, ly] = drag.last;
+      const step = Math.abs(tx - lx) >= Math.abs(ty - ly) ? [Math.sign(tx - lx), 0] : [0, Math.sign(ty - ly)];
+      const d = DIRS.findIndex(([a, b]) => a === step[0] && b === step[1]);
+      const prev = entAt(lx, ly);
+      if (prev && prev.type === 'belt' && drag.placed.has(prev)) prev.dir = d;
+      rot = d;
+      drag.last = [lx + step[0], ly + step[1]];
+      const cur = entAt(drag.last[0], drag.last[1]);
+      if (!cur || cur.type === 'belt') { const b = place('belt', drag.last[0], drag.last[1], d); if (b) drag.placed.add(b); }
+    }
+  }
+  canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+  canvas.addEventListener('pointerdown', (e) => {
+    if (!started) return;
+    e.preventDefault();
+    try { canvas.setPointerCapture(e.pointerId); } catch (_) { /* optional */ }
+    const [tx, ty] = tileAt(e.clientX, e.clientY);
+    const mode = e.button === 1 ? 'pan' : e.button === 2 || tool === 'delete' ? 'delete' : tool;
+    if (mode === 'pan' || (mode === 'select' && !entAt(tx, ty))) {
+      drag = { mode: 'pan', sx: e.clientX, sy: e.clientY, cx: camX, cy: camY, moved: false, id: e.pointerId };
+      if (mode === 'select') selectEnt(null);
+      return;
+    }
+    if (mode === 'select') { selectEnt(entAt(tx, ty)); drag = null; return; }
+    if (mode === 'delete') { removeAt(tx, ty); drag = { mode: 'delete', id: e.pointerId }; return; }
+    if (mode === 'belt') {
+      drag = { mode: 'belt', last: [tx, ty], placed: new Set(), id: e.pointerId };
+      const cur = entAt(tx, ty);
+      if (!cur || cur.type === 'belt') { const b = place('belt', tx, ty, rot); if (b) { drag.placed.add(b); sfx('place'); } }
+      return;
+    }
+    if (BUILD[mode]) {
+      const b = place(mode, tx, ty, rot);
+      if (b) { sfx('place'); if (mode === 'assembler') { tool = 'select'; renderTools(); selectEnt(b); } }
+      else if (mode === 'miner' && inMap(tx, ty)) showBanner('Miners go on ore', 'Place it on the grey-blue iron ore or the orange copper ore.');
+    }
+  });
+  canvas.addEventListener('pointermove', (e) => {
+    if (!started) return;
+    hover = tileAt(e.clientX, e.clientY);
+    if (!drag || drag.id !== e.pointerId) return;
+    if (drag.mode === 'pan') {
+      camX = drag.cx - (e.clientX - drag.sx) / zoom;
+      camY = drag.cy - (e.clientY - drag.sy) / zoom;
+      clampCam();
+    } else if (drag.mode === 'delete') removeAt(hover[0], hover[1]);
+    else if (drag.mode === 'belt' && inMap(hover[0], hover[1])) beltTo(hover[0], hover[1]);
+  });
+  const endDrag = (e) => { if (drag && drag.id === e.pointerId) { if (drag.mode === 'belt') renderTools(); drag = null; } };
+  canvas.addEventListener('pointerup', endDrag);
+  canvas.addEventListener('pointercancel', endDrag);
+  canvas.addEventListener('pointerleave', () => { hover = null; });
+  canvas.addEventListener('wheel', (e) => { if (!started) return; e.preventDefault(); zoomAt(e.clientX, e.clientY, e.deltaY < 0 ? 1.12 : 1 / 1.12); }, { passive: false });
+  const panKeys = new Set();
+  window.addEventListener('keydown', (e) => {
+    if (!started || !$('winScreen').hidden) return;
+    const k = e.code;
+    const toolKey = { Digit1: 'belt', Digit2: 'miner', Digit3: 'smelter', Digit4: 'assembler', Digit5: 'splitter', KeyQ: 'select', KeyX: 'delete', Delete: 'delete' }[k];
+    if (toolKey) { setTool(toolKey); return; }
+    if (k === 'KeyR') { rotate(); return; }
+    if (k === 'Escape') { setTool('select'); selectEnt(null); return; }
+    if (k === 'Equal' || k === 'NumpadAdd') { zoomAt(W / 2, H / 2, 1.2); return; }
+    if (k === 'Minus' || k === 'NumpadSubtract') { zoomAt(W / 2, H / 2, 1 / 1.2); return; }
+    if (['KeyW', 'KeyA', 'KeyS', 'KeyD', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(k)) { e.preventDefault(); panKeys.add(k); }
+  });
+  window.addEventListener('keyup', (e) => panKeys.delete(e.code));
+  window.addEventListener('blur', () => panKeys.clear());
+
+  /* ---------- drawing ---------- */
+  function render(t) {
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.fillStyle = '#d9d4c9';
+    ctx.fillRect(0, 0, W, H);
+    ctx.setTransform(DPR * zoom, 0, 0, DPR * zoom, -camX * DPR * zoom, -camY * DPR * zoom);
+    const vx0 = Math.max(0, camX), vy0 = Math.max(0, camY);
+    const vx1 = Math.min(MW * TILE, camX + W / zoom), vy1 = Math.min(MH * TILE, camY + H / zoom);
+    if (vx1 > vx0 && vy1 > vy0) ctx.drawImage(bg, vx0 * BGS, vy0 * BGS, (vx1 - vx0) * BGS, (vy1 - vy0) * BGS, vx0, vy0, vx1 - vx0, vy1 - vy0);
+    const tx0 = Math.floor(vx0 / TILE) - 1, ty0 = Math.floor(vy0 / TILE) - 1, tx1 = Math.ceil(vx1 / TILE) + 1, ty1 = Math.ceil(vy1 / TILE) + 1;
+    const visible = (e) => e.x >= tx0 && e.x <= tx1 && e.y >= ty0 && e.y <= ty1;
+    for (const e of ents) if (visible(e) && (e.type === 'belt')) drawBelt(ctx, e, t, false);
+    drawHub(ctx, t);
+    for (const e of ents) if (visible(e) && e.type !== 'belt') drawMachine(ctx, e, t, false);
+    for (const e of ents) {
+      if (!e.item || !visible(e)) continue;
+      const [ix, iy] = itemPos(e);
+      drawItem(ctx, e.item.t, ix, iy, 15);
+    }
+    if (selected) {
+      const s = selected === hub ? HUB : { x: selected.x, y: selected.y, w: 1, h: 1 };
+      ctx.strokeStyle = '#2f5d8a'; ctx.lineWidth = 3; ctx.setLineDash([6, 4]);
+      ctx.strokeRect(s.x * TILE + 1.5, s.y * TILE + 1.5, s.w * TILE - 3, s.h * TILE - 3);
+      ctx.setLineDash([]);
+    }
+    if (hover && started && inMap(hover[0], hover[1]) && (BUILD[tool] || tool === 'delete')) {
+      const [hx, hy] = hover;
+      if (tool === 'delete') {
+        ctx.fillStyle = 'rgba(192,57,43,0.25)'; ctx.fillRect(hx * TILE, hy * TILE, TILE, TILE);
+      } else {
+        const ok = canPlace(tool, hx, hy);
+        const ghost = { type: tool, x: hx, y: hy, dir: rot, recipe: lastRecipe };
+        if (tool === 'belt') drawBelt(ctx, ghost, t, true); else drawMachine(ctx, ghost, t, true);
+        if (!ok) { ctx.fillStyle = 'rgba(192,57,43,0.35)'; ctx.fillRect(hx * TILE, hy * TILE, TILE, TILE); }
+        drawArrow(ctx, hx * TILE + 20, hy * TILE + 20, rot, 19, ok ? '#2f5d8a' : '#c0392b');
+      }
+    }
+  }
+
+  /* ---------- main loop ---------- */
+  const STEP = 1 / 60;
+  let acc = 0, last = 0, clock = 0, uiTimer = 0, saveTimer = 0;
+  function frame(ts) {
+    requestAnimationFrame(frame);
+    const now = ts / 1000;
+    const dt = Math.min(0.1, Math.max(0, now - last));
+    last = now;
+    clock += dt;
+    if (started && $('winScreen').hidden) {
+      acc += dt;
+      let n = 0;
+      while (acc >= STEP && n++ < 8) { tick(STEP); acc -= STEP; }
+      if (acc > STEP * 8) acc = 0;
+      if (panKeys.size) {
+        const sp = 600 * dt / zoom;
+        if (panKeys.has('KeyA') || panKeys.has('ArrowLeft')) camX -= sp;
+        if (panKeys.has('KeyD') || panKeys.has('ArrowRight')) camX += sp;
+        if (panKeys.has('KeyW') || panKeys.has('ArrowUp')) camY -= sp;
+        if (panKeys.has('KeyS') || panKeys.has('ArrowDown')) camY += sp;
+        clampCam();
+      }
+      uiTimer += dt;
+      if (uiTimer > 0.25) { uiTimer = 0; renderGoal(false); renderRates(); if (selected) renderInfo(); }
+      saveTimer += dt;
+      if (saveTimer > 10) { saveTimer = 0; if (dirty || simTime > 0) save(); }
+    }
+    render(clock);
+  }
+  document.addEventListener('visibilitychange', () => { if (document.hidden) save(); });
+
+  /* ---------- start ---------- */
+  function begin(saved) {
+    ensureAudio();
+    if (saved) applySave(saved);
+    started = true;
+    $('titleScreen').hidden = true;
+    for (const id of ['goal', 'rates', 'tools']) $(id).hidden = false;
+    renderTools();
+    renderGoal(true);
+    if (!saved) centreOn(19.5 * TILE, 13.5 * TILE);
+    save();
+  }
+  function newGame() {
+    for (const e of [...ents]) removeEnt(e);
+    for (const k of Object.keys(unlocked)) delete unlocked[k];
+    unlocked.belt = true; unlocked.miner = true;
+    for (const k of Object.keys(delivered)) delete delivered[k];
+    msBase = {}; msIndex = 0; holdSec = 0; finished = false; simTime = 0; buckets.length = 0; curBucket = {}; curSec = 0;
+    try { localStorage.removeItem(SAVE_KEY); } catch (_) { /* ignore */ }
+    zoom = W < 700 ? 0.8 : 1;
+    begin(null);
+  }
+  function buildDemo() {
+    Object.assign(unlocked, { smelter: true, assembler: true, splitter: true, wire: true });
+    msIndex = 2;
+    const lay = [
+      ['miner', 10, 8, 0], ['belt', 11, 8, 0], ['smelter', 12, 8, 0], ['belt', 13, 8, 0], ['belt', 14, 8, 0], ['belt', 15, 8, 0], ['belt', 16, 8, 0], ['belt', 17, 8, 1],
+      ['belt', 17, 9, 1], ['belt', 17, 10, 1], ['belt', 17, 11, 1], ['belt', 17, 12, 0],
+      ['miner', 10, 9, 0], ['belt', 11, 9, 0], ['smelter', 12, 9, 0], ['belt', 13, 9, 0], ['assembler', 14, 9, 1], ['belt', 14, 10, 1], ['belt', 14, 11, 1], ['belt', 14, 12, 1],
+      ['belt', 14, 13, 0], ['belt', 15, 13, 0], ['belt', 16, 13, 0], ['belt', 17, 13, 0],
+      ['miner', 9, 9, 0],
+    ];
+    for (const [type, x, y, dir] of lay) { if (ground[y * MW + x] === ROCK) ground[y * MW + x] = NONE; if (type === 'miner' && ground[y * MW + x] !== IRON) ground[y * MW + x] = IRON; place(type, x, y, dir); }
+    paintFloor();
+  }
+
+  buildMap();
+  resize();
+  setSound(!muted);
+  centreOn(19.5 * TILE, 13.5 * TILE);
+  const saved = loadSave();
+  if (saved && !TESTING) {
+    const cb = $('continueBtn');
+    cb.hidden = false;
+    cb.textContent = `Continue your factory (milestone ${Math.min(MILESTONES.length, (saved.msIndex | 0) + 1)})`;
+    cb.addEventListener('click', () => begin(saved));
+    $('newBtn').textContent = 'Start over';
+    $('newBtn').classList.remove('primary');
+    $('titleNote').textContent = 'Start over deletes your saved factory.';
+  }
+  $('newBtn').addEventListener('click', () => newGame());
+  $('soundBtn').addEventListener('click', () => setSound(muted));
+  $('keepBtn').addEventListener('click', () => { $('winScreen').hidden = true; renderGoal(true); });
+  $('hintToggle').addEventListener('click', () => {
+    const h = $('goalHint');
+    h.hidden = !h.hidden;
+    $('hintToggle').textContent = h.hidden ? 'Show hint' : 'Hide hint';
+  });
+  if (TESTING) {
+    newGame();
+    if (DEMO) { buildDemo(); renderTools(); renderGoal(true); centreOn(14 * TILE, 11 * TILE); }
+    for (let i = 0; i < Math.round(FF * 60); i++) tick(STEP);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

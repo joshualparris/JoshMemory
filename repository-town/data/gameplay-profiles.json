@@ -1,4 +1,68 @@
 {
   "comment": "Complete these profiles for existing games as they are inspected. For any NEW game a complete entry is mandatory. comparison is an array of 'existing-id: concrete mechanical distinction'; playtestEvidence should include steps and observed outcomes.",
-  "profiles": {}
+  "profiles": {
+    "patch-tuesday": {
+      "genre": "Real-time arena survival with automatic weapons and upgrade drafting",
+      "playerActions": [
+        "Move with WASD, arrow keys or a touch drag; weapons fire on their own",
+        "Collect dropped patches (experience) by walking over or near them",
+        "At each level-up, choose 1 of 3 upgrades: a new weapon or another level of an owned weapon or passive",
+        "Pause, mute and retry"
+      ],
+      "coreLoop": "Keep moving through swarms while automatic weapons wear them down, collect the experience they drop, and draft an upgrade at every level so the build can outgrow the rising spawn rate.",
+      "objective": "Survive a three-minute maintenance window, then destroy the Zero-Day boss that appears at 3:00.",
+      "progression": "Level-ups draft from four weapons (Patch Bolt, Firewall aura, Antivirus orbit, Ping Flood shockwave) and five passives, each up to level 5. Threats escalate over time (bugs, then worms from 0:20, trojans from 0:45, ransomware from 1:40) with scripted swarm events at 1:00 and 2:00.",
+      "failureState": "Health reaches zero from contact damage or boss bullets. The run ends with an incident report showing time held and the best record, and Play again restarts from level 1.",
+      "distinctiveMechanics": [
+        "Movement is the only direct input; all damage comes from drafted automatic weapons",
+        "A fixed three-minute window with timed swarm events, then a boss phase with radial bullet bursts, minion summons and an enrage below half health",
+        "An off-screen pointer with distance to the boss",
+        "Longest survival and fastest boss kill are kept per browser"
+      ],
+      "comparison": [
+        "echo: Echo Vault is manual twin-stick aiming with a dash and a recorded echo ghost that fights beside you across waves; Patch Tuesday has no aiming, dash or echo and is built around drafting automatic weapons against a fixed timer and a boss.",
+        "breach-command: Breach Command is turn-based squad tactics with telegraphed enemy intents; Patch Tuesday is continuous real-time movement against swarms.",
+        "dbo1-defender: SIM-DBO1 Defender Trainer is a security-awareness decision trainer; Patch Tuesday only shares the IT theme and is a reflex survival game."
+      ],
+      "playtestEvidence": [
+        "Automated in Chromium (Playwright): game-src/patch-tuesday/index.html?demo&god&t=176&ff=30 runs an autopilot from 2:56 into the boss phase; observed the boss health bar, all five threat types, boss bullets and level-up picks, with no page or console errors.",
+        "node tests/games.mjs --only patch-tuesday loads the packed game from file:// without errors.",
+        "Phone-width (390x844) title screen renders without overflow.",
+        "Not yet playtested by a person: balance and difficulty are unverified."
+      ]
+    },
+    "throughput": {
+      "genre": "Real-time factory automation and logistics on a tile grid",
+      "playerActions": [
+        "Place miners on ore and rotate machines so their output arrow faces the next step",
+        "Drag to lay whole lines of conveyor belt; merge belts by running one into the side of another",
+        "Place smelters, assemblers (choosing Gear, Wire, Circuit or Motor) and splitters",
+        "Inspect a machine to see what it is waiting for or blocked by, then delete and rebuild",
+        "Pan and zoom the factory floor"
+      ],
+      "coreLoop": "Build a production line from ore to the hub, use each machine's status light to find where items starve or back up, then add or rebalance miners, smelters and assemblers until the line meets the current milestone.",
+      "objective": "Clear seven delivery milestones into the central hub, ending with a sustained-rate quota: hold 30 circuits a minute for a full minute.",
+      "progression": "Milestones unlock the smelter, the assembler with the gear recipe, the splitter, the wire, circuit and motor recipes, and express belts. Targets climb from 10 iron ore to 20 motors, then the rate quota; afterwards a sandbox with everything unlocked.",
+      "failureState": "There is no game over. Failure is a starved or backed-up line that misses its count; in the final milestone the one-minute hold timer resets to zero whenever the circuit rate drops below 30 a minute.",
+      "distinctiveMechanics": [
+        "Every machine is a single tile that accepts input from any side except its output arrow",
+        "General assemblers switch recipe (Gear, Wire, Circuit, Motor) instead of dedicated machines",
+        "Splitters deal items left, ahead and right in turn; belts merge by side-loading",
+        "A ratio-planning finale measured as a rolling 60-second delivery rate with a hold timer",
+        "Per-machine status lights (working, waiting for input, blocked) and a waiting-for inspector",
+        "Free building with no money, power or research"
+      ],
+      "comparison": [
+        "factory-flow: Iron & Logic (outside the arcade, merged in #603) is the closest relative and the same genre. It adds power budgeting, money, research labs and dedicated presses and benches across six shipping contracts; Throughput has none of those, uses switchable general assemblers and splitters, and ends on a sustained-rate quota instead of a shipping total.",
+        "buckland-blocks: Buckland Blocks centres on building and crafting by hand; in Throughput the player only designs automated lines that run on their own.",
+        "breach-command: Breach Command is turn-based combat on a grid; Throughput is real-time logistics with no enemies."
+      ],
+      "playtestEvidence": [
+        "Automated in Chromium (Playwright): game-src/throughput/index.html?demo&ff=40 prebuilds two iron lines (miners, smelters, a gear assembler, belts into the hub) and fast-forwards 40 seconds; observed plates and gears arriving (hub at 8 of 30 gears for milestone 3; 24.2 iron plates and 11.4 gears a minute), amber and red status lights on the starved assembler and a blocked miner, and no page or console errors.",
+        "node tests/games.mjs --only throughput loads the packed game from file:// without errors.",
+        "Phone-width title screen renders cleanly.",
+        "Not yet playtested by a person: milestone pacing and the final quota are unverified."
+      ]
+    }
+  }
 }
