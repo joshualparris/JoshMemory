@@ -1,14 +1,15 @@
 // Plays Patch Tuesday through its real UI: arrow keys to move, the level-up cards chosen by key,
 // pause and resume, game over and Play again, with Playwright's virtual clock running in fast time.
 // Several runs with different movement styles give a rough difficulty reading, then a phone run
-// drives the touch-drag joystick.   node tests/playtest-patch-tuesday.mjs [--runs 4] [--shots dir]
+// drives the touch-drag joystick.   node tests/playtest-patch-tuesday.mjs [--base https://host] [--runs 4] [--auto-runs 6] [--shots dir]
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { chromium } from 'playwright';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const url = pathToFileURL(path.join(root, 'games/patch-tuesday/index.html')).href;
 const arg = (name, fallback) => { const i = process.argv.indexOf(name); return i > 0 ? process.argv[i + 1] : fallback; };
+const base = arg('--base', null);
+const url = base ? `${base.replace(/\/$/, '')}/games/patch-tuesday/index.html` : pathToFileURL(path.join(root, 'games/patch-tuesday/index.html')).href;
 const RUNS = Number(arg('--runs', 4));
 const shots = arg('--shots', null);
 

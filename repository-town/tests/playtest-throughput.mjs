@@ -1,15 +1,16 @@
 // Plays Throughput from a new factory to "Factory certified" through its real UI: tool keys,
 // rotation, mouse clicks and belt drags, with Playwright's virtual clock fast-forwarding time.
 // Then checks save/continue and the phone touch controls.
-//   node tests/playtest-throughput.mjs [--shots dir]
+//   node tests/playtest-throughput.mjs [--base https://host] [--shots dir]
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { chromium } from 'playwright';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const url = pathToFileURL(path.join(root, 'games/throughput/index.html')).href;
-const shotsAt = process.argv.indexOf('--shots');
-const shots = shotsAt > 0 ? process.argv[shotsAt + 1] : null;
+const opt = (name) => { const i = process.argv.indexOf(name); return i > 0 ? process.argv[i + 1] : null; };
+const base = opt('--base');
+const url = base ? `${base.replace(/\/$/, '')}/games/throughput/index.html` : pathToFileURL(path.join(root, 'games/throughput/index.html')).href;
+const shots = opt('--shots');
 
 // 1920x1200 at zoom 1 shows the whole 40x28 floor: camera x = -160, y = -60.
 const VIEW = { width: 1920, height: 1200 };

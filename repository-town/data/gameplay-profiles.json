@@ -25,10 +25,10 @@
         "dbo1-defender: SIM-DBO1 Defender Trainer is a security-awareness decision trainer; Patch Tuesday only shares the IT theme and is a reflex survival game."
       ],
       "playtestEvidence": [
-        "Automated in Chromium (Playwright): game-src/patch-tuesday/index.html?demo&god&t=176&ff=30 runs an autopilot from 2:56 into the boss phase; observed the boss health bar, all five threat types, boss bullets and level-up picks, with no page or console errors.",
-        "node tests/games.mjs --only patch-tuesday loads the packed game from file:// without errors.",
-        "Phone-width (390x844) title screen renders without overflow.",
-        "Not yet playtested by a person: balance and difficulty are unverified."
+        "node tests/playtest-patch-tuesday.mjs plays with real arrow keys and picks level-up cards by key in Chromium on a virtual clock. Before rebalancing, four movement-pattern bots all died between 1:04 and 1:25 at levels 4 to 6, just after the 1:00 swarm; after it, runs lasted 1:19 to 2:05 at levels 7 to 13.",
+        "The same script checks pause and resume, game over, Play again, and a phone run with a touch-drag joystick and tapped level-up cards; no page or console errors.",
+        "A reactive autopilot (?demo test mode, no invincibility) measures how often a player who dodges reaches and beats the 3:00 boss.",
+        "Not yet playtested by a person: pattern bots do not dodge, so they understate what a person can survive."
       ]
     },
     "throughput": {

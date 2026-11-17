@@ -1,7 +1,7 @@
 // Plays the Kettle Cove draft through its real UI: arrow keys to walk, E to talk, number keys to
 // answer, with Playwright's virtual clock. Day 1 gathers clues and lets midnight reset the day;
 // Day 2 uses what was learned to bring Gus home and light the lamp (the best ending).
-// Routes are planned on the game's own map code.   node tests/playtest-kettle-cove.mjs [--shots dir]
+// Routes are planned on the game's own map code.   node tests/playtest-kettle-cove.mjs [--base https://host] [--shots dir]
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -9,9 +9,10 @@ import { chromium } from 'playwright';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const file = path.join(root, 'game-src/kettle-cove/index.html');
-const url = pathToFileURL(file).href;
-const shotsAt = process.argv.indexOf('--shots');
-const shots = shotsAt > 0 ? process.argv[shotsAt + 1] : null;
+const opt = (name) => { const i = process.argv.indexOf(name); return i > 0 ? process.argv[i + 1] : null; };
+const base = opt('--base');
+const url = base ? `${base.replace(/\/$/, '')}/games/kettle-cove/index.html` : pathToFileURL(file).href;
+const shots = opt('--shots');
 
 // Rebuild the cove from the game's source so routes match what the game builds.
 const src = fs.readFileSync(file, 'utf8');
