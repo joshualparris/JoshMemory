@@ -1,0 +1,35 @@
+name: Iron & Logic factory full playthrough
+on:
+  pull_request:
+    paths:
+      - 'factory-flow/**'
+      - '.github/workflows/iron-and-logic.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'factory-flow/**'
+      - '.github/workflows/iron-and-logic.yml'
+permissions:
+  contents: read
+jobs:
+  factory-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate JavaScript syntax
+        run: |
+          node --check factory-flow/core.mjs
+          node --check factory-flow/app.mjs
+          node --check factory-flow/test.mjs
+      - name: Complete all six factory contracts
+        run: node factory-flow/test.mjs
+      - name: Check web assets exist
+        run: |
+          test -s factory-flow/index.html
+          test -s factory-flow/style.css
+          grep -q 'src="./app.mjs"' factory-flow/index.html
+          grep -q 'from "./core.mjs"' factory-flow/app.mjs
