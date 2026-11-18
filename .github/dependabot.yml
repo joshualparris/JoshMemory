@@ -12,6 +12,8 @@ updates:
       - dependencies
     commit-message:
       prefix: "chore(autopatch)"
+    cooldown:
+      default-days: 7
   - package-ecosystem: github-actions
     directory: /
     schedule:
@@ -21,6 +23,8 @@ updates:
       - dependencies
     commit-message:
       prefix: "chore(autopatch)"
+    cooldown:
+      default-days: 7
 
   # AutoPatch: nested package-lock.json has real Dependabot advisories.
   - package-ecosystem: npm
@@ -38,6 +42,8 @@ updates:
       - dependencies
     commit-message:
       prefix: "chore(autopatch)"
+    cooldown:
+      default-days: 7
 
   # AutoPatch: nested package-lock.json has real Dependabot advisories.
   - package-ecosystem: npm
@@ -55,6 +61,8 @@ updates:
       - dependencies
     commit-message:
       prefix: "chore(autopatch)"
+    cooldown:
+      default-days: 7
 
   # AutoPatch: nested package-lock.json has real Dependabot advisories.
   - package-ecosystem: npm
@@ -72,6 +80,8 @@ updates:
       - dependencies
     commit-message:
       prefix: "chore(autopatch)"
+    cooldown:
+      default-days: 7
 
   # AutoPatch: nested package-lock.json has real Dependabot advisories.
   - package-ecosystem: npm
@@ -89,6 +99,8 @@ updates:
       - dependencies
     commit-message:
       prefix: "chore(autopatch)"
+    cooldown:
+      default-days: 7
 
   # AutoPatch: nested package-lock.json has real Dependabot advisories.
   - package-ecosystem: npm
@@ -106,6 +118,8 @@ updates:
       - dependencies
     commit-message:
       prefix: "chore(autopatch)"
+    cooldown:
+      default-days: 7
 
   # AutoPatch: nested package-lock.json has real Dependabot advisories.
   - package-ecosystem: npm
@@ -123,3 +137,5 @@ updates:
       - dependencies
     commit-message:
       prefix: "chore(autopatch)"
+    cooldown:
+      default-days: 7
