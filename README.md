@@ -1,5 +1,7 @@
 # JoshMemory
 
+**Agents: start with [the agent handoff guide](docs/AGENT_HANDOFF.md).** It explains how to find prior portfolio research (for example, which projects best reflect Josh's values) before researching from scratch, and how to retrieve a project's latest handoff and active work claims before changing anything.
+
 ## Portfolio review step IDs
 
 **Next exact procedural task:** `TR-003.01`. Read the [central 1,864-step numbered triage checklist](docs/PORTFOLIO_TRIAGE_TASK_STEPS_2026-10-25.md) and [complete public-safe child task register](docs/PORTFOLIO_TRIAGE_TASK_STEPS_2026-10-25.csv). These eight task steps belong to each repository review; project implementation TODOs retain their original unique IDs.

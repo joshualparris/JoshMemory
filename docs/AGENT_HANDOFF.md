@@ -5,6 +5,32 @@ and live in `joshualparris/JoshDashboard4` under `joshmemory-cloud/v1/`.
 Never commit raw transcripts, ChatGPT exports, SQLite databases, generated
 `docs/data/`, personal values, credentials, or private cloud payloads.
 
+## Find prior research and current project status
+
+**Prior research.** Before researching or ranking anything portfolio-wide (for
+example, "which projects best reflect Josh's values?"), an authorised agent
+reads the root `README.md` of `joshualparris/JoshDashboard4`, which links the
+existing private studies. Cite the study instead of rebuilding it, and treat
+any weights in it as inferred unless the study says otherwise. Without access
+to that private repository, say the research is private and stop; do not
+reconstruct it from public repositories, and never copy its contents here.
+
+**Latest handoff and active claims.** With a working GitHub credential:
+
+```bash
+joshmemory-continuity resume <Project>
+joshmemory-continuity leases --project <Project>
+```
+
+- Use the project name as recorded (for example `AutoPatch`, `HealthiestFood`)
+  and omit `--canonical-repo`; a mismatched value silently returns no handoff.
+- `resume` checks only one work key. `leases --project` lists every active
+  claim; an empty list from the shared store means no active claims.
+- If the command prints the local-store warning, fails, or cannot reach the
+  store, report the handoff and claims as **unknown**.
+- A handoff is history to verify: compare it with current repo evidence before
+  acting, and do not redo work it records as finished.
+
 ## Current state
 
 - `main` is the canonical public source branch.

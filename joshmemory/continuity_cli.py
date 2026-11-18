@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 from typing import Any
 
 from .continuity import (
@@ -112,9 +113,21 @@ def _parser() -> argparse.ArgumentParser:
     return parser
 
 
+LOCAL_STORE_WARNING = (
+    "joshmemory-continuity: WARNING: no shared store selected (no GitHub credential "
+    "found, or JOSHMEMORY_GITHUB_STORE_AUTO=0). Results come from this machine's local "
+    "store only; treat empty handoffs or claims as UNKNOWN, not as none."
+)
+
+
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     db = str(args.db)
+
+    from .central import storage_mode
+
+    if storage_mode() == "local":
+        print(LOCAL_STORE_WARNING, file=sys.stderr)
 
     if args.command == "claim":
         _print(
