@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import sqlite3
 import threading
+from pathlib import Path
 
 
 # The central service is threaded. A brand-new database must not let one
@@ -174,6 +175,8 @@ END;
 
 
 def connect(path: str) -> sqlite3.Connection:
+    if path != ":memory:" and not str(path).startswith("file:"):
+        Path(path).parent.mkdir(parents=True, exist_ok=True)
     con = sqlite3.connect(path, timeout=30.0)
     con.row_factory = sqlite3.Row
     con.execute("PRAGMA busy_timeout = 10000")
