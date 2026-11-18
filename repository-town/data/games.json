@@ -669,6 +669,15 @@
       "dir": "repository-town/game-src/throughput",
       "public": true,
       "about": "An original factory automation game made for the town. Mine ore, lay conveyor belts, smelt plates and assemble gears, wire, circuits and motors across seven milestones, ending with a production quota you only hit by finding the bottleneck. Mouse, keyboard or touch; saves in your browser."
+    },
+    {
+      "id": "kettle-cove",
+      "repo": "joshualparris/JoshMemory",
+      "title": "Kettle Cove",
+      "kind": "static",
+      "dir": "repository-town/game-src/kettle-cove",
+      "public": true,
+      "about": "An original dialogue RPG made for the town. A harbour village is stuck in one repeating day: talk to six villagers on their daily schedules, keep what you learn in your notebook, raise Charm, Wits and Grit, and light the lighthouse before midnight. Two endings. Keyboard or touch."
     }
   ]
 }

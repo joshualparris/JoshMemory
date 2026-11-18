@@ -1,0 +1,1764 @@
+<!doctype html>
+
+<html lang="en">
+<head><script>// Injected first into every packed game (tools/pack_games.mjs). Lets games built for a
+// web server run from a folder, including from file:// in the offline zip.
+// The packer fills in the game's small text files (F) and optional images as data URIs (IMG).
+(function () {
+  var F = {};
+  var IMG = {};
+  var API = null;
+  var fileMode = location.protocol === 'file:';
+  var has = function (o, k) { return Object.prototype.hasOwnProperty.call(o, k); };
+
+  // Cross-app integration widgets are stripped; games that call them get a silent stand-in.
+  var noop = function () { return undefined; };
+  var adapter = { init: noop, trigger: noop, getRoutes: function () { return []; }, on: noop, emit: noop, track: noop };
+  if (!window.PortalAdapter) window.PortalAdapter = typeof Proxy === 'function' ? new Proxy(adapter, { get: function (t, k) { return k in t ? t[k] : noop; } }) : adapter;
+
+  // Maps a request URL to a packed file: first relative to the game folder, then, for
+  // root-absolute paths ("/seed/x.md", "/src/data/map.json"), by its longest matching tail.
+  function lookup(map, u) {
+    try {
+      var url = new URL(u, location.href);
+      if (!fileMode && url.origin !== location.origin) return null;
+      var base = new URL('.', location.href).pathname;
+      var p = decodeURIComponent(url.pathname);
+      if (p.indexOf(base) === 0 && has(map, p.slice(base.length))) return p.slice(base.length);
+      var parts = p.split('/').filter(Boolean);
+      for (var i = 0; i < parts.length; i++) { var k = parts.slice(i).join('/'); if (has(map, k)) return k; }
+    } catch (e) { /* not a URL */ }
+    return null;
+  }
+  var typeOf = function (k) { return /\.json$/i.test(k) ? 'application/json' : /\.svg$/i.test(k) ? 'image/svg+xml' : /\.html?$/i.test(k) ? 'text/html' : 'text/plain'; };
+
+  // Local API: games whose server only stores records (data/games.json → localApi) keep
+  // them in this browser instead, so they play from a folder or the offline zip.
+  function apiHandle(u, method, bodyText) {
+    if (!API) return null;
+    var url; try { url = new URL(u, location.href); } catch (e) { return null; }
+    // Fixed answers (e.g. a signed-in local player for games built around a login).
+    var fixed = API.fixed && Object.keys(API.fixed).find(function (k) { return url.pathname.replace(/\/$/, '').endsWith('/api/' + k); });
+    if (fixed && method === 'GET') return new Response(JSON.stringify(API.fixed[fixed]), { status: 200, headers: { 'content-type': 'application/json' } });
+    var m = url.pathname.match(/\/api\/([\w-]+)(?:\/([\w-]+))?\/?$/);
+    if (!m || !API.collections || !API.collections[m[1]]) return null;
+    var col = m[1], id = m[2], key = 'town-api:' + API.game + ':' + col;
+    var list; try { list = JSON.parse(localStorage.getItem(key) || '[]'); } catch (e) { list = []; }
+    var save = function () { try { localStorage.setItem(key, JSON.stringify(list)); } catch (e) { /* storage full or blocked */ } };
+    var body = {}; try { body = bodyText ? JSON.parse(bodyText) : {}; } catch (e) { body = {}; }
+    var json = function (status, data) { return new Response(data === undefined ? null : JSON.stringify(data), { status: status, headers: { 'content-type': 'application/json' } }); };
+    var now = new Date().toISOString();
+    if (!id) {
+      if (method === 'GET') return json(200, list);
+      if (method === 'POST') {
+        var next = list.reduce(function (n, r) { return Math.max(n, +r.id || 0); }, 0) + 1;
+        var rec = Object.assign({}, API.collections[col].defaults || {}, body, { id: next, createdAt: now, updatedAt: now });
+        list.push(rec); save(); return json(201, rec);
+      }
+    } else {
+      var i = list.findIndex(function (r) { return String(r.id) === String(id); });
+      if (i < 0) return json(404, { message: 'Not found' });
+      if (method === 'GET') return json(200, list[i]);
+      if (method === 'PUT' || method === 'PATCH') { list[i] = Object.assign({}, list[i], body, { id: list[i].id, updatedAt: now }); save(); return json(200, list[i]); }
+      if (method === 'DELETE') { list.splice(i, 1); save(); return new Response(null, { status: 204 }); }
+    }
+    return json(405, { message: 'Method not allowed' });
+  }
+
+  var realFetch = window.fetch && window.fetch.bind(window);
+  window.fetch = function (input, init) {
+    var u = typeof input === 'string' ? input : input && input.url;
+    var method = String((init && init.method) || (input && input.method) || 'GET').toUpperCase();
+    var api = u && apiHandle(u, method, init && typeof init.body === 'string' ? init.body : '');
+    if (api) return Promise.resolve(api);
+    var k = u && lookup(F, u);
+    // Online the real server answers relative requests; packed copies cover file:// and
+    // root-absolute paths that no longer exist on the host.
+    if (k !== null && k !== undefined && (fileMode || /^\//.test(u) || !realFetch)) return Promise.resolve(new Response(F[k], { status: 200, headers: { 'content-type': typeOf(k) } }));
+    return realFetch ? realFetch(input, init) : Promise.reject(new TypeError('fetch unavailable'));
+  };
+
+  // XMLHttpRequest for packed text files (older games, some loaders).
+  var RealXHR = window.XMLHttpRequest;
+  if (RealXHR) {
+    var open = RealXHR.prototype.open, send = RealXHR.prototype.send;
+    RealXHR.prototype.open = function (method, u) { this.__town = (fileMode || /^\//.test(u)) ? lookup(F, u) : null; return open.apply(this, arguments); };
+    RealXHR.prototype.send = function () {
+      var k = this.__town;
+      if (k === null || k === undefined) return send.apply(this, arguments);
+      var xhr = this, text = F[k];
+      var define = function (n, v) { try { Object.defineProperty(xhr, n, { configurable: true, value: v }); } catch (e) { /* read-only */ } };
+      define('readyState', 4); define('status', 200); define('statusText', 'OK'); define('responseURL', k);
+      define('responseText', text); define('response', xhr.responseType === 'json' ? JSON.parse(text) : text);
+      setTimeout(function () {
+        xhr.dispatchEvent(new Event('readystatechange'));
+        xhr.dispatchEvent(new ProgressEvent('load'));
+        xhr.dispatchEvent(new ProgressEvent('loadend'));
+      }, 0);
+    };
+  }
+
+  // file:// images are cross-origin to the page, so WebGL cannot use them as textures.
+  // Games that need that ship their images as data URIs, swapped in on assignment.
+  if (fileMode && Object.keys(IMG).length) {
+    var desc = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src');
+    Object.defineProperty(HTMLImageElement.prototype, 'src', {
+      configurable: true, enumerable: true, get: function () { return desc.get.call(this); },
+      set: function (v) { var k = typeof v === 'string' && !/^(data|blob):/.test(v) ? lookup(IMG, v) : null; desc.set.call(this, k ? IMG[k] : v); },
+    });
+    var co = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'crossOrigin');
+    Object.defineProperty(HTMLImageElement.prototype, 'crossOrigin', { configurable: true, get: function () { return co.get.call(this); }, set: function (v) { if (!fileMode) co.set.call(this, v); } });
+  }
+
+  // A page opened from a file cannot rewrite its URL; routers that try would crash.
+  if (fileMode) {
+    ['pushState', 'replaceState'].forEach(function (m) {
+      var real = history[m];
+      history[m] = function () { try { return real.apply(history, arguments); } catch (e) { return undefined; } };
+    });
+  }
+})();
+
+</script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kettle Cove</title>
+<style>
+/* Layout: full-bleed tile-map world on a canvas; parchment panels for talk, notebook and menus.
+   One deliberate look: a storybook harbour village in warm paper and sea-blue ink. */
+:root {
+  --paper: #f7f0e1;
+  --paper-2: #efe4cb;
+  --ink: #2b2622;
+  --ink-soft: #6b5f51;
+  --frame: #8a6b45;
+  --frame-soft: #cdb893;
+  --sea: #2f6f7e;
+  --sea-deep: #1d4a57;
+  --rust: #a8492a;
+  --gold: #c99a2e;
+  --ok: #3f7d4f;
+  --bad: #a3392f;
+  --shadow: rgba(40, 30, 20, 0.35);
+  --scrim: rgba(18, 32, 38, 0.55);
+  --font-story: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  --font-ui: "Segoe UI", system-ui, -apple-system, sans-serif;
+  color-scheme: light;
+}
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  background: var(--sea-deep);
+  color: var(--ink);
+  font-family: var(--font-story);
+  overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+#world { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; }
+.panel { background: var(--paper); border: 2px solid var(--frame); border-radius: 10px; box-shadow: 0 6px 18px var(--shadow); }
+#hud {
+  position: fixed; z-index: 3;
+  top: calc(env(safe-area-inset-top, 0px) + 10px);
+  left: max(12px, env(safe-area-inset-left, 0px));
+  right: max(12px, env(safe-area-inset-right, 0px));
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;
+  pointer-events: none;
+}
+#hud > * { pointer-events: auto; }
+.clock { padding: 8px 12px; display: grid; gap: 4px; min-width: 0; max-width: 22rem; }
+#dayLine { font-weight: 700; font-size: 16px; }
+#pips { display: flex; gap: 4px; }
+#pips i { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--frame); }
+#pips i.on { background: var(--gold); }
+#goalLine { font-size: 13px; color: var(--ink-soft); font-style: italic; line-height: 1.35; }
+.hud-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.btn {
+  font-family: var(--font-ui); font-weight: 600; font-size: 14px;
+  padding: 9px 14px; border-radius: 8px; border: 2px solid var(--frame);
+  background: var(--paper); color: var(--ink); cursor: pointer; touch-action: manipulation;
+}
+.btn.primary { background: var(--sea); border-color: var(--sea-deep); color: var(--paper); }
+.btn:hover { filter: brightness(1.05); }
+.btn:focus-visible, .choice:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+kbd { font-family: var(--font-ui); font-size: 11px; padding: 1px 5px; border: 1px solid var(--frame-soft); border-radius: 4px; margin-left: 6px; color: var(--ink-soft); }
+#dialog {
+  position: fixed; z-index: 6;
+  left: max(12px, env(safe-area-inset-left, 0px));
+  right: max(12px, env(safe-area-inset-right, 0px));
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+  margin: 0 auto; max-width: 46rem; max-height: 62vh; overflow-y: auto;
+  padding: 16px 18px; display: grid; gap: 10px;
+}
+.dlg-head { display: flex; gap: 12px; align-items: center; }
+#portrait { width: 64px; height: 64px; border-radius: 50%; background: var(--paper-2); border: 2px solid var(--frame); flex: none; }
+#dlgName { font-weight: 700; font-size: 19px; }
+#dlgRole { font-size: 13px; color: var(--ink-soft); font-family: var(--font-ui); }
+#dlgText { margin: 0; font-size: 17px; line-height: 1.55; max-width: 68ch; }
+#dlgChoices { display: grid; gap: 6px; }
+.choice {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; width: 100%;
+  text-align: left; font: inherit; font-size: 16px; padding: 9px 12px; border-radius: 8px;
+  border: 1.5px solid var(--frame-soft); background: var(--paper-2); color: var(--ink);
+  cursor: pointer; touch-action: manipulation;
+}
+.choice:hover:not(:disabled) { border-color: var(--sea); background: var(--paper); }
+.choice:disabled { opacity: 0.55; cursor: not-allowed; }
+.choice .num { font-family: var(--font-ui); font-weight: 700; color: var(--sea); min-width: 1.2em; }
+.choice .lab { flex: 1 1 16rem; min-width: 0; }
+.choice .tag { font-family: var(--font-ui); font-size: 12px; color: var(--ink-soft); border: 1px solid var(--frame-soft); border-radius: 999px; padding: 1px 8px; }
+.choice .tag.check { color: var(--rust); border-color: var(--rust); }
+#toasts {
+  position: fixed; z-index: 7; top: calc(env(safe-area-inset-top, 0px) + 96px); left: 50%;
+  transform: translateX(-50%); display: grid; gap: 6px; width: min(30rem, calc(100% - 32px)); pointer-events: none;
+}
+.toast {
+  padding: 8px 12px; font-family: var(--font-ui); font-size: 14px; background: var(--paper);
+  border: 2px solid var(--frame); border-left-width: 6px; border-radius: 8px; box-shadow: 0 4px 12px var(--shadow);
+  animation: toastIn 0.25s ease-out;
+}
+.toast.clue { border-left-color: var(--gold); }
+.toast.ok { border-left-color: var(--ok); }
+.toast.bad { border-left-color: var(--bad); }
+@keyframes toastIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+.screen {
+  position: fixed; inset: 0; z-index: 8; display: flex; overflow-y: auto; touch-action: pan-y;
+  padding-block: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-bottom, 0px));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  background: var(--scrim);
+}
+.card { margin: auto; width: min(38rem, 100%); padding: clamp(20px, 4vw, 32px); display: grid; gap: 14px; }
+.eyebrow { font-family: var(--font-ui); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--rust); font-weight: 700; }
+h1, h2, h3 { margin: 0; font-weight: 700; line-height: 1.05; text-wrap: balance; }
+h1 { font-size: clamp(46px, 12vw, 76px); font-style: italic; color: var(--sea-deep); }
+h2 { font-size: clamp(26px, 6vw, 36px); }
+h3 { font-size: 18px; }
+.lede { margin: 0; font-size: 17px; line-height: 1.55; }
+.howto { margin: 0; padding-left: 1.1em; display: grid; gap: 4px; font-size: 15px; color: var(--ink-soft); }
+.row { display: flex; flex-wrap: wrap; gap: 10px; }
+.small { font-family: var(--font-ui); font-size: 13px; color: var(--ink-soft); margin: 0; }
+.skills { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.skill { border: 1.5px solid var(--frame-soft); border-radius: 8px; padding: 8px 10px; display: grid; gap: 2px; font-family: var(--font-ui); font-size: 12px; color: var(--ink-soft); }
+.skill b { font-family: var(--font-story); font-size: 22px; color: var(--ink); }
+.xpbar { height: 8px; background: var(--paper-2); border: 1px solid var(--frame-soft); border-radius: 999px; overflow: hidden; }
+.xpbar i { display: block; height: 100%; background: var(--gold); }
+.list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.list li { border-left: 4px solid var(--gold); padding: 5px 10px; background: var(--paper-2); border-radius: 0 6px 6px 0; }
+.list li b { display: block; font-size: 15px; }
+.list li span { font-size: 14px; color: var(--ink-soft); }
+.list li.unknown { border-left-color: var(--frame-soft); color: var(--ink-soft); font-style: italic; }
+.pick { display: grid; gap: 8px; }
+.pick .btn { text-align: left; display: grid; gap: 2px; }
+.pick .btn span { font-weight: 400; font-size: 13px; color: var(--ink-soft); }
+.stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; }
+.stats div { border: 1.5px solid var(--frame-soft); border-radius: 8px; padding: 8px 10px; }
+.stats dt { font-family: var(--font-ui); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-soft); }
+.stats dd { margin: 0; font-size: 22px; font-weight: 700; }
+.night { background: #10202a; color: #e9e3d4; border-color: #3c5563; }
+.night .lede, .night .small { color: #c9c3b4; }
+#err {
+  position: fixed; z-index: 9; left: max(16px, env(safe-area-inset-left, 0px)); right: max(16px, env(safe-area-inset-right, 0px));
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); padding: 10px 14px; font-family: var(--font-ui); font-size: 13px;
+  background: var(--paper); color: var(--ink); border: 2px solid var(--bad); border-radius: 8px; -webkit-user-select: text; user-select: text;
+}
+@media (max-width: 520px) {
+  kbd { display: none; }
+  .btn { padding: 8px 10px; font-size: 13px; }
+  #dlgText { font-size: 16px; }
+  .clock { max-width: 13.5rem; }
+}
+@media (prefers-reduced-motion: reduce) { .toast { animation: none; } }
+</style>
+</head>
+<body>
+
+<canvas id="world" aria-label="Kettle Cove, a harbour village"></canvas>
+
+<div id="hud" hidden>
+  <div class="clock panel">
+    <div id="dayLine">Day 1 · Morning</div>
+    <div id="pips" aria-hidden="true"></div>
+    <div id="goalLine">Light the lighthouse before midnight.</div>
+  </div>
+  <div class="hud-actions">
+    <button id="noteBtn" class="btn" type="button">Notebook<kbd>N</kbd></button>
+    <button id="waitBtn" class="btn" type="button">Wait a bell<kbd>T</kbd></button>
+  </div>
+</div>
+
+<div id="toasts" aria-live="polite"></div>
+
+<section id="dialog" class="panel" hidden aria-live="polite">
+  <div class="dlg-head">
+    <canvas id="portrait" aria-hidden="true"></canvas>
+    <div><div id="dlgName"></div><div id="dlgRole"></div></div>
+  </div>
+  <p id="dlgText"></p>
+  <div id="dlgChoices"></div>
+</section>
+
+<section id="titleScreen" class="screen" aria-labelledby="titleHeading">
+  <div class="card panel">
+    <div class="eyebrow">A dialogue RPG in one repeating day</div>
+    <h1 id="titleHeading">Kettle Cove</h1>
+    <p class="lede">The lighthouse has been dark for a week, its keeper is missing, and every night at midnight the fog rolls in and the day starts over. Talk to the people of the cove, learn what they are hiding, and get that lamp lit before twelve.</p>
+    <ul class="howto">
+      <li>Walk with the arrow keys or WASD, or tap where you want to go.</li>
+      <li>Talk with E or Space beside someone, or tap them. Pick replies with 1 to 9.</li>
+      <li>Asking about something new takes one bell. A day has eight.</li>
+      <li>Your notebook, skills and experience carry over to the next day. Nothing else does.</li>
+    </ul>
+    <div class="row">
+      <button id="continueBtn" class="btn primary" type="button" hidden>Continue</button>
+      <button id="newBtn" class="btn primary" type="button">New game</button>
+      <button id="soundBtn" class="btn" type="button" aria-pressed="true">Sound: on</button>
+    </div>
+    <p id="titleNote" class="small"></p>
+  </div>
+</section>
+
+<section id="noteScreen" class="screen" aria-labelledby="noteHeading" hidden>
+  <div class="card panel">
+    <div class="eyebrow" id="noteEyebrow">Notebook</div>
+    <h2 id="noteHeading">What you know</h2>
+    <div id="noteBody" style="display:grid;gap:14px"></div>
+    <div class="row">
+      <button id="noteClose" class="btn primary" type="button">Close</button>
+      <button id="soundBtn2" class="btn" type="button" aria-pressed="true">Sound: on</button>
+    </div>
+  </div>
+</section>
+
+<section id="levelScreen" class="screen" aria-labelledby="levelHeading" hidden>
+  <div class="card panel">
+    <div class="eyebrow" id="levelEyebrow">Level up</div>
+    <h2 id="levelHeading">It is starting to add up</h2>
+    <p class="lede">Raise one skill. Like your notebook, skills come with you into the next day.</p>
+    <div class="pick">
+      <button class="btn" type="button" data-skill="charm">Charm <span>Win people over, comfort them, make promises they believe.</span></button>
+      <button class="btn" type="button" data-skill="wits">Wits <span>Notice things, argue a case, see the angle.</span></button>
+      <button class="btn" type="button" data-skill="grit">Grit <span>Lift, haul, climb and keep going.</span></button>
+    </div>
+  </div>
+</section>
+
+<section id="nightScreen" class="screen" aria-labelledby="nightHeading" hidden>
+  <div class="card panel night">
+    <div class="eyebrow">The fog comes in</div>
+    <h2 id="nightHeading">Midnight</h2>
+    <p class="lede">The lighthouse stays dark. The fog rolls in off the water, thick and silent, and swallows the cove.</p>
+    <p class="lede" id="nightWake"></p>
+    <p class="small">You kept your notebook, your skills and everything you learned. Everything else reset.</p>
+    <div class="row"><button id="dawnBtn" class="btn primary" type="button">Begin the day</button></div>
+  </div>
+</section>
+
+<section id="endScreen" class="screen" aria-labelledby="endHeading" hidden>
+  <div class="card panel">
+    <div class="eyebrow" id="endEyebrow">Ending</div>
+    <h2 id="endHeading"></h2>
+    <p class="lede" id="endText"></p>
+    <dl class="stats" id="endStats"></dl>
+    <p class="small" id="endHint"></p>
+    <div class="row"><button id="againBtn" class="btn primary" type="button">Play again</button></div>
+  </div>
+</section>
+
+<div id="err" role="alert" hidden></div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* ---------- errors show on screen instead of freezing silently ---------- */
+  const errBox = document.getElementById('err');
+  let errShown = false;
+  function showError(msg) {
+    if (errShown) return;
+    errShown = true;
+    errBox.hidden = false;
+    errBox.textContent = `Game error: ${msg}. Reload the page to try again.`;
+  }
+  window.addEventListener('error', (e) => showError(e.message || 'unknown error'));
+  window.addEventListener('unhandledrejection', (e) => showError(String(e.reason)));
+
+  /* ---------- local test hooks: ?autostart &bell=N &talk=npcId ---------- */
+  const params = new URLSearchParams(location.search);
+  const TEST_TALK = params.get('talk') || '';
+  const TEST_BELL = Math.max(0, Math.min(8, Number(params.get('bell')) || 0));
+  const TESTING = params.has('autostart') || !!TEST_TALK || !!TEST_BELL;
+
+  const $ = (id) => document.getElementById(id);
+  const TAU = Math.PI * 2;
+  const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const rnd = (n) => Math.floor(Math.random() * n);
+  function el(tag, cls, text) {
+    const n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function shade(hex, amt) {
+    const n = parseInt(hex.slice(1), 16);
+    const c = (v) => Math.max(0, Math.min(255, Math.round(v + amt)));
+    return `rgb(${c((n >> 16) & 255)},${c((n >> 8) & 255)},${c(n & 255)})`;
+  }
+  function hash(x, y, s = 0) {
+    let h = (x * 374761393 + y * 668265263 + s * 1442695041) | 0;
+    h = Math.imul(h ^ (h >>> 13), 1274126177);
+    h ^= h >>> 16;
+    return (h >>> 0) / 4294967296;
+  }
+  function rr(g, x, y, w, h, r) {
+    g.beginPath();
+    if (g.roundRect) g.roundRect(x, y, w, h, r);
+    else g.rect(x, y, w, h);
+  }
+
+  /* ---------- the cove ---------- */
+  const TILE = 32, MW = 44, MH = 30;
+  const GRASS = 0, SAND = 1, WATER = 2, SHALLOW = 3, PATH = 4, PIER = 5, QUAY = 6, ROCK = 7, TREE = 8, FLOWERS = 9, WALL = 10;
+  const SOLID = new Set([WATER, SHALLOW, ROCK, TREE, WALL]);
+  const map = new Uint8Array(MW * MH);
+  const inMap = (x, y) => x >= 0 && y >= 0 && x < MW && y < MH;
+  const at = (x, y) => map[y * MW + x];
+  function fill(x0, y0, x1, y1, t) {
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (inMap(x, y)) map[y * MW + x] = t;
+  }
+  const BUILDINGS = [
+    { name: 'Fitch’s Provisions', x: 7, y: 8, w: 6, h: 4, wall: '#efe2c6', roof: '#8a4b38', door: 10 },
+    { name: '', x: 14, y: 8, w: 4, h: 4, wall: '#e9e4d8', roof: '#56606e', door: 15 },
+    { name: 'Vass Glassworks', x: 20, y: 6, w: 6, h: 4, wall: '#d8c9ad', roof: '#4b5563', door: 23, chimney: 24 },
+    { name: '', x: 27, y: 7, w: 4, h: 4, wall: '#f0e7d2', roof: '#3f6a8a', door: 28 },
+    { name: '', x: 32, y: 8, w: 4, h: 4, wall: '#e6ecea', roof: '#7d5a3c', door: 33 },
+    { name: '', x: 2, y: 15, w: 4, h: 4, wall: '#f2e9d6', roof: '#8b5e3c', door: 3 },
+    { name: 'Harbour Office', x: 13, y: 15, w: 6, h: 4, wall: '#e5eef0', roof: '#2f5d6e', door: 16 },
+    { name: 'The Sunken Kettle', x: 23, y: 15, w: 7, h: 4, wall: '#f3e0bf', roof: '#a4462c', door: 26 },
+    { name: 'Penhale Cottage', x: 31, y: 15, w: 4, h: 4, wall: '#f5f2ea', roof: '#5a6b47', door: 32 },
+  ];
+  const LAMPS = [[6, 12], [13, 12], [26, 12], [31, 12]];
+  const CRATES = [[14, 21], [15, 21], [28, 22]];
+  const DECOR_SOLID = new Set([...LAMPS, ...CRATES].map(([x, y]) => y * MW + x));
+  const OBJECTS = [
+    { kind: 'obj', id: 'anchor', name: 'Anchor stone', role: 'On the quay', x: 19, y: 21 },
+    { kind: 'obj', id: 'notice', name: 'Notice board', role: 'The plaza', x: 18, y: 11 },
+    { kind: 'obj', id: 'clock', name: 'Harbour clock', role: 'The plaza', x: 21, y: 11 },
+    { kind: 'obj', id: 'cottage', name: 'Penhale Cottage', role: 'The keeper’s home', x: 32, y: 18 },
+    { kind: 'obj', id: 'light', name: 'The Kettle Light', role: 'The lighthouse on the point', x: 39, y: 11 },
+  ];
+  const NPCS = [
+    { kind: 'npc', id: 'mosk', name: 'Old Mosk', role: 'Ferryman', look: 'mosk', where: { morning: [3, 24] }, about: 'At the ferry landing, mornings only.' },
+    { kind: 'npc', id: 'wren', name: 'Wren Penhale', role: 'The keeper’s granddaughter', look: 'wren', where: { morning: [30, 22], afternoon: [33, 19], evening: [29, 21] }, about: 'Rockpools in the morning, the cottage gate in the afternoon, the harbour wall in the evening.' },
+    { kind: 'npc', id: 'nell', name: 'Nell Barrow', role: 'Harbourmaster', look: 'nell', where: { morning: [16, 19], afternoon: [16, 19], evening: [28, 19] }, about: 'Outside the Harbour Office by day, on the pub terrace in the evening.' },
+    { kind: 'npc', id: 'dot', name: 'Dot Mallory', role: 'Landlady of The Sunken Kettle', look: 'dot', where: { morning: [26, 19], afternoon: [26, 19], evening: [26, 19], night: [26, 19] }, about: 'Outside The Sunken Kettle, all day and half the night.' },
+    { kind: 'npc', id: 'ada', name: 'Ada Fitch', role: 'Shopkeeper', look: 'ada', where: { morning: [10, 12], afternoon: [10, 12], evening: [10, 12] }, about: 'At Fitch’s Provisions until the evening.' },
+    { kind: 'npc', id: 'teo', name: 'Teodor Vass', role: 'Glassblower', look: 'teo', where: { morning: [23, 10], afternoon: [23, 10], evening: [23, 10], night: [23, 10] }, about: 'At the glassworks, day and night.' },
+  ];
+  const START = { x: 4, y: 24, dir: 'left' };
+
+  function buildMap() {
+    fill(0, 0, MW - 1, MH - 1, GRASS);
+    fill(0, 21, 35, 22, SAND);
+    fill(0, 23, 35, 23, SHALLOW);
+    fill(0, 24, MW - 1, MH - 1, WATER);
+    fill(36, 14, MW - 1, 23, WATER);
+    fill(35, 14, 35, 22, SAND);
+    fill(36, 4, MW - 1, 13, ROCK);
+    // streets and lanes
+    fill(2, 13, 35, 13, PATH);
+    fill(18, 11, 22, 14, PATH);
+    fill(10, 12, 10, 12, PATH);
+    fill(15, 12, 15, 12, PATH);
+    fill(23, 10, 23, 12, PATH);
+    fill(28, 11, 28, 12, PATH);
+    fill(33, 12, 33, 12, PATH);
+    fill(4, 14, 4, 20, PATH);
+    fill(3, 19, 3, 20, PATH);
+    fill(16, 19, 16, 20, PATH);
+    fill(26, 19, 29, 19, PATH);
+    fill(26, 20, 26, 20, PATH);
+    fill(30, 14, 30, 20, PATH);
+    fill(31, 19, 34, 19, PATH);
+    fill(35, 12, 40, 12, PATH);
+    // harbour
+    fill(13, 21, 30, 22, QUAY);
+    fill(22, 23, 22, 26, PIER);
+    fill(3, 23, 4, 27, PIER);
+    // trees and flowers on open grass
+    const nearOpen = (x, y) => {
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        if (!inMap(x + dx, y + dy)) continue;
+        const t = at(x + dx, y + dy);
+        if (t !== GRASS && t !== TREE) return true;
+      }
+      return false;
+    };
+    for (let y = 0; y < 21; y++) for (let x = 0; x < 36; x++) {
+      if (at(x, y) !== GRASS) continue;
+      const border = y === 0 || x === 0;
+      const p = border ? 1 : y <= 5 ? 0.32 : 0.05;
+      if (hash(x, y, 7) < p && (border || !nearOpen(x, y))) map[y * MW + x] = TREE;
+      else if (hash(x, y, 11) < 0.06) map[y * MW + x] = FLOWERS;
+    }
+    for (const b of BUILDINGS) fill(b.x, b.y, b.x + b.w - 1, b.y + b.h - 1, WALL);
+    fill(39, 10, 40, 11, WALL);
+    // make sure every standing spot is open ground
+    const keep = [[START.x, START.y], ...OBJECTS.map((o) => [o.x, o.y + 1])];
+    for (const n of NPCS) for (const k of Object.keys(n.where)) keep.push(n.where[k]);
+    for (const [x, y] of keep) if (SOLID.has(at(x, y))) map[y * MW + x] = PATH;
+  }
+
+  /* ---------- people ---------- */
+  const LOOKS = {
+    player: { coat: '#3f7f8c', trim: '#24505b', skin: '#e8b98f', hair: '#5a3a22', satchel: true },
+    mosk: { coat: '#3b3f46', trim: '#272a2f', skin: '#d9a77e', hair: '#ebe7df', hat: 'cap', beard: true },
+    wren: { coat: '#c8392b', trim: '#8e2419', skin: '#f0c49b', hair: '#6b3b1f', boots: '#f2c230', braids: true },
+    nell: { coat: '#1f3a5f', trim: '#132640', skin: '#e2b088', hair: '#9aa0a6', hat: 'captain' },
+    dot: { coat: '#4f7d5a', trim: '#355a3f', skin: '#efbf95', hair: '#9b4a2c', apron: '#f4efe4', curls: true },
+    ada: { coat: '#6d4c7d', trim: '#4b3357', skin: '#e9bf9a', hair: '#cfcac2', glasses: true, bun: true },
+    teo: { coat: '#7a5233', trim: '#523620', skin: '#c98e62', hair: '#2a2420', goggles: true, apron: '#5e3d26' },
+  };
+  function drawPerson(g, lookId, x, y, dir, walk) {
+    const L_ = LOOKS[lookId];
+    const sw = Math.sin(walk) * 2;
+    g.save();
+    g.translate(x, y);
+    g.fillStyle = 'rgba(30,25,20,0.25)';
+    g.beginPath(); g.ellipse(0, 0, 9, 3.5, 0, 0, TAU); g.fill();
+    g.fillStyle = L_.trim;
+    g.fillRect(-5, -9 + Math.max(0, sw), 4, 9 - Math.max(0, sw));
+    g.fillRect(1, -9 + Math.max(0, -sw), 4, 9 - Math.max(0, -sw));
+    if (L_.boots) { g.fillStyle = L_.boots; g.fillRect(-5, -3, 4, 3); g.fillRect(1, -3, 4, 3); }
+    g.fillStyle = L_.coat; rr(g, -7.5, -22, 15, 14, 4); g.fill();
+    if (L_.apron) { g.fillStyle = L_.apron; rr(g, -5, -18, 10, 10, 2); g.fill(); }
+    if (L_.satchel) {
+      g.strokeStyle = '#6b4a2b'; g.lineWidth = 2;
+      g.beginPath(); g.moveTo(-6, -21); g.lineTo(5, -11); g.stroke();
+      g.fillStyle = '#8a6239'; rr(g, 3, -13, 7, 6, 1.5); g.fill();
+    }
+    g.fillStyle = L_.trim;
+    g.fillRect(-9.5, -21 + sw * 0.6, 3, 10);
+    g.fillRect(6.5, -21 - sw * 0.6, 3, 10);
+    g.fillStyle = L_.skin;
+    g.beginPath(); g.arc(0, -28, 6.5, 0, TAU); g.fill();
+    g.fillStyle = L_.hair;
+    if (dir === 'up') { g.beginPath(); g.arc(0, -28, 6.8, 0, TAU); g.fill(); }
+    else { g.beginPath(); g.arc(0, -29.5, 6.8, Math.PI, 0); g.fill(); }
+    if (L_.braids) { g.fillRect(-8.5, -29, 3, 10); g.fillRect(5.5, -29, 3, 10); }
+    if (L_.curls) for (const [cx, cy] of [[-6, -31], [-3, -34], [1, -35], [5, -32], [7, -28], [-7, -27]]) { g.beginPath(); g.arc(cx, cy, 2.6, 0, TAU); g.fill(); }
+    if (L_.bun) { g.beginPath(); g.arc(0, -36, 3.2, 0, TAU); g.fill(); }
+    if (L_.beard && dir !== 'up') { g.beginPath(); g.arc(0, -25.5, 5.6, 0, Math.PI); g.fill(); }
+    if (dir !== 'up') {
+      const ex = dir === 'left' ? -1.8 : dir === 'right' ? 1.8 : 0;
+      g.fillStyle = '#2b2622';
+      g.fillRect(ex - 2.6, -29, 1.6, 1.8);
+      g.fillRect(ex + 1, -29, 1.6, 1.8);
+      if (L_.glasses) {
+        g.strokeStyle = '#2b2622'; g.lineWidth = 0.8;
+        g.beginPath(); g.arc(ex - 1.8, -28.2, 2, 0, TAU); g.moveTo(ex + 3.8, -28.2); g.arc(ex + 1.8, -28.2, 2, 0, TAU); g.stroke();
+      }
+    }
+    if (L_.goggles) {
+      g.fillStyle = '#3a3a3a'; g.fillRect(-6.5, -34, 13, 2);
+      g.fillStyle = '#9fd3d8';
+      g.beginPath(); g.arc(-3, -34, 2.2, 0, TAU); g.moveTo(5.2, -34); g.arc(3, -34, 2.2, 0, TAU); g.fill();
+    }
+    if (L_.hat === 'cap') {
+      g.fillStyle = '#2d2f33'; rr(g, -7, -37, 14, 5, 2); g.fill();
+      g.fillRect(dir === 'left' ? -10 : dir === 'right' ? -3 : -6.5, -33, 13, 2);
+    }
+    if (L_.hat === 'captain') {
+      g.fillStyle = '#f4f1ea'; rr(g, -7.5, -38.5, 15, 6, 2); g.fill();
+      g.fillStyle = '#1b1f27'; g.fillRect(-8, -33.5, 16, 2.2);
+      g.fillStyle = '#c99a2e'; g.fillRect(-1.5, -37, 3, 2.5);
+    }
+    g.restore();
+  }
+
+  /* ---------- state ---------- */
+  const CLUES = {
+    keeper_gone: { title: 'The keeper is missing', text: 'Gus Penhale, keeper of the Kettle Light, vanished a week ago. The lighthouse has been dark ever since.' },
+    loop: { title: 'The same day, again', text: 'At midnight, if the lighthouse is dark, the fog takes the cove and the morning starts over. Light the lamp before twelve and it stops.' },
+    marigold: { title: 'The wreck of the Marigold', text: 'Twenty years ago the fishing boat Marigold was wrecked on the Teeth while Gus kept the light. He never forgave himself.' },
+    nell_guilt: { title: 'Nell’s old watch', text: 'Nell was Gus’s apprentice, sixteen and on watch beside him the night the Marigold sank. She still blames herself.' },
+    signal: { title: 'Wren’s secret signal', text: 'Gus and Wren have a signal only they know: three short whistles, then one long.' },
+    tobacco: { title: 'Cherry tobacco', text: 'Only Gus ever smoked cherry tobacco. Since he vanished, Old Mosk the ferryman has bought a tin every week.' },
+    compass: { title: 'The brass compass', text: 'Wren winds Gus’s brass compass every evening so it is ready when he comes home.' },
+    gus_found: { title: 'Mosk is Gus', text: 'Old Mosk the ferryman is Gus Penhale, hiding behind a beard and a borrowed name. He only works the morning crossings.' },
+    lens_cracked: { title: 'The cracked lens', text: 'The lighthouse lens is cracked. Gus took it home to his cottage and never mended it.' },
+    teodor_mends: { title: 'Two bells’ work', text: 'Teodor the glassblower can mend the lens, but it takes him two bells.' },
+    anchor: { title: 'The spare key', text: 'Gus hid a spare lighthouse key under the anchor stone on the quay. The stone is heavy.' },
+    not_nells_fault: { title: 'The logbook’s verdict', text: 'Gus’s old log says the Marigold’s skipper ignored the warning lamp. It was not Nell’s fault, or his.' },
+  };
+  const CLUE_IDS = Object.keys(CLUES);
+  const SKILL = { charm: 'Charm', wits: 'Wits', grit: 'Grit' };
+  const PHASES = ['morning', 'morning', 'afternoon', 'afternoon', 'evening', 'evening', 'night', 'night'];
+  const PHASE_NAME = { morning: 'Morning', afternoon: 'Afternoon', evening: 'Evening', night: 'Night' };
+  const ORD = ['', 'first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth'];
+
+  const freshPersistent = () => ({ clues: {}, xp: 0, level: 1, points: 0, skills: { charm: 1, wits: 1, grit: 1 }, loop: 1, met: {} });
+  const freshLoop = () => ({ bell: 1, items: {}, flags: {}, failed: {}, talked: {}, gossip: '' });
+  let P = freshPersistent();
+  let L = freshLoop();
+  let ended = false;
+  let beamOn = false;
+  let started = false;
+  let convo = null;
+  const player = { x: START.x, y: START.y, fromX: START.x, fromY: START.y, dir: START.dir, moving: false, mt: 0, walk: 0, path: [], target: null };
+  const phase = () => PHASES[Math.min(8, Math.max(1, L.bell)) - 1];
+  const need = (lvl) => 25 + lvl * 15;
+
+  const SAVE_KEY = 'kettle-cove:v1';
+  const PREF_KEY = 'kettle-cove:prefs';
+  function save() {
+    if (TESTING || !started) return;
+    try { localStorage.setItem(SAVE_KEY, JSON.stringify({ v: 1, P, L, ended, pos: { x: player.x, y: player.y, dir: player.dir } })); } catch (_) { /* storage unavailable */ }
+  }
+  function loadSave() {
+    try {
+      const s = JSON.parse(localStorage.getItem(SAVE_KEY) || 'null');
+      if (s && s.v === 1 && s.P && s.L && s.P.skills && s.L.items) return s;
+    } catch (_) { /* ignore */ }
+    return null;
+  }
+
+  /* ---------- sound: synthesised harbour bells, started by a button press ---------- */
+  let actx = null;
+  let muted = false;
+  try { muted = JSON.parse(localStorage.getItem(PREF_KEY) || '{}').muted === true; } catch (_) { /* ignore */ }
+  function ensureAudio() {
+    if (muted) return;
+    if (!actx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      try { actx = new AC(); } catch (_) { actx = null; return; }
+    }
+    if (actx.state === 'suspended') { const r = actx.resume(); if (r && r.catch) r.catch(() => {}); }
+  }
+  function tone(freq, vol, dur, delay, type) {
+    const t = actx.currentTime + (delay || 0);
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = type || 'sine';
+    o.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(vol, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    o.connect(g); g.connect(actx.destination);
+    o.start(t); o.stop(t + dur + 0.05);
+  }
+  function bellTone(freq, vol, delay, dur) {
+    [[1, 1], [2, 0.45], [2.76, 0.3], [5.4, 0.12]].forEach(([m, k]) => tone(freq * m, vol * k, dur || 2.4, delay || 0));
+  }
+  function sfx(name) {
+    if (!actx || muted) return;
+    switch (name) {
+      case 'chime': bellTone(587, 0.045); break;
+      case 'toll': [0, 1.5, 3].forEach((d) => bellTone(196, 0.07, d, 3)); break;
+      case 'talk': tone(523, 0.03, 0.09); break;
+      case 'clue': tone(880, 0.03, 0.12); tone(1175, 0.03, 0.16, 0.09); break;
+      case 'yes': tone(523, 0.04, 0.14); tone(784, 0.04, 0.2, 0.1); break;
+      case 'no': tone(330, 0.04, 0.16); tone(247, 0.04, 0.22, 0.12); break;
+      case 'level': [523, 659, 784].forEach((f, i) => tone(f, 0.04, 0.25, i * 0.09, 'triangle')); break;
+      case 'win': [523, 659, 784, 1047].forEach((f, i) => bellTone(f, 0.045, i * 0.4, 3)); break;
+      default: break;
+    }
+  }
+  function setSound(on) {
+    muted = !on;
+    try { localStorage.setItem(PREF_KEY, JSON.stringify({ muted })); } catch (_) { /* ignore */ }
+    if (!muted) ensureAudio();
+    for (const b of [$('soundBtn'), $('soundBtn2')]) { b.textContent = `Sound: ${muted ? 'off' : 'on'}`; b.setAttribute('aria-pressed', String(!muted)); }
+  }
+
+  /* ---------- feedback ---------- */
+  function toast(msg, kind) {
+    const box = $('toasts');
+    const t = el('div', `toast ${kind || ''}`, msg);
+    box.append(t);
+    while (box.children.length > 4) box.firstChild.remove();
+    setTimeout(() => t.remove(), 3600);
+  }
+  function gainXp(n) {
+    P.xp += n;
+    while (P.xp >= need(P.level)) {
+      P.xp -= need(P.level);
+      P.level++;
+      P.points++;
+      toast(`Level ${P.level}. You can raise a skill.`, 'ok');
+      sfx('level');
+    }
+  }
+  function addClue(id) {
+    if (P.clues[id]) return false;
+    P.clues[id] = true;
+    gainXp(10);
+    toast(`New clue: ${CLUES[id].title}`, 'clue');
+    sfx('clue');
+    return true;
+  }
+  const clueCount = () => CLUE_IDS.filter((k) => P.clues[k]).length;
+
+  /* ---------- story actions ---------- */
+  function giveKey() { L.items.light_key = true; gainXp(10); toast('Received: the lighthouse key', 'ok'); }
+  function trustWren() {
+    L.flags.wren_trust = true;
+    L.items.cottage_key = true;
+    addClue('signal');
+    gainXp(20);
+    toast('Received: the cottage key', 'ok');
+  }
+  function gusAgrees() { L.flags.gus_coming = true; gainXp(20); toast('Gus will come home if the lamp is lit tonight.', 'ok'); }
+  function searchCottage() {
+    L.flags.cottage_searched = true;
+    if (!L.items.mended_lens && !L.flags.lens_due) { L.items.cracked_lens = true; toast('Taken: the cracked lens', 'ok'); }
+    ['lens_cracked', 'teodor_mends', 'anchor', 'not_nells_fault'].forEach(addClue);
+  }
+  function gossip() {
+    if (!P.clues.marigold) {
+      addClue('marigold');
+      return '“Twenty years ago the Marigold hit the Teeth in a fog just like the ones we get now. Gus had the light that night. He never forgave himself.” She wipes the same glass for a while.';
+    }
+    if (!P.clues.nell_guilt) {
+      addClue('nell_guilt');
+      return '“Nell was his apprentice back then. Sixteen, on watch right beside him. She has carried that wreck around ever since, poor love. Never says so. Doesn’t have to.”';
+    }
+    if (!P.clues.tobacco) return '“Ada at the shop swears somebody is still buying Gus’s cherry tobacco. Make of that what you like.”';
+    return '“Regatta’s tomorrow, if tomorrow ever turns up.” She laughs, then stops. “Odd thing to say. I don’t know why I said it.”';
+  }
+
+  /* ---------- conversations ---------- */
+  const LEAVE = { label: 'Leave', end: true };
+  const BACK = (id) => ({ label: 'Back', go: id });
+  const D = {
+    mosk: {
+      start: () => (L.flags.gus_coming ? 'waiting' : 'hello'),
+      hello: {
+        text: (first) => (!first ? 'Mosk coils a rope that does not need coiling.'
+          : P.loop === 1
+            ? 'The ferry bumps against the pilings. An old man with a beard like sea foam squints at you. “Kettle Cove. Last stop. Mind the fog tonight. It’s been funny lately.”'
+            : 'The ferry bumps against the pilings. The same old man, the same squint. “Kettle Cove. Last stop.” He pauses with the rope in his hands. “…Have we met?”'),
+        choices: () => [
+          { label: 'Funny how?', time: !P.clues.keeper_gone, act: () => addClue('keeper_gone'), go: 'funny' },
+          P.loop >= 2 && !P.clues.loop && { label: 'This day has happened before. Hasn’t it?', time: true, act: () => addClue('loop'), go: 'remember' },
+          { label: 'Who are you?', go: 'who' },
+          P.clues.signal && !P.clues.gus_found && { label: 'Whistle three short notes, then one long.', time: true, act: () => { addClue('gus_found'); gainXp(20); }, go: 'reveal' },
+          P.clues.gus_found && { label: 'Hello, Gus.', go: 'caught' },
+          LEAVE,
+        ],
+      },
+      funny: { text: '“The lighthouse has been dark a week. Keeper went missing. And every night at twelve the fog comes in thick as porridge.” He taps the side of his nose. “Folk round here have stopped noticing what happens after.”', choices: () => [BACK('hello'), LEAVE] },
+      remember: { text: 'His eyes sharpen. “So it’s you who keeps waking up.” He glances at the dark tower on the point. “Midnight comes, the light’s dark, the fog takes the cove and the morning starts over. Light the lamp before twelve and it stops. That’s all I know.” He looks like a man who knows a good deal more.', choices: () => [BACK('hello'), LEAVE] },
+      who: { text: () => '“Mosk. I run the ferry, morning crossings only. Don’t ask me about the lighthouse. I only do boats.” He smells faintly of cherry tobacco.' + (P.clues.tobacco ? ' Cherry tobacco, like Gus.' : ''), choices: () => [BACK('hello'), LEAVE] },
+      reveal: { text: 'The rope drops. For a long moment he doesn’t breathe. “Only two people alive know that signal,” he says, and pulls off his cap. “And you’re not my granddaughter. So you’ve met my Wren.”', choices: () => [{ label: 'Gus Penhale, I presume.', go: 'gus' }] },
+      caught: { text: 'He freezes, then sighs and pulls off his cap. “Nobody has called me that in a week. Wren told you, didn’t she.”', choices: () => [{ label: 'She misses you.', go: 'gus' }] },
+      gus: {
+        text: (first) => (first ? '“Gus Penhale. Keeper of the Kettle Light, for all the good I’ve done it.” He turns his cap over in his hands.' : 'Gus turns his cap over in his hands.'),
+        choices: () => [
+          { label: 'Why are you hiding?', go: 'why' },
+          P.clues.compass && { label: 'Wren winds your compass every night. She is waiting for you.', time: true, act: gusAgrees, go: 'agree' },
+          { label: 'The cove needs its keeper. Come home.', check: { skill: 'charm', target: 10, key: 'gus_charm' }, passAct: gusAgrees, pass: 'agree', fail: 'refuse' },
+          LEAVE,
+        ],
+      },
+      why: { text: () => '“Twenty years back the Marigold went down on the Teeth on my watch. Last week the lens cracked in my hands, and I thought: not again, not with Wren watching. So I ran.” He looks over at the dark tower. “Didn’t get far. And now the cove won’t let the day end.”' + (P.clues.not_nells_fault ? ' “I wrote in the log that it wasn’t my fault. Writing it and believing it are different things.”' : ''), choices: () => [BACK('gus'), LEAVE] },
+      agree: { text: 'He has to sit down on a crate. “Every night?” A long breath. “All right. Light the lamp, friend. If it burns tonight, I’ll come home and climb those stairs behind you.”', choices: () => [LEAVE] },
+      refuse: { text: '“Not yet. I can’t face her.” He turns back to his rope.', choices: () => [BACK('gus'), LEAVE] },
+      waiting: { text: '“Tonight, then. If the lamp burns, I’ll be on the stairs.”', choices: () => [LEAVE] },
+    },
+    wren: {
+      start: () => (L.flags.wren_trust ? 'friend' : 'hello'),
+      hello: {
+        text: (first) => {
+          if (!first) return 'Wren waits, eyeing you sideways.';
+          const ph = phase();
+          const intro = ph === 'morning' ? 'A girl in a red raincoat is poking a crab with a stick.'
+            : ph === 'afternoon' ? 'A girl in a red raincoat sits on the gate of a shuttered cottage, swinging her yellow boots.'
+              : 'A girl in a red raincoat sits on the harbour wall, winding something small and brass.';
+          return `${intro} “If you’re from the council, Grandpa’s not here. If you’re a tourist, the gift shop’s shut.”${P.loop > 1 && P.met.wren ? ' (You knew she was going to say that.)' : ''}`;
+        },
+        choices: () => [
+          { label: 'Who is your grandpa?', time: !P.clues.keeper_gone, act: () => addClue('keeper_gone'), go: 'grandpa' },
+          phase() === 'morning' && { label: 'What is the crab called?', go: 'crab' },
+          LEAVE,
+        ],
+      },
+      grandpa: {
+        text: '“Gus Penhale. He keeps the lighthouse. Kept.” She jabs her stick into the sand. “He went out a week ago and didn’t come back. Everyone says he ran off because of the Marigold. He didn’t. He wouldn’t.”',
+        choices: () => [
+          P.clues.marigold && { label: 'The Marigold wasn’t his fault. I’ll prove it.', time: true, act: trustWren, go: 'trust' },
+          { label: 'I’ll find him. I promise.', check: { skill: 'charm', target: 8, key: 'wren_charm' }, passAct: trustWren, pass: 'trust', fail: 'doubt' },
+          LEAVE,
+        ],
+      },
+      crab: { text: '“Admiral Pinch. He’s retired.” She almost smiles. “Don’t touch him. He bites tourists.”', choices: () => [BACK('hello'), LEAVE] },
+      doubt: { text: '“That’s what the constable said.” She turns away and doesn’t look up again.', choices: () => [LEAVE] },
+      trust: { text: 'She studies you for a long time. Then she digs in her pocket. “Cottage key. Grandpa’s logbook is in there and I can’t read his handwriting.” She leans in. “If you find him, whistle three short and one long. He’ll know it’s from me.”', choices: () => [LEAVE] },
+      friend: {
+        text: (first) => (first ? '“Did you find anything yet?”' : 'Wren waits.'),
+        choices: () => [
+          phase() === 'evening' && !P.clues.compass && { label: 'What are you winding?', time: true, act: () => addClue('compass'), go: 'compass' },
+          phase() !== 'evening' && !P.clues.compass && { label: 'Is there anything of his you keep close?', go: 'later' },
+          P.clues.gus_found && { label: 'I found your grandpa.', go: 'found' },
+          LEAVE,
+        ],
+      },
+      later: { text: '“Maybe.” She shrugs. “Come and find me on the harbour wall this evening. I’ll show you.”', choices: () => [BACK('friend'), LEAVE] },
+      compass: { text: 'She holds up a brass compass and turns its tiny key. “Grandpa’s. I wind it every night so it’s ready when he comes back. He hates a stopped compass.”', choices: () => [BACK('friend'), LEAVE] },
+      found: { text: 'Her stick falls. “Where?” You tell her. She is quiet for a long time. “Then make sure the light’s on tonight,” she says. “If it’s burning, he’ll come. He always does.”', choices: () => [LEAVE] },
+    },
+    nell: {
+      start: () => 'hello',
+      hello: {
+        text: (first) => {
+          if (!first) return 'Nell taps the tide chart, waiting.';
+          if (L.items.light_key) return 'Nell glances at the key in your hand. “Don’t lose that.”';
+          return phase() === 'evening'
+            ? 'Nell sits on the pub terrace with a pint she isn’t drinking. “I’m off duty. That means go away, politely.”'
+            : 'A woman in a harbourmaster’s cap glares at a tide chart. “Regatta’s tomorrow, the light’s out, and half the fleet couldn’t find their own feet. What do you want?”';
+        },
+        choices: () => [
+          { label: 'What happened to the lighthouse?', time: !P.clues.keeper_gone, act: () => addClue('keeper_gone'), go: 'light' },
+          P.clues.keeper_gone && !L.items.light_key && { label: 'I need the lighthouse key.', go: 'keyask' },
+          LEAVE,
+        ],
+      },
+      light: { text: '“Gus Penhale walked off a week ago and the lamp went dark with him. I’ve got the only key, and nobody’s going up there. Not after last time.”', choices: () => [{ label: 'Last time?', go: 'lasttime' }, BACK('hello'), LEAVE] },
+      lasttime: { text: 'Her jaw sets. “Ask Dot. She enjoys telling it.”', choices: () => [BACK('hello'), LEAVE] },
+      keyask: {
+        text: '“No.” She doesn’t look up.',
+        choices: () => [
+          { label: 'The regatta fleet passes the Teeth at dawn. Without the light you will lose boats.', check: { skill: 'wits', target: 9, key: 'nell_wits' }, passAct: giveKey, pass: 'yes_wits', fail: 'no' },
+          P.clues.not_nells_fault && P.clues.nell_guilt && { label: 'Gus wrote it in his logbook: the Marigold’s skipper ignored the warning lamp. It was never your fault.', time: true, act: () => { giveKey(); L.flags.nell_ally = true; gainXp(20); }, go: 'yes_heart' },
+          BACK('hello'),
+        ],
+      },
+      yes_wits: { text: 'She goes very still. “You think I don’t know that?” The key lands on the tide chart with a clank. “Bring it back. And don’t you dare fall.”', choices: () => [LEAVE] },
+      yes_heart: { text: 'Her hand shakes as she reads the page you copied out. “Twenty years I’ve…” She can’t finish. She presses the key into your palm. “Go on. I’ll ring the harbour bell when I see the beam.”', choices: () => [LEAVE] },
+      no: { text: '“Don’t you lecture me about the Teeth.” She turns her back on you.', choices: () => [LEAVE] },
+    },
+    dot: {
+      start: () => 'hello',
+      hello: {
+        text: (first) => (!first ? 'Dot polishes a glass, all ears.'
+          : phase() === 'night'
+            ? 'Dot is stacking chairs on the terrace. “Last orders were an hour ago, love, but the gossip runs till midnight.”'
+            : '“Welcome to the Sunken Kettle! Tea, cider or gossip? The gossip’s free and the cider very nearly is.”'),
+        choices: () => [
+          { label: 'Gossip, please.', time: !(P.clues.marigold && P.clues.nell_guilt), act: () => { L.gossip = gossip(); }, go: 'gossip' },
+          { label: 'A cider, please.', go: 'cider' },
+          LEAVE,
+        ],
+      },
+      gossip: { text: () => L.gossip, choices: () => [BACK('hello'), LEAVE] },
+      cider: { text: () => '“On the house. You look like you’ve had a long day.” She winks. “Or a long few.”' + (P.loop >= 3 ? ' She frowns at the glass. “Funny. I’d swear I’ve poured you this exact cider before.”' : ''), choices: () => [BACK('hello'), LEAVE] },
+    },
+    ada: {
+      start: () => 'hello',
+      hello: {
+        text: (first) => (first ? '“Fitch’s Provisions: rope, rusks, rubber boots and rumours. Mind the cat.” A large ginger cat regards you with contempt.' : 'Ada peers at you over her spectacles.'),
+        choices: () => [
+          { label: 'Heard anything about the lighthouse keeper?', time: !(P.clues.keeper_gone && P.clues.marigold), act: () => { addClue('keeper_gone'); addClue('marigold'); }, go: 'keeper' },
+          P.clues.keeper_gone && { label: 'Did Gus buy anything before he vanished?', time: !P.clues.tobacco, act: () => addClue('tobacco'), go: 'tobacco' },
+          { label: 'Do you sell lamp oil?', go: 'oil' },
+          { label: 'What is the cat called?', go: 'cat' },
+          LEAVE,
+        ],
+      },
+      keeper: { text: '“Gus? Gone a week. Some say the Marigold finally caught up with him.” She lowers her voice. “Twenty years ago it wrecked on the Teeth with Gus on the light.”', choices: () => [BACK('hello'), LEAVE] },
+      tobacco: { text: '“Cherry tobacco, same as always. Only man in the cove who smoked the stuff.” She frowns. “Funny thing, though. Old Mosk off the ferry has bought a tin every week since. Never knew he smoked.”', choices: () => [BACK('hello'), LEAVE] },
+      oil: { text: '“Sold out. The lighthouse takes its oil by the barrel, and it’s all up the tower already. It isn’t oil that lamp is short of.”', choices: () => [BACK('hello'), LEAVE] },
+      cat: { text: '“Admiral.” The cat yawns. “Wren named him. She names everything Admiral.”', choices: () => [BACK('hello'), LEAVE] },
+    },
+    teo: {
+      start: () => 'hello',
+      hello: {
+        text: (first) => (!first ? 'Teodor turns the glass, waiting.'
+          : phase() === 'night'
+            ? 'The furnace is still roaring. Teodor doesn’t seem to sleep. “Come in, come in. Don’t touch anything.”'
+            : 'Heat rolls out of the glassworks. A broad man with goggles on his forehead turns a glowing bulb of glass. “Careful. Everything in here is either hot or sharp.”'),
+        choices: () => [
+          L.items.cracked_lens && !L.flags.lens_due && { label: 'Can you mend this lens?', time: true, act: () => { L.flags.lens_due = L.bell + 2; delete L.items.cracked_lens; addClue('teodor_mends'); gainXp(10); }, go: 'take' },
+          L.flags.lens_due && !L.items.mended_lens && L.bell >= L.flags.lens_due && { label: 'Is the lens ready?', act: () => { L.items.mended_lens = true; gainXp(10); toast('Received: the mended lens', 'ok'); }, go: 'done' },
+          L.flags.lens_due && !L.items.mended_lens && L.bell < L.flags.lens_due && { label: 'Is the lens ready?', go: 'notyet' },
+          { label: 'What are you making?', go: 'floats' },
+          LEAVE,
+        ],
+      },
+      take: { text: () => (L.flags.lens_due > 8
+        ? '“Penhale’s prism, cracked clean through.” He holds it up to the furnace light. “Two bells’ work. That takes us past midnight, mind.”'
+        : `He whistles. “Penhale’s prism, cracked clean through.” He holds it up to the furnace light. “Two bells. Come back at the ${ORD[L.flags.lens_due]} bell, not a minute before.”`), choices: () => [LEAVE] },
+      done: { text: '“Good as the day it was ground.” The prism throws little rainbows across the workshop. “Tell Gus he owes me a pint.”', choices: () => [LEAVE] },
+      notyet: { text: () => `“Did I say one bell? I said two. The ${ORD[Math.min(8, L.flags.lens_due)]} bell.”`, choices: () => [BACK('hello'), LEAVE] },
+      floats: { text: () => '“Fishing floats for the regatta. Green, for luck.” He grins. “Want one? No? Your loss.”' + (P.loop >= 3 ? ' He frowns at the float. “Strange. I’d swear I’ve blown this exact one before.”' : ''), choices: () => [BACK('hello'), LEAVE] },
+    },
+    anchor: {
+      start: () => 'look',
+      look: {
+        text: () => (P.clues.anchor ? 'The old anchor sits on its flat stone, just where Gus’s logbook said.' : 'A huge old anchor rests on a flat stone. The gulls have opinions about it.'),
+        choices: () => [
+          P.clues.anchor && !L.items.light_key && { label: 'Heave the stone aside.', check: { skill: 'grit', target: 8, key: 'anchor_grit' }, passAct: giveKey, pass: 'found', fail: 'stuck' },
+          LEAVE,
+        ],
+      },
+      found: { text: 'With a grunt and a grind of stone on stone, it shifts. Underneath, wrapped in oilcloth, is a heavy iron key.', choices: () => [LEAVE] },
+      stuck: { text: 'It doesn’t budge. Your back has a few words to say about it.', choices: () => [LEAVE] },
+    },
+    notice: {
+      start: () => 'read',
+      read: { text: 'REGATTA TOMORROW, 6 A.M. SHARP. Lighthouse closed until further notice, by order of the Harbourmaster. Underneath, in crayon: LOST, ONE GRANDPA. ANSWERS TO GUS.', choices: () => [LEAVE] },
+    },
+    clock: {
+      start: () => 'read',
+      read: { text: () => `The harbour clock says it is the ${ORD[L.bell]} bell of eight. At midnight it is meant to ring in the regatta.`, choices: () => [LEAVE] },
+    },
+    cottage: {
+      start: () => (L.items.cottage_key ? 'inside' : 'locked'),
+      locked: { text: 'The door is locked. A brass plate reads PENHALE. Someone has left a jar of sea glass on the step.', choices: () => [LEAVE] },
+      inside: {
+        text: 'The key turns. Inside: charts, a cold pipe, a workbench under a dust sheet, and a battered logbook.',
+        choices: () => [
+          !L.flags.cottage_searched && { label: 'Search the workbench and read the logbook.', time: true, act: searchCottage, go: 'searched' },
+          LEAVE,
+        ],
+      },
+      searched: { text: 'Under the dust sheet lies the great lighthouse lens, cracked clean through. The last page of the logbook is in a shaky hand: “Lens cracked. Teodor could mend it, two bells’ work, but I can’t face the climb. Spare key under the anchor stone on the quay.” Further back, twenty years old: “Marigold’s skipper ignored the warning lamp. Not Nell’s fault. Not mine.”', choices: () => [LEAVE] },
+    },
+    light: {
+      start: () => (!L.items.light_key ? 'locked' : !L.items.mended_lens ? 'empty' : L.bell < 5 ? 'early' : 'ready'),
+      locked: { text: 'The iron door is locked. Far above you, the great lamp is dark.', choices: () => [LEAVE] },
+      empty: { text: () => 'The key turns. You climb a hundred and twelve steps to the lamp room. The brass cradle where the lens belongs is empty.' + (L.items.cracked_lens ? ' The cracked lens in your bag would never focus a beam.' : ''), choices: () => [LEAVE] },
+      early: { text: 'You set the mended lens in its brass cradle. It is still daylight, and the lamp only matters after dusk. Come back in the evening.', choices: () => [LEAVE] },
+      ready: { text: 'The mended lens sits in its cradle. Out past the point, the sun is going down over the Teeth.', choices: () => [{ label: 'Light the lamp.', act: () => winGame() }, LEAVE] },
+    },
+  };
+
+  function chance(skill, target) {
+    let ok = 0;
+    for (let a = 1; a <= 6; a++) for (let b = 1; b <= 6; b++) {
+      const s = a + b;
+      if (s === 12 || (s !== 2 && s + skill >= target)) ok++;
+    }
+    return Math.round((ok / 36) * 100);
+  }
+  let currentChoices = [];
+  function openTalk(ent) {
+    if (ended || convo) return;
+    if (ent.kind === 'npc') {
+      if (!P.met[ent.id]) { P.met[ent.id] = true; gainXp(5); }
+      L.talked[ent.id] = true;
+      ent.dir = dirOf(player.x - ent.x, player.y - ent.y);
+    }
+    convo = { ent, node: '', spent: false, seen: new Set() };
+    $('dlgName').textContent = ent.name;
+    $('dlgRole').textContent = ent.role;
+    drawPortrait(ent);
+    $('dialog').hidden = false;
+    sfx('talk');
+    go(D[ent.id].start());
+  }
+  function go(id) {
+    if (!convo) return;
+    if (!id) { endTalk(); return; }
+    const node = D[convo.ent.id][id];
+    const first = !convo.seen.has(id);
+    convo.seen.add(id);
+    convo.node = id;
+    $('dlgText').textContent = typeof node.text === 'function' ? node.text(first) : node.text;
+    const box = $('dlgChoices');
+    box.replaceChildren();
+    currentChoices = node.choices().filter(Boolean);
+    currentChoices.forEach((c, i) => {
+      const b = el('button', 'choice');
+      b.type = 'button';
+      b.append(el('span', 'num', String(i + 1)), el('span', 'lab', c.label));
+      if (c.check) {
+        const failed = L.failed[c.check.key];
+        const lvl = P.skills[c.check.skill];
+        b.append(el('span', 'tag check', failed ? `${SKILL[c.check.skill]} · failed today` : `${SKILL[c.check.skill]} ${lvl} · ${chance(lvl, c.check.target)}%`));
+        b.append(el('span', 'tag', '1 bell'));
+        if (failed) b.disabled = true;
+      } else if (c.time) {
+        b.append(el('span', 'tag', '1 bell'));
+      }
+      b.addEventListener('click', () => choose(c));
+      box.append(b);
+    });
+    const firstBtn = box.querySelector('button:not(:disabled)');
+    if (firstBtn) firstBtn.focus({ preventScroll: true });
+    $('dialog').scrollTop = 0;
+    save();
+  }
+  function choose(c) {
+    if (!convo) return;
+    if (c.check) {
+      if (L.failed[c.check.key]) return;
+      convo.spent = true;
+      const a = 1 + rnd(6), b = 1 + rnd(6), lvl = P.skills[c.check.skill];
+      const s = a + b, ok = s === 12 || (s !== 2 && s + lvl >= c.check.target);
+      toast(`${SKILL[c.check.skill]} check: rolled ${a} and ${b}, plus ${lvl} skill, is ${s + lvl} against ${c.check.target}. ${ok ? 'Success.' : 'Failed.'}`, ok ? 'ok' : 'bad');
+      sfx(ok ? 'yes' : 'no');
+      if (ok) { gainXp(15); if (c.passAct) c.passAct(); go(c.pass); }
+      else { L.failed[c.check.key] = true; gainXp(5); go(c.fail); }
+      return;
+    }
+    if (c.time) convo.spent = true;
+    if (c.act) c.act();
+    if (!convo) return;
+    if (c.end || !c.go) endTalk();
+    else go(c.go);
+  }
+  function endTalk() {
+    if (!convo) return;
+    const spent = convo.spent;
+    convo = null;
+    $('dialog').hidden = true;
+    if (ended) return;
+    if (spent) advanceBell();
+    else save();
+    updateHud();
+    maybeLevelUp();
+  }
+  function drawPortrait(ent) {
+    const c = $('portrait');
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    c.width = 64 * dpr; c.height = 64 * dpr;
+    const g = c.getContext('2d');
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.clearRect(0, 0, 64, 64);
+    if (ent.kind === 'npc') {
+      g.save(); g.translate(32, 92); g.scale(2.3, 2.3);
+      drawPerson(g, ent.look, 0, 0, 'down', 0);
+      g.restore();
+    } else {
+      g.fillStyle = '#2f6f7e';
+      g.font = 'italic 700 30px "Iowan Old Style", "Palatino Linotype", Georgia, serif';
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.fillText(ent.name.replace(/^The /, '').charAt(0), 32, 34);
+    }
+  }
+
+  /* ---------- time ---------- */
+  function placeNPCs() {
+    const ph = phase();
+    for (const n of NPCS) {
+      const spot = n.where[ph];
+      n.here = !!spot;
+      if (!spot) continue;
+      n.x = spot[0]; n.y = spot[1];
+      n.dir = n.dir || 'down';
+      if (player.x === n.x && player.y === n.y) {
+        const free = [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([dx, dy]) => [n.x + dx, n.y + dy]).find(([x, y]) => inMap(x, y) && !SOLID.has(at(x, y)) && !entityAt(x, y));
+        if (free) { player.x = free[0]; player.y = free[1]; player.fromX = player.x; player.fromY = player.y; player.moving = false; }
+      }
+    }
+  }
+  function advanceBell() {
+    L.bell += 1;
+    player.path = []; player.target = null;
+    if (L.bell > 8) { midnight(); return; }
+    placeNPCs();
+    sfx('chime');
+    toast(`The ${ORD[L.bell]} bell rings. ${PHASE_NAME[phase()]}.`);
+    updateHud();
+    save();
+  }
+  function midnight() {
+    sfx('toll');
+    $('nightWake').textContent = `You wake to the creak of the ferry against the pilings. The same grey morning. Day ${P.loop + 1}.`;
+    $('dawnBtn').textContent = `Begin day ${P.loop + 1}`;
+    $('nightScreen').hidden = false;
+    $('dawnBtn').focus({ preventScroll: true });
+  }
+  function beginDay() {
+    $('nightScreen').hidden = true;
+    P.loop++;
+    L = freshLoop();
+    resetPlayer();
+    placeNPCs();
+    updateHud();
+    save();
+    toast(`Day ${P.loop}. Morning. The ferry is still tied up at the landing.`);
+    maybeLevelUp();
+    greetFerry();
+  }
+  function resetPlayer() {
+    Object.assign(player, { x: START.x, y: START.y, fromX: START.x, fromY: START.y, dir: START.dir, moving: false, mt: 0, path: [], target: null });
+  }
+  function greetFerry() {
+    setTimeout(() => {
+      const mosk = NPCS[0];
+      if (!ended && !convo && !overlayOpen() && mosk.here && Math.abs(mosk.x - player.x) + Math.abs(mosk.y - player.y) === 1) openTalk(mosk);
+    }, 700);
+  }
+
+  /* ---------- screens ---------- */
+  const overlayOpen = () => ['titleScreen', 'noteScreen', 'levelScreen', 'nightScreen', 'endScreen'].some((id) => !$(id).hidden);
+  function updateHud() {
+    $('dayLine').textContent = `Day ${P.loop} · ${PHASE_NAME[phase()]} · bell ${Math.min(L.bell, 8)} of 8`;
+    const pips = $('pips');
+    pips.replaceChildren();
+    for (let i = 1; i <= 8; i++) { const p = el('i'); if (i <= L.bell) p.className = 'on'; pips.append(p); }
+    let goal = 'Light the lighthouse before midnight.';
+    const key = L.items.light_key, lens = L.items.mended_lens;
+    if (key && lens) goal = L.bell < 5 ? 'You have the key and the lens. Climb the lighthouse after dusk.' : 'You have the key and the lens. Light the lamp.';
+    else if (key) goal = 'You have the lighthouse key. The lamp still needs its lens.';
+    else if (lens) goal = 'You have the mended lens. Now find a way into the lighthouse.';
+    if (L.flags.lens_due && !lens) goal += L.flags.lens_due > 8 ? ' The lens will not be ready before midnight.' : ` Teodor’s lens is ready at the ${ORD[L.flags.lens_due]} bell.`;
+    $('goalLine').textContent = goal;
+  }
+  function maybeLevelUp() {
+    if (P.points <= 0 || overlayOpen() || convo || ended) return;
+    $('levelEyebrow').textContent = `Level ${P.level}`;
+    $('levelScreen').hidden = false;
+    $('levelScreen').querySelector('button').focus({ preventScroll: true });
+  }
+  function pickSkill(k) {
+    if (P.points <= 0) return;
+    P.skills[k]++;
+    P.points--;
+    toast(`${SKILL[k]} is now ${P.skills[k]}.`, 'ok');
+    save();
+    if (P.points <= 0) $('levelScreen').hidden = true;
+  }
+  function openNotebook() {
+    if (convo || ended || !started || overlayOpen()) return;
+    const body = $('noteBody');
+    body.replaceChildren();
+    $('noteEyebrow').textContent = `Notebook · Day ${P.loop} · bell ${Math.min(L.bell, 8)} of 8`;
+    const skills = el('div', 'skills');
+    for (const k of Object.keys(SKILL)) { const s = el('div', 'skill'); s.append(el('span', '', SKILL[k]), el('b', '', String(P.skills[k]))); skills.append(s); }
+    const lvl = el('div');
+    lvl.style.cssText = 'display:grid;gap:6px';
+    lvl.append(el('p', 'small', `Level ${P.level} · ${P.xp} of ${need(P.level)} experience to the next level`));
+    const bar = el('div', 'xpbar'); const fillBar = el('i'); fillBar.style.width = `${Math.round((P.xp / need(P.level)) * 100)}%`; bar.append(fillBar); lvl.append(bar);
+    const items = [];
+    if (L.items.cottage_key) items.push('The cottage key');
+    if (L.items.cracked_lens) items.push('The cracked lens');
+    if (L.flags.lens_due && !L.items.mended_lens) items.push(L.flags.lens_due > 8 ? 'The lens, with Teodor (not ready before midnight)' : `The lens, with Teodor until the ${ORD[L.flags.lens_due]} bell`);
+    if (L.items.mended_lens) items.push('The mended lens');
+    if (L.items.light_key) items.push('The lighthouse key');
+    if (L.flags.gus_coming) items.push('A promise: Gus will come if the lamp is lit tonight');
+    const today = el('div'); today.style.cssText = 'display:grid;gap:6px';
+    today.append(el('h3', '', 'Today'), el('p', 'small', items.length ? items.join(' · ') : 'Nothing in your pockets yet. Items reset at midnight.'));
+    const clues = el('div'); clues.style.cssText = 'display:grid;gap:6px';
+    clues.append(el('h3', '', `Clues · ${clueCount()} of ${CLUE_IDS.length}`));
+    const list = el('ul', 'list');
+    for (const id of CLUE_IDS) {
+      if (!P.clues[id]) continue;
+      const li = el('li'); li.append(el('b', '', CLUES[id].title), el('span', '', CLUES[id].text)); list.append(li);
+    }
+    const missing = CLUE_IDS.length - clueCount();
+    if (missing) list.append(el('li', 'unknown', `${missing} more to find. Somebody in the cove knows.`));
+    clues.append(list);
+    const people = el('div'); people.style.cssText = 'display:grid;gap:6px';
+    people.append(el('h3', '', 'People'));
+    const plist = el('ul', 'list');
+    const met = NPCS.filter((n) => P.met[n.id]);
+    for (const n of met) { const li = el('li'); li.append(el('b', '', `${n.name}, ${n.role}`), el('span', '', n.about)); plist.append(li); }
+    if (!met.length) plist.append(el('li', 'unknown', 'You haven’t met anyone yet. Try the ferryman beside you.'));
+    people.append(plist);
+    body.append(skills, lvl, today, clues, people);
+    $('noteScreen').hidden = false;
+    $('noteClose').focus({ preventScroll: true });
+  }
+  function closeNotebook() { $('noteScreen').hidden = true; maybeLevelUp(); }
+  function winGame() {
+    const best = !!L.flags.gus_coming;
+    ended = true;
+    beamOn = true;
+    convo = null;
+    $('dialog').hidden = true;
+    sfx('win');
+    save();
+    $('hud').hidden = true;
+    setTimeout(() => showEnding(best), REDUCED ? 600 : 3200);
+  }
+  function showEnding(best) {
+    $('endEyebrow').textContent = best ? 'The best ending' : 'An ending';
+    $('endHeading').textContent = best ? 'The Keeper Comes Home' : 'The Light Returns';
+    $('endText').textContent = best
+      ? 'The lamp catches and the mended lens throws a white beam out over the Teeth. Footsteps on the stairs: Gus, cap in hand, and close behind him a small figure in a red raincoat. Nobody says anything for a while. Down in the harbour a bell starts ringing.' + (L.flags.nell_ally ? ' Nell is the one ringing it.' : '') + ' Midnight comes, and goes, and the morning after is a new one.'
+      : 'The lamp catches and the mended lens throws a white beam out over the Teeth. The fog draws back like a curtain. Midnight comes and goes, and in the morning there is a regatta, a new day, and an empty chair in the lamp room that someone still needs to fill.';
+    const stats = $('endStats');
+    stats.replaceChildren();
+    for (const [k, v] of [['Days lived', String(P.loop)], ['Clues found', `${clueCount()} of ${CLUE_IDS.length}`], ['Level', String(P.level)], ['Skills', `Charm ${P.skills.charm} · Wits ${P.skills.wits} · Grit ${P.skills.grit}`]]) {
+      const d = el('div'); d.append(el('dt', '', k), el('dd', '', v)); stats.append(d);
+    }
+    $('endHint').textContent = best ? 'You found everyone, and everyone found their way home.' : 'There is another ending. Somebody in the cove is hiding in plain sight.';
+    $('endScreen').hidden = false;
+    $('againBtn').focus({ preventScroll: true });
+  }
+  function startNew() {
+    ensureAudio();
+    P = freshPersistent();
+    L = freshLoop();
+    if (TEST_BELL) L.bell = TEST_BELL;
+    ended = false;
+    beamOn = false;
+    started = true;
+    resetPlayer();
+    placeNPCs();
+    snapCamera();
+    ['titleScreen', 'endScreen', 'nightScreen', 'noteScreen', 'levelScreen'].forEach((id) => { $(id).hidden = true; });
+    $('hud').hidden = false;
+    updateHud();
+    save();
+    toast('Day 1. Morning. The ferryman is right beside you.');
+    if (TEST_TALK) {
+      const who = NPCS.find((n) => n.id === TEST_TALK) || OBJECTS.find((o) => o.id === TEST_TALK);
+      if (who) setTimeout(() => openTalk(who), 50);
+    } else greetFerry();
+  }
+  function continueGame(s) {
+    ensureAudio();
+    P = s.P; L = s.L; ended = false; beamOn = false; started = true;
+    resetPlayer();
+    if (s.pos && inMap(s.pos.x, s.pos.y) && !SOLID.has(at(s.pos.x, s.pos.y))) Object.assign(player, { x: s.pos.x, y: s.pos.y, fromX: s.pos.x, fromY: s.pos.y, dir: s.pos.dir || 'down' });
+    placeNPCs();
+    snapCamera();
+    $('titleScreen').hidden = true;
+    $('hud').hidden = false;
+    updateHud();
+    toast(`Day ${P.loop}. ${PHASE_NAME[phase()]}. Welcome back.`);
+    maybeLevelUp();
+  }
+
+  /* ---------- movement ---------- */
+  const DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
+  const DIR_LIST = Object.values(DIRS);
+  const STEP = 0.15;
+  const dirOf = (dx, dy) => (Math.abs(dx) >= Math.abs(dy) ? (dx < 0 ? 'left' : 'right') : (dy < 0 ? 'up' : 'down'));
+  function entityAt(x, y) {
+    for (const n of NPCS) if (n.here && n.x === x && n.y === y) return n;
+    for (const o of OBJECTS) if (o.x === x && o.y === y) return o;
+    return null;
+  }
+  function walkable(x, y) {
+    if (!inMap(x, y) || SOLID.has(at(x, y)) || DECOR_SOLID.has(y * MW + x)) return false;
+    return !entityAt(x, y);
+  }
+  function startMove(nx, ny) {
+    player.fromX = player.x; player.fromY = player.y;
+    player.dir = dirOf(nx - player.x, ny - player.y);
+    player.x = nx; player.y = ny;
+    player.moving = true; player.mt = 0;
+  }
+  function findPath(goals) {
+    const start = player.y * MW + player.x;
+    if (goals.has(start)) return [];
+    const prev = new Int32Array(MW * MH).fill(-1);
+    const q = new Int32Array(MW * MH);
+    let qh = 0, qt = 0;
+    q[qt++] = start; prev[start] = start;
+    while (qh < qt) {
+      const cur = q[qh++], cx = cur % MW, cy = (cur - cx) / MW;
+      for (const [dx, dy] of DIR_LIST) {
+        const nx = cx + dx, ny = cy + dy;
+        if (!inMap(nx, ny)) continue;
+        const ni = ny * MW + nx;
+        if (prev[ni] !== -1 || !walkable(nx, ny)) continue;
+        prev[ni] = cur;
+        if (goals.has(ni)) {
+          const path = [];
+          for (let c = ni; c !== start; c = prev[c]) path.push(c);
+          return path.reverse();
+        }
+        q[qt++] = ni;
+      }
+    }
+    return null;
+  }
+  function walkTo(tx, ty, target) {
+    const goals = new Set();
+    if (target) {
+      for (const [dx, dy] of DIR_LIST) if (walkable(tx + dx, ty + dy) || (player.x === tx + dx && player.y === ty + dy)) goals.add((ty + dy) * MW + tx + dx);
+    } else if (walkable(tx, ty)) goals.add(ty * MW + tx);
+    if (!goals.size) return;
+    const path = findPath(goals);
+    if (!path) return;
+    player.path = path;
+    player.target = target || null;
+    tapMark = { x: tx, y: ty, t: 0 };
+  }
+  function interactAhead() {
+    const [dx, dy] = DIRS[player.dir];
+    let ent = entityAt(player.x + dx, player.y + dy);
+    if (!ent) {
+      for (const [ddx, ddy] of DIR_LIST) { ent = entityAt(player.x + ddx, player.y + ddy); if (ent) { player.dir = dirOf(ddx, ddy); break; } }
+    }
+    if (ent) openTalk(ent);
+    else toast('Nobody to talk to here. Walk up to someone first.');
+  }
+  const held = [];
+  const KEY_DIR = { ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right' };
+
+  /* ---------- canvas and painting ---------- */
+  const canvas = $('world');
+  const ctx = canvas.getContext('2d');
+  let W = 0, H = 0, DPR = 1, BGS = 1;
+  let bg = null;
+  let camX = 0, camY = 0;
+  let tapMark = null;
+  const WINDOW_GLOWS = [];
+  const safe = { t: 0, b: 0 };
+  const probe = document.createElement('div');
+  probe.style.cssText = 'position:fixed;inset:0;visibility:hidden;pointer-events:none;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px) 0';
+  document.body.appendChild(probe);
+
+  function resize() {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = canvas.clientWidth || window.innerWidth;
+    H = canvas.clientHeight || window.innerHeight;
+    canvas.width = Math.max(1, Math.round(W * DPR));
+    canvas.height = Math.max(1, Math.round(H * DPR));
+    const ps = getComputedStyle(probe);
+    safe.t = parseFloat(ps.paddingTop) || 0;
+    safe.b = parseFloat(ps.paddingBottom) || 0;
+    const want = Math.min(DPR, 2);
+    if (!bg || want !== BGS) { BGS = want; paintStatic(); }
+  }
+  window.addEventListener('resize', resize);
+
+  function paintTile(g, x, y) {
+    const t = at(x, y), px = x * TILE, py = y * TILE, r = hash(x, y, 3);
+    const BASE = {
+      [GRASS]: '#8db36a', [FLOWERS]: '#8db36a', [TREE]: '#86ad64', [WALL]: '#8db36a', [SAND]: '#e6d2a0',
+      [WATER]: y > 26 ? '#245d6b' : '#2c6b79', [SHALLOW]: '#58a3a4', [PATH]: '#cbbfa8', [PIER]: '#9b6c45',
+      [QUAY]: '#b8b1a3', [ROCK]: '#8d8a82',
+    };
+    g.fillStyle = shade(BASE[t], (r - 0.5) * 10);
+    g.fillRect(px, py, TILE, TILE);
+    if (t === GRASS || t === FLOWERS || t === TREE || t === WALL) {
+      g.strokeStyle = 'rgba(58,90,40,0.35)'; g.lineWidth = 1; g.beginPath();
+      for (let i = 0; i < 4; i++) { const bx = px + hash(x, y, i) * 28 + 2, by = py + hash(x, y, i + 9) * 24 + 6; g.moveTo(bx, by); g.lineTo(bx + 1, by - 4); }
+      g.stroke();
+      if (t === FLOWERS) for (let i = 0; i < 5; i++) { g.fillStyle = ['#f2d24b', '#f7f2e8', '#e57f9a'][i % 3]; g.beginPath(); g.arc(px + hash(x, y, i + 20) * 26 + 3, py + hash(x, y, i + 30) * 26 + 3, 2, 0, TAU); g.fill(); }
+    } else if (t === SAND) {
+      g.fillStyle = 'rgba(150,120,70,0.25)';
+      for (let i = 0; i < 6; i++) g.fillRect(px + hash(x, y, i) * 30, py + hash(x, y, i + 5) * 30, 1.5, 1.5);
+    } else if (t === PATH) {
+      for (let i = 0; i < 4; i++) {
+        const sx = px + (i % 2) * 16 + 2 + hash(x, y, i) * 2, sy = py + Math.floor(i / 2) * 16 + 2 + hash(x, y, i + 4) * 2;
+        g.fillStyle = shade('#cbbfa8', (hash(x, y, i + 8) - 0.5) * 24 - 6);
+        rr(g, sx, sy, 12, 12, 3); g.fill();
+      }
+    } else if (t === PIER) {
+      g.strokeStyle = 'rgba(70,45,25,0.6)'; g.lineWidth = 1;
+      for (let i = 1; i < 4; i++) { g.beginPath(); g.moveTo(px, py + i * 8 + 0.5); g.lineTo(px + TILE, py + i * 8 + 0.5); g.stroke(); }
+      g.fillStyle = '#6e4a2c'; g.fillRect(px + 1, py + 1, 3, 3); g.fillRect(px + TILE - 4, py + TILE - 4, 3, 3);
+    } else if (t === QUAY) {
+      g.strokeStyle = 'rgba(90,85,75,0.5)'; g.lineWidth = 1; g.beginPath();
+      g.moveTo(px, py + 16.5); g.lineTo(px + TILE, py + 16.5);
+      const off = y % 2 ? 0 : 10;
+      g.moveTo(px + off + 0.5, py); g.lineTo(px + off + 0.5, py + 16); g.moveTo(px + ((off + 16) % 32) + 0.5, py + 16); g.lineTo(px + ((off + 16) % 32) + 0.5, py + 32);
+      g.stroke();
+    } else if (t === ROCK) {
+      for (let i = 0; i < 3; i++) {
+        g.fillStyle = shade('#8d8a82', (hash(x, y, i + 2) - 0.5) * 40);
+        g.beginPath(); g.ellipse(px + 6 + hash(x, y, i) * 20, py + 8 + hash(x, y, i + 3) * 18, 7 + hash(x, y, i + 6) * 5, 5 + hash(x, y, i + 7) * 3, 0, 0, TAU); g.fill();
+      }
+    } else if (t === WATER || t === SHALLOW) {
+      g.strokeStyle = 'rgba(255,255,255,0.08)'; g.lineWidth = 1; g.beginPath();
+      const wy = py + 10 + r * 14; g.moveTo(px + 4, wy); g.quadraticCurveTo(px + 12, wy - 3, px + 20, wy); g.stroke();
+      if (t === SHALLOW && inMap(x, y - 1) && [SAND, QUAY].includes(at(x, y - 1))) {
+        g.fillStyle = 'rgba(255,255,255,0.45)'; g.fillRect(px, py, TILE, 3);
+      }
+    }
+  }
+  function paintBuilding(g, b) {
+    const px = b.x * TILE, py = b.y * TILE, w = b.w * TILE, h = b.h * TILE;
+    const wallTop = py + h - 2 * TILE;
+    g.fillStyle = b.wall; g.fillRect(px, wallTop, w, 2 * TILE);
+    g.fillStyle = 'rgba(0,0,0,0.08)'; g.fillRect(px, py + h - 5, w, 5);
+    for (let cx = b.x; cx < b.x + b.w; cx++) {
+      if (cx === b.door) continue;
+      if ((cx - b.x) % 2 === 0 || b.w <= 4) {
+        const wx = cx * TILE + 8, wy = wallTop + 18;
+        g.fillStyle = '#5c4a3a'; g.fillRect(wx - 2, wy - 2, 20, 18);
+        g.fillStyle = '#9ec7d0'; g.fillRect(wx, wy, 16, 14);
+        g.fillStyle = 'rgba(255,255,255,0.35)'; g.fillRect(wx + 2, wy + 2, 4, 10);
+        g.fillStyle = '#5c4a3a'; g.fillRect(wx + 7, wy, 2, 14);
+        WINDOW_GLOWS.push([wx + 8, wy + 7]);
+      }
+    }
+    const dx = b.door * TILE + 7;
+    g.fillStyle = '#5b3b26'; rr(g, dx, py + h - TILE - 8, TILE - 14, TILE + 8, [6, 6, 0, 0]); g.fill();
+    g.fillStyle = '#d9b45a'; g.beginPath(); g.arc(dx + TILE - 18, py + h - 14, 1.6, 0, TAU); g.fill();
+    const roofH = (b.h - 2) * TILE + 8;
+    g.fillStyle = b.roof; g.fillRect(px - 5, py - 8, w + 10, roofH);
+    g.strokeStyle = 'rgba(0,0,0,0.16)'; g.lineWidth = 1; g.beginPath();
+    for (let ry = py - 8 + 7; ry < py - 8 + roofH; ry += 7) { g.moveTo(px - 5, ry + 0.5); g.lineTo(px + w + 5, ry + 0.5); }
+    g.stroke();
+    g.fillStyle = 'rgba(255,255,255,0.14)'; g.fillRect(px - 5, py - 8, w + 10, 5);
+    g.fillStyle = 'rgba(0,0,0,0.2)'; g.fillRect(px, py - 8 + roofH, w, 5);
+    if (b.chimney) {
+      const cx = b.chimney * TILE + 6;
+      g.fillStyle = '#7b4a35'; g.fillRect(cx, py - 22, 14, 22);
+      g.fillStyle = '#4a2c20'; g.fillRect(cx - 2, py - 24, 18, 4);
+    }
+    if (b.name) {
+      g.font = '700 11px "Iowan Old Style", "Palatino Linotype", Georgia, serif';
+      const tw = g.measureText(b.name).width + 14;
+      const sx = Math.max(px, Math.min(px + w - tw, b.door * TILE + 16 - tw / 2)), sy = wallTop - 2;
+      g.fillStyle = '#3b2a1c'; rr(g, sx, sy, tw, 16, 3); g.fill();
+      g.fillStyle = '#f2e3c2'; g.textAlign = 'left'; g.textBaseline = 'middle';
+      g.fillText(b.name, sx + 7, sy + 8.5);
+    }
+  }
+  const LAMP_ROOM = { x: 40 * TILE, y: 12 * TILE - 5.6 * TILE + 16 };
+  function paintLighthouse(g) {
+    const cx = 40 * TILE, baseY = 12 * TILE, bw = 56, tw = 34, th = 5.6 * TILE;
+    g.save();
+    g.beginPath();
+    g.moveTo(cx - bw / 2, baseY); g.lineTo(cx - tw / 2, baseY - th); g.lineTo(cx + tw / 2, baseY - th); g.lineTo(cx + bw / 2, baseY); g.closePath();
+    g.fillStyle = '#f4efe6'; g.fill();
+    g.clip();
+    g.fillStyle = '#b8402c';
+    for (let y = baseY - 30; y > baseY - th; y -= 52) g.fillRect(cx - bw, y - 24, bw * 2, 24);
+    g.fillStyle = 'rgba(0,0,0,0.12)'; g.fillRect(cx + 6, baseY - th, bw, th);
+    g.restore();
+    g.fillStyle = '#2f3237'; g.fillRect(cx - tw / 2 - 6, baseY - th - 4, tw + 12, 5);
+    g.fillStyle = '#26323a'; g.fillRect(cx - 13, baseY - th - 26, 26, 22);
+    g.fillStyle = 'rgba(160,200,210,0.35)'; g.fillRect(cx - 10, baseY - th - 23, 7, 16);
+    g.fillStyle = '#2f3237';
+    g.beginPath(); g.moveTo(cx - 16, baseY - th - 26); g.lineTo(cx, baseY - th - 40); g.lineTo(cx + 16, baseY - th - 26); g.closePath(); g.fill();
+    g.fillStyle = '#4a3423'; rr(g, 39 * TILE + 10, baseY - 26, 16, 26, [8, 8, 0, 0]); g.fill();
+  }
+  function paintDecor(g) {
+    const ax = 19 * TILE, ay = 21 * TILE;
+    g.fillStyle = '#9a948a'; rr(g, ax + 2, ay + 14, 28, 14, 4); g.fill();
+    g.strokeStyle = '#3d3a36'; g.lineWidth = 3; g.lineCap = 'round';
+    g.beginPath(); g.moveTo(ax + 16, ay + 2); g.lineTo(ax + 16, ay + 20); g.moveTo(ax + 9, ay + 7); g.lineTo(ax + 23, ay + 7);
+    g.moveTo(ax + 6, ay + 15); g.quadraticCurveTo(ax + 16, ay + 26, ax + 26, ay + 15); g.stroke();
+    g.beginPath(); g.arc(ax + 16, ay + 2, 3, 0, TAU); g.stroke();
+    const nx = 18 * TILE, ny = 11 * TILE;
+    g.fillStyle = '#5b3b26'; g.fillRect(nx + 6, ny + 12, 3, 18); g.fillRect(nx + 23, ny + 12, 3, 18);
+    g.fillStyle = '#7a5233'; g.fillRect(nx + 3, ny + 4, 26, 16);
+    g.fillStyle = '#f2ead8'; g.fillRect(nx + 6, ny + 7, 9, 10); g.fillRect(nx + 17, ny + 6, 9, 8);
+    const kx = 21 * TILE + 16, ky = 11 * TILE;
+    g.fillStyle = '#2f3237'; g.fillRect(kx - 2, ky + 10, 4, 22);
+    g.fillStyle = '#f2ead8'; g.beginPath(); g.arc(kx, ky + 8, 8, 0, TAU); g.fill();
+    g.strokeStyle = '#2f3237'; g.lineWidth = 1.5; g.stroke();
+    g.beginPath(); g.moveTo(kx, ky + 8); g.lineTo(kx, ky + 3); g.moveTo(kx, ky + 8); g.lineTo(kx + 4, ky + 8); g.stroke();
+    for (const [lx, ly] of LAMPS) {
+      const x = lx * TILE + 16, y = ly * TILE;
+      g.fillStyle = '#2f3237'; g.fillRect(x - 1.5, y + 6, 3, 24);
+      g.fillStyle = '#3b3f46'; g.fillRect(x - 5, y, 10, 8);
+      g.fillStyle = '#f2d98c'; g.fillRect(x - 3, y + 2, 6, 4);
+    }
+    for (const [cx, cy] of CRATES) {
+      const x = cx * TILE + 5, y = cy * TILE + 6;
+      g.fillStyle = '#8a6239'; g.fillRect(x, y, 22, 22);
+      g.strokeStyle = '#5e4126'; g.lineWidth = 2; g.strokeRect(x + 1, y + 1, 20, 20);
+      g.beginPath(); g.moveTo(x + 2, y + 2); g.lineTo(x + 20, y + 20); g.stroke();
+    }
+    const boat = (bx, by, w, hull, cabin) => {
+      g.fillStyle = 'rgba(0,0,0,0.18)'; g.beginPath(); g.ellipse(bx + w / 2, by + 20, w / 2 + 4, 7, 0, 0, TAU); g.fill();
+      g.fillStyle = hull; g.beginPath(); g.moveTo(bx, by + 6); g.lineTo(bx + w, by + 6); g.lineTo(bx + w - 8, by + 20); g.lineTo(bx + 8, by + 20); g.closePath(); g.fill();
+      g.fillStyle = 'rgba(255,255,255,0.8)'; g.fillRect(bx + 2, by + 6, w - 4, 2);
+      if (cabin) { g.fillStyle = '#f4efe6'; g.fillRect(bx + w * 0.35, by - 6, w * 0.3, 12); g.fillStyle = '#2f5d6e'; g.fillRect(bx + w * 0.35, by - 8, w * 0.3, 3); }
+    };
+    boat(5 * TILE + 4, 24 * TILE + 8, 56, '#2f5d6e', true);
+    boat(23 * TILE + 6, 23 * TILE + 14, 30, '#b8402c', false);
+    boat(20 * TILE + 4, 24 * TILE + 18, 30, '#c99a2e', false);
+    for (const [px, py] of [[29, 23], [31, 23]]) {
+      g.fillStyle = '#3e8487'; g.beginPath(); g.ellipse(px * TILE + 16, py * TILE + 14, 12, 7, 0, 0, TAU); g.fill();
+      g.fillStyle = '#e57f5a'; g.beginPath(); g.arc(px * TILE + 12, py * TILE + 13, 2, 0, TAU); g.fill();
+    }
+  }
+  function paintTree(g, x, y) {
+    const cx = x * TILE + 16, cy = y * TILE + 22;
+    g.fillStyle = 'rgba(30,40,20,0.25)'; g.beginPath(); g.ellipse(cx, cy + 6, 12, 4, 0, 0, TAU); g.fill();
+    g.fillStyle = '#6b4a2c'; g.fillRect(cx - 2.5, cy - 6, 5, 12);
+    g.fillStyle = shade('#4f7d46', (hash(x, y, 40) - 0.5) * 20);
+    g.beginPath(); g.arc(cx, cy - 14, 13, 0, TAU); g.fill();
+    g.fillStyle = 'rgba(255,255,255,0.12)'; g.beginPath(); g.arc(cx - 4, cy - 18, 6, 0, TAU); g.fill();
+  }
+  function paintStatic() {
+    WINDOW_GLOWS.length = 0;
+    bg = document.createElement('canvas');
+    bg.width = MW * TILE * BGS; bg.height = MH * TILE * BGS;
+    const g = bg.getContext('2d');
+    g.scale(BGS, BGS);
+    for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) paintTile(g, x, y);
+    paintDecor(g);
+    for (const b of BUILDINGS) paintBuilding(g, b);
+    paintLighthouse(g);
+    for (let y = 0; y < MH; y++) for (let x = 0; x < MW; x++) if (at(x, y) === TREE) paintTree(g, x, y);
+  }
+  let glowSprite = null;
+  function makeGlow() {
+    const c = document.createElement('canvas'); c.width = c.height = 128;
+    const g = c.getContext('2d');
+    const gr = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+    gr.addColorStop(0, 'rgba(255,214,140,0.95)'); gr.addColorStop(0.35, 'rgba(255,190,110,0.45)'); gr.addColorStop(1, 'rgba(255,170,90,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, 128, 128);
+    return c;
+  }
+  const TINT = { morning: '#fbe8cf', afternoon: null, evening: '#f0b48a', night: '#4d5c96' };
+
+  function snapCamera() {
+    const t = cameraTarget();
+    camX = t[0]; camY = t[1];
+  }
+  function cameraTarget() {
+    let fx, fy;
+    if (beamOn) { fx = LAMP_ROOM.x; fy = LAMP_ROOM.y + 120; }
+    else {
+      const k = player.moving ? Math.min(1, player.mt / STEP) : 1;
+      fx = (player.fromX + (player.x - player.fromX) * k) * TILE + 16;
+      fy = (player.fromY + (player.y - player.fromY) * k) * TILE + 16;
+    }
+    const worldW = MW * TILE, worldH = MH * TILE;
+    const tx = worldW <= W ? (worldW - W) / 2 : Math.max(0, Math.min(worldW - W, fx - W / 2));
+    const ty = worldH <= H ? (worldH - H) / 2 : Math.max(0, Math.min(worldH - H, fy - H / 2));
+    return [tx, ty];
+  }
+
+  let clock = 0;
+  function render(dt) {
+    const [tx, ty] = cameraTarget();
+    const k = 1 - Math.exp(-dt * (beamOn ? 2.5 : 12));
+    camX += (tx - camX) * k; camY += (ty - camY) * k;
+    const cx = Math.round(camX), cy = Math.round(camY);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = '#245d6b';
+    ctx.fillRect(0, 0, W, H);
+    const sx0 = Math.max(0, cx), sy0 = Math.max(0, cy);
+    const sx1 = Math.min(MW * TILE, cx + W), sy1 = Math.min(MH * TILE, cy + H);
+    if (sx1 > sx0 && sy1 > sy0) ctx.drawImage(bg, sx0 * BGS, sy0 * BGS, (sx1 - sx0) * BGS, (sy1 - sy0) * BGS, sx0 - cx, sy0 - cy, sx1 - sx0, sy1 - sy0);
+
+    // water sparkle
+    const tx0 = Math.max(0, Math.floor(cx / TILE)), ty0 = Math.max(0, Math.floor(cy / TILE));
+    const tx1 = Math.min(MW - 1, Math.floor((cx + W) / TILE)), ty1 = Math.min(MH - 1, Math.floor((cy + H) / TILE));
+    if (!REDUCED) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 1.2; ctx.beginPath();
+      for (let y = ty0; y <= ty1; y++) for (let x = tx0; x <= tx1; x++) {
+        const t = at(x, y);
+        if (t !== WATER && t !== SHALLOW) continue;
+        const h = hash(x, y, 50);
+        const ox = ((clock * 10 + h * 32) % 40) - 8, oy = 8 + h * 18 + Math.sin(clock * 1.6 + x) * 2;
+        const px = x * TILE - cx + ox, py = y * TILE - cy + oy;
+        ctx.moveTo(px, py); ctx.lineTo(px + 7, py);
+      }
+      ctx.stroke();
+    }
+
+    // glassworks smoke
+    for (let i = 0; i < 5; i++) {
+      const p = (clock * 0.25 + i / 5) % 1;
+      ctx.fillStyle = `rgba(225,220,212,${(1 - p) * 0.4})`;
+      ctx.beginPath(); ctx.arc(24 * TILE + 13 - cx + Math.sin(p * 6 + i) * 6, 6 * TILE - 26 - cy - p * 60, 4 + p * 10, 0, TAU); ctx.fill();
+    }
+
+    // people, sorted so nearer figures overlap
+    const figs = [];
+    for (const n of NPCS) if (n.here) figs.push({ y: n.y, draw: () => {
+      const bob = REDUCED ? 0 : Math.sin(clock * 2 + n.x) * 0.6;
+      drawPerson(ctx, n.look, n.x * TILE + 16 - cx, n.y * TILE + 28 - cy + bob, convo && convo.ent === n ? dirOf(player.x - n.x, player.y - n.y) : (n.dir || 'down'), 0);
+    } });
+    const pk = player.moving ? Math.min(1, player.mt / STEP) : 1;
+    const prx = player.fromX + (player.x - player.fromX) * pk, pry = player.fromY + (player.y - player.fromY) * pk;
+    if (!beamOn || true) figs.push({ y: pry, draw: () => drawPerson(ctx, 'player', prx * TILE + 16 - cx, pry * TILE + 28 - cy, player.dir, player.walk) });
+    figs.sort((a, b) => a.y - b.y).forEach((f) => f.draw());
+
+    // tap marker
+    if (tapMark) {
+      tapMark.t += dt;
+      if (tapMark.t > 0.6) tapMark = null;
+      else {
+        ctx.strokeStyle = `rgba(255,255,255,${0.8 - tapMark.t})`; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.ellipse(tapMark.x * TILE + 16 - cx, tapMark.y * TILE + 24 - cy, 8 + tapMark.t * 14, 4 + tapMark.t * 6, 0, 0, TAU); ctx.stroke();
+      }
+    }
+
+    // light of the hour
+    const ph = phase();
+    const tint = started ? TINT[ph] : TINT.evening;
+    if (tint) { ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = tint; ctx.fillRect(0, 0, W, H); ctx.globalCompositeOperation = 'source-over'; }
+    const glowA = !started ? 0.45 : ph === 'night' ? 0.95 : ph === 'evening' ? 0.5 : 0;
+    if (!glowSprite) glowSprite = makeGlow();
+    ctx.globalCompositeOperation = 'lighter';
+    const glow = (wx, wy, r, a) => { ctx.globalAlpha = a; ctx.drawImage(glowSprite, wx - cx - r, wy - cy - r, r * 2, r * 2); };
+    glow(23 * TILE + 16, 9 * TILE + 20, 70, 0.35 + glowA * 0.35);
+    if (glowA > 0) {
+      for (const [lx, ly] of LAMPS) glow(lx * TILE + 16, ly * TILE + 4, 80, glowA * 0.8);
+      for (const [wx, wy] of WINDOW_GLOWS) glow(wx, wy, 34, glowA * 0.6);
+      if (ph === 'night' && started) glow(prx * TILE + 16, pry * TILE + 12, 70, 0.45);
+    }
+    if (beamOn) {
+      glow(LAMP_ROOM.x, LAMP_ROOM.y, 90, 1);
+      const a = clock * 0.9;
+      ctx.globalAlpha = 0.35;
+      const g = ctx.createLinearGradient(LAMP_ROOM.x - cx, LAMP_ROOM.y - cy, LAMP_ROOM.x - cx + Math.cos(a) * 900, LAMP_ROOM.y - cy + Math.sin(a) * 900);
+      g.addColorStop(0, 'rgba(255,248,220,1)'); g.addColorStop(1, 'rgba(255,248,220,0)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.moveTo(LAMP_ROOM.x - cx, LAMP_ROOM.y - cy);
+      ctx.lineTo(LAMP_ROOM.x - cx + Math.cos(a - 0.12) * 900, LAMP_ROOM.y - cy + Math.sin(a - 0.12) * 900);
+      ctx.lineTo(LAMP_ROOM.x - cx + Math.cos(a + 0.12) * 900, LAMP_ROOM.y - cy + Math.sin(a + 0.12) * 900);
+      ctx.closePath(); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'source-over';
+    if (started && ph === 'night' && !beamOn) {
+      const thick = L.bell >= 8 ? 0.16 : 0.1;
+      for (let i = 0; i < 6; i++) {
+        const fx = ((i * 260 + clock * 12 * (i % 2 ? 1 : -1)) % (W + 400) + W + 400) % (W + 400) - 200;
+        const fy = (i * 173) % Math.max(1, H);
+        const gr = ctx.createRadialGradient(fx, fy, 0, fx, fy, 240);
+        gr.addColorStop(0, `rgba(220,228,236,${thick})`); gr.addColorStop(1, 'rgba(220,228,236,0)');
+        ctx.fillStyle = gr; ctx.fillRect(fx - 240, fy - 240, 480, 480);
+      }
+    }
+
+    // names, markers and the talk hint
+    if (started && !beamOn) {
+      ctx.font = '600 12px "Segoe UI", system-ui, sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      const [fdx, fdy] = DIRS[player.dir];
+      const facing = entityAt(player.x + fdx, player.y + fdy);
+      for (const n of NPCS) {
+        if (!n.here) continue;
+        const sx = n.x * TILE + 16 - cx, sy = n.y * TILE - cy;
+        const near = Math.abs(n.x - player.x) + Math.abs(n.y - player.y) <= 4;
+        if (near) {
+          ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(30,24,18,0.75)'; ctx.strokeText(n.name, sx, sy - 18);
+          ctx.fillStyle = '#f7f0e1'; ctx.fillText(n.name, sx, sy - 18);
+        }
+        if (!L.talked[n.id]) {
+          ctx.fillStyle = '#f7f0e1'; rr(ctx, sx + 6, sy - 40, 22, 14, 6); ctx.fill();
+          ctx.strokeStyle = '#8a6b45'; ctx.lineWidth = 1.2; ctx.stroke();
+          ctx.fillStyle = '#2b2622'; ctx.fillText('…', sx + 17, sy - 34);
+        }
+      }
+      for (const o of OBJECTS) {
+        if (Math.abs(o.x - player.x) + Math.abs(o.y - player.y) > 3) continue;
+        const sx = o.x * TILE + 16 - cx, sy = o.y * TILE - cy + Math.sin(clock * 3) * 2;
+        ctx.fillStyle = '#c99a2e'; ctx.beginPath(); ctx.moveTo(sx, sy - 12); ctx.lineTo(sx + 5, sy - 6); ctx.lineTo(sx, sy); ctx.lineTo(sx - 5, sy - 6); ctx.closePath(); ctx.fill();
+      }
+      if (facing && !convo && matchMedia('(hover: hover)').matches) {
+        const sx = facing.x * TILE + 16 - cx, sy = facing.y * TILE - cy;
+        ctx.fillStyle = '#2b2622'; rr(ctx, sx - 28, sy + 36, 56, 18, 5); ctx.fill();
+        ctx.fillStyle = '#f7f0e1'; ctx.fillText('E  Talk', sx, sy + 45.5);
+      }
+    }
+  }
+
+  /* ---------- update loop ---------- */
+  function update(dt) {
+    clock += dt;
+    if (!started || ended || convo || overlayOpen()) { player.moving = false; return; }
+    if (player.moving) {
+      player.mt += dt;
+      player.walk += dt * 14;
+      if (player.mt >= STEP) { player.moving = false; player.fromX = player.x; player.fromY = player.y; }
+    }
+    if (player.moving) return;
+    if (player.path.length) {
+      const ni = player.path.shift(), nx = ni % MW, ny = (ni - nx) / MW;
+      if (walkable(nx, ny)) { startMove(nx, ny); return; }
+      player.path = []; player.target = null;
+    }
+    if (player.target) {
+      const t = player.target;
+      player.target = null;
+      if (Math.abs(t.x - player.x) + Math.abs(t.y - player.y) === 1) { player.dir = dirOf(t.x - player.x, t.y - player.y); openTalk(t); return; }
+    }
+    const dir = held.length ? held[held.length - 1] : null;
+    if (dir) {
+      const [dx, dy] = DIRS[dir];
+      player.dir = dir;
+      if (walkable(player.x + dx, player.y + dy)) startMove(player.x + dx, player.y + dy);
+    }
+  }
+  let lastT = 0;
+  function frame(ts) {
+    requestAnimationFrame(frame);
+    const now = ts / 1000;
+    const dt = Math.min(0.05, Math.max(0, now - lastT));
+    lastT = now;
+    update(dt);
+    render(dt);
+  }
+
+  /* ---------- input ---------- */
+  window.addEventListener('keydown', (e) => {
+    const k = e.code;
+    if (convo) {
+      const m = /^(?:Digit|Numpad)([1-9])$/.exec(k);
+      if (m) { const c = currentChoices[Number(m[1]) - 1]; if (c && !(c.check && L.failed[c.check.key])) { e.preventDefault(); choose(c); } return; }
+      if (k === 'Escape') { const c = currentChoices.find((x) => x.end) || currentChoices.find((x) => x.label === 'Back'); if (c) choose(c); }
+      return;
+    }
+    if (!$('noteScreen').hidden && (k === 'Escape' || k === 'KeyN')) { closeNotebook(); return; }
+    if (overlayOpen() || !started || ended) return;
+    if (KEY_DIR[k]) {
+      e.preventDefault();
+      player.path = []; player.target = null;
+      const d = KEY_DIR[k];
+      const i = held.indexOf(d); if (i >= 0) held.splice(i, 1);
+      held.push(d);
+      return;
+    }
+    if (e.repeat) return;
+    if (k === 'KeyE' || k === 'Space' || k === 'Enter') { e.preventDefault(); interactAhead(); }
+    else if (k === 'KeyN') openNotebook();
+    else if (k === 'KeyT') advanceBell();
+  });
+  window.addEventListener('keyup', (e) => {
+    const d = KEY_DIR[e.code];
+    if (d) { const i = held.indexOf(d); if (i >= 0) held.splice(i, 1); }
+  });
+  window.addEventListener('blur', () => { held.length = 0; });
+  canvas.addEventListener('pointerdown', (e) => {
+    if (!started || ended || convo || overlayOpen()) return;
+    e.preventDefault();
+    const wx = e.clientX + Math.round(camX), wy = e.clientY + Math.round(camY);
+    const tx = Math.floor(wx / TILE), ty = Math.floor(wy / TILE);
+    const ent = entityAt(tx, ty) || entityAt(tx, ty + 1);
+    if (ent) {
+      if (Math.abs(ent.x - player.x) + Math.abs(ent.y - player.y) === 1) { player.dir = dirOf(ent.x - player.x, ent.y - player.y); openTalk(ent); }
+      else walkTo(ent.x, ent.y, ent);
+    } else if (inMap(tx, ty)) walkTo(tx, ty, null);
+  });
+
+  $('noteBtn').addEventListener('click', () => openNotebook());
+  $('waitBtn').addEventListener('click', () => { if (started && !convo && !overlayOpen() && !ended) advanceBell(); });
+  $('noteClose').addEventListener('click', () => closeNotebook());
+  $('dawnBtn').addEventListener('click', () => beginDay());
+  $('againBtn').addEventListener('click', () => startNew());
+  $('newBtn').addEventListener('click', () => startNew());
+  $('soundBtn').addEventListener('click', () => setSound(muted));
+  $('soundBtn2').addEventListener('click', () => setSound(muted));
+  for (const b of document.querySelectorAll('#levelScreen [data-skill]')) b.addEventListener('click', () => pickSkill(b.dataset.skill));
+
+  /* ---------- boot ---------- */
+  buildMap();
+  resize();
+  setSound(!muted);
+  placeNPCs();
+  snapCamera();
+  const saved = loadSave();
+  if (saved && !saved.ended && !TESTING) {
+    const cb = $('continueBtn');
+    cb.hidden = false;
+    cb.textContent = `Continue · day ${saved.P.loop}`;
+    cb.addEventListener('click', () => continueGame(saved));
+    $('newBtn').textContent = 'Start over';
+    $('newBtn').classList.remove('primary');
+    $('titleNote').textContent = 'Start over clears your notebook and skills.';
+  }
+  if (TESTING) startNew();
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

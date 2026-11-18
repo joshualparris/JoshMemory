@@ -1059,7 +1059,7 @@ h1 span { background: linear-gradient(transparent 62%, var(--accent) 62%); }
   if (saved && !TESTING) {
     const cb = $('continueBtn');
     cb.hidden = false;
-    cb.textContent = `Continue your factory (milestone ${Math.min(MILESTONES.length, (saved.msIndex | 0) + 1)})`;
+    cb.textContent = saved.finished ? 'Continue your certified factory' : `Continue your factory (milestone ${Math.min(MILESTONES.length, (saved.msIndex | 0) + 1)})`;
     cb.addEventListener('click', () => begin(saved));
     $('newBtn').textContent = 'Start over';
     $('newBtn').classList.remove('primary');
