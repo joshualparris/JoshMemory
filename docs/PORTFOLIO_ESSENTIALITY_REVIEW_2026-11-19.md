@@ -44,3 +44,9 @@ The Ideas workflow was traced from material selection and filtering in `index.ht
 The SylvieApp and EliasApp2 public entry URLs responded to HTTP requests. Their source documentation and QA records describe child-facing play and local persistence. This review did not verify real-device interaction or recurring household use. The family cluster therefore leads on values fit, with Ideas a plausible co-play tool and no proven individual winner.
 
 FaithHub has the strongest recorded evidence of a values-led feature shipped and tested on a deployment (see [verification report](VALUES_FAITHHUB_VERIFICATION_2026-11-14.md)). Remembering Paul Roe has stronger evidence of participation from outside the maintainer and remains the preservation priority. Healthiest Food has direct firsthand interaction evidence and serves a recurring batch-prep need. JoshMemory and AutoPatch are enabling infrastructure. No universal first-place ranking is supported by comparable usage evidence.
+
+## Cross-session evidence update, 19 November 2026
+
+The cancelled inventory run cited above predates subsequent AutoPatch work. [Threat watch PR 111](https://github.com/joshualparris/JoshDashboard4/pull/111) added scheduled checks for secrets, third-party website script changes and repository access changes. GitHub code search returned seven-day Dependabot settings in nine distinct repositories across the two main owners. This is a search lower bound. The other session reported 19 configured repositories and 88 tested PR merges. The underlying full lists and per-PR test results were unavailable in this review. Successful unattended production repair remains a separate question.
+
+For Healthiest Food, the other session reported both Browse recipes and the start-cooking navigation worked on the live site using Chromium at iPad size. Physical iPad Safari behaviour remains unverified. These results update the earlier snapshot.
