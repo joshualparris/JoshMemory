@@ -1,0 +1,27 @@
+name: Arcade missing-audio fallback regression
+on:
+  push:
+    branches: [fix/arcade-missing-audio-fallbacks-20261118]
+    paths: ['.github/workflows/audio-assets-browser.yml','repository-town/games/whispering-wilds-web/**','repository-town/games/midnight-line/**','repository-town/tests/audio-assets-browser.mjs']
+  pull_request:
+    paths: ['.github/workflows/audio-assets-browser.yml','repository-town/games/whispering-wilds-web/**','repository-town/games/midnight-line/**','repository-town/tests/audio-assets-browser.mjs']
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: '22' }
+      - name: Install Chromium
+        working-directory: repository-town
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund
+          npx playwright install --with-deps chromium
+      - name: Browser smoke missing sound assets
+        working-directory: repository-town
+        run: |
+          python3 -m http.server 8734 >/tmp/audio-browser-server.log 2>&1 &
+          node tests/audio-assets-browser.mjs
