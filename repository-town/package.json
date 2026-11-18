@@ -25,7 +25,7 @@
     "test:resident-quaternius": "node tests/resident-quaternius-browser.mjs"
   },
   "devDependencies": {
-    "brython": "^3.12.4",
+    "brython": "^3.15.0",
     "esbuild": "^0.28.2",
     "playwright": "1.65.1",
     "sql.js": "^1.10.3",
