@@ -75,7 +75,7 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Cache Playwright Chromium
         id: browser-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: playwright-chromium-${{ runner.os }}-1.56.1
@@ -165,7 +165,7 @@ jobs:
         run: npm ci --no-audit --no-fund
       - name: Cache Playwright Chromium
         id: browser-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: playwright-chromium-${{ runner.os }}-1.56.1
