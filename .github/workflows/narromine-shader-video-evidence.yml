@@ -34,7 +34,7 @@ jobs:
           echo "Shared game source SHA: $(git rev-parse HEAD)"
           echo "Shaders pinned: ec085dd824be (before) and f2810b93242 (PR #408)"
       - name: Node 22 with pinned dependency cache
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '22'
           cache: npm
