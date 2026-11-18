@@ -1,5 +1,7 @@
 # JoshMemory
 
+For prior portfolio research or current project status, start with the [agent handoff guide](docs/AGENT_HANDOFF.md).
+
 ## Portfolio review step IDs
 
 **Next exact procedural task:** `TR-003.01`. Read the [central 1,864-step numbered triage checklist](docs/PORTFOLIO_TRIAGE_TASK_STEPS_2026-10-25.md) and [complete public-safe child task register](docs/PORTFOLIO_TRIAGE_TASK_STEPS_2026-10-25.csv). These eight task steps belong to each repository review; project implementation TODOs retain their original unique IDs.
@@ -172,15 +174,7 @@ C:\dev\MyApp
 
 when both clones correspond to the same canonical repository. The local checkout path is a ranking preference rather than a global identity barrier.
 
-A typical startup flow is:
-
-1. identify the local project and canonical repository;
-2. load the latest relevant handoff;
-3. audit live branch/HEAD/dirty state;
-4. surface discrepancies;
-5. check whether another agent already owns the work item;
-6. continue from the first still-valid next action;
-7. save a new handoff at a meaningful checkpoint, blocker or session end.
+Identify the project and canonical repository, then follow the [shared handoff and claims rules](AGENTS.md). Check the live branch, HEAD and working tree before resuming.
 
 ## Coordination and memory governance
 

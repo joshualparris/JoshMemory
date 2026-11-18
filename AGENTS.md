@@ -10,9 +10,9 @@ All coding-agent work under `/home/josh` follows [ENGINEERING_PRINCIPLES_v5.1.md
 Before changing a repository:
 1. Read its local `AGENTS.md` and README.
 2. Confirm the repository's assurance tier and canonical-repository role.
-3. Understand the affected architecture and current branch state.
+3. For substantial work, follow the [handoff guide](docs/AGENT_HANDOFF.md). Read the latest handoff, check active claims across work keys and compare it with the affected architecture and current branch state. If the claims lookup fails, ownership is unknown. Claim the specific change before editing and release it when finished.
 4. Make a small, complete change and run proportionate checks.
-5. Report evidence, including failures and unverified claims.
+5. At handoff, record what changed, the proof, remaining uncertainty and the next unclaimed action.
 
 If canonical ownership, required context, or a safe interpretation is unclear, stop the affected change and report the blocker. Do not guess around a MUST. Preserve unrelated user changes.
 

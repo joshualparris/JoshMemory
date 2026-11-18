@@ -5,7 +5,9 @@ and live in `joshualparris/JoshDashboard4` under `joshmemory-cloud/v1/`.
 Never commit raw transcripts, ChatGPT exports, SQLite databases, generated
 `docs/data/`, personal values, credentials, or private cloud payloads.
 
-## Current state
+For prior studies, latest handoffs and active claims, authorised agents should start at the root README of the private repository named above. If access fails, report what remains unknown. Keep private study findings in the private repository.
+
+## September 2026 SQLite migration snapshot
 
 - `main` is the canonical public source branch.
 - The SQLite migration repair is merged in commit `043a7ca` (PR #2).
