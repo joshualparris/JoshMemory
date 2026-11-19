@@ -4,6 +4,7 @@ on:
     paths:
       - 'repository-town/src/multiplayer/**'
       - 'repository-town/tests/multiplayer-live.mjs'
+      - 'repository-town/tests/multiplayer-worker-protocol.mjs'
       - 'repository-town/tests/multiplayer-admission.mjs'
       - 'repository-town/tests/multiplayer-body-limit.mjs'
       - 'repository-town/tests/multiplayer-browser.mjs'
@@ -43,10 +44,13 @@ jobs:
           node --check src/main.js
           node --check deploy/multiplayer-worker.js
           node --check tests/multiplayer-live.mjs
+          node --check tests/multiplayer-worker-protocol.mjs
           node --check tests/multiplayer-admission.mjs
           node --check tests/multiplayer-body-limit.mjs
       - name: Verify Worker pending-connection limit using only in-memory sockets
         run: node tests/multiplayer-admission.mjs
+      - name: Verify chat, whisper, emote, roster and AOI protocol using in-memory sockets
+        run: node tests/multiplayer-worker-protocol.mjs
       - name: Verify local authentication body limits (no network)
         run: node tests/multiplayer-body-limit.mjs
       - name: Exercise two different accounts on actual deployed WebSocket server
