@@ -99,6 +99,9 @@ jobs:
           cache-dependency-path: repository-town/package-lock.json
       - name: Install pinned Node dependencies
         run: npm ci --no-audit --no-fund
+      - name: Record reviewed protected-geometry baseline (temporary PR 627 diagnostic)
+        if: github.event_name == 'pull_request' && github.event.pull_request.number == 627
+        run: node tests/generic-buildings-protection.mjs --record
       - name: Full release build, integration, geometry, privacy and integrity
         run: npm run build:release
       - name: Cache Playwright Chromium
