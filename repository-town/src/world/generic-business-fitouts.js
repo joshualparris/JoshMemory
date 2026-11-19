@@ -47,7 +47,10 @@ const KIND_PROFILE=Object.freeze({...REMAINING_KIND_PROFILES,hairdresser:'salon'
   agrarian:'rural',trade:'irrigation',houseware:'homewares',second_hand:'homewares',charity:'homewares'});
 // These expansion IDs were using the same generic office shell. Nothing else
 // is eligible, even when a dedicated facade happens to share a style/kind.
-export const GENERIC_CIVIC_SITES=Object.freeze({...REMAINING_CIVIC_SITES,hairdresser:'salon',beauty:'beauty',laundry:'laundry',
+// Veterinary surgery has a dedicated linked-service interior; keep its legacy inventory row
+// in REMAINING_CIVIC_SITES, but never route it through the generic room fallback.
+const GENERIC_REMAINING_CIVIC_SITES=Object.fromEntries(Object.entries(REMAINING_CIVIC_SITES).filter(([id])=>id!=='vet'));
+export const GENERIC_CIVIC_SITES=Object.freeze({...GENERIC_REMAINING_CIVIC_SITES,hairdresser:'salon',beauty:'beauty',laundry:'laundry',
   opshop:'clothing',farmsupplies:'rural',stockfeed:'rural',irrigation:'irrigation',
   employment:'employment',homewares:'homewares'});
 export const genericProfileForKind=kind=>KIND_PROFILE[kind]||null;

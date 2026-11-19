@@ -1,5 +1,15 @@
 # The Merged Branch (B:pub; N8-S) — NSW October 2026 building-code and hospitality audit
 
+
+## 19 November 2026 source-fingerprint reconciliation
+
+The code-integrity manifest was reconciled after reviewing two changes outside the pub-specific design:
+
+- `repository-town/src/main.js`: authenticated multiplayer bootstrap and UI/input lifecycle only.
+- `repository-town/src/world/shop-interior.js`: one early dispatch for the dedicated veterinary interior; the existing pub dispatch remains unchanged.
+
+Neither change alters the pub's geometry, rooms, utilities, staff/service interactions, accessibility or compliance evidence. The code-matrix blob fingerprints were updated to the reviewed commits; **no compliance finding was closed, no certification was claimed, and the existing evidence limitations remain in force**.
+
 **Prepared:** 25 October 2026 · **status:** source-code and published-rule gap audit · **decision:** **NOT CERTIFIABLE AS MODELLED** — numerous unrepresented systems and incompatible scene dimensions. **Not** an assertion of formal noncompliance by an actual physical pub, a building safety certificate, a completed hosted playtest or engineering approval. **No runtime/model edits made by this standards audit; a separate utilities pilot did add fixtures and counters subsequently.** Existing pub interior/test coverage is attractive for a game but not a code-compliance evidence package.
 
 ## Historical year now established in game canon (25 October 2026)

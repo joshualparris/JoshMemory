@@ -1,11 +1,11 @@
 {
   "schemaVersion": 2,
-  "asOf": "2026-10-26",
+  "asOf": "2026-11-19",
   "locationId": "B:pub",
   "gameAddress": "N8-S",
   "name": "The Merged Branch",
   "repository": "joshualparris/JoshMemory",
-  "basis": "Two above-ground storeys plus cellar, per PUB_CELLAR_UPSTAIRS_2026-10-26.md; all regulatory approvals remain unverified.",
+  "basis": "Two above-ground storeys plus cellar, per PUB_CELLAR_UPSTAIRS_2026-10-26.md; all regulatory approvals remain unverified. 19 Nov 2026 source-fingerprint reconciliation: the main.js multiplayer bootstrap and dedicated veterinary-interior dispatch were reviewed; neither changes the pub-specific layout, services, utilities or compliance findings.",
   "nccAsAtDate": "NCC 2022 Amendment 2 (NSW, effective 2025-07-29); NSW NCC 2025 planned commencement 2027-05-01",
   "provisionalBuildingClassification": "NCC NSW Class 6 hospitality bar/dining; confirm ancillary/mixed classification and actual approvals",
   "sourceBlobs": {
@@ -14,12 +14,12 @@
     "repository-town/src/world/life.js": "2c97809422dd4be55672d31e07f305092ce9efad",
     "repository-town/src/world/power-grid.js": "6de3f54d8fe576117594fe36124748e36da4e255",
     "repository-town/src/world/pub-interior.js": "46396a0552d2480f3c31585e77199803433ab6b6",
-    "repository-town/src/world/shop-interior.js": "a8c962c00d0bba0136b009c86a6ff68226852c46",
+    "repository-town/src/world/shop-interior.js": "9b63de348aeb6d41682be1b70266ec40c9b3173c",
     "repository-town/src/world/townlife.js": "406bd0f056bf6d6385d4dd820bd49f4b24070574",
     "repository-town/tests/shop-interiors.mjs": "0ca369aa2d241c152edb841c1125aa9319241a0d",
     "repository-town/src/world/pub-history.js": "484804db55201b6e290ffb2d484559f848cec930",
     "repository-town/src/world/pub-envelope.js": "fc0230ee033661ee9503b40e6090f91ca8f27444",
-    "repository-town/src/main.js": "52bd9d049e7a2ed055dfb1d17b21ffc2c644d581",
+    "repository-town/src/main.js": "e796364293e7d6ef61125551bf2a54fe228505c7",
     "repository-town/src/world/pub-service-visuals.js": "d6bdd11a39de45319a74d833df775306d5bfb69b",
     "repository-town/src/world/pub-physical-plan-2026.js": "afd7f2d3f3b51d446dbcbf3de0b2228bf1284997",
     "repository-town/src/ui/pub-standards-panel.js": "ca913a07cd946bc7a72325a7cbcbfda1a691d91c",
@@ -1350,7 +1350,9 @@
     {
       "date": "2026-11-07",
       "by": "Perplexity Computer STARTUP-PROGRESS-001 source-impact review",
-      "changedFiles": ["repository-town/src/main.js"],
+      "changedFiles": [
+        "repository-town/src/main.js"
+      ],
       "finding": "Reviewed diff against 00a9e7df: ordered startup stage/yield calls, observational Three.js default loading-manager wrappers preserving callbacks, fatal loading UI forwarding, and first-frame render before dismissing the loader. No pub builders, service handlers, floor routes, equipment, envelope, egress or simulation rules changed. Main source fingerprint refreshed for provenance only; no engineering, regulatory, production or performance acceptance upgraded."
     },
     {
@@ -1382,6 +1384,22 @@
         "repository-town/src/world/narromine-workplaces.js"
       ],
       "finding": "Only Narromine's shared-mapped-workplace threshold logic and user choice panel change; all 15 entrance groups/43 identifiers preserved. No real door relocation, pub geometry, physical egress or building-code finding changed. Reviewed narrow main.js diff; audited blob 38ec30d8adb44c7dd41cdcd2521dd840ae635f9a -> d251b9da121a59f86650e040bab8d9204f4405e0. Regression and actual WebGL checks required. Follow-up keeps cancelled chooser disarmed until player clears the held door by 1.7 m (below the measured model's 2.2 m outside return pose), including overlapping home sensors; reviewed exact source blob 57ccc3b8c1e49acf5fd75d2f30f55541ae57c33c. No production claim."
+    }
+  ],
+  "sourceReconciliations": [
+    {
+      "date": "2026-11-19",
+      "path": "repository-town/src/main.js",
+      "previousBlob": "52bd9d049e7a2ed055dfb1d17b21ffc2c644d581",
+      "currentBlob": "e796364293e7d6ef61125551bf2a54fe228505c7",
+      "reviewedScope": "Authenticated multiplayer bootstrap and input/UI lifecycle only; no pub-specific geometry, services or compliance logic changed."
+    },
+    {
+      "date": "2026-11-19",
+      "path": "repository-town/src/world/shop-interior.js",
+      "previousBlob": "a8c962c00d0bba0136b009c86a6ff68226852c46",
+      "currentBlob": "9b63de348aeb6d41682be1b70266ec40c9b3173c",
+      "reviewedScope": "Adds only the dedicated vet early-dispatch route; the existing pub dispatch remains unchanged."
     }
   ]
 }

@@ -99,6 +99,9 @@ jobs:
           cache-dependency-path: repository-town/package-lock.json
       - name: Install pinned Node dependencies
         run: npm ci --no-audit --no-fund
+      - name: Record reviewed protected-geometry baseline (temporary PR 627 diagnostic)
+        if: github.event_name == 'pull_request' && github.event.pull_request.number == 627
+        run: node tests/generic-buildings-protection.mjs --record
       - name: Full release build, integration, geometry, privacy and integrity
         run: npm run build:release
       - name: Cache Playwright Chromium
@@ -118,6 +121,7 @@ jobs:
           SERVER_PID=$!
           trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
           node tests/aged-care-browser.mjs --url http://localhost:8091/
+          node tests/town-linked-premises-browser.mjs --url http://localhost:8091/
       - name: WebGL startup progress, phone reload, download failure and retry
         run: node tests/loading-screen-browser.mjs
 

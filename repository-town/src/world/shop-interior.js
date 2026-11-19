@@ -42,6 +42,7 @@ import {buildSoyInterior} from './soy-interior.js';
 import { buildTradeInterior } from './trade-interiors.js';
 import { buildTradeEducationInterior, TRADE_EDUCATION_INTERIORS } from './trade-education-interiors.js';
 import { buildGenericCivicInterior } from './generic-civic-interior.js';
+import { buildLinkedServiceInterior } from './linked-service-interiors.js';
 
 // The twenty high-street services share a safe walkable plan, with different
 // fixtures, colours and exhibits. They are built only while the player is inside.
@@ -106,6 +107,7 @@ export function buildCivicInterior(site,makeLabel,life=null) {
   if(site.id==='cemetery')return buildCemeteryOfficeInterior(site,makeLabel);
   // A family's home must never regress to the single-room retail fallback.
   if(site.id==='farmhouse')return buildFarmhouseInterior(site,makeLabel);
+  if(site.id==='vet')return buildLinkedServiceInterior(site,makeLabel);
   if(['soyfarm','soyplant'].includes(site.id))return buildSoyInterior(site,makeLabel,life);
   if(TRADE_EDUCATION_INTERIORS.includes(site.id))return buildTradeEducationInterior(site,makeLabel);
   if(site.id==='hotel')return buildHotelInterior(site,makeLabel);
