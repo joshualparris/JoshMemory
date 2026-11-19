@@ -98,15 +98,15 @@ try{
   if(social){
     // Social layer (protocol 3): global chat, whisper, emote and local distance
     // filtering against the live deployed server.
-    const chatSeen=b.next(v=>v.type==='chat' && v.channel==='global' && v.text==='live global hello' && v.name===aWelcome.name);
+    const chatSeen=next(b,v=>v.type==='chat' && v.channel==='global' && v.text==='live global hello' && v.name===aWelcome.name);
     a.send(JSON.stringify({type:'chat',channel:'global',text:'live global hello'}));
     const globalChat=await chatSeen;
     assert.equal(globalChat.name,users[0].username,'chat carries the server-controlled name');
-    const whisperSeen=b.next(v=>v.type==='chat' && v.channel==='whisper' && v.from===users[0].username && v.text==='psst');
+    const whisperSeen=next(b,v=>v.type==='chat' && v.channel==='whisper' && v.from===users[0].username && v.text==='psst');
     a.send(JSON.stringify({type:'chat',to:users[1].username,text:'psst'}));
     const whisper=await whisperSeen;
     assert.equal(whisper.to,users[1].username);
-    const emoteSeen=b.next(v=>v.type==='emote' && v.id===aWelcome.id && v.emote==='wave');
+    const emoteSeen=next(b,v=>v.type==='emote' && v.id===aWelcome.id && v.emote==='wave');
     a.send(JSON.stringify({type:'emote',name:'wave'}));
     await emoteSeen;
     // Local chat is distance-filtered: B moves 200 m away and must not receive it.
