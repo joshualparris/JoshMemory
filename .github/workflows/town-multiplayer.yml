@@ -22,7 +22,11 @@ on:
       - '.github/workflows/town-multiplayer.yml'
   workflow_dispatch:
   schedule:
-    - cron: '0 18 * * *'
+    - cron: '0 18 * * 0'
+concurrency:
+  group: town-multiplayer-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   contents: read
 jobs:

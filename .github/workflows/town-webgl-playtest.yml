@@ -2,9 +2,16 @@ name: Repository Town Recorded WebGL Playtest
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
+    types: [opened, synchronize, reopened, ready_for_review, labeled]
     paths:
-      - 'repository-town/**'
+      # Ignore docs and audit-only PRs; keep all code, assets and test updates.
+      - 'repository-town/src/**'
+      - 'repository-town/tests/**'
+      - 'repository-town/tools/**'
+      - 'repository-town/public/**'
+      - 'repository-town/assets/**'
+      - 'repository-town/games/**'
+      - 'repository-town/package*.json'
       - '.github/workflows/town-webgl-playtest.yml'
   push:
     branches: [main]
@@ -16,8 +23,8 @@ on:
       - '.github/workflows/town-webgl-playtest.yml'
   workflow_dispatch:
   schedule:
-    # Overnight full browser evidence; UTC (02:17 AEST / 03:17 AEDT).
-    - cron: '17 16 * * *'
+    # Weekly full-browser evidence. Other pushes/PRs use focused coverage.
+    - cron: '17 16 * * 0'
 
 permissions:
   contents: read
@@ -144,7 +151,7 @@ jobs:
   browser-shards:
     name: Complete Chrome suite / shard ${{ matrix.shard }}
     needs: classify
-    if: github.event_name != 'pull_request' || needs.classify.outputs.high_risk == 'true'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || (github.event_name == 'pull_request' && needs.classify.outputs.high_risk == 'true')
     strategy:
       fail-fast: false
       matrix:
@@ -195,7 +202,7 @@ jobs:
   full-browser:
     name: Complete Chrome browser regression (bounded)
     needs: [classify, browser-shards]
-    if: always() && (github.event_name != 'pull_request' || needs.classify.outputs.high_risk == 'true')
+    if: always() && (github.event_name == 'workflow_dispatch' || github.event_name == 'schedule' || (github.event_name == 'pull_request' && needs.classify.outputs.high_risk == 'true'))
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:

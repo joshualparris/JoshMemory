@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-      - feat/driving-leases-nsw-property-20261020
     paths:
       - 'repository-town/src/world/player-driving.js'
       - 'repository-town/src/world/vehicles.js'
@@ -11,10 +10,19 @@ on:
       - '.github/workflows/repository-town-mobile-driving.yml'
   pull_request:
     paths:
-      - 'repository-town/src/**'
+      - 'repository-town/src/world/player-driving.js'
+      - 'repository-town/src/world/vehicles.js'
+      - 'repository-town/src/main.js'
+      - 'repository-town/src/styles.css'
+      - 'repository-town/src/ui/**'
+      - 'repository-town/src/engine/collision.js'
       - 'repository-town/tests/mobile-driving.mjs'
       - '.github/workflows/repository-town-mobile-driving.yml'
   workflow_dispatch:
+
+concurrency:
+  group: town-mobile-driving-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   android-emulation:
     runs-on: ubuntu-24.04

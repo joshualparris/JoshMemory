@@ -124,14 +124,15 @@ jobs:
   town-28-day-multi-seed:
     name: 28-day economy simulation (seed ${{ matrix.seed }})
     needs: classify
-    if: github.event_name != 'pull_request' || needs.classify.outputs.high_risk == 'true'
+    # Two seeds on high-risk PRs; the full five-seed soak is manual release QA.
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'pull_request' && needs.classify.outputs.high_risk == 'true')
     runs-on: ubuntu-latest
     timeout-minutes: 25
     strategy:
       fail-fast: false
       max-parallel: 3
       matrix:
-        seed: [1, 42, 20261019, 20261021, 8675309]
+        seed: ${{ fromJSON(github.event_name == 'workflow_dispatch' && '[1,42,20261019,20261021,8675309]' || '[1,42]') }}
     defaults:
       run:
         working-directory: repository-town

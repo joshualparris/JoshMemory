@@ -9,6 +9,11 @@ on:
       - '.github/workflows/windows-self-hosted-smoke.yml'
       - '.github/workflows/windows-cross-repo-syntax.yml'
       - '.github/workflows/windows-recorded-audio-ci.yml'
+      # Repository Town has its own integration and browser safety gates.
+      - 'repository-town/**'
+      - '.github/workflows/town-*.yml'
+      - '.github/workflows/repository-town-*.yml'
+      - '.github/workflows/narromine-*.yml'
   pull_request:
     paths-ignore:
       - 'repository-town/**'

@@ -2,12 +2,30 @@ name: Heritage House Release Verification
 on:
   pull_request:
     paths:
-      - 'repository-town/**'
+      - 'repository-town/tools/heritage-houses.mjs'
+      - 'repository-town/tools/build*.mjs'
+      - 'repository-town/src/world/props.js'
+      - 'repository-town/src/world/exterior.js'
+      - 'repository-town/src/world/interior.js'
+      - 'repository-town/src/world/builder.js'
+      - 'repository-town/src/world/heritage-*'
+      - 'repository-town/**/houses*.json'
+      - 'repository-town/tests/heritage-*'
+      - 'repository-town/package.json'
       - '.github/workflows/town-heritage-verification.yml'
   push:
     branches: [main]
     paths:
-      - 'repository-town/**'
+      - 'repository-town/tools/heritage-houses.mjs'
+      - 'repository-town/tools/build*.mjs'
+      - 'repository-town/src/world/props.js'
+      - 'repository-town/src/world/exterior.js'
+      - 'repository-town/src/world/interior.js'
+      - 'repository-town/src/world/builder.js'
+      - 'repository-town/src/world/heritage-*'
+      - 'repository-town/**/houses*.json'
+      - 'repository-town/tests/heritage-*'
+      - 'repository-town/package.json'
   workflow_dispatch:
 permissions:
   contents: read
