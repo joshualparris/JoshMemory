@@ -6,13 +6,17 @@
 import assert from 'node:assert/strict';
 import {World} from '../deploy/multiplayer-worker.js';
 
+globalThis.WebSocket = globalThis.WebSocket || { OPEN: 1, CLOSING: 2, CLOSED: 3 };
+const SOCKET_OPEN = globalThis.WebSocket.OPEN;
+const SOCKET_CLOSING = globalThis.WebSocket.CLOSING;
+
 class FakeSocket {
   constructor() {
-    this.readyState = 'open'; // worker filters sockets by WebSocket.OPEN
+    this.readyState = SOCKET_OPEN; // match the numeric WebSocket.OPEN constant in Node 22
     this.attachment = {}; this.sent = []; this.closed = null;
   }
   send(raw) { this.sent.push(JSON.parse(raw)); }
-  close(code, reason) { this.readyState = 'closing'; this.closed = { code, reason }; }
+  close(code, reason) { this.readyState = SOCKET_CLOSING; this.closed = { code, reason }; }
   serializeAttachment(value) { this.attachment = value; }
   deserializeAttachment() { return this.attachment; }
 }
@@ -37,9 +41,6 @@ const accountsDO = {
   }
 };
 const env = { ACCOUNTS: { get: () => accountsDO, idFromName: () => ({}) } };
-// Node 20 has no global WebSocket without a flag; the worker only needs the
-// readyState constants for its socket filter.
-globalThis.WebSocket = globalThis.WebSocket || { OPEN: 'open', CLOSING: 'closing', CLOSED: 'closed' };
 const world = new World(ctx, env);
 
 async function connect(userToken) {
