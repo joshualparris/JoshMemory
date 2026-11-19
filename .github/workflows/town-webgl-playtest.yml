@@ -85,7 +85,7 @@ jobs:
         uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-chromium-${{ runner.os }}-1.56.1
+          key: playwright-chromium-${{ runner.os }}-${{ hashFiles('repository-town/package-lock.json') }}
       - name: Install system WebGL libraries
         run: npx playwright install-deps chromium
       - name: Install Chromium when uncached
@@ -175,7 +175,7 @@ jobs:
         uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-chromium-${{ runner.os }}-1.56.1
+          key: playwright-chromium-${{ runner.os }}-${{ hashFiles('repository-town/package-lock.json') }}
       - name: Install system WebGL libraries
         run: npx playwright install-deps chromium
       - name: Install Chromium when uncached
