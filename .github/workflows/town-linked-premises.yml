@@ -1,0 +1,51 @@
+name: Repository Town veterinary and hardware dedicated interiors
+on:
+  pull_request:
+    paths:
+      - 'repository-town/src/world/shop-interior.js'
+      - 'repository-town/src/world/linked-service-interiors.js'
+      - 'repository-town/tests/town-linked-premises.mjs'
+      - 'repository-town/tests/town-linked-premises-browser.mjs'
+      - '.github/workflows/town-linked-premises.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - name: Validate nonresidential interiors, fixture identities, doors and unchanged existing civic sites
+        run: |
+          node tests/town-linked-premises.mjs
+          node tests/shop-interiors.mjs
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      - name: Desktop and phone-size 3D vet/hardware visits
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          node tools/serve.mjs dist/public 8091 >/tmp/linked-premises.log 2>&1 &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8091/ >/dev/null; then break; fi
+            sleep 1
+          done
+          node tests/town-linked-premises-browser.mjs
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: linked-premises-vet-hardware-desktop-phone
+          path: repository-town/test-results/town-linked-premises/
+          retention-days: 7
