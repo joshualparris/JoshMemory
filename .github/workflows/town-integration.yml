@@ -2,14 +2,34 @@ name: Repository Town Integration
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
+    types: [opened, synchronize, reopened, ready_for_review, labeled]
     paths:
-      - 'repository-town/**'
+      - 'repository-town/src/**'
+      - 'repository-town/tests/**'
+      - 'repository-town/tools/**'
+      - 'repository-town/assets/**'
+      - 'repository-town/public/**'
+      - 'repository-town/data/**'
+      - 'repository-town/maps/**'
+      - 'repository-town/deploy/**'
+      - 'repository-town/games/**'
+      - 'repository-town/audit/**'
+      - 'repository-town/package*.json'
       - '.github/workflows/town-*.yml'
   push:
     branches: [main]
     paths:
-      - 'repository-town/**'
+      - 'repository-town/src/**'
+      - 'repository-town/tests/**'
+      - 'repository-town/tools/**'
+      - 'repository-town/assets/**'
+      - 'repository-town/public/**'
+      - 'repository-town/data/**'
+      - 'repository-town/maps/**'
+      - 'repository-town/deploy/**'
+      - 'repository-town/games/**'
+      - 'repository-town/audit/**'
+      - 'repository-town/package*.json'
       - '.github/workflows/town-*.yml'
   workflow_dispatch:
 
