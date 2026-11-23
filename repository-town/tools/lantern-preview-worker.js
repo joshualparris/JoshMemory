@@ -3,7 +3,7 @@
  * modules on a pinned GitHub commit. Does NOT replace the full Repo Town build.
  * No app secrets, no real land claims. Disable/remove when production is ready.
  */
-const PIN = '25c350123f4b1aef235b076af2dc7e8bde825f8a';
+const PIN = '90e04817570d6ba2963470066c2674c35937f972';
 const MODULES = new Set([
   'lantern-point.js','lantern-point-layout.js','lantern-road-view.js',
   'lantern-citizens.js','lantern-architecture.js','npc-wardrobe.js',
@@ -25,7 +25,7 @@ button:focus-visible{outline:3px solid #f7d78a}#legend{font-size:12px;color:#d4e
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js"}}</script></head>
 <body><header><strong>Lantern Point · realistic-road prototype</strong>
-<small>Isolated rendering test of branch 25c35012 · NOT merged Repository Town · Fictional NSW-inspired village</small></header>
+<small>Isolated rendering test of branch 90e04817 · NOT merged Repository Town · Fictional NSW-inspired village</small></header>
 <main><div id="viewport"><canvas id="view" aria-label="3D Lantern Point with sealed curved road, houses and simulated residents"></canvas>
 <div id="hud" role="status">Loading Three.js and Lantern Point module…</div>
 <div id="touch"><button data-dir="left">◀</button><button data-dir="up">▲</button><button data-dir="down">▼</button><button data-dir="right">▶</button></div></div>
@@ -75,7 +75,7 @@ function render(time){
 }
 const first=lantern.status();window.__lanternPreview={
  place(a,b){x=a;z=b},get state(){return {x,z,driving,onRoad:onLanternRoad(x,z),...lantern.status()}},
- view:()=>lantern.status(),moduleSha:'25c35012',scene,lantern
+ view:()=>lantern.status(),moduleSha:'90e04817',scene,lantern
 };
 requestAnimationFrame(render);
 </script></body></html>`;
