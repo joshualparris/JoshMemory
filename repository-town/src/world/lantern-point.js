@@ -5,8 +5,7 @@
 import * as THREE from 'three';
 import { LANTERN_POINT, LANTERN_ROAD, LANTERN_MAP_DESTINATION } from './lantern-point-layout.js';
 import { buildLanternRoadView } from './lantern-road-view.js';
-import { makeDistinctPerson } from './npc-wardrobe.js';
-import { poseResident } from './resident-figure.js';
+import { createLanternCitizens } from './lantern-citizens.js';
 
 const API = 'https://parristan-living-nation.parris-neathaustralia.workers.dev/api/world';
 const material = color => new THREE.MeshLambertMaterial({color});
@@ -88,69 +87,14 @@ export function buildLanternPoint(parent) {
     homes.push({x,z});
     colliders.push({x0:x-w/2,x1:x+w/2,z0:z-d/2,z1:z+d/2});
   }
-  // Read-only agents: no invented biographies. Each visible person is mapped to
-  // the same persistent ID, job and daily activity reported by Parristan's D1 world.
-  const residents=new THREE.Group();village.add(residents);
-  const actors=new Map();let lastPoll=0,loading=false,lastSync=null,error=null;
-  function clearActors(){
-    for(const obj of actors.values()){residents.remove(obj.mesh);}
-    actors.clear();
-    spots.splice(features.length);
-  }
-  function applyWorld(data){
-    if(data?.fictional!==true||!Array.isArray(data.citizens)||!Array.isArray(data.settlements))throw Error('Untrusted or incomplete simulation data');
-    clearActors();
-    for(const person of data.citizens.filter(p=>p.homeTown===11||p.visitTown===11).slice(0,60)){
-      if(!Number.isInteger(person.id)||!person.name||!person.occupation)continue;
-      const actor=new THREE.Group();
-      cylinder(actor,0,.9,0,.35,1.2,palette.body[person.id%palette.body.length]);
-      const head=new THREE.Mesh(new THREE.SphereGeometry(.32,8,6),palette.skin);head.position.y=1.83;actor.add(head);
-      const home=homes[person.id%homes.length]||{x:0,z:2868};
-      const job=features[person.id%4];
-      const state={person,mesh:actor,home,job,target:new THREE.Vector3()};
-      const label=person.name+' · '+person.occupation+' · '+person.activity;
-      const spot={key:'lantern:person:'+person.id,label, pos:pos(home.x,home.z),lantern:true,
-        text:person.name+' is a fictional resident. Work: '+person.occupation+
-          '. Current activity: '+person.activity+'. Goal: '+person.goal+
-          '. Latest recorded memory: '+(person.memories?.[0]||'None yet.')};
-      state.spot=spot;actors.set(person.id,state);spots.push(spot);residents.add(actor);
-    }
-    lastSync=data.updatedAt||Date.now();error=null;
-    for(const a of actors.values()){setTarget(a);a.mesh.position.copy(a.target);a.spot.pos.set(a.target.x,1.25,a.target.z);}
-  }
-  function setTarget(a) {
-    const p=a.person,seed=p.id;
-    let x=a.home.x,z=a.home.z-7;
-    if(p.activity==='working'||p.activity==='commuting'){x=a.job.x+((seed%5)-2)*1.6;z=a.job.z-a.job.d/2-4;}
-    else if(p.activity==='shopping'||p.activity==='socialising'||p.activity==='at a cafe'){x=-20+seed%9*3;z=2865+(seed%7)*2;}
-    else if(p.activity==='travelling'){x=seed%2?2:-2;z=2740+(seed*23)%190;}
-    else if(p.activity==='exploring'){x=45+(seed*17)%65;z=2810+(seed*7)%110;}
-    a.target.set(x,0,z);
-  }
-  async function refresh() {
-    if(loading)return;
-    loading=true;lastPoll=Date.now();
-    try {
-      const controller=new AbortController();
-      const timeout=setTimeout(()=>controller.abort(),9000);
-      let response;try{response=await fetch(API,{signal:controller.signal,cache:'no-store'});}finally{clearTimeout(timeout);}
-      if(!response.ok)throw Error('HTTP '+response.status);
-      applyWorld(await response.json());
-    }catch(e){error=String(e?.message||e);}finally{loading=false;}
-  }
-  function update(position,airborne=false,dt=1/60) {
+  // Reuse the exact same human figures / walking system as the main town,
+  // with identity permanently keyed by D1 citizen ID (not render order).
+  const citizens=createLanternCitizens({village,homes,features,spots,colliders});
+  function update(position,airborne=false,dt=1/60,t=0){
     const distance=Math.hypot(position.x-LANTERN_POINT.x,position.z-LANTERN_POINT.z);
     village.visible=airborne||distance<650;
-    residents.visible=village.visible;
-    if(village.visible&&Date.now()-lastPoll>90000)void refresh();
-    if(!village.visible)return;
-    for(const a of actors.values()){
-      setTarget(a);
-      a.mesh.visible=a.person.activity!=='sleeping'&&Math.hypot(a.mesh.position.x-position.x,a.mesh.position.z-position.z)<160;
-      a.mesh.position.lerp(a.target,Math.min(1,dt*.8));
-      a.spot.pos.set(a.mesh.position.x,1.25,a.mesh.position.z);
-    }
+    citizens.update(position,village.visible,dt,t);
   }
-  return {road,village,spots,colliders,mapPlaces,update,refresh,applyWorld,
-    status:()=>({citizens:actors.size,lastSync,error,fictional:true,position:{...LANTERN_POINT}})};
+  return {road,village,spots,colliders,mapPlaces,update,refresh:citizens.refresh,applyWorld:citizens.applyWorld,
+    status:()=>({...citizens.status(),position:{...LANTERN_POINT}})};
 }
