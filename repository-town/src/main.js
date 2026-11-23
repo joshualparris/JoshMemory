@@ -2192,7 +2192,7 @@ async function start() {
       // Villagers, the guide kiosk and the shop counters: pick the one the player is facing.
       // Keep the distant airfield and Narromine skyline visible in the flight scene.
       narromine.update(player.pos,flight.flying);
-      lantern.update(player.pos,flight.flying,dt);
+      lantern.update(player.pos,flight.flying,dt,t);
       // Narromine sits on open inland plains with clear air: see much further there than in the town.
       { const inNarromine = player.pos.x < -2640;
         const inLantern = player.pos.z > 2600 && Math.abs(player.pos.x) < 300;
