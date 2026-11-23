@@ -402,10 +402,11 @@ async function start() {
   const edges = [
     // Include all 195 homes west to x -1330, and Grevillea Street at z 457.
     // Boundaries lie beyond the drawn footpaths and extended terrain.
-    { x0: -1495, x1: 595, z0: -395, z1: -390 }, { x0: -1495, x1: -12, z0: 555, z1: 560 }, { x0: 12, x1: 595, z0: 555, z1: 560 },
-    // Open the southern town boundary for Lantern Road. Corridor and village edges
-    // prevent the player wandering off the finite 3D terrain.
-    { x0:-49,x1:-48,z0:560,z1:2650 }, { x0:48,x1:49,z0:560,z1:2650 },
+    { x0: -1495, x1: 595, z0: -395, z1: -390 }, { x0: -1495, x1: 326, z0: 555, z1: 560 }, { x0: 350, x1: 595, z0: 555, z1: 560 },
+    // The south exit follows the existing built avenue x=338, NOT existing houses.
+    // Turn west at z=650 then follow the long road to Lantern Point.
+    { x0:287,x1:288,z0:560,z1:613 }, { x0:388,x1:389,z0:560,z1:700 },
+    { x0:-49,x1:-48,z0:700,z1:2650 }, { x0:48,x1:49,z0:700,z1:2650 },
     { x0:-199,x1:-198,z0:2650,z1:3140 },{ x0:198,x1:199,z0:2650,z1:3140 },
     { x0:-199,x1:199,z0:3139,z1:3140 },
     // The west wall opens where the Mitchell Highway leaves for Narromine (z -52..38, fenced beyond).
