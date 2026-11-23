@@ -37,7 +37,7 @@ function buildCentreline(){
 export const LANTERN_ROAD_CENTRELINE = buildCentreline();
 const segments=Object.freeze(LANTERN_ROAD_CENTRELINE.slice(1).map((p,i)=>{
   const a=LANTERN_ROAD_CENTRELINE[i],dx=p.x-a.x,dz=p.z-a.z,d2=dx*dx+dz*dz;
-  return Object.freeze({a,b:p,dx,dz,d2});
+  return Object.freeze({a,b:p,dx,dz,d2,minX:Math.min(a.x,p.x),maxX:Math.max(a.x,p.x),minZ:Math.min(a.z,p.z),maxZ:Math.max(a.z,p.z)});
 }));
 export function distanceToLanternRoad(x,z){
   if(!Number.isFinite(x)||!Number.isFinite(z))return Infinity;
@@ -51,10 +51,19 @@ export function distanceToLanternRoad(x,z){
 }
 export function onLanternRoad(x,z){
   if(!Number.isFinite(x)||!Number.isFinite(z))return false;
-  const primary=distanceToLanternRoad(x,z)<=LANTERN_ROAD.halfWidth+.25;
   const cross=Math.abs(x)<=LANTERN_ROAD.crossExtent &&
     LANTERN_ROAD.crossStreets.some(roadZ=>Math.abs(z-roadZ)<=5);
-  return primary||cross;
+  if(cross)return true;
+  // Called repeatedly per physics frame by lane assist. Quickly reject all
+  // far-away road segments before doing the nearest-point maths.
+  const radius=LANTERN_ROAD.halfWidth+.25,r2=radius*radius;
+  for(const p of segments){
+    if(x<p.minX-radius||x>p.maxX+radius||z<p.minZ-radius||z>p.maxZ+radius)continue;
+    const t=Math.max(0,Math.min(1,((x-p.a.x)*p.dx+(z-p.a.z)*p.dz)/p.d2));
+    const dx=x-p.a.x-p.dx*t,dz=z-p.a.z-p.dz*t;
+    if(dx*dx+dz*dz<=r2)return true;
+  }
+  return false;
 }
 export const LANTERN_MAP_DESTINATION=Object.freeze({
   id:LANTERN_POINT.id,kind:'region',name:LANTERN_POINT.name,
