@@ -71,11 +71,11 @@ function markers(group){
   const geom=new THREE.BoxGeometry(.13,.022,3.8),object=new THREE.Object3D();
   const inst=new THREE.InstancedMesh(geom,mats.centre,straight.length);
   for(let i=0;i<straight.length;i++){
-    const p=straight[i];object.position.set(p.x,.13,p.z);
+    const p=straight[i];object.position.set(p.x,.061,p.z);
     object.rotation.set(0,Math.atan2(p.tx,p.tz),0);object.scale.set(1,1,1);object.updateMatrix();inst.setMatrixAt(i,object.matrix);
   }
   inst.instanceMatrix.needsUpdate=true;group.add(inst);
-  for(const offset of [-4.72,4.72])stripe(group,offset,.10,.135,mats.line);
+  for(const offset of [-4.72,4.72])stripe(group,offset,.10,.065,mats.line);
   // Double centre at curves, instead of inviting overtaking through the bends.
   const lineParts=[];
   for(let i=1;i<POINTS.length;i++){
@@ -88,11 +88,34 @@ function markers(group){
     const coords=[];
     for(const [a,b] of Array.from({length:lineParts.length/2},(_,i)=>[lineParts[2*i],lineParts[2*i+1]])){
       const theta=Math.atan2(b.z-a.z,b.x-a.x),dx=Math.sin(theta)*offset,dz=-Math.cos(theta)*offset;
-      coords.push(a.x+dx,.16,a.z+dz,b.x+dx,.16,b.z+dz);
+      coords.push(a.x+dx,.067,a.z+dz,b.x+dx,.067,b.z+dz);
     }
     const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(coords,3));
     group.add(new THREE.LineSegments(g,new THREE.LineBasicMaterial({color:0xe8e1b2})));
   }
+}
+function roadSign(group,atMetres,signSide=1){
+  if(typeof document==='undefined')return;
+  const p=positionAt(atMetres),outside=11*signSide;
+  const x=p.x+p.sx*outside,z=p.z+p.sz*outside;
+  const post=new THREE.Mesh(new THREE.CylinderGeometry(.07,.085,2.45,8),new THREE.MeshLambertMaterial({color:0x8d979b}));
+  post.position.set(x,1.22,z);group.add(post);
+  const canvas=document.createElement('canvas');canvas.width=256;canvas.height=320;
+  const ctx=canvas.getContext('2d');if(!ctx)return;
+  ctx.clearRect(0,0,256,320);
+  ctx.translate(128,106);ctx.rotate(Math.PI/4);
+  ctx.fillStyle='#f1cc43';ctx.strokeStyle='#181c1d';ctx.lineWidth=9;
+  ctx.fillRect(-66,-66,132,132);ctx.strokeRect(-66,-66,132,132);
+  ctx.rotate(-Math.PI/4);ctx.translate(-128,-106);
+  ctx.strokeStyle='#191a18';ctx.lineWidth=12;ctx.lineCap='round';
+  ctx.beginPath();ctx.moveTo(93,136);ctx.bezierCurveTo(126,123,139,92,164,79);ctx.stroke();
+  ctx.fillStyle='#e9cf48';ctx.fillRect(63,220,130,71);
+  ctx.strokeStyle='#25231f';ctx.lineWidth=5;ctx.strokeRect(65,220,126,71);
+  ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle='#131716';ctx.font='bold 52px sans-serif';ctx.fillText('40',128,254);
+  const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;
+  const board=new THREE.Mesh(new THREE.PlaneGeometry(1.7,2.12),new THREE.MeshBasicMaterial({map:texture,transparent:true,side:THREE.DoubleSide,depthWrite:false}));
+  board.position.set(x,2.75,z);board.rotation.y=Math.atan2(p.tx,p.tz);
+  board.name='Fictional bend advisory sign, 40 km/h';group.add(board);
 }
 function roadside(group){
   const posts=[],fences=[];
@@ -121,7 +144,9 @@ function roadside(group){
   // Irregularly spaced native-looking roadside gums; no identical tree rows.
   const trees=[];
   for(let d=210;d<total-500;d+=27){
-    if(rnd(d*2)<.23)continue;
+    // No randomly planted gums through Repository Town's existing southern lots.
+    // Start roadside vegetation after the two connecting curves.
+    if(d<850||rnd(d*2)<.23)continue;
     const p=positionAt(d+11*rnd(d)),s=rnd(d+73)<.5?-1:1;
     const lateral=38+rnd(d+29)*20;
     trees.push({x:p.x+p.sx*lateral*s,z:p.z+p.sz*lateral*s,size:.65+rnd(d+9)*.7,seed:d});
@@ -145,10 +170,15 @@ function roadside(group){
 }
 export function buildLanternRoadView(){
   const group=new THREE.Group();group.name='Lantern Road — curved NSW-inspired fictional rural route';
-  group.add(ribbon(40,-.16,mats.grass,'grass corridor'));
-  group.add(ribbon(R.halfWidth+R.shoulderWidth,-.095,mats.gravel,'gravel shoulders'));
-  group.add(ribbon(R.halfWidth,.06,mats.asphalt,'two-lane road pavement'));
+  group.add(ribbon(40,-.055,mats.grass,'grass corridor'));
+  // Sealed surface and gravel shoulders have a slight cross-section level step,
+  // not the former 155 mm artificial rural kerb.
+  group.add(ribbon(R.halfWidth+R.shoulderWidth,.035,mats.gravel,'gravel shoulders'));
+  group.add(ribbon(R.halfWidth,.052,mats.asphalt,'two-lane road pavement'));
   markers(group);
+  // Visible fictional bend advisories for both travel directions. No claim of
+  // official NSW road designation or engineering-approved advisory speed.
+  roadSign(group,263,1);roadSign(group,900,-1);
   const environment=roadside(group);
   return {group,centreline:POINTS,totalLength:total,environment};
 }
