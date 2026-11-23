@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  LANTERN_POINT,LANTERN_ROAD,LANTERN_ROAD_CENTRELINE as PATH,
+  LANTERN_POINT,LANTERN_ROAD,LANTERN_ROAD_CENTRELINE as PATH,LANTERN_CIVIC_GREEN,
   LANTERN_MAP_DESTINATION,onLanternRoad,distanceToLanternRoad,
 } from '../src/world/lantern-point-layout.js';
 
@@ -64,4 +64,11 @@ test('3D village, road renderer, detailed citizens and houses import together',a
   ]);
   for(const f of [buildLanternPoint,buildLanternRoadView,createLanternCitizens,drawLanternHome])
     assert.equal(typeof f,'function');
+});
+
+test('civic green does not conceal the sealed main road',()=>{
+  const edge=LANTERN_CIVIC_GREEN.x+LANTERN_CIVIC_GREEN.w/2;
+  assert.ok(edge < -(LANTERN_ROAD.halfWidth+LANTERN_ROAD.shoulderWidth+3),
+    'the plaza must remain west of the carriageway and gravel shoulder');
+  assert.ok(LANTERN_CIVIC_GREEN.z>2600&&LANTERN_CIVIC_GREEN.z<3100);
 });
