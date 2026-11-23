@@ -6,8 +6,8 @@ import * as THREE from 'three';
 import { LANTERN_POINT, LANTERN_ROAD, LANTERN_MAP_DESTINATION } from './lantern-point-layout.js';
 import { buildLanternRoadView } from './lantern-road-view.js';
 import { createLanternCitizens } from './lantern-citizens.js';
+import {drawLanternCivic,drawLanternHome,drawLanternVillageDetails} from './lantern-architecture.js';
 
-const API = 'https://parristan-living-nation.parris-neathaustralia.workers.dev/api/world';
 const material = color => new THREE.MeshLambertMaterial({color});
 const palette = {
   grass: material(0x789b65), road: material(0x44474d), track: material(0xcbb48b),
@@ -38,6 +38,7 @@ function sign(parent,label,x,z) {
   const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;
   const board=new THREE.Mesh(new THREE.PlaneGeometry(7,2.2),new THREE.MeshBasicMaterial({map:texture,side:THREE.DoubleSide}));
   board.position.set(x,3.0,z);parent.add(board);
+  for(const dx of [-2.65,2.65])cube(parent,x+dx,1.5,z+.13,.14,3,.14,palette.wood);
 }
 export function buildLanternPoint(parent) {
   const roadView=buildLanternRoadView();
@@ -64,16 +65,13 @@ export function buildLanternPoint(parent) {
     {name:'Bus Stop',x:16,z:2800,w:8,d:6,h:3},
   ];
   features.forEach((b,i)=>{
-    cube(village,b.x,b.h/2,b.z,b.w,b.h,b.d,palette.wall[i%4]);
-    const roof=cube(village,b.x,b.h+.8,b.z,b.w+1.6,1.6,b.d+1.6,palette.roof[i%4]);
-    roof.rotation.z=i%2?.04:-.04;
-    cube(village,b.x,b.h*.55,b.z-b.d/2-.055,3.2,2.2,.18,palette.glass);
-    colliders.push({x0:b.x-b.w/2,x1:b.x+b.w/2,z0:b.z-b.d/2,z1:b.z+b.d/2});
+    drawLanternCivic(village,b,i);
+    if(b.name!=='Bus Stop')colliders.push({x0:b.x-b.w/2,x1:b.x+b.w/2,z0:b.z-b.d/2,z1:b.z+b.d/2});
     spots.push({key:'lantern:site:'+i,label:b.name,
       pos:pos(b.x,b.z-b.d/2-2),text:b.name+' is part of the fictional Lantern Point settlement.',
       lantern:true});
     mapPlaces.push({id:'lantern:'+i,name:b.name,kind:'building',x:b.x,z:b.z,w:b.w,d:b.d,
-      civic:true,address:'Lantern Point · fictional Parristan settlement',detail:'Explore in 3D'});
+      civic:true,address:'Lantern Point · fictional Parristan settlement',detail:'Exterior landmark · not yet enterable'});
   });
   // Small dwellings around the junction: distinct roof colours and front doors.
   const homes=[];
@@ -81,12 +79,12 @@ export function buildLanternPoint(parent) {
     const row=Math.floor(i/7),col=i%7,x=-153+col*49,z=[2718,2798,2960,3050][row];
     if(Math.abs(x)<15)continue;
     const w=11+(i%3)*2,d=10+(i%2)*3,h=3.9+(i%4)*.35;
-    const home=cube(village,x,h/2,z,w,h,d,palette.wall[i%4]);
-    cube(village,x,h+.45,z,w+1.1,.9,d+1.1,palette.roof[(i+1)%4]);
-    cube(village,x-2.5,2.1,z-d/2-.06,2.3,1.7,.18,palette.glass);
-    homes.push({x,z});
+    const face=row===0||row===2?1:-1;
+    drawLanternHome(village,{x,z,w,d,h,index:i,face});
+    homes.push({x,z,face});
     colliders.push({x0:x-w/2,x1:x+w/2,z0:z-d/2,z1:z+d/2});
   }
+  drawLanternVillageDetails(village);
   // Reuse the exact same human figures / walking system as the main town,
   // with identity permanently keyed by D1 citizen ID (not render order).
   const citizens=createLanternCitizens({village,homes,features,spots,colliders});
