@@ -3,7 +3,7 @@
 // Geometry is deliberately simple and the remote village is hidden until nearby.
 // No real-world land claims, official government status, or real member data.
 import * as THREE from 'three';
-import { LANTERN_POINT, LANTERN_ROAD, LANTERN_MAP_DESTINATION } from './lantern-point-layout.js';
+import { LANTERN_POINT, LANTERN_ROAD, LANTERN_MAP_DESTINATION, LANTERN_CIVIC_GREEN } from './lantern-point-layout.js';
 import { buildLanternRoadView } from './lantern-road-view.js';
 import { createLanternCitizens } from './lantern-citizens.js';
 import {drawLanternCivic,drawLanternHome,drawLanternVillageDetails} from './lantern-architecture.js';
@@ -48,8 +48,11 @@ export function buildLanternPoint(parent) {
   // Southern green, two real vehicle-access streets, market square and usable plaza.
   cube(village,0,-.035,2870,360,.12,420,palette.grass);
   for(const z of LANTERN_ROAD.crossStreets)cube(village,0,.04,z,360,.08,10,palette.road);
-  cube(village,0,.07,2868,54,.07,65,palette.track);
-  cube(village,-20,.12,2874,12,.08,12,material(0xa5b598));
+  // The compact public green and planted square belong BESIDE the road.
+  // The older wide raised tan slab blocked the sealed through-carriageway.
+  cube(village,LANTERN_CIVIC_GREEN.x,.006,LANTERN_CIVIC_GREEN.z,
+    LANTERN_CIVIC_GREEN.w,.045,LANTERN_CIVIC_GREEN.d,palette.track);
+  cube(village,-41,.085,2874,10,.13,10,material(0xa5b598));
   // Lantern Tower: a locally fictional landmark, not a claim about the real property.
   cylinder(village,115,6,2858,4.8,12,palette.wall[0]);
   cylinder(village,115,13,2858,6,1.2,palette.roof[0]);
