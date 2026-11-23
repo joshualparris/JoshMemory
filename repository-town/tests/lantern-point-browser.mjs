@@ -7,6 +7,7 @@ const browser=await chromium.launch({headless:true,args:['--use-angle=swiftshade
 try{
   for (const mobile of [false,true]){
     const context=await browser.newContext(mobile?{...devices['Pixel 7']}:{viewport:{width:1240,height:800}});
+    await context.addInitScript(() => sessionStorage.setItem('town-cheats','1'));
     const page=await context.newPage(), errors=[];
     page.on('pageerror', e=>errors.push(e.message));
     // The live D1 world is independently tested; local browser tests use fixed
@@ -66,22 +67,28 @@ try{
       const valid=await page.evaluate(()=>window.__town.probeStatic(0,800,.35));
       assert(!valid,tag+': accessible road collision on phone');
     }
-    // Register an actual vehicle and step its normal driving logic along
-    // Lantern Road. The normal game has ownership restrictions.
-    const vehicle=await page.evaluate(()=>{
-      const cars=window.__town.vehicles();return {cars:cars.length,first:cars[0]?.registration};
-    });
-    if(vehicle.first){
-      await page.evaluate(reg=>{window.__town.place(0,850,Math.PI);window.__town.enterVehicle(reg);},vehicle.first);
-      const isDriving=await page.evaluate(()=>window.__town.state().driving);
-      if(isDriving){
-        const before=await page.evaluate(()=>window.__town.state().pos.z);
-        await page.evaluate(()=>{for(let i=0;i<150;i++)window.__town.stepVehicle(1/30);});
-        const after=await page.evaluate(()=>window.__town.state().pos.z);
-        // An idle vehicle may need throttle; the physics road predicate above is the
-        // minimum acceptance gate. Separate full driving tests cover acceleration.
-        assert(Number.isFinite(after) && Number.isFinite(before),tag+': vehicle position invalid');
-      }
+    // Drive a real simulated sedan on the straight Lantern Road using the
+    // same throttle/input and collision physics as normal gameplay. A test
+    // garage cheat provisions the car; actual driving is not teleported.
+    if(!mobile){
+      const setup=await page.evaluate(()=>{
+        window.__town.place(0,1300,Math.PI);
+        window.__town.cheats.open();
+        document.getElementById('cheat-vehicle').value='sedan';
+        window.__town.cheats.run('carHere');
+        window.__town.cheats.close();
+        return window.__town.state();
+      });
+      assert(setup.driving,tag+': no sedan was entered for driving test');
+      const z0=setup.pos.z;
+      await page.evaluate(()=>document.activeElement?.blur?.());
+      await page.mouse.click(600,300);
+      await page.keyboard.down('w');
+      await page.evaluate(()=>{for(let i=0;i<170;i++)window.__town.stepVehicle(1/30);});
+      await page.keyboard.up('w');
+      const moved=await page.evaluate(()=>({pos:window.__town.state().pos,road:window.__town.onRoad(window.__town.state().pos.x,window.__town.state().pos.z)}));
+      assert(moved.pos.z>z0+12,tag+': sedan did not move south on Lantern Road '+JSON.stringify(moved));
+      assert(moved.road,tag+': sedan left the south road unexpectedly '+JSON.stringify(moved));
     }
     assert.deepEqual(errors,[],tag+': uncaught browser exceptions');
     console.log('PASS Lantern Point '+tag+': south road walkable, drivable, map/search, fictional citizen synced');
