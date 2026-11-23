@@ -14,7 +14,10 @@ test('Lantern Point is south of fixed Repository Town and is comparable to Narro
 });
 test('southern road is a bounded connected carriageway with two local intersections',()=>{
   assert.equal(LANTERN_ROAD.startZ,235);
-  for(const z of [235,558,800,1500,2500,2870,3160])assert.equal(onLanternRoad(0,z),true,'road open at '+z);
+  for(const z of [235,367,558,640])assert.equal(onLanternRoad(338,z),true,'eastern avenue open at '+z);
+  for(const x of [0,100,170,250,338])assert.equal(onLanternRoad(x,650),true,'connecting bend open at '+x);
+  for(const z of [650,800,1500,2500,2870,3160])assert.equal(onLanternRoad(0,z),true,'southern road open at '+z);
+  assert.equal(onLanternRoad(0,560),false,'no road carved through existing homes');
   assert.equal(onLanternRoad(0,3161),false);
   assert.equal(onLanternRoad(20,1500),false);
   assert.equal(onLanternRoad(-160,2760),true);
