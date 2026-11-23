@@ -27,13 +27,14 @@ try{
     // The complete south route must be free of static wall colliders.
     const corridor=await page.evaluate(()=>{
       const blocked=[];
-      for(let z=235;z<=2790;z+=5){
-        if(window.__town.probeStatic(0,z,.35))blocked.push(z);
-      }
-      return {blocked,road:window.__town.onRoad(0,650),villageRoad:window.__town.onRoad(0,2800)};
+      for(let z=235;z<=650;z+=5)if(window.__town.probeStatic(338,z,.35))blocked.push('east:'+z);
+      for(let x=0;x<=338;x+=5)if(window.__town.probeStatic(x,650,.35))blocked.push('turn:'+x);
+      for(let z=650;z<=2790;z+=5)if(window.__town.probeStatic(0,z,.35))blocked.push('south:'+z);
+      return {blocked,road:window.__town.onRoad(338,560),
+        turning:window.__town.onRoad(170,650),villageRoad:window.__town.onRoad(0,2800)};
     });
     assert.deepEqual(corridor.blocked,[],tag+': blocked southern road at '+corridor.blocked.join(','));
-    assert(corridor.road && corridor.villageRoad,tag+': southern road not drivable');
+    assert(corridor.road && corridor.turning && corridor.villageRoad,tag+': southern road and connecting bend not drivable');
     // Map and keyboard search resolve Lantern Point by name.
     await page.evaluate(()=>document.getElementById('btn-townmap').click());
     await page.waitForFunction(()=>window.__town.townMap?.isOpen?.());
