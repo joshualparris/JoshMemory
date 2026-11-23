@@ -5,6 +5,7 @@ import { VEHICLE_MODELS } from './vehicles.js';
 import {updateCoolantTemperature} from './driving-instruments.js';
 import { onPlannedOrCoreRoad } from './masterplan-built.js';
 import { onNarromineRoad, onOpenHighway, HIGHWAY } from './narromine-layout.js';
+import { onLanternRoad } from './lantern-point-layout.js';
 import { lightingLevel } from './lighting.js';
 import { nightLightLevel } from './estate-lighting.js';
 import {vehicleSpec,intendedSpeedMs,accelerationMs2,transmissionFor,clamp as vehicleClamp} from './vehicle-dynamics.js';
@@ -81,7 +82,7 @@ export function setVehicleHeadlights(mesh,daylight,engineOn){
 export function roadAllows(x,z){
  // Streets, avenues and the master-plan roads, each bounded to its drawn extent: the old check
  // treated every street and avenue as infinitely long, so cars could leave the map along them.
- return onPlannedOrCoreRoad(x,z)||onNarromineRoad(x,z);   // + Mitchell Highway and Narromine streets
+ return onPlannedOrCoreRoad(x,z)||onNarromineRoad(x,z)||onLanternRoad(x,z); // + Lantern Point
 }
 // Lane assist: with no steering input, gently steer towards the centre of the
 // left-hand lane (Australia drives on the left). Probes the drivable road edges
