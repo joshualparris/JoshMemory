@@ -9,7 +9,7 @@ const MODULES = new Set([
   'lantern-citizens.js','lantern-architecture.js','npc-wardrobe.js',
   'resident-figure.js','resident-identity.js'
 ]);
-const HTML=String.raw\`<!doctype html><html lang="en-AU"><head><meta charset="utf-8">
+const HTML=String.raw`<!doctype html><html lang="en-AU"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Lantern Point · isolated 3D module test</title>
 <style>
@@ -78,7 +78,7 @@ const first=lantern.status();window.__lanternPreview={
  view:()=>lantern.status(),moduleSha:'25c35012',scene,lantern
 };
 requestAnimationFrame(render);
-</script></body></html>\`;
+</script></body></html>`;
 export default {
   async fetch(request){
     const url=new URL(request.url),name=url.pathname.split('/').at(-1);
