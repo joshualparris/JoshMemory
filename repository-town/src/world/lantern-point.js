@@ -4,6 +4,9 @@
 // No real-world land claims, official government status, or real member data.
 import * as THREE from 'three';
 import { LANTERN_POINT, LANTERN_ROAD, LANTERN_MAP_DESTINATION } from './lantern-point-layout.js';
+import { buildLanternRoadView } from './lantern-road-view.js';
+import { makeDistinctPerson } from './npc-wardrobe.js';
+import { poseResident } from './resident-figure.js';
 
 const API = 'https://parristan-living-nation.parris-neathaustralia.workers.dev/api/world';
 const material = color => new THREE.MeshLambertMaterial({color});
@@ -38,36 +41,10 @@ function sign(parent,label,x,z) {
   board.position.set(x,3.0,z);parent.add(board);
 }
 export function buildLanternPoint(parent) {
-  const road = new THREE.Group();road.name='South road to Lantern Point';parent.add(road);
+  const roadView=buildLanternRoadView();
+  const road=roadView.group;parent.add(road);
   const village = new THREE.Group();village.name='Parristan: Lantern Point';parent.add(village);
   const spots=[],colliders=[],mapPlaces=[LANTERN_MAP_DESTINATION];
-  // The northern leg follows the established eastern north-south road (x=338)
-  // so no existing house is cut through. The turn at z=650 joins the
-  // straight southbound access to the fictional Lantern Point.
-  const {startZ,turnZ,endZ,entranceX}=LANTERN_ROAD;
-  const northLength=turnZ-startZ,southLength=endZ-turnZ;
-  cube(road,entranceX,-.10,(startZ+turnZ)/2,72,.14,northLength,palette.grass);
-  cube(road,entranceX,.015,(startZ+turnZ)/2,10,.035,northLength,palette.road);
-  cube(road,entranceX/2,-.10,turnZ,entranceX+72,.14,72,palette.grass);
-  cube(road,entranceX/2,.015,turnZ,entranceX+10,.035,10,palette.road);
-  cube(road,0,-.10,(turnZ+endZ)/2,72,.14,southLength,palette.grass);
-  cube(road,0,.015,(turnZ+endZ)/2,10,.035,southLength,palette.road);
-  // Short dashed centre marks, instanced to avoid dozens of draw calls.
-  const lineGeom=new THREE.BoxGeometry(.12,.04,3.5);
-  const marks=new THREE.InstancedMesh(lineGeom,material(0xf7e8b7),Math.floor(southLength/18));
-  const transform=new THREE.Object3D();
-  for(let i=0;i<marks.count;i++){transform.position.set(0,.052,turnZ+10+i*18);transform.updateMatrix();marks.setMatrixAt(i,transform.matrix);}
-  marks.instanceMatrix.needsUpdate=true;road.add(marks);
-  // Brown paddock fences and a few roadside trees create visual continuity from Repo Town.
-  const trunk=new THREE.InstancedMesh(new THREE.CylinderGeometry(.23,.3,3,5),palette.wood,68);
-  const crown=new THREE.InstancedMesh(new THREE.ConeGeometry(2.8,6,5),palette.body[1],68);
-  for(let i=0;i<68;i++) {
-    const side=i%2?-1:1,z=590+Math.floor(i/2)*63;
-    transform.position.set(side*25,1.5,z);transform.updateMatrix();trunk.setMatrixAt(i,transform.matrix);
-    transform.position.set(side*25,5.6,z);transform.updateMatrix();crown.setMatrixAt(i,transform.matrix);
-  }
-  trunk.instanceMatrix.needsUpdate=true;crown.instanceMatrix.needsUpdate=true;
-  road.add(trunk,crown);
   // Southern green, two real vehicle-access streets, market square and usable plaza.
   cube(village,0,-.035,2870,360,.12,420,palette.grass);
   for(const z of LANTERN_ROAD.crossStreets)cube(village,0,.04,z,360,.08,10,palette.road);
