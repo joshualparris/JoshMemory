@@ -25,7 +25,8 @@ test('curved rural road begins on the existing eastern avenue, not through homes
   assert.equal(onLanternRoad(170,665),true,'westward tangent at the turn');
   for(const z of [750,800,1500,2500,2870,3160])assert.equal(onLanternRoad(0,z),true,'south road at '+z);
   assert.equal(onLanternRoad(0,650),false,'no abrupt square junction near the old bend');
-  assert.equal(onLanternRoad(0,3161),false);
+  assert.equal(onLanternRoad(0,3161),true,'the end cap is still part of the carriageway');
+  assert.equal(onLanternRoad(0,3166),false,'the road must end beyond the cap');
   for(const x of [-160,0,160])for(const z of LANTERN_ROAD.crossStreets)
     assert.equal(onLanternRoad(x,z),true,'connected village cross street');
   assert.equal(onLanternRoad(NaN,2750),false);
