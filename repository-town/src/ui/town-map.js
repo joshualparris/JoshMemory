@@ -67,7 +67,9 @@ export function createTownMap({ getData, getPlayer, onOpen, onClose }) {
     // Narromine is geographically separate: draw its actual mapped features when in view.
     drawNarromineMap(ctx, { project: toScreen, view, width: W(), height: H(), scale: s, label: text });
     // Lantern Point: its game-scale road is compressed like the drive to Narromine.
-    rect(-5,LANTERN_ROAD.startZ,5,LANTERN_ROAD.endZ,'#717476');
+    rect(LANTERN_ROAD.entranceX-5,LANTERN_ROAD.startZ,LANTERN_ROAD.entranceX+5,LANTERN_ROAD.turnZ,'#717476');
+    rect(0,LANTERN_ROAD.turnZ-5,LANTERN_ROAD.entranceX,LANTERN_ROAD.turnZ+5,'#717476');
+    rect(-5,LANTERN_ROAD.turnZ,5,LANTERN_ROAD.endZ,'#717476');
     for(const z of LANTERN_ROAD.crossStreets)rect(-180,z-5,180,z+5,'#717476');
     rect(-180,2660,180,3080,'#bed5a3','#4d7655',1);
     rect(-5,2660,5,3080,'#65696a');
