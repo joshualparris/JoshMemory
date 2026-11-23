@@ -1,5 +1,5 @@
 import { NARROMINE_MAP_DESTINATION, NARROMINE_MAP_SEARCH, drawNarromineMap, hitNarromineMap } from './narromine-map-layer.js';
-import { LANTERN_POINT, LANTERN_ROAD, LANTERN_MAP_DESTINATION } from '../world/lantern-point-layout.js';
+import { LANTERN_POINT, LANTERN_ROAD, LANTERN_ROAD_CENTRELINE, LANTERN_MAP_DESTINATION } from '../world/lantern-point-layout.js';
 
 // Interactive 2D town map: pinch or wheel to zoom, drag to pan, tap for a place's name and
 // address, search by name/address, and follow the player. Works with touch, mouse and keys.
@@ -67,13 +67,20 @@ export function createTownMap({ getData, getPlayer, onOpen, onClose }) {
     // Narromine is geographically separate: draw its actual mapped features when in view.
     drawNarromineMap(ctx, { project: toScreen, view, width: W(), height: H(), scale: s, label: text });
     // Lantern Point: its game-scale road is compressed like the drive to Narromine.
-    rect(LANTERN_ROAD.entranceX-5,LANTERN_ROAD.startZ,LANTERN_ROAD.entranceX+5,LANTERN_ROAD.turnZ,'#717476');
-    rect(0,LANTERN_ROAD.turnZ-5,LANTERN_ROAD.entranceX,LANTERN_ROAD.turnZ+5,'#717476');
-    rect(-5,LANTERN_ROAD.turnZ,5,LANTERN_ROAD.endZ,'#717476');
-    for(const z of LANTERN_ROAD.crossStreets)rect(-180,z-5,180,z+5,'#717476');
-    rect(-180,2660,180,3080,'#bed5a3','#4d7655',1);
-    rect(-5,2660,5,3080,'#65696a');
+    // The overhead map uses the EXACT centreline shared with the road geometry
+    // and vehicle-access test: no visual square corners that cars cannot follow.
+    const drawLanternRibbon=(width,colour,dash=[])=>{
+      ctx.save();ctx.beginPath();const first=toScreen(LANTERN_ROAD_CENTRELINE[0].x,LANTERN_ROAD_CENTRELINE[0].z);
+      ctx.moveTo(first.x,first.y);
+      for(const p of LANTERN_ROAD_CENTRELINE.slice(1)){const q=toScreen(p.x,p.z);ctx.lineTo(q.x,q.y);}
+      ctx.lineWidth=Math.max(.8,width*s);ctx.strokeStyle=colour;ctx.lineCap='round';ctx.lineJoin='round';
+      ctx.setLineDash(dash.map(v=>v*s));ctx.stroke();ctx.restore();
+    };
+    // Scenery base is below the connected local streets on the map.
+    drawLanternRibbon(13,'#b9a885');
+    drawLanternRibbon(10,'#5c6062');
     for(const z of LANTERN_ROAD.crossStreets)rect(-180,z-5,180,z+5,'#65696a');
+    drawLanternRibbon(.15,'#eee3b6',[4,12]);
     if(Math.abs(view.z-LANTERN_POINT.z)<650 || s<0.6){
       text('Lantern Point · Parristan',LANTERN_POINT.x,LANTERN_POINT.z-18,{size:14,bold:true,color:'#28564b'});
       text('Fictional village',LANTERN_POINT.x,LANTERN_POINT.z+14,{size:11,color:'#28564b'});
