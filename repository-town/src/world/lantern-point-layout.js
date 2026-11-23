@@ -65,6 +65,9 @@ export function onLanternRoad(x,z){
   }
   return false;
 }
+// The little civic green is beside the through-carriageway, never across it.
+// Visually verify the asphalt continues uninterrupted through the village.
+export const LANTERN_CIVIC_GREEN = Object.freeze({x:-36,z:2868,w:34,d:44});
 export const LANTERN_MAP_DESTINATION=Object.freeze({
   id:LANTERN_POINT.id,kind:'region',name:LANTERN_POINT.name,
   x:LANTERN_POINT.x,z:LANTERN_POINT.z,
