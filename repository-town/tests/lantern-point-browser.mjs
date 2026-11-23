@@ -26,15 +26,19 @@ try{
     const initial=await page.evaluate(()=>window.__town.state().pos);
     assert(Math.abs(initial.z)<450,'original Repository Town spawn unchanged');
     // The complete south route must be free of static wall colliders.
-    const corridor=await page.evaluate(()=>{
-      const blocked=[];
-      for(let z=235;z<=650;z+=5)if(window.__town.probeStatic(338,z,.35))blocked.push('east:'+z);
-      for(let x=0;x<=338;x+=5)if(window.__town.probeStatic(x,650,.35))blocked.push('turn:'+x);
-      for(let z=650;z<=2790;z+=5)if(window.__town.probeStatic(0,z,.35))blocked.push('south:'+z);
-      return {blocked,road:window.__town.onRoad(338,560),
-        turning:window.__town.onRoad(170,650),villageRoad:window.__town.onRoad(0,2800)};
+    const corridor=await page.evaluate(async()=>{
+      const {LANTERN_ROAD_CENTRELINE:polyline}=await import('./world/lantern-point-layout.js');
+      const blocked=[],offRoad=[];
+      for(let i=0;i<polyline.length;i++){
+        const {x,z}=polyline[i];
+        if(window.__town.probeStatic(x,z,.35))blocked.push({i,x,z});
+        if(!window.__town.onRoad(x,z))offRoad.push({i,x,z});
+      }
+      return {blocked,offRoad,road:window.__town.onRoad(338,560),
+        turning:window.__town.onRoad(170,665),villageRoad:window.__town.onRoad(0,2800)};
     });
     assert.deepEqual(corridor.blocked,[],tag+': blocked southern road at '+corridor.blocked.join(','));
+    assert.deepEqual(corridor.offRoad,[],tag+': visual road leaves the drivable collision footprint');
     assert(corridor.road && corridor.turning && corridor.villageRoad,tag+': southern road and connecting bend not drivable');
     // Map and keyboard search resolve Lantern Point by name.
     await page.evaluate(()=>document.getElementById('btn-townmap').click());
@@ -52,7 +56,10 @@ try{
     const arrived=await page.evaluate(()=>({pos:window.__town.state().pos,lantern:window.__town.lantern()}));
     assert(Math.abs(arrived.pos.z-2810)<3 && Math.abs(arrived.pos.x)<3,tag+': fast travel did not arrive: '+JSON.stringify(arrived.pos));
     assert.equal(arrived.lantern.fictional,true);
+    assert.equal(arrived.lantern.renderSystem,'Repository Town detailed resident figures',tag+': must reuse native NPC models');
     await page.waitForFunction(()=>window.__town.lantern().citizens>=1,null,{timeout:12000});
+    const figures=await page.evaluate(()=>window.__town.lantern());
+    assert.equal(figures.citizens,1,'deterministic simulated resident was imported');
     // Walking via the real movement handler; avoid writing player coordinates
     // for the measured movement itself.
     await page.evaluate(()=>{document.activeElement?.blur?.();window.__town.place(0,800,Math.PI);});
@@ -62,10 +69,16 @@ try{
       const pos=await page.evaluate(()=>window.__town.state().pos);
       assert(pos.z>801,tag+': pressing W failed to walk along south road '+JSON.stringify(pos));
     }else{
-      // Touch joystick is covered by general WebGL regression. On phones
-      // confirm travel and physics coordinates without replacing that suite.
-      const valid=await page.evaluate(()=>window.__town.probeStatic(0,800,.35));
-      assert(!valid,tag+': accessible road collision on phone');
+      // Real Android-size touch joystick, not a coordinate teleport.
+      const before=await page.evaluate(()=>window.__town.state().pos.z);
+      const cdp=await context.newCDPSession(page);
+      const {width,height}=page.viewportSize(),x=width*.2,y=height*.75;
+      await cdp.send('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x,y,id:1}]});
+      await cdp.send('Input.dispatchTouchEvent',{type:'touchMove',touchPoints:[{x,y:y-45,id:1}]});
+      await page.waitForTimeout(1150);
+      await cdp.send('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});
+      const after=await page.evaluate(()=>window.__town.state().pos.z);
+      assert(Math.abs(after-before)>.1,tag+': touch joystick failed to move player');
     }
     // Drive a real simulated sedan on the straight Lantern Road using the
     // same throttle/input and collision physics as normal gameplay. A test
