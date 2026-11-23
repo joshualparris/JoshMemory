@@ -20,7 +20,7 @@ export const LANTERN_ROAD = Object.freeze({
 });
 function buildCentreline(){
   const p=[],push=(x,z)=>{const q={x,z};if(!p.length||Math.hypot(p.at(-1).x-x,p.at(-1).z-z)>.00001)p.push(Object.freeze(q));};
-  const {entranceX,startZ,curveStartZ,turnZ,westTangentX,eastTangentX,curveRadius,endZ}=LANTERN_ROAD;
+  const {entranceX,startZ,curveStartZ,curveEndZ,turnZ,westTangentX,eastTangentX,curveRadius,endZ}=LANTERN_ROAD;
   // Continuous entry tangent south on x = 338.
   for(let z=startZ;z<curveStartZ;z+=7)push(entranceX,z);
   push(entranceX,curveStartZ);
