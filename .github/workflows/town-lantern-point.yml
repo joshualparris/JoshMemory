@@ -1,0 +1,61 @@
+name: Lantern Point 3D regional acceptance
+on:
+  pull_request:
+    paths:
+      - 'repository-town/src/main.js'
+      - 'repository-town/src/world/lantern-point*'
+      - 'repository-town/src/world/player-driving.js'
+      - 'repository-town/src/ui/town-map.js'
+      - 'repository-town/tests/lantern-point*'
+      - '.github/workflows/town-lantern-point.yml'
+  push:
+    branches: [main, feat/lantern-point-southern-region-20261123]
+    paths:
+      - 'repository-town/src/main.js'
+      - 'repository-town/src/world/lantern-point*'
+      - 'repository-town/tests/lantern-point*'
+      - '.github/workflows/town-lantern-point.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lantern-region:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: repository-town
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: repository-town/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - name: Syntax and distance/road data
+        run: |
+          node --check src/main.js
+          node --check src/ui/town-map.js
+          node --check src/world/lantern-point.js
+          node --test tests/lantern-point-region.mjs
+      - name: Build privacy-safe playable 3D bundle
+        run: |
+          npm run build
+          npm run check:privacy
+      - name: Install Chromium and WebGL dependencies
+        run: |
+          npx playwright install-deps chromium
+          npx playwright install chromium
+      - name: Browser test actual 3D, pedestrian and road rules
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          node tools/serve.mjs dist/public 8091 &
+          pid=$!
+          trap 'kill $pid 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:8091/ >/dev/null; then break; fi
+            sleep 1
+          done
+          node tests/lantern-point-browser.mjs
