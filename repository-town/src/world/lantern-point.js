@@ -41,15 +41,22 @@ export function buildLanternPoint(parent) {
   const road = new THREE.Group();road.name='South road to Lantern Point';parent.add(road);
   const village = new THREE.Group();village.name='Parristan: Lantern Point';parent.add(village);
   const spots=[],colliders=[],mapPlaces=[LANTERN_MAP_DESTINATION];
-  const middle=(LANTERN_ROAD.startZ+LANTERN_ROAD.endZ)/2;
-  const length=LANTERN_ROAD.endZ-LANTERN_ROAD.startZ;
-  cube(road,0,-.10,middle,72,.14,length,palette.grass);
-  cube(road,0,.015,middle,10,.035,length,palette.road);
+  // The northern leg follows the established eastern north-south road (x=338)
+  // so no existing house is cut through. The turn at z=650 joins the
+  // straight southbound access to the fictional Lantern Point.
+  const {startZ,turnZ,endZ,entranceX}=LANTERN_ROAD;
+  const northLength=turnZ-startZ,southLength=endZ-turnZ;
+  cube(road,entranceX,-.10,(startZ+turnZ)/2,72,.14,northLength,palette.grass);
+  cube(road,entranceX,.015,(startZ+turnZ)/2,10,.035,northLength,palette.road);
+  cube(road,entranceX/2,-.10,turnZ,entranceX+72,.14,72,palette.grass);
+  cube(road,entranceX/2,.015,turnZ,entranceX+10,.035,10,palette.road);
+  cube(road,0,-.10,(turnZ+endZ)/2,72,.14,southLength,palette.grass);
+  cube(road,0,.015,(turnZ+endZ)/2,10,.035,southLength,palette.road);
   // Short dashed centre marks, instanced to avoid dozens of draw calls.
   const lineGeom=new THREE.BoxGeometry(.12,.04,3.5);
-  const marks=new THREE.InstancedMesh(lineGeom,material(0xf7e8b7),Math.floor(length/18));
+  const marks=new THREE.InstancedMesh(lineGeom,material(0xf7e8b7),Math.floor(southLength/18));
   const transform=new THREE.Object3D();
-  for(let i=0;i<marks.count;i++){transform.position.set(0,.052,LANTERN_ROAD.startZ+10+i*18);transform.updateMatrix();marks.setMatrixAt(i,transform.matrix);}
+  for(let i=0;i<marks.count;i++){transform.position.set(0,.052,turnZ+10+i*18);transform.updateMatrix();marks.setMatrixAt(i,transform.matrix);}
   marks.instanceMatrix.needsUpdate=true;road.add(marks);
   // Brown paddock fences and a few roadside trees create visual continuity from Repo Town.
   const trunk=new THREE.InstancedMesh(new THREE.CylinderGeometry(.23,.3,3,5),palette.wood,68);
