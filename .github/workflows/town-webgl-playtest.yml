@@ -88,11 +88,10 @@ jobs:
         uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-chromium-${{ runner.os }}-1.56.1
+          key: playwright-chromium-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('repository-town/package-lock.json') }}
       - name: Install system WebGL libraries
         run: npx playwright install-deps chromium
-      - name: Install Chromium when uncached
-        if: steps.browser-cache.outputs.cache-hit != 'true'
+      - name: Ensure pinned Chromium executables are installed
         run: npx playwright install chromium
       - name: Build actual playable site
         run: npm run build
@@ -178,11 +177,10 @@ jobs:
         uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-chromium-${{ runner.os }}-1.56.1
+          key: playwright-chromium-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('repository-town/package-lock.json') }}
       - name: Install system WebGL libraries
         run: npx playwright install-deps chromium
-      - name: Install Chromium when uncached
-        if: steps.browser-cache.outputs.cache-hit != 'true'
+      - name: Ensure pinned Chromium executables are installed
         run: npx playwright install chromium
       - name: Build exact proposed source
         run: npm run build
