@@ -61,7 +61,7 @@ jobs:
           node tests/narromine-kieraths-browser.mjs --mobile --url http://127.0.0.1:8091/
       - name: Upload courtyard, rear canopy and mobile screenshot evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: kieraths-3d-front-courtyard-rear
           path: repository-town/test-results/kieraths/

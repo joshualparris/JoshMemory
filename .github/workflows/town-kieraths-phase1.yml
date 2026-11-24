@@ -30,7 +30,7 @@ jobs:
       - run: node tests/narromine-kieraths-phase1.mjs
       - run: node tests/narromine-layout.mjs
       - run: node tools/kieraths-phase1-geojson.mjs > kieraths-phase1.geojson
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: kieraths-phase1-wgs84-geojson
           path: repository-town/kieraths-phase1.geojson

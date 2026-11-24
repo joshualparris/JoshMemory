@@ -98,7 +98,7 @@ jobs:
           node -e 'const r=require("./test-results/nr-fixed-pose/candidate/fixed-pose-review.json"); console.log("Verdict:",r.status); if(!r.evidenceValid)process.exit(1); if(r.status==="review-required")console.log("NOTICE: real visual changes require human approval; no photo-accuracy claim")'
       - name: Upload evidence regardless of failure; never publish screenshots into game assets
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: nr-vqa-002-fixed-pose-${{ github.run_id }}
           path: repository-town/test-results/nr-fixed-pose/

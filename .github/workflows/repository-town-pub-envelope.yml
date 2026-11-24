@@ -51,7 +51,7 @@ jobs:
           node tests/pub-utilities-browser.mjs
       - name: Keep QA browser evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: rtpub-002-024-qa
           retention-days: 30

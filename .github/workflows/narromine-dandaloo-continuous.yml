@@ -51,7 +51,7 @@ jobs:
           SOURCE_SHA: ${{ github.sha }}
       - name: Upload all movement telemetry and original game-only screenshots on failure
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: dandaloo-continuous-walk-and-five-photo-poses-${{ github.run_id }}
           path: repository-town/test-results/narromine-dandaloo-continuous/

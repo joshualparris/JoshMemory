@@ -51,7 +51,7 @@ jobs:
             sleep 1
           done
           node tests/narromine-traffic-vehicles-browser.mjs
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: narromine-vehicle-webgl-${{ github.run_id }}

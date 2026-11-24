@@ -54,7 +54,7 @@ jobs:
           fi
       - name: Preserve task-inventory artifacts
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: joshmemory-repo-task-audit
           path: |

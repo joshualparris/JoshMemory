@@ -36,7 +36,7 @@ jobs:
         run: node tools/narromine-visual-qa/perf-route.mjs
       - name: Preserve performance artifacts (JSON + CSV)
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: narromine-perf-route-${{ github.run_id }}
           path: repository-town/test-results/narromine-perf/

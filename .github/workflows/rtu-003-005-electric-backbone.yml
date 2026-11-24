@@ -40,7 +40,7 @@ jobs:
         working-directory: repository-town
         run: npm run build
       - name: Archive design and evidence
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: rtu-003-005-234-site-physical-grid
           path: repository-town/audit/electricity/design-network-v1.json
