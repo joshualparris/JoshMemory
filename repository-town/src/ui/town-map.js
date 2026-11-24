@@ -1,4 +1,5 @@
 import { NARROMINE_MAP_DESTINATION, NARROMINE_MAP_SEARCH, drawNarromineMap, hitNarromineMap } from './narromine-map-layer.js';
+import { LANTERN_POINT, LANTERN_ROAD, LANTERN_ROAD_CENTRELINE, LANTERN_MAP_DESTINATION } from '../world/lantern-point-layout.js';
 
 // Interactive 2D town map: pinch or wheel to zoom, drag to pan, tap for a place's name and
 // address, search by name/address, and follow the player. Works with touch, mouse and keys.
@@ -27,6 +28,7 @@ export function createTownMap({ getData, getPlayer, onOpen, onClose }) {
     <button id="town-map-me" title="Centre on you">📍 Me</button>
     <button id="town-map-repo" class="map-region" title="Show Repository Town">Repo Town</button>
     <button id="town-map-narromine" class="map-region" title="Show real Narromine, NSW">Narromine</button>
+    <button id="town-map-lantern" class="map-region" title="Show fictional Parristan settlement to the south">Lantern Point</button>
     <button id="town-map-close" aria-label="Close map">✕</button></header>
     <canvas aria-label="Map of Repository Town. Pinch or scroll to zoom, drag to pan, tap a place for its address."></canvas>
     <div class="legend"><div>▬ Street / road</div><div style="color:#7b5a3a">▬ Railway</div><div style="color:#4c8a3d">■ New parcel (plan D)</div><div style="color:#8a7a5a">▢ Future reserve</div><div style="color:#c0392b">● You</div></div>
@@ -64,6 +66,25 @@ export function createTownMap({ getData, getPlayer, onOpen, onClose }) {
     ctx.fillStyle = '#dfe8d6'; ctx.fillRect(0, 0, W(), H());
     // Narromine is geographically separate: draw its actual mapped features when in view.
     drawNarromineMap(ctx, { project: toScreen, view, width: W(), height: H(), scale: s, label: text });
+    // Lantern Point: its game-scale road is compressed like the drive to Narromine.
+    // The overhead map uses the EXACT centreline shared with the road geometry
+    // and vehicle-access test: no visual square corners that cars cannot follow.
+    const drawLanternRibbon=(width,colour,dash=[])=>{
+      ctx.save();ctx.beginPath();const first=toScreen(LANTERN_ROAD_CENTRELINE[0].x,LANTERN_ROAD_CENTRELINE[0].z);
+      ctx.moveTo(first.x,first.y);
+      for(const p of LANTERN_ROAD_CENTRELINE.slice(1)){const q=toScreen(p.x,p.z);ctx.lineTo(q.x,q.y);}
+      ctx.lineWidth=Math.max(.8,width*s);ctx.strokeStyle=colour;ctx.lineCap='round';ctx.lineJoin='round';
+      ctx.setLineDash(dash.map(v=>v*s));ctx.stroke();ctx.restore();
+    };
+    // Scenery base is below the connected local streets on the map.
+    drawLanternRibbon(13,'#b9a885');
+    drawLanternRibbon(10,'#5c6062');
+    for(const z of LANTERN_ROAD.crossStreets)rect(-180,z-5,180,z+5,'#65696a');
+    drawLanternRibbon(.15,'#eee3b6',[4,12]);
+    if(Math.abs(view.z-LANTERN_POINT.z)<650 || s<0.6){
+      text('Lantern Point · Parristan',LANTERN_POINT.x,LANTERN_POINT.z-18,{size:14,bold:true,color:'#28564b'});
+      text('Fictional village',LANTERN_POINT.x,LANTERN_POINT.z+14,{size:11,color:'#28564b'});
+    }
     for (const r of data.reserves) { rect(r.x - r.w / 2, r.z - r.d / 2, r.x + r.w / 2, r.z + r.d / 2, '#e9e3cf', '#8a7a5a'); if (r.w * s > 160) text(`${r.name} (future reserve)`, r.x, r.z, { size: 11, color: '#6b5d40' }); }
     for (const f of data.fields) rect(f.x0, f.z0, f.x1, f.z1, '#cfdba8', '#9fb06a');
     for (const p of data.parcels) {
@@ -107,6 +128,7 @@ export function createTownMap({ getData, getPlayer, onOpen, onClose }) {
     const inside = (o) => Math.abs(w.x - o.x) <= o.w / 2 + pad && Math.abs(w.z - o.z) <= o.d / 2 + pad;
     const b = data.buildings.find(inside); if (b) return { kind: 'building', ...b };
     const p = data.parcels.find(inside); if (p) return { kind: 'parcel', ...p };
+    if(Math.abs(w.x-LANTERN_POINT.x)<30+pad && Math.abs(w.z-LANTERN_POINT.z)<35+pad) return LANTERN_MAP_DESTINATION;
     const regional = hitNarromineMap(w.x, w.z, pad); if (regional) return regional;
     const road = data.roads.find((r) => { const x0 = Math.min(r.a.x, r.b.x) - r.width / 2 - pad, x1 = Math.max(r.a.x, r.b.x) + r.width / 2 + pad, z0 = Math.min(r.a.z, r.b.z) - r.width / 2 - pad, z1 = Math.max(r.a.z, r.b.z) + r.width / 2 + pad; return w.x >= x0 && w.x <= x1 && w.z >= z0 && w.z <= z1; });
     if (road) return { kind: 'road', ...road };
@@ -119,6 +141,7 @@ export function createTownMap({ getData, getPlayer, onOpen, onClose }) {
     const lines = item.kind === 'parcel'
       ? [`<b>${esc(item.address || item.id)}</b>`, `${esc(item.label)} · ${Math.round(item.w)} × ${Math.round(item.d)} m (${Math.round(item.w * item.d).toLocaleString('en-AU')} m²)`, `Parcel ${esc(item.id)} · ${esc(item.status || 'master plan D')}`]
       : item.kind === 'building' ? [`<b>${esc(item.name)}</b>`, esc(item.address || ''), esc(item.detail || '')]
+      : item.id === LANTERN_POINT.id ? [`<b>${esc(item.name)}</b>`, esc(item.address), esc(item.fact)]
       : item.kind === 'narromine-place' || item.kind === 'narromine-building' || item.kind === 'region' ? [`<b>${esc(item.name)}</b>`, esc(item.address || 'Narromine, NSW'), esc(item.fact || 'Real mapped Narromine landmark')]
       : item.kind === 'road' ? [`<b>${esc(item.name || item.id)}</b>`, item.plan ? 'New master-plan road · driveable' : 'Existing town road']
       : [`<b>${esc(item.name)}</b>`, `Future land-use reserve (${esc(item.zone)}) · concept only, no road access yet`];
@@ -156,12 +179,13 @@ export function createTownMap({ getData, getPlayer, onOpen, onClose }) {
   el.querySelector('#town-map-me').onclick = () => { const me = getPlayer(); if (me) centreOn(me.x, me.z, Math.max(view.scale, 2)); };
   el.querySelector('#town-map-repo').onclick = () => { show(null); centreOn(0, 0, 1.4); };
   el.querySelector('#town-map-narromine').onclick = () => { centreOn(NARROMINE_MAP_DESTINATION.x, NARROMINE_MAP_DESTINATION.z, 1.8); show(NARROMINE_MAP_DESTINATION); };
+  el.querySelector('#town-map-lantern').onclick = () => { centreOn(LANTERN_POINT.x,LANTERN_POINT.z,1.8); show(LANTERN_MAP_DESTINATION); };
   el.querySelector('#town-map-close').onclick = () => close();
   const search = el.querySelector('#town-map-search');
   search.addEventListener('keydown', (e) => {
     if (e.key !== 'Enter') return;
     const q = search.value.trim().toLowerCase(); if (!q) return;
-    const all = [...data.buildings.map((b) => ({ kind: 'building', ...b })), ...data.parcels.map((p) => ({ kind: 'parcel', ...p })), ...data.roads.filter((r) => r.name).map((r) => ({ kind: 'road', ...r, x: (r.a.x + r.b.x) / 2, z: (r.a.z + r.b.z) / 2 })), ...NARROMINE_MAP_SEARCH];
+    const all = [...data.buildings.map((b) => ({ kind: 'building', ...b })), ...data.parcels.map((p) => ({ kind: 'parcel', ...p })), ...data.roads.filter((r) => r.name).map((r) => ({ kind: 'road', ...r, x: (r.a.x + r.b.x) / 2, z: (r.a.z + r.b.z) / 2 })), ...NARROMINE_MAP_SEARCH, LANTERN_MAP_DESTINATION];
     const found = all.find((o) => [o.name, o.address, o.id].some((v) => String(v || '').toLowerCase() === q))
       || all.find((o) => [o.name, o.address, o.id].some((v) => String(v || '').toLowerCase().includes(q)));
     if (found) { centreOn(found.x, found.z, Math.max(view.scale, 3)); show(found); } else { info.innerHTML = `<div>No place matches “${esc(search.value)}”.</div>`; info.hidden = false; }

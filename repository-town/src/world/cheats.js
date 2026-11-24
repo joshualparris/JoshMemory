@@ -2,12 +2,13 @@
 // game state directly and say so in the town log; nothing here touches real money or accounts.
 import { DRIVEABLE_RECTS, PLAN_PARCELS, PLAN_HOMES } from './masterplan-built.js';
 import { registry } from './property.js';
+import { LANTERN_ROAD_CENTRELINE, onLanternRoad } from './lantern-point-layout.js';
 import {vehicleSpec,VEHICLE_DYNAMICS} from './vehicle-dynamics.js';
 
 const r2 = (n) => Math.round(n * 100) / 100;
 
 // The nearest point that is genuinely on a road (inset from the edges so the whole car fits).
-export function nearestRoadPoint(x, z, clear = () => true) {
+export function nearestRoadPoint(x, z, clear = () => true, heading = null) {
   let best = null, dist = Infinity;
   for (const b of DRIVEABLE_RECTS) {
     const inset = 2.2, x0 = b.x0 + inset, x1 = b.x1 - inset, z0 = b.z0 + inset, z1 = b.z1 - inset;
@@ -20,23 +21,37 @@ export function nearestRoadPoint(x, z, clear = () => true) {
       if (d < dist && clear(p.x, p.z)) { dist = d; best = { ...p, horizontal }; }
     }
   }
+  // The curved southern road is not an axis-aligned master-plan rectangle.
+  // Project onto its actual shared geometry, preserving the existing road choice on ties.
+  for (let i = 1; i < LANTERN_ROAD_CENTRELINE.length; i++) {
+    const a = LANTERN_ROAD_CENTRELINE[i-1], b = LANTERN_ROAD_CENTRELINE[i];
+    const dx = b.x-a.x, dz = b.z-a.z, len2 = dx*dx+dz*dz;
+    if (!len2) continue;
+    const t = Math.max(0, Math.min(1, ((x-a.x)*dx+(z-a.z)*dz)/len2));
+    const px=a.x+t*dx, pz=a.z+t*dz, d=Math.hypot(px-x,pz-z);
+    if (d >= dist || !onLanternRoad(px,pz) || !clear(px,pz)) continue;
+    let yaw=Math.atan2(-dx,-dz);
+    if (Number.isFinite(heading) && Math.cos(yaw-heading)<0) yaw+=Math.PI;
+    yaw=Math.atan2(Math.sin(yaw),Math.cos(yaw));
+    dist=d; best={x:px,z:pz,horizontal:Math.abs(dx)>Math.abs(dz),yaw};
+  }
   return best;
 }
 
 // A registered, fuelled car parked on the road nearest (x, z).
-export function summonCar(life, x, z, { model = 'sedan', clear } = {}) {
+export function summonCar(life, x, z, { model = 'sedan', clear, heading = null } = {}) {
   const motor = life.civic.motor; if (!motor) return { ok: false, message: 'Vehicles are not available in this save.' };
   if(!Object.hasOwn(VEHICLE_DYNAMICS,model))return {ok:false,message:'Unknown vehicle model.'};
   // Never park on top of another vehicle (that used to leave the new car unable to move).
   const free = (px, pz) => (!clear || clear(px, pz)) && !(motor.owned || []).some((o) => Number.isFinite(o.x) && Math.hypot(o.x - px, o.z - pz) < 6);
-  const spot = nearestRoadPoint(x, z, free);
+  const spot = nearestRoadPoint(x, z, free, heading);
   if (!spot) return { ok: false, message: 'No clear road nearby to park a car.' };
   const spec=vehicleSpec(model);
   const vehicle = {
     stockId: 'cheat-' + motor.next, model, condition: 100, odometer: 0, price: 0,
     registration: 'CHEAT-' + String(motor.next++).padStart(3, '0'), owner: 'visitor',
     regoUntil: life.day + 365, lastService: life.day, serviceDue: life.day + 365, roadworthy: true,
-    x: spot.x, z: spot.z, yaw: spot.horizontal ? Math.PI / 2 : 0, speed: 0, fuel: spec.maxFuel, parkingPending: false, cheat: true, cheatUnrestricted:false,
+    x: spot.x, z: spot.z, yaw: spot.yaw ?? (spot.horizontal ? Math.PI / 2 : 0), speed: 0, fuel: spec.maxFuel, parkingPending: false, cheat: true, cheatUnrestricted:false,
   };
   motor.owned.push(vehicle);
   life.log(`Cheat: ${vehicle.registration} summoned.`);

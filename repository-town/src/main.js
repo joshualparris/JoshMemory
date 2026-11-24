@@ -28,6 +28,8 @@ import { buildYeovalInterior } from './world/yeoval-interior.js';
 import { buildMasterplan, PLAN_HOMES } from './world/masterplan-built.js';
 import { RESIDENT_STYLES } from './world/resident-models.js';
 import { buildNarromine } from './world/narromine.js';
+import { buildLanternPoint } from './world/lantern-point.js';
+import { LANTERN_POINT } from './world/lantern-point-layout.js';
 import { addNarromineResidentialFacades } from './world/narromine-residential-facades.js';
 import { createPlayerFlight } from './world/player-flight.js';
 import { AERODROME } from './world/narromine-airfield-data.js';
@@ -278,6 +280,8 @@ async function start() {
   // Narromine, 40 km west in reality, ~90 s along the Mitchell Highway here (world/narromine.js).
   await loading?.stage('narromine');
   const narromine = buildNarromine(town.group, makeLabel);
+  // Fictional Parristan settlement, south along an independently drivable rural road.
+  const lantern = buildLanternPoint(town.group);
   // Narromine railway: sleepers and rails on the mapped lines and a drivable grain train in the yard.
   await loading?.stage('travel');
   const trains = createNarromineTrains(narromine.group);
@@ -398,12 +402,18 @@ async function start() {
   const edges = [
     // Include all 195 homes west to x -1330, and Grevillea Street at z 457.
     // Boundaries lie beyond the drawn footpaths and extended terrain.
-    { x0: -1495, x1: 595, z0: -395, z1: -390 }, { x0: -1495, x1: 595, z0: 555, z1: 560 },
+    { x0: -1495, x1: 595, z0: -395, z1: -390 }, { x0: -1495, x1: 326, z0: 555, z1: 560 }, { x0: 350, x1: 595, z0: 555, z1: 560 },
+    // The south exit follows the existing built avenue x=338, NOT existing houses.
+    // Turn west at z=650 then follow the long road to Lantern Point.
+    { x0:287,x1:288,z0:560,z1:613 }, { x0:388,x1:389,z0:560,z1:700 },
+    { x0:-49,x1:-48,z0:700,z1:2650 }, { x0:48,x1:49,z0:700,z1:2650 },
+    { x0:-199,x1:-198,z0:2650,z1:3140 },{ x0:198,x1:199,z0:2650,z1:3140 },
+    { x0:-199,x1:199,z0:3139,z1:3140 },
     // The west wall opens where the Mitchell Highway leaves for Narromine (z -52..38, fenced beyond).
     { x0: -1495, x1: -1490, z0: -395, z1: -52 }, { x0: -1495, x1: -1490, z0: 38, z1: 560 }, { x0: 590, x1: 595, z0: -395, z1: 560 },
   ];
   await loading?.stage('doors');
-  const townWorld = new CollisionWorld([...town.colliders, ...townLife.colliders, ...masterplan.colliders, ...civilWorks.colliders, ...woodlot.colliders, ...market.colliders, ...narromine.colliders, ...edges]);
+  const townWorld = new CollisionWorld([...town.colliders, ...townLife.colliders, ...masterplan.colliders, ...civilWorks.colliders, ...woodlot.colliders, ...market.colliders, ...narromine.colliders, ...lantern.colliders, ...edges]);
   // Doors must be reachable: test each against the town's solid geometry once, at load.
   const narromineDoorProbe=(x,z,r)=>!!townWorld.hits(x,z,r);
   const narromineDoorCheck={homes:narromineHomes.resolve(narromineDoorProbe),workplaces:narromineWorkplaces.resolve(narromineDoorProbe)};
@@ -1174,6 +1184,15 @@ async function start() {
       status("Outside the porch doors of St Mary's Anglican Church, 148 Dandaloo Street. Walk to the doors to go in.");
       $('search').blur();return;
     }
+    if (/^(?:lantern(?: point| road)?|parristan)$/.test(q)) {
+      if (driving.driving || yard.driving || trains.driving) { status('Stop and exit your vehicle before fast travel.'); return; }
+      if (mode === 'house') leave(false);
+      closePanel(); npcChat.close(); setOverview(false);
+      player.place(LANTERN_POINT.approach.x, LANTERN_POINT.approach.z, LANTERN_POINT.approach.yaw);
+      lantern.update(player.pos);
+      status('Welcome to Lantern Point · fictional Parristan. Walk around the village, or drive north along Lantern Road to Repository Town.');
+      $('search').blur(); return;
+    }
     if (/^narromine\b|dandaloo/.test(q)) { if(driving.driving){status('Park and get out before fast travel.');return;} closePanel(); setOverview(false); player.place(NARROMINE_ARRIVAL.x, NARROMINE_ARRIVAL.z, NARROMINE_ARRIVAL.yaw); status('Dandaloo Street, Narromine — 40 km west of Dubbo along the Mitchell Highway (about 90 seconds by car here).'); $('search').blur(); return; }
     const homeQ = q.split(' · ')[0];
     const home = !p && !h && (PLAN_HOMES.find((x) => lower(homeLabel(x)) === q || lower(x.country) === homeQ || lower(x.address) === q) || (!near && !named && homeQ.length >= 3 && PLAN_HOMES.find((x) => lower(x.country).startsWith(homeQ))));
@@ -1355,10 +1374,10 @@ async function start() {
   const cheats = createCheatMenu({
     trigger: document.querySelector('#hud h1') || document.querySelector('h1'),
     actions: {
-      car: (model='sedan') => { const busy = toTown(); if (busy) return { message: busy }; return summonCar(life, player.pos.x, player.pos.z, { model, clear: (x, z) => !townWorld.hits(x, z, 1.3) }); },
+      car: (model='sedan') => { const busy = toTown(); if (busy) return { message: busy }; return summonCar(life, player.pos.x, player.pos.z, { model, heading: player.yaw, clear: (x, z) => !townWorld.hits(x, z, 1.3) }); },
       carHere: (model='sedan') => {
         const busy = toTown(); if (busy) return { message: busy };
-        const r = summonCar(life, player.pos.x, player.pos.z, { model, clear: (x, z) => !townWorld.hits(x, z, 1.3) });
+        const r = summonCar(life, player.pos.x, player.pos.z, { model, heading: player.yaw, clear: (x, z) => !townWorld.hits(x, z, 1.3) });
         if (!r.ok) return r;
         // Stand at the driver's door (driving.enter needs the player within 3.1 m), then get in.
         const v = r.vehicle, side = [[0, 1.8], [0, -1.8], [1.8, 0], [-1.8, 0]].map(([dx, dz]) => ({ x: v.x + dx, z: v.z + dz })).find((p) => !townWorld.hits(p.x, p.z, player.radius)) || { x: v.x, z: v.z };
@@ -1676,6 +1695,11 @@ async function start() {
       if (nearPerson?.spot?.itemId) { takeGroundItem(nearPerson.spot); return; }
       if (nearPerson?.spot?.narromineEnter || nearPerson?.spot?.narromine?.narromineEnter) { enterNarrominePostOffice(); return; }
       if (nearPerson?.spot?.narromine?.colesEnter) { enterNarromineColes(); return; }
+      if (nearPerson?.spot?.lantern) {
+        const p=nearPerson.spot.lantern;
+        openPanel({ title:p.label, body:'<p>'+esc(p.text||'Fictional Lantern Point.')+'</p><p class="dim">Parristan Living Nation · independently evolving fictional citizens</p>' }, guideSpot);
+        return;
+      }
       if (nearPerson?.spot?.narromine) { const n = nearPerson.spot.narromine; openPanel({ title: n.label, body: `<p>${esc(n.text)}</p><p class="dim">Narromine, NSW · Wiradjuri Country. Sources: docs/NARROMINE_RESEARCH_AND_PLAN_2026-11-03.md</p>` }, guideSpot); return; }
       if (nearPerson?.spot?.market) { openPanel(stallPanel(life, nearPerson.spot.market, (id, i) => buyAtStall(life, id, i)), guideSpot); return; }
       if (nearPerson?.spot?.id === 'square') {   // an open square, not a building: the market notice and the latest town news
@@ -2168,11 +2192,13 @@ async function start() {
       // Villagers, the guide kiosk and the shop counters: pick the one the player is facing.
       // Keep the distant airfield and Narromine skyline visible in the flight scene.
       narromine.update(player.pos,flight.flying);
+      lantern.update(player.pos,flight.flying,dt,t);
       // Narromine sits on open inland plains with clear air: see much further there than in the town.
       { const inNarromine = player.pos.x < -2640;
-        fog.near = flight.flying ? 400 : inNarromine ? 220 : 60;
-        fog.far = flight.flying ? 8500 : inNarromine ? 650 : 170;
-        const far = flight.flying ? 9500 : 185;
+        const inLantern = player.pos.z > 2600 && Math.abs(player.pos.x) < 300;
+        fog.near = flight.flying ? 400 : inNarromine ? 220 : inLantern ? 100 : 60;
+        fog.far = flight.flying ? 8500 : inNarromine ? 650 : inLantern ? 650 : 170;
+        const far = flight.flying ? 9500 : inLantern ? 720 : 185;
         if (camera.far !== far) { camera.far=far; camera.updateProjectionMatrix(); }
       }
       nearPerson = null; let bestP = Infinity;
@@ -2193,6 +2219,7 @@ async function start() {
       for (const sp of townLife.spots) consider({ ...sp, spot: sp }, 3.2, 1.5);
       if (market.root.visible) for (const sp of market.spots) consider({ ...sp, spot: sp }, 3.6, 2.0);
       if (narromine.group.visible) for (const sp of narromine.spots) consider({ ...sp, spot: { narromine: sp } }, 3.2, 1.5);
+      if (lantern.village.visible) for (const sp of lantern.spots) consider({ ...sp, spot: { lantern: sp } }, 3.3, 1.5);
       for (const sp of itemSpots) if(clearItemPath({...sp.pos,location:'town'}))consider({ ...sp, spot: sp }, ITEM_REACH, 0);
       if (Math.abs(atmSpot.pos.x - player.pos.x) < 4 && Math.abs(atmSpot.pos.z - player.pos.z) < 4) consider({ ...atmSpot, spot: { atm: true } }, 2.4, 1.5);
       if (Math.abs(woodlot.rack.pos.x - player.pos.x) < 4 && Math.abs(woodlot.rack.pos.z - player.pos.z) < 4) consider({ ...woodlot.rack, spot: { rack: true } }, 2.6, 1.5);
@@ -2571,6 +2598,7 @@ async function start() {
     leaveVehicle:()=>driving.exit(),
     // A fixed step behaves like a real frame, including showing the driving message (off-road, braking).
     narromineVisible:()=>narromine.group.visible,
+    lantern:()=>lantern.status(),
     airport:()=>({icao:AERODROME.icao,runways:narromine.airfield.runways.map(r=>({id:r.id,length:r.length,width:r.width,headingDeg:r.headingDeg})),parking:flight.state().parking,
       flightLandscape:{patches:narromine.flightLandscape.patches,evidence:narromine.flightLandscape.evidence}}),
     flight:()=>flight.state(), boardFlight:(id)=>flight.board(id),

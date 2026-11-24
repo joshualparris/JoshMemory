@@ -56,7 +56,8 @@ const samples = [];
 for (let i = 0; i < 12; i++) {
   await page.waitForTimeout(1000);
   const p = (await st()).people;
-  for (const v of p) if (!v.inside) { looks++; if (await page.evaluate(([x, z]) => window.__town.probe(x, z), [v.x, v.z])) inside++; }
+  // Walls and houses only (probeStatic): a cyclist passing a moving truck on the road is traffic, not a wall overlap.
+  for (const v of p) if (!v.inside) { looks++; if (await page.evaluate(([x, z]) => window.__town.probeStatic(x, z), [v.x, v.z])) inside++; }
   samples.push(p);
 }
 const after = samples.at(-1);
@@ -77,7 +78,7 @@ await page.waitForTimeout(400);
 let key=null;
 for(let attempt=0;attempt<5;attempt++){
   key=await page.evaluate((i) => window.__town.meetVillager(i),attempt);
-  const found=await page.waitForFunction(() => /^villager:/.test(window.__town.state().nearPerson || ''), null, {timeout:1600,polling:50}).then(()=>true).catch(()=>false);
+  const found=await page.waitForFunction(() => /^villager:/.test(window.__town.state().nearPerson || ''), null, {timeout:4000,polling:50})  // software-rendered CI frames take 0.8-1.9 s to register a nearby villager.then(()=>true).catch(()=>false);
   if(found)break;
 }
 console.log(`  meeting ${key}`);
