@@ -44,7 +44,7 @@ This document records the QA audit findings for Sleepy and the recommended chang
 
 ## Status
 - [ ] Replace external video embeds with local audio content
-- [ ] Add lights-out fade and audio-only mode
+- [x] Add lights-out fade and audio-only mode
 - [ ] Add session timer and offline bedtime transition
 - [ ] Add parent gate and bedtime warning
 - [ ] Improve mobile tap targets and offline fallback

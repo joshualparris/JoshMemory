@@ -48,11 +48,11 @@ This document records the QA audit findings for SylviePhonetics and the recommen
 - `P3`: sound-only phonological sequence, accessibility mode
 
 ## Status
-- [ ] Add scaffolded hints and error coaching
+- [x] Add scaffolded hints and error coaching
 - [ ] Add session timer and closing ritual
-- [ ] Add movement/breathing breaks
+- [x] Add movement/breathing breaks
 - [ ] Separate sound tasks from letter tasks
-- [ ] Add visible parent prompts
+- [x] Add visible parent prompts
 
 ## Appendix: Audit & Research Excerpts
 ### QA Audit for Child Apps (relevant SylviePhonetics findings)
