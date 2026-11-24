@@ -69,7 +69,7 @@ jobs:
           node tests/resident-game-browser.mjs --mobile
       - name: Preserve studio and game scene screenshots for independent visual review
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: resident-visual-webgl-${{ github.run_id }}
           path: |

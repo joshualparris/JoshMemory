@@ -46,7 +46,7 @@ jobs:
         run: node tests/narromine-1-2-car-passage-browser.mjs
       - name: Preserve full trajectory JSON and 12 real gameplay screenshots
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: narromine-road-1-2-physical-driving
           path: repository-town/test-results/narromine-1-2-passage/

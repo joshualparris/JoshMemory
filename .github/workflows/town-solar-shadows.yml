@@ -54,7 +54,7 @@ jobs:
           echo $! > /tmp/town-solar-server.pid
           trap 'kill "$(cat /tmp/town-solar-server.pid)" 2>/dev/null || true' EXIT
           node tests/solar-shadows-browser.mjs --url http://127.0.0.1:8091/
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: narromine-solar-screenshots

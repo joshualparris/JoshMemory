@@ -52,7 +52,7 @@ jobs:
             --out test-results/narromine-layer-qa
       - name: Preserve browser screenshot artifacts and source fingerprints
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: narromine-layer-isolation-evidence
           path: repository-town/test-results/narromine-layer-qa/

@@ -40,7 +40,7 @@ jobs:
           done
           node tests/narromine-resident-styles-browser.mjs
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: narromine-indoor-resident-style-visual-proof
           path: repository-town/test-results/narromine-resident-styles/

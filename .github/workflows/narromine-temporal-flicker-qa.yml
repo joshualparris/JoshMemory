@@ -68,7 +68,7 @@ jobs:
             --dir test-results/narromine-temporal-qa
       - name: Preserve actual source-matched WebGL videos and measured frames
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: narromine-temporal-shader-ab
           path: repository-town/test-results/narromine-temporal-qa/

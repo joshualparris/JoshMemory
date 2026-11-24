@@ -55,7 +55,7 @@ jobs:
           TOWN_URL=http://127.0.0.1:8080/ TOWN_SHOTS=audit/electricity/compact-menu node tests/electrical-pilot-browser.mjs
       - name: Screenshots to inspect on real devices
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: compact-town-menu-desktop-android
           path: repository-town/audit/electricity/compact-menu/*.png

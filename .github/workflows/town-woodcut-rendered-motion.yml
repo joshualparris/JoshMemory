@@ -62,7 +62,7 @@ jobs:
           node tests/woodcutting-browser.mjs --mobile
       - name: Preserve screenshots on both success and failure
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: town-woodcut-rendered-motion
           path: |

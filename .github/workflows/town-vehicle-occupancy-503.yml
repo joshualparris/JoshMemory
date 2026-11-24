@@ -52,7 +52,7 @@ jobs:
           node tests/vehicle-occupancy-browser.mjs
       - name: Preserve actual WebGL car/parking screenshots and overlap telemetry
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: town-traffic-503-desktop-android
           path: repository-town/test-results/vehicle-occupancy-webgl/
