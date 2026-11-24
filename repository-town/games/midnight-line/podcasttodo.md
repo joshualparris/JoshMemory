@@ -7,7 +7,7 @@
 - [ ] Curate about 25 Spotify episodes relevant to the game's design/genre.
 - [ ] Add a collapsed bottom dock: **🎧 Listen to a different narrative-game podcast**.
 - [ ] One tap selects/loads another episode; persist recent choices and avoid immediate repeats.
-- [ ] Use Spotify embed/deep links without assuming autoplay.
+- [x] Use Spotify embed/deep links without assuming autoplay.
 - [ ] Hide/pause whenever game music, narration, TTS or important sound cues are active.
 - [ ] Tag episodes by narrative design, interactive fiction, story craft and indie development.
 - [ ] Keep gameplay primary.
