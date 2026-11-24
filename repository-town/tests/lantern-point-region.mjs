@@ -72,3 +72,19 @@ test('civic green does not conceal the sealed main road',()=>{
     'the plaza must remain west of the carriageway and gravel shoulder');
   assert.ok(LANTERN_CIVIC_GREEN.z>2600&&LANTERN_CIVIC_GREEN.z<3100);
 });
+
+
+test('summoned cars stay near Lantern Road and face the requested direction',async()=>{
+  const {nearestRoadPoint,summonCar}=await import('../src/world/cheats.js');
+  const south=nearestRoadPoint(0,1300,()=>true,Math.PI);
+  assert.ok(Math.hypot(south.x,south.z-1300)<0.01);
+  assert.ok(-Math.cos(south.yaw)>0.99,'south-facing road tangent');
+  const north=nearestRoadPoint(0,1300,()=>true,0);
+  assert.ok(-Math.cos(north.yaw)<-0.99,'north-facing road tangent');
+  const life={day:1,civic:{motor:{next:1,owned:[]}},log(){}};
+  const first=summonCar(life,0,1300,{heading:Math.PI});
+  assert.ok(first.ok && Math.hypot(first.vehicle.x,first.vehicle.z-1300)<0.01);
+  const second=summonCar(life,0,1300,{heading:Math.PI});
+  assert.ok(second.ok && Math.hypot(second.vehicle.x-first.vehicle.x,second.vehicle.z-first.vehicle.z)>=6);
+  assert.ok(onLanternRoad(second.vehicle.x,second.vehicle.z));
+});

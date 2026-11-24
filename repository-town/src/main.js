@@ -1374,10 +1374,10 @@ async function start() {
   const cheats = createCheatMenu({
     trigger: document.querySelector('#hud h1') || document.querySelector('h1'),
     actions: {
-      car: (model='sedan') => { const busy = toTown(); if (busy) return { message: busy }; return summonCar(life, player.pos.x, player.pos.z, { model, clear: (x, z) => !townWorld.hits(x, z, 1.3) }); },
+      car: (model='sedan') => { const busy = toTown(); if (busy) return { message: busy }; return summonCar(life, player.pos.x, player.pos.z, { model, heading: player.yaw, clear: (x, z) => !townWorld.hits(x, z, 1.3) }); },
       carHere: (model='sedan') => {
         const busy = toTown(); if (busy) return { message: busy };
-        const r = summonCar(life, player.pos.x, player.pos.z, { model, clear: (x, z) => !townWorld.hits(x, z, 1.3) });
+        const r = summonCar(life, player.pos.x, player.pos.z, { model, heading: player.yaw, clear: (x, z) => !townWorld.hits(x, z, 1.3) });
         if (!r.ok) return r;
         // Stand at the driver's door (driving.enter needs the player within 3.1 m), then get in.
         const v = r.vehicle, side = [[0, 1.8], [0, -1.8], [1.8, 0], [-1.8, 0]].map(([dx, dz]) => ({ x: v.x + dx, z: v.z + dz })).find((p) => !townWorld.hits(p.x, p.z, player.radius)) || { x: v.x, z: v.z };

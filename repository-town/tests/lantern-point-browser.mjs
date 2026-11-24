@@ -93,6 +93,7 @@ try{
         return window.__town.state();
       });
       assert(setup.driving,tag+': no sedan was entered for driving test');
+      assert(Math.hypot(setup.pos.x,setup.pos.z-1300)<10,tag+': summoned sedan was not parked on Lantern Road '+JSON.stringify(setup.pos));
       const z0=setup.pos.z;
       await page.evaluate(()=>document.activeElement?.blur?.());
       await page.mouse.click(600,300);
