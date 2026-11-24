@@ -65,7 +65,9 @@ try{
     await page.evaluate(()=>{document.activeElement?.blur?.();window.__town.place(0,800,Math.PI);});
     if(!mobile){
       await page.mouse.click(600,300);
-      await page.keyboard.down('w');await page.waitForTimeout(1100);await page.keyboard.up('w');
+      await page.keyboard.down('w');
+      try { await page.waitForFunction(()=>window.__town.state().pos.z>801,null,{timeout:10000}); }
+      finally { await page.keyboard.up('w'); }
       const pos=await page.evaluate(()=>window.__town.state().pos);
       assert(pos.z>801,tag+': pressing W failed to walk along south road '+JSON.stringify(pos));
     }else{
